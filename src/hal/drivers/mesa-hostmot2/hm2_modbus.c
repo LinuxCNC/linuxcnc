@@ -2713,18 +2713,18 @@ int rtapi_app_main(void)
 
 	// Only touch the message level if requested
 	if(!debug)
-		MSG_PRINT(COMP_NAME": warning: Setting debug to 0 (zero) prevents error messages from being printed\n");
+		MSG_ERR(COMP_NAME": warning: Setting debug to 0 (zero) prevents error messages from being printed\n");
 	if(debug >= 0)
 		rtapi_set_msg_level(debug);
 
 	if(!ports[0]) {
-		MSG_PRINT(COMP_NAME": error: The component requires at least one valid pktuart port, eg ports=\"hm2_5i25.0.pktuart.7\"\n");
+		MSG_ERR(COMP_NAME": error: The component requires at least one valid pktuart port, eg ports=\"hm2_5i25.0.pktuart.7\"\n");
 		return -EINVAL;
 	}
 
 	comp_id = hal_init(COMP_NAME);
 	if(comp_id < 0) {
-		MSG_PRINT(COMP_NAME": error: hal_init() failed\n");
+		MSG_ERR(COMP_NAME": error: hal_init() failed\n");
 		return comp_id;
 	}
 
@@ -2732,7 +2732,7 @@ int rtapi_app_main(void)
 	for(mb.ninsts = 0; mb.ninsts < MAX_PORTS && ports[mb.ninsts]; mb.ninsts++) {}
 	// Allocate memory for the instances
 	if(!(mb.insts = (hm2_modbus_inst_t *)rtapi_kzalloc(mb.ninsts * sizeof(*mb.insts), RTAPI_GFP_KERNEL))) {
-		MSG_PRINT(COMP_NAME": error: Allocate instance memory failed\n");
+		MSG_ERR(COMP_NAME": error: Allocate instance memory failed\n");
 		hal_exit(comp_id);
 		return -ENOMEM;
 	}
@@ -2745,15 +2745,13 @@ int rtapi_app_main(void)
 		rtapi_strlcpy(inst->uart, ports[i], sizeof(inst->uart)-1);
 
 		if(!mbccbs[i]) {
-			MSG_PRINT("%s: error: Missing mbccb file path for instance %d in 'mbccbs' argument\n", inst->name, i);
+			MSG_ERR("%s: error: Missing mbccb file path for instance %d in 'mbccbs' argument\n", inst->name, i);
 			retval = -EINVAL;
 			goto errout;
 		}
-/*
 		if('/' != mbccbs[i][0]) {
-			MSG_PRINT("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mbccbs[i], i);
+			MSG_ERR("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mbccbs[i], i);
 		}
-*/
 
 		if((retval = load_mbccb(inst, mbccbs[i])) < 0) {
 			// Messages printed in load function
@@ -2764,17 +2762,17 @@ int rtapi_app_main(void)
 
 		// Allocate HAL memory
 		if(!(inst->hal =  (hm2_modbus_hal_t *)hal_malloc(sizeof(*inst->hal)))) {
-			MSG_PRINT("%s: error: Failed to allocate HAL memory\n", inst->name);
+			MSG_ERR("%s: error: Failed to allocate HAL memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
 		if(!(inst->hal->pins = (mbt_pin_hal_t *)hal_malloc(inst->npins * sizeof(*inst->hal->pins)))) {
-			MSG_PRINT("%s: error: Failed to allocate HAL pins memory\n", inst->name);
+			MSG_ERR("%s: error: Failed to allocate HAL pins memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
 		if(!(inst->hal->cmds = (mbt_cmd_hal_t *)hal_malloc(inst->ncmds * sizeof(*inst->hal->cmds)))) {
-			MSG_PRINT("%s: error: Failed to allocate HAL cmds memory\n", inst->name);
+			MSG_ERR("%s: error: Failed to allocate HAL cmds memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
@@ -2782,7 +2780,7 @@ int rtapi_app_main(void)
 		if(inst->ninit > 0) {
 			// Allocate inits memory
 			if(!(inst->_init = rtapi_kzalloc(inst->ninit * sizeof(*inst->_init), RTAPI_GFP_KERNEL))) {
-				MSG_PRINT("%s: error: Failed to allocate init commands memory\n", inst->name);
+				MSG_ERR("%s: error: Failed to allocate init commands memory\n", inst->name);
 				retval = -ENOMEM;
 				goto errout;
 			}
@@ -2790,7 +2788,7 @@ int rtapi_app_main(void)
 
 		// Allocate commands memory
 		if(!(inst->_cmds = rtapi_kzalloc(inst->ncmds * sizeof(*inst->_cmds), RTAPI_GFP_KERNEL))) {
-			MSG_PRINT("%s: error: Failed to allocate commands memory\n", inst->name);
+			MSG_ERR("%s: error: Failed to allocate commands memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
@@ -2811,14 +2809,14 @@ int rtapi_app_main(void)
 
 		// Export the HAL process function
 		if((retval = hal_export_functf(process, inst, 1, 0, comp_id, COMP_NAME".%d.process", i)) < 0) {
-			MSG_PRINT("%s: error: Function export failed\n", inst->name);
+			MSG_ERR("%s: error: Function export failed\n", inst->name);
 			goto errout;
 		}
 
 #define CHECK(x) do { \
 					retval = (x); \
 					if(retval < 0) { \
-						MSG_PRINT("%s: error: Failed to create pin or parameter\n", inst->name); \
+						MSG_ERR("%s: error: Failed to create pin or parameter\n", inst->name); \
 						goto errout; \
 					} \
 				} while(0)
@@ -2880,8 +2878,8 @@ int rtapi_app_main(void)
 		inst->cfg_tx.flags |= HM2_PKTUART_CONFIG_DRIVEEN | HM2_PKTUART_CONFIG_DRIVEAUTO;
 
 		if((retval = hm2_pktuart_get_version(inst->uart)) < 0) {
-			MSG_PRINT("%s: error: Cannot get PktUART version (error=%d)\n", inst->name, retval);
-			MSG_PRINT("%s: error: probable cause: port '%s' does not exist (typo?)\n", inst->name, inst->uart);
+			MSG_ERR("%s: error: Cannot get PktUART version (error=%d)\n", inst->name, retval);
+			MSG_ERR("%s: error: probable cause: port '%s' does not exist (typo?)\n", inst->name, inst->uart);
 			goto errout;
 		}
 		inst->rxversion = (retval >> 4) & 0x0f;
@@ -2892,28 +2890,28 @@ int rtapi_app_main(void)
 		// timing measurement.
 		if(inst->rxversion < 3 || inst->txversion < 3) {
 			if(inst->rxversion < 2 || inst->txversion < 2) {
-				MSG_PRINT("%s: error: The driver does not support PktUART versions before 2 (Rx=%u Tx=%u), aborting.\n",
+				MSG_ERR("%s: error: The driver does not support PktUART versions before 2 (Rx=%u Tx=%u), aborting.\n",
 						inst->name, inst->rxversion, inst->txversion);
 				goto errout;
 			}
-			MSG_PRINT("%s: warning: PktUART version is less than 3 (Rx=%u Tx=%u). Please consider upgrading.\n",
+			MSG_ERR("%s: warning: PktUART version is less than 3 (Rx=%u Tx=%u). Please consider upgrading.\n",
 					inst->name, inst->rxversion, inst->txversion);
 			if(stopbits > 1) {
-				MSG_PRINT("%s: warning: Old PktUART cannot set two stop-bits. Setting to one.\n", inst->name);
+				MSG_ERR("%s: warning: Old PktUART cannot set two stop-bits. Setting to one.\n", inst->name);
 				stopbits = 1;
 			}
 			if(inst->txversion < 3 && inst->cfg_tx.ifdelay > 0xff) {
-				MSG_PRINT("%s: warning: Old PktUART cannot set txdelay to 0x%04x. Clamping to 0xff.\n",
+				MSG_ERR("%s: warning: Old PktUART cannot set txdelay to 0x%04x. Clamping to 0xff.\n",
 						inst->name, inst->cfg_tx.ifdelay);
 				inst->cfg_tx.ifdelay = 0xff;
 			}
 			if(inst->rxversion < 3 && inst->cfg_rx.ifdelay > 0xff) {
-				MSG_PRINT("%s: warning: Old PktUART cannot set rxdelay to 0x%04x. Clamping to 0xff.\n",
+				MSG_ERR("%s: warning: Old PktUART cannot set rxdelay to 0x%04x. Clamping to 0xff.\n",
 						inst->name, inst->cfg_rx.ifdelay);
 				inst->cfg_rx.ifdelay = 0xff;
 			}
 			if(inst->rxversion < 3 && inst->mbccb->icdelay != 0) {
-				MSG_PRINT("%s: warning: Old PktUART cannot set icdelay, disabling.\n", inst->name);
+				MSG_ERR("%s: warning: Old PktUART cannot set icdelay, disabling.\n", inst->name);
 				inst->mbccb->icdelay = 0;
 			}
 		}
@@ -3124,7 +3122,7 @@ int rtapi_app_main(void)
 		inst->cfg_rx.flags |= HM2_PKTUART_CONFIG_FLUSH;
 		inst->cfg_tx.flags |= HM2_PKTUART_CONFIG_FLUSH;
 		if((retval = hm2_pktuart_config(inst->uart, &inst->cfg_rx, &inst->cfg_tx, 0)) < 0) {
-			MSG_PRINT("%s: error: PktUART setup problem: error=%d\n", inst->name, retval);
+			MSG_ERR("%s: error: PktUART setup problem: error=%d\n", inst->name, retval);
 			goto errout;
 		}
 		inst->cfg_rx.flags &= ~HM2_PKTUART_CONFIG_FLUSH;

@@ -2072,10 +2072,16 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
     // read the emcmot error
     if (0 != usrmotReadEmcmotError(errorString)) {
-	// no error, so ignore
+        // no error, so ignore
     } else {
-	// an error to report
-	emcOperatorError("%s", errorString);
+        // an error to report
+        // Disable stdout print due to this error is from motion
+        // and already printed to stdout
+        // emcOperatorError() also forwards the error to the gui
+        RCS_PRINT_DESTINATION_TYPE prev_dest = get_rcs_print_destination();
+        set_rcs_print_destination(RCS_PRINT_TO_NULL);
+        emcOperatorError("%s", errorString);
+        set_rcs_print_destination(prev_dest);
     }
 
     // save the heartbeat and command number locally,
