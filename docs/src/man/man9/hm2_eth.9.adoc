@@ -7,23 +7,35 @@ IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ] [**no_iptables=**__0|1__]
+*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ] [**firewall=**__auto|iptables|nft|none__]
 
 *config* [default: ""]::
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *board_ip* [default: ""]::
   The IP address of the board(s), separated by commas.
   As shipped, the board address is 192.168.1.121.
-*no_iptables* [default: 0]::
-  Explicit override that disables all iptables interaction.  By default
-  hm2_eth installs *iptables* and *ip6tables* rules itself; rtapi_app
-  raises *cap_net_admin* into its ambient capability set at startup so
-  the calls succeed under both setuid-root and rootless (file-cap)
-  installs.  If the cap is not held the probe fails and rule
-  installation is skipped with a warning; in that case configure the
-  rules manually using the recipe in the NOTES section below.  Set
-  *no_iptables=1* when iptables is reachable but you prefer to manage
-  the firewall externally (nftables, firewalld, systemd units).
+*firewall* [default: auto]::
+  Selects the firewall backend used to isolate the dedicated interface.
+  By default hm2_eth installs the rules itself; rtapi_app raises
+  *cap_net_admin* into its ambient capability set at startup so the
+  calls succeed under both setuid-root and rootless (file-cap) installs.
+  If the cap is not held (or no backend binary is present) the probe
+  fails and rule installation is skipped with a warning; in that case
+  configure the rules manually using the recipe in the NOTES section
+  below.  Accepted values:
++
+--
+*auto*::: Use *iptables* when it is usable, otherwise fall back to
+  *nft*.  This preserves historical behaviour on iptables systems and
+  works out of the box on nftables-only systems that have no iptables
+  binary.
+*iptables*::: Force the legacy *iptables* / *ip6tables* backend.
+*nft*::: Force the *nftables* backend.  Rules live in a dedicated
+  *inet* table named *hm2_eth*, so flushing or removing them never
+  touches your other firewall rules.
+*none*::: Disable all firewall interaction; manage the firewall
+  externally (firewalld, systemd units, your own ruleset).
+--
 
 == DESCRIPTION
 
@@ -140,19 +152,28 @@ Setting it too high can cause realtime delay errors.
 
 == NOTES
 
-hm2_eth uses an iptables chain called "hm2-eth-rules-output".
-That technology is common to control network access to (INPUT chain),
-through (FORWARD chain) or from (OUTPUT chain) your computer.
-Someone who has configured a firewall on Linux has encountered iptables is familiar with that technology.
-This chain contains additional rules to control network interface while HAL is running.
-The chain is created if it does not exist,
-and a jump to it is inserted at the beginning of the OUTPUT chain if it is not there already.
-If you have an existing iptables setup,
-you can insert a direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate to your local network.
+hm2_eth installs firewall rules to control the network interface while
+HAL is running.  Two backends are supported and chosen with the
+*firewall* parameter (see above): legacy *iptables* and *nftables*.
+
+With the iptables backend, hm2_eth uses a chain called
+"hm2-eth-rules-output".  That technology is common to control network
+access to (INPUT chain), through (FORWARD chain) or from (OUTPUT chain)
+your computer.  The chain is created if it does not exist, and a jump to
+it is inserted at the beginning of the OUTPUT chain if it is not there
+already.  If you have an existing iptables setup, you can insert a
+direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate
+to your local network.
+
+With the nftables backend, hm2_eth uses a dedicated *inet* table named
+"hm2_eth" with an *output*-hook chain.  Because the table is private,
+flushing or deleting it never affects your other nftables rules.
 
 At (normal) exit, hm2_eth will remove the rules. After a crash, you can
-manually clear the rules with *sudo iptables -F hm2-eth-rules-output*;
-the rules are also removed by a reboot.
+manually clear the iptables rules with
+*sudo iptables -F hm2-eth-rules-output* (or, for nftables, with
+*sudo nft delete table inet hm2_eth*); the rules are also removed by a
+reboot.
 
 === Manual iptables configuration
 
@@ -199,6 +220,35 @@ iptables -X hm2-eth-rules-output
 ip6tables -F hm2-eth-rules-output
 ip6tables -D OUTPUT -j hm2-eth-rules-output
 ip6tables -X hm2-eth-rules-output
+----
+
+=== Manual nftables configuration
+
+On nftables-only systems (no iptables binary), set the rules up as root
+with *nft*.  The *inet* family covers IPv4 and IPv6 in one chain.
+Adjust the addresses, UDP destination port, and interface name:
+
+----
+HOST_IP=192.168.1.1
+BOARD_IP=192.168.1.121
+BOARD_DPORT=27181
+IFACE=eth1
+
+nft add table inet hm2_eth
+nft add chain inet hm2_eth output \
+    '{ type filter hook output priority 0; policy accept; }'
+nft add rule inet hm2_eth output \
+    ip saddr $HOST_IP ip daddr $BOARD_IP udp dport $BOARD_DPORT accept
+nft add rule inet hm2_eth output oifname $IFACE ip protocol icmp drop
+nft add rule inet hm2_eth output oifname $IFACE \
+    reject with icmp type admin-prohibited
+nft add rule inet hm2_eth output oifname $IFACE ip6 version 6 drop
+----
+
+Tear the rules down by deleting the whole private table:
+
+----
+nft delete table inet hm2_eth
 ----
 
 "hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet on most systems,
