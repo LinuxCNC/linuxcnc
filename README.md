@@ -112,7 +112,7 @@ semantics.
 - **LinuxCNC contributors** frustrated by architectural constraints that prevent
   meaningful modernization
 - **Machine builders** looking for an open, flexible alternative to proprietary
-  PLCs (Siemens TIA Portal, Beckhoff TwinCAT, 3S CODESYS) without vendor lock-in
+  PLCs without vendor lock-in
 - **Automation engineers** who need modern APIs, web interfaces, and EtherCAT
   support without the overhead of enterprise licensing
 
