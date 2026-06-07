@@ -63,6 +63,338 @@ body:is(.article,.book,.manpage) .literalblock pre.highlight {
   background: #f7f7f7;
 }
 
+/* Top bar: fixed full-width bar above the page; offsets body content
+   and asciidoctor's :toc: left sidebar so they start below it.  Padding
+   keyed off :has so it also applies to the static landing pages
+   (index.html, gcode.html) that have no asciidoctor body class. */
+body:has(.lcnc-topbar) {
+  padding-top: 3rem;
+}
+/* Static landing pages (index.html, gcode.html) have no asciidoctor
+   #header margin to space them off the topbar -- add some breathing room. */
+body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
+  padding-top: 5rem;
+}
+.lcnc-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  background: rgba(0,0,0,.8);
+  color: hsla(0,0%,100%,.8);
+  font-size: 1rem;
+  z-index: 1100; /* above asciidoctor's toc2 (auto/none) */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.lcnc-topbar-home {
+  color: hsla(0,0%,100%,.8);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+.lcnc-topbar-home img {
+  height: 2.25rem; /* fits inside the 3rem topbar with a little padding */
+  width: auto;
+  aspect-ratio: 1203.31 / 227.01; /* matches the SVG viewBox so width: auto works without intrinsic dims */
+  display: block;
+}
+
+/* Site links, centred in the topbar regardless of logo/switcher widths. */
+.lcnc-topbar-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+  font-size: 0.95rem;
+}
+/* #lcnc-topbar id outranks the index page's high-specificity a/a:visited. */
+#lcnc-topbar .lcnc-topbar-links a,
+#lcnc-topbar .lcnc-topbar-links a:link,
+#lcnc-topbar .lcnc-topbar-links a:visited {
+  color: hsla(0,0%,100%,.8);
+  text-decoration: none;
+}
+#lcnc-topbar .lcnc-topbar-links a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.lcnc-topbar-links .lcnc-sep {
+  margin: 0 0.6em;
+  color: hsla(0,0%,100%,.4);
+  user-select: none;
+}
+/* hide the links on narrow screens where they would collide */
+@media (max-width: 900px) { .lcnc-topbar-links { display: none; } }
+
+/* Language switcher: hidden checkbox + label drives the dropdown.
+   Total CSS control, no native disclosure widget to fight. */
+.lcnc-lang-switcher {
+  margin-left: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  /* Pin font: index.html and asciidoctor pages use different body fonts
+     (sans-serif vs Noto Serif), which the dropdown would otherwise inherit. */
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+}
+.lcnc-lang-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.lcnc-lang-label {
+  cursor: pointer;
+  padding: 0 0.75em;
+  color: hsla(0,0%,100%,.8);
+  font-weight: 500;
+  user-select: none;
+}
+.lcnc-lang-label::after {
+  content: " \25BE"; /* ▾ */
+  font-size: 0.8em;
+  margin-left: 0.25em;
+}
+.lcnc-lang-list {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin: 0;
+  padding: 0.25em 0;
+  list-style: none;
+  background: rgba(0,0,0,.85);
+  border-radius: 0 0 4px 4px;
+  min-width: 10em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: none;
+}
+.lcnc-lang-switcher:has(.lcnc-lang-toggle:checked) .lcnc-lang-list {
+  display: block;
+}
+.lcnc-lang-list li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The #lcnc-topbar id (1,0,0) cleanly outranks the index-page rules
+   body:not(.article):not(.book):not(.manpage) a / a:visited (0,4,2), so
+   visited and unvisited dropdown links both render in white. */
+#lcnc-topbar .lcnc-lang-list a,
+#lcnc-topbar .lcnc-lang-list a:link,
+#lcnc-topbar .lcnc-lang-list a:visited {
+  display: block;
+  padding: 0.4em 1em;
+  color: hsla(0,0%,100%,.85);
+  text-decoration: none;
+}
+#lcnc-topbar .lcnc-lang-list a:hover,
+#lcnc-topbar .lcnc-lang-list a:focus {
+  background: hsla(0,0%,100%,.12);
+  color: #fff;
+}
+/* Languages whose translated counterpart is missing or sparse for the
+   current page get .lcnc-lang-unavail on the <li> from the post-process
+   pass.  Grey the link and disable pointer events so the entry stays in
+   the DOM (idempotent reversible toggling at build time) but reads as
+   "exists but not here". */
+#lcnc-topbar .lcnc-lang-list li.lcnc-lang-unavail a,
+#lcnc-topbar .lcnc-lang-list li.lcnc-lang-unavail a:link,
+#lcnc-topbar .lcnc-lang-list li.lcnc-lang-unavail a:visited {
+  color: hsla(0,0%,100%,.35);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+/* Generic "link is in this index but the target is not built for this
+   language" marker.  Used on translated index.html pages where the
+   manpage list is reused from English; entries whose translated counterpart
+   was not emitted get this class so they read as muted, non-clickable
+   placeholders. */
+li.lcnc-link-unavail a,
+li.lcnc-link-unavail a:link,
+li.lcnc-link-unavail a:visited {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* Per-page translation-status banner injected just below the topbar by
+   lang_switcher_postprocess.py.  The page supplies only the hue via the
+   --lcnc-pct-hue custom property (red 0 .. green 120); the tint lightness
+   is chosen here so light and dark themes stay legible (no JS). */
+.lcnc-trans-banner {
+  margin: 0.75rem 1.5rem;
+  padding: 0.5em 0.9em;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+  background: hsl(var(--lcnc-pct-hue) 80% 90%);
+  border-left: 5px solid hsl(var(--lcnc-pct-hue) 65% 42%);
+  color: #333;
+}
+@media (prefers-color-scheme: dark) {
+  .lcnc-trans-banner {
+    background: hsl(var(--lcnc-pct-hue) 30% 16%);
+    border-left-color: hsl(var(--lcnc-pct-hue) 45% 42%);
+    color: #ddd;
+  }
+}
+
+/* Whole-document navigation tree at the top of the left TOC. */
+.lcnc-sitenav {
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.3334;
+  padding-bottom: 4rem;      /* lets the last entry scroll clear of the edge */
+}
+.lcnc-sitenav details { margin: 0; }
+/* one indent step per nested level */
+.lcnc-sitenav details > details,
+.lcnc-sitenav details > a,
+.lcnc-sitenav details > ul { margin-left: 0.75em; }
+.lcnc-sitenav summary {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  cursor: pointer;
+  padding: 0.18em 0 0.18em 0.5em;
+  font-size: inherit;        /* asciidoctor sizes bare <summary> at 1.0625rem */
+  font-weight: normal;
+  color: #1a1a1a;            /* heading row, not a link */
+}
+.lcnc-sitenav > details > summary { font-weight: 600; }
+.lcnc-sitenav summary:hover { text-decoration: underline; }
+/* asciidoctor absolutely-places its own summary marker at left:-1.25rem;
+   override it so ours stays in flow, and drop its spacer ::after. */
+.lcnc-sitenav summary::after { content: none; }
+.lcnc-sitenav summary::before {
+  content: "";
+  position: static;
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid #9b9b9b;   /* closed: right-pointing grey triangle */
+  transform: none;
+}
+.lcnc-sitenav details[open] > summary::before {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #9b9b9b;    /* ▾ */
+  border-bottom: 0;
+}
+.lcnc-sitenav a {
+  display: block;
+  padding: 0.12em 0;
+  color: #2156a5;
+  text-decoration: none;
+}
+.lcnc-sitenav a:hover { text-decoration: underline; }
+.lcnc-sitenav .lcnc-sn-active {
+  font-weight: normal;
+  background: hsla(212,80%,50%,0.12);
+}
+.lcnc-sitenav .lcnc-sn-active:focus { outline: none; }
+/* the active page is itself the disclosure: its name is the summary (which
+   toggles), its own section list the collapsed body */
+.lcnc-sitenav .lcnc-sn-page > ul.sectlevel1 {
+  margin: 0.15em 0 0.4em 0.9em;
+}
+.lcnc-sitenav ul { list-style: none; margin: 0; padding: 0; }
+.lcnc-sitenav ul a { padding-left: 0.5em; }
+@media (prefers-color-scheme: dark) {
+  .lcnc-sitenav summary { color: #e6e6e6; }
+  .lcnc-sitenav a { color: #7fb0ec; }
+  .lcnc-sitenav summary::before { border-left-color: #888; }
+  .lcnc-sitenav details[open] > summary::before { border-top-color: #888; }
+  .lcnc-sitenav .lcnc-sn-active {
+    color: #cfe0f8;
+    background: hsla(212,80%,55%,0.20);
+  }
+}
+body:is(.article,.book,.manpage).toc2 #toc.toc2 {
+  top: 3rem;
+}
+
+/* Narrow screens: drop the side TOC, restore full-width content. */
+@media (max-width: 800px) {
+  body:is(.article,.book,.manpage).toc2 {
+    padding-left: 0;
+  }
+  body:is(.article,.book,.manpage).toc2 #toc.toc2 {
+    display: none;
+  }
+}
+
+/* Page and sidebar scrollbars: declaring scrollbar-color opts out of the
+   fully-hidden overlay so the bar hides but returns on hover, as normal. */
+html,
+body:is(.article,.book,.manpage) #toc.toc2 {
+  scrollbar-color: #b0b0b0 transparent;
+}
+
+/* Admonition blocks: tint the whole block by type (borrowed from
+   KiCAD docs).  Asciidoctor renders these as a wrapper div with an
+   inner table whose <table> background is transparent, so the colour
+   on the wrapper shows through.  Icon cell keeps asciidoctor's text
+   label ("Note" / "Warning" / ...). */
+body:is(.article,.book,.manpage) .admonitionblock {
+  border-radius: 4px;
+  padding: 0.5em 0;
+  margin: 1.25em 0;
+}
+body:is(.article,.book,.manpage) .admonitionblock.note,
+body:is(.article,.book,.manpage) .admonitionblock.tip {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+body:is(.article,.book,.manpage) .admonitionblock.warning {
+  background-color: #ffd3d3;
+  color: #8a6d3b;
+}
+body:is(.article,.book,.manpage) .admonitionblock.caution,
+body:is(.article,.book,.manpage) .admonitionblock.important {
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+}
+/* Admonition icons: a Bootstrap Icons SVG used as a mask and painted with
+   the block's colour, so it tints per type and needs no font.  The word in
+   td.icon's .title is kept off-screen as the accessible label. */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .title {
+  display: inline-block;
+  width: 1.6em;
+  height: 1.6em;
+  overflow: hidden;
+  text-indent: -9999px;        /* hide the word, keep it for screen readers */
+  background-color: currentColor;
+  /* 85%, not contain: the overflow:hidden box would clip an edge-to-edge
+     icon (e.g. the info circle) where it touches the top. */
+  -webkit-mask: var(--admon-icon) center / 85% no-repeat;
+  mask: var(--admon-icon) center / 85% no-repeat;
+}
+/* asciidoctor's table resets the cell colour, so set the tint directly. */
+body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title,
+body:is(.article,.book,.manpage) .admonitionblock.tip   td.icon .title { color: #31708f; }
+body:is(.article,.book,.manpage) .admonitionblock.warning td.icon .title,
+body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title,
+body:is(.article,.book,.manpage) .admonitionblock.important td.icon .title { color: #8a6d3b; }
+body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title { --admon-icon: url(admon-note.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.tip   td.icon .title { --admon-icon: url(admon-tip.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.important td.icon .title { --admon-icon: url(admon-important.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.warning td.icon .title { --admon-icon: url(admon-warning.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title { --admon-icon: url(admon-caution.svg); }
+
 /* ======================================================================
  *  Asciidoctor pages (dark, opt-in via system preference)
  * ====================================================================== */
@@ -154,18 +486,51 @@ body:is(.article,.book,.manpage) .literalblock pre.highlight {
     color: #d0d0d0;
     border-left-color: #444;
   }
-  body:is(.article,.book,.manpage) .admonitionblock > table td.icon,
-  body:is(.article,.book,.manpage) .admonitionblock > table td.icon .title {
-    color: #e06464;
-    font-weight: bold;
+  /* dark per-type tint for the icon mask */
+  body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title,
+  body:is(.article,.book,.manpage) .admonitionblock.tip   td.icon .title { color: #a8d3e8; }
+  body:is(.article,.book,.manpage) .admonitionblock.warning td.icon .title { color: #f0c0c0; }
+  body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title,
+  body:is(.article,.book,.manpage) .admonitionblock.important td.icon .title { color: #f0e090; }
+  body:is(.article,.book,.manpage) .admonitionblock.note,
+  body:is(.article,.book,.manpage) .admonitionblock.tip {
+    background-color: #1a3a4d;
+    color: #a8d3e8;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock.warning {
+    background-color: #4d2828;
+    color: #f0c0c0;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock.caution,
+  body:is(.article,.book,.manpage) .admonitionblock.important {
+    background-color: #4d4419;
+    color: #f0e090;
+  }
+  body:is(.article,.book,.manpage) #toc.toc2 {
+    background: #1e1e1e;
+    border-right-color: #333;
+    color: #e0e0e0;
+  }
+  body:is(.article,.book,.manpage) #toc.toc2 a {
+    color: #7fb8e8;
   }
 
-  /* Inkscape-exported SVG figures are transparent with black strokes
-     and disappear on dark page bg.  Wrap SVGs only in a white card;
-     PNGs/JPEGs usually carry their own background so leave them be. */
+  /* dark scrollbar to match the rule above */
+  html,
+  body:is(.article,.book,.manpage) #toc.toc2 {
+    scrollbar-color: #555 transparent;
+  }
+
+  /* Figures are often black line art on a transparent background (Inkscape
+     SVGs, some PNGs) and vanish on the dark page.  Back every figure with
+     white; opaque screenshots simply cover it.  The padded white card is
+     kept for SVGs, whose strokes run to the edge. */
+  body:is(.article,.book,.manpage) .imageblock img,
+  body:is(.article,.book,.manpage) .image img {
+    background: #fff;
+  }
   body:is(.article,.book,.manpage) .imageblock img[src$=".svg"],
   body:is(.article,.book,.manpage) .image img[src$=".svg"] {
-    background: #fff;
     padding: 0.5em;
     border-radius: 4px;
   }

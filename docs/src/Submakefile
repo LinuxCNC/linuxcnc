@@ -74,6 +74,23 @@ ASCIIDOCTOR_DEFAULT_CSS := $(shell ruby -e 'require "asciidoctor"; print Asciido
 LANGUAGES := $(strip $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
 LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
+# Native switcher labels read from docs/src/lang-labels (tag<ws>name);
+# a tag with no entry falls back to its code with a warning.
+LANG_LABEL_FILE := $(DOC_SRCDIR)/lang-labels
+define LANG_LABEL_template
+LANG_LABEL_$(1) := $(or $(shell sed -ne 's/^$(1)[[:space:]][[:space:]]*//p' $(LANG_LABEL_FILE)),$(1)$(warning lang-labels: no entry for '$(1)', using tag))
+endef
+$(foreach L,en $(LANGUAGES),$(eval $(call LANG_LABEL_template,$(L))))
+
+# Minimum per-master translation completeness (percent) below which the
+# language-switcher post-process pass greys out a page's entry for that
+# language.  The translated HTML is still emitted (po4a runs with --keep 0)
+# so deep links never 404; the post-process just demotes <a> to <span>.
+# Default 80% matches po4a's own default and the MDN/Hugo/Sphinx
+# convention.  Translators previewing work-in-progress can lower it:
+# `make POKEEP=30 docs`.
+POKEEP ?= 80
+
 GENERATED_MANPAGES += $(DOC_MAN)/man1/linuxcnc.1
 GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard ../docs/src/man/man?/*.adoc))
 
@@ -489,10 +506,51 @@ $(DOC_DIR)/html:
 # English gcode reference must land in the build tree even when only PDF docs
 # are enabled (debian/configure passes --enable-build-documentation=pdf, so
 # .copy-asciidoc-stamp -- which lives under htmldocs -- does not fire).
-docs: $(DOC_OUT_HTML)/en/gcode.html
-$(DOC_OUT_HTML)/en/gcode.html: $(DOC_SRCDIR)/gcode.html
+# Per-lang topbar fragments.  Pre-substituted versions of docinfo-header.html
+# with lcnc-cssrel and lcnc-lang-label resolved; consumed by the gcode.html
+# and index.html rules below, which still need to substitute {lcnc-subpath}.
+objects/topbar-en.html: $(DOC_SRCDIR)/docinfo-header.html
 	@mkdir -p $(@D)
-	cp -f $< $@
+	@sed -e 's|{lcnc-cssrel}|../|g' -e 's|{lcnc-lang-label}|$(LANG_LABEL_en)|g' $< > $@
+
+$(foreach L,$(LANGUAGES),objects/topbar-$(L).html): objects/topbar-%.html: $(DOC_SRCDIR)/docinfo-header.html
+	@mkdir -p $(@D)
+	@sed -e 's|{lcnc-cssrel}|../|g' -e 's|{lcnc-lang-label}|$(LANG_LABEL_$*)|g' $< > $@
+
+# debian/linuxcnc-doc-en.docs installs docs/build/html/en/gcode.html, so the
+# English gcode reference must land in the build tree even when only PDF docs
+# are enabled (debian/configure passes --enable-build-documentation=pdf, so
+# .copy-asciidoc-stamp -- which lives under htmldocs -- does not fire).
+# Wraps the .in template with the English topbar fragment and rewrites the
+# CSS path (the source sits at docs/build/html/en/, css at docs/build/html/).
+docs: $(DOC_OUT_HTML)/en/gcode.html
+$(DOC_OUT_HTML)/en/gcode.html: $(DOC_SRCDIR)/gcode.html.in objects/topbar-en.html $(DOC_SRCDIR)/Submakefile
+	@mkdir -p $(@D)
+	$(Q){ \
+	  topbar=$$(mktemp) ; \
+	  sed 's|{lcnc-subpath}|gcode.html|g' objects/topbar-en.html > $$topbar ; \
+	  awk -v t="$$topbar" 'BEGIN{ while ((getline line < t) > 0) buf = buf line "\n" } /<body>/{ print; printf "%s", buf; next } { print }' $< \
+	    | sed 's|href="lcnc-overrides.css"|href="../lcnc-overrides.css"|g' > $@ ; \
+	  rm -f $$topbar ; \
+	}
+
+# Per-language gcode.html: po4a translates docs/src/gcode.html.in into
+# $(DOC_OUT_ADOC)/<lang>/gcode-raw.html.  Wrap each raw output with the
+# lang-specific topbar to produce the final $(DOC_OUT_HTML)/<lang>/gcode.html.
+$(foreach L,$(LANGUAGES),$(DOC_OUT_HTML)/$(L)/gcode.html): $(DOC_OUT_HTML)/%/gcode.html: objects/topbar-%.html $(DOC_SRCDIR)/Submakefile | translateddocs
+	@mkdir -p $(dir $@)
+	$(Q){ \
+	  topbar=$$(mktemp) ; \
+	  sed 's|{lcnc-subpath}|gcode.html|g' objects/topbar-$*.html > $$topbar ; \
+	  awk -v t="$$topbar" 'BEGIN{ while ((getline line < t) > 0) buf = buf line "\n" } /<body>/{ print; printf "%s", buf; next } { print }' $(DOC_OUT_ADOC)/$*/gcode-raw.html \
+	    | sed 's|href="lcnc-overrides.css"|href="../lcnc-overrides.css"|g' > $@ ; \
+	  rm -f $$topbar ; \
+	}
+
+# Hook per-lang gcode.html into the docs target when translations are on.
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+docs: $(foreach L,$(LANGUAGES),$(DOC_OUT_HTML)/$(L)/gcode.html)
+endif
 
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS) $(DOC_OUT_HTML)/pdf/index.html
 
@@ -522,8 +580,21 @@ endif
 # gen_complist aliases: a phony prereq is always "newer", so naming them
 # re-touched .htmldoc-stamp every run, dragging checkref and the css copy
 # with it.  The stamps fire only when their real inputs change.
-.htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_OUT_HTML)/asciidoctor.css $(DOC_OUT_HTML)/rouge-github.css
+.htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_OUT_HTML)/asciidoctor.css $(DOC_OUT_HTML)/rouge-github.css .lang-switcher-stamp
 	touch $@
+
+# Inject the whole-document sidebar/topbar and grey out missing language-
+# switcher entries.  Runs last (depends on every HTML target) and is
+# idempotent.  Gated on BUILD_DOCS_HTML, not translations: the sidebar comes
+# from the Master_*.adoc structure, so English-only builds need it too.
+ifeq ($(BUILD_DOCS_HTML),yes)
+.lang-switcher-stamp: $(DOC_SRCDIR)/lang_switcher_postprocess.py $(HTML_TARGETS) $(TRANSLATED_MAN_HTML_TARGETS) $(wildcard $(DOC_DIR)/po/*.po)
+	$(Q)python3 $(DOC_SRCDIR)/lang_switcher_postprocess.py $(DOC_OUT_HTML) $(DOC_DIR)/po $(POKEEP) $(LANGUAGES)
+	@touch $@
+else
+.lang-switcher-stamp:
+	@touch $@
+endif
 
 # Shared assets at the top of the html tree.  Index templates and the
 # asciidoctor docinfo reference them via ../ relative paths so we ship
@@ -532,14 +603,45 @@ endif
 # to its sibling gcode.html.
 SHARED_HTML_ASSETS = \
 	$(DOC_SRCDIR)/lcnc-overrides.css \
+	$(DOC_SRCDIR)/lcnc-docs.svg \
 	$(DOC_SRCDIR)/index.css \
-	$(DOC_SRCDIR)/linuxcnc-logo-chips.png
+	$(DOC_SRCDIR)/linuxcnc-logo-chips.png \
+	$(DOC_SRCDIR)/admon-note.svg \
+	$(DOC_SRCDIR)/admon-tip.svg \
+	$(DOC_SRCDIR)/admon-important.svg \
+	$(DOC_SRCDIR)/admon-warning.svg \
+	$(DOC_SRCDIR)/admon-caution.svg
+
+# docinfo-header.html: generated from .in template.  The @LANGUAGE_SWITCHER@
+# placeholder expands to one <li> per language (English plus everything
+# in $(LANGUAGES)), labelled via $(LANG_LABEL_<lang>).  asciidoctor then
+# substitutes the {lcnc-cssrel} / {lcnc-lang-label} / {lcnc-subpath}
+# attributes per page.  po4a.cfg drives the language list, lang-labels
+# the display names.
+$(DOC_SRCDIR)/docinfo-header.html: $(DOC_SRCDIR)/docinfo-header.html.in $(DOC_DIR)/po4a.cfg $(LANG_LABEL_FILE) $(DOC_SRCDIR)/Submakefile
+	@block=$$(mktemp); \
+	    printf '  <div class="lcnc-lang-switcher">\n' > $$block ; \
+	    printf '    <input type="checkbox" id="lcnc-lang-toggle" class="lcnc-lang-toggle">\n' >> $$block ; \
+	    printf '    <label for="lcnc-lang-toggle" class="lcnc-lang-label">{lcnc-lang-label}</label>\n' >> $$block ; \
+	    printf '    <ul class="lcnc-lang-list">\n' >> $$block ; \
+	    printf '      <li><a href="{lcnc-cssrel}en/{lcnc-subpath}">$(LANG_LABEL_en)</a></li>\n' >> $$block ; \
+	    $(foreach L,$(LANGUAGES),printf '      <li><a href="{lcnc-cssrel}$(L)/{lcnc-subpath}">$(LANG_LABEL_$(L))</a></li>\n' >> $$block ;) \
+	    printf '    </ul>\n' >> $$block ; \
+	    printf '  </div>\n' >> $$block ; \
+	    awk -v block="$$block" ' \
+	      /@LANGUAGE_SWITCHER@/ { while ((getline line < block) > 0) print line; next } \
+	      { print } \
+	    ' $< > $@ ; \
+	    rm -f $$block
 
 # Stamp-gated asset copy; copy_asciidoc_files stays as a phony alias.
 # The en/gcode.html copy lives in its own rule above so it fires for PDF-only
-# builds as well; .copy-asciidoc-stamp depends on it for HTML builds.
+# builds as well; .copy-asciidoc-stamp needs it built for HTML builds but only
+# copies the shared assets, so gcode.html is an order-only prerequisite: the
+# post-processor later rewrites gcode.html in place, and a normal prerequisite
+# would then leave this stamp stale and re-fire the copy every make.
 copy_asciidoc_files: .copy-asciidoc-stamp
-.copy-asciidoc-stamp: $(SHARED_HTML_ASSETS) $(DOC_OUT_HTML)/en/gcode.html
+.copy-asciidoc-stamp: $(SHARED_HTML_ASSETS) | $(DOC_OUT_HTML)/en/gcode.html
 	@mkdir -p $(DOC_OUT_HTML)
 	cp -f $(SHARED_HTML_ASSETS) $(DOC_OUT_HTML)
 	@touch $@
@@ -568,7 +670,11 @@ $(DOC_OUT_HTML)/rouge-github.css: $(DOC_SRCDIR)/render-rouge-css.rb
 # with HTML-existence-dependent content (different miss_in_man set),
 # bumping mtime past .pot and re-triggering po4a on the next build.
 # Broken-link validation against generated HTML is checkref's job.
-$(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc $(MAN_HTML_TARGETS)
+# MAN_HTML_TARGETS is order-only: this stamp only needs the manpages built,
+# it does not read their content, and the post-processor rewrites them in
+# place later -- a normal prerequisite would then re-fire this stamp (and the
+# .htmldoc-stamp / checkref that depend on it) on every subsequent make.
+$(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc | $(MAN_HTML_TARGETS)
 	mkdir -p $(DOC_OUT_HTML)/en/hal
 	@touch $@
 
@@ -654,7 +760,8 @@ $(foreach L,$(LANGUAGES), \
 # from docs/build/man/<lang>/manN.  cssrel is ../../../ for both: each output
 # sits at docs/build/html/<lang>/man/manN/X.html (4 levels under html/).
 define MAN_HTML_RULE
-$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
+$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)/docinfo-header.html
+	@$$(ECHO) Formatting $$(notdir $$<) as HTML
 	@mkdir -p $$(dir $$@)
 	$$(Q)if grep -q '^\.so' $$<; then \
 		ln -srf $$(DOC_OUT_HTML)/$(1)/man/$$$$(basename $$$$(dirname $$<))/$$$$(basename $$$$(awk '{print $$$$2}' $$<)).html $$@; \
@@ -687,6 +794,8 @@ $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
 			-a mansource=LinuxCNC \
 			-a manmanual='LinuxCNC Documentation' \
 			-a "lcnc-cssrel=../../../" \
+			-a "lcnc-lang-label=$(LANG_LABEL_$(1))" \
+			-a "lcnc-subpath=$$(patsubst $(DOC_OUT_HTML)/$(1)/%,%,$$@)" \
 			-a docinfo=shared \
 			-a docinfodir=$$(realpath $$(DOC_SRCDIR)) \
 			-a source-highlighter=rouge \
@@ -753,19 +862,34 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS_EN $(DOC_
 # Translated landing pages append the same manpage index English uses; every
 # language now renders the full manpage set, so the relative man/ hrefs all
 # resolve under <lang>/man/ (no dead links).
-$(DOC_OUT_HTML)/%/index.html: $(DOC_OUT_ADOC)/%/index.tmpl objects/index.incl ../VERSION $(DOC_SRCDIR)/index.foot
+$(DOC_OUT_HTML)/%/index.html: $(DOC_OUT_ADOC)/%/index.tmpl objects/index.incl ../VERSION $(DOC_SRCDIR)/index.foot $(DOC_SRCDIR)/docinfo-header.html $(DOC_SRCDIR)/Submakefile
 	@mkdir -p $(dir $@)
-	cat $(filter-out ../VERSION, $^) | \
-		sed "s/@VERSION@/`cat ../VERSION`/" | \
-		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
+	$(Q){ \
+	  topbar=$$(mktemp) ; \
+	  sed -e 's|{lcnc-cssrel}|../|g' -e 's|{lcnc-lang-label}|$(LANG_LABEL_$*)|g' -e 's|{lcnc-subpath}|index.html|g' $(DOC_SRCDIR)/docinfo-header.html > $$topbar ; \
+	  (cat $(DOC_OUT_ADOC)/$*/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) \
+	    | sed "s/@VERSION@/`cat ../VERSION`/" \
+	    | awk -v t="$$topbar" 'BEGIN{ while ((getline line < t) > 0) buf = buf line "\n" } /<body>/{ print; printf "%s", buf; next } { print }' \
+	    | sed 's|href="lcnc-overrides.css"|href="../lcnc-overrides.css"|g' \
+	    | if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@ ; \
+	  rm -f $$topbar ; \
+	}
 
 # Rich English landing page lives at <html>/en/index.html (sibling to the
 # translated <html>/<lang>/index.html files), generated from index.tmpl
 # plus the manpage index include.
-$(DOC_OUT_HTML)/en/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
+$(DOC_OUT_HTML)/en/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/docinfo-header.html $(DOC_SRCDIR)/Submakefile
 	@mkdir -p $(dir $@)
-	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/"  | \
-		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
+	$(Q){ \
+	  topbar=$$(mktemp) ; \
+	  sed 's|{lcnc-subpath}|index.html|g' objects/topbar-en.html > $$topbar ; \
+	  (cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) \
+	    | sed "s/@VERSION@/`cat ../VERSION`/" \
+	    | awk -v t="$$topbar" 'BEGIN{ while ((getline line < t) > 0) buf = buf line "\n" } /<body>/{ print; printf "%s", buf; next } { print }' \
+	    | sed 's|href="lcnc-overrides.css"|href="../lcnc-overrides.css"|g' \
+	    | if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@ ; \
+	  rm -f $$topbar ; \
+	}
 
 # Tree-root redirect: docs/build/html/index.html bounces to en/.  The
 # page is a checked-in static file under docs/src/; just copy it.
@@ -1005,13 +1129,17 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 # src="..." covers displayed images; href="...png" covers click-to-enlarge
 # targets from image:thumb[link=...] (which would otherwise 404).  The
 # extension filter keeps page/anchor hrefs out.
-.html-images-stamp: $(DOC_TARGETS_HTML)
+#
+# Depend on .lang-switcher-stamp so this runs after the post-processor has
+# rewritten the HTML in place; otherwise that later rewrite leaves this stamp
+# older than its inputs and the image copy re-fires on every subsequent make.
+.html-images-stamp: $(DOC_TARGETS_HTML) .lang-switcher-stamp
 	set -e; for HTML_FILE in $^; do \
 		HTML_REL=$$(echo $$HTML_FILE | sed 's%^$(DOC_OUT_HTML)/%%'); \
 		LANG=$$(echo $$HTML_REL | cut -d/ -f1); \
 		REST=$$(echo $$HTML_REL | cut -d/ -f2-); \
 		HTML_DIR=$$(dirname $$REST | cut -d/ -f1); \
-		for IMAGE_FILE in $$(grep -oE '(src|href)="[^"]+"' $$HTML_FILE | sed -E 's/^(src|href)="//;s/"$$//' | grep -vE '^https?:|^data:|^/' | grep -iE '\.(png|jpe?g|gif|svg|webp)$$'); do \
+		for IMAGE_FILE in $$(grep -oE '(src|href)="[^"]+"' $$HTML_FILE | sed -E 's/^(src|href)="//;s/"$$//' | grep -vE '^https?:|^data:|^/|lcnc-docs\.svg' | grep -iE '\.(png|jpe?g|gif|svg|webp)$$'); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
 			IMAGE_PATH=$(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE; \
 			mkdir -p $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_DIR; \
@@ -1085,7 +1213,7 @@ $(DOC_OUT_ADOC)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count
 #	$4 xref-exclude pattern (English filters all lang subdirs; translated
 #	trees are rooted inside their own lang dir so the exclude is empty).
 define ASCIIDOCTOR_HTML_RULE
-$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
@@ -1096,6 +1224,8 @@ $$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/
 		 -a "xref-exclude=$4" \
 		 -a "relindir=$$(shell dirname $$*)" \
 		 -a "lcnc-cssrel=$$(LCNC_CSSREL)" \
+		 -a "lcnc-lang-label=$(LANG_LABEL_$1)" \
+		 -a "lcnc-subpath=$$(patsubst $1/%,%,$$*).html" \
 		 -a docinfo=shared \
 		 -a docinfodir=$$(realpath $$(DOC_SRCDIR)) \
 		 -a source-highlighter=rouge \
@@ -1103,7 +1233,7 @@ $$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/
 		 -a webfonts! \
 		 -a linkcss -a copycss! \
 		 -a "stylesdir=$$(LCNC_CSSREL)" \
-		 -d book -a toc -a numbered \
+		 -d book -a toc=left -a numbered \
 		 -o $$@ $$< || (X=$$$$?; rm -f $$@; exit $$$$X)
 endef
 

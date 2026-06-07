@@ -411,6 +411,11 @@ Files: share/qtvcp/images/widgets/writer/icons/*
 Copyright: 2013 Yusuke Kamiyamane
 License: CC-BY-3.0
 
+Files: docs/src/admon-*.svg
+Copyright: 2019-2024 The Bootstrap Authors
+License: Expat
+Comment: Admonition icons from Bootstrap Icons, https://github.com/twbs/icons.
+
 Files: unit_tests/catch.hpp
 Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
 License: Boost-1.0

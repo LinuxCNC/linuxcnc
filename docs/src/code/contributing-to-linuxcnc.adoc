@@ -260,6 +260,31 @@ https://hosted.weblate.org/projects/linuxcnc/
 Documentation on how to use Weblate is here:
 https://docs.weblate.org/en/latest/user/basic.html
 
+=== Previewing a translation locally
+
+Every translated HTML page is emitted regardless of how much of its
+source has actually been translated. The topbar language switcher
+greys out entries whose underlying `.po` coverage for that specific
+master falls below *80%* by default. Greyed entries are still in the
+DOM (so deep links keep working) but rendered as plain text rather
+than clickable links, signalling to readers that the page is mostly
+English.
+
+If you are actively translating and want your work-in-progress to
+appear as a live link on its companion pages, lower the threshold at
+build time:
+
+[source,sh]
+----
+cd src
+make POKEEP=30 docs   # any page >= 30% translated stays clickable
+make POKEEP=0  docs   # everything clickable, even untouched pages
+----
+
+`POKEEP` is consumed by the post-process pass that walks every HTML
+file once at the end of the build. The default value, used by the
+published build, is 80.
+
 == Other ways to contribute
 
 There are many ways to contribute to LinuxCNC, that are not addressed
