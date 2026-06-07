@@ -726,9 +726,10 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/linuxcnc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
-    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_LANG_DIR=${prefix}/lib/tcltk/linuxcnc/msgs
+    TCL_GET_DIR=$(echo 'puts [[tcl::pkgconfig get scriptdir,runtime]]' | tclsh)
+    EMC2_TCL_DIR="${TCL_GET_DIR}/linuxcnc"
+    EMC2_TCL_LIB_DIR="${EMC2_TCL_DIR}"
+    EMC2_LANG_DIR="${EMC2_TCL_DIR}/msgs"
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     case $MODULE_DIR in
@@ -1758,6 +1759,7 @@ AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
+AC_CONFIG_FILES(../lib/python/rs274/options.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency-histogram.desktop)

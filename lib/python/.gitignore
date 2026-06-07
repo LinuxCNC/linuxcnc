@@ -4,3 +4,4 @@ gmoccapy/
 stepconf/
 pncconf/
 pyui/
+rs274/options.py
