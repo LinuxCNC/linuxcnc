@@ -92,6 +92,18 @@ class touchy:
 
                 self.wTree = Gtk.Builder()
                 self.wTree.add_from_file(self.gladefile)
+                               
+                # CSS styling
+                screen = Gdk.Screen.get_default()
+                provider = Gtk.CssProvider()
+                style_context = Gtk.StyleContext()
+                style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                css = b"""
+                button {
+                        padding: 0;
+                }
+                """
+                provider.load_from_data(css)
 
                 for w in ['wheelinc1', 'wheelinc2', 'wheelinc3',
                                 'wheelx', 'wheely', 'wheelz',
