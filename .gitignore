@@ -71,3 +71,5 @@ configs/**/halscope_state.json
 share/gomc/
 src/hal/classicladder/classicladder-standalone
 src/share/gomc/webapp/
+*.la
+share/bash-completion/

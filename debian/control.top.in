@@ -21,6 +21,7 @@ Build-Depends:
     asciidoc-dblatex <!nodoc>,
     autoconf,
     automake,
+    libtool,
     bwidget (>= 1.7),
     desktop-file-utils,
     gettext,

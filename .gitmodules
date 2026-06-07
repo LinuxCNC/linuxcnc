@@ -1,0 +1,3 @@
+[submodule "src/hal/drivers/ethercat/master"]
+	path = src/hal/drivers/ethercat/master
+	url = https://github.com/sittner/ethercat.git

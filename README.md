@@ -119,16 +119,44 @@ semantics.
 ## Building
 
 ```bash
+git clone -b gomc https://github.com/sittner/linuxcnc.git linuxcnc
+cd linuxcnc
+git submodule update --init
+
+# Install build dependencies (Debian/Ubuntu)
+cd debian && ./configure && cd ..
+sudo apt-get build-dep .
+
+# Build
 cd src
+./autogen.sh
 ./configure
 make -j$(nproc)
 ```
 
 The build process is essentially the same as classic LinuxCNC (autoconf + make).
+The EtherCAT master is built automatically from a git submodule.
 A future goal is migration to CMake.
 
+## Running the Simulator
+
+**Terminal 1 — start the server:**
+
+```bash
+cd linuxcnc
+./scripts/linuxcnc configs/sim/axis/axis_mm.ini
+```
+
+**Terminal 2 — start a UI client (as many as you like):**
+
+```bash
+cd linuxcnc
+. scripts/rip-environment
+axis
+```
+
 See [README_LINUXCNC.md](README_LINUXCNC.md) for full build options and
-dependencies.
+additional configuration.
 
 ## License
 

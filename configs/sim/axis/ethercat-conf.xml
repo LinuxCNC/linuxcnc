@@ -1,0 +1,8 @@
+<masters>
+  <master idx="0" interface="enx000acd3394b8" transportType="raw" appTimePeriod="1000000" refClockSyncCycles="-1">
+    <slave idx="0" type="EK1100"/>
+    <slave idx="1" type="EL1808"/>
+    <slave idx="2" type="EL2808"/>
+  </master>
+</masters>
+

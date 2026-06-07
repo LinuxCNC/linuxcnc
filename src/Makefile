@@ -158,6 +158,11 @@ TARGETS :=
 PYTARGETS :=
 GENERATED_MANPAGES :=
 
+# EtherCAT master submodule paths (needed before Submakefile includes)
+ECMASTER_DIR := hal/drivers/ethercat/master
+ECMASTER_STAMPDIR := $(BASEPWD)/.ecmaster-stamps
+ECMASTER_PREFIX := $(dir $(BASEPWD))
+
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
     libnml/inifile libnml/posemath libnml \
@@ -463,18 +468,74 @@ inclean:
 headersclean:
 	$(RM) $(HEADERS)
 clean: docclean pythonclean cscopeclean headersclean
-distclean: clean inclean
+distclean: clean inclean ecmaster-distclean
 
-# These rules clean things up.
-# 'clean' cleans everything but dependency files, and 'depclean' cleans them
-# too.
-modclean:
-	-rm -f ../cmod/*.so
+# =========================================================================
+# EtherCAT Master (submodule: src/hal/drivers/ethercat/master)
+# =========================================================================
 
-depclean:
-	-rm -rf depends
+# Override ETHERCAT flags to use locally-built master from submodule
+ETHERCAT_CFLAGS := -I$(ECMASTER_PREFIX)/include
+ETHERCAT_LIBS := -L$(ECMASTER_PREFIX)/lib -Wl,-rpath,$(ECMASTER_PREFIX)/lib -lethercat
 
-clean: genclean depclean modclean
+.PHONY: ecmaster-check ecmaster-bootstrap ecmaster-configure ecmaster-build \
+        ecmaster-install ecmaster-clean ecmaster-distclean
+
+ecmaster-check:
+	@if [ ! -f $(ECMASTER_DIR)/configure.ac ]; then \
+		echo "ERROR: EtherCAT master submodule not initialized."; \
+		echo "  Run: git submodule update --init"; \
+		exit 1; \
+	fi
+
+$(ECMASTER_STAMPDIR)/.bootstrapped: $(ECMASTER_DIR)/configure.ac
+	@echo "--- EtherCAT master: bootstrap ---"
+	@mkdir -p $(ECMASTER_STAMPDIR)
+	cd $(ECMASTER_DIR) && ./bootstrap
+	@touch $@
+
+ecmaster-bootstrap: ecmaster-check $(ECMASTER_STAMPDIR)/.bootstrapped
+
+$(ECMASTER_STAMPDIR)/.configured: $(ECMASTER_STAMPDIR)/.bootstrapped
+	@echo "--- EtherCAT master: configure ---"
+	cd $(ECMASTER_DIR) && ./configure \
+		--prefix=$(ECMASTER_PREFIX) \
+		--enable-uspace-master \
+		--disable-kernel \
+		--disable-eoe \
+		--mandir=$(ECMASTER_PREFIX)/docs/man \
+		--docdir=$(ECMASTER_PREFIX)/docs/ethercat
+	@touch $@
+
+ecmaster-configure: $(ECMASTER_STAMPDIR)/.configured
+
+$(ECMASTER_STAMPDIR)/.built: $(ECMASTER_STAMPDIR)/.configured
+	@echo "--- EtherCAT master: build ---"
+	$(MAKE) -C $(ECMASTER_DIR)
+	@touch $@
+
+ecmaster-build: $(ECMASTER_STAMPDIR)/.built
+
+$(ECMASTER_STAMPDIR)/.installed: $(ECMASTER_STAMPDIR)/.built
+	@echo "--- EtherCAT master: install ---"
+	$(MAKE) -C $(ECMASTER_DIR) install
+	@touch $@
+
+ecmaster-install: $(ECMASTER_STAMPDIR)/.installed
+
+ecmaster-clean:
+	@if [ -f $(ECMASTER_DIR)/Makefile ]; then \
+		$(MAKE) -C $(ECMASTER_DIR) clean; \
+	fi
+	@rm -f $(ECMASTER_STAMPDIR)/.built
+
+ecmaster-distclean:
+	@if [ -f $(ECMASTER_DIR)/Makefile ]; then \
+		$(MAKE) -C $(ECMASTER_DIR) distclean; \
+	fi
+	@rm -rf $(ECMASTER_STAMPDIR)
+
+# =========================================================================
 genclean:
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
