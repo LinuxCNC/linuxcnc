@@ -93,12 +93,12 @@ fi
 
 if [ -z "$MANPATH" ]; then
     if type -path manpath > /dev/null 2>&1; then
-	MANPATH=$EMC2_HOME/docs/man:"$(manpath)"
+	MANPATH=$EMC2_HOME/docs/build/man:"$(manpath)"
     else
-	MANPATH=$EMC2_HOME/docs/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+	MANPATH=$EMC2_HOME/docs/build/man:/usr/local/man:/usr/local/share/man:/usr/share/man
     fi
 else
-    MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
+    MANPATH=$EMC2_HOME/docs/build/man:"$MANPATH"
 fi
 
 if [ -z "$GLADE_CATALOG_SEARCH_PATH" ]; then

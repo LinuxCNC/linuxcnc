@@ -33,7 +33,7 @@ CONVERTERS :=  \
     conv_u64_u32.comp \
     conv_u64_s64.comp
 COMPS := $(filter-out hal/components/tpcomp.comp hal/components/homecomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS)) ../docs/man/man9/tpcomp.9 ../docs/man/man9/homecomp.9
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/build/man/man9/%.9, $(COMPS)) ../docs/build/man/man9/tpcomp.9 ../docs/build/man/man9/homecomp.9
 ifeq ($(BUILD_SYS),uspace)
 COMP_DRIVERS += hal/drivers/serport.comp
 COMP_DRIVERS += hal/drivers/mesa_7i65.comp
@@ -41,7 +41,7 @@ COMP_DRIVERS += hal/drivers/mesa_uart.comp
 else
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 endif
-COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
+COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/build/man/man9/%.9, $(COMP_DRIVERS))
 TARGETS += manpages
 GENERATED_MANPAGES += $(COMP_MANPAGES)
 GENERATED_MANPAGES += $(COMP_DRIVER_MANPAGES)
@@ -76,7 +76,7 @@ $(COMP_DRIVER_MANPAGE_ADOCS): objects/man/man9/%.9.adoc: hal/drivers/%.comp ../b
 # emitting troff directly with sed post-processing to escape .als / .URL
 # directives that the old dblatex-based PDF pipeline choked on; with the
 # asciidoctor toolchain reading adoc straight through, that hack is gone.
-$(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: objects/man/man9/%.9.adoc
+$(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES): ../docs/build/man/man9/%.9: objects/man/man9/%.9.adoc
 	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)asciidoctor --doctype=manpage \

@@ -679,9 +679,9 @@ install-dirs:
 		$(DESTDIR)$(datadir)/linuxcnc/hallib
 
 install-kernel-indep: install-dirs
-	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) $(wildcard ../docs/man/man3/*.3) $(DESTDIR)$(mandir)/man3
-	$(FILE) $(wildcard ../docs/man/man9/*.9) $(DESTDIR)$(mandir)/man9
+	$(FILE) ../docs/build/man/man1/*.1 $(DESTDIR)$(mandir)/man1
+	$(FILE) $(wildcard ../docs/build/man/man3/*.3) $(DESTDIR)$(mandir)/man3
+	$(FILE) $(wildcard ../docs/build/man/man9/*.9) $(DESTDIR)$(mandir)/man9
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(prefix)/lib/linuxcnc
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
@@ -1461,7 +1461,7 @@ swish:
 		$(dir $(BASEPWD))scripts \
 		$(dir $(BASEPWD))configs \
 		$(dir $(BASEPWD))docs/src \
-		$(dir $(BASEPWD))docs/man/man1
+		$(dir $(BASEPWD))docs/build/man/man1
 
 # When you depend on objects/var-ZZZ you are depending on the contents of the
 # variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or

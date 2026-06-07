@@ -1308,7 +1308,7 @@ def main():
                     manpath = os.path.join(BASE, "share/man/man" + section)
                     sharepath = manpath
                     if not os.path.isdir(manpath):
-                        manpath = os.path.join(BASE, "docs/man/man" + section)
+                        manpath = os.path.join(BASE, "docs/build/man/man" + section)
                         if not os.path.isdir(manpath):
                             raise SystemExit("Error: directory '%s' (nor alternative '%s') found" % (sharepath, manpath))
                     outfile = os.path.join(manpath, basename + "." + section)
