@@ -158,6 +158,54 @@ axis
 See [README_LINUXCNC.md](README_LINUXCNC.md) for full build options and
 additional configuration.
 
+## Multi-Instance Demo
+
+A single gomc-server process can host multiple independent CNC instances.
+Multiple UI clients can connect to the same or different instances
+simultaneously — state updates are synchronized in real time.
+
+**Terminal 1 — start the server with multi-instance config:**
+
+```bash
+cd linuxcnc
+./scripts/linuxcnc configs/sim/axis/multiinst/multiinst.ini
+```
+
+**Terminal 2 — Axis client connected to mill1:**
+
+```bash
+cd linuxcnc
+. scripts/rip-environment
+GMC_INSTANCE=mill1 axis
+```
+
+**Terminal 3 — second Axis client, also connected to mill1:**
+
+```bash
+cd linuxcnc
+. scripts/rip-environment
+GMC_INSTANCE=mill1 axis
+```
+
+**Terminal 4 — Axis client connected to mill2 (independent instance):**
+
+```bash
+cd linuxcnc
+. scripts/rip-environment
+GMC_INSTANCE=mill2 axis
+```
+
+**Things to try:**
+
+1. On client 1 (mill1): E-stop off → Machine on → Home all axes.
+   Observe client 2 (also mill1) mirrors the state changes in real time.
+2. On client 1: File → Open → `nc_files/3dtest.ngc`.
+   Observe the backplot preview appears on client 2 as well.
+3. On client 1: Run the program.
+   Observe client 2 shows the live execution progress.
+4. On client 3 (mill2): Independently home, load `nc_files/axis.ngc`, and run.
+   Mill2 operates completely independently from mill1.
+
 ## License
 
 This project contains code under **GPL-2.0** (inherited from LinuxCNC) and
