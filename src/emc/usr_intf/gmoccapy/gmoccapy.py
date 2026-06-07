@@ -555,7 +555,7 @@ class gmoccapy(object):
                     + _("Please check the console output."), ALERT_ICON)
 
     def _startup_message(self):
-        title = _("Important change(s)")
+        title = _("<b>Important change(s)</b>\n\n")
         # This array holds information about new features or things that changed. They can be hidden using the dialog's checkbox.
         # It is important that strings are only appended to this array (not removed), otherwise some messages could get hidden unwanted.
         messages =[ _("<b>3.5.0 (LinuxCNC 2.10.0): Gmoccapy does no longer automatically retain G43 after a toolchange!</b>\n"\
@@ -567,12 +567,12 @@ class gmoccapy(object):
                     ]
         hide_message = self.prefs.getpref("hide_startup_messsage", 0, int)
         if hide_message < len(messages):
-            message = "\n\n".join(messages[hide_message:])
+            message = title + "\n\n".join(messages[hide_message:])
             message += _('\n\nFor more information see the <a href="https://linuxcnc.org/docs/html/gui/gmoccapy_release_notes.txt">release notes</a>.')
+                 
+            self.notification.add_message(message, INFO_ICON, show_checkbox=True)
+            self.num = len(messages)
 
-            dont_show = self.dialogs.show_user_message(self, message, title, checkbox = True)
-            if dont_show:
-                self.prefs.putpref("hide_startup_messsage", len(messages), str)
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -2774,7 +2774,6 @@ class gmoccapy(object):
 
     def _show_error(self, error):
         kind, text = error
-        # print(kind,text)
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
             self.halcomp["error"] = True
@@ -2816,7 +2815,7 @@ class gmoccapy(object):
             self.stat.poll()
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
                 widget.set_active(True)
-                self._show_error((11, _("External ESTOP is set, could not change state!")))
+                self._show_error((linuxcnc.OPERATOR_ERROR, _("External ESTOP is set, could not change state!")))
 
     # toggle machine on / off button
     def on_tbtn_on_toggled(self, widget, data=None):
@@ -2829,7 +2828,7 @@ class gmoccapy(object):
             self.stat.poll()
             if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active(False)
-                self._show_error((11, _("Could not switch the machine on, is limit switch activated?")))
+                self._show_error((linuxcnc.OPERATOR_DISPLAY, _("Could not switch the machine on, is limit switch activated?")))
                 self._update_widgets(False)
                 return
             self._update_widgets(True)
@@ -3140,7 +3139,7 @@ class gmoccapy(object):
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
-            self._show_error((13, _("It is not possible to change to MDI Mode at the moment")))
+            self._show_error((linuxcnc.OPERATOR_DISPLAY, _("It is not possible to change to MDI Mode at the moment")))
             return
         else:
             # if we are in user tabs, we must reset the button
@@ -3191,7 +3190,7 @@ class gmoccapy(object):
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
-            self._show_error((13, _("It is not possible to change to Auto Mode at the moment")))
+            self._show_error((linuxcnc.OPERATOR_DISPLAY, _("It is not possible to change to Auto Mode at the moment")))
             return
         else:
             # if we are in user tabs, we must reset the button
@@ -3516,7 +3515,7 @@ class gmoccapy(object):
         if keyname == "F3" or keyname == "F5":
             if self.stat.interp_state != linuxcnc.INTERP_IDLE:
                 if signal: # Otherwise the message will be shown twice
-                    self._show_error((13, _("Mode change is only allowed if the interpreter is idle!")))
+                    self._show_error((linuxcnc.OPERATOR_DISPLAY, _("Mode change is only allowed if the interpreter is idle!")))
                 return
             else:
                 # F3 change to manual mode
@@ -4129,7 +4128,7 @@ class gmoccapy(object):
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
         index = len(self.notification.messages)
         text = _("Halo, welcome to the test message {0}").format(index)
-        self._show_error((13, text))
+        self._show_error((linuxcnc.OPERATOR_DISPLAY, text))
 
     def on_chk_turtle_jog_toggled(self, widget, data=None):
         state = widget.get_active()
@@ -4319,7 +4318,7 @@ class gmoccapy(object):
         self.stat.poll()
         for j in range(self.stat.joints):
             if self.stat.joint[j]["homing"]:
-                self._show_error((13, _("Homing not possible until current homing process is finished.")))
+                self._show_error((linuxcnc.OPERATOR_DISPLAY, _("Homing not possible until current homing process is finished.")))
                 return
         if "axis" in widget.get_property("name"):
             value = widget.get_property("name")[-1]
@@ -6226,13 +6225,16 @@ class gmoccapy(object):
                 return
             self.audio.run()
 
-    def _on_message_deleted(self, widget, messages):
+    def _on_message_deleted(self, widget, messages, checkbox_checked):
         number = []
         for message in messages:
             if message[2] == ALERT_ICON:
                 number.append(message[0])
         if len(number) == 0:
             self.halcomp["error"] = False
+        
+        if checkbox_checked:
+            self.prefs.putpref("hide_startup_messsage", self.num, str)
 
     def _del_message_changed(self, pin):
         if pin.get():
@@ -6265,7 +6267,7 @@ class gmoccapy(object):
             if self.stat.motion_mode == 1 and pin.get():
                 message = _("Axis jogging is only allowed in world mode, but you are in joint mode!")
                 LOG.debug(message)
-                self._show_error((13, message))
+                self._show_error((linuxcnc.OPERATOR_DISPLAY, message))
                 return
 
         if pin.get():
