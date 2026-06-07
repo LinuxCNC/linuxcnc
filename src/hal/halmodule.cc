@@ -27,6 +27,7 @@
 #include <rtapi_mutex.h>
 #include "hal.h"
 #include "hal_priv.h"
+#include "config.h"
 
 #define EXCEPTION_IF_NOT_LIVE(retval) do { \
         if(self->hal_id <= 0) { \
@@ -2396,8 +2397,16 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
-    PyModule_AddIntConstant(m, "is_sim", !rtapi_is_realtime());
-    PyModule_AddIntConstant(m, "is_rt", rtapi_is_realtime());
+
+    //Call realtime verify to gather realtime status
+    //Most probably we don't have realtime running yet
+    int ret = system(EMC2_REALTIME " verify > /dev/null");
+    int exit_stat = WEXITSTATUS(ret);
+    if(exit_stat != 0 && exit_stat != 1){
+        PyErr_Format(PyExc_RuntimeError, "realtime verify failed, system() return value %i / exit %i", ret, exit_stat);
+    }
+    PyModule_AddIntConstant(m, "is_rt", exit_stat == 0);
+    PyModule_AddIntConstant(m, "is_sim", exit_stat != 0);
 
     PyModule_AddIntConstant(m, "is_kernelspace", rtapi_is_kernelspace());
     PyModule_AddIntConstant(m, "is_userspace", !rtapi_is_kernelspace());

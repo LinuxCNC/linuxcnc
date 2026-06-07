@@ -307,6 +307,10 @@ static int do_debug_cmd(const std::string &value) {
     }
 }
 
+static int do_check_rt_cmd(void) {
+    return rtapi_is_realtime() == 0;
+}
+
 /*
  * Fully checked send/recv
  * Will retry on EINTR, so to abort a send_data/recv_data on a
@@ -557,6 +561,8 @@ static int handle_command(const std::vector<std::string> &args) {
         return do_newinst_cmd(args[1], args[2], args[3]);
     } else if (args.size() == 2 && args[0] == "debug") {
         return do_debug_cmd(args[1]);
+    } else if (args.size() == 1 && args[0] == "check_rt") {
+        return do_check_rt_cmd();
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR, "Unrecognized command starting with %s\n", args[0].c_str());
         return -1;
@@ -752,10 +758,18 @@ become_master:
     int result = bind(fd, (sockaddr *)&addr, sizeof(addr));
 
     if (result == 0) {
-        //If called in master mode with exit command, no need to start master
+        //If exit is called and master is not running, do not start master
         //and exit again
         if (args.size() == 1 && args[0] == "exit") {
             return 0;
+        }
+        //If check_rt is called and master is not running, do not start master
+        //execute and return
+        //This is needed for the verify command in the realtime script
+        //If master is started, this starts up the whole realtime chain
+        //and halrun -U is needed to exit again
+        if (args.size() == 1 && args[0] == "check_rt") {
+            return do_check_rt_cmd();
         }
         int result = listen(fd, 10);
         if (result != 0) {

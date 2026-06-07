@@ -760,6 +760,7 @@ AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for tcl transla
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([EMC2_REALTIME], "$REALTIME", [Path of realtime script])
 
 AC_SUBST([EMC2_TMP_DIR])
 AC_SUBST([EMC2_BIN_DIR])
