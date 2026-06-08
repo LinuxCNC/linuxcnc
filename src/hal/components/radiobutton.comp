@@ -16,6 +16,7 @@ pin in float input-##[32:personality] "Possible output values";
 pin out float value "currently-selected output value";
 
 function _;
+option period no;
 license "GPL 2+";
 author "Andy Pugh";
 
