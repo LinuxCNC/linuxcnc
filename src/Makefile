@@ -488,7 +488,7 @@ ecmaster-check:
 		exit 1; \
 	fi
 
-$(ECMASTER_STAMPDIR)/.bootstrapped: $(ECMASTER_DIR)/configure.ac
+$(ECMASTER_STAMPDIR)/.bootstrapped: | ecmaster-check
 	@echo "--- EtherCAT master: bootstrap ---"
 	@mkdir -p $(ECMASTER_STAMPDIR)
 	cd $(ECMASTER_DIR) && ./bootstrap
