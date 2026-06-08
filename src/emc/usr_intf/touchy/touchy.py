@@ -141,7 +141,7 @@ class touchy:
                 self.prefs = preferences.preferences()
                 self.mv_val = self.prefs.getpref('maxvel', 100, int)
                 self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
-                self.dro_font_name = self.prefs.getpref('dro_font', 'FreeMono 10 Pitch Bold 16', str)
+                self.dro_font_name = self.prefs.getpref('dro_font', 'FreeMono Bold 16', str)
                 self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
                 self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
                 self.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
