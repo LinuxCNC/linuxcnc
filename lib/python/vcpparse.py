@@ -24,7 +24,6 @@ import io
 import sys, os
 import linuxcnc
 import pyvcp_widgets
-import hal 
 import time
 import traceback
 import tkinter as Tkinter
@@ -35,7 +34,7 @@ from importlib import reload
 # is not included in the pydoc documentation __All__ should list all 
 # functions in this module
 __all__=["read_file","nodeiterator",
-        "widget_creator","paramiterator","updater","create_vcp"]
+        "widget_creator","paramiterator","updater","create_vcp_rest"]
 
 
 
@@ -158,30 +157,6 @@ def updater():
     pyvcp0.after(100,updater)
 
 
-
-
-def create_vcp(master, comp = None, compname="pyvcp"):
-    """ 
-        create a pyVCP panel 
-            master = Tkinter root window or other master container
-            comp = HAL component
-            compname = name of HAL component which is created if comp=None
-    """
-    reload(pyvcp_widgets)
-    global pyvcp0, pycomp
-    pyvcp0 = master
-    if comp is None:
-        try: 
-            comp = hal.component(compname)
-        except:
-            print("Error: Multiple components with the same name.")
-            sys.exit(0)
-
-    pycomp = comp
-    widgets[pycomp] = []
-    read_file() 
-    updater()
-    return comp
 
 
 def read_xml_string(xml_string):
