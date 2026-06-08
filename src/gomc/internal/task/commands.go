@@ -134,6 +134,12 @@ func (t *Task) SetState(state int32) error {
 		if err := t.motion.Enable(); err != nil {
 			return err
 		}
+		// Enable override scaling so feed/spindle override controls work.
+		_ = t.motion.FeedScaleEnable(1)
+		_ = t.motion.FeedHoldEnable(1)
+		for s := int32(0); s < int32(t.numSpindles); s++ {
+			_ = t.motion.SpindleScaleEnable(s, 1)
+		}
 		t.mu.Lock()
 		t.state = StateOn
 		t.mu.Unlock()

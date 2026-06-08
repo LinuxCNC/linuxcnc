@@ -144,6 +144,7 @@ type MotionController interface {
 	SetRapidScale(scale float64) error
 	SetMaxFeedOverride(max float64) error
 	FeedScaleEnable(enable int32) error
+	SpindleScaleEnable(spindle int32, enable int32) error
 	AdaptiveFeedEnable(enable int32) error
 	FeedHoldEnable(enable int32) error
 

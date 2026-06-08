@@ -72,6 +72,7 @@ func (m *mockMotion) SetFeedScale(float64) error                   { m.lastCall 
 func (m *mockMotion) SetRapidScale(float64) error                  { m.lastCall = "SetRapidScale"; return nil }
 func (m *mockMotion) SetMaxFeedOverride(float64) error             { return nil }
 func (m *mockMotion) FeedScaleEnable(int32) error                  { return nil }
+func (m *mockMotion) SpindleScaleEnable(int32, int32) error        { return nil }
 func (m *mockMotion) AdaptiveFeedEnable(int32) error               { return nil }
 func (m *mockMotion) FeedHoldEnable(int32) error                   { return nil }
 func (m *mockMotion) OverrideLimits(int32) error                   { m.lastCall = "OverrideLimits"; return nil }

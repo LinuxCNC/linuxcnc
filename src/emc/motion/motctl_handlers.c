@@ -380,6 +380,7 @@ static int32_t h_spindle_on(void *ctx, int32_t spindle, double speed,
     cmd_init(&cmd, EMCMOT_SPINDLE_ON);
     cmd.spindle = spindle;
     cmd.vel = speed;
+    cmd.state = 1;
     cmd.ini_maxvel = css_factor;
     cmd.acc = css_offset;
     cmd.wait_for_spindle_at_speed = (unsigned char)wait_for_atspeed;
@@ -448,8 +449,8 @@ static int32_t h_set_spindle_params(void *ctx, int32_t spindle,
     cmd.spindle = spindle;
     cmd.maxLimit = max_pos_speed;
     cmd.min_pos_speed = min_pos_speed;
-    cmd.max_neg_speed = max_neg_speed;
-    cmd.minLimit = min_neg_speed;
+    cmd.max_neg_speed = min_neg_speed;
+    cmd.minLimit = max_neg_speed;
     cmd.search_vel = home_search_vel;
     cmd.home_sequence = home_sequence;
     cmd.offset = increment;
