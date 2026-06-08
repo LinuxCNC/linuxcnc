@@ -22,6 +22,7 @@ type PinInfo {
     value: string
     owner: string     # component name
     linked: bool
+    has_writer: bool  # true if linked signal has a writer (OUT pin connected)
     signal: string?   # signal name if linked
     alias: string?    # alias if set
 }

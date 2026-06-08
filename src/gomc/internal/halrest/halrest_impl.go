@@ -27,12 +27,13 @@ func (h *halcmdImpl) ListPins(pattern string) ([]halcmdapi.PinInfo, error) {
 	out := make([]halcmdapi.PinInfo, 0, len(result.Pins))
 	for _, p := range result.Pins {
 		pi := halcmdapi.PinInfo{
-			Name:   p.Name,
-			Type:   p.Type,
-			Dir:    p.Direction,
-			Value:  p.Value,
-			Owner:  p.Owner,
-			Linked: p.Signal != "",
+			Name:      p.Name,
+			Type:      p.Type,
+			Dir:       p.Direction,
+			Value:     p.Value,
+			Owner:     p.Owner,
+			Linked:    p.Signal != "",
+			HasWriter: p.HasWriter,
 		}
 		if p.Signal != "" {
 			pi.Signal = p.Signal
@@ -141,12 +142,13 @@ func (h *halcmdImpl) GetPin(name string) (*halcmdapi.PinInfo, error) {
 	}
 	p := result.Pins[0]
 	pi := &halcmdapi.PinInfo{
-		Name:   p.Name,
-		Type:   p.Type,
-		Dir:    p.Direction,
-		Value:  p.Value,
-		Owner:  p.Owner,
-		Linked: p.Signal != "",
+		Name:      p.Name,
+		Type:      p.Type,
+		Dir:       p.Direction,
+		Value:     p.Value,
+		Owner:     p.Owner,
+		Linked:    p.Signal != "",
+		HasWriter: p.HasWriter,
 	}
 	if p.Signal != "" {
 		pi.Signal = p.Signal
@@ -473,12 +475,13 @@ func (h *halcmdImpl) WatchItems(names []string) ([]halcmdapi.PinInfo, error) {
 	out := make([]halcmdapi.PinInfo, 0, len(result.Pins))
 	for _, p := range result.Pins {
 		pi := halcmdapi.PinInfo{
-			Name:   p.Name,
-			Type:   p.Type,
-			Dir:    p.Direction,
-			Value:  p.Value,
-			Owner:  p.Owner,
-			Linked: p.Signal != "",
+			Name:      p.Name,
+			Type:      p.Type,
+			Dir:       p.Direction,
+			Value:     p.Value,
+			Owner:     p.Owner,
+			Linked:    p.Signal != "",
+			HasWriter: p.HasWriter,
 		}
 		if p.Signal != "" {
 			pi.Signal = p.Signal
