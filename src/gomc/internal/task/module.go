@@ -195,7 +195,7 @@ func (m *milltaskModule) Start() error {
 	// Wire the error publisher so operator messages reach UI clients.
 	// EnsureDrainStarted creates the ring+drain if the C milltask didn't.
 	if drain := emcerror.EnsureDrainStarted(m.name); drain != nil {
-		t.SetErrorPublisher(&drainErrorPublisher{drain: drain, task: t})
+		t.SetErrorPublisher(&drainErrorPublisher{drain: drain})
 	}
 
 	// Create and configure the G-code interpreter.
@@ -383,26 +383,22 @@ func (a *ioAdapter) GetPocketPrepped() (int32, error) {
 	return st.Tool.PocketPrepped, nil
 }
 
-// drainErrorPublisher implements ErrorPublisher by writing to the emcerror drain
-// and simultaneously appending to the Task's current message list.
+// drainErrorPublisher implements ErrorPublisher by writing to the emcerror drain.
+// The message list append is handled by the caller (operatorError, etc.).
 type drainErrorPublisher struct {
 	drain *emcerror.PublishErrorDrain
-	task  *Task
 }
 
 func (p *drainErrorPublisher) OperatorError(text string) {
 	p.drain.PublishError(emcerror.ErrorKind_OPERATOR_ERROR, text)
-	p.task.appendMessage(emcerror.ErrorKind_OPERATOR_ERROR, text)
 }
 
 func (p *drainErrorPublisher) OperatorText(text string) {
 	p.drain.PublishError(emcerror.ErrorKind_OPERATOR_TEXT, text)
-	p.task.appendMessage(emcerror.ErrorKind_OPERATOR_TEXT, text)
 }
 
 func (p *drainErrorPublisher) OperatorDisplay(text string) {
 	p.drain.PublishError(emcerror.ErrorKind_OPERATOR_DISPLAY, text)
-	p.task.appendMessage(emcerror.ErrorKind_OPERATOR_DISPLAY, text)
 }
 
 // loadDefaultProgram opens the program specified by [DISPLAY]OPEN_FILE

@@ -188,7 +188,9 @@ func (m *milltaskModule) cmdPublishMessage(req json.RawMessage) (json.RawMessage
 	if args.Kind == 0 {
 		args.Kind = int32(emcerror.ErrorKind_OPERATOR_TEXT)
 	}
-	// Publish to both the drain (for /errors watchers) and the message list.
+	// Always append to message list (drives the UI notification widget).
+	m.task.appendMessage(emcerror.ErrorKind(args.Kind), args.Text)
+	// Also publish to the drain (for /errors watchers).
 	if m.task.errors != nil {
 		switch emcerror.ErrorKind(args.Kind) {
 		case emcerror.ErrorKind_NML_ERROR, emcerror.ErrorKind_OPERATOR_ERROR:
@@ -198,8 +200,6 @@ func (m *milltaskModule) cmdPublishMessage(req json.RawMessage) (json.RawMessage
 		default:
 			m.task.errors.OperatorText(args.Text)
 		}
-	} else {
-		m.task.appendMessage(emcerror.ErrorKind(args.Kind), args.Text)
 	}
 	return json.RawMessage(`{"ok":true}`), nil
 }

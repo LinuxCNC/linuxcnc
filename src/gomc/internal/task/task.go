@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/emcerror"
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motctl"
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motstat"
 )
@@ -366,6 +367,7 @@ func (t *Task) SetErrorPublisher(ep ErrorPublisher) {
 
 // operatorError sends an operator error message to connected UIs.
 func (t *Task) operatorError(text string) {
+	t.appendMessage(emcerror.ErrorKind_OPERATOR_ERROR, text)
 	if t.errors != nil {
 		t.errors.OperatorError(text)
 	}
