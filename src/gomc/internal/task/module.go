@@ -75,6 +75,22 @@ func factory(ini *inifile.IniFile, logger *slog.Logger, name string, args []stri
 		}
 	}
 
+	// Create halui HAL component if halui=<prefix> module parameter was given.
+	// Done in factory so pins exist before HAL wiring commands execute.
+	if m.haluiPrefix != "" {
+		numJoints := getIntOr(ini, "KINS", "JOINTS", 3)
+		numSpindles := getIntOr(ini, "TRAJ", "SPINDLES", 1)
+		coord := ini.Get("TRAJ", "COORDINATES")
+		axisMask := parseAxisMask(coord)
+		mdiCmds := ini.GetAll("HALUI", "MDI_COMMAND")
+		hu, err := newHalUI(m.haluiPrefix, numJoints, numSpindles, axisMask, mdiCmds)
+		if err != nil {
+			return nil, fmt.Errorf("milltask: %w", err)
+		}
+		m.halui = hu
+		logger.Info("halui pins exported", "prefix", m.haluiPrefix)
+	}
+
 	// Register WebSocket watches and commands (direct Go path, no C thunk).
 	m.registerWatches(name)
 
@@ -96,6 +112,7 @@ type milltaskModule struct {
 	mon               *monitor
 	stopped           bool
 	haluiPrefix       string                     // if set, export halui pins with this component name
+	halui             *halUI                     // halui HAL component (created in factory)
 	motInstance       string                     // motion module instance name (default "motmod")
 	ioInstance        string                     // io controller instance name (default "iocontrol")
 	ttInstance        string                     // tooltable instance name (default "tooltable")
@@ -175,17 +192,6 @@ func (m *milltaskModule) Start() error {
 	m.inihal = ih
 	m.mc = mc
 
-	// Create halui HAL component if halui=<prefix> module parameter was given.
-	var hu *halUI
-	if m.haluiPrefix != "" {
-		mdiCmds := m.ini.GetAll("HALUI", "MDI_COMMAND")
-		hu, err = newHalUI(m.haluiPrefix, t.numJoints, t.numSpindles, t.axisMask, mdiCmds)
-		if err != nil {
-			return fmt.Errorf("milltask: %w", err)
-		}
-		m.logger.Info("halui pins exported", "prefix", m.haluiPrefix)
-	}
-
 	// Wire the error publisher so operator messages reach UI clients.
 	// EnsureDrainStarted creates the ring+drain if the C milltask didn't.
 	if drain := emcerror.EnsureDrainStarted(m.name); drain != nil {
@@ -202,7 +208,7 @@ func (m *milltaskModule) Start() error {
 
 	// Start the monitoring goroutine (estop, errors, soft limits, inihal, halui).
 	m.mon = newMonitor(t, mc, ih, io)
-	m.mon.halui = hu
+	m.mon.halui = m.halui
 	m.mon.start()
 
 	// Register tools API (needs INI for tool table path).
