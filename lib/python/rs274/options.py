@@ -18,11 +18,10 @@
 
 import nf, os
 
-# lib/tcltk/emc2 for installed emc
-# tcl            for run-in-place emc
-for candidate in 'lib/tcltk/linuxcnc', 'tcl':
-    LINUXCNC_TCL = os.path.join(nf.PREFIX, candidate, 'linuxcnc.tcl')
-    if os.path.exists(LINUXCNC_TCL): break
+# system Tcl path for installed emc
+# tcl             for run-in-place emc
+rip = os.path.join(nf.PREFIX, 'tcl', 'linuxcnc.tcl')
+LINUXCNC_TCL = rip if os.path.exists(rip) else os.path.join(nf.EMC2_TCL_DIR, 'linuxcnc.tcl')
 
 options = '''
 . configure -bg #d9d9d9
