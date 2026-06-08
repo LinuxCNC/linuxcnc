@@ -1,4 +1,4 @@
-PYTARGETS += ../bin/gremlin ../lib/python/gremlin.py ../lib/python/qt5_graphics.py
+PYTARGETS += ../bin/gremlin ../lib/python/gremlin.py ../lib/python/qt5_graphics.py ../lib/python/preview_helpers.py
 PYI18NSRCS += emc/usr_intf/gremlin/gremlin.py
 
 ../lib/python/%: emc/usr_intf/gremlin/%

@@ -25,6 +25,7 @@ src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
 lib/python/gremlin.py
+lib/python/preview_helpers.py
 lib/python/qt5_graphics.py
 lib/python/touchy
 configs/sim/gmoccapy/*.pref

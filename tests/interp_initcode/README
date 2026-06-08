@@ -1,0 +1,5 @@
+This test 
+- starts LinuxCNC using test.ini
+- uses MDI commands to change the startup state of the modal gcodes
+- initializes an interpreter instance to the currently active modal gcodes using the gremlin helper function and loads a test gcode file that lacks a preamble
+- checks that the start up state reflects [RS274NGC] RS274NGC_STARTUP_CODE and output of the interpreter after loading the test gcode file.
