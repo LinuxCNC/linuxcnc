@@ -45,6 +45,8 @@ func factory(ini *inifile.IniFile, logger *slog.Logger, name string, args []stri
 		switch k {
 		case "halui":
 			m.haluiPrefix = v
+		case "motion_instance":
+			m.motInstance = v
 		case "iocontrol_instance":
 			m.ioInstance = v
 		case "tooltable_instance":
@@ -94,6 +96,7 @@ type milltaskModule struct {
 	mon               *monitor
 	stopped           bool
 	haluiPrefix       string                     // if set, export halui pins with this component name
+	motInstance       string                     // motion module instance name (default "motmod")
 	ioInstance        string                     // io controller instance name (default "iocontrol")
 	ttInstance        string                     // tooltable instance name (default "tooltable")
 	iniAccessorHandle cgo.Handle                 // CGo handle for the INI accessor (must be freed)
@@ -107,7 +110,7 @@ func (m *milltaskModule) Start() error {
 	}
 
 	// Determine motion module instance name from INI (default "motmod").
-	motInstance := m.ini.Get("EMCMOT", "EMCMOT")
+	motInstance := m.motInstance
 	if motInstance == "" {
 		motInstance = "motmod"
 	}
