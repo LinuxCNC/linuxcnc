@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -188,8 +189,8 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		*softLimitReported = false
 	}
 
-	// Check motion error (CommandStatus == 3 means RCS_ERROR).
-	motionError := ms.CommandStatus == 3
+	// Check motion error (CommandStatus == 3 means RCS_ERROR, or Error bit set by control loop).
+	motionError := ms.CommandStatus == 3 || ms.Error != 0
 
 	// Check IO error.
 	var ioError bool
@@ -226,6 +227,15 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 
 	if motionError && ms.OnSoftLimit == 0 {
 		m.task.logger.Error("motion error detected — aborting")
+		// Report which joint(s) hit a limit switch.
+		for i, j := range ms.Joints {
+			if j.OnPosLimit != 0 {
+				m.task.operatorError(fmt.Sprintf("Joint %d on positive limit switch", i))
+			}
+			if j.OnNegLimit != 0 {
+				m.task.operatorError(fmt.Sprintf("Joint %d on negative limit switch", i))
+			}
+		}
 	}
 	if ioError {
 		m.task.logger.Error("IO error detected — aborting")

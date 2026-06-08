@@ -809,6 +809,7 @@ static void check_for_faults(motmod_inst_t *inst)
 			    joint_num);
 		    }
 		    SET_JOINT_ERROR_FLAG(joint, 1);
+		    SET_MOTION_ERROR_FLAG(1);
 		    inst->internal->enabling = 0;
 		}
 	    }
