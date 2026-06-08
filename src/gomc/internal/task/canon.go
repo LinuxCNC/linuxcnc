@@ -584,6 +584,7 @@ func (c *Canon) SetSpindleSpeed(spindle int32, rpm float64) {
 }
 
 func (c *Canon) StopSpindleTurning(spindle int32) {
+	c.enqueue(waitForMotionSingleton)
 	c.enqueue(&SpindleOffCmd{Spindle: spindle})
 }
 
