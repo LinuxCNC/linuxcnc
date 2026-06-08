@@ -510,18 +510,6 @@ $(GMI_INIT_DST): $(GMI_INIT_SRC)
 
 TARGETS += $(GMI_INIT_DST)
 
-# --- pyvcp Python compat layer (hand-written) ---
-
-GMI_PYVCP_COMPAT_SRC := gmi/python/pyvcp_compat.py
-GMI_PYVCP_COMPAT_DST := ../lib/python/gmi/pyvcp_compat.py
-
-$(GMI_PYVCP_COMPAT_DST): $(GMI_PYVCP_COMPAT_SRC) $(GMI_INIT_DST)
-	$(ECHO) "Installing pyvcp_compat.py"
-	@mkdir -p $(dir $(GMI_PYVCP_COMPAT_DST))
-	$(Q)cp $< $@
-
-TARGETS += $(GMI_PYVCP_COMPAT_DST)
-
 # --- NML gateway Python wrappers (hand-written) ---
 
 GMI_PY_NML_SRCS := constants.py stat.py command.py error.py positionlogger.py tools.py messages.py

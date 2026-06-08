@@ -26,6 +26,7 @@ type pinDef struct {
 	name    string
 	halType int
 	dir     int
+	initval string // initial value from XML (empty means zero/false)
 
 	// Runtime pin handles (set by createPins).
 	bitPin   *hal.Pin[bool]
@@ -124,6 +125,17 @@ func (p *panel) createPins(comp *hal.Component) error {
 			return fmt.Errorf("pin %q: unknown type %d", pin.name, pin.halType)
 		}
 	}
+
+	// Apply initial values (only meaningful for OUT pins).
+	for _, pin := range p.pins {
+		if pin.initval == "" || pin.dir != halOut {
+			continue
+		}
+		if _, err := pin.writeValue(pin.initval); err != nil {
+			return fmt.Errorf("pin %q: setting initval %q: %w", pin.name, pin.initval, err)
+		}
+	}
+
 	return nil
 }
 
@@ -283,8 +295,16 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 		if halpin == "" {
 			halpin = autoName("checkbutton", counters)
 		}
+		initval := getParam(children, attrs, "initval")
+		var bitInit string
+		if initval != "" {
+			v, err := strconv.ParseFloat(initval, 64)
+			if err == nil && v >= 0.5 {
+				bitInit = "1"
+			}
+		}
 		return []*pinDef{
-			{name: halpin, halType: halBit, dir: halOut},
+			{name: halpin, halType: halBit, dir: halOut, initval: bitInit},
 			{name: halpin + ".changepin", halType: halBit, dir: halIn},
 		}
 
@@ -294,9 +314,20 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 			halpin = autoName("radiobutton", counters)
 		}
 		choices := getParam(children, attrs, "choices")
+		initval := getParam(children, attrs, "initval")
+		initIdx := 0
+		if initval != "" {
+			if v, err := strconv.Atoi(initval); err == nil {
+				initIdx = v
+			}
+		}
 		var pins []*pinDef
-		for _, c := range parseList(choices) {
-			pins = append(pins, &pinDef{name: halpin + "." + c, halType: halBit, dir: halOut})
+		for i, c := range parseList(choices) {
+			iv := ""
+			if i == initIdx {
+				iv = "1"
+			}
+			pins = append(pins, &pinDef{name: halpin + "." + c, halType: halBit, dir: halOut, initval: iv})
 		}
 		return pins
 
@@ -310,9 +341,10 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 		if halparam == "" {
 			halparam = autoBase + ".param_pin"
 		}
+		initval := getParam(children, attrs, "initval")
 		pins := []*pinDef{
 			{name: halparam, halType: halFloat, dir: halIn},
-			{name: halpin, halType: halFloat, dir: halOut},
+			{name: halpin, halType: halFloat, dir: halOut, initval: initval},
 		}
 		return pins
 
@@ -322,7 +354,8 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 			base := autoName("jogwheel", counters)
 			halpin = base + ".count"
 		}
-		pins := []*pinDef{{name: halpin, halType: halFloat, dir: halOut}}
+		initval := getParam(children, attrs, "initval")
+		pins := []*pinDef{{name: halpin, halType: halFloat, dir: halOut, initval: initval}}
 		// Derive base name for sub-pins
 		base := halpin
 		if strings.HasSuffix(base, ".count") {
@@ -342,7 +375,8 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 		if halpin == "" {
 			halpin = autoBase
 		}
-		pins := []*pinDef{{name: halpin, halType: halFloat, dir: halOut}}
+		initval := getParam(children, attrs, "initval")
+		pins := []*pinDef{{name: halpin, halType: halFloat, dir: halOut, initval: initval}}
 		if getBoolParam(children, attrs, "param_pin") {
 			halparam := getParam(children, attrs, "halparam")
 			if halparam == "" {
@@ -358,9 +392,10 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 		if halpin == "" {
 			halpin = autoBase
 		}
+		initval := getParam(children, attrs, "initval")
 		pins := []*pinDef{
-			{name: halpin + "-i", halType: halS32, dir: halOut},
-			{name: halpin + "-f", halType: halFloat, dir: halOut},
+			{name: halpin + "-i", halType: halS32, dir: halOut, initval: initval},
+			{name: halpin + "-f", halType: halFloat, dir: halOut, initval: initval},
 		}
 		if getBoolParam(children, attrs, "param_pin") {
 			halparam := getParam(children, attrs, "halparam")
