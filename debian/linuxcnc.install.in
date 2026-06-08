@@ -113,7 +113,7 @@ usr/bin/xyzbc-trt-gui
 usr/lib/lib*.so.*
 usr/lib/linuxcnc
 usr/lib/python3
-usr/lib/tcltk
+usr/share/tcltk
 
 usr/share/axis
 usr/share/glade
