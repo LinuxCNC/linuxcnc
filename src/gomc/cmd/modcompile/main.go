@@ -532,11 +532,50 @@ func buildServer() {
 	)
 
 	fmt.Fprintf(os.Stderr, "Building gomc-server...\n")
+
+	// Save file capabilities before rebuild (setcap is lost when binary is replaced).
+	oldCaps := getFileCaps(outPath)
+
 	if err := cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "modcompile: building gomc-server: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Fprintf(os.Stderr, "gomc-server built successfully: %s\n", outPath)
+
+	// Reapply file capabilities if they were set before.
+	if oldCaps != "" {
+		restoreFileCaps(outPath, oldCaps)
+	}
+}
+
+// getFileCaps returns the capability string for a file, or "" if none set.
+func getFileCaps(path string) string {
+	out, err := exec.Command("getcap", path).Output()
+	if err != nil || len(out) == 0 {
+		return ""
+	}
+	// getcap output: "/path/to/bin cap_net_raw,cap_sys_nice=eip"
+	s := strings.TrimSpace(string(out))
+	if idx := strings.Index(s, " = "); idx >= 0 {
+		return s[idx+3:]
+	}
+	if idx := strings.Index(s, " "); idx >= 0 {
+		return s[idx+1:]
+	}
+	return ""
+}
+
+// restoreFileCaps reapplies file capabilities using sudo setcap.
+func restoreFileCaps(path, caps string) {
+	fmt.Fprintf(os.Stderr, "Reapplying file capabilities (%s)...\n", caps)
+	cmd := exec.Command("sudo", "setcap", caps, path)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "modcompile: warning: failed to restore capabilities: %v\n", err)
+		fmt.Fprintf(os.Stderr, "  Run manually: sudo setcap '%s' %s\n", caps, path)
+	}
 }
 
 // cmdList lists all packages that would be compiled into gomc-server.
