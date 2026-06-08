@@ -1,5 +1,3 @@
-ifeq ($(BUILD_ETHERCAT),yes)
-
 LCEC_DIR := hal/drivers/ethercat
 
 # ---------- Unified cmod plugin: ethercat.so ----------
@@ -81,5 +79,3 @@ $(call TOOBJSDEPS, $(LCEC_ALL_SRCS)): $(ECMASTER_STAMPDIR)/.installed
 	$(Q)$(CC) -shared -o $@ $(filter %.o,$^) $(CMOD_LDFLAGS) -lexpat -lm $(ETHERCAT_LIBS)
 
 TARGETS += ../cmod/ethercat.so
-
-endif # BUILD_ETHERCAT
