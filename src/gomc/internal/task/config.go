@@ -188,8 +188,8 @@ func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
 	finalVel := getFloatOrSection(ini, section, "HOME_FINAL_VEL", -1)
 	useIndex := getIntOrSection(ini, section, "HOME_USE_INDEX", 0)
 	noEncoderReset := getIntOrSection(ini, section, "HOME_INDEX_NO_ENCODER_RESET", 0)
-	ignoreLimits := getIntOrSection(ini, section, "HOME_IGNORE_LIMITS", 0)
-	isShared := getIntOrSection(ini, section, "HOME_IS_SHARED", 0)
+	ignoreLimits := getBoolOrSection(ini, section, "HOME_IGNORE_LIMITS", false)
+	isShared := getBoolOrSection(ini, section, "HOME_IS_SHARED", false)
 	sequence := getIntOrSection(ini, section, "HOME_SEQUENCE", 999)
 	volatileHome := getIntOrSection(ini, section, "VOLATILE_HOME", 0)
 	lockingIndexer := getIntOrSection(ini, section, "LOCKING_INDEXER", 0)
@@ -200,13 +200,13 @@ func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
 	// HOME_UNLOCK_FIRST=8, HOME_ABSOLUTE_ENCODER=16, HOME_NO_REHOME=32,
 	// HOME_NO_FINAL_MOVE=64, HOME_INDEX_NO_ENCODER_RESET=128
 	flags := int32(0)
-	if ignoreLimits != 0 {
+	if ignoreLimits {
 		flags |= 1 // HOME_IGNORE_LIMITS
 	}
 	if useIndex != 0 {
 		flags |= 2 // HOME_USE_INDEX
 	}
-	if isShared != 0 {
+	if isShared {
 		flags |= 4 // HOME_IS_SHARED
 	}
 	if lockingIndexer != 0 {
@@ -459,6 +459,20 @@ func getFloatOrSection(ini *inifile.IniFile, section, key string, def float64) f
 
 func getIntOrSection(ini *inifile.IniFile, section, key string, def int) int {
 	return getIntOr(ini, section, key, def)
+}
+
+func getBoolOrSection(ini *inifile.IniFile, section, key string, def bool) bool {
+	s := strings.TrimSpace(strings.ToLower(ini.Get(section, key)))
+	if s == "" {
+		return def
+	}
+	switch s {
+	case "1", "yes", "true":
+		return true
+	case "0", "no", "false":
+		return false
+	}
+	return def
 }
 
 func parseFloat(s string, def float64) float64 {
