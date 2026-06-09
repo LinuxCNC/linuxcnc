@@ -74,6 +74,7 @@ func (m *monitor) loop() {
 			return
 		case <-ticker.C:
 			m.checkEstop()
+			m.checkMotionEnabled()
 			m.checkMotionErrors(&softLimitReported)
 			m.checkJogWatchdog()
 			if m.inihal != nil {
@@ -161,6 +162,55 @@ func (m *monitor) checkEstop() {
 	}
 
 	m.task.operatorError("External E-Stop asserted")
+}
+
+// checkMotionEnabled detects when motion has disabled itself (e.g. due to
+// following error, amp fault, limit switch). This mirrors the old milltask's
+// determineState() which checked traj.enabled every cycle and transitioned
+// the task from ON to ESTOP_RESET when motion was no longer enabled.
+func (m *monitor) checkMotionEnabled() {
+	if m.task.status == nil {
+		return
+	}
+
+	ms, err := m.task.status.GetStatus()
+	if err != nil {
+		return
+	}
+
+	if ms.Enabled != 0 {
+		return // motion still enabled, nothing to do
+	}
+
+	m.task.mu.Lock()
+	if m.task.state != StateOn {
+		m.task.mu.Unlock()
+		return
+	}
+	// Motion disabled itself — transition to OFF (ESTOP_RESET).
+	m.task.state = StateEstopReset
+	numSpindles := m.task.numSpindles
+	m.task.mu.Unlock()
+
+	m.task.logger.Warn("motion disabled — switching machine off")
+
+	// Abort everything (matches old emcTaskUpdate when state left ON).
+	m.task.AbortSequencer()
+	m.task.mcodeAbort()
+	_ = m.task.motion.Abort()
+	_ = m.task.io.IoAbort(2) // EMC_ABORT_TASK_STATE_NOT_ON
+
+	for i := 0; i < numSpindles; i++ {
+		_ = m.task.motion.SpindleOff(int32(i))
+	}
+
+	if m.task.interp != nil {
+		_ = m.task.interp.Abort(0, "motion disabled")
+		_ = m.task.interp.Close()
+		_ = m.task.interp.Reset()
+	}
+
+	m.task.StartSequencer()
 }
 
 // checkMotionErrors polls motion status for errors and soft limits.
