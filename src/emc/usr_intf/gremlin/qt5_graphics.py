@@ -29,6 +29,7 @@ from rs274 import glcanon
 from rs274 import interpret
 import linuxcnc
 import gcode
+import preview_helpers
 
 import re
 import tempfile
@@ -396,20 +397,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
-            unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcode = "G53 G0 "
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    axis = "XYZABCUVW"[i]
-                    if (axis == "A" and self.a_axis_wrapped) or\
-                       (axis == "B" and self.b_axis_wrapped) or\
-                       (axis == "C" and self.c_axis_wrapped):
-                        pos = s.position[i] % 360.000
-                    else:
-                        pos = s.position[i]
-                    position = " %s%.8f" % (axis, pos)
-                    initcode += position
-            result, seq = self.load_preview(filename, canon, unitcode, initcode)
+            initcodes = preview_helpers.create_unitcode_and_initcode(s, self.inifile)
+            result, seq = self.load_preview(filename, canon, *initcodes)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.logger.set_depth(self.from_internal_linear_unit(self.get_foam_z()),
