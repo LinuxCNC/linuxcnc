@@ -641,6 +641,23 @@ func (g *dispatchCGen) emitFieldGoToC(cField, goExpr string, t ast.TypeRef) {
 			g.printf("\t\t%s = %s\n", cField, arrVar)
 		}
 		g.printf("\t}\n")
+	case ast.TypeArray:
+		if t.Elem != nil {
+			arrLen := t.ArrayLen
+			switch t.Elem.Kind {
+			case ast.TypePrimitive:
+				elemCType := cTypeForAPICgo(g.api.Name, *t.Elem)
+				g.printf("\tfor _i := 0; _i < %d; _i++ { %s[_i] = %s(%s[_i]) }\n", arrLen, cField, elemCType, goExpr)
+			case ast.TypeNamed:
+				if g.isEnum(t.Elem.Name) {
+					elemCType := fmt.Sprintf("C.%s_%s_t", g.api.Name, toSnakeCase(t.Elem.Name))
+					g.printf("\tfor _i := 0; _i < %d; _i++ { %s[_i] = %s(%s[_i]) }\n", arrLen, cField, elemCType, goExpr)
+				} else {
+					converter := toLowerCamelRaw(t.Elem.Name) + "GoToC"
+					g.printf("\tfor _i := 0; _i < %d; _i++ { %s[_i] = %s(%s[_i], freeList) }\n", arrLen, cField, converter, goExpr)
+				}
+			}
+		}
 	}
 }
 
