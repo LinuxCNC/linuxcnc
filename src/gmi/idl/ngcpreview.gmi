@@ -86,3 +86,15 @@ type PreviewResult {
 @method "POST"
 @path "/file"
 func gen_preview(filename: string, initcodes: string, unitcode: string) -> PreviewResult
+
+# Result of a file retrieval request.
+type FileResult {
+    lines: []string
+    error: string
+}
+
+# Retrieve the contents of a G-code file from the server.
+# The file must reside in an allowed directory (PROGRAM_PREFIX or SUBROUTINE_PATH).
+@method "POST"
+@path "/get_file"
+func get_file(filename: string) -> FileResult

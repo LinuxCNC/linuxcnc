@@ -713,6 +713,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -736,6 +737,7 @@ type ngcPreview struct {
 	linearUnits    float64 // from [TRAJ]LINEAR_UNITS: 1.0 for mm, 1/25.4 for inch
 	ttInstanceName string  // tooltable instance to look up (default "tooltable")
 	ttClient       *tooltable.TooltableClient
+	allowedDirs    []string // resolved absolute paths where get_file may read
 }
 
 func parseLinearUnits(s string) float64 {
@@ -771,7 +773,10 @@ func newNgcPreview(ini *inifile.IniFile, logger *slog.Logger, name string, args 
 		paramFile = filepath.Join(iniDir, paramFile)
 	}
 	linearUnits := parseLinearUnits(nsIni.Get("TRAJ", "LINEAR_UNITS"))
-	m := &ngcPreview{logger: logger, parameterFile: paramFile, linearUnits: linearUnits, ttInstanceName: ttInst}
+	// Build allowed directories for get_file path restriction
+	iniDir := filepath.Dir(ini.SourceFile())
+	allowedDirs := collectAllowedDirs(nsIni, iniDir)
+	m := &ngcPreview{logger: logger, parameterFile: paramFile, linearUnits: linearUnits, ttInstanceName: ttInst, allowedDirs: allowedDirs}
 	ngcpreview.RegisterNgcpreviewAPI(apiserver.DefaultRegistry(), name, m)
 	logger.Info("ngcpreview module loaded and API registered", "instance", name, "parameterFile", paramFile)
 	return m, nil
@@ -1047,4 +1052,102 @@ func (m *ngcPreview) GenPreview(filename string, initcodes string, unitcode stri
 	result.Plane = int32(ctx.plane)
 
 	return result, nil
+}
+
+// collectAllowedDirs builds the whitelist of directories from which get_file
+// may serve files. Directories are resolved to absolute paths.
+func collectAllowedDirs(ini *inifile.IniFile, iniDir string) []string {
+	var dirs []string
+	resolve := func(p string) string {
+		if p == "" {
+			return ""
+		}
+		if !filepath.IsAbs(p) {
+			p = filepath.Join(iniDir, p)
+		}
+		// EvalSymlinks resolves ".." and symlinks
+		if abs, err := filepath.EvalSymlinks(p); err == nil {
+			return abs
+		}
+		// Fall back to Abs if the dir doesn't exist yet
+		abs, _ := filepath.Abs(p)
+		return abs
+	}
+
+	// [DISPLAY] PROGRAM_PREFIX — the NC_FILES directory
+	if pp := ini.Get("DISPLAY", "PROGRAM_PREFIX"); pp != "" {
+		if d := resolve(pp); d != "" {
+			dirs = append(dirs, d)
+		}
+	}
+	// [RS274NGC] SUBROUTINE_PATH — colon-separated list
+	if sp := ini.Get("RS274NGC", "SUBROUTINE_PATH"); sp != "" {
+		for _, p := range strings.Split(sp, ":") {
+			p = strings.TrimSpace(p)
+			if d := resolve(p); d != "" {
+				dirs = append(dirs, d)
+			}
+		}
+	}
+	// [FILTER] PROGRAM_EXTENSION lines define filtered file types;
+	// the filtered output typically goes to a tempdir, but we allow
+	// the PROGRAM_PREFIX which already covers it.
+
+	// System share directory (contains splash screen NGC files, etc.)
+	if emcHome := os.Getenv("EMC2_HOME"); emcHome != "" {
+		shareDir := filepath.Join(emcHome, "share")
+		if d := resolve(shareDir); d != "" {
+			dirs = append(dirs, d)
+		}
+	}
+
+	return dirs
+}
+
+// isAllowedPath checks whether the resolved path resides under one of the
+// allowed directories.
+func (m *ngcPreview) isAllowedPath(resolvedPath string) bool {
+	for _, dir := range m.allowedDirs {
+		if strings.HasPrefix(resolvedPath, dir+string(filepath.Separator)) || resolvedPath == dir {
+			return true
+		}
+	}
+	return false
+}
+
+// GetFile implements ngcpreview.NgcpreviewCallbacks — serves file contents
+// with path restriction.
+func (m *ngcPreview) GetFile(filename string) (*ngcpreview.FileResult, error) {
+	if filename == "" {
+		return &ngcpreview.FileResult{Error: "empty filename"}, nil
+	}
+
+	abs, err := filepath.Abs(filename)
+	if err != nil {
+		return &ngcpreview.FileResult{Error: "invalid path"}, nil
+	}
+	real, err := filepath.EvalSymlinks(abs)
+	if err != nil {
+		return &ngcpreview.FileResult{Error: "file not found"}, nil
+	}
+
+	if !m.isAllowedPath(real) {
+		m.logger.Warn("get_file: access denied", "requested", filename, "resolved", real)
+		return &ngcpreview.FileResult{Error: "access denied: file is not in an allowed directory"}, nil
+	}
+
+	data, err := os.ReadFile(real)
+	if err != nil {
+		return &ngcpreview.FileResult{Error: fmt.Sprintf("read error: %v", err)}, nil
+	}
+
+	// Split into lines, preserving empty trailing line if present
+	content := string(data)
+	lines := strings.Split(content, "\n")
+	// Remove last empty element from trailing newline
+	if len(lines) > 0 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+
+	return &ngcpreview.FileResult{Lines: lines}, nil
 }

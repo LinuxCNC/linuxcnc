@@ -1177,11 +1177,10 @@ class Progress:
                 "-text", text)
 
 class AxisCanon(GLCanon, StatMixin):
-    def __init__(self, widget, text, linecount, progress, arcdivision):
+    def __init__(self, widget, text, progress, arcdivision):
         GLCanon.__init__(self, widget.colors, geometry, foam)
         StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
-        self.linecount = linecount
         self.progress = progress
         self.aborted = False
         self.arcdivision = arcdivision
@@ -1286,6 +1285,20 @@ def cancel_open(event=None):
 
 loaded_file = None
 
+def _fetch_file_lines(filename):
+    """Fetch file lines from the server via ngcpreview get_file API.
+
+    Returns a list of line strings (without newlines).
+    Raises RuntimeError on access denied or server error.
+    """
+    from gmi.ngcpreview import NgcpreviewClient
+    base_url = gmi.rest_url()
+    client = NgcpreviewClient(base_url, instance=gmi.preview_instance())
+    result = client.get_file(filename)
+    if result.error:
+        raise RuntimeError(result.error)
+    return result.lines
+
 def load_text_and_set_file(f):
     """Load file text into the editor and update loaded_file.
 
@@ -1294,20 +1307,14 @@ def load_text_and_set_file(f):
     """
     global loaded_file
     loaded_file = f
-    program_filter = get_filter(f)
-    if program_filter:
-        f = os.path.join(tempdir, os.path.basename(f))
-        exitcode, stderr = filter_program(program_filter, loaded_file, f)
-        if exitcode:
-            return
     try:
-        lines = open(f).readlines()
+        lines = _fetch_file_lines(f)
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []
         for i, l in enumerate(lines):
-            l = l.expandtabs().replace("\r", "")
-            code.extend(["%6d: " % (i+1), "lineno", l, ""])
+            l = l.expandtabs()
+            code.extend(["%6d: " % (i+1), "lineno", l + "\n", ""])
             if i % 1000 == 0:
                 t.insert("end", *code)
                 del code[:]
@@ -1346,15 +1353,15 @@ def open_file_guts(f, filtered=False, addrecent=True):
         c.task_plan_synch()
         c.wait_complete()
         c.program_open(f)
-        lines = open(f).readlines()
+        lines = _fetch_file_lines(f)
         root_window.tk.call("destroy", ".info.progress")
         progress = Progress(1, len(lines))
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []
         for i, l in enumerate(lines):
-            l = l.expandtabs().replace("\r", "")
-            code.extend(["%6d: " % (i+1), "lineno", l, ""])
+            l = l.expandtabs()
+            code.extend(["%6d: " % (i+1), "lineno", l + "\n", ""])
             if i % 1000 == 0:
                 t.insert("end", *code)
                 del code[:]
@@ -2035,14 +2042,8 @@ def _do_refresh_preview(skip_synch=False, autofit=False):
         c.task_plan_synch()
         c.wait_complete()
     f = loaded_file
-    program_filter = get_filter(f)
-    if program_filter:
-        f = os.path.join(tempdir, os.path.basename(f))
-        if not os.path.exists(f):
-            return  # filtered file not available, need full reload
     f = os.path.abspath(f)
-    lines = open(f).readlines()
-    canon = AxisCanon(o, widgets.text, len(lines) - 1, DummyProgress(), arcdivision)
+    canon = AxisCanon(o, widgets.text, DummyProgress(), arcdivision)
 
     initcodes = []
     initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
