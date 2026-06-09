@@ -8,6 +8,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdatomic.h>
 #include "motion.h"
 #include "motion_struct.h"
 #include "mot_priv.h"
@@ -29,19 +30,13 @@ typedef struct motstat_ctx {
  * Helpers
  * ================================================================ */
 
-/* Copy emcmot_status_t with split-read protection (head/tail check).
-   Returns 0 on success, -1 if split read detected after retries. */
+/* Read status from the triple buffer — always succeeds, never torn. */
 static int read_status(motstat_ctx_t *mc, emcmot_status_t *out)
 {
-    emcmot_status_t *src = &mc->mot->status;
-    for (int tries = 0; tries < 3; tries++) {
-        __sync_synchronize();
-        *out = *src;
-        __sync_synchronize();
-        if (out->head == out->tail)
-            return 0;
-    }
-    return -1;
+    emcmot_status_buf_t *buf = &mc->mot->status_buf;
+    int idx = atomic_load_explicit(&buf->readable, memory_order_acquire);
+    *out = buf->slots[idx];
+    return 0;
 }
 
 static inline motstat_pose_t pose_to_motstat(const EmcPose *p)

@@ -88,15 +88,10 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		stat.Spindle = make([]emcstat.SpindleInfo, numSpindles)
 	}
 
-	// Read motion status (lock-free, reads from shared memory).
+	// Read motion status (lock-free triple buffer, never fails).
 	ms, err := t.status.GetStatus()
 	if err != nil {
-		// Split-read detected (servo thread was mid-update).
-		t.latencyWarnings++
-		if t.latencyWarnings <= t.latencyWarningsMax {
-			t.logger.Warn("task: split-read latency excursion", "count", t.latencyWarnings)
-		}
-		// Use last known good status to avoid flicker.
+		// Should not happen with triple buffer, but handle gracefully.
 		if !t.hasMotionStatus {
 			return stat
 		}

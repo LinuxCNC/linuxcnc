@@ -22,6 +22,7 @@
 
 #include "posemath.h"
 #include "motion.h"
+#include "motion_struct.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
 
@@ -259,6 +260,17 @@ void emcmotController(void *arg, long period)
     inst->status->heartbeat++;
     /* set tail to head, to indicate work complete */
     inst->status->tail = inst->status->head;
+
+    /* Publish status to triple buffer for lock-free readers. */
+    {
+        emcmot_status_buf_t *buf = &inst->mot_struct->status_buf;
+        int wi = buf->write_idx;
+        buf->slots[wi] = *inst->status;
+        atomic_store_explicit(&buf->readable, wi, memory_order_release);
+        /* Advance to next slot (simple rotation). The reader is on the
+           slot we just published; we move away from it. */
+        buf->write_idx = (wi + 1) % MOTSTAT_SLOTS;
+    }
 /* end of controller function */
 }
 

@@ -321,11 +321,9 @@ type Task struct {
 	// M-code handler (M100-M199)
 	mcode *mcodeHandler
 
-	// Cached motion status (used when split-read fails)
-	lastMotionStatus   motstat.MotionStatus
-	hasMotionStatus    bool
-	latencyWarnings    int
-	latencyWarningsMax int
+	// Cached motion status (fallback if read ever fails)
+	lastMotionStatus motstat.MotionStatus
+	hasMotionStatus  bool
 
 	// Current message list (independent of emcerror /errors drain queue).
 	messageList   []TaskMessage
@@ -346,8 +344,7 @@ func NewTask(motion MotionController, io IOController, status MotionStatusReader
 		activeSettings:     make([]float64, 5), // ACTIVE_SETTINGS
 		activeGcodes:       make([]int32, 17),  // ACTIVE_G_CODES
 		activeMcodes:       make([]int32, 10),  // ACTIVE_M_CODES
-		latencyWarningsMax: 10,
-		maxMDIQueued:       10,
+		maxMDIQueued: 10,
 		mcode:              newMcodeHandler(),
 	}
 	t.canon = NewCanon(t)

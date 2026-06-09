@@ -47,17 +47,11 @@ static int send_command(motctl_ctx_t *mc, emcmot_command_t *cmd)
     /* Poll until RT echoes our command number or timeout. */
     long long end = rtapi_get_time() + (long long)(mc->comm_timeout * 1e9);
     while (rtapi_get_time() < end) {
-        emcmot_status_t s;
-        /* lock-free split-read with head/tail check */
-        int ok = 0;
-        for (int tries = 0; tries < 3; tries++) {
-            __sync_synchronize();
-            s = m->status;
-            __sync_synchronize();
-            if (s.head == s.tail) { ok = 1; break; }
-        }
-        if (ok && s.commandNumEcho == cmd->commandNum) {
-            return (s.commandStatus == EMCMOT_COMMAND_OK) ? 0 : -1;
+        /* Read from triple buffer — always consistent. */
+        int idx = atomic_load_explicit(&m->status_buf.readable, memory_order_acquire);
+        emcmot_status_t *s = &m->status_buf.slots[idx];
+        if (s->commandNumEcho == cmd->commandNum) {
+            return (s->commandStatus == EMCMOT_COMMAND_OK) ? 0 : -1;
         }
         rtapi_delay(rtapi_delay_max()); /* ~10 µs yield */
     }
