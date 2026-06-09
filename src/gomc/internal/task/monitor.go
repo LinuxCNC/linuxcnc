@@ -191,8 +191,8 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		*softLimitReported = false
 	}
 
-	// Check motion error (CommandStatus == 3 means RCS_ERROR, or Error bit set by control loop).
-	motionError := ms.CommandStatus == 3 || ms.Error != 0
+	// Check motion error (any non-OK command status or Error bit set by control loop).
+	motionError := ms.CommandStatus >= 2 || ms.Error != 0
 
 	// Check IO error.
 	var ioError bool

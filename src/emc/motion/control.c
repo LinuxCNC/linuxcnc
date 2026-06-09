@@ -821,6 +821,7 @@ static void check_for_faults(motmod_inst_t *inst)
 		    gomc_log_errorf(inst->log, inst->name, _("joint %d amplifier fault"), joint_num);
 		}
 		SET_JOINT_ERROR_FLAG(joint, 1);
+		SET_MOTION_ERROR_FLAG(1);
 		inst->internal->enabling = 0;
 	    }
 	    /* check for excessive following error */
@@ -830,6 +831,7 @@ static void check_for_faults(motmod_inst_t *inst)
 		    gomc_log_errorf(inst->log, inst->name, _("joint %d following error"), joint_num);
 		}
 		SET_JOINT_ERROR_FLAG(joint, 1);
+		SET_MOTION_ERROR_FLAG(1);
 		inst->internal->enabling = 0;
 	    }
 	/* end of if JOINT_ACTIVE_FLAG(joint) */
