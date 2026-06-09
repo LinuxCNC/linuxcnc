@@ -856,6 +856,14 @@ class LivePlotter:
                 pass
         self.last_task_mode = self.stat.task_mode
 
+        # Sync notification messages from server (polled from main thread
+        # because Tk after()/after_idle() from background threads is unreliable).
+        try:
+            if _message_list is not None:
+                notifications.sync(_message_list.get_list())
+        except NameError:
+            pass
+
         self.after = self.win.after(update_ms, self.update)
 
         # Sync jog axis selection from server (multi-client sync)
@@ -4091,8 +4099,12 @@ _dynamic_childs = {}
 notifications = Notification(root_window)
 
 def _on_message_list_update(messages):
-    """Called from MessageList background thread when list changes."""
-    root_window.after_idle(lambda: notifications.sync(messages))
+    """Called from MessageList background thread when list changes.
+    We don't dispatch to Tk here because after()/after_idle() from
+    non-main threads is unreliable on some Tcl/Tk builds (e.g. RPi).
+    Instead, the main-thread periodic update polls the message list.
+    """
+    pass
 
 _message_list = gmi.MessageList(on_update=_on_message_list_update)
 notifications.set_message_list(_message_list)
