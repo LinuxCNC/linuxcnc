@@ -46,6 +46,7 @@ import (
 	"unsafe"
 
 	"github.com/sittner/linuxcnc/src/gomc/internal/apiserver"
+	"github.com/sittner/linuxcnc/src/gomc/pkg/gomc"
 )
 
 // gomcLogRing wraps a C-allocated gomc_log_ring_t and provides the Go-side
@@ -142,6 +143,11 @@ func (r *gomcLogRing) drainAll(logger *slog.Logger) int {
 		component := cStringFromBytes(compBuf)
 		msg := cStringFromBytes(msgBuf)
 		tsNano := int64(ts)
+
+		// Notify Go-level error hooks (e.g. milltask operator messages).
+		if int(level) >= 3 { // GOMC_LOG_ERROR
+			gomc.NotifyLogError(component, msg)
+		}
 
 		logLevel := slog.LevelInfo
 		switch int(level) {

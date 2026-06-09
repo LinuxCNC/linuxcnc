@@ -198,6 +198,16 @@ func (m *milltaskModule) Start() error {
 		t.SetErrorPublisher(&drainErrorPublisher{drain: drain})
 	}
 
+	// Forward ERROR-level log messages from the motion module to the operator
+	// message list. This matches the old reportError() path where motion's
+	// check_for_faults() reported "joint N following error" directly to the
+	// error buffer that the UI reads.
+	gomc.OnLogError(func(component, msg string) {
+		if component == motInstance {
+			t.operatorError(msg)
+		}
+	})
+
 	// Create and configure the G-code interpreter.
 	if err := m.initInterpreter(); err != nil {
 		return fmt.Errorf("milltask: %w", err)
