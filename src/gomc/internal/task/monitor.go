@@ -189,6 +189,10 @@ func (m *monitor) checkMotionEnabled() {
 	}
 	// Motion disabled itself — transition to OFF (ESTOP_RESET).
 	m.task.state = StateEstopReset
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecDone
+	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.stepping = false
 	numSpindles := m.task.numSpindles
 	m.task.mu.Unlock()
 
