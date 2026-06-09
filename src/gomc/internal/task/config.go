@@ -107,8 +107,10 @@ func loadTraj(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 	t.angularUnits = parseAngularUnits(ini.Get("TRAJ", "ANGULAR_UNITS"))
 
 	// Velocities
-	defaultVel := getFloatOr(ini, "TRAJ", "DEFAULT_LINEAR_VELOCITY", 1.0)
-	t.maxVelocity = getFloatOr(ini, "TRAJ", "MAX_LINEAR_VELOCITY", 1e99)
+	defaultVel := getFloatOr(ini, "TRAJ", "DEFAULT_LINEAR_VELOCITY",
+		getFloatOr(ini, "TRAJ", "DEFAULT_VELOCITY", 1.0))
+	t.maxVelocity = getFloatOr(ini, "TRAJ", "MAX_LINEAR_VELOCITY",
+		getFloatOr(ini, "TRAJ", "MAX_VELOCITY", 1e99))
 	if err := mc.SetVelLimit(t.maxVelocity); err != nil {
 		return err
 	}
@@ -117,8 +119,10 @@ func loadTraj(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 	}
 
 	// Acceleration
-	defaultAcc := getFloatOr(ini, "TRAJ", "DEFAULT_LINEAR_ACCELERATION", 1e99)
-	t.maxAcceleration = getFloatOr(ini, "TRAJ", "MAX_LINEAR_ACCELERATION", 1e99)
+	defaultAcc := getFloatOr(ini, "TRAJ", "DEFAULT_LINEAR_ACCELERATION",
+		getFloatOr(ini, "TRAJ", "DEFAULT_ACCELERATION", 1e99))
+	t.maxAcceleration = getFloatOr(ini, "TRAJ", "MAX_LINEAR_ACCELERATION",
+		getFloatOr(ini, "TRAJ", "MAX_ACCELERATION", 1e99))
 	if err := mc.SetAcc(clamp(defaultAcc, 0, t.maxAcceleration)); err != nil {
 		return err
 	}
