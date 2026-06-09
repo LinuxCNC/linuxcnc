@@ -33,6 +33,25 @@ const (
 	CanonContinuous = 3
 )
 
+// TP termination conditions (must match tc_types.h).
+const (
+	tpTermCondStop      = 0 // TC_TERM_COND_STOP
+	tpTermCondExact     = 1 // TC_TERM_COND_EXACT
+	tpTermCondParabolic = 2 // TC_TERM_COND_PARABOLIC (blend)
+)
+
+// canonModeToTPTermCond maps interpreter canon motion modes to TP term conditions.
+func canonModeToTPTermCond(mode int32) int32 {
+	switch mode {
+	case CanonContinuous:
+		return tpTermCondParabolic
+	case CanonExactPath:
+		return tpTermCondExact
+	default:
+		return tpTermCondStop
+	}
+}
+
 // Canon feed reference.
 const (
 	CanonWorkpiece = 1
@@ -1068,7 +1087,7 @@ func (c *Canon) enqueueMotionParams() {
 	c.enqueue(&SetMotionParamsCmd{
 		Vel:       s.linearFeedRate,
 		Acc:       c.task.maxAcceleration,
-		TermCond:  s.motionMode,
+		TermCond:  canonModeToTPTermCond(s.motionMode),
 		Tolerance: s.motionTolerance,
 	})
 }
