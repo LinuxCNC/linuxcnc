@@ -207,7 +207,7 @@ def conv_new_pressed(P, W, button):
             msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
         if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
             return
-    if P.oldConvButton == 'conv_line':
+    if P.oldConvButton == 'conv_line' and button:
         if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
             CONVLINE.set_line_point_to_point(P, W)
         elif W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE'):
