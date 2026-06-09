@@ -3,6 +3,8 @@ package task
 import (
 	"fmt"
 	"time"
+
+	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motstat"
 )
 
 // monitorInterval is the polling rate for the monitoring goroutine.
@@ -227,7 +229,7 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 
 	if motionError && ms.OnSoftLimit == 0 {
 		m.task.logger.Error("motion error detected — aborting")
-		// Report which joint(s) hit a limit switch.
+		// Report which joint(s) have errors.
 		for i, j := range ms.Joints {
 			if j.OnPosLimit != 0 {
 				m.task.operatorError(fmt.Sprintf("Joint %d on positive limit switch", i))
@@ -235,6 +237,16 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 			if j.OnNegLimit != 0 {
 				m.task.operatorError(fmt.Sprintf("Joint %d on negative limit switch", i))
 			}
+			if j.FerrorExceeded != 0 {
+				m.task.operatorError(fmt.Sprintf("Joint %d following error", i))
+			}
+			if j.Fault != 0 {
+				m.task.operatorError(fmt.Sprintf("Joint %d drive fault", i))
+			}
+		}
+		// If no specific joint error was identified, report generic motion error.
+		if !m.anyJointError(ms) {
+			m.task.operatorError("Motion error")
 		}
 	}
 	if ioError {
@@ -261,6 +273,16 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 
 	// Restart sequencer.
 	m.task.StartSequencer()
+}
+
+// anyJointError returns true if any joint has a reportable error condition.
+func (m *monitor) anyJointError(ms motstat.MotionStatus) bool {
+	for _, j := range ms.Joints {
+		if j.OnPosLimit != 0 || j.OnNegLimit != 0 || j.FerrorExceeded != 0 || j.Fault != 0 {
+			return true
+		}
+	}
+	return false
 }
 
 // checkJogWatchdog stops continuous jogs that haven't been refreshed

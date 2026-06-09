@@ -142,6 +142,12 @@ func (t *Task) SetState(state int32) error {
 		}
 		t.mu.Lock()
 		t.state = StateOn
+		// Clear any lingering error state from a previous fault so the
+		// machine can accept commands again after off/on recovery.
+		if t.execState == ExecError {
+			t.execState = ExecDone
+			t.interpState = InterpIdle
+		}
 		t.mu.Unlock()
 		return nil
 	}
