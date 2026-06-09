@@ -265,11 +265,15 @@ void emcmotController(void *arg, long period)
     {
         emcmot_status_buf_t *buf = &inst->mot_struct->status_buf;
         int wi = buf->write_idx;
+        int next = (wi + 1) % MOTSTAT_SLOTS;
+        if (atomic_load_explicit(&buf->slot_readers[next], memory_order_acquire) == 0) {
+            /* Next slot is free — publish current and advance. */
+            atomic_store_explicit(&buf->readable, wi, memory_order_release);
+            buf->write_idx = next;
+            wi = next;
+        }
+        /* Always write fresh data into the current write slot. */
         buf->slots[wi] = *inst->status;
-        atomic_store_explicit(&buf->readable, wi, memory_order_release);
-        /* Advance to next slot (simple rotation). The reader is on the
-           slot we just published; we move away from it. */
-        buf->write_idx = (wi + 1) % MOTSTAT_SLOTS;
     }
 /* end of controller function */
 }

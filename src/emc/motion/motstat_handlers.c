@@ -30,12 +30,14 @@ typedef struct motstat_ctx {
  * Helpers
  * ================================================================ */
 
-/* Read status from the triple buffer — always succeeds, never torn. */
+/* Read status from the triple buffer — always consistent. */
 static int read_status(motstat_ctx_t *mc, emcmot_status_t *out)
 {
     emcmot_status_buf_t *buf = &mc->mot->status_buf;
     int idx = atomic_load_explicit(&buf->readable, memory_order_acquire);
+    atomic_fetch_add_explicit(&buf->slot_readers[idx], 1, memory_order_acquire);
     *out = buf->slots[idx];
+    atomic_fetch_sub_explicit(&buf->slot_readers[idx], 1, memory_order_release);
     return 0;
 }
 

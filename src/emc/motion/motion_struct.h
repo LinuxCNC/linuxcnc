@@ -15,15 +15,17 @@
 #include <rtapi_mutex.h>
 #include <stdatomic.h>
 
-/* Triple-buffered status: writer (servo thread) cycles through slots and
-   atomically publishes the latest completed slot index.  Reader always gets
-   a consistent, never-torn snapshot (at most 1 cycle old). */
+/* Triple-buffered status: writer (servo thread) cycles through slots,
+   advancing only when the next slot has no active readers.  Readers hold
+   a per-slot reference count during copy so the writer never overwrites
+   a slot in use. */
 #define MOTSTAT_SLOTS 3
 
 typedef struct emcmot_status_buf_t {
     struct emcmot_status_t slots[MOTSTAT_SLOTS];
-    atomic_int readable;  /* index of last fully-written slot (0..2) */
-    int write_idx;        /* current writer slot (not shared — writer only) */
+    atomic_int readable;                    /* index of last published slot */
+    atomic_int slot_readers[MOTSTAT_SLOTS]; /* per-slot reader reference count */
+    int write_idx;                          /* current write slot (writer-only) */
 } emcmot_status_buf_t;
 
 /* big comm structure, for upper memory */
