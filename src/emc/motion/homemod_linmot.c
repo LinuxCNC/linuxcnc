@@ -247,42 +247,49 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
         }
         if (*(dp->homing_attained)) {
             *(dp->home_cmd) = 0;
-            jd->drv_state = DRV_HOME_SYNC_POS;
+            /* Switch back to CSP first, sync position after mode is stable */
+            *(dp->opmode_cmd) = CIA402_OP_CSP;
+            jd->mode_wait_count = 0;
+            jd->drv_state = DRV_HOME_WAIT_CSP;
             return 1;
         }
         /* No timeout here - drive homing may take a long time */
         return 1;
 
     case DRV_HOME_SYNC_POS: {
-        /* Drive is homed. Sync LinuxCNC position to actual drive position.
-         * The drive's position feedback (posFb) is already being read by
-         * motmod into motor_pos_fb. We set HOME_OFFSET = the position
-         * the drive reports after homing (which should be the drive's
-         * zero or configured home position).
+        /* Drive is back in CSP mode and position feedback is stable.
+         * Sync LinuxCNC position to actual drive position.
          *
-         * We use the same method as the standard homemod's
-         * HOME_SET_SWITCH_POSITION state for absolute encoders:
-         * set current position to home_offset. */
-        double offset = jd->home_offset -
-            inst->mot->joint_get_pos_fb(inst->mot->ctx, jno);
-        inst->mot->joint_set_pos_cmd(inst->mot->ctx, jno,
-            inst->mot->joint_get_pos_cmd(inst->mot->ctx, jno) + offset);
-        inst->mot->joint_set_pos_fb(inst->mot->ctx, jno,
-            inst->mot->joint_get_pos_fb(inst->mot->ctx, jno) + offset);
-        inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno,
-            inst->mot->joint_get_free_tp_curr_pos(inst->mot->ctx, jno) + offset);
-        inst->mot->joint_set_motor_offset(inst->mot->ctx, jno,
-            inst->mot->joint_get_motor_offset(inst->mot->ctx, jno) - offset);
+         * IMPORTANT: pos_fb is being faked during ferror suppression
+         * (motmod forces pos_fb = pos_cmd). We must use motor_pos_fb
+         * which always reflects the real drive feedback.
+         *
+         * After homing, the drive reports its position relative to its
+         * internal reference (typically 0 at home). We want LinuxCNC to
+         * consider this position as HOME_OFFSET.
+         *
+         * pos_fb = motor_pos_fb - backlash_filt - motor_offset
+         * We want pos_fb = home_offset, so:
+         * motor_offset = motor_pos_fb - backlash_filt - home_offset
+         *
+         * Also set pos_cmd = pos_fb = home_offset so that motor_pos_cmd
+         * (= pos_cmd + backlash + motor_offset) equals motor_pos_fb,
+         * keeping the drive at its current position. */
+        double motor_fb = inst->mot->joint_get_motor_pos_fb(inst->mot->ctx, jno);
+        double backlash = inst->mot->joint_get_backlash_filt(inst->mot->ctx, jno);
+        double new_motor_offset = motor_fb - backlash - jd->home_offset;
 
-        /* Switch back to CSP */
-        *(dp->opmode_cmd) = CIA402_OP_CSP;
-        jd->mode_wait_count = 0;
-        jd->drv_state = DRV_HOME_WAIT_CSP;
+        inst->mot->joint_set_motor_offset(inst->mot->ctx, jno, new_motor_offset);
+        inst->mot->joint_set_pos_fb(inst->mot->ctx, jno, jd->home_offset);
+        inst->mot->joint_set_pos_cmd(inst->mot->ctx, jno, jd->home_offset);
+        inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, jd->home_offset);
+
+        jd->drv_state = DRV_HOME_FINAL_MOVE;
         return 1;
     }
 
     case DRV_HOME_SWITCH_BACK:
-        /* Switch back to CSP mode */
+        /* Switch back to CSP mode (unused, kept for enum completeness) */
         *(dp->opmode_cmd) = CIA402_OP_CSP;
         jd->mode_wait_count = 0;
         jd->drv_state = DRV_HOME_WAIT_CSP;
@@ -291,7 +298,7 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
     case DRV_HOME_WAIT_CSP:
         /* Wait for drive to acknowledge CSP mode */
         if (*(dp->opmode_fb) == CIA402_OP_CSP) {
-            jd->drv_state = DRV_HOME_FINAL_MOVE;
+            jd->drv_state = DRV_HOME_SYNC_POS;
             return 1;
         }
         jd->mode_wait_count++;
