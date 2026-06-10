@@ -74,6 +74,8 @@ typedef enum {
     DRV_HOME_SYNC_POS,        /* Sync LinuxCNC position to drive */
     DRV_HOME_SWITCH_BACK,     /* Switch back to CSP */
     DRV_HOME_WAIT_CSP,        /* Wait for opModeDisp == 8 */
+    DRV_HOME_FINAL_MOVE,      /* Final move to HOME position */
+    DRV_HOME_FINAL_WAIT,      /* Waiting for final move to complete */
     DRV_HOME_DONE,            /* Homing complete */
     DRV_HOME_ERROR,           /* Homing failed */
 } drv_home_state_t;
@@ -289,7 +291,7 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
     case DRV_HOME_WAIT_CSP:
         /* Wait for drive to acknowledge CSP mode */
         if (*(dp->opmode_fb) == CIA402_OP_CSP) {
-            jd->drv_state = DRV_HOME_DONE;
+            jd->drv_state = DRV_HOME_FINAL_MOVE;
             return 1;
         }
         jd->mode_wait_count++;
@@ -297,6 +299,37 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
             gomc_log_errorf(inst->log, inst->name,
                 "j%d: timeout waiting for CSP mode after homing", jno);
             jd->drv_state = DRV_HOME_ERROR;
+        }
+        return 1;
+
+    case DRV_HOME_FINAL_MOVE:
+        /* Final move from HOME_OFFSET to HOME position.
+         * If HOME == HOME_OFFSET (or HOME_NO_FINAL_MOVE), skip. */
+        if ((jd->home_flags & HOME_NO_FINAL_MOVE) ||
+            fabs(jd->home - jd->home_offset) < 1e-9) {
+            jd->drv_state = DRV_HOME_DONE;
+            return 1;
+        }
+        /* Plan move to HOME position */
+        inst->mot->joint_set_free_tp_pos_cmd(inst->mot->ctx, jno, jd->home);
+        if (jd->home_final_vel > 0) {
+            double vl = inst->mot->joint_get_vel_limit(inst->mot->ctx, jno);
+            double vel = fabs(jd->home_final_vel);
+            inst->mot->joint_set_free_tp_max_vel(inst->mot->ctx, jno, vel < vl ? vel : vl);
+        } else {
+            inst->mot->joint_set_free_tp_max_vel(inst->mot->ctx, jno,
+                inst->mot->joint_get_vel_limit(inst->mot->ctx, jno));
+        }
+        inst->mot->joint_set_free_tp_enable(inst->mot->ctx, jno, 1);
+        jd->drv_state = DRV_HOME_FINAL_WAIT;
+        return 1;
+
+    case DRV_HOME_FINAL_WAIT:
+        /* Wait for final move to complete */
+        if (!inst->mot->joint_get_free_tp_active(inst->mot->ctx, jno)) {
+            inst->mot->joint_set_free_tp_enable(inst->mot->ctx, jno, 0);
+            jd->drv_state = DRV_HOME_DONE;
+            return 1;
         }
         return 1;
 
@@ -748,9 +781,14 @@ static bool get_home_is_synchronized(linmot_inst_t *inst, int jno) {
 
 static bool get_homing_at_index_search_wait(linmot_inst_t *inst, int jno) {
     /* This is the key: return true while drive is homing to suppress ferror.
-     * motmod uses this + index_enable==0 to force pos_fb = pos_cmd. */
+     * motmod uses this + index_enable==0 to force pos_fb = pos_cmd.
+     * Stop suppressing once we're in final move (drive is back in CSP,
+     * position tracking is active). */
     if (inst->H[jno].use_drive_homing &&
-        inst->H[jno].drv_state != DRV_HOME_IDLE) {
+        inst->H[jno].drv_state != DRV_HOME_IDLE &&
+        inst->H[jno].drv_state != DRV_HOME_FINAL_MOVE &&
+        inst->H[jno].drv_state != DRV_HOME_FINAL_WAIT &&
+        inst->H[jno].drv_state != DRV_HOME_DONE) {
         return true;
     }
     return inst->H[jno].home_state == HOME_INDEX_SEARCH_WAIT;
