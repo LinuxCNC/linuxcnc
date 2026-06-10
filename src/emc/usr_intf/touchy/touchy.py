@@ -814,10 +814,12 @@ class touchy:
                 scroller.set_max_content_width(area.width)
                 scroller.set_max_content_height(area.height)
                 # Open at the content size, capped to the screen; this avoids an
-                # off-screen window without forcing a screen-sized minimum.
-                nat = child.get_preferred_size()[1]
-                win.resize(min(nat.width, area.width),
-                           min(nat.height, area.height))
+                # off-screen window without forcing a screen-sized minimum. A
+                # user-saved geometry (window_geometry pref) takes precedence.
+                if self.window_geometry == "default":
+                    nat = child.get_preferred_size()[1]
+                    win.resize(min(nat.width, area.width),
+                               min(nat.height, area.height))
                 GLib.idle_add(self._offer_fit, child, area)
             except Exception:
                 pass
