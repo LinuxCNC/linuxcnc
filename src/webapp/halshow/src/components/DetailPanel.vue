@@ -115,15 +115,15 @@ function isItemWatched(): boolean {
         <tr><td class="label">Name</td><td class="value mono">{{ (halshowStore.state.selectedItem as SignalInfo).name }}</td></tr>
         <tr><td class="label">Type</td><td class="value">{{ (halshowStore.state.selectedItem as SignalInfo).type }}</td></tr>
         <tr><td class="label">Value</td><td class="value mono">{{ (halshowStore.state.selectedItem as SignalInfo).value }}</td></tr>
-        <tr v-if="(halshowStore.state.selectedItem as SignalInfo).writers.length">
+        <tr v-if="(halshowStore.state.selectedItem as SignalInfo).writers?.length">
           <td class="label">Writers</td>
           <td class="value mono">{{ (halshowStore.state.selectedItem as SignalInfo).writers.join(', ') }}</td>
         </tr>
-        <tr v-if="(halshowStore.state.selectedItem as SignalInfo).readers.length">
+        <tr v-if="(halshowStore.state.selectedItem as SignalInfo).readers?.length">
           <td class="label">Readers</td>
           <td class="value mono">{{ (halshowStore.state.selectedItem as SignalInfo).readers.join(', ') }}</td>
         </tr>
-        <tr v-if="(halshowStore.state.selectedItem as SignalInfo).bidirs.length">
+        <tr v-if="(halshowStore.state.selectedItem as SignalInfo).bidirs?.length">
           <td class="label">Bidirs</td>
           <td class="value mono">{{ (halshowStore.state.selectedItem as SignalInfo).bidirs.join(', ') }}</td>
         </tr>
