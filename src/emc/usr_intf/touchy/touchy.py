@@ -178,7 +178,7 @@ class touchy:
                 else:
                     self.wTree.get_object("MainWindow").parse_geometry(self.window_geometry)
                     if self.window_max:
-                        self.wTree.get_object("MainWindow").window.maximize()
+                        self.wTree.get_object("MainWindow").maximize()
 
                 self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
                 if self.invisible_cursor:
