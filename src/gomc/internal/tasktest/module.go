@@ -46,7 +46,7 @@ func (m *testModule) Start() error {
 	}
 
 	// Look up emcstat API for status queries (both C and Go milltask register this).
-	emcstatCbs, err := reg.GetAPI("emcstat", "milltask", 1)
+	emcstatCbs, err := reg.GetAPIUntracked("emcstat", "milltask", 1)
 	if err != nil {
 		return fmt.Errorf("tasktest: emcstat lookup: %w", err)
 	}
@@ -57,7 +57,7 @@ func (m *testModule) Start() error {
 	var emccmdCbs unsafe.Pointer
 	if wreg == nil || wreg.Get("emccmd", "milltask") == nil {
 		// C milltask path: use registry dispatch
-		emccmdCbs, err = reg.GetAPI("emccmd", "milltask", 1)
+		emccmdCbs, err = reg.GetAPIUntracked("emccmd", "milltask", 1)
 		if err != nil {
 			return fmt.Errorf("tasktest: emccmd lookup: %w", err)
 		}

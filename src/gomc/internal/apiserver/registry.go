@@ -130,9 +130,9 @@ func (r *Registry) OnRegister(fn OnRegisterFunc) {
 	}
 }
 
-// GetAPI returns the callbacks pointer for direct inter-module calls.
+// GetAPIUntracked returns the callbacks pointer for direct inter-module calls.
 // Returns ENOENT if not found, EINVAL on version mismatch.
-func (r *Registry) GetAPI(apiName string, instance string, requiredVersion int) (unsafe.Pointer, error) {
+func (r *Registry) GetAPIUntracked(apiName string, instance string, requiredVersion int) (unsafe.Pointer, error) {
 	key := registryKey(apiName, instance)
 
 	r.mu.RLock()
@@ -146,6 +146,20 @@ func (r *Registry) GetAPI(apiName string, instance string, requiredVersion int) 
 		return nil, syscall.EINVAL
 	}
 	return api.Callbacks, nil
+}
+
+// GetAPIFor looks up an API and records the caller as a consumer.
+// This is the preferred method for Go modules — it ensures consumer tracking
+// is never accidentally omitted.  The consumer name is typically the module's
+// instance name.
+// Returns ENOENT if not found, EINVAL on version mismatch.
+func (r *Registry) GetAPIFor(consumer, apiName, instance string, requiredVersion int) (unsafe.Pointer, error) {
+	ptr, err := r.GetAPIUntracked(apiName, instance, requiredVersion)
+	if err != nil {
+		return nil, err
+	}
+	r.RecordConsumer(consumer, apiName, instance)
+	return ptr, nil
 }
 
 // RecordConsumer records that a consumer looked up an API from a provider.

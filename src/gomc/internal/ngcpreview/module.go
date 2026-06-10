@@ -733,6 +733,7 @@ func init() {
 
 type ngcPreview struct {
 	logger         *slog.Logger
+	name           string  // module instance name
 	parameterFile  string  // from [RS274NGC]PARAMETER_FILE
 	linearUnits    float64 // from [TRAJ]LINEAR_UNITS: 1.0 for mm, 1/25.4 for inch
 	ttInstanceName string  // tooltable instance to look up (default "tooltable")
@@ -776,7 +777,7 @@ func newNgcPreview(ini *inifile.IniFile, logger *slog.Logger, name string, args 
 	// Build allowed directories for get_file path restriction
 	iniDir := filepath.Dir(ini.SourceFile())
 	allowedDirs := collectAllowedDirs(nsIni, iniDir)
-	m := &ngcPreview{logger: logger, parameterFile: paramFile, linearUnits: linearUnits, ttInstanceName: ttInst, allowedDirs: allowedDirs}
+	m := &ngcPreview{logger: logger, name: name, parameterFile: paramFile, linearUnits: linearUnits, ttInstanceName: ttInst, allowedDirs: allowedDirs}
 	ngcpreview.RegisterNgcpreviewAPI(apiserver.DefaultRegistry(), name, m)
 	logger.Info("ngcpreview module loaded and API registered", "instance", name, "parameterFile", paramFile)
 	return m, nil
@@ -785,7 +786,7 @@ func newNgcPreview(ini *inifile.IniFile, logger *slog.Logger, name string, args 
 func (m *ngcPreview) Start() error {
 	// Look up tooltable API for tool data during preview generation.
 	reg := apiserver.DefaultRegistry()
-	ttCbs, err := reg.GetAPI("tooltable", m.ttInstanceName, 1)
+	ttCbs, err := reg.GetAPIFor(m.name, "tooltable", m.ttInstanceName, 1)
 	if err != nil {
 		m.logger.Warn("ngcpreview: tooltable API not available, tool data will be empty", "err", err)
 	} else {

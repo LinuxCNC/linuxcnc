@@ -20,7 +20,7 @@ func TestDirectKinsRegisterAndCall(t *testing.T) {
 	}
 
 	// Lookup (simulating what the motion controller would do).
-	ptr, err := reg.GetAPI("kins", "kinematics", 1)
+	ptr, err := reg.GetAPIUntracked("kins", "kinematics", 1)
 	if err != nil {
 		t.Fatalf("GetAPI: %v", err)
 	}
@@ -64,7 +64,7 @@ func TestDirectKinsLookupNotFound(t *testing.T) {
 	apiserver.SetDefaultRegistry(reg)
 	defer apiserver.SetDefaultRegistry(nil)
 
-	_, err := reg.GetAPI("kins", "kinematics", 1)
+	_, err := reg.GetAPIUntracked("kins", "kinematics", 1)
 	if err == nil {
 		t.Fatal("expected error for unregistered lookup")
 	}
@@ -78,7 +78,7 @@ func TestDirectKinsVersionMismatch(t *testing.T) {
 	cbs := MakeCallbacks()
 	reg.Register("kins", 1, "kinematics", CallbacksPtr(&cbs))
 
-	_, err := reg.GetAPI("kins", "kinematics", 2)
+	_, err := reg.GetAPIUntracked("kins", "kinematics", 2)
 	if err == nil {
 		t.Fatal("expected error for version mismatch")
 	}

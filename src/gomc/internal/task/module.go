@@ -67,10 +67,10 @@ func factory(ini *inifile.IniFile, logger *slog.Logger, name string, args []stri
 		return nil, fmt.Errorf("milltask: emcstat register: %w", err)
 	}
 	m.apiCleanup = func() {
-		if ptr, err := reg.GetAPI("emccmd", name, 0); err == nil {
+		if ptr, err := reg.GetAPIUntracked("emccmd", name, 0); err == nil {
 			emccmd.FreeEmccmdCallbacks(ptr)
 		}
-		if ptr, err := reg.GetAPI("emcstat", name, 0); err == nil {
+		if ptr, err := reg.GetAPIUntracked("emcstat", name, 0); err == nil {
 			emcstat.FreeEmcstatCallbacks(ptr)
 		}
 	}
@@ -139,15 +139,15 @@ func (m *milltaskModule) Start() error {
 	}
 
 	// Look up registered GMI callbacks.
-	motctlCbs, err := reg.GetAPI("motctl", motInstance, 1)
+	motctlCbs, err := reg.GetAPIFor(m.name, "motctl", motInstance, 1)
 	if err != nil {
 		return fmt.Errorf("milltask: motctl API lookup (%s): %w", motInstance, err)
 	}
-	motstatCbs, err := reg.GetAPI("motstat", motInstance, 1)
+	motstatCbs, err := reg.GetAPIFor(m.name, "motstat", motInstance, 1)
 	if err != nil {
 		return fmt.Errorf("milltask: motstat API lookup (%s): %w", motInstance, err)
 	}
-	emcioCbs, err := reg.GetAPI("emcio", ioInstance, 1)
+	emcioCbs, err := reg.GetAPIFor(m.name, "emcio", ioInstance, 1)
 	if err != nil {
 		return fmt.Errorf("milltask: emcio API lookup (%s): %w", ioInstance, err)
 	}
@@ -157,7 +157,7 @@ func (m *milltaskModule) Start() error {
 	if ttInstance == "" {
 		ttInstance = "tooltable"
 	}
-	ttCbs, err := reg.GetAPI("tooltable", ttInstance, 1)
+	ttCbs, err := reg.GetAPIFor(m.name, "tooltable", ttInstance, 1)
 	if err != nil {
 		return fmt.Errorf("milltask: tooltable API lookup (%s): %w", ttInstance, err)
 	}

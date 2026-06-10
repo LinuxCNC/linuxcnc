@@ -82,7 +82,7 @@ func registerItemAPI(reg *apiserver.Registry, instance string, impl ItemCallback
 }
 
 func getItemAPI(reg *apiserver.Registry, instance string) (ItemCallbacks, error) {
-	ptr, err := reg.GetAPI("items", instance, 1)
+	ptr, err := reg.GetAPIUntracked("items", instance, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func TestGomodToGomodVersionMismatch(t *testing.T) {
 	registerItemAPI(reg, "store", store)
 
 	// Try to get with wrong version
-	_, err := reg.GetAPI("items", "store", 2)
+	_, err := reg.GetAPIUntracked("items", "store", 2)
 	if !errors.Is(err, syscall.EINVAL) {
 		t.Errorf("GetAPI(wrong version): got %v, want EINVAL", err)
 	}

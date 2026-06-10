@@ -279,7 +279,7 @@ func getKinsCallbacksFor(instance string) *C.kins_callbacks_t {
 	if reg == nil {
 		return nil
 	}
-	cbs, err := reg.GetAPI("kins", instance, 1)
+	cbs, err := reg.GetAPIUntracked("kins", instance, 1)
 	if err != nil {
 		return nil
 	}
@@ -330,7 +330,7 @@ func test_api_get_cb(ctx unsafe.Pointer, apiName *C.char, version C.int,
 	instance := C.GoString(instanceName)
 	ver := int(version)
 
-	cbs, err := reg.GetAPI(C.GoString(apiName), instance, ver)
+	cbs, err := reg.GetAPIUntracked(C.GoString(apiName), instance, ver)
 	if err != nil {
 		return nil
 	}

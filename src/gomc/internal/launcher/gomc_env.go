@@ -363,7 +363,7 @@ func gomc_api_get_cb(ctx unsafe.Pointer, apiName *C.char, version C.int,
 	instance := C.GoString(instanceName)
 	ver := int(version)
 
-	cbs, err := reg.GetAPI(name, instance, ver)
+	cbs, err := reg.GetAPIUntracked(name, instance, ver)
 	if err != nil {
 		slog.Error("get_api: lookup failed",
 			"api", name, "instance", instance, "version", ver, "error", err)

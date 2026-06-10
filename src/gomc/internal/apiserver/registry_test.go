@@ -69,7 +69,7 @@ func TestGetAPIVersionMatch(t *testing.T) {
 	r := NewRegistry()
 	r.Register("hal", 2, "hal", fakeCallbacks)
 
-	cb, err := r.GetAPI("hal", "hal", 2)
+	cb, err := r.GetAPIUntracked("hal", "hal", 2)
 	if err != nil {
 		t.Fatalf("GetAPI: %v", err)
 	}
@@ -82,7 +82,7 @@ func TestGetAPIVersionMismatch(t *testing.T) {
 	r := NewRegistry()
 	r.Register("hal", 2, "hal", fakeCallbacks)
 
-	_, err := r.GetAPI("hal", "hal", 1)
+	_, err := r.GetAPIUntracked("hal", "hal", 1)
 	if err != syscall.EINVAL {
 		t.Errorf("version mismatch: got %v, want EINVAL", err)
 	}
@@ -91,7 +91,7 @@ func TestGetAPIVersionMismatch(t *testing.T) {
 func TestGetAPINotFound(t *testing.T) {
 	r := NewRegistry()
 
-	_, err := r.GetAPI("hal", "nonexistent", 1)
+	_, err := r.GetAPIUntracked("hal", "nonexistent", 1)
 	if err != syscall.ENOENT {
 		t.Errorf("not found: got %v, want ENOENT", err)
 	}

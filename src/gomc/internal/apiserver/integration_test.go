@@ -412,12 +412,12 @@ func TestIntegrationVersionMismatch(t *testing.T) {
 	var cb MockCallbacks = impl
 	reg.Register("v", 3, "v0", unsafe.Pointer(&cb))
 
-	_, err := reg.GetAPI("v", "v0", 2)
+	_, err := reg.GetAPIUntracked("v", "v0", 2)
 	if err != syscall.EINVAL {
 		t.Errorf("version mismatch: got %v, want EINVAL", err)
 	}
 
-	_, err = reg.GetAPI("v", "v0", 3)
+	_, err = reg.GetAPIUntracked("v", "v0", 3)
 	if err != nil {
 		t.Errorf("exact version: got %v, want nil", err)
 	}
