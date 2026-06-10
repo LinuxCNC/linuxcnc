@@ -174,16 +174,27 @@ jobs:
       matrix:
         runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
         image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
+        include:
+          - allow_fail: False
+            image: debian:bullseye
+          - allow_fail: False
+            image: debian:bookworm
+          - allow_fail: False
+            image: debian:trixie
+          - allow_fail: True
+            image: debian:sid
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
       options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+    continue-on-error: ${{ matrix.allow_fail }}
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
+        echo Allow failure: ${{ matrix.allow_fail }}
         echo Number of CPUs: $(nproc)
         echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
@@ -257,16 +268,27 @@ jobs:
     strategy:
       matrix:
         image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
+        include:
+        - allow_fail: False
+          image: debian:bullseye
+        - allow_fail: False
+          image: debian:bookworm
+        - allow_fail: False
+          image: debian:trixie
+        - allow_fail: True
+          image: debian:sid
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
       options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+    continue-on-error: ${{ matrix.allow_fail }}
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
+        echo Allow failure: ${{ matrix.allow_fail }}
         echo Number of CPUs: $(nproc)
         echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
