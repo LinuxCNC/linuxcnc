@@ -218,8 +218,13 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
     case DRV_HOME_WAIT_MODE:
         /* Wait for drive to acknowledge homing mode */
         if (*(dp->opmode_fb) == CIA402_OP_HOMING) {
+            /* Mode confirmed — assert home command immediately.
+             * CiA 402: drive triggers homing on bit 4 set in homing mode.
+             * The drive clears HomingAttained on mode entry (confirmed by
+             * scope capture), so no edge-detect dance needed. */
+            *(dp->home_cmd) = 1;
             jd->mode_wait_count = 0;
-            jd->drv_state = DRV_HOME_START;
+            jd->drv_state = DRV_HOME_WAIT_ATTAINED;
             return 1;
         }
         jd->mode_wait_count++;
@@ -231,21 +236,8 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
         return 1;
 
     case DRV_HOME_START:
-        /* Wait until HomingAttained is clear before asserting home_cmd.
-         * This handles the case where the drive still has HomingAttained
-         * set from a previous homing cycle. We need a clean 0→1 edge. */
-        if (*(dp->homing_attained)) {
-            /* Still set from previous homing, keep home_cmd low and wait */
-            *(dp->home_cmd) = 0;
-            jd->mode_wait_count++;
-            if (jd->mode_wait_count > MODE_SWITCH_TIMEOUT) {
-                gomc_log_errorf(inst->log, inst->name,
-                    "j%d: timeout waiting for HomingAttained to clear", jno);
-                jd->drv_state = DRV_HOME_ERROR;
-            }
-            return 1;
-        }
-        /* HomingAttained is low, now assert home command */
+        /* Unused — kept for enum/state completeness.
+         * Homing is started directly from DRV_HOME_WAIT_MODE. */
         *(dp->home_cmd) = 1;
         jd->mode_wait_count = 0;
         jd->drv_state = DRV_HOME_WAIT_ATTAINED;
