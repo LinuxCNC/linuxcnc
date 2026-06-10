@@ -92,7 +92,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.shutdown_play_sound = True
         self.shutdown_alert_sound_type = 'READY'
         self.shutdown_exit_sound_type = 'LOGOUT'
-        self.shutdown_timeout = 0
+        self.shutdown_timeout = 10
         self.notify_start_greeting = False
         self.notify_start_title = 'Welcome'
         self.notify_start_detail = 'This option can be changed in the preference file'
