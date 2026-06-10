@@ -1405,6 +1405,12 @@ static int init_comm_buffers(motmod_inst_t *inst)
 	return -1;
     }
 
+    /* Initialize triple buffer: each index must be distinct. */
+    inst->mot_struct->status_buf.write_idx = 0;
+    atomic_init(&inst->mot_struct->status_buf.middle, 1);
+    inst->mot_struct->status_buf.read_idx = 2;
+    /* reader_mtx is zero-initialized by calloc = unlocked */
+
     /* we'll reference inst->mot_struct directly */
     inst->command = &inst->mot_struct->command;
     inst->status = &inst->mot_struct->status;

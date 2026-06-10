@@ -15,17 +15,18 @@
 #include <rtapi_mutex.h>
 #include <stdatomic.h>
 
-/* Triple-buffered status: writer (servo thread) cycles through slots,
-   advancing only when the next slot has no active readers.  Readers hold
-   a per-slot reference count during copy so the writer never overwrites
-   a slot in use. */
+/* Lock-free SPSC triple buffer for status.
+   Writer (RT servo thread) and a single logical consumer exchange slots
+   through an atomic middle index.  Multiple physical readers are
+   serialized by reader_mtx so the buffer sees exactly one consumer. */
 #define MOTSTAT_SLOTS 3
 
 typedef struct emcmot_status_buf_t {
     struct emcmot_status_t slots[MOTSTAT_SLOTS];
-    atomic_int readable;                    /* index of last published slot */
-    atomic_int slot_readers[MOTSTAT_SLOTS]; /* per-slot reader reference count */
-    int write_idx;                          /* current write slot (writer-only) */
+    atomic_int middle;          /* exchange slot between writer and reader */
+    int write_idx;              /* writer-private slot index */
+    int read_idx;               /* reader-private slot index (under reader_mtx) */
+    rtapi_mutex_t reader_mtx;   /* serialize consumer access */
 } emcmot_status_buf_t;
 
 /* big comm structure, for upper memory */
