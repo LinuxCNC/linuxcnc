@@ -254,61 +254,10 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
         }
         if (*(dp->homing_attained)) {
             *(dp->home_cmd) = 0;
-            /* Switch back to CSP first, sync position after mode is stable */
-            *(dp->opmode_cmd) = CIA402_OP_CSP;
-            jd->mode_wait_count = 0;
-            jd->drv_state = DRV_HOME_WAIT_CSP;
-            return 1;
-        }
-        /* No timeout here - drive homing may take a long time */
-        return 1;
-
-    case DRV_HOME_SYNC_POS: {
-        /* Drive is back in CSP mode and position feedback is stable.
-         * Sync LinuxCNC position to actual drive position.
-         *
-         * IMPORTANT: pos_fb is being faked during ferror suppression
-         * (motmod forces pos_fb = pos_cmd). We must use motor_pos_fb
-         * which always reflects the real drive feedback.
-         *
-         * After homing, the drive reports its position relative to its
-         * internal reference (typically 0 at home). We want LinuxCNC to
-         * consider this position as HOME_OFFSET.
-         *
-         * pos_fb = motor_pos_fb - backlash_filt - motor_offset
-         * We want pos_fb = home_offset, so:
-         * motor_offset = motor_pos_fb - backlash_filt - home_offset
-         *
-         * Also set pos_cmd = pos_fb = home_offset so that motor_pos_cmd
-         * (= pos_cmd + backlash + motor_offset) equals motor_pos_fb,
-         * keeping the drive at its current position. */
-        double motor_fb = inst->mot->joint_get_motor_pos_fb(inst->mot->ctx, jno);
-        double backlash = inst->mot->joint_get_backlash_filt(inst->mot->ctx, jno);
-        double new_motor_offset = motor_fb - backlash - jd->home_offset;
-
-        inst->mot->joint_set_motor_offset(inst->mot->ctx, jno, new_motor_offset);
-        inst->mot->joint_set_pos_fb(inst->mot->ctx, jno, jd->home_offset);
-        inst->mot->joint_set_pos_cmd(inst->mot->ctx, jno, jd->home_offset);
-        inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, jd->home_offset);
-
-        jd->drv_state = DRV_HOME_FINAL_MOVE;
-        return 1;
-    }
-
-    case DRV_HOME_SWITCH_BACK:
-        /* Switch back to CSP mode (unused, kept for enum completeness) */
-        *(dp->opmode_cmd) = CIA402_OP_CSP;
-        jd->mode_wait_count = 0;
-        jd->drv_state = DRV_HOME_WAIT_CSP;
-        return 1;
-
-    case DRV_HOME_WAIT_CSP:
-        /* Wait for drive to acknowledge CSP mode, then sync immediately.
-         * CRITICAL: sync must happen in the SAME cycle as CSP detection,
-         * otherwise the drive will receive the old stale posCmd for one
-         * cycle and jump to it. */
-        if (*(dp->opmode_fb) == CIA402_OP_CSP) {
-            /* Inline position sync — drive feedback is now stable */
+            /* Sync position NOW, while still in homing mode (posCmd ignored).
+             * This ensures posCmd is correct BEFORE we switch to CSP.
+             * motor_pos_fb is valid — drive has finished homing and is
+             * stationary at its reference position. */
             double motor_fb = inst->mot->joint_get_motor_pos_fb(inst->mot->ctx, jno);
             double backlash = inst->mot->joint_get_backlash_filt(inst->mot->ctx, jno);
             double new_motor_offset = motor_fb - backlash - jd->home_offset;
@@ -318,6 +267,33 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
             inst->mot->joint_set_pos_cmd(inst->mot->ctx, jno, jd->home_offset);
             inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, jd->home_offset);
 
+            /* Now switch to CSP — posCmd already correct */
+            *(dp->opmode_cmd) = CIA402_OP_CSP;
+            jd->mode_wait_count = 0;
+            jd->drv_state = DRV_HOME_WAIT_CSP;
+            return 1;
+        }
+        /* No timeout here - drive homing may take a long time */
+        return 1;
+
+    case DRV_HOME_SYNC_POS:
+        /* Unused — sync is now done inline in DRV_HOME_WAIT_ATTAINED.
+         * Kept for enum completeness; falls through to WAIT_CSP. */
+        *(dp->opmode_cmd) = CIA402_OP_CSP;
+        jd->mode_wait_count = 0;
+        jd->drv_state = DRV_HOME_WAIT_CSP;
+        return 1;
+
+    case DRV_HOME_SWITCH_BACK:
+        /* Switch back to CSP mode (unused, kept for enum completeness) */
+        *(dp->opmode_cmd) = CIA402_OP_CSP;
+        jd->mode_wait_count = 0;
+        jd->drv_state = DRV_HOME_WAIT_CSP;
+        return 1;
+
+    case DRV_HOME_WAIT_CSP:
+        /* Wait for drive to acknowledge CSP mode */
+        if (*(dp->opmode_fb) == CIA402_OP_CSP) {
             jd->drv_state = DRV_HOME_FINAL_MOVE;
             return 1;
         }
@@ -682,14 +658,15 @@ static int base_homing_init(linmot_inst_t *inst, int id,
         inst->H[jno].home_sequence = 999; /* unspecified */
     }
 
-    /* Set all opmode_cmd to CSP as default */
+    int ret = make_pins(inst, id, n_joints);
+    if (ret != 0) return ret;
+
+    /* Set all opmode_cmd to CSP as default (must be after make_pins) */
     for (jno = 0; jno < n_joints; jno++) {
-        if (inst->drv_pins[jno].opmode_cmd) {
-            *(inst->drv_pins[jno].opmode_cmd) = CIA402_OP_CSP;
-        }
+        *(inst->drv_pins[jno].opmode_cmd) = CIA402_OP_CSP;
     }
 
-    return make_pins(inst, id, n_joints);
+    return 0;
 }
 
 static void read_in_pins(linmot_inst_t *inst, int njoints)
