@@ -81,6 +81,18 @@ asked and the conversion will proceed blindly"""
 # We want to work with the base INI file here, not the expanded version if #include is used
 filename = re.sub(r'\.expanded', '', filename)
 
+# Search for included files
+base_dir = os.path.dirname(filename)
+included_files = []
+# included_files.append(filename)
+pattern = re.compile(r"^#INCLUDE[ \t]+(\S+)")
+with open(filename, "r", encoding="utf-8") as f:
+    for line in f:
+        match = pattern.match(line.strip())
+        if match:
+            file = os.path.join(base_dir, match.group(1))
+            included_files.append(file)
+
 try:
     ini = linuxcnc.ini(filename)
 except:
