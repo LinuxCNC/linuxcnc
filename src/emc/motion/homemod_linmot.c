@@ -311,9 +311,22 @@ static int drive_home_joint(linmot_inst_t *inst, int jno)
         return 1;
 
     case DRV_HOME_WAIT_CSP:
-        /* Wait for drive to acknowledge CSP mode */
+        /* Wait for drive to acknowledge CSP mode, then sync immediately.
+         * CRITICAL: sync must happen in the SAME cycle as CSP detection,
+         * otherwise the drive will receive the old stale posCmd for one
+         * cycle and jump to it. */
         if (*(dp->opmode_fb) == CIA402_OP_CSP) {
-            jd->drv_state = DRV_HOME_SYNC_POS;
+            /* Inline position sync — drive feedback is now stable */
+            double motor_fb = inst->mot->joint_get_motor_pos_fb(inst->mot->ctx, jno);
+            double backlash = inst->mot->joint_get_backlash_filt(inst->mot->ctx, jno);
+            double new_motor_offset = motor_fb - backlash - jd->home_offset;
+
+            inst->mot->joint_set_motor_offset(inst->mot->ctx, jno, new_motor_offset);
+            inst->mot->joint_set_pos_fb(inst->mot->ctx, jno, jd->home_offset);
+            inst->mot->joint_set_pos_cmd(inst->mot->ctx, jno, jd->home_offset);
+            inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, jd->home_offset);
+
+            jd->drv_state = DRV_HOME_FINAL_MOVE;
             return 1;
         }
         jd->mode_wait_count++;
