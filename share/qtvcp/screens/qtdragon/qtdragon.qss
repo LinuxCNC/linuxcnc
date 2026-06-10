@@ -341,14 +341,35 @@ QSlider::handle:vertical:disabled{
 
 /* warning colors for overrides if out of normal range*/
 
+    #slider_spindle_ovr{
+       qproperty-alertUnder: 75;
+    }
     #slider_spindle_ovr[alertState='over'] {
         background: red;
     }
+    #slider_spindle_ovr[alertState='under'] {
+        background: yellow;
+    }
+
     #slider_feed_ovr[alertState='over'] {
         background: red;
     }
     #slider_feed_ovr[alertState='under'] {
         background: yellow;
+    }
+
+    #slider_rapid_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_rapid_ovr[alertState='under'] {
+        background: yellow;
+    }
+
+    #slider_maxv_ovr{
+       qproperty-alertUnder: 1;
+    }
+    #slider_maxv_ovr[alertState='under'] {
+        background: red;
     }
 
 QDialog,
