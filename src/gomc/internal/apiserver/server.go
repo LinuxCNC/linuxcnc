@@ -448,10 +448,14 @@ func (s *Server) handleRegistryRequest(w http.ResponseWriter, r *http.Request) {
 		// Functions from APIMeta
 		if api.Meta != nil {
 			for _, fn := range api.Meta.Funcs {
+				path := fn.Path
+				if info.REST && path != "" {
+					path = "/api/v1/" + api.Instance + path
+				}
 				info.Functions = append(info.Functions, registryFuncInfo{
 					Name:   fn.Name,
 					Method: fn.Method,
-					Path:   fn.Path,
+					Path:   path,
 				})
 			}
 		}

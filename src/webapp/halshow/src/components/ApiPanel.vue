@@ -79,7 +79,10 @@ function isSelected(api: ApiInfo): boolean {
                 <tr v-for="fn in selectedApi.functions" :key="fn.name">
                   <td class="mono">{{ fn.name }}</td>
                   <td><span class="method-badge" v-if="fn.method">{{ fn.method }}</span></td>
-                  <td class="mono path">{{ fn.path || '—' }}</td>
+                  <td class="mono path">
+                    <a v-if="fn.method === 'GET' && fn.path" :href="fn.path" target="_blank">{{ fn.path }}</a>
+                    <span v-else>{{ fn.path || '—' }}</span>
+                  </td>
                 </tr>
               </tbody>
             </table>
