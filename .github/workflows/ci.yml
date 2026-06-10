@@ -161,6 +161,12 @@ jobs:
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
         .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: linuxcnc-doc
+        path: docs/html*/ #Preserve the path for html
+        if-no-files-found: error
 
   package-arch:
     runs-on: ${{ matrix.runner }}
