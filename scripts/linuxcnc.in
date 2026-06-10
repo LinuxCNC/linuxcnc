@@ -406,6 +406,14 @@ function run_applications () {
     done
 }
 
+# Make sure the INI file exists before trying to parse it. Otherwise a
+# missing file would be reported as a file with errors.
+if [ ! -f "$INIFILE" ] ; then
+    echo "Could not find INI file '$INIFILE'"
+    trap '' EXIT
+    exit 1
+fi
+
 # Test whether we have a valid INI-file that can be parsed without error.
 # Running inivalue without section/variable filter should return the value of
 # the first variable in the first section of the file. If that fails, there is
@@ -422,14 +430,6 @@ export PATH=$CONFIG_DIR/bin:$PATH
 [ -z "$RUNTESTS" ] && echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
 
-# make sure INI file exists (the tcl script just did this, so we could 
-# eliminate this test, but it does no harm)
-
-if [ ! -f "$INIFILE" ] ; then
-    echo "Could not find INI file '$INIFILE'"
-    trap '' EXIT
-    exit 1
-fi
 echo INIFILE="$INIFILE" >> "$PRINT_FILE"
 
 ################################################################################
