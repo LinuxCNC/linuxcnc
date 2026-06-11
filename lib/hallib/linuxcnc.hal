@@ -3,7 +3,12 @@
 # Order matters: later modules depend on APIs registered by earlier ones.
 
 load tpmod
-load homemod
+# Per-joint homing modules: one instance per joint.
+# Uses [JOINT_n]HOMEMOD from INI (default: "homemod").
+{{- range $j := seq 0 .Joints}}
+{{- $mod := or (ini (printf "JOINT_%d" $j) "HOMEMOD") "homemod"}}
+load {{$mod}} <homemod.{{$j}}>
+{{- end}}
 load io <iocontrol>
 load tooltable
 load milltask halui=halui

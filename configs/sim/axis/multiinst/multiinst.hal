@@ -3,15 +3,15 @@
 
 # Motion controller 1 (mill1)
 load tpmod <tp1> mot_instance=mot1
-load homemod <home1> mot_instance=mot1
+load homemod <home1.0,home1.1,home1.2> mot_instance=mot1
 load trivkins <kins1> coordinates=XYZ
-load motmod <mot1> num_spindles=1 kins_instance=kins1 tp_instance=tp1 home_instance=home1
+load motmod <mot1> num_joints=3 num_spindles=1 kins_instance=kins1 tp_instance=tp1 home_instance=home1
 
 # Motion controller 2 (mill2)
 load tpmod <tp2> mot_instance=mot2
-load homemod <home2> mot_instance=mot2
+load homemod <home2.0,home2.1,home2.2> mot_instance=mot2
 load trivkins <kins2> coordinates=XYZ
-load motmod <mot2> num_spindles=1 kins_instance=kins2 tp_instance=tp2 home_instance=home2
+load motmod <mot2> num_joints=3 num_spindles=1 kins_instance=kins2 tp_instance=tp2 home_instance=home2
 
 # IO controllers (each bound to its tooltable instance)
 load io <io1> tooltable_instance=tt1
