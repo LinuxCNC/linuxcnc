@@ -862,18 +862,18 @@ modules: ../cmod/homemod.so
 # LinMot homing module (cmod) — drive-internal homing for CiA 402 drives
 # ---------------------------------------------------------------------------
 
-HOMEMOD_LINMOT_CMOD_SRCS := \
-    emc/motion/homemod_linmot.c
+HOMEMOD_CIA402_CMOD_SRCS := \
+    emc/motion/homemod_cia402.c
 
-../cmod/homemod_linmot.so: $(HOMEMOD_LINMOT_CMOD_SRCS) $(HOMEMOD_CMOD_DEPS) | headers
-	$(ECHO) "Compiling cmod homemod_linmot.so"
+../cmod/homemod_cia402.so: $(HOMEMOD_CIA402_CMOD_SRCS) $(HOMEMOD_CMOD_DEPS) | headers
+	$(ECHO) "Compiling cmod homemod_cia402.so"
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -shared $(HOMEMOD_CMOD_CFLAGS) \
-	    -o $@ $(HOMEMOD_LINMOT_CMOD_SRCS) \
+	    -o $@ $(HOMEMOD_CIA402_CMOD_SRCS) \
 	    $(CMOD_LDFLAGS) -lm
 
-TARGETS += ../cmod/homemod_linmot.so
-modules: ../cmod/homemod_linmot.so
+TARGETS += ../cmod/homemod_cia402.so
+modules: ../cmod/homemod_cia402.so
 
 # ---------------------------------------------------------------------------
 # GMI trajectory planner module (cmod)

@@ -1,7 +1,8 @@
 /********************************************************************
-* homemod_linmot.c — Per-joint homing module for LinMot CiA 402 drives
+* homemod_cia402.c — Per-joint homing module for CiA 402 drives
 *
 * Each instance manages ONE joint with drive-internal homing.
+* Works with any CiA 402 compliant drive (Beckhoff, Festo, LinMot, etc.).
 * During normal operation the drive runs in CSP mode (opMode=8).
 * When homing is requested:
 *   1. Switch drive to Homing Mode (opMode=6)
