@@ -109,6 +109,94 @@ void ruckig_destroy(RuckigPlanner planner) {
     }
 }
 
+/* ---------------------------------------------------------------------------
+ * Preallocated planner pool.
+ *
+ * Originally each trajectory segment created its own Ruckig planner from inside
+ * the servo cycle (ruckig_create -> rtapi_kmalloc + several cruckig allocs) and
+ * freed it on segment completion. On dense, short-segment tool paths a new
+ * segment goes active every few servo cycles, so the motion thread was doing
+ * heap alloc/free constantly -> variable-latency "peaking" servo time.
+ *
+ * The pool allocates a small fixed set of planners ONCE (lazily, on first use),
+ * then hands them out / takes them back with no allocation in steady state.
+ * Only the current tc and (during a blend) the next tc ever hold a planner at
+ * once, so a handful of slots is plenty; if the pool is ever exhausted we fall
+ * back to a live ruckig_create() so we never fault or regress.
+ *
+ * Single-threaded: the motion/servo loop is the only caller, so no locking.
+ * ------------------------------------------------------------------------- */
+#define RUCKIG_POOL_SIZE 16
+
+static struct {
+    RuckigPlanner planner;
+    int           in_use;
+} ruckig_pool[RUCKIG_POOL_SIZE];
+static int ruckig_pool_inited = 0;
+
+RuckigPlanner ruckig_pool_acquire(double cycle_time) {
+    int i;
+
+    /* One-time lazy init: allocate the whole pool on first use (program start). */
+    if (!ruckig_pool_inited) {
+        int ok = 0;
+        for (i = 0; i < RUCKIG_POOL_SIZE; i++) {
+            ruckig_pool[i].planner = ruckig_create(cycle_time);
+            ruckig_pool[i].in_use  = 0;
+            if (ruckig_pool[i].planner) ok++;
+        }
+        ruckig_pool_inited = 1;
+        /* MSG_ERR so it is ALWAYS visible in the linuxcnc log: proves the
+         * patched module is the one loaded and that the pool path is active. */
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "RUCKIG PLANNER POOL active: %d/%d planners preallocated (cycle_time=%g)\n",
+            ok, RUCKIG_POOL_SIZE, cycle_time);
+    }
+
+    /* Hand out a free, reset planner. */
+    for (i = 0; i < RUCKIG_POOL_SIZE; i++) {
+        if (ruckig_pool[i].planner && !ruckig_pool[i].in_use) {
+            ruckig_pool[i].in_use = 1;
+            ruckig_reset(ruckig_pool[i].planner);
+            return ruckig_pool[i].planner;
+        }
+    }
+
+    /* Pool exhausted (or lazy init failed): fall back to a live create so the
+     * caller still gets a valid planner. Loses the no-alloc benefit only for
+     * this one segment; ruckig_pool_release() will destroy it. */
+    {
+        static int warned_exhausted = 0;
+        if (!warned_exhausted) {
+            warned_exhausted = 1;
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "RUCKIG POOL EXHAUSTED (>%d concurrent planners): falling back to "
+                "ruckig_create; raise RUCKIG_POOL_SIZE if this recurs\n",
+                RUCKIG_POOL_SIZE);
+        }
+    }
+    return ruckig_create(cycle_time);
+}
+
+void ruckig_pool_release(RuckigPlanner planner) {
+    int i;
+
+    if (!planner) {
+        return;
+    }
+
+    /* If it belongs to the pool, just mark it free for reuse (do NOT destroy). */
+    for (i = 0; i < RUCKIG_POOL_SIZE; i++) {
+        if (ruckig_pool[i].planner == planner) {
+            ruckig_pool[i].in_use = 0;
+            return;
+        }
+    }
+
+    /* Not a pooled planner -> it came from the fallback path; free it. */
+    ruckig_destroy(planner);
+}
+
 /* Helper: copy trajectory state for backup/restore on planning failure.
  * We cannot just memcpy the CRuckigTrajectory because it contains owned pointers.
  * Instead we save/restore the profile data and scalar fields. */

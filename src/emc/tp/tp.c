@@ -2844,8 +2844,8 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
 
     // Check if planner needs to be created or replanned
     if (!tc->ruckig_planner) {
-        // Create Ruckig planner
-        tc->ruckig_planner = ruckig_create(tc->cycle_time);
+        // Borrow a Ruckig planner from the preallocated pool (no RT-cycle alloc)
+        tc->ruckig_planner = ruckig_pool_acquire(tc->cycle_time);
         if (!tc->ruckig_planner) {
             rtapi_print_msg(RTAPI_MSG_ERR, "tpCalculateSCurveAccel: failed to create Ruckig planner\n");
             return TP_SCURVE_ACCEL_ERROR;
