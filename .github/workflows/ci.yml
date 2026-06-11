@@ -183,6 +183,9 @@ jobs:
   package-arch:
     runs-on: ${{ matrix.runner }}
     strategy:
+      # don't cancel the stable-distribution builds when an unstable one
+      # (debian:sid) breaks due to archive churn
+      fail-fast: false
       matrix:
         runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
         image: ["debian:bookworm", "debian:trixie", "debian:sid"]
@@ -267,6 +270,9 @@ jobs:
   package-indep:
     runs-on: ubuntu-24.04
     strategy:
+      # don't cancel the stable-distribution builds when an unstable one
+      # (debian:sid) breaks due to archive churn
+      fail-fast: false
       matrix:
         image: ["debian:bookworm", "debian:trixie", "debian:sid"]
     container:
