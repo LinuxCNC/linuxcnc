@@ -80,6 +80,41 @@ extern int motion_num_spindles;
 
 static int rehomeAll;
 
+/* ===== BEGIN PLANNER_SWITCH_DEFER (reversible) =====================================
+ * Deferred PLANNER_TYPE switching. Switching 0<->1 mid-motion causes an acceleration
+ * discontinuity (the very thing the S-curve planner exists to avoid), so a switch
+ * requested while the coordinated TP queue is busy is LATCHED here and applied later,
+ * once motion is idle, by emcmotApplyPendingPlannerType() (called once per servo cycle
+ * from emcmotController()). It never aborts motion. When idle, the switch is instant.
+ * To revert this feature entirely: delete the three PLANNER_SWITCH_DEFER blocks in
+ * command.c, the declaration in mot_priv.h, and the call in control.c; then restore
+ * the original EMCMOT_SET_PLANNER_TYPE handler body (see ORIGINAL note in that block). */
+static int planner_type_switch_pending = 0;  /* 1 = a deferred switch is queued */
+static int planner_type_pending_value  = 0;   /* requested type (0/1), applied at idle */
+
+/* True when the coordinated trajectory queue is idle (safe to switch planner type). */
+static int planner_switch_motion_idle(void)
+{
+    return tpIsDone(&emcmotInternal->coord_tp)
+        && (tpQueueDepth(&emcmotInternal->coord_tp) == 0);
+}
+
+/* Apply a latched planner-type switch once motion has gone idle. Called every servo
+ * cycle from emcmotController(). No-op unless a switch is pending and the queue is idle. */
+void emcmotApplyPendingPlannerType(void)
+{
+    if (!planner_type_switch_pending) {
+        return;
+    }
+    if (planner_switch_motion_idle()) {
+        emcmotStatus->planner_type = planner_type_pending_value;
+        planner_type_switch_pending = 0;
+        rtapi_print_msg(RTAPI_MSG_INFO,
+            "planner switch applied (type %d)", planner_type_pending_value);
+    }
+}
+/* ===== END PLANNER_SWITCH_DEFER ==================================================== */
+
 /* limits_ok() returns 1 if none of the hard limits are set,
    0 if any are set. Called on a linear and circular move. */
 STATIC int limits_ok(void)
@@ -1203,14 +1238,39 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
 	case EMCMOT_SET_PLANNER_TYPE:
 		/* set the type of planner: 0 = trapezoidal, 1 = S-curve */
-		/* can do it at any time */
+		/* ===== BEGIN PLANNER_SWITCH_DEFER (reversible) =====================
+		 * Apply instantly ONLY when motion is idle. During motion, latch the
+		 * request and let emcmotApplyPendingPlannerType() apply it at queue-idle
+		 * (never aborts). A one-shot WARN tells the operator it is pending.
+		 * ORIGINAL behaviour (applied immediately, "can do it at any time"):
+		 *     if (emcmotCommand->planner_type != 0 && emcmotCommand->planner_type != 1)
+		 *         emcmotStatus->planner_type = 0;
+		 *     else
+		 *         emcmotStatus->planner_type = emcmotCommand->planner_type;
+		 */
 		rtapi_print_msg(RTAPI_MSG_DBG, "SET_PLANNER_TYPE, type(%d)", emcmotCommand->planner_type);
-		// Only 0 and 1 are supported, set to 0 if invalid
-		if (emcmotCommand->planner_type != 0 && emcmotCommand->planner_type != 1) {
-			emcmotStatus->planner_type = 0;
-		} else {
-			emcmotStatus->planner_type = emcmotCommand->planner_type;
+		{
+			/* Only 0 and 1 are supported; coerce anything else to 0. */
+			int req = (emcmotCommand->planner_type == 1) ? 1 : 0;
+			if (planner_switch_motion_idle()) {
+				/* idle: instant switch, drop any stale pending request */
+				emcmotStatus->planner_type = req;
+				planner_type_switch_pending = 0;
+			} else if (req != emcmotStatus->planner_type) {
+				/* moving: defer until the queue drains (never abort) */
+				planner_type_pending_value = req;
+				if (!planner_type_switch_pending) {
+					planner_type_switch_pending = 1;
+					/* operator-facing: reportError() surfaces in the GUI (unlike
+					 * rtapi_print_msg, which only hits the RTAPI log/terminal). */
+					reportError(_("planner switch deferred until queued motion completes (requested type %d)"), req);
+				}
+			} else {
+				/* request already equals current type: cancel any pending switch */
+				planner_type_switch_pending = 0;
+			}
 		}
+		/* ===== END PLANNER_SWITCH_DEFER ==================================== */
 		break;
 
 	case EMCMOT_SET_SCURVE_PEAK_SCALE:
