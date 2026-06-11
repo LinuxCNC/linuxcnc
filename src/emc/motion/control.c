@@ -123,30 +123,169 @@ static void set_operating_mode(motmod_inst_t *inst);
 */
 static void handle_jjogwheels(motmod_inst_t *inst);
 
-/* 'do_homing_sequence()' decides what, if anything, needs to be done
-    related to multi-joint homing.  Calls per-joint do_homing() on
-    each joint, aggregates homing_active and all_homed state.
-    Returns 1 when all joints have completed homing (transition to teleop).
+/* 'do_homing_sequence()' — faithful replication of original homing.c FSM.
+   Coordinates multi-joint homing by sequence group.
+   Calls per-joint do_homing() to tick each joint's state machine.
+   Manages sequence_state to advance through groups in order.
+   Returns 1 when all joints have completed homing (transition to teleop).
 */
 static int do_homing_sequence(motmod_inst_t *inst)
 {
-    int j;
-    int any_homing = 0;
-    int all_homed = 1;
+    int i, seen;
+    int sequence_is_set = 0;
 
-    for (j = 0; j < ALL_JOINTS; j++) {
-        const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[j]);
-        if (hapi->do_homing(hapi->ctx))
-            any_homing = 1;
-        if (!hapi->get_homed(hapi->ctx))
-            all_homed = 0;
+    /* Always tick all joints' state machines and aggregate status */
+    {
+        int any_homing = 0;
+        int all_homed = 1;
+        for (i = 0; i < ALL_JOINTS; i++) {
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (hapi->do_homing(hapi->ctx))
+                any_homing = 1;
+            if (!hapi->get_homed(hapi->ctx))
+                all_homed = 0;
+        }
+        inst->homing_active = any_homing;
+        inst->all_homed = all_homed;
     }
 
-    inst->homing_active = any_homing;
-    inst->all_homed = all_homed;
+    /* Sequence state machine */
+    switch (inst->sequence_state) {
+    case HOME_SEQUENCE_IDLE:
+        inst->current_sequence = 0;
+        /* nothing to do */
+        break;
+
+    case HOME_SEQUENCE_DO_ONE_JOINT:
+        /* Expect one joint with do_home() already called (home_state==HOME_START).
+           Identify it by checking which joint is not idle. */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (!hapi->get_is_idle(hapi->ctx)) {
+                inst->joint_in_sequence[i] = 1;
+                inst->current_sequence = abs(inst->joints[i].home_sequence);
+            } else {
+                inst->joint_in_sequence[i] = 0;
+            }
+        }
+        sequence_is_set = 1;
+        /* fallthrough */
+    case HOME_SEQUENCE_DO_ONE_SEQUENCE:
+        /* Expect multiple joints with do_home() already called
+           (specified by a negative sequence number).
+           Determine current_sequence and set joint_in_sequence. */
+        if (!sequence_is_set) {
+            for (i = 0; i < ALL_JOINTS; i++) {
+                const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+                if (!hapi->get_is_idle(hapi->ctx)) {
+                    inst->current_sequence = abs(inst->joints[i].home_sequence);
+                    sequence_is_set = 1;
+                }
+                inst->joint_in_sequence[i] = 1; /* disprove below */
+                if (hapi->get_is_idle(hapi->ctx) ||
+                    inst->current_sequence != abs(inst->joints[i].home_sequence)) {
+                    inst->joint_in_sequence[i] = 0;
+                }
+            }
+        }
+        inst->sequence_state = HOME_SEQUENCE_START;
+        /* fallthrough */
+    case HOME_SEQUENCE_START:
+        /* Request to home all joints or a single sequence.
+           A negative home_sequence means sync final move. */
+        if (!sequence_is_set) {
+            /* sequence_is_set not otherwise established: home-all */
+            for (i = 0; i < ALL_JOINTS; i++) {
+                inst->joint_in_sequence[i] = 1;
+                /* unspecified joints have unrealizable home_sequence (>100):
+                   docs: 'If HOME_SEQUENCE is not specified then this joint
+                          will not be homed by the HOME ALL sequence' */
+                if (inst->joints[i].home_sequence > 100) {
+                    inst->joint_in_sequence[i] = 0;
+                }
+            }
+            sequence_is_set = 1;
+            inst->current_sequence = 0;
+        }
+        /* Initializations: unhome joints that participate (per-joint module
+           handles HOME_NO_REHOME internally via do_home()) */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            if (!inst->joint_in_sequence[i]) continue;
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (!hapi->get_is_idle(hapi->ctx) &&
+                !hapi->get_homed(hapi->ctx)) {
+                /* a home is already in progress, abort the home-all */
+                inst->sequence_state = HOME_SEQUENCE_IDLE;
+                return 0;
+            }
+        }
+        /* If a joint has negative home_sequence, make all joints with same
+           absolute value also negative (sync final move). */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            int ii;
+            if (!inst->joint_in_sequence[i]) continue;
+            if (inst->joints[i].home_sequence < 0) {
+                for (ii = 0; ii < ALL_JOINTS; ii++) {
+                    if (inst->joints[ii].home_sequence == abs(inst->joints[i].home_sequence)) {
+                        inst->joints[ii].home_sequence = inst->joints[i].home_sequence;
+                    }
+                }
+            }
+        }
+        /* tell the world we're on the job */
+        inst->homing_active = 1;
+        /* fallthrough */
+    case HOME_SEQUENCE_START_JOINTS:
+        seen = 0;
+        /* start all joints whose abs(sequence) matches current_sequence */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            if (abs(inst->joints[i].home_sequence) == inst->current_sequence) {
+                if (!inst->joint_in_sequence[i]) continue;
+                /* disable free_tp and trigger homing */
+                inst->joints[i].free_tp.enable = 0;
+                JOINT_HOME_API(&inst->joints[i])->do_home(
+                    JOINT_HOME_API(&inst->joints[i])->ctx);
+                seen++;
+            }
+        }
+        if (seen || inst->current_sequence == 0) {
+            inst->sequence_state = HOME_SEQUENCE_WAIT_JOINTS;
+        } else {
+            /* no joints have this sequence number, we're done */
+            inst->sequence_state = HOME_SEQUENCE_IDLE;
+            inst->homing_active = 0;
+        }
+        break;
+
+    case HOME_SEQUENCE_WAIT_JOINTS:
+        seen = 0;
+        for (i = 0; i < ALL_JOINTS; i++) {
+            if (!inst->joint_in_sequence[i]) continue;
+            if (abs(inst->joints[i].home_sequence) != inst->current_sequence) {
+                continue;
+            }
+            if (!JOINT_HOME_API(&inst->joints[i])->get_is_idle(
+                    JOINT_HOME_API(&inst->joints[i])->ctx)) {
+                /* still busy homing, keep waiting */
+                seen = 1;
+                continue;
+            }
+        }
+        if (!seen) {
+            /* all joints at this step have finished, move on to next step */
+            inst->current_sequence++;
+            inst->sequence_state = HOME_SEQUENCE_START_JOINTS;
+        }
+        break;
+
+    default:
+        inst->sequence_state = HOME_SEQUENCE_IDLE;
+        inst->homing_active = 0;
+        break;
+    }
 
     /* Return 1 (all done) only when all joints are homed and none active */
-    return (all_homed && !any_homing);
+    return (inst->all_homed && !inst->homing_active);
 }
 
 /* 'get_pos_cmds()' generates the position setpoints.  This includes

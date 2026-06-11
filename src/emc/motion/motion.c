@@ -916,7 +916,8 @@ static int motmod_init(cmod_t *self)
     }
 
     /* Look up per-joint homing APIs registered by homemod instances */
-    inst->home_sequence = -1;
+    inst->sequence_state = HOME_SEQUENCE_IDLE;
+    inst->current_sequence = 0;
     inst->homing_active = 0;
     inst->all_homed = 0;
     {

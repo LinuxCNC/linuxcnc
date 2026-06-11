@@ -45,10 +45,19 @@ typedef struct motmod_inst {
     const kins_callbacks_t *kins;
     const tp_callbacks_t *tp_api;
 
-    /* homing sequence state (moved from homemod to motmod) */
-    int home_sequence;         /* current sequence being executed (-1 = idle) */
+    /* homing sequence coordination (replicated from original homing.c FSM) */
+    enum {
+        HOME_SEQUENCE_IDLE = 0,
+        HOME_SEQUENCE_START,
+        HOME_SEQUENCE_DO_ONE_JOINT,
+        HOME_SEQUENCE_DO_ONE_SEQUENCE,
+        HOME_SEQUENCE_START_JOINTS,
+        HOME_SEQUENCE_WAIT_JOINTS,
+    } sequence_state;
+    int current_sequence;      /* which sequence number is currently active */
     int homing_active;         /* 1 if any joint is homing */
     int all_homed;             /* 1 if all joints homed */
+    int joint_in_sequence[EMCMOT_MAX_JOINTS]; /* per-joint participation flag */
 
     /* HAL data */
     emcmot_hal_data_t *hal_data;

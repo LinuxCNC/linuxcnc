@@ -519,6 +519,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 			JOINT_HOME_API(joint)->do_cancel(JOINT_HOME_API(joint)->ctx);
 		    }
 		}
+		/* Reset sequence state */
+		inst->sequence_state = HOME_SEQUENCE_IDLE;
+		inst->homing_active = 0;
 	    }
             SET_MOTION_ERROR_FLAG(0);
 	    /* clear joint errors (regardless of mode) */
@@ -1407,14 +1410,26 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
 	    // Negative joint_num specifies homeall
 	    if (joint_num < 0) {
-	        /* home all: start homing sequence from the beginning */
-	        int j;
-	        for (j = 0; j < ALL_JOINTS; j++) {
-	            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[j]);
-	            hapi->do_home(hapi->ctx);
+	        /* home all: only start if not already homing */
+	        if (!inst->homing_active) {
+	            inst->sequence_state = HOME_SEQUENCE_START;
 	        }
 	    } else {
-	        JOINT_HOME_API(joint)->do_home(JOINT_HOME_API(joint)->ctx);
+	        /* home one joint: apply rules for negative home_sequence */
+	        if (joint->home_sequence < 0) {
+	            /* negative sequence: home all joints in that sequence group */
+	            int jj;
+	            inst->sequence_state = HOME_SEQUENCE_DO_ONE_SEQUENCE;
+	            for (jj = 0; jj < ALL_JOINTS; jj++) {
+	                if (abs(inst->joints[jj].home_sequence) == abs(joint->home_sequence)) {
+	                    JOINT_HOME_API(&inst->joints[jj])->do_home(
+	                        JOINT_HOME_API(&inst->joints[jj])->ctx);
+	                }
+	            }
+	        } else {
+	            inst->sequence_state = HOME_SEQUENCE_DO_ONE_JOINT;
+	            JOINT_HOME_API(joint)->do_home(JOINT_HOME_API(joint)->ctx);
+	        }
 	    }
 	    break;
 
