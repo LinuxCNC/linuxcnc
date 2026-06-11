@@ -166,10 +166,27 @@ static int loadTraj(const IniFile &ini)
     }
     old_inihal_data.traj_planner_type = planner_type;
 
-    // S-curve rest-to-rest peak velocity scale: 0.5 = faithful (original
-    // conservative cornering), 1.0 = physically-correct (full jerk-feasible).
-    // Default 0.5 = no behaviour change. Runtime-tunable via ini.traj_scurve_peak_scale.
-    double scurve_peak_scale = ini.findRealV("SCURVE_PEAK_SCALE", "TRAJ", 0.5);
+    // G64_R_PLANNER: which planner a G64 R>0 "smooth" request resolves to.
+    // Part programs carry intent only (R0 = trapezoidal, R>0 = jerk-limited);
+    // the machine names the implementation here, so programs stay valid when
+    // the machine's smooth planner changes. 0 disables G64 R>0 (task refuses
+    // with an operator error). Defaults to PLANNER_TYPE when that is a smooth
+    // planner, else 1. Currently the only smooth planner is type 1.
+    int smooth_planner = ini.findIntV("SMOOTH_PLANNER", "TRAJ",
+                                      planner_type > 0 ? planner_type : 1, 0, 1);
+    if (jerk < 1.0) {
+        // parity with the forced-trapezoidal fallback above: without a valid
+        // jerk limit there is no usable smooth planner to resolve to
+        smooth_planner = 0;
+    }
+    if (0 != emcTrajSetSmoothPlanner(smooth_planner)) {
+        print_dbg_config("emcTrajSetSmoothPlanner");
+        return -1;
+    }
+
+    // S-curve rest-to-rest peak velocity scale (0.1..1.0 of the jerk-feasible
+    // corner speed). Runtime-tunable via ini.traj_scurve_peak_scale.
+    double scurve_peak_scale = ini.findRealV("SCURVE_PEAK_SCALE", "TRAJ", 1.0);
     if (0 != emcTrajSetScurvePeakScale(scurve_peak_scale)) {
         print_dbg_config("emcTrajSetScurvePeakScale");
         return -1;

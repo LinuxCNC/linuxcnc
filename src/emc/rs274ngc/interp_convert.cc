@@ -2237,18 +2237,23 @@ int Interp::convert_control_mode(
       }
       settings->control_mode = CANON_CONTINUOUS;
       settings->tolerance = tolerance;
-      /* G64_R_PLANNER: optional R word selects the planner / cornering aggressiveness
-       * (Fanuc G05.1-style level). R absent -> leave planner unchanged (sentinels).
-       *   R<=0      -> trapezoidal (planner_type 0), peak_scale unchanged
-       *   0<R<=1.0  -> S-curve (planner_type 1), scurve_peak_scale = R (clamped 0.1..1.0)
-       *   R>1.0     -> S-curve, peak_scale clamped to 1.0 */
+      /* G64_R_PLANNER: optional R word carries planner INTENT plus cornering
+       * aggressiveness (Fanuc G05.1-style level). The program never names a
+       * planner implementation; "smooth" is resolved by task against
+       * [TRAJ]SMOOTH_PLANNER, so part programs stay machine-portable.
+       * R absent -> leave planner unchanged (sentinels).
+       *   R<=0      -> trapezoidal, peak_scale unchanged
+       *   0<R<=1.0  -> smooth (jerk-limited), scale = R (clamped 0.1..1.0)
+       *   R>1.0     -> smooth, scale clamped to 1.0
+       * Note: R0 -> R0.1 is a regime flip (jerk-unlimited trapezoid), not the
+       * gentle end of a gradient; R0.1 is the gentlest setting. */
       int planner_type = -1;          // -1 = unchanged
       double peak_scale = -1.0;       // <0 = unchanged
       if (r_present) {
           if (r_word <= 0.0) {
               planner_type = 0;       // trapezoidal / BRISK
           } else {
-              planner_type = 1;       // S-curve / SOFT
+              planner_type = 1;       // smooth / SOFT (resolved by task)
               peak_scale = (r_word > 1.0) ? 1.0 : ((r_word < 0.1) ? 0.1 : r_word);
           }
       }

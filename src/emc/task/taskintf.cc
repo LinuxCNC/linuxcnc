@@ -1189,6 +1189,24 @@ int emcTrajPlannerType(int type)
     return retval;
 }
 
+/* G64_R_PLANNER: which planner a G64 R>0 "smooth" request resolves to.
+ * Part programs carry intent only (R0 = trapezoidal, R>0 = jerk-limited);
+ * the machine names the implementation via [TRAJ]SMOOTH_PLANNER (initraj
+ * stores it here at startup). 0 = no smooth planner available, task then
+ * refuses R>0 with an operator error instead of switching. */
+static int smoothPlannerType = 1;
+
+int emcTrajSetSmoothPlanner(int type)
+{
+    smoothPlannerType = type;
+    return 0;
+}
+
+int emcTrajGetSmoothPlanner(void)
+{
+    return smoothPlannerType;
+}
+
 int emcTrajSetScurvePeakScale(double scale)
 {
     emcmotCommand.command = EMCMOT_SET_SCURVE_PEAK_SCALE;

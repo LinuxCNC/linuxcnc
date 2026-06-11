@@ -118,11 +118,14 @@ void ruckig_destroy(RuckigPlanner planner) {
  * segment goes active every few servo cycles, so the motion thread was doing
  * heap alloc/free constantly -> variable-latency "peaking" servo time.
  *
- * The pool allocates a small fixed set of planners ONCE (lazily, on first use),
- * then hands them out / takes them back with no allocation in steady state.
- * Only the current tc and (during a blend) the next tc ever hold a planner at
- * once, so a handful of slots is plenty; if the pool is ever exhausted we fall
- * back to a live ruckig_create() so we never fault or regress.
+ * The pool allocates a small fixed set of planners ONCE, eagerly from
+ * ruckig_pool_init() (called at init/config time via sp_scurve_init(), NOT
+ * from the servo cycle), then hands them out / takes them back with no
+ * allocation in steady state. Only the current tc and (during a blend) the
+ * next tc ever hold a planner at once, so a handful of slots is plenty; if
+ * the pool is ever exhausted we fall back to a live ruckig_create() so we
+ * never fault or regress. The lazy init in ruckig_pool_acquire() remains
+ * only as a backstop for callers that bypass sp_scurve_init().
  *
  * Single-threaded: the motion/servo loop is the only caller, so no locking.
  * ------------------------------------------------------------------------- */
@@ -134,16 +137,51 @@ static struct {
 } ruckig_pool[RUCKIG_POOL_SIZE];
 static int ruckig_pool_inited = 0;
 
+int ruckig_pool_init(double cycle_time) {
+    int i, ok = 0;
+
+    if (ruckig_pool_inited) {
+        return 0;
+    }
+    for (i = 0; i < RUCKIG_POOL_SIZE; i++) {
+        ruckig_pool[i].planner = ruckig_create(cycle_time);
+        ruckig_pool[i].in_use  = 0;
+        if (ruckig_pool[i].planner) {
+            ok++;
+        }
+    }
+    ruckig_pool_inited = 1;
+    if (ok < RUCKIG_POOL_SIZE) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "ruckig_pool_init: only %d/%d planners allocated\n", ok, RUCKIG_POOL_SIZE);
+        return -1;
+    }
+    return 0;
+}
+
+void ruckig_pool_cleanup(void) {
+    int i;
+
+    if (!ruckig_pool_inited) {
+        return;
+    }
+    for (i = 0; i < RUCKIG_POOL_SIZE; i++) {
+        if (ruckig_pool[i].planner) {
+            ruckig_destroy(ruckig_pool[i].planner);
+            ruckig_pool[i].planner = NULL;
+        }
+        ruckig_pool[i].in_use = 0;
+    }
+    ruckig_pool_inited = 0;
+}
+
 RuckigPlanner ruckig_pool_acquire(double cycle_time) {
     int i;
 
-    /* One-time lazy init: allocate the whole pool on first use (program start). */
+    /* Backstop only: the pool is normally allocated eagerly by
+     * ruckig_pool_init() at init time, never from the servo cycle. */
     if (!ruckig_pool_inited) {
-        for (i = 0; i < RUCKIG_POOL_SIZE; i++) {
-            ruckig_pool[i].planner = ruckig_create(cycle_time);
-            ruckig_pool[i].in_use  = 0;
-        }
-        ruckig_pool_inited = 1;
+        ruckig_pool_init(cycle_time);
     }
 
     /* Hand out a free, reset planner. */

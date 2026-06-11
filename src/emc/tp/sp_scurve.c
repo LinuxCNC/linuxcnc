@@ -25,14 +25,13 @@
 #include <string.h>
 #endif
 
-/* Runtime S-curve rest-to-rest peak scale, from [TRAJ]SCURVE_PEAK_SCALE /
- * ini.traj_scurve_peak_scale (shared via emcmotStatus). 0.5 = faithful (original
- * conservative cornering), 1.0 = physically-correct (full jerk-feasible). The
- * clamp defends the pre-INI window where shmem is still zeroed -> default 0.5. */
+/* Runtime S-curve rest-to-rest peak scale (0.1..1.0 of the jerk-feasible
+ * corner speed), from [TRAJ]SCURVE_PEAK_SCALE / ini.traj_scurve_peak_scale via
+ * emcmotStatus. The clamp defends the pre-INI window where shmem is zeroed. */
 extern emcmot_status_t *emcmotStatus;
 static double scurve_peak_scale(void) {
-    double s = emcmotStatus ? emcmotStatus->scurve_peak_scale : 0.5;
-    return (s >= 0.1 && s <= 1.0) ? s : 0.5;
+    double s = emcmotStatus ? emcmotStatus->scurve_peak_scale : 1.0;
+    return (s >= 0.1 && s <= 1.0) ? s : 1.0;
 }
 
 /* ========== Cached Ruckig planner ==========
@@ -104,7 +103,7 @@ static double scurve_max_start_speed_analytic(double distance, double Ve, double
 static double scurve_max_start_speed_full_analytic(double distance, double Ve, double A, double J) {
     double vs   = scurve_max_start_speed_analytic(distance, Ve, A, J);
     double peak = scurve_max_start_speed_analytic(distance * 0.5, 0.0, A, J);
-    peak *= scurve_peak_scale(); /* runtime: 0.5 faithful .. 1.0 full cornering */
+    peak *= scurve_peak_scale();
     /* Floor at Ve: when the segment is too short to reach Ve (peak clamp < Ve),
      * the original Ruckig path fails and falls back to fmax(Ve, peak). Max start
      * speed can never be below the end speed, so clamp up to Ve. */
@@ -120,7 +119,7 @@ int findSCurveVSpeed(double distence, double maxA, double maxJ, double *req_v) {
      * triggered on every arc/blend — the arc-section opt bursts. */
     if (distence <= 0.0 || maxA <= 0.0 || maxJ <= 0.0) { *req_v = 0.0; return -1; }
     double peak = scurve_max_start_speed_analytic(distence * 0.5, 0.0, maxA, maxJ);
-    peak *= scurve_peak_scale();  /* runtime: 0.5 faithful .. 1.0 full cornering */
+    peak *= scurve_peak_scale();
     *req_v = peak;
     return 1;
 }
@@ -172,6 +171,13 @@ int sp_scurve_init(double cycle_time) {
 
     cached_cycle_time = cycle_time;
     rtapi_print_msg(RTAPI_MSG_INFO, "sp_scurve_init: planner created with cycle_time=%f (logging disabled)\n", cycle_time);
+
+    /* Eagerly allocate the execution-planner pool here (init/config context)
+     * so the first segment never pays RUCKIG_POOL_SIZE heap allocations
+     * inside a servo cycle. */
+    if (ruckig_pool_init(cycle_time) != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "sp_scurve_init: ruckig_pool_init() incomplete (acquire falls back to live create)\n");
+    }
     return 0;
 }
 
@@ -184,6 +190,7 @@ void sp_scurve_cleanup(void) {
         cached_planner = NULL;
         cached_cycle_time = 0.0;
     }
+    ruckig_pool_cleanup();
 }
 
 /**

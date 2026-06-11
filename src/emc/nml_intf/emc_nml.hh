@@ -801,9 +801,11 @@ class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
     double tolerance; // used to set the precision/tolerance of path deviation
 		      // during CONTINUOUS motion mode.
     /* G64_R_PLANNER (fork extension): the optional G64 R word folds the planner
-     * mode into the same control-mode message G64 already emits. -1 / <0 means
-     * "not specified, leave unchanged". Applied in program order by task. */
-    int planner_type;        // 0 = trapezoidal, 1 = S-curve, -1 = unchanged
+     * request into the same control-mode message G64 already emits. -1 / <0
+     * means "not specified, leave unchanged". Applied in program order by task.
+     * planner_type carries INTENT, not an implementation: task resolves a
+     * smooth request (1) to the machine's [TRAJ]SMOOTH_PLANNER. */
+    int planner_type;        // 0 = trapezoidal, 1 = smooth (jerk-limited), -1 = unchanged
     double scurve_peak_scale; // 0.1..1.0 cornering peak scale, <0 = unchanged
 };
 

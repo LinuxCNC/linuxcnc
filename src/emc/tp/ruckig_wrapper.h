@@ -40,14 +40,29 @@ RuckigPlanner ruckig_create(double cycle_time);
 void ruckig_destroy(RuckigPlanner planner);
 
 /**
+ * Eagerly allocate the planner pool (call at init/config time, NOT from the
+ * servo cycle). Idempotent: a second call is a no-op.
+ *
+ * @param cycle_time  cycle time in seconds for the pooled planners
+ * @return 0 on success, -1 if any slot failed to allocate
+ */
+int ruckig_pool_init(double cycle_time);
+
+/**
+ * Destroy all pooled planners (call at module exit). Safe to call when the
+ * pool was never initialized.
+ */
+void ruckig_pool_cleanup(void);
+
+/**
  * Acquire a planner from the preallocated pool (no allocation in steady state).
  *
  * Drop-in replacement for ruckig_create() on the RT hot path. Returns a reset
- * planner borrowed from a fixed pool that is allocated once, on first use.
- * If the pool is exhausted (or its lazy init failed) it falls back to a live
+ * planner borrowed from the fixed pool. If the pool is exhausted (or was never
+ * initialized and its backstop init failed) it falls back to a live
  * ruckig_create() so behaviour never regresses below the original code.
  *
- * @param cycle_time  cycle time in seconds (used only for one-time pool init)
+ * @param cycle_time  cycle time in seconds (used only by the backstop init)
  * @return planner handle, or NULL on failure
  */
 RuckigPlanner ruckig_pool_acquire(double cycle_time);
