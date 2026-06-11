@@ -2809,7 +2809,18 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
     double maxjerk = fmin(tc->maxjerk, emcmotStatus->jerk);
     if(maxjerk <= 1){
         maxjerk = 1;
-        rtapi_print_msg(RTAPI_MSG_ERR, "ERROR!!! maxjerk Is less than 1\n");
+        /* This fires EVERY CYCLE for segments with no usable jerk limit (e.g. a
+         * rotary-only move when [AXIS_A/B/C]MAX_JERK is unset, found via G43.4
+         * TCP testing on a stock sim). The fallback below is graceful
+         * (trapezoidal for the segment), so warn ONCE instead of storming the
+         * log at servo rate. */
+        static int scurve_jerk_warned = 0;
+        if (!scurve_jerk_warned) {
+            scurve_jerk_warned = 1;
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "S-curve: segment max jerk < 1 (unset [AXIS_*]MAX_JERK or [TRAJ]MAX_LINEAR_JERK?) - "
+                "trapezoidal fallback used for such segments (reported once)\n");
+        }
         return TP_SCURVE_ACCEL_ERROR;
     }
 

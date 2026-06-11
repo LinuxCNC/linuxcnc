@@ -1252,6 +1252,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		{
 			/* Only 0 and 1 are supported; coerce anything else to 0. */
 			int req = (emcmotCommand->planner_type == 1) ? 1 : 0;
+			/* G64_R_PLANNER guard (parity with initraj/inihal, which force
+			 * type 0 when jerk is unset): refuse an S-curve request when no
+			 * valid TRAJ-level max jerk is configured, instead of entering a
+			 * degraded per-segment-fallback state. */
+			if (req == 1 && emcmotStatus->jerk < 1.0) {
+				reportError(_("S-curve planner refused: no usable jerk limit - set [TRAJ]MAX_LINEAR_JERK and per-axis [AXIS_*]MAX_JERK"));
+				break;
+			}
 			if (planner_switch_motion_idle()) {
 				/* idle: instant switch, drop any stale pending request */
 				emcmotStatus->planner_type = req;
