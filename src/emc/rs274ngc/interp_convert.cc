@@ -2215,6 +2215,8 @@ int Interp::convert_control_mode(
     int g_code,                   // g_code being executed (G_61, G61_1, G_64)
     double tolerance_in,          // tolerance for the path following in G64
     double naivecam_tolerance_in, // tolerance for the naivecam
+    double r_word,                // G64_R_PLANNER: R value (planner/aggressiveness)
+    bool r_present,               // G64_R_PLANNER: true if R was given on the block
     setup_pointer settings)       // pointer to machine settings
 {
     double tolerance, naivecam_tolerance;
@@ -2235,7 +2237,22 @@ int Interp::convert_control_mode(
       }
       settings->control_mode = CANON_CONTINUOUS;
       settings->tolerance = tolerance;
-      SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
+      /* G64_R_PLANNER: optional R word selects the planner / cornering aggressiveness
+       * (Fanuc G05.1-style level). R absent -> leave planner unchanged (sentinels).
+       *   R<=0      -> trapezoidal (planner_type 0), peak_scale unchanged
+       *   0<R<=1.0  -> S-curve (planner_type 1), scurve_peak_scale = R (clamped 0.1..1.0)
+       *   R>1.0     -> S-curve, peak_scale clamped to 1.0 */
+      int planner_type = -1;          // -1 = unchanged
+      double peak_scale = -1.0;       // <0 = unchanged
+      if (r_present) {
+          if (r_word <= 0.0) {
+              planner_type = 0;       // trapezoidal / BRISK
+          } else {
+              planner_type = 1;       // S-curve / SOFT
+              peak_scale = (r_word > 1.0) ? 1.0 : ((r_word < 0.1) ? 0.1 : r_word);
+          }
+      }
+      SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance, planner_type, peak_scale);
 
       if (naivecam_tolerance_in >= 0){
 	      naivecam_tolerance = naivecam_tolerance_in;
@@ -2969,7 +2986,9 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     }
     if ((block->g_modes[GM_CONTROL_MODE] != -1) && ONCE(STEP_CONTROL_MODE)) {
 	status = convert_control_mode(block->g_modes[GM_CONTROL_MODE],
-				      block->p_number, block->q_number, settings);
+				      block->p_number, block->q_number,
+				      block->r_number, block->r_flag, /* G64_R_PLANNER */
+				      settings);
 	CHP(status);
     }
     if ((block->g_modes[GM_DISTANCE_MODE] != -1) && ONCE(STEP_DISTANCE_MODE)) {

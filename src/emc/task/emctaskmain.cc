@@ -1862,6 +1862,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	emcTrajSetTermCondMsg = reinterpret_cast<EMC_TRAJ_SET_TERM_COND *>(cmd);
 	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond, emcTrajSetTermCondMsg->tolerance);
+	/* G64_R_PLANNER: a G64 R word piggybacks the planner mode here so it is
+	 * applied in program order. Sentinels (<0) mean "leave unchanged". The
+	 * motion side applies it cleanly via the defer-until-idle guard. */
+	if (retval == 0 && emcTrajSetTermCondMsg->planner_type >= 0)
+	    emcTrajPlannerType(emcTrajSetTermCondMsg->planner_type);
+	if (retval == 0 && emcTrajSetTermCondMsg->scurve_peak_scale >= 0.0)
+	    emcTrajSetScurvePeakScale(emcTrajSetTermCondMsg->scurve_peak_scale);
 	break;
 
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
