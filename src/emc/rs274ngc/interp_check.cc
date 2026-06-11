@@ -365,6 +365,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->g_modes[GM_MODAL_0] != G_10) && (block->m_modes[7] != 19) &&
          (block->g_modes[GM_CONTROL_MODE] != G_64) ), /* G64_R_PLANNER: R selects planner on G64 */
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
+    /* G64_R_PLANNER: a block has one shared R word; with G64 it is the planner
+     * dial, with M19 the spindle orient angle. Both would consume the same
+     * value, so the combination is refused. */
+    CHKS((block->g_modes[GM_CONTROL_MODE] == G_64) && (block->m_modes[7] == 19),
+        _("R word is ambiguous on a line with both G64 and M19 - use separate lines"));
     CHKS((block->m_modes[7] == 19) && ((block->r_number > 360.0) || (block->r_number < 0.0)),
 	   _("R value must be within 0..360 with M19"));
   }
