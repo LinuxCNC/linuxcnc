@@ -166,6 +166,16 @@ static int loadTraj(const IniFile &ini)
     }
     old_inihal_data.traj_planner_type = planner_type;
 
+    // S-curve rest-to-rest peak velocity scale: 0.5 = faithful (original
+    // conservative cornering), 1.0 = physically-correct (full jerk-feasible).
+    // Default 0.5 = no behaviour change. Runtime-tunable via ini.traj_scurve_peak_scale.
+    double scurve_peak_scale = ini.findRealV("SCURVE_PEAK_SCALE", "TRAJ", 0.5);
+    if (0 != emcTrajSetScurvePeakScale(scurve_peak_scale)) {
+        print_dbg_config("emcTrajSetScurvePeakScale");
+        return -1;
+    }
+    old_inihal_data.traj_scurve_peak_scale = scurve_peak_scale;
+
     int arcBlendEnable = ini.findBoolV("ARC_BLEND_ENABLE", "TRAJ", true);
     int arcBlendFallbackEnable = ini.findBoolV("ARC_BLEND_FALLBACK_ENABLE", "TRAJ", false);
     int arcBlendOptDepth = ini.findIntV("ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ", 50);

@@ -130,6 +130,7 @@ extern "C" {
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_JERK,	/* set the max jerk for moves (tooltip) */
 	EMCMOT_SET_PLANNER_TYPE,	/* set planner type (0=trapezoidal, 1=S-curve) */
+	EMCMOT_SET_SCURVE_PEAK_SCALE,	/* set S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_NUM_SPINDLES, /* set the number of spindles */
@@ -227,6 +228,7 @@ extern "C" {
 	double jerk;			/* jerk for traj */
     double ini_maxjerk;
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
+    double scurve_peak_scale;	/* S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
@@ -647,6 +649,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double acc;		/* scalar max accel */
 	double jerk;		/* jerk for traj */
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
+    double scurve_peak_scale;	/* S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 
 	int motionType;
 	double distance_to_go;  /* in this move */

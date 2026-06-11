@@ -1212,7 +1212,21 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 			emcmotStatus->planner_type = emcmotCommand->planner_type;
 		}
 		break;
-				
+
+	case EMCMOT_SET_SCURVE_PEAK_SCALE:
+		/* S-curve rest-to-rest peak velocity scale: 0.5 = faithful (original
+		 * behaviour), 1.0 = physically-correct (full jerk-feasible cornering).
+		 * Runtime-tunable; clamp to a sane range. */
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_SCURVE_PEAK_SCALE, scale(%f)", emcmotCommand->scurve_peak_scale);
+		if (emcmotCommand->scurve_peak_scale < 0.1) {
+			emcmotStatus->scurve_peak_scale = 0.1;
+		} else if (emcmotCommand->scurve_peak_scale > 1.0) {
+			emcmotStatus->scurve_peak_scale = 1.0;
+		} else {
+			emcmotStatus->scurve_peak_scale = emcmotCommand->scurve_peak_scale;
+		}
+		break;
+
 	case EMCMOT_PAUSE:
 	    /* pause the motion */
 	    /* can happen at any time */

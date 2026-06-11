@@ -1189,6 +1189,19 @@ int emcTrajPlannerType(int type)
     return retval;
 }
 
+int emcTrajSetScurvePeakScale(double scale)
+{
+    emcmotCommand.command = EMCMOT_SET_SCURVE_PEAK_SCALE;
+    emcmotCommand.scurve_peak_scale = scale;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, scale, retval);
+    }
+    return retval;
+}
+
 /*
   emcmot has no limits on max velocity, acceleration so we'll save them
   here and apply them in the functions above

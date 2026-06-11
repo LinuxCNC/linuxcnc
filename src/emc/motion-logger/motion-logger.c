@@ -586,6 +586,10 @@ int main(int argc, char* argv[]) {
                 log_print("SET_PLANNER_TYPE planner_type=%d\n", c->planner_type);
                 break;
 
+            case EMCMOT_SET_SCURVE_PEAK_SCALE:
+                log_print("SET_SCURVE_PEAK_SCALE scale=%.6g\n", c->scurve_peak_scale);
+                break;
+
             case EMCMOT_SET_TERM_COND:
                 log_print("SET_TERM_COND termCond=%d, tolerance=%.6g\n", c->termCond, c->tolerance);
                 break;

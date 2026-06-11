@@ -18,11 +18,22 @@
 #include "sp_scurve.h"
 #include "tp_types.h"
 #include "ruckig_wrapper.h"
+#include "../motion/motion.h"   /* emcmot_status_t, for runtime SCURVE_PEAK_SCALE */
 
 #ifndef __KERNEL__
 #include <stdio.h>
 #include <string.h>
 #endif
+
+/* Runtime S-curve rest-to-rest peak scale, from [TRAJ]SCURVE_PEAK_SCALE /
+ * ini.traj_scurve_peak_scale (shared via emcmotStatus). 0.5 = faithful (original
+ * conservative cornering), 1.0 = physically-correct (full jerk-feasible). The
+ * clamp defends the pre-INI window where shmem is still zeroed -> default 0.5. */
+extern emcmot_status_t *emcmotStatus;
+static double scurve_peak_scale(void) {
+    double s = emcmotStatus ? emcmotStatus->scurve_peak_scale : 0.5;
+    return (s >= 0.1 && s <= 1.0) ? s : 0.5;
+}
 
 /* ========== Cached Ruckig planner ==========
  * Use a static variable to cache the planner, avoiding creation and
@@ -93,9 +104,7 @@ static double scurve_max_start_speed_analytic(double distance, double Ve, double
 static double scurve_max_start_speed_full_analytic(double distance, double Ve, double A, double J) {
     double vs   = scurve_max_start_speed_analytic(distance, Ve, A, J);
     double peak = scurve_max_start_speed_analytic(distance * 0.5, 0.0, A, J);
-#if SCURVE_FAITHFUL
-    peak *= 0.5;                 /* match the original's halved clamp */
-#endif
+    peak *= scurve_peak_scale(); /* runtime: 0.5 faithful .. 1.0 full cornering */
     /* Floor at Ve: when the segment is too short to reach Ve (peak clamp < Ve),
      * the original Ruckig path fails and falls back to fmax(Ve, peak). Max start
      * speed can never be below the end speed, so clamp up to Ve. */
@@ -111,9 +120,7 @@ int findSCurveVSpeed(double distence, double maxA, double maxJ, double *req_v) {
      * triggered on every arc/blend — the arc-section opt bursts. */
     if (distence <= 0.0 || maxA <= 0.0 || maxJ <= 0.0) { *req_v = 0.0; return -1; }
     double peak = scurve_max_start_speed_analytic(distence * 0.5, 0.0, maxA, maxJ);
-#if SCURVE_FAITHFUL
-    peak *= 0.5;
-#endif
+    peak *= scurve_peak_scale();  /* runtime: 0.5 faithful .. 1.0 full cornering */
     *req_v = peak;
     return 1;
 }
