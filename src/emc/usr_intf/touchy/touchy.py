@@ -178,7 +178,7 @@ class touchy:
                 else:
                     self.wTree.get_object("MainWindow").parse_geometry(self.window_geometry)
                     if self.window_max:
-                        self.wTree.get_object("MainWindow").window.maximize()
+                        self.wTree.get_object("MainWindow").maximize()
 
                 self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
                 if self.invisible_cursor:
@@ -706,6 +706,36 @@ class touchy:
             if current >= 0:
                 nb.set_current_page(current)
 
+        def _wrap_hscroll(self, name):
+            # Labels showing typed MDI values, G-code lines or file names grow
+            # with their text, which widens the pane and pushes the controls
+            # beside it out of view. Wrap each label column in a horizontal
+            # scroller so long content scrolls (drag to pan) instead of
+            # stretching the layout.
+            w = self.wTree.get_object(name)
+            if w is None:
+                return
+            parent = w.get_parent()
+            if parent is None or isinstance(parent, Gtk.Viewport):
+                return
+            props = {}
+            for pspec in parent.list_child_properties():
+                props[pspec.name] = parent.child_get_property(w, pspec.name)
+            scroller = Gtk.ScrolledWindow()
+            scroller.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                Gtk.PolicyType.NEVER)
+            scroller.set_propagate_natural_height(True)
+            parent.remove(w)
+            scroller.add(w)
+            viewport = scroller.get_child()
+            if isinstance(viewport, Gtk.Viewport):
+                viewport.set_shadow_type(Gtk.ShadowType.NONE)
+            parent.add(scroller)
+            for pname, value in props.items():
+                parent.child_set_property(scroller, pname, value)
+            self._enable_drag_scroll(scroller)
+            scroller.show_all()
+
         def _enable_drag_scroll(self, scroller):
             # Touchy is a touchscreen UI, so let the user drag the content to
             # scroll it (finger or mouse), not just the wheel/scrollbar. A drag
@@ -748,6 +778,11 @@ class touchy:
             # Wrap the content in a scroller so the window can be bounded to the
             # monitor; touchy has no scrolling otherwise and grows past the screen.
             try:
+                # MDI words, the G-code listing and the file chooser names
+                # hold user-sized text; scroll them in place so typing or
+                # loading a file never relayouts the neighboring panes.
+                for name in ("vbox11", "table16", "table17"):
+                    self._wrap_hscroll(name)
                 self._wrap_notebook_pages()
                 win = self.wTree.get_object("MainWindow")
                 child = win.get_child()
@@ -814,10 +849,12 @@ class touchy:
                 scroller.set_max_content_width(area.width)
                 scroller.set_max_content_height(area.height)
                 # Open at the content size, capped to the screen; this avoids an
-                # off-screen window without forcing a screen-sized minimum.
-                nat = child.get_preferred_size()[1]
-                win.resize(min(nat.width, area.width),
-                           min(nat.height, area.height))
+                # off-screen window without forcing a screen-sized minimum. A
+                # user-saved geometry (window_geometry pref) takes precedence.
+                if self.window_geometry == "default":
+                    nat = child.get_preferred_size()[1]
+                    win.resize(min(nat.width, area.width),
+                               min(nat.height, area.height))
                 GLib.idle_add(self._offer_fit, child, area)
             except Exception:
                 pass
