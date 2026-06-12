@@ -59,6 +59,7 @@ jobs:
         path: |
           tests/ui-smoke/**/screenshot.png
           tests/ui-smoke/**/confirm.png
+          tests/ui-smoke/**/diff.png
         if-no-files-found: ignore
         retention-days: 14
     - name: Verify no untracked or modified files after test
@@ -130,6 +131,7 @@ jobs:
         path: |
           tests/ui-smoke/**/screenshot.png
           tests/ui-smoke/**/confirm.png
+          tests/ui-smoke/**/diff.png
         if-no-files-found: ignore
         retention-days: 14
     - name: Verify no untracked or modified files after test
