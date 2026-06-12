@@ -11,9 +11,11 @@ crashdump_arm() {
     CORE_DIR="$(mktemp -d -t ui-smoke-cores.XXXXXX)"
     export CORE_DIR
     ulimit -c unlimited 2>/dev/null || true
-    # core_pattern is global and needs root; best-effort (CI has sudo).
-    # If it does not take, crashdump_report still finds a cwd "core".
-    sudo sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
+    # core_pattern is global; only set it if already root. Never sudo:
+    # the suite must run unattended. Non-root falls back to a cwd "core".
+    if [ "$(id -u)" = 0 ]; then
+        sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
+    fi
 }
 
 crashdump_report() {
@@ -23,8 +25,10 @@ crashdump_report() {
     core=$(ls -t "$CORE_DIR"/core* ./core* /tmp/core* 2>/dev/null | head -1)
     if [ -n "$core" ]; then
         echo "=== crash: native backtrace ($core) ==="
-        # gdb is not on the CI runner by default; pull it in to read the core.
-        command -v gdb >/dev/null 2>&1 || sudo apt-get install -y -q gdb >/dev/null 2>&1 || true
+        # gdb reads the core; pull it in if missing, only when root.
+        if ! command -v gdb >/dev/null 2>&1 && [ "$(id -u)" = 0 ]; then
+            apt-get install -y -q gdb >/dev/null 2>&1 || true
+        fi
         if command -v gdb >/dev/null 2>&1; then
             # "bt" first: gdb auto-selects the faulting thread on a SIGSEGV
             # core. "thread apply all bt" after gives the rest.
