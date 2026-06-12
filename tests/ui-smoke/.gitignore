@@ -5,6 +5,9 @@ linuxcnc.err
 linuxcnc.pid
 ui-smoke.out
 ui-smoke.err
+# confirm.png is the per-run shot; diff.png is its comparison to the
+# committed reference.png (which IS tracked, so it is not listed here).
 screenshot.png
 confirm.png
 ui-smoke-qt.png
+diff.png
