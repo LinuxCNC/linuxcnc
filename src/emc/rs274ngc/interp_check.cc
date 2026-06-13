@@ -100,6 +100,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if (mode1 == G_5_2){
   } else if (mode1 == G_6_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+  } else if (mode0 == G_28_2 || mode0 == G_28_3) {   // G-code homing
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
