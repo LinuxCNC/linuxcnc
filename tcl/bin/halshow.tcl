@@ -256,9 +256,6 @@ set viewmenu [menu $menubar.view -tearoff 0]
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
         $viewmenu add separator
-        $viewmenu add checkbutton -label [msgcat::mc "Separate parameters"] \
-            -variable ::separateParams -command {refreshHAL}
-        $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Reload tree view"] \
             -command {refreshHAL}
 
@@ -784,9 +781,11 @@ proc makeSettings {} {
     addBoolSetting $f1 ::alwaysOnTop [msgcat::mc "Always on top\n(Note: May not\
         working with all desktop environments)"]
     addBoolSetting $f1 ::autoSaveWatchlist [msgcat::mc "Remember watchlist"]
+    addBoolSetting $f1 ::separateParams [msgcat::mc "Separate parameters from pins in tree"]
     pack [button $f1.apply -text [msgcat::mc "Apply"] \
         -command {
             wm attributes . -topmost $::alwaysOnTop
+            refreshHAL
             reloadWatch
             }] -side right -padx 5 -pady 10
     set ::infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
