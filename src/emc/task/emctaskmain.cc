@@ -1605,6 +1605,13 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
+    case EMC_JOINT_HOME_TYPE:        // G28.2: program-order homing
+    case EMC_JOINT_UNHOME_TYPE:      // G28.3: program-order unhome
+	// drain prior motion before (un)homing; without these cases a
+	// queued home/unhome hit default -> EMC_TASK_EXEC::ERROR and was
+	// silently dropped (never reached motion).
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
+
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
