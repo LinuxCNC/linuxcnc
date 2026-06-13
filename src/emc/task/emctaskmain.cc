@@ -1995,7 +1995,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_SPINDLE_OFF_TYPE:
     spindle_off_msg = reinterpret_cast<EMC_SPINDLE_OFF *>(cmd);
-	retval = emcSpindleOff(spindle_off_msg->spindle);
+	retval = emcSpindleOff(spindle_off_msg->spindle, spindle_off_msg->wait_for_spindle_at_speed);
 	break;
 
     case EMC_SPINDLE_BRAKE_RELEASE_TYPE:

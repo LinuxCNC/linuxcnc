@@ -639,7 +639,7 @@ This is usually given in rpm and refers to the rate of spindle
 rotation. If the spindle is already turning and is at a different
 speed, change to the speed given with this command. */
 
-extern void STOP_SPINDLE_TURNING(int spindle);
+extern void STOP_SPINDLE_TURNING(int spindle, int wait_for_atspeed = 1);
 
 /* Stop the spindle from turning. If the spindle is already stopped, this
 command may be given, but it will have no effect. */

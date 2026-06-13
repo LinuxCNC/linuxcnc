@@ -3017,12 +3017,13 @@ void SET_SPINDLE_SPEED(int s, double speed_rpm)
     interp_list.append(SPINDLE_SPEED_<EMC_SPINDLE_SPEED>(s, 0, speed_rpm));
 }
 
-void STOP_SPINDLE_TURNING(int s)
+void STOP_SPINDLE_TURNING(int s, int wait_for_atspeed)
 {
     auto emc_spindle_off_msg = std::make_unique<EMC_SPINDLE_OFF>();
 
     flush_segments();
     emc_spindle_off_msg->spindle = s;
+    emc_spindle_off_msg->wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(std::move(emc_spindle_off_msg));
     // Added by atp 6/1/18 not sure this is right. There is a problem that the _second_ S word starts the spindle without M3/M4
     canon.spindle[s].dir = 0;

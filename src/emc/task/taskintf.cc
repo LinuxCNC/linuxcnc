@@ -1983,11 +1983,12 @@ int emcSpindleOn(int spindle, double speed, double css_factor, double offset, in
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcSpindleOff(int spindle)
+int emcSpindleOff(int spindle, int wait_for_at_speed)
 {
     emcmotCommand.command = EMCMOT_SPINDLE_OFF;
     emcmotCommand.state = 0;
     emcmotCommand.spindle = spindle;
+    emcmotCommand.wait_for_spindle_at_speed = wait_for_at_speed;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
