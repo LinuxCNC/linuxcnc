@@ -243,6 +243,11 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 
 extern void SET_XY_ROTATION(double t);
 
+/* G28.2 / G28.3: trigger the machine homing cycle / unhome from G-code
+ * (bare form = all joints). Maps to EMC_JOINT_HOME/UNHOME(-1). */
+extern void HOME_CYCLE(void);
+extern void UNHOME_AXES(void);
+
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
 numbers. The units are whatever length units are being used at the time 

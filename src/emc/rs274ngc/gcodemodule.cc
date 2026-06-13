@@ -432,6 +432,9 @@ void SELECT_PLANE(CANON_PLANE pl) {
     Py_XDECREF(result);
 }
 
+void HOME_CYCLE(void) {}
+void UNHOME_AXES(void) {}
+
 void SET_TRAVERSE_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;

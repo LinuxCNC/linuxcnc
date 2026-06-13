@@ -3111,6 +3111,27 @@ Called by: convert_modal_0.
 
 */
 
+/*! convert_home_cycle
+
+Handles G28.2 (run the homing cycle on all joints) and G28.3 (unhome all
+joints) from a G-code line, so machines can reference / clear references
+from MDI or a program instead of only from the GUI. Bare form (no axis
+words). Motion still enforces its own safety (idle / not on limits).
+*/
+int Interp::convert_home_cycle(int move,
+                               block_pointer /*block*/,
+                               setup_pointer settings)
+{
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         "Cannot home (G28.2/G28.3) with cutter radius compensation on");
+    if (move == G_28_2) {
+        HOME_CYCLE();
+    } else {
+        UNHOME_AXES();
+    }
+    return INTERP_OK;
+}
+
 int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
                         block_pointer block,    //!< pointer to a block of RS274 instructions
                         setup_pointer settings) //!< pointer to machine settings
@@ -4290,6 +4311,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
+  } else if ((code == G_28_2) || (code == G_28_3)) {
+    CHP(convert_home_cycle(code, block, settings));
   } else if ((code == G_52) || (code == G_92)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf

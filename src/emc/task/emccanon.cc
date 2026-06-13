@@ -478,6 +478,21 @@ void SET_XY_ROTATION(double t) {
     canon.xy_rotation = t;
 }
 
+
+void HOME_CYCLE(void)
+{
+    auto msg = std::make_unique<EMC_JOINT_HOME>();
+    msg->joint = -1;   // -1 = all joints (HOME_SEQUENCE order)
+    interp_list.append(std::move(msg));
+}
+
+void UNHOME_AXES(void)
+{
+    auto msg = std::make_unique<EMC_JOINT_UNHOME>();
+    msg->joint = -1;
+    interp_list.append(std::move(msg));
+}
+
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
