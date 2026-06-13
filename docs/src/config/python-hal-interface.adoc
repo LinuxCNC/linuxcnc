@@ -52,9 +52,10 @@ Realtime type constants:
 
 * `hal.REALTIME_TYPE_UNINITIALIZED` - Real time module not running
 * `hal.REALTIME_TYPE_NONE` - No realtime available
-* `hal.REALTIME_TYPE_RTAI` - RTAI kernel mode
-* `hal.REALTIME_TYPE_PREEMPT_DYNAMIC` - Preempt dynamic: avaliable in vanilla kernel, not recommended
+* `hal.REALTIME_TYPE_UNKNOWN` - Only used when LINUXCNC_FORCE_REALTIME=1 is set. Unknown, no PREEMPT_DYNAMIC but SCHED_FIFO is available. Not recommended.
+* `hal.REALTIME_TYPE_PREEMPT_DYNAMIC` - Preempt dynamic: available in vanilla kernel. Only used when LINUXCNC_FORCE_REALTIME=1 is set. Not recommended.
 * `hal.REALTIME_TYPE_PREEMPT_RT` - Preempt RT
+* `hal.REALTIME_TYPE_RTAI` - RTAI kernel mode
 * `hal.REALTIME_TYPE_LXRT` - LXRT, userspace implementation for RTAI
 * `hal.REALTIME_TYPE_XENOMAI` - Xenomai 3
 * `hal.REALTIME_TYPE_XENOMAI_EVL` - Xenomai 4 aka Xenomai EVL

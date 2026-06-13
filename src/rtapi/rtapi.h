@@ -992,12 +992,13 @@ extern int rtapi_is_kernelspace(void);
 typedef enum{
     REALTIME_TYPE_UNINITIALIZED = -1, //Realtime not running, type unknown
     REALTIME_TYPE_NONE = 0,           //No realtime available
-    REALTIME_TYPE_RTAI = 1,
-    REALTIME_TYPE_PREEMPT_DYNAMIC = 2,
+    REALTIME_TYPE_UNKNOWN = 1,        //Only used when LINUXCNC_FORCE_REALTIME=1 is set. Unknown, no PREEMPT_DYNAMIC but SCHED_FIFO is available. Not recommended.
+    REALTIME_TYPE_PREEMPT_DYNAMIC = 2,//Only used when LINUXCNC_FORCE_REALTIME=1 is set. Not recommended.
     REALTIME_TYPE_PREEMPT_RT = 3,
-    REALTIME_TYPE_LXRT = 4,
-    REALTIME_TYPE_XENOMAI = 5,
-    REALTIME_TYPE_XENOMAI_EVL = 6,
+    REALTIME_TYPE_RTAI = 4,
+    REALTIME_TYPE_LXRT = 5,
+    REALTIME_TYPE_XENOMAI = 6,
+    REALTIME_TYPE_XENOMAI_EVL = 7,
 } rtapi_realtime_type_t;
 
 #ifdef RTAPI

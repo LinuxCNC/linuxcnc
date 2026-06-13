@@ -260,13 +260,27 @@ rtapi_realtime_type_t rtapi_get_realtime_type(void){
         cached = REALTIME_TYPE_PREEMPT_RT;
         return cached;
     }
-    if(detect_preempt_dynamic()){
-        cached = REALTIME_TYPE_PREEMPT_DYNAMIC;
-        return cached;
-    }
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_get_realtime_type: Realtime type not detected\n");
-    cached = REALTIME_TYPE_PREEMPT_DYNAMIC;
+    if(detect_force()){
+        //Use REALTIME_TYPE_PREEMPT_DYNAMIC / REALTIME_TYPE_UNKNOWN only if forced
+        //This is not recommended
+        if(detect_preempt_dynamic()){
+            cached = REALTIME_TYPE_PREEMPT_DYNAMIC;
+        }else{
+            if(is_master){
+                rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_get_realtime_type: Realtime type unknown but SCHED_FIFO available\n");
+            }
+            cached = REALTIME_TYPE_UNKNOWN;
+        }
+    }else{
+        if(is_master){
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Note: realtime scheduling unavailable.\n"
+                "  Falling back to POSIX non-realtime.\n"
+                "  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.\n");
+        }
+        cached = REALTIME_TYPE_NONE;
+    }
     return cached;
 }
 
@@ -1281,13 +1295,13 @@ static RtapiApp *makeApp() {
             app = makeDllApp("liblinuxcnc-uspace-xenomai.so.0", SCHED_FIFO);
         } else if (rt_type == REALTIME_TYPE_LXRT) {
             app = makeDllApp("liblinuxcnc-uspace-rtai.so.0", SCHED_FIFO);
-        } else if (rt_type == REALTIME_TYPE_PREEMPT_RT || rt_type == REALTIME_TYPE_PREEMPT_DYNAMIC) {
+        } else if (rt_type == REALTIME_TYPE_PREEMPT_RT || rt_type == REALTIME_TYPE_PREEMPT_DYNAMIC || rt_type == REALTIME_TYPE_UNKNOWN) {
             // SCHED_FIFO available but no Xenomai/RTAI backend.  Warn if the
             // kernel is not PREEMPT_RT: SCHED_FIFO still beats SCHED_OTHER,
             // but latency on a PREEMPT_DYNAMIC stock kernel can be tens of
             // milliseconds, which will surprise users who expect the same
             // bounds as a PREEMPT_RT or Xenomai setup.
-            if (rt_type == REALTIME_TYPE_PREEMPT_DYNAMIC) {
+            if (rt_type == REALTIME_TYPE_PREEMPT_DYNAMIC || rt_type == REALTIME_TYPE_UNKNOWN) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                     "Note: SCHED_FIFO available but kernel is not PREEMPT_RT.  "
                     "Latency may be unbounded; install a PREEMPT_RT kernel "
