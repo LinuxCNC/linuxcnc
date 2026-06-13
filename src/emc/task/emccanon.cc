@@ -1942,12 +1942,13 @@ void SET_SPINDLE_SPEED(int s, double r)
     interp_list.append(emc_spindle_speed_msg);
 }
 
-void STOP_SPINDLE_TURNING(int s)
+void STOP_SPINDLE_TURNING(int s, int wait_for_atspeed)
 {
     EMC_SPINDLE_OFF emc_spindle_off_msg;
 
     flush_segments();
     emc_spindle_off_msg.spindle = s;
+    emc_spindle_off_msg.wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(emc_spindle_off_msg);
     // Added by atp 6/1/18 not sure this is right. There is a problem that the _second_ S word starts the spindle without M3/M4
     canon.spindle[s].dir = 0;
