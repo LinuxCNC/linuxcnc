@@ -15,10 +15,12 @@ g54
 g0 g53 z-30
 g10 l11 p1 z0 ; length should be -3
 t1 m6
+g43
 (debug,#5403)
 g55
 g0 g53 z-30
 g10 l11 p1 z1 ; length should be -4
+g43
 (debug,#5403)
 
 g56
@@ -28,10 +30,12 @@ g54
 g0 g53 z-30
 g10 l11 p1 z0 ; ... so the length should still be -3
 t1 m6
+g43
 (debug,#5403)
 g55
 g0 g53 z-30
 g10 l11 p1 z1 ; ... so the length should still be -4
+g43
 (debug,#5403)
 
 m2

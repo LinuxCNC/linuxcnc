@@ -12,18 +12,24 @@ g10 l1 p1 x1
 g43
 (debug, should be 1 0 0: #5401 #5402 #5403)
 g10 l1 p1 y2
+g43
 (debug, should be 1 2 0: #5401 #5402 #5403)
 g10 l1 p1 z3
+g43
 (debug, should be 1 2 3: #5401 #5402 #5403)
 g49
 (debug,    part 2)
 g10 l1 p1 x0 y0 z0
+g43
 (debug, should be 0 0 0: #5401 #5402 #5403)
 g10 l1 p1 x1
+g43
 (debug, should be 1 0 0: #5401 #5402 #5403)
 g10 l1 p1 y2
+g43
 (debug, should be 1 2 0: #5401 #5402 #5403)
 g10 l1 p1 z3
+g43
 (debug, should be 1 2 3: #5401 #5402 #5403)
 g49
 
@@ -38,18 +44,24 @@ g10 l10 p1 x1
 g43
 (debug, should be -.9 0 0: #5401 #5402 #5403)
 g10 l10 p1 y2
+g43
 (debug, should be -.9 -1.8 0: #5401 #5402 #5403)
 g10 l10 p1 z3
+g43
 (debug, should be -.9 -1.8 -2.7: #5401 #5402 #5403)
 g49
 (debug,    part 2)
 g10 l10 p1 x0 y0 z0
+g43
 (debug, should be .1 .2 .3: #5401 #5402 #5403)
 g10 l10 p1 x1
+g43
 (debug, should be -.9 0.2 .3: #5401 #5402 #5403)
 g10 l10 p1 y2
+g43
 (debug, should be -.9 -1.8 .3: #5401 #5402 #5403)
 g10 l10 p1 y2 z3
+g43
 (debug, should be -.9 -1.8 -2.7: #5401 #5402 #5403)
 g49
 
@@ -61,13 +73,12 @@ g10 l10 p1 x0 y0 z0
 t1 m6 g43
 (debug, should be 0 0 0: #5401 #5402 #5403)
 g10 l10 p1 x1
-(debug, should be -.707 -.707 0: #5401 #5402 #5403)
 g43
+(debug, should be -.707 -.707 0: #5401 #5402 #5403)
 (debug, should be 1 0: #5420 #5421)
 g10 l10 p1 y1
-(debug, should be 0 -1.414 0: #5401 #5402 #5403)
-(debug, should be 1 0: #5420 #5421)
 g43
+(debug, should be 0 -1.414 0: #5401 #5402 #5403)
 (debug, should be 1 1: #5420 #5421)
 g49
 
@@ -80,9 +91,25 @@ t1 m6 g43
 (debug, should be 0 0 0: #5401 #5402 #5403)
 g10 l10 p1 x1
 g10 l10 p1 y1
-(debug, should be 0 -1.414 0: #5401 #5402 #5403)
-(debug, should be 1 0: #5420 #5421)
+(debug, G10 alone does not apply offset, should still be 0 0 0: #5401 #5402 #5403)
 g43
+(debug, should be 0 -1.414 0: #5401 #5402 #5403)
 (debug, should be 1 1: #5420 #5421)
+g49
+
+
+(debug,Model B contract: M6 alone and G10 alone do not change tool offset params)
+g49
+g10 l1 p1 x0 y0 z0
+t1 m6
+(debug, after M6 alone, should be 0 0 0: #5401 #5402 #5403)
+g10 l1 p1 x5 y6 z7
+(debug, after G10 alone, should still be 0 0 0: #5401 #5402 #5403)
+g43
+(debug, after G43, should be 5 6 7: #5401 #5402 #5403)
+g10 l1 p1 x8
+(debug, after G10 modifying loaded tool, should still be 5 6 7: #5401 #5402 #5403)
+g43
+(debug, after G43, should be 8 6 7: #5401 #5402 #5403)
 g49
 m2
