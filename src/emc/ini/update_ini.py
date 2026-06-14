@@ -240,16 +240,18 @@ def ini_preamble(version, file):
     newini.write("# The original config files may be found in the %s directory\n\n" % backupdir)
 
     # reproduce everything before the first [section] verbatim
-    section = re.match(r"(.*?)^\[", inistring, re.DOTALL | re.MULTILINE)
+    section = re.match(r"(.*?)^\[", inistring, re.DOTALL | re.MULTILINE) 
     if section !=None:
         newini.write(section.group(1))
 
     #[EMC] Section, change the version number
     try:
         all_sections.remove("EMC")
-        section = re.search(r"\[EMC\](.+?)\n\[", inistring, re.DOTALL)
-        if section: section = section.group(1)
+        # Match also until EOF if INI file splitted
+        section = re.search(r"\[EMC\](.+?)(\n\[|\Z)", inistring, re.DOTALL)       
         newini.write("[EMC]")
+        if section: 
+            section = section.group(1)
         if section != None:
             if version != "0.0":
                 section = re.sub("VERSION (.+)", "VERSION = %s" % version, section)
