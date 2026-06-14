@@ -1264,6 +1264,31 @@ G10 L1 P#5400 Z#<zworkoffset> (set new tool offset)
 G43
 ----
 
+[[gcode:probe-machine-coordinates]]
+Probe results in #5061 to #5069 are expressed in the current work
+coordinate system, so they include the active coordinate system origin,
+any G92/G52 offset, and the applied tool length offset.
+To recover the absolute machine coordinate of a probe, add those offsets
+back.
+The tool length offset currently applied to motion is reported by
+parameters #5401 to #5409 (set by the G43 family, zeroed by G49), so the
+conversion works whether or not a tool offset is active and you do not
+need to cancel it with G49 first.
+
+.Reading the machine coordinates of a probe
+[source,ngc]
+----
+G38.2 Z-100 F100
+#<zmachine> = [#5063 + #[5203 + #5220 * 20] + #5213 * #5210 + #5403]
+----
+
+The added terms are the current coordinate system Z origin
+(#5223 for G54, #5243 for G55, and so on, selected by #5220), the
+G92/G52 Z offset applied only when active (#5213 multiplied by the
+G92 flag #5210), and the applied tool length offset #5403.
+The same pattern applies to the other axes using their respective
+parameters.
+
 A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
 XYZABCUVW of each successful straight probe in it.
