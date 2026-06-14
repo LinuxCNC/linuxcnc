@@ -45,7 +45,7 @@ Example to limit number of decimal points for floats and use a file named my.hal
 $ halshow  --fformat "%.5f" ./my.halshow
 ----
 
-For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html[the Tcl format man page].
+For more information regarding the format, please refer to the https://www.tcl.tk/man/tcl/TclCmd/format.html[Tcl format man page].
 
 
 [[cap:halshow-layout]]
@@ -194,10 +194,20 @@ The geometry of the window and the settings are saved in a file in the configura
 If that path cannot be determined, they are stored in the home directory.
 The path will be displayed in the settings page.
 You can omit using the preferences file by calling halshow with the command line argument `--no-prefs`. +
-The further settings should be self-explaining.
 
-_Separate parameters from pins in tree_ lists pins and parameters in separate _Pins_ and _Parameters_ branches of the tree, instead of the combined _Pins & Parameters_ branch.
+Override format string::
+Sets the format of the displayed values, for more information refer to the https://www.tcl.tk/man/tcl/TclCmd/format.html[Tcl format man page].
+
+Always on top::
+Keeps the halshow window on top.
+
+Remember watchlist::
+Keeps the saved items in the watchlist on exit.
+
+Separate parameters from pins in tree:: Lists pins and parameters in separate _Pins_ and _Parameters_ branches of the tree, instead of the combined _Pins & Parameters_ branch.
 The setting takes effect when you press _Apply_ and is remembered between sessions.
+
+The further settings should be self-explaining.
 
 [[cap:halshow-settings]]
 .Halshow Settings
