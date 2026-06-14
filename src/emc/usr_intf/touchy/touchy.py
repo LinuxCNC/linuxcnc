@@ -982,26 +982,26 @@ class touchy:
                           "fitfontscheck"]:
                         w = self.wTree.get_object(i)
                         if w:
-                                self._tag(w, "touchy_control")
+                                self._add_style_class(w, "touchy_control")
                 notebook = self.wTree.get_object('notebook1')
                 for i in range(notebook.get_n_pages()):
                         w = notebook.get_nth_page(i)
-                        self._tag(notebook.get_tab_label(w), "touchy_control")
+                        self._add_style_class(notebook.get_tab_label(w), "touchy_control")
 
                 # labels
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_object("mdi%d" % i)
-                        self._tag(w, "touchy_control")
+                        self._add_style_class(w, "touchy_control")
                 for i in range(self.num_filechooser_labels):
                         w = self.wTree.get_object("filechooser%d" % i)
-                        self._tag(w, "touchy_control")
+                        self._add_style_class(w, "touchy_control")
                 for i in range(self.num_listing_labels):
                         w = self.wTree.get_object("listing%d" % i)
-                        self._tag(w, "touchy_listing")
+                        self._add_style_class(w, "touchy_listing")
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
                           "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2"]:
                         w = self.wTree.get_object(i)
-                        self._tag(w, "touchy_control")
+                        self._add_style_class(w, "touchy_control")
 
                 # dro
                 for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
@@ -1009,24 +1009,24 @@ class touchy:
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_object(i)
                         if w:
-                            self._tag(w, "touchy_dro")
+                            self._add_style_class(w, "touchy_dro")
                             if "r" in i and not self.rel_textcolor == "default":
-                                self._tag(w, "touchy_rel")
+                                self._add_style_class(w, "touchy_rel")
                             elif "a" in i and not self.abs_textcolor == "default":
-                                self._tag(w, "touchy_abs")
+                                self._add_style_class(w, "touchy_abs")
                             elif "d" in i and not self.dtg_textcolor == "default":
-                                self._tag(w, "touchy_dtg")
+                                self._add_style_class(w, "touchy_dtg")
 
                 # status bar
                 for i in ["error"]:
                         w = self.wTree.get_object(i)
-                        self._tag(w, "touchy_error")
+                        self._add_style_class(w, "touchy_error")
                         if not self.err_textcolor == "default":
-                            self._tag(w, "touchy_err")
+                            self._add_style_class(w, "touchy_err")
 
                 self._reload_font_css()
 
-        def _tag(self, widget, name):
+        def _add_style_class(self, widget, name):
             # Add a style class once; the shared CSS provider carries the font
             # and colour for that class.
             if widget is not None:
