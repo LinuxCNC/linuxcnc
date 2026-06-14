@@ -1801,7 +1801,8 @@ class EMC_SPINDLE_OFF:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_OFF()
       : EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_OFF_TYPE, sizeof(EMC_SPINDLE_OFF)),
-        spindle(0)
+        spindle(0),
+        wait_for_spindle_at_speed(0)
     {};
 
     // For internal NML/CMS use only.
@@ -1810,6 +1811,7 @@ class EMC_SPINDLE_OFF:public EMC_SPINDLE_CMD_MSG {
     void update(CMS * cms);
 
     int spindle;    // the spindle to be turned off
+    int wait_for_spindle_at_speed; // wait for at-speed (spindle stopped) before next feed
 };
 
 class EMC_SPINDLE_INCREASE:public EMC_SPINDLE_CMD_MSG {

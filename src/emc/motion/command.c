@@ -507,6 +507,22 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    if (GET_MOTION_TELEOP_FLAG()) {
                 axis_jog_abort_all(0);
 	    } else if (GET_MOTION_COORD_FLAG()) {
+		/* If motion was being held waiting for spindle at-speed, the
+		   operator most likely aborted because the machine sat idle
+		   with no obvious reason. Tell them why, loudly. A wait that
+		   never released after a spindle stop almost always means
+		   spindle.N.at-speed is not wired, or does not go true once the
+		   spindle has actually stopped. */
+		if (MOTION_ID_VALID(emcmotInternal->coord_tp.spindle.waiting_for_atspeed)) {
+			for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++) {
+				if (emcmotStatus->spindle_status[spindle_num].state == 0 && !emcmotStatus->spindle_status[spindle_num].at_speed) {
+					reportError(_("Aborted while waiting for spindle %d at-speed after a spindle stop. "
+						"Check that spindle.%d.at-speed is connected and goes true once the spindle has stopped."),
+						spindle_num, spindle_num);
+					break;
+				}
+			}
+		}
 		tpAbort(&emcmotInternal->coord_tp);
 	    } else {
 		for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
@@ -530,6 +546,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		SET_JOINT_FAULT_FLAG(joint, 0);
 	    }
 	    emcmotStatus->paused = 0;
+	    /* Drop any pending at-speed barrier so it can't strand a later move. */
+	    emcmotStatus->atspeed_next_feed = 0;
 	    // Clear pins on abort so tests see a clean state
 		if (emcmot_hal_data) {
 				*(emcmot_hal_data->interp_arc_radius) = 0.0;
@@ -1496,6 +1514,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 }
             }
 
+	    /* A probe is a feed-type move, so honor any pending at-speed
+	       barrier just like G1: wait for spindle.N.at-speed (spin-up after
+	       M3, or stop after M5) before the probe starts. */
+	    if (emcmotStatus->atspeed_next_feed) {
+		issue_atspeed = 1;
+		emcmotStatus->atspeed_next_feed = 0;
+	    }
+
 	    /* append it to the emcmotInternal->coord_tp */
 	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
 	    if (-1 == tpAddLine(&emcmotInternal->coord_tp,
@@ -1506,7 +1532,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				emcmotCommand->acc,
 				emcmotCommand->ini_maxjerk,
 				emcmotStatus->enables_new,
-				0,
+				issue_atspeed,
 				-1,
 				emcmotCommand->tag)) {
 		reportError(_("can't add probe move"));
@@ -1702,6 +1728,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        *(emcmot_hal_data->spindle[n].spindle_orient) = 0;
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
         }
+        /* Optionally make the spindle stop an at-speed barrier: the next feed
+           move waits until at-speed reflects the stopped state. Safe when
+           unwired since at-speed defaults to 1 (see motion.c). */
+        emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
 	    break;
 
 	case EMCMOT_SPINDLE_ORIENT:

@@ -776,6 +776,8 @@ static int export_spindle(int num, spindle_hal_t * addr){
     if ((retval = hal_pin_float_newf(HAL_IN, &(addr->spindle_revs), mot_comp_id, "spindle.%d.revs", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_IN, &(addr->spindle_speed_in), mot_comp_id, "spindle.%d.speed-in", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(addr->spindle_is_atspeed), mot_comp_id, "spindle.%d.at-speed", num)) != 0) return retval;
+    /* Default 1: an unwired at-speed pin must never block motion. Do not
+       change to 0 or machines without at-speed wired would idle forever. */
     *(addr->spindle_is_atspeed) = 1;
     /* restore saved message level */
     rtapi_set_msg_level(msg);

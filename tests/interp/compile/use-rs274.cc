@@ -136,7 +136,7 @@ void SPINDLE_RETRACT_TRAVERSE() {}
 void START_SPINDLE_CLOCKWISE(int spindle, int dir) {}
 void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int dir) {}
 void SET_SPINDLE_SPEED(int spindle, double r) {}
-void STOP_SPINDLE_TURNING(int spindle) {}
+void STOP_SPINDLE_TURNING(int spindle, int wait_for_atspeed) {}
 void SPINDLE_RETRACT() {}
 void ORIENT_SPINDLE(int spindle, double orientation, int mode) {}
 void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout) {}
