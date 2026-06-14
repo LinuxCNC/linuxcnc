@@ -13,15 +13,17 @@ import tkinter
 from tkinter import messagebox
 
 def copysection(block):
-    #Just makes a straight copy of blocks that don't need any work
-    regex = r"^\s*\[%s\](\n(?:^(?!\[).*(?:\n(?=^(?!\[))|$))*)" % block
-    section = re.search(regex, inistring, re.M)
-    newini.write("\n[%s]" % block)
-    if section is not None:
-        newini.write(section.group(1))
-        all_sections.remove(block)
-    else:
-        newini.write("\n#No Content\n\n")
+    # Copy only if section exists. Needed if splitted into several inc files.
+    if re.search(r"\[%s\]" % block, inistring, re.DOTALL):
+        #Just makes a straight copy of blocks that don't need any work
+        regex = r"^\s*\[%s\](\n(?:^(?!\[).*(?:\n(?=^(?!\[))|$))*)" % block
+        section = re.search(regex, inistring, re.M)
+        newini.write("\n[%s]" % block)
+        if section is not None:
+            newini.write(section.group(1))
+            all_sections.remove(block)
+        else:
+            newini.write("\n#No Content\n\n")
 
 def writeifexists(file, section, src_item, dest_item = "None"):
     #Writes a new entry to the file, but only if it exists
