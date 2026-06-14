@@ -92,6 +92,18 @@ class touchy:
 
                 self.wTree = Gtk.Builder()
                 self.wTree.add_from_file(self.gladefile)
+                               
+                # CSS styling
+                screen = Gdk.Screen.get_default()
+                provider = Gtk.CssProvider()
+                style_context = Gtk.StyleContext()
+                style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                css = b"""
+                button {
+                        padding: 0;
+                }
+                """
+                provider.load_from_data(css)
 
                 for w in ['wheelinc1', 'wheelinc2', 'wheelinc3',
                                 'wheelx', 'wheely', 'wheelz',
@@ -106,6 +118,9 @@ class touchy:
                         pass
                 self.wTree.get_object('MainWindow').set_can_focus(True)
                 self.wTree.get_object('MainWindow').grab_focus()
+
+                # Stop the window growing past the screen (see method).
+                self._constrain_to_monitor()
 
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
@@ -126,7 +141,7 @@ class touchy:
                 self.prefs = preferences.preferences()
                 self.mv_val = self.prefs.getpref('maxvel', 100, int)
                 self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
-                self.dro_font_name = self.prefs.getpref('dro_font', 'FreeMono 10 Pitch Bold 16', str)
+                self.dro_font_name = self.prefs.getpref('dro_font', 'FreeMono Bold 16', str)
                 self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
                 self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
                 self.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
@@ -136,6 +151,13 @@ class touchy:
                 self.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
                 self.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
                 self.window_max = self.prefs.getpref('window_force_max', 'false', bool)
+                self.fit_fonts = self.prefs.getpref('fit_fonts', 'ask', str)
+                self.fit_skip_size = self.prefs.getpref('fit_skip_size', '', str)
+                check = self.wTree.get_object("fitfontscheck")
+                if check:
+                    self._setting_fit_check = True
+                    check.set_active(self.fit_fonts != 'never')
+                    self._setting_fit_check = False
 
                 # initial screen setup
                 if os.path.exists(themedir):
@@ -156,7 +178,7 @@ class touchy:
                 else:
                     self.wTree.get_object("MainWindow").parse_geometry(self.window_geometry)
                     if self.window_max:
-                        self.wTree.get_object("MainWindow").window.maximize()
+                        self.wTree.get_object("MainWindow").maximize()
 
                 self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
                 if self.invisible_cursor:
@@ -258,7 +280,10 @@ class touchy:
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
                 if units==None:
-                        units=self.ini.find("AXIS_X","UNITS")
+                        # complain to user
+                        print("No [TRAJ]UNITS INI file entry, assuming inch")
+                        # Regrettably this has always been the default
+                        units = "inch"
 
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1
@@ -321,6 +346,7 @@ class touchy:
                         "on_dro_mm_clicked" : self.dro_mm,
                         "on_errorfontbutton_font_set" : self.change_error_font,
                         "on_listingfontbutton_font_set" : self.change_listing_font,
+                        "on_fitfontscheck_toggled" : self.fit_fonts_toggled,
                         "on_estop_clicked" : self.linuxcnc.estop,
                         "on_estop_reset_clicked" : self.linuxcnc.estop_reset,
                         "on_machine_off_clicked" : self.linuxcnc.machine_off,
@@ -413,9 +439,15 @@ class touchy:
 
 
         def tabselect(self, notebook, b, tab):
-                # new_tab=notebook.get_nth_page(tab)
-                # old_tab=notebook.get_nth_page(self.tab)
                 self.tab = tab
+                # The handwheel is for jogging, not setup: hide it on the
+                # Preferences tab so the wide settings page gets the full width.
+                wheel = self.wTree.get_object("wheel")
+                if wheel is not None and getattr(self, "_prefs_index", -1) >= 0:
+                        if tab == self._prefs_index:
+                                wheel.hide()
+                        else:
+                                wheel.show()
                 # for c in self._dynamic_childs:
                     # if new_tab.__gtype__.name =='GtkSocket':
                         # w= new_tab.get_plug_window()
@@ -602,6 +634,21 @@ class touchy:
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
                 self.setfont()
 
+        def fit_fonts_toggled(self, button):
+                # Re-enable or disable the offer to shrink the fonts to fit a
+                # small screen. Checking it also forgets any per-screen decline
+                # so the offer can appear again.
+                if getattr(self, "_setting_fit_check", False):
+                        return
+                if button.get_active():
+                        self.fit_fonts = 'ask'
+                        self.prefs.putpref('fit_fonts', 'ask', str)
+                        self.fit_skip_size = ''
+                        self.prefs.putpref('fit_skip_size', '', str)
+                else:
+                        self.fit_fonts = 'never'
+                        self.prefs.putpref('fit_fonts', 'never', str)
+
         def change_theme(self, b):
             tree_iter = b.get_active_iter()
             if tree_iter is not None:
@@ -613,7 +660,296 @@ class touchy:
                 settings = Gtk.Settings.get_default()
                 settings.set_string_property("gtk-theme-name", theme, "")
 
+        def _wrap_notebook_pages(self):
+            # A notebook sizes to its widest/tallest page, so the small visible
+            # page (e.g. the buttons) is forced as large as the hidden settings
+            # page. Wrap each page in a scroller so the notebook sizes to the
+            # current page; oversized pages scroll instead of growing the window.
+            nb = self.wTree.get_object("notebook1")
+            if nb is None:
+                return
+            # Removing/reinserting pages drifts the selection, so remember the
+            # startup page and restore it after wrapping.
+            current = nb.get_current_page()
+            self._prefs_index = -1
+            for i in range(nb.get_n_pages()):
+                page = nb.get_nth_page(i)
+                if isinstance(page, (Gtk.ScrolledWindow, Gtk.Socket)):
+                    continue
+                if (nb.get_tab_label_text(page) or "").strip() == "Preferences":
+                    self._prefs_index = i
+                label = nb.get_tab_label(page)
+                scroller = Gtk.ScrolledWindow()
+                scroller.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                    Gtk.PolicyType.AUTOMATIC)
+                scroller.set_min_content_width(0)
+                scroller.set_min_content_height(0)
+                nb.remove_page(i)
+                scroller.add(page)
+                viewport = scroller.get_child()
+                if isinstance(viewport, Gtk.Viewport):
+                    viewport.set_shadow_type(Gtk.ShadowType.NONE)
+                self._enable_drag_scroll(scroller)
+                scroller.show_all()
+                nb.insert_page(scroller, label, i)
+            if current >= 0:
+                nb.set_current_page(current)
+
+        def _wrap_hscroll(self, name):
+            # Labels showing typed MDI values, G-code lines or file names grow
+            # with their text, which widens the pane and pushes the controls
+            # beside it out of view. Wrap each label column in a horizontal
+            # scroller so long content scrolls (drag to pan) instead of
+            # stretching the layout.
+            w = self.wTree.get_object(name)
+            if w is None:
+                return
+            parent = w.get_parent()
+            if parent is None or isinstance(parent, Gtk.Viewport):
+                return
+            props = {}
+            for pspec in parent.list_child_properties():
+                props[pspec.name] = parent.child_get_property(w, pspec.name)
+            scroller = Gtk.ScrolledWindow()
+            scroller.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                Gtk.PolicyType.NEVER)
+            scroller.set_propagate_natural_height(True)
+            parent.remove(w)
+            scroller.add(w)
+            viewport = scroller.get_child()
+            if isinstance(viewport, Gtk.Viewport):
+                viewport.set_shadow_type(Gtk.ShadowType.NONE)
+            parent.add(scroller)
+            for pname, value in props.items():
+                parent.child_set_property(scroller, pname, value)
+            self._enable_drag_scroll(scroller)
+            scroller.show_all()
+
+        def _enable_drag_scroll(self, scroller):
+            # Touchy is a touchscreen UI, so let the user drag the content to
+            # scroll it (finger or mouse), not just the wheel/scrollbar. A drag
+            # gesture pans the adjustments once movement passes a small
+            # threshold; shorter presses fall through so buttons still click.
+            try:
+                gesture = Gtk.GestureDrag.new(scroller)
+            except Exception:
+                return
+            gesture.set_propagation_phase(Gtk.PropagationPhase.BUBBLE)
+            if not hasattr(self, "_drag_gestures"):
+                self._drag_gestures = []
+            self._drag_gestures.append(gesture)
+            start = {}
+
+            def on_begin(g, x, y):
+                va = scroller.get_vadjustment()
+                ha = scroller.get_hadjustment()
+                start["v"] = va.get_value() if va is not None else 0
+                start["h"] = ha.get_value() if ha is not None else 0
+                start["active"] = False
+
+            def on_update(g, off_x, off_y):
+                if not start.get("active"):
+                    if abs(off_x) < 8 and abs(off_y) < 8:
+                        return
+                    start["active"] = True
+                    g.set_state(Gtk.EventSequenceState.CLAIMED)
+                va = scroller.get_vadjustment()
+                ha = scroller.get_hadjustment()
+                if va is not None:
+                    va.set_value(start["v"] - off_y)
+                if ha is not None:
+                    ha.set_value(start["h"] - off_x)
+
+            gesture.connect("drag-begin", on_begin)
+            gesture.connect("drag-update", on_update)
+
+        def _constrain_to_monitor(self):
+            # Wrap the content in a scroller so the window can be bounded to the
+            # monitor; touchy has no scrolling otherwise and grows past the screen.
+            try:
+                # MDI words, the G-code listing and the file chooser names
+                # hold user-sized text; scroll them in place so typing or
+                # loading a file never relayouts the neighboring panes.
+                for name in ("vbox11", "table16", "table17"):
+                    self._wrap_hscroll(name)
+                self._wrap_notebook_pages()
+                win = self.wTree.get_object("MainWindow")
+                child = win.get_child()
+                if child is None or isinstance(child, Gtk.ScrolledWindow):
+                    return
+                scroller = Gtk.ScrolledWindow()
+                scroller.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                    Gtk.PolicyType.AUTOMATIC)
+                win.remove(child)
+                scroller.add(child)
+                viewport = scroller.get_child()
+                if isinstance(viewport, Gtk.Viewport):
+                    viewport.set_shadow_type(Gtk.ShadowType.NONE)
+                # Float the fit offer over the content (no modal pop-up, and it
+                # does not add to the window's minimum size).
+                overlay = Gtk.Overlay()
+                overlay.add(scroller)
+                self._infobar = self._build_fit_infobar()
+                self._infobar.set_halign(Gtk.Align.FILL)
+                self._infobar.set_valign(Gtk.Align.START)
+                overlay.add_overlay(self._infobar)
+                win.add(overlay)
+                overlay.show_all()
+                self._infobar.hide()
+                # Fit on map, once the monitor is known.
+                self._fitted = False
+                win.connect("map-event", self._fit_to_monitor, scroller, child)
+            except Exception:
+                pass
+
+        def _build_fit_infobar(self):
+            bar = Gtk.InfoBar()
+            bar.set_message_type(Gtk.MessageType.QUESTION)
+            label = Gtk.Label(label=_("The interface is larger than this screen."))
+            bar.get_content_area().add(label)
+            bar.add_button(_("Shrink to fit and save"), 3)
+            bar.add_button(_("Not now"), 1)
+            bar.add_button(_("Never ask again"), 2)
+            bar.connect("response", self._fit_infobar_response)
+            return bar
+
+        def _fit_to_monitor(self, win, event, scroller, child):
+            if self._fitted:
+                return False
+            self._fitted = True
+            # Bound the window to the work area by sizing the scroller to it
+            # (no max-size hint, so the window keeps its normal controls).
+            # Page wrapping keeps the height in check; only the position readout
+            # plus handwheel can exceed a narrow screen's width, and the scroller
+            # handles that until (and unless) the user opts to shrink.
+            try:
+                display = win.get_display()
+                gdkwin = win.get_window()
+                if gdkwin is not None:
+                    monitor = display.get_monitor_at_window(gdkwin)
+                else:
+                    monitor = display.get_primary_monitor()
+                if monitor is None:
+                    monitor = display.get_monitor(0)
+                area = monitor.get_workarea()
+                # Bound the scroller (and thus the window) to the work area so
+                # oversized content scrolls instead of growing off-screen, but
+                # leave the minimum at 0 so the user can still resize smaller.
+                scroller.set_max_content_width(area.width)
+                scroller.set_max_content_height(area.height)
+                # Open at the content size, capped to the screen; this avoids an
+                # off-screen window without forcing a screen-sized minimum. A
+                # user-saved geometry (window_geometry pref) takes precedence.
+                if self.window_geometry == "default":
+                    nat = child.get_preferred_size()[1]
+                    win.resize(min(nat.width, area.width),
+                               min(nat.height, area.height))
+                GLib.idle_add(self._offer_fit, child, area)
+            except Exception:
+                pass
+            return False
+
+        def _offer_fit(self, child, area):
+            # Offer to shrink only when it does not fit and the user has not
+            # opted out or already declined for this screen size; a smaller
+            # screen is a new situation and is offered again.
+            try:
+                size = child.get_preferred_size()[0]
+                if size.width <= area.width and size.height <= area.height:
+                    return False
+                if self.fit_fonts == 'never':
+                    return False
+                screen = "%dx%d" % (area.width, area.height)
+                if self.fit_skip_size == screen:
+                    return False
+                self._fit_child = child
+                self._fit_area = area
+                self._fit_screen = screen
+                self._infobar.show()
+            except Exception:
+                pass
+            return False
+
+        def _fit_infobar_response(self, infobar, response):
+            infobar.hide()
+            try:
+                if response == 3:
+                    self.prefs.putpref('fit_skip_size', '', str)
+                    self.fit_skip_size = ''
+                    self._fit_floor = max(1, int(self.control_font.get_size() * 0.5))
+                    GLib.timeout_add(60, self._fit_pass, self._fit_child, self._fit_area)
+                elif response == 1:
+                    # Not now: do not offer again until the screen changes.
+                    self.prefs.putpref('fit_skip_size', self._fit_screen, str)
+                    self.fit_skip_size = self._fit_screen
+                elif response == 2:
+                    self.prefs.putpref('fit_fonts', 'never', str)
+                    self.fit_fonts = 'never'
+            except Exception:
+                pass
+
+        def _fit_pass(self, child, area):
+            # One shrink step per relayout; stop on the first fit so the result
+            # is the largest font that fits, then save the new fonts.
+            try:
+                size = child.get_preferred_size()[0]
+                fits = size.width <= area.width and size.height <= area.height
+                at_floor = self.control_font.get_size() <= self._fit_floor
+                if not fits and not at_floor:
+                    factor = max(min(area.width / float(size.width),
+                                     area.height / float(size.height)) * 0.99, 0.90)
+                    self._scale_fonts(factor)
+                    child.queue_resize()
+                    GLib.timeout_add(60, self._fit_pass, child, area)
+                    return False
+                self._persist_fonts()
+            except Exception:
+                pass
+            return False
+
+        def _persist_fonts(self):
+            # Round down to whole points (keeps the fit), save as the new
+            # preference, and show the values in the pickers so the displayed
+            # sizes match what is drawn.
+            for name, fd, button in (
+                    ('control_font', self.control_font, 'controlfontbutton'),
+                    ('dro_font', self.dro_font, 'drofontbutton'),
+                    ('error_font', self.error_font, 'errorfontbutton'),
+                    ('listing_font', self.listing_font, 'listingfontbutton')):
+                points = fd.get_size() // Pango.SCALE
+                if points > 0:
+                    fd.set_size(points * Pango.SCALE)
+                text = fd.to_string()
+                self.prefs.putpref(name, text, str)
+                widget = self.wTree.get_object(button)
+                if widget:
+                    widget.set_font(text)
+            self.control_font_name = self.control_font.to_string()
+            self.dro_font_name = self.dro_font.to_string()
+            self.error_font_name = self.error_font.to_string()
+            self.listing_font_name = self.listing_font.to_string()
+            self.setfont()
+
+        def _scale_fonts(self, factor):
+            # Scale every display font in place; the saved prefs are untouched.
+            for fd in (self.control_font, self.dro_font,
+                       self.error_font, self.listing_font):
+                size = fd.get_size()
+                if size > 0:
+                    fd.set_size(max(1, int(size * factor)))
+            self.setfont()
+
         def setfont(self):
+                # GTK 3.16 deprecated the per-widget override_font/modify_fg
+                # calls, so tag the widgets with style classes once and drive
+                # their fonts and DRO text colours from a CSS provider that is
+                # reloaded whenever a font or colour preference changes.
+                if not hasattr(self, "_css_provider"):
+                        self._css_provider = Gtk.CssProvider()
+                        Gtk.StyleContext.add_provider_for_screen(
+                                Gdk.Screen.get_default(), self._css_provider,
+                                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
                 # buttons
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
@@ -631,29 +967,30 @@ class touchy:
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
                           "reload_tooltable", "opstop_on", "opstop_off",
                           "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show",
-                          "toolset_workpiece", "toolset_fixture","change_theme"]:
+                          "toolset_workpiece", "toolset_fixture","change_theme",
+                          "fitfontscheck"]:
                         w = self.wTree.get_object(i)
                         if w:
-                                w.override_font(self.control_font)
+                                self._add_style_class(w, "touchy_control")
                 notebook = self.wTree.get_object('notebook1')
                 for i in range(notebook.get_n_pages()):
                         w = notebook.get_nth_page(i)
-                        notebook.get_tab_label(w).override_font(self.control_font)
+                        self._add_style_class(notebook.get_tab_label(w), "touchy_control")
 
                 # labels
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_object("mdi%d" % i)
-                        w.override_font(self.control_font)
+                        self._add_style_class(w, "touchy_control")
                 for i in range(self.num_filechooser_labels):
                         w = self.wTree.get_object("filechooser%d" % i)
-                        w.override_font(self.control_font)
+                        self._add_style_class(w, "touchy_control")
                 for i in range(self.num_listing_labels):
                         w = self.wTree.get_object("listing%d" % i)
-                        w.override_font(self.listing_font)
+                        self._add_style_class(w, "touchy_listing")
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
                           "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2"]:
                         w = self.wTree.get_object(i)
-                        w.override_font(self.control_font)
+                        self._add_style_class(w, "touchy_control")
 
                 # dro
                 for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
@@ -661,20 +998,74 @@ class touchy:
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_object(i)
                         if w:
-                            w.override_font(self.dro_font)
+                            self._add_style_class(w, "touchy_dro")
                             if "r" in i and not self.rel_textcolor == "default":
-                                w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.rel_textcolor))
+                                self._add_style_class(w, "touchy_rel")
                             elif "a" in i and not self.abs_textcolor == "default":
-                                w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.abs_textcolor))
+                                self._add_style_class(w, "touchy_abs")
                             elif "d" in i and not self.dtg_textcolor == "default":
-                                w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.dtg_textcolor))
+                                self._add_style_class(w, "touchy_dtg")
 
                 # status bar
                 for i in ["error"]:
                         w = self.wTree.get_object(i)
-                        w.override_font(self.error_font)
+                        self._add_style_class(w, "touchy_error")
                         if not self.err_textcolor == "default":
-                            w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.err_textcolor))
+                            self._add_style_class(w, "touchy_err")
+
+                self._reload_font_css()
+
+        def _add_style_class(self, widget, name):
+            # Add a style class once; the shared CSS provider carries the font
+            # and colour for that class.
+            if widget is not None:
+                context = widget.get_style_context()
+                if not context.has_class(name):
+                    context.add_class(name)
+
+        def _font_to_css(self, fd):
+            # Translate a Pango font description into CSS declarations.
+            css = []
+            family = fd.get_family()
+            if family:
+                css.append('font-family: "%s";' % family)
+            if fd.get_size() > 0:
+                unit = "px" if fd.get_size_is_absolute() else "pt"
+                css.append("font-size: %d%s;" % (fd.get_size() // Pango.SCALE, unit))
+            weight = max(100, min(900, int(round(int(fd.get_weight()) / 100.0)) * 100))
+            css.append("font-weight: %d;" % weight)
+            if fd.get_style() == Pango.Style.ITALIC:
+                css.append("font-style: italic;")
+            elif fd.get_style() == Pango.Style.OBLIQUE:
+                css.append("font-style: oblique;")
+            return " ".join(css)
+
+        def _css_color(self, value):
+            # Normalise a stored colour string to a CSS-safe form, or None.
+            rgba = Gdk.RGBA()
+            if rgba.parse(value):
+                return rgba.to_string()
+            return None
+
+        def _reload_font_css(self):
+            rules = [
+                ".touchy_control { %s }" % self._font_to_css(self.control_font),
+                ".touchy_listing { %s }" % self._font_to_css(self.listing_font),
+                ".touchy_dro { %s }" % self._font_to_css(self.dro_font),
+                ".touchy_error { %s }" % self._font_to_css(self.error_font),
+            ]
+            for name, value in (("touchy_rel", self.rel_textcolor),
+                                ("touchy_abs", self.abs_textcolor),
+                                ("touchy_dtg", self.dtg_textcolor),
+                                ("touchy_err", self.err_textcolor)):
+                if value != "default":
+                    colour = self._css_color(value)
+                    if colour:
+                        rules.append(".%s { color: %s; }" % (name, colour))
+            try:
+                self._css_provider.load_from_data("\n".join(rules).encode("utf-8"))
+            except Exception:
+                pass
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
@@ -775,9 +1166,9 @@ class touchy:
                 else:
                         incs = ["0.01", "0.001", "0.0001"]
 
-                self.wTree.get_object("wheelinc1").set_label(incs[0])
-                self.wTree.get_object("wheelinc2").set_label(incs[1])
-                self.wTree.get_object("wheelinc3").set_label(incs[2])
+                set_label(self.wTree.get_object("wheelinc1"), incs[0])
+                set_label(self.wTree.get_object("wheelinc2"), incs[1])
+                set_label(self.wTree.get_object("wheelinc3"), incs[2])
 
                 self.hal.jogincrement(self.wheelinc, list(map(float,incs)))
 
@@ -806,9 +1197,9 @@ class touchy:
                         d0 = d * 10 ** (2-self.wheelinc)
                         if d != 0: self.listing.next(None, d0)
 
-                self.wTree.get_object("fo").set_label("FO: %d%%" % self.fo_val)
-                self.wTree.get_object("so").set_label("SO: %d%%" % self.so_val)
-                self.wTree.get_object("mv").set_label("MV: %d" % self.mv_val)
+                set_label(self.wTree.get_object("fo"), "FO: %d%%" % self.fo_val)
+                set_label(self.wTree.get_object("so"), "SO: %d%%" % self.so_val)
+                set_label(self.wTree.get_object("mv"), "MV: %d" % self.mv_val)
 
                         
                 return True
@@ -891,4 +1282,13 @@ if __name__ == "__main__":
                 else:
                     res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
                 if res: raise SystemExit(res)
+
+        # Exit cleanly on SIGTERM. Without this touchy ignores the signal
+        # (GLib/PyGObject absorbs it), so a caller has to escalate to SIGKILL.
+        # The handler defers the quit to the main loop, since GTK calls are not
+        # safe directly from a signal handler.
+        def _signal_quit(signum, frame):
+            GLib.idle_add(Gtk.main_quit)
+        signal.signal(signal.SIGTERM, _signal_quit)
+
         Gtk.main()
