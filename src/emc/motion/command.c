@@ -1514,6 +1514,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 }
             }
 
+	    /* A probe is a feed-type move, so honor any pending at-speed
+	       barrier just like G1: wait for spindle.N.at-speed (spin-up after
+	       M3, or stop after M5) before the probe starts. */
+	    if (emcmotStatus->atspeed_next_feed) {
+		issue_atspeed = 1;
+		emcmotStatus->atspeed_next_feed = 0;
+	    }
+
 	    /* append it to the emcmotInternal->coord_tp */
 	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
 	    if (-1 == tpAddLine(&emcmotInternal->coord_tp,
@@ -1524,7 +1532,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				emcmotCommand->acc,
 				emcmotCommand->ini_maxjerk,
 				emcmotStatus->enables_new,
-				0,
+				issue_atspeed,
 				-1,
 				emcmotCommand->tag)) {
 		reportError(_("can't add probe move"));
