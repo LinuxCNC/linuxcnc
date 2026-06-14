@@ -113,12 +113,9 @@ Owner  Type  Dir  Value  Name
 
 The second pin's name contains the complete name of the first.
 
-.New in 2.9
-****
 Selected text inside the Show tab can be copied by right-click or CTRL-C. +
 The Show area allows to add pins from selected text by using the right-click menu.
 All valid pins that are enclosed in the selection are added to the Watch tab.
-****
 
 === Watch Tab Area
 
@@ -126,10 +123,7 @@ Clicking the watch tab produces a blank canvas.
 You can add signals and pins to this canvas and watch their values.
 You can add signals or pins when the watch tab is displayed by clicking on the name of it in the tree view.
 
-.New in 2.9
-****
 You can also add all sub-items of this node by selecting that in the right click menu (see figure <<fig:halshow-watch-tab-1,Halshow Watch Tab>>).
-****
 
 The following figure shows this canvas with several pins.
 
@@ -147,8 +141,6 @@ Pins are displayed in black, signals in blue and parameters in brown.
 _Watch_ will quickly allow you to test switches or see the effect of changes that you make to LinuxCNC while using the graphical interface.
 _Watch's_ refresh rate is a bit slow to see stepper pulses, but you can use it for these if you move an axis very slowly or in very small increments of distance.
 
-.New in 2.9
-****
 The pins and signals that are writable have buttons for manipulation on the right side.
 Pins that are linked to a signal have disabled buttons.
 To set these values, the corresponding pin has to be unlinked from the signal.
@@ -156,12 +148,9 @@ That can be done by right-click on the signal name and select "Unlink pin", see 
 
 The watch list will be saved automatically on exit.
 If you don't want Halshow to save your watchlist, it can be disabled in the <<sec:halshow-settings,Settings>>.
-****
 
 *Context Menu*
 
-.New in 2.9
-****
 The context menu allows further:
 
   - Copy the pin name to clipboard
@@ -169,7 +158,6 @@ The context menu allows further:
   - Unlink a pin (if linked to a signal)
   - Show apin in the Tree view (highlights the pin, doesn't scroll to the position)
   - Remove a pin from the list
-****
 
 [[cap:watch-tab-context-menu]]
 .Halshow: Watch Tab Context Menu
@@ -182,10 +170,7 @@ In the lower part is an entry box to test HAL commands.
 The commands you enter here and the effect that they have on the running HAL are not saved.
 They will persist as long as LinuxCNC remains up but are gone as soon as LinuxCNC is.
 
-.New in 2.9
-****
 The command entry has a BASH-like history (during the session), so you can restore inserted commands with the arrow up key.
-****
 
 The entry box labeled "HAL Command:" will accept any of the commands listed for halcmd. These include:
 
@@ -202,14 +187,11 @@ If you are not certain how to set up a proper command, you'll need to read again
 [[sec:halshow-settings]]
 === Settings
 
-.New in 2.9
-****
 The geometry of the window and the settings are saved in a file in the configuration directory on exit.
 If that path cannot be determined, they are stored in the home directory.
 The path will be displayed in the settings page.
 You can omit using the preferences file by calling halshow with the command line argument `--no-prefs`. +
 The further settings should be self-explaining.
-****
 
 [[cap:halshow-settings]]
 .Halshow Settings
