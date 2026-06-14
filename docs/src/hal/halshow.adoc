@@ -86,6 +86,9 @@ Under _Tree View_ you will find:
 _Expand All_, _Collapse All_; _Expand Pins_, _Expand Parameters_, _Expand Signals_; and _Reload tree view_.
 _Reload tree view_ is useful when new components are loaded during runtime and should be displayed.
 
+Because the pins and parameters of a component cannot share the same name, they are listed together in a single _Pins & Parameters_ branch, with parameters shown in brown.
+To list pins and parameters in separate branches, enable _Separate parameters from pins in tree_ in the <<sec:halshow-settings,Settings>> tab.
+
 
 === HAL Show Area
 
@@ -210,6 +213,9 @@ The path will be displayed in the settings page.
 You can omit using the preferences file by calling halshow with the command line argument `--no-prefs`. +
 The further settings should be self-explaining.
 ****
+
+_Separate parameters from pins in tree_ lists pins and parameters in separate _Pins_ and _Parameters_ branches of the tree, instead of the combined _Pins & Parameters_ branch.
+The setting takes effect when you press _Apply_ and is remembered between sessions.
 
 [[cap:halshow-settings]]
 .Halshow Settings

@@ -62,6 +62,7 @@ proc readIni {} {
 
 set ::initPhase true
 set ::autoSaveWatchlist 1
+set ::separateParams 0
 set ::use_prefs true
 proc saveIni {} {
     # The flag 'initPhase' prevents saving on the first FocusIn event
@@ -91,6 +92,7 @@ proc saveIni {} {
             puts $fc "set ::ifmts $::ifmts"
             puts $fc "set ::alwaysOnTop $::alwaysOnTop"
             puts $fc "set ::autoSaveWatchlist $::autoSaveWatchlist"
+            puts $fc "set ::separateParams $::separateParams"
             close $fc
         }
     }
@@ -425,14 +427,16 @@ proc addSubTree {item} {
         set list [eval hal "show $item"]
         regexp ".*(?=\\s)" $item type
         addToWatchFromSel $type $list
+        # merged tree branches hold params too
+        if {!$::separateParams && $type == "pin"} {
+            addToWatchFromSel param [hal show param [lindex $item 1]]
+        }
     }
 }
 
 #----------tree widget handlers----------
 # a global var -- ::treenodes -- holds the names of existing nodes
 # ::nodenames are the text applied to the toplevel tree nodes
-# they could be internationalized here but the international name
-# must contain no whitespace.  I'm not certain how to do that.
 set ::nodenames {Components Pins Parameters Signals Functions Threads}
 
 # ::searchnames is the real name to be used to reference
@@ -449,8 +453,10 @@ proc refreshHAL {} {
             }
         }
     }
-    # clean out the old tree
-    $::treew delete $::searchnames
+    # clean out the old tree (param top node absent in merged mode)
+    foreach node $::searchnames {
+        catch {$::treew delete $node}
+    }
     # reread hal and make new nodes
     listHAL
     # read opennodes and set tree state if they still exist
@@ -462,59 +468,81 @@ proc refreshHAL {} {
     showHAL $::oldvar
 }
 
-# listhal gets $searchname stuff
-# and calls makeNodeX with list of stuff found.
-proc listHAL {} {
-    set i 0
-    foreach node $::searchnames {
-        writeNode "$i root $node [lindex $::nodenames $i] 1"
-        set ${node}str [hal list $node]
-
-        # remove items from tree that do not match the regex
-        if {$::fe_active && $::txt_filt != ""} {
-            set temp [split [string trim [set ${node}str]] " "]
-            set ${node}str ""
-            foreach path $temp {
-                if {$::search_full_path} {
-                    if {[regexp $::txt_filt $path]} {
-                        lappend ${node}str $path
-                    }
-                } else {
-                    set items [split $path "."]
-                    foreach item $items {
-                        if {[regexp $::txt_filt $item]} {
-                            lappend ${node}str $path
-                            break
-                        }
-                    }
+# remove items that do not match the filter regex
+proc filterList {lst} {
+    if {!($::fe_active && $::txt_filt != "")} {
+        return $lst
+    }
+    set out ""
+    foreach path $lst {
+        if {$::search_full_path} {
+            if {[regexp $::txt_filt $path]} {
+                lappend out $path
+            }
+        } else {
+            foreach item [split $path "."] {
+                if {[regexp $::txt_filt $item]} {
+                    lappend out $path
+                    break
                 }
             }
         }
+    }
+    return $out
+}
+
+# listhal gets $searchname stuff
+# and calls makeNodeX with list of stuff found.
+# pins and params share one tree unless ::separateParams is set
+proc listHAL {} {
+    set i -1
+    foreach node $::searchnames {
+        incr i
+        if {$node == "param" && !$::separateParams} {continue}
+        set name [lindex $::nodenames $i]
+        if {$node == "pin" && !$::separateParams} {
+            set name "Pins & Parameters"
+        }
+        writeNode [list $i root $node $name 1]
+        set items [filterList [hal list $node]]
 
         switch -- $node {
-            pin {-}
-            param {
-                makeNodeP $node [set ${node}str]
+            pin {
+                set pairs {}
+                foreach p $items {lappend pairs [list $p pin]}
+                if {!$::separateParams} {
+                    foreach p [filterList [hal list param]] {
+                        lappend pairs [list $p param]
+                    }
+                    set pairs [lsort -index 0 $pairs]
+                }
+                makeNodeP $node $pairs
             }
+            param -
             sig {
-                makeNodeP $node [set ${node}str]
+                set pairs {}
+                foreach p $items {lappend pairs [list $p $node]}
+                makeNodeP $node $pairs
             }
-            comp {-}
-            funct {-}
+            comp -
+            funct -
             thread {
-                makeNodeOther $node [set ${node}str]
+                makeNodeOther $node $items
             }
             default {}
         }
-    incr i
     }
 }
 
-proc makeNodeP {which pstring} {
+# pairs is a list of {name leaftype} elements; the leaf node id keeps
+# the real type ("pin+x.y" / "param+x.y") so type-dependent handlers
+# (show, watch, popup) keep working in the merged tree
+proc makeNodeP {which pairs} {
     # make an array to hold position counts
     array set pcounts {1 1}
     # consider each listed element
-    foreach p $pstring {
+    foreach pair $pairs {
+        lassign $pair p leaftype
         set elementlist [split $p "." ]
         set lastnode [llength $elementlist]
         set i 1
@@ -526,6 +554,9 @@ proc makeNodeP {which pstring} {
                 set parent $snode; set snode "$snode.$element"
             }
             set leaf [expr {$i == $lastnode}]
+            if {$leaf} {
+                set snode "$leaftype+$p"
+            }
             set j $pcounts($i)
             if {! [$::treew exists "$snode"] } {
                 writeNode [list $j $parent $snode $element $leaf]
@@ -556,8 +587,13 @@ proc makeNodeOther {which otherstring} {
 # writeNode handles tree node insertion for makeNodeX
 # builds a global list -- ::treenodes -- but not leaves
 proc writeNode {arg} {
-    scan $arg {%i %s %s %s %i} j base node name leaf
-    $::treew insert end  $base  $node -text $name
+    lassign $arg j base node name leaf
+    if {$leaf > 0 && [string match "param+*" $node]} {
+        # param leaves get the watch-tab param color
+        $::treew insert end  $base  $node -text $name -fill #6e3400
+    } else {
+        $::treew insert end  $base  $node -text $name
+    }
 
     if {$::txt_filt != ""} {
         # strip/extract leading type
@@ -604,6 +640,10 @@ proc openTreePath {path_in highlight_n} {
     foreach item $items_reduced {
         if {$i==0} {
             set path $item
+            # merged tree keeps param intermediates under the pin top node
+            if {$path == "param" && ![$::treew exists param]} {
+                set path "pin"
+            }
         } elseif {$i==1} {
             set path [string cat $path "+" $item]
         } else {
@@ -617,6 +657,9 @@ proc openTreePath {path_in highlight_n} {
         }
         incr i 1
     }
+    if {![$::treew exists $path_in]} {
+        regsub {^param\+} $path_in {pin+} path_in
+    }
     catch {$::treew selection add $path_in}
 }
 
@@ -625,14 +668,17 @@ proc showNode {which} {
         open {-}
         close {
             foreach type $::searchnames {
-                $::treew ${which}tree $type
+                catch {$::treew ${which}tree $type}
             }
         }
         pin {-}
         param {-}
         sig {
             foreach type $::searchnames {
-                $::treew closetree $type
+                catch {$::treew closetree $type}
+            }
+            if {$which == "param" && ![$::treew exists param]} {
+                set which pin
             }
             $::treew opentree $which
             $::treew see $which
@@ -735,9 +781,11 @@ proc makeSettings {} {
     addBoolSetting $f1 ::alwaysOnTop [msgcat::mc "Always on top\n(Note: May not\
         working with all desktop environments)"]
     addBoolSetting $f1 ::autoSaveWatchlist [msgcat::mc "Remember watchlist"]
+    addBoolSetting $f1 ::separateParams [msgcat::mc "Separate parameters from pins in tree"]
     pack [button $f1.apply -text [msgcat::mc "Apply"] \
         -command {
             wm attributes . -topmost $::alwaysOnTop
+            refreshHAL
             reloadWatch
             }] -side right -padx 5 -pady 10
     set ::infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
@@ -787,6 +835,11 @@ proc showHAL {which} {
     set searchbase [lindex $thislist 0]
     set searchstring [lindex $thislist 1]
     set thisret [hal show $searchbase $searchstring]
+    # merged tree branches hold params too
+    if {!$::separateParams && $searchbase == "pin" \
+            && ![catch {$::treew nodes $which} children] && [llength $children]} {
+        append thisret "\n" [hal show param $searchstring]
+    }
     displayThis $thisret
 }
 
@@ -1432,6 +1485,9 @@ if {[llength $::argv] > 0} {
 # This overrides the default settings above.
 if {$::use_prefs} {
     readIni
+    if {$::separateParams} {
+        refreshHAL
+    }
     if {$::ratio == 0} {
         hideListview false
     }
