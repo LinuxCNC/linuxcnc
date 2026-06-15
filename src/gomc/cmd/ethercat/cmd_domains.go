@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 )
@@ -76,11 +75,7 @@ func cmdData(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		data, err := base64.StdEncoding.DecodeString(dataStr)
-		if err != nil {
-			data = []byte(dataStr)
-		}
-		os.Stdout.Write(data)
+		os.Stdout.Write(dataStr)
 	}
 	return nil
 }

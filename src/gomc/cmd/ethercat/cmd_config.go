@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
-	"strings"
 )
 
 func init() {
@@ -187,7 +185,7 @@ func configVerbose(client *EthercatClient, masterIndex *uint32, count uint32) er
 					fmt.Printf("  0x%04x:%02x, %d byte\n", sdo.Index, sdo.Subindex, sdo.Size)
 				}
 				// Print data hex dump if available.
-				if sdo.Data != "" {
+				if len(sdo.Data) > 0 {
 					printConfigDataHex("    ", sdo.Data)
 				}
 			}
@@ -205,7 +203,7 @@ func configVerbose(client *EthercatClient, masterIndex *uint32, count uint32) er
 				}
 				fmt.Printf("  Drive %d, %s, %d byte\n",
 					idn.DriveNo, outputIdn(idn.Idn), idn.Size)
-				if idn.Data != "" {
+				if len(idn.Data) > 0 {
 					printConfigDataHex("    ", idn.Data)
 				}
 			}
@@ -251,16 +249,12 @@ func outputIdn(idn uint16) string {
 	return fmt.Sprintf("S-%d-%04d", (idn>>12)&0x07, idn&0x0FFF)
 }
 
-// printConfigDataHex prints base64-decoded data as hex, 16 bytes per line.
-func printConfigDataHex(indent string, data string) {
-	decoded, err := base64.StdEncoding.DecodeString(strings.TrimSpace(data))
-	if err != nil {
-		return
-	}
+// printConfigDataHex prints binary data as hex, 16 bytes per line.
+func printConfigDataHex(indent string, data []byte) {
 	fmt.Printf("%s", indent)
-	for i, b := range decoded {
+	for i, b := range data {
 		fmt.Printf("%02x ", b)
-		if (i+1)%16 == 0 && i < len(decoded)-1 {
+		if (i+1)%16 == 0 && i < len(data)-1 {
 			fmt.Printf("\n%s", indent)
 		}
 	}

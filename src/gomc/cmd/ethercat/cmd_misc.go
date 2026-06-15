@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/binary"
 	"fmt"
 	"strconv"
@@ -76,11 +75,8 @@ func writeAlias(client *EthercatClient, masterIndex *uint32, pos uint16, alias u
 		return fmt.Errorf("failed to read SII: %v", err)
 	}
 
-	// SII words are returned as base64-encoded binary.
-	data, err := base64.StdEncoding.DecodeString(result.Words)
-	if err != nil {
-		data = []byte(result.Words)
-	}
+	// SII words are returned as raw binary.
+	data := result.Words
 	if len(data) < 16 {
 		return fmt.Errorf("SII data too short (%d bytes)", len(data))
 	}
@@ -97,7 +93,7 @@ func writeAlias(client *EthercatClient, masterIndex *uint32, pos uint16, alias u
 	sii := SiiData{
 		Offset: 0,
 		Nwords: 8,
-		Words:  base64.StdEncoding.EncodeToString(data[:16]),
+		Words:  data[:16],
 	}
 	_, err = client.SiiWrite(masterIndex, pos, sii)
 	if err != nil {
@@ -152,7 +148,7 @@ func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
 
 	if reset {
 		// Write 20 zero bytes to register 0x0300 on each slave.
-		zeroData := base64.StdEncoding.EncodeToString(make([]byte, 20))
+		zeroData := make([]byte, 20)
 		for _, pos := range positions {
 			_, err := client.RegWrite(masterIndex, pos, 0x0300, RegWriteRequest{
 				Address:   0x0300,
@@ -193,8 +189,8 @@ func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
 			fmt.Printf("%3d|(read failed)\n", pos)
 			continue
 		}
-		data, err := base64.StdEncoding.DecodeString(result.Data)
-		if err != nil || len(data) < 12 {
+		data := result.Data
+		if len(data) < 12 {
 			fmt.Printf("%3d|(decode failed)\n", pos)
 			continue
 		}

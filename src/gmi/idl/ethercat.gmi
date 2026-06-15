@@ -178,8 +178,7 @@ type SdoEntryInfo {
 }
 
 type SdoUploadResult {
-    data: string             # base64-encoded SDO value
-    data_size: u32
+    data: []u8
     abort_code: u32
 }
 
@@ -187,7 +186,7 @@ type SdoDownloadRequest {
     sdo_index: u16
     sdo_entry_subindex: u8
     complete_access: bool
-    data: string             # base64-encoded SDO value
+    data: []u8
 }
 
 type SdoDownloadResult {
@@ -197,29 +196,28 @@ type SdoDownloadResult {
 type SiiData {
     offset: u16
     nwords: u32
-    words: string            # base64-encoded u16 array
+    words: []u8
 }
 
 type RegReadResult {
-    data: string             # base64-encoded register content
+    data: []u8
 }
 
 type RegWriteRequest {
     address: u16
     emergency: bool
-    data: string             # base64-encoded register content
+    data: []u8
 }
 
 type FoeReadResult {
-    data: string             # base64-encoded file content
-    data_size: u32
+    data: []u8
     result: u32
     error_code: u32
 }
 
 type FoeWriteRequest {
     file_name: string
-    data: string             # base64-encoded file content
+    data: []u8
 }
 
 type FoeWriteResult {
@@ -228,15 +226,14 @@ type FoeWriteResult {
 }
 
 type SoeReadResult {
-    data: string             # base64-encoded IDN value
-    data_size: u32
+    data: []u8
     error_code: u16
 }
 
 type SoeWriteRequest {
     drive_no: u8
     idn: u16
-    data: string             # base64-encoded IDN value
+    data: []u8
 }
 
 type SoeWriteResult {
@@ -298,7 +295,7 @@ type ConfigSdoInfo {
     index: u16
     subindex: u8
     size: u32
-    data: string             # base64-encoded
+    data: []u8
     complete_access: bool
 }
 
@@ -309,7 +306,7 @@ type ConfigIdnInfo {
     idn: u16
     state: u8                # AL state
     size: u32
-    data: string             # base64-encoded
+    data: []u8
 }
 
 type ConfigFlagInfo {
@@ -408,7 +405,7 @@ func get_domain_fmmu(master_index: u32?, domain_index: u32, fmmu_index: u32) -> 
 @method "GET"
 @path "/domains/{domain_index}/data"
 @rt_safe "false"
-func get_domain_data(master_index: u32?, domain_index: u32) -> string
+func get_domain_data(master_index: u32?, domain_index: u32) -> []u8
 
 # Set debug level
 @method "PUT"

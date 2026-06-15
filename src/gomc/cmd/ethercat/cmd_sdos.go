@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"encoding/binary"
 	"fmt"
 	"math"
@@ -150,17 +149,11 @@ func cmdUpload(client *EthercatClient, opts *GlobalOpts, args []string) error {
 			return err
 		}
 
-		data, err := base64.StdEncoding.DecodeString(result.Data)
-		if err != nil {
-			// Try raw string fallback
-			data = []byte(result.Data)
-		}
-
 		if result.AbortCode != 0 {
 			return fmt.Errorf("SDO abort code 0x%08x", result.AbortCode)
 		}
 
-		formatted := formatSdoData(data, opts.DataType)
+		formatted := formatSdoData(result.Data, opts.DataType)
 		fmt.Println(formatted)
 	}
 	return nil
@@ -277,7 +270,7 @@ func cmdDownload(client *EthercatClient, opts *GlobalOpts, args []string) error 
 		req := SdoDownloadRequest{
 			SdoIndex:         uint16(sdoIndex),
 			SdoEntrySubindex: uint8(subIndex),
-			Data:             base64.StdEncoding.EncodeToString(data),
+			Data:             data,
 		}
 		result, err := client.SdoDownload(masterIndex, pos, uint16(sdoIndex), uint8(subIndex), req)
 		if err != nil {

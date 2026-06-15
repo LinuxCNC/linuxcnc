@@ -52,89 +52,6 @@ static const char *format_mac(const uint8_t *addr)
     return out;
 }
 
-/**
- * Base64-encode binary data.  Returns a malloc'd NUL-terminated string that
- * the Go bridge will copy via C.GoString() and the caller must eventually free.
- * The encoding uses the standard alphabet (RFC 4648) with '=' padding.
- */
-static const char *b64_encode(const uint8_t *data, size_t len)
-{
-    static const char tbl[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    size_t out_len = 4 * ((len + 2) / 3);
-    char *out = malloc(out_len + 1);
-    if (!out)
-        return "";
-    size_t i, j;
-    for (i = 0, j = 0; i + 2 < len; i += 3) {
-        uint32_t v = ((uint32_t)data[i] << 16) | ((uint32_t)data[i+1] << 8) | data[i+2];
-        out[j++] = tbl[(v >> 18) & 0x3F];
-        out[j++] = tbl[(v >> 12) & 0x3F];
-        out[j++] = tbl[(v >>  6) & 0x3F];
-        out[j++] = tbl[ v        & 0x3F];
-    }
-    if (i < len) {
-        uint32_t v = (uint32_t)data[i] << 16;
-        if (i + 1 < len)
-            v |= (uint32_t)data[i+1] << 8;
-        out[j++] = tbl[(v >> 18) & 0x3F];
-        out[j++] = tbl[(v >> 12) & 0x3F];
-        out[j++] = (i + 1 < len) ? tbl[(v >> 6) & 0x3F] : '=';
-        out[j++] = '=';
-    }
-    out[j] = '\0';
-    return out;
-}
-
-/**
- * Base64-decode a NUL-terminated string into binary.
- * Returns a malloc'd buffer and sets *out_len. Returns NULL on error.
- */
-static uint8_t *b64_decode(const char *src, size_t *out_len)
-{
-    static const int8_t inv[] = {
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,62,-1,-1,-1,63,
-        52,53,54,55,56,57,58,59,60,61,-1,-1,-1,-1,-1,-1,
-        -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,
-        15,16,17,18,19,20,21,22,23,24,25,-1,-1,-1,-1,-1,
-        -1,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
-        41,42,43,44,45,46,47,48,49,50,51,-1,-1,-1,-1,-1,
-    };
-    size_t slen = src ? strlen(src) : 0;
-    if (slen == 0) {
-        *out_len = 0;
-        return malloc(1); /* empty buffer */
-    }
-    /* Remove padding from length calculation */
-    size_t pad = 0;
-    if (slen >= 1 && src[slen-1] == '=') pad++;
-    if (slen >= 2 && src[slen-2] == '=') pad++;
-    *out_len = (slen / 4) * 3 - pad;
-    uint8_t *out = malloc(*out_len + 1);
-    if (!out)
-        return NULL;
-    size_t i, j;
-    for (i = 0, j = 0; i + 3 < slen; i += 4) {
-        uint8_t a = (uint8_t)src[i], b = (uint8_t)src[i+1];
-        uint8_t c = (uint8_t)src[i+2], d = (uint8_t)src[i+3];
-        if (a >= 128 || b >= 128 || c >= 128 || d >= 128)
-            break;
-        int8_t va = inv[a], vb = inv[b];
-        int8_t vc = (src[i+2] == '=') ? 0 : inv[c];
-        int8_t vd = (src[i+3] == '=') ? 0 : inv[d];
-        if (va < 0 || vb < 0 || vc < 0 || vd < 0)
-            break;
-        uint32_t v = ((uint32_t)va << 18) | ((uint32_t)vb << 12) |
-                     ((uint32_t)vc << 6) | (uint32_t)vd;
-        if (j < *out_len) out[j++] = (v >> 16) & 0xFF;
-        if (j < *out_len) out[j++] = (v >>  8) & 0xFF;
-        if (j < *out_len) out[j++] =  v        & 0xFF;
-    }
-    return out;
-}
-
 /*
  * String lifetime: The Go cgo dispatch layer copies all returned const char *
  * fields immediately via C.GoString() before the next callback can be invoked.
@@ -550,10 +467,9 @@ static ethercat_sdo_upload_result_t gmi_ethercat_sdo_upload(void *ctx,
     req.target = target;
 
     if (ecrt_tool_sdo_upload(master, &req) == 0) {
-        out.data = b64_encode(target, req.data_size);
-        out.data_size = req.data_size;
+        out.data = target;
+        out.data_len = req.data_size;
         out.abort_code = req.abort_code;
-        free(target);
     } else {
         out.abort_code = req.abort_code;
         free(target);
@@ -577,15 +493,11 @@ static ethercat_sdo_download_result_t gmi_ethercat_sdo_download(void *ctx,
     req.sdo_index = sdo_index;
     req.sdo_entry_subindex = subindex;
     req.complete_access = req_in->complete_access;
-
-    size_t dec_len = 0;
-    uint8_t *dec = b64_decode(req_in->data, &dec_len);
-    req.data_size = (uint32_t)dec_len;
-    req.data = dec;
+    req.data_size = (uint32_t)req_in->data_len;
+    req.data = (uint8_t *)req_in->data;
 
     ecrt_tool_sdo_download(master, &req);
     out.abort_code = req.abort_code;
-    free(dec);
     return out;
 }
 
@@ -614,8 +526,8 @@ static ethercat_sii_data_t gmi_ethercat_sii_read(void *ctx,
     if (ecrt_tool_sii_read(master, &req) == 0) {
         out.offset = offset;
         out.nwords = nwords;
-        out.words = b64_encode((const uint8_t *)words, nwords * 2);
-        free(words);
+        out.words = (uint8_t *)words;
+        out.words_len = nwords * 2;
     } else {
         free(words);
     }
@@ -635,13 +547,8 @@ static bool gmi_ethercat_sii_write(void *ctx,
     req.slave_position = position;
     req.offset = sii->offset;
     req.nwords = sii->nwords;
-
-    size_t dec_len = 0;
-    uint8_t *dec = b64_decode(sii->words, &dec_len);
-    req.words = (uint16_t *)dec;
-    int ret = ecrt_tool_sii_write(master, &req) == 0;
-    free(dec);
-    return ret;
+    req.words = (uint16_t *)sii->words;
+    return ecrt_tool_sii_write(master, &req) == 0;
 }
 
 static ethercat_reg_read_result_t gmi_ethercat_reg_read(void *ctx,
@@ -668,8 +575,8 @@ static ethercat_reg_read_result_t gmi_ethercat_reg_read(void *ctx,
     req.data = data;
 
     if (ecrt_tool_reg_read(master, &req) == 0) {
-        out.data = b64_encode(data, size);
-        free(data);
+        out.data = data;
+        out.data_len = size;
     } else {
         free(data);
     }
@@ -689,14 +596,9 @@ static bool gmi_ethercat_reg_write(void *ctx,
     req.slave_position = position;
     req.emergency = req_in->emergency;
     req.address = address;
-
-    size_t dec_len = 0;
-    uint8_t *dec = b64_decode(req_in->data, &dec_len);
-    req.size = (uint32_t)dec_len;
-    req.data = dec;
-    int ret = ecrt_tool_reg_write(master, &req) == 0;
-    free(dec);
-    return ret;
+    req.size = (uint32_t)req_in->data_len;
+    req.data = (uint8_t *)req_in->data;
+    return ecrt_tool_reg_write(master, &req) == 0;
 }
 
 static ethercat_foe_read_result_t gmi_ethercat_foe_read(void *ctx,
@@ -728,9 +630,8 @@ static ethercat_foe_read_result_t gmi_ethercat_foe_read(void *ctx,
     out.error_code = req.error_code;
 
     if (ret == 0) {
-        out.data = b64_encode(buffer, req.data_size);
-        out.data_size = req.data_size;
-        free(buffer);
+        out.data = buffer;
+        out.data_len = req.data_size;
     } else {
         free(buffer);
     }
@@ -752,16 +653,12 @@ static ethercat_foe_write_result_t gmi_ethercat_foe_write(void *ctx,
     req.slave_position = position;
     if (file_name)
         strncpy(req.file_name, file_name, sizeof(req.file_name) - 1);
-
-    size_t dec_len = 0;
-    uint8_t *dec = b64_decode(req_in->data, &dec_len);
-    req.buffer_size = (uint32_t)dec_len;
-    req.buffer = dec;
+    req.buffer_size = (uint32_t)req_in->data_len;
+    req.buffer = (uint8_t *)req_in->data;
 
     ecrt_tool_foe_write(master, &req);
     out.result = req.result;
     out.error_code = req.error_code;
-    free(dec);
     return out;
 }
 
@@ -791,10 +688,9 @@ static ethercat_soe_read_result_t gmi_ethercat_soe_read(void *ctx,
     req.data = data;
 
     if (ecrt_tool_soe_read(master, &req) == 0) {
-        out.data = b64_encode(data, req.data_size);
-        out.data_size = req.data_size;
+        out.data = data;
+        out.data_len = req.data_size;
         out.error_code = req.error_code;
-        free(data);
     } else {
         out.error_code = req.error_code;
         free(data);
@@ -817,15 +713,11 @@ static ethercat_soe_write_result_t gmi_ethercat_soe_write(void *ctx,
     req.slave_position = position;
     req.drive_no = drive_no;
     req.idn = idn;
-
-    size_t dec_len = 0;
-    uint8_t *dec = b64_decode(req_in->data, &dec_len);
-    req.data_size = (uint32_t)dec_len;
-    req.data = dec;
+    req.data_size = (uint32_t)req_in->data_len;
+    req.data = (uint8_t *)req_in->data;
 
     ecrt_tool_soe_write(master, &req);
     out.error_code = req.error_code;
-    free(dec);
     return out;
 }
 
@@ -943,7 +835,12 @@ static ethercat_config_sdo_info_t gmi_ethercat_get_config_sdo(void *ctx,
     out.index = sdo.index;
     out.subindex = sdo.subindex;
     out.size = sdo.size;
-    out.data = b64_encode(sdo.data, sdo.size);
+    if (sdo.size > 0) {
+        out.data = malloc(sdo.size);
+        if (out.data)
+            memcpy(out.data, sdo.data, sdo.size);
+        out.data_len = sdo.size;
+    }
     out.complete_access = sdo.complete_access;
     return out;
 }
@@ -969,7 +866,12 @@ static ethercat_config_idn_info_t gmi_ethercat_get_config_idn(void *ctx,
     out.idn = idn.idn;
     out.state = (uint8_t)idn.state;
     out.size = idn.size;
-    out.data = b64_encode(idn.data, idn.size);
+    if (idn.size > 0) {
+        out.data = malloc(idn.size);
+        if (out.data)
+            memcpy(out.data, idn.data, idn.size);
+        out.data_len = idn.size;
+    }
     return out;
 }
 

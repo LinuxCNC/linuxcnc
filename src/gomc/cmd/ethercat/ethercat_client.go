@@ -184,8 +184,7 @@ type SdoEntryInfo struct {
 }
 
 type SdoUploadResult struct {
-	Data      string `json:"data"`
-	DataSize  uint32 `json:"data_size"`
+	Data      []byte `json:"data"`
 	AbortCode uint32 `json:"abort_code"`
 }
 
@@ -193,7 +192,7 @@ type SdoDownloadRequest struct {
 	SdoIndex         uint16 `json:"sdo_index"`
 	SdoEntrySubindex uint8  `json:"sdo_entry_subindex"`
 	CompleteAccess   bool   `json:"complete_access"`
-	Data             string `json:"data"`
+	Data             []byte `json:"data"`
 }
 
 type SdoDownloadResult struct {
@@ -203,29 +202,28 @@ type SdoDownloadResult struct {
 type SiiData struct {
 	Offset uint16 `json:"offset"`
 	Nwords uint32 `json:"nwords"`
-	Words  string `json:"words"`
+	Words  []byte `json:"words"`
 }
 
 type RegReadResult struct {
-	Data string `json:"data"`
+	Data []byte `json:"data"`
 }
 
 type RegWriteRequest struct {
 	Address   uint16 `json:"address"`
 	Emergency bool   `json:"emergency"`
-	Data      string `json:"data"`
+	Data      []byte `json:"data"`
 }
 
 type FoeReadResult struct {
-	Data      string `json:"data"`
-	DataSize  uint32 `json:"data_size"`
+	Data      []byte `json:"data"`
 	Result    uint32 `json:"result"`
 	ErrorCode uint32 `json:"error_code"`
 }
 
 type FoeWriteRequest struct {
 	FileName string `json:"file_name"`
-	Data     string `json:"data"`
+	Data     []byte `json:"data"`
 }
 
 type FoeWriteResult struct {
@@ -234,15 +232,14 @@ type FoeWriteResult struct {
 }
 
 type SoeReadResult struct {
-	Data      string `json:"data"`
-	DataSize  uint32 `json:"data_size"`
+	Data      []byte `json:"data"`
 	ErrorCode uint16 `json:"error_code"`
 }
 
 type SoeWriteRequest struct {
 	DriveNo uint8  `json:"drive_no"`
 	Idn     uint16 `json:"idn"`
-	Data    string `json:"data"`
+	Data    []byte `json:"data"`
 }
 
 type SoeWriteResult struct {
@@ -304,7 +301,7 @@ type ConfigSdoInfo struct {
 	Index          uint16 `json:"index"`
 	Subindex       uint8  `json:"subindex"`
 	Size           uint32 `json:"size"`
-	Data           string `json:"data"`
+	Data           []byte `json:"data"`
 	CompleteAccess bool   `json:"complete_access"`
 }
 
@@ -315,7 +312,7 @@ type ConfigIdnInfo struct {
 	Idn         uint16 `json:"idn"`
 	State       uint8  `json:"state"`
 	Size        uint32 `json:"size"`
-	Data        string `json:"data"`
+	Data        []byte `json:"data"`
 }
 
 type ConfigFlagInfo struct {
@@ -597,7 +594,7 @@ func (c *EthercatClient) GetDomainFmmu(masterIndex *uint32, domainIndex uint32, 
 }
 
 // GetDomainData calls GET /domains/{domain_index}/data
-func (c *EthercatClient) GetDomainData(masterIndex *uint32, domainIndex uint32) (string, error) {
+func (c *EthercatClient) GetDomainData(masterIndex *uint32, domainIndex uint32) ([]byte, error) {
 	path := "/domains/{domain_index}/data"
 	path = strings.Replace(path, "{domain_index}", fmt.Sprintf("%v", domainIndex), 1)
 	query := url.Values{}
@@ -607,7 +604,7 @@ func (c *EthercatClient) GetDomainData(masterIndex *uint32, domainIndex uint32) 
 	if len(query) > 0 {
 		path += "?" + query.Encode()
 	}
-	var result string
+	var result []byte
 	err := c.doRequest("GET", path, nil, &result)
 	return result, err
 }

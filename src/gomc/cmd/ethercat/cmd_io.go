@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 	"strconv"
@@ -74,10 +73,7 @@ func cmdRegRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		data, err := base64.StdEncoding.DecodeString(result.Data)
-		if err != nil {
-			data = []byte(result.Data)
-		}
+		data := result.Data
 		if opts.DataType != "" {
 			fmt.Println(formatSdoData(data, opts.DataType))
 		} else {
@@ -121,7 +117,7 @@ func cmdRegWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 		req := RegWriteRequest{
 			Address:   uint16(addr),
 			Emergency: opts.Emergency,
-			Data:      base64.StdEncoding.EncodeToString(data),
+			Data:      data,
 		}
 		_, err = client.RegWrite(masterIndex, pos, uint16(addr), req)
 		if err != nil {
@@ -197,10 +193,7 @@ func cmdSiiRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		data, err := base64.StdEncoding.DecodeString(result.Words)
-		if err != nil {
-			data = []byte(result.Words)
-		}
+		data := result.Words
 		if opts.OutputFile != "" {
 			return os.WriteFile(opts.OutputFile, data, 0644)
 		}
@@ -228,7 +221,7 @@ func cmdSiiWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 	}
 
 	for _, pos := range positions {
-		_, err := client.SiiWrite(masterIndex, pos, SiiData{Words: base64.StdEncoding.EncodeToString(inputData)})
+		_, err := client.SiiWrite(masterIndex, pos, SiiData{Words: inputData})
 		if err != nil {
 			return err
 		}
@@ -255,10 +248,7 @@ func cmdFoeRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if result.Result != 0 {
 			return fmt.Errorf("FoE read failed: result=%d error_code=%d", result.Result, result.ErrorCode)
 		}
-		data, err := base64.StdEncoding.DecodeString(result.Data)
-		if err != nil {
-			data = []byte(result.Data)
-		}
+		data := result.Data
 		if opts.OutputFile != "" {
 			return os.WriteFile(opts.OutputFile, data, 0644)
 		}
@@ -292,7 +282,7 @@ func cmdFoeWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 	for _, pos := range positions {
 		req := FoeWriteRequest{
 			FileName: args[0],
-			Data:     base64.StdEncoding.EncodeToString(inputData),
+			Data:     inputData,
 		}
 		result, err := client.FoeWrite(masterIndex, pos, args[0], req)
 		if err != nil {
@@ -332,10 +322,7 @@ func cmdSoeRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if result.ErrorCode != 0 {
 			return fmt.Errorf("SoE read error: 0x%04x", result.ErrorCode)
 		}
-		data, err := base64.StdEncoding.DecodeString(result.Data)
-		if err != nil {
-			data = []byte(result.Data)
-		}
+		data := result.Data
 		if opts.DataType != "" {
 			fmt.Println(formatSdoData(data, opts.DataType))
 		} else {
@@ -372,7 +359,7 @@ func cmdSoeWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 		req := SoeWriteRequest{
 			DriveNo: uint8(driveNo),
 			Idn:     uint16(idn),
-			Data:    base64.StdEncoding.EncodeToString(data),
+			Data:    data,
 		}
 		result, err := client.SoeWrite(masterIndex, pos, uint8(driveNo), uint16(idn), req)
 		if err != nil {
