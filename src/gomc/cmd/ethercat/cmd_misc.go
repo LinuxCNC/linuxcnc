@@ -123,6 +123,19 @@ func siiCrc(data []byte) byte {
 }
 
 func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	// Handle optional "reset" argument.
+	if len(args) > 1 {
+		return fmt.Errorf("'crc' takes either no or 'reset' argument!")
+	}
+
+	reset := false
+	if len(args) == 1 {
+		if args[0] != "reset" {
+			return fmt.Errorf("'crc' takes either no or 'reset' argument!")
+		}
+		reset = true
+	}
+
 	masterIndex := parseMasterIndex(opts.Masters)
 	master, err := client.GetMaster(masterIndex)
 	if err != nil {
@@ -137,33 +150,102 @@ func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		}
 	}
 
-	// Header.
-	fmt.Printf("Slave  ")
+	if reset {
+		// Write 20 zero bytes to register 0x0300 on each slave.
+		zeroData := base64.StdEncoding.EncodeToString(make([]byte, 20))
+		for _, pos := range positions {
+			_, err := client.RegWrite(masterIndex, pos, 0x0300, RegWriteRequest{
+				Address:   0x0300,
+				Emergency: false,
+				Data:      zeroData,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to reset CRC on slave %d: %v", pos, err)
+			}
+		}
+		return nil
+	}
+
+	// Print header.
+	fmt.Printf("   |")
 	for port := 0; port < 4; port++ {
-		fmt.Printf(" CRC%d PHY%d FWD%d NXT%d", port, port, port, port)
+		fmt.Printf("Port %d         |", port)
 	}
 	fmt.Println()
 
-	// Read CRC counters from registers 0x0300-0x030F.
+	fmt.Printf("   |")
+	for port := 0; port < 4; port++ {
+		_ = port
+		fmt.Printf("CRC PHY FWD NXT|")
+	}
+	fmt.Println()
+
+	// Read CRC registers (0x0300, 20 bytes) for each slave.
 	for _, pos := range positions {
-		result, err := client.RegRead(masterIndex, pos, 0x0300, 16)
+		slave, err := client.GetSlave(masterIndex, pos)
 		if err != nil {
-			fmt.Printf("%5d  (read failed)\n", pos)
+			fmt.Printf("%3d|(read failed)\n", pos)
+			continue
+		}
+
+		result, err := client.RegRead(masterIndex, pos, 0x0300, 20)
+		if err != nil {
+			fmt.Printf("%3d|(read failed)\n", pos)
 			continue
 		}
 		data, err := base64.StdEncoding.DecodeString(result.Data)
-		if err != nil {
-			data = []byte(result.Data)
+		if err != nil || len(data) < 12 {
+			fmt.Printf("%3d|(decode failed)\n", pos)
+			continue
 		}
-		fmt.Printf("%5d  ", pos)
-		// 4 ports, 4 bytes each (CRC invalid, PHY error, forwarded, next rx)
+
+		fmt.Printf("%3d|", pos)
 		for port := 0; port < 4; port++ {
-			offset := port * 4
-			if offset+3 < len(data) {
-				fmt.Printf(" %4d %4d %4d %4d", data[offset], data[offset+1], data[offset+2], data[offset+3])
+			// Check if port loop is closed (bit 1 of link bitmask).
+			loopClosed := slave.Ports[port].Link&0x02 != 0
+			if loopClosed {
+				fmt.Printf("               |")
+				continue
 			}
+
+			// CRC error counter: byte at offset 0 + port*2
+			crc := uint8(0)
+			if 0+port*2 < len(data) {
+				crc = data[0+port*2]
+			}
+			// PHY error counter: byte at offset 1 + port*2
+			phy := uint8(0)
+			if 1+port*2 < len(data) {
+				phy = data[1+port*2]
+			}
+			// Forwarded RX error: byte at offset 8 + port
+			fwd := uint8(0)
+			if 8+port < len(data) {
+				fwd = data[8+port]
+			}
+
+			fmt.Printf("%3d %3d %3d", crc, phy, fwd)
+
+			// NXT column: topology arrow based on next_slave.
+			nextSlave := slave.Ports[port].NextSlave
+			if nextSlave == pos-1 {
+				fmt.Printf("   \u2191")
+			} else if nextSlave == pos+1 {
+				fmt.Printf("   \u2193")
+			} else if nextSlave != 0xFFFF {
+				fmt.Printf("%4d", nextSlave)
+			} else {
+				fmt.Printf("    ")
+			}
+			fmt.Printf("|")
 		}
-		fmt.Println()
+
+		// Slave name (truncated to 11 chars).
+		name := slave.Name
+		if len(name) > 11 {
+			name = name[:11]
+		}
+		fmt.Printf("%s\n", name)
 	}
 	return nil
 }
@@ -202,6 +284,7 @@ func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
 
 		// Collect all PDO entries.
 		hasEntries := false
+		entryPos := 0
 		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
 			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
 			if err != nil || sm.PdoCount == 0 {
@@ -222,6 +305,7 @@ func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
 						continue
 					}
 					fmt.Printf("    {0x%04x, 0x%02x, %d},\n", entry.Index, entry.Subindex, entry.BitLength)
+					entryPos++
 				}
 			}
 		}
@@ -231,6 +315,8 @@ func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
 
 		// PDO info array.
 		hasPdos := false
+		pdoPos := 0
+		entryPos = 0
 		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
 			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
 			if err != nil || sm.PdoCount == 0 {
@@ -245,8 +331,14 @@ func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
 				if err != nil {
 					continue
 				}
-				fmt.Printf("    {0x%04x, %d, slave_%d_pdo_entries + 0},\n",
-					pdo.Index, pdo.EntryCount, pos)
+				entRef := "NULL"
+				if pdo.EntryCount > 0 {
+					entRef = fmt.Sprintf("slave_%d_pdo_entries + %d", pos, entryPos)
+				}
+				fmt.Printf("    {0x%04x, %d, %s},\n",
+					pdo.Index, pdo.EntryCount, entRef)
+				entryPos += int(pdo.EntryCount)
+				pdoPos++
 			}
 		}
 		if hasPdos {
@@ -255,6 +347,7 @@ func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
 
 		// Sync manager info.
 		fmt.Printf("ec_sync_info_t slave_%d_syncs[] = {\n", pos)
+		pdoPos = 0
 		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
 			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
 			if err != nil {
@@ -267,12 +360,17 @@ func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
 			case 0x08:
 				dirStr = "EC_DIR_OUTPUT"
 			}
+			wdStr := "EC_WD_DISABLE"
+			if sm.ControlRegister&0x40 != 0 {
+				wdStr = "EC_WD_ENABLE"
+			}
 			pdoRef := "NULL"
 			if sm.PdoCount > 0 {
-				pdoRef = fmt.Sprintf("slave_%d_pdos + 0", pos)
+				pdoRef = fmt.Sprintf("slave_%d_pdos + %d", pos, pdoPos)
 			}
-			fmt.Printf("    {%d, %s, %d, %s, EC_WD_DEFAULT},\n",
-				smIdx, dirStr, sm.PdoCount, pdoRef)
+			fmt.Printf("    {%d, %s, %d, %s, %s},\n",
+				smIdx, dirStr, sm.PdoCount, pdoRef, wdStr)
+			pdoPos += int(sm.PdoCount)
 		}
 		fmt.Printf("    {0xff}\n")
 		fmt.Printf("};\n\n")

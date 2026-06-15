@@ -175,7 +175,9 @@ static ethercat_slave_info_t gmi_ethercat_get_slave(void *ctx,
     out.current_on_ebus = slv.current_on_ebus;
     for (int i = 0; i < ETHERCAT_MAX_PORTS; i++) {
         out.ports[i].desc = slv.ports[i].desc;
-        out.ports[i].link = slv.ports[i].link.link_up;
+        out.ports[i].link = (slv.ports[i].link.link_up ? 0x01 : 0)
+                          | (slv.ports[i].link.loop_closed ? 0x02 : 0)
+                          | (slv.ports[i].link.signal_detected ? 0x04 : 0);
         out.ports[i].receive_time = slv.ports[i].receive_time;
         out.ports[i].next_slave = slv.ports[i].next_slave;
         out.ports[i].delay_to_next_dc = slv.ports[i].delay_to_next_dc;

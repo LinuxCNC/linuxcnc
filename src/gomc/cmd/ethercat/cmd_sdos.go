@@ -224,31 +224,26 @@ func formatSdoData(data []byte, dataType string) string {
 			v := math.Float64frombits(binary.LittleEndian.Uint64(data))
 			return fmt.Sprintf("%g", v)
 		}
-	case "string", "octet_string", "visible_string":
+	case "string", "visible_string":
+		return string(data)
+	case "octet_string":
 		return string(data)
 	case "":
-		// No type specified — auto-detect by size
-		switch len(data) {
-		case 1:
-			return fmt.Sprintf("0x%02x %d", data[0], data[0])
-		case 2:
-			v := binary.LittleEndian.Uint16(data)
-			return fmt.Sprintf("0x%04x %d", v, v)
-		case 4:
-			v := binary.LittleEndian.Uint32(data)
-			return fmt.Sprintf("0x%08x %d", v, v)
-		case 8:
-			v := binary.LittleEndian.Uint64(data)
-			return fmt.Sprintf("0x%016x %d", v, v)
-		}
+		// No type specified — print raw data like IgH tool
+		return printRawData(data)
 	}
-	// Fallback: hex dump
+	// Fallback: raw hex
+	return printRawData(data)
+}
+
+// printRawData formats bytes as "0xHH 0xHH 0xHH" — matching IgH tool's printRawData().
+func printRawData(data []byte) string {
 	var sb strings.Builder
 	for i, b := range data {
 		if i > 0 {
 			sb.WriteByte(' ')
 		}
-		fmt.Fprintf(&sb, "%02x", b)
+		fmt.Fprintf(&sb, "0x%02x", b)
 	}
 	return sb.String()
 }
