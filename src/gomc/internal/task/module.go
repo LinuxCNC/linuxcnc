@@ -198,14 +198,12 @@ func (m *milltaskModule) Start() error {
 		t.SetErrorPublisher(&drainErrorPublisher{drain: drain})
 	}
 
-	// Forward ERROR-level log messages from the motion module to the operator
-	// message list. This matches the old reportError() path where motion's
-	// check_for_faults() reported "joint N following error" directly to the
-	// error buffer that the UI reads.
+	// Forward ERROR-level log messages from motion-related modules to the
+	// operator message list. This covers motmod, per-joint homemod instances
+	// (regardless of their configured name), and any future servo-thread
+	// modules that use gomc_log_errorf.
 	gomc.OnLogError(func(component, msg string) {
-		if component == motInstance {
-			t.operatorError(msg)
-		}
+		t.operatorError(msg)
 	})
 
 	// Create and configure the G-code interpreter.

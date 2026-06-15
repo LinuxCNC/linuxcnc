@@ -823,12 +823,8 @@ func (t *Task) Unhome(joint int32) error {
 	if err := t.ensureMode(ModeManual); err != nil {
 		return err
 	}
-	// Unhome requires joint (FREE) mode — motion may be in teleop even when
-	// task mode is already ModeManual.
-	t.mu.Unlock()
-	_ = t.motion.SetFree()
-	t.waitMotionFree()
-	t.mu.Lock()
+	// Motion accepts unhome from any motion_state and forces transition
+	// to FREE mode internally — no explicit SetFree needed.
 	return t.motion.JointUnhome(joint)
 }
 

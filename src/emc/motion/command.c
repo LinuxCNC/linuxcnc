@@ -1440,11 +1440,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             gomc_log_debugf(inst->log, inst->name, "JOINT_UNHOME");
             gomc_log_debugf(inst->log, inst->name, " %d", joint_num);
 
-            if (   (inst->status->motion_state != EMCMOT_MOTION_FREE)
-                && (inst->status->motion_state != EMCMOT_MOTION_DISABLED)) {
-                gomc_log_errorf(inst->log, inst->name, _("must be in joint mode or disabled to unhome"));
-                return;
-            }
+            /* Unhoming is allowed from any mode — the per-joint set_unhomed()
+             * already guards against unhoming while moving or homing.
+             * After unhoming, we force transition to FREE (joint) mode since
+             * coord/teleop require all joints homed. */
 
             //Negative joint_num specifies unhome_method (-1 = all, -2 = volatile only)
             if (joint_num < 0) {
@@ -1471,6 +1470,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                     break;
                 }
                 JOINT_HOME_API(joint)->set_unhomed(JOINT_HOME_API(joint)->ctx, (home_motion_state_t)inst->status->motion_state);
+            }
+
+            /* If we're in coord/teleop and motion is enabled, force
+             * transition to FREE mode — coord/teleop with unhomed joints
+             * is not valid. */
+            if (inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
+                inst->internal->coordinating = 0;
+                inst->internal->teleoperating = 0;
             }
             break;
 
