@@ -338,20 +338,20 @@ static ethercat_domain_fmmu_info_t gmi_ethercat_get_domain_fmmu(void *ctx,
     return out;
 }
 
-static const char *gmi_ethercat_get_domain_data(void *ctx,
+static ethercat_get_domain_data_result_t gmi_ethercat_get_domain_data(void *ctx,
         uint32_t master_index, uint32_t domain_index)
 {
+    ethercat_get_domain_data_result_t out = {0};
     lcec_rt_context_t *rt = (lcec_rt_context_t *)ctx;
     ec_master_t *master;
 
     master = resolve_master(rt, master_index);
     if (!master)
-        return NULL;
+        return out;
 
-    /* Domain data requires binary transfer.  The string-based API returns
-     * NULL here — a future IDL revision with []u8 will enable this. */
+    /* TODO: implement domain data readback via ecrt_tool API */
     (void)domain_index;
-    return NULL;
+    return out;
 }
 
 static bool gmi_ethercat_set_debug(void *ctx,
