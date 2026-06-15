@@ -2420,6 +2420,39 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   return INTERP_OK;
 }
 
+/*! get_abs_position
+
+Returned Value: none
+
+Side effects:
+   abs_pos[0..8] is filled with the current absolute machine position
+   (G53 frame) for X, Y, Z, A, B, C, U, V, W.
+
+Called by: read (to fill #5021-#5029) and the #<_abs_*> named parameters.
+
+The values are in the same units and frame as the #<_abs_*> named
+parameters: the controlled point mapped through the active G92/G52,
+coordinate system rotation, G5x and tool length offset, i.e. the
+offsetless machine coordinate.
+
+*/
+
+void Interp::get_abs_position(setup_pointer s, double abs_pos[9])
+{
+    double x = s->current_x + s->axis_offset_x;
+    double y = s->current_y + s->axis_offset_y;
+    rotate(&x, &y, s->rotation_xy);
+    abs_pos[0] = x + s->origin_offset_x + s->tool_offset.tran.x;
+    abs_pos[1] = y + s->origin_offset_y + s->tool_offset.tran.y;
+    abs_pos[2] = s->current_z + s->axis_offset_z + s->origin_offset_z + s->tool_offset.tran.z;
+    abs_pos[3] = s->AA_current + s->AA_axis_offset + s->AA_origin_offset + s->tool_offset.a;
+    abs_pos[4] = s->BB_current + s->BB_axis_offset + s->BB_origin_offset + s->tool_offset.b;
+    abs_pos[5] = s->CC_current + s->CC_axis_offset + s->CC_origin_offset + s->tool_offset.c;
+    abs_pos[6] = s->u_current + s->u_axis_offset + s->u_origin_offset + s->tool_offset.u;
+    abs_pos[7] = s->v_current + s->v_axis_offset + s->v_origin_offset + s->tool_offset.v;
+    abs_pos[8] = s->w_current + s->w_axis_offset + s->w_origin_offset + s->tool_offset.w;
+}
+
 /*! convert_savehome
 
 Returned Value: int

@@ -304,6 +304,10 @@ example '##2'  means the value of the parameter whose index is the
 
 * '31-5000' - G-code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
+* '5021-5029' - Current absolute machine position (G53) for X, Y, Z, A, B,
+  C, U, V & W, in the current program units. Includes no coordinate system,
+  G92/G52 or tool length offset. Same as `#<_abs_x>` through `#<_abs_w>`.
+  Read-only, volatile.
 * '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
   Z, A, B, C, U, V & W).  Coordinates are in the coordinate system in
   which the G38 took place.  Volatile.
@@ -591,6 +595,9 @@ can be added easily without changes to the source code.
 * '#<_abs_a>' - Return current absolute A coordinate (G53) including no offsets.
 * '#<_abs_b>' - Return current absolute B coordinate (G53) including no offsets.
 * '#<_abs_c>' - Return current absolute C coordinate (G53) including no offsets.
+* '#<_abs_u>' - Return current absolute U coordinate (G53) including no offsets.
+* '#<_abs_v>' - Return current absolute V coordinate (G53) including no offsets.
+* '#<_abs_w>' - Return current absolute W coordinate (G53) including no offsets.
 * '#<_current_tool>' - Return number of the current tool in spindle. Same as #5400.
 * '#<_current_pocket>' - Return the tooldata index for the current tool.
 * '#<_selected_tool>' - Return number of the selected tool post a T code. Default -1.
