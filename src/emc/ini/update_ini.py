@@ -80,9 +80,6 @@ asked and the conversion will proceed blindly"""
         print(t)
     exit()
 
-# We want to work with the base INI file here, not the expanded version if #include is used
-filename = re.sub(r'\.expanded', '', filename)
-
 # Search for included files
 base_dir = os.path.dirname(filename)
 included_files = []
