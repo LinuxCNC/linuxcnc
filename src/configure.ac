@@ -735,7 +735,6 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/linuxcnc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
-    EMC2_TCL_DIR="${TCL_GET_DIR}/linuxcnc"
     EMC2_TCL_LIB_DIR="${EMC2_TCL_DIR}"
     EMC2_LANG_DIR="${EMC2_TCL_DIR}/msgs"
     EMC2_PO_DIR=${prefix}/share/locale
