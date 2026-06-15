@@ -237,7 +237,7 @@ def ini_preamble(version, file):
     newini.write("# The original config files may be found in the %s directory\n\n" % backupdir)
 
     # reproduce everything before the first [section] verbatim
-    section = re.match(r"(.*?)^\[", inistring, re.DOTALL | re.MULTILINE) 
+    section = re.match(r"(.*?)^(\[|\Z)", inistring, re.DOTALL | re.MULTILINE) 
     if section !=None:
         newini.write(section.group(1))
 
