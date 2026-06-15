@@ -179,12 +179,16 @@ proc find_ini_refs {stanza} {
             if { [lindex $halcommand 1] == "\=" } {
                 set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
             }
+            # tunable item is the setp value (3rd token); ignore ini refs
+            # that only appear inside the pin name (issue #4165)
+            set valuestring [lindex $tmpstring 2]
             for {set sfx 0} {$sfx < $::EC($stanza,howmany)} {incr sfx} {
                 set tabno $::EC($stanza,$sfx,tabno)
                 set itag [lindex $::EC($stanza,suffixes) $sfx]
-                if {[string match *${stanza}${itag}* $tmpstring]} {
+                if {[string match *${stanza}${itag}* $valuestring]} {
                     # this is a hal file search ordered loop
-                    set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
+                    set thisininame [lindex [split $valuestring "\]" ] end ]
+                    set thisininame [string map {( "" ) ""} $thisininame]
                     set lowername "[string tolower $thisininame]"
                     set thishalcommand [lindex $tmpstring 1]
                     set tmpval [string trim [hal getp [halcmdSubstitute $thishalcommand]]]
