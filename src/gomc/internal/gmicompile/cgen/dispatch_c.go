@@ -346,6 +346,18 @@ func (g *dispatchCGen) emitFieldCToGo(goField, cExpr string, t ast.TypeRef) {
 			g.printf("\t\t%s: int8(%s),\n", goField, cExpr)
 		case ast.PrimU8:
 			g.printf("\t\t%s: uint8(%s),\n", goField, cExpr)
+		case ast.PrimI16:
+			if t.Nullable {
+				g.printf("\t\t%s: func() *int16 { v := int16(%s); return &v }(),\n", goField, cExpr)
+			} else {
+				g.printf("\t\t%s: int16(%s),\n", goField, cExpr)
+			}
+		case ast.PrimU16:
+			if t.Nullable {
+				g.printf("\t\t%s: func() *uint16 { v := uint16(%s); return &v }(),\n", goField, cExpr)
+			} else {
+				g.printf("\t\t%s: uint16(%s),\n", goField, cExpr)
+			}
 		case ast.PrimI32:
 			if t.Nullable {
 				g.printf("\t\t%s: func() *int32 { v := int32(%s); return &v }(),\n", goField, cExpr)
@@ -557,6 +569,18 @@ func (g *dispatchCGen) emitFieldGoToC(cField, goExpr string, t ast.TypeRef) {
 			g.printf("\t%s = C.int8_t(%s)\n", cField, goExpr)
 		case ast.PrimU8:
 			g.printf("\t%s = C.uint8_t(%s)\n", cField, goExpr)
+		case ast.PrimI16:
+			if t.Nullable {
+				g.printf("\tif %s != nil { %s = C.int16_t(*%s) }\n", goExpr, cField, goExpr)
+			} else {
+				g.printf("\t%s = C.int16_t(%s)\n", cField, goExpr)
+			}
+		case ast.PrimU16:
+			if t.Nullable {
+				g.printf("\tif %s != nil { %s = C.uint16_t(*%s) }\n", goExpr, cField, goExpr)
+			} else {
+				g.printf("\t%s = C.uint16_t(%s)\n", cField, goExpr)
+			}
 		case ast.PrimI32:
 			if t.Nullable {
 				g.printf("\tif %s != nil { %s = C.int32_t(*%s) }\n", goExpr, cField, goExpr)
