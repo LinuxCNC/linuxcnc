@@ -503,6 +503,7 @@ $(ECMASTER_STAMPDIR)/.configured: $(ECMASTER_STAMPDIR)/.bootstrapped
 		--enable-uspace-master \
 		--disable-kernel \
 		--disable-eoe \
+		--disable-tool \
 		--mandir=$(ECMASTER_PREFIX)/docs/man \
 		--docdir=$(ECMASTER_PREFIX)/docs/ethercat
 	@touch $@
