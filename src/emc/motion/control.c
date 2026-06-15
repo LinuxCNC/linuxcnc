@@ -257,26 +257,46 @@ static int do_homing_sequence(motmod_inst_t *inst)
         }
         break;
 
-    case HOME_SEQUENCE_WAIT_JOINTS:
-        seen = 0;
+    case HOME_SEQUENCE_WAIT_JOINTS: {
+        int any_running = 0;  /* joints still actively homing (not idle, not sync-paused) */
+        int any_paused  = 0;  /* synchronized joints paused at final-move-wait */
         for (i = 0; i < ALL_JOINTS; i++) {
             if (!inst->joint_in_sequence[i]) continue;
             if (abs(inst->joints[i].home_sequence) != inst->current_sequence) {
                 continue;
             }
-            if (!JOINT_HOME_API(&inst->joints[i])->get_is_idle(
-                    JOINT_HOME_API(&inst->joints[i])->ctx)) {
-                /* still busy homing, keep waiting */
-                seen = 1;
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (hapi->get_is_idle(hapi->ctx)) {
+                continue; /* this joint has finished */
+            }
+            /* Check if it is a synchronized joint paused at the final-move barrier */
+            if (inst->joints[i].home_sequence < 0 &&
+                hapi->get_at_final_move_wait(hapi->ctx)) {
+                any_paused = 1;
                 continue;
             }
+            /* Still actively homing */
+            any_running = 1;
         }
-        if (!seen) {
+        if (!any_running && any_paused) {
+            /* All synchronized joints in this group have reached the
+             * final-move barrier; release them all simultaneously. */
+            for (i = 0; i < ALL_JOINTS; i++) {
+                if (!inst->joint_in_sequence[i]) continue;
+                if (abs(inst->joints[i].home_sequence) != inst->current_sequence) continue;
+                if (inst->joints[i].home_sequence >= 0) continue; /* only sync joints */
+                const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+                if (hapi->get_at_final_move_wait(hapi->ctx)) {
+                    hapi->do_final_move(hapi->ctx);
+                }
+            }
+        } else if (!any_running && !any_paused) {
             /* all joints at this step have finished, move on to next step */
             inst->current_sequence++;
             inst->sequence_state = HOME_SEQUENCE_START_JOINTS;
         }
         break;
+    }
 
     default:
         inst->sequence_state = HOME_SEQUENCE_IDLE;

@@ -488,6 +488,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	/* per-joint homing API (looked up by motmod at init) */
 	const void *home_api;   /* const home_callbacks_t* - per-joint homemod */
 	int home_sequence;      /* homing sequence number from INI (motmod-owned) */
+	int volatile_home;      /* 1 if joint should be unhomed on volatile unhome (-2) */
     } emcmot_joint_t;
 
 /* This structure contains only the "status" data associated with

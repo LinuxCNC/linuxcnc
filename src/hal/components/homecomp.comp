@@ -137,3 +137,5 @@ static int32_t gmi_home_get_index_enable(void *ctx) { (void)ctx; return 0; }
 static int32_t gmi_home_get_needs_unlock_first(void *ctx) { (void)ctx; return 0; }
 static int32_t gmi_home_get_is_idle(void *ctx) { (void)ctx; return 1; }
 static int32_t gmi_home_get_at_index_search_wait(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_get_at_final_move_wait(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_do_final_move(void *ctx) { (void)ctx; return 0; }

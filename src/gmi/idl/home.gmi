@@ -89,3 +89,9 @@ func get_is_idle() -> i32
 
 @doc "Returns 1 if homing is waiting at index search (ferror suppression)"
 func get_at_index_search_wait() -> i32
+
+@doc "Returns 1 if homing is paused at final-move-start waiting for sync signal"
+func get_at_final_move_wait() -> i32
+
+@doc "Release from sync wait and start the final move"
+func do_final_move() -> i32

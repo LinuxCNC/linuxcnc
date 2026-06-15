@@ -87,6 +87,7 @@ typedef struct {
     bool   homing;
     bool   homed;
     int    mode_wait_count;
+    bool   sync_final_move_released; /* set by do_final_move() to release sync pause */
 
     /* HAL pins */
     linmot_pins_t pins;
@@ -178,6 +179,13 @@ static int drive_home_tick(linmot_inst_t *inst)
             inst->drv_state = DRV_HOME_DONE;
             return 1;
         }
+        /* For synchronized homing (negative home_sequence), pause here
+         * until motmod calls do_final_move() to release all joints
+         * simultaneously. */
+        if (inst->home_sequence < 0 && !inst->sync_final_move_released) {
+            return 1; /* stay paused */
+        }
+        inst->sync_final_move_released = 0;
         inst->mot->joint_set_free_tp_pos_cmd(inst->mot->ctx, jno, inst->home);
         if (inst->home_final_vel > 0) {
             double vl = inst->mot->joint_get_vel_limit(inst->mot->ctx, jno);
@@ -203,7 +211,14 @@ static int drive_home_tick(linmot_inst_t *inst)
         inst->homing = 0;
         inst->homed = 1;
         inst->drv_state = DRV_HOME_IDLE;
-        inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, inst->home);
+        /* If no final move was performed (HOME_NO_FINAL_MOVE or near-zero
+         * offset delta), set position to home_offset (where the drive
+         * actually is). Otherwise set to home (where the final move ended). */
+        if (inst->home_flags & HOME_NO_FINAL_MOVE) {
+            inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, inst->home_offset);
+        } else {
+            inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, inst->home);
+        }
         return 0;
 
     case DRV_HOME_ERROR:
@@ -312,6 +327,7 @@ static int32_t gmi_home_do_home(void *ctx)
         return 0;
     inst->homing = 1;
     inst->homed = 0;
+    inst->sync_final_move_released = 0;
     inst->drv_state = DRV_HOME_SWITCH_MODE;
     return 0;
 }
@@ -372,10 +388,23 @@ static int32_t gmi_home_get_at_index_search_wait(void *ctx)
             inst->drv_state <= DRV_HOME_WAIT_CSP) ? 1 : 0;
 }
 
+static int32_t gmi_home_get_at_final_move_wait(void *ctx)
+{
+    linmot_inst_t *inst = (linmot_inst_t *)ctx;
+    /* Returns 1 when the state machine is paused at DRV_HOME_FINAL_MOVE
+     * waiting for the sync signal from motmod. */
+    return (inst->drv_state == DRV_HOME_FINAL_MOVE &&
+            inst->home_sequence < 0 &&
+            !inst->sync_final_move_released) ? 1 : 0;
+}
 
-/***********************************************************************
-*              CMOD LIFECYCLE                                          *
-***********************************************************************/
+static int32_t gmi_home_do_final_move(void *ctx)
+{
+    linmot_inst_t *inst = (linmot_inst_t *)ctx;
+    /* Release the sync pause so the final move can start. */
+    inst->sync_final_move_released = 1;
+    return 0;
+}
 
 static void linmot_cmod_destroy(cmod_t *self)
 {

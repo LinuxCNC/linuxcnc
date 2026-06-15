@@ -81,6 +81,7 @@ typedef struct {
   int          home_flags;
   int          home_sequence;
   bool         volatile_home;
+  bool         sync_final_move_released; /* set by do_final_move() to release sync pause */
 } home_local_data;
 
 // HAL pin data for one joint
@@ -524,8 +525,17 @@ static int do_homing_state_machine(homemod_inst_t *inst)
             }
             if (inst->H.pause_timer < (HOME_DELAY * inst->servo_freq)) {
                 inst->H.pause_timer++;
+                break;
             }
             inst->H.pause_timer = 0;
+
+            /* For synchronized homing (negative home_sequence), pause here
+             * until motmod calls do_final_move() to release all joints
+             * simultaneously. */
+            if (inst->H.home_sequence < 0 && !inst->H.sync_final_move_released) {
+                break;
+            }
+            inst->H.sync_final_move_released = 0;
 
             /* plan a final move to home position */
             inst->mot->joint_set_free_tp_pos_cmd(inst->mot->ctx, jno, inst->H.home);
@@ -595,6 +605,7 @@ static int do_homing_state_machine(homemod_inst_t *inst)
             inst->mot->joint_set_free_tp_enable(inst->mot->ctx, jno, 0);
             inst->H.home_state = HOME_IDLE;
             inst->H.index_enable = 0;
+            inst->H.sync_final_move_released = 0;
             immediate_state = 1;
             break;
 
@@ -648,17 +659,18 @@ static int32_t gmi_home_init(void *ctx, int32_t comp_id, double servo_period)
     }
 
     /* Initialize state */
-    inst->H.home_state      = HOME_IDLE;
-    inst->H.home_search_vel = 0;
-    inst->H.home_latch_vel  = 0;
-    inst->H.home_final_vel  = 0;
-    inst->H.home_offset     = 0;
-    inst->H.home            = 0;
-    inst->H.home_flags      = 0;
-    inst->H.home_sequence   = 1000;
-    inst->H.volatile_home   = 0;
-    inst->H.homing          = 0;
-    inst->H.homed           = 0;
+    inst->H.home_state               = HOME_IDLE;
+    inst->H.home_search_vel          = 0;
+    inst->H.home_latch_vel           = 0;
+    inst->H.home_final_vel           = 0;
+    inst->H.home_offset              = 0;
+    inst->H.home                     = 0;
+    inst->H.home_flags               = 0;
+    inst->H.home_sequence            = 1000;
+    inst->H.volatile_home            = 0;
+    inst->H.homing                   = 0;
+    inst->H.homed                    = 0;
+    inst->H.sync_final_move_released = 0;
 
     return 0;
 }
@@ -720,6 +732,7 @@ static int32_t gmi_home_do_home(void *ctx)
 {
     homemod_inst_t *inst = (homemod_inst_t *)ctx;
     inst->H.home_state = HOME_START;
+    inst->H.sync_final_move_released = 0;
     return 0;
 }
 
@@ -792,7 +805,24 @@ static int32_t gmi_home_get_at_index_search_wait(void *ctx)
     return inst->H.home_state == HOME_INDEX_SEARCH_WAIT ? 1 : 0;
 }
 
-// ─── cmod lifecycle ─────────────────────────────────────────────────────
+static int32_t gmi_home_get_at_final_move_wait(void *ctx)
+{
+    homemod_inst_t *inst = (homemod_inst_t *)ctx;
+    /* Returns 1 when the state machine is paused at HOME_FINAL_MOVE_START
+     * waiting for the sync signal from motmod. */
+    return (inst->H.home_state == HOME_FINAL_MOVE_START &&
+            inst->H.home_sequence < 0 &&
+            !inst->H.sync_final_move_released) ? 1 : 0;
+}
+
+static int32_t gmi_home_do_final_move(void *ctx)
+{
+    homemod_inst_t *inst = (homemod_inst_t *)ctx;
+    /* Release the sync pause so the final move can start. */
+    inst->H.sync_final_move_released = 1;
+    return 0;
+}
+
 
 static void home_cmod_destroy(cmod_t *self) {
     homemod_inst_t *inst = (homemod_inst_t *)((char *)self - offsetof(homemod_inst_t, cmod));
