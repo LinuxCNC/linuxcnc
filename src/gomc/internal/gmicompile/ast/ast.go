@@ -165,6 +165,8 @@ const (
 	PrimBool   = "bool"
 	PrimI8     = "i8"
 	PrimU8     = "u8"
+	PrimI16    = "i16"
+	PrimU16    = "u16"
 	PrimI32    = "i32"
 	PrimU32    = "u32"
 	PrimI64    = "i64"
@@ -180,6 +182,8 @@ var Primitives = map[string]bool{
 	PrimBool:   true,
 	PrimI8:     true,
 	PrimU8:     true,
+	PrimI16:    true,
+	PrimU16:    true,
 	PrimI32:    true,
 	PrimU32:    true,
 	PrimI64:    true,

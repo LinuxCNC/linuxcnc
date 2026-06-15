@@ -324,6 +324,10 @@ func primitiveToGoType(name string) string {
 		return "int8"
 	case ast.PrimU8:
 		return "uint8"
+	case ast.PrimI16:
+		return "int16"
+	case ast.PrimU16:
+		return "uint16"
 	case ast.PrimI32:
 		return "int32"
 	case ast.PrimU32:

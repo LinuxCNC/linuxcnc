@@ -109,6 +109,10 @@ func streamCType(t *ast.TypeRef) string {
 			return "int8_t"
 		case "u8":
 			return "uint8_t"
+		case "i16":
+			return "int16_t"
+		case "u16":
+			return "uint16_t"
 		case "i32":
 			return "int32_t"
 		case "u32":

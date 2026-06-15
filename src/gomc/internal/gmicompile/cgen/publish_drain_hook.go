@@ -277,6 +277,10 @@ func (g *publishDrainHookGen) paramGoType(p ast.Param) string {
 			return "int8"
 		case "u8":
 			return "uint8"
+		case "i16":
+			return "int16"
+		case "u16":
+			return "uint16"
 		case "i32":
 			return "int32"
 		case "u32":

@@ -697,6 +697,22 @@ $(GMI_ZLC_GEN)/zlc_cgo.go: $(GMI_ZLC_GEN)/z_level_compensation_api.h ;
 
 TARGETS += $(GMI_ZLC_GEN)/z_level_compensation_api.h
 
+# --- ethercat tool API ---
+
+GMI_ETHERCAT_IDL := gmi/idl/ethercat.gmi
+GMI_ETHERCAT_GEN := gomc/generated/gmi/ethercat
+
+$(GMI_ETHERCAT_GEN)/ethercat_api.h: $(GMI_ETHERCAT_IDL) $(GMICOMPILE_BIN)
+	$(ECHO) "Generating GMI ethercat from $(GMI_ETHERCAT_IDL)"
+	@mkdir -p $(GMI_ETHERCAT_GEN)
+	$(Q)$(GMICOMPILE) --server-c $(GMI_ETHERCAT_IDL) -o $(GMI_ETHERCAT_GEN)/ethercat_api.h
+	$(Q)$(GMICOMPILE) --server-meta $(GMI_ETHERCAT_IDL) -o $(GMI_ETHERCAT_GEN)/ethercat_cgo.go
+	$(Q)$(GMICOMPILE_BIN) add-gmi generated/gmi/ethercat
+
+$(GMI_ETHERCAT_GEN)/ethercat_cgo.go: $(GMI_ETHERCAT_GEN)/ethercat_api.h ;
+
+TARGETS += $(GMI_ETHERCAT_GEN)/ethercat_api.h
+
 # ═══════════════════════════════════════════════════════════════════════════════
 
 clean: gmi-codegen-clean

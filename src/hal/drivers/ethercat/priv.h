@@ -28,6 +28,7 @@
 #define _LCEC_PRIV_H_
 
 #include "lcec.h"
+#include "ethercat_api.h"
 
 #include "devices/generic.h"
 
@@ -174,6 +175,7 @@ typedef struct lcec_rt_context {
   lcec_master_data_t *global_hal_data; /**< HAL pins for aggregate EtherCAT state. */
   ec_master_state_t global_ms;        /**< Aggregate master state updated each cycle. */
   int64_t dc_time_offset;            /**< Nanosecond offset between RTAPI monotonic and EtherCAT wall-clock time. */
+  ethercat_callbacks_t ethercat_cb;   /**< GMI REST API callbacks (registered during Start). */
 } lcec_rt_context_t;
 
 /**
