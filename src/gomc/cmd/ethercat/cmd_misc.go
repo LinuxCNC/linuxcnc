@@ -415,26 +415,92 @@ func cmdGraph(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		return err
 	}
 
-	mi := masterIdx(masterIndex)
-	fmt.Println("digraph EtherCAT {")
-	fmt.Printf("  rankdir=LR;\n")
-	fmt.Printf("  Master%d [shape=record,label=\"Master %d\"];\n", mi, mi)
-
+	// Collect all slaves.
+	type slaveNode struct {
+		info       *SlaveInfo
+		alias      uint16
+		aliasIndex uint16
+	}
+	slaves := make([]slaveNode, 0, master.SlaveCount)
+	var lastAlias uint16
+	var aliasIndex uint16
 	for pos := uint16(0); pos < uint16(master.SlaveCount); pos++ {
 		slave, err := client.GetSlave(masterIndex, pos)
 		if err != nil {
 			continue
 		}
-		label := fmt.Sprintf("Slave %d\\n%s\\n0x%08x/0x%08x",
-			pos, slave.Name, slave.VendorId, slave.ProductCode)
-		fmt.Printf("  Slave%d_%d [shape=record,label=\"%s\"];\n", mi, pos, label)
+		if slave.Alias != 0 {
+			lastAlias = slave.Alias
+			aliasIndex = 0
+		}
+		slaves = append(slaves, slaveNode{
+			info:       slave,
+			alias:      lastAlias,
+			aliasIndex: aliasIndex,
+		})
+		aliasIndex++
+	}
 
-		if pos == 0 {
-			fmt.Printf("  Master%d -> Slave%d_%d;\n", mi, mi, pos)
-		} else {
-			fmt.Printf("  Slave%d_%d -> Slave%d_%d;\n", mi, pos-1, mi, pos)
+	// Determine link type between master and first slave.
+	masterLink := "MII"
+	if len(slaves) > 0 {
+		// Port 0 of first slave faces the master.
+		if slaves[0].info.Ports[0].Desc == 0x02 {
+			masterLink = "EBUS"
 		}
 	}
+
+	fmt.Println("strict graph bus {")
+	fmt.Println("    rankdir=\"LR\"")
+	fmt.Println("    ranksep=0.8")
+	fmt.Println("    nodesep=0.8")
+	fmt.Println("    node [fontname=\"Helvetica\"]")
+	fmt.Println("    edge [fontname=\"Helvetica\",fontsize=\"10\"]")
+	fmt.Println()
+	fmt.Println("    master [label=\"EtherCAT\\nMaster\"]")
+
+	if len(slaves) > 0 {
+		fmt.Printf("    master -- slave0[label=\"%s\"]\n", masterLink)
+	}
+	fmt.Println()
+
+	for i, sn := range slaves {
+		s := sn.info
+		// Short name: strip everything after first space or use full name.
+		name := s.Name
+		label := fmt.Sprintf("%d / %d:%d\\n%s", s.Position, sn.alias, sn.aliasIndex, name)
+		fmt.Printf("    slave%d [shape=\"box\",label=\"%s\"]\n", i, label)
+
+		// Find which downstream port connects to the next slave in the ring.
+		// EtherCAT port order: 0=in, 1=next, 2=branch, 3=branch
+		// Walk ports 1,2,3 looking for links to other slaves.
+		for portIdx := 1; portIdx <= 3; portIdx++ {
+			port := s.Ports[portIdx]
+			if port.Link == 0 || port.Desc == 0 || port.Desc == 1 {
+				continue
+			}
+			nextPos := int(port.NextSlave)
+			if nextPos < 0 || nextPos >= len(slaves) {
+				continue
+			}
+			// Determine which port on the next slave receives this connection.
+			// Usually port 0, but check.
+			headPort := 0
+			nextSlave := slaves[nextPos].info
+			for hp := 0; hp < 4; hp++ {
+				if nextSlave.Ports[hp].Link != 0 && int(nextSlave.Ports[hp].NextSlave) == i {
+					headPort = hp
+					break
+				}
+			}
+
+			linkType := portDescStr(port.Desc)
+			fmt.Printf("    slave%d -- slave%d [taillabel=\"%d\",headlabel=\"%d\",label=\"%s\",weight=\"5\"]\n",
+				i, nextPos, portIdx, headPort, linkType)
+		}
+		fmt.Println()
+	}
+
 	fmt.Println("}")
 	return nil
 }
