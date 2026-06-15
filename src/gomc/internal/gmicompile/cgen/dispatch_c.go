@@ -766,6 +766,20 @@ func (g *dispatchCGen) emitParamGoToC(cVar, goVar string, p ast.Param) {
 			g.printf("\t%s := C.int8_t(%s)\n", cVar, goVar)
 		case ast.PrimU8:
 			g.printf("\t%s := C.uint8_t(%s)\n", cVar, goVar)
+		case ast.PrimI16:
+			if t.Nullable {
+				g.printf("\tvar %s C.int16_t\n", cVar)
+				g.printf("\tif %s != nil { %s = C.int16_t(*%s) }\n", goVar, cVar, goVar)
+			} else {
+				g.printf("\t%s := C.int16_t(%s)\n", cVar, goVar)
+			}
+		case ast.PrimU16:
+			if t.Nullable {
+				g.printf("\tvar %s C.uint16_t\n", cVar)
+				g.printf("\tif %s != nil { %s = C.uint16_t(*%s) }\n", goVar, cVar, goVar)
+			} else {
+				g.printf("\t%s := C.uint16_t(%s)\n", cVar, goVar)
+			}
 		case ast.PrimI32:
 			if t.Nullable {
 				g.printf("\tvar %s C.int32_t\n", cVar)
@@ -1044,6 +1058,10 @@ func cTypeForAPICgo(apiName string, t ast.TypeRef) string {
 			return "C.int8_t"
 		case ast.PrimU8:
 			return "C.uint8_t"
+		case ast.PrimI16:
+			return "C.int16_t"
+		case ast.PrimU16:
+			return "C.uint16_t"
 		case ast.PrimI32:
 			return "C.int32_t"
 		case ast.PrimU32:

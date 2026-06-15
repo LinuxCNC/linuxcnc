@@ -332,6 +332,19 @@ type EoeHandlerInfo {
     tx_queue_size: u32
 }
 
+type EoeIpRequest {
+    mac_address: string?
+    ip_address: string?
+    subnet_mask: string?
+    gateway: string?
+    dns: string?
+    hostname: string?
+}
+
+type EoeIpResult {
+    result: u16
+}
+
 type SlaveStateRequest {
     al_state: u8             # 1=INIT, 2=PREOP, 4=SAFEOP, 8=OP
 }
@@ -528,3 +541,9 @@ func get_config_flag(master_index: u32?, config_index: u32, flag_pos: u32) -> Co
 @path "/eoe/{eoe_index}"
 @rt_safe "false"
 func get_eoe_handler(master_index: u32?, eoe_index: u16) -> EoeHandlerInfo
+
+# EoE set IP parameters
+@method "POST"
+@path "/slaves/{position}/eoe/ip"
+@rt_safe "false"
+func set_eoe_ip(master_index: u32?, position: u16, req: EoeIpRequest) -> EoeIpResult

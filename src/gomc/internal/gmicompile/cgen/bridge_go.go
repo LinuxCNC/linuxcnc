@@ -583,6 +583,18 @@ func (g *bridgeGoGen) emitParamCToGo(apiName string, p ast.Param) string {
 				return "&" + goVar
 			}
 			return goVar
+		case ast.PrimI16:
+			g.printf("\t%s := int16(%s)\n", goVar, name)
+			if p.Type.Nullable {
+				return "&" + goVar
+			}
+			return goVar
+		case ast.PrimU16:
+			g.printf("\t%s := uint16(%s)\n", goVar, name)
+			if p.Type.Nullable {
+				return "&" + goVar
+			}
+			return goVar
 		}
 	case ast.TypeNamed:
 		if g.isEnum(p.Type.Name) {

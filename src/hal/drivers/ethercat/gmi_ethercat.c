@@ -19,6 +19,8 @@
 #include "ecrt_tool.h"
 #include "ethercat_api.h"
 
+#include <arpa/inet.h>
+
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
 
 /**
@@ -908,6 +910,83 @@ static ethercat_eoe_handler_info_t gmi_ethercat_get_eoe_handler(void *ctx,
     out.tx_queue_size = eoe.tx_queue_size;
 #else
     (void)ctx; (void)master_index; (void)eoe_index;
+#endif
+    return out;
+}
+
+static ethercat_eoe_ip_result_t gmi_ethercat_set_eoe_ip(void *ctx,
+        uint32_t master_index, uint16_t position, const ethercat_eoe_ip_request_t *req)
+{
+    ethercat_eoe_ip_result_t out = {0};
+#ifdef EC_EOE
+    lcec_rt_context_t *rt = (lcec_rt_context_t *)ctx;
+    ec_tool_eoe_ip_t io = {0};
+    ec_master_t *master = resolve_master(rt, master_index);
+    if (!master)
+        return out;
+
+    io.slave_position = position;
+
+    if (req->mac_address) {
+        /* Parse MAC: "aa:bb:cc:dd:ee:ff" or "aa-bb-cc-dd-ee-ff" */
+        unsigned int m[6];
+        if (sscanf(req->mac_address, "%x:%x:%x:%x:%x:%x",
+                &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]) == 6 ||
+            sscanf(req->mac_address, "%x-%x-%x-%x-%x-%x",
+                &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]) == 6) {
+            for (int i = 0; i < 6; i++)
+                io.mac_address[i] = (unsigned char)m[i];
+            io.mac_address_included = 1;
+        }
+    }
+
+    if (req->ip_address) {
+        struct in_addr addr;
+        if (inet_pton(AF_INET, req->ip_address, &addr) == 1) {
+            memcpy(&io.ip_address, &addr, 4);
+            io.ip_address_included = 1;
+        }
+    }
+
+    if (req->subnet_mask) {
+        struct in_addr addr;
+        if (inet_pton(AF_INET, req->subnet_mask, &addr) == 1) {
+            memcpy(&io.subnet_mask, &addr, 4);
+            io.subnet_mask_included = 1;
+        }
+    }
+
+    if (req->gateway) {
+        struct in_addr addr;
+        if (inet_pton(AF_INET, req->gateway, &addr) == 1) {
+            memcpy(&io.gateway, &addr, 4);
+            io.gateway_included = 1;
+        }
+    }
+
+    if (req->dns) {
+        struct in_addr addr;
+        if (inet_pton(AF_INET, req->dns, &addr) == 1) {
+            memcpy(&io.dns, &addr, 4);
+            io.dns_included = 1;
+        }
+    }
+
+    if (req->hostname) {
+        size_t len = strlen(req->hostname);
+        if (len >= EC_TOOL_MAX_HOSTNAME_SIZE)
+            len = EC_TOOL_MAX_HOSTNAME_SIZE - 1;
+        memcpy(io.name, req->hostname, len);
+        io.name[len] = '\0';
+        io.name_included = 1;
+    }
+
+    if (ecrt_tool_set_eoe_ip(master, &io) != 0)
+        return out;
+
+    out.result = io.result;
+#else
+    (void)ctx; (void)master_index; (void)position; (void)req;
 #endif
     return out;
 }

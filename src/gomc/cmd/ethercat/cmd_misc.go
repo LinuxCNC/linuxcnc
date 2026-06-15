@@ -1,0 +1,488 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+)
+
+func init() {
+	registerCommand(&Command{
+		Name:  "alias",
+		Brief: "Write alias addresses.",
+		Run:   cmdAlias,
+	})
+	registerCommand(&Command{
+		Name:  "crc",
+		Brief: "CRC error register diagnosis.",
+		Run:   cmdCrc,
+	})
+	registerCommand(&Command{
+		Name:  "cstruct",
+		Brief: "Generate slave PDO info as C code.",
+		Run:   cmdCstruct,
+	})
+	registerCommand(&Command{
+		Name:  "eoe",
+		Brief: "Display Ethernet over EtherCAT statistics.",
+		Run:   cmdEoe,
+	})
+	registerCommand(&Command{
+		Name:  "graph",
+		Brief: "Output the bus topology as a graph.",
+		Run:   cmdGraph,
+	})
+	registerCommand(&Command{
+		Name:  "ip",
+		Brief: "Set EoE IP parameters.",
+		Run:   cmdIp,
+	})
+	registerCommand(&Command{
+		Name:  "xml",
+		Brief: "Generate slave information XML.",
+		Run:   cmdXml,
+	})
+}
+
+func cmdAlias(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: alias <ALIAS>")
+	}
+	alias, err := strconv.ParseUint(args[0], 0, 16)
+	if err != nil {
+		return fmt.Errorf("invalid alias '%s': %v", args[0], err)
+	}
+
+	masterIndex := parseMasterIndex(opts.Masters)
+	positions := parsePositionList(opts.Positions)
+	if positions == nil {
+		return fmt.Errorf("'alias' requires slave selection (use -p)")
+	}
+
+	for _, pos := range positions {
+		err := writeAlias(client, masterIndex, pos, uint16(alias), opts.Force)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func writeAlias(client *EthercatClient, masterIndex *uint32, pos uint16, alias uint16, force bool) error {
+	// Read first 8 SII words.
+	result, err := client.SiiRead(masterIndex, pos, 0, 8)
+	if err != nil {
+		return fmt.Errorf("failed to read SII: %v", err)
+	}
+
+	// SII words are returned as raw data. Parse 8 words (16 bytes).
+	data := []byte(result.Words)
+	if len(data) < 16 {
+		return fmt.Errorf("SII data too short (%d bytes)", len(data))
+	}
+
+	// Word 4 = alias (little-endian).
+	data[8] = byte(alias & 0xFF)
+	data[9] = byte((alias >> 8) & 0xFF)
+
+	// Recalculate CRC over words 0-6 (bytes 0-13) and store in word 7 (bytes 14-15).
+	crc := siiCrc(data[:14])
+	data[14] = crc
+	data[15] = 0
+
+	// Write back.
+	sii := SiiData{
+		Offset: 0,
+		Nwords: 8,
+		Words:  string(data[:16]),
+	}
+	_, err = client.SiiWrite(masterIndex, pos, sii)
+	if err != nil {
+		return fmt.Errorf("failed to write SII: %v", err)
+	}
+	return nil
+}
+
+// siiCrc computes the SII CRC-8 over the given bytes (ETG.1000.6 algorithm).
+func siiCrc(data []byte) byte {
+	var crc uint8 = 0xFF
+	for _, b := range data {
+		for bit := 0; bit < 8; bit++ {
+			if (crc^b)&0x01 != 0 {
+				crc = (crc >> 1) ^ 0xA6
+			} else {
+				crc >>= 1
+			}
+			b >>= 1
+		}
+	}
+	return crc
+}
+
+func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	masterIndex := parseMasterIndex(opts.Masters)
+	master, err := client.GetMaster(masterIndex)
+	if err != nil {
+		return err
+	}
+
+	positions := parsePositionList(opts.Positions)
+	if positions == nil {
+		positions = make([]uint16, master.SlaveCount)
+		for i := range positions {
+			positions[i] = uint16(i)
+		}
+	}
+
+	// Header.
+	fmt.Printf("Slave  ")
+	for port := 0; port < 4; port++ {
+		fmt.Printf(" CRC%d PHY%d FWD%d NXT%d", port, port, port, port)
+	}
+	fmt.Println()
+
+	// Read CRC counters from registers 0x0300-0x030F.
+	for _, pos := range positions {
+		result, err := client.RegRead(masterIndex, pos, 0x0300, 16)
+		if err != nil {
+			fmt.Printf("%5d  (read failed)\n", pos)
+			continue
+		}
+		fmt.Printf("%5d  %s\n", pos, result.Data)
+	}
+	return nil
+}
+
+func cmdCstruct(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	masterIndex := parseMasterIndex(opts.Masters)
+	master, err := client.GetMaster(masterIndex)
+	if err != nil {
+		return err
+	}
+
+	positions := parsePositionList(opts.Positions)
+	if positions == nil {
+		positions = make([]uint16, master.SlaveCount)
+		for i := range positions {
+			positions[i] = uint16(i)
+		}
+	}
+
+	mi := masterIdx(masterIndex)
+
+	for _, pos := range positions {
+		slave, err := client.GetSlave(masterIndex, pos)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("/* Master %d, Slave %d", mi, pos)
+		if slave.Name != "" {
+			fmt.Printf(", \"%s\"", slave.Name)
+		}
+		fmt.Printf("\n * Vendor ID:       0x%08x\n", slave.VendorId)
+		fmt.Printf(" * Product code:    0x%08x\n", slave.ProductCode)
+		fmt.Printf(" * Revision number: 0x%08x\n", slave.RevisionNumber)
+		fmt.Printf(" */\n\n")
+
+		// Collect all PDO entries.
+		hasEntries := false
+		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
+			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
+			if err != nil || sm.PdoCount == 0 {
+				continue
+			}
+			for pdoIdx := uint32(0); pdoIdx < uint32(sm.PdoCount); pdoIdx++ {
+				pdo, err := client.GetSlaveSyncPdo(masterIndex, pos, smIdx, pdoIdx)
+				if err != nil || pdo.EntryCount == 0 {
+					continue
+				}
+				if !hasEntries {
+					fmt.Printf("ec_pdo_entry_info_t slave_%d_pdo_entries[] = {\n", pos)
+					hasEntries = true
+				}
+				for entryIdx := uint32(0); entryIdx < uint32(pdo.EntryCount); entryIdx++ {
+					entry, err := client.GetSlaveSyncPdoEntry(masterIndex, pos, smIdx, pdoIdx, entryIdx)
+					if err != nil {
+						continue
+					}
+					fmt.Printf("    {0x%04x, 0x%02x, %d},\n", entry.Index, entry.Subindex, entry.BitLength)
+				}
+			}
+		}
+		if hasEntries {
+			fmt.Printf("};\n\n")
+		}
+
+		// PDO info array.
+		hasPdos := false
+		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
+			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
+			if err != nil || sm.PdoCount == 0 {
+				continue
+			}
+			if !hasPdos {
+				fmt.Printf("ec_pdo_info_t slave_%d_pdos[] = {\n", pos)
+				hasPdos = true
+			}
+			for pdoIdx := uint32(0); pdoIdx < uint32(sm.PdoCount); pdoIdx++ {
+				pdo, err := client.GetSlaveSyncPdo(masterIndex, pos, smIdx, pdoIdx)
+				if err != nil {
+					continue
+				}
+				fmt.Printf("    {0x%04x, %d, slave_%d_pdo_entries + 0},\n",
+					pdo.Index, pdo.EntryCount, pos)
+			}
+		}
+		if hasPdos {
+			fmt.Printf("};\n\n")
+		}
+
+		// Sync manager info.
+		fmt.Printf("ec_sync_info_t slave_%d_syncs[] = {\n", pos)
+		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
+			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
+			if err != nil {
+				continue
+			}
+			dirStr := "EC_DIR_INVALID"
+			switch sm.ControlRegister & 0x0C {
+			case 0x04:
+				dirStr = "EC_DIR_INPUT"
+			case 0x08:
+				dirStr = "EC_DIR_OUTPUT"
+			}
+			pdoRef := "NULL"
+			if sm.PdoCount > 0 {
+				pdoRef = fmt.Sprintf("slave_%d_pdos + 0", pos)
+			}
+			fmt.Printf("    {%d, %s, %d, %s, EC_WD_DEFAULT},\n",
+				smIdx, dirStr, sm.PdoCount, pdoRef)
+		}
+		fmt.Printf("    {0xff}\n")
+		fmt.Printf("};\n\n")
+	}
+	return nil
+}
+
+func cmdEoe(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	masterIndex := parseMasterIndex(opts.Masters)
+	master, err := client.GetMaster(masterIndex)
+	if err != nil {
+		return err
+	}
+
+	if master.EoeHandlerCount == 0 {
+		return nil
+	}
+
+	fmt.Printf("%-12s %-6s %-8s %10s %10s %10s %10s %7s\n",
+		"Interface", "Slave", "State", "RxBytes", "RxRate", "TxBytes", "TxRate", "TxQueue")
+
+	for i := uint16(0); i < uint16(master.EoeHandlerCount); i++ {
+		eoe, err := client.GetEoeHandler(masterIndex, i)
+		if err != nil {
+			continue
+		}
+		stateStr := "DOWN"
+		if eoe.Open {
+			stateStr = "UP"
+		}
+		fmt.Printf("%-12s %5d  %-8s %10d %10d %10d %10d %7d\n",
+			eoe.Name, eoe.SlavePosition, stateStr,
+			eoe.RxBytes, eoe.RxRate, eoe.TxBytes, eoe.TxRate, eoe.TxQueueSize)
+	}
+	return nil
+}
+
+func cmdGraph(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	masterIndex := parseMasterIndex(opts.Masters)
+	master, err := client.GetMaster(masterIndex)
+	if err != nil {
+		return err
+	}
+
+	mi := masterIdx(masterIndex)
+	fmt.Println("digraph EtherCAT {")
+	fmt.Printf("  rankdir=LR;\n")
+	fmt.Printf("  Master%d [shape=record,label=\"Master %d\"];\n", mi, mi)
+
+	for pos := uint16(0); pos < uint16(master.SlaveCount); pos++ {
+		slave, err := client.GetSlave(masterIndex, pos)
+		if err != nil {
+			continue
+		}
+		label := fmt.Sprintf("Slave %d\\n%s\\n0x%08x/0x%08x",
+			pos, slave.Name, slave.VendorId, slave.ProductCode)
+		fmt.Printf("  Slave%d_%d [shape=record,label=\"%s\"];\n", mi, pos, label)
+
+		if pos == 0 {
+			fmt.Printf("  Master%d -> Slave%d_%d;\n", mi, mi, pos)
+		} else {
+			fmt.Printf("  Slave%d_%d -> Slave%d_%d;\n", mi, pos-1, mi, pos)
+		}
+	}
+	fmt.Println("}")
+	return nil
+}
+
+func cmdIp(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	if len(args) == 0 {
+		return nil
+	}
+	if len(args)%2 != 0 {
+		return fmt.Errorf("'ip' needs an even number of arguments (key value pairs)")
+	}
+
+	masterIndex := parseMasterIndex(opts.Masters)
+	positions := parsePositionList(opts.Positions)
+	if positions == nil {
+		return fmt.Errorf("'ip' requires a single slave (use -p)")
+	}
+	if len(positions) != 1 {
+		return fmt.Errorf("'ip' requires exactly one slave")
+	}
+
+	var req EoeIpRequest
+
+	for i := 0; i < len(args); i += 2 {
+		key := args[i]
+		val := args[i+1]
+		switch key {
+		case "link", "mac_address":
+			req.MacAddress = &val
+		case "addr", "ip_address":
+			// May contain /prefix — split and handle subnet
+			if idx := indexOf(val, '/'); idx >= 0 {
+				ipPart := val[:idx]
+				prefix := val[idx+1:]
+				req.IpAddress = &ipPart
+				mask := prefixToMask(prefix)
+				if mask != "" {
+					req.SubnetMask = &mask
+				}
+			} else {
+				req.IpAddress = &val
+			}
+		case "default", "default_gateway":
+			req.Gateway = &val
+		case "dns", "dns_address":
+			req.Dns = &val
+		case "name", "hostname":
+			req.Hostname = &val
+		default:
+			return fmt.Errorf("unknown argument '%s'", key)
+		}
+	}
+
+	_, err := client.SetEoeIp(masterIndex, positions[0], req)
+	return err
+}
+
+func indexOf(s string, c byte) int {
+	for i := 0; i < len(s); i++ {
+		if s[i] == c {
+			return i
+		}
+	}
+	return -1
+}
+
+func prefixToMask(prefix string) string {
+	bits, err := strconv.ParseUint(prefix, 10, 8)
+	if err != nil || bits > 32 {
+		return ""
+	}
+	mask := uint32(0xFFFFFFFF) << (32 - bits)
+	return fmt.Sprintf("%d.%d.%d.%d",
+		(mask>>24)&0xFF, (mask>>16)&0xFF, (mask>>8)&0xFF, mask&0xFF)
+}
+
+func cmdXml(client *EthercatClient, opts *GlobalOpts, args []string) error {
+	masterIndex := parseMasterIndex(opts.Masters)
+	master, err := client.GetMaster(masterIndex)
+	if err != nil {
+		return err
+	}
+
+	positions := parsePositionList(opts.Positions)
+	if positions == nil {
+		positions = make([]uint16, master.SlaveCount)
+		for i := range positions {
+			positions[i] = uint16(i)
+		}
+	}
+
+	fmt.Println("<?xml version=\"1.0\" ?>")
+	fmt.Println("<EtherCATInfoList>")
+	for _, pos := range positions {
+		slave, err := client.GetSlave(masterIndex, pos)
+		if err != nil {
+			continue
+		}
+		fmt.Println("  <EtherCATInfo>")
+		fmt.Println("    <Vendor>")
+		fmt.Printf("      <Id>0x%08x</Id>\n", slave.VendorId)
+		fmt.Println("    </Vendor>")
+		fmt.Println("    <Descriptions>")
+		fmt.Println("      <Devices>")
+		fmt.Println("        <Device>")
+		fmt.Printf("          <Type ProductCode=\"#x%08x\" RevisionNo=\"#x%08x\">%s</Type>\n",
+			slave.ProductCode, slave.RevisionNumber, slave.Name)
+		fmt.Printf("          <Name>%s</Name>\n", slave.Name)
+
+		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
+			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
+			if err != nil {
+				continue
+			}
+			enableStr := "0"
+			if sm.Enable {
+				enableStr = "1"
+			}
+			fmt.Printf("          <Sm MinSize=\"%d\" DefaultSize=\"%d\" ",
+				sm.DefaultSize, sm.DefaultSize)
+			fmt.Printf("ControlByte=\"0x%02x\" Enable=\"%s\">SM%d</Sm>\n",
+				sm.ControlRegister, enableStr, smIdx)
+		}
+
+		for smIdx := uint32(0); smIdx < uint32(slave.SyncCount); smIdx++ {
+			sm, err := client.GetSlaveSync(masterIndex, pos, smIdx)
+			if err != nil || sm.PdoCount == 0 {
+				continue
+			}
+			pdoTag := "TxPdo"
+			if sm.ControlRegister&0x0C == 0x08 {
+				pdoTag = "RxPdo"
+			}
+			for pdoIdx := uint32(0); pdoIdx < uint32(sm.PdoCount); pdoIdx++ {
+				pdo, err := client.GetSlaveSyncPdo(masterIndex, pos, smIdx, pdoIdx)
+				if err != nil {
+					continue
+				}
+				fmt.Printf("          <%s Sm=\"%d\">\n", pdoTag, smIdx)
+				fmt.Printf("            <Index>#x%04x</Index>\n", pdo.Index)
+				fmt.Printf("            <Name>%s</Name>\n", pdo.Name)
+				for entryIdx := uint32(0); entryIdx < uint32(pdo.EntryCount); entryIdx++ {
+					entry, err := client.GetSlaveSyncPdoEntry(masterIndex, pos, smIdx, pdoIdx, entryIdx)
+					if err != nil {
+						continue
+					}
+					fmt.Printf("            <Entry>\n")
+					fmt.Printf("              <Index>#x%04x</Index>\n", entry.Index)
+					fmt.Printf("              <SubIndex>%d</SubIndex>\n", entry.Subindex)
+					fmt.Printf("              <BitLen>%d</BitLen>\n", entry.BitLength)
+					fmt.Printf("              <Name>%s</Name>\n", entry.Name)
+					fmt.Printf("            </Entry>\n")
+				}
+				fmt.Printf("          </%s>\n", pdoTag)
+			}
+		}
+
+		fmt.Println("        </Device>")
+		fmt.Println("      </Devices>")
+		fmt.Println("    </Descriptions>")
+		fmt.Println("  </EtherCATInfo>")
+	}
+	fmt.Println("</EtherCATInfoList>")
+	return nil
+}
