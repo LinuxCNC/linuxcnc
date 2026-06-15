@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"strconv"
@@ -73,7 +74,26 @@ func cmdRegRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s\n", result.Data)
+		data, err := base64.StdEncoding.DecodeString(result.Data)
+		if err != nil {
+			data = []byte(result.Data)
+		}
+		if opts.DataType != "" {
+			fmt.Println(formatSdoData(data, opts.DataType))
+		} else {
+			// Default: hex dump like IgH tool
+			for i := 0; i < len(data); i += 16 {
+				fmt.Printf("%04x  ", uint16(addr)+uint16(i))
+				end := i + 16
+				if end > len(data) {
+					end = len(data)
+				}
+				for j := i; j < end; j++ {
+					fmt.Printf("%02x ", data[j])
+				}
+				fmt.Println()
+			}
+		}
 	}
 	return nil
 }
@@ -94,17 +114,75 @@ func cmdRegWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 	}
 
 	for _, pos := range positions {
+		data, err := parseHexBytes(args[1])
+		if err != nil {
+			return fmt.Errorf("invalid data '%s': %v", args[1], err)
+		}
 		req := RegWriteRequest{
 			Address:   uint16(addr),
 			Emergency: opts.Emergency,
-			Data:      args[1],
+			Data:      base64.StdEncoding.EncodeToString(data),
 		}
-		_, err := client.RegWrite(masterIndex, pos, uint16(addr), req)
+		_, err = client.RegWrite(masterIndex, pos, uint16(addr), req)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// parseHexBytes parses a hex string like "0x1234" or "ab cd ef" into bytes.
+func parseHexBytes(s string) ([]byte, error) {
+	// Try as a single integer value first
+	if v, err := strconv.ParseUint(s, 0, 64); err == nil {
+		// Auto-size
+		switch {
+		case v <= 0xFF:
+			return []byte{byte(v)}, nil
+		case v <= 0xFFFF:
+			return []byte{byte(v), byte(v >> 8)}, nil
+		case v <= 0xFFFFFFFF:
+			return []byte{byte(v), byte(v >> 8), byte(v >> 16), byte(v >> 24)}, nil
+		default:
+			b := make([]byte, 8)
+			for i := range b {
+				b[i] = byte(v >> (i * 8))
+			}
+			return b, nil
+		}
+	}
+	// Try as space-separated hex bytes
+	var result []byte
+	for _, part := range splitFields(s) {
+		v, err := strconv.ParseUint(part, 16, 8)
+		if err != nil {
+			return nil, fmt.Errorf("invalid hex byte '%s'", part)
+		}
+		result = append(result, byte(v))
+	}
+	if len(result) == 0 {
+		return nil, fmt.Errorf("empty data")
+	}
+	return result, nil
+}
+
+func splitFields(s string) []string {
+	var fields []string
+	field := ""
+	for _, c := range s {
+		if c == ' ' || c == '\t' || c == ',' {
+			if field != "" {
+				fields = append(fields, field)
+				field = ""
+			}
+		} else {
+			field += string(c)
+		}
+	}
+	if field != "" {
+		fields = append(fields, field)
+	}
+	return fields
 }
 
 func cmdSiiRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
@@ -119,10 +197,14 @@ func cmdSiiRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		if opts.OutputFile != "" {
-			return os.WriteFile(opts.OutputFile, []byte(result.Words), 0644)
+		data, err := base64.StdEncoding.DecodeString(result.Words)
+		if err != nil {
+			data = []byte(result.Words)
 		}
-		fmt.Print(result.Words)
+		if opts.OutputFile != "" {
+			return os.WriteFile(opts.OutputFile, data, 0644)
+		}
+		os.Stdout.Write(data)
 	}
 	return nil
 }
@@ -146,7 +228,7 @@ func cmdSiiWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 	}
 
 	for _, pos := range positions {
-		_, err := client.SiiWrite(masterIndex, pos, SiiData{Words: string(inputData)})
+		_, err := client.SiiWrite(masterIndex, pos, SiiData{Words: base64.StdEncoding.EncodeToString(inputData)})
 		if err != nil {
 			return err
 		}
@@ -170,10 +252,17 @@ func cmdFoeRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		if opts.OutputFile != "" {
-			return os.WriteFile(opts.OutputFile, []byte(result.Data), 0644)
+		if result.Result != 0 {
+			return fmt.Errorf("FoE read failed: result=%d error_code=%d", result.Result, result.ErrorCode)
 		}
-		fmt.Print(result.Data)
+		data, err := base64.StdEncoding.DecodeString(result.Data)
+		if err != nil {
+			data = []byte(result.Data)
+		}
+		if opts.OutputFile != "" {
+			return os.WriteFile(opts.OutputFile, data, 0644)
+		}
+		os.Stdout.Write(data)
 	}
 	return nil
 }
@@ -203,11 +292,14 @@ func cmdFoeWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 	for _, pos := range positions {
 		req := FoeWriteRequest{
 			FileName: args[0],
-			Data:     string(inputData),
+			Data:     base64.StdEncoding.EncodeToString(inputData),
 		}
-		_, err := client.FoeWrite(masterIndex, pos, args[0], req)
+		result, err := client.FoeWrite(masterIndex, pos, args[0], req)
 		if err != nil {
 			return err
+		}
+		if result.Result != 0 {
+			return fmt.Errorf("FoE write failed: result=%d error_code=%d", result.Result, result.ErrorCode)
 		}
 	}
 	return nil
@@ -237,7 +329,18 @@ func cmdSoeRead(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf("%s\n", result.Data)
+		if result.ErrorCode != 0 {
+			return fmt.Errorf("SoE read error: 0x%04x", result.ErrorCode)
+		}
+		data, err := base64.StdEncoding.DecodeString(result.Data)
+		if err != nil {
+			data = []byte(result.Data)
+		}
+		if opts.DataType != "" {
+			fmt.Println(formatSdoData(data, opts.DataType))
+		} else {
+			fmt.Println(formatSdoData(data, ""))
+		}
 	}
 	return nil
 }
@@ -262,14 +365,21 @@ func cmdSoeWrite(client *EthercatClient, opts *GlobalOpts, args []string) error 
 	}
 
 	for _, pos := range positions {
+		data, err := encodeSdoValue(args[2], opts.DataType)
+		if err != nil {
+			return err
+		}
 		req := SoeWriteRequest{
 			DriveNo: uint8(driveNo),
 			Idn:     uint16(idn),
-			Data:    args[2],
+			Data:    base64.StdEncoding.EncodeToString(data),
 		}
-		_, err := client.SoeWrite(masterIndex, pos, uint8(driveNo), uint16(idn), req)
+		result, err := client.SoeWrite(masterIndex, pos, uint8(driveNo), uint16(idn), req)
 		if err != nil {
 			return err
+		}
+		if result.ErrorCode != 0 {
+			return fmt.Errorf("SoE write error: 0x%04x", result.ErrorCode)
 		}
 	}
 	return nil

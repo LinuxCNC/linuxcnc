@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/binary"
 	"fmt"
 	"strconv"
 )
@@ -74,15 +76,17 @@ func writeAlias(client *EthercatClient, masterIndex *uint32, pos uint16, alias u
 		return fmt.Errorf("failed to read SII: %v", err)
 	}
 
-	// SII words are returned as raw data. Parse 8 words (16 bytes).
-	data := []byte(result.Words)
+	// SII words are returned as base64-encoded binary.
+	data, err := base64.StdEncoding.DecodeString(result.Words)
+	if err != nil {
+		data = []byte(result.Words)
+	}
 	if len(data) < 16 {
 		return fmt.Errorf("SII data too short (%d bytes)", len(data))
 	}
 
 	// Word 4 = alias (little-endian).
-	data[8] = byte(alias & 0xFF)
-	data[9] = byte((alias >> 8) & 0xFF)
+	binary.LittleEndian.PutUint16(data[8:10], alias)
 
 	// Recalculate CRC over words 0-6 (bytes 0-13) and store in word 7 (bytes 14-15).
 	crc := siiCrc(data[:14])
@@ -93,7 +97,7 @@ func writeAlias(client *EthercatClient, masterIndex *uint32, pos uint16, alias u
 	sii := SiiData{
 		Offset: 0,
 		Nwords: 8,
-		Words:  string(data[:16]),
+		Words:  base64.StdEncoding.EncodeToString(data[:16]),
 	}
 	_, err = client.SiiWrite(masterIndex, pos, sii)
 	if err != nil {
@@ -147,7 +151,19 @@ func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
 			fmt.Printf("%5d  (read failed)\n", pos)
 			continue
 		}
-		fmt.Printf("%5d  %s\n", pos, result.Data)
+		data, err := base64.StdEncoding.DecodeString(result.Data)
+		if err != nil {
+			data = []byte(result.Data)
+		}
+		fmt.Printf("%5d  ", pos)
+		// 4 ports, 4 bytes each (CRC invalid, PHY error, forwarded, next rx)
+		for port := 0; port < 4; port++ {
+			offset := port * 4
+			if offset+3 < len(data) {
+				fmt.Printf(" %4d %4d %4d %4d", data[offset], data[offset+1], data[offset+2], data[offset+3])
+			}
+		}
+		fmt.Println()
 	}
 	return nil
 }

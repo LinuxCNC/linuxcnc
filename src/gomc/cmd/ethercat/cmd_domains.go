@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
+	"os"
 )
 
 func init() {
@@ -24,7 +26,12 @@ func cmdDomains(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		return err
 	}
 
+	domains := parseDomainList(opts.Domains)
+
 	for i := uint32(0); i < master.DomainCount; i++ {
+		if domains != nil && !containsU32(domains, i) {
+			continue
+		}
 		dom, err := client.GetDomain(masterIndex, i)
 		if err != nil {
 			return err
@@ -59,12 +66,54 @@ func cmdData(client *EthercatClient, opts *GlobalOpts, args []string) error {
 		return err
 	}
 
+	domains := parseDomainList(opts.Domains)
+
 	for i := uint32(0); i < master.DomainCount; i++ {
-		data, err := client.GetDomainData(masterIndex, i)
+		if domains != nil && !containsU32(domains, i) {
+			continue
+		}
+		dataStr, err := client.GetDomainData(masterIndex, i)
 		if err != nil {
 			return err
 		}
-		fmt.Print(data)
+		data, err := base64.StdEncoding.DecodeString(dataStr)
+		if err != nil {
+			data = []byte(dataStr)
+		}
+		os.Stdout.Write(data)
 	}
 	return nil
+}
+
+func parseDomainList(s string) []uint32 {
+	if s == "" {
+		return nil
+	}
+	var result []uint32
+	for _, part := range splitFields(s) {
+		v, err := parseUint32(part)
+		if err == nil {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
+func containsU32(list []uint32, v uint32) bool {
+	for _, x := range list {
+		if x == v {
+			return true
+		}
+	}
+	return false
+}
+
+func parseUint32(s string) (uint32, error) {
+	v, err := fmt.Sscanf(s, "%d", new(uint32))
+	if err != nil || v == 0 {
+		return 0, fmt.Errorf("invalid")
+	}
+	var val uint32
+	fmt.Sscanf(s, "%d", &val)
+	return val, nil
 }
