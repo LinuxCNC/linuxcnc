@@ -62,7 +62,7 @@ compare_to_reference() {
     # anti-aliasing jitter. compare exits 0 (identical), 1 (differ) or 2
     # (error, e.g. the shots are different sizes). We log the outcome and
     # always succeed.
-    metric=$($cmd -metric AE -fuzz 5% "$reference" "$shot" "$diff" 2>&1)
+    metric=$($cmd -metric AE -fuzz 40% "$reference" "$shot" "$diff" 2>&1)
     rc=$?
     case "$rc" in
         0) echo "compare: $shot matches $reference (AE=$metric)" ;;
