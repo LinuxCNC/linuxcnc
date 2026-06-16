@@ -1676,7 +1676,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_JOINT_HOME_TYPE:
 	home_msg = reinterpret_cast<EMC_JOINT_HOME *>(cmd);
-	retval = emcJointHome(home_msg->joint);
+	if (home_msg->joint == EMC_HOME_ALL_IF_UNHOMED) {
+	    // GCODE_HOMING plain G28: reference the machine only if it is not
+	    // already fully homed; otherwise drop the home so the queued G28
+	    // return alone runs (pure legacy G28).
+	    retval = all_homed() ? 0 : emcJointHome(-1);
+	} else {
+	    retval = emcJointHome(home_msg->joint);
+	}
 	break;
 
     case EMC_JOINT_UNHOME_TYPE:
