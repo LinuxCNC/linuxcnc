@@ -394,7 +394,7 @@ class _Lcnc_Action(object):
                 outfile.close()
             except:
                 pass
-            return npath
+        return npath
 
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
