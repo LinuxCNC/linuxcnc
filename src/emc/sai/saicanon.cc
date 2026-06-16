@@ -115,6 +115,7 @@ void SET_XY_ROTATION(double t) {
 
 void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
 void UNHOME_AXES(void) { ECHO_WITH_ARGS(""); }
+void HOME_CYCLE_IF_UNHOMED(void) { ECHO_WITH_ARGS(""); }
 
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,

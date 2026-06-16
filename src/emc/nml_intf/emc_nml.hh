@@ -327,6 +327,13 @@ class EMC_JOINT_HALT:public EMC_JOINT_CMD_MSG {
     void update(CMS * cms);
 };
 
+// GCODE_HOMING ([RS274NGC]GCODE_HOMING=1): a plain G28 emits EMC_JOINT_HOME
+// carrying this sentinel in 'joint' to mean "home all joints, but only if the
+// machine is not already fully homed". Task resolves it via all_homed(): a
+// fully-homed machine sees a pure legacy G28 return (no homing). Distinct from
+// joint = -1 (unconditional home-all) and joint = -2 (UNHOME volatile).
+#define EMC_HOME_ALL_IF_UNHOMED (-3)
+
 class EMC_JOINT_HOME:public EMC_JOINT_CMD_MSG {
   public:
     EMC_JOINT_HOME()
