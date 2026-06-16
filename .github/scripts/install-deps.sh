@@ -4,6 +4,6 @@ set -eu #Needed so CI fails when anything is wrong
 set -x
 
 sudo apt-get --quiet update
-sudo apt-get install --yes --no-install-recommends devscripts equivs build-essential lintian clang
+sudo apt-get install --yes --no-install-recommends devscripts equivs build-essential lintian clang gdb
 debian/configure
 sudo apt-get --yes build-dep .
