@@ -851,10 +851,13 @@ class touchy:
                 # Open at the content size, capped to the screen; this avoids an
                 # off-screen window without forcing a screen-sized minimum. A
                 # user-saved geometry (window_geometry pref) takes precedence.
+                # Floor the height at 500 px: the Startup tab is the smallest
+                # and would otherwise size the window to ~270 px tall and clip
+                # all the other tabs.
                 if self.window_geometry == "default":
                     nat = child.get_preferred_size()[1]
-                    win.resize(min(nat.width, area.width),
-                               min(nat.height, area.height))
+                    target_h = min(max(nat.height, 500), area.height)
+                    win.resize(min(nat.width, area.width), target_h)
                 GLib.idle_add(self._offer_fit, child, area)
             except Exception:
                 pass
