@@ -357,6 +357,7 @@ INFILES = \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
 	../lib/python/nf.py \
+	../lib/python/lcnc_realtime.py \
 	../share/desktop-directories/linuxcnc-doc.directory \
 	../share/desktop-directories/linuxcnc-ref.directory \
 	../share/desktop-directories/linuxcnc-cnc.directory \

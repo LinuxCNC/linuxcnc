@@ -66,8 +66,8 @@ System information:
 * `hal.is_userspace` - Inverted `hal.is_kernelspace`
 * `hal.kernel_version` - A string specifying the real-time kernel version if `hal.is_kernelspace` is one.
   Otherwise it specifies `"Not Available"`.
-* `hal.is_rt` - One (1) if the system runs in real-time, otherwise zero (0)
-* `hal.is_sim` - Inverted `hal.is_rt`
+* `hal.is_rt` - One (1) if the system runs in real-time, otherwise zero (0) *DEPRECATED*: Use `lcnc_realtime.verify()`
+* `hal.is_sim` - Inverted `hal.is_rt` *DEPRECATED*: Use `lcnc_realtime.verify()`
 
 === hal methods
 

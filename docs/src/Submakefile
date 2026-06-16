@@ -141,6 +141,7 @@ DOC_SRCS_EN := \
 	config/moveoff.adoc \
 	config/pncconf.adoc \
 	config/python-hal-interface.adoc \
+	config/python-lcnc_realtime.adoc \
 	config/python-interface.adoc \
 	config/stepconf.adoc \
 	config/stepper-diagnostics.adoc \

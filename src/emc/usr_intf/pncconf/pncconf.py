@@ -59,6 +59,7 @@ from pncconf import data
 from pncconf import private_data
 import cairo
 import hal
+import lcnc_realtime
 #import mesatest
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
@@ -652,7 +653,7 @@ class App:
     # check for realtime kernel
     def check_for_rt(self):
         actual_kernel = os.uname()[2]
-        if hal.is_sim :
+        if not lcnc_realtime.verify():
             self.warning_dialog(self._p.MESS_NO_REALTIME,True)
             if self.debugstate:
                 return True

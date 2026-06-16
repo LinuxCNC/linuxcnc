@@ -1,0 +1,29 @@
+:lang: en
+:toc:
+
+[[cha:python-lcnc_realtime]]
+= Python module for managing the realtime backend
+
+This documentation describes the `lcnc_realtime` Python module, which provides
+a Python API for managing the realtime backend.
+
+This is a Python wrapper of the realtime script.
+
+== Basic usage
+
+.Verify realtime capability and check if the realtime backend is running
+[source,python]
+----
+import lcnc_realtime
+
+print("lcnc_realtime.verify " + str(lcnc_realtime.verify()))
+print("lcnc_realtime.status " + str(lcnc_realtime.status()))
+----
+
+== methods
+
+hal.verify()::
+Returns a boolean to indicate whether the system is realtime capable.
+
+hal.status()::
+Returns a boolean to indicate whether the realtime backend is running.

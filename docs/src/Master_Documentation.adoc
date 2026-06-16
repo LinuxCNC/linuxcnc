@@ -300,6 +300,8 @@ include::config/python-interface.adoc[]
 
 include::config/python-hal-interface.adoc[]
 
+include::config/python-lcnc_realtime.adoc[]
+
 include::gui/gstat.adoc[]
 
 include::gui/vismach.adoc[]
