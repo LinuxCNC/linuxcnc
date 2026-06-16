@@ -369,7 +369,7 @@ while getopts cnuvsph opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
-    u) NOSUDO=true ;;
+    u) NOSUDO=true; export RUNTESTS_NOSUDO=1 ;;
     v) VERBOSE=1 ;;
     s) STOP=1 ;;
     p) PRINT=1 ;;
