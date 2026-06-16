@@ -690,6 +690,15 @@ AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml 
 # we decide based on RIP or install where stuff goes                         #
 ##############################################################################
 
+AC_ARG_WITH([tcl-dir],
+    [AS_HELP_STRING([--with-tcl-dir=DIR],
+        [directory for LinuxCNC Tcl scripts (default: auto-detected from tcl_pkgPath)])],
+    [EMC2_TCL_DIR="$withval"],
+    [TCL_GET_DIR=$(echo [['set d [lindex [lsearch -all -inline -glob $tcl_pkgPath /usr/share/*] 0]; if {$d eq ""} {set d [lindex [lsearch -all -inline -glob $tcl_pkgPath /usr/lib*] 0]}; puts $d']] | tclsh 2>/dev/null)
+     AS_IF([test -z "$TCL_GET_DIR"],
+           [AC_MSG_ERROR([could not determine Tcl package dir from tcl_pkgPath])])
+     EMC2_TCL_DIR="$TCL_GET_DIR/linuxcnc"])
+
 fe () {
     # Fully expand argument.  Example:
     # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
@@ -726,9 +735,8 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/linuxcnc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
-    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_LANG_DIR=${prefix}/lib/tcltk/linuxcnc/msgs
+    EMC2_TCL_LIB_DIR="${EMC2_TCL_DIR}"
+    EMC2_LANG_DIR="${EMC2_TCL_DIR}/msgs"
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     case $MODULE_DIR in
