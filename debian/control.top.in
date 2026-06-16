@@ -49,6 +49,7 @@ Build-Depends:
     xvfb <!nocheck>,
     x11-xserver-utils <!nocheck>,
     x11-utils <!nocheck>,
+    gdb <!nocheck>,
     imagemagick <!nocheck>,
     python3-opengl <!nocheck>,
     python3-pyqt5 <!nocheck>,
