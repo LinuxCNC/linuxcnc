@@ -165,11 +165,16 @@ jobs:
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
         .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
-    - name: Upload build artifacts
+    - name: Tar linuxcnc-doc
+      run: |
+        set -x
+        tar -czf linuxcnc-doc.tar.gz -C docs/build html
+    - name: Upload linuxcnc-doc artifact
       uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-doc
-        path: docs/build/html*/ #Preserve the path for html
+        archive: false
+        path: linuxcnc-doc.tar.gz
         if-no-files-found: error
 
   package-arch:
