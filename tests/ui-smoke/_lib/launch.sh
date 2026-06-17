@@ -101,9 +101,9 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
                     sleep 0.5
                     screenshot_grab confirm.png
                     # Compare the confirm shot to the committed known-good
-                    # reference and write a visual diff. Never fails the test.
+                    # reference and write the diffs. Never fails the test.
                     . "$LIB_DIR/compare.sh"
-                    compare_to_reference confirm.png reference.png diff.png
+                    compare_to_reference confirm.png reference.png diff.png diff-abs.png
                     ;;
             esac
         fi
@@ -152,5 +152,6 @@ crashdump_report
 [ -f screenshot.png ] && echo "=== screenshot: $TEST_DIR/screenshot.png ==="
 [ -f confirm.png ] && echo "=== confirm: $TEST_DIR/confirm.png ==="
 [ -f diff.png ] && echo "=== diff: $TEST_DIR/diff.png ==="
+[ -f diff-abs.png ] && echo "=== diff-abs: $TEST_DIR/diff-abs.png ==="
 
 exit "$RC"
