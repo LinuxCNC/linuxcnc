@@ -81,22 +81,49 @@ sys.meta_path.insert(0, _BlockFinder())
 import os
 import signal
 
+def _ui_smoke_find_main(app):
+    target, best = None, -1
+    for w in app.topLevelWidgets():
+        if not w.isVisible():
+            continue
+        area = w.width() * w.height()
+        if area > best:
+            target, best = w, area
+    return target
+
+def _ui_smoke_normalize(target):
+    # Pin qtdragon's startup nondeterminism before the grab: re-fit the
+    # preview zoom at the now-final widget size and scroll the gcode view
+    # to the top.
+    from qtpy.QtWidgets import QWidget
+    for w in target.findChildren(QWidget):
+        try:
+            if hasattr(w, 'set_current_view') and hasattr(w, 'current_view'):
+                w.set_current_view()
+            elif hasattr(w, 'ensureLineVisible') and hasattr(w, 'verticalScrollBar'):
+                w.verticalScrollBar().setValue(0)
+        except Exception:
+            pass
+
 def _ui_smoke_grab():
     try:
         from qtpy.QtWidgets import QApplication
+        from qtpy.QtCore import QTimer
         app = QApplication.instance()
         if app is None:
             return
-        target, best = None, -1
-        for w in app.topLevelWidgets():
-            if not w.isVisible():
-                continue
-            area = w.width() * w.height()
-            if area > best:
-                target, best = w, area
-        if target is not None:
-            out = os.environ.get('UI_SMOKE_QT_SHOT', 'ui-smoke-qt.png')
-            target.grab().save(out)
+        target = _ui_smoke_find_main(app)
+        if target is None:
+            return
+        _ui_smoke_normalize(target)
+        def _save():
+            try:
+                out = os.environ.get('UI_SMOKE_QT_SHOT', 'ui-smoke-qt.png')
+                target.grab().save(out)
+            except Exception:
+                pass
+        # let the re-fit repaint before grabbing
+        QTimer.singleShot(250, _save)
     except Exception:
         pass
 
