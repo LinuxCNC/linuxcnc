@@ -105,6 +105,7 @@ def find_prefix(f):
     return find_prefix(os.path.dirname(f))
 
 PREFIX = "@prefix@"
+EMC2_TCL_DIR = "@EMC2_TCL_DIR@"
 SHARE = os.path.join(PREFIX, "share", "axis")
 tcl_libdir = os.path.join(SHARE, "tcl")
 
