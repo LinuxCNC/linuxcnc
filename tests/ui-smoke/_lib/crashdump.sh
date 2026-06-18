@@ -7,20 +7,22 @@
 # top: arm a core dump before launch, and after the run, if a readable
 # core from this run is present, gdb-print its backtrace. The core only
 # materialises when we can point kernel.core_pattern at a writable dir,
-# which needs root; non-root runs (CI, local -u) keep the Python traceback
-# and skip the native one. Source with LIB_DIR set; runs only on the
-# failure path, so green runs pay nothing.
+# which needs root, so we do it via sudo (CI has passwordless sudo; the
+# suite never runs as root since linuxcnc refuses to). runtests -u skips
+# the sudo and falls back to the Python traceback. Source with LIB_DIR
+# set; runs only on the failure path, so green runs pay nothing.
 
 crashdump_arm() {
     CORE_DIR="$(mktemp -d -t ui-smoke-cores.XXXXXX)"
     export CORE_DIR
     ulimit -c unlimited 2>/dev/null || true
-    # core_pattern is global; only set it if already root, never sudo
-    # (the suite must run unattended), and skip under runtests -u so a
-    # user opting out of root tweaks is respected even when invoking the
-    # suite from a root shell. Non-root falls back to a cwd "core".
-    if [ "$(id -u)" = 0 ] && [ "${RUNTESTS_NOSUDO:-0}" != "1" ]; then
-        sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
+    # core_pattern is global; point it at our writable dir via sudo so the
+    # kernel writes a core we can read. Skip under runtests -u to respect a
+    # user opting out of root tweaks; if sudo is unavailable the core lands
+    # wherever the system core_pattern says and we fall back to the Python
+    # traceback. The id -u check is dropped: tests never run as root.
+    if [ "${RUNTESTS_NOSUDO:-0}" != "1" ]; then
+        sudo sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
     fi
 }
 
