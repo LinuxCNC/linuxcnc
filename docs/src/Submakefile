@@ -1223,6 +1223,10 @@ endif
 # is one greater than the topic-relative slash count.
 $(DOC_SRCDIR)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$*'.count('/')))")
 $(DOC_OUT_ADOC)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count('/'))")
+# English renders under $(DOC_OUT_ADOC)/en with a stem that omits the en/
+# prefix (DOC_SRCS_EN paths carry no lang dir), so its slash count is one short
+# of the output depth.  Add the +1 here, matching the $(DOC_SRCDIR) rule above.
+$(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$*'.count('/')))")
 
 # asciidoctor HTML rule used for every language.
 #	$1 lang tag (en, de, ...)
