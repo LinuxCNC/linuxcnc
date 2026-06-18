@@ -1325,6 +1325,7 @@ docclean:
 	-rm -f $(DOC_DIR)/.translateddocs-stamp
 	-rm -f $(DOC_DIR)/.gen_complist-stamp
 	-rm -f $(DOC_DIR)/.checkref-*-stamp
+	-rm -f $(DOC_DIR)/.manso-canonical-stamp
 	-rm -f $(OTHER_DOTFILES:.dot=.svg)
 
 
@@ -1425,6 +1426,27 @@ TRANSLATED_MAN_HTML_TARGETS := $(foreach L,$(LANGUAGES),$(MAN_HTML_TARGETS_$(cal
 TRANSLATED_GENERATED_MANPAGES := $(foreach L,$(LANGUAGES), \
     $(patsubst $(DOC_OUT_ADOC)/$(L)/man/%.adoc, $(DOC_MAN)/$(L)/%, \
         $(wildcard $(DOC_OUT_ADOC)/$(L)/man/man?/*.adoc)))
+
+# A .so alias stub is a language-invariant redirect (just a path).  asciidoctor
+# derives it from the translated NAME line, so a stray space in a translation
+# can break the alias and abort the build.  Overwrite every translated stub
+# with the canonical English one, after the translated primaries that emit them
+# are built.  Stubs are found at recipe time: wildcard MAN_SRCS is empty on a
+# clean build.
+$(DOC_DIR)/.manso-canonical-stamp: $(GENERATED_MANPAGES) $(TRANSLATED_GENERATED_MANPAGES)
+	$(Q)set -e; \
+	for S in $$(cd $(DOC_MAN) && grep -rl '^\.so ' man1 man3 man9 2>/dev/null); do \
+		for L in $(LANGUAGES); do \
+			mkdir -p "$(DOC_MAN)/$$L/$$(dirname "$$S")"; \
+			cp -f "$(DOC_MAN)/$$S" "$(DOC_MAN)/$$L/$$S"; \
+		done; \
+	done
+	@touch $@
+
+# Translated manpage HTML must see the canonical stubs, so order it after the
+# fixup (order-only: the stub troff is already a normal prerequisite).
+$(TRANSLATED_MAN_HTML_TARGETS): | $(DOC_DIR)/.manso-canonical-stamp
+
 docs: $(TRANSLATED_MAN_HTML_TARGETS)
 .SECONDARY: $(TRANSLATED_MAN_HTML_TARGETS) $(TRANSLATED_GENERATED_MANPAGES)
 endif
