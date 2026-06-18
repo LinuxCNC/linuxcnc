@@ -90,16 +90,17 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
         # the cause (a hung GUI on a blocking modal leaves no core for
         # crashdump.sh and no Python traceback). On a clean Phase 2 run it
         # is a confirmation shot of the GUI in its post-movement idle state
-        # (final DRO / toolpath), so a reviewer can eyeball the result. The
-        # short settle lets the GUI repaint the final position first.
+        # (final DRO / toolpath), so a reviewer can eyeball the result; the
+        # confirm grab settles until the UI stops changing first.
         . "$LIB_DIR/screenshot.sh"
         if [ "$DRIVE_RC" -ne 0 ]; then
             screenshot_grab screenshot.png
         else
             case " $* " in
                 *" --run-program "*)
-                    sleep 0.5
-                    screenshot_grab confirm.png
+                    # Wait for the UI to stop changing before keeping the
+                    # shot, so a slow startup is not captured half-built.
+                    screenshot_grab_settled confirm.png
                     # Compare the confirm shot to the committed known-good
                     # reference and write the diffs. Never fails the test.
                     . "$LIB_DIR/compare.sh"

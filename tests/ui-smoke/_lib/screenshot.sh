@@ -82,3 +82,62 @@ screenshot_grab_qt() {
     fi
     return 0
 }
+
+# Differing-pixel count between two PNGs via ImageMagick; empty if neither
+# entry point is present (the settle loop then just keeps the last grab).
+_screenshot_ae() {
+    if command -v magick >/dev/null 2>&1; then
+        magick compare -metric AE "$1" "$2" null: 2>&1
+    elif command -v compare >/dev/null 2>&1; then
+        compare -metric AE "$1" "$2" null: 2>&1
+    fi
+}
+
+# Confirm-shot grab that waits for the UI to stop changing before keeping it.
+# A slow CI startup can leave a GUI half-built (missing widgets, program not
+# loaded, a slider still syncing to the trajectory limit); a single grab can
+# capture that. Re-grab until two frames in a row match within a threshold
+# (which absorbs preview anti-aliasing and a ticking clock) or a timeout
+# hits, then keep the last frame. Offscreen Qt normalizes itself in the
+# grab shim, so it just grabs once.
+screenshot_grab_settled() {
+    # Distinct from screenshot_grab's own "out": it is called in the loop
+    # below and would otherwise clobber our destination path.
+    settle_dest="$1"
+    if [ "${QT_QPA_PLATFORM:-}" = "offscreen" ]; then
+        screenshot_grab "$settle_dest"
+        return 0
+    fi
+    settle_dir="$(mktemp -d -t ui-smoke-settle.XXXXXX 2>/dev/null)" || {
+        screenshot_grab "$settle_dest"
+        return 0
+    }
+    settle_prev="$settle_dir/prev.png"
+    settle_cur="$settle_dir/cur.png"
+    settle_thresh="${UI_SMOKE_SETTLE_AE:-400}"
+    settle_tries="${UI_SMOKE_SETTLE_TRIES:-25}"
+    settle_stable=0
+    while [ "$settle_tries" -gt 0 ]; do
+        screenshot_grab "$settle_cur" >/dev/null 2>&1
+        if [ -s "$settle_cur" ] && [ -s "$settle_prev" ]; then
+            settle_ae="$(_screenshot_ae "$settle_prev" "$settle_cur")"
+            case "$settle_ae" in
+                ''|*[!0-9]*) settle_stable=0 ;;
+                *)
+                    if [ "$settle_ae" -le "$settle_thresh" ]; then
+                        settle_stable=$((settle_stable + 1))
+                        [ "$settle_stable" -ge 2 ] && { echo "screenshot: $settle_dest settled (AE=$settle_ae)"; break; }
+                    else
+                        settle_stable=0
+                    fi
+                    ;;
+            esac
+        fi
+        cp -f "$settle_cur" "$settle_prev" 2>/dev/null
+        settle_tries=$((settle_tries - 1))
+        sleep 0.4
+    done
+    [ -s "$settle_cur" ] && mv -f "$settle_cur" "$settle_dest"
+    rm -rf "$settle_dir"
+    return 0
+}
