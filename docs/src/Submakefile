@@ -805,6 +805,7 @@ $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)
 			-a compat-mode \
 			-a mansource=LinuxCNC \
 			-a manmanual='LinuxCNC Documentation' \
+			-a "lang=$(1)" \
 			-a "lcnc-cssrel=../../../" \
 			-a "lcnc-lang-label=$(LANG_LABEL_$(1))" \
 			-a "lcnc-subpath=$$(patsubst $(DOC_OUT_HTML)/$(1)/%,%,$$@)" \
