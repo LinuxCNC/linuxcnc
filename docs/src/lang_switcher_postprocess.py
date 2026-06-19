@@ -397,9 +397,11 @@ def _scaffold_sidebar(content, nav):
     """Section-less pages have no toc2 container; add the body classes and
     insert the sidebar div after the page <h1>."""
     def body_cls(m):
-        cls = m.group(1)
-        return m.group(0) if 'toc2' in cls else f'<body class="{cls} toc2 toc-left"'
-    content = re.sub(r'<body class="([^"]*)"', body_cls, content, count=1)
+        attrs, cls = m.group(1), m.group(2)
+        if 'toc2' in cls:
+            return m.group(0)
+        return f'<body{attrs} class="{cls} toc2 toc-left"'
+    content = re.sub(r'<body\b([^>]*?) class="([^"]*)"', body_cls, content, count=1)
     div = f'<div id="toc" class="toc2">{nav}</div>\n'
     return re.sub(r'(<div id="header">.*?</h1>\s*)',
                   lambda m: m.group(1) + div, content, count=1, flags=re.DOTALL)
