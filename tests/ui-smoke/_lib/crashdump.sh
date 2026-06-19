@@ -4,15 +4,21 @@
 # Python traceback to linuxcnc.err naming the frame that called in, which
 # is the reliable, environment-independent crash signal and is surfaced in
 # every failure log. This helper adds a best-effort native backtrace on
-# top: arm a core dump before launch, and after the run, if a readable
-# core from this run is present, gdb-print its backtrace. The core only
-# materialises when we can point kernel.core_pattern at a writable dir,
-# which needs root, so we do it via sudo (CI has passwordless sudo; the
-# suite never runs as root since linuxcnc refuses to). runtests -u skips
-# the sudo and falls back to the Python traceback. Source with LIB_DIR
-# set; runs only on the failure path, so green runs pay nothing.
+# top, but only when runtests is given -d (ENABLE_CRASHDUMPS=1): arm a core
+# dump before launch, and after the run, if a readable core from this run is
+# present, gdb-print its backtrace. The core only materialises when we can
+# point kernel.core_pattern at a writable dir, which needs root, so we do it
+# via sudo (CI has passwordless sudo; the suite never runs as root since
+# linuxcnc refuses to). It is opt-in because that sudo changes a global
+# system setting; runtests -u further skips the sudo. Without -d the native
+# backtrace is off and only the Python traceback remains. Source with
+# LIB_DIR set; runs only on the failure path, so green runs pay nothing.
 
 crashdump_arm() {
+    # Off unless runtests was given -d: arming changes a global system
+    # setting (kernel.core_pattern) via sudo, so it is opt-in. The Python
+    # faulthandler traceback does not depend on this and is always present.
+    [ "${ENABLE_CRASHDUMPS:-0}" = "1" ] || return 0
     CORE_DIR="$(mktemp -d -t ui-smoke-cores.XXXXXX)"
     export CORE_DIR
     ulimit -c unlimited 2>/dev/null || true
@@ -27,6 +33,7 @@ crashdump_arm() {
 }
 
 crashdump_report() {
+    [ "${ENABLE_CRASHDUMPS:-0}" = "1" ] || return 0
     [ -n "${CORE_DIR:-}" ] || return 0
     local c core=""
     # Only trust a core we know is from this run and can actually read:
