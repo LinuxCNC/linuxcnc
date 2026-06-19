@@ -50,7 +50,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p
+        scripts/rip-environment runtests -p -d
     - name: Upload UI smoke screenshots
       if: always()
       uses: actions/upload-artifact@v7
@@ -123,7 +123,7 @@ jobs:
     - name: Test
       run: |
         set -x
-        scripts/rip-environment runtests -p
+        scripts/rip-environment runtests -p -d
     - name: Upload UI smoke screenshots
       if: always()
       uses: actions/upload-artifact@v7
@@ -261,7 +261,7 @@ jobs:
         passwd -d testrunner
         adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "./scripts/runtests -p ./tests" testrunner
+        su -c "./scripts/runtests -p -d ./tests" testrunner
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog'
