@@ -523,7 +523,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
     char temp_buffer[0x2000];
     if (_req == NULL) {
 	tcpsvr_threads_returned_early++;
-	return 0;
+	return NULL;
     }
     double dtimeout =
 	((double) (blocking_read_req->timeout_millis + 10)) / 1000.0;
@@ -541,7 +541,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 
     if (NULL == server || NULL == _client_tcp_port) {
 	tcpsvr_threads_returned_early++;
-	return 0;
+	return NULL;
     }
     memset(temp_buffer, 0, 0x2000);
     REMOTE_BLOCKING_READ_REPLY *read_reply;
@@ -571,7 +571,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	delete blocking_read_req;
 	_client_tcp_port->threadId = 0;
 	tcpsvr_threads_returned_early++;
-	return 0;
+	return NULL;
     }
     putbe32(temp_buffer, _client_tcp_port->serial_number);
     putbe32(temp_buffer + 4, read_reply->status);
@@ -590,7 +590,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	    delete blocking_read_req;
 	    _client_tcp_port->threadId = 0;
 	    tcpsvr_threads_returned_early++;
-	    return 0;
+	    return NULL;
 	}
     } else {
 	_client_tcp_port->blocking = 0;
@@ -602,7 +602,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	    delete blocking_read_req;
 	    _client_tcp_port->threadId = 0;
 	    tcpsvr_threads_returned_early++;
-	    return 0;
+	    return NULL;
 	}
 	if (read_reply->size > 0) {
 	    if (sendn
@@ -614,7 +614,7 @@ void *tcpsvr_handle_blocking_request(void *_req)
 		delete blocking_read_req;
 		_client_tcp_port->threadId = 0;
 		tcpsvr_threads_returned_early++;
-		return 0;
+		return NULL;
 	    }
 	}
     }

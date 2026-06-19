@@ -403,7 +403,7 @@ struct option longopts[] = {
   {"sessions", 1, NULL, 's'},
   {"connectpw", 1, NULL, 'w'},
   {"enablepw", 1, NULL, 'e'},
-  {0,0,0,0}
+  {NULL,0,NULL,0}
 };
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
@@ -671,7 +671,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
     /* check if the pins are there */
     first_pin = halpr_find_pin_by_name(first_pin_name);
     second_pin = halpr_find_pin_by_name(second_pin_name);
-    if (first_pin == 0) {
+    if (first_pin == NULL) {
 	/* first pin not found*/
       rtapi_mutex_give(&(hal_data->mutex));
       snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: pin '%s' not found\n", linenumber, first_pin_name);
@@ -679,7 +679,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
       return -EINVAL; 
       } 
     else 
-      if (second_pin == 0) {
+      if (second_pin == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
         snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: pin '%s' not found", linenumber, second_pin_name);
         sockWriteError(nakStr, context);
@@ -749,7 +749,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
     }
 
     for(i=0; pins[i] && *pins[i]; i++) {
-        hal_pin_t *pin = 0;
+        hal_pin_t *pin = NULL;
         pin = halpr_find_pin_by_name(pins[i]);
         if(!pin) {
 //            halcmd_error("pin '%s' does not exist\n", pins[i]);
@@ -970,9 +970,9 @@ static int doSetp(char *name, char *value, connectionRecType *context)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search param list for name */
     param = halpr_find_param_by_name(name);
-    if (param == 0) {
+    if (param == NULL) {
         pin = halpr_find_pin_by_name(name);
-        if(pin == 0) {
+        if(pin == NULL) {
             rtapi_mutex_give(&(hal_data->mutex));
             snprintf(errorStr, sizeof(errorStr),
                 "HAL:%d: ERROR: parameter or pin '%s' not found\n", linenumber, name);
@@ -1033,7 +1033,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
     sig = halpr_find_sig_by_name(name);
-    if (sig == 0) {
+    if (sig == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	snprintf(errorStr, sizeof(errorStr),
 	    "HAL:%d: ERROR: signal '%s' not found\n", linenumber, name);
@@ -1224,7 +1224,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search component list for the newly loaded component */
     comp = halpr_find_comp_by_name(mod_name);
-    if (comp == 0) {
+    if (comp == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
         snprintf(errorStr, sizeof(errorStr), "module '%s' not loaded", mod_name);
         sockWriteError(nakStr, context);
@@ -1722,7 +1722,7 @@ static void getPinInfo(char *pattern, int valuesOnly, connectionRecType *context
 	  dptr = SHMPTR(sig->data_ptr);
 	  } 
         else {
-	  sig = 0;
+	  sig = NULL;
 	  dptr = &(pin->dummysig);
 	  }
 	if (valuesOnly == 0)  
@@ -1861,7 +1861,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
                 sig = SHMPTR(pin->signal);
                 dptr = SHMPTR(sig->data_ptr);
             } else {
-                sig = 0;
+                sig = NULL;
                 dptr = &(pin->dummysig);
             }
             runtime_pin_value = (int)*(int*)dptr;
@@ -2219,8 +2219,8 @@ static void save_nets(FILE *dst, int arrow)
     while (next != 0) {
 	sig = SHMPTR(next);
 	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
-	pin = halpr_find_pin_by_sig(sig, 0);
-	while (pin != 0) {
+	pin = halpr_find_pin_by_sig(sig, NULL);
+	while (pin != NULL) {
 	    if (arrow != 0) {
 		arrow_str = data_arrow2((int) pin->dir);
 	    } else {
@@ -2887,7 +2887,7 @@ static cmdResponseType setUnload(char *s, connectionRecType *context)
 static cmdResponseType setLoadUsr(char *s, connectionRecType *context)
 {
   (void)context;
-  char *argv[MAX_TOK+1] = {0};
+  char *argv[MAX_TOK+1] = {NULL};
 
   argv[0] = s;
   argv[1] = "\0";

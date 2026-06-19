@@ -91,18 +91,18 @@ float min_freq = 0.0;
 int baud;
 
 static struct option long_options[] = {
-    {"device", 1, 0, 'd'},
-    {"rate", 1, 0, 'r'},
-    {"bits", 1, 0, 'b'},
-    {"parity", 1, 0, 'p'},
-    {"stopbits", 1, 0, 's'},
-    {"target", 1, 0, 't'},
-    {"verbose", 0, 0, 'v'},
-    {"help", 0, 0, 'h'},
-    {"motor-max-speed", 1, 0, 'S'},
-    {"max-frequency", 1, 0, 'F'},
-    {"min-frequency", 1, 0, 'f'},
-    {0,0,0,0}
+    {"device", 1, NULL, 'd'},
+    {"rate", 1, NULL, 'r'},
+    {"bits", 1, NULL, 'b'},
+    {"parity", 1, NULL, 'p'},
+    {"stopbits", 1, NULL, 's'},
+    {"target", 1, NULL, 't'},
+    {"verbose", 0, NULL, 'v'},
+    {"help", 0, NULL, 'h'},
+    {"motor-max-speed", 1, NULL, 'S'},
+    {"max-frequency", 1, NULL, 'F'},
+    {"min-frequency", 1, NULL, 'f'},
+    {NULL,0,NULL,0}
 };
 
 static char *option_string = "d:r:b:p:s:t:vhS:F:f:";

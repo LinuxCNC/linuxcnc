@@ -345,7 +345,7 @@ static void IncrementVScrollBar( int IncrementValue )
 	}
 	gtk_adjustment_changed( AdjustVScrollBar );
 	InfosGene->OffsetHiddenTopRungDisplayed	= gtk_adjustment_get_value(AdjustVScrollBar);
-	VScrollBar_value_changed_event( AdjustVScrollBar, 0 );
+	VScrollBar_value_changed_event( AdjustVScrollBar, NULL );
 }
 
 static gboolean mouse_scroll_event( GtkWidget *widget, GdkEventScroll *event )
@@ -1046,9 +1046,9 @@ void MainSectionWindowInitGtk()
 	UpdateVScrollBar();
 
 	gtk_signal_connect(GTK_OBJECT (AdjustVScrollBar), "value-changed",
-						GTK_SIGNAL_FUNC(VScrollBar_value_changed_event), 0);
+						GTK_SIGNAL_FUNC(VScrollBar_value_changed_event), NULL);
 	gtk_signal_connect(GTK_OBJECT (AdjustHScrollBar), "value-changed",
-						GTK_SIGNAL_FUNC(HScrollBar_value_changed_event), 0);
+						GTK_SIGNAL_FUNC(HScrollBar_value_changed_event), NULL);
 
 	/* Create the status bar */
     StatusBar = gtk_statusbar_new ();
@@ -1201,7 +1201,7 @@ void MainSectionWindowInitGtk()
 							| GDK_POINTER_MOTION_HINT_MASK);
 
 	gtk_signal_connect( GTK_OBJECT(MainSectionWindow), "delete_event",
-		GTK_SIGNAL_FUNC(MainSectionWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(MainSectionWindowDeleteEvent), NULL );
 	gtk_widget_show (MainSectionWindow);
 
 	GetTheSizesForRung();
@@ -1360,7 +1360,7 @@ void ShowErrorMessage(const char * title, const char * text, const char * button
 	g_signal_connect_swapped (okay_button, "clicked",
 							G_CALLBACK (ErrorMessageDeleteEvent), dialog);
         g_signal_connect( dialog, "delete_event",
-		G_CALLBACK(ErrorMessageDeleteEvent), 0 );
+		G_CALLBACK(ErrorMessageDeleteEvent), NULL );
 	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area(GTK_DIALOG(dialog))),
 					okay_button);
 	gtk_widget_grab_focus(okay_button);

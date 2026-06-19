@@ -62,7 +62,7 @@ static struct haldata {
     genser_struct *kins;
     go_pose *pos; // used in various functions, we malloc it
                   // only once in genserKinematicsSetup()
-} *haldata = 0;
+} *haldata = NULL;
 
 static int total_joints;
 double j[GENSER_MAX_JOINTS];

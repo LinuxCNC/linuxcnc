@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 	goto out;
     }
     hal_ready(comp_id);
-    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, 0);
+    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, NULL);
     if (res < 0) {
 	errno = -res;
 	perror("hal_stream_attach");

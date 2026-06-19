@@ -67,7 +67,7 @@ static char the_command_args[LINELEN] = { 0 };	// just the args part
 
 class Canterp : public InterpBase {
 public:
-    Canterp () : f(0), filename{} {}
+    Canterp () : f(NULL), filename{} {}
     char *error_text(int errcode, char *buf, size_t buflen) override;
     char *stack_name(int index, char *buf, size_t buflen) override;
     char *line_text(char *buf, size_t buflen) override;
@@ -209,7 +209,7 @@ static int canterp_parse(char *buffer)
        now we're at the args; skip first and last quotes when building
        args_ptr, and make commas spaces for easy parsing later
      */
-    last_quote_ptr = 0;
+    last_quote_ptr = NULL;
     inquote = 0;
     while (')' != *ptr && 0 != *ptr) {
 	if ('"' == *ptr) {
@@ -235,7 +235,7 @@ static int canterp_parse(char *buffer)
 	*cmd_ptr = 0;
 	return INTERP_ERROR;
     }
-    if (0 != last_quote_ptr)
+    if (NULL != last_quote_ptr)
 	*last_quote_ptr = 0;
     *args_ptr = 0;
     *cmd_ptr++ = ')';
@@ -692,7 +692,7 @@ int Canterp::execute(const char *line, int /*line_number*/) {
 }
 
 int Canterp::execute() {
-    return execute(0);
+    return execute(NULL);
 }
 
 int Canterp::open(const char *newfilename) {

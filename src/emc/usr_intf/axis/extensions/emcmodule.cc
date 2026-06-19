@@ -852,6 +852,8 @@ static const char linuxcncinidoc[] =
     "Method documentation is provided with each method.\n"
     ;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static PyTypeObject Ini_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "linuxcnc.ini",              /*tp_name*/
@@ -912,6 +914,7 @@ static PyTypeObject Ini_Type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 #define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
@@ -1567,6 +1570,8 @@ static PyGetSetDef Stat_getsetlist[] = {
     {}
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static PyTypeObject Stat_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "linuxcnc.stat",             /*tp_name*/
@@ -1627,6 +1632,7 @@ static PyTypeObject Stat_Type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 static int Command_init(pyCommandChannel *self, PyObject * /*a*/, PyObject * /*k*/) {
     const char *file = get_nmlfile();
@@ -2364,6 +2370,8 @@ static PyMethodDef Command_methods[] = {
     {}
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static PyTypeObject Command_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "linuxcnc.command",          /*tp_name*/
@@ -2424,6 +2432,7 @@ static PyTypeObject Command_Type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 static int Error_init(pyErrorChannel *self, PyObject * /*a*/, PyObject * /*k*/) {
     const char *file = get_nmlfile();
@@ -2489,6 +2498,8 @@ static PyMethodDef Error_methods[] = {
     {}
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static PyTypeObject Error_Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "linuxcnc.error_channel",    /*tp_name*/
@@ -2549,6 +2560,7 @@ static PyTypeObject Error_Type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 #define AXIS_MASK_A 0x08
 #define AXIS_MASK_B 0x10
@@ -2935,7 +2947,7 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject * /*k*/) {
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
-    self->st = 0;
+    self->st = NULL;
     self->is_xyuv = 0;
     self->foam_z = 0;
     self->foam_w = 1.5;  // temporarily hard-code
@@ -3227,6 +3239,8 @@ static PyMethodDef Logger_methods[] = {
     {},
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static PyTypeObject PositionLoggerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "linuxcnc.positionlogger",   /*tp_name*/
@@ -3287,6 +3301,7 @@ static PyTypeObject PositionLoggerType = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 static PyMethodDef emc_methods[] = {
 #define METH(name, doc) { #name, (PyCFunction) py##name, METH_VARARGS, doc }

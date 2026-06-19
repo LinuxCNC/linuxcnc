@@ -310,7 +310,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->radius_flag = false;
 
   block->o_type = O_none;
-  block->o_name = 0;
+  block->o_name = NULL;
   block->call_type = -1;
 
   return INTERP_OK;
@@ -345,7 +345,7 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
   CHP(init_block(block));
   CHP(read_items(block, line, settings->parameters));
 
-  if(settings->skipping_o == 0)
+  if(settings->skipping_o == NULL)
   {
     CHP(enhance_block(block, settings));
     CHP(check_items(block, settings));

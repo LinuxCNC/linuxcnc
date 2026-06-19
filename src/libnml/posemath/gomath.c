@@ -2801,7 +2801,7 @@ int go_quat_matrix_convert(const go_quat * quat,
   int retval;
 
   /* check for an initialized matrix */
-  if (0 == matrix->el[0]) return GO_RESULT_ERROR;
+  if (NULL == matrix->el[0]) return GO_RESULT_ERROR;
   /* check for a 3x3 matrix */
   if (matrix->rows != 3 || matrix->cols != 3) return GO_RESULT_ERROR;
 
@@ -2820,7 +2820,7 @@ int go_mat_matrix_convert(const go_mat * mat,
 				go_matrix * matrix)
 {
   /* check for an initialized matrix */
-  if (0 == matrix->el[0]) return GO_RESULT_ERROR;
+  if (NULL == matrix->el[0]) return GO_RESULT_ERROR;
   /* check for a 3x3 matrix */
   if (matrix->rows != 3 || matrix->cols != 3) return GO_RESULT_ERROR;
 
@@ -2838,7 +2838,7 @@ int go_matrix_matrix_add(const go_matrix * a,
   go_integer row, col;
 
   /* check for an initialized matrix */
-  if (0 == a->el[0] || 0 == b->el[0] || 0 == apb->el[0]) return GO_RESULT_ERROR;
+  if (NULL == a->el[0] || NULL == b->el[0] || NULL == apb->el[0]) return GO_RESULT_ERROR;
   /* check for matching rows and cols */
   if (a->rows != b->rows || a->cols != b->cols ||
       b->rows != apb->rows || b->cols != apb->cols) return GO_RESULT_ERROR;
@@ -2858,7 +2858,7 @@ int go_matrix_matrix_copy(const go_matrix * src,
   go_integer row, col;
 
   /* check for an initialized matrix */
-  if (0 == src->el[0] || 0 == dst->el[0]) return GO_RESULT_ERROR;
+  if (NULL == src->el[0] || NULL == dst->el[0]) return GO_RESULT_ERROR;
 
   /* check for matching rows and cols */
   if (src->rows != dst->rows || src->cols != dst->cols) return GO_RESULT_ERROR;
@@ -2881,7 +2881,7 @@ int go_matrix_matrix_mult(const go_matrix * a,
   go_integer row, col, i;
 
   /* check for an initialized matrix */
-  if (0 == a->el[0] || 0 == b->el[0] || 0 == ab->el[0]) return GO_RESULT_ERROR;
+  if (NULL == a->el[0] || NULL == b->el[0] || NULL == ab->el[0]) return GO_RESULT_ERROR;
   /* check for consistent rows and cols */
   if (a->cols != b->rows ||
       a->rows != ab->rows ||
@@ -2928,7 +2928,7 @@ int go_matrix_vector_mult(const go_matrix * a,
   go_integer row, i;
 
   /* check for an initialized matrix */
-  if (0 == a->el[0]) return GO_RESULT_ERROR;
+  if (NULL == a->el[0]) return GO_RESULT_ERROR;
 
   if (axv == v) {
     ptrin = a->elcpy[0];
@@ -2971,7 +2971,7 @@ int go_matrix_vector_cross(const go_matrix * a,
   go_integer row, col;
 
   /* check for an initialized matrix */
-  if (0 == a->el[0] || 0 == axv->el[0]) return GO_RESULT_ERROR;
+  if (NULL == a->el[0] || NULL == axv->el[0]) return GO_RESULT_ERROR;
   /* check for consistent rows and cols */
   if (a->rows != 3 ||
       axv->rows != 3 ||
@@ -3017,7 +3017,7 @@ int go_matrix_transpose(const go_matrix * a,
   go_integer row, col;
 
   /* check for fixed matrix */
-  if (0 == a->el[0] || 0 == at->el[0]) return GO_RESULT_ERROR;
+  if (NULL == a->el[0] || NULL == at->el[0]) return GO_RESULT_ERROR;
 
   if (at == a) {
     ptrin = a->elcpy;
@@ -3052,7 +3052,7 @@ int go_matrix_inv(const go_matrix * m, /* M x N */
   int retval;
 
   /* check for fixed matrix */
-  if (0 == m->el[0] || 0 == minv->el[0]) return GO_RESULT_ERROR;
+  if (NULL == m->el[0] || NULL == minv->el[0]) return GO_RESULT_ERROR;
 
   N = m->rows;
 

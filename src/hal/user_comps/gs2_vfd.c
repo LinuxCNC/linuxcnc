@@ -127,21 +127,21 @@ static int done;
 char *modname = "gs2_vfd";
 
 static struct option long_options[] = {
-    {"bits", 1, 0, 'b'},
-    {"device", 1, 0, 'd'},
-    {"debug", 0, 0, 'g'},
-    {"help", 0, 0, 'h'},
-    {"name", 1, 0, 'n'},
-    {"parity", 1, 0, 'p'},
-    {"rate", 1, 0, 'r'},
-    {"stopbits", 1, 0, 's'},
-    {"target", 1, 0, 't'},
-    {"verbose", 0, 0, 'v'},
+    {"bits", 1, NULL, 'b'},
+    {"device", 1, NULL, 'd'},
+    {"debug", 0, NULL, 'g'},
+    {"help", 0, NULL, 'h'},
+    {"name", 1, NULL, 'n'},
+    {"parity", 1, NULL, 'p'},
+    {"rate", 1, NULL, 'r'},
+    {"stopbits", 1, NULL, 's'},
+    {"target", 1, NULL, 't'},
+    {"verbose", 0, NULL, 'v'},
     {"accel-seconds", required_argument, NULL, 'A'},
     {"decel-seconds", required_argument, NULL, 'D'},
     {"braking-resistor", no_argument, NULL, 'R'},
     {"disable", no_argument, NULL, 'X'},
-    {0,0,0,0}
+    {NULL,0,NULL,0}
 };
 
 static char *option_string = "gb:d:hn:p:r:s:t:vA:D:RX";
@@ -674,7 +674,7 @@ int main(int argc, char **argv)
 
     /* grab some shmem to store the HAL data in */
     haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
-    if ((haldata == 0) || done) {
+    if ((haldata == NULL) || done) {
         printf("%s: ERROR: unable to allocate shared memory\n", modname);
         retval = -1;
         goto out_close;

@@ -255,12 +255,12 @@ static EMC_TASK_MODE halui_old_mode = EMC_TASK_MODE::MANUAL;
 static int halui_sent_mdi = 0;
 
 // the NML channels to the EMC task
-static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
-static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
-EMC_STAT *emcStatus = 0;
+static RCS_CMD_CHANNEL *emcCommandBuffer = NULL;
+static RCS_STAT_CHANNEL *emcStatusBuffer = NULL;
+EMC_STAT *emcStatus = NULL;
 
 // the NML channel for errors
-static NML *emcErrorBuffer = 0;
+static NML *emcErrorBuffer = NULL;
 
 // the serial number to use.
 static int emcCommandSerialNumber = 0;
@@ -281,25 +281,25 @@ static int emcTaskNmlGet()
     int retval = 0;
 
     // try to connect to EMC cmd
-    if (emcCommandBuffer == 0) {
+    if (emcCommandBuffer == NULL) {
 	emcCommandBuffer =
 	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
 				emc_nmlfile);
 	if (!emcCommandBuffer->valid()) {
 	    delete emcCommandBuffer;
-	    emcCommandBuffer = 0;
+	    emcCommandBuffer = NULL;
 	    retval = -1;
 	}
     }
     // try to connect to EMC status
-    if (emcStatusBuffer == 0) {
+    if (emcStatusBuffer == NULL) {
 	emcStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
 				 emc_nmlfile);
 	if (!emcStatusBuffer->valid()) {
 	    delete emcStatusBuffer;
-	    emcStatusBuffer = 0;
-	    emcStatus = 0;
+	    emcStatusBuffer = NULL;
+	    emcStatus = NULL;
 	    retval = -1;
 	} else {
 	    emcStatus = reinterpret_cast<EMC_STAT *>(emcStatusBuffer->get_address());
@@ -313,12 +313,12 @@ static int emcErrorNmlGet()
 {
     int retval = 0;
 
-    if (emcErrorBuffer == 0) {
+    if (emcErrorBuffer == NULL) {
 	emcErrorBuffer =
 	    new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
 	if (!emcErrorBuffer->valid()) {
 	    delete emcErrorBuffer;
-	    emcErrorBuffer = 0;
+	    emcErrorBuffer = NULL;
 	    retval = -1;
 	}
     }
@@ -373,7 +373,7 @@ static int updateStatus()
 {
     NMLTYPE type;
 
-    if (0 == emcStatus || 0 == emcStatusBuffer) {
+    if (NULL == emcStatus || NULL == emcStatusBuffer) {
         rtapi_print("halui: %s: no status buffer\n", __func__);
         return -1;
     }
@@ -466,9 +466,9 @@ static void thisQuit()
     //don't forget the big HAL sin ;)
     hal_exit(comp_id);
 
-    if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = 0; }
-    if(emcStatusBuffer) { delete emcStatusBuffer;  emcStatusBuffer = 0; }
-    if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = 0; }
+    if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = NULL; }
+    if(emcStatusBuffer) { delete emcStatusBuffer;  emcStatusBuffer = NULL; }
+    if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = NULL; }
     exit(0);
 }
 
@@ -557,7 +557,7 @@ int halui_hal_init(void)
 
     /* STEP 2: allocate shared memory for halui data */
     halui_data = (halui_str *) hal_malloc(sizeof(halui_str));
-    if (halui_data == 0) {
+    if (halui_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"HALUI: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);

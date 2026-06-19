@@ -488,7 +488,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    }
 
 
-	    settings->sub_name = 0;
+	    settings->sub_name = NULL;
 	    if (previous_frame->subName)  {
 		settings->sub_name = previous_frame->subName;
 	    } else {

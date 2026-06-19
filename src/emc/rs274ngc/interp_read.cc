@@ -1206,7 +1206,7 @@ int Interp::read_one_item(
   CHKS(((letter < ' ') || (letter > 'z')),
 	_("Bad character '\\%03o' used"), (unsigned char)letter);
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
-  CHKS((function_pointer == 0),
+  CHKS((function_pointer == NULL),
 	(!isprint(letter) || isspace(letter)) ?
 	    _("Bad character '\\%03o' used") : _("Bad character '%c' used"), letter);
   CHP((*this.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
@@ -1733,7 +1733,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if ((block->o_type == O_endsub) || (block->o_type == O_return) ||
 	   (block->o_type == M_99))
     {
-	if ((_setup.skipping_o != 0) &&
+	if ((_setup.skipping_o != NULL) &&
 	    (0 != strcmp(_setup.skipping_o, block->o_name))) {
 	    return INTERP_OK;
 	}
@@ -1761,7 +1761,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     {
       // we need to NOT evaluate parameters if skipping
       // skipping never ends on a "call"
-      if(_setup.skipping_o != 0)
+      if(_setup.skipping_o != NULL)
       {
           block->o_type = O_none;
           return INTERP_OK;
@@ -1809,7 +1809,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if(block->o_type == O_while)
     {
       // TESTME !!!KL -- should not eval expressions if skipping ???
-      if((_setup.skipping_o != 0) &&
+      if((_setup.skipping_o != NULL) &&
 	 (0 != strcmp(_setup.skipping_o, block->o_name)))
       {
 	    return INTERP_OK;
@@ -1824,7 +1824,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if(block->o_type == O_repeat)
       {
           // TESTME !!!KL -- should not eval expressions if skipping ???
-          if((_setup.skipping_o != 0) &&
+          if((_setup.skipping_o != NULL) &&
 	     (0 != strcmp(_setup.skipping_o, block->o_name)))
           {
 	    return INTERP_OK;
@@ -1839,7 +1839,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if(block->o_type == O_if)
     {
       // TESTME !!!KL -- should not eval expressions if skipping ???
-      if((_setup.skipping_o != 0) &&
+      if((_setup.skipping_o != NULL) &&
 	 (0 != strcmp(_setup.skipping_o, block->o_name)))
       {
 	    return INTERP_OK;
@@ -1854,7 +1854,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   else if(block->o_type == O_elseif)
     {
       // TESTME !!!KL -- should not eval expressions if skipping ???
-      if((_setup.skipping_o != 0) &&
+      if((_setup.skipping_o != NULL) &&
 	 (0 != strcmp(_setup.skipping_o, block->o_name)))
       {
 	    return INTERP_OK;
@@ -2185,7 +2185,7 @@ int Interp::read_parameter_setting(
                _setup.named_parameter_occurrence, param, value);
 
       dup = strstore(param); // no more need to free this
-      if(dup == 0)
+      if(dup == NULL)
       {
           ERS(NCE_OUT_OF_MEMORY);
       }

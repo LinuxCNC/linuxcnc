@@ -36,6 +36,8 @@ static void wrap_canon_error(const char *s)
 }
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 BOOST_PYTHON_MODULE(emccanon) {
     using namespace boost::python;
     scope().attr("__doc__") =
@@ -269,3 +271,4 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("GET_EXTERNAL_OFFSETS",&GET_EXTERNAL_OFFSETS);
 
 }
+#pragma GCC diagnostic pop

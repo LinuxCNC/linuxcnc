@@ -259,26 +259,26 @@ const int Interp::n_readonly_parameters = sizeof(readonly_parameters) / sizeof(i
    */
 const read_function_pointer Interp::default_readers[256] = {
 /* 00 */
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 /* 10 */
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 /* 20 */
-0, 0, 0,
+NULL, NULL, NULL,
 &Interp::read_parameter_setting, // reads # or ASCII 0x23
 &Interp::read_dollar,   // reads $ or ASCII 0x24
-0, 0, 0,
+NULL, NULL, NULL,
 &Interp::read_comment, // reads ( or ASCII 0x28
-0, 0, 0, 0, 0, 0, 0, 
+NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 /* 30 */
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 &Interp::read_semicolon, 
-0, 0, 0, 0,
+NULL, NULL, NULL, NULL,
 /* 40 */
-&Interp::read_atsign, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+&Interp::read_atsign, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 /* 50 */
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &Interp::read_carat, 0,
+NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &Interp::read_carat, NULL,
 /* 60 */
-0,
+NULL,
 &Interp::read_a, // reads a or ASCII 0x61
 &Interp::read_b, // reads b or ASCII 0x62
 &Interp::read_c, // reads c or ASCII 0x63
@@ -292,7 +292,7 @@ const read_function_pointer Interp::default_readers[256] = {
 &Interp::read_k, // reads k or ASCII 0x6B
 &Interp::read_l, // reads l or ASCII 0x6C
 &Interp::read_m, // reads m or ASCII 0x6D
-0, 0,
+NULL, NULL,
 &Interp::read_p, // reads p or ASCII 0x70
 &Interp::read_q, // reads q or ASCII 0x71
 &Interp::read_r, // reads r or ASCII 0x72

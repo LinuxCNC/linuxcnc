@@ -1313,7 +1313,8 @@ static int Togl_Cmd(ClientData clientData, Tcl_Interp *interp,
    togl->TkWin = tkwin;
    togl->Interp = interp;
 #ifndef NO_TK_CURSOR
-   togl->Cursor = None;
+   //togl->Cursor = None;
+   togl->Cursor = NULL;
 #endif
    togl->Width = 0;
    togl->Height = 0;
@@ -1760,12 +1761,13 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
          if (shareWith)
             shareCtx = shareWith->GlCtx;
          else
-            shareCtx = None;
+            shareCtx = NULL; //None;
          togl->GlCtx = glXCreateContext(dpy, visinfo, shareCtx, directCtx);
       }
       else {
          /* don't share display lists */
-         togl->GlCtx = glXCreateContext(dpy, visinfo, None, directCtx);
+         //togl->GlCtx = glXCreateContext(dpy, visinfo, None, directCtx);
+         togl->GlCtx = glXCreateContext(dpy, visinfo, NULL, directCtx);
       }
 
       if (togl->GlCtx == NULL) {

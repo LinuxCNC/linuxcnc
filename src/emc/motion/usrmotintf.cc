@@ -40,12 +40,12 @@ using namespace linuxcnc;
 
 static int inited = 0;		/* flag if inited */
 
-static emcmot_command_t *emcmotCommand = 0;
-static emcmot_status_t *emcmotStatus = 0;
-static emcmot_config_t *emcmotConfig = 0;
-static emcmot_internal_t *emcmotInternal = 0;
-static emcmot_error_t *emcmotError = 0;
-static emcmot_struct_t *emcmotStruct = 0;
+static emcmot_command_t *emcmotCommand = NULL;
+static emcmot_status_t *emcmotStatus = NULL;
+static emcmot_config_t *emcmotConfig = NULL;
+static emcmot_internal_t *emcmotInternal = NULL;
+static emcmot_error_t *emcmotError = NULL;
+static emcmot_struct_t *emcmotStruct = NULL;
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT)
    from named INI file */
@@ -89,7 +89,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     c->commandNum = ++commandNum;
 
     /* check for mapped mem still around */
-    if (0 == emcmotCommand) {
+    if (NULL == emcmotCommand) {
         rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
@@ -126,7 +126,7 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
     int split_read_count;
 
     /* check for shmem still around */
-    if (0 == emcmotStatus) {
+    if (NULL == emcmotStatus) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
@@ -152,7 +152,7 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
     int split_read_count;
 
     /* check for shmem still around */
-    if (0 == emcmotConfig) {
+    if (NULL == emcmotConfig) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
@@ -177,7 +177,7 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
     int split_read_count;
 
     /* check for shmem still around */
-    if (0 == emcmotInternal) {
+    if (NULL == emcmotInternal) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
@@ -200,7 +200,7 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
 int usrmotReadEmcmotError(char *e)
 {
     /* check to see if ptr still around */
-    if (emcmotError == 0) {
+    if (emcmotError == NULL) {
 	return -1;
     }
 
@@ -609,10 +609,10 @@ int usrmotExit(void)
 	rtapi_exit(module_id);
     }
 
-    emcmotStruct = 0;
-    emcmotCommand = 0;
-    emcmotStatus = 0;
-    emcmotError = 0;
+    emcmotStruct = NULL;
+    emcmotCommand = NULL;
+    emcmotStatus = NULL;
+    emcmotError = NULL;
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - comp structs no longer in shmem */

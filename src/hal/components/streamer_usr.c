@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     }
     hal_ready(comp_id);
     /* open shmem for user/RT comms (stream) */
-    int r = hal_stream_attach(&stream, comp_id, STREAMER_SHMEM_KEY+channel, 0);
+    int r = hal_stream_attach(&stream, comp_id, STREAMER_SHMEM_KEY+channel, NULL);
     if ( r < 0 ) {
 	errno = -r;
 	perror("hal_stream_attach");

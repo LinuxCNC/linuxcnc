@@ -829,6 +829,8 @@ static inline void set_parameter_g83_peck_clearance(Interp &interp, double value
     interp._setup.parameter_g83_peck_clearance = value;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
 
@@ -1062,3 +1064,4 @@ BOOST_PYTHON_MODULE(interpreter) {
 
     export_Arrays();
 }
+#pragma GCC diagnostic pop

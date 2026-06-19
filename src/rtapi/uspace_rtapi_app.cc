@@ -113,7 +113,7 @@ int RtapiApp::prio_next_lower(int prio) const {
 int RtapiApp::allocate_task_id() {
     for (int n = 0; n < MAX_TASKS; n++) {
         RtapiTask **taskptr = &(task_array[n]);
-        if (__sync_bool_compare_and_swap(taskptr, (RtapiTask *)0, TASK_MAGIC_INIT))
+        if (__sync_bool_compare_and_swap(taskptr, (RtapiTask *)nullptr, TASK_MAGIC_INIT))
             return n;
     }
     return -ENOSPC;

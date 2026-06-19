@@ -43,7 +43,7 @@ InterpBase *interp_from_shlib(const char *shlib) {
     interp_lib = dlopen(interp_path, RTLD_NOW);
     if(!interp_lib) {
         fprintf(stderr, "emcTaskInit: could not open interpreter '%s': %s\n", interp_path, dlerror());
-        return 0;
+        return NULL;
     }
     fprintf(stderr, "emcTaskInit: using custom interpreter '%s'\n", interp_path);
 
@@ -51,12 +51,12 @@ InterpBase *interp_from_shlib(const char *shlib) {
     Constructor constructor = (Constructor)dlsym(interp_lib, "makeInterp");
     if(!constructor) {
 	fprintf(stderr, "emcTaskInit: could not get symbol makeInterp from interpreter '%s': %s\n", shlib, dlerror());
-	return 0;
+	return NULL;
     }
     InterpBase *pinterp = constructor();
     if(!pinterp) {
 	fprintf(stderr, "emcTaskInit: makeInterp() returned NULL from interpreter '%s'\n", shlib);
-	return 0;
+	return NULL;
     }
     return pinterp;
 }

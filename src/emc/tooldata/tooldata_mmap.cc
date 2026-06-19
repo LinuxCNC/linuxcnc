@@ -36,7 +36,7 @@
 
 static int           creator_fd;
 static char          filename[LINELEN] = {};
-static char*         tool_mmap_base = 0;
+static char*         tool_mmap_base = NULL;
 static EMC_TOOL_STAT const *toolstat;
 
 typedef struct {
@@ -148,7 +148,7 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
         perror("tool_mmap_creator(): file tail write fail");
         exit(EXIT_FAILURE);
     }
-    tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE,
+    tool_mmap_base = (char*)mmap(NULL, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE,
                                  MAP_SHARED, creator_fd, 0);
     if (tool_mmap_base == MAP_FAILED) {
         close(creator_fd);
@@ -180,10 +180,10 @@ int tool_mmap_user()
         ** So print message and return fail indicator.
         */
         fprintf(stderr,"tool_mmap_user(): tool mmap not available\n");
-        tool_mmap_base = (char*)0;
+        tool_mmap_base = (char*)NULL;
         return(-1);
     }
-    tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
+    tool_mmap_base = (char*)mmap(NULL, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
                                  MAP_SHARED, fd, 0);
 
     if (tool_mmap_base == MAP_FAILED) {

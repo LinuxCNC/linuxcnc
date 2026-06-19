@@ -373,7 +373,7 @@ static int comp_id;
     if options.get("userspace"):
         print("#include <stdlib.h>", file=f)
 
-    print("struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;", file=f)
+    print("struct __comp_state *__comp_first_inst=NULL, *__comp_last_inst=NULL;", file=f)
 
     print("", file=f)
     for name, fp in functions:
@@ -526,7 +526,7 @@ static int comp_id;
             print("static int default_count=%s, count=0;" \
                 % options.get("default_count", 1), file=f)
             if options.get("userspace"):
-                print("char *names[%d] = {0,};"%(MAX_USERSPACE_NAMES), file=f)
+                print("char *names[%d] = {NULL,};"%(MAX_USERSPACE_NAMES), file=f)
             else:
                 print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
                 print("char *names = \"\"; // comma separated names", file=f)
@@ -717,7 +717,7 @@ int __comp_parse_names(int *argc, char **argv) {
     return 0;
 }
 """%MAX_USERSPACE_NAMES, file=f)
-        print("int argc=0; char **argv=0;", file=f)
+        print("int argc=0; char **argv=NULL;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
         if not options.get("singleton"):

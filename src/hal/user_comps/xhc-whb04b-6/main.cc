@@ -228,7 +228,7 @@ int main(int argc, char** argv)
                 return printUsage(basename(argv[0]), WhbComponent->getName());
                 break;
             case 'P':
-                 WhbComponent->setUsbProductId(std::stoi(optarg, 0, 16));
+                 WhbComponent->setUsbProductId(std::stoi(optarg, nullptr, 16));
                 break;
             default:
                 return printUsage(basename(argv[0]), WhbComponent->getName(), true);

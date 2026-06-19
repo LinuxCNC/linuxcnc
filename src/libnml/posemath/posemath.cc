@@ -22,7 +22,7 @@
 
 // place to reference arrays when bounds are exceeded
 static double noElement = 0.0;
-static PM_CARTESIAN *noCart = 0;
+static PM_CARTESIAN *noCart = nullptr;
 
 
 // PM_CARTESIAN class
@@ -358,7 +358,7 @@ PM_CARTESIAN & PM_ROTATION_MATRIX::operator [](int n) {
     case 2:
 	return z;
     default:
-	if (0 == noCart) {
+	if (nullptr == noCart) {
 	    noCart = new PM_CARTESIAN(0.0, 0.0, 0.0);
 	}
 	return (*noCart);	// need to return a PM_CARTESIAN &
@@ -730,7 +730,7 @@ PM_CARTESIAN & PM_HOMOGENEOUS::operator [](int n) {
 	noElement = 1.0;
 	return tran;
     default:
-	if (0 == noCart) {
+	if (nullptr == noCart) {
 	    noCart = new PM_CARTESIAN(0.0, 0.0, 0.0);
 	}
 	return (*noCart);	// need to return a PM_CARTESIAN &

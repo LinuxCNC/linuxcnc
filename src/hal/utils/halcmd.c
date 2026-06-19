@@ -302,7 +302,7 @@ static int count_args(char **argv) {
     return i;
 }
 
-#define ARG(i) (argc > i ? argv[i] : 0)
+#define ARG(i) (argc > i ? argv[i] : NULL)
 #define REST(i) (argc > i ? argv + i : argv + argc)
 
 static int parse_cmd1(char **argv) {
@@ -340,7 +340,7 @@ static int parse_cmd1(char **argv) {
 		    argv[d++] = argv[s];
 		}
 	    }
-	    argv[d] = 0;
+	    argv[d] = NULL;
 	    argc = d;
 	}
 

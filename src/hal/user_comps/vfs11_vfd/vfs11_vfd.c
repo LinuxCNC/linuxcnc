@@ -332,14 +332,14 @@ enum connstate {NOT_CONNECTED, OPENING, CONNECTING, CONNECTED, RECOVER, DONE};
 
 static char *option_string = "dhrmn:S:I:";
 static struct option long_options[] = {
-    {"debug", no_argument, 0, 'd'},
-    {"help", no_argument, 0, 'h'},
-    {"modbus-debug", no_argument, 0, 'm'},
-    {"report-device", no_argument, 0, 'r'},
-    {"ini", required_argument, 0, 'I'},     // default: getenv(INI_FILE_NAME)
-    {"section", required_argument, 0, 'S'}, // default section = LIBMODBUS
-    {"name", required_argument, 0, 'n'},    // vfs11_vfd
-    {0,0,0,0}
+    {"debug", no_argument, NULL, 'd'},
+    {"help", no_argument, NULL, 'h'},
+    {"modbus-debug", no_argument, NULL, 'm'},
+    {"report-device", no_argument, NULL, 'r'},
+    {"ini", required_argument, NULL, 'I'},     // default: getenv(INI_FILE_NAME)
+    {"section", required_argument, NULL, 'S'}, // default section = LIBMODBUS
+    {"name", required_argument, NULL, 'n'},    // vfs11_vfd
+    {NULL,0,NULL,0}
 };
 
 
@@ -932,7 +932,7 @@ int main(int argc, char **argv)
 
     // grab some shmem to store the HAL data in
     p->haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
-    if ((p->haldata == 0) || (connection_state == DONE)) {
+    if ((p->haldata == NULL) || (connection_state == DONE)) {
 	fprintf(stderr, "%s: ERROR: unable to allocate shared memory\n", p->modname);
 	retval = -1;
 	goto finish;

@@ -35,7 +35,7 @@
 
 int emcmotErrorInit(emcmot_error_t * errlog)
 {
-    if (errlog == 0) {
+    if (errlog == NULL) {
 	return -1;
     }
 
@@ -53,7 +53,7 @@ int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap)
     struct dbuf_iter it;
     unsigned long long my_seq;
 
-    if (errlog == 0) {
+    if (errlog == NULL) {
 	return -1;
     }
 
@@ -108,7 +108,7 @@ int emcmotErrorGet(emcmot_error_t * errlog, char *error)
     unsigned long long w_res;
     unsigned long long w_com;
 
-    if (errlog == 0) {
+    if (errlog == NULL) {
 	return -1;
     }
 

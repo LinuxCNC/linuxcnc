@@ -44,9 +44,9 @@ using namespace linuxcnc;
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static EMC_TASK_MODE mdiOrAuto = EMC_TASK_MODE::AUTO;
 
-InterpBase *pinterp=0;
+InterpBase *pinterp=NULL;
 #define interp (*pinterp)
-setup_pointer _is = 0; // helper for gdb hardware watchpoints FIXME
+setup_pointer _is = NULL; // helper for gdb hardware watchpoints FIXME
 
 
 // Print error messages thrown by interpreter
@@ -60,7 +60,7 @@ static void print_interp_error(int retval)
 	return;
     }
 
-    if (0 != emcStatus) {
+    if (NULL != emcStatus) {
 	emcStatus->task.interpreter_errcode = retval;
     }
 
@@ -237,7 +237,7 @@ int emcTaskAbort()
     emcMotionAbort();
 
     // clear out the pending command
-    emcTaskCommand = 0;
+    emcTaskCommand = NULL;
     interp_list.clear();
 
     // clear out the interpreter state
@@ -451,7 +451,7 @@ int emcTaskPlanInit()
 
     Interp *i = dynamic_cast<Interp*>(pinterp);
     if(i) _is = &i->_setup; // FIXME
-    else  _is = 0;
+    else  _is = NULL;
     interp.ini_load(emc_inifile);
     waitFlag = 0;
 
@@ -464,7 +464,7 @@ int emcTaskPlanInit()
 	if (0 != rs274ngc_startup_code[0]) {
 	    retval = interp.execute(rs274ngc_startup_code);
 	    while (retval == INTERP_EXECUTE_FINISH) {
-		retval = interp.execute(0);
+		retval = interp.execute(NULL);
 	    }
 	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
@@ -542,7 +542,7 @@ void emcTaskPlanExit()
 
 int emcTaskPlanOpen(const char *file)
 {
-    if (emcStatus != 0) {
+    if (emcStatus != NULL) {
 	emcStatus->task.motionLine = 0;
 	emcStatus->task.currentLine = 0;
 	emcStatus->task.readLine = 0;
@@ -590,7 +590,7 @@ int emcTaskPlanExecute(const char *command)
 {
     int inpos = emcStatus->motion.traj.inpos;	// 1 if in position, 0 if not.
 
-    if (command != 0) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
+    if (command != NULL) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
 	// Don't sync if not in position.
 	if ((*command != 0) && (inpos)) {
 	    interp.synch();
@@ -600,7 +600,7 @@ int emcTaskPlanExecute(const char *command)
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
-    if(command != 0) {
+    if(command != NULL) {
 	FINISH();
     }
 
@@ -617,7 +617,7 @@ int emcTaskPlanExecute(const char *command, int line_number)
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
-    if(command != 0) { // this means MDI
+    if(command != NULL) { // this means MDI
 	FINISH();
     }
 

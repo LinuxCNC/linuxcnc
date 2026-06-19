@@ -1728,6 +1728,19 @@ add_to_cflags() {
 # Always add -Wextra
 add_to_cflags "-Wextra"
 
+# Add option to enable warnings when integer 0 is used to act
+# as NULL or nullptr in assignment or comparison.
+AC_ARG_ENABLE(wzero-as-null-pointer-constant,
+    AS_HELP_STRING(
+      [--enable-wzero-as-null-pointer-constant],
+      [Warn on zero being used as NULL pointer constant (-Wzero-as-null-pointer-constant).],
+    ),
+    [
+      case "$enableval" in
+        (yes) add_to_cflags "-Wzero-as-null-pointer-constant" ;;
+      esac
+    ])
+
 # The last thing before subst-exporting CFLAGS and CXXFLAGS is to add -Werror
 # if requested. Doing it earlier causes conf-tests to fail that are supposed to
 # succeed when they generate warnings.

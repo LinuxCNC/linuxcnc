@@ -1106,9 +1106,9 @@ std::optional<rtapi_s64> IniFile::convertSInt(const std::string &_val)
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg("internal error: ConvertSInt(): Cannot set locale to \"C\" for strtoll");
 		return std::nullopt;
 	}
@@ -1135,9 +1135,9 @@ std::optional<rtapi_s64> IniFile::convertSInt(const IniFileTag *val) const
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg(fmt::format("{}:{}: internal error: Cannot set locale to \"C\" for strtoll", val->path, val->lineno));
 		return std::nullopt;
 	}
@@ -1171,9 +1171,9 @@ std::optional<rtapi_u64> IniFile::convertUInt(const std::string &_val)
 	}
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg("internal error: ConvertUInt(): Cannot set locale to \"C\" for strtoull");
 		return std::nullopt;
 	}
@@ -1205,9 +1205,9 @@ std::optional<rtapi_u64> IniFile::convertUInt(const IniFileTag *val) const
 	}
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg(fmt::format("{}:{}: internal error: Cannot set locale to \"C\" for strtoull", val->path, val->lineno));
 		return std::nullopt;
 	}
@@ -1235,9 +1235,9 @@ std::optional<double> IniFile::convertReal(const std::string &val)
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg("internal error: ConvertReal(): Cannot set locale to \"C\" for strtod");
 		return std::nullopt;
 	}
@@ -1262,9 +1262,9 @@ std::optional<double> IniFile::convertReal(const IniFileTag *val) const
 	char *eptr;
 
 	// Make sure we always use the C locale for conversion (thread local)
-	locale_t olc = uselocale(static_cast<locale_t>(0));
-	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-	if(static_cast<locale_t>(0) == nlc) {
+	locale_t olc = uselocale(static_cast<locale_t>(nullptr));
+	locale_t nlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(nullptr));
+	if(static_cast<locale_t>(nullptr) == nlc) {
 		print_msg(fmt::format("{}:{}: internal error: Cannot set locale to \"C\" for strtod", val->path, val->lineno));
 		return std::nullopt;
 	}

@@ -648,13 +648,13 @@ static void define_menubar(GtkWidget *vboxtop) {
     fileopenconfiguration = gtk_menu_item_new_with_mnemonic(_("_Open Configuration..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopenconfiguration);
     g_signal_connect_swapped(fileopenconfiguration, "activate",
-            G_CALLBACK(open_configuration), 0);
+            G_CALLBACK(open_configuration), NULL);
     gtk_widget_show(fileopenconfiguration);
 
     filesaveconfiguration = gtk_menu_item_new_with_mnemonic(_("_Save Configuration..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesaveconfiguration);
     g_signal_connect_swapped(filesaveconfiguration, "activate",
-            G_CALLBACK(save_configuration), 0);
+            G_CALLBACK(save_configuration), NULL);
     gtk_widget_show(filesaveconfiguration);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep1);
@@ -670,7 +670,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
     g_signal_connect_swapped(filesavedatafile, "activate",
-            G_CALLBACK(save_log_cb), 0);
+            G_CALLBACK(save_log_cb), NULL);
     gtk_widget_show(filesavedatafile);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);
@@ -679,7 +679,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     filequit = gtk_menu_item_new_with_mnemonic(_("_Quit"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filequit);
     g_signal_connect_swapped(filequit, "activate",
-            G_CALLBACK(quit), 0);
+            G_CALLBACK(quit), NULL);
     gtk_widget_show(filequit);
 
     helpabout = gtk_menu_item_new_with_mnemonic(_("_About Halscope"));

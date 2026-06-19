@@ -144,7 +144,7 @@ int ini_hal_init(int numjoints)
     }
 
     the_inihal_data = (ptr_inihal_data *) hal_malloc(sizeof(ptr_inihal_data));
-    if (the_inihal_data == 0) {
+    if (the_inihal_data == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                        "ini_hal_init: ERROR: hal_malloc() failed\n");
         hal_exit(comp_id);
