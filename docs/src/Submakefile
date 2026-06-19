@@ -967,6 +967,7 @@ $(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) | svgs_made_from_dots
 		--sourcemap \
 		-a compat-mode \
 		-a "doc-languages=$$(LANGUAGES)" \
+		-a "lcnc-lang=$3" \
 		-a xref-root=$$(dir $$<) \
 		-a "xref-exclude=$(2)" \
 		-a "scriptdir=$$(DOC_SRCDIR)/" \
@@ -1102,36 +1103,40 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 .images-stamp: .adoc-images-stamp .html-images-stamp
 	touch $@
 
-# Image copy from sources into the output tree.  HTML files for English
-# live at $(DOC_OUT_HTML)/en/<topic>/X.html; for translations at
-# $(DOC_OUT_HTML)/<lang>/<topic>/X.html.  The source images are in
-# $(DOC_SRCDIR)/<topic>/ regardless of language (translations are
-# image-symlinked to English originals via the sed below).  Generated SVGs are
-# not in src; fall back to the English build tree where they render.
-#
-# src="..." covers displayed images; href="...png" covers click-to-enlarge
-# targets from image:thumb[link=...] (which would otherwise 404).  The
-# extension filter keeps page/anchor hrefs out.
+# Materialise the shared image pool.  image_resolver has already rewritten
+# every HTML src/href to a pool path (image/<srcrel> or <lang>/image/<srcrel>);
+# here we copy each referenced image to the location its link points at.  All
+# languages' generic refs resolve to the one shared image/ tree, so the first
+# copy wins and the existence guard skips the rest: no per-language duplication,
+# no symlinks (a server may lack FollowSymLinks), and a no-op second build.
+# DEST comes from the page dir + the ref; <srcrel> finds the source under
+# $(DOC_SRCDIR) (or the English build tree for generated SVGs).
 #
 # Depend on .lang-switcher-stamp so this runs after the post-processor has
 # rewritten the HTML in place; otherwise that later rewrite leaves this stamp
 # older than its inputs and the image copy re-fires on every subsequent make.
 .html-images-stamp: $(DOC_TARGETS_HTML) .lang-switcher-stamp
-	set -e; for HTML_FILE in $^; do \
-		HTML_REL=$$(echo $$HTML_FILE | sed 's%^$(DOC_OUT_HTML)/%%'); \
-		LANG=$$(echo $$HTML_REL | cut -d/ -f1); \
-		REST=$$(echo $$HTML_REL | cut -d/ -f2-); \
-		HTML_DIR=$$(dirname $$REST | cut -d/ -f1); \
-		for IMAGE_FILE in $$(grep -oE '(src|href)="[^"]+"' $$HTML_FILE | sed -E 's/^(src|href)="//;s/"$$//' | grep -vE '^https?:|^data:|^/|lcnc-docs\.svg' | grep -iE '\.(png|jpe?g|gif|svg|webp)$$'); do \
-			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
-			IMAGE_PATH=$(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE; \
-			if [ ! -e $$IMAGE_PATH ] ; then \
-				IMAGE_PATH=$(DOC_OUT_ADOC)/en/$$HTML_DIR/$$IMAGE_FILE; \
-			fi; \
-			mkdir -p $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_DIR; \
-			cp -f $$IMAGE_PATH $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_FILE; \
+	set -e; \
+	HTMLROOT=$$(realpath $(DOC_OUT_HTML)); \
+	place() { \
+		PAGE_DIR=$$(dirname $$1); \
+		for REF in $$(grep -oE '(src|href)="[^"]+"' $$1 | sed -E 's/^(src|href)="//;s/"$$//' | grep -vE '^https?:|^data:|^#|^/|lcnc-docs\.svg' | grep -iE '\.(png|jpe?g|gif|svg|webp)$$'); do \
+			DEST=$$(realpath -m "$$PAGE_DIR/$$REF"); \
+			case $$DEST in $$HTMLROOT/*) ;; *) echo "html-images: out-of-tree $$DEST (page $$1)" >&2; exit 1;; esac; \
+			[ -e "$$DEST" ] && continue; \
+			REL=$${DEST#$$HTMLROOT/}; \
+			case $$REL in \
+				image/*) SRCREL=$${REL#image/}; SRC=$(DOC_SRCDIR)/$$SRCREL; [ -e "$$SRC" ] || SRC=$(DOC_OUT_ADOC)/en/$$SRCREL;; \
+				*/image/*) L=$${REL%%/*}; SRCREL=$${REL#*/image/}; SRC=$(DOC_SRCDIR)/$$SRCREL; [ -e "$$SRC" ] || SRC=$(DOC_OUT_ADOC)/$$L/$$SRCREL;; \
+				*) echo "html-images: unexpected pool dest $$REL (page $$1)" >&2; exit 1;; \
+			esac; \
+			if [ ! -e "$$SRC" ] ; then echo "html-images: no source for $$REL (page $$1)" >&2; exit 1; fi; \
+			mkdir -p "$$(dirname "$$DEST")"; \
+			cp -f "$$SRC" "$$DEST"; \
 		done; \
-	done > $@.new && mv $@.new $@
+	}; \
+	for HTML_FILE in $(DOC_TARGETS_HTML); do place $$HTML_FILE; done \
+	> $@.new && mv $@.new $@
 
 # mb2hal_HOWTO.ini lives in the docs source tree next to mb2hal.adoc, so the
 # English build includes it directly.  Copy it into the per-language build
@@ -1157,10 +1162,12 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_OUT_HTML)/$$lang/gui/gmoccapy_release_notes.txt ; \
 	done) > $@.new && mv $@.new $@
 
-# Copy all images used by translated adoc files into the directories
-# with translated adoc files.  The .translateddocs-stamp prerequisite
-# only exists when BUILD_DOCS_TRANSLATED=yes; without it the rule has
-# no work to do (filter-out yields empty) so we skip the dep too.
+# Stage the images used by translated adoc files into the translated adoc
+# tree, so asciidoctor-pdf can read them at render time.  The .translateddocs-stamp
+# prerequisite only exists when BUILD_DOCS_TRANSLATED=yes; without it the rule
+# has no work to do (filter-out yields empty) so we skip the dep too.  HTML
+# image placement is no longer done here: the image_resolver rewrites HTML src
+# to the shared pool and .html-images-stamp materialises it.
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 ADOC_IMAGES_STAMP_DEPS := $(DOC_DIR)/.translateddocs-stamp
 endif
@@ -1176,13 +1183,10 @@ endif
 				IMAGE_PATH=$(DOC_OUT_ADOC)/en/$$EN_DIR/$$IMAGE_FILE; \
 			fi; \
 			TIMAGE_PATH=$(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_FILE; \
-			HIMAGE_PATH=$(DOC_OUT_HTML)/$$ADOC_DIR/$$IMAGE_FILE; \
 			mkdir -p $(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_DIR; \
-			mkdir -p $(DOC_OUT_HTML)/$$ADOC_DIR/$$IMAGE_DIR; \
 			if [ ! -e $$TIMAGE_PATH ] ; then \
 				echo "Generating $$TIMAGE_PATH for $$ADOC_FILE"; \
 				cp -f $$IMAGE_PATH $$TIMAGE_PATH; \
-				cp -f $$IMAGE_PATH $$HIMAGE_PATH; \
 			fi ; \
 		done; \
 	done > $@.new && mv $@.new $@
@@ -1207,13 +1211,20 @@ $(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$
 #	$4 xref-exclude pattern (English filters all lang subdirs; translated
 #	trees are rooted inside their own lang dir so the exclude is empty).
 define ASCIIDOCTOR_HTML_RULE
-$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html
+# Order-only dep on .adoc-images-stamp so translated images are staged before
+# the resolver probes for them at render (it also falls back to docs/src).
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html | .adoc-images-stamp
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
+		 -r $$(realpath $$(DOC_SRCDIR))/extensions/image_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
 		 -a compat-mode \
+		 -a "doc-languages=$$(LANGUAGES)" \
+		 -a "lcnc-lang=$1" \
+		 -a "lcnc-srcdir=$$(realpath $$(DOC_SRCDIR))" \
+		 -a "lcnc-adocdir=$$(realpath $$(DOC_OUT_ADOC))" \
 		 -a xref-root=$3 \
 		 -a "xref-exclude=$4" \
 		 -a "relindir=$$(shell dirname $$*)" \
