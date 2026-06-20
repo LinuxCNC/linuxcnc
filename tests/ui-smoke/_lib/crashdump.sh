@@ -10,8 +10,8 @@
 # point kernel.core_pattern at a writable dir, which needs root, so we do it
 # via sudo (CI has passwordless sudo; the suite never runs as root since
 # linuxcnc refuses to). It is opt-in because that sudo changes a global
-# system setting; runtests -u further skips the sudo. Without -d the native
-# backtrace is off and only the Python traceback remains. Source with
+# system setting (runtests rejects -d together with -u). Without -d the
+# native backtrace is off and only the Python traceback remains. Source with
 # LIB_DIR set; runs only on the failure path, so green runs pay nothing.
 
 crashdump_arm() {
@@ -22,14 +22,12 @@ crashdump_arm() {
     CORE_DIR="$(mktemp -d -t ui-smoke-cores.XXXXXX)"
     export CORE_DIR
     ulimit -c unlimited 2>/dev/null || true
-    # core_pattern is global; point it at our writable dir via sudo so the
-    # kernel writes a core we can read. Skip under runtests -u to respect a
-    # user opting out of root tweaks; if sudo is unavailable the core lands
-    # wherever the system core_pattern says and we fall back to the Python
-    # traceback. The id -u check is dropped: tests never run as root.
-    if [ "${RUNTESTS_NOSUDO:-0}" != "1" ]; then
-        sudo sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
-    fi
+    # Point the global core_pattern at our writable dir so the kernel writes
+    # a core we can read. -d implies sudo is allowed (runtests rejects -d with
+    # -u), and tests never run as root, so no id check; if sudo still fails the
+    # core lands wherever the system pattern says and we fall back to the
+    # Python traceback.
+    sudo sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
 }
 
 crashdump_report() {
