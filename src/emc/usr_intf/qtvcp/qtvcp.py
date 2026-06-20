@@ -556,6 +556,25 @@ Pressing cancel will close linuxcnc.""" % target)
                     + "information may be useful in troubleshooting:\n"
                     + 'LinuxCNC Version  : %s\n'% self.INFO.LINUXCNC_VERSION)
 
+            # Always surface unhandled exceptions to stderr/log. A crash is a
+            # serious problem that must be visible in CI logs, not buried in a
+            # dialog that the run never captures.
+            sys.stderr.write(''.join(lines))
+            sys.stderr.flush()
+            LOG.critical("Qtvcp unhandled exception:\n{}".format(''.join(lines)))
+
+            # Offscreen (e.g. CI): nobody can dismiss a modal dialog, so
+            # msg.exec_() below would block forever; if this happens during
+            # construction it hangs before the SIGTERM handler is armed and the
+            # process cannot be killed cleanly. Exit instead of popping a dialog.
+            app = QtWidgets.QApplication.instance()
+            if app is None or app.platformName() == 'offscreen':
+                try:
+                    self.shutdown()
+                except Exception:
+                    pass
+                os._exit(1)
+
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Critical)
             msg.setText(self._message)
