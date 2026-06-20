@@ -142,6 +142,51 @@ proc validate_identity_kins_limits {} {
   return $emsg
 } ;# validate_identity_kins_limits
 
+proc assert_ini_datatypes {} {
+  # Datatype assertions, run right after parse_ini, before any comparison.
+  # numeric: must be a real number (covers integers too: string is double)
+  set numeric {
+    MIN_LIMIT MAX_LIMIT MAX_VELOCITY MAX_ACCELERATION MAX_JERK
+    FERROR MIN_FERROR BACKLASH
+    P I D FF0 FF1 FF2 BIAS DEADBAND MAX_OUTPUT MAX_ERROR
+    INPUT_SCALE OUTPUT_SCALE SCALE
+    HOME HOME_OFFSET HOME_SEARCH_VEL HOME_LATCH_VEL HOME_FINAL_VEL
+    HOME_SEQUENCE STEPGEN_MAXVEL STEPGEN_MAXACCEL
+  }
+  # enum: must match a fixed set (case-insensitive, mirroring LinuxCNC's
+  # caseless maps mapJointType / convertBool)
+  set bool {TRUE YES 1 ON FALSE NO 0 OFF}
+  array set enum [list \
+    TYPE                        {LINEAR ANGULAR} \
+    HOME_USE_INDEX              $bool \
+    HOME_IGNORE_LIMITS          $bool \
+    HOME_IS_SHARED              $bool \
+    HOME_INDEX_NO_ENCODER_RESET $bool \
+    VOLATILE_HOME               $bool \
+    LOCKING_INDEXER             $bool \
+  ]
+  set emsg ""
+  foreach g [info globals] {
+    if {![string match JOINT_* $g] && ![string match AXIS_* $g]} continue
+    foreach item [array names ::$g] {
+      set val [set ::${g}($item)]
+      if {[llength $val] > 1} {
+        # duplicate key -> multi-element value; no point checking its datatype
+        lappend emsg "\[$g\]$item has duplicate/multiple values: <$val>"
+      } elseif {[lsearch -exact $numeric $item] >= 0} {
+        if {![string is double -strict $val]} {
+          lappend emsg "\[$g\]$item must be numeric, got: <$val> (stray text or inline comment in INI?)"
+        }
+      } elseif {[info exists enum($item)]} {
+        if {[lsearch -nocase $enum($item) $val] < 0} {
+          lappend emsg "\[$g\]$item must be one of {$enum($item)}, got: <$val>"
+        }
+      }
+    }
+  }
+  if {"$emsg" != ""} {err_exit $emsg}
+} ;# assert_ini_datatypes
+
 proc check_extrajoints {} {
   if ![info exists ::EMCMOT(EMCMOT)] return
   if {[string first motmod $::EMCMOT(EMCMOT)] <= 0} return
@@ -161,30 +206,6 @@ proc check_extrajoints {} {
   }
 } ;#check_extrajoints
 
-proc warn_for_multiple_ini_values {} {
-  set sections [info globals]
-  set sections_to_check {JOINT_ AXIS_}
-
-  foreach section $sections {
-    set enforce 0
-    foreach csection $sections_to_check {
-      if {[string first $csection $section] >= 0} {
-        set enforce 1
-        break
-      }
-    }
-    if !$enforce continue
-    foreach name [array names ::$section] {
-       set gsection ::$section
-       set val [set [set gsection]($name)]
-       set len [llength $val]
-       if {$len > 1} {
-         lappend ::wmsg "Unexpected multiple values \[$section\]$name: $val"
-       }
-    }
-  }
-} ;# warn_for_multiple_ini_values
-
 #----------------------------------------------------------------------
 # begin
 package require Linuxcnc ;# parse_ini
@@ -198,6 +219,8 @@ if ![file readable $inifile] {
    err_exit [list "File not readable <$inifile>"]
 }
 parse_ini $inifile
+
+assert_ini_datatypes
 
 check_mandatory_items
 
@@ -233,7 +256,6 @@ switch $::kins(module) {
 }
 check_extrajoints
 
-warn_for_multiple_ini_values
 #parray ::kins
 set emsg [validate_identity_kins_limits]
 consistent_coords_for_trivkins $::kins(coordinates)
