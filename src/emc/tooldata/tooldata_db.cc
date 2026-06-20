@@ -64,29 +64,31 @@ static int pipes[NUM_PIPES][2];
 static bool is_random_toolchanger = 0;
 static char db_childname[PATH_MAX];
 
-static void handle_sigchild(int s)
+static void handle_sigchild(int /*s*/)
 {
     pid_t pid;
-    int status;
-    while((pid = waitpid(-1, &status, WUNTRACED | WCONTINUED | WNOHANG)) > 0) ;
-    if (WIFSIGNALED(status))  {
-        db_live = 0;
-        fprintf(stderr,"%5d !!!%s terminated by signal %d\n"
-               ,getpid(),db_childname,WTERMSIG(status));
-    }
-    if (WIFEXITED(status)) {
-        db_live = 0;
-        fprintf(stderr,"%5d ===%s normal exit status=%d\n"
+    int status = 0;
+    while((pid = waitpid(-1, &status, WUNTRACED | WCONTINUED | WNOHANG)) > 0) {
+
+        if (WIFSIGNALED(status))  {
+            db_live = 0;
+            fprintf(stderr,"%5d !!!%s terminated by signal %d\n"
+                   ,getpid(),db_childname,WTERMSIG(status));
+        }
+        if (WIFEXITED(status)) {
+            db_live = 0;
+            fprintf(stderr,"%5d ===%s normal exit status=%d\n"
                ,getpid(),db_childname,WEXITSTATUS(status));
-    }
+        }
 #if 0
-    if (WIFSTOPPED(status)) {
-        fprintf(stderr,"%5d ===%s stopped\n",getpid(),db_childname);
-    }
-    if (WIFCONTINUED(status)) {
-        fprintf(stderr,"%5d ===%s continued\n",getpid(),db_childname);
-    }
+        if (WIFSTOPPED(status)) {
+            fprintf(stderr,"%5d ===%s stopped\n",getpid(),db_childname);
+        }
+        if (WIFCONTINUED(status)) {
+            fprintf(stderr,"%5d ===%s continued\n",getpid(),db_childname);
+        }
 #endif
+    }
 }
 
 static int fork_create(int myargc,char *const myargv[])
