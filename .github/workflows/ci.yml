@@ -179,6 +179,11 @@ jobs:
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
         .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
+    - name: HTML checks
+      run: |
+        set -x
+        #-w sets warn only, remove to generate a CI failure on error
+        scripts/htmlcheck.sh -w
     - name: Tar linuxcnc-doc
       run: |
         set -x

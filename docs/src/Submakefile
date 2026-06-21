@@ -1,10 +1,7 @@
-.PHONY: docs docclean checkref
+.PHONY: docs docclean
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 SHELL=/bin/bash
-
-# To make linuxcnc-checklink widely available
-export PATH:=$(BASEPWD)/../scripts:$(PATH)
 
 # Ruby (asciidoctor / asciidoctor-pdf) reads source files in the locale's
 # default external encoding.  Containerised builds often inherit POSIX/C,
@@ -573,7 +570,7 @@ $(DOC_OUT_HTML)/pdf/index.html: $(PDF_TARGETS) ../scripts/make-docs-pdf-index
 	@mkdir -p $(dir $@)
 	$(Q)../scripts/make-docs-pdf-index
 
-htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
+htmldocs: svgs_made_from_dots .htmldoc-stamp
 
 # When translations are enabled, the .adoc files in $(L)/ are produced by
 # the translateddocs target (po4a).  Teach make how to ask for them: the
@@ -590,8 +587,8 @@ endif
 
 # Depend on the stamp files, not the phony copy_asciidoc_files /
 # gen_complist aliases: a phony prereq is always "newer", so naming them
-# re-touched .htmldoc-stamp every run, dragging checkref and the css copy
-# with it.  The stamps fire only when their real inputs change.
+# re-touched .htmldoc-stamp every run, dragging the css copy
+# with it. The stamps fire only when their real inputs change.
 .htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_OUT_HTML)/asciidoctor.css $(DOC_OUT_HTML)/rouge-github.css .lang-switcher-stamp
 	touch $@
 
@@ -681,42 +678,15 @@ $(DOC_OUT_HTML)/rouge-github.css: $(DOC_SRCDIR)/render-rouge-css.rb
 # gen_complist.py here after MAN_HTML_TARGETS would rewrite the file
 # with HTML-existence-dependent content (different miss_in_man set),
 # bumping mtime past .pot and re-triggering po4a on the next build.
-# Broken-link validation against generated HTML is checkref's job.
 # MAN_HTML_TARGETS is order-only: this stamp only needs the manpages built,
 # it does not read their content, and the post-processor rewrites them in
 # place later -- a normal prerequisite would then re-fire this stamp (and the
-# .htmldoc-stamp / checkref that depend on it) on every subsequent make.
+# .htmldoc-stamp that depend on it) on every subsequent make.
 $(DOC_DIR)/.gen_complist-stamp: $(DOC_OUT_ADOC)/en/hal/components_gen.adoc | $(MAN_HTML_TARGETS)
 	mkdir -p $(DOC_OUT_HTML)/en/hal
 	@touch $@
 
 gen_complist: $(DOC_DIR)/.gen_complist-stamp
-
-
-CHECKREF_TARGETS := checkref_en $(foreach L,$(LANGUAGES),checkref_$(L))
-.PHONY: $(CHECKREF_TARGETS)
-checkref: $(CHECKREF_TARGETS)
-
-# checkref_* stay phony aliases; the link check lives in stamp-gated rules
-# so it only re-runs when the HTML changes.  .htmldoc-stamp is filtered out
-# of the args so the stamp file is not handed to the link checker.
-checkref_en: $(DOC_DIR)/.checkref-english-stamp
-# --warn-on-failure: link checking has been a silent no-op for a long time
-# (w3c-linkchecker disables file:// URIs), so the tree may carry accumulated
-# broken links.  Report them without breaking the build for now; drop this
-# flag once the backlog is cleared so regressions fail the build again.
-$(DOC_DIR)/.checkref-english-stamp: $(DOC_TARGETS_HTML_EN) $(DOC_OUT_HTML)/en/index.html $(DOC_OUT_HTML)/en/gcode.html .htmldoc-stamp
-	$(DOC_SRCDIR)/checkref --warn-on-failure English $(filter %.html,$^)
-	@touch $@
-
-# Pattern rule for all languages.  Per-lang gcode.html is po4a-translated
-# from src/gcode.html and lands as a sibling to each lang's index.html.
-checkref_%: $(DOC_DIR)/.checkref-%-stamp ;
-$(DOC_DIR)/.checkref-%-stamp: $$(DOC_TARGETS_HTML_$$(call uc,$$*)) \
-			 $$(DOC_OUT_HTML)/%/gcode.html .htmldoc-stamp
-	$(DOC_SRCDIR)/checkref --warn-on-failure $(call lang_name,$*) $(filter %.html,$$^)
-	@touch $@
-
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_MAN)/%,%, \
 			$(shell grep -s -L '^\.so ' $(MAN_SRCS)))
@@ -1324,7 +1294,6 @@ docclean:
 	-rm -f .include-stamp
 	-rm -f $(DOC_DIR)/.translateddocs-stamp
 	-rm -f $(DOC_DIR)/.gen_complist-stamp
-	-rm -f $(DOC_DIR)/.checkref-*-stamp
 	-rm -f $(OTHER_DOTFILES:.dot=.svg)
 
 
