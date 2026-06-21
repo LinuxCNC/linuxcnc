@@ -383,12 +383,18 @@ DOC_TARGETS_HTML_EN := $(addprefix $(DOC_OUT_HTML)/en/, \
 	$(filter-out $(foreach L,$(LANGUAGES),$(L)/%), \
 	$(patsubst %.adoc,%.html, \
 	$(filter-out Master_%, $(DOC_SRCS_EN)))))
+# Page stems English builds (Master_* are PDF-only; include::d partials are not
+# pages).  Translations are filtered to this set: the per-language list comes
+# from po4a.cfg, which lists partials too, so without it a partial renders
+# standalone with a dead en/ language-switcher link.
+DOC_HTML_PAGE_STEMS := $(patsubst %.adoc,%.html,$(filter-out Master_% man/%,$(DOC_SRCS_EN)))
 $(foreach L,$(LANGUAGES), \
 	$(eval DOC_TARGETS_HTML_$(call toUC,$(L)) := \
-		$$(addprefix $(DOC_OUT_HTML)/, \
-		$$(patsubst %.adoc,%.html, \
+		$$(addprefix $(DOC_OUT_HTML)/$(L)/, \
+		$$(filter $$(DOC_HTML_PAGE_STEMS), \
+		$$(patsubst $(L)/%.adoc,%.html, \
 		$$(filter-out $(L)/Master_% $(L)/man/%, \
-		$$(DOC_SRCS_$(call toUC,$(L))))))))
+		$$(DOC_SRCS_$(call toUC,$(L)))))))))
 DOC_TARGETS_HTML = $(DOC_TARGETS_HTML_EN)
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 DOC_TARGETS_HTML += $(foreach L,$(LANGUAGES),$(DOC_TARGETS_HTML_$(call toUC,$(L))))
