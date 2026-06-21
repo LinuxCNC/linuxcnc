@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   DEBIAN_FRONTEND: noninteractive
 
@@ -161,6 +165,17 @@ jobs:
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
         .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
+    - name: Tar linuxcnc-doc
+      run: |
+        set -x
+        tar -czf linuxcnc-doc.tar.gz -C docs html
+    - name: Upload linuxcnc-doc artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: linuxcnc-doc
+        archive: false
+        path: linuxcnc-doc.tar.gz
+        if-no-files-found: error
 
   package-arch:
     runs-on: ${{ matrix.runner }}
@@ -168,16 +183,27 @@ jobs:
       matrix:
         runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
         image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
+        include:
+          - allow_fail: False
+            image: debian:bullseye
+          - allow_fail: False
+            image: debian:bookworm
+          - allow_fail: False
+            image: debian:trixie
+          - allow_fail: True
+            image: debian:sid
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
       options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+    continue-on-error: ${{ matrix.allow_fail }}
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
+        echo Allow failure: ${{ matrix.allow_fail }}
         echo Number of CPUs: $(nproc)
         echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
@@ -251,16 +277,27 @@ jobs:
     strategy:
       matrix:
         image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
+        include:
+        - allow_fail: False
+          image: debian:bullseye
+        - allow_fail: False
+          image: debian:bookworm
+        - allow_fail: False
+          image: debian:trixie
+        - allow_fail: True
+          image: debian:sid
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
       options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+    continue-on-error: ${{ matrix.allow_fail }}
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
+        echo Allow failure: ${{ matrix.allow_fail }}
         echo Number of CPUs: $(nproc)
         echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies

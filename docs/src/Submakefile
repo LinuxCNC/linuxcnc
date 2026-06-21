@@ -518,6 +518,8 @@ $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR
 	cat $(filter-out ../VERSION, $^) | \
 		sed "s/@VERSION@/`cat ../VERSION`/" | \
 		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
+	cp -f $(DOC_DIR)/html/index.css $(DOC_DIR)/html/linuxcnc-logo-chips.png \
+		$(DOC_DIR)/html/plus.png $(DOC_DIR)/html/minus.png $(dir $@)
 
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/"  | \
