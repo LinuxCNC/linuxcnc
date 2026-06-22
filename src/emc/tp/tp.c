@@ -9,6 +9,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 #include "posemath.h"           /* Geometry types & functions */
 #include "emcpose.h"
@@ -425,8 +426,7 @@ static int tpClear(TP_STRUCT * const tp)
     // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
-    struct state_tag_t tag = {0};
-    tp->execTag = tag;
+    tp->execFeedUpm = 0.0;
     tp->motionType = 0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
@@ -593,14 +593,13 @@ static int tpGetExecId(TP_STRUCT * const tp)
     return tp->execId;
 }
 
-static struct state_tag_t tpGetExecTag(TP_STRUCT * const tp)
+static double tpGetExecFeedUpm(TP_STRUCT * const tp)
 {
     if (0 == tp) {
-        struct state_tag_t empty = {0};
-        return empty;
+        return 0.0;
     }
 
-    return tp->execTag;
+    return tp->execFeedUpm;
 }
 
 
@@ -808,8 +807,8 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     //In the future, radius may be adjustable.
     tcFinalizeLength(blend_tc);
 
-    // copy state tag from previous segment during blend motion
-    blend_tc->tag = prev_tc->tag;
+    // copy feed_upm from previous segment during blend motion
+    blend_tc->feed_upm = prev_tc->feed_upm;
 
     return TP_ERR_OK;
 }
@@ -1562,7 +1561,7 @@ static int tpAddRigidTap(TP_STRUCT * const tp,
         double acc,
         unsigned char enables,
         double scale,
-        struct state_tag_t tag) {
+        double feed_upm) {
 
     if (tpErrorCheck(tp)) {
         return TP_ERR_FAIL;
@@ -1587,7 +1586,7 @@ static int tpAddRigidTap(TP_STRUCT * const tp,
             tp->cycleTime,
             enables,
             1);
-    tc.tag = tag;
+    tc.feed_upm = feed_upm;
 
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
@@ -2048,7 +2047,7 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
 
 static int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             double vel, double ini_maxvel, double acc, unsigned char enables,
-            char atspeed, int indexer_jnum, struct state_tag_t tag)
+            char atspeed, int indexer_jnum, double feed_upm)
 {
     const mot_callbacks_t *mot = (const mot_callbacks_t *)tp->mot;
     if (tpErrorCheck(tp) < 0) {
@@ -2064,7 +2063,7 @@ static int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             tp->cycleTime,
             enables,
             atspeed);
-    tc.tag = tag;
+    tc.feed_upm = feed_upm;
 
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
@@ -2134,7 +2133,7 @@ static int tpAddCircle(TP_STRUCT * const tp,
         double acc,
         unsigned char enables,
         char atspeed,
-        struct state_tag_t tag)
+        double feed_upm)
 {
     const mot_callbacks_t *mot = (const mot_callbacks_t *)tp->mot;
     if (tpErrorCheck(tp)<0) {
@@ -2152,7 +2151,7 @@ static int tpAddCircle(TP_STRUCT * const tp,
             tp->cycleTime,
             enables,
             atspeed);
-    tc.tag = tag;
+    tc.feed_upm = feed_upm;
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
 
@@ -2995,8 +2994,8 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_WAITING;
     }
 
-    // Update the modal state displayed by the TP
-    tp->execTag = tc->tag;
+    // Update the feed rate displayed by the TP
+    tp->execFeedUpm = tc->feed_upm;
 
     return TP_ERR_OK;
 }
@@ -3736,8 +3735,6 @@ _Static_assert(sizeof(tp_pose_t) == sizeof(EmcPose),
     "tp_pose_t and EmcPose must have the same size");
 _Static_assert(sizeof(tp_cartesian_t) == sizeof(PmCartesian),
     "tp_cartesian_t and PmCartesian must have the same size");
-_Static_assert(sizeof(tp_state_tag_t) == sizeof(struct state_tag_t),
-    "tp_state_tag_t and state_tag_t must have the same size");
 
 // ─── TP instance is now embedded in tpmod_inst_t (inst->tp) ────────
 
@@ -3786,20 +3783,20 @@ static int32_t gmi_tp_set_run_dir(void *ctx, tp_direction_t dir)
 static int32_t gmi_tp_add_line(void *ctx, const tp_pose_t *end,
     int32_t canon_motion_type, double vel, double ini_maxvel,
     double acc, uint8_t enables, int8_t atspeed,
-    int32_t indexrotary, const tp_state_tag_t *tag)
+    int32_t indexrotary, double feed_upm)
 {
     tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
     return tpAddLine(&inst->tp, *(EmcPose *)end,
                      canon_motion_type, vel, ini_maxvel, acc,
                      enables, (char)atspeed, indexrotary,
-                     *(struct state_tag_t *)tag);
+                     feed_upm);
 }
 
 static int32_t gmi_tp_add_circle(void *ctx, const tp_pose_t *end,
     const tp_cartesian_t *center, const tp_cartesian_t *normal,
     int32_t turn, int32_t canon_motion_type,
     double vel, double ini_maxvel, double acc,
-    uint8_t enables, int8_t atspeed, const tp_state_tag_t *tag)
+    uint8_t enables, int8_t atspeed, double feed_upm)
 {
     tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
     return tpAddCircle(&inst->tp, *(EmcPose *)end,
@@ -3807,18 +3804,18 @@ static int32_t gmi_tp_add_circle(void *ctx, const tp_pose_t *end,
                        turn, canon_motion_type,
                        vel, ini_maxvel, acc,
                        enables, (char)atspeed,
-                       *(struct state_tag_t *)tag);
+                       feed_upm);
 }
 
 static int32_t gmi_tp_add_rigid_tap(void *ctx, const tp_pose_t *end,
     double vel, double ini_maxvel, double acc,
-    uint8_t enables, double scale, const tp_state_tag_t *tag)
+    uint8_t enables, double scale, double feed_upm)
 {
     tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
     return tpAddRigidTap(&inst->tp, *(EmcPose *)end,
                          vel, ini_maxvel, acc,
                          enables, scale,
-                         *(struct state_tag_t *)tag);
+                         feed_upm);
 }
 
 static int32_t gmi_tp_set_aout(void *ctx, uint8_t index, double start_val, double end_val)
@@ -3839,13 +3836,7 @@ static int32_t gmi_tp_resume(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)c
 static int32_t gmi_tp_abort(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpAbort(&inst->tp); }
 static int32_t gmi_tp_get_exec_id(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecId(&inst->tp); }
 
-static int32_t gmi_tp_get_exec_tag(void *ctx, tp_state_tag_t *tag)
-{
-    tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
-    struct state_tag_t t = tpGetExecTag(&inst->tp);
-    memcpy(tag, &t, sizeof(t));
-    return 0;
-}
+static double gmi_tp_get_feed_upm(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecFeedUpm(&inst->tp); }
 
 static int32_t gmi_tp_get_pos(void *ctx, tp_pose_t *pos) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetPos(&inst->tp, (EmcPose *)pos); }
 static int32_t gmi_tp_is_done(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpIsDone(&inst->tp); }

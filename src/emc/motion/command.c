@@ -52,6 +52,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 
 #include <float.h>
@@ -159,8 +160,9 @@ static int joint_jog_ok(motmod_inst_t *inst, int joint_num, double vel)
 void refresh_jog_limits(motmod_inst_t *inst, emcmot_joint_t *joint, int joint_num)
 {
     double range;
+    (void)inst; (void)joint_num;
 
-    if (inst->home_api->get_homed(inst->home_api->ctx, joint_num) ) {
+    if (JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx) ) {
 	/* if homed, set jog limits using soft limits */
 	joint->max_jog_limit = joint->max_pos_limit;
 	joint->min_jog_limit = joint->min_pos_limit;
@@ -211,12 +213,12 @@ static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
         axis_check_constraints(ai, targets, failing_axes);
         for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
             if (failing_axes[axis_num] == -1) {
-                gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed %c's %s limit"),
+                gomc_log_errorf(inst->log, inst->name, _("%s move (segment %d) would exceed %c's %s limit"),
                                 move_type, id, axis_letters[axis_num], _("negative"));
                 in_range = 0;
             }
             if (failing_axes[axis_num] == 1) {
-                gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed %c's %s limit"),
+                gomc_log_errorf(inst->log, inst->name, _("%s move (segment %d) would exceed %c's %s limit"),
                                 move_type, id, axis_letters[axis_num], _("positive"));
                 in_range = 0;
             }
@@ -234,7 +236,7 @@ static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
     /* now fill in with real values, for joints that are used */
     if (motmod_kinematicsInverse(inst, &pos, joint_pos, &inst->iflags, &inst->fflags) != 0)
     {
-	gomc_log_errorf(inst->log, inst->name, _("%s move on line %d fails motmod_kinematicsInverse"),
+	gomc_log_errorf(inst->log, inst->name, _("%s move (segment %d) fails motmod_kinematicsInverse"),
 		    move_type, id);
 	return 0;
     }
@@ -249,20 +251,20 @@ static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
 	}
 	if(!isfinite(joint_pos[joint_num]))
 	{
-	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %d gave non-finite joint location on joint %d"),
+	    gomc_log_errorf(inst->log, inst->name, _("%s move (segment %d) gave non-finite joint location on joint %d"),
 		    move_type, id, joint_num);
 	    in_range = 0;
 	    continue;
 	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
-	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed joint %d's positive limit"),
+	    gomc_log_errorf(inst->log, inst->name, _("%s move (segment %d) would exceed joint %d's positive limit"),
 			move_type, id, joint_num);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
-	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed joint %d's negative limit"),
+	    gomc_log_errorf(inst->log, inst->name, _("%s move (segment %d) would exceed joint %d's negative limit"),
 			move_type, id, joint_num);
 	}
     }
@@ -286,10 +288,12 @@ void clearHomes(motmod_inst_t *inst, int joint_num)
     if (inst->config->kinType == KINEMATICS_INVERSE_ONLY) {
 	if (rehomeAll) {
 	    for (n = 0; n < ALL_JOINTS; n++) {
-                inst->home_api->set_unhomed(inst->home_api->ctx, n, (home_motion_state_t)inst->status->motion_state);
+                const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[n]);
+                hapi->set_unhomed(hapi->ctx, (home_motion_state_t)inst->status->motion_state);
 	    }
 	} else {
-            inst->home_api->set_unhomed(inst->home_api->ctx, joint_num, (home_motion_state_t)inst->status->motion_state);
+            emcmot_joint_t *j = &inst->joints[joint_num];
+            JOINT_HOME_API(j)->set_unhomed(JOINT_HOME_API(j)->ctx, (home_motion_state_t)inst->status->motion_state);
 	}
     }
 }
@@ -472,18 +476,18 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                     || inst->command->command == EMCMOT_JOG_ABS
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
-                && inst->home_api->get_is_synchronized(inst->home_api->ctx, joint_num)
-                && !inst->home_api->get_is_active(inst->home_api->ctx)
+                && (joint->home_sequence < 0) /* negative = synchronized */
+                && !inst->homing_active
                ) {
                   if (inst->config->kinType == KINEMATICS_IDENTITY) {
                       gomc_log_errorf(inst->log, inst->name, 
                       "Homing is REQUIRED to jog requested coordinate\n"
                       "because joint (%d) home_sequence is synchronized (%d)\n"
-                      ,joint_num,inst->home_api->get_sequence(inst->home_api->ctx, joint_num));
+                      ,joint_num, joint->home_sequence);
                   } else {
                       gomc_log_errorf(inst->log, inst->name, 
                       "Cannot jog joint %d because home_sequence is synchronized (%d)\n"
-                      ,joint_num,inst->home_api->get_sequence(inst->home_api->ctx, joint_num));
+                      ,joint_num, joint->home_sequence);
                   }
                   return;
             }
@@ -512,10 +516,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		    /* tell joint planner to stop */
 		    joint->free_tp.enable = 0;
 		    /* stop homing if in progress */
-		    if ( ! inst->home_api->get_is_idle(inst->home_api->ctx, joint_num)) {
-			inst->home_api->do_cancel(inst->home_api->ctx, joint_num);
+		    if ( ! JOINT_HOME_API(joint)->get_is_idle(JOINT_HOME_API(joint)->ctx)) {
+			JOINT_HOME_API(joint)->do_cancel(JOINT_HOME_API(joint)->ctx);
 		    }
 		}
+		/* Reset sequence state */
+		inst->sequence_state = HOME_SEQUENCE_IDLE;
+		inst->homing_active = 0;
 	    }
             SET_MOTION_ERROR_FLAG(0);
 	    /* clear joint errors (regardless of mode) */
@@ -544,8 +551,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        joint->kb_jjog_active    = 0;
 	        joint->wheel_jjog_active = 0;
 	        /* stop homing if in progress */
-	        if ( !inst->home_api->get_is_idle(inst->home_api->ctx, joint_num) ) {
-	            inst->home_api->do_cancel(inst->home_api->ctx, joint_num);
+	        if ( !JOINT_HOME_API(joint)->get_is_idle(JOINT_HOME_API(joint)->ctx) ) {
+	            JOINT_HOME_API(joint)->do_cancel(JOINT_HOME_API(joint)->ctx);
 	        }
 	        /* update status flags */
 	        SET_JOINT_ERROR_FLAG(joint, 0);
@@ -578,7 +585,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    inst->internal->coordinating = 1;
 	    inst->internal->teleoperating = 0;
 	    if (inst->config->kinType != KINEMATICS_IDENTITY) {
-		if (!inst->home_api->get_allhomed(inst->home_api->ctx)) {
+		if (!inst->all_homed) {
 		    gomc_log_errorf(inst->log, inst->name, 
 			_("all joints must be homed before going into coordinated mode"));
 		    inst->internal->coordinating = 0;
@@ -645,7 +652,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    if (joint == 0) {
 		break;
 	    }
-	    inst->home_api->set_joint_params(inst->home_api->ctx, joint_num,
+	    joint->home_sequence = inst->command->home_sequence;
+	    joint->volatile_home = inst->command->volatile_home ? 1 : 0;
+	    JOINT_HOME_API(joint)->set_params(JOINT_HOME_API(joint)->ctx,
 	                            inst->command->offset,
 	                            inst->command->home,
 	                            inst->command->home_final_vel,
@@ -664,7 +673,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    if (joint == 0) {
 		break;
 	    }
-	    inst->home_api->update_joint_params(inst->home_api->ctx, joint_num,
+	    joint->home_sequence = inst->command->home_sequence;
+	    JOINT_HOME_API(joint)->update_params(JOINT_HOME_API(joint)->ctx,
 	                               inst->command->offset,
 	                               inst->command->home,
 	                               inst->command->home_sequence
@@ -781,7 +791,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                     gomc_log_errorf(inst->log, inst->name, _("Cannot jog while jog-inhibit is active."));
                 break;
             }
-	    if ( inst->home_api->get_is_active(inst->home_api->ctx) ) {
+	    if ( inst->homing_active ) {
 		gomc_log_errorf(inst->log, inst->name, _("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -791,7 +801,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		    /* can't do two kinds of jog at once */
 		    break;
 	        }
-                if (inst->home_api->get_needs_unlock_first(inst->home_api->ctx, joint_num) ) {
+                if (JOINT_HOME_API(joint)->get_needs_unlock_first(JOINT_HOME_API(joint)->ctx) ) {
                     gomc_log_errorf(inst->log, inst->name, "Can't jog locking joint_num=%d",joint_num);
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
@@ -849,7 +859,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                     gomc_log_errorf(inst->log, inst->name, _("Cannot jog while jog-inhibit is active."));
                 break;
             }
-	    if ( inst->home_api->get_is_active(inst->home_api->ctx) ) {
+	    if ( inst->homing_active ) {
 		gomc_log_errorf(inst->log, inst->name, _("Can't jog any joint while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -859,7 +869,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		    /* can't do two kinds of jog at once */
 		    break;
 	        }
-                if (inst->home_api->get_needs_unlock_first(inst->home_api->ctx, joint_num) ) {
+                if (JOINT_HOME_API(joint)->get_needs_unlock_first(JOINT_HOME_API(joint)->ctx) ) {
                     gomc_log_errorf(inst->log, inst->name, "Can't jog locking joint_num=%d",joint_num);
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
@@ -928,7 +938,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                     gomc_log_errorf(inst->log, inst->name, _("Cannot jog while jog-inhibit is active."));
                 break;
             }
-	    if ( inst->home_api->get_is_active(inst->home_api->ctx) ) {
+	    if ( inst->homing_active ) {
 		gomc_log_errorf(inst->log, inst->name, _("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -1032,10 +1042,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					inst->status->enables_new,
 					(int8_t)issue_atspeed,
 					inst->command->turn,
-					(const tp_state_tag_t *)&inst->command->tag);
+					inst->command->feed_upm);
         //KLUDGE ignore zero length line
         if (res_addline < 0) {
-            gomc_log_errorf(inst->log, inst->name, _("can't add linear move at line %d, error code %d"),
+            gomc_log_errorf(inst->log, inst->name, _("can't add linear move (segment %d), error code %d"),
                     inst->command->id, res_addline);
             inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
             inst->tp_api->abort(inst->tp_api->ctx);
@@ -1092,9 +1102,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             inst->command->vel, inst->command->ini_maxvel,
                             inst->command->acc, inst->status->enables_new,
 			    (int8_t)issue_atspeed,
-                            (const tp_state_tag_t *)&inst->command->tag);
+                            inst->command->feed_upm);
         if (res_addcircle < 0) {
-            gomc_log_errorf(inst->log, inst->name, _("can't add circular move at line %d, error code %d"),
+            gomc_log_errorf(inst->log, inst->name, _("can't add circular move (segment %d), error code %d"),
                     inst->command->id, res_addcircle);
 		inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		inst->tp_api->abort(inst->tp_api->ctx);
@@ -1401,22 +1411,75 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    }
 
 	    // Negative joint_num specifies homeall
-	    inst->home_api->do_home_joint(inst->home_api->ctx, joint_num);
+	    if (joint_num < 0) {
+	        /* home all: only start if not already homing */
+	        if (!inst->homing_active) {
+	            inst->sequence_state = HOME_SEQUENCE_START;
+	        }
+	    } else {
+	        /* home one joint: apply rules for negative home_sequence */
+	        if (joint->home_sequence < 0) {
+	            /* negative sequence: home all joints in that sequence group */
+	            int jj;
+	            inst->sequence_state = HOME_SEQUENCE_DO_ONE_SEQUENCE;
+	            for (jj = 0; jj < ALL_JOINTS; jj++) {
+	                if (abs(inst->joints[jj].home_sequence) == abs(joint->home_sequence)) {
+	                    JOINT_HOME_API(&inst->joints[jj])->do_home(
+	                        JOINT_HOME_API(&inst->joints[jj])->ctx);
+	                }
+	            }
+	        } else {
+	            inst->sequence_state = HOME_SEQUENCE_DO_ONE_JOINT;
+	            JOINT_HOME_API(joint)->do_home(JOINT_HOME_API(joint)->ctx);
+	        }
+	    }
 	    break;
 
 	case EMCMOT_JOINT_UNHOME:
-            /* unhome the specified joint, or all joints if -1 */
+            /* unhome the specified joint, or all joints if -1, or
+             * only volatile_home joints if -2 */
             gomc_log_debugf(inst->log, inst->name, "JOINT_UNHOME");
             gomc_log_debugf(inst->log, inst->name, " %d", joint_num);
 
-            if (   (inst->status->motion_state != EMCMOT_MOTION_FREE)
-                && (inst->status->motion_state != EMCMOT_MOTION_DISABLED)) {
-                gomc_log_errorf(inst->log, inst->name, _("must be in joint mode or disabled to unhome"));
-                return;
+            /* Unhoming is allowed from any mode — the per-joint set_unhomed()
+             * already guards against unhoming while moving or homing.
+             * After unhoming, we force transition to FREE (joint) mode since
+             * coord/teleop require all joints homed. */
+
+            //Negative joint_num specifies unhome_method (-1 = all, -2 = volatile only)
+            if (joint_num < 0) {
+                int j;
+                for (j = 0; j < ALL_JOINTS; j++) {
+                    /* Skip extra-joints when motion is not disabled */
+                    if (IS_EXTRA_JOINT(j) &&
+                        inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
+                        continue;
+                    }
+                    /* For joint_num==-2 only unhome joints with volatile_home set */
+                    if (joint_num == -2 && !inst->joints[j].volatile_home) {
+                        continue;
+                    }
+                    const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[j]);
+                    hapi->set_unhomed(hapi->ctx, (home_motion_state_t)inst->status->motion_state);
+                }
+            } else {
+                /* Single joint: guard against unhoming extra-joints while enabled */
+                if (IS_EXTRA_JOINT(joint_num) &&
+                    inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
+                    gomc_log_errorf(inst->log, inst->name,
+                        _("cannot unhome extrajoint <%d> with motion enabled"), joint_num);
+                    break;
+                }
+                JOINT_HOME_API(joint)->set_unhomed(JOINT_HOME_API(joint)->ctx, (home_motion_state_t)inst->status->motion_state);
             }
 
-            //Negative joint_num specifies unhome_method (-1,-2)
-            inst->home_api->set_unhomed(inst->home_api->ctx, joint_num, (home_motion_state_t)inst->status->motion_state);
+            /* If we're in coord/teleop and motion is enabled, force
+             * transition to FREE mode — coord/teleop with unhomed joints
+             * is not valid. */
+            if (inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
+                inst->internal->coordinating = 0;
+                inst->internal->teleoperating = 0;
+            }
             break;
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:
@@ -1477,7 +1540,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				inst->status->enables_new,
 				0,
 				-1,
-				(const tp_state_tag_t *)&inst->command->tag)) {
+				inst->command->feed_upm)) {
 		gomc_log_errorf(inst->log, inst->name, _("can't add probe move"));
 		inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		inst->tp_api->abort(inst->tp_api->ctx);
@@ -1526,10 +1589,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                                     inst->command->acc,
                                     inst->status->enables_new,
                                     inst->command->scale,
-                                    (const tp_state_tag_t *)&inst->command->tag);
+                                    inst->command->feed_upm);
         if (res_addtap < 0) {
             inst->status->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
-            gomc_log_errorf(inst->log, inst->name, _("can't add rigid tap move at line %d, error code %d"),
+            gomc_log_errorf(inst->log, inst->name, _("can't add rigid tap move (segment %d), error code %d"),
                     inst->command->id, res_addtap);
 		inst->tp_api->abort(inst->tp_api->ctx);
 		SET_MOTION_ERROR_FLAG(1);

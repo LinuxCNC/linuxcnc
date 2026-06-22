@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package ast defines the intermediate representation shared between
 // modcompile frontends (.comp, future .st) and backends (C codegen).
 //

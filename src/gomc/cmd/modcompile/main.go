@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // modcompile compiles .comp files into cmod .so plugins for gomc-server,
 // and manages the package registry for compiled-in Go modules.
 //
@@ -1124,6 +1126,10 @@ func processGMIFile(file string, m gmiMode, outputPath string) error {
 			fmt.Fprintln(os.Stderr, e)
 		}
 		return fmt.Errorf("parse failed")
+	}
+
+	if api.License == "" {
+		return fmt.Errorf("%s: missing required @license annotation", file)
 	}
 
 	switch m {

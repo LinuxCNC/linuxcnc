@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package launcher — gomodules.go handles loading, lifecycle management of
 // Go modules compiled into the gomc-server binary.
 //

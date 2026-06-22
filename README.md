@@ -208,8 +208,17 @@ GMC_INSTANCE=mill2 axis
 
 ## License
 
-This project contains code under **GPL-2.0** (inherited from LinuxCNC) and
-**LGPL-3.0** (new components). See [COPYING](COPYING) for details.
+This project contains code under multiple open source licenses:
+
+- **GPL-2.0** — inherited LinuxCNC code (motion, HAL, interpreter, drivers, etc.)
+  and new `src/gomc` components by Sascha Ittner. See [COPYING](COPYING).
+- **LGPL-2.0** — HAL library (`hal_lib.c`, `gomc_hal.h`), originally by
+  John Kasunich. See [COPYING.more](COPYING.more).
+- **LGPL-2.1** — RTAPI interface (`gomc_rtapi.h`) originally by John Kasunich
+  and Paul Corner; GMI library headers (`src/gmi/lib/`) by Sascha Ittner.
+- **LGPL-2.1+** — Classic Ladder RT engine, originally by Marc Le Douarain.
+
+See individual source file headers for per-file license and copyright details.
 
 ## Status
 

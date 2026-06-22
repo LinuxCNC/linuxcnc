@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package halrest implements the server-side halcmd REST API handler.
 // It registers with the apiserver and dispatches REST calls to the
 // launcher's internal halcmd package (no liblinuxcnchal.so dependency).

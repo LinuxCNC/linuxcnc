@@ -3,6 +3,8 @@
 # Each request creates a fresh interpreter instance (multi-instance safe).
 
 @api ngcpreview
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix ngcpreview
 @rest_export true

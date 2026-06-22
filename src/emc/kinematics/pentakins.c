@@ -1,5 +1,7 @@
 // pentakins — pentapod parallel kinematics (cmod version)
-// Derived from genhexkins. Copyright (c) 2016 Andrew Kyrychenko.
+// Derived from genhexkins.
+// Copyright (c) 2016 Andrew Kyrychenko
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 // License: GPL Version 2
 
 #include <math.h>

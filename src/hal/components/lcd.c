@@ -1,6 +1,6 @@
 //
 //    Copyright (C) 2013 Andy Pugh
-//    cmod port (C) 2026
+//    Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by

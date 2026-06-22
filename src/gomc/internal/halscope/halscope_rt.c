@@ -5,7 +5,7 @@
  * allocated by Go, the RT function is exported to HAL via hal_export_funct().
  *
  * Copyright (C) 2003 John Kasunich (original scope_rt.c)
- * Copyright (C) 2026 LinuxCNC contributors
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of version 2 of the GNU General Public License.

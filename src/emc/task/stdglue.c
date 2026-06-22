@@ -8,6 +8,7 @@
 *           S (setspeed), F (setfeed), and cycle prolog/epilog.
 *
 * License: GPL Version 2
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — C port of stdglue.py
 ********************************************************************/
 
 #include <stdio.h>

@@ -6,6 +6,9 @@
 # linuxcnc.STATE_*, etc. Python clients get IntEnum classes.
 
 @api emcstat
+@author "Fred Proctor & Will Shackleford (emc_nml.hh)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix emcstat
 @rest_export true

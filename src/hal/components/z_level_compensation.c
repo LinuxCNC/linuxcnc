@@ -18,7 +18,9 @@
  *   loadrt z_level_compensation
  *   addf z_level_compensation.compensate servo-thread
  *
- * Copyright (C) 2024 LinuxCNC contributors
+ * Copyright (C) 2020 Scott Alford <scottalford75@gmail.com> (original Python)
+ * Copyright (C) 2020 Jim Sloot <persei802@gmail.com> (QtDragon adaptation)
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * License: GPL v2+
  */
 

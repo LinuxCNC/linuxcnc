@@ -8,6 +8,7 @@
  * Originally a Python userspace component (bin/hal_input + lib/python/linux_event.py).
  *
  * Copyright (C) 2007 Jeff Epler <jepler@unpythonic.net>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — C/cmod port
  * License: GPL v2+
  */
 

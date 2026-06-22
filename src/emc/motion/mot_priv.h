@@ -17,6 +17,9 @@
 #include "tp_api.h"
 #include "home_api.h"
 
+/* Helper to get per-joint home_api from joint struct */
+#define JOINT_HOME_API(joint) ((const home_callbacks_t *)(joint)->home_api)
+
 /***********************************************************************
 *                   INSTANCE STRUCT (multi-instance support)            *
 ************************************************************************/
@@ -35,13 +38,26 @@ typedef struct motmod_inst {
     char pin_prefix[HAL_NAME_LEN]; /* "name." when aliased, "" when default */
     char kins_inst_name[HAL_NAME_LEN];
     char tp_inst_name[HAL_NAME_LEN];
-    char home_inst_name[HAL_NAME_LEN];
+    char home_inst_prefix[HAL_NAME_LEN]; /* prefix for per-joint homemod lookup */
     int comp_id;
 
     /* cross-module API pointers */
     const kins_callbacks_t *kins;
     const tp_callbacks_t *tp_api;
-    const home_callbacks_t *home_api;
+
+    /* homing sequence coordination (replicated from original homing.c FSM) */
+    enum {
+        HOME_SEQUENCE_IDLE = 0,
+        HOME_SEQUENCE_START,
+        HOME_SEQUENCE_DO_ONE_JOINT,
+        HOME_SEQUENCE_DO_ONE_SEQUENCE,
+        HOME_SEQUENCE_START_JOINTS,
+        HOME_SEQUENCE_WAIT_JOINTS,
+    } sequence_state;
+    int current_sequence;      /* which sequence number is currently active */
+    int homing_active;         /* 1 if any joint is homing */
+    int all_homed;             /* 1 if all joints homed */
+    int joint_in_sequence[EMCMOT_MAX_JOINTS]; /* per-joint participation flag */
 
     /* HAL data */
     emcmot_hal_data_t *hal_data;

@@ -3,6 +3,7 @@ static const void *hm2_log;
 /*    This is a component for RaspberryPi to hostmot2 over SPI for linuxcnc.
  *    Copyright 2016 Matsche <tinker@play-pla.net>
  *    Copyright 2017 B.Stultiens <lcnc@vagrearg.org>
+ *    Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by

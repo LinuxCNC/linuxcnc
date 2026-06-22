@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package lockfile manages the LinuxCNC lock file (/tmp/linuxcnc.lock).
 //
 // The lock file prevents multiple concurrent LinuxCNC instances from running.

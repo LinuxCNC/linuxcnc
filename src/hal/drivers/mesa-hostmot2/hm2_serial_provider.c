@@ -6,6 +6,9 @@
 //
 // The callbacks struct is populated by hm2_serial_provider_init() and
 // registered with the GMI API registry by hostmot2.c in New().
+//
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 
 #include "rtapi_stdint.h"
 #include "hm2_serial_api.h"

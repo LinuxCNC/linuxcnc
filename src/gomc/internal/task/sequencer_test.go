@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -17,7 +19,7 @@ type testMotion struct {
 	callCount int
 }
 
-func (m *testMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType, id int32, tag StateTag, indexerJnum int32) error {
+func (m *testMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64, indexerJnum int32) error {
 	m.calls = append(m.calls, "SetLine")
 	m.callCount++
 	if m.failAt >= 0 && m.callCount > m.failAt {

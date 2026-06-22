@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package parser
 
 import (
@@ -126,7 +128,7 @@ type annotation struct {
 // isAPIDirective returns true for top-level API directives.
 func isAPIDirective(name string) bool {
 	switch name {
-	case "api", "version", "prefix", "rest_export", "import":
+	case "api", "version", "prefix", "rest_export", "import", "author", "license":
 		return true
 	}
 	return false
@@ -186,6 +188,10 @@ func (p *Parser) applyAPIDirective(api *ast.API, ann annotation) {
 	case "import":
 		p.imports[ann.value] = true
 		api.Imports = append(api.Imports, ast.Import{Name: ann.value, Pos: ann.pos})
+	case "author":
+		api.Authors = append(api.Authors, ann.value)
+	case "license":
+		api.License = ann.value
 	}
 }
 

@@ -2,6 +2,9 @@
 # Blending trajectory planner for LinuxCNC motion controller
 
 @api tp
+@author "Fred Proctor & Will Shackleford (tp.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix tp
 @rest_export false
@@ -24,27 +27,6 @@ type Cartesian {
     x: f64
     y: f64
     z: f64
-}
-
-# state_tag_t: interp state carried with each motion segment
-# fields_float: 5 floats (feed, speed, tolerances, etc.)
-# fields: 8 ints (line number, G-mode, cutter comp, motion mode, etc.)
-# packed_flags: bit-packed state flags
-type StateTag {
-    fields_float_0: f32
-    fields_float_1: f32
-    fields_float_2: f32
-    fields_float_3: f32
-    fields_float_4: f32
-    fields_0: i32
-    fields_1: i32
-    fields_2: i32
-    fields_3: i32
-    fields_4: i32
-    fields_5: i32
-    fields_6: i32
-    fields_7: i32
-    packed_flags: u64
 }
 
 # ─── Enums ───
@@ -104,19 +86,19 @@ func set_run_dir(dir: Direction) -> i32
 func add_line(end: Pose,
               canon_motion_type: i32, vel: f64, ini_maxvel: f64,
               acc: f64, enables: u8, atspeed: i8,
-              indexrotary: i32, tag: StateTag) -> i32
+              indexrotary: i32, feed_upm: f64) -> i32
 
 @doc "Add a circular arc motion segment"
 func add_circle(end: Pose,
                 center: Cartesian, normal: Cartesian,
                 turn: i32, canon_motion_type: i32,
                 vel: f64, ini_maxvel: f64, acc: f64,
-                enables: u8, atspeed: i8, tag: StateTag) -> i32
+                enables: u8, atspeed: i8, feed_upm: f64) -> i32
 
 @doc "Add a rigid tapping motion segment"
 func add_rigid_tap(end: Pose,
                    vel: f64, ini_maxvel: f64, acc: f64,
-                   enables: u8, scale: f64, tag: StateTag) -> i32
+                   enables: u8, scale: f64, feed_upm: f64) -> i32
 
 @doc "Set synchronized analog output on current segment"
 func set_aout(index: u8, start_val: f64, end_val: f64) -> i32
@@ -144,8 +126,8 @@ func abort() -> i32
 @doc "Get the executing segment ID"
 func get_exec_id() -> i32
 
-@doc "Get the executing segment's state tag"
-func get_exec_tag(tag: StateTag byref) -> i32
+@doc "Get the executing segment's feed rate in G-code units per minute"
+func get_feed_upm() -> f64
 
 @doc "Get the current position"
 func get_pos(pos: Pose byref) -> i32

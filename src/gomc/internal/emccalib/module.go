@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package emccalib implements the live calibration tuning gomod.
 //
 // It reads the calibreg registry (populated during HAL file loading) to

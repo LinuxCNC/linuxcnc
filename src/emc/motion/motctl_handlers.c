@@ -4,7 +4,11 @@
 *   Each handler fills an emcmot_command_t and sends it to the RT
 *   side via the shared command buffer.
 *
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
 * License: GPL Version 2
+* Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod GMI port
 ********************************************************************/
 
 #include <string.h>
@@ -13,7 +17,6 @@
 #include "motion.h"
 #include "motion_struct.h"
 #include "mot_priv.h"
-#include "state_tag.h"
 
 #define MOTCTL_API_CGO
 #include "motctl_api.h"
@@ -79,19 +82,6 @@ static inline EmcPose pose_from_motctl(const motctl_pose_t *p)
     return e;
 }
 
-/* Convert motctl_state_tag_t → state_tag_t */
-static inline struct state_tag_t tag_from_motctl(const motctl_state_tag_t *t)
-{
-    struct state_tag_t st;
-    memset(&st, 0, sizeof(st));
-    for (int i = 0; i < MOTCTL_TAG_FIELDS_FLOAT && i < GM_FIELD_FLOAT_MAX_FIELDS; i++)
-        st.fields_float[i] = t->fields_float[i];
-    for (int i = 0; i < MOTCTL_TAG_FIELDS_INT && i < GM_FIELD_MAX_FIELDS; i++)
-        st.fields[i] = t->fields[i];
-    st.packed_flags = t->packed_flags;
-    return st;
-}
-
 #define CTX motctl_ctx_t *mc = (motctl_ctx_t *)ctx
 
 /* ================================================================
@@ -100,7 +90,7 @@ static inline struct state_tag_t tag_from_motctl(const motctl_state_tag_t *t)
 
 static int32_t h_set_line(void *ctx, const motctl_pose_t *pos,
     double vel, double ini_maxvel, double acc,
-    int32_t motion_type, int32_t id, const motctl_state_tag_t *tag,
+    int32_t motion_type, int32_t id, double feed_upm,
     int32_t indexer_jnum)
 {
     CTX; emcmot_command_t cmd;
@@ -111,7 +101,7 @@ static int32_t h_set_line(void *ctx, const motctl_pose_t *pos,
     cmd.acc = acc;
     cmd.motion_type = motion_type;
     cmd.id = id;
-    cmd.tag = tag_from_motctl(tag);
+    cmd.feed_upm = feed_upm;
     cmd.turn = indexer_jnum;
     return send_command(mc, &cmd);
 }
@@ -119,7 +109,7 @@ static int32_t h_set_line(void *ctx, const motctl_pose_t *pos,
 static int32_t h_set_circle(void *ctx, const motctl_pose_t *pos,
     const motctl_cartesian_t *center, const motctl_cartesian_t *normal,
     int32_t turn, double vel, double ini_maxvel, double acc,
-    int32_t motion_type, int32_t id, const motctl_state_tag_t *tag)
+    int32_t motion_type, int32_t id, double feed_upm)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_SET_CIRCLE);
@@ -136,14 +126,13 @@ static int32_t h_set_circle(void *ctx, const motctl_pose_t *pos,
     cmd.acc = acc;
     cmd.motion_type = motion_type;
     cmd.id = id;
-    cmd.tag = tag_from_motctl(tag);
+    cmd.feed_upm = feed_upm;
     return send_command(mc, &cmd);
 }
 
 static int32_t h_probe(void *ctx, const motctl_pose_t *pos,
     double vel, double ini_maxvel, double acc,
-    int32_t motion_type, uint8_t probe_type, int32_t id,
-    const motctl_state_tag_t *tag)
+    int32_t motion_type, uint8_t probe_type, int32_t id, double feed_upm)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_PROBE);
@@ -154,13 +143,13 @@ static int32_t h_probe(void *ctx, const motctl_pose_t *pos,
     cmd.motion_type = motion_type;
     cmd.probe_type = probe_type;
     cmd.id = id;
-    cmd.tag = tag_from_motctl(tag);
+    cmd.feed_upm = feed_upm;
     return send_command(mc, &cmd);
 }
 
 static int32_t h_rigid_tap(void *ctx, const motctl_pose_t *pos,
     double vel, double ini_maxvel, double acc,
-    double scale, int32_t id, const motctl_state_tag_t *tag)
+    double scale, int32_t id, double feed_upm)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_RIGID_TAP);
@@ -170,7 +159,7 @@ static int32_t h_rigid_tap(void *ctx, const motctl_pose_t *pos,
     cmd.acc = acc;
     cmd.scale = scale;
     cmd.id = id;
-    cmd.tag = tag_from_motctl(tag);
+    cmd.feed_upm = feed_upm;
     return send_command(mc, &cmd);
 }
 

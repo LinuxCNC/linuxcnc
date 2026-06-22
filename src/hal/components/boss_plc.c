@@ -9,6 +9,8 @@
  *   load boss_plc
  *
  * Original author: Pete Vavaroutsos
+ * Copyright (C) 2007 Pete Vavaroutsos <pete AT vavaroutsos DOT com>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

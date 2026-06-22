@@ -9,6 +9,9 @@
 #   loadrt streamer name=streamer.0 cfg=uffb depth=1000
 
 @api hal_streamer
+@author "John Kasunich (streamer.c)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix hal_streamer
 @rest_export false

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package ast defines the AST types for GMI (GOMC Interface Definition) files.
 //
 // A GMI file describes an API with types, enums, and functions that can be
@@ -40,7 +42,9 @@ type API struct {
 	Version    int    // Version from @version directive
 	Prefix     string // REST path prefix from @prefix directive
 	RestExport bool   // Whether to expose via REST from @rest_export directive
-	Pos        Pos    // Position of @api directive
+	Authors    []string // Authors from @author directives
+	License    string   // License from @license directive
+	Pos        Pos      // Position of @api directive
 
 	Consts        []Const
 	Enums         []Enum
@@ -165,6 +169,8 @@ const (
 	PrimBool   = "bool"
 	PrimI8     = "i8"
 	PrimU8     = "u8"
+	PrimI16    = "i16"
+	PrimU16    = "u16"
 	PrimI32    = "i32"
 	PrimU32    = "u32"
 	PrimI64    = "i64"
@@ -180,6 +186,8 @@ var Primitives = map[string]bool{
 	PrimBool:   true,
 	PrimI8:     true,
 	PrimU8:     true,
+	PrimI16:    true,
+	PrimU16:    true,
 	PrimI32:    true,
 	PrimU32:    true,
 	PrimI64:    true,

@@ -14,6 +14,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 *
 ********************************************************************/
 #ifndef _GNU_SOURCE

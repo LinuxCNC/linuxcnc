@@ -1,4 +1,12 @@
-// interp_shim.cc — C++ implementation of the interpreter shim for cgo.
+// interp_shim.cc — C++ shim exposing the RS274NGC interpreter to CGo.
+//
+// Wraps the InterpBase/Interp C++ virtual class as plain C functions
+// for use from Go via CGo.
+//
+// Original interpreter: Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net>
+//                       and Chris Radek <chris@timeguy.com> (GPL v2)
+// This shim: Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 #include "interp_shim.h"
 
 #include "rs274ngc_interp.hh"

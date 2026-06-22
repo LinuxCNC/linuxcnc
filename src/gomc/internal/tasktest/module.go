@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package tasktest is an integration test module that loads alongside milltask
 // and exercises the emccmd/emcstat APIs. It validates that state transitions,
 // mode switches, and command execution produce the expected observable state.

@@ -2,6 +2,7 @@
 #    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006, 2007, 2008, 2009
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
+#    Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — GMI port
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -931,7 +932,7 @@ class LivePlotter:
             except (AttributeError, KeyError):
                 _jog_speed_from_remote = False
 
-        self.win.set_current_line(self.stat.motion_id or self.stat.motion_line)
+        self.win.set_current_line(self.stat.motion_line)
 
         speed = self.stat.current_vel
 

@@ -1,0 +1,548 @@
+# EtherCAT Master Tool/Diagnostic REST API
+#
+# Provides diagnostic and configuration access to EtherCAT masters,
+# exposing the ecrt_tool_*() API over REST.  Multi-instance support:
+# each cmod instance registers under its own name (default "ethercat").
+# Multi-master: master_index parameter selects master within instance.
+
+@api ethercat
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
+@version 1
+@prefix ethercat
+@rest_export true
+
+# ─── Constants ───
+
+const MAX_NUM_DEVICES = 2
+const RATE_COUNT = 3
+const STRING_SIZE = 64
+const MAX_PORTS = 4
+const MAX_SYNC_MANAGERS = 16
+const SYNC_SIGNAL_COUNT = 2
+const SDO_ENTRY_ACCESS_COUNT = 3
+const MAX_SDO_DATA_SIZE = 1024
+const MAX_IDN_DATA_SIZE = 1024
+const MAX_FLAG_KEY_SIZE = 128
+
+# ─── Types ───
+
+type DeviceStats {
+    address: string         # MAC address as hex string
+    attached: bool
+    link_state: bool
+    tx_count: u64
+    rx_count: u64
+    tx_bytes: u64
+    rx_bytes: u64
+    tx_errors: u64
+    tx_frame_rates: [RATE_COUNT]i32
+    rx_frame_rates: [RATE_COUNT]i32
+    tx_byte_rates: [RATE_COUNT]i32
+    rx_byte_rates: [RATE_COUNT]i32
+}
+
+type MasterInfo {
+    slave_count: u32
+    scan_index: u32
+    config_count: u32
+    domain_count: u32
+    eoe_handler_count: u32
+    phase: u8
+    active: bool
+    scan_busy: bool
+    devices: []DeviceStats
+    num_devices: u32
+    tx_count: u64
+    rx_count: u64
+    tx_bytes: u64
+    rx_bytes: u64
+    tx_frame_rates: [RATE_COUNT]i32
+    rx_frame_rates: [RATE_COUNT]i32
+    tx_byte_rates: [RATE_COUNT]i32
+    rx_byte_rates: [RATE_COUNT]i32
+    loss_rates: [RATE_COUNT]i32
+    app_time: u64
+    dc_ref_time: u64
+    ref_clock: u16
+}
+
+type SlavePort {
+    desc: u8                 # physical port type
+    link: u8                 # port link state
+    receive_time: u32
+    next_slave: u16
+    delay_to_next_dc: u32
+}
+
+type SlaveInfo {
+    position: u16
+    device_index: u32
+    vendor_id: u32
+    product_code: u32
+    revision_number: u32
+    serial_number: u32
+    alias: u16
+    boot_rx_mailbox_offset: u16
+    boot_rx_mailbox_size: u16
+    boot_tx_mailbox_offset: u16
+    boot_tx_mailbox_size: u16
+    std_rx_mailbox_offset: u16
+    std_rx_mailbox_size: u16
+    std_tx_mailbox_offset: u16
+    std_tx_mailbox_size: u16
+    mailbox_protocols: u16
+    has_general_category: bool
+    current_on_ebus: i16
+    ports: [MAX_PORTS]SlavePort
+    dc_supported: bool
+    dc_range: u8             # 0=32bit, 1=64bit
+    has_dc_system_time: bool
+    transmission_delay: u32
+    al_state: u8
+    error_flag: bool
+    sync_count: u8
+    sdo_count: u16
+    sii_nwords: u32
+    group: string
+    image: string
+    order: string
+    name: string
+}
+
+type SyncInfo {
+    slave_position: u16
+    sync_index: u32
+    physical_start_address: u16
+    default_size: u16
+    control_register: u8
+    enable: bool
+    pdo_count: u8
+}
+
+type PdoInfo {
+    slave_position: u16
+    sync_index: u32
+    pdo_pos: u32
+    index: u16
+    entry_count: u8
+    name: string
+}
+
+type PdoEntryInfo {
+    slave_position: u16
+    sync_index: u32
+    pdo_pos: u32
+    entry_pos: u32
+    index: u16
+    subindex: u8
+    bit_length: u8
+    name: string
+}
+
+type DomainInfo {
+    index: u32
+    data_size: u32
+    logical_base_address: u32
+    working_counter: [MAX_NUM_DEVICES]u16
+    expected_working_counter: u16
+    fmmu_count: u32
+}
+
+type DomainFmmuInfo {
+    domain_index: u32
+    fmmu_index: u32
+    slave_config_alias: u16
+    slave_config_position: u16
+    sync_index: u8
+    dir: u8                  # 0=output, 1=input
+    logical_address: u32
+    data_size: u32
+}
+
+type SlaveSdoInfo {
+    slave_position: u16
+    sdo_position: u16
+    sdo_index: u16
+    max_subindex: u8
+    name: string
+}
+
+type SdoEntryInfo {
+    slave_position: u16
+    sdo_spec: i32            # positive: SDO index, negative: list position
+    sdo_entry_subindex: u8
+    data_type: u16
+    bit_length: u16
+    read_access: [SDO_ENTRY_ACCESS_COUNT]bool
+    write_access: [SDO_ENTRY_ACCESS_COUNT]bool
+    description: string
+}
+
+type SdoUploadResult {
+    data: []u8
+    abort_code: u32
+}
+
+type SdoDownloadRequest {
+    sdo_index: u16
+    sdo_entry_subindex: u8
+    complete_access: bool
+    data: []u8
+}
+
+type SdoDownloadResult {
+    abort_code: u32
+}
+
+type SiiData {
+    offset: u16
+    nwords: u32
+    words: []u8
+}
+
+type RegReadResult {
+    data: []u8
+}
+
+type RegWriteRequest {
+    address: u16
+    emergency: bool
+    data: []u8
+}
+
+type FoeReadResult {
+    data: []u8
+    result: u32
+    error_code: u32
+}
+
+type FoeWriteRequest {
+    file_name: string
+    data: []u8
+}
+
+type FoeWriteResult {
+    result: u32
+    error_code: u32
+}
+
+type SoeReadResult {
+    data: []u8
+    error_code: u16
+}
+
+type SoeWriteRequest {
+    drive_no: u8
+    idn: u16
+    data: []u8
+}
+
+type SoeWriteResult {
+    error_code: u16
+}
+
+type SyncSignal {
+    cycle_time: u32
+    shift_time: i32
+}
+
+type ConfigSyncInfo {
+    dir: u8
+    watchdog_mode: u8
+    pdo_count: u32
+    config_this: bool
+}
+
+type ConfigInfo {
+    config_index: u32
+    alias: u16
+    position: u16
+    vendor_id: u32
+    product_code: u32
+    syncs: [MAX_SYNC_MANAGERS]ConfigSyncInfo
+    watchdog_divider: u16
+    watchdog_intervals: u16
+    sdo_count: u32
+    idn_count: u32
+    flag_count: u32
+    slave_position: i32
+    dc_assign_activate: u16
+    dc_sync: [SYNC_SIGNAL_COUNT]SyncSignal
+}
+
+type ConfigPdoInfo {
+    config_index: u32
+    sync_index: u8
+    pdo_pos: u16
+    index: u16
+    entry_count: u8
+    name: string
+}
+
+type ConfigPdoEntryInfo {
+    config_index: u32
+    sync_index: u8
+    pdo_pos: u16
+    entry_pos: u8
+    index: u16
+    subindex: u8
+    bit_length: u8
+    name: string
+}
+
+type ConfigSdoInfo {
+    config_index: u32
+    sdo_pos: u32
+    index: u16
+    subindex: u8
+    size: u32
+    data: []u8
+    complete_access: bool
+}
+
+type ConfigIdnInfo {
+    config_index: u32
+    idn_pos: u32
+    drive_no: u8
+    idn: u16
+    state: u8                # AL state
+    size: u32
+    data: []u8
+}
+
+type ConfigFlagInfo {
+    config_index: u32
+    flag_pos: u32
+    key: string
+    value: i32
+}
+
+type EoeHandlerInfo {
+    eoe_index: u16
+    name: string
+    slave_position: u16
+    open: bool
+    rx_bytes: u32
+    rx_rate: u32
+    tx_bytes: u32
+    tx_rate: u32
+    tx_queued_frames: u32
+    tx_queue_size: u32
+}
+
+type EoeIpRequest {
+    mac_address: string?
+    ip_address: string?
+    subnet_mask: string?
+    gateway: string?
+    dns: string?
+    hostname: string?
+}
+
+type EoeIpResult {
+    result: u16
+}
+
+type SlaveStateRequest {
+    al_state: u8             # 1=INIT, 2=PREOP, 4=SAFEOP, 8=OP
+}
+
+type ModuleInfo {
+    ioctl_version_magic: u32
+    master_count: u32
+}
+
+# ─── Endpoints ───
+
+# Module (version info)
+@method "GET"
+@path "/module"
+@rt_safe "false"
+func get_module() -> ModuleInfo
+
+# Master status
+@method "GET"
+@path "/master"
+@rt_safe "false"
+func get_master(master_index: u32?) -> MasterInfo
+
+# Slave information
+@method "GET"
+@path "/slaves/{position}"
+@rt_safe "false"
+func get_slave(master_index: u32?, position: u16) -> SlaveInfo
+
+# Slave sync manager
+@method "GET"
+@path "/slaves/{position}/syncs/{sync_index}"
+@rt_safe "false"
+func get_slave_sync(master_index: u32?, position: u16, sync_index: u32) -> SyncInfo
+
+# Slave sync manager PDO
+@method "GET"
+@path "/slaves/{position}/syncs/{sync_index}/pdos/{pdo_pos}"
+@rt_safe "false"
+func get_slave_sync_pdo(master_index: u32?, position: u16, sync_index: u32, pdo_pos: u32) -> PdoInfo
+
+# Slave sync manager PDO entry
+@method "GET"
+@path "/slaves/{position}/syncs/{sync_index}/pdos/{pdo_pos}/entries/{entry_pos}"
+@rt_safe "false"
+func get_slave_sync_pdo_entry(master_index: u32?, position: u16, sync_index: u32, pdo_pos: u32, entry_pos: u32) -> PdoEntryInfo
+
+# Domain info
+@method "GET"
+@path "/domains/{index}"
+@rt_safe "false"
+func get_domain(master_index: u32?, index: u32) -> DomainInfo
+
+# Domain FMMU
+@method "GET"
+@path "/domains/{domain_index}/fmmus/{fmmu_index}"
+@rt_safe "false"
+func get_domain_fmmu(master_index: u32?, domain_index: u32, fmmu_index: u32) -> DomainFmmuInfo
+
+# Domain process data (base64-encoded)
+@method "GET"
+@path "/domains/{domain_index}/data"
+@rt_safe "false"
+func get_domain_data(master_index: u32?, domain_index: u32) -> []u8
+
+# Set debug level
+@method "PUT"
+@path "/debug"
+@rt_safe "false"
+func set_debug(master_index: u32?, level: u32) -> bool
+
+# Rescan bus
+@method "POST"
+@path "/rescan"
+@rt_safe "false"
+func rescan(master_index: u32?) -> bool
+
+# Set slave state
+@method "PUT"
+@path "/slaves/{position}/state"
+@rt_safe "false"
+func set_slave_state(master_index: u32?, position: u16, state: SlaveStateRequest) -> bool
+
+# Slave SDO dictionary entry
+@method "GET"
+@path "/slaves/{position}/sdos/{sdo_position}"
+@rt_safe "false"
+func get_slave_sdo(master_index: u32?, position: u16, sdo_position: u16) -> SlaveSdoInfo
+
+# Slave SDO entry metadata
+@method "GET"
+@path "/slaves/{position}/sdos/{sdo_spec}/entries/{subindex}"
+@rt_safe "false"
+func get_slave_sdo_entry(master_index: u32?, position: u16, sdo_spec: i32, subindex: u8) -> SdoEntryInfo
+
+# SDO upload (read from slave)
+@method "GET"
+@path "/slaves/{position}/sdo/{sdo_index}/{subindex}"
+@rt_safe "false"
+func sdo_upload(master_index: u32?, position: u16, sdo_index: u16, subindex: u8, size: u32?) -> SdoUploadResult
+
+# SDO download (write to slave)
+@method "POST"
+@path "/slaves/{position}/sdo/{sdo_index}/{subindex}"
+@rt_safe "false"
+func sdo_download(master_index: u32?, position: u16, sdo_index: u16, subindex: u8, req: SdoDownloadRequest) -> SdoDownloadResult
+
+# SII read (EEPROM)
+@method "GET"
+@path "/slaves/{position}/sii"
+@rt_safe "false"
+func sii_read(master_index: u32?, position: u16, offset: u16, nwords: u32) -> SiiData
+
+# SII write (EEPROM)
+@method "POST"
+@path "/slaves/{position}/sii"
+@rt_safe "false"
+func sii_write(master_index: u32?, position: u16, sii: SiiData) -> bool
+
+# Register read
+@method "GET"
+@path "/slaves/{position}/registers/{address}"
+@rt_safe "false"
+func reg_read(master_index: u32?, position: u16, address: u16, size: u32) -> RegReadResult
+
+# Register write
+@method "POST"
+@path "/slaves/{position}/registers/{address}"
+@rt_safe "false"
+func reg_write(master_index: u32?, position: u16, address: u16, req: RegWriteRequest) -> bool
+
+# FoE read (File over EtherCAT)
+@method "GET"
+@path "/slaves/{position}/foe/{file_name}"
+@rt_safe "false"
+func foe_read(master_index: u32?, position: u16, file_name: string) -> FoeReadResult
+
+# FoE write (File over EtherCAT)
+@method "POST"
+@path "/slaves/{position}/foe/{file_name}"
+@rt_safe "false"
+func foe_write(master_index: u32?, position: u16, file_name: string, req: FoeWriteRequest) -> FoeWriteResult
+
+# SoE read (Servo over EtherCAT)
+@method "GET"
+@path "/slaves/{position}/soe/{drive_no}/{idn}"
+@rt_safe "false"
+func soe_read(master_index: u32?, position: u16, drive_no: u8, idn: u16, mem_size: u32?) -> SoeReadResult
+
+# SoE write (Servo over EtherCAT)
+@method "POST"
+@path "/slaves/{position}/soe/{drive_no}/{idn}"
+@rt_safe "false"
+func soe_write(master_index: u32?, position: u16, drive_no: u8, idn: u16, req: SoeWriteRequest) -> SoeWriteResult
+
+# Slave configuration info
+@method "GET"
+@path "/configs/{config_index}"
+@rt_safe "false"
+func get_config(master_index: u32?, config_index: u32) -> ConfigInfo
+
+# Configuration PDO
+@method "GET"
+@path "/configs/{config_index}/syncs/{sync_index}/pdos/{pdo_pos}"
+@rt_safe "false"
+func get_config_pdo(master_index: u32?, config_index: u32, sync_index: u8, pdo_pos: u16) -> ConfigPdoInfo
+
+# Configuration PDO entry
+@method "GET"
+@path "/configs/{config_index}/syncs/{sync_index}/pdos/{pdo_pos}/entries/{entry_pos}"
+@rt_safe "false"
+func get_config_pdo_entry(master_index: u32?, config_index: u32, sync_index: u8, pdo_pos: u16, entry_pos: u8) -> ConfigPdoEntryInfo
+
+# Configuration SDO
+@method "GET"
+@path "/configs/{config_index}/sdos/{sdo_pos}"
+@rt_safe "false"
+func get_config_sdo(master_index: u32?, config_index: u32, sdo_pos: u32) -> ConfigSdoInfo
+
+# Configuration IDN
+@method "GET"
+@path "/configs/{config_index}/idns/{idn_pos}"
+@rt_safe "false"
+func get_config_idn(master_index: u32?, config_index: u32, idn_pos: u32) -> ConfigIdnInfo
+
+# Configuration flag
+@method "GET"
+@path "/configs/{config_index}/flags/{flag_pos}"
+@rt_safe "false"
+func get_config_flag(master_index: u32?, config_index: u32, flag_pos: u32) -> ConfigFlagInfo
+
+# EoE handler info
+@method "GET"
+@path "/eoe/{eoe_index}"
+@rt_safe "false"
+func get_eoe_handler(master_index: u32?, eoe_index: u16) -> EoeHandlerInfo
+
+# EoE set IP parameters
+@method "POST"
+@path "/slaves/{position}/eoe/ip"
+@rt_safe "false"
+func set_eoe_ip(master_index: u32?, position: u16, req: EoeIpRequest) -> EoeIpResult

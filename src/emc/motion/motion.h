@@ -69,7 +69,6 @@ to another.
 #include "rtapi_limits.h"
 #include <stdarg.h>
 #include "rtapi_bool.h"
-#include "state_tag.h"
 
 // define a special value to denote an invalid motion ID
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
@@ -225,7 +224,7 @@ extern "C" {
 	double acc;		/* max acceleration */
 	double jerk;		/* max jerk */
 	double backlash;	/* amount of backlash */
-	int id;			/* id for motion */
+	int id;                 /* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int joint;		/* which joint index to use for below */
@@ -269,7 +268,7 @@ extern "C" {
     double maxFeedScale;
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
-    struct state_tag_t tag;
+    double feed_upm;        /* programmed feed rate in G-code units per minute */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -484,6 +483,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   to set position to zero during homing */
 	int old_jjog_counts;	/* prior value, used for deltas */
 	double big_vel;		/* used for "debouncing" velocity */
+
+	/* per-joint homing API (looked up by motmod at init) */
+	const void *home_api;   /* const home_callbacks_t* - per-joint homemod */
+	int home_sequence;      /* homing sequence number from INI (motmod-owned) */
+	int volatile_home;      /* 1 if joint should be unhomed on volatile unhome (-2) */
     } emcmot_joint_t;
 
 /* This structure contains only the "status" data associated with
@@ -619,8 +623,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by G-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by G-code */
 	int misc_error[EMCMOT_MAX_MISC_ERROR]; /* Random Error pins*/
-	struct state_tag_t tag; /* Current interp state corresponding
-				   to motion line */
+	double feed_upm; /* programmed feed rate of executing motion in G-code units/min */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
@@ -628,7 +631,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned int heartbeat;
 	int config_num;		/* incremented whenever configuration
 				   changed. */
-	int id;			/* id for executing motion */
+	int id;                 /* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */

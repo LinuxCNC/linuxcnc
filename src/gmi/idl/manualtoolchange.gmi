@@ -4,6 +4,8 @@
 # the REST API provides a clean interface for the UI.
 
 @api manualtoolchange
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix manualtoolchange
 @rest_export true

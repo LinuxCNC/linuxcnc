@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // halsampler — reads HAL sample data from the stream_server WebSocket endpoint
 // and writes it to stdout in the same format as the legacy halsampler.
 //

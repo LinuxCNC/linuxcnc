@@ -1,5 +1,7 @@
 // 5axiskins — XYZBC 5-axis bridge mill kinematics (cmod version)
-// Copyright (c) 2007 Chris Radek. License: GPL Version 2
+// Copyright (c) 2007 Chris Radek
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
+// License: GPL Version 2
 
 #include <math.h>
 #include <string.h>

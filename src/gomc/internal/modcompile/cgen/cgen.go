@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package cgen generates C source code from a modcompile AST.
 //
 // The generated code targets the gomc cmod API (gomc_env.h) and produces

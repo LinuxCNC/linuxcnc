@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package cmodtogomod tests cmod→gomod calls: C code calling Go callbacks.
 // This uses //export to make Go functions callable from C.
 package cmodtogomod

@@ -1,5 +1,13 @@
 // gomc_hal.h — HAL component/pin/param/function API for gomc C modules.
 //
+// The numeric constants in this header (types, directions, name lengths)
+// mirror hal.h by John Kasunich. License of hal.h: LGPL Version 2.
+// Copyright (c) 2003 John Kasunich.
+//
+// New API (callback table, inline helpers):
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: LGPL Version 2
+//
 // All HAL operations go through callbacks in gomc_hal_t, which the launcher
 // populates at module load time.  These callbacks delegate to
 // liblinuxcnchal.so.

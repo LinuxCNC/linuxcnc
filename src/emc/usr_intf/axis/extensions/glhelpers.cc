@@ -6,6 +6,11 @@
  *
  * Provides: draw_lines, draw_dwells, line9, vertex9,
  *           gui_respect_offsets, gui_rot_offsets
+ *
+ * Original OpenGL helpers: Copyright 2004-2009 Jeff Epler <jepler@unpythonic.net>
+ *                          and Chris Radek <chris@timeguy.com> (GPL v2)
+ * This file: Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: GPL Version 2
  */
 
 #include <Python.h>

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: GPL Version 2
+ */
 /* test_halscope_rt.c — Unit tests for the halscope RT state machine.
  *
  * Tests state transitions, trigger detection, sample capture, buffer

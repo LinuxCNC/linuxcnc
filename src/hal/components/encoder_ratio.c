@@ -8,6 +8,8 @@
  *   load encoder_ratio
  *
  * Original author: John Kasunich
+ * Copyright (c) 2004 John Kasunich
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

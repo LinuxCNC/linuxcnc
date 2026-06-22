@@ -4,6 +4,8 @@
 # Looked up via get_api() at Start() time.
 
 @api mot
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix mot
 @rest_export false

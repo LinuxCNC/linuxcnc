@@ -135,7 +135,7 @@ typedef struct {
     hal_bit_t *coord_error;	/* RPA: TRUE if coord mode error */
     hal_bit_t *on_soft_limit;	/* RPA: TRUE if outside a limit */
 
-    hal_s32_t *program_line;    /* RPA: program line causing current motion */
+    hal_s32_t *segment_id;      /* id of motion segment currently executing */
     hal_s32_t *motion_type;	/* RPA: type (feed/rapid) of currently commanded motion */
     hal_float_t *current_vel;   /* RPI: velocity magnitude in machine units */
     hal_float_t *requested_vel;   /* RPI: requested velocity magnitude in machine units */
@@ -185,7 +185,6 @@ typedef struct {
     hal_bit_t   *eoffset_active; /* ext offsets active */
     hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
 
-    hal_float_t *feed_upm; /* feed G-code units per minute*/
     hal_float_t *feed_inches_per_minute; /* feed inches per minute*/
     hal_float_t *feed_inches_per_second; /* feed inches per second*/
     hal_float_t *feed_mm_per_minute; /* feed mm per minute*/

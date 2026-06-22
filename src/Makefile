@@ -503,6 +503,7 @@ $(ECMASTER_STAMPDIR)/.configured: $(ECMASTER_STAMPDIR)/.bootstrapped
 		--enable-uspace-master \
 		--disable-kernel \
 		--disable-eoe \
+		--disable-tool \
 		--mandir=$(ECMASTER_PREFIX)/docs/man \
 		--docdir=$(ECMASTER_PREFIX)/docs/ethercat
 	@touch $@
@@ -573,8 +574,9 @@ pycheck: pycheck-python-files pycheck-python-script
 #   cap_sys_resource - raise resource limits (e.g. RLIMIT_MEMLOCK, RLIMIT_RTPRIO)
 #   cap_sys_nice   - set realtime scheduling priorities (SCHED_FIFO/SCHED_RR)
 #   cap_sys_rawio  - direct hardware I/O port access (ioperm/iopl for parport, PCI BARs)
+# TODO: check what's actually needed
 setuid:
-	setcap cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_resource,cap_sys_nice,cap_sys_rawio=ep ../bin/gomc-server
+	setcap cap_net_admin,cap_net_raw,cap_bpf,cap_ipc_lock,cap_sys_resource,cap_sys_nice,cap_sys_rawio,cap_perfmon,cap_sys_admin,cap_dac_override=ep ../bin/gomc-server
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
@@ -857,6 +859,23 @@ HOMEMOD_CMOD_DEPS := \
 
 TARGETS += ../cmod/homemod.so
 modules: ../cmod/homemod.so
+
+# ---------------------------------------------------------------------------
+# LinMot homing module (cmod) — drive-internal homing for CiA 402 drives
+# ---------------------------------------------------------------------------
+
+HOMEMOD_CIA402_CMOD_SRCS := \
+    emc/motion/homemod_cia402.c
+
+../cmod/homemod_cia402.so: $(HOMEMOD_CIA402_CMOD_SRCS) $(HOMEMOD_CMOD_DEPS) | headers
+	$(ECHO) "Compiling cmod homemod_cia402.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HOMEMOD_CMOD_CFLAGS) \
+	    -o $@ $(HOMEMOD_CIA402_CMOD_SRCS) \
+	    $(CMOD_LDFLAGS) -lm
+
+TARGETS += ../cmod/homemod_cia402.so
+modules: ../cmod/homemod_cia402.so
 
 # ---------------------------------------------------------------------------
 # GMI trajectory planner module (cmod)

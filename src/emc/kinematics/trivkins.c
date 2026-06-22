@@ -7,6 +7,9 @@
 //   coordinates  — axis letters, default "XYZABCUVW"
 //   kinstype     — "identity" (default), "both", "forward_only", "inverse_only"
 //
+// Derived from a work by Fred Proctor & Will Shackleford
+// Copyright (c) 2009 All rights reserved.
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 // License: GPL Version 2
 
 #include <string.h>

@@ -11,6 +11,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 
 #define SWITCHKINS_DEBUG
@@ -123,23 +124,190 @@ static void set_operating_mode(motmod_inst_t *inst);
 */
 static void handle_jjogwheels(motmod_inst_t *inst);
 
-/* 'do_homing_sequence()' decides what, if anything, needs to be done
-    related to multi-joint homing.
-
-   no prototype here, implemented in homing.c, proto in mot_priv.h
+/* 'do_homing_sequence()' — faithful replication of original homing.c FSM.
+   Coordinates multi-joint homing by sequence group.
+   Calls per-joint do_homing() to tick each joint's state machine.
+   Manages sequence_state to advance through groups in order.
+   Returns 1 when all joints have completed homing (transition to teleop).
 */
+static int do_homing_sequence(motmod_inst_t *inst)
+{
+    int i, seen;
+    int sequence_is_set = 0;
 
-/* 'inst->home_api->do_homing()' looks at the home_state field of each joint struct
-    to decide what, if anything, needs to be done related to homing
-    the joint.  Homing is implemented as a state machine, the exact
-    sequence of states depends on the machine configuration.  It
-    can be as simple as immediately setting the current position to
-    zero, or a it can be a multi-step process (find switch, set
-    approximate zero, back off switch, find index, set final zero,
-    rapid to home position), or anywhere in between.
+    /* Always tick all joints' state machines and aggregate status */
+    {
+        int any_homing = 0;
+        int all_homed = 1;
+        for (i = 0; i < ALL_JOINTS; i++) {
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (hapi->do_homing(hapi->ctx))
+                any_homing = 1;
+            if (!hapi->get_homed(hapi->ctx))
+                all_homed = 0;
+        }
+        inst->homing_active = any_homing;
+        inst->all_homed = all_homed;
+    }
 
-   no prototype here, implemented in homing.c, proto in mot_priv.h
-*/
+    /* Sequence state machine */
+    switch (inst->sequence_state) {
+    case HOME_SEQUENCE_IDLE:
+        inst->current_sequence = 0;
+        /* nothing to do */
+        break;
+
+    case HOME_SEQUENCE_DO_ONE_JOINT:
+        /* Expect one joint with do_home() already called (home_state==HOME_START).
+           Identify it by checking which joint is not idle. */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (!hapi->get_is_idle(hapi->ctx)) {
+                inst->joint_in_sequence[i] = 1;
+                inst->current_sequence = abs(inst->joints[i].home_sequence);
+            } else {
+                inst->joint_in_sequence[i] = 0;
+            }
+        }
+        sequence_is_set = 1;
+        /* fallthrough */
+    case HOME_SEQUENCE_DO_ONE_SEQUENCE:
+        /* Expect multiple joints with do_home() already called
+           (specified by a negative sequence number).
+           Determine current_sequence and set joint_in_sequence. */
+        if (!sequence_is_set) {
+            for (i = 0; i < ALL_JOINTS; i++) {
+                const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+                if (!hapi->get_is_idle(hapi->ctx)) {
+                    inst->current_sequence = abs(inst->joints[i].home_sequence);
+                    sequence_is_set = 1;
+                }
+                inst->joint_in_sequence[i] = 1; /* disprove below */
+                if (hapi->get_is_idle(hapi->ctx) ||
+                    inst->current_sequence != abs(inst->joints[i].home_sequence)) {
+                    inst->joint_in_sequence[i] = 0;
+                }
+            }
+        }
+        inst->sequence_state = HOME_SEQUENCE_START;
+        /* fallthrough */
+    case HOME_SEQUENCE_START:
+        /* Request to home all joints or a single sequence.
+           A negative home_sequence means sync final move. */
+        if (!sequence_is_set) {
+            /* sequence_is_set not otherwise established: home-all */
+            for (i = 0; i < ALL_JOINTS; i++) {
+                inst->joint_in_sequence[i] = 1;
+                /* unspecified joints have unrealizable home_sequence (>100):
+                   docs: 'If HOME_SEQUENCE is not specified then this joint
+                          will not be homed by the HOME ALL sequence' */
+                if (inst->joints[i].home_sequence > 100) {
+                    inst->joint_in_sequence[i] = 0;
+                }
+            }
+            sequence_is_set = 1;
+            inst->current_sequence = 0;
+        }
+        /* Initializations: unhome joints that participate (per-joint module
+           handles HOME_NO_REHOME internally via do_home()) */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            if (!inst->joint_in_sequence[i]) continue;
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (!hapi->get_is_idle(hapi->ctx) &&
+                !hapi->get_homed(hapi->ctx)) {
+                /* a home is already in progress, abort the home-all */
+                inst->sequence_state = HOME_SEQUENCE_IDLE;
+                return 0;
+            }
+        }
+        /* If a joint has negative home_sequence, make all joints with same
+           absolute value also negative (sync final move). */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            int ii;
+            if (!inst->joint_in_sequence[i]) continue;
+            if (inst->joints[i].home_sequence < 0) {
+                for (ii = 0; ii < ALL_JOINTS; ii++) {
+                    if (inst->joints[ii].home_sequence == abs(inst->joints[i].home_sequence)) {
+                        inst->joints[ii].home_sequence = inst->joints[i].home_sequence;
+                    }
+                }
+            }
+        }
+        /* tell the world we're on the job */
+        inst->homing_active = 1;
+        /* fallthrough */
+    case HOME_SEQUENCE_START_JOINTS:
+        seen = 0;
+        /* start all joints whose abs(sequence) matches current_sequence */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            if (abs(inst->joints[i].home_sequence) == inst->current_sequence) {
+                if (!inst->joint_in_sequence[i]) continue;
+                /* disable free_tp and trigger homing */
+                inst->joints[i].free_tp.enable = 0;
+                JOINT_HOME_API(&inst->joints[i])->do_home(
+                    JOINT_HOME_API(&inst->joints[i])->ctx);
+                seen++;
+            }
+        }
+        if (seen || inst->current_sequence == 0) {
+            inst->sequence_state = HOME_SEQUENCE_WAIT_JOINTS;
+        } else {
+            /* no joints have this sequence number, we're done */
+            inst->sequence_state = HOME_SEQUENCE_IDLE;
+            inst->homing_active = 0;
+        }
+        break;
+
+    case HOME_SEQUENCE_WAIT_JOINTS: {
+        int any_running = 0;  /* joints still actively homing (not idle, not sync-paused) */
+        int any_paused  = 0;  /* synchronized joints paused at final-move-wait */
+        for (i = 0; i < ALL_JOINTS; i++) {
+            if (!inst->joint_in_sequence[i]) continue;
+            if (abs(inst->joints[i].home_sequence) != inst->current_sequence) {
+                continue;
+            }
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+            if (hapi->get_is_idle(hapi->ctx)) {
+                continue; /* this joint has finished */
+            }
+            /* Check if it is a synchronized joint paused at the final-move barrier */
+            if (inst->joints[i].home_sequence < 0 &&
+                hapi->get_at_final_move_wait(hapi->ctx)) {
+                any_paused = 1;
+                continue;
+            }
+            /* Still actively homing */
+            any_running = 1;
+        }
+        if (!any_running && any_paused) {
+            /* All synchronized joints in this group have reached the
+             * final-move barrier; release them all simultaneously. */
+            for (i = 0; i < ALL_JOINTS; i++) {
+                if (!inst->joint_in_sequence[i]) continue;
+                if (abs(inst->joints[i].home_sequence) != inst->current_sequence) continue;
+                if (inst->joints[i].home_sequence >= 0) continue; /* only sync joints */
+                const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[i]);
+                if (hapi->get_at_final_move_wait(hapi->ctx)) {
+                    hapi->do_final_move(hapi->ctx);
+                }
+            }
+        } else if (!any_running && !any_paused) {
+            /* all joints at this step have finished, move on to next step */
+            inst->current_sequence++;
+            inst->sequence_state = HOME_SEQUENCE_START_JOINTS;
+        }
+        break;
+    }
+
+    default:
+        inst->sequence_state = HOME_SEQUENCE_IDLE;
+        inst->homing_active = 0;
+        break;
+    }
+
+    /* Return 1 (all done) only when all joints are homed and none active */
+    return (inst->all_homed && !inst->homing_active);
+}
 
 /* 'get_pos_cmds()' generates the position setpoints.  This includes
    calling the trajectory planner and interpolating its outputs.
@@ -232,7 +400,14 @@ void emcmotController(void *arg, long period)
     inst->status->head++;
     /* here begins the core of the controller */
 
-    inst->home_api->read_in_pins(inst->home_api->ctx, ALL_JOINTS);
+    /* Read homing input pins for all joints */
+    {
+        int j;
+        for (j = 0; j < ALL_JOINTS; j++) {
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[j]);
+            hapi->read_in_pins(hapi->ctx);
+        }
+    }
     handle_kinematicsSwitch(inst);
     process_inputs(inst);
     do_forward_kins(inst);
@@ -243,18 +418,25 @@ void emcmotController(void *arg, long period)
         handle_jjogwheels(inst);
     }
     if (!inst->status->on_soft_limit && !*inst->hal_data->jog_inhibit) {  // change from teleop to move off joint soft limit
-        axis_handle_jogwheels(ai, GET_MOTION_TELEOP_FLAG(), GET_MOTION_ENABLE_FLAG(), inst->home_api->get_is_active(inst->home_api->ctx));
+        axis_handle_jogwheels(ai, GET_MOTION_TELEOP_FLAG(), GET_MOTION_ENABLE_FLAG(), inst->homing_active);
     }
     if (   (inst->status->motion_state == EMCMOT_MOTION_FREE)
-        && inst->home_api->do_homing(inst->home_api->ctx)) {
+        && do_homing_sequence(inst)) {
         switch_to_teleop_mode(inst);
     }
 
     get_pos_cmds(inst, period);
     compute_screw_comp(inst);
-    *(inst->hal_data->eoffset_active) = axis_plan_external_offsets(ai, servo_period, GET_MOTION_ENABLE_FLAG(), inst->home_api->get_allhomed(inst->home_api->ctx));
+    *(inst->hal_data->eoffset_active) = axis_plan_external_offsets(ai, servo_period, GET_MOTION_ENABLE_FLAG(), inst->all_homed);
     output_to_hal(inst);
-    inst->home_api->write_out_pins(inst->home_api->ctx, ALL_JOINTS);
+    /* Write homing output pins for all joints */
+    {
+        int j;
+        for (j = 0; j < ALL_JOINTS; j++) {
+            const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[j]);
+            hapi->write_out_pins(hapi->ctx);
+        }
+    }
     update_status(inst);
     /* here ends the core of the controller */
     inst->status->heartbeat++;
@@ -442,8 +624,8 @@ static void process_inputs(motmod_inst_t *inst)
 	/* copy data from HAL to joint structure */
 	joint->motor_pos_fb = *(joint_data->motor_pos_fb);
 	/* calculate pos_fb */
-	if (( inst->home_api->get_at_index_search_wait(inst->home_api->ctx, joint_num) ) &&
-	    ( inst->home_api->get_index_enable(inst->home_api->ctx, joint_num) == 0 )) {
+	if (( JOINT_HOME_API(joint)->get_at_index_search_wait(JOINT_HOME_API(joint)->ctx) ) &&
+	    ( JOINT_HOME_API(joint)->get_index_enable(JOINT_HOME_API(joint)->ctx) == 0 )) {
 	    /* special case - we're homing the joint, and it just
 	       hit the index.  The encoder count might have made a
 	       step change.  The homing code will correct for it
@@ -456,7 +638,7 @@ static void process_inputs(motmod_inst_t *inst)
 		(joint->backlash_filt + joint->motor_offset);
 	}
 	/* calculate following error */
-	if ( IS_EXTRA_JOINT(joint_num) && inst->home_api->get_homed(inst->home_api->ctx, joint_num) ) {
+	if ( IS_EXTRA_JOINT(joint_num) && JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx) ) {
 	    joint->ferror = 0; // not relevant for homed extrajoints
 	} else {
 	    joint->ferror = joint->pos_cmd - joint->pos_fb;
@@ -623,7 +805,7 @@ static void do_forward_kins(motmod_inst_t *inst)
     case KINEMATICS_IDENTITY:
 	motmod_kinematicsForward(inst, joint_pos, &inst->status->carte_pos_fb, &inst->fflags,
 	    &inst->iflags);
-	if (inst->home_api->get_allhomed(inst->home_api->ctx)) {
+	if (inst->all_homed) {
 	    inst->status->carte_pos_fb_ok = 1;
 	} else {
 	    inst->status->carte_pos_fb_ok = 0;
@@ -631,7 +813,7 @@ static void do_forward_kins(motmod_inst_t *inst)
 	break;
 
     case KINEMATICS_BOTH:
-	if (inst->home_api->get_allhomed(inst->home_api->ctx)) {
+	if (inst->all_homed) {
 	    /* is previous value suitable for use as initial guess? */
 	    if (!inst->status->carte_pos_fb_ok) {
 		/* no, use home position as initial guess */
@@ -736,8 +918,8 @@ static void process_probe_inputs(motmod_inst_t *inst)
                 // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
                 if (!inst->config->inhibit_probe_home_error) {
                     // abort any homing
-                    if(inst->home_api->get_homing(inst->home_api->ctx, i)) {
-                        inst->home_api->do_cancel(inst->home_api->ctx, i);
+                    if(JOINT_HOME_API(&inst->joints[i])->get_homing(JOINT_HOME_API(&inst->joints[i])->ctx)) {
+                        JOINT_HOME_API(&inst->joints[i])->do_cancel(JOINT_HOME_API(&inst->joints[i])->ctx);
                         aborted=1;
                     }
                 }
@@ -809,7 +991,7 @@ static void check_for_faults(motmod_inst_t *inst)
 	    if ((GET_JOINT_PHL_FLAG(joint) && ! pos_limit_override ) ||
 		(GET_JOINT_NHL_FLAG(joint) && ! neg_limit_override )) {
 		/* joint is on limit switch, should we trip? */
-		if (inst->home_api->get_homing(inst->home_api->ctx, joint_num)) {
+		if (JOINT_HOME_API(joint)->get_homing(JOINT_HOME_API(joint)->ctx)) {
 		    /* no, ignore limits */
 		} else {
 		    /* trip on limits */
@@ -879,7 +1061,7 @@ static void set_operating_mode(motmod_inst_t *inst)
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_INPOS_FLAG(joint, 1);
 		SET_JOINT_ENABLE_FLAG(joint, 0);
-		inst->home_api->do_cancel(inst->home_api->ctx, joint_num);
+		JOINT_HOME_API(joint)->do_cancel(JOINT_HOME_API(joint)->ctx);
 	    }
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
@@ -907,7 +1089,7 @@ static void set_operating_mode(motmod_inst_t *inst)
 	    joint->free_tp.curr_pos = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_ENABLE_FLAG(joint, 1);
-		inst->home_api->do_cancel(inst->home_api->ctx, joint_num);
+		JOINT_HOME_API(joint)->do_cancel(JOINT_HOME_API(joint)->ctx);
 	    }
 	    /* clear any outstanding joint errors when going into enabled
 	       state */
@@ -1089,7 +1271,7 @@ static void handle_jjogwheels(motmod_inst_t *inst)
 	    continue;
 	}
 	/* must not be homing */
-	if (inst->home_api->get_is_active(inst->home_api->ctx) ) {
+	if (inst->homing_active ) {
 	    continue;
 	}
 	/* must not be doing a keyboard jog */
@@ -1100,20 +1282,20 @@ static void handle_jjogwheels(motmod_inst_t *inst)
 	    /* don't jog if feedhold is on or if feed override is zero */
 	    break;
 	}
-        if (inst->home_api->get_needs_unlock_first(inst->home_api->ctx, joint_num) ) {
+        if (JOINT_HOME_API(joint)->get_needs_unlock_first(JOINT_HOME_API(joint)->ctx) ) {
             gomc_log_errorf(inst->log, inst->name, "Can't wheel jog locking joint_num=%d",joint_num);
             continue;
         }
-        if (inst->home_api->get_is_synchronized(inst->home_api->ctx, joint_num)) {
+        if (joint->home_sequence < 0) { /* negative = synchronized homing */
             if (inst->config->kinType == KINEMATICS_IDENTITY) {
                 gomc_log_errorf(inst->log, inst->name, 
                 "Homing is REQUIRED to wheel jog requested coordinate\n"
                 "because joint (%d) home_sequence is synchronized (%d)\n"
-                ,joint_num,inst->home_api->get_sequence(inst->home_api->ctx, joint_num) );
+                ,joint_num, joint->home_sequence );
             } else {
                 gomc_log_errorf(inst->log, inst->name, 
                 "Cannot wheel jog joint %d because home_sequence synchronized (%d)\n"
-                ,joint_num,inst->home_api->get_sequence(inst->home_api->ctx, joint_num) );
+                ,joint_num, joint->home_sequence );
             }
             continue;
         }
@@ -1313,13 +1495,13 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
 	        continue;
             }
             // extra joint is not managed herein after homing:
-            if (IS_EXTRA_JOINT(joint_num) && inst->home_api->get_homed(inst->home_api->ctx, joint_num)) continue;
+            if (IS_EXTRA_JOINT(joint_num) && JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx)) continue;
 
 	    if(joint->acc_limit > inst->status->acc)
 		joint->acc_limit = inst->status->acc;
 	    /* compute joint velocity limit */
             if (   (inst->status->motion_state != EMCMOT_MOTION_FREE)
-                && inst->home_api->get_is_idle(inst->home_api->ctx, joint_num) ) {
+                && JOINT_HOME_API(joint)->get_is_idle(JOINT_HOME_API(joint)->ctx) ) {
                 /* velocity limit = joint limit * global scale factor */
                 /* the global factor is used for feedrate override */
                 vel_lim = joint->vel_limit * inst->status->net_feed_scale;
@@ -1331,7 +1513,7 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
                if (vel_lim < joint->free_tp.max_vel)
                    joint->free_tp.max_vel = vel_lim;
             } else {
-                /* except if homing, when we set free_tp max vel in inst->home_api->do_homing */
+                /* except if homing, when we set free_tp max vel in do_homing */
             }
             /* set acc limit in free TP */
             /* execute free TP */
@@ -1386,7 +1568,7 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
 
 	case KINEMATICS_IDENTITY:
 	    motmod_kinematicsForward(inst, positions, &inst->status->carte_pos_cmd, &inst->fflags, &inst->iflags);
-	    if (inst->home_api->get_allhomed(inst->home_api->ctx)) {
+	    if (inst->all_homed) {
 		inst->status->carte_pos_cmd_ok = 1;
 	    } else {
 		inst->status->carte_pos_cmd_ok = 0;
@@ -1394,7 +1576,7 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
 	    break;
 
 	case KINEMATICS_BOTH:
-	    if (inst->home_api->get_allhomed(inst->home_api->ctx)) {
+	    if (inst->all_homed) {
 		/* is previous value suitable for use as initial guess? */
 		if (!inst->status->carte_pos_cmd_ok) {
 		    /* no, use home position as initial guess */
@@ -1601,7 +1783,7 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
 	joint_limit[joint_num][1] = 0;
 	
 	/* skip inactive or unhomed axes */
-	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!inst->home_api->get_homed(inst->home_api->ctx, joint_num))) {
+	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx))) {
 	    continue;
         }
 
@@ -1957,7 +2139,6 @@ static void compute_screw_comp(motmod_inst_t *inst)
 static void output_to_hal(motmod_inst_t *inst)
 {
     int joint_num, spindle_num;
-    double inch_mult;
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
     int *old_motion_index = inst->ctl_old_motion_index;
@@ -1973,21 +2154,15 @@ static void output_to_hal(motmod_inst_t *inst)
 
     switch (inst->status->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
-        case EMC_MOTION_TYPE_ARC:
-            if (inst->status->tag.packed_flags & 1 << GM_FLAG_UNITS) {
-                inch_mult = 1;
-            } else {
-                inch_mult = 1 / 25.4;
-            }
-            *(inst->hal_data->feed_upm) = inst->status->tag.fields_float[GM_FIELD_FLOAT_FEED]
-                                         * inst->status->net_feed_scale;
-            *(inst->hal_data->feed_inches_per_minute) = *inst->hal_data->feed_upm * inch_mult;
-            *(inst->hal_data->feed_inches_per_second) = *inst->hal_data->feed_inches_per_minute / 60;
-            *(inst->hal_data->feed_mm_per_minute) = *inst->hal_data->feed_inches_per_minute * 25.4;
-            *(inst->hal_data->feed_mm_per_second) = *inst->hal_data->feed_mm_per_minute / 60;
+        case EMC_MOTION_TYPE_ARC: {
+            double feed_mm_min = inst->status->feed_upm * inst->status->net_feed_scale;
+            *(inst->hal_data->feed_inches_per_minute) = feed_mm_min / 25.4;
+            *(inst->hal_data->feed_inches_per_second) = feed_mm_min / 25.4 / 60;
+            *(inst->hal_data->feed_mm_per_minute) = feed_mm_min;
+            *(inst->hal_data->feed_mm_per_second) = feed_mm_min / 60;
             break;
+        }
         default:
-            *(inst->hal_data->feed_upm) = 0;
             *(inst->hal_data->feed_inches_per_minute) = 0;
             *(inst->hal_data->feed_inches_per_second) = 0;
             *(inst->hal_data->feed_mm_per_minute) = 0;
@@ -2045,7 +2220,7 @@ static void output_to_hal(motmod_inst_t *inst)
 				inst->status->spindle_status[spindle_num].speed / 60.;
     }
 
-    *(inst->hal_data->program_line) = inst->status->id;
+    *(inst->hal_data->segment_id) = (hal_s32_t)inst->status->id;
     *(inst->hal_data->tp_reverse) = inst->status->reverse_run;
     *(inst->hal_data->motion_type) = inst->status->motionType;
     *(inst->hal_data->distance_to_go) = inst->status->distance_to_go;
@@ -2156,7 +2331,7 @@ static void output_to_hal(motmod_inst_t *inst)
              *(joint_data->unlock) = 0;
         }
 
-	if (IS_EXTRA_JOINT(joint_num) && inst->home_api->get_homed(inst->home_api->ctx, joint_num)) {
+	if (IS_EXTRA_JOINT(joint_num) && JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx)) {
 	    // passthru posthome_cmd with motor_offset
 	    // to hal pin: joint.N.motor-pos-cmd
 	    extrajoint_hal_t *ejoint_data;
@@ -2201,8 +2376,8 @@ static void update_status(motmod_inst_t *inst)
 	}
 #endif
 	joint_status->flag = joint->flag;
-	joint_status->homing = inst->home_api->get_homing(inst->home_api->ctx, joint_num);
-	joint_status->homed  = inst->home_api->get_homed(inst->home_api->ctx, joint_num);
+	joint_status->homing = JOINT_HOME_API(joint)->get_homing(JOINT_HOME_API(joint)->ctx);
+	joint_status->homed  = JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx);
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
 	joint_status->vel_cmd = joint->vel_cmd;
@@ -2215,7 +2390,7 @@ static void update_status(motmod_inst_t *inst)
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
     }
-    if (inst->home_api->get_allhomed(inst->home_api->ctx)) {
+    if (inst->all_homed) {
         *inst->hal_data->is_all_homed = 1;
     } else {
         *inst->hal_data->is_all_homed = 0;
@@ -2269,7 +2444,7 @@ static void update_status(motmod_inst_t *inst)
     inst->status->id = inst->tp_api->get_exec_id(inst->tp_api->ctx);
     //KLUDGE add an API call for this
     inst->status->reverse_run = inst->tp_api->get_run_dir(inst->tp_api->ctx);
-    inst->tp_api->get_exec_tag(inst->tp_api->ctx, (tp_state_tag_t *)&inst->status->tag);
+    inst->status->feed_upm = inst->tp_api->get_feed_upm(inst->tp_api->ctx);
     inst->status->motionType = inst->tp_api->get_motion_type(inst->tp_api->ctx);
     inst->status->queueFull = inst->tp_api->queue_full(inst->tp_api->ctx);
 

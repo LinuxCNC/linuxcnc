@@ -3,6 +3,9 @@
 # This is the full halcmd replacement - old C halcmd is deprecated
 
 @api halcmd
+@author "John Kasunich & Jeff Epler (halcmd.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix halcmd
 @rest_export true

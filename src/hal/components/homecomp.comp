@@ -65,89 +65,77 @@ typedef struct {
 
 static one_joint_home_data_t joint_home_data[MAX_JOINTS];
 
-static int makepins(inst_t *inst, int njoints)
-{
-    int jno, retval = 0;
-    one_joint_home_data_t *addr;
-    const gomc_hal_t *hal = inst->env->hal;
-
-    for (jno = 0; jno < njoints && jno < MAX_JOINTS; jno++) {
-        addr = &joint_home_data[jno];
-
-        retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, &(addr->home_sw),
-                                  inst->comp_id, "joint.%d.home-sw-in", jno);
-        retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, &(addr->homing),
-                                  inst->comp_id, "joint.%d.homing", jno);
-        retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, &(addr->homed),
-                                  inst->comp_id, "joint.%d.homed", jno);
-        retval += gomc_hal_pin_s32_newf(hal, GOMC_HAL_OUT, &(addr->home_state),
-                                  inst->comp_id, "joint.%d.home-state", jno);
-        retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_IO, &(addr->index_enable),
-                                  inst->comp_id, "joint.%d.index-enable", jno);
-    }
-    return retval;
-}
-
 // --- GMI home API callbacks ---
 // These function names must match the GMI_HOME_CALLBACKS macro expectations:
 // gmi_home_<callback_name>
 
-static int32_t gmi_home_init(void *ctx, int32_t comp_id, double servo_period,
-    int32_t n_joints, int32_t n_extrajoints)
+static int32_t gmi_home_init(void *ctx, int32_t comp_id, double servo_period)
 {
     inst_t *__comp_inst = (inst_t *)ctx;
-    (void)comp_id; (void)servo_period; (void)n_extrajoints;
-    return makepins(__comp_inst, n_joints);
+    (void)comp_id; (void)servo_period;
+    /* Per-joint: create pins for this one joint */
+    one_joint_home_data_t *addr = &joint_home_data[0];
+    const gomc_hal_t *hal = __comp_inst->env->hal;
+    int retval = 0;
+    retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, &(addr->home_sw),
+                              __comp_inst->comp_id, "%s.home-sw-in", __comp_inst->name);
+    retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, &(addr->homing),
+                              __comp_inst->comp_id, "%s.homing", __comp_inst->name);
+    retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, &(addr->homed),
+                              __comp_inst->comp_id, "%s.homed", __comp_inst->name);
+    retval += gomc_hal_pin_s32_newf(hal, GOMC_HAL_OUT, &(addr->home_state),
+                              __comp_inst->comp_id, "%s.home-state", __comp_inst->name);
+    retval += gomc_hal_pin_bit_newf(hal, GOMC_HAL_IO, &(addr->index_enable),
+                              __comp_inst->comp_id, "%s.index-enable", __comp_inst->name);
+    return retval;
 }
 
-static int32_t gmi_home_set_joint_params(void *ctx, int32_t jno, double offset, double home,
+static int32_t gmi_home_set_params(void *ctx, double offset, double home,
     double home_final_vel, double home_search_vel,
     double home_latch_vel, int32_t home_flags,
     int32_t home_sequence, int32_t volatile_home)
 {
-    (void)ctx; (void)jno; (void)offset; (void)home;
+    (void)ctx; (void)offset; (void)home;
     (void)home_final_vel; (void)home_search_vel; (void)home_latch_vel;
     (void)home_flags; (void)home_sequence; (void)volatile_home;
     return 0;
 }
 
-static int32_t gmi_home_update_joint_params(void *ctx, int32_t jno, double home_offset,
+static int32_t gmi_home_update_params(void *ctx, double home_offset,
     double home_home, int32_t home_sequence)
 {
-    (void)ctx; (void)jno; (void)home_offset; (void)home_home; (void)home_sequence;
+    (void)ctx; (void)home_offset; (void)home_home; (void)home_sequence;
     return 0;
 }
 
-static int32_t gmi_home_read_in_pins(void *ctx, int32_t njoints)
+static int32_t gmi_home_read_in_pins(void *ctx)
 {
-    (void)ctx; (void)njoints;
+    (void)ctx;
     return 0;
 }
 
-static int32_t gmi_home_do_homing(void *ctx) { (void)ctx; return 1; } // always "just finished"
+static int32_t gmi_home_do_homing(void *ctx) { (void)ctx; return 0; } // always idle
 
-static int32_t gmi_home_write_out_pins(void *ctx, int32_t njoints)
+static int32_t gmi_home_write_out_pins(void *ctx)
 {
-    (void)ctx; (void)njoints;
+    (void)ctx;
     return 0;
 }
 
-static int32_t gmi_home_do_home_joint(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
-static int32_t gmi_home_do_cancel(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
+static int32_t gmi_home_do_home(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_do_cancel(void *ctx) { (void)ctx; return 0; }
 
-static int32_t gmi_home_set_unhomed(void *ctx, int32_t jno, home_motion_state_t motstate)
+static int32_t gmi_home_set_unhomed(void *ctx, home_motion_state_t motstate)
 {
-    (void)ctx; (void)jno; (void)motstate;
+    (void)ctx; (void)motstate;
     return 0;
 }
 
-static int32_t gmi_home_get_allhomed(void *ctx) { (void)ctx; return 1; }
-static int32_t gmi_home_get_is_active(void *ctx) { (void)ctx; return 0; }
-static int32_t gmi_home_get_sequence(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
-static int32_t gmi_home_get_homing(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
-static int32_t gmi_home_get_homed(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 1; }
-static int32_t gmi_home_get_index_enable(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
-static int32_t gmi_home_get_needs_unlock_first(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
-static int32_t gmi_home_get_is_idle(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 1; }
-static int32_t gmi_home_get_is_synchronized(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
-static int32_t gmi_home_get_at_index_search_wait(void *ctx, int32_t jno) { (void)ctx; (void)jno; return 0; }
+static int32_t gmi_home_get_homing(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_get_homed(void *ctx) { (void)ctx; return 1; }
+static int32_t gmi_home_get_index_enable(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_get_needs_unlock_first(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_get_is_idle(void *ctx) { (void)ctx; return 1; }
+static int32_t gmi_home_get_at_index_search_wait(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_get_at_final_move_wait(void *ctx) { (void)ctx; return 0; }
+static int32_t gmi_home_do_final_move(void *ctx) { (void)ctx; return 0; }

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -185,7 +187,9 @@ func (t *Task) sequencerLoop() {
 			if lc, ok := cmd.(interface{ LineID() int32 }); ok {
 				if id := lc.LineID(); id > 0 {
 					t.mu.Lock()
-					t.currentLine = id
+					if info, ok := t.motionMap[id]; ok {
+						t.currentLine = info.LineNo
+					}
 					t.mu.Unlock()
 				}
 			}
@@ -573,12 +577,12 @@ type LinearMoveCmd struct {
 	Acc        float64
 	MotionType int32
 	ID         int32
-	Tag        StateTag
+	FeedUpm    float64
 	IndexerJ   int32
 }
 
 func (c *LinearMoveCmd) Execute(t *Task) error {
-	return t.motion.SetLine(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.Tag, c.IndexerJ)
+	return t.motion.SetLine(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedUpm, c.IndexerJ)
 }
 func (c *LinearMoveCmd) Wait() WaitType { return WaitNone } // queued, no immediate wait
 func (c *LinearMoveCmd) String() string { return fmt.Sprintf("LinearMove(id=%d)", c.ID) }
@@ -595,11 +599,11 @@ type CircularMoveCmd struct {
 	Acc        float64
 	MotionType int32
 	ID         int32
-	Tag        StateTag
+	FeedUpm    float64
 }
 
 func (c *CircularMoveCmd) Execute(t *Task) error {
-	return t.motion.SetCircle(c.Pos, c.Center, c.Normal, c.Turn, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.Tag)
+	return t.motion.SetCircle(c.Pos, c.Center, c.Normal, c.Turn, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedUpm)
 }
 func (c *CircularMoveCmd) Wait() WaitType { return WaitNone }
 func (c *CircularMoveCmd) String() string { return fmt.Sprintf("CircularMove(id=%d)", c.ID) }

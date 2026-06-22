@@ -36,6 +36,7 @@
 * License: GPL Version 2
 *    
 * Copyright (c) 2005 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 *
 ********************************************************************/
 

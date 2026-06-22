@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -53,9 +55,10 @@ type halUI struct {
 	lubeIsOn *hal.Pin[bool] // output
 
 	// Program control
-	programIsIdle    *hal.Pin[bool] // output
-	programIsRunning *hal.Pin[bool] // output
-	programIsPaused  *hal.Pin[bool] // output
+	programIsIdle    *hal.Pin[bool]  // output
+	programIsRunning *hal.Pin[bool]  // output
+	programIsPaused  *hal.Pin[bool]  // output
+	programLine      *hal.Pin[int32] // output: G-code line currently executing
 	programRun       *hal.Pin[bool]
 	programPause     *hal.Pin[bool]
 	programResume    *hal.Pin[bool]
@@ -470,6 +473,9 @@ func (h *halUI) createPins() error {
 		return err
 	}
 	if h.programIsPaused, err = hal.NewPin[bool](c, "program.is-paused", hal.Out); err != nil {
+		return err
+	}
+	if h.programLine, err = hal.NewPin[int32](c, "program.line", hal.Out); err != nil {
 		return err
 	}
 	if h.programRun, err = hal.NewPin[bool](c, "program.run", hal.In); err != nil {
@@ -1779,6 +1785,9 @@ func (h *halUI) updateOutputs(t *Task) {
 	// Teleop/joint mode
 	h.modeIsTeleop.Set(ms.Teleop != 0)
 	h.modeIsJoint.Set(ms.Teleop == 0 && ms.Coord == 0)
+
+	// Program line (side table lookup by segment id)
+	h.programLine.Set(t.lookupMotionLine(ms.Id))
 
 	// Override values
 	h.foValue.Set(ms.FeedScale)

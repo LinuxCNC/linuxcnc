@@ -3,6 +3,9 @@
 # Gateway module (emcgateway) translates REST calls to NML command messages.
 
 @api emccmd
+@author "Fred Proctor & Will Shackleford (emc_nml.hh)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix emccmd
 @rest_export true

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package comp implements the .comp file frontend for modcompile.
 //
 // This file contains the lexical scanner that tokenises the declaration

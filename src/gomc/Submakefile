@@ -256,6 +256,17 @@ GMI_HALCMD_GEN_GO := gomc/generated/gmi/halcmdclient/halcmd_client.go
 
 TARGETS += ../bin/halcmd
 
+# ---------------------------------------------------------------------------
+# ethercat — EtherCAT command-line tool (REST client, replaces IgH master tool)
+# ---------------------------------------------------------------------------
+
+../bin/ethercat: $(GOMC_SRC_BASE) $(wildcard gomc/cmd/ethercat/*.go) Makefile.inc
+	$(ECHO) Building ethercat - Go REST client
+	@rm -f $@
+	$(Q)cd gomc && CGO_ENABLED=0 $(GO) build -ldflags "$(GOMC_LDFLAGS)" -o $(TOP)/bin/ethercat ./cmd/ethercat
+
+TARGETS += ../bin/ethercat
+
 # Test target
 .PHONY: test-gomc
 test-gomc:
@@ -266,7 +277,7 @@ clean: gomc-clean
 .PHONY: gomc-clean
 gomc-clean:
 	rm -f ../bin/gomc-server ../bin/ads-xml-gen
-	rm -f ../bin/modcompile ../bin/halcmd
+	rm -f ../bin/modcompile ../bin/halcmd ../bin/ethercat
 	rm -f $(HAL_GO_EXAMPLES)
 	rm -f $(GOMC_PKG_FILES)
 	rm -f gomc/go.mod gomc/go.sum
@@ -275,12 +286,13 @@ gomc-clean:
 # Install
 install: gomc-install
 .PHONY: gomc-install
-gomc-install: ../bin/gomc-server ../bin/ads-xml-gen ../bin/modcompile ../bin/halcmd $(GOMC_PKG_FILES) $(HAL_GO_EXAMPLES)
+gomc-install: ../bin/gomc-server ../bin/ads-xml-gen ../bin/modcompile ../bin/halcmd ../bin/ethercat $(GOMC_PKG_FILES) $(HAL_GO_EXAMPLES)
 	$(DIR) $(DESTDIR)$(EMC2_BIN_DIR)
 	$(INSTALL) -m 0755 ../bin/gomc-server $(DESTDIR)$(EMC2_BIN_DIR)/gomc-server
 	$(INSTALL) -m 0755 ../bin/ads-xml-gen $(DESTDIR)$(EMC2_BIN_DIR)/ads-xml-gen
 	$(INSTALL) -m 0755 ../bin/modcompile $(DESTDIR)$(EMC2_BIN_DIR)/modcompile
 	$(INSTALL) -m 0755 ../bin/halcmd $(DESTDIR)$(EMC2_BIN_DIR)/halcmd
+	$(INSTALL) -m 0755 ../bin/ethercat $(DESTDIR)$(EMC2_BIN_DIR)/ethercat
 	$(FILE) $(HAL_GO_EXAMPLES) $(DESTDIR)$(EMC2_BIN_DIR)/
 	# Install full gomc source tree for modcompile rebuild/add-gomod support.
 	# This allows `sudo modcompile add-gomod` to rebuild gomc-server on

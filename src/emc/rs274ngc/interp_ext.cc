@@ -4,6 +4,7 @@
 *   Replaces the removed Python dispatch with a C callback mechanism.
 *
 * License: GPL Version 2
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
 ********************************************************************/
 
 #include "rs274ngc_interp.hh"

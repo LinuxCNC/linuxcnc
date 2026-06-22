@@ -64,16 +64,18 @@ LCEC_RT_SRCS := \
 LCEC_CONF_SRCS := \
     $(LCEC_DIR)/conf.c \
     $(LCEC_DIR)/conf_util.c \
-    $(LCEC_DIR)/conf_icmds.c
+    $(LCEC_DIR)/conf_icmds.c \
+    $(LCEC_DIR)/gmi_ethercat.c
 
 LCEC_ALL_SRCS := $(LCEC_RT_SRCS) $(LCEC_CONF_SRCS)
 
 USERSRCS += $(LCEC_ALL_SRCS)
 $(call TOOBJSDEPS, $(LCEC_ALL_SRCS)): EXTRAFLAGS += \
-    -fPIC -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) -I$(BASEPWD) $(ETHERCAT_CFLAGS)
-$(call TOOBJSDEPS, $(LCEC_ALL_SRCS)): $(ECMASTER_STAMPDIR)/.installed
+    -fPIC -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) -I$(BASEPWD) $(ETHERCAT_CFLAGS) \
+    -I$(BASEPWD)/gomc/generated/gmi/ethercat -I$(BASEPWD)/gomc/pkg/cmodule
+$(call TOOBJSDEPS, $(LCEC_ALL_SRCS)): $(ECMASTER_STAMPDIR)/.installed gomc/generated/gmi/ethercat/ethercat_api.h
 
-../cmod/ethercat.so: $(call TOOBJS, $(LCEC_ALL_SRCS)) $(ECMASTER_STAMPDIR)/.installed
+../cmod/ethercat.so: $(call TOOBJS, $(LCEC_ALL_SRCS)) $(ECMASTER_STAMPDIR)/.installed gomc/generated/gmi/ethercat/ethercat_api.h
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../cmod
 	$(Q)$(CC) -shared -o $@ $(filter %.o,$^) $(CMOD_LDFLAGS) -lexpat -lm $(ETHERCAT_LIBS)

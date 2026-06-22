@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package pyvcpmodule registers the PyVCP panel module with the gomc module
 // registry. When compiled into the gomc-server binary, this package's init()
 // function registers a factory that creates PyVCP panel instances in response

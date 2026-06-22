@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -125,7 +127,7 @@ func TestCanon_ArcFeedEnqueues(t *testing.T) {
 	}
 }
 
-func (m *testMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType, id int32, tag StateTag) error {
+func (m *testMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64) error {
 	m.calls = append(m.calls, "SetCircle")
 	m.callCount++
 	return nil

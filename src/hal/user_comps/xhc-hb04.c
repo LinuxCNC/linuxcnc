@@ -4,6 +4,7 @@
    Copyright (C) 2013 Frederic Rible (frible@teaser.fr)
    Copyright (C) 2013 Rene Hopf (renehopf@mac.com)
    Copyright (C) 2014 Marius Alksnys (marius.alksnys@gmail.com)
+   Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public

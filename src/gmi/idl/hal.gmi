@@ -6,6 +6,9 @@
 # but cannot be compiled until those interfaces are redesigned.
 
 @api hal
+@author "John Kasunich (hal.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "LGPL Version 2"
 @version 1
 @prefix hal
 @rest_export false

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: GPL Version 2
+ */
 // interp_shim.h — C declarations for the interpreter shim functions.
 // This header is included by interp.go via cgo.
 

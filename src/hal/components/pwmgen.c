@@ -7,6 +7,8 @@
  *   load pwmgen output_type=0   (0=PWM only, 1=PWM+DIR, 2=UP/DOWN)
  *
  * Original author: John Kasunich
+ * Copyright (c) 2006 John Kasunich
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

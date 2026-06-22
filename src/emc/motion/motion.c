@@ -7,6 +7,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 
 #include <stdarg.h>
@@ -515,7 +516,7 @@ void switch_to_teleop_mode(motmod_inst_t *inst) {
     const gomc_log_t *log = inst->log;
 
     if (inst->config->kinType != KINEMATICS_IDENTITY) {
-        if (!inst->home_api->get_allhomed(inst->home_api->ctx)) {
+        if (!inst->all_homed) {
             gomc_log_errorf(log, inst->name, "all joints must be homed before going into teleop mode");
             return;
         }
@@ -596,7 +597,7 @@ static int parse_argv(motmod_inst_t *inst, int argc, const char **argv)
         else if (strncmp(a, "unlock_joints_mask=", 19) == 0) inst->unlock_joints_mask = atoi(a + 19);
         else if (strncmp(a, "kins_instance=", 14) == 0) strncpy(inst->kins_inst_name, a + 14, HAL_NAME_LEN - 1);
         else if (strncmp(a, "tp_instance=", 12) == 0) strncpy(inst->tp_inst_name, a + 12, HAL_NAME_LEN - 1);
-        else if (strncmp(a, "home_instance=", 14) == 0) strncpy(inst->home_inst_name, a + 14, HAL_NAME_LEN - 1);
+        else if (strncmp(a, "home_instance=", 14) == 0) strncpy(inst->home_inst_prefix, a + 14, HAL_NAME_LEN - 1);
         /* Array-of-string params: inst->names_din=foo,bar,baz */
         else if (strncmp(a, "names_din=", 10) == 0) {
             const char *p = a + 10;
@@ -699,7 +700,7 @@ int New(const cmod_env_t *env, const char *name,
     inst->num_misc_error = -1;
     strncpy(inst->kins_inst_name, "trivkins", HAL_NAME_LEN - 1);
     strncpy(inst->tp_inst_name, "tpmod", HAL_NAME_LEN - 1);
-    strncpy(inst->home_inst_name, "homemod", HAL_NAME_LEN - 1);
+    strncpy(inst->home_inst_prefix, "homemod", HAL_NAME_LEN - 1);
 
     /* Allocate per-instance axis state */
     inst->axis_inst = axis_inst_new();
@@ -915,17 +916,30 @@ static int motmod_init(cmod_t *self)
 	return -1;
     }
 
-    /* Look up the homing API registered by the home module */
-    inst->home_api = home_api_get(env->api, inst->home_inst_name);
-    if (!inst->home_api) {
-	gomc_log_errorf(log, inst->name, "MOTION: home API not registered (instance '%s', is home module loaded?)\n", inst->home_inst_name);
-	return -1;
+    /* Look up per-joint homing APIs registered by homemod instances */
+    inst->sequence_state = HOME_SEQUENCE_IDLE;
+    inst->current_sequence = 0;
+    inst->homing_active = 0;
+    inst->all_homed = 0;
+    {
+        int j;
+        for (j = 0; j < inst->num_joints + inst->num_extrajoints; j++) {
+            char hname[HAL_NAME_LEN + 4];
+            snprintf(hname, sizeof(hname), "%s.%d", inst->home_inst_prefix, j);
+            const home_callbacks_t *hapi = home_api_get(env->api, hname);
+            if (!hapi) {
+                gomc_log_errorf(log, inst->name,
+                    "MOTION: home API not registered (instance '%s', is home module loaded?)\n", hname);
+                return -1;
+            }
+            inst->joints[j].home_api = hapi;
+            env->api->record_consumer(env->api->ctx, inst->name, "home", hname);
+        }
     }
 
     /* Record consumer relationships for introspection */
     env->api->record_consumer(env->api->ctx, inst->name, "kins", inst->kins_inst_name);
     env->api->record_consumer(env->api->ctx, inst->name, "tp", inst->tp_inst_name);
-    env->api->record_consumer(env->api->ctx, inst->name, "home", inst->home_inst_name);
 
     /* --- Validation (depends on kins) --- */
 
@@ -969,13 +983,17 @@ static int motmod_init(cmod_t *self)
 	return -1;
     }
 
-    /* Initialize homing via GMI home API */
-    if (inst->home_api->init(inst->home_api->ctx, inst->comp_id,
-                              inst->config->servoCycleTime,
-                              inst->num_joints,
-                              inst->num_extrajoints) != 0) {
-        gomc_log_errorf(log, inst->name, "MOTION: homing init failed\n");
-        return -1;
+    /* Initialize per-joint homing via GMI home API */
+    {
+        int j;
+        for (j = 0; j < inst->num_joints + inst->num_extrajoints; j++) {
+            const home_callbacks_t *hapi = (const home_callbacks_t *)inst->joints[j].home_api;
+            if (hapi->init(hapi->ctx, inst->comp_id,
+                           inst->config->servoCycleTime) != 0) {
+                gomc_log_errorf(log, inst->name, "MOTION: homing init failed for joint %d\n", j);
+                return -1;
+            }
+        }
     }
 
     hal->ready(hal->ctx, inst->comp_id);
@@ -1064,7 +1082,6 @@ static int init_hal_io(motmod_inst_t *inst)
     CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(inst->hal_data->is_all_homed), inst->comp_id, PFMT("motion.is-all-homed")));
 
     /* state tags pins */
-    CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_upm), inst->comp_id, PFMT("motion.feed-upm")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_inches_per_minute), inst->comp_id, PFMT("motion.feed-inches-per-minute")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_inches_per_second), inst->comp_id, PFMT("motion.feed-inches-per-second")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_mm_per_minute), inst->comp_id, PFMT("motion.feed-mm-per-minute")));
@@ -1140,7 +1157,7 @@ static int init_hal_io(motmod_inst_t *inst)
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->current_vel), inst->comp_id, PFMT("motion.current-vel")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->requested_vel), inst->comp_id, PFMT("motion.requested-vel")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->distance_to_go), inst->comp_id, PFMT("motion.distance-to-go")));
-    CALL_CHECK(gomc_hal_pin_s32_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->program_line), inst->comp_id, PFMT("motion.program-line")));
+    CALL_CHECK(gomc_hal_pin_s32_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->segment_id), inst->comp_id, PFMT("motion.segment-id")));
     CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(inst->hal_data->jog_is_active), inst->comp_id, PFMT("motion.jog-is-active")));
 
     /* export debug parameters */

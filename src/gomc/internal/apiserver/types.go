@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package apiserver implements the dynamic API registry and HTTP server
 // for LinuxCNC's inter-module communication system.
 package apiserver

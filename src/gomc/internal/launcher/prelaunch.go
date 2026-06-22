@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package launcher — prelaunch.go implements the pre-launch validation checks
 // that run after INI parsing but before startServer().
 //

@@ -61,6 +61,10 @@
 
 #include "conf.h"
 #include "conf_priv.h"
+#include "ethercat_api.h"
+
+/* Defined in gmi_ethercat.c */
+extern ethercat_callbacks_t gmi_ethercat_callbacks(void);
 
 #include "devices/stmds5k.h"
 #include "devices/el6900.h"
@@ -472,8 +476,25 @@ static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr);
 
 static int lcec_conf_start(cmod_t *self) {
   lcec_conf_module *m = (lcec_conf_module *)self->priv;
+  int ret;
 
-  return lcec_rt_start(&m->rt_ctx);
+  ret = lcec_rt_start(&m->rt_ctx);
+  if (ret != 0)
+    return ret;
+
+  /* Register the ethercat tool REST API under this instance name.
+   * The ctx pointer is the rt_ctx so callbacks can walk the master list. */
+  if (m->env->api) {
+    m->rt_ctx.ethercat_cb = gmi_ethercat_callbacks();
+    m->rt_ctx.ethercat_cb.ctx = &m->rt_ctx;
+    ret = ethercat_api_register(m->env->api, m->name, &m->rt_ctx.ethercat_cb);
+    if (ret != 0) {
+      CONF_ERR(m, "failed to register ethercat REST API");
+      return ret;
+    }
+  }
+
+  return 0;
 }
 
 static void lcec_conf_stop(cmod_t *self) {

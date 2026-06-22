@@ -26,6 +26,9 @@
 #   probe_jog_err_inhibit, probe_home_err_inhibit
 
 @api motctl
+@author "Fred Proctor & Will Shackleford (emcmot.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "LGPL Version 2.1"
 @version 1
 @rest_export false
 
@@ -49,37 +52,26 @@ type Cartesian {
     z: f64
 }
 
-const TAG_FIELDS_FLOAT = 5
-const TAG_FIELDS_INT = 8
-
-type StateTag {
-    fields_float: [TAG_FIELDS_FLOAT]f32
-    fields: [TAG_FIELDS_INT]i32
-    packed_flags: u64
-}
-
 # ─── Motion Queue ───
 
 @doc "Queue a linear move"
 func set_line(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
-              motion_type: i32, id: i32, tag: StateTag,
+              motion_type: i32, id: i32, feed_upm: f64,
               indexer_jnum: i32) -> i32
 
 @doc "Queue a circular arc move"
 func set_circle(pos: Pose, center: Cartesian,
                 normal: Cartesian, turn: i32,
                 vel: f64, ini_maxvel: f64, acc: f64,
-                motion_type: i32, id: i32,
-                tag: StateTag) -> i32
+                motion_type: i32, id: i32, feed_upm: f64) -> i32
 
 @doc "Queue a probe move"
 func probe(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
-           motion_type: i32, probe_type: u8, id: i32,
-           tag: StateTag) -> i32
+           motion_type: i32, probe_type: u8, id: i32, feed_upm: f64) -> i32
 
 @doc "Queue a rigid tapping move"
 func rigid_tap(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
-               scale: f64, id: i32, tag: StateTag) -> i32
+               scale: f64, id: i32, feed_upm: f64) -> i32
 
 # ─── Motion Parameters ───
 

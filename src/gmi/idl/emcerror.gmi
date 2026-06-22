@@ -3,6 +3,8 @@
 # milltask publishes errors via ring buffer; Go drains and delivers to WS.
 
 @api emcerror
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix emcerror
 @rest_export false

@@ -8,6 +8,7 @@
  *
  * Copyright (C) 2019-2021 Phillip A Carter
  * Copyright (C) 2020-2021 Gregory D Carl
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — C/cmod port
  * License: GPL v2+
  */
 

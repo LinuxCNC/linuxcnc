@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package calibreg provides a global registry of INI→HAL pin mappings
 // discovered during HAL file loading. When a setp command uses a [SECTION]KEY
 // INI reference, the halparse package records the mapping here. The emccalib

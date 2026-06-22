@@ -13,6 +13,9 @@
 # Design: MILLTASK_CLEANUP.md Phase 1
 
 @api canon
+@author "Thomas Kramer (canon.hh)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix canon
 @rest_export false

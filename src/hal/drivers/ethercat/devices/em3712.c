@@ -1,9 +1,5 @@
 /** @file em3712.c
- * @brief Driver for the Beckhoff EM3712 2-channel analog input module.
- *
- * Each channel provides a 16-bit signed measurement value normalised to
- * the range [-1.0, 1.0] (0x7FFF = +1.0).  The output HAL pin is computed
- * as: val = bias + scale * (raw / 0x7FFF).
+ * @brief Driver for the Beckhoff EM3712 2-channel preassure input module.
  *
  * @copyright Copyright (C) 2016-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -53,13 +49,13 @@ typedef struct {
 } lcec_em3712_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, overrange), "%s.%s.%s.temp-%d-overrange" },
-  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, underrange), "%s.%s.%s.temp-%d-underrange" },
-  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, error), "%s.%s.%s.temp-%d-error" },
-  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, raw_val), "%s.%s.%s.temp-%d-raw" },
-  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, val), "%s.%s.%s.temp-%d-val" },
-  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em3712_chan_t, scale), "%s.%s.%s.temp-%d-scale" },
-  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em3712_chan_t, bias), "%s.%s.%s.temp-%d-bias" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, overrange), "%s.%s.%s.press-%d-overrange" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, underrange), "%s.%s.%s.press-%d-underrange" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, error), "%s.%s.%s.press-%d-error" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, raw_val), "%s.%s.%s.press-%d-raw" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_em3712_chan_t, val), "%s.%s.%s.press-%d-val" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em3712_chan_t, scale), "%s.%s.%s.press-%d-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em3712_chan_t, bias), "%s.%s.%s.press-%d-bias" },
   { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
@@ -163,7 +159,7 @@ int lcec_em3712_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
  *
  * Reads overrange, underrange, and error flags plus the 16-bit measurement
  * value for each channel.  Converts the raw value to a floating-point
- * output using: val = bias + scale * (raw / 0x7FFF).
+ * output using: val = bias + scale * raw.
  *
  * @param slave  EtherCAT slave structure.
  * @param period Cycle period in nanoseconds (unused).
@@ -193,6 +189,6 @@ void lcec_em3712_read(struct lcec_slave *slave, long period) {
     // update value
     value = EC_READ_S16(&pd[chan->val_pdo_os]);
     *(chan->raw_val) = value;
-    *(chan->val) = *(chan->bias) + *(chan->scale) * (double)value * ((double)1/(double)0x7fff);
+    *(chan->val) = *(chan->bias) + *(chan->scale) * (double)value;
   }
 }

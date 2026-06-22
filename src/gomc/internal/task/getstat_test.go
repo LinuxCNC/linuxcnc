@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -18,7 +20,7 @@ func (m *richMockStatus) GetStatus() (motstat.MotionStatus, error) { return m.st
 func (m *richMockStatus) GetPosCmd() (motstat.Pose, error)         { return m.status.CartePosCmd, nil }
 func (m *richMockStatus) GetPosFb() (motstat.Pose, error)          { return m.status.CartePosFb, nil }
 func (m *richMockStatus) GetInpos() (int32, error)                 { return m.status.Inpos, nil }
-func (m *richMockStatus) GetExecId() (int32, error)                { return m.status.Id, nil }
+func (m *richMockStatus) GetExecId() (int32, error)                { return int32(m.status.Id), nil }
 func (m *richMockStatus) GetQueueDepth() (int32, error)            { return m.status.QueueDepth, nil }
 func (m *richMockStatus) GetCommandNumEcho() (int32, error)        { return m.status.CommandNumEcho, nil }
 func (m *richMockStatus) GetCommandStatus() (int32, error)         { return m.status.CommandStatus, nil }

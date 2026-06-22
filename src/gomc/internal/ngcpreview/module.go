@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package ngcpreview provides server-side G-code preview interpretation.
 // Each preview request creates a fresh Interp instance with a recording
 // canon that captures geometry as structured segments.
