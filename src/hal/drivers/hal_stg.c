@@ -171,12 +171,14 @@ typedef struct {
 typedef struct {
 /* counter data */
     hal_s32_t *count[MAX_CHANS];		/* captured binary count value */
-	hal_s32_t offset[MAX_CHANS];		/* offset to hold latched position from index pulse */
+    rtapi_s32 old_count[MAX_CHANS];		/* used for bit-extension to 32 bits */
+    hal_s64_t *count64[MAX_CHANS];		/* 64-bit counts */
+    rtapi_s64 offset[MAX_CHANS];		/* offset to hold latched position from index pulse */
     hal_float_t *pos[MAX_CHANS];		/* scaled position (floating point) */
     hal_float_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
     hal_bit_t *index_enable[MAX_CHANS];		/* pins for index homing */
-    hal_bit_t *index_latch[MAX_CHANS];    /* value of the index latch for the axis */
-//    hal_s32_t check_index[MAX_CHANS];           /* internal marker for two stage index pulse check */
+    hal_bit_t *index_latch[MAX_CHANS];		/* value of the index latch for the axis */
+//    hal_s32_t check_index[MAX_CHANS];		/* internal marker for two stage index pulse check */
     hal_bit_t *index_polarity[MAX_CHANS];       /* Polarity of index pulse */
 
 /* dac data */
@@ -528,8 +530,9 @@ static void stg_counter_capture(void *arg, long period)
           // read the value without latching, latching was done on index
           // remember this as an offset, it will be substracted from nominal
           stg->offset[n] = stg_counter_read(n);
-    			/* set index-enable false, so outside knows we found the index, and reset the position */
-  				*(stg->index_enable[n]) = 0;
+          stg->counts64[n] = 0 - stg->offset[n]; // atp #2331 14/11/25
+          /* set index-enable false, so outside knows we found the index, and reset the position */
+          *(stg->index_enable[n]) = 0;
 
           /*
           msg = rtapi_get_msg_level();
@@ -576,10 +579,11 @@ static void stg_counter_capture(void *arg, long period)
       	if ( *(stg->index_enable[n]) == 1 ) 
         {
           // read the value without latching, latching was done on index
-														// remember this as an offset, it will be substracted from nominal
+          // remember this as an offset, it will be substracted from nominal
           stg->offset[n] = stg_counter_read(n);
-				/* set index-enable false, so outside knows we found the index, and reset the position */
-				*(stg->index_enable[n]) = 0;
+          stg->counts64[n] = 0 - stg->offset[n]; // atp #2331 14/11/25
+          /* set index-enable false, so outside knows we found the index, and reset the position */
+          *(stg->index_enable[n]) = 0;
 
           /*
           msg = rtapi_get_msg_level();
@@ -603,10 +607,14 @@ static void stg_counter_capture(void *arg, long period)
 
   for (n = 0; n < num_chan; n++) 
   {
+	rtapi_s32 delta;
 	/* capture raw counts to latches */
 	stg_counter_latch(n);
 	/* read raw count, and substract the offset (determined by indexed homing) */
-	*(stg->count[n]) = stg_counter_read(n) - stg->offset[n]; 
+	*(stg->count[n]) = stg_counter_read(n) - stg->offset[n];
+	// 64-bit index is handled differently
+	delta = (stg_counter_read(n) - (stg->old_count[n]);
+	*(stg->count64[n]) += delta;
 	/* make sure scale isn't zero or tiny to avoid divide error */
 	if (stg->pos_scale[n] < 0.0) {
 	    if (stg->pos_scale[n] > -EPSILON)
@@ -616,7 +624,7 @@ static void stg_counter_capture(void *arg, long period)
 		stg->pos_scale[n] = 1.0;
 	}
 	/* scale count to make floating point position */
-	*(stg->pos[n]) = *(stg->count[n]) / stg->pos_scale[n];
+	*(stg->pos[n]) = *(stg->count64[n]) / stg->pos_scale[n];
     }
     /* done */
   return;
@@ -1435,9 +1443,14 @@ static int export_counter(int num, stg_struct *addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
-    /* export pin for counts captured by update() */
+    /* export pins for counts captured by update() */
     retval = hal_pin_s32_newf(HAL_OUT, &addr->count[num],
 			      comp_id, "stg.%d.counts", num);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_s64_newf(HAL_OUT, &addr->count64[num],
+			      comp_id, "stg.%d.counts64", num);
     if (retval != 0) {
 	return retval;
     }
