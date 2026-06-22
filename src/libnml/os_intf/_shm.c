@@ -232,7 +232,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
     /* map shmem area into local address space */
     shmflg = 0;
     shmflg &= ~SHM_RDONLY;
-    if ((shm->addr = (void *) shmat(shm->id, 0, shmflg)) == (void *) -1) {
+    if ((shm->addr = (void *) shmat(shm->id, NULL, shmflg)) == (void *) -1) {
 	shm->create_errno = errno;
 	rcs_print_error("shmat(%d,0,%d) failed:(errno = %d): %s\n", shm->id,
 	    shmflg, errno, strerror(errno));

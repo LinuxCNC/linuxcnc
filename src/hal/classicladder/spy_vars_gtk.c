@@ -247,7 +247,7 @@ gtk_entry_set_width_chars( GTK_ENTRY(offsetboolvar[ ColumnVar ]), 4 );
 	UpdateAllLabelsBoolsVars( );
 	
 	gtk_signal_connect( GTK_OBJECT(SpyBoolVarsWindow), "delete_event",
-		GTK_SIGNAL_FUNC(BoolVarsWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(BoolVarsWindowDeleteEvent), NULL);
 
 //	gtk_window_set_policy( GTK_WINDOW(SpyBoolVarsWindow), FALSE/*allow_shrink*/, FALSE/*allow_grow*/, TRUE/*auto_shrink*/ );
 }
@@ -332,7 +332,7 @@ void ModifyVarWindowInitGtk( )
                                         GTK_SIGNAL_FUNC(ModifyVarWindowDeleteEvent), NULL );
 
 	gtk_signal_connect( GTK_OBJECT(ModifyVarValueWindow), "delete_event",
-		GTK_SIGNAL_FUNC(ModifyVarWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(ModifyVarWindowDeleteEvent), NULL);
 }
 
 
@@ -596,7 +596,7 @@ void FreeVarsWindowInitGtk( )
                                         GTK_SIGNAL_FUNC(OpenModifyVarWindow_clicked_event), (void *)(intptr_t)NumVarSpy );
 	}
 	gtk_signal_connect( GTK_OBJECT(SpyFreeVarsWindow), "delete_event",
-		GTK_SIGNAL_FUNC(FreeVarsWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(FreeVarsWindowDeleteEvent), NULL);
 }
 
 

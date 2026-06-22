@@ -624,7 +624,7 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	{
 	    REMOTE_GET_BUF_NAME_REPLY *namereply = &local_port->namereply;
 	    const char *name = get_buffer_name(request->buffer_number);
-	    if (0 == name) {
+	    if (NULL == name) {
 		return NULL;
 	    }
 	    strncpy(namereply->name, name, 31);

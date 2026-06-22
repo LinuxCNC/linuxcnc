@@ -52,9 +52,9 @@ struct PosixApp : RtapiApp {
             return -EINVAL;
 
         pthread_cancel(task->thr);
-        pthread_join(task->thr, 0);
+        pthread_join(task->thr, nullptr);
         task->magic = 0;
-        task_array[id] = 0;
+        task_array[id] = nullptr;
         delete task;
         return 0;
     }

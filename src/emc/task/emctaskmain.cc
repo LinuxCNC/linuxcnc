@@ -98,18 +98,18 @@ static emcmot_config_t emcmotConfig;
 
 
 // NML channels
-static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
-static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
-static NML *emcErrorBuffer = 0;
+static RCS_CMD_CHANNEL *emcCommandBuffer = NULL;
+static RCS_STAT_CHANNEL *emcStatusBuffer = NULL;
+static NML *emcErrorBuffer = NULL;
 
 // NML command channel data pointer
-static RCS_CMD_MSG *emcCommand = 0;
+static RCS_CMD_MSG *emcCommand = NULL;
 
 // global EMC status
-EMC_STAT *emcStatus = 0;
+EMC_STAT *emcStatus = NULL;
 
 // timer stuff
-static RCS_TIMER *timer = 0;
+static RCS_TIMER *timer = NULL;
 
 // flag signifying that INI file [TASK] CYCLE_TIME is <= 0.0, so
 // we should not delay at all between cycles. This means also that
@@ -310,7 +310,7 @@ static int argvize(const char *src, char *dst, char *argv[], int len)
 	bufptr++;
     }
 
-    argv[argvix] = 0;		// null-terminate the argv list
+    argv[argvix] = NULL;		// null-terminate the argv list
 
     return argvix;
 }
@@ -496,7 +496,7 @@ interpret_again:
 		    if (emcTaskPlanIsWait()) {
 			// delay reading of next line until all is done
 			if (interp_list.len() == 0 &&
-			    emcTaskCommand == 0 &&
+			    emcTaskCommand == NULL &&
 			    emcStatus->task.execState ==
 			    EMC_TASK_EXEC::DONE) {
 			    emcTaskPlanClearWait();
@@ -527,7 +527,7 @@ interpret_again:
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
 			    // and execute it
-			    execRetval = emcTaskPlanExecute(0);
+			    execRetval = emcTaskPlanExecute(NULL);
 			    // line number may need update after
 			    // returns from subprograms in external
 			    // files
@@ -647,7 +647,7 @@ static void mdi_execute_hook(void)
     if (mdi_execute_wait && emcTaskPlanIsWait()) {
 	// delay reading of next line until all is done
 	if (interp_list.len() == 0 &&
-	    emcTaskCommand == 0 &&
+	    emcTaskCommand == NULL &&
 	    emcStatus->task.execState ==
 	    EMC_TASK_EXEC::DONE) {
 	    emcTaskPlanClearWait();
@@ -671,7 +671,7 @@ static void mdi_execute_hook(void)
 
     // determine when a MDI command actually finishes normally.
     if (interp_list.len() == 0 &&
-	emcTaskCommand == 0 &&
+	emcTaskCommand == NULL &&
 	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE &&
 	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
 	emcStatus->motion.traj.queue == 0 &&
@@ -704,7 +704,7 @@ void readahead_waiting(void)
 	// now handle call logic
 	// check for subsystems done
 	if (interp_list.len() == 0 &&
-	    emcTaskCommand == 0 &&
+	    emcTaskCommand == NULL &&
 	    emcStatus->motion.traj.queue == 0 &&
 	    emcStatus->io.status == RCS_STATUS::DONE)
 	    // finished
@@ -1499,7 +1499,7 @@ static int emcTaskPlan(void)
    */
 static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 {
-    if (0 == cmd) {
+    if (NULL == cmd) {
 	return EMC_TASK_EXEC::DONE;
     }
 
@@ -1636,7 +1636,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     int execRetval = 0;
     static char remote_tmpfilename[LINELEN];   // path to temporary file received from remote process
 
-    if (0 == cmd) {
+    if (NULL == cmd) {
         if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
             rcs_print("emcTaskIssueCommand() null command\n");
         }
@@ -2123,7 +2123,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		}
 
 		// clear out the pending command
-		emcTaskCommand = 0;
+		emcTaskCommand = NULL;
 		interp_list.clear();
                 emcStatus->task.currentLine = 0;
 
@@ -2440,7 +2440,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
    */
 static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 {
-    if (0 == cmd) {
+    if (NULL == cmd) {
 	return EMC_TASK_EXEC::DONE;
     }
 
@@ -2593,7 +2593,7 @@ static int emcTaskExecute(void)
 	}
 
 	// clear out pending command
-	emcTaskCommand = 0;
+	emcTaskCommand = NULL;
 	interp_list.clear();
 	emcAbortCleanup(EMC_ABORT::TASK_EXEC_ERROR);
         emcStatus->task.currentLine = 0;
@@ -2615,12 +2615,12 @@ static int emcTaskExecute(void)
 	STEPPING_CHECK();
 	if (!emcStatus->motion.traj.queueFull &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP::PAUSED) {
-	    if (0 == emcTaskCommand) {
+	    if (NULL == emcTaskCommand) {
 		// need a new command
 		emcTaskCommand = interp_list.get();
 		// interp_list now has line number associated with this-- get
 		// it
-		if (0 != emcTaskCommand) {
+		if (NULL != emcTaskCommand) {
 		    emcTaskEager = 1;
 		    emcStatus->task.currentLine = interp_list.get_line_number();
 		    emcStatus->task.callLevel = emcTaskPlanLevel();
@@ -2642,7 +2642,7 @@ static int emcTaskExecute(void)
 		    emcStatus->task.execState = emcTaskCheckPostconditions(emcTaskCommand.get());
 		    emcTaskEager = 1;
 		}
-		emcTaskCommand = 0;	// reset it
+		emcTaskCommand = NULL;	// reset it
 	    }
 	}
 	break;
@@ -2650,7 +2650,7 @@ static int emcTaskExecute(void)
     case EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE:
 	STEPPING_CHECK();
 	if (!emcStatus->motion.traj.queueFull) {
-	    if (0 != emcTaskCommand) {
+	    if (NULL != emcTaskCommand) {
 		emcStatus->task.execState = emcTaskCheckPreconditions(emcTaskCommand.get());
 		emcTaskEager = 1;
 	    } else {
@@ -3058,38 +3058,38 @@ static int emctask_startup()
 static int emctask_shutdown(void)
 {
     // shut down the subsystems
-    if (0 != emcStatus) {
+    if (NULL != emcStatus) {
 	emcTaskHalt();
 	emcTaskPlanExit();
 	emcMotionHalt();
     }
     // delete the timer
-    if (0 != timer) {
+    if (NULL != timer) {
 	delete timer;
-	timer = 0;
+	timer = NULL;
     }
     // delete the NML channels
 
-    if (0 != emcErrorBuffer) {
+    if (NULL != emcErrorBuffer) {
 	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
+	emcErrorBuffer = NULL;
     }
 
-    if (0 != emcStatusBuffer) {
+    if (NULL != emcStatusBuffer) {
 	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
+	emcStatusBuffer = NULL;
+	emcStatus = NULL;
     }
 
-    if (0 != emcCommandBuffer) {
+    if (NULL != emcCommandBuffer) {
 	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-	emcCommand = 0;
+	emcCommandBuffer = NULL;
+	emcCommand = NULL;
     }
 
-    if (0 != emcStatus) {
+    if (NULL != emcStatus) {
 	delete emcStatus;
-	emcStatus = 0;
+	emcStatus = NULL;
     }
     return 0;
 }
@@ -3424,7 +3424,7 @@ int main(int argc, char *argv[])
 	    }
 
 	    // clear out the pending command
-	    emcTaskCommand = 0;
+	    emcTaskCommand = NULL;
 	    interp_list.clear();
 	    emcStatus->task.currentLine = 0;
 
@@ -3467,7 +3467,7 @@ int main(int argc, char *argv[])
 		   emcStatus->io.status == RCS_STATUS::DONE &&
 		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
-		   emcTaskCommand == 0 &&
+		   emcTaskCommand == NULL &&
 		   emcStatus->task.interpState == EMC_TASK_INTERP::IDLE) {
 	    emcStatus->status = RCS_STATUS::DONE;
 	    emcStatus->task.status = RCS_STATUS::DONE;

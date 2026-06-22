@@ -179,7 +179,7 @@ public:
     struct Out
     {
     public:
-        hal_bit_t* button_pin[64] = {0};
+        hal_bit_t* button_pin[64] = {nullptr};
 
         //! to be connected to \ref halui.flood.off
         hal_bit_t  * floodStop{nullptr};

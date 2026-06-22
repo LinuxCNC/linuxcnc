@@ -3891,7 +3891,7 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 				      int max_size)
 {				/* maximum number of characters to copy */
     // Paranoid checks
-    if (0 == file_name)
+    if (NULL == file_name)
 	return;
 
     if (max_size < 0)
@@ -4156,7 +4156,7 @@ double GET_EXTERNAL_ANALOG_INPUT(int index, double /*def*/)
 
 
 USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM]
-    = { 0 };
+    = { NULL };
 
 int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
 {

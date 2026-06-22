@@ -281,7 +281,7 @@ struct option longopts[] = {
   {"connectpw", 1, NULL, 'w'},
   {"enablepw", 1, NULL, 'e'},
   {"path", 1, NULL, 'd'},
-  {0,0,0,0}
+  {NULL,0,NULL,0}
   };
 
 
@@ -289,27 +289,27 @@ static void thisQuit()
 {
     EMC_NULL emc_null_msg;
 
-    if (emcStatusBuffer != 0) {
+    if (emcStatusBuffer != NULL) {
 	// wait until current message has been received
 	emcCommandWaitReceived();
     }
 
     // clean up NML buffers
 
-    if (emcErrorBuffer != 0) {
+    if (emcErrorBuffer != NULL) {
 	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
+	emcErrorBuffer = NULL;
     }
 
-    if (emcStatusBuffer != 0) {
+    if (emcStatusBuffer != NULL) {
 	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
+	emcStatusBuffer = NULL;
+	emcStatus = NULL;
     }
 
-    if (emcCommandBuffer != 0) {
+    if (emcCommandBuffer != NULL) {
 	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
+	emcCommandBuffer = NULL;
     }
 
     exit(0);
@@ -1139,7 +1139,7 @@ void *checkQueue(void * /*arg*/)
     updateQueue();
     sleep((unsigned)pollDelay);
     }
-  return 0;
+  return NULL;
 }  
 
 void *readClient(void * /*arg*/)
@@ -1201,7 +1201,7 @@ finished:
   close(context->cliSock);
   free(context);
 fail:
-  pthread_exit((void *)0);
+  pthread_exit(NULL);
   sessions--;  // FIXME: not reached
 }
 
@@ -1236,11 +1236,11 @@ static void initMain()
     emcUpdateType = EMC_UPDATE_AUTO;
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
-    emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
-    emcStatus = 0;
+    emcCommandBuffer = NULL;
+    emcStatusBuffer = NULL;
+    emcStatus = NULL;
 
-    emcErrorBuffer = 0;
+    emcErrorBuffer = NULL;
     error_string.clear();
     operator_text_string.clear();
     operator_display_string.clear();

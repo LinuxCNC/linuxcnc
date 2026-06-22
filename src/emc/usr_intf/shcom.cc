@@ -71,26 +71,26 @@ int emcTaskNmlGet()
     int retval = 0;
 
     // try to connect to EMC cmd
-    if (emcCommandBuffer == 0) {
+    if (emcCommandBuffer == nullptr) {
 	emcCommandBuffer =
 	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
 				emc_nmlfile);
 	if (!emcCommandBuffer->valid()) {
 	    delete emcCommandBuffer;
-	    emcCommandBuffer = 0;
+	    emcCommandBuffer = nullptr;
 	    retval = -1;
 	}
     }
     // try to connect to EMC status
-    if (emcStatusBuffer == 0) {
+    if (emcStatusBuffer == nullptr) {
 	emcStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
 				 emc_nmlfile);
 	if (!emcStatusBuffer->valid()
 	    || EMC_STAT_TYPE != emcStatusBuffer->peek()) {
 	    delete emcStatusBuffer;
-	    emcStatusBuffer = 0;
-	    emcStatus = 0;
+	    emcStatusBuffer = nullptr;
+	    emcStatus = nullptr;
 	    retval = -1;
 	} else {
 	    emcStatus = static_cast<EMC_STAT *>(emcStatusBuffer->get_address());
@@ -104,12 +104,12 @@ int emcErrorNmlGet()
 {
     int retval = 0;
 
-    if (emcErrorBuffer == 0) {
+    if (emcErrorBuffer == nullptr) {
 	emcErrorBuffer =
 	    new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
 	if (!emcErrorBuffer->valid()) {
 	    delete emcErrorBuffer;
-	    emcErrorBuffer = 0;
+	    emcErrorBuffer = nullptr;
 	    retval = -1;
 	}
     }

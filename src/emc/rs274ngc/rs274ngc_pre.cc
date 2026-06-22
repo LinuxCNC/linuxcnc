@@ -314,7 +314,7 @@ int Interp::_execute(const char *command)
 	   call_statenames[_setup.call_state]);
 
   // process control functions -- will skip if skipping
-  if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
+  if ((eblock->o_name != NULL) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
       CHP(status); // relinquish control if INTERP_EXECUTE_FINISH, INTERP_ERROR etc
       
@@ -334,7 +334,7 @@ int Interp::_execute(const char *command)
       logDebug("MDImode = %d", MDImode);
       while(MDImode && _setup.call_level) // we are still in a subroutine
       {
-          status = read(0);  // reads from current file and calls parse
+          status = read(NULL);  // reads from current file and calls parse
 	  if (status > INTERP_MIN_ERROR)
 	      CHP(status);
           status = execute();  // special handling for mdi errors
@@ -462,7 +462,7 @@ int Interp::_execute(const char *command)
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-		  if ((eblock->o_name != 0) ||
+		  if ((eblock->o_name != NULL) ||
 		      (_setup.mdi_interrupt)) { 
 
 		      status = convert_control_functions(eblock, &_setup);
@@ -473,7 +473,7 @@ int Interp::_execute(const char *command)
 		      }
 		      status = INTERP_OK;
 		      while(MDImode && _setup.call_level) { // we are still in a subroutine
-			  CHP(read(0));  // reads from current file and calls parse
+			  CHP(read(NULL));  // reads from current file and calls parse
 			  status = execute();  // special handling for mdi errors
 			  if (status == INTERP_EXECUTE_FINISH) 
 			      _setup.mdi_interrupt = true;
@@ -489,7 +489,7 @@ int Interp::_execute(const char *command)
 		  }
 	      } else {
 		  // this should get the osub going
-		  status = execute(0);
+		  status = execute(NULL);
 		  CHP(status);
 		  // when this is done, blocks[0] will be executed as per standard case
 		  // on endsub/return and g_codes/m_codes/settings recorded there.
@@ -539,7 +539,7 @@ int Interp::execute(const char *command)
 
 int Interp::execute()
 {
-  return Interp::execute(0);
+  return Interp::execute(NULL);
 }
 
 int Interp::execute(const char *command, int line_number)
@@ -598,7 +598,7 @@ int Interp::remap_finished(int phase)
 
 	    if (status < 0) {
 		// a remap was parsed, get the block going
-		return execute(0);
+		return execute(NULL);
 	    } else
 		return status;
 	} else {
@@ -1222,7 +1222,7 @@ int Interp::init()
   // initialization stuff for subroutines and control structures
   _setup.call_level = 0;
   _setup.defining_sub = 0;
-  _setup.skipping_o = 0;
+  _setup.skipping_o = NULL;
   _setup.offset_map.clear();
 
   _setup.lathe_diameter_mode = false;
@@ -1231,15 +1231,15 @@ int Interp::init()
   memcpy(_readers, default_readers, sizeof(default_readers));
 
   long axis_mask = GET_EXTERNAL_AXIS_MASK();
-  if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = 0;
-  if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = 0;
-  if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = 0;
-  if(!(axis_mask & AXIS_MASK_A)) _readers[(int)'a'] = 0;
-  if(!(axis_mask & AXIS_MASK_B)) _readers[(int)'b'] = 0;
-  if(!(axis_mask & AXIS_MASK_C)) _readers[(int)'c'] = 0;
-  if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = 0;
-  if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = 0;
-  if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = 0;
+  if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = NULL;
+  if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = NULL;
+  if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = NULL;
+  if(!(axis_mask & AXIS_MASK_A)) _readers[(int)'a'] = NULL;
+  if(!(axis_mask & AXIS_MASK_B)) _readers[(int)'b'] = NULL;
+  if(!(axis_mask & AXIS_MASK_C)) _readers[(int)'c'] = NULL;
+  if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = NULL;
+  if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = NULL;
+  if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = NULL;
 
   synch(); //synch first, then update the interface
 
@@ -1691,7 +1691,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	free_named_parameters(&_setup.sub_context[_setup.call_level]);
 	if(sub->subName) {
 	    logDebug("unwind_call leaving sub '%s'", sub->subName);
-	    sub->subName = 0;
+	    sub->subName = NULL;
 	}
 
 	if (sub->call_type != CT_NGC_M98_SUB) // M98:  pass #1..#30 from parent
@@ -1724,12 +1724,12 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
  
     if(_setup.sub_name) {
 	logDebug("unwind_call: exiting current sub '%s'\n", _setup.sub_name);
-	_setup.sub_name = 0;
+	_setup.sub_name = NULL;
     }
     _setup.remap_level = 0; // reset remapping stack
     _setup.defining_sub = 0;
-    _setup.skipping_o = 0;
-    _setup.skipping_to_sub = 0;
+    _setup.skipping_o = NULL;
+    _setup.skipping_to_sub = NULL;
     _setup.offset_map.clear();
     _setup.mdi_interrupt = false;
 
@@ -1738,7 +1738,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 }
 
 int Interp::read() {
-  return read(0);
+  return read(NULL);
 }
 /***********************************************************************/
 

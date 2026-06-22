@@ -240,7 +240,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     if (getenv( (char*)"DB_DEBUG") ) {db_debug = 1;}
     if (getenv( (char*)"DB_SHOW") )  {db_show  = 1;}
     int   child_argc = 0;
-    char* child_argv[MAX_DB_PROGRAM_ARGS] = {0};
+    char* child_argv[MAX_DB_PROGRAM_ARGS] = {NULL};
     char* saveptr;
     char* token = strtok_r(progname_plus_args, " ", &saveptr);
     while (token != NULL) {

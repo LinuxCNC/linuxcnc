@@ -251,8 +251,8 @@ int Hal_Init(Tcl_Interp *interp) {
         return TCL_ERROR;
     }
 
-    Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
-    Tcl_CreateCommand(interp, "hal_stream", halStreamCmd, 0, NULL);
+    Tcl_CreateCommand(interp, "hal", halCmd, NULL, halExit);
+    Tcl_CreateCommand(interp, "hal_stream", halStreamCmd, NULL, NULL);
 
     Tcl_PkgProvide(interp, "Hal", "1.0");
     return TCL_OK;

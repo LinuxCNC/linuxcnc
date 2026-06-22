@@ -676,7 +676,7 @@ usage:
         }
     }
   _sai._external_length_units =  0.03937007874016;
-  if (inifile!= 0) {
+  if (inifile!= NULL) {
       IniFile ini(inifile);
       if (!ini) {
         fprintf(stderr, "could not open supplied INI file %s\n", inifile);

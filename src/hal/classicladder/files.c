@@ -211,7 +211,7 @@ char LoadRung(char * FileName,StrRung * BufRung)
                             if (atoi(&Line[5])>2)
                             {
                                 printf(_("Rung version not supported...\n"));
-                                LineOk = FALSE;
+                                LineOk = NULL;
                             }
                         }
                         if(strncmp(&Line[1],"LABEL=",6)==0)
@@ -826,7 +826,7 @@ char LoadSectionsParams(char * FileName)
                             if (atoi(&Line[5])>1)
                             {
                                 printf(_("Sections file version not supported...\n"));
-                                LineOk = FALSE;
+                                LineOk = NULL;
                             }
                         }
                         // #NAMExxx=....
@@ -999,7 +999,7 @@ char LoadModbusIOConfParams(char * FileName)
 						}
 						else
 						{
-							LineOk = FALSE;
+							LineOk = NULL;
 						}
 					}
 					else
@@ -1082,7 +1082,7 @@ char LoadSymbols(char * FileName)
 							if (atoi(&Line[5])>1)
 							{
 								printf(_("Symbols file version not supported...\n"));
-								LineOk = FALSE;
+								LineOk = NULL;
 							}
 						}
 						break;

@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     int hdr_ct     = 0;
     int invalid_ct = 0;
     int peek_ct    = 0;
-    RCS_STAT_CHANNEL *stat = 0;
+    RCS_STAT_CHANNEL *stat = NULL;
     char nmlfile[512];
 
     if(argc == 2) {

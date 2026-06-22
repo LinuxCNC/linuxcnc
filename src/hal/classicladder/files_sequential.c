@@ -95,7 +95,7 @@ char LoadSequential(char * FileName)
 							if (atoi(&Line[5])>1)
 							{
 								printf(_("Sequential version not supported...\n"));
-								LineOk = FALSE;
+								LineOk = NULL;
 							}
 						}
 						break;

@@ -197,11 +197,11 @@ static void init_horiz_window(void)
     g_signal_connect(horiz->disp_area, "draw",
             G_CALLBACK(refresh_pos_disp), NULL);
     g_signal_connect(horiz->disp_area, "button_press_event",
-        G_CALLBACK(horiz_press), 0);
+        G_CALLBACK(horiz_press), NULL);
     g_signal_connect(horiz->disp_area, "button_release_event",
-        G_CALLBACK(horiz_release), 0);
+        G_CALLBACK(horiz_release), NULL);
     g_signal_connect(horiz->disp_area, "motion_notify_event",
-        G_CALLBACK(horiz_motion), 0);
+        G_CALLBACK(horiz_motion), NULL);
     gtk_widget_set_events(GTK_WIDGET(horiz->disp_area),
         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
         | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);

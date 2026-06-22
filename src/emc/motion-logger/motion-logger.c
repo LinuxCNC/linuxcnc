@@ -44,13 +44,13 @@ static struct motion_logger_data_t {
 FILE *logfile = NULL;
 char *logfile_name = NULL;
 
-emcmot_struct_t *emcmotStruct = 0;
+emcmot_struct_t *emcmotStruct = NULL;
 
-struct emcmot_command_t *c = 0;
-struct emcmot_status_t *emcmotStatus = 0;
-struct emcmot_config_t *emcmotConfig = 0;
-struct emcmot_internal_t *emcmotInternal = 0;
-struct emcmot_error_t *emcmotError = 0;
+struct emcmot_command_t *c = NULL;
+struct emcmot_status_t *emcmotStatus = NULL;
+struct emcmot_config_t *emcmotConfig = NULL;
+struct emcmot_internal_t *emcmotInternal = NULL;
+struct emcmot_error_t *emcmotError = NULL;
 
 static int mot_comp_id;
 
@@ -85,11 +85,11 @@ static int init_comm_buffers(void) {
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"MOTION: init_comm_buffers() starting...\n");
 
-    emcmotStruct = 0;
-    emcmotInternal = 0;
-    emcmotStatus = 0;
-    c = 0;
-    emcmotConfig = 0;
+    emcmotStruct = NULL;
+    emcmotInternal = NULL;
+    emcmotStatus = NULL;
+    c = NULL;
+    emcmotConfig = NULL;
 
     /* allocate and initialize the shared memory structure */
     shmem_id = rtapi_shmem_new(DEFAULT_SHMEM_KEY, mot_comp_id, sizeof(emcmot_struct_t));

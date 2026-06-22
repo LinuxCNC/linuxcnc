@@ -86,7 +86,7 @@ void Task::hal_init_pins(void)
 Task *task_methods;
 
 // global status structure
-EMC_IO_STAT *emcIoStatus = 0;
+EMC_IO_STAT *emcIoStatus = NULL;
 
 // glue
 

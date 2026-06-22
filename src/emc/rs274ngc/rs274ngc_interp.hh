@@ -360,7 +360,7 @@ public:
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
                           double end3);
  int enhance_block(block_pointer block, setup_pointer settings);
- int _execute(const char *command = 0);
+ int _execute(const char *command = NULL);
  int execute_binary(double *left, int operation, double *right);
  int execute_binary1(double *left, int operation, double *right);
  int execute_binary2(double *left, int operation, double *right);

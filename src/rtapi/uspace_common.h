@@ -69,7 +69,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   rtapi_shmem_handle *shmem;
   int i;
 
-  for (i=0,shmem=0 ; i < MAX_SHM; i++) {
+  for (i=0,shmem=NULL ; i < MAX_SHM; i++) {
     if(shmem_array[i].magic == SHMEM_MAGIC) {
       if (shmem_array[i].key == key) {
         shmem_array[i].count ++;
@@ -140,7 +140,7 @@ shmget_again:
 #endif
 
   /* and map it into process space */
-  shmem->mem = shmat(shmem->id, 0, 0);
+  shmem->mem = shmat(shmem->id, NULL, 0);
   if ((ssize_t) (shmem->mem) == -1) {
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
     return -errno;
@@ -299,10 +299,10 @@ static         int  uuid_mem_id = 0;
 int rtapi_init(const char *modname)
 {
     (void)modname;
-    static uuid_data_t* uuid_data   = 0;
+    static uuid_data_t* uuid_data   = NULL;
     static const   int  uuid_id     = 0;
 
-    static char* uuid_shmem_base = 0;
+    static char* uuid_shmem_base = NULL;
     int retval,id;
     void *uuid_mem;
 
@@ -320,7 +320,7 @@ int rtapi_init(const char *modname)
         rtapi_exit(uuid_id);
         return -EINVAL;
     }
-    if (uuid_shmem_base == 0) {
+    if (uuid_shmem_base == NULL) {
         uuid_shmem_base =        (char *) uuid_mem;
         uuid_data       = (uuid_data_t *) uuid_mem;
     }
@@ -348,8 +348,8 @@ int rtapi_is_kernelspace() { return 0; }
 static inline int detect_preempt_rt() {
     struct utsname u;
     if(uname(&u) < 0) return 0;
-    return strcasestr(u.version, "PREEMPT RT") != 0
-        || strcasestr(u.version, "PREEMPT_RT") != 0;
+    return strcasestr(u.version, "PREEMPT RT") != NULL
+        || strcasestr(u.version, "PREEMPT_RT") != NULL;
 }
 #else
 static inline int detect_preempt_rt() {

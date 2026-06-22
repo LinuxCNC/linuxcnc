@@ -74,8 +74,8 @@ MODULE_LICENSE("GPL");
 #include <time.h>
 #endif
 
-char *hal_shmem_base = 0;
-hal_data_t *hal_data = 0;
+char *hal_shmem_base = NULL;
+hal_data_t *hal_data = NULL;
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
 
@@ -176,7 +176,7 @@ int hal_init(const char *name)
     char hal_name[HAL_NAME_LEN + 1];
     hal_comp_t *comp;
 
-    if (name == 0) {
+    if (name == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
 	return -EINVAL;
     }
@@ -240,7 +240,7 @@ int hal_init(const char *name)
     /* get mutex before manipulating the shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* make sure name is unique in the system */
-    if (halpr_find_comp_by_name(hal_name) != 0) {
+    if (halpr_find_comp_by_name(hal_name) != NULL) {
 	/* a component with this name already exists */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -250,7 +250,7 @@ int hal_init(const char *name)
     }
     /* allocate a new component structure */
     comp = halpr_alloc_comp_struct();
-    if (comp == 0) {
+    if (comp == NULL) {
 	/* couldn't allocate structure */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -289,7 +289,7 @@ int hal_exit(int comp_id)
     hal_comp_t *comp;
     char name[HAL_NAME_LEN + 1];
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: exit called before init\n");
 	return -EINVAL;
@@ -372,14 +372,14 @@ void *hal_malloc(long int size)
 {
     void *retval;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: hal_malloc called before init\n");
-	return 0;
+	return NULL;
     }
     if (size <= 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: hal_malloc bad size: %ld\n", size);
-        return 0;
+        return NULL;
     }
 
     /* get the mutex */
@@ -389,7 +389,7 @@ void *hal_malloc(long int size)
     /* release the mutex */
     rtapi_mutex_give(&(hal_data->mutex));
     /* check return value */
-    if (retval == 0) {
+    if (retval == NULL) {
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "HAL: hal_malloc() can't allocate %ld bytes\n", size);
     }
@@ -544,7 +544,7 @@ char *hal_comp_name(int comp_id)
     locking types defined in hal.h
 */
 int hal_set_lock(unsigned char lock_type) {
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: set_lock called before init\n");
 	return -EINVAL;
@@ -558,7 +558,7 @@ int hal_set_lock(unsigned char lock_type) {
 */
 
 unsigned char hal_get_lock() {
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: get_lock called before init\n");
 	return -EINVAL;
@@ -720,7 +720,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     hal_pin_t *new, *ptr;
     hal_comp_t *comp;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called before init\n");
 	return -EINVAL;
@@ -764,7 +764,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
     comp = halpr_find_comp_by_id(comp_id);
-    if (comp == 0) {
+    if (comp == NULL) {
 	/* bad comp_id */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -801,7 +801,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     }
     /* allocate a new variable structure */
     new = alloc_pin_struct();
-    if (new == 0) {
+    if (new == NULL) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -859,7 +859,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     hal_pin_t *pin, *ptr;
     hal_oldname_t *oldname;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_alias called before init\n");
 	return -EINVAL;
@@ -988,7 +988,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     hal_sig_t *new, *ptr;
     void *data_addr;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called before init\n");
 	return -EINVAL;
@@ -1009,7 +1009,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* check for an existing signal with the same name */
-    if (halpr_find_sig_by_name(name) != 0) {
+    if (halpr_find_sig_by_name(name) != NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: duplicate signal '%s'\n", name);
@@ -1045,7 +1045,7 @@ with the C standard.
     }
     /* allocate a new signal structure */
     new = alloc_sig_struct();
-    if ((new == 0) || (data_addr == 0)) {
+    if ((new == NULL) || (data_addr == NULL)) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1116,7 +1116,7 @@ int hal_signal_delete(const char *name)
     hal_sig_t *sig;
     rtapi_intptr_t *prev, next;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_delete called before init\n");
 	return -EINVAL;
@@ -1163,7 +1163,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     hal_comp_t *comp;
     void **data_ptr_addr, *data_addr;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: link called before init\n");
 	return -EINVAL;
@@ -1175,12 +1175,12 @@ int hal_link(const char *pin_name, const char *sig_name)
 	return -EPERM;
     }
     /* make sure we were given a pin name */
-    if (pin_name == 0) {
+    if (pin_name == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
 	return -EINVAL;
     }
     /* make sure we were given a signal name */
-    if (sig_name == 0) {
+    if (sig_name == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: signal name not given\n");
 	return -EINVAL;
     }
@@ -1190,7 +1190,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     rtapi_mutex_get(&(hal_data->mutex));
     /* locate the pin */
     pin = halpr_find_pin_by_name(pin_name);
-    if (pin == 0) {
+    if (pin == NULL) {
 	/* not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1199,7 +1199,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     }
     /* locate the signal */
     sig = halpr_find_sig_by_name(sig_name);
-    if (sig == 0) {
+    if (sig == NULL) {
 	/* not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1331,7 +1331,7 @@ int hal_unlink(const char *pin_name)
 {
     hal_pin_t *pin;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: unlink called before init\n");
 	return -EINVAL;
@@ -1343,7 +1343,7 @@ int hal_unlink(const char *pin_name)
 	return -EPERM;
     }
     /* make sure we were given a pin name */
-    if (pin_name == 0) {
+    if (pin_name == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
 	return -EINVAL;
     }
@@ -1353,7 +1353,7 @@ int hal_unlink(const char *pin_name)
     rtapi_mutex_get(&(hal_data->mutex));
     /* locate the pin */
     pin = halpr_find_pin_by_name(pin_name);
-    if (pin == 0) {
+    if (pin == NULL) {
 	/* not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1498,7 +1498,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     hal_param_t *new, *ptr;
     hal_comp_t *comp;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called before init\n");
 	return -EINVAL;
@@ -1532,7 +1532,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
     comp = halpr_find_comp_by_id(comp_id);
-    if (comp == 0) {
+    if (comp == NULL) {
 	/* bad comp_id */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1569,7 +1569,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     }
     /* allocate a new parameter structure */
     new = alloc_param_struct();
-    if (new == 0) {
+    if (new == NULL) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1655,7 +1655,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
     hal_param_t *param;
     void *d_ptr;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_set called before init\n");
 	return -EINVAL;
@@ -1673,7 +1673,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 
     /* search param list for name */
     param = halpr_find_param_by_name(name);
-    if (param == 0) {
+    if (param == NULL) {
 	/* parameter not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1737,7 +1737,7 @@ int hal_param_alias(const char *param_name, const char *alias)
     hal_param_t *param, *ptr;
     hal_oldname_t *oldname;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_alias called before init\n");
 	return -EINVAL;
@@ -2299,7 +2299,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     int n;
     hal_funct_entry_t *funct_entry;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: add_funct called before init\n");
 	return -EINVAL;
@@ -2324,14 +2324,14 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	return -EINVAL;
     }
     /* make sure we were given a function name */
-    if (funct_name == 0) {
+    if (funct_name == NULL) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing function name\n");
 	return -EINVAL;
     }
     /* make sure we were given a thread name */
-    if (thread_name == 0) {
+    if (thread_name == NULL) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing thread name\n");
@@ -2339,7 +2339,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     }
     /* search function list for the function */
     funct = halpr_find_funct_by_name(funct_name);
-    if (funct == 0) {
+    if (funct == NULL) {
 	/* function not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2355,7 +2355,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     }
     /* search thread list for thread_name */
     thread = halpr_find_thread_by_name(thread_name);
-    if (thread == 0) {
+    if (thread == NULL) {
 	/* thread not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2400,7 +2400,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     }
     /* allocate a funct entry structure */
     funct_entry = alloc_funct_entry_struct();
-    if (funct_entry == 0) {
+    if (funct_entry == NULL) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2427,7 +2427,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
     int n;
     hal_funct_entry_t *funct_entry;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: init_funct called before init\n");
         return -EINVAL;
@@ -2444,7 +2444,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
         return -EINVAL;
     }
 
-    if (funct_name == 0 || thread_name == 0) {
+    if (funct_name == NULL || thread_name == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: missing function or thread name\n");
         return -EINVAL;
@@ -2457,7 +2457,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
     rtapi_mutex_get(&(hal_data->mutex));
 
     funct = halpr_find_funct_by_name(funct_name);
-    if (funct == 0) {
+    if (funct == NULL) {
         rtapi_mutex_give(&(hal_data->mutex));
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: function '%s' not found\n", funct_name);
@@ -2465,7 +2465,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
     }
 
     thread = halpr_find_thread_by_name(thread_name);
-    if (thread == 0) {
+    if (thread == NULL) {
         rtapi_mutex_give(&(hal_data->mutex));
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: thread '%s' not found\n", thread_name);
@@ -2514,7 +2514,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
     /* allow the same funct to be on funct_list and init_funct_list, and to be
        referenced multiple times in the init list itself (no users-cap check) */
     funct_entry = alloc_funct_entry_struct();
-    if (funct_entry == 0) {
+    if (funct_entry == NULL) {
         rtapi_mutex_give(&(hal_data->mutex));
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: insufficient memory for thread->init function link\n");
@@ -2539,7 +2539,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: del_funct called before init\n");
 	return -EINVAL;
@@ -2557,14 +2557,14 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     /* get mutex before accessing data structures */
     rtapi_mutex_get(&(hal_data->mutex));
     /* make sure we were given a function name */
-    if (funct_name == 0) {
+    if (funct_name == NULL) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing function name\n");
 	return -EINVAL;
     }
     /* make sure we were given a thread name */
-    if (thread_name == 0) {
+    if (thread_name == NULL) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing thread name\n");
@@ -2572,7 +2572,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     }
     /* search function list for the function */
     funct = halpr_find_funct_by_name(funct_name);
-    if (funct == 0) {
+    if (funct == NULL) {
 	/* function not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2588,7 +2588,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     }
     /* search thread list for thread_name */
     thread = halpr_find_thread_by_name(thread_name);
-    if (thread == 0) {
+    if (thread == NULL) {
 	/* thread not found */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2625,7 +2625,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 int hal_start_threads(void)
 {
     /* a trivial function for a change! */
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: start_threads called before init\n");
 	return -EINVAL;
@@ -2646,7 +2646,7 @@ int hal_start_threads(void)
 int hal_stop_threads(void)
 {
     /* wow, two in a row! */
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: stop_threads called before init\n");
 	return -EINVAL;
@@ -2756,7 +2756,7 @@ hal_comp_t *halpr_find_comp_by_name(const char *name)
 	next = comp->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_pin_t *halpr_find_pin_by_name(const char *name)
@@ -2784,7 +2784,7 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 	next = pin->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_sig_t *halpr_find_sig_by_name(const char *name)
@@ -2804,7 +2804,7 @@ hal_sig_t *halpr_find_sig_by_name(const char *name)
 	next = sig->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_param_t *halpr_find_param_by_name(const char *name)
@@ -2832,7 +2832,7 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 	next = param->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_thread_t *halpr_find_thread_by_name(const char *name)
@@ -2852,7 +2852,7 @@ hal_thread_t *halpr_find_thread_by_name(const char *name)
 	next = thread->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_funct_t *halpr_find_funct_by_name(const char *name)
@@ -2872,7 +2872,7 @@ hal_funct_t *halpr_find_funct_by_name(const char *name)
 	next = funct->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_comp_t *halpr_find_comp_by_id(int id)
@@ -2892,7 +2892,7 @@ hal_comp_t *halpr_find_comp_by_id(int id)
 	next = comp->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
-    return 0;
+    return NULL;
 }
 
 hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
@@ -2903,7 +2903,7 @@ hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
     /* get offset of 'owner' component */
     owner_ptr = SHMOFF(owner);
     /* is this the first call? */
-    if (start == 0) {
+    if (start == NULL) {
 	/* yes, start at beginning of pin list */
 	next = hal_data->pin_list_ptr;
     } else {
@@ -2920,7 +2920,7 @@ hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
 	next = pin->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
-    return 0;
+    return NULL;
 }
 
 hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
@@ -2932,7 +2932,7 @@ hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
     /* get offset of 'owner' component */
     owner_ptr = SHMOFF(owner);
     /* is this the first call? */
-    if (start == 0) {
+    if (start == NULL) {
 	/* yes, start at beginning of param list */
 	next = hal_data->param_list_ptr;
     } else {
@@ -2949,7 +2949,7 @@ hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
 	next = param->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
-    return 0;
+    return NULL;
 }
 
 hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
@@ -2961,7 +2961,7 @@ hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     /* get offset of 'owner' component */
     owner_ptr = SHMOFF(owner);
     /* is this the first call? */
-    if (start == 0) {
+    if (start == NULL) {
 	/* yes, start at beginning of function list */
 	next = hal_data->funct_list_ptr;
     } else {
@@ -2978,7 +2978,7 @@ hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
 	next = funct->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
-    return 0;
+    return NULL;
 }
 
 hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
@@ -2989,7 +2989,7 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
     /* get offset of 'sig' component */
     sig_ptr = SHMOFF(sig);
     /* is this the first call? */
-    if (start == 0) {
+    if (start == NULL) {
 	/* yes, start at beginning of pin list */
 	next = hal_data->pin_list_ptr;
     } else {
@@ -3006,7 +3006,7 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
 	next = pin->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
-    return 0;
+    return NULL;
 }
 
 /***********************************************************************
@@ -3270,7 +3270,7 @@ static int init_hal_data(void)
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
-    hal_data->pending_constructor = 0;
+    hal_data->pending_constructor = NULL;
     hal_data->constructor_prefix[0] = 0;
     list_init_entry(&(hal_data->funct_entry_free));
     hal_data->thread_free_ptr = 0;
@@ -3312,7 +3312,7 @@ static void *shmalloc_up(long int size)
     /* is there enough memory available? */
     if ((hal_data->shmem_top - tmp_bot) < size) {
 	/* no */
-	return 0;
+	return NULL;
     }
     /* memory is available, allocate it */
     retval = SHMPTR(tmp_bot);
@@ -3351,7 +3351,7 @@ static void *shmalloc_dn(long int size)
     /* is there enough memory available? */
     if (tmp_top < hal_data->shmem_bot) {
 	/* no */
-	return 0;
+	return NULL;
     }
     /* memory is available, allocate it */
     retval = SHMPTR(tmp_top);
@@ -3382,7 +3382,7 @@ hal_comp_t *halpr_alloc_comp_struct(void)
 	p->comp_id = 0;
 	p->mem_id = 0;
 	p->type = COMPONENT_TYPE_USER;
-	p->shmem_base = 0;
+	p->shmem_base = NULL;
 	p->name[0] = '\0';
     }
     return p;
@@ -3546,8 +3546,8 @@ static hal_funct_entry_t *alloc_funct_entry_struct(void)
     if (p) {
 	/* make sure it's empty */
 	p->funct_ptr = 0;
-	p->arg = 0;
-	p->funct = 0;
+	p->arg = NULL;
+	p->funct = NULL;
     }
     return p;
 }
@@ -3650,7 +3650,7 @@ static void free_comp_struct(hal_comp_t * comp)
     comp->comp_id = 0;
     comp->mem_id = 0;
     comp->type = COMPONENT_TYPE_USER;
-    comp->shmem_base = 0;
+    comp->shmem_base = NULL;
     comp->name[0] = '\0';
     /* add it to free list */
     comp->next_ptr = hal_data->comp_free_ptr;
@@ -3745,8 +3745,8 @@ static void free_sig_struct(hal_sig_t * sig)
     hal_pin_t *pin;
 
     /* look for pins linked to this signal */
-    pin = halpr_find_pin_by_sig(sig, 0);
-    while (pin != 0) {
+    pin = halpr_find_pin_by_sig(sig, NULL);
+    while (pin != NULL) {
 	/* found one, unlink it */
 	unlink_pin(pin);
 	/* check for another pin linked to the signal */
@@ -3868,8 +3868,8 @@ static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
     }
     /* clear contents of struct */
     funct_entry->funct_ptr = 0;
-    funct_entry->arg = 0;
-    funct_entry->funct = 0;
+    funct_entry->arg = NULL;
+    funct_entry->funct = NULL;
     /* add it to free list */
     list_add_after((hal_list_t *) funct_entry, &(hal_data->funct_entry_free));
 }

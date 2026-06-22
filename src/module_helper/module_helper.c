@@ -110,12 +110,12 @@ void error(int argc, char **argv) {
  */
 char *check_whitelist(char *target, char *table[]) {
     int i;
-    if(!target) return 0;
+    if(!target) return NULL;
     for(i=0; table[i]; i++) {
         int sz = strlen(table[i]);
         if(!strncmp(target, table[i], sz)) return target + sz;
     }
-    return 0;
+    return NULL;
 }
 
 /* Check that the given module is in the whitelist.  It's in the whitelist

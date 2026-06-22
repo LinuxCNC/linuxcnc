@@ -150,25 +150,25 @@ static void quit_signal_handler(int sig) {
 char *modname = "hy_vfd";
 
 static struct option long_options[] = {
-		{"bits", 1, 0, 'b'},
-		{"device", 1, 0, 'd'},
-		{"debug", 0, 0, 'g'},
-		{"help", 0, 0, 'h'},
-		{"name", 1, 0, 'n'},
-		{"parity", 1, 0, 'p'},
-		{"rate", 1, 0, 'r'},
-		{"stopbits", 1, 0, 's'},
-		{"target", 1, 0, 't'},
-		{"max-frequency", 1, 0, 'F'},
-		{"min-frequency", 1, 0, 'f'},
-		{"base-frequency", 1, 0, 'B'},
-		{"motor-voltage", 1, 0, 'V'},
-		{"motor-current", 1, 0, 'I'},
-		{"motor-speed", 1, 0, 'S'},
-		{"motor-poles", 1, 0, 'P'},
-		{"register", 1, 0, 'x'},
-		{"regdump", 0, 0, 'y'},
-		{0,0,0,0}
+		{"bits", 1, NULL, 'b'},
+		{"device", 1, NULL, 'd'},
+		{"debug", 0, NULL, 'g'},
+		{"help", 0, NULL, 'h'},
+		{"name", 1, NULL, 'n'},
+		{"parity", 1, NULL, 'p'},
+		{"rate", 1, NULL, 'r'},
+		{"stopbits", 1, NULL, 's'},
+		{"target", 1, NULL, 't'},
+		{"max-frequency", 1, NULL, 'F'},
+		{"min-frequency", 1, NULL, 'f'},
+		{"base-frequency", 1, NULL, 'B'},
+		{"motor-voltage", 1, NULL, 'V'},
+		{"motor-current", 1, NULL, 'I'},
+		{"motor-speed", 1, NULL, 'S'},
+		{"motor-poles", 1, NULL, 'P'},
+		{"register", 1, NULL, 'x'},
+		{"regdump", 0, NULL, 'y'},
+		{NULL,0,NULL,0}
 };
 
 static char *option_string = "b:d:ghn:p:r:s:t:F:f:B:V:I:S:P:";
@@ -896,7 +896,7 @@ int main(int argc, char **argv)
 	/* grab some shmem to store the HAL data in */
 	haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
 
-	if ((haldata == 0) || done) {
+	if ((haldata == NULL) || done) {
 		printf("%s: ERROR: unable to allocate shared memory\n", modname);
 		retval = -1;
 		goto out_close;

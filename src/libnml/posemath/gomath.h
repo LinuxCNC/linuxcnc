@@ -540,7 +540,7 @@ typedef struct {
 } go_matrix;
 
 #define GO_MATRIX_DECLARE(M,Mspace,_rows,_cols) \
-go_matrix M = {0, 0, 0, 0, 0, 0}; \
+go_matrix M = {0, 0, NULL, NULL, NULL, NULL}; \
 struct { \
   go_real * el[_rows]; \
   go_real * elcpy[_rows]; \

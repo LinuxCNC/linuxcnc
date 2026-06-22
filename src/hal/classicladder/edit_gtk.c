@@ -479,31 +479,31 @@ void EditorInitGtk()
 	EditorButtonAdd = gtk_button_new_with_label (_("Add"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonAdd, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonAdd), "clicked",
-						GTK_SIGNAL_FUNC(ButtonAddRung), 0);
+						GTK_SIGNAL_FUNC(ButtonAddRung), NULL);
 	gtk_widget_show (EditorButtonAdd);
 	EditorButtonIns = gtk_button_new_with_label (_("Insert"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonIns, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonIns), "clicked",
-						GTK_SIGNAL_FUNC(ButtonInsertRung), 0);
+						GTK_SIGNAL_FUNC(ButtonInsertRung), NULL);
 	gtk_widget_show (EditorButtonIns);
 	EditorButtonDel = gtk_button_new_with_label (_("Delete"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonDel, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonDel), "clicked",
-						GTK_SIGNAL_FUNC(ButtonDeleteCurrentRung), 0);
+						GTK_SIGNAL_FUNC(ButtonDeleteCurrentRung), NULL);
 	gtk_widget_show (EditorButtonDel);
 	EditorButtonModify = gtk_button_new_with_label (_("Modify"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonModify, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonModify), "clicked",
-						GTK_SIGNAL_FUNC(ButtonModifyCurrentRung), 0);
+						GTK_SIGNAL_FUNC(ButtonModifyCurrentRung), NULL);
 	gtk_widget_show (EditorButtonModify);
 	EditorButtonOk = gtk_button_new_with_label (_("Ok"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonOk, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonOk), "clicked",
-						GTK_SIGNAL_FUNC(ButtonOkCurrentRung), 0);
+						GTK_SIGNAL_FUNC(ButtonOkCurrentRung), NULL);
 	EditorButtonCancel = gtk_button_new_with_label (_("Cancel"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonCancel, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonCancel), "clicked",
-						GTK_SIGNAL_FUNC(ButtonCancelCurrentRung), 0);
+						GTK_SIGNAL_FUNC(ButtonCancelCurrentRung), NULL);
 
 	InitAllForToolbar( );
 //ForGTK3, deprecated...	TheTooltips = gtk_tooltips_new();
@@ -518,7 +518,7 @@ void EditorInitGtk()
 #endif
 
 	gtk_signal_connect( GTK_OBJECT(EditWindow), "delete_event",
-		GTK_SIGNAL_FUNC(EditorWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(EditorWindowDeleteEvent), NULL);
 
 	gtk_window_set_resizable( GTK_WINDOW( EditWindow ), FALSE );
 //gtk_widget_show (EditWindow);

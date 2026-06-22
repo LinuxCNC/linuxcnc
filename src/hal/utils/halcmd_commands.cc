@@ -167,12 +167,12 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     /* check if the pins are there */
     first_pin = halpr_find_pin_by_name(first_pin_name);
     second_pin = halpr_find_pin_by_name(second_pin_name);
-    if (first_pin == 0) {
+    if (first_pin == NULL) {
 	/* first pin not found*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("pin '%s' not found\n", first_pin_name);
 	return -EINVAL; 
-    } else if (second_pin == 0) {
+    } else if (second_pin == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("pin '%s' not found\n", second_pin_name);
 	return -EINVAL; 
@@ -278,7 +278,7 @@ int do_source_cmd(char *hal_filename) {
     while(1) {
         char *readresult = fgets(buf, MAX_CMD_LEN, f);
         halcmd_set_linenumber(linenumber++);
-        if(readresult == 0) {
+        if(readresult == NULL) {
             if(feof(f)) break;
             halcmd_error("Error reading file: %s\n", strerror(errno));
             result = -EINVAL;
@@ -415,7 +415,7 @@ int do_delf_cmd(char *func, char *thread) {
 
 static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
     int i, type=-1, writers=0, bidirs=0, pincnt=0;
-    char *writer_name=0, *bidir_name=0;
+    char *writer_name=NULL, *bidir_name=NULL;
     /* if signal already exists, use its info */
     if (sig) {
 	type = sig->type;
@@ -438,7 +438,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
     }
 
     for(i=0; pins[i] && *pins[i]; i++) {
-        hal_pin_t *pin = 0;
+        hal_pin_t *pin = NULL;
         pin = halpr_find_pin_by_name(pins[i]);
         if(!pin) {
             halcmd_error("Pin '%s' does not exist\n",
@@ -785,9 +785,9 @@ int do_setp_cmd(char *name, char *value)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search param list for name */
     param = halpr_find_param_by_name(name);
-    if (param == 0) {
+    if (param == NULL) {
         pin = halpr_find_pin_by_name(name);
-        if(pin == 0) {
+        if(pin == NULL) {
             rtapi_mutex_give(&(hal_data->mutex));
             halcmd_error("parameter or pin '%s' not found\n", name);
             return -EINVAL;
@@ -908,7 +908,7 @@ int do_getp_cmd(char *name)
             sig = SHMPTR(pin->signal);
             d_ptr = SHMPTR(sig->data_ptr);
         } else {
-            sig = 0;
+            sig = NULL;
             d_ptr = &(pin->dummysig);
         }
         halcmd_output("%s\n", data_value2((int) type, d_ptr));
@@ -933,7 +933,7 @@ int do_sets_cmd(char *name, char *value)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
     sig = halpr_find_sig_by_name(name);
-    if (sig == 0) {
+    if (sig == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' not found\n", name);
 	return -EINVAL;
@@ -969,7 +969,7 @@ int do_stype_cmd(char *name)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
     sig = halpr_find_sig_by_name(name);
-    if (sig == 0) {
+    if (sig == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' not found\n", name);
 	return -EINVAL;
@@ -992,7 +992,7 @@ int do_gets_cmd(char *name)
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
     sig = halpr_find_sig_by_name(name);
-    if (sig == 0) {
+    if (sig == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' not found\n", name);
 	return -EINVAL;
@@ -1006,7 +1006,7 @@ int do_gets_cmd(char *name)
 }
 
 static int get_type(char ***patterns) {
-    char *typestr = 0;
+    char *typestr = NULL;
     if(!(*patterns)) return -1;
     if(!(*patterns)[0]) return -1;
     if((*patterns)[0][0] != '-' || (*patterns)[0][1] != 't') return -1;
@@ -1244,7 +1244,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     rtapi_mutex_get(&(hal_data->mutex));
     /* search component list for the newly loaded component */
     comp = halpr_find_comp_by_name(mod_name);
-    if (comp == 0) {
+    if (comp == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("module '%s' not loaded\n", mod_name);
 	return -EINVAL;
@@ -1580,7 +1580,7 @@ int do_loadusr_cmd(const char *args[])
     /* get program and component name */
     args += optind;
     prog_name = *args++;
-    if (prog_name == 0) { return -EINVAL; }
+    if (prog_name == NULL) { return -EINVAL; }
     if(!new_comp_name) {
 	new_comp_name = guess_comp_name(prog_name);
     }
@@ -1792,7 +1792,7 @@ static void print_pin_info(int type, char **patterns)
 		sig = SHMPTR(pin->signal);
 		dptr = SHMPTR(sig->data_ptr);
 	    } else {
-		sig = 0;
+		sig = NULL;
 		dptr = &(pin->dummysig);
 	    }
 	    if (scriptmode == 0) {
@@ -1810,7 +1810,7 @@ static void print_pin_info(int type, char **patterns)
 		    data_value2((int) pin->type, dptr),
 		    pin->name);
 	    } 
-	    if (sig == 0) {
+	    if (sig == NULL) {
 		halcmd_output("\n");
 	    } else {
 		halcmd_output(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
@@ -1875,8 +1875,8 @@ static void print_sig_info(int type, char **patterns)
 	    halcmd_output("%s  %s  %s\n", data_type((int) sig->type),
 		data_value((int) sig->type, dptr), sig->name);
 	    /* look for pin(s) linked to this signal */
-	    pin = halpr_find_pin_by_sig(sig, 0);
-	    while (pin != 0) {
+	    pin = halpr_find_pin_by_sig(sig, NULL);
+	    while (pin != NULL) {
 		halcmd_output("                                 %s %s\n",
 		    data_arrow2((int) pin->dir), pin->name);
 		pin = halpr_find_pin_by_sig(sig, pin);
@@ -1907,8 +1907,8 @@ static void print_script_sig_info(int type, char **patterns)
 	    halcmd_output("%s  %s  %s", data_type((int) sig->type),
 		data_value2((int) sig->type, dptr), sig->name);
 	    /* look for pin(s) linked to this signal */
-	    pin = halpr_find_pin_by_sig(sig, 0);
-	    while (pin != 0) {
+	    pin = halpr_find_pin_by_sig(sig, NULL);
+	    while (pin != NULL) {
 		halcmd_output(" %s %s",
 		    data_arrow2((int) pin->dir), pin->name);
 		pin = halpr_find_pin_by_sig(sig, pin);
@@ -2060,7 +2060,7 @@ static void print_thread_info(char **patterns)
                     sig = SHMPTR(pin->signal);
                     dptr = SHMPTR(sig->data_ptr);
                 } else {
-                    sig = 0;
+                    sig = NULL;
                     dptr = &(pin->dummysig);
                 }
 
@@ -2569,7 +2569,7 @@ int do_save_cmd(const char *type, char *filename)
 	return -1;
 	}
     }
-    if (type == 0 || *type == '\0') {
+    if (type == NULL || *type == '\0') {
 	type = "all";
     }
     if (   (strcmp(type, "all")  == 0)
@@ -2649,7 +2649,7 @@ static void save_comps(FILE *dst)
         return;
 	}
 
-    std::vector<hal_comp_t *> comps(ncomps, nullptr);
+    std::vector<hal_comp_t *> comps(ncomps, NULL);
     hal_comp_t **compptr = comps.data();
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
@@ -2782,14 +2782,14 @@ static void save_nets(FILE *dst, int arrow)
             int state = 0, first = 1;
 
             /* If there are no pins connected to this signal, do nothing */
-            pin = halpr_find_pin_by_sig(sig, 0);
+            pin = halpr_find_pin_by_sig(sig, NULL);
             if(!pin) continue;
 
             fprintf(dst, "net %s", sig->name);
 
             /* Step 1: Output pin, if any */
             
-            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+            for(pin = halpr_find_pin_by_sig(sig, NULL); pin;
                     pin = halpr_find_pin_by_sig(sig, pin)) {
                 if(pin->dir != HAL_OUT) continue;
                 fprintf(dst, " %s", pin->name);
@@ -2797,7 +2797,7 @@ static void save_nets(FILE *dst, int arrow)
             }
             
             /* Step 2: I/O pins, if any */
-            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+            for(pin = halpr_find_pin_by_sig(sig, NULL); pin;
                     pin = halpr_find_pin_by_sig(sig, pin)) {
                 if(pin->dir != HAL_IO) continue;
                 fprintf(dst, " ");
@@ -2809,7 +2809,7 @@ static void save_nets(FILE *dst, int arrow)
             if(!first) state = 1;
 
             /* Step 3: Input pins, if any */
-            for(pin = halpr_find_pin_by_sig(sig, 0); pin;
+            for(pin = halpr_find_pin_by_sig(sig, NULL); pin;
                     pin = halpr_find_pin_by_sig(sig, pin)) {
                 if(pin->dir != HAL_IN) continue;
                 fprintf(dst, " ");
@@ -2820,12 +2820,12 @@ static void save_nets(FILE *dst, int arrow)
             fprintf(dst, "\n");
         } else if(arrow == 2) {
             /* If there are no pins connected to this signal, do nothing */
-            pin = halpr_find_pin_by_sig(sig, 0);
+            pin = halpr_find_pin_by_sig(sig, NULL);
             if(!pin) continue;
 
             fprintf(dst, "net %s", sig->name);
-            pin = halpr_find_pin_by_sig(sig, 0);
-            while (pin != 0) {
+            pin = halpr_find_pin_by_sig(sig, NULL);
+            while (pin != NULL) {
                 fprintf(dst, " %s", pin->name);
                 pin = halpr_find_pin_by_sig(sig, pin);
             }
@@ -2833,8 +2833,8 @@ static void save_nets(FILE *dst, int arrow)
         } else {
             fprintf(dst, "newsig %s %s\n",
                     sig->name, data_type((int) sig->type));
-            pin = halpr_find_pin_by_sig(sig, 0);
-            while (pin != 0) {
+            pin = halpr_find_pin_by_sig(sig, NULL);
+            while (pin != NULL) {
                 if (arrow != 0) {
                     arrow_str = data_arrow2((int) pin->dir);
                 } else {

@@ -170,7 +170,7 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     const int set_to_server, const int set_to_master)
 {
     registered_with_server = 0;
-    cms_for_msg_string_conversions = 0;
+    cms_for_msg_string_conversions = NULL;
     info_printed = 0;
     blocking_read_poll_interval = -1.0;
     forced_type = 0;
@@ -341,7 +341,7 @@ NML::NML(const char *buf, const char *proc, const char *file, const int set_to_s
 	file = default_nml_config_file;
     }
     registered_with_server = 0;
-    cms_for_msg_string_conversions = 0;
+    cms_for_msg_string_conversions = NULL;
     snprintf(bufname, 40 , "%s", buf);
     snprintf(procname, 40, "%s", proc);
     snprintf(cfgfilename, 160, "%s", file);
@@ -454,7 +454,7 @@ NML::NML(const char *buf, const char *proc, const char *file, const int set_to_s
 NML::NML(const char * buffer_line, const char * proc_line)
 {
     registered_with_server = 0;
-    cms_for_msg_string_conversions = 0;
+    cms_for_msg_string_conversions = NULL;
     cms = (CMS *) NULL;
     blocking_read_poll_interval = -1.0;
     forced_type = 0;
@@ -597,7 +597,7 @@ void NML::register_with_server()
 NML::NML(NML * nml_ptr, const int set_to_server, const int set_to_master)
 {
     registered_with_server = 0;
-    cms_for_msg_string_conversions = 0;
+    cms_for_msg_string_conversions = NULL;
     already_deleted = 0;
     forced_type = 0;
     cms = (CMS *) NULL;
@@ -766,7 +766,7 @@ void NML::delete_channel()
     if (NULL != cms_for_msg_string_conversions
 	&& cms != cms_for_msg_string_conversions) {
 	delete cms_for_msg_string_conversions;
-	cms_for_msg_string_conversions = 0;
+	cms_for_msg_string_conversions = NULL;
     }
     if (NULL != cms) {
 	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
@@ -2001,7 +2001,7 @@ const char *NML::msg2str(NMLmsg * nml_msg)
 		    cms_for_msg_string_conversions->size > 2048) ||
 		cms_for_msg_string_conversions->size < 4 * msg_length) {
 		delete cms_for_msg_string_conversions;
-		cms_for_msg_string_conversions = 0;
+		cms_for_msg_string_conversions = NULL;
 	    }
 	}
 	if (NULL == cms_for_msg_string_conversions) {
@@ -2043,7 +2043,7 @@ NMLTYPE NML::str2msg(const char *string)
 		    cms_for_msg_string_conversions->size > 2048) ||
 		cms_for_msg_string_conversions->size < 4 * string_length) {
 		delete cms_for_msg_string_conversions;
-		cms_for_msg_string_conversions = 0;
+		cms_for_msg_string_conversions = NULL;
 	    }
 	}
 	if (NULL == cms_for_msg_string_conversions) {
@@ -2297,7 +2297,7 @@ int NML::print_queue_info()
 NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer, char *name, char *file,
     double sleepTime)
 {
-    NML *nmlChannel = 0;
+    NML *nmlChannel = NULL;
 
     RCS_PRINT_DESTINATION_TYPE olddest = get_rcs_print_destination();
     set_rcs_print_destination(RCS_PRINT_TO_NULL);

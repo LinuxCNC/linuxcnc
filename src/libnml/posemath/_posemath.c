@@ -344,7 +344,7 @@ int pmQuatRotConvert(PmQuaternion const * const q, PmRotationVector * const r)
 	return pmErrno = PM_NORM_ERR;
     }
 #endif
-    if (r == 0) {
+    if (r == NULL) {
 #ifdef PM_PRINT_ERROR
 	pmPrintError("pmQuatRotConvert: null pointer passed as rotation vector\n");
 #endif
@@ -1347,7 +1347,7 @@ int pmQuatMag(PmQuaternion const * const q, double *d)
     PmRotationVector r;
     int r1;
 
-    if (0 == d) {
+    if (NULL == d) {
 	return pmErrno = PM_ERR;
     }
 
@@ -1392,7 +1392,7 @@ int pmQuatNorm(PmQuaternion const * const q1, PmQuaternion * const qout)
 
 int pmQuatInv(PmQuaternion const * const q1, PmQuaternion * const qout)
 {
-    if (qout == 0) {
+    if (qout == NULL) {
 	return pmErrno = PM_ERR;
     }
 
@@ -1447,7 +1447,7 @@ int pmQuatScalDiv(PmQuaternion const * const q, double s, PmQuaternion * const q
 
 int pmQuatQuatMult(PmQuaternion const * const q1, PmQuaternion const * const q2, PmQuaternion * const qout)
 {
-    if (qout == 0) {
+    if (qout == NULL) {
 	return pmErrno = PM_ERR;
     }
 
@@ -1611,7 +1611,7 @@ int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * c
     double rmag = 0.0;
     PmQuaternion startQuatInverse;
 
-    if (0 == line) {
+    if (NULL == line) {
         return pmErrno = PM_ERR;
     }
 
@@ -1696,7 +1696,7 @@ int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmC
 {
     int r1 = PM_OK, r2 = PM_OK;
 
-    if (0 == line) {
+    if (NULL == line) {
         return pmErrno = PM_ERR;
     }
 

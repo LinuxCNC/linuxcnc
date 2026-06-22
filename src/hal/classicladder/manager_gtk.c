@@ -474,12 +474,12 @@ void AddSectionWindowInit( )
 	ButtonOk = gtk_button_new_with_label(_("Ok"));
 	gtk_box_pack_start (GTK_BOX (vbox), ButtonOk, TRUE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonOk), "clicked",
-		GTK_SIGNAL_FUNC(ButtonAddSectionDoneClickSignal), 0);
+		GTK_SIGNAL_FUNC(ButtonAddSectionDoneClickSignal), NULL);
 	gtk_widget_show (ButtonOk);
 	gtk_window_set_modal(GTK_WINDOW(AddSectionWindow),TRUE);
 	gtk_window_set_position(GTK_WINDOW(AddSectionWindow),GTK_WIN_POS_CENTER);
 	gtk_signal_connect( GTK_OBJECT(AddSectionWindow), "delete_event",
-		GTK_SIGNAL_FUNC(AddSectionWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(AddSectionWindowDeleteEvent), NULL);
 }
 
 GtkUIManager * ManageruiManager;
@@ -575,11 +575,11 @@ void ManagerInitGtk()
 	gtk_widget_show( ScrollWin );
 
 	gtk_signal_connect(GTK_OBJECT (ListViewSections), "cursor-changed",
-		GTK_SIGNAL_FUNC(TreeViewCursorChangedSignal), 0);
+		GTK_SIGNAL_FUNC(TreeViewCursorChangedSignal), NULL);
 
 //v0.9.20	ManagerDisplaySections( );
 	gtk_signal_connect( GTK_OBJECT(ManagerWindow), "delete_event",
-		GTK_SIGNAL_FUNC(ManagerWindowDeleteEvent), 0 );
+		GTK_SIGNAL_FUNC(ManagerWindowDeleteEvent), NULL);
 gtk_window_set_default_size ( GTK_WINDOW(ManagerWindow), -1, 130);
 
 gtk_widget_show (ManagerWindow);

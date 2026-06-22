@@ -134,7 +134,7 @@ CMS::CMS(long s)
     min_compatible_version = 0;
     confirm_write = 0;
     disable_final_write_raw_for_dma = 0;
-    subdiv_data = 0;
+    subdiv_data = NULL;
     enable_diagnostics = 0;
     dpi = NULL;
     di = NULL;
@@ -183,7 +183,7 @@ CMS::CMS(long s)
  /* 1 force this CMS object to be in server mode. */
 CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 {
-    char *word[32]={0,};	/* Array of pointers to strings.  */
+    char *word[32]={NULL,};	/* Array of pointers to strings.  */
     char *buffer_type_name;	/* pointer to buffer type name from bufline */
     char *proc_type_name;	/* pointer to process type from procline */
     int i;

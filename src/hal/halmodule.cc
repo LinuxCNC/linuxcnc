@@ -64,9 +64,9 @@ struct scoped_lc_numeric_c {
     scoped_lc_numeric_c() {
         // Make sure we always use the C locale for conversion (thread local)
         // cppcheck-suppress useInitializationList
-        oldlc = uselocale(static_cast<locale_t>(0));
-        newlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
-        if(static_cast<locale_t>(0) == newlc) {
+        oldlc = uselocale(static_cast<locale_t>(NULL));
+        newlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(NULL));
+        if(static_cast<locale_t>(NULL) == newlc) {
             // FIXME: This is not nice, to print directly to stderr...
             fprintf(stderr, "halmodule: internal error: Cannot set locale to \"C\" for numeric conversions");
             return;
@@ -75,7 +75,7 @@ struct scoped_lc_numeric_c {
     }
 
     ~scoped_lc_numeric_c() {
-        if(static_cast<locale_t>(0) != newlc) {
+        if(static_cast<locale_t>(NULL) != newlc) {
             uselocale(oldlc);
             freelocale(newlc);
         }
@@ -176,7 +176,7 @@ bool from_python(PyObject *o, bool *b)
     }
 
     // Try the usual int(obj) conversion
-    PyObject *tmp = 0;
+    PyObject *tmp = NULL;
     long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -217,7 +217,7 @@ bool from_python(PyObject *o, double *d) {
 }
 
 bool from_python(PyObject *o, rtapi_u32 *u) {
-    PyObject *tmp = 0;
+    PyObject *tmp = NULL;
     long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -238,7 +238,7 @@ fail:
 }
 
 bool from_python(PyObject *o, rtapi_s32 *i) {
-    PyObject *tmp = 0;
+    PyObject *tmp = NULL;
     long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -259,7 +259,7 @@ fail:
 }
 
 bool from_python(PyObject *o, rtapi_u64 *u) {
-    PyObject *tmp = 0;
+    PyObject *tmp = NULL;
     unsigned long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -277,7 +277,7 @@ fail:
 }
 
 bool from_python(PyObject *o, rtapi_s64 *i) {
-    PyObject *tmp = 0;
+    PyObject *tmp = NULL;
     long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
@@ -364,7 +364,7 @@ static PyObject *pyhal_error(int code) {
 static int pyhal_init(PyObject *_self, PyObject *args, PyObject *kw) {
     (void)kw;
     const char *name;
-    const char *prefix = 0;
+    const char *prefix = NULL;
     halobject *self = reinterpret_cast<halobject *>(_self);
 
     if(!PyArg_ParseTuple(args, "s|s:hal.component", &name, &prefix)) return -1;
@@ -397,13 +397,13 @@ static void pyhal_exit_impl(halobject *self) {
     self->hal_id = 0;
 
     free(self->name);
-    self->name = 0;
+    self->name = NULL;
 
     free(self->prefix);
-    self->prefix = 0;
+    self->prefix = NULL;
 
     delete self->items;
-    self->items = 0;
+    self->items = NULL;
 }
 
 static void pyhal_delete(PyObject *_self) {
@@ -816,6 +816,8 @@ static PyMappingMethods halobject_map = {
     pyhal_setattro
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static
 PyTypeObject halobject_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -876,6 +878,7 @@ PyTypeObject halobject_type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 static const char * pin_type2name(hal_type_t type) {
     switch (type) {
@@ -1164,6 +1167,8 @@ static PyMethodDef halpin_methods[] = {
     {},
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static
 PyTypeObject halpin_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -1224,6 +1229,7 @@ PyTypeObject halpin_type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
     pyhalitem * pypin = PyObject_New(pyhalitem, &halpin_type);
@@ -1406,9 +1412,9 @@ PyObject *set_p(PyObject * /*self*/, PyObject *args) {
     // Search pin and then param
     // We are more likely to set a pin than a param
     hal_pin_t *pin = halpr_find_pin_by_name(name);
-    if(pin == 0) {
+    if(pin == NULL) {
         hal_param_t *param = halpr_find_param_by_name(name);
-        if (param == 0) {
+        if (param == NULL) {
             // Found neither pin nor param
             PyErr_Format(PyExc_RuntimeError, "pin or param not found");
             return NULL;
@@ -1460,7 +1466,7 @@ PyObject *set_s(PyObject * /*self*/, PyObject *args) {
     scoped_hal_mutex _hallock; // get mutex before accessing shared data
 
     sig = halpr_find_sig_by_name(name);
-    if (sig == 0) {
+    if (sig == NULL) {
         PyErr_Format(PyExc_RuntimeError,
             "signal not found");
         return NULL;
@@ -1568,7 +1574,7 @@ PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
             sig = (hal_sig_t*)SHMPTR(pin->signal);
             d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(sig->data_ptr));
         } else {
-            sig = 0;
+            sig = NULL;
             d_ptr = &(pin->dummysig);
         }
 
@@ -1668,8 +1674,8 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
         d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(sig->data_ptr));
 
     /* it have a writer? */
-        pin = halpr_find_pin_by_sig(sig, 0);
-        while (pin != 0) {
+        pin = halpr_find_pin_by_sig(sig, NULL);
+        while (pin != NULL) {
             if (pin->dir == HAL_OUT){break;}
             pin = halpr_find_pin_by_sig(sig, pin);
         }
@@ -1679,49 +1685,49 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
                 obj = Py_BuildValue("{s:s,s:N,s:s,s:N}",
                         str_n, sig->name,
                         str_v, PyBool_FromLong((long)d_ptr->b),
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_BIT));
                 break;
             case HAL_U32:
                 obj = Py_BuildValue("{s:s,s:k,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (unsigned long)d_ptr->u,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_U32));
                 break;
             case HAL_S32:
                 obj = Py_BuildValue("{s:s,s:l,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (long)d_ptr->s,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_S32));
                 break;
             case HAL_U64:
                 obj = Py_BuildValue("{s:s,s:K,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (unsigned long long)d_ptr->lu,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_U64));
                 break;
             case HAL_S64:
                 obj = Py_BuildValue("{s:s,s:L,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (long long)d_ptr->ls,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_S64));
                 break;
             case HAL_FLOAT:
                 obj = Py_BuildValue("{s:s,s:d,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (double)d_ptr->f,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_FLOAT));
                 break;
             case HAL_PORT:
                 obj = Py_BuildValue("{s:s,s:l,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (long)d_ptr->p,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_PORT));
                 break;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
@@ -1730,7 +1736,7 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
                  obj = Py_BuildValue("{s:s,s:s,s:s,s:s}",
                         str_n, sig->name,
                         str_v, NULL,
-                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_d, (pin != NULL) ? pin->name : NULL,
                         str_t, NULL);
                  break;
         }
@@ -1840,7 +1846,7 @@ struct shmobject {
 
 static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
     shmobject *self = reinterpret_cast<shmobject *>(_self);
-    self->comp = 0;
+    self->comp = NULL;
     self->shm_id = -1;
 
     if(!PyArg_ParseTuple(args, "O!ik", &halobject_type, &self->comp, &self->key, &self->size))
@@ -1848,7 +1854,7 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
 
     self->shm_id = rtapi_shmem_new(self->key, self->comp->hal_id, self->size);
     if(self->shm_id < 0) {
-        self->comp = 0;
+        self->comp = NULL;
         self->size = 0;
         pyrtapi_error(self->shm_id);
         return -1;
@@ -1927,6 +1933,8 @@ static PyMethodDef shm_methods[] = {
     {},
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static
 PyTypeObject shm_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -1987,6 +1995,7 @@ PyTypeObject shm_type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 struct streamobj {
     PyObject_HEAD
@@ -2070,7 +2079,7 @@ PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
     }
 
     PyObject *r = PyTuple_New(n);
-    if(!r) return 0;
+    if(!r) return NULL;
 
     for(int i=0; i<n; i++) {
         PyObject *o;
@@ -2093,7 +2102,7 @@ PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
         }
         if(!o) {
             Py_DECREF(r);
-            return 0;
+            return NULL;
         }
         PyTuple_SET_ITEM(r, i, o);
     }
@@ -2139,7 +2148,7 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
     }
     int r = hal_stream_write(&self->stream, buf.data());
     if(r < 0) {
-        errno = -r; PyErr_SetFromErrno(PyExc_IOError); return 0;
+        errno = -r; PyErr_SetFromErrno(PyExc_IOError); return NULL;
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -2206,6 +2215,8 @@ static PyObject *pystream_repr(PyObject *_self) {
         self->creator ? " creator" : "");
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 static
 PyTypeObject stream_type = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -2266,6 +2277,7 @@ PyTypeObject stream_type = {
 #endif
 #endif
 };
+#pragma GCC diagnostic pop
 
 
 static PyMethodDef module_methods[] = {

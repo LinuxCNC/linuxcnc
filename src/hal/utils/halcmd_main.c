@@ -380,7 +380,7 @@ static int release_HAL_mutex(void)
 
 static char **completion_callback(const char *text, hal_generator_func cb) {
     int state = 0;
-    char *s = 0;
+    char *s = NULL;
     do {
         s = cb(text, state);
         if(s) printf("%s\n", s);

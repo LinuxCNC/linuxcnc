@@ -45,6 +45,8 @@ static object get_geometry()
     return make_tuple(platformradius, thighlength, shinlength, footradius);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 BOOST_PYTHON_MODULE(rotarydeltakins)
 {
     set_geometry(RDELTA_PFR, RDELTA_TL, RDELTA_SL, RDELTA_FR);
@@ -53,3 +55,4 @@ BOOST_PYTHON_MODULE(rotarydeltakins)
     def("forward", forward);
     def("inverse", inverse);
 }
+#pragma GCC diagnostic pop

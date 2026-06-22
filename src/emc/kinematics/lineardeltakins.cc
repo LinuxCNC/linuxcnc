@@ -46,6 +46,8 @@ static object get_geometry()
     return make_tuple(R, L);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 BOOST_PYTHON_MODULE(lineardeltakins)
 {
     set_geometry(DELTA_RADIUS, DELTA_DIAGONAL_ROD);
@@ -54,3 +56,4 @@ BOOST_PYTHON_MODULE(lineardeltakins)
     def("forward", forward);
     def("inverse", inverse);
 }
+#pragma GCC diagnostic pop
