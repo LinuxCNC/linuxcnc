@@ -1215,16 +1215,6 @@ For a fully custom path, set the var directly:
     fi
 fi
 
-# Programs required only for building the HTML documentation
-if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
-    AC_PATH_PROG(CHECKLINK,checklink,"none")
-    if ( test "none" = "$CHECKLINK" ) ; then
-        AC_MSG_WARN([no checklink, HTML documentation cannot be built
-install with "sudo apt-get install w3c-linkchecker"])
-        BUILD_DOCS_HTML=no
-    fi
-fi
-
 AC_ARG_ENABLE(build-documentation-translation,
     AS_HELP_STRING(
         [--enable-build-documentation-translation],
@@ -1774,7 +1764,6 @@ AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
-AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
