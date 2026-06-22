@@ -932,7 +932,7 @@ class LivePlotter:
             except (AttributeError, KeyError):
                 _jog_speed_from_remote = False
 
-        self.win.set_current_line(self.stat.motion_id or self.stat.motion_line)
+        self.win.set_current_line(self.stat.motion_line)
 
         speed = self.stat.current_vel
 

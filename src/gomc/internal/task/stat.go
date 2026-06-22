@@ -124,10 +124,11 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	stat.Motion.Velocity = ms.RequestedVel
 	stat.Motion.CurrentVel = ms.CurrentVel
 	stat.Motion.DistanceToGo = ms.DistanceToGo
-	stat.Motion.MotionId = int32(ms.Id)
-	stat.Motion.MotionLine = int32(ms.Id)
+	stat.Motion.MotionId = ms.Id
+	stat.Motion.MotionLine = t.lookupMotionLine(ms.Id)
 	stat.Motion.MotionType = ms.MotionType
-	stat.Task.MotionLine = int32(ms.Id)
+	stat.Task.MotionLine = t.lookupMotionLine(ms.Id)
+	t.pruneMotionMap(ms.Id)
 	stat.Motion.Dtg = emcstat.Position{
 		X: ms.Dtg.X, Y: ms.Dtg.Y, Z: ms.Dtg.Z,
 		A: ms.Dtg.A, B: ms.Dtg.B, C: ms.Dtg.C,

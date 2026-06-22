@@ -1157,7 +1157,7 @@ static int init_hal_io(motmod_inst_t *inst)
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->current_vel), inst->comp_id, PFMT("motion.current-vel")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->requested_vel), inst->comp_id, PFMT("motion.requested-vel")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->distance_to_go), inst->comp_id, PFMT("motion.distance-to-go")));
-    CALL_CHECK(gomc_hal_pin_s32_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->program_line), inst->comp_id, PFMT("motion.program-line")));
+    CALL_CHECK(gomc_hal_pin_s32_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->segment_id), inst->comp_id, PFMT("motion.segment-id")));
     CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(inst->hal_data->jog_is_active), inst->comp_id, PFMT("motion.jog-is-active")));
 
     /* export debug parameters */

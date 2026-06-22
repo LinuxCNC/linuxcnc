@@ -107,16 +107,16 @@ type activeJog struct {
 // Methods match the motctl.gmi function names.
 type MotionController interface {
 	// Motion queue
-	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int64, feedUpm float64, indexerJnum int32) error
-	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int64, feedUpm float64) error
-	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int64, feedUpm float64) error
-	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int64, feedUpm float64) error
+	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64, indexerJnum int32) error
+	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64) error
+	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, feedUpm float64) error
+	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, feedUpm float64) error
 
 	// Motion control
 	Abort() error
 	Pause() error
 	Resume() error
-	Step(id int64) error
+	Step(id int32) error
 	Reverse() error
 	Forward() error
 	SetFree() error
@@ -282,6 +282,10 @@ type Task struct {
 	readLine    int32 // line the interpreter has read up to
 	currentLine int32 // line currently being executed by sequencer
 
+	// Motion segment side table: maps serial segment id → {file, lineno}
+	// Written by canon at enqueue time; read by BuildStat for halui.program-line.
+	motionMap map[int32]motionInfo
+
 	// Interpreter active codes (updated after each execute)
 	activeGcodes   []int32
 	activeMcodes   []int32
@@ -328,6 +332,12 @@ type Task struct {
 	nextMessageID uint64
 }
 
+// motionInfo stores the G-code location associated with a motion segment.
+type motionInfo struct {
+	File   string
+	LineNo int32
+}
+
 // NewTask creates a new Task with dependencies injected.
 func NewTask(motion MotionController, io IOController, status MotionStatusReader, logger *slog.Logger) *Task {
 	t := &Task{
@@ -344,9 +354,42 @@ func NewTask(motion MotionController, io IOController, status MotionStatusReader
 		activeMcodes:   make([]int32, 10),  // ACTIVE_M_CODES
 		maxMDIQueued:   10,
 		mcode:          newMcodeHandler(),
+		motionMap:      make(map[int32]motionInfo),
 	}
 	t.canon = NewCanon(t)
 	return t
+}
+
+// registerMotion records the G-code location for a motion segment serial id.
+// Called by Canon when a motion segment is enqueued.
+func (t *Task) registerMotion(id int32, file string, lineno int32) {
+	t.mu.Lock()
+	t.motionMap[id] = motionInfo{File: file, LineNo: lineno}
+	t.mu.Unlock()
+}
+
+// lookupMotionLine returns the G-code line number for a motion segment id.
+// Returns 0 if not found.
+func (t *Task) lookupMotionLine(id int32) int32 {
+	t.mu.Lock()
+	info, ok := t.motionMap[id]
+	t.mu.Unlock()
+	if !ok {
+		return 0
+	}
+	return info.LineNo
+}
+
+// pruneMotionMap removes entries with id less than execId to bound map size.
+// Called periodically during status updates.
+func (t *Task) pruneMotionMap(execId int32) {
+	t.mu.Lock()
+	for id := range t.motionMap {
+		if id < execId {
+			delete(t.motionMap, id)
+		}
+	}
+	t.mu.Unlock()
 }
 
 // SetInterpreter sets the interpreter dependency. Must be called before

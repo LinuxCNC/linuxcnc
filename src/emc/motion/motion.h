@@ -67,7 +67,6 @@ to another.
 #include "kinematics.h"
 #include "simple_tp.h"
 #include "rtapi_limits.h"
-#include <stdint.h>
 #include <stdarg.h>
 #include "rtapi_bool.h"
 
@@ -75,7 +74,7 @@ to another.
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
 // this should be really be tested for in command.c
 
-#define MOTION_INVALID_ID INT64_MIN
+#define MOTION_INVALID_ID INT_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
@@ -225,7 +224,7 @@ extern "C" {
 	double acc;		/* max acceleration */
 	double jerk;		/* max jerk */
 	double backlash;	/* amount of backlash */
-	int64_t id;			/* id for motion */
+	int id;                 /* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int joint;		/* which joint index to use for below */
@@ -632,7 +631,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned int heartbeat;
 	int config_num;		/* incremented whenever configuration
 				   changed. */
-	int64_t id;			/* id for executing motion */
+	int id;                 /* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */
@@ -743,7 +742,7 @@ typedef struct emcmot_internal_t {
     int teleoperating;  /* starts up in free mode */
     int overriding;     /* non-zero means we've initiated an joint
                            move while overriding limits */
-    int64_t idForStep;      /* status id while stepping */
+    int idForStep;      /* status id while stepping */
     } emcmot_internal_t;
 
 #define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)

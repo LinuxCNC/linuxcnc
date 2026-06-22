@@ -127,7 +127,7 @@ func TestCanon_ArcFeedEnqueues(t *testing.T) {
 	}
 }
 
-func (m *testMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int64, feedUpm float64) error {
+func (m *testMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64) error {
 	m.calls = append(m.calls, "SetCircle")
 	m.callCount++
 	return nil

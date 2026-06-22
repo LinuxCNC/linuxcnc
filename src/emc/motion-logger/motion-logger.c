@@ -22,7 +22,6 @@
 
 #include <errno.h>
 #include <float.h>
-#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -454,7 +453,7 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_SET_LINE:
                 log_print(
-                    "SET_LINE x=%.6g, y=%.6g, z=%.6g, a=%.6g, b=%.6g, c=%.6g, u=%.6g, v=%.6g, w=%.6g, id=%" PRId64 ", motion_type=%d, vel=%.6g, ini_maxvel=%.6g, acc=%.6g, turn=%d\n",
+                    "SET_LINE x=%.6g, y=%.6g, z=%.6g, a=%.6g, b=%.6g, c=%.6g, u=%.6g, v=%.6g, w=%.6g, id=%d, motion_type=%d, vel=%.6g, ini_maxvel=%.6g, acc=%.6g, turn=%d\n",
                     c->pos.tran.x, c->pos.tran.y, c->pos.tran.z,
                     c->pos.a, c->pos.b, c->pos.c,
                     c->pos.u, c->pos.v, c->pos.w,
@@ -474,7 +473,7 @@ int main(int argc, char* argv[]) {
                 );
                 log_print("    center: x=%.6g, y=%.6g, z=%.6g\n", c->center.x, c->center.y, c->center.z);
                 log_print("    normal: x=%.6g, y=%.6g, z=%.6g\n", c->normal.x, c->normal.y, c->normal.z);
-                log_print("    id=%" PRId64 ", motion_type=%d, vel=%.6g, ini_maxvel=%.6g, acc=%.6g, turn=%d\n",
+                log_print("    id=%d, motion_type=%d, vel=%.6g, ini_maxvel=%.6g, acc=%.6g, turn=%d\n",
                     c->id, c->motion_type,
                     c->vel, c->ini_maxvel,
                     c->acc, c->turn

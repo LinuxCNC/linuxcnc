@@ -184,10 +184,10 @@ func (t *Task) sequencerLoop() {
 			t.logger.Debug("sequencer exec", "cmd", cmd.String())
 
 			// Update currentLine from motion commands that carry a line ID.
-			if lc, ok := cmd.(interface{ LineID() int64 }); ok {
+			if lc, ok := cmd.(interface{ LineID() int32 }); ok {
 				if id := lc.LineID(); id > 0 {
 					t.mu.Lock()
-					t.currentLine = int32(id)
+					t.currentLine = t.lookupMotionLine(id)
 					t.mu.Unlock()
 				}
 			}
@@ -574,7 +574,7 @@ type LinearMoveCmd struct {
 	IniMaxVel  float64
 	Acc        float64
 	MotionType int32
-	ID         int64
+	ID         int32
 	FeedUpm    float64
 	IndexerJ   int32
 }
@@ -584,7 +584,7 @@ func (c *LinearMoveCmd) Execute(t *Task) error {
 }
 func (c *LinearMoveCmd) Wait() WaitType { return WaitNone } // queued, no immediate wait
 func (c *LinearMoveCmd) String() string { return fmt.Sprintf("LinearMove(id=%d)", c.ID) }
-func (c *LinearMoveCmd) LineID() int64  { return c.ID }
+func (c *LinearMoveCmd) LineID() int32  { return c.ID }
 
 // CircularMoveCmd queues a circular arc segment.
 type CircularMoveCmd struct {
@@ -596,7 +596,7 @@ type CircularMoveCmd struct {
 	IniMaxVel  float64
 	Acc        float64
 	MotionType int32
-	ID         int64
+	ID         int32
 	FeedUpm    float64
 }
 
@@ -605,7 +605,7 @@ func (c *CircularMoveCmd) Execute(t *Task) error {
 }
 func (c *CircularMoveCmd) Wait() WaitType { return WaitNone }
 func (c *CircularMoveCmd) String() string { return fmt.Sprintf("CircularMove(id=%d)", c.ID) }
-func (c *CircularMoveCmd) LineID() int64  { return c.ID }
+func (c *CircularMoveCmd) LineID() int32  { return c.ID }
 
 // DwellCmd implements a timed pause (G4).
 type DwellCmd struct {

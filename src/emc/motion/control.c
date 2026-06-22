@@ -2220,7 +2220,7 @@ static void output_to_hal(motmod_inst_t *inst)
 				inst->status->spindle_status[spindle_num].speed / 60.;
     }
 
-    *(inst->hal_data->program_line) = (hal_s32_t)inst->status->id;
+    *(inst->hal_data->segment_id) = (hal_s32_t)inst->status->id;
     *(inst->hal_data->tp_reverse) = inst->status->reverse_run;
     *(inst->hal_data->motion_type) = inst->status->motionType;
     *(inst->hal_data->distance_to_go) = inst->status->distance_to_go;

@@ -90,7 +90,7 @@ static inline EmcPose pose_from_motctl(const motctl_pose_t *p)
 
 static int32_t h_set_line(void *ctx, const motctl_pose_t *pos,
     double vel, double ini_maxvel, double acc,
-    int32_t motion_type, int64_t id, double feed_upm,
+    int32_t motion_type, int32_t id, double feed_upm,
     int32_t indexer_jnum)
 {
     CTX; emcmot_command_t cmd;
@@ -109,7 +109,7 @@ static int32_t h_set_line(void *ctx, const motctl_pose_t *pos,
 static int32_t h_set_circle(void *ctx, const motctl_pose_t *pos,
     const motctl_cartesian_t *center, const motctl_cartesian_t *normal,
     int32_t turn, double vel, double ini_maxvel, double acc,
-    int32_t motion_type, int64_t id, double feed_upm)
+    int32_t motion_type, int32_t id, double feed_upm)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_SET_CIRCLE);
@@ -132,7 +132,7 @@ static int32_t h_set_circle(void *ctx, const motctl_pose_t *pos,
 
 static int32_t h_probe(void *ctx, const motctl_pose_t *pos,
     double vel, double ini_maxvel, double acc,
-    int32_t motion_type, uint8_t probe_type, int64_t id, double feed_upm)
+    int32_t motion_type, uint8_t probe_type, int32_t id, double feed_upm)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_PROBE);
@@ -149,7 +149,7 @@ static int32_t h_probe(void *ctx, const motctl_pose_t *pos,
 
 static int32_t h_rigid_tap(void *ctx, const motctl_pose_t *pos,
     double vel, double ini_maxvel, double acc,
-    double scale, int64_t id, double feed_upm)
+    double scale, int32_t id, double feed_upm)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_RIGID_TAP);
@@ -242,7 +242,7 @@ static int32_t h_resume(void *ctx)
     return send_command(mc, &cmd);
 }
 
-static int32_t h_step(void *ctx, int64_t id)
+static int32_t h_step(void *ctx, int32_t id)
 {
     CTX; emcmot_command_t cmd;
     cmd_init(&cmd, EMCMOT_STEP);

@@ -19,7 +19,6 @@
 #include "spherical_arc.h"
 #include "blendmath.h"
 #include "axis.h"
-#include <inttypes.h>
 #define EMC_TRAJ_TERM_COND_STOP  0
 #define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
@@ -566,11 +565,11 @@ static int tpSetAmax(TP_STRUCT * const tp, double aMax)
  * ids for each motion, call this before each motion you append and stick what
  * you want in here.
  */
-static int tpSetId(TP_STRUCT * const tp, int64_t id)
+static int tpSetId(TP_STRUCT * const tp, int id)
 {
 
     if (!MOTION_ID_VALID(id)) {
-        gomc_log_errorf(tp->log, tp->log_comp, "tpSetId: invalid motion id %" PRId64 "\n", id);
+        gomc_log_errorf(tp->log, tp->log_comp, "tpSetId: invalid motion id %d\n", id);
         return TP_ERR_FAIL;
     }
 
@@ -585,7 +584,7 @@ static int tpSetId(TP_STRUCT * const tp, int64_t id)
 
 /** Returns the id of the last motion that is currently
   executing.*/
-static int64_t tpGetExecId(TP_STRUCT * const tp)
+static int tpGetExecId(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return TP_ERR_FAIL;
@@ -669,7 +668,7 @@ static int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos)
         tp->currentPos = *pos;
         return TP_ERR_OK;
     } else {
-        gomc_log_errorf(tp->log, tp->log_comp, "Tried to set invalid pose in tpSetCurrentPos on id %" PRId64 "!"
+        gomc_log_errorf(tp->log, tp->log_comp, "Tried to set invalid pose in tpSetCurrentPos on id %d!"
                 "pos is %.12g, %.12g, %.12g\n",
                 tp->execId,
                 pos->tran.x,
@@ -690,7 +689,7 @@ static int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp)
         emcPoseSelfAdd(&tp->currentPos, disp);
         return TP_ERR_OK;
     } else {
-        gomc_log_errorf(tp->log, tp->log_comp, "Tried to set invalid pose in tpAddCurrentPos on id %" PRId64 "!"
+        gomc_log_errorf(tp->log, tp->log_comp, "Tried to set invalid pose in tpAddCurrentPos on id %d!"
                 "disp is %.12g, %.12g, %.12g\n",
                 tp->execId,
                 disp->tran.x,
@@ -1271,14 +1270,14 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
             &prev_tc->coords.circle.xyz.normal);
 
     if (!coplanar1) {
-        tp_debug_print("aborting blend arc, arc id %"PRId64" is not coplanar with binormal\n", prev_tc->id);
+        tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", prev_tc->id);
         return TP_ERR_FAIL;
     }
 
     int coplanar2 = pmUnitCartsColinear(&geom.binormal,
             &tc->coords.circle.xyz.normal);
     if (!coplanar2) {
-        tp_debug_print("aborting blend arc, arc id %"PRId64" is not coplanar with binormal\n", tc->id);
+        tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", tc->id);
         return TP_ERR_FAIL;
     }
 
@@ -1513,7 +1512,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
-    tp_debug_print("Adding TC id %"PRId64" of type %d, total length %0.08f\n",tc->id,tc->motion_type,tc->target);
+    tp_debug_print("Adding TC id %d of type %d, total length %0.08f\n",tc->id,tc->motion_type,tc->target);
 
     return TP_ERR_OK;
 }
@@ -1792,12 +1791,12 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         if (tc->atspeed) {
             //Assume worst case that we have a stop at this point. This may cause a
             //slight hiccup, but the alternative is a sudden hard stop.
-            tp_debug_print("Found atspeed at id %"PRId64"\n",tc->id);
+            tp_debug_print("Found atspeed at id %d\n",tc->id);
             tc->finalvel = 0.0;
         }
 
         if (!tc->finalized) {
-            tp_debug_print("Segment %"PRId64", type %d not finalized, continuing\n",tc->id,tc->motion_type);
+            tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
             // use worst-case final velocity that allows for up to 1/2 of a segment to be consumed.
 
             prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationInitialVel(tp,tc));
@@ -2084,7 +2083,7 @@ static int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             tp->log, tp->log_comp);
     tc.target = pmLine9Target(&tc.coords.line);
     if (tc.target < TP_POS_EPSILON) {
-        gomc_log_debugf(tp->log, tp->log_comp,"failed to create line id %" PRId64 ", zero-length segment\n",tp->nextId);
+        gomc_log_debugf(tp->log, tp->log_comp,"failed to create line id %d, zero-length segment\n",tp->nextId);
         return TP_ERR_ZERO_LENGTH;
     }
     tc.nominal_length = tc.target;
@@ -2790,11 +2789,11 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     // done with this move
     if (tp->reverse_run) {
         tcqBackStep(&tp->queue);
-        tp_debug_print("Finished reverse run of tc id %"PRId64"\n", tc->id);
+        tp_debug_print("Finished reverse run of tc id %d\n", tc->id);
     } else {
         int res_pop = tcqPop(&tp->queue);
         if (res_pop) gomc_log_errorf(tp->log, tp->log_comp,"Got error %d from tcqPop!\n", res_pop);
-        tp_debug_print("Finished tc id %"PRId64"\n", tc->id);
+        tp_debug_print("Finished tc id %d\n", tc->id);
     }
 
     return TP_ERR_OK;
@@ -2848,7 +2847,7 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
     if (MOTION_ID_VALID(tp->spindle.waiting_for_index) && tp->spindle.waiting_for_index != tc->id)
     {
         gomc_log_errorf(tp->log, tp->log_comp,
-                "Was waiting for index on motion id %" PRId64 ", but reached id %" PRId64 "\n",
+                "Was waiting for index on motion id %d, but reached id %d\n",
                 tp->spindle.waiting_for_index, tc->id);
         tp->spindle.waiting_for_index = MOTION_INVALID_ID;
     }
@@ -2857,7 +2856,7 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
     {
 
         gomc_log_errorf(tp->log, tp->log_comp,
-                "Was waiting for atspeed on motion id %" PRId64 ", but reached id %" PRId64 "\n",
+                "Was waiting for atspeed on motion id %d, but reached id %d\n",
                 tp->spindle.waiting_for_atspeed, tc->id);
         tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
     }
@@ -3209,9 +3208,9 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
 STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
         double v_f, const void *log, const char *log_comp)
 {
-    tp_debug_print("split time for id %"PRId64" is %.16g\n", tc->id, split_time);
+    tp_debug_print("split time for id %d is %.16g\n", tc->id, split_time);
     if (tc->splitting != 0 && split_time > 0.0) {
-        gomc_log_errorf(log, log_comp, "already splitting on id %"PRId64" with cycle time %.16g, dx = %.16g, split time %.12g",
+        gomc_log_errorf(log, log_comp, "already splitting on id %d with cycle time %.16g, dx = %.16g, split time %.12g",
                 tc->id,
                 tc->cycle_time,
                 tc->target-tc->progress,
@@ -3350,7 +3349,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     EmcPose before;
     tcGetPos(tc, &before);
 
-    tp_debug_print("tc id %"PRId64" splitting\n",tc->id);
+    tp_debug_print("tc id %d splitting\n",tc->id);
     //Shortcut tc update by assuming we arrive at end
     tc->progress = tcGetTarget(tc,tp->reverse_run);
     //Get displacement from prev. position
@@ -3388,7 +3387,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         case TC_TERM_COND_EXACT:
             break;
         default:
-            gomc_log_errorf(tp->log, tp->log_comp,"unknown term cond %d in segment %"PRId64"\n",
+            gomc_log_errorf(tp->log, tp->log_comp,"unknown term cond %d in segment %d\n",
                     tc->term_cond,
                     tc->id);
     }
@@ -3760,7 +3759,7 @@ static int32_t gmi_tp_set_cycle_time(void *ctx, double secs) { tpmod_inst_t *ins
 static int32_t gmi_tp_set_vmax(void *ctx, double vmax, double ini_maxvel) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpSetVmax(&inst->tp, vmax, ini_maxvel); }
 static int32_t gmi_tp_set_vlimit(void *ctx, double limit) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpSetVlimit(&inst->tp, limit); }
 static int32_t gmi_tp_set_amax(void *ctx, double amax) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpSetAmax(&inst->tp, amax); }
-static int32_t gmi_tp_set_id(void *ctx, int64_t id) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpSetId(&inst->tp, id); }
+static int32_t gmi_tp_set_id(void *ctx, int32_t id) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpSetId(&inst->tp, id); }
 static int32_t gmi_tp_set_pos(void *ctx, tp_pose_t *pos) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpSetPos(&inst->tp, (EmcPose const *)pos); }
 
 static int32_t gmi_tp_set_term_cond(void *ctx, int32_t cond, double tolerance)
@@ -3835,7 +3834,7 @@ static int32_t gmi_tp_run_cycle(void *ctx, int64_t period) { tpmod_inst_t *inst 
 static int32_t gmi_tp_pause(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpPause(&inst->tp); }
 static int32_t gmi_tp_resume(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpResume(&inst->tp); }
 static int32_t gmi_tp_abort(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpAbort(&inst->tp); }
-static int64_t gmi_tp_get_exec_id(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecId(&inst->tp); }
+static int32_t gmi_tp_get_exec_id(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecId(&inst->tp); }
 
 static double gmi_tp_get_feed_upm(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecFeedUpm(&inst->tp); }
 

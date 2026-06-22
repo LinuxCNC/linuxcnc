@@ -160,7 +160,7 @@ type MotionStatus {
     tcqlen: u32
 
     # --- Executing motion ---
-    id: i64
+    id: i32
     motion_type: i32
     distance_to_go: f64
     dtg: Pose

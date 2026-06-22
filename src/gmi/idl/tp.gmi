@@ -66,7 +66,7 @@ func set_vlimit(limit: f64) -> i32
 func set_amax(amax: f64) -> i32
 
 @doc "Set current segment ID"
-func set_id(id: i64) -> i32
+func set_id(id: i32) -> i32
 
 @doc "Set the current position"
 func set_pos(pos: Pose byref) -> i32
@@ -124,7 +124,7 @@ func abort() -> i32
 # --- Queries ---
 
 @doc "Get the executing segment ID"
-func get_exec_id() -> i64
+func get_exec_id() -> i32
 
 @doc "Get the executing segment's feed rate in G-code units per minute"
 func get_feed_upm() -> f64

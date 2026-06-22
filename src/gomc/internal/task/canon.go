@@ -273,6 +273,7 @@ type Canon struct {
 	task              *Task
 	parameterFileName string
 	discard           bool // when true, enqueue is a no-op (used during seek)
+	nextSerial        int32
 }
 
 // Compile-time check that Canon implements the generated CanonCallbacks interface.
@@ -291,6 +292,23 @@ func NewCanon(t *Task) *Canon {
 // When discard is true, enqueue drops commands instead of queueing them.
 func (c *Canon) setDiscard(d bool) {
 	c.discard = d
+}
+
+// allocSerial returns the next segment serial id and registers the G-code
+// location in the task's side table. Serials start at 1; 0 is reserved as
+// the "nothing executing" sentinel used by UI code.
+func (c *Canon) allocSerial(lineno int32) int32 {
+	if c.nextSerial == 0 {
+		c.nextSerial = 1
+	}
+	id := c.nextSerial
+	c.nextSerial++
+	file := ""
+	if c.task.interp != nil {
+		file = c.task.interp.FileName()
+	}
+	c.task.registerMotion(id, file, lineno)
+	return id
 }
 
 // --- State-setting callbacks (modify canon state, no queued commands) ---
@@ -432,7 +450,7 @@ func (c *Canon) StraightTraverse(lineno int32, x, y, z, a, b, _c, u, v, w float6
 		IniMaxVel:  trav,
 		Acc:        c.task.maxAcceleration,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
-		ID:         int64(lineno),
+		ID:         c.allocSerial(lineno),
 		FeedUpm:    0, // traverse: no programmed feed
 		IndexerJ:   s.rotaryUnlockForTraverse,
 	}
@@ -454,7 +472,7 @@ func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 		IniMaxVel:  c.task.maxVelocity,
 		Acc:        c.task.maxAcceleration,
 		MotionType: 2, // EMC_MOTION_TYPE_FEED
-		ID:         int64(lineno),
+		ID:         c.allocSerial(lineno),
 		FeedUpm:    s.linearFeedRate * 60,
 		IndexerJ:   -1,
 	}
@@ -510,7 +528,7 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 		IniMaxVel:  c.task.maxVelocity,
 		Acc:        c.task.maxAcceleration,
 		MotionType: 3, // EMC_MOTION_TYPE_ARC
-		ID:         int64(lineno),
+		ID:         c.allocSerial(lineno),
 		FeedUpm:    s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
@@ -527,7 +545,7 @@ func (c *Canon) RigidTap(lineno int32, x, y, z, scale float64) {
 		Vel:     s.linearFeedRate,
 		Acc:     c.task.maxAcceleration,
 		Scale:   scale,
-		ID:      int64(lineno),
+		ID:      c.allocSerial(lineno),
 		FeedUpm: s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
@@ -545,7 +563,7 @@ func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, 
 		Acc:        c.task.maxAcceleration,
 		MotionType: 4, // EMC_MOTION_TYPE_PROBING
 		ProbeType:  probeType,
-		ID:         int64(lineno),
+		ID:         c.allocSerial(lineno),
 		FeedUpm:    s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
@@ -842,7 +860,7 @@ func (c *Canon) UnlockRotary(lineno, joint int32) (int32, error) {
 		IniMaxVel:  1,
 		Acc:        1,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
-		ID:         int64(lineno),
+		ID:         c.allocSerial(lineno),
 		FeedUpm:    0,
 		IndexerJ:   -1,
 	}
@@ -1083,7 +1101,7 @@ type RigidTapCmd struct {
 	Vel     float64
 	Acc     float64
 	Scale   float64
-	ID      int64
+	ID      int32
 	FeedUpm float64
 }
 
@@ -1092,7 +1110,7 @@ func (c *RigidTapCmd) Execute(t *Task) error {
 }
 func (c *RigidTapCmd) Wait() WaitType { return WaitNone }
 func (c *RigidTapCmd) String() string { return fmt.Sprintf("RigidTap(id=%d)", c.ID) }
-func (c *RigidTapCmd) LineID() int64  { return c.ID }
+func (c *RigidTapCmd) LineID() int32  { return c.ID }
 
 // ProbeCmd queues a probe move.
 type ProbeCmd struct {
@@ -1102,7 +1120,7 @@ type ProbeCmd struct {
 	Acc        float64
 	MotionType int32
 	ProbeType  uint8
-	ID         int64
+	ID         int32
 	FeedUpm    float64
 }
 
@@ -1111,7 +1129,7 @@ func (c *ProbeCmd) Execute(t *Task) error {
 }
 func (c *ProbeCmd) Wait() WaitType { return WaitMotion }
 func (c *ProbeCmd) String() string { return fmt.Sprintf("Probe(id=%d)", c.ID) }
-func (c *ProbeCmd) LineID() int64  { return c.ID }
+func (c *ProbeCmd) LineID() int32  { return c.ID }
 
 // SpindleOrientCmd orients a spindle.
 type SpindleOrientCmd struct {
