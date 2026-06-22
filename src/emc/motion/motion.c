@@ -7,6 +7,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 
 #include <stdarg.h>
@@ -1081,7 +1082,6 @@ static int init_hal_io(motmod_inst_t *inst)
     CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(inst->hal_data->is_all_homed), inst->comp_id, PFMT("motion.is-all-homed")));
 
     /* state tags pins */
-    CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_upm), inst->comp_id, PFMT("motion.feed-upm")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_inches_per_minute), inst->comp_id, PFMT("motion.feed-inches-per-minute")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_inches_per_second), inst->comp_id, PFMT("motion.feed-inches-per-second")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_mm_per_minute), inst->comp_id, PFMT("motion.feed-mm-per-minute")));

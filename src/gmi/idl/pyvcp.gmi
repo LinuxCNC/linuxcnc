@@ -8,6 +8,8 @@
 #   UI → HAL:  set_pin commands write output pin values from frontend
 
 @api pyvcp
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix pyvcp
 @rest_export true

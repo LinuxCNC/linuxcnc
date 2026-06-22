@@ -7,6 +7,7 @@
  * Originally a Python userspace component (bin/scorbot-er-3).
  *
  * Copyright (C) 2013-2016 Sebastian Kuzminsky <seb@highlab.com>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — C/cmod port
  * License: GPL v2+
  */
 

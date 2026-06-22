@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -14,23 +16,23 @@ type mockMotion struct {
 	lastCall string
 }
 
-func (m *mockMotion) SetLine(Pose, float64, float64, float64, int32, int32, StateTag, int32) error {
+func (m *mockMotion) SetLine(Pose, float64, float64, float64, int32, int64, float64, int32) error {
 	m.lastCall = "SetLine"
 	return nil
 }
-func (m *mockMotion) SetCircle(Pose, Cartesian, Cartesian, int32, float64, float64, float64, int32, int32, StateTag) error {
+func (m *mockMotion) SetCircle(Pose, Cartesian, Cartesian, int32, float64, float64, float64, int32, int64, float64) error {
 	return nil
 }
-func (m *mockMotion) Probe(Pose, float64, float64, float64, int32, uint8, int32, StateTag) error {
+func (m *mockMotion) Probe(Pose, float64, float64, float64, int32, uint8, int64, float64) error {
 	return nil
 }
-func (m *mockMotion) RigidTap(Pose, float64, float64, float64, float64, int32, StateTag) error {
+func (m *mockMotion) RigidTap(Pose, float64, float64, float64, float64, int64, float64) error {
 	return nil
 }
 func (m *mockMotion) Abort() error     { m.lastCall = "Abort"; return nil }
 func (m *mockMotion) Pause() error     { m.lastCall = "Pause"; return nil }
 func (m *mockMotion) Resume() error    { m.lastCall = "Resume"; return nil }
-func (m *mockMotion) Step(int32) error { m.lastCall = "Step"; return nil }
+func (m *mockMotion) Step(int64) error { m.lastCall = "Step"; return nil }
 func (m *mockMotion) Reverse() error   { m.lastCall = "Reverse"; return nil }
 func (m *mockMotion) Forward() error   { m.lastCall = "Forward"; return nil }
 func (m *mockMotion) SetFree() error   { m.lastCall = "SetFree"; return nil }

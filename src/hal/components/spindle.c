@@ -10,6 +10,8 @@
  * Creates pins for the specified number of gears.
  *
  * Author: Les Newell <les at sheetcam dot com> (original)
+ * Copyright (c) 2009 Les Newell
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2 or later
  */

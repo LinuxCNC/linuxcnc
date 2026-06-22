@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package gomc provides the registration interface for Go modules compiled
 // into the gomc-server binary. External Go packages and in-tree modules use
 // this package to register themselves at init() time so the launcher can

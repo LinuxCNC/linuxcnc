@@ -5,6 +5,9 @@
  * Used to verify the mcode_handler_api works end-to-end.
  *
  * Load via INI: [GOMC] CMOD=test_mcode_handler
+ *
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: GPL Version 2
  */
 
 #include <stdio.h>

@@ -7,7 +7,9 @@
  * Usage:
  *   load counter
  *
- * Original author: Chris Radek
+ * Original author: Chris Radek <chris@timeguy.com>
+ * Copyright (c) 2006 Chris Radek
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

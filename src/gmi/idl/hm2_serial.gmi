@@ -6,6 +6,9 @@
 # Mesa PktUART, UART, or Buffered SPI channels.
 
 @api hm2_serial
+@author "Sebastian Kuzminsky (hostmot2.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix hm2_serial
 @rest_export false

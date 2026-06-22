@@ -12,6 +12,9 @@
 # access without copying the full struct.
 
 @api motstat
+@author "Fred Proctor & Will Shackleford (motion.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "LGPL Version 2.1"
 @version 1
 @rest_export false
 
@@ -48,15 +51,6 @@ type Pose {
     u: f64
     v: f64
     w: f64
-}
-
-const TAG_FIELDS_FLOAT = 5
-const TAG_FIELDS_INT = 8
-
-type StateTag {
-    fields_float: [TAG_FIELDS_FLOAT]f32
-    fields: [TAG_FIELDS_INT]i32
-    packed_flags: u64
 }
 
 # Joint flag bits are flattened into individual booleans
@@ -166,11 +160,10 @@ type MotionStatus {
     tcqlen: u32
 
     # --- Executing motion ---
-    id: i32
+    id: i64
     motion_type: i32
     distance_to_go: f64
     dtg: Pose
-    tag: StateTag
 
     # --- Probe ---
     probe: ProbeStatus

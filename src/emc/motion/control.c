@@ -11,6 +11,7 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 
 #define SWITCHKINS_DEBUG
@@ -2138,7 +2139,6 @@ static void compute_screw_comp(motmod_inst_t *inst)
 static void output_to_hal(motmod_inst_t *inst)
 {
     int joint_num, spindle_num;
-    double inch_mult;
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
     int *old_motion_index = inst->ctl_old_motion_index;
@@ -2154,21 +2154,15 @@ static void output_to_hal(motmod_inst_t *inst)
 
     switch (inst->status->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
-        case EMC_MOTION_TYPE_ARC:
-            if (inst->status->tag.packed_flags & 1 << GM_FLAG_UNITS) {
-                inch_mult = 1;
-            } else {
-                inch_mult = 1 / 25.4;
-            }
-            *(inst->hal_data->feed_upm) = inst->status->tag.fields_float[GM_FIELD_FLOAT_FEED]
-                                         * inst->status->net_feed_scale;
-            *(inst->hal_data->feed_inches_per_minute) = *inst->hal_data->feed_upm * inch_mult;
-            *(inst->hal_data->feed_inches_per_second) = *inst->hal_data->feed_inches_per_minute / 60;
-            *(inst->hal_data->feed_mm_per_minute) = *inst->hal_data->feed_inches_per_minute * 25.4;
-            *(inst->hal_data->feed_mm_per_second) = *inst->hal_data->feed_mm_per_minute / 60;
+        case EMC_MOTION_TYPE_ARC: {
+            double feed_mm_min = inst->status->feed_upm * inst->status->net_feed_scale;
+            *(inst->hal_data->feed_inches_per_minute) = feed_mm_min / 25.4;
+            *(inst->hal_data->feed_inches_per_second) = feed_mm_min / 25.4 / 60;
+            *(inst->hal_data->feed_mm_per_minute) = feed_mm_min;
+            *(inst->hal_data->feed_mm_per_second) = feed_mm_min / 60;
             break;
+        }
         default:
-            *(inst->hal_data->feed_upm) = 0;
             *(inst->hal_data->feed_inches_per_minute) = 0;
             *(inst->hal_data->feed_inches_per_second) = 0;
             *(inst->hal_data->feed_mm_per_minute) = 0;
@@ -2226,7 +2220,7 @@ static void output_to_hal(motmod_inst_t *inst)
 				inst->status->spindle_status[spindle_num].speed / 60.;
     }
 
-    *(inst->hal_data->program_line) = inst->status->id;
+    *(inst->hal_data->program_line) = (hal_s32_t)inst->status->id;
     *(inst->hal_data->tp_reverse) = inst->status->reverse_run;
     *(inst->hal_data->motion_type) = inst->status->motionType;
     *(inst->hal_data->distance_to_go) = inst->status->distance_to_go;
@@ -2450,7 +2444,7 @@ static void update_status(motmod_inst_t *inst)
     inst->status->id = inst->tp_api->get_exec_id(inst->tp_api->ctx);
     //KLUDGE add an API call for this
     inst->status->reverse_run = inst->tp_api->get_run_dir(inst->tp_api->ctx);
-    inst->tp_api->get_exec_tag(inst->tp_api->ctx, (tp_state_tag_t *)&inst->status->tag);
+    inst->status->feed_upm = inst->tp_api->get_feed_upm(inst->tp_api->ctx);
     inst->status->motionType = inst->tp_api->get_motion_type(inst->tp_api->ctx);
     inst->status->queueFull = inst->tp_api->queue_full(inst->tp_api->ctx);
 

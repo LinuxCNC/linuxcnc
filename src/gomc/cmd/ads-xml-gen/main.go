@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Command ads-xml-gen generates a TwinCAT-compatible XML symbol table from
 // an ADS .conf file. The XML is written to stdout.
 //

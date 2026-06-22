@@ -1,7 +1,9 @@
 /* classicladder_rt.c — RT ladder evaluation engine for gomc.
  *
  * Based on Classic Ladder Project by Marc Le Douarain (calc.c, module_hal.c).
+ * Copyright (C) Marc Le Douarain <marc.le.douarain@free.fr> (LGPL 2.1+)
  * Adapted for the gomc cgo architecture — no shared memory, direct struct access.
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License v2.1+.

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: LGPL Version 2.1
+ */
 // gomc_env.h — Combined environment header for gomc C modules.
 //
 // This is the new top-level header that replaces cmodule.h for modules

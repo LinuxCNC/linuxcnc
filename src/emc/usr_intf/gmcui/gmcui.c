@@ -9,7 +9,7 @@
  *   window title, and size.  The server base URL comes from the
  *   GMC_REST_URL environment variable (default: http://127.0.0.1:5080).
  *
- * Copyright (C) 2026 LinuxCNC contributors
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
  * License: GPLv2
  */
 

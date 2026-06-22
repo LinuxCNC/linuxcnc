@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: GPL Version 2
+ */
 /* hal_mock.h — Minimal HAL/RTAPI type stubs for halscope unit tests.
  *
  * Provides just enough definitions to compile halscope_rt.c without

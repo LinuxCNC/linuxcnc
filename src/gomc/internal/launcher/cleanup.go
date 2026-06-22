@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package launcher — cleanup.go implements the ordered shutdown sequence (M7).
 package launcher
 

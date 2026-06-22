@@ -18,6 +18,7 @@
 #include "blendmath.h"
 #include "emcpose.h"
 #include "tc.h"
+#include <inttypes.h>
 #include "tp_types.h"
 #include "spherical_arc.h"
 #include "motion_types.h"
@@ -468,7 +469,7 @@ int tcSetTermCond(TC_STRUCT *prev_tc, TC_STRUCT *tc, int term_cond) {
 
     }
     if (prev_tc) {
-        tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, prev_tc->id, prev_tc->motion_type);
+        tp_debug_print("setting term condition %d on tc id %" PRId64 ", type %d\n", term_cond, prev_tc->id, prev_tc->motion_type);
         prev_tc->term_cond = term_cond;
     }
     return 0;
@@ -586,7 +587,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
     if(tc->synchronized != TC_SYNC_POSITION && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
-        tp_debug_print("waiting on spindle sync for tc %d\n", tc->id);
+        tp_debug_print("waiting on spindle sync for tc %" PRId64 "\n", tc->id);
         tcSetTermCond(tc, nexttc, TC_TERM_COND_STOP);
     }
 
@@ -594,7 +595,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
         // we'll have to wait for the spindle to be at-speed; might as well
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
-        tp_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
+        tp_debug_print("waiting on spindle atspeed for tc %" PRId64 "\n", tc->id);
         tcSetTermCond(tc, nexttc, TC_TERM_COND_STOP);
     }
 
@@ -780,11 +781,11 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     }
 
     if (tc->finalized) {
-        tp_debug_print("tc %d already finalized\n", tc->id);
+        tp_debug_print("tc %" PRId64 " already finalized\n", tc->id);
         return TP_ERR_NO_ACTION;
     }
 
-    tp_debug_print("Finalizing motion id %d, type %d\n", tc->id, tc->motion_type);
+    tp_debug_print("Finalizing motion id %" PRId64 ", type %d\n", tc->id, tc->motion_type);
 
     tcClampVelocityByLength(tc);
 

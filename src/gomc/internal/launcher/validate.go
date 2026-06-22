@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package launcher — validate.go implements cross-section INI dependency
 // validation that runs after INI parsing but before any subprocess is started.
 package launcher

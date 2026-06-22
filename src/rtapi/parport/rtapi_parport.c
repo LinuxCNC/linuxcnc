@@ -1,4 +1,5 @@
-//    Copyright 2014-2026 Jeff Epler
+//    Copyright 2014-2026 Jeff Epler <jepler@unpythonic.net>
+//    Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by

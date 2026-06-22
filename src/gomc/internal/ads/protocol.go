@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package ads implements the Beckhoff ADS/AMS protocol for TwinCAT HMI communication.
 //
 // The ADS (Automation Device Specification) protocol is encapsulated in AMS

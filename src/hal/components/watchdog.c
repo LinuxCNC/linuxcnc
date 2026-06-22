@@ -7,7 +7,9 @@
  * Usage:
  *   load watchdog num_inputs=4
  *
- * Original author: Stephen Wille Padnos
+ * Original author: Stephen Wille Padnos (swpadnos AT sourceforge DOT net)
+ * Copyright (c) 2010 Stephen Wille Padnos
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

@@ -11,7 +11,7 @@
 //   f = float, b = bit, u = u32, s = s32
 //
 // Copyright (C) 2006 John Kasunich (original streamer.c)
-// Copyright (C) 2026 cmod port
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 // License: GPL Version 2
 //
 

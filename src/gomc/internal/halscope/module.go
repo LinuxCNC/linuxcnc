@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package halscope implements the HAL oscilloscope as a gomod.
 //
 // The RT sample function runs in a HAL thread (C code via cgo).

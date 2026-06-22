@@ -1,5 +1,10 @@
 // interp_shim.cc — thin C++ wrapper exposing InterpBase virtual calls as plain C.
 // This is the ONLY C++ code in the Go milltask module.
+//
+// Original interpreter: Copyright 2004-2006 Jeff Epler <jepler@unpythonic.net>
+//                       and Chris Radek <chris@timeguy.com> (GPL v2)
+// This shim: Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 
 #include "config.h"
 #include "emc/rs274ngc/interp_base.hh"

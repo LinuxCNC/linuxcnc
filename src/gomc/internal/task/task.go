@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package task implements the milltask gomod — the CNC task controller
 // that coordinates motion, I/O, and the G-code interpreter.
 //
@@ -97,7 +99,7 @@ const jogTimeout = 2 * time.Second
 type activeJog struct {
 	active   bool
 	isTeleop int32
-	fromHAL  bool      // HAL-pin-driven jogs are self-managing, skip watchdog
+	fromHAL  bool // HAL-pin-driven jogs are self-managing, skip watchdog
 	lastSeen time.Time
 }
 
@@ -105,16 +107,16 @@ type activeJog struct {
 // Methods match the motctl.gmi function names.
 type MotionController interface {
 	// Motion queue
-	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType, id int32, tag StateTag, indexerJnum int32) error
-	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType, id int32, tag StateTag) error
-	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, tag StateTag) error
-	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, tag StateTag) error
+	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int64, feedUpm float64, indexerJnum int32) error
+	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int64, feedUpm float64) error
+	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int64, feedUpm float64) error
+	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int64, feedUpm float64) error
 
 	// Motion control
 	Abort() error
 	Pause() error
 	Resume() error
-	Step(id int32) error
+	Step(id int64) error
 	Reverse() error
 	Forward() error
 	SetFree() error
@@ -229,10 +231,6 @@ type Pose = motctl.Pose
 // Type alias for the generated motctl.Cartesian.
 type Cartesian = motctl.Cartesian
 
-// StateTag carries interpreter state for motion segments.
-// Type alias for the generated motctl.StateTag.
-type StateTag = motctl.StateTag
-
 // Task is the central controller state. One instance per machine.
 type Task struct {
 	mu sync.Mutex
@@ -333,19 +331,19 @@ type Task struct {
 // NewTask creates a new Task with dependencies injected.
 func NewTask(motion MotionController, io IOController, status MotionStatusReader, logger *slog.Logger) *Task {
 	t := &Task{
-		state:              StateEstop,
-		mode:               ModeManual,
-		interpState:        InterpIdle,
-		execState:          ExecDone,
-		motion:             motion,
-		io:                 io,
-		status:             status,
-		logger:             logger,
-		activeSettings:     make([]float64, 5), // ACTIVE_SETTINGS
-		activeGcodes:       make([]int32, 17),  // ACTIVE_G_CODES
-		activeMcodes:       make([]int32, 10),  // ACTIVE_M_CODES
-		maxMDIQueued: 10,
-		mcode:              newMcodeHandler(),
+		state:          StateEstop,
+		mode:           ModeManual,
+		interpState:    InterpIdle,
+		execState:      ExecDone,
+		motion:         motion,
+		io:             io,
+		status:         status,
+		logger:         logger,
+		activeSettings: make([]float64, 5), // ACTIVE_SETTINGS
+		activeGcodes:   make([]int32, 17),  // ACTIVE_G_CODES
+		activeMcodes:   make([]int32, 10),  // ACTIVE_M_CODES
+		maxMDIQueued:   10,
+		mcode:          newMcodeHandler(),
 	}
 	t.canon = NewCanon(t)
 	return t

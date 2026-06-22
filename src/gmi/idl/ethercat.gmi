@@ -6,6 +6,8 @@
 # Multi-master: master_index parameter selects master within instance.
 
 @api ethercat
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix ethercat
 @rest_export true

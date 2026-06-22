@@ -8,6 +8,8 @@
  *   load supply
  *
  * Original author: Matt Shaver
+ * Copyright (c) 2004 Matt Shaver
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package classicladder implements the Classic Ladder PLC as a gomod.
 //
 // The RT refresh function runs in a HAL thread (C code via cgo).

@@ -1,5 +1,13 @@
 // gomc_rtapi.h — RTAPI utility functions for gomc C modules.
 //
+// RTAPI_NAME_LEN mirrors rtapi.h by John Kasunich and Paul Corner.
+// License of rtapi.h: LGPL Version 2.1.
+// Copyright (c) 2004 John Kasunich, Paul Corner.
+//
+// New API (callback table, inline helpers):
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: LGPL Version 2.1
+//
 // Provides RT-safe memory allocation (mlock + page pre-fault) and time
 // functions through callbacks in gomc_rtapi_t.  Initially these delegate
 // to the existing liblinuxcnchal.so / uspace_rtapi_lib.c implementation.

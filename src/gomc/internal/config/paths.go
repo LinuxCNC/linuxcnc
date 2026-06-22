@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package config provides compile-time path configuration for gomc-server.
 // Variables are set via -ldflags -X at build time, matching the @VAR@ substitutions
 // in the legacy linuxcnc.in bash script.

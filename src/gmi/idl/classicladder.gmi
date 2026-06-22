@@ -5,6 +5,9 @@
 # program editing, variable monitoring, and run control for UI clients.
 
 @api classicladder
+@author "Marc Le Douarain (classicladder.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "LGPL Version 2.1 or later"
 @version 1
 @prefix "classicladder"
 @rest_export true

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ * License: LGPL Version 2.1
+ */
 // gomc_user.h — Userspace module helpers for gomc C modules.
 //
 // Provides an eventfd-based exit notification mechanism that integrates

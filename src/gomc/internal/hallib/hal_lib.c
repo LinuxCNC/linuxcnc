@@ -14,7 +14,8 @@
 *    
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
+* Adapted for gomc uspace-only: Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
 ********************************************************************/
 
 /** Copyright (C) 2003 John Kasunich

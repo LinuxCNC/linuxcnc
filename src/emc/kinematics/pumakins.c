@@ -1,5 +1,9 @@
 // pumakins — PUMA robot kinematics (cmod version)
-// Derived from work by Fred Proctor. License: GPL Version 2
+//
+// Derived from work by Fred Proctor
+// Copyright (c) 2004 All rights reserved.
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
+// License: GPL Version 2
 
 #include <math.h>
 #include <string.h>

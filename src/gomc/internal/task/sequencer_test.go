@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -17,7 +19,7 @@ type testMotion struct {
 	callCount int
 }
 
-func (m *testMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType, id int32, tag StateTag, indexerJnum int32) error {
+func (m *testMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int64, feedUpm float64, indexerJnum int32) error {
 	m.calls = append(m.calls, "SetLine")
 	m.callCount++
 	if m.failAt >= 0 && m.callCount > m.failAt {
@@ -71,7 +73,7 @@ func TestSequencer_ExecutesInOrder(t *testing.T) {
 
 	// Enqueue 3 linear moves
 	for i := 0; i < 3; i++ {
-		cmd := &LinearMoveCmd{ID: int32(i + 1)}
+		cmd := &LinearMoveCmd{ID: int64(i + 1)}
 		if err := task.EnqueueCmd(cmd); err != nil {
 			t.Fatalf("enqueue %d: %v", i, err)
 		}

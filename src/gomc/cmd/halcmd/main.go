@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // halcmd - HAL command-line tool using REST API
 //
 // This is the Go-based replacement for the legacy C halcmd and halrmt.

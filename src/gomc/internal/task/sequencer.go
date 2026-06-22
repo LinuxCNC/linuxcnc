@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
@@ -182,10 +184,10 @@ func (t *Task) sequencerLoop() {
 			t.logger.Debug("sequencer exec", "cmd", cmd.String())
 
 			// Update currentLine from motion commands that carry a line ID.
-			if lc, ok := cmd.(interface{ LineID() int32 }); ok {
+			if lc, ok := cmd.(interface{ LineID() int64 }); ok {
 				if id := lc.LineID(); id > 0 {
 					t.mu.Lock()
-					t.currentLine = id
+					t.currentLine = int32(id)
 					t.mu.Unlock()
 				}
 			}
@@ -572,17 +574,17 @@ type LinearMoveCmd struct {
 	IniMaxVel  float64
 	Acc        float64
 	MotionType int32
-	ID         int32
-	Tag        StateTag
+	ID         int64
+	FeedUpm    float64
 	IndexerJ   int32
 }
 
 func (c *LinearMoveCmd) Execute(t *Task) error {
-	return t.motion.SetLine(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.Tag, c.IndexerJ)
+	return t.motion.SetLine(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedUpm, c.IndexerJ)
 }
 func (c *LinearMoveCmd) Wait() WaitType { return WaitNone } // queued, no immediate wait
 func (c *LinearMoveCmd) String() string { return fmt.Sprintf("LinearMove(id=%d)", c.ID) }
-func (c *LinearMoveCmd) LineID() int32  { return c.ID }
+func (c *LinearMoveCmd) LineID() int64  { return c.ID }
 
 // CircularMoveCmd queues a circular arc segment.
 type CircularMoveCmd struct {
@@ -594,16 +596,16 @@ type CircularMoveCmd struct {
 	IniMaxVel  float64
 	Acc        float64
 	MotionType int32
-	ID         int32
-	Tag        StateTag
+	ID         int64
+	FeedUpm    float64
 }
 
 func (c *CircularMoveCmd) Execute(t *Task) error {
-	return t.motion.SetCircle(c.Pos, c.Center, c.Normal, c.Turn, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.Tag)
+	return t.motion.SetCircle(c.Pos, c.Center, c.Normal, c.Turn, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedUpm)
 }
 func (c *CircularMoveCmd) Wait() WaitType { return WaitNone }
 func (c *CircularMoveCmd) String() string { return fmt.Sprintf("CircularMove(id=%d)", c.ID) }
-func (c *CircularMoveCmd) LineID() int32  { return c.ID }
+func (c *CircularMoveCmd) LineID() int64  { return c.ID }
 
 // DwellCmd implements a timed pause (G4).
 type DwellCmd struct {

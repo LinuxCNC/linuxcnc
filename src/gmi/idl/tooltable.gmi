@@ -1,4 +1,7 @@
 @api tooltable
+@author "Dewey Garrett (tooldata.hh)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix tooltable
 @rest_export true

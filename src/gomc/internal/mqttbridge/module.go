@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package mqttbridge registers the MQTT bridge module with the gomc module
 // registry. It creates HAL pins from an XML config and bridges them
 // bidirectionally to an MQTT broker.

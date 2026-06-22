@@ -14,6 +14,8 @@
  *   If out_type is omitted, it defaults to in_type.
  *
  * Original author: Andy Pugh
+ * Copyright (C) 2013 Andy Pugh
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

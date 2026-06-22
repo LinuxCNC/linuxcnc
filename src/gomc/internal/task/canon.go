@@ -1,10 +1,11 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package task
 
 import (
 	"fmt"
 	"math"
 	"time"
-	"unsafe"
 
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/canon"
 )
@@ -106,9 +107,6 @@ type CanonState struct {
 
 	// Rotary unlock: joint number to unlock for traverse (-1 = none)
 	rotaryUnlockForTraverse int32
-
-	// State tag (passed to motion segments)
-	tag StateTag
 
 	// Motion line ID counter
 	lineNo int32
@@ -406,24 +404,9 @@ func (c *Canon) UpdateEndPoint(x, y, z, a, b, _c, u, v, w float64) {
 	}
 }
 
-func (c *Canon) UpdateTag(tagPtr uint64) {
-	// The interpreter passes a pointer to a state_tag_t struct.
-	// We decode it into our StateTag (same memory layout: fields_float[5], fields[8], packed_flags).
-	if tagPtr == 0 {
-		return
-	}
-	type cStateTag struct {
-		FieldsFloat [5]float32
-		Fields      [8]int32
-		PackedFlags uint64
-	}
-	src := (*cStateTag)(unsafe.Pointer(uintptr(tagPtr)))
-	c.state.tag = StateTag{
-		FieldsFloat: src.FieldsFloat,
-		Fields:      src.Fields,
-		PackedFlags: src.PackedFlags,
-	}
-}
+// UpdateTag is called by the interpreter to pass interpreter state alongside
+// motion segments. StateTag has been removed from the GMI API; this is a no-op.
+func (c *Canon) UpdateTag(_ uint64) {}
 
 func (c *Canon) UseToolLengthOffset(x, y, z, a, b, _c, u, v, w float64) {
 	s := c.state
@@ -449,8 +432,8 @@ func (c *Canon) StraightTraverse(lineno int32, x, y, z, a, b, _c, u, v, w float6
 		IniMaxVel:  trav,
 		Acc:        c.task.maxAcceleration,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
-		ID:         lineno,
-		Tag:        s.tag,
+		ID:         int64(lineno),
+		FeedUpm:    0, // traverse: no programmed feed
 		IndexerJ:   s.rotaryUnlockForTraverse,
 	}
 	c.enqueue(cmd)
@@ -471,8 +454,8 @@ func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 		IniMaxVel:  c.task.maxVelocity,
 		Acc:        c.task.maxAcceleration,
 		MotionType: 2, // EMC_MOTION_TYPE_FEED
-		ID:         lineno,
-		Tag:        s.tag,
+		ID:         int64(lineno),
+		FeedUpm:    s.linearFeedRate * 60,
 		IndexerJ:   -1,
 	}
 	c.enqueue(cmd)
@@ -527,8 +510,8 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 		IniMaxVel:  c.task.maxVelocity,
 		Acc:        c.task.maxAcceleration,
 		MotionType: 3, // EMC_MOTION_TYPE_ARC
-		ID:         lineno,
-		Tag:        s.tag,
+		ID:         int64(lineno),
+		FeedUpm:    s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
 	c.enqueueMotionParams()
@@ -540,12 +523,12 @@ func (c *Canon) RigidTap(lineno int32, x, y, z, scale float64) {
 	s.lineNo = lineno
 
 	cmd := &RigidTapCmd{
-		Pos:   pos,
-		Vel:   s.linearFeedRate,
-		Acc:   c.task.maxAcceleration,
-		Scale: scale,
-		ID:    lineno,
-		Tag:   s.tag,
+		Pos:     pos,
+		Vel:     s.linearFeedRate,
+		Acc:     c.task.maxAcceleration,
+		Scale:   scale,
+		ID:      int64(lineno),
+		FeedUpm: s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
 }
@@ -562,8 +545,8 @@ func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, 
 		Acc:        c.task.maxAcceleration,
 		MotionType: 4, // EMC_MOTION_TYPE_PROBING
 		ProbeType:  probeType,
-		ID:         lineno,
-		Tag:        s.tag,
+		ID:         int64(lineno),
+		FeedUpm:    s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
 }
@@ -859,8 +842,8 @@ func (c *Canon) UnlockRotary(lineno, joint int32) (int32, error) {
 		IniMaxVel:  1,
 		Acc:        1,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
-		ID:         lineno,
-		Tag:        s.tag,
+		ID:         int64(lineno),
+		FeedUpm:    0,
 		IndexerJ:   -1,
 	}
 	c.enqueue(cmd)
@@ -1096,20 +1079,20 @@ func (c *Canon) enqueueMotionParams() {
 
 // RigidTapCmd queues a rigid tap.
 type RigidTapCmd struct {
-	Pos   Pose
-	Vel   float64
-	Acc   float64
-	Scale float64
-	ID    int32
-	Tag   StateTag
+	Pos     Pose
+	Vel     float64
+	Acc     float64
+	Scale   float64
+	ID      int64
+	FeedUpm float64
 }
 
 func (c *RigidTapCmd) Execute(t *Task) error {
-	return t.motion.RigidTap(c.Pos, c.Vel, c.Vel, c.Acc, c.Scale, c.ID, c.Tag)
+	return t.motion.RigidTap(c.Pos, c.Vel, c.Vel, c.Acc, c.Scale, c.ID, c.FeedUpm)
 }
 func (c *RigidTapCmd) Wait() WaitType { return WaitNone }
 func (c *RigidTapCmd) String() string { return fmt.Sprintf("RigidTap(id=%d)", c.ID) }
-func (c *RigidTapCmd) LineID() int32  { return c.ID }
+func (c *RigidTapCmd) LineID() int64  { return c.ID }
 
 // ProbeCmd queues a probe move.
 type ProbeCmd struct {
@@ -1119,16 +1102,16 @@ type ProbeCmd struct {
 	Acc        float64
 	MotionType int32
 	ProbeType  uint8
-	ID         int32
-	Tag        StateTag
+	ID         int64
+	FeedUpm    float64
 }
 
 func (c *ProbeCmd) Execute(t *Task) error {
-	return t.motion.Probe(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ProbeType, c.ID, c.Tag)
+	return t.motion.Probe(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ProbeType, c.ID, c.FeedUpm)
 }
 func (c *ProbeCmd) Wait() WaitType { return WaitMotion }
 func (c *ProbeCmd) String() string { return fmt.Sprintf("Probe(id=%d)", c.ID) }
-func (c *ProbeCmd) LineID() int32  { return c.ID }
+func (c *ProbeCmd) LineID() int64  { return c.ID }
 
 // SpindleOrientCmd orients a spindle.
 type SpindleOrientCmd struct {

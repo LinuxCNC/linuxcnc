@@ -5,6 +5,7 @@
 * Author: Ian McMahon <imcmahon@prototechnical.com>
 * License: GPL Version 2
 * Copyright (c) 2013.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 *
 ********************************************************************/
 

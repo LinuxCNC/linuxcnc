@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // ethercat — CLI tool for EtherCAT master diagnostics via REST API.
 //
 // Drop-in replacement for the IgH EtherCAT master "ethercat" command-line tool.

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package realtime manages the LinuxCNC realtime environment (uspace only).
 //
 // This package corresponds to the uspace path of the legacy scripts/realtime.in

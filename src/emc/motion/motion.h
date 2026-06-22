@@ -67,15 +67,15 @@ to another.
 #include "kinematics.h"
 #include "simple_tp.h"
 #include "rtapi_limits.h"
+#include <stdint.h>
 #include <stdarg.h>
 #include "rtapi_bool.h"
-#include "state_tag.h"
 
 // define a special value to denote an invalid motion ID
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
 // this should be really be tested for in command.c
 
-#define MOTION_INVALID_ID INT_MIN
+#define MOTION_INVALID_ID INT64_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
@@ -225,7 +225,7 @@ extern "C" {
 	double acc;		/* max acceleration */
 	double jerk;		/* max jerk */
 	double backlash;	/* amount of backlash */
-	int id;			/* id for motion */
+	int64_t id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int joint;		/* which joint index to use for below */
@@ -269,7 +269,7 @@ extern "C" {
     double maxFeedScale;
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
-    struct state_tag_t tag;
+    double feed_upm;        /* programmed feed rate in G-code units per minute */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -624,8 +624,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by G-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by G-code */
 	int misc_error[EMCMOT_MAX_MISC_ERROR]; /* Random Error pins*/
-	struct state_tag_t tag; /* Current interp state corresponding
-				   to motion line */
+	double feed_upm; /* programmed feed rate of executing motion in G-code units/min */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
@@ -633,7 +632,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned int heartbeat;
 	int config_num;		/* incremented whenever configuration
 				   changed. */
-	int id;			/* id for executing motion */
+	int64_t id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */
@@ -744,7 +743,7 @@ typedef struct emcmot_internal_t {
     int teleoperating;  /* starts up in free mode */
     int overriding;     /* non-zero means we've initiated an joint
                            move while overriding limits */
-    int idForStep;      /* status id while stepping */
+    int64_t idForStep;      /* status id while stepping */
     } emcmot_internal_t;
 
 #define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)

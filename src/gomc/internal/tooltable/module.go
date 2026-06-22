@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package tooltable implements a tool table gomod backed by SQLite.
 //
 // It registers as "tooltable" and exposes the tooltable GMI API for CRUD

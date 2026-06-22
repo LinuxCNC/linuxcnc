@@ -1,3 +1,12 @@
+/*
+ * hal_gm.c — General Mechatronics 6-Axis Motion Control Card driver (cmod version)
+ *
+ * Author: Bence Kovacs
+ * Copyright (C) Bence Kovacs — original hal_gm.c
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
+ * License: GPL Version 2
+ */
+
 #include <rtapi_pci.h>
 
 

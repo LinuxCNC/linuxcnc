@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package halfile implements loading and execution of LinuxCNC HAL files.
 //
 // HAL files contain commands for the Hardware Abstraction Layer (HAL).  During

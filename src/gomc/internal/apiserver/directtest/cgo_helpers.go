@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package directtest provides cgo helpers for testing direct C function
 // pointer calls through the apiserver registry. The cgo import must live
 // in a non-test file.

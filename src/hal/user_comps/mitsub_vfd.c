@@ -7,6 +7,7 @@
  * Originally a Python userspace component (bin/mitsub_vfd).
  *
  * Copyright (C) 2017 Chris Morley
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — C/cmod port
  * License: GPL v2+
  */
 

@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package launcher — cmodules.go handles loading, lifecycle management of
 // C plugin .so files loaded via the "load" HAL command.
 //

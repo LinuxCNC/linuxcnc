@@ -5,6 +5,9 @@
  * Parses the standard LinuxCNC tool table text format:
  *   T<n> P<n> D<d> X<x> Y<y> Z<z> A<a> B<b> C<c> U<u> V<v> W<w> I<f> J<b> Q<o>
  *
+ * Derived from a work by Tom Kramer (original saicanon.cc)
+ * Copyright (c) 2007 All rights reserved.
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * License: GPL Version 2
  */
 

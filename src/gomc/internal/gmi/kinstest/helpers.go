@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 package kinstest
 
 // #cgo CFLAGS: -I${SRCDIR}/../../../generated/gmi/kins -I${SRCDIR}/../../../pkg/cmodule

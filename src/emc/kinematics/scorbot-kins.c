@@ -1,5 +1,6 @@
 // scorbot-kins — Scorbot ER 3 kinematics (cmod version)
 // Copyright (C) 2015-2016 Sebastian Kuzminsky
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 // License: GPL Version 2
 
 #include <math.h>

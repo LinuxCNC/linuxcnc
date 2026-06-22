@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package launcher — gomc_env.go provides the Go-side log ring drain loop
 // and INI callback implementations for the gomc C plugin environment.
 //

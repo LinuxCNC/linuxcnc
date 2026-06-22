@@ -8,9 +8,9 @@
  * This is a standalone shared library with no dependency on hal.h or rtapi.h.
  * cmod modules link it explicitly via -lrtapi_core.
  *
- * Copyright (C) 2006 John Kasunich (original uspace_rtapi_lib.c)
- * Copyright (C) 2026 cmod extraction
- * License: GPL Version 2
+ * Copyright (C) 2006 John Kasunich, Paul Corner (original uspace_ulapi.c)
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod extraction
+ * License: LGPL Version 2
  */
 
 #ifndef _GNU_SOURCE

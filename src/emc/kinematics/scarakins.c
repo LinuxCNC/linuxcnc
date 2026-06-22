@@ -1,5 +1,7 @@
 // scarakins — SCARA robot kinematics (cmod version)
-// Copyright (c) 2003 Sagar Behere. License: GPL Version 2
+// Copyright (c) 2003 Sagar Behere
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
+// License: GPL Version 2
 
 #include <math.h>
 #include <string.h>

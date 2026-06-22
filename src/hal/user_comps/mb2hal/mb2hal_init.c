@@ -1,3 +1,11 @@
+/*
+ * mb2hal_init.c — argument/INI parsing for mb2hal cmod plugin
+ *
+ * Copyright (C) 2012 Victor Rocco <victor_rocco AT hotmail DOT com>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod plugin port
+ * License: LGPL Version 2+
+ */
+
 #include "mb2hal.h"
 
 retCode parse_args(mb2hal_module *m, int argc, const char **argv)

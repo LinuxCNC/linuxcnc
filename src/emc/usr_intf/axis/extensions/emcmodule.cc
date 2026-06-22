@@ -12,6 +12,11 @@
  *
  * Instantiating stat(), command(), error_channel(), or positionlogger()
  * raises linuxcnc.error directing users to the gmi module.
+ *
+ * Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
+ *                             Chris Radek <chris@timeguy.com>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — GMI port
+ * License: GPL Version 2
  */
 
 #define PY_SSIZE_T_CLEAN

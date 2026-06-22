@@ -2,6 +2,8 @@
 # Forward/inverse kinematics for joint↔world coordinate transforms
 
 @api kins
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix kins
 @rest_export false

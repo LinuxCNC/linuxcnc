@@ -2,7 +2,7 @@
  * iniparse.c - Minimal INI file parser
  *
  * Copyright (C) 2004 Fred Proctor & Will Shackleford (original)
- * Copyright (C) 2026 LinuxCNC contributors (cleanup)
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * License: GPL Version 2
  */
 

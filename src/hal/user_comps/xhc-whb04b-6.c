@@ -3,7 +3,7 @@
 
    Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
    Updated for LinuxCNC 2020 by alkabal_free.fr
-   Cmod port 2026
+   Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public

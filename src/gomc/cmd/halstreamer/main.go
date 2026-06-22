@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // halstreamer — reads data from stdin and streams it to the HAL streamer
 // component via the stream_server WebSocket endpoint.
 //

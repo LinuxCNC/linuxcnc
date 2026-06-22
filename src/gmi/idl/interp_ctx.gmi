@@ -8,6 +8,9 @@
 # is an opaque interpreter handle (Interp*).
 
 @api interp_ctx
+@author "various authors (rs274ngc_interp.hh)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @rest_export false
 

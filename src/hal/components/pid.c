@@ -7,7 +7,10 @@
  *   load pid
  *   load pid debug=1    (exports optional debug pins)
  *
- * Original author: John Kasunich, Peter G. Vavaroutsos
+ * Original author: John Kasunich, Peter G. Vavaroutsos, Petter Reinholdtsen
+ * Copyright (c) 2003, 2007, 2022 John Kasunich, Peter G. Vavaroutsos, Petter Reinholdtsen
+ * Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
  * Converted to cmod API: 2026
  * License: GPL Version 2
  */

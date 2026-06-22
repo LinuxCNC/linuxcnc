@@ -11,6 +11,8 @@
 #   and return promptly when it becomes readable.
 
 @api mcode_handler
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @rest_export false
 

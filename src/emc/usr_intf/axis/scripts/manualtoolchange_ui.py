@@ -3,6 +3,9 @@
 # Manual tool change UI — connects to manualtoolchange comp via REST API.
 # Replaces the old hal_manualtoolchange.py which used HAL pins directly.
 #
+# Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+# License: GPL Version 2
+#
 
 import sys
 import os

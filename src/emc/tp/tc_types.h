@@ -17,7 +17,7 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
-#include "state_tag.h"
+#include <stdint.h>
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
@@ -138,8 +138,8 @@ typedef struct {
     double maxaccel;        // accel calc'd by task
     double acc_ratio_tan;// ratio between normal and tangential accel
     
-    int id;                 // segment's serial number
-    struct state_tag_t tag; // state tag corresponding to running motion
+    int64_t id;                 // segment's serial number
+    double feed_upm;            // programmed feed rate in G-code units per minute
 
     union {                 // describes the segment's start and end positions
         PmLine9 line;

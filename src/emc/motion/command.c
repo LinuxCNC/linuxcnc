@@ -52,9 +52,11 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
+* Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 ********************************************************************/
 
 #include <float.h>
+#include <inttypes.h>
 #include "posemath.h"
 #include "rtapi_mutex.h"
 #include "motion.h"
@@ -187,7 +189,7 @@ void apply_spindle_limits(spindle_status_t *s){
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not.  It also reports an error for each joint limit
    violation.  It's possible to get more than one violation per move. */
-static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
+static int inRange(motmod_inst_t *inst, EmcPose pos, int64_t id, char *move_type)
 {
     double joint_pos[EMCMOT_MAX_JOINTS];
     int joint_num, axis_num;
@@ -212,12 +214,12 @@ static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
         axis_check_constraints(ai, targets, failing_axes);
         for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
             if (failing_axes[axis_num] == -1) {
-                gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed %c's %s limit"),
+                gomc_log_errorf(inst->log, inst->name, _("%s move on line %" PRId64 " would exceed %c's %s limit"),
                                 move_type, id, axis_letters[axis_num], _("negative"));
                 in_range = 0;
             }
             if (failing_axes[axis_num] == 1) {
-                gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed %c's %s limit"),
+                gomc_log_errorf(inst->log, inst->name, _("%s move on line %" PRId64 " would exceed %c's %s limit"),
                                 move_type, id, axis_letters[axis_num], _("positive"));
                 in_range = 0;
             }
@@ -235,7 +237,7 @@ static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
     /* now fill in with real values, for joints that are used */
     if (motmod_kinematicsInverse(inst, &pos, joint_pos, &inst->iflags, &inst->fflags) != 0)
     {
-	gomc_log_errorf(inst->log, inst->name, _("%s move on line %d fails motmod_kinematicsInverse"),
+	gomc_log_errorf(inst->log, inst->name, _("%s move on line %" PRId64 " fails motmod_kinematicsInverse"),
 		    move_type, id);
 	return 0;
     }
@@ -250,20 +252,20 @@ static int inRange(motmod_inst_t *inst, EmcPose pos, int id, char *move_type)
 	}
 	if(!isfinite(joint_pos[joint_num]))
 	{
-	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %d gave non-finite joint location on joint %d"),
+	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %" PRId64 " gave non-finite joint location on joint %d"),
 		    move_type, id, joint_num);
 	    in_range = 0;
 	    continue;
 	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
-	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed joint %d's positive limit"),
+	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %" PRId64 " would exceed joint %d's positive limit"),
 			move_type, id, joint_num);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
-	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %d would exceed joint %d's negative limit"),
+	    gomc_log_errorf(inst->log, inst->name, _("%s move on line %" PRId64 " would exceed joint %d's negative limit"),
 			move_type, id, joint_num);
 	}
     }
@@ -1041,10 +1043,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					inst->status->enables_new,
 					(int8_t)issue_atspeed,
 					inst->command->turn,
-					(const tp_state_tag_t *)&inst->command->tag);
+					inst->command->feed_upm);
         //KLUDGE ignore zero length line
         if (res_addline < 0) {
-            gomc_log_errorf(inst->log, inst->name, _("can't add linear move at line %d, error code %d"),
+            gomc_log_errorf(inst->log, inst->name, _("can't add linear move at line %" PRId64 ", error code %d"),
                     inst->command->id, res_addline);
             inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
             inst->tp_api->abort(inst->tp_api->ctx);
@@ -1101,9 +1103,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             inst->command->vel, inst->command->ini_maxvel,
                             inst->command->acc, inst->status->enables_new,
 			    (int8_t)issue_atspeed,
-                            (const tp_state_tag_t *)&inst->command->tag);
+                            inst->command->feed_upm);
         if (res_addcircle < 0) {
-            gomc_log_errorf(inst->log, inst->name, _("can't add circular move at line %d, error code %d"),
+            gomc_log_errorf(inst->log, inst->name, _("can't add circular move at line %" PRId64 ", error code %d"),
                     inst->command->id, res_addcircle);
 		inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		inst->tp_api->abort(inst->tp_api->ctx);
@@ -1539,7 +1541,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				inst->status->enables_new,
 				0,
 				-1,
-				(const tp_state_tag_t *)&inst->command->tag)) {
+				inst->command->feed_upm)) {
 		gomc_log_errorf(inst->log, inst->name, _("can't add probe move"));
 		inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		inst->tp_api->abort(inst->tp_api->ctx);
@@ -1588,10 +1590,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                                     inst->command->acc,
                                     inst->status->enables_new,
                                     inst->command->scale,
-                                    (const tp_state_tag_t *)&inst->command->tag);
+                                    inst->command->feed_upm);
         if (res_addtap < 0) {
             inst->status->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
-            gomc_log_errorf(inst->log, inst->name, _("can't add rigid tap move at line %d, error code %d"),
+            gomc_log_errorf(inst->log, inst->name, _("can't add rigid tap move at line %" PRId64 ", error code %d"),
                     inst->command->id, res_addtap);
 		inst->tp_api->abort(inst->tp_api->ctx);
 		SET_MOTION_ERROR_FLAG(1);

@@ -9,6 +9,9 @@
 # is handled by motmod, not by the homemod.
 
 @api home
+@author "Fred Proctor & Will Shackleford (motion.h)"
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 2
 @prefix home
 @rest_export false

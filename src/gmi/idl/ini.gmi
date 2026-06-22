@@ -3,6 +3,8 @@
 # serving related config files (e.g. the RS274NGC parameter file).
 
 @api ini
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
 @version 1
 @prefix ini
 @rest_export true

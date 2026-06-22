@@ -1,3 +1,5 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
 // Package inirest exposes the parsed INI file via the generated ini GMI API.
 package inirest
 

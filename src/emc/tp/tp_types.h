@@ -81,8 +81,8 @@ typedef struct {
 	 int spindle_num;
      double offset;
      double revs;
-     int waiting_for_index;
-     int waiting_for_atspeed;
+     int64_t waiting_for_index;
+     int64_t waiting_for_atspeed;
 } tp_spindle_t;
 
 /**
@@ -113,9 +113,9 @@ typedef struct {
 
     double wMax;		/* rotational velocity max */
     double wDotMax;		/* rotational acceleration max */
-    int nextId;
-    int execId;
-    struct state_tag_t execTag; /* state tag corresponding to running motion */
+    int64_t nextId;
+    int64_t execId;
+    double execFeedUpm;         /* feed rate of executing motion in G-code units/min */
     int termCond;
     int done;
     int depth;			/* number of total queued motions */

@@ -1,6 +1,9 @@
 // genhexkins — generalised hexapod (Stewart platform) kinematics (cmod version)
 //
-// Derived from work by R. Brian Register, adapted by Andrew Kyrychenko.
+// Derived from work by R. Brian Register
+// Adapting Author: Andrew Kyrychenko
+// Copyright (c) 2004 All rights reserved.
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod port
 // License: GPL Version 2
 
 #include <math.h>

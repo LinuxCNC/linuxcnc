@@ -8,6 +8,7 @@
  * source code in http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ContributedComponents
  *
  * Copyright (C) 2012 Victor Rocco <victor_rocco AT hotmail DOT com>
+ * Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de> — cmod plugin port
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
