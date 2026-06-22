@@ -187,7 +187,9 @@ func (t *Task) sequencerLoop() {
 			if lc, ok := cmd.(interface{ LineID() int32 }); ok {
 				if id := lc.LineID(); id > 0 {
 					t.mu.Lock()
-					t.currentLine = t.lookupMotionLine(id)
+					if info, ok := t.motionMap[id]; ok {
+						t.currentLine = info.LineNo
+					}
 					t.mu.Unlock()
 				}
 			}
