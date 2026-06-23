@@ -100,7 +100,7 @@ MAN_SRCS = $(sort \
 # asciidoctor names the troff from the page's NAME section, not the make
 # target, so a translated NAME can misname the file and collide with another
 # page under -j.  Pin the name with -o.  NAME drift itself is reported
-# separately by scripts/manpage-name-check.sh (a CI warning), not here, to
+# separately by scripts/manpage-name-check.py (a CI warning), not here, to
 # keep the build output quiet.
 define MAKE_MANPAGE
 @mkdir -p $(dir $@)
