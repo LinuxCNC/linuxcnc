@@ -1835,6 +1835,16 @@ PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/) {
     return python_list;
 }
 
+static PyObject *pyhal_get_realtime_type(PyObject * /*self*/, PyObject * /*o*/) {
+    TEST_HAL_SHMEM_BASE(__FUNCTION__);
+    int res = hal_get_realtime_type();
+    return PyLong_FromLong(res);
+}
+
+static PyObject *pyhal_is_initialized(PyObject * /*self*/, PyObject * /*o*/) {
+    return PyBool_FromLong(hal_shmem_base != NULL);
+}
+
 struct shmobject {
     PyObject_HEAD
     halobject *comp;
@@ -2311,6 +2321,10 @@ static PyMethodDef module_methods[] = {
 	".get_info_signals(): Get a list of dicts for all the signals; {NAME:, VALUE:}"},
     {"get_info_params", get_info_params, METH_VARARGS,
 	".get_info_params(): Get a list of dicts for all the parameters; {NAME:, VALUE:}"},
+    {"get_realtime_type", pyhal_get_realtime_type, METH_NOARGS,
+        ".get_realtime_type(): Return the type of the running realtime"},
+    {"is_initialized", pyhal_is_initialized, METH_NOARGS,
+        ".is_initialized(): Return true if hal is initialized, false otherwise"},
     {},
 };
 
@@ -2390,8 +2404,15 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
-    PyModule_AddIntConstant(m, "is_sim", !rtapi_is_realtime());
-    PyModule_AddIntConstant(m, "is_rt", rtapi_is_realtime());
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_UNINITIALIZED", REALTIME_TYPE_UNINITIALIZED);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_NONE", REALTIME_TYPE_NONE);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_UNKNOWN", REALTIME_TYPE_UNKNOWN);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_PREEMPT_DYNAMIC", REALTIME_TYPE_PREEMPT_DYNAMIC);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_PREEMPT_RT", REALTIME_TYPE_PREEMPT_RT);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_RTAI", REALTIME_TYPE_RTAI);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_LXRT", REALTIME_TYPE_LXRT);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_XENOMAI", REALTIME_TYPE_XENOMAI);
+    PyModule_AddIntConstant(m, "REALTIME_TYPE_XENOMAI_EVL", REALTIME_TYPE_XENOMAI_EVL);
 
     PyModule_AddIntConstant(m, "is_kernelspace", rtapi_is_kernelspace());
     PyModule_AddIntConstant(m, "is_userspace", !rtapi_is_kernelspace());

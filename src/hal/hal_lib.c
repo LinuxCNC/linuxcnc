@@ -537,6 +537,15 @@ char *hal_comp_name(int comp_id)
     return result;
 }
 
+hal_realtime_type_t hal_get_realtime_type() {
+    if (hal_data == 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: hal_get_realtime_type called before init\n");
+        return -EINVAL;
+    }
+    return hal_data->realtime_type;
+}
+
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
@@ -3111,12 +3120,17 @@ int rtapi_app_main(void)
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib installed successfully\n");
+
+    hal_data->realtime_type = rtapi_get_realtime_type();
+
     return 0;
 }
 
 void rtapi_app_exit(void)
 {
     hal_thread_t *thread;
+
+    hal_data->realtime_type = REALTIME_TYPE_UNINITIALIZED;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
     hal_proc_clean();
@@ -3275,6 +3289,7 @@ static int init_hal_data(void)
     list_init_entry(&(hal_data->funct_entry_free));
     hal_data->thread_free_ptr = 0;
     hal_data->exact_base_period = 0;
+    hal_data->realtime_type = REALTIME_TYPE_UNINITIALIZED;
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
     hal_data->shmem_top = HAL_SIZE;

@@ -1,0 +1,21 @@
+:manvolnum: 3
+
+= hal_get_realtime_type(3)
+
+== NAME
+
+hal_get_realtime_type - Get the type of the running realtime
+
+== SYNTAX
+
+hal_realtime_type_t hal_get_realtime_type()
+
+== RETURN VALUE
+
+*hal_get_realtime_type* returns the type of the running realtime system or a HAL status code on failure.
+
+For uspace, this returns *REALTIME_TYPE_UNINITIALIZED* if *rtapi_app* is not running. It is safe to assume
+this never happens in realtime components. But userspace components can be loaded without *rtapi_app* being
+started.
+
+For rtai, this always returns *REALTIME_TYPE_RTAI*.

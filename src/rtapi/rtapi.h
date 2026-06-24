@@ -985,7 +985,28 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
 #endif
 
 extern int rtapi_is_kernelspace(void);
+
+//If changing anything here:
+//Update also halmodule.cc PyInit__hal()
+//You can use type > REALTIME_TYPE_NONE to check if you have realtime at all
+typedef enum{
+    REALTIME_TYPE_UNINITIALIZED = -1, //Realtime not running, type unknown
+    REALTIME_TYPE_NONE = 0,           //No realtime available
+    REALTIME_TYPE_UNKNOWN = 1,        //Only used when LINUXCNC_FORCE_REALTIME=1 is set. Unknown, no PREEMPT_DYNAMIC but SCHED_FIFO is available. Not recommended.
+    REALTIME_TYPE_PREEMPT_DYNAMIC = 2,//Only used when LINUXCNC_FORCE_REALTIME=1 is set. Not recommended.
+    REALTIME_TYPE_PREEMPT_RT = 3,
+    REALTIME_TYPE_RTAI = 4,
+    REALTIME_TYPE_LXRT = 5,
+    REALTIME_TYPE_XENOMAI = 6,
+    REALTIME_TYPE_XENOMAI_EVL = 7,
+} rtapi_realtime_type_t;
+
+#ifdef RTAPI
+//Only available in real time context
+//Always use hal_get_realtime_type() in components
 extern int rtapi_is_realtime(void);
+extern rtapi_realtime_type_t rtapi_get_realtime_type(void);
+#endif
 
 int rtapi_open_as_root(const char *filename, int mode);
 

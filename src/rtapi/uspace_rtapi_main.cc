@@ -62,6 +62,232 @@
 
 static RtapiApp &App();
 
+//Indicates if this instance is a master
+static bool is_master = false;
+
+#ifdef __linux__
+// detect_preempt_rt() inspects uname for the PREEMPT_RT marker.  Used only
+// for diagnostic warning at startup; callers must not gate behavior on
+// the kernel string, since SCHED_FIFO on a PREEMPT_DYNAMIC kernel is still
+// useful (better than SCHED_OTHER, worse than PREEMPT_RT).
+static inline int detect_preempt_rt() {
+    struct utsname u;
+    if(uname(&u) < 0) return 0;
+    return strcasestr(u.version, "PREEMPT RT") != NULL
+        || strcasestr(u.version, "PREEMPT_RT") != NULL;
+}
+#else
+static inline int detect_preempt_rt() {
+    return 0;
+}
+#endif
+
+#ifdef __linux__
+// detect_preempt_dynamic() inspects uname for the PREEMPT_DYNAMIC marker.
+static inline int detect_preempt_dynamic() {
+    struct utsname u;
+    if(uname(&u) < 0) return 0;
+    return strcasestr(u.version, "PREEMPT DYNAMIC") != NULL
+        || strcasestr(u.version, "PREEMPT_DYNAMIC") != NULL;
+}
+#else
+static inline int detect_preempt_dynamic() {
+    return 0;
+}
+#endif
+
+// FIXME: detect_rtai/detect_xenomai/detect_xenomai_evl currently gate on
+// setuid because the RTAI/Xenomai backends still need root for iopl()
+// (RTAI) or RTDM device access (Xenomai/EVL).  Long-term these should
+// probe the actual capability the way can_set_sched_fifo() does, paired
+// with udev rules + a 'xenomai'/'evl' group; @hdiethelm has a follow-up
+// planned.  Until then, an unprivileged user on a Xenomai kernel cannot
+// claim the Xenomai backend, and falls back to the SCHED_FIFO probe.
+[[maybe_unused]] static inline int has_setuid_root() {
+    return geteuid() == 0;
+}
+
+#ifdef USPACE_RTAI
+static int detect_rtai_lxrt() {
+    if(!has_setuid_root()) return 0;
+    struct utsname u;
+    uname(&u);
+    return strcasestr (u.release, "-rtai") != NULL;
+}
+#else
+static int detect_rtai_lxrt() {
+    return 0;
+}
+#endif
+#ifdef USPACE_XENOMAI
+static int detect_xenomai() {
+    if(!has_setuid_root()) return 0;
+    struct stat sb;
+    //Running xenomai has /proc/xenomai
+    return stat("/proc/xenomai", &sb) == 0;
+}
+#else
+static int detect_xenomai() {
+    return 0;
+}
+#endif
+#ifdef USPACE_XENOMAI_EVL
+static int detect_xenomai_evl() {
+    if(!has_setuid_root()) return 0;
+    struct stat sb;
+    //Running xenomai evl has /dev/evl but no /proc/xenomai
+    return stat("/dev/evl", &sb) == 0;
+}
+#else
+static int detect_xenomai_evl() {
+    return 0;
+}
+#endif
+
+static int detect_force(){
+    const char *force = getenv("LINUXCNC_FORCE_REALTIME");
+    if(force != NULL && atoi(force) != 0){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
+#ifdef __linux__
+// Diagnostic helper: report cap_effective state for a single capability.
+// Returns "yes", "no", or "unknown" if libcap could not introspect.
+static const char *cap_effective_str(cap_t caps, cap_value_t cap) {
+    if (!caps) return "unknown";
+    cap_flag_value_t v;
+    if (cap_get_flag(caps, cap, CAP_EFFECTIVE, &v) != 0) return "unknown";
+    return v == CAP_SET ? "yes" : "no";
+}
+#endif
+
+static void report_sched_fifo_error(int sched_err){
+    // Surface the actual reason so the user does not have to guess
+    // between "no caps", "stock kernel", or "wrong rlimits" (issue
+    // #3928).  errno comes from the SCHED_FIFO probe in
+    // can_set_sched_fifo(); cap state comes from libcap.
+    const char *nice_s = "unknown";
+    const char *lock_s = "unknown";
+#ifdef __linux__
+    cap_t caps = cap_get_proc();
+    if(caps == NULL){
+        rtapi_print_msg(RTAPI_MSG_ERR, "cap_get_proc failed: %m\n");
+    }else{
+        nice_s = cap_effective_str(caps, CAP_SYS_NICE);
+        lock_s = cap_effective_str(caps, CAP_IPC_LOCK);
+        cap_free(caps);
+    }
+#endif
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "Note: realtime scheduling unavailable "
+        "(sched_setscheduler SCHED_FIFO: %s).\n"
+        "  Process capabilities: cap_sys_nice=%s cap_ipc_lock=%s.\n"
+        "  Falling back to POSIX non-realtime.\n"
+        "  Fix: 'sudo make setcap' (preferred) or 'sudo make setuid' "
+        "on rtapi_app.\n"
+        "  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.\n",
+        sched_err ? strerror(sched_err) : "denied",
+        nice_s, lock_s);
+}
+
+// Success-probe for realtime scheduling: briefly try to set SCHED_FIFO on
+// the calling thread and restore the previous policy.  Succeeds when the
+// process holds CAP_SYS_NICE (file caps or setuid root) or has a matching
+// RLIMIT_RTPRIO.  Works on any kernel, so the probe also covers the
+// PREEMPT_RT-vs-stock distinction implicitly: if we can actually get
+// SCHED_FIFO, the platform can deliver realtime, regardless of how.
+// Only report an error if this check fails in master mode to not spam the user.
+static int can_set_sched_fifo(void) {
+    struct sched_param old_param, probe_param;
+    int old_policy = sched_getscheduler(0);
+    if(old_policy < 0) {
+        if(is_master) report_sched_fifo_error(errno);
+        return 0;
+    }
+    if(sched_getparam(0, &old_param) < 0) {
+        if(is_master) report_sched_fifo_error(errno);
+        return 0;
+    }
+
+    memset(&probe_param, 0, sizeof(probe_param));
+    probe_param.sched_priority = sched_get_priority_min(SCHED_FIFO);
+    if(sched_setscheduler(0, SCHED_FIFO, &probe_param) < 0) {
+        if(is_master) report_sched_fifo_error(errno);
+        return 0;
+    }
+
+    // Best-effort restore; if this fails we are still on SCHED_FIFO at
+    // minimum priority, which is no worse than where we started.
+    sched_setscheduler(0, old_policy, &old_param);
+    return 1;
+}
+
+// rtapi_get_realtime_type() reports whether this process can actually run
+// realtime code and returns the type it should run.
+// This matches the convention used by JACK, PipeWire,
+// rtkit, Xenomai, and Klipper: surface the observed capability, not
+// kernel metadata.  The old setuid-root stat check has been removed; it
+// stat()ed EMC2_BIN_DIR/rtapi_app rather than the running binary (breaking
+// wrapper-based installs like NixOS /run/wrappers) and silently masked
+// LINUXCNC_FORCE_REALTIME (see issue #3928).
+rtapi_realtime_type_t rtapi_get_realtime_type(void){
+    static rtapi_realtime_type_t cached = REALTIME_TYPE_UNINITIALIZED;
+    if(cached != REALTIME_TYPE_UNINITIALIZED){
+        return cached;
+    }
+
+    if(!detect_force() && !can_set_sched_fifo()){
+        cached = REALTIME_TYPE_NONE;
+        return cached;
+    }
+
+    if(detect_rtai_lxrt()){
+        cached = REALTIME_TYPE_LXRT;
+        return cached;
+    }
+    if(detect_xenomai()){
+        cached = REALTIME_TYPE_XENOMAI;
+        return cached;
+    }
+    if(detect_xenomai_evl()){
+        cached = REALTIME_TYPE_XENOMAI_EVL;
+        return cached;
+    }
+    if(detect_preempt_rt()){
+        cached = REALTIME_TYPE_PREEMPT_RT;
+        return cached;
+    }
+
+    if(detect_force()){
+        //Use REALTIME_TYPE_PREEMPT_DYNAMIC / REALTIME_TYPE_UNKNOWN only if forced
+        //This is not recommended
+        if(detect_preempt_dynamic()){
+            cached = REALTIME_TYPE_PREEMPT_DYNAMIC;
+        }else{
+            if(is_master){
+                rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_get_realtime_type: Realtime type unknown but SCHED_FIFO available\n");
+            }
+            cached = REALTIME_TYPE_UNKNOWN;
+        }
+    }else{
+        if(is_master){
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Note: realtime scheduling unavailable.\n"
+                "  Falling back to POSIX non-realtime.\n"
+                "  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.\n");
+        }
+        cached = REALTIME_TYPE_NONE;
+    }
+    return cached;
+}
+
+int rtapi_is_realtime() {
+    return rtapi_get_realtime_type() > REALTIME_TYPE_NONE;
+}
+
 struct message_t {
     msg_level_t level;
     char msg[1024 - sizeof(level)];
@@ -305,6 +531,10 @@ static int do_debug_cmd(const std::string &value) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Debug level is not a number\n");
         return -EINVAL;
     }
+}
+
+static int do_check_rt_cmd(void) {
+    return rtapi_is_realtime() == 0;
 }
 
 /*
@@ -557,6 +787,8 @@ static int handle_command(const std::vector<std::string> &args) {
         return do_newinst_cmd(args[1], args[2], args[3]);
     } else if (args.size() == 2 && args[0] == "debug") {
         return do_debug_cmd(args[1]);
+    } else if (args.size() == 1 && args[0] == "check_rt") {
+        return do_check_rt_cmd();
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR, "Unrecognized command starting with %s\n", args[0].c_str());
         return -1;
@@ -623,6 +855,7 @@ static bool master_process_socket_command(int fd) {
 static pthread_t main_thread{};
 
 static int master(int fd, const std::vector<std::string> &args) {
+    is_master = true;
     main_thread = pthread_self();
     int result;
     if ((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
@@ -643,6 +876,7 @@ static int master(int fd, const std::vector<std::string> &args) {
     //Process commands as long as master should not exit
     while(master_process_socket_command(fd));
 out:
+    do_unload_cmd("hal_lib");
     pthread_cancel(queue_thread);
     pthread_join(queue_thread, nullptr);
     rtapi_msg_queue.consume_all([](const message_t &m) {
@@ -752,10 +986,18 @@ become_master:
     int result = bind(fd, (sockaddr *)&addr, sizeof(addr));
 
     if (result == 0) {
-        //If called in master mode with exit command, no need to start master
+        //If exit is called and master is not running, do not start master
         //and exit again
         if (args.size() == 1 && args[0] == "exit") {
             return 0;
+        }
+        //If check_rt is called and master is not running, do not start master
+        //execute and return
+        //This is needed for the verify command in the realtime script
+        //If master is started, this starts up the whole realtime chain
+        //and halrun -U is needed to exit again
+        if (args.size() == 1 && args[0] == "check_rt") {
+            return do_check_rt_cmd();
         }
         int result = listen(fd, 10);
         if (result != 0) {
@@ -916,11 +1158,7 @@ static void configure_memory() {
     free((void *)buf);
 }
 
-static int harden_rt() {
-    if (!rtapi_is_realtime())
-        return -EINVAL;
-
-    WITH_ROOT;
+static void harden_rt() {
 #if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(
@@ -991,7 +1229,6 @@ static int harden_rt() {
         // deliberately leak fd until program exit
     }
 #endif /* __linux__ */
-    return 0;
 }
 
 static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
@@ -1014,16 +1251,7 @@ static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
     return result;
 }
 
-// Diagnostic helper: report cap_effective state for a single capability.
-// Returns "yes", "no", or "unknown" if libcap could not introspect.
 #ifdef __linux__
-static const char *cap_effective_str(cap_t caps, cap_value_t cap) {
-    if (!caps) return "unknown";
-    cap_flag_value_t v;
-    if (cap_get_flag(caps, cap, CAP_EFFECTIVE, &v) != 0) return "unknown";
-    return v == CAP_SET ? "yes" : "no";
-}
-
 // Raise CAP_NET_ADMIN into the ambient set so it survives execve() into
 // child processes (iptables, ip6tables) launched by HAL drivers like
 // hm2_eth.  Linux file capabilities on rtapi_app give cap_net_admin in
@@ -1055,58 +1283,34 @@ static void raise_net_admin_ambient(void) {
 
 static RtapiApp *makeApp() {
     RtapiApp *app;
-    bool rt_ok = rtapi_is_realtime();
-    if (!rt_ok) {
-        // Surface the actual reason so the user does not have to guess
-        // between "no caps", "stock kernel", or "wrong rlimits" (issue
-        // #3928).  errno comes from the SCHED_FIFO probe in
-        // can_set_sched_fifo(); cap state comes from libcap.
-        int sched_err = rtapi_sched_fifo_errno();
-#ifdef __linux__
-        cap_t caps = cap_get_proc();
-        const char *nice_s = cap_effective_str(caps, CAP_SYS_NICE);
-        const char *lock_s = cap_effective_str(caps, CAP_IPC_LOCK);
-#else
-        const char *nice_s = "unknown";
-        const char *lock_s = "unknown";
-#endif
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "Note: realtime scheduling unavailable "
-            "(sched_setscheduler SCHED_FIFO: %s).\n"
-            "  Process capabilities: cap_sys_nice=%s cap_ipc_lock=%s.\n"
-            "  Falling back to POSIX non-realtime.\n"
-            "  Fix: 'sudo make setcap' (preferred) or 'sudo make setuid' "
-            "on rtapi_app.\n"
-            "  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.\n",
-            sched_err ? strerror(sched_err) : "denied",
-            nice_s, lock_s);
-#ifdef __linux__
-        if (caps) cap_free(caps);
-#endif
-    }
-    if (!rt_ok || harden_rt() < 0) {
+    rtapi_realtime_type_t rt_type = rtapi_get_realtime_type();
+    if (rt_type == REALTIME_TYPE_NONE) {
         app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_OTHER);
     } else {
         WithRoot r;
-        if (detect_xenomai_evl()) {
+        harden_rt();
+        if (rt_type == REALTIME_TYPE_XENOMAI_EVL) {
             app = makeDllApp("liblinuxcnc-uspace-xenomai-evl.so.0", SCHED_FIFO);
-        } else if (detect_xenomai()) {
+        } else if (rt_type == REALTIME_TYPE_XENOMAI) {
             app = makeDllApp("liblinuxcnc-uspace-xenomai.so.0", SCHED_FIFO);
-        } else if (detect_rtai()) {
+        } else if (rt_type == REALTIME_TYPE_LXRT) {
             app = makeDllApp("liblinuxcnc-uspace-rtai.so.0", SCHED_FIFO);
-        } else {
+        } else if (rt_type == REALTIME_TYPE_PREEMPT_RT || rt_type == REALTIME_TYPE_PREEMPT_DYNAMIC || rt_type == REALTIME_TYPE_UNKNOWN) {
             // SCHED_FIFO available but no Xenomai/RTAI backend.  Warn if the
             // kernel is not PREEMPT_RT: SCHED_FIFO still beats SCHED_OTHER,
             // but latency on a PREEMPT_DYNAMIC stock kernel can be tens of
             // milliseconds, which will surprise users who expect the same
             // bounds as a PREEMPT_RT or Xenomai setup.
-            if (!detect_preempt_rt()) {
+            if (rt_type == REALTIME_TYPE_PREEMPT_DYNAMIC || rt_type == REALTIME_TYPE_UNKNOWN) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                     "Note: SCHED_FIFO available but kernel is not PREEMPT_RT.  "
                     "Latency may be unbounded; install a PREEMPT_RT kernel "
                     "for hard realtime guarantees.\n");
             }
             app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_FIFO);
+        } else {
+            app = nullptr;
+            rtapi_print_msg(RTAPI_MSG_ERR, "Bug: rt_type = %i in not handled\n", rt_type);
         }
     }
 

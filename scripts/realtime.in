@@ -122,9 +122,11 @@ CheckStatus(){
     case $RTPREFIX in
     uspace)
         if [ -z "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
-            exit 1
+            echo rtapi_app is not running
+            return 1
         else
-            exit 0
+            echo rtapi_app is running
+            return 0
         fi ;;
     *)
         # check loaded/unloaded status of modules
@@ -138,9 +140,9 @@ CheckStatus(){
             fi
         done
         if [ -z "$NOTLOADED" ]; then
-            exit 0
+            return 0
         else
-            exit 1
+            return 1
         fi
     esac
 }
@@ -222,6 +224,25 @@ Unload(){
     done
 }
 
+Verify(){
+    HAS_REALTIME=false
+    case $RTPREFIX in
+    uspace)
+        rtapi_app check_rt && HAS_REALTIME=true
+    ;;
+    (*rtai*)
+        HAS_REALTIME=true
+    esac
+
+    if [ $HAS_REALTIME = true ]; then
+        echo "realtime detected"
+        return 0
+    else
+        echo "WARNING: no realtime detected"
+        return 1
+    fi
+}
+
 CheckUnloaded(){
 # checks to see if all modules were unloaded
     STATUS=
@@ -260,10 +281,14 @@ case "$CMD" in
 	;;
   status)
 	CheckConfig
-	CheckStatus
+	CheckStatus || exit $?
+	;;
+  verify)
+	CheckConfig
+	Verify || exit $?
 	;;
   *)
-	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
+	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status|verify}" >&2
 	exit 1
 	;;
 esac

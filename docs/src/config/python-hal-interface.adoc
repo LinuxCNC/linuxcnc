@@ -48,23 +48,63 @@ Message level constants:
 * `hal.MSG_DBG` - Additionally include debugging information
 * `hal.MSG_ALL` - Print all messages encountered, disregarding level
 
+Realtime type constants:
+
+* `hal.REALTIME_TYPE_UNINITIALIZED` - Real time module not running
+* `hal.REALTIME_TYPE_NONE` - No realtime available
+* `hal.REALTIME_TYPE_UNKNOWN` - Only used when LINUXCNC_FORCE_REALTIME=1 is set. Unknown, no PREEMPT_DYNAMIC but SCHED_FIFO is available. Not recommended.
+* `hal.REALTIME_TYPE_PREEMPT_DYNAMIC` - Preempt dynamic: available in vanilla kernel. Only used when LINUXCNC_FORCE_REALTIME=1 is set. Not recommended.
+* `hal.REALTIME_TYPE_PREEMPT_RT` - Preempt RT
+* `hal.REALTIME_TYPE_RTAI` - RTAI kernel mode
+* `hal.REALTIME_TYPE_LXRT` - LXRT, userspace implementation for RTAI
+* `hal.REALTIME_TYPE_XENOMAI` - Xenomai 3
+* `hal.REALTIME_TYPE_XENOMAI_EVL` - Xenomai 4 aka Xenomai EVL
+
 System information:
 
 * `hal.is_kernelspace` - One (1) if RTAPI runs in the kernel, otherwise zero (0)
 * `hal.is_userspace` - Inverted `hal.is_kernelspace`
 * `hal.kernel_version` - A string specifying the real-time kernel version if `hal.is_kernelspace` is one.
   Otherwise it specifies `"Not Available"`.
-* `hal.is_rt` - One (1) if the system runs in real-time, otherwise zero (0)
-* `hal.is_sim` - Inverted `hal.is_rt`
+* `hal.is_rt` - One (1) if the system runs in real-time, otherwise zero (0) *DEPRECATED*: Use `lcnc_realtime.verify()`
+* `hal.is_sim` - Inverted `hal.is_rt` *DEPRECATED*: Use `lcnc_realtime.verify()`
 
 === hal methods
 
+hal.is_initialized()::
+Returns a boolean to indicate whether hal is initialized. The hal is initialized when there is
+at least one component. If this is not the case, many of the following functions will throw
+a `RuntimeError` exception: `Cannot call before creating component`
+
+.Example:
+[source,python]
+----
+#The hal must be initialized to use many of the hal functions
+#If it is not initialized, create a component which will initialize it
+#The component will be cleaned up after comp goes out of scope
+#Use pid as component identifier, so it is unlikely to collide
+#with existing components
+comp_name = f"halpy{os.getpid()}"
+if not hal.is_initialized():
+    comp = hal.component(comp_name)
+
+type = hal.get_realtime_type()
+----
+
+hal.get_realtime_type()::
+Returns the type of the running realtime system.
+Might return `hal.REALTIME_TYPE_UNINITIALIZED` if `rtapi_app` is not running.
+See xref:_hal_constants[realtime type constants]. +
+Throws a `RuntimeError` exception if HAL is not initialized.
+
 hal.component_exists(_name_:string)::
-Returns a boolean to indicate whether or not the specified component exist at this time.
+Returns a boolean to indicate whether or not the specified component exist at this time. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 hal.component_is_ready(_name_:string)::
 Returns a boolean to indicate whether or not the specified component is in the ready state.
-Also returns False if the component does not exist.
+Also returns False if the component does not exist. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
@@ -86,7 +126,8 @@ See 'hal.set_msg_level()' and xref:_hal_constants[message constants] for list of
 hal.new_sig(_name_:string, _type_:enum)::
 Create a new signal (net) called _name_.
 The signal can carry information of _type_ content.
-Returns `True` on success.
+Returns `True` on success. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
@@ -98,7 +139,8 @@ if not hal.new_sig("signalname", hal.HAL_BIT):
 hal.connect(_pinname_:string, _signame_:string)::
 Connect the pin _pinname_ to signal _signame_.
 Both signal and pin must exist and both pin and signal must be of the same type.
-Returns `True` on success.
+Returns `True` on success. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
@@ -110,7 +152,8 @@ if not hal.connect("mycomp.pinname", "signalname"):
 hal.disconnect(_pinname_:string, _signame_:string)::
 Disconnect the pin _pinname_ from signal _signame_.
 Both signal and pin must exist.
-Returns `True` on success.
+Returns `True` on success. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
@@ -121,7 +164,8 @@ if not hal.disconnect("mycomp.pinname"):
 
 hal.pin_has_writer(_pinname_:string)::
 Returns `True` if pin with name _pinname_ is attached to a signal and there is at least one writer.
-Otherwise, `False` is returned.
+Otherwise, `False` is returned. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
@@ -135,8 +179,9 @@ else:
 hal.set_p(_name_:string, _value_:mixed)::
 Sets the pin or param called _name_ to _value_.
 The _name_ is the full name of the pin or param.
-The search order is pin names first, then parameter names.
+The search order is pin names first, then parameter names. +
 Throws a `RuntimeError` exception if the _name_ is not found. +
+Throws a `RuntimeError` exception if HAL is not initialized. +
 The type of _value_ depends on the type of the pin or param.
 Integer scalar types may use integers or a textual representation of an integer to set the value.
 Floating point type may use both integer, floating point and textual representation thereof to set the value.
@@ -158,14 +203,16 @@ The same rules for _value_ apply to 'set_s()' as to 'set_p()'. +
  +
 The 'set_s()' method has one special case when the signal is of type `hal.HAL_PORT` and it is fully connected.
 In that case, the call uses the _value_ to set the port's queue size and it must be a positive integer.
-See below xref:_hal_port_pipes[on configuring a port].
+See below xref:_hal_port_pipes[on configuring a port]. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 hal.get_value(_name_:string)::
 Returns the value of the pin, param or signal with _name_, searched in that order.
 Boolean types return `True` or `False`.
 Integer scalar types return an integer.
 Floating point types return a float.
-A `RuntimeError` exception is thrown if no pin, param or signal is found by that name.
+A `RuntimeError` exception is thrown if no pin, param or signal is found by that name. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
@@ -174,13 +221,16 @@ value = hal.get_value("iocontrol.0.emc-enable-in")
 ----
 
 hal.get_info_pins()::
-Returns a list of dictionary tuples as in `{"NAME":"pinname", "VALUE":<bool|int|float>, "TYPE":<int>, "DIRECTION":<int>}`.
+Returns a list of dictionary tuples as in `{"NAME":"pinname", "VALUE":<bool|int|float>, "TYPE":<int>, "DIRECTION":<int>}`. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 hal.get_info_params()::
-Returns a list of dictionary tuples as in `{"NAME":"paramname", "VALUE":<bool|int|float>, "TYPE":<int>, "DIRECTION":<int>}`.
+Returns a list of dictionary tuples as in `{"NAME":"paramname", "VALUE":<bool|int|float>, "TYPE":<int>, "DIRECTION":<int>}`. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 hal.get_info_signals()::
-Returns a list of dictionary tuples as in `{"NAME":"signame", "VALUE":<bool|int|float>, "TYPE":<int>, "DRIVER":"name"|None}`.
+Returns a list of dictionary tuples as in `{"NAME":"signame", "VALUE":<bool|int|float>, "TYPE":<int>, "DRIVER":"name"|None}`. +
+Throws a `RuntimeError` exception if HAL is not initialized.
 
 .Example:
 [source,python]
