@@ -19,9 +19,11 @@
 // blend_sizing.h has extern "C" guards
 #include "blend_sizing.h"
 
+// motion.h self-guards its C decls and pulls in <atomic>, so keep it out of extern "C"
+#include "motion/motion.h"  // emcmot_status_t, emcmot_config_t (needed before tp.h)
+
 // C headers need extern "C" when included from C++
 extern "C" {
-#include "motion/motion.h"  // emcmot_status_t, emcmot_config_t (needed before tp.h)
 #include "../tp/tp.h"
 #include "../tp/tc.h"
 #include "../tp/tc_types.h"
