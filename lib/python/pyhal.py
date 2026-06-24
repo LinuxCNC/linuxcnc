@@ -48,10 +48,8 @@ def pyhaldeprecate(reason):
     def decorator(func):
         @functools.wraps(func)
         def warnfunc(*args, **kwargs):
-            warnings.simplefilter('always', DeprecationWarning)
             warnings.warn("Use of deprecated class/function {} ({}).".format(func.__name__, reason),
-                category=DeprecationWarning, stacklevel=2)
-            warnings.simplefilter('default', DeprecationWarning)
+                FutureWarning, stacklevel=2)
             return func(*args, **kwargs)
         return warnfunc
     return decorator
