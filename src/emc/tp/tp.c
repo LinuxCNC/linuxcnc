@@ -3916,15 +3916,13 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     // to servo loop ordering (net_feed computed before tpRunCycle).
     if (GET_TRAJ_PLANNER_TYPE() == 2) {
         double actual_feed = 1.0;
-        if (emcmotStatus) {
-            if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
-                actual_feed = emcmotStatus->rapid_scale;
-            } else {
-                actual_feed = emcmotStatus->feed_scale;
-            }
-            if (actual_feed < 0.0) actual_feed = 0.0;
-            if (actual_feed > 10.0) actual_feed = 10.0;
+        if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
+            actual_feed = emcmotStatus->rapid_scale;
+        } else {
+            actual_feed = emcmotStatus->feed_scale;
         }
+        if (actual_feed < 0.0) actual_feed = 0.0;
+        if (actual_feed > 10.0) actual_feed = 10.0;
 
         tc->shared_9d.canonical_feed_scale = actual_feed;
         tc->shared_9d.requested_feed_scale = actual_feed;
@@ -4938,15 +4936,13 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         // Use feed_scale/rapid_scale directly instead of net_feed_scale,
         // which reflects the previous segment's type due to servo loop ordering.
         double actual_feed = 1.0;
-        if (emcmotStatus) {
-            if (nexttc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
-                actual_feed = emcmotStatus->rapid_scale;
-            } else {
-                actual_feed = emcmotStatus->feed_scale;
-            }
-            if (actual_feed < 0.0) actual_feed = 0.0;
-            if (actual_feed > 10.0) actual_feed = 10.0;
+        if (nexttc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
+            actual_feed = emcmotStatus->rapid_scale;
+        } else {
+            actual_feed = emcmotStatus->feed_scale;
         }
+        if (actual_feed < 0.0) actual_feed = 0.0;
+        if (actual_feed > 10.0) actual_feed = 10.0;
 
         nexttc->shared_9d.canonical_feed_scale = actual_feed;
         nexttc->shared_9d.requested_feed_scale = actual_feed;
@@ -5069,15 +5065,13 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                              __ATOMIC_RELEASE);
 
             double chain_feed = 1.0;
-            if (emcmotStatus) {
-                if (chain_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
-                    chain_feed = emcmotStatus->rapid_scale;
-                } else {
-                    chain_feed = emcmotStatus->feed_scale;
-                }
-                if (chain_feed < 0.0) chain_feed = 0.0;
-                if (chain_feed > 10.0) chain_feed = 10.0;
+            if (chain_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
+                chain_feed = emcmotStatus->rapid_scale;
+            } else {
+                chain_feed = emcmotStatus->feed_scale;
             }
+            if (chain_feed < 0.0) chain_feed = 0.0;
+            if (chain_feed > 10.0) chain_feed = 10.0;
             chain_tc->shared_9d.canonical_feed_scale = chain_feed;
             chain_tc->shared_9d.requested_feed_scale = chain_feed;
             chain_tc->shared_9d.achieved_exit_vel = 0.0;

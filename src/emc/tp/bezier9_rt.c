@@ -251,7 +251,9 @@ double bezier9AccLimit(Bezier9 const * const b,
 
     if (j_max > 0.0 && b->max_dkappa_ds > BEZIER9_POS_EPSILON) {
         double j_normal = BLEND9_ACC_RATIO_NORMAL * j_max;
-        double v_jerk = cbrt(j_normal / b->max_dkappa_ds);
+        /* cube root: argument is strictly positive here (guarded above) and
+           rtapi_math.h provides pow() but not cbrt() in the kernel build */
+        double v_jerk = pow(j_normal / b->max_dkappa_ds, 1.0 / 3.0);
         if (v_jerk < v_limit) {
             v_limit = v_jerk;
         }
