@@ -5311,6 +5311,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             }
         }
 past_gates:
+        ;
     }
 
     tc_debug_print("-------------------\n");

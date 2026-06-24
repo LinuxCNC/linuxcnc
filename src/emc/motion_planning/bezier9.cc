@@ -929,39 +929,6 @@ double bezier9MaxDeviation(Bezier9 const * const b,
     return max_dev;
 }
 
-/**
- * Point-to-line-segment distance in 3D.
- * Returns the minimum Euclidean distance from point p to the
- * line segment from a to b.
- */
-static double point_to_segment_dist(PmCartesian const * const p,
-                                    PmCartesian const * const a,
-                                    PmCartesian const * const b)
-{
-    double abx = b->x - a->x;
-    double aby = b->y - a->y;
-    double abz = b->z - a->z;
-    double apx = p->x - a->x;
-    double apy = p->y - a->y;
-    double apz = p->z - a->z;
-
-    double ab_sq = abx * abx + aby * aby + abz * abz;
-    if (ab_sq < 1e-30) {
-        /* Degenerate segment (a == b): distance to the point */
-        return sqrt(apx * apx + apy * apy + apz * apz);
-    }
-
-    double t = (apx * abx + apy * aby + apz * abz) / ab_sq;
-    if (t < 0.0) t = 0.0;
-    if (t > 1.0) t = 1.0;
-
-    double cx = a->x + t * abx - p->x;
-    double cy = a->y + t * aby - p->y;
-    double cz = a->z + t * abz - p->z;
-
-    return sqrt(cx * cx + cy * cy + cz * cz);
-}
-
 double bezier9PathDeviation(Bezier9 const * const b,
                             PmCartesian const * const seg1_start,
                             PmCartesian const * const corner,
