@@ -31,7 +31,6 @@
 #include "kinematics.h"
 #include "switchkins.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 /* ========================================================================
  * Internal math (was in pumakins_math.h)

@@ -180,7 +180,6 @@ static int tripod_inverse_math(const tripod_params_t *params,
 
 #include "hal.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 struct haldata {
     hal_float_t *bx, *cx, *cy;

@@ -107,7 +107,6 @@ KINEMATICS_TYPE kinematicsType()
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 const char* kinematicsGetName(void) { return "rotatekins"; }
 

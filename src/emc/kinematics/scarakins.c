@@ -23,7 +23,6 @@
 
 #include "switchkins.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 /* ========================================================================
  * Internal math (was in scarakins_math.h)

@@ -23,7 +23,6 @@
 #include "rtapi_math.h"
 #include "rtapi_app.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 const char* kinematicsGetName(void) { return "rosekins"; }
 

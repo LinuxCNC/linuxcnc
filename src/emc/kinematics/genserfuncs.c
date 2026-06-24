@@ -38,7 +38,6 @@
 #include "hal.h"
 #ifdef RTAPI
 #include "kinematics_params.h"
-#include <string.h>
 #endif
 
 #ifdef RTAPI

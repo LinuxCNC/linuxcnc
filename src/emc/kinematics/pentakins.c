@@ -57,7 +57,6 @@
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "hal.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 /* ========================================================================
  * Math types and functions (was in pentakins_math.h)

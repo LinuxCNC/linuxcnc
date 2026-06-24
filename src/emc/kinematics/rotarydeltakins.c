@@ -20,7 +20,6 @@
 #include <hal.h>
 #include <kinematics.h>
 #include "kinematics_params.h"
-#include <string.h>
 
 /* ---- Math types and functions (from rotarydeltakins_math.h) ---- */
 

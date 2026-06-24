@@ -23,7 +23,6 @@
 #include "rtapi.h"
 #include "rtapi_math.h"
 #include "kinematics_params.h"
-#include <string.h>
 
 /* ========================================================================
  * Internal math (was in maxkins_math.h)
