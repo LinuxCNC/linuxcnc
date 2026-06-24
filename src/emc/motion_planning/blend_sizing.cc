@@ -970,7 +970,7 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
         return TP_ERR_MISSING_INPUT;
     }
 
-    memset(result, 0, sizeof(BlendSolution9));
+    *result = BlendSolution9{};
     result->status = BLEND9_FAIL;
 
     /* Get maximum blend region */
@@ -1157,7 +1157,7 @@ int createBlendSegment9(TC_STRUCT const * const prev_tc,
     }
 
     /* Zero-initialize */
-    memset(blend_tc, 0, sizeof(TC_STRUCT));
+    *blend_tc = TC_STRUCT{};
 
     /* Initialize as TC_BEZIER */
     tcInit(blend_tc,

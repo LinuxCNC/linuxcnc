@@ -2875,10 +2875,8 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
         // Store cascade info
         tc->shared_9d.requested_feed_scale = new_feed_scale;
 
-        ruckig_profile_t brake_profile;
-        ruckig_profile_t main_profile;
-        memset(&brake_profile, 0, sizeof(brake_profile));
-        memset(&main_profile, 0, sizeof(main_profile));
+        ruckig_profile_t brake_profile{};
+        ruckig_profile_t main_profile{};
 
         double brake_end_position = state.position;  // Position after brake (relative to segment start)
 
@@ -2926,8 +2924,7 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                     double safe_acc = sqrt(2.0 * sv * default_jerk);
                     if (tc->maxaccel > safe_acc + 0.5) {
                         input.max_acceleration = {safe_acc};
-                        ruckig_profile_t constrained;
-                        memset(&constrained, 0, sizeof(constrained));
+                        ruckig_profile_t constrained{};
                         auto r2 = otg.calculate(input, traj);
                         if (r2 == ruckig::Result::Working || r2 == ruckig::Result::Finished) {
                             copyRuckigProfile(traj, &constrained);
@@ -3880,8 +3877,7 @@ static int writeSpillOverStopProfiles(TP_STRUCT *tp, TC_STRUCT *tc,
             if (result != ruckig::Result::Working &&
                 result != ruckig::Result::Finished) break;
 
-            ruckig_profile_t stop_profile;
-            memset(&stop_profile, 0, sizeof(stop_profile));
+            ruckig_profile_t stop_profile{};
             copyRuckigProfile(traj, &stop_profile);
             if (!stop_profile.valid ||
                 profileHasNegativeVelocity(&stop_profile)) {
@@ -3893,7 +3889,7 @@ static int writeSpillOverStopProfiles(TP_STRUCT *tp, TC_STRUCT *tc,
                     result = otg.calculate(input, traj);
                     if (result == ruckig::Result::Working ||
                         result == ruckig::Result::Finished) {
-                        memset(&stop_profile, 0, sizeof(stop_profile));
+                        stop_profile = {};
                         copyRuckigProfile(traj, &stop_profile);
                     }
                 }

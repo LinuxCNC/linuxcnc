@@ -294,7 +294,7 @@ static int tcInit_9D(TC_STRUCT * const tc,
 {
     if (!tc) return -1;
 
-    memset(tc, 0, sizeof(TC_STRUCT));
+    *tc = TC_STRUCT{};
 
     tc->motion_type = motion_type;
     tc->canon_motion_type = canon_motion_type;
@@ -754,9 +754,7 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
 
     // Build per-axis velocity and acceleration bounds
     // Use minimum of both segments' limits
-    AxisBounds9 vel_bounds, acc_bounds;
-    memset(&vel_bounds, 0, sizeof(vel_bounds));
-    memset(&acc_bounds, 0, sizeof(acc_bounds));
+    AxisBounds9 vel_bounds{}, acc_bounds{};
 
     double v_min = fmin(prev_tc->maxvel, tc->maxvel);
     double a_min = fmin(prev_tc->maxaccel, tc->maxaccel);
@@ -803,8 +801,7 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                 // Compute Jacobian at junction for non-identity kinematics
                 if (g_userspace_kins_planner.isEnabled() &&
                     !g_userspace_kins_planner.isIdentity()) {
-                    EmcPose junction;
-                    memset(&junction, 0, sizeof(junction));
+                    EmcPose junction{};
                     if (tc->motion_type == TC_LINEAR) {
                         junction.tran = tc->coords.line.xyz.start;
                         junction.a = tc->coords.line.abc.start.x;
@@ -1236,8 +1233,7 @@ static void tpComputeKinkVelocity_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
     bool have_jacobian = false;
     if (g_userspace_kins_planner.isEnabled() &&
         !g_userspace_kins_planner.isIdentity()) {
-        EmcPose junction;
-        memset(&junction, 0, sizeof(junction));
+        EmcPose junction{};
         if (tc->motion_type == TC_LINEAR) {
             junction.tran = tc->coords.line.xyz.start;
             junction.a = tc->coords.line.abc.start.x;
