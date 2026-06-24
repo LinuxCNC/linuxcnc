@@ -1017,6 +1017,30 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
 * `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
+* `MAX_UNWIND_TURNS = 10` - (real) When set to a positive value for a rotary axis (A, B, or C), enables automatic
+  unwind avoidance on G0 absolute moves. When a G0 with the rotary word would otherwise unwind more than
+  this many full turns from the current programmed position, the interpreter folds the whole turns into the
+  axis (G92) offset so the motor takes the shortest path (within +/- 180 degrees) to the target's angular
+  position while the programmed (work-frame) position still reaches the commanded target. Subsequent
+  G1/G0 absolute moves use the rebased frame. The motion-side traj.position remains accumulated, so
+  stepgens, encoders, and PID see no discontinuity.
++
+This is intended for rotational-cutting workflows (helical winding, spiral carving) where a G1 must
+honor literal multi-turn absolute targets but a terminal G0 should not unwind. CAM output and existing
+G-code do not need to change.
++
+Because the unwind rides the G92 offset, the DRO, `#5423`/`#5424`/`#5425` and `_a`/`_b`/`_c` named
+parameters all report the programmed value with no special handling, and the accumulated turns show up
+as a G92 offset (`#5214`/`#5215`/`#5216`). Consequences: the feature reserves G92 on a managed axis, so
+do not set G92 manually on an axis that has `MAX_UNWIND_TURNS` (use it freely on other axes); a `G92.1`
+in the program clears the accumulated unwind, after which the next qualifying G0 simply rebases again; and
+the offset is cleared automatically when the axis is re-homed or estop-reset, so a fresh home starts clean.
++
+The feature is gated to trivkins-style 1:1 axis-to-joint mapping; behavior in coupled kinematics
+(5-axis TCP, gantry rotary) is undefined and not supported. Mutually exclusive with `WRAPPED_ROTARY`;
+if both are set on the same axis, `MAX_UNWIND_TURNS` is ignored with a startup warning.
++
+Default: 0 (feature disabled).
 * `LOCKING_INDEXER_JOINT = 4` - (int) This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.

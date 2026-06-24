@@ -859,6 +859,9 @@ int Interp::init()
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
+  _setup.a_max_unwind_turns = 0.0;
+  _setup.b_max_unwind_turns = 0.0;
+  _setup.c_max_unwind_turns = 0.0;
   _setup.random_toolchanger = 0;
   _setup.a_indexer_jnum = -1; // -1 means not used
   _setup.b_indexer_jnum = -1; // -1 means not used
@@ -888,6 +891,28 @@ int Interp::init()
           _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
           _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
           _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
+
+          _setup.a_max_unwind_turns = inifile.findRealV("MAX_UNWIND_TURNS", "AXIS_A", 0.0);
+          _setup.b_max_unwind_turns = inifile.findRealV("MAX_UNWIND_TURNS", "AXIS_B", 0.0);
+          _setup.c_max_unwind_turns = inifile.findRealV("MAX_UNWIND_TURNS", "AXIS_C", 0.0);
+
+          struct UnwindCheck { const char *axis_name; int wrapped; double turns; };
+          UnwindCheck uw_checks[] = {
+              {"AXIS_A", _setup.a_axis_wrapped, _setup.a_max_unwind_turns},
+              {"AXIS_B", _setup.b_axis_wrapped, _setup.b_max_unwind_turns},
+              {"AXIS_C", _setup.c_axis_wrapped, _setup.c_max_unwind_turns},
+          };
+          for (auto &uw : uw_checks) {
+              if (uw.turns > 0.0 && uw.wrapped) {
+                  fprintf(stderr,
+                          "%s: MAX_UNWIND_TURNS is mutually exclusive with WRAPPED_ROTARY; "
+                          "MAX_UNWIND_TURNS ignored.\n", uw.axis_name);
+                  if (uw.axis_name[5] == 'A') _setup.a_max_unwind_turns = 0.0;
+                  if (uw.axis_name[5] == 'B') _setup.b_max_unwind_turns = 0.0;
+                  if (uw.axis_name[5] == 'C') _setup.c_max_unwind_turns = 0.0;
+              }
+          }
+
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
@@ -2033,9 +2058,53 @@ int Interp::synch()
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
-  _setup.AA_current = GET_EXTERNAL_POSITION_A();
-  _setup.BB_current = GET_EXTERNAL_POSITION_B();
-  _setup.CC_current = GET_EXTERNAL_POSITION_C();
+  // Invalidate any MAX_UNWIND_TURNS auto-unwind G92 offset when the machine
+  // frame is re-anchored under us (homing, estop reset). Such an event snaps
+  // the external (work-frame) position by far more than any blend rounding
+  // while the interp was not commanding motion, so a jump over half a turn
+  // with a live offset on a managed axis means the accumulated frame is gone
+  // and the unwind offset is now stale. Collapse the offset back into the work
+  // frame and re-emit the G92 so canon agrees; otherwise the next absolute move
+  // would apply the stale offset and run onto the wrong path. A plain jog keeps
+  // machine and work frame moving together (sub-turn), so the offset stays
+  // valid and is left alone. Only managed axes (MAX_UNWIND_TURNS > 0) are
+  // touched, so a manually set G92 on an unmanaged axis is never disturbed.
+  {
+      double ext_a = GET_EXTERNAL_POSITION_A();
+      double ext_b = GET_EXTERNAL_POSITION_B();
+      double ext_c = GET_EXTERNAL_POSITION_C();
+      bool unwind_reset = false;
+      if (_setup.a_max_unwind_turns > 0.0 && _setup.AA_axis_offset != 0.0 &&
+          fabs(ext_a - _setup.AA_current) > 180.0) {
+          ext_a += _setup.AA_axis_offset;
+          _setup.AA_axis_offset = 0.0;
+          _setup.parameters[5214] = 0.0;
+          unwind_reset = true;
+      }
+      if (_setup.b_max_unwind_turns > 0.0 && _setup.BB_axis_offset != 0.0 &&
+          fabs(ext_b - _setup.BB_current) > 180.0) {
+          ext_b += _setup.BB_axis_offset;
+          _setup.BB_axis_offset = 0.0;
+          _setup.parameters[5215] = 0.0;
+          unwind_reset = true;
+      }
+      if (_setup.c_max_unwind_turns > 0.0 && _setup.CC_axis_offset != 0.0 &&
+          fabs(ext_c - _setup.CC_current) > 180.0) {
+          ext_c += _setup.CC_axis_offset;
+          _setup.CC_axis_offset = 0.0;
+          _setup.parameters[5216] = 0.0;
+          unwind_reset = true;
+      }
+      if (unwind_reset)
+          SET_G92_OFFSET(_setup.axis_offset_x, _setup.axis_offset_y,
+                         _setup.axis_offset_z, _setup.AA_axis_offset,
+                         _setup.BB_axis_offset, _setup.CC_axis_offset,
+                         _setup.u_axis_offset, _setup.v_axis_offset,
+                         _setup.w_axis_offset);
+      _setup.AA_current = ext_a;
+      _setup.BB_current = ext_b;
+      _setup.CC_current = ext_c;
+  }
   _setup.u_current  = GET_EXTERNAL_POSITION_U();
   _setup.v_current  = GET_EXTERNAL_POSITION_V();
   _setup.w_current  = GET_EXTERNAL_POSITION_W();
