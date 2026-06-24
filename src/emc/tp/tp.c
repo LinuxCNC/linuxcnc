@@ -47,7 +47,6 @@
 #include "sp_scurve.h"
 #include "ruckig_wrapper.h"
 #include "../motion/atomic_9d.h"  // Atomic operations for 9D planner
-#include <stdio.h>
 
 // Forward declaration for 9D planner userspace function
 // (Actual implementation is in motion_planning_9d.cc, a C++ file)
