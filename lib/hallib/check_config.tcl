@@ -139,6 +139,67 @@ proc validate_identity_kins_limits {} {
   return $emsg
 } ;# validate_identity_kins_limits
 
+proc assert_ini_datatypes {} {
+  # Datatype assertions, run right after parse_ini, before any comparison.
+  # numeric: must be a real number (covers integers too: string is double)
+  set numeric {
+    MIN_LIMIT MAX_LIMIT MAX_VELOCITY MAX_ACCELERATION MAX_JERK
+    FERROR MIN_FERROR BACKLASH
+    P I D FF0 FF1 FF2 BIAS DEADBAND MAX_OUTPUT MAX_ERROR
+    INPUT_SCALE OUTPUT_SCALE SCALE
+    HOME HOME_OFFSET HOME_SEARCH_VEL HOME_LATCH_VEL HOME_FINAL_VEL
+    HOME_SEQUENCE STEPGEN_MAXVEL STEPGEN_MAXACCEL
+  }
+  # enum: must match a fixed set (case-insensitive, mirroring LinuxCNC's
+  # caseless maps mapJointType / convertBool)
+  set bool {TRUE YES 1 ON FALSE NO 0 OFF}
+  array set enum [list \
+    TYPE                        {LINEAR ANGULAR} \
+    HOME_USE_INDEX              $bool \
+    HOME_IGNORE_LIMITS          $bool \
+    HOME_IS_SHARED              $bool \
+    HOME_INDEX_NO_ENCODER_RESET $bool \
+    VOLATILE_HOME               $bool \
+    LOCKING_INDEXER             $bool \
+  ]
+  set emsg ""
+  foreach g [info globals] {
+    if {![string match JOINT_* $g] && ![string match AXIS_* $g]} continue
+    foreach item [array names ::$g] {
+      set val [set ::${g}($item)]
+      # LinuxCNC reads the first occurrence (IniFile::Find defaults to num=1),
+      # so a duplicate is not fatal. Validate the first occurrence; if there is
+      # more than one, warn and collapse the array to it so the downstream limit
+      # comparison uses the same value LinuxCNC would.
+      set use [lindex $val 0]
+      if {[llength $val] > 1} {
+        lappend ::wmsg "Multiple values for \[$g\]$item: <$val> (first value is used)"
+        set ::${g}($item) $use
+      }
+      if {[lsearch -exact $numeric $item] >= 0} {
+        if {![string is double -strict $use]} {
+          set m "\[$g\]$item must be numeric, got: <$use>"
+          if {[string match {*[#;]*} $use]} {
+            append m "\n    Inline comments are not allowed: '#' and ';' start a comment"
+            append m "\n    only at the start of a line, not after a value. Move the comment"
+            append m "\n    to its own line. See the LinuxCNC manual, \"The INI File\" ->"
+            append m "\n    \"Comments\": https://linuxcnc.org/docs/stable/html/config/ini-config.html#_comments"
+          }
+          lappend emsg $m
+        }
+      } elseif {[info exists enum($item)]} {
+        if {[lsearch -nocase $enum($item) $use] < 0} {
+          lappend emsg "\[$g\]$item must be one of {$enum($item)}, got: <$use>"
+        }
+      }
+    }
+  }
+  if {"$emsg" != ""} {
+    if {[info exists ::wmsg]} {warnings $::wmsg}
+    err_exit $emsg
+  }
+} ;# assert_ini_datatypes
+
 proc check_extrajoints {} {
   if ![info exists ::EMCMOT(EMCMOT)] return
   if {[string first motmod $::EMCMOT(EMCMOT)] <= 0} return
@@ -158,30 +219,6 @@ proc check_extrajoints {} {
   }
 } ;#check_extrajoints
 
-proc warn_for_multiple_ini_values {} {
-  set sections [info globals]
-  set sections_to_check {JOINT_ AXIS_}
-
-  foreach section $sections {
-    set enforce 0
-    foreach csection $sections_to_check {
-      if {[string first $csection $section"] >= 0} {
-        set enforce 1
-        break
-      }
-    }
-    if !$enforce continue
-    foreach name [array names ::$section] {
-       set gsection ::$section
-       set val [set [set gsection]($name)]
-       set len [llength $val]
-       if {$len > 1} {
-         lappend ::wmsg "Unexpected multiple values \[$section\]$name: $val"
-       }
-    }
-  }
-} ;# warn_for_multiple_ini_values
-
 #----------------------------------------------------------------------
 # begin
 package require Linuxcnc ;# parse_ini
@@ -195,6 +232,8 @@ if ![file readable $inifile] {
    err_exit [list "File not readable <$inifile>"]
 }
 parse_ini $inifile
+
+assert_ini_datatypes
 
 check_mandatory_items
 
@@ -230,7 +269,6 @@ switch $::kins(module) {
 }
 check_extrajoints
 
-warn_for_multiple_ini_values
 #parray ::kins
 set emsg [validate_identity_kins_limits]
 consistent_coords_for_trivkins $::kins(coordinates)
