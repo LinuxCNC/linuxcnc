@@ -569,6 +569,7 @@ genclean:
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
+	-rm -f ../lib/*.so.[0-9]*
 	-rm -f $(GENERATED_MANPAGES)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
