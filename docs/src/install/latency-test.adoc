@@ -193,6 +193,39 @@ Use `--show` to show count for the off-chart [pos|neg] bin.
 image::../config/images/latency-histogram.png["latency-histogram Window"]
 
 
+[[sec:latency-status-bar]]
+=== Realtime status bar
+
+The `latency-test` and `latency-histogram` windows show a status bar along the
+bottom with three fields. A field turns red when it indicates a condition that
+makes the measured latency unrepresentative of a properly configured realtime
+system.
+
+Realtime::
+    The running realtime type, for example `RT-PREEMPT_RT`, `RT-RTAI` or
+    `RT-Xenomai`. It reads `no realtime` (red) when `rtapi_app` cannot obtain
+    realtime scheduling, either because the running kernel is not a realtime
+    kernel (see <<sec:kernel_and_version_requirements,Kernel and Version
+    requirements>>) or because `rtapi_app` lacks the required privileges on a
+    run-in-place build (see <<sub:realtime,Realtime>>, run `sudo make setuid`
+    or `sudo make setcap`). In this state the figures reflect ordinary,
+    non-realtime scheduling and will be far worse than a realtime kernel
+    delivers. For testing only, realtime can be forced with the
+    `LINUXCNC_FORCE_REALTIME=1` environment variable.
+
+CPU governor::
+    The active CPU frequency governor. It is shown in red when it is not
+    `performance`, because frequency scaling lets the CPU drop to a lower clock
+    speed and adds latency spikes. See <<sec:latency-governor,CPU frequency
+    governor>>.
+
+isolcpus::
+    Whether any CPUs are isolated for the exclusive use of LinuxCNC
+    (`isolcpus=...`) or not (`no_isolcpus`). Isolating a CPU keeps other tasks
+    off it and improves latency; see <<sec:tuning-preempt-rt,Tuning Preempt-RT
+    for latency>>.
+
+
 == Latency tuning
 
 LinuxCNC can run on many different hardware platforms and with many
@@ -234,6 +267,23 @@ tuning in the BIOS are:
 * Disable any hardware you do not intend to use.
 
 
+[[sec:latency-governor]]
+=== CPU frequency governor
+
+Frequency scaling lets the CPU lower its clock speed to save power, which adds
+latency while the CPU ramps back up to service a realtime thread. For the best
+latency, set the governor to `performance` on every CPU:
+
+----
+echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+----
+
+This setting does not survive a reboot. To make it permanent, apply it at boot
+with a small systemd service, or with a CPU frequency management tool such as
+`cpupower` (Debian/Ubuntu package `linux-cpupower`) or `tuned`.
+
+
+[[sec:tuning-preempt-rt]]
 === Tuning Preempt-RT for latency
 
 The Preempt-RT kernel may benefit from tuning in order to provide the
