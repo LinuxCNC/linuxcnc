@@ -1,3 +1,111 @@
+linuxcnc (1:2.9.9) UNRELEASED; urgency=medium
+
+  * Merge pull request #4190 from tzuohann/check_config-2.9-datatypes
+  * Merge pull request #4188 from grandixximo/fix/genclean-soname-2.9
+  * Merge pull request #4122 from Sigma1912/2_9_gremlin_initialize_with_current_modal_gcodes
+  * Merge pull request #4168 from grandixximo/backport/machine-coord-params-2.9
+  * Merge pull request #4176 from hdiethelm/ci_doc_build_2.9
+  * check_config: assert INI datatypes before comparing limits
+  * build: clean stale versioned libraries in genclean
+  * HTML Doc: Copy missing files to the translation folders
+  * CI: cancel in-flight runs when a new push lands on the same PR
+  * CI: Upload doc as tar
+  * Remove executable flag from images
+  * CI: Allow fail on sid
+  * CI: Add artefacts to doc
+  * Merge pull request #4166 from grandixximo/fix-4165-emccalib-iniref
+  * interp: expose absolute machine position as #5021-#5029
+  * emccalib: ignore ini refs embedded in pin names
+  * Touchy: Backport updates from master
+  * Merge pull request #4164 from grandixximo/backport/3996-tool-offset-params-2.9
+  * tests: update tool offset assertions for #5401-#5409 applied semantics
+  * docs: G38 probe to machine-coordinate conversion via #5401-#5409
+  * interp: make #5401-#5409 the applied tool length offset
+  * Merge pull request #4128 from hansu/halscope-fix-ac-setting-2.9
+  * halscope: save offset when enabling AC coupling
+  * halscope: fix remember setting of AC coupling
+  * gremlin: Initialize preview interpreter with active modal gcodes
+  * Merge pull request #4024 from hdiethelm/ci_improvements_2.9
+  * Merge pull request #4022 from wucke13/dev/wucke13/backport-preempt-rt-detection-for-6.12-and-later
+  * Merge pull request #4015 from grandixximo/fix/3994-axis-touchoff-jog-2.9
+  * Merge pull request #4042 from grandixximo/fix-togl-arm64
+  * axis: link _togl with -lGL (partially addresses #4034)
+  * ci 2.9: cppcheck not supported on 2.9
+  * ci 2.9: Needs linuxcnc repo for newer po4a in bullseye
+  * ci 2.9: Fix gitignores
+  * ci: Move build steps to scripts / new ci build dep
+  * ci: Verify clean / Script to add linuxcnc repo
+  * ci: Do not install recommends
+  * ci: Remove --cpu 2
+  * ci: Update all actions / Split steps / No fetch
+  * ci: DEBIAN_FRONTEND globally / No set -e / No linuxcnc repo
+  * ci: Move cppcheck up / Remove unneeded newlines
+  * ci: No upgrade except for debian container
+  * ci: No quiet / no retry
+  * ci: Remove eatmydata
+  * PREEMPT_RT became mainline since 6.12, but the indicator /sys/kernel/realtime did not make it (until now). This commit removes this check, I don't think that it's needed since it still looks for PREEMPT_RT from uname.
+  * axis -fix Z jog after touch off on unhomed lathe (#3994)
+  * Merge pull request #4018 from grandixximo/ci/2.9-install-adduser
+  * ci: install adduser explicitly in package-arch test step
+  * Merge pull request #3980 from hdiethelm/2.9_xenomai_fixes
+  * Fix: uspace_xenomai.cc
+  * Fix rtapi_app: Sanitize name for module addresses
+  * radiobutton: A new HAL component to select between mutually-exclusive states
+  * Merge pull request #3959 from hansu/halshow-fix-menu-2.9
+  * halshow: fix broken menu item: Watch -> Add pin/signal/parameter
+  * Remove duplicated [JOINT_N]HOME entries in gmoccapy sim configs (#3956)
+  * Merge pull request #3945 from grandixximo/fix/2.9-lld-fix
+  * Merge pull request #3950 from LinuxCNC/andypugh/3899-1
+  * Fix Gmoccapy screen resizing issue #3899
+  * rtapi: Refuse to load uspace components missing rtapi_app_exit
+  * hal: Add empty rtapi_app_exit to enum component
+  * Merge pull request #3900 from grandixximo/fix/deprecate-uses-fp-2.9
+  * halcompile: warn on fp/nofp, remove from in-tree .comp files
+  * docs: mark uses_fp as deprecated in man pages
+  * Deprecate uses_fp: always enable FPU state save on all threads
+  * Merge pull request #3907 from hansu/halshow-error-handling-2.9
+  * halshow: handle error when item from watchlist is removed during runtime
+  * Merge pull request #3898 from NTULINUX/2.9_libedit
+  * Convert to libedit (2.9 branch)
+  * Move python3-poppler-qt5 to "Suggests" addresses Debian bug #1129683
+  * Move python3-poppler-qt5 to "Recommends". Issue #3872 addresses Debian bug #1129683
+  * Merge pull request #3879 from hdiethelm/fix_lxrt_prio_check
+  * Fix priority check for LXRT
+  * Issue#3849 fix backported to 2.9 (#3857)
+  * PR #3820: I (andypugh) shouldn't have moved the lines in the original PR
+  * Merge pull request #3790 from mark-v-d/2.9
+  * Merge pull request #3828 from smoe/do_not_ignore_init_prob
+  * Merge pull request #3831 from smoe/29_error_open_detect
+  * Fix issue identified in PR #3820:  Always update teleop_vel_cmd and pos_cmd
+  * Merge pull request #3834 from BsAtHome/backport_2.9_hm2_modbus-messages
+  * backport: Fix printing hm2_modbus messages at startup.
+  * fix: Error detection after open(2)
+  * fix emc/motion-logger: did not respect possible init failure
+  * Merge pull request #3825 from smoe/fix_canterp_spindle_orientation
+  * fix: emc/canterp: passing right value for SPINDLE_ORIENTATION
+  * Merge branch 'LinuxCNC:2.9' into 2.9
+  * Adding testcase for 6bf62870da5866a237bdd8531e28f33644255164 endless loop in g71 fix.
+  * Merge pull request #3775 from smoe/github_ci_apt_repeat
+  * docs: fix "Updating Configuration Files for 2.9"
+  * Fix an endless loop.
+  * github/ci: retry apt-get 5 times prior to error
+  * libnml,emc: strtok -> strtok_r
+  * Merge pull request #3737 from sfroome/sf-limit-axis-fix
+  * If statement should not be nested. This causes the hal component to ignore the enable state of each axis range.
+  * Merge pull request #3688 from smoe/add-runtime-dependency-for-xset
+  * qtdragon/hd/vert update version file
+  * qtdragon/hd/vert qtaxis qttouchy -fix keyboard incremental jogging
+  * d/control: Added build-dep x11-xserver-utils <!nocheck>
+  * Merge pull request #3687 from smoe/add-runtime-dependency-for-xset
+  * d/control: added x11-xserver-utils to provide xset, optics
+  * Docs: Update ISO image checksums
+  * gmoccapy: reduce font size of dro VCP to fit minimal window size (#3611)
+  * gmoccapy: add LinuxCNC version to window title
+
+ -- andypugh <andy@bodgesoc.org>  Thu, 25 Jun 2026 23:04:56 +0100
+
+
+
 linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
 
   * backport #3516 to fix #3679
