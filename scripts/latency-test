@@ -85,15 +85,10 @@ SERVO_HUMAN=$(human_time "$SERVO")
 # 'realtime verify' is authoritative for yes/no; the type label is derived from
 # the same kernel signals rtapi uses, for display only.
 RED="#cc4444"
-if realtime verify >/dev/null 2>&1; then
-    if uname -r | grep -qi -- '-rtai'; then RT_T="RTAI"
-    elif [ -e /dev/evl ]; then RT_T="Xenomai-EVL"
-    elif [ -e /proc/xenomai ]; then RT_T="Xenomai"
-    elif uname -v | grep -qiE 'PREEMPT[_ ]RT'; then RT_T="PREEMPT_RT"
-    else RT_T="SCHED_FIFO"; fi
-    RT_TEXT="RT-$RT_T"; RT_FG=""
+if RT_TEXT=$(realtime verify); then
+    RT_FG=""
 else
-    RT_TEXT="no realtime"; RT_FG="foreground=\"$RED\""
+    RT_FG="foreground=\"$RED\""
 fi
 GOV=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null)
 [ -z "$GOV" ] && GOV="gov?"
