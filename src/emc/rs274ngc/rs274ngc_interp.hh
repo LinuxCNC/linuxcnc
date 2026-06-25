@@ -523,6 +523,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int read_z(char *line, int *counter, block_pointer block,
                   double *parameters);
  int refresh_actual_position(setup_pointer settings);
+ void get_abs_position(setup_pointer settings, double abs_pos[9]);
  void rotate(double *x, double *y, double t);
  int set_probe_data(setup_pointer settings);
  int write_g_codes(block_pointer block, setup_pointer settings);
