@@ -427,22 +427,23 @@ export const halshowStore = {
       return;
     }
 
-    // Track metadata received from first message
-    let metaMap = new Map<string, { type: string; dir: string; kind: string; owner: string; linked: boolean }>();
-    // Track current values
-    let valueMap = new Map<string, string>();
-    // Guard: don't rebuild watchValues until the new subscription's meta arrives.
-    // This prevents a race where an old subscription's delta message (no meta field)
-    // arrives before the new subscription's first response, which would clear
-    // watchValues and make all items flash to '—'.
-    let metaReceived = false;
+    // Seed maps from existing watchValues so old items stay visible during
+    // re-subscription.  The new subscription's meta response will replace
+    // these with fresh data once it arrives.
+    const metaMap = new Map<string, { type: string; dir: string; kind: string; owner: string; linked: boolean }>();
+    const valueMap = new Map<string, string>();
+    for (const v of state.watchValues) {
+      metaMap.set(v.name, { type: v.type, dir: v.dir, kind: v.kind, owner: v.owner, linked: v.linked });
+      valueMap.set(v.name, v.value);
+    }
 
     watchClient?.subscribeWatchItems((data: unknown) => {
       const msg = data as Record<string, unknown>;
 
       if (msg.meta && Array.isArray(msg.meta)) {
         // First message (or structure change): contains metadata + initial values
-        metaReceived = true;
+        const metaNames = (msg.meta as Array<{ name: string }>).map(m => m.name);
+        console.log('[watch] meta received:', metaNames.length, 'items:', metaNames);
         metaMap.clear();
         for (const m of msg.meta as Array<{ name: string; type: string; dir: string; kind: string; owner: string; linked: boolean }>) {
           metaMap.set(m.name, { type: m.type, dir: m.dir ?? '', kind: m.kind ?? '', owner: m.owner, linked: m.linked });
@@ -453,16 +454,18 @@ export const halshowStore = {
         }
       } else {
         // Subsequent messages: only changed name→value pairs
+        const keys = Object.keys(msg);
+        if (keys.length > 0) {
+          console.log('[watch] delta:', keys.length, 'changed');
+        }
         for (const [name, value] of Object.entries(msg)) {
           valueMap.set(name, value as string);
         }
       }
 
-      // Don't rebuild until we have metadata from the current subscription.
-      // Old watchValues remain visible in the meantime.
-      if (!metaReceived) return;
-
-      // Rebuild watchValues array from metadata + current values
+      // Rebuild watchValues array from metadata + current values.
+      // Items not yet in metaMap (newly added, waiting for server meta) are
+      // excluded — the template shows them from watchList with '—' fallback.
       state.watchValues = state.watchList
         .filter(n => metaMap.has(n))
         .map(n => {
