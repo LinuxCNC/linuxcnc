@@ -750,6 +750,11 @@ int tcInit(TC_STRUCT * const tc,
     tc->ruckig_last_use_velocity_control = 0;
     tc->ruckig_last_req_pos = 0.0;
     tc->ruckig_last_feed_override = 0.0;
+    tc->ruckig_fail_logged_pool = 0;
+    tc->ruckig_fail_logged_vel_replan = 0;
+    tc->ruckig_fail_logged_vel_first = 0;
+    tc->ruckig_fail_logged_pos_replan = 0;
+    tc->ruckig_fail_logged_pos_first = 0;
 
     return TP_ERR_OK;
 }
