@@ -466,6 +466,23 @@ int tpClearDIOs(TP_STRUCT * const tp) {
     return TP_ERR_OK;
 }
 
+/* Return borrowed pool planners before a queue reset (tcqInit), which drops the
+ * slots without going through tpCompleteSegment. Without this the active
+ * segment's pool slot stays in_use forever, exhausting the pool over repeated
+ * clears/aborts. Safe on an empty queue (tcqLen <= 0; tcCleanupRuckig ignores
+ * NULL). */
+STATIC void tpReleaseQueuedPlanners(TP_STRUCT * const tp)
+{
+    int n = tcqLen(&tp->queue);
+    int i;
+    for (i = 0; i < n; i++) {
+        TC_STRUCT *tc = tcqItem(&tp->queue, i);
+        if (tc) {
+            tcCleanupRuckig(tc);
+        }
+    }
+}
+
 /**
  *    "Soft initialize" the trajectory planner tp.
  *    This is a "soft" initialization in that TP_STRUCT configuration
@@ -477,6 +494,7 @@ int tpClearDIOs(TP_STRUCT * const tp) {
  */
 int tpClear(TP_STRUCT * const tp)
 {
+    tpReleaseQueuedPlanners(tp);
     tcqInit(&tp->queue);
     tp->queueSize = 0;
     tp->goalPos = tp->currentPos;
@@ -2809,7 +2827,18 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
     double maxjerk = fmin(tc->maxjerk, emcmotStatus->jerk);
     if(maxjerk <= 1){
         maxjerk = 1;
-        rtapi_print_msg(RTAPI_MSG_ERR, "ERROR!!! maxjerk Is less than 1\n");
+        /* This fires EVERY CYCLE for segments with no usable jerk limit (e.g. a
+         * rotary-only move when [AXIS_A/B/C]MAX_JERK is unset, found via G43.4
+         * TCP testing on a stock sim). The fallback below is graceful
+         * (trapezoidal for the segment), so warn ONCE instead of storming the
+         * log at servo rate. */
+        static int scurve_jerk_warned = 0;
+        if (!scurve_jerk_warned) {
+            scurve_jerk_warned = 1;
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "S-curve: segment max jerk < 1 (unset [AXIS_*]MAX_JERK or [TRAJ]MAX_LINEAR_JERK?) - "
+                "trapezoidal fallback used for such segments (reported once)\n");
+        }
         return TP_SCURVE_ACCEL_ERROR;
     }
 
@@ -2844,8 +2873,8 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
 
     // Check if planner needs to be created or replanned
     if (!tc->ruckig_planner) {
-        // Create Ruckig planner
-        tc->ruckig_planner = ruckig_create(tc->cycle_time);
+        // Borrow a Ruckig planner from the preallocated pool (no RT-cycle alloc)
+        tc->ruckig_planner = ruckig_pool_acquire(tc->cycle_time);
         if (!tc->ruckig_planner) {
             rtapi_print_msg(RTAPI_MSG_ERR, "tpCalculateSCurveAccel: failed to create Ruckig planner\n");
             return TP_SCURVE_ACCEL_ERROR;
@@ -3291,6 +3320,7 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
 STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
 {
 
+    tpReleaseQueuedPlanners(tp);
     tcqInit(&tp->queue);
     tp->goalPos = tp->currentPos;
     tp->done = 1;
@@ -3391,6 +3421,7 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
+        tpReleaseQueuedPlanners(tp);
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
         tp->done = 1;

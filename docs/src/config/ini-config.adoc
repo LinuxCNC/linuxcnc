@@ -946,6 +946,24 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
 * `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
   S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+  The planner can be changed at runtime via the `ini.traj-planner-type` HAL pin or the
+  <<gcode:g64,G64 R word>>; a switch requested while the machine is moving is deferred
+  and applied when motion next becomes idle (never aborts), with an operator message.
+* `SMOOTH_PLANNER = 1` - (((SMOOTH PLANNER))) Which planner a <<gcode:g64,G64 R>>
+  greater than zero ("smooth") request resolves to. Part programs only request
+  trapezoidal (R0) or smooth (R greater than 0); this key names the implementation, so
+  programs stay valid when the machine's smooth planner changes. 0 disables G64 R
+  smooth requests (they are refused with an operator error). Defaults to
+  `PLANNER_TYPE` when that is non-zero, else 1. Currently the only smooth planner is
+  type 1. A missing or invalid `MAX_LINEAR_JERK` (below 1) also disables smooth
+  requests. Note that the `ini.traj-planner-type` HAL pin is the machine-side surface
+  and writes planner numbers directly; it bypasses this resolution and its guards.
+* `SCURVE_PEAK_SCALE = 1.0` - (((SCURVE PEAK SCALE))) Scales the S-curve rest-to-rest
+  peak velocity used by the corner look-ahead, i.e. how aggressively the machine may
+  corner within its jerk and acceleration limits. 1.0 (the default) allows the full
+  jerk-feasible corner speed; lower values corner more gently (0.5 matches the
+  initial S-curve release). Clamped to 0.1..1.0. Tunable at runtime via the
+  `ini.traj-scurve-peak-scale` HAL pin or the <<gcode:g64,G64 R word>>.
 * `MAX_LINEAR_JERK = 10000.0` - (((MAX JERK))) The maximum jerk (rate of change of acceleration) for coordinated moves, in 'machine units' per second cubed.
   Default is 1e9 (1 billion) if not specified, which effectively disables jerk limiting while avoiding numerical instability.
   Values are clamped to a maximum of 1e9 to prevent numerical issues in S-curve calculations.

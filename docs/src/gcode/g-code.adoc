@@ -1644,11 +1644,12 @@ overview of coordinate systems.
 
 [source,ngc]
 ----
-G64 <P- <Q->>
+G64 <P- <Q-> <R->>
 ----
 
 * 'P' - motion blending tolerance
 * 'Q' - naive cam tolerance
+* 'R' - trajectory planner selection and cornering aggressiveness (this fork only)
 * 'G64' - best possible speed. Without P (Or a default value in <<sub:ini:sec:rs274ngc,RS274NGC>>) means to keep the best speed
   possible, no matter how far away from the programmed point you end up.
 * 'G64 P-' - Blend between best speed and deviation tolerance
@@ -1675,6 +1676,47 @@ G64 <P- <Q->>
   If Q is not specified then it will have the same behavior as before
   and use the value of P-.
   Set Q to zero to disable the 'Naive CAM Detector'.
+
+=== G64 R: planner selection (((G64 R Planner)))
+
+The optional R word selects the trajectory planner and its cornering
+aggressiveness in one modal dial:
+
+* 'R omitted' - the planner is left exactly as it was (modal).
+* 'R0' (or negative) - trapezoidal planner: acceleration is bounded but can
+  step instantly (jerk is not limited).
+* 'R0.1 .. R1.0' - jerk-limited (S-curve) planner. The value sets the
+  cornering aggressiveness as the fraction of the jerk-feasible corner
+  speed that the look-ahead may use: 'R1.0' is full corner speed, lower
+  values corner more gently ('R0.5' matches the initial S-curve release).
+  Values outside 0.1..1.0 are clamped.
+
+The program only requests 'trapezoidal' or 'smooth'; which smooth planner
+implements the request is machine configuration
+(<<sub:ini:sec:traj,[TRAJ]SMOOTH_PLANNER>>), so part programs remain valid
+when the machine's planner implementation changes.
+
+[NOTE]
+====
+R0 to R0.1 is a regime flip, not the gentle end of a gradient: the
+trapezoidal planner is the jerk-unlimited, most aggressive setting, while
+R0.1 is the gentlest (jerk-limited and slowest through corners). Within
+R0.1..R1.0 the motion is equally smooth in the jerk sense; only the corner
+speed changes.
+====
+
+Behavior details:
+
+* A planner switch requested while queued motion remains is latched and
+  applied automatically once no queued motion is left; a message informs
+  the operator and motion is never aborted. The request persists until
+  applied or superseded. Set 'G64 ... R' in the program preamble, where
+  the switch is instant.
+* If the machine has no smooth planner available ('SMOOTH_PLANNER = 0' or
+  no usable jerk limit configured), 'R > 0' is refused with an operator
+  error instead of being silently ignored.
+* The R word cannot be used on a line that also contains 'M19' (the R
+  meanings would be ambiguous); this is an error.
 
 It is a good idea to include a path control specification in the preamble of each G-code file.
 
