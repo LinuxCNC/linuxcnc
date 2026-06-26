@@ -466,6 +466,23 @@ int tpClearDIOs(TP_STRUCT * const tp) {
     return TP_ERR_OK;
 }
 
+/* Return borrowed pool planners before a queue reset (tcqInit), which drops the
+ * slots without going through tpCompleteSegment. Without this the active
+ * segment's pool slot stays in_use forever, exhausting the pool over repeated
+ * clears/aborts. Safe on an empty queue (tcqLen <= 0; tcCleanupRuckig ignores
+ * NULL). */
+STATIC void tpReleaseQueuedPlanners(TP_STRUCT * const tp)
+{
+    int n = tcqLen(&tp->queue);
+    int i;
+    for (i = 0; i < n; i++) {
+        TC_STRUCT *tc = tcqItem(&tp->queue, i);
+        if (tc) {
+            tcCleanupRuckig(tc);
+        }
+    }
+}
+
 /**
  *    "Soft initialize" the trajectory planner tp.
  *    This is a "soft" initialization in that TP_STRUCT configuration
@@ -477,6 +494,7 @@ int tpClearDIOs(TP_STRUCT * const tp) {
  */
 int tpClear(TP_STRUCT * const tp)
 {
+    tpReleaseQueuedPlanners(tp);
     tcqInit(&tp->queue);
     tp->queueSize = 0;
     tp->goalPos = tp->currentPos;
@@ -3302,6 +3320,7 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
 STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
 {
 
+    tpReleaseQueuedPlanners(tp);
     tcqInit(&tp->queue);
     tp->goalPos = tp->currentPos;
     tp->done = 1;
@@ -3402,6 +3421,7 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
+        tpReleaseQueuedPlanners(tp);
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
         tp->done = 1;
