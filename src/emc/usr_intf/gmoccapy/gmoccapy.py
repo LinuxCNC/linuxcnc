@@ -292,6 +292,12 @@ class gmoccapy(object):
                     message = _("Logofile entry found, but could not be converted to path.")
                     message += "\n" + _("The file path should not contain any spaces")
                     LOG.warning(message)
+            if arg.startswith("-smoketest="):
+                self.smoketest_flags = arg.removeprefix("-smoketest=").split(",")
+                valid_flags = {"nowhatsnew"} # to be extended
+                for flag in self.smoketest_flags:
+                    if flag not in valid_flags:
+                        LOG.warning(f"'{flag}' is no valid flag for '-smoketest'")
 
         # check if the user want a Logo (given as command line argument)
         if self.logofile:
@@ -516,7 +522,8 @@ class gmoccapy(object):
         self.elapsed_time_run = 0
         self.progress = 0
 
-        self._startup_message()
+        if "nowhatsnew" not in self.smoketest_flags:
+            self._startup_message()
 
         # This allows sourcing an user defined file
         rcfile = "~/.gmoccapyrc"
