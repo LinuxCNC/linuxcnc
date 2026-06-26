@@ -42,8 +42,8 @@
 *  9) Coordinates XYZBCW are required, AUV may be used
 *     if specified with the coordinates parameter and will
 *     be mapped one-to-one with the assigned joint.
-* 10) The direction of the tilt axis is the opposite of the 
-*     conventional axis direction. See 
+* 10) The direction of the tilt axis is the opposite of the
+*     conventional axis direction. See
 *     https://linuxcnc.org/docs/html/gcode/machining-center.html
 ********************************************************************/
 
@@ -62,27 +62,113 @@
 #include <kinematics.h>
 
 #include "switchkins.h"
+#include "kinematics_params.h"
+
+/* ========================================================================
+ * Internal math (was in 5axiskins_math.h)
+ * ======================================================================== */
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#ifndef TO_RAD
+#define TO_RAD (M_PI / 180.0)
+#endif
+
+typedef struct {
+    double pivot_length;
+} fiveaxis_params_t;
+
+typedef struct {
+    int jx, jy, jz;
+    int ja, jb, jc;
+    int ju, jv, jw;
+} fiveaxis_joints_t;
+
+static void fiveaxis_s2r(double r, double t, double p,
+                          double *x, double *y, double *z) {
+    double t_rad = TO_RAD * t;
+    double p_rad = TO_RAD * p;
+    *x = r * sin(p_rad) * cos(t_rad);
+    *y = r * sin(p_rad) * sin(t_rad);
+    *z = r * cos(p_rad);
+}
+
+static int fiveaxis_forward_impl(const fiveaxis_params_t *params,
+                                  const fiveaxis_joints_t *jm,
+                                  const double *joints,
+                                  EmcPose *pos) {
+    double rx, ry, rz;
+    double b_val = (jm->jb >= 0) ? joints[jm->jb] : 0;
+    double c_val = (jm->jc >= 0) ? joints[jm->jc] : 0;
+    double w_val = (jm->jw >= 0) ? joints[jm->jw] : 0;
+
+    fiveaxis_s2r(params->pivot_length + w_val, c_val, 180.0 - b_val,
+                 &rx, &ry, &rz);
+
+    pos->tran.x = (jm->jx >= 0 ? joints[jm->jx] : 0) + rx;
+    pos->tran.y = (jm->jy >= 0 ? joints[jm->jy] : 0) + ry;
+    pos->tran.z = (jm->jz >= 0 ? joints[jm->jz] : 0) + params->pivot_length + rz;
+    pos->a = (jm->ja >= 0) ? joints[jm->ja] : 0;
+    pos->b = b_val;
+    pos->c = c_val;
+    pos->u = (jm->ju >= 0) ? joints[jm->ju] : 0;
+    pos->v = (jm->jv >= 0) ? joints[jm->jv] : 0;
+    pos->w = w_val;
+
+    return 0;
+}
+
+static int fiveaxis_inverse_impl(const fiveaxis_params_t *params,
+                                  const EmcPose *world,
+                                  EmcPose *axis_values) {
+    double rx, ry, rz;
+
+    fiveaxis_s2r(params->pivot_length + world->w, world->c, 180.0 - world->b,
+                 &rx, &ry, &rz);
+
+    axis_values->tran.x = world->tran.x - rx;
+    axis_values->tran.y = world->tran.y - ry;
+    axis_values->tran.z = world->tran.z - params->pivot_length - rz;
+    axis_values->a = world->a;
+    axis_values->b = world->b;
+    axis_values->c = world->c;
+    axis_values->u = world->u;
+    axis_values->v = world->v;
+    axis_values->w = world->w;
+
+    return 0;
+}
+
+static void fiveaxis_axis_to_joints(const fiveaxis_joints_t *jm,
+                                     const EmcPose *axis_values,
+                                     double *joints) {
+    if (jm->jx >= 0) joints[jm->jx] = axis_values->tran.x;
+    if (jm->jy >= 0) joints[jm->jy] = axis_values->tran.y;
+    if (jm->jz >= 0) joints[jm->jz] = axis_values->tran.z;
+    if (jm->ja >= 0) joints[jm->ja] = axis_values->a;
+    if (jm->jb >= 0) joints[jm->jb] = axis_values->b;
+    if (jm->jc >= 0) joints[jm->jc] = axis_values->c;
+    if (jm->ju >= 0) joints[jm->ju] = axis_values->u;
+    if (jm->jv >= 0) joints[jm->jv] = axis_values->v;
+    if (jm->jw >= 0) joints[jm->jw] = axis_values->w;
+}
+
+/* ========================================================================
+ * RT interface (reads HAL pins)
+ * ======================================================================== */
 
 struct haldata {
     hal_float_t *pivot_length;
 } *haldata;
 static int fiveaxis_max_joints;
 
-static PmCartesian s2r(double r, double t, double p) {
-    // s2r: spherical coordinates to cartesian coordinates
-    // r       = length of vector
-    // p=phi   = angle of vector wrt z axis
-    // t=theta = angle of vector projected onto xy plane
-    //           (projection length in xy plane is r*sin(p)
-    PmCartesian c;
-    t = TO_RAD*t; p = TO_RAD*p; // degrees to radians
+/* Pointer into HAL shmem — set by hal_struct_newf/attach in setup,
+ * re-attached by nonrt_attach() in the userspace dlopen path. */
+static kinematics_params_t *uspace_params;
 
-    c.x = r * sin(p) * cos(t);
-    c.y = r * sin(p) * sin(t);
-    c.z = r * cos(p);
-
-    return c;
-} //s2r()
+// Joint mapping struct
+static fiveaxis_joints_t jmap;
 
 // assignments of principal joints to axis letters:
 // (-1 means not defined (yet))
@@ -101,61 +187,61 @@ static int fiveaxis_KinematicsForward(const double *joints,
                                       const KINEMATICS_FORWARD_FLAGS * fflags,
                                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)fflags;
-    (void)iflags;
-    PmCartesian r = s2r(*(haldata->pivot_length) + joints[JW],
-                        joints[JC],
-                        180.0 - joints[JB]);
+    (void)fflags; (void)iflags;
+    fiveaxis_params_t params;
 
-    // Note: 'principal' joints are used
-    pos->tran.x = joints[JX] + r.x;
-    pos->tran.y = joints[JY] + r.y;
-    pos->tran.z = joints[JZ] + *(haldata->pivot_length) + r.z;
-    pos->b      = joints[JB];
-    pos->c      = joints[JC];
-    pos->w      = joints[JW];
+    if (!haldata) {
+        /* userspace path: read params from HAL shmem set up by nonrt_attach */
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        params.pivot_length = local.params.fiveaxis.pivot_length;
+        fiveaxis_joints_t jm = {
+            local.axis_to_joint[0], local.axis_to_joint[1], local.axis_to_joint[2],
+            local.axis_to_joint[3], local.axis_to_joint[4], local.axis_to_joint[5],
+            local.axis_to_joint[6], local.axis_to_joint[7], local.axis_to_joint[8]
+        };
+        return fiveaxis_forward_impl(&params, &jm, joints, pos);
+    }
 
-    // optional letters (specify with coordinates module parameter)
-    pos->a = (JA != -1)? joints[JA] : 0;
-    pos->u = (JU != -1)? joints[JU] : 0;
-    pos->v = (JV != -1)? joints[JV] : 0;
-
-    return 0;
-} //fiveaxis_KinematicsForward()
+    params.pivot_length = *(haldata->pivot_length);
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.fiveaxis.pivot_length = params.pivot_length;
+        uspace_params->tail = uspace_params->head;
+    }
+    return fiveaxis_forward_impl(&params, &jmap, joints, pos);
+}
 
 static int fiveaxis_KinematicsInverse(const EmcPose * pos,
                                       double *joints,
                                       const KINEMATICS_INVERSE_FLAGS * iflags,
                                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    (void)iflags;
-    (void)fflags;
-    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w,
-                        pos->c,
-                        180.0 - pos->b);
+    (void)iflags; (void)fflags;
+    fiveaxis_params_t params;
 
-    EmcPose P;  // computed position
-    P.tran.x = pos->tran.x - r.x;
-    P.tran.y = pos->tran.y - r.y;
-    P.tran.z = pos->tran.z - *(haldata->pivot_length) - r.z;
+    if (!haldata) {
+        /* userspace path: read params from HAL shmem set up by nonrt_attach */
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        params.pivot_length = local.params.fiveaxis.pivot_length;
+        fiveaxis_joints_t jm = {
+            local.axis_to_joint[0], local.axis_to_joint[1], local.axis_to_joint[2],
+            local.axis_to_joint[3], local.axis_to_joint[4], local.axis_to_joint[5],
+            local.axis_to_joint[6], local.axis_to_joint[7], local.axis_to_joint[8]
+        };
+        EmcPose axis_values;
+        fiveaxis_inverse_impl(&params, pos, &axis_values);
+        fiveaxis_axis_to_joints(&jm, &axis_values, joints);
+        return 0;
+    }
 
-    P.b = pos->b;
-    P.c = pos->c;
-    P.w = pos->w;
-
-    // optional letters (specify with coordinates module parameter)
-    P.a = (JA != -1)? pos->a : 0;
-    P.u = (JU != -1)? pos->u : 0;
-    P.v = (JV != -1)? pos->v : 0;
-
-    // update joints with support for
-    // multiple-joints per-coordinate letter:
-    // based on computed position
-    position_to_mapped_joints(fiveaxis_max_joints,
-                              &P,
-                              joints);
+    params.pivot_length = *(haldata->pivot_length);
+    EmcPose P;
+    fiveaxis_inverse_impl(&params, pos, &P);
+    position_to_mapped_joints(fiveaxis_max_joints, &P, joints);
     return 0;
-} // fiveaxis_kinematicsInverse()
+}
 
 int fiveaxis_KinematicsSetup(const  int   comp_id,
                              const  char* coordinates,
@@ -210,6 +296,11 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
         if (axis_idx_for_jno[jno] == 8) {if (JW == -1) JW=jno;}
     }
 
+    // Populate joint map struct for math functions
+    jmap.jx = JX; jmap.jy = JY; jmap.jz = JZ;
+    jmap.ja = JA; jmap.jb = JB; jmap.jc = JC;
+    jmap.ju = JU; jmap.jv = JV; jmap.jw = JW;
+
     haldata = hal_malloc(sizeof(struct haldata));
 
     result = hal_pin_float_newf(HAL_IN,&(haldata->pivot_length),comp_id,
@@ -217,6 +308,26 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
     if(result < 0) goto error;
 
     *haldata->pivot_length = DEFAULT_PIVOT_LENGTH;
+
+    /* Register kinematics parameters in HAL shmem via hal_struct_newf() */
+    result = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                             "%s.params", kp->halprefix);
+    if (result < 0) goto error;
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
+
+    uspace_params->num_joints = fiveaxis_max_joints;
+    uspace_params->axis_to_joint[0] = JX; uspace_params->axis_to_joint[1] = JY;
+    uspace_params->axis_to_joint[2] = JZ; uspace_params->axis_to_joint[3] = JA;
+    uspace_params->axis_to_joint[4] = JB; uspace_params->axis_to_joint[5] = JC;
+    uspace_params->axis_to_joint[6] = JU; uspace_params->axis_to_joint[7] = JV;
+    uspace_params->axis_to_joint[8] = JW;
+    uspace_params->params.fiveaxis.pivot_length = DEFAULT_PIVOT_LENGTH;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
 
     rtapi_print("Kinematics Module %s\n",__FILE__);
     rtapi_print("  module name = %s\n"
@@ -270,3 +381,21 @@ int switchkinsSetup(kparms* kp,
 
     return 0;
 } // switchkinsSetup()
+
+/* ========================================================================
+ * Non-RT interface
+ *
+ * nonrt_attach() is called by kinematics_user.c after dlopen().
+ * It attaches to the kinematics_params_t registered in HAL shmem by the
+ * RT side (hal_struct_newf in fiveaxis_KinematicsSetup) and returns
+ * forward/inverse function pointers.  No hal_priv.h or raw offsets needed.
+ * ======================================================================== */
+
+void nonrt_attach(nonrt_ops_t *ops)
+{
+    hal_struct_attach("5axiskins.params", (void **)&uspace_params);
+    ops->forward   = fiveaxis_KinematicsForward;
+    ops->inverse   = fiveaxis_KinematicsInverse;
+}
+
+EXPORT_SYMBOL(nonrt_attach);

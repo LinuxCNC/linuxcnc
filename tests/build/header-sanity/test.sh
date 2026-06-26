@@ -4,6 +4,7 @@ CPPFLAGS=$(pkg-config --silence-errors --cflags libtirpc)
 for i in "$HEADERS"/*.h; do
     case $i in
     */rtapi_app.h) continue ;;
+    */comp_kins_uspace.h) continue ;;
     esac
     # CPPFLAGS is supposed to be word split
     # shellcheck disable=SC2086
@@ -13,6 +14,7 @@ for i in "$HEADERS"/*.h "$HEADERS"/*.hh; do
     case $i in
     */\*.hh) continue ;;
     */rtapi_app.h) continue ;;
+    */comp_kins_uspace.h) continue ;;
     */interp_internal.hh) continue ;;
     esac
     # shellcheck disable=SC2086

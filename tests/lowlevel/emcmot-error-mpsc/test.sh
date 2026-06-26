@@ -6,6 +6,7 @@ SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
 TOPDIR="$(cd "$SCRIPTDIR/../../.." && pwd)"
 SRCDIR="${TOPDIR}/src/emc/motion"
 INCDIR="${TOPDIR}/include"
+MPDIR="${TOPDIR}/src/emc/motion_planning"
 
 if [ ! -f "${SRCDIR}/emcmotutil.c" ]; then
     echo "skip: motion sources not found (RIP build required)"
@@ -15,6 +16,7 @@ fi
 gcc -O -pthread -DULAPI -Wall \
     -I"${INCDIR}" \
     -I"${SRCDIR}" \
+    -I"${MPDIR}" \
     "${SCRIPTDIR}/test.c" \
     "${SRCDIR}/emcmotutil.c" \
     "${SRCDIR}/dbuf.c" \

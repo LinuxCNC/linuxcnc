@@ -178,6 +178,10 @@ static int loadJoint(int joint, const IniFile &ini)
     }
     old_inihal_data.joint_jerk[joint] = maxJerk;
 
+    // NOTE: Userspace kinematics reads joint limits dynamically from shared memory
+    // (emcmotStruct->status.joint_status[j]) to support runtime changes
+    // via HAL pins (ini.N.max_limit, ini.N.max_velocity, etc.)
+
     // Compensation file (backlash alternative)
     int comp_file_type = ini.findIntV("COMP_FILE_TYPE", jointSection, 0, 0, 1);
     if(auto comp_file = ini.findString("COMP_FILE", jointSection)) {
