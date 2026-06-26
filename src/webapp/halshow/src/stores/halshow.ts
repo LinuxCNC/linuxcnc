@@ -431,12 +431,18 @@ export const halshowStore = {
     let metaMap = new Map<string, { type: string; dir: string; kind: string; owner: string; linked: boolean }>();
     // Track current values
     let valueMap = new Map<string, string>();
+    // Guard: don't rebuild watchValues until the new subscription's meta arrives.
+    // This prevents a race where an old subscription's delta message (no meta field)
+    // arrives before the new subscription's first response, which would clear
+    // watchValues and make all items flash to '—'.
+    let metaReceived = false;
 
     watchClient?.subscribeWatchItems((data: unknown) => {
       const msg = data as Record<string, unknown>;
 
       if (msg.meta && Array.isArray(msg.meta)) {
         // First message (or structure change): contains metadata + initial values
+        metaReceived = true;
         metaMap.clear();
         for (const m of msg.meta as Array<{ name: string; type: string; dir: string; kind: string; owner: string; linked: boolean }>) {
           metaMap.set(m.name, { type: m.type, dir: m.dir ?? '', kind: m.kind ?? '', owner: m.owner, linked: m.linked });
@@ -451,6 +457,10 @@ export const halshowStore = {
           valueMap.set(name, value as string);
         }
       }
+
+      // Don't rebuild until we have metadata from the current subscription.
+      // Old watchValues remain visible in the meantime.
+      if (!metaReceived) return;
 
       // Rebuild watchValues array from metadata + current values
       state.watchValues = state.watchList
