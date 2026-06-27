@@ -532,6 +532,8 @@ class GlCanonDraw:
         # TODO I don't see any calculation for 1/4 of system_memory_gb ? CMorley 2024
         self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
 
+        self.preview_too_large = False
+
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
@@ -1318,10 +1320,8 @@ class GlCanonDraw:
         self.draw_grid()
 
         show_program = self.get_show_program()
-        if os.path.exists(s.file):
-            if 0 < self.max_file_size < os.stat(s.file).st_size :
-                print("File too large to load, disabling preview.")
-                show_program = False
+        if self.preview_too_large:
+            show_program = False
 
         if show_program:
             if self.get_program_alpha():
@@ -2015,6 +2015,7 @@ class GlCanonDraw:
 
     def load_preview(self, f, canon, *args):
         self.set_canon(canon)
+        self.preview_too_large = False
         result, seq = gcode.parse(f, canon, *args)
 
         if result <= gcode.MIN_ERROR:
@@ -2024,6 +2025,14 @@ class GlCanonDraw:
             self.stale_dlist('program_norapids')
             self.stale_dlist('select_rapids')
             self.stale_dlist('select_norapids')
+
+        # Parsed fully (extents and limit check stay valid); only drawing is
+        # suppressed.
+        if 0 < self.max_file_size and os.path.exists(f) \
+                and self.max_file_size < os.stat(f).st_size:
+            self.preview_too_large = True
+            print("Preview disabled: file exceeds GRAPHICAL_MAX_FILE_SIZE."
+                  " The program still runs, but without a graphical extents check.")
 
         return result, seq
 
