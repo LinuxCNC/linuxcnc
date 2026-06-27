@@ -706,9 +706,10 @@ class GlCanonDraw:
         # the cap is left as it behaves rather than as it was described.
         self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
 
-        #: Name of the file the size limit last refused, so that the refusal is
-        #: reported once instead of on every frame. See _resolve_show_program.
-        self._refused_file = None
+        #: Set once per load in load_preview() when the file exceeds the size
+        #: limit; _resolve_show_program() reads it instead of re-stat'ing the
+        #: file on every frame.
+        self.preview_too_large = False
 
         try:
             if os.environ["INI_FILE_NAME"]:
@@ -1274,26 +1275,12 @@ class GlCanonDraw:
     def _resolve_show_program(self):
         """get_show_program(), refused for a file too large to preview.
 
-        Called from frame_context(), so this runs once per frame - which is why
-        the refusal is latched on the file it refused rather than logged where
-        it is decided. Unlatched, a single over-size file produces a warning per
-        redraw for as long as it stays loaded. Latching on the name and not on a
-        bool means a different over-size file still reports.
+        The size decision is made once per load in load_preview(); this only
+        reads the flag, so no file is stat'ed per frame.
         """
-        show_program = self.get_show_program()
-        s = self.stat
-        if (os.path.exists(s.file)
-                and 0 < self.max_file_size < os.stat(s.file).st_size):
-            if self._refused_file != s.file:
-                self._refused_file = s.file
-                log.warning("%s is larger than the %.0f MB preview limit; "
-                            "preview disabled for it",
-                            s.file, self.max_file_size / (1024 * 1024))
+        if self.preview_too_large:
             return False
-        # Cleared rather than left set, so that loading a small file and then
-        # coming back to the big one reports it again.
-        self._refused_file = None
-        return show_program
+        return self.get_show_program()
 
     def lathe_historical_config(self,trajcoordinates):
         # detect historical lathe config with dummy joint 1
@@ -1464,6 +1451,7 @@ class GlCanonDraw:
 
     def load_preview(self, f, canon, *args):
         self.set_canon(canon)
+        self.preview_too_large = False
         result, seq = gcode.parse(f, canon, *args)
 
         if result <= gcode.MIN_ERROR:
@@ -1471,6 +1459,16 @@ class GlCanonDraw:
             canon.calc_extents()
             self.stale_dlist('program_rapids')
             self.stale_dlist('program_norapids')
+
+        # Parsed fully (extents and the run-time limit check stay valid); only
+        # drawing is suppressed.
+        if 0 < self.max_file_size and os.path.exists(f) \
+                and self.max_file_size < os.stat(f).st_size:
+            self.preview_too_large = True
+            log.warning("%s is larger than the %.0f MB preview limit; "
+                        "preview disabled for it. The program still runs, "
+                        "but without a graphical extents check.",
+                        f, self.max_file_size / (1024 * 1024))
 
         return result, seq
 
