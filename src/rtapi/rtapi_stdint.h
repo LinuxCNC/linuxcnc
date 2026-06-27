@@ -75,4 +75,9 @@ typedef uintptr_t rtapi_uintptr_t;
 #define RTAPI_UINT64_MAX UINT64_MAX
 #endif
 
+// Abstracted for HAL
+typedef double    rtapi_real;
+typedef rtapi_s64 rtapi_sint;
+typedef rtapi_u64 rtapi_uint;
+
 #endif
