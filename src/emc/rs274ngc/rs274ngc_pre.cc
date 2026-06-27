@@ -1621,6 +1621,18 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5427] = _setup.v_current;
   _setup.parameters[5428] = _setup.w_current;
 
+  double abs_pos[9];
+  get_abs_position(&_setup, abs_pos);
+  _setup.parameters[5021] = abs_pos[0];
+  _setup.parameters[5022] = abs_pos[1];
+  _setup.parameters[5023] = abs_pos[2];
+  _setup.parameters[5024] = abs_pos[3];
+  _setup.parameters[5025] = abs_pos[4];
+  _setup.parameters[5026] = abs_pos[5];
+  _setup.parameters[5027] = abs_pos[6];
+  _setup.parameters[5028] = abs_pos[7];
+  _setup.parameters[5029] = abs_pos[8];
+
   if(_setup.file_pointer)
   {
       EXECUTING_BLOCK(_setup).offset = ftell(_setup.file_pointer);
