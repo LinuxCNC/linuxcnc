@@ -101,7 +101,9 @@ typedef enum {
   HOME_LOCK,// 22
   HOME_LOCK_WAIT,// 23
   HOME_FINISHED,// 24
-  HOME_ABORT// 25
+  HOME_ABORT,// 25
+  HOME_DOGBONE_SLOW_START,// 26
+  HOME_DOGBONE_SLOW_WAIT// 27
 } home_state_t;
 
 // local per-joint data (includes hal pin data)
@@ -123,6 +125,7 @@ typedef struct {
   int          home_sequence;        // intfc, updateable
   bool         volatile_home;        // intfc
   bool         home_is_synchronized;
+  bool         home_dogbone;
 } home_local_data;
 
 static  home_local_data H[EMCMOT_MAX_JOINTS];
@@ -522,6 +525,7 @@ static int base_homing_init(int id,
         H[i].home            =  0;
         H[i].home_flags      =  0;
         H[i].home_sequence   = 1000; //startup: unrealizable, positive seq no.
+	H[i].home_dogbone    =  0;
         H[i].volatile_home   =  0;
     }
     return 0;
@@ -635,7 +639,8 @@ static void base_set_joint_homing_params(int    jno,
                                          double home_latch_vel,
                                          int    home_flags,
                                          int    home_sequence,
-                                         bool   volatile_home
+                                         bool   volatile_home,
+					 bool   home_dogbone
                                          )
 {
     H[jno].home_offset     = offset;
@@ -646,6 +651,7 @@ static void base_set_joint_homing_params(int    jno,
     H[jno].home_flags      = home_flags;
     H[jno].home_sequence   = home_sequence;
     H[jno].volatile_home   = volatile_home;
+    H[jno].home_dogbone    = home_dogbone;
     update_home_is_synchronized();
 }
 
@@ -856,7 +862,52 @@ static int base_1joint_state_machine(int joint_num)
                 }
             }
             break;
+        case HOME_DOGBONE_SLOW_START:
+	    if (joint->free_tp.active) {
+		    H[joint_num].pause_timer = 0;
+		    break;
+	    }
 
+	    if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
+		    H[joint_num].pause_timer++;
+		    break;
+	    }
+
+	    H[joint_num].pause_timer = 0;
+
+	    if (!home_sw_active) {
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    _("Dogbone: switch lost before slow phase j=%d"),
+				    joint_num);
+		    H[joint_num].home_state = HOME_ABORT;
+		    immediate_state = 1;
+		    break;
+	    }
+
+	    /* Continue SAME direction, but slower */
+	    double vel = H[joint_num].home_latch_vel;
+
+	    if (H[joint_num].home_search_vel < 0)
+		    vel = -fabs(vel);
+	    else
+		    vel = fabs(vel);
+
+	    home_start_move(joint, vel);
+
+	    H[joint_num].home_state = HOME_DOGBONE_SLOW_WAIT;
+	    break;
+	case HOME_DOGBONE_SLOW_WAIT:
+	    if (!home_sw_active) {
+		    joint->free_tp.enable = 0;
+
+		    /* latch position at falling edge */
+		    H[joint_num].home_state = HOME_SET_SWITCH_POSITION;
+		    immediate_state = 1;
+		    break;
+	    }
+
+	    ABORT_CHECK(joint_num);
+	    break;
         case HOME_INITIAL_BACKOFF_START:
             /* This state is called if the homing sequence starts at a
                location where the home switch is already tripped. It
@@ -937,8 +988,13 @@ static int base_1joint_state_machine(int joint_num)
             if (home_sw_active) {
                 /* yes, stop motion */
                 joint->free_tp.enable = 0;
+
                 /* go to next step */
-                H[joint_num].home_state = HOME_SET_COARSE_POSITION;
+		if (H[joint_num].home_dogbone) {
+			H[joint_num].home_state = HOME_DOGBONE_SLOW_START;
+		} else {
+			H[joint_num].home_state = HOME_SET_COARSE_POSITION;
+		}
                 immediate_state = 1;
                 break;
             }
@@ -1485,7 +1541,8 @@ void set_joint_homing_params(int    jno,
                              double home_latch_vel,
                              int    home_flags,
                              int    home_sequence,
-                             bool   volatile_home
+                             bool   volatile_home,
+			     bool   home_dogbone
                              )
 {     base_set_joint_homing_params(jno,
                                    offset,
@@ -1495,7 +1552,8 @@ void set_joint_homing_params(int    jno,
                                    home_latch_vel,
                                    home_flags,
                                    home_sequence,
-                                   volatile_home);
+                                   volatile_home,
+				   home_dogbone);
 }
 void update_joint_homing_params(int    jno,
                                 double offset,

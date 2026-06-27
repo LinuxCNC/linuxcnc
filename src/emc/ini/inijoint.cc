@@ -135,6 +135,7 @@ static int loadJoint(int joint, const IniFile &ini)
     bool ignore_limits = ini.findBoolV("HOME_IGNORE_LIMITS", jointSection, false);
     bool volatile_home = ini.findBoolV("VOLATILE_HOME", jointSection, false);
     bool locking_idxer = ini.findBoolV("LOCKING_INDEXER", jointSection, false);
+    bool home_dogbone  = ini.findBoolV("HOME_DOGBONE", jointSection, false);
     int abs_encoder    = ini.findIntV("HOME_ABSOLUTE_ENCODER", jointSection, 0, 0, 2);
 
     // Sequence defaults to an unrealizable and positive sequence so that
@@ -151,7 +152,8 @@ static int loadJoint(int joint, const IniFile &ini)
                                      sequence,
                                      volatile_home,
                                      locking_idxer,
-                                     abs_encoder)) {
+                                     abs_encoder,
+                                     home_dogbone)) {
         print_dbg_config("emcJointSetHomingParams");
         return -1;
     }
