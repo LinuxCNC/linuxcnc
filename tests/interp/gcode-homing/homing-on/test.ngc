@@ -1,0 +1,8 @@
+; GCODE_HOMING=1: a plain G28 (no axis words) references the machine first
+; (HOME_CYCLE_IF_UNHOMED) and then performs its normal return move.
+; G28.2 / G28.3 home / unhome explicitly and are flag-independent.
+g28.2          ; home all joints
+g28.3          ; unhome all joints
+g28            ; with GCODE_HOMING=1: home-if-unhomed, then return
+g28.1          ; unaffected by the flag (store predefined position)
+m2
