@@ -533,7 +533,25 @@ static int do_debug_cmd(const std::string &value) {
     }
 }
 
-static int do_check_rt_cmd(void) {
+// Human-readable name of a realtime type, suitable for display by callers
+// such as 'realtime verify' and the latency tools.
+static const char *realtime_type_name(rtapi_realtime_type_t type) {
+    switch(type) {
+        case REALTIME_TYPE_UNINITIALIZED:   return "Uninitialized";
+        case REALTIME_TYPE_NONE:            return "No realtime";
+        case REALTIME_TYPE_UNKNOWN:         return "Unknown (SCHED_FIFO)";
+        case REALTIME_TYPE_PREEMPT_DYNAMIC: return "Preempt Dynamic";
+        case REALTIME_TYPE_PREEMPT_RT:      return "Preempt RT";
+        case REALTIME_TYPE_RTAI:            return "RTAI";
+        case REALTIME_TYPE_LXRT:            return "LXRT";
+        case REALTIME_TYPE_XENOMAI:         return "Xenomai";
+        case REALTIME_TYPE_XENOMAI_EVL:     return "Xenomai EVL";
+    }
+    return "BUG: unknown realtime type";
+}
+
+static int do_check_rt_cmd(std::string &out) {
+    out = realtime_type_name(rtapi_get_realtime_type());
     return rtapi_is_realtime() == 0;
 }
 
@@ -614,38 +632,6 @@ static ssize_t recv_data(int fd, void *buf, size_t n, int flags) {
  * int
  */
 
-static bool send_result(int fd, int result) {
-    ssize_t res = send_data(fd, &result, sizeof(int), 0);
-    if (res != sizeof(int)) {
-        if (res == -1) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_result failed: %s\n", strerror(errno));
-        } else {
-            rtapi_print_msg(
-                RTAPI_MSG_ERR, "rtapi_app: send_result failed, send only %li of %li bytes\n", res, sizeof(int)
-            );
-        }
-        return false;
-    } else {
-        return true;
-    }
-}
-
-static bool recv_result(int fd, int *result) {
-    ssize_t res = recv_data(fd, result, sizeof(int), 0);
-    if (res != sizeof(int)) {
-        if (res == -1) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_result failed: %s\n", strerror(errno));
-        } else {
-            rtapi_print_msg(
-                RTAPI_MSG_ERR, "rtapi_app: recv_result failed, recv only %li of %li bytes\n", res, sizeof(int)
-            );
-        }
-        return false;
-    } else {
-        return true;
-    }
-}
-
 static void push_uint16(std::vector<char> &buf, uint16_t value) {
     buf.push_back((char)(0xff & (value >> 0)));
     buf.push_back((char)(0xff & (value >> 8)));
@@ -654,6 +640,123 @@ static void push_uint16(std::vector<char> &buf, uint16_t value) {
 static uint16_t get_uint16(const std::vector<char> &buf, size_t idx) {
     //at() will check index and throw std::out_of_range
     return ((uint16_t)(unsigned char)buf.at(idx)) | ((uint16_t)(unsigned char)buf.at(idx + 1) << 8);
+}
+
+static void push_int(std::vector<char> &buf, int value) {
+    for (size_t i = 0; i < sizeof(int); i++) {
+        buf.push_back((char)(0xff & (value >> i * 8)));
+    }
+}
+
+static int get_int(const std::vector<char> &buf, size_t idx) {
+    //at() will check index and throw std::out_of_range
+    int ret = 0;
+    for (size_t i = 0; i < sizeof(int); i++) {
+        ret |= ((int)(unsigned char)buf.at(idx + i) << i * 8);
+    }
+    return ret;
+}
+
+static bool send_result(int fd, int result, const std::string &out) {
+    //Calculate size
+    size_t buff_size = 0;
+    buff_size += sizeof(int) + 2 * sizeof(uint16_t);
+    buff_size += out.size();
+
+    //Check uint16_t conversion of the total size; out.size() is bounded by it
+    if (buff_size > std::numeric_limits<uint16_t>::max()) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_result: result too big, size = %li!\n", buff_size);
+        return false;
+    }
+
+    //Serialize
+    std::vector<char> buf;
+    buf.reserve(buff_size);
+    push_uint16(buf, (uint16_t)buff_size);
+    push_int(buf, result);
+    push_uint16(buf, (uint16_t)out.size());
+    buf.insert(buf.end(), out.begin(), out.end());
+    if (buf.size() != buff_size) {
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "rtapi_app: Bug send_result: buf.size() %li != buff_size %li\n", buf.size(), buff_size
+        );
+        return false;
+    }
+
+    //Send
+    ssize_t res = send_data(fd, buf.data(), buf.size(), 0);
+    if (res != (ssize_t)buf.size()) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_result failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: send_result failed, sent only %li of %li bytes\n", res, buf.size()
+            );
+        }
+        return false;
+    }
+    return true;
+}
+
+static bool recv_result(int fd, int *result, std::string &out) {
+    //Get size
+    uint16_t tmp;
+    ssize_t res = recv_data(fd, &tmp, sizeof(uint16_t), 0);
+    if (res != sizeof(uint16_t)) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_result 1 failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: recv_result 1 failed, recv only %li of %li bytes\n", res, sizeof(uint16_t)
+            );
+        }
+        return false;
+    }
+    if (tmp < sizeof(uint16_t)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_result: bad frame size %u\n", tmp);
+        return false;
+    }
+    size_t buff_size = tmp - sizeof(uint16_t); //Size already consumed
+
+    //Get data
+    std::vector<char> buf(buff_size);
+    res = recv_data(fd, buf.data(), buff_size, 0);
+    if (res != (ssize_t)buff_size) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_result 2 failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: recv_result 2 failed, recv only %li of %li bytes\n", res, buff_size
+            );
+        }
+        return false;
+    }
+
+    //Deserialize
+    try {
+        size_t idx = 0;
+        *result = get_int(buf, idx);
+        idx += sizeof(int);
+        size_t out_size = get_uint16(buf, idx);
+        idx += sizeof(uint16_t);
+        //Bound checked, unpack argument
+        auto start = buf.begin() + idx;
+        auto end = start + out_size;
+        if (end > buf.end()) {
+            throw std::out_of_range("recv_result: out size not in buffer range");
+        }
+        out = std::string(start, end);
+        idx += out_size;
+        if (idx != buff_size) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_result: idx %li != buff_size %li\n", idx, buff_size);
+            return false;
+        }
+    } catch (std::out_of_range &e) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_result: %s\n", e.what());
+        return false;
+    }
+
+    return true;
 }
 
 static bool recv_args(int fd, std::vector<std::string> &args) {
@@ -668,6 +771,10 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
                 RTAPI_MSG_ERR, "rtapi_app: recv_args 1 failed, recv only %li of %li bytes\n", res, sizeof(uint16_t)
             );
         }
+        return false;
+    }
+    if (tmp < sizeof(uint16_t)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_args: bad frame size %u\n", tmp);
         return false;
     }
     size_t buff_size = tmp - sizeof(uint16_t); //Size already consumed
@@ -728,12 +835,12 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
     //Check uint16_t conversions
     //Buffer size is > sum(args[i].size()) so they don't need a separate check
     if (buff_size > std::numeric_limits<uint16_t>::max()) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_args: args to big, size = %li!\n", buff_size);
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_args: args too big, size = %li!\n", buff_size);
         return false;
     }
     //Edge case: One could in theory send many size zero args
     if (args.size() > std::numeric_limits<uint16_t>::max()) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_args: arg count to big, size = %li!\n", args.size());
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_args: arg count too big, size = %li!\n", args.size());
         return false;
     }
 
@@ -768,7 +875,7 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
     return true;
 }
 
-static int handle_command(const std::vector<std::string> &args) {
+static int handle_command(const std::vector<std::string> &args, std::string &out) {
     if (args.size() == 0) {
         return 0;
     }
@@ -788,7 +895,7 @@ static int handle_command(const std::vector<std::string> &args) {
     } else if (args.size() == 2 && args[0] == "debug") {
         return do_debug_cmd(args[1]);
     } else if (args.size() == 1 && args[0] == "check_rt") {
-        return do_check_rt_cmd();
+        return do_check_rt_cmd(out);
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR, "Unrecognized command starting with %s\n", args[0].c_str());
         return -1;
@@ -802,10 +909,14 @@ static int slave(int fd, const std::vector<std::string> &args) {
     }
 
     int result = -1;
-    if (!recv_result(fd, &result)) {
+    std::string out;
+    if (!recv_result(fd, &result, out)) {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from master\n");
         return -1;
     } else {
+        if (out.length() > 0) {
+            printf("%s\n", out.c_str());
+        }
         return result;
     }
 }
@@ -825,6 +936,7 @@ static bool master_process_socket_command(int fd) {
     } else {
         int result;
         std::vector<std::string> args;
+        std::string out;
 
         //Set timeout, so master doesn't hang forever
         struct timeval timeout;
@@ -842,9 +954,9 @@ static bool master_process_socket_command(int fd) {
             return true; //If there is a socket error, just continue
         }
 
-        result = handle_command(args);
+        result = handle_command(args, out);
 
-        if (!send_result(fd1, result)) {
+        if (!send_result(fd1, result, out)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to slave\n");
         }
         close(fd1);
@@ -867,11 +979,15 @@ static int master(int fd, const std::vector<std::string> &args) {
     instance_count = 0;
     App(); // force rtapi_app to be created
     if (args.size()) {
-        result = handle_command(args);
+        std::string out;
+        result = handle_command(args, out);
         if (result != 0)
             goto out;
         if (force_exit || instance_count == 0)
             goto out;
+        if (out.length() > 0) {
+            printf("%s\n", out.c_str());
+        }
     }
     //Process commands as long as master should not exit
     while(master_process_socket_command(fd));
@@ -997,7 +1113,12 @@ become_master:
         //If master is started, this starts up the whole realtime chain
         //and halrun -U is needed to exit again
         if (args.size() == 1 && args[0] == "check_rt") {
-            return do_check_rt_cmd();
+            std::string out;
+            int ret = do_check_rt_cmd(out);
+            if (out.length() > 0) {
+                printf("%s\n", out.c_str());
+            }
+            return ret;
         }
         int result = listen(fd, 10);
         if (result != 0) {
