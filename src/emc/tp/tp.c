@@ -165,6 +165,39 @@ STATIC int tcRotaryMotionCheck(TC_STRUCT const * const tc) {
     }
 }
 
+/**
+ * Check for UVW (secondary linear) or spherical motion only -- distinct from
+ * ABC rotary, which the tangent blend can handle (see tpSetupTangent).
+ */
+STATIC int tcUVWMotionCheck(TC_STRUCT const * const tc) {
+    switch (tc->motion_type) {
+        case TC_LINEAR:    return !tc->coords.line.uvw.tmag_zero;
+        case TC_CIRCULAR:  return !tc->coords.circle.uvw.tmag_zero;
+        case TC_SPHERICAL: return true;
+        default:           return false;
+    }
+}
+
+/**
+ * Get the ABC rotary tangent unit vector for a segment.
+ * Returns 1 and fills *out if the segment has ABC motion, 0 otherwise.
+ */
+STATIC int tcGetABCTangent(TC_STRUCT const * const tc, PmCartesian * const out) {
+    out->x = out->y = out->z = 0.0;
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            if (tc->coords.line.abc.tmag_zero) return 0;
+            *out = tc->coords.line.abc.uVec;
+            return 1;
+        case TC_CIRCULAR:
+            if (tc->coords.circle.abc.tmag_zero) return 0;
+            *out = tc->coords.circle.abc.uVec;
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 
 /**
  * @section tpgetset Internal Get/Set functions
@@ -1912,10 +1945,46 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         tp_debug_print("missing tc or prev tc in tangent check\n");
         return TP_ERR_FAIL;
     }
-    //If we have ABCUVW movement, then don't check for tangency
-    if (tcRotaryMotionCheck(tc) || tcRotaryMotionCheck(prev_tc)) {
-        tp_debug_print("found rotary axis motion\n");
+    // UVW (secondary linear) or spherical motion is not handled by the tangent
+    // blend geometry -> keep the conservative exact stop.
+    if (tcUVWMotionCheck(tc) || tcUVWMotionCheck(prev_tc)) {
+        tp_debug_print("found UVW/spherical motion, no tangent blend\n");
         return TP_ERR_FAIL;
+    }
+
+    // ABC rotary motion IS allowed through the tangent blend, but only when the
+    // rotary direction is near-collinear across the junction. The kink-velocity
+    // limiter below bounds XYZ acceleration only -- no ABC accel bound is
+    // plumbed into the TP yet (cf. tp->xyz_acc_bound). So we permit a tangent
+    // blend across ABC motion only when the ABC tangent barely changes
+    // direction, i.e. the rotary kink acceleration is negligible and stays
+    // within limits. Any larger ABC direction change (or ABC motion that starts
+    // or stops at the junction) falls back to the safe exact stop -- the legacy
+    // behaviour for every rotary move. This is a conservative gate, NOT a speed
+    // dial: outside the window we stop, never blend faster.
+    // NOTE: this CHANGES TP0 corner behaviour for 5-axis programs (corners with
+    // near-collinear ABC now blend instead of stopping) and must be validated
+    // on a real rotary config. The complete fix is to fold an ABC acc_bound into
+    // the acc_scale computation below so the rotary kink velocity is limited by
+    // the machine's ABC acceleration limits.
+    {
+        PmCartesian prev_abc, this_abc;
+        int prev_has_abc = tcGetABCTangent(prev_tc, &prev_abc);
+        int this_has_abc = tcGetABCTangent(tc, &this_abc);
+        if (prev_has_abc && this_has_abc) {
+            double dot_abc;
+            pmCartCartDot(&prev_abc, &this_abc, &dot_abc);
+            const double ABC_TANGENT_COLLINEAR_DEG = 1.0;
+            const double abc_dot_min = cos(ABC_TANGENT_COLLINEAR_DEG * PM_PI / 180.0);
+            if (saturate(dot_abc, 1.0) < abc_dot_min) {
+                tp_debug_print("ABC direction change too large for tangent blend\n");
+                return TP_ERR_FAIL;
+            }
+        } else if (prev_has_abc != this_has_abc) {
+            // ABC motion starts or stops at the junction -> discontinuous.
+            tp_debug_print("ABC motion starts/stops at junction, no tangent blend\n");
+            return TP_ERR_FAIL;
+        }
     }
 
     if (emcmotConfig->arcBlendOptDepth < 2) {
