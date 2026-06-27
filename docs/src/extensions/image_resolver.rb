@@ -114,7 +114,7 @@ module LinuxCNCDocs
         return unless abs
         node.set_attr('target', abs)
         apply_height_as_width(node, abs)
-        apply_default_width(node)
+        apply_default_width(node, abs)
         apply_default_alignment(node)
         return
       end
@@ -322,14 +322,21 @@ module LinuxCNCDocs
       end
     end
 
-    # asciidoctor-pdf renders raster images at native pixel dimensions
-    # interpreted as 72 DPI, then caps at content width.  Most of our
-    # source PNGs are screenshots/diagrams sized for ~150 DPI display, so
-    # the default behaviour blows them up to full text column width and
-    # leaves big half-blank pages where they break across a page boundary.
-    # dblatex defaulted to a smaller fit.  Approximate that by setting a
-    # default pdfwidth when the source did not pin width/scaledwidth/pdfwidth.
-    def apply_default_width(node)
+    # A4 (595.28pt) minus the theme's 0.67in side margins leaves a 498.8pt text
+    # column; the historical cap for an over-wide image is 75% of it.
+    TEXT_COLUMN_PT = 498.8
+    DEFAULT_IMAGE_WIDTH = 0.75
+    # Screenshots/diagrams are captured at screen resolution; assume 96 DPI when
+    # a raster image carries no embedded resolution of its own.
+    DEFAULT_SCREEN_DPI = 96.0
+
+    # asciidoctor-pdf renders raster images at native pixels interpreted as
+    # 72 DPI, then caps at content width, so an unsized image blows up to the
+    # full text column.  Instead, size each image at its intended resolution --
+    # the embedded pHYs when present (e.g. the 96-DPI equation captures), else
+    # an assumed 96 DPI screen capture.  Only images wider than the 75% cap, or
+    # whose size we cannot read, fall back to the historical 75%-of-column.
+    def apply_default_width(node, abs = nil)
       return if node.context == :inline_image
       return if node.attr('pdfwidth')
       return if node.attr('scaledwidth')
@@ -337,7 +344,44 @@ module LinuxCNCDocs
       # A pinned height is an explicit size (already turned into pdfwidth by
       # apply_height_as_width where readable); don't override it with 75%.
       return if node.attr('height')
-      node.set_attr('pdfwidth', '75%')
+      native_pt = abs && native_width_pt(abs)
+      if native_pt && native_pt <= TEXT_COLUMN_PT * DEFAULT_IMAGE_WIDTH
+        node.set_attr('pdfwidth', format('%gpt', native_pt.round(2)))
+      else
+        node.set_attr('pdfwidth', '75%')
+      end
+    end
+
+    # Intended width in pt for a raster image: its embedded pHYs resolution when
+    # present, otherwise an assumed 96 DPI.  nil for formats we don't size here.
+    def native_width_pt(path)
+      ext = File.extname(path).downcase
+      return nil unless ['.png', '.jpg', '.jpeg'].include?(ext)
+      dims = intrinsic_size(path)
+      return nil unless dims && dims[0] > 0
+      dpi = (ext == '.png' && png_dpi(path)) || DEFAULT_SCREEN_DPI
+      dims[0] * 72.0 / dpi
+    end
+
+    # Pixels-per-inch from the PNG pHYs chunk (unit 1 => pixels per metre), or
+    # nil when absent.  pHYs always precedes IDAT, so stop at the pixel data.
+    def png_dpi(path)
+      data = File.binread(path, 4096)
+      return nil unless data && data.byteslice(0, 8) == "\x89PNG\r\n\x1A\n".b
+      off = 8
+      while off + 17 <= data.bytesize
+        len = data.byteslice(off, 4).unpack1('N')
+        type = data.byteslice(off + 4, 4)
+        break if type == 'IDAT'
+        if type == 'pHYs'
+          ppu_x, _ppu_y, unit = data.byteslice(off + 8, 9).unpack('N2C')
+          return (unit == 1 && ppu_x && ppu_x > 0) ? ppu_x * 0.0254 : nil
+        end
+        off += 12 + len
+      end
+      nil
+    rescue StandardError
+      nil
     end
 
     # asciidoctor-pdf sizes images only by the width family and ignores the
