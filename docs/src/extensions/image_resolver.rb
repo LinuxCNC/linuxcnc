@@ -113,6 +113,7 @@ module LinuxCNCDocs
         abs = resolve_target(target, base_dir, lang, lang_re)
         return unless abs
         node.set_attr('target', abs)
+        apply_height_as_width(node, abs)
         apply_default_width(node)
         apply_default_alignment(node)
         return
@@ -333,7 +334,80 @@ module LinuxCNCDocs
       return if node.attr('pdfwidth')
       return if node.attr('scaledwidth')
       return if node.attr('width')
+      # A pinned height is an explicit size (already turned into pdfwidth by
+      # apply_height_as_width where readable); don't override it with 75%.
+      return if node.attr('height')
       node.set_attr('pdfwidth', '75%')
+    end
+
+    # asciidoctor-pdf sizes images only by the width family and ignores the
+    # height attribute, so when only a height is given, convert it to the
+    # equivalent pdfwidth via the file's intrinsic aspect ratio.
+    def apply_height_as_width(node, abs)
+      return if node.context == :inline_image
+      return if node.attr('pdfwidth') || node.attr('scaledwidth') ||
+                node.attr('width') || node.attr('scale')
+      h = node.attr('height')
+      return unless h && h.to_s.match?(/\A\d+(\.\d+)?\z/)
+      dims = intrinsic_size(abs)
+      return unless dims && dims[1] > 0
+      px_w = h.to_f * dims[0] / dims[1]
+      node.set_attr('pdfwidth', format('%gpx', px_w))
+    end
+
+    # Intrinsic [width, height] in px for the formats we ship, without an image
+    # library.  nil when the size can't be determined.
+    def intrinsic_size(path)
+      return nil unless path && File.file?(path)
+      case File.extname(path).downcase
+      when '.png'  then png_size(path)
+      when '.jpg', '.jpeg' then jpeg_size(path)
+      when '.svg'  then svg_size(path)
+      end
+    rescue StandardError
+      nil
+    end
+
+    def png_size(path)
+      data = File.binread(path, 24)
+      return nil unless data && data.byteslice(0, 8) == "\x89PNG\r\n\x1A\n".b
+      w, h = data.byteslice(16, 8).unpack('N2')
+      (w && h) ? [w, h] : nil
+    end
+
+    def jpeg_size(path)
+      File.open(path, 'rb') do |f|
+        return nil unless f.read(2) == "\xFF\xD8".b
+        while (marker = f.read(2))
+          break unless marker.getbyte(0) == 0xFF
+          code = marker.getbyte(1)
+          len = f.read(2)&.unpack1('n')
+          break unless len
+          # SOF0..SOF15 carry the frame size (skip the non-frame markers).
+          if code >= 0xC0 && code <= 0xCF && ![0xC4, 0xC8, 0xCC].include?(code)
+            seg = f.read(5)
+            h, w = seg.byteslice(1, 4).unpack('n2')
+            return [w, h]
+          end
+          f.seek(len - 2, IO::SEEK_CUR)
+        end
+      end
+      nil
+    end
+
+    def svg_size(path)
+      head = File.read(path, 2048)
+      return nil unless head
+      tag = head[/<svg\b[^>]*>/m]
+      return nil unless tag
+      w = tag[/\bwidth="([\d.]+)/, 1]
+      h = tag[/\bheight="([\d.]+)/, 1]
+      return [w.to_f, h.to_f] if w && h
+      if (vb = tag[/\bviewBox="([^"]+)"/, 1])
+        nums = vb.split(/[\s,]+/).map(&:to_f)
+        return [nums[2], nums[3]] if nums.length == 4 && nums[3] > 0
+      end
+      nil
     end
 
     # center images by default if no alignmen is given
@@ -353,8 +427,54 @@ module LinuxCNCDocs
       nil
     end
   end
+
+  # Asciidoctor emits image width/height as HTML attributes, but the bundled
+  # stylesheet's `img{height:auto}` (an author rule) outranks them in the
+  # cascade, so the requested height is dropped.  CSS alone can't recover it, so
+  # mirror the width/height attributes into an inline style, which wins.  Bare
+  # numbers become px; values with a unit or % pass through.
+  class ImageDimensionStyler < Asciidoctor::Extensions::Postprocessor
+    IMG_TAG_RE = /<(img|object)\b[^>]*>/i
+    DIM_RE = ->(name) { /\b#{name}="([^"]*)"/i }
+
+    def process(document, output)
+      # Only the HTML backend hands the postprocessor a String of markup; the
+      # PDF converter passes its document object, so leave non-String output be.
+      return output unless output.is_a?(::String)
+      return output unless document.backend == 'html5' || document.basebackend?('html')
+      output.gsub(IMG_TAG_RE) { |tag| restyle(tag) }
+    end
+
+    def restyle(tag)
+      decls = []
+      %w[width height].each do |dim|
+        m = DIM_RE.call(dim).match(tag)
+        next unless m
+        v = m[1].strip
+        next if v.empty?
+        decls << "#{dim}:#{css_length(v)}"
+      end
+      return tag if decls.empty?
+
+      style = decls.join(';')
+      if (sm = /\bstyle="([^"]*)"/i.match(tag))
+        existing = sm[1].sub(/;\s*\z/, '')
+        merged = existing.empty? ? style : "#{existing};#{style}"
+        tag.sub(/\bstyle="[^"]*"/i, %(style="#{merged}"))
+      else
+        tag.sub(/<(img|object)\b/i, %(<\\1 style="#{style}"))
+      end
+    end
+
+    # A bare integer/decimal is a pixel count (HTML attribute semantics);
+    # anything that already names a unit or percentage is left untouched.
+    def css_length(v)
+      v.match?(/\A\d+(\.\d+)?\z/) ? "#{v}px" : v
+    end
+  end
 end
 
 Asciidoctor::Extensions.register do
   treeprocessor LinuxCNCDocs::ImageResolver
+  postprocessor LinuxCNCDocs::ImageDimensionStyler
 end
