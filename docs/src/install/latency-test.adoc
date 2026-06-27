@@ -202,13 +202,14 @@ makes the measured latency unrepresentative of a properly configured realtime
 system.
 
 Realtime::
-    The running realtime type, for example `RT-PREEMPT_RT`, `RT-RTAI` or
-    `RT-Xenomai`. It reads `no realtime` (red) when `rtapi_app` cannot obtain
-    realtime scheduling, either because the running kernel is not a realtime
-    kernel (see <<sec:kernel_and_version_requirements,Kernel and Version
-    requirements>>) or because `rtapi_app` lacks the required privileges on a
-    run-in-place build (see <<sub:realtime,Realtime>>, run `sudo make setuid`
-    or `sudo make setcap`). In this state the figures reflect ordinary,
+    The realtime type that rtapi is running, as reported by `realtime verify`,
+    for example `Preempt RT`, `RTAI` or `Xenomai`. It reads `No realtime` (red)
+    when `rtapi_app` cannot obtain realtime scheduling, either because the
+    running kernel is not a realtime kernel (see
+    <<sec:kernel_and_version_requirements,Kernel and Version requirements>>) or
+    because `rtapi_app` lacks the required privileges on a run-in-place build
+    (see <<sub:realtime,Realtime>>, run `sudo make setuid` or
+    `sudo make setcap`). In this state the figures reflect ordinary,
     non-realtime scheduling and will be far worse than a realtime kernel
     delivers. For testing only, realtime can be forced with the
     `LINUXCNC_FORCE_REALTIME=1` environment variable.

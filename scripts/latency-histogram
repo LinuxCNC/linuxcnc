@@ -351,35 +351,23 @@ proc load_packages {} {
 } ;# load_packages
 
 proc rt_status_items {} {
-  # Returns a list of {text color} pairs for the status bar.
-  # color is "" for normal (inherit theme); set only when it needs attention.
+  # Returns {text color} pairs; color is "" except where it needs attention.
   set red "#cc4444"
   set items {}
 
-  # realtime: concise type when available, red "no realtime" when not.
-  # 'realtime verify' is authoritative for the yes/no; the type label is
-  # derived from the same kernel signals rtapi uses, for display only.
+  # realtime: type from 'realtime verify' stdout, yes/no from its exit status.
+  set rt_text "no realtime"
   set rt_ok 0
   if {![catch {exec linuxcnc_var REALTIME} rt]} {
-    if {![catch {exec $rt verify 2>@1}]} {set rt_ok 1}
-  }
-  if {$rt_ok} {
-    set t SCHED_FIFO
-    if {[string match -nocase *-rtai* [exec uname -r]]} {
-      set t RTAI
-    } elseif {[file exists /dev/evl]} {
-      set t Xenomai-EVL
-    } elseif {[file exists /proc/xenomai]} {
-      set t Xenomai
-    } elseif {[regexp -nocase {PREEMPT[ _]RT} [exec uname -v]]} {
-      set t PREEMPT_RT
+    if {![catch {open [list | $rt verify 2> /dev/null] r} chan]} {
+      set out [string trim [read $chan]]
+      set rt_ok [expr {![catch {close $chan}]}]
+      if {$out ne ""} {set rt_text $out}
     }
-    lappend items [list "RT-$t" ""]
-  } else {
-    lappend items [list "no realtime" $red]
   }
+  lappend items [list $rt_text [expr {$rt_ok ? "" : $red}]]
 
-  # cpu frequency governor: bare value, red when not 'performance'
+  # cpu governor: red when not 'performance'
   set gov ""
   catch {set gov [string trim [exec cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor]]}
   if {$gov eq ""} {set gov "gov?"}
@@ -389,7 +377,7 @@ proc rt_status_items {} {
     lappend items [list $gov $red]
   }
 
-  # isolcpus: single concise value
+  # isolcpus
   set cmdline ""
   catch {set cmdline [exec cat /proc/cmdline]}
   if {[regexp {isolcpus=(\S+)} $cmdline -> iso]} {

@@ -81,11 +81,10 @@ if [ "$BASE" -eq "$SERVO" ]; then BASE=0; fi
 BASE_HUMAN=$(human_time "$BASE")
 SERVO_HUMAN=$(human_time "$SERVO")
 
-# --- status-bar info (axis-style footer; colour only when attention needed) ---
-# 'realtime verify' is authoritative for yes/no; the type label is derived from
-# the same kernel signals rtapi uses, for display only.
+# --- status-bar fields (colour red only when they need attention) ---
+# realtime: type from 'realtime verify'; non-zero exit means none.
 RED="#cc4444"
-if RT_TEXT=$(realtime verify); then
+if RT_TEXT=$(realtime verify 2>/dev/null); then
     RT_FG=""
 else
     RT_FG="foreground=\"$RED\""
