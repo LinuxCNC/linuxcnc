@@ -81,6 +81,23 @@ if [ "$BASE" -eq "$SERVO" ]; then BASE=0; fi
 BASE_HUMAN=$(human_time "$BASE")
 SERVO_HUMAN=$(human_time "$SERVO")
 
+# --- status-bar fields (colour red only when they need attention) ---
+# realtime: type from 'realtime verify'; non-zero exit means none.
+RED="#cc4444"
+if RT_TEXT=$(realtime verify 2>/dev/null); then
+    RT_FG=""
+else
+    RT_FG="foreground=\"$RED\""
+fi
+GOV=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null)
+[ -z "$GOV" ] && GOV="gov?"
+if [ "$GOV" = performance ]; then GOV_FG=""; else GOV_FG="foreground=\"$RED\""; fi
+if grep -q 'isolcpus=' /proc/cmdline 2>/dev/null; then
+    ISOL_TEXT=$(tr ' ' '\n' < /proc/cmdline | grep '^isolcpus=' | head -1)
+else
+    ISOL_TEXT="no_isolcpus"
+fi
+
 if [ "$BASE" -eq 0 ]; then
 cat > lat.hal <<EOF
 loadrt threads name1=slow period1=$SERVO
@@ -152,6 +169,15 @@ fi
 cat >> lat.xml <<EOF
 <tablerow/>
   <button text="Reset Statistics" halpin="reset" />
+
+<tablerow/><tablesticky sticky="we"/><tablespan columns="5"/>
+<table flexible_columns="[1,2,3]" uniform_columns="aaa">
+<tablesticky sticky="we"/>
+<tablerow/>
+  <label text="$RT_TEXT" $RT_FG relief="sunken" bd="1" anchor="w" padx="6"/>
+  <label text="$GOV" $GOV_FG relief="sunken" bd="1" anchor="center" padx="6"/>
+  <label text="$ISOL_TEXT" relief="sunken" bd="1" anchor="e" padx="6"/>
+</table>
 
 </table>
 </pyvcp>
