@@ -735,10 +735,10 @@ class Data:
                 os.symlink(base,shortcut)
 
         if self.createshortcut and os.path.exists(desktop):
-            if os.path.exists(BASE + "/scripts/linuxcnc"):
-                scriptspath = (BASE + "/scripts/linuxcnc")
+            if os.path.exists(BASE + "/bin/gomc-server"):
+                scriptspath = (BASE + "/bin/gomc-server")
             else:
-                scriptspath ="linuxcnc"
+                scriptspath ="gomc-server"
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")

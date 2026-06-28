@@ -1061,10 +1061,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                 os.symlink(base,shortcut)
 
         if self.createshortcut and os.path.exists(desktop):
-            if os.path.exists(_BASE + "/scripts/linuxcnc"):
-                scriptspath = (_BASE + "/scripts/linuxcnc")
+            if os.path.exists(_BASE + "/bin/gomc-server"):
+                scriptspath = (_BASE + "/bin/gomc-server")
             else:
-                scriptspath ="linuxcnc"
+                scriptspath ="gomc-server"
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")

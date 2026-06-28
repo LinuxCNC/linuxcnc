@@ -4,7 +4,6 @@
 package launcher
 
 import (
-	"os"
 	"strings"
 	"time"
 
@@ -108,7 +107,7 @@ func (l *Launcher) doCleanup() {
 		// Step 6 — Run [HAL]SHUTDOWN script if configured.
 		if l.ini != nil {
 			if shutdown := l.ini.Get("HAL", "SHUTDOWN"); shutdown != "" {
-				halExec := halfile.New(l.ini, os.Getenv("HALLIB_PATH"), l.logger, l.opts.IniFile)
+				halExec := halfile.New(l.ini, l.halibPath, l.logger, l.opts.IniFile)
 				if err := halExec.ExecuteShutdown(); err != nil {
 					l.logger.Debug("HAL shutdown script returned error", "error", err)
 				}
@@ -195,7 +194,7 @@ func (l *Launcher) doCleanup() {
 
 		if l.ini != nil {
 			if shutdown := l.ini.Get("HAL", "SHUTDOWN"); shutdown != "" {
-				halExec := halfile.New(l.ini, os.Getenv("HALLIB_PATH"), l.logger, l.opts.IniFile)
+				halExec := halfile.New(l.ini, l.halibPath, l.logger, l.opts.IniFile)
 				if err := halExec.ExecuteShutdown(); err != nil {
 					l.logger.Debug("HAL shutdown script returned error", "error", err)
 				}

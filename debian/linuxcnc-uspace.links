@@ -1,1 +1,2 @@
 usr/share/linuxcnc/ncfiles usr/share/doc/linuxcnc/examples/nc_files
+usr/bin/gomc-server usr/bin/linuxcnc

@@ -57,6 +57,7 @@ type Launcher struct {
 	logger      *slog.Logger
 	lock        *lockfile.LockFile // flock-based instance lock
 	rtMgr       *realtime.Manager  // realtime environment manager
+	halibPath   string             // colon-separated HAL library search path
 	cleanupOnce sync.Once          // ensures cleanup runs exactly once
 	halComp     *hal.Component     // launcher's HAL component (like halcmd's hal_init)
 	goModules   []*goModule        // Go modules loaded via "load" command (compiled-in)
@@ -128,7 +129,7 @@ func (l *Launcher) Run() (runErr error) {
 	halrest.SetLoadModuleFunc(l.runtimeLoadModule)
 	halrest.SetUnloadModuleFunc(l.UnloadModule)
 
-	l.setupEnvironment()
+	l.initHalibPath()
 
 	// Export INI file path and config directory so that child processes
 	// (linuxcncsvr, iocontrol, task, etc.) can find the configuration.
@@ -152,8 +153,6 @@ func (l *Launcher) Run() (runErr error) {
 
 	// M7: Trap SIGINT and SIGTERM so that Ctrl-C triggers an ordered shutdown
 	// instead of an abrupt process exit that leaves HAL loaded.
-	// This mirrors scripts/linuxcnc.in line 778:
-	//   trap 'Cleanup ; exit 0' SIGINT SIGTERM
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
@@ -182,7 +181,6 @@ func (l *Launcher) Run() (runErr error) {
 	// for all subsequent subprocess launches.  Subprocesses such as iocontrol,
 	// halcmd, and milltask use the C IniFile class which does not handle
 	// #INCLUDE, so they must receive the pre-expanded file.
-	// This mirrors the handle_includes() function in scripts/linuxcnc.in.
 	effectiveIni, err := inifile.WriteExpanded(l.opts.IniFile)
 	if err != nil {
 		return fmt.Errorf("expanding INI file includes: %w", err)
@@ -195,7 +193,6 @@ func (l *Launcher) Run() (runErr error) {
 
 	// Change to the INI file's directory so that relative paths in the INI
 	// (e.g., sim.var, sim.tbl, position.txt) resolve correctly.
-	// This mirrors scripts/linuxcnc.in line 783: cd "$INI_DIR"
 	iniDir := filepath.Dir(l.opts.IniFile)
 	if err := os.Chdir(iniDir); err != nil {
 		return fmt.Errorf("chdir to INI directory %s: %w", iniDir, err)
@@ -269,7 +266,7 @@ func (l *Launcher) Run() (runErr error) {
 	}
 
 	// Load and execute HAL files.
-	halExec := halfile.New(l.ini, os.Getenv("HALLIB_PATH"), l.logger, l.opts.IniFile)
+	halExec := halfile.New(l.ini, l.halibPath, l.logger, l.opts.IniFile)
 	halResult, err := halExec.ParseAll()
 	if err != nil {
 		return fmt.Errorf("HAL file parsing failed: %w", err)
@@ -370,17 +367,9 @@ func (l *Launcher) setConfigEnv() {
 	}
 }
 
-// setupEnvironment configures process environment variables that are not
-// provided by rip-environment (for RIP builds), system packages (for installed
-// builds), or the linuxcnc wrapper script.
-func (l *Launcher) setupEnvironment() {
-	setIfEmpty := func(key, val string) {
-		if os.Getenv(key) == "" {
-			os.Setenv(key, val)
-		}
-	}
-
-	// HALLIB_PATH – start with ".:HALLIB_DIR", then prepend -H dirs.
+// initHalibPath computes the HAL library search path from the compile-time
+// HalibDir and any additional -H directories passed on the command line.
+func (l *Launcher) initHalibPath() {
 	halibPath := "."
 	if config.HalibDir != "" {
 		halibPath += ":" + config.HalibDir
@@ -388,14 +377,7 @@ func (l *Launcher) setupEnvironment() {
 	for _, d := range l.opts.HalLibDirs {
 		halibPath = d + ":" + halibPath
 	}
-	os.Setenv("HALLIB_PATH", halibPath)
-	os.Setenv("HALLIB_DIR", config.HalibDir)
-
-	// HAL_RTMOD_DIR.
-	setIfEmpty("HAL_RTMOD_DIR", config.EMC2RtlibDir)
-
-	// LINUXCNC_HOME.
-	setIfEmpty("LINUXCNC_HOME", config.EMC2Home)
+	l.halibPath = halibPath
 }
 
 // logConfiguration logs key INI settings at debug level.
@@ -412,10 +394,6 @@ func (l *Launcher) logConfiguration() {
 }
 
 // startHalThreads starts all HAL realtime threads via the hal-go API.
-//
-// This mirrors scripts/linuxcnc.in line 999:
-//
-//	$HALCMD start
 func (l *Launcher) startHalThreads() error {
 	l.logger.Info("starting HAL threads")
 	if err := halcmd.StartThreads(); err != nil {

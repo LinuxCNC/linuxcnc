@@ -2,9 +2,8 @@
 // License: GPL Version 2
 // Command gomc-server is the Go-based server process for LinuxCNC.
 //
-// It is invoked by the scripts/linuxcnc wrapper script after environment
-// setup (via rip-environment for RIP builds) and accepts the same
-// command-line flags as the legacy scripts/linuxcnc.in bash script.
+// For RIP builds, source rip-environment first to set up PATH, LD_LIBRARY_PATH,
+// PYTHONPATH, etc.  For installed builds, all paths are compiled in.
 //
 // Usage:
 //

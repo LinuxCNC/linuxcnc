@@ -66,6 +66,7 @@ EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
 EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 LINUXCNCVERSION="@EMC2VERSION@"; export LINUXCNCVERSION
 LINUXCNC_NCFILES_DIR="@EMC2_NCFILES_DIR@"; export LINUXCNC_NCFILES_DIR
+LINUXCNC_TCL_DIR="@EMC2_TCL_DIR@"; export LINUXCNC_TCL_DIR
 LINUXCNC_EMCSH=@WISH@; export LINUXCNC_EMCSH
 PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
 GLADE_ICON_THEME_PATH=$EMC2_HOME/share/glade/pixmaps:"$GLADE_ICON_THEME_PATH"; export GLADE_ICON_THEME_PATH
@@ -108,7 +109,7 @@ if ! $as_command; then
     # TODO: if these completion directives give trouble for any versions
     # of bash actively in use, protect them with checks of BASH_VERSINFO
     if [ $BASH_VERSINFO -eq 2 ]; then
-        complete -o dirnames -f -X '!*.ini' emc axis mdi
+        complete -o dirnames -f -X '!*.ini' gomc-server axis mdi
         complete -o dirnames -f -X '!*.hal' halrun halcmd
         complete -W 'start stop restart status' realtime
         complete -C "halcmd -C" halcmd
@@ -119,7 +120,7 @@ if ! $as_command; then
             *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
             esac
         }
-        complete -o plusdirs -F _iningc emc axis
+        complete -o plusdirs -F _iningc gomc-server axis
         complete -o plusdirs -f -X '!*.ini' mdi
         complete -o plusdirs -f -X '!*.hal' halrun halcmd
         complete -W 'start stop restart status' realtime
