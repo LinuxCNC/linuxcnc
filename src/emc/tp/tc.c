@@ -1087,7 +1087,7 @@ void tcCleanupRuckig(TC_STRUCT * const tc)
     }
 
     if (tc->ruckig_planner) {
-        ruckig_destroy(tc->ruckig_planner);
+        ruckig_pool_release(tc->ruckig_planner);
         tc->ruckig_planner = NULL;
     }
     tc->ruckig_planned = 0;
