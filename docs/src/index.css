@@ -18,4 +18,5 @@ summary {
   margin-bottom: 0.15em;
   font-family: sans-serif;
   cursor: pointer;
+  width: fit-content;
 }
