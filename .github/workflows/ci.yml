@@ -181,6 +181,8 @@ jobs:
       run: |
         set -x
         .github/scripts/build-doc.sh
+    - name: Check manpage names match filenames
+      run: scripts/manpage-name-check.py docs/build/man
     - name: Verify no untracked or modified files after build
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
