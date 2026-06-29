@@ -38,16 +38,14 @@
 #include <rtapi_string.h>
 
 #include "hostmot2-lowlevel.h"
-#include "hm2_eth_net.h"
-
-char* HM2_LLIO_MODULE_NAME="hm2_eth_evl";
+#include "hm2_eth_net_evl.h"
 
 /// ethernet io functions
 
 int oob_enable_port(hm2_eth_t *board);
 int oob_disable_port(hm2_eth_t *board);
 
-int init_board(hm2_eth_t *board, const char *board_ip) {
+int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
     LL_PRINT("%s: INFO: init board (Xenomai EVL)\n", board_ip);
     board->is_evl_oob_active = false;
@@ -132,7 +130,7 @@ int init_board(hm2_eth_t *board, const char *board_ip) {
     return 0;
 }
 
-int init_board_realtime(hm2_eth_t *board){
+int hm2_evl_init_board_realtime(hm2_eth_t *board){
     return oob_enable_port(board);
 }
 
@@ -209,7 +207,7 @@ int disable_oob_port(hm2_eth_t *board)
     return 0;
 }
 
-int close_board(hm2_eth_t *board) {
+int hm2_evl_close_board(hm2_eth_t *board) {
     int ret;
     disable_oob_port(board);
 
@@ -234,7 +232,7 @@ static void print_addr(char* desc, struct sockaddr_in *addr){
 }
 */
 
-int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags){
+int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags){
     ssize_t ret = 0;
     if(board->is_evl_oob_active){
         struct iovec iov;
@@ -270,7 +268,7 @@ int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags){
     return ret;
 }
 
-int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags){
+int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags){
     ssize_t ret = 0;
     if(board->is_evl_oob_active){
         struct oob_msghdr msghdr;
@@ -301,13 +299,4 @@ int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags){
         ret = recv(board->sockfd, buffer, len, flags);
     }
     return ret;
-}
-
-int eth_socket_recv_loop(hm2_eth_t *board, void *buffer, int len, int flags, long timeout) {
-    long long end = rtapi_get_time() + timeout;
-    int result;
-    do {
-        result = eth_socket_recv(board, buffer, len, flags);
-    } while(result < 0 && rtapi_get_time() < end);
-    return result;
 }

@@ -17,21 +17,16 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __INCLUDE_HM2_ETH_NET_H
-#define __INCLUDE_HM2_ETH_NET_H
+#ifndef __INCLUDE_HM2_ETH_NET_POSIX_H
+#define __INCLUDE_HM2_ETH_NET_POSIX_H
 
 #include "hm2_eth.h"
 
-//We use the linker to define the module name
-//It must match the .so file
-extern char* HM2_LLIO_MODULE_NAME;
-
-int init_board(hm2_eth_t *board, const char *board_ip);
-int init_board_realtime(hm2_eth_t *board);
-int close_board(hm2_eth_t *board);
-int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags);
-int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags);
-int eth_socket_recv_loop(hm2_eth_t *board, void *buffer, int len, int flags, long timeout);
+int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip);
+int hm2_posix_init_board_realtime(hm2_eth_t *board);
+int hm2_posix_close_board(hm2_eth_t *board);
+int hm2_posix_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags);
+int hm2_posix_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags);
 
 #define UDP_PORT 27181
 #define SEND_TIMEOUT_US 10

@@ -30,13 +30,11 @@
 #include <rtapi_string.h>
 
 #include "hostmot2-lowlevel.h"
-#include "hm2_eth_net.h"
-
-char* HM2_LLIO_MODULE_NAME="hm2_eth";
+#include "hm2_eth_net_posix.h"
 
 /// ethernet io functions
 
-int init_board(hm2_eth_t *board, const char *board_ip) {
+int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
     LL_PRINT("%s: INFO: init board (POSIX)\n", board_ip);
     board->sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
@@ -129,12 +127,12 @@ int init_board(hm2_eth_t *board, const char *board_ip) {
     return 0;
 }
 
-int init_board_realtime(hm2_eth_t *board){
+int hm2_posix_init_board_realtime(hm2_eth_t *board){
     (void)board;
     return 0; //Nothing todo
 }
 
-int close_board(hm2_eth_t *board) {
+int hm2_posix_close_board(hm2_eth_t *board) {
     int ret;
     board->llio.reset(&board->llio);
 
@@ -155,19 +153,10 @@ int close_board(hm2_eth_t *board) {
     return ret < 0 ? -errno : 0;
 }
 
-int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags) {
+int hm2_posix_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags) {
     return send(board->sockfd, buffer, len, flags);
 }
 
-int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags) {
+int hm2_posix_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags) {
     return recv(board->sockfd, buffer, len, flags);
-}
-
-int eth_socket_recv_loop(hm2_eth_t *board, void *buffer, int len, int flags, long timeout) {
-    long long end = rtapi_get_time() + timeout;
-    int result;
-    do {
-        result = eth_socket_recv(board, buffer, len, flags);
-    } while(result < 0 && rtapi_get_time() < end);
-    return result;
 }

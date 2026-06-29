@@ -43,10 +43,15 @@
 
 #include <hal.h>
 
+#include "config.h" //For USPACE_XENOMAI_EVL
+
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
-#include "hm2_eth_net.h"
+#include "hm2_eth_net_posix.h"
+#ifdef USPACE_XENOMAI_EVL
+#include "hm2_eth_net_evl.h"
+#endif
 
 struct kvlist {
     struct rtapi_list_head list;
@@ -89,6 +94,9 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i80");
 
 static char *board_ip[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(board_ip, MAX_ETH_BOARDS, "ip address of ethernet board(s)");
+
+static char *board_rtnet[MAX_ETH_BOARDS];
+RTAPI_MP_ARRAY_STRING(board_rtnet, MAX_ETH_BOARDS, "realtime network type of ethernet board(s)");
 
 static char *config[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
@@ -457,6 +465,9 @@ static const char *hm2_8cSS_pin_names[] = {
 
 static hm2_eth_t boards[MAX_ETH_BOARDS]={};
 
+static int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags);
+static int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags);
+
 /// firewall functions
 
 // hm2_eth installs firewall rules to isolate the dedicated Mesa
@@ -803,6 +814,59 @@ int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
         board->ip, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 
     return 0;
+}
+
+/// ethernet io functions mapping
+static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_rtnet){
+    //Default (NULL) is posix
+    if(board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0){
+        board->init_board = &hm2_posix_init_board;
+        board->init_board_realtime = &hm2_posix_init_board_realtime;
+        board->close_board = &hm2_posix_close_board;
+        board->eth_socket_send = &hm2_posix_eth_socket_send;
+        board->eth_socket_recv = &hm2_posix_eth_socket_recv;
+    } else if (strcmp(board_rtnet, "evl") == 0) {
+#ifdef USPACE_XENOMAI_EVL
+        board->init_board = &hm2_evl_init_board;
+        board->init_board_realtime = &hm2_evl_init_board_realtime;
+        board->close_board = &hm2_evl_close_board;
+        board->eth_socket_send = &hm2_evl_eth_socket_send;
+        board->eth_socket_recv = &hm2_evl_eth_socket_recv;
+#else
+        LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC was built without Xenomai EVL support\n", board_rtnet);
+        return -1;
+#endif
+    } else {
+        LL_PRINT("ERROR: board_rtnet = %s undefined\n", board_rtnet)
+        return -1;
+    }
+
+    return board->init_board(board, board_ip);
+}
+
+static inline int init_board_realtime(hm2_eth_t *board){
+    return board->init_board_realtime(board);
+}
+
+static inline int close_board(hm2_eth_t *board){
+    return board->close_board(board);
+}
+
+static inline int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags){
+    return board->eth_socket_send(board, buffer, len, flags);
+}
+
+static inline int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags){
+    return board->eth_socket_recv(board, buffer, len, flags);
+}
+
+int eth_socket_recv_loop(hm2_eth_t *board, void *buffer, int len, int flags, long timeout) {
+    long long end = rtapi_get_time() + timeout;
+    int result;
+    do {
+        result = eth_socket_recv(board, buffer, len, flags);
+    } while(result < 0 && rtapi_get_time() < end);
+    return result;
 }
 
 /// hm2_eth io functions
@@ -1598,7 +1662,7 @@ int rtapi_app_main(void) {
 
     LL_PRINT("loading Mesa AnyIO HostMot2 ethernet driver version " HM2_ETH_VERSION "\n");
 
-    ret = hal_init(HM2_LLIO_MODULE_NAME);
+    ret = hal_init(HM2_LLIO_NAME);
     if (ret < 0)
         return ret;
     comp_id = ret;
@@ -1606,7 +1670,7 @@ int rtapi_app_main(void) {
     clear_firewall();
 
     for(i = 0, ret = 0; ret == 0 && i<MAX_ETH_BOARDS && board_ip[i] && *board_ip[i]; i++) {
-        ret = init_board(&boards[i], board_ip[i]);
+        ret = init_board(&boards[i], board_ip[i], board_rtnet[i]);
         if(ret < 0) board_ip[i] = 0;
     }
 
