@@ -129,6 +129,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.min_extents_notool_zero_rxy = [9e99,9e99,9e99]
         self.max_extents_notool_zero_rxy = [-9e99,-9e99,-9e99]
         self.colors = colors
+        # Set if the parse was aborted, so the extents above are only partial.
+        self.preview_incomplete = False
         self.in_arc = 0
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
@@ -2016,7 +2018,15 @@ class GlCanonDraw:
     def load_preview(self, f, canon, *args):
         self.set_canon(canon)
         self.preview_too_large = False
-        result, seq = gcode.parse(f, canon, *args)
+        canon.preview_incomplete = False
+        try:
+            result, seq = gcode.parse(f, canon, *args)
+        except KeyboardInterrupt:
+            # Aborted parse: extents cover only the parsed portion. Flag it so
+            # callers do not treat the partial check as complete.
+            canon.preview_incomplete = True
+            canon.calc_extents()
+            raise
 
         if result <= gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
