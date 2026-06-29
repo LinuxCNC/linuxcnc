@@ -32,6 +32,13 @@ ENSURE_ATTEMPT_TIMEOUT_S = 3.0
 # stability check catches that.
 STATE_STABILITY_S = 0.5
 STATE_RETRY_BUDGET = 6
+# Pause after homing before requesting AUTO. gmoccapy only enables AUTO
+# once it has processed the all-homed signal in its own event loop (and
+# re-asserts MANUAL itself on that signal). Requesting AUTO before then is
+# rejected: it bounces back to MANUAL with an "It is not possible to
+# change to Auto Mode" warning. ensure_mode would retry and win, but the
+# warning lingers on screen; this settle lets the GUI catch up first.
+POST_HOME_SETTLE_S = 2.0
 
 # linuxcnc launcher PID, written to linuxcnc.pid by the launcher and read
 # once at startup. The driver watches it so a GUI crash, which tears
@@ -296,6 +303,11 @@ def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout):
 
     if not home_all(cmd, stat, timeout=60.0):
         return False
+
+    # Let the GUI react to the all-homed transition before requesting AUTO,
+    # so it does not reject the mode change (see POST_HOME_SETTLE_S).
+    time.sleep(POST_HOME_SETTLE_S)
+    stat.poll()
 
     if not ensure_mode(cmd, stat, linuxcnc.MODE_AUTO, "MODE_AUTO"):
         return False

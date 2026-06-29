@@ -357,6 +357,12 @@ Usage:
 
     $P -v
         Show stdout and stderr (normally it's hidden).
+
+    $P -d
+        Enable crash dumps: on a crashing test, point kernel.core_pattern
+        at a temporary dir via sudo and print a gdb backtrace of the core.
+        Off by default since it changes a global system setting; CI passes
+        it.  Needs sudo, so it cannot be combined with -u.
 EOF
 }
 
@@ -365,7 +371,7 @@ NOCLEAN=0
 NOSUDO=false
 STOP=0
 PRINT=0
-while getopts cnuvsph opt; do
+while getopts cnuvsphd opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
@@ -373,11 +379,17 @@ while getopts cnuvsph opt; do
     v) VERBOSE=1 ;;
     s) STOP=1 ;;
     p) PRINT=1 ;;
+    d) export ENABLE_CRASHDUMPS=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
 done
 shift $((OPTIND-1))
+
+if [ "${ENABLE_CRASHDUMPS:-0}" = "1" ] && $NOSUDO; then
+    echo "$0: -d (crash dumps) needs sudo and cannot be combined with -u" >&2
+    exit 1
+fi
 
 if [ $# -eq 0 ]; then
     if [ -f test.hal ] || [ -f test.sh ]; then

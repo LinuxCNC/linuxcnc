@@ -1,4 +1,4 @@
 #!/bin/bash
-exec "$(dirname "$0")/../_lib/quit-launch.sh" \
-    "$(cd "$(dirname "$0")/../../../configs/sim" && pwd)/gmoccapy/gmoccapy.ini" \
-    "bin/gmoccapy"
+LIB_DIR="$(cd "$(dirname "$0")/../_lib" && pwd)"
+. "$LIB_DIR/gmoccapy-prepare.sh"
+exec "$LIB_DIR/quit-launch.sh" "$GMOCCAPY_INI" "bin/gmoccapy"
