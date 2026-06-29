@@ -1,0 +1,48 @@
+; Verify #5021-#5029 (current absolute machine position) report the
+; commanded G53 location regardless of the active coordinate system,
+; G92/G52, coordinate rotation or tool length offset, and that the
+; numbered set matches the #<_abs_*> named parameters.
+
+o<coords> sub
+g53 g0 x0 y0 z0
+(debug,#5021 #5022 #5023)
+g53 g0 x1 y2 z3
+(debug,#5021 #5022 #5023)
+o<coords> endsub
+
+o<suite> sub
+g54
+g92.2
+g10 l2 p1 x0 y0 z0 r0
+o<coords> call
+
+g10 l2 p1 x3 y7 z0 r0
+o<coords> call
+
+g10 l2 p1 x0 y0 z0 r45
+o<coords> call
+
+g10 l2 p1 x3 y7 z0 r45
+o<coords> call
+
+g10 l2 p1 x0 y0 z0 r0
+g92 x3 y7
+o<coords> call
+g92.2
+o<suite> endsub
+
+g21
+o<suite> call
+
+; tool length offset must not change the machine position
+g43.1 z5
+g53 g0 x1 y2 z3
+(debug,#5021 #5022 #5023)
+g49
+
+; numbered set agrees with the named set
+g53 g0 x1 y2 z3
+(debug,#5021 #<_abs_x>)
+(debug,#5023 #<_abs_z>)
+
+m2
