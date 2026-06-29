@@ -221,6 +221,8 @@ enum GCodes
     G_21 = 210,
     G_28 = 280,
     G_28_1 = 281,
+    G_28_2 = 282,   /* G-code homing cycle (home worded/all joints) */
+    G_28_3 = 283,   /* G-code unhome */
     G_30 = 300,
     G_30_1 = 301,
     G_33 = 330,
@@ -844,6 +846,11 @@ struct setup
     // do not lowercase named params inside comments - for #<_hal[PinName]>
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 #define FEATURE_OWORD_WARNONLY       0x00000020
+    // [RS274NGC]GCODE_HOMING=1: a plain G28 references the machine (runs the
+    // homing cycle) before its return move when the machine is not already
+    // fully homed; a fully-homed machine sees a pure legacy G28. G28.2/G28.3
+    // are flag-independent.
+#define FEATURE_GCODE_HOMING         0x00000040
 
     boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;

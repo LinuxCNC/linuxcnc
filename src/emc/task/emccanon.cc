@@ -478,6 +478,32 @@ void SET_XY_ROTATION(double t) {
     canon.xy_rotation = t;
 }
 
+
+void HOME_CYCLE(void)
+{
+    auto msg = std::make_unique<EMC_JOINT_HOME>();
+    msg->joint = -1;   // -1 = all joints (HOME_SEQUENCE order)
+    interp_list.append(std::move(msg));
+}
+
+void UNHOME_AXES(void)
+{
+    auto msg = std::make_unique<EMC_JOINT_UNHOME>();
+    msg->joint = -1;
+    interp_list.append(std::move(msg));
+}
+
+/* GCODE_HOMING plain G28: home all joints, but only if the machine is not
+ * already fully homed. The sentinel joint value defers the all-homed test to
+ * task (execution time), so a homed machine drops the home and runs a pure
+ * legacy G28 return. */
+void HOME_CYCLE_IF_UNHOMED(void)
+{
+    auto msg = std::make_unique<EMC_JOINT_HOME>();
+    msg->joint = EMC_HOME_ALL_IF_UNHOMED;
+    interp_list.append(std::move(msg));
+}
+
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,

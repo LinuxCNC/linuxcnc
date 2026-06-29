@@ -73,6 +73,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
+|<<gcode:g28.2-g28.3,G28.2 G28.3>> |Home / Unhome from G-code
 |<<gcode:g30-g30.1,G30 - G30.1>>   |Go to Predefined Position
 |<<gcode:g33,G33>>                 |Spindle Synchronized Motion
 |<<gcode:g33.1,G33.1>>             |Rigid Tapping
@@ -992,6 +993,40 @@ all axes will go to the <<sec:machine-coordinate-system,machine origin>>.
 ----
 G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)
 ----
+
+It is an error if :
+
+* Cutter Compensation is turned on
+
+[NOTE]
+When `<<sub:ini:sec:rs274ngc,[RS274NGC]GCODE_HOMING>>` is set to 1, a plain
+`G28` (no axis words) first references the machine -- it runs the homing
+cycle on all joints when the machine is not already fully homed -- and then
+performs the normal return move. On an already-homed machine the homing step
+is skipped, so `G28` behaves exactly as described above. The flag has no
+effect on `G28 axes`, `G28.1`, `G30`, `G30.1`, `G28.2` or `G28.3`, and it is
+off by default (stock behavior). See also `G28.2` below.
+
+[[gcode:g28.2-g28.3]]
+== G28.2, G28.3 Home, Unhome from G-code(((G28.2 Home from G-code)))(((G28.3 Unhome from G-code)))
+
+These non-modal codes let a program or MDI line reference the machine
+instead of requiring the operator to use the GUI's *Home All* button. They
+follow the same modal-group-0 pattern as `G28.1`/`G30.1` and take no axis
+words; they always act on all joints.
+
+* 'G28.2' - runs the homing cycle on all joints, in `HOME_SEQUENCE` order
+  (the same operation as the GUI *Home All*).
+* 'G28.3' - unhomes all joints.
+
+Motion still enforces its own safety: the home is honored only when the
+machine is idle (in position with no queued motion) or in joint mode, and a
+home is refused mid-motion. Homing inhibits and per-joint limit handling are
+unchanged.
+
+[NOTE]
+`G28.2` and `G28.3` are LinuxCNC extensions; there is no standard Fanuc
+equivalent. They are available regardless of the `GCODE_HOMING` INI setting.
 
 It is an error if :
 
