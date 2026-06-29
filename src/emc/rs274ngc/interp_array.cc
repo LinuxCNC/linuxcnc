@@ -228,6 +228,7 @@ const int Interp::required_parameters[] = {
 };
 
 const int Interp::readonly_parameters[] = {
+ 5021, 5022, 5023, 5024, 5025, 5026, 5027, 5028, 5029, // machine X Y ... W
  5400, // tool toolno
  5401, // tool x offset
  5402, // tool y offset

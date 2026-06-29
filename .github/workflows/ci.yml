@@ -24,6 +24,7 @@ jobs:
 
   rip-and-test:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
     - name: Dump GitHub context
       env:
@@ -57,6 +58,7 @@ jobs:
 
   rip-rtai:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
     - name: Dump GitHub context
       env:
@@ -85,6 +87,7 @@ jobs:
 
   rip-and-test-clang:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
     - name: Dump GitHub context
       env:
@@ -118,6 +121,7 @@ jobs:
 
   cppcheck:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
@@ -136,6 +140,7 @@ jobs:
 
   shellcheck:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
@@ -155,6 +160,7 @@ jobs:
 
   htmldocs:
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
     - name: Dump GitHub context
       env:
@@ -198,6 +204,7 @@ jobs:
 
   package-arch:
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 75
     strategy:
       matrix:
         runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
@@ -291,6 +298,7 @@ jobs:
 
   package-indep:
     runs-on: ubuntu-24.04
+    timeout-minutes: 75
     strategy:
       matrix:
         image: ["debian:bookworm", "debian:trixie", "debian:sid"]

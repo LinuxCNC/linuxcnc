@@ -19,8 +19,15 @@ $(patsubst ./emc/ini/%,../include/%,$(LIBLCNCINICXINCS)): ../include/%.hh: ./emc
 ../lib/liblinuxcncini.so.1: $(call TOOBJS,$(LIBLCNCINISRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
-	@rm -f $@
+	@rm -f $(basename $@).[0-9]*
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lfmt
+
+# Explicit symlink rule: the generic ../lib/%.so pattern rules in src/Makefile
+# match both %.so.0 and %.so.1, and the %.so.0 rule wins when a stale .so.0 is
+# left over from before this library's soname bump. Bind the dev symlink to the
+# current soname explicitly so it always repoints in a single build pass.
+../lib/liblinuxcncini.so: ../lib/liblinuxcncini.so.1
+	ln -sf $(notdir $<) $@
 
 # Command-line utility for reading ini-files
 INIVALUESRCS := emc/ini/inivalue.cc

@@ -104,6 +104,9 @@ enum predefined_named_parameters {
     NP_ABS_A,
     NP_ABS_B,
     NP_ABS_C,
+    NP_ABS_U,
+    NP_ABS_V,
+    NP_ABS_W,
     NP_VALUE,
     NP_CALL_LEVEL,
     NP_REMAP_LEVEL,
@@ -765,6 +768,21 @@ int Interp::lookup_named_param(const char *nameBuf,
                  _setup.CC_origin_offset + _setup.tool_offset.c;
 	break;
 
+    case NP_ABS_U:  // abs position
+	*value = _setup.u_current + _setup.u_axis_offset +
+                 _setup.u_origin_offset + _setup.tool_offset.u;
+	break;
+
+    case NP_ABS_V:  // abs position
+	*value = _setup.v_current + _setup.v_axis_offset +
+                 _setup.v_origin_offset + _setup.tool_offset.v;
+	break;
+
+    case NP_ABS_W:  // abs position
+	*value = _setup.w_current + _setup.w_axis_offset +
+                 _setup.w_origin_offset + _setup.tool_offset.w;
+	break;
+
 	// o-word subs may optionally have an
 	// expression after endsub and return
 	// this 'function return value' is accessible as '_value'
@@ -947,6 +965,9 @@ int Interp::init_named_parameters()
   init_readonly_param("_abs_a", NP_ABS_A, PA_USE_LOOKUP);
   init_readonly_param("_abs_b", NP_ABS_B, PA_USE_LOOKUP);
   init_readonly_param("_abs_c", NP_ABS_C, PA_USE_LOOKUP);
+  init_readonly_param("_abs_u", NP_ABS_U, PA_USE_LOOKUP);
+  init_readonly_param("_abs_v", NP_ABS_V, PA_USE_LOOKUP);
+  init_readonly_param("_abs_w", NP_ABS_W, PA_USE_LOOKUP);
 
   // last (optional) endsub/return value
   init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);
