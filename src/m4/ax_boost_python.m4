@@ -93,7 +93,20 @@ BOOST_PYTHON_MODULE(test) { throw "Boost::Python test."; }]], [])],
 ])
 if test "$ac_cv_boost_python" = "yes"; then
   AC_DEFINE(HAVE_BOOST_PYTHON,,[define if the Boost::Python library is available])
-  ax_python_lib=boost_python
+  # Debian sid after trixie installs both libboost_python313 and
+  # libboost_python314 but it ships with Python 3.14. The detection loop fails
+  # to select to correct version and that results in a crash.
+  if test "x$ac_python_version" != "x"; then
+    # This is set in m4/ax_python_devel.m4
+    python_version=`echo $ac_python_version | tr -d .`
+  else
+    # Get the version from the binary and use it.
+    python_version=`$PYTHON_BIN -c 'import sys; print("{}{}".format(sys.version_info.major,sys.version_info.minor))'`
+  fi
+  # We use the original versionless test first and append a versioned one with
+  # the detected Python version to force the version matched library to be
+  # tested before any file-system located libraries.
+  ax_python_lib="boost_python boost_python$python_version"
   AC_ARG_WITH([boost-python],AS_HELP_STRING([--with-boost-python],[specify yes/no or the boost python library or suffix to use]),
   [if test "x$with_boost_python" != "xno" -a "x$with_boost_python" != "xyes"; then
      ax_python_lib=$with_boost_python
