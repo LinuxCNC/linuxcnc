@@ -1027,7 +1027,8 @@ void EMC_SPINDLE_OFF::update(CMS * cms)
 {
 
     EMC_SPINDLE_CMD_MSG::update(cms);
-
+    cms->update(spindle);
+    cms->update(wait_for_spindle_at_speed);
 }
 
 /*
