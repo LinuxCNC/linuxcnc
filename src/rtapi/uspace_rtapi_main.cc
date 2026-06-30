@@ -772,7 +772,10 @@ static int handle_command(const std::vector<std::string> &args) {
     if (args.size() == 0) {
         return 0;
     }
-    if (args.size() == 1 && args[0] == "exit") {
+    if (args.size() == 1 && args[0] == "start") {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: start received while running\n");
+        return 0;
+    } else if (args.size() == 1 && args[0] == "exit") {
         force_exit = 1;
         return 0;
     } else if (args.size() >= 2 && args[0] == "load") {
@@ -790,7 +793,7 @@ static int handle_command(const std::vector<std::string> &args) {
     } else if (args.size() == 1 && args[0] == "check_rt") {
         return do_check_rt_cmd();
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Unrecognized command starting with %s\n", args[0].c_str());
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: unrecognized command starting with %s\n", args[0].c_str());
         return -1;
     }
 }
@@ -849,12 +852,12 @@ static bool master_process_socket_command(int fd) {
         }
         close(fd1);
     }
-    return !force_exit && instance_count > 0;
+    return !force_exit;
 }
 
 static pthread_t main_thread{};
 
-static int master(int fd, const std::vector<std::string> &args) {
+static int master(int fd) {
     is_master = true;
     main_thread = pthread_self();
     int result;
@@ -864,18 +867,9 @@ static int master(int fd, const std::vector<std::string> &args) {
         return -1;
     }
     do_load_cmd("hal_lib", std::vector<std::string>());
-    instance_count = 0;
     App(); // force rtapi_app to be created
-    if (args.size()) {
-        result = handle_command(args);
-        if (result != 0)
-            goto out;
-        if (force_exit || instance_count == 0)
-            goto out;
-    }
     //Process commands as long as master should not exit
     while(master_process_socket_command(fd));
-out:
     do_unload_cmd("hal_lib");
     pthread_cancel(queue_thread);
     pthread_join(queue_thread, nullptr);
@@ -928,6 +922,65 @@ static double diff_timespec(const struct timespec *time1, const struct timespec 
 static void raise_net_admin_ambient(void);
 #endif
 
+static int create_socket(){
+    int fd = socket(PF_UNIX, SOCK_STREAM, 0);
+    if (fd == -1) {
+        perror("socket");
+        return fd;
+    }
+
+    int enable = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
+    return fd;
+}
+
+static int start_master(int fd){
+    int result = listen(fd, 10);
+    if (result != 0) {
+        perror("listen");
+        return 1;
+    }
+    //Demonize
+    pid_t pid = fork();
+    if (pid < 0){
+        perror("fork");
+        return 1;
+    }
+    if(pid == 0){
+        setsid(); // create a new session if we can...
+        result = master(fd);
+        exit(result);
+    }else{
+        return 0;
+    }
+}
+
+static int run_slave_cmd(struct sockaddr_un *addr, int fd, const std::vector<std::string> &args){
+    int result = -1;
+    struct timespec start, now;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    srand48(start.tv_sec ^ start.tv_nsec);
+    while (diff_timespec(&now, &start) < 3.0) {
+        result = connect(fd, (sockaddr *)addr, sizeof(*addr));
+        if (result == 0)
+            break;
+
+        usleep((useconds_t)(lrand48() % 100000) + 100); //Random sleep min 100us max 100100us
+        clock_gettime(CLOCK_MONOTONIC, &now);
+    }
+    if (result < 0 && errno == ECONNREFUSED) {
+        fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
+        close(fd);
+        return 1;
+    }
+    if (result < 0) {
+        fprintf(stderr, "connect %s: %s", addr->sun_path, strerror(errno));
+        return 1;
+    }
+    return slave(fd, args);
+}
+
 int main(int argc, char **argv) {
     if (getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");
@@ -966,29 +1019,25 @@ int main(int argc, char **argv) {
         args.push_back(std::string(argv[i]));
     }
 
-become_master:
-    int fd = socket(PF_UNIX, SOCK_STREAM, 0);
-    if (fd == -1) {
-        perror("socket");
-        exit(1);
-    }
-
-    int enable = 1;
-    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     struct sockaddr_un addr;
     memset(&addr, 0x0, sizeof(addr));
     addr.sun_family = AF_UNIX;
     if (!get_fifo_path_to_addr(&addr))
         exit(1);
 
+    int fd = create_socket();
+    if (fd < 0) {
+        exit(1);
+    }
+
     // plus one because we use the abstract namespace, it will show up in
     // /proc/net/unix prefixed with an @
     int result = bind(fd, (sockaddr *)&addr, sizeof(addr));
 
     if (result == 0) {
-        //If exit is called and master is not running, do not start master
-        //and exit again
+        //If exit is called and master is not running, just give a warning
         if (args.size() == 1 && args[0] == "exit") {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: exit received while not running\n");
             return 0;
         }
         //If check_rt is called and master is not running, do not start master
@@ -999,37 +1048,31 @@ become_master:
         if (args.size() == 1 && args[0] == "check_rt") {
             return do_check_rt_cmd();
         }
-        int result = listen(fd, 10);
-        if (result != 0) {
-            perror("listen");
-            exit(1);
-        }
-        setsid(); // create a new session if we can...
-        result = master(fd, args);
-        return result;
-    } else if (errno == EADDRINUSE) {
-        struct timespec start, now;
-        clock_gettime(CLOCK_MONOTONIC, &start);
-        clock_gettime(CLOCK_MONOTONIC, &now);
-        srand48(start.tv_sec ^ start.tv_nsec);
-        while (diff_timespec(&now, &start) < 3.0) {
-            result = connect(fd, (sockaddr *)&addr, sizeof(addr));
-            if (result == 0)
-                break;
-
-            usleep((useconds_t)(lrand48() % 100000) + 100); //Random sleep min 100us max 100100us
-            clock_gettime(CLOCK_MONOTONIC, &now);
-        }
-        if (result < 0 && errno == ECONNREFUSED) {
-            fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
+        //Start a master on start command
+        if (args.size() == 1 && args[0] == "start") {
+            result = start_master(fd);
+            exit(result);
+        }else{
+            fprintf(stderr, "WARNING: Deprecated: No master found. Use \"realtime start\" to start one.\n"
+                "  A master is started automatically.\n"
+                "  If this appears while using halcmd: Use halrun instead.\n"
+                "  halcmd should only be used with an already running realtime environment.\n"
+                "  halrun creates a realtime environment and tears it down at exit.\n");
+            result = start_master(fd);
+            if (result != 0) {
+                exit(result);
+            }
+            //Need to close and reopen the socket
+            //It is already bound and master is using it
             close(fd);
-            goto become_master;
+            int fd = create_socket();
+            if (fd < 0) {
+                exit(1);
+            }
+            return run_slave_cmd(&addr, fd, args);
         }
-        if (result < 0) {
-            fprintf(stderr, "connect %s: %s", addr.sun_path, strerror(errno));
-            exit(1);
-        }
-        return slave(fd, args);
+    } else if (errno == EADDRINUSE) {
+        return run_slave_cmd(&addr, fd, args);
     } else {
         perror("bind");
         exit(1);

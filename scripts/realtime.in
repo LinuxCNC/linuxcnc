@@ -170,14 +170,20 @@ CheckMem(){
 
 Load(){
     CheckKernel
-    for MOD in $MODULES_LOAD ; do
-	if ! [ -d "/sys/module/$(basename "$MOD" .ko)" ]; then
-		$INSMOD "$MOD" || return $?
-	fi
-    done
-    if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
-        echo "$DEBUG" > /proc/rtapi/debug
-    fi
+    case $RTPREFIX in
+    uspace)
+        rtapi_app start
+    ;;
+    (*rtai*)
+        for MOD in $MODULES_LOAD ; do
+        if ! [ -d "/sys/module/$(basename "$MOD" .ko)" ]; then
+            $INSMOD "$MOD" || return $?
+        fi
+        done
+        if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
+            echo "$DEBUG" > /proc/rtapi/debug
+        fi
+    esac
 }
 
 CheckLoaded(){
