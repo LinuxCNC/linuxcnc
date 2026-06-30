@@ -1,0 +1,236 @@
+component ping "Ping an IP adress";
+description """
+
+Ping an IP address for latency tuning / debugging hostmot2
+or other Ethernet connected peripherals.
+
+Example:
+loadrt ping ip_address=192.168.1.121
+loadrt threads name1=thread period1=1000000
+addf ping thread
+start
+
+You can use hal-histogram to show a histogram:
+hal-histogram ping.ping-rtt
+Note: You need to tweak minval / bsize / nbins to have a
+useful display. maxval = minval + bsize * nbins
+A good starting point for 30...130 us is:
+hal-histogram --minvalue 3e4 --binsize 2e3 --nbins 50 ping.ping-rtt
+
+This component works only in userspace.
+
+""";
+pin out s32 ping_rtt=0 "Roundtrip time (ns)";
+pin out s32 ping_rtt_max=0 "Maximum roundtrip time (ns).";
+pin in bit reset "Set this pin to true, then back to false, to reset ping_rtt_max.";
+function _;
+option extra_setup;
+option singleton yes;
+
+license "GPL";
+author "H.Diethelm";
+;;
+
+#if defined(__KERNEL__)
+EXTRA_SETUP() {
+    (void)prefix;
+    (void)extra_arg;
+    (void)__comp_inst;
+
+    rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: kernel mode not supported\n");
+
+    return 0;
+}
+
+FUNCTION(_) {
+    (void)period;
+}
+#else
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
+#include <netinet/ip_icmp.h>
+#include <stdbool.h>
+
+static char *ip_address = "127.0.0.1";
+RTAPI_MP_STRING(ip_address, "IP address to ping");
+
+#define PING_PKT_SIZE 64
+
+typedef struct{
+    char *ip_address;
+    int sockfd;
+    struct sockaddr_in addr;
+    long long int time_start;
+    long long int time_end;
+    uint16_t tx_seq;
+    uint16_t tx_id;
+    unsigned char tbuffer[PING_PKT_SIZE];
+    unsigned char rbuffer[2*PING_PKT_SIZE];
+}ping_data;
+
+static ping_data data={};
+
+#undef max
+#define max(a,b) ((a)>(b)?(a):(b))
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+# define ODDBYTE(v)	(v)
+#elif BYTE_ORDER == BIG_ENDIAN
+# define ODDBYTE(v)	((unsigned short)(v) << 8)
+#else
+# define ODDBYTE(v)	htons((unsigned short)(v) << 8)
+#endif
+
+//in_cksum from: https://github.com/iputils/iputils/blob/master/ping/ping.c
+//Licence: BSD-3-Clause
+static unsigned short
+in_cksum(const unsigned short *addr, int len, unsigned short csum)
+{
+    int nleft = len;
+    const unsigned short *w = addr;
+    unsigned short answer;
+    int sum = csum;
+
+    /*
+    *  Our algorithm is simple, using a 32 bit accumulator (sum),
+    *  we add sequential 16 bit words to it, and at the end, fold
+    *  back all the carry bits from the top 16 bits into the lower
+    *  16 bits.
+    */
+    while (nleft > 1) {
+        sum += *w++;
+        nleft -= 2;
+    }
+
+    /* mop up an odd byte, if necessary */
+    if (nleft == 1)
+        sum += ODDBYTE(*(unsigned char *)w); /* le16toh() may be unavailable on old systems */
+
+    /*
+        * add back carry outs from top 16 bits to low 16 bits
+        */
+    sum = (sum >> 16) + (sum & 0xffff);	/* add hi 16 to low 16 */
+    sum += (sum >> 16);			/* add carry */
+    answer = ~sum;				/* truncate to 16 bits */
+    return (answer);
+}
+
+bool setup_ping(ping_data *data){
+    int sockfd;
+    data->addr.sin_family = AF_INET;
+    data->addr.sin_port = htons(0);
+    data->addr.sin_addr.s_addr = inet_addr(data->ip_address);
+
+    // Create socket
+    sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
+    if (sockfd < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: socket %m");
+        return false;
+    }
+
+    int ttl_val = 64;
+    // Set socket options at IP to TTL 64
+    if(setsockopt(sockfd, SOL_IP, IP_TTL, &ttl_val, sizeof(ttl_val)) != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: setsockopt IP_TTL %m\n");
+        close(sockfd);
+        return false;
+    }
+
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
+    // Setting timeout
+    if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv) != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: setsockopt SO_RCVTIMEO %m\n");
+        close(sockfd);
+        return false;
+    }
+    data->tx_id=getpid();
+    data->sockfd=sockfd;
+    return true;
+}
+
+bool send_ping(ping_data *data) {
+    struct icmphdr *hdr = (struct icmphdr *)(data->tbuffer);
+    unsigned char *msg = data->tbuffer + sizeof(struct icmphdr);
+
+    // Fill the packet
+    bzero(&data->tbuffer, sizeof(data->tbuffer));
+    hdr->type = ICMP_ECHO;
+    hdr->un.echo.id = htons(data->tx_id);
+
+    for (size_t i = 0; i < PING_PKT_SIZE - sizeof(struct icmphdr); i++)
+        msg[i] = i + '0';
+
+    hdr->un.echo.sequence = htons(data->tx_seq);
+    hdr->checksum = in_cksum((unsigned short *)data->tbuffer, sizeof(data->tbuffer), 0);
+
+    // Send packet
+    data->time_start = rtapi_get_time();
+    ssize_t ret = sendto(data->sockfd, data->tbuffer, sizeof(data->tbuffer), 0, (struct sockaddr*)&data->addr, sizeof(data->addr));
+    if (ret <= 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: sendto %m\n");
+        return false;
+    }else{
+        return true;
+    }
+}
+
+rtapi_s32 recv_ping(ping_data *data) {
+    struct sockaddr_in r_addr;
+    rtapi_s64 rtt_nsec = 0;
+
+    // Receive packet
+    socklen_t addr_len = sizeof(r_addr);
+    ssize_t ret = recvfrom(data->sockfd, data->rbuffer, sizeof(data->rbuffer), 0, (struct sockaddr*)&r_addr, &addr_len);
+    if (ret <= 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: recvfrom failed: %m\n");
+    } else {
+        data->time_end = rtapi_get_time();
+
+
+        struct icmphdr *recv_hdr = (struct icmphdr *)(data->rbuffer);
+        unsigned short checksum = in_cksum((unsigned short *)data->rbuffer, ret, 0);
+        uint16_t rx_seq=ntohs(recv_hdr->un.echo.sequence);
+        if (!(recv_hdr->type == 0 && recv_hdr->code == 0 && rx_seq == data->tx_seq)) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: package corrupt: received size %li with ICMP type %d code %d tx_seq %d rx_seq %d\n", ret, recv_hdr->type, recv_hdr->code, data->tx_seq, rx_seq);
+        } else if (checksum != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: received checksum wrong\n");
+        } else {
+            rtt_nsec = data->time_end - data->time_start;
+            //rtapi_print_msg(RTAPI_MSG_ERR, "%li bytes from %s msg_seq = %d rtt = %.3f us.\n", ret, data->ip_address, rx_seq, (double)rtt_nsec/1000);
+        }
+        data->tx_seq ++;
+    }
+
+    return rtt_nsec;
+}
+
+// Note: the extra setup is run _before_ the pins are created
+EXTRA_SETUP() {
+    (void)prefix;
+    (void)extra_arg;
+    (void)__comp_inst;
+    data.ip_address=ip_address;
+    if(!setup_ping(&data)){
+        return -1;
+    }
+
+    return 0;
+}
+
+FUNCTION(_) {
+    (void)period;
+    if(send_ping(&data)){
+        ping_rtt = recv_ping(&data);
+        ping_rtt_max = max(ping_rtt_max, ping_rtt);
+    }
+    if(reset) {
+        ping_rtt_max = 0;
+    }
+}
+#endif
