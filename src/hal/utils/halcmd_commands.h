@@ -11,6 +11,7 @@
  *                     <fenn AT users DOT sourceforge DOT net>
  *                     Stephen Wille Padnos
  *                     <swpadnos AT users DOT sourceforge DOT net>
+ *                     Petter Reinholdtsen <pere@hungry.com>
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of version 2 of the GNU General
@@ -86,6 +87,7 @@ extern int do_loadusr_cmd(const char *args[]);
 extern int do_waitusr_cmd(char *comp_name);
 extern int do_save_cmd(const char *type, char *filename);
 extern int do_setexact_cmd(void);
+extern void generate_plantuml(FILE *dst);
 
 pid_t hal_systemv_nowait(const char *const argv[]);
 int hal_systemv(const char *const argv[]);

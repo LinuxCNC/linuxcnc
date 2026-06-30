@@ -1,0 +1,40 @@
+#!/bin/bash
+# Copyright (C) 2026 Petter Reinholdtsen <pere@hungry.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# checkresult — verifies PlantUML output has expected structure
+ACTUAL="$1"
+
+if [ ! -f "$ACTUAL" ]; then
+    echo "FAIL: no output file"
+    exit 1
+fi
+
+# If the test was skipped (e.g., plantuml not installed), pass through
+grep -q "^SKIP:" "$ACTUAL" && { echo "PASS (skipped)"; exit 0; }
+
+# Must start with @startuml and end with @enduml
+grep -q "^@startuml$" "$ACTUAL" || { echo "FAIL: missing @startuml header"; exit 1; }
+grep -q "^@enduml$" "$ACTUAL" || { echo "FAIL: missing @enduml footer"; exit 1; }
+
+# Must contain at least one component definition with brackets
+grep -q '^\[' "$ACTUAL" || { echo "FAIL: no bracket-style component definitions found"; exit 1; }
+
+# Must contain at least one edge (--> or ->) between components
+grep -q -- "->" "$ACTUAL" || { echo "FAIL: no edges found in PlantUML output"; exit 1; }
+
+echo "PASS: valid PlantUML diagram with bracket-style components and edges"
+exit 0
