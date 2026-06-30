@@ -335,6 +335,44 @@ proc load_packages {} {
   }
 } ;# load_packages
 
+proc rt_status_items {} {
+  # Returns {text color} pairs; color is "" except where it needs attention.
+  set red "#cc4444"
+  set items {}
+
+  # realtime: type from 'realtime verify' stdout, yes/no from its exit status.
+  set rt_text "no realtime"
+  set rt_ok 0
+  if {![catch {exec linuxcnc_var REALTIME} rt]} {
+    if {![catch {open [list | $rt verify 2> /dev/null] r} chan]} {
+      set out [string trim [read $chan]]
+      set rt_ok [expr {![catch {close $chan}]}]
+      if {$out ne ""} {set rt_text $out}
+    }
+  }
+  lappend items [list $rt_text [expr {$rt_ok ? "" : $red}]]
+
+  # cpu governor: red when not 'performance'
+  set gov ""
+  catch {set gov [string trim [exec cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor]]}
+  if {$gov eq ""} {set gov "gov?"}
+  if {$gov eq "performance"} {
+    lappend items [list $gov ""]
+  } else {
+    lappend items [list $gov $red]
+  }
+
+  # isolcpus
+  set cmdline ""
+  catch {set cmdline [exec cat /proc/cmdline]}
+  if {[regexp {isolcpus=(\S+)} $cmdline -> iso]} {
+    lappend items [list "isolcpus=$iso" ""]
+  } else {
+    lappend items [list "no_isolcpus" ""]
+  }
+  return $items
+} ;# rt_status_items
+
 proc make_gui { {w .} } {
   set f [frame ${w}fa]
   pack $f -side top -fill x -expand 1
@@ -436,6 +474,28 @@ proc make_gui { {w .} } {
            -command "xaxis $thd"] -side left
     }
 
+  }
+
+  # --- realtime status bar (true footer): one line of axis-style sunken
+  # cells split into equal thirds, left/centre/right aligned ---
+  set sb [frame ${w}statusbar]
+  pack $sb -side bottom -fill x
+  set sbitems [rt_status_items]
+  # Fixed-width sides (chars), elastic middle gets the rest.
+  # Left fits the longest RT label (RT-Xenomai-EVL); right fits isolcpus up to ~4 cpus.
+  set sbwidth  {14 0 18}
+  set sbweight {0  1 0}
+  set sbanch   {w center e}
+  set i 0
+  foreach item $sbitems {
+    lassign $item text color
+    label $sb.s$i -text $text -relief sunken -bd 1 -anchor [lindex $sbanch $i] -padx 6
+    set wdt [lindex $sbwidth $i]
+    if {$wdt > 0} {$sb.s$i configure -width $wdt}
+    if {$color ne ""} {$sb.s$i configure -fg $color}
+    grid $sb.s$i -row 0 -column $i -sticky we
+    grid columnconfigure $sb $i -weight [lindex $sbweight $i]
+    incr i
   }
 
   set f [frame ${w}bot]
