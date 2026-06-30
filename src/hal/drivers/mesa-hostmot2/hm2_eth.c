@@ -819,7 +819,7 @@ int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
 /// ethernet io functions mapping
 static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_rtnet){
     //Default (NULL) is posix
-    if(board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0){
+    if (board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0) {
         board->init_board = &hm2_posix_init_board;
         board->init_board_realtime = &hm2_posix_init_board_realtime;
         board->close_board = &hm2_posix_close_board;
@@ -827,6 +827,10 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         board->eth_socket_recv = &hm2_posix_eth_socket_recv;
     } else if (strcmp(board_rtnet, "evl") == 0) {
 #ifdef USPACE_XENOMAI_EVL
+        if (hal_get_realtime_type() != REALTIME_TYPE_XENOMAI_EVL) {
+            LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC not running with Xenomai4 EVL realtime\n", board_rtnet)
+            return -1;
+        }
         board->init_board = &hm2_evl_init_board;
         board->init_board_realtime = &hm2_evl_init_board_realtime;
         board->close_board = &hm2_evl_close_board;
