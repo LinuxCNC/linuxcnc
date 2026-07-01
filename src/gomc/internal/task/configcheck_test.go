@@ -260,6 +260,47 @@ MAX_LIMIT = 10
 	}
 }
 
+func TestConfigCheck_MultipleValuesWarningNamespace(t *testing.T) {
+	ini := parseTestINI(t, `[KINS]
+KINEMATICS = trivkins coordinates=X
+JOINTS = 1
+
+[TRAJ]
+COORDINATES = X
+
+[JOINT_0]
+MAX_VELOCITY = 10
+MAX_ACCELERATION = 100
+MIN_LIMIT = -10
+MAX_LIMIT = 10
+
+[AXIS_X]
+MAX_VELOCITY = 10
+MAX_ACCELERATION = 100
+MIN_LIMIT = -10
+MAX_LIMIT = 10
+
+[mill2:JOINT_0]
+MIN_LIMIT = -20
+MAX_LIMIT = 20
+
+[mill2:AXIS_X]
+MIN_LIMIT = -20
+MAX_LIMIT = 20
+`)
+	// With namespace "mill2", the overrides should NOT trigger false warnings.
+	nsIni := ini.WithNamespace("mill2")
+	r, err := runConfigCheck(nsIni)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	for _, w := range r.Warnings {
+		if strings.Contains(w, "Unexpected multiple values") {
+			t.Errorf("unexpected false positive warning with namespace: %s", w)
+		}
+	}
+}
+
 func TestConfigCheck_InconsistentCoordinates(t *testing.T) {
 	ini := parseTestINI(t, `[KINS]
 KINEMATICS = trivkins coordinates=XZ

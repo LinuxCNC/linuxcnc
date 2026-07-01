@@ -202,28 +202,51 @@ func ccCheckExtraJoints(ini *inifile.IniFile, r *configCheckResult) {
 // ccWarnMultipleIniValues warns about duplicate keys in JOINT_* and AXIS_*
 // sections.
 func ccWarnMultipleIniValues(ini *inifile.IniFile, r *configCheckResult) {
-	seen := make(map[string]bool)
-	for _, sec := range ini.Sections {
-		if seen[sec.Name] {
-			continue
-		}
-		if !strings.HasPrefix(sec.Name, "JOINT_") && !strings.HasPrefix(sec.Name, "AXIS_") {
-			continue
-		}
-		seen[sec.Name] = true
+	// Accumulate entries per raw section name across all occurrences
+	// (a section may appear multiple times via #INCLUDE).
+	type sectionData struct {
+		keyCounts map[string]int
+		keyValues map[string][]string
+	}
+	accumulated := make(map[string]*sectionData)
 
-		keyCounts := make(map[string]int)
-		keyValues := make(map[string][]string)
-		entries := ini.GetSection(sec.Name)
-		for _, e := range entries {
-			keyCounts[e.Key]++
-			keyValues[e.Key] = append(keyValues[e.Key], e.Value)
+	for _, sec := range ini.Sections {
+		// Strip namespace prefix to get the effective section name for
+		// the check.  This ensures we check each raw section individually
+		// without merging namespace overrides with global defaults.
+		name := sec.Name
+		if ns := ini.Namespace(); ns != "" {
+			name = strings.TrimPrefix(name, ns+":")
 		}
-		for key, count := range keyCounts {
+		if !strings.HasPrefix(name, "JOINT_") && !strings.HasPrefix(name, "AXIS_") {
+			continue
+		}
+
+		sd := accumulated[sec.Name]
+		if sd == nil {
+			sd = &sectionData{
+				keyCounts: make(map[string]int),
+				keyValues: make(map[string][]string),
+			}
+			accumulated[sec.Name] = sd
+		}
+		for _, e := range sec.Entries {
+			sd.keyCounts[e.Key]++
+			sd.keyValues[e.Key] = append(sd.keyValues[e.Key], e.Value)
+		}
+	}
+
+	for secName, sd := range accumulated {
+		// Use the effective (non-prefixed) name in the warning message.
+		displayName := secName
+		if ns := ini.Namespace(); ns != "" {
+			displayName = strings.TrimPrefix(displayName, ns+":")
+		}
+		for key, count := range sd.keyCounts {
 			if count > 1 {
 				r.Warnings = append(r.Warnings,
 					fmt.Sprintf("Unexpected multiple values [%s]%s: %s",
-						sec.Name, key, strings.Join(keyValues[key], " ")))
+						displayName, key, strings.Join(sd.keyValues[key], " ")))
 			}
 		}
 	}
