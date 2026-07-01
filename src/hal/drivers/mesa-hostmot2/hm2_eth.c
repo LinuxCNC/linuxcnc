@@ -927,6 +927,16 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
     int send;
 
+    size_t read_packet_size = board->read_packet_ptr - board->read_packet;
+    if(read_packet_size + 3*sizeof(lbp16_cmd_addr) + sizeof(uint32_t) > sizeof(board->read_packet)){
+        LL_PRINT("ERROR: send_queued_reads: buffer full, droping data\n");
+        //We need to drop the data to recover
+        board->read_packet_ptr = board->read_packet;
+        board->queue_reads_count = 0;
+        board->queue_buff_size = 0;
+        return 0;
+    }
+
     // read (low 16 bits of) last write number from space 4 address 0010
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_COMM_CTRL_ADDR16(1), 0x8);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
@@ -1069,7 +1079,13 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *b
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    // XXX this is missing a check for exceeding the maximum packet size!
+    
+    size_t read_packet_size = board->read_packet_ptr - board->read_packet;
+    if(read_packet_size + sizeof(lbp16_cmd_addr) > sizeof(board->read_packet)){
+        LL_PRINT("ERROR: enqueue_read: buffer full\n");
+        return 0;
+    }
+
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)board->read_packet_ptr, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = buffer;
@@ -1115,8 +1131,16 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     hm2_eth_t *board = this->private;
 
     board->write_cnt++;
-    // XXX this is missing a check for exceeding the maximum packet size!
     lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
+
+    if(board->write_packet_size + sizeof(*packet) + 4 > sizeof(board->write_packet)){
+        LL_PRINT("ERROR: send_queued_writes: buffer full, droping all data\n");
+        //We need to drop the data to recover
+        board->write_packet_ptr = board->write_packet;
+        board->write_packet_size = 0;
+        return 0;
+    }
+
     LBP16_INIT_PACKET4(*packet, CMD_WRITE_TIMER_ADDR16_INCR(2), 0x14);
     board->write_packet_ptr += sizeof(*packet);
     memcpy(board->write_packet_ptr, &board->write_cnt, 4);
@@ -1142,7 +1166,11 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const 
     if (size == 0) return 1;
     lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
 
-    // XXX this is missing a check for exceeding the maximum packet size!
+    if(board->write_packet_size + sizeof(*packet) + size > sizeof(board->write_packet)){
+        LL_PRINT("ERROR: enqueue_write: buffer full\n");
+        return 0;
+    }
+
     LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
     board->write_packet_ptr += sizeof(*packet);
     memcpy(board->write_packet_ptr, buffer, size);
