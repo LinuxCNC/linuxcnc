@@ -337,9 +337,6 @@ class MesaTests:
 
         combo_unit = self.builder.get_object("cbx_cpu_units_servo")
         unit = combo_unit.get_active_id()
-        
-        spin_speed = self.builder.get_object("sbtn_cpu_speed_servo")
-        cpu_speed = spin_speed.get_value()
 
         label_result = self.builder.get_object("lbl_result_servo")
 
@@ -356,24 +353,8 @@ class MesaTests:
             buffer.insert(buffer.get_end_iter(), "Servo Thread period must be greater than 0")
             return
 
-        if cpu_speed <= 0:
-            if buffer.get_char_count() > 0:
-                buffer.insert(buffer.get_end_iter(), "\n\n")
-            buffer.insert(buffer.get_end_iter(), "CPU Speed must be greater than 0")
-            return
-
-        # Unit conversion        
-        if unit == "MHz":
-            cpu_speed_hz = cpu_speed * 1E6
-        elif unit == "GHz":
-            cpu_speed_hz = cpu_speed * 1E9
-
         # Calculation
-        cpu_clock_time = 0.000000001 * period
-        clocks_per_period = cpu_speed_hz * cpu_clock_time
-
-        cpu_clocks_used = t_max / clocks_per_period
-        result = cpu_clocks_used * 100
+        result = t_max / period * 100
         label_result.set_text(f'{result:.0f}%')
 
 
@@ -474,9 +455,6 @@ class MesaTests:
 
         combo_unit = self.builder.get_object("cbx_cpu_units_nic")
         unit = combo_unit.get_active_id()
-        
-        spin_speed = self.builder.get_object("sbtn_cpu_speed_nic")
-        cpu_speed = spin_speed.get_value()
 
         label_result = self.builder.get_object("lbl_result_nic")
 
@@ -499,25 +477,9 @@ class MesaTests:
             buffer.insert(buffer.get_end_iter(), "Servo Thread period must be greater than 0")
             return
 
-        if cpu_speed <= 0:
-            if buffer.get_char_count() > 0:
-                buffer.insert(buffer.get_end_iter(), "\n\n")
-            buffer.insert(buffer.get_end_iter(), "CPU Speed must be greater than 0")
-            return
-
-        # Unit conversion        
-        if unit == "MHz":
-            cpu_speed_hz = cpu_speed * 1E6
-        elif unit == "GHz":
-            cpu_speed_hz = cpu_speed * 1E9
-
         # Calculation
         rw_tmax = read_tmax + write_tmax
-        cpu_clock_time = 0.000000001 * period
-        clocks_per_period = cpu_speed_hz * cpu_clock_time
-
-        packet_time = rw_tmax / clocks_per_period
-        result = packet_time * 100
+        result = rw_tmax / period * 100
         label_result.set_text(f'{result:.0f}%')
 
     def on_btn_packet_error_released(self, gtkbutton):
