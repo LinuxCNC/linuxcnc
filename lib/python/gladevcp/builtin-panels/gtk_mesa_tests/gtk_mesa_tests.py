@@ -93,79 +93,6 @@ class MesaTests:
         dialog.destroy()
         return password or None
 
-
-    def get_cpu_speed(self, gtkbutton, textview_id, combo_units_id, spin_speed_id):
-        prompt = None
-        # Get / cache sudo password
-        if not self.password:
-            self.password = self.ask_sudo_password(gtkbutton)
-
-        # Get CPU information
-        if self.password != None:
-            p = Popen(['sudo', '-S', 'dmidecode', '-t', 'processor'],
-                stdin=PIPE, stderr=PIPE, stdout=PIPE, text=True)
-            prompt = p.communicate(self.password + '\n')
-        if prompt:
-            ret = prompt[0].splitlines()
-
-
-        # Get UI objects
-        textview = self.builder.get_object(textview_id)
-        buffer = textview.get_buffer()
-
-        combo_units = self.builder.get_object(combo_units_id)
-        spin_speed = self.builder.get_object(spin_speed_id)
-
-
-        # Check if the buffer is empty
-        if buffer.get_char_count() > 0:
-            # Buffer is not empty → add a newline before appending
-            buffer.insert(buffer.get_end_iter(), "\n")
-
-        if self.password is None:
-            if buffer.get_char_count() > 0:
-                buffer.insert(buffer.get_end_iter(), "\n")
-            buffer.insert(buffer.get_end_iter(), "Operation cancelled. No password provided.")
-            return
-
-        for line in ret:
-
-            if 'Speed' in line:
-                if buffer.get_char_count() > 0:
-                    buffer.insert(buffer.get_end_iter(), "\n")
-                buffer.insert(buffer.get_end_iter(), line.strip())
-            if 'Current Speed' in line:
-                try:
-                    #line = "Current Speed: 4.200 GHz" # Uncomment for testing GUI (test GHy)
-                    #line = "Current Speed: 3600000 Hz" # Uncomment for testing GUI (test wrong value)
-                    parts = line.split()
-                    value = float(parts[2])   # e.g. "3200" → 3200
-                    unit  = parts[3]        # e.g. "MHz" or "GHz"
-
-                    # Force an exception if unit is invalid
-                    if not unit in ("MHz", "GHz"):
-                        raise ValueError("Invalid unit")
-
-                    spin_speed.set_value(value)
-                    combo_units.set_active_id(unit)
-                except Exception:
-                    # Write an error message to the text buffer
-                    buffer.insert(buffer.get_end_iter(), "\nFailed to retrieve CPU speed information.")
-
-    def handle_cpu_unit_change(self, combo, spinbutton_id):
-        spin_speed = self.builder.get_object(spinbutton_id)
-
-        # Get selected unit ("MHz" or "GHz")
-        unit = combo.get_active_id()
-
-        # Set digits depending on unit
-        # MHz → no decimals
-        # GHz → three decimals
-        if unit == "MHz":
-            spin_speed.set_digits(0)
-        elif unit == "GHz":
-            spin_speed.set_digits(3)
-
     def on_btn_ip_nic_released(self, gtkbutton):
         ip = subprocess.check_output(['ip', '-br', 'addr', 'show'], text=True)
 
@@ -246,17 +173,6 @@ class MesaTests:
         # Replace TextView content with notification message
         buffer.set_text("Output copied to clipboard")
 
-    def on_btn_cpu_speed_servo_released(self, gtkbutton):
-        self.get_cpu_speed(
-            gtkbutton,
-            textview_id="textview_servo",
-            combo_units_id="cbx_cpu_units_servo",
-            spin_speed_id="sbtn_cpu_speed_servo",
-        )
-
-    def on_cbx_cpu_units_servo_changed(self, combo):
-        self.handle_cpu_unit_change(combo, "sbtn_cpu_speed_servo")
-
     def on_btn_servo_thread_tmax_released(self, gtkbutton):
         result = subprocess.check_output("halcmd show param servo-thread.tmax",shell=True, text=True)
 
@@ -283,19 +199,6 @@ class MesaTests:
 
         spin_thread_tmax = self.builder.get_object("sbtn_servo_thread_tmax")
         spin_thread_tmax.set_value(value)
-
-
-
-    def on_btn_cpu_speed_nic_released(self, gtkbutton):
-        self.get_cpu_speed(
-            gtkbutton,
-            textview_id="textview_nic",
-            combo_units_id="cbx_cpu_units_nic",
-            spin_speed_id="sbtn_cpu_speed_nic",
-        )
-
-    def on_cbx_cpu_units_nic_changed(self, combo):
-        self.handle_cpu_unit_change(combo, "sbtn_cpu_speed_nic")
 
     def on_btn_servo_thread_period_released(self, combo):
         result = subprocess.check_output("halcmd show thread servo-thread",shell=True, text=True)
@@ -335,12 +238,6 @@ class MesaTests:
         spin_thread_period = self.builder.get_object("sbtn_servo_thread_period")
         period = spin_thread_period.get_value()
 
-        combo_unit = self.builder.get_object("cbx_cpu_units_servo")
-        unit = combo_unit.get_active_id()
-        
-        spin_speed = self.builder.get_object("sbtn_cpu_speed_servo")
-        cpu_speed = spin_speed.get_value()
-
         label_result = self.builder.get_object("lbl_result_servo")
 
         # Conditions
@@ -356,24 +253,8 @@ class MesaTests:
             buffer.insert(buffer.get_end_iter(), "Servo Thread period must be greater than 0")
             return
 
-        if cpu_speed <= 0:
-            if buffer.get_char_count() > 0:
-                buffer.insert(buffer.get_end_iter(), "\n\n")
-            buffer.insert(buffer.get_end_iter(), "CPU Speed must be greater than 0")
-            return
-
-        # Unit conversion        
-        if unit == "MHz":
-            cpu_speed_hz = cpu_speed * 1E6
-        elif unit == "GHz":
-            cpu_speed_hz = cpu_speed * 1E9
-
         # Calculation
-        cpu_clock_time = 0.000000001 * period
-        clocks_per_period = cpu_speed_hz * cpu_clock_time
-
-        cpu_clocks_used = t_max / clocks_per_period
-        result = cpu_clocks_used * 100
+        result = t_max / period * 100
         label_result.set_text(f'{result:.0f}%')
 
 
@@ -472,12 +353,6 @@ class MesaTests:
         spin_thread_period = self.builder.get_object("sbtn_servo_thread_period_nic")
         period = spin_thread_period.get_value()
 
-        combo_unit = self.builder.get_object("cbx_cpu_units_nic")
-        unit = combo_unit.get_active_id()
-        
-        spin_speed = self.builder.get_object("sbtn_cpu_speed_nic")
-        cpu_speed = spin_speed.get_value()
-
         label_result = self.builder.get_object("lbl_result_nic")
 
         # Conditions
@@ -499,25 +374,9 @@ class MesaTests:
             buffer.insert(buffer.get_end_iter(), "Servo Thread period must be greater than 0")
             return
 
-        if cpu_speed <= 0:
-            if buffer.get_char_count() > 0:
-                buffer.insert(buffer.get_end_iter(), "\n\n")
-            buffer.insert(buffer.get_end_iter(), "CPU Speed must be greater than 0")
-            return
-
-        # Unit conversion        
-        if unit == "MHz":
-            cpu_speed_hz = cpu_speed * 1E6
-        elif unit == "GHz":
-            cpu_speed_hz = cpu_speed * 1E9
-
         # Calculation
         rw_tmax = read_tmax + write_tmax
-        cpu_clock_time = 0.000000001 * period
-        clocks_per_period = cpu_speed_hz * cpu_clock_time
-
-        packet_time = rw_tmax / clocks_per_period
-        result = packet_time * 100
+        result = rw_tmax / period * 100
         label_result.set_text(f'{result:.0f}%')
 
     def on_btn_packet_error_released(self, gtkbutton):
