@@ -10,6 +10,7 @@ load tpmod
 load {{$mod}} <homemod.{{$j}}>
 {{- end}}
 load io <iocontrol>
+load persist_sqlite <persistence>
 load tooltable
 load milltask halui=halui
 

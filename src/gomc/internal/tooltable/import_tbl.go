@@ -4,13 +4,17 @@ package tooltable
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/persist"
+	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/tooltable"
 )
 
-// importTbl parses a legacy LinuxCNC .tbl file and inserts tools into the database.
+// importTbl parses a legacy LinuxCNC .tbl file and stores tools via persist API.
 func (m *module) importTbl(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -18,22 +22,7 @@ func (m *module) importTbl(path string) error {
 	}
 	defer f.Close()
 
-	tx, err := m.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	stmt, err := tx.Prepare(`INSERT OR REPLACE INTO tools
-		(toolno, pocketno, x_offset, y_offset, z_offset,
-		 a_offset, b_offset, c_offset, u_offset, v_offset, w_offset,
-		 diameter, frontangle, backangle, orientation, comment)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-	if err != nil {
-		return err
-	}
-	defer stmt.Close()
-
+	var entries []persist.Entry
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
@@ -44,16 +33,42 @@ func (m *module) importTbl(path string) error {
 		if err != nil {
 			continue // skip unparsable lines
 		}
-		if _, err := stmt.Exec(t.toolno, t.pocketno,
-			t.x, t.y, t.z, t.a, t.b, t.c, t.u, t.v, t.w,
-			t.diameter, t.frontangle, t.backangle, t.orientation, t.comment); err != nil {
-			return fmt.Errorf("insert tool %d: %w", t.toolno, err)
+		tool := tooltable.ToolEntry{
+			Toolno:      t.toolno,
+			Pocketno:    t.pocketno,
+			XOffset:     t.x,
+			YOffset:     t.y,
+			ZOffset:     t.z,
+			AOffset:     t.a,
+			BOffset:     t.b,
+			COffset:     t.c,
+			UOffset:     t.u,
+			VOffset:     t.v,
+			WOffset:     t.w,
+			Diameter:    t.diameter,
+			Frontangle:  t.frontangle,
+			Backangle:   t.backangle,
+			Orientation: t.orientation,
+			Comment:     t.comment,
 		}
+		data, err := json.Marshal(tool)
+		if err != nil {
+			return fmt.Errorf("marshal tool %d: %w", t.toolno, err)
+		}
+		entries = append(entries, persist.Entry{
+			Key:   strconv.FormatInt(int64(t.toolno), 10),
+			Value: string(data),
+		})
 	}
 	if err := scanner.Err(); err != nil {
 		return err
 	}
-	return tx.Commit()
+	if len(entries) > 0 {
+		if _, err := m.db.SetEntries(m.dbHandle, entries); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type tblEntry struct {

@@ -473,7 +473,7 @@ TEST rising_edge_float_trigger(void)
 
     /* Trigger on channel 0, rising edge, level 5.0 */
     s->trig.channel = 0;
-    s->trig.edge = 1;  /* rising */
+    s->trig.edge = HALSCOPE_RISING;
     s->trig.auto_trig = 0;
 
     /* Set level to 5.0 via the ireal_t union */
@@ -510,7 +510,7 @@ TEST falling_edge_float_trigger(void)
     s->pre_trig = 3;
 
     s->trig.channel = 0;
-    s->trig.edge = 0;  /* falling */
+    s->trig.edge = HALSCOPE_FALLING;
     s->trig.auto_trig = 0;
     double lvl = 5.0;
     memcpy(&s->trig.level, &lvl, sizeof(double));
@@ -546,7 +546,7 @@ TEST bit_trigger_rising(void)
     s->pre_trig = 3;
 
     s->trig.channel = 0;
-    s->trig.edge = 1;  /* rising */
+    s->trig.edge = HALSCOPE_RISING;
     s->trig.auto_trig = 0;
 
     s->state = HALSCOPE_ST_INIT;
@@ -578,7 +578,7 @@ TEST s32_trigger_rising(void)
     s->pre_trig = 3;
 
     s->trig.channel = 0;
-    s->trig.edge = 1;  /* rising */
+    s->trig.edge = HALSCOPE_RISING;
     s->trig.auto_trig = 0;
     s->trig.level.d_s32 = 100;
 
@@ -640,7 +640,7 @@ TEST trigger_on_different_channel_than_data(void)
     s->pre_trig = 3;
 
     s->trig.channel = 1;
-    s->trig.edge = 1;
+    s->trig.edge = HALSCOPE_RISING;
     s->trig.auto_trig = 0;
     s->trig.level.d_s32 = 50;
 

@@ -6,13 +6,72 @@
 package ngcpreview
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/../../../emc/rs274ngc -I${SRCDIR}/../../../emc/nml_intf -I${SRCDIR}/../../../emc/motion -I${SRCDIR}/../../../emc/task -I${SRCDIR}/../../../rtapi -I${SRCDIR}/../../../../include -I${SRCDIR}/../../generated/gmi/canon -I${SRCDIR}/../../.. -I${SRCDIR}/../../generated/gmi/interp_ext -I${SRCDIR}/../../generated/gmi/interp_ctx -I${SRCDIR}/../../pkg/cmodule
+#cgo CFLAGS: -I${SRCDIR}/../../../emc/rs274ngc -I${SRCDIR}/../../../emc/nml_intf -I${SRCDIR}/../../../emc/motion -I${SRCDIR}/../../../emc/task -I${SRCDIR}/../../../rtapi -I${SRCDIR}/../../../../include -I${SRCDIR}/../../generated/gmi/canon -I${SRCDIR}/../../.. -I${SRCDIR}/../../generated/gmi/interp_ext -I${SRCDIR}/../../generated/gmi/interp_ctx -I${SRCDIR}/../../pkg/cmodule -I${SRCDIR}/../../generated/gmi/persist
 #cgo LDFLAGS: -L${SRCDIR}/../../../../lib -Wl,--allow-shlib-undefined -lrs274 -lposemath -lstdc++ -lm
 
 #include <stdlib.h>
 #include <string.h>
 #include "emctool.h"
 #include "interp_shim.h"
+#include "interp_parameter_io.hh"
+
+#define PERSIST_API_CGO
+#include "persist_api.h"
+
+// Read-only persist-backed parameter I/O for preview.
+// restore loads from persist, save is a no-op.
+
+typedef struct {
+    const persist_callbacks_t *persist;
+    int32_t handle;
+} preview_param_io_ctx_t;
+
+static int preview_param_restore(void *ctx, double parameters[INTERP_PARAM_MAX]) {
+    preview_param_io_ctx_t *pctx = (preview_param_io_ctx_t *)ctx;
+    int k;
+    for (k = 0; k < INTERP_PARAM_MAX; k++)
+        parameters[k] = 0;
+    persist_get_entries_result_t res = pctx->persist->get_entries(
+        pctx->persist->ctx, pctx->handle);
+    if (res.data == NULL)
+        return 0;
+    for (size_t i = 0; i < res.len; i++) {
+        if (res.data[i].key == NULL || res.data[i].value == NULL)
+            continue;
+        int variable = atoi(res.data[i].key);
+        if (variable <= 0 || variable >= INTERP_PARAM_MAX)
+            continue;
+        parameters[variable] = atof(res.data[i].value);
+    }
+    free(res.data);
+    return 0;
+}
+
+static int preview_param_save_noop(void *ctx, const double parameters[INTERP_PARAM_MAX],
+                                   const int required_params[]) {
+    (void)ctx; (void)parameters; (void)required_params;
+    return 0;
+}
+
+static interp_param_io_t preview_param_io_persist_create(const persist_callbacks_t *persist) {
+    preview_param_io_ctx_t *pctx = (preview_param_io_ctx_t *)malloc(sizeof(preview_param_io_ctx_t));
+    pctx->persist = persist;
+    persist_open_result_t open_res = persist->open(persist->ctx, "ngc_vars");
+    pctx->handle = open_res.handle;
+    interp_param_io_t io;
+    memset(&io, 0, sizeof(io));
+    io.restore = preview_param_restore;
+    io.save = preview_param_save_noop;
+    io.ctx = pctx;
+    return io;
+}
+
+static void preview_param_io_persist_destroy(interp_param_io_t *io) {
+    if (io && io->ctx) {
+        free(io->ctx);
+        io->ctx = NULL;
+    }
+}
 #include "canon_api.h"
 
 // Forward declarations for canon callback implementations (defined below).
@@ -734,13 +793,14 @@ func init() {
 }
 
 type ngcPreview struct {
-	logger         *slog.Logger
-	name           string  // module instance name
-	parameterFile  string  // from [RS274NGC]PARAMETER_FILE
-	linearUnits    float64 // from [TRAJ]LINEAR_UNITS: 1.0 for mm, 1/25.4 for inch
-	ttInstanceName string  // tooltable instance to look up (default "tooltable")
-	ttClient       *tooltable.TooltableClient
-	allowedDirs    []string // resolved absolute paths where get_file may read
+	logger              *slog.Logger
+	name                string  // module instance name
+	linearUnits         float64 // from [TRAJ]LINEAR_UNITS: 1.0 for mm, 1/25.4 for inch
+	ttInstanceName      string  // tooltable instance to look up (default "tooltable")
+	ttClient            *tooltable.TooltableClient
+	persistInstanceName string         // persist instance name (default "persistence")
+	allowedDirs         []string       // resolved absolute paths where get_file may read
+	persistCbs          unsafe.Pointer // persist_callbacks_t* for read-only param I/O
 }
 
 func parseLinearUnits(s string) float64 {
@@ -761,27 +821,24 @@ func newNgcPreview(ini *inifile.IniFile, logger *slog.Logger, name string, args 
 	// Allow overriding INI namespace via "namespace=xxx" argument.
 	ns := name
 	ttInst := "tooltable"
+	persistInst := "persistence"
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "namespace=") {
 			ns = strings.TrimPrefix(arg, "namespace=")
 		} else if strings.HasPrefix(arg, "tooltable_instance=") {
 			ttInst = strings.TrimPrefix(arg, "tooltable_instance=")
+		} else if strings.HasPrefix(arg, "persist_instance=") {
+			persistInst = strings.TrimPrefix(arg, "persist_instance=")
 		}
 	}
 	nsIni := ini.WithNamespace(ns)
-	paramFile := nsIni.Get("RS274NGC", "PARAMETER_FILE")
-	// Resolve relative parameter file path against the INI file's directory
-	if paramFile != "" && !filepath.IsAbs(paramFile) {
-		iniDir := filepath.Dir(ini.SourceFile())
-		paramFile = filepath.Join(iniDir, paramFile)
-	}
 	linearUnits := parseLinearUnits(nsIni.Get("TRAJ", "LINEAR_UNITS"))
 	// Build allowed directories for get_file path restriction
 	iniDir := filepath.Dir(ini.SourceFile())
 	allowedDirs := collectAllowedDirs(nsIni, iniDir)
-	m := &ngcPreview{logger: logger, name: name, parameterFile: paramFile, linearUnits: linearUnits, ttInstanceName: ttInst, allowedDirs: allowedDirs}
+	m := &ngcPreview{logger: logger, name: name, linearUnits: linearUnits, ttInstanceName: ttInst, persistInstanceName: persistInst, allowedDirs: allowedDirs}
 	ngcpreview.RegisterNgcpreviewAPI(apiserver.DefaultRegistry(), name, m)
-	logger.Info("ngcpreview module loaded and API registered", "instance", name, "parameterFile", paramFile)
+	logger.Info("ngcpreview module loaded and API registered", "instance", name)
 	return m, nil
 }
 
@@ -794,6 +851,13 @@ func (m *ngcPreview) Start() error {
 	} else {
 		m.ttClient = tooltable.NewTooltableClient(unsafe.Pointer(ttCbs))
 	}
+
+	// Look up persist API for read-only parameter loading (required).
+	persistCbs, err := reg.GetAPIFor(m.name, "persist", m.persistInstanceName, 2)
+	if err != nil {
+		return fmt.Errorf("ngcpreview: persist API lookup (%s): %w", m.persistInstanceName, err)
+	}
+	m.persistCbs = persistCbs
 	return nil
 }
 
@@ -825,12 +889,6 @@ func (m *ngcPreview) GenPreview(filename string, initcodes string, unitcode stri
 
 	// Set up preview context (C heap to satisfy cgo pointer rules)
 	ctx := (*C.preview_ctx_t)(C.calloc(1, C.size_t(unsafe.Sizeof(C.preview_ctx_t{}))))
-	// Pre-populate parameter file path from INI
-	if m.parameterFile != "" {
-		cPF := C.CString(m.parameterFile)
-		C.strncpy(&ctx.param_file[0], cPF, 1023)
-		C.free(unsafe.Pointer(cPF))
-	}
 	ctx.linear_units = C.double(m.linearUnits)
 	ctx.plane = 1 // default XY plane
 
@@ -868,6 +926,13 @@ func (m *ngcPreview) GenPreview(filename string, initcodes string, unitcode stri
 	defer C.free(unsafe.Pointer(cbHeap))
 	*cbHeap = C.make_preview_canon(ctx)
 	C.interp_shim_set_callbacks(h, cbHeap)
+
+	// Set up read-only persist-backed parameter I/O.
+	var paramIO C.interp_param_io_t
+	paramIO = C.preview_param_io_persist_create(
+		(*C.persist_callbacks_t)(m.persistCbs))
+	defer C.preview_param_io_persist_destroy(&paramIO)
+	C.interp_shim_set_param_io(h, &paramIO)
 
 	// Initialize interpreter
 	rc := C.interp_shim_init(h)

@@ -20,6 +20,8 @@
 #include "interp_internal.hh"
 #include "interp_return.hh"
 #include "interp_ext.h"
+#include "interp_parameter_io.hh"
+#include <vector>
 
 struct InterpExtRegistry;  // opaque, defined in interp_ext.cc
 void interp_ext_registry_destroy(InterpExtRegistry *reg);
@@ -66,12 +68,14 @@ public:
 // reset yourself
  int reset();
 
-// restore interpreter variables from a file
- int restore_parameters(const char *filename);
+// restore interpreter variables from storage
+ int restore_parameters();
 
-// save interpreter variables to file
- int save_parameters(const char *filename,
-                                    const double parameters[]);
+// save interpreter variables to storage
+ int save_parameters(const double parameters[]);
+
+// set the parameter I/O backend (if not set, file-based is used)
+ void set_param_io(const interp_param_io_t *io);
 
 // synchronize your internal model with the external world
  int synch();
@@ -735,6 +739,14 @@ int read_inputs(setup_pointer settings);
 
  // Extension handler registry (per-instance)
  InterpExtRegistry *ext_registry;
+
+ // Parameter I/O backend (if NULL, file-based is used internally)
+ const interp_param_io_t *param_io;
+
+ // Merged list of parameter indices to persist (built from
+ // _required_parameters + [RS274NGC]PERSIST= INI entries).
+ // Sorted, unique, terminated by INTERP_PARAM_MAX.
+ std::vector<int> _persist_parameters;
 
  int ext_register_oword(const char *name, interp_ext_oword_fn_cb fn, void *user);
  int ext_register_remap_prolog(const char *name, interp_ext_remap_prolog_fn_cb fn, void *user);

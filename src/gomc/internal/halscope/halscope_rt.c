@@ -102,9 +102,9 @@ static int check_trigger(halscope_t *s)
         break;
     }
 
-    if (s->trig.edge && s->compare_result && !prev)
+    if (s->trig.edge == HALSCOPE_RISING && s->compare_result && !prev)
         return 1;
-    if (!s->trig.edge && !s->compare_result && prev)
+    if (s->trig.edge == HALSCOPE_FALLING && !s->compare_result && prev)
         return 1;
     return 0;
 }

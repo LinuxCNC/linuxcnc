@@ -29,8 +29,8 @@ enum ScopeState {
 }
 
 enum TrigEdge {
-    FALLING = 0
-    RISING = 1
+    RISING = 0
+    FALLING = 1
 }
 
 enum HalType {

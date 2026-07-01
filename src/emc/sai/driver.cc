@@ -23,6 +23,7 @@
 #include "rs274ngc_return.hh"
 #include "inifile.hh"		// INIFILE
 #include "interp_internal.hh"	// setup_struct (for ini_accessor)
+#include "interp_parameter_io.hh"	// interp_param_io_t
 #include "canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
@@ -718,6 +719,17 @@ usage:
           ip->_setup.ini_accessor.ctx = NULL;
           ip->_setup.ini_accessor.get = sai_ini_get;
           ip->_setup.ini_accessor.get_nth = sai_ini_get_nth;
+      }
+  }
+
+  // Set up file-based parameter I/O using the parameter file name
+  // (from -v option or default).
+  static interp_param_io_t sai_param_io;
+  {
+      Interp *ip = dynamic_cast<Interp*>(pinterp);
+      if (ip) {
+          sai_param_io = interp_param_io_file_create(_parameter_file_name);
+          ip->set_param_io(&sai_param_io);
       }
   }
 

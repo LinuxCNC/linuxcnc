@@ -713,6 +713,26 @@ $(GMI_ETHERCAT_GEN)/ethercat_cgo.go: $(GMI_ETHERCAT_GEN)/ethercat_api.h ;
 
 TARGETS += $(GMI_ETHERCAT_GEN)/ethercat_api.h
 
+# --- persist API (Go-provided, generic key-value persistence) ---
+
+GMI_PERSIST_IDL := gmi/idl/persist.gmi
+GMI_PERSIST_GEN := gomc/generated/gmi/persist
+
+$(GMI_PERSIST_GEN)/persist_api.h: $(GMI_PERSIST_IDL) $(GMICOMPILE_BIN)
+	$(ECHO) "Generating GMI persist from $(GMI_PERSIST_IDL)"
+	@mkdir -p $(GMI_PERSIST_GEN)
+	$(Q)$(GMICOMPILE) --server-c $(GMI_PERSIST_IDL) -o $(GMI_PERSIST_GEN)/persist_api.h
+	$(Q)$(GMICOMPILE) --server-meta $(GMI_PERSIST_IDL) -o $(GMI_PERSIST_GEN)/persist_cgo.go
+	$(Q)$(GMICOMPILE) --server-go $(GMI_PERSIST_IDL) -o $(GMI_PERSIST_GEN)/persist_bridge.go
+	$(Q)$(GMICOMPILE) --client-cgo $(GMI_PERSIST_IDL) -o $(GMI_PERSIST_GEN)/persist_client_cgo.go
+	$(Q)$(GMICOMPILE_BIN) add-gmi generated/gmi/persist
+
+$(GMI_PERSIST_GEN)/persist_cgo.go: $(GMI_PERSIST_GEN)/persist_api.h ;
+$(GMI_PERSIST_GEN)/persist_bridge.go: $(GMI_PERSIST_GEN)/persist_api.h ;
+$(GMI_PERSIST_GEN)/persist_client_cgo.go: $(GMI_PERSIST_GEN)/persist_api.h ;
+
+TARGETS += $(GMI_PERSIST_GEN)/persist_api.h
+
 # ═══════════════════════════════════════════════════════════════════════════════
 
 clean: gmi-codegen-clean

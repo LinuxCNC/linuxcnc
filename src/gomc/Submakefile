@@ -35,6 +35,7 @@ GOMC_BUILD_FLAGS := $(subst $(space),$(comma),$(strip \
     $(if $(filter yes,$(BUILD_MQTTBRIDGE)),MQTTBRIDGE) \
     $(if $(filter yes,$(BUILD_PYVCP)),PYVCP) \
     $(if $(filter yes,$(BUILD_TASKTEST)),TASKTEST) \
+    $(if $(filter yes,$(BUILD_PERSIST_SQLITE)),PERSIST_SQLITE) \
     $(if $(filter yes,$(BUILD_TOOLTABLE)),TOOLTABLE)))
 
 # Compile-time variables injected via -ldflags

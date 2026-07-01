@@ -23,6 +23,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_python.cc \
 	interp_remap.cc \
 	interp_setup.cc \
+	interp_parameter_io.cc \
 	rs274ngc_pre.cc \
 	interp_inspection.cc \
 	interp_shim.cc)

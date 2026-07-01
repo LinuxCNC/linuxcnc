@@ -17,17 +17,24 @@ load motmod <mot2> num_joints=3 num_spindles=1 kins_instance=kins2 tp_instance=t
 load io <io1> tooltable_instance=tt1
 load io <io2> tooltable_instance=tt2
 
+# Per-instance persistence
+load persist_sqlite <persist1> dbpath=db/mill1
+load persist_sqlite <persist2> dbpath=db/mill2
+
+# Shared persistence for global modules (halscope, retain)
+load persist_sqlite <persistence>
+
 # Separate tool tables per instance
-load tooltable <tt1> db=mill1.db
-load tooltable <tt2> db=mill2.db
+load tooltable <tt1> persist_instance=persist1
+load tooltable <tt2> persist_instance=persist2
 
 # Two milltask instances
-load milltask <mill1> halui=halui motion_instance=mot1 iocontrol_instance=io1 tooltable_instance=tt1
-load milltask <mill2> halui=halui2 motion_instance=mot2 iocontrol_instance=io2 tooltable_instance=tt2
+load milltask <mill1> halui=halui motion_instance=mot1 iocontrol_instance=io1 tooltable_instance=tt1 persist_instance=persist1
+load milltask <mill2> halui=halui2 motion_instance=mot2 iocontrol_instance=io2 tooltable_instance=tt2 persist_instance=persist2
 
 # Preview instances
-load ngcpreview <mill1-preview> namespace=mill1 tooltable_instance=tt1
-load ngcpreview <mill2-preview> namespace=mill2 tooltable_instance=tt2
+load ngcpreview <mill1-preview> namespace=mill1 tooltable_instance=tt1 persist_instance=persist1
+load ngcpreview <mill2-preview> namespace=mill2 tooltable_instance=tt2 persist_instance=persist2
 
 # RT functions for mot1
 addf mot1.motion-command-handler servo-thread

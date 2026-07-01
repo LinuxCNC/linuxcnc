@@ -92,6 +92,11 @@ void interp_active_g_codes(void *handle, int *gcodes, int max_len);
 void interp_active_m_codes(void *handle, int *mcodes, int max_len);
 void interp_active_settings(void *handle, double *settings, int max_len);
 
+// Parameter I/O backend.
+// Set before init() to override the default file-based persistence.
+struct interp_param_io_t;
+void interp_set_param_io(void *handle, const struct interp_param_io_t *io);
+
 #ifdef __cplusplus
 }
 #endif

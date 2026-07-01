@@ -114,7 +114,8 @@ const char *Interp::interp_status(int status) {
 Interp::Interp()
     : log_file(stderr),
     _setup{},
-    ext_registry(nullptr)
+    ext_registry(nullptr),
+    param_io(nullptr)
 {
     _setup.init_once = 1;  
     init_named_parameters();
@@ -123,6 +124,11 @@ Interp::Interp()
 InterpBase *makeInterp()
 {
     return new Interp;
+}
+
+void Interp::set_param_io(const interp_param_io_t *io)
+{
+    param_io = io;
 }
 
 Interp::~Interp() {
@@ -711,13 +717,7 @@ written. Otherwise, the default parameter file name is used.
 
 int Interp::exit()
 {
-  char file_name[LINELEN];
-
-  _setup.canon.get_external_parameter_file_name(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(_setup.parameters);
   reset();
 
   return INTERP_OK;
@@ -759,7 +759,6 @@ void Interp::set_canon_callbacks(const canon_callbacks_t *callbacks)
 int Interp::init()
 {
   int k;                        // starting index in parameters of origin offsets
-  char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
 
   _setup.canon.init_canon();
@@ -921,12 +920,38 @@ int Interp::init()
 
   } // end INI accessor path
 
+  // Build the persist parameters list: start from the hardcoded required
+  // set, then merge any [RS274NGC]PERSIST= entries from the INI file.
+  {
+      // Find the end of _required_parameters (terminated by RS274NGC_MAX_PARAMETERS sentinel)
+      const int *rp = _required_parameters;
+      while (*rp != RS274NGC_MAX_PARAMETERS) rp++;
+      std::set<int> pset(_required_parameters, rp);
+
+      if (_setup.ini_accessor.get_nth != NULL) {
+          for (int n = 1; ; n++) {
+              const char *val = _setup.ini_accessor.get_nth(
+                  _setup.ini_accessor.ctx, "RS274NGC", "PERSIST", n);
+              if (val == NULL) break;
+              // Parse "N" or "N-M" range
+              int lo, hi;
+              if (sscanf(val, "%d-%d", &lo, &hi) == 2) {
+                  if (lo > 0 && hi >= lo && hi < RS274NGC_MAX_PARAMETERS)
+                      for (int p = lo; p <= hi; p++)
+                          pset.insert(p);
+              } else if (sscanf(val, "%d", &lo) == 1) {
+                  if (lo > 0 && lo < RS274NGC_MAX_PARAMETERS)
+                      pset.insert(lo);
+              }
+          }
+      }
+      _persist_parameters.assign(pset.begin(), pset.end());
+      _persist_parameters.push_back(RS274NGC_MAX_PARAMETERS); // terminator
+  }
+
   _setup.length_units = _setup.canon.get_external_length_unit_type();
   _setup.canon.use_length_units(_setup.length_units);
-  _setup.canon.get_external_parameter_file_name(filename, LINELEN);
-  if (filename[0] == 0)
-    snprintf(filename, sizeof(filename), "%s", RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
-  CHP(restore_parameters(filename));
+  CHP(restore_parameters());
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
   if(_setup.origin_index < 1 || _setup.origin_index > 9) {
@@ -1623,62 +1648,12 @@ sets of origin offsets. Any parameter not given a value in the file
 has its value set to zero.
 
 */
-int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
+int Interp::restore_parameters()
 {
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  char line[256];
-  int variable;
-  double value;
-  int required;                 // number of next required parameter
-  int index;                    // index into _required_parameters
-  double *pars;                 // short name for _setup.parameters
-  int k;
-
-  // it's OK if the parameter file doesn't exist yet
-  // it'll be created in due course with some default values
-  if(access(filename, F_OK) == -1)
-      return INTERP_OK;
-  // open original for reading
-  infile = fopen(filename, "r");
-  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename);
-
-  pars = _setup.parameters;
-  k = 0;
-  index = 0;
-  required = _required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, 256, infile) == NULL) {
-      break;
-    }
-    // try for a variable-value match in the file
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
-      CHKS(((variable <= 0)
-           || (variable >= RS274NGC_MAX_PARAMETERS)),
-          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable) {
-          fclose(infile);
-          ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        } else if (k == variable) {
-          pars[k] = value;
-          if (k == required)
-            required = _required_parameters[index++];
-          k++;
-          break;
-        } else                  // if (k < variable)
-        {
-          if (k == required)
-            required = _required_parameters[index++];
-          pars[k] = 0;
-        }
-      }
-    }
-  }
-  fclose(infile);
-  for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-    pars[k] = 0;
-  }
+  CHKS((param_io == NULL), _("No parameter I/O backend configured"));
+  int rc = param_io->restore(param_io->ctx, _setup.parameters);
+  CHKS((rc != 0), _("Unable to restore parameters"));
   return INTERP_OK;
 }
 
@@ -1716,81 +1691,14 @@ If a required parameter is missing from the input file, this does not
 complain, but does write it in the output file.
 
 */
-int Interp::save_parameters(const char *filename,      //!< name of file to write
-                             const double parameters[]) //!< parameters to save   
+int Interp::save_parameters(const double parameters[])
 {
   if (!_setup.task_mode)
     return INTERP_OK;
   FORCE_LC_NUMERIC_C;
-  FILE *infile;
-  FILE *outfile;
-  char line[PATH_MAX];
-  int variable;
-  double value;
-  int required;                 // number of next required parameter
-  int index;                    // index into _required_parameters
-  int k;
-
-  std::string tempfile = std::string(filename) + ".new";
-  outfile = fopen(tempfile.c_str(), "w");
-  CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
-
-  infile = fopen(filename, "r");
-  if(!infile)
-    infile = fopen("/dev/null", "r");
-
-  k = 0;
-  index = 0;
-  required = _required_parameters[index++];
-  while (feof(infile) == 0) {
-    if (fgets(line, sizeof(line), infile) == NULL) {
-      break;
-    }
-    // try for a variable-value match
-    if (sscanf(line, "%d %lf", &variable, &value) == 2) {
-      CHKS(((variable <= 0)
-           || (variable >= RS274NGC_MAX_PARAMETERS)),
-          NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-        if (k > variable) {
-          fclose(infile);
-          fclose(outfile);
-          ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
-        } else if (k == variable) {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
-          if (k == required)
-            required = _required_parameters[index++];
-          k++;
-          break;
-        } else if (k == required)       // know (k < variable)
-        {
-          snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-          fputs(line, outfile);
-          required = _required_parameters[index++];
-        }
-      }
-    }
-  }
-  fclose(infile);
-  for (; k < RS274NGC_MAX_PARAMETERS; k++) {
-    if (k == required) {
-      snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
-      fputs(line, outfile);
-      required = _required_parameters[index++];
-    }
-  }
-
-  fflush(outfile);
-  fdatasync(fileno(outfile));
-  fclose(outfile);
-  std::string bakfile = std::string(filename)
-                            + RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX;
-  unlink(bakfile.c_str());
-  if(link(filename, bakfile.c_str()) < 0)
-    perror("link (updating variable file)");
-  if(rename(tempfile.c_str(), filename) < 0)
-    perror("rename (updating variable file)");
+  CHKS((param_io == NULL), _("No parameter I/O backend configured"));
+  int rc = param_io->save(param_io->ctx, parameters, _persist_parameters.data());
+  CHKS((rc != 0), _("Unable to save parameters"));
   return INTERP_OK;
 }
 
@@ -1816,7 +1724,6 @@ the controller.
 int Interp::synch()
 {
 
-  char file_name[LINELEN];
   _setup.current_x  = _setup.canon.get_external_position_x();
   _setup.current_y  = _setup.canon.get_external_position_y();
   _setup.current_z  = _setup.canon.get_external_position_z();
@@ -1853,11 +1760,7 @@ int Interp::synch()
 	  _setup.speed_override[s] = _setup.canon.get_external_spindle_override_enable(s);
 	  _setup.spindle_mode[s] = CONSTANT_RPM;
   }
-  _setup.canon.get_external_parameter_file_name(file_name, (LINELEN - 1));
-  save_parameters(((file_name[0] ==
-                             0) ?
-                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
-                            file_name), _setup.parameters);
+  save_parameters(_setup.parameters);
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 

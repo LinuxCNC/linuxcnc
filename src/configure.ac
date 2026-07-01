@@ -1560,6 +1560,7 @@ HAVE_MILLTASK_GO=no
 HAVE_MQTTBRIDGE=no
 HAVE_PYVCP=no
 HAVE_TASKTEST=no
+HAVE_PERSIST_SQLITE=no
 HAVE_TOOLTABLE=no
 
 if test "x$HAVE_GOLANG" = "xyes"; then
@@ -1643,6 +1644,14 @@ if test "x$HAVE_GOLANG" = "xyes"; then
         HAVE_TASKTEST=yes
     fi
 
+    AC_ARG_ENABLE([persist-sqlite],
+        AS_HELP_STRING([--enable-persist-sqlite], [Build SQLite persistence Go module (default: yes)]),
+        [enable_persist_sqlite=$enableval],
+        [enable_persist_sqlite=yes])
+    if test "x$enable_persist_sqlite" = "xyes"; then
+        HAVE_PERSIST_SQLITE=yes
+    fi
+
     AC_ARG_ENABLE([tooltable],
         AS_HELP_STRING([--enable-tooltable], [Build tool table Go module (default: yes)]),
         [enable_tooltable=$enableval],
@@ -1662,6 +1671,7 @@ AC_SUBST([HAVE_MILLTASK_GO])
 AC_SUBST([HAVE_MQTTBRIDGE])
 AC_SUBST([HAVE_PYVCP])
 AC_SUBST([HAVE_TASKTEST])
+AC_SUBST([HAVE_PERSIST_SQLITE])
 AC_SUBST([HAVE_TOOLTABLE])
 
 # Web application build dependencies (Node.js for Vite/Vue webapp builds)
@@ -1830,6 +1840,7 @@ echo "    Go milltask module:         $HAVE_MILLTASK_GO"
 echo "    MQTT bridge module:         $HAVE_MQTTBRIDGE"
 echo "    PyVCP module:               $HAVE_PYVCP"
 echo "    Task test module:           $HAVE_TASKTEST"
+echo "    SQLite persistence module:  $HAVE_PERSIST_SQLITE"
 echo "    Tool table module:          $HAVE_TOOLTABLE"
 echo "    Node.js (webapp build):     $HAVE_NODEJS"
 echo "    WebKit2GTK (gmcui):         $HAVE_WEBKIT2GTK"

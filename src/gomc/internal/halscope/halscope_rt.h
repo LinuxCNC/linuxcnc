@@ -18,12 +18,16 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
+#ifndef HALSCOPE_API_CGO
+#define HALSCOPE_API_CGO
+#endif
+#include "halscope_api.h"
+
 #include "hal.h"
 #include "rtapi.h"
 
 /* --- Constants --- */
 
-#define HALSCOPE_MAX_CHANNELS  16
 #define HALSCOPE_DEFAULT_NUM_SAMPLES 16000
 #define HALSCOPE_NUM_BUFFERS   3   /* triple buffer */
 
@@ -70,7 +74,7 @@ typedef struct {
 typedef struct {
     int              channel;     /* 0-based, -1 = none */
     halscope_data_t  level;
-    int              edge;        /* 0 = falling, 1 = rising */
+    halscope_trig_edge_t edge;
     int              force;
     int              auto_trig;
 } halscope_trigger_t;

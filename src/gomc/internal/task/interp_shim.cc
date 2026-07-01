@@ -218,4 +218,13 @@ int interp_ini_load_accessor(void *handle, const interp_ini_accessor_t *accessor
     return 0;
 }
 
+// interp_set_param_io sets the parameter I/O backend on the interpreter.
+// Must be called before init().
+void interp_set_param_io(void *handle, const interp_param_io_t *io) {
+    Interp *ip = dynamic_cast<Interp*>(static_cast<InterpBase*>(handle));
+    if (ip) {
+        ip->set_param_io(io);
+    }
+}
+
 } // extern "C"

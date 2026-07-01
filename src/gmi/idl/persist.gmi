@@ -1,0 +1,68 @@
+@api persist
+@author "Sascha Ittner <sascha.ittner@modusoft.de>"
+@license "GPL Version 2"
+@version 2
+@prefix persist
+@rest_export true
+
+type Entry {
+    key: string
+    value: string
+    updated: i64
+}
+
+type OpenResult {
+    handle: i32
+}
+
+type SetResult {
+    ok: bool
+}
+
+type DeleteResult {
+    ok: bool
+    count: i32
+}
+
+# Open a namespace, returns a handle for subsequent operations.
+@method POST
+@path /{namespace}
+func open(namespace: string) -> OpenResult
+
+# Close a handle (releases resources).
+func close(handle: i32)
+
+# Get all open namespaces.
+@method GET
+@path /
+func get_namespaces() -> []string
+
+# Get all entries via handle.
+@method GET
+@path /{namespace}
+func get_entries(handle: i32) -> []Entry
+
+# Get a single entry by key.
+@method GET
+@path /{namespace}/{key}
+func get_entry(handle: i32, key: string) -> Entry
+
+# Set a single entry.
+@method PUT
+@path /{namespace}/{key}
+func set_entry(handle: i32, key: string, value: string) -> SetResult
+
+# Delete a single entry.
+@method DELETE
+@path /{namespace}/{key}
+func delete_entry(handle: i32, key: string) -> DeleteResult
+
+# Set multiple entries at once.
+@method PUT
+@path /{namespace}
+func set_entries(handle: i32, entries: []Entry) -> SetResult
+
+# Delete all entries (and the namespace).
+@method DELETE
+@path /{namespace}
+func delete_all(handle: i32) -> DeleteResult

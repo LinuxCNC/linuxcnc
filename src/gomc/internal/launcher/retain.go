@@ -20,7 +20,7 @@
 package launcher
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/../../../hal -I${SRCDIR}/../../.. -I${SRCDIR}/../../../rtapi -I${SRCDIR}/../../../../include
+#cgo CFLAGS: -I${SRCDIR}/../../../hal -I${SRCDIR}/../../.. -I${SRCDIR}/../../../rtapi -I${SRCDIR}/../../../../include -I${SRCDIR}/../../generated/gmi/persist
 #cgo LDFLAGS:
 
 #include <stdlib.h>
@@ -32,6 +32,9 @@ package launcher
 #include "hal.h"
 #include "hal_priv.h"
 
+#define PERSIST_API_CGO
+#include "persist_api.h"
+
 // retain action values — same protocol as retain.h.
 #define RETAIN_ACTION_NOOP  0
 #define RETAIN_ACTION_READ  1
@@ -41,6 +44,8 @@ package launcher
 // userspace goroutine.  Allocated via calloc in retain_state_create().
 typedef struct {
     _Atomic uint32_t action;
+    const persist_callbacks_t *persist;
+    int32_t handle;
 } retain_state_t;
 
 static retain_state_t *retain_state_create(void) {
@@ -49,6 +54,11 @@ static retain_state_t *retain_state_create(void) {
 
 static void retain_state_destroy(retain_state_t *st) {
     free(st);
+}
+
+static int32_t retain_open_namespace(retain_state_t *st, const char *ns) {
+    persist_open_result_t res = st->persist->open(st->persist->ctx, ns);
+    return res.handle;
 }
 
 // retain_sync is the RT function exported as "retain.sync".
@@ -136,64 +146,32 @@ static int retain_init(retain_state_t *st) {
     return comp_id;
 }
 
-// retain_load_vars restores signal values from a var file.
+// retain_load_vars restores signal values from the persist backend.
 // Returns 0 on success, -1 on error.
-static int retain_load_vars(const char *file_name) {
+static int retain_load_vars(retain_state_t *st) {
     hal_data_t *hd = hal_data;
-    FILE *f;
-    char line[1024];
-    char *name, *value, *s;
     hal_sig_t *sig;
     void *data_addr;
 
-    f = fopen(file_name, "r");
-    if (f == NULL) {
-        return -1;
+    if (st->persist == NULL) return -1;
+
+    persist_get_entries_result_t res = st->persist->get_entries(
+        st->persist->ctx, st->handle);
+    if (res.len == 0) {
+        if (res.data) free(res.data);
+        return 0;
     }
 
     rtapi_mutex_get(&(hd->mutex));
-    while (fgets(line, sizeof(line), f)) {
-        // Skip leading whitespace.
-        for (name = line; *name && (*name == '\t' || *name == ' '); name++)
-            ;
-
-        // Skip comment lines.
-        if (*name == '#') {
-            continue;
-        }
-
-        // Split name and value on first space.
-        value = strchr(name, ' ');
-        if (value == NULL) {
-            continue;
-        }
-        *(value++) = '\0';
-
-        if (*name == '\0') {
-            continue;
-        }
-
-        // Terminate value at first whitespace.
-        for (s = value; *s && *s != '\t' && *s != ' ' && *s != '\r' && *s != '\n'; s++)
-            ;
-        *s = '\0';
-
-        if (*value == '\0') {
-            continue;
-        }
+    for (size_t i = 0; i < res.len; i++) {
+        const char *name = res.data[i].key;
+        const char *value = res.data[i].value;
+        if (name == NULL || value == NULL) continue;
 
         sig = halpr_find_sig_by_name(name);
-        if (sig == NULL) {
-            continue;
-        }
-
-        // Only restore retain-flagged signals without writers.
-        if (sig->writers > 0) {
-            continue;
-        }
-        if ((sig->flags & HAL_SIGFLAG_RETAIN) == 0) {
-            continue;
-        }
+        if (sig == NULL) continue;
+        if (sig->writers > 0) continue;
+        if ((sig->flags & HAL_SIGFLAG_RETAIN) == 0) continue;
 
         data_addr = SHMPTR(sig->data_ptr);
         switch (sig->type) {
@@ -207,25 +185,19 @@ static int retain_load_vars(const char *file_name) {
         case HAL_U32: {
             char *endp;
             uint32_t v = strtoul(value, &endp, 0);
-            if (*endp == '\0') {
-                *((hal_u32_t *)data_addr) = v;
-            }
+            if (*endp == '\0') *((hal_u32_t *)data_addr) = v;
             break;
         }
         case HAL_S32: {
             char *endp;
             int32_t v = strtol(value, &endp, 0);
-            if (*endp == '\0') {
-                *((hal_s32_t *)data_addr) = v;
-            }
+            if (*endp == '\0') *((hal_s32_t *)data_addr) = v;
             break;
         }
         case HAL_FLOAT: {
             char *endp;
             double v = strtod(value, &endp);
-            if (*endp == '\0') {
-                *((hal_float_t *)data_addr) = v;
-            }
+            if (*endp == '\0') *((hal_float_t *)data_addr) = v;
             break;
         }
         default:
@@ -234,87 +206,99 @@ static int retain_load_vars(const char *file_name) {
     }
     rtapi_mutex_give(&(hd->mutex));
 
-    fclose(f);
+    free(res.data);
     return 0;
 }
 
-// retain_save_vars saves retain-flagged signal values to a var file.
-// Uses atomic write (tmp + rename).  Returns 0 on success, -1 on error.
-static int retain_save_vars(const char *file_name) {
+// retain_save_vars saves retain-flagged signal values via persist backend.
+// Returns 0 on success, -1 on error.
+static int retain_save_vars(retain_state_t *st) {
     hal_data_t *hd = hal_data;
-    char tmp_name[256];
-    FILE *f = NULL;
     void *next;
     hal_sig_t *sig;
-    int ret;
+    size_t count = 0;
+    size_t cap = 64;
 
-    if (snprintf(tmp_name, sizeof(tmp_name), "%s.tmp", file_name) >= (int)sizeof(tmp_name)) {
-        return -1;
-    }
+    if (st->persist == NULL) return -1;
 
-    f = fopen(tmp_name, "w");
-    if (f == NULL) {
-        return -1;
-    }
+    persist_entry_t *entries = (persist_entry_t *)malloc(cap * sizeof(persist_entry_t));
+    if (entries == NULL) return -1;
+    char **value_bufs = (char **)malloc(cap * sizeof(char *));
+    if (value_bufs == NULL) { free(entries); return -1; }
 
     rtapi_mutex_get(&(hd->mutex));
     next = hd->sig_list_ptr;
     while (next != 0) {
         sig = SHMPTR(next);
         next = sig->next_ptr;
+        if ((sig->flags & HAL_SIGFLAG_RETAIN) == 0) continue;
 
-        if ((sig->flags & HAL_SIGFLAG_RETAIN) == 0) {
+        if (count >= cap) {
+            cap *= 2;
+            entries = (persist_entry_t *)realloc(entries, cap * sizeof(persist_entry_t));
+            value_bufs = (char **)realloc(value_bufs, cap * sizeof(char *));
+            if (entries == NULL || value_bufs == NULL) {
+                rtapi_mutex_give(&(hd->mutex));
+                goto cleanup;
+            }
+        }
+
+        char vbuf[64];
+        switch (sig->type) {
+        case HAL_BIT:
+            snprintf(vbuf, sizeof(vbuf), "%s", sig->retain_val.bit ? "TRUE" : "FALSE");
+            break;
+        case HAL_U32:
+            snprintf(vbuf, sizeof(vbuf), "%u", sig->retain_val.u32);
+            break;
+        case HAL_S32:
+            snprintf(vbuf, sizeof(vbuf), "%d", sig->retain_val.s32);
+            break;
+        case HAL_FLOAT:
+            snprintf(vbuf, sizeof(vbuf), "%.6f", sig->retain_val.flt);
+            break;
+        default:
             continue;
         }
 
-        switch (sig->type) {
-        case HAL_BIT:
-            ret = fprintf(f, "%s %s\n", sig->name, sig->retain_val.bit ? "TRUE" : "FALSE");
-            break;
-        case HAL_U32:
-            ret = fprintf(f, "%s %u\n", sig->name, sig->retain_val.u32);
-            break;
-        case HAL_S32:
-            ret = fprintf(f, "%s %d\n", sig->name, sig->retain_val.s32);
-            break;
-        case HAL_FLOAT:
-            ret = fprintf(f, "%s %.6f\n", sig->name, sig->retain_val.flt);
-            break;
-        default:
-            ret = 0;
-            break;
-        }
-
-        if (ret < 0) {
-            rtapi_mutex_give(&(hd->mutex));
-            fclose(f);
-            return -1;
-        }
+        value_bufs[count] = strdup(vbuf);
+        entries[count].key = sig->name;
+        entries[count].value = value_bufs[count];
+        entries[count].updated = 0;
+        count++;
     }
     rtapi_mutex_give(&(hd->mutex));
 
-    if (fflush(f) || fdatasync(fileno(f)) || fclose(f)) {
-        return -1;
+    if (count > 0) {
+        st->persist->set_entries(st->persist->ctx, st->handle, entries, count);
     }
 
-    if (rename(tmp_name, file_name) < 0) {
-        return -1;
+    for (size_t i = 0; i < count; i++) {
+        free(value_bufs[i]);
     }
-
+    free(value_bufs);
+    free(entries);
     return 0;
+
+cleanup:
+    for (size_t i = 0; i < count; i++) {
+        free(value_bufs[i]);
+    }
+    free(value_bufs);
+    free(entries);
+    return -1;
 }
 */
 import "C"
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"runtime"
 	"sync/atomic"
 	"time"
 	"unsafe"
 
+	"github.com/sittner/linuxcnc/src/gomc/internal/apiserver"
 	halcmd "github.com/sittner/linuxcnc/src/gomc/internal/halcmd"
 )
 
@@ -329,12 +313,11 @@ const (
 
 // retainInstance holds all state for the integrated retain subsystem.
 type retainInstance struct {
-	compID  int
-	state   *C.retain_state_t
-	varFile string
-	poll    time.Duration
-	cancel  context.CancelFunc
-	done    chan struct{} // closed when goroutine exits
+	compID int
+	state  *C.retain_state_t
+	poll   time.Duration
+	cancel context.CancelFunc
+	done   chan struct{} // closed when goroutine exits
 }
 
 // loadRetain checks for retained HAL signals and, if any are found, sets up
@@ -386,14 +369,24 @@ func (l *Launcher) loadRetain() error {
 		return fmt.Errorf("retain: hal_ready failed: %d", int(ret))
 	}
 
-	// Determine the variable file path.
-	varFile := l.ini.Get("RETAIN", "VAR_FILE")
-	if varFile == "" {
-		varFile = "retain.var"
+	// Look up persist API.
+	reg := apiserver.DefaultRegistry()
+	persistInstance := "persistence"
+	if ps := l.ini.Get("RETAIN", "PERSIST_INSTANCE"); ps != "" {
+		persistInstance = ps
 	}
-	if !filepath.IsAbs(varFile) {
-		varFile = filepath.Join(filepath.Dir(l.opts.IniFile), varFile)
+	persistCbs, err := reg.GetAPIFor("retain", "persist", persistInstance, 2)
+	if err != nil {
+		C.hal_exit(C.int(compID))
+		C.retain_state_destroy(state)
+		return fmt.Errorf("retain: persist API lookup (%s): %w", persistInstance, err)
 	}
+	state.persist = (*C.persist_callbacks_t)(persistCbs)
+
+	// Open the hal_retain namespace.
+	cNs := C.CString("hal_retain")
+	state.handle = C.retain_open_namespace(state, cNs)
+	C.free(unsafe.Pointer(cNs))
 
 	// Determine the poll period.
 	pollPeriod := retainDefaultPollPeriod
@@ -403,26 +396,21 @@ func (l *Launcher) loadRetain() error {
 		}
 	}
 
-	// Restore values if var file exists.
-	if _, err := os.Stat(varFile); err == nil {
-		cPath := C.CString(varFile)
-		defer C.free(unsafe.Pointer(cPath))
-		if C.retain_load_vars(cPath) != 0 {
-			l.logger.Warn("retain: failed to load var file", "path", varFile)
-		} else {
-			l.logger.Info("retain: restored values from var file", "path", varFile)
-		}
+	// Restore values from persist.
+	if C.retain_load_vars(state) != 0 {
+		l.logger.Warn("retain: failed to load from persist")
+	} else {
+		l.logger.Info("retain: restored values from persist")
 	}
 
 	// Start the background goroutine.
 	ctx, cancel := context.WithCancel(context.Background())
 	ri := &retainInstance{
-		compID:  compID,
-		state:   state,
-		varFile: varFile,
-		poll:    time.Duration(pollPeriod) * time.Millisecond,
-		cancel:  cancel,
-		done:    make(chan struct{}),
+		compID: compID,
+		state:  state,
+		poll:   time.Duration(pollPeriod) * time.Millisecond,
+		cancel: cancel,
+		done:   make(chan struct{}),
 	}
 	l.retain = ri
 
@@ -479,12 +467,10 @@ func (l *Launcher) retainSync(ri *retainInstance) bool {
 	return atomic.LoadUint32((*uint32)(unsafe.Pointer(&ri.state.action))) == retainActionStore
 }
 
-// retainSave persists retain signal values to the var file.
+// retainSave persists retain signal values via the persist backend.
 func (l *Launcher) retainSave(ri *retainInstance) {
-	cPath := C.CString(ri.varFile)
-	defer C.free(unsafe.Pointer(cPath))
-	if C.retain_save_vars(cPath) != 0 {
-		l.logger.Warn("retain: failed to save var file", "path", ri.varFile)
+	if C.retain_save_vars(ri.state) != 0 {
+		l.logger.Warn("retain: failed to save to persist")
 	}
 }
 

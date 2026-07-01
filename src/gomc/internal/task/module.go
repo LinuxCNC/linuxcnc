@@ -53,6 +53,8 @@ func factory(ini *inifile.IniFile, logger *slog.Logger, name string, args []stri
 			m.ioInstance = v
 		case "tooltable_instance":
 			m.ttInstance = v
+		case "persist_instance":
+			m.persistInstance = v
 		}
 	}
 
@@ -118,8 +120,10 @@ type milltaskModule struct {
 	motInstance       string                     // motion module instance name (default "motmod")
 	ioInstance        string                     // io controller instance name (default "iocontrol")
 	ttInstance        string                     // tooltable instance name (default "tooltable")
+	persistInstance   string                     // persist instance name (default "persistence")
 	iniAccessorHandle cgo.Handle                 // CGo handle for the INI accessor (must be freed)
 	ttClient          *tooltable.TooltableClient // tooltable GMI client
+	paramIO           *interpParamIOPersist      // persist-backed parameter I/O (nil = file-based)
 }
 
 func (m *milltaskModule) Start() error {
@@ -251,6 +255,10 @@ func (m *milltaskModule) Destroy() {
 		m.interp.Destroy()
 		m.interp = nil
 	}
+	if m.paramIO != nil {
+		m.paramIO.destroy()
+		m.paramIO = nil
+	}
 	if m.iniAccessorHandle != 0 {
 		FreeIniAccessor(m.iniAccessorHandle)
 		m.iniAccessorHandle = 0
@@ -309,10 +317,27 @@ func (m *milltaskModule) initInterpreter() error {
 	// This enables save_parameters to actually write the var file.
 	interp.SetTaskMode(1)
 
+	// Set up persist-backed parameter I/O (required).
+	persistInstance := m.persistInstance
+	if persistInstance == "" {
+		persistInstance = "persistence"
+	}
+	reg := apiserver.DefaultRegistry()
+	persistCbs, err := reg.GetAPIFor(m.name, "persist", persistInstance, 2)
+	if err != nil {
+		interp.Destroy()
+		ct.release()
+		return fmt.Errorf("interpreter: persist API lookup (%s): %w", persistInstance, err)
+	}
+	m.paramIO = newInterpParamIOPersist(persistCbs)
+	m.paramIO.install(interp)
+
 	// Initialize interpreter state.
 	if err := interp.Init(); err != nil {
 		interp.Destroy()
 		ct.release()
+		m.paramIO.destroy()
+		m.paramIO = nil
 		return fmt.Errorf("interpreter init: %w", err)
 	}
 

@@ -9,7 +9,7 @@
 package halscope
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/../../../hal -I${SRCDIR}/../../.. -I${SRCDIR}/../../../rtapi -I${SRCDIR}/../../../../include
+#cgo CFLAGS: -I${SRCDIR}/../../../hal -I${SRCDIR}/../../.. -I${SRCDIR}/../../../rtapi -I${SRCDIR}/../../../../include -I${SRCDIR}/../../generated/gmi/halscope
 #cgo LDFLAGS:
 
 #include "halscope_rt.h"
@@ -77,13 +77,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"os"
-	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"unsafe"
 
 	halscopeapi "github.com/sittner/linuxcnc/src/gomc/generated/gmi/halscope"
+	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/persist"
 	"github.com/sittner/linuxcnc/src/gomc/internal/apiserver"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/gomc"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/inifile"
@@ -96,13 +96,15 @@ func init() {
 
 // halscope implements gomc.Module.
 type halscope struct {
-	logger    *slog.Logger
-	s         *C.halscope_t // shared state — RT reads, Go writes
-	compID    C.int
-	mu        sync.Mutex // protects non-atomic config writes
-	name      string     // HAL component name (from load command)
-	functName string     // HAL function name: name + ".sample"
-	statePath string     // path for persistent state file (empty = disabled)
+	logger          *slog.Logger
+	s               *C.halscope_t // shared state — RT reads, Go writes
+	compID          C.int
+	mu              sync.Mutex             // protects non-atomic config writes
+	name            string                 // HAL component name (from load command)
+	functName       string                 // HAL function name: name + ".sample"
+	persist         *persist.PersistClient // nil = persistence disabled
+	persistInstance string
+	persistHandle   int32
 }
 
 func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []string) (gomc.Module, error) {
@@ -139,23 +141,20 @@ func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []
 
 	C.hal_ready(compID)
 
-	m := &halscope{
-		logger:    logger,
-		s:         s,
-		compID:    compID,
-		name:      name,
-		functName: functName,
+	persistInstance := "persistence"
+	for _, arg := range args {
+		if k, v, ok := strings.Cut(arg, "="); ok && k == "persist_instance" {
+			persistInstance = v
+		}
 	}
 
-	// Resolve state file path from INI: [HAL]SCOPE_STATE_STORAGE,
-	// defaulting to <config_dir>/halscope_state.json.
-	if ini != nil {
-		sp := ini.Get("HAL", "SCOPE_STATE_STORAGE")
-		if sp == "" {
-			configDir := filepath.Dir(ini.SourceFile())
-			sp = filepath.Join(configDir, "halscope_state.json")
-		}
-		m.statePath = sp
+	m := &halscope{
+		logger:          logger,
+		s:               s,
+		compID:          compID,
+		name:            name,
+		functName:       functName,
+		persistInstance: persistInstance,
 	}
 
 	// Register REST API.
@@ -183,22 +182,41 @@ func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []
 }
 
 func (m *halscope) Start() error {
-	if m.statePath != "" {
-		if err := m.loadState(); err != nil {
-			m.logger.Warn("halscope: failed to load state", "path", m.statePath, "err", err)
+	// Look up persist API (non-fatal if unavailable).
+	reg := apiserver.DefaultRegistry()
+	if reg != nil {
+		cbs, err := reg.GetAPIFor(m.name, "persist", m.persistInstance, 2)
+		if err != nil {
+			m.logger.Warn("halscope: persist API not available, state will not be saved",
+				"instance", m.persistInstance, "err", err)
 		} else {
-			m.logger.Info("halscope: restored state", "path", m.statePath)
+			m.persist = persist.NewPersistClient(unsafe.Pointer(cbs))
+			res, err := m.persist.Open(persistNamespace)
+			if err != nil {
+				m.logger.Warn("halscope: persist open failed", "err", err)
+				m.persist = nil
+			} else {
+				m.persistHandle = res.Handle
+			}
+		}
+	}
+
+	if m.persist != nil {
+		if err := m.loadState(); err != nil {
+			m.logger.Warn("halscope: failed to load state", "err", err)
+		} else {
+			m.logger.Info("halscope: restored state from persist")
 		}
 	}
 	return nil
 }
 
 func (m *halscope) Stop() {
-	if m.statePath != "" {
+	if m.persist != nil {
 		if err := m.saveState(); err != nil {
-			m.logger.Warn("halscope: failed to save state on stop", "path", m.statePath, "err", err)
+			m.logger.Warn("halscope: failed to save state on stop", "err", err)
 		} else {
-			m.logger.Info("halscope: saved state on stop", "path", m.statePath)
+			m.logger.Info("halscope: saved state on stop")
 		}
 	}
 }
@@ -454,10 +472,10 @@ func (m *halscope) SetTrigger(trig halscopeapi.TriggerConfig) (int32, error) {
 		C.set_trigger_level(&s.trig.level, C.double(trig.Level))
 	}
 
-	if trig.Edge == halscopeapi.TrigEdge_RISING {
-		s.trig.edge = 1
+	if trig.Edge == halscopeapi.TrigEdge_FALLING {
+		s.trig.edge = C.HALSCOPE_FALLING
 	} else {
-		s.trig.edge = 0
+		s.trig.edge = C.HALSCOPE_RISING
 	}
 	if trig.AutoTrig {
 		s.trig.auto_trig = 1
@@ -732,13 +750,12 @@ type stateTrigger struct {
 	AutoTrig bool    `json:"autoTrig"`
 }
 
-// saveState writes the current scope configuration to the state file.
+const persistNamespace = "halscope"
+const persistKey = "state"
+
+// saveState writes the current scope configuration to persist.
 // Caller must NOT hold m.mu.
 func (m *halscope) saveState() error {
-	if m.statePath == "" {
-		return nil
-	}
-
 	m.mu.Lock()
 	s := m.s
 
@@ -773,42 +790,33 @@ func (m *halscope) saveState() error {
 		sf.Channels = []stateChannel{}
 	}
 
-	data, err := json.MarshalIndent(sf, "", "  ")
+	data, err := json.Marshal(sf)
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
 	}
 
-	// Atomic write: tmp file + rename
-	tmp := m.statePath + ".tmp"
-	if err := os.WriteFile(tmp, data, 0644); err != nil {
-		return fmt.Errorf("write tmp: %w", err)
-	}
-	if err := os.Rename(tmp, m.statePath); err != nil {
-		os.Remove(tmp)
-		return fmt.Errorf("rename: %w", err)
+	_, err = m.persist.SetEntry(m.persistHandle, persistKey, string(data))
+	if err != nil {
+		return fmt.Errorf("persist set: %w", err)
 	}
 	return nil
 }
 
-// loadState restores scope configuration from the state file.
+// loadState restores scope configuration from persist.
 // Channels whose HAL pins no longer exist or whose data type changed
 // are silently skipped.
-// Must be called before any captures start (during init).
+// Must be called before any captures start (during Start).
 func (m *halscope) loadState() error {
-	if m.statePath == "" {
-		return nil
-	}
-
-	data, err := os.ReadFile(m.statePath)
+	entry, err := m.persist.GetEntry(m.persistHandle, persistKey)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil // no state file yet — not an error
-		}
-		return fmt.Errorf("read: %w", err)
+		return fmt.Errorf("persist get: %w", err)
+	}
+	if entry.Value == "" {
+		return nil // no saved state yet
 	}
 
 	var sf scopeStateFile
-	if err := json.Unmarshal(data, &sf); err != nil {
+	if err := json.Unmarshal([]byte(entry.Value), &sf); err != nil {
 		return fmt.Errorf("unmarshal: %w", err)
 	}
 	if sf.Version != 1 {
@@ -911,10 +919,10 @@ func (m *halscope) loadState() error {
 		default:
 			C.set_trigger_level(&s.trig.level, C.double(sf.Trigger.Level))
 		}
-		if sf.Trigger.Edge == 1 {
-			s.trig.edge = 1
+		if sf.Trigger.Edge == C.HALSCOPE_FALLING {
+			s.trig.edge = C.HALSCOPE_FALLING
 		} else {
-			s.trig.edge = 0
+			s.trig.edge = C.HALSCOPE_RISING
 		}
 		if sf.Trigger.AutoTrig {
 			s.trig.auto_trig = 1

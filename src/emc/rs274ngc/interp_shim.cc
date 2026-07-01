@@ -11,6 +11,7 @@
 
 #include "rs274ngc_interp.hh"
 #include "gomc/generated/gmi/canon/canon_api.h"
+#include "interp_parameter_io.hh"
 
 struct interp_handle {
     Interp *interp;
@@ -85,6 +86,13 @@ void interp_shim_error_text(interp_handle_t *h, int error_code,
         return;
     }
     h->interp->error_text(error_code, buf, buf_size);
+}
+
+void interp_shim_set_param_io(interp_handle_t *h,
+                              const interp_param_io_t *io) {
+    if (h && h->interp) {
+        h->interp->set_param_io(io);
+    }
 }
 
 } // extern "C"

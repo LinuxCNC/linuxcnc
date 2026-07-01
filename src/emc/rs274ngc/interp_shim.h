@@ -48,6 +48,11 @@ double interp_shim_get_parameter(interp_handle_t *h, int index);
 // Destroy the interpreter instance.
 void interp_shim_destroy(interp_handle_t *h);
 
+// Set the parameter I/O backend. Must be called before init.
+struct interp_param_io_t;
+void interp_shim_set_param_io(interp_handle_t *h,
+                              const struct interp_param_io_t *io);
+
 // Get the error text for the last error. Returns pointer to internal buffer.
 void interp_shim_error_text(interp_handle_t *h, int error_code,
                             char *buf, int buf_size);

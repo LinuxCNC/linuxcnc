@@ -18,6 +18,7 @@ rs274ngc_srcs = files([
     'interp_python.cc',
     'interp_remap.cc',
     'interp_setup.cc',
+    'interp_parameter_io.cc',
     'rs274ngc_pre.cc',
     'pyparamclass.cc',
     'pyemctypes.cc',
