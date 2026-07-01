@@ -27,7 +27,6 @@ import (
 	"github.com/sittner/linuxcnc/src/gomc/internal/halfile"
 	"github.com/sittner/linuxcnc/src/gomc/internal/halrest"
 	"github.com/sittner/linuxcnc/src/gomc/internal/inirest"
-	"github.com/sittner/linuxcnc/src/gomc/internal/lockfile"
 	"github.com/sittner/linuxcnc/src/gomc/internal/realtime"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/inifile"
 )
@@ -55,18 +54,17 @@ type Launcher struct {
 	opts        Options
 	ini         *inifile.IniFile
 	logger      *slog.Logger
-	lock        *lockfile.LockFile // flock-based instance lock
-	rtMgr       *realtime.Manager  // realtime environment manager
-	halibPath   string             // colon-separated HAL library search path
-	cleanupOnce sync.Once          // ensures cleanup runs exactly once
-	halComp     *hal.Component     // launcher's HAL component (like halcmd's hal_init)
-	goModules   []*goModule        // Go modules loaded via "load" command (compiled-in)
-	cModules    []*cModule         // C plugin modules loaded via "load" command
-	cModArena   []unsafe.Pointer   // arena-tracked C strings freed in destroyCModules
-	logRing     *gomcLogRing       // shared log ring buffer for C module FIFO logging
-	retain      *retainInstance    // integrated retain subsystem (nil if unused)
-	apiServer   *apiserver.Server  // REST API server for halcmd and external tools
-	shutdownCh  chan struct{}      // closed by signal handler to unblock wait
+	rtMgr       *realtime.Manager // realtime environment manager
+	halibPath   string            // colon-separated HAL library search path
+	cleanupOnce sync.Once         // ensures cleanup runs exactly once
+	halComp     *hal.Component    // launcher's HAL component (like halcmd's hal_init)
+	goModules   []*goModule       // Go modules loaded via "load" command (compiled-in)
+	cModules    []*cModule        // C plugin modules loaded via "load" command
+	cModArena   []unsafe.Pointer  // arena-tracked C strings freed in destroyCModules
+	logRing     *gomcLogRing      // shared log ring buffer for C module FIFO logging
+	retain      *retainInstance   // integrated retain subsystem (nil if unused)
+	apiServer   *apiserver.Server // REST API server for halcmd and external tools
+	shutdownCh  chan struct{}     // closed by signal handler to unblock wait
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -136,11 +134,6 @@ func (l *Launcher) Run() (runErr error) {
 	// These must be set before realtime is started.
 	l.setConfigEnv()
 
-	l.logger.Info("acquiring lock file")
-	l.lock = lockfile.New(lockfile.LockFilePath)
-	if err := l.lock.Acquire(); err != nil {
-		return err
-	}
 	// M7: Single deferred cleanup replaces individual defers.
 	// cleanup() is idempotent (sync.Once) so it is also safe to call from
 	// the signal handler goroutine below.

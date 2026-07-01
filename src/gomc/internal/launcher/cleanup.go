@@ -202,11 +202,4 @@ func (l *Launcher) doCleanup() {
 		}
 	}
 
-	// Step 13 — Release lock file.
-	if l.lock != nil {
-		l.logger.Info("releasing lock file")
-		if err := l.lock.Release(); err != nil {
-			l.logger.Error("releasing lock file", "error", err)
-		}
-	}
 }

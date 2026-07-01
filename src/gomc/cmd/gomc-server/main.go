@@ -11,7 +11,9 @@
 //
 // Options:
 //
-//	-d level    Set log level: 0=DEBUG, 1=INFO (default), 2=WARN, 3=ERROR
+//	-D              Daemonize: go to background and log to syslog
+//	-p path         PID file path (default: /var/run/gomc-server.pid, implies -D)
+//	-d level        Set log level: 0=DEBUG, 1=INFO (default), 2=WARN, 3=ERROR
 //	-r          Disable redirection of stdout/stderr (for tests)
 //	-l          Use the last-used INI file
 //	-k          Continue in the presence of errors in HAL files
@@ -29,6 +31,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/sittner/linuxcnc/src/gomc/internal/daemon"
 	_ "github.com/sittner/linuxcnc/src/gomc/internal/hallib"
 	"github.com/sittner/linuxcnc/src/gomc/internal/launcher"
 
@@ -97,6 +100,8 @@ Options:
 	}
 
 	var (
+		daemonFlag    = fs.Bool("D", false, "Daemonize: go to background and log to syslog")
+		pidFileFlag   = fs.String("p", "", "PID file `path` (default: "+daemon.DefaultPidFile+", implies -D)")
 		debugLevel    = fs.Int("d", 1, `Log level: 0=DEBUG, 1=INFO, 2=WARN, 3=ERROR`)
 		noRedirect    = fs.Bool("r", false, "Disable redirection of stdout/stderr to log files (use for tests)")
 		useLast       = fs.Bool("l", false, "Use the last-used INI file")
@@ -153,7 +158,38 @@ Options:
 		fmt.Fprintf(os.Stderr, "gomc-server: %v\n", err)
 		return 1
 	}
-	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: &halcmd.LogLevel}))
+
+	// Determine if we should daemonize.
+	// -pidfile implies -daemon.
+	daemonMode := *daemonFlag || *pidFileFlag != ""
+	pidFile := *pidFileFlag
+	if daemonMode && pidFile == "" {
+		pidFile = daemon.DefaultPidFile
+	}
+
+	if daemonMode {
+		if err := daemon.Daemonize(pidFile); err != nil {
+			fmt.Fprintf(os.Stderr, "gomc-server: %v\n", err)
+			return 1
+		}
+		// We are now the daemon child. Redirect stdio and switch to syslog.
+		if err := daemon.RedirectStdio(); err != nil {
+			fmt.Fprintf(os.Stderr, "gomc-server: redirect stdio: %v\n", err)
+			return 1
+		}
+	}
+
+	var logger *slog.Logger
+	if daemonMode {
+		handler, err := daemon.NewSyslogHandler(&halcmd.LogLevel)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "gomc-server: syslog: %v\n", err)
+			return 1
+		}
+		logger = slog.New(handler)
+	} else {
+		logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: &halcmd.LogLevel}))
+	}
 
 	opts := launcher.Options{
 		NoRedirect:      *noRedirect,
@@ -167,8 +203,14 @@ Options:
 
 	l := launcher.New(opts, logger)
 	if err := l.Run(); err != nil {
+		if daemonMode {
+			// Logger might have already reported this via syslog.
+		}
 		fmt.Fprintf(os.Stderr, "gomc-server: %v\n", err)
 		return 1
+	}
+	if daemonMode {
+		daemon.RemovePidFile(pidFile)
 	}
 	return 0
 }
