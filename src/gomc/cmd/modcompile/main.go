@@ -732,6 +732,12 @@ func cmdAddGomod(dir string, force bool) {
 	extDir := filepath.Join(config.EMC2GomcDir, "external", name)
 	originFile := filepath.Join(extDir, ".origin")
 
+	// Remove stale external modules whose origin no longer exists.
+	// This handles the case where a source directory was renamed/moved and
+	// reinstalled under a new name — the old entry would otherwise cause a
+	// "duplicate module registration" panic at runtime.
+	removeStaleExternals(name)
+
 	// Check for collision.
 	if info, err := os.Stat(extDir); err == nil && info.IsDir() {
 		originData, _ := os.ReadFile(originFile)
@@ -785,6 +791,38 @@ func cmdAddGomod(dir string, force bool) {
 	cmdRegenerateImports()
 	goModTidy()
 	buildServer()
+}
+
+// removeStaleExternals removes external module directories whose .origin path
+// no longer exists on disk. This prevents "duplicate module registration" panics
+// when a source directory is moved/renamed and reinstalled under a new basename.
+func removeStaleExternals(skipName string) {
+	extBase := filepath.Join(config.EMC2GomcDir, "external")
+	subs, err := os.ReadDir(extBase)
+	if err != nil {
+		return
+	}
+	for _, sub := range subs {
+		if !sub.IsDir() || sub.Name() == skipName {
+			continue
+		}
+		originFile := filepath.Join(extBase, sub.Name(), ".origin")
+		data, err := os.ReadFile(originFile)
+		if err != nil {
+			continue // no .origin → leave alone
+		}
+		origin := strings.TrimSpace(string(data))
+		if origin == "" {
+			continue
+		}
+		if _, err := os.Stat(origin); err == nil {
+			continue // origin still exists → not stale
+		}
+		// Origin no longer exists — remove stale entry.
+		staleDir := filepath.Join(extBase, sub.Name())
+		fmt.Fprintf(os.Stderr, "Removing stale external/%s (origin %s no longer exists)\n", sub.Name(), origin)
+		os.RemoveAll(staleDir)
+	}
 }
 
 // writeGoDeps extracts require directives from an external module's go.mod
