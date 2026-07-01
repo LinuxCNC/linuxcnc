@@ -232,8 +232,27 @@ static void print_addr(char* desc, struct sockaddr_in *addr){
 }
 */
 
+static int check_evl(hm2_eth_t *board){
+    static bool error_shown = false;
+    if(!board->is_evl_oob_active && evl_get_self() >= 0){
+        if(!error_shown){
+            LL_PRINT("ERROR: hm2_eth evl mode: OOB not active in realtime thread\n"
+                "    Please add: initf hm2_eth.realtime-init servo-thread\n"
+                "    to your hal file\n");
+            error_shown = true;
+        }
+        return -1;
+    }else{
+        return 0;
+    }
+}
+
 int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags){
     ssize_t ret = 0;
+    ret = check_evl(board);
+    if(ret < 0){
+        return ret;
+    }
     if(board->is_evl_oob_active){
         struct iovec iov;
         struct oob_msghdr msghdr;
@@ -270,6 +289,10 @@ int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int f
 
 int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags){
     ssize_t ret = 0;
+    ret = check_evl(board);
+    if(ret < 0){
+        return ret;
+    }
     if(board->is_evl_oob_active){
         struct oob_msghdr msghdr;
         struct iovec iov;
