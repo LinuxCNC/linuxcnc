@@ -373,7 +373,7 @@ class Conv(tk.Tk):
 
     def block_request(self):
 #       may need to add this halpin for wcs rotation on abort etc.
-#       self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.HAL_BIT, hal.HAL_IN)
+#       self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.Type.BOOL, hal.Dir.IN)
         if not self.settingsExited:
             if self.previewActive and self.active_shape():
                 return True

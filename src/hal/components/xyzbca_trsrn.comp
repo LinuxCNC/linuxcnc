@@ -5,7 +5,7 @@ description
 FIXME
 
 """;
-pin out si32 dummy=0 "dummy pin to satisfy halcompile";
+pin out sint dummy=0 "dummy pin to satisfy halcompile";
 option period no;
 
 license "GPL";

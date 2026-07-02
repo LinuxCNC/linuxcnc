@@ -26,8 +26,8 @@ l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 # Create and connect test feedback comp
 #
 h = hal.component("test-ui")
-h.newpin("Xpos", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("Ypos", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("Xpos", hal.Type.REAL, hal.Dir.IN)
+h.newpin("Ypos", hal.Type.REAL, hal.Dir.IN)
 h.ready()
 os.system("halcmd source ./postgui.hal")
 

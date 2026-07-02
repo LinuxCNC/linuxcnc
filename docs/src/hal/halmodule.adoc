@@ -18,8 +18,8 @@ The following component copies the value seen on its input pin ('passthrough.in'
 import hal
 import time
 h = hal.component("passthrough")
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+h.newpin("in", hal.Type.REAL, hal.Dir.IN)
+h.newpin("out", hal.Type.REAL, hal.Dir.OUT)
 h.ready()
 try:
     while True:
@@ -80,8 +80,8 @@ If the prefix is not specified, the component name is used.
 .Create a HAL pin or parameter
 [source,python]
 ----
-mycomp.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-mycomp.newparam("has-feature-rotate", hal.HAL_BIT, hal.HAL_RO)
+mycomp.newpin("in", hal.Type.REAL, hal.Dir.IN)
+mycomp.newparam("has-feature-rotate", hal.Type.BOOL, hal.Dir.RO)
 ----
 
 Then pins are created by calls to methods on the component object.
@@ -91,14 +91,14 @@ For parameters, the arguments are: parameter name suffix, parameter type, and pa
 .HAL Option Names
 [width="100%",cols="<3s,7*<"]
 |===
-|Pin and Parameter Types:|`HAL_BIT`|`HAL_FLOAT`|`HAL_S32`|`HAL_U32`|`HAL_S64`|`HAL_U64`|`HAL_PORT`
-|Pin Directions:         |`HAL_IN` |`HAL_OUT`  |`HAL_IO` |         |         |         |
-|Parameter Directions:   |`HAL_RO` |`HAL_RW`   |         |         |         |         |
+|Pin and Parameter Types:|`hal.Type.BOOL`|`hal.Type.REAL`|`hal.Type.SINT`|`hal.Type.UINT`|`hal.Type.PORT`
+|Pin Directions:         |`hal.Dir.IN`   |`hal.Dir.OUT`  |`hal.Dir.IO`   |               |
+|Parameter Directions:   |`hal.Dir.RO`   |`hal.Dir.RW`   |               |               |
 |===
 
 [NOTE]
 ====
-Only pins and signals can use the `HAL_PORT` type.
+Only pins and signals can use the `hal.Type.PORT` type.
 ====
 
 The full pin or parameter name is formed by joining the prefix and the
@@ -145,7 +145,7 @@ mycomp.getpins()
 
 === Driving output (HAL_OUT) pins
 
-Periodically, usually in response to a timer, all `HAL_OUT` pins should be "driven" by assigning them a new value.
+Periodically, usually in response to a timer, all `hal.Dir.OUT` pins should be "driven" by assigning them a new value.
 This should be done whether or not the value is different than the last one assigned.
 When a pin is connected to a signal, its old output value is not copied into the signal.
 The proper value will only appear on the signal once the component assigns a new value.
@@ -175,12 +175,10 @@ See <<cha:python-hal-interface, Python HAL Interface>> for an overview and descr
 Use these to specify details rather then the value they hold.
 
 * Pin, parameter and signal types:
-** `HAL_BIT`
-** `HAL_FLOAT`
-** `HAL_S32`
-** `HAL_U32`
-** `HAL_S64`
-** `HAL_U64`
+** `HAL_BOOL`
+** `HAL_REAL`
+** `HAL_SINT`
+** `HAL_UINT`
 * Pin direction:
 ** `HAL_IN`
 ** `HAL_OUT`

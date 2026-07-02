@@ -9,12 +9,10 @@ fi
 # Convert the hal type into the underlying type
 utype() {
 	case "$1" in
-	"bit")	echo "rtapi_bool" ;;
-	"s32")	echo "rtapi_s32" ;;
-	"u32")	echo "rtapi_u32" ;;
-	"s64")	echo "rtapi_sint" ;;
-	"u64")	echo "rtapi_uint" ;;
-	"float") echo "rtapi_real" ;;
+	"bool")	echo "rtapi_bool" ;;
+	"sint")	echo "rtapi_sint" ;;
+	"uint")	echo "rtapi_uint" ;;
+	"real") echo "rtapi_real" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
 }
@@ -22,12 +20,10 @@ utype() {
 # Return the maximum value supported by a type
 maxval() {
 	case "$1" in
-	"bit")	echo "1" ;;
-	"s32")	echo "RTAPI_INT32_MAX" ;;
-	"u32")	echo "RTAPI_UINT32_MAX" ;;
-	"s64")	echo "RTAPI_INT64_MAX" ;;
-	"u64")	echo "RTAPI_UINT64_MAX" ;;
-	"float") echo "Never_Used" ;;
+	"bool")	echo "1" ;;
+	"sint")	echo "RTAPI_SINT_MAX" ;;
+	"uint")	echo "RTAPI_UINT_MAX" ;;
+	"real") echo "Never_Used" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
 }
@@ -35,12 +31,10 @@ maxval() {
 # Return the minimum value supported by a type
 minval() {
 	case "$1" in
-	"bit")	echo "0" ;;
-	"s32")	echo "RTAPI_INT32_MIN" ;;
-	"u32")	echo "0" ;;
-	"s64")	echo "RTAPI_INT64_MIN" ;;
-	"u64")	echo "0" ;;
-	"float") echo "Never_Used" ;;
+	"bool")	echo "0" ;;
+	"sint")	echo "RTAPI_SINT_MIN" ;;
+	"uint")	echo "0" ;;
+	"real") echo "Never_Used" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
 }
@@ -48,12 +42,10 @@ minval() {
 # New HAL types
 _newtype() {
 	case "$1" in
-	"bit")	echo "bool" ;;
-	"s32")	echo "si32" ;;
-	"u32")	echo "ui32" ;;
-	"s64")	echo "sint" ;;
-	"u64")	echo "uint" ;;
-	"float") echo "real" ;;
+	"bool")	echo "bool" ;;
+	"sint")	echo "sint" ;;
+	"uint")	echo "uint" ;;
+	"real") echo "real" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
 }
@@ -64,48 +56,42 @@ _newtype() {
 #  +  = max side bound needed
 #   - = min side bound needed
 # (table: vertical=from ($1); horizontal=to ($2))
-#     | flt | u32 | s32 | u64 | s64 | bit
-# ----+-----+-----+-----+-----+-----+-----
-# flt | xxx |  +- |  +- |  +- |  +- | xxx
-# u32 | o   | xxx |  +  | o   | o   |  +
-# s32 | o   |   - | xxx |   - | o   |  +-
-# u64 | o   |  +  |  +  | xxx |  +  |  +
-# s64 | o   |  +- |  +- |   - | xxx |  +-
-# bit | o   | o   | o   | o   | o   | xxx
+#      | real | uint | sint | bool
+# -----+------+------+------+------
+# real | xxx  |  +-  |  +-  | xxx
+# uint | o    | xxx  |  +   |  +
+# sint | o    |   -  | xxx  |  +-
+# bool | o    | o    | o    | xxx
 #
 # Boolean implementation of the above table:
-#     | flt | u32 | s32 | u64 | s64 | bit
-# ----+-----+-----+-----+-----+-----+-----
-# flt | o+- |  +- |  +- |  +- |  +- | x+-
-# u32 | o   | xxx |  +  | o   | o   |  +
-# s32 | o   |   - | x+x |   - | o   |  +-
-# u64 | o   |  +  |  +  | x+x |  +  |  +
-# s64 | o   |  +- |  +- |   - | xx- |  +-
-# bit | o   | o   | o   | o   | o   | o+x
+#      | real | uint | sint | bool
+# -----+------+------+------+------
+# real | o+-  |  +-  |  +-  | x+-
+# uint | o    | x+x  |  +   |  +
+# sint | o    |   -  | xx-  |  +-
+# bool | o    | o    | o    | o+x
 #
 
 # Enable (val > MAX) test
 V=1
-test	"$1" = 'float' -o \
-	"$2" = 'bit' -o \
-	\( "$2" = 's32' -a "$1" != 'bit' \) -o \
-	\( "$1" = 'u64' -a "$2" != 'float' \) -o \
-	\( "$1" = 's64' -a "$2" = 'u32' \) && V=0
+test	"$1" = 'real' -o \
+	"$2" = 'bool' -o \
+	\( "$1" = 'uint' -a "$2" != 'real' \) && V=0
 MAXEN="s,@MAXEN@,$V,g"
 
 # Enable (val < MIN) test
 V=1
-test	"$1" = 'float' -o \
-	\( "$1" = 's64' -a "$2" != 'float' \) -o \
-	\( "$1" = 's32' -a \( "$2" = 'u32' -o "$2" = 'u64' -o "$2" = 'bit' \) \) && V=0
+test	"$1" = 'real' -o \
+	\( "$1" = 'sint' -a "$2" != 'real' \) && V=0
 MINEN="s,@MINEN@,$V,g"
 
 # Disable clamp code
-if test	"$2" = 'float' -o \
-	"$1" = 'bit' -o \
-	\( "$1" = 'u32' -a \( "$2" = 'u64' -o "$2" = 's64' \) \) -o \
-	\( "$1" = 's32' -a "$2" = 's64' \)
-then CC="s,@CC@,//,g"; else CC="s,@CC@,,g"; fi
+if test	"$2" = 'real' -o \
+        "$1" = 'bool'; then
+    CC="s,@CC@,//,g"
+else
+    CC="s,@CC@,,g"
+fi
 
 XIN="s,@XIN@,${1},g"
 XOUT="s,@XOUT@,${2},g"

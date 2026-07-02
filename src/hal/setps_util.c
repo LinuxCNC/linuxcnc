@@ -63,12 +63,9 @@ int setps_common_cb(hal_query_t *q, void *arg)
             }
         }
         return -EINVAL;
-    case HAL_S32:
     case HAL_SINT:
         errno = 0;
         qvp->s = strtoll(value, &eptr, 0);
-        if(HAL_S32 == type && (qvp->s < RTAPI_INT32_MIN || qvp->s > RTAPI_INT32_MAX))
-            return -ERANGE;
         if(0 != errno)
             return -errno;
         if(value == eptr || (('\0' != *eptr) && !isspace((unsigned char)*eptr)))
@@ -80,12 +77,9 @@ int setps_common_cb(hal_query_t *q, void *arg)
             return -EBADF;
         }
         /* Fallthrough */
-    case HAL_U32:
     case HAL_UINT:
         errno = 0;
         qvp->u = strtoull(value, &eptr, 0);
-        if((HAL_U32 == type || HAL_PORT == type) && qvp->u > RTAPI_UINT32_MAX)
-            return -ERANGE;
         if(0 != errno)
             return -errno;
         if(value == eptr || (('\0' != *eptr) && !isspace((unsigned char)*eptr)))

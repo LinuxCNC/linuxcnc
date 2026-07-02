@@ -18,9 +18,9 @@ addf vti.do-write servo-thread -1
 #
 
 # connect limit/home switch outputs to motion controller
-#newsig Xminlim bit
-#newsig Xmaxlim  bit
-#newsig Xhome bit
+#newsig Xminlim bool
+#newsig Xmaxlim bool
+#newsig Xhome bool
 #linksp Xminlim <= vti.in-02
 #linksp Xminlim => joint.0.neg-lim-sw-in
 #linksp Xmaxlim <= vti.in-01
@@ -28,9 +28,9 @@ addf vti.do-write servo-thread -1
 #linksp Xhome <= vti.in-00
 #linksp Xhome => joint.0.home-sw-in
 
-#newsig Yminlim bit
-#newsig Ymaxlim  bit
-#newsig Yhome bit
+#newsig Yminlim bool
+#newsig Ymaxlim bool
+#newsig Yhome bool
 #linksp Yminlim <= vti.in-06
 #linksp Yminlim => joint.1.neg-lim-sw-in
 #linksp Ymaxlim <= vti.in-05
@@ -38,9 +38,9 @@ addf vti.do-write servo-thread -1
 #linksp Yhome <= vti.in-04
 #linksp Yhome => joint.1.home-sw-in
 
-#newsig Zminlim bit
-#newsig Zmaxlim  bit
-#newsig Zhome bit
+#newsig Zminlim bool
+#newsig Zmaxlim bool
+#newsig Zhome bool
 #linksp Zminlim <= vti.in-10
 #linksp Zminlim => joint.2.neg-lim-sw-in
 #linksp Zmaxlim <= vti.in-09
@@ -51,9 +51,9 @@ addf vti.do-write servo-thread -1
 #continue in the same manner for further axes (A,B,C)
 
 # connect amp faults to motion controller
-#newsig Xfault bit
-#newsig Yfault  bit
-#newsig Zfault bit
+#newsig Xfault bool
+#newsig Yfault bool
+#newsig Zfault bool
 #linksp Xfault <= vti.in-03
 #linksp Xfault => joint.0.amp-fault-in
 #linksp Yfault <= vti.in-07
@@ -63,9 +63,9 @@ addf vti.do-write servo-thread -1
 
 # connect index pulses to motion controller
 # do these when index pulsing is figured out
-#newsig Xindex bit
-#newsig Yindex  bit
-#newsig Zindex bit
+#newsig Xindex bool
+#newsig Yindex bool
+#newsig Zindex bool
 #linksp Xindex <= vti.0.enc-index
 #linksp Xindex => joint.0.index-enable
 #linksp Yindex <= vti.1.enc-index
@@ -80,7 +80,7 @@ addf vti.do-write servo-thread -1
 
 # connect watchdog reset to motion controller
 # needs watchdo
-#newsig WatchdogRst bit
+#newsig WatchdogRst bool
 #linksp WatchdogRst <= vti.watchdog-reset
 #linksp WatchdogRst => motion.watchdog-reset-out
 
@@ -92,8 +92,8 @@ addf vti.do-write servo-thread -1
 # connect e-stop write/sense to I/O controller
 # these connections assume an external ESTOP circuitry will be used
 # if it's not used, comment the next lines and uncomment the loopback
-#newsig EstopSense bit
-#newsig EstopWrite bit
+#newsig EstopSense bool
+#newsig EstopWrite bool
 #linksp EstopSense <= vti.in-12
 #linksp EstopSense => iocontrol.0.emc-enable-in
 #linksp EstopWrite <= vti.out-07
@@ -104,21 +104,21 @@ addf vti.do-write servo-thread -1
 #net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # connect spindle fwd/rev to I/O controller
-#newsig SpindleFwd bit
-#newsig SpindleRev bit
+#newsig SpindleFwd bool
+#newsig SpindleRev bool
 #linksp SpindleFwd <= vti.out-06
 #linksp SpindleFwd => spindle.0.forward
 #linksp SpindleRev <= vti.out-05
 #linksp SpindleRev => spindle.0.reverse
 
 # connect spindle brake to I/O controller
-#newsig SpindleBrakeOn bit
+#newsig SpindleBrakeOn bool
 #linksp SpindleBrakeOn <= vti.out-10
 #linksp SpindleBrakeOn => spindle.0.brake
 
 # connect mist/flood coolant to I/O controller
-#newsig MistOn bit
-#newsig FloodOn bit
+#newsig MistOn bool
+#newsig FloodOn bool
 #linksp MistOn <= vti.out-11
 #linksp MistOn => iocontrol.0.coolant-mist
 #linksp FloodOn <= vti.out-12

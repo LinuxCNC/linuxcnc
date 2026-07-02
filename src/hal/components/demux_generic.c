@@ -62,8 +62,8 @@ RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "demux specifiers inNUMout");
 int rtapi_app_main(void){
     int retval;
     int i, f;
-    char hal_name[HAL_NAME_LEN];
-    char *types[5] = {"invalid", "bit", "float", "s32", "u32"};
+    char hal_name[HAL_NAME_LEN+1];
+    static const char *types[HAL_TYPE_MAX] = {"invalid", "bool", "real", "sint", "uint", "port"};
     if (!config[0]) {
         rtapi_print_msg(RTAPI_MSG_ERR, "The demux_generic component requires at least"
             " one valid format string\n");
@@ -122,11 +122,11 @@ int rtapi_app_main(void){
                 break;
             case 's':
             case 'S':
-                type = HAL_S32;
+                type = HAL_SINT;
                 break;
             case 'u':
             case 'U':
-                type = HAL_U32;
+                type = HAL_UINT;
                 break;
             default:
                 rtapi_print_msg(RTAPI_MSG_ERR, "demux_generic: invalid character in "
@@ -168,7 +168,7 @@ int rtapi_app_main(void){
 
         // We did away with the no-fp thread.
         // Always export the float case. It can do any-to-any.
-        retval = hal_export_functf(write_fp, inst, 1, 0, comp_id, "demux-gen.%02i", i);
+        retval = hal_export_functf(write_fp, inst, 0, comp_id, "demux-gen.%02i", i);
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "demux_generic: ERROR: function export"
                     " failed\n");
@@ -198,17 +198,14 @@ int rtapi_app_main(void){
             goto fail0;
         }
 
-        retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
-                "demux-gen.%02i.in-%s", i, types[inst->in_type]);
-        if (retval >= HAL_NAME_LEN) {
+        retval = rtapi_snprintf(hal_name, sizeof(hal_name),
+                     "demux-gen.%02i.in-%s", i, types[inst->in_type]);
+        if (retval > HAL_NAME_LEN) {
             goto fail0;
         }
         switch(inst->in_type) {
         case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_IN, &inst->input.b, 0, "%s", hal_name); break;
         case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_IN, &inst->input.r, 0, "%s", hal_name); break;
-        case HAL_S32:  retval = hal_pin_new_si32(comp_id, HAL_IN, &inst->input.s, 0, "%s", hal_name); break;
-        case HAL_U32:  retval = hal_pin_new_ui32(comp_id, HAL_IN, &inst->input.u, 0, "%s", hal_name); break;
-        // FIXME: Future...when we switch types
         case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_IN, &inst->input.s, 0, "%s", hal_name); break;
         case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_IN, &inst->input.u, 0, "%s", hal_name); break;
         default: retval = -ENOENT; break;
@@ -242,17 +239,14 @@ int rtapi_app_main(void){
         //output pins
         inst->outputs = hal_malloc(inst->size * sizeof(*inst->outputs));
         for (p = 0; p < inst->size; p++) {
-            retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
-                    "demux-gen.%02i.out-%s-%02i", i, types[inst->out_type], p);
-            if (retval >= HAL_NAME_LEN) {
+            retval = rtapi_snprintf(hal_name, sizeof(hal_name),
+                         "demux-gen.%02i.out-%s-%02i", i, types[inst->out_type], p);
+            if (retval > HAL_NAME_LEN) {
                 goto fail0;
             }
             switch(inst->out_type) {
             case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_OUT, &inst->outputs[p].b, 0, "%s", hal_name); break;
             case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_OUT, &inst->outputs[p].r, 0, "%s", hal_name); break;
-            case HAL_S32:  retval = hal_pin_new_si32(comp_id, HAL_OUT, &inst->outputs[p].s, 0, "%s", hal_name); break;
-            case HAL_U32:  retval = hal_pin_new_ui32(comp_id, HAL_OUT, &inst->outputs[p].u, 0, "%s", hal_name); break;
-            // FIXME: Future...when we switch types
             case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_OUT, &inst->outputs[p].s, 0, "%s", hal_name); break;
             case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_OUT, &inst->outputs[p].u, 0, "%s", hal_name); break;
             default: retval = -ENOENT; break;
@@ -261,7 +255,6 @@ int rtapi_app_main(void){
                 goto fail0;
             }
         }
-
     }
 
     hal_ready(comp_id);
@@ -307,14 +300,14 @@ void write_fp(void *arg, long period) {
     case FT(HAL_BOOL, HAL_BOOL):
         hal_set_bool(inst->outputs[s].b, hal_get_bool(inst->input.b));
         break;
-    case FT(HAL_BOOL, HAL_S32):
-        hal_set_si32(inst->outputs[s].s, hal_get_bool(inst->input.b));
-        break;
-    case FT(HAL_BOOL, HAL_U32):
-        hal_set_ui32(inst->outputs[s].u, hal_get_bool(inst->input.b));
-        break;
     case FT(HAL_BOOL, HAL_REAL):
         hal_set_real(inst->outputs[s].r, hal_get_bool(inst->input.b) ? 1.0 : 0.0);
+        break;
+    case FT(HAL_BOOL, HAL_SINT):
+        hal_set_sint(inst->outputs[s].s, hal_get_bool(inst->input.b));
+        break;
+    case FT(HAL_BOOL, HAL_UINT):
+        hal_set_uint(inst->outputs[s].u, hal_get_bool(inst->input.b));
         break;
 
     case FT(HAL_REAL, HAL_BOOL):
@@ -323,53 +316,53 @@ void write_fp(void *arg, long period) {
     case FT(HAL_REAL, HAL_REAL):
         hal_set_real(inst->outputs[s].r, hal_get_real(inst->input.r));
         break;
-    case FT(HAL_REAL, HAL_S32): {
+    case FT(HAL_REAL, HAL_SINT): {
         rtapi_real v = hal_get_real(inst->input.r);
-        if (v > RTAPI_INT32_MAX) {
-            hal_set_si32(inst->outputs[s].s, RTAPI_INT32_MAX);
-        } else if (v < RTAPI_INT32_MIN) {
-            hal_set_si32(inst->outputs[s].s, RTAPI_INT32_MIN);
+        if (v > (rtapi_real)RTAPI_SINT_MAX) {
+            hal_set_sint(inst->outputs[s].s, RTAPI_SINT_MAX);
+        } else if (v < (rtapi_real)RTAPI_SINT_MIN) {
+            hal_set_sint(inst->outputs[s].s, RTAPI_SINT_MIN);
         } else {
-            hal_set_si32(inst->outputs[s].s, v);
+            hal_set_sint(inst->outputs[s].s, v);
         }
         break; }
-    case FT(HAL_REAL, HAL_U32): {
+    case FT(HAL_REAL, HAL_UINT): {
         rtapi_real v = hal_get_real(inst->input.r);
-        if (v > RTAPI_UINT32_MAX) {
-            hal_set_ui32(inst->outputs[s].u, RTAPI_UINT32_MAX);
-        } else if (v < 0) {
-            hal_set_ui32(inst->outputs[s].u, 0);
+        if (v > (rtapi_real)RTAPI_UINT_MAX) {
+            hal_set_uint(inst->outputs[s].u, RTAPI_UINT_MAX);
+        } else if (v < 0.0) {
+            hal_set_uint(inst->outputs[s].u, 0);
         } else {
-            hal_set_ui32(inst->outputs[s].u, v);
+            hal_set_uint(inst->outputs[s].u, v);
         }
         break; }
 
-    case FT(HAL_S32, HAL_BOOL):
-        hal_set_bool(inst->outputs[s].b, hal_get_si32(inst->input.s) != 0);
+    case FT(HAL_SINT, HAL_BOOL):
+        hal_set_bool(inst->outputs[s].b, hal_get_sint(inst->input.s) != 0);
         break;
-    case FT(HAL_S32, HAL_S32):
-        hal_set_si32(inst->outputs[s].s, hal_get_si32(inst->input.s));
+    case FT(HAL_SINT, HAL_REAL):
+        hal_set_real(inst->outputs[s].r, hal_get_sint(inst->input.s));
         break;
-    case FT(HAL_S32, HAL_U32): {
-        rtapi_s32 v = hal_get_si32(inst->input.s);
-        hal_set_ui32(inst->outputs[s].u, v > 0 ? v : 0);
+    case FT(HAL_SINT, HAL_SINT):
+        hal_set_sint(inst->outputs[s].s, hal_get_sint(inst->input.s));
+        break;
+    case FT(HAL_SINT, HAL_UINT): {
+        rtapi_sint v = hal_get_sint(inst->input.s);
+        hal_set_uint(inst->outputs[s].u, v > 0 ? v : 0);
         break; }
-    case FT(HAL_S32, HAL_REAL):
-        hal_set_real(inst->outputs[s].r, hal_get_si32(inst->input.s));
-        break;
 
-    case FT(HAL_U32, HAL_BIT):
-        hal_set_bool(inst->outputs[s].b, hal_get_ui32(inst->input.u) != 0);
+    case FT(HAL_UINT, HAL_BOOL):
+        hal_set_bool(inst->outputs[s].b, hal_get_uint(inst->input.u) != 0);
         break;
-    case FT(HAL_U32, HAL_S32): {
-        rtapi_u32 v = hal_get_ui32(inst->input.u);
-        hal_set_si32(inst->outputs[s].s, v > (rtapi_u32)RTAPI_INT32_MAX ? RTAPI_INT32_MAX : (rtapi_s32)v);
+    case FT(HAL_UINT, HAL_REAL):
+        hal_set_real(inst->outputs[s].r, hal_get_uint(inst->input.u));
+        break;
+    case FT(HAL_UINT, HAL_SINT): {
+        rtapi_uint v = hal_get_uint(inst->input.u);
+        hal_set_sint(inst->outputs[s].s, v > RTAPI_SINT_MAX ? RTAPI_SINT_MAX : v);
         break; }
-    case FT(HAL_U32, HAL_U32):
-        hal_set_ui32(inst->outputs[s].u, hal_get_ui32(inst->input.u));
-        break;
-    case FT(HAL_U32, HAL_REAL):
-        hal_set_real(inst->outputs[s].r, hal_get_ui32(inst->input.u));
+    case FT(HAL_UINT, HAL_UINT):
+        hal_set_uint(inst->outputs[s].u, hal_get_uint(inst->input.u));
         break;
     }
 }

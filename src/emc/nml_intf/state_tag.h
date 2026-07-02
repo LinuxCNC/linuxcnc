@@ -26,6 +26,7 @@
 #ifndef STATE_TAG_H
 #define STATE_TAG_H
 
+#include <rtapi_stdint.h>
 
 /**
  * Enum to define bit names for StateTag's flags register.
@@ -127,7 +128,7 @@ struct state_tag_t {
     // Any G / M code states that doesn't pack nicely into a single bit
     // These are an array mostly because it's easier to pass an
     // arbitrary-length array through NML than individual fields
-    int fields[GM_FIELD_MAX_FIELDS];
+    rtapi_sint fields[GM_FIELD_MAX_FIELDS];
 
     /** G / M mode flags for simple states like inch / mm, feedhold enable, etc.
      * This stores packed bits in one field (since we can't use a bitset in a

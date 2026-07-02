@@ -110,7 +110,7 @@ struct RtaiApp : RtapiApp {
         task->rt_task = rt_task_init_schmod(task->id, task->prio, 0, 0, SCHED_FIFO, cpus_allowed);
         rt_set_periodic_mode();
         start_rt_timer(nano2count(task->period));
-        /* uses_fp is deprecated and ignored; always save FPU state */
+        /* uses_fp is removed; always save FPU state */
         rt_task_use_fpu(task->rt_task, 1);
         rt_make_hard_real_time();
         rt_task_make_periodic_relative_ns(task->rt_task, task->period, task->period);

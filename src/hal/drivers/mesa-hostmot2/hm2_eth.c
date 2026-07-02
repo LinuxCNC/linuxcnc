@@ -1712,7 +1712,7 @@ int rtapi_app_main(void) {
         *added = 1;
     }
 
-    hal_export_functf(init_board_realtime_all, 0, 0, 0, comp_id, "%s.realtime-init", HM2_LLIO_NAME);
+    hal_export_functf(init_board_realtime_all, 0, 0, comp_id, "%s.realtime-init", HM2_LLIO_NAME);
 
     hal_ready(comp_id);
 

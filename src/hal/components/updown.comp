@@ -2,11 +2,11 @@ component updown "Counts up or down, with optional limits and wraparound behavio
 pin in bool countup "Increment count when this pin goes from 0 to 1";
 pin in bool countdown "Decrement count when this pin goes from 0 to 1";
 pin in bool reset "Reset count when this pin goes from 0 to 1";
-pin out si32 count "The current count";
+pin out sint count "The current count";
 param rw bool clamp_ "If TRUE, then clamp the output to the min and max parameters.";
 param rw bool wrap "If TRUE, then wrap around when the count goes above or below the min and max parameters.  Note that wrap implies (and overrides) clamp.";
-param rw si32 max_ = 0x7FFFFFFF "If clamp or wrap is set, count will never exceed this number";
-param rw si32 min_ "If clamp or wrap is set, count will never be less than this number";
+param rw sint max_ = 0x7FFFFFFF "If clamp or wrap is set, count will never exceed this number";
+param rw sint min_ "If clamp or wrap is set, count will never be less than this number";
 variable int oldup;
 variable int olddown;
 variable int first = 1;
@@ -18,7 +18,7 @@ author "Stephen Wille Padnos";
 ;;
 
 FUNCTION(_) {
-	rtapi_s32 temp_count = count;
+	rtapi_sint temp_count = count;
 	if (first) {
 		oldup=countup;
 		olddown=countdown;

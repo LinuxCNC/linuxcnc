@@ -46,20 +46,20 @@ errorCount   = 0
 # create pmx485 component
 try:
     pmx485 = hal.component('pmx485')
-    pmx485.newpin('mode_set', hal.HAL_FLOAT, hal.HAL_IN)      #set cutting mode
-    pmx485.newpin('current_set', hal.HAL_FLOAT, hal.HAL_IN)   #set cutting current
-    pmx485.newpin('pressure_set', hal.HAL_FLOAT, hal.HAL_IN)  #set gas pressure
-    pmx485.newpin('enable', hal.HAL_BIT, hal.HAL_IN)          #enabler
-    pmx485.newpin('mode', hal.HAL_FLOAT, hal.HAL_OUT)         #cut mode feedback
-    pmx485.newpin('current', hal.HAL_FLOAT, hal.HAL_OUT)      #cutting current feedback
-    pmx485.newpin('pressure', hal.HAL_FLOAT, hal.HAL_OUT)     #gas pressure feedback
-    pmx485.newpin('fault', hal.HAL_FLOAT, hal.HAL_OUT)        #fault code
-    pmx485.newpin('status', hal.HAL_BIT, hal.HAL_OUT)         #connection status out
-    pmx485.newpin('current_min', hal.HAL_FLOAT, hal.HAL_OUT)  #minimum allowed current
-    pmx485.newpin('current_max', hal.HAL_FLOAT, hal.HAL_OUT)  #maximum allowed current
-    pmx485.newpin('pressure_min', hal.HAL_FLOAT, hal.HAL_OUT) #minimum allowed gas pressure
-    pmx485.newpin('pressure_max', hal.HAL_FLOAT, hal.HAL_OUT) #maximum allowed gas pressure
-    pmx485.newpin('arcTime', hal.HAL_FLOAT, hal.HAL_OUT)      #arc on time feedback
+    pmx485.newpin('mode_set', hal.Type.REAL, hal.Dir.IN)      #set cutting mode
+    pmx485.newpin('current_set', hal.Type.REAL, hal.Dir.IN)   #set cutting current
+    pmx485.newpin('pressure_set', hal.Type.REAL, hal.Dir.IN)  #set gas pressure
+    pmx485.newpin('enable', hal.Type.BOOL, hal.Dir.IN)          #enabler
+    pmx485.newpin('mode', hal.Type.REAL, hal.Dir.OUT)         #cut mode feedback
+    pmx485.newpin('current', hal.Type.REAL, hal.Dir.OUT)      #cutting current feedback
+    pmx485.newpin('pressure', hal.Type.REAL, hal.Dir.OUT)     #gas pressure feedback
+    pmx485.newpin('fault', hal.Type.REAL, hal.Dir.OUT)        #fault code
+    pmx485.newpin('status', hal.Type.BOOL, hal.Dir.OUT)         #connection status out
+    pmx485.newpin('current_min', hal.Type.REAL, hal.Dir.OUT)  #minimum allowed current
+    pmx485.newpin('current_max', hal.Type.REAL, hal.Dir.OUT)  #maximum allowed current
+    pmx485.newpin('pressure_min', hal.Type.REAL, hal.Dir.OUT) #minimum allowed gas pressure
+    pmx485.newpin('pressure_max', hal.Type.REAL, hal.Dir.OUT) #maximum allowed gas pressure
+    pmx485.newpin('arcTime', hal.Type.REAL, hal.Dir.OUT)      #arc on time feedback
     pmx485.ready()
 except:
     print('\nERROR: pmx485 component could not be initialized\n')

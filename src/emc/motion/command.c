@@ -1853,7 +1853,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             // https://github.com/LinuxCNC/linuxcnc/issues/3389
 
 	        hal_set_real(emcmot_hal_data->spindle[n].spindle_orient_angle, emcmotCommand->orientation);
-	        hal_set_si32(emcmot_hal_data->spindle[n].spindle_orient_mode, emcmotCommand->mode);
+	        hal_set_sint(emcmot_hal_data->spindle[n].spindle_orient_mode, emcmotCommand->mode);
 	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_locked, 0);
 	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_orient, 1);
 

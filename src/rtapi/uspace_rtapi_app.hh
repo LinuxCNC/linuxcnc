@@ -66,7 +66,6 @@ struct RtapiTask {
     int magic; /* to check for valid handle */
     int id;
     int owner;
-    int uses_fp;
     size_t stacksize;
     int prio;
     long period;
@@ -94,7 +93,7 @@ struct RtapiApp {
     int prio_next_higher(int prio) const;
     int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
-    int task_new(void (*taskcode)(void *), void *arg, int prio, int owner, unsigned long int stacksize, int uses_fp);
+    int task_new(void (*taskcode)(void *), void *arg, int prio, int owner, unsigned long int stacksize);
     virtual RtapiTask *do_task_new() = 0;
     static int allocate_task_id();
     static RtapiTask *get_task(int task_id);

@@ -65,19 +65,19 @@ clamped to the acceptable range.
 A subset of the Modbus functions is supported (with function number in parentheses):
 
 * `R_COILS` (`1`):
-  Maps to 1..2000 HAL output pins of type 'HAL_BIT'.
+  Maps to 1..2000 HAL output pins of type 'HAL_BOOL'.
 * `R_INPUTS` (`2`):
-  Maps to 1..2000 HAL output pins of type 'HAL_BIT'.
+  Maps to 1..2000 HAL output pins of type 'HAL_BOOL'.
 * `R_REGISTERS` (`3`):
   Maps to 1..125 HAL output pins depending 'haltype' and 'scale' attributes.
 * `R_INPUTREGS` (`4`):
   Maps to 1..125 HAL output pins depending 'haltype' and 'scale' attributes.
 * `W_COIL` (`5`):
-  Maps to single HAL input pin of type 'HAL_BIT'.
+  Maps to single HAL input pin of type 'HAL_BOOL'.
 * `W_REGISTER` (`6`):
   Maps to single HAL input pins depending 'haltype' and 'scale' attributes.
 * `W_COILS` (`15`):
-  Maps to 1..2000 HAL input pins of type 'HAL_BIT'.
+  Maps to 1..2000 HAL input pins of type 'HAL_BOOL'.
 * `W_REGISTERS` (`16`):
   Maps to 1..125 HAL input pins depending 'haltype' and 'scale' attributes.
 
@@ -395,20 +395,18 @@ Recognized '<initlist>/<command>/<data>' attributes:
 A '<command>' in the '<commands>' section maps to one or more HAL pins with
 specific type using the 'haltype' attribute. Recognized are:
 
-* 'HAL_BIT'
-* 'HAL_FLOAT'
-* 'HAL_S32'
-* 'HAL_U32'
-* 'HAL_S64'
-* 'HAL_U64'
+* 'BOOL', 'HAL_BOOL'
+* 'REAL', 'HAL_REAL'
+* 'SINT', 'HAL_SINT'
+* 'UINT', 'HAL_UINT'
 
 The types are also recognized without the HAL_ prefix. Note that coil and
 binary input functions `R_COILS` (`1`), `R_INPUTS` (`2`), `W_COIL` (`5`)
-and `W_COILS` (`15`) can only map to 'HAL_BIT' and do so implicitly.
+and `W_COILS` (`15`) can only map to 'HAL_BOOL' and do so implicitly.
 
-The 'HAL_BIT', 'HAL_U32' and 'HAL_U64' types always map to one single HAL pin.
+The 'HAL_BOOL' and 'HAL_UINT' types always map to one single HAL pin.
 
-The 'HAL_FLOAT', 'HAL_S32' and 'HAL_S64' types can generate one single pin or
+The 'HAL_REAL' and 'HAL_SINT' types can generate one single pin or
 can generate multiple pins with 'offset' and 'scale'. Output pins
 with `R_REGISTERS` (`3`) and `R_INPUTREGS` (`4`) can add a 'scaled' pin to
 the set.
@@ -416,9 +414,17 @@ the set.
 Mapping HAL pins to commands requires a 'modbustype' attribute to encode the
 format and necessary conversions. Register functions `R_REGISTERS` (`3`),
  `R_INPUTREGS` (`4`), `W_REGISTER` (`6`) and `W_REGISTERS` (`16`) may map
-to 'HAL_BIT' only when using unsigned 'modbustype' where a value of zero (0)
+to 'HAL_BOOL' only when using unsigned 'modbustype' where a value of zero (0)
 is _false_ and any other value is _true_ for write functions or one (1) for
 read functions.
+
+[NOTE]
+====
+The old 'haltype' values 'HAL_BIT', 'HAL_FLOAT', 'HAL_S32', 'HAL_U32',
+ 'HAL_S64' and 'HAL_U64' are still recognized for compatibility. They map to
+ 'HAL_BOOL', 'HAL_REAL', 'HAL_SINT', 'HAL_UINT', 'HAL_SINT' and 'HAL_UINT'
+respectively.
+====
 
 === <commands>
 The '<commands>' section defines one or more '<command>' tags to describe the
@@ -448,14 +454,14 @@ writes at the specified interval.
 ----
 <commands>
   <command device="wavebox" function="R_COILS" address="0x0000" count="4" name="state" />
-    <description>Type is implicit HAL_BIT, will become HAL pins:
+    <description>Type is implicit HAL_BOOL, will become HAL pins:
        - (out) hm2_modbus.0.wavebox.state-00
        - (out) hm2_modbus.0.wavebox.state-01
        - (out) hm2_modbus.0.wavebox.state-02
        - (out) hm2_modbus.0.wavebox.state-03
     </description>
   </command>
-  <command device="scd30" modbustype="F_ABCD" haltype="HAL_FLOAT" function="R_REGISTERS"
+  <command device="scd30" modbustype="F_ABCD" haltype="HAL_REAL" function="R_REGISTERS"
            address="0x0028" scale="0">
     <pin name="co2"><description>Too much will kill you...</description></pin>
     <pin name="temperature" />
@@ -469,7 +475,7 @@ writes at the specified interval.
   </command>
   <command device="broadcast" function="W_COILS" address="0x1234" count="2"
            name="anyandall" bcanswer="1">
-    <description>Will create HAL_BIT pins:
+    <description>Will create HAL_BOOL pins:
       - (in) hm2_modbus.0.anyandall-00
       - (in) hm2_modbus.0.anyandall-01
       The bcanswer flag signifies that a device erroneously sends a reply on
@@ -478,10 +484,10 @@ writes at the specified interval.
   </command>
   <!-- A delay is suggested after a broadcast to allow devices to handle the data -->
   <command delay="10000" />
-  <command device="watcher" function="W_REGISTER" haltype="HAL_U32" modbustype="U_AB"
+  <command device="watcher" function="W_REGISTER" haltype="HAL_UINT" modbustype="U_AB"
            address="0x1ee7" noanswer="1" resend="1">
     <pin name="watcher" />
-    <description>Will create a HAL_U32 pin
+    <description>Will create a HAL_UINT pin
       - (in) hm2_modbus.0.watcher
       The 'count' is implicit 1. The data is mapped to U_AB and is clamped.
       The data is sent every time (resend=1), regardless whether the HAL pin
@@ -533,7 +539,7 @@ Recognized '<commands>/<command>' attributes:
   The HAL pin type for interactions. You do not need to specify this attribute
   for the Modbus functions read/write coil(s) or inputs, `R_COILS` (`1`),
   `R_INPUTS` (`2`), `W_COIL` (`5`) and `W_COILS` (`15`), as these always use
-  the 'HAL_BIT' type.
+  the 'HAL_BOOL' type.
 *interval* [once,0..3600000000]::
   The command repeat interval in micro-seconds. This is the time between
   repeating this '<command>'. An interval shorter than the time it takes to work
@@ -564,12 +570,12 @@ Recognized '<commands>/<command>' attributes:
 *scale* [Boolean]::
   Add scaling HAL pins. Modbus read functions `R_REGISTERS` (`3`) and `R_INPUTREGS` (`4`)
   add extra HAL pins *pin.name.offset* (in, 64-bit 'haltype'), *pin.name.scale*
-  (in, 'HAL_FLOAT') and *pin.name.scaled* (out, 'HAL_FLOAT'). +
+  (in, 'HAL_REAL') and *pin.name.scaled* (out, 'HAL_REAL'). +
   The Modbus write functions `W_REGISTER` (`6`) and `W_REGISTERS` (`16`) create
   extra HAL pins *pin.name.offset* (in, 64-bit 'haltype') and *pin.name.scale*
-  (in, 'HAL_FLOAT'). +
-  The 'scale' attribute is only supported for 'HAL_FLOAT', 'HAL_S32' and 'HAL_S64'.
-  Default is true for 'HAL_FLOAT' and false for others. The *scale* pin is
+  (in, 'HAL_REAL'). +
+  The 'scale' attribute is only supported for 'HAL_REAL' and 'HAL_SINT'.
+  Default is true for 'HAL_REAL' and false for others. The *scale* pin is
   initialized to one (1.0) and the *offset* pin is initialized to zero (0). +
   Scaling is always multiplicative to prevent division-by-zero. The offset is
   always subtracted before scaling. The scaling action performed and subject to
@@ -621,25 +627,25 @@ attributes and can be overridden by adding them to the '<pin>' tag.
 <command device="booboo"
          function="R_REGISTERS"
          address="0x0240"
-         haltype="HAL_FLOAT"
+         haltype="HAL_REAL"
          modbustype="F_ABCD"
          scale="1">
   <!-- addr: 0x0240-0x0241; disable scaling pins -->
   <pin name="speed" scale="0" />
   <!-- addr:0x0242; one register to bit-->
-  <pin name="ping" haltype="HAL_BIT" modbustype="U_AB" />
+  <pin name="ping" haltype="HAL_BOOL" modbustype="U_AB" />
   <!-- Align the next value -->
   <pin skip="1" />
   <!-- addr: 0x0244-0x0245; use defaults from this command -->
   <pin name="afloat" />
 <!--
   The above <command><pin> tags read 6 registers and generate pins:
-  hm2_modbus.0.speed         HAL_FLOAT (out)
-  hm2_modbus.0.ping          HAL_BIT   (out)
-  hm2_modbud.0.afloat        HAL_FLOAT (out)
-  hm2_modbud.0.afloat.offset HAL_FLOAT (in)
-  hm2_modbud.0.afloat.scale  HAL_FLOAT (in)
-  hm2_modbud.0.afloat.scaled HAL_FLOAT (out)
+  hm2_modbus.0.speed         HAL_REAL (out)
+  hm2_modbus.0.ping          HAL_BOOL (out)
+  hm2_modbud.0.afloat        HAL_REAL (out)
+  hm2_modbud.0.afloat.offset HAL_REAL (in)
+  hm2_modbud.0.afloat.scale  HAL_REAL (in)
+  hm2_modbud.0.afloat.scaled HAL_REAL (out)
 -->
 </command>
 ----

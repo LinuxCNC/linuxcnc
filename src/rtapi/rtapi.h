@@ -378,9 +378,6 @@ RTAPI_BEGIN_DECLS
   * arbitrary void pointer when the task is started, and can be used to pass any
   * amount of data to the task (by pointing to a struct, or other such tricks).
   *
-  * @c uses_fp is deprecated and ignored.  All tasks now unconditionally
-  * save and restore FPU/SSE state on context switch.  This parameter
-  * will be removed in a future version.
   * @param taskcode Pointer to the function to be called when the task is
   *                 started.
   * @param arg Argument to be passed to the taskcode function.
@@ -388,14 +385,13 @@ RTAPI_BEGIN_DECLS
   * @param owner ID of the module that is making the call see rtapi_init().
   * @param stacksize The amount of stack to be used for the task, be generous,
   *                  hardware interrupts may use the same stack.
-  * @param uses_fp Deprecated and ignored.  Kept for API compatibility.
   * @return On success, returns a positive integer task ID, @c task_id. This ID
   *         is used for all subsequent calls that need to act on the task. On
   *         failure, returns a negative error code as listed above.
  * @note Call only from within init/cleanup code, not from realtime tasks.
  */
     extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
-	int prio, int owner, unsigned long int stacksize, int uses_fp);
+	int prio, int owner, unsigned long int stacksize);
 
 /**
  * @brief Deletes a task.

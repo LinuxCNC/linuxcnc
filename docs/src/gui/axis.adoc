@@ -1194,7 +1194,7 @@ commands.set_view_z()
 [source,python]
 ----
 def user_hal_pins():
-    comp.newpin('my-new-in-pin', hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin('my-new-in-pin', hal.Type.BOOL, hal.Dir.IN)
     comp.ready()
 ----
 
@@ -1205,13 +1205,13 @@ def user_hal_pins():
 # create a component
 
 mycomp = hal.component('my_component')
-mycomp.newpin('idle-led',hal.HAL_BIT,hal.HAL_IN)
-mycomp.newpin('pause-led',hal.HAL_BIT,hal.HAL_IN)
+mycomp.newpin('idle-led',  hal.Type.BOOL, hal.Dir.IN)
+mycomp.newpin('pause-led', hal.Type.BOOL, hal.Dir.IN)
 mycomp.ready()
 
 # connect pins
 
-hal.new_sig('idle-led',hal.HAL_BIT)
+hal.new_sig('idle-led', hal.Type.BOOL)
 hal.connect('halui.program.is-idle','idle-led')
 hal.connect('my_component.idle-led','idle-led')
 

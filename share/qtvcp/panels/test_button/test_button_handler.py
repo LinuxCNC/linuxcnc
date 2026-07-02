@@ -121,8 +121,8 @@ class HandlerClass:
         # combo box for HAL pin selection
         cb = HALSelectionBox()
         cb.setShowTypes([cb.PINS,cb.SIGNALS])
-        cb.setPinTypes([cb.HAL_BIT], direction = [cb.HAL_IN])
-        cb.setSignalTypes([cb.HAL_BIT], driven = [False,True])
+        cb.setPinTypes([cb.HAL_BOOL], direction = [cb.HAL_IN])
+        cb.setSignalTypes([cb.HAL_BOOL], driven = [False,True])
         cb.hal_init()
         cb.objectSelected.connect(lambda w: self.selectedUpdated(w, button))
 

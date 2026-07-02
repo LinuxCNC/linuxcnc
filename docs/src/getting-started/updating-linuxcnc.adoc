@@ -13,28 +13,32 @@ updates. If you don't have an internet connection to your PC see
 
 == Upgrade to the new version
 
-This section describes how to upgrade LinuxCNC from version 2.8.x to a 2.9.y version.
-It assumes that you have an existing 2.8 install that you want to update.
+This section describes how to upgrade LinuxCNC from version 2.9.x to a 2.10.y version.
+It assumes that you have an existing 2.9 install that you want to update.
 
-To upgrade LinuxCNC from a version older than 2.8, you have to first
-https://linuxcnc.org/docs/2.8/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.8],
+To upgrade LinuxCNC from a version older than 2.9, you have to first
+https://linuxcnc.org/docs/2.9/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.9],
 then follow these instructions to upgrade to the new version.
 
 If you do not have an old version of LinuxCNC to upgrade, then you're
 best off making a fresh install of the new version as described in the
 section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
 
-Furthermore, if you are running Ubuntu Precise, Debian Wheezy or Debian Buster it is
-well worth considering making a backup of the "linuxcnc" directory on
-removable media and performing a
+Furthermore, if you are running Ubuntu Precise, Debian Wheezy, Debian Buster or
+Debian Bullseye it is well worth considering making a backup of the "linuxcnc"
+directory on removable media and performing a
 <<cha:getting-linuxcnc,clean install of a newer OS and LinuxCNC version>>
-as these releases were EOL in 2017, 2018 and 2022 respectively.
+as these releases were EOL in 2017, 2018, 2022 and 2026 respectively.
 If you are running on Ubuntu Lucid then you will have to do this, as
 Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
-To upgrade major versions like 2.8 to 2.9 when you have a network connection at
+If you are running Debian Bookworm, then we *strongly* recommend that you upgrade to Debian Trixie.
+Moving to the latest Debian version allows for better compatibility and a longer stable path for your installation.
+Debian Trixie will have LTS support until June 2030.
+
+To upgrade major versions like 2.9 to 2.10 when you have a network connection at
 the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list
-and add a new linuxcnc.org apt source for 2.9, then upgrade LinuxCNC.
+and add a new linuxcnc.org apt source for 2.10, then upgrade LinuxCNC.
 
 The details will depend on which platform you're running on.
 Open a <<faq:terminal,terminal>> then type `lsb_release -ic` to find this information out:
@@ -45,8 +49,8 @@ Distributor ID: Debian
 Codename:       Trixie
 ----
 
-You should be running on Debian Bullseye, Bookworm or Trixie or Ubuntu 20.04 "Focal Fossa" or newer.
-LinuxCNC 2.9.y will not run on older distributions than these. 
+You should be running on Debian Bookworm or, recommended, Trixie or Ubuntu 24.04 "Noble Numbat" or newer.
+LinuxCNC 2.10.y may not run on older distributions than these and is not supported on anything older.
 
 You will also need to check which realtime kernel is being used:
 
@@ -87,11 +91,10 @@ RTAI packages are available for Bookworm and Buster but not currently for Bullse
 [cols="3,5",options="header"]
 |===
 | OS / Realtime Version      | Repository
-| Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
-| Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
-| Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.9-rt
-| Debian Trixie - preempt   m| deb https://linuxcnc.org trixie base 2.9-uspace
-| Debian Trixie - RTAI      m| deb https://linuxcnc.org trixie base 2.9-rt
+| Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.10-uspace
+| Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.10-rt
+| Debian Trixie - preempt   m| deb https://linuxcnc.org trixie base 2.10-uspace
+| Debian Trixie - RTAI      m| deb https://linuxcnc.org trixie base 2.10-rt
 |===
 
 .Figure with a screenshot of the repository configuration of the synaptic package manager.
@@ -145,77 +148,83 @@ Codename:       trixie
 ----
 
 Pick the OS from the list then pick the major version you want like
-2.9-rt for RTAI or 2.9-uspace for preempt-rt.
+2.10-rt for RTAI or 2.10-uspace for preempt-rt.
 
 Next pick the type of computer you have: binary-amd64 for 64-bit PC or
 binary-arm64 (64bit) for Raspberry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc-uspace_2.9.8_amd64.deb' (choose the latest by date).
+'linuxcnc-uspace_2.10.0_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
-'linuxcnc_2.9.8.deb' then open a terminal and install it with the
+'linuxcnc_2.19.0.deb' then open a terminal and install it with the
 package manager with this command:
 
 ----
-sudo dpkg -i linuxcnc_2.9.8.deb
+sudo dpkg -i linuxcnc_2.10.0.deb
 ----
 
+== Updating to 2.10
 
-== Updating Configuration Files for 2.9
+A large set of changes have been implemented in the new version.
+The changes include:
 
-=== Stricter handling of pluggable interpreters
+* INI: Reworked INI-file parser with consistent types
+* HAL: API breaking change implementing new HAL types
+* HAL: Make the underlying HAL memory inaccessible and use a proper API
+* TP: New selectable scurve trajectory planner added
 
-If you just run regular G-code and you don't know what a pluggable
-interpreter is, then this section does not affect you.
+=== New HAL types
 
-A seldom-used feature of LinuxCNC is support for pluggable interpreters,
-controlled by the undocumented `[TASK]INTERPRETER` INI setting.
+All integer HAL pins are now 64-bit only and the old HAL type names have changed:
 
-Versions of LinuxCNC before 2.9.0 used to handle an incorrect
-`[TASK]INTERPRETER` setting by automatically falling back to using the
-default G-code interpreter.
+* `HAL_BOOL` - formerly HAL_BIT
+* `HAL_REAL` - formerly HAL_FLOAT
+* `HAL_SINT` - formerly HAL_S64
+* `HAL_UINT` - formerly HAL_U64
 
-Since 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
-LinuxCNC to refuse to start up.  Fix this condition by deleting the
-`[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
-use the default G-code interpreter.
+The old 32-bit types have been removed:
+* `HAL_S32`  - removed
+* `HAL_U32`  - removed
 
+[IMPORTANT]
+====
+Any user components must be updated and recompiled.
+The old HAL API is no longer available and access to pins/params is not done by getter/setter.
+See ...FIXME... for a more detailed description how to update your components.
+====
 
-=== Canterp
+=== Component changes
 
-If you just run regular G-code and you don't use the `canterp` pluggable
-interpreter, then this section does not affect you.
+Components were renamed in the HAL type replacement process because they included the old type names:
+* conv_XXXX_YYYY - coversion between types now use 'bool', 'real', 'sint' and 'uint' for XXXX and YYYY.
+* abs_s32 - replaced by abs_sint.
+* abs_s64 - replaced by abs_sint.
+* scaled_s32_sums - replaced by scaled_sint_sums.
+* mux_generic - renamed pins
+* demux_generic - renamed pins
+* demux - renamed pin sel-s32 to sel-sint
 
-In the extremely unlikely event that you are using `canterp`,
-know that the module has moved from `/usr/lib/libcanterp.so` to
-`/usr/lib/linuxcnc/canterp.so`, and the `[TASK]INTERPRETER` setting
-correspondingly needs to change from `libcanterp.so` to `canterp.so`.
+=== Updated Python interface
 
+The HAL type update is also added to the `hal` module.
+Additionally, the type names and direction names have been added as IntEnum types.
+All code has been updated to use them and you are encouraged to do the same:
 
-=== Spindle limits in the INI
+[source,python]
+----
+import hal
+...
 
-It is now possible to add settings to the [SPINDLE] section of the INI file
+# Old:
+comp.newpin("pinname", hal.HAL_FLOAT, hal.HAL_IN)
 
-MAX_FORWARD_VELOCITY = 20000 The maximum spindle speed (in rpm)
+# New:
+comp.newpin("pinname", hal.Type.REAL, hal.Dir.IN)
+----
 
-MIN_FORWARD_VELOCITY = 3000 The minimum spindle speed (in rpm)
-
-MAX_REVERSE_VELOCITY = 20000 This setting will default to
-MAX_FORWARD_VELOCITY if omitted.
-
-MIN_REVERSE_VELOCITY = 3000` This setting is equivalent to
-MIN_FORWARD_VELOCITY but for reverse spindle rotation. It will default
-to the MIN_FORWARD_VELOCITY if omitted.
-
-INCREMENT = 200 Sets the step size for spindle speed increment /
-decrement commands. This can have a different value for each spindle.
-This setting is effective with AXIS and Touchy but note that some
-control screens may handle things differently.
-
-HOME_SEARCH_VELOCITY = 100 - Accepted but currently does nothing
-
-HOME_SEQUENCE = 0 - Accepted but currently does nothing
+The old HAL_S32 and HAL_U32 names have been removed and the old HAL type names
+HAL_BIT, HAL_FLOAT, HAL_S64 and HAL_U64 will result in a deprecation warning.
 
 
 == Updating Configuration Files for 2.10.y
@@ -354,39 +363,16 @@ behind.
 == New HAL components
 
 === Non-Realtime
-mdro
-mqtt-publisher
-pi500_vfd
-pmx485-test
-qtplasmac-cfg2prefs
-qtplasmac-materials
-qtplasmac-plasmac2qt
-qtplasmac-setup
-sim-torch
-svd-ps_vfd
+
+...FIXME...
 
 === Realtime
-anglejog
-div2
-enum
-filter_kalman
-flipflop
-homecomp
-limit_axis
-mesa_uart
-millturn
-scaled_s32_sums
-tof
-ton
+
+...FIXME...
 
 == New Drivers
 
-A framework for controlling ModBus devices using the serial ports on
-many Mesa cards has been introduced.
-http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html
-
-A new GPIO driver for any GPIO which is supported by the gpiod library
-is now included:
-http://linuxcnc.org/docs/2.9/html/drivers/hal_gpio.html
-
-
+A new ModBus universal driver  `hm2_modbus` for Mesa hardware has been created.
+It replaces the old mesa_modbus driver and is much more capable.
+See hm2_modbus(9) and mesambccc(1).
+There are example configurations under `/usr/share/doc/linuxcnc/examples/sample-configs/by_interface/mesa/hm2-modbus`.

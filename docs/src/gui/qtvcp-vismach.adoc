@@ -128,8 +128,8 @@ Originally the vismach library required creating a component and connecting HAL 
 [source,python]
 ----
 c = hal.component("samplegui")
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 ----
 
@@ -412,8 +412,8 @@ Sets the _display color of the part based on a designated HAL bit pin state_. +
     if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name.
 
 === HALColorRGB
-Sets the _display color of the part based on a designated HAL U32 pin value_. +
-The color is decoded from the U32 value. each color is a 0-255 decimal value (shown here in hex) +
+Sets the _display color of the part based on a designated HAL UINT pin value_. +
+The color is decoded from the UINT value. each color is a 0-255 decimal value (shown here in hex) +
 red = 0xXXXXXXRR +
 green = 0xXXXXGGXX +
 blue = 0xXXBBXXXX +
@@ -423,7 +423,7 @@ combined as 0xXXBBGGRR +
 
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
-  `hal_pin`;; The _name of the U32 HAL IN pin_ that will change the color. +
+  `hal_pin`;; The _name of the UINT HAL IN pin_ that will change the color. +
     if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name. +
   `alpha=`;; Sets the opacity. (0-1.0)
 
@@ -470,7 +470,7 @@ Some of the available HalHUD function: +
 
 [source,python]
 ----
-comp.newpin("hide-chuck", hal.HAL_BIT, hal.HAL_IN)
+comp.newpin("hide-chuck", hal.Type.BOOL, hal.Dir.IN)
 # <snip make a machine with an A axis chuck assembly>
 chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
 # also can be used like this
@@ -569,7 +569,7 @@ STATUS = Status()
 
 # create HAL pins here if needed
 #c = hal.component("samplegui")
-#c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
+#c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
 
 # create the floor, tool and work
 floor = Box(-50, -50, -3, 50, 50, 0)

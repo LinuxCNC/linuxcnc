@@ -47,16 +47,16 @@ class GeneralHALOutput(QWidget, _HalWidgetBase):
         else:
             pname = self._pin_name
         if self._bit_pin_type:
-            ptype = hal.HAL_BIT
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, ptype, hal.HAL_OUT)
-            self.hal_pin_2 = self.HAL_GCOMP_.newpin(pname + "-not", ptype, hal.HAL_OUT)
+            ptype = hal.Type.BOOL
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, ptype, hal.Dir.OUT)
+            self.hal_pin_2 = self.HAL_GCOMP_.newpin(pname + "-not", ptype, hal.Dir.OUT)
             if self.istate:
                 self._pin_bit_update(self._initial_float)
         else:
-            ptype = hal.HAL_S32
-            ptype2 = hal.HAL_FLOAT
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname + '-s32', ptype, hal.HAL_OUT)
-            self.hal_pin_2 = self.HAL_GCOMP_.newpin(pname + "-float", ptype2, hal.HAL_OUT)
+            ptype = hal.Type.SINT
+            ptype2 = hal.Type.REAL
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname + '-s32', ptype, hal.Dir.OUT)
+            self.hal_pin_2 = self.HAL_GCOMP_.newpin(pname + "-float", ptype2, hal.Dir.OUT)
             if self.istate:
                 self._pin_value_update(self._initial_float)
 

@@ -235,17 +235,17 @@ This is usually set as the last command so that HAL shuts down when the panel is
 == Widgets
 
 (((PyVCP Widgets Reference)))
-HAL signals come in two variants, bits and numbers.
-Bits are off/on signals. Numbers can be 'float', 's32', 'u32', 's64' or 'u64'.
+HAL signals come in two variants, bools and numbers.
+Bools are off/on signals. Numbers can be 'real', 'sint' or 'uint'.
 For more information on HAL data types see the <<sec:hal-data,HAL Data>> section.
 The PyVCP widget can either display the value of the signal with an indicator widget,
 or modify the signal value with a control widget.
 Thus there are four classes of PyVCP widgets that you can connect to a HAL signal.
 A fifth class of helper widgets allow you to organize and label your panel.
 
-* Widgets for indicating 'bit' signals: `led`, `rectled`.
-* Widgets for controlling 'bit' signals: `button`, `checkbutton`, `radiobutton`.
-* Widgets for indicating 'number' signals: `number`, `s32`, `u32`, `bar`, `meter`.
+* Widgets for indicating 'bool' signals: `led`, `rectled`.
+* Widgets for controlling 'bool' signals: `button`, `checkbutton`, `radiobutton`.
+* Widgets for indicating 'number' signals: `number`, `sint`, `uint`, `bar`, `meter`.
 * Widgets for controlling 'number' signals: `spinbox`, `scale`, `jogwheel`.
 * Helper widgets: `hbox`, `vbox`, `table`, `label`, `labelframe`.
 
@@ -356,7 +356,7 @@ image::images/pyvcp_label.png[align="center"]
 
 An extension of the text label.
 
-Selectable text label, can display up to 6 label legends when associated bit pin is activated.
+Selectable text label, can display up to 6 label legends when associated 'bool' pin is activated.
 
 Attach each legend pin to a signal and get a descriptive label when the signal is TRUE.
 
@@ -389,7 +389,7 @@ If you have more than one multilabel the pins created would increment the number
 
 === LEDs
 
-A LED is used to indicate the status of a 'bit' halpin.
+A LED is used to indicate the status of a 'bool' halpin.
 The LED color will be on_color when the halpin is true, and off_color otherwise.
 
 * '<led></led>' - makes a round LED
@@ -462,7 +462,7 @@ Buttons can use the following optional options.
 
 .Text Button
 
-A text button controls a 'bit' halpin.
+A text button controls a 'bool' halpin.
 The halpin is false until the button is pressed then it is true.
 The button is a momentary button.
 
@@ -487,7 +487,7 @@ image::images/pyvcp_button.png[align="center"]
 
 .Checkbutton
 
-A checkbutton controls a bit halpin.
+A checkbutton controls a 'bool' halpin.
 The halpin will be set True when the button is checked, and false when the button is unchecked.
 The checkbutton is a toggle type button.
 The checkbuttons may be set initially as TRUE or FALSE the initval field A pin called changepin is also created automatically,
@@ -559,7 +559,7 @@ Number displays can use the following formatting options
 
 .Number
 
-The number widget displays the value of a float signal.
+The number widget displays the value of a real signal.
 
 [source,xml]
 ----
@@ -586,32 +586,34 @@ image::images/pyvcp_number.png[]
 
 * _<format>_ - is a 'C-style' format specified that determines how the number is displayed.
 
-.s32 Number
-The s32 number widget displays the value of a s32 number.
-The syntax is the same as 'number' except the name which is <s32>.
+.sint Number
+The 'sint' number widget displays the value of a `sint` number.
+The syntax is the same as 'number' except the name which is `<sint>`.
 Make sure the width is wide enough to cover the largest number you expect to use.
+This was formerly known as `<s32>`, which is now an alias for `<sint>`.
 
 [source,xml]
 ----
-<s32>
+<sint>
     <halpin>"my-number"</halpin>
     <font>("Helvetica",24)</font>
     <format>"6d"</format>
     <width>6</width>
-</s32>
+</sint>
 ----
 
 The above code produced this example:
 
-.Simple s32 Number Example
+.Simple sint Number Example
 image::images/pyvcp_s32.png[]
 
-.u32 Number
-The u32 number widget displays the value of a u32 number.
-The syntax is the same as 'number' except the name which is <u32>.
+.uint Number
+The 'uint' number widget displays the value of a `uint` number.
+The syntax is the same as 'number' except the name which is `<uint>`.
+This was formerly known as `<u32>`, which is now an alias for `<uint>`.
 
 .Bar
-A bar widget displays the value of a FLOAT signal both graphically using a bar display and numerically.
+A bar widget displays the value of a 'real' signal both graphically using a bar display and numerically.
 The color of the bar can be set as one color throughout its range (default using fillcolor) or set to change color,
 dependent upon the value of the halpin (range1, range2 range3 must all be set, if you only want 2 ranges, set 2 of them to the same color).
 
@@ -654,7 +656,7 @@ The above code produced this example:
 image::images/pyvcp_bar.png[]
 
 .Meter
-Meter displays the value of a FLOAT signal using a traditional dial indicator.
+Meter displays the value of a 'real' signal using a traditional dial indicator.
 
 [source,xml]
 ----
@@ -681,7 +683,7 @@ image::images/pyvcp_meter.png[]
 === Number Inputs
 
 .Spinbox
-A spinbox controls a FLOAT pin.
+A spinbox controls a 'real' pin.
 You increase or decrease the value of the pin by either pressing on the arrows,
 or pointing at the spinbox and rolling your mouse-wheel.
 If the param_pin field is set TRUE(1),
@@ -707,10 +709,10 @@ The above code produced this example:
 image::images/pyvcp_spinbox.png[]
 
 .Scale
-A scale controls a float or a s32 pin.
+A scale controls a `real` or a `sint` pin.
 You increase or decrease the value of the pin be either dragging the slider,
 or pointing at the scale and rolling your mouse-wheel.
-The 'halpin' will have both '-f' and '-i' added to it to form the float and s32 pins.
+The 'halpin' will have both '-f' and '-i' added to it to form the `real` and `sint` pins.
 Width is the width of the slider in vertical and the height of the slider in horizontal orientation.
 If the param_pin field is set TRUE(1),
 a pin will be created that can be used to set the spinbox to an initial value and to remotely alter its value without HID input.
@@ -752,7 +754,7 @@ greater than "max", unless "min" is negative.
 ====
 
 .Dial
-The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
+The Dial outputs a HAL real and reacts to both mouse wheel and dragging.
 Double left click to increase the resolution and double right click to reduce the resolution by one digit.
 The output is capped by the min and max values.
 The <cpr> is how many tick marks are on the outside of the ring (beware of high numbers).
@@ -784,7 +786,7 @@ image::images/pyvcp_dial.png[]
 
 .Jogwheel
 
-Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts
+Jogwheel mimics a real jogwheel by outputting a 'real' pin which counts
 up or down as the wheel is turned, either by dragging in a circular
 motion, or by rolling the mouse-wheel.
 
@@ -792,8 +794,8 @@ Optional tags:
 
 * '<text>"My Text"</text>' displays text
 * '<bgcolor>"grey"</bgcolor> <fillcolor>"green"</fillcolor>' background & active colors
-* '<scale_pin>1</scale_pin>' creates scale text and a `FLOAT.scale` pin to display jog scale
-* '<clear_pin>1</clear_pin>' creates `DRO` and a `BIT.reset` pin to reset DRO.
+* '<scale_pin>1</scale_pin>' creates scale text and a `REAL.scale` pin to display jog scale
+* '<clear_pin>1</clear_pin>' creates `DRO` and a `BOOL.reset` pin to reset DRO.
   Needs scale_pin for scaled DRO. Shift+click resets DRO also
 
 [source,xml]
@@ -818,14 +820,15 @@ The images must be in the same directory as your INI file (or in the current dir
 
 .Image Bit
 
-The 'image_bit' toggles between two images by setting the halpin to true or false.
+The 'image_bool' toggles between two images by setting the halpin to true or false.
+This was formerly known as 'image_bit', which is now an alias for 'image_bool'.
 
 [source,xml]
 ----
 <image name='fwd' file='fwd.gif'/>
 <image name='rev' file='rev.gif'/>
 <vbox>
-    <image_bit halpin='selectimage' images='fwd rev'/>
+    <image_bool halpin='selectimage' images='fwd rev'/>
 </vbox>
 ----
 
@@ -839,11 +842,12 @@ image::images/pyvcp_image01.png[]
 .Selectimage True Example
 image::images/pyvcp_image02.png[]
 
-.Image u32
+.Image uint
 
-The 'image_u32' is the same as 'image_bit',
+The 'image_uint' is the same as 'image_bool',
 except you have essentially an unlimited number of images and
 you 'select' the image by setting the halpin to a integer value with 0 for the first image in the images list and 1 for the second image, etc.
+This was formerly known as 'image_u32', which is now an alias for 'image_uint'.
 
 [source,xml]
 ----
@@ -851,19 +855,19 @@ you 'select' the image by setting the halpin to a integer value with 0 for the f
 <image name='fwd' file='fwd.gif'/>
 <image name='rev' file='rev.gif'/>
 <vbox>
-    <image_u32 halpin='selectimage' images='stb fwd rev'/>
+    <image_uint halpin='selectimage' images='stb fwd rev'/>
 </vbox>
 ----
 
 The above code produced the following example by adding the stb.gif image.
 
-.Simple image_u32 Example with halpin=0
+.Simple image_uint Example with halpin=0
 image::images/pyvcp_image_u32_01.png[]
 
-.Simple image_u32 Example withhalpin=1
+.Simple image_uint Example withhalpin=1
 image::images/pyvcp_image01.png[]
 
-.Simple image_u32 Example withhalpin=2
+.Simple image_uint Example withhalpin=2
 image::images/pyvcp_image02.png[]
 
 Notice that the default is the min even though it is set higher than
@@ -1054,7 +1058,7 @@ A table expands on its flexible rows and columns.
 <tablerow/>
     <label text="J (cell 3,1)"/>
     <label text="K (cell 3,2)"/>
-    <u32 halpin="test"/>
+    <uint halpin="test"/>
 </table>
 ----
 

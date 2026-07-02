@@ -30,12 +30,10 @@ following syntax: +
   Each placeholder creates a typed input pin *pushmsg*.__<pinname>__.__<refname>__
   that the user wires up to the source signal.
   The type letter in the placeholder selects the pin type:
-  * `b` - bit
-  * `s` - s32
-  * `u` - u32
-  * `l` - s64
-  * `k` - u64
-  * `f` - float
+  * `b` - bool
+  * `s`,`l` - sint
+  * `u`,`k` - uint
+  * `f`,`r` - real
 
 Each message line is limited to 128 characters in length. The length count
 includes the `level` indicator, `pinname`, `message` text and the `|` separator
@@ -284,32 +282,25 @@ static int setup_message(const char *pfx, int idx, const char *msg, msg_slot_t *
                     return rv;
                 break;
             case 's': case 'S':
-                slot->substtype[subst] = HAL_S32;
-                if ((rv = hal_pin_new_si32(comp_id, HAL_IN, &pin->substs[subst].s, 0, "%s.%s", pinname, cptr)) < 0)
-                    return rv;
-                break;
-            case 'u': case 'U':
-                slot->substtype[subst] = HAL_U32;
-                if ((rv = hal_pin_new_ui32(comp_id, HAL_IN, &pin->substs[subst].u, 0, "%s.%s", pinname, cptr)) < 0)
-                    return rv;
-                break;
             case 'l': case 'L':
                 slot->substtype[subst] = HAL_SINT;
                 if ((rv = hal_pin_new_sint(comp_id, HAL_IN, &pin->substs[subst].s, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
+            case 'u': case 'U':
             case 'k': case 'K':
                 slot->substtype[subst] = HAL_UINT;
                 if ((rv = hal_pin_new_uint(comp_id, HAL_IN, &pin->substs[subst].u, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             case 'f': case 'F':
+            case 'r': case 'R':
                 slot->substtype[subst] = HAL_REAL;
                 if ((rv = hal_pin_new_real(comp_id, HAL_IN, &pin->substs[subst].r, 0.0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             default:
-                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d bad substitution type '%c', expected one of {b,f,s,u,k,l}\n",
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d bad substitution type '%c', expected one of {b,f,r,s,u,k,l}\n",
                                 pfx, idx, printable(tchar));
                 return -EBADMSG;
             }
@@ -389,12 +380,6 @@ static void print_slot(int s)
         switch (slots[s].substtype[i]) {
         case HAL_BOOL:
             n = rtapi_snprintf(end, left, "%d%s", (int)hal_get_bool(pins[s].substs[i].b), slots[s].parts[i]);
-            break;
-        case HAL_S32:
-            n = rtapi_snprintf(end, left, "%d%s", (int)hal_get_si32(pins[s].substs[i].s), slots[s].parts[i]);
-            break;
-        case HAL_U32:
-            n = rtapi_snprintf(end, left, "%u%s", (unsigned)hal_get_ui32(pins[s].substs[i].u), slots[s].parts[i]);
             break;
         case HAL_SINT:
             n = rtapi_snprintf(end, left, "%ld%s", (long)hal_get_sint(pins[s].substs[i].s), slots[s].parts[i]);

@@ -60,20 +60,20 @@ def jog_axis(axis_letter, counts=1, scale=0.001):
 
 h = hal.component("test-ui")
 
-h.newpin("axis-x-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("axis-x-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("axis-x-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("axis-x-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("axis-x-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("axis-x-jog-counts", hal.Type.SINT, hal.Dir.OUT)
+h.newpin("axis-x-jog-scale", hal.Type.REAL, hal.Dir.OUT)
+h.newpin("axis-x-position", hal.Type.REAL, hal.Dir.IN)
 
-h.newpin("axis-y-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("axis-y-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("axis-y-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("axis-y-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("axis-y-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("axis-y-jog-counts", hal.Type.SINT, hal.Dir.OUT)
+h.newpin("axis-y-jog-scale", hal.Type.REAL, hal.Dir.OUT)
+h.newpin("axis-y-position", hal.Type.REAL, hal.Dir.IN)
 
-h.newpin("axis-z-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("axis-z-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("axis-z-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("axis-z-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("axis-z-jog-enable", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("axis-z-jog-counts", hal.Type.SINT, hal.Dir.OUT)
+h.newpin("axis-z-jog-scale", hal.Type.REAL, hal.Dir.OUT)
+h.newpin("axis-z-position", hal.Type.REAL, hal.Dir.IN)
 
 h.ready() # mark the component as 'ready'
 

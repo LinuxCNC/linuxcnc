@@ -42,13 +42,13 @@ class HalToolCylinder(CylinderZ):
 
 c = hal.component("hbmgui")
 # HAL pins
-c.newpin("table", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("saddle", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("head", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("quill", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table", hal.Type.REAL, hal.Dir.IN)
+c.newpin("saddle", hal.Type.REAL, hal.Dir.IN)
+c.newpin("head", hal.Type.REAL, hal.Dir.IN)
+c.newpin("quill", hal.Type.REAL, hal.Dir.IN)
 
-c.newpin("tool-length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-radius", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool-length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-radius", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 tool_radius=0.5

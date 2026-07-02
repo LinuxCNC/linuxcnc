@@ -526,7 +526,7 @@ static int hal_pin_simu(char *pin_name, void **ptr, int s)
 	return 0;
 }
 
-int _hal_pin_float_newf(hal_pin_dir_t dir, hal_real_t *data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_float_newf(hal_pdir_t dir, hal_real_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -542,7 +542,7 @@ int _hal_pin_float_newf(hal_pin_dir_t dir, hal_real_t *data_ptr_addr, int comp_i
     }
 }
 
-int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_sint_t *data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_s32_newf(hal_pdir_t dir, hal_sint_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -558,7 +558,7 @@ int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_sint_t *data_ptr_addr, int comp_id,
     }
 }
 
-int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bool_t *data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_bit_newf(hal_pdir_t dir, hal_bool_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;

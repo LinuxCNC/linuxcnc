@@ -483,7 +483,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
-	int old_jjog_counts;	/* prior value, used for deltas */
+	rtapi_sint old_jjog_counts;	/* prior value, used for deltas */
 	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
@@ -534,7 +534,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
 	int locked;             // spindle lock engaged after orient
-	int orient_fault;       // fault code from motion.spindle-orient-fault
+	rtapi_sint orient_fault;       // fault code from motion.spindle-orient-fault
 	int orient_state;       // orient_state_t
 	int spindle_index_enable;  /* hooked to a canon encoder index-enable */
 	double spindleRevs;     /* position of spindle in revolutions */

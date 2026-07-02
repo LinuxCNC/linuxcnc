@@ -36,7 +36,7 @@ pin in  bool pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin s
 param rw bool pin_3_out_invert;
 param rw bool pin_4_out_invert;
 param rw bool pin_7_out_invert;
-param r ui32 ioaddr;
+param r uint ioaddr;
 
 option count_function;
 option extra_setup;

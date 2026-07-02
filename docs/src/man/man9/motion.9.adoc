@@ -105,47 +105,47 @@ digital pins and two analog pins.
 
 == MOTION PINS
 
-*motion-command-handler.time* OUT S32::
+*motion-command-handler.time* OUT SINT::
   Time (in ns) for the motion module motion-command-handler
-*motion-controller.time* OUT S32::
+*motion-controller.time* OUT SINT::
   Time (in ns) for the motion module motion-controller
-*motion.adaptive-feed* IN FLOAT::
+*motion.adaptive-feed* IN REAL::
   When adaptive feed is enabled with M52 P1, the commanded velocity is
   multiplied by this value. This effect is multiplicative with the
   NML-level feed override value and motion.feed-hold. Negative values
   are valid and will run the G-code path in reverse.
-**motion.analog-in-**_NN_ IN FLOAT::
+**motion.analog-in-**_NN_ IN REAL::
   These pins are used by M66 Enn wait-for-input mode.
-**motion.analog-out-**_NN_ OUT FLOAT::
+**motion.analog-out-**_NN_ OUT REAL::
   These pins are used by M67-68.
-*motion.coord-error* OUT BIT::
+*motion.coord-error* OUT BOOL::
   TRUE when motion has encountered an error, such as exceeding a soft limit
-*motion.coord-mode* OUT BIT::
+*motion.coord-mode* OUT BOOL::
   TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
-*motion.current-vel* OUT FLOAT::
+*motion.current-vel* OUT REAL::
   Current cartesian velocity
-**motion.digital-in-**_NN_ IN BIT::
+**motion.digital-in-**_NN_ IN BOOL::
   These pins are used by M66 Pnn wait-for-input mode.
-**motion.digital-out-**_NN_ OUT BIT::
+**motion.digital-out-**_NN_ OUT BOOL::
   These pins are controlled by the M62 through M65 words.
-*motion.distance-to-go* OUT FLOAT::
+*motion.distance-to-go* OUT REAL::
   Distance remaining in the current move
-*motion.enable* IN BIT::
+*motion.enable* IN BOOL::
   If this bit is driven FALSE, motion stops, the machine is placed in
   the "machine off" state, and a message is displayed for the operator.
   For normal motion, drive this bit TRUE.
-*motion.eoffset-active* OUT BIT::
+*motion.eoffset-active* OUT BOOL::
   Indicates external offsets are active (non-zero)
-*motion.eoffset-limited* OUT BIT::
+*motion.eoffset-limited* OUT BOOL::
   Indicates motion with external offsets was limited by a soft limit
   constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
-*motion.feed-hold* IN BIT::
+*motion.feed-hold* IN BOOL::
   When Feed Stop Control is enabled with M53 P1, and this bit is TRUE,
   the feed rate is set to 0.
 
 Note: feed-hold applies to G-code commands -- not jogs.
 
-*motion.feed-inhibit* IN BIT::
+*motion.feed-inhibit* IN BOOL::
   When this pin is TRUE, machine motion is inhibited for G-code commands.
 
 If the machine is performing a spindle synchronized move when this pin
@@ -161,7 +161,7 @@ Motion resumes when this pin goes FALSE.
 
 Note: feed-inhibit applies to G-code commands -- not jogs.
 
-*motion.feed-upm* OUT FLOAT::
+*motion.feed-upm* OUT REAL::
   Current feed rate in G-code program units per minute for
   motion.motion-type feed(2) and arc(3). Value is the G-code program F
   value multiplied by the current feed override value and the
@@ -169,53 +169,53 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   motion.feed-hold or motion.feed-inhibit are asserted. If units (G20 or
   G21) are not specified in the G-code file then units will be the last
   units used.
-*motion.feed-inches-per-minute* OUT FLOAT::
+*motion.feed-inches-per-minute* OUT REAL::
   Current feed rate in inches per minute for motion.motion-type feed(2)
   and arc(3). Value is the inch equivalent of the G-code program F value
   multiplied by the current feed override value and the
   motion.adaptive-feed setting (if M52 active). Value is zero if
   motion.feed-hold or motion.feed-inhibit are asserted.
-*motion.feed-inches-per-second* OUT FLOAT::
+*motion.feed-inches-per-second* OUT REAL::
   Current feed rate in inches per second for motion.motion-type feed(2)
   and arc(3). Value is the inch equivalent of the G-code program F value
   multiplied by the current feed override value and the
   motion.adaptive-feed setting (if M52 active). Value is zero if
   motion.feed-hold or motion.feed-inhibit are asserted.
-*motion.feed-mm-per-minute* OUT FLOAT::
+*motion.feed-mm-per-minute* OUT REAL::
   Current feed rate in mm per minute for motion.motion-type feed(2) and arc(3).
   Value is the mm equivalent of the G-code program F value multiplied by the
   current feed override value and the motion.adaptive-feed setting (if M52 active).
   Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
-*motion.feed-mm-per-second* OUT FLOAT::
+*motion.feed-mm-per-second* OUT REAL::
   Current feed rate in mm per second for motion.motion-type feed(2) and arc(3).
   Value is the mm equivalent of the G-code program F value multiplied by the current feed override value
   and the motion.adaptive-feed setting (if M52 active).
   Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
-*motion.homing-inhibit* IN BIT::
+*motion.homing-inhibit* IN BOOL::
   If this bit is TRUE, initiation of any joint homing move (including "Home All")
   is disallowed and an error is reported.
   By default, homing is allowed in joint mode whenever motion is enabled.
-*motion.is-all-homed* OUT BIT::
+*motion.is-all-homed* OUT BOOL::
   TRUE if all active joints is homed.
-*motion.jog-inhibit* IN BIT::
+*motion.jog-inhibit* IN BOOL::
   If this bit is TRUE, jogging of any joint or axis is disallowed and an error is reported.
-*motion.jog-stop* IN BIT::
+*motion.jog-stop* IN BOOL::
   If any jog is active when the pin state changes to TRUE then that jog
   will be stopped following the associated acceleration values.
-*motion.jog-stop-immediate* IN BIT::
+*motion.jog-stop-immediate* IN BOOL::
   If any jog is active when the pin state changes to TRUE then that jog
   will be stopped immediately.
-*motion.jog-is-active* OUT BIT::
+*motion.jog-is-active* OUT BOOL::
   TRUE if any joint or axis is jogging.
-*motion.in-position* OUT BIT::
+*motion.in-position* OUT BOOL::
   TRUE if the machine is in position (i.e., not currently moving towards the commanded position).
-**motion.misc-error-**_NN_ IN BIT::
+**motion.misc-error-**_NN_ IN BOOL::
   Extra error inputs for faults such as over-temperature sensors,
   low coolant warnings, custom HAL component errors.
   If driven TRUE this will disable a machine. Similar to spindle.amp-fault-in.
-*motion.motion-enabled* OUT BIT::
+*motion.motion-enabled* OUT BOOL::
   +
-*motion.motion-type* OUT S32::
+*motion.motion-type* OUT SINT::
   These values are from src/emc/nml_intf/motion_types.h:
 
   0: Idle (no motion)
@@ -233,34 +233,34 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   6: Rotary unlock for traverse
   
 
-*motion.on-soft-limit* OUT BIT::
-*motion.probe-input* IN BIT::
+*motion.on-soft-limit* OUT BOOL::
+*motion.probe-input* IN BOOL::
   G38.n uses the value on this pin to determine when the probe has made contact.
   TRUE for probe contact closed (touching), FALSE for probe contact open.
-*motion.program-line* OUT S32::
+*motion.program-line* OUT SINT::
   The current program line while executing.
   Zero if not running or between lines while single stepping.
-*motion.requested-vel* OUT FLOAT::
+*motion.requested-vel* OUT REAL::
   The current requested velocity in user units per second.
   This value is the F-word setting from the G-code file,
   possibly reduced to accommodate machine velocity and acceleration limits.
   The value on this pin does not reflect the feed override or any other adjustments.
-*motion.servo.last-period* OUT U32::
+*motion.servo.last-period* OUT UINT::
   Time (in ns) between invocations of the servo thread.
   Typically, this number divided by the CPU speed gives the time in seconds,
   and can be used to determine whether the realtime motion
   controller is meeting its timing constraints
-*motion.switchkins-type* IN float::
+*motion.switchkins-type* IN REAL::
   Kinematics modules that define the functions kinematicsSwitchable()
   and kinematicsSwitch() receive the *integer* value of this pin to
   select the machine kinematics functions. Extra G-code commands may be
   required to synchronize task and motion before and after changes to
   the pin value.
-*motion.teleop-mode* OUT BIT::
+*motion.teleop-mode* OUT BOOL::
   Motion mode is teleop (axis coordinate jogging available).
-*motion.tooloffset.L* OUT FLOAT::
+*motion.tooloffset.L* OUT REAL::
   Current tool offset for each axis where (*L* is the axis letter, one of: *x y z a b c u v w*)
-*motion.tp-reverse* OUT BIT::
+*motion.tp-reverse* OUT BOOL::
   Trajectory planning is reversed (reverse run)
 
 === Interpreter Metadata Pins
@@ -269,10 +269,10 @@ These pins provide geometric intent and interpreter state for the segment of mot
 
 ==== Interpreter Status Pins
 
-* `motion.interp.line-number` (s32, out) +
+* `motion.interp.line-number` (sint, out) +
   The current G-code line number being executed.
   
-* `motion.interp.motion-type` (s32, out) +
+* `motion.interp.motion-type` (sint, out) +
   The type of motion currently in progress:
 ** 0: None
 ** 1: Rapid (G0)
@@ -280,30 +280,30 @@ These pins provide geometric intent and interpreter state for the segment of mot
 ** 3: Arc (G2, G3)
 ** 4: Tool Change/Other
 
-* `motion.interp.feedrate` (float, out) +
+* `motion.interp.feedrate` (real, out) +
   The interpreted feedrate for the current segment in units per minute.
 
 ==== Interpreter Geometric Pins
 
-* `motion.interp.heading` (float, out) +
+* `motion.interp.heading` (real, out) +
   The XY plane heading of the current linear move in degrees. Measured counter-clockwise from the +X axis (0 to 360). This could be used to control a tangential knife.
 
-* `motion.interp.arc-radius` (float, out) +
+* `motion.interp.arc-radius` (real, out) +
   The radius of the current circular move. This value is 0.0 during linear moves. This could be used to modify plasma cutting parameters based on the arc radius and when hole cutting.
 
-* `motion.interp.arc-center-x` (float, out) +
+* `motion.interp.arc-center-x` (real, out) +
   The absolute X-coordinate of the center point for the current arc. 0 if in YZ plane
 
-* `motion.interp.arc-center-y` (float, out) +
+* `motion.interp.arc-center-y` (real, out) +
   The absolute Y-coordinate of the center point for the current arc. 0 if in XZ plane
 
-* `motion.interp.arc-center-z` (float, out) +
+* `motion.interp.arc-center-z` (real, out) +
   The absolute Y-coordinate of the center point for the current arc if in XZ or YZ plane.
 
-* `motion.interp.normal-heading` (float, out) +
+* `motion.interp.normal-heading` (real, out) +
   the heading from the current point back to the arc centre for the current arc.
   
- * `motion.interp.iscircle` (bit, out) +
+ * `motion.interp.iscircle` (bool, out) +
   True if the current arc is a full circle and not a helix.
   
 [NOTE]
@@ -313,52 +313,52 @@ These pins represent the *commanded geometric intent* from the interpreter and a
 
 (*L* is the axis letter, one of: *x y z a b c u v w*)
 
-**axis.**_L_**.eoffset** OUT FLOAT::
+**axis.**_L_**.eoffset** OUT REAL::
   Current external offset.
-**axis.**_L_**.eoffset-clear** IN BIT::
+**axis.**_L_**.eoffset-clear** IN BOOL::
   Clear external offset request
-**axis.**_L_**.eoffset-counts** IN S32::
+**axis.**_L_**.eoffset-counts** IN SINT::
   Counts input for external offset. The eoffset-counts are transferred
   to an internal register. The applied external offset is the product of
   the register counts and the eoffset-scale value. The register is
   *reset to zero at each machine startup*. If the machine is turned off
   with an external offset active, the eoffset-counts pin should be set
   to zero before restarting.
-**axis.**_L_**.eoffset-enable** IN BIT::
+**axis.**_L_**.eoffset-enable** IN BOOL::
   Enable for external offset (also requires INI file setting for [AXIS_L]OFFSET_AV_RATIO)
-**axis.**_L_**.eoffset-request** OUT FLOAT::
+**axis.**_L_**.eoffset-request** OUT REAL::
   Debug pin for requested external offset.
-**axis.**_L_**.eoffset-scale** IN FLOAT::
+**axis.**_L_**.eoffset-scale** IN REAL::
   Scale for external offset.
-**axis.**_L_**.jog-accel-fraction** IN FLOAT::
+**axis.**_L_**.jog-accel-fraction** IN REAL::
   Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the axis.
   Values greater than 1 or less than zero are ignored.
-**axis.**_L_**.jog-counts** IN S32::
+**axis.**_L_**.jog-counts** IN SINT::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
-**axis.**_L_**.jog-enable** IN BIT::
+**axis.**_L_**.jog-enable** IN BOOL::
   When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
   When false, "jog-counts" is ignored.
-**axis.**_L_**.jog-scale** IN FLOAT::
+**axis.**_L_**.jog-scale** IN REAL::
   Sets the distance moved for each count on "jog-counts", in machine units.
-**axis.**_L_**.jog-vel-mode** IN BIT::
+**axis.**_L_**.jog-vel-mode** IN BOOL::
   When FALSE (the default), the jogwheel operates in position mode.
   The axis will move exactly jog-scale units for each count, regardless of how long that might take.
   When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
-**axis.**_L_**.kb-jog-active** OUT BIT::
+**axis.**_L_**.kb-jog-active** OUT BOOL::
   (free planner axis jogging active (keyboard or halui))
-**axis.**_L_**.pos-cmd** OUT FLOAT::
+**axis.**_L_**.pos-cmd** OUT REAL::
   The axis commanded position.
   There may be several offsets between the axis and motor coordinates:
   Backlash compensation, screw error compensation, and home offsets.
   External offsets are reported separately (axis._L_.eoffset).
-**axis.**_L_**.teleop-pos-cmd** OUT FLOAT::
-**axis.**_L_**.teleop-tp-enable** OUT BIT::
+**axis.**_L_**.teleop-pos-cmd** OUT REAL::
+**axis.**_L_**.teleop-tp-enable** OUT BOOL::
   TRUE when the "teleop planner" is enabled for this axis.
-**axis.**_L_**.teleop-vel-cmd** OUT FLOAT::
+**axis.**_L_**.teleop-vel-cmd** OUT REAL::
   The axis's commanded velocity.
-**axis.**_L_**.teleop-vel-lim** OUT FLOAT::
+**axis.**_L_**.teleop-vel-lim** OUT REAL::
   The velocity limit for the teleop planner.
-**axis.**_L_**.wheel-jog-active** OUT BIT::
+**axis.**_L_**.wheel-jog-active** OUT BOOL::
   +
 
 == JOINT PINS
@@ -367,97 +367,97 @@ _N_ is the joint number (0 ... _num_joints_-1))
 
 Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or removal at any time.
 
-**joint.**_N_**.acc-cmd** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.acc-cmd** OUT REAL *(DEBUG)*::
   The joint's commanded acceleration.
-**joint.**_N_**.active** OUT BIT *(DEBUG)*::
+**joint.**_N_**.active** OUT BOOL *(DEBUG)*::
   TRUE when this joint is active.
-**joint.**_N_**.amp-enable-out** OUT BIT::
+**joint.**_N_**.amp-enable-out** OUT BOOL::
   TRUE if the amplifier for this joint should be enabled.
-**joint.**_N_**.amp-fault-in** IN BIT::
+**joint.**_N_**.amp-fault-in** IN BOOL::
   Should be driven TRUE if an external fault is detected with the amplifier for this joint.
-**joint.**_N_**.backlash-corr** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.backlash-corr** OUT REAL *(DEBUG)*::
   Backlash or screw compensation raw value.
-**joint.**_N_**.backlash-filt** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.backlash-filt** OUT REAL *(DEBUG)*::
   Backlash or screw compensation filtered value (respecting motion limits).
-**joint.**_N_**.backlash-vel** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.backlash-vel** OUT REAL *(DEBUG)*::
   Backlash or screw compensation velocity.
-**joint.**_N_**.coarse-pos-cmd** OUT FLOAT *(DEBUG)*::
-**joint.**_N_**.error** OUT BIT *(DEBUG)*::
+**joint.**_N_**.coarse-pos-cmd** OUT REAL *(DEBUG)*::
+**joint.**_N_**.error** OUT BOOL *(DEBUG)*::
   TRUE when t*his joint has encountered an error, such as a limit switch closing.
-**joint.**_N_**.f-error** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.f-error** OUT REAL *(DEBUG)*::
   The actual following error.
-**joint.**_N_**.f-error-lim** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.f-error-lim** OUT REAL *(DEBUG)*::
   The following error limit.
-**joint.**_N_**.f-errored** OUT BIT *(DEBUG)*::
+**joint.**_N_**.f-errored** OUT BOOL *(DEBUG)*::
   TRUE when this joint has exceeded the following error limit.
-**joint.**_N_**.faulted** OUT BIT *(DEBUG)*::
-**joint.**_N_**.free-pos-cmd** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.faulted** OUT BOOL *(DEBUG)*::
+**joint.**_N_**.free-pos-cmd** OUT REAL *(DEBUG)*::
   The "free planner" commanded position for this joint.
-**joint.**_N_**.free-tp-enable** OUT BIT *(DEBUG)*::
+**joint.**_N_**.free-tp-enable** OUT BOOL *(DEBUG)*::
   TRUE when the "free planner" is enabled for this joint.
-**joint.**_N_**.free-vel-lim** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.free-vel-lim** OUT REAL *(DEBUG)*::
   The velocity limit for the free planner.
-**joint.**_N_**.home-state** OUT S32 *(DEBUG)*::
+**joint.**_N_**.home-state** OUT SINT *(DEBUG)*::
   homing state machine state
-**joint.**_N_**.home-sw-in** IN BIT::
+**joint.**_N_**.home-sw-in** IN BOOL::
   Should be driven TRUE if the home switch for this joint is closed.
-**joint.**_N_**.homed** OUT BIT *(DEBUG)*::
+**joint.**_N_**.homed** OUT BOOL *(DEBUG)*::
   TRUE if the joint has been homed.
-**joint.**_N_**.homing** OUT BIT::
+**joint.**_N_**.homing** OUT BOOL::
   TRUE if the joint is currently homing.
-**joint.**_N_**.in-position** OUT BIT *(DEBUG)*::
+**joint.**_N_**.in-position** OUT BOOL *(DEBUG)*::
   TRUE if the joint is using the "free planner" and has come to a stop.
 **joint.**_N_**.index-enable** IO BIT::
   Should be attached to the index-enable pin of the joint's encoder to enable homing to index pulse.
-**joint.**_N_**.is-unlocked** IN BIT::
+**joint.**_N_**.is-unlocked** IN BOOL::
   Indicates joint is unlocked (see JOINT UNLOCK PINS).
-**joint.**_N_**.jog-accel-fraction** IN FLOAT::
+**joint.**_N_**.jog-accel-fraction** IN REAL::
   Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the joint.
   Values greater than 1 or less than zero are ignored.
-**joint.**_N_**.jog-counts** IN S32::
+**joint.**_N_**.jog-counts** IN SINT::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
-**joint.**_N_**.jog-enable** IN BIT::
+**joint.**_N_**.jog-enable** IN BOOL::
   When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
   When false, "jog-counts" is ignored.
-**joint.**_N_**.jog-scale** IN FLOAT::
+**joint.**_N_**.jog-scale** IN REAL::
   Sets the distance moved for each count on "jog-counts", in machine units.
-**joint.**_N_**.jog-vel-mode** IN BIT::
+**joint.**_N_**.jog-vel-mode** IN BOOL::
   When FALSE (the default), the jogwheel operates in position mode.
   The joint will move exactly jog-scale units for each count, regardless of how long that might take.
   When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
-**joint.**_N_**.kb-jog-active** OUT BIT *(DEBUG)*::
+**joint.**_N_**.kb-jog-active** OUT BOOL *(DEBUG)*::
   (free planner joint jogging active (keyboard or halui))
-**joint.**_N_**.motor-offset** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.motor-offset** OUT REAL *(DEBUG)*::
   joint motor offset established when joint is homed.
-**joint.**_N_**.motor-pos-cmd** OUT FLOAT::
+**joint.**_N_**.motor-pos-cmd** OUT REAL::
   The commanded position for this joint.
-**joint.**_N_**.motor-pos-fb** IN FLOAT::
+**joint.**_N_**.motor-pos-fb** IN REAL::
   The actual position for this joint.
-**joint.**_N_**.neg-hard-limit** OUT BIT *(DEBUG)*::
+**joint.**_N_**.neg-hard-limit** OUT BOOL *(DEBUG)*::
   The negative hard limit for the joint
-**joint.**_N_**.neg-lim-sw-in** IN BIT::
+**joint.**_N_**.neg-lim-sw-in** IN BOOL::
   Should be driven TRUE if the negative limit switch for this joint is tripped.
-**joint.**_N_**.pos-cmd** OUT FLOAT::
+**joint.**_N_**.pos-cmd** OUT REAL::
   The joint (as opposed to motor) commanded position. There may be
   several offsets between the joint and motor coordinates: backlash
   compensation, screw error compensation, and home offsets.
-**joint.**_N_**.pos-fb** OUT FLOAT::
+**joint.**_N_**.pos-fb** OUT REAL::
   The joint feedback position. This value is computed from the actual
   motor position minus joint offsets. Useful for machine visualization.
-**joint.**_N_**.pos-hard-limit** OUT BIT *(DEBUG)*::
+**joint.**_N_**.pos-hard-limit** OUT BOOL *(DEBUG)*::
   The positive hard limit for the joint.
-**joint.**_N_**.pos-lim-sw-in** IN BIT::
+**joint.**_N_**.pos-lim-sw-in** IN BOOL::
   Should be driven TRUE if the positive limit switch for this joint is tripped.
-**joint.**_N_**.unlock** OUT BIT::
+**joint.**_N_**.unlock** OUT BOOL::
   TRUE if the axis is a locked joint (typically a rotary) and a move is
   commanded (see JOINT UNLOCK PINS).
-**joint.**_N_**.vel-cmd** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.vel-cmd** OUT REAL *(DEBUG)*::
   The joint's commanded velocity.
-**joint.**_N_**.jerk-cmd** OUT FLOAT *(DEBUG)*::
+**joint.**_N_**.jerk-cmd** OUT REAL *(DEBUG)*::
   The joint's commanded jerk (rate of change of acceleration).
   Only active when S-curve trajectory planning is enabled (INI file [TRAJ]PLANNER_TYPE=1 and [TRAJ]MAX_LINEAR_JERK>0).
   Jerk limits are set via INI file [JOINT_N]MAX_JERK or via the ini.N.max_jerk HAL pin.
-**joint.**_N_**.wheel-jog-active** OUT BIT *(DEBUG)*::
+**joint.**_N_**.wheel-jog-active** OUT BOOL *(DEBUG)*::
   +
 
 == JOINT posthome pins
@@ -480,63 +480,63 @@ Example: loadrt motmod ... **unlock_joints_mask=**0x38 creates unlock pins for j
 
 (_M_ is the spindle number (*0* ... *num_spindles-1*))
 
-**spindle.**_M_**.amp-fault-in** IN BIT::
+**spindle.**_M_**.amp-fault-in** IN BOOL::
   Should be driven TRUE if an external fault is detected with the amplifier for this spindle.
-**spindle.**_M_**.at-speed** IN BIT::
+**spindle.**_M_**.at-speed** IN BOOL::
   Motion will pause until this pin is TRUE, under the following conditions:
   Before the first feed move after each spindle start or speed change;
   before the start of every chain of spindle-synchronized moves;
   and if in CSS mode, at every rapid->feed transition.
-**spindle.**_M_**.brake** OUT BIT::
+**spindle.**_M_**.brake** OUT BOOL::
   TRUE when the spindle brake should be applied.
-**spindle.**_M_**.forward** OUT BIT::
+**spindle.**_M_**.forward** OUT BOOL::
   TRUE when the spindle should rotate forward.
 **spindle.**_M_**.index-enable** I/O BIT::
   For correct operation of spindle synchronized moves, this signal must
   be hooked to the index-enable pin of the spindle encoder.
-**spindle.**_M_**.inhibit** IN BIT::
+**spindle.**_M_**.inhibit** IN BOOL::
   When TRUE, the spindle speed is set and held to 0.
-**spindle.**_M_**.is-oriented** IN BIT::
+**spindle.**_M_**.is-oriented** IN BOOL::
   Acknowledge pin for spindle-orient. Completes orient cycle.
   If spindle-orient was true when spindle-is-oriented was asserted,
   the spindle-orient pin is cleared and the spindle-locked pin is asserted.
   Also, the spindle-brake pin is asserted.
-**spindle.**_M_**.locked** OUT BIT::
+**spindle.**_M_**.locked** OUT BOOL::
   Spindle orient complete pin. Cleared by any of M3, M4 or M5.
-**spindle.**_M_**.on** OUT BIT::
+**spindle.**_M_**.on** OUT BOOL::
   TRUE when spindle should rotate.
-**spindle.**_M_**.orient** OUT BIT::
+**spindle.**_M_**.orient** OUT BOOL::
   Indicates start of spindle orient cycle.
   Set by M19. Cleared by any of M3, M4 or M5.
 
 If spindle-orient-fault is not zero during spindle-orient true,
 the M19 command fails with an error message.
 
-**spindle.**_M_**.orient-angle** OUT FLOAT::
+**spindle.**_M_**.orient-angle** OUT REAL::
   Desired spindle orientation for M19. Value of the M19 R word parameter
   plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
-**spindle.**_M_**.orient-fault** IN S32::
+**spindle.**_M_**.orient-fault** IN SINT::
   Fault code input for orient cycle.
   Any value other than zero will cause the orient cycle to abort.
-**spindle.**_M_**.orient-mode** OUT BIT::
+**spindle.**_M_**.orient-mode** OUT BOOL::
   Desired spindle rotation mode. Reflects M19 P parameter word.
-**spindle.**_M_**.reverse** OUT BIT::
+**spindle.**_M_**.reverse** OUT BOOL::
   TRUE when the spindle should rotate backward.
-**spindle.**_M_**.revs** IN FLOAT::
+**spindle.**_M_**.revs** IN REAL::
   For correct operation of spindle synchronized moves, this signal must
   be hooked to the position pin of the spindle encoder.
 **spindle.**_M_**.speed-cmd-rps** FLOAT OUT::
   Commanded spindle speed in units of revolutions per second.
-**spindle.**_M_**.speed-in** IN FLOAT::
+**spindle.**_M_**.speed-in** IN REAL::
   Actual spindle speed feedback in revolutions per second; used for G96
   (constant surface speed) and G95 (feed per revolution) modes.
-**spindle.**_M_**.speed-out** OUT FLOAT::
+**spindle.**_M_**.speed-out** OUT REAL::
   Desired spindle speed in rotations per minute.
-**spindle.**_M_**.speed-out-abs** OUT FLOAT::
+**spindle.**_M_**.speed-out-abs** OUT REAL::
   Desired spindle speed in rotations per minute, always positive regardless of spindle direction.
-**spindle.**_M_**.speed-out-rps** OUT FLOAT::
+**spindle.**_M_**.speed-out-rps** OUT REAL::
   Desired spindle speed in rotations per second.
-**spindle.**_M_**.speed-out-rps-abs** OUT FLOAT::
+**spindle.**_M_**.speed-out-rps-abs** OUT REAL::
   Desired spindle speed in rotations per second, always positive regardless of spindle direction.
 
 == MOTION PARAMETERS

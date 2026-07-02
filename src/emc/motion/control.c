@@ -56,7 +56,7 @@ KINEMATICS_INVERSE_FLAGS iflags = 0;
 ************************************************************************/
 
 /* the (nominal) period the last time the motion handler was invoked */
-static unsigned long last_period = 0;
+static rtapi_uint last_period = 0;
 
 /* servo cycle time */
 static double servo_period;
@@ -225,8 +225,8 @@ void emcmotController(void *arg, long period)
     static long long int last = 0;
 
     long long int now = rtapi_get_time();
-    long int this_run = (long int)(now - last);
-    hal_set_ui32(emcmot_hal_data->last_period, this_run);
+    rtapi_sint this_run = (rtapi_sint)(now - last);
+    hal_set_uint(emcmot_hal_data->last_period, this_run);
 
     // we need this for next time
     last = now;
@@ -235,7 +235,7 @@ void emcmotController(void *arg, long period)
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
 
-    if(period != (long)last_period) {
+    if((rtapi_uint)period != last_period) {
         emcmotSetCycleTime(period);
         last_period = period;
     }
@@ -522,12 +522,12 @@ static void process_inputs(void)
             emcmotStatus->spindle_status[spindle_num].fault = 0;
         }
 		if (hal_get_bool(emcmot_hal_data->spindle[spindle_num].spindle_orient)) {
-			if (hal_get_si32(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault)) {
+			if (hal_get_sint(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault)) {
 				emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_FAULTED;
 				hal_set_bool(emcmot_hal_data->spindle[spindle_num].spindle_orient, 0);
 				emcmotStatus->spindle_status[spindle_num].orient_fault =
-						hal_get_si32(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault);
-				reportError(_("fault %d during orient in progress"),
+						hal_get_sint(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault);
+				reportError(_("fault %ld during orient in progress"),
 						emcmotStatus->spindle_status[spindle_num].orient_fault);
 				emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 				tpAbort(&emcmotInternal->coord_tp);
@@ -1043,7 +1043,7 @@ static void handle_jjogwheels(void)
     int joint_num;
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
-    int new_jjog_counts, delta;
+    rtapi_sint new_jjog_counts, delta;
     double distance, pos, stop_dist;
     static int first_pass = 1;	/* used to set initial conditions */
 
@@ -1066,7 +1066,7 @@ static void handle_jjogwheels(void)
             jaccel_limit = jjog_accel_fraction * joint->acc_limit;
         }
 	/* get counts from jogwheel */
-	new_jjog_counts = hal_get_si32(joint_data->jjog_counts);
+	new_jjog_counts = hal_get_sint(joint_data->jjog_counts);
 	delta = new_jjog_counts - joint->old_jjog_counts;
 	/* save value for next time */
 	joint->old_jjog_counts = new_jjog_counts;
@@ -1895,8 +1895,8 @@ static void output_to_hal(void)
     hal_set_real(emcmot_hal_data->interp_feedrate, emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]);
 
     /* Line and Motion Type (Casting to int for s32 HAL pins) */
-    hal_set_si32(emcmot_hal_data->interp_line_number, (int)emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
-    hal_set_si32(emcmot_hal_data->interp_motion_type, (int)emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE]);
+    hal_set_sint(emcmot_hal_data->interp_line_number, emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
+    hal_set_sint(emcmot_hal_data->interp_motion_type, emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE]);
     hal_set_bool(emcmot_hal_data->iscircle, (emcmotStatus->tag.packed_flags & (1UL << GM_FLAG_IS_CIRCLE)) != 0);
     switch (emcmotStatus->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
@@ -1970,9 +1970,9 @@ static void output_to_hal(void)
 				emcmotStatus->spindle_status[spindle_num].speed / 60.);
     }
 
-    hal_set_si32(emcmot_hal_data->program_line, emcmotStatus->id);
+    hal_set_sint(emcmot_hal_data->program_line, emcmotStatus->id);
     hal_set_bool(emcmot_hal_data->tp_reverse, emcmotStatus->reverse_run);
-    hal_set_si32(emcmot_hal_data->motion_type, emcmotStatus->motionType);
+    hal_set_sint(emcmot_hal_data->motion_type, emcmotStatus->motionType);
     hal_set_real(emcmot_hal_data->distance_to_go, emcmotStatus->distance_to_go);
     if(GET_MOTION_COORD_FLAG()) {
         hal_set_real(emcmot_hal_data->current_vel, emcmotStatus->current_vel);
@@ -1998,14 +1998,14 @@ static void output_to_hal(void)
        to one of the debug parameters.  You can also comment out these lines
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
-    hal_set_bool(emcmot_hal_data->debug_bit_0, joints[1].free_tp.active);
-    hal_set_bool(emcmot_hal_data->debug_bit_1, emcmotStatus->enables_new & AF_ENABLED);
-    hal_set_real(emcmot_hal_data->debug_float_0, emcmotStatus->spindle_status[0].speed);
-    hal_set_real(emcmot_hal_data->debug_float_1, emcmotStatus->spindleSync);
-    hal_set_real(emcmot_hal_data->debug_float_2, emcmotStatus->vel);
-    hal_set_real(emcmot_hal_data->debug_float_3, emcmotStatus->spindle_status[0].net_scale);
-    hal_set_si32(emcmot_hal_data->debug_s32_0, emcmotStatus->overrideLimitMask);
-    hal_set_si32(emcmot_hal_data->debug_s32_1, emcmotStatus->tcqlen);
+    hal_set_bool(emcmot_hal_data->debug_bool_0, joints[1].free_tp.active);
+    hal_set_bool(emcmot_hal_data->debug_bool_1, emcmotStatus->enables_new & AF_ENABLED);
+    hal_set_real(emcmot_hal_data->debug_real_0, emcmotStatus->spindle_status[0].speed);
+    hal_set_real(emcmot_hal_data->debug_real_1, emcmotStatus->spindleSync);
+    hal_set_real(emcmot_hal_data->debug_real_2, emcmotStatus->vel);
+    hal_set_real(emcmot_hal_data->debug_real_3, emcmotStatus->spindle_status[0].net_scale);
+    hal_set_sint(emcmot_hal_data->debug_sint_0, emcmotStatus->overrideLimitMask);
+    hal_set_sint(emcmot_hal_data->debug_sint_1, emcmotStatus->tcqlen);
 
     /* two way handshaking for the spindle encoder */
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
@@ -2223,7 +2223,7 @@ static void update_status(void)
     // Get the current executing trajectory component (the "Source of Truth")
     /* Update the HAL Output Pins from the active tag */
     // Line and Motion Type
-    hal_set_si32(emcmot_hal_data->interp_line_number, (int)emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
+    hal_set_sint(emcmot_hal_data->interp_line_number, emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER]);
 
     // Performance Metadata
     hal_set_real(emcmot_hal_data->interp_feedrate, emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]);

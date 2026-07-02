@@ -41,7 +41,7 @@ setp near.0.scale 1.01
 
 # Joint 0
 # axis enable chain
-newsig emcmot.0.enable bit
+newsig emcmot.0.enable bool
 sets emcmot.0.enable FALSE
 net emcmot.0.enable <= joint.0.amp-enable-out
 net emcmot.0.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.00.enable pid.0.enable
@@ -75,7 +75,7 @@ setp pid.0.maxerror [JOINT_0]MAX_ERROR
 
 # Joint 1
 # axis enable chain
-newsig emcmot.1.enable bit
+newsig emcmot.1.enable bool
 sets emcmot.1.enable FALSE
 net emcmot.1.enable <= joint.1.amp-enable-out
 net emcmot.1.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.01.enable pid.1.enable
@@ -109,7 +109,7 @@ setp pid.1.maxerror [JOINT_1]MAX_ERROR
 
 # Joint 2
 # axis enable chain
-newsig emcmot.2.enable bit
+newsig emcmot.2.enable bool
 sets emcmot.2.enable FALSE
 net emcmot.2.enable <= joint.2.amp-enable-out
 net emcmot.2.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.02.enable pid.2.enable
@@ -143,7 +143,7 @@ setp pid.2.maxerror [JOINT_2]MAX_ERROR
 
 # Joint 3
 # axis enable chain
-newsig emcmot.3.enable bit
+newsig emcmot.3.enable bool
 sets emcmot.3.enable FALSE
 net emcmot.3.enable <= joint.3.amp-enable-out
 net emcmot.3.enable => hm2_[HOSTMOT2](BOARD).0.stepgen.03.enable pid.3.enable

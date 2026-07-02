@@ -37,19 +37,19 @@ class HalToolCylinder(CylinderZ):
 
 c = hal.component("maho600gui")
 # table
-c.newpin("table", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table", hal.Type.REAL, hal.Dir.IN)
 # full width ways that table rides one
 # this assembly moves up and down for Y
-c.newpin("tableway", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tableway", hal.Type.REAL, hal.Dir.IN)
 # head vertical slide
-c.newpin("head", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("head", hal.Type.REAL, hal.Dir.IN)
 # head tilt
-c.newpin("arotate", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("arotate", hal.Type.REAL, hal.Dir.IN)
 # rotary table
-c.newpin("brotate", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("brotate", hal.Type.REAL, hal.Dir.IN)
 
-c.newpin("tool-length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-radius", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tool-length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-radius", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 pivot_len=100

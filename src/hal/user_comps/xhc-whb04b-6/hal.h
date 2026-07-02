@@ -588,19 +588,19 @@ private:
     //! \param s size in bytes
     //! \return != 0 on error, 0 otherwise
     int newSimulatedHalPin(char* pin_name, void** ptr, int s);
-    //! \sa int newHalFloat(hal_pin_dir_t direction, hal_real_t* ptr, int componentId, const char* fmt, ...);
-    int newHalFloat(hal_pin_dir_t direction, hal_real_t* ptr, int componentId, const char* fmt, ...);
-    //! \sa int newHalSigned32(hal_pin_dir_t direction, hal_sint_t* ptr, int componentId, const char* fmt, ...);
-    int newHalSigned32(hal_pin_dir_t direction, hal_sint_t* ptr, int componentId, const char* fmt, ...);
-    //! \sa int newHalUnsigned32(hal_pin_dir_t direction, hal_sint_t* ptr, int componentId, const char* fmt, ...);
-    int newHalUnsigned32(hal_pin_dir_t direction, hal_uint_t* ptr, int componentId, const char* fmt, ...);
+    //! \sa int newHalFloat(hal_pdir_t direction, hal_real_t* ptr, int componentId, const char* fmt, ...);
+    int newHalFloat(hal_pdir_t direction, hal_real_t* ptr, int componentId, const char* fmt, ...);
+    //! \sa int newHalSigned32(hal_pdir_t direction, hal_sint_t* ptr, int componentId, const char* fmt, ...);
+    int newHalSigned32(hal_pdir_t direction, hal_sint_t* ptr, int componentId, const char* fmt, ...);
+    //! \sa int newHalUnsigned32(hal_pdir_t direction, hal_sint_t* ptr, int componentId, const char* fmt, ...);
+    int newHalUnsigned32(hal_pdir_t direction, hal_uint_t* ptr, int componentId, const char* fmt, ...);
     //! \param direction module input or output
     //! \param ptr will point to the allocated memory
     //! \param componentId hal id
     //! \param fmt the pin name when registered to hal
     //! \param ... va args
     //! \return != 0 on error, 0 otherwise
-    int newHalBit(hal_pin_dir_t direction, hal_bool_t* ptr, int componentId, const char* fmt, ...);
+    int newHalBit(hal_pdir_t direction, hal_bool_t* ptr, int componentId, const char* fmt, ...);
     //! allocates new hal pin according to \ref mIsSimulationMode
     //! \param pin pointer reference to the memory to be fred
     //! \post pin == nullptr

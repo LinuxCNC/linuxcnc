@@ -107,7 +107,7 @@ net apos-cmd joint.3.motor-pos-cmd stepgen.3.position-cmd
 net apos-fb stepgen.3.position-fb joint.3.motor-pos-fb
 net aenable joint.3.amp-enable-out stepgen.3.enable
 
-newsig false bit
+newsig false bool
 sets false FALSE
 net xhoming joint.0.homing match8.0.a0
 net yhoming joint.1.homing match8.0.a1

@@ -200,7 +200,7 @@ int rtapi_app_main(void){
             }
         }
     }
-    retval = hal_export_funct("lcd", write, lcd, 1, 0, comp_id); //needs fp?
+    retval = hal_export_funct("lcd", write, lcd, 0, comp_id); //needs fp?
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "LCD: ERROR: function export failed\n");
         return -1;

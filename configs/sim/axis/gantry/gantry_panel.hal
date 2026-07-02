@@ -22,7 +22,7 @@
 # factor (machine-units per count).
 
 loadrt mux2           names=home_sequence_mux,jjog_counts_mux
-loadrt conv_float_s32 names=home_sequence_s32
+loadrt conv_real_sint names=home_sequence_sint
 loadrt oneshot        names=pulse_on_jjdisable
 
 # synchronized homing, no joint1,3 jogging:
@@ -46,15 +46,15 @@ setp pulse_on_jjdisable.width         0.1
 
 addf home_sequence_mux  servo-thread
 addf jjog_counts_mux    servo-thread
-addf home_sequence_s32  servo-thread
+addf home_sequence_sint  servo-thread
 addf pulse_on_jjdisable servo-thread
 
 net home_seq_float   <= home_sequence_mux.out
-net home_seq_float   => home_sequence_s32.in
+net home_seq_float   => home_sequence_sint.in
 
-net home_seq_s32     <= home_sequence_s32.out
-net home_seq_s32     => ini.1.home_sequence
-net home_seq_s32     => ini.3.home_sequence
+net home_seq_sint    <= home_sequence_sint.out
+net home_seq_sint    => ini.1.home_sequence
+net home_seq_sint    => ini.3.home_sequence
 
 # set counts to zero using param_pin upon disable:
 net jjog_counts_value <= jjog_counts_mux.out

@@ -374,18 +374,6 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
         hal_set_real(pin->u->r, tmp);
         break;
     }
-    case HAL_U32: {
-        rtapi_u32 tmp;
-        if(!from_python(value, &tmp)) return -1;
-        hal_set_ui32(pin->u->u, tmp);
-        break;
-    }
-    case HAL_S32: {
-        rtapi_s32 tmp;
-        if(!from_python(value, &tmp)) return -1;
-        hal_set_si32(pin->u->s, tmp);
-        break;
-    }
     case HAL_UINT: {
         rtapi_uint tmp;
         if(!from_python(value, &tmp)) return -1;
@@ -408,14 +396,12 @@ static PyObject *pyhal_read_common(halitem *item) {
     if(!item) return NULL;
     switch(item->type) {
     case HAL_BOOL: return to_python(hal_get_bool(item->u->b));
-    case HAL_U32:  return to_python(hal_get_ui32(item->u->u));
-    case HAL_S32:  return to_python(hal_get_si32(item->u->s));
     case HAL_UINT: return to_python(hal_get_uint(item->u->u));
     case HAL_SINT: return to_python(hal_get_sint(item->u->s));
     case HAL_REAL: return to_python(hal_get_real(item->u->r));
     case HAL_PORT:
         if(item->is_pin)
-            return to_python(hal_port_buffer_size(reinterpret_cast<hal_port_t *>(item->u->u)));
+            return to_python(hal_port_buffer_size(item->u->p));
         else
             return to_python((unsigned)0); // HAL_PORT cannot be a parameter
     default:
@@ -442,8 +428,6 @@ static bool is_valid_hal_type(hal_type_t t, bool allowport)
 {
     switch(t) {
     case HAL_BOOL:
-    case HAL_S32:
-    case HAL_U32:
     case HAL_SINT:
     case HAL_UINT:
     case HAL_REAL:
@@ -455,7 +439,7 @@ static bool is_valid_hal_type(hal_type_t t, bool allowport)
     }
 }
 
-static PyObject * pyhal_create_param(halobject *self, const char *name, hal_type_t type, hal_param_dir_t dir) {
+static PyObject * pyhal_create_param(halobject *self, const char *name, hal_type_t type, hal_pdir_t dir) {
     int res;
     halitem param;
     param.is_pin = 0;
@@ -475,8 +459,6 @@ static PyObject * pyhal_create_param(halobject *self, const char *name, hal_type
 
     switch(type) {
     case HAL_BOOL: res = hal_param_new_bool(self->hal_id, dir, &param.u->b, 0, "%s.%s", self->prefix, name); break;
-    case HAL_S32:  res = hal_param_new_si32(self->hal_id, dir, &param.u->s, 0, "%s.%s", self->prefix, name); break;
-    case HAL_U32:  res = hal_param_new_ui32(self->hal_id, dir, &param.u->u, 0, "%s.%s", self->prefix, name); break;
     case HAL_SINT: res = hal_param_new_sint(self->hal_id, dir, &param.u->s, 0, "%s.%s", self->prefix, name); break;
     case HAL_UINT: res = hal_param_new_uint(self->hal_id, dir, &param.u->u, 0, "%s.%s", self->prefix, name); break;
     case HAL_REAL: res = hal_param_new_real(self->hal_id, dir, &param.u->r, 0.0, "%s.%s", self->prefix, name); break;
@@ -490,7 +472,7 @@ static PyObject * pyhal_create_param(halobject *self, const char *name, hal_type
 }
 
 
-static PyObject * pyhal_create_pin(halobject *self, const char *name, hal_type_t type, hal_pin_dir_t dir) {
+static PyObject * pyhal_create_pin(halobject *self, const char *name, hal_type_t type, hal_pdir_t dir) {
     char pin_name[HAL_NAME_LEN+1];
     int res;
     halitem pin;
@@ -518,13 +500,10 @@ static PyObject * pyhal_create_pin(halobject *self, const char *name, hal_type_t
     }
     switch(type) {
     case HAL_BOOL: res = hal_pin_new_bool(self->hal_id, dir, &pin.u->b, 0, "%s.%s", self->prefix, name); break;
-    case HAL_S32:  res = hal_pin_new_si32(self->hal_id, dir, &pin.u->s, 0, "%s.%s", self->prefix, name); break;
-    case HAL_U32:  res = hal_pin_new_ui32(self->hal_id, dir, &pin.u->u, 0, "%s.%s", self->prefix, name); break;
     case HAL_SINT: res = hal_pin_new_sint(self->hal_id, dir, &pin.u->s, 0, "%s.%s", self->prefix, name); break;
     case HAL_UINT: res = hal_pin_new_uint(self->hal_id, dir, &pin.u->u, 0, "%s.%s", self->prefix, name); break;
     case HAL_REAL: res = hal_pin_new_real(self->hal_id, dir, &pin.u->r, 0.0, "%s.%s", self->prefix, name); break;
-    // FIXME: This needs to change when we break the API.
-    case HAL_PORT: res = hal_pin_new_port(self->hal_id, dir, &pin.u->s, "%s.%s", self->prefix, name); break;
+    case HAL_PORT: res = hal_pin_new_port(self->hal_id, dir, &pin.u->p, "%s.%s", self->prefix, name); break;
     default: res = -EINVAL; break;
     }
     if(res) return pyhal_error(res);
@@ -547,7 +526,7 @@ static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "Duplicate parameter name '%s'", name);
         return NULL;
     } else { PyErr_Clear(); }
-    return pyhal_create_param(self, name, (hal_type_t)type, (hal_param_dir_t)dir);
+    return pyhal_create_param(self, name, (hal_type_t)type, (hal_pdir_t)dir);
 }
 
 
@@ -564,7 +543,7 @@ static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "Duplicate pin name '%s'", name);
         return NULL;
     } else { PyErr_Clear(); }
-    return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pin_dir_t)dir);
+    return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pdir_t)dir);
 }
 
 enum what_type_e {
@@ -820,12 +799,10 @@ PyTypeObject halobject_type = {
 
 static const char * pin_type2name(hal_type_t type) {
     switch (type) {
-    case HAL_BOOL: return "BIT";
-    case HAL_S32:  return "S32";
-    case HAL_U32:  return "U32";
-    case HAL_SINT: return "S64";
-    case HAL_UINT: return "U64";
-    case HAL_REAL: return "FLOAT";
+    case HAL_BOOL: return "BOOL";
+    case HAL_SINT: return "SINT";
+    case HAL_UINT: return "UINT";
+    case HAL_REAL: return "REAL";
     case HAL_PORT: return "PORT";
     default: return "unknown";
     }
@@ -949,12 +926,12 @@ static PyObject *pyhal_port_write(PyObject *self, PyObject *o)
         Py_INCREF(Py_False);
         return Py_False;
     }
-    if(len > (Py_ssize_t)hal_port_writable((hal_port_t *)item->pin.u->u)) {
+    if(len > (Py_ssize_t)hal_port_writable(item->pin.u->p)) {
         Py_INCREF(Py_False);
         return Py_False;
     }
 
-    return PyBool_FromLong(hal_port_write((hal_port_t *)item->pin.u->u, cptr, (unsigned)len));
+    return PyBool_FromLong(hal_port_write(item->pin.u->p, cptr, (unsigned)len));
 }
 
 static PyObject *pyhal_port_read_peek(pyhalitem *item, PyObject *o, bool isread)
@@ -978,7 +955,7 @@ static PyObject *pyhal_port_read_peek(pyhalitem *item, PyObject *o, bool isread)
         Py_INCREF(Py_False);
         return Py_False;
     }
-    if(l > (unsigned long)hal_port_readable((hal_port_t *)item->pin.u->u)) {
+    if(l > (unsigned long)hal_port_readable(item->pin.u->p)) {
         Py_INCREF(Py_False);
         return Py_False;
     }
@@ -990,9 +967,9 @@ static PyObject *pyhal_port_read_peek(pyhalitem *item, PyObject *o, bool isread)
     }
     bool b;
     if(isread)
-        b = hal_port_read((hal_port_t *)item->pin.u->u, PyBytes_AsString(bts), (unsigned)l);
+        b = hal_port_read(item->pin.u->p, PyBytes_AsString(bts), (unsigned)l);
     else
-        b = hal_port_peek((hal_port_t *)item->pin.u->u, PyBytes_AsString(bts), (unsigned)l);
+        b = hal_port_peek(item->pin.u->p, PyBytes_AsString(bts), (unsigned)l);
     if(b) {
         Py_DECREF(bts);
         Py_INCREF(Py_False);
@@ -1030,7 +1007,7 @@ static PyObject *pyhal_port_peek_commit(PyObject *self, PyObject *o)
         Py_INCREF(Py_False);
         return Py_False;
     }
-    return PyBool_FromLong(hal_port_peek_commit((hal_port_t *)item->pin.u->u, (unsigned)l));
+    return PyBool_FromLong(hal_port_peek_commit(item->pin.u->p, (unsigned)l));
 }
 
 static PyObject *pyhal_port_writable(PyObject *self, PyObject *)
@@ -1042,7 +1019,7 @@ static PyObject *pyhal_port_writable(PyObject *self, PyObject *)
         PyErr_Format(PyExc_RuntimeError, "writable: %s: Pin not output", item->name);
         return NULL;
     }
-    return PyLong_FromUnsignedLong(hal_port_writable((hal_port_t *)item->pin.u->u));
+    return PyLong_FromUnsignedLong(hal_port_writable(item->pin.u->p));
 }
 
 static PyObject *pyhal_port_readable(PyObject *self, PyObject *)
@@ -1054,7 +1031,7 @@ static PyObject *pyhal_port_readable(PyObject *self, PyObject *)
         PyErr_Format(PyExc_RuntimeError, "readable: %s: Pin not input", item->name);
         return NULL;
     }
-    return PyLong_FromUnsignedLong(hal_port_readable((hal_port_t *)item->pin.u->u));
+    return PyLong_FromUnsignedLong(hal_port_readable(item->pin.u->p));
 }
 
 static PyObject *pyhal_port_clear(PyObject *self, PyObject *)
@@ -1062,7 +1039,7 @@ static PyObject *pyhal_port_clear(PyObject *self, PyObject *)
     pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
     if(!check_port(item, "clear"))
         return NULL;
-    hal_port_clear((hal_port_t *)item->pin.u->u);
+    hal_port_clear(item->pin.u->p);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1072,7 +1049,7 @@ static PyObject *pyhal_port_size(PyObject *self, PyObject *)
     pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
     if(!check_port(item, "size"))
         return NULL;
-    return PyLong_FromUnsignedLong(hal_port_buffer_size((hal_port_t *)item->pin.u->u));
+    return PyLong_FromUnsignedLong(hal_port_buffer_size(item->pin.u->p));
 }
 
 static PyMethodDef halpin_methods[] = {
@@ -1234,8 +1211,6 @@ PyObject *new_sig(PyObject * /*self*/, PyObject *args) {
     //printf("INFO HALMODULE -- make signal -> %s type %d\n",name,(hal_type_t) type);
     switch (type) {
     case HAL_BOOL:
-    case HAL_S32:
-    case HAL_U32:
     case HAL_SINT:
     case HAL_UINT:
     case HAL_REAL:
@@ -1283,18 +1258,6 @@ static int set_common_cb(hal_query_t *q, void *arg)
         rtapi_real tmp;
         if(!from_python(obj, &tmp)) return -EINVAL;
         qvp->r = tmp;
-        break;
-    }
-    case HAL_S32: {
-        rtapi_s32 tmp;
-        if(!from_python(obj, &tmp)) return -EINVAL;
-        qvp->s = tmp;
-        break;
-    }
-    case HAL_U32: {
-        rtapi_u32 tmp;
-        if(!from_python(obj, &tmp)) return -EINVAL;
-        qvp->u = tmp;
         break;
     }
     case HAL_SINT: {
@@ -1358,8 +1321,6 @@ static PyObject *halref_to_object(hal_type_t type, const hal_query_value_u *v)
 {
     switch(type) {
     case HAL_BOOL: return to_python(v->b);
-    case HAL_U32:  return to_python((rtapi_u32)v->u);
-    case HAL_S32:  return to_python((rtapi_s32)v->s);
     case HAL_UINT: return to_python(v->u);
     case HAL_SINT: return to_python(v->s);
     case HAL_REAL: return to_python(v->r);
@@ -1454,16 +1415,6 @@ static int pinparaminfo_add(const hal_query_t *q, PyObject *lst)
                 str_n, q->name, str_v, PyBool_FromLong(hal_get_bool(q->pp.ref.b)),
                 str_d, PyLong_FromLong(q->pp.dir), str_t, PyLong_FromLong(HAL_BOOL));
         break;
-    case HAL_U32:
-        obj = Py_BuildValue("{s:s,s:k,s:N,s:N}",
-                str_n, q->name, str_v, hal_get_ui32(q->pp.ref.u),
-                str_d, PyLong_FromLong(q->pp.dir), str_t, PyLong_FromLong(HAL_U32));
-        break;
-    case HAL_S32:
-        obj = Py_BuildValue("{s:s,s:l,s:N,s:N}",
-                str_n, q->name, str_v, hal_get_si32(q->pp.ref.s),
-                str_d, PyLong_FromLong(q->pp.dir), str_t, PyLong_FromLong(HAL_S32));
-        break;
     case HAL_UINT:
         obj = Py_BuildValue("{s:s,s:K,s:N,s:N}",
                 str_n, q->name, str_v, hal_get_uint(q->pp.ref.u),
@@ -1547,16 +1498,6 @@ static int siginfo_add(const hal_query_t *q, PyObject *lst)
         obj = Py_BuildValue("{s:s,s:N,s:s,s:N}",
                 str_n, q->name, str_v, PyBool_FromLong(hal_get_bool(q->sig.ref.b)),
                 str_d, writer, str_t, PyLong_FromLong(HAL_BOOL));
-        break;
-    case HAL_U32:
-        obj = Py_BuildValue("{s:s,s:k,s:s,s:N}",
-                str_n, q->name, str_v, hal_get_ui32(q->sig.ref.u),
-                str_d, writer, str_t, PyLong_FromLong(HAL_U32));
-        break;
-    case HAL_S32:
-        obj = Py_BuildValue("{s:s,s:l,s:s,s:N}",
-                str_n, q->name, str_v, hal_get_si32(q->sig.ref.s),
-                str_d, writer, str_t, PyLong_FromLong(HAL_S32));
         break;
     case HAL_UINT:
         obj = Py_BuildValue("{s:s,s:K,s:s,s:N}",
@@ -1868,10 +1809,8 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
         switch(hal_stream_element_type(&self->stream, i)) {
         case HAL_BOOL: tbuf[i] = 'b'; break;
         case HAL_REAL: tbuf[i] = 'f'; break;
-        case HAL_S32:  tbuf[i] = 's'; break;
-        case HAL_U32:  tbuf[i] = 'u'; break;
-        case HAL_SINT: tbuf[i] = 'l'; break;
-        case HAL_UINT: tbuf[i] = 'k'; break;
+        case HAL_SINT: tbuf[i] = 's'; break;
+        case HAL_UINT: tbuf[i] = 'u'; break;
         default: tbuf[i] = '?'; break;
         }
     }
@@ -2107,7 +2046,7 @@ static PyMethodDef module_methods[] = {
     {"get_msg_level", get_msg_level, METH_NOARGS,
 	".get_msg_level(): Get the RTAPI message level"},
     {"new_sig", new_sig, METH_VARARGS,
-	".new_sig('signal_name', type): Create a new signal with the specified name.  'type' is one of HAL_BIT, HAL_FLOAT, HAL_S32, or HAL_U32."},
+	".new_sig('signal_name', type): Create a new signal with the specified name.  'type' is one of HAL_BOOL, HAL_REAL, HAL_SINT, or HAL_UINT."},
     {"connect", connect, METH_VARARGS,
 	".connect('pin_name', 'signal_name'): Connect the named pin to the named signal."},
     {"disconnect", disconnect, METH_VARARGS,
@@ -2148,8 +2087,8 @@ const char *module_doc = "Interface to LinuxCNC's hal\n"
 "import hal, time\n"
 "h = hal.component(\"component-name\")\n"
 "# create pins and parameters with calls to h.newpin and h.newparam\n"
-"h.newpin(\"in\", hal.HAL_FLOAT, hal.HAL_IN)\n"
-"h.newpin(\"out\", hal.HAL_FLOAT, hal.HAL_OUT)\n"
+"h.newpin(\"in\", hal.Type.REAL, hal.Dir.IN)\n"
+"h.newpin(\"out\", hal.Type.REAL, hal.Dir.OUT)\n"
 "h.ready() # mark the component as 'ready'\n"
 "\n"
 "try:\n"
@@ -2193,15 +2132,11 @@ static const halenum_member_t halenum_type_members[] = {
     {"SINT", HAL_SINT},
     {"UINT", HAL_UINT},
     {"PORT", HAL_PORT},
-    {"S32",  HAL_S32},
-    {"U32",  HAL_U32},
     {"HAL_BOOL",  HAL_BOOL},
     {"HAL_REAL",  HAL_REAL},
     {"HAL_SINT",  HAL_SINT},
     {"HAL_UINT",  HAL_UINT},
     {"HAL_PORT",  HAL_PORT},
-    {"HAL_S32",   HAL_S32},
-    {"HAL_U32",   HAL_U32},
     {}
 };
 
@@ -2321,12 +2256,6 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_REAL", HAL_REAL);
     PyModule_AddIntConstant(m, "HAL_SINT", HAL_SINT);
     PyModule_AddIntConstant(m, "HAL_UINT", HAL_UINT);
-    PyModule_AddIntConstant(m, "HAL_BIT", HAL_BIT);
-    PyModule_AddIntConstant(m, "HAL_FLOAT", HAL_FLOAT);
-    PyModule_AddIntConstant(m, "HAL_S32", HAL_S32);
-    PyModule_AddIntConstant(m, "HAL_U32", HAL_U32);
-    PyModule_AddIntConstant(m, "HAL_S64", HAL_S64);
-    PyModule_AddIntConstant(m, "HAL_U64", HAL_U64);
     PyModule_AddIntConstant(m, "HAL_PORT", HAL_PORT);
 
     PyModule_AddIntConstant(m, "HAL_RO", HAL_RO);

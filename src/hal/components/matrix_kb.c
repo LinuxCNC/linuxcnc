@@ -338,7 +338,7 @@ int rtapi_app_main(void){
             }
         }
         
-        retval = hal_export_funct(inst->name, loop, inst, 1, 0, comp_id); //needs fp?
+        retval = hal_export_funct(inst->name, loop, inst, 0, comp_id); //needs fp?
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: function export failed\n");
             return -1;

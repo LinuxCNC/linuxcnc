@@ -74,7 +74,7 @@ static inline int pci_8255_inb(rtapi_u32 base, int offset) {
 static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     int r = 0;
     int i;
-    hal_pin_dir_t direction;
+    hal_pdir_t direction;
     int sz = sizeof(struct port);
     memset(inst, 0, sz);
     if(0 != (r = hal_param_new_fake(comp_id, (hal_refs_u *)&inst->ioaddr)))
@@ -132,9 +132,9 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     r = hal_param_new_ui32(comp_id, HAL_RO, &(inst->dir_), dir,
         "%s.dir", prefix);
     if(r != 0) return r;
-    r = hal_export_functf((void(*)(void *inst, long))read, inst, 0, 0, comp_id, "%s.read", prefix);
+    r = hal_export_functf((void(*)(void *inst, long))read, inst, 0, comp_id, "%s.read", prefix);
     if(r != 0) return r;
-    r = hal_export_functf((void(*)(void *inst, long))write, inst, 0, 0, comp_id, "%s.write", prefix);
+    r = hal_export_functf((void(*)(void *inst, long))write, inst, 0, comp_id, "%s.write", prefix);
     if(r != 0) return r;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "registering %s ... %x %x\n", prefix,
@@ -208,11 +208,11 @@ int rtapi_app_main(void) {
 	hal_pin_new_bool(comp_id, HAL_IN, &(inst[i].relay), 0, "pci8255.%d.relay", i);
 	hal_param_new_bool(comp_id, HAL_RW, &(inst[i].relay_invert), 0,
 		    "pci8255.%d.relay-invert", i);
-	r = hal_export_functf((void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id, "pci8255.%d.write-relay", i);
+	r = hal_export_functf((void(*)(void *inst, long))write_relay, &inst[i], 0, comp_id, "pci8255.%d.write-relay", i);
 	if(r != 0) return r;
     }
-    r = hal_export_funct("pci8255.read-all", (void(*)(void *inst, long))read_all, inst, 0, 0, comp_id);
-    r = hal_export_funct("pci8255.write-all", (void(*)(void *inst, long))write_all, inst, 0, 0, comp_id);
+    r = hal_export_funct("pci8255.read-all", (void(*)(void *inst, long))read_all, inst, 0, comp_id);
+    r = hal_export_funct("pci8255.write-all", (void(*)(void *inst, long))write_all, inst, 0, comp_id);
 out_error:
     if(r) {
 	extra_cleanup();

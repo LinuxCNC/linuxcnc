@@ -45,4 +45,4 @@ There is a limit of 8 weighted summers and each may have up to 16 input bits.
 
 == SEE ALSO
 
-scaled_s32_sums(9), sum2(9)
+scaled_sint_sums(9), sum2(9)

@@ -22,67 +22,67 @@ class hal_interface:
         self.emc_stat = self.emc.stat()
         self.mdi_control = mdi_control
         self.c = hal.component("touchy")
-        self.c.newpin("status-indicator", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.active", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.x", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.y", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.z", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.a", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.b", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.c", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.u", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.v", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.w", hal.HAL_BIT, hal.HAL_OUT)
-        self.c.newpin("jog.wheel.increment", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.c.newpin("status-indicator", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.active", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.x", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.y", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.z", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.a", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.b", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.c", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.u", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.v", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.w", hal.Type.BOOL, hal.Dir.OUT)
+        self.c.newpin("jog.wheel.increment", hal.Type.REAL, hal.Dir.OUT)
 
-        self.c.newpin("jog.continuous.x.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.x.positive", hal.Type.BOOL, hal.Dir.IN)
         self.xp = 0
-        self.c.newpin("jog.continuous.x.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.x.negative", hal.Type.BOOL, hal.Dir.IN)
         self.xn = 0
-        self.c.newpin("jog.continuous.y.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.y.positive", hal.Type.BOOL, hal.Dir.IN)
         self.yp = 0
-        self.c.newpin("jog.continuous.y.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.y.negative", hal.Type.BOOL, hal.Dir.IN)
         self.yn = 0
-        self.c.newpin("jog.continuous.z.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.z.positive", hal.Type.BOOL, hal.Dir.IN)
         self.zp = 0
-        self.c.newpin("jog.continuous.z.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.z.negative", hal.Type.BOOL, hal.Dir.IN)
         self.zn = 0
 
-        self.c.newpin("jog.continuous.a.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.a.positive", hal.Type.BOOL, hal.Dir.IN)
         self.ap = 0
-        self.c.newpin("jog.continuous.a.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.a.negative", hal.Type.BOOL, hal.Dir.IN)
         self.an = 0
-        self.c.newpin("jog.continuous.b.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.b.positive", hal.Type.BOOL, hal.Dir.IN)
         self.bp = 0
-        self.c.newpin("jog.continuous.b.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.b.negative", hal.Type.BOOL, hal.Dir.IN)
         self.bn = 0
-        self.c.newpin("jog.continuous.c.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.c.positive", hal.Type.BOOL, hal.Dir.IN)
         self.cp = 0
-        self.c.newpin("jog.continuous.c.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.c.negative", hal.Type.BOOL, hal.Dir.IN)
         self.cn = 0
 
-        self.c.newpin("jog.continuous.u.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.u.positive", hal.Type.BOOL, hal.Dir.IN)
         self.up = 0
-        self.c.newpin("jog.continuous.u.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.u.negative", hal.Type.BOOL, hal.Dir.IN)
         self.un = 0
-        self.c.newpin("jog.continuous.v.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.v.positive", hal.Type.BOOL, hal.Dir.IN)
         self.vp = 0
-        self.c.newpin("jog.continuous.v.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.v.negative", hal.Type.BOOL, hal.Dir.IN)
         self.vn = 0
-        self.c.newpin("jog.continuous.w.positive", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.w.positive", hal.Type.BOOL, hal.Dir.IN)
         self.wp = 0
-        self.c.newpin("jog.continuous.w.negative", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("jog.continuous.w.negative", hal.Type.BOOL, hal.Dir.IN)
         self.wn = 0
 
-        self.c.newpin("quill-up", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("quill-up", hal.Type.BOOL, hal.Dir.IN)
         self.quillup = 0
-        self.c.newpin("cycle-start", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("cycle-start", hal.Type.BOOL, hal.Dir.IN)
         self.cyclestart = 0
-        self.c.newpin("abort", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("abort", hal.Type.BOOL, hal.Dir.IN)
         self.abort = 0
-        self.c.newpin("single-block", hal.HAL_BIT, hal.HAL_IN)
+        self.c.newpin("single-block", hal.Type.BOOL, hal.Dir.IN)
         self.singleblock = 0
-        self.c.newpin("wheel-counts", hal.HAL_S32, hal.HAL_IN)
+        self.c.newpin("wheel-counts", hal.Type.SINT, hal.Dir.IN)
         self.counts = 0
         self.jog_velocity = 1
         self.c.ready()

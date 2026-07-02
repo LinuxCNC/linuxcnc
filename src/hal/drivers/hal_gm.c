@@ -1072,16 +1072,16 @@ static int ExportFunctions(void *arg, int comp_id, int boardId)
 	int error;
 	gm_device_t	*device = (gm_device_t *)arg;
 
-	error = hal_export_functf(write, device, 1, 0, comp_id, "gm.%d.write", boardId);
+	error = hal_export_functf(write, device, 0, comp_id, "gm.%d.write", boardId);
 
 	if(error == 0)
 	{
-		error = hal_export_functf(read, device, 1, 0, comp_id, "gm.%d.read", boardId);
+		error = hal_export_functf(read, device, 0, comp_id, "gm.%d.read", boardId);
 	}
 	
 	if(error == 0)
 	{
-		error = hal_export_functf(RS485, device, 1, 0, comp_id, "gm.%d.RS485", boardId);
+		error = hal_export_functf(RS485, device, 0, comp_id, "gm.%d.RS485", boardId);
 	}
 
     	return error;

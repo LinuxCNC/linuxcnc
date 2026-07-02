@@ -16,6 +16,7 @@ option period no;
 function _ "Update the comparator";
 license "GPL";
 author "Jeff Epler";
+see_also "conv_real_bool(9).";
 ;;
 FUNCTION(_) {
     rtapi_real tmp = in1 - in0;

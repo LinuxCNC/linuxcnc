@@ -236,7 +236,7 @@ int rtapi_app_main(void)
     for (n = 0; n < num_boards; n++) {
 	/* export read function */
 	retval = hal_export_functf(read_board, &(board_array[n]),
-	    0, 0, comp_id, "ax5214h.%d.read", n);
+	    0, comp_id, "ax5214h.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"AX5214H: ERROR: port %d read funct export failed\n", n);
@@ -245,7 +245,7 @@ int rtapi_app_main(void)
 	}
 	/* export write function */
 	retval = hal_export_functf(write_board, &(board_array[n]),
-	    0, 0, comp_id, "ax5214h.%d.write", n);
+	    0, comp_id, "ax5214h.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"AX5214H: ERROR: port %d write funct export failed\n", n);

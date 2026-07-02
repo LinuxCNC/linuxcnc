@@ -321,7 +321,7 @@ Servo Loop::
 
 Signed Integer::
      (((Signed Integer))) A whole number that can have a positive or negative sign.
-     In HAL it is usually a <<sub:hal-s32,s32>>, but could be also a <<sub:hal-s64,s64>>.
+     In HAL it is a <<sub:hal-sint,sint>>.
 
 Spindle::
      (((spindle))) The part of a machine tool that spins
@@ -364,7 +364,7 @@ Units::
 
 Unsigned Integer::
     (((Unsigned Integer))) A whole number that has no sign.
-    In HAL it is usually a <<sub:hal-u32,u32>> but could be also a <<sub:hal-u64,u64>>.
+    In HAL it is a <<sub:hal-uint,uint>>.
 
 World Coordinates::
      (((world coordinates))) This is the absolute

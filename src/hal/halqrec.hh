@@ -94,6 +94,10 @@ public:
             throw std::runtime_error(fmt::format("HalQRec: Index {} out of range, no entries available", i));
     }
 
+    void clear() {
+        n = 0;
+        memset(qr, 0, na * sizeof(*qr));
+    }
 private:
     size_t n;
     size_t na;

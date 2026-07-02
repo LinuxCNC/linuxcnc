@@ -1,7 +1,7 @@
 component sample_hold "Sample and Hold";
-pin in si32 in;
+pin in sint in;
 pin in bool hold;
-pin out si32 out;
+pin out sint out;
 option period no;
 function _;
 see_also "*tristate*(9)";

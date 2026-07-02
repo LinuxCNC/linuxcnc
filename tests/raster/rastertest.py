@@ -188,22 +188,22 @@ def main():
         c = hal.component("test")
 
         pin = {
-            'reset': c.newpin("reset", hal.HAL_BIT, hal.HAL_OUT),
-            'enabled': c.newpin("enabled", hal.HAL_BIT, hal.HAL_IN),
-            'position': c.newpin("position", hal.HAL_FLOAT, hal.HAL_OUT),
-            'output': c.newpin("output", hal.HAL_FLOAT, hal.HAL_IN),
-            'offset': c.newpin("offset", hal.HAL_FLOAT, hal.HAL_IN),
-            'bpp': c.newpin("bpp", hal.HAL_S32, hal.HAL_IN),
-            'ppu': c.newpin("ppu", hal.HAL_FLOAT, hal.HAL_IN),
-            'count': c.newpin("count", hal.HAL_S32, hal.HAL_IN),
-            'fault': c.newpin("fault", hal.HAL_BIT, hal.HAL_IN),
-            'fault_code': c.newpin("fault-code", hal.HAL_S32, hal.HAL_IN),
-            'state': c.newpin("state", hal.HAL_S32, hal.HAL_IN),
-            'bitmap_position': c.newpin("bitmap-position", hal.HAL_FLOAT, hal.HAL_IN),
-            'current_pixel_index': c.newpin("current-pixel-index", hal.HAL_S32, hal.HAL_IN),
-            'current_pixel_value': c.newpin("current-pixel-value", hal.HAL_FLOAT, hal.HAL_IN),
-            'previous_pixel_value': c.newpin("previous-pixel-value", hal.HAL_FLOAT, hal.HAL_IN),
-            'fraction': c.newpin("fraction", hal.HAL_FLOAT, hal.HAL_IN),
+            'reset': c.newpin("reset", hal.Type.BOOL, hal.Dir.OUT),
+            'enabled': c.newpin("enabled", hal.Type.BOOL, hal.Dir.IN),
+            'position': c.newpin("position", hal.Type.REAL, hal.Dir.OUT),
+            'output': c.newpin("output", hal.Type.REAL, hal.Dir.IN),
+            'offset': c.newpin("offset", hal.Type.REAL, hal.Dir.IN),
+            'bpp': c.newpin("bpp", hal.Type.SINT, hal.Dir.IN),
+            'ppu': c.newpin("ppu", hal.Type.REAL, hal.Dir.IN),
+            'count': c.newpin("count", hal.Type.SINT, hal.Dir.IN),
+            'fault': c.newpin("fault", hal.Type.BOOL, hal.Dir.IN),
+            'fault_code': c.newpin("fault-code", hal.Type.SINT, hal.Dir.IN),
+            'state': c.newpin("state", hal.Type.SINT, hal.Dir.IN),
+            'bitmap_position': c.newpin("bitmap-position", hal.Type.REAL, hal.Dir.IN),
+            'current_pixel_index': c.newpin("current-pixel-index", hal.Type.SINT, hal.Dir.IN),
+            'current_pixel_value': c.newpin("current-pixel-value", hal.Type.REAL, hal.Dir.IN),
+            'previous_pixel_value': c.newpin("previous-pixel-value", hal.Type.REAL, hal.Dir.IN),
+            'fraction': c.newpin("fraction", hal.Type.REAL, hal.Dir.IN),
         }
         c.ready()
 
