@@ -77,68 +77,56 @@ typedef struct {
 	// The HAL comp name will be set to <string>, and all pin and parameter
 	// names will begin with <string>.  
 
-	hal_bit_t	*enable;				// bit to enable this component
-	
-	hal_float_t	*Set_F;					// frequency command
-	hal_float_t	*Out_F;					// actual output frequency
-	hal_float_t	*Out_A;					// actual output amps
-	hal_float_t	*RoTT;					// actual motor rmp (based on VFD parameters) 
-	hal_float_t	*DCV;					// DC Volts (to be confirmed)
-	hal_float_t	*ACV;					// AC Volts (to be confirmed)
-	hal_float_t	*Cont;
-	hal_float_t *Tmp;					// Temperature (to be confirmed)
-	
-	hal_bit_t *spindle_forward;			// spindle forward input
-	hal_bit_t *spindle_reverse;			// spindle reverse input
-	hal_bit_t *spindle_on;				// spinlde on input
-	hal_float_t *CNTR;					// stores the status of the control request
-	hal_float_t *CNST;					// stores the response of the control request
-	
-	hal_bit_t *CNST_Run;				// CNST Run bit
-	hal_bit_t *CNST_Jog;				// CNST Jog bit	
-	hal_bit_t *CNST_Command_rf;			// CNST Run reverse / forward bit	
-	hal_bit_t *CNST_Running;			// CNST Running bit	
-	hal_bit_t *CNST_Jogging;			// CNST Jogging bit	
-	hal_bit_t *CNST_Running_rf;				// CNST Jog reverse / forward bit	
-	hal_bit_t *CNST_Bracking;			// CNST bracking bit	
-	hal_bit_t *CNST_Track_Start;		// CNST track start bit	
+	hal_bool_t	enable;				// bit to enable this component
 
-	hal_float_t *speed_command;			// spindle speed command from EMC
-	hal_float_t	*freq_cmd;				// calculated frequency command
+	hal_real_t Set_F;				// frequency command
+	hal_real_t Out_F;				// actual output frequency
+	hal_real_t Out_A;				// actual output amps
+	hal_real_t RoTT;				// actual motor rmp (based on VFD parameters)
+	hal_real_t DCV;					// DC Volts (to be confirmed)
+	hal_real_t ACV;					// AC Volts (to be confirmed)
+	hal_real_t Cont;
+	hal_real_t Tmp;					// Temperature (to be confirmed)
 
-	hal_float_t *max_freq;				// PD005 Max Operating Frequency
-	hal_float_t *base_freq;				// PD004 Base Frequency
-	hal_float_t *freq_lower_limit;		// PD011 Frequency Lower Limit
-	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
-	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
-	hal_u32_t *motor_poles;                 // PD143 Number of motor poles - from motor name plate
-	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
-	
-	hal_bit_t	*hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
-	
-	hal_float_t *max_rpm;				// calculated based on VFD max frequency setup parameter
+	hal_bool_t spindle_forward;			// spindle forward input
+	hal_bool_t spindle_reverse;			// spindle reverse input
+	hal_bool_t spindle_on;				// spinlde on input
+	hal_real_t CNTR;					// stores the status of the control request
+	hal_real_t CNST;					// stores the response of the control request
 
-	hal_float_t     *spindle_speed_fb;   // (out) reports current spindle speed (rpm)
-	hal_float_t     *spindle_speed_fb_rps;   // (out) reports current spindle speed (rps)
-	hal_bit_t       *spindle_at_speed;   // (out) True when spindle is on and at commanded speed
-	hal_float_t     *spindle_at_speed_tolerance;  // (in)
+	hal_bool_t CNST_Run;				// CNST Run bit
+	hal_bool_t CNST_Jog;				// CNST Jog bit
+	hal_bool_t CNST_Command_rf;			// CNST Run reverse / forward bit
+	hal_bool_t CNST_Running;			// CNST Running bit
+	hal_bool_t CNST_Jogging;			// CNST Jogging bit
+	hal_bool_t CNST_Running_rf;			// CNST Jog reverse / forward bit
+	hal_bool_t CNST_Bracking;			// CNST bracking bit
+	hal_bool_t CNST_Track_Start;		// CNST track start bit
 
-	hal_u32_t	*retval;
-	hal_s32_t	*errorcount;
-	hal_float_t	looptime;
-	
-	//hal_float_t	motor_nameplate_hz;		// speeds are scaled in Hz, not RPM
-	//hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
-	//hal_float_t	rpm_limit;				// do-not-exceed output frequency
-	//hal_bit_t	*acc_dec_pattern;		// if set: choose ramp times as defined in F500+F501
-										// if zero (default): choose ramp times as defined in ACC and DEC
-	//hal_float_t	upper_limit_hz;		    // VFD setup parameter - maximum output frequency in HZ
+	hal_real_t speed_command;			// spindle speed command from EMC
+	hal_real_t freq_cmd;				// calculated frequency command
 
-	//hal_bit_t	old_run;				// so we can detect changes in the run state
-	//hal_bit_t	old_dir;
-	//hal_bit_t	old_err_reset;
-	//hal_u32_t	old_cmd1_reg;				// copy of last write to FA00
-	//hal_u32_t	failed_reg;				// remember register for failed hycomm transaction - aids debugging
+	hal_real_t max_freq;				// PD005 Max Operating Frequency
+	hal_real_t base_freq;				// PD004 Base Frequency
+	hal_real_t freq_lower_limit;		// PD011 Frequency Lower Limit
+	hal_real_t rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
+	hal_real_t rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
+	hal_uint_t motor_poles;                 // PD143 Number of motor poles - from motor name plate
+	hal_real_t rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
+
+	hal_bool_t	hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
+
+	hal_real_t max_rpm;				// calculated based on VFD max frequency setup parameter
+
+	hal_real_t spindle_speed_fb;   // (out) reports current spindle speed (rpm)
+	hal_real_t spindle_speed_fb_rps;   // (out) reports current spindle speed (rps)
+	hal_bool_t spindle_at_speed;   // (out) True when spindle is on and at commanded speed
+	hal_real_t spindle_at_speed_tolerance;  // (in)
+
+	hal_uint_t	retval;
+	hal_sint_t	errorcount;
+
+	rtapi_real	looptime;
 } haldata_t;
 
 static int done;
@@ -259,7 +247,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	int retval;
 	int CNTR, old_CNTR;
 	int CNST;
-	hal_float_t hz_per_rpm;
+	rtapi_real hz_per_rpm;
 	int freq_comp;
 	int freq, old_freq;
 	
@@ -267,31 +255,31 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hc_data->function = WRITE_FREQ_DATA;
 	hc_data->parameter = 0x00;
 	
-	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
+	if ((hal_get_bool(haldata->spindle_forward) && !hal_get_bool(haldata->spindle_reverse)) && hal_get_bool(haldata->spindle_on)) {
 		freq_comp = 1;
-	} else if ((*(haldata->spindle_reverse) && !*(haldata->spindle_forward)) && *(haldata->spindle_on)) {
+	} else if ((hal_get_bool(haldata->spindle_reverse) && !hal_get_bool(haldata->spindle_forward)) && hal_get_bool(haldata->spindle_on)) {
 		freq_comp = -1;
 	} else {
 		freq_comp = 0;	
 	}
 
-	hz_per_rpm = *haldata->max_freq / *(haldata->rated_motor_rev);
-	freq =  abs((int)((*(haldata->speed_command)+freq_comp)*hz_per_rpm*100));
+	hz_per_rpm = hal_get_real(haldata->max_freq) / hal_get_real(haldata->rated_motor_rev);
+	freq =  abs((int)((hal_get_real(haldata->speed_command)+freq_comp)*hz_per_rpm*100));
 	
 	// limit the frequency to the max and min as setup in the VFD
-	if (freq > *(haldata->max_freq)*100)
-		freq = *(haldata->max_freq)*100;
-	if (freq < *(haldata->freq_lower_limit)*100)
-		freq = *(haldata->freq_lower_limit)*100;
+	if (freq > hal_get_real(haldata->max_freq)*100)
+		freq = hal_get_real(haldata->max_freq)*100;
+	if (freq < hal_get_real(haldata->freq_lower_limit)*100)
+		freq = hal_get_real(haldata->freq_lower_limit)*100;
 	
-	old_freq = *(haldata->freq_cmd);
+	old_freq = hal_get_real(haldata->freq_cmd);
 	
 	if (freq != old_freq) {
 		// commanded frequency has changed
 		hc_data->data = freq;
 		if ((retval = hy_comm(hc_param, hc_data)) != 0)
 			goto failed;
-		*(haldata->freq_cmd)  =  freq; 
+		hal_set_real(haldata->freq_cmd, freq);
 	}
 	
 	
@@ -300,87 +288,47 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hc_data->function = WRITE_CONTROL_DATA;
 	hc_data->parameter = 0x00;
 	
-	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
+	if ((hal_get_bool(haldata->spindle_forward) && !hal_get_bool(haldata->spindle_reverse)) && hal_get_bool(haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Fwd;
-	} else if ((*(haldata->spindle_reverse) && !*(haldata->spindle_forward)) && (*haldata->spindle_on)) {
+	} else if ((hal_get_bool(haldata->spindle_reverse) && !hal_get_bool(haldata->spindle_forward)) && hal_get_bool(haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Rev;
 	} else {
 		CNTR = CONTROL_Stop;	
 	}
 	
-	old_CNTR = *(haldata->CNTR);
+	old_CNTR = hal_get_real(haldata->CNTR);
 	hc_data->data = old_CNTR;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;
 	if (CNTR != old_CNTR) {
 		// CNTR register needs to be updated
 		hc_data->data = CNTR;
-		*(haldata->CNTR) = CNTR;
+		hal_set_real(haldata->CNTR, CNTR);
 	}
 
 	
 	CNST = hc_data->ret_data;
-	*(haldata->CNST) = CNST;
+	hal_set_real(haldata->CNST, CNST);
 	
-	if ((CNST & CONTROL_Run) != 0) {
-		*(haldata->CNST_Run) = TRUE;
-	} else {
-		*(haldata->CNST_Run) = FALSE;
-	}
-	
-	if ((CNST & CONTROL_Jog) != 0) {
-		*(haldata->CNST_Jog) = TRUE;
-	} else {
-		*(haldata->CNST_Jog) = FALSE;
-	}
-	
-	if ((CNST & CONTROL_Command_rf) != 0) {
-		*(haldata->CNST_Command_rf) = TRUE;
-	} else {
-		*(haldata->CNST_Command_rf) = FALSE;
-	}
-	
-	if ((CNST & CONTROL_Running) != 0) {
-		*(haldata->CNST_Running) = TRUE;
-	} else {
-		*(haldata->CNST_Running) = FALSE;
-	}
-	
-	if ((CNST & CONTROL_Jogging) != 0) {
-		*(haldata->CNST_Jogging) = TRUE;
-	} else {
-		*(haldata->CNST_Jogging) = FALSE;
-	}
-	
-	if ((CNST & CONTROL_Running_rf) != 0) {
-		*(haldata->CNST_Running_rf) = TRUE;
-	} else {
-		*(haldata->CNST_Running_rf) = FALSE;	
-	}
-	
-	
-	if ((CNST & CONTROL_Bracking) != 0) {
-		*(haldata->CNST_Bracking) = TRUE;
-	} else {
-		*(haldata->CNST_Bracking) = FALSE;
-	}
-	
-	if ((CNST & CONTROL_Track_Start) != 0) {
-		*(haldata->CNST_Track_Start) = TRUE;
-	} else {
-		*(haldata->CNST_Track_Start) = FALSE;	
-	}
+	hal_set_bool(haldata->CNST_Run, (CNST & CONTROL_Run) != 0);
+	hal_set_bool(haldata->CNST_Jog, (CNST & CONTROL_Jog) != 0);
+	hal_set_bool(haldata->CNST_Command_rf, (CNST & CONTROL_Command_rf) != 0);
+	hal_set_bool(haldata->CNST_Running, (CNST & CONTROL_Running) != 0);
+	hal_set_bool(haldata->CNST_Jogging, (CNST & CONTROL_Jogging) != 0);
+	hal_set_bool(haldata->CNST_Running_rf, (CNST & CONTROL_Running_rf) != 0);
+	hal_set_bool(haldata->CNST_Bracking, (CNST & CONTROL_Bracking) != 0);
+	hal_set_bool(haldata->CNST_Track_Start, (CNST & CONTROL_Track_Start) != 0);
 
 	retval = 0;
-	*(haldata->retval) = retval;
+	hal_set_ui32(haldata->retval, retval);
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("write_data: FAILED\n");
 	}
-	*(haldata->retval) = retval;
-	(*(haldata->errorcount))++;
+	hal_set_ui32(haldata->retval, retval);
+	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 
 	retval = -1;
 	return retval;	
@@ -396,7 +344,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		return -1;
 	/* but we can signal an error if the other params are null */
 	if (hc_param==NULL) {
-		(*(haldata->errorcount))++;
+		hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 		return -1;
 	}
 
@@ -423,10 +371,10 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hc_data->data = 0x0000;
 
 	hc_data->parameter = 5; // PD005 Max Operating Frequency
-        if (*haldata->max_freq != 0) {
+        if (hal_get_real(haldata->max_freq) != 0) {
             // user passed in motor max freq, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)(*haldata->max_freq * 100);
+            hc_data->data = (uint16_t)(hal_get_real(haldata->max_freq) * 100);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -434,13 +382,13 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->max_freq) = hc_data->ret_data * 0.01;
+	hal_set_real(haldata->max_freq, hc_data->ret_data * 0.01);
 
 	hc_data->parameter = 4; // PD004 Base Frequency
-        if (*haldata->base_freq != 0) {
+        if (hal_get_real(haldata->base_freq) != 0) {
             // user passed in base freq, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)(*haldata->base_freq * 100);
+            hc_data->data = (uint16_t)(hal_get_real(haldata->base_freq) * 100);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -448,13 +396,13 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->base_freq) = hc_data->ret_data * 0.01;
+	hal_set_real(haldata->base_freq, hc_data->ret_data * 0.01);
 
 	hc_data->parameter = 11; // PD011 Frequency Lower Limit
-        if (*haldata->freq_lower_limit != 0) {
+        if (hal_get_real(haldata->freq_lower_limit) != 0) {
             // user passed in motor min freq, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)(*haldata->freq_lower_limit * 100);
+            hc_data->data = (uint16_t)(hal_get_real(haldata->freq_lower_limit) * 100);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -462,13 +410,13 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->freq_lower_limit) = hc_data->ret_data * 0.01;
+	hal_set_real(haldata->freq_lower_limit, hc_data->ret_data * 0.01);
 
 	hc_data->parameter = 141; // PD141 Rated Motor Voltage
-        if (*haldata->rated_motor_voltage != 0) {
+        if (hal_get_real(haldata->rated_motor_voltage) != 0) {
             // user passed in motor max voltage, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)(*haldata->rated_motor_voltage * 10);
+            hc_data->data = (uint16_t)(hal_get_real(haldata->rated_motor_voltage) * 10);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -476,13 +424,13 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->rated_motor_voltage) = hc_data->ret_data * 0.1;
+	hal_set_real(haldata->rated_motor_voltage, hc_data->ret_data * 0.1);
 
 	hc_data->parameter = 142; // PD142 Rated Motor Current
-        if (*haldata->rated_motor_current != 0) {
+        if (hal_get_real(haldata->rated_motor_current) != 0) {
             // user passed in motor max current, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)(*haldata->rated_motor_current * 10);
+            hc_data->data = (uint16_t)(hal_get_real(haldata->rated_motor_current) * 10);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -490,13 +438,13 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->rated_motor_current) = hc_data->ret_data * 0.1;
+	hal_set_real(haldata->rated_motor_current, hc_data->ret_data * 0.1);
 
 	hc_data->parameter = 143; // PD143 Number of Motor Poles
-        if (*haldata->motor_poles != 0) {
+        if (hal_get_ui32(haldata->motor_poles) != 0) {
             // user passed in motor poles, send to VFD
             hc_data->function = FUNCTION_WRITE;
-            hc_data->data = (uint16_t)(*haldata->motor_poles);
+            hc_data->data = (uint16_t)hal_get_ui32(haldata->motor_poles);
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
                 goto failed;
             }
@@ -504,14 +452,14 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*haldata->motor_poles = hc_data->ret_data;
+	hal_set_ui32(haldata->motor_poles, hc_data->ret_data);
 
         hc_data->parameter = 144; // PD144 Rated Motor Rev (at 50 Hz)
-        if (*haldata->rated_motor_rev != 0) {
+        if (hal_get_real(haldata->rated_motor_rev) != 0) {
             // user passed in motor max speed
             // we know motor max freq
             // write the VFD's P144 with "motor speed at 50 Hz"
-            rpm_at_50hz = (*haldata->rated_motor_rev / *haldata->max_freq) * 50.0;
+            rpm_at_50hz = (hal_get_real(haldata->rated_motor_rev) / hal_get_real(haldata->max_freq)) * 50.0;
             hc_data->function = FUNCTION_WRITE;
             hc_data->data = (uint16_t)rpm_at_50hz;
             if ((retval = hy_comm(hc_param, hc_data)) != 0) {
@@ -523,7 +471,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
         rpm_at_50hz = hc_data->ret_data;
-        *(haldata->rated_motor_rev) = (rpm_at_50hz / 50.0) * *haldata->max_freq;
+        hal_set_real(haldata->rated_motor_rev, (rpm_at_50hz / 50.0) * hal_get_real(haldata->max_freq));
 
 	// Handle explicitly set registers
 	for (int i = 0;hc_param->extra_reg[i] != 0; i++){
@@ -547,15 +495,15 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         fflush(NULL);
 
 	retval = 0;
-	*(haldata->retval) = retval;
+	hal_set_ui32(haldata->retval, retval);
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("read_setup: FAILED\n");
 	}
-	*(haldata->retval) = retval;
-	(*(haldata->errorcount))++;
+	hal_set_ui32(haldata->retval, retval);
+	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 
 	retval = -1;
 	return retval;	
@@ -574,7 +522,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_SetF;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Set_F) = hc_data->ret_data * 0.01;
+	hal_set_real(haldata->Set_F, hc_data->ret_data * 0.01);
 	if (hc_param->debug) {
 		printf("Set_F = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -583,33 +531,33 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_OutF;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Out_F) = hc_data->ret_data * 0.01;
+	hal_set_real(haldata->Out_F, hc_data->ret_data * 0.01);
 	if (hc_param->debug) {
 		printf("Out_F = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
 
         if (
-            *haldata->spindle_on
-            && (fabs(*haldata->speed_command) > 0.0)
-            && (*haldata->Set_F > 0.0)
+            hal_get_bool(haldata->spindle_on)
+            && (fabs(hal_get_real(haldata->speed_command)) > 0.0)
+            && (hal_get_real(haldata->Set_F) > 0.0)
         ) {
-            *haldata->spindle_speed_fb = (*haldata->Out_F / *haldata->max_freq) * *haldata->rated_motor_rev;
-            *haldata->spindle_speed_fb_rps = *haldata->spindle_speed_fb / 60.0;
-            if (fabs(1 - (*haldata->spindle_speed_fb / fabs(*haldata->speed_command))) < *haldata->spindle_at_speed_tolerance) {
-                *haldata->spindle_at_speed = 1;
+            hal_set_real(haldata->spindle_speed_fb, (hal_get_real(haldata->Out_F) / hal_get_real(haldata->max_freq)) * hal_get_real(haldata->rated_motor_rev));
+            hal_set_real(haldata->spindle_speed_fb_rps, hal_get_real(haldata->spindle_speed_fb) / 60.0);
+            if (fabs(1 - (hal_get_real(haldata->spindle_speed_fb) / fabs(hal_get_real(haldata->speed_command)))) < hal_get_real(haldata->spindle_at_speed_tolerance)) {
+                hal_set_bool(haldata->spindle_at_speed, 1);
             } else {
-                *haldata->spindle_at_speed = 0;
+                hal_set_bool(haldata->spindle_at_speed, 0);
             }
         } else {
-            *haldata->spindle_speed_fb = 0.0;
-            *haldata->spindle_at_speed = 0;
+            hal_set_real(haldata->spindle_speed_fb, 0.0);
+            hal_set_bool(haldata->spindle_at_speed, 0);
         }
 
 	hc_data->data = STATUS_OutA;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Out_A) = hc_data->ret_data * 0.1;
+	hal_set_real(haldata->Out_A, hc_data->ret_data * 0.1);
 	if (hc_param->debug) {
 		printf("Out_A = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -618,7 +566,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_RoTT;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->RoTT) = hc_data->ret_data;
+	hal_set_real(haldata->RoTT, hc_data->ret_data);
 	if (hc_param->debug) {
 		printf("RoTT = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -627,7 +575,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_DCV;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->DCV) = hc_data->ret_data;
+	hal_set_real(haldata->DCV, hc_data->ret_data);
 	if (hc_param->debug) {
 		printf("DCV = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -636,7 +584,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_ACV;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->ACV) = hc_data->ret_data;
+	hal_set_real(haldata->ACV, hc_data->ret_data);
 	if (hc_param->debug) {
 		printf("ACV = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -645,7 +593,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_Cont;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Cont) = hc_data->ret_data;
+	hal_set_real(haldata->Cont, hc_data->ret_data);
 	if (hc_param->debug) {
 		printf("Cont = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -654,7 +602,7 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	hc_data->data = STATUS_Tmp;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
 		goto failed;		
-	*(haldata->Tmp) = hc_data->ret_data;
+	hal_set_real(haldata->Tmp, hc_data->ret_data);
 	if (hc_param->debug) {
 		printf("Tmp = [%.2X]", hc_data->ret_data);
 		printf("\n");
@@ -662,15 +610,15 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	
 
 	retval = 0;
-	*(haldata->retval) = retval;
+	hal_set_ui32(haldata->retval, retval);
 	return retval;
 
 	failed:
 	if (hc_param->debug) {
 		printf("read_data: FAILED\n");
 	}
-	*(haldata->retval) = retval;
-	(*(haldata->errorcount))++;
+	hal_set_ui32(haldata->retval, retval);
+	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 
 	retval = -1;
 	return retval;
@@ -697,7 +645,7 @@ int main(int argc, char **argv)
 	float motor_v = 0;
 	float motor_i = 0;
 	float motor_speed = 0;
-	hal_u32_t motor_poles = 0;
+	rtapi_u32 motor_poles = 0;
 
 	done = 0;
 
@@ -902,150 +850,106 @@ int main(int argc, char **argv)
 		goto out_close;
 	} 
 
-	retval = hal_pin_bit_newf(HAL_IN, &(haldata->enable), hal_comp_id, "%s.enable", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->enable), 0, "%s.enable", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Set_F), hal_comp_id, "%s.SetF", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->Set_F), 0.0, "%s.SetF", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Out_F), hal_comp_id, "%s.OutF", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->Out_F), 0.0, "%s.OutF", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Out_A), hal_comp_id, "%s.OutA", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->Out_A), 0.0, "%s.OutA", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->RoTT), hal_comp_id, "%s.Rott", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->RoTT), 0.0, "%s.Rott", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->DCV), hal_comp_id, "%s.DCV", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->DCV), 0.0, "%s.DCV", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->ACV), hal_comp_id, "%s.ACV", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->ACV), 0.0, "%s.ACV", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Cont), hal_comp_id, "%s.Cont", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->Cont), 0.0, "%s.Cont", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Tmp), hal_comp_id, "%s.Tmp", modname);
-	if (retval!=0) goto out_closeHAL;
-	
-	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_forward), hal_comp_id, "%s.spindle-forward", modname);
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_reverse), hal_comp_id, "%s.spindle-reverse", modname);
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->CNTR), hal_comp_id, "%s.CNTR", modname);
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->CNST), hal_comp_id, "%s.CNST", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->Tmp), 0.0, "%s.Tmp", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Run), hal_comp_id, "%s.CNST-run", modname); 
+	retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->spindle_forward), 0, "%s.spindle-forward", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Jog), hal_comp_id, "%s.CNST-jog", modname); 
+	retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->spindle_reverse), 0, "%s.spindle-reverse", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Command_rf), hal_comp_id, "%s.CNST-command-rf", modname); 
+	retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->spindle_on), 0, "%s.spindle-on", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Running), hal_comp_id, "%s.CNST-running", modname); 
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->CNTR), 0.0, "%s.CNTR", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Jogging), hal_comp_id, "%s.CNST-jogging", modname); 
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Running_rf), hal_comp_id, "%s.CNST-running-rf", modname); 
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Bracking), hal_comp_id, "%s.CNST-bracking", modname); 
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Track_Start), hal_comp_id, "%s.CNST-track-start", modname); 
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->CNST), 0.0, "%s.CNST", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_float_newf(HAL_IN, &(haldata->speed_command), hal_comp_id, "%s.speed-command", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Run), 0, "%s.CNST-run", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_cmd), hal_comp_id, "%s.frequency-command", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Jog), 0, "%s.CNST-jog", modname);
 	if (retval!=0) goto out_closeHAL;
-	
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->max_freq), hal_comp_id, "%s.max-freq", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Command_rf), 0, "%s.CNST-command-rf", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->base_freq), hal_comp_id, "%s.base-freq", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Running), 0, "%s.CNST-running", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_lower_limit), hal_comp_id, "%s.freq-lower-limit", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Jogging), 0, "%s.CNST-jogging", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_voltage), hal_comp_id, "%s.rated-motor-voltage", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Running_rf), 0, "%s.CNST-running-rf", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_current), hal_comp_id, "%s.rated-motor-current", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Bracking), 0, "%s.CNST-bracking", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
-	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->motor_poles), hal_comp_id, "%s.motor-poles", modname);
-	if (retval!=0) goto out_closeHAL;
-
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->CNST_Track_Start), 0, "%s.CNST-track-start", modname);
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_s32_newf(HAL_OUT, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_IN, &(haldata->speed_command), 0.0, "%s.speed-command", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->freq_cmd), 0.0, "%s.frequency-command", modname);
+	if (retval!=0) goto out_closeHAL;
+	
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->max_freq), max_freq, "%s.max-freq", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->base_freq), base_freq, "%s.base-freq", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->freq_lower_limit), min_freq, "%s.freq-lower-limit", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->rated_motor_voltage), motor_v, "%s.rated-motor-voltage", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->rated_motor_current), motor_i, "%s.rated-motor-current", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->rated_motor_rev), motor_speed, "%s.rated-motor-rev", modname);
+	if (retval!=0) goto out_closeHAL;
+	retval = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &(haldata->motor_poles), motor_poles, "%s.motor-poles", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->retval), hal_comp_id, "%s.retval", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->hycomm_ok), 0, "%s.hycomm-ok", modname);
+	if (retval!=0) goto out_closeHAL;
+	
+	retval = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(haldata->errorcount), 0, "%s.error-count", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->spindle_speed_fb), hal_comp_id, "%s.spindle-speed-fb", modname);
+	retval = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &(haldata->retval), 0, "%s.retval", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->spindle_at_speed), hal_comp_id, "%s.spindle-at-speed", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->spindle_speed_fb), 0.0, "%s.spindle-speed-fb", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_float_newf(HAL_IN, &(haldata->spindle_at_speed_tolerance), hal_comp_id, "%s.spindle-at-speed-tolerance", modname);
+	retval = hal_pin_new_bool(hal_comp_id, HAL_OUT, &(haldata->spindle_at_speed), 0, "%s.spindle-at-speed", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_float_newf(HAL_OUT, &(haldata->spindle_speed_fb_rps), hal_comp_id, "%s.spindle-speed-fb-rps", modname);
+	retval = hal_pin_new_real(hal_comp_id, HAL_IN, &(haldata->spindle_at_speed_tolerance), 0.02, "%s.spindle-at-speed-tolerance", modname);
+	if (retval!=0) goto out_closeHAL;
+
+	retval = hal_pin_new_real(hal_comp_id, HAL_OUT, &(haldata->spindle_speed_fb_rps), 0.0, "%s.spindle-speed-fb-rps", modname);
 	if (retval!=0) goto out_closeHAL;
 
 
 	/* make default data match what we expect to use */
 
-	*(haldata->enable) = 0;
-	
-	*(haldata->Set_F) = 0;
-	*(haldata->Out_F) = 0;
-	*(haldata->Out_A) = 0;
-	*(haldata->RoTT) = 0;
-	*(haldata->DCV) = 0;
-	*(haldata->ACV) = 0;
-	*(haldata->Cont) = 0;
-	*(haldata->Tmp) = 0;
-	
-	*(haldata->spindle_forward) = 0;
-	*(haldata->spindle_reverse) = 0;
-	*(haldata->spindle_on) = 0;
-	*(haldata->freq_cmd) = 0;
-	*(haldata->CNTR) = 0;
-	*(haldata->CNST) = 0;
-	
-	*(haldata->max_freq) = max_freq;
-	*(haldata->base_freq) = base_freq;
-	*(haldata->freq_lower_limit) = min_freq;
-	*(haldata->rated_motor_voltage) = motor_v;
-	*(haldata->rated_motor_current) = motor_i;
-	*(haldata->rated_motor_rev) = motor_speed;
-	*(haldata->motor_poles) = motor_poles;
-
-	*(haldata->hycomm_ok) = 0;
-
-	*haldata->spindle_speed_fb = 0.0;
-	*haldata->spindle_at_speed = 0;
-	*haldata->spindle_at_speed_tolerance = 0.02;
-
 	hc_data.slave = slave;
-	*(haldata->errorcount) = 0;
 	haldata->looptime = 0.1;
-
-	
-	//haldata->motor_nameplate_hz = 50;	// folks in The Colonies typically would use 60Hz and 1730 rpm
-	//haldata->motor_nameplate_RPM = 1410;
-	//haldata->rpm_limit = MAX_RPM;
-	//haldata->acc_dec_pattern = 0;
-
-	//haldata->old_run = -1;		// make sure the initial value gets output
-	//haldata->old_dir = -1;
-	//haldata->old_err_reset = -1;
-	//haldata->failed_reg = 0;
 
 	hal_ready(hal_comp_id);
 	hc_data.slave = slave;
 	
 	// wait until EMC and AXIS is ready, ie enable bit is set
-	while (!*(haldata->enable)){
+	while (!hal_get_bool(haldata->enable)){
 		// do nothing until enabled
                 usleep(10*1000);
                 if (done) {
@@ -1074,7 +978,7 @@ int main(int argc, char **argv)
 	// here's the meat of the program.  loop until done (which may be never)
 	while (done==0) {
 		
-		if (*(haldata->enable)) {	
+		if (hal_get_bool(haldata->enable)) {
 			// Read inputs
 			if (read_data(&hc_param, &hc_data, haldata) < 0) {
 				hycomm_ok = 0;
@@ -1090,14 +994,7 @@ int main(int argc, char **argv)
 			}
 		}
 		
-
-		
-		if (hycomm_ok > HYCOMM_MIN_OK) {
-			*(haldata->hycomm_ok) = 1;
-		} else {
-			*(haldata->hycomm_ok) = 0;
-		}
-
+		hal_set_bool(haldata->hycomm_ok, hycomm_ok > HYCOMM_MIN_OK);
 	    
 		// don't want to scan too fast, and shouldn't delay more than a few seconds
 		if (haldata->looptime < 0.001) haldata->looptime = 0.001;

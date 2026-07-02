@@ -247,17 +247,13 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 			if ((this->port[portnum].mask & mask)==0)//physical input?
 			{
 			// Pins.
-			if((halError = hal_pin_bit_newf(HAL_OUT, &(this->port[portnum].io[channel].pValue),
-			  comp_id, "opto-ac5.%d.port%d.in-%02d", boardId, portnum, channel)) != 0)
+			if((halError = hal_pin_new_bool(comp_id, HAL_OUT, &(this->port[portnum].io[channel].pValue),
+			  0, "opto-ac5.%d.port%d.in-%02d", boardId, portnum, channel)) != 0)
 			    break;
 
-			if((halError = hal_pin_bit_newf(HAL_OUT, &(this->port[portnum].io[channel].pValueNot),
-			  comp_id, "opto-ac5.%d.port%d.in-%02d-not", boardId, portnum, channel)) != 0)
+			if((halError = hal_pin_new_bool(comp_id, HAL_OUT, &(this->port[portnum].io[channel].pValueNot),
+			  1, "opto-ac5.%d.port%d.in-%02d-not", boardId, portnum, channel)) != 0)
 			    break;
-
-			// Init pin.
-			*(this->port[portnum].io[channel].pValue) = 0;
-			*(this->port[portnum].io[channel].pValueNot) = 1;
 			}
 			mask <<=1;
 		   }
@@ -299,18 +295,14 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 			if ((this->port[portnum].mask & mask)!=0)//phyical output?
 			{
 			// Pins.
-			if((halError = hal_pin_bit_newf(HAL_IN, &(this->port[portnum].io[channel].pValue),
-			  comp_id, "opto-ac5.%d.port%d.out-%02d", boardId, portnum, channel)) != 0)
+			if((halError = hal_pin_new_bool(comp_id, HAL_IN, &(this->port[portnum].io[channel].pValue),
+			  0, "opto-ac5.%d.port%d.out-%02d", boardId, portnum, channel)) != 0)
 			    break;
 
 			// Parameters.
-			if((halError = hal_param_bit_newf(HAL_RW, &(this->port[portnum].io[channel].invert),
-			  comp_id, "opto-ac5.%d.port%d.out-%02d-invert", boardId, portnum, channel)) != 0)
+			if((halError = hal_param_new_bool(comp_id, HAL_RW, &(this->port[portnum].io[channel].invert),
+			  0, "opto-ac5.%d.port%d.out-%02d-invert", boardId, portnum, channel)) != 0)
 			    break;
-
-			// Init pin.
-			*(this->port[portnum].io[channel].pValue) = 0;
-			this->port[portnum].io[channel].invert = 0;
 		   	}
 			mask <<=1;
 		   }
@@ -320,12 +312,12 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 		portnum=0;
 		for(channel = 0; channel < 2; channel++)
 		{
-			if((halError = hal_pin_bit_newf(HAL_IN, &(this->port[portnum].io[24].pValue),
-			  comp_id, "opto-ac5.%d.led%d", boardId, channel+portnum)) != 0)
+			if((halError = hal_pin_new_bool(comp_id, HAL_IN, &(this->port[portnum].io[24].pValue),
+			  0, "opto-ac5.%d.led%d", boardId, channel+portnum)) != 0)
 			    break;
 
-			if((halError = hal_pin_bit_newf(HAL_IN, &(this->port[portnum].io[25].pValue),
-			  comp_id, "opto-ac5.%d.led%d", boardId, channel+portnum+1)) != 0)
+			if((halError = hal_pin_new_bool(comp_id, HAL_IN, &(this->port[portnum].io[25].pValue),
+			  0, "opto-ac5.%d.led%d", boardId, channel+portnum+1)) != 0)
 			    break;
 			portnum++;
 		}
@@ -370,10 +362,10 @@ Device_DigitalInRead(void *arg, long period)
 			{
 				if ((pboard->port[portnum].mask & mask) ==0) // is it an input bit ?
 				{
-				    if ((pins & mask) !=0){	*(pDigital->pValue) =0;
-					}else{	*(pDigital->pValue) = 1;	}
+				    if ((pins & mask) !=0){	hal_set_bool(pDigital->pValue, 0);
+					}else{	hal_set_bool(pDigital->pValue, 1);	}
 					// Update not pin.
-				    *(pDigital->pValueNot) = !*(pDigital->pValue);
+				    hal_set_bool(pDigital->pValueNot, !hal_get_bool(pDigital->pValue));
 				}
 	  		 	 mask <<=1;// shift mask
 			}
@@ -414,8 +406,8 @@ Device_DigitalOutWrite(void *arg, long period)
 				if ((pboard->port[portnum].mask & mask) !=0) //is it an output?
 				{
 			 	   // add mask to pins if HAL pin + invert =true.
-				    if( (!*(pDigital->pValue) && !(pDigital->invert) ) ||
-				       ( *(pDigital->pValue) &&  (pDigital->invert) ))
+				    if( (!hal_get_bool(pDigital->pValue) && !hal_get_bool(pDigital->invert) ) ||
+				       ( hal_get_bool(pDigital->pValue) &&  hal_get_bool(pDigital->invert) ))
 					 {	pins |= mask;	    }
 				}
 	   			mask <<=1; // shift mask
@@ -429,7 +421,7 @@ Device_DigitalOutWrite(void *arg, long period)
 				mask = (unsigned int) 1 << (31-i);
 				pDigital++;
 				
-				if ( *(pDigital->pValue) == 0 ) {	pins |= mask;	    }	
+				if ( hal_get_bool(pDigital->pValue) == 0 ) {	pins |= mask;	    }
 			}
 			// Write digital I/O register.
 			writel(pins,pboard->base + (offset));

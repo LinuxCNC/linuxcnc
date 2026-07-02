@@ -64,7 +64,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // allocate the module-global HAL shared memory
-    hm2->led.instance = (hm2_led_instance_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_instance_t));
+    hm2->led.instance = hal_malloc(hm2->config.num_leds * sizeof(*hm2->led.instance));
     if (hm2->led.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -84,13 +84,11 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     // export to HAL
     {
-        int i;
-        char name[HAL_NAME_LEN+1];
-        for (i = 0 ; i < hm2->config.num_leds ; i++) {
-            rtapi_snprintf(name, sizeof(name), "%s.led.CR%02d", hm2->llio->name, i + 1 );
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->led.instance[i].led), hm2->llio->comp_id);
+        for (int i = 0 ; i < hm2->config.num_leds ; i++) {
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->led.instance[i].led),
+                                 0, "%s.led.CR%02d", hm2->llio->name, i + 1);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.led.CR%02d', aborting\n", r, hm2->llio->name, i + 1);
                 goto fail1;
             }
         }
@@ -111,7 +109,7 @@ void hm2_led_write(hostmot2_t *hm2) {
     int i;
 
     for (i = 0 ; i < hm2->config.num_leds; i++ ) {
-        if (*hm2->led.instance[i].led) {
+        if (hal_get_bool(hm2->led.instance[i].led)) {
             regval |= 1 << (31 - i);
         }
     }

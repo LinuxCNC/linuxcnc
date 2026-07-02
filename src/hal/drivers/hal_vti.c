@@ -174,28 +174,29 @@ RTAPI_MP_STRING(dio, "dio config string - expects something like IOiooi");
 ************************************************************************/
 
 typedef struct {
-    hal_bit_t *data;		/* basic pin for input or output */
+    hal_bool_t data;		/* basic pin for input or output */
     union {
-	hal_bit_t *not;		/* pin for inverted data (input only) */
-	hal_bit_t invert;	/* param for inversion (output only) */
+	hal_bool_t not;		/* pin for inverted data (input only) */
+	hal_bool_t invert;	/* param for inversion (output only) */
     } io;
 } io_pin;
 
 typedef struct {
 /* counter data */
-    hal_s32_t *count[MAX_CHANS];	/* captured binary count value */
-    hal_float_t *pos[MAX_CHANS];	/* scaled position (floating point) */
-    hal_float_t pos_scale[MAX_CHANS];	/* parameter: scaling factor for pos */
+    hal_sint_t count[MAX_CHANS];	/* captured binary count value */
+    hal_real_t pos[MAX_CHANS];	/* scaled position (floating point) */
+    hal_real_t pos_scale[MAX_CHANS];	/* parameter: scaling factor for pos */
 
 /* dac data */
-    hal_float_t *dac_value[MAX_CHANS];	/* value to be written to dac */
-    hal_float_t dac_offset[MAX_CHANS];	/* offset value for DAC */
-    hal_float_t dac_gain[MAX_CHANS];	/* gain to be applied */
+    hal_real_t dac_value[MAX_CHANS];	/* value to be written to dac */
+    hal_real_t dac_offset[MAX_CHANS];	/* offset value for DAC */
+    hal_real_t dac_gain[MAX_CHANS];	/* gain to be applied */
 
 /* adc data */
-    hal_float_t *adc_value[MAX_CHANS];	/* value to be read from adc */
-    hal_float_t adc_offset[MAX_CHANS];	/* offset value for ADC */
-    hal_float_t adc_gain[MAX_CHANS];	/* gain to be applied */
+    // These adc thingies are apparently unused...
+    hal_real_t adc_value[MAX_CHANS];	/* value to be read from adc */
+    hal_real_t adc_offset[MAX_CHANS];	/* offset value for ADC */
+    hal_real_t adc_gain[MAX_CHANS];	/* gain to be applied */
     int adc_current_chan;	/* holds the currently converting channel */
 
 /* dio data */
@@ -219,7 +220,7 @@ volatile struct ip *ip = NULL;
 static int comp_id;		/* component ID */
 static int outpinnum = 0, inputpinnum = 0;
 static int diocount = 0;
-static hal_s32_t enc_counts[MAX_CHANS];
+static rtapi_s32 enc_counts[MAX_CHANS];
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -456,15 +457,15 @@ static void vti_counter_capture(void *arg, long period)
     vti = arg;
     for (i = 0; i < num_chan; i++) {
 	/* capture raw counts to latches */
-	*(vti->count[i]) = vti_counter_read(i);
+	hal_set_si32(vti->count[i], vti_counter_read(i));
 	/* scale count to make floating point position */
-	if (vti->pos_scale[i] < 0.0) {
-	  if (vti->pos_scale[i] > -EPSILON)
-	    vti->pos_scale[i] = -1.0;}
+	if (hal_get_real(vti->pos_scale[i]) < 0.0) {
+	  if (hal_get_real(vti->pos_scale[i]) > -EPSILON)
+	    hal_set_real(vti->pos_scale[i], -1.0);}
 	else {
-	  if (vti->pos_scale[i] < EPSILON)
-	    vti->pos_scale[i] = 1.0; }
-	*(vti->pos[i]) = *(vti->count[i]) / vti->pos_scale[i];
+	  if (hal_get_real(vti->pos_scale[i]) < EPSILON)
+	    hal_set_real(vti->pos_scale[i], 1.0); }
+	hal_set_real(vti->pos[i], hal_get_si32(vti->count[i]) / hal_get_real(vti->pos_scale[i]));
     }
     /* done */
 }
@@ -481,7 +482,7 @@ static void vti_dacs_write(void *arg, long period)
     for (i = 0; i < num_chan; i++) {
 	/* scale the voltage to be written based on offset and gain */
 	volts =
-	    (*(vti->dac_value[i]) - vti->dac_offset[i]) * vti->dac_gain[i];
+	    (hal_get_real(vti->dac_value[i]) - hal_get_real(vti->dac_offset[i])) * hal_get_real(vti->dac_gain[i]);
 	/* compute the value for the DAC, the extra - in there is vti specific */
         ncounts = ((volts / 10) * 0x7fff) + 0x8000;
 	
@@ -510,12 +511,12 @@ static void split_input(unsigned char data, io_pin * dest, int num)
     for (b = 0; b < num; b++) {
 	if (data & mask) {
 	    /* input high, which means FALSE (active low) */
-	    *(dest->data) = 0;
-	    *(dest->io.not) = 1;
+	    hal_set_bool(dest->data, 0);
+	    hal_set_bool(dest->io.not, 1);
 	} else {
 	    /* input low, which means TRUE */
-	    *(dest->data) = 1;
-	    *(dest->io.not) = 0;
+	    hal_set_bool(dest->data, 1);
+	    hal_set_bool(dest->io.not, 0);
 	}
 	mask <<= 1;
 	dest++;
@@ -534,12 +535,12 @@ unsigned char build_output(io_pin * src, int num)
     /* assemble output byte for data port from 'num' source variables */
     for (b = 0; b < num; b++) {
 	/* get the data, add to output byte */
-	if (*(src->data)) {
-	    if (!(src->io.invert)) {
+	if (hal_get_bool(src->data)) {
+	    if (!hal_get_bool(src->io.invert)) {
 		data |= mask;
 	    }
 	} else {
-	    if ((src->io.invert)) {
+	    if (hal_get_bool(src->io.invert)) {
 		data |= mask;
 	    }
 	}
@@ -622,9 +623,9 @@ static int vti_counter_init(int counters)
 	    return -1;
 	}
 	/* init counter */
-	*(vti_driver->count[i]) = 0;
-	*(vti_driver->pos[i]) = 0.0;
-	vti_driver->pos_scale[i] = 1.0;
+	hal_set_si32(vti_driver->count[i], 0);
+	hal_set_real(vti_driver->pos[i], 0.0);
+	hal_set_real(vti_driver->pos_scale[i], 1.0);
     }
     return 0;
 }
@@ -648,9 +649,9 @@ static int vti_dac_init(int channels)
 	    return -1;
 	}
 	/* init counter */
-	*(vti_driver->dac_value[i]) = 0;
-	vti_driver->dac_offset[i] = 0.0;
-	vti_driver->dac_gain[i] = 1.0;
+	hal_set_real(vti_driver->dac_value[i], 0);
+	hal_set_real(vti_driver->dac_offset[i], 0.0);
+	hal_set_real(vti_driver->dac_gain[i], 1.0);
 	vti_dac_write(i, DAC_ZERO_VOLTS);
     }
     return 0;
@@ -848,20 +849,20 @@ static int export_counter(int num, vti_struct * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export pin for counts captured by update() */
-    retval = hal_pin_s32_newf(HAL_OUT, &addr->count[num],
-			      comp_id, "vti.%d.counts", num);
+    retval = hal_pin_new_si32(comp_id, HAL_OUT, &addr->count[num],
+			      0, "vti.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    retval = hal_pin_float_newf(HAL_OUT, &addr->pos[num],
-				comp_id, "vti.%d.position", num);
+    retval = hal_pin_new_real(comp_id, HAL_OUT, &addr->pos[num],
+				0.0, "vti.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &addr->pos_scale[num],
-				  comp_id, "vti.%d.position-scale", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->pos_scale[num],
+				  1.0, "vti.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }
@@ -880,20 +881,20 @@ static int export_dac(int num, vti_struct * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export pin for voltage received by the board() */
-    retval = hal_pin_float_newf(HAL_IN, &addr->dac_value[num],
-				comp_id, "vti.%d.dac-value", num);
+    retval = hal_pin_new_real(comp_id, HAL_IN, &addr->dac_value[num],
+				0.0, "vti.%d.dac-value", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
-    retval = hal_param_float_newf(HAL_RW, &addr->dac_offset[num],
-				  comp_id, "vti.%d.dac-offset", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->dac_offset[num],
+				  0.0, "vti.%d.dac-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    retval = hal_param_float_newf(HAL_RW, &addr->dac_gain[num],
-				  comp_id, "vti.%d.dac-gain", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->dac_gain[num],
+				  1.0, "vti.%d.dac-gain", num);
     if (retval != 0) {
 	return retval;
     }
@@ -943,31 +944,25 @@ static int export_input_pin(int pinnum, io_pin * pin)
 {
     int retval;
     /* export read only HAL pin for input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data),
-			      comp_id, "vti.in-%02d", pinnum);
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(pin->data),
+			      0, "vti.in-%02d", pinnum);
     if (retval != 0)
 	return retval;
     /* export additional pin for inverted input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not),
-			      comp_id, "vti.in-%02d-not", pinnum);
-    /* initialize HAL pins */
-    *(pin->data) = 0;
-    *(pin->io.not) = 1;
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(pin->io.not),
+			      1, "vti.in-%02d-not", pinnum);
     return retval;
 }
 static int export_output_pin(int pinnum, io_pin * pin)
 {
     int retval;
     /* export read only HAL pin for output data */
-    retval = hal_pin_bit_newf(HAL_IN, &(pin->data),
-			      comp_id, "vti.out-%02d", pinnum);
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(pin->data),
+			      0, "vti.out-%02d", pinnum);
     if (retval != 0)
 	return retval;
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert),
-				comp_id, "vti.out-%02d-invert", pinnum);
-    /* initialize HAL pin and param */
-    *(pin->data) = 0;
-    pin->io.invert = 0;
+    retval = hal_param_new_bool(comp_id, HAL_RW, &(pin->io.invert),
+				0, "vti.out-%02d-invert", pinnum);
     return retval;
 }

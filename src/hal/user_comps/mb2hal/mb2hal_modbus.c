@@ -30,8 +30,8 @@ retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
     }
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
-        *(this_mb_tx->bit[counter]) = bits[counter];
-        *(this_mb_tx->bit_inv[counter]) = !bits[counter];
+        hal_set_bool(this_mb_tx->bit[counter], bits[counter]);
+        hal_set_bool(this_mb_tx->bit_inv[counter], !bits[counter]);
     }
 
     return retOK;
@@ -66,9 +66,9 @@ retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
     }
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
-        *(this_mb_tx->bit[counter]) = bits[counter];
+        hal_set_bool(this_mb_tx->bit[counter], bits[counter]);
         if (gbl.version > 1000)
-            *(this_mb_tx->bit_inv[counter]) = !bits[counter];
+            hal_set_bool(this_mb_tx->bit_inv[counter], !bits[counter]);
     }
 
     return retOK;
@@ -106,8 +106,8 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
         float val = data[counter];
         //val *= this_mb_tx->scale[counter];
         //val += this_mb_tx->offset[counter];
-        *(this_mb_tx->float_value[counter]) = val;
-        *(this_mb_tx->int_value[counter]) = data[counter];
+        hal_set_real(this_mb_tx->float_value[counter], val);
+        hal_set_si32(this_mb_tx->int_value[counter], data[counter]);
     }
 
     return retOK;
@@ -145,8 +145,8 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         float val = data[counter];
         //val += this_mb_tx->offset[counter];
         //val *= this_mb_tx->scale[counter];
-        *(this_mb_tx->float_value[counter]) = val;
-        *(this_mb_tx->int_value[counter]) = data[counter];
+        hal_set_real(this_mb_tx->float_value[counter], val);
+        hal_set_si32(this_mb_tx->int_value[counter], data[counter]);
     }
 
     return retOK;
@@ -164,7 +164,7 @@ retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
         return retERR;
     }
 
-    bit = *(this_mb_tx->bit[0]);
+    bit = hal_get_bool(this_mb_tx->bit[0]);
 
     DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
@@ -196,9 +196,9 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
         return retERR;
     }
 
-    data = *(this_mb_tx->float_value[0]);
+    data = hal_get_real(this_mb_tx->float_value[0]);
     if (gbl.version > 1000)
-        data += *(this_mb_tx->int_value[0]);
+        data += hal_get_si32(this_mb_tx->int_value[0]);
     if(data > UINT16_MAX) { // prevent wrap on overflow
         data = UINT16_MAX;
     }
@@ -235,7 +235,7 @@ retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
     }
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
-        bits[counter] = *(this_mb_tx->bit[counter]);
+        bits[counter] = hal_get_bool(this_mb_tx->bit[counter]);
     }
 
     DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
@@ -272,9 +272,9 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         //float val = *(this_mb_tx->float_value[counter]) / this_mb_tx->scale[counter];
         //val -= this_mb_tx->offset[counter];
-        int data32 = (uint16_t) *(this_mb_tx->float_value[counter]);
+        int data32 = (uint16_t) hal_get_real(this_mb_tx->float_value[counter]);
         if (gbl.version > 1000)
-            data32 += *(this_mb_tx->int_value[counter]);
+            data32 += hal_get_si32(this_mb_tx->int_value[counter]);
         if(data32 > UINT16_MAX) { // prevent wrap on overflow
             data[counter] = UINT16_MAX;
         }

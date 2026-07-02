@@ -18,11 +18,11 @@
 *
 ********************************************************************/
 component ton "IEC TON timer - delay rising edge on a signal";
-pin in bit in "Input signal";
-pin out bit q "Output signal";
-pin out float et "Elapsed time since rising edge in seconds";
+pin in bool in "Input signal";
+pin out bool q "Output signal";
+pin out real et "Elapsed time since rising edge in seconds";
 
-param rw float pt "Delay time in seconds";
+param rw real pt "Delay time in seconds";
 
 function _ "Update the timer";
 license "GPL";
@@ -30,12 +30,12 @@ author "Chad Woitas";
 ;;
 FUNCTION(_) {
         if(pt < 0) {
-            pt = 0;
+            pt_set(0);
             rtapi_print_msg(RTAPI_MSG_WARN,
                             "ton: Delay time must be positive, resetting to 0");
         }
         if(et < 0) {
-            et = 0;
+            et_set(0);
             rtapi_print_msg(RTAPI_MSG_WARN,
                             "ton: Elapsed time rolled over, resetting to 0");
         }
@@ -44,15 +44,15 @@ FUNCTION(_) {
         if(in){
             // Update outputs
             if(et >= pt){
-                q = 1;
+                q_set(1);
             }
             else{
-                et += fperiod;
+                et_set(et + fperiod);
             }
         }
         else{
             // Reset Variables
-            et = 0;
-            q = 0;
+            et_set(0);
+            q_set(0);
         }
 }

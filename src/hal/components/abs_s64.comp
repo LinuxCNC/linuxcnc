@@ -17,11 +17,11 @@
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 component abs_s64 "Computes the absolute value and sign of a 64 bit integer input signal";
 
-pin in s64 in "input value" ;
-pin out s64 out "output value, always non-negative";
-pin out bit sign "Sign of input, false for positive, true for negative" ;
-pin out bit is_positive "true if input is positive, false if input is 0 or negative";
-pin out bit is_negative "true if input is negative, false if input is 0 or positive";
+pin in sint in "input value" ;
+pin out sint out "output value, always non-negative";
+pin out bool sign "Sign of input, false for positive, true for negative" ;
+pin out bool is_positive_ "true if input is positive, false if input is 0 or negative";
+pin out bool is_negative_ "true if input is negative, false if input is 0 or positive";
 
 option period no;
 function _;
@@ -30,21 +30,15 @@ author "ArcEye based on code from Sebastian Kuzminsky";
 ;;
 FUNCTION(_)
 {
-    if ( in >= 0 ) {
-        sign = false;
-        out = in;
+    rtapi_sint i = in;
+    if ( i >= 0 ) {
+        sign_set(false);
+        out_set(i);
     } else {
-        sign = true;
-        out = -in;
+        sign_set(true);
+        out_set(-i);
     }
 
-    if (in > 0)
-        is_positive = true;
-    else
-        is_positive = false;
-
-    if (in < 0)
-        is_negative = true;
-    else
-        is_negative = false;
+    is_positive__set(i > 0);
+    is_negative__set(i < 0);
 }

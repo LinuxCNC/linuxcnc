@@ -1,20 +1,20 @@
 component scaled_s32_sums "Sum of four inputs (each with a scale)";
 see_also "sum2(9), weighted_sum(9)";
-pin in s32 in0;
-pin in s32 in1;
-pin in s32 in2;
-pin in s32 in3;
-pin in float scale0 = 1.0;
-pin in float scale1 = 1.0;
-pin in float scale2 = 1.0;
-pin in float scale3 = 1.0;
-pin out s32 out_s;
-pin out float out_f "out-s = out-f = (in0 * scale0) + (in1 * scale1) + (in2 * scale2) + (in3 * scale3)";
+pin in si32 in0;
+pin in si32 in1;
+pin in si32 in2;
+pin in si32 in3;
+pin in real scale0 = 1.0;
+pin in real scale1 = 1.0;
+pin in real scale2 = 1.0;
+pin in real scale3 = 1.0;
+pin out si32 out_s;
+pin out real out_f "out-s = out-f = (in0 * scale0) + (in1 * scale1) + (in2 * scale2) + (in3 * scale3)";
 option period no;
 function _;
 license "GPL";
 author "Chris S Morley";
 ;;
 FUNCTION(_) {
-    out_s = out_f = in0 * scale0 + in1 * scale1 + in2 * scale2 + in3 * scale3;
+    out_s_set(out_f_set(in0 * scale0 + in1 * scale1 + in2 * scale2 + in3 * scale3));
 }

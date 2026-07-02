@@ -59,7 +59,6 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
 #include <rtapi_mutex.h>
 
 #include <gtk/gtk.h>
@@ -79,9 +78,12 @@
 typedef struct {
     int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
     char *pickname;		/* name from list, not validated */
-    hal_pin_t *pin;		/* metadata (if it's a pin) */
-    hal_sig_t *sig;		/* metadata (if it's a signal) */
-    hal_param_t *param;		/* metadata (if it's a parameter) */
+    hal_query_t qpin;
+    hal_query_t qsig;
+    hal_query_t qparam;
+    hal_query_t *pin;
+    hal_query_t *param;
+    hal_query_t *sig;
     GtkWidget *window;		/* selection dialog window */
     GtkWidget *notebook;	/* pointer to the notebook */
     GtkWidget *lists[3];	/* lists for pins, sigs, and params */
@@ -133,7 +135,7 @@ static void popup_probe_window(GtkWidget * widget, gpointer data);
 static void quit(int sig);
 static void exit_from_hal(void);
 static int refresh_value(gpointer data);
-static char *data_value(int type, void *valptr);
+static const char *data_value(hal_type_t type, hal_refs_u ref);
 
 static void create_probe_window(probe_t * probe);
 static void apply_selection(GtkWidget * widget, gpointer data);
@@ -382,16 +384,38 @@ probe_t *probe_new(char *probe_name)
     return new;
 }
 
+// for the callback data
+typedef struct {
+    probe_t *probe;
+    const char *name;
+    int row;
+    int tab;
+    int match_row;
+    int match_tab;
+} rowcolref_t;
+
+static int rowcol_cb(hal_query_t *q, void *arg)
+{
+    rowcolref_t *rcr = (rowcolref_t *)arg;
+    const char *name[2] = {};
+    name[0] = q->name;
+
+    add_to_list(rcr->probe->lists[rcr->tab], name, NUM_COLS);
+    if (!strcmp(q->name, rcr->name)) {
+        rcr->match_tab = rcr->tab;
+        rcr->match_row = rcr->row;
+    }
+    rcr->row++;
+    return 0;
+}
+
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
     (void)widget;
     probe_t *probe;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
 
-    int next, row, match_row, tab, match_tab;
-    char *name[HAL_NAME_LEN + 1];
+//    int next, row, match_row, tab, match_tab;
+//    char *name[HAL_NAME_LEN + 1];
 
 
     /* get a pointer to the probe data structure */
@@ -417,63 +441,33 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     clear_list(probe->lists[1]);
     clear_list(probe->lists[2]);
 
-    halpr_mutex_acquire();
-    next = hal_data->pin_list_ptr;
-    match_tab = 0;
-    match_row = 0;
-    row = 0;
-    tab = 0;
-    while (next != 0) {
-        pin = SHMPTR(next);
-        *name = pin->name;
+    rowcolref_t rcr = {};
+    rcr.probe = probe;
+    hal_query_t q = {};
 
-        add_to_list(probe->lists[tab], name, NUM_COLS);
-        if (probe->pin == pin) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = pin->next_ptr;
-        row++;
-    }
+    q.qtype = HAL_QTYPE_PIN;
+    rcr.name = probe->pin->name;
+    hal_list_p(&q, rowcol_cb, &rcr);
 
-    next = hal_data->sig_list_ptr;
-    row = 0;
-    tab = 1;
-    while (next != 0) {
-        sig = SHMPTR(next);
-        *name = sig->name;
+    memset(&q, 0, sizeof(q));
+    q.qtype = HAL_QTYPE_SIGNAL;
+    rcr.name = probe->sig->name;
+    rcr.tab = 1;
+    rcr.row = 0;
+    hal_list_s(&q, rowcol_cb, &rcr);
 
-        add_to_list(probe->lists[tab], name, NUM_COLS);
-        if (probe->sig == sig) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = sig->next_ptr;
-        row++;
-    }
+    memset(&q, 0, sizeof(q));
+    q.qtype = HAL_QTYPE_PARAM;
+    rcr.name = probe->param->name;
+    rcr.tab = 2;
+    rcr.row = 0;
+    hal_list_p(&q, rowcol_cb, &rcr);
 
-    next = hal_data->param_list_ptr;
-    row = 0;
-    tab = 2;
-    while (next != 0) {
-        param = SHMPTR(next);
-        *name = param->name;
-
-        add_to_list(probe->lists[tab], name, NUM_COLS);
-        if (probe->param == param) {
-            match_tab = tab;
-            match_row = row;
-        }
-        next = param->next_ptr;
-        row++;
-    }
-
-    halpr_mutex_release();
     gtk_widget_show_all(probe->window);
 
     if (probe->pickname != NULL) {
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(probe->notebook), match_tab);
-        mark_selected_row(probe->lists[match_tab], match_row);
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(probe->notebook), rcr.match_tab);
+        mark_selected_row(probe->lists[rcr.match_tab], rcr.match_row);
     }
 }
 
@@ -493,8 +487,7 @@ static int refresh_value(gpointer data)
 {
     meter_t *meter;
     probe_t *probe;
-    char *value_str, *name_str;
-    hal_sig_t *sig;
+    const char *value_str, *name_str;
     static int first = 1;
 
     meter = (meter_t *) data;
@@ -507,48 +500,34 @@ static int refresh_value(gpointer data)
 	}
     }
 
-    halpr_mutex_acquire();
-    if (probe->pin != NULL) {
-	if (probe->pin->name[0] == '\0') {
-	    /* pin has been deleted, can't display it any more */
-	    probe->pin = NULL;
-	    halpr_mutex_release();
-	    return 1;
-	}
-	name_str = probe->pin->name;
-	if (probe->pin->signal == 0) {
-	    /* pin is unlinked, get data from dummysig */
-	    value_str = data_value(probe->pin->type, &(probe->pin->dummysig));
-	} else {
-	    /* pin is linked to a signal */
-	    sig = SHMPTR(probe->pin->signal);
-	    value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
-	}
-    } else if (probe->sig != NULL) {
-	if (probe->sig->name[0] == '\0') {
-	    /* signal has been deleted, can't display it any more */
-	    probe->sig = NULL;
-	    halpr_mutex_release();
-	    return 1;
-	}
-	name_str = probe->sig->name;
-	value_str =
-	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
-    } else if (probe->param != NULL) {
-	if (probe->param->name[0] == '\0') {
-	    /* parameter has been deleted, can't display it any more */
-	    probe->param = NULL;
-	    halpr_mutex_release();
-	    return 1;
-	}
-	name_str = probe->param->name;
-	value_str =
-	    data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
+    if(NULL != probe->pin) {
+        if(0 != hal_getref_p(probe->pin)) {
+            // Pin no longer exists
+            probe->pin = NULL;
+            return 1;
+        }
+        name_str = probe->pin->name;
+        value_str = data_value(probe->pin->pp.type, probe->pin->pp.ref);
+    } else if(NULL != probe->sig) {
+        if(0 != hal_getref_s(probe->sig)) {
+            // Signal no longer exists
+            probe->sig = NULL;
+            return 1;
+        }
+        name_str = probe->sig->name;
+        value_str = data_value(probe->sig->sig.type, probe->sig->sig.ref);
+    } else if(NULL != probe->param) {
+        if(0 != hal_getref_p(probe->param)) {
+            // Param no longer exists
+            probe->param = NULL;
+            return 1;
+        }
+        name_str = probe->param->name;
+        value_str = data_value(probe->param->pp.type, probe->param->pp.ref);
     } else {
 	name_str = "-----";
 	value_str = "---";
     }
-    halpr_mutex_release();
     gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
     if (!small) {
 	gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
@@ -557,30 +536,37 @@ static int refresh_value(gpointer data)
 }
 
 /* Switch function to return var value for the print_*_list functions  */
-static char *data_value(int type, void *valptr)
+static const char *data_value(hal_type_t type, hal_refs_u ref)
 {
     char *value_str;
-    static char buf[25];
+    static char buf[64];
 
     switch (type) {
-    case HAL_BIT:
-	if (*((char *) valptr) == 0)
-	    value_str = "FALSE";
-	else
-	    value_str = "TRUE";
-	break;
-    case HAL_FLOAT:
-	snprintf(buf, 14, "%.7g", (double)*((hal_float_t *) valptr));
+    case HAL_BOOL:
+        return hal_get_bool(ref.b) ? "TRUE" : "FALSE";
+    case HAL_REAL:
+	snprintf(buf, sizeof(buf), "%.7g", (double)hal_get_real(ref.r));
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 24, "%10ld", (long)*((hal_s32_t *) valptr));
+	snprintf(buf, sizeof(buf), "%10ld", (long)hal_get_si32(ref.s));
 	value_str = buf;
 	break;
-    case HAL_U32:
-	snprintf(buf, 24, "%10lu (0x%08lX)", (unsigned long)*((hal_u32_t *) valptr),
-	    *((unsigned long *) valptr));
+    case HAL_U32: {
+        unsigned long v = hal_get_ui32(ref.u);
+	snprintf(buf, sizeof(buf), "%10lu (0x%08lX)", v, v);
 	value_str = buf;
+        }
+	break;
+    case HAL_SINT:
+	snprintf(buf, sizeof(buf), "%10lld", (long long)hal_get_sint(ref.s));
+	value_str = buf;
+	break;
+    case HAL_UINT: {
+        unsigned long long v = hal_get_uint(ref.u);
+	snprintf(buf, sizeof(buf), "%10llu (0x%08llX)", v, v);
+	value_str = buf;
+        }
 	break;
     default:
 	/* Shouldn't get here, but just in case... */
@@ -597,7 +583,7 @@ static void create_probe_window(probe_t * probe)
     GtkWidget *scrolled_window;
     GtkTreeSelection *selection;
 
-    char *tab_label_text[3];
+    const char *tab_label_text[3];
     int n;
 
     /* create window, set size and title */
@@ -677,14 +663,32 @@ static void apply_selection(GtkWidget * widget, gpointer data)
 	return;
     }
     if (probe->listnum == 0) {
-	/* search the pin list */
-	probe->pin = halpr_find_pin_by_name(probe->pickname);
+        /* search the pin list */
+        memset(&probe->qpin, 0, sizeof(probe->qpin));
+        probe->qpin.name = probe->pickname;
+        probe->qpin.qtype = HAL_QTYPE_PIN;
+        if(0 == hal_getref_p(&probe->qpin))
+            probe->pin = &probe->qpin;
+        else
+            probe->pin = NULL;
     } else if (probe->listnum == 1) {
 	/* search the signal list */
-	probe->sig = halpr_find_sig_by_name(probe->pickname);
+        memset(&probe->qsig, 0, sizeof(probe->qsig));
+        probe->qsig.name = probe->pickname;
+        probe->qsig.qtype = HAL_QTYPE_SIGNAL;
+        if(0 == hal_getref_s(&probe->qsig))
+            probe->sig = &probe->qsig;
+        else
+            probe->sig = NULL;
     } else if (probe->listnum == 2) {
 	/* search the parameter list */
-	probe->param = halpr_find_param_by_name(probe->pickname);
+        memset(&probe->qparam, 0, sizeof(probe->qparam));
+        probe->qparam.name = probe->pickname;
+        probe->qparam.qtype = HAL_QTYPE_PARAM;
+        if(0 == hal_getref_p(&probe->qparam))
+            probe->param = &probe->qparam;
+        else
+            probe->param = NULL;
     }
     /* at this point, the probe structure contain a pointer to the item we
        wish to display, or all three are NULL if the item doesn't exist */

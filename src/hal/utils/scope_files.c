@@ -43,7 +43,6 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* HAL private API decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
@@ -254,7 +253,7 @@ void write_log_file(char *filename)
     scope_vert_t *vert;
     hal_type_t type[16];
 
-    char *label[16] = {};
+    const char *label[16] = {};
     char *old_locale, *saved_locale;
     int sample_len, chan_active, chan_num, sample_period_ns, samples, n;
     FILE *fp;
@@ -569,30 +568,35 @@ void read_log_file(char *filename)
         int matched = 0;
 
         /* Try to find matching HAL pin */
-        hal_pin_t *pin = halpr_find_pin_by_name(channel_names[i]);
-        if (pin != NULL) {
+        hal_query_t qp = {};
+        qp.name = channel_names[i];
+        qp.qtype = HAL_QTYPE_PIN;
+        if (0 == hal_getref_p(&qp)) {
             chan->data_source_type = 0;
-            chan->data_source = SHMOFF(pin);
-            chan->data_type = pin->type;
-            chan->name = pin->name;
+            chan->data_source = qp.pp.ref;
+            chan->data_type = qp.pp.type;
+            chan->name = qp.name;
             matched = 1;
         } else {
             /* Try to find matching HAL signal */
-            hal_sig_t *sig = halpr_find_sig_by_name(channel_names[i]);
-            if (sig != NULL) {
+            hal_query_t qs = {};
+            qs.name = channel_names[i];
+            if (0 == hal_getref_s(&qs)) {
                 chan->data_source_type = 1;
-                chan->data_source = SHMOFF(sig);
-                chan->data_type = sig->type;
-                chan->name = sig->name;
+                chan->data_source = qs.sig.ref;
+                chan->data_type = qs.sig.type;
+                chan->name = qs.name;
                 matched = 1;
             } else {
                 /* Try to find matching HAL parameter */
-                hal_param_t *param = halpr_find_param_by_name(channel_names[i]);
-                if (param != NULL) {
-                    chan->data_source_type = 2;
-                    chan->data_source = SHMOFF(param);
-                    chan->data_type = param->type;
-                    chan->name = param->name;
+                hal_query_t qa = {};
+                qa.name = channel_names[i];
+                qa.qtype = HAL_QTYPE_PARAM;
+                if (0 == hal_getref_p(&qa)) {
+                    chan->data_source_type = 0;
+                    chan->data_source = qa.pp.ref;
+                    chan->data_type = qa.pp.type;
+                    chan->name = qa.name;
                     matched = 1;
                 }
             }
@@ -606,8 +610,8 @@ void read_log_file(char *filename)
                          "[CSV] %s", channel_names[i]);
 
                 chan->data_source_type = -1;  /* No source */
-                chan->data_source = 0;
-                chan->data_type = HAL_FLOAT;  /* Default to float for CSV data */
+                memset(&chan->data_source, 0, sizeof(chan->data_source));
+                chan->data_type = HAL_REAL;  /* Default to float for CSV data */
                 chan->name = phantom_name;
                 chan->is_phantom = 1;
             }
@@ -615,23 +619,25 @@ void read_log_file(char *filename)
 
         /* Set up channel data length and scale limits based on type */
         switch (chan->data_type) {
-        case HAL_BIT:
-            chan->data_len = sizeof(hal_bit_t);
+        case HAL_BOOL:
+            chan->data_len = sizeof(scope_data_t);
             chan->min_index = -2;
             chan->max_index = 2;
             break;
-        case HAL_FLOAT:
-            chan->data_len = sizeof(hal_float_t);
+        case HAL_REAL:
+            chan->data_len = sizeof(scope_data_t);
             chan->min_index = -36;
             chan->max_index = 36;
             break;
         case HAL_S32:
-            chan->data_len = sizeof(hal_s32_t);
+        case HAL_SINT:
+            chan->data_len = sizeof(scope_data_t);
             chan->min_index = -2;
             chan->max_index = 30;
             break;
         case HAL_U32:
-            chan->data_len = sizeof(hal_u32_t);
+        case HAL_UINT:
+            chan->data_len = sizeof(scope_data_t);
             chan->min_index = -2;
             chan->max_index = 30;
             break;
@@ -742,17 +748,23 @@ void read_log_file(char *filename)
 
             /* Convert to appropriate type */
             switch (channel_types[i]) {
-            case HAL_BIT:
-                dptr->d_u8 = (value != 0.0) ? 1 : 0;
+            case HAL_BOOL:
+                dptr->b = (value != 0.0) ? 1 : 0;
                 break;
-            case HAL_FLOAT:
-                dptr->d_real = (real_t)value;
+            case HAL_REAL:
+                dptr->r = (rtapi_real)value;
                 break;
             case HAL_S32:
-                dptr->d_s32 = (rtapi_s32)value;
+                dptr->s = (rtapi_s32)value;
                 break;
             case HAL_U32:
-                dptr->d_u32 = (rtapi_u32)value;
+                dptr->u = (rtapi_u32)value;
+                break;
+            case HAL_SINT:
+                dptr->s = (rtapi_sint)value;
+                break;
+            case HAL_UINT:
+                dptr->u = (rtapi_uint)value;
                 break;
             default:
                 break;
@@ -829,21 +841,27 @@ static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type)
 {
 	double data_value;
 	switch (type) {
-		case HAL_BIT:
-			if (dptr->d_u8) {
+		case HAL_BOOL:
+			if (dptr->b) {
 			data_value = 1.0;
 			} else {
 			data_value = 0.0;
 			};
 			break;
-		case HAL_FLOAT:
-			data_value = dptr->d_real;
+		case HAL_REAL:
+			data_value = dptr->r;
 			break;
 		case HAL_S32:
-			data_value = dptr->d_s32;
+			data_value = dptr->s;
 			break;
 		case HAL_U32:
-			data_value = dptr->d_u32;
+			data_value = dptr->u;
+			break;
+		case HAL_SINT:
+			data_value = dptr->s;
+			break;
+		case HAL_UINT:
+			data_value = dptr->u;
 			break;
 		default:
 			data_value = 0.0;

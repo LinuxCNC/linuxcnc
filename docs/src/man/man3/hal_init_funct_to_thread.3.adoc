@@ -1,0 +1,65 @@
+:manvolnum: 3
+
+= hal_init_funct_to_thread(3)
+
+== NAME
+
+hal_init_funct_to_thread - cause an initialization function to be executed at the start of the thread
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, int position);
+----
+
+== ARGUMENTS
+
+funct_name::
+  The name of the function.
+thread_name::
+  The name of the thread.
+position::
+  The desired location within the thread.
+  This determines the init order of the running the functions in the thread at startup.
+  A positive number indicates the desired location as measured from the beginning of the thread.
+  A negative number indicated the desired location as measured from the end.
+  A value of +1 means this function will become the first one to run, +5 means it will be the fifth one to run.
+  A value of -2 means it will be next to last, and -1 means it will be last.
+  Zero (0) is an illegal position value.
+
+== DESCRIPTION
+
+The *hal_init_funct_to_thread()* function registers _funcname_ to run exactly once in the realtime context of _thread_name_.
+Init functions run before the thread executes any cyclic (addf-registered) function.
+The init list is invoked in a dedicated "special cycle" the first time the thread observes `threads_running == 1`.
+The cyclic function list is skipped during that cycle.
+After the init list returns, the thread's period is re-anchored.
+The next cyclic cycle wakes one full period later.
+This avoids both spurious "unexpected realtime delay" and assures a clean starting boundary for long/slow init functions.
+
+Calls made to *hal_init_funct_to_thread()* after the init cycle has already run fail with -EALREADY.
+
+== RETURN VALUE
+
+Returns zero (0) on success.
+Returns a negative errno code on failure:
+
+[horizontal]
+-EPERM:: HAL is config locked.
+-EINVAL:: An invalid argument was passed.
+-EFAULT:: The shared memory was not mapped.
+-ENOENT:: The function or thread does not exist.
+-EALREADY:: if the thread is already running.
+-ENOMEM:: Failed to allocate memory for function registration.
+
+
+== REALTIME CONSIDERATIONS
+
+Call only from realtime init code, not from other realtime or non-realtime code.
+
+== SEE ALSO
+
+hal_add_funct_to_thread(3), hal_thread_new(3), hal_export_funct(3)

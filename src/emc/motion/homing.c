@@ -129,12 +129,12 @@ static  home_local_data H[EMCMOT_MAX_JOINTS];
 
 // data for per-joint homing-specific hal pins:
 typedef struct {
-    hal_bit_t *home_sw;      // home switch input
-    hal_bit_t *homing;       // joint is homing
-    hal_bit_t *homed;        // joint was homed
-    hal_bit_t *index_enable; // motmod sets: request reset on index
+    hal_bool_t home_sw;      // home switch input
+    hal_bool_t homing;       // joint is homing
+    hal_bool_t homed;        // joint was homed
+    hal_bool_t index_enable; // motmod sets: request reset on index
                              //        encoder clears: index arrived
-    hal_s32_t *home_state;   // homing state machine state
+    hal_sint_t home_state;   // homing state machine state
 } one_joint_home_data_t;
 
 typedef struct {
@@ -233,7 +233,7 @@ static int base_make_joint_home_pins(int id,int njoints)
     int jno,retval;
     one_joint_home_data_t *addr;
 
-    joint_home_data = hal_malloc(sizeof(all_joints_home_data_t));
+    joint_home_data = hal_malloc(sizeof(*joint_home_data));
     if (joint_home_data == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, _("HOMING: all_joints_home_data_t malloc failed\n"));
         return -1;
@@ -243,16 +243,16 @@ static int base_make_joint_home_pins(int id,int njoints)
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
 
-        retval += hal_pin_bit_newf(HAL_IN, &(addr->home_sw), id,
-                                  "joint.%d.home-sw-in", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homing), id,
-                                  "joint.%d.homing", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homed), id,
-                                  "joint.%d.homed", jno);
-        retval += hal_pin_s32_newf(HAL_OUT, &(addr->home_state), id,
-                                  "joint.%d.home-state", jno);
-        retval += hal_pin_bit_newf(HAL_IO, &(addr->index_enable), id,
-                                  "joint.%d.index-enable", jno);
+        retval += hal_pin_new_bool(id, HAL_IN, &(addr->home_sw),
+                                   0, "joint.%d.home-sw-in", jno);
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homing),
+                                   0, "joint.%d.homing", jno);
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homed),
+                                   0, "joint.%d.homed", jno);
+        retval += hal_pin_new_si32(id, HAL_OUT, &(addr->home_state),
+                                   0, "joint.%d.home-state", jno);
+        retval += hal_pin_new_bool(id, HAL_IO, &(addr->index_enable),
+                                   0, "joint.%d.index-enable", jno);
     }
     return retval;
 } // base_make_joint_home_pins()
@@ -533,8 +533,8 @@ static void base_read_homing_in_pins(int njoints)
     one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
-        H[jno].home_sw      = *(addr->home_sw);      // IN
-        H[jno].index_enable = *(addr->index_enable); // IO
+        H[jno].home_sw      = hal_get_bool(addr->home_sw);      // IN
+        H[jno].index_enable = hal_get_bool(addr->index_enable); // IO
     }
 }
 
@@ -544,7 +544,7 @@ static void base_write_homing_out_pins(int njoints)
     one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
-        if(!(*(addr->homing) && !H[jno].homing && homing_active)) {
+        if(!(hal_get_bool(addr->homing) && !H[jno].homing && homing_active)) {
             // Prevent race condition.
             // (See also emc/motion/control.c: update_status())
             // The homing status variable turns false before homing_active state
@@ -555,19 +555,19 @@ static void base_write_homing_out_pins(int njoints)
             // Do not update the homing status when going from homing --> not homing
             // and the state machine is still active. The homing status deassertion
             // must be delayed until the state machine is done.
-            *(addr->homing) = H[jno].homing;
+            hal_set_bool(addr->homing, H[jno].homing);
         }
-        *(addr->homing)       = H[jno].homing;       // OUT
-        *(addr->homed)        = H[jno].homed;        // OUT
-        *(addr->home_state)   = H[jno].home_state;   // OUT
+        hal_set_bool(addr->homing,     H[jno].homing);     // OUT
+        hal_set_bool(addr->homed,      H[jno].homed);      // OUT
+        hal_set_si32(addr->home_state, H[jno].home_state); // OUT
         // index_enable is a HAL_IO pin: the encoder driver also writes it
         // (clears it on the index pulse). We do not own it, so we must not
         // clamp it every cycle; drive it only on our own edges and otherwise
         // leave it to whoever else is on the signal.
         if (H[jno].index_enable && !H[jno].index_enable_prev) {
-            *(addr->index_enable) = 1; // arm the index search
+            hal_set_bool(addr->index_enable, 1); // arm the index search
         } else if (!H[jno].index_enable && H[jno].index_enable_prev) {
-            *(addr->index_enable) = 0; // release if aborted while armed
+            hal_set_bool(addr->index_enable, 0); // release if aborted while armed
         }
         H[jno].index_enable_prev = H[jno].index_enable;
     }

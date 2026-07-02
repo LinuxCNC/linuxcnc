@@ -56,17 +56,17 @@
 #include "pentakins.h"
 
 struct haldata {
-    hal_float_t basex[NUM_STRUTS];
-    hal_float_t basey[NUM_STRUTS];
-    hal_float_t basez[NUM_STRUTS];
-    hal_float_t effectorr[NUM_STRUTS];
-    hal_float_t effectorz[NUM_STRUTS];
-    hal_u32_t *last_iter;
-    hal_u32_t *max_iter;
-    hal_u32_t *iter_limit;
-    hal_float_t *max_error;
-    hal_float_t *conv_criterion;
-    hal_float_t *tool_offset;
+    hal_real_t basex[NUM_STRUTS];
+    hal_real_t basey[NUM_STRUTS];
+    hal_real_t basez[NUM_STRUTS];
+    hal_real_t effectorr[NUM_STRUTS];
+    hal_real_t effectorz[NUM_STRUTS];
+    hal_uint_t last_iter;
+    hal_uint_t max_iter;
+    hal_uint_t iter_limit;
+    hal_real_t max_error;
+    hal_real_t conv_criterion;
+    hal_real_t tool_offset;
 } *haldata;
 
 
@@ -189,12 +189,13 @@ int pentakins_read_hal_pins(void) {
     int t;
 
   /* set the base and effector coordinates from hal pin values */
+    rtapi_real tool_offset = hal_get_real(haldata->tool_offset);
     for (t = 0; t < NUM_STRUTS; t++) {
-        b[t].x = haldata->basex[t];
-        b[t].y = haldata->basey[t];
-        b[t].z = haldata->basez[t] + *haldata->tool_offset;
-        ra[t] = haldata->effectorr[t];
-        za[t] = haldata->effectorz[t] + *haldata->tool_offset;
+        b[t].x = hal_get_real(haldata->basex[t]);
+        b[t].y = hal_get_real(haldata->basey[t]);
+        b[t].z = hal_get_real(haldata->basez[t]) + tool_offset;
+        ra[t] = hal_get_real(haldata->effectorr[t]);
+        za[t] = hal_get_real(haldata->effectorz[t]) + tool_offset;
     }
     return 0;
 }
@@ -285,10 +286,11 @@ int kinematicsForward(const double * joints,
   coord[4] = pos->b * PM_PI / 180.0;
 
   /* Enter Newton-Raphson iterative method   */
+  rtapi_real max_error = hal_get_real(haldata->max_error);
   while (iterate) {
     /* check for large error and return error flag if no convergence */
-    if ((conv_err > +(*haldata->max_error)) ||
-    (conv_err < -(*haldata->max_error))) {
+    if ((conv_err > +(max_error)) ||
+    (conv_err < -(max_error))) {
       /* we can't converge */
       return -2;
     };
@@ -297,7 +299,7 @@ int kinematicsForward(const double * joints,
 
     /* check iteration to see if the kinematics can reach the
        convergence criterion and return error flag if it can't */
-    if (iteration > *haldata->iter_limit) {
+    if (iteration > hal_get_ui32(haldata->iter_limit)) {
       /* we can't converge */
       return -5;
     }
@@ -340,8 +342,9 @@ int kinematicsForward(const double * joints,
 
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;            /*assume iteration is done */
+    rtapi_real conv_criterion = hal_get_real(haldata->conv_criterion);
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > *haldata->conv_criterion) {
+      if (fabs(StrutLengthDiff[i]) > conv_criterion) {
     iterate = 1;
       }
     }
@@ -354,10 +357,10 @@ int kinematicsForward(const double * joints,
   pos->a = coord[3] * 180.0 / PM_PI;
   pos->b = coord[4] * 180.0 / PM_PI;
 
-  *haldata->last_iter = iteration;
+  hal_set_ui32(haldata->last_iter, iteration);
 
-  if (iteration > *haldata->max_iter){
-    *haldata->max_iter = iteration;
+  if (iteration > hal_get_ui32(haldata->max_iter)){
+    hal_set_ui32(haldata->max_iter, iteration);
   }
   return 0;
 }
@@ -410,6 +413,22 @@ MODULE_LICENSE("GPL");
 
 int comp_id;
 
+static const rtapi_real init_basex[NUM_STRUTS] = {
+    DEFAULT_BASE_0_X, DEFAULT_BASE_1_X, DEFAULT_BASE_2_X, DEFAULT_BASE_3_X, DEFAULT_BASE_4_X
+};
+static const rtapi_real init_basey[NUM_STRUTS] = {
+    DEFAULT_BASE_0_Y, DEFAULT_BASE_1_Y, DEFAULT_BASE_2_Y, DEFAULT_BASE_3_Y, DEFAULT_BASE_4_Y
+};
+static const rtapi_real init_basez[NUM_STRUTS] = {
+    DEFAULT_BASE_0_Z, DEFAULT_BASE_1_Z, DEFAULT_BASE_2_Z, DEFAULT_BASE_3_Z, DEFAULT_BASE_4_Z
+};
+static const rtapi_real init_effectorr[NUM_STRUTS] = {
+    DEFAULT_EFFECTOR_0_R, DEFAULT_EFFECTOR_1_R, DEFAULT_EFFECTOR_2_R, DEFAULT_EFFECTOR_3_R, DEFAULT_EFFECTOR_4_R
+};
+static const rtapi_real init_effectorz[NUM_STRUTS] = {
+    DEFAULT_EFFECTOR_0_Z, DEFAULT_EFFECTOR_1_Z, DEFAULT_EFFECTOR_2_Z, DEFAULT_EFFECTOR_3_Z, DEFAULT_EFFECTOR_4_Z
+};
+
 int rtapi_app_main(void)
 {
     int res = 0, i;
@@ -423,86 +442,52 @@ int rtapi_app_main(void)
     goto error;
 
 
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < NUM_STRUTS; i++) {
 
-        if ((res = hal_param_float_newf(HAL_RW, &(haldata->basex[i]), comp_id,
-            "pentakins.base.%d.x", i)) < 0)
-        goto error;
+        if ((res = hal_param_new_real(comp_id, HAL_RW, &(haldata->basex[i]),
+                                      init_basex[i], "pentakins.base.%d.x", i)) < 0)
+            goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->basey[i], comp_id,
-            "pentakins.base.%d.y", i)) < 0)
-        goto error;
+        if ((res = hal_param_new_real(comp_id, HAL_RW, &haldata->basey[i],
+                                      init_basey[i], "pentakins.base.%d.y", i)) < 0)
+            goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->basez[i], comp_id,
-            "pentakins.base.%d.z", i)) < 0)
-        goto error;
+        if ((res = hal_param_new_real(comp_id, HAL_RW, &haldata->basez[i],
+                                      init_basez[i], "pentakins.base.%d.z", i)) < 0)
+            goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->effectorr[i], comp_id,
-            "pentakins.effector.%d.r", i)) < 0)
-        goto error;
+        if ((res = hal_param_new_real(comp_id, HAL_RW, &haldata->effectorr[i],
+                                      init_effectorr[i], "pentakins.effector.%d.r", i)) < 0)
+            goto error;
 
-        if ((res = hal_param_float_newf(HAL_RW, &haldata->effectorz[i], comp_id,
-            "pentakins.effector.%d.z", i)) < 0)
-        goto error;
+        if ((res = hal_param_new_real(comp_id, HAL_RW, &haldata->effectorz[i],
+                                      init_effectorz[i], "pentakins.effector.%d.z", i)) < 0)
+            goto error;
     }
 
-    if ((res = hal_pin_u32_newf(HAL_OUT, &haldata->last_iter, comp_id,
-        "pentakins.last-iterations")) < 0)
-    goto error;
-    *haldata->last_iter = 0;
+    if ((res = hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->last_iter,
+                                0, "pentakins.last-iterations")) < 0)
+        goto error;
 
-    if ((res = hal_pin_u32_newf(HAL_OUT, &haldata->max_iter, comp_id,
-        "pentakins.max-iterations")) < 0)
-    goto error;
-    *haldata->max_iter = 0;
+    if ((res = hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->max_iter,
+                                0, "pentakins.max-iterations")) < 0)
+        goto error;
 
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->max_error, comp_id,
-        "pentakins.max-error")) < 0)
-    goto error;
-    *haldata->max_error = 100;
+    if ((res = hal_pin_new_real(comp_id, HAL_IO, &haldata->max_error,
+                                100.0, "pentakins.max-error")) < 0)
+        goto error;
 
-    if ((res = hal_pin_float_newf(HAL_IO, &haldata->conv_criterion, comp_id,
-        "pentakins.convergence-criterion")) < 0)
-    goto error;
-    *haldata->conv_criterion = 1e-9;
+    if ((res = hal_pin_new_real(comp_id, HAL_IO, &haldata->conv_criterion,
+                                1e-9, "pentakins.convergence-criterion")) < 0)
+        goto error;
 
-    if ((res = hal_pin_u32_newf(HAL_IO, &haldata->iter_limit, comp_id,
-        "pentakins.limit-iterations")) < 0)
-    goto error;
-    *haldata->iter_limit = 120;
+    if ((res = hal_pin_new_ui32(comp_id, HAL_IO, &haldata->iter_limit,
+                                120, "pentakins.limit-iterations")) < 0)
+        goto error;
 
-    if ((res = hal_pin_float_newf(HAL_IN, &haldata->tool_offset, comp_id,
-        "pentakins.tool-offset")) < 0)
-    goto error;
-    *haldata->tool_offset = 0.0;
-
-    haldata->basex[0] = DEFAULT_BASE_0_X;
-    haldata->basey[0] = DEFAULT_BASE_0_Y;
-    haldata->basez[0] = DEFAULT_BASE_0_Z;
-    haldata->basex[1] = DEFAULT_BASE_1_X;
-    haldata->basey[1] = DEFAULT_BASE_1_Y;
-    haldata->basez[1] = DEFAULT_BASE_1_Z;
-    haldata->basex[2] = DEFAULT_BASE_2_X;
-    haldata->basey[2] = DEFAULT_BASE_2_Y;
-    haldata->basez[2] = DEFAULT_BASE_2_Z;
-    haldata->basex[3] = DEFAULT_BASE_3_X;
-    haldata->basey[3] = DEFAULT_BASE_3_Y;
-    haldata->basez[3] = DEFAULT_BASE_3_Z;
-    haldata->basex[4] = DEFAULT_BASE_4_X;
-    haldata->basey[4] = DEFAULT_BASE_4_Y;
-    haldata->basez[4] = DEFAULT_BASE_4_Z;
-
-    haldata->effectorz[0] = DEFAULT_EFFECTOR_0_Z;
-    haldata->effectorz[1] = DEFAULT_EFFECTOR_1_Z;
-    haldata->effectorz[2] = DEFAULT_EFFECTOR_2_Z;
-    haldata->effectorz[3] = DEFAULT_EFFECTOR_3_Z;
-    haldata->effectorz[4] = DEFAULT_EFFECTOR_4_Z;
-
-    haldata->effectorr[0] = DEFAULT_EFFECTOR_0_R;
-    haldata->effectorr[1] = DEFAULT_EFFECTOR_1_R;
-    haldata->effectorr[2] = DEFAULT_EFFECTOR_2_R;
-    haldata->effectorr[3] = DEFAULT_EFFECTOR_3_R;
-    haldata->effectorr[4] = DEFAULT_EFFECTOR_4_R;
+    if ((res = hal_pin_new_real(comp_id, HAL_IN, &haldata->tool_offset,
+                                0.0, "pentakins.tool-offset")) < 0)
+        goto error;
 
     hal_ready(comp_id);
     return 0;

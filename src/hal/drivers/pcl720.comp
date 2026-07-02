@@ -4,16 +4,16 @@ work with the PCI version too, but this is untested.
  It creates hal pins corresponding to the digital inputs and outputs, but does
 not support the the counters/timers.""";
 
-pin in bit pin-##-out[32] "Output pins";
-pin out bit pin-##-in[32] "Input pins";
-pin out bit pin-##-in-not[32] "Inverted version of each input pin";
-param rw unsigned reset-time = 5000 """The time in nanoseconds after the write function
+pin in bool pin-##-out[32] "Output pins";
+pin out bool pin-##-in[32] "Input pins";
+pin out bool pin-##-in-not[32] "Inverted version of each input pin";
+param rw ui32 reset-time = 5000 """The time in nanoseconds after the write function
 has run to reset the pins for which the "reset" parameter is set.""";
-param rw bit pin-##-reset[32] """specifies if the pin should be reset by the "reset"
+param rw bool pin-##-reset[32] """specifies if the pin should be reset by the "reset"
 function""";
-param rw bit pin-##-out-invert[32] "Set to true to invert the sense of the output pin";
+param rw bool pin-##-out-invert[32] "Set to true to invert the sense of the output pin";
 
-pin out  unsigned wait_clocks;
+pin out  ui32 wait_clocks;
 
 function read "Reads each of the digital inputs and updates the HAL pins";
 function write "Writes the values of the output HAL pins to the digital IO";
@@ -60,8 +60,8 @@ FUNCTION(read){
         + (inb(base_addr + 3) << 24);
     
     for (i = 0;i <= 31;i++){
-        pin_in(i) = R & (1 << i);
-        pin_in_not(i) = !pin_in(i);
+        pin_in_set(i, R & (1 << i));
+        pin_in_not_set(i, !pin_in(i));
     }
 }
 
@@ -104,7 +104,7 @@ FUNCTION(reset){
     tmp = (out ^ inv) & (~res);
     if (tmp == out) {return;} // nothing to reset
     
-    if(reset_time > period/4) reset_time = period/4;
+    if(reset_time > period/4) reset_time_set(period/4);
     
     //compensate for any time elapsed since the write
     rtapi_delay(reset_time - (rtapi_get_time() - write_time));

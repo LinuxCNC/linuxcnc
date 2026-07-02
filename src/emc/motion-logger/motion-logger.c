@@ -38,7 +38,7 @@
 #include "motion/axis.h"
 
 static struct motion_logger_data_t {
-    hal_bit_t *reopen;
+    hal_bool_t reopen;
 } *motion_logger_data;
 
 FILE *logfile = NULL;
@@ -234,12 +234,12 @@ static void mark_joint_homed(int joint_num) {
 }
 
 void maybe_reopen_logfile() {
-    if(*motion_logger_data->reopen) {
+    if(hal_get_bool(motion_logger_data->reopen)) {
         if(logfile != stdout) {
             fclose(logfile);
             logfile = NULL;
         }
-        *motion_logger_data->reopen = 0;
+        hal_set_bool(motion_logger_data->reopen, 0);
     }
 }
 
@@ -296,13 +296,12 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
     int r;
-    if((r = hal_pin_bit_new("motion-logger.reopen-log", HAL_IO, &motion_logger_data->reopen, mot_comp_id)) < 0) {
+    if((r = hal_pin_new_bool(mot_comp_id, HAL_IO, &motion_logger_data->reopen, 0, "motion-logger.reopen-log")) < 0) {
         hal_exit(mot_comp_id);
         errno = -r;
         perror("hal_pin_bit_new");
         exit(EXIT_FAILURE);
     }
-    *motion_logger_data->reopen = 0;
     if((r = hal_ready(mot_comp_id)) < 0) {
         hal_exit(mot_comp_id);
         errno = -r;

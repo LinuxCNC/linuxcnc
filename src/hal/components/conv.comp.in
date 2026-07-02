@@ -1,8 +1,8 @@
-component conv_@IN@_@OUT@ "Convert a value from @IN@ to @OUT@";
+component conv_@XIN@_@XOUT@ "Convert a value from @IN@ to @OUT@";
 pin in @IN@ in;
 pin out @OUT@ out;
-@CC@pin out bit out_of_range "TRUE when 'in' is not in the range of @OUT@";
-@CC@param rw bit clamp """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
+@CC@pin out bool out_of_range "TRUE when 'in' is not in the range of @OUT@";
+@CC@param rw bool clamp_ """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
 option period no;
 function _ "Update 'out' based on 'in'";
 license "GPL";
@@ -12,17 +12,17 @@ author "Jeff Epler";
 #include <rtapi_stdint.h>
 FUNCTION(_) {
 	@TYPI@ val = in;
-@CC@	if(clamp) {
+@CC@	if(clamp_) {
 #if @MAXEN@ == 0
-@CC@		if(val > (@TYPI@)@MAX@) { out = @MAX@; out_of_range = 1; return; }
+@CC@		if(val > (@TYPI@)@MAX@) { out_set(@MAX@); out_of_range_set(1); return; }
 #endif
 #if @MINEN@ == 0
-@CC@		if(val < (@TYPI@)@MIN@) { out = @MIN@; out_of_range = 1; return; }
+@CC@		if(val < (@TYPI@)@MIN@) { out_set(@MIN@); out_of_range_set(1); return; }
 #endif
-@CC@		out = (@TYPO@)val;
-@CC@		out_of_range = 0;
+@CC@		out_set((@TYPO@)val);
+@CC@		out_of_range_set(0);
 @CC@	} else {
-		out = (@TYPO@)val;
-@CC@		if((@TYPI@)out != val) out_of_range = 1;
+		out_set((@TYPO@)val);
+@CC@		if((@TYPI@)out != val) out_of_range_set(1);
 @CC@	}
 }

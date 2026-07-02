@@ -33,36 +33,37 @@
 
 
 void hm2_periodm_update_limit(hostmot2_t *hm2, int i) {
-    hm2->periodm.limit_reg[i] =  ((double)hm2->periodm.clock_frequency / (double)*hm2->periodm.instance[i].hal.pin.minfreq) * *hm2->periodm.instance[i].hal.pin.averages;
-    if ((((double)hm2->periodm.clock_frequency / (double)*hm2->periodm.instance[i].hal.pin.minfreq) * *hm2->periodm.instance[i].hal.pin.averages ) > 0xFFFFFFFF) {
+    rtapi_u32 averages = hal_get_ui32(hm2->periodm.instance[i].hal.pin.averages);
+    rtapi_real minfreq = hal_get_real(hm2->periodm.instance[i].hal.pin.minfreq);
+    hm2->periodm.limit_reg[i] =  ((double)hm2->periodm.clock_frequency / minfreq) * averages;
+    if ((((double)hm2->periodm.clock_frequency / minfreq) * averages ) > 0xFFFFFFFF) {
         HM2_ERR("periodm %d has invalid min freq time, resetting to min\n", i);
-        *hm2->periodm.instance[i].hal.pin.minfreq = (0.025 * *hm2->periodm.instance[i].hal.pin.averages);
-        hm2->periodm.limit_reg[i] =  ((double)hm2->periodm.clock_frequency / (double)*hm2->periodm.instance[i].hal.pin.minfreq) * *hm2->periodm.instance[i].hal.pin.averages; 
+        minfreq = hal_set_real(hm2->periodm.instance[i].hal.pin.minfreq, 0.025 * averages);
+        hm2->periodm.limit_reg[i] =  ((double)hm2->periodm.clock_frequency / minfreq) * averages;
     }
 }
 
 void hm2_periodm_update_mode(hostmot2_t *hm2, int i) {
     rtapi_u32 modebuff;
     rtapi_u32 filterclocks;
-    rtapi_u32  averages;
-    filterclocks = (double)*hm2->periodm.instance[i].hal.pin.filtertc * ((double)hm2->periodm.clock_frequency / (double)1e6);
+    rtapi_u32  averages = hal_get_ui32(hm2->periodm.instance[i].hal.pin.averages);
+    filterclocks = (double)hal_get_real(hm2->periodm.instance[i].hal.pin.filtertc) * ((double)hm2->periodm.clock_frequency / (double)1e6);
     if (filterclocks > 0xFFFF) {
         HM2_ERR("periodm %d has invalid filter time constant, resetting to max\n", i);
         filterclocks = 0xFFFF;
-        *hm2->periodm.instance[i].hal.pin.filtertc = (double)filterclocks * ((double)1e6 / (double)hm2->periodm.clock_frequency);
+        hal_set_real(hm2->periodm.instance[i].hal.pin.filtertc, (double)filterclocks * ((double)1e6 / (double)hm2->periodm.clock_frequency));
     }
-    if (*hm2->periodm.instance[i].hal.pin.averages > 0xFFF) {
+    if (averages > 0xFFF) {
         HM2_ERR("periodm %d has invalid averages number, resetting to max\n", i);
-        *hm2->periodm.instance[i].hal.pin.averages =  0xFFF;
+        averages = hal_set_ui32(hm2->periodm.instance[i].hal.pin.averages, 0xFFF);
     }    
-    if (*hm2->periodm.instance[i].hal.pin.averages < 1) {
+    if (averages < 1) {
         HM2_ERR("periodm %d has invalid averages number, resetting to min\n", i);
-        *hm2->periodm.instance[i].hal.pin.averages =  1;
+        averages = hal_set_ui32(hm2->periodm.instance[i].hal.pin.averages, 1);
     }    
-    averages =  *hm2->periodm.instance[i].hal.pin.averages -1;    
     modebuff = 0;
-    modebuff |= (*hm2->periodm.instance[i].hal.pin.polarity << 0);
-    modebuff |= (averages << 4);
+    modebuff |= (hal_get_bool(hm2->periodm.instance[i].hal.pin.polarity) << 0);
+    modebuff |= ((averages-1) << 4);
     modebuff |= (filterclocks << 16);
  
 	 hm2->periodm.mode_write_reg[i] = modebuff;
@@ -86,7 +87,7 @@ void hm2_periodm_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->periodm.mode_write_addr, hm2->periodm.mode_write_reg, (hm2->periodm.num_instances * sizeof(rtapi_u32)));
     hm2->llio->write(hm2->llio, hm2->periodm.limit_addr, hm2->periodm.limit_reg, (hm2->periodm.num_instances * sizeof(rtapi_u32)));
     
-    if ((*hm2->llio->io_error) != 0) return;
+    if (hal_get_bool(*hm2->llio->io_error)) return;
 
 }
 
@@ -152,7 +153,7 @@ int hm2_periodm_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 
-    hm2->periodm.instance = (hm2_periodm_instance_t *)hal_malloc(hm2->periodm.num_instances * sizeof(hm2_periodm_instance_t));
+    hm2->periodm.instance = hal_malloc(hm2->periodm.num_instances * sizeof(*hm2->periodm.instance));
     if (hm2->periodm.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -200,107 +201,92 @@ int hm2_periodm_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // export to HAL
-    // FIXME: r hides the r in enclosing function, and it returns the wrong thing
     {
-        int i;
-        int r;
-        char name[HAL_NAME_LEN + 1];
-
-
-        for (i = 0; i < hm2->periodm.num_instances; i ++) {
+        for (int i = 0; i < hm2->periodm.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.period_us", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.period), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.period),
+                                 0.0, "%s.periodm.%02d.period_us", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.period_us', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.width_us", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.width), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.width),
+                                 0.0, "%s.periodm.%02d.width_us", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.width_us', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
  
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.duty_cycle", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.dutycycle), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.dutycycle),
+                                 0.0, "%s.periodm.%02d.duty_cycle", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.duty_cycle', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.duty_cycle_scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->periodm.instance[i].hal.pin.dutyscale), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->periodm.instance[i].hal.pin.dutyscale),
+                                 100.0, "%s.periodm.%02d.duty_cycle_scale", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.duty_cycle_scale', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.duty_cycle_offset", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->periodm.instance[i].hal.pin.dutyoffset), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->periodm.instance[i].hal.pin.dutyoffset),
+                                 0.0, "%s.periodm.%02d.duty_cycle_offset", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.duty_cycle_offset', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.frequency", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.frequency), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.frequency),
+                                 0.0, "%s.periodm.%02d.frequency", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.frequency', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.filtertc_us", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->periodm.instance[i].hal.pin.filtertc), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->periodm.instance[i].hal.pin.filtertc),
+                                 1.0, "%s.periodm.%02d.filtertc_us", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.filtertc_us', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.minimum_frequency", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->periodm.instance[i].hal.pin.minfreq), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->periodm.instance[i].hal.pin.minfreq),
+                                 1.0, "%s.periodm.%02d.minimum_frequency", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.minimum_frequency', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.averages", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IO, &(hm2->periodm.instance[i].hal.pin.averages), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IO, &(hm2->periodm.instance[i].hal.pin.averages),
+                                 1, "%s.periodm.%02d.averages", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.averages', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.invert", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IO, &(hm2->periodm.instance[i].hal.pin.polarity), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IO, &(hm2->periodm.instance[i].hal.pin.polarity),
+                                 0, "%s.periodm.%02d.invert", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.invert', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.valid", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.valid), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.valid),
+                                 0, "%s.periodm.%02d.valid", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.valid', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.periodm.%02d.input_status", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.input), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->periodm.instance[i].hal.pin.input),
+                                 0, "%s.periodm.%02d.input_status", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.periodm.%02d.input_status', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
-
-            // init hal objects
-            *(hm2->periodm.instance[i].hal.pin.polarity) = 0;            
-            *(hm2->periodm.instance[i].hal.pin.filtertc) = 1.0;
-            *(hm2->periodm.instance[i].hal.pin.averages) = 1;
-            *(hm2->periodm.instance[i].hal.pin.minfreq) = 1.0;
-            *(hm2->periodm.instance[i].hal.pin.dutyscale) = 100;
-            *(hm2->periodm.instance[i].hal.pin.dutyoffset) = 0;
-            
         }
     }
 
@@ -361,19 +347,23 @@ void hm2_periodm_process_tram_read(hostmot2_t *hm2) {
     int i;
     rtapi_u32 mode = 0;
     for (i = 0; i < hm2->periodm.num_instances; i ++) {
+        rtapi_u32 averages = hal_get_ui32(hm2->periodm.instance[i].hal.pin.averages);
         mode = hm2->periodm.mode_read_reg[i];
-//        *hm2->periodm.instance[i].hal.pin.polarity = ((mode & (1 << 0)) != 0);
-        *hm2->periodm.instance[i].hal.pin.valid = ((mode & (1 << 1)) != 0);
-        *hm2->periodm.instance[i].hal.pin.input = ((mode & (1 << 2)) != 0);
+//        hal_set_bool(hm2->periodm.instance[i].hal.pin.polarity, (mode & (1 << 0)) != 0);
+        hal_set_bool(hm2->periodm.instance[i].hal.pin.valid, (mode & (1 << 1)) != 0);
+        hal_set_bool(hm2->periodm.instance[i].hal.pin.input, (mode & (1 << 2)) != 0);
 
-        *hm2->periodm.instance[i].hal.pin.period = (hm2->periodm.period_reg[i] / ((double)hm2->periodm.clock_frequency)) * (double)1e6 / *hm2->periodm.instance[i].hal.pin.averages; 
-        *hm2->periodm.instance[i].hal.pin.width  = (hm2->periodm.width_reg[i]  / ((double)hm2->periodm.clock_frequency)) * (double)1e6 / *hm2->periodm.instance[i].hal.pin.averages; 
-			if (*hm2->periodm.instance[i].hal.pin.period !=  0) {
-			    *hm2->periodm.instance[i].hal.pin.dutycycle =  (((double)*hm2->periodm.instance[i].hal.pin.width
-			     / (double)*hm2->periodm.instance[i].hal.pin.period) * (double)*hm2->periodm.instance[i].hal.pin.dutyscale) + *hm2->periodm.instance[i].hal.pin.dutyoffset;
-			    *hm2->periodm.instance[i].hal.pin.frequency =  (1.0 / (hm2->periodm.period_reg[i] / (double)hm2->periodm.clock_frequency)) * *hm2->periodm.instance[i].hal.pin.averages;
-			}   
-
+        rtapi_real period = hal_set_real(hm2->periodm.instance[i].hal.pin.period,
+            (hm2->periodm.period_reg[i] / ((double)hm2->periodm.clock_frequency)) * (double)1e6 / averages);
+        rtapi_real width = hal_set_real(hm2->periodm.instance[i].hal.pin.width,
+            (hm2->periodm.width_reg[i]  / ((double)hm2->periodm.clock_frequency)) * (double)1e6 / averages);
+        if (period != 0) {
+            hal_set_real(hm2->periodm.instance[i].hal.pin.dutycycle,
+                ((width / period) * hal_get_real(hm2->periodm.instance[i].hal.pin.dutyscale))
+                + hal_get_real(hm2->periodm.instance[i].hal.pin.dutyoffset));
+            hal_set_real(hm2->periodm.instance[i].hal.pin.frequency,
+                (1.0 / (hm2->periodm.period_reg[i] / (double)hm2->periodm.clock_frequency)) * averages);
+        }
     }    
 }
 

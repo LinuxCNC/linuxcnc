@@ -1,14 +1,20 @@
+:manvolnum: 3
+
 = hal_create_thread(3)
 
 == NAME
 
 hal_create_thread - Create a HAL thread
 
-== SYNTAX
+== SYNOPSIS
 
-int hal_create_thread(const char* _name_, unsigned long _period_, int _uses_fp_)
+[source,c]
+----
+#include <hal.h>
 
-int hal_thread_delete(const char* _name_)
+int hal_create_thread(const char *name, unsigned long period, int uses_fp);
+int hal_thread_delete(const char *name);
+----
 
 == ARGUMENTS
 
@@ -41,6 +47,14 @@ Call only from realtime init code, not from other realtime or non-realtime code.
 == RETURN VALUE
 
 Returns a HAL status code.
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+-EPERM:: HAL is config locked.
+-EEXIST:: The thread name already exists (hal_create_thread).
+-ENOMEM:: Failed to allocate memory for thread registration.
+-ENOENT:: The thread does not exist (hal_thread_delete).
 
 == SEE ALSO
 

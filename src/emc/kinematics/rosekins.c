@@ -33,9 +33,9 @@ MODULE_LICENSE("GPL");
 #endif
 
 struct haldata {
-    hal_float_t *revolutions;
-    hal_float_t *theta_degrees;
-    hal_float_t *bigtheta_degrees;
+    hal_real_t revolutions;
+    hal_real_t theta_degrees;
+    hal_real_t bigtheta_degrees;
 } *haldata;
 
 int kinematicsForward(const double *joints,
@@ -94,9 +94,9 @@ int kinematicsInverse(const EmcPose * pos,
     theta     = atan2(y,x);
     bigtheta  = theta + PM_2_PI * revolutions;
 
-    *(haldata->revolutions) = revolutions;
-    *(haldata->theta_degrees) = theta * TO_DEG;
-    *(haldata->bigtheta_degrees) = bigtheta * TO_DEG;
+    hal_set_real(haldata->revolutions, revolutions);
+    hal_set_real(haldata->theta_degrees, theta * TO_DEG);
+    hal_set_real(haldata->bigtheta_degrees, bigtheta * TO_DEG);
 
     joints[0] = hypot(x,y);
     joints[1] = z;
@@ -128,12 +128,12 @@ int rtapi_app_main(void) {
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    if((ans = hal_pin_float_new("rosekins.revolutions",
-              HAL_OUT, &(haldata->revolutions), comp_id)) < 0) goto error;
-    if((ans = hal_pin_float_new("rosekins.theta_degrees",
-              HAL_OUT, &(haldata->theta_degrees), comp_id)) < 0) goto error;
-    if((ans = hal_pin_float_new("rosekins.bigtheta_degrees",
-              HAL_OUT, &(haldata->bigtheta_degrees), comp_id)) < 0) goto error;
+    if((ans = hal_pin_new_real(comp_id, HAL_OUT, &(haldata->revolutions), 0.0, "rosekins.revolutions")) < 0)
+        goto error;
+    if((ans = hal_pin_new_real(comp_id, HAL_OUT, &(haldata->theta_degrees), 0.0, "rosekins.theta_degrees")) < 0)
+        goto error;
+    if((ans = hal_pin_new_real(comp_id, HAL_OUT, &(haldata->bigtheta_degrees), 0.0, "rosekins.bigtheta_degrees")) < 0)
+        goto error;
 
     hal_ready(comp_id);
     return 0;

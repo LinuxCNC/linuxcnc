@@ -65,9 +65,13 @@ RTAPI_MP_ARRAY_INT(cfg,MAX_GROUP,"Group size for up to "MAX_GROUP_STR" groups");
 /** This structure contains the runtime data for a single filter. */
 
 typedef struct {
-    hal_bit_t *in;		/* pin: input */
-    hal_bit_t *out;		/* pin: output */
-    hal_s32_t state;		/* parameter*: internal state */
+    hal_bool_t in;      /* pin: input */
+    hal_bool_t out;     /* pin: output */
+#ifdef EXPORT_STATE
+    hal_sint_t state;   /* parameter*: internal state */
+#else
+    rtapi_s32 state;    /* parameter*: internal state */
+#endif
 } debounce_t;
 
 /*  *note - this parameter is only exported if EXPORT_STATE is defined */
@@ -75,9 +79,9 @@ typedef struct {
 /** This structure contains the runtime data for a group of filters */
 
 typedef struct {
-    int channels;		/* number of channels in group */
-    hal_s32_t delay;		/* parameter: delay for this group */
-    debounce_t *filter_array;	/* pointer to individual filter data */
+    int channels;               /* number of channels in group */
+    hal_sint_t delay;           /* parameter: delay for this group */
+    debounce_t *filter_array;   /* pointer to individual filter data */
 } debounce_group_t;
 
 /* ptr to array of debounce_group_t structs in shmem, 1 per group */
@@ -168,6 +172,14 @@ void rtapi_app_exit(void)
 *                     REALTIME DEBOUNCE FUNCTION                       *
 ************************************************************************/
 
+#ifdef EXPORT_STATE
+static inline rtapi_s32 get_state(hal_sint_t *s) { return hal_get_si32(*s); }
+static inline rtapi_s32 set_state(hal_sint_t *s, rtapi_s32 v) { return hal_set_si32(*s, v); }
+#else
+static inline rtapi_s32 get_state(rtapi_s32 *s) { return *s; }
+static inline rtapi_s32 set_state(rtapi_s32 *s, rtapi_s32 v) { return (*s = v); }
+#endif
+
 /** The debounce filter works by incrementing a counter whenever the
     input is true, and decrementing the counter when it is false.
     If the counter decrements to zero, the output is set false and
@@ -193,33 +205,33 @@ static void debounce(void *arg, long period)
     /* point to filter group */
     group = (debounce_group_t *) arg;
     /* first make sure delay is sane */
-    if (group->delay < 0) {
-	group->delay = 1;
+    if (hal_get_si32(group->delay) < 0) {
+        hal_set_si32(group->delay, 1);
     }
     /* loop thru filters */
     for (n = 0; n < group->channels; n++) {
-	/* point at a filter */
-	filter = &(group->filter_array[n]);
-	/* update this filter */
-	if (*(filter->in)) {
-	    /* input true, is state at threshold? */
-	    if (filter->state < group->delay) {
-		/* no, increment */
-		filter->state++;
-	    } else {
-		/* yes, set output */
-		*(filter->out) = 1;
-	    }
-	} else {
-	    /* input false, is state at zero? */
-	    if (filter->state > 0) {
-		/* no, decrement */
-		filter->state--;
-	    } else {
-		/* yes, clear output */
-		*(filter->out) = 0;
-	    }
-	}
+        /* point at a filter */
+        filter = &(group->filter_array[n]);
+        /* update this filter */
+        if (hal_get_bool(filter->in)) {
+            /* input true, is state at threshold? */
+            if (get_state(&filter->state) < hal_get_si32(group->delay)) {
+                /* no, increment */
+                set_state(&filter->state, get_state(&filter->state) + 1);
+            } else {
+                /* yes, set output */
+                hal_set_bool(filter->out, 1);
+            }
+        } else {
+            /* input false, is state at zero? */
+            if (get_state(&filter->state) > 0) {
+                /* no, decrement */
+                set_state(&filter->state, get_state(&filter->state) - 1);
+            } else {
+                /* yes, clear output */
+                hal_set_bool(filter->out, 0);
+            }
+        }
     }
 }
 
@@ -241,36 +253,31 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
     /* allocate shared memory for this filter group */
     addr->filter_array = hal_malloc(group_size * sizeof(debounce_t));
     if (addr->filter_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: hal_malloc() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: hal_malloc() failed\n");
+        return -1;
     }
     /* export param variable for delay */
-    retval = hal_param_s32_newf(HAL_RW, &(addr->delay), comp_id, "debounce.%d.delay", num);
+    retval = hal_param_new_si32(comp_id, HAL_RW, &addr->delay, 5, "debounce.%d.delay", num);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: 'debounce.%d.delay' param export failed\n", num);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: 'debounce.%d.delay' param export failed\n", num);
+        return retval;
     }
     /* export function */
     retval = hal_export_functf(debounce, addr, 0, 0, comp_id, "debounce.%d", num);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: 'debounce.%d' funct export failed\n", num);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: 'debounce.%d' funct export failed\n", num);
+        return -1;
     }
     /* set default parameter values */
-    addr->delay = 5;
     addr->channels = group_size;
 
     /* loop to export each filter in group */
     for (n = 0; n < group_size; n++) {
-	retval = export_filter(n, &(addr->filter_array[n]), num);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"DEBOUNCE: ERROR: filter %d export failed\n", n);
-	    return -1;
-	}
+        retval = export_filter(n, &(addr->filter_array[n]), num);
+        if (retval != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: filter %d export failed\n", n);
+            return -1;
+        }
     }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
@@ -281,35 +288,31 @@ static int export_filter(int num, debounce_t * addr, int group_num)
 {
     int retval;
     char buf[HAL_NAME_LEN + 1];
+    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d", group_num, num);
 
     /* export pin for input */
-    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d.in", group_num, num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->in), comp_id);
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &addr->in, 0, "%s.in", buf);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: '%s' pin export failed\n", buf);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: '%s.in' pin export failed\n", buf);
+        return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d.out", group_num, num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->out), comp_id);
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &addr->out, 0, "%s.out", buf);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: '%s' pin export failed\n", buf);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: '%s.out' pin export failed\n", buf);
+        return retval;
     }
 #ifdef EXPORT_STATE
     /* export parameter containing internal state */
-    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d.state", group_num, num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->state), comp_id);
+    retval = hal_param_new_si32(comp_id, HAL_RO, &addr->state, 0, "%s.state", buf);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: '%s' param export failed\n", buf);
-	return retval;
+        rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: '%s.state' param export failed\n", buf);
+        return retval;
     }
+#else
+    // Param is init to zero.
+    // When no param is exported, we need to be sure too.
+    set_state(&addr->state, 0);
 #endif
-    /* set initial parameter and pin values */
-    addr->state = 0;
-    *(addr->out) = 0;
     return 0;
 }

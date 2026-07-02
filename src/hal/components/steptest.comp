@@ -1,46 +1,46 @@
 component steptest """\
 Used by Stepconf to allow testing of acceleration and velocity values for an axis.""";
-pin in bit jog-minus "Drive TRUE to jog the axis in its minus direction";
-pin in bit jog-plus "Drive TRUE to jog the axis in its positive direction";
-pin in bit run "Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile";
-pin in float maxvel "Maximum velocity";
-pin in float maxaccel "Permitted Acceleration";
-pin in float amplitude "Approximate amplitude of positions to command during 'run'";
-pin in s32 dir "Direction from central point to test: 0 = both, 1 = positive, 2 = negative";
-pin out float position-cmd;
-pin in float position-fb;
-pin out bit running;
-pin out float run-target;
-pin out float run-start;
-pin out float run-low;
-pin out float run-high;
-pin in s32 pause = 0 "pause time for each end of run in seconds";
-param rw float epsilon = .001;
-variable double timer;
-param r float elapsed "Current value of the internal timer";
+pin in bool jog-minus "Drive TRUE to jog the axis in its minus direction";
+pin in bool jog-plus "Drive TRUE to jog the axis in its positive direction";
+pin in bool run "Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile";
+pin in real maxvel "Maximum velocity";
+pin in real maxaccel "Permitted Acceleration";
+pin in real amplitude "Approximate amplitude of positions to command during 'run'";
+pin in si32 dir "Direction from central point to test: 0 = both, 1 = positive, 2 = negative";
+pin out real position-cmd;
+pin in real position-fb;
+pin out bool running;
+pin out real run-target;
+pin out real run-start;
+pin out real run-low;
+pin out real run-high;
+pin in si32 pause = 0 "pause time for each end of run in seconds";
+param rw real epsilon = .001;
+variable rtapi_real timer;
+param r real elapsed "Current value of the internal timer";
 variable int timer_on;
 function _;
 license "GPL";
 author "Jeff Epler";
+include <rtapi_math.h>;
 ;;
-extern double fabs(double);
 
 if (timer_on) {
     timer += fperiod;
 }
-elapsed = timer;
+elapsed_set(timer);
 if(run) {
     if(!running) {
-        running = 1;
-        run_start = position_fb;
+        running_set(1);
+        run_start_set(position_fb);
 
-        if(dir == 2) run_high = run_start;
-        else run_high = run_start + amplitude;
+        if(dir == 2) run_high_set(run_start);
+        else run_high_set(run_start + amplitude);
 
-        if(dir == 1) run_low = run_start;
-        else run_low = run_start - amplitude;
+        if(dir == 1) run_low_set(run_start);
+        else run_low_set(run_start - amplitude);
 
-        position_cmd = run_low;
+        position_cmd_set(run_low);
     }
 
     if(fabs(position_fb - position_cmd) < epsilon) {
@@ -51,29 +51,29 @@ if(run) {
             } else if (timer >= pause) {
                 timer_on = false; 
                 if(position_cmd == run_low) {
-                    position_cmd = run_high;
+                    position_cmd_set(run_high);
                 } else {
-                    position_cmd = run_low;
+                    position_cmd_set(run_low);
                 }
             }
         }
     }
 } else if(running) {
-    position_cmd = run_start;
+    position_cmd_set(run_start);
     if(fabs(position_fb - run_start) < epsilon) {
-        running = 0;
+        running_set(0);
         timer_on = false;
     }
 } else {
     if(jog_minus) {
-        position_cmd = position_fb - 2 * maxvel * fperiod;
+        position_cmd_set(position_fb - 2 * maxvel * fperiod);
     } else if(jog_plus) {
-        position_cmd = position_fb + 2 * maxvel * fperiod;
+        position_cmd_set(position_fb + 2 * maxvel * fperiod);
     } else {
         // Let the command track the feedback while the stepgen decelerates
         // to a halt, then keep the command constant there.
         if (fabs(position_fb - position_cmd) > (0.001 * maxvel * fperiod)) {
-            position_cmd = position_fb;
+            position_cmd_set(position_fb);
         }
     }
 }

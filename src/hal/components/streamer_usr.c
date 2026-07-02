@@ -207,6 +207,12 @@ int main(int argc, char **argv)
 	    case HAL_S32:
 		dptr->s = strtol(cp, &cp2, 10);
 		break;
+	    case HAL_U64:
+		dptr->k = strtoull(cp, &cp2, 10);
+		break;
+	    case HAL_S64:
+		dptr->l = strtoll(cp, &cp2, 10);
+		break;
 	    default:
 		/* better not happen */
 		goto out;

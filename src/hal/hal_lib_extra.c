@@ -119,8 +119,7 @@ int hal_comp_invoke_make(const char *compname, const char *newname, const char *
     // The code assumes that the constructor is called from the rtapi_app
     // context (which houses all uspace RT modules). If not, then the function
     // pointer will point into the wrong context and a crash is expected.
-    // FIXME: Remove the cast when we fix the prototype.
-    return comp->make((char *)newname, (char *)arg);
+    return comp->make(newname, arg);
 }
 
 //

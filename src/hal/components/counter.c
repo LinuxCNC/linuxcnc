@@ -65,19 +65,19 @@ typedef struct {
     unsigned char oldA;		/* previous value of phase A */
     unsigned char reset_on_index;
     unsigned char pad;		/* padding for alignment */
-    hal_s32_t *raw_count;	/* pin: raw binary count value */
-    hal_bit_t *phaseA;		/* quadrature input */
-    hal_bit_t *phaseZ;		/* index pulse input */
-    hal_bit_t *index_ena;	/* index enable input */
-    hal_bit_t *reset;		/* counter reset input */
-    hal_s32_t *count;		/* captured binary count value */
-    hal_float_t *pos;		/* scaled position (floating point) */
-    hal_float_t *vel;		/* scaled velocity (floating point) */
-    hal_float_t *pos_scale;	/* pin: scaling factor for pos */
+    hal_sint_t raw_count;	/* pin: raw binary count value */
+    hal_bool_t phaseA;		/* quadrature input */
+    hal_bool_t phaseZ;		/* index pulse input */
+    hal_bool_t index_ena;	/* index enable input */
+    hal_bool_t reset;		/* counter reset input */
+    hal_sint_t count;		/* captured binary count value */
+    hal_real_t pos;		/* scaled position (floating point) */
+    hal_real_t vel;		/* scaled velocity (floating point) */
+    hal_real_t pos_scale;	/* pin: scaling factor for pos */
     double old_scale;		/* stored scale value */
     double scale;		/* reciprocal value used for scaling */
-    hal_s32_t last_count;
-    hal_s32_t last_index_count;
+    rtapi_s32 last_count;
+    rtapi_s32 last_index_count;
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -138,10 +138,10 @@ int rtapi_app_main(void)
 	counter_array[n].oldZ = 0;
 	counter_array[n].oldA = 0;
 	counter_array[n].reset_on_index = 0;
-	*(counter_array[n].raw_count) = 0;
-	*(counter_array[n].count) = 0;
-	*(counter_array[n].pos) = 0.0;
-	*(counter_array[n].pos_scale) = 1.0;
+	hal_set_si32(counter_array[n].raw_count, 0);
+	hal_set_si32(counter_array[n].count, 0);
+	hal_set_real(counter_array[n].pos, 0.0);
+	hal_set_real(counter_array[n].pos_scale, 1.0);
 	counter_array[n].old_scale = 1.0;
 	counter_array[n].scale = 1.0;
     }
@@ -185,16 +185,16 @@ static void update(void *arg, long period)
 
     for (cntr = arg, n = 0; n < num_chan; cntr++, n++) {
         // count on rising edge
-        if(!cntr->oldA && *cntr->phaseA)
-            (*cntr->raw_count)++;
-        cntr->oldA = *cntr->phaseA;
+        if(!cntr->oldA && hal_get_bool(cntr->phaseA))
+            hal_set_si32(cntr->raw_count, hal_get_si32(cntr->raw_count) + 1);
+        cntr->oldA = hal_get_bool(cntr->phaseA);
 
         // reset on rising edge
-        if(cntr->reset_on_index && !cntr->oldZ && *cntr->phaseZ) {
-            cntr->last_index_count = *(cntr->raw_count);
-            *(cntr->index_ena) = 0;
+        if(cntr->reset_on_index && !cntr->oldZ && hal_get_bool(cntr->phaseZ)) {
+            cntr->last_index_count = hal_get_si32(cntr->raw_count);
+            hal_set_bool(cntr->index_ena, 0);
         }
-        cntr->oldZ = *cntr->phaseZ;
+        cntr->oldZ = hal_get_bool(cntr->phaseZ);
     }
 }
 
@@ -207,37 +207,37 @@ static void capture(void *arg, long period)
 	/* check reset input */
         int raw_count;
         int counts;
-	if (*(cntr->reset)) {
+	if (hal_get_bool(cntr->reset)) {
 	    /* reset is active, reset the counter */
-	    *(cntr->raw_count) = 0;
+	    hal_set_si32(cntr->raw_count, 0);
             cntr->last_index_count = 0;
             cntr->last_count = 0;
 	}
 	/* capture raw counts to latches */
-        raw_count = *(cntr->raw_count);
-	*(cntr->count) = raw_count - cntr->last_index_count;
+        raw_count = hal_get_si32(cntr->raw_count);
+	hal_set_si32(cntr->count, raw_count - cntr->last_index_count);
         counts = (raw_count - cntr->last_count);
         cntr->last_count = raw_count;
 
 	/* check for change in scale value */
-	if ( *(cntr->pos_scale) != cntr->old_scale ) {
+	if ( hal_get_real(cntr->pos_scale) != cntr->old_scale ) {
 	    /* save new scale to detect future changes */
-	    cntr->old_scale = *(cntr->pos_scale);
+	    cntr->old_scale = hal_get_real(cntr->pos_scale);
 	    /* scale value has changed, test and update it */
-	    if ((*(cntr->pos_scale) < 1e-20) && (*(cntr->pos_scale) > -1e-20)) {
+	    if ((hal_get_real(cntr->pos_scale) < 1e-20) && (hal_get_real(cntr->pos_scale) > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		*(cntr->pos_scale) = 1.0;
+		hal_set_real(cntr->pos_scale, 1.0);
 	    }
 	    /* we actually want the reciprocal */
-	    cntr->scale = 1.0 / *(cntr->pos_scale);
+	    cntr->scale = 1.0 / hal_get_real(cntr->pos_scale);
 	}
 	/* scale count to make floating point position */
-	*(cntr->pos) = *(cntr->count) * cntr->scale;
+	hal_set_real(cntr->pos, hal_get_si32(cntr->count) * cntr->scale);
 	/* scale counts to make floating point velocity */
-        *(cntr->vel) = counts * cntr->scale * 1e9 / period;
+        hal_set_real(cntr->vel, counts * cntr->scale * 1e9 / period);
 
 	/* update reset_on_index based on index_ena */
-        cntr->reset_on_index = *(cntr->index_ena);
+        cntr->reset_on_index = hal_get_bool(cntr->index_ena);
     }
 }
 
@@ -245,9 +245,17 @@ static void capture(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
+#define CHK(v) do { \
+        int _rv = (v); \
+        if(0 != _rv) { \
+            rtapi_set_msg_level(msg); \
+            return _rv; \
+        } \
+    } while(0)
+
 static int export_counter(int num, counter_t * addr)
 {
-    int retval, msg;
+    int msg;
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -257,50 +265,23 @@ static int export_counter(int num, counter_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins for the quadrature inputs */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseA), comp_id, "counter.%d.phase-A", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &addr->phaseA, 0, "counter.%d.phase-A", num));
     /* export pin for the index input */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseZ), comp_id, "counter.%d.phase-Z", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &addr->phaseZ, 0, "counter.%d.phase-Z", num));
     /* export pin for the index enable input */
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->index_ena), comp_id, "counter.%d.index-enable", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_bool(comp_id, HAL_IO, &addr->index_ena, 0, "counter.%d.index-enable", num));
     /* export pin for the reset input */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id, "counter.%d.reset", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &addr->reset, 0, "counter.%d.reset", num));
     /* export parameter for raw counts */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->raw_count), comp_id, "counter.%d.rawcounts", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &addr->raw_count, 0, "counter.%d.rawcounts", num));
     /* export pin for counts captured by capture() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id, "counter.%d.counts", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &addr->count, 0, "counter.%d.counts", num));
     /* export pin for scaled position captured by capture() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id, "counter.%d.position", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &addr->pos, 0.0, "counter.%d.position", num));
     /* export pin for scaled velocity captured by capture() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->vel), comp_id, "counter.%d.velocity", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &addr->vel, 0.0, "counter.%d.velocity", num));
     /* export parameter for scaling */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->pos_scale), comp_id, "counter.%d.position-scale", num);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_IO, &addr->pos_scale, 0.0, "counter.%d.position-scale", num));
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;

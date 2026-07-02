@@ -141,7 +141,7 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
 
     if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
     
-    chan->params = hal_malloc(sizeof(hm2_sserial_params_t));
+    chan->params = hal_malloc(sizeof(*chan->params));
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.ssi_version = md->version;
 
@@ -158,9 +158,12 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
             + (3 * md->register_stride);
     chan->data_written[0] = 0;
 
-    
-    chan->params->float_param = 500;
-    chan->params->timer_num = 0;
+    if (hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->params->param.r),
+            500.0, "%s.frequency-khz", chan->name)){
+        HM2_ERR("error adding frequency param for %s, aborting\n",
+                chan->name);
+        return -EINVAL;
+    }
     return 0;
 }
 
@@ -169,7 +172,7 @@ int hm2_absenc_setup_biss(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     
     if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
     
-    chan->params = hal_malloc(sizeof(hm2_sserial_params_t));
+    chan->params = hal_malloc(sizeof(*chan->params));
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.biss_version = md->version;
     
@@ -185,9 +188,13 @@ int hm2_absenc_setup_biss(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     hm2->absenc.biss_global_start_addr = md->base_address 
             + (3 * md->register_stride);
     chan->data_written[0] = 0;
-    
-    chan->params->float_param = 500;
-    chan->params->timer_num = 0;
+
+    if (hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->params->param.r),
+            500.0, "%s.frequency-khz", chan->name)){
+        HM2_ERR("error adding frequency param for %s, aborting\n",
+                chan->name);
+        return -EINVAL;
+    }
     return 0;
 }
 
@@ -196,7 +203,7 @@ int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     
     if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
     
-    chan->params = hal_malloc(sizeof(hm2_sserial_params_t));
+    chan->params = hal_malloc(sizeof(*chan->params));
     hm2->absenc.clock_frequency = md->clock_freq;
     hm2->absenc.fanuc_version = md->version;
 
@@ -219,16 +226,23 @@ int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
             + (5 * md->register_stride);
     chan->data_written[0] = 0;
 
-    if (hal_param_u32_newf(HAL_RW, &(chan->params->u32_param),
-            hm2->llio->comp_id,"%s.filter",
-            chan->name)){
+    // Note:
+    // This parameter was abused by first writing 1024.0 to the floating point
+    // part and then overwriting the lower part with 0x0000000F. It is now
+    // exclusively set to the unsigned value.
+    // Setting the frequency parameter would overwrite the filter setting and
+    // is now separated out into a separate param storage reference (fanucf).
+    if (hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(chan->params->param.u),
+            0xF, "%s.filter", chan->name)) {
         HM2_ERR("error adding param fanuc param 2, aborting\n");
         return -EINVAL;
     }
-    chan->params->float_param = 1024.0;
-    chan->params->u32_param = 0xF;
-    chan->params->timer_num = 0;
-
+    if (hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->params->fanucf),
+            1024.0, "%s.frequency-khz", chan->name)){
+        HM2_ERR("error adding frequency param for %s, aborting\n",
+                chan->name);
+        return -EINVAL;
+    }
     return 0;
 }
 
@@ -355,7 +369,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
 
 int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
-    hm2_absenc_format_t *def = 0;
+    hm2_absenc_format_t *def = NULL;
     struct rtapi_list_head *ptr;
     int index;
 
@@ -444,24 +458,15 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
                 }
                 
                 // Set up the common pins
-                if (hal_pin_bit_newf(HAL_OUT, &(chan->params->error),
-                        hm2->llio->comp_id,"%s.data-invalid",
-                        chan->name)){
+                if (hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(chan->params->error),
+                        0, "%s.data-invalid", chan->name)){
                     HM2_ERR("error adding %s over-run pin, aborting\n", 
                             chan->name);
                     return -EINVAL;
                 }
                 // And Params
-                if (hal_param_float_newf(HAL_RW, &(chan->params->float_param),
-                        hm2->llio->comp_id,"%s.frequency-khz",
-                        chan->name)){
-                    HM2_ERR("error adding frequency param for %s, aborting\n",
-                            chan->name);
-                    return -EINVAL;
-                }
-                if (hal_param_u32_newf(HAL_RW, &(chan->params->timer_num),
-                        hm2->llio->comp_id,"%s.timer-number",
-                        chan->name)){
+                if (hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(chan->params->timer_num),
+                        0, "%s.timer-number", chan->name)){
                     HM2_ERR("error adding %s timer number param, aborting\n", 
                             chan->name);
                     return -EINVAL;
@@ -528,7 +533,7 @@ void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
                 HM2_ERR("Data transmission not complete on channel %s read."
                         " You  may need to change the timing of %s. This "
                         "warning  will not repeat\n",  chan->name,
-                        (chan->params->timer_num == 0) ? 
+                        (hal_get_ui32(chan->params->timer_num) == 0) ?
                                 "the trigger function" : "the hm2dpll timer");
                 err_tag[i] = 1;
             }
@@ -540,14 +545,14 @@ void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
             if (err_count[i] < 5001) {
                 ++err_count[i];
             } else {
-                *chan->params->error = 1;
+                hal_set_bool(chan->params->error, 1);
             }
                 
         } else {
             if (err_count[i] > 4950){
                 --err_count[i];
             } else {
-                *chan->params->error = 0;
+                hal_set_bool(chan->params->error, 0);
             }
         }
     }
@@ -562,14 +567,15 @@ void hm2_absenc_write(hostmot2_t *hm2){
 
     for (i = 0; i < hm2->absenc.num_chans; i ++) {
         hm2_sserial_remote_t *chan = &hm2->absenc.chans[i];
+        rtapi_u32 timer_num = hal_get_ui32(chan->params->timer_num);
         switch (chan->myinst){
         case HM2_GTAG_SSI:
-            if (chan->params->timer_num > 4) chan->params->timer_num = 4;
-            buff = ((rtapi_u32)(0x10000 * (chan->params->float_param * 1000
+            if (timer_num > 4) timer_num = hal_set_ui32(chan->params->timer_num, 4);
+            buff = ((rtapi_u32)(0x10000 * (hal_get_real(chan->params->param.r) * 1000
                     / hm2->absenc.clock_frequency))) << 16
-                    | chan->params->timer_num << 12
-                    | (chan->params->timer_num == 0) << 8
-                    | (chan->params->timer_num != 0) << 9
+                    |  timer_num << 12
+                    | (timer_num == 0) << 8
+                    | (timer_num != 0) << 9
                     | chan->num_read_bits;
             if (buff != chan->data_written[0]){
                 hm2->llio->write(hm2->llio,
@@ -581,8 +587,8 @@ void hm2_absenc_write(hostmot2_t *hm2){
             break;
         
         case HM2_GTAG_BISS:
-            if (chan->params->timer_num > 4) chan->params->timer_num = 4;
-            dds = ((rtapi_u32)(0x10000 * (chan->params->float_param * 1000
+            if (timer_num > 4) timer_num = hal_set_ui32(chan->params->timer_num, 4);
+            dds = ((rtapi_u32)(0x10000 * (hal_get_real(chan->params->param.r) * 1000
             / hm2->absenc.clock_frequency)));
             filt = 0x8000/dds;               // RX data filter set to 1/2 a clock period
             if (filt > 63) { filt = 63; }    // bound so we dont splatter into adjacent fields
@@ -598,9 +604,9 @@ void hm2_absenc_write(hostmot2_t *hm2){
                         sizeof(rtapi_u32));
                 chan->data_written[0] = buff;
              }     
-             buff2 =   chan->params->timer_num << 12
-                    | (chan->params->timer_num == 0) << 8
-                    | (chan->params->timer_num != 0) << 9;
+             buff2 =   timer_num << 12
+                    | (timer_num == 0) << 8
+                    | (timer_num != 0) << 9;
              if (buff2 != chan->data_written[1]){
                 hm2->llio->write(hm2->llio,
                         chan->rw_addr[2],
@@ -611,16 +617,27 @@ void hm2_absenc_write(hostmot2_t *hm2){
         break;
         
         case HM2_GTAG_FABS:
-            if (chan->params->timer_num > 4) chan->params->timer_num = 4;
-            if (chan->params->u32_param > 15) chan->params->u32_param = 15;
-            buff3 = chan->num_read_bits << 24
+            // Note:
+	    // The original calculation used an awkward overlapped parameter
+	    // storage between floating point and an unsigned value.
+	    // 'u32_param' would occupy the lower storage part of 'float_param.
+	    // The float would be set to 1024.0 and the lower part would get
+	    // set as an unsigned with 0x0000000F. The setting of the few lower
+	    // mantissa bits has no real bearing on the value as a float.
+	    // The paramater storage has now been split.
+            // Original:
+            //   buff2 = (u32_param << 28) | (rtapi_u32)(0x100000 * (float_param * 1000 / hm2->absenc.clock_frequency))
+            // Now
+            //   buff2 = (u32_param << 28) | (rtapi_u32)(0x100000 * (fanucf * 1000 / hm2->absenc.clock_frequency))
+            if (timer_num > 4) timer_num = hal_set_ui32(chan->params->timer_num, 4);
+            if (hal_get_ui32(chan->params->param.u) > 15) hal_set_ui32(chan->params->param.u, 15);
+            buff3 = (chan->num_read_bits << 24)
                     | (rtapi_u32)(8.0e-6 * hm2->absenc.clock_frequency) << 14;
-            buff2 = chan->params->u32_param << 28
-                    | ((rtapi_u32)(0x100000 * (chan->params->float_param * 1000
-                    / hm2->absenc.clock_frequency)));
-            buff =  chan->params->timer_num << 12
-                    | (chan->params->timer_num == 0) << 8
-                    | (chan->params->timer_num != 0) << 9
+            buff2 = (hal_get_ui32(chan->params->param.u) << 28)
+                    | ((rtapi_u32)(0x100000 * (hal_get_real(chan->params->fanucf) * 1000.0 / hm2->absenc.clock_frequency)));
+            buff =    (timer_num << 12)
+                    | (timer_num == 0) << 8
+                    | (timer_num != 0) << 9
                     | (buff3 != chan->data_written[2] || buff2 != chan->data_written[1]) << 7;
             if (buff != chan->data_written[0]){
                 // if necessary this will set the write flag, then next time through

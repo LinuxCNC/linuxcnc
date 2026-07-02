@@ -45,7 +45,6 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
@@ -136,8 +135,8 @@ void refresh_trigger(void)
 	chan->vert_offset;
     /* apply type specific tweaks to trigger level */
     switch (chan->data_type) {
-    case HAL_FLOAT:
-	ctrl_shm->trig_level.d_real = fp_level;
+    case HAL_REAL:
+	ctrl_shm->trig_level.r = fp_level;
 	break;
     case HAL_S32:
 	if (fp_level > 2147483647.0) {
@@ -146,7 +145,7 @@ void refresh_trigger(void)
 	if (fp_level < -2147483648.0) {
 	    fp_level = -2147483648.0;
 	}
-	ctrl_shm->trig_level.d_s32 = fp_level;
+	ctrl_shm->trig_level.s = fp_level;
 	break;
     case HAL_U32:
 	if (fp_level > 4294967295.0) {
@@ -155,12 +154,30 @@ void refresh_trigger(void)
 	if (fp_level < 0.0) {
 	    fp_level = 0.0;
 	}
-	ctrl_shm->trig_level.d_u32 = fp_level;
+	ctrl_shm->trig_level.u = fp_level;
+	break;
+    case HAL_SINT:
+	if (fp_level > (rtapi_real)RTAPI_SINT_MAX) {
+	    fp_level = (rtapi_real)RTAPI_SINT_MAX;
+	}
+	if (fp_level < (rtapi_real)RTAPI_SINT_MIN) {
+	    fp_level = (rtapi_real)RTAPI_SINT_MIN;
+	}
+	ctrl_shm->trig_level.s = fp_level;
+	break;
+    case HAL_UINT:
+	if (fp_level > (rtapi_real)RTAPI_UINT_MAX) {
+	    fp_level = (rtapi_real)RTAPI_UINT_MAX;
+	}
+	if (fp_level < 0.0) {
+	    fp_level = 0.0;
+	}
+	ctrl_shm->trig_level.u = fp_level;
 	break;
     default:
 	break;
     }
-    if (chan->data_type == HAL_BIT) {
+    if (chan->data_type == HAL_BOOL) {
 	snprintf(buf, BUFLEN, "  ----  ");
         gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 0);
     } else {
@@ -299,7 +316,7 @@ static void dialog_select_trigger_source(void)
 {
     char *msg;
     int n;
-    char *strs[2], *titles[NUM_COLS];
+    const char *strs[2], *titles[NUM_COLS];
     char buf[BUFLEN + 1];
     GtkWidget *label, *scrolled_window, *trig_list;
     GtkWidget *content_area;

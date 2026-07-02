@@ -19,4 +19,4 @@ int hm2_pktuart_read(char* name, unsigned char data[], rtapi_u8* num_frames,
 
 DEPRECATED except in setup code.
 
-Please see the combined document hm2_pktuart.3
+Please see the combined document hm2_pktuart(3)

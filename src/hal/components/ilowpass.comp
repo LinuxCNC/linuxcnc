@@ -13,21 +13,21 @@ on the MPG.  Choose *gain* according to the smoothing level
 desired.  Divide the **axis**.__N__.**jog-scale** values by
 *scale*.""";
 
-pin in s32 in;
+pin in si32 in;
 
-pin out s32 out """*out* tracks *in* * *scale* through a low-pass
+pin out si32 out """*out* tracks *in* * *scale* through a low-pass
 filter of *gain* per period.""";
 
-param rw float scale = 1024 """A scale factor applied to the output
+param rw real scale = 1024 """A scale factor applied to the output
 value of the low-pass filter.""";
 
-param rw float gain = .5 """Together with the period, sets the rate at
+param rw real gain = .5 """Together with the period, sets the rate at
 which the output changes.  Useful range is between 0 and 1, with higher
 values causing the input value to be tracked more quickly.  For
 instance, a setting of 0.9 causes the output value to go 90% of the way
 towards the input value in each period.""";
 
-variable double value;
+variable rtapi_real value;
 
 option period no;
 function _ "Update the output based on the input and parameters.";
@@ -39,5 +39,5 @@ author "Jeff Epler";
 
 FUNCTION(_) {
     value += (in - value) * gain;
-    out = (int)(rtapi_s64)floor((value * scale) + 0.5);
+    out_set((rtapi_s64)floor((value * scale) + 0.5));
 }

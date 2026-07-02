@@ -102,13 +102,13 @@ typedef struct {
     double last_time_ok;   //last OK tx time
     //HAL related params
     char hal_tx_name[HAL_NAME_LEN + 1];
-    hal_float_t **float_value;
-    hal_s32_t **int_value;
-    //hal_float_t *scale;  //not yet implemented
-    //hal_float_t *offset; //not yet implemented
-    hal_bit_t **bit;
-    hal_bit_t **bit_inv;
-    hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
+    hal_real_t *float_value;
+    hal_sint_t *int_value;
+    //hal_real_t scale;  //not yet implemented
+    //hal_real_t offset; //not yet implemented
+    hal_bool_t *bit;
+    hal_bool_t *bit_inv;
+    hal_uint_t *num_errors;     //num of acummulated errors (0=last tx OK)
 } mb_tx_t;
 
 //Modbus link structure (mb_link_t)

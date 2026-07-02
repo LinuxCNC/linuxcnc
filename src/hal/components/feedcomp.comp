@@ -15,11 +15,11 @@
 //   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 component feedcomp "Multiply the input by the ratio of current velocity to the feed rate.";
-pin out float out "Proportionate output value";
-pin in float in "Reference value";
-pin in bit enable "Turn compensation on or off.";
-pin in float vel "Current velocity";
-param rw float feed "Feed rate reference value";
+pin out real out "Proportionate output value";
+pin in real in "Reference value";
+pin in bool enable "Turn compensation on or off.";
+pin in real vel "Current velocity";
+param rw real feed "Feed rate reference value";
 notes "Note that if enable is false, out = in.";
 
 option period no;
@@ -28,6 +28,6 @@ license "GPL";
 author "Eric H. Johnson";
 ;;
 FUNCTION(_) {
-  if (enable) out = in * (vel / feed);
-  else out = in;
+  if (enable) out_set(in * (vel / feed));
+  else out_set(in);
 }

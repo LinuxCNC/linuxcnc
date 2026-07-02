@@ -190,68 +190,65 @@ typedef enum {
 */
 
 typedef struct {
-    hal_bit_t *enable;		/* pin: enable input */
-    hal_float_t *command;	/* pin: commanded value */
-    hal_float_t *commandvds;	/* pin: commanded derivative dummysig */
-    hal_float_t *commandv;	/* pin: commanded derivative value */
-    hal_float_t *feedback;	/* pin: feedback value */
-    hal_float_t *feedbackvds;	/* pin: feedback derivative dummysig */
-    hal_float_t *feedbackv;	/* pin: feedback derivative value */
-    hal_float_t *error;		/* pin: command - feedback */
-    hal_float_t *deadband;	/* pin: deadband */
-    hal_float_t *maxerror;	/* pin: limit for error */
-    hal_float_t *maxerror_i;	/* pin: limit for integrated error */
-    hal_float_t *maxerror_d;	/* pin: limit for differentiated error */
-    hal_float_t *maxcmd_d;	/* pin: limit for differentiated cmd */
-    hal_float_t *maxcmd_dd;	/* pin: limit for 2nd derivative of cmd */
-    hal_float_t *maxcmd_ddd;	/* pin: limit for 3rd derivative of cmd */
-    hal_float_t *error_i;	/* opt. pin: integrated error */
-    double prev_error;		/* previous error for differentiator */
-    hal_float_t *error_d;	/* opt. pin: differentiated error */
-    double prev_cmd;		/* previous command for differentiator */
-    double prev_fb;		/* previous feedback for differentiator */
-    double limit_state;		/* +1 or -1 if in limit, else 0.0 */
-    hal_float_t *cmd_d;		/* opt. pin: differentiated command */
-    hal_float_t *cmd_dd;	/* opt. pin: 2nd derivative of command */
-    hal_float_t *cmd_ddd;	/* opt. pin: 3rd derivative of command */
-    hal_float_t *bias;		/* param: steady state offset */
-    hal_float_t *pgain;		/* pin: proportional gain */
-    hal_float_t *igain;		/* pin: integral gain */
-    hal_float_t *dgain;		/* pin: derivative gain */
-    hal_float_t *ff0gain;	/* pin: feedforward proportional */
-    hal_float_t *ff1gain;	/* pin: feedforward derivative */
-    hal_float_t *ff2gain;	/* pin: feedforward 2nd derivative */
-    hal_float_t *ff3gain;	/* pin: feedforward 3rd derivative */
-    hal_float_t *maxoutput;	/* pin: limit for PID output */
-    hal_float_t *output;	/* pin: the output value */
-    hal_bit_t   *saturated;	/* pin: TRUE when the output is saturated */
-    hal_float_t *saturated_s;  /* pin: the time the output has been saturated */
-    hal_s32_t   *saturated_count;
-			       /* pin: the time the output has been saturated */
-    hal_bit_t *index_enable;   /* pin: to monitor for step changes that would
-                                       otherwise screw up FF */
-    hal_bit_t *error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
+    hal_bool_t enable;          /* pin: enable input */
+    hal_real_t command;         /* pin: commanded value */
+    hal_real_t commandvds;      /* pin: commanded derivative dummysig */
+    hal_real_t commandv;        /* pin: commanded derivative value */
+    hal_real_t feedback;        /* pin: feedback value */
+    hal_real_t feedbackvds;     /* pin: feedback derivative dummysig */
+    hal_real_t feedbackv;       /* pin: feedback derivative value */
+    hal_real_t error;           /* pin: command - feedback */
+    hal_real_t deadband;        /* pin: deadband */
+    hal_real_t maxerror;        /* pin: limit for error */
+    hal_real_t maxerror_i;      /* pin: limit for integrated error */
+    hal_real_t maxerror_d;      /* pin: limit for differentiated error */
+    hal_real_t maxcmd_d;        /* pin: limit for differentiated cmd */
+    hal_real_t maxcmd_dd;       /* pin: limit for 2nd derivative of cmd */
+    hal_real_t maxcmd_ddd;      /* pin: limit for 3rd derivative of cmd */
+    hal_real_t error_i;         /* opt. pin: integrated error */
+    double prev_error;          /* previous error for differentiator */
+    hal_real_t error_d;         /* opt. pin: differentiated error */
+    double prev_cmd;            /* previous command for differentiator */
+    double prev_fb;             /* previous feedback for differentiator */
+    double limit_state;         /* +1 or -1 if in limit, else 0.0 */
+    hal_real_t cmd_d;           /* opt. pin: differentiated command */
+    hal_real_t cmd_dd;          /* opt. pin: 2nd derivative of command */
+    hal_real_t cmd_ddd;         /* opt. pin: 3rd derivative of command */
+    hal_real_t bias;            /* param: steady state offset */
+    hal_real_t pgain;           /* pin: proportional gain */
+    hal_real_t igain;           /* pin: integral gain */
+    hal_real_t dgain;           /* pin: derivative gain */
+    hal_real_t ff0gain;         /* pin: feedforward proportional */
+    hal_real_t ff1gain;         /* pin: feedforward derivative */
+    hal_real_t ff2gain;         /* pin: feedforward 2nd derivative */
+    hal_real_t ff3gain;         /* pin: feedforward 3rd derivative */
+    hal_real_t maxoutput;       /* pin: limit for PID output */
+    hal_real_t output;          /* pin: the output value */
+    hal_bool_t saturated;       /* pin: TRUE when the output is saturated */
+    hal_real_t saturated_s;     /* pin: the time the output has been saturated */
+    hal_sint_t saturated_count; /* pin: the time the output has been saturated */
+    hal_bool_t index_enable;    /* pin: to monitor for step changes that would otherwise screw up FF */
+    hal_bool_t error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
     char prev_ie;
 
 #ifdef AUTO_TUNER
     /* Autotune related */
-    hal_float_t *tuneEffort;     /* pin: Control effort for limit cycle. */
-    hal_u32_t *tuneCycles;
-    hal_u32_t *tuneType;
-    hal_bit_t *pTuneMode;       /* pin: 0=PID, 1=tune.*/
-    hal_bit_t *pTuneStart;      /* pin: Set to 1 to start an auto-tune
-				   cycle.  Clears automatically when
-				   the cycle has finished. */
-    hal_float_t *ultimateGain;   /* Calc by auto-tune from limit cycle. */
-    hal_float_t *ultimatePeriod; /* Calc by auto-tune from limit cycle. */
+    hal_real_t tuneEffort;     /* pin: Control effort for limit cycle. */
+    hal_uint_t tuneCycles;
+    hal_uint_t tuneType;
+    hal_bool_t pTuneMode;       /* pin: 0=PID, 1=tune.*/
+    hal_bool_t pTuneStart;      /* pin: Set to 1 to start an auto-tune
+                                   cycle. Clears automatically when the cycle has finished. */
+    hal_real_t ultimateGain;   /* Calc by auto-tune from limit cycle. */
+    hal_real_t ultimatePeriod; /* Calc by auto-tune from limit cycle. */
 
     /* Private data */
     State state;
-    hal_u32_t  cycleCount;
-    hal_u32_t  cyclePeriod;
-    hal_float_t cycleAmplitude;
-    hal_float_t totalTime;
-    hal_float_t avgAmplitude;
+    rtapi_u32  cycleCount;
+    rtapi_u32  cyclePeriod;
+    rtapi_real cycleAmplitude;
+    rtapi_real totalTime;
+    rtapi_real avgAmplitude;
 #endif /* AUTO_TUNER */
 } hal_pid_t;
 
@@ -353,7 +350,7 @@ static void
 Pid_CycleEnd(hal_pid_t *pid)
 {
     pid->cycleCount++;
-    pid->avgAmplitude += pid->cycleAmplitude / *(pid->tuneCycles);
+    pid->avgAmplitude += pid->cycleAmplitude / hal_get_ui32(pid->tuneCycles);
     pid->cycleAmplitude = 0;
     pid->totalTime += pid->cyclePeriod * 0.000000001;
     pid->cyclePeriod = 0;
@@ -378,21 +375,21 @@ Pid_CycleEnd(hal_pid_t *pid)
 static void
 Pid_AutoTune(hal_pid_t *pid, long period)
 {
-    hal_float_t                 error;
+    rtapi_real error;
 
     // Calculate the error.
-    error = *pid->command - *pid->feedback;
-    *pid->error = error;
+    error = hal_get_real(pid->command) - hal_get_real(pid->feedback);
+    hal_set_real(pid->error, error);
 
     // Check if enabled and if still in tune mode.
-    if(!*pid->enable || !*pid->pTuneMode){
+    if(!hal_get_bool(pid->enable) || !hal_get_bool(pid->pTuneMode)) {
         pid->state = STATE_TUNE_ABORT;
     }
 
     switch(pid->state){
     case STATE_TUNE_IDLE:
         // Wait for tune start command.
-        if(*pid->pTuneStart)
+        if(hal_get_bool(pid->pTuneStart))
             pid->state = STATE_TUNE_START;
         break;
 
@@ -404,9 +401,9 @@ Pid_AutoTune(hal_pid_t *pid, long period)
         pid->cycleAmplitude = 0;
         pid->totalTime = 0;
         pid->avgAmplitude = 0;
-        *(pid->ultimateGain) = 0;
-        *(pid->ultimatePeriod) = 0;
-        *pid->output = *(pid->bias) + fabs(*(pid->tuneEffort));
+        hal_set_real(pid->ultimateGain, 0);
+        hal_set_real(pid->ultimatePeriod, 0);
+        hal_set_real(pid->output, hal_get_real(pid->bias) + fabs(hal_get_real(pid->tuneEffort)));
         break;
 
     case STATE_TUNE_POS:
@@ -425,7 +422,7 @@ Pid_AutoTune(hal_pid_t *pid, long period)
             }
 
             // Update output so user can ramp effort until movement occurs.
-            *pid->output = *(pid->bias) - fabs(*(pid->tuneEffort));
+            hal_set_real(pid->output, hal_get_real(pid->bias) - fabs(hal_get_real(pid->tuneEffort)));
         }else{
             // Check amplitude.
             if(error > pid->cycleAmplitude)
@@ -438,34 +435,34 @@ Pid_AutoTune(hal_pid_t *pid, long period)
             }
 
             // Update output so user can ramp effort until movement occurs.
-            *pid->output = *(pid->bias) + fabs(*(pid->tuneEffort));
+            hal_set_real(pid->output, hal_get_real(pid->bias) + fabs(hal_get_real(pid->tuneEffort)));
         }
 
         // Check if the last cycle just ended. This is really the number
         // of half cycles.
-        if(pid->cycleCount < *(pid->tuneCycles))
+        if(pid->cycleCount < hal_get_ui32(pid->tuneCycles))
             break;
 
         // Calculate PID using Relay (Åström-Hägglund) method
-        *(pid->ultimateGain) = (4.0 * fabs(*(pid->tuneEffort)))/(PI * pid->avgAmplitude);
-        *(pid->ultimatePeriod) = 2.0 * pid->totalTime / *(pid->tuneCycles);
-        *(pid->ff0gain) = 0;
-        *(pid->ff2gain) = 0;
+        hal_set_real(pid->ultimateGain, (4.0 * fabs(hal_get_real(pid->tuneEffort)))/(PI * pid->avgAmplitude));
+        hal_set_real(pid->ultimatePeriod, 2.0 * pid->totalTime / hal_get_ui32(pid->tuneCycles));
+        hal_set_real(pid->ff0gain, 0);
+        hal_set_real(pid->ff2gain, 0);
 
-        if(*(pid->tuneType) == TYPE_PID){
+        if(hal_get_ui32(pid->tuneType) == TYPE_PID){
             // insert ultimate gain and period in Ziegler-Nichols PID method
-            *(pid->pgain) = 0.6 * *(pid->ultimateGain);
-            *(pid->igain) = 1.2 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
-            *(pid->dgain) = (3.0/40.0) * *(pid->ultimateGain) * *(pid->ultimatePeriod);
-            *(pid->ff1gain) = 0;
+            hal_set_real(pid->pgain, 0.6 * hal_get_real(pid->ultimateGain));
+            hal_set_real(pid->igain, 1.2 * hal_get_real(pid->ultimateGain) / (hal_get_real(pid->ultimatePeriod)));
+            hal_set_real(pid->dgain, (3.0/40.0) * hal_get_real(pid->ultimateGain) * hal_get_real(pid->ultimatePeriod));
+            hal_set_real(pid->ff1gain, 0);
         }else{
             // insert ultimate gain and period in Ziegler-Nichols PI method
-            *(pid->pgain) = 0.45 * *(pid->ultimateGain);
-            *(pid->igain) = 0.54 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
-            *(pid->dgain) = 0;
+            hal_set_real(pid->pgain, 0.45 * hal_get_real(pid->ultimateGain));
+            hal_set_real(pid->igain, 0.54 * hal_get_real(pid->ultimateGain) / (hal_get_real(pid->ultimatePeriod)));
+            hal_set_real(pid->dgain, 0);
 
             // Scaling must be set so PID output is in user units per second.
-            *(pid->ff1gain) = 1;
+            hal_set_real(pid->ff1gain, 1);
         }
 
         // Fall through.
@@ -473,11 +470,11 @@ Pid_AutoTune(hal_pid_t *pid, long period)
     case STATE_TUNE_ABORT:
     default:
         // Force output to bias.
-        *pid->output = *(pid->bias);
+        hal_set_real(pid->output, hal_get_real(pid->bias));
 
         // Abort any tuning cycle in progress.
-        *pid->pTuneStart = 0;
-        pid->state = (*pid->pTuneMode)? STATE_TUNE_IDLE: STATE_PID;
+        hal_set_bool(pid->pTuneStart, 0);
+        pid->state = hal_get_bool(pid->pTuneMode) ? STATE_TUNE_IDLE : STATE_PID;
     }
 }
 #endif /* AUTO_TUNER */
@@ -506,13 +503,13 @@ static void calc_pid(void *arg, long period)
     periodfp = period * 0.000000001;
     periodrecip = 1.0 / periodfp;
     /* get the enable bit */
-    enable = *(pid->enable);
+    enable = hal_get_bool(pid->enable);
     /* read the command and feedback only once */
-    command = *(pid->command);
-    feedback = *(pid->feedback);
+    command = hal_get_real(pid->command);
+    feedback = hal_get_real(pid->feedback);
     /* calculate the error */
-    if((!(pid->prev_ie && !*(pid->index_enable))) && 
-       (*(pid->error_previous_target))) {
+    if((!(pid->prev_ie && !hal_get_bool(pid->index_enable))) &&
+       (hal_get_bool(pid->error_previous_target))) {
         // the user requests ferror against prev_cmd, and we can honor
         // that request because we haven't just had an index reset that
         // screwed it up.  Otherwise, if we did just have an index
@@ -524,21 +521,21 @@ static void calc_pid(void *arg, long period)
         tmp1 = command - feedback;
     }
     /* store error to error pin */
-    *(pid->error) = tmp1;
+    hal_set_real(pid->error, tmp1);
 
 #ifdef AUTO_TUNER
     /* Check for auto tuning mode request. */
-    if(*pid->pTuneMode){
-        *(pid->error_i) = 0;
+    if(hal_get_bool(pid->pTuneMode)) {
+        hal_set_real(pid->error_i, 0);
         pid->prev_error = 0;
-        *(pid->error_d) = 0;
+        hal_set_real(pid->error_d, 0);
         pid->prev_cmd = 0;
         pid->limit_state = 0;
-        *(pid->cmd_d) = 0;
-        *(pid->cmd_dd) = 0;
+        hal_set_real(pid->cmd_d, 0);
+        hal_set_real(pid->cmd_dd, 0);
 
         // Force output to zero.
-        *(pid->output) = 0;
+        hal_set_real(pid->output, 0);
 
         // Switch to tuning mode.
         pid->state = STATE_TUNE_IDLE;
@@ -548,136 +545,144 @@ static void calc_pid(void *arg, long period)
 #endif /* AUTO_TUNER */
 
     /* apply error limits */
-    if (*(pid->maxerror) != 0.0) {
-	if (tmp1 > *(pid->maxerror)) {
-	    tmp1 = *(pid->maxerror);
-	} else if (tmp1 < -*(pid->maxerror)) {
-	    tmp1 = -*(pid->maxerror);
-	}
+    rtapi_real maxerror = hal_get_real(pid->maxerror);
+    if (maxerror != 0.0) {
+        if (tmp1 > maxerror) {
+            tmp1 = maxerror;
+        } else if (tmp1 < -maxerror) {
+            tmp1 = -maxerror;
+        }
     }
     /* apply the deadband */
-    if (tmp1 > *(pid->deadband)) {
-	tmp1 -= *(pid->deadband);
-    } else if (tmp1 < -*(pid->deadband)) {
-	tmp1 += *(pid->deadband);
+    rtapi_real deadband = hal_get_real(pid->deadband);
+    if (tmp1 > deadband) {
+        tmp1 -= deadband;
+    } else if (tmp1 < -deadband) {
+        tmp1 += deadband;
     } else {
-	tmp1 = 0;
+        tmp1 = 0;
     }
     /* do integrator calcs only if enabled */
     if (enable != 0) {
-	/* if output is in limit, don't let integrator wind up */
-	if ( ( tmp1 * pid->limit_state ) <= 0.0 ) {
-	    /* compute integral term */
-	    *(pid->error_i) += tmp1 * periodfp;
-	}
-	/* apply integrator limits */
-	if (*(pid->maxerror_i) != 0.0) {
-	    if (*(pid->error_i) > *(pid->maxerror_i)) {
-		*(pid->error_i) = *(pid->maxerror_i);
-	    } else if (*(pid->error_i) < -*(pid->maxerror_i)) {
-		*(pid->error_i) = -*(pid->maxerror_i);
-	    }
-	}
+        /* if output is in limit, don't let integrator wind up */
+        if ( ( tmp1 * pid->limit_state ) <= 0.0 ) {
+            /* compute integral term */
+            hal_set_real(pid->error_i, hal_get_real(pid->error_i) + tmp1 * periodfp);
+        }
+        /* apply integrator limits */
+        rtapi_real maxerror_i = hal_get_real(pid->maxerror_i);
+        if (maxerror_i != 0.0) {
+            if (hal_get_real(pid->error_i) > maxerror_i) {
+                hal_set_real(pid->error_i, maxerror_i);
+            } else if (hal_get_real(pid->error_i) < -maxerror_i) {
+                hal_set_real(pid->error_i, -maxerror_i);
+            }
+        }
     } else {
-	/* not enabled, reset integrator */
-	*(pid->error_i) = 0;
+        /* not enabled, reset integrator */
+        hal_set_real(pid->error_i, 0);
     }
     /* compute command and feedback derivatives to dummysigs */
-    if(!(pid->prev_ie && !*(pid->index_enable))) {
-        *(pid->commandvds) = (command - pid->prev_cmd) * periodrecip;
-        *(pid->feedbackvds) = (feedback - pid->prev_fb) * periodrecip;
+    if(!(pid->prev_ie && !hal_get_bool(pid->index_enable))) {
+        hal_set_real(pid->commandvds, (command - pid->prev_cmd) * periodrecip);
+        hal_set_real(pid->feedbackvds, (feedback - pid->prev_fb) * periodrecip);
     }
     /* and calculate derivative term as difference of derivatives */
-    *(pid->error_d) = *(pid->commandv) - *(pid->feedbackv);
+    hal_set_real(pid->error_d, hal_get_real(pid->commandv) - hal_get_real(pid->feedbackv));
     pid->prev_error = tmp1;
     /* apply derivative limits */
-    if (*(pid->maxerror_d) != 0.0) {
-	if (*(pid->error_d) > *(pid->maxerror_d)) {
-	    *(pid->error_d) = *(pid->maxerror_d);
-	} else if (*(pid->error_d) < -*(pid->maxerror_d)) {
-	    *(pid->error_d) = -*(pid->maxerror_d);
-	}
+    rtapi_real maxerror_d = hal_get_real(pid->maxerror_d);
+    if (maxerror_d != 0.0) {
+        if (hal_get_real(pid->error_d) > maxerror_d) {
+            hal_set_real(pid->error_d, maxerror_d);
+        } else if (hal_get_real(pid->error_d) < -maxerror_d) {
+            hal_set_real(pid->error_d, -maxerror_d);
+        }
     }
     /* save old value for 2nd derivative calc later */
-    tmp2 = *(pid->cmd_d);
-    *(pid->cmd_d) = *(pid->commandv);
+    tmp2 = hal_get_real(pid->cmd_d);
+    hal_set_real(pid->cmd_d, hal_get_real(pid->commandv));
 
     // save ie for next time
-    pid->prev_ie = *(pid->index_enable);
+    pid->prev_ie = hal_get_bool(pid->index_enable);
 
     pid->prev_cmd = command;
     pid->prev_fb = feedback;
 
     /* apply derivative limits */
-    if (*(pid->maxcmd_d) != 0.0) {
-	if (*(pid->cmd_d) > *(pid->maxcmd_d)) {
-	    *(pid->cmd_d) = *(pid->maxcmd_d);
-	} else if (*(pid->cmd_d) < -*(pid->maxcmd_d)) {
-	    *(pid->cmd_d) = -*(pid->maxcmd_d);
-	}
+    rtapi_real maxcmd_d = hal_get_real(pid->maxcmd_d);
+    if (maxcmd_d != 0.0) {
+        if (hal_get_real(pid->cmd_d) > maxcmd_d) {
+            hal_set_real(pid->cmd_d, maxcmd_d);
+        } else if (hal_get_real(pid->cmd_d) < -maxcmd_d) {
+            hal_set_real(pid->cmd_d, -maxcmd_d);
+        }
     }
 
     /* save old value for 3rd derivative calc later */
-    tmp3 = *(pid->cmd_dd);
+    tmp3 = hal_get_real(pid->cmd_dd);
     /* calculate 2nd derivative of command */
-    *(pid->cmd_dd) = (*(pid->cmd_d) - tmp2) * periodrecip;
+    hal_set_real(pid->cmd_dd, (hal_get_real(pid->cmd_d) - tmp2) * periodrecip);
     /* apply 2nd derivative limits */
-    if (*(pid->maxcmd_dd) != 0.0) {
-	if (*(pid->cmd_dd) > *(pid->maxcmd_dd)) {
-	    *(pid->cmd_dd) = *(pid->maxcmd_dd);
-	} else if (*(pid->cmd_dd) < -*(pid->maxcmd_dd)) {
-	    *(pid->cmd_dd) = -*(pid->maxcmd_dd);
-	}
+    rtapi_real maxcmd_dd = hal_get_real(pid->maxcmd_dd);
+    if (maxcmd_dd != 0.0) {
+        if (hal_get_real(pid->cmd_dd) > maxcmd_dd) {
+            hal_set_real(pid->cmd_dd, maxcmd_dd);
+        } else if (hal_get_real(pid->cmd_dd) < -maxcmd_dd) {
+            hal_set_real(pid->cmd_dd, -maxcmd_dd);
+        }
     }
 
     /* calculate 3rd derivative of command */
-    *(pid->cmd_ddd) = (*(pid->cmd_dd) - tmp3) * periodrecip;
+    hal_set_real(pid->cmd_ddd, (hal_get_real(pid->cmd_dd) - tmp3) * periodrecip);
     /* apply 3rd derivative limits */
-    if (*(pid->maxcmd_ddd) != 0.0) {
-	if (*(pid->cmd_ddd) > *(pid->maxcmd_ddd)) {
-	    *(pid->cmd_ddd) = *(pid->maxcmd_ddd);
-	} else if (*(pid->cmd_ddd) < -*(pid->maxcmd_ddd)) {
-	    *(pid->cmd_ddd) = -*(pid->maxcmd_ddd);
-	}
+    rtapi_real maxcmd_ddd = hal_get_real(pid->maxcmd_ddd);
+    if (maxcmd_ddd != 0.0) {
+        if (hal_get_real(pid->cmd_ddd) > maxcmd_ddd) {
+            hal_set_real(pid->cmd_ddd, maxcmd_ddd);
+        } else if (hal_get_real(pid->cmd_ddd) < -maxcmd_ddd) {
+            hal_set_real(pid->cmd_ddd, -maxcmd_ddd);
+        }
     }
     /* do output calcs only if enabled */
     if (enable != 0) {
-	/* calculate the output value */
-	tmp1 =
-	    *(pid->bias) + *(pid->pgain) * tmp1 + *(pid->igain) * *(pid->error_i) +
-	    *(pid->dgain) * *(pid->error_d);
-	tmp1 += command * *(pid->ff0gain) + *(pid->cmd_d) * *(pid->ff1gain) +
-	    *(pid->cmd_dd) * *(pid->ff2gain) + *(pid->cmd_ddd) * *(pid->ff3gain);
-	/* apply output limits */
-	if (*(pid->maxoutput) != 0.0) {
-	    if (tmp1 > *(pid->maxoutput)) {
-		tmp1 = *(pid->maxoutput);
-		pid->limit_state = 1.0;
-	    } else if (tmp1 < -*(pid->maxoutput)) {
-		tmp1 = -*(pid->maxoutput);
-		pid->limit_state = -1.0;
-	    } else {
-		pid->limit_state = 0.0;
-	    }
-	}
+        /* calculate the output value */
+        tmp1 =
+            hal_get_real(pid->bias) + hal_get_real(pid->pgain) * tmp1 + hal_get_real(pid->igain) * hal_get_real(pid->error_i) +
+            hal_get_real(pid->dgain) * hal_get_real(pid->error_d);
+        tmp1 += command * hal_get_real(pid->ff0gain) + hal_get_real(pid->cmd_d) * hal_get_real(pid->ff1gain) +
+            hal_get_real(pid->cmd_dd) * hal_get_real(pid->ff2gain) + hal_get_real(pid->cmd_ddd) * hal_get_real(pid->ff3gain);
+        /* apply output limits */
+        rtapi_real maxoutput = hal_get_real(pid->maxoutput);
+        if (maxoutput != 0.0) {
+            if (tmp1 > maxoutput) {
+                tmp1 = maxoutput;
+                pid->limit_state = 1.0;
+            } else if (tmp1 < -maxoutput) {
+                tmp1 = -maxoutput;
+                pid->limit_state = -1.0;
+            } else {
+                pid->limit_state = 0.0;
+            }
+        }
     } else {
-	/* not enabled, force output to zero */
-	tmp1 = 0.0;
-	pid->limit_state = 0.0;
+        /* not enabled, force output to zero */
+        tmp1 = 0.0;
+        pid->limit_state = 0.0;
     }
     /* write final output value to output pin */
-    *(pid->output) = tmp1;
+    hal_set_real(pid->output, tmp1);
 
     /* set 'saturated' outputs */
-    if(pid->limit_state) { 
-        *(pid->saturated) = 1;
-        *(pid->saturated_s) += period * 1e-9;
-        if(*(pid->saturated_count) != 2147483647)
-            (*pid->saturated_count) ++;
+    if(pid->limit_state) {
+        hal_set_bool(pid->saturated, 1);
+        hal_set_real(pid->saturated_s, hal_get_real(pid->saturated_s) + period * 1e-9);
+        if(hal_get_si32(pid->saturated_count) != 2147483647)
+            hal_set_si32(pid->saturated_count, hal_get_si32(pid->saturated_count) + 1);
     } else {
-        *(pid->saturated) = 0;
-        *(pid->saturated_s) = 0;
-        *(pid->saturated_count) = 0;
+        hal_set_bool(pid->saturated, 0);
+        hal_set_real(pid->saturated_s, 0);
+        hal_set_si32(pid->saturated_count, 0);
     }
     /* done */
 }
@@ -685,6 +690,12 @@ static void calc_pid(void *arg, long period)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
+
+#define CHK(v) do { \
+        int _rv = (v); \
+        if (0 != _rv) \
+            return _rv; \
+    } while(0)
 
 static int export_pid(hal_pid_t * addr, char * prefix)
 {
@@ -698,277 +709,85 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
-			      "%s.enable", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->command), comp_id,
-				"%s.command", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->commandv), comp_id,
-				"%s.command-deriv", prefix);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(addr->enable), 0, "%s.enable", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->command), 0.0, "%s.command", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->commandv), 0.0, "%s.command-deriv", prefix));
     addr->commandvds = addr->commandv;
 
-    retval = hal_pin_float_newf(HAL_IN, &(addr->feedback), comp_id,
-				"%s.feedback", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->feedbackv), comp_id,
-				"%s.feedback-deriv", prefix);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->feedback), 0.0, "%s.feedback", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->feedbackv), 0.0, "%s.feedback-deriv", prefix));
     addr->feedbackvds = addr->feedbackv;
 
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
-				"%s.error", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->output), comp_id,
-				"%s.output", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->saturated), comp_id,
-			      "%s.saturated", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->saturated_s), comp_id,
-				"%s.saturated-s", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->saturated_count), comp_id,
-			      "%s.saturated-count", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->pgain), comp_id,
-				"%s.Pgain", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->igain), comp_id,
-				"%s.Igain", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->dgain), comp_id,
-				"%s.Dgain", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff0gain), comp_id,
-				"%s.FF0", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff1gain), comp_id,
-				"%s.FF1", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff2gain), comp_id,
-				"%s.FF2", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff3gain), comp_id,
-                "%s.FF3", prefix);
-    if (retval != 0) {
-    return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->error), 0.0, "%s.error", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->output), 0.0, "%s.output", prefix));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &(addr->saturated), 0, "%s.saturated", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->saturated_s), 0.0, "%s.saturated-s", prefix));
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &(addr->saturated_count), 0, "%s.saturated-count", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->pgain), 1.0, "%s.Pgain", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->igain), 0.0, "%s.Igain", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->dgain), 0.0, "%s.Dgain", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->ff0gain), 0.0, "%s.FF0", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->ff1gain), 0.0, "%s.FF1", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->ff2gain), 0.0, "%s.FF2", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->ff3gain), 0.0, "%s.FF3", prefix));
     /* export pins (previously parameters) */
-    retval = hal_pin_float_newf(HAL_IN, &(addr->deadband), comp_id,
-				"%s.deadband", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror), comp_id,
-				"%s.maxerror", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror_i), comp_id,
-				"%s.maxerrorI", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror_d), comp_id,
-				"%s.maxerrorD", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_d), comp_id,
-				"%s.maxcmdD", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_dd), comp_id,
-				"%s.maxcmdDD", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_ddd), comp_id,
-                "%s.maxcmdDDD", prefix);
-    if (retval != 0) {
-    return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->bias), comp_id,
-				"%s.bias", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxoutput), comp_id,
-				"%s.maxoutput", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->index_enable), comp_id,
-			      "%s.index-enable", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->error_previous_target), comp_id,
-			      "%s.error-previous-target", prefix);
-    if (retval != 0) {
-	return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->deadband), 0.0, "%s.deadband", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxerror), 0.0, "%s.maxerror", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxerror_i), 0.0, "%s.maxerrorI", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxerror_d), 0.0, "%s.maxerrorD", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxcmd_d), 0.0, "%s.maxcmdD", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxcmd_dd), 0.0, "%s.maxcmdDD", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxcmd_ddd), 0.0, "%s.maxcmdDDD", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->bias), 0.0, "%s.bias", prefix));
+    CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->maxoutput), 0.0, "%s.maxoutput", prefix));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(addr->index_enable), 0, "%s.index-enable", prefix));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(addr->error_previous_target), 1, "%s.error-previous-target", prefix));
 #ifdef AUTO_TUNER
     /* Auto tune related */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->tuneEffort), comp_id, "%s.tune-effort", prefix);
-    if(retval != 0){
-        return retval;
-    }
-
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->tuneCycles), comp_id, "%s.tune-cycles", prefix);
-    if(retval != 0){
-        return retval;
-    }
-
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->tuneType), comp_id, "%s.tune-type", prefix);
-    if(retval != 0){
-        return retval;
-    }
-
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->pTuneMode), comp_id, "%s.tune-mode", prefix);
-    if(retval != 0){
-        return retval;
-    }
-
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->pTuneStart), comp_id, "%s.tune-start", prefix);
-    if(retval != 0){
-        return retval;
-    }
+    CHK(hal_pin_new_real(comp_id, HAL_IO, &(addr->tuneEffort), 0.5, "%s.tune-effort", prefix));
+    CHK(hal_pin_new_ui32(comp_id, HAL_IO, &(addr->tuneCycles), 50, "%s.tune-cycles", prefix));
+    CHK(hal_pin_new_ui32(comp_id, HAL_IO, &(addr->tuneType), TYPE_PID, "%s.tune-type", prefix));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(addr->pTuneMode), 0, "%s.tune-mode", prefix));
+    CHK(hal_pin_new_bool(comp_id, HAL_IO, &(addr->pTuneStart), 0, "%s.tune-start", prefix));
 #endif /* AUTO_TUNER */
 
     /* export optional parameters */
     if (debug > 0) {
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_i), comp_id,
-				    "%s.errorI", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_d), comp_id,
-				    "%s.errorD", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_d), comp_id,
-				    "%s.commandD", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_dd), comp_id,
-				    "%s.commandDD", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_ddd), comp_id,
-                    "%s.commandDDD", prefix);
-    if (retval != 0) {
-        return retval;
-    }
-
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->error_i), 0.0, "%s.errorI", prefix));
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->error_d), 0.0, "%s.errorD", prefix));
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->cmd_d), 0.0, "%s.commandD", prefix));
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->cmd_dd), 0.0, "%s.commandDD", prefix));
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->cmd_ddd), 0.0, "%s.commandDDD", prefix));
 #ifdef AUTO_TUNER
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->ultimateGain), comp_id, "%s.ultimate-gain", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->ultimatePeriod), comp_id, "%s.ultimate-period", prefix);
-	if (retval != 0) {
-	    return retval;
-        }
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->ultimateGain), 0.0, "%s.ultimate-gain", prefix));
+        CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->ultimatePeriod), 0.0, "%s.ultimate-period", prefix));
 #endif /* AUTO_TUNER */
     } else {
-	addr->error_i = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->error_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->cmd_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->cmd_dd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->cmd_ddd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+        addr->error_i = (hal_real_t)hal_malloc(sizeof(rtapi_real));
+        addr->error_d = (hal_real_t)hal_malloc(sizeof(rtapi_real));
+        addr->cmd_d   = (hal_real_t)hal_malloc(sizeof(rtapi_real));
+        addr->cmd_dd  = (hal_real_t)hal_malloc(sizeof(rtapi_real));
+        addr->cmd_ddd = (hal_real_t)hal_malloc(sizeof(rtapi_real));
 #ifdef AUTO_TUNER
-	addr->ultimateGain = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->ultimatePeriod = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+        addr->ultimateGain   = (hal_real_t)hal_malloc(sizeof(rtapi_real));
+        addr->ultimatePeriod = (hal_real_t)hal_malloc(sizeof(rtapi_real));
 #endif /* AUTO_TUNER */
     }
 
-    *(addr->error_i) = 0.0;
-    *(addr->error_d) = 0.0;
-    *(addr->cmd_d) = 0.0;
-    *(addr->cmd_dd) = 0.0;
-    *(addr->cmd_ddd) = 0.0;
     /* init all structure members */
-    *(addr->enable) = 0;
-    *(addr->error_previous_target) = 1;
-    *(addr->command) = 0;
-    *(addr->feedback) = 0;
-    *(addr->error) = 0;
-    *(addr->output) = 0;
-    *(addr->deadband) = 0.0;
-    *(addr->maxerror) = 0.0;
-    *(addr->maxerror_i) = 0.0;
-    *(addr->maxerror_d) = 0.0;
-    *(addr->maxcmd_d) = 0.0;
-    *(addr->maxcmd_dd) = 0.0;
-    *(addr->maxcmd_ddd) = 0.0;
     addr->prev_error = 0.0;
     addr->prev_cmd = 0.0;
     addr->limit_state = 0.0;
-    *(addr->bias) = 0.0;
-    *(addr->pgain) = 1.0;
-    *(addr->igain) = 0.0;
-    *(addr->dgain) = 0.0;
-    *(addr->ff0gain) = 0.0;
-    *(addr->ff1gain) = 0.0;
-    *(addr->ff2gain) = 0.0;
-    *(addr->ff3gain) = 0.0;
-    *(addr->maxoutput) = 0.0;
 #ifdef AUTO_TUNER
     /* Initialize auto tune related values */
     addr->state = STATE_PID;
-    *(addr->tuneCycles) = 50;
-    *(addr->tuneEffort) = 0.5;
-    *(addr->tuneType) = TYPE_PID;
-    *(addr->pTuneMode) = 0;
-    *(addr->pTuneStart) = 0;
 #endif /* AUTO_TUNER */
     /* export function for this loop */
-    retval =
-	hal_export_functf(calc_pid, addr, 1, 0, comp_id, "%s.do-pid-calcs", prefix);
+    retval = hal_export_functf(calc_pid, addr, 1, 0, comp_id, "%s.do-pid-calcs", prefix);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    NAME ": ERROR: do_pid_calcs funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: do_pid_calcs funct export failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     /* restore saved message level */
     rtapi_set_msg_level(msg);

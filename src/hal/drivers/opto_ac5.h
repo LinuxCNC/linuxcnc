@@ -33,10 +33,10 @@ Copyright (C) 2008 Chris Morley
 *************************************************************************/
 typedef struct  DigitalPinsParams {
     // Pins.
-    hal_bit_t				*pValue;
-    hal_bit_t				*pValueNot;
+    hal_bool_t				pValue;
+    hal_bool_t				pValueNot;
     // Parameters.
-    hal_bit_t				invert;
+    hal_bool_t				invert;
 } DigitalPinsParams;
 
 

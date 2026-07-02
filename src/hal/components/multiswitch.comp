@@ -22,13 +22,13 @@ don't connect the extra pin.
 
 component multiswitch           """This component toggles between a specified number of output bits.""";
 
-pin in bit up = false           "Receives signal to toggle up";
-pin in bit down = false         "Receives signal to toggle down";
+pin in bool up = false           "Receives signal to toggle up";
+pin in bool down = false         "Receives signal to toggle down";
 
-param rw unsigned top-position  "Number of positions";
-param rw signed position      "Current state (may be set in the HAL)";
+param rw ui32 top-position  "Number of positions";
+param rw si32 position      "Current state (may be set in the HAL)";
 
-pin out bit bit-##[32:personality] = false       "Output bits";
+pin out bool bit-##[32:personality] = false       "Output bits";
 
 modparam dummy cfg              """cfg should be a comma-separated list of sizes, for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
 Ignore the "personality" parameter, that is auto-generated.""";
@@ -53,16 +53,16 @@ FUNCTION(_) {
     int i;
     
     // debounce
-    if (up && !old_up) { position++; }
-    if (down && !old_down) { position--;}
+    if (up && !old_up) { position_set(position + 1); }
+    if (down && !old_down) { position_set(position - 1);}
     old_up = up;
     old_down = down;
     
-    if (position < 0) position = top_position;
-    if ((unsigned)position > top_position) position = 0;
+    if (position < 0) position_set(top_position);
+    if ((unsigned)position > top_position) position_set(0);
     
     for (i = 0 ; i < personality; i++){
-        bit(i) = (i == position);
+        bit_set(i, i == position);
     }
 
 }
@@ -70,7 +70,7 @@ FUNCTION(_) {
 EXTRA_SETUP(){
     (void)prefix;
     personality = cfg[extra_arg];
-    top_position = personality - 1;
+    top_position_set(personality - 1);
     return 0;
 }
 

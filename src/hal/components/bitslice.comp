@@ -3,8 +3,8 @@ description """This component creates individual bit-outputs for each bit of an
 unsigned-32 input. The number of bits can be limited by the "personality"
 modparam.
 The inverse process can be performed by the bitmerge HAL component.""";
-pin in u32 in "The input value";
-pin out bit out-##[32:personality];
+pin in ui32 in "The input value";
+pin out bool out-##[32:personality];
 author "Andy Pugh";
 license "GPL2+";
 function _;
@@ -13,6 +13,6 @@ option period no;
 ;;
 rtapi_u32 v = in;
 for (int i = 0; i < personality; i++) {
-	out(i) = v & 1;
+	out_set(i, v & 1);
 	v >>= 1;
 }

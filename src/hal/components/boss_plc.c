@@ -152,9 +152,9 @@ typedef void                    (*TIMER_ROUTINE)(void *pArgs);
 typedef struct {
     // Private data.
     BOOL                        enabled;
-    hal_u32_t                   nSec;
-    hal_u32_t                   count;
-    hal_u32_t                   timeout;
+    rtapi_u32                   nSec;
+    rtapi_u32                   count;
+    rtapi_u32                   timeout;
     TIMER_ROUTINE               pTimeout;
     void                        *pArgs;
     TimerMode                   mode;
@@ -165,7 +165,7 @@ static void Timer_Enable(Timer *this, TimerMode mode);
 static void Timer_Disable(Timer *this);
 static BOOL Timer_IsEnabled(Timer *this);
 static void Timer_Update(Timer *this, long period);
-static void Timer_SetTimeout(Timer *this, hal_u32_t timeout);
+static void Timer_SetTimeout(Timer *this, rtapi_u32 timeout);
 #if 0
 static void Timer_SetCallback(Timer *this, TIMER_ROUTINE pCallback, void *pArgs);
 #endif
@@ -188,23 +188,25 @@ typedef enum {
 
 typedef struct {
     // Exported pins.
-    hal_float_t                 *pPositionIn;
-    hal_bit_t                   *pJogEnIn;
-    hal_bit_t                   *pIn;
-    hal_bit_t                   *pPosOut;
-    hal_bit_t                   *pNegOut;
+    hal_real_t                  pPositionIn;
+    hal_bool_t                  pJogEnIn;
+    hal_bool_t                  pIn;
+    hal_bool_t                  pPosOut;
+    hal_bool_t                  pNegOut;
+
+    hal_uint_t                  stateDebug;  // Only available when debug is on
 
     // Internal data.
     LimitState                  state;
-    hal_float_t                 position;
-    hal_bit_t                   limitPos;
-    hal_bit_t                   limitNeg;
+    rtapi_real                  position;
+    rtapi_bool                  limitPos;
+    rtapi_bool                  limitNeg;
 } Limit;
 
 static int Limit_Export(Limit *this, int compId, int id, char axis);
 static void Limit_Init(Limit *this);
 static BOOL Limit_IsActive(Limit *this);
-static void Limit_Refresh(Limit *this, hal_bit_t override);
+static void Limit_Refresh(Limit *this, rtapi_bool override);
 
 
 /******************************************************************************
@@ -216,18 +218,18 @@ static void Limit_Refresh(Limit *this, hal_bit_t override);
 
 typedef struct {
     // Exported pins.
-    hal_bit_t                   *pEnableIn;
-    hal_bit_t                   *pReadyIn;
-    hal_bit_t                   *pFaultOut;
+    hal_bool_t                  pEnableIn;
+    hal_bool_t                  pReadyIn;
+    hal_bool_t                  pFaultOut;
 
     // Internal data.
     Timer                       timer;
-    hal_bit_t                   lastEnable;
+    rtapi_bool                  lastEnable;
 } Amp;
 
 static int Amp_Export(Amp *this, int compId, int id, char axis);
 static void Amp_Init(Amp *this);
-static void Amp_Refresh(Amp *this, long period, hal_u32_t readyDelay);
+static void Amp_Refresh(Amp *this, long period, rtapi_u32 readyDelay);
 
 
 /******************************************************************************
@@ -256,57 +258,59 @@ typedef enum {
 
 typedef struct {
     // Pins. (former parameters)
-    hal_u32_t                   *ampReadyDelay;
-    hal_u32_t                   *brakeOnDelay;
-    hal_u32_t                   *brakeOffDelay;
-    hal_float_t                 *spindleLoToHi;
-    hal_float_t                 *jogScale[NUM_JOG_SEL];
+    hal_uint_t                  ampReadyDelay;
+    hal_uint_t                  brakeOnDelay;
+    hal_uint_t                  brakeOffDelay;
+    hal_real_t                  spindleLoToHi;
+    hal_real_t                  jogScale[NUM_JOG_SEL];
 
     // Pins.
-    hal_bit_t                   *pCycleStartIn;
-    hal_bit_t                   *pCycleHoldIn;
-    hal_bit_t                   *pFeedHoldOut;
-    hal_float_t                 *pAdaptiveFeedIn;
-    hal_float_t                 *pAdaptiveFeedOut;
-    hal_bit_t                   *pToolChangeIn;
-    hal_bit_t                   *pToolChangedOut;
-    hal_bit_t                   *pWaitUserOut;
-    hal_bit_t                   *pMistOnIn;
-    hal_bit_t                   *pMistOnOut;
-    hal_bit_t                   *pFloodOnIn;
-    hal_bit_t                   *pFloodOnOut;
+    hal_bool_t                  pCycleStartIn;
+    hal_bool_t                  pCycleHoldIn;
+    hal_bool_t                  pFeedHoldOut;
+    hal_real_t                  pAdaptiveFeedIn;
+    hal_real_t                  pAdaptiveFeedOut;
+    hal_bool_t                  pToolChangeIn;
+    hal_bool_t                  pToolChangedOut;
+    hal_bool_t                  pWaitUserOut;
+    hal_bool_t                  pMistOnIn;
+    hal_bool_t                  pMistOnOut;
+    hal_bool_t                  pFloodOnIn;
+    hal_bool_t                  pFloodOnOut;
 
-    hal_bit_t                   *pLimitOverrideIn;
-    hal_bit_t                   *pLimitActiveOut;
+    hal_bool_t                  pLimitOverrideIn;
+    hal_bool_t                  pLimitActiveOut;
     Limit                       xLimit;
     Limit                       yLimit;
-    hal_bit_t                   *pZJogEnIn;
-    hal_bit_t                   *pZLimitPosIn;
-    hal_bit_t                   *pZLimitNegIn;
-    hal_bit_t                   *pZLimitPosOut;
-    hal_bit_t                   *pZLimitNegOut;
+    hal_bool_t                  pZJogEnIn;
+    hal_bool_t                  pZLimitPosIn;
+    hal_bool_t                  pZLimitNegIn;
+    hal_bool_t                  pZLimitPosOut;
+    hal_bool_t                  pZLimitNegOut;
 
     Amp                         amps[NUM_AXIS];
 
-    hal_float_t                 *pSpindleSpeedIn;
-    hal_bit_t                   *pSpindleIsOnIn;
-    hal_bit_t                   *pSpindleFwdOut;
-    hal_bit_t                   *pSpindleRevOut;
-    hal_bit_t                   *pSpindleIncIn;
-    hal_bit_t                   *pSpindleDecIn;
-    hal_bit_t                   *pSpindleIncOut;
-    hal_bit_t                   *pSpindleDecOut;
-    hal_bit_t                   *pBrakeEnIn;
-    hal_bit_t                   *pBrakeEnOut;
+    hal_real_t                  pSpindleSpeedIn;
+    hal_bool_t                  pSpindleIsOnIn;
+    hal_bool_t                  pSpindleFwdOut;
+    hal_bool_t                  pSpindleRevOut;
+    hal_bool_t                  pSpindleIncIn;
+    hal_bool_t                  pSpindleDecIn;
+    hal_bool_t                  pSpindleIncOut;
+    hal_bool_t                  pSpindleDecOut;
+    hal_bool_t                  pBrakeEnIn;
+    hal_bool_t                  pBrakeEnOut;
 
-    hal_bit_t                   *pJogSelIn[NUM_JOG_SEL];
-    hal_float_t                 *pJogScaleOut;
+    hal_bool_t                  pJogSelIn[NUM_JOG_SEL];
+    hal_real_t                  pJogScaleOut;
+
+    hal_uint_t                  spindleStateDebug;  // Only available when debug is on
 
     // Private data.
     SpindleState                spindleState;
     Timer                       spindleTimer;
-    hal_float_t                 lastSpindleSpeed;
-    hal_bit_t                   lastCycleStart;
+    rtapi_real                  lastSpindleSpeed;
+    rtapi_bool                  lastCycleStart;
 } Plc;
 
 
@@ -438,14 +442,9 @@ Plc_Init(Plc *this)
     this->lastCycleStart = 1;
 
     // Initialize parameters.
-    *(this->brakeOffDelay) = 500;
-    *(this->brakeOnDelay) = 300;
-    *(this->ampReadyDelay) = 50;
-    *(this->spindleLoToHi) = 500;
-
-    *(this->jogScale[0]) = 0.0001;
+    hal_set_real(this->jogScale[0], 0.0001);
     for(i = 1; i < NUM_JOG_SEL; i++){
-        *(this->jogScale[i]) = *(this->jogScale[i-1]) * 10;
+        hal_set_real(this->jogScale[i], hal_get_real(this->jogScale[i-1]) * 10);
     }
 
     // Initialize timer.
@@ -512,62 +511,61 @@ Plc_ExportFeed(Plc *this, int compId, int id)
     int                         error;
 
     // Export pins.
-    error = hal_pin_bit_newf(HAL_IN, &this->pCycleStartIn, compId,
+    error = hal_pin_new_bool(compId, HAL_IN, &this->pCycleStartIn, 0,
 			     "boss_plc.%d.cycle-start-in", id);
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pCycleHoldIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pCycleHoldIn, 0,
 				 "boss_plc.%d.cycle-hold-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pFeedHoldOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pFeedHoldOut, 0,
 				 "boss_plc.%d.feed-hold-out", id);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IN, &this->pAdaptiveFeedIn, compId,
+        error = hal_pin_new_real(compId, HAL_IN, &this->pAdaptiveFeedIn, 1.0,
 				   "boss_plc.%d.adaptive-feed-in", id);
     }
 
     if(!error){
-        *this->pAdaptiveFeedIn = 1.0;
-        error = hal_pin_float_newf(HAL_OUT, &this->pAdaptiveFeedOut, compId,
+        error = hal_pin_new_real(compId, HAL_OUT, &this->pAdaptiveFeedOut, 0.0,
 				   "boss_plc.%d.adaptive-feed-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pToolChangeIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pToolChangeIn, 0,
 				 "boss_plc.%d.tool-change-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pToolChangedOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pToolChangedOut, 0,
 				 "boss_plc.%d.tool-changed-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pWaitUserOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pWaitUserOut, 0,
 				 "boss_plc.%d.wait-user-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pMistOnIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pMistOnIn, 0,
 				 "boss_plc.%d.mist-on-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pMistOnOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pMistOnOut, 0,
 				 "boss_plc.%d.mist-on-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pFloodOnIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pFloodOnIn, 0,
 				 "boss_plc.%d.flood-on-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pFloodOnOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pFloodOnOut, 0,
 				 "boss_plc.%d.flood-on-out", id);
     }
 
@@ -581,11 +579,11 @@ Plc_ExportLimits(Plc *this, int compId, int id)
     int                         error;
 
     // Export pins.
-    error = hal_pin_bit_newf(HAL_IN, &this->pLimitOverrideIn, compId,
+    error = hal_pin_new_bool(compId, HAL_IN, &this->pLimitOverrideIn, 0,
 			     "boss_plc.%d.limit-override-in", id);
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pLimitActiveOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pLimitActiveOut, 0,
 				 "boss_plc.%d.limit-active-out", id);
     }
 
@@ -598,39 +596,39 @@ Plc_ExportLimits(Plc *this, int compId, int id)
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pZLimitPosIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pZLimitPosIn, 0,
 				 "boss_plc.%d.%c-limit-pos-in", id, axisNames[2]);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pZJogEnIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pZJogEnIn, 0,
 				 "boss_plc.%d.%c-jog-en-in", id, axisNames[2]);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pZLimitNegIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pZLimitNegIn, 0,
 				 "boss_plc.%d.%c-limit-neg-in", id, axisNames[2]);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pZLimitPosOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pZLimitPosOut, 0,
 				 "boss_plc.%d.%c-limit-pos-out", id, axisNames[2]);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pZLimitNegOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pZLimitNegOut, 0,
 				 "boss_plc.%d.%c-limit-neg-out", id, axisNames[2]);
     }
 
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_param_u32_newf(HAL_RO, &this->xLimit.state, compId,
+            error = hal_param_new_ui32(compId, HAL_RO, &this->xLimit.stateDebug, 0,
 				       "boss_plc.%d.%c-limit-state", id, axisNames[0]);
         }
 
         if(!error){
-            error = hal_param_u32_newf(HAL_RO, &this->yLimit.state, compId,
+            error = hal_param_new_ui32(compId, HAL_RO, &this->yLimit.stateDebug, 0,
 				       "boss_plc.%d.%c-limit-state", id, axisNames[1]);
         }
     }
@@ -645,7 +643,7 @@ Plc_ExportAmps(Plc *this, int compId, int id)
     int                         error, i;
     Amp                         *pAmp;
 
-    error = hal_pin_u32_newf(HAL_IO, &this->ampReadyDelay, compId,
+    error = hal_pin_new_ui32(compId, HAL_IO, &this->ampReadyDelay, 50,
 			     "boss_plc.%d.amp-ready-delay", id);
 
     pAmp = this->amps;
@@ -663,75 +661,75 @@ Plc_ExportSpindle(Plc *this, int compId, int id)
     int                         error;
 
     // Export parameters.
-    error = hal_pin_u32_newf(HAL_IO, &this->brakeOnDelay, compId,
+    error = hal_pin_new_ui32(compId, HAL_IO, &this->brakeOnDelay, 300,
 			     "boss_plc.%d.brake-on-delay", id);
 
     if(!error){
-        error = hal_pin_u32_newf(HAL_IO, &this->brakeOffDelay, compId,
+        error = hal_pin_new_ui32(compId, HAL_IO, &this->brakeOffDelay, 500,
 				 "boss_plc.%d.brake-off-delay", id);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &this->spindleLoToHi, compId,
+        error = hal_pin_new_real(compId, HAL_IO, &this->spindleLoToHi, 500,
 				   "boss_plc.%d.spindle-lo-to-hi", id);
     }
 
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_param_u32_newf(HAL_RO, &this->spindleState, compId,
+            error = hal_param_new_ui32(compId, HAL_RO, &this->spindleStateDebug, 0,
 				       "boss_plc.%d.spindle-state", id);
         }
     }
 
     // Export pins.
     if(!error){
-        error = hal_pin_float_newf(HAL_IN, &this->pSpindleSpeedIn, compId,
+        error = hal_pin_new_real(compId, HAL_IN, &this->pSpindleSpeedIn, 0.0,
 				   "boss_plc.%d.spindle-speed-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pSpindleIsOnIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pSpindleIsOnIn, 0,
 				 "boss_plc.%d.spindle-is-on-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleFwdOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pSpindleFwdOut, 0,
 				 "boss_plc.%d.spindle-fwd-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleRevOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pSpindleRevOut, 0,
 				 "boss_plc.%d.spindle-rev-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pSpindleIncIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pSpindleIncIn, 0,
 				 "boss_plc.%d.spindle-inc-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pSpindleDecIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pSpindleDecIn, 0,
 				 "boss_plc.%d.spindle-dec-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleIncOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pSpindleIncOut, 0,
 				 "boss_plc.%d.spindle-inc-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleDecOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pSpindleDecOut, 0,
 				 "boss_plc.%d.spindle-dec-out", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pBrakeEnIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pBrakeEnIn, 0,
 				 "boss_plc.%d.brake-en-in", id);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pBrakeEnOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pBrakeEnOut, 0,
 				 "boss_plc.%d.brake-en-out", id);
     }
 
@@ -746,20 +744,20 @@ Plc_ExportJog(Plc *this, int compId, int id)
 
     // Export parameters.
     for(i = 0, error = 0; i < NUM_JOG_SEL && !error; i++){
-        error = hal_pin_float_newf(HAL_IO, &this->jogScale[i], compId,
+        error = hal_pin_new_real(compId, HAL_IO, &this->jogScale[i], 0.0,
 				   "boss_plc.%d.jog-scale-%d", id, i);
     }
 
     if(!error){
         for(i = 0; i < NUM_JOG_SEL && !error; i++){
-            error = hal_pin_bit_newf(HAL_IN, &this->pJogSelIn[i], compId,
+            error = hal_pin_new_bool(compId, HAL_IN, &this->pJogSelIn[i], 0,
 				     "boss_plc.%d.jog-sel-in-%d", id, i);
         }
     }
 
     // Export pins.
     if(!error){
-        error = hal_pin_float_newf(HAL_OUT, &this->pJogScaleOut, compId,
+        error = hal_pin_new_real(compId, HAL_OUT, &this->pJogScaleOut, 0.0,
 				   "boss_plc.%d.jog-scale-out", id);
     }
 
@@ -781,6 +779,12 @@ Plc_Refresh(void *arg, long period)
     Plc_RefreshAmps(this, period);
     Plc_RefreshSpindle(this, period);
     Plc_RefreshJog(this, period);
+
+    if(debug > 0) {
+        hal_set_ui32(this->spindleStateDebug, this->spindleState);
+        hal_set_ui32(this->xLimit.stateDebug, this->xLimit.state);
+        hal_set_ui32(this->yLimit.stateDebug, this->yLimit.state);
+    }
 }
 
 
@@ -790,35 +794,35 @@ Plc_RefreshFeed(Plc *this, long period)
     (void)period;
     BOOL                        riseCycleStart;
 
-    riseCycleStart = !this->lastCycleStart && *this->pCycleStartIn;
-    this->lastCycleStart = *this->pCycleStartIn;
+    riseCycleStart = !this->lastCycleStart && hal_get_bool(this->pCycleStartIn);
+    this->lastCycleStart = hal_get_bool(this->pCycleStartIn);
 
     // Condition feed hold so machine waits for cycle start and spindle to be
     // running if it is enabled.
-    *this->pFeedHoldOut = *this->pCycleHoldIn
-                            || (*this->pSpindleSpeedIn && !*this->pSpindleIsOnIn)
-                            || (*this->pSpindleIsOnIn
-                                && (this->lastSpindleSpeed != *this->pSpindleSpeedIn))
-                            || (*this->pFeedHoldOut && !riseCycleStart);
-    this->lastSpindleSpeed = *this->pSpindleSpeedIn;
+    hal_set_bool(this->pFeedHoldOut, hal_get_bool(this->pCycleHoldIn)
+                            || (hal_get_real(this->pSpindleSpeedIn) && !hal_get_bool(this->pSpindleIsOnIn))
+                            || (hal_get_bool(this->pSpindleIsOnIn)
+                                && (this->lastSpindleSpeed != hal_get_real(this->pSpindleSpeedIn)))
+                            || (hal_get_bool(this->pFeedHoldOut) && !riseCycleStart));
+    this->lastSpindleSpeed = hal_get_real(this->pSpindleSpeedIn);
 
     // Limit rapid/feed to 1% when limits are being overridden.
-    if(*this->pLimitOverrideIn && (*this->pAdaptiveFeedIn > 0.01))
-        *this->pAdaptiveFeedOut = 0.01;
+    if(hal_get_bool(this->pLimitOverrideIn) && (hal_get_real(this->pAdaptiveFeedIn) > 0.01))
+        hal_set_real(this->pAdaptiveFeedOut, 0.01);
     else
-        *this->pAdaptiveFeedOut = *this->pAdaptiveFeedIn;
+        hal_set_real(this->pAdaptiveFeedOut, hal_get_real(this->pAdaptiveFeedIn));
 
     // Wait for cycle start to acknowledge tool change.
-    *this->pToolChangedOut = (*this->pToolChangeIn && riseCycleStart)
-                            || (*this->pToolChangedOut && *this->pToolChangeIn);
+    hal_set_bool(this->pToolChangedOut, (hal_get_bool(this->pToolChangeIn) && riseCycleStart)
+                            || (hal_get_bool(this->pToolChangedOut) && hal_get_bool(this->pToolChangeIn)));
 
     // Indicates waiting for user to press cycle start.
-    *this->pWaitUserOut = *this->pFeedHoldOut
-                            || (*this->pToolChangeIn && !*this->pToolChangedOut);
+    hal_set_bool(this->pWaitUserOut, hal_get_bool(this->pFeedHoldOut)
+                            || (hal_get_bool(this->pToolChangeIn) && !hal_get_bool(this->pToolChangedOut)));
 
     // Turn coolant off during tool changes.
-    *this->pMistOnOut = *this->pMistOnIn && !*this->pToolChangeIn;
-    *this->pFloodOnOut = *this->pFloodOnIn && !*this->pToolChangeIn;
+    hal_set_bool(this->pMistOnOut, hal_get_bool(this->pMistOnIn) && !hal_get_bool(this->pToolChangeIn));
+    hal_set_bool(this->pFloodOnOut, hal_get_bool(this->pFloodOnIn) && !hal_get_bool(this->pToolChangeIn));
 }
 
 
@@ -826,19 +830,19 @@ static void
 Plc_RefreshLimits(Plc *this, long period)
 {
     (void)period;
-    Limit_Refresh(&this->xLimit, *this->pLimitOverrideIn);
-    Limit_Refresh(&this->yLimit, *this->pLimitOverrideIn);
+    Limit_Refresh(&this->xLimit, hal_get_bool(this->pLimitOverrideIn));
+    Limit_Refresh(&this->yLimit, hal_get_bool(this->pLimitOverrideIn));
 
     // Condition Z limits with override in manual mode.
-    *this->pZLimitPosOut = *this->pZLimitPosIn
-                            && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
-    *this->pZLimitNegOut = *this->pZLimitNegIn
-                            && !(*this->pZJogEnIn && *this->pLimitOverrideIn);
+    hal_set_bool(this->pZLimitPosOut, hal_get_bool(this->pZLimitPosIn)
+                            && !(hal_get_bool(this->pZJogEnIn) && hal_get_bool(this->pLimitOverrideIn)));
+    hal_set_bool(this->pZLimitNegOut, hal_get_bool(this->pZLimitNegIn)
+                            && !(hal_get_bool(this->pZJogEnIn) && hal_get_bool(this->pLimitOverrideIn)));
 
     // Generate limit active signal for pilot lamp.
-    *this->pLimitActiveOut = Limit_IsActive(&this->xLimit)
+    hal_set_bool(this->pLimitActiveOut, Limit_IsActive(&this->xLimit)
                             || Limit_IsActive(&this->yLimit)
-                            || *this->pZLimitPosIn || *this->pZLimitNegIn;
+                            || hal_get_bool(this->pZLimitPosIn) || hal_get_bool(this->pZLimitNegIn));
 }
 
 
@@ -850,7 +854,7 @@ Plc_RefreshAmps(Plc *this, long period)
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS; i++, pAmp++){
-        Amp_Refresh(pAmp, period, *(this->ampReadyDelay));
+        Amp_Refresh(pAmp, period, hal_get_ui32(this->ampReadyDelay));
     }
 }
 
@@ -862,10 +866,10 @@ Plc_RefreshSpindle(Plc *this, long period)
     switch(this->spindleState){
     // Spindle is off, brake is on.
     case SS_OFF:
-        if(!*this->pBrakeEnIn){
+        if(!hal_get_bool(this->pBrakeEnIn)){
             this->spindleState = SS_WAIT_BRAKE_OFF;
-            *this->pBrakeEnOut = 0;
-            Timer_SetTimeout(&this->spindleTimer, *(this->brakeOffDelay));
+            hal_set_bool(this->pBrakeEnOut, 0);
+            Timer_SetTimeout(&this->spindleTimer, hal_get_ui32(this->brakeOffDelay));
             Timer_Enable(&this->spindleTimer, TM_ONE_SHOT);
         }
         break;
@@ -873,56 +877,56 @@ Plc_RefreshSpindle(Plc *this, long period)
     // Spindle is off, brake has been turned off. Wait at least a brake off
     // delay before turning spindle on.
     case SS_WAIT_BRAKE_OFF:
-        if(*this->pBrakeEnIn){
+        if(hal_get_bool(this->pBrakeEnIn)){
             this->spindleState = SS_OFF;
-            *this->pBrakeEnOut = 1;
+            hal_set_bool(this->pBrakeEnOut, 1);
             Timer_Disable(&this->spindleTimer);
 
-        }else if((*this->pSpindleSpeedIn != 0.0)
+        }else if((hal_get_real(this->pSpindleSpeedIn) != 0.0)
                  && !Timer_IsEnabled(&this->spindleTimer)){
 
             this->spindleState = SS_WAIT_ON;
 
-            if(*this->pSpindleSpeedIn > *(this->spindleLoToHi)
-              || (*this->pSpindleSpeedIn < 0.0
-                && *this->pSpindleSpeedIn >= -*(this->spindleLoToHi))){
+            if(hal_get_real(this->pSpindleSpeedIn) > hal_get_real(this->spindleLoToHi)
+              || (hal_get_real(this->pSpindleSpeedIn) < 0.0
+                && hal_get_real(this->pSpindleSpeedIn) >= -hal_get_real(this->spindleLoToHi))){
 
-                *this->pSpindleFwdOut = 1;
+                hal_set_bool(this->pSpindleFwdOut, 1);
             }else{
-                *this->pSpindleRevOut = 1;
+                hal_set_bool(this->pSpindleRevOut, 1);
             }
         }
         break;
 
     // Spindle has been turned on. Wait for confirmation that it is running.
     case SS_WAIT_ON:
-        if(*this->pSpindleIsOnIn){
+        if(hal_get_bool(this->pSpindleIsOnIn)){
             this->spindleState = SS_ON;
 
-        }else if(*this->pSpindleSpeedIn == 0.0){
+        }else if(hal_get_real(this->pSpindleSpeedIn) == 0.0){
             this->spindleState = SS_WAIT_BRAKE_OFF;
 
-            *this->pSpindleFwdOut = 0;
-            *this->pSpindleRevOut = 0;
+            hal_set_bool(this->pSpindleFwdOut, 0);
+            hal_set_bool(this->pSpindleRevOut, 0);
         }
         break;
 
     // Spindle is running.
     case SS_ON:
-        if(*this->pSpindleSpeedIn == 0.0){
+        if(hal_get_real(this->pSpindleSpeedIn) == 0.0){
             this->spindleState = SS_WAIT_OFF;
 
-            *this->pSpindleFwdOut = 0;
-            *this->pSpindleRevOut = 0;
+            hal_set_bool(this->pSpindleFwdOut, 0);
+            hal_set_bool(this->pSpindleRevOut, 0);
         }
         break;
 
     // Spindle has been turned off. Wait for confirmation.
     case SS_WAIT_OFF:
-        if(!*this->pSpindleIsOnIn){
+        if(!hal_get_bool(this->pSpindleIsOnIn)){
             this->spindleState = SS_WAIT_BRAKE_ON;
 
-            Timer_SetTimeout(&this->spindleTimer, *(this->brakeOnDelay));
+            Timer_SetTimeout(&this->spindleTimer, hal_get_ui32(this->brakeOnDelay));
             Timer_Enable(&this->spindleTimer, TM_ONE_SHOT);
         }
         break;
@@ -936,16 +940,16 @@ Plc_RefreshSpindle(Plc *this, long period)
     default:
         this->spindleState = SS_WAIT_OFF;
 
-        *this->pSpindleFwdOut = 0;
-        *this->pSpindleRevOut = 0;
+        hal_set_bool(this->pSpindleFwdOut, 0);
+        hal_set_bool(this->pSpindleRevOut, 0);
     }
 
     // Condition spindle increase and decrease so they are disabled when
     // spindle is not running and both cannot be enabled at the same time.
-    *this->pSpindleIncOut = *this->pSpindleIncIn && !*this->pSpindleDecIn
-                            && *this->pSpindleIsOnIn;
-    *this->pSpindleDecOut = *this->pSpindleDecIn && !*this->pSpindleIncIn
-                            && *this->pSpindleIsOnIn;
+    hal_set_bool(this->pSpindleIncOut, hal_get_bool(this->pSpindleIncIn) && !hal_get_bool(this->pSpindleDecIn)
+                            && hal_get_bool(this->pSpindleIsOnIn));
+    hal_set_bool(this->pSpindleDecOut, hal_get_bool(this->pSpindleDecIn) && !hal_get_bool(this->pSpindleIncIn)
+                            && hal_get_bool(this->pSpindleIsOnIn));
 }
 
 
@@ -957,8 +961,8 @@ Plc_RefreshJog(Plc *this, long period)
 
     // Jog scale.
     for(i = 0; i < NUM_JOG_SEL; i++){
-        if(*this->pJogSelIn[i]){
-            *this->pJogScaleOut = *(this->jogScale[i]);
+        if(hal_get_bool(this->pJogSelIn[i])){
+            hal_set_real(this->pJogScaleOut, hal_get_real(this->jogScale[i]));
             break;
         }
     }
@@ -974,26 +978,26 @@ Limit_Export(Limit *this, int compId, int id, char axis)
 {
     int                         error;
 
-    error = hal_pin_float_newf(HAL_IN, &this->pPositionIn, compId,
+    error = hal_pin_new_real(compId, HAL_IN, &this->pPositionIn, 0.0,
 			       "boss_plc.%d.%c-position-in", id, axis);
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pJogEnIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pJogEnIn, 0,
 				 "boss_plc.%d.%c-jog-en-in", id, axis);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pIn, 0,
 				 "boss_plc.%d.%c-limit-in", id, axis);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pPosOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pPosOut, 0,
 				 "boss_plc.%d.%c-limit-pos-out", id, axis);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pNegOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pNegOut, 0,
 				 "boss_plc.%d.%c-limit-neg-out", id, axis);
     }
 
@@ -1011,72 +1015,72 @@ Limit_Init(Limit *this)
 static BOOL
 Limit_IsActive(Limit *this)
 {
-    return(*this->pIn);
+    return hal_get_bool(this->pIn);
 }
 
 static void
-Limit_Refresh(Limit *this, hal_bit_t override)
+Limit_Refresh(Limit *this, rtapi_bool override)
 {
     switch(this->state){
     case LS_INIT:
     default:
         this->state = LS_ON_LIMIT;
         this->limitNeg = this->limitPos = 1;
-        this->position = *this->pPositionIn;
+        this->position = hal_get_real(this->pPositionIn);
         // Fall through.
 
     case LS_ON_LIMIT:
-        if(*this->pIn == 0){
+        if(hal_get_bool(this->pIn) == 0){
             this->limitNeg = this->limitPos = 0;
 
-            if(*this->pPositionIn == this->position)
+            if(hal_get_real(this->pPositionIn) == this->position)
                 this->state = LS_NO_MOTION;
-            else if(*this->pPositionIn > this->position)
+            else if(hal_get_real(this->pPositionIn) > this->position)
                 this->state = LS_POS_MOTION;
-            else if(*this->pPositionIn < this->position)
+            else if(hal_get_real(this->pPositionIn) < this->position)
                 this->state = LS_NEG_MOTION;
         }
         break;
 
     case LS_NO_MOTION:
-        if(*this->pIn){
+        if(hal_get_bool(this->pIn)){
             this->state = LS_ON_LIMIT;
             this->limitNeg = this->limitPos = 1;
-        }else if(*this->pPositionIn > this->position){
+        }else if(hal_get_real(this->pPositionIn) > this->position){
             this->state = LS_POS_MOTION;
-        }else if(*this->pPositionIn < this->position){
+        }else if(hal_get_real(this->pPositionIn) < this->position){
             this->state = LS_NEG_MOTION;
         }
         break;
 
     case LS_POS_MOTION:
-        if(*this->pIn){
+        if(hal_get_bool(this->pIn)){
             this->state = LS_ON_LIMIT;
             this->limitPos = 1;
-        }else if(*this->pPositionIn == this->position){
+        }else if(hal_get_real(this->pPositionIn) == this->position){
             this->state = LS_NO_MOTION;
-        }else if(*this->pPositionIn < this->position){
+        }else if(hal_get_real(this->pPositionIn) < this->position){
             this->state = LS_NEG_MOTION;
         }
         break;
 
     case LS_NEG_MOTION:
-        if(*this->pIn){
+        if(hal_get_bool(this->pIn)){
             this->state = LS_ON_LIMIT;
             this->limitNeg = 1;
-        }else if(*this->pPositionIn == this->position){
+        }else if(hal_get_real(this->pPositionIn) == this->position){
             this->state = LS_NO_MOTION;
-        }else if(*this->pPositionIn > this->position){
+        }else if(hal_get_real(this->pPositionIn) > this->position){
             this->state = LS_POS_MOTION;
         }
         break;
     }
 
-    this->position = *this->pPositionIn;
+    this->position = hal_get_real(this->pPositionIn);
 
     // Condition limits with override in manual mode.
-    *this->pPosOut = this->limitPos && !(*this->pJogEnIn && override);
-    *this->pNegOut = this->limitNeg && !(*this->pJogEnIn && override);
+    hal_set_bool(this->pPosOut, this->limitPos && !(hal_get_bool(this->pJogEnIn) && override));
+    hal_set_bool(this->pNegOut, this->limitNeg && !(hal_get_bool(this->pJogEnIn) && override));
 }
 
 
@@ -1089,16 +1093,16 @@ Amp_Export(Amp *this, int compId, int id, char axis)
 {
     int                         error;
 
-    error = hal_pin_bit_newf(HAL_IN, &this->pEnableIn, compId,
+    error = hal_pin_new_bool(compId, HAL_IN, &this->pEnableIn, 0,
 			     "boss_plc.%d.%c-amp-enable-in", id, axis);
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &this->pReadyIn, compId,
+        error = hal_pin_new_bool(compId, HAL_IN, &this->pReadyIn, 0,
 				 "boss_plc.%d.%c-amp-ready-in", id, axis);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_OUT, &this->pFaultOut, compId,
+        error = hal_pin_new_bool(compId, HAL_OUT, &this->pFaultOut, 0,
 				 "boss_plc.%d.%c-amp-fault-out", id, axis);
     }
 
@@ -1118,11 +1122,11 @@ Amp_Init(Amp *this)
 
 
 static void
-Amp_Refresh(Amp *this, long period, hal_u32_t readyDelay)
+Amp_Refresh(Amp *this, long period, rtapi_u32 readyDelay)
 {
     Timer_Update(&this->timer, period);
 
-    if(*this->pEnableIn){
+    if(hal_get_bool(this->pEnableIn)){
         if(!this->lastEnable){
             Timer_SetTimeout(&this->timer, readyDelay);
             Timer_Enable(&this->timer, TM_ONE_SHOT);
@@ -1131,10 +1135,10 @@ Amp_Refresh(Amp *this, long period, hal_u32_t readyDelay)
         Timer_Disable(&this->timer);
     }
 
-    *this->pFaultOut = *this->pEnableIn && !*this->pReadyIn
-                        && !Timer_IsEnabled(&this->timer);
+    hal_set_bool(this->pFaultOut, hal_get_bool(this->pEnableIn) && !hal_get_bool(this->pReadyIn)
+                        && !Timer_IsEnabled(&this->timer));
 
-    this->lastEnable = *this->pEnableIn;
+    this->lastEnable = hal_get_bool(this->pEnableIn);
 }
 
 
@@ -1199,7 +1203,7 @@ Timer_Update(Timer *this, long period)
 
 
 static void
-Timer_SetTimeout(Timer *this, hal_u32_t timeout)
+Timer_SetTimeout(Timer *this, rtapi_u32 timeout)
 {
     this->count = 0;
     this->timeout = timeout;

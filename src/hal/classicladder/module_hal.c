@@ -66,14 +66,14 @@ RTAPI_MP_INT(numFloatOut,"i");
 #define numWords InfosGene->SizesInfos.nbr_words
 #endif
 
-hal_bit_t **hal_inputs;
-hal_bit_t **hide_gui;
-hal_bit_t **hal_outputs;
-hal_s32_t **hal_s32_inputs;
-hal_s32_t **hal_s32_outputs;
-hal_s32_t *hal_state;
-hal_float_t **hal_float_inputs;
-hal_float_t **hal_float_outputs;
+hal_bool_t *hal_inputs;
+hal_bool_t *hide_gui;
+hal_bool_t *hal_outputs;
+hal_sint_t *hal_s32_inputs;
+hal_sint_t *hal_s32_outputs;
+hal_sint_t *hal_state;
+hal_real_t *hal_float_inputs;
+hal_real_t *hal_float_outputs;
 
 extern StrGeneralParams GeneralParamsMirror; 
 
@@ -82,39 +82,39 @@ extern StrGeneralParams GeneralParamsMirror;
 void HalReadPhysicalInputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs; i++) {
-		WriteVar(VAR_PHYS_INPUT, i, *hal_inputs[i]);
+		WriteVar(VAR_PHYS_INPUT, i, hal_get_bool(hal_inputs[i]));
 	}
 }
 
 void HalWritePhysicalOutputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs; i++) {
-		*(hal_outputs[i]) = ReadVar(VAR_PHYS_OUTPUT, i);
+		hal_set_bool(hal_outputs[i], ReadVar(VAR_PHYS_OUTPUT, i));
 	}
 }
 
 void HalReads32Inputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs; i++) {
-		WriteVar(VAR_PHYS_WORD_INPUT, i, *hal_s32_inputs[i]);
+		WriteVar(VAR_PHYS_WORD_INPUT, i, hal_get_si32(hal_s32_inputs[i]));
 	}
 }	
 void HalWrites32Outputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs; i++) {
-		*(hal_s32_outputs[i]) = ReadVar(VAR_PHYS_WORD_OUTPUT, i);
+		hal_set_si32(hal_s32_outputs[i], ReadVar(VAR_PHYS_WORD_OUTPUT, i));
 	}
 }
 void HalReadFloatInputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs; i++) {
-		WriteVar(VAR_PHYS_FLOAT_INPUT, i, *hal_float_inputs[i]);
+		WriteVar(VAR_PHYS_FLOAT_INPUT, i, hal_get_real(hal_float_inputs[i]));
 	}
 }	
 void HalWriteFloatOutputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs; i++) {
-		*(hal_float_outputs[i]) = ReadVar(VAR_PHYS_FLOAT_OUTPUT, i);
+		hal_set_real(hal_float_outputs[i], ReadVar(VAR_PHYS_FLOAT_OUTPUT, i));
 	}
 }
 // This actually does the magic of periodic refresh of pins and
@@ -142,7 +142,7 @@ static void hal_task(void *arg, long period) {
 
 	if (milliseconds >= 1) {
 		InfosGene->GeneralParams.PeriodicRefreshMilliSecs=milliseconds;
-		*hal_state = InfosGene->LadderState;
+		hal_set_si32(*hal_state, InfosGene->LadderState);
 		t0 = rtapi_get_time();
 		if (InfosGene->LadderState==STATE_RUN)
 			{
@@ -152,7 +152,7 @@ static void hal_task(void *arg, long period) {
 				
 				HalReadFloatInputs();
 
-				InfosGene->HideGuiState = *hide_gui[0];
+				InfosGene->HideGuiState = hal_get_bool(hide_gui[0]);
 
 				ClassicLadder_RefreshAllSections();
 		
@@ -185,63 +185,63 @@ error:
 		return result;
 	}
 
-	hal_state = hal_malloc(sizeof(hal_s32_t));
-	result = hal_param_s32_new("classicladder.ladder-state", HAL_RO, hal_state, compId);
+	hal_state = hal_malloc(sizeof(*hal_state));
+	result = hal_param_new_si32(compId, HAL_RO, hal_state, 0, "classicladder.ladder-state");
 	if(result < 0) {
 		 hal_exit(compId);
 		 return result;
 	}
 
-	hal_inputs = hal_malloc(sizeof(hal_bit_t*) * numPhysInputs);
+	hal_inputs = hal_malloc(sizeof(*hal_inputs) * numPhysInputs);
 	if(!hal_inputs) { result = -ENOMEM; goto error; }
-	hide_gui = hal_malloc(sizeof(hal_bit_t*));
+	hide_gui = hal_malloc(sizeof(*hide_gui));
 	if(!hide_gui) { result = -ENOMEM; goto error; }
-	hal_s32_inputs = hal_malloc(sizeof(hal_s32_t*) * numS32in);
+	hal_s32_inputs = hal_malloc(sizeof(*hal_s32_inputs) * numS32in);
 	if(!hal_s32_inputs) { result = -ENOMEM; goto error; }
-	hal_float_inputs = hal_malloc(sizeof(hal_float_t*) * numFloatIn);
+	hal_float_inputs = hal_malloc(sizeof(*hal_float_inputs) * numFloatIn);
 	if(!hal_float_inputs) { result = -ENOMEM; goto error; }
-	hal_outputs = hal_malloc(sizeof(hal_bit_t*) * numPhysOutputs);
+	hal_outputs = hal_malloc(sizeof(*hal_outputs) * numPhysOutputs);
 	if(!hal_outputs) { result = -ENOMEM; goto error; }
-	hal_s32_outputs = hal_malloc(sizeof(hal_s32_t*) * numS32out);
+	hal_s32_outputs = hal_malloc(sizeof(*hal_s32_outputs) * numS32out);
 	if(!hal_s32_outputs) { result = -ENOMEM; goto error; }
-	hal_float_outputs = hal_malloc(sizeof(hal_float_t*) * numFloatOut);
+	hal_float_outputs = hal_malloc(sizeof(*hal_float_outputs) * numFloatOut);
 	if(!hal_float_outputs) { result = -ENOMEM; goto error; }
 
 	for(i=0; i<numPhysInputs; i++) {
-		result = hal_pin_bit_newf(HAL_IN, &hal_inputs[i], compId,
+		result = hal_pin_new_bool(compId, HAL_IN, &hal_inputs[i], 0,
 				"classicladder.0.in-%02d", i);
 		if(result < 0) goto error;
 	}
-	result = hal_pin_bit_newf(HAL_IN, &hide_gui[0], compId,
+	result = hal_pin_new_bool(compId, HAL_IN, &hide_gui[0], 0,
 				"classicladder.0.hide_gui");
 		if(result < 0) goto error;
 
 	for(i=0; i<numS32in; i++) {
-		result = hal_pin_s32_newf(HAL_IN, &hal_s32_inputs[i], compId,
+		result = hal_pin_new_si32(compId, HAL_IN, &hal_s32_inputs[i], 0,
 				"classicladder.0.s32in-%02d", i);
 		if(result < 0) goto error;
 	}
 
 	for(i=0; i<numFloatIn; i++) {
-		result = hal_pin_float_newf(HAL_IN, &hal_float_inputs[i], compId,
+		result = hal_pin_new_real(compId, HAL_IN, &hal_float_inputs[i], 0.0,
 				"classicladder.0.floatin-%02d", i);
 		if(result < 0) goto error;
 	}
 
 	for(i=0; i<numPhysOutputs; i++) {
-		result = hal_pin_bit_newf(HAL_OUT, &hal_outputs[i], compId,
+		result = hal_pin_new_bool(compId, HAL_OUT, &hal_outputs[i], 0,
 				"classicladder.0.out-%02d", i);
 		if(result < 0) goto error;
 	}
 
 	for(i=0; i<numS32out; i++) {
-		result = hal_pin_s32_newf(HAL_OUT, &hal_s32_outputs[i], compId,
+		result = hal_pin_new_si32(compId, HAL_OUT, &hal_s32_outputs[i], 0,
 				"classicladder.0.s32out-%02d", i);
 		if(result < 0) goto error;
 	}
 
 	for(i=0; i<numFloatOut; i++) {
-		result = hal_pin_float_newf(HAL_OUT, &hal_float_outputs[i], compId,
+		result = hal_pin_new_real(compId, HAL_OUT, &hal_float_outputs[i], 0.0,
 				"classicladder.0.floatout-%02d", i);
 		if(result < 0) goto error;
 	}

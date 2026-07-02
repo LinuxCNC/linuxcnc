@@ -103,49 +103,50 @@ static int stepsize_last_idx  =  0; //calculated`
 
 
 typedef struct {
-	hal_float_t *x_wc, *y_wc, *z_wc, *a_wc;
-	hal_float_t *x_mc, *y_mc, *z_mc, *a_mc;
+	hal_real_t x_wc, y_wc, z_wc, a_wc;
+	hal_real_t x_mc, y_mc, z_mc, a_mc;
 
-	hal_float_t *feedrate_override, *feedrate;
-	hal_float_t *spindle_override, *spindle_rps;
+	hal_real_t feedrate_override, feedrate;
+	hal_real_t spindle_override, spindle_rps;
 
-	hal_bit_t *button_pin[NB_MAX_BUTTONS];
+	hal_bool_t button_pin[NB_MAX_BUTTONS];
 
-    hal_bit_t *jog_enable_off;
-	hal_bit_t *jog_enable_x;
-	hal_bit_t *jog_enable_y;
-	hal_bit_t *jog_enable_z;
-	hal_bit_t *jog_enable_a;
-	hal_bit_t *jog_enable_feedrate;
-	hal_bit_t *jog_enable_spindle;
-	hal_float_t *jog_scale;
-	hal_s32_t *jog_counts, *jog_counts_neg;
+	hal_bool_t jog_enable_off;
+	hal_bool_t jog_enable_x;
+	hal_bool_t jog_enable_y;
+	hal_bool_t jog_enable_z;
+	hal_bool_t jog_enable_a;
+	hal_bool_t jog_enable_feedrate;
+	hal_bool_t jog_enable_spindle;
+	hal_real_t jog_scale;
+	hal_sint_t jog_counts;
+	hal_sint_t jog_counts_neg;
 
-	hal_float_t *jog_velocity;
-	hal_float_t *jog_max_velocity;
-	hal_float_t *jog_increment;
-	hal_bit_t *jog_plus_x, *jog_plus_y, *jog_plus_z, *jog_plus_a;
-	hal_bit_t *jog_minus_x, *jog_minus_y, *jog_minus_z, *jog_minus_a;
+	hal_real_t jog_velocity;
+	hal_real_t jog_max_velocity;
+	hal_real_t jog_increment;
+	hal_bool_t jog_plus_x,  jog_plus_y,  jog_plus_z,  jog_plus_a;
+	hal_bool_t jog_minus_x, jog_minus_y, jog_minus_z, jog_minus_a;
 
-	hal_bit_t *stepsize_up;
-	hal_bit_t *stepsize_down;
-	hal_s32_t *stepsize;
-	hal_bit_t *sleeping;
-	hal_bit_t *connected;
-	hal_bit_t *require_pendant;
-	hal_bit_t *inch_icon;
-	hal_bit_t *zero_x;
-	hal_bit_t *zero_y;
-	hal_bit_t *zero_z;
-	hal_bit_t *zero_a;
-	hal_bit_t *gotozero_x;
-	hal_bit_t *gotozero_y;
-	hal_bit_t *gotozero_z;
-	hal_bit_t *gotozero_a;
-	hal_bit_t *half_x;
-	hal_bit_t *half_y;
-	hal_bit_t *half_z;
-	hal_bit_t *half_a;
+	hal_bool_t stepsize_up;
+	hal_bool_t stepsize_down;
+	hal_sint_t stepsize;
+	hal_bool_t sleeping;
+	hal_bool_t connected;
+	hal_bool_t require_pendant;
+	hal_bool_t inch_icon;
+	hal_bool_t zero_x;
+	hal_bool_t zero_y;
+	hal_bool_t zero_z;
+	hal_bool_t zero_a;
+	hal_bool_t gotozero_x;
+	hal_bool_t gotozero_y;
+	hal_bool_t gotozero_z;
+	hal_bool_t gotozero_a;
+	hal_bool_t half_x;
+	hal_bool_t half_y;
+	hal_bool_t half_z;
+	hal_bool_t half_a;
 } xhc_hal_t;
 
 #define STEP_UNDEFINED  -1
@@ -163,7 +164,7 @@ typedef struct {
 	unsigned char button_step;	// Used in simulation mode to handle the STEP increment
 
 	// Variables for velocity computation
-	hal_s32_t last_jog_counts;
+	rtapi_s32 last_jog_counts;
 	struct timeval last_tv;
 
 	struct timeval last_wakeup;
@@ -219,20 +220,20 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	*p++ = 0xFD;
 	*p++ = 0x0C;
 
-	if (xhc->axis == axis_a) p += xhc_encode_float(round(1000 * *(xhc->hal->a_wc)) / 1000, p);
-	else p += xhc_encode_float(round(1000 * *(xhc->hal->x_wc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->y_wc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->z_wc)) / 1000, p);
-	if (xhc->axis == axis_a) p += xhc_encode_float(round(1000 * *(xhc->hal->a_mc)) / 1000, p);
-	else p += xhc_encode_float(round(1000 * *(xhc->hal->x_mc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->y_mc)) / 1000, p);
-	p += xhc_encode_float(round(1000 * *(xhc->hal->z_mc)) / 1000, p);
-	p += xhc_encode_s16(round(100.0 * *(xhc->hal->feedrate_override)), p);
-	p += xhc_encode_s16(round(100.0 * *(xhc->hal->spindle_override)), p);
-	p += xhc_encode_s16(round(60.0 * *(xhc->hal->feedrate)), p);
-	p += xhc_encode_s16(round(60.0 * *(xhc->hal->spindle_rps)), p);
+	if (xhc->axis == axis_a) p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->a_wc)) / 1000, p);
+	else p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->x_wc)) / 1000, p);
+	p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->y_wc)) / 1000, p);
+	p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->z_wc)) / 1000, p);
+	if (xhc->axis == axis_a) p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->a_mc)) / 1000, p);
+	else p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->x_mc)) / 1000, p);
+	p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->y_mc)) / 1000, p);
+	p += xhc_encode_float(round(1000 * hal_get_real(xhc->hal->z_mc)) / 1000, p);
+	p += xhc_encode_s16(round(100.0 * hal_get_real(xhc->hal->feedrate_override)), p);
+	p += xhc_encode_s16(round(100.0 * hal_get_real(xhc->hal->spindle_override)), p);
+	p += xhc_encode_s16(round(60.0 * hal_get_real(xhc->hal->feedrate)), p);
+	p += xhc_encode_s16(round(60.0 * hal_get_real(xhc->hal->spindle_rps)), p);
 
-	switch (*(xhc->hal->stepsize)) {
+	switch (hal_get_si32(xhc->hal->stepsize)) {
 	case    0: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_0; break;
 	case    1: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_1; break;
 	case    5: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_5; break;
@@ -249,7 +250,7 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	}
 
     buf[FLAGS_BYTE] = 0;
-    if (*(xhc->hal->inch_icon)) {
+    if (hal_get_bool(xhc->hal->inch_icon)) {
         buf[FLAGS_BYTE] |= 0x80;
     }
 
@@ -299,46 +300,46 @@ void linuxcnc_simu(xhc_t *xhc)
 	xhc_hal_t *hal = xhc->hal;
 
 	// for simu, always step up
-	*(hal->stepsize_up) = (xhc->button_step && xhc->button_code == xhc->button_step);
+	hal_set_bool(hal->stepsize_up, (xhc->button_step && xhc->button_code == xhc->button_step));
 
-	if (*(hal->jog_counts) != last_jog_counts) {
-		int delta_int = *(hal->jog_counts) - last_jog_counts;
-		float delta = delta_int * *(hal->jog_scale);
-		if (*(hal->jog_enable_x)) {
-			*(hal->x_mc) = *(hal->x_mc) + delta;
-			*(hal->x_wc) = *(hal->x_wc) + delta;
+	if (hal_get_si32(hal->jog_counts) != last_jog_counts) {
+		int delta_int = hal_get_si32(hal->jog_counts) - last_jog_counts;
+		float delta = delta_int * hal_get_real(hal->jog_scale);
+		if (hal_get_bool(hal->jog_enable_x)) {
+			hal_set_real(hal->x_mc, hal_get_real(hal->x_mc) + delta);
+			hal_set_real(hal->x_wc, hal_get_real(hal->x_wc) + delta);
 		}
 
-		if (*(hal->jog_enable_y)) {
-			*(hal->y_mc) = *(hal->y_mc) + delta;
-			*(hal->y_wc) = *(hal->y_wc) + delta;
+		if (hal_get_bool(hal->jog_enable_y)) {
+			hal_set_real(hal->y_mc, hal_get_real(hal->y_mc) + delta);
+			hal_set_real(hal->y_wc, hal_get_real(hal->y_wc) + delta);
 		}
 
-		if (*(hal->jog_enable_z)) {
-			*(hal->z_mc) = *(hal->z_mc) + delta;
-			*(hal->z_wc) = *(hal->z_wc) + delta;
+		if (hal_get_bool(hal->jog_enable_z)) {
+			hal_set_real(hal->z_mc, hal_get_real(hal->z_mc) + delta);
+			hal_set_real(hal->z_wc, hal_get_real(hal->z_wc) + delta);
 		}
 
-		if (*(hal->jog_enable_a)) {
-			*(hal->a_mc) = *(hal->a_mc) + delta;
-			*(hal->a_wc) = *(hal->a_wc) + delta;
+		if (hal_get_bool(hal->jog_enable_a)) {
+			hal_set_real(hal->a_mc, hal_get_real(hal->a_mc) + delta);
+			hal_set_real(hal->a_wc, hal_get_real(hal->a_wc) + delta);
 		}
 
-		if (*(hal->jog_enable_spindle)) {
-			*(hal->spindle_override) = *(hal->spindle_override) + delta_int * 0.01;
-			if (*(hal->spindle_override) > 1) *(hal->spindle_override) = 1;
-			if (*(hal->spindle_override) < 0) *(hal->spindle_override) = 0;
-			*(hal->spindle_rps) = 25000.0/60.0 * *(hal->spindle_override);
+		if (hal_get_bool(hal->jog_enable_spindle)) {
+			hal_set_real(hal->spindle_override, hal_get_real(hal->spindle_override) + delta_int * 0.01);
+			if (hal_get_real(hal->spindle_override) > 1) hal_set_real(hal->spindle_override, 1);
+			if (hal_get_real(hal->spindle_override) < 0) hal_set_real(hal->spindle_override, 0);
+			hal_set_real(hal->spindle_rps, 25000.0/60.0 * hal_get_real(hal->spindle_override));
 		}
 
-		if (*(hal->jog_enable_feedrate)) {
-			*(hal->feedrate_override) = *(hal->feedrate_override) + delta_int * 0.01;
-			if (*(hal->feedrate_override) > 1) *(hal->feedrate_override) = 1;
-			if (*(hal->feedrate_override) < 0) *(hal->feedrate_override) = 0;
-			*(hal->feedrate) = 3000.0/60.0 * *(hal->feedrate_override);
+		if (hal_get_bool(hal->jog_enable_feedrate)) {
+			hal_set_real(hal->feedrate_override, hal_get_real(hal->feedrate_override) + delta_int * 0.01);
+			if (hal_get_real(hal->feedrate_override) > 1) hal_set_real(hal->feedrate_override, 1);
+			if (hal_get_real(hal->feedrate_override) < 0) hal_set_real(hal->feedrate_override, 0);
+			hal_set_real(hal->feedrate, 3000.0/60.0 * hal_get_real(hal->feedrate_override));
 		}
 
-		last_jog_counts = *(hal->jog_counts);
+		last_jog_counts = hal_get_si32(hal->jog_counts);
 	}
 }
 
@@ -352,36 +353,36 @@ void compute_velocity(xhc_t *xhc)
 	float elapsed = delta_tv.tv_sec + 1e-6f*delta_tv.tv_usec;
 	if (elapsed <= 0) return;
 
-	float delta_pos = (*(xhc->hal->jog_counts) - xhc->last_jog_counts) * *(xhc->hal->jog_scale);
-	float velocity = *(xhc->hal->jog_max_velocity) * 60.0f * *(xhc->hal->jog_scale);
+	float delta_pos = (hal_get_si32(xhc->hal->jog_counts) - xhc->last_jog_counts) * hal_get_real(xhc->hal->jog_scale);
+	float velocity = hal_get_real(xhc->hal->jog_max_velocity) * 60.0f * hal_get_real(xhc->hal->jog_scale);
 	float k = 0.05f;
 
 	if (delta_pos) {
-		*(xhc->hal->jog_velocity) = (1 - k) * *(xhc->hal->jog_velocity) + k * velocity;
-		*(xhc->hal->jog_increment) = fabs(delta_pos);
-		*(xhc->hal->jog_plus_x) = (delta_pos > 0) && *(xhc->hal->jog_enable_x);
-		*(xhc->hal->jog_minus_x) = (delta_pos < 0) && *(xhc->hal->jog_enable_x);
-		*(xhc->hal->jog_plus_y) = (delta_pos > 0) && *(xhc->hal->jog_enable_y);
-		*(xhc->hal->jog_minus_y) = (delta_pos < 0) && *(xhc->hal->jog_enable_y);
-		*(xhc->hal->jog_plus_z) = (delta_pos > 0) && *(xhc->hal->jog_enable_z);
-		*(xhc->hal->jog_minus_z) = (delta_pos < 0) && *(xhc->hal->jog_enable_z);
-		*(xhc->hal->jog_plus_a) = (delta_pos > 0) && *(xhc->hal->jog_enable_a);
-		*(xhc->hal->jog_minus_a) = (delta_pos < 0) && *(xhc->hal->jog_enable_a);
-		xhc->last_jog_counts = *(xhc->hal->jog_counts);
+		hal_set_real(xhc->hal->jog_velocity, (1 - k) * hal_get_real(xhc->hal->jog_velocity) + k * velocity);
+		hal_set_real(xhc->hal->jog_increment, fabs(delta_pos));
+		hal_set_bool(xhc->hal->jog_plus_x,  (delta_pos > 0) && hal_get_bool(xhc->hal->jog_enable_x));
+		hal_set_bool(xhc->hal->jog_minus_x, (delta_pos < 0) && hal_get_bool(xhc->hal->jog_enable_x));
+		hal_set_bool(xhc->hal->jog_plus_y,  (delta_pos > 0) && hal_get_bool(xhc->hal->jog_enable_y));
+		hal_set_bool(xhc->hal->jog_minus_y, (delta_pos < 0) && hal_get_bool(xhc->hal->jog_enable_y));
+		hal_set_bool(xhc->hal->jog_plus_z,  (delta_pos > 0) && hal_get_bool(xhc->hal->jog_enable_z));
+		hal_set_bool(xhc->hal->jog_minus_z, (delta_pos < 0) && hal_get_bool(xhc->hal->jog_enable_z));
+		hal_set_bool(xhc->hal->jog_plus_a,  (delta_pos > 0) && hal_get_bool(xhc->hal->jog_enable_a));
+		hal_set_bool(xhc->hal->jog_minus_a, (delta_pos < 0) && hal_get_bool(xhc->hal->jog_enable_a));
+		xhc->last_jog_counts = hal_get_si32(xhc->hal->jog_counts);
 		xhc->last_tv = now;
 	}
 	else {
-		*(xhc->hal->jog_velocity) = (1 - k) * *(xhc->hal->jog_velocity);
+		hal_set_real(xhc->hal->jog_velocity, (1 - k) * hal_get_real(xhc->hal->jog_velocity));
 		if (elapsed > 0.25) {
-			*(xhc->hal->jog_velocity) = 0;
-			*(xhc->hal->jog_plus_x) = 0;
-			*(xhc->hal->jog_minus_x) = 0;
-			*(xhc->hal->jog_plus_y) = 0;
-			*(xhc->hal->jog_minus_y) = 0;
-			*(xhc->hal->jog_plus_z) = 0;
-			*(xhc->hal->jog_minus_z) = 0;
-			*(xhc->hal->jog_plus_a) = 0;
-			*(xhc->hal->jog_minus_a) = 0;
+			hal_set_real(xhc->hal->jog_velocity, 0);
+			hal_set_bool(xhc->hal->jog_plus_x,  0);
+			hal_set_bool(xhc->hal->jog_minus_x, 0);
+			hal_set_bool(xhc->hal->jog_plus_y,  0);
+			hal_set_bool(xhc->hal->jog_minus_y, 0);
+			hal_set_bool(xhc->hal->jog_plus_z,  0);
+			hal_set_bool(xhc->hal->jog_minus_z, 0);
+			hal_set_bool(xhc->hal->jog_plus_a,  0);
+			hal_set_bool(xhc->hal->jog_minus_a, 0);
 		}
 	}
 }
@@ -389,14 +390,14 @@ void compute_velocity(xhc_t *xhc)
 void handle_step(xhc_t *xhc)
 {
 	int _inc_step_status = STEP_NONE;
-	int _stepsize = *(xhc->hal->stepsize);	// Use a local variable to avoid STEP display as 0 on pendant during transitions
+	int _stepsize = hal_get_si32(xhc->hal->stepsize);	// Use a local variable to avoid STEP display as 0 on pendant during transitions
 
-	if (*(xhc->hal->stepsize_up)) {
+	if (hal_get_bool(xhc->hal->stepsize_up)) {
 	       _inc_step_status = STEP_UP;
-	   if (*(xhc->hal->stepsize_down)) {
+	   if (hal_get_bool(xhc->hal->stepsize_down)) {
 	       _inc_step_status = STEP_NONE; // none if both pressed
 	   }
-	} else if (*(xhc->hal->stepsize_down)) {
+	} else if (hal_get_bool(xhc->hal->stepsize_down)) {
 	      _inc_step_status = STEP_DOWN;
 	} else {
 	      _inc_step_status = STEP_NONE;
@@ -418,14 +419,14 @@ void handle_step(xhc_t *xhc)
 
 	xhc->old_inc_step_status = _inc_step_status;
 
-	*(xhc->hal->stepsize) = _stepsize;
-	*(xhc->hal->jog_scale) = *(xhc->hal->stepsize) * 0.001f;
+	hal_set_si32(xhc->hal->stepsize, _stepsize);
+	hal_set_real(xhc->hal->jog_scale, hal_get_si32(xhc->hal->stepsize) * 0.001f);
 }
 
 void cb_response_in(struct libusb_transfer *transfer)
 {
 	int i;
-	if (!*(xhc.hal->connected)) return;
+	if (!hal_get_bool(xhc.hal->connected)) return;
 
 	if (transfer->actual_length > 0) {
 		if (simu_mode) hexdump(in_buf, transfer->actual_length);
@@ -433,38 +434,38 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		*(xhc.hal->jog_counts) = *(xhc.hal->jog_counts) + ((signed char)in_buf[4]);
-		*(xhc.hal->jog_counts_neg) = - *(xhc.hal->jog_counts);
-		*(xhc.hal->jog_enable_off) = (xhc.axis == axis_off);
-		*(xhc.hal->jog_enable_x) = (xhc.axis == axis_x);
-		*(xhc.hal->jog_enable_y) = (xhc.axis == axis_y);
-		*(xhc.hal->jog_enable_z) = (xhc.axis == axis_z);
-		*(xhc.hal->jog_enable_a) = (xhc.axis == axis_a);
-		*(xhc.hal->jog_enable_feedrate) = (xhc.axis == axis_feed);
-		*(xhc.hal->jog_enable_spindle) = (xhc.axis == axis_spindle);
+		hal_set_si32(xhc.hal->jog_counts, hal_get_si32(xhc.hal->jog_counts) + ((signed char)in_buf[4]));
+		hal_set_si32(xhc.hal->jog_counts_neg, - hal_get_si32(xhc.hal->jog_counts));
+		hal_set_bool(xhc.hal->jog_enable_off,      xhc.axis == axis_off);
+		hal_set_bool(xhc.hal->jog_enable_x,        xhc.axis == axis_x);
+		hal_set_bool(xhc.hal->jog_enable_y,        xhc.axis == axis_y);
+		hal_set_bool(xhc.hal->jog_enable_z,        xhc.axis == axis_z);
+		hal_set_bool(xhc.hal->jog_enable_a,        xhc.axis == axis_a);
+		hal_set_bool(xhc.hal->jog_enable_feedrate, xhc.axis == axis_feed);
+		hal_set_bool(xhc.hal->jog_enable_spindle,  xhc.axis == axis_spindle);
 
 		for (i=0; i<NB_MAX_BUTTONS; i++) {
 			if (!xhc.hal->button_pin[i]) continue;
-			*(xhc.hal->button_pin[i]) = (xhc.button_code == xhc.buttons[i].code);
+			hal_set_bool(xhc.hal->button_pin[i], xhc.button_code == xhc.buttons[i].code);
             if (strcmp("button-zero", xhc.buttons[i].pin_name) == 0) {
-               *(xhc.hal->zero_x) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x);
-               *(xhc.hal->zero_y) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y);
-               *(xhc.hal->zero_z) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z);
-               *(xhc.hal->zero_a) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a);
+               hal_set_bool(xhc.hal->zero_x, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x));
+               hal_set_bool(xhc.hal->zero_y, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y));
+               hal_set_bool(xhc.hal->zero_z, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z));
+               hal_set_bool(xhc.hal->zero_a, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a));
             }
             if (strcmp("button-goto-zero", xhc.buttons[i].pin_name) == 0) {
-               *(xhc.hal->gotozero_x) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x);
-               *(xhc.hal->gotozero_y) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y);
-               *(xhc.hal->gotozero_z) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z);
-               *(xhc.hal->gotozero_a) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a);
+               hal_set_bool(xhc.hal->gotozero_x, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x));
+               hal_set_bool(xhc.hal->gotozero_y, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y));
+               hal_set_bool(xhc.hal->gotozero_z, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z));
+               hal_set_bool(xhc.hal->gotozero_a, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a));
             }
             if (strcmp("button-half", xhc.buttons[i].pin_name) == 0) {
-               *(xhc.hal->half_x) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x);
-               *(xhc.hal->half_y) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y);
-               *(xhc.hal->half_z) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z);
-               *(xhc.hal->half_a) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a);
+               hal_set_bool(xhc.hal->half_x, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x));
+               hal_set_bool(xhc.hal->half_y, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y));
+               hal_set_bool(xhc.hal->half_z, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z));
+               hal_set_bool(xhc.hal->half_a, (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a));
             }
-			if (simu_mode && *(xhc.hal->button_pin[i])) {
+			if (simu_mode && hal_get_bool(xhc.hal->button_pin[i])) {
 				printf("%s pressed", xhc.buttons[i].pin_name);
 			}
 		}
@@ -480,7 +481,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 			&& in_buf[3]==0
 			&& in_buf[4]==0
 			&& in_buf[5]==0) {
-				*(xhc.hal->sleeping) = 1;
+				hal_set_bool(xhc.hal->sleeping, 1);
 				if (simu_mode) {
 					struct timeval now;
 					gettimeofday(&now, NULL);
@@ -489,12 +490,12 @@ void cb_response_in(struct libusb_transfer *transfer)
 				}
 			} else {
 				gettimeofday(&xhc.last_wakeup, NULL);
-				if (*(xhc.hal->sleeping)) {
+				if (hal_get_bool(xhc.hal->sleeping)) {
 					if (simu_mode) {
 						fprintf(stderr,"Wake\n");
 					}
 				}
-				*(xhc.hal->sleeping) = 0;
+				hal_set_bool(xhc.hal->sleeping, 0);
 			}
 	}
 
@@ -522,7 +523,7 @@ static int hal_pin_simu(char *pin_name, void **ptr, int s)
 	return 0;
 }
 
-int _hal_pin_float_newf(hal_pin_dir_t dir, hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_float_newf(hal_pin_dir_t dir, hal_real_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -531,14 +532,14 @@ int _hal_pin_float_newf(hal_pin_dir_t dir, hal_float_t ** data_ptr_addr, int com
 	va_end(args);
 
     if (simu_mode) {
-    	return hal_pin_simu(pin_name, ( void**)data_ptr_addr, sizeof(*data_ptr_addr));
+        return hal_pin_simu(pin_name, ( void**)data_ptr_addr, sizeof(hal_query_value_u));
     }
     else {
-    	return hal_pin_float_new(pin_name, dir, data_ptr_addr, comp_id);
+        return hal_pin_new_real(comp_id, dir, data_ptr_addr, 0.0, "%s", pin_name);
     }
 }
 
-int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_si32_newf(hal_pin_dir_t dir, hal_sint_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -547,14 +548,14 @@ int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_s32_t ** data_ptr_addr, int comp_id
 	va_end(args);
 
     if (simu_mode) {
-    	return hal_pin_simu(pin_name, ( void**)data_ptr_addr, sizeof(*data_ptr_addr));
+        return hal_pin_simu(pin_name, (void**)data_ptr_addr, sizeof(hal_query_value_u));
     }
     else {
-    	return hal_pin_s32_new(pin_name, dir, data_ptr_addr, comp_id);
+        return hal_pin_new_si32(comp_id, dir, data_ptr_addr, 0, "%s", pin_name);
     }
 }
 
-int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bool_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -563,10 +564,10 @@ int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bit_t ** data_ptr_addr, int comp_id
 	va_end(args);
 
     if (simu_mode) {
-    	return hal_pin_simu(pin_name, ( void**)data_ptr_addr, sizeof(*data_ptr_addr));
+        return hal_pin_simu(pin_name, ( void**)data_ptr_addr, sizeof(hal_query_value_u));
     }
     else {
-    	return hal_pin_bit_new(pin_name, dir, data_ptr_addr, comp_id);
+        return hal_pin_new_bool(comp_id, dir, data_ptr_addr, 0, "%s", pin_name);
     }
 }
 
@@ -636,7 +637,7 @@ static int hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_down), hal_comp_id, "%s.stepsize-down", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
+    r |= _hal_pin_si32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->require_pendant), hal_comp_id, "%s.require_pendant", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->inch_icon), hal_comp_id, "%s.inch-icon", modname);
 
@@ -649,8 +650,8 @@ static int hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_spindle), hal_comp_id, "%s.jog.enable-spindle-override", modname);
 
     r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_scale), hal_comp_id, "%s.jog.scale", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->jog_counts), hal_comp_id, "%s.jog.counts", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->jog_counts_neg), hal_comp_id, "%s.jog.counts-neg", modname);
+    r |= _hal_pin_si32_newf(HAL_OUT, &(xhc.hal->jog_counts), hal_comp_id, "%s.jog.counts", modname);
+    r |= _hal_pin_si32_newf(HAL_OUT, &(xhc.hal->jog_counts_neg), hal_comp_id, "%s.jog.counts-neg", modname);
 
     r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_velocity), hal_comp_id, "%s.jog.velocity", modname);
     r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->jog_max_velocity), hal_comp_id, "%s.jog.max-velocity", modname);
@@ -805,10 +806,10 @@ int main (int argc,char **argv)
 		// use environmental variable LIBUSB_DEBUG if needed
 
 		printf("%s: waiting for XHC-HB04 device\n",modname);
-		*(xhc.hal->connected) = 0;
+		hal_set_bool(xhc.hal->connected, 0);
 		wait_secs = 0;
-		*(xhc.hal->require_pendant) = wait_for_pendant_before_HAL;
-		*(xhc.hal->stepsize) = stepsize_sequence[0];
+		hal_set_bool(xhc.hal->require_pendant, wait_for_pendant_before_HAL);
+		hal_set_si32(xhc.hal->stepsize, stepsize_sequence[0]);
 
 		do {
 			cnt = libusb_get_device_list(ctx, &devs);
@@ -850,7 +851,7 @@ int main (int argc,char **argv)
 			transfer_in  = libusb_alloc_transfer(0);
 		}
 
-		*(xhc.hal->connected) = 1;
+		hal_set_bool(xhc.hal->connected, 1);
 
 	    if (!hal_ready_done && !simu_mode) {
 	    	hal_ready(hal_comp_id);
@@ -873,9 +874,9 @@ int main (int argc,char **argv)
 				handle_step(&xhc);
 				xhc_set_display(dev_handle, &xhc);
 			}
-			*(xhc.hal->connected) = 0;
+			hal_set_bool(xhc.hal->connected, 0);
             printf("%s: connection lost, cleaning up\n",modname);
-			if (*(xhc.hal->require_pendant)) {
+			if (hal_get_bool(xhc.hal->require_pendant)) {
 				do_exit = 1;
 			}
 			libusb_cancel_transfer(transfer_in); // ignore result

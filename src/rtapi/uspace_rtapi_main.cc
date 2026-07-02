@@ -58,7 +58,6 @@
 
 #include "rtapi.h"
 #include <hal.h>
-#include "hal/hal_priv.h"
 #include "uspace_common.h"
 
 static RtapiApp &App();
@@ -444,19 +443,25 @@ static int do_newinst_cmd(const std::string &type, const std::string &name, cons
         return -1;
     }
 
-    hal_comp_t *(*find_comp_by_name)(char *) = DLSYM<hal_comp_t *(*)(char *)>(module, "halpr_find_comp_by_name");
-    if (!find_comp_by_name) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "newinst: halpr_find_comp_by_name not found\n");
+    int (*invoke_make)(const char *, const char *, const char *);
+    invoke_make = DLSYM<int (*)(const char *, const char *, const char *)>(module, "hal_comp_invoke_make");
+    if(!invoke_make) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "newinst: hal_comp_invoke_make not found\n");
         return -1;
     }
 
-    hal_comp_t *comp = find_comp_by_name((char *)type.c_str());
-    if (!comp) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "newinst: component %s not found\n", type.c_str());
+    int rv = invoke_make(type.c_str(), name.c_str(), arg.c_str());
+    if(rv) {
+        if(-ENOENT == rv)
+            rtapi_print_msg(RTAPI_MSG_ERR, "newinst: component %s not found\n", type.c_str());
+        else if(-ENOEXEC == rv)
+            rtapi_print_msg(RTAPI_MSG_ERR, "newinst: component %s does not support instantiation\n", type.c_str());
+        else
+            rtapi_print_msg(RTAPI_MSG_ERR, "newinst: component %s returned error %d\n", type.c_str(), rv);
         return -1;
     }
 
-    return comp->make((char *)name.c_str(), (char *)arg.c_str());
+    return 0;
 }
 
 static int do_one_item(

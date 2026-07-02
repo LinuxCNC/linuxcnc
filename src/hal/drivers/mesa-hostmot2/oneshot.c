@@ -32,74 +32,74 @@
 
 void hm2_oneshot_update_width1(hostmot2_t *hm2, int i) {
     // widths are in ms
-    hm2->oneshot.width1_reg[i] = (double)*hm2->oneshot.instance[i].hal.pin.width1 * ((double)hm2->oneshot.clock_frequency / (double)1e3);
+    hm2->oneshot.width1_reg[i] = hal_get_real(hm2->oneshot.instance[i].hal.pin.width1) * ((double)hm2->oneshot.clock_frequency / (double)1e3);
     if (hm2->oneshot.width1_reg[i] > 0x7FFFFFFF) {
         HM2_ERR("oneshot %d has invalid width1, resetting to max\n", i);
         hm2->oneshot.width1_reg[i] = 0x7FFFFFFF;
-        *hm2->oneshot.instance[i].hal.pin.width1 = (double)hm2->oneshot.width1_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency);
+        hal_set_real(hm2->oneshot.instance[i].hal.pin.width1, (double)hm2->oneshot.width1_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency));
     }
 }
 
 void hm2_oneshot_update_width2(hostmot2_t *hm2, int i) {
     // widths are in ms
-    hm2->oneshot.width2_reg[i] = (double)*hm2->oneshot.instance[i].hal.pin.width2 * ((double)hm2->oneshot.clock_frequency / (double)1e3);
+    hm2->oneshot.width2_reg[i] = hal_get_real(hm2->oneshot.instance[i].hal.pin.width2) * ((double)hm2->oneshot.clock_frequency / (double)1e3);
     if (hm2->oneshot.width2_reg[i] > 0x7FFFFFFF) {
         HM2_ERR("oneshot %d has invalid width1, resetting to max\n", i);
         hm2->oneshot.width2_reg[i] = 0x7FFFFFFF;
-        *hm2->oneshot.instance[i].hal.pin.width2 = (double)hm2->oneshot.width2_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency);
+        hal_set_real(hm2->oneshot.instance[i].hal.pin.width2, (double)hm2->oneshot.width2_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency));
     }
 }
 
 void hm2_oneshot_update_filter1(hostmot2_t *hm2, int i) {
     // widths are in ms
-    hm2->oneshot.filter1_reg[i] = (double)*hm2->oneshot.instance[i].hal.pin.filter1 * ((double)hm2->oneshot.clock_frequency / (double)1e3);
+    hm2->oneshot.filter1_reg[i] = hal_get_real(hm2->oneshot.instance[i].hal.pin.filter1) * ((double)hm2->oneshot.clock_frequency / (double)1e3);
     if (hm2->oneshot.filter1_reg[i] > 0xFFFFFF) {
         HM2_ERR("oneshot %d has invalid filter1 time, resetting to max\n", i);
         hm2->oneshot.width1_reg[i] = 0xFFFFFF;
-        *hm2->oneshot.instance[i].hal.pin.filter1 = (double)hm2->oneshot.filter1_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency);
+        hal_set_real(hm2->oneshot.instance[i].hal.pin.filter1, (double)hm2->oneshot.filter1_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency));
     }
 }
 
 void hm2_oneshot_update_filter2(hostmot2_t *hm2, int i) {
     // widths are in ms
-    hm2->oneshot.filter2_reg[i] = (double)*hm2->oneshot.instance[i].hal.pin.filter2 * ((double)hm2->oneshot.clock_frequency / (double)1e3);
+    hm2->oneshot.filter2_reg[i] = hal_get_real(hm2->oneshot.instance[i].hal.pin.filter2) * ((double)hm2->oneshot.clock_frequency / (double)1e3);
     if (hm2->oneshot.filter2_reg[i] > 0xFFFFFF) {
         HM2_ERR("oneshot %d has invalid filter2 time, resetting to max\n", i);
         hm2->oneshot.width2_reg[i] = 0xFFFFFF;
-        *hm2->oneshot.instance[i].hal.pin.filter2 = (double)hm2->oneshot.filter2_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency);
+        hal_set_real(hm2->oneshot.instance[i].hal.pin.filter2, (double)hm2->oneshot.filter2_reg[i] * ((double)1e3 / (double)hm2->oneshot.clock_frequency));
     }
 } 
 
 void hm2_oneshot_update_rate(hostmot2_t *hm2, int i) {
-       hm2->oneshot.rate_reg[i] = (uint32_t)(*hm2->oneshot.instance[i].hal.pin.rate * (4294967296.0 / (double)hm2->oneshot.clock_frequency));
+       hm2->oneshot.rate_reg[i] = (uint32_t)(hal_get_real(hm2->oneshot.instance[i].hal.pin.rate) * (4294967296.0 / (double)hm2->oneshot.clock_frequency));
 }
 
 void hm2_oneshot_update_control(hostmot2_t *hm2, int i) {
     rtapi_u32 controlbuff;
-    if(*hm2->oneshot.instance[i].hal.pin.trigselect1 > 7) {
+    if(hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect1) > 7) {
         HM2_ERR("oneshot %d has invalid trigger 1 select value , resetting to 0\n", i);
-		  *hm2->oneshot.instance[i].hal.pin.trigselect1 = 0;
+		  hal_set_ui32(hm2->oneshot.instance[i].hal.pin.trigselect1, 0);
     }     
-	 if(*hm2->oneshot.instance[i].hal.pin.trigselect2 > 7) {
+	 if(hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect2) > 7) {
 	     HM2_ERR("oneshot %d has invalid trigger 2 select value , resetting to 0\n", i);
-		  *hm2->oneshot.instance[i].hal.pin.trigselect2 = 0;
+		  hal_set_ui32(hm2->oneshot.instance[i].hal.pin.trigselect2, 0);
     }     
     controlbuff = 0;
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigselect1 << 0);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigrise1 << 3);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigfall1 << 4);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.retrig1 << 5);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.enable1 << 6);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.reset1 << 7);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.swtrig1 << 10);
-    controlbuff |= ((*hm2->oneshot.instance[i].hal.pin.dpll_timer_num & 7) << 12);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigselect2 << 16);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigrise2 << 19);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.trigfall2 << 20);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.retrig2 << 21);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.enable2 << 22);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.reset2 << 23);
-    controlbuff |= (*hm2->oneshot.instance[i].hal.pin.swtrig2 << 26);
+    controlbuff |= (hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect1) << 0);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigrise1) << 3);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigfall1) << 4);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.retrig1) << 5);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.enable1) << 6);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.reset1) << 7);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.swtrig1) << 10);
+    controlbuff |= ((hal_get_si32(hm2->oneshot.instance[i].hal.pin.dpll_timer_num) & 7) << 12);
+    controlbuff |= (hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect2) << 16);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigrise2) << 19);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigfall2) << 20);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.retrig2) << 21);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.enable2) << 22);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.reset2) << 23);
+    controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.swtrig2) << 26);
 
 	 hm2->oneshot.control_reg[i] = controlbuff;
 }
@@ -132,7 +132,7 @@ void hm2_oneshot_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->oneshot.control_addr, hm2->oneshot.control_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
 
     
-    if ((*hm2->llio->io_error) != 0) return;
+    if (hal_get_bool(*hm2->llio->io_error)) return;
 
 }
 
@@ -201,7 +201,7 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 
-    hm2->oneshot.instance = (hm2_oneshot_instance_t *)hal_malloc(hm2->oneshot.num_instances * sizeof(hm2_oneshot_instance_t));
+    hm2->oneshot.instance = hal_malloc(hm2->oneshot.num_instances * sizeof(*hm2->oneshot.instance));
     if (hm2->oneshot.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -263,204 +263,176 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // export to HAL
-    // FIXME: r hides the r in enclosing function, and it returns the wrong thing
     {
-        int i;
-        int r;
-        char name[HAL_NAME_LEN + 1];
-
-
-        for (i = 0; i < hm2->oneshot.num_instances; i ++) {
+        for (int i = 0; i < hm2->oneshot.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.width1", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width1), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width1),
+                                 1.0, "%s.oneshot.%02d.width1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.width1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.width2", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width2), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width2),
+                                 1.0, "%s.oneshot.%02d.width2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.width2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.filter1", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter1), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter1),
+                                 0.1, "%s.oneshot.%02d.filter1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.filter1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.filter2", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter2), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter2),
+                                 0.1, "%s.oneshot.%02d.filter2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.filter2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.rate", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.rate), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.rate),
+                                 1000.0, "%s.oneshot.%02d.rate", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.rate', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_select1", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect1), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect1),
+                                 0, "%s.oneshot.%02d.trigger_select1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_select1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_select2", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect2), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect2),
+                                 0, "%s.oneshot.%02d.trigger_select2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_select2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.dpll_timer_number", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.dpll_timer_num), hm2->llio->comp_id);
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.dpll_timer_num),
+                                 0, "%s.oneshot.%02d.dpll_timer_number", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.dpll_timer_number', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
   
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_rise1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise1),
+                                 0, "%s.oneshot.%02d.trigger_on_rise1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_on_rise1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_rise2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise2),
+                                 0, "%s.oneshot.%02d.trigger_on_rise2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_on_rise2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_fall1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall1),
+                                 0, "%s.oneshot.%02d.trigger_on_fall1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_on_fall1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_fall2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall2),
+                                 0, "%s.oneshot.%02d.trigger_on_fall2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_on_fall2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.retriggerable1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig1),
+                                 0, "%s.oneshot.%02d.retriggerable1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.retriggerable1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.retriggerable2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig2),
+                                 0, "%s.oneshot.%02d.retriggerable2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.retriggerable2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.enable1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable1),
+                                 0, "%s.oneshot.%02d.enable1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.enable1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.enable2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable2),
+                                 0, "%s.oneshot.%02d.enable2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.enable2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.reset1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset1),
+                                 0, "%s.oneshot.%02d.reset1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.reset1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.reset2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset2),
+                                 0, "%s.oneshot.%02d.reset2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.reset2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.swtrigger1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig1),
+                                 0, "%s.oneshot.%02d.swtrigger1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.swtrigger1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.swtrigger2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig2),
+                                 0, "%s.oneshot.%02d.swtrigger2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.swtrigger2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.exttrigger1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig1),
+                                 0, "%s.oneshot.%02d.exttrigger1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.exttrigger1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.exttrigger2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig2),
+                                 0, "%s.oneshot.%02d.exttrigger2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.exttrigger2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
  
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.out1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out1), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out1),
+                                 0, "%s.oneshot.%02d.out1", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.out1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.out2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out2), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out2),
+                                 0, "%s.oneshot.%02d.out2", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.oneshot.%02d.out2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
-
-
-            // init hal objects
-            *(hm2->oneshot.instance[i].hal.pin.width1) = 1.0;
-            *(hm2->oneshot.instance[i].hal.pin.width2) = 1.0;
-            *(hm2->oneshot.instance[i].hal.pin.filter1) = 0.1;
-            *(hm2->oneshot.instance[i].hal.pin.filter2) = 0.1;
-            *(hm2->oneshot.instance[i].hal.pin.rate) = 1000.0;
-            *(hm2->oneshot.instance[i].hal.pin.trigselect1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.trigselect2) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.trigrise1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.trigrise2) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.trigfall1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.trigfall2) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.retrig1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.retrig2) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.enable1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.enable2) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.reset1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.reset2) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.swtrig1) = 0;
-            *(hm2->oneshot.instance[i].hal.pin.swtrig2) = 0;
         }
     }
 
@@ -530,10 +502,10 @@ void hm2_oneshot_process_tram_read(hostmot2_t *hm2) {
     rtapi_u32 control = 0;
     for (i = 0; i < hm2->oneshot.num_instances; i ++) {
         control = hm2->oneshot.control_read_reg[i];
-        *hm2->oneshot.instance[i].hal.pin.out1 = ((control & (1 << 8)) != 0);
-        *hm2->oneshot.instance[i].hal.pin.out2 = ((control & (1 << 24)) != 0);
-        *hm2->oneshot.instance[i].hal.pin.exttrig1 = ((control & (1 << 9)) != 0);
-        *hm2->oneshot.instance[i].hal.pin.exttrig2 = ((control & (1 << 25)) != 0);
+        hal_set_bool(hm2->oneshot.instance[i].hal.pin.out1, ((control & (1 << 8)) != 0));
+        hal_set_bool(hm2->oneshot.instance[i].hal.pin.out2, ((control & (1 << 24)) != 0));
+        hal_set_bool(hm2->oneshot.instance[i].hal.pin.exttrig1, ((control & (1 << 9)) != 0));
+        hal_set_bool(hm2->oneshot.instance[i].hal.pin.exttrig2, ((control & (1 << 25)) != 0));
     }    
 }
 

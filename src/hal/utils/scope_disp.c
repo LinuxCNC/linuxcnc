@@ -42,7 +42,6 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
@@ -155,21 +154,27 @@ static void calculate_offset(int chan_num) {
 
     for(n=0; n < ctrl_usr->samples; n++) {
 	switch (type) {
-	case HAL_BIT:
-	    if (dptr->d_u8) {
+	case HAL_BOOL:
+	    if (dptr->b) {
 		value = 1.0;
 	    } else {
 		value = 0.0;
 	    };
 	    break;
-	case HAL_FLOAT:
-	    value = dptr->d_real;
+	case HAL_REAL:
+	    value = dptr->r;
 	    break;
 	case HAL_S32:
-	    value = dptr->d_s32;
+	    value = dptr->s;
 	    break;
 	case HAL_U32:
-	    value = dptr->d_u32;
+	    value = dptr->u;
+	    break;
+	case HAL_SINT:
+	    value = dptr->s;
+	    break;
+	case HAL_UINT:
+	    value = dptr->u;
 	    break;
 	default:
 	    value = 0.0;
@@ -719,7 +724,7 @@ void draw_triggerline(int chan_num, int highlight) {
     if(dx < 5) dx = 5;
     if(dy < dx + 1) dy = dx + 1;
 
-    if(chan->data_type == HAL_BIT)
+    if(chan->data_type == HAL_BOOL)
         y1 = ypoffset;
 
     if(ctrl_shm->trig_edge) dy = -dy;
@@ -814,21 +819,27 @@ void draw_waveform(int chan_num, int highlight)
 	x2 = (n * xscale) - xoffset;
 	/* calc y coordinate of this point */
 	switch (type) {
-	case HAL_BIT:
-	    if (dptr->d_u8) {
+	case HAL_BOOL:
+	    if (dptr->b) {
 		fy = 1.0;
 	    } else {
 		fy = 0.0;
 	    };
 	    break;
-	case HAL_FLOAT:
-	    fy = dptr->d_real;
+	case HAL_REAL:
+	    fy = dptr->r;
 	    break;
 	case HAL_S32:
-	    fy = dptr->d_s32;
+	    fy = dptr->s;
 	    break;
 	case HAL_U32:
-	    fy = dptr->d_u32;
+	    fy = dptr->u;
+	    break;
+	case HAL_SINT:
+	    fy = dptr->s;
+	    break;
+	case HAL_UINT:
+	    fy = dptr->u;
 	    break;
 	default:
 	    fy = 0.0;

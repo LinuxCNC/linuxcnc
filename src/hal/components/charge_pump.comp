@@ -17,10 +17,10 @@
 
 component charge_pump "Create a square-wave for the 'charge pump' input of some controller boards";
 option singleton yes;
-pin out bit out "Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE";
-pin out bit out-2 "Square wave at half the frequency of 'out'";
-pin out bit out-4 "Square wave at a quarter of the frequency of 'out'";
-pin in bit enable = TRUE "If FALSE, forces all 'out' pins to be low";
+pin out bool out "Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE";
+pin out bool out-2 "Square wave at half the frequency of 'out'";
+pin out bool out-4 "Square wave at a quarter of the frequency of 'out'";
+pin in bool enable = TRUE "If FALSE, forces all 'out' pins to be low";
 function _ "Toggle the output bit (if enabled)";
 description """
 The 'Charge Pump' should be added to the base thread function.
@@ -37,12 +37,12 @@ FUNCTION(_) {
     static int acc;
     if ( enable ) {
         acc++;
-        out = (acc & 0x1);
-        out_2 = (acc & 0x2);
-        out_4 = (acc & 0x4);
+        out_set((acc & 0x1));
+        out_2_set((acc & 0x2));
+        out_4_set((acc & 0x4));
     } else {
-	out = 0;
-	out_2 = 0;
-	out_4 = 0;
+	out_set(0);
+	out_2_set(0);
+	out_4_set(0);
     }
 }

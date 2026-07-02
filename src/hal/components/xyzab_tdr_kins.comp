@@ -30,7 +30,7 @@ chapter (docs/src/motion/switchkins.txt)
 
 """;
 
-pin out s32 dummy=0"one pin needed to satisfy halcompile requirement";
+pin out si32 dummy=0"one pin needed to satisfy halcompile requirement";
 
 license "GPL";
 author "David Mueller";
@@ -42,16 +42,16 @@ author "David Mueller";
 static struct haldata {
 
   // Declare hal pin pointers used for xyzab_tdr kinematics:
-  hal_float_t *tool_offset_z;
-  hal_float_t *x_offset;
-  hal_float_t *z_offset;
-  hal_float_t *x_rot_point;
-  hal_float_t *y_rot_point;
-  hal_float_t *z_rot_point;
+  hal_real_t tool_offset_z;
+  hal_real_t x_offset;
+  hal_real_t z_offset;
+  hal_real_t x_rot_point;
+  hal_real_t y_rot_point;
+  hal_real_t z_rot_point;
 
   //Declare hal pin pointers used for switchable kinematics
-  hal_bit_t   *kinstype_is_0;
-  hal_bit_t   *kinstype_is_1;
+  hal_bool_t kinstype_is_0;
+  hal_bool_t kinstype_is_1;
 } *haldata;
 
 static int xyzab_tdr_setup(void) {
@@ -62,24 +62,22 @@ static int xyzab_tdr_setup(void) {
     // set unready to allow creation of pins
     if (hal_set_unready(comp_id)) goto error;
 
-    haldata = hal_malloc(sizeof(struct haldata));
+    haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
 
     // hal pins required for xyzab_tdr kinematics:
-    res += hal_pin_float_newf(HAL_IN ,&(haldata->tool_offset_z) ,comp_id,"%s.tool-offset-z" ,HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN ,&(haldata->x_offset) ,comp_id,"%s.x-offset" ,HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN ,&(haldata->z_offset) ,comp_id,"%s.z-offset" ,HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN ,&haldata->x_rot_point ,comp_id,"%s.x-rot-point" ,HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN ,&haldata->y_rot_point ,comp_id,"%s.y-rot-point" ,HAL_PREFIX);
-    res += hal_pin_float_newf(HAL_IN ,&haldata->z_rot_point ,comp_id,"%s.z-rot-point" ,HAL_PREFIX);
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->tool_offset_z, 0.0, "%s.tool-offset-z", HAL_PREFIX);
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->x_offset,      0.0, "%s.x-offset", HAL_PREFIX);
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->z_offset,      0.0, "%s.z-offset", HAL_PREFIX);
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->x_rot_point,   0.0, "%s.x-rot-point", HAL_PREFIX);
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->y_rot_point,   0.0, "%s.y-rot-point", HAL_PREFIX);
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->z_rot_point,   0.0, "%s.z-rot-point", HAL_PREFIX);
 
     // hal pins required for switchable kinematics:
-    res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(haldata->kinstype_is_0), comp_id);
-    res += hal_pin_bit_new("kinstype.is-1", HAL_OUT, &(haldata->kinstype_is_1), comp_id);
-
-    // define default kinematics at startup for switchable kinematics
-    *haldata->kinstype_is_0 = 1; //default at startup -> identity kinematics
-    *haldata->kinstype_is_1 = 0; //-> XYZAB TCP
+    //default at startup -> identity kinematics
+    //-> XYZAB TCP
+    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_0, 1, "kinstype.is-0");
+    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_1, 0, "kinstype.is-1");
 
     if (res) goto error;
     hal_ready(comp_id);
@@ -97,7 +95,7 @@ EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
 
-static hal_u32_t switchkins_type;
+static rtapi_u32 switchkins_type;
 
 int kinematicsSwitchable() {return 1;}
 
@@ -109,19 +107,19 @@ int kinematicsSwitch(int new_switchkins_type)
     switch (switchkins_type) {
         case 0: rtapi_print_msg(RTAPI_MSG_INFO,
                 "kinematicsSwitch:TYPE0\n");
-                *haldata->kinstype_is_0 = 1;
-                *haldata->kinstype_is_1 = 0;
+                hal_set_bool(haldata->kinstype_is_0, 1);
+                hal_set_bool(haldata->kinstype_is_1, 0);
                 break;
         case 1: rtapi_print_msg(RTAPI_MSG_INFO,
                 "kinematicsSwitch:TYPE1\n");
-                *haldata->kinstype_is_0 = 0;
-                *haldata->kinstype_is_1 = 1;
+                hal_set_bool(haldata->kinstype_is_0, 0);
+                hal_set_bool(haldata->kinstype_is_1, 1);
                 break;
        default: rtapi_print_msg(RTAPI_MSG_ERR,
                 "kinematicsSwitch:BAD VALUE <%d>\n",
                 switchkins_type);
-                *haldata->kinstype_is_1 = 0;
-                *haldata->kinstype_is_0 = 0;
+                hal_set_bool(haldata->kinstype_is_1, 0);
+                hal_set_bool(haldata->kinstype_is_0, 0);
                 return -1; // FAIL
     }
     return 0; // ok
@@ -145,12 +143,12 @@ int kinematicsForward(const double *j,
 {
     (void)fflags;
     (void)iflags;
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
+    double x_rot_point = hal_get_real(haldata->x_rot_point);
+    double y_rot_point = hal_get_real(haldata->y_rot_point);
+    double z_rot_point = hal_get_real(haldata->z_rot_point);
 
-    double dz = *(haldata->z_offset);
-    double dt = *(haldata->tool_offset_z);
+    double dz = hal_get_real(haldata->z_offset);
+    double dt = hal_get_real(haldata->tool_offset_z);
 
     // substitutions as used in mathematical documentation
     // including degree -> radians angle conversion
@@ -209,13 +207,13 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
+    double x_rot_point = hal_get_real(haldata->x_rot_point);
+    double y_rot_point = hal_get_real(haldata->y_rot_point);
+    double z_rot_point = hal_get_real(haldata->z_rot_point);
 
-    double dx = *(haldata->x_offset);
-    double dz = *(haldata->z_offset);
-    double dt = *(haldata->tool_offset_z);
+    double dx = hal_get_real(haldata->x_offset);
+    double dz = hal_get_real(haldata->z_offset);
+    double dt = hal_get_real(haldata->tool_offset_z);
 
     // substitutions as used in mathematical documentation
     // including degree -> radians angle conversion

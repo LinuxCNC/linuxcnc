@@ -90,10 +90,10 @@ void gtk_label_set_text_if(GtkWidget * label, const gchar * text);
 void gtk_label_size_to_fit(GtkLabel * label, const gchar * str);
 
 /* Initialize a TreeView. */
-void init_list(GtkWidget *list, char *titles[], const int num_cols);
+void init_list(GtkWidget *list, const char *titles[], const int num_cols);
 
 /* Add new row to a TreeView. */
-void add_to_list(GtkWidget *list, char *strs[], const int num);
+void add_to_list(GtkWidget *list, const char *strs[], const int num);
 
 /* Clears all elements from a TreeView list. */
 void clear_list(GtkWidget *list);

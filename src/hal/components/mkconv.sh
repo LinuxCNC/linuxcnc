@@ -14,7 +14,7 @@ utype() {
 	"u32")	echo "rtapi_u32" ;;
 	"s64")	echo "rtapi_s64" ;;
 	"u64")	echo "rtapi_u64" ;;
-	"float") echo "real_t" ;;
+	"float") echo "rtapi_real" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
 }
@@ -45,6 +45,18 @@ minval() {
 	esac
 }
 
+# New HAL types
+_newtype() {
+	case "$1" in
+	"bit")	echo "bool" ;;
+	"s32")	echo "si32" ;;
+	"u32")	echo "ui32" ;;
+	"s64")	echo "sint" ;;
+	"u64")	echo "uint" ;;
+	"float") echo "real" ;;
+	*)	echo "This_Will_Generate_An_Error" ;;
+	esac
+}
 #
 # Conversions
 # xxx = unsupported conversion
@@ -95,11 +107,13 @@ if test	"$2" = 'float' -o \
 	\( "$1" = 's32' -a "$2" = 's64' \)
 then CC="s,@CC@,//,g"; else CC="s,@CC@,,g"; fi
 
-IN="s,@IN@,$1,g"
-OUT="s,@OUT@,$2,g"
+XIN="s,@XIN@,${1},g"
+XOUT="s,@XOUT@,${2},g"
+IN="s,@IN@,$(_newtype "$1"),g"
+OUT="s,@OUT@,$(_newtype "$2"),g"
 MIN="s,@MIN@,$(minval "$2"),g"
 MAX="s,@MAX@,$(maxval "$2"),g"
 TYPI="s,@TYPI@,$(utype "$1"),g"
 TYPO="s,@TYPO@,$(utype "$2"),g"
 
-exec sed -e "$IN; $OUT; $CC; $MIN; $MAX; $TYPI; $TYPO; $MINEN; $MAXEN;"
+exec sed -e "$IN; $OUT; $CC; $MIN; $MAX; $TYPI; $TYPO; $MINEN; $MAXEN; $XIN; $XOUT;"

@@ -546,7 +546,7 @@ static int comp_id;
 
     if options.get("rtapi_app", 1):
         if options.get("constructable") and not options.get("singleton"):
-            print("static int export_1(char *prefix, char *argstr) {", file=f)
+            print("static int export_1(const char *prefix, const char *argstr) {", file=f)
             print("    int arg = simple_strtol(argstr, NULL, 0);", file=f)
             print("    return export(prefix, arg);", file=f)
             print("}"   , file=f)

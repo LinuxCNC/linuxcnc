@@ -211,44 +211,44 @@
 
 /* HAL data struct */
 typedef struct {
-    hal_s32_t 	*status;
-    hal_float_t	*freq_cmd;	// frequency command
-    hal_float_t	*freq_out;	// actual output frequency
-    hal_float_t	*curr_out_pct;	// output current percentage (base unclear)
-    hal_float_t	*outV_pct;	// output voltage percent
-    hal_float_t	*RPM;
-    hal_float_t	*inv_load_pct;
-    hal_float_t	*load_current_pct;
-    hal_float_t *max_rpm;	// calculated based on VFD max frequency setup parameter
-    hal_s32_t	*trip_code;
-    hal_s32_t	*alarm_code;
-    hal_bit_t	*at_speed;	// when drive freq_cmd == freq_out and running
-    hal_bit_t	*is_stopped;	// when drive freq out is 0
-    hal_bit_t	*estop;		// set estop bit in 0xFA00 - causes 'E trip'
-    hal_bit_t	*is_e_stopped;	// true if emergency stop status set in 0xFD00
-    hal_bit_t	*modbus_ok;	// the last MODBUS_OK transactions returned successfully
-    hal_float_t	*speed_command;	// speed command input
+    hal_sint_t status;
+    hal_real_t freq_cmd;	// frequency command
+    hal_real_t freq_out;	// actual output frequency
+    hal_real_t curr_out_pct;	// output current percentage (base unclear)
+    hal_real_t outV_pct;	// output voltage percent
+    hal_real_t RPM;
+    hal_real_t inv_load_pct;
+    hal_real_t load_current_pct;
+    hal_real_t max_rpm;	// calculated based on VFD max frequency setup parameter
+    hal_sint_t trip_code;
+    hal_sint_t alarm_code;
+    hal_bool_t at_speed;	// when drive freq_cmd == freq_out and running
+    hal_bool_t is_stopped;	// when drive freq out is 0
+    hal_bool_t estop;		// set estop bit in 0xFA00 - causes 'E trip'
+    hal_bool_t is_e_stopped;	// true if emergency stop status set in 0xFD00
+    hal_bool_t modbus_ok;	// the last MODBUS_OK transactions returned successfully
+    hal_real_t speed_command;	// speed command input
 
-    hal_bit_t	*spindle_on;	// spindle 1=on, 0=off
-    hal_bit_t 	*DC_brake;	// setting this will turn off the spindle and engage the DC brake
-    hal_bit_t	*spindle_fwd;	// direction, 0=fwd, 1=rev
-    hal_bit_t 	*spindle_rev;	// on when in rev and running
-    hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
-    hal_bit_t	*jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
-    hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
+    hal_bool_t spindle_on;	// spindle 1=on, 0=off
+    hal_bool_t DC_brake;	// setting this will turn off the spindle and engage the DC brake
+    hal_bool_t spindle_fwd;	// direction, 0=fwd, 1=rev
+    hal_bool_t spindle_rev;	// on when in rev and running
+    hal_bool_t err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
+    hal_bool_t jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
+    hal_sint_t errorcount;      // number of failed Modbus transactions - hints at logical errors
 
-    hal_float_t	looptime;
-    hal_float_t	speed_tolerance; 	
-    hal_float_t	motor_nameplate_hz;	// speeds are scaled in Hz, not RPM
-    hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
-    hal_float_t	rpm_limit;		// do-not-exceed output frequency
-    hal_bit_t	*acc_dec_pattern;	// if set: choose ramp times as defined in F500+F501
+    hal_real_t looptime;                // (param)
+    hal_real_t speed_tolerance;         // (param)
+    hal_real_t motor_nameplate_hz;      // (param) speeds are scaled in Hz, not RPM
+    hal_real_t motor_nameplate_RPM;     // (param) nameplate RPM at default Hz
+    hal_real_t rpm_limit;               // (param) do-not-exceed output frequency
+    hal_bool_t acc_dec_pattern;         // if set: choose ramp times as defined in F500+F501
                                         // if zero (default): choose ramp times as defined in ACC and DEC
-    hal_bit_t	*enabled;		// if set: control VFD via Modbus commands, panel control disabled
+    hal_bool_t enabled;                 // if set: control VFD via Modbus commands, panel control disabled
                                         // if zero (default): manual control through panel enabled
-    hal_float_t	*upper_limit_hz;		// VFD setup parameter - maximum output frequency in HZ
+    hal_real_t upper_limit_hz;		// VFD setup parameter - maximum output frequency in HZ
      
-    hal_bit_t   *max_speed;             // 1: run as fast as possible, ignore unimportant registers
+    hal_bool_t max_speed;               // 1: run as fast as possible, ignore unimportant registers
                                         // link this to spindle.orient-enable for better orient PID loop behaviour
 } haldata_t;
 
@@ -345,8 +345,8 @@ static struct option long_options[] = {
 
 void  windup(param_pointer p) 
 {
-    if (p->haldata && *(p->haldata->errorcount)) {
-	fprintf(stderr,"%s: %d modbus errors\n",p->progname, *(p->haldata->errorcount));
+    if (p->haldata && hal_get_si32(p->haldata->errorcount)) {
+	fprintf(stderr,"%s: %d modbus errors\n",p->progname, hal_get_si32(p->haldata->errorcount));
 	fprintf(stderr,"%s: last command register: 0x%.4x\n",p->progname, p->failed_reg);
 	fprintf(stderr,"%s: last error: %s\n",p->progname, modbus_strerror(p->last_errno));
     }
@@ -521,15 +521,15 @@ void usage(int argc, char **argv) {
 
 int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 {
-    hal_float_t hzcalc;
+    rtapi_real hzcalc;
     int cmd1_reg;
     int freq_reg, freq_cap;
 
-    if (!*(haldata->enabled)) {
+    if (!hal_get_bool(haldata->enabled)) {
 	// send 0 to FA00 register - no bus control
 	if (modbus_write_register(ctx, REG_COMMAND1, 0) < 0) {
 	    p->failed_reg = REG_COMMAND1;
-	    (*haldata->errorcount)++;
+	    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 	    p->last_errno = errno;
 	    return errno;
 	}
@@ -537,26 +537,26 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     }
  retry:
     // set frequency register
-    if (haldata->motor_nameplate_hz < 10)
-	haldata->motor_nameplate_hz = 50;
-    if ((haldata->motor_nameplate_RPM < 600) || (haldata->motor_nameplate_RPM > 5000))
-	haldata->motor_nameplate_RPM = 1410;
-    hzcalc = haldata->motor_nameplate_hz/haldata->motor_nameplate_RPM;
+    if (hal_get_real(haldata->motor_nameplate_hz) < 10)
+	hal_set_real(haldata->motor_nameplate_hz, 50);
+    if ((hal_get_real(haldata->motor_nameplate_RPM) < 600) || (hal_get_real(haldata->motor_nameplate_RPM) > 5000))
+	hal_set_real(haldata->motor_nameplate_RPM, 1410);
+    hzcalc = hal_get_real(haldata->motor_nameplate_hz) / hal_get_real(haldata->motor_nameplate_RPM);
 
-    freq_reg =  abs((int)(*(haldata->speed_command) * hzcalc * 100));
-    freq_cap =  abs((int)(haldata->rpm_limit * hzcalc * 100));
+    freq_reg =  abs((int)(hal_get_real(haldata->speed_command) * hzcalc * 100));
+    freq_cap =  abs((int)(hal_get_real(haldata->rpm_limit) * hzcalc * 100));
 
     // limit frequency to frequency set via max-rpm
     if (freq_reg > freq_cap)
 	freq_reg = freq_cap;
 
-    *(haldata->freq_cmd)  =  freq_reg / 100.0;
+    hal_set_real(haldata->freq_cmd, freq_reg / 100.0);
 
     // prepare command register
     //  force Modbus control - this disables the panel
     cmd1_reg = (CMD_COMMAND_PRIORITY|CMD_FREQUENCY_PRIORITY);	
-    if (*haldata->spindle_on){
-	cmd1_reg|= (*haldata->jog_mode) ? CMD_JOG_RUN : CMD_RUN;
+    if (hal_get_bool(haldata->spindle_on)){
+	cmd1_reg|= hal_get_bool(haldata->jog_mode) ? CMD_JOG_RUN : CMD_RUN;
     }
 
     // if 1, choose ramp times as per F500/F501
@@ -567,39 +567,39 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
     // rev follows fwd
     // two bits for one direction is a mess in the first place
-    *(haldata->spindle_rev) = *(haldata->spindle_fwd) ? 0 : 1;
-    *(haldata->spindle_fwd) = *(haldata->spindle_rev) ? 0 : 1;
+    hal_set_bool(haldata->spindle_rev, !hal_get_bool(haldata->spindle_fwd));
+    hal_set_bool(haldata->spindle_fwd, !hal_get_bool(haldata->spindle_rev));
 
-    if (*haldata->spindle_rev) {
+    if (hal_get_bool(haldata->spindle_rev)) {
 	cmd1_reg |= CMD_REVERSE;
     } else {
 	cmd1_reg &= (~CMD_REVERSE);	// direction bit = 0 -> forward
     }
 
     // DC brake - turn spindle_on off as well
-    if  (*(haldata->DC_brake)) {
+    if  (hal_get_bool(haldata->DC_brake)) {
 	cmd1_reg |= CMD_DC_BRAKE;  	// set DC brake bit
 	cmd1_reg &= ~(CMD_RUN | CMD_JOG_RUN); 	
-	*(haldata->spindle_on) = 0;
-	*(haldata->at_speed) = 0;
+	hal_set_bool(haldata->spindle_on, 0);
+	hal_set_bool(haldata->at_speed, 0);
     } else {
 	cmd1_reg &= ~CMD_DC_BRAKE;
     }
 
     // send CMD_FAULT_RESET and CMD_EMERGENCY_STOP only once so the poor thing comes back
     // out of reset/estop status eventually
-    if (*(haldata->err_reset) && !(p->old_cmd1_reg  & CMD_FAULT_RESET ))	{ // not sent yet
+    if (hal_get_bool(haldata->err_reset) && !(p->old_cmd1_reg  & CMD_FAULT_RESET ))	{ // not sent yet
 	cmd1_reg |= CMD_FAULT_RESET;		// fault reset bit = 1 -> clear fault
-	*(haldata->err_reset) = 0;
+	hal_set_bool(haldata->err_reset, 0);
     } else {
 	cmd1_reg &= ~CMD_FAULT_RESET;
     }
 
-    if (*(haldata->estop) && !(p->old_cmd1_reg  & CMD_EMERGENCY_STOP )) {	// not sent yet)
+    if (hal_get_bool(haldata->estop) && !(p->old_cmd1_reg  & CMD_EMERGENCY_STOP )) {	// not sent yet)
 	cmd1_reg |= CMD_EMERGENCY_STOP;		// estop bit -> trip VFD into estop mode
-	*(haldata->estop) = 0;
-	*(haldata->spindle_on) = 0;
-	*(haldata->at_speed) = 0;
+	hal_set_bool(haldata->estop, 0);
+	hal_set_bool(haldata->spindle_on, 0);
+	hal_set_bool(haldata->at_speed, 0);
     } else {
 	cmd1_reg &= ~CMD_EMERGENCY_STOP;
     }
@@ -618,7 +618,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 	    goto retry;
 	}
 	p->failed_reg = REG_COMMAND1;
-	(*haldata->errorcount)++;
+	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 	p->last_errno = errno;
 	return errno;
     } 
@@ -629,19 +629,19 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
     if ((modbus_write_register(ctx, REG_FREQUENCY, freq_reg)) < 0) {
 	p->failed_reg = REG_FREQUENCY;
-	(*haldata->errorcount)++;
+	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
 	p->last_errno = errno;
 	return errno;
     } 
 
-    if ((*(haldata->freq_cmd) > 0.01) && ((1.0 - *(haldata->freq_out) / *(haldata->freq_cmd))  < haldata->speed_tolerance)){
-	*(haldata->at_speed) = 1;
+    if ((hal_get_real(haldata->freq_cmd) > 0.01) && ((1.0 - hal_get_real(haldata->freq_out) / hal_get_real(haldata->freq_cmd))  < hal_get_real(haldata->speed_tolerance))){
+	hal_set_bool(haldata->at_speed, 1);
     } else {
-	*(haldata->at_speed) = 0;
+	hal_set_bool(haldata->at_speed, 0);
     }
 
-    if (*(haldata->spindle_on) == 0){ // JET reset at-speed
-	*(haldata->at_speed) = 0;
+    if (hal_get_bool(haldata->spindle_on) == 0){ // JET reset at-speed
+	hal_set_bool(haldata->at_speed, 0);
     }
     return 0;
 }
@@ -660,10 +660,10 @@ int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 	voltage, model, cpu1, cpu2, eeprom, max_freq;
 
     GETREG(REG_UPPERLIMIT, &max_freq);
-    *(haldata->upper_limit_hz) = max_freq/100.0;
-    *(haldata->max_rpm) = *(haldata->upper_limit_hz) * 
-	haldata->motor_nameplate_RPM /
-	haldata->motor_nameplate_hz;
+    hal_set_real(haldata->upper_limit_hz, max_freq/100.0);
+    hal_set_real(haldata->max_rpm, hal_get_real(haldata->upper_limit_hz) *
+	hal_get_real(haldata->motor_nameplate_RPM) /
+	hal_get_real(haldata->motor_nameplate_hz));
 
     if (p->report_device) {
 	GETREG(SR_RATED_CURRENT, &current);
@@ -685,7 +685,7 @@ int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
  failed:
     p->failed_reg = curr_reg;
     p->last_errno = errno;
-    (*haldata->errorcount)++;
+    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
     if (p->debug)
 	fprintf(stderr, "%s: read_initial: modbus_read_registers(0x%4.4x): %s\n", 
 		p->progname, curr_reg, modbus_strerror(errno));
@@ -708,54 +708,54 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     // we always at least read the main status register SR_INV_OPSTATUS
     // and current operating frequency SR_OP_FREQUENCY
     GETREG(SR_INV_OPSTATUS, &status_reg);
-    *(haldata->status) = status_reg;
+    hal_set_si32(haldata->status, status_reg);
 
     GETREG(SR_OP_FREQUENCY, &freq_reg);
-    *(haldata->freq_out) = freq_reg * 0.01;
+    hal_set_real(haldata->freq_out, freq_reg * 0.01);
 
     DBG("read_data: status_reg=%4.4x freq_reg=%4.4x\n", status_reg, freq_reg);
 
     // JET if freq out is 0 then the drive is stopped
-    *(haldata->is_stopped) = (freq_reg == 0);
+    hal_set_bool(haldata->is_stopped, freq_reg == 0);
 
     // determine what to do next.
     if (status_reg & ST_TRIPPED) {		// read and set trip code.
 	GETREG(SR_TRIPCODE, &val);
-	*(haldata->trip_code) = val;
+	hal_set_si32(haldata->trip_code, val);
 	// a sensible addition would be to read and convey SR_INV_OPSTATUS_T, the status just before the trip
     } else {
-	*(haldata->trip_code) = 0;
+	hal_set_si32(haldata->trip_code, 0);
     }
 
     if (status_reg & ST_ALARMED) {		// read and set alarm bit map.
 	GETREG(SR_ALARM_MONITOR, &val);
-	*(haldata->alarm_code) = val;
+	hal_set_si32(haldata->alarm_code, val);
     } else {
-	*(haldata->alarm_code) = 0;
+	hal_set_si32(haldata->alarm_code, 0);
     }
 
     if (status_reg & ST_EMERGENCY_STOPPED) {	// set e-stop status.
-	*(haldata->is_e_stopped) = 1;
+	hal_set_bool(haldata->is_e_stopped, 1);
     } else {
-	*(haldata->is_e_stopped) = 0;
+	hal_set_bool(haldata->is_e_stopped, 0);
 
     }
     // unsure what to do here with ST_FAILURE_FL bit
 
-    if ((pollcount == 0) && !(*haldata->max_speed)) {
+    if ((pollcount == 0) && !hal_get_bool(haldata->max_speed)) {
 
 	// less urgent registers
 	GETREG(SR_ESTIMATED_OPFREQ, &val);
-	*(haldata->RPM) = val * haldata->motor_nameplate_hz / 100.0;
+	hal_set_real(haldata->RPM, val * hal_get_real(haldata->motor_nameplate_hz) / 100.0);
 
 	GETREG(SR_INV_LOADFACTOR, &val);
-	*(haldata->inv_load_pct) =  val;
+	hal_set_real(haldata->inv_load_pct, val);
 
 	GETREG(SR_LOADCURRENT, &val);
-	*(haldata->load_current_pct) =  val * 0.01;
+	hal_set_real(haldata->load_current_pct, val * 0.01);
 
 	GETREG(SR_OUTPUT_VOLTAGE, &val);
-	*(haldata->outV_pct) =  val * 0.01;
+	hal_set_real(haldata->outV_pct, val * 0.01);
     } else 
 	pollcount++;
     if (pollcount >= p->pollcycles)
@@ -766,7 +766,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
  failed:
     p->failed_reg = curr_reg;
     p->last_errno = errno;
-    (*haldata->errorcount)++;
+    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
     if (p->debug)
 	fprintf(stderr, "%s: read_data: modbus_read_registers(0x%4.4x): %s\n", 
 		p->progname, curr_reg, modbus_strerror(errno));
@@ -785,41 +785,41 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 int hal_setup(int id, haldata_t *h, const char *name)
 {
     int status;
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->acc_dec_pattern), id, "%s.acceleration-pattern", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->alarm_code), id, "%s.alarm-code", name));
-    PIN(hal_pin_bit_newf(HAL_OUT, &(h->at_speed), id, "%s.at-speed", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->load_current_pct), id, "%s.current-load-percentage", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->DC_brake), id, "%s.dc-brake", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->enabled), id, "%s.enable", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->err_reset), id, "%s.err-reset", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->jog_mode), id, "%s.jog-mode", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->estop), id, "%s.estop", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->freq_cmd), id, "%s.frequency-command", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->freq_out), id, "%s.frequency-out", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->inv_load_pct), id, "%s.inverter-load-percentage", name));
-    PIN(hal_pin_bit_newf(HAL_OUT, &(h->is_e_stopped), id, "%s.is-e-stopped", name)); // JET
-    PIN(hal_pin_bit_newf(HAL_OUT, &(h->is_stopped), id, "%s.is-stopped", name)); // JET
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->max_rpm), id, "%s.max-rpm", name));
-    PIN(hal_pin_bit_newf(HAL_OUT, &(h->modbus_ok), id, "%s.modbus-ok", name)); // JET
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->RPM), id, "%s.motor-RPM", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->curr_out_pct), id, "%s.output-current-percentage", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->outV_pct), id, "%s.output-voltage-percentage", name));
-    PIN(hal_pin_float_newf(HAL_IN, &(h->speed_command), id, "%s.speed-command", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_fwd), id, "%s.spindle-fwd", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_on), id, "%s.spindle-on", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_rev), id, "%s.spindle-rev", name)); //JET
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->status), id, "%s.status", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->trip_code), id, "%s.trip-code", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->max_speed), id, "%s.max-speed", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->upper_limit_hz), id, "%s.frequency-limit", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->acc_dec_pattern), 0, "%s.acceleration-pattern", name));
+    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->alarm_code), 0, "%s.alarm-code", name));
+    PIN(hal_pin_new_bool(id, HAL_OUT, &(h->at_speed), 0, "%s.at-speed", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->load_current_pct), 0.0, "%s.current-load-percentage", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->DC_brake), 0, "%s.dc-brake", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->enabled), 0, "%s.enable", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->err_reset), 0, "%s.err-reset", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->jog_mode), 0, "%s.jog-mode", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->estop), 0, "%s.estop", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->freq_cmd), 0.0, "%s.frequency-command", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->freq_out), 0.0, "%s.frequency-out", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->inv_load_pct), 0.0, "%s.inverter-load-percentage", name));
+    PIN(hal_pin_new_bool(id, HAL_OUT, &(h->is_e_stopped), 0, "%s.is-e-stopped", name)); // JET
+    PIN(hal_pin_new_bool(id, HAL_OUT, &(h->is_stopped), 0, "%s.is-stopped", name)); // JET
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->max_rpm), 0.0, "%s.max-rpm", name));
+    PIN(hal_pin_new_bool(id, HAL_OUT, &(h->modbus_ok), 0, "%s.modbus-ok", name)); // JET
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->RPM), 0.0, "%s.motor-RPM", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->curr_out_pct), 0.0, "%s.output-current-percentage", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->outV_pct), 0.0, "%s.output-voltage-percentage", name));
+    PIN(hal_pin_new_real(id, HAL_IN, &(h->speed_command), 0.0, "%s.speed-command", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_fwd), 1, "%s.spindle-fwd", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_on), 0, "%s.spindle-on", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_rev), 0, "%s.spindle-rev", name)); //JET
+    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->status), 0, "%s.status", name));
+    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->trip_code), 0, "%s.trip-code", name));
+    PIN(hal_pin_new_bool(id, HAL_IN, &(h->max_speed), 0, "%s.max-speed", name));
+    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->errorcount), 0, "%s.error-count", name));
+    PIN(hal_pin_new_real(id, HAL_OUT, &(h->upper_limit_hz), 0.0, "%s.frequency-limit", name));
 
     // the following limit must be set manually from the panel since its in EEPROM
-    PIN(hal_param_float_newf(HAL_RW, &(h->looptime), id, "%s.loop-time", name));
-    PIN(hal_param_float_newf(HAL_RW, &(h->motor_nameplate_hz), id, "%s.nameplate-HZ", name));
-    PIN(hal_param_float_newf(HAL_RW, &(h->motor_nameplate_RPM), id, "%s.nameplate-RPM", name));
-    PIN(hal_param_float_newf(HAL_RW, &(h->rpm_limit), id, "%s.rpm-limit", name));
-    PIN(hal_param_float_newf(HAL_RW, &(h->speed_tolerance), id, "%s.tolerance", name));
+    PIN(hal_param_new_real(id, HAL_RW, &(h->looptime), 0.1, "%s.loop-time", name));
+    PIN(hal_param_new_real(id, HAL_RW, &(h->motor_nameplate_hz), 50.0, "%s.nameplate-HZ", name));
+    PIN(hal_param_new_real(id, HAL_RW, &(h->motor_nameplate_RPM), 1410.0, "%s.nameplate-RPM", name));
+    PIN(hal_param_new_real(id, HAL_RW, &(h->rpm_limit), MAX_RPM, "%s.rpm-limit", name));
+    PIN(hal_param_new_real(id, HAL_RW, &(h->speed_tolerance), 0.01, "%s.tolerance", name));
 
     return 0;
 }
@@ -829,40 +829,40 @@ int set_defaults(param_pointer p)
 {
     haldata_t *h = p->haldata;
 
-    *(h->status) = 0;
-    *(h->freq_cmd) = 0;
-    *(h->freq_out) = 0;
-    *(h->curr_out_pct) = 0;
-    *(h->outV_pct) = 0;
-    *(h->RPM) = 0;
-    *(h->inv_load_pct) = 0;
-    *(h->load_current_pct) = 0;
-    *(h->upper_limit_hz) = 0;
-    *(h->trip_code) = 0;
-    *(h->alarm_code) = 0;
-    *(h->at_speed) = 0;
-    *(h->is_stopped) = 0;
-    *(h->estop) = 0;
-    *(h->is_e_stopped) = 0;
-    *(h->speed_command) = 0;
-    *(h->modbus_ok) = 0;
+    hal_set_si32(h->status, 0);
+    hal_set_real(h->freq_cmd, 0);
+    hal_set_real(h->freq_out, 0);
+    hal_set_real(h->curr_out_pct, 0);
+    hal_set_real(h->outV_pct, 0);
+    hal_set_real(h->RPM, 0);
+    hal_set_real(h->inv_load_pct, 0);
+    hal_set_real(h->load_current_pct, 0);
+    hal_set_real(h->upper_limit_hz, 0);
+    hal_set_si32(h->trip_code, 0);
+    hal_set_si32(h->alarm_code, 0);
+    hal_set_bool(h->at_speed, 0);
+    hal_set_bool(h->is_stopped, 0);
+    hal_set_bool(h->estop, 0);
+    hal_set_bool(h->is_e_stopped, 0);
+    hal_set_real(h->speed_command, 0);
+    hal_set_bool(h->modbus_ok, 0);
 
-    *(h->spindle_on) = 0;
-    *(h->DC_brake) = 0;
-    *(h->spindle_fwd) = 1;
-    *(h->spindle_rev) = 0;
-    *(h->err_reset) = 0;
-    *(h->jog_mode) = 0;
-    *(h->enabled) = 0;
-    *(h->acc_dec_pattern) = 0;
-    *(h->errorcount) = 0;
-    *(h->max_speed) = 0;
+    hal_set_bool(h->spindle_on, 0);
+    hal_set_bool(h->DC_brake, 0);
+    hal_set_bool(h->spindle_fwd, 1);
+    hal_set_bool(h->spindle_rev, 0);
+    hal_set_bool(h->err_reset, 0);
+    hal_set_bool(h->jog_mode, 0);
+    hal_set_bool(h->enabled, 0);
+    hal_set_bool(h->acc_dec_pattern, 0);
+    hal_set_si32(h->errorcount, 0);
+    hal_set_bool(h->max_speed, 0);
 
-    h->looptime = 0.1;
-    h->speed_tolerance = 0.01;      // output frequency within 1% of target frequency
-    h->motor_nameplate_hz = 50;	    // folks in The Colonies typically would use 60Hz and 1730 rpm
-    h->motor_nameplate_RPM = 1410;
-    h->rpm_limit = MAX_RPM;
+    hal_set_real(h->looptime, 0.1);
+    hal_set_real(h->speed_tolerance, 0.01);      // output frequency within 1% of target frequency
+    hal_set_real(h->motor_nameplate_hz, 50);	    // folks in The Colonies typically would use 60Hz and 1730 rpm
+    hal_set_real(h->motor_nameplate_RPM, 1410);
+    hal_set_real(h->rpm_limit, MAX_RPM);
 
     p->failed_reg = 0;
     return 0;
@@ -1034,11 +1034,7 @@ int main(int argc, char **argv)
 	    } else {
 		p->modbus_ok++;
 	    }
-	    if (p->modbus_ok > MODBUS_MIN_OK) {
-		*(p->haldata->modbus_ok) = 1;
-	    } else {
-		*(p->haldata->modbus_ok) = 0;
-	    }
+	    hal_set_bool(p->haldata->modbus_ok, p->modbus_ok > MODBUS_MIN_OK);
 	    if ((retval = write_data(p->ctx, p->haldata, p))) {
 		p->modbus_ok = 0;
                 if ((retval == EBADF || retval == ECONNRESET || retval == EPIPE)) {
@@ -1047,16 +1043,13 @@ int main(int argc, char **argv)
 	    } else {
 		p->modbus_ok++;
 	    }
-	    if (p->modbus_ok > MODBUS_MIN_OK) {
-		*(p->haldata->modbus_ok) = 1;
-	    } else {
-		*(p->haldata->modbus_ok) = 0;
-	    }
+	    hal_set_bool(p->haldata->modbus_ok, p->modbus_ok > MODBUS_MIN_OK);
 	    /* don't want to scan too fast, and shouldn't delay more than a few seconds */
-	    if (p->haldata->looptime < 0.001) p->haldata->looptime = 0.001;
-	    if (p->haldata->looptime > 2.0) p->haldata->looptime = 2.0;
-	    loop_timespec.tv_sec = (time_t)(p->haldata->looptime);
-	    loop_timespec.tv_nsec = (long)((p->haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
+	    rtapi_real looptime = hal_get_real(p->haldata->looptime);
+	    if (looptime < 0.001) looptime = hal_set_real(p->haldata->looptime, 0.001);
+	    if (looptime > 2.0)   looptime = hal_set_real(p->haldata->looptime, 2.0);
+	    loop_timespec.tv_sec = (time_t)looptime;
+	    loop_timespec.tv_nsec = (long)((looptime - loop_timespec.tv_sec) * 1000000000l);
 	    if (!p->haldata->max_speed)
 		nanosleep(&loop_timespec, &remaining);
 	}

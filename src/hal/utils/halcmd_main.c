@@ -42,7 +42,6 @@
 #include <rtapi_mutex.h>
 #include <hal.h>
 #include <linuxcnc.h>
-#include "../hal_priv.h"
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"
@@ -257,7 +256,7 @@ int main(int argc, char **argv)
         if(errorcount == 0 && argc > optind) {
             halcmd_set_filename("<commandline>");
             halcmd_set_linenumber(0);
-            retval = halcmd_parse_cmd(&argv[optind]);
+            retval = halcmd_parse_cmd((const char **)&argv[optind]);
             if (retval != 0) {
                 errorcount++;
             }
@@ -268,7 +267,7 @@ int main(int argc, char **argv)
         char *elineptr=eline, *elineend=eline + sizeof(eline);
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
-	    char *tokens[MAX_TOK+1];
+	    const char *tokens[MAX_TOK+1];
             int   newLinePos;
 
 	    halcmd_set_linenumber(linenumber++);
@@ -396,7 +395,7 @@ static void print_help_general(int showR)
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
 
-#ifdef HAVE_READLINE
+#if defined(HAVE_READLINE) || defined(HAVE_EDITLINE_READLINE_H)
 #include "halcmd_completion.h"
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {

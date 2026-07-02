@@ -246,26 +246,22 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 // the shortest possible INI variable is '_hal[x]' or 7 chars long .
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
-    static int comp_id;
     int retval;
     hal_type_t type = HAL_TYPE_UNINITIALIZED;
-    hal_data_u* ptr;
-    bool conn;
-    char hal_name[HAL_NAME_LEN];
+    hal_query_value_u qval;
+    char hal_name[HAL_NAME_LEN + 1];
 
     *status = 0;
-    if (!comp_id) {
-	char hal_comp[HAL_NAME_LEN];
-	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
-	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
-	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
-	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
-    }
-    char *s;
-    int n = strlen(nameBuf);
-    if ((n > 6) &&
-	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
+    // Make sure we can query pins/params/signals
+    // Calling hal_lib_init() here would make it impossible for us to determine
+    // when to call hal_lib_exit() to satisfy the init/exit reference counting.
+    retval = hal_is_init();
+    CHKS(retval == 0, "fetch_hal_param: HAL is not initialized (hal_is_init() returned zero)");
+
+    const char *s;
+    int n = strlen(nameBuf);
+    if (n > 6 && NULL != (s = (const char *)strchr(&nameBuf[5],']'))) {
 	int closeBracket = s - nameBuf;
 
 	strncpy(hal_name, &nameBuf[5], closeBracket);
@@ -273,41 +269,45 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	if (nameBuf[closeBracket + 1]) {
 	    logOword("%s: trailing garbage after closing bracket", hal_name);
 	    *status = 0;
-	    ERS("%s: trailing garbage after closing bracket", nameBuf);
+	    ERS(_("%s: trailing garbage after closing bracket"), nameBuf);
 	}
-	// the result of these lookups could be cached in the parameter struct, but I'm not sure
-	// this is a good idea - a removed pin/signal will not be noticed
 
-	// I dont think that's needed - no change in pins/sigs/params
-	// rtapi_mutex_get(&(hal_data->mutex)); 
-        // rtapi_mutex_give(&(hal_data->mutex));
-
-        if (hal_get_pin_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
-            if (!conn)
-		logOword("%s: no signal connected", hal_name);
-	    goto assign;
-	}
-        if (hal_get_signal_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
-	    if (!conn)
-		logOword("%s: signal has no writer", hal_name);
-	    goto assign;
-	}
-        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
-	    goto assign;
-	}
+        // Retrieve the active value from the pin/param/signal
+        hal_query_t q = {};
+        q.name = hal_name;
+        if(0 == hal_get_p(&q, NULL, NULL)) { // Gets either pin or param
+            // FIXME: It is not logical to fail on an output pin that is not
+            // attached to a signal. HAL_OUT pins should always give a real
+            // result. HAL_IO pins could be fine, but that depends on whether
+            // there has been written proper data on it yet.
+            if(HAL_QTYPE_PIN == q.qtype && !q.pp.signal)
+                logOword("%s: no signal connected", hal_name);
+            qval = q.pp.value;
+            type = q.pp.type;
+            goto assign;
+        }
+        q = {};
+        q.name = hal_name;
+        if(0 == hal_get_s(&q, NULL, NULL)) {
+            if(q.sig.writers <= 0)
+                logOword("%s: signal has no writer", hal_name);
+            qval = q.sig.value;
+            type = q.sig.type;
+            goto assign;
+        }
 	*status = 0;
-	ERS("Named hal parameter #<%s> not found", nameBuf);
+	ERS(_("Named hal parameter #<%s> not found"), nameBuf);
     }
     return INTERP_OK;
 
     assign:
     switch (type) {
-    case HAL_BIT: *value = (double) (ptr->b); break;
-    case HAL_U32: *value = (double) (ptr->u); break;
-    case HAL_S32: *value = (double) (ptr->s); break;
-    case HAL_U64: *value = (double) (ptr->lu); break;
-    case HAL_S64: *value = (double) (ptr->ls); break;
-    case HAL_FLOAT: *value = (double) (ptr->f); break;
+    case HAL_BOOL: *value = (double)qval.b; break;
+    case HAL_U32:  *value = (double)qval.u; break;
+    case HAL_S32:  *value = (double)qval.s; break;
+    case HAL_UINT: *value = (double)qval.u; break;
+    case HAL_SINT: *value = (double)qval.s; break;
+    case HAL_REAL: *value = (double)qval.r; break;
     default: return -1;
     }
     logOword("%s: value=%f", hal_name, *value);

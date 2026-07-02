@@ -26,13 +26,13 @@ is-on: └─────────────────┘       �
 
 """;
 
-pin in bit in  "momentary button in";
-pin in bit is_on "current state of device";
-pin in unsigned debounce = 2 "debounce delay for 'in'-pin in cycles";
-pin out bit on "turn device on";
-pin out bit off "turn device off";
+pin in bool in  "momentary button in";
+pin in bool is_on "current state of device";
+pin in ui32 debounce = 2 "debounce delay for 'in'-pin in cycles";
+pin out bool on "turn device on";
+pin out bool off "turn device off";
 variable int debounce_cntr;
-variable unsigned debounce_set;
+variable unsigned debounce_val;
 variable int state;
 
 option period no;
@@ -43,33 +43,33 @@ author "Anders Wallin, David Mueller";
 FUNCTION(_)  {
 
     if (( debounce < 1 ) || ( debounce > 10000 )) {
-        debounce_set = 2; /* set a sane value */
+        debounce_val = 2; /* set a sane value */
     } else {
-        debounce_set = debounce;
+        debounce_val = debounce;
     }
 
     if (in && state == 0 )  { /* input has changed from debounced 0 -> 1 */
         debounce_cntr++;
-        if ( debounce_cntr >= (int)debounce_set ) {
+        if ( debounce_cntr >= (int)debounce_val ) {
             if (!is_on) { /* turn ON if it's off */
-                on=1;
-                off=0;
+                on_set(1);
+                off_set(0);
             } else { /* turn OFF if it's on */
-                on=0;
-                off=1;
+                on_set(0);
+                off_set(1);
             }
             state = 1;
             debounce_cntr = 0;
         }
     } else if (!in && state == 1) { /* input has changed from debounced 1 -> 0 */
         debounce_cntr++;
-        if ( debounce_cntr >= (int)debounce_set ) {
+        if ( debounce_cntr >= (int)debounce_val ) {
             state = 0;
             debounce_cntr = 0;
         }
     } else if ((!is_on && off) || (is_on && on)) { /* reset outputs once device has switched*/
-        on = 0;
-        off = 0;
+        on_set(0);
+        off_set(0);
         debounce_cntr = 0;
     } else {
     	debounce_cntr = 0;

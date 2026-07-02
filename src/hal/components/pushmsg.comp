@@ -73,9 +73,9 @@ loadrt pushmsg msgs=[PUSHMSG]MSGS
 addf pushmsg servo-thread
 ...
 ----
-""";
+"""; //" to fix vim syntax highlight
 
-pin in bit enable = TRUE "Enable message generation through trigger input pins";
+pin in bool enable = TRUE "Enable message generation through trigger input pins";
 
 modparam dummy msgs "Comma separated list of custom messages in format level|pinname|message";
 
@@ -104,10 +104,10 @@ RTAPI_MP_ARRAY_STRING(msgs, MSG_N_MAX, "Message slots in 't|pin|message' format"
 
 // The HAL structure lives in HAL memory space
 typedef struct {
-    hal_bit_t  *trigger;
-    hal_bit_t  *force;
-    hal_bit_t  *edge;
-    hal_data_u *substs[MSG_SUBST_MAX];
+    hal_bool_t trigger;
+    hal_bool_t force;
+    hal_bool_t edge;
+    hal_refs_u substs[MSG_SUBST_MAX];
 } msg_hal_t;
 
 // The admin structure lives in normal memory space
@@ -214,15 +214,15 @@ static int setup_message(const char *pfx, int idx, const char *msg, msg_slot_t *
     }
 
     // Create the trigger, force and edge input pins
-    if ((rv = hal_pin_bit_newf(HAL_IN, &pin->trigger, comp_id, "%s.trigger", pinname)) < 0) {
+    if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->trigger, 0, "%s.trigger", pinname)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d cannot create trigger pin (duplicate?)\n", pfx, idx);
         return rv;
     }
-    if ((rv = hal_pin_bit_newf(HAL_IN, &pin->force, comp_id, "%s.force", pinname)) < 0) {
+    if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->force, 0, "%s.force", pinname)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d cannot create force pin (duplicate?)\n", pfx, idx);
         return rv;
     }
-    if ((rv = hal_pin_bit_newf(HAL_IN, &pin->edge, comp_id, "%s.edge", pinname)) < 0) {
+    if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->edge, 0, "%s.edge", pinname)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: Message %d cannot create edge pin (duplicate?)\n", pfx, idx);
         return rv;
     }
@@ -280,32 +280,32 @@ static int setup_message(const char *pfx, int idx, const char *msg, msg_slot_t *
             switch (tchar) {
             case 'b': case 'B':
                 slot->substtype[subst] = HAL_BIT;
-                if ((rv = hal_pin_bit_newf(HAL_IN, (hal_bit_t **)&pin->substs[subst], comp_id, "%s.%s", pinname, cptr)) < 0)
+                if ((rv = hal_pin_new_bool(comp_id, HAL_IN, &pin->substs[subst].b, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             case 's': case 'S':
                 slot->substtype[subst] = HAL_S32;
-                if ((rv = hal_pin_s32_newf(HAL_IN, (hal_s32_t **)&pin->substs[subst], comp_id, "%s.%s", pinname, cptr)) < 0)
+                if ((rv = hal_pin_new_si32(comp_id, HAL_IN, &pin->substs[subst].s, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             case 'u': case 'U':
                 slot->substtype[subst] = HAL_U32;
-                if ((rv = hal_pin_u32_newf(HAL_IN, (hal_u32_t **)&pin->substs[subst], comp_id, "%s.%s", pinname, cptr)) < 0)
+                if ((rv = hal_pin_new_ui32(comp_id, HAL_IN, &pin->substs[subst].u, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             case 'l': case 'L':
                 slot->substtype[subst] = HAL_S64;
-                if ((rv = hal_pin_s64_newf(HAL_IN, (hal_s64_t **)&pin->substs[subst], comp_id, "%s.%s", pinname, cptr)) < 0)
+                if ((rv = hal_pin_new_sint(comp_id, HAL_IN, &pin->substs[subst].s, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             case 'k': case 'K':
                 slot->substtype[subst] = HAL_U64;
-                if ((rv = hal_pin_u64_newf(HAL_IN, (hal_u64_t **)&pin->substs[subst], comp_id, "%s.%s", pinname, cptr)) < 0)
+                if ((rv = hal_pin_new_uint(comp_id, HAL_IN, &pin->substs[subst].u, 0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             case 'f': case 'F':
                 slot->substtype[subst] = HAL_FLOAT;
-                if ((rv = hal_pin_float_newf(HAL_IN, (hal_float_t **)&pin->substs[subst], comp_id, "%s.%s", pinname, cptr)) < 0)
+                if ((rv = hal_pin_new_real(comp_id, HAL_IN, &pin->substs[subst].r, 0.0, "%s.%s", pinname, cptr)) < 0)
                     return rv;
                 break;
             default:
@@ -381,29 +381,29 @@ static void print_slot(int s)
 {
     char buf[MSG_LEN_MAX];
     char *end = strcpy(buf, slots[s].msgbuf) + slots[s].msglen;
-    for (int i = 0; i < MSG_SUBST_MAX && pins[s].substs[i]; i++) {
+    for (int i = 0; i < MSG_SUBST_MAX && pins[s].substs[i].b; i++) {
         int left = sizeof(buf) - (end - buf);
         int n;
         if (left <= 1)  // Need room for terminator
             break;
         switch (slots[s].substtype[i]) {
         case HAL_BIT:
-            n = rtapi_snprintf(end, left, "%d%s", (int)!!pins[s].substs[i]->b, slots[s].parts[i]);
+            n = rtapi_snprintf(end, left, "%d%s", (int)hal_get_bool(pins[s].substs[i].b), slots[s].parts[i]);
             break;
         case HAL_S32:
-            n = rtapi_snprintf(end, left, "%d%s", (int)pins[s].substs[i]->s, slots[s].parts[i]);
+            n = rtapi_snprintf(end, left, "%d%s", (int)hal_get_si32(pins[s].substs[i].s), slots[s].parts[i]);
             break;
         case HAL_U32:
-            n = rtapi_snprintf(end, left, "%u%s", (unsigned)pins[s].substs[i]->u, slots[s].parts[i]);
+            n = rtapi_snprintf(end, left, "%u%s", (unsigned)hal_get_ui32(pins[s].substs[i].u), slots[s].parts[i]);
             break;
         case HAL_S64:
-            n = rtapi_snprintf(end, left, "%ld%s", (long)pins[s].substs[i]->ls, slots[s].parts[i]);
+            n = rtapi_snprintf(end, left, "%ld%s", (long)hal_get_sint(pins[s].substs[i].s), slots[s].parts[i]);
             break;
         case HAL_U64:
-            n = rtapi_snprintf(end, left, "%lu%s", (unsigned long)pins[s].substs[i]->lu, slots[s].parts[i]);
+            n = rtapi_snprintf(end, left, "%lu%s", (unsigned long)hal_get_uint(pins[s].substs[i].u), slots[s].parts[i]);
             break;
         case HAL_FLOAT:
-            n = rtapi_snprintf(end, left, "%lf%s", (double)pins[s].substs[i]->f, slots[s].parts[i]);
+            n = rtapi_snprintf(end, left, "%lf%s", (double)hal_get_real(pins[s].substs[i].r), slots[s].parts[i]);
             break;
         default:
             n = 0;
@@ -424,8 +424,8 @@ FUNCTION(_)
     bool en = enable;  // Cache enable pin
     // For each slot, test the trigger and save the trigger state
     for (int i = 0; i < nslots; i++) {
-        bool trig = (int)!!*(pins[i].trigger) ^ (int)!!*(pins[i].edge);
-        bool force = *(pins[i].force);
+        bool trig = (int)hal_get_bool(pins[i].trigger) ^ (int)hal_get_bool(pins[i].edge);
+        bool force = hal_get_bool(pins[i].force);
         if ((en && trig && !slots[i].prevtrig) || (force && !slots[i].prevforce)) {
             print_slot(i);  // Rising edge -> print message
         }

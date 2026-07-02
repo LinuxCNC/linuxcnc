@@ -42,19 +42,19 @@ option extra_setup 1;
 option period no;
 function _;
 
-pin out bit error-no-range "error pin indicating that no range matches the fb";
-pin out float min-output "Minimum limit output";
-pin out float max-output "Maximum limit output";
-pin in float fb "Feedback pin, the value of this pin determines which range is active";
-pin out unsigned current-range "Indicates which range is currently active";
-pin in float min-limit-## [10:personality] "The array of minimum limits to select from";
-pin in float max-limit-## [10:personality] "The array of macimum limits";
-pin in float min-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
-pin in float max-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
-pin in bit enable-## [10:personality] "Used to enable and disable a specific range";
-pin in bit sticky-## [10:personality] "Used to make specific range 'sticky' or not";
-pin out bit error-range-## [10:personality] = 1 "Error bit indicating that the fb pin falls outside all ranges";
-pin out bit error-limit-## [10:personality] = 1 "Error bit indicating that the max limit is not larger than the min limit";
+pin out bool error-no-range "error pin indicating that no range matches the fb";
+pin out real min-output "Minimum limit output";
+pin out real max-output "Maximum limit output";
+pin in real fb "Feedback pin, the value of this pin determines which range is active";
+pin out ui32 current-range "Indicates which range is currently active";
+pin in real min-limit-## [10:personality] "The array of minimum limits to select from";
+pin in real max-limit-## [10:personality] "The array of macimum limits";
+pin in real min-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
+pin in real max-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
+pin in bool enable-## [10:personality] "Used to enable and disable a specific range";
+pin in bool sticky-## [10:personality] "Used to make specific range 'sticky' or not";
+pin out bool error-range-## [10:personality] = 1 "Error bit indicating that the fb pin falls outside all ranges";
+pin out bool error-limit-## [10:personality] = 1 "Error bit indicating that the max limit is not larger than the min limit";
 
 ;;
 
@@ -66,8 +66,8 @@ FUNCTION(_){
         fb <= max_range(current_range) &&
         enable(current_range)) {
 
-      max_output = max_limit(current_range);
-      min_output = min_limit(current_range);
+      max_output_set(max_limit(current_range));
+      min_output_set(min_limit(current_range));
 
       return;
     }
@@ -87,12 +87,12 @@ FUNCTION(_){
                         i,
                         max_range(i),
                         min_range(i));
-        error_range(i) = 1;
+        error_range_set(i, 1);
       }
       continue;
     }
     // If we made it to here clear the error
-    error_range(i) = 0;
+    error_range_set(i, 0);
 
     if (max_limit(i) < min_limit(i)){
       // Throw Error and skip this range
@@ -102,22 +102,22 @@ FUNCTION(_){
                         i,
                         max_limit(i),
                         min_limit(i));
-        error_limit(i) = 1;
+        error_limit_set(i, 1);
       }
       continue;
     }
     // If we made it to here clear the error
-    error_limit(i) = 0;
+    error_limit_set(i, 0);
 
     // Check position, take first range that it fits in.
     if(min_range(i) <= fb && fb <= max_range(i)) {
-      max_output = max_limit(i);
-      min_output = min_limit(i);
+      max_output_set(max_limit(i));
+      min_output_set(min_limit(i));
       // Found our limits, stop looking
-      error_no_range = 0;
+      error_no_range_set(0);
       if (i != (int)current_range){
         rtapi_print_msg(RTAPI_MSG_INFO, "limit_axis: Switching to Range %d\n", i);
-        current_range = i;
+        current_range_set(i);
       }
       return;
     }
@@ -125,7 +125,7 @@ FUNCTION(_){
 
   // If we've looked through all our ranges, then it's not there
   if (!error_no_range){
-    error_no_range = 1;
+    error_no_range_set(1);
     rtapi_print_msg(RTAPI_MSG_ERR,
                     "limit_axis: No Range found corresponding to feedback");
 

@@ -59,11 +59,10 @@ typedef enum {
 /* this struct holds a single value - one sample of one channel */
 
 typedef union {
-    unsigned char d_u8;		/* variable for bit */
-    rtapi_u32 d_u32;		/* variable for u32 */
-    rtapi_s32 d_s32;		/* variable for s32 */
-    real_t d_real;		/* variable for float */
-    ireal_t d_ireal;		/* intlike variable for float */
+    rtapi_bool b;
+    rtapi_uint u;
+    rtapi_sint s;
+    rtapi_real r;
 } scope_data_t;
 
 /** This struct holds control data needed by both realtime and GUI code.
@@ -90,7 +89,7 @@ typedef struct {
     int curr;			/* R next sample to be acquired */
     int samples;		/* R number of valid samples */
     scope_state_t state;	/* RU current state */
-    int data_offset[16];	/* U data addr in shmem for each channel */
+    rtapi_intptr_t data_offset[16];	/* U data addr in shmem for each channel */
     hal_type_t data_type[16];	/* U data type for each channel */
     char data_len[16];		/* U data size, 0 if not to be acquired */
 } scope_shm_control_t;

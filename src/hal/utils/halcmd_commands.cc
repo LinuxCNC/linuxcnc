@@ -1,6 +1,7 @@
 /* Copyright (C) 2007 Jeff Epler <jepler@unpythonic.net>
  * Copyright (C) 2003 John Kasunich
  *                     <jmkasunich AT users DOT sourceforge DOT net>
+ * Copyright (C) 2026 B.Stultiens
  *
  *  Other contributors:
  *                     Martin Kuhnle
@@ -40,9 +41,7 @@
 #include "config.h"
 #include <rtapi.h>		// RTAPI realtime OS API
 #include <hal.h>		// HAL public API decls
-#include "../hal_priv.h"	// private HAL decls
 #include "halcmd_commands.h"
-#include <rtapi_mutex.h>
 #include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <stdio.h>
@@ -56,34 +55,38 @@
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
+#include <string>
 #include <vector>
+#include <fmt/format.h>
 
-static int unloadrt_comp(char *mod_name);
-static void print_comp_info(char **patterns);
-static void print_pin_info(int type, char **patterns);
-static void print_pin_aliases(char **patterns);
-static void print_param_aliases(char **patterns);
-static void print_sig_info(int type, char **patterns);
-static void print_script_sig_info(int type, char **patterns);
-static void print_param_info(int type, char **patterns);
-static void print_funct_info(char **patterns);
-static void print_thread_info(char **patterns);
-static void print_comp_names(char **patterns);
-static void print_pin_names(char **patterns);
-static void print_sig_names(char **patterns);
-static void print_param_names(char **patterns);
-static void print_funct_names(char **patterns);
-static void print_thread_names(char **patterns);
+#include "setps_util.h"
+
+static int unloadrt_comp(const char *mod_name);
+static void print_comp_info(const char **patterns);
+static void print_pin_info(int type, const char **patterns);
+static void print_pin_aliases(const char **patterns);
+static void print_param_aliases(const char **patterns);
+static void print_sig_info(int type, const char **patterns);
+static void print_script_sig_info(int type, const char **patterns);
+static void print_param_info(int type, const char **patterns);
+static void print_funct_info(const char **patterns);
+static void print_thread_info(const char **patterns);
+static void print_comp_names(const char **patterns);
+static void print_pin_names(const char **patterns);
+static void print_sig_names(const char **patterns);
+static void print_param_names(const char **patterns);
+static void print_funct_names(const char **patterns);
+static void print_thread_names(const char **patterns);
 static void print_lock_status();
 static void print_mem_status();
-static const char *data_type(int type);
-static const char *data_type2(int type);
-static const char *pin_data_dir(int dir);
-static const char *param_data_dir(int dir);
-static const char *data_arrow1(int dir);
-static const char *data_arrow2(int dir);
-static const char *data_value(int type, void *valptr);
-static const char *data_value2(int type, void *valptr);
+static const char *data_type(hal_type_t type);
+static const char *data_type2(hal_type_t type);
+static const char *pin_data_dir(hal_pdir_t dir);
+static const char *param_data_dir(hal_pdir_t dir);
+static const char *data_arrow1(hal_pdir_t dir);
+static const char *data_arrow2(hal_pdir_t dir);
+static std::string querydata_refstr_20(hal_type_t type, hal_refs_u u);
+static std::string querydata_refstr(hal_type_t type, hal_refs_u u);
 static void save_comps(FILE *dst);
 static void save_aliases(FILE *dst);
 static void save_signals(FILE *dst, int only_unlinked);
@@ -98,18 +101,18 @@ static int tmatch(int req_type, int type) {
     return req_type == -1 || type == req_type;
 }
 
-static int match(char **patterns, char *value) {
+static int match(const char **patterns, const char *value) {
     int i;
     if(!patterns || !patterns[0] || !patterns[0][0]) return 1;
     for(i=0; patterns[i] && *patterns[i]; i++) {
-	char *pattern = patterns[i];
+	const char *pattern = patterns[i];
 	if(strncmp(pattern, value, strlen(pattern)) == 0) return 1;
 	if (fnmatch(pattern, value, 0) == 0) return 1;
     }
     return 0;
 }
 
-int do_lock_cmd(char *command)
+int do_lock_cmd(const char *command)
 {
 	int retval = 0;
 
@@ -131,7 +134,7 @@ int do_lock_cmd(char *command)
     return retval;
 }
 
-int do_unlock_cmd(char *command)
+int do_unlock_cmd(const char *command)
 {
 	int retval = 0;
 
@@ -153,61 +156,57 @@ int do_unlock_cmd(char *command)
     return retval;
 }
 
-int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
+int do_linkpp_cmd(const char *pname1, const char *pname2)
 {
-    int retval;
-    hal_pin_t *first_pin, *second_pin;
     static int dep_msg_printed = 0;
-
     if ( dep_msg_printed == 0 ) {
-	halcmd_warning("linkpp command is deprecated, use 'net'\n");
-	dep_msg_printed = 1;
+        halcmd_warning("linkpp command is deprecated, use 'net'\n");
+        dep_msg_printed = 1;
     }
-    halpr_mutex_acquire();
-    /* check if the pins are there */
-    first_pin = halpr_find_pin_by_name(first_pin_name);
-    second_pin = halpr_find_pin_by_name(second_pin_name);
-    if (first_pin == NULL) {
-	/* first pin not found*/
-	halpr_mutex_release();
-	halcmd_error("pin '%s' not found\n", first_pin_name);
-	return -EINVAL; 
-    } else if (second_pin == NULL) {
-	halpr_mutex_release();
-	halcmd_error("pin '%s' not found\n", second_pin_name);
-	return -EINVAL; 
-    }
-    
-    /* give the mutex, as the other functions use their own mutex */
-    halpr_mutex_release();
-    
-    /* check that both pins have the same type, 
-       don't want to create a sig, which after that won't be useful */
-    if (first_pin->type != second_pin->type) {
-	halcmd_error("pins '%s' and '%s' not of the same type\n",
-                first_pin_name, second_pin_name);
-	return -EINVAL; 
-    }
-	
-    /* now create the signal */
-    retval = hal_signal_new(first_pin_name, first_pin->type);
 
-    if (retval == 0) {
-	/* if it worked, link the pins to it */
-	retval = hal_link(first_pin_name, first_pin_name);
+    hal_query_t p1 = {};
+    p1.name = pname1;
+    int rv = hal_getref_p(&p1);
+    if(rv) {
+        // First pin not found
+        halcmd_error("pin '%s' not found\n", pname1);
+        return -EINVAL;
+    }
 
-	if ( retval == 0 ) {
-	/* if that worked, link the second pin to the new signal */
-	    retval = hal_link(second_pin_name, first_pin_name);
-	}
+    hal_query_t p2 = {};
+    p2.name = pname2;
+    rv = hal_getref_p(&p2);
+    if(rv) {
+        // Second pin not found
+        halcmd_error("pin '%s' not found\n", pname2);
+        return -EINVAL;
     }
-    if (retval < 0) {
-	halcmd_error("linkpp failed\n");
+
+    if(p1.pp.type != p2.pp.type) {
+        // Disjoint types
+        halcmd_error("pins '%s' and '%s' not of the same type\n", pname1, pname2);
+        return -EINVAL;
     }
-    return retval;
+
+    if(0 != (rv = hal_signal_new(pname1, p1.pp.type))) {
+        halcmd_error("linkpp_cmd: failed to create signal '%s' with type %d\n", pname1, (int)p1.pp.type);
+        return rv;
+    }
+
+    if(0 != (rv = hal_link(pname1, pname1))) {
+        halcmd_error("linkpp_cmd: failed to link pin '%s' to signal '%s'\n", pname1, pname1);
+        return rv;
+    }
+
+    if(0 != (rv = hal_link(pname2, pname1))) {
+        halcmd_error("linkpp_cmd: failed to link pin '%s' to signal '%s'\n", pname2, pname1);
+        return rv;
+    }
+
+    return 0;
 }
 
-int do_linkps_cmd(char *pin, char *sig)
+int do_linkps_cmd(const char *pin, const char *sig)
 {
     int retval;
 
@@ -221,12 +220,12 @@ int do_linkps_cmd(char *pin, char *sig)
     return retval;
 }
 
-int do_linksp_cmd(char *sig, char *pin) {
+int do_linksp_cmd(const char *sig, const char *pin) {
     return do_linkps_cmd(pin, sig);
 }
 
 
-int do_unlinkp_cmd(char *pin)
+int do_unlinkp_cmd(const char *pin)
 {
     int retval;
 
@@ -240,7 +239,7 @@ int do_unlinkp_cmd(char *pin)
     return retval;
 }
 
-int do_set_debug_cmd(char* level){
+int do_set_debug_cmd(const char *level){
     int retval = -EINVAL;
 #if defined(RTAPI_USPACE)
     int m = 0;
@@ -256,7 +255,7 @@ int do_set_debug_cmd(char* level){
     return retval;
 }
 
-int do_source_cmd(char *hal_filename) {
+int do_source_cmd(const char *hal_filename) {
     FILE *f = fopen(hal_filename, "r");
     char buf[MAX_CMD_LEN+1];
     int fd;
@@ -322,8 +321,8 @@ int do_unecho_cmd(void) {
     printf("Echo off\n");
     return 0;
 }
-int do_addf_cmd(char *func, char *thread, char **opt) {
-    char *position_str = opt ? opt[0] : NULL;
+int do_addf_cmd(const char *func, const char *thread, const char **opt) {
+    const char *position_str = opt ? opt[0] : NULL;
     int position = -1;
     int retval;
 
@@ -339,13 +338,13 @@ int do_addf_cmd(char *func, char *thread, char **opt) {
     return retval;
 }
 
-int do_initf_cmd(char *func, char *thread, char **opt) {
+int do_initf_cmd(const char *func, const char *thread, const char **opt) {
     /* usage: initf <funct> <thread> [position]
        position has the same meaning as in addf: +N from start of the init
        list (+1 = run first), -N from end (-1 = run last, default), 0 illegal.
        The function runs once in realtime context in a dedicated cycle before
        the cyclic funct list; next cyclic cycle wakes one period later. */
-    char *position_str = opt ? opt[0] : NULL;
+    const char *position_str = opt ? opt[0] : NULL;
     int position = -1;
     int retval;
 
@@ -364,7 +363,7 @@ int do_initf_cmd(char *func, char *thread, char **opt) {
     return retval;
 }
 
-int do_alias_cmd(char *pinparam, char *name, char *alias) {
+int do_alias_cmd(const char *pinparam, const char *name, const char *alias) {
     int retval;
 
     if ( strcmp (pinparam, "pin" ) == 0 ) {
@@ -383,7 +382,7 @@ int do_alias_cmd(char *pinparam, char *name, char *alias) {
     return retval;	
 }
 
-int do_unalias_cmd(char *pinparam, char *name) {
+int do_unalias_cmd(const char *pinparam, const char *name) {
     int retval;
     if (strcmp(pinparam, "pin") == 0) {
         retval = hal_pin_alias(name, NULL);
@@ -400,7 +399,7 @@ int do_unalias_cmd(char *pinparam, char *name) {
     }
     return retval;	
 }
-int do_delf_cmd(char *func, char *thread) {
+int do_delf_cmd(const char *func, const char *thread) {
     int retval;
 
     retval = hal_del_funct_from_thread(func, thread);
@@ -414,131 +413,144 @@ int do_delf_cmd(char *func, char *thread) {
     return retval;
 }
 
-static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
-    int i, type=-1, writers=0, bidirs=0, pincnt=0;
-    char *writer_name=NULL, *bidir_name=NULL;
-    /* if signal already exists, use its info */
-    if (sig) {
-	type = sig->type;
-	writers = sig->writers;
-	bidirs = sig->bidirs;
+struct net_cmd_data_t {
+    const char *writer_name;
+    const char *bidir_name;
+};
+
+static int preflight_net_cmd_cb(hal_query_t *q, void *arg)
+{
+    const char *signame = (const char *)arg;
+    net_cmd_data_t *ncd = (net_cmd_data_t *)q->callerdata.vpval;
+
+    if(q->pp.signal && !strcmp(q->pp.signal, signame)) {
+        if(q->pp.dir == HAL_OUT)
+            ncd->writer_name = q->name;
+        if(q->pp.dir == HAL_IO)
+            ncd->bidir_name = ncd->writer_name = q->name;
     }
+    return 0;
+}
+
+static int preflight_net_cmd(const char *signal, const hal_query_t *qsig, const char *pins[], hal_type_t *typep)
+{
+    hal_type_t type = qsig->sig.type;
+    int writers = qsig->sig.writers;
+    int bidirs  = qsig->sig.bidirs;
+    int pincnt = 0;
+    net_cmd_data_t ncd = { NULL, NULL};
 
     if(writers || bidirs) 
     {
-        hal_pin_t *pin;
-        SHMFIELD(hal_pin_t) next;
-        for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr) 
-        {
-            pin = SHMPTR(next);
-            if(SHMPTR(pin->signal) == sig && pin->dir == HAL_OUT)
-                writer_name = pin->name;
-            if(SHMPTR(pin->signal) == sig && pin->dir == HAL_IO)
-                bidir_name = writer_name = pin->name;
-        }
+        hal_query_t qp = {};
+        qp.qtype = HAL_QTYPE_PIN;
+        qp.callerdata.vpval = (void *)&ncd;
+        hal_list_p(&qp, preflight_net_cmd_cb, (void *)signal);
     }
 
-    for(i=0; pins[i] && *pins[i]; i++) {
-        hal_pin_t *pin = NULL;
-        pin = halpr_find_pin_by_name(pins[i]);
-        if(!pin) {
-            halcmd_error("Pin '%s' does not exist\n",
-                    pins[i]);
+    for(int i = 0; pins[i] && *pins[i]; i++) {
+        hal_query_t qp = {};
+        qp.qtype = HAL_QTYPE_PIN;
+        qp.name = pins[i];
+        int rv = hal_getref_p(&qp);
+        if(rv) {
+            // In theory, other errors may occur...
+            halcmd_error("Pin '%s' does not exist\n", pins[i]);
             return -ENOENT;
         }
-        if(SHMPTR(pin->signal) == sig) {
-	     /* Already on this signal */
-	    pincnt++;
-	    continue;
-	} else if(pin->signal != 0) {
-            hal_sig_t *osig = SHMPTR(pin->signal);
-            halcmd_error("Pin '%s' was already linked to signal '%s'\n",
-                    pin->name, osig->name);
-            return -EINVAL;
+
+        if(qp.pp.signal) {
+            if(strcmp(qp.pp.signal, signal)) {
+                halcmd_error("Pin '%s' was already linked to signal '%s'\n", qp.name, qp.pp.signal);
+                return -EINVAL;
+            } else {
+                // Already linked
+                pincnt++;
+                continue;
+            }
+        }
+
+	if(0 == type) {
+            // no pre-existing type, use this pin's type
+            type = qp.pp.type;
 	}
-	if (type == -1) {
-	    /* no pre-existing type, use this pin's type */
-	    type = pin->type;
-	}
-        if(type != pin->type) {
-            halcmd_error(
-                "Signal '%s' of type '%s' cannot add pin '%s' of type '%s'\n",
-                signal, data_type2(type), pin->name, data_type2(pin->type));
+        if(type != qp.pp.type) {
+            halcmd_error("Signal '%s' of type '%s' cannot add pin '%s' of type '%s'\n",
+                signal, data_type2(type), qp.name, data_type2(qp.pp.type));
             return -EINVAL;
         }
-        if(pin->dir == HAL_OUT) {
+
+        if(HAL_OUT == qp.pp.dir) {
             if(writers || bidirs) {
-            dir_error:
-                halcmd_error(
-                    "Signal '%s' can not add %s pin '%s', "
-                    "it already has %s pin '%s'\n",
-                        signal, pin_data_dir(pin->dir), pin->name,
-                        bidir_name ? pin_data_dir(HAL_IO):pin_data_dir(HAL_OUT),
-                        bidir_name ? bidir_name : writer_name);
+dir_error:
+                halcmd_error( "Signal '%s' can not add %s pin '%s', it already has %s pin '%s'\n",
+                    signal, pin_data_dir(qp.pp.dir), qp.name,
+                    ncd.bidir_name ? pin_data_dir(HAL_IO) : pin_data_dir(HAL_OUT),
+                    ncd.bidir_name ? ncd.bidir_name : ncd.writer_name);
                 return -EINVAL;
             }
-            writer_name = pin->name;
+            ncd.writer_name = qp.name;
             writers++;
         }
-	if(pin->dir == HAL_IO) {
+
+        if(HAL_IO == qp.pp.dir) {
             if(writers) {
                 goto dir_error;
             }
-            bidir_name = pin->name;
+            ncd.bidir_name = qp.name;
             bidirs++;
         }
         pincnt++;
     }
+    *typep = type;
     if(pincnt)
         return 0;
     halcmd_error("'net' requires at least one pin, none given\n");
     return -EINVAL;
 }
 
-int do_net_cmd(char *signal, char *pins[]) {
-    hal_sig_t *sig;
-    int i, retval;
-
-    halpr_mutex_acquire();
-    /* see if signal already exists */
-    sig = halpr_find_sig_by_name(signal);
-
-    /* verify that everything matches up (pin types, etc) */
-    retval = preflight_net_cmd(signal, sig, pins);
-    if(retval < 0) {
-        halpr_mutex_release();
-        return retval;
+int do_net_cmd(const char *signal, const char *pins[])
+{
+    int rv;
+    hal_query_t qs = {};
+    qs.name = signal;
+    int havesig = hal_getref_s(&qs);
+    if(0 != havesig && -ENOENT != havesig) {
+        halcmd_error("net_cmd: failed signal search error=%d\n", havesig);
+        return havesig;
     }
 
-    {
-	hal_pin_t *pin = halpr_find_pin_by_name(signal);
-	if(pin) {
-	    halcmd_error(
-                    "Signal name '%s' must not be the same as a pin.  "
-                    "Did you omit the signal name?\n",
-		signal);
-	    halpr_mutex_release();
-	    return -ENOENT;
-	}
+    hal_type_t type = HAL_TYPE_UNINITIALIZED;
+    if(0 != (rv = preflight_net_cmd(signal, &qs, pins, &type))) {
+        return rv;
     }
-    if(!sig) {
-        /* Create the signal with the type of the first pin */
-        hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
-        halpr_mutex_release();
-        if(!pin) {
-            return -ENOENT;
+
+    hal_query_t qp = {};
+    qp.name = signal;
+    if(0 == (rv = hal_getref_p(&qp))) {
+        halcmd_error("Signal name '%s' must not be the same as a pin.  "
+                     "Did you omit the signal name?\n", signal);
+        return -ENOENT;
+    }
+
+    if(-ENOENT == havesig) {
+        // Signal does not yet exist
+        if(0 == type) {
+            halcmd_error("Failed to determine type for signal '%s'\n", signal);
+            return -EINVAL;
         }
-        retval = hal_signal_new(signal, pin->type);
-    } else {
-	/* signal already exists */
-        halpr_mutex_release();
-    }
-    /* add pins to signal */
-    for(i=0; retval == 0 && pins[i] && *pins[i]; i++) {
-        retval = do_linkps_cmd(pins[i], signal);
+        if(0 != (rv = hal_signal_new(signal, type))) {
+            halcmd_error("Failed to create signal '%s'\n", signal);
+            return rv;
+        }
     }
 
-    return retval;
+    for(int i = 0; pins[i] && *pins[i]; i++) {
+        if(0 != (rv = do_linkps_cmd(pins[i], signal))) {
+            return rv;
+        }
+    }
+    return 0;
 }
 
 #if 0  /* newinst deferred to version 2.2 */
@@ -648,366 +660,169 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
 }
 #endif /* newinst deferred */
 
-int do_newsig_cmd(char *name, char *type)
+static hal_type_t typestr_to_haltype(const char *type, bool anycase)
 {
-    int retval;
+    static const struct {
+        const char *name;
+        hal_type_t type;
+    } htypes[] = {
+        { "bool",  HAL_BOOL },
+        { "real",  HAL_REAL },
+        { "sint",  HAL_SINT },
+        { "uint",  HAL_UINT },
+        { "port",  HAL_PORT },
+        { "bit",   HAL_BOOL },
+        { "float", HAL_REAL },
+        { "u32",   HAL_U32 },
+        { "s32",   HAL_S32 },
+        { "u64",   HAL_UINT },
+        { "s64",   HAL_SINT },
+        { nullptr, HAL_TYPE_UNSPECIFIED }
+    };
 
-    if (strcasecmp(type, "bit") == 0) {
-	retval = hal_signal_new(name, HAL_BIT);
-    } else if (strcasecmp(type, "float") == 0) {
-	retval = hal_signal_new(name, HAL_FLOAT);
-    } else if (strcasecmp(type, "u32") == 0) {
-	retval = hal_signal_new(name, HAL_U32);
-    } else if (strcasecmp(type, "s32") == 0) {
-	retval = hal_signal_new(name, HAL_S32);
-    } else if (strcasecmp(type, "u64") == 0) {
-    retval = hal_signal_new(name, HAL_U64);
-    } else if (strcasecmp(type, "s64") == 0) {
-    retval = hal_signal_new(name, HAL_S64);
-    } else if (strcasecmp(type, "port") == 0) {
-	retval = hal_signal_new(name, HAL_PORT);
-    } else {
-	halcmd_error("Unknown signal type '%s'\n", type);
-	retval = -EINVAL;
-    }
-    if (retval < 0) {
-	halcmd_error("newsig failed\n");
-    }
-    return retval;
-}
-
-static int set_common(hal_type_t type, void *d_ptr, char *value) {
-    // This function assumes that the mutex is held
-    int retval = 0;
-    double fval;
-    long lval;
-    unsigned long ulval;
-    int64_t s64val;
-    uint64_t u64val;
-    unsigned uval;
-    char *cp = value;
-
-    switch (type) {
-    case HAL_BIT:
-	if ((strcmp("1", value) == 0) || (strcasecmp("TRUE", value) == 0)) {
-	    *(hal_bit_t *) (d_ptr) = 1;
-	} else if ((strcmp("0", value) == 0)
-	    || (strcasecmp("FALSE", value)) == 0) {
-	    *(hal_bit_t *) (d_ptr) = 0;
-	} else {
-	    halcmd_error("value '%s' invalid for bit\n", value);
-	    retval = -EINVAL;
-	}
-	break;
-    case HAL_FLOAT:
-	fval = strtod ( value, &cp );
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    /* invalid character(s) in string */
-	    halcmd_error("value '%s' invalid for float\n", value);
-	    retval = -EINVAL;
-	} else {
-	    *((hal_float_t *) (d_ptr)) = fval;
-	}
-	break;
-    case HAL_S32:
-	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    /* invalid chars in string */
-	    halcmd_error("value '%s' invalid for S32\n", value);
-	    retval = -EINVAL;
-	} else {
-	    *((hal_s32_t *) (d_ptr)) = lval;
-	}
-	break;
-    case HAL_U32:
-	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    /* invalid chars in string */
-	    halcmd_error("value '%s' invalid for U32\n", value);
-	    retval = -EINVAL;
-	} else {
-	    *((hal_u32_t *) (d_ptr)) = ulval;
-	}
-	break;
-    case HAL_S64:
-    s64val = strtoll(value, &cp, 0);
-    if ((*cp != '\0') && (!isspace(*cp))) {
-        /* invalid chars in string */
-        halcmd_error("value '%s' invalid for S64\n", value);
-        retval = -EINVAL;
-    } else {
-        *((hal_s64_t *) (d_ptr)) = s64val;
-    }
-    break;
-    case HAL_U64:
-    u64val = strtoull(value, &cp, 0);
-    if ((*cp != '\0') && (!isspace(*cp))) {
-        /* invalid chars in string */
-        halcmd_error("value '%s' invalid for U64\n", value);
-        retval = -EINVAL;
-    } else {
-        *((hal_u64_t *) (d_ptr)) = u64val;
-    }
-    break;
-    case HAL_PORT:
-        uval = strtoul(value, &cp, 0);
-        if ((*cp != '\0') && (!isspace(*cp))) {
-            halcmd_error("value '%s' invalid for PORT\n", value);
-            retval = -EINVAL;
-        } else {
-            if((*((hal_port_t*)d_ptr) != 0) && (hal_port_buffer_size(((hal_port_t*)d_ptr)) > 0)) {
-                halcmd_error("port is already allocated with %u bytes.\n", hal_port_buffer_size(((hal_port_t*)d_ptr)));
-                retval = -EINVAL;
-        } else {
-            retval = hal_port_alloc(uval, (hal_port_t *)d_ptr);
-            if(retval)
-                halcmd_error("failed to allocate PORT with size %u\n", uval);
+    int (*cmpfunc)(const char *, const char *) = anycase ? strcasecmp : strcmp;
+    for(int i = 0; htypes[i].name; i++) {
+        if(!cmpfunc(type, htypes[i].name)) {
+            return htypes[i].type;
         }
     }
-    break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	halcmd_error("bad type %d\n", type);
-	retval = -EINVAL;
-    }
-    return retval;
+    return HAL_TYPE_UNINITIALIZED;
 }
 
-int do_setp_cmd(char *name, char *value)
+int do_newsig_cmd(const char *name, const char *type)
 {
-    int retval;
-    hal_param_t *param;
-    hal_pin_t *pin;
-    hal_type_t type;
-    void *d_ptr;
-
-    halcmd_info("setting parameter '%s' to '%s'\n", name, value);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param == NULL) {
-        pin = halpr_find_pin_by_name(name);
-        if(pin == NULL) {
-            halpr_mutex_release();
-            halcmd_error("parameter or pin '%s' not found\n", name);
-            return -EINVAL;
-        } else {
-            /* found it */
-            type = pin->type;
-            if(pin->dir == HAL_OUT) {
-                halpr_mutex_release();
-                halcmd_error("pin '%s' is not writable\n", name);
-                return -EINVAL;
-            }
-            if(pin->signal != 0) {
-                halpr_mutex_release();
-                halcmd_error("pin '%s' is connected to a signal\n", name);
-                return -EINVAL;
-            }
-            // d_ptr = (void*)SHMPTR(pin->dummysig);
-            d_ptr = (void*)&pin->dummysig;
-        }
-    } else {
-        /* found it */
-        type = param->type;
-        /* is it read only? */
-        if (param->dir == HAL_RO) {
-            halpr_mutex_release();
-            halcmd_error("param '%s' is not writable\n", name);
-            return -EINVAL;
-        }
-        d_ptr = SHMPTR(param->data_ptr);
+    hal_type_t htype = typestr_to_haltype(type, true);
+    if(HAL_TYPE_UNINITIALIZED == htype) {
+        halcmd_error("Unknown signal type '%s'\n", type);
+        return -EINVAL;
     }
 
-    retval = set_common(type, d_ptr, value);
-
-    halpr_mutex_release();
-    if (retval == 0) {
-	/* print success message */
-        if(param) {
-            halcmd_info("Parameter '%s' set to %s\n", name, value);
-        } else {
-            halcmd_info("Pin '%s' set to %s\n", name, value);
-	}
-    } else {
-	halcmd_error("setp failed\n");
-    }
-    return retval;
-
+    int rv = hal_signal_new(name, htype);
+    if(rv < 0)
+        halcmd_error("newsig failed\n");
+    return rv;
 }
 
-int do_print_cmd(char *value)
+int do_setp_cmd(const char *name, const char *value)
+{
+    hal_query_t q = {};
+    q.name = name;
+    int rv = hal_set_p(&q, setps_common_cb, (void *)value);
+    if(rv) {
+        const char *tag;
+        switch(q.qtype) {
+        case HAL_QTYPE_PARAM: tag = "parameter"; break;
+        case HAL_QTYPE_PIN:   tag = "pin"; break;
+        default:             tag = "parameter or pin"; break;
+        }
+        halcmd_error("%s '%s': %s\n", tag, name, hal_strerror(rv));
+    }
+    return rv;
+}
+
+int do_print_cmd(const char *value)
 {
     halcmd_error( "HALCMD MSG: %s\n",value );
     return 0;
 }
 
-int do_ptype_cmd(char *name)
+int do_ptype_cmd(const char *name)
 {
-    hal_param_t *param;
-    hal_pin_t *pin;
-    hal_type_t type;
-    
-    rtapi_print_msg(RTAPI_MSG_DBG, "getting parameter '%s'\n", name);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param) {
-        /* found it */
-        type = param->type;
-        halcmd_output("%s\n", data_type2(type));
-        halpr_mutex_release();
-        return 0;
-    }
-        
-    /* not found, search pin list for name */
-    pin = halpr_find_pin_by_name(name);
-    if(pin) {
-        /* found it */
-        type = pin->type;
-        halcmd_output("%s\n", data_type2(type));
-        halpr_mutex_release();
-        return 0;
-    }   
-    
-    halpr_mutex_release();
-    halcmd_error("pin or parameter '%s' not found\n", name);
-    return -EINVAL;
-}
-
-
-int do_getp_cmd(char *name)
-{
-    hal_param_t *param;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_type_t type;
-    void *d_ptr;
-    
-    rtapi_print_msg(RTAPI_MSG_DBG, "getting parameter '%s'\n", name);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param) {
-        /* found it */
-        type = param->type;
-        d_ptr = SHMPTR(param->data_ptr);
-        halcmd_output("%s\n", data_value2((int) type, d_ptr));
-        halpr_mutex_release();
-        return 0;
-    }
-        
-    /* not found, search pin list for name */
-    pin = halpr_find_pin_by_name(name);
-    if(pin) {
-        /* found it */
-        type = pin->type;
-        if (pin->signal != 0) {
-            sig = SHMPTR(pin->signal);
-            d_ptr = SHMPTR(sig->data_ptr);
-        } else {
-            sig = NULL;
-            d_ptr = &(pin->dummysig);
-        }
-        halcmd_output("%s\n", data_value2((int) type, d_ptr));
-        halpr_mutex_release();
-        return 0;
-    }   
-    
-    halpr_mutex_release();
-    halcmd_error("pin or parameter '%s' not found\n", name);
-    return -EINVAL;
-}
-
-int do_sets_cmd(char *name, char *value)
-{
-    int retval;
-    hal_sig_t *sig;
-    hal_type_t type;
-    void *d_ptr;
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "setting signal '%s'\n", name);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search signal list for name */
-    sig = halpr_find_sig_by_name(name);
-    if (sig == NULL) {
-	halpr_mutex_release();
-	halcmd_error("signal '%s' not found\n", name);
-	return -EINVAL;
-    }
-    /* found it - it have a writer? if it is a port we can set its buffer size */
-    if ((sig->type != HAL_PORT) && (sig->writers > 0)) {
-	halpr_mutex_release();
-	halcmd_error("signal '%s' already has writer(s)\n", name);
-	return -EINVAL;
-    }
-    /* no writer, so we can safely set it */
-    type = sig->type;
-    d_ptr = SHMPTR(sig->data_ptr);
-    retval = set_common(type, d_ptr, value);
-    halpr_mutex_release();
-    if (retval == 0) {
-	/* print success message */
-	halcmd_info("Signal '%s' set to %s\n", name, value);
+    hal_query_t q = {};
+    q.name = name;
+    int rv = hal_getref_p(&q);
+    if(!rv) {
+        halcmd_output("%s\n", data_type2(q.pp.type));
     } else {
-	halcmd_error("sets failed\n");
+        const char *tag;
+        switch(q.qtype) {
+        case HAL_QTYPE_PARAM: tag = "parameter"; break;
+        case HAL_QTYPE_PIN:   tag = "pin"; break;
+        default:             tag = "parameter or pin"; break;
+        }
+        halcmd_error("%s '%s': %s\n", tag, name, hal_strerror(rv));
     }
-    return retval;
-
+    return rv;
 }
 
-int do_stype_cmd(char *name)
+static std::string querydata_valuestr(hal_type_t type, const hal_query_value_u *v)
 {
-    hal_sig_t *sig;
-    hal_type_t type;
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "getting signal '%s'\n", name);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search signal list for name */
-    sig = halpr_find_sig_by_name(name);
-    if (sig == NULL) {
-	halpr_mutex_release();
-	halcmd_error("signal '%s' not found\n", name);
-	return -EINVAL;
+    switch(type) {
+    case HAL_BOOL:
+        return v->b ? "TRUE" : "FALSE";
+    case HAL_REAL:
+        return fmt::format("{:.7g}", v->r);
+    case HAL_S32:
+    case HAL_SINT:
+    case HAL_PORT:
+        return fmt::format("{}", v->s);
+    case HAL_U32:
+    case HAL_UINT:
+        return fmt::format("{}", v->u);
+    default:
+	/* Shouldn't get here, but just in case... */
+	return "unknown_type";
     }
-    /* found it */
-    type = sig->type;
-    halcmd_output("%s\n", data_type2(type));
-    halpr_mutex_release();
-    return 0;
 }
 
-int do_gets_cmd(char *name)
+int do_getp_cmd(const char *name)
 {
-    hal_sig_t *sig;
-    hal_type_t type;
-    void *d_ptr;
-
-    rtapi_print_msg(RTAPI_MSG_DBG, "getting signal '%s'\n", name);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search signal list for name */
-    sig = halpr_find_sig_by_name(name);
-    if (sig == NULL) {
-	halpr_mutex_release();
-	halcmd_error("signal '%s' not found\n", name);
-	return -EINVAL;
+    hal_query_t q = {};
+    q.name = name;
+    int rv = hal_get_p(&q, NULL, NULL);
+    if(!rv) {
+        halcmd_output("%s\n", querydata_valuestr(q.pp.type, &q.pp.value).c_str());
+    } else {
+        const char *tag;
+        switch(q.qtype) {
+        case HAL_QTYPE_PARAM: tag = "parameter"; break;
+        case HAL_QTYPE_PIN:   tag = "pin"; break;
+        default:             tag = "parameter or pin"; break;
+        }
+        halcmd_error("%s '%s': %s\n", tag, name, hal_strerror(rv));
     }
-    /* found it */
-    type = sig->type;
-    d_ptr = SHMPTR(sig->data_ptr);
-    halcmd_output("%s\n", data_value2((int) type, d_ptr));
-    halpr_mutex_release();
-    return 0;
+    return rv;
 }
 
-static int get_type(char ***patterns) {
-    char *typestr = NULL;
+int do_sets_cmd(const char *name, const char *value)
+{
+    hal_query_t q = {};
+    q.name = name;
+    int rv = hal_set_s(&q, setps_common_cb, (void *)value);
+    if(rv) {
+        halcmd_error("signal '%s': %s\n", name, hal_strerror(rv));
+    }
+    return rv;
+}
+
+int do_stype_cmd(const char *name)
+{
+    hal_query_t q = {};
+    q.name = name;
+    int rv = hal_getref_s(&q);
+    if(!rv) {
+        halcmd_output("%s\n", data_type2(q.sig.type));
+    } else {
+        halcmd_error("signal '%s': %s\n", name, hal_strerror(rv));
+    }
+    return rv;
+}
+
+int do_gets_cmd(const char *name)
+{
+    hal_query_t q = {};
+    q.name = name;
+    int rv = hal_get_s(&q, NULL, NULL);
+    if(!rv) {
+        halcmd_output("%s\n", querydata_valuestr(q.sig.type, &q.sig.value).c_str());
+    } else {
+        halcmd_error("signal '%s': %s\n", name, hal_strerror(rv));
+    }
+    return rv;
+}
+
+static int get_type(const char ***patterns) {
+    const char *typestr = NULL;
     if(!(*patterns)) return -1;
     if(!(*patterns)[0]) return -1;
     if((*patterns)[0][0] != '-' || (*patterns)[0][1] != 't') return -1;
@@ -1019,19 +834,15 @@ static int get_type(char ***patterns) {
 	*patterns += 2;
     }
     if(!typestr) return -1;
-    if(strcmp(typestr, "float") == 0) return HAL_FLOAT;
-    if(strcmp(typestr, "bit") == 0) return HAL_BIT;
-    if(strcmp(typestr, "s32") == 0) return HAL_S32;
-    if(strcmp(typestr, "u32") == 0) return HAL_U32;
-    if(strcmp(typestr, "s64") == 0) return HAL_S64;
-    if(strcmp(typestr, "u64") == 0) return HAL_U64;
+    hal_type_t htype = typestr_to_haltype(typestr, false);
+    if(htype != HAL_TYPE_UNINITIALIZED)
+        return htype;
     if(strcmp(typestr, "signed") == 0) return HAL_S32;
     if(strcmp(typestr, "unsigned") == 0) return HAL_U32;
-    if(strcmp(typestr, "port") == 0) return HAL_PORT;
     return -1;
 }
 
-int do_show_cmd(char *type, char **patterns)
+int do_show_cmd(const char *type, const char **patterns)
 {
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
@@ -1091,7 +902,7 @@ int do_show_cmd(char *type, char **patterns)
     return 0;
 }
 
-int do_list_cmd(char *type, char **patterns)
+int do_list_cmd(const char *type, const char **patterns)
 {
     if ( !type) {
 	halcmd_error("'list' requires type'\n");
@@ -1126,7 +937,7 @@ int do_list_cmd(char *type, char **patterns)
     return 0;
 }
 
-int do_status_cmd(char *type)
+int do_status_cmd(const char *type)
 {
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
@@ -1149,13 +960,10 @@ int do_status_cmd(char *type)
     return 0;
 }
 
-int do_loadrt_cmd(char *mod_name, char *args[])
+int do_loadrt_cmd(const char *mod_name, const char *args[])
 {
-    char arg_string[MAX_CMD_LEN+1];
     int m=0, n=0, retval;
-    hal_comp_t *comp;
     const char *argv[MAX_TOK+3];
-    char *cp1;
 #if defined(RTAPI_USPACE)
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
@@ -1227,174 +1035,128 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	return -1;
     }
     /* make the args that were passed to the module into a single string */
-    n = 0;
-    arg_string[0] = '\0';
-    while ( args[n] && args[n][0] != '\0' ) {
-	strncat(arg_string, args[n++], MAX_CMD_LEN);
-	strncat(arg_string, " ", MAX_CMD_LEN);
+    std::string arg_string;
+    for(int i = 0; args[i] && *args[i]; i++) {
+        if(i > 0)
+            arg_string += ' ';
+        arg_string += args[i];
     }
     /* allocate HAL shmem for the string */
-    cp1 = (char*)hal_malloc(strlen(arg_string)+1);
-    if ( cp1 == NULL ) {
-	halcmd_error("failed to allocate memory for module args\n");
-	return -1;
+    char *halcpy = (char *)hal_malloc(arg_string.size() + 1);
+    if (NULL == halcpy) {
+        halcmd_error("failed to allocate memory for module args\n");
+        return -1;
     }
     /* copy string to shmem */
-    strcpy(cp1, arg_string);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-    /* search component list for the newly loaded component */
-    comp = halpr_find_comp_by_name(mod_name);
-    if (comp == NULL) {
-	halpr_mutex_release();
-	halcmd_error("module '%s' not loaded\n", mod_name);
-	return -EINVAL;
-    }
-    /* link args to comp struct */
-    comp->insmod_args = SHMOFF(cp1);
-    halpr_mutex_release();
+    strcpy(halcpy, arg_string.c_str());
+    hal_comp_insmod_args(mod_name, halcpy);
+
     /* print success message */
     halcmd_info("Realtime module '%s' loaded\n", mod_name);
     return 0;
 }
 
-int do_delsig_cmd(char *mod_name)
+static int delsig_cmd_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_sig_t) next;
-    int retval, retval1, n;
-    hal_sig_t *sig;
-    char sigs[MAX_EXPECTED_SIGS][HAL_NAME_LEN+1];
-
-    /* check for "all" */
-    if ( strcmp(mod_name, "all" ) != 0 ) {
-	retval = hal_signal_delete(mod_name);
-	if (retval == 0) {
-	    /* print success message */
-	    halcmd_info("Signal '%s' deleted'\n", mod_name);
-	}
-	return retval;
-    } else {
-	/* build a list of signal(s) to delete */
-	n = 0;
-	halpr_mutex_acquire();
-
-	next = hal_data->sig_list_ptr;
-	while (next != 0) {
-	    sig = SHMPTR(next);
-	    /* we want to unload this signal, remember its name */
-	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
-		snprintf(sigs[n], sizeof(sigs[n]), "%s", sig->name);
-		n++;
-	    }
-	    next = sig->next_ptr;
-	}
-	halpr_mutex_release();
-	sigs[n][0] = '\0';
-
-	if ( sigs[0][0] == '\0' ) {
-	    /* desired signals not found */
-	    halcmd_error("no signals found to be deleted\n");
-	    return -1;
-	}
-	/* we now have a list of components, unload them */
-	n = 0;
-	retval1 = 0;
-	while ( sigs[n][0] != '\0' ) {
-	    retval = hal_signal_delete(sigs[n]);
-	/* check for fatal error */
-	    if ( retval < -1 ) {
-		return retval;
-	    }
-	    /* check for other error */
-	    if ( retval != 0 ) {
-		retval1 = retval;
-	    }
-	    if (retval == 0) {
-		/* print success message */
-		halcmd_info("Signal '%s' deleted'\n",
-		sigs[n]);
-	    }
-	    n++;
-	}
-    }
-    return retval1;
-}
-
-int do_unloadusr_cmd(char *mod_name)
-{
-    SHMFIELD(hal_comp_t) next;
-    int all;
-    hal_comp_t *comp;
-    pid_t ourpid = getpid();
-
-    /* check for "all" */
-    if ( strcmp(mod_name, "all" ) == 0 ) {
-	all = 1;
-    } else {
-	all = 0;
-    }
-    /* build a list of component(s) to unload */
-    halpr_mutex_acquire();
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( comp->type == COMPONENT_TYPE_USER && comp->pid != ourpid) {
-	    /* found a userspace component besides us */
-	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
-		/* we want to unload this component, send it SIGTERM */
-                kill(abs(comp->pid), SIGTERM);
-	    }
-	}
-	next = comp->next_ptr;
-    }
-    halpr_mutex_release();
+    std::vector<std::string> *sigs = reinterpret_cast<std::vector<std::string> *>(arg);
+    sigs->push_back(q->name);
     return 0;
 }
 
-
-int do_unloadrt_cmd(char *mod_name)
+int do_delsig_cmd(const char *signame)
 {
-    SHMFIELD(hal_comp_t) next;
-    int retval, retval1, n, all;
-    hal_comp_t *comp;
-    char comps[64][HAL_NAME_LEN+1];
+    if(strcmp(signame, "all")) {
+        // Only a single signal to delete
+        int rv = hal_signal_delete(signame);
+	// FIXME: This should keep quit on success and complain on failure.
+	// No news is good news mantra.
+        if(!rv) {
+            // print success message
+            halcmd_info("Signal '%s' deleted'\n", signame);
+        }
+        return rv;
+    }
 
-    /* check for "all" */
-    if ( strcmp(mod_name, "all" ) == 0 ) {
-	all = 1;
+    // Build a list of signals to delete
+    std::vector<std::string> sigs;
+    hal_query_t q = {};
+    hal_list_s(&q, delsig_cmd_cb, (void *)&sigs);
+
+    if(0 == sigs.size()) {
+        halcmd_error("no signals found to be deleted\n");
+        return -1;
+    }
+
+    for(const auto &sig : sigs) {
+        int rv = hal_signal_delete(sig.c_str());
+        if(rv) {
+            halcmd_error("signal '%s' could not be deleted error=%d\n", sig.c_str(), rv);
+            return rv;
+        }
+	// FIXME: This should keep quit on success and complain on failure.
+	// No news is good news mantra.
+        halcmd_info("Signal '%s' deleted'\n", sig.c_str());
+    }
+    return 0;
+}
+
+static int do_unloadusr_cmd_cb(hal_query_t *q, void *)
+{
+    if(HAL_COMP_TYPE_USER == q->comp.type && q->comp.pid != q->callerdata.sival)
+        kill(abs(q->comp.pid), SIGTERM);
+    return 0;
+}
+
+int do_unloadusr_cmd(const char *mod_name)
+{
+    hal_query_t q = {};
+    if(!strcmp(mod_name, "all")) {
+        q.callerdata.sival = (int)getpid();
+        hal_list_comp(&q, do_unloadusr_cmd_cb, NULL);
     } else {
-	all = 0;
+        int rv = hal_comp_by_name(mod_name, &q);
+        if(!rv) {
+            if(HAL_COMP_TYPE_USER == q.comp.type && q.comp.pid != (int)getpid())
+                kill(abs(q.comp.pid), SIGTERM);
+        }
     }
-    /* Build a list of component(s) to unload. hal_lib inserts new
-       components at the head of comp_list_ptr (see hal_init() in
-       hal_lib.c), so this traversal walks newest-first and produces
-       comps[] in newest-to-oldest order. The unload loop below relies
-       on that invariant: do not change one without the other. */
-    n = 0;
-    halpr_mutex_acquire();
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
-	    /* found a realtime component */
-	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
-		/* we want to unload this component, remember its name */
-		if ( n < 63 ) {
-		    snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
-		    n++;
-		}
-	    }
-	}
-	next = comp->next_ptr;
+    return 0;
+}
+
+static int unloadrt_cmd_cb(hal_query_t *q, void *arg)
+{
+    std::vector<std::string> *comps = reinterpret_cast<std::vector<std::string> *>(arg);
+    if(HAL_COMP_TYPE_REALTIME == q->comp.type) {
+        comps->push_back(q->name);
     }
-    halpr_mutex_release();
-    /* mark end of list */
-    comps[n][0] = '\0';
-    if ( !all && ( comps[0][0] == '\0' )) {
-	/* desired component not found */
-	halcmd_error("component '%s' is not loaded\n", mod_name);
-	return -1;
+    return 0;
+}
+
+int do_unloadrt_cmd(const char *mod_name)
+{
+    if(strcmp(mod_name, "all")) {
+        int rv = hal_comp_by_name(mod_name, NULL);
+        if(rv) {
+            if(-ENOENT == rv) {
+                halcmd_error("component '%s' is not loaded\n", mod_name);
+            } else {
+                halcmd_error("hal_comp_by_name on '%s' returned error=%d\n", mod_name, rv);
+            }
+            return rv;
+        }
+        // One specific module and not 'all'
+	if(0 != (rv = unloadrt_comp(mod_name))) {
+            halcmd_error("unloadrt failed on '%s'\n", mod_name);
+        }
+        return rv;
     }
+
+    // Need to unload all modules
+    // Build a list of loaded modules
+    std::vector<std::string> comps;
+    hal_query_t q = {};
+    hal_list_comp(&q, unloadrt_cmd_cb, (void *)&comps);
+
     /* Unload newest first so dependent modules release their references
        before the ones they depend on are removed. This matters for
        kernel modules (RTAI) where rmmod refuses to unload an in-use
@@ -1407,29 +1169,22 @@ int do_unloadrt_cmd(char *mod_name)
        this loop to match insmod order: you are doing the wrong thing,
        this IS already reverse-insmod order. See PR #3443 for an
        example of that exact mistake. */
-    retval1 = 0;
-    for ( int i = 0; i < n; i++ ) {
-        // special case: initial prefix means it is not a real comp
-        if (strstr(comps[i],HAL_PSEUDO_COMP_PREFIX) == comps[i] ) {
-           continue;
+    int retval = 0;
+    for(const auto &comp : comps) {
+        // special case: pseudo prefix means it is not a real comp
+        if(0 == comp.find(HAL_PSEUDO_COMP_PREFIX)) {
+            continue;
         }
-	retval = unloadrt_comp(comps[i]);
-	/* check for fatal error */
-	if ( retval < -1 ) {
-	    return retval;
-	}
-	/* check for other error */
-	if ( retval != 0 ) {
-	    retval1 = retval;
-	}
+        int rv = unloadrt_comp(comp.c_str());
+        if(rv < -1)
+            return rv;  // FIXME: This cannot happen because unloadrt_comp() only returns {0, -1}
+        if(rv)
+            retval = rv;
     }
-    if (retval1 < 0) {
-	halcmd_error("unloadrt failed\n");
-    }
-    return retval1;
+    return retval;
 }
 
-static int unloadrt_comp(char *mod_name)
+static int unloadrt_comp(const char *mod_name)
 {
     int retval;
     const char *argv[4];
@@ -1457,25 +1212,25 @@ static int unloadrt_comp(char *mod_name)
     return 0;
 }
 
-int do_unload_cmd(char *mod_name) {
+int do_unload_cmd(const char *mod_name) {
     if(strcmp(mod_name, "all") == 0) {
         int res = do_unloadusr_cmd(mod_name);
         if(res) return res;
         return do_unloadrt_cmd(mod_name);
     } else {
-        hal_comp_t *comp;
-        component_type_t type = COMPONENT_TYPE_UNKNOWN;
-        halpr_mutex_acquire();
-        comp = halpr_find_comp_by_name(mod_name);
-        if(comp) type = comp->type;
-        halpr_mutex_release();
-        if(type == COMPONENT_TYPE_UNKNOWN) {
-            halcmd_error("component '%s' is not loaded\n",
-                mod_name);
+        hal_query_t q = {};
+        int rv = hal_comp_by_name(mod_name, &q);
+        if(0 != rv) {
+            if(-ENOENT == rv)
+                halcmd_error("component '%s' is not loaded\n", mod_name);
+            else
+                halcmd_error("do_unload_cmd: search component '%s' returned error=%d\n", mod_name, rv);
             return -1;
         }
-        if(type == COMPONENT_TYPE_REALTIME) return do_unloadrt_cmd(mod_name);
-        else return do_unloadusr_cmd(mod_name);
+        if(q.comp.type == HAL_COMP_TYPE_REALTIME)
+            return do_unloadrt_cmd(mod_name);
+        else
+            return do_unloadusr_cmd(mod_name);
     }
 }
 
@@ -1516,13 +1271,18 @@ is not fixed or has regressed by debian jessie)
 }
 
 #include <set>
-#include <string>
+
+static int get_all_comp_names_cb(hal_query_t *q, void *arg)
+{
+    std::set<std::string> *comps = reinterpret_cast<std::set<std::string> *>(arg);
+    comps->insert(q->name);
+    return 0;
+}
 
 static std::set<std::string> get_all_comp_names() {
     std::set<std::string> result;
-    for(auto comp = hal_data->comp_list_ptr; comp; comp=comp->next_ptr) {
-        result.insert(comp->name);
-    }
+    hal_query_t q = {};
+    hal_list_comp(&q, get_all_comp_names_cb, (void *)&result);
     return result;
 }
 
@@ -1609,7 +1369,6 @@ int do_loadusr_cmd(const char *args[])
     hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0, exited=0;
-        hal_comp_t *comp = NULL;
 	retval = 0;
         while(!ready && !exited) {
 	    /* sleep for 10mS */
@@ -1626,12 +1385,11 @@ int do_loadusr_cmd(const char *args[])
 	        }
 	    }
 	    /* check for program becoming ready */
-            halpr_mutex_acquire();
-            comp = halpr_find_comp_by_name(new_comp_name);
-            if(comp && comp->ready) {
+            hal_query_t q = {};
+            int rv = hal_comp_by_name(new_comp_name, &q);
+            if(!rv && q.comp.ready) {
                 ready = 1;
             }
-            halpr_mutex_release();
 	    /* pacify the user */
             count++;
             if(count == 200) {
@@ -1690,527 +1448,444 @@ int do_loadusr_cmd(const char *args[])
 }
 
 
-int do_waitusr_cmd(char *comp_name)
+int do_waitusr_cmd(const char *comp_name)
 {
-    hal_comp_t *comp;
-    int exited;
+    if (!comp_name || *comp_name == '\0') {
+        halcmd_error("component name missing\n");
+        return -EINVAL;
+    }
 
-    if (*comp_name == '\0') {
-	halcmd_error("component name missing\n");
-	return -EINVAL;
+    hal_query_t q = {};
+    int rv = hal_comp_by_name(comp_name, &q);
+    if (rv) {
+        halcmd_info("component '%s' not found or already exited\n", comp_name);
+        return 0;
     }
-    halpr_mutex_acquire();
-    comp = halpr_find_comp_by_name(comp_name);
-    if (comp == NULL) {
-	halpr_mutex_release();
-	halcmd_info("component '%s' not found or already exited\n", comp_name);
-	return 0;
+    if (q.comp.type != HAL_COMP_TYPE_USER) {
+        halcmd_error("'%s' is not a userspace component\n", comp_name);
+        return -EINVAL;
     }
-    if (comp->type != COMPONENT_TYPE_USER) {
-	halpr_mutex_release();
-	halcmd_error("'%s' is not a userspace component\n", comp_name);
-	return -EINVAL;
-    }
-    halpr_mutex_release();
     /* let the user know what is going on */
     halcmd_info("Waiting for component '%s'\n", comp_name);
-    exited = 0;
-    while(!exited) {
-	/* sleep for 200mS */
-	struct timespec ts = {0, 200 * 1000 * 1000};
-	nanosleep(&ts, NULL);
-	/* check for component still around */
-	halpr_mutex_acquire();
-	comp = halpr_find_comp_by_name(comp_name);
-	if(comp == NULL) {
-		exited = 1;
-	}
-	halpr_mutex_release();
+    while(1) {
+        /* sleep for 200mS */
+        struct timespec ts = {0, 200 * 1000 * 1000};
+        nanosleep(&ts, NULL);
+        /* check for component still around */
+        if(0 != hal_comp_by_name(comp_name, NULL)) {
+            break;
+        }
     }
     halcmd_info("Component '%s' finished\n", comp_name);
     return 0;
 }
 
-
-static void print_comp_info(char **patterns)
+static int print_comp_info_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_comp_t) next;
-    hal_comp_t *comp;
+    const char **patterns = (const char **)arg;
+    if(!match(patterns, q->name))
+        return 0;
 
+    switch(q->comp.type) {
+    case HAL_COMP_TYPE_USER:
+    case HAL_COMP_TYPE_REALTIME:
+        halcmd_output(" %5d  %-4s  %-*s",
+            q->comp.comp_id,
+            q->comp.type == HAL_COMP_TYPE_REALTIME ? "RT" : "User",
+            HAL_NAME_LEN, q->name);
+        if(q->comp.type == HAL_COMP_TYPE_USER) {
+            halcmd_output(" %5d %s", q->comp.pid, q->comp.ready ?  "ready" : "initializing");
+        } else {
+            halcmd_output(" %5s %s", "", q->comp.ready ?  "ready" : "initializing");
+        }
+        break;
+    case HAL_COMP_TYPE_OTHER: {
+        hal_query_t qc = {};
+        // Need to reacquire the component name
+        int rv = hal_comp_by_id(q->comp.comp_id, &qc);
+        halcmd_output("    INST %s %s", !rv ? qc.name : "(unknown)", q->name);
+        } break;
+    default:
+        halcmd_output(" INVALID COMP TYPE %d for '%s'", (int)q->comp.type, q->name);
+        break;
+    }
+    halcmd_output("\n");
+    return 0;
+}
+
+static void print_comp_info(const char **patterns)
+{
     if (scriptmode == 0) {
 	halcmd_output("Loaded HAL Components:\n");
 	halcmd_output("ID      Type  %-*s PID   State\n", HAL_NAME_LEN, "Name");
     }
-    halpr_mutex_acquire();
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( match(patterns, comp->name) ) {
-            if(comp->type == COMPONENT_TYPE_OTHER) {
-                hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
-                halcmd_output("    INST %s %s",
-                        comp1 ? comp1->name : "(unknown)", 
-                        comp->name);
-            } else {
-                halcmd_output(" %5d  %-4s  %-*s",
-                    comp->comp_id, (comp->type == COMPONENT_TYPE_REALTIME) ? "RT" : "User",
-                    HAL_NAME_LEN, comp->name);
-                if(comp->type == COMPONENT_TYPE_USER) {
-                        halcmd_output(" %5d %s", comp->pid, comp->ready > 0 ?
-                                "ready" : "initializing");
-                } else {
-                        halcmd_output(" %5s %s", "", comp->ready > 0 ?
-                                "ready" : "initializing");
-                }
-            }
-            halcmd_output("\n");
-	}
-	next = comp->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    hal_list_comp(&q, print_comp_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_pin_info(int type, char **patterns)
+static int print_pin_info_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_pin_t) next;
-    hal_pin_t *pin;
-    hal_comp_t *comp;
-    hal_sig_t *sig;
-    void *dptr;
+    const char **patterns = (const char **)arg;
+    if(!tmatch(q->callerdata.sival, q->pp.type) || !match(patterns, q->name))
+        return 0;
 
+    if (scriptmode == 0) {
+        halcmd_output(" %5d  %5s %-3s  %9s  %s",
+            q->pp.comp_id,
+            data_type(q->pp.type),
+            pin_data_dir(q->pp.dir),
+            querydata_refstr_20(q->pp.type, q->pp.ref).c_str(),
+            q->name);
+    } else {
+        halcmd_output("%s %s %s %s %s",
+            q->pp.comp,
+            data_type(q->pp.type),
+            pin_data_dir(q->pp.dir),
+            querydata_refstr(q->pp.type, q->pp.ref).c_str(),
+            q->name);
+    } 
+    if (q->pp.signal == NULL) {
+	halcmd_output("\n");
+    } else {
+	halcmd_output(" %s %s\n", data_arrow1(q->pp.dir), q->pp.signal);
+    }
+    return 0;
+}
+
+static void print_pin_info(int type, const char **patterns)
+{
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
 	halcmd_output("Owner   Type  Dir                 Value  Name\n");
     }
-    halpr_mutex_acquire();
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if ( tmatch(type, pin->type) && match(patterns, pin->name) ) {
-	    comp = SHMPTR(pin->owner_ptr);
-	    if (pin->signal != 0) {
-		sig = SHMPTR(pin->signal);
-		dptr = SHMPTR(sig->data_ptr);
-	    } else {
-		sig = NULL;
-		dptr = &(pin->dummysig);
-	    }
-	    if (scriptmode == 0) {
-		halcmd_output(" %5d  %5s %-3s  %9s  %s",
-		    comp->comp_id,
-		    data_type((int) pin->type),
-		    pin_data_dir((int) pin->dir),
-		    data_value((int) pin->type, dptr),
-		    pin->name);
-	    } else {
-		halcmd_output("%s %s %s %s %s",
-		    comp->name,
-		    data_type((int) pin->type),
-		    pin_data_dir((int) pin->dir),
-		    data_value2((int) pin->type, dptr),
-		    pin->name);
-	    } 
-	    if (sig == NULL) {
-		halcmd_output("\n");
-	    } else {
-		halcmd_output(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
-	    }
-	}
-	next = pin->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN;
+    q.callerdata.sival = type;
+    hal_list_p(&q, print_pin_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_pin_aliases(char **patterns)
+static int print_pin_aliases_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_pin_t) next;
-    hal_oldname_t *oldname;
-    hal_pin_t *pin;
+    const char **patterns = (const char **)arg;
+    if(q->pp.alias) {
+        /* name is an alias */
+        if(!match(patterns, q->name) && !match(patterns, q->pp.alias))
+            return 0;
+        if(scriptmode == 0) {
+            halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, q->name, q->pp.alias);
+        } else {
+            halcmd_output(" %s  %s\n", q->name, q->pp.alias);
+        }
+    }
+    return 0;
+}
 
+static void print_pin_aliases(const char **patterns)
+{
     if (scriptmode == 0) {
 	halcmd_output("Pin Aliases:\n");
 	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
-    halpr_mutex_acquire();
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if ( pin->oldname != 0 ) {
-	    /* name is an alias */
-	    oldname = SHMPTR(pin->oldname);
-	    if ( match(patterns, pin->name) || match(patterns, oldname->name) ) {
-		if (scriptmode == 0) {
-		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, pin->name, oldname->name);
-		} else {
-		    halcmd_output(" %s  %s\n", pin->name, oldname->name);
-		}
-	    }
-	}
-	next = pin->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN;
+    hal_list_p(&q, print_pin_aliases_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_sig_info(int type, char **patterns)
+static int print_sig_pin_info_cb(hal_query_t *q, void *)
 {
-    SHMFIELD(hal_sig_t) next;
-    hal_sig_t *sig;
-    void *dptr;
-    hal_pin_t *pin;
+    halcmd_output("%32s %s %s\n", "", data_arrow2(q->pp.dir), q->name);
+    return 0;
+}
 
+static int print_sig_info_cb(hal_query_t *q, void *arg)
+{
+    const char **patterns = (const char **)arg;
+    if(!tmatch(q->callerdata.sival, q->sig.type) || !match(patterns, q->name))
+        return 0;
+
+    halcmd_output("%s  %s  %s\n",
+        data_type(q->sig.type),
+        querydata_refstr_20(q->sig.type, q->sig.ref).c_str(),
+        q->name);
+
+    // List all pins connected to the signal
+    hal_query_t qs = {};
+    qs.name = q->name;
+    hal_list_p_s(&qs, print_sig_pin_info_cb, NULL);
+    return 0;
+}
+
+static void print_sig_info(int type, const char **patterns)
+{
     if (scriptmode != 0) {
     	print_script_sig_info(type, patterns);
 	return;
     }
     halcmd_output("Signals:\n");
     halcmd_output("Type                  Value  Name     (linked to)\n");
-    halpr_mutex_acquire();
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
-	sig = SHMPTR(next);
-	if ( tmatch(type, sig->type) && match(patterns, sig->name) ) {
-	    dptr = SHMPTR(sig->data_ptr);
-	    halcmd_output("%s  %s  %s\n", data_type((int) sig->type),
-		data_value((int) sig->type, dptr), sig->name);
-	    /* look for pin(s) linked to this signal */
-	    pin = halpr_find_pin_by_sig(sig, NULL);
-	    while (pin != NULL) {
-		halcmd_output("                                 %s %s\n",
-		    data_arrow2((int) pin->dir), pin->name);
-		pin = halpr_find_pin_by_sig(sig, pin);
-	    }
-	}
-	next = sig->next_ptr;
-    }
-    halpr_mutex_release();
+
+    hal_query_t q = {};
+    q.callerdata.sival = type;
+    hal_list_s(&q, print_sig_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_script_sig_info(int type, char **patterns)
+static int print_script_sig_pin_info_cb(hal_query_t *q, void *)
 {
-    SHMFIELD(hal_sig_t) next;
-    hal_sig_t *sig;
-    void *dptr;
-    hal_pin_t *pin;
+    halcmd_output(" %s %s", data_arrow2(q->pp.dir), q->name);
+    return 0;
+}
 
-    if (scriptmode == 0) {
+static int print_script_sig_info_cb(hal_query_t *q, void *arg)
+{
+    const char **patterns = (const char **)arg;
+    if(!tmatch(q->callerdata.sival, q->sig.type) || !match(patterns, q->name))
+        return 0;
+
+    halcmd_output("%s  %s  %s", data_type(q->sig.type), querydata_refstr(q->sig.type, q->sig.ref).c_str(), q->name);
+
+    // List all pins connected to the signal
+    hal_query_t qs = {};
+    qs.name = q->name;
+    hal_list_p_s(&qs, print_script_sig_pin_info_cb, NULL);
+    halcmd_output("\n");
+    return 0;
+}
+
+static void print_script_sig_info(int type, const char **patterns)
+{
+    if(!scriptmode)
     	return;
-    }
-    halpr_mutex_acquire();
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
-	sig = SHMPTR(next);
-	if ( tmatch(type, sig->type) && match(patterns, sig->name) ) {
-	    dptr = SHMPTR(sig->data_ptr);
-	    halcmd_output("%s  %s  %s", data_type((int) sig->type),
-		data_value2((int) sig->type, dptr), sig->name);
-	    /* look for pin(s) linked to this signal */
-	    pin = halpr_find_pin_by_sig(sig, NULL);
-	    while (pin != NULL) {
-		halcmd_output(" %s %s",
-		    data_arrow2((int) pin->dir), pin->name);
-		pin = halpr_find_pin_by_sig(sig, pin);
-	    }
-	    halcmd_output("\n");
-	}
-	next = sig->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.callerdata.sival = type;
+    hal_list_s(&q, print_script_sig_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_param_info(int type, char **patterns)
+static int print_param_info_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_param_t) next;
-    hal_param_t *param;
-    hal_comp_t *comp;
+    const char **patterns = (const char **)arg;
+    if(!tmatch(q->callerdata.sival, q->pp.type) || !match(patterns, q->name))
+        return 0;
 
-    if (scriptmode == 0) {
+    if(!scriptmode) {
+        halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
+            q->pp.comp_id,
+            data_type(q->pp.type),
+            param_data_dir(q->pp.dir),
+            querydata_refstr_20(q->pp.type, q->pp.ref).c_str(),
+            q->name);
+    } else {
+        halcmd_output("%s %s %s %s %s\n",
+            q->pp.comp,
+            data_type(q->pp.type),
+            param_data_dir(q->pp.dir),
+            querydata_refstr(q->pp.type, q->pp.ref).c_str(),
+            q->name);
+    }
+    return 0;
+}
+
+static void print_param_info(int type, const char **patterns)
+{
+    if(!scriptmode) {
 	halcmd_output("Parameters:\n");
 	halcmd_output("Owner   Type  Dir                 Value  Name\n");
     }
-    halpr_mutex_acquire();
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( tmatch(type, param->type), match(patterns, param->name) ) {
-	    comp = SHMPTR(param->owner_ptr);
-	    if (scriptmode == 0) {
-		halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
-		    comp->comp_id, data_type((int) param->type),
-		    param_data_dir((int) param->dir),
-		    data_value((int) param->type, SHMPTR(param->data_ptr)),
-		    param->name);
-	    } else {
-		halcmd_output("%s %s %s %s %s\n",
-		    comp->name, data_type((int) param->type),
-		    param_data_dir((int) param->dir),
-		    data_value2((int) param->type, SHMPTR(param->data_ptr)),
-		    param->name);
-	    } 
-	}
-	next = param->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.callerdata.sival = type;
+    q.qtype = HAL_QTYPE_PARAM;
+    hal_list_p(&q, print_param_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_param_aliases(char **patterns)
+static int print_param_aliases_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_param_t) next;
-    hal_oldname_t *oldname;
-    hal_param_t *param;
+    const char **patterns = (const char **)arg;
+    if(NULL == q->pp.alias)
+        return 0;
+    if(!match(patterns, q->name) && !match(patterns, q->pp.alias))
+        return 0;
 
-    if (scriptmode == 0) {
-	halcmd_output("Parameter Aliases:\n");
-	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
+    // name is an alias
+    if(!scriptmode) {
+        halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, q->name, q->pp.alias);
+    } else {
+        halcmd_output(" %s  %s\n", q->name, q->pp.alias);
     }
-    halpr_mutex_acquire();
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( param->oldname != 0 ) {
-	    /* name is an alias */
-	    oldname = SHMPTR(param->oldname);
-	    if ( match(patterns, param->name) || match(patterns, oldname->name) ) {
-		if (scriptmode == 0) {
-		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, param->name, oldname->name);
-		} else {
-		    halcmd_output(" %s  %s\n", param->name, oldname->name);
-		}
-	    }
-	}
-	next = param->next_ptr;
+    return 0;
+}
+
+static void print_param_aliases(const char **patterns)
+{
+    if(!scriptmode) {
+        halcmd_output("Parameter Aliases:\n");
+        halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PARAM;  // Only parameters
+    hal_list_p(&q, print_param_aliases_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_funct_info(char **patterns)
+static int print_funct_info_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_funct_t) next;
-    hal_funct_t *fptr;
-    hal_comp_t *comp;
+    const char **patterns = (const char **)arg;
+    if(!match(patterns, q->name))
+        return 0;
+    if(!scriptmode) {
+        halcmd_output(" %05d  %08llx  %08llx  %-3s  %5d   %s\n",
+            q->funct.comp_id,
+            (long long)q->funct.funct,
+            (long long)q->funct.arg,
+            "YES",  // Always uses FP
+            q->funct.users,
+            q->name);
+    } else {
+        halcmd_output("%s %08llx %08llx %s %3d %s\n",
+            q->funct.comp,
+            (long long)q->funct.funct,
+            (long long)q->funct.arg,
+            "YES",  // Always uses FP
+            q->funct.users,
+            q->name);
+    }
+    return 0;
+}
 
-    if (scriptmode == 0) {
-	halcmd_output("Exported Functions:\n");
-	halcmd_output("Owner   CodeAddr      Arg           FP   Users   Name\n");
+static void print_funct_info(const char **patterns)
+{
+    if(!scriptmode) {
+        halcmd_output("Exported Functions:\n");
+        halcmd_output("Owner   CodeAddr      Arg           FP   Users   Name\n");
     }
-    halpr_mutex_acquire();
-    next = hal_data->funct_list_ptr;
-    while (next != 0) {
-	fptr = SHMPTR(next);
-	if ( match(patterns, fptr->name) ) {
-	    comp = SHMPTR(fptr->owner_ptr);
-	    if (scriptmode == 0) {
-		halcmd_output(" %05d  %08lx  %08lx  %-3s  %5d   %s\n",
-		    comp->comp_id,
-		    (long)fptr->funct,
-		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
-		    fptr->users, fptr->name);
-	    } else {
-		halcmd_output("%s %08lx %08lx %s %3d %s\n",
-		    comp->name,
-		    (long)fptr->funct,
-		    (long)fptr->arg, (fptr->uses_fp ? "YES" : "NO"),
-		    fptr->users, fptr->name);
-	    } 
-	}
-	next = fptr->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    hal_list_funct(&q, print_funct_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_thread_info(char **patterns)
+static int print_thread_info_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_thread_t) next_thread;
-    int n;
-    hal_thread_t *tptr;
-    hal_list_t *list_root, *list_entry;
-    hal_funct_entry_t *fentry;
-    hal_funct_t *funct;
+    const char **patterns = (const char **)arg;
+    if(!match(patterns, q->name))
+        return 0;
 
-    if (scriptmode == 0) {
-	halcmd_output("Realtime Threads:\n");
-	halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
+    // The first callback is on the pure thread data
+    if(HAL_QTYPE_THREAD == q->qtype) {
+        char tname[HAL_NAME_LEN+1];
+        char mname[HAL_NAME_LEN+1];
+        size_t ret = snprintf(tname, sizeof(tname), "%s.time", q->name);
+        if (ret >= sizeof(tname)) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: time pin name too long for buffer %s\n", q->name);
+            return 0;
+        }
+        ret = snprintf(mname, sizeof(mname), "%s.tmax", q->name);
+        if (ret >= sizeof(mname)) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: tmax pin name too long for buffer %s\n", q->name);
+            return 0;
+        }
+        hal_query_t qt = {};
+        qt.name = tname;
+        hal_query_t qm = {};
+        qm.name = mname;
+        int rvt = hal_getref_p(&qt);
+        int rvm = hal_getref_p(&qm);
+        if(!rvt && !rvm) {
+            // note that the scriptmode format string has no \n
+            halcmd_output((!scriptmode ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %8ld %ld"),
+                q->thread.period,
+                "YES",  // Always uses FP
+                q->name,
+                (long)hal_get_sint(qt.pp.ref.s),
+                (long)hal_get_sint(qm.pp.ref.s));
+        } else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: cannot find time/tmax pin for %s thread\n", q->name);
+        }
     }
-    halpr_mutex_acquire();
-    next_thread = hal_data->thread_list_ptr;
-    while (next_thread != 0) {
-	tptr = SHMPTR(next_thread);
-	if ( match(patterns, tptr->name) ) {
-		/* note that the scriptmode format string has no \n */
-            char name[HAL_NAME_LEN+1];
-            hal_pin_t* pin;
-            hal_sig_t *sig;
-            void *dptr;
-  
-            size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
-            if (ret >=  sizeof(name)){
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                        "unexpected: pin name too long for buffer %s",tptr->name);
-            } else {
 
-            pin = halpr_find_pin_by_name(name);
-            if (pin) {
-                if (pin->signal != 0) {
-                    sig = SHMPTR(pin->signal);
-                    dptr = SHMPTR(sig->data_ptr);
-                } else {
-                    sig = NULL;
-                    dptr = &(pin->dummysig);
-                }
-
-                halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n"
-                                                 : "%ld %s %s %8ld %ld"),
-                              tptr->period,
-                              (tptr->uses_fp ? "YES" : "NO"),
-                              tptr->name,
-                              (long)*(long*)dptr,
-                              (long)tptr->maxtime);
-            } else {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                     "unexpected: cannot find time pin for %s thread",tptr->name);
-            }
-            }
-
-
-	    list_root = &(tptr->funct_list);
-	    list_entry = list_next(list_root);
-	    n = 1;
-	    while (list_entry != list_root) {
-		/* print the function info */
-		fentry = reinterpret_cast<hal_funct_entry_t *>(list_entry);
-		funct = SHMPTR(fentry->funct_ptr);
-		/* scriptmode only uses one line per thread, which contains: 
-		   thread period, FP flag, name, then all functs separated by spaces  */
-		if (scriptmode == 0) {
-		    halcmd_output("                 %2d %s\n", n, funct->name);
-		} else {
-		    halcmd_output(" %s", funct->name);
-		}
-		n++;
-		list_entry = list_next(list_entry);
-	    }
-	    if (scriptmode != 0) {
-		halcmd_output("\n");
-	    }
-	}
-	next_thread = tptr->next_ptr;
+    // Any attached function has a different connection ID
+    if(HAL_QTYPE_THREAD_FUNCT == q->qtype) {
+        if(!scriptmode) {
+            halcmd_output("                 %2d %s\n", q->thread.functidx + 1, q->thread.funct);
+        } else {
+            // scriptmode only uses one line per thread, which contains: 
+            // thread period, FP flag, name, then all functs separated by spaces
+            halcmd_output(" %s", q->thread.funct);
+        }
     }
-    halpr_mutex_release();
+
+    if(scriptmode) {
+        halcmd_output("\n");
+    }
+    return 0;
+}
+
+static void print_thread_info(const char **patterns)
+{
+    if(!scriptmode) {
+        halcmd_output("Realtime Threads:\n");
+        halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
+    }
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_THREAD_FUNCT; // Callback on both threads and functions attached
+    hal_list_thread(&q, print_thread_info_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_comp_names(char **patterns)
+static int print_any_names_cb(hal_query_t *q, void *arg)
 {
-    SHMFIELD(hal_comp_t) next;
-    hal_comp_t *comp;
+    const char **patterns = (const char **)arg;
+    if(!match(patterns, q->name))
+        return 0;
+    halcmd_output("%s ", q->name);
+    return 0;
+}
 
-    halpr_mutex_acquire();
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( match(patterns, comp->name) ) {
-	    halcmd_output("%s ", comp->name);
-	}
-	next = comp->next_ptr;
-    }
-    halpr_mutex_release();
+static void print_comp_names(const char **patterns)
+{
+    hal_query_t q = {};
+    hal_list_comp(&q, print_any_names_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_pin_names(char **patterns)
+static void print_pin_names(const char **patterns)
 {
-    SHMFIELD(hal_pin_t) next;
-    hal_pin_t *pin;
-
-    halpr_mutex_acquire();
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if ( match(patterns, pin->name) ) {
-	    halcmd_output("%s ", pin->name);
-	}
-	next = pin->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN; // Pins only
+    hal_list_p(&q, print_any_names_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_sig_names(char **patterns)
+static void print_sig_names(const char **patterns)
 {
-    SHMFIELD(hal_sig_t) next;
-    hal_sig_t *sig;
-
-    halpr_mutex_acquire();
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
-	sig = SHMPTR(next);
-	if ( match(patterns, sig->name) ) {
-	    halcmd_output("%s ", sig->name);
-	}
-	next = sig->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    hal_list_s(&q, print_any_names_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_param_names(char **patterns)
+static void print_param_names(const char **patterns)
 {
-    SHMFIELD(hal_param_t) next;
-    hal_param_t *param;
-
-    halpr_mutex_acquire();
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( match(patterns, param->name) ) {
-	    halcmd_output("%s ", param->name);
-	}
-	next = param->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PARAM; // Parameters only
+    hal_list_p(&q, print_any_names_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_funct_names(char **patterns)
+static void print_funct_names(const char **patterns)
 {
-    SHMFIELD(hal_funct_t) next;
-    hal_funct_t *fptr;
-
-    halpr_mutex_acquire();
-    next = hal_data->funct_list_ptr;
-    while (next != 0) {
-	fptr = SHMPTR(next);
-	if ( match(patterns, fptr->name) ) {
-	    halcmd_output("%s ", fptr->name);
-	}
-	next = fptr->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    hal_list_funct(&q, print_any_names_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
-static void print_thread_names(char **patterns)
+static void print_thread_names(const char **patterns)
 {
-    SHMFIELD(hal_thread_t) next_thread;
-    hal_thread_t *tptr;
-
-    halpr_mutex_acquire();
-    next_thread = hal_data->thread_list_ptr;
-    while (next_thread != 0) {
-	tptr = SHMPTR(next_thread);
-	if ( match(patterns, tptr->name) ) {
-	    halcmd_output("%s ", tptr->name);
-	}
-	next_thread = tptr->next_ptr;
-    }
-    halpr_mutex_release();
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_THREAD;  // Only thread names
+    hal_list_thread(&q, print_any_names_cb, (void *)patterns);
     halcmd_output("\n");
 }
 
@@ -2235,325 +1910,150 @@ static void print_lock_status()
 	halcmd_output("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
 
-template<class T>
-int count_list(SHMFIELD(T) list_root)
-{
-    int n;
-    SHMFIELD(T) next;
-
-    halpr_mutex_acquire();
-    next = list_root;
-    n = 0;
-    while (next != 0) {
-	n++;
-	next = SHMPTR(next)->next_ptr;
-    }
-    halpr_mutex_release();
-    return n;
-}
-
 static void print_mem_status()
 {
-    int active, recycled;
-    hal_pin_t *pin;
-    hal_param_t *param;
+    hal_statistics_t s = {};
+    int rv = hal_statistics(&s);
+    if(0 != rv) {
+        halcmd_error("print_mem_status: failed to get HAL statistics, error=%d\n", rv);
+        return;
+    }
 
     halcmd_output("HAL memory status\n");
-    halcmd_output("  used/total shared memory:   %ld/%d\n", (long)(HAL_SIZE - hal_data->shmem_avail), HAL_SIZE);
-    // count components
-    active = count_list(hal_data->comp_list_ptr);
-    recycled = count_list(hal_data->comp_free_ptr);
-    halcmd_output("  active/recycled components: %d/%d\n", active, recycled);
-    // count pins
-    active = count_list(hal_data->pin_list_ptr);
-    recycled = count_list(hal_data->pin_free_ptr);
-    halcmd_output("  active/recycled pins:       %d/%d\n", active, recycled);
-    // count parameters
-    active = count_list(hal_data->param_list_ptr);
-    recycled = count_list(hal_data->param_free_ptr);
-    halcmd_output("  active/recycled parameters: %d/%d\n", active, recycled);
-    // count aliases
-    halpr_mutex_acquire();
-    {
-    SHMFIELD(hal_pin_t) next = hal_data->pin_list_ptr;
-    active = 0;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if ( pin->oldname != 0 ) active++;
-	next = pin->next_ptr;
-    }
-    }
-    {
-    SHMFIELD(hal_param_t) next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( param->oldname != 0 ) active++;
-	next = param->next_ptr;
-    }
-    }
-    halpr_mutex_release();
-    recycled = count_list(hal_data->oldname_free_ptr);
-    halcmd_output("  active/recycled aliases:    %d/%d\n", active, recycled);
-    // count signals
-    active = count_list(hal_data->sig_list_ptr);
-    recycled = count_list(hal_data->sig_free_ptr);
-    halcmd_output("  active/recycled signals:    %d/%d\n", active, recycled);
-    // count functions
-    active = count_list(hal_data->funct_list_ptr);
-    recycled = count_list(hal_data->funct_free_ptr);
-    halcmd_output("  active/recycled functions:  %d/%d\n", active, recycled);
-    // count threads
-    active = count_list(hal_data->thread_list_ptr);
-    recycled = count_list(hal_data->thread_free_ptr);
-    halcmd_output("  active/recycled threads:    %d/%d\n", active, recycled);
+    halcmd_output("  used/total shared memory:   %ld/%ld\n", (long)(s.mem_total - s.mem_free), (long)s.mem_total);
+    halcmd_output("  active/recycled components: %d/%d\n", s.ncomps,   s.ncomps_free);
+    halcmd_output("  active/recycled pins:       %d/%d\n", s.npins,    s.npins_free);
+    halcmd_output("  active/recycled parameters: %d/%d\n", s.nparams,  s.nparams_free);
+    halcmd_output("  active/recycled aliases:    %d/%d\n", s.naliases, s.naliases_free);
+    halcmd_output("  active/recycled signals:    %d/%d\n", s.nsignals, s.nsignals_free);
+    halcmd_output("  active/recycled functions:  %d/%d\n", s.nfuncts,  s.nfuncts_free);
+    halcmd_output("  active/recycled threads:    %d/%d\n", s.nthreads, s.nthreads_free);
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
-static const char *data_type(int type)
+static const char *data_type(hal_type_t type)
 {
-    const char *type_str;
-
     switch (type) {
-    case HAL_BIT:
-	type_str = "bit  ";
-	break;
-    case HAL_FLOAT:
-	type_str = "float";
-	break;
-    case HAL_S32:
-	type_str = "s32  ";
-	break;
-    case HAL_U32:
-	type_str = "u32  ";
-	break;
-    case HAL_S64:
-    type_str = "s64  ";
-    break;
-    case HAL_U64:
-    type_str = "u64  ";
-    break;
-    case HAL_PORT:
-	type_str = "port ";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	type_str = "undef";
+    case HAL_BOOL: return "bit  ";
+    case HAL_REAL: return "float";
+    case HAL_S32:  return "s32  ";
+    case HAL_U32:  return "u32  ";
+    case HAL_SINT: return "s64  ";
+    case HAL_UINT: return "u64  ";
+    case HAL_PORT: return "port ";
+    default: return "undef"; /* Shouldn't get here, but just in case... */
     }
-    return type_str;
 }
 
-static const char *data_type2(int type)
+static const char *data_type2(hal_type_t type)
 {
-    const char *type_str;
-
     switch (type) {
-    case HAL_BIT:
-	type_str = "bit";
-	break;
-    case HAL_FLOAT:
-	type_str = "float";
-	break;
-    case HAL_S32:
-	type_str = "s32";
-	break;
-    case HAL_U32:
-	type_str = "u32";
-	break;
-    case HAL_S64:
-    type_str = "s64";
-    break;
-    case HAL_U64:
-    type_str = "u64";
-    break;
-    case HAL_PORT:
-	type_str = "port";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	type_str = "undef";
+    case HAL_BOOL: return "bit";
+    case HAL_REAL: return "float";
+    case HAL_S32:  return "s32";
+    case HAL_U32:  return "u32";
+    case HAL_SINT: return "s64";
+    case HAL_UINT: return "u64";
+    case HAL_PORT: return "port";
+    default: return "undef"; /* Shouldn't get here, but just in case... */
     }
-    return type_str;
 }
 
 /* Switch function for pin direction for the print_*_list functions  */
-static const char *pin_data_dir(int dir)
+static const char *pin_data_dir(hal_pdir_t dir)
 {
-    const char *pin_dir;
-
     switch (dir) {
-    case HAL_IN:
-	pin_dir = "IN";
-	break;
-    case HAL_OUT:
-	pin_dir = "OUT";
-	break;
-    case HAL_IO:
-	pin_dir = "I/O";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	pin_dir = "???";
+    case HAL_IN:  return "IN";
+    case HAL_OUT: return "OUT";
+    case HAL_IO:  return "I/O";
+    default: return "???"; /* Shouldn't get here, but just in case... */
     }
-    return pin_dir;
 }
 
 /* Switch function for param direction for the print_*_list functions  */
-static const char *param_data_dir(int dir)
+static const char *param_data_dir(hal_pdir_t dir)
 {
-    const char *param_dir;
-
     switch (dir) {
-    case HAL_RO:
-	param_dir = "RO";
-	break;
-    case HAL_RW:
-	param_dir = "RW";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	param_dir = "??";
+    case HAL_RO: return "RO";
+    case HAL_RW: return "RW";
+    default: return "??"; /* Shouldn't get here, but just in case... */
     }
-    return param_dir;
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
-static const char *data_arrow1(int dir)
+static const char *data_arrow1(hal_pdir_t dir)
 {
-    const char *arrow;
-
     switch (dir) {
-    case HAL_IN:
-	arrow = "<==";
-	break;
-    case HAL_OUT:
-	arrow = "==>";
-	break;
-    case HAL_IO:
-	arrow = "<=>";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	arrow = "???";
+    case HAL_IN:  return "<==";
+    case HAL_OUT: return "==>";
+    case HAL_IO:  return "<=>";
+    default: return "???"; /* Shouldn't get here, but just in case... */
     }
-    return arrow;
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
-static const char *data_arrow2(int dir)
+static const char *data_arrow2(hal_pdir_t dir)
 {
-    const char *arrow;
-
     switch (dir) {
-    case HAL_IN:
-	arrow = "==>";
-	break;
-    case HAL_OUT:
-	arrow = "<==";
-	break;
-    case HAL_IO:
-	arrow = "<=>";
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	arrow = "???";
+    case HAL_IN:  return "==>";
+    case HAL_OUT: return "<==";
+    case HAL_IO:  return "<=>";
+    default: return "???"; /* Shouldn't get here, but just in case... */
     }
-    return arrow;
 }
 
 /* Switch function to return var value for the print_*_info functions
    (scriptmode = 0) as well as save_params() and save_unconnected_input_pin_values().
    The value is printed in a 20 character wide field. */
-static const char *data_value(int type, void *valptr)
+static std::string querydata_refstr_20(hal_type_t type, hal_refs_u u)
 {
-    const char *value_str;
-    static char buf[21];
-
-    switch (type) {
-    case HAL_BIT:
-	if (*((char *) valptr) == 0)
-	    value_str = "               FALSE";
-	else
-	    value_str = "                TRUE";
-	break;
-    case HAL_FLOAT:
-	snprintf(buf, 21, "%20.7g", (double)*((hal_float_t *) valptr));
-	value_str = buf;
-	break;
+    switch(type) {
+    case HAL_BOOL:
+        return fmt::format("{:>20s}", hal_get_bool(u.b) ? "TRUE" : "FALSE");
+    case HAL_REAL:
+        return fmt::format("{:20.7g}", hal_get_real(u.r));
     case HAL_S32:
-	snprintf(buf, 21, "%20ld", (long)*((hal_s32_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U32:
-	snprintf(buf, 21, "          0x%08lX", (unsigned long)*((hal_u32_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S64:
-    snprintf(buf, 21, "%20" PRId64, (int64_t)*((hal_s64_t *) valptr));
-    value_str = buf;
-    break;
-    case HAL_U64:
-    snprintf(buf, 21, "  0x%016" PRIX64, (uint64_t)*((hal_u64_t *) valptr));
-    value_str = buf;
-    break;
+        return fmt::format("{:20d}", (long)hal_get_si32(u.s));
+    case HAL_SINT:
     case HAL_PORT:
-	snprintf(buf, 21, "%20u", hal_port_buffer_size((hal_port_t*) valptr));
-	value_str = buf;
-	break;
+        return fmt::format("{:20d}", (long long)hal_get_sint(u.s));
+    case HAL_U32:
+        return fmt::format("          0x{:08X}", (unsigned long)hal_get_ui32(u.u));
+    case HAL_UINT:
+        return fmt::format("  0x{:016X}", (unsigned long long)hal_get_uint(u.u));
     default:
 	/* Shouldn't get here, but just in case... */
-	value_str = "        undef       ";
+	return "        undef       ";
     }
-    return value_str;
 }
 
 /* Switch function to return var value in string form for the
    print_*_info functions (scriptmode = 1) and getp and gets command.
    The value is printed as a packed string (no whitespaces). */
-static const char *data_value2(int type, void *valptr)
+static std::string querydata_refstr(hal_type_t type, hal_refs_u u)
 {
-    const char *value_str;
-    static char buf[21];
-
-    switch (type) {
-    case HAL_BIT:
-	if (*((char *) valptr) == 0)
-	    value_str = "FALSE";
-	else
-	    value_str = "TRUE";
-	break;
-    case HAL_FLOAT:
-	snprintf(buf, 14, "%.7g", (double)*((hal_float_t *) valptr));
-	value_str = buf;
-	break;
+    switch(type) {
+    case HAL_BOOL:
+        return hal_get_bool(u.b) ? "TRUE" : "FALSE";
+    case HAL_REAL:
+        return fmt::format("{:.7g}", hal_get_real(u.r));
     case HAL_S32:
-	snprintf(buf, 14, "%ld", (long)*((hal_s32_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U32:
-	snprintf(buf, 14, "%lu", (unsigned long)*((hal_u32_t *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S64:
-    snprintf(buf, 21, "%" PRId64, (int64_t)*((hal_s64_t *) valptr));
-    value_str = buf;
-    break;
-    case HAL_U64:
-    snprintf(buf, 21, "%" PRIu64, (uint64_t)*((hal_u64_t *) valptr));
-    value_str = buf;
-    break;
+        return fmt::format("{}", hal_get_si32(u.s));
+    case HAL_SINT:
     case HAL_PORT:
-	snprintf(buf, 14, "%u", hal_port_buffer_size((hal_port_t*) valptr));
-	value_str = buf;
-	break;
-
+        return fmt::format("{}", hal_get_sint(u.s));
+    case HAL_U32:
+        return fmt::format("{}", hal_get_ui32(u.u));
+    case HAL_UINT:
+        return fmt::format("{}", hal_get_uint(u.u));
     default:
 	/* Shouldn't get here, but just in case... */
-	value_str = "unknown_type";
+	return "unknown_type";
     }
-    return value_str;
 }
 
-int do_save_cmd(const char *type, char *filename)
+
+int do_save_cmd(const char *type, const char *filename)
 {
     FILE *dst;
 
@@ -2626,300 +2126,310 @@ int do_save_cmd(const char *type, char *filename)
     return 0;
 }
 
+struct _comp_save_data_t {
+    const char *name;
+    const char *insmod;
+};
+
+static int save_comp_cb(hal_query_t *q, void *arg)
+{
+    std::vector<_comp_save_data_t> *v = (std::vector<_comp_save_data_t> *)arg;
+    if(HAL_COMP_TYPE_REALTIME == q->comp.type)
+        v->push_back({q->name, q->comp.insmod});
+    return 0;
+}
+
 static void save_comps(FILE *dst)
 {
-    SHMFIELD(hal_comp_t) next;
-    hal_comp_t *comp;
+    hal_query_t q = {};
+    std::vector<_comp_save_data_t> compdata;
+    hal_list_comp(&q, save_comp_cb, (void *)&compdata);
 
     fprintf(dst, "# components\n");
-    halpr_mutex_acquire();
-
-    int ncomps = 0;
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
-            ncomps ++;
-        }
-	next = comp->next_ptr;
-    }
-
-    if(!ncomps) {
+    if(0 == compdata.size()) {
         // No components found, bail
-        halpr_mutex_release();
         return;
-	}
-
-    std::vector<hal_comp_t *> comps(ncomps, NULL);
-    hal_comp_t **compptr = comps.data();
-    next = hal_data->comp_list_ptr;
-    while(next != 0)  {
-	comp = SHMPTR(next);
-	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
-            *compptr++ = SHMPTR(next);
-        }
-	next = comp->next_ptr;
     }
 
-    int i;
-    for(i=ncomps; i--;)
-    {
-        comp = comps[i];
-        /* only print realtime components */
-        if ( comp->insmod_args == 0 ) {
-            fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
+    for(auto i = compdata.rbegin(); i != compdata.rend(); ++i) {
+        if(NULL == i->insmod) {
+            fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", i->name);
         } else {
-            fprintf(dst, "loadrt %s %s\n", comp->name,
-                (char *)SHMPTR(comp->insmod_args));
+            fprintf(dst, "loadrt %s %s\n", i->name, i->insmod);
         }
     }
-#if 0  /* newinst deferred to version 2.2 */
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( comp->type == 2 ) {
-            hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
-            fprintf(dst, "newinst %s %s\n", comp1->name, comp->name);
-        }
-	next = comp->next_ptr;
+}
+
+static int save_aliases_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    if(q->pp.alias) {
+        const char *s = q->qtype == HAL_QTYPE_PIN ? "pin" : "param";
+        fprintf(fp, "alias %s %s %s\n", s, q->pp.alias, q->name);
     }
-#endif
-    halpr_mutex_release();
+    return 0;
 }
 
 static void save_aliases(FILE *dst)
 {
-    hal_pin_t *pin;
-    hal_param_t *param;
-    hal_oldname_t *oldname;
-
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN;
     fprintf(dst, "# pin aliases\n");
-    halpr_mutex_acquire();
-    {
-    SHMFIELD(hal_pin_t) next;
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if ( pin->oldname != 0 ) {
-	    /* name is an alias */
-	    oldname = SHMPTR(pin->oldname);
-	    fprintf(dst, "alias pin %s %s\n", oldname->name, pin->name);
-	}
-	next = pin->next_ptr;
-    }
-    }
+    hal_list_p(&q, save_aliases_cb, (void *)dst);
+
+    q = {};
+    q.qtype = HAL_QTYPE_PARAM;
     fprintf(dst, "# param aliases\n");
-    {
-    SHMFIELD(hal_param_t) next;
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if ( param->oldname != 0 ) {
-	    /* name is an alias */
-	    oldname = SHMPTR(param->oldname);
-	    fprintf(dst, "alias param %s %s\n", oldname->name, param->name);
-	}
-	next = param->next_ptr;
-    }
-    }
-    halpr_mutex_release();
+    hal_list_p(&q, save_aliases_cb, (void *)dst);
+}
+
+static int save_signals_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    // FIXME: What about the bidirs?
+    if(!(q->callerdata.sival && (q->sig.writers || q->sig.readers)))
+        fprintf(fp, "newsig %s %s\n", q->name, data_type(q->sig.type));
+    return 0;
 }
 
 static void save_signals(FILE *dst, int only_unlinked)
 {
-    SHMFIELD(hal_sig_t) next;
-    hal_sig_t *sig;
-
+    hal_query_t q = {};
+    q.callerdata.sival = only_unlinked;
     fprintf(dst, "# signals\n");
-    halpr_mutex_acquire();
-    
-    for( next = hal_data->sig_list_ptr; next; next = sig->next_ptr) {
-	sig = SHMPTR(next);
-        if(only_unlinked && (sig->readers || sig->writers)) continue;
-	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
+    hal_list_s(&q, save_signals_cb, (void *)dst);
+}
+
+static int save_links_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    if(q->pp.signal) {
+        const char *arrow_str = q->callerdata.sival ? data_arrow1(q->pp.dir) : "";
+        fprintf(fp, "linkps %s %s %s\n", q->name, arrow_str, q->pp.signal);
     }
-    halpr_mutex_release();
+    return 0;
 }
 
 static void save_links(FILE *dst, int arrow)
 {
-    SHMFIELD(hal_pin_t) next;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    const char *arrow_str;
-
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN;
+    q.callerdata.sival = arrow;
     fprintf(dst, "# links\n");
-    halpr_mutex_acquire();
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	if (pin->signal != 0) {
-	    sig = SHMPTR(pin->signal);
-	    if (arrow != 0) {
-		arrow_str = data_arrow1((int) pin->dir);
-	    } else {
-		arrow_str = "\0";
-	    }
-	    fprintf(dst, "linkps %s %s %s\n", pin->name, arrow_str, sig->name);
-	}
-	next = pin->next_ptr;
+    hal_list_p(&q, save_links_cb, (void *)dst);
+}
+
+struct save_nets_state_t {
+    int state;
+    int first;
+};
+
+static int save_nets_3_outpins_cb(hal_query_t *q, void *arg)
+{
+    if(HAL_OUT == q->pp.dir) {
+        fprintf((FILE *)arg, " %s", q->name);
+        reinterpret_cast<save_nets_state_t *>(q->callerdata.vpval)->state = 1;
     }
-    halpr_mutex_release();
+    return 0;
+}
+
+static int save_nets_3_iopins_cb(hal_query_t *q, void *arg)
+{
+    if(HAL_IO == q->pp.dir) {
+        FILE *fp = (FILE *)arg;
+        save_nets_state_t *st = reinterpret_cast<save_nets_state_t *>(q->callerdata.vpval);
+        fprintf(fp, " ");
+        if(st->state) {
+            fprintf(fp, "=> ");
+            st->state = 0;
+        } else if(!st->first) {
+            fprintf(fp, "<=> ");
+        }
+        fprintf(fp, "%s", q->name);
+        st->first = 0;
+    }
+    return 0;
+}
+
+static int save_nets_3_inpins_cb(hal_query_t *q, void *arg)
+{
+    if(HAL_IN == q->pp.dir) {
+        FILE *fp = (FILE *)arg;
+        save_nets_state_t *st = reinterpret_cast<save_nets_state_t *>(q->callerdata.vpval);
+        fprintf(fp, " ");
+        if(st->state) {
+            fprintf(fp, "=> ");
+            st->state = 0;
+        }
+        fprintf(fp, "%s", q->name);
+    }
+    return 0;
+}
+
+static int save_nets_3_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    save_nets_state_t st = {.state = 0, .first = 1};
+    hal_query_t qp;
+
+    // If there are no pins connected to this signal, do nothing
+    if(!q->sig.writers && !q->sig.readers && !q->sig.bidirs)
+        return 0;
+
+    fprintf(fp, "net %s", q->name);
+
+    /* Step 1: Output pin, if any */
+    qp = {};
+    qp.name = q->name;
+    qp.callerdata.vpval = &st; // Counts pins
+    hal_list_p_s(&qp, save_nets_3_outpins_cb, arg);
+    
+    /* Step 2: I/O pins, if any */
+    qp = {};
+    qp.name = q->name;
+    qp.callerdata.vpval = &st;
+    hal_list_p_s(&qp, save_nets_3_iopins_cb, arg);
+
+    if(!st.first)
+        st.state = 1;
+
+    /* Step 3: Input pins, if any */
+    qp = {};
+    qp.name = q->name;
+    qp.callerdata.vpval = &st;
+    hal_list_p_s(&qp, save_nets_3_inpins_cb, arg);
+
+    fprintf(fp, "\n");
+    return 0;
+}
+
+static void save_nets_3(FILE *dst)
+{
+    hal_query_t q = {};
+    hal_list_s(&q, save_nets_3_cb, (void *)dst);
+}
+
+static int save_nets_2_pins_cb(hal_query_t *q, void *arg)
+{
+    fprintf((FILE *)arg, " %s", q->name);
+    return 0;
+}
+
+static int save_nets_2_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+
+    // If there are no pins connected to this signal, do nothing
+    if(!q->sig.writers && !q->sig.readers && !q->sig.bidirs)
+        return 0;
+
+    fprintf(fp, "net %s", q->name);
+    hal_query_t qp = {};
+    qp.name = q->name;
+    hal_list_p_s(&qp, save_nets_2_pins_cb, arg);
+    fprintf(fp, "\n");
+    return 0;
+}
+
+static void save_nets_2(FILE *dst)
+{
+    hal_query_t q = {};
+    hal_list_s(&q, save_nets_2_cb, (void *)dst);
+}
+
+static int save_nets_01_pins_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    const char *arrow_str = q->callerdata.sival ? data_arrow2(q->pp.dir) : "";
+    fprintf(fp, "linksp %s %s %s\n", q->pp.signal, arrow_str, q->name);
+    return 0;
+}
+
+static int save_nets_01_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    fprintf(fp, "newsig %s %s\n", q->name, data_type(q->sig.type));
+    hal_query_t qp = {};
+    qp.callerdata.sival = q->callerdata.sival; // Propagate arrow type
+    qp.name = q->name;
+    return hal_list_p_s(&qp, save_nets_01_pins_cb, arg);
+}
+
+static void save_nets_01(FILE *dst, int arrow)
+{
+    hal_query_t q = {};
+    q.callerdata.sival = arrow;
+    hal_list_s(&q, save_nets_01_cb, (void *)dst);
 }
 
 static void save_nets(FILE *dst, int arrow)
 {
-    SHMFIELD(hal_sig_t) next;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    const char *arrow_str;
-
     fprintf(dst, "# nets\n");
-    halpr_mutex_acquire();
-    
-    for (next = hal_data->sig_list_ptr; next != 0; next = sig->next_ptr) {
-	sig = SHMPTR(next);
-        if(arrow == 3) {
-            int state = 0, first = 1;
-
-            /* If there are no pins connected to this signal, do nothing */
-            pin = halpr_find_pin_by_sig(sig, NULL);
-            if(!pin) continue;
-
-            fprintf(dst, "net %s", sig->name);
-
-            /* Step 1: Output pin, if any */
-            
-            for(pin = halpr_find_pin_by_sig(sig, NULL); pin;
-                    pin = halpr_find_pin_by_sig(sig, pin)) {
-                if(pin->dir != HAL_OUT) continue;
-                fprintf(dst, " %s", pin->name);
-                state = 1;
-            }
-            
-            /* Step 2: I/O pins, if any */
-            for(pin = halpr_find_pin_by_sig(sig, NULL); pin;
-                    pin = halpr_find_pin_by_sig(sig, pin)) {
-                if(pin->dir != HAL_IO) continue;
-                fprintf(dst, " ");
-                if(state) { fprintf(dst, "=> "); state = 0; }
-                else if(!first) { fprintf(dst, "<=> "); }
-                fprintf(dst, "%s", pin->name);
-                first = 0;
-            }
-            if(!first) state = 1;
-
-            /* Step 3: Input pins, if any */
-            for(pin = halpr_find_pin_by_sig(sig, NULL); pin;
-                    pin = halpr_find_pin_by_sig(sig, pin)) {
-                if(pin->dir != HAL_IN) continue;
-                fprintf(dst, " ");
-                if(state) { fprintf(dst, "=> "); state = 0; }
-                fprintf(dst, "%s", pin->name);
-            }
-
-            fprintf(dst, "\n");
-        } else if(arrow == 2) {
-            /* If there are no pins connected to this signal, do nothing */
-            pin = halpr_find_pin_by_sig(sig, NULL);
-            if(!pin) continue;
-
-            fprintf(dst, "net %s", sig->name);
-            pin = halpr_find_pin_by_sig(sig, NULL);
-            while (pin != NULL) {
-                fprintf(dst, " %s", pin->name);
-                pin = halpr_find_pin_by_sig(sig, pin);
-            }
-            fprintf(dst, "\n");
-        } else {
-            fprintf(dst, "newsig %s %s\n",
-                    sig->name, data_type((int) sig->type));
-            pin = halpr_find_pin_by_sig(sig, NULL);
-            while (pin != NULL) {
-                if (arrow != 0) {
-                    arrow_str = data_arrow2((int) pin->dir);
-                } else {
-                    arrow_str = "\0";
-                }
-                fprintf(dst, "linksp %s %s %s\n",
-                        sig->name, arrow_str, pin->name);
-                pin = halpr_find_pin_by_sig(sig, pin);
-            }
-        }
+    switch(arrow) {
+    case 3: save_nets_3(dst); break;
+    case 2: save_nets_2(dst); break;
+    case 1:
+    case 0: save_nets_01(dst, arrow); break;
+    default: break;
     }
-    halpr_mutex_release();
+}
+
+static int save_params_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    if(HAL_RO != q->pp.dir) {
+        // Writable parameter, save its value
+        fprintf(fp, "setp %s %s\n", q->name, querydata_refstr_20(q->pp.type, q->pp.ref).c_str());
+    }
+    return 0;
 }
 
 static void save_params(FILE *dst)
 {
-    SHMFIELD(hal_param_t) next;
-    hal_param_t *param;
-
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PARAM;
     fprintf(dst, "# parameter values\n");
-    halpr_mutex_acquire();
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	if (param->dir != HAL_RO) {
-	    /* param is writable, save its value */
-	    fprintf(dst, "setp %s %s\n", param->name,
-		data_value((int) param->type, SHMPTR(param->data_ptr)));
-	}
-	next = param->next_ptr;
+    hal_list_p(&q, save_params_cb, (void *)dst);
+}
+
+static int save_threads_cb(hal_query_t *q, void *arg)
+{
+    if(HAL_QTYPE_THREAD_FUNCT == q->qtype) {
+        const char *f = q->thread.is_init ? "initf" : "addf";
+        fprintf((FILE *)arg, "%s %s %s\n", f, q->thread.funct, q->name);
     }
-    halpr_mutex_release();
+    return 0;
 }
 
 static void save_threads(FILE *dst)
 {
-    SHMFIELD(hal_thread_t) next_thread;
-    hal_thread_t *tptr;
-    hal_list_t *list_root, *list_entry;
-    hal_funct_entry_t *fentry;
-    hal_funct_t *funct;
-
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_THREAD_FUNCT;
     fprintf(dst, "# realtime thread/function links\n");
-    halpr_mutex_acquire();
-    next_thread = hal_data->thread_list_ptr;
-    while (next_thread != 0) {
-	tptr = SHMPTR(next_thread);
-	list_root = &(tptr->funct_list);
-	list_entry = list_next(list_root);
-	while (list_entry != list_root) {
-	    /* print the function info */
-	    fentry = reinterpret_cast<hal_funct_entry_t *>(list_entry);
-	    funct = SHMPTR(fentry->funct_ptr);
-	    fprintf(dst, "addf %s %s\n", funct->name, tptr->name);
-	    list_entry = list_next(list_entry);
-	}
-	next_thread = tptr->next_ptr;
+    hal_list_thread(&q, save_threads_cb, (void *)dst);
+}
+
+static int save_unconnected_input_pin_values_cb(hal_query_t *q, void *arg)
+{
+    FILE *fp = (FILE *)arg;
+    if(!q->pp.signal && (HAL_IN == q->pp.dir || HAL_IO == q->pp.dir)) {
+        fprintf(fp, "setp %s %s\n", q->name, querydata_refstr(q->pp.type, q->pp.ref).c_str());
     }
-    halpr_mutex_release();
+    return 0;
 }
 
 static void save_unconnected_input_pin_values(FILE *dst)
 {
-    hal_pin_t *pin;
-    void *dptr;
-    SHMFIELD(hal_pin_t) next;
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN;
     fprintf(dst, "# unconnected pin values\n");
-    for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr)
-    {
-        pin = SHMPTR(next);
-        if (   (pin->signal == 0)
-            && ( (pin->dir == HAL_IN) || (pin->dir == HAL_IO) )
-           ) {
-            dptr = &(pin->dummysig);
-            fprintf(dst, "setp %s %s\n",
-                   pin->name, data_value((int) pin->type, dptr));
-        }
-    }
+    hal_list_p(&q, save_unconnected_input_pin_values_cb, (void *)dst);
 }
 
-int do_setexact_cmd() {
-    int retval = 0;
-    halpr_mutex_acquire();
-    if(hal_data->base_period) {
+int do_setexact_cmd()
+{
+    int retval = hal_enforce_exact_base_period();
+    if(0 != retval) {
         halcmd_error(
             "HAL_LIB: Cannot run 'setexact'"
             " after a thread has been created\n");
@@ -2929,13 +2439,11 @@ int do_setexact_cmd() {
             "HAL_LIB: HAL will pretend that the exact"
             " base period requested is possible.\n"
             "This mode is not suitable for running real hardware.\n");
-        hal_data->exact_base_period = 1;
     }
-    halpr_mutex_release();
     return retval;
 }
 
-int do_help_cmd(char *command)
+int do_help_cmd(const char *command)
 {
     if (!command) {
         print_help_commands();

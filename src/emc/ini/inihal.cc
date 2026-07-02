@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <stdio.h>
 #include <hal.h>
 #include <rtapi.h>
+#include <rtapi_math.h>
 #include "inihal.hh"
 #include "iniaxis.hh"
 #include "inispindle.hh"
@@ -36,19 +37,11 @@ static ptr_inihal_data *the_inihal_data;
 
 #define PREFIX "ini."
 #define EPSILON .00001
-#define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 
 #define NEW(NAME) new_inihal_data.NAME
 
-#define CHANGED(NAME) \
-    ((old_inihal_data.NAME) - (new_inihal_data.NAME) > +(EPSILON)) \
-    || \
-    ((old_inihal_data.NAME) - (new_inihal_data.NAME) < -(EPSILON))
-
-#define CHANGED_IDX(NAME,IDX) \
-    ((old_inihal_data.NAME[IDX]) - (new_inihal_data.NAME[IDX]) > +(EPSILON)) \
-    || \
-    ((old_inihal_data.NAME[IDX]) - (new_inihal_data.NAME[IDX]) < -(EPSILON))
+#define CHANGED(NAME) (fabs((old_inihal_data.NAME) - (new_inihal_data.NAME)) > (EPSILON))
+#define CHANGED_IDX(NAME,IDX) (fabs((old_inihal_data.NAME[IDX]) - (new_inihal_data.NAME[IDX])) > (EPSILON))
 
 #define UPDATE(NAME) old_inihal_data.NAME = new_inihal_data.NAME
 
@@ -86,44 +79,46 @@ static ptr_inihal_data *the_inihal_data;
                                                         new_inihal_data.NAME[IDX]);
 #define MAKE_BIT_PIN(NAME,DIR) \
 do { \
-     retval = hal_pin_bit_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
+     int retval = hal_pin_new_bool(comp_id, DIR, &(the_inihal_data->NAME), 0, PREFIX#NAME); \
      if (retval < 0) return retval; \
    } while (0)
 
 #define MAKE_S32_PIN(NAME,DIR) \
 do { \
-     retval = hal_pin_s32_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
+     int retval = hal_pin_new_si32(comp_id, DIR, &(the_inihal_data->NAME), 0, PREFIX#NAME); \
      if (retval < 0) return retval; \
    } while (0)
 
 #define MAKE_S32_PIN_IDX(NAME,HALPIN_NAME,DIR,IDX) \
 do { \
-     retval = hal_pin_s32_newf(DIR,&(the_inihal_data->NAME[IDX]),\
-                               comp_id,PREFIX"%d."#HALPIN_NAME,IDX); \
+     int retval = hal_pin_new_si32(comp_id, DIR, &(the_inihal_data->NAME[IDX]),\
+                               0, PREFIX"%d."#HALPIN_NAME, IDX); \
      if (retval < 0) return retval; \
    } while (0)
 
 #define MAKE_FLOAT_PIN(NAME,DIR) \
 do { \
-     retval = hal_pin_float_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
+     int retval = hal_pin_new_real(comp_id, DIR, &(the_inihal_data->NAME), 0,PREFIX#NAME); \
      if (retval < 0) return retval; \
    } while (0)
 
 #define MAKE_FLOAT_PIN_IDX(NAME,HALPIN_NAME,DIR,IDX) \
 do {                        \
-     retval = hal_pin_float_newf(DIR,&(the_inihal_data->NAME[IDX]),\
-                                 comp_id,PREFIX"%d."#HALPIN_NAME,IDX); \
+     int retval = hal_pin_new_real(comp_id, DIR, &(the_inihal_data->NAME[IDX]),\
+                                 0.0, PREFIX"%d."#HALPIN_NAME, IDX); \
      if (retval < 0) return retval; \
    } while (0)
 
 #define MAKE_FLOAT_PIN_LETTER(NAME,HALPIN_NAME,DIR,IDX,LETTER) \
 do {                        \
-     retval = hal_pin_float_newf(DIR,&(the_inihal_data->NAME[IDX]),\
-                                 comp_id,PREFIX"%c."#HALPIN_NAME,LETTER); \
+     int retval = hal_pin_new_real(comp_id, DIR, &(the_inihal_data->NAME[IDX]),\
+                               0.0, PREFIX"%c."#HALPIN_NAME, LETTER); \
      if (retval < 0) return retval; \
    } while (0)
 
-#define INIT_PIN(NAME) *(the_inihal_data->NAME) = old_inihal_data.NAME;
+#define INIT_PIN_R(NAME) hal_set_real(the_inihal_data->NAME, old_inihal_data.NAME);
+#define INIT_PIN_S(NAME) hal_set_si32(the_inihal_data->NAME, old_inihal_data.NAME);
+#define INIT_PIN_B(NAME) hal_set_bool(the_inihal_data->NAME, old_inihal_data.NAME);
 
 int ini_hal_exit(void)
 {
@@ -134,8 +129,6 @@ int ini_hal_exit(void)
 
 int ini_hal_init(int numjoints)
 {
-    int retval;
-
     comp_id = hal_init("inihal");
     if (comp_id < 0) {
     rtapi_print_msg(RTAPI_MSG_ERR,
@@ -193,39 +186,39 @@ int ini_hal_init(int numjoints)
 
 int ini_hal_init_pins(int numjoints)
 {
-    INIT_PIN(traj_default_velocity);
-    INIT_PIN(traj_max_velocity);
-    INIT_PIN(traj_default_acceleration);
-    INIT_PIN(traj_max_acceleration);
-    INIT_PIN(traj_max_jerk);
-    INIT_PIN(traj_planner_type);
+    INIT_PIN_R(traj_default_velocity);
+    INIT_PIN_R(traj_max_velocity);
+    INIT_PIN_R(traj_default_acceleration);
+    INIT_PIN_R(traj_max_acceleration);
+    INIT_PIN_R(traj_max_jerk);
+    INIT_PIN_S(traj_planner_type);
 
-    INIT_PIN(traj_arc_blend_enable);
-    INIT_PIN(traj_arc_blend_fallback_enable);
-    INIT_PIN(traj_arc_blend_optimization_depth);
-    INIT_PIN(traj_arc_blend_gap_cycles);
-    INIT_PIN(traj_arc_blend_ramp_freq);
-    INIT_PIN(traj_arc_blend_tangent_kink_ratio);
+    INIT_PIN_B(traj_arc_blend_enable);
+    INIT_PIN_B(traj_arc_blend_fallback_enable);
+    INIT_PIN_S(traj_arc_blend_optimization_depth);
+    INIT_PIN_R(traj_arc_blend_gap_cycles);
+    INIT_PIN_R(traj_arc_blend_ramp_freq);
+    INIT_PIN_R(traj_arc_blend_tangent_kink_ratio);
 
     for (int idx = 0; idx < numjoints; idx++) {
-        INIT_PIN(joint_backlash[idx]);
-        INIT_PIN(joint_ferror[idx]);
-        INIT_PIN(joint_min_ferror[idx]);
-        INIT_PIN(joint_min_limit[idx]);
-        INIT_PIN(joint_max_limit[idx]);
-        INIT_PIN(joint_max_velocity[idx]);
-        INIT_PIN(joint_max_acceleration[idx]);
-        INIT_PIN(joint_jerk[idx]);
-        INIT_PIN(joint_home[idx]);
-        INIT_PIN(joint_home_offset[idx]);
-        INIT_PIN(joint_home_sequence[idx]);
+        INIT_PIN_R(joint_backlash[idx]);
+        INIT_PIN_R(joint_ferror[idx]);
+        INIT_PIN_R(joint_min_ferror[idx]);
+        INIT_PIN_R(joint_min_limit[idx]);
+        INIT_PIN_R(joint_max_limit[idx]);
+        INIT_PIN_R(joint_max_velocity[idx]);
+        INIT_PIN_R(joint_max_acceleration[idx]);
+        INIT_PIN_R(joint_jerk[idx]);
+        INIT_PIN_R(joint_home[idx]);
+        INIT_PIN_R(joint_home_offset[idx]);
+        INIT_PIN_S(joint_home_sequence[idx]);
     }
     for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
-        INIT_PIN(axis_min_limit[idx]);
-        INIT_PIN(axis_max_limit[idx]);
-        INIT_PIN(axis_max_velocity[idx]);
-        INIT_PIN(axis_max_acceleration[idx]);
-        INIT_PIN(axis_jerk[idx]);
+        INIT_PIN_R(axis_min_limit[idx]);
+        INIT_PIN_R(axis_max_limit[idx]);
+        INIT_PIN_R(axis_max_velocity[idx]);
+        INIT_PIN_R(axis_max_acceleration[idx]);
+        INIT_PIN_R(axis_jerk[idx]);
     }
 
     return 0;
@@ -233,9 +226,18 @@ int ini_hal_init_pins(int numjoints)
 
 static void copy_hal_data(const ptr_inihal_data &i, value_inihal_data &j)
 {
-    int x;
-#define FIELD(t,f) j.f = (i.f)?*i.f:0;
-#define ARRAY(t,f,n) do { for (x = 0; x < n; x++) j.f[x] = (i.f[x])?*i.f[x]:0; } while (0);
+#define FIELD(t,f) do { \
+        if(i.f) { \
+            j.f = hal_get_##t(i.f); \
+        } \
+    } while(0);
+#define ARRAY(t,f,n) do { \
+        for (int x = 0; x < n; x++) { \
+            if(i.f[x]) { \
+                j.f[x] = hal_get_##t(i.f[x]); \
+            } \
+        } \
+    } while (0);
     HAL_FIELDS
 #undef FIELD
 #undef ARRAY
@@ -243,7 +245,7 @@ static void copy_hal_data(const ptr_inihal_data &i, value_inihal_data &j)
 
 int check_ini_hal_items(int numjoints)
 {
-    value_inihal_data new_inihal_data_mutable;
+    value_inihal_data new_inihal_data_mutable = {};
     copy_hal_data(*the_inihal_data, new_inihal_data_mutable);
     const value_inihal_data &new_inihal_data = new_inihal_data_mutable;
 

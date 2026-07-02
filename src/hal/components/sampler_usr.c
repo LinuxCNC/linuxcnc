@@ -226,6 +226,12 @@ int main(int argc, char **argv)
 	    case HAL_S32:
 		printf ( "%ld ", (long)buf[n].s);
 		break;
+	    case HAL_U64:
+		printf ( "%llu ", (unsigned long long)buf[n].k);
+		break;
+	    case HAL_S64:
+		printf ( "%lld ", (long long)buf[n].l);
+		break;
 	    default:
 		/* better not happen */
 		goto out;

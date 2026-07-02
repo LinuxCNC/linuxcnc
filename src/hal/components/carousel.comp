@@ -101,52 +101,52 @@ at the completion of the tool search and at the same time the reverse duty/cycle
 velocity value will be sent to the motor-vel pin.
 """;
 
-pin in  signed pocket-number """The pocket to move to when the .enable pin goes high. If the value
+pin in  si32 pocket-number """The pocket to move to when the .enable pin goes high. If the value
 passed is higher than the number of pockets specified in the "pockets" modparam then modulo arithmetic
 is used. This is intended to allow the use of multiple tools in the same holder, as is sometimes
 useful with lathes.""";
-pin in  bit    enable "Set this pin high to start movement. Setting it low will stop movement";
-pin out bit    active "indicates that the component is active";
-pin out bit    ready "This pin goes high when the carousel is in-position";
-pin in  bit    strobe = 1 """Use this pin to indicate that the position feedback is valid. Often
+pin in  bool enable "Set this pin high to start movement. Setting it low will stop movement";
+pin out bool active "indicates that the component is active";
+pin out bool ready "This pin goes high when the carousel is in-position";
+pin in  bool strobe = 1 """Use this pin to indicate that the position feedback is valid. Often
 provided by binary encoders""";
-pin  in bit    parity_ """Some encoders supply a parity bit, if this is connected then the
-parity-error output bit will indicate parity errors""";
-pin in  bit    sense-# [32:personality] """Carousel position feedback pins. In 'index' mode there 
+pin  in bool parity_ """Some encoders supply a parity bit, if this is connected then the
+parity-error output bool will indicate parity errors""";
+pin in  bool sense-# [32:personality] """Carousel position feedback pins. In 'index' mode there
 will be only 2 pins. sense-0 is the index and sense-1 is the pocket sensor.""";
-pin in float rev-pulse """The duration in seconds for which a ratchet changer (Boxford, Emco)
+pin in  real rev-pulse """The duration in seconds for which a ratchet changer (Boxford, Emco)
 should pulse the reverse pin to lock the holder""";
-pin in float fwd-dc "Velocity or duty cycle when forwards rotation is desired";
-pin in float rev-dc "Velocity or duty cycle when reverse rotation is desired";
-pin in float hold-dc "Duty cycle when carousel is in-position (to hold against stop)";
-pin in float align-dc """Use this pin to set the speed of a slower alignment move once the changer is in position. Such a system almost
+pin in  real fwd-dc "Velocity or duty cycle when forwards rotation is desired";
+pin in  real rev-dc "Velocity or duty cycle when reverse rotation is desired";
+pin in  real hold-dc "Duty cycle when carousel is in-position (to hold against stop)";
+pin in  real align-dc """Use this pin to set the speed of a slower alignment move once the changer is in position. Such a system almost
 certainly needs decel-time setting too""";
-pin in float decel-time "Time to wait for carousel to stop before final alignment and position check";
-pin in signed counts "Connect to the rawcounts of an encoder or a stepgen in 'counts' mode";
-pin in signed scale = 100 "The number of stepgen or encoder counts between successive pockets";
-pin in signed width = 10   "How far each side of the exact scale to signal a new pocket";
-pin in signed home-offset = 0 "The offset (in counts) between the index and pocket 1";
-pin io bit index-enable "Used to home to an encoder index";
-pin in  bit    jog-fwd "Jog the carousel forwards one tool position";
-pin in  bit    jog-rev """Jog the carousel in reverse (only if dir = 2).
+pin in  real decel-time "Time to wait for carousel to stop before final alignment and position check";
+pin in  si32 counts "Connect to the rawcounts of an encoder or a stepgen in 'counts' mode";
+pin in  si32 scale = 100 "The number of stepgen or encoder counts between successive pockets";
+pin in  si32 width = 10   "How far each side of the exact scale to signal a new pocket";
+pin in  si32 home-offset = 0 "The offset (in counts) between the index and pocket 1";
+pin io  bool index-enable "Used to home to an encoder index";
+pin in  bool jog-fwd "Jog the carousel forwards one tool position";
+pin in  bool jog-rev """Jog the carousel in reverse (only if dir = 2).
 It is very important that these pins should be debounced and should probably
 also be interlocked to only operate when the machine is idle.""";
-pin out bit    motor-fwd "Indicates the motor should run forwards (bigger numbers)";
-pin out bit    motor-rev "Indicates the motor should run reverse.";
-pin out bit    parity-error "Indicates a parity error";
-pin out signed current-position "This pin indicates the current position feedback";
-pin out float  motor-vel "The duty-cycle or velocity to drive a DC motor or stepgen";
-pin out bit    homed = 0 "Shows that homing is complete. Only used in index and edge modes";
-pin in  bit    unhome = 0 "Should only really be necessary for testing";
-pin out float counts-target "Target position for a stepgen or external PID controller";
+pin out bool motor-fwd "Indicates the motor should run forwards (bigger numbers)";
+pin out bool motor-rev "Indicates the motor should run reverse.";
+pin out bool parity-error "Indicates a parity error";
+pin out si32 current-position "This pin indicates the current position feedback";
+pin out real motor-vel "The duty-cycle or velocity to drive a DC motor or stepgen";
+pin out bool homed = 0 "Shows that homing is complete. Only used in index and edge modes";
+pin in  bool unhome = 0 "Should only really be necessary for testing";
+pin out real counts-target "Target position for a stepgen or external PID controller";
 
-param r  signed state = 0 "Current component state";
-param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
-param r  float  timer "Shows the value of the internal timer";
-param r signed motor-dir "Internal tag for search direction";
-param r signed counts-offset "Internal offset of index pin";
-param rw unsigned debounce "How many thread cycles to wait for the position to stabilise";
-param r signed target "Current target pocket, debug";
+param r  si32 state = 0 "Current component state";
+param r  bool homing  = 0 "Shows that homing is in progress. Only used for index mode";
+param r  real timer "Shows the value of the internal timer";
+param r  si32 motor-dir "Internal tag for search direction";
+param r  si32 counts-offset "Internal offset of index pin";
+param rw ui32 debounce "How many thread cycles to wait for the position to stabilise";
+param r  si32 target "Current target pocket, debug";
 
 option count_function;
 option extra_setup;
@@ -160,7 +160,7 @@ variable int inst_pockets;
 variable int inst_code;
 variable int inst_parity;
 variable int old_index = 0;
-param r signed base_counts = 0;
+param r si32 base_counts = 0;
 variable int old_unhome = 0;
 function _ ;
 
@@ -294,15 +294,15 @@ FUNCTION(_){
     }
 
     if (strobe) {
-        current_position = new_pos;
-        parity_error = (pcalc != (inst_parity ^ parity_));
+        current_position_set(new_pos);
+        parity_error_set(pcalc != (inst_parity ^ parity_));
     }
     mod_pocket = ((pocket_number - 1) % inst_pockets) + 1;
     // mod is odd with negatives, so just in case
     if (mod_pocket < 1) mod_pocket = 1;
     if (mod_pocket > inst_pockets) mod_pocket = inst_pockets;
 
-    if (unhome && ! old_unhome) homed = 0;
+    if (unhome && ! old_unhome) homed_set(0);
     old_unhome = unhome;
 
     enum State {
@@ -321,88 +321,88 @@ FUNCTION(_){
     };
     switch (state){
     case WAITING: // waiting at start
-        motor_dir = 0;
+        motor_dir_set(0);
         if (jog_fwd || (jog_rev && inst_dir == 2))  {
             if ((inst_code == 'I' || inst_code == 'E' || inst_code == 'C') && ! homed){
-                state = HOME_START;
+                state_set(HOME_START);
                 break;
             }
-            target = current_position + jog_fwd - jog_rev;
-            counts_target += scale * (target - current_position);
-            if (target > inst_pockets ) target = 1;
-            if (target < 1) target = inst_pockets;
+            target_set(current_position + jog_fwd - jog_rev);
+            counts_target_set(counts_target + scale * (target - current_position));
+            if (target > inst_pockets ) target_set(1);
+            if (target < 1) target_set(inst_pockets);
             if (jog_fwd){
-                motor_fwd = 1;
-                motor_rev = 0;
-                motor_vel = fwd_dc;
-                motor_dir = 1;
+                motor_fwd_set(1);
+                motor_rev_set(0);
+                motor_vel_set(fwd_dc);
+                motor_dir_set(1);
             }
             if (jog_rev){
-                motor_fwd = 0;
-                motor_rev = 1;
-                motor_vel = rev_dc;
-                motor_dir = -1;
+                motor_fwd_set(0);
+                motor_rev_set(1);
+                motor_vel_set(rev_dc);
+                motor_dir_set(-1);
             }
-            active = 1;
-            state = JOG;
+            active_set(1);
+            state_set(JOG);
             break;
         }
-        motor_vel = hold_dc;
+        motor_vel_set(hold_dc);
         if (! enable) return ;
-        active = 1;
+        active_set(1);
         if ((inst_code == 'I' || inst_code == 'E' || inst_code == 'C') && ! homed){
-            state = HOME_START;
+            state_set(HOME_START);
             break;
         }
-        state = DIR_CHOOSE;
-        ready = 0;
+        state_set(DIR_CHOOSE);
+        ready_set(0);
         /* Fallthrough */
     case DIR_CHOOSE: // choose direction
         if (mod_pocket < 1 || mod_pocket > inst_pockets) {
-            state = WAITING;
+            state_set(WAITING);
             return;
         }
         if (inst_dir == 2){
             if (current_position < mod_pocket){
                 if (mod_pocket - current_position > (inst_pockets / 2)) {
-                    motor_fwd = 0;
-                    motor_rev = 1;
-                    motor_vel = rev_dc;
-                    motor_dir = -1;
-                    counts_target += (mod_pocket - current_position - inst_pockets) * scale;
+                    motor_fwd_set(0);
+                    motor_rev_set(1);
+                    motor_vel_set(rev_dc);
+                    motor_dir_set(-1);
+                    counts_target_set(counts_target + (mod_pocket - current_position - inst_pockets) * scale);
                 } else {
-                    motor_fwd = 1;
-                    motor_rev = 0;
-                    motor_vel = fwd_dc;
-                    motor_dir = 1;
-                    counts_target += (mod_pocket - current_position ) * scale;
+                    motor_fwd_set(1);
+                    motor_rev_set(0);
+                    motor_vel_set(fwd_dc);
+                    motor_dir_set(1);
+                    counts_target_set(counts_target + (mod_pocket - current_position ) * scale);
                 }
             } else {
                 if (current_position - mod_pocket > (inst_pockets / 2)) {
-                    motor_fwd = 1;
-                    motor_rev = 0;
-                    motor_vel = fwd_dc;
-                    motor_dir = 1;
-                    counts_target += (mod_pocket - current_position + inst_pockets) * scale;
+                    motor_fwd_set(1);
+                    motor_rev_set(0);
+                    motor_vel_set(fwd_dc);
+                    motor_dir_set(1);
+                    counts_target_set(counts_target + (mod_pocket - current_position + inst_pockets) * scale);
                 } else {
-                    motor_fwd = 0;
-                    motor_rev = 1;
-                    motor_vel = rev_dc;
-                    motor_dir = -1;
-                    counts_target += (mod_pocket - current_position) * scale;
+                    motor_fwd_set(0);
+                    motor_rev_set(1);
+                    motor_vel_set(rev_dc);
+                    motor_dir_set(-1);
+                    counts_target_set(counts_target + (mod_pocket - current_position) * scale);
                 }
             }
         } else {
-            counts_target += (mod_pocket - current_position) * scale;
+            counts_target_set(counts_target + (mod_pocket - current_position) * scale);
             if (counts_target < counts ) {
-                counts_target += scale * inst_pockets;
+                counts_target_set(counts_target + scale * inst_pockets);
             }
-            motor_fwd = 1;
-            motor_rev = 0;
-            motor_vel = fwd_dc;
-            motor_dir = 1;
+            motor_fwd_set(1);
+            motor_rev_set(0);
+            motor_vel_set(fwd_dc);
+            motor_dir_set(1);
         }
-        state = MOVE;
+        state_set(MOVE);
         /* Fallthrough */
     case MOVE: // moving
         if ((current_position != mod_pocket) && enable){
@@ -412,67 +412,67 @@ FUNCTION(_){
             return;
         }
         if (rev_pulse > 0){
-            motor_fwd = 0;
-            motor_rev = 1;
-            motor_vel = rev_dc;
-            timer = rev_pulse;        
-            state = REV_TIME;
+            motor_fwd_set(0);
+            motor_rev_set(1);
+            motor_vel_set(rev_dc);
+            timer_set(rev_pulse);
+            state_set(REV_TIME);
         } else if (decel_time > 0) {
             // stop and prepare for alignment
-            motor_vel = 0;
-            timer = decel_time;
-            state = WAIT_STOP;
+            motor_vel_set(0);
+            timer_set(decel_time);
+            state_set(WAIT_STOP);
         } else {
-            motor_fwd = 0;
-            motor_rev = 0;
-            motor_vel = hold_dc;
-            active = 0;
-            if (enable && current_position == mod_pocket) ready = 1;
-            state = WAIT_ENABLE_FALSE;
+            motor_fwd_set(0);
+            motor_rev_set(0);
+            motor_vel_set(hold_dc);
+            active_set(0);
+            if (enable && current_position == mod_pocket) ready_set(1);
+            state_set(WAIT_ENABLE_FALSE);
         }
         break;
     case REV_TIME: // timed reverse pulse
-        timer -= fperiod;
+        timer_set(timer - fperiod);
         if (timer > 0) return;
-        state = WAIT_ENABLE_FALSE;
-        motor_fwd = 0;
-        motor_rev = 0;
-        motor_vel = hold_dc;
-        active = 0;
-        if (enable) ready = 1;
+        state_set(WAIT_ENABLE_FALSE);
+        motor_fwd_set(0);
+        motor_rev_set(0);
+        motor_vel_set(hold_dc);
+        active_set(0);
+        if (enable) ready_set(1);
         break;
     case WAIT_STOP: //Waiting for carousel to stop
-        timer -= fperiod;
+        timer_set(timer - fperiod);
         if (timer > 0) return;
         if (align_dc == 0){
-            state = FINAL_MOVE_BACK;
+            state_set(FINAL_MOVE_BACK);
             break;
         }
-        motor_vel = -align_dc;
+        motor_vel_set(-align_dc);
         if (motor_dir == 1) {
-            state = BACK_UP_INDEX;
+            state_set(BACK_UP_INDEX);
         } else {
-            state = BACK_OFF_INDEX;
+            state_set(BACK_OFF_INDEX);
         }
         break;
     case BACK_UP_INDEX: //backing up to index
         if ( align_pin == 0 ) return;
-        state = BACK_OFF_INDEX;
+        state_set(BACK_OFF_INDEX);
         break;
     case BACK_OFF_INDEX: //backing back off of index
         if ( align_pin != 0 ) return;
-        motor_vel = align_dc;
-        state = FINAL_MOVE_BACK;
+        motor_vel_set(align_dc);
+        state_set(FINAL_MOVE_BACK);
         break;
     case FINAL_MOVE_BACK: // final move back to index
         if ( align_pin == 0 ) return;
-        motor_fwd = 0;
-        motor_rev = 0;
-        motor_vel = hold_dc;
-        active = 0;
+        motor_fwd_set(0);
+        motor_rev_set(0);
+        motor_vel_set(hold_dc);
+        active_set(0);
         // final safety check for in-position
-        if (enable && current_position == mod_pocket) ready = 1;
-        state = WAIT_ENABLE_FALSE;
+        if (enable && current_position == mod_pocket) ready_set(1);
+        state_set(WAIT_ENABLE_FALSE);
         break;
     case WAIT_ENABLE_FALSE: //waiting for enable to go false
         if (! ready && ! err_once){
@@ -481,19 +481,19 @@ FUNCTION(_){
         }
         if (enable) return;
         err_once = 0;
-        state = WAITING;
+        state_set(WAITING);
         break;
     case HOME_START: // start of homing
-        homed = 0;
-        homing = 1;
-        motor_fwd = 1;
-        motor_rev = 0;
-        motor_vel = fwd_dc;
-        motor_dir = 1;
-        index_enable = 1;
-        counts_target += scale * inst_pockets;
+        homed_set(0);
+        homing_set(1);
+        motor_fwd_set(1);
+        motor_rev_set(0);
+        motor_vel_set(fwd_dc);
+        motor_dir_set(1);
+        index_enable_set(1);
+        counts_target_set(counts_target + scale * inst_pockets);
         old_index = 1; // ensure 0->1 cycle of home sensor
-        state = HOME_WAIT;
+        state_set(HOME_WAIT);
         /* Fallthrough */
     case HOME_WAIT: ;// waiting for index & pulse
         int ind = 0;
@@ -503,20 +503,20 @@ FUNCTION(_){
             ind = (sense(0) && sense(1));
         }
         if  ( ! index_enable || ((! old_index) && ind)){ // index found
-            current_position = 1;
-            homed = 1;
-            homing = 0;
-            active = 0;
-            motor_fwd = 0;
-            motor_rev = 0;
-            motor_vel = 0;
-            base_counts = counts - home_offset;
-            counts_target = base_counts;
+            current_position_set(1);
+            homed_set(1);
+            homing_set(0);
+            active_set(0);
+            motor_fwd_set(0);
+            motor_rev_set(0);
+            motor_vel_set(0);
+            base_counts_set(counts - home_offset);
+            counts_target_set(base_counts);
             if ( align_dc == 0) {
-                state = WAITING;
+                state_set(WAITING);
             } else { 
-                timer = decel_time;
-                state = WAIT_STOP;
+                timer_set(decel_time);
+                state_set(WAIT_STOP);
             }
         }
         old_index = ind;
@@ -529,17 +529,17 @@ FUNCTION(_){
             return;
         }
         if (align_dc != 0 && ! align_pin) return;
-        motor_fwd = 0;
-        motor_rev = 0;
-        motor_vel = hold_dc;
-        active = 0;
+        motor_fwd_set(0);
+        motor_rev_set(0);
+        motor_vel_set(hold_dc);
+        active_set(0);
         if (jog_fwd || jog_rev) return; // require button release to jog again
         if (align_dc != 0) {
-            motor_vel = -align_dc;
-            timer = decel_time;
-            state = WAIT_STOP;
+            motor_vel_set(-align_dc);
+            timer_set(decel_time);
+            state_set(WAIT_STOP);
         } else {
-            state = WAITING;
+            state_set(WAITING);
         }
         break;
     }

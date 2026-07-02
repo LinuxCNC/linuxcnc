@@ -124,17 +124,17 @@ typedef struct {
     unsigned short base_addr;	/* base I/O address (0x378, etc.) */
     unsigned char data_dir;	/* non-zero if pins 2-9 are input */
     unsigned char use_control_in; /* non-zero if pins 1, 4, 16, 17 are input */ 
-    hal_bit_t *status_in[10];	/* ptrs for in pins 15, 13, 12, 10, 11 */
-    hal_bit_t *data_in[16];	/* ptrs for input pins 2 - 9 */
-    hal_bit_t *data_out[8];	/* ptrs for output pins 2 - 9 */
-    hal_bit_t data_inv[8];	/* polarity params for output pins 2 - 9 */
-    hal_bit_t data_reset[8];	/* reset flag for output pins 2 - 9 */
-    hal_bit_t *control_in[8];	/* ptrs for in pins 1, 14, 16, 17 */
-    hal_bit_t *control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
-    hal_bit_t control_inv[4];	/* pol. params for output pins 1, 14, 16, 17 */
-    hal_bit_t control_reset[4];	/* reset flag for output pins 1, 14, 16, 17 */
-    hal_u32_t reset_time;       /* min ns between write and reset */
-    hal_u32_t debug1, debug2;
+    hal_bool_t status_in[10];	/* (pin) ptrs for in pins 15, 13, 12, 10, 11 */
+    hal_bool_t data_in[16];	/* (pin) ptrs for input pins 2 - 9 */
+    hal_bool_t data_out[8];	/* (pin) ptrs for output pins 2 - 9 */
+    hal_bool_t data_inv[8];	/* (param) polarity params for output pins 2 - 9 */
+    hal_bool_t data_reset[8];	/* (param) reset flag for output pins 2 - 9 */
+    hal_bool_t control_in[8];	/* ptrs for in pins 1, 14, 16, 17 */
+    hal_bool_t control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
+    hal_bool_t control_inv[4];	/* (param) pol. params for output pins 1, 14, 16, 17 */
+    hal_bool_t control_reset[4];/* (param) reset flag for output pins 1, 14, 16, 17 */
+    hal_uint_t reset_time;      /* (param) min ns between write and reset */
+    hal_uint_t debug1, debug2;  /* (param) */
     long long write_time;
     unsigned short outdata;
     unsigned char reset_mask;       /* reset flag for pin 2..9 */
@@ -178,9 +178,9 @@ static int pins_and_params(char *argv[]);
 
 static unsigned short parse_port_addr(char *cp);
 static int export_port(int portnum, parport_t * addr);
-static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n);
-static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
-    hal_bit_t * pbase, hal_bit_t * rbase, int n);
+static int export_input_pin(int portnum, int pin, hal_bool_t * base, int n);
+static int export_output_pin(int portnum, int pin, hal_bool_t * dbase,
+    hal_bool_t * pbase, hal_bool_t * rbase, int n);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -316,8 +316,8 @@ static void read_port(void *arg, long period)
     /* split the bits into 10 variables (5 regular, 5 inverted) */
     mask = 0x08;
     for (b = 0; b < 10; b += 2) {
-	*(port->status_in[b]) = indata & mask;
-	*(port->status_in[b + 1]) = !(indata & mask);
+	hal_set_bool(port->status_in[b], indata & mask);
+	hal_set_bool(port->status_in[b + 1], !(indata & mask));
 	mask <<= 1;
     }
     /* are we using the data port for input? */
@@ -327,8 +327,8 @@ static void read_port(void *arg, long period)
 	/* split the bits into 16 variables (8 regular, 8 inverted) */
 	mask = 0x01;
 	for (b = 0; b < 16; b += 2) {
-	    *(port->data_in[b]) = indata & mask;
-	    *(port->data_in[b + 1]) = !(indata & mask);
+	    hal_set_bool(port->data_in[b], indata & mask);
+	    hal_set_bool(port->data_in[b + 1], !(indata & mask));
 	    mask <<= 1;
 	}
     }
@@ -338,8 +338,8 @@ static void read_port(void *arg, long period)
         /* correct for hardware inverters on pins 1, 14, & 17 */
         indata = rtapi_inb(port->base_addr + 2) ^ 0x0B;
         for (b = 0; b < 8; b += 2) {
-            *(port->control_in[b]) = indata & mask;
-            *(port->control_in[b + 1]) = !(indata & mask);
+            hal_set_bool(port->control_in[b], indata & mask);
+            hal_set_bool(port->control_in[b + 1], !(indata & mask));
 	    mask <<= 1;
         }
     }
@@ -350,10 +350,10 @@ static void reset_port(void *arg, long period) {
     long long deadline;
     unsigned char outdata = (unsigned char)((port->outdata&~port->reset_mask) ^ port->reset_val);
    
-    if(port->reset_time > period/4) port->reset_time = period/4;
+    if(hal_get_ui32(port->reset_time) > period/4) hal_set_ui32(port->reset_time, period/4);
 
     if(outdata != port->outdata) {
-        deadline = port->write_time + port->reset_time;
+        deadline = port->write_time + hal_get_ui32(port->reset_time);
         while(rtapi_get_time() < deadline) {}
         rtapi_outb(outdata, port->base_addr);
         port->outdata = outdata;
@@ -362,7 +362,7 @@ static void reset_port(void *arg, long period) {
     outdata = (unsigned char)((port->outdata_ctrl&~port->reset_mask_ctrl)^port->reset_val_ctrl);
 
     if(outdata != port->outdata_ctrl) {
-        deadline = port->write_time_ctrl + port->reset_time;
+        deadline = port->write_time_ctrl + hal_get_ui32(port->reset_time);
         while(rtapi_get_time() < deadline) {}
 	/* correct for hardware inverters on pins 1, 14, & 17 */
         rtapi_outb(outdata ^ 0x0B, port->base_addr + 2);
@@ -387,15 +387,15 @@ static void write_port(void *arg, long period)
 	/* assemble output byte for data port from 8 source variables */
 	for (b = 0; b < 8; b++) {
 	    /* get the data, add to output byte */
-	    if ((*(port->data_out[b])) && (!port->data_inv[b])) {
+	    if ((hal_get_bool(port->data_out[b])) && (!hal_get_bool(port->data_inv[b]))) {
 		outdata |= mask;
 	    }
-	    if ((!*(port->data_out[b])) && (port->data_inv[b])) {
+	    if ((!hal_get_bool(port->data_out[b])) && (hal_get_bool(port->data_inv[b]))) {
 		outdata |= mask;
 	    }
-	    if (port->data_reset[b]) {
+	    if (hal_get_bool(port->data_reset[b])) {
 		reset_mask |= mask;
-		if(port->data_inv[b]) reset_val |= mask;
+		if(hal_get_bool(port->data_inv[b])) reset_val |= mask;
 	    }
 	    mask <<= 1;
 	}
@@ -424,15 +424,15 @@ static void write_port(void *arg, long period)
 	mask = 0x01;
 	for (b = 0; b < 4; b++) {
 	    /* get the data, add to output byte */
-	    if ((*(port->control_out[b])) && (!port->control_inv[b])) {
+	    if ((hal_get_bool(port->control_out[b])) && (!hal_get_bool(port->control_inv[b]))) {
 		outdata |= mask;
 	    }
-	    if ((!*(port->control_out[b])) && (port->control_inv[b])) {
+	    if ((!hal_get_bool(port->control_out[b])) && (hal_get_bool(port->control_inv[b]))) {
 		outdata |= mask;
 	    }
-	    if (port->control_reset[b]) {
+	    if (hal_get_bool(port->control_reset[b])) {
 		reset_mask |= mask;
-		if(port->control_inv[b]) reset_val |= mask;
+		if(hal_get_bool(port->control_inv[b])) reset_val |= mask;
 	    }
 	    mask <<= 1;
 	}
@@ -545,7 +545,7 @@ static int pins_and_params(char *argv[])
 	return -1;
     }
     /* allocate shared memory for parport data */
-    port_data_array = hal_malloc(num_ports * sizeof(parport_t));
+    port_data_array = hal_malloc(num_ports * sizeof(*port_data_array));
     if (port_data_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: hal_malloc() failed\n");
@@ -684,11 +684,11 @@ static int export_port(int portnum, parport_t * port)
 	    port->data_out, port->data_inv, port->data_reset, 6);
 	retval += export_output_pin(portnum, 9,
 	    port->data_out, port->data_inv, port->data_reset, 7);
-	retval += hal_param_u32_newf(HAL_RW, &port->reset_time, comp_id, 
+	retval += hal_param_new_ui32(comp_id, HAL_RW, &port->reset_time, 0.0,
 			"parport.%d.reset-time", portnum);
-	retval += hal_param_u32_newf(HAL_RW, &port->debug1, comp_id, 
+	retval += hal_param_new_ui32(comp_id, HAL_RW, &port->debug1, 0.0,
 			"parport.%d.debug1", portnum);
-	retval += hal_param_u32_newf(HAL_RW, &port->debug2, comp_id, 
+	retval += hal_param_new_ui32(comp_id, HAL_RW, &port->debug2, 0.0,
 			"parport.%d.debug2", portnum);
 	port->write_time = 0;
     }
@@ -715,42 +715,42 @@ static int export_port(int portnum, parport_t * port)
     return retval;
 }
 
-static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n)
+static int export_input_pin(int portnum, int pin, hal_bool_t * base, int n)
 {
     int retval;
 
     /* export write only HAL pin for the input bit */
-    retval = hal_pin_bit_newf(HAL_OUT, base + (2 * n), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, base + (2 * n), 0,
             "parport.%d.pin-%02d-in", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export another write only HAL pin for the same bit inverted */
-    retval = hal_pin_bit_newf(HAL_OUT, base + (2 * n) + 1, comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, base + (2 * n) + 1, 0,
             "parport.%d.pin-%02d-in-not", portnum, pin);
     return retval;
 }
 
-static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
-    hal_bit_t * pbase, hal_bit_t * rbase, int n)
+static int export_output_pin(int portnum, int pin, hal_bool_t * dbase,
+    hal_bool_t * pbase, hal_bool_t * rbase, int n)
 {
     int retval;
 
     /* export read only HAL pin for output data */
-    retval = hal_pin_bit_newf(HAL_IN, dbase + n, comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, dbase + n, 0,
             "parport.%d.pin-%02d-out", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, pbase + n, comp_id,
+    retval = hal_param_new_bool(comp_id, HAL_RW, pbase + n, 0,
             "parport.%d.pin-%02d-out-invert", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for reset */
     if (rbase)
-	retval = hal_param_bit_newf(HAL_RW, rbase + n, comp_id,
+	retval = hal_param_new_bool(comp_id, HAL_RW, rbase + n, 0,
 		"parport.%d.pin-%02d-out-reset", portnum, pin);
     return retval;
 }
