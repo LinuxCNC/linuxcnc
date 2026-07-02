@@ -27,11 +27,11 @@
 
 // the five dimensions, one pin each; the maths reads them from the block
 static const kins_param_desc puma_params[] = {
-    { "A2", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PUMA560_A2 },
-    { "A3", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PUMA560_A3 },
-    { "D3", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PUMA560_D3 },
-    { "D4", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PUMA560_D4 },
-    { "D6", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PUMA560_D6 },
+    { "A2", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_PUMA560_A2} },
+    { "A3", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_PUMA560_A3} },
+    { "D3", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_PUMA560_D3} },
+    { "D4", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_PUMA560_D4} },
+    { "D6", KINS_PARAM_REAL, KINS_IN, 0, {.r=DEFAULT_PUMA560_D6} },
 };
 enum { P_A2, P_A3, P_D3, P_D4, P_D6 };
 

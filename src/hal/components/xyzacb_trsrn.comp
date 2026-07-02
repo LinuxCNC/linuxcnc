@@ -31,17 +31,17 @@ RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 // pins are what the TOOL kinematics uses in place of the head joints:
 // the remap writes them.
 static const kins_param_desc trsrn_params[] = {
-    { "tool-offset-z",   KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
-    { "y-pivot",         KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "z-pivot",         KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "x-offset",        KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "y-offset",        KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "y-rot-axis",      KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "z-rot-axis",      KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "pre-rot",         KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "nut-angle",       KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "primary-angle",   KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
-    { "secondary-angle", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "tool-offset-z",   KINS_PARAM_REAL, KINS_IN, 1, {.r=0.0} },
+    { "y-pivot",         KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "z-pivot",         KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "x-offset",        KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "y-offset",        KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "y-rot-axis",      KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "z-rot-axis",      KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "pre-rot",         KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "nut-angle",       KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "primary-angle",   KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
+    { "secondary-angle", KINS_PARAM_REAL, KINS_IN, 0, {.r=0.0} },
 };
 enum { P_TOOL, P_PIVOT, P_ZPIVOT, P_XO, P_YO, P_ROT_AXIS, P_ZROT_AXIS,
        P_PRE_ROT, P_NUT, P_PRIM, P_SEC };

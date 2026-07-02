@@ -32,9 +32,9 @@ MODULE_LICENSE("GPL");
 
 // the inverse reports the turn count it keeps and the angles it saw
 static const kins_param_desc rose_params[] = {
-    { "revolutions",      KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    { "theta_degrees",    KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
-    { "bigtheta_degrees", KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    { "revolutions",      KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    { "theta_degrees",    KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
+    { "bigtheta_degrees", KINS_PARAM_REAL, KINS_OUT, 0, {.r=0.0} },
 };
 enum { O_REVOLUTIONS, O_THETA, O_BIGTHETA };
 

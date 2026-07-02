@@ -1532,8 +1532,16 @@ int kinsParamsInit(kins_params *p,
         return -1;
     }
     for (i = 0; i < info->nparams; i++) {
-        p->geometry[i] = info->params[i].dflt;
-        if (info->params[i].tool) { p->tool.tran.z = info->params[i].dflt; }
+        double v;
+        switch(info->params[i].type) {
+        case KINS_PARAM_REAL: v = info->params[i].dflt.r; break;
+        case KINS_PARAM_BOOL: v = info->params[i].dflt.b ? 1.0 : 0.0; break;
+        case KINS_PARAM_SINT: v = info->params[i].dflt.s; break;
+        case KINS_PARAM_UINT: v = info->params[i].dflt.u; break;
+        default: v = 0.0; break;
+        }
+        p->geometry[i] = v;
+        if (info->params[i].tool) { p->tool.tran.z = v; }
     }
     return 0;
 } // kinsParamsInit()
@@ -1789,17 +1797,17 @@ int kinsParamsPinsCreate(int comp_id, const char *prefix,
         const kins_param_desc *d = &params[i];
         hal_pdir_t dir = d->dir == KINS_OUT ? HAL_OUT : d->dir == KINS_IO ? HAL_IO : HAL_IN;
         switch (d->type) {
-        case KINS_PARAM_FLOAT:
-            res += hal_pin_new_real(comp_id, dir, &pins[i].r, d->dflt, "%s.%s", prefix, d->name);
+        case KINS_PARAM_REAL:
+            res += hal_pin_new_real(comp_id, dir, &pins[i].r, d->dflt.r, "%s.%s", prefix, d->name);
             break;
-        case KINS_PARAM_BIT:
-            res += hal_pin_new_bool(comp_id, dir, &pins[i].b, d->dflt != 0, "%s.%s", prefix, d->name);
+        case KINS_PARAM_BOOL:
+            res += hal_pin_new_bool(comp_id, dir, &pins[i].b, d->dflt.b, "%s.%s", prefix, d->name);
             break;
-        case KINS_PARAM_S32:
-            res += hal_pin_new_si32(comp_id, dir, &pins[i].s, (rtapi_s32)d->dflt, "%s.%s", prefix, d->name);
+        case KINS_PARAM_SINT:
+            res += hal_pin_new_sint(comp_id, dir, &pins[i].s, d->dflt.s, "%s.%s", prefix, d->name);
             break;
-        case KINS_PARAM_U32:
-            res += hal_pin_new_ui32(comp_id, dir, &pins[i].u, (rtapi_u32)d->dflt, "%s.%s", prefix, d->name);
+        case KINS_PARAM_UINT:
+            res += hal_pin_new_uint(comp_id, dir, &pins[i].u, d->dflt.u, "%s.%s", prefix, d->name);
             break;
         default:
             res = -1;
@@ -1824,10 +1832,10 @@ void kinsParamsPinsRead(const kins_pin_ref *pins,
         double v;
         if (d->dir == KINS_OUT) { continue; }
         switch (d->type) {
-        case KINS_PARAM_FLOAT: v = hal_get_real(pins[i].r); break;
-        case KINS_PARAM_BIT:   v = hal_get_bool(pins[i].b) ? 1.0 : 0.0; break;
-        case KINS_PARAM_S32:   v = hal_get_si32(pins[i].s); break;
-        case KINS_PARAM_U32:   v = hal_get_ui32(pins[i].u); break;
+        case KINS_PARAM_REAL: v = hal_get_real(pins[i].r); break;
+        case KINS_PARAM_BOOL: v = hal_get_bool(pins[i].b) ? 1.0 : 0.0; break;
+        case KINS_PARAM_SINT: v = hal_get_sint(pins[i].s); break;
+        case KINS_PARAM_UINT: v = hal_get_uint(pins[i].u); break;
         default: v = 0;
         }
         p->geometry[i] = v;
@@ -1845,10 +1853,24 @@ void kinsParamsPinsWrite(const kins_pin_ref *pins,
         const kins_param_desc *d = &params[i];
         if (d->dir != KINS_OUT) { continue; }
         switch (d->type) {
-        case KINS_PARAM_FLOAT: hal_set_real(pins[i].r, s->out[i]); break;
-        case KINS_PARAM_BIT:   hal_set_bool(pins[i].b, s->out[i] != 0); break;
-        case KINS_PARAM_S32:   hal_set_si32(pins[i].s, (rtapi_s32)s->out[i]); break;
-        case KINS_PARAM_U32:   hal_set_ui32(pins[i].u, (rtapi_u32)s->out[i]); break;
+        case KINS_PARAM_REAL: hal_set_real(pins[i].r, s->out[i]); break;
+        case KINS_PARAM_BOOL: hal_set_bool(pins[i].b, s->out[i] != 0); break;
+        case KINS_PARAM_SINT:
+            if (s->out[i] >= (rtapi_real)RTAPI_SINT_MAX)
+                hal_set_sint(pins[i].s, RTAPI_SINT_MAX);
+            else if (s->out[i] <= (rtapi_real)RTAPI_SINT_MIN)
+                hal_set_sint(pins[i].s, RTAPI_SINT_MIN);
+            else
+                hal_set_sint(pins[i].s, (rtapi_sint)s->out[i]);
+            break;
+        case KINS_PARAM_UINT:
+            if (s->out[i] < 0.0)
+                hal_set_uint(pins[i].u, 0);
+            else if (s->out[i] >= (rtapi_real)RTAPI_UINT_MAX)
+                hal_set_uint(pins[i].u, RTAPI_UINT_MAX);
+            else
+                hal_set_uint(pins[i].u, s->out[i]);
+            break;
         default: break;
         }
     }

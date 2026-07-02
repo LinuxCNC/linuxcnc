@@ -79,11 +79,11 @@ enum {
 };
 
 #define STRUT_ROWS(i, bx, by, bz, er, ez) \
-    { "base." #i ".x",     KINS_PARAM_FLOAT, KINS_IN, 0, bx }, \
-    { "base." #i ".y",     KINS_PARAM_FLOAT, KINS_IN, 0, by }, \
-    { "base." #i ".z",     KINS_PARAM_FLOAT, KINS_IN, 0, bz }, \
-    { "effector." #i ".r", KINS_PARAM_FLOAT, KINS_IN, 0, er }, \
-    { "effector." #i ".z", KINS_PARAM_FLOAT, KINS_IN, 0, ez }
+    { "base." #i ".x",     KINS_PARAM_REAL, KINS_IN, 0, {.r=bx} }, \
+    { "base." #i ".y",     KINS_PARAM_REAL, KINS_IN, 0, {.r=by} }, \
+    { "base." #i ".z",     KINS_PARAM_REAL, KINS_IN, 0, {.r=bz} }, \
+    { "effector." #i ".r", KINS_PARAM_REAL, KINS_IN, 0, {.r=er} }, \
+    { "effector." #i ".z", KINS_PARAM_REAL, KINS_IN, 0, {.r=ez} }
 
 static const kins_param_desc penta_params[P_COUNT] = {
     STRUT_ROWS(0, DEFAULT_BASE_0_X, DEFAULT_BASE_0_Y, DEFAULT_BASE_0_Z, DEFAULT_EFFECTOR_0_R, DEFAULT_EFFECTOR_0_Z),
@@ -91,12 +91,12 @@ static const kins_param_desc penta_params[P_COUNT] = {
     STRUT_ROWS(2, DEFAULT_BASE_2_X, DEFAULT_BASE_2_Y, DEFAULT_BASE_2_Z, DEFAULT_EFFECTOR_2_R, DEFAULT_EFFECTOR_2_Z),
     STRUT_ROWS(3, DEFAULT_BASE_3_X, DEFAULT_BASE_3_Y, DEFAULT_BASE_3_Z, DEFAULT_EFFECTOR_3_R, DEFAULT_EFFECTOR_3_Z),
     STRUT_ROWS(4, DEFAULT_BASE_4_X, DEFAULT_BASE_4_Y, DEFAULT_BASE_4_Z, DEFAULT_EFFECTOR_4_R, DEFAULT_EFFECTOR_4_Z),
-    [P_LAST_ITER]      = { "last-iterations",       KINS_PARAM_U32,   KINS_OUT, 0, 0 },
-    [P_MAX_ITER]       = { "max-iterations",        KINS_PARAM_U32,   KINS_OUT, 0, 0 },
-    [P_MAX_ERROR]      = { "max-error",             KINS_PARAM_FLOAT, KINS_IO,  0, 100.0 },
-    [P_CONV_CRITERION] = { "convergence-criterion", KINS_PARAM_FLOAT, KINS_IO,  0, 1e-9 },
-    [P_ITER_LIMIT]     = { "limit-iterations",      KINS_PARAM_U32,   KINS_IO,  0, 120 },
-    [P_TOOL_OFFSET]    = { "tool-offset",           KINS_PARAM_FLOAT, KINS_IN,  1, 0.0 },
+    [P_LAST_ITER]      = { "last-iterations",       KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ITER]       = { "max-iterations",        KINS_PARAM_UINT, KINS_OUT, 0, {.u=0} },
+    [P_MAX_ERROR]      = { "max-error",             KINS_PARAM_REAL, KINS_IO,  0, {.r=100.0} },
+    [P_CONV_CRITERION] = { "convergence-criterion", KINS_PARAM_REAL, KINS_IO,  0, {.r=1e-9} },
+    [P_ITER_LIMIT]     = { "limit-iterations",      KINS_PARAM_UINT, KINS_IO,  0, {.u=120} },
+    [P_TOOL_OFFSET]    = { "tool-offset",           KINS_PARAM_REAL, KINS_IN,  1, {.r=0.0} },
 };
 
 // the most iterations a converged solution has taken this session, kept
