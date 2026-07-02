@@ -231,14 +231,13 @@ Verify(){
         rtapi_app check_rt && HAS_REALTIME=true
     ;;
     (*rtai*)
+        echo "RTAI"
         HAS_REALTIME=true
     esac
 
     if [ $HAS_REALTIME = true ]; then
-        echo "realtime detected"
         return 0
     else
-        echo "WARNING: no realtime detected"
         return 1
     fi
 }
