@@ -60,6 +60,11 @@ public:
 
     HandWheelCounters();
 
+    // The underlying counters in this class are still int32_t. They are
+    // written into hal_sint_t pins. But that does not really matter. If the
+    // counters here run out, then it would probably have been a problem
+    // before. Now the writes are simply sign-extended.
+
     void count(int8_t delta);
     //! Return the currently active counter which is in-/decreased by \xrefitem count(uint8_t).
     //! The current counter mode is set via \xrefitem setModeActive(CounterNameToIndex).

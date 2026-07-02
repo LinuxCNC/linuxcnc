@@ -32,10 +32,10 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 	int deadtime;
 	int i;
 
-    rtapi_u32 pwm_frequency = hal_get_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency);
+    rtapi_uint pwm_frequency = hal_get_uint(hm2->tp_pwmgen.hal->param.pwm_frequency);
     if (pwm_frequency < 1) {
-        HM2_ERR("3pwmgen.pwm_frequency %d is too low, setting to 1\n", pwm_frequency);
-        pwm_frequency = hal_set_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency, 1);
+        HM2_ERR("3pwmgen.pwm_frequency %lu is too low, setting to 1\n", (unsigned long)pwm_frequency);
+        pwm_frequency = hal_set_uint(hm2->tp_pwmgen.hal->param.pwm_frequency, 1);
     }
 
 
@@ -64,10 +64,10 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 	// not possible so try the fastest we can
         //     PWMFreq = (ClockHigh * DDS) / (65536 * 2048)
 	dds = 65535;
-	pwm_frequency = hal_set_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency,
+	pwm_frequency = hal_set_uint(hm2->tp_pwmgen.hal->param.pwm_frequency,
             ((double)hm2->tp_pwmgen.clock_frequency * 65535.0)
             / (65536.0 * 2048.0));
-	HM2_ERR("max PWM frequency is %d Hz\n", pwm_frequency);
+	HM2_ERR("max PWM frequency is %lu Hz\n", (unsigned long)pwm_frequency);
 	hm2->tp_pwmgen.pwmgen_master_rate_dds_reg = dds;
     }
 
@@ -143,7 +143,7 @@ void hm2_tp_pwmgen_force_write(hostmot2_t *hm2) {
         hm2->tp_pwmgen.instance[i].written_sampletime = hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.sampletime);
     }
 
-    hm2->tp_pwmgen.written_pwm_frequency = hal_get_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency);
+    hm2->tp_pwmgen.written_pwm_frequency = hal_get_uint(hm2->tp_pwmgen.hal->param.pwm_frequency);
 }
 
 
@@ -157,7 +157,7 @@ void hm2_tp_pwmgen_write(hostmot2_t *hm2) {
     if (hm2->tp_pwmgen.num_instances == 0) return;
 
     // check pwm frequency
-    if (hal_get_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency) != hm2->tp_pwmgen.written_pwm_frequency) goto force_write;
+    if (hal_get_uint(hm2->tp_pwmgen.hal->param.pwm_frequency) != hm2->tp_pwmgen.written_pwm_frequency) goto force_write;
 
     // update enable register?
     for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
@@ -295,7 +295,7 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     // export to HAL
     {
         // this hal parameter affects all the 3-Phase pwmgen instances
-        r = hal_param_new_ui32(
+        r = hal_param_new_uint(
 	    hm2->llio->comp_id,
 	    HAL_RW,
 	    &(hm2->tp_pwmgen.hal->param.pwm_frequency),

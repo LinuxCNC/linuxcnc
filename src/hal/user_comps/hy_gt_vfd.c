@@ -66,8 +66,8 @@ typedef struct {
     float multiplier;
     int type;
     union {
-        hal_real_t hal_pin_float;
-        hal_uint_t hal_pin_u32;
+        hal_real_t hal_pin_real;
+        hal_uint_t hal_pin_uint;
     };
 } modbus_register_t;
 
@@ -207,7 +207,7 @@ int set_motor_on_forward(modbus_t *mb) {
             return 0;
         }
         fprintf(stderr, "%s: error writing %u to register 0x%04x: %s\n", __func__, val, addr, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -225,7 +225,7 @@ int set_motor_off(modbus_t *mb) {
             return 0;
         }
         fprintf(stderr, "%s: error writing %u to register 0x%04x: %s\n", __func__, val, addr, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -244,7 +244,7 @@ int set_motor_frequency(modbus_t *mb, float freq) {
             return 0;
         }
         fprintf(stderr, "%s: error writing %u to register 0x%04x: %s\n", __func__, val, addr, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -260,16 +260,16 @@ int read_modbus_register(modbus_t *mb, modbus_register_t *reg) {
         if (r == 1) {
             switch (reg->type) {
             case REGISTER_FLOAT:
-                hal_set_real(reg->hal_pin_float, data * reg->multiplier);
+                hal_set_real(reg->hal_pin_real, data * reg->multiplier);
                 break;
             case REGISTER_U32:
-                hal_set_ui32(reg->hal_pin_u32, data);
+                hal_set_uint(reg->hal_pin_uint, data);
                 break;
             }
             return 0;
         }
         fprintf(stderr, "%s: error reading %s (register 0x%04x): %s\n", __func__, reg->name, reg->address, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -289,7 +289,7 @@ modbus_register_t *add_modbus_register_float(modbus_t *mb, int address, const ch
     reg = &modbus_register[num_modbus_registers];
     reg->type = REGISTER_FLOAT;
 
-    r = hal_pin_new_real(hal_comp_id, HAL_OUT, &reg->hal_pin_float, 0.0, "%s.%s", modname, pin_name);
+    r = hal_pin_new_real(hal_comp_id, HAL_OUT, &reg->hal_pin_real, 0.0, "%s.%s", modname, pin_name);
     if (r != 0) {
         return NULL;
     }
@@ -314,7 +314,7 @@ modbus_register_t *add_modbus_register_u32(modbus_t *mb, int address, const char
     reg = &modbus_register[num_modbus_registers];
     reg->type = REGISTER_U32;
 
-    r = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &reg->hal_pin_u32, 0, "%s.%s", modname, pin_name);
+    r = hal_pin_new_uint(hal_comp_id, HAL_OUT, &reg->hal_pin_uint, 0, "%s.%s", modname, pin_name);
     if (r != 0) {
         return NULL;
     }
@@ -586,7 +586,7 @@ int main(int argc, char **argv) {
     retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->spindle_on), 0, "%s.spindle-on", modname);
     if (retval != 0) goto out_closeHAL;
 
-    retval = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &(haldata->modbus_errors), 0, "%s.modbus-errors", modname);
+    retval = hal_pin_new_uint(hal_comp_id, HAL_OUT, &(haldata->modbus_errors), 0, "%s.modbus-errors", modname);
     if (retval != 0) goto out_closeHAL;
 
     modbus_register = (modbus_register_t *)hal_malloc(20 * sizeof(*modbus_register));
@@ -672,7 +672,7 @@ int main(int argc, char **argv) {
             hal_set_real(haldata->freq_cmd, (speed_cmd / motor_max_speed) * max_freq);
             set_motor_frequency(mb, hal_get_real(haldata->freq_cmd));
 
-            hal_set_bool(haldata->at_speed, (fabs(speed_cmd - hal_get_real(speed_fb_reg->hal_pin_float)) / speed_cmd) < 0.02);
+            hal_set_bool(haldata->at_speed, (fabs(speed_cmd - hal_get_real(speed_fb_reg->hal_pin_real)) / speed_cmd) < 0.02);
         } else {
             set_motor_off(mb);
             hal_set_bool(haldata->at_speed, 0);

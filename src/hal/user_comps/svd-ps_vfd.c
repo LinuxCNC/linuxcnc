@@ -190,7 +190,7 @@ int set_motor_on_forward(modbus_t *mb) {
             return 0;
         }
         fprintf(stderr, "%s: error writing %u to register 0x%04x: %s\n", __func__, val, addr, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -207,7 +207,7 @@ int set_motor_off(modbus_t *mb) {
             return 0;
         }
         fprintf(stderr, "%s: error writing %u to register 0x%04x: %s\n", __func__, val, addr, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -226,7 +226,7 @@ int set_motor_frequency(modbus_t *mb, float freq) {
             return 0;
         }
         fprintf(stderr, "%s: error writing %u to register 0x%04x: %s\n", __func__, val, addr, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -244,7 +244,7 @@ int read_modbus_register(modbus_t *mb, modbus_register_t *reg) {
             return 0;
         }
         fprintf(stderr, "%s: error reading %s (register 0x%04x): %s\n", __func__, reg->name, reg->address, modbus_strerror(errno));
-        hal_set_ui32(haldata->modbus_errors, hal_get_ui32(haldata->modbus_errors) + 1);
+        hal_set_uint(haldata->modbus_errors, hal_get_uint(haldata->modbus_errors) + 1);
     }
     return -1;
 }
@@ -535,7 +535,7 @@ int main(int argc, char **argv) {
     retval = hal_pin_new_bool(hal_comp_id, HAL_IN, &(haldata->spindle_on), 0, "%s.spindle-on", modname);
     if (retval != 0) goto out_closeHAL;
 
-    retval = hal_pin_new_ui32(hal_comp_id, HAL_OUT, &(haldata->modbus_errors), 0, "%s.modbus-errors", modname);
+    retval = hal_pin_new_uint(hal_comp_id, HAL_OUT, &(haldata->modbus_errors), 0, "%s.modbus-errors", modname);
     if (retval != 0) goto out_closeHAL;
 
     modbus_register = (modbus_register_t *)hal_malloc(20 * sizeof(modbus_register_t));

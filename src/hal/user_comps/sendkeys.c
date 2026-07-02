@@ -44,7 +44,7 @@ typedef struct {
     bool inited;
     int fd;
     bool *prev;
-    rtapi_u32 oldcode;
+    rtapi_uint oldcode;
 } sendkeys_param;
 
 typedef struct {
@@ -59,6 +59,9 @@ void emit(int fd, int type, int code, int val)
 {
    struct input_event ie;
 
+    // The event code is __u16. Therefore, the value is truncated twice. Once
+    // in the call to emit() from rtapi_uint to int and then from int to __u16
+    // below.
    ie.type = type;
    ie.code = code;
    ie.value = val;
@@ -161,13 +164,13 @@ int init(int argc, char* argv[]){
     for (i = 0; i < me->num_insts; i++){
         sendkeys_hal* hal = &(me->hal[i]);
         sendkeys_param* param = &(me->param[i]);
-        if (hal_pin_new_ui32(comp_id, HAL_IN, &(hal->keycode), 0,
+        if (hal_pin_new_uint(comp_id, HAL_IN, &(hal->keycode), 0,
         "sendkeys.%i.keycode", i) < 0) {
         free(codes);
         free(pins);
         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.keycode error\n");
         return -ENOMEM;}
-        if (hal_pin_new_si32(comp_id, HAL_OUT, &(hal->current_event), 0,
+        if (hal_pin_new_sint(comp_id, HAL_OUT, &(hal->current_event), 0,
         "sendkeys.%i.current-event", i) < 0) {
         free(codes);
         free(pins);
@@ -186,7 +189,7 @@ int init(int argc, char* argv[]){
         param->num_events = codes[i] + pins[i];
         hal->event = hal_malloc(param->num_events * sizeof(*hal->event));
         for (j = 0; j < param->num_codes; j++){
-            if (hal_param_new_ui32(comp_id, HAL_RW, &(hal->event[j]), 0,
+            if (hal_param_new_uint(comp_id, HAL_RW, &(hal->event[j]), 0,
                     "sendkeys.%i.scan-event-%02i", i, j) < 0) {
                 free(codes);
                 free(pins);
@@ -194,7 +197,7 @@ int init(int argc, char* argv[]){
                 return -ENOMEM;}
         }
         for (j = 0; j < param->num_triggers; j++){
-            if (hal_param_new_ui32(comp_id, HAL_RW, &(hal->event[j + param->num_codes]), 0,
+            if (hal_param_new_uint(comp_id, HAL_RW, &(hal->event[j + param->num_codes]), 0,
                     "sendkeys.%i.pin-event-%02i", i, j) < 0) {
                 free(codes);
                 free(pins);
@@ -234,11 +237,11 @@ int main(int argc, char* argv[]) {
         for (i = 0; i < me->num_insts; i++){
             sendkeys_hal* hal = &(me->hal[i]);
             sendkeys_param* param = &(me->param[i]);
-            rtapi_u32 kk = hal_get_ui32(hal->keycode);
+            rtapi_uint kk = hal_get_uint(hal->keycode);
             if ((kk & 0xC0) == 0x80){
-                hal_set_si32(hal->current_event, (kk & 0x3f));
+                hal_set_sint(hal->current_event, (kk & 0x3f));
             } else {
-                hal_set_si32(hal->current_event, -1);
+                hal_set_sint(hal->current_event, -1);
             }
             // The event codes are written to pins in HAL after the 
             // component is loaded.
@@ -254,10 +257,11 @@ int main(int argc, char* argv[]) {
                 }
                 ioctl(param->fd, UI_SET_EVBIT, EV_KEY);
                 for (j = 0; j < param->num_events; j++){
-                    rtapi_u32 evj = hal_get_ui32(hal->event[j]);
+                    // Note: The event code is __u16
+                    rtapi_uint evj = hal_get_uint(hal->event[j]);
                     if (evj > 0 && evj < KEY_MAX){
                         ioctl(param->fd, UI_SET_KEYBIT, evj);
-                        rtapi_print("SET_EVBIT %i\n", evj);
+                        rtapi_print("SET_EVBIT %lu\n", (unsigned long)evj);
                     }
                 }
                 struct uinput_user_dev uidev;
@@ -272,16 +276,16 @@ int main(int argc, char* argv[]) {
                 if (ioctl(param->fd, UI_DEV_CREATE) < 0) { perror("ioctl(UI_DEV_CREATE)"); abort(); }
                 param->inited = 1;
             }
-            rtapi_u32 kc = hal_get_ui32(hal->keycode);
+            rtapi_uint kc = hal_get_uint(hal->keycode);
             if (kc != param->oldcode) {
                 /* Key press, report the event, send key release, and report again*/
                 if ((int)(kc & 0x3F) > param->num_events) continue;
-                if (hal_get_ui32(hal->event[kc & 0x3F]) == 0) continue;
+                if (hal_get_uint(hal->event[kc & 0x3F]) == 0) continue;
                 if ((kc & 0xC0) == 0xC0){ // keydown
-                    emit(param->fd, EV_KEY, hal_get_ui32(hal->event[kc & 0x3F]), 1);
+                    emit(param->fd, EV_KEY, hal_get_uint(hal->event[kc & 0x3F]), 1);
                     emit(param->fd, EV_SYN, SYN_REPORT, 0);
                 } else if ((kc & 0xC0) == 0x80){ // keyup
-                    emit(param->fd, EV_KEY, hal_get_ui32(hal->event[kc & 0x3F]), 0);
+                    emit(param->fd, EV_KEY, hal_get_uint(hal->event[kc & 0x3F]), 0);
                     emit(param->fd, EV_SYN, SYN_REPORT, 0);
                 }
                 param->oldcode = kc;
@@ -290,10 +294,10 @@ int main(int argc, char* argv[]) {
                 rtapi_bool trj = hal_get_bool(hal->trigger[j]);
                 if (param->prev[j] != trj){
                     if (trj){ // keydown
-                        emit(param->fd, EV_KEY, hal_get_ui32(hal->event[param->num_codes + j]), 1);
+                        emit(param->fd, EV_KEY, hal_get_uint(hal->event[param->num_codes + j]), 1);
                         emit(param->fd, EV_SYN, SYN_REPORT, 0);
                     } else { // keyup
-                        emit(param->fd, EV_KEY, hal_get_ui32(hal->event[param->num_codes + j]), 0);
+                        emit(param->fd, EV_KEY, hal_get_uint(hal->event[param->num_codes + j]), 0);
                         emit(param->fd, EV_SYN, SYN_REPORT, 0);
                     }
                     param->prev[j] = trj;

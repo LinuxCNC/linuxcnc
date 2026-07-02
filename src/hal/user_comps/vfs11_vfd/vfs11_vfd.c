@@ -345,8 +345,8 @@ static struct option long_options[] = {
 
 void  windup(param_pointer p) 
 {
-    if (p->haldata && hal_get_si32(p->haldata->errorcount)) {
-	fprintf(stderr,"%s: %d modbus errors\n",p->progname, hal_get_si32(p->haldata->errorcount));
+    if (p->haldata && hal_get_sint(p->haldata->errorcount)) {
+	fprintf(stderr,"%s: %ld modbus errors\n",p->progname, (long)hal_get_sint(p->haldata->errorcount));
 	fprintf(stderr,"%s: last command register: 0x%.4x\n",p->progname, p->failed_reg);
 	fprintf(stderr,"%s: last error: %s\n",p->progname, modbus_strerror(p->last_errno));
     }
@@ -529,7 +529,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 	// send 0 to FA00 register - no bus control
 	if (modbus_write_register(ctx, REG_COMMAND1, 0) < 0) {
 	    p->failed_reg = REG_COMMAND1;
-	    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+	    hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 	    p->last_errno = errno;
 	    return errno;
 	}
@@ -618,7 +618,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 	    goto retry;
 	}
 	p->failed_reg = REG_COMMAND1;
-	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+	hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 	p->last_errno = errno;
 	return errno;
     } 
@@ -629,7 +629,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
     if ((modbus_write_register(ctx, REG_FREQUENCY, freq_reg)) < 0) {
 	p->failed_reg = REG_FREQUENCY;
-	hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+	hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
 	p->last_errno = errno;
 	return errno;
     } 
@@ -685,7 +685,7 @@ int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
  failed:
     p->failed_reg = curr_reg;
     p->last_errno = errno;
-    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+    hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
     if (p->debug)
 	fprintf(stderr, "%s: read_initial: modbus_read_registers(0x%4.4x): %s\n", 
 		p->progname, curr_reg, modbus_strerror(errno));
@@ -708,7 +708,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     // we always at least read the main status register SR_INV_OPSTATUS
     // and current operating frequency SR_OP_FREQUENCY
     GETREG(SR_INV_OPSTATUS, &status_reg);
-    hal_set_si32(haldata->status, status_reg);
+    hal_set_sint(haldata->status, status_reg);
 
     GETREG(SR_OP_FREQUENCY, &freq_reg);
     hal_set_real(haldata->freq_out, freq_reg * 0.01);
@@ -721,17 +721,17 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     // determine what to do next.
     if (status_reg & ST_TRIPPED) {		// read and set trip code.
 	GETREG(SR_TRIPCODE, &val);
-	hal_set_si32(haldata->trip_code, val);
+	hal_set_sint(haldata->trip_code, val);
 	// a sensible addition would be to read and convey SR_INV_OPSTATUS_T, the status just before the trip
     } else {
-	hal_set_si32(haldata->trip_code, 0);
+	hal_set_sint(haldata->trip_code, 0);
     }
 
     if (status_reg & ST_ALARMED) {		// read and set alarm bit map.
 	GETREG(SR_ALARM_MONITOR, &val);
-	hal_set_si32(haldata->alarm_code, val);
+	hal_set_sint(haldata->alarm_code, val);
     } else {
-	hal_set_si32(haldata->alarm_code, 0);
+	hal_set_sint(haldata->alarm_code, 0);
     }
 
     if (status_reg & ST_EMERGENCY_STOPPED) {	// set e-stop status.
@@ -766,7 +766,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
  failed:
     p->failed_reg = curr_reg;
     p->last_errno = errno;
-    hal_set_si32(haldata->errorcount, hal_get_si32(haldata->errorcount) + 1);
+    hal_set_sint(haldata->errorcount, hal_get_sint(haldata->errorcount) + 1);
     if (p->debug)
 	fprintf(stderr, "%s: read_data: modbus_read_registers(0x%4.4x): %s\n", 
 		p->progname, curr_reg, modbus_strerror(errno));
@@ -786,7 +786,7 @@ int hal_setup(int id, haldata_t *h, const char *name)
 {
     int status;
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->acc_dec_pattern), 0, "%s.acceleration-pattern", name));
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->alarm_code), 0, "%s.alarm-code", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->alarm_code), 0, "%s.alarm-code", name));
     PIN(hal_pin_new_bool(id, HAL_OUT, &(h->at_speed), 0, "%s.at-speed", name));
     PIN(hal_pin_new_real(id, HAL_OUT, &(h->load_current_pct), 0.0, "%s.current-load-percentage", name));
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->DC_brake), 0, "%s.dc-brake", name));
@@ -808,10 +808,10 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_fwd), 1, "%s.spindle-fwd", name));
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_on), 0, "%s.spindle-on", name));
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->spindle_rev), 0, "%s.spindle-rev", name)); //JET
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->status), 0, "%s.status", name));
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->trip_code), 0, "%s.trip-code", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->status), 0, "%s.status", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->trip_code), 0, "%s.trip-code", name));
     PIN(hal_pin_new_bool(id, HAL_IN, &(h->max_speed), 0, "%s.max-speed", name));
-    PIN(hal_pin_new_si32(id, HAL_OUT, &(h->errorcount), 0, "%s.error-count", name));
+    PIN(hal_pin_new_sint(id, HAL_OUT, &(h->errorcount), 0, "%s.error-count", name));
     PIN(hal_pin_new_real(id, HAL_OUT, &(h->upper_limit_hz), 0.0, "%s.frequency-limit", name));
 
     // the following limit must be set manually from the panel since its in EEPROM
@@ -829,7 +829,7 @@ int set_defaults(param_pointer p)
 {
     haldata_t *h = p->haldata;
 
-    hal_set_si32(h->status, 0);
+    hal_set_sint(h->status, 0);
     hal_set_real(h->freq_cmd, 0);
     hal_set_real(h->freq_out, 0);
     hal_set_real(h->curr_out_pct, 0);
@@ -838,8 +838,8 @@ int set_defaults(param_pointer p)
     hal_set_real(h->inv_load_pct, 0);
     hal_set_real(h->load_current_pct, 0);
     hal_set_real(h->upper_limit_hz, 0);
-    hal_set_si32(h->trip_code, 0);
-    hal_set_si32(h->alarm_code, 0);
+    hal_set_sint(h->trip_code, 0);
+    hal_set_sint(h->alarm_code, 0);
     hal_set_bool(h->at_speed, 0);
     hal_set_bool(h->is_stopped, 0);
     hal_set_bool(h->estop, 0);
@@ -855,7 +855,7 @@ int set_defaults(param_pointer p)
     hal_set_bool(h->jog_mode, 0);
     hal_set_bool(h->enabled, 0);
     hal_set_bool(h->acc_dec_pattern, 0);
-    hal_set_si32(h->errorcount, 0);
+    hal_set_sint(h->errorcount, 0);
     hal_set_bool(h->max_speed, 0);
 
     hal_set_real(h->looptime, 0.1);
