@@ -65,7 +65,7 @@ int hm2_sserial_wait(hostmot2_t *hm2, hm2_sserial_instance_t *inst, long period)
     // real-time wait function (relies on process data)
     *inst->command_reg_write = 0x80000000; // mask pointless writes
     inst->timer -= period;
-    hal_set_si32(inst->debug, inst->timer);
+    hal_set_sint(inst->debug, inst->timer);
     if (*inst->command_reg_read != 0) {
         if (inst->timer > 0) {
             return 1;
@@ -856,7 +856,7 @@ fail0:
 int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int index){
     int r;
 
-    r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->debug),
+    r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(inst->debug),
                          0, "%s.%i.debug", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding pin %s.sserial.%1d.run. aborting\n",
@@ -872,21 +872,21 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
 
-    r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->state),
+    r = hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &(inst->state),
                          0, "%s.sserial.port-%1d.port_state", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding pin %s.sserial.%1d.port_state. aborting\n",
                 r, hm2->llio->name, index);
         return -EINVAL;
     }
-    r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->state2),
+    r = hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &(inst->state2),
                          0, "%s.sserial.port-%1d.port_state2", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding pin %s.sserial.%1d.port_state. aborting\n",
                 r, hm2->llio->name, index);
         return -EINVAL;
     }
-     r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->state3),
+     r = hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &(inst->state3),
                          0, "%s.sserial.port-%1d.port_state3", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding pin %s.sserial.%1d.port_state. aborting\n",
@@ -894,14 +894,14 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
 
-    r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->fault_count),
+    r = hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &(inst->fault_count),
                          0, "%s.sserial.port-%1d.fault-count", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding pin %s.sserial.%1d.fault-count. aborting\n",
                 r, hm2->llio->name, index);
         return -EINVAL;
     }
-    r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->fault_inc),
+    r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(inst->fault_inc),
                            10, "%s.sserial.port-%1d.fault-inc", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding parameter %s.sserial.port-%1d.fault-inc"
@@ -909,7 +909,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
 
-    r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->fault_dec),
+    r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(inst->fault_dec),
                            1, "%s.sserial.port-%1d.fault-dec", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding parameter %s.sserial.port-%1d.fault-dec"
@@ -917,7 +917,7 @@ int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int
         return -EINVAL;
     }
 
-    r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->fault_lim),
+    r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(inst->fault_lim),
                            200, "%s.sserial.port-%1d.fault-lim", hm2->llio->name, index);
     if (r < 0) {
         HM2_ERR("error %d adding parameter %s.sserial.port-%1d.fault-lim"
@@ -1269,13 +1269,13 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_ENCODER:
             case LBP_ENCODER_H:
-                r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].s32_pin),
+                r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].s32_pin),
                                     0, "%s.%s.count", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
                     HM2_ERR("error %d adding pin '%s.%s.count', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
-                r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].s32_pin2),
+                r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].s32_pin2),
                                     0, "%s.%s.rawcounts", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
                     HM2_ERR("error %d adding pin '%s.%s.rawcounts', aborting\n", r, chan->name, chan->confs[i].NameString);
@@ -1308,7 +1308,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     return -EINVAL;
                 }
 
-                r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].u32_param),
+                r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].u32_param),
                                     256, "%s.%s.counts-per-rev", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
                     HM2_ERR("error %d adding pin '%s.%s.counts-per-rev', aborting\n",
@@ -1393,11 +1393,11 @@ fail1:
     hm2_sserial_data_t   *g;
     int shift; // used for floating point comparisons
 
-    switch (hal_get_ui32(inst->state2)){
+    switch (hal_get_uint(inst->state2)){
         case 0: // init loop counters
             inst->r_index = 0;
             inst->g_index = 0;
-            hal_set_ui32(inst->state2, 1);
+            hal_set_uint(inst->state2, 1);
             /* Fallthrough */
         case 1:
             if (inst->num_remotes == 0) return 0;
@@ -1406,15 +1406,15 @@ fail1:
                 p = &(r->params[inst->g_index]);
                 g = &(r->globals[inst->g_index]);
             } else {
-                hal_set_ui32(inst->state2, 2);
+                hal_set_uint(inst->state2, 2);
                 break;
             }
-            switch (hal_get_ui32(inst->state3)){
+            switch (hal_get_uint(inst->state3)){
                 //Commands are queued for TRAM write, so every change in
                 //command needs a break to poll the thread
                 int ret;
                 default:
-                    HM2_ERR("Unhandled state %i", hal_get_ui32(inst->state3));
+                    HM2_ERR("Unhandled state %lu", (unsigned long)hal_get_uint(inst->state3));
                     return 1;
                 case 0:
                     HM2_DBG("Checking Param %s datatype %02X\n", g->NameString, p->type);
@@ -1422,11 +1422,11 @@ fail1:
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
                             if (hal_get_si32(p->param.s) != p->s32_written) break;
-                            return hal_set_ui32(inst->state2, 2); // increment indices
+                            return hal_set_uint(inst->state2, 2); // increment indices
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
                             if (hal_get_ui32(p->param.u) != p->u32_written) break;
-                            return hal_set_ui32(inst->state2, 2); // increment indices
+                            return hal_set_uint(inst->state2, 2); // increment indices
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
                             // comparing floats that might have different sizes is not trivial
@@ -1448,12 +1448,12 @@ fail1:
                                 }
                             // FIXME: This overlayed s64 read is very wrong!
                             if (xlabs((hal_get_sint(p->param.s) - p->s64_written) >> shift) > 2) break;
-                            return hal_set_ui32(inst->state2, 2); // increment indices
+                            return hal_set_uint(inst->state2, 2); // increment indices
                         default:
-                            return hal_set_ui32(inst->state2, 2); // increment indices
+                            return hal_set_uint(inst->state2, 2); // increment indices
                         }
                     HM2_WARN("Writing value of %s datatype %02X\n", g->NameString, p->type);
-                    hal_set_ui32(inst->state3, 1);
+                    hal_set_uint(inst->state3, 1);
                     inst->timer = 20000000;
                     *inst->command_reg_write = 0x800; // stop all
                     break;
@@ -1461,8 +1461,8 @@ fail1:
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then unconditionally assigns 2
-                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
-                    hal_set_ui32(inst->state3, 2);
+                    if (ret < 0) hal_set_uint(inst->state3, 100); // quit and tidy up
+                    hal_set_uint(inst->state3, 2);
                     inst->timer = 20000000;
                     *inst->command_reg_write = 0xF00 | (1 << r->index); // channel in setup mode
                     break;
@@ -1470,7 +1470,7 @@ fail1:
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then 3 or 4 inside the if/else.
-                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
+                    if (ret < 0) hal_set_uint(inst->state3, 100); // quit and tidy up
                     if (   p->type == LBP_NONVOL_FLOAT
                         || p->type == LBP_NONVOL_UNSIGNED
                         || p->type == LBP_NONVOL_SIGNED){
@@ -1478,21 +1478,21 @@ fail1:
                         *r->write[0] = LBPNONVOLEEPROM;
                         *inst->command_reg_write = 0x1000 | (1 << r->index); // doit command
                         inst->timer = 20000000;
-                        hal_set_ui32(inst->state3, 3);
+                        hal_set_uint(inst->state3, 3);
                         HM2_PRINT("A non-volatile smart-serial parameter has been changed\n"
                                         "A full power-cycle will be needed before the effect is seen\n");
                     } else {
-                        hal_set_ui32(inst->state3, 4);
+                        hal_set_uint(inst->state3, 4);
                     }
                     break;
                 case 3: // wait for doit clear
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then unconditionally assigns 4
-                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
+                    if (ret < 0) hal_set_uint(inst->state3, 100); // quit and tidy up
                     // NV access now enabled.
                     HM2_DBG("NV Access unlocked: param %s\n", g->NameString);
-                    hal_set_ui32(inst->state3, 4);
+                    hal_set_uint(inst->state3, 4);
                     break;
                 case 4: // Now send the data
                     switch (p->type){
@@ -1536,13 +1536,13 @@ fail1:
                         }
                     *inst->command_reg_write = 0x1000 | (1 << r->index); // doit command
                     inst->timer = 200000000;
-                    hal_set_ui32(inst->state3, 5);
+                    hal_set_uint(inst->state3, 5);
                     break;
                 case 5: // wait for doit clear
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then 7 or 8 inside the if/else.
-                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
+                    if (ret < 0) hal_set_uint(inst->state3, 100); // quit and tidy up
 
                     // success? Set the written = param
                     switch (p->type){
@@ -1571,54 +1571,54 @@ fail1:
                         *r->write[0] = LBPNONVOLCLEAR;
                         *inst->command_reg_write = 0x1000 | (1 << r->index); // doit command
                         inst->timer = 0x2000000;
-                        hal_set_ui32(inst->state3, 7);
+                        hal_set_uint(inst->state3, 7);
                     } else {
-                        hal_set_ui32(inst->state3, 8);
+                        hal_set_uint(inst->state3, 8);
                     }
                     break;
                 case 7: // wait for doit clear
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then unconditionally assigns 8
-                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
+                    if (ret < 0) hal_set_uint(inst->state3, 100); // quit and tidy up
                     // NV access now cleared
                     HM2_DBG("NV Access Cleared: param %s\n", g->NameString);
-                    hal_set_ui32(inst->state3, 8);
+                    hal_set_uint(inst->state3, 8);
                     break;
                 case 8: // stop-all
                     inst->timer = 0x2000000;
                     *inst->command_reg_write = 0x800; //stop
-                    hal_set_ui32(inst->state3, 9);
+                    hal_set_uint(inst->state3, 9);
                     break;
                 case 9: //wait for final stop-all
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
                     // FIXME: Assigns 100 to state3 and then unconditionally assigns 0
-                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
+                    if (ret < 0) hal_set_uint(inst->state3, 100); // quit and tidy up
                     // NV access now cleared
                     HM2_DBG("Board out of setup mode: param %s\n", g->NameString);
-                    hal_set_ui32(inst->state3, 0);
-                    hal_set_ui32(inst->state2, 2); // increment indices
+                    hal_set_uint(inst->state3, 0);
+                    hal_set_uint(inst->state2, 2); // increment indices
                     break;
                 case 100: // error recovery
                     HM2_ERR("Problem found writing sserial parameter %s\n", g->NameString);
                     *inst->command_reg_write = 0x800; //stop all command
-                    hal_set_ui32(inst->state3, 0);
-                    hal_set_ui32(inst->state2, 2); // increment indices
+                    hal_set_uint(inst->state3, 0);
+                    hal_set_uint(inst->state2, 2); // increment indices
                     break;
             } // End of switch(inst->state3)
         break;
     case 2:
-        hal_set_ui32(inst->state2, 1);
+        hal_set_uint(inst->state2, 1);
         if ((int)++inst->g_index >= inst->remotes[inst->r_index].num_globals){
             inst->g_index = 0;
             if ((int)++inst->r_index >= inst->num_remotes){//checked them all
-                hal_set_ui32(inst->state2, 0);
+                hal_set_uint(inst->state2, 0);
             }
         }
         break;
     } // end of switch(inst->state2)
-    return hal_get_ui32(inst->state2);
+    return hal_get_uint(inst->state2);
 }
 
 void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
@@ -1630,18 +1630,18 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     // the side effect of reporting this error will suffice
     (void)hm2_sserial_check_remote_errors(hm2, inst);
 
-    rtapi_u32 fault_count = hal_get_ui32(inst->fault_count);
-    if (fault_count > hal_get_ui32(inst->fault_lim)) {
+    rtapi_uint fault_count = hal_get_uint(inst->fault_count);
+    if (fault_count > hal_get_uint(inst->fault_lim)) {
         // If there have been a large percentage of misses, for quite
         // a long time, it's time to take it seriously.
         hm2_sserial_check_local_errors(hm2, inst);
         HM2_ERR("Smart Serial Comms Error: "
-                "There have been more than %i errors in %i "
-                "thread executions at least %i times. "
+                "There have been more than %lu errors in %lu "
+                "thread executions at least %lu times. "
                 "See other error messages for details.\n",
-                hal_get_ui32(inst->fault_dec),
-                hal_get_ui32(inst->fault_inc),
-                hal_get_ui32(inst->fault_lim));
+                (unsigned long)hal_get_uint(inst->fault_dec),
+                (unsigned long)hal_get_uint(inst->fault_inc),
+                (unsigned long)hal_get_uint(inst->fault_lim));
         HM2_ERR("***Smart Serial Port %i will be stopped***\n",inst->index);
         static bool printed;
         if(!inst->ever_read && !printed) {
@@ -1651,7 +1651,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                 "This error message will not repeat.\n");
             printed = true;
         }
-        hal_set_ui32(inst->state, 10);
+        hal_set_uint(inst->state, 10);
         *inst->command_reg_write = 0x800; // stop command
         return;
     }
@@ -1665,20 +1665,20 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                     "if this is happening frequently.\n",
                     inst->index, hm2->llio->name, inst->index);
         }
-        fault_count = hal_set_ui32(inst->fault_count, fault_count + hal_get_ui32(inst->fault_inc));
+        fault_count = hal_set_uint(inst->fault_count, fault_count + hal_get_uint(inst->fault_inc));
         *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
         return; // give the register chance to clear
     }
     if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
-        fault_count = hal_set_ui32(inst->fault_count, fault_count + hal_get_ui32(inst->fault_inc));
+        fault_count = hal_set_uint(inst->fault_count, fault_count + hal_get_uint(inst->fault_inc));
     }
 
-    if (fault_count > hal_get_ui32(inst->fault_dec)) {
-        fault_count = hal_set_ui32(inst->fault_count, fault_count - hal_get_ui32(inst->fault_dec));
+    if (fault_count > hal_get_uint(inst->fault_dec)) {
+        fault_count = hal_set_uint(inst->fault_count, fault_count - hal_get_uint(inst->fault_dec));
     }
     else
     {
-        fault_count = hal_set_ui32(inst->fault_count, 0);
+        fault_count = hal_set_uint(inst->fault_count, 0);
     }
 
     // All seems well, handle the pins.
@@ -1775,7 +1775,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
 
         hm2_sserial_instance_t *inst = &(hm2->sserial.instance[i]);
 
-        switch (hal_get_ui32(inst->state) & 0xFF){
+        switch (hal_get_uint(inst->state) & 0xFF){
 
             case 0: // Idle
                 if (! hal_get_bool(inst->run)){ break; }
@@ -1785,18 +1785,18 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 hm2_sserial_setmode(hm2, inst);
                 *inst->command_reg_write = 0x900 | inst->tag;
                 HM2_DBG("Enabled Remotes tag = = %x\n", inst->tag);
-                hal_set_ui32(inst->fault_count, 0);
+                hal_set_uint(inst->fault_count, 0);
                 inst->doit_err_count = 0;
                 inst->timer = 2100000000;
-                hal_set_ui32(inst->state, 2);
+                hal_set_uint(inst->state, 2);
                 break;
             case 2: // just transitioning to running
                 if (hm2_sserial_wait(hm2, inst, period) > 0) break;
-                hal_set_ui32(inst->state, 3);
+                hal_set_uint(inst->state, 3);
                 break;
             case 3: // normal running
                 if (!hal_get_bool(inst->run)){
-                    hal_set_ui32(inst->state, 4);
+                    hal_set_uint(inst->state, 4);
                     break;
                 }
                 hm2_sserial_write_pins(hm2, inst);
@@ -1804,21 +1804,21 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
             case 4: // run to stop transition
                 *inst->command_reg_write = 0x800;
                 inst->timer = 2100000000;
-                hal_set_ui32(inst->state, 5);
+                hal_set_uint(inst->state, 5);
                 break;
             case 5:
                 if (hm2_sserial_wait(hm2, inst, period) > 0) break;
-                hal_set_ui32(inst->state, 0);
+                hal_set_uint(inst->state, 0);
                 break;
             case 10:// Do-nothing state for serious errors. require run pin to cycle
                 *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
-                if ( !hal_get_bool(inst->run)){hal_set_ui32(inst->state, 0);}
+                if ( !hal_get_bool(inst->run)){hal_set_uint(inst->state, 0);}
                 break;
             default: // Should never happen
                 HM2_ERR("Unhandled run/stop configuration in \n"
-                        "hm2_sserial_write (%x)\n",
-                        hal_get_ui32(inst->state));
-                hal_set_ui32(inst->state, 0);
+                        "hm2_sserial_write (%lx)\n",
+                        (unsigned long)hal_get_uint(inst->state));
+                hal_set_uint(inst->state, 0);
         }
     }
 }
@@ -1913,7 +1913,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 int bitlength;
                 rtapi_s32 rem1, rem2;
                 rtapi_s64 previous;
-                rtapi_u32 ppr = hal_get_ui32(pin->u32_param);
+                rtapi_uint ppr = hal_get_uint(pin->u32_param); // halpin.counts-per-rev
 
                 if (conf->DataType == LBP_ENCODER){
                     bitlength = conf->DataLength;
@@ -1976,9 +1976,9 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     }
                 }
                 pin->oldval = buff64;
-                hal_set_si32(pin->s32_pin, pin->accum - pin->offset);
-                hal_set_si32(pin->s32_pin2, pin->accum);
-                hal_set_real(pin->float_pin, (double)(pin->accum - pin->offset) / hal_get_real(pin->fullscale));
+                hal_set_sint(pin->s32_pin, pin->accum - pin->offset); // halpin.count
+                hal_set_sint(pin->s32_pin2, pin->accum); // halpin.rawcounts
+                hal_set_real(pin->float_pin, (pin->accum - pin->offset) / hal_get_real(pin->fullscale));
                 break;
             case LBP_FLOAT:
                 if (conf->DataLength == sizeof(float) * 8){
@@ -2014,7 +2014,7 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
     for (i = 0 ; i < hm2->sserial.num_instances ; i++){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
         inst->ever_read = true;
-        if (hal_get_ui32(inst->state) != 3) continue ; // Only work on running instances
+        if (hal_get_uint(inst->state) != 3) continue ; // Only work on running instances
         for (c = 0 ; c < inst->num_remotes ; c++ ) {
             hm2_sserial_remote_t *chan = &inst->remotes[c];
             hm2_sserial_read_pins(chan);

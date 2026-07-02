@@ -75,24 +75,24 @@ void hm2_oneshot_update_rate(hostmot2_t *hm2, int i) {
 
 void hm2_oneshot_update_control(hostmot2_t *hm2, int i) {
     rtapi_u32 controlbuff;
-    if(hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect1) > 7) {
+    if(hal_get_uint(hm2->oneshot.instance[i].hal.pin.trigselect1) > 7) {
         HM2_ERR("oneshot %d has invalid trigger 1 select value , resetting to 0\n", i);
-		  hal_set_ui32(hm2->oneshot.instance[i].hal.pin.trigselect1, 0);
+            hal_set_uint(hm2->oneshot.instance[i].hal.pin.trigselect1, 0);
     }     
-	 if(hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect2) > 7) {
-	     HM2_ERR("oneshot %d has invalid trigger 2 select value , resetting to 0\n", i);
-		  hal_set_ui32(hm2->oneshot.instance[i].hal.pin.trigselect2, 0);
+    if(hal_get_uint(hm2->oneshot.instance[i].hal.pin.trigselect2) > 7) {
+        HM2_ERR("oneshot %d has invalid trigger 2 select value , resetting to 0\n", i);
+            hal_set_uint(hm2->oneshot.instance[i].hal.pin.trigselect2, 0);
     }     
     controlbuff = 0;
-    controlbuff |= (hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect1) << 0);
+    controlbuff |= (hal_get_uint(hm2->oneshot.instance[i].hal.pin.trigselect1) << 0);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigrise1) << 3);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigfall1) << 4);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.retrig1) << 5);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.enable1) << 6);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.reset1) << 7);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.swtrig1) << 10);
-    controlbuff |= ((hal_get_si32(hm2->oneshot.instance[i].hal.pin.dpll_timer_num) & 7) << 12);
-    controlbuff |= (hal_get_ui32(hm2->oneshot.instance[i].hal.pin.trigselect2) << 16);
+    controlbuff |= ((hal_get_sint(hm2->oneshot.instance[i].hal.pin.dpll_timer_num) & 7) << 12);
+    controlbuff |= (hal_get_uint(hm2->oneshot.instance[i].hal.pin.trigselect2) << 16);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigrise2) << 19);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.trigfall2) << 20);
     controlbuff |= (hal_get_bool(hm2->oneshot.instance[i].hal.pin.retrig2) << 21);
@@ -300,21 +300,21 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect1),
+            r = hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect1),
                                  0, "%s.oneshot.%02d.trigger_select1", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_select1', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect2),
+            r = hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect2),
                                  0, "%s.oneshot.%02d.trigger_select2", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.oneshot.%02d.trigger_select2', aborting\n", r, hm2->llio->name, i);
                 goto fail1;
             }
 
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.dpll_timer_num),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.dpll_timer_num),
                                  0, "%s.oneshot.%02d.dpll_timer_number", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.oneshot.%02d.dpll_timer_number', aborting\n", r, hm2->llio->name, i);

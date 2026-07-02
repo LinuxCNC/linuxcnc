@@ -88,13 +88,13 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
      * +-500ppm from its nominal value, usually by timekeeping software like ntp
      * and ntpdate.
      */
-    r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->dpll.pins->time_const),
+    r += hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &(hm2->dpll.pins->time_const),
             2000, "%s.dpll.time-const", hm2->llio->name);
-    r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->dpll.pins->plimit),
+    r += hal_pin_new_uint(hm2->llio->comp_id, HAL_IN, &(hm2->dpll.pins->plimit),
             0x400000, "%s.dpll.plimit", hm2->llio->name);
-    r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(hm2->dpll.pins->ddssize),
+    r += hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &(hm2->dpll.pins->ddssize),
             0, "%s.dpll.ddsize", hm2->llio->name);
-    r += hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(hm2->dpll.pins->prescale),
+    r += hal_pin_new_uint(hm2->llio->comp_id, HAL_OUT, &(hm2->dpll.pins->prescale),
             1, "%s.dpll.prescale", hm2->llio->name);
     if (r < 0) {
         HM2_ERR("error adding hm2_dpll timer pins, Aborting\n");
@@ -130,7 +130,7 @@ void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
     
     hal_set_real(pins->phase_error, (rtapi_s32)*hm2->dpll.hm2_dpll_sync_reg
             * (period / 4294967296000.00));
-    hal_set_ui32(pins->ddssize, *hm2->dpll.control_reg1_read & 0xFF);
+    hal_set_uint(pins->ddssize, *hm2->dpll.control_reg1_read & 0xFF);
 }
 
 void hm2_dpll_write(hostmot2_t *hm2, long period) {
@@ -158,12 +158,15 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         base_freq = hal_set_real(pins->base_freq, 1000.0/period_us);
     }
 
-    rtapi_u32 ddssize = hal_get_ui32(pins->ddssize);
+    // FIXME: The ddssize is an 8-bit value, but the use below using
+    // '1LL << ddssize' can create a zero value when 'ddssize >= 64'.
+    // That will subsequently result in a divide by zero.
+    rtapi_u32 ddssize = hal_get_uint(pins->ddssize);
     rtapi_u32 prescale = (0x40000000LL * hm2->dpll.clock_frequency)
                     / ((1LL << ddssize) * base_freq * 1000.0);
 
     if (prescale < 1) prescale = 1;
-    hal_set_ui32(pins->prescale, prescale);
+    hal_set_uint(pins->prescale, prescale);
     
     buff = (rtapi_u32)((base_freq * 1000.0
             * (1LL << ddssize) 
@@ -177,8 +180,9 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
                 sizeof(rtapi_u32));
         hm2->dpll.base_rate_written= buff;
     }
+    // ControlReg0: 31..24: prescale, 23..0: PLimit(W)/PError(R)
     buff = (rtapi_u32)(prescale << 24
-                | hal_get_ui32(pins->plimit));
+                | (hal_get_uint(pins->plimit) & 0xffffff));
     if (buff != hm2->dpll.control_reg0_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.control_reg0_addr,
@@ -186,7 +190,8 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
                 sizeof(rtapi_u32));
         hm2->dpll.control_reg0_written= buff;
     }
-    buff = (rtapi_u32)(hal_get_ui32(pins->time_const) << 16);
+    // ControlReg1: 31..16: time_const, 15..8: unused, 7..0: ddssize (R/O)
+    buff = (rtapi_u32)(hal_get_uint(pins->time_const) << 16);
     if (buff != hm2->dpll.control_reg1_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.control_reg1_addr,

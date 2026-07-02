@@ -32,7 +32,7 @@
 
 
 void hm2_periodm_update_limit(hostmot2_t *hm2, int i) {
-    rtapi_u32 averages = hal_get_ui32(hm2->periodm.instance[i].hal.pin.averages);
+    rtapi_uint averages = hal_get_uint(hm2->periodm.instance[i].hal.pin.averages);
     rtapi_real minfreq = hal_get_real(hm2->periodm.instance[i].hal.pin.minfreq);
     hm2->periodm.limit_reg[i] =  ((double)hm2->periodm.clock_frequency / minfreq) * averages;
     if ((((double)hm2->periodm.clock_frequency / minfreq) * averages ) > 0xFFFFFFFF) {
@@ -45,7 +45,7 @@ void hm2_periodm_update_limit(hostmot2_t *hm2, int i) {
 void hm2_periodm_update_mode(hostmot2_t *hm2, int i) {
     rtapi_u32 modebuff;
     rtapi_u32 filterclocks;
-    rtapi_u32  averages = hal_get_ui32(hm2->periodm.instance[i].hal.pin.averages);
+    rtapi_uint averages = hal_get_uint(hm2->periodm.instance[i].hal.pin.averages);
     filterclocks = (double)hal_get_real(hm2->periodm.instance[i].hal.pin.filtertc) * ((double)hm2->periodm.clock_frequency / (double)1e6);
     if (filterclocks > 0xFFFF) {
         HM2_ERR("periodm %d has invalid filter time constant, resetting to max\n", i);
@@ -54,18 +54,18 @@ void hm2_periodm_update_mode(hostmot2_t *hm2, int i) {
     }
     if (averages > 0xFFF) {
         HM2_ERR("periodm %d has invalid averages number, resetting to max\n", i);
-        averages = hal_set_ui32(hm2->periodm.instance[i].hal.pin.averages, 0xFFF);
+        averages = hal_set_uint(hm2->periodm.instance[i].hal.pin.averages, 0xFFF);
     }    
     if (averages < 1) {
         HM2_ERR("periodm %d has invalid averages number, resetting to min\n", i);
-        averages = hal_set_ui32(hm2->periodm.instance[i].hal.pin.averages, 1);
+        averages = hal_set_uint(hm2->periodm.instance[i].hal.pin.averages, 1);
     }    
     modebuff = 0;
     modebuff |= (hal_get_bool(hm2->periodm.instance[i].hal.pin.polarity) << 0);
-    modebuff |= ((averages-1) << 4);
+    modebuff |= (rtapi_u32)((averages-1) << 4);
     modebuff |= (filterclocks << 16);
  
-	 hm2->periodm.mode_write_reg[i] = modebuff;
+    hm2->periodm.mode_write_reg[i] = modebuff;
 }
 
 void hm2_periodm_update_regs(hostmot2_t *hm2) {
@@ -259,7 +259,7 @@ int hm2_periodm_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IO, &(hm2->periodm.instance[i].hal.pin.averages),
+            r = hal_pin_new_uint(hm2->llio->comp_id, HAL_IO, &(hm2->periodm.instance[i].hal.pin.averages),
                                  1, "%s.periodm.%02d.averages", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.periodm.%02d.averages', aborting\n", r, hm2->llio->name, i);
@@ -346,7 +346,7 @@ void hm2_periodm_process_tram_read(hostmot2_t *hm2) {
     int i;
     rtapi_u32 mode = 0;
     for (i = 0; i < hm2->periodm.num_instances; i ++) {
-        rtapi_u32 averages = hal_get_ui32(hm2->periodm.instance[i].hal.pin.averages);
+        rtapi_uint averages = hal_get_uint(hm2->periodm.instance[i].hal.pin.averages);
         mode = hm2->periodm.mode_read_reg[i];
 //        hal_set_bool(hm2->periodm.instance[i].hal.pin.polarity, (mode & (1 << 0)) != 0);
         hal_set_bool(hm2->periodm.instance[i].hal.pin.valid, (mode & (1 << 1)) != 0);

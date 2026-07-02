@@ -186,21 +186,21 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
         temp  = (temp & 0x0000001f) +1;
         inst->scanwidth = temp;
         // init 20000: 20 KHz = 50 usec/scan
-        r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.scan_rate),
+        r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.scan_rate),
                                20000, "%s.inm.%02d.scan_rate", hm2->llio->name, i);
         if (r < 0) {
             HM2_ERR("error %d adding param '%s.inm.%02d.scan_rate', aborting\n", r, hm2->llio->name, i);
             goto fail1;
         }
         // init 500: 500*50 usec = 25 ms
-        r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.slow_scans),
+        r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.slow_scans),
                                500, "%s.inm.%02d.slow_scans", hm2->llio->name, i);
         if (r < 0) {
             HM2_ERR("error %d adding param '%s.inm.%02d.slow_scans', aborting\n", r, hm2->llio->name, i);
             goto fail1;
         }
         // init 5: 5*50 usec = 250 usec
-        r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.fast_scans),
+        r = hal_param_new_uint(hm2->llio->comp_id, HAL_RW, &(inst->hal.param.fast_scans),
                                5, "%s.inm.%02d.fast_scans", hm2->llio->name, i);
         if (r < 0) {
             HM2_ERR("error %d adding param '%s.inm.%02d.fast_scans', aborting\n", r, hm2->llio->name, i);
@@ -267,7 +267,8 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
             }
         }
 
-        r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RO, &(inst->hal.param.scan_width),
+        // FIXME: The scan_width is not used anywhere
+        r = hal_param_new_uint(hm2->llio->comp_id, HAL_RO, &(inst->hal.param.scan_width),
                                temp, "%s.inm.%02d.scan_width", hm2->llio->name, i);
         if (r < 0) {
             HM2_ERR("error %d adding param '%s.inm.%02d.scan_width', aborting\n", r, hm2->llio->name, i);
@@ -320,7 +321,7 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
             }
         }
         if (inst->enc0_present) {
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc0_count),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc0_count),
                                  0, "%s.inm.%02d.enc0-count", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.inm.%02d.enc0-count', aborting\n", r, hm2->llio->name, i);
@@ -335,7 +336,7 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
         }
 
         if (inst->enc1_present) {
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc1_count),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc1_count),
                                  0, "%s.inm.%02d.enc1-count", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.inm.%02d.enc1-count', aborting\n", r, hm2->llio->name, i);
@@ -350,7 +351,7 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
         }
 
         if (inst->enc2_present) {
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc2_count),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc2_count),
                                  0, "%s.inm.%02d.enc2-count", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.inm.%02d.enc2-count', aborting\n", r, hm2->llio->name, i);
@@ -364,7 +365,7 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
               }
         }
         if (inst->enc3_present) {
-            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc3_count),
+            r = hal_pin_new_sint(hm2->llio->comp_id, HAL_OUT, &(inst->hal.pin.enc3_count),
                                  0, "%s.inm.%02d.enc3-count", hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error %d adding pin '%s.inm.%02d.enc3-count', aborting\n", r, hm2->llio->name, i);
@@ -418,19 +419,19 @@ void hm2_inm_force_write(hostmot2_t *hm2) {
     // setup control register and mpg_write
     for (i = 0; i < hm2->inm.num_instances; i ++) {
         hm2_inm_instance_t *inst = &hm2->inm.instance[i];
-        scanrate = inst->scanwidth * hal_get_ui32(inst->hal.param.scan_rate);
+        scanrate = inst->scanwidth * hal_get_uint(inst->hal.param.scan_rate);
 	if (scanrate > 10000000) {
             scanrate = 10000000;
-	    hal_set_ui32(inst->hal.param.scan_rate, scanrate/inst->scanwidth);
+	    hal_set_uint(inst->hal.param.scan_rate, scanrate/inst->scanwidth);
         }
         divisor = (hm2->inm.clock_frequency / (4 * scanrate)) - 1;
-        rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
+        rtapi_uint fast_scans = hal_get_uint(inst->hal.param.fast_scans);
 	if (fast_scans > 63) {
-            fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 63);
+            fast_scans = hal_set_uint(inst->hal.param.fast_scans, 63);
         }
-        rtapi_u32 slow_scans = hal_get_ui32(inst->hal.param.slow_scans);
+        rtapi_uint slow_scans = hal_get_uint(inst->hal.param.slow_scans);
         if (slow_scans > 1023) {
-            slow_scans = hal_set_ui32(inst->hal.param.slow_scans, 1023);
+            slow_scans = hal_set_uint(inst->hal.param.slow_scans, 1023);
         }
 
         // global invert bit(5) fixed to true for now as this matches all existing hardware
@@ -465,37 +466,37 @@ void hm2_inm_write(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->inm.num_instances; i ++) {
         hm2_inm_instance_t *inst = &hm2->inm.instance[i];
-        scanrate = inst->scanwidth * hal_get_ui32(inst->hal.param.scan_rate);
+        scanrate = inst->scanwidth * hal_get_uint(inst->hal.param.scan_rate);
 //      bound scanrate maximum frequency
 	if (scanrate > 10000000) {
             scanrate = 10000000;
-	    hal_set_ui32(inst->hal.param.scan_rate, scanrate/inst->scanwidth);
-            HM2_ERR("inm %d scanrate too high, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
+	    hal_set_uint(inst->hal.param.scan_rate, scanrate/inst->scanwidth);
+            HM2_ERR("inm %d scanrate too high, resetting to %lu \n", i, (unsigned long)hal_get_uint(inst->hal.param.scan_rate));
         }
         divisor = (hm2->inm.clock_frequency / (4 * scanrate)) - 1;
 //      bound divisor so we dont splatter into other fields
 	if ((divisor > 1023 ) | (scanrate == 0 )) {
             divisor = 1023;
-	    hal_set_ui32(inst->hal.param.scan_rate, (hm2->inm.clock_frequency/4)/(divisor +1)
+	    hal_set_uint(inst->hal.param.scan_rate, (hm2->inm.clock_frequency/4)/(divisor +1)
             /inst->scanwidth);
-            HM2_ERR("inm %d scanrate too low, resetting to %d \n", i, hal_get_ui32(inst->hal.param.scan_rate));
+            HM2_ERR("inm %d scanrate too low, resetting to %lu \n", i, (unsigned long)hal_get_uint(inst->hal.param.scan_rate));
         }
-        rtapi_u32 fast_scans = hal_get_ui32(inst->hal.param.fast_scans);
+        rtapi_uint fast_scans = hal_get_uint(inst->hal.param.fast_scans);
 	if (fast_scans > 63) {
-            fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 63);
+            fast_scans = hal_set_uint(inst->hal.param.fast_scans, 63);
             HM2_ERR("inm %d fastscans must be less than 63, resetting to %d \n", i,63);
         }
-        rtapi_u32 slow_scans = hal_get_ui32(inst->hal.param.slow_scans);
+        rtapi_uint slow_scans = hal_get_uint(inst->hal.param.slow_scans);
         if (slow_scans > 1023) {
-            slow_scans = hal_set_ui32(inst->hal.param.slow_scans, 1023);
+            slow_scans = hal_set_uint(inst->hal.param.slow_scans, 1023);
             HM2_ERR("inm %d slowscans  must be less than 1023, resetting to %d \n", i,1023);
         }
         if (fast_scans < 1 ) {
-            fast_scans = hal_set_ui32(inst->hal.param.fast_scans, 1);
+            fast_scans = hal_set_uint(inst->hal.param.fast_scans, 1);
             HM2_ERR("inm %d fastscans must be greater than 0, resetting to %d \n", i,1);
         }
         if (slow_scans < 1) {
-            slow_scans = hal_set_ui32(inst->hal.param.slow_scans, 1);
+            slow_scans = hal_set_uint(inst->hal.param.slow_scans, 1);
             HM2_ERR("inm %d slowscans must be greater than 0, resetting to %d \n", i,1);
         }
 
@@ -579,9 +580,9 @@ void hm2_inm_process_tram_read(hostmot2_t *hm2) {
             if (count_diff >  128) count_diff -= 256;
             if (count_diff < -128) count_diff += 256;
             if (!hal_get_bool(inst->hal.pin.enc0_reset)) {
-                hal_set_si32(inst->hal.pin.enc0_count, hal_get_si32(inst->hal.pin.enc0_count) + count_diff);
+                hal_set_sint(inst->hal.pin.enc0_count, hal_get_sint(inst->hal.pin.enc0_count) + count_diff);
             } else {
-                hal_set_si32(inst->hal.pin.enc0_count, 0);
+                hal_set_sint(inst->hal.pin.enc0_count, 0);
             }
         }
 
@@ -592,9 +593,9 @@ void hm2_inm_process_tram_read(hostmot2_t *hm2) {
             if (count_diff >  128) count_diff -= 256;
             if (count_diff < -128) count_diff += 256;
             if (!hal_get_bool(inst->hal.pin.enc1_reset)) {
-                hal_set_si32(inst->hal.pin.enc1_count, hal_get_si32(inst->hal.pin.enc1_count) + count_diff);
+                hal_set_sint(inst->hal.pin.enc1_count, hal_get_sint(inst->hal.pin.enc1_count) + count_diff);
             } else {
-                hal_set_si32(inst->hal.pin.enc1_count, 0);
+                hal_set_sint(inst->hal.pin.enc1_count, 0);
             }
         }
 
@@ -605,9 +606,9 @@ void hm2_inm_process_tram_read(hostmot2_t *hm2) {
             if (count_diff >  128) count_diff -= 256;
             if (count_diff < -128) count_diff += 256;
             if (!hal_get_bool(inst->hal.pin.enc2_reset)) {
-                hal_set_si32(inst->hal.pin.enc2_count, hal_get_si32(inst->hal.pin.enc2_count) + count_diff);
+                hal_set_sint(inst->hal.pin.enc2_count, hal_get_sint(inst->hal.pin.enc2_count) + count_diff);
             } else {
-                hal_set_si32(inst->hal.pin.enc2_count, 0);
+                hal_set_sint(inst->hal.pin.enc2_count, 0);
             }
         }
 
@@ -618,9 +619,9 @@ void hm2_inm_process_tram_read(hostmot2_t *hm2) {
             if (count_diff >  128) count_diff -= 256;
             if (count_diff < -128) count_diff += 256;
             if (!hal_get_bool(inst->hal.pin.enc3_reset)) {
-                hal_set_si32(inst->hal.pin.enc3_count, hal_get_si32(inst->hal.pin.enc3_count) + count_diff);
+                hal_set_sint(inst->hal.pin.enc3_count, hal_get_sint(inst->hal.pin.enc3_count) + count_diff);
             } else {
-                hal_set_si32(inst->hal.pin.enc3_count, 0);
+                hal_set_sint(inst->hal.pin.enc3_count, 0);
             }
         }
     }

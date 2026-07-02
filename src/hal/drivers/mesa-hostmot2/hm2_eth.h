@@ -74,7 +74,7 @@ struct hm2_eth_t {
     // Set when a queued write has set write_cnt in the board
     int has_written_cnt;
 
-    int comm_error_counter;
+    rtapi_sint comm_error_counter;
     uint16_t old_rxudpcount, rxudpcount;
     struct arpreq req;
 
