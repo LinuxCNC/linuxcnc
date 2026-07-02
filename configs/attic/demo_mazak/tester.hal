@@ -75,45 +75,45 @@ quit
 # LEDs and/or switches to, included here for reference only
 
 # spindle related signals: "internal" signal
-#newsig sp-index-enable bit
-#newsig sp-orient-pos-ok bit
-#newsig sp-engage-high-gear bit
-#newsig sp-engage-low-gear bit
-#newsig sp-in-high-gear bit
-#newsig sp-in-low-gear bit
-#newsig sp-in-neutral bit
-#newsig sp-shifting bit
-#newsig sp-at-speed bit
+#newsig sp-index-enable bool
+#newsig sp-orient-pos-ok bool
+#newsig sp-engage-high-gear bool
+#newsig sp-engage-low-gear bool
+#newsig sp-in-high-gear bool
+#newsig sp-in-low-gear bool
+#newsig sp-in-neutral bool
+#newsig sp-shifting bool
+#newsig sp-at-speed bool
 
 # misc control
 # tool change location push button operators
-#newsig worklight-pbs bit
+#newsig worklight-pbs bool
 
 # add front panel buttons here
 
 
 # hydraulic pump
-#newsig hydraulic-pump-run bit
-#newsig hydraulic-pump-running bit
+#newsig hydraulic-pump-run bool
+#newsig hydraulic-pump-running bool
 
 # add a temporary signal to rotate by one.
-#newsig forward-one bit
+#newsig forward-one bool
 
 # hydraulic valves
-#newsig arm-extend bit
-#newsig arm-retract bit
-#newsig arm-60cw bit
-#newsig arm-180ccw bit
-#newsig tool-load bit
-#newsig tool-unload bit
-#newsig magazine-forward bit
-#newsig magazine-reverse bit
-#newsig tool-unclamp bit
-#newsig head-unclamp bit
+#newsig arm-extend bool
+#newsig arm-retract bool
+#newsig arm-60cw bool
+#newsig arm-180ccw bool
+#newsig tool-load bool
+#newsig tool-unload bool
+#newsig magazine-forward bool
+#newsig magazine-reverse bool
+#newsig tool-unclamp bool
+#newsig head-unclamp bool
 
 # other solenoids and such
-#newsig spindle-air-blast bit
-#newsig work-air-blast bit
-#newsig mist-coolant bit
-#newsig flood-coolant bit
+#newsig spindle-air-blast bool
+#newsig work-air-blast bool
+#newsig mist-coolant bool
+#newsig flood-coolant bool
 

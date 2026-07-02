@@ -1558,7 +1558,7 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
     t.after(100, lambda: t.set_viewangle(lat, lon, forcerotate=1))
 
     vcomp = hal.component("vismach")
-    vcomp.newpin("plotclear",hal.HAL_BIT,hal.HAL_IN)
+    vcomp.newpin("plotclear",hal.Type.BOOL,hal.Dir.IN)
     vcomp.ready()
 
     #there's probably a better way of doing this

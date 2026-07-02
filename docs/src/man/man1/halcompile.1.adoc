@@ -73,6 +73,8 @@ components.
 Extra arguments passed to the C-compiler.
 *--extra-link-args*=_args_::
 Extra arguments passed to the linker.
+*-w*,*--werror*::
+Treat warnings as errors.
 
 == DESCRIPTION
 

@@ -147,7 +147,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("counter.update-counters", update,
-	counter_array, 0, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: count funct export failed\n");
@@ -155,7 +155,7 @@ int rtapi_app_main(void)
 	return -EIO;
     }
     retval = hal_export_funct("counter.capture-position", capture,
-	counter_array, 1, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: capture funct export failed\n");

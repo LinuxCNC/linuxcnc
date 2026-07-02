@@ -128,8 +128,8 @@ Originally the vismach library required creating a component and connecting HAL 
 [source,python]
 ----
 c = hal.component("samplegui")
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 ----
 
@@ -470,7 +470,7 @@ Some of the available HalHUD function: +
 
 [source,python]
 ----
-comp.newpin("hide-chuck", hal.HAL_BIT, hal.HAL_IN)
+comp.newpin("hide-chuck", hal.Type.BOOL, hal.Dir.IN)
 # <snip make a machine with an A axis chuck assembly>
 chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
 # also can be used like this
@@ -569,7 +569,7 @@ STATUS = Status()
 
 # create HAL pins here if needed
 #c = hal.component("samplegui")
-#c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
+#c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
 
 # create the floor, tool and work
 floor = Box(-50, -50, -3, 50, 50, 0)

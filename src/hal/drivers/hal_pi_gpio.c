@@ -330,16 +330,14 @@ int rtapi_app_main(void)
       return -1;
     }
 
-    retval = hal_export_funct("hal_pi_gpio.write", write_port, 0,
-			      0, 0, comp_id);
+    retval = hal_export_funct("hal_pi_gpio.write", write_port, 0, 0, comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_PI_GPIO: ERROR: write funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("hal_pi_gpio.read", read_port, 0,
-			      0, 0, comp_id);
+    retval = hal_export_funct("hal_pi_gpio.read", read_port, 0, 0, comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_PI_GPIO: ERROR: read funct export failed\n");

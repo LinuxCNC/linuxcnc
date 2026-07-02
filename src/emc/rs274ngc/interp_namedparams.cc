@@ -326,8 +326,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     assign:
     switch (type) {
     case HAL_BOOL: *value = (double)qval.b; break;
-    case HAL_U32:  *value = (double)qval.u; break;
-    case HAL_S32:  *value = (double)qval.s; break;
     case HAL_UINT: *value = (double)qval.u; break;
     case HAL_SINT: *value = (double)qval.s; break;
     case HAL_REAL: *value = (double)qval.r; break;

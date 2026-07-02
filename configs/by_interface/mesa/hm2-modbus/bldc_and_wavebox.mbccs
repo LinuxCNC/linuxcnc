@@ -58,9 +58,9 @@
     <command device="wavebox" function="R_INPUTS" address="0x0000" count="8" name="switch" />
     <!-- Gives us the following pins:
         - Eight switch inputs on the box are HAL output pins
-            * hm2_modbus.0.wavebox.switch-00 (out, HAL_BIT)
+            * hm2_modbus.0.wavebox.switch-00 (out, HAL_BOOL)
             * ...
-            * hm2_modbus.0.wavebox.switch-07 (out, HAL_BIT)
+            * hm2_modbus.0.wavebox.switch-07 (out, HAL_BOOL)
     -->
 
     <!--
@@ -74,9 +74,9 @@
     <command device="wavebox" function="W_COILS" address="0x0000" count="8" name="relay" />
     <!-- Gives us the following pins:
         - Eight relay outputs on the box are HAL input pins
-            * hm2_modbus.0.wavebox.relay-00 (in, HAL_BIT)
+            * hm2_modbus.0.wavebox.relay-00 (in, HAL_BOOL)
             * ...
-            * hm2_modbus.0.wavebox.relay-07 (in, HAL_BIT)
+            * hm2_modbus.0.wavebox.relay-07 (in, HAL_BOOL)
     -->
   </commands>
 </mesamodbus>

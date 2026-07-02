@@ -787,7 +787,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     addr->state = STATE_PID;
 #endif /* AUTO_TUNER */
     /* export function for this loop */
-    retval = hal_export_functf(calc_pid, addr, 1, 0, comp_id, "%s.do-pid-calcs", prefix);
+    retval = hal_export_functf(calc_pid, addr, 0, comp_id, "%s.do-pid-calcs", prefix);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: do_pid_calcs funct export failed\n");
         hal_exit(comp_id);

@@ -255,13 +255,11 @@ int set_channel_source(int chan_num, int type, char *name)
 	chan->min_index = -36;
 	chan->max_index = 36;
 	break;
-    case HAL_S32:
     case HAL_SINT:
 	chan->data_len = sizeof(scope_data_t);
 	chan->min_index = -2;
 	chan->max_index = 30;
 	break;
-    case HAL_U32:
     case HAL_UINT:
 	chan->data_len = sizeof(scope_data_t);
 	chan->min_index = -2;

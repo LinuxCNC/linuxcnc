@@ -44,18 +44,18 @@ The method input pin selects an alternate variance calculation.
 Maintainers note: hardcoded for MAXBINNUMBER==200
 """; //" To make vim happy in syntax=c mode
 
-pin in  ui32 pintype;
+pin in  uint pintype;
 pin in  real input;
-pin in  si32 input_s32;
-pin in  ui32 input_u32;
+pin in  sint input_s32;
+pin in  uint input_u32;
 pin in  bool input_bit;
 
-pin in  ui32 nbins    = 20; // must be < MAXBINNUMBER
+pin in  uint nbins    = 20; // must be < MAXBINNUMBER
 pin in  real binsize  = 1;
 pin in  real minvalue = 0;
 
-pin in  si32 index; // use s32 to avoid 0x hex display in hal
-pin out si32 check; // use s32 to avoid 0x hex display in hal
+pin in  sint index; // use sint to avoid 0x hex display in hal
+pin out sint check; // use sint to avoid 0x hex display in hal
 pin in  bool reset;
 pin in  bool method;
 
@@ -66,19 +66,19 @@ pin out real nextra;
 pin out real input_min;
 pin out real input_max;
 
-pin out ui32 nsamples;
+pin out uint nsamples;
 pin out real variance;
 pin out real mean;
 
 // user may interrogate availablebins to determine this compiled-in limit
-pin out si32 availablebins = 200; //MAXBINNUMBER
+pin out sint availablebins = 200; //MAXBINNUMBER
 
 option period no;
 function _;
 
-variable int bin[200]; // MAXBINNUMBER
+variable rtapi_sint bin[200]; // MAXBINNUMBER
 variable int first = 1;
-variable unsigned last_nbins    = 0;
+variable rtapi_uint last_nbins    = 0;
 
 variable rtapi_real maxvalue;
 
@@ -97,7 +97,7 @@ rtapi_real invalue;
 unsigned i;
 int idx;
 check_set(index);
-if (   (nbins > (unsigned)availablebins)
+if (   (nbins > (rtapi_uint)availablebins)
     || (nbins < 1)
    ) {
   input_error_set(1);
@@ -152,7 +152,7 @@ check_set(index); // user should verify check==index for reading values
 // -1 value indicates illegal index
 if (index < 0) {
   binvalue_set(-1);
-} else if (index < (int)nbins) {
+} else if (index < (rtapi_sint)nbins) {
   binvalue_set(bin[index]);
 } else {
   binvalue_set(-1);

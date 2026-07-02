@@ -25,8 +25,8 @@ component multiswitch           """This component toggles between a specified nu
 pin in bool up = false           "Receives signal to toggle up";
 pin in bool down = false         "Receives signal to toggle down";
 
-param rw ui32 top-position  "Number of positions";
-param rw si32 position      "Current state (may be set in the HAL)";
+param rw uint top-position  "Number of positions";
+param rw sint position      "Current state (may be set in the HAL)";
 
 pin out bool bit-##[32:personality] = false       "Output bits";
 

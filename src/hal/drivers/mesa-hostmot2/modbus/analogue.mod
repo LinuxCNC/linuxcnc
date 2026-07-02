@@ -6,7 +6,7 @@ The format of the channel descriptors is:
 
 {TYPE, FUNC, ADDR, COUNT, pin_name}
 
-TYPE is one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, ENCODER
+TYPE is one of HAL_BOOL, HAL_REAL, HAL_SINT, HAL_UINT, ENCODER
 FUNC = 1, 2, 3, 4, 5, 6, 15, 16 - Modbus commands
 COUNT = number of coils/registers to read
 */
@@ -15,7 +15,7 @@ COUNT = number of coils/registers to read
 
 static const hm2_modbus_chan_descriptor_t channels[] = {
 /*  {TYPE,    FUNC, ADDR,   COUNT, pin_name} */
-    {HAL_FLOAT, 3,  0x0000, 1,     "volts"},
+    {HAL_REAL, 3,  0x0000, 1,     "volts"},
 };
 
 /* Optionally #define DEBUG to aid with troubleshooting.

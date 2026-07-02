@@ -98,7 +98,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         try:
-            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
+            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.Type.REAL, hal.Dir.OUT)
         except:
             pass
         if LIB_GOOD:

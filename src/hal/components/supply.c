@@ -190,7 +190,7 @@ static int export_supply(int num, hal_supply_t * addr)
     }
     /* export function for this loop */
     retval =
-	hal_export_functf(update_supply, &(supply_array[num]), 1, 0,
+	hal_export_functf(update_supply, &(supply_array[num]), 0,
 	comp_id, "supply.%d.update", num);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

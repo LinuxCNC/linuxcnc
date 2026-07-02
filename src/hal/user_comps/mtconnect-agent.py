@@ -94,8 +94,8 @@ def make_hal_pins():
     comp = hal.component("mtconnect-agent")
     comp.newpin("enable", hal.Type.BOOL, hal.Dir.IN)
     comp["enable"] = True
-    comp.newpin("sample-hz", hal.Type.U32, hal.Dir.IN)
-    comp.newpin("heartbeat", hal.Type.U32, hal.Dir.OUT)
+    comp.newpin("sample-hz", hal.Type.UINT, hal.Dir.IN)
+    comp.newpin("heartbeat", hal.Type.UINT, hal.Dir.OUT)
     # Status outputs (linkable in the HAL file):
     #   active    - agent is polling and serving
     #   connected - MQTT broker link is up (stays low without MQTT; HTTP/SHDR

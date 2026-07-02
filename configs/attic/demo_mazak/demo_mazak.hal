@@ -91,7 +91,7 @@ loadrt modmath mod_dir=2
 loadrt charge_pump
 loadrt tristate_bit
 loadrt tristate_float count=3
-loadrt conv_s32_float
+loadrt conv_sint_real
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
@@ -164,7 +164,7 @@ addf tristate-bit.0                 servo-thread
 addf tristate-float.0               servo-thread
 addf tristate-float.1               servo-thread
 addf tristate-float.2               servo-thread
-addf conv-s32-float.0               servo-thread
+addf conv-sint-real.0               servo-thread
 
 # output drivers are loaded last
 addf motenc.3.dac-write             servo-thread

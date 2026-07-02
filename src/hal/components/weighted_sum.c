@@ -5,9 +5,9 @@
 *   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
 *
 * This component is a "weighted summer".  It has a (user specified)
-* number of HAL_BIT input pins, and a HAL_S32 parameter corresponding
+* number of HAL_BOOL input pins, and a HAL_SINT parameter corresponding
 * to each bit input.
-* There is one HAL_S32 output.  The output value is the sum of the
+* There is one HAL_SINT output.  The output value is the sum of the
 * parameters for which the corresponding bit input is true.
 *
 * The default value for the parameters is 2^n, where n is the bit number.
@@ -144,7 +144,7 @@ int rtapi_app_main(void)
     }
 
     /* export update function */
-    retval = hal_export_funct("process_wsums", process_wsums, wsum_array, 1, 0, comp_id);
+    retval = hal_export_funct("process_wsums", process_wsums, wsum_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: process_wsums funct export failed\n");

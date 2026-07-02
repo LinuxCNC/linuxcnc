@@ -37,7 +37,7 @@ pin out real temp_fahrenheit.# [15 : (personality & 0xf)] """Temperature in Fahr
 pin out real temp_kelvin.# [15 : (personality & 0xf)] """Temperature in Kelvin.""";
 
 pin out bool fault.# [15 : (personality & 0xf)]  "Fault condition detected.";
-pin out ui32 fault_flags.# [15 : (personality & 0xf)]  "Fault flags: 0x1  = open sensor, 0x2 short to gnd, 0x3 short to vcc.";
+pin out uint fault_flags.# [15 : (personality & 0xf)]  "Fault flags: 0x1  = open sensor, 0x2 short to gnd, 0x3 short to vcc.";
 
 variable unsigned data_frame [15];
 variable unsigned state = 1;

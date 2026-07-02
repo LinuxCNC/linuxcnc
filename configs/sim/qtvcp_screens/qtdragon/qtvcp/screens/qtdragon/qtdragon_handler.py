@@ -322,42 +322,42 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-amps", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
 
-        pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-volts", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
 
-        pin = QHAL.newpin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-fault-u32", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-        pin = QHAL.newpin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-fault", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
 
-        pin = QHAL.newpin("spindle-modbus-errors-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-errors-u32", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
-        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
 
-        pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_connection_changed)
 
-        QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("spindle-inhibit", QHAL.HAL_BOOL, QHAL.HAL_OUT)
 
-        pin = QHAL.newpin("external-pause", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("external-pause", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.btn_pause_clicked)
 
         # external offset control pins
-        QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = True
-        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newpin("eoffset-is-active", QHAL.HAL_BIT, QHAL.HAL_IN)
+        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset-is-active", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(self.external_offset_state_changed)
 
         # total external offset
-        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
 
-        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
 
     def init_preferences(self):

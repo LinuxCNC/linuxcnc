@@ -28,7 +28,7 @@ chapter (docs/src/motion/switchkins.txt)
 """;
 // The fpin pin is not accessible in kinematics functions.
 // Use the *_setup() function for pins and params used by kinematics.
-pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+pin out sint fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
 function fdemo;
 license "GPL";

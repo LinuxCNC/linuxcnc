@@ -838,8 +838,8 @@ loadrt logic names=logic-and personality=0x102
 addf logic-and servo-thread
 
 # load a summing component for adding spindle lift and Z compensation
-loadrt scaled_s32_sums
-addf scaled-s32-sums.0 servo-thread
+loadrt scaled_sint_sums
+addf scaled-sint-sums.0 servo-thread
 
 loadusr -Wn z_level_compensation z_level_compensation
 # method parameter must be one of nearest(2), linear(1), cubic (0)
@@ -872,10 +872,10 @@ net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
 net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
 
 # add Z level and scaled spindle raise level values together
-net eoffset-spindle-count   scaled-s32-sums.0.in0
-net eoffset-zlevel-count    scaled-s32-sums.0.in1
-setp scaled-s32-sums.0.scale0 1000
-net eoffset-counts          scaled-s32-sums.0.out-s
+net eoffset-spindle-count   scaled-sint-sums.0.in0
+net eoffset-zlevel-count    scaled-sint-sums.0.in1
+setp scaled-sint-sums.0.scale0 1000
+net eoffset-counts          scaled-sint-sums.0.out-s
 
 ----
 
@@ -945,13 +945,13 @@ Currently the probe tool number is only editable in the preference file: +
 ps_probe_tool = 1
 ----
 
-`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
-`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
-`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
-`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
-`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
-`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
-`qtversaprobe.probe-loaded` (HAL_BIT):: Reflect if the current tool is equal to the preference file probe number.
+`qtversaprobe.enable` (HAL_BOOL):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_REAL):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_REAL):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_REAL):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_REAL):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_REAL):: The distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.probe-loaded` (HAL_BOOL):: Reflect if the current tool is equal to the preference file probe number.
 
 === Basic probe
 
@@ -1242,12 +1242,12 @@ Initial testing with no tool and safe heights is recommended.
 Versaprobe offers 5 output pins for tool measurement purpose.
 The pins are used to be read from a remap G-code subroutine, so the code can react to different values.
 
-`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
-`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
-`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
-`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
-`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
-`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.enable` (HAL_BOOL):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_REAL):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_REAL):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_REAL):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_REAL):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_REAL):: The distance the probe backs off after triggering. Reflects screen entry.
 
 === Tool Measurement INI File Modifications
 

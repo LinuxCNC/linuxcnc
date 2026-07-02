@@ -602,7 +602,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="ypad">5</property>
-                                        <property name="label" translatable="yes">Number of digital (bit) in pins:</property>
+                                        <property name="label" translatable="yes">Number of digital (bool) in pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">digitsin</property>
                                         <property name="angle">0.019999999552965164</property>
@@ -619,7 +619,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="ypad">3</property>
-                                        <property name="label" translatable="yes">Number of digital (bit) out pins:</property>
+                                        <property name="label" translatable="yes">Number of digital (bool) out pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">digitsout</property>
                                         <property name="xalign">0.039999999105930328</property>
@@ -635,7 +635,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="ypad">6</property>
-                                        <property name="label" translatable="yes"> Number of analog (s32) in pins:</property>
+                                        <property name="label" translatable="yes"> Number of analog (sint) in pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="wrap_mode">word-char</property>
                                         <property name="mnemonic_widget">s32in</property>
@@ -652,7 +652,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="ypad">5</property>
-                                        <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
+                                        <property name="label" translatable="yes"> Number of analog (sint) out pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
                                         <property name="xalign">0</property>
@@ -668,7 +668,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="ypad">5</property>
-                                        <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
+                                        <property name="label" translatable="yes"> Number of analog (real) in pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
                                         <property name="xalign">0</property>
@@ -684,7 +684,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="ypad">5</property>
-                                        <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
+                                        <property name="label" translatable="yes"> Number of analog (real) out pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
                                         <property name="xalign">0</property>

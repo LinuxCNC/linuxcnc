@@ -7,8 +7,8 @@ def cmd(arg):
     subprocess.call(arg, shell=True)
 
 h = hal.component("linktest")
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("inout", hal.HAL_FLOAT, hal.HAL_IO)
+h.newpin("in", hal.Type.REAL, hal.Dir.IN)
+h.newpin("inout", hal.Type.REAL, hal.Dir.IO)
 h.ready()
 
 # set pin values before linking
@@ -24,8 +24,8 @@ assert h['in'] == 4712
 assert h['inout'] == 4713
 
 # create virgin signals
-cmd("halcmd newsig insig float")
-cmd("halcmd newsig inoutsig float")
+cmd("halcmd newsig insig real")
+cmd("halcmd newsig inoutsig real")
 
 # link to them
 cmd("halcmd net insig    linktest.in")

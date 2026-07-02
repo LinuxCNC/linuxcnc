@@ -375,7 +375,7 @@ homecomp
 limit_axis
 mesa_uart
 millturn
-scaled_s32_sums
+scaled_sint_sums
 tof
 ton
 

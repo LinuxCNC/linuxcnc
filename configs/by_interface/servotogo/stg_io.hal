@@ -51,9 +51,9 @@ net Zfault => joint.2.amp-fault-in
 
 # connect index pulses to motion controller
 # do these when index pulsing is figured out
-#newsig Xindex bit
-#newsig Yindex  bit
-#newsig Zindex bit
+#newsig Xindex bool
+#newsig Yindex bool
+#newsig Zindex bool
 #linksp Xindex <= stg.0.enc-index
 #linksp Xindex => joint.0.index-enable
 #linksp Yindex <= stg.1.enc-index
@@ -68,7 +68,7 @@ net Zenable => stg.out-02
 
 # connect watchdog reset to motion controller
 # needs watchdo
-#newsig WatchdogRst bit
+#newsig WatchdogRst bool
 #linksp WatchdogRst <= stg.watchdog-reset
 #linksp WatchdogRst => motion.watchdog-reset-out
 

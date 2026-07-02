@@ -287,7 +287,7 @@ Under the `initialized__` function, make sure there is an entry similar to this:
 # the widgets are instantiated.
 # the HAL pins are built but HAL is not set ready
 def initialized__(self):
-    self.pin_cycle_start_in = QHAL.newPin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+    self.pin_cycle_start_in = QHAL.newPin('cycle-start-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
     self.pin_cycle_start_in.pinValueChanged.connect(lambda o,s: self.cycleStart(s))
 ----
 

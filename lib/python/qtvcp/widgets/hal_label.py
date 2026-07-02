@@ -49,13 +49,13 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
         else:
             pname = self._pin_name
         if self._bit_pin_type:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self._setText(data))
         elif self._float_pin_type:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self._setText(data))
         elif self._s32_pin_type or self._use_multi_label:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_S32, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.SINT, hal.Dir.IN)
             if self._s32_pin_type:
                 self.hal_pin.value_changed.connect(lambda data: self._setText(data))
             else:

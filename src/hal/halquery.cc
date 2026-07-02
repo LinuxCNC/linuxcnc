@@ -32,16 +32,12 @@ static py::object value_object(hal_type_t type, hal_refs_u u, bool ispin)
 {
     switch(type) {
     case HAL_BOOL: return py::bool_(hal_get_bool(u.b));
-    case HAL_S32:  return py::int_(hal_get_si32(u.s));
     case HAL_SINT: return py::int_(hal_get_sint(u.s));
-    case HAL_U32:  return py::int_(hal_get_ui32(u.u));
     case HAL_UINT: return py::int_(hal_get_uint(u.u));
     case HAL_REAL: return py::float_(hal_get_real(u.r));
     case HAL_PORT:
-        // FIXME
-        // Needs to change when we break the API and change hal_port_t
         if(ispin)
-            return py::int_(hal_port_buffer_size(reinterpret_cast<hal_port_t *>(u.u)));
+            return py::int_(hal_port_buffer_size(u.p));
         else
             return py::int_(0); // HAL_PORT cannot be a parameter
     default: return py::none();

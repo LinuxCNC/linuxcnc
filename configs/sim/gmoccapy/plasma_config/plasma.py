@@ -94,12 +94,12 @@ class PlasmaClass:
         self.ini.restore_state(self)
 
         # lets make our pins
-        self.THC_speed = hal_glib.GPin(halcomp.newpin("THC-Speed", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.cut_gap = hal_glib.GPin(halcomp.newpin("Cut-Gap", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.g0_gap = hal_glib.GPin(halcomp.newpin("G0-Gap", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.pierce_deley = hal_glib.GPin(halcomp.newpin("Pierce-Delay", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.pierce_gap = hal_glib.GPin(halcomp.newpin("Pierce-Gap", hal.HAL_FLOAT, hal.HAL_OUT))
-        self.target_voltage = hal_glib.GPin(halcomp.newpin("Target-Voltage", hal.HAL_FLOAT, hal.HAL_OUT))
+        self.THC_speed = hal_glib.GPin(halcomp.newpin("THC-Speed", hal.Type.REAL, hal.Dir.OUT))
+        self.cut_gap = hal_glib.GPin(halcomp.newpin("Cut-Gap", hal.Type.REAL, hal.Dir.OUT))
+        self.g0_gap = hal_glib.GPin(halcomp.newpin("G0-Gap", hal.Type.REAL, hal.Dir.OUT))
+        self.pierce_deley = hal_glib.GPin(halcomp.newpin("Pierce-Delay", hal.Type.REAL, hal.Dir.OUT))
+        self.pierce_gap = hal_glib.GPin(halcomp.newpin("Pierce-Gap", hal.Type.REAL, hal.Dir.OUT))
+        self.target_voltage = hal_glib.GPin(halcomp.newpin("Target-Voltage", hal.Type.REAL, hal.Dir.OUT))
 
         # get all widgets and connect them
         self.lbl_prog_volt = self.builder.get_object("lbl_prog_volt")

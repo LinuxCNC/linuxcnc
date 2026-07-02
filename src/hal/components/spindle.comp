@@ -50,7 +50,7 @@ Each gear has individual control of speeds, acceleration, driver gain and direct
 
 see_also "*motion*(9)";
 
-pin in ui32 select-gear
+pin in uint select-gear
 """Select a gear. Must be in the range 0 -> number of available gears -1. If you use this, do not use the select.x input pins.""";
 
 pin in real commanded-speed "Commanded spindle speed (in RPM)";
@@ -66,7 +66,7 @@ Uses the encoder input if available. If not, uses a simulated encoder speed.""";
 
 pin out real spindle-rpm-abs "Absolute spindle speed in RPM. Useful for spindle speed displays.";
 pin out real output "Scaled output";
-pin out ui32 current-gear "Currently selected gear.";
+pin out uint current-gear "Currently selected gear.";
 
 pin out bool at-speed "TRUE when the spindle is at speed";
 pin out bool forward "TRUE for forward rotation";

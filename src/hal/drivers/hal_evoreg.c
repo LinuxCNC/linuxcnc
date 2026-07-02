@@ -243,7 +243,7 @@ int rtapi_app_main(void)
 
 
     /* STEP 4: export function */
-    retval = hal_export_functf(update_port, &(port_data_array[n]), 1, 0,
+    retval = hal_export_functf(update_port, &(port_data_array[n]), 0,
 	comp_id, "evoreg.%d.update", n + 1);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

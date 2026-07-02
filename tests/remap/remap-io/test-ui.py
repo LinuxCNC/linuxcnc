@@ -5,10 +5,10 @@ import sys, os
 
 # Set up pins
 h = hal.component("test-ui")
-h.newpin('d_out', hal.HAL_BIT, hal.HAL_IN) # pin for reading digital out
-h.newpin('a_out', hal.HAL_FLOAT, hal.HAL_IN) # pin for reading analog out
-h.newpin('d_in', hal.HAL_BIT, hal.HAL_OUT) # pin for setting digital in
-h.newpin('a_in', hal.HAL_FLOAT, hal.HAL_OUT) # pin for setting analog in
+h.newpin('d_out', hal.Type.BOOL, hal.Dir.IN) # pin for reading digital out
+h.newpin('a_out', hal.Type.REAL, hal.Dir.IN) # pin for reading analog out
+h.newpin('d_in', hal.Type.BOOL, hal.Dir.OUT) # pin for setting digital in
+h.newpin('a_in', hal.Type.REAL, hal.Dir.OUT) # pin for setting analog in
 h.ready() # mark the component as 'ready'
 os.system('halcmd source postgui.hal') # Net above pins to motion I/O pins
 

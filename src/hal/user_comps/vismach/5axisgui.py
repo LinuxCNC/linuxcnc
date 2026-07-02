@@ -79,14 +79,14 @@ class HalToolCylinder(CylinderZ):
         return -self.comp.tool_length, r, 0, r
 
 c = hal.component("5axisgui")
-c.newpin("jx", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jy", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jz", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jb", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diam", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("pivot_len", hal.HAL_FLOAT, hal.HAL_OUT)
+c.newpin("jx", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jy", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jz", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jb", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jc", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_length", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool_diam", hal.Type.REAL, hal.Dir.IN)
+c.newpin("pivot_len", hal.Type.REAL, hal.Dir.OUT)
 c["pivot_len"] = pivot_len
 c.ready()
 

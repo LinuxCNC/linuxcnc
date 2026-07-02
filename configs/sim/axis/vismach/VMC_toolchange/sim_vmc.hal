@@ -59,12 +59,12 @@ setp carlim.maxv 0.01
 net car-vel carlim.in
 net car-vel-lim carlim.out carpos.in0
 net car-pos carpos.out carpos.in1 vmcgui.carousel
-loadrt conv_float_u32
-addf conv-float-u32.0 servo-thread
-net car-pos conv-float-u32.0.in 
+loadrt conv_real_uint
+addf conv-real-uint.0 servo-thread
+net car-pos conv-real-uint.0.in
 loadrt bin2gray
 addf bin2gray.0 servo-thread
-net sim-pocket-u conv-float-u32.0.out bin2gray.0.in
+net sim-pocket-u conv-real-uint.0.out bin2gray.0.in
 loadrt bitslice personality=5
 addf bitslice.0 servo-thread
 net graycode bin2gray.0.out bitslice.0.in
@@ -76,29 +76,29 @@ net bit3 bitslice.0.out-03
 net bit4 bitslice.0.out-04
 
 # pulse and index output variant (untidy modmaths)
-loadrt conv_s32_float count=2
-loadrt conv_float_s32 count=3
+loadrt conv_sint_real count=2
+loadrt conv_real_sint count=3
 loadrt near count=3
 loadrt scale
-addf conv-s32-float.0 servo-thread
-addf conv-float-s32.0 servo-thread
-addf conv-s32-float.1 servo-thread
-addf conv-float-s32.1 servo-thread
+addf conv-sint-real.0 servo-thread
+addf conv-real-sint.0 servo-thread
+addf conv-sint-real.1 servo-thread
+addf conv-real-sint.1 servo-thread
 addf scale.0 servo-thread
 addf near.1 servo-thread
 addf near.2 servo-thread
-net car-pos conv-float-s32.0.in
-net car-pos-int conv-float-s32.0.out conv-s32-float.0.in
-net car-pos-float conv-s32-float.0.out near.1.in2
+net car-pos conv-real-sint.0.in
+net car-pos-int conv-real-sint.0.out conv-sint-real.0.in
+net car-pos-float conv-sint-real.0.out near.1.in2
 net car-pos near.1.in1
 net pulse near.1.out
 setp near.1.difference 0.01
 setp scale.0.gain 0.1
 setp scale.0.offset -1 # to show-off index homing
 net car-pos scale.0.in
-net car-pos-div10 scale.0.out conv-float-s32.1.in
-net car-pos-div10-int conv-float-s32.1.out conv-s32-float.1.in
-net car-pos-div10-float conv-s32-float.1.out near.2.in2
+net car-pos-div10 scale.0.out conv-real-sint.1.in
+net car-pos-div10-int conv-real-sint.1.out conv-sint-real.1.in
+net car-pos-div10-float conv-sint-real.1.out near.2.in2
 net car-pos-div10 near.2.in1
 net index near.2.out
 setp near.2.difference 0.009

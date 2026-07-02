@@ -158,7 +158,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("tiro.capture-position", capture,
-	counter_array, 1, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "TIRO: ERROR: capture funct export failed\n");

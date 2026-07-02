@@ -2627,20 +2627,20 @@ class gmoccapy(object):
             return
         for message in user_messages:
             if message[1] == "status":
-                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.Type.BOOL, hal.Dir.IN))
                 pin.connect("value_changed", self._show_user_message, message)
             elif message[1] == "okdialog":
-                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.Type.BOOL, hal.Dir.IN))
                 pin.connect("value_changed", self._show_user_message, message)
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.Type.BOOL, hal.Dir.OUT))
             elif message[1] == "yesnodialog":
-                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.Type.BOOL, hal.Dir.IN))
                 pin.connect("value_changed", self._show_user_message, message)
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-waiting", hal.Type.BOOL, hal.Dir.OUT))
                 pin = hal_glib.GPin(
-                    self.halcomp.newpin("messages." + message[2] + "-response", hal.HAL_BIT, hal.HAL_OUT))
+                    self.halcomp.newpin("messages." + message[2] + "-response", hal.Type.BOOL, hal.Dir.OUT))
             else:
                 LOG.error(_("Message type {0} not supported").format(message[1]))
 
@@ -6386,135 +6386,135 @@ class gmoccapy(object):
     def _make_hal_pins(self):
         # generate the horizontal button pins
         for h_button in range(0, 10):
-            pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # generate the vertical button pins
         for v_button in range(0, 7):
-            pin = self.halcomp.newpin("v-button.button-{0}".format(v_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("v-button.button-{0}".format(v_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:
-            pin = self.halcomp.newpin("jog.axis.jog-{0}-plus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("jog.axis.jog-{0}-plus".format(jog_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(jog_button))
-            pin = self.halcomp.newpin("jog.axis.jog-{0}-minus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("jog.axis.jog-{0}-minus".format(jog_button), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}-".format(jog_button))
 
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             for joint_button in range(0, self.stat.joints):
-                pin = self.halcomp.newpin("jog.joint.jog-{0}-plus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
+                pin = self.halcomp.newpin("jog.joint.jog-{0}-plus".format(joint_button), hal.Type.BOOL, hal.Dir.IN)
                 hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(joint_button))
-                pin = self.halcomp.newpin("jog.joint.jog-{0}-minus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
+                pin = self.halcomp.newpin("jog.joint.jog-{0}-minus".format(joint_button), hal.Type.BOOL, hal.Dir.IN)
                 hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(joint_button))
 
         # jog_increment out pin
-        self.halcomp.newpin("jog.jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("jog.jog-increment", hal.Type.REAL, hal.Dir.OUT)
 
         # generate the pins to set the increments
         for buttonnumber in range(0, len(self.jog_increments)):
-            pin = self.halcomp.newpin("jog.jog-inc-{0}".format(buttonnumber), hal.HAL_BIT, hal.HAL_IN)
+            pin = self.halcomp.newpin("jog.jog-inc-{0}".format(buttonnumber), hal.Type.BOOL, hal.Dir.IN)
             hal_glib.GPin(pin).connect("value_changed", self._on_pin_incr_changed, buttonnumber)
 
         # make the pin for unlocking settings page
-        pin = self.halcomp.newpin("unlock-settings", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("unlock-settings", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_unlock_settings_changed)
 
         # generate the pins to connect encoders to the sliders
-        pin = self.halcomp.newpin("feed.feed-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
-        self.halcomp.newpin("feed.feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("spindle.spindle-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("jog.jog-velocity.count-enable", hal.HAL_BIT, hal.HAL_IN)
-        self.halcomp.newpin("rapid.rapid-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("feed.feed-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
+        self.halcomp.newpin("spindle.spindle-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
+        self.halcomp.newpin("jog.jog-velocity.count-enable", hal.Type.BOOL, hal.Dir.IN)
+        self.halcomp.newpin("rapid.rapid-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
 
         # generate the pins to connect analog inputs for sliders
-        pin = self.halcomp.newpin("feed.feed-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_rapid")
-        pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_rapid")
 
         # make a pin to set turtle jog vel
-        pin = self.halcomp.newpin("jog.turtle-jog", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("jog.turtle-jog", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_pin_turtle_jog)
 
         # make the pins for tool measurement
-        self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
-        pin = self.halcomp.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("probeheight", hal.Type.REAL, hal.Dir.OUT)
+        pin = self.halcomp.newpin("blockheight", hal.Type.REAL, hal.Dir.OUT)
         hal_glib.GPin(pin).connect("value_changed", self._on_blockheight_value_changed)
         preset = self.prefs.getpref("blockheight", 0.0, float)
         self.halcomp["blockheight"] = preset
-        self.halcomp.newpin("toolmeasurement", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.halcomp.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("toolmeasurement", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("searchvel", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("probevel", hal.Type.REAL, hal.Dir.OUT)
 
         # make pins to react to tool_offset changes
-        pin = self.halcomp.newpin("tooloffset-x", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tooloffset-x", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-x")
-        pin = self.halcomp.newpin("tooloffset-z", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = self.halcomp.newpin("tooloffset-z", hal.Type.REAL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._offset_changed, "tooloffset-z")
-        self.halcomp.newpin("tool-diameter", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("tool-diameter", hal.Type.REAL, hal.Dir.OUT)
 
         # make a pin to delete a notification message
-        pin = self.halcomp.newpin("delete-message", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("delete-message", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._del_message_changed)
 
         # for manual tool change dialog
-        self.halcomp.newpin("toolchange-number", hal.HAL_S32, hal.HAL_IN)
-        self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
-        pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin("toolchange-number", hal.Type.SINT, hal.Dir.IN)
+        self.halcomp.newpin("toolchange-changed", hal.Type.BOOL, hal.Dir.OUT)
+        pin = self.halcomp.newpin('toolchange-change', hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
-        self.halcomp.newpin('toolchange-confirm', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin('toolchange-confirm', hal.Type.BOOL, hal.Dir.IN)
 
         # make a pin to confirm a warning dialog
-        self.halcomp.newpin('warning-confirm', hal.HAL_BIT, hal.HAL_IN)
+        self.halcomp.newpin('warning-confirm', hal.Type.BOOL, hal.Dir.IN)
 
         # make a pin to reset feed override to 100 %
-        pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("feed.reset-feed-override", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_override, "feed")
 
         # make a pin to reset rapid override to 100 %
-        pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_override, "rapid")
 
         # make a pin to reset spindle override to 100 %
-        pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._reset_override, "spindle")
 
         # make an error pin to indicate a error to hardware
-        self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("error", hal.Type.BOOL, hal.Dir.OUT)
 
         # make pins to indicate program progress information
-        self.halcomp.newpin("program.length", hal.HAL_S32, hal.HAL_OUT)
-        self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.HAL_OUT)
-        self.halcomp.newpin("program.progress", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.halcomp.newpin("program.length", hal.Type.SINT, hal.Dir.OUT)
+        self.halcomp.newpin("program.current-line", hal.Type.SINT, hal.Dir.OUT)
+        self.halcomp.newpin("program.progress", hal.Type.REAL, hal.Dir.OUT)
 
         # make a pin to set ignore limits
-        pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("ignore-limits", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
         # make pins to set optional stops and block delete
-        pin = self.halcomp.newpin("optional-stop", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("optional-stop", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
-        pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
+        pin = self.halcomp.newpin("blockdelete", hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
 
 

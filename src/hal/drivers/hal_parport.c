@@ -239,7 +239,7 @@ rtapi_print ( "config string '%s'\n", cfg );
     for (n = 0; n < num_ports; n++) {
 	/* export read function */
 	retval = hal_export_functf(read_port, &(port_data_array[n]),
-	    0, 0, comp_id, "parport.%d.read", n);
+	    0, comp_id, "parport.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d read funct export failed\n", n);
@@ -248,7 +248,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	}
 	/* export write function */
 	retval = hal_export_functf(write_port, &(port_data_array[n]),
-	    0, 0, comp_id, "parport.%d.write", n);
+	    0, comp_id, "parport.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct export failed\n", n);
@@ -257,7 +257,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	}
 	/* export write function */
 	retval = hal_export_functf(reset_port, &(port_data_array[n]),
-	    0, 0, comp_id, "parport.%d.reset", n);
+	    0, comp_id, "parport.%d.reset", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d reset funct export failed\n", n);
@@ -267,7 +267,7 @@ rtapi_print ( "config string '%s'\n", cfg );
     }
     /* export functions that read and write all ports */
     retval = hal_export_funct("parport.read-all", read_all,
-	port_data_array, 0, 0, comp_id);
+	port_data_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: read all funct export failed\n");
@@ -275,7 +275,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	return -1;
     }
     retval = hal_export_funct("parport.write-all", write_all,
-	port_data_array, 0, 0, comp_id);
+	port_data_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: write all funct export failed\n");

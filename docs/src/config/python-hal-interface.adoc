@@ -55,10 +55,6 @@ The old defined constants are still supported for backwards compatibility.
 .Example:
 [source,python]
 ----
-# Old (deprecated) style:
-comp.newpin("in-a", hal.HAL_FLOAT, hal.HAL_IN)
-
-# New style:
 comp.newpin("in-a", hal.Type.REAL, hal.Dir.IN)
 ----
 
@@ -71,22 +67,22 @@ The `hal.Type` enum is used to specify the type of pin, parameter and signal:
 * `hal.Type.UINT` - An unsigned quantity with range 0...+2^64^-1
 * `hal.Type.REAL` - A floating point quantity of range &#177;1.80×10^308^
 * `hal.Type.PORT` - An opaque quantity representing a communication channel (pins only)
-* `hal.Type.S32` - A signed quantity with range -2^31^...+2^31^-1 (see notes below)
-* `hal.Type.U32` - An unsigned quantity with range 0...+2^32^-1 (see notes below)
 
 There are aliases in the `hal.Type` enum for all types with the `HAL_` prefix (e.g. `hal.Type.HAL_BOOL`, etc.).
 
 [NOTE]
 ====
-The constants previously used (`hal.HAL_BIT`, `hal.HAL_FLOAT`, etc.) are still available.
+The constants previously used (`hal.HAL_BIT`, `hal.HAL_FLOAT`, etc.) are deprecated and emit a warning.
 You should upgrade your code to use the enumerated types with the new names instead.
-====
 
-[IMPORTANT]
-====
-The 32-bit types will soon be replaced by 64-bit types.
-The names will remain for some time, but they will map to the larger type automatically.
-The `S32` and `U32` names will then no longer be unique and the range will be larger.
+[source,python]
+----
+# Old (deprecated) style:
+comp.newpin("in-a", hal.HAL_FLOAT, hal.HAL_IN)
+
+# New style:
+comp.newpin("in-a", hal.Type.REAL, hal.Dir.IN)
+----
 ====
 
 ==== HAL direction
@@ -105,7 +101,10 @@ Also the direction enums are available with the `HAL_` prefix (like `hal.Dir.HAL
 ==== Old style HAL constants (deprecated)
 
 Old style constants (deprecated):
-`hal.HAL_BIT`, `hal.HAL_S32`, `hal.HAL_U32`, `hal.HAL_S64`, `hal.HAL_U64`, `hal.HAL_FLOAT`, `hal.HAL_PORT`.
+`hal.HAL_BOOL`, `hal.HAL_SINT`, `hal.HAL_UINT`, `hal.HAL_REAL`, `hal.HAL_PORT`.
+
+Deprecated constants:
+`hal.HAL_BIT`, `hal.HAL_S64`, `hal.HAL_U64`, `hal.HAL_FLOAT`.
 
 Old style deprecated pin direction constants (deprecated):
 `hal.HAL_IN`, `hal.HAL_OUT`, `hal.HAL_IO`.

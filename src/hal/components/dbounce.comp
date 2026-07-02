@@ -7,7 +7,7 @@ delay pins for each instance and supports *count*= or *names*= parameters
 
 pin in  bool in;
 pin out bool out;
-pin in  ui32 delay = 5;
+pin in  uint delay = 5;
 
 variable unsigned state;
 option period no;

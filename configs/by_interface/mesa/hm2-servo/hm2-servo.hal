@@ -71,7 +71,7 @@ addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread
 # ################
 
 # axis enable chain
-newsig emcmot.00.enable bit
+newsig emcmot.00.enable bool
 sets emcmot.00.enable FALSE
 net emcmot.00.enable => pid.0.enable
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.00.enable
@@ -112,7 +112,7 @@ net motor.00.command  pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
 # ################
 
 # axis enable chain
-newsig emcmot.01.enable bit
+newsig emcmot.01.enable bool
 sets emcmot.01.enable FALSE
 net emcmot.01.enable => pid.1.enable
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.01.enable
@@ -153,7 +153,7 @@ net motor.01.command  pid.1.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.01.value
 # ################
 
 # axis enable chain
-newsig emcmot.02.enable bit
+newsig emcmot.02.enable bool
 sets emcmot.02.enable FALSE
 net emcmot.02.enable => pid.2.enable
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.02.enable
