@@ -1,18 +1,18 @@
-component toggle2nist "toggle button to nist logic";
+component momentary2nist "momentary button to nist logic";
 
 description
 """
-Toggle2nist can be used with a latching push button 
+Momentary2nist can be used with a momentary push button
 to control a device that has separate on and off inputs
 and an is-on output.
 A debounce delay in cycles can be set for 'in'. (default = 2)
 
 * On a rising edge on pin *in* when *is-on* is low: It sets *on* until *is-on* becomes high.
-* On a falling edge on pin *in* when *is-on* is high: It sets *off* until *is-on* becomes low.
+* On a rising edge on pin *in* when *is-on* is high: It sets *off* until *is-on* becomes low.
 
 ....
-       ┐     ┌─────────────────────────────┐
-in   : └─────┘                             └───────────────────────
+       ┐     ┌─────xxxxxxxxxxxx┐           ┌─────xxxxxxxxxxxx┐
+in   : └─────┘     xxxxxxxxxxxx└───────────┘     xxxxxxxxxxxx└─────
 
        ┐     ┌───────────┐
 on   : └─────┘           └─────────────────────────────────────────
@@ -26,7 +26,7 @@ is-on: └─────────────────┘       �
 
 """;
 
-pin in bit in  "toggle button in";
+pin in bit in  "momentary button in";
 pin in bit is_on "current state of device";
 pin in unsigned debounce = 2 "debounce delay for 'in'-pin in cycles";
 pin out bit on "turn device on";
@@ -38,7 +38,7 @@ variable int state;
 option period no;
 function _;
 license "GPL";
-author "Anders Wallin";
+author "David Mueller";
 ;;
 FUNCTION(_)  {
 
@@ -54,6 +54,9 @@ FUNCTION(_)  {
             if (!is_on) { /* turn ON if it's off */
                 on=1;
                 off=0;
+            } else { /* turn OFF if it's on */
+                on=0;
+                off=1;
             }
             state = 1;
             debounce_cntr = 0;
@@ -61,10 +64,6 @@ FUNCTION(_)  {
     } else if (!in && state == 1) { /* input has changed from debounced 1 -> 0 */
         debounce_cntr++;
         if ( debounce_cntr >= (int)debounce_set ) {
-            if (is_on) { /* turn OFF if it's on */
-                on=0;
-                off=1;
-            }
             state = 0;
             debounce_cntr = 0;
         }
