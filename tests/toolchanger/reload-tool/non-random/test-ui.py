@@ -47,10 +47,10 @@ h.newpin("tool-prepare", hal.Type.BOOL, hal.Dir.IN)
 h.newpin("tool-prepared", hal.Type.BOOL, hal.Dir.OUT)
 h["tool-prepared"] = False
 
-h.newpin("tool-number", hal.HAL_S32, hal.Dir.IN)
-h.newpin("tool-prep-number", hal.HAL_S32, hal.Dir.IN)
-h.newpin("tool-prep-pocket", hal.HAL_S32, hal.Dir.IN)
-h.newpin("tool-from-pocket", hal.HAL_S32, hal.Dir.IN)
+h.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prep-number", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-prep-pocket", hal.Type.SINT, hal.Dir.IN)
+h.newpin("tool-from-pocket", hal.Type.SINT, hal.Dir.IN)
 
 h.ready()
 

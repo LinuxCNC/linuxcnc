@@ -1,5 +1,5 @@
 component threadtest "LinuxCNC HAL component for testing thread behavior";
-pin out ui32 count;
+pin out uint count;
 option period no;
 function increment;
 function reset;

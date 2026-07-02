@@ -93,9 +93,9 @@ gm.<card_no>.read
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins     | Type and direction | Pin description
-m| .in-_<0-7>_     | (bit, Out) | Input pin
-m| .in-not-_<0-7>_ | (bit, Out) | Negated input pin
-m| .out-_<0-7>_    | (bit, In)  | Output pin. Used only when GPIO is set to output.
+m| .in-_<0-7>_     | (bool, Out) | Input pin
+m| .in-not-_<0-7>_ | (bool, Out) | Negated input pin
+m| .out-_<0-7>_    | (bool, In)  | Output pin. Used only when GPIO is set to output.
 |===
 
 === Parameters
@@ -104,8 +104,8 @@ m| .out-_<0-7>_    | (bit, In)  | Output pin. Used only when GPIO is set to outp
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                 | Type and direction | Parameter description
-m| .is-out-_<0-7>_     | (bit, R/W)         | When True, the corresponding GPIO is set to totem-pole output, other wise set to high impedance input.
-m| .invert-out-_<0-7>_ | (bit, R/W)         | When True, pin value will be inverted. Used when pin is configured as output.
+m| .is-out-_<0-7>_     | (bool, R/W)         | When True, the corresponding GPIO is set to totem-pole output, other wise set to high impedance input.
+m| .invert-out-_<0-7>_ | (bool, R/W)         | When True, pin value will be inverted. Used when pin is configured as output.
 |===
 
 == Axis connectors
@@ -176,14 +176,14 @@ gm.<card_no>.read
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins               | Type and direction | Pin description
-m| .reset             | (bit, In)          | When True, resets counts and position to zero.
-m| .rawcounts         | (s32, Out)         | The raw count is the counts, but unaffected by reset or the index pulse.
-m| .counts            | (s32, Out)         | Position in encoder counts.
-m| .position          | (float, Out)       | Position in scaled units (=.counts/.position-scale).
-m| .index-enabled     | (bit, IO)          |
+m| .reset             | (bool, In)        | When True, resets counts and position to zero.
+m| .rawcounts         | (sint, Out)       | The raw count is the counts, but unaffected by reset or the index pulse.
+m| .counts            | (sint, Out)       | Position in encoder counts.
+m| .position          | (real, Out)       | Position in scaled units (=.counts/.position-scale).
+m| .index-enabled     | (bool, IO)        |
 When True, counts and position are rounded or reset (depends on index-mode) on next rising edge of channel-I.
 Every time position is reset because of Index, the `index-enabled` pin is set to 0 and remains 0 until connected HAL pin does not set it.
-m| .velocity          | (float, Out)       |
+m| .velocity          | (real, Out)       |
 Velocity in scaled units per second.
 GM encoder uses high frequency hardware timer to measure time between encoder pulses in order to calculate velocity.
 It greatly reduces quantization noise as compared to simply differentiating the position output.
@@ -194,28 +194,28 @@ When the measured velocity is below min-speed-estimate, the velocity output is 0
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters           | Type and Read/Write | Parameter description
-m| .counter-mode       | (bit, R/W)          |
+m| .counter-mode       | (bool, R/W)          |
 When True, the counter counts each rising edge of the channel-A input to the direction determined by channel-B.
 This is useful for counting the output of a single channel (non-quadrature) or step/dir signal sensor.
 When false, it counts in quadrature mode.
-m| .index-mode         | (bit, R/W)          |
+m| .index-mode         | (bool, R/W)          |
 When True and .index-enabled is also true, .counts and .position
 are rounded (based on .counts-per-rev) at rising edge of channel-I.
 This is useful to correct few pulses error caused by noise.
 In round mode, it is essential to set .counts-per-rev parameter correctly.
 When .index-mode is False and .index-enabled is true, .counts and .position are reset at channel-I pulse.
-m| .counts-per-rev     | (s32, R/V)          |
+m| .counts-per-rev     | (sint, R/V)          |
 Determine how many counts are between two index pulses.
 It is used only in round mode, so when both .index-enabled and .index-mode parameters are True.
 GM encoder process encoder signal in 4x mode, so for example in case of a 500 CPR encoder it should be set to 2000.
 This parameter can be easily measured by setting .index-enabled True and .index-mode False (so that .counts resets
 at channel-I pulse), than move axis by hand and see the maximum magnitude of .counts pin in halmeter.
-m| .index-invert       | (bit, R/W)          |
+m| .index-invert       | (bool, R/W)          |
 When True, channel-I event (reset or round) occur on falling edge of channel-I signal, otherwise on rising edge.
-m| .min-speed-estimate | (float, R/W)        |
+m| .min-speed-estimate | (real, R/W)        |
 Determine the minimum measured velocity magnitude at which .velocity will be set as nonzero.
 Setting this parameter too low will cause it to take a long time for velocity to go to zero after encoder pulses have stopped arriving.
-m| .position-scale     | (float, R/W)        |
+m| .position-scale     | (real, R/W)        |
 Scale in counts per length unit. .position=.counts/.position-scale.
 For example, if position-scale is 2000, then 1000 counts of the encoder will produce a position of 0.5 units.
 |===
@@ -266,34 +266,34 @@ gm.<card_no>.write
 [width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Pins           | Type and direction | Pin description
-m| .enable       | (bit, In)          | StepGen produces pulses only when this pin is true.
-m| .count-fb     | (s32, Out)         | Position feedback in counts unit.
-m| .position-fb  | (float, Out)       | Position feedback in position unit.
-m| .position-cmd | (float, In)        | Commanded position in position units. Used in position mode only.
-m| .velocity-cmd | (float, In)        | Commanded velocity in position units per second. Used in velocity mode only.
+m| .enable       | (bool, In)         | StepGen produces pulses only when this pin is true.
+m| .count-fb     | (sint, Out)        | Position feedback in counts unit.
+m| .position-fb  | (real, Out)        | Position feedback in position unit.
+m| .position-cmd | (real, In)         | Commanded position in position units. Used in position mode only.
+m| .velocity-cmd | (real, In)         | Commanded velocity in position units per second. Used in velocity mode only.
 |===
 
 .StepGen module parameters
 [width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters         | Type and Read/Write | Parameter description
-m| .step-type         | (u32, R/W)          | When 0, module produces Step/Dir signal. When 1, it
+m| .step-type         | (uint, R/W)        | When 0, module produces Step/Dir signal. When 1, it
   produces Up/Down step signals. And when it is 2, it
   produces quadrature output signals.
-m| .control-type      | (bit, R/W)          |
+m| .control-type      | (bool, R/W)        |
 When True, .velocity-cmd is used as reference and velocityvcontrol calculate pulse rate output.
 When False, .position-cmd is used as reference and position control calculate pulse rate output.
-m| .invert-step1      | (bit, R/W)          | Invert the output of channel 1 (Step signal in StepDir mode)
-m| .invert-step2      | (bit, R/W)          | Invert the output of channel 2 (Dir signal in StepDir mode)
-m| .maxvel            | (float, R/W)        |
+m| .invert-step1      | (bool, R/W)        | Invert the output of channel 1 (Step signal in StepDir mode)
+m| .invert-step2      | (bool, R/W)        | Invert the output of channel 2 (Dir signal in StepDir mode)
+m| .maxvel            | (real, R/W)        |
 Maximum velocity in position units per second. If it is set to 0.0, .maxvel parameter is ignored.
-m| .maxaccel          | (float, R/W)        |
+m| .maxaccel          | (real, R/W)        |
 Maximum acceleration in position units per second squared.
 mf it is set to 0.0, .maxaccel parameter is ignored.
-m| .position-scale    | (float, R/W)        | Scale in steps per length unit.
-m| .steplen           | (u32, R/W)          | Length of step pulse in nano-seconds.
-m| .stepspace         | (u32, R/W)          | Minimum time between two step pulses in nano-seconds.
-m| .dirdelay          | (u32, R/W)          | Minimum time between step pulse and direction change in nanoseconds.
+m| .position-scale    | (real, R/W)        | Scale in steps per length unit.
+m| .steplen           | (uint, R/W)        | Length of step pulse in nano-seconds.
+m| .stepspace         | (uint, R/W)        | Minimum time between two step pulses in nano-seconds.
+m| .dirdelay          | (uint, R/W)        | Minimum time between step pulse and direction change in nanoseconds.
 |===
 
 For evaluating the appropriate values see the timing diagrams below:
@@ -344,12 +344,12 @@ gm.<card_no>.read
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                         | Type and direction | Pin description
-| gm.<card_no>.power-enable | (bit, In)          |
+| gm.<card_no>.power-enable | (bool, In)          |
 If this pin is True, +
 * and Watch Dog Timer is not expired +
 * and there is no power fault +
 then power enable pins of axis- and CAN connectors are set to high, otherwise set to low.
-| gm.<card_no>.power-fault  | (bit, Out)         | Power fault input.
+| gm.<card_no>.power-fault  | (bool, Out)         | Power fault input.
 |===
 
 === Axis DAC
@@ -375,18 +375,18 @@ gm.<card_no>.write
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins     | Type and direction | Pin description
-m| .enable | (bit, In)          | Enable DAC output. When enable is false, DAC output is 0.0 V.
-m| .value  | (float, In)        | Value of DAC output in Volts.
+m| .enable | (bool, In)          | Enable DAC output. When enable is false, DAC output is 0.0 V.
+m| .value  | (real, In)        | Value of DAC output in Volts.
 |===
 
 .Axis DAC parameters
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters      | Type and direction | Parameter description
-m| .offset        | (float, R/W)       | Offset is added to the value before the hardware is updated.
-m| .high-limit    | (float, R/W)       | Maximum output voltage of the hardware in Volts.
-m| .low-limit     | (float, R/W)       | Minimum output voltage of the hardware in Volts.
-m| .invert-serial | (float, R/W)       |
+m| .offset        | (real, R/W)       | Offset is added to the value before the hardware is updated.
+m| .high-limit    | (real, R/W)       | Maximum output voltage of the hardware in Volts.
+m| .low-limit     | (real, R/W)       | Minimum output voltage of the hardware in Volts.
+m| .invert-serial | (real, R/W)       |
 GM6-PCI card is communicating with DAC hardware via fast serial communication to highly reduce time delay compared to PWM.
 DAC module is recommended to be isolated which is negating serial communication line.
 In case of isolation, leave this parameter to default (0), while in case of none-isolation, set this parameter to 1.
@@ -428,9 +428,9 @@ gm.<card_no>.write
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins           | Type and direction | Pin description
-m| .enable       | (bit, In)          | Enable sending position references.
-m| .position-cmd | (float, In)        | Commanded position in position units.
-m| .position-fb  | (float, In)        | Feed back position in position units.
+m| .enable       | (bool, In)          | Enable sending position references.
+m| .position-cmd | (real, In)        | Commanded position in position units.
+m| .position-fb  | (real, In)        | Feed back position in position units.
 |===
 
 === Parameters
@@ -439,7 +439,7 @@ m| .position-fb  | (float, In)        | Feed back position in position units.
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters       | Type and direction | Parameter description
-m| .position-scale | (float, R/W)       | Scale in per length unit.
+m| .position-scale | (real, R/W)       | Scale in per length unit.
 |===
 
 == Watchdog timer
@@ -456,7 +456,7 @@ gm.<card_no>.read
 [width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                             | Type and direction | Pin description
-m| gm._<card_no>_.watchdog-expired | (bit, Out)         | Indicates that watchdog timer is expired.
+m| gm._<card_no>_.watchdog-expired | (bool, Out)         | Indicates that watchdog timer is expired.
 |===
 
 Watchdog timer overrun causes the set of power-enable to low in hardware.
@@ -467,11 +467,11 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 [width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters                          | Type and direction | Parameter description
-m| gm._<card_no>_.watchdog-enable     | (bit, R/W)         |
+m| gm._<card_no>_.watchdog-enable     | (bool, R/W)         |
 Enables watchdog timer. +
 It is strongly recommended to enable the watchdog timer,
 because it can disable all the servo amplifiers by pulling down all enable signals in case of a PC error.
-m| gm._<card_no>_.watchdog-timeout-ns | (float, R/W)       |
+m| gm._<card_no>_.watchdog-timeout-ns | (real, R/W)       |
 Time interval in within the gm._<card_no>_.read function must be executed.
 The gm._<card_no>_.read is typically added to servo-thread,
 so watch timeout is typically set to 3 times of the servo period.
@@ -516,12 +516,12 @@ gm.<card_no>.read
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                | Type and direction | Pin description
-m| .home-sw-in        | (bit, Out)         | Home switch input
-m| .home-sw-in-not    | (bit, Out)         | Negated home switch input
-m| .neg-lim-sw-in     | (bit, Out)         | Negative limit switch input
-m| .neg-lim-sw-in-not | (bit, Out)         | Negated negative limit switch input
-m| .pos-lim-sw-in     | (bit, Out)         | Positive limit switch input
-m| .pos-lim-sw-in-not | (bit, Out)         | Negated positive limit switch input
+m| .home-sw-in        | (bool, Out)         | Home switch input
+m| .home-sw-in-not    | (bool, Out)         | Negated home switch input
+m| .neg-lim-sw-in     | (bool, Out)         | Negative limit switch input
+m| .neg-lim-sw-in-not | (bool, Out)         | Negated negative limit switch input
+m| .pos-lim-sw-in     | (bool, Out)         | Positive limit switch input
+m| .pos-lim-sw-in-not | (bool, Out)         | Negated positive limit switch input
 |===
 
 === Parameters
@@ -530,10 +530,10 @@ m| .pos-lim-sw-in-not | (bit, Out)         | Negated positive limit switch input
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters             | Type and direction | Parameter description
-m| gm.0.estop.0.in       | (bit, Out)         | Estop 0 input
-m| gm.0.estop.0.in-not   | (bit, Out)         | Negated Estop 0 input
-m| gm.0.estop.1.in       | (bit, Out)         | Estop 1 input
-m| gm.0.estop.1.in-not   | (bit, Out)         | Negated Estop 1 input
+m| gm.0.estop.0.in       | (bool, Out)         | Estop 0 input
+m| gm.0.estop.0.in-not   | (bool, Out)         | Negated Estop 0 input
+m| gm.0.estop.1.in       | (bool, Out)         | Estop 1 input
+m| gm.0.estop.1.in-not   | (bool, Out)         | Negated Estop 1 input
 |===
 
 == Status LEDs
@@ -645,14 +645,14 @@ where _<module ID>_ is from 00 to 15.
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                 | Type and direction | Pin description
-m| .relay-<0-7>        | (bit, Out)         | Output pin for relay
+m| .relay-<0-7>        | (bool, Out)         | Output pin for relay
 |===
 
 .Relay output module parameters
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters           | Type and direction | Parameter description
-m| .invert-relay-<0-7> | (bit, R/W)         | Negate relay output pin
+m| .invert-relay-<0-7> | (bool, R/W)         | Negate relay output pin
 |===
 
 .HAL example
@@ -687,8 +687,8 @@ where _<module ID>_ is from 00 to 15.
 [width="100%",options="header",cols="<3,^2,<6"]
 |===
 | Pins             | Type and direction | Pin description
-m| .in-_<0-7>_     | (bit, Out)         | Input pin
-m| .in-not-_<0-7>_ | (bit, Out)         | Negated input pin
+m| .in-_<0-7>_     | (bool, Out)         | Input pin
+m| .in-not-_<0-7>_ | (bool, Out)         | Negated input pin
 |===
 
 .HAL example
@@ -723,23 +723,23 @@ where _<module ID>_ is from 00 to 15.
 [width="100%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                 | Type and direction | Pin description
-m| .adc-_<0-7>_        | (float, Out)       | Value of ADC input in Volts.
-m| .dac-enable-_<0-3>_ | (bit, In)          |
+m| .adc-_<0-7>_        | (real, Out)       | Value of ADC input in Volts.
+m| .dac-enable-_<0-3>_ | (bool, In)          |
 Enable DAC output. When enable is false then DAC output is set to 0.0 V.
-m| .dac-_<0-3>_        | (float, In)        | Value of DAC output in Volts.
+m| .dac-_<0-3>_        | (real, In)        | Value of DAC output in Volts.
 |===
 
 .DAC & ADC module parameters
 [width="100%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters               | Type and direction | Parameter description
-m| .adc-scale-_<0-7>_      | (float, R/W)       |
+m| .adc-scale-_<0-7>_      | (real, R/W)       |
 The input voltage will be multiplied by scale before being output to .adc- pin.
-m| .adc-offset-_<0-7>_     | (float, R/W)       |
+m| .adc-offset-_<0-7>_     | (real, R/W)       |
 Offset is subtracted from the hardware input voltage after the scale multiplier has been applied.
-m| .dac-offset-_<0-3>_     | (float, R/W)       | Offset is added to the value before the hardware is updated.
-m| .dac-high-limit-_<0-3>_ | (float, R/W)       | Maximum output voltage of the hardware in Volts.
-m| .dac-low-limit-_<0-3>_  | (float, R/W)       | Minimum output voltage of the hardware in Volts.
+m| .dac-offset-_<0-3>_     | (real, R/W)       | Offset is added to the value before the hardware is updated.
+m| .dac-high-limit-_<0-3>_ | (real, R/W)       | Maximum output voltage of the hardware in Volts.
+m| .dac-low-limit-_<0-3>_  | (real, R/W)       | Minimum output voltage of the hardware in Volts.
 |===
 
 .HAL example
@@ -776,24 +776,24 @@ Upon request it can be delivered with firmware pre-programmed different ID.
 [width="100%",options="header",cols="<3,^2,<6"]
 |===
 | Pins             | Type and direction | Pin description
-m| .adc-_<0-5>_    | (float, Out)       | Value of ADC input in Volts.
-m| .enc-reset      | (bit, In)          | When True, resets counts and position to zero.
-m| .enc-counts     | (s32, Out)         | Position in encoder counts.
-m| .enc-rawcounts  | (s32, Out)         | The raw count is the counts, but unaffected by reset.
-m| .enc-position   | (float, Out)       | Position in scaled units (=.enc-counts/.enc-position-scale).
-m| .in-_<0-7>_     | (bit, Out)         | Input pin
-m| .in-not-_<0-7>_ | (bit, Out)         | Negated input pin
+m| .adc-_<0-5>_    | (real, Out)        | Value of ADC input in Volts.
+m| .enc-reset      | (bool, In)         | When True, resets counts and position to zero.
+m| .enc-counts     | (sint, Out)        | Position in encoder counts.
+m| .enc-rawcounts  | (sint, Out)        | The raw count is the counts, but unaffected by reset.
+m| .enc-position   | (real, Out)        | Position in scaled units (=.enc-counts/.enc-position-scale).
+m| .in-_<0-7>_     | (bool, Out)        | Input pin
+m| .in-not-_<0-7>_ | (bool, Out)        | Negated input pin
 |===
 
 .Teach Pendant module parameters
 [options="header",cols="<3,^2,<6"]
 |===
 | Parameters            | Type and direction | Parameter description
-m| .adc-scale-_<0-5>_   | (float, R/W)       |
+m| .adc-scale-_<0-5>_   | (real, R/W)        |
 The input voltage will be multiplied by scale before being output to .adc- pin.
-m| .adc-offset-_<0-5>_  | (float, R/W)       |
+m| .adc-offset-_<0-5>_  | (real, R/W)        |
 Offset is subtracted from the hardware input voltage after the scale multiplier has been applied.
-m| .enc-position-scale  | (float, R/W)       | Scale in per length unit.
+m| .enc-position-scale  | (real, R/W)        | Scale in per length unit.
 |===
 
 .HAL example

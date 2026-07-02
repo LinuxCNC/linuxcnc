@@ -53,15 +53,15 @@ The inputs pin min and max clamp the error count value to a
 specified range.
 """;
 pin in bool error_in = false "Error Input";
-pin in si32 heal = 1 "Heal when ok per tick";
-pin in si32 harm = 1 "Harm when error per tick";
+pin in sint heal = 1 "Heal when ok per tick";
+pin in sint harm = 1 "Harm when error per tick";
 pin in bool latching = true "If a reset is necessary to heal an error";
 pin in bool reset = false "Reset input";
-pin in si32 threshold = 100 "Error output threshold";
-pin in si32 min_ = 0 "Minimum count";
-pin in si32 max_ = 1000 "Maximum count";
+pin in sint threshold = 100 "Error output threshold";
+pin in sint min_ = 0 "Minimum count";
+pin in sint max_ = 1000 "Maximum count";
 pin in bool enable = true "If not enabled the error count is passed to the output";
-pin out si32 count = 0 "Current count";
+pin out sint count = 0 "Current count";
 pin out bool error_out = false "Error output";
 pin out bool ok_out = true "Ok output";
 
