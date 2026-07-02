@@ -1730,6 +1730,19 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    homingIssueTime = etime();
 	    homingWaiting = true;
 	    retval = emcJointHome(target_joint);
+	    if (retval != 0) {
+		// emcJointHome() rejected the request outright (e.g. an
+		// invalid joint number) -- homing will never start, so the
+		// WAITING_FOR_HOMING poll below would never run to undo the
+		// FREE-mode dip either. Undo it here instead, or traj.mode
+		// (and therefore task.mode, which determineMode() derives
+		// from it) stays stuck at FREE/MANUAL until the operator
+		// manually cycles mode again.
+		homingWaiting = false;
+		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		    emcTrajSetMode(homingPriorMode);
+		}
+	    }
 	}
 	break;
 
@@ -1745,6 +1758,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	homingIssueTime = etime();
 	homingWaiting = true;
 	retval = emcJointUnhome(unhome_msg->joint);
+	if (retval != 0) {
+	    // See the matching comment in EMC_JOINT_HOME_TYPE above.
+	    homingWaiting = false;
+	    if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		emcTrajSetMode(homingPriorMode);
+	    }
+	}
 	break;
 
     case EMC_JOG_CONT_TYPE:
