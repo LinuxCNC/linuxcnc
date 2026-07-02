@@ -20,7 +20,6 @@ from gi.repository import Pango as pango
 import hal                  # base hal class to react to hal signals
 import os                   # needed to get the paths and directories
 import hal_glib             # needed to make our own hal pins
-import gtk.glade
 import sys                  # handle system calls
 import linuxcnc             # to get our own error system
 import gladevcp
