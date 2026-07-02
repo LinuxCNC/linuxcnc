@@ -285,6 +285,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/conv_bool_real.9.html[conv_bool_real] |Converts from bool to real         ||
 | link:../man/man9/conv_bool_sint.9.html[conv_bool_sint] |Convert a value from bool to sint  ||
 | link:../man/man9/conv_bool_uint.9.html[conv_bool_uint] |Convert a value from bool to uint  ||
+| link:../man/man9/conv_real_bool.9.html[conv_real_bool] |Convert a value from real to bool  ||
 | link:../man/man9/conv_real_sint.9.html[conv_real_sint] |Convert a value from real to sint  ||
 | link:../man/man9/conv_real_uint.9.html[conv_real_uint] |Convert a value from real to uint  ||
 | link:../man/man9/conv_sint_bool.9.html[conv_sint_bool] |Convert a value from sint to bool  ||
