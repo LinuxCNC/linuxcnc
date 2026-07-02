@@ -36,10 +36,10 @@ proc set_defaults {} {
   set ::LH(start) [clock seconds]
   # don't include glxgears, error suffices
   program_check {halrun halcmd lsmod pgrep pkill hostname}
+  set ::LH(realtime) [exec linuxcnc_var REALTIME]
+  program_check $::LH(realtime)
   if {[string first rtai [string tolower $::tcl_platform(osVersion)]] >=0} {
     set ::LH(rtai) rtai
-    set ::LH(realtime) [exec linuxcnc_var REALTIME]
-    program_check $::LH(realtime)
   }
 
   set ::LH(use_x)    1
@@ -313,11 +313,7 @@ proc load_packages {} {
     exit 1
   }
 
-  if [info exists ::LH(rtai)] {
-    exec $::LH(realtime) start &
-    progress "Delay for realtime startup"
-    after 1000 ;# wait to load Hal package
-  }
+  exec $::LH(realtime) start >@stdout  2>@stderr
 
   # augment ::auto_path for special case:
   # 1) RIP build (no install)
@@ -343,12 +339,10 @@ proc rt_status_items {} {
   # realtime: type from 'realtime verify' stdout, yes/no from its exit status.
   set rt_text "no realtime"
   set rt_ok 0
-  if {![catch {exec linuxcnc_var REALTIME} rt]} {
-    if {![catch {open [list | $rt verify 2> /dev/null] r} chan]} {
-      set out [string trim [read $chan]]
-      set rt_ok [expr {![catch {close $chan}]}]
-      if {$out ne ""} {set rt_text $out}
-    }
+  if {![catch {open [list | $::LH(realtime) verify 2> /dev/null] r} chan]} {
+    set out [string trim [read $chan]]
+    set rt_ok [expr {![catch {close $chan}]}]
+    if {$out ne ""} {set rt_text $out}
   }
   lappend items [list $rt_text [expr {$rt_ok ? "" : $red}]]
 
