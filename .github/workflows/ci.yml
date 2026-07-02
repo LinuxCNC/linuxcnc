@@ -256,7 +256,12 @@ jobs:
         DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
-        cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
+        # Copy .deb files and .dsc source package files
+        find .. -maxdepth 1 \( -name "*.deb" -o -name "*.dsc" -o -name "*.tar.*" -o -name "*.changes" \) -type f | LC_ALL=C sort | while read f; do
+          cp -v "$f" "$OUTDIR/"
+        done
+        # Fallback for any other files
+        cp -v $(find .. -maxdepth 1 -type f 2>/dev/null | LC_ALL=C sort) "$OUTDIR" 2>/dev/null || true
         (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
         echo "DIST=$DIST" >> "$GITHUB_ENV"
         echo "ARCH=$ARCH" >> "$GITHUB_ENV"
@@ -350,7 +355,12 @@ jobs:
         DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
-        cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
+        # Copy .deb files and .dsc source package files
+        find .. -maxdepth 1 \( -name "*.deb" -o -name "*.dsc" -o -name "*.tar.*" -o -name "*.changes" \) -type f | LC_ALL=C sort | while read f; do
+          cp -v "$f" "$OUTDIR/"
+        done
+        # Fallback for any other files
+        cp -v $(find .. -maxdepth 1 -type f 2>/dev/null | LC_ALL=C sort) "$OUTDIR" 2>/dev/null || true
         (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
         echo "DIST=$DIST" >> "$GITHUB_ENV"
         echo "ARCH=$ARCH" >> "$GITHUB_ENV"
