@@ -225,6 +225,7 @@ typedef struct {
     hal_real_t maxoutput;       /* pin: limit for PID output */
     hal_real_t output;          /* pin: the output value */
     hal_bool_t saturated;       /* pin: TRUE when the output is saturated */
+    rtapi_sint saturated_t;     /* Sum of time in saturated state in nanoseconds */
     hal_real_t saturated_s;     /* pin: the time the output has been saturated */
     hal_sint_t saturated_count; /* pin: the time the output has been saturated */
     hal_bool_t index_enable;    /* pin: to monitor for step changes that would otherwise screw up FF */
@@ -244,8 +245,8 @@ typedef struct {
 
     /* Private data */
     State state;
-    rtapi_u32  cycleCount;
-    rtapi_u32  cyclePeriod;
+    rtapi_uint cycleCount;
+    rtapi_uint cyclePeriod;
     rtapi_real cycleAmplitude;
     rtapi_real totalTime;
     rtapi_real avgAmplitude;
@@ -350,7 +351,7 @@ static void
 Pid_CycleEnd(hal_pid_t *pid)
 {
     pid->cycleCount++;
-    pid->avgAmplitude += pid->cycleAmplitude / hal_get_ui32(pid->tuneCycles);
+    pid->avgAmplitude += pid->cycleAmplitude / hal_get_uint(pid->tuneCycles);
     pid->cycleAmplitude = 0;
     pid->totalTime += pid->cyclePeriod * 0.000000001;
     pid->cyclePeriod = 0;
@@ -440,16 +441,16 @@ Pid_AutoTune(hal_pid_t *pid, long period)
 
         // Check if the last cycle just ended. This is really the number
         // of half cycles.
-        if(pid->cycleCount < hal_get_ui32(pid->tuneCycles))
+        if(pid->cycleCount < hal_get_uint(pid->tuneCycles))
             break;
 
         // Calculate PID using Relay (Åström-Hägglund) method
         hal_set_real(pid->ultimateGain, (4.0 * fabs(hal_get_real(pid->tuneEffort)))/(PI * pid->avgAmplitude));
-        hal_set_real(pid->ultimatePeriod, 2.0 * pid->totalTime / hal_get_ui32(pid->tuneCycles));
+        hal_set_real(pid->ultimatePeriod, 2.0 * pid->totalTime / hal_get_uint(pid->tuneCycles));
         hal_set_real(pid->ff0gain, 0);
         hal_set_real(pid->ff2gain, 0);
 
-        if(hal_get_ui32(pid->tuneType) == TYPE_PID){
+        if(hal_get_uint(pid->tuneType) == TYPE_PID){
             // insert ultimate gain and period in Ziegler-Nichols PID method
             hal_set_real(pid->pgain, 0.6 * hal_get_real(pid->ultimateGain));
             hal_set_real(pid->igain, 1.2 * hal_get_real(pid->ultimateGain) / (hal_get_real(pid->ultimatePeriod)));
@@ -676,13 +677,35 @@ static void calc_pid(void *arg, long period)
     /* set 'saturated' outputs */
     if(pid->limit_state) {
         hal_set_bool(pid->saturated, 1);
-        hal_set_real(pid->saturated_s, hal_get_real(pid->saturated_s) + period * 1e-9);
-        if(hal_get_si32(pid->saturated_count) != 2147483647)
-            hal_set_si32(pid->saturated_count, hal_get_si32(pid->saturated_count) + 1);
+
+        // This following was: saturated_s += period * 1e-9;
+        // Computing the sum of a small increment to a large value will
+        // result in loss of significance. There are no guarantees that
+        // 'period' is a perfect constant. Therefore, it should accumulate
+        // the actual period and scale accordingly (using an rtapi_sint
+        // intermediary type):
+        pid->saturated_t += period;
+        hal_set_real(pid->saturated_s, pid->saturated_t * 1e-9);
+
+        // The below comparison is now extended to run to 2**63-1 before it
+        // wraps. Therefore, the test can effectively be removed.
+        // The old saturated_count tops at 24.8 days with a 32-bit signed
+        // value and a 1 millisecond thread and the condition just caps that
+        // at its maximum value. Using the 64-bit signed value it will be in
+        // the order of 292 million years. I guess we'd not survive that and
+        // the machine will have been recycled at near molecular level by
+        // geological forces. Even a 1 microsecond thread would not reach the
+        // top before society has crumbled and humanity morphed into some
+        // natural selected genetically engineered savagery hidden in a newly
+        // constructed Dyson Sphere.
+        //
+        // if(hal_get_sint(pid->saturated_count) != 2147483647)
+        //     hal_set_sint(pid->saturated_count, hal_get_sint(pid->saturated_count) + 1);
     } else {
         hal_set_bool(pid->saturated, 0);
         hal_set_real(pid->saturated_s, 0);
-        hal_set_si32(pid->saturated_count, 0);
+        hal_set_sint(pid->saturated_count, 0);
+        pid->saturated_t = 0;
     }
     /* done */
 }
@@ -722,7 +745,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->output), 0.0, "%s.output", prefix));
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &(addr->saturated), 0, "%s.saturated", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->saturated_s), 0.0, "%s.saturated-s", prefix));
-    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &(addr->saturated_count), 0, "%s.saturated-count", prefix));
+    CHK(hal_pin_new_sint(comp_id, HAL_OUT, &(addr->saturated_count), 0, "%s.saturated-count", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->pgain), 1.0, "%s.Pgain", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->igain), 0.0, "%s.Igain", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->dgain), 0.0, "%s.Dgain", prefix));
@@ -745,8 +768,8 @@ static int export_pid(hal_pid_t * addr, char * prefix)
 #ifdef AUTO_TUNER
     /* Auto tune related */
     CHK(hal_pin_new_real(comp_id, HAL_IO, &(addr->tuneEffort), 0.5, "%s.tune-effort", prefix));
-    CHK(hal_pin_new_ui32(comp_id, HAL_IO, &(addr->tuneCycles), 50, "%s.tune-cycles", prefix));
-    CHK(hal_pin_new_ui32(comp_id, HAL_IO, &(addr->tuneType), TYPE_PID, "%s.tune-type", prefix));
+    CHK(hal_pin_new_uint(comp_id, HAL_IO, &(addr->tuneCycles), 50, "%s.tune-cycles", prefix));
+    CHK(hal_pin_new_uint(comp_id, HAL_IO, &(addr->tuneType), TYPE_PID, "%s.tune-type", prefix));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(addr->pTuneMode), 0, "%s.tune-mode", prefix));
     CHK(hal_pin_new_bool(comp_id, HAL_IO, &(addr->pTuneStart), 0, "%s.tune-start", prefix));
 #endif /* AUTO_TUNER */
@@ -782,6 +805,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     addr->prev_error = 0.0;
     addr->prev_cmd = 0.0;
     addr->limit_state = 0.0;
+    addr->saturated_t = 0;
 #ifdef AUTO_TUNER
     /* Initialize auto tune related values */
     addr->state = STATE_PID;
