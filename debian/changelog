@@ -1,4 +1,14 @@
-linuxcnc (1:2.9.9) UNRELEASED; urgency=medium
+linuxcnc (1:2.9.10) UNRELEASED; urgency=medium
+
+  * Merge pull request #4219 from grandixximo/fix/4216-applied-tlo-params
+  * tests: restore #5401-#5409 loaded-offset assertions
+  * interp: split loaded vs applied tool offset params (#5401-#5409, #5081-#5089)
+  * Merge pull request #4211 from BsAtHome/fix_libboost_python-versioning-2.9
+  * build: Select the libboost_python matching the python version.
+
+ -- andypugh <andy@bodgesoc.org>  Thu, 02 Jul 2026 21:14:35 +0100
+
+linuxcnc (1:2.9.9) unstable; urgency=medium
 
   * Merge pull request #4190 from tzuohann/check_config-2.9-datatypes
   * Merge pull request #4188 from grandixximo/fix/genclean-soname-2.9
@@ -102,9 +112,7 @@ linuxcnc (1:2.9.9) UNRELEASED; urgency=medium
   * gmoccapy: reduce font size of dro VCP to fit minimal window size (#3611)
   * gmoccapy: add LinuxCNC version to window title
 
- -- andypugh <andy@bodgesoc.org>  Thu, 25 Jun 2026 23:04:56 +0100
-
-
+ -- andypugh <andy@bodgesoc.org>  Thu, 02 Jul 2026 21:14:01 +0100
 
 linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
 
