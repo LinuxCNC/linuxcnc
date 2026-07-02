@@ -57,7 +57,7 @@ class HandlerClass:
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 
-        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
 
         self.pin_cycle_start_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BOOL, QHAL.HAL_IN)

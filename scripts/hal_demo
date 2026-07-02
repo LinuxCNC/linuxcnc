@@ -136,10 +136,10 @@ if [ "$1" = "parport1" ] ; then
     bin/halcmd show param
     echo "Hit enter to create some signals"
     read
-    echo "$ bin/halcmd newsig jumper1 bit"
-    bin/halcmd newsig jumper1 bit
-    echo "$ bin/halcmd newsig jumper2 bit"
-    bin/halcmd newsig jumper2 bit
+    echo "$ bin/halcmd newsig jumper1 bool"
+    bin/halcmd newsig jumper1 bool
+    echo "$ bin/halcmd newsig jumper2 bool"
+    bin/halcmd newsig jumper2 bool
     echo "(signals created - lets look at them)"
     echo "$ bin/halcmd show sig"
     bin/halcmd show sig

@@ -1074,8 +1074,8 @@ class pyvcp_number(Label):
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
 
-class pyvcp_u32(Label):
-    """ (indicator) shows a u32 as text """
+class pyvcp_uint(Label):
+    """ (indicator) shows a uint as text """
     n=0
     def __init__(self,master,pycomp,halpin=None,format="d",**kw):
         self.v = StringVar()
@@ -1088,7 +1088,7 @@ class pyvcp_u32(Label):
         self.value=int(0.0)
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
-        pycomp.newpin(halpin, HAL_U32, Dir.IN)
+        pycomp.newpin(halpin, Type.UINT, Dir.IN)
 
     def update(self,pycomp):    
         newvalue = pycomp[self.halpin]
@@ -1097,9 +1097,13 @@ class pyvcp_u32(Label):
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
- 
-class pyvcp_s32(Label):
-    """ (indicator) shows a s32 as text """
+class pyvcp_u32(pyvcp_uint):
+    """ (indicator) shows a uint as text """
+    # This is just a proxy so that <u32> tags still work.
+    # We changed the actual pin type to UINT.
+
+class pyvcp_sint(Label):
+    """ (indicator) shows a sint as text """
     n=0
     def __init__(self,master,pycomp,halpin=None,format="d",**kw):
         self.v = StringVar()
@@ -1112,7 +1116,7 @@ class pyvcp_s32(Label):
         self.value=int(0.0)
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
-        pycomp.newpin(halpin, HAL_S32, Dir.IN)
+        pycomp.newpin(halpin, Type.SINT, Dir.IN)
 
     def update(self,pycomp):    
         newvalue = pycomp[self.halpin]
@@ -1120,6 +1124,11 @@ class pyvcp_s32(Label):
             self.value=newvalue
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
+
+class pyvcp_s32(pyvcp_sint):
+    """ (indicator) shows a sint as text """
+    # This is just a proxy so that <s32> tags still work.
+    # We changed the actual pin type to SINT.
 
 class pyvcp_timer(Label):
     """ (indicator) shows elapsed time as HH:MM:SS
@@ -1568,7 +1577,7 @@ class pyvcp_scale(Scale):
 
         pyvcp_scale.n += 1       
         
-        pycomp.newpin(halpin+"-i", HAL_S32, Dir.OUT)
+        pycomp.newpin(halpin+"-i", Type.SINT, Dir.OUT)
         pycomp.newpin(halpin+"-f", Type.REAL, Dir.OUT)
         
         self.bind('<Button-4>',self.wheel_up)
@@ -1775,10 +1784,15 @@ class _pyvcp_image(Label):
                 print("Unknown image #%d on %s" % (l, self.halpin), file=sys.stderr)
         self.last = l
 
+class pyvcp_image_bool(_pyvcp_image):
+    pintype = Type.BOOL
+class pyvcp_image_uint(_pyvcp_image):
+    pintype = Type.UINT
+# Keep the old names for compatibility
 class pyvcp_image_bit(_pyvcp_image):
     pintype = Type.BOOL
 class pyvcp_image_u32(_pyvcp_image):
-    pintype = HAL_U32
+    pintype = Type.UINT
 
 # This must come after all the pyvcp_xxx classes
 elements = []

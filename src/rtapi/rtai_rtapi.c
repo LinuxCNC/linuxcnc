@@ -622,7 +622,7 @@ static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 }
 
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
-    int prio, int owner, unsigned long int stacksize, int uses_fp)
+    int prio, int owner, unsigned long int stacksize)
 {
     int n;
     long task_id;
@@ -667,8 +667,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     }
     task->taskcode = taskcode;
     task->arg = arg;
-    /* call OS to initialize the task - use predetermined CPU.
-       uses_fp is deprecated and ignored; always save FPU state. */
+    /* call OS to initialize the task - use predetermined CPU. */
     retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
 	 stacksize, prio, 1 /* always save FPU */, 0 /* signal */, rtapi_data->rt_cpu );
     if (retval != 0) {

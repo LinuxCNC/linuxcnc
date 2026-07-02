@@ -30,7 +30,7 @@ loadrt charge_pump
 loadrt lowpass
 
 #the Enable signal is used to permanently enable things
-newsig Enable bit
+newsig Enable bool
 sets Enable TRUE
 
 #configure the spindle encoder

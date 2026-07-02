@@ -63,8 +63,8 @@ net emc-estop-out estop-latch.0.ok-in
 net emc-estop-reset iocontrol.0.user-request-enable
 net emc-estop-reset estop-latch.0.reset
 
-#newsig EstopSense bit
-#newsig EstopWrite bit
+#newsig EstopSense bool
+#newsig EstopWrite bool
 #linksp EstopSense <= ppmc.0.din.estop.in-not
 #linksp EstopSense => iocontrol.0.emc-enable-in
 #linksp EstopWrite <= ppmc.0.dout.07.out

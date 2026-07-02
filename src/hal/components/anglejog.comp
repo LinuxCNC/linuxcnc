@@ -21,7 +21,7 @@ is false.  The value in use is output on the current-scale pin.
 pin is false.  The value in use is output on the current-angle-degrees
 pin.
 4. The value of the iscale-factor pin multiplies counts-in internally
-to support integer (s32) calculations for counting.  The current-scale-out
+to support integer calculations for counting.  The current-scale-out
 is divided by the same amount.  The pin is sampled only when the
 enable-in pin is false.  The default value should work in most
 applications.
@@ -37,9 +37,9 @@ Simulation Config: `configs/sim/axis/anglejog/anglejog.in`
 """;
 
 pin in  bool enable_in "enables motion (disables alteration of angle and scale)";
-pin in  si32 counts_in "MPG (wheel) counts";
+pin in  sint counts_in "MPG (wheel) counts";
 pin in  real angle_degrees_in "vector angle";
-pin in  si32 iscale_factor = 10000 "integer scaling factor (>1)";
+pin in  sint iscale_factor = 10000 "integer scaling factor (>1)";
 pin in  real scale_in "magnitude units/count (mag = counts * scale)";
 pin in  real max_vel "vector max velocity magnitude";
 pin in  real max_accel "vector max acceleration magnitude";
@@ -48,8 +48,8 @@ pin in  real accel_fraction_in = 1 "acceleration fraction input";
 pin out bool enable_out "to: axis.M.jog-enable AND axis.N.jog-enable";
 pin out real current_scale "effective scale (informational)";
 pin out real current_scale_out "to: axis.M.jog-scale AND axis.N.jog-scale";
-pin out si32 coscounts  "to: axis.M.jog-counts (cosine counts)";
-pin out si32 sincounts  "to: axis.N.jog-counts (sine   counts)";
+pin out sint coscounts  "to: axis.M.jog-counts (cosine counts)";
+pin out sint sincounts  "to: axis.N.jog-counts (sine   counts)";
 pin out real cos_accel_fraction "to: axis.M.jog-accel-fraction";
 pin out real sin_accel_fraction "to: axis.N.jog-accel-fraction";
 
@@ -73,14 +73,14 @@ author  "Dewey Garrett";
 FUNCTION(_) {
 static bool once = 1;
 static bool wait_for_count_change = 0;
-static int  tot_counts;
-static int  old_enable_in;
-static int  old_counts_in;
-static int  ifactor = 0;
+static rtapi_sint  tot_counts;
+static rtapi_bool  old_enable_in;
+static rtapi_sint  old_counts_in;
+static rtapi_sint  ifactor = 0;
     double  max_dv, tiny_dp, mag_err, vel_req;
     double  mag_cmd;
-    int     delta_counts = 0;
-    int     newcounts;
+    rtapi_sint delta_counts = 0;
+    rtapi_sint newcounts;
 
     if (once) {
         current_angle_degrees_set(angle_degrees_in);
@@ -147,12 +147,12 @@ static int  ifactor = 0;
                 if (   iscale_factor >= MIN_ISCALE_FACTOR
                     && iscale_factor <= MAX_ISCALE_FACTOR) {
                     ifactor = iscale_factor;
-                    rtapi_print("new ifactor=%d\n",ifactor);
+                    rtapi_print("new ifactor=%ld\n",ifactor);
                     new_ifactor = 1;
                     gave_msg = 0;
                 } else {
                     if (!gave_msg) {
-                        rtapi_print("BOGUS iscale_factor=%d (min=%d max=%d)\n"
+                        rtapi_print("BOGUS iscale_factor=%ld (min=%d max=%d)\n"
                         ,ifactor,MIN_ISCALE_FACTOR,MAX_ISCALE_FACTOR);
                         gave_msg = 1;
                     }

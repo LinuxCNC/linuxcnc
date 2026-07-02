@@ -7341,7 +7341,7 @@ MOVE</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>FLOAT</string>
+                             <string>REAL</string>
                             </property>
                             <property name="alignment">
                              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

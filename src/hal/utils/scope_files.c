@@ -628,13 +628,11 @@ void read_log_file(char *filename)
             chan->min_index = -36;
             chan->max_index = 36;
             break;
-        case HAL_S32:
         case HAL_SINT:
             chan->data_len = sizeof(scope_data_t);
             chan->min_index = -2;
             chan->max_index = 30;
             break;
-        case HAL_U32:
         case HAL_UINT:
             chan->data_len = sizeof(scope_data_t);
             chan->min_index = -2;
@@ -753,12 +751,6 @@ void read_log_file(char *filename)
             case HAL_REAL:
                 dptr->r = (rtapi_real)value;
                 break;
-            case HAL_S32:
-                dptr->s = (rtapi_s32)value;
-                break;
-            case HAL_U32:
-                dptr->u = (rtapi_u32)value;
-                break;
             case HAL_SINT:
                 dptr->s = (rtapi_sint)value;
                 break;
@@ -845,12 +837,6 @@ static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type)
 			break;
 		case HAL_REAL:
 			data_value = dptr->r;
-			break;
-		case HAL_S32:
-			data_value = dptr->s;
-			break;
-		case HAL_U32:
-			data_value = dptr->u;
 			break;
 		case HAL_SINT:
 			data_value = dptr->s;

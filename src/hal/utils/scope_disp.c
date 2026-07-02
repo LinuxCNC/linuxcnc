@@ -163,12 +163,6 @@ static void calculate_offset(int chan_num) {
 	case HAL_REAL:
 	    value = dptr->r;
 	    break;
-	case HAL_S32:
-	    value = dptr->s;
-	    break;
-	case HAL_U32:
-	    value = dptr->u;
-	    break;
 	case HAL_SINT:
 	    value = dptr->s;
 	    break;
@@ -827,12 +821,6 @@ void draw_waveform(int chan_num, int highlight)
 	    break;
 	case HAL_REAL:
 	    fy = dptr->r;
-	    break;
-	case HAL_S32:
-	    fy = dptr->s;
-	    break;
-	case HAL_U32:
-	    fy = dptr->u;
 	    break;
 	case HAL_SINT:
 	    fy = dptr->s;

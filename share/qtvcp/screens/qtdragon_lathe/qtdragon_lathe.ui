@@ -14942,7 +14942,7 @@ SCROLL</string>
                              <number>1</number>
                             </property>
                             <property name="pinType" stdset="0">
-                             <enum>HalBar::FLOAT</enum>
+                             <enum>HalBar::REAL</enum>
                             </property>
                             <property name="pinName" stdset="0">
                              <string>axis-x-load</string>
@@ -14971,7 +14971,7 @@ SCROLL</string>
                              <number>1</number>
                             </property>
                             <property name="pinType" stdset="0">
-                             <enum>HalBar::FLOAT</enum>
+                             <enum>HalBar::REAL</enum>
                             </property>
                             <property name="pinName" stdset="0">
                              <string>axis-z-load</string>
@@ -17008,7 +17008,7 @@ SCROLL</string>
                    <number>0</number>
                   </property>
                   <property name="pinType" stdset="0">
-                   <enum>HalBar::FLOAT</enum>
+                   <enum>HalBar::REAL</enum>
                   </property>
                   <property name="pinName" stdset="0">
                    <string>spindle-rpm</string>

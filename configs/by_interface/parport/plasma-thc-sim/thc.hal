@@ -19,7 +19,7 @@ loadrt or2 count=10
 loadrt scale
 loadrt sum2 count=5
 loadrt xor2 count=4
-loadrt conv_s32_float
+loadrt conv_sint_real
 loadrt edge count=2
 
 # Attach realtime hal components to a realtime thread
@@ -35,7 +35,7 @@ addf and2.8 servo-thread
 addf comp.0 servo-thread
 addf comp.1 servo-thread
 addf comp.2 servo-thread
-addf conv-s32-float.0 servo-thread
+addf conv-sint-real.0 servo-thread
 addf edge.0 servo-thread
 addf edge.1 servo-thread
 addf flipflop.0 servo-thread
@@ -186,8 +186,8 @@ net FeedHold xor2.0.out => motion.feed-hold
 net CHLSwitched xor2.2.out => and2.1.in1
 net ArcOKTimer oneshot.2.out => xor2.1.in0
 net PierceLatch flipflop.1.out => mux2.0.sel oneshot.0.in
-net IgnitionCounterS32 updown.0.count => conv-s32-float.0.in
-net IgnitionCounterFloat conv-s32-float.0.out => comp.2.in1
+net IgnitionCounterS32 updown.0.count => conv-sint-real.0.in
+net IgnitionCounterFloat conv-sint-real.0.out => comp.2.in1
 net IgnitionTimerOff oneshot.1.out-not => updown.0.countup
 net TorchOff not.2.out => flipflop.1.reset
 net TorchTurnedOffOrTimeout or2.7.out => or2.6.in1

@@ -1,4 +1,4 @@
-loadrt conv_s32_u32 names=laser.motion.type-conv
+loadrt conv_sint_uint names=laser.motion.type-conv
 loadrt bitslice names=laser.motion.type-slice personality=2
 loadrt limit1 names=laser.power.min.limit,laser.power.max.limit,laser.power.cmd.limit
 loadrt laserpower names=laser.control
