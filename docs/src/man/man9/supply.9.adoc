@@ -34,15 +34,15 @@ loaded. If *numchan* is not specified, the default value is one.
 
 == PINS
 
-**supply.**_N_**.q** bit out::
-  Output bit, copied from parameter **supply.**_N_**.d**.
-**supply.**_N_**._q** bit out::
-  Output bit, inverted copy of parameter **supply.**_N_**.d**.
-**supply.**_N_**.variable** float out::
+**supply.**_N_**.q** bool out::
+  Output value, copied from parameter **supply.**_N_**.d**.
+**supply.**_N_**._q** bool out::
+  Output value, inverted copy of parameter **supply.**_N_**.d**.
+**supply.**_N_**.variable** real out::
   Analog output, copied from parameter **supply.**_N_**.value**.
-**supply.**_N_**._variable** float out::
+**supply.**_N_**._variable** real out::
   Analog output, equal to -1.0 times parameter **supply.**_N_**.value**.
-**supply.**_N_**.d** bit rw::
+**supply.**_N_**.d** bool rw::
   Data source for *q* and *_q* output pins.
-**supply.**_N_**.value** bit rw::
+**supply.**_N_**.value** bool rw::
   Data source for *variable* and *_variable* output pins.

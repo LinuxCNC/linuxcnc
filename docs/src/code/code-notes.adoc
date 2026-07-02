@@ -1269,7 +1269,7 @@ emcioStatus.tool.pocketPrepped::
 
 emcioStatus.tool.toolInSpindle::
   Tool number of the tool currently installed in the spindle.
-  Exported on the HAL pin +iocontrol.0.tool-number+ (s32).
+  Exported on the HAL pin +iocontrol.0.tool-number+ (sint).
 
 emcioStatus.tool.toolTable[]::
   An array of +CANON_TOOL_TABLE+ structures, +CANON_POCKETS_MAX+ long.

@@ -40,7 +40,7 @@ Conversely, if *enum-encode.00.input* is set to 4 then the pin
 == OPTIONS
 
 Preceding the list of labels should be the control-codes "D" for decode
-or "E" for encode. A D-type enum will set the value of HAL bit pins in
+or "E" for encode. A D-type enum will set the value of HAL bool pins in
 response to changes to the enum-decode.NN.input value, whereas an E-type
 enum will set the value of the enum-encode.NN.output integer depending
 on which enum-encode.NN.label-bit value is set.
@@ -58,12 +58,12 @@ E and D-type enumerations may be freely mixed in separate instances.
 
 == PINS
 
-**enum-decode.**_NN_.input:: The integer value to be decoded
+**enum-decode.**_NN_.input:: The uint integer value to be decoded
 
 **enum-decode.**_NN_.label-out::  Output bits of a decode instance
 
-**enum-decode.**_NN_.label-val::  The enumeration value corresponding to
-                                each specific bit output. These are
+**enum-decode.**_NN_.label-val::  The uint enumeration value corresponding to
+                                each specific bool output. These are
                                 populated in sequence during loading
                                 but may be over-ridden in HAL if
                                 convenient.
@@ -71,12 +71,12 @@ E and D-type enumerations may be freely mixed in separate instances.
 **enum-encode.**_NN_**.label-in**::  input bits of a decode instance
 
 **enum-encode.**_NN_**.label-val**::  The enumeration value corresponding to
-                                each specified bit input. These are
+                                each specified bool input. These are
                                 populated in sequence during loading
                                 but may be over-ridden in HAL if
                                 convenient.
                                 
-**enum-decode.**_NN_**.output**:: The integer value corresponding to the set bit input.
+**enum-decode.**_NN_**.output**:: The uint integer value corresponding to the set bool input.
 
 == BUGS
 

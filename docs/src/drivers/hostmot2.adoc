@@ -105,13 +105,13 @@ exported:
 
 === Pins
 
-* 'has_bit' - (bit i/o) True if the watchdog has bit, False if the
-  watchdog has not bit. If the watchdog has bit and the has_bit bit is
+* 'has_bit' - (bool i/o) True if the watchdog has bit, False if the
+  watchdog has not bit. If the watchdog has bit and the has_bit bool is
   True, the user can reset it to False to resume operation.
 
 === Parameters
 
-* 'timeout_ns' - (u32 read/write) Watchdog timeout, in nanoseconds.
+* 'timeout_ns' - (uint read/write) Watchdog timeout, in nanoseconds.
   This is initialized to 5,000,000 (5 milliseconds) at module load time.
   If more than this amount of time passes between calls to the hm2 write
   function, the watchdog will bite.
@@ -412,21 +412,21 @@ GPIO pins default to input.
 
 === Pins
 
-* 'in' - (Bit, Out) Normal state of the hardware input pin.
+* 'in' - (bool, out) Normal state of the hardware input pin.
   Both full GPIO pins and I/O pins used as inputs by active module
   instances have this pin.
 
-* 'in_not' - (Bit, Out) Inverted state of the hardware input pin.
+* 'in_not' - (bool, out) Inverted state of the hardware input pin.
   Both full GPIO pins and I/O pins used as inputs by active module
   instances have this pin.
 
-* 'out' - (Bit, In) Value to be written (possibly inverted) to the
+* 'out' - (bool, in) Value to be written (possibly inverted) to the
   hardware output pin.
   Only full GPIO pins have this pin.
 
 === Parameters
 
-* 'invert_output' - (Bit, RW) This parameter only has an effect if the
+* 'invert_output' - (bool, rw) This parameter only has an effect if the
   'is_output' parameter is true.
   If this parameter is true, the output value of the
   GPIO will be the inverse of the value on the 'out' HAL pin. Only full
@@ -434,7 +434,7 @@ GPIO pins default to input.
   this parameter. To invert an active module pin you have to invert the
   GPIO pin not the module pin.
 
-* 'is_opendrain' - (Bit, RW) This parameter only has an effect if the
+* 'is_opendrain' - (bool, rw) This parameter only has an effect if the
   'is_output' parameter is true.
   If this parameter is false, the GPIO behaves as a
   normal output pin: the I/O pin on the connector is driven to the value
@@ -448,7 +448,7 @@ GPIO pins default to input.
   pins. Only full GPIO pins and I/O pins used as outputs by active module
   instances have this parameter.
 
-* 'is_output' - (Bit, RW) If set to 0, the GPIO is an input.
+* 'is_output' - (bool, rw) If set to 0, the GPIO is an input.
   The I/O pin is put in a
   high-impedance state (weakly pulled high), to be driven by other
   devices. The logic value on the I/O pin is available in the 'in' and
@@ -478,57 +478,57 @@ Each StepGen instance has the following pins and parameters:
 
 === Pins
 
-* 'control-type' - (Bit, In) Switches between position control mode (0)
+* 'control-type' - (bool, in) Switches between position control mode (0)
   and velocity control mode (1).
   Defaults to position control (0).
 
-* 'counts' - (s32, Out) Feedback position in counts (number of steps).
+* 'counts' - (sint, out) Feedback position in counts (number of steps).
 
-* 'enable' - (Bit, In) Enables output steps. When false, no steps are
+* 'enable' - (bool, in) Enables output steps. When false, no steps are
   generated.
 
-* 'position-cmd' - (Float, In) Target position of stepper motion, in
+* 'position-cmd' - (real, in) Target position of stepper motion, in
   user-defined position units.
 
-* 'position-fb' - (Float, Out) Feedback position in user-defined position
+* 'position-fb' - (real, out) Feedback position in user-defined position
   units (counts / position_scale).
 
-* 'velocity-cmd' - (Float, In) Target velocity of stepper motion, in
+* 'velocity-cmd' - (real, in) Target velocity of stepper motion, in
   user-defined position units per second.
   This pin is only used when the stepgen is in velocity control mode
   (control-type=1).
 
-* 'velocity-fb' - (Float, Out) Feedback velocity in user-defined position
+* 'velocity-fb' - (real, out) Feedback velocity in user-defined position
   units per second.
 
 === Parameters
 
-* 'dirhold' - (u32, RW) Minimum duration of stable Direction signal
+* 'dirhold' - (uint, rw) Minimum duration of stable Direction signal
   after a step ends, in nanoseconds.
 
-* 'dirsetup' - (u32, RW) Minimum duration of stable Direction signal
+* 'dirsetup' - (uint, rw) Minimum duration of stable Direction signal
   before a step begins, in nanoseconds.
 
-* 'maxaccel' - (Float, RW) Maximum acceleration, in position units per
+* 'maxaccel' - (real, rw) Maximum acceleration, in position units per
   second per second.
   If set to 0, the driver will not limit its acceleration.
 
-* 'maxvel' - (Float, RW) Maximum speed, in position units per second.
+* 'maxvel' - (real, rw) Maximum speed, in position units per second.
   If set to 0, the driver will choose the maximum velocity based on the
   values of steplen and stepspace (at the time that maxvel was set to 0).
 
-* 'position-scale' - (Float, RW) Converts from counts to position units.
+* 'position-scale' - (real, rw) Converts from counts to position units.
   position = counts / position_scale
 
-* 'step_type' - (u32, RW) Output format, like the step_type modparam to
+* 'step_type' - (uint, rw) Output format, like the step_type modparam to
   the software stepgen(9) component.
   0 = Step/Dir, 1 = Up/Down, 2 = Quadrature. In
   Quadrature mode (step_type=2), the stepgen outputs one complete Gray
   cycle (00 \-> 01 \-> 11 \-> 10 \-> 00) for each 'step' it takes.
 
-* 'steplen' - (u32, RW) Duration of the step signal, in nanoseconds.
+* 'steplen' - (uint, rw) Duration of the step signal, in nanoseconds.
 
-* 'stepspace' - (u32, RW) Minimum interval between step signals, in
+* 'stepspace' - (uint, rw) Minimum interval between step signals, in
   nanoseconds.
 
 === Output Parameters
@@ -537,12 +537,12 @@ The Step and Direction pins of each StepGen have two additional
 parameters. To find which I/O pin belongs to which step and direction
 output run 'dmesg' as described above.
 
-* 'invert_output' - (Bit, RW) This parameter only has an effect if the
+* 'invert_output' - (bool, rw) This parameter only has an effect if the
   'is_output' parameter is true.
   If this parameter is true, the output value of the
   GPIO will be the inverse of the value on the 'out' HAL pin.
 
-* 'is_opendrain' - (Bit, RW) If this parameter is false, the GPIO
+* 'is_opendrain' - (bool, rw) If this parameter is false, the GPIO
   behaves as a normal output pin: the I/O pin on the connector is driven
   to the value specified by the 'out' HAL pin (possibly inverted).
   If this parameter
@@ -574,23 +574,23 @@ component. Each pwmgen instance has the following pins and parameters:
 
 === Pins
 
-* 'enable' - (Bit, In) If true, the pwmgen will set its Not-Enable pin
+* 'enable' - (bool, in) If true, the pwmgen will set its Not-Enable pin
   false and output its pulses.
   If 'enable' is false, pwmgen will set its Not-Enable pin true and not
   output any signals.
 
-* 'value' - (Float, In) The current pwmgen command value, in arbitrary
+* 'value' - (real, in) The current pwmgen command value, in arbitrary
   units.
 
 === Parameters
 
-* 'output-type' - (s32, RW) This emulates the output_type load-time argument to the software pwmgen component.
+* 'output-type' - (sint, rw) This emulates the output_type load-time argument to the software pwmgen component.
   This parameter may be changed at runtime, but most of the time you probably want to set it at startup and then leave it alone.
   Accepted values are 1 (PWM on Out0 and Direction on Out1), 2 (Up on Out0 and Down on Out1),
   3 (PDM mode, PDM on Out0 and Dir on Out1), and 4 (Direction on Out0 and PWM on Out1, 'for locked antiphase').
-* 'scale' - (Float, RW) Scaling factor to convert 'value' from arbitrary units to duty cycle: dc = value / scale.
+* 'scale' - (real, rw) Scaling factor to convert 'value' from arbitrary units to duty cycle: dc = value / scale.
   Duty cycle has an effective range of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
-* 'pdm_frequency' - (u32, RW) This specifies the PDM frequency, in Hz,
+* 'pdm_frequency' - (uint, rw) This specifies the PDM frequency, in Hz,
   of all the pwmgen instances running in PDM mode (mode 3).
   This is the 'pulse slot frequency'; the frequency at which the pdm
   generator in the Anything I/O board chooses whether to emit a pulse or a space.
@@ -602,7 +602,7 @@ component. Each pwmgen instance has the following pins and parameters:
   the 5I20 and 7I43 both have a 100 MHz clock, resulting in a 100 MHz max PDM frequency.
   Other boards may have different clocks, resulting in different max PDM frequencies.
   If the user attempts to set the frequency too high, then it will be clipped to the max supported frequency of the board.
-* 'pwm_frequency' - (u32, RW) This specifies the PWM frequency, in Hz,
+* 'pwm_frequency' - (uint, rw) This specifies the PWM frequency, in Hz,
   of all the pwmgen instances running in the PWM modes (modes 1 and 2).
   This is the frequency of the variable-duty-cycle wave.
   Its effective range is from 1 Hz up to 193 kHz.
@@ -618,9 +618,9 @@ component. Each pwmgen instance has the following pins and parameters:
 The output pins of each PWMGen have two additional parameters. To find
 which I/O pin belongs to which output run `dmesg` as described above.
 
-* `invert_output` - (Bit, RW) This parameter only has an effect if the `is_output` parameter is true.
+* `invert_output` - (bool, rw) This parameter only has an effect if the `is_output` parameter is true.
   If this parameter is true, the output value of the GPIO will be the inverse of the value on the `out` HAL pin.
-* `is_opendrain` - (Bit, RW) If this parameter is false, the GPIO behaves as a normal output pin:
+* `is_opendrain` - (bool, rw) If this parameter is false, the GPIO behaves as a normal output pin:
   The I/O pin on the connector is driven to the value specified by the `out` HAL pin (possibly inverted).
   If this parameter is true, the GPIO behaves as an open-drain pin.
   Writing 0 to the `out` HAL pin drives the I/O pin low, writing 1 to the `out` HAL pin puts the I/O pin in a high-impedance state.
@@ -645,48 +645,48 @@ Each encoder instance has the following pins and parameters:
 
 === Pins
 
-* `count` - (s32, Out) Number of encoder counts since the previous reset.
-* `index-enable` - (Bit, I/O) When this pin is set to True,
+* `count` - (sint, out) Number of encoder counts since the previous reset.
+* `index-enable` - (bool, i/o) When this pin is set to True,
   the count (and therefore also position) are reset to zero on the next Index (Phase-Z) pulse.
   At the same time, index-enable is reset to zero to indicate that the pulse has occurred.
-* `position` - (Float, Out) Encoder position in position units (count / scale).
-* `rawcounts` - (s32, Out) Total number of encoder counts since the start, not adjusted for index or reset.
-* `reset` - (Bit, In) When this pin is TRUE, the count and position pins are set to 0.
+* `position` - (real, out) Encoder position in position units (count / scale).
+* `rawcounts` - (sint, out) Total number of encoder counts since the start, not adjusted for index or reset.
+* `reset` - (bool, in) When this pin is TRUE, the count and position pins are set to 0.
   The value of the velocity pin is not affected by this.
   The driver does not reset this pin to FALSE after resetting the count to 0, that is the user's job.
-* `velocity` - (Float, Out) Estimated encoder velocity in position units per second.
+* `velocity` - (real, out) Estimated encoder velocity in position units per second.
 
 === Parameters
 
-* `counter-mode` - (Bit, RW) Set to False (the default) for Quadrature.
+* `counter-mode` - (bool, rw) Set to False (the default) for Quadrature.
   Set to True for Up/Down or for single input on Phase A.
   Can be used for a frequency to velocity converter with a single input on Phase A when set to true.
 
-* `filter` - (Bit, RW) If set to True (the default), the quadrature
+* `filter` - (bool, rw) If set to True (the default), the quadrature
   counter needs 15 clocks to register a change on any of the three input
   lines (any pulse shorter than this is rejected as noise).
   If set to False, the quadrature counter needs only 3 clocks to register a change.
   The encoder sample clock runs at 33 MHz on the PCI Anything I/O cards and 50 MHz on the 7I43.
 
-* `index-invert` - (Bit, RW) If set to True, the rising edge of the
+* `index-invert` - (bool, rw) If set to True, the rising edge of the
   Index input pin triggers the Index event (if index-enable is True).
   If set to False, the falling edge triggers.
 
-* `index-mask` - (Bit, RW) If set to True, the Index input pin only has
+* `index-mask` - (bool, rw) If set to True, the Index input pin only has
   an effect if the Index-Mask input pin is True (or False, depending on
   the `index-mask-invert` pin below).
 
-* `index-mask-invert` - (Bit, RW) If set to True, Index-Mask must be
+* `index-mask-invert` - (bool, rw) If set to True, Index-Mask must be
   False for Index to have an effect.
   If set to False, the `Index-Mask` pin must be True.
 
-* `scale` - (Float, RW) Converts from 'count' units to 'position' units.
+* `scale` - (real, rw) Converts from 'count' units to 'position' units.
   A quadrature encoder will normally have 4 counts per pulse so a 100 PPR
   encoder would be 400 counts per revolution. In `.counter-mode` a 100
   PPR encoder would have 100 counts per revolution as it only uses the
   rising edge of A and direction is B.
 
-* `vel-timeout` - (Float, RW) When the encoder is moving slower than one
+* `vel-timeout` - (real, rw) When the encoder is moving slower than one
   pulse for each time that the driver reads the count from the FPGA (in
   the hm2_read() function), the velocity is harder to estimate.
   The driver can wait several iterations for the next pulse to arrive,

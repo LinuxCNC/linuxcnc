@@ -45,8 +45,8 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];
     struct input_dev *key_dev;
     rtapi_u32 index;
-    unsigned keydown;
-    unsigned keyup;
+    rtapi_uint keydown;
+    rtapi_uint keyup;
     unsigned rowshift;
     unsigned row;
     unsigned num_keys;
@@ -69,10 +69,10 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names");
 
 void keyup(kb_inst_t *inst){
     unsigned r, c;
-    unsigned keycode = hal_get_ui32(inst->hal.keycode) & ~(inst->keydown | inst->keyup);
+    rtapi_uint keycode = hal_get_uint(inst->hal.keycode) & ~(inst->keydown | inst->keyup);
 
     r = keycode >> inst->rowshift;
-    c = keycode & ~(0xFFFFFFFF << inst->rowshift);
+    c = keycode & ((1ul << inst->rowshift) - 1);
     
     if  (   r >= inst->nrows
          || c >= inst->ncols
@@ -86,10 +86,10 @@ void keyup(kb_inst_t *inst){
 }
 void keydown(kb_inst_t *inst){
     unsigned r, c;
-    unsigned keycode = hal_get_ui32(inst->hal.keycode) & ~(inst->keydown | inst->keyup);
+    rtapi_uint keycode = hal_get_uint(inst->hal.keycode) & ~(inst->keydown | inst->keyup);
     
     r = keycode >> inst->rowshift;
-    c = keycode & ~(0xFFFFFFFF << inst->rowshift);
+    c = keycode & ((1ul << inst->rowshift) - 1);
     
     if  (   r >= inst->nrows
          || c >= inst->ncols
@@ -97,7 +97,7 @@ void keydown(kb_inst_t *inst){
         return;
     }
     
-    if (inst->num_keys >= hal_get_ui32(inst->param.rollover)) return;
+    if (inst->num_keys >= hal_get_uint(inst->param.rollover)) return;
     inst->num_keys++;
     
     hal_set_bool(inst->hal.key[r * inst->ncols + c], 1);
@@ -118,13 +118,13 @@ void loop(void *arg, long period){
             for (c = 0; c < inst->ncols; c++){
                 int mask = 1 << c;
                 if ((inst->then[inst->row] & mask) && !(scan & mask)){ //keyup
-                    hal_set_ui32(inst->hal.keycode, inst->keyup
+                    hal_set_uint(inst->hal.keycode, inst->keyup
                     + (inst->row << inst->rowshift) 
                     + c);
                     keyup(inst);
                 }
                 else if (!(inst->then[inst->row] & mask) && (scan & mask)){//keydown
-                    hal_set_ui32(inst->hal.keycode, inst->keydown
+                    hal_set_uint(inst->hal.keycode, inst->keydown
                     + (inst->row << inst->rowshift) 
                     + c);
                     
@@ -133,7 +133,7 @@ void loop(void *arg, long period){
             }
         }
         else {
-            hal_set_ui32(inst->hal.keycode, 0x40);//nochange
+            hal_set_uint(inst->hal.keycode, 0x40);//nochange
         }
         
         inst->then[inst->row] = inst->now[inst->row];
@@ -146,7 +146,7 @@ void loop(void *arg, long period){
     }
     else
     {
-        rtapi_u32 keycode = hal_get_ui32(inst->hal.keycode);
+        rtapi_uint keycode = hal_get_uint(inst->hal.keycode);
         if (keycode == 0x40) return;
         if ((keycode & inst->keydown) == inst->keydown){
             keydown(inst);
@@ -293,7 +293,7 @@ int rtapi_app_main(void){
                 }
             }
                 
-            retval = hal_pin_new_ui32(comp_id, HAL_OUT,
+            retval = hal_pin_new_uint(comp_id, HAL_OUT,
                                       &(inst->hal.keycode), 0,
                                       "%s.keycode",inst->name);
             if (retval != 0) {
@@ -314,7 +314,7 @@ int rtapi_app_main(void){
             }
             
             
-            retval = hal_param_new_ui32(comp_id, HAL_RW,
+            retval = hal_param_new_uint(comp_id, HAL_RW,
                                       &(inst->param.rollover), 2,
                                       "%s.key_rollover",inst->name);
             if (retval != 0) {
@@ -327,7 +327,7 @@ int rtapi_app_main(void){
         }
         else // scanning by 7i73 or similar
         {
-            retval = hal_pin_new_ui32(comp_id, HAL_IN,
+            retval = hal_pin_new_uint(comp_id, HAL_IN,
                                       &(inst->hal.keycode), 0,
                                       "%s.keycode",inst->name);
             if (retval != 0) {
@@ -338,7 +338,7 @@ int rtapi_app_main(void){
             }
         }
         
-        retval = hal_export_funct(inst->name, loop, inst, 1, 0, comp_id); //needs fp?
+        retval = hal_export_funct(inst->name, loop, inst, 0, comp_id); //needs fp?
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: function export failed\n");
             return -1;

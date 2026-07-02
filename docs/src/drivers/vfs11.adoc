@@ -43,75 +43,75 @@ That if there are serial configuration errors, turning on verbose may result in 
 
 Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
 
-* '<n>.acceleration-pattern' (bit, in) when true, set acceleration and deceleration times as defined in registers F500 and F501 respectively.
+* '<n>.acceleration-pattern' (bool, in) when true, set acceleration and deceleration times as defined in registers F500 and F501 respectively.
    Used in PID loops to choose shorter ramp times to avoid oscillation.
-* '<n>.alarm-code' (s32, out) non-zero if drive is in alarmed state.
+* '<n>.alarm-code' (sint, out) non-zero if drive is in alarmed state.
   Bitmap describing alarm information (see register FC91 description).
   Use err-reset (see below) to clear the alarm.
-* '<n>.at-speed' (bit, out)
+* '<n>.at-speed' (bool, out)
   when drive is at commanded speed (see speed-tolerance below)
-* '<n>.current-load-percentage' (float, out)
+* '<n>.current-load-percentage' (real, out)
   reported from the VFD
-* '<n>.dc-brake' (bit, in)
+* '<n>.dc-brake' (bool, in)
   engage the DC brake. Also turns off spindle-on.
-* '<n>.enable' (bit, in)
+* '<n>.enable' (bool, in)
   enable the VFD.
   If false, all operating parameters are still read but control is released and panel control is enabled (subject to VFD setup).
-* '<n>.err-reset' (bit, in)
+* '<n>.err-reset' (bool, in)
   reset errors (alarms a.k.a Trip and e-stop status).
   Resetting the VFD may cause a 2-second delay until it's rebooted and Modbus is up again.
-* '<n>.estop' (bit, in)
+* '<n>.estop' (bool, in)
   put the VFD into emergency-stopped status.
   No operation possible until cleared with err-reset or powercycling.
-* '<n>.frequency-command' (float, out)
+* '<n>.frequency-command' (real, out)
   current target frequency in Hz as set through speed-command (which is in RPM), from the VFD
-* '<n>.frequency-out' (float, out)
+* '<n>.frequency-out' (real, out)
   current output frequency of the VFD
-* '<n>.inverter-load-percentage' (float, out)
+* '<n>.inverter-load-percentage' (real, out)
   current load report from VFD
-* '<n>.is-e-stopped' (bit, out)
+* '<n>.is-e-stopped' (bool, out)
   the VFD is in emergency stop status (blinking "E" on panel).
   Use err-reset to reboot the VFD and clear the e- stop status.
-* '<n>.is-stopped' (bit, out)
+* '<n>.is-stopped' (bool, out)
   true when the VFD reports 0 Hz output
-* '<n>.max-rpm' (float, R)
+* '<n>.max-rpm' (real, R)
   actual RPM limit based on maximum frequency the VFD may generate, and the motors nameplate values.
   For instance, if nameplate-HZ is 50, and nameplate-RPM_ is 1410, but the VFD may generate up to 80 Hz,
   then max-rpm would read as 2256 (80*1410/50).
   The frequency limit is read from the VFD at startup.
   To increase the upper frequency limit, the UL and FH parameters must be changed on the panel.
   See the VF-S11 manual for instructions how to set the maximum frequency.
-* '<n>.modbus-ok' (bit, out)
+* '<n>.modbus-ok' (bool, out)
   true when the Modbus session is successfully established and the last 10 transactions returned without error.
-* '<n>.motor-RPM' (float, out)
+* '<n>.motor-RPM' (real, out)
   estimated current RPM value, from the VFD
-* '<n>.output-current-percentage' (float, out)
+* '<n>.output-current-percentage' (real, out)
   from the VFD
-* '<n>.output-voltage-percentage' (float, out)
+* '<n>.output-voltage-percentage' (real, out)
   from the VFD
-* '<n>.output-voltage' (float, out)
+* '<n>.output-voltage' (real, out)
   from the VFD
-* '<n>.speed-command' (float, in)
+* '<n>.speed-command' (real, in)
   speed sent to VFD in RPM. It is an error to send a speed faster than the Motor Max RPM as set in the VFD
-* '<n>.spindle-fwd' (bit, in)
+* '<n>.spindle-fwd' (bool, in)
   1 for FWD and 0 for REV, sent to VFD
-* '<n>.spindle-on' (bit, in)
+* '<n>.spindle-on' (bool, in)
   1 for ON and 0 for OFF sent to VFD, only on when running
-* '<n>.spindle-rev' (bit, in)
+* '<n>.spindle-rev' (bool, in)
   1 for ON and 0 for OFF, only on when running
-* '<n>.jog-mode' (bit, in)
+* '<n>.jog-mode' (bool, in)
   1 for ON and 0 for OFF, enables the VF-S11 'jog mode'.
   Speed control is disabled, and the output frequency is determined by register F262 (preset to 5 Hz).
   This might be useful for spindle orientation.
   In normal mode, the VFD shuts off if the frequency drops below 12 Hz.
-* '<n>.status' (s32, out)
+* '<n>.status' (sint, out)
   Drive Status of the VFD (see the TOSVERT VF-S11 Communications Function Instruction Manual, register FD01).
   A bitmap.
-* '<n>.trip-code' (s32, out)
+* '<n>.trip-code' (sint, out)
   trip code if VF-S11 is in tripped state.
-* '<n>.error-count' (s32, out)
+* '<n>.error-count' (sint, out)
   number of Modbus transactions which returned an error
-* '<n>.max-speed' (bit, in)
+* '<n>.max-speed' (bool, in)
   ignore the loop-time parameter and run Modbus at maximum speed, at the expense of higher CPU usage.
   Suggested use during spindle positioning.
 
@@ -119,17 +119,17 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
 
 Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
 
-* '<n>.frequency-limit' (float, RO)
+* '<n>.frequency-limit' (real, RO)
   upper limit read from VFD setup.
-* '<n>.loop-time' (float, RW)
+* '<n>.loop-time' (real, RW)
   how often the Modbus is polled (default interval 0.1 seconds)
-* '<n>.nameplate-HZ' (float, RW)
+* '<n>.nameplate-HZ' (real, RW)
   Nameplate Hz of motor (default 50). Used to calculate target frequency (together with nameplate-RPM ) for a target RPM value as given by speed-command.
-* '<n>.nameplate-RPM' (float, RW)
+* '<n>.nameplate-RPM' (real, RW)
   Nameplate RPM of motor (default 1410)
-* '<n>.rpm-limit' (float, RW)
+* '<n>.rpm-limit' (real, RW)
   do-not-exceed soft limit for motor RPM (defaults to nameplate-RPM ).
-* '<n>.tolerance' (float, RW)
+* '<n>.tolerance' (real, RW)
   speed tolerance (default 0.01) for determining whether spindle is at speed (0.01 meaning:
   Output frequency is within 1% of target frequency)
 

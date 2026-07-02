@@ -57,9 +57,9 @@ you can open a terminal and see the pins created with 'loadrt or2' by typing in 
 $ halcmd show pin or2
 Component Pins:
 Owner   Type  Dir         Value  Name
-    22  bit   IN          FALSE  or2.0.in0 <== button-1
-    22  bit   IN          FALSE  or2.0.in1 <== button-2
-    22  bit   OUT         FALSE  or2.0.out ==> led-1
+    22  bool  IN          FALSE  or2.0.in0 <== button-1
+    22  bool  IN          FALSE  or2.0.in1 <== button-2
+    22  bool  OUT         FALSE  or2.0.out ==> led-1
 ----
 
 You can see from the HAL command `show pin or2` that the `button-1` pin is connected to the `or2.0.in0` pin.

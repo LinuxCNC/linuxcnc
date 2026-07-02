@@ -88,10 +88,10 @@ typedef struct {
     char count_detected;
     char index_detected;
     char latch_detected;
-    rtapi_s32 raw_count;
+    rtapi_sint raw_count;
     rtapi_u32 timestamp;
-    rtapi_s32 index_count;
-    rtapi_s32 latch_count;
+    rtapi_sint index_count;
+    rtapi_sint latch_count;
 } atomic;
 
 /* this structure contains the runtime data for a single counter
@@ -120,10 +120,10 @@ typedef struct {
     hal_bool_t latch_in;        /* c:r counter latch input */
     hal_bool_t latch_rising;    /* u:r latch on rising edge? */
     hal_bool_t latch_falling;   /* u:r latch on falling edge? */
-    rtapi_s32 raw_count;	/* c:rw captured raw_count */
+    rtapi_sint raw_count;	/* c:rw captured raw_count */
     rtapi_u32 timestamp;	/* c:rw captured timestamp */
-    rtapi_s32 index_count;	/* c:rw captured index count */
-    rtapi_s32 latch_count;	/* c:rw captured index count */
+    rtapi_sint index_count;	/* c:rw captured index count */
+    rtapi_sint latch_count;	/* c:rw captured index count */
     hal_sint_t count;		/* c:w captured binary count value */
     hal_sint_t count_latch;     /* c:w captured binary count value */
     hal_real_t min_speed;       /* c:r minimum velocity to estimate nonzero */
@@ -273,12 +273,12 @@ int rtapi_app_main(void)
 	cntr->buf[0].index_detected = 0;
 	cntr->buf[1].index_detected = 0;
 	cntr->bp = &(cntr->buf[0]);
-	hal_set_si32(cntr->raw_counts, 0);
+	hal_set_sint(cntr->raw_counts, 0);
 	cntr->raw_count = 0;
 	cntr->timestamp = 0;
 	cntr->index_count = 0;
 	cntr->latch_count = 0;
-	hal_set_si32(cntr->count, 0);
+	hal_set_sint(cntr->count, 0);
 	hal_set_real(cntr->min_speed, 1.0);
 	hal_set_real(cntr->pos, 0.0);
 	hal_set_real(cntr->pos_latch, 0.0);
@@ -291,7 +291,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("encoder.update-counters", update,
-	counter_array, 0, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER: ERROR: count funct export failed\n");
@@ -299,7 +299,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("encoder.capture-position", capture,
-	counter_array, 1, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER: ERROR: capture funct export failed\n");
@@ -332,7 +332,7 @@ static void update(void *arg, long period)
     cntr = arg;
     for (n = 0; n < howmany; n++) {
 	buf = (atomic *) cntr->bp;
-	hal_set_si32(cntr->dt, hal_get_si32(cntr->dt) + period);
+	hal_set_sint(cntr->dt, hal_get_sint(cntr->dt) + period);
 	/* get state machine current state */
 	state = cntr->state;
 	/* add input bits to state code */
@@ -352,15 +352,15 @@ static void update(void *arg, long period)
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
-	    if (hal_get_si32(cntr->missing_teeth) && hal_get_si32(cntr->dt) > hal_get_si32(cntr->limit_dt)){
+	    if (hal_get_sint(cntr->missing_teeth) && hal_get_sint(cntr->dt) > hal_get_sint(cntr->limit_dt)){
 		cntr->gaps++;
 	    }
-	    buf->raw_count = hal_set_si32(cntr->raw_counts, hal_get_si32(cntr->raw_counts) + 1);
+	    buf->raw_count = hal_set_sint(cntr->raw_counts, hal_get_sint(cntr->raw_counts) + 1);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
-	    hal_set_si32(cntr->dt, 0);
+	    hal_set_sint(cntr->dt, 0);
 	} else if (state & SM_CNT_DN_MASK) {
-	    buf->raw_count = hal_set_si32(cntr->raw_counts, hal_get_si32(cntr->raw_counts) - 1);
+	    buf->raw_count = hal_set_sint(cntr->raw_counts, hal_get_sint(cntr->raw_counts) - 1);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
 	}
@@ -376,7 +376,7 @@ static void update(void *arg, long period)
 	/* test for index enabled and rising edge on phase Z */
 	if ((state & cntr->Zmask) == 1) {
 	    /* capture counts, reset Zmask */
-	    buf->index_count = hal_get_si32(cntr->raw_counts);
+	    buf->index_count = hal_get_sint(cntr->raw_counts);
 	    buf->index_detected = 1;
 	    cntr->Zmask = 0;
 	}
@@ -388,7 +388,7 @@ static void update(void *arg, long period)
         if((rising && hal_get_bool(cntr->latch_rising))
                 || (falling && hal_get_bool(cntr->latch_falling))) {
             buf->latch_detected = 1;
-            buf->latch_count = hal_get_si32(cntr->raw_counts);
+            buf->latch_count = hal_get_sint(cntr->raw_counts);
         }
         cntr->old_latch = latch;
 
@@ -465,12 +465,12 @@ static void capture(void *arg, long period)
 		running count of edges seen since startup.  The
 		public "count" is the difference between raw_count
 		and index_count, so it will become zero. */
-	    cntr->raw_count = hal_get_si32(cntr->raw_counts);
+	    cntr->raw_count = hal_get_sint(cntr->raw_counts);
 	    cntr->index_count = cntr->raw_count;
 	}
 	/* process data from update() */
 	if ( buf->count_detected ) {
-	    rtapi_s32 missing_teeth = hal_get_si32(cntr->missing_teeth);
+	    rtapi_sint missing_teeth = hal_get_sint(cntr->missing_teeth);
 	    /* one or more counts in the last period */
 	    buf->count_detected = 0;
 	    delta_time = buf->timestamp - cntr->timestamp;
@@ -478,13 +478,13 @@ static void capture(void *arg, long period)
 	    // lowpass the gap detector deliberately ignoring missing teeth
 	    // see https://github.com/LinuxCNC/linuxcnc/issues/2635
 	    if (delta_counts != 0){
-		rtapi_s32 limit_dt = hal_get_si32(cntr->limit_dt);
+		rtapi_sint limit_dt = hal_get_sint(cntr->limit_dt);
 		limit_dt *= 0.9;
 		limit_dt += 0.1 * ((missing_teeth + 0.5) * (delta_time / delta_counts));
-		hal_set_si32(cntr->limit_dt, limit_dt);
+		hal_set_sint(cntr->limit_dt, limit_dt);
 	    }
 	    // correct counts for tooth gap
-	    hal_set_si32(cntr->raw_counts, hal_get_si32(cntr->raw_counts) + missing_teeth * cntr->gaps);
+	    hal_set_sint(cntr->raw_counts, hal_get_sint(cntr->raw_counts) + missing_teeth * cntr->gaps);
 	    cntr->raw_count = buf->raw_count + missing_teeth * cntr->gaps;
 	    delta_counts += missing_teeth * cntr->gaps;
 	    cntr->gaps = 0;
@@ -500,7 +500,7 @@ static void capture(void *arg, long period)
 	    if ( cntr->counts_since_timeout ) {
 		/* calc time since last count */
 		delta_time = timebase - cntr->timestamp;
-		if (hal_get_si32(cntr->missing_teeth) && delta_time > 1.5 * hal_get_si32(cntr->limit_dt)){
+		if (hal_get_sint(cntr->missing_teeth) && delta_time > 1.5 * hal_get_sint(cntr->limit_dt)){
 			// dont update the velocity in the tooth gap
 		} else if ( delta_time < 1e9 / ( hal_get_real(cntr->min_speed) * cntr->scale )) {
 		    /* not to long, estimate vel if a count arrived now */
@@ -527,11 +527,11 @@ static void capture(void *arg, long period)
 	}
 	hal_set_real(cntr->vel_rpm, hal_get_real(cntr->vel) * 60.0);
 	/* compute net counts */
-	hal_set_si32(cntr->count, cntr->raw_count - cntr->index_count);
-        hal_set_si32(cntr->count_latch, cntr->latch_count - cntr->index_count);
+	hal_set_sint(cntr->count, cntr->raw_count - cntr->index_count);
+        hal_set_sint(cntr->count_latch, cntr->latch_count - cntr->index_count);
 	/* scale count to make floating point position */
-	hal_set_real(cntr->pos, hal_get_si32(cntr->count) * cntr->scale);
-	hal_set_real(cntr->pos_latch, hal_get_si32(cntr->count_latch) * cntr->scale);
+	hal_set_real(cntr->pos, hal_get_sint(cntr->count) * cntr->scale);
+	hal_set_real(cntr->pos_latch, hal_get_sint(cntr->count_latch) * cntr->scale);
 	/* add interpolation value */
 	delta_time = timebase - cntr->timestamp;
 	interp = hal_get_real(cntr->vel) * (delta_time * 1e-9);
@@ -604,19 +604,19 @@ static int export_encoder(counter_t * addr,char * prefix)
     }
 
     /* export parameter for raw counts */
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &(addr->raw_counts), 0,
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &(addr->raw_counts), 0,
             "%s.rawcounts", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts captured by capture() */
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &(addr->count), 0,
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &(addr->count), 0,
             "%s.counts", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts latched by capture() */
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &(addr->count_latch), 0,
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &(addr->count_latch), 0,
             "%s.counts-latched", prefix);
     if (retval != 0) {
 	return retval;
@@ -676,7 +676,7 @@ static int export_encoder(counter_t * addr,char * prefix)
 	return retval;
     }
     /* export pin for missing-tooth index */
-    retval = hal_pin_new_si32(comp_id, HAL_IN, &(addr->missing_teeth), 0,
+    retval = hal_pin_new_sint(comp_id, HAL_IN, &(addr->missing_teeth), 0,
             "%s.missing-teeth", prefix);
     if (retval != 0) {
 	return retval;
@@ -686,13 +686,13 @@ static int export_encoder(counter_t * addr,char * prefix)
 #if 0
     // These two, 'dt' and 'limit_dt' are used in the code and if they are
     // used, then they must be created to allocate storage.
-    retval = hal_param_new_si32(comp_id, HAL_RO, &(addr->dt), 0,
+    retval = hal_param_new_sint(comp_id, HAL_RO, &(addr->dt), 0,
             "%s.dt", prefix);
     if (retval != 0) {
 	return retval;
     }
 
-    retval = hal_param_new_si32(comp_id, HAL_RO, &(addr->limit_dt), 0,
+    retval = hal_param_new_sint(comp_id, HAL_RO, &(addr->limit_dt), 0,
             "%s.limit_dt", prefix);
     if (retval != 0) {
 	return retval;

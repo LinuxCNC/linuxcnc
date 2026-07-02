@@ -1,7 +1,7 @@
 component orient "Provide a PID command input for orientation mode based on current spindle position, target angle and orient mode";
 
 pin in  bool enable      "enable angular output for orientation mode";
-pin in  si32 mode        "sets rotation direction and optional preceding reset to index signal";
+pin in  sint mode        "sets rotation direction and optional preceding reset to index signal";
 pin in  real position    "spindle position input, unit 1 rev";
 pin in  real angle       "orient target position in degrees, 0 ≤ angle < 360";
 pin out real command     "target spindle position, input to PID command";
@@ -10,11 +10,11 @@ pin out bool is-oriented   "This pin goes high when poserr < tolerance. Use to d
 pin in real tolerance = 0.5  "The tolerance in degrees for considering the align completed";
 pin io bool index-enable   "Connect to the spindle encoder counter to reset to index before orienting";
 
-param r ui32 state "state machine for index homing";
+param r uint state "state machine for index homing";
 
-variable int last_enable = 0;
+variable rtapi_bool last_enable = 0;
 variable int debounce = 0; // to prevent the in-position triggering with the spindle moving
-variable int m = 0;
+variable rtapi_sint m = 0;
 variable rtapi_real target_angle = 0;
 variable rtapi_real latched_position = 0;
 
@@ -84,7 +84,7 @@ FUNCTION(_) {
             if (en && !last_enable) {     // positive edge on enable
                 m = mode;
                 if ((0 > m) || (5 < m)) {
-                    rtapi_print_msg(RTAPI_MSG_ERR, "orient.comp: Unhandled mode %i\n", m);
+                    rtapi_print_msg(RTAPI_MSG_ERR, "orient.comp: Unhandled mode %ld\n", m);
                 }
                 if (m < 3){
                     state_set(1);

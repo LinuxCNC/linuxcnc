@@ -22,7 +22,7 @@ extruder.
 
 == PINS
 
-*lineardeltakins.R* float in::
+*lineardeltakins.R* real in::
   Effective diameter of the platform.
 +
 The radius R is different than the distance from the center of the table to the
@@ -31,7 +31,7 @@ RepRap delta parlance, R is DELTA_RADIUS which is computed as
 +
 DELTA_SMOOTH_ROD_OFFSET - DELTA_EFFECTOR_OFFSET - DELTA_CARRIAGE_OFFSET.
 
-*lineardeltakins.L* float in::
+*lineardeltakins.L* real in::
   Length of the rod connecting the carriage to the effector. In RepRap
   delta parlance, L is DELTA_DIAGONAL_ROD.
 

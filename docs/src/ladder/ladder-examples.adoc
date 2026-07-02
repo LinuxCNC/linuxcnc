@@ -178,11 +178,11 @@ RESET is true. The counter is increased by one on the rising edge of
 INDEX. We then 'COMPARE' the counter value (%C0.V) to the tool number
 we want (in the example only checks for tool 1 and 2 are shown). We
 also 'OPERATE' the counter value to a word variable (%W0) that (you can
-assume) is mapped on to a s32 out HAL pin so you can let some other HAL
+assume) is mapped on to a sint out HAL pin so you can let some other HAL
 component know what the current tool number is. In the real world
-another s32 (in) pin would be used to get the requested tool number
+another sint (in) pin would be used to get the requested tool number
 from LinuxCNC.You would have to load ClassicLadder's real time module
-specifying that you want s32 in and out pins. See 'loading options'
+specifying that you want sint in and out pins. See 'loading options'
 above. [display turret sample]
 ///////////////////////////////////////////////////////////////////////////////
 

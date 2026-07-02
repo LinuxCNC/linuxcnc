@@ -14,74 +14,74 @@
  * the component id number and is formatted as "%d".
  *
  *  Pins (former parameters):
- *        u32       boss_plc.<id>.amp-ready-delay
- *        u32       boss_plc.<id>.brake-on-delay
- *        u32       boss_plc.<id>.brake-off-delay
- *        u32       boss_plc.<id>.spindle-lo-to-hi
- *        float     boss_plc.<id>.jog-scale-0
- *        float     boss_plc.<id>.jog-scale-1
- *        float     boss_plc.<id>.jog-scale-2
+ *        uint      boss_plc.<id>.amp-ready-delay
+ *        uint      boss_plc.<id>.brake-on-delay
+ *        uint      boss_plc.<id>.brake-off-delay
+ *        uint      boss_plc.<id>.spindle-lo-to-hi
+ *        real      boss_plc.<id>.jog-scale-0
+ *        real      boss_plc.<id>.jog-scale-1
+ *        real      boss_plc.<id>.jog-scale-2
  *
  *  Pins:
- *        bit       boss_plc.<id>.cycle-start-in
- *        bit       boss_plc.<id>.cycle-hold-in
- *        bit       boss_plc.<id>.feed-hold-out
- *        float     boss_plc.<id>.adaptive-feed-in
- *        float     boss_plc.<id>.adaptive-feed-out
- *        bit       boss_plc.<id>.tool-change-in
- *        bit       boss_plc.<id>.tool-changed-out
- *        bit       boss_plc.<id>.wait-user-out
- *        bit       boss_plc.<id>.mist-on-in
- *        bit       boss_plc.<id>.mist-on-out
- *        bit       boss_plc.<id>.flood-on-in
- *        bit       boss_plc.<id>.flood-on-out
+ *        bool      boss_plc.<id>.cycle-start-in
+ *        bool      boss_plc.<id>.cycle-hold-in
+ *        bool      boss_plc.<id>.feed-hold-out
+ *        real      boss_plc.<id>.adaptive-feed-in
+ *        real      boss_plc.<id>.adaptive-feed-out
+ *        bool      boss_plc.<id>.tool-change-in
+ *        bool      boss_plc.<id>.tool-changed-out
+ *        bool      boss_plc.<id>.wait-user-out
+ *        bool      boss_plc.<id>.mist-on-in
+ *        bool      boss_plc.<id>.mist-on-out
+ *        bool      boss_plc.<id>.flood-on-in
+ *        bool      boss_plc.<id>.flood-on-out
  *
- *        bit       boss_plc.<id>.limit-override-in
- *        bit       boss_plc.<id>.limit-active-out
- *        float     boss_plc.<id>.x-position-in
- *        bit       boss_plc.<id>.x-jog-en-in
- *        bit       boss_plc.<id>.x-limit-in
- *        bit       boss_plc.<id>.x-limit-pos-out
- *        bit       boss_plc.<id>.x-limit-neg-out
- *        float     boss_plc.<id>.y-position-in
- *        bit       boss_plc.<id>.y-jog-en-in
- *        bit       boss_plc.<id>.y-limit-in
- *        bit       boss_plc.<id>.y-limit-pos-out
- *        bit       boss_plc.<id>.y-limit-neg-out
- *        bit       boss_plc.<id>.z-jog-en-in
- *        bit       boss_plc.<id>.z-limit-pos-in
- *        bit       boss_plc.<id>.z-limit-neg-in
- *        bit       boss_plc.<id>.z-limit-pos-out
- *        bit       boss_plc.<id>.z-limit-neg-out
+ *        bool      boss_plc.<id>.limit-override-in
+ *        bool      boss_plc.<id>.limit-active-out
+ *        real      boss_plc.<id>.x-position-in
+ *        bool      boss_plc.<id>.x-jog-en-in
+ *        bool      boss_plc.<id>.x-limit-in
+ *        bool      boss_plc.<id>.x-limit-pos-out
+ *        bool      boss_plc.<id>.x-limit-neg-out
+ *        real      boss_plc.<id>.y-position-in
+ *        bool      boss_plc.<id>.y-jog-en-in
+ *        bool      boss_plc.<id>.y-limit-in
+ *        bool      boss_plc.<id>.y-limit-pos-out
+ *        bool      boss_plc.<id>.y-limit-neg-out
+ *        bool      boss_plc.<id>.z-jog-en-in
+ *        bool      boss_plc.<id>.z-limit-pos-in
+ *        bool      boss_plc.<id>.z-limit-neg-in
+ *        bool      boss_plc.<id>.z-limit-pos-out
+ *        bool      boss_plc.<id>.z-limit-neg-out
  *
- *        bit       boss_plc.<id>.x-amp-enable-in
- *        bit       boss_plc.<id>.x-amp-ready-in
- *        bit       boss_plc.<id>.x-amp-fault-out
- *        bit       boss_plc.<id>.y-amp-enable-in
- *        bit       boss_plc.<id>.y-amp-ready-in
- *        bit       boss_plc.<id>.y-amp-fault-out
- *        bit       boss_plc.<id>.z-amp-enable-in
- *        bit       boss_plc.<id>.z-amp-ready-in
- *        bit       boss_plc.<id>.z-amp-fault-out
- *        bit       boss_plc.<id>.a-amp-enable-in
- *        bit       boss_plc.<id>.a-amp-ready-in
- *        bit       boss_plc.<id>.a-amp-fault-out
+ *        bool      boss_plc.<id>.x-amp-enable-in
+ *        bool      boss_plc.<id>.x-amp-ready-in
+ *        bool      boss_plc.<id>.x-amp-fault-out
+ *        bool      boss_plc.<id>.y-amp-enable-in
+ *        bool      boss_plc.<id>.y-amp-ready-in
+ *        bool      boss_plc.<id>.y-amp-fault-out
+ *        bool      boss_plc.<id>.z-amp-enable-in
+ *        bool      boss_plc.<id>.z-amp-ready-in
+ *        bool      boss_plc.<id>.z-amp-fault-out
+ *        bool      boss_plc.<id>.a-amp-enable-in
+ *        bool      boss_plc.<id>.a-amp-ready-in
+ *        bool      boss_plc.<id>.a-amp-fault-out
  *
- *        float     boss_plc.<id>.spindle-speed-in
- *        bit       boss_plc.<id>.spindle-is-on-in
- *        bit       boss_plc.<id>.spindle-fwd-out
- *        bit       boss_plc.<id>.spindle-rev-out
- *        bit       boss_plc.<id>.spindle-inc-in
- *        bit       boss_plc.<id>.spindle-dec-in
- *        bit       boss_plc.<id>.spindle-inc-out
- *        bit       boss_plc.<id>.spindle-dec-out
- *        bit       boss_plc.<id>.brake-en-in
- *        bit       boss_plc.<id>.brake-en-out
+ *        real      boss_plc.<id>.spindle-speed-in
+ *        bool      boss_plc.<id>.spindle-is-on-in
+ *        bool      boss_plc.<id>.spindle-fwd-out
+ *        bool      boss_plc.<id>.spindle-rev-out
+ *        bool      boss_plc.<id>.spindle-inc-in
+ *        bool      boss_plc.<id>.spindle-dec-in
+ *        bool      boss_plc.<id>.spindle-inc-out
+ *        bool      boss_plc.<id>.spindle-dec-out
+ *        bool      boss_plc.<id>.brake-en-in
+ *        bool      boss_plc.<id>.brake-en-out
  *
- *        bit       boss_plc.<id>.jog-sel-in-0
- *        bit       boss_plc.<id>.jog-sel-in-1
- *        bit       boss_plc.<id>.jog-sel-in-2
- *        bit       boss_plc.<id>.jog-scale-out
+ *        bool      boss_plc.<id>.jog-sel-in-0
+ *        bool      boss_plc.<id>.jog-sel-in-1
+ *        bool      boss_plc.<id>.jog-sel-in-2
+ *        bool      boss_plc.<id>.jog-scale-out
  *
  *   Functions:
  *        void      boss_plc.<id>.refresh
@@ -153,8 +153,8 @@ typedef struct {
     // Private data.
     BOOL                        enabled;
     rtapi_u32                   nSec;
-    rtapi_u32                   count;
-    rtapi_u32                   timeout;
+    rtapi_uint                  count;
+    rtapi_uint                  timeout;
     TIMER_ROUTINE               pTimeout;
     void                        *pArgs;
     TimerMode                   mode;
@@ -165,7 +165,7 @@ static void Timer_Enable(Timer *this, TimerMode mode);
 static void Timer_Disable(Timer *this);
 static BOOL Timer_IsEnabled(Timer *this);
 static void Timer_Update(Timer *this, long period);
-static void Timer_SetTimeout(Timer *this, rtapi_u32 timeout);
+static void Timer_SetTimeout(Timer *this, rtapi_uint timeout);
 #if 0
 static void Timer_SetCallback(Timer *this, TIMER_ROUTINE pCallback, void *pArgs);
 #endif
@@ -229,7 +229,7 @@ typedef struct {
 
 static int Amp_Export(Amp *this, int compId, int id, char axis);
 static void Amp_Init(Amp *this);
-static void Amp_Refresh(Amp *this, long period, rtapi_u32 readyDelay);
+static void Amp_Refresh(Amp *this, long period, rtapi_uint readyDelay);
 
 
 /******************************************************************************
@@ -489,7 +489,7 @@ Plc_Export(Plc *this, int compId, int id)
 
     // Export functions.
     if(!error){
-        error = hal_export_functf(Plc_Refresh, this, 1, 0, compId, "boss_plc.%d.refresh", id);
+        error = hal_export_functf(Plc_Refresh, this, 0, compId, "boss_plc.%d.refresh", id);
     }
 
     // Restore saved message level.
@@ -617,12 +617,12 @@ Plc_ExportLimits(Plc *this, int compId, int id)
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_param_new_ui32(compId, HAL_RO, &this->xLimit.stateDebug, 0,
+            error = hal_param_new_uint(compId, HAL_RO, &this->xLimit.stateDebug, 0,
 				       "boss_plc.%d.%c-limit-state", id, axisNames[0]);
         }
 
         if(!error){
-            error = hal_param_new_ui32(compId, HAL_RO, &this->yLimit.stateDebug, 0,
+            error = hal_param_new_uint(compId, HAL_RO, &this->yLimit.stateDebug, 0,
 				       "boss_plc.%d.%c-limit-state", id, axisNames[1]);
         }
     }
@@ -637,7 +637,7 @@ Plc_ExportAmps(Plc *this, int compId, int id)
     int                         error, i;
     Amp                         *pAmp;
 
-    error = hal_pin_new_ui32(compId, HAL_IO, &this->ampReadyDelay, 50,
+    error = hal_pin_new_uint(compId, HAL_IO, &this->ampReadyDelay, 50,
 			     "boss_plc.%d.amp-ready-delay", id);
 
     pAmp = this->amps;
@@ -655,11 +655,11 @@ Plc_ExportSpindle(Plc *this, int compId, int id)
     int                         error;
 
     // Export parameters.
-    error = hal_pin_new_ui32(compId, HAL_IO, &this->brakeOnDelay, 300,
+    error = hal_pin_new_uint(compId, HAL_IO, &this->brakeOnDelay, 300,
 			     "boss_plc.%d.brake-on-delay", id);
 
     if(!error){
-        error = hal_pin_new_ui32(compId, HAL_IO, &this->brakeOffDelay, 500,
+        error = hal_pin_new_uint(compId, HAL_IO, &this->brakeOffDelay, 500,
 				 "boss_plc.%d.brake-off-delay", id);
     }
 
@@ -671,7 +671,7 @@ Plc_ExportSpindle(Plc *this, int compId, int id)
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_param_new_ui32(compId, HAL_RO, &this->spindleStateDebug, 0,
+            error = hal_param_new_uint(compId, HAL_RO, &this->spindleStateDebug, 0,
 				       "boss_plc.%d.spindle-state", id);
         }
     }
@@ -782,9 +782,9 @@ Plc_Refresh(void *arg, long period)
     Plc_RefreshJog(this, period);
 
     if(debug > 0) {
-        hal_set_ui32(this->spindleStateDebug, this->spindleState);
-        hal_set_ui32(this->xLimit.stateDebug, this->xLimit.state);
-        hal_set_ui32(this->yLimit.stateDebug, this->yLimit.state);
+        hal_set_uint(this->spindleStateDebug, this->spindleState);
+        hal_set_uint(this->xLimit.stateDebug, this->xLimit.state);
+        hal_set_uint(this->yLimit.stateDebug, this->yLimit.state);
     }
 }
 
@@ -855,7 +855,7 @@ Plc_RefreshAmps(Plc *this, long period)
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS; i++, pAmp++){
-        Amp_Refresh(pAmp, period, hal_get_ui32(this->ampReadyDelay));
+        Amp_Refresh(pAmp, period, hal_get_uint(this->ampReadyDelay));
     }
 }
 
@@ -870,7 +870,7 @@ Plc_RefreshSpindle(Plc *this, long period)
         if(!hal_get_bool(this->pBrakeEnIn)){
             this->spindleState = SS_WAIT_BRAKE_OFF;
             hal_set_bool(this->pBrakeEnOut, 0);
-            Timer_SetTimeout(&this->spindleTimer, hal_get_ui32(this->brakeOffDelay));
+            Timer_SetTimeout(&this->spindleTimer, hal_get_uint(this->brakeOffDelay));
             Timer_Enable(&this->spindleTimer, TM_ONE_SHOT);
         }
         break;
@@ -927,7 +927,7 @@ Plc_RefreshSpindle(Plc *this, long period)
         if(!hal_get_bool(this->pSpindleIsOnIn)){
             this->spindleState = SS_WAIT_BRAKE_ON;
 
-            Timer_SetTimeout(&this->spindleTimer, hal_get_ui32(this->brakeOnDelay));
+            Timer_SetTimeout(&this->spindleTimer, hal_get_uint(this->brakeOnDelay));
             Timer_Enable(&this->spindleTimer, TM_ONE_SHOT);
         }
         break;
@@ -1123,7 +1123,7 @@ Amp_Init(Amp *this)
 
 
 static void
-Amp_Refresh(Amp *this, long period, rtapi_u32 readyDelay)
+Amp_Refresh(Amp *this, long period, rtapi_uint readyDelay)
 {
     Timer_Update(&this->timer, period);
 
@@ -1204,7 +1204,7 @@ Timer_Update(Timer *this, long period)
 
 
 static void
-Timer_SetTimeout(Timer *this, rtapi_u32 timeout)
+Timer_SetTimeout(Timer *this, rtapi_uint timeout)
 {
     this->count = 0;
     this->timeout = timeout;

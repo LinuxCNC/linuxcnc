@@ -76,8 +76,8 @@ typedef struct {
     hal_real_t pos_scale;	/* pin: scaling factor for pos */
     double old_scale;		/* stored scale value */
     double scale;		/* reciprocal value used for scaling */
-    rtapi_s32 last_count;
-    rtapi_s32 last_index_count;
+    rtapi_sint last_count;
+    rtapi_sint last_index_count;
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -138,8 +138,8 @@ int rtapi_app_main(void)
 	counter_array[n].oldZ = 0;
 	counter_array[n].oldA = 0;
 	counter_array[n].reset_on_index = 0;
-	hal_set_si32(counter_array[n].raw_count, 0);
-	hal_set_si32(counter_array[n].count, 0);
+	hal_set_sint(counter_array[n].raw_count, 0);
+	hal_set_sint(counter_array[n].count, 0);
 	hal_set_real(counter_array[n].pos, 0.0);
 	hal_set_real(counter_array[n].pos_scale, 1.0);
 	counter_array[n].old_scale = 1.0;
@@ -147,7 +147,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("counter.update-counters", update,
-	counter_array, 0, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: count funct export failed\n");
@@ -155,7 +155,7 @@ int rtapi_app_main(void)
 	return -EIO;
     }
     retval = hal_export_funct("counter.capture-position", capture,
-	counter_array, 1, 0, comp_id);
+	counter_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: capture funct export failed\n");
@@ -186,12 +186,12 @@ static void update(void *arg, long period)
     for (cntr = arg, n = 0; n < num_chan; cntr++, n++) {
         // count on rising edge
         if(!cntr->oldA && hal_get_bool(cntr->phaseA))
-            hal_set_si32(cntr->raw_count, hal_get_si32(cntr->raw_count) + 1);
+            hal_set_sint(cntr->raw_count, hal_get_sint(cntr->raw_count) + 1);
         cntr->oldA = hal_get_bool(cntr->phaseA);
 
         // reset on rising edge
         if(cntr->reset_on_index && !cntr->oldZ && hal_get_bool(cntr->phaseZ)) {
-            cntr->last_index_count = hal_get_si32(cntr->raw_count);
+            cntr->last_index_count = hal_get_sint(cntr->raw_count);
             hal_set_bool(cntr->index_ena, 0);
         }
         cntr->oldZ = hal_get_bool(cntr->phaseZ);
@@ -205,17 +205,17 @@ static void capture(void *arg, long period)
 
     for (cntr = arg, n = 0; n < num_chan; cntr++, n++) {
 	/* check reset input */
-        int raw_count;
-        int counts;
+        rtapi_sint raw_count;
+        rtapi_sint counts;
 	if (hal_get_bool(cntr->reset)) {
 	    /* reset is active, reset the counter */
-	    hal_set_si32(cntr->raw_count, 0);
+	    hal_set_sint(cntr->raw_count, 0);
             cntr->last_index_count = 0;
             cntr->last_count = 0;
 	}
 	/* capture raw counts to latches */
-        raw_count = hal_get_si32(cntr->raw_count);
-	hal_set_si32(cntr->count, raw_count - cntr->last_index_count);
+        raw_count = hal_get_sint(cntr->raw_count);
+	hal_set_sint(cntr->count, raw_count - cntr->last_index_count);
         counts = (raw_count - cntr->last_count);
         cntr->last_count = raw_count;
 
@@ -232,7 +232,7 @@ static void capture(void *arg, long period)
 	    cntr->scale = 1.0 / hal_get_real(cntr->pos_scale);
 	}
 	/* scale count to make floating point position */
-	hal_set_real(cntr->pos, hal_get_si32(cntr->count) * cntr->scale);
+	hal_set_real(cntr->pos, hal_get_sint(cntr->count) * cntr->scale);
 	/* scale counts to make floating point velocity */
         hal_set_real(cntr->vel, counts * cntr->scale * 1e9 / period);
 
@@ -273,9 +273,9 @@ static int export_counter(int num, counter_t * addr)
     /* export pin for the reset input */
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &addr->reset, 0, "counter.%d.reset", num));
     /* export parameter for raw counts */
-    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &addr->raw_count, 0, "counter.%d.rawcounts", num));
+    CHK(hal_pin_new_sint(comp_id, HAL_OUT, &addr->raw_count, 0, "counter.%d.rawcounts", num));
     /* export pin for counts captured by capture() */
-    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &addr->count, 0, "counter.%d.counts", num));
+    CHK(hal_pin_new_sint(comp_id, HAL_OUT, &addr->count, 0, "counter.%d.counts", num));
     /* export pin for scaled position captured by capture() */
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &addr->pos, 0.0, "counter.%d.position", num));
     /* export pin for scaled velocity captured by capture() */

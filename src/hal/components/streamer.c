@@ -176,7 +176,7 @@ static void update(void *arg, long period)
     /* are we enabled? - generate doclock if enabled and right mode  */
     if (hal_get_bool(str->enable)) {
         doclk = 1;
-        switch (hal_get_si32(str->clock_mode)) {
+        switch (hal_get_sint(str->clock_mode)) {
         /* clock-mode 0 means do clock if enabled */
         case 0:
             break;
@@ -204,19 +204,19 @@ static void update(void *arg, long period)
     }
     /* point at user/RT fifo in other shmem */
     int depth = hal_stream_depth(&str->fifo);
-    hal_set_si32(str->curr_depth, depth);
+    hal_set_sint(str->curr_depth, depth);
     hal_set_bool(str->empty, depth == 0);
     if(!doclk)
         return; /* done - output pins retain current values */
     if(depth == 0) {
         /* increase underrun only for valid clock*/
-        hal_set_si32(str->underruns, hal_get_si32(str->underruns) + 1);
+        hal_set_sint(str->underruns, hal_get_sint(str->underruns) + 1);
         return;
     }
     union hal_stream_data data[HAL_STREAM_MAX_PINS];
     if(hal_stream_read(&str->fifo, data, NULL) < 0) {
         /* should not happen (single reader invariant) */
-        hal_set_si32(str->underruns, hal_get_si32(str->underruns) + 1);
+        hal_set_sint(str->underruns, hal_get_sint(str->underruns) + 1);
         return;
     }
     int num_pins = hal_stream_element_count(&str->fifo);
@@ -224,8 +224,6 @@ static void update(void *arg, long period)
     for (int n = 0; n < num_pins; n++) {
         switch ( hal_stream_element_type(&str->fifo, n) ) {
         case HAL_REAL: hal_set_real(str->pins[n].r, data[n].f); break;
-        case HAL_S32:  hal_set_si32(str->pins[n].s, data[n].s); break;
-        case HAL_U32:  hal_set_ui32(str->pins[n].u, data[n].u); break;
         case HAL_SINT: hal_set_sint(str->pins[n].s, data[n].l); break;
         case HAL_UINT: hal_set_uint(str->pins[n].u, data[n].k); break;
         case HAL_BOOL: hal_set_bool(str->pins[n].b, data[n].b); break;
@@ -250,12 +248,12 @@ static int init_streamer(int num, streamer_t *str)
         rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: 'enable' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &str->curr_depth, 0, "%s%d.curr-depth", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &str->curr_depth, 0, "%s%d.curr-depth", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: 'curr_depth' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_IO, &str->underruns, 0, "%s%d.underruns", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &str->underruns, 0, "%s%d.underruns", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: 'underruns' pin export failed\n");
         return -EIO;
@@ -265,7 +263,7 @@ static int init_streamer(int num, streamer_t *str)
         rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: 'clock' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_IN, &str->clock_mode, 0, "%s%d.clock-mode", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_IN, &str->clock_mode, 0, "%s%d.clock-mode", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: 'clock_mode' pin export failed\n");
         return -EIO;
@@ -277,8 +275,6 @@ static int init_streamer(int num, streamer_t *str)
         int type;
         switch(type = hal_stream_element_type(&str->fifo, n)) {
         case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_OUT, &str->pins[n].r, 0.0, pstr, num, n); break;
-        case HAL_S32:  retval = hal_pin_new_si32(comp_id, HAL_OUT, &str->pins[n].s, 0,   pstr, num, n); break;
-        case HAL_U32:  retval = hal_pin_new_ui32(comp_id, HAL_OUT, &str->pins[n].u, 0,   pstr, num, n); break;
         case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_OUT, &str->pins[n].s, 0,   pstr, num, n); break;
         case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_OUT, &str->pins[n].u, 0,   pstr, num, n); break;
         case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_OUT, &str->pins[n].b, 0,   pstr, num, n); break;
@@ -292,7 +288,7 @@ static int init_streamer(int num, streamer_t *str)
         }
     }
     /* export update function */
-    retval = hal_export_functf(update, str, 1, 0, comp_id, "%s%d", strbase, num);
+    retval = hal_export_functf(update, str, 0, comp_id, "%s%d", strbase, num);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "STREAMER: ERROR: function export failed\n");
         return retval;

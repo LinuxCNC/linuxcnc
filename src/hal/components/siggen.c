@@ -335,7 +335,7 @@ static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
     addr->index = 0.0;
     /* export function for this loop */
     retval =
-	hal_export_functf(calc_siggen, &(siggen_array[num]), 1, 0,
+	hal_export_functf(calc_siggen, &(siggen_array[num]), 0,
 	comp_id, "%s.update", prefix);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

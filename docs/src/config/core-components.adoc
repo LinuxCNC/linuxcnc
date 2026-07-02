@@ -94,32 +94,32 @@ unlock_joints_mask=0x38 selects joints 3,4,5
 (((motion:HAL pins)))
 These pins, parameters, and functions are created by the realtime 'motmod' module.
 
-* 'motion.adaptive-feed' - (float, in) When adaptive feed is enabled with 'M52 P1' , the
+* 'motion.adaptive-feed' - (real, in) When adaptive feed is enabled with 'M52 P1' , the
   commanded velocity is multiplied by this value. This effect is
   multiplicative with the NML-level feed override value and
   'motion.feed-hold'. As of version 2.9 of LinuxCNC it is possible to
   use a negative adaptive feed value to run the G-code path in reverse.
-* 'motion.analog-in-00' - (float, in) These pins (00, 01, 02, 03 or more if configured) are
+* 'motion.analog-in-00' - (real, in) These pins (00, 01, 02, 03 or more if configured) are
   controlled by M66.
-* 'motion.analog-out-00' - (float, out) These pins (00, 01, 02, 03 or more if configured) are
+* 'motion.analog-out-00' - (real, out) These pins (00, 01, 02, 03 or more if configured) are
   controlled by M67 or M68.
-* 'motion.coord-error' - (bit, out) TRUE when motion has encountered an error, such as
+* 'motion.coord-error' - (bool, out) TRUE when motion has encountered an error, such as
   exceeding a soft limit
-* 'motion.coord-mode' - (bit, out) TRUE when motion is in 'coordinated mode', as opposed to 'teleop mode'
-* 'motion.current-vel' - (float, out) The current tool velocity in user units per second.
-* 'motion.digital-in-00' - (bit, in) These pins (00, 01, 02, 03 or more if configured) are controlled by M62-65.
-* 'motion.digital-out-00' - (bit, out) These pins (00, 01, 02, 03 or more if configured) are controlled by the 'M62-65'.
-* 'motion.distance-to-go' - (float,out) The distance remaining in the current move.
-* 'motion.enable' - (bit, in) If this bit is driven FALSE, motion stops, the machine is
+* 'motion.coord-mode' - (bool, out) TRUE when motion is in 'coordinated mode', as opposed to 'teleop mode'
+* 'motion.current-vel' - (real, out) The current tool velocity in user units per second.
+* 'motion.digital-in-00' - (bool, in) These pins (00, 01, 02, 03 or more if configured) are controlled by M62-65.
+* 'motion.digital-out-00' - (bool, out) These pins (00, 01, 02, 03 or more if configured) are controlled by the 'M62-65'.
+* 'motion.distance-to-go' - (real, out) The distance remaining in the current move.
+* 'motion.enable' - (bool, in) If this input is driven FALSE, motion stops, the machine is
   placed in the 'machine off' state, and a message is displayed for the
-  operator. For normal motion, drive this bit TRUE.
-* 'motion.feed-hold' - (bit, in) When Feed Stop Control is enabled with 'M53 P1', and this
-  bit is TRUE, the feed rate is set to 0.
-* 'motion.feed-inhibit' - (bit, in) When this bit is TRUE, the feed rate is set to 0.
+  operator. For normal motion, drive this input TRUE.
+* 'motion.feed-hold' - (bool, in) When Feed Stop Control is enabled with 'M53 P1', and this
+  input is TRUE, the feed rate is set to 0.
+* 'motion.feed-inhibit' - (bool, in) When this input is TRUE, the feed rate is set to 0.
   This will be delayed during spindle synch moves till the end of the move.
-* 'motion.in-position' - (bit, out) TRUE if the machine is in position.
-* 'motion.motion-enabled' - (bit, out) TRUE when in 'machine on' state.
-* 'motion.motion-type' - (s32, out) These values are from src/emc/nml_intf/motion_types.h
+* 'motion.in-position' - (bool, out) TRUE if the machine is in position.
+* 'motion.motion-enabled' - (bool, out) TRUE when in 'machine on' state.
+* 'motion.motion-type' - (sint, out) These values are from src/emc/nml_intf/motion_types.h
   - 0: Idle (no motion)
   - 1: Traverse
   - 2: Linear feed
@@ -127,30 +127,30 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
   - 4: Tool change
   - 5: Probing
   - 6: Rotary axis indexing
-* 'motion.on-soft-limit' - (bit, out) TRUE when the machine is on a soft limit.
-* 'motion.probe-input' - (bit, in)
+* 'motion.on-soft-limit' - (bool, out) TRUE when the machine is on a soft limit.
+* 'motion.probe-input' - (bool, in)
   'G38.n' uses the value on this pin to determine when the probe has made contact.
   TRUE for probe contact closed (touching), FALSE for probe contact open.
-* 'motion.program-line' - (s32, out) The current program line while executing.
+* 'motion.program-line' - (sint, out) The current program line while executing.
   Zero if not running or between lines while single stepping.
-* 'motion.requested-vel' - (float, out)
+* 'motion.requested-vel' - (real, out)
   The current requested velocity in user units per second.
   This value is the F-word setting from the G-code file, possibly reduced to accommodate machine velocity and acceleration limits.
   The value on this pin does not reflect the feed override or any other adjustments.
-* 'motion.teleop-mode' - (bit, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
-* 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
+* 'motion.teleop-mode' - (bool, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
+* 'motion.tooloffset.x ... motion.tooloffset.w' - (real, out, one per axis) shows the tool offset in effect;
   it could come from the tool table ('G43' active), or it could come from the G-code ('G43.1' active)
-* 'motion.on-soft-limit' - (bit, out) TRUE when the machine is on a soft limit.
-* 'motion.probe-input' - (bit, in) 'G38.n'  uses the value on this pin to determine when the probe has made contact.
+* 'motion.on-soft-limit' - (bool, out) TRUE when the machine is on a soft limit.
+* 'motion.probe-input' - (bool, in) 'G38.n'  uses the value on this pin to determine when the probe has made contact.
   TRUE for probe contact closed (touching),
   FALSE for probe contact open.
-* 'motion.program-line' - (s32, out) The current program line while executing.
+* 'motion.program-line' - (sint, out) The current program line while executing.
   Zero if not running or between lines while single stepping.
-* 'motion.requested-vel' - (float, out) The current requested velocity in user units per second.
+* 'motion.requested-vel' - (real, out) The current requested velocity in user units per second.
   This value is the F-word setting from the G-code file, possibly reduced to accommodate machine velocity and acceleration limits.
   The value on this pin does not reflect the feed override or any other adjustments.
-* 'motion.teleop-mode' - (bit, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
-* 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
+* 'motion.teleop-mode' - (bool, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
+* 'motion.tooloffset.x ... motion.tooloffset.w' - (real, out, one per axis) shows the tool offset in effect;
   it could come from the tool table ('G43' active), or it could come from the G-code ('G43.1' active)
 
 === Parameters
@@ -158,19 +158,19 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
 Many of these parameters serve as debugging aids, and are subject to
 change or removal at any time.
 
-* 'motion-command-handler.time' - (s32, RO)
-* 'motion-command-handler.tmax' - (s32, RW)
-* 'motion-controller.time' - (s32, RO)
-* 'motion-controller.tmax' - (s32, RW)
-* 'motion.debug-bit-0' - (bit, RO) This is used for debugging purposes.
-* 'motion.debug-bit-1' - (bit, RO) This is used for debugging purposes.
-* 'motion.debug-float-0' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-float-1' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-float-2' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-float-3' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-s32-0' - (s32, RO) This is used for debugging purposes.
-* 'motion.debug-s32-1' - (s32, RO) This is used for debugging purposes.
-* 'motion.servo.last-period' - (u32, RO) The time in ns between invocations of the servo thread.
+* 'motion-command-handler.time' - (sint, RO)
+* 'motion-command-handler.tmax' - (sint, RW)
+* 'motion-controller.time' - (sint, RO)
+* 'motion-controller.tmax' - (sint, RW)
+* 'motion.debug-bool-0' - (bool, RO) This is used for debugging purposes.
+* 'motion.debug-bool-1' - (bool, RO) This is used for debugging purposes.
+* 'motion.debug-real-0' - (real, RO) This is used for debugging purposes.
+* 'motion.debug-real-1' - (real, RO) This is used for debugging purposes.
+* 'motion.debug-real-2' - (real, RO) This is used for debugging purposes.
+* 'motion.debug-real-3' - (real, RO) This is used for debugging purposes.
+* 'motion.debug-sint-0' - (sint, RO) This is used for debugging purposes.
+* 'motion.debug-sint-1' - (sint, RO) This is used for debugging purposes.
+* 'motion.servo.last-period' - (uint, RO) The time in ns between invocations of the servo thread.
   This number can be used to determine whether the realtime motion controller is meeting its timing constraints
 
 === Functions
@@ -192,7 +192,7 @@ The __N__ (integer between 0 and 7) substitutes the spindle number.
 
 (((spindle (HAL pins))))
 
-* 'spindle.__N__.at-speed' - (bit, in)
+* 'spindle.__N__.at-speed' - (bool, in)
   Motion will pause until this pin is TRUE, under the following conditions:
 ** before the first feed move after each spindle start or speed change;
 ** before the start of every chain of spindle-synchronized moves;
@@ -204,43 +204,43 @@ The __N__ (integer between 0 and 7) substitutes the spindle number.
    Many VFDs have an 'at speed' output.
    Otherwise, it is easy to generate this signal with the 'HAL near'
    component, by comparing requested and actual spindle speeds.
-* 'spindle.__N__.brake' - (bit, out) TRUE when the spindle brake should be applied.
-* 'spindle.__N__.forward' - (bit, out) TRUE when the spindle should rotate forward.
-* 'spindle.__N__.index-enable' - (bit, I/O) For correct operation of spindle synchronized moves, this
+* 'spindle.__N__.brake' - (bool, out) TRUE when the spindle brake should be applied.
+* 'spindle.__N__.forward' - (bool, out) TRUE when the spindle should rotate forward.
+* 'spindle.__N__.index-enable' - (bool, I/O) For correct operation of spindle synchronized moves, this
   pin must be hooked to the index-enable pin of the spindle encoder.
-* 'spindle.__N__.inhibit' - (bit, in) When this bit is TRUE, the spindle speed is set to 0.
-* 'spindle.__N__.on' - (bit, out) TRUE when spindle should rotate.
-* 'spindle.__N__.reverse' - (bit, out) TRUE when the spindle should rotate backward
-* 'spindle.__N__.revs' - (float, in) For correct operation of spindle synchronized moves, this
+* 'spindle.__N__.inhibit' - (bool, in) When this input is TRUE, the spindle speed is set to 0.
+* 'spindle.__N__.on' - (bool, out) TRUE when spindle should rotate.
+* 'spindle.__N__.reverse' - (bool, out) TRUE when the spindle should rotate backward
+* 'spindle.__N__.revs' - (real, in) For correct operation of spindle synchronized moves, this
   signal must be hooked to the position pin of the spindle encoder. The
   spindle encoder position should be scaled such that spindle-revs
   increases by 1.0 for each rotation of the spindle in the clockwise ('M3') direction.
-* 'spindle.__N__.speed-in' - (float, in) Feedback of actual spindle speed in rotations per second.
+* 'spindle.__N__.speed-in' - (real, in) Feedback of actual spindle speed in rotations per second.
   This is used by feed-per-revolution motion ('G95').
   If your spindle encoder driver does not have a velocity output, you can generate
   a suitable one by sending the spindle position through a 'ddt' component.
   If you do not have a spindle encoder, you can loop back 'spindle.__N__.speed-out-rps'.
-* 'spindle.__N__.speed-out' - (float, out) Commanded spindle speed in rotations per minute. Positive
+* 'spindle.__N__.speed-out' - (real, out) Commanded spindle speed in rotations per minute. Positive
   for spindle forward ('M3'), negative for spindle reverse ('M4').
-* 'spindle.__N__.speed-out-abs' - (float, out) Commanded spindle speed in rotations per minute. This will
+* 'spindle.__N__.speed-out-abs' - (real, out) Commanded spindle speed in rotations per minute. This will
   always be a positive number.
-* 'spindle.__N__.speed-out-rps' - (float, out) Commanded spindle speed in rotations per second. Positive
+* 'spindle.__N__.speed-out-rps' - (real, out) Commanded spindle speed in rotations per second. Positive
   for spindle forward ('M3'), negative for spindle reverse ('M4').
-* 'spindle.__N__.speed-out-rps-abs' - (float, out) Commanded spindle speed in rotations per second. This will
+* 'spindle.__N__.speed-out-rps-abs' - (real, out) Commanded spindle speed in rotations per second. This will
   always be a positive number.
-* 'spindle.__N__.orient-angle' - (float,out) Desired spindle orientation for M19. Value of the
+* 'spindle.__N__.orient-angle' - (real, out) Desired spindle orientation for M19. Value of the
   M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
-* 'spindle.__N__.orient-mode' - (s32,out) Desired spindle rotation mode M19. Default 0.
-* 'spindle.__N__.orient' - (out,bit)
+* 'spindle.__N__.orient-mode' - (sint, out) Desired spindle rotation mode M19. Default 0.
+* 'spindle.__N__.orient' - (bool, out)
   Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3, M4, or M5.
   If spindle-orient-fault is not zero during spindle-orient
   true, the M19 command fails with an error message.
-* 'spindle.__N__.is-oriented' - (in, bit) Acknowledge pin for spindle-orient. Completes orient cycle.
+* 'spindle.__N__.is-oriented' - (bool, in) Acknowledge pin for spindle-orient. Completes orient cycle.
   If spindle-orient was true when spindle-is-oriented was asserted, the spindle-orient pin is cleared and the
   spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
-* 'spindle.__N__.orient-fault' - (s32, in) Fault code input for orient cycle. Any value other
+* 'spindle.__N__.orient-fault' - (sint, in) Fault code input for orient cycle. Any value other
   than zero  will cause the orient cycle to abort.
-* 'spindle.__N__.lock' - (bit, out) Spindle orient complete pin. Cleared by any of M3, M4, or M5.
+* 'spindle.__N__.lock' - (bool, out) Spindle orient complete pin. Cleared by any of M3, M4, or M5.
 
 .HAL pin usage for M19 orient spindle
 Conceptually the spindle is in one of the following modes:
@@ -302,17 +302,17 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 
 (((iocontrol (HAL pins))))
 
-* 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
-* 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
-* 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-Stop condition exists.
-* 'iocontrol.0.tool-change' (bit, out) TRUE when a tool change is requested.
-* 'iocontrol.0.tool-changed' (bit, in) Should be driven TRUE when a tool change is completed.
-* 'iocontrol.0.tool-number' (s32, out) The current tool number.
-* 'iocontrol.0.tool-prep-number' (s32, out) The number of the next tool, from the RS274NGC T-word.
-* 'iocontrol.0.tool-prepare' (bit, out) TRUE when a tool prepare is requested.
-* 'iocontrol.0.tool-prepared' (bit, in) Should be driven TRUE when a tool prepare is completed.
-* 'iocontrol.0.user-enable-out' (bit, out) FALSE when an internal E-Stop condition exists.
-* 'iocontrol.0.user-request-enable' (bit, out) TRUE when the user has requested that E-Stop be cleared.
+* 'iocontrol.0.coolant-flood' (bool, out) TRUE when flood coolant is requested.
+* 'iocontrol.0.coolant-mist' (bool, out) TRUE when mist coolant is requested.
+* 'iocontrol.0.emc-enable-in' (bool, in) Should be driven FALSE when an external E-Stop condition exists.
+* 'iocontrol.0.tool-change' (bool, out) TRUE when a tool change is requested.
+* 'iocontrol.0.tool-changed' (bool, in) Should be driven TRUE when a tool change is completed.
+* 'iocontrol.0.tool-number' (sint, out) The current tool number.
+* 'iocontrol.0.tool-prep-number' (sint, out) The number of the next tool, from the RS274NGC T-word.
+* 'iocontrol.0.tool-prepare' (bool, out) TRUE when a tool prepare is requested.
+* 'iocontrol.0.tool-prepared' (bool, in) Should be driven TRUE when a tool prepare is completed.
+* 'iocontrol.0.user-enable-out' (bool, out) FALSE when an internal E-Stop condition exists.
+* 'iocontrol.0.user-request-enable' (bool, out) TRUE when the user has requested that E-Stop be cleared.
 
 == INI settings
 
@@ -323,20 +323,20 @@ A number of INI settings are made available as HAL input pins.
 (((INI settings (HAL pins))))
 _N_ refers to a joint number, _L_ refers to an axis letter.
 
-* 'ini.__N__.ferror' - (float, in) [JOINT_N]FERROR
-* 'ini.__N__.min_ferror' - (float, in) [JOINT_N]MIN_FERROR
-* 'ini.__N__.backlash' - (float, in) [JOINT_N]BACKLASH
-* 'ini.__N__.min_limit' - (float, in) [JOINT_N]MIN_LIMIT
-* 'ini.__N__.max_limit' - (float, in) [JOINT_N]MAX_LIMIT
-* 'ini.__N__.max_velocity' - (float, in) [JOINT_N]MAX_VELOCITY
-* 'ini.__N__.max_acceleration' - (float, in) [JOINT_N]MAX_ACCELERATION
-* 'ini.__N__.home' - (float, in) [JOINT_N]HOME
-* 'ini.__N__.home_offset' - (float, in) [JOINT_N]HOME_OFFSET
-* 'ini.__N__.home_offset' - (s32, in) [JOINT_N]HOME_SEQUENCE
-* 'ini.__L__.min_limit' - (float, in) [AXIS_L]MIN_LIMIT
-* 'ini.__L__.max_limit' - (float, in) [AXIS_L]MAX_LIMIT
-* 'ini.__L__.max_velocity' - (float, in) [AXIS_L]MAX_VELOCITY
-* 'ini.__L__.max_acceleration' - (float, in) [AXIS_L]MAX_ACCELERATION
+* 'ini.__N__.ferror' - (real, in) [JOINT_N]FERROR
+* 'ini.__N__.min_ferror' - (real, in) [JOINT_N]MIN_FERROR
+* 'ini.__N__.backlash' - (real, in) [JOINT_N]BACKLASH
+* 'ini.__N__.min_limit' - (real, in) [JOINT_N]MIN_LIMIT
+* 'ini.__N__.max_limit' - (real, in) [JOINT_N]MAX_LIMIT
+* 'ini.__N__.max_velocity' - (real, in) [JOINT_N]MAX_VELOCITY
+* 'ini.__N__.max_acceleration' - (real, in) [JOINT_N]MAX_ACCELERATION
+* 'ini.__N__.home' - (real, in) [JOINT_N]HOME
+* 'ini.__N__.home_offset' - (real, in) [JOINT_N]HOME_OFFSET
+* 'ini.__N__.home_offset' - (sint, in) [JOINT_N]HOME_SEQUENCE
+* 'ini.__L__.min_limit' - (real, in) [AXIS_L]MIN_LIMIT
+* 'ini.__L__.max_limit' - (real, in) [AXIS_L]MAX_LIMIT
+* 'ini.__L__.max_velocity' - (real, in) [AXIS_L]MAX_VELOCITY
+* 'ini.__L__.max_acceleration' - (real, in) [AXIS_L]MAX_ACCELERATION
 
 [NOTE]
 The per-axis min_limit and max_limit pins are honored continuously after homing.
@@ -348,32 +348,32 @@ sampled when in a program is running (auto mode) or in MDI mode.  Consequently,
 changing the pin values when a program is running will not have effect until
 the program is stopped and the motion_state is again free.
 
-* 'ini.traj_arc_blend_enable' - (bit, in) [TRAJ]ARC_BLEND_ENABLE
-* 'ini.traj_arc_blend_fallback_enable' - (bit, in) [TRAJ]ARC_BLEND_FALLBACK_ENABLE
-* 'ini.traj_arc_blend_gap_cycles' - (float, in) [TRAJ]ARC_BLEND_GAP_CYCLES
-* 'ini.traj_arc_blend_optimization_depth' - (float, in) [TRAJ]ARC_BLEND_OPTIMIZATION_DEPTH
-* 'ini.traj_arc_blend_ramp_freq' - (float, in) [TRAJ]ARC_BLEND_RAMP_FREQ
+* 'ini.traj_arc_blend_enable' - (bool, in) [TRAJ]ARC_BLEND_ENABLE
+* 'ini.traj_arc_blend_fallback_enable' - (bool, in) [TRAJ]ARC_BLEND_FALLBACK_ENABLE
+* 'ini.traj_arc_blend_gap_cycles' - (real, in) [TRAJ]ARC_BLEND_GAP_CYCLES
+* 'ini.traj_arc_blend_optimization_depth' - (real, in) [TRAJ]ARC_BLEND_OPTIMIZATION_DEPTH
+* 'ini.traj_arc_blend_ramp_freq' - (real, in) [TRAJ]ARC_BLEND_RAMP_FREQ
 
 [NOTE]
 The traj_arc_blend pins are sampled continuously but changing pin values
 while a program is running may not have immediate effect due to queueing
 of commands.
 
-* 'ini.traj_default_acceleration' - (float, in) [TRAJ]DEFAULT_ACCELERATION
-* 'ini.traj_default_velocity' - (float, in) [TRAJ]DEFAULT_VELOCITY
-* 'ini.traj_max_acceleration' - (float, in) [TRAJ]MAX_ACCELERATION
+* 'ini.traj_default_acceleration' - (real, in) [TRAJ]DEFAULT_ACCELERATION
+* 'ini.traj_default_velocity' - (real, in) [TRAJ]DEFAULT_VELOCITY
+* 'ini.traj_max_acceleration' - (real, in) [TRAJ]MAX_ACCELERATION
 
 S-curve trajectory planning pins (sampled continuously, can be changed at runtime):
 
-* 'ini.traj_planner_type' - (s32, in) [TRAJ]PLANNER_TYPE
-* 'ini.traj_max_jerk' - (float, in) [TRAJ]MAX_LINEAR_JERK
+* 'ini.traj_planner_type' - (sint, in) [TRAJ]PLANNER_TYPE
+* 'ini.traj_max_jerk' - (real, in) [TRAJ]MAX_LINEAR_JERK
 
 Per-axis jerk limit pins (where _L_ is x, y, z, a, b, c, u, v, or w):
 
-* 'ini._L_.max_jerk' - (float, in) [AXIS__L_]MAX_JERK
+* 'ini._L_.max_jerk' - (real, in) [AXIS__L_]MAX_JERK
 
 Per-joint jerk limit pins (where _N_ is the joint number 0-8):
 
-* 'ini._N_.max_jerk' - (float, in) [JOINT__N_]MAX_JERK
+* 'ini._N_.max_jerk' - (real, in) [JOINT__N_]MAX_JERK
 
 // vim: set syntax=asciidoc:

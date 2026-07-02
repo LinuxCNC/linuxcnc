@@ -118,20 +118,20 @@ static void mod_dir_funct(void *arg, long period)
     (void)period;
     mod_dir_t *mod = (mod_dir_t *)arg; /* point to block data */
 
-    rtapi_s32 min_num = hal_get_si32(mod->min_num);
-    rtapi_s32 max_num = hal_get_si32(mod->max_num);
+    rtapi_sint min_num = hal_get_sint(mod->min_num);
+    rtapi_sint max_num = hal_get_sint(mod->max_num);
 
-    rtapi_s32 range = max_num - min_num + 1;
-    rtapi_s32 act = hal_get_si32(mod->actual);
+    rtapi_sint range = max_num - min_num + 1;
+    rtapi_sint act = hal_get_sint(mod->actual);
     if (act > max_num || act < min_num) {
         act = min_num + ((act-min_num) % (range));
     }
-    rtapi_s32 des = hal_get_si32(mod->desired);
+    rtapi_sint des = hal_get_sint(mod->desired);
     if (des > max_num || des < min_num) {
         des = min_num + ((des-min_num) % (range));
     }
 
-    rtapi_s32 to_go = des-act;
+    rtapi_sint to_go = des-act;
 
     if ((hal_get_bool(mod->wrap)) && (to_go > range/2)) {
         to_go -= range;
@@ -187,16 +187,16 @@ static int export_mod_dir(int num)
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &(moddir->on_target), 1, "%s.on-target", base), "on-target");
 
     /* export input pins */
-    CHK(hal_pin_new_si32(comp_id, HAL_IN, &(moddir->actual), 0, "%s.actual", base), "actual");
-    CHK(hal_pin_new_si32(comp_id, HAL_IN, &(moddir->desired), 0, "%s.desired", base), "desired");
+    CHK(hal_pin_new_sint(comp_id, HAL_IN, &(moddir->actual), 0, "%s.actual", base), "actual");
+    CHK(hal_pin_new_sint(comp_id, HAL_IN, &(moddir->desired), 0, "%s.desired", base), "desired");
 
     /* export pins for max and min values */
-    CHK(hal_pin_new_si32(comp_id, HAL_IO, &(moddir->min_num), 0, "%s.min-num", base), "min-num");
-    CHK(hal_pin_new_si32(comp_id, HAL_IO, &(moddir->max_num), 15, "%s.max-num", base), "max-num");
+    CHK(hal_pin_new_sint(comp_id, HAL_IO, &(moddir->min_num), 0, "%s.min-num", base), "min-num");
+    CHK(hal_pin_new_sint(comp_id, HAL_IO, &(moddir->max_num), 15, "%s.max-num", base), "max-num");
     CHK(hal_pin_new_bool(comp_id, HAL_IO, &(moddir->wrap), 1, "%s.wrap", base), "wrap");
 
     /* export function */
-    retval = hal_export_funct(base, mod_dir_funct, moddir, 1, 0, comp_id);
+    retval = hal_export_funct(base, mod_dir_funct, moddir, 0, comp_id);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "MODMATH: ERROR: '%s' funct export failed\n", base);
         return -1;

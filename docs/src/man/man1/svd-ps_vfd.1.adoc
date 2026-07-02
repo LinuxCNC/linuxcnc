@@ -73,54 +73,54 @@ PD-06 = 0 (Current resolution)
 
 == PINS
 
-*svd-ps_vfd.period* (float, in)::
+*svd-ps_vfd.period* (real, in)::
   The period for the driver's update cycle, in seconds.
   This is how frequently the driver will wake up, check its HAL pins, and communicate with the VFD.
   Must be between 0.001 and 2.000 seconds.
   Default: 0.1 seconds.
 
-*svd-ps_vfd.speed-cmd* (float, in)::
+*svd-ps_vfd.speed-cmd* (real, in)::
   The requested motor speed, in RPM.
 
-*svd-ps_vfd.speed-fb* (float, out)::
+*svd-ps_vfd.speed-fb* (real, out)::
   The motor's current speed, in RPM, reported by the VFD.
 
-*svd-ps_vfd.at-speed* (bit, out)::
+*svd-ps_vfd.at-speed* (bool, out)::
   True when the drive is on and at the commanded speed (within 2%),
   False otherwise.
 
-*svd-ps_vfd.freq-cmd* (float, out)::
+*svd-ps_vfd.freq-cmd* (real, out)::
   The requested output frequency, in Hz.
   This is set from the `.speed-cmd` value, and is just shown for debugging purposes.
 
-*svd-ps_vfd.freq-fb* (float, out)::
+*svd-ps_vfd.freq-fb* (real, out)::
   The current output frequency of the VFD, in Hz.  This is reported from the VFD to the driver.
 
-*svd-ps_vfd.spindle-on* (bit, in)::
+*svd-ps_vfd.spindle-on* (bool, in)::
   Set this pin True to command the spindle on, at the speed requested on the `.speed-cmd` pin.
   Set this pin False to command the spindle off.
 
-*svd-ps_vfd.output-voltage* (float, out)::
+*svd-ps_vfd.output-voltage* (real, out)::
   The voltage that the VFD is current providing to the motor, in Volts.
 
-*svd-ps_vfd.output-current* (float, out)::
+*svd-ps_vfd.output-current* (real, out)::
   The current that the motor is currently drawing from the VFD, in Amperes.
 
-*hsvd-ps_vfd.output-power* (float, out)::
+*hsvd-ps_vfd.output-power* (real, out)::
   The power that the motor is currently drawing from the VFD, in Watts.
 
-*svd-ps_vfd.dc-bus-voltage* (float, out)::
+*svd-ps_vfd.dc-bus-voltage* (real, out)::
   The current voltage of the VFD's internal DC power supply, in Volts.
 
-*svd-ps_vfd.modbus-errors* (u32, out)::
+*svd-ps_vfd.modbus-errors* (uint, out)::
   A count of the number of modbus communication errors between the driver and the VFD.
   The driver is resilient against communication errors, but a large or growing number here indicates a problem that should be investigated.
 
-*svd-ps_vfd.input-terminal* (float, out):: The VFD's input terminal register.
+*svd-ps_vfd.input-terminal* (real, out):: The VFD's input terminal register.
 
-*svd-ps_vfd.AI1* (float, out):: The VFD's AI1 register.
+*svd-ps_vfd.AI1* (real, out):: The VFD's AI1 register.
 
-*svd-ps_vfd.AI2* (float, out):: The VFD's AI2 register.
+*svd-ps_vfd.AI2* (real, out):: The VFD's AI2 register.
 
 == AUTHOR
 

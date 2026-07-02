@@ -96,7 +96,7 @@
                <bool>true</bool>
               </property>
               <property name="pin_type" stdset="0">
-               <enum>PushButton::FLOAT</enum>
+               <enum>PushButton::REAL</enum>
               </property>
               <property name="groupPinName" stdset="0">
                <string>increments</string>
@@ -130,7 +130,7 @@
                <bool>false</bool>
               </property>
               <property name="pin_type" stdset="0">
-               <enum>PushButton::FLOAT</enum>
+               <enum>PushButton::REAL</enum>
               </property>
               <property name="exclusiveHALValue" stdset="0">
                <double>10.000000000000000</double>
@@ -161,7 +161,7 @@
                <bool>false</bool>
               </property>
               <property name="pin_type" stdset="0">
-               <enum>PushButton::FLOAT</enum>
+               <enum>PushButton::REAL</enum>
               </property>
               <property name="exclusiveHALValue" stdset="0">
                <double>30.000000000000000</double>

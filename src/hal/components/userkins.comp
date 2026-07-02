@@ -60,7 +60,7 @@ change all instances of `userkins` to `mykins`.
 """;
 // The fpin pin is not accessible in kinematics functions.
 // Use EXTRA_SETUP() for pins and params used by kinematics.
-pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+pin out sint fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
 option extra_setup;
 function fdemo;
@@ -107,8 +107,8 @@ EXTRA_SETUP() {
     if (!haldata) goto error;
 
     // hal pin examples:
-    res += hal_pin_new_ui32(comp_id, HAL_IN , &(haldata->in) , 0, "%s.in" , HAL_PREFIX);
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &(haldata->out), 0, "%s.out", HAL_PREFIX);
+    res += hal_pin_new_uint(comp_id, HAL_IN , &(haldata->in) , 0, "%s.in" , HAL_PREFIX);
+    res += hal_pin_new_uint(comp_id, HAL_OUT, &(haldata->out), 0, "%s.out", HAL_PREFIX);
 
     // hal parameter examples:
     res += hal_param_new_real(comp_id, HAL_RW, &haldata->param_rw, 0.0, "%s.param-rw", HAL_PREFIX);
@@ -159,7 +159,7 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (hal_get_ui32(haldata->in) && !is_ready && !gave_msg) {
+    if (hal_get_uint(haldata->in) && !is_ready && !gave_msg) {
        rtapi_print_msg(RTAPI_MSG_ERR,
                        "%s The 'in' pin not echoed until Inverse called\n",
                       __FILE__);
@@ -189,8 +189,8 @@ int kinematicsInverse(const EmcPose * pos,
     j[2] = pos->tran.z; // joint 2
 
     //example hal pin update (homing reqd before kinematicsInverse)
-    hal_set_ui32(haldata->out, hal_get_ui32(haldata->in)); //dereference
-    //read from param example: hal_set_ui32(haldata->out, hal_get_real(haldata->param_rw));
+    hal_set_uint(haldata->out, hal_get_uint(haldata->in)); //dereference
+    //read from param example: hal_set_uint(haldata->out, hal_get_real(haldata->param_rw));
 
     return 0;
 } // kinematicsInverse()

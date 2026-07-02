@@ -620,25 +620,31 @@ static hal_type_t typestr_to_haltype(const char *type, bool anycase)
 {
     static const struct {
         const char *name;
+        const char *repl;
         hal_type_t type;
     } htypes[] = {
-        { "bool",  HAL_BOOL },
-        { "real",  HAL_REAL },
-        { "sint",  HAL_SINT },
-        { "uint",  HAL_UINT },
-        { "port",  HAL_PORT },
-        { "bit",   HAL_BOOL },
-        { "float", HAL_REAL },
-        { "u32",   HAL_U32 },
-        { "s32",   HAL_S32 },
-        { "u64",   HAL_UINT },
-        { "s64",   HAL_SINT },
-        { nullptr, HAL_TYPE_UNSPECIFIED }
+        { "bool",     nullptr, HAL_BOOL },
+        { "real",     nullptr, HAL_REAL },
+        { "sint",     nullptr, HAL_SINT },
+        { "uint",     nullptr, HAL_UINT },
+        { "port",     nullptr, HAL_PORT },
+        { "bit",      "bool",  HAL_BOOL },
+        { "float",    "real",  HAL_REAL },
+        { "u32",      "uint",  HAL_UINT },
+        { "s32",      "sint",  HAL_SINT },
+        { "u64",      "uint",  HAL_UINT },
+        { "s64",      "sint",  HAL_SINT },
+        { "signed",   "sint",  HAL_SINT },
+        { "unsigned", "uint",  HAL_SINT },
+        { nullptr,    nullptr, HAL_TYPE_UNSPECIFIED }
     };
 
     int (*cmpfunc)(const char *, const char *) = anycase ? strcasecmp : strcmp;
     for(int i = 0; htypes[i].name; i++) {
         if(!cmpfunc(type, htypes[i].name)) {
+            if(nullptr != htypes[i].repl) {
+                halcmd_warning("Old type '%s' has been replaced by '%s'\n", type, htypes[i].repl);
+            }
             return htypes[i].type;
         }
     }
@@ -708,11 +714,9 @@ static std::string querydata_valuestr(hal_type_t type, const hal_query_value_u *
         return v->b ? "TRUE" : "FALSE";
     case HAL_REAL:
         return fmt::format("{:.7g}", v->r);
-    case HAL_S32:
     case HAL_SINT:
     case HAL_PORT:
         return fmt::format("{}", v->s);
-    case HAL_U32:
     case HAL_UINT:
         return fmt::format("{}", v->u);
     default:
@@ -793,8 +797,6 @@ static int get_type(const char ***patterns) {
     hal_type_t htype = typestr_to_haltype(typestr, false);
     if(htype != HAL_TYPE_UNINITIALIZED)
         return htype;
-    if(strcmp(typestr, "signed") == 0) return HAL_S32;
-    if(strcmp(typestr, "unsigned") == 0) return HAL_U32;
     return -1;
 }
 
@@ -1765,8 +1767,8 @@ static void print_thread_info_print(const hal_query_t *q, const char **patterns)
                 q->thread.period,
                 "YES",  // Always uses FP
                 q->name,
-                (long)hal_get_si32(qt.pp.ref.s),
-                (long)hal_get_si32(qm.pp.ref.s));
+                hal_get_sint(qt.pp.ref.s),
+                hal_get_sint(qm.pp.ref.s));
         } else {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: cannot find time/tmax pin for %s thread\n", q->name);
         }
@@ -1918,12 +1920,10 @@ static void print_mem_status()
 static const char *data_type(hal_type_t type)
 {
     switch (type) {
-    case HAL_BOOL: return "bit  ";
-    case HAL_REAL: return "float";
-    case HAL_S32:  return "s32  ";
-    case HAL_U32:  return "u32  ";
-    case HAL_SINT: return "s64  ";
-    case HAL_UINT: return "u64  ";
+    case HAL_BOOL: return "bool ";
+    case HAL_REAL: return "real ";
+    case HAL_SINT: return "sint ";
+    case HAL_UINT: return "uint ";
     case HAL_PORT: return "port ";
     default: return "undef"; /* Shouldn't get here, but just in case... */
     }
@@ -1932,12 +1932,10 @@ static const char *data_type(hal_type_t type)
 static const char *data_type2(hal_type_t type)
 {
     switch (type) {
-    case HAL_BOOL: return "bit";
-    case HAL_REAL: return "float";
-    case HAL_S32:  return "s32";
-    case HAL_U32:  return "u32";
-    case HAL_SINT: return "s64";
-    case HAL_UINT: return "u64";
+    case HAL_BOOL: return "bool";
+    case HAL_REAL: return "real";
+    case HAL_SINT: return "sint";
+    case HAL_UINT: return "uint";
     case HAL_PORT: return "port";
     default: return "undef"; /* Shouldn't get here, but just in case... */
     }
@@ -1996,15 +1994,12 @@ static std::string querydata_refstr_20(hal_type_t type, hal_refs_u u)
         return fmt::format("{:>20s}", hal_get_bool(u.b) ? "TRUE" : "FALSE");
     case HAL_REAL:
         return fmt::format("{:20.7g}", hal_get_real(u.r));
-    case HAL_S32:
-        return fmt::format("{:20d}", (long)hal_get_si32(u.s));
     case HAL_SINT:
+        return fmt::format("{:20d}", hal_get_sint(u.s));
     case HAL_PORT:
-        return fmt::format("{:20d}", (long long)hal_get_sint(u.s));
-    case HAL_U32:
-        return fmt::format("          0x{:08X}", (unsigned long)hal_get_ui32(u.u));
+        return fmt::format("{:20d}", 0 != hal_get_port(u.p) ? hal_port_buffer_size(u.p) : 0);
     case HAL_UINT:
-        return fmt::format("  0x{:016X}", (unsigned long long)hal_get_uint(u.u));
+        return fmt::format("  0x{:016X}", hal_get_uint(u.u));
     default:
 	/* Shouldn't get here, but just in case... */
 	return "        undef       ";
@@ -2021,13 +2016,10 @@ static std::string querydata_refstr(hal_type_t type, hal_refs_u u)
         return hal_get_bool(u.b) ? "TRUE" : "FALSE";
     case HAL_REAL:
         return fmt::format("{:.7g}", hal_get_real(u.r));
-    case HAL_S32:
-        return fmt::format("{}", hal_get_si32(u.s));
     case HAL_SINT:
-    case HAL_PORT:
         return fmt::format("{}", hal_get_sint(u.s));
-    case HAL_U32:
-        return fmt::format("{}", hal_get_ui32(u.u));
+    case HAL_PORT:
+        return fmt::format("{}", 0 != hal_get_port(u.p) ? hal_port_buffer_size(u.p) : 0);
     case HAL_UINT:
         return fmt::format("{}", hal_get_uint(u.u));
     default:
@@ -2465,7 +2457,7 @@ int do_help_cmd(const char *command)
     } else if (strcmp(command, "newsig") == 0) {
 	printf("newsig signame type\n");
 	printf("  Creates a new signal called 'signame'.  Type\n");
-	printf("  is 'bit', 'float', 'port', 'u32', or 's32'.\n");
+	printf("  is 'bool', 'real', 'port', 'uint', or 'sint'.\n");
     } else if (strcmp(command, "delsig") == 0) {
 	printf("delsig signame\n");
 	printf("  Deletes signal 'signame'.  If 'signame is 'all',\n");
