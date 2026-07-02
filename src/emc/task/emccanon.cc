@@ -481,6 +481,12 @@ void SET_XY_ROTATION(double t) {
 
 void HOME_CYCLE(void)
 {
+    // STRAIGHT_FEED/STRAIGHT_TRAVERSE buffer points into chained_points for
+    // arc-blend lookahead and only append to interp_list on flush (see
+    // see_segment()/flush_segments()). Without flushing here first, any
+    // motion queued just before this G28.2 would get silently reordered to
+    // execute AFTER the home instead of before it.
+    flush_segments();
     auto msg = std::make_unique<EMC_JOINT_HOME>();
     msg->joint = -1;   // -1 = all joints (HOME_SEQUENCE order)
     interp_list.append(std::move(msg));
@@ -488,8 +494,28 @@ void HOME_CYCLE(void)
 
 void UNHOME_AXES(void)
 {
+    flush_segments();
     auto msg = std::make_unique<EMC_JOINT_UNHOME>();
     msg->joint = -1;
+    interp_list.append(std::move(msg));
+}
+
+/* G28.2 Pn / G28.3 Pn -- home/unhome a single joint. joint is the interp's
+ * already-validated (non-negative) P value; motion does the final
+ * range check against the machine's actual joint count. */
+void HOME_CYCLE_JOINT(int joint)
+{
+    flush_segments(); // see HOME_CYCLE
+    auto msg = std::make_unique<EMC_JOINT_HOME>();
+    msg->joint = joint;
+    interp_list.append(std::move(msg));
+}
+
+void UNHOME_JOINT(int joint)
+{
+    flush_segments(); // see HOME_CYCLE
+    auto msg = std::make_unique<EMC_JOINT_UNHOME>();
+    msg->joint = joint;
     interp_list.append(std::move(msg));
 }
 
@@ -499,6 +525,7 @@ void UNHOME_AXES(void)
  * legacy G28 return. */
 void HOME_CYCLE_IF_UNHOMED(void)
 {
+    flush_segments(); // see HOME_CYCLE
     auto msg = std::make_unique<EMC_JOINT_HOME>();
     msg->joint = EMC_HOME_ALL_IF_UNHOMED;
     interp_list.append(std::move(msg));
