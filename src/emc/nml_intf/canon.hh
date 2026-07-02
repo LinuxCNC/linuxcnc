@@ -247,6 +247,11 @@ extern void SET_XY_ROTATION(double t);
  * (bare form = all joints). Maps to EMC_JOINT_HOME/UNHOME(-1). */
 extern void HOME_CYCLE(void);
 extern void UNHOME_AXES(void);
+/* G28.2 Pn / G28.3 Pn: home/unhome a single joint by its 0-based joint
+ * number (matching [JOINT_n] INI section numbering). Maps to
+ * EMC_JOINT_HOME/UNHOME(joint). */
+extern void HOME_CYCLE_JOINT(int joint);
+extern void UNHOME_JOINT(int joint);
 /* GCODE_HOMING (plain G28 with [RS274NGC]GCODE_HOMING=1): reference the
  * machine before the G28 return move, but only when it is not already fully
  * homed (a homed machine sees a pure legacy G28). Emits EMC_JOINT_HOME with
