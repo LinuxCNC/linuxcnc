@@ -41,6 +41,7 @@ parser Hal:
     rule Declaration:
         "pin" PINDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptSAssign, OptPersonality) }}
       | "param" PARAMDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptSAssign, OptPersonality) }}
+      | "alias" HALNAME OptArray {{ ppname = HALNAME; pparr = OptArray }} HALNAME OptArray ";" {{ alias(ppname, pparr, HALNAME, OptArray) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "variable" NAME STARREDNAME OptSimpleArray OptAssign ";" {{ variable(NAME, STARREDNAME, OptSimpleArray, OptAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
@@ -166,11 +167,14 @@ typemap = {
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
-    global modparams, includes, hal_pin_names, hal_funct_names
+    global modparams, includes
+    global hal_pin_names, hal_funct_names
     global funct_derived_claims
+    global aliases
 
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
+    aliases = {}
     comp_name = None
 
     names = {}
@@ -306,6 +310,22 @@ def param(name, type_, array, dir_, doc, value, personality):
     docs.append(('param', name, type_, array, dir_, doc, value, personality))
     names[name] = 'param'
     params.append((name, type_, array, dir_, value, personality))
+
+def alias(name, namearr, aliasname, aliasarr):
+    if namearr != aliasarr:
+        Error(f"Alias arrays for pin '{namearr}' != '{aliasarr}'")
+    checkarray(name, namearr)
+    checkarray(aliasname, aliasarr)
+    if aliasname in names:
+        Error(f"Alias name '{aliasname}' already in use")
+    if name not in names:
+        Error(f"Pin/param name '{name}' not found, cannot alias")
+    if name in aliases:
+        Error(f"Alias for pin/param '{name}' already exists as '{aliases[name][2]}'")
+    if names[name] not in ('pin', 'param'):
+        Error(f"Expected '{name}' to be pin or param, but got '{names[name]}'");
+    aliases[name] = (name, namearr, aliasname, aliasarr, names[name])
+    names[aliasname] = 'alias'  # Must register to prevent collision
 
 def function(name, fp, doc):
     check_name_ok(name)
@@ -607,6 +627,35 @@ static int comp_id;
             print("} else {", file=f)
             print("    inst->%s_p_masked = 1;" % to_c(name), file=f)
             print("}", file=f)
+
+    if len(aliases) > 0:
+        print("    {", file=f)
+        print("        char pinname[HAL_NAME_LEN+1], alsname[HAL_NAME_LEN+1];", file=f)
+        for k, v in aliases.items():
+            name, namearr, aliasname, aliasarr, nametype = v
+            if isinstance(array, tuple):
+                lim, cnt = array
+                print("        if((%s) > (%s)) {" % (cnt, lim), file=f)
+                print('            rtapi_print_msg(RTAPI_MSG_ERR,' \
+                                    '"Alias %s: Requested size %%d exceeds max size %%d\\n",'
+                                    '(int)(%s), (int)(%s));' % (name, cnt, lim), file=f)
+                print("            return -ENOSPC;", file=f)
+                print("        }", file=f)
+            else:
+                cnt = array
+            if namearr:
+                print( "        for(j = 0; j < (%s); j++) {" % cnt, file=f)
+                print(f"            rtapi_snprintf(pinname, sizeof(pinname), \"%s.{to_hal(name)}\", prefix, j);", file=f)
+                print(f"            rtapi_snprintf(alsname, sizeof(alsname), \"%s.{to_hal(aliasname)}\", prefix, j);", file=f)
+                print(f"            r = {nametype}(pinname, alsname);", file=f)
+                print( "            if(r != 0) return r;", file=f)
+                print( "        }" % cnt, file=f)
+            else:
+                print(f"        rtapi_snprintf(pinname, sizeof(pinname), \"%s.{to_hal(name)}\", prefix);", file=f)
+                print(f"        rtapi_snprintf(alsname, sizeof(alsname), \"%s.{to_hal(aliasname)}\", prefix);", file=f)
+                print(f"        r = hal_{nametype}_alias(pinname, alsname);", file=f)
+                print( "        if(r != 0) return r;", file=f)
+        print("    }", file=f)
 
     for type_, name, array, value in variables:
         if value is None: continue
