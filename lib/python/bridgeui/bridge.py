@@ -63,14 +63,6 @@ class Bridge(object):
             self.init_read()
             self.init_write()
 
-    def update(self, *arg):
-        print(self, arg)
-        raw=arg[0]; row=arg[1];column=arg[2];state=arg[3]
-        LOG.debug('raw {}, row {}, col {}, state {}'.format(raw,row,column,state))
-        print ('raw',raw,'row:',row,'column:',column,'state:',state)
-        self.writeMsg('set_selected_axis','Y')
-        self.activeJoint.set(10)
-
     def init(self):
         self.jogRate = 0
         self.jogRateAngular = 0
@@ -143,7 +135,7 @@ class Bridge(object):
 
     # send msg to hal_glib
     def writeMsg(self, msg, data):
-        print('Write Msg called')
+        #print('Write Msg called')
         if ZMQ:
             topic = self.writeTopic
             message = json.dumps({'FUNCTION':msg,'ARGS':data})
@@ -170,27 +162,43 @@ class Bridge(object):
     def cancel(self):
         self.writeMsg('request_cancel', True)
 
+        # if the number is bigger then MDI command list
+        # then look for MACRO commands
     def getMdiName(self, num):
         if num >len(self.INFO.MDI_COMMAND_DICT)-1:
+            offset = len(self.INFO.MDI_COMMAND_DICT)
+            return self.getMacroName(num-offset)
+        else:
+            temp = list(self.INFO.MDI_COMMAND_DICT.keys())[num]
+            LOG.debug('MDI:{} {}'.format(num,temp))
+            return temp
+
+    def getMacroName(self, num):
+        if num >len(self.INFO.MACRO_COMMAND_DICT)-1:
             return 'None'
-        temp = list(self.INFO.MDI_COMMAND_DICT.keys())[num]
-        LOG.debug('{} {}'.format(num,temp))
+        temp = list(self.INFO.MACRO_COMMAND_DICT.keys())[num]
+        LOG.debug('MACRO:{} {}'.format(num,temp))
         return temp
 
-    def getMacroNames(self):
-        for i in self.INFO.INI_MACROS:
-            name = i.split()[0]
-            LOG.debug('{} {}'.format(name,i))
-
     def runIndexedMacro(self, num):
+        # check for any MDI commands first:
         name = self.getMdiName(num)
         LOG.debug('Macro name:{} ,index: {}'.format(name, num))
         if name != 'None':
             self.writeMsg('request_macro_call', name)
 
+        # else look for any MACRO commands:
+        else:
+            offset = len(self.INFO.MDI_COMMAND_DICT)
+            name = self.getMacroName(num-offset)
+            LOG.debug('Macro name:{} ,index: {}'.format(name, num))
+            if name != 'None':
+                self.writeMsg('request_macro_call', name)
+
+        # cound of MDI and MACRO commands
     def getMdiCount(self):
-        print(len(self.INFO.MDI_COMMAND_DICT))
-        return len(self.INFO.MDI_COMMAND_DICT)
+        #print('->',len(self.INFO.MDI_COMMAND_DICT),len(self.INFO.MACRO_COMMAND_DICT))
+        return len(self.INFO.MDI_COMMAND_DICT) + len(self.INFO.MACRO_COMMAND_DICT)
 
     def getJogRate(self):
         return self.jogRate
@@ -202,6 +210,7 @@ class Bridge(object):
     def setJogRateAngular(self, value):
         self.writeMsg('set_jograte_angular', value)
 
+    # XYZABCUVW, None, or MPG0
     def getSelectedAxis(self):
         name = self.currentSelectedAxis
         if name == 'None':
