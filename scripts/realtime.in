@@ -126,12 +126,15 @@ CheckConfig(){
 CheckStatus(){
     case $RTPREFIX in
         uspace)
-            if [ -z "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
-                echo rtapi_app is not running
-                return 1
-            else
+            if rtapi_app ping; then
                 echo rtapi_app is running
                 return 0
+            elif [ -n "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
+                echo rtapi_app is running but not reachable
+                return 1
+            else
+                echo rtapi_app is not running
+                return 1
             fi
             ;;
         *)
