@@ -2044,8 +2044,15 @@ STATIC int tpCheckGroupTangent(
         PmCartesian prev_vel, this_vel, vel_diff, accel_needed;
         double prev_ratio = (prev_tc->target > 0.0) ? (prev_tmag / prev_tc->target) : 0.0;
         double this_ratio = (tc->target > 0.0) ? (this_tmag / tc->target) : 0.0;
-        pmCartScalMult(&prev_vec, prev_ratio * v_max1, &prev_vel);
-        pmCartScalMult(&this_vec, this_ratio * v_max2, &this_vel);
+        // Path speed is continuous across a tangent junction: both sides
+        // actually execute at the slower segment's cap, not at their own
+        // independent v_max (same reasoning as the shared v_max the
+        // pre-existing XYZ kink check below uses). Evaluating each side at
+        // its own v_max reports a phantom jump for matched-rate segments
+        // that simply have different feed caps.
+        double v_j = fmin(v_max1, v_max2);
+        pmCartScalMult(&prev_vec, prev_ratio * v_j, &prev_vel);
+        pmCartScalMult(&this_vec, this_ratio * v_j, &this_vel);
         pmCartCartSub(&this_vel, &prev_vel, &vel_diff);
         pmCartScalMult(&vel_diff, 1.0 / tp->cycleTime, &accel_needed);
 
