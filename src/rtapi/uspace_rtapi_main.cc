@@ -883,6 +883,9 @@ static int handle_command(const std::vector<std::string> &args, std::string &out
     if (args.size() == 1 && args[0] == "start") {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: start received while running\n");
         return 0;
+    } else if (args.size() == 1 && args[0] == "ping") {
+        //Just return success
+        return 0;
     } else if (args.size() == 1 && args[0] == "exit") {
         force_exit = 1;
         return 0;
@@ -1088,7 +1091,7 @@ static int run_slave_cmd(struct sockaddr_un *addr, int fd, const std::vector<std
         return 1;
     }
     if (result < 0) {
-        fprintf(stderr, "connect %s: %s", addr->sun_path, strerror(errno));
+        fprintf(stderr, "connect %s: %s\n", addr->sun_path, strerror(errno));
         return 1;
     }
     return slave(fd, args);
@@ -1153,6 +1156,10 @@ int main(int argc, char **argv) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: exit received while not running\n");
             return 0;
         }
+        //If ping is called and master is not running, return an error
+        if (args.size() == 1 && args[0] == "ping") {
+            return 1;
+        }
         //If check_rt is called and master is not running, do not start master
         //execute and return
         //This is needed for the verify command in the realtime script
@@ -1169,7 +1176,19 @@ int main(int argc, char **argv) {
         //Start a master on start command
         if (args.size() == 1 && args[0] == "start") {
             result = start_master(fd);
-            exit(result);
+            if (result != 0) {
+                exit(result);
+            }
+            //Need to close and reopen the socket
+            //It is already bound and master is using it
+            close(fd);
+            int fd = create_socket();
+            if (fd < 0) {
+                exit(1);
+            }
+            //Ping master to make shure it is running
+            //before returning
+            return run_slave_cmd(&addr, fd, {"ping"});
         }else{
             fprintf(stderr, "WARNING: Deprecated: No active realtime environment found. Use \"realtime start\" to start one.\n"
                 "  A realtime environment is started automatically.\n"
@@ -1187,6 +1206,8 @@ int main(int argc, char **argv) {
             if (fd < 0) {
                 exit(1);
             }
+            //Run command
+            //This makes also shure it is running before returning
             return run_slave_cmd(&addr, fd, args);
         }
     } else if (errno == EADDRINUSE) {
