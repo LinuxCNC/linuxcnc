@@ -996,36 +996,21 @@ static double computeChainExitCap(TP_STRUCT *tp, TC_STRUCT *active_tc,
         // STOP/EXACT condition: exit is 0, natural boundary
         if (seg->term_cond != TC_TERM_COND_TANGENT) break;
 
-        // Long segment: can brake from max_vel to exit constraint
         double seg_feed = tpGetSnapshotFeedScale(seg, new_feed_scale, rapid);
         double seg_vel_limit = getEffectiveVelLimit(tp, seg);
         double seg_max_vel = applyVLimit(tp, seg, seg_vel_limit * seg_feed);
         double seg_jrk = seg->maxjerk > 0 ? seg->maxjerk : default_jerk;
-        double seg_fv = readFinalVelCapped(seg);
-        double seg_exit = fmin(seg_fv * seg_feed, seg_max_vel);
-
-        if (seg->kink_vel > 0) seg_exit = fmin(seg_exit, seg->kink_vel);
-
-        // When the next segment is STOP/EXACT (v_f≈0), the backward pass
-        // uses trapezoidal formula sqrt(2*a*d) which ignores jerk limits.
-        // This inflates final_vel beyond what Ruckig can achieve.  Cap to
-        // profile exit so the chain propagates physically consistent limits.
-        TC_STRUCT *next_in_chain = tcqItem_user(&tp->queue, i + 1);
-        if (next_in_chain &&
-            (next_in_chain->term_cond == TC_TERM_COND_STOP ||
-             next_in_chain->term_cond == TC_TERM_COND_EXACT) &&
-            seg->shared_9d.profile.valid &&
-            seg->term_cond == TC_TERM_COND_TANGENT) {
-            double prof_exit = profileExitVelUnscaled(&seg->shared_9d.profile)
-                             * seg->shared_9d.profile.computed_feed_scale;
-            seg_exit = fmin(seg_exit, prof_exit);
-        }
-
         double seg_acc = tcGetTangentialMaxAccel_9D_user(seg);
-        double brake_dist = jerkLimitedBrakingDistance(
-            seg_max_vel, seg_exit, seg_acc, seg_jrk);
 
-        if (seg->target > brake_dist * 1.2) break;  // safe: can absorb any entry
+        // Safe endpoint = can brake from max_vel to zero within its own length.
+        // Braking only to final_vel is unreliable (final_vel is restored to the
+        // kink limit each backward pass, so short segments give brake_dist=0 and
+        // falsely end the walk before the real STOP, leaving upstream uncapped:
+        // a velocity-step jerk spike at the boundary where braking begins).
+        double brake_dist = jerkLimitedBrakingDistance(
+            seg_max_vel, 0.0, seg_acc, seg_jrk);
+
+        if (seg->target > brake_dist * 1.2) break;  // safe: can stop within itself
     }
 
     if (chain_end < start_index) return 1e10;  // no downstream constraints
