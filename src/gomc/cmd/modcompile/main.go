@@ -260,6 +260,18 @@ func main() {
 }
 
 func processFile(path, mode, outputFile string) error {
+	// Handle raw .c files — only --compile and --install are supported.
+	if strings.HasSuffix(path, ".c") {
+		switch mode {
+		case "--compile":
+			return compileCFile(path, ".")
+		case "--install":
+			return compileCFile(path, config.EMC2CmodDir)
+		default:
+			return fmt.Errorf("%s: .c files only support --compile and --install", path)
+		}
+	}
+
 	src, err := os.ReadFile(path)
 	if err != nil {
 		return err
@@ -347,11 +359,52 @@ func processFile(path, mode, outputFile string) error {
 	}
 }
 
+// compileToSO compiles a C source file to a shared object in outDir.
+// extraIncludes provides additional -I paths (e.g. for GMI API headers).
+// soName overrides the output .so base name (without extension); if empty,
+// it is derived from the cPath filename.
+func compileToSO(cPath string, outDir string, soName string, extraIncludes []string) error {
+	if soName == "" {
+		soName = strings.TrimSuffix(filepath.Base(cPath), ".c")
+	}
+	soPath := filepath.Join(outDir, soName+".so")
+
+	// Ensure output directory exists
+	if err := os.MkdirAll(outDir, 0755); err != nil {
+		return fmt.Errorf("creating output directory: %w", err)
+	}
+
+	cc := os.Getenv("CC")
+	if cc == "" {
+		cc = defaultCC
+	}
+
+	args := []string{
+		"-I" + config.EMC2CmodIncludeDir,
+		"-I" + filepath.Join(config.EMC2Home, "include"),
+	}
+	args = append(args, extraIncludes...)
+	args = append(args,
+		"-fPIC", "-Os", "-Wall",
+		"-shared",
+		"-o", soPath,
+		cPath,
+		"-lm",
+	)
+
+	cmd := exec.Command(cc, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("compiling %s: %w", soName, err)
+	}
+
+	return nil
+}
+
 // compileComp compiles a .comp file to a .so in the given output directory.
 func compileComp(compPath string, pkg *ast.Package, outDir string) error {
-	base := strings.TrimSuffix(filepath.Base(compPath), ".comp")
-	soPath := filepath.Join(outDir, base+".so")
-
 	// Create temp file for generated C
 	tmpFile, err := os.CreateTemp("", "modcompile-*.c")
 	if err != nil {
@@ -367,23 +420,8 @@ func compileComp(compPath string, pkg *ast.Package, outDir string) error {
 	}
 	tmpFile.Close()
 
-	// Ensure output directory exists
-	if err := os.MkdirAll(outDir, 0755); err != nil {
-		return fmt.Errorf("creating output directory: %w", err)
-	}
-
-	// Compile with gcc
-	cc := os.Getenv("CC")
-	if cc == "" {
-		cc = defaultCC
-	}
-
-	args := []string{
-		"-I" + config.EMC2CmodIncludeDir,
-		"-I" + filepath.Join(config.EMC2Home, "include"),
-	}
-
-	// Add -I for each GMI API referenced (gmi_provide / gmi_consume).
+	// Collect -I paths for GMI APIs referenced (gmi_provide / gmi_consume).
+	var gmiIncludes []string
 	gmiAPIs := make(map[string]bool)
 	for _, api := range pkg.Component.GMIProvide {
 		gmiAPIs[api] = true
@@ -392,27 +430,19 @@ func compileComp(compPath string, pkg *ast.Package, outDir string) error {
 		gmiAPIs[entry.API] = true
 	}
 	for api := range gmiAPIs {
-		apiIncDir := filepath.Join(config.EMC2GomcDir, "generated", "gmi", api)
-		args = append(args, "-I"+apiIncDir)
+		gmiIncludes = append(gmiIncludes, "-I"+filepath.Join(config.EMC2GomcDir, "generated", "gmi", api))
 	}
 
-	args = append(args,
-		"-fPIC", "-Os", "-Wall",
-		"-shared",
-		"-o", soPath,
-		tmpCPath,
-		"-lm",
-	)
+	return compileToSO(tmpCPath, outDir, pkg.Component.Name, gmiIncludes)
+}
 
-	cmd := exec.Command(cc, args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("compiling %s: %w", base, err)
+// compileCFile compiles a hand-written cmod .c file directly to a .so.
+func compileCFile(cPath string, outDir string) error {
+	absCPath, err := filepath.Abs(cPath)
+	if err != nil {
+		return err
 	}
-
-	return nil
+	return compileToSO(absCPath, outDir, "", nil)
 }
 
 // printMakeInc outputs a Makefile snippet for external projects.
