@@ -1222,6 +1222,12 @@ int createBlendSegment9(TC_STRUCT const * const prev_tc,
     /* Copy metadata from parent segments */
     blend_tc->syncdio = prev_tc->syncdio;
     blend_tc->tag = prev_tc->tag;
+    /* Inherit the source line id from prev_tc (matches planner 0/1 blend arcs).
+     * tcInit leaves id=-1; without this the blend reports program-line=-1 to the
+     * GUI and, more importantly, the feed-manager gate logic keys its
+     * "moved past the failed segment" test on tc->id equality, which degenerates
+     * when consecutive blends all carry -1. */
+    blend_tc->id = prev_tc->id;
     blend_tc->indexer_jnum = -1;
     blend_tc->active_depth = 1;
 
