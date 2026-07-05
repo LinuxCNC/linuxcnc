@@ -36,6 +36,8 @@ Build-Depends:
     libgpiod-dev,
     libcurl4-openssl-dev,
     libcjson-dev,
+    libbpf-dev,
+    libxdp-dev,
     libwebkit2gtk-4.1-dev,
     nodejs,
     npm,
