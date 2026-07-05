@@ -211,6 +211,8 @@ modules: $(CMOD_TARGETS)
 
 # ---------------------------------------------------------------------------
 # cmod native C components (hand-written .c files, not from .comp)
+# NOTE: These should use "modcompile --compile foo.c" (out-of-tree already can).
+# In-tree will switch to modcompile when migrating from Make to CMake.
 # ---------------------------------------------------------------------------
 
 CMOD_C_SRCS := spindle supply watchdog modmath weighted_sum counter \
