@@ -14,6 +14,11 @@
 //   - config=<path> — path to the XML config file (required; resolved relative
 //     to the INI file directory if not absolute)
 //   - rate=<ms>     — default WS subscription rate in milliseconds (default: 50)
+//
+// The XML config file is preprocessed through Go's text/template engine before
+// parsing, using the same context and functions as HAL files (.INI, .Axes,
+// .Joints, .Env plus the ini/seq/range/hasJoint/hasAxis helpers). Files with no
+// "{{" directives are passed through unchanged.
 package haljson
 
 import (
@@ -27,6 +32,7 @@ import (
 	"unsafe"
 
 	"github.com/sittner/linuxcnc/src/gomc/internal/apiserver"
+	halparse "github.com/sittner/linuxcnc/src/gomc/internal/halparse"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/gomc"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/hal"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/inifile"
@@ -88,8 +94,13 @@ func newHaljsonModule(ini *inifile.IniFile, logger *slog.Logger, name string, ar
 	logger = logger.With("module", "haljson", "instance", name)
 	logger.Info("loading config", "path", configPath)
 
-	// Parse the XML config file.
-	roots, err := parseConfig(configPath)
+	// Parse the XML config file, rendering it through the Go text/template
+	// engine with the same INI context that HAL files receive.
+	var tmplData *halparse.HalTemplateData
+	if ini != nil {
+		tmplData = halparse.NewHalTemplateData(ini.AllSections())
+	}
+	roots, err := parseConfig(configPath, tmplData)
 	if err != nil {
 		return nil, fmt.Errorf("haljson %q: parsing config %q: %w", name, configPath, err)
 	}

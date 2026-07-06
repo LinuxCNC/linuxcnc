@@ -36,16 +36,7 @@ func (a *iniLookupAdapter) Get(section, key string) (string, error) {
 // GetAll implements halparse.INILookup. It returns the full INI content as a
 // nested section→key→value map, needed for Go-template rendering.
 func (a *iniLookupAdapter) GetAll() map[string]map[string]string {
-	m := make(map[string]map[string]string)
-	for _, sec := range a.ini.Sections {
-		if _, ok := m[sec.Name]; !ok {
-			m[sec.Name] = make(map[string]string)
-		}
-		for _, entry := range sec.Entries {
-			m[sec.Name][entry.Key] = entry.Value
-		}
-	}
-	return m
+	return a.ini.AllSections()
 }
 
 // Executor loads and executes HAL files for a LinuxCNC configuration.

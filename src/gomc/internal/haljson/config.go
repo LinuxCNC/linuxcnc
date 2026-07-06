@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	halparse "github.com/sittner/linuxcnc/src/gomc/internal/halparse"
 )
 
 // xmlConfig is the top-level XML document element.
@@ -32,14 +34,24 @@ type xmlItem struct {
 }
 
 // parseConfig parses an XML configuration file and returns the root definitions.
-func parseConfig(filename string) ([]*jsonRoot, error) {
+// The file is first rendered through Go's text/template engine using tmplData as
+// the context (matching HAL file templating); a nil tmplData disables rendering.
+func parseConfig(filename string, tmplData *halparse.HalTemplateData) ([]*jsonRoot, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
+	content := string(data)
+	if tmplData != nil {
+		content, err = halparse.RenderHalTemplate(filename, content, tmplData)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var cfg xmlConfig
-	if err := xml.Unmarshal(data, &cfg); err != nil {
+	if err := xml.Unmarshal([]byte(content), &cfg); err != nil {
 		return nil, fmt.Errorf("XML parse error: %w", err)
 	}
 

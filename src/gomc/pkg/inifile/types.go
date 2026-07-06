@@ -70,6 +70,24 @@ func (ini *IniFile) Namespace() string {
 	return ini.namespace
 }
 
+// AllSections returns the full INI content as a nested section→key→value map.
+// When a section or key appears more than once (e.g. via #INCLUDE or repeated
+// keys), the last value encountered wins. The namespace prefix is ignored;
+// sections are keyed by their literal names. This form is used for Go-template
+// rendering, which accesses the raw section map.
+func (ini *IniFile) AllSections() map[string]map[string]string {
+	m := make(map[string]map[string]string)
+	for _, sec := range ini.Sections {
+		if _, ok := m[sec.Name]; !ok {
+			m[sec.Name] = make(map[string]string)
+		}
+		for _, entry := range sec.Entries {
+			m[sec.Name][entry.Key] = entry.Value
+		}
+	}
+	return m
+}
+
 // GetSection returns all entries in the named section, in the order they
 // appear in the file.  If the section appears more than once (e.g. via
 // #INCLUDE), the entries are concatenated in file order.  Returns nil if the
