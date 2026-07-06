@@ -198,6 +198,18 @@ func (t *Task) sequencerLoop() {
 			const maxMotionRetries = 1000 // ~10s at 10ms poll interval
 			retries := 0
 			for {
+				// For motion commands, wait for TP queue space before sending.
+				// This prevents overflowing the 2000-entry TP queue which the
+				// C motion controller treats as a fatal abort.
+				switch cmd.(type) {
+				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd:
+					if err := t.waitForQueueSpace(); err != nil {
+						t.setExecState(ExecDone)
+						t.setInterpState(InterpIdle)
+						return
+					}
+				}
+
 				err := cmd.Execute(t)
 				if err == nil {
 					break
@@ -394,6 +406,37 @@ func (t *Task) waitForCompletion(wt WaitType) error {
 		return t.waitSpindleOriented()
 	}
 	return nil
+}
+
+// waitForQueueSpace polls motion queue depth and blocks until it drops below
+// the high-water mark. This prevents overflowing the TP queue (which the C
+// motion controller treats as a fatal abort). Returns context.Canceled on abort.
+func (t *Task) waitForQueueSpace() error {
+	if t.status == nil {
+		return nil
+	}
+	qd, err := t.status.GetQueueDepth()
+	if err != nil || qd < tpQueueHighWater {
+		return nil // can't read or plenty of space — proceed
+	}
+
+	t.logger.Debug("waiting for TP queue space", "depth", qd)
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-t.seqAbort:
+			return context.Canceled
+		case <-ticker.C:
+			qd, err = t.status.GetQueueDepth()
+			if err != nil {
+				continue // transient read error, keep waiting
+			}
+			if qd < tpQueueHighWater {
+				return nil
+			}
+		}
+	}
 }
 
 // waitMotionDone polls motion status until in-position and queue empty, or abort.
@@ -808,6 +851,12 @@ func (t *Task) DrainQueue() {
 // Waiter allows tests to inject a mock for pollUntil.
 // Not exported — tests use the concrete mockStatus.InPosition approach.
 type waitFunc func() bool
+
+// Queue-depth throttling: do not send motion commands when the TP queue is
+// above this high-water mark. The TP has DEFAULT_TC_QUEUE_SIZE=2000 slots;
+// if we hit 2000, the C code treats it as fatal (tp_abort + error flag).
+// Keep headroom to avoid that scenario entirely.
+const tpQueueHighWater = 1800
 
 // Mutex-free accessors for sequencer goroutine to read status.
 // These avoid holding mu during polling.
