@@ -134,53 +134,60 @@ func (m *monitor) checkEstop() {
 	m.task.state = StateEstop
 	m.task.mu.Unlock()
 
-	m.task.logger.Warn("external estop detected — forcing shutdown")
-
 	// Set user-enable-out=0 to match the detected state.
 	_ = m.task.io.EstopOn()
 
-	if wasEnabled {
-		// Abort sequencer and motion
-		m.task.AbortSequencer()
-		m.task.mcodeAbort()
-		_ = m.task.motion.Abort()
-		_ = m.task.motion.Disable()
-
-		// Abort IO
-		_ = m.task.io.IoAbort(1) // EMC_ABORT_AUX_ESTOP
-
-		// Stop all spindles
-		for i := 0; i < numSpindles; i++ {
-			_ = m.task.motion.SpindleOff(int32(i))
-		}
-
-		// Turn off coolant
-		_ = m.task.io.CoolantFloodOff()
-		_ = m.task.io.CoolantMistOff()
-
-		m.task.mu.Lock()
-		m.task.floodOn = false
-		m.task.mistOn = false
-		m.task.interpState = InterpIdle
-		m.task.execState = ExecDone
-		m.task.mdiQueue = m.task.mdiQueue[:0]
-		m.task.stepping = false
-		m.task.mu.Unlock()
-
-		// Unhome all joints (joint -2 = all)
-		_ = m.task.motion.JointUnhome(-2)
-
-		// Notify interpreter
-		if m.task.interp != nil {
-			_ = m.task.interp.Abort(0, "external estop")
-			_ = m.task.interp.Close()
-			_ = m.task.interp.Reset()
-			_ = m.task.interp.Synch()
-		}
-
-		// Restart sequencer for clean state
-		m.task.StartSequencer()
+	if !wasEnabled {
+		// Machine was already off (EstopReset/Off) — emc-enable-in going
+		// low is expected (e.g. HW drops it when motion is disabled).
+		// Just transition state silently, matching 2.9's determineState()
+		// which returns ESTOP without any side effects.
+		return
 	}
+
+	// Machine was ON — this is a real external estop event.
+	m.task.logger.Warn("external estop detected — forcing shutdown")
+
+	// Abort sequencer and motion
+	m.task.AbortSequencer()
+	m.task.mcodeAbort()
+	_ = m.task.motion.Abort()
+	_ = m.task.motion.Disable()
+
+	// Abort IO
+	_ = m.task.io.IoAbort(1) // EMC_ABORT_AUX_ESTOP
+
+	// Stop all spindles
+	for i := 0; i < numSpindles; i++ {
+		_ = m.task.motion.SpindleOff(int32(i))
+	}
+
+	// Turn off coolant
+	_ = m.task.io.CoolantFloodOff()
+	_ = m.task.io.CoolantMistOff()
+
+	m.task.mu.Lock()
+	m.task.floodOn = false
+	m.task.mistOn = false
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecDone
+	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.stepping = false
+	m.task.mu.Unlock()
+
+	// Unhome all joints (joint -2 = all)
+	_ = m.task.motion.JointUnhome(-2)
+
+	// Notify interpreter
+	if m.task.interp != nil {
+		_ = m.task.interp.Abort(0, "external estop")
+		_ = m.task.interp.Close()
+		_ = m.task.interp.Reset()
+		_ = m.task.interp.Synch()
+	}
+
+	// Restart sequencer for clean state
+	m.task.StartSequencer()
 
 	m.task.operatorError("External E-Stop asserted")
 }

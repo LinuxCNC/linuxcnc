@@ -339,6 +339,56 @@ func TestSetState_EstopReset_BlockedByHAL(t *testing.T) {
 	}
 }
 
+func TestMonitor_MachineOff_EstopSilent(t *testing.T) {
+	task, mot, io, _, ep := newMonitorTestTask()
+
+	// Bring machine to EstopReset (machine off but not in estop).
+	task.SetState(int32(StateEstopReset))
+
+	task.mu.Lock()
+	if task.state != StateEstopReset {
+		t.Fatalf("expected StateEstopReset, got %s", task.state)
+	}
+	task.mu.Unlock()
+
+	mon := newMonitor(task, nil, nil, io)
+	mon.start()
+	defer mon.stop()
+
+	// Simulate emc-enable-in going low (HW drops it when machine is off).
+	io.setEstop(true)
+
+	// Wait for monitor to detect it.
+	deadline := time.Now().Add(50 * time.Millisecond)
+	for time.Now().Before(deadline) {
+		task.mu.Lock()
+		s := task.state
+		task.mu.Unlock()
+		if s == StateEstop {
+			break
+		}
+		time.Sleep(2 * time.Millisecond)
+	}
+
+	task.mu.Lock()
+	state := task.state
+	task.mu.Unlock()
+
+	if state != StateEstop {
+		t.Fatalf("expected StateEstop, got %s", state)
+	}
+
+	// Should NOT have called abort/disable (machine was already off).
+	if mot.abortCount.Load() != 0 {
+		t.Error("should not abort when machine was already off")
+	}
+
+	// Should NOT have produced an operator error.
+	if errs := ep.getErrors(); len(errs) > 0 {
+		t.Errorf("expected no operator errors, got %v", errs)
+	}
+}
+
 func TestMonitor_MotionError(t *testing.T) {
 	task, mot, io, stat, _ := newMonitorTestTask()
 
