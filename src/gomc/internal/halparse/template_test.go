@@ -108,6 +108,45 @@ func TestRenderHalTemplate_MathMixedArgs(t *testing.T) {
 	}
 }
 
+// TestRenderHalTemplate_IntegerMath verifies addi/muli keep values exact and
+// print without a decimal point, so they can build instance indices.
+func TestRenderHalTemplate_IntegerMath(t *testing.T) {
+	data := &HalTemplateData{INI: map[string]map[string]string{}}
+	input := "st-{{addi 11 (muli 1 3)}}"
+	out, err := RenderHalTemplate("test.hal", input, data)
+	if err != nil {
+		t.Fatalf("integer math failed: %v", err)
+	}
+	if out != "st-14" {
+		t.Errorf("expected 'st-14', got %q", out)
+	}
+}
+
+// TestRenderHalTemplate_IntegerMathFromINI verifies the integer helpers coerce
+// string INI values (via atoi) the same way the float helpers do.
+func TestRenderHalTemplate_IntegerMathFromINI(t *testing.T) {
+	data := &HalTemplateData{INI: map[string]map[string]string{
+		"BELT": {"FACE_COUNT": "10", "UNIDEV_COUNT": "1"},
+	}}
+	input := `{{addi (ini "BELT" "FACE_COUNT") (ini "BELT" "UNIDEV_COUNT")}}`
+	out, err := RenderHalTemplate("test.hal", input, data)
+	if err != nil {
+		t.Fatalf("integer math from ini failed: %v", err)
+	}
+	if out != "11" {
+		t.Errorf("expected '11', got %q", out)
+	}
+}
+
+// TestRenderHalTemplate_IntegerMathNonIntegral verifies a non-integral float
+// argument to an integer helper surfaces as an error.
+func TestRenderHalTemplate_IntegerMathNonIntegral(t *testing.T) {
+	data := &HalTemplateData{INI: map[string]map[string]string{}}
+	if _, err := RenderHalTemplate("test.hal", "{{addi 1.5 2}}", data); err == nil {
+		t.Fatal("expected error for non-integral argument, got nil")
+	}
+}
+
 func TestRenderHalTemplate_SeqIteration(t *testing.T) {
 	data := &HalTemplateData{INI: map[string]map[string]string{}}
 	input := "{{range seq 0 3}}joint.{{.}}.enable\n{{end}}"

@@ -87,6 +87,41 @@ func convertTwoArgs(a, b any) (float64, float64, error) {
 	return fa, fb, nil
 }
 
+// toInt coerces a value to int. Accepts int, int64, float64 (must be integral),
+// and string (parsed via strconv.Atoi). It is used by the integer math helpers
+// so template arithmetic that feeds instance indices stays exact and prints
+// without a decimal point.
+func toInt(v any) (int, error) {
+	switch n := v.(type) {
+	case int:
+		return n, nil
+	case int64:
+		return int(n), nil
+	case float64:
+		if n != float64(int(n)) {
+			return 0, fmt.Errorf("value %v is not an integer", n)
+		}
+		return int(n), nil
+	case string:
+		return strconv.Atoi(strings.TrimSpace(n))
+	default:
+		return 0, fmt.Errorf("cannot convert %T to int", v)
+	}
+}
+
+// convertTwoInts coerces two values to int for use in integer math functions.
+func convertTwoInts(a, b any) (int, int, error) {
+	ia, err := toInt(a)
+	if err != nil {
+		return 0, 0, err
+	}
+	ib, err := toInt(b)
+	if err != nil {
+		return 0, 0, err
+	}
+	return ia, ib, nil
+}
+
 // halTemplateFuncs returns the function map for HAL file templates.
 // The ini function is a closure over the provided INI data so that templates
 // can call {{ini "SECTION" "KEY"}} without explicitly passing .INI.
@@ -130,6 +165,17 @@ func halTemplateFuncs(data *HalTemplateData) template.FuncMap {
 		"neg": func(a any) (float64, error) {
 			fa, err := toFloat64(a)
 			return -fa, err
+		},
+
+		// Integer math — keep values exact and print without a decimal point,
+		// for building instance indices (e.g. FIFO station numbers).
+		"addi": func(a, b any) (int, error) {
+			ia, ib, err := convertTwoInts(a, b)
+			return ia + ib, err
+		},
+		"muli": func(a, b any) (int, error) {
+			ia, ib, err := convertTwoInts(a, b)
+			return ia * ib, err
 		},
 
 		// Iteration helpers
