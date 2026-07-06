@@ -102,6 +102,20 @@ typedef struct {
 *               DRIVE HOMING STATE MACHINE                            *
 ***********************************************************************/
 
+/* Track drive position during drive-internal homing.
+ * While the drive is in homing mode, it controls the axis independently.
+ * We update free_tp.curr_pos so motmod's pos_cmd follows the actual
+ * drive position — keeping ferror ≈ 0 and the DRO display live. */
+static void track_drive_position(linmot_inst_t *inst)
+{
+    int jno = inst->jno;
+    double motor_fb = inst->mot->joint_get_motor_pos_fb(inst->mot->ctx, jno);
+    double backlash = inst->mot->joint_get_backlash_filt(inst->mot->ctx, jno);
+    double offset   = inst->mot->joint_get_motor_offset(inst->mot->ctx, jno);
+    double pos = motor_fb - (backlash + offset);
+    inst->mot->joint_set_free_tp_curr_pos(inst->mot->ctx, jno, pos);
+}
+
 static int drive_home_tick(linmot_inst_t *inst)
 {
     int jno = inst->jno;
@@ -119,6 +133,7 @@ static int drive_home_tick(linmot_inst_t *inst)
         return 1;
 
     case DRV_HOME_WAIT_MODE:
+        track_drive_position(inst);
         if (*(p->opmode_fb) == CIA402_OP_HOMING) {
             *(p->home_cmd) = 1;
             inst->mode_wait_count = 0;
@@ -134,6 +149,7 @@ static int drive_home_tick(linmot_inst_t *inst)
         return 1;
 
     case DRV_HOME_WAIT_ATTAINED:
+        track_drive_position(inst);
         if (*(p->homing_error)) {
             gomc_log_errorf(inst->log, inst->name,
                 "j%d: drive reported homing error", jno);
@@ -162,6 +178,7 @@ static int drive_home_tick(linmot_inst_t *inst)
         return 1;
 
     case DRV_HOME_WAIT_CSP:
+        track_drive_position(inst);
         if (*(p->opmode_fb) == CIA402_OP_CSP) {
             inst->drv_state = DRV_HOME_FINAL_MOVE;
             return 1;
@@ -383,10 +400,10 @@ static int32_t gmi_home_get_is_idle(void *ctx)
 
 static int32_t gmi_home_get_at_index_search_wait(void *ctx)
 {
-    linmot_inst_t *inst = (linmot_inst_t *)ctx;
-    /* Suppress ferror during drive homing phases (not during final move) */
-    return (inst->drv_state >= DRV_HOME_SWITCH_MODE &&
-            inst->drv_state <= DRV_HOME_WAIT_CSP) ? 1 : 0;
+    (void)ctx;
+    /* CIA402 drives don't use index pulses — position tracking is handled
+     * by updating free_tp.curr_pos each servo cycle in drive_home_tick(). */
+    return 0;
 }
 
 static int32_t gmi_home_get_at_final_move_wait(void *ctx)
