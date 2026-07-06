@@ -22,14 +22,10 @@ func (c *Canon) GetExternalLengthUnitType() (int32, error) {
 }
 
 func (c *Canon) GetExternalLengthUnits() (float64, error) {
-	switch c.state.lengthUnits {
-	case CanonUnitsInches:
-		return 1.0 / 25.4, nil
-	case CanonUnitsCM:
-		return 1.0 / 10.0, nil
-	default:
-		return 1.0, nil
-	}
+	// Return the machine's native linear units (from [TRAJ]LINEAR_UNITS).
+	// This must NOT vary with the active G20/G21 setting — it tells the
+	// interpreter what units parameters and external data are stored in.
+	return c.task.linearUnits, nil
 }
 
 func (c *Canon) GetExternalAngleUnits() (float64, error) {

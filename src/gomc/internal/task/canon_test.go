@@ -212,6 +212,7 @@ func (m *trackingIO) ToolLoad() error { m.calls = append(m.calls, "ToolChange");
 
 func TestCanon_Getters(t *testing.T) {
 	task, _, _ := newCanonTestTask()
+	task.linearUnits = 1.0 // mm machine
 	c := task.canon
 
 	// Set state
@@ -224,9 +225,9 @@ func TestCanon_Getters(t *testing.T) {
 		t.Fatalf("expected 60, got %f", rate)
 	}
 
-	// GetExternalLengthUnits for inches = 1/25.4
+	// GetExternalLengthUnits returns machine native units (always 1.0 for mm)
 	lu, _ := c.GetExternalLengthUnits()
-	expected := 1.0 / 25.4
+	expected := 1.0
 	if math.Abs(lu-expected) > 1e-6 {
 		t.Fatalf("expected %f, got %f", expected, lu)
 	}
