@@ -164,6 +164,7 @@ func newMonitorTestTask() (*Task, *trackingMotion, *mockIOWithStatus, *mockStatu
 	ep := &mockErrorPublisher{}
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	t := NewTask(mot, io, stat, logger)
+	t.SetIOStatusReader(io)
 	t.SetErrorPublisher(ep)
 	t.numSpindles = 2
 	t.numJoints = 3
@@ -270,6 +271,71 @@ func TestMonitor_ExternalEstop_AlreadyEstopped(t *testing.T) {
 	// Should NOT have called abort/disable since already estopped.
 	if mot.abortCount.Load() != 0 {
 		t.Error("should not abort when already in ESTOP")
+	}
+}
+
+func TestMonitor_EstopClearedByHAL(t *testing.T) {
+	task, _, io, _, _ := newMonitorTestTask()
+
+	// Machine starts in ESTOP with emc-enable-in low.
+	io.setEstop(true)
+
+	mon := newMonitor(task, nil, nil, io)
+	mon.start()
+	defer mon.stop()
+
+	// Verify still in ESTOP.
+	time.Sleep(20 * time.Millisecond)
+	task.mu.Lock()
+	if task.state != StateEstop {
+		t.Fatalf("expected StateEstop, got %s", task.state)
+	}
+	task.mu.Unlock()
+
+	// Simulate emc-enable-in going high (external estop released,
+	// user-enable-out already high from a prior EstopOff call).
+	io.setEstop(false)
+
+	// Wait for monitor to detect it.
+	deadline := time.Now().Add(50 * time.Millisecond)
+	for time.Now().Before(deadline) {
+		task.mu.Lock()
+		s := task.state
+		task.mu.Unlock()
+		if s == StateEstopReset {
+			break
+		}
+		time.Sleep(2 * time.Millisecond)
+	}
+
+	task.mu.Lock()
+	state := task.state
+	task.mu.Unlock()
+
+	if state != StateEstopReset {
+		t.Fatalf("expected StateEstopReset when emc-enable-in goes high, got %s", state)
+	}
+}
+
+func TestSetState_EstopReset_BlockedByHAL(t *testing.T) {
+	task, _, io, _, _ := newMonitorTestTask()
+
+	// Machine in ESTOP with emc-enable-in still low (external estop active).
+	io.setEstop(true)
+
+	// Try to reset estop — should NOT transition because HAL says no.
+	err := task.SetState(int32(StateEstopReset))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// State should remain ESTOP (HAL didn't confirm).
+	task.mu.Lock()
+	state := task.state
+	task.mu.Unlock()
+
+	if state != StateEstop {
+		t.Fatalf("expected StateEstop (HAL estop active), got %s", state)
 	}
 }
 

@@ -91,8 +91,12 @@ func (m *monitor) loop() {
 }
 
 // checkEstop polls the IO controller for external estop.
+// This implements the equivalent of 2.9's determineState() for the estop
+// axis: the internal state is always derived from emc-enable-in.
 // If estop is asserted and machine is not already in estop state,
 // force full shutdown (matching C milltask behavior).
+// If estop is cleared and machine is in estop state, transition to
+// estop-reset (matching determineState() returning ESTOP_RESET).
 func (m *monitor) checkEstop() {
 	if m.ioStat == nil {
 		return
@@ -104,6 +108,18 @@ func (m *monitor) checkEstop() {
 	}
 
 	if !st.Estop {
+		// emc-enable-in is HIGH — estop cleared.
+		// If we're in StateEstop, transition to EstopReset
+		// (matching 2.9's determineState() which returns ESTOP_RESET
+		// when io.aux.estop is false and motion is disabled).
+		m.task.mu.Lock()
+		if m.task.state == StateEstop {
+			m.task.state = StateEstopReset
+			m.task.mu.Unlock()
+			m.task.logger.Info("estop cleared by emc-enable-in — state now estop-reset")
+		} else {
+			m.task.mu.Unlock()
+		}
 		return
 	}
 
@@ -119,6 +135,9 @@ func (m *monitor) checkEstop() {
 	m.task.mu.Unlock()
 
 	m.task.logger.Warn("external estop detected — forcing shutdown")
+
+	// Set user-enable-out=0 to match the detected state.
+	_ = m.task.io.EstopOn()
 
 	if wasEnabled {
 		// Abort sequencer and motion

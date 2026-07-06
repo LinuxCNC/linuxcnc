@@ -176,6 +176,7 @@ func (m *milltaskModule) Start() error {
 	io := &ioAdapter{EmcioClient: ioClient}
 
 	t := NewTask(mc, io, ms, m.logger)
+	t.SetIOStatusReader(io)
 
 	// Validate kinematics/joint/axis INI consistency before loading config.
 	if err := m.checkConfig(); err != nil {

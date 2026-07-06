@@ -92,7 +92,7 @@ func (m *mockMotion) SetAout(int32, float64) error                 { return nil 
 func (m *mockMotion) SetAoutSynched(int32, float64, float64) error { return nil }
 func (m *mockMotion) SetSpindlesync(float64, int32) error          { return nil }
 
-// mockIO implements IOController for testing.
+// mockIO implements IOController and IOStatusReader for testing.
 type mockIO struct {
 	lastCall string
 }
@@ -119,6 +119,9 @@ func (m *mockIO) SetDebug(int32) error             { return nil }
 func (m *mockIO) GetCmdStatus() (int32, error)     { return IOStatusDone, nil }
 func (m *mockIO) GetToolInSpindle() (int32, error) { return 0, nil }
 func (m *mockIO) GetPocketPrepped() (int32, error) { return 0, nil }
+func (m *mockIO) GetIOFullStatus() (IOFullStatus, error) {
+	return IOFullStatus{Estop: false}, nil
+}
 
 // mockStatus implements MotionStatusReader for testing.
 type mockStatus struct{}
@@ -138,6 +141,7 @@ func newTestTask() (*Task, *mockMotion, *mockIO) {
 	stat := &mockStatus{}
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	t := NewTask(mot, io, stat, logger)
+	t.SetIOStatusReader(io)
 	return t, mot, io
 }
 

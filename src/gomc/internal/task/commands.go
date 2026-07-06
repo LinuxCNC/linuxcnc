@@ -104,9 +104,21 @@ func (t *Task) SetState(state int32) error {
 			t.mu.Unlock()
 			return ErrEstop
 		}
-		t.state = StateEstopReset
+		// Request estop-off from IO (sets user-enable-out=1).
+		// The actual state transition only happens when emc-enable-in
+		// confirms it, matching 2.9's determineState() behavior.
 		t.mu.Unlock()
 		_ = t.io.EstopOff()
+
+		// Check if IO confirms estop cleared (immediate HAL loopback case).
+		// If IO status is not available, trust that the monitor will handle it.
+		if t.ioStat != nil {
+			if st, err := t.ioStat.GetIOFullStatus(); err == nil && !st.Estop {
+				t.mu.Lock()
+				t.state = StateEstopReset
+				t.mu.Unlock()
+			}
+		}
 		return nil
 
 	case StateOff:

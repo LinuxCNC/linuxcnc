@@ -294,6 +294,7 @@ type Task struct {
 	// Dependencies (injected, mockable for tests)
 	motion MotionController
 	io     IOController
+	ioStat IOStatusReader // optional; used to verify estop state from HAL
 	status MotionStatusReader
 	interp Interpreter
 	errors ErrorPublisher
@@ -402,6 +403,11 @@ func (t *Task) SetInterpreter(interp Interpreter) {
 // SetErrorPublisher sets the error publisher for operator messages.
 func (t *Task) SetErrorPublisher(ep ErrorPublisher) {
 	t.errors = ep
+}
+
+// SetIOStatusReader sets the IO status reader for estop state verification.
+func (t *Task) SetIOStatusReader(r IOStatusReader) {
+	t.ioStat = r
 }
 
 // operatorError sends an operator error message to connected UIs.
