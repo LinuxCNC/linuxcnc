@@ -112,7 +112,10 @@ func loadTraj(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 	defaultVel := getFloatOr(ini, "TRAJ", "DEFAULT_LINEAR_VELOCITY",
 		getFloatOr(ini, "TRAJ", "DEFAULT_VELOCITY", 1.0))
 	t.maxVelocity = getFloatOr(ini, "TRAJ", "MAX_LINEAR_VELOCITY",
-		getFloatOr(ini, "TRAJ", "MAX_VELOCITY", 1e99))
+		getFloatOr(ini, "TRAJ", "MAX_VELOCITY", 0))
+	if t.maxVelocity <= 0 {
+		t.maxVelocity = minAxisVel(ini, t.axisMask)
+	}
 	if err := mc.SetVelLimit(t.maxVelocity); err != nil {
 		return err
 	}
@@ -121,10 +124,20 @@ func loadTraj(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 	}
 
 	// Acceleration
+	// If no explicit [TRAJ] acceleration limit, derive from the minimum of
+	// [AXIS_*]MAX_ACCELERATION for active axes.  Using 1e99 as a sentinel
+	// causes catastrophic floating-point cancellation in the TP's trapezoidal
+	// velocity planner (sqrt(B²+C) - B ≈ 0 when B is huge).
 	defaultAcc := getFloatOr(ini, "TRAJ", "DEFAULT_LINEAR_ACCELERATION",
-		getFloatOr(ini, "TRAJ", "DEFAULT_ACCELERATION", 1e99))
+		getFloatOr(ini, "TRAJ", "DEFAULT_ACCELERATION", 0))
 	t.maxAcceleration = getFloatOr(ini, "TRAJ", "MAX_LINEAR_ACCELERATION",
-		getFloatOr(ini, "TRAJ", "MAX_ACCELERATION", 1e99))
+		getFloatOr(ini, "TRAJ", "MAX_ACCELERATION", 0))
+	if t.maxAcceleration <= 0 {
+		t.maxAcceleration = minAxisAcc(ini, t.axisMask)
+	}
+	if defaultAcc <= 0 {
+		defaultAcc = t.maxAcceleration
+	}
 	if err := mc.SetAcc(clamp(defaultAcc, 0, t.maxAcceleration)); err != nil {
 		return err
 	}
@@ -361,6 +374,53 @@ func axisCount(mask int32) int {
 		}
 	}
 	return n
+}
+
+// minAxisAcc returns the minimum MAX_ACCELERATION across all active axes.
+// Used as fallback when [TRAJ]MAX_LINEAR_ACCELERATION is not specified.
+func minAxisAcc(ini *inifile.IniFile, axisMask int32) float64 {
+	minAcc := 0.0
+	for i := 0; i < 9; i++ {
+		if axisMask&(1<<i) == 0 {
+			continue
+		}
+		sec := axisSection(int32(i))
+		acc := getFloatOrSection(ini, sec, "MAX_ACCELERATION", 0)
+		if acc <= 0 {
+			continue
+		}
+		if minAcc <= 0 || acc < minAcc {
+			minAcc = acc
+		}
+	}
+	if minAcc <= 0 {
+		// Ultimate fallback — should not happen with a valid config.
+		minAcc = 1.0
+	}
+	return minAcc
+}
+
+// minAxisVel returns the minimum MAX_VELOCITY across all active axes.
+// Used as fallback when [TRAJ]MAX_LINEAR_VELOCITY is not specified.
+func minAxisVel(ini *inifile.IniFile, axisMask int32) float64 {
+	minVel := 0.0
+	for i := 0; i < 9; i++ {
+		if axisMask&(1<<i) == 0 {
+			continue
+		}
+		sec := axisSection(int32(i))
+		vel := getFloatOrSection(ini, sec, "MAX_VELOCITY", 0)
+		if vel <= 0 {
+			continue
+		}
+		if minVel <= 0 || vel < minVel {
+			minVel = vel
+		}
+	}
+	if minVel <= 0 {
+		minVel = 1.0
+	}
+	return minVel
 }
 
 func axisSection(axis int32) string {
