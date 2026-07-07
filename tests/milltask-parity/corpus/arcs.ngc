@@ -1,0 +1,10 @@
+; Arc feed centripetal limiting (regression H2) + arc geometry.
+G21 G90 G94 G17
+G0 X0 Y0 Z5
+G1 Z0 F400
+G2 X20 Y0 I10 J0 F800   ; radius 10 CW semicircle
+G3 X0  Y0 I-10 J0 F800  ; radius 10 CCW back
+G2 X2 Y0 I1 J0 F800     ; small radius 1 — centripetal cap should slow it
+G2 X0 Y0 Z-5 I-1 J0 F800 ; helical (Z coupled)
+G0 Z5
+M2

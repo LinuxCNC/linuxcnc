@@ -384,6 +384,71 @@ static int is_feed_type(int motion_type)
 
   This function runs with the inst->command struct locked.
   */
+/* ================================================================
+ * milltask parity instrument.  When the environment variable MOTCTL_LOG
+ * names a file (or "-" for stderr), log one deterministic line per command
+ * the motion controller receives, so the old (C++, linuxcnc-2.9) and new
+ * (Go, gomc) milltask can be diffed move-for-move against their OWN native
+ * motion module.  Logs by opcode NAME (robust to enum renumbering) using
+ * only emcmot_command_t fields common to both trees.  Off (no env) => no-op,
+ * no behaviour change.  The identical function lives in both trees' command.c.
+ * ================================================================ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+static void motcmd_trace(const emcmot_command_t *cmd)
+{
+    static FILE *lf = NULL; static int ready = 0;
+    if (!ready) { const char *p = getenv("MOTCTL_LOG"); ready = 1;
+        if (p && *p) lf = (strcmp(p, "-") == 0) ? stderr : fopen(p, "a"); }
+    if (!lf) return;
+    const EmcPose *p = &cmd->pos;
+#define P9(X) (X)->tran.x,(X)->tran.y,(X)->tran.z,(X)->a,(X)->b,(X)->c,(X)->u,(X)->v,(X)->w
+#define PF "[%.9g,%.9g,%.9g,%.9g,%.9g,%.9g,%.9g,%.9g,%.9g]"
+    switch (cmd->command) {
+    case EMCMOT_SET_LINE:
+        fprintf(lf, "SET_LINE pos=" PF " vel=%.9g ini_maxvel=%.9g acc=%.9g mt=%d turn=%d\n",
+                P9(p), cmd->vel, cmd->ini_maxvel, cmd->acc, cmd->motion_type, cmd->turn); break;
+    case EMCMOT_SET_CIRCLE:
+        fprintf(lf, "SET_CIRCLE pos=" PF " center=[%.9g,%.9g,%.9g] normal=[%.9g,%.9g,%.9g] turn=%d vel=%.9g ini_maxvel=%.9g acc=%.9g mt=%d\n",
+                P9(p), cmd->center.x, cmd->center.y, cmd->center.z, cmd->normal.x, cmd->normal.y, cmd->normal.z,
+                cmd->turn, cmd->vel, cmd->ini_maxvel, cmd->acc, cmd->motion_type); break;
+    case EMCMOT_PROBE:
+        fprintf(lf, "PROBE pos=" PF " vel=%.9g ini_maxvel=%.9g acc=%.9g mt=%d probe_type=%d\n",
+                P9(p), cmd->vel, cmd->ini_maxvel, cmd->acc, cmd->motion_type, (int)cmd->probe_type); break;
+    case EMCMOT_RIGID_TAP:
+        fprintf(lf, "RIGID_TAP pos=" PF " vel=%.9g ini_maxvel=%.9g acc=%.9g scale=%.9g\n",
+                P9(p), cmd->vel, cmd->ini_maxvel, cmd->acc, cmd->scale); break;
+    case EMCMOT_SET_VEL:        fprintf(lf, "SET_VEL vel=%.9g\n", cmd->vel); break;
+    case EMCMOT_SET_VEL_LIMIT:  fprintf(lf, "SET_VEL_LIMIT vel=%.9g\n", cmd->vel); break;
+    case EMCMOT_SET_ACC:        fprintf(lf, "SET_ACC acc=%.9g\n", cmd->acc); break;
+    case EMCMOT_SET_TERM_COND:  fprintf(lf, "SET_TERM_COND cond=%d tol=%.9g\n", cmd->termCond, cmd->tolerance); break;
+    case EMCMOT_SET_SPINDLESYNC: fprintf(lf, "SET_SPINDLESYNC sync=%.9g mt=%d\n", cmd->spindlesync, cmd->motion_type); break;
+    case EMCMOT_SET_OFFSET:     fprintf(lf, "SET_OFFSET tlo=" PF "\n", P9(&cmd->tool_offset)); break;
+    case EMCMOT_SPINDLE_ON:     fprintf(lf, "SPINDLE_ON s=%d speed=%.9g css_factor=%.9g css_offset=%.9g wait=%d\n",
+                cmd->spindle, cmd->vel, cmd->ini_maxvel, cmd->acc, (int)cmd->wait_for_spindle_at_speed); break;
+    case EMCMOT_SPINDLE_OFF:    fprintf(lf, "SPINDLE_OFF s=%d\n", cmd->spindle); break;
+    case EMCMOT_SPINDLE_SCALE:  fprintf(lf, "SPINDLE_SCALE s=%d scale=%.9g\n", cmd->spindle, cmd->scale); break;
+    case EMCMOT_SPINDLE_ORIENT: fprintf(lf, "SPINDLE_ORIENT s=%d orient=%.9g dir=%d\n", cmd->spindle, cmd->orientation, (int)cmd->direction); break;
+    case EMCMOT_FEED_SCALE:     fprintf(lf, "FEED_SCALE scale=%.9g\n", cmd->scale); break;
+    case EMCMOT_RAPID_SCALE:    fprintf(lf, "RAPID_SCALE scale=%.9g\n", cmd->scale); break;
+    case EMCMOT_SS_ENABLE:      fprintf(lf, "SS_ENABLE s=%d mode=%d\n", cmd->spindle, (int)cmd->mode); break;
+    case EMCMOT_FS_ENABLE:      fprintf(lf, "FS_ENABLE mode=%d\n", (int)cmd->mode); break;
+    case EMCMOT_FH_ENABLE:      fprintf(lf, "FH_ENABLE mode=%d\n", (int)cmd->mode); break;
+    case EMCMOT_AF_ENABLE:      fprintf(lf, "AF_ENABLE mode=%d\n", (int)cmd->mode); break;
+    case EMCMOT_PAUSE:          fprintf(lf, "PAUSE\n"); break;
+    case EMCMOT_RESUME:         fprintf(lf, "RESUME\n"); break;
+    case EMCMOT_ABORT:          fprintf(lf, "ABORT\n"); break;
+    case EMCMOT_FREE:           fprintf(lf, "FREE\n"); break;
+    case EMCMOT_COORD:          fprintf(lf, "COORD\n"); break;
+    case EMCMOT_TELEOP:         fprintf(lf, "TELEOP\n"); break;
+    default:                    fprintf(lf, "CMD name=%d\n", (int)cmd->command); break;
+    }
+    fflush(lf);
+#undef P9
+#undef PF
+}
+
 void emcmotCommandHandler_locked(void *arg, long servo_period)
 {
     motmod_inst_t *inst = (motmod_inst_t *)arg;
@@ -405,6 +470,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	/* got a new command-- echo command and number... */
 	inst->status->commandEcho = inst->command->command;
 	inst->status->commandNumEcho = inst->command->commandNum;
+	motcmd_trace(inst->command);
 
 	/* clear status value by default */
 	inst->status->commandStatus = EMCMOT_COMMAND_OK;
