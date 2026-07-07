@@ -1,0 +1,8 @@
+; M66 input-wait ordering test. The wait is queued, so it must run AFTER the
+; X10 move drains (input 0 is undriven → the L3 wait times out at Q0.5s).
+G21 G90 G94
+G0 X0 Y0 Z0
+G1 X10 F600
+M66 P0 L3 Q0.5      ; wait digital in 0 HIGH, 0.5s timeout (will time out)
+G1 X20
+M2

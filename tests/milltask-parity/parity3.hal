@@ -1,7 +1,7 @@
 # Minimal sim HAL for milltask parity testing — 3-axis loop-back.
 # (linuxcnc.hal already loaded tpmod, homemod.0..2, io, milltask, etc.)
 load trivkins coordinates=XYZ
-load motmod num_joints=3 num_spindles=1
+load motmod num_joints=3 num_spindles=1 num_dio=8 num_aio=8
 
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
