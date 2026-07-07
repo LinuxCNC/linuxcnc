@@ -596,6 +596,7 @@ func (c *Canon) RigidTap(lineno int32, x, y, z, scale float64) {
 		ID:      c.allocSerial(lineno),
 		FeedUpm: s.linearFeedRate * 60,
 	}
+	c.syncBefore() // G33.1: no blend with the approach move
 	c.enqueue(cmd)
 }
 
@@ -615,10 +616,24 @@ func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, 
 		ID:         c.allocSerial(lineno),
 		FeedUpm:    s.linearFeedRate * 60,
 	}
+	c.syncBefore() // G38: probe starts at the commanded point, no blend
 	c.enqueue(cmd)
 }
 
+// syncBefore inserts a motion-drain barrier so the next queued command runs
+// only after the preceding motion has reached its endpoint — the Go equivalent
+// of the C++ WAITING_FOR_MOTION[_AND_IO] precondition. Used by the operations
+// that must act *at* a point rather than overlap/blend with earlier motion:
+// dwell, probe, rigid tap, spindle on/off/speed, coolant, and orient. (M0/M1
+// stop, M2 end, M5 spindle-off, M6 change and M66 wait already barrier
+// themselves; coordinate/offset changes need no barrier — they are applied
+// canon-side to subsequent move endpoints, not sent to motion.)
+func (c *Canon) syncBefore() {
+	c.enqueue(waitForMotionSingleton)
+}
+
 func (c *Canon) Dwell(seconds float64) {
+	c.syncBefore() // G4: dwell AT the commanded point, after motion drains
 	c.enqueue(&DwellCmd{Seconds: seconds})
 }
 
@@ -657,12 +672,14 @@ func (c *Canon) spindleCommand(spindle, dir, waitForAtspeed int32) *SpindleOnCmd
 func (c *Canon) StartSpindleClockwise(spindle, waitForAtspeed int32) {
 	c.state.spindleDir[spindle] = 1
 	c.state.spindleWait[spindle] = waitForAtspeed
+	c.syncBefore() // M3: spindle change after preceding motion completes
 	c.enqueue(c.spindleCommand(spindle, 1, waitForAtspeed))
 }
 
 func (c *Canon) StartSpindleCounterclockwise(spindle, waitForAtspeed int32) {
 	c.state.spindleDir[spindle] = -1
 	c.state.spindleWait[spindle] = waitForAtspeed
+	c.syncBefore() // M4
 	c.enqueue(c.spindleCommand(spindle, -1, waitForAtspeed))
 }
 
@@ -672,6 +689,7 @@ func (c *Canon) SetSpindleSpeed(spindle int32, rpm float64) {
 	// Re-issue the spindle command so a running spindle retunes and CSS is
 	// recomputed, matching C++ SET_SPINDLE_SPEED (which always re-emits). The
 	// C++ path reuses the last spindle command's stale wait-for-at-speed flag.
+	c.syncBefore() // S: retune after preceding motion completes
 	c.enqueue(c.spindleCommand(spindle, s.spindleDir[spindle], s.spindleWait[spindle]))
 }
 
@@ -682,6 +700,7 @@ func (c *Canon) StopSpindleTurning(spindle int32) {
 }
 
 func (c *Canon) OrientSpindle(spindle int32, orientation float64, mode int32) {
+	c.syncBefore() // M19: orient after preceding motion completes
 	c.enqueue(&SpindleOrientCmd{Spindle: spindle, Orientation: orientation, Mode: mode})
 }
 
@@ -703,10 +722,10 @@ func (c *Canon) ChangeTool(slot int32) {
 	c.enqueue(&ToolChangeCmd{})
 }
 
-func (c *Canon) FloodOn()  { c.state.floodOn = true; c.enqueue(&FloodOnCmd{}) }
-func (c *Canon) FloodOff() { c.state.floodOn = false; c.enqueue(&FloodOffCmd{}) }
-func (c *Canon) MistOn()   { c.state.mistOn = true; c.enqueue(&MistOnCmd{}) }
-func (c *Canon) MistOff()  { c.state.mistOn = false; c.enqueue(&MistOffCmd{}) }
+func (c *Canon) FloodOn()  { c.state.floodOn = true; c.syncBefore(); c.enqueue(&FloodOnCmd{}) }
+func (c *Canon) FloodOff() { c.state.floodOn = false; c.syncBefore(); c.enqueue(&FloodOffCmd{}) }
+func (c *Canon) MistOn()   { c.state.mistOn = true; c.syncBefore(); c.enqueue(&MistOnCmd{}) }
+func (c *Canon) MistOff()  { c.state.mistOn = false; c.syncBefore(); c.enqueue(&MistOffCmd{}) }
 
 func (c *Canon) EnableFeedOverride() {
 	c.state.feedOverrideEnabled = true
