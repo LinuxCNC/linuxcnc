@@ -944,15 +944,20 @@ func (m *ngcPreview) GenPreview(filename string, initcodes string, unitcode stri
 		}, nil
 	}
 
-	// Open file first (sets up parameter file, subroutine paths, etc.)
-	cFile := C.CString(filename)
-	rc = C.interp_shim_open(h, cFile)
-	C.free(unsafe.Pointer(cFile))
-	if rc != C.INTERP_SHIM_OK {
-		errText := shimErrorText(h, rc)
-		return &ngcpreview.PreviewResult{
-			Error: fmt.Sprintf("open failed: %d (%s)", rc, errText),
-		}, nil
+	// Open file first (sets up parameter file, subroutine paths, etc.).
+	// An empty filename means "run initcodes/unitcode only" (matching
+	// gcodemodule's `if(*f)` guard); Interp::open("") would otherwise fail
+	// with "Unable to open file <>".
+	if filename != "" {
+		cFile := C.CString(filename)
+		rc = C.interp_shim_open(h, cFile)
+		C.free(unsafe.Pointer(cFile))
+		if rc != C.INTERP_SHIM_OK {
+			errText := shimErrorText(h, rc)
+			return &ngcpreview.PreviewResult{
+				Error: fmt.Sprintf("open failed: %d (%s)", rc, errText),
+			}, nil
+		}
 	}
 
 	// Execute initcodes after open (matches gcodemodule behavior)
@@ -991,33 +996,38 @@ func (m *ngcPreview) GenPreview(filename string, initcodes string, unitcode stri
 		}
 	}
 
-	// Read/execute loop
+	// Read/execute loop. Only when a file was opened: Interp::read() with no
+	// open file returns INTERP_FILE_NOT_OPEN, which would surface as a bogus
+	// "read error". For the empty-filename case the initcodes/unitcode above
+	// already produced any result.
 	var maxLine int32
 	var readCount, execCount int
 	var lastReadRC, lastExecRC C.int
-	for {
-		rc = C.interp_shim_read(h)
-		lastReadRC = rc
-		if rc == C.INTERP_SHIM_ENDFILE {
-			break
-		}
-		if rc != C.INTERP_SHIM_OK {
-			break
-		}
-		readCount++
-		rc = C.interp_shim_execute(h)
-		lastExecRC = rc
-		if rc != C.INTERP_SHIM_OK && rc != C.INTERP_SHIM_ENDFILE && rc != C.INTERP_SHIM_EXIT {
-			break
-		}
-		if rc == C.INTERP_SHIM_EXIT {
+	if filename != "" {
+		for {
+			rc = C.interp_shim_read(h)
+			lastReadRC = rc
+			if rc == C.INTERP_SHIM_ENDFILE {
+				break
+			}
+			if rc != C.INTERP_SHIM_OK {
+				break
+			}
+			readCount++
+			rc = C.interp_shim_execute(h)
+			lastExecRC = rc
+			if rc != C.INTERP_SHIM_OK && rc != C.INTERP_SHIM_ENDFILE && rc != C.INTERP_SHIM_EXIT {
+				break
+			}
+			if rc == C.INTERP_SHIM_EXIT {
+				execCount++
+				break
+			}
 			execCount++
-			break
-		}
-		execCount++
-		seq := int32(C.interp_shim_sequence_number(h))
-		if seq > maxLine {
-			maxLine = seq
+			seq := int32(C.interp_shim_sequence_number(h))
+			if seq > maxLine {
+				maxLine = seq
+			}
 		}
 	}
 
@@ -1219,4 +1229,74 @@ func (m *ngcPreview) GetFile(filename string) (*ngcpreview.FileResult, error) {
 	}
 
 	return &ngcpreview.FileResult{Lines: lines}, nil
+}
+
+// evalScratchParam is the numbered parameter used to capture the value of an
+// evaluated expression. Any non-reserved slot works (reserved system params
+// start at 5061); #1 is a plain volatile numbered parameter. The right-hand
+// side of the assignment is fully evaluated before the store, so an expression
+// that reads #1 still sees its prior (zero) value.
+const evalScratchParam = 1
+
+// EvalExpression implements ngcpreview.NgcpreviewCallbacks — evaluates a
+// numeric G-code expression on a fresh interpreter instance (no file opened)
+// by assigning it to a scratch numbered parameter and reading the parameter
+// back. This mirrors the AXIS "M199 P[expr]" touch-off trick without needing
+// user-defined M-code handlers.
+func (m *ngcPreview) EvalExpression(expr string) (*ngcpreview.EvalResult, error) {
+	h := C.interp_shim_new()
+	if h == nil {
+		return nil, fmt.Errorf("failed to create interpreter")
+	}
+	defer C.interp_shim_destroy(h)
+
+	// Preview context + canon callbacks are required so init_canon() has
+	// valid function pointers, even though we generate no geometry.
+	ctx := (*C.preview_ctx_t)(C.calloc(1, C.size_t(unsafe.Sizeof(C.preview_ctx_t{}))))
+	ctx.linear_units = C.double(m.linearUnits)
+	ctx.plane = 1
+	defer func() {
+		C.free(unsafe.Pointer(ctx.segments))
+		C.free(unsafe.Pointer(ctx.dwells))
+		C.free(unsafe.Pointer(ctx.tool_changes))
+		C.free(unsafe.Pointer(ctx))
+	}()
+
+	cbHeap := (*C.canon_callbacks_t)(C.malloc(C.size_t(unsafe.Sizeof(C.canon_callbacks_t{}))))
+	defer C.free(unsafe.Pointer(cbHeap))
+	*cbHeap = C.make_preview_canon(ctx)
+	C.interp_shim_set_callbacks(h, cbHeap)
+
+	var paramIO C.interp_param_io_t
+	paramIO = C.preview_param_io_persist_create(
+		(*C.persist_callbacks_t)(m.persistCbs))
+	defer C.preview_param_io_persist_destroy(&paramIO)
+	C.interp_shim_set_param_io(h, &paramIO)
+
+	rc := C.interp_shim_init(h)
+	if rc != C.INTERP_SHIM_OK {
+		errText := shimErrorText(h, rc)
+		return &ngcpreview.EvalResult{
+			Error: fmt.Sprintf("interpreter init failed: %d (%s)", rc, errText),
+		}, nil
+	}
+
+	// Assign the expression to the scratch parameter, then read it back.
+	line := fmt.Sprintf("#%d=[%s]", evalScratchParam, expr)
+	cCode := C.CString(line)
+	rc = C.interp_shim_read_string(h, cCode)
+	C.free(unsafe.Pointer(cCode))
+	if rc == C.INTERP_SHIM_OK {
+		rc = C.interp_shim_execute(h)
+	}
+	if rc != C.INTERP_SHIM_OK {
+		errText := shimErrorText(h, rc)
+		if errText == "" {
+			errText = fmt.Sprintf("interpreter error %d", int(rc))
+		}
+		return &ngcpreview.EvalResult{Error: errText}, nil
+	}
+
+	value := float64(C.interp_shim_get_parameter(h, C.int(evalScratchParam)))
+	return &ngcpreview.EvalResult{Value: sanitize(value)}, nil
 }

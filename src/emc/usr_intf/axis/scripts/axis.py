@@ -1625,40 +1625,10 @@ class SelectionHandler:
 
 selection = SelectionHandler(root_window)
 
-class DummyCanon:
-    def comment(*args): pass
-    def next_line(*args): pass
-    def set_g5x_offset(*args): pass
-    def set_g92_offset(*args): pass
-    def set_xy_rotation(*args): pass
-    def get_external_angular_units(self): return 1.0
-    def get_external_length_units(self): return 1.0
-    def set_plane(*args): pass
-    def get_axis_mask(self): return 7
-    def get_tool(self, tool):
-        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
-    def set_feed_rate(self, rate): pass
-
-    def user_defined_function(self, m, p, q):
-        self.number = p
-
 def parse_gcode_expression(e):
-    f = os.path.devnull
-    canon = DummyCanon()
-
-    parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
-    temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-    try:
-        content = gmi.fetch_parameter_file()
-        with open(temp_parameter, 'w') as pf:
-            pf.write(content)
-    except Exception:
-        pass
-    canon.parameter_file = temp_parameter
-
-    result, seq = gcode.parse("", canon, "M199 P["+e+"]", "M2")
-    if result > gcode.MIN_ERROR: return False, gcode.strerror(result)
-    return True, canon.number
+    # Evaluate the expression on the ngcpreview server. Returns
+    # (True, value) on success or (False, error_message) on failure.
+    return gcode.eval_expression(e)
 
 class _prompt_areyousure:
     """ Prompt for a question, user can enter yes or no """

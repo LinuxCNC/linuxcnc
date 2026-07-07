@@ -100,3 +100,17 @@ type FileResult {
 @method "POST"
 @path "/get_file"
 func get_file(filename: string) -> FileResult
+
+# Result of evaluating a numeric G-code expression.
+type EvalResult {
+    value: f64
+    error: string
+}
+
+# Evaluate a numeric G-code expression (e.g. a touch-off value that may
+# contain [brackets] and functions such as sin/atan). Runs on a fresh
+# interpreter instance without opening a file; used by AXIS for live
+# validation of values typed into Touch Off / MDI entry dialogs.
+@method "POST"
+@path "/eval"
+func eval_expression(expr: string) -> EvalResult

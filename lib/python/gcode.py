@@ -199,6 +199,29 @@ class _SequenceState:
         self.sequence_number = seq
 
 
+# --- Expression evaluation ---
+
+def eval_expression(expr):
+    """Evaluate a numeric G-code expression via the ngcpreview REST API.
+
+    Used for live validation of values typed into AXIS Touch Off / MDI
+    dialogs. Returns (ok, result) where result is a float when ok is True,
+    or an error string when ok is False.
+    """
+    base_url = os.environ.get("GMC_REST_URL", "http://localhost:5080")
+    import gmi
+    client = NgcpreviewClient(base_url, instance=gmi.preview_instance())
+    try:
+        result = client.eval_expression(expr)
+    except Exception as e:
+        return False, str(e)
+    if result is None:
+        return False, "no result from preview server"
+    if result.error:
+        return False, result.error
+    return True, result.value
+
+
 # --- Arc linearization ---
 
 def arc_to_segments(canon, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w,
