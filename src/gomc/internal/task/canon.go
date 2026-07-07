@@ -3,6 +3,7 @@
 package task
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"time"
@@ -848,73 +849,21 @@ func (c *Canon) UnclampAxis(axis int32) {}
 func (c *Canon) PalletShuttle()         {}
 
 func (c *Canon) WaitInput(index, inputType, waitType int32, timeout float64) (int32, error) {
-	// M66: Wait for digital/analog input condition.
-	// inputType: 1=digital, 2=analog
-	// waitType: 0=immediate, 1=rise, 2=fall, 3=high, 4=low
-	// timeout: seconds (0 = immediate read)
-	// Returns: 0 on success, -1 on error/timeout
-
-	if c.task.status == nil {
-		return -1, nil
+	// M66: wait for a digital/analog input condition.
+	// inputType: 1=digital, 2=analog; waitType: 0=immediate, 1=rise, 2=fall,
+	// 3=high, 4=low; timeout in seconds (0 = immediate read).
+	//
+	// The wait is QUEUED (WaitInputCmd), not run inline here, so it executes in
+	// program order — after the preceding motion drains — instead of during
+	// interpreter readahead. This matches C++ WAIT, which appends the wait to
+	// interp_list and returns immediately (0), letting the interpreter yield
+	// INTERP_EXECUTE_FINISH; the captured value is read post-drain via the
+	// GET_EXTERNAL_*_INPUT getters. Only the out-of-range check is immediate.
+	if index < 0 || index >= 64 {
+		return -1, nil // matches C++ WAIT bounds check (EMCMOT_MAX_DIO/AIO)
 	}
-
-	// Immediate mode — just return, interp will read via GetExternalDigitalInput/AnalogInput
-	if timeout == 0 || waitType == 0 {
-		return 0, nil
-	}
-
-	deadline := time.Now().Add(time.Duration(timeout * float64(time.Second)))
-	ticker := time.NewTicker(pollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-c.task.seqAbort:
-			return -1, nil
-		case <-ticker.C:
-			ms, err := c.task.status.GetStatus()
-			if err != nil {
-				continue
-			}
-
-			var satisfied bool
-			if inputType == 1 { // digital
-				if index < 0 || index >= 64 {
-					return -1, nil
-				}
-				val := ms.SynchDi[index]
-				switch waitType {
-				case 1: // rise (high)
-					satisfied = val != 0
-				case 2: // fall (low)
-					satisfied = val == 0
-				case 3: // high
-					satisfied = val != 0
-				case 4: // low
-					satisfied = val == 0
-				}
-			} else { // analog
-				if index < 0 || index >= 64 {
-					return -1, nil
-				}
-				val := ms.AnalogInput[index]
-				// For analog: rise=above 0, fall=below 0, high=above 0, low=below/equal 0
-				switch waitType {
-				case 1, 3:
-					satisfied = val > 0
-				case 2, 4:
-					satisfied = val <= 0
-				}
-			}
-
-			if satisfied {
-				return 0, nil
-			}
-			if time.Now().After(deadline) {
-				return -1, nil
-			}
-		}
-	}
+	c.enqueue(&WaitInputCmd{Index: index, InputType: inputType, WaitType: waitType, Timeout: timeout})
+	return 0, nil
 }
 
 func (c *Canon) LockRotary(lineno, joint int32) (int32, error) {
@@ -1303,6 +1252,74 @@ func (c *AdaptiveFeedEnableCmd) Execute(t *Task) error {
 }
 func (c *AdaptiveFeedEnableCmd) Wait() WaitType { return WaitNone }
 func (c *AdaptiveFeedEnableCmd) String() string { return "AdaptiveFeedEnable" }
+
+// WaitInputCmd implements M66 — wait for a digital/analog input condition.
+// It is queued so it runs in program order: the preceding motion is drained
+// first (so the input is sampled at the commanded point), then the input is
+// polled for the requested edge/level until satisfied or timeout. The captured
+// value is read by the interpreter afterwards via GET_EXTERNAL_*_INPUT.
+type WaitInputCmd struct {
+	Index     int32
+	InputType int32 // 1=digital, 2=analog
+	WaitType  int32 // 0=immediate, 1=rise, 2=fall, 3=high, 4=low
+	Timeout   float64
+}
+
+func (c *WaitInputCmd) Execute(t *Task) error {
+	// Drain preceding motion so the input is sampled at the commanded point.
+	if err := t.waitMotionDone(); err != nil {
+		return err
+	}
+	// Immediate read: nothing to wait for — the interpreter reads the value
+	// post-drain via the getters.
+	if c.WaitType == 0 || c.Timeout <= 0 {
+		return nil
+	}
+	deadline := time.Now().Add(time.Duration(c.Timeout * float64(time.Second)))
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-t.seqAbort:
+			return context.Canceled
+		case <-ticker.C:
+			if t.status == nil {
+				return nil
+			}
+			ms, err := t.status.GetStatus()
+			if err == nil && c.Index >= 0 && c.Index < 64 {
+				var satisfied bool
+				if c.InputType == 1 { // digital
+					high := ms.SynchDi[c.Index] != 0
+					switch c.WaitType {
+					case 1, 3: // rise / high
+						satisfied = high
+					case 2, 4: // fall / low
+						satisfied = !high
+					}
+				} else { // analog
+					pos := ms.AnalogInput[c.Index] > 0
+					switch c.WaitType {
+					case 1, 3:
+						satisfied = pos
+					case 2, 4:
+						satisfied = !pos
+					}
+				}
+				if satisfied {
+					return nil
+				}
+			}
+			if time.Now().After(deadline) {
+				return nil // timeout — interpreter reads the current input value
+			}
+		}
+	}
+}
+func (c *WaitInputCmd) Wait() WaitType { return WaitNone }
+func (c *WaitInputCmd) String() string {
+	return fmt.Sprintf("WaitInput(idx=%d itype=%d wtype=%d to=%.2fs)", c.Index, c.InputType, c.WaitType, c.Timeout)
+}
 
 // SetDoutCmd sets a digital output immediately.
 type SetDoutCmd struct {
