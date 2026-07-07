@@ -739,6 +739,7 @@ static void joint_jog_abort_all(motmod_inst_t *inst, bool immediate)
         joint->wheel_jjog_active = 0;
         if (immediate) {
           joint->free_tp.curr_vel = 0.0;
+          joint->free_flush = 0;	/* abandon any pending jerk-filter flush */
         }
     }
 }
@@ -1056,6 +1057,7 @@ static void set_operating_mode(motmod_inst_t *inst)
 	    /* disable free mode planner */
 	    joint->free_tp.enable = 0;
 	    joint->free_tp.curr_vel = 0.0;
+	    joint->free_flush = 0;	/* abandon any pending jerk-filter flush */
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -1373,7 +1375,8 @@ void jerk_filter_recompute_window(motmod_inst_t *inst)
         int w = (int)ceil(acc / (jerk * servo_period));
         if (w > max_window) max_window = w;
     }
-    if (max_window > JERK_FILTER_MAX_WINDOW)
+    int clamped = (max_window > JERK_FILTER_MAX_WINDOW);
+    if (clamped)
         max_window = JERK_FILTER_MAX_WINDOW;
     if (max_window < 1)
         max_window = 0;  /* disabled */
@@ -1383,6 +1386,19 @@ void jerk_filter_recompute_window(motmod_inst_t *inst)
     if (max_window == inst->jerk_filter.window_size &&
         nj == inst->jerk_filter.num_joints)
         return;  /* no change */
+
+    if (clamped) {
+        /* Requested jerk is so low (relative to accel) that honoring it
+           would need a filter window past the cap.  The effective jerk
+           limit becomes max_acc/(cap*servo_period) for the driving joint,
+           i.e. higher (less smooth) than requested, but the motion stays
+           stable.  Logged only on an actual window change to avoid spam. */
+        gomc_log_errorf(inst->log, inst->name,
+            "MOTION: jerk-filter window clamped to cap %d; jerk limited to a "
+            "higher (less smooth) value than requested. Raise MAX_JERK or "
+            "JERK_FILTER_MAX_WINDOW for smoother motion.\n",
+            JERK_FILTER_MAX_WINDOW);
+    }
 
     /* Free old buffers */
     if (inst->jerk_filter.buf) {
@@ -1531,16 +1547,56 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
             } else {
                 joint->free_tp.max_acc = joint->acc_limit;
             }
-            joint->free_tp.max_jerk = joint->jerk_limit;
             simple_tp_update(&(joint->free_tp), servo_period );
-            /* copy free TP output to pos_cmd and coarse_pos */
-            joint->pos_cmd = joint->free_tp.curr_pos;
-            joint->vel_cmd = joint->free_tp.curr_vel;
+            /* Stage the raw (bang-bang) planner output into the joint
+               position array.  The jerk-limiting boxcar filter and the
+               command write-back run after this loop, so all joints are
+               filtered together, exactly as in coord/teleop mode. */
+            positions[joint_num] = joint->free_tp.curr_pos;
+	}//for loop for joints
+
+	/* Apply the jerk-limiting boxcar filter (if enabled) to the
+	   per-joint free-mode commands.  The filter is a linear FIR, so
+	   unlike in-loop jerk limiting it is unconditionally stable and
+	   cannot oscillate for any acc/jerk combination. */
+	jerk_filter_apply(inst, positions);
+
+	/* Write filtered results back to the joint commands and update the
+	   in-position/active bookkeeping. */
+	for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
+	    joint = &inst->joints[joint_num];
+	    if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	        continue;
+            }
+            if (IS_EXTRA_JOINT(joint_num) && JOINT_HOME_API(joint)->get_homed(JOINT_HOME_API(joint)->ctx)) continue;
+
+            /* derive velocity from the filtered position delta (coarse_pos
+               still holds the previous cycle's value at this point) */
+            joint->vel_cmd = (positions[joint_num] - joint->coarse_pos) / servo_period;
+            joint->pos_cmd = positions[joint_num];
             //no acceleration output form simple_tp, but the pin will
             //still show the acceleration from the interpolation.
             //it's delayed, but that's ok during jogging or homing.
             joint->acc_cmd = 0.0;
-            joint->coarse_pos = joint->free_tp.curr_pos;
+            joint->coarse_pos = positions[joint_num];
+
+            /* The boxcar filter delays its output by up to window_size
+               cycles, so the joint keeps moving after the raw planner has
+               stopped.  Hold the reported active flag until the filter has
+               flushed, so homing/jog sequencing (which polls
+               free_tp.active) waits for the joint to physically reach its
+               target.  With the filter disabled (window_size == 0) this is
+               a no-op and behaviour is identical to the original. */
+            {
+                int raw_active = joint->free_tp.active;
+                if (raw_active) {
+                    joint->free_flush = inst->jerk_filter.window_size;
+                } else if (joint->free_flush > 0) {
+                    joint->free_flush--;
+                }
+                joint->free_tp.active = raw_active || (joint->free_flush > 0);
+            }
+
             /* update joint status flag and overall status flag */
             if ( joint->free_tp.active ) {
 		/* active TP means we're moving, so not in position */
@@ -1556,7 +1612,7 @@ static void get_pos_cmds(motmod_inst_t *inst, long period)
 		joint->kb_jjog_active = 0;
 		joint->wheel_jjog_active = 0;
             }
-	}//for loop for joints
+	}//for loop for joints (filtered write-back)
 	/* if overriding is true and we're in position, the jog
 	   is complete, and the limits should be re-enabled */
 	if ( (inst->internal->overriding ) && ( GET_MOTION_INPOS_FLAG() ) ) {

@@ -125,8 +125,13 @@ typedef struct motmod_inst {
     /* Per-instance axis state (opaque, axis_inst_t* from axis.c) */
     void *axis_inst;
 
-    /* Jerk filter (boxcar) state for coordinated/teleop motion */
-    #define JERK_FILTER_MAX_WINDOW 64
+    /* Jerk filter (boxcar) state for free/coordinated/teleop motion.
+       The window is w = ceil(max_acc / (max_jerk * servo_period)); it is
+       capped to bound memory and command latency.  Above the cap the
+       filter still limits jerk, just to a higher effective value than
+       requested (graceful degradation, never unstable).  512 covers an
+       acc/jerk ratio up to 0.5 s at a 1 ms servo period. */
+    #define JERK_FILTER_MAX_WINDOW 512
     struct {
         double *buf;       /* [num_joints * window_size] ring buffer (row-major) */
         double *sum;       /* [num_joints] running sums */

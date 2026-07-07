@@ -469,6 +469,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */
 	simple_tp_t free_tp;	/* planner for free mode motion */
+	int free_flush;		/* jerk-filter flush countdown after free_tp stops */
 	int kb_jjog_active;	/* non-zero during a keyboard jog */
 	int wheel_jjog_active;	/* non-zero during a wheel jog */
 
