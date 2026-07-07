@@ -783,6 +783,7 @@ import (
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/ngcpreview"
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/tooltable"
 	"github.com/sittner/linuxcnc/src/gomc/internal/apiserver"
+	"github.com/sittner/linuxcnc/src/gomc/internal/config"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/gomc"
 	"github.com/sittner/linuxcnc/src/gomc/pkg/inifile"
 )
@@ -1162,8 +1163,8 @@ func collectAllowedDirs(ini *inifile.IniFile, iniDir string) []string {
 	// the PROGRAM_PREFIX which already covers it.
 
 	// System share directory (contains splash screen NGC files, etc.)
-	if emcHome := os.Getenv("EMC2_HOME"); emcHome != "" {
-		shareDir := filepath.Join(emcHome, "share")
+	if config.EMC2Home != "" {
+		shareDir := filepath.Join(config.EMC2Home, "share")
 		if d := resolve(shareDir); d != "" {
 			dirs = append(dirs, d)
 		}
