@@ -320,7 +320,7 @@ export const halshowStore = {
           const params = await Promise.all(allLeaves.map(n => client.getParam(n.fullPath)));
           state.nodeOverviewPins = params.map(p => ({
             name: p.name, type: p.type, dir: p.dir, value: p.value,
-            owner: p.owner, linked: false,
+            owner: p.owner, linked: false, has_writer: false,
           }));
         }
       } catch (e) {
@@ -442,8 +442,6 @@ export const halshowStore = {
 
       if (msg.meta && Array.isArray(msg.meta)) {
         // First message (or structure change): contains metadata + initial values
-        const metaNames = (msg.meta as Array<{ name: string }>).map(m => m.name);
-        console.log('[watch] meta received:', metaNames.length, 'items:', metaNames);
         metaMap.clear();
         for (const m of msg.meta as Array<{ name: string; type: string; dir: string; kind: string; owner: string; linked: boolean }>) {
           metaMap.set(m.name, { type: m.type, dir: m.dir ?? '', kind: m.kind ?? '', owner: m.owner, linked: m.linked });
@@ -454,10 +452,6 @@ export const halshowStore = {
         }
       } else {
         // Subsequent messages: only changed name→value pairs
-        const keys = Object.keys(msg);
-        if (keys.length > 0) {
-          console.log('[watch] delta:', keys.length, 'changed');
-        }
         for (const [name, value] of Object.entries(msg)) {
           valueMap.set(name, value as string);
         }
@@ -654,12 +648,12 @@ export const halshowStore = {
 
       case 'loadrt': {
         if (args.length < 1) return { success: false, error: 'Usage: loadrt <module> [args...]' };
-        return await client.loadrt(args[0], args.slice(1) as any);
+        return await client.load(args[0], args.slice(1) as any);
       }
 
       case 'unloadrt': {
         if (args.length < 1) return { success: false, error: 'Usage: unloadrt <module>' };
-        return await client.unloadrt(args[0]);
+        return await client.unload(args[0]);
       }
 
       case 'start':

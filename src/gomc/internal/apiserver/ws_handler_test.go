@@ -383,3 +383,104 @@ func TestWatchConcurrentSubscriptions(t *testing.T) {
 	}
 	t.Logf("received: fast=%d slow=%d", counts["fast"], counts["slow"])
 }
+
+// TestWatchResubscribeNoStaleSnapshot verifies that rapidly re-subscribing to
+// the same watch function (as the halshow UI does when items are added to the
+// watch list) never delivers a stale first-poll snapshot from a superseded
+// subscription AFTER the newest subscription's snapshot.
+//
+// Regression test: previously the immediate first-poll send in pushLoop did not
+// check the subscription's context, so a cancelled goroutine could still emit
+// its initial (older, smaller) snapshot, which could arrive after — and clobber
+// — the newest snapshot on the client. In the UI this made a newly-added watch
+// item appear with no value/type until a page reload.
+func TestWatchResubscribeNoStaleSnapshot(t *testing.T) {
+	const generations = 8
+
+	reg := NewWatchRegistry()
+	reg.Register(&WatchAPI{
+		APIName:  "test",
+		Instance: "default",
+		Watches: []WatchFuncMeta{
+			{
+				Name: "items",
+				// Long rate so the ticker never fires — only first polls matter.
+				DefaultRate: 10 * time.Second,
+				Factory: func(args json.RawMessage) (WatchFunc, error) {
+					var a struct {
+						Gen int `json:"gen"`
+					}
+					_ = json.Unmarshal(args, &a)
+					first := true
+					return func() (json.RawMessage, error) {
+						if first {
+							first = false
+							// Deterministically drive the race: newer generations
+							// wake FIRST, older ones LAST. Without the ctx guard on
+							// the first-poll send, the oldest (smallest) snapshot
+							// would therefore be written last and clobber the
+							// newest on the client.
+							time.Sleep(time.Duration(generations-a.Gen) * 40 * time.Millisecond)
+						}
+						return json.Marshal(map[string]int{"gen": a.Gen})
+					}, nil
+				},
+			},
+		},
+	})
+
+	handler := NewWatchHandler(reg)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+
+	wsURL := "ws" + strings.TrimPrefix(srv.URL, "http")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	conn, _, err := websocket.Dial(ctx, wsURL, nil)
+	if err != nil {
+		t.Fatalf("dial: %v", err)
+	}
+	defer conn.Close(websocket.StatusNormalClosure, "")
+
+	// Fire generations subscribes back-to-back, each with an increasing gen.
+	for gen := 1; gen <= generations; gen++ {
+		sub := wsSubscribe{
+			Action: "subscribe", API: "test", Instance: "default", Func: "items",
+			Args: json.RawMessage(fmt.Sprintf(`{"gen":%d}`, gen)),
+		}
+		subData, _ := json.Marshal(sub)
+		if err := conn.Write(ctx, websocket.MessageText, subData); err != nil {
+			t.Fatalf("write subscribe gen=%d: %v", gen, err)
+		}
+	}
+
+	// Drain all updates until the stream goes quiet. The LAST snapshot that
+	// arrives must be the newest generation — a stale one arriving last would
+	// clobber the UI.
+	lastGen := -1
+	for {
+		readCtx, readCancel := context.WithTimeout(ctx, 400*time.Millisecond)
+		_, data, err := conn.Read(readCtx)
+		readCancel()
+		if err != nil {
+			break // no more updates
+		}
+		var update wsUpdate
+		if err := json.Unmarshal(data, &update); err != nil {
+			t.Fatalf("unmarshal update: %v", err)
+		}
+		var payload struct {
+			Gen int `json:"gen"`
+		}
+		if err := json.Unmarshal(update.Data, &payload); err != nil {
+			t.Fatalf("unmarshal payload: %v", err)
+		}
+		lastGen = payload.Gen
+	}
+
+	if lastGen != generations {
+		t.Fatalf("last snapshot gen=%d, want %d (stale snapshot from a "+
+			"superseded subscription clobbered the newest)", lastGen, generations)
+	}
+}

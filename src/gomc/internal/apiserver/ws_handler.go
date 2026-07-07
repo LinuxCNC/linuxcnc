@@ -259,6 +259,31 @@ func (c *wsConn) writeBinary(data []byte) error {
 	return c.conn.Write(c.ctx, websocket.MessageBinary, data)
 }
 
+// writeUpdate marshals and writes a watch update, but only if subCtx is still
+// active. The subCtx check is done under writeMu, which serializes all writes.
+//
+// handleSubscribe cancels a superseded subscription's context BEFORE it creates
+// the replacement subscription's goroutine. Combined with the check-under-lock
+// here, this guarantees a cancelled subscription can never write after its
+// successor: if the successor has written, the predecessor's ctx was already
+// cancelled, so its check fails and it drops the message. Without this, a
+// cancelled subscription's immediate first-poll snapshot (a full meta message)
+// could still be scheduled and arrive AFTER the new subscription's snapshot,
+// clobbering it on the client — which made newly-added watch items show up with
+// no value/type until a page reload.
+func (c *wsConn) writeUpdate(subCtx context.Context, v interface{}) error {
+	data, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
+	if err := subCtx.Err(); err != nil {
+		return err // subscription superseded or connection gone — drop
+	}
+	return c.conn.Write(subCtx, websocket.MessageText, data)
+}
+
 func (c *wsConn) sendError(msg string) {
 	c.writeJSON(wsError{Type: "error", Message: msg})
 }
@@ -442,7 +467,7 @@ func (c *wsConn) pushLoop(ctx context.Context, apiName, instance, funcName strin
 			sendData = c.deltaEncode(data, &prevMap)
 		}
 		if sendData != nil {
-			if err := c.writeJSON(wsUpdate{
+			if err := c.writeUpdate(ctx, wsUpdate{
 				Type:     "update",
 				API:      apiName,
 				Instance: instance,
@@ -483,14 +508,14 @@ func (c *wsConn) pushLoop(ctx context.Context, apiName, instance, funcName strin
 				}
 			}
 
-			if err := c.writeJSON(wsUpdate{
+			if err := c.writeUpdate(ctx, wsUpdate{
 				Type:     "update",
 				API:      apiName,
 				Instance: instance,
 				Func:     updateFunc,
 				Data:     sendData,
 			}); err != nil {
-				return // write failed — connection dead
+				return // write failed or subscription superseded — connection dead
 			}
 			prevData = append(prevData[:0], data...)
 		}
