@@ -921,6 +921,21 @@ type mdiDoneCmd struct{}
 func (c *mdiDoneCmd) Execute(t *Task) error { return nil }
 
 func (c *mdiDoneCmd) PostWait(t *Task) {
+	// Synch the interpreter now that the MDI command and its motion have
+	// completed. Interp::synch() saves the interpreter parameters to persist,
+	// so parameter changes made by the MDI (e.g. G10 L20/L2 coordinate-system
+	// offsets from a touch off) become visible to the preview interpreter,
+	// which reads parameters from persist on its own interpreter instance.
+	// Without this, parameters are only saved at the *next* synch, leaving the
+	// preview one MDI command behind (the origin marker uses live status and so
+	// updates immediately, but the drawn geometry would lag by one touch off).
+	if t.interp != nil {
+		t.canon.syncEndPointFromMachine()
+		if err := t.interp.Synch(); err != nil {
+			t.logger.Error("interp synch after MDI failed", "err", err)
+		}
+	}
+
 	t.setInterpState(InterpIdle)
 	t.setExecState(ExecDone)
 
