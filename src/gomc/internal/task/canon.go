@@ -91,9 +91,11 @@ type CanonState struct {
 	traverseRate    float64
 
 	// Spindle
-	spindleNum   int32 // current spindle for synch motion
-	spindleSpeed [8]float64
-	spindleMode  float64
+	spindleNum    int32 // current spindle for synch motion
+	spindleSpeed  [8]float64 // commanded speed: RPM, or surface speed in CSS mode
+	spindleDir    [8]int32   // 0=off, 1=CW, -1=CCW
+	spindleCssMax [8]float64 // G96 constant-surface-speed cap (RPM); 0 = RPM mode
+	spindleWait   [8]int32   // last wait-for-at-speed flag (reused by S retune)
 
 	// Flags
 	feedOverrideEnabled  bool
@@ -627,29 +629,53 @@ func (c *Canon) Finish() {
 	c.enqueue(waitForMotionSingleton)
 }
 
-func (c *Canon) StartSpindleClockwise(spindle, waitForAtspeed int32) {
+// spindleCommand builds the SpindleOn command for a spindle turning in the
+// given direction, computing the constant-surface-speed factor when G96 is
+// active. Ports the shared body of C++ START_SPINDLE_CW/CCW and
+// SET_SPINDLE_SPEED. In CSS mode the commanded speed is the max-RPM cap, the
+// factor carries the surface-speed constant, and the offset is the X tool-tip
+// offset motion needs to convert radius→RPM.
+func (c *Canon) spindleCommand(spindle, dir, waitForAtspeed int32) *SpindleOnCmd {
 	s := c.state
-	c.enqueue(&SpindleOnCmd{
-		Spindle:  spindle,
-		Speed:    s.spindleSpeed[spindle],
-		WaitFlag: waitForAtspeed,
-	})
+	cmd := &SpindleOnCmd{Spindle: spindle, WaitFlag: waitForAtspeed}
+	if s.spindleCssMax[spindle] != 0 {
+		k := 1000.0 / (2 * math.Pi)
+		if s.lengthUnits == CanonUnitsInches {
+			k = 12.0 / (2 * math.Pi)
+		}
+		cssFactor := k * s.spindleSpeed[spindle]
+		cmd.Speed = float64(dir) * s.spindleCssMax[spindle]
+		cmd.CSSFactor = float64(dir) * cssFactor
+		cmd.CSSMax = s.g5xOffset.X + s.g92Offset.X + s.toolOffset.X
+	} else {
+		cmd.Speed = float64(dir) * s.spindleSpeed[spindle]
+	}
+	return cmd
+}
+
+func (c *Canon) StartSpindleClockwise(spindle, waitForAtspeed int32) {
+	c.state.spindleDir[spindle] = 1
+	c.state.spindleWait[spindle] = waitForAtspeed
+	c.enqueue(c.spindleCommand(spindle, 1, waitForAtspeed))
 }
 
 func (c *Canon) StartSpindleCounterclockwise(spindle, waitForAtspeed int32) {
-	s := c.state
-	c.enqueue(&SpindleOnCmd{
-		Spindle:  spindle,
-		Speed:    -s.spindleSpeed[spindle],
-		WaitFlag: waitForAtspeed,
-	})
+	c.state.spindleDir[spindle] = -1
+	c.state.spindleWait[spindle] = waitForAtspeed
+	c.enqueue(c.spindleCommand(spindle, -1, waitForAtspeed))
 }
 
 func (c *Canon) SetSpindleSpeed(spindle int32, rpm float64) {
-	c.state.spindleSpeed[spindle] = rpm
+	s := c.state
+	s.spindleSpeed[spindle] = math.Abs(rpm)
+	// Re-issue the spindle command so a running spindle retunes and CSS is
+	// recomputed, matching C++ SET_SPINDLE_SPEED (which always re-emits). The
+	// C++ path reuses the last spindle command's stale wait-for-at-speed flag.
+	c.enqueue(c.spindleCommand(spindle, s.spindleDir[spindle], s.spindleWait[spindle]))
 }
 
 func (c *Canon) StopSpindleTurning(spindle int32) {
+	c.state.spindleDir[spindle] = 0
 	c.enqueue(waitForMotionSingleton)
 	c.enqueue(&SpindleOffCmd{Spindle: spindle})
 }
@@ -920,8 +946,9 @@ func (c *Canon) SetParameterFileName(name string) {
 	c.parameterFileName = name
 }
 
-func (c *Canon) SetSpindleMode(spindle int32, mode float64) {
-	c.state.spindleMode = mode
+func (c *Canon) SetSpindleMode(spindle int32, cssMax float64) {
+	// G96 D<cssMax> enables constant surface speed (cap in RPM); G97 sets 0.
+	c.state.spindleCssMax[spindle] = math.Abs(cssMax)
 }
 
 func (c *Canon) SetToolTableEntry(pocket, toolno int32, ox, oy, oz, oa, ob, oc, ou, ov, ow, diameter, frontangle, backangle float64, orientation int32) {
