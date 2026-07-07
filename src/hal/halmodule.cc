@@ -1835,6 +1835,104 @@ PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/) {
     return python_list;
 }
 
+/*######################################*/
+/* Get a dict of component info for all components in system */
+PyObject *get_info_components(PyObject * /*self*/, PyObject * /*args*/) {
+    SHMFIELD(hal_comp_t) next;
+    hal_comp_t *comp;
+    PyObject* python_list = PyList_New(0);
+
+    TEST_HAL_SHMEM_BASE(__FUNCTION__);
+
+    scoped_hal_mutex _hallock;
+
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+        comp = SHMPTR(next);
+
+        PyObject *obj = Py_BuildValue("{s:s,s:i,s:i,s:i,s:i}",
+                "NAME", comp->name,
+                "ID", comp->comp_id,
+                "READY", comp->ready,
+                "TYPE", (int)comp->type,
+                "PID", comp->pid);
+
+        PyList_Append(python_list, obj);
+        next = comp->next_ptr;
+    }
+
+    return python_list;
+}
+
+/*######################################*/
+/* Get a dict of function info for all functions in system */
+PyObject *get_info_functions(PyObject * /*self*/, PyObject * /*args*/) {
+    SHMFIELD(hal_funct_t) next;
+    hal_funct_t *funct;
+    PyObject* python_list = PyList_New(0);
+
+    TEST_HAL_SHMEM_BASE(__FUNCTION__);
+
+    scoped_hal_mutex _hallock;
+
+    next = hal_data->funct_list_ptr;
+    while (next != 0) {
+        funct = SHMPTR(next);
+
+        const char *owner_name = NULL;
+        if(funct->owner_ptr != 0) {
+            hal_comp_t *owner = SHMPTR(funct->owner_ptr);
+            owner_name = owner->name;
+        }
+
+        PyObject *obj = Py_BuildValue("{s:s,s:i,s:b,s:i,s:O}",
+                "NAME", funct->name,
+                "USERS", funct->users,
+                "REENTRANT", funct->reentrant != 0,
+                "USES_FP", funct->uses_fp,
+                "OWNER", owner_name ? PyUnicode_FromString(owner_name) : Py_None);
+
+        PyList_Append(python_list, obj);
+        next = funct->next_ptr;
+    }
+
+    return python_list;
+}
+
+/*######################################*/
+/* Get a dict of thread info for all threads in system */
+PyObject *get_info_threads(PyObject * /*self*/, PyObject * /*args*/) {
+    SHMFIELD(hal_thread_t) next;
+    hal_thread_t *thread;
+    PyObject* python_list = PyList_New(0);
+
+    TEST_HAL_SHMEM_BASE(__FUNCTION__);
+
+    scoped_hal_mutex _hallock;
+
+    next = hal_data->thread_list_ptr;
+    while (next != 0) {
+        thread = SHMPTR(next);
+
+        const char *owner_name = NULL;
+        if(thread->comp_id != 0) {
+            hal_comp_t *owner = halpr_find_comp_by_id(thread->comp_id & 0xffff);
+            if(owner) owner_name = owner->name;
+        }
+
+        PyObject *obj = Py_BuildValue("{s:s,s:l,s:i,s:O}",
+                "NAME", thread->name,
+                "PERIOD", (long)thread->period,
+                "PRIORITY", thread->priority,
+                "OWNER", owner_name ? PyUnicode_FromString(owner_name) : Py_None);
+
+        PyList_Append(python_list, obj);
+        next = thread->next_ptr;
+    }
+
+    return python_list;
+}
+
 static PyObject *pyhal_get_realtime_type(PyObject * /*self*/, PyObject * /*o*/) {
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
     int res = hal_get_realtime_type();
@@ -2321,6 +2419,12 @@ static PyMethodDef module_methods[] = {
 	".get_info_signals(): Get a list of dicts for all the signals; {NAME:, VALUE:}"},
     {"get_info_params", get_info_params, METH_VARARGS,
 	".get_info_params(): Get a list of dicts for all the parameters; {NAME:, VALUE:}"},
+    {"get_info_components", get_info_components, METH_VARARGS,
+	".get_info_components(): Get a list of dicts for all components; {NAME:, ID:, READY:, TYPE:, PID:}"},
+    {"get_info_functions", get_info_functions, METH_VARARGS,
+	".get_info_functions(): Get a list of dicts for all functions; {NAME:, USERS:, REENTRANT:, USES_FP:, OWNER:}"},
+    {"get_info_threads", get_info_threads, METH_VARARGS,
+	".get_info_threads(): Get a list of dicts for all threads; {NAME:, PERIOD:, PRIORITY:, OWNER:}"},
     {"get_realtime_type", pyhal_get_realtime_type, METH_NOARGS,
         ".get_realtime_type(): Return the type of the running realtime"},
     {"is_initialized", pyhal_is_initialized, METH_NOARGS,
