@@ -64,9 +64,11 @@ func loadConfig(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 		if err := loadAxis(ini, a, mc); err != nil {
 			return fmt.Errorf("axis %d config: %w", a, err)
 		}
-		// Store axis max velocity for jog clamping (matches C AxisConfig[].MaxVel).
+		// Store per-axis max velocity/acceleration for jog clamping and for the
+		// canon's per-move vel/acc blending (matches C AxisConfig[].MaxVel/MaxAcc).
 		axSection := axisSection(a)
 		t.axisMaxVel[a] = getFloatOrSection(ini, axSection, "MAX_VELOCITY", 1.0)
+		t.axisMaxAcc[a] = getFloatOrSection(ini, axSection, "MAX_ACCELERATION", 1.0)
 	}
 	for s := int32(0); s < int32(t.numSpindles); s++ {
 		if err := loadSpindle(ini, s, mc); err != nil {

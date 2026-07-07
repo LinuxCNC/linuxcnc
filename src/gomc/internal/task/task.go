@@ -256,7 +256,8 @@ type Task struct {
 	maxVelocity     float64
 	maxAcceleration float64
 	jointMaxVel     [16]float64 // per-joint max velocity for jog clamping
-	axisMaxVel      [9]float64  // per-axis max velocity for jog clamping
+	axisMaxVel      [9]float64  // per-axis max velocity for jog clamping + canon blend
+	axisMaxAcc      [9]float64  // per-axis max acceleration for canon vel/acc blend
 	startupCode     string
 
 	// Flags

@@ -382,7 +382,12 @@ func (c *Canon) SetTraverseRate(rate float64) {
 
 func (c *Canon) SetFeedRate(rate float64) {
 	s := c.state
-	s.linearFeedRate = s.fromProg(rate) / 60.0 // input is units/min → mm/sec
+	// units/min → units/sec. Linear feed is in program length units (scaled to
+	// mm); angular feed is in degrees (never unit-scaled), matching C++
+	// FROM_PROG_LEN / FROM_PROG_ANG. Both are set so the per-move blend can
+	// pick the right one for pure-angular vs cartesian moves.
+	s.linearFeedRate = s.fromProg(rate) / 60.0
+	s.angularFeedRate = rate / 60.0
 }
 
 func (c *Canon) SetFeedReference(reference int32) {
@@ -439,16 +444,23 @@ func (c *Canon) UseToolLengthOffset(x, y, z, a, b, _c, u, v, w float64) {
 
 func (c *Canon) StraightTraverse(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 	s := c.state
+	from := s.endPoint
 	pos := s.toAbsolute(x, y, z, a, b, _c, u, v, w)
 	s.endPoint = pos
 	s.lineNo = lineno
 
-	trav := c.task.maxVelocity
+	// Traverse runs at the per-axis-blended maximum — each participating axis at
+	// its own limit, coordinated — not the traj-global cap. Matches C++
+	// STRAIGHT_TRAVERSE (getStraightVelocity/Acceleration).
+	velMax, accMax, _, _ := c.task.straightLimits(from, pos)
+	if velMax <= 0 {
+		velMax = s.linearFeedRate
+	}
 	cmd := &LinearMoveCmd{
 		Pos:        pos,
-		Vel:        trav,
-		IniMaxVel:  trav,
-		Acc:        c.task.maxAcceleration,
+		Vel:        velMax,
+		IniMaxVel:  velMax,
+		Acc:        accMax,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
 		ID:         c.allocSerial(lineno),
 		FeedUpm:    0, // traverse: no programmed feed
@@ -459,6 +471,7 @@ func (c *Canon) StraightTraverse(lineno int32, x, y, z, a, b, _c, u, v, w float6
 
 func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 	s := c.state
+	from := s.endPoint
 	pos := s.toAbsolute(x, y, z, a, b, _c, u, v, w)
 	s.endPoint = pos
 	s.lineNo = lineno
@@ -466,17 +479,42 @@ func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 	// Set motion parameters before the move (tp uses termCond at add time)
 	c.enqueueMotionParams()
 
+	vel, iniMaxVel, acc, feed := c.feedLimits(from, pos)
 	cmd := &LinearMoveCmd{
 		Pos:        pos,
-		Vel:        s.linearFeedRate,
-		IniMaxVel:  c.task.maxVelocity,
-		Acc:        c.task.maxAcceleration,
+		Vel:        vel,
+		IniMaxVel:  iniMaxVel,
+		Acc:        acc,
 		MotionType: 2, // EMC_MOTION_TYPE_FEED
 		ID:         c.allocSerial(lineno),
-		FeedUpm:    s.linearFeedRate * 60,
+		FeedUpm:    feed * 60,
 		IndexerJ:   -1,
 	}
 	c.enqueue(cmd)
+}
+
+// feedLimits computes the commanded velocity, per-axis-blended max velocity
+// (ini_maxvel), and blended acceleration for a feed move, matching the C++
+// canon: ini_maxvel is the per-axis blend; vel is that blend clamped to the
+// programmed feed rate (linear or angular depending on the move); acc is the
+// per-axis-blended acceleration. Returns the selected programmed feed too (for
+// feed_upm). A move to nowhere falls back to the programmed feed rate.
+func (c *Canon) feedLimits(from, to Pose) (vel, iniMaxVel, acc, feed float64) {
+	s := c.state
+	velMax, accMax, cartesian, angular := c.task.straightLimits(from, to)
+	feed = s.linearFeedRate
+	if angular && !cartesian {
+		feed = s.angularFeedRate
+	}
+	iniMaxVel = velMax
+	if iniMaxVel <= 0 {
+		iniMaxVel = feed
+	}
+	vel = iniMaxVel
+	if vel > feed {
+		vel = feed
+	}
+	return vel, iniMaxVel, accMax, feed
 }
 
 func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis float64,
@@ -537,13 +575,15 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 
 func (c *Canon) RigidTap(lineno int32, x, y, z, scale float64) {
 	s := c.state
+	from := s.endPoint
 	pos := s.toAbsolute(x, y, z, 0, 0, 0, 0, 0, 0)
 	s.lineNo = lineno
 
+	vel, _, acc, _ := c.feedLimits(from, pos)
 	cmd := &RigidTapCmd{
 		Pos:     pos,
-		Vel:     s.linearFeedRate,
-		Acc:     c.task.maxAcceleration,
+		Vel:     vel,
+		Acc:     acc,
 		Scale:   scale,
 		ID:      c.allocSerial(lineno),
 		FeedUpm: s.linearFeedRate * 60,
@@ -556,11 +596,12 @@ func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, 
 	pos := s.toAbsolute(x, y, z, a, b, _c, u, v, w)
 	s.lineNo = lineno
 
+	vel, iniMaxVel, acc, _ := c.feedLimits(s.endPoint, pos)
 	cmd := &ProbeCmd{
 		Pos:        pos,
-		Vel:        s.linearFeedRate,
-		IniMaxVel:  c.task.maxVelocity,
-		Acc:        c.task.maxAcceleration,
+		Vel:        vel,
+		IniMaxVel:  iniMaxVel,
+		Acc:        acc,
 		MotionType: 4, // EMC_MOTION_TYPE_PROBING
 		ProbeType:  probeType,
 		ID:         c.allocSerial(lineno),
