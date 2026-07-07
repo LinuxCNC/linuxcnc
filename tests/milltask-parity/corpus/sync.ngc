@@ -1,0 +1,10 @@
+; Spindle-sync bracketing test (G33). Verifies SET_SPINDLESYNC is armed then
+; cleared within the block, so no stale sync leaks to later moves / programs.
+G21 G90 G94
+M3 S500
+G0 X0 Y0 Z2
+G33 Z-5 K1.0        ; spindle-synchronized feed (pitch 1mm/rev)
+G0 Z2
+G1 X10 F600         ; plain feed AFTER G33 — must NOT be spindle-synced
+M5
+M2
