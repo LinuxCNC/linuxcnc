@@ -521,6 +521,7 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 	rotation int32, axisEndPoint, a, b, _c, u, v, w float64) {
 
 	s := c.state
+	from := s.endPoint
 	s.lineNo = lineno
 
 	// Convert arc endpoints and center based on active plane.
@@ -557,14 +558,18 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 		turn = rotation - 1
 	}
 
+	// Per-axis + centripetal-limited arc velocity/acceleration (matches C++
+	// ARC_FEED). Bounds the feed by the planar axes' limits, the centripetal
+	// cap on the arc radius, and the helical/aux-axis traversal time.
+	arcVel, arcIniMaxVel, arcAcc := c.task.arcLimits(from, pos, center, s.activePlane, rotation, s.linearFeedRate)
 	cmd := &CircularMoveCmd{
 		Pos:        pos,
 		Center:     center,
 		Normal:     normal,
 		Turn:       turn,
-		Vel:        s.linearFeedRate,
-		IniMaxVel:  c.task.maxVelocity,
-		Acc:        c.task.maxAcceleration,
+		Vel:        arcVel,
+		IniMaxVel:  arcIniMaxVel,
+		Acc:        arcAcc,
 		MotionType: 3, // EMC_MOTION_TYPE_ARC
 		ID:         c.allocSerial(lineno),
 		FeedUpm:    s.linearFeedRate * 60,
