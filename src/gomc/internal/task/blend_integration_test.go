@@ -13,10 +13,11 @@ package task
 // the test asserts is the derived RULE with its reasoning, so it documents
 // intent and cannot be silently re-blessed.
 //
-// This drives the canon directly (the gomc-specific blend/transform/emit path).
-// The interpreter above it is upstream rs274ngc (trusted); a full
-// interpreter->canon integration test is a separate follow-on (blocked on a
-// test param-IO backend).
+// The _Lines/_Arcs tests drive the canon directly (the gomc-specific
+// blend/transform/emit path); _Lines_ViaInterpreter drives the same program
+// through the REAL rs274ngc interpreter (file-based param IO on a throwaway
+// temp copy of the fixture .var — so the committed fixture stays read-only),
+// proving interp -> canon -> blend -> motion end to end.
 
 import (
 	"log/slog"
@@ -184,13 +185,24 @@ func runNGCViaInterp(t *testing.T, program string) []recMove {
 	task.axisMaxAcc = [9]float64{600, 400, 120}
 	task.maxAcceleration = 600
 	task.numJoints = 3
+	task.linearUnits = 1.0 // mm native; feeds GET_EXTERNAL_LENGTH_UNITS (else 0/0=NaN)
 
 	dir := t.TempDir()
 	prog := dir + "/prog.ngc"
 	if err := os.WriteFile(prog, []byte(program), 0o644); err != nil {
 		t.Fatalf("write program: %v", err)
 	}
-	ini, err := inifile.ParseString("[EMC]\nMACHINE=blendtest\n[RS274NGC]\nPARAMETER_FILE=params.var\n[TRAJ]\nCOORDINATES=X Y Z\nLINEAR_UNITS=mm\n[EMCIO]\n")
+	// Copy the read-only fixture params to a throwaway temp file so the
+	// interpreter's save() writes there, never touching the committed fixture.
+	varPath := dir + "/params.var"
+	varData, err := os.ReadFile("testdata/blend.var")
+	if err != nil {
+		t.Fatalf("read fixture var: %v", err)
+	}
+	if err := os.WriteFile(varPath, varData, 0o644); err != nil {
+		t.Fatalf("write temp var: %v", err)
+	}
+	ini, err := inifile.ParseString("[EMC]\nMACHINE=blendtest\n[RS274NGC]\nPARAMETER_FILE=" + varPath + "\n[TRAJ]\nCOORDINATES=X Y Z\nLINEAR_UNITS=mm\n[EMCIO]\n")
 	if err != nil {
 		t.Fatalf("parse ini: %v", err)
 	}
@@ -208,7 +220,9 @@ func runNGCViaInterp(t *testing.T, program string) []recMove {
 		t.Fatalf("IniLoadAccessor: %v", err)
 	}
 	defer FreeIniAccessor(accHandle)
-	newInMemoryParamIO().install(interp)
+	paramIO := newInterpParamIOFile(varPath)
+	defer paramIO.destroy()
+	paramIO.install(interp)
 	interp.SetTaskMode(1)
 	if err := interp.Init(); err != nil {
 		t.Fatalf("interp.Init: %v [%q]", err, interp.ErrorText(InterpError))
@@ -260,16 +274,6 @@ M2
 // Same assertions as TestBlendIntegration_Lines, but driven through the REAL
 // interpreter — proving interp -> canon -> blend -> motion end to end.
 func TestBlendIntegration_Lines_ViaInterpreter(t *testing.T) {
-	// The in-memory param IO lets the interpreter run end-to-end (Init/Synch
-	// succeed and moves are emitted), proving the stub works. But with an
-	// all-zero parameter table the interpreter's coordinate-system init hands
-	// SET_G5X_OFFSET a NaN (its offset calc reads a value the zeroed params don't
-	// cover), which corrupts the emitted positions/limits. The harness
-	// (runNGCViaInterp) and the stub are correct; finishing needs the coord/
-	// position init seeded (real coordinate defaults in the param table, or the
-	// file-based param IO). Blend correctness is covered by the canon-level tests
-	// above — un-skip once coord init is resolved.
-	t.Skip("full-stack interpreter harness WIP: coord-init NaN with all-zero params")
 	m := runNGCViaInterp(t, linesNGC)
 	if len(m) != 7 {
 		t.Fatalf("expected 7 moves, got %d: %+v", len(m), m)
