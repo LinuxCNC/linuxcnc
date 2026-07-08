@@ -262,6 +262,7 @@ func (t *Task) sequencerLoop() {
 					}
 					t.logger.Error("sequencer command failed", "cmd", cmd.String(), "err", err)
 					t.operatorError(fmt.Sprintf("Command failed: %s: %s", cmd.String(), err))
+					_ = t.motion.Abort() // stop in-flight motion on a command fault (e.g. failed M1xx)
 					t.setExecState(ExecError)
 					t.setInterpState(InterpIdle)
 					// Signal abort so interpreter goroutine unblocks from EnqueueCmd
@@ -975,11 +976,31 @@ func (c *McodeCmd) Execute(t *Task) error {
 	if err := t.mcode.Submit(int(c.Mcode), c.P, c.Q); err != nil {
 		return err
 	}
-	// Poll for completion (worker runs async).
-	return t.pollUntil(func() bool {
-		_, done := t.mcode.CheckDone()
+	// Poll for completion (worker runs async). CheckDone consumes the result
+	// (it clears the done flag), so capture it in the poll callback rather than
+	// re-reading afterwards.
+	var result int
+	if err := t.pollUntil(func() bool {
+		r, done := t.mcode.CheckDone()
+		if done {
+			result = r
+		}
 		return done
-	})
+	}); err != nil {
+		return err // aborted during the wait
+	}
+	// Propagate a failed handler so the sequencer faults the program instead of
+	// silently continuing (the old fork/exec path made a non-zero exit an
+	// EMC_TASK_EXEC_ERROR). Result convention: 0 = success; 32-63 = user-defined
+	// result (read by the interpreter); -2 = aborted; anything else = error.
+	switch {
+	case result == 0 || (result >= 32 && result <= 63):
+		return nil
+	case result == -2:
+		return context.Canceled
+	default:
+		return fmt.Errorf("M%d handler failed (result %d)", c.Mcode, result)
+	}
 }
 func (c *McodeCmd) Wait() WaitType { return WaitNone } // Execute handles wait internally
 func (c *McodeCmd) String() string {

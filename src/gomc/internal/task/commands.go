@@ -497,6 +497,21 @@ func (t *Task) executeMDI(command string) error {
 	return nil
 }
 
+// faultProgram handles a fatal interpreter error while a program is running.
+// It stops any in-flight motion and halts the sequencer so the read-ahead
+// segments already queued past the erroring line are NOT dispatched, then
+// leaves the task in ExecError. Without this the machine keeps moving through
+// the queued motion after a G-code runtime error. Mirrors the C++
+// interp_list.clear() + emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR). Runs in
+// the runProgram goroutine.
+func (t *Task) faultProgram(msg string) {
+	t.operatorError(msg)
+	_ = t.motion.Abort()   // stop what is already moving
+	t.StartSequencer()     // aborts+drains the old sequencer, starts a fresh one
+	t.setInterpState(InterpIdle)
+	t.setExecState(ExecError) // set after StartSequencer so it is not clobbered
+}
+
 // runProgram runs the interpreter read/execute loop for the open program.
 // Called in a goroutine from AutoRun/AutoStep.
 //
@@ -536,8 +551,7 @@ func (t *Task) runProgram(interp Interpreter, startLine int32) {
 		rc, err := interp.Read()
 		if err != nil {
 			t.logger.Error("interpreter read error", "err", err, "rc", rc)
-			t.operatorError(fmt.Sprintf("Interpreter read error: %v", err))
-			t.setInterpState(InterpIdle)
+			t.faultProgram(fmt.Sprintf("Interpreter read error: %v", err))
 			return
 		}
 		if rc == InterpEndfile || rc == InterpExit {
@@ -553,8 +567,7 @@ func (t *Task) runProgram(interp Interpreter, startLine int32) {
 		rc, err = interp.Execute()
 		if err != nil {
 			t.logger.Error("interpreter execute error", "err", err, "rc", rc)
-			t.operatorError(fmt.Sprintf("Interpreter error: %v", err))
-			t.setInterpState(InterpIdle)
+			t.faultProgram(fmt.Sprintf("Interpreter error: %v", err))
 			return
 		}
 		t.updateActiveCodes(interp)
@@ -577,7 +590,7 @@ func (t *Task) runProgram(interp Interpreter, startLine int32) {
 			return
 		case InterpError:
 			t.logger.Error("interpreter error", "rc", rc)
-			t.setInterpState(InterpIdle)
+			t.faultProgram("interpreter error")
 			return
 		case InterpOK:
 			// Normal — continue reading
