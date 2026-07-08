@@ -32,6 +32,7 @@ const (
 	JogStop       int32 = 0
 	JogContinuous int32 = 1
 	JogIncrement  int32 = 2
+	JogAbsolute   int32 = 3
 )
 
 // SpindleCmd constants. Values MUST match the emccmd SpindleCmd wire enum
@@ -815,6 +816,10 @@ func (t *Task) jogInternal(jogType int32, jjogmode bool, axisOrJoint int32, velo
 		return t.motion.JogCont(axisOrJoint, velocity, isTeleop)
 	case JogIncrement:
 		return t.motion.JogIncr(axisOrJoint, velocity, distance, isTeleop)
+	case JogAbsolute:
+		// For absolute jog, `distance` carries the target position (C++ emcJogAbs
+		// maps the message's distance onto emcmotCommand.offset).
+		return t.motion.JogAbs(axisOrJoint, velocity, distance, isTeleop)
 	}
 	return nil
 }
@@ -940,14 +945,21 @@ func (t *Task) Unhome(joint int32) error {
 }
 
 // OverrideLimits temporarily overrides soft limits for homing.
-func (t *Task) OverrideLimits() error {
+// OverrideLimits overrides tripped soft limits for a joint so it can be jogged
+// off the limit. joint < 0 resumes normal limit checking (mirrors C++
+// emcJointOverrideLimits / EMCMOT_OVERRIDE_LIMITS). Manual-mode only, matching
+// C++ (EMC_JOINT_OVERRIDE_LIMITS is issued only when task.mode == MANUAL).
+func (t *Task) OverrideLimits(joint int32) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
 	if err := t.requireOn(); err != nil {
 		return err
 	}
-	return t.motion.OverrideLimits(0) // joint 0 = all
+	if t.mode != ModeManual {
+		return fmt.Errorf("cannot override limits: not in manual mode")
+	}
+	return t.motion.OverrideLimits(joint)
 }
 
 // TeleopEnable enables/disables teleop mode.
@@ -1145,8 +1157,10 @@ func (t *Task) SetBlockDelete(on bool) error {
 }
 
 // LoadToolTable reloads the tool table from file.
-func (t *Task) LoadToolTable() error {
-	err := t.io.ToolLoadTable("")
+// LoadToolTable reloads the tool table. An empty file uses the default table
+// (matches C++ emcToolLoadToolTable, which accepts the requested filename).
+func (t *Task) LoadToolTable(file string) error {
+	err := t.io.ToolLoadTable(file)
 	if err == nil {
 		// Synch interpreter so it re-reads tool_table[] from the
 		// tooltable module via GET_EXTERNAL_TOOL_TABLE callbacks.

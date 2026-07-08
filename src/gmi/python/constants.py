@@ -60,6 +60,7 @@ AUTO_FORWARD = 5
 JOG_STOP = 0
 JOG_CONTINUOUS = 1
 JOG_INCREMENT = 2
+JOG_ABSOLUTE = 3
 
 # ─── Spindle Command (emccmd.gmi: SpindleCmd) ───
 SPINDLE_OFF = 0
