@@ -224,11 +224,10 @@ func (t *Task) SetState(state int32) error {
 func (t *Task) SetMode(mode int32) error {
 	t.mu.Lock()
 
-	if err := t.requireOn(); err != nil {
-		t.mu.Unlock()
-		return err
-	}
-
+	// Accepted in any state (incl. ESTOP/OFF), matching C++ EMC_TASK_SET_MODE —
+	// a UI mode selector must be honored even before the machine is enabled, so
+	// the reported mode tracks the selector. The motion-mode calls below are
+	// no-ops while motion is disabled. (Only the AUTO-running guard applies.)
 	target := TaskMode(mode)
 
 	// Reject mode switch while AUTO is running (matches C milltask behavior).
@@ -922,13 +921,9 @@ func (t *Task) OverrideLimits() error {
 }
 
 // TeleopEnable enables/disables teleop mode.
+// TeleopEnable is accepted in any state (matches C++ TRAJ_SET_TELEOP_ENABLE in
+// OFF/ESTOP); it just sets the motion mode.
 func (t *Task) TeleopEnable(enable bool) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if err := t.requireOn(); err != nil {
-		return err
-	}
 	if enable {
 		return t.motion.SetTeleop()
 	}
@@ -936,46 +931,25 @@ func (t *Task) TeleopEnable(enable bool) error {
 }
 
 // SetFeedOverride sets the feed override percentage.
+// Override setters are accepted in ANY state (including ESTOP/OFF), matching
+// C++ — the scale is stored in the motion controller and takes effect when the
+// machine runs, so a UI can set the sliders before enabling. No requireOn.
 func (t *Task) SetFeedOverride(rate float64) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if err := t.requireOn(); err != nil {
-		return err
-	}
 	return t.motion.SetFeedScale(rate)
 }
 
 // SetSpindleOverride sets spindle speed override.
 func (t *Task) SetSpindleOverride(rate float64, spindleNum int32) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if err := t.requireOn(); err != nil {
-		return err
-	}
 	return t.motion.SetSpindleScale(spindleNum, rate)
 }
 
 // SetRapidOverride sets the rapid override percentage.
 func (t *Task) SetRapidOverride(rate float64) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if err := t.requireOn(); err != nil {
-		return err
-	}
 	return t.motion.SetRapidScale(rate)
 }
 
 // SetMaxVelocity sets the maximum trajectory velocity.
 func (t *Task) SetMaxVelocity(velocity float64) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if err := t.requireOn(); err != nil {
-		return err
-	}
 	return t.motion.SetVelLimit(velocity)
 }
 
