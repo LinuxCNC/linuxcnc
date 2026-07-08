@@ -150,19 +150,26 @@ func TestCanon_SpindleOnOff(t *testing.T) {
 	defer task.StopSequencer()
 
 	c := task.canon
-	c.SetSpindleSpeed(0, 1000)
-	c.StartSpindleClockwise(0, 1)
-	c.StopSpindleTurning(0)
+	c.SetSpindleSpeed(0, 1000)    // S1000 while stopped
+	c.StartSpindleClockwise(0, 1) // M3
+	c.StopSpindleTurning(0)       // M5
 	task.DrainQueue()
 
-	if len(mot.calls) < 2 {
-		t.Fatalf("expected SpindleOn + SpindleOff, got %v", mot.calls)
+	// C++ parity: SET_SPINDLE_SPEED always re-emits a SPINDLE_ON command
+	// (emccanon.cc:1918), with speed = dir*rpm — which is 0 while the spindle is
+	// stopped (dir=0). So S1000 issued *before* M3 produces an extra SpindleOn
+	// (speed=0), not a no-op. Matches the C milltask oracle capture (spindle.log):
+	//   SPINDLE_ON  s=0 speed=0    wait=0   <- SetSpindleSpeed (dir=0)
+	//   SPINDLE_ON  s=0 speed=1000 wait=1   <- StartSpindleClockwise
+	//   SPINDLE_OFF s=0                      <- StopSpindleTurning
+	want := []string{"SpindleOn", "SpindleOn", "SpindleOff"}
+	if len(mot.calls) != len(want) {
+		t.Fatalf("spindle call sequence = %v, want %v", mot.calls, want)
 	}
-	if mot.calls[0] != "SpindleOn" {
-		t.Fatalf("expected SpindleOn first, got %s", mot.calls[0])
-	}
-	if mot.calls[1] != "SpindleOff" {
-		t.Fatalf("expected SpindleOff second, got %s", mot.calls[1])
+	for i, w := range want {
+		if mot.calls[i] != w {
+			t.Fatalf("spindle call[%d] = %s, want %s (full: %v)", i, mot.calls[i], w, mot.calls)
+		}
 	}
 }
 

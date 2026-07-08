@@ -175,12 +175,20 @@ func TestSetState_PowerOn(t *testing.T) {
 	}
 }
 
-func TestSetMode_RequiresOn(t *testing.T) {
-	task, _, _ := newTestTask()
+// SetMode is accepted in any machine state, including ESTOP/OFF, matching C++:
+// EMC_TASK_SET_MODE is handled under the OFF/ESTOP/ESTOP_RESET case
+// (emctaskmain.cc:825) and emcTaskSetMode itself has no on-state gate
+// (emctask.cc:264). A UI mode selector must be honored before the machine is
+// enabled so the reported mode tracks the selector; the motion-mode side
+// effects are no-ops while motion is disabled.
+func TestSetMode_AllowedInEstop(t *testing.T) {
+	task, _, _ := newTestTask() // fresh task is in ESTOP
 
-	err := task.SetMode(int32(ModeAuto))
-	if !errors.Is(err, ErrNotOn) {
-		t.Fatalf("expected ErrNotOn, got %v", err)
+	if err := task.SetMode(int32(ModeAuto)); err != nil {
+		t.Fatalf("SetMode(Auto) in estop: unexpected error %v", err)
+	}
+	if task.mode != ModeAuto {
+		t.Fatalf("mode = %v, want ModeAuto", task.mode)
 	}
 }
 
@@ -199,17 +207,53 @@ func TestSetMode_AutoSetCoord(t *testing.T) {
 	}
 }
 
-func TestSetMode_ManualSetFree(t *testing.T) {
-	task, mot, _ := newTestTask()
-	bringUp(task)
-	task.SetMode(int32(ModeAuto))
+// homedStatus reports the first `homed` joints as homed; used to drive
+// allHomed() in SetMode's jog-mode selection.
+type homedStatus struct {
+	mockStatus
+	homed int
+}
 
-	if err := task.SetMode(int32(ModeManual)); err != nil {
-		t.Fatalf("set_mode manual: %v", err)
+func (h *homedStatus) GetStatus() (motstat.MotionStatus, error) {
+	var ms motstat.MotionStatus
+	for j := 0; j < h.homed && j < len(ms.Joints); j++ {
+		ms.Joints[j].Homed = 1
 	}
-	if mot.lastCall != "SetFree" {
-		t.Fatalf("expected SetFree, got %s", mot.lastCall)
-	}
+	return ms, nil
+}
+
+// SetMode(MANUAL) picks the motion jog mode by homing state, matching C++
+// emcTaskSetMode(EMC_TASK_MODE_MANUAL) (emctask.cc:274): all joints homed ->
+// TELEOP (world/axis jog), otherwise FREE (per-joint jog).
+func TestSetMode_ManualJogMode(t *testing.T) {
+	t.Run("unhomed->SetFree", func(t *testing.T) {
+		task, mot, _ := newTestTask()
+		task.numJoints = 3 // mockStatus reports all joints unhomed
+		bringUp(task)
+		task.SetMode(int32(ModeAuto))
+
+		if err := task.SetMode(int32(ModeManual)); err != nil {
+			t.Fatalf("SetMode(Manual): %v", err)
+		}
+		if mot.lastCall != "SetFree" {
+			t.Fatalf("lastCall = %s, want SetFree", mot.lastCall)
+		}
+	})
+
+	t.Run("homed->SetTeleop", func(t *testing.T) {
+		task, mot, _ := newTestTask()
+		task.status = &homedStatus{homed: 3}
+		task.numJoints = 3
+		bringUp(task)
+		task.SetMode(int32(ModeAuto))
+
+		if err := task.SetMode(int32(ModeManual)); err != nil {
+			t.Fatalf("SetMode(Manual): %v", err)
+		}
+		if mot.lastCall != "SetTeleop" {
+			t.Fatalf("lastCall = %s, want SetTeleop", mot.lastCall)
+		}
+	})
 }
 
 func TestJog_RequiresOn(t *testing.T) {

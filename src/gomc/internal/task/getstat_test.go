@@ -66,6 +66,9 @@ func newRichTestTask() (*Task, *richMockStatus) {
 	io := &mockIO{}
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	t := NewTask(mot, io, ms, logger)
+	// Production always wires the IO status reader; without it SetState(EstopReset)
+	// cannot confirm estop-off (GetIOFullStatus) and the machine stays in ESTOP.
+	t.SetIOStatusReader(io)
 
 	// Configure task state as if it started up.
 	t.numJoints = 3
