@@ -1,0 +1,166 @@
+// Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+// License: GPL Version 2
+package task
+
+// Integration tests for per-axis velocity/acceleration blending, driving REAL
+// canon calls through the real canon -> sequencer -> motion boundary and
+// asserting WRITTEN rules on the emitted motion commands (not a golden diff).
+//
+// The expected vel/ini_maxvel/acc are hand-derived from the per-axis config
+// limits (X:40/600, Y:25/400, Z:8/120) and each move's geometry, and were
+// confirmed against the instrumented C milltask capture
+// (tests/milltask-parity/logs/old/lines.log, arcs.log) as the ORACLE — but what
+// the test asserts is the derived RULE with its reasoning, so it documents
+// intent and cannot be silently re-blessed.
+//
+// This drives the canon directly (the gomc-specific blend/transform/emit path).
+// The interpreter above it is upstream rs274ngc (trusted); a full
+// interpreter->canon integration test is a separate follow-on (blocked on a
+// test param-IO backend).
+
+import (
+	"log/slog"
+	"math"
+	"os"
+	"testing"
+)
+
+// recordingMotion records the full arguments of every queued move command.
+type recMove struct {
+	kind                string // "line" | "circle"
+	pos                 Pose
+	vel, iniMaxvel, acc float64
+	motionType          int32
+}
+
+type recordingMotion struct {
+	mockMotion
+	moves []recMove
+}
+
+func (m *recordingMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, mt int32, id int32, feedUpm float64, ij int32) error {
+	m.moves = append(m.moves, recMove{"line", pos, vel, iniMaxvel, acc, mt})
+	return nil
+}
+
+func (m *recordingMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, mt int32, id int32, feedUpm float64) error {
+	m.moves = append(m.moves, recMove{"circle", pos, vel, iniMaxvel, acc, mt})
+	return nil
+}
+
+// newBlendCanonTask builds a real Task+Canon with the parity3 non-uniform axis
+// limits and a recording motion sink, with the sequencer running.
+func newBlendCanonTask(t *testing.T) (*Task, *recordingMotion) {
+	t.Helper()
+	mot := &recordingMotion{}
+	st := &testStatus{}
+	st.inPosition.Store(true)
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	task := NewTask(mot, &mockIO{}, st, logger)
+	task.axisMask = 0b111
+	task.axisMaxVel = [9]float64{40, 25, 8}
+	task.axisMaxAcc = [9]float64{600, 400, 120}
+	task.maxAcceleration = 600
+	task.numJoints = 3
+	task.canon.UseLengthUnits(2) // CANON_UNITS_MM
+	task.StartSequencer()
+	return task, mot
+}
+
+// collect drains the sequencer and returns the recorded moves.
+func collect(t *testing.T, task *Task, mot *recordingMotion) []recMove {
+	t.Helper()
+	task.DrainQueue()
+	task.StopSequencer()
+	return mot.moves
+}
+
+const blendEps = 1e-3
+
+func sf(c *Canon, x, y, z float64) { c.StraightFeed(0, x, y, z, 0, 0, 0, 0, 0, 0) }
+func st(c *Canon, x, y, z float64) { c.StraightTraverse(0, x, y, z, 0, 0, 0, 0, 0, 0) }
+
+func checkMove(t *testing.T, got recMove, kind string, x, y, z, vel, ini, acc float64, why string) {
+	t.Helper()
+	if got.kind != kind {
+		t.Errorf("%s: kind=%s want %s", why, got.kind, kind)
+	}
+	if math.Abs(got.pos.X-x) > blendEps || math.Abs(got.pos.Y-y) > blendEps || math.Abs(got.pos.Z-z) > blendEps {
+		t.Errorf("%s: pos=[%.3f,%.3f,%.3f] want [%.3f,%.3f,%.3f]", why, got.pos.X, got.pos.Y, got.pos.Z, x, y, z)
+	}
+	if math.Abs(got.vel-vel) > blendEps {
+		t.Errorf("%s: vel=%.4f want %.4f", why, got.vel, vel)
+	}
+	if math.Abs(got.iniMaxvel-ini) > blendEps {
+		t.Errorf("%s: ini_maxvel=%.4f want %.4f", why, got.iniMaxvel, ini)
+	}
+	if math.Abs(got.acc-acc) > blendEps {
+		t.Errorf("%s: acc=%.4f want %.4f", why, got.acc, acc)
+	}
+}
+
+// TestBlendIntegration_Lines replays lines.ngc's moves through the canon and
+// asserts each emitted SET_LINE. vel = min(programmed feed, per-axis blend);
+// ini_maxvel/acc = the per-axis blend for the move's direction.
+func TestBlendIntegration_Lines(t *testing.T) {
+	task, mot := newBlendCanonTask(t)
+	c := task.canon
+
+	st(c, 0, 0, 5)     // G0 X0 Y0 Z5  — Z-only traverse
+	c.SetFeedRate(600) // F600 = 10 mm/s
+	sf(c, 0, 0, 0)     // G1 Z0
+	sf(c, 20, 0, 0)    // G1 X20
+	sf(c, 20, 20, 0)   // G1 Y20
+	c.SetFeedRate(1200)
+	sf(c, 0, 0, 0) // G1 X0 Y0  (diagonal)
+	c.SetFeedRate(1500)
+	sf(c, 30, 15, -10) // G1 X30 Y15 Z-10
+	st(c, 30, 15, 5)   // G0 Z5
+
+	m := collect(t, task, mot)
+	if len(m) != 7 {
+		t.Fatalf("expected 7 moves, got %d: %+v", len(m), m)
+	}
+	// pos, vel, ini_maxvel, acc — with the per-axis reasoning.
+	checkMove(t, m[0], "line", 0, 0, 5, 8, 8, 120, "Z-only traverse: capped at Z max (8/120)")
+	checkMove(t, m[1], "line", 0, 0, 0, 8, 8, 120, "Z-only feed: feed 10 capped by Z blend 8")
+	checkMove(t, m[2], "line", 20, 0, 0, 10, 40, 600, "X-only feed: feed 10 < X blend 40")
+	checkMove(t, m[3], "line", 20, 20, 0, 10, 25, 400, "Y-only feed: feed 10 < Y blend 25")
+	// XY diagonal: t=[20/40,20/25]=[.5,.8], tmax=.8, dtot=√800=28.284, blend=28.284/.8=35.355
+	checkMove(t, m[4], "line", 0, 0, 0, 20, 35.35534, 565.68542, "XY diagonal: feed 20 < blend 35.355")
+	// XYZ: t=[30/40,15/25,10/8]=[.75,.6,1.25], tmax=1.25(Z), dtot=√1225=35, blend=35/1.25=28
+	checkMove(t, m[5], "line", 30, 15, -10, 25, 28, 420, "XYZ (Z-dominated): feed 25 < blend 28")
+	checkMove(t, m[6], "line", 30, 15, 5, 8, 8, 120, "Z-only traverse: Z max 8")
+}
+
+// TestBlendIntegration_Arcs replays arcs.ngc through the canon and asserts arc
+// centripetal limiting: ini_maxvel is capped by v = sqrt(a_normal * r_eff), so a
+// small-radius arc is slowed below the per-axis blend, and a helical arc lower
+// still. Values verified against logs/old/arcs.log.
+func TestBlendIntegration_Arcs(t *testing.T) {
+	task, mot := newBlendCanonTask(t)
+	c := task.canon
+	// ArcFeed args: (lineno, xEnd, yEnd, centerX, centerY, rotation, zEnd, a..w).
+	// rotation: -1 = CW (G2), +1 = CCW (G3). Center is absolute (interp resolves I/J).
+	st(c, 0, 0, 5)     // G0 Z5
+	c.SetFeedRate(400) // F400 = 6.667 mm/s
+	sf(c, 0, 0, 0)     // G1 Z0
+	c.SetFeedRate(800) // F800 = 13.333 mm/s
+	c.ArcFeed(0, 20, 0, 10, 0, -1, 0, 0, 0, 0, 0, 0, 0)  // G2 X20 Y0 I10 J0  (r=10 CW)
+	c.ArcFeed(0, 0, 0, 10, 0, 1, 0, 0, 0, 0, 0, 0, 0)    // G3 X0 Y0 I-10 J0  (r=10 CCW)
+	c.ArcFeed(0, 2, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0)    // G2 X2 Y0 I1 J0    (r=1 CW)
+	c.ArcFeed(0, 0, 0, 1, 0, -1, -5, 0, 0, 0, 0, 0, 0)   // G2 X0 Y0 Z-5 I-1  (helical)
+	st(c, 0, 0, 5)                                       // G0 Z5
+
+	m := collect(t, task, mot)
+	if len(m) != 7 {
+		t.Fatalf("expected 7 moves, got %d: %+v", len(m), m)
+	}
+	checkMove(t, m[0], "line", 0, 0, 5, 8, 8, 120, "Z-only traverse")
+	checkMove(t, m[1], "line", 0, 0, 0, 6.6666667, 8, 120, "Z-only feed: F400=6.667 < Z blend 8")
+	checkMove(t, m[2], "circle", 20, 0, 0, 13.3333333, 25, 400, "r=10 arc: feed 13.333 < arc blend 25")
+	checkMove(t, m[3], "circle", 0, 0, 0, 13.3333333, 25, 400, "r=10 arc back")
+	checkMove(t, m[4], "circle", 2, 0, 0, 13.3333333, 18.6120972, 400, "r=1 arc: centripetal caps ini_maxvel at 18.612")
+	checkMove(t, m[5], "circle", 0, 0, -5, 9.4480785, 9.4480785, 141.721177, "helical r=1: Z coupling caps vel/acc lower still")
+	checkMove(t, m[6], "line", 0, 0, 5, 8, 8, 120, "Z-only traverse")
+}
