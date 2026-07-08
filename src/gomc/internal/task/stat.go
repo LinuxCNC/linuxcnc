@@ -205,7 +205,10 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 			MaxSoftLimit:   j.MaxPosLimit,
 			MinHardLimit:   j.OnNegLimit != 0,
 			MaxHardLimit:   j.OnPosLimit != 0,
-			OverrideLimits: false, // TODO: from override_limit_mask
+			// A non-zero override mask means limit checking is currently
+			// overridden; report it on every joint (matches 2.9 taskintf.cc,
+			// which UIs read via joint[0] as a global indicator).
+			OverrideLimits: ms.OverrideLimitMask != 0,
 			Velocity:       j.VelCmd,
 			Input:          j.PosFb,
 			Output:         j.PosCmd,
