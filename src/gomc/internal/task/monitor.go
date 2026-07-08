@@ -179,6 +179,8 @@ func (m *monitor) checkEstop() {
 	// Unhome all joints (joint -2 = all)
 	_ = m.task.motion.JointUnhome(-2)
 
+	// Wait for the producer to stop touching the interpreter before reset.
+	m.task.waitRunProgramDone()
 	// Notify interpreter
 	if m.task.interp != nil {
 		_ = m.task.interp.Abort(0, "external estop")
@@ -216,10 +218,16 @@ func (m *monitor) checkMotionEnabled() {
 		m.task.mu.Unlock()
 		return
 	}
-	// Motion disabled itself — transition to OFF (ESTOP_RESET).
+	// Motion disabled itself while the task believed the machine was on — an
+	// unexpected disable (hard limit, following error, amp fault, watchdog, or
+	// an external enable drop). Latch ExecError so the interruption is visible
+	// rather than a plain ExecDone that reads like a clean stop. (A deliberate
+	// off goes through SetState, which sets state != StateOn first, so this path
+	// is never reached for a normal stop.) The specific cause is reported
+	// separately via the motion module's operator-error message. ExecError is
+	// cleared on the next estop-reset / off→on, so it does not wedge recovery.
 	m.task.state = StateEstopReset
 	m.task.interpState = InterpIdle
-	m.task.execState = ExecDone
 	m.task.mdiQueue = m.task.mdiQueue[:0]
 	m.task.taskCommand = ""
 	m.task.stepping = false
@@ -238,6 +246,7 @@ func (m *monitor) checkMotionEnabled() {
 		_ = m.task.motion.SpindleOff(int32(i))
 	}
 
+	m.task.waitRunProgramDone()
 	if m.task.interp != nil {
 		_ = m.task.interp.Abort(0, "motion disabled")
 		_ = m.task.interp.Close()
@@ -245,6 +254,12 @@ func (m *monitor) checkMotionEnabled() {
 	}
 
 	m.task.StartSequencer()
+
+	// Latch ExecError AFTER the teardown: AbortSequencer makes the old
+	// sequencerLoop set ExecDone as it exits, which would clobber an error set
+	// earlier. The fresh sequencer from StartSequencer is idle, so this sticks
+	// (until cleared by the next estop-reset / off→on recovery).
+	m.task.setExecState(ExecError)
 }
 
 // checkMotionErrors polls motion status for errors and soft limits.
@@ -330,6 +345,8 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		_ = m.task.motion.SpindleOff(int32(i))
 	}
 
+	// Wait for the producer to stop touching the interpreter before reset.
+	m.task.waitRunProgramDone()
 	// Notify interpreter.
 	if m.task.interp != nil {
 		_ = m.task.interp.Abort(0, "motion/IO error")

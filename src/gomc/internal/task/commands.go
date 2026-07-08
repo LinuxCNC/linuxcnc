@@ -76,6 +76,9 @@ func (t *Task) machineShutdown(numSpindles int, ioReason int32) {
 	_ = t.io.LubeOff()
 	_ = t.io.IoAbort(ioReason)
 	_ = t.motion.JointUnhome(-2) // unhome only volatile-home joints
+	// Wait for the producer to stop before resetting the interpreter (machine
+	// already stopped above).
+	t.waitRunProgramDone()
 	if t.interp != nil {
 		_ = t.interp.Abort(0, "machine off")
 		_ = t.interp.Close()
@@ -350,6 +353,8 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 		t.modeTx = false
 		t.interpState = InterpReading
 		t.stepping = false
+		t.runDone = make(chan struct{})
+		runDone := t.runDone
 		interp := t.interp
 		startLine := line
 		file := t.programFile
@@ -370,7 +375,7 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 		if err := interp.Synch(); err != nil {
 			t.logger.Error("interp synch failed before run", "err", err)
 		}
-		go t.runProgram(interp, startLine)
+		go t.runProgram(interp, startLine, runDone)
 		return nil
 
 	case AutoPause:
@@ -429,6 +434,8 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 				return fmt.Errorf("no interpreter configured")
 			}
 			t.interpState = InterpReading
+			t.runDone = make(chan struct{})
+			runDone := t.runDone
 			interp := t.interp
 			file := t.programFile
 			t.mu.Unlock()
@@ -443,7 +450,7 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 			if err := interp.Synch(); err != nil {
 				t.logger.Error("interp synch failed before step", "err", err)
 			}
-			go t.runProgram(interp, line)
+			go t.runProgram(interp, line, runDone)
 			return nil
 		}
 
@@ -592,7 +599,7 @@ func (t *Task) faultProgram(msg string) {
 // The interpreter is a "dumb producer": it reads lines, executes canon
 // callbacks (which enqueue commands via EnqueueCmd), and only stops on
 // abort or end-of-file. Pause and step are handled at the sequencer level.
-func (t *Task) runProgram(interp Interpreter, startLine int32) {
+func (t *Task) runProgram(interp Interpreter, startLine int32, runDone chan struct{}) {
 	t.mu.Lock()
 	t.interpActive = true
 	t.mu.Unlock()
@@ -600,6 +607,9 @@ func (t *Task) runProgram(interp Interpreter, startLine int32) {
 		t.mu.Lock()
 		t.interpActive = false
 		t.mu.Unlock()
+		// Signal teardown paths that the producer has stopped touching the
+		// interpreter, so interp.Close/Reset is now safe (waitRunProgramDone).
+		close(runDone)
 	}()
 
 	// Set active canon for M-code callbacks (no ctx parameter).
@@ -1154,6 +1164,12 @@ func (t *Task) abortLocked() {
 	_ = t.io.CoolantFloodOff()
 	_ = t.io.CoolantMistOff()
 
+	// Motion/IO are stopped; now wait for the runProgram producer to stop
+	// touching the interpreter before we Close/Reset it (avoids a data race on
+	// the non-thread-safe interpreter). Only the interpreter reset waits — the
+	// machine has already been stopped above.
+	t.waitRunProgramDone()
+
 	if interp != nil {
 		_ = interp.Abort(0, "user abort")
 		_ = interp.Close()
@@ -1166,6 +1182,21 @@ func (t *Task) abortLocked() {
 	t.mu.Lock()
 	t.floodOn = false
 	t.mistOn = false
+}
+
+// waitRunProgramDone blocks until the runProgram goroutine (if any) has exited,
+// so the interpreter is safe to Close/Reset. The caller must already have
+// signalled the abort (AbortSequencer closed seqAbort) so the producer will
+// exit. MUST be called without t.mu held (runProgram takes t.mu as it winds
+// down) and MUST NOT be called from within runProgram (e.g. faultProgram) — it
+// would wait on itself.
+func (t *Task) waitRunProgramDone() {
+	t.mu.Lock()
+	rd := t.runDone
+	t.mu.Unlock()
+	if rd != nil {
+		<-rd
+	}
 }
 
 // TaskPlanSynch forces a sync between interpreter and motion.
