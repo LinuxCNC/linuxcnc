@@ -1519,44 +1519,62 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             gomc_log_debugf(inst->log, inst->name, "JOINT_UNHOME");
             gomc_log_debugf(inst->log, inst->name, " %d", joint_num);
 
-            /* Unhoming is allowed from any mode — the per-joint set_unhomed()
-             * already guards against unhoming while moving or homing.
-             * After unhoming, we force transition to FREE (joint) mode since
-             * coord/teleop require all joints homed. */
-
-            //Negative joint_num specifies unhome_method (-1 = all, -2 = volatile only)
-            if (joint_num < 0) {
-                int j;
-                for (j = 0; j < ALL_JOINTS; j++) {
-                    /* Skip extra-joints when motion is not disabled */
-                    if (IS_EXTRA_JOINT(j) &&
+            /* Unhoming is allowed from any mode. Multi-joint unhome (-1/-2) is
+             * all-or-none (mirrors 2.9 set_all_unhomed): validate every
+             * applicable joint first and unhome nothing if any cannot be
+             * unhomed. Afterwards, if we actually unhomed something while in
+             * coord/teleop, drop to FREE mode since those modes require all
+             * joints homed. (-1 = all joints, -2 = volatile_home joints only.) */
+            {
+                int j, unhomed_any = 0;
+                if (joint_num < 0) {
+                    int ok = 1;
+                    /* Pass 1: validate all applicable joints. */
+                    for (j = 0; j < ALL_JOINTS && ok; j++) {
+                        if (!GET_JOINT_ACTIVE_FLAG(&inst->joints[j])) continue;
+                        if (joint_num == -2 && !inst->joints[j].volatile_home) continue;
+                        const home_callbacks_t *h = JOINT_HOME_API(&inst->joints[j]);
+                        if (h->get_homing(h->ctx)) {
+                            gomc_log_errorf(inst->log, inst->name,
+                                _("Cannot unhome while homing, joint %d"), j);
+                            ok = 0;
+                        } else if (!GET_JOINT_INPOS_FLAG(&inst->joints[j])) {
+                            gomc_log_errorf(inst->log, inst->name,
+                                _("Cannot unhome while moving, joint %d"), j);
+                            ok = 0;
+                        } else if (IS_EXTRA_JOINT(j) &&
+                                   inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
+                            gomc_log_errorf(inst->log, inst->name,
+                                _("cannot unhome extrajoint <%d> with motion enabled"), j);
+                            ok = 0;
+                        }
+                    }
+                    /* Pass 2: unhome all applicable joints only if all passed. */
+                    for (j = 0; ok && j < ALL_JOINTS; j++) {
+                        if (!GET_JOINT_ACTIVE_FLAG(&inst->joints[j])) continue;
+                        if (joint_num == -2 && !inst->joints[j].volatile_home) continue;
+                        const home_callbacks_t *h = JOINT_HOME_API(&inst->joints[j]);
+                        h->set_unhomed(h->ctx, (home_motion_state_t)inst->status->motion_state);
+                        unhomed_any = 1;
+                    }
+                } else {
+                    /* Single joint: guard against unhoming extra-joints while enabled. */
+                    if (IS_EXTRA_JOINT(joint_num) &&
                         inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
-                        continue;
+                        gomc_log_errorf(inst->log, inst->name,
+                            _("cannot unhome extrajoint <%d> with motion enabled"), joint_num);
+                    } else if (JOINT_HOME_API(joint)->set_unhomed(JOINT_HOME_API(joint)->ctx,
+                                   (home_motion_state_t)inst->status->motion_state) == 0) {
+                        unhomed_any = 1;
                     }
-                    /* For joint_num==-2 only unhome joints with volatile_home set */
-                    if (joint_num == -2 && !inst->joints[j].volatile_home) {
-                        continue;
-                    }
-                    const home_callbacks_t *hapi = JOINT_HOME_API(&inst->joints[j]);
-                    hapi->set_unhomed(hapi->ctx, (home_motion_state_t)inst->status->motion_state);
                 }
-            } else {
-                /* Single joint: guard against unhoming extra-joints while enabled */
-                if (IS_EXTRA_JOINT(joint_num) &&
+                /* Coord/teleop with an unhomed joint is invalid — drop to FREE,
+                 * but only if we actually unhomed something. */
+                if (unhomed_any &&
                     inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
-                    gomc_log_errorf(inst->log, inst->name,
-                        _("cannot unhome extrajoint <%d> with motion enabled"), joint_num);
-                    break;
+                    inst->internal->coordinating = 0;
+                    inst->internal->teleoperating = 0;
                 }
-                JOINT_HOME_API(joint)->set_unhomed(JOINT_HOME_API(joint)->ctx, (home_motion_state_t)inst->status->motion_state);
-            }
-
-            /* If we're in coord/teleop and motion is enabled, force
-             * transition to FREE mode — coord/teleop with unhomed joints
-             * is not valid. */
-            if (inst->status->motion_state != EMCMOT_MOTION_DISABLED) {
-                inst->internal->coordinating = 0;
-                inst->internal->teleoperating = 0;
             }
             break;
 
