@@ -902,17 +902,11 @@ func (t *Task) Home(joint int32) error {
 
 // Unhome un-homes the specified joint.
 func (t *Task) Unhome(joint int32) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if err := t.requireOn(); err != nil {
-		return err
-	}
-	if err := t.ensureMode(ModeManual); err != nil {
-		return err
-	}
-	// Motion accepts unhome from any motion_state and forces transition
-	// to FREE mode internally — no explicit SetFree needed.
+	// Unhoming is allowed in ANY state (including ESTOP and OFF) and any mode,
+	// matching C++ which accepts EMC_JOINT_UNHOME everywhere — you often need to
+	// clear a homed joint precisely when the machine is in estop. Motion clears
+	// the homed flag and forces FREE mode internally, so no requireOn / mode
+	// switch is needed (and requireOn would wrongly reject it in estop/off).
 	return t.motion.JointUnhome(joint)
 }
 
