@@ -971,23 +971,25 @@ func (t *Task) Unhome(joint int32) error {
 	return t.motion.JointUnhome(joint)
 }
 
-// OverrideLimits overrides tripped soft limits for a joint so it can be jogged
+// OverrideLimits overrides tripped hard limits for a joint so it can be jogged
 // off the limit. joint < 0 resumes normal limit checking (mirrors C++
-// emcJointOverrideLimits / EMCMOT_OVERRIDE_LIMITS). It is a manual operation, so
-// milltask switches to manual mode for the caller (gomc's auto-mode-switch
-// model) rather than rejecting a non-manual caller.
+// emcJointOverrideLimits / EMCMOT_OVERRIDE_LIMITS).
+//
+// State gate mirrors 2.9's emctaskmain table: allowed in ESTOP/OFF/ESTOP_RESET
+// in any mode — this is the limit-recovery path, where you set the override
+// while the machine is faulted off after hitting a hard limit so it can be
+// re-enabled and jogged clear — and when ON only in MANUAL. In gomc's
+// auto-mode-switch model, switch to manual when ON rather than rejecting a
+// non-manual caller (ensureMode still refuses while a program/MDI is running or
+// homing, so we never override limits mid-run).
 func (t *Task) OverrideLimits(joint int32) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	if err := t.requireOn(); err != nil {
-		return err
-	}
-	// Switch to manual rather than rejecting (mirrors Home). ensureMode still
-	// refuses while a program/MDI is running or homing, so we never override
-	// limits mid-run.
-	if err := t.ensureMode(ModeManual); err != nil {
-		return err
+	if t.state == StateOn {
+		if err := t.ensureMode(ModeManual); err != nil {
+			return err
+		}
 	}
 	return t.motion.OverrideLimits(joint)
 }
