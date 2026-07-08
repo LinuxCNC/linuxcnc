@@ -659,13 +659,22 @@ type DwellCmd struct {
 }
 
 func (c *DwellCmd) Execute(t *Task) error {
-	timer := time.NewTimer(time.Duration(c.Seconds * float64(time.Second)))
+	// Report the waiting-for-delay state for the duration of the dwell (G4), so
+	// UIs show it rather than a stale ExecDone. (The preceding motion is already
+	// drained by the syncBefore() barrier in Canon.Dwell.)
+	t.setExecState(ExecWaitingForDelay)
+	dur := time.Duration(c.Seconds * float64(time.Second))
+	t.mu.Lock()
+	t.dwellEnd = time.Now().Add(dur)
+	t.mu.Unlock()
+	timer := time.NewTimer(dur)
 	defer timer.Stop()
 
 	select {
 	case <-t.seqAbort:
 		return context.Canceled
 	case <-timer.C:
+		t.setExecState(ExecDone)
 		return nil
 	}
 }

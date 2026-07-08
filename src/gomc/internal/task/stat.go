@@ -3,6 +3,8 @@
 package task
 
 import (
+	"time"
+
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/emcstat"
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motstat"
 )
@@ -19,6 +21,13 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	}
 	// Grab canon state for offset reporting
 	cs := t.canon.state
+	// Remaining G4 dwell time (only meaningful while waiting for the delay).
+	var delayLeft float64
+	if t.execState == ExecWaitingForDelay {
+		if d := time.Until(t.dwellEnd); d > 0 {
+			delayLeft = d.Seconds()
+		}
+	}
 	// Compute RCS command status (matches NML stat.state: 1=DONE,2=EXEC,3=ERROR).
 	rcsStatus := int32(1) // RCS_DONE
 	switch t.execState {
@@ -44,6 +53,8 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 			ReadLine:          t.readLine,
 			CurrentLine:       t.currentLine,
 			Line:              t.currentLine,
+			ProgramUnits:      cs.lengthUnits,
+			DelayLeft:         delayLeft,
 		},
 		Flood:          t.floodOn,
 		Mist:           t.mistOn,
@@ -127,6 +138,11 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	stat.Motion.MotionId = ms.Id
 	stat.Motion.MotionLine = t.lookupMotionLine(ms.Id)
 	stat.Motion.MotionType = ms.MotionType
+	stat.Motion.FeedOverrideEnabled = ms.FeedScaleEnabled != 0
+	stat.Motion.AdaptiveFeedEnabled = ms.AdaptiveFeedEnabled != 0
+	stat.Motion.FeedHoldEnabled = ms.FeedHoldEnabled != 0
+	stat.Motion.Queue = ms.QueueDepth
+	stat.Motion.QueueFull = ms.QueueFull != 0
 	stat.Task.MotionLine = t.lookupMotionLine(ms.Id)
 	t.pruneMotionMap(ms.Id)
 	stat.Motion.Dtg = emcstat.Position{
@@ -200,7 +216,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 			Brake:           sp.Brake != 0,
 			Enabled:         sp.State != 0,
 			Override:        sp.Scale,
-			OverrideEnabled: true, // always enabled in our implementation
+			OverrideEnabled: ms.SpindleScaleEnabled != 0,
 			Homed:           sp.Homed != 0,
 			OrientState:     sp.OrientState,
 			OrientFault:     sp.OrientFault,

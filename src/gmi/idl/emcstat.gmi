@@ -135,6 +135,8 @@ type StatTaskInfo {
     block_delete: bool
     task_paused: bool
     g5x_index: i32
+    program_units: i32      # 1=inch, 2=mm, 3=cm (canon length units)
+    delay_left: f64         # seconds remaining in a G4 dwell
 }
 
 type StatMotionInfo {
@@ -152,6 +154,11 @@ type StatMotionInfo {
     motion_id: i32
     motion_line: i32
     motion_type: i32        # feed type: 0=traverse, 1=feed, 2=arc, etc.
+    feed_override_enabled: bool
+    adaptive_feed_enabled: bool
+    feed_hold_enabled: bool
+    queue: i32              # TP motion queue depth
+    queue_full: bool
 }
 
 type StatFull {

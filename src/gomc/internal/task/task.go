@@ -269,6 +269,7 @@ type Task struct {
 	noForceHoming bool // [TRAJ]NO_FORCE_HOMING — skip homing check before MDI/AUTO
 	stepping      bool // single-step mode: auto-pause after each interpreter line
 	interpActive  bool // true while runProgram goroutine is executing
+	dwellEnd      time.Time // wall-clock end of the current G4 dwell (for delayLeft)
 
 	// Jog selection (shared across clients)
 	jogAxis      int32   // selected jog axis (0=X .. 8=W, -1=none)
