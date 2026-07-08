@@ -624,13 +624,17 @@ func (t *Task) runProgram(interp Interpreter, startLine int32) {
 		t.readLine = int32(interp.Line())
 		t.mu.Unlock()
 
+		startSerial := t.canon.serial()
 		rc, err = interp.Execute()
 		if err != nil {
 			t.logger.Error("interpreter execute error", "err", err, "rc", rc)
 			t.faultProgram(fmt.Sprintf("Interpreter error: %v", err))
 			return
 		}
-		t.updateActiveCodes(interp)
+		// Capture this line's active codes and tag the motion segments it just
+		// queued, so status reports the executing segment's codes, not readahead.
+		gc, mc, st := t.updateActiveCodes(interp)
+		t.tagMotionRange(startSerial, t.canon.serial(), gc, mc, st)
 
 		switch rc {
 		case InterpExecuteFinish:

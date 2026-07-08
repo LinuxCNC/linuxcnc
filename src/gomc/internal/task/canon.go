@@ -300,6 +300,11 @@ func (c *Canon) setDiscard(d bool) {
 // allocSerial returns the next segment serial id and registers the G-code
 // location in the task's side table. Serials start at 1; 0 is reserved as
 // the "nothing executing" sentinel used by UI code.
+// serial returns the next motion-segment id the canon will allocate. Callers in
+// the runProgram goroutine use it to bracket the ids queued during one interp
+// execute, so those segments can be tagged with that line's active codes.
+func (c *Canon) serial() int32 { return c.nextSerial }
+
 func (c *Canon) allocSerial(lineno int32) int32 {
 	if c.nextSerial == 0 {
 		c.nextSerial = 1

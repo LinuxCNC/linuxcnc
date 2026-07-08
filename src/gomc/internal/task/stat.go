@@ -144,6 +144,18 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	stat.Motion.Queue = ms.QueueDepth
 	stat.Motion.QueueFull = ms.QueueFull != 0
 	stat.Task.MotionLine = t.lookupMotionLine(ms.Id)
+	// Resolve the active G/M codes and current line from the state tag of the
+	// segment actually executing (motion echoes only the id back). This makes
+	// status reflect what the machine is running now rather than the
+	// interpreter's readahead. Falls back to the readahead codes set above when
+	// the moving segment has no tag (idle, MDI, or before the first tagged move).
+	if info, ok := t.lookupMotionInfo(ms.Id); ok && info.Gcodes != nil {
+		stat.ActiveGcodes = append([]int32(nil), info.Gcodes...)
+		stat.ActiveMcodes = append([]int32(nil), info.Mcodes...)
+		stat.ActiveSettings = append([]float64(nil), info.Settings...)
+		stat.Task.CurrentLine = info.LineNo
+		stat.Task.Line = info.LineNo
+	}
 	t.pruneMotionMap(ms.Id)
 	stat.Motion.Dtg = emcstat.Position{
 		X: ms.Dtg.X, Y: ms.Dtg.Y, Z: ms.Dtg.Z,

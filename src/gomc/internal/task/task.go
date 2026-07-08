@@ -335,10 +335,16 @@ type Task struct {
 	nextMessageID uint64
 }
 
-// motionInfo stores the G-code location associated with a motion segment.
+// motionInfo is the state tag milltask keeps for each motion segment, keyed by
+// the serial id that motion echoes back. Motion itself is interpreter-agnostic
+// (it only carries the id); milltask maps id → tag to report the source line
+// and the active G/M codes of the segment actually executing (not readahead).
 type motionInfo struct {
-	File   string
-	LineNo int32
+	File     string
+	LineNo   int32
+	Gcodes   []int32   // active G-codes when the segment was queued (nil = untagged)
+	Mcodes   []int32   // active M-codes
+	Settings []float64 // active settings (feed, speed, …)
 }
 
 // NewTask creates a new Task with dependencies injected.
@@ -383,6 +389,32 @@ func (t *Task) lookupMotionLine(id int32) int32 {
 	return info.LineNo
 }
 
+// lookupMotionInfo returns the full state tag for a motion segment id.
+func (t *Task) lookupMotionInfo(id int32) (motionInfo, bool) {
+	t.mu.Lock()
+	info, ok := t.motionMap[id]
+	t.mu.Unlock()
+	return info, ok
+}
+
+// tagMotionRange attaches the active-code state tag to every motion segment
+// whose serial id is in [startID, endID) — the segments queued while the
+// interpreter executed one source line. Codes are captured after that line's
+// execute (their modal state), completing the id → state_tag mapping.
+func (t *Task) tagMotionRange(startID, endID int32, gcodes, mcodes []int32, settings []float64) {
+	if endID <= startID {
+		return
+	}
+	t.mu.Lock()
+	for id := startID; id < endID; id++ {
+		if info, ok := t.motionMap[id]; ok {
+			info.Gcodes, info.Mcodes, info.Settings = gcodes, mcodes, settings
+			t.motionMap[id] = info
+		}
+	}
+	t.mu.Unlock()
+}
+
 // pruneMotionMap removes entries with id less than execId to bound map size.
 // Called periodically during status updates.
 func (t *Task) pruneMotionMap(execId int32) {
@@ -423,13 +455,14 @@ func (t *Task) operatorError(text string) {
 
 // updateActiveCodes fetches the interpreter's active G/M codes and settings
 // and stores them in the task state for stat reporting.
-func (t *Task) updateActiveCodes(interp Interpreter) {
-	gc := interp.ActiveGCodes()
-	mc := interp.ActiveMCodes()
-	st := interp.ActiveSettings()
+func (t *Task) updateActiveCodes(interp Interpreter) (gc, mc []int32, st []float64) {
+	gc = interp.ActiveGCodes()
+	mc = interp.ActiveMCodes()
+	st = interp.ActiveSettings()
 	t.mu.Lock()
 	t.activeGcodes = gc
 	t.activeMcodes = mc
 	t.activeSettings = st
 	t.mu.Unlock()
+	return gc, mc, st
 }
