@@ -387,6 +387,14 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 		return t.motion.Pause()
 
 	case AutoResume:
+		// Only act when actually paused. A resume issued while running must NOT
+		// close seqResumeCh: seqCheckPause only consumes it after a real pause, so
+		// a stray close stays closed and disarms the NEXT pause — including a
+		// mandatory M0 stop, which the machine would then run straight through.
+		if t.interpState != InterpPaused {
+			t.mu.Unlock()
+			return nil
+		}
 		t.interpState = InterpReading
 		t.stepping = false
 		// Wake sequencer from pause
