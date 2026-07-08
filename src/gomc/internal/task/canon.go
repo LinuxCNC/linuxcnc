@@ -799,9 +799,12 @@ func (c *Canon) ProgramStop() {
 }
 
 func (c *Canon) OptionalProgramStop() {
-	if c.state.optionalProgramStop {
-		c.enqueue(&ProgramStopCmd{})
-	}
+	// Always enqueue: OptionalProgramStopCmd evaluates the operator's optional-
+	// stop toggle (t.optionalStop, set by the UI/halui) at execution time,
+	// matching 2.9 GET_OPTIONAL_PROGRAM_STOP. The interpreter-owned canon field
+	// c.state.optionalProgramStop was never synced from the task flag, so gating
+	// on it here made M1 a no-op regardless of the toggle.
+	c.enqueue(&OptionalProgramStopCmd{})
 }
 
 func (c *Canon) ProgramEnd() {
@@ -824,7 +827,14 @@ func (c *Canon) SetBlockDelete(enabled int32) {
 }
 
 func (c *Canon) GetBlockDelete() (int32, error) {
-	if c.state.blockDelete {
+	// Read the operator's block-delete toggle (t.blockDelete, set by UI/halui) —
+	// the interpreter reads this per line to decide whether to skip "/" lines.
+	// The interpreter-owned c.state.blockDelete was never synced from the task
+	// flag, so "/" lines were never skipped regardless of the toggle.
+	c.task.mu.Lock()
+	on := c.task.blockDelete
+	c.task.mu.Unlock()
+	if on {
 		return 1, nil
 	}
 	return 0, nil
@@ -835,7 +845,10 @@ func (c *Canon) SetOptionalProgramStop(enabled int32) {
 }
 
 func (c *Canon) GetOptionalProgramStop() (int32, error) {
-	if c.state.optionalProgramStop {
+	c.task.mu.Lock()
+	on := c.task.optionalStop
+	c.task.mu.Unlock()
+	if on {
 		return 1, nil
 	}
 	return 0, nil

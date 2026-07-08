@@ -53,9 +53,9 @@ func (t *Task) StartSequencer() {
 	t.mu.Lock()
 	oldDone := t.seqDone
 	oldAbort := t.seqAbort
-	t.mu.Unlock()
-
-	// Abort previous sequencer if still running.
+	// Abort the previous sequencer under t.mu so this check-then-close is atomic
+	// against sequencerLoop's own abort-close (also under t.mu) — otherwise both
+	// could close the same channel and panic.
 	if oldAbort != nil {
 		select {
 		case <-oldAbort:
@@ -63,8 +63,10 @@ func (t *Task) StartSequencer() {
 			close(oldAbort)
 		}
 	}
+	t.mu.Unlock()
 
-	// Wait for previous goroutine to finish.
+	// Wait for previous goroutine to finish (must NOT hold t.mu — the goroutine
+	// may need it to exit).
 	if oldDone != nil {
 		<-oldDone
 	}
@@ -85,20 +87,21 @@ func (t *Task) StopSequencer() {
 	t.mu.Lock()
 	abort := t.seqAbort
 	done := t.seqDone
+	// Close under t.mu (atomic check-then-close vs sequencerLoop / other closers).
+	if abort != nil {
+		select {
+		case <-abort:
+			// already aborted
+		default:
+			close(abort)
+		}
+	}
 	t.mu.Unlock()
 
 	if abort == nil {
 		return
 	}
-
-	select {
-	case <-abort:
-		// already aborted
-	default:
-		close(abort)
-	}
-
-	// Wait for goroutine to finish
+	// Wait for goroutine to finish (lock released — it may need t.mu to exit).
 	if done != nil {
 		<-done
 	}
@@ -110,16 +113,18 @@ func (t *Task) AbortSequencer() {
 	t.mu.Lock()
 	abort := t.seqAbort
 	q := t.interpQueue
+	// Close under t.mu (atomic check-then-close vs sequencerLoop / other closers).
+	if abort != nil {
+		select {
+		case <-abort:
+		default:
+			close(abort)
+		}
+	}
 	t.mu.Unlock()
 
 	if abort == nil {
 		return
-	}
-
-	select {
-	case <-abort:
-	default:
-		close(abort)
 	}
 
 	// Drain any pending commands
@@ -808,7 +813,7 @@ func (c *WaitForMotionCmd) Execute(t *Task) error { return nil }
 func (c *WaitForMotionCmd) Wait() WaitType        { return WaitMotion }
 func (c *WaitForMotionCmd) String() string        { return "WaitForMotion" }
 
-// ProgramStopCmd waits for motion to drain, then pauses the program (M0/M1).
+// ProgramStopCmd waits for motion to drain, then pauses the program (M0).
 type ProgramStopCmd struct{}
 
 func (c *ProgramStopCmd) Execute(t *Task) error { return nil }
@@ -816,6 +821,24 @@ func (c *ProgramStopCmd) Wait() WaitType        { return WaitMotion }
 func (c *ProgramStopCmd) String() string        { return "ProgramStop" }
 func (c *ProgramStopCmd) PostWait(t *Task) {
 	t.seqEnterPause()
+}
+
+// OptionalProgramStopCmd implements M1: like M0, but pauses only when the
+// operator's optional-stop toggle is enabled — evaluated at execution time
+// (after preceding motion drains), matching 2.9. When disabled it is a no-op
+// and the program continues.
+type OptionalProgramStopCmd struct{}
+
+func (c *OptionalProgramStopCmd) Execute(t *Task) error { return nil }
+func (c *OptionalProgramStopCmd) Wait() WaitType        { return WaitMotion }
+func (c *OptionalProgramStopCmd) String() string        { return "OptionalProgramStop" }
+func (c *OptionalProgramStopCmd) PostWait(t *Task) {
+	t.mu.Lock()
+	os := t.optionalStop
+	t.mu.Unlock()
+	if os {
+		t.seqEnterPause()
+	}
 }
 
 // --- Helper: check sequencer is alive from enqueue side ---
