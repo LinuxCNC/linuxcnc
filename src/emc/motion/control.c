@@ -2211,7 +2211,7 @@ static void output_to_hal(motmod_inst_t *inst)
     switch (inst->status->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
         case EMC_MOTION_TYPE_ARC: {
-            double feed_mm_min = inst->status->feed_upm * inst->status->net_feed_scale;
+            double feed_mm_min = inst->status->feed_mm_per_min * inst->status->net_feed_scale;
             *(inst->hal_data->feed_inches_per_minute) = feed_mm_min / 25.4;
             *(inst->hal_data->feed_inches_per_second) = feed_mm_min / 25.4 / 60;
             *(inst->hal_data->feed_mm_per_minute) = feed_mm_min;
@@ -2500,7 +2500,7 @@ static void update_status(motmod_inst_t *inst)
     inst->status->id = inst->tp_api->get_exec_id(inst->tp_api->ctx);
     //KLUDGE add an API call for this
     inst->status->reverse_run = inst->tp_api->get_run_dir(inst->tp_api->ctx);
-    inst->status->feed_upm = inst->tp_api->get_feed_upm(inst->tp_api->ctx);
+    inst->status->feed_mm_per_min = inst->tp_api->get_feed_mm_per_min(inst->tp_api->ctx);
     inst->status->motionType = inst->tp_api->get_motion_type(inst->tp_api->ctx);
     inst->status->queueFull = inst->tp_api->queue_full(inst->tp_api->ctx);
 

@@ -138,7 +138,7 @@ typedef struct {
     double acc_ratio_tan;// ratio between normal and tangential accel
     
     int id;                 // segment's serial number
-    double feed_upm;            // programmed feed rate in G-code units per minute
+    double feed_mm_per_min;            // commanded feed rate in mm/min (canon works in internal mm)
 
     union {                 // describes the segment's start and end positions
         PmLine9 line;

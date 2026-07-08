@@ -1120,7 +1120,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					inst->status->enables_new,
 					(int8_t)issue_atspeed,
 					inst->command->turn,
-					inst->command->feed_upm);
+					inst->command->feed_mm_per_min);
         //KLUDGE ignore zero length line
         if (res_addline < 0) {
             gomc_log_errorf(inst->log, inst->name, _("can't add linear move (segment %d), error code %d"),
@@ -1180,7 +1180,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             inst->command->vel, inst->command->ini_maxvel,
                             inst->command->acc, inst->status->enables_new,
 			    (int8_t)issue_atspeed,
-                            inst->command->feed_upm);
+                            inst->command->feed_mm_per_min);
         if (res_addcircle < 0) {
             gomc_log_errorf(inst->log, inst->name, _("can't add circular move (segment %d), error code %d"),
                     inst->command->id, res_addcircle);
@@ -1618,7 +1618,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				inst->status->enables_new,
 				0,
 				-1,
-				inst->command->feed_upm)) {
+				inst->command->feed_mm_per_min)) {
 		gomc_log_errorf(inst->log, inst->name, _("can't add probe move"));
 		inst->status->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		inst->tp_api->abort(inst->tp_api->ctx);
@@ -1667,7 +1667,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                                     inst->command->acc,
                                     inst->status->enables_new,
                                     inst->command->scale,
-                                    inst->command->feed_upm);
+                                    inst->command->feed_mm_per_min);
         if (res_addtap < 0) {
             inst->status->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
             gomc_log_errorf(inst->log, inst->name, _("can't add rigid tap move (segment %d), error code %d"),

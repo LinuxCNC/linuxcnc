@@ -115,7 +115,7 @@ typedef struct {
     double wDotMax;		/* rotational acceleration max */
     int nextId;
     int execId;
-    double execFeedUpm;         /* feed rate of executing motion in G-code units/min */
+    double execFeedMmPerMin;         /* feed rate of executing motion in mm/min */
     int termCond;
     int done;
     int depth;			/* number of total queued motions */

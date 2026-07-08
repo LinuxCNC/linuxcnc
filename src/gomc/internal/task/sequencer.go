@@ -621,12 +621,12 @@ type LinearMoveCmd struct {
 	Acc        float64
 	MotionType int32
 	ID         int32
-	FeedUpm    float64
+	FeedMmPerMin    float64
 	IndexerJ   int32
 }
 
 func (c *LinearMoveCmd) Execute(t *Task) error {
-	return t.motion.SetLine(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedUpm, c.IndexerJ)
+	return t.motion.SetLine(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedMmPerMin, c.IndexerJ)
 }
 func (c *LinearMoveCmd) Wait() WaitType { return WaitNone } // queued, no immediate wait
 func (c *LinearMoveCmd) String() string { return fmt.Sprintf("LinearMove(id=%d)", c.ID) }
@@ -643,11 +643,11 @@ type CircularMoveCmd struct {
 	Acc        float64
 	MotionType int32
 	ID         int32
-	FeedUpm    float64
+	FeedMmPerMin    float64
 }
 
 func (c *CircularMoveCmd) Execute(t *Task) error {
-	return t.motion.SetCircle(c.Pos, c.Center, c.Normal, c.Turn, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedUpm)
+	return t.motion.SetCircle(c.Pos, c.Center, c.Normal, c.Turn, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ID, c.FeedMmPerMin)
 }
 func (c *CircularMoveCmd) Wait() WaitType { return WaitNone }
 func (c *CircularMoveCmd) String() string { return fmt.Sprintf("CircularMove(id=%d)", c.ID) }

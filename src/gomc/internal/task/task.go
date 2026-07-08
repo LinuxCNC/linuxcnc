@@ -107,10 +107,10 @@ type activeJog struct {
 // Methods match the motctl.gmi function names.
 type MotionController interface {
 	// Motion queue
-	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64, indexerJnum int32) error
-	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64) error
-	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, feedUpm float64) error
-	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, feedUpm float64) error
+	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedMmPerMin float64, indexerJnum int32) error
+	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedMmPerMin float64) error
+	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, feedMmPerMin float64) error
+	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, feedMmPerMin float64) error
 
 	// Motion control
 	Abort() error

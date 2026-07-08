@@ -471,7 +471,7 @@ func (c *Canon) StraightTraverse(lineno int32, x, y, z, a, b, _c, u, v, w float6
 		Acc:        accMax,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
 		ID:         c.allocSerial(lineno),
-		FeedUpm:    0, // traverse: no programmed feed
+		FeedMmPerMin:    0, // traverse: no programmed feed
 		IndexerJ:   s.rotaryUnlockForTraverse,
 	}
 	c.enqueue(cmd)
@@ -495,7 +495,7 @@ func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 		Acc:        acc,
 		MotionType: 2, // EMC_MOTION_TYPE_FEED
 		ID:         c.allocSerial(lineno),
-		FeedUpm:    feed * 60,
+		FeedMmPerMin:    feed * 60,
 		IndexerJ:   -1,
 	}
 	c.enqueue(cmd)
@@ -506,7 +506,7 @@ func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 // canon: ini_maxvel is the per-axis blend; vel is that blend clamped to the
 // programmed feed rate (linear or angular depending on the move); acc is the
 // per-axis-blended acceleration. Returns the selected programmed feed too (for
-// feed_upm). A move to nowhere falls back to the programmed feed rate.
+// feed_mm_per_min). A move to nowhere falls back to the programmed feed rate.
 func (c *Canon) feedLimits(from, to Pose) (vel, iniMaxVel, acc, feed float64) {
 	s := c.state
 	velMax, accMax, cartesian, angular := c.task.straightLimits(from, to)
@@ -580,7 +580,7 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 		Acc:        arcAcc,
 		MotionType: 3, // EMC_MOTION_TYPE_ARC
 		ID:         c.allocSerial(lineno),
-		FeedUpm:    s.linearFeedRate * 60,
+		FeedMmPerMin:    s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
 	c.enqueueMotionParams()
@@ -599,7 +599,7 @@ func (c *Canon) RigidTap(lineno int32, x, y, z, scale float64) {
 		Acc:     acc,
 		Scale:   scale,
 		ID:      c.allocSerial(lineno),
-		FeedUpm: s.linearFeedRate * 60,
+		FeedMmPerMin: s.linearFeedRate * 60,
 	}
 	c.syncBefore() // G33.1: no blend with the approach move
 	c.enqueue(cmd)
@@ -619,7 +619,7 @@ func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, 
 		MotionType: 4, // EMC_MOTION_TYPE_PROBING
 		ProbeType:  probeType,
 		ID:         c.allocSerial(lineno),
-		FeedUpm:    s.linearFeedRate * 60,
+		FeedMmPerMin:    s.linearFeedRate * 60,
 	}
 	c.syncBefore() // G38: probe starts at the commanded point, no blend
 	c.enqueue(cmd)
@@ -906,7 +906,7 @@ func (c *Canon) UnlockRotary(lineno, joint int32) (int32, error) {
 		Acc:        1,
 		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
 		ID:         c.allocSerial(lineno),
-		FeedUpm:    0,
+		FeedMmPerMin:    0,
 		IndexerJ:   -1,
 	}
 	c.enqueue(cmd)
@@ -1148,11 +1148,11 @@ type RigidTapCmd struct {
 	Acc     float64
 	Scale   float64
 	ID      int32
-	FeedUpm float64
+	FeedMmPerMin float64
 }
 
 func (c *RigidTapCmd) Execute(t *Task) error {
-	return t.motion.RigidTap(c.Pos, c.Vel, c.Vel, c.Acc, c.Scale, c.ID, c.FeedUpm)
+	return t.motion.RigidTap(c.Pos, c.Vel, c.Vel, c.Acc, c.Scale, c.ID, c.FeedMmPerMin)
 }
 func (c *RigidTapCmd) Wait() WaitType { return WaitNone }
 func (c *RigidTapCmd) String() string { return fmt.Sprintf("RigidTap(id=%d)", c.ID) }
@@ -1167,11 +1167,11 @@ type ProbeCmd struct {
 	MotionType int32
 	ProbeType  uint8
 	ID         int32
-	FeedUpm    float64
+	FeedMmPerMin    float64
 }
 
 func (c *ProbeCmd) Execute(t *Task) error {
-	return t.motion.Probe(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ProbeType, c.ID, c.FeedUpm)
+	return t.motion.Probe(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ProbeType, c.ID, c.FeedMmPerMin)
 }
 func (c *ProbeCmd) Wait() WaitType { return WaitMotion }
 func (c *ProbeCmd) String() string { return fmt.Sprintf("Probe(id=%d)", c.ID) }

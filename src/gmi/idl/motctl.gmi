@@ -56,22 +56,22 @@ type Cartesian {
 
 @doc "Queue a linear move"
 func set_line(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
-              motion_type: i32, id: i32, feed_upm: f64,
+              motion_type: i32, id: i32, feed_mm_per_min: f64,
               indexer_jnum: i32) -> i32
 
 @doc "Queue a circular arc move"
 func set_circle(pos: Pose, center: Cartesian,
                 normal: Cartesian, turn: i32,
                 vel: f64, ini_maxvel: f64, acc: f64,
-                motion_type: i32, id: i32, feed_upm: f64) -> i32
+                motion_type: i32, id: i32, feed_mm_per_min: f64) -> i32
 
 @doc "Queue a probe move"
 func probe(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
-           motion_type: i32, probe_type: u8, id: i32, feed_upm: f64) -> i32
+           motion_type: i32, probe_type: u8, id: i32, feed_mm_per_min: f64) -> i32
 
 @doc "Queue a rigid tapping move"
 func rigid_tap(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
-               scale: f64, id: i32, feed_upm: f64) -> i32
+               scale: f64, id: i32, feed_mm_per_min: f64) -> i32
 
 # ─── Motion Parameters ───
 
