@@ -1,6 +1,6 @@
 logs/
 db/
-_parity_run.ini
+_*.ini
 *.var
 *.var.bak
 *.srvout

@@ -43,7 +43,7 @@ MOTMOD_CMOD_CFLAGS := \
                    | headers ../lib/librtapi_core.so
 	$(ECHO) "Compiling cmod motmod.so"
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -shared $(MOTMOD_CMOD_CFLAGS) \
+	$(Q)$(CC) -shared $(MOTMOD_CMOD_CFLAGS) $(EXTRA_CFLAGS) \
 	    -o $@ $(MOTMOD_CMOD_SRCS) \
 	    $(CMOD_LDFLAGS) -lrtapi_core -lm
 

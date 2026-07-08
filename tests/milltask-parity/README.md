@@ -12,12 +12,21 @@ Each milltask runs against its OWN native motion controller, in its own tree:
 
 Both trees' motion controller has the **identical** instrument in
 `src/emc/motion/command.c` — a `motcmd_trace()` in `emcmotCommandHandler_locked()`,
-the exact point where each native `motmod` receives a command. It is active only
-when `MOTCTL_LOG` is set, logs one deterministic line per command **by opcode
-name** (robust to enum renumbering between the trees), using only
-`emcmot_command_t` fields common to both. So the same G-code run under each stack
-yields two directly-comparable command streams; every difference is a real
-behavioural difference in that milltask's canon/task layer. Off (no env) → no-op.
+the exact point where each native `motmod` receives a command. When enabled it
+logs one deterministic line per command **by opcode name** (robust to enum
+renumbering between the trees), using only `emcmot_command_t` fields common to
+both. So the same G-code run under each stack yields two directly-comparable
+command streams; every difference is a real behavioural difference in that
+milltask's canon/task layer.
+
+The trace calls `stdio` from the realtime servo thread, so on this tree it is
+**compiled out by default** — it must be deliberately enabled for a parity run
+and is entirely absent from production builds. Enable it by building `motmod`
+with `-DMILLTASK_PARITY_TRACE` (see Usage) or by uncommenting the
+`// #define MILLTASK_PARITY_TRACE` line in `command.c`. Once compiled in, it is
+still further gated at runtime by the `MOTCTL_LOG` env var (file path, or `-`
+for stderr); unset → no-op. (The 2.9 reference tree keeps the plain env-gated
+form on its throwaway branch.)
 
 ## Pieces
 
@@ -34,8 +43,10 @@ behavioural difference in that milltask's canon/task layer. Off (no env) → no-
 
 ```bash
 # --- new / Go side (this repo) ---
-cd ~/source/linuxcnc/src && make ../cmod/motmod.so     # motmod with instrument
+# Build motmod with the parity trace compiled in (off by default).
+cd ~/source/linuxcnc/src && make ../cmod/motmod.so EXTRA_CFLAGS=-DMILLTASK_PARITY_TRACE
 cd ~/source/linuxcnc/tests/milltask-parity && ./capture.sh new
+# When done, rebuild without the flag to drop the trace: make ../cmod/motmod.so
 
 # --- old / C++ side (2.9 tree) ---
 cd ~/source/linuxcnc-2.9/src && make                   # full build w/ instrument
@@ -89,7 +100,8 @@ Against the real old C++ milltask, on the non-uniform-limit machine:
 - Only the `motctl` (motion) boundary is instrumented. Tool-prepare/load and
   coolant go through the `emcio` GMI server and are not logged here; add the
   same `getenv("MOTCTL_LOG")` trace to `iocontrol` if IO parity is needed.
-- The instrument is **off** unless `MOTCTL_LOG` is set — no runtime cost or
-  behaviour change in normal operation.
+- The instrument is **compiled out by default** on this tree (see above), so a
+  production `motmod` carries no trace code and no `stdio` in the RT path. Even
+  when compiled in, it stays off unless `MOTCTL_LOG` is set.
 - `logs/<tag>/<prog>.log.srvout` holds each run's server stdout/stderr for
   debugging; it is ignored by the comparison.

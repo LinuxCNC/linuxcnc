@@ -8,8 +8,9 @@
 # <ngc-file>  path to the G-code file to run (absolute, or relative to CWD).
 # <out-log>   where to write the captured motctl log.
 #
-# Requires motmod built with the MOTCTL_LOG instrument (see
-# src/emc/motion/motctl_handlers.c :: motctl_trace).
+# Requires motmod built with the parity trace compiled in, i.e.
+#   make ../cmod/motmod.so EXTRA_CFLAGS=-DMILLTASK_PARITY_TRACE
+# (motcmd_trace in src/emc/motion/command.c; off by default). See README.md.
 #
 # The same script drives whichever milltask is active — the Go gomod (default)
 # or the C++ cmod (when cmod/milltask.so is present). That is what makes the

@@ -385,14 +385,22 @@ static int is_feed_type(int motion_type)
   This function runs with the inst->command struct locked.
   */
 /* ================================================================
- * milltask parity instrument.  When the environment variable MOTCTL_LOG
- * names a file (or "-" for stderr), log one deterministic line per command
- * the motion controller receives, so the old (C++, linuxcnc-2.9) and new
- * (Go, gomc) milltask can be diffed move-for-move against their OWN native
- * motion module.  Logs by opcode NAME (robust to enum renumbering) using
- * only emcmot_command_t fields common to both trees.  Off (no env) => no-op,
- * no behaviour change.  The identical function lives in both trees' command.c.
+ * milltask parity instrument (development-only, compiled out by default).
+ * When enabled AND the environment variable MOTCTL_LOG names a file (or "-"
+ * for stderr), log one deterministic line per command the motion controller
+ * receives, so the old (C++, linuxcnc-2.9) and new (Go, gomc) milltask can be
+ * diffed move-for-move against their OWN native motion module.  Logs by opcode
+ * NAME (robust to enum renumbering) using only emcmot_command_t fields common
+ * to both trees.  See tests/milltask-parity/README.md.
+ *
+ * This is COMPILE-TIME gated, not just env-gated: the trace calls stdio
+ * (fopen/fprintf) from emcmotCommandHandler_locked, which runs in the realtime
+ * servo thread — unacceptable in a production build.  Uncomment the #define
+ * below (or build motmod with -DMILLTASK_PARITY_TRACE) to enable for a parity
+ * run, then rebuild.  Off by default => the trace is entirely absent.
  * ================================================================ */
+// #define MILLTASK_PARITY_TRACE
+#ifdef MILLTASK_PARITY_TRACE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -448,6 +456,10 @@ static void motcmd_trace(const emcmot_command_t *cmd)
 #undef P9
 #undef PF
 }
+#else
+/* Production build: the parity trace compiles to nothing. */
+static inline void motcmd_trace(const emcmot_command_t *cmd) { (void)cmd; }
+#endif /* MILLTASK_PARITY_TRACE */
 
 void emcmotCommandHandler_locked(void *arg, long servo_period)
 {
