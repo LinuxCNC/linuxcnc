@@ -155,7 +155,7 @@ func (m *monitor) checkEstop() {
 	_ = m.task.motion.Disable()
 
 	// Abort IO
-	_ = m.task.io.IoAbort(1) // EMC_ABORT_AUX_ESTOP
+	_ = m.task.io.IoAbort(emcAbortAuxEstop)
 
 	// Stop all spindles
 	for i := 0; i < numSpindles; i++ {
@@ -230,7 +230,7 @@ func (m *monitor) checkMotionEnabled() {
 	m.task.AbortSequencer()
 	m.task.mcodeAbort()
 	_ = m.task.motion.Abort()
-	_ = m.task.io.IoAbort(2) // EMC_ABORT_TASK_STATE_NOT_ON
+	_ = m.task.io.IoAbort(emcAbortTaskStateNotOn)
 
 	for i := 0; i < numSpindles; i++ {
 		_ = m.task.motion.SpindleOff(int32(i))
@@ -320,7 +320,7 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 	m.task.AbortSequencer()
 	m.task.mcodeAbort()
 	_ = m.task.motion.Abort()
-	_ = m.task.io.IoAbort(2) // EMC_ABORT_MOTION_OR_IO_RCS_ERROR
+	_ = m.task.io.IoAbort(emcAbortMotionOrIoRcsError)
 
 	// Stop spindles.
 	for i := 0; i < numSpindles; i++ {

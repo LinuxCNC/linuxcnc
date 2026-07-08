@@ -43,6 +43,43 @@ const (
 	SpindleDecrease int32 = -2
 )
 
+// IO abort reason codes (EMC_IO_ABORT_REASON_ENUM, iocontrol_stat.h).
+const (
+	emcAbortAuxEstop           int32 = 2 // EMC_ABORT_AUX_ESTOP
+	emcAbortMotionOrIoRcsError int32 = 3 // EMC_ABORT_MOTION_OR_IO_RCS_ERROR
+	emcAbortTaskStateOff       int32 = 4 // EMC_ABORT_TASK_STATE_OFF
+	emcAbortTaskStateNotOn     int32 = 7 // EMC_ABORT_TASK_STATE_NOT_ON
+	emcAbortTaskAbort          int32 = 8 // EMC_ABORT_TASK_ABORT
+)
+
+// machineShutdown performs the full machine teardown shared by ESTOP and
+// STATE_OFF: abort the sequencer/mcode/motion, disable motion, stop all
+// spindles, coolant and lube, abort IO, unhome volatile-home joints, and reset
+// the interpreter. Mirrors C++ emcTaskSetState(OFF/ESTOP). Must be called
+// WITHOUT t.mu held. ioReason is the EMC_ABORT_* code passed to io.IoAbort.
+func (t *Task) machineShutdown(numSpindles int, ioReason int32) {
+	t.AbortSequencer()
+	t.mcodeAbort()
+	_ = t.motion.Abort()
+	_ = t.motion.Disable()
+	for i := 0; i < numSpindles; i++ {
+		_ = t.motion.SpindleOff(int32(i))
+	}
+	_ = t.io.CoolantFloodOff()
+	_ = t.io.CoolantMistOff()
+	_ = t.io.LubeOff()
+	_ = t.io.IoAbort(ioReason)
+	_ = t.motion.JointUnhome(-2) // unhome only volatile-home joints
+	if t.interp != nil {
+		_ = t.interp.Abort(0, "machine off")
+		_ = t.interp.Close()
+		_ = t.interp.Reset()
+		t.canon.syncEndPointFromMachine()
+		_ = t.interp.Synch()
+	}
+	t.StartSequencer()
+}
+
 // SetState handles state transitions: estop, estop_reset, off, on.
 func (t *Task) SetState(state int32) error {
 	t.mu.Lock()
@@ -62,36 +99,17 @@ func (t *Task) SetState(state int32) error {
 		t.mu.Unlock()
 
 		if wasOn {
-			// Full shutdown: abort sequencer, motion, IO, spindles, coolant.
-			t.AbortSequencer()
-			t.mcodeAbort()
-			_ = t.motion.Abort()
-			_ = t.motion.Disable()
-			_ = t.io.IoAbort(1) // EMC_ABORT_AUX_ESTOP
-			for i := 0; i < numSpindles; i++ {
-				_ = t.motion.SpindleOff(int32(i))
-			}
-			_ = t.io.CoolantFloodOff()
-			_ = t.io.CoolantMistOff()
-			// Unhome volatile joints.
-			_ = t.motion.JointUnhome(-2)
-			// Reset interpreter.
-			if t.interp != nil {
-				_ = t.interp.Abort(0, "estop")
-				_ = t.interp.Close()
-				_ = t.interp.Reset()
-				t.canon.syncEndPointFromMachine()
-				_ = t.interp.Synch()
-			}
-			t.StartSequencer()
+			t.machineShutdown(numSpindles, emcAbortAuxEstop)
 		} else {
 			_ = t.motion.Disable()
+			_ = t.io.LubeOff()
 		}
 		_ = t.io.EstopOn()
 
 		t.mu.Lock()
 		t.floodOn = false
 		t.mistOn = false
+		t.lubeOn = false
 		t.mu.Unlock()
 		return nil
 
@@ -109,6 +127,10 @@ func (t *Task) SetState(state int32) error {
 		// confirms it, matching 2.9's determineState() behavior.
 		t.mu.Unlock()
 		_ = t.io.EstopOff()
+		_ = t.io.LubeOff() // C++ emcTaskSetState(ESTOP_RESET) turns lube off
+		t.mu.Lock()
+		t.lubeOn = false
+		t.mu.Unlock()
 
 		// Check if IO confirms estop cleared (immediate HAL loopback case).
 		// If IO status is not available, trust that the monitor will handle it.
@@ -126,13 +148,33 @@ func (t *Task) SetState(state int32) error {
 			t.mu.Unlock()
 			return err
 		}
-		// C milltask has no explicit OFF state — determineState() returns
-		// ESTOP_RESET when traj is disabled and not in estop. Match that
-		// behavior so Axis's on/off toggle works (it only transitions
-		// from ESTOP_RESET → ON).
+		wasOn := t.state == StateOn
+		numSpindles := t.numSpindles
+		// Report ESTOP_RESET: the C milltask has no distinct OFF state —
+		// determineState()/the monitor return ESTOP_RESET when traj is
+		// disabled and not in estop, and Axis toggles ESTOP_RESET ↔ ON.
 		t.state = StateEstopReset
+		t.interpState = InterpIdle
+		t.execState = ExecDone
+		t.mdiQueue = t.mdiQueue[:0]
+		t.stepping = false
 		t.mu.Unlock()
-		_ = t.motion.Disable()
+
+		// Full safe shutdown (matches C++ emcTaskSetState(OFF)) — previously
+		// this only did motion.Disable(), leaving spindles/coolant/lube on and
+		// volatile-home joints homed.
+		if wasOn {
+			t.machineShutdown(numSpindles, emcAbortTaskStateOff)
+		} else {
+			_ = t.motion.Disable()
+			_ = t.io.LubeOff()
+		}
+
+		t.mu.Lock()
+		t.floodOn = false
+		t.mistOn = false
+		t.lubeOn = false
+		t.mu.Unlock()
 		return nil
 
 	case StateOn:
@@ -154,8 +196,10 @@ func (t *Task) SetState(state int32) error {
 		for s := int32(0); s < int32(t.numSpindles); s++ {
 			_ = t.motion.SpindleScaleEnable(s, 1)
 		}
+		_ = t.io.LubeOn() // C++ emcTaskSetState(ON) turns lube on
 		t.mu.Lock()
 		t.state = StateOn
+		t.lubeOn = true
 		// Clear any lingering error state from a previous fault so the
 		// machine can accept commands again after off/on recovery.
 		if t.execState == ExecError {
@@ -1033,7 +1077,7 @@ func (t *Task) abortLocked() {
 	t.AbortSequencer()
 	t.mcodeAbort()
 	_ = t.motion.Abort()
-	_ = t.io.IoAbort(0)
+	_ = t.io.IoAbort(emcAbortTaskAbort)
 	for i := 0; i < numSpindles; i++ {
 		_ = t.motion.SpindleOff(int32(i))
 	}
