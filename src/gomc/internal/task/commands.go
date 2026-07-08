@@ -971,11 +971,11 @@ func (t *Task) Unhome(joint int32) error {
 	return t.motion.JointUnhome(joint)
 }
 
-// OverrideLimits temporarily overrides soft limits for homing.
 // OverrideLimits overrides tripped soft limits for a joint so it can be jogged
 // off the limit. joint < 0 resumes normal limit checking (mirrors C++
-// emcJointOverrideLimits / EMCMOT_OVERRIDE_LIMITS). Manual-mode only, matching
-// C++ (EMC_JOINT_OVERRIDE_LIMITS is issued only when task.mode == MANUAL).
+// emcJointOverrideLimits / EMCMOT_OVERRIDE_LIMITS). It is a manual operation, so
+// milltask switches to manual mode for the caller (gomc's auto-mode-switch
+// model) rather than rejecting a non-manual caller.
 func (t *Task) OverrideLimits(joint int32) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -983,8 +983,11 @@ func (t *Task) OverrideLimits(joint int32) error {
 	if err := t.requireOn(); err != nil {
 		return err
 	}
-	if t.mode != ModeManual {
-		return fmt.Errorf("cannot override limits: not in manual mode")
+	// Switch to manual rather than rejecting (mirrors Home). ensureMode still
+	// refuses while a program/MDI is running or homing, so we never override
+	// limits mid-run.
+	if err := t.ensureMode(ModeManual); err != nil {
+		return err
 	}
 	return t.motion.OverrideLimits(joint)
 }
