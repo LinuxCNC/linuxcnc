@@ -137,6 +137,8 @@ type StatTaskInfo {
     g5x_index: i32
     program_units: i32      # 1=inch, 2=mm, 3=cm (canon length units)
     delay_left: f64         # seconds remaining in a G4 dwell
+    call_level: i32         # interpreter subroutine nesting (0 = top level)
+    input_timeout: i32      # M66 wait: 0=none/cleared, 1=timed out, 2=waiting
 }
 
 type StatMotionInfo {
@@ -198,6 +200,7 @@ type StatFull {
     jog_speed: f64          # linear jog speed (units/sec)
     ajog_speed: f64         # angular jog speed (deg/sec)
     preview_seq: i32        # increments on any change that invalidates preview
+    heartbeat: i32          # monotonic liveness counter (increments each status build)
 }
 
 # ─── Functions ───

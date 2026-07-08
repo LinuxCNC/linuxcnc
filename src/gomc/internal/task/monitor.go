@@ -172,6 +172,7 @@ func (m *monitor) checkEstop() {
 	m.task.interpState = InterpIdle
 	m.task.execState = ExecDone
 	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
 	m.task.stepping = false
 	m.task.mu.Unlock()
 
@@ -220,6 +221,7 @@ func (m *monitor) checkMotionEnabled() {
 	m.task.interpState = InterpIdle
 	m.task.execState = ExecDone
 	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
 	m.task.stepping = false
 	numSpindles := m.task.numSpindles
 	m.task.mu.Unlock()
@@ -303,6 +305,7 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 	m.task.interpState = InterpIdle
 	m.task.execState = ExecError
 	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
 	m.task.stepping = false
 	m.task.mu.Unlock()
 

@@ -962,7 +962,10 @@ func (c *mdiDoneCmd) PostWait(t *Task) {
 		}
 		return
 	}
-	// MDI queue empty — restore mode if this was a transactional switch.
+	// MDI queue empty — clear the echoed command and restore mode if this was
+	// a transactional switch (mirrors C++ clearing task.command once the MDI
+	// input queue drains).
+	t.taskCommand = ""
 	t.restoreModeTx()
 	t.mu.Unlock()
 }

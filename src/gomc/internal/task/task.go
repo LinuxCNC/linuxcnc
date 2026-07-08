@@ -333,6 +333,11 @@ type Task struct {
 	// Current message list (independent of emcerror /errors drain queue).
 	messageList   []TaskMessage
 	nextMessageID uint64
+
+	// Status display fields (echoed to stat, mirrors C++ EMC_TASK_STAT).
+	taskCommand  string // last/executing MDI command string ("" when idle)
+	inputTimeout int32  // M66 wait: 0=none/cleared, 1=timed out, 2=waiting
+	heartbeat    int32  // monotonic liveness counter, bumped each BuildStat
 }
 
 // motionInfo is the state tag milltask keeps for each motion segment, keyed by

@@ -14,11 +14,16 @@ import (
 func (t *Task) BuildStat() *emcstat.StatFull {
 	t.mu.Lock()
 	// Refresh active G/M codes from interpreter (C milltask does this every cycle).
+	var callLevel int32
 	if t.interp != nil {
 		t.activeGcodes = t.interp.ActiveGCodes()
 		t.activeMcodes = t.interp.ActiveMCodes()
 		t.activeSettings = t.interp.ActiveSettings()
+		callLevel = int32(t.interp.CallLevel())
 	}
+	// Bump the liveness counter once per status build (mirrors NML heartbeat).
+	t.heartbeat++
+	heartbeat := t.heartbeat
 	// Grab canon state for offset reporting
 	cs := t.canon.state
 	// Remaining G4 dwell time (only meaningful while waiting for the delay).
@@ -55,6 +60,9 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 			Line:              t.currentLine,
 			ProgramUnits:      cs.lengthUnits,
 			DelayLeft:         delayLeft,
+			Command:           t.taskCommand,
+			CallLevel:         callLevel,
+			InputTimeout:      t.inputTimeout,
 		},
 		Flood:          t.floodOn,
 		Mist:           t.mistOn,
@@ -83,6 +91,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		},
 		RotationXy: cs.xyRotation,
 		PreviewSeq: t.previewSeq,
+		Heartbeat:  heartbeat,
 	}
 	numJoints := t.numJoints
 	numSpindles := t.numSpindles

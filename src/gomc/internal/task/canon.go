@@ -1289,22 +1289,34 @@ type WaitInputCmd struct {
 	Timeout   float64
 }
 
+// setInputTimeout records the M66 wait state for stat.task.input_timeout
+// (0=none/cleared, 1=timed out, 2=waiting). Called from the sequencer goroutine.
+func (t *Task) setInputTimeout(v int32) {
+	t.mu.Lock()
+	t.inputTimeout = v
+	t.mu.Unlock()
+}
+
 func (c *WaitInputCmd) Execute(t *Task) error {
 	// Drain preceding motion so the input is sampled at the commanded point.
 	if err := t.waitMotionDone(); err != nil {
 		return err
 	}
 	// Immediate read: nothing to wait for — the interpreter reads the value
-	// post-drain via the getters.
+	// post-drain via the getters. No timeout can occur (C++ input_timeout=0).
 	if c.WaitType == 0 || c.Timeout <= 0 {
+		t.setInputTimeout(0)
 		return nil
 	}
+	// Arm the timeout flag (C++ sets input_timeout=2 while waiting).
+	t.setInputTimeout(2)
 	deadline := time.Now().Add(time.Duration(c.Timeout * float64(time.Second)))
 	ticker := time.NewTicker(pollInterval)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-t.seqAbort:
+			t.setInputTimeout(0) // wait cancelled — not a timeout
 			return context.Canceled
 		case <-ticker.C:
 			if t.status == nil {
@@ -1331,11 +1343,13 @@ func (c *WaitInputCmd) Execute(t *Task) error {
 					}
 				}
 				if satisfied {
+					t.setInputTimeout(0) // condition met before timeout
 					return nil
 				}
 			}
 			if time.Now().After(deadline) {
-				return nil // timeout — interpreter reads the current input value
+				t.setInputTimeout(1)  // timeout occurred (C++ input_timeout=1)
+				return nil // interpreter reads the current input value
 			}
 		}
 	}

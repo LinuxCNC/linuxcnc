@@ -148,6 +148,12 @@ func (i *CInterp) SequenceNumber() int {
 	return int(C.interp_sequence_number(i.handle))
 }
 
+// CallLevel returns the interpreter's current subroutine nesting level
+// (0 = top level, > 0 = inside a subroutine/remap).
+func (i *CInterp) CallLevel() int {
+	return int(C.interp_call_level(i.handle))
+}
+
 func (i *CInterp) ErrorText(errcode int) string {
 	var buf [256]C.char
 	p := C.interp_error_text(i.handle, C.int(errcode), &buf[0], 256)

@@ -99,6 +99,7 @@ func (t *Task) SetState(state int32) error {
 		t.interpState = InterpIdle
 		t.execState = ExecDone
 		t.mdiQueue = t.mdiQueue[:0]
+		t.taskCommand = ""
 		t.stepping = false
 		t.programOpen = false
 		t.programFile = ""
@@ -163,6 +164,7 @@ func (t *Task) SetState(state int32) error {
 		t.interpState = InterpIdle
 		t.execState = ExecDone
 		t.mdiQueue = t.mdiQueue[:0]
+		t.taskCommand = ""
 		t.stepping = false
 		t.mu.Unlock()
 
@@ -520,6 +522,9 @@ func (t *Task) MDI(command string) error {
 // executeMDI runs a single MDI command through the interpreter.
 // Must be called with mu NOT held and interpState == InterpIdle.
 func (t *Task) executeMDI(command string) error {
+	t.mu.Lock()
+	t.taskCommand = command // echoed to stat.task.command (C++ EMC_TASK_PLAN_EXECUTE)
+	t.mu.Unlock()
 	t.setInterpState(InterpReading)
 
 	interp := t.interp
