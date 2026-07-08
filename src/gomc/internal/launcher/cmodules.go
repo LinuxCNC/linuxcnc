@@ -20,6 +20,7 @@ package launcher
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "gomc_env.h"
 #include "hal.h"
 #include "rtapi.h"
@@ -222,8 +223,12 @@ static void gomc_api_init_struct(gomc_api_t *api) {
     api->record_consumer  = (void(*)(void*,const char*,const char*,const char*))gomc_record_consumer_cb;
 }
 
-static cmod_env_t *gomc_env_create(gomc_log_ring_t *ring, void *log_ctx,
-                                   void *ini_ctx, void *dl_handle) {
+// log_ctx/ini_ctx are cgo.Handles (opaque integers) passed as uintptr_t rather
+// than void* so the Go side never converts a uintptr to unsafe.Pointer (bad
+// pointer arithmetic under -d=checkptr / -race); cast into the void* ctx fields
+// via gomc_log_init/gomc_ini_init below.
+static cmod_env_t *gomc_env_create(gomc_log_ring_t *ring, uintptr_t log_ctx,
+                                   uintptr_t ini_ctx, void *dl_handle) {
     cmod_env_t *env = (cmod_env_t *)calloc(1, sizeof(cmod_env_t));
     if (!env) return NULL;
 
@@ -238,8 +243,8 @@ static cmod_env_t *gomc_env_create(gomc_log_ring_t *ring, void *log_ctx,
         return NULL;
     }
 
-    gomc_log_init(log, ring, log_ctx);
-    gomc_ini_init(ini, ini_ctx);
+    gomc_log_init(log, ring, (void *)log_ctx);
+    gomc_ini_init(ini, (void *)ini_ctx);
     gomc_hal_init_struct(hal);
     gomc_rtapi_init_struct(rtapi);
     gomc_api_init_struct(api);
@@ -369,9 +374,12 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 		name:   name,
 	}
 
+	// Pass the handle as an integer (C.uintptr_t), not unsafe.Pointer(uintptr(hCtx)):
+	// a cgo.Handle is a uintptr and uintptr->unsafe.Pointer is bad pointer
+	// arithmetic under -d=checkptr (enabled by -race).
 	hCtx := cgo.NewHandle(l)
-	ctxPtr := unsafe.Pointer(uintptr(hCtx))
-	env := C.gomc_env_create(l.logRing.ring, ctxPtr, ctxPtr, handle)
+	cCtx := C.uintptr_t(hCtx)
+	env := C.gomc_env_create(l.logRing.ring, cCtx, cCtx, handle)
 	if env == nil {
 		C.dlclose(handle)
 		return fmt.Errorf("load C plugin %q: failed to allocate cmod_env_t", path)

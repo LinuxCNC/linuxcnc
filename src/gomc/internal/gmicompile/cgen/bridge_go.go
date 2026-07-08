@@ -72,6 +72,7 @@ func (g *bridgeGoGen) emitPreamble() {
 	g.printf("#include \"%s_api.h\"\n", g.api.Name)
 	g.printf("#include <stdlib.h>\n")
 	g.printf("#include <string.h>\n")
+	g.printf("#include <stdint.h>\n")
 
 	// Emit extern declarations for //export trampoline functions.
 	// Without these, cgo cannot resolve the function pointer references
@@ -89,9 +90,13 @@ func (g *bridgeGoGen) emitPreamble() {
 
 	// Emit a static C helper that builds the callbacks struct.
 	// This avoids cgo type-system issues with function pointer assignments.
-	g.printf("\nstatic %s_callbacks_t *_bridge_build_%s_callbacks(void *ctx) {\n", apiName, apiName)
+	// ctx is a cgo.Handle (an opaque integer), passed as uintptr_t rather than
+	// void* so the Go side never converts a uintptr to unsafe.Pointer (which
+	// -race/-d=checkptr flags as bad pointer arithmetic). We cast it into the
+	// void* ctx field here; the trampolines/Free recover it via cgo.Handle().
+	g.printf("\nstatic %s_callbacks_t *_bridge_build_%s_callbacks(uintptr_t ctx) {\n", apiName, apiName)
 	g.printf("\t%s_callbacks_t *cbs = calloc(1, sizeof(%s_callbacks_t));\n", apiName, apiName)
-	g.printf("\tcbs->ctx = ctx;\n")
+	g.printf("\tcbs->ctx = (void *)ctx;\n")
 	for _, fn := range g.api.Funcs {
 		if fn.Publish {
 			continue
@@ -168,7 +173,10 @@ func (g *bridgeGoGen) emitBuildCallbacks() {
 	g.printf("// The returned pointer must be freed with Free%sCallbacks when done.\n", apiPascal)
 	g.printf("func %s(impl %s) unsafe.Pointer {\n", funcName, ifaceName)
 	g.printf("\th := cgo.NewHandle(impl)\n")
-	g.printf("\tcbs := C._bridge_build_%s_callbacks(unsafe.Pointer(h))\n", apiName)
+	// Pass the handle as an integer (C.uintptr_t), not unsafe.Pointer(h): a
+	// cgo.Handle is a uintptr, and uintptr->unsafe.Pointer is bad pointer
+	// arithmetic under -d=checkptr (enabled by -race).
+	g.printf("\tcbs := C._bridge_build_%s_callbacks(C.uintptr_t(h))\n", apiName)
 	g.printf("\treturn unsafe.Pointer(cbs)\n")
 	g.printf("}\n\n")
 

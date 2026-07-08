@@ -10,6 +10,7 @@ package task
 #include "interp_shim.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 // Forward declarations for the Go-exported callbacks.
 // cgo does not emit const qualifiers, so we declare without const here
@@ -17,10 +18,13 @@ package task
 extern char* goIniAccessorGet(void *ctx, char *section, char *key);
 extern char* goIniAccessorGetNth(void *ctx, char *section, char *key, int n);
 
-// Build the accessor struct with Go-implemented callbacks.
-static inline interp_ini_accessor_t make_ini_accessor(void *ctx) {
+// Build the accessor struct with Go-implemented callbacks. ctx is a cgo.Handle
+// (an opaque integer) passed as uintptr_t, not void*, so the Go side never
+// converts a uintptr to unsafe.Pointer (bad pointer arithmetic under
+// -d=checkptr / -race); we cast it into the void* ctx field here.
+static inline interp_ini_accessor_t make_ini_accessor(uintptr_t ctx) {
     interp_ini_accessor_t acc;
-    acc.ctx = ctx;
+    acc.ctx = (void *)ctx;
     acc.get = (const char* (*)(void*, const char*, const char*))goIniAccessorGet;
     acc.get_nth = (const char* (*)(void*, const char*, const char*, int))goIniAccessorGetNth;
     return acc;
@@ -74,7 +78,10 @@ func (h *iniAccessorHandle) returnStr(s string) *C.char {
 func newIniAccessor(ini *inifile.IniFile) (C.interp_ini_accessor_t, cgo.Handle) {
 	h := &iniAccessorHandle{ini: ini}
 	handle := cgo.NewHandle(h)
-	acc := C.make_ini_accessor(unsafe.Pointer(uintptr(handle)))
+	// Pass the handle as an integer, not unsafe.Pointer(uintptr(handle)): a
+	// cgo.Handle is a uintptr and uintptr->unsafe.Pointer is bad pointer
+	// arithmetic under -d=checkptr (enabled by -race).
+	acc := C.make_ini_accessor(C.uintptr_t(handle))
 	return acc, handle
 }
 
