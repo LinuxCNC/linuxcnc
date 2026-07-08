@@ -1494,6 +1494,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        if (!inst->homing_active) {
 	            inst->sequence_state = HOME_SEQUENCE_START;
 	        }
+	    } else if (joint_num >= ALL_JOINTS) {
+	        /* Reject an out-of-range joint before dereferencing the (NULL) joint
+	           pointer (`joint` is only set for joint_num < ALL_JOINTS). */
+	        gomc_log_errorf(inst->log, inst->name,
+	            _("Cannot home invalid joint %d (max %d)"), joint_num, ALL_JOINTS - 1);
 	    } else {
 	        /* home one joint: apply rules for negative home_sequence */
 	        if (joint->home_sequence < 0) {
@@ -1557,6 +1562,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                         h->set_unhomed(h->ctx, (home_motion_state_t)inst->status->motion_state);
                         unhomed_any = 1;
                     }
+                } else if (joint_num >= ALL_JOINTS) {
+                    /* Reject an out-of-range joint before dereferencing the (NULL)
+                       joint pointer — `joint` is only set for joint_num < ALL_JOINTS
+                       (see above). Mirrors 2.9 base_set_unhomed's bounds check;
+                       without it a non-cooperating client crashes motmod. */
+                    gomc_log_errorf(inst->log, inst->name,
+                        _("Cannot unhome invalid joint %d (max %d)"), joint_num, ALL_JOINTS - 1);
                 } else {
                     /* Single joint: guard against unhoming extra-joints while enabled. */
                     if (IS_EXTRA_JOINT(joint_num) &&
