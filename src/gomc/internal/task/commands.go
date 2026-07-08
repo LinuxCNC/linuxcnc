@@ -864,19 +864,45 @@ func (t *Task) Spindle(cmd int32, speed float64, spindleNum, wait int32) error {
 		return err
 	}
 
+	// The program owns the spindle while it is running: reject manual on/off
+	// from a UI/halui during an AUTO run, matching C++ (only spindle-override
+	// increase/decrease/constant are accepted while READING). Manual control is
+	// allowed when idle or paused.
 	switch cmd {
 	case SpindleForward:
+		if t.interpRunning() {
+			return t.spindleRunErr()
+		}
 		return t.motion.SpindleOn(spindleNum, speed, 0, 0, wait)
 	case SpindleReverse:
+		if t.interpRunning() {
+			return t.spindleRunErr()
+		}
 		return t.motion.SpindleOn(spindleNum, -speed, 0, 0, wait)
 	case SpindleOff:
+		if t.interpRunning() {
+			return t.spindleRunErr()
+		}
 		return t.motion.SpindleOff(spindleNum)
 	case SpindleIncrease:
-		return t.motion.SpindleIncrease(spindleNum)
+		return t.motion.SpindleIncrease(spindleNum) // override, allowed while running
 	case SpindleDecrease:
-		return t.motion.SpindleDecrease(spindleNum)
+		return t.motion.SpindleDecrease(spindleNum) // override, allowed while running
 	}
 	return nil
+}
+
+// interpRunning reports whether an AUTO program is actively executing — not
+// idle and not paused — i.e. the interpreter owns the machine. Must be called
+// with t.mu held.
+func (t *Task) interpRunning() bool {
+	return t.mode == ModeAuto && t.interpState != InterpIdle && t.interpState != InterpPaused
+}
+
+// spindleRunErr rejects a manual spindle/brake command issued during a run.
+func (t *Task) spindleRunErr() error {
+	t.operatorError("Can't control the spindle manually while a program is running")
+	return ErrBusy
 }
 
 // Home initiates homing for the specified joint.
@@ -1004,6 +1030,9 @@ func (t *Task) Brake(on bool, spindleNum int32) error {
 
 	if err := t.requireOn(); err != nil {
 		return err
+	}
+	if t.interpRunning() {
+		return t.spindleRunErr() // program owns the spindle while running
 	}
 	if on {
 		return t.motion.SpindleBrakeEngage(spindleNum)
