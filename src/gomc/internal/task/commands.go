@@ -295,7 +295,7 @@ func (t *Task) ProgramOpen(file string) error {
 	// mode, but NOT while a program is running/paused: closing and reopening
 	// t.interp here would race the runProgram goroutine's use of it. C++
 	// likewise rejects PROGRAM_OPEN in the READING/PAUSED/WAITING states.
-	if t.interpState != InterpIdle || t.interpActive {
+	if t.programBusy() {
 		t.operatorError("Can't open a program while one is running")
 		return ErrBusy
 	}
@@ -913,6 +913,16 @@ func (t *Task) interpRunning() bool {
 	return t.mode == ModeAuto && t.interpState != InterpIdle && t.interpState != InterpPaused
 }
 
+// programBusy reports whether a program or MDI command is loaded and mid-run
+// (executing or paused) — i.e. the interpreter/sequencer owns the machine.
+// Unlike interpRunning it also covers MDI execution and the paused state, so it
+// is the right guard for operations that would corrupt an in-flight run. Stays
+// false when idle/estop/off/manual, so it does not re-break the any-state
+// operations (e.g. unhome in estop). Must be called with t.mu held.
+func (t *Task) programBusy() bool {
+	return t.interpState != InterpIdle || t.interpActive
+}
+
 // spindleRunErr rejects a manual spindle/brake command issued during a run.
 func (t *Task) spindleRunErr() error {
 	t.operatorError("Can't control the spindle manually while a program is running")
@@ -941,11 +951,23 @@ func (t *Task) Home(joint int32) error {
 
 // Unhome un-homes the specified joint.
 func (t *Task) Unhome(joint int32) error {
-	// Unhoming is allowed in ANY state (including ESTOP and OFF) and any mode,
-	// matching C++ which accepts EMC_JOINT_UNHOME everywhere — you often need to
-	// clear a homed joint precisely when the machine is in estop. Motion clears
-	// the homed flag and forces FREE mode internally, so no requireOn / mode
-	// switch is needed (and requireOn would wrongly reject it in estop/off).
+	// Rejected only while a program or MDI command is mid-run (or paused):
+	// clearing a joint's home reference while the interpreter is driving motion
+	// would corrupt the run (and, mid-motion, the position reference). Motion's
+	// per-joint guard only catches free-mode jog/homing, not coordinated moves,
+	// so this guard belongs here.
+	t.mu.Lock()
+	busy := t.programBusy()
+	t.mu.Unlock()
+	if busy {
+		t.operatorError("Can't unhome while a program is running")
+		return ErrBusy
+	}
+	// Otherwise unhoming is allowed in ANY state (including ESTOP and OFF) and
+	// any mode, matching C++ which accepts EMC_JOINT_UNHOME broadly — you often
+	// need to clear a homed joint precisely when the machine is in estop. Motion
+	// clears the homed flag and forces FREE mode internally, so no requireOn /
+	// mode switch is needed (and requireOn would wrongly reject it in estop/off).
 	return t.motion.JointUnhome(joint)
 }
 
