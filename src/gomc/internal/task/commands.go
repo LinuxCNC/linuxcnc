@@ -34,13 +34,18 @@ const (
 	JogIncrement  int32 = 2
 )
 
-// SpindleCmd constants.
+// SpindleCmd constants. Values MUST match the emccmd SpindleCmd wire enum
+// (generated/gmi/emccmd) — the GMI provider forwards the raw wire value, and
+// halui calls these by name, so both paths go through the same numbering.
+// Increase/Decrease previously used 2/-2 and never matched the wire enum's
+// 10/11, so spindle +/- override was a silent no-op from GMI/WebSocket clients.
 const (
 	SpindleOff      int32 = 0
 	SpindleForward  int32 = 1
 	SpindleReverse  int32 = -1
-	SpindleIncrease int32 = 2
-	SpindleDecrease int32 = -2
+	SpindleIncrease int32 = 10
+	SpindleDecrease int32 = 11
+	SpindleConstant int32 = 12
 )
 
 // IO abort reason codes (EMC_IO_ABORT_REASON_ENUM, iocontrol_stat.h).
@@ -242,7 +247,13 @@ func (t *Task) SetMode(mode int32) error {
 			t.abortLocked() // unlocks/re-locks internally for I/O
 		}
 		t.mode = ModeManual
+		homed := t.allHomed()
 		t.mu.Unlock()
+		// A fully-homed machine defaults to teleop (axis) jog in manual, like
+		// C++ emcTaskSetMode(MANUAL); otherwise free (joint) mode.
+		if homed {
+			return t.motion.SetTeleop()
+		}
 		return t.motion.SetFree()
 	case ModeMDI:
 		if t.mode != ModeMDI {
@@ -278,8 +289,14 @@ func (t *Task) ProgramOpen(file string) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	// No state/mode guards — the C milltask allows program-open in any
-	// state (including ESTOP) and any mode. It's just loading a file.
+	// Opening a file is allowed in any machine state (incl. ESTOP) and any
+	// mode, but NOT while a program is running/paused: closing and reopening
+	// t.interp here would race the runProgram goroutine's use of it. C++
+	// likewise rejects PROGRAM_OPEN in the READING/PAUSED/WAITING states.
+	if t.interpState != InterpIdle || t.interpActive {
+		t.operatorError("Can't open a program while one is running")
+		return ErrBusy
+	}
 	if t.interp != nil {
 		// Close any previously open file before opening a new one.
 		_ = t.interp.Close()
