@@ -286,3 +286,42 @@ func TestBlendIntegration_Lines_ViaInterpreter(t *testing.T) {
 	checkMove(t, m[5], "line", 30, 15, -10, 25, 28, 420, "XYZ Z-dominated")
 	checkMove(t, m[6], "line", 30, 15, 5, 8, 8, 120, "Z-only traverse")
 }
+
+// arcsNGC is the arc program whose emitted motion the C milltask captured in
+// logs/old/arcs.log. Arc centers use the default incremental (G91.1) I/J: each
+// is relative to the arc's start point. Radii were verified start==end.
+const arcsNGC = `G21 G90 G94 G17
+G0 X0 Y0 Z5
+G1 Z0 F400
+G2 X20 Y0 I10 J0 F800
+G3 X0 Y0 I-10 J0
+G2 X2 Y0 I1 J0
+G2 X0 Y0 Z-5 I-1 J0
+G0 Z5
+M2
+`
+
+// Same arc centripetal-limiting assertions as TestBlendIntegration_Arcs, but
+// driven through the REAL interpreter. The expected vel/ini_maxvel/acc match the
+// C milltask oracle exactly (logs/old/arcs.log SET_CIRCLE/SET_LINE block):
+//
+//	SET_LINE   [0,0,5]  vel=8          ini=8          acc=120
+//	SET_LINE   [0,0,0]  vel=6.66666667 ini=8          acc=120
+//	SET_CIRCLE [20,0,0] vel=13.3333333 ini=25         acc=400
+//	SET_CIRCLE [0,0,0]  vel=13.3333333 ini=25         acc=400
+//	SET_CIRCLE [2,0,0]  vel=13.3333333 ini=18.6120972 acc=400
+//	SET_CIRCLE [0,0,-5] vel=9.4480785  ini=9.4480785  acc=141.721177
+//	SET_LINE   [0,0,5]  vel=8          ini=8          acc=120
+func TestBlendIntegration_Arcs_ViaInterpreter(t *testing.T) {
+	m := runNGCViaInterp(t, arcsNGC)
+	if len(m) != 7 {
+		t.Fatalf("expected 7 moves, got %d: %+v", len(m), m)
+	}
+	checkMove(t, m[0], "line", 0, 0, 5, 8, 8, 120, "Z-only traverse")
+	checkMove(t, m[1], "line", 0, 0, 0, 6.6666667, 8, 120, "Z-only feed: F400=6.667 < Z blend 8")
+	checkMove(t, m[2], "circle", 20, 0, 0, 13.3333333, 25, 400, "r=10 arc: feed 13.333 < arc blend 25")
+	checkMove(t, m[3], "circle", 0, 0, 0, 13.3333333, 25, 400, "r=10 arc back")
+	checkMove(t, m[4], "circle", 2, 0, 0, 13.3333333, 18.6120972, 400, "r=1 arc: centripetal caps ini_maxvel at 18.612")
+	checkMove(t, m[5], "circle", 0, 0, -5, 9.4480785, 9.4480785, 141.721177, "helical r=1: Z coupling caps vel/acc lower still")
+	checkMove(t, m[6], "line", 0, 0, 5, 8, 8, 120, "Z-only traverse")
+}
