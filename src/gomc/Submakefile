@@ -273,6 +273,21 @@ TARGETS += ../bin/ethercat
 test-gomc:
 	$(Q)cd gomc && $(GO) test ./...
 
+# Run the Go unit tests. CGO_LDFLAGS adds -Wl,-rpath so the test binaries find
+# librs274.so / libposemath.so at run time without LD_LIBRARY_PATH (same reason
+# as the gomc-server recipe). GOMC_TEST_PKGS defaults to the packages whose
+# tests currently link+run; override on the command line to widen the scope,
+# e.g. make gomc-test GOMC_TEST_PKGS=./...
+GOMC_TEST_PKGS ?= ./internal/task/...
+.PHONY: gomc-test
+gomc-test:
+	$(Q)cd gomc && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR) -Wl,--disable-new-dtags" GOFLAGS=-mod=mod $(GO) test -count=1 $(GOMC_TEST_PKGS)
+
+# Same as gomc-test but with the race detector (concurrency regression guard).
+.PHONY: gomc-test-race
+gomc-test-race:
+	$(Q)cd gomc && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR) -Wl,--disable-new-dtags" GOFLAGS=-mod=mod $(GO) test -count=1 -race $(GOMC_TEST_PKGS)
+
 # Clean
 clean: gomc-clean
 .PHONY: gomc-clean
