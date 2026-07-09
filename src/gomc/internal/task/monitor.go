@@ -173,7 +173,19 @@ func (m *monitor) checkEstop() {
 	}
 	wasEnabled := m.task.state == StateOn
 	numSpindles := m.task.numSpindles
+	// Commit the ENTIRE observable transition in this one hold, like the
+	// sibling setState(ESTOP) path — a reader must never see state=Estop
+	// with interpState still Reading and a populated MDI queue. (The values
+	// are provisional against a still-draining sequencer; the authoritative
+	// re-commit happens after the StartSequencer join below.)
 	m.task.state = StateEstop
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecDone
+	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
+	m.task.stepping = false
+	m.task.floodOn = false
+	m.task.mistOn = false
 	m.task.mu.Unlock()
 
 	// Set user-enable-out=0 to match the detected state.
@@ -219,16 +231,6 @@ func (m *monitor) checkEstop() {
 	// race a command that owns the interpreter (e.g. an MDI in ExecuteString).
 	m.task.cmdMu.Lock()
 
-	m.task.mu.Lock()
-	m.task.floodOn = false
-	m.task.mistOn = false
-	m.task.interpState = InterpIdle
-	m.task.execState = ExecDone
-	m.task.mdiQueue = m.task.mdiQueue[:0]
-	m.task.taskCommand = ""
-	m.task.stepping = false
-	m.task.mu.Unlock()
-
 	// Wait for the producer to stop touching the interpreter before reset.
 	m.task.waitRunProgramDone()
 	// Notify interpreter
@@ -242,6 +244,12 @@ func (m *monitor) checkEstop() {
 
 	// Restart sequencer for clean state
 	m.task.StartSequencer()
+
+	// Terminal state re-commit after the join (see checkMotionErrors).
+	m.task.mu.Lock()
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecDone
+	m.task.mu.Unlock()
 
 	m.task.cmdMu.Unlock()
 
@@ -314,11 +322,15 @@ func (m *monitor) checkMotionEnabled() {
 
 	m.task.StartSequencer()
 
-	// Latch ExecError AFTER the teardown: AbortSequencer makes the old
-	// sequencerLoop set ExecDone as it exits, which would clobber an error set
-	// earlier. The fresh sequencer from StartSequencer is idle, so this sticks
-	// (until cleared by the next estop-reset / off→on recovery).
-	m.task.setExecState(ExecError)
+	// Terminal state, committed atomically AFTER the StartSequencer join: the
+	// sequencer writes no state on abort-exit, but an iteration already in
+	// flight may still write wait-state transitions until it observes the
+	// abort — only after the join is there no other writer. ExecError stays
+	// latched until the next estop-reset / off→on recovery clears it.
+	m.task.mu.Lock()
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecError
+	m.task.mu.Unlock()
 }
 
 // checkMotionErrors polls motion status for errors and soft limits.
@@ -376,10 +388,9 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 	}
 	m.errorLatched = true
 	numSpindles := m.task.numSpindles
+	// Provisional commit (see checkEstop); the authoritative terminal state
+	// is re-committed after the StartSequencer join below.
 	m.task.interpState = InterpIdle
-	// ExecError is latched AFTER the teardown below (see StartSequencer): setting
-	// it here would be clobbered by AbortSequencer, whose exiting sequencerLoop
-	// sets ExecDone — same hazard handled in checkMotionEnabled.
 	m.task.mdiQueue = m.task.mdiQueue[:0]
 	m.task.taskCommand = ""
 	m.task.stepping = false
@@ -424,10 +435,13 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 	// Restart sequencer.
 	m.task.StartSequencer()
 
-	// Latch ExecError now that the old sequencer (which sets ExecDone on exit)
-	// is gone and the fresh one is idle — so the error is visible to the UI as
-	// an error-stop, not a clean ExecDone. Matches C++ EMC_TASK_EXEC_ERROR.
-	m.task.setExecState(ExecError)
+	// Terminal state, committed atomically AFTER the join (no other writer
+	// remains — see checkMotionEnabled), so the stop is visible to the UI as
+	// an error-stop. Matches C++ EMC_TASK_EXEC_ERROR.
+	m.task.mu.Lock()
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecError
+	m.task.mu.Unlock()
 }
 
 // checkJogWatchdog stops continuous jogs that haven't been refreshed

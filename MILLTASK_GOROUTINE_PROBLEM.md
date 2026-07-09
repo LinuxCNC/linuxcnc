@@ -1,6 +1,6 @@
 # milltask — Goroutine / Shared-State Concurrency Analysis
 
-**Status:** analysis complete, decision pending · **Date:** 2026-07-09 · **Scope:** `src/gomc/internal/task`
+**Status:** implemented (see *Implementation status* below) · **Date:** 2026-07-09 · **Scope:** `src/gomc/internal/task`
 
 This note summarizes an investigation into the concurrency model of the Go
 `milltask` coordinator: what the goroutine structure is, where the real race
@@ -210,3 +210,53 @@ Partial-state / ordering hazards remaining beyond the two already fixed:
    `setInterpState`/`setExecState` (brief inconsistency) and can run concurrently
    with a monitor teardown — both call `StartSequencer` and write `ExecError`
    (benign values, but a double teardown / double join).
+
+---
+
+## Implementation status (resolved 2026-07-09)
+
+The Phase-2 decision landed on a **hybrid of C-scoped and the doc's minimal
+structural fix**, plus full command-ingress serialization — not the A
+single-loop rewrite. Implemented across `task: serialize commands end-to-end`,
+`task: split halui pin dispatch out of the safety monitor loop`, and
+`task: teardown owns the terminal state` (see git history on these files).
+
+**How the two bug classes were closed:**
+
+- **Partial-state visibility** → commit-then-drain applied: every transition
+  commits its observable state in one `t.mu` hold before side-effects
+  (`checkEstop` hoisted to match `setState(ESTOP)`; `faultProgram` single-hold).
+- **Write-write ordering on the contested core** → two mechanisms:
+  1. `cmdMu` serializes all mutating command handlers end-to-end (with full
+     guard preflights before the lock, authoritative re-check inside), so
+     CMD-vs-CMD and CMD-vs-MON-cleanup ordering is by construction.
+  2. **The aborter owns the terminal state** (this doc's Appendix-3 minimal
+     fix): `sequencerLoop` writes NO `execState`/`interpState` on abort-exit;
+     every teardown path (abortLocked, machineShutdown, monitor handlers,
+     faultProgram) commits its terminal state atomically AFTER the
+     `StartSequencer` join, when no other writer remains. The sequencer keeps
+     only its normal-progress writes and its own fault terminals (where it is
+     itself the aborter). The "latch after join" pattern is thereby a
+     documented contract instead of a fragile per-path invariant.
+
+**The NEEDS-RESULT path (`executeMDI`)** stays synchronous but is serialized
+under `cmdMu` and driven off-sequencer (`finishMDI` goroutine through the
+front door), so its in-flight result no longer races anything. The
+incremental-interpreter restructure (Option A) was judged not necessary once
+the race classes were closed by ownership rules; it remains available if a
+single-loop is ever wanted for other reasons.
+
+**Appendix items:** 1 (checkEstop split commit) — fixed by hoisting; 2
+(interp/exec skew) — fixed by the atomic post-join terminal commit; 3
+(free-running `ExecDone` on abort-exit) — fixed as recommended; 4
+(faultProgram two-lock + concurrent teardown) — single-hold commit, and
+concurrent generation changes are serialized by `seqLifeMu` (double-join safe,
+both writers commit the same `ExecError`).
+
+**Beyond this doc's scope, fixed in the same series:** interpreter ownership
+(BuildStat reads caches, not the live interp; canon state published as a
+snapshot), abort-class signal-first paths (abort/estop/pause/resume/jog-stop
+bypass `cmdMu`), the monitor/halui split (safety loop can never stall behind a
+dispatched command), the queued-MDI self-deadlock, `msgMu` for the operator
+message list, and a `-race` regression suite (`concurrency_test.go`,
+`TestMonitor_EstopDetectionWhileCmdMuHeld`) pinning each failure mode.

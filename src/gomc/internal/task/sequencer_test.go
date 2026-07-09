@@ -110,11 +110,14 @@ func TestSequencer_AbortClearsQueue(t *testing.T) {
 	// Give sequencer time to start waiting
 	time.Sleep(5 * time.Millisecond)
 
-	// Abort — should cancel the wait and drain remaining
-	task.AbortSequencer()
-
-	// Wait for goroutine exit
-	<-task.seqDone
+	// Abort via the user-facing command: it signals (AbortSequencer), joins
+	// the old goroutine, and — per the aborter-owns-terminal-state contract —
+	// commits ExecDone/InterpIdle itself. The raw AbortSequencer signal alone
+	// deliberately leaves state untouched (the exiting sequencer writes no
+	// state on abort-exit).
+	if err := task.Abort(); err != nil {
+		t.Fatalf("abort: %v", err)
+	}
 
 	// The motion commands after the wait should NOT have been executed
 	if len(mot.calls) > 0 {

@@ -277,6 +277,13 @@ func (t *Task) machineShutdown(numSpindles int, ioReason int32) {
 		t.updateActiveCodes(t.interp) // republish stat caches after reset
 	}
 	t.StartSequencer()
+	// Terminal state commit — after the join implied by StartSequencer, so no
+	// exiting sequencer iteration can overwrite it (the sequencer writes no
+	// state on abort-exit; the aborter owns the terminal state).
+	t.mu.Lock()
+	t.interpState = InterpIdle
+	t.execState = ExecDone
+	t.mu.Unlock()
 }
 
 // SetState handles state transitions: estop, estop_reset, off, on.
@@ -1012,9 +1019,14 @@ func (t *Task) executeMDI(command string) error {
 func (t *Task) faultProgram(msg string) {
 	t.operatorError(msg)
 	_ = t.motion.Abort() // stop what is already moving
-	t.StartSequencer()   // aborts+drains the old sequencer, starts a fresh one
-	t.setInterpState(InterpIdle)
-	t.setExecState(ExecError) // set after StartSequencer so it is not clobbered
+	t.StartSequencer()   // aborts+joins the old sequencer, starts a fresh one
+	// Terminal state, committed atomically in one hold AFTER the join (a
+	// concurrent monitor teardown is safe: StartSequencer generations are
+	// serialized by seqLifeMu and both writers commit the same ExecError).
+	t.mu.Lock()
+	t.interpState = InterpIdle
+	t.execState = ExecError
+	t.mu.Unlock()
 }
 
 // runProgram runs the interpreter read/execute loop for the open program.
@@ -1675,6 +1687,12 @@ func (t *Task) abortLocked() {
 	t.mu.Lock()
 	t.floodOn = false
 	t.mistOn = false
+	// Terminal state re-commit: the values set at entry were provisional (a
+	// still-draining sequencer iteration may have overwritten them with a
+	// wait-state before it observed the abort). After the StartSequencer join
+	// nothing else writes, so this commit is authoritative.
+	t.interpState = InterpIdle
+	t.execState = ExecDone
 }
 
 // waitRunProgramDone blocks until the runProgram goroutine (if any) has exited,

@@ -187,7 +187,11 @@ func (t *Task) sequencerLoop() {
 
 		select {
 		case <-t.seqAbort:
-			t.setExecState(ExecDone)
+			// Externally aborted: write NO state here. The aborter owns the
+			// terminal execState/interpState and commits it after joining
+			// this goroutine (via StartSequencer) — a free-running write at
+			// exit is exactly the clobber that forced every teardown to
+			// latch its terminal state after the join.
 			return
 
 		case cmd, ok := <-t.interpQueue:
@@ -225,9 +229,7 @@ func (t *Task) sequencerLoop() {
 				switch cmd.(type) {
 				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd:
 					if err := t.waitForQueueSpace(); err != nil {
-						t.setExecState(ExecDone)
-						t.setInterpState(InterpIdle)
-						return
+						return // aborted — aborter owns the terminal state
 					}
 				}
 
@@ -236,9 +238,7 @@ func (t *Task) sequencerLoop() {
 					break
 				}
 				if errors.Is(err, context.Canceled) {
-					t.setExecState(ExecDone)
-					t.setInterpState(InterpIdle)
-					return
+					return // aborted — aborter owns the terminal state
 				}
 				switch cmd.(type) {
 				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd, *SetMotionParamsCmd:
@@ -264,9 +264,7 @@ func (t *Task) sequencerLoop() {
 						// Wait for TP to drain one slot, then retry.
 						select {
 						case <-t.seqAbort:
-							t.setExecState(ExecDone)
-							t.setInterpState(InterpIdle)
-							return
+							return // aborted — aborter owns the terminal state
 						case <-time.After(pollInterval):
 							continue
 						}
@@ -293,10 +291,9 @@ func (t *Task) sequencerLoop() {
 					// Non-motion command failed — check if it was due to abort
 					select {
 					case <-t.seqAbort:
-						// Abort was requested — command failure is expected, not an error
+						// Abort was requested — command failure is expected, not an
+						// error; the aborter owns the terminal state.
 						t.logger.Info("sequencer command aborted", "cmd", cmd.String())
-						t.setExecState(ExecDone)
-						t.setInterpState(InterpIdle)
 						return
 					default:
 					}
@@ -320,9 +317,8 @@ func (t *Task) sequencerLoop() {
 			// Wait as required
 			if err := t.waitForCompletion(cmd.Wait()); err != nil {
 				if errors.Is(err, context.Canceled) {
-					// Abort — not an error condition
+					// Abort — not an error condition; aborter owns terminal state.
 					t.logger.Info("sequencer aborted during wait", "cmd", cmd.String())
-					t.setExecState(ExecDone)
 					return
 				}
 				t.logger.Error("sequencer wait failed", "cmd", cmd.String(), "err", err)
@@ -351,8 +347,7 @@ func (t *Task) sequencerLoop() {
 			// motion to complete and then enter pause.
 			if t.isSeqStepping() && isMotionCmd(cmd) {
 				if err := t.waitMotionDone(); err != nil {
-					t.setExecState(ExecDone)
-					return
+					return // aborted — aborter owns the terminal state
 				}
 				t.seqEnterPause()
 				if t.seqCheckPause() {
@@ -414,8 +409,7 @@ func (t *Task) seqCheckPause() bool {
 
 	select {
 	case <-abort:
-		t.setExecState(ExecDone)
-		return true
+		return true // aborted — aborter owns the terminal state
 	case <-pauseCh:
 		// Paused — block until resumed or aborted
 		t.setInterpState(InterpPaused)
@@ -424,8 +418,7 @@ func (t *Task) seqCheckPause() bool {
 		t.mu.Unlock()
 		select {
 		case <-abort:
-			t.setExecState(ExecDone)
-			return true
+			return true // aborted — aborter owns the terminal state
 		case <-resumeCh:
 			t.setInterpState(InterpReading)
 			// Allocate fresh channels for next pause/resume cycle
