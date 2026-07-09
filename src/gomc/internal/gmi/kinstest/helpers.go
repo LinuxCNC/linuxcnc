@@ -347,7 +347,7 @@ func callForward(cbs *C.kins_callbacks_t, joints [16]float64) (C.kins_pose_t, in
 	}
 	var world C.kins_pose_t
 	var fflags, iflags C.uint64_t
-	out := C.call_forward(cbs.forward, nil, &cJoints[0], &world, fflags, &iflags)
+	out := C.call_forward(cbs.forward, cbs.ctx, &cJoints[0], &world, fflags, &iflags)
 	return world, int32(out)
 }
 
@@ -355,7 +355,7 @@ func callForward(cbs *C.kins_callbacks_t, joints [16]float64) (C.kins_pose_t, in
 func callInverse(cbs *C.kins_callbacks_t, world C.kins_pose_t) ([16]float64, int32) {
 	var cJoints [16]C.double
 	var iflags, fflags C.uint64_t
-	out := C.call_inverse(cbs.inverse, nil, &world, &cJoints[0], iflags, &fflags)
+	out := C.call_inverse(cbs.inverse, cbs.ctx, &world, &cJoints[0], iflags, &fflags)
 	var joints [16]float64
 	for i := 0; i < 16; i++ {
 		joints[i] = float64(cJoints[i])
@@ -365,12 +365,12 @@ func callInverse(cbs *C.kins_callbacks_t, world C.kins_pose_t) ([16]float64, int
 
 // callType retrieves the kinematics type.
 func callType(cbs *C.kins_callbacks_t) (int, int32) {
-	out := C.call_type(cbs._type, nil)
+	out := C.call_type(cbs._type, cbs.ctx)
 	return int(out), 0
 }
 
 // callSwitchable checks if kinematics are switchable.
 func callSwitchable(cbs *C.kins_callbacks_t) int32 {
-	out := C.call_switchable(cbs.switchable, nil)
+	out := C.call_switchable(cbs.switchable, cbs.ctx)
 	return int32(out)
 }
