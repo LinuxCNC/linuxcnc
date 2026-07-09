@@ -633,3 +633,40 @@ func TestMonitor_IOSoftFault_NoAbort(t *testing.T) {
 		t.Errorf("state = %v, want StateOn (soft fault must not change machine state)", gotState)
 	}
 }
+
+// TestMonitor_EstopDetectionWhileCmdMuHeld pins the safety-loop property the
+// monitor/halui split exists for: external-estop detection and its stop
+// signals must fire even while a command (or a halui-dispatched command in
+// the halui loop) holds cmdMu. Only the teardown *cleanup* is allowed to wait
+// for the lock.
+func TestMonitor_EstopDetectionWhileCmdMuHeld(t *testing.T) {
+	task, mot, io, _, _ := newMonitorTestTask()
+	task.StartSequencer()
+	defer task.StopSequencer()
+	bringUp(task)
+
+	mon := newMonitor(task, nil, nil, io)
+	mon.start()
+
+	// Wedge cmdMu, simulating a long-running command.
+	task.cmdMu.Lock()
+
+	io.setEstop(true)
+
+	// Detection + signal phase must complete without cmdMu: state flips to
+	// ESTOP and motion is aborted+disabled.
+	if !waitForCond(2*time.Second, func() bool {
+		task.mu.Lock()
+		st := task.state
+		task.mu.Unlock()
+		return st == StateEstop && mot.abortCount.Load() > 0 && mot.disableCount.Load() > 0
+	}) {
+		task.cmdMu.Unlock()
+		t.Fatal("estop signals did not fire while cmdMu was held")
+	}
+
+	// Release the "command" — the monitor's cleanup phase (interp reset,
+	// sequencer restart) can now finish and the monitor must shut down cleanly.
+	task.cmdMu.Unlock()
+	mon.stop()
+}

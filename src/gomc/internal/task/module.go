@@ -222,7 +222,9 @@ func (m *milltaskModule) Start() error {
 	// Start the sequencer goroutine (executes queued motion commands).
 	t.StartSequencer()
 
-	// Start the monitoring goroutine (estop, errors, soft limits, inihal, halui).
+	// Start the monitor: a safety loop (estop, errors, soft limits, jog
+	// watchdog, inihal) plus a separate halui pin-dispatch loop, so a
+	// blocking halui command can never stall the safety checks.
 	m.mon = newMonitor(t, mc, ih, io)
 	m.mon.halui = m.halui
 	m.mon.start()

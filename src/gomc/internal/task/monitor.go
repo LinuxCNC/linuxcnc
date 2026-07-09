@@ -23,9 +23,20 @@ type IOStatusReader interface {
 	GetIOFullStatus() (IOFullStatus, error)
 }
 
-// monitor runs a periodic loop checking for external estop, motion errors,
-// soft limits, and inihal parameter changes. This is the Go equivalent of
-// the C milltask main loop's subordinate health checks.
+// monitor runs the periodic health checks. It owns TWO goroutines:
+//
+//   - the safety loop (loop): external estop, motion-enabled, motion/IO
+//     errors, soft limits, jog watchdog, inihal parameter changes. Nothing in
+//     it dispatches commands, so its detection and signal phases can never
+//     stall behind a command holding cmdMu (teardown *cleanup* serializes on
+//     cmdMu, but only after the stop signals have fired).
+//   - the halui loop (haluiLoop): scans halui pins and dispatches the
+//     resulting commands. Dispatch is synchronous and may block on cmdMu for
+//     the duration of a running command (exactly like any other UI client) —
+//     which is why it must not share a goroutine with the safety checks.
+//
+// This is the Go equivalent of the C milltask main loop's subordinate health
+// checks, with halui (a separate process there) given back its own thread.
 type monitor struct {
 	task   *Task
 	mc     MotionConfig
@@ -34,6 +45,9 @@ type monitor struct {
 	ioStat IOStatusReader // nil if IO doesn't support status read
 	stopCh chan struct{}
 	doneCh chan struct{}
+	// haluiDoneCh is closed when the halui loop exits (nil if halui is not
+	// configured and the loop was never started).
+	haluiDoneCh chan struct{}
 
 	// Latch: suppress repeated error handling until error clears.
 	errorLatched bool
@@ -52,6 +66,10 @@ func (m *monitor) start() {
 	m.stopCh = make(chan struct{})
 	m.doneCh = make(chan struct{})
 	go m.loop()
+	if m.halui != nil {
+		m.haluiDoneCh = make(chan struct{})
+		go m.haluiLoop()
+	}
 }
 
 func (m *monitor) stop() {
@@ -60,8 +78,13 @@ func (m *monitor) stop() {
 	}
 	close(m.stopCh)
 	<-m.doneCh
+	if m.haluiDoneCh != nil {
+		<-m.haluiDoneCh
+	}
 }
 
+// loop is the safety loop: detection and stop signals only, no command
+// dispatch, so it can never wedge behind a command holding cmdMu.
 func (m *monitor) loop() {
 	defer close(m.doneCh)
 
@@ -82,10 +105,29 @@ func (m *monitor) loop() {
 			if m.inihal != nil {
 				m.inihal.check(m.mc)
 			}
-			if m.halui != nil {
-				m.halui.check(m.task)
-				m.halui.updateOutputs(m.task)
-			}
+		}
+	}
+}
+
+// haluiLoop scans halui pins and dispatches the resulting commands, then
+// mirrors task state back to the output pins. A dispatched command can block
+// on cmdMu like any UI client's would — that only delays the next pin scan,
+// never the safety loop. Note the consequence: halui's soft pins (including
+// estop-activate) are serviced with UI-command latency; the hard estop path
+// is emc-enable-in, which the safety loop's checkEstop watches independently.
+func (m *monitor) haluiLoop() {
+	defer close(m.haluiDoneCh)
+
+	ticker := time.NewTicker(monitorInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-m.stopCh:
+			return
+		case <-ticker.C:
+			m.halui.check(m.task)
+			m.halui.updateOutputs(m.task)
 		}
 	}
 }
