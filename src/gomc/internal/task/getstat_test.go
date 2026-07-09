@@ -49,12 +49,16 @@ func newRichTestTask() (*Task, *richMockStatus) {
 				{Homed: 0, Enabled: 1, PosFb: 30.1, VelCmd: 1.0, MinPosLimit: -50, MaxPosLimit: 50, OnPosLimit: 1},
 			},
 			Spindles: [8]motstat.SpindleStatus{
-				{Speed: 1000, Direction: 1, Brake: 0, Homed: 1, Scale: 1.0},
+				// State=1 => running. gomc derives Enabled from this explicit
+				// motion state field, unlike C++ which infers enabled=speed!=0.
+				{Speed: 1000, Direction: 1, State: 1, Brake: 0, Homed: 1, Scale: 1.0},
 			},
+			// Velocity (commanded teleop vel) is deliberately different from
+			// VelLimit so the stat mapping can't accidentally report the limit.
 			Axes: [9]motstat.AxisStatus{
-				{MinPosLimit: -100, MaxPosLimit: 100, VelLimit: 50},
-				{MinPosLimit: -200, MaxPosLimit: 200, VelLimit: 50},
-				{MinPosLimit: -50, MaxPosLimit: 50, VelLimit: 25},
+				{Velocity: 12.5, MinPosLimit: -100, MaxPosLimit: 100, VelLimit: 50},
+				{Velocity: 7.0, MinPosLimit: -200, MaxPosLimit: 200, VelLimit: 50},
+				{Velocity: 3.5, MinPosLimit: -50, MaxPosLimit: 50, VelLimit: 25},
 			},
 			Probe: motstat.ProbeStatus{
 				Pos: motstat.Pose{X: 5, Y: 6, Z: 7},
@@ -174,11 +178,16 @@ func TestGetStat_Joints(t *testing.T) {
 	if !j0.Enabled {
 		t.Error("Joint[0].Enabled should be true")
 	}
+	// DIVERGENCE (intentional): gomc reports the joint's real min/max position
+	// limits in the *soft-limit* fields. C++ (taskintf.cc:935-958) puts them in
+	// separate minPositionLimit/maxPositionLimit and hard-zeroes minSoftLimit/
+	// maxSoftLimit — but emcstat.JointInfo has no position-limit fields, so gomc
+	// surfaces the real limits here rather than the C++ zeros.
 	if j0.MinSoftLimit != -100 {
-		t.Errorf("Joint[0].MinSoftLimit = %f, want -100", j0.MinSoftLimit)
+		t.Errorf("Joint[0].MinSoftLimit = %f, want -100 (real pos limit)", j0.MinSoftLimit)
 	}
 	if j0.MaxSoftLimit != 100 {
-		t.Errorf("Joint[0].MaxSoftLimit = %f, want 100", j0.MaxSoftLimit)
+		t.Errorf("Joint[0].MaxSoftLimit = %f, want 100 (real pos limit)", j0.MaxSoftLimit)
 	}
 	if j0.Velocity != 5.0 {
 		t.Errorf("Joint[0].Velocity = %f, want 5.0", j0.Velocity)
@@ -222,6 +231,15 @@ func TestGetStat_Axes(t *testing.T) {
 	if ax0.MaxPositionLimit != 100 {
 		t.Errorf("Axis[0].MaxPositionLimit = %f, want 100", ax0.MaxPositionLimit)
 	}
+	// Velocity must be the commanded teleop velocity, not the static VelLimit
+	// (which is 50 here). Regression guard for the C++-parity fix.
+	if ax0.Velocity != 12.5 {
+		t.Errorf("Axis[0].Velocity = %f, want 12.5 (teleop vel, not vel_limit 50)", ax0.Velocity)
+	}
+	// Assert a second, distinct axis too, so an index/off-by-one bug can't hide.
+	if ax2 := stat.Axis[2]; ax2.Velocity != 3.5 {
+		t.Errorf("Axis[2].Velocity = %f, want 3.5", ax2.Velocity)
+	}
 }
 
 func TestGetStat_Spindle(t *testing.T) {
@@ -240,8 +258,17 @@ func TestGetStat_Spindle(t *testing.T) {
 	if sp.Direction != 1 {
 		t.Errorf("Spindle[0].Direction = %d, want 1", sp.Direction)
 	}
+	// DIVERGENCE (intentional, arguably better): Enabled comes from the explicit
+	// motion spindle State field (set by M3/M4/M5 in command.c), not the C++
+	// enabled=speed!=0 heuristic (taskintf.cc:1987).
+	if !sp.Enabled {
+		t.Error("Spindle[0].Enabled should be true (State=1)")
+	}
+	// Homed asserts the motstat->stat plumbing only: the motion module currently
+	// hard-codes spindle homed=0 (motstat_handlers.c: "spindle home status not
+	// in spindle_status_t"), so in production this field is always false today.
 	if !sp.Homed {
-		t.Error("Spindle[0].Homed should be true")
+		t.Error("Spindle[0].Homed plumbing should carry the mock value")
 	}
 }
 

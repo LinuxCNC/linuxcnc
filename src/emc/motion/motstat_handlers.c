@@ -198,6 +198,7 @@ static int32_t h_get_status(void *ctx, motstat_motion_status_t *status)
     /* Axes — pull limits from the axis module (internal, same cmod) */
     for (int i = 0; i < MOTSTAT_MAX_AXIS && i < EMCMOT_MAX_AXIS; i++) {
         motstat_axis_status_t *d = &status->axes[i];
+        d->velocity = s.axis_status[i].teleop_vel_cmd; /* commanded axis velocity */
         d->min_pos_limit = s.axis_status[i].min_pos_limit;
         d->max_pos_limit = s.axis_status[i].max_pos_limit;
         d->vel_limit = axis_get_vel_limit(mc->axis_inst, i);

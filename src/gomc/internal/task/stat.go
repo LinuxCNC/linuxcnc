@@ -227,7 +227,9 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		stat.Axis[i] = emcstat.AxisInfo{
 			MinPositionLimit: ax.MinPosLimit,
 			MaxPositionLimit: ax.MaxPosLimit,
-			Velocity:         ax.VelLimit,
+			// Commanded teleop velocity, matching C++ axis->teleop_vel_cmd
+			// (taskintf.cc:574) — NOT the static vel_limit.
+			Velocity: ax.Velocity,
 		}
 	}
 

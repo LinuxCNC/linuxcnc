@@ -96,6 +96,7 @@ type SpindleStatus {
 }
 
 type AxisStatus {
+    velocity: f64      # commanded teleop (axis) velocity — reported as axis.velocity
     min_pos_limit: f64
     max_pos_limit: f64
     vel_limit: f64
