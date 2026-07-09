@@ -438,6 +438,7 @@ class gmoccapy(object):
         self.GSTAT.connect('ok-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.ACCEPT))
         self.GSTAT.connect('cancel-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.CANCEL))
         self.GSTAT.connect('cancel-request', lambda w, state: self._del_notification())
+        self.GSTAT.connect('shutdown-request', lambda w: self.on_btn_exit_clicked(w))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
