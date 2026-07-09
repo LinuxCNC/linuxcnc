@@ -1871,6 +1871,10 @@ class CalculatorDialog(Calculator, GeometryMixin):
             if wait:
                 self._flag = True
                 while self._flag:
+                    # read any ZMQ messages
+                    # then update widgets
+                    # till we get a dialog answer
+                    STATUS.readNextMsg()
                     QApplication.processEvents()
                 return (self.display.text(), self._result)
         else:
