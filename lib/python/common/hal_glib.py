@@ -404,29 +404,39 @@ class _GStat(GObject.GObject):
                          GObject.IO_IN|GObject.IO_ERR|GObject.IO_HUP,
                          self.onReadMsg, self.readSocket)
 
-    # convert message to a function name and data
-    # then call that function
+    # called directly to process any current message
+    def readNextMsg(self):
+        event = self.readSocket.poll(timeout=0)
+        if event & zmq.POLLIN:
+            self.convertMsg()
+
+    # called when GObject notices a change
     def onReadMsg(self, queue, condition, sock):
         while self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
-            # get raw message
-            topic, data = self.readSocket.recv_multipart()
-            # convert from json object to python object
-            y = json.loads(data)
-            function = y.get('FUNCTION')
-            data = y.get('ARGS')
-            LOG.debug('REQUESTED:{}'.format(y))
-            if data == '':
-                try:
-                    self[function]()
-                except Exception as e:
-                    LOG.debug('not a valid request\n {}'.format(e))
-            else:
-                try:
-                    self[function](data)
-                except Exception as e:
-                    LOG.debug('not a valid request\n {}'.format(e))
-            #self. action(y.get('MESSAGE'),y.get('ARGS'))
+            self.convertMsg()
         return True
+
+    # convert message to a function name and data
+    # then call that function
+    def convertMsg(self):
+        # get raw message
+        topic, data = self.readSocket.recv_multipart()
+        # convert from json object to python object
+        y = json.loads(data)
+        function = y.get('FUNCTION')
+        data = y.get('ARGS')
+        LOG.debug('REQUESTED:{}'.format(y))
+        if data == '':
+            try:
+                self[function]()
+            except Exception as e:
+                LOG.debug('not a valid request\n {}'.format(e))
+        else:
+            try:
+                self[function](data)
+            except Exception as e:
+                LOG.debug('not a valid request\n {}'.format(e))
+        #self. action(y.get('MESSAGE'),y.get('ARGS'))
 
     def merge(self):
         self.old['command-state'] = self.stat.state
