@@ -34,6 +34,9 @@ type recMove struct {
 	pos                 Pose
 	vel, iniMaxvel, acc float64
 	motionType          int32
+	feed                float64   // FeedMmPerMin
+	center, normal      Cartesian // circle only
+	turn                int32     // circle only
 }
 
 // spindleRec records the full arguments of a SpindleOn/SpindleOff command.
@@ -53,12 +56,12 @@ type recordingMotion struct {
 }
 
 func (m *recordingMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, mt int32, id int32, feedUpm float64, ij int32) error {
-	m.moves = append(m.moves, recMove{"line", pos, vel, iniMaxvel, acc, mt})
+	m.moves = append(m.moves, recMove{kind: "line", pos: pos, vel: vel, iniMaxvel: iniMaxvel, acc: acc, motionType: mt, feed: feedUpm})
 	return nil
 }
 
 func (m *recordingMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, mt int32, id int32, feedUpm float64) error {
-	m.moves = append(m.moves, recMove{"circle", pos, vel, iniMaxvel, acc, mt})
+	m.moves = append(m.moves, recMove{kind: "circle", pos: pos, vel: vel, iniMaxvel: iniMaxvel, acc: acc, motionType: mt, feed: feedUpm, center: center, normal: normal, turn: turn})
 	return nil
 }
 
