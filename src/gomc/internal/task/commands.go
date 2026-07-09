@@ -14,6 +14,195 @@ func (t *Task) mcodeAbort() {
 	}
 }
 
+// --- Command preflights ------------------------------------------------
+//
+// Every cmdMu command runs its FULL guard set twice: once here, WITHOUT
+// cmdMu, so a request that cannot succeed is rejected immediately instead of
+// queueing behind whatever command currently holds the lock; and once inside
+// the serialized body, which remains the authoritative check (state may
+// change while waiting for cmdMu). A preflight can only produce a spurious
+// early rejection — indistinguishable from the command racing the state
+// change — never a wrong acceptance, so correctness lives entirely in the
+// body. Each preflight mirrors its body's guard chain (same primitives, same
+// operator messages); keep them in sync when guards change.
+
+// preflightOn rejects when the machine is not on (Flood/Mist/Lube et al.).
+func (t *Task) preflightOn() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.requireOn()
+}
+
+// preflightSetState mirrors setState's reject conditions.
+func (t *Task) preflightSetState(target TaskState) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	switch target {
+	case StateOff:
+		return t.requireNotEstop()
+	case StateOn:
+		if t.state != StateOn && t.state != StateEstopReset && t.state != StateOff {
+			return ErrNotOn
+		}
+	}
+	return nil
+}
+
+// preflightSetMode mirrors SetMode's AUTO-running guard.
+func (t *Task) preflightSetMode(target TaskMode) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.mode == ModeAuto && t.interpState != InterpIdle && target != ModeAuto {
+		t.operatorError("Can't switch mode while mode is AUTO and interpreter is not IDLE")
+		return ErrBusy
+	}
+	return nil
+}
+
+// preflightNotBusy rejects while a program or MDI is mid-run, emitting msg
+// (empty msg = reject silently, matching bodies that return a bare error).
+func (t *Task) preflightNotBusy(msg string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.programBusy() {
+		if msg != "" {
+			t.operatorError(msg)
+		}
+		return ErrBusy
+	}
+	return nil
+}
+
+// preflightAuto mirrors autoCommand's guard chain for the serialized cases.
+func (t *Task) preflightAuto(cmd int32) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if err := t.requireOn(); err != nil {
+		return err
+	}
+	if err := t.canSwitchMode(ModeAuto); err != nil {
+		return err
+	}
+	switch cmd {
+	case AutoRun:
+		if t.programBusy() {
+			t.operatorError("Can't run a program while one is running")
+			return ErrBusy
+		}
+		if err := t.requireProgram(); err != nil {
+			return err
+		}
+		if err := t.requireHomed(); err != nil {
+			t.operatorError("Can't run a program when not homed")
+			return fmt.Errorf("can't run program when not homed")
+		}
+		if t.externalOffsetApplied() {
+			t.operatorError("Can't run a program with external offsets applied")
+			return fmt.Errorf("can't run program with external offsets applied")
+		}
+	case AutoStep:
+		if err := t.requireProgram(); err != nil {
+			return err
+		}
+		if t.interpState == InterpIdle {
+			if t.programBusy() {
+				t.operatorError("Can't run a program while one is running")
+				return ErrBusy
+			}
+			if err := t.requireHomed(); err != nil {
+				t.operatorError("Can't run a program when not homed")
+				return fmt.Errorf("can't run program when not homed")
+			}
+		}
+	}
+	return nil
+}
+
+// preflightMDI mirrors MDI's guard chain.
+func (t *Task) preflightMDI() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if err := t.requireOn(); err != nil {
+		return err
+	}
+	if err := t.canSwitchMode(ModeMDI); err != nil {
+		t.operatorError("Must be in MDI mode to issue MDI command")
+		return err
+	}
+	if err := t.requireHomed(); err != nil {
+		t.operatorError("Can't issue MDI command when not homed")
+		return fmt.Errorf("can't issue MDI command when not homed")
+	}
+	if t.interpState != InterpIdle && len(t.mdiQueue) >= t.maxMDIQueued {
+		t.operatorError("MDI queue full")
+		return ErrBusy
+	}
+	return nil
+}
+
+// preflightJog mirrors jogInternal's canJog guard for moving jogs.
+func (t *Task) preflightJog() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.canJog()
+}
+
+// preflightSpindle mirrors Spindle/Brake ownership guards: manual on/off/
+// brake is rejected while a program runs; overrides are always allowed.
+func (t *Task) preflightSpindle(cmd int32) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if err := t.requireOn(); err != nil {
+		return err
+	}
+	switch cmd {
+	case SpindleForward, SpindleReverse, SpindleOff:
+		if t.interpRunning() {
+			return t.spindleRunErr()
+		}
+	}
+	return nil
+}
+
+// preflightManualMode mirrors Home/OverrideLimits: requires ON (Home) or
+// gates the manual-mode switch when ON (OverrideLimits handles estop itself).
+func (t *Task) preflightManualMode(requireOn bool) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if requireOn {
+		if err := t.requireOn(); err != nil {
+			return err
+		}
+		return t.canSwitchMode(ModeManual)
+	}
+	if t.state == StateOn {
+		return t.canSwitchMode(ModeManual)
+	}
+	return nil
+}
+
+// signalAbort fires the fast abort signals WITHOUT taking cmdMu: close the
+// sequencer abort channel, abort the M-code worker, and abort motion. All
+// three are idempotent and safe from any goroutine.
+//
+// This must never be gated on cmdMu: the abort signal is what unblocks a
+// command that is stuck holding cmdMu (e.g. an MDI producer blocked in
+// EnqueueCmd backpressure on a paused sequencer). Abort-class entry points
+// call this first, then take cmdMu for the state cleanup.
+func (t *Task) signalAbort() {
+	t.mu.Lock()
+	if t.seqAbort != nil {
+		select {
+		case <-t.seqAbort:
+		default:
+			close(t.seqAbort)
+		}
+	}
+	t.mu.Unlock()
+	t.mcodeAbort()
+	_ = t.motion.Abort()
+}
+
 // This file implements the 27 emccmd GMI methods.
 // Each method corresponds to a UI command entry point.
 // Pattern: guard → action → state update.
@@ -85,12 +274,28 @@ func (t *Task) machineShutdown(numSpindles int, ioReason int32) {
 		_ = t.interp.Reset()
 		t.canon.syncEndPointFromMachine()
 		_ = t.interp.Synch()
+		t.updateActiveCodes(t.interp) // republish stat caches after reset
 	}
 	t.StartSequencer()
 }
 
 // SetState handles state transitions: estop, estop_reset, off, on.
 func (t *Task) SetState(state int32) error {
+	// ESTOP is abort-class: fire the stop signals before queueing on cmdMu so
+	// the machine starts stopping even while another command holds the lock.
+	if TaskState(state) == StateEstop {
+		t.signalAbort()
+	}
+	if err := t.preflightSetState(TaskState(state)); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+	return t.setState(state)
+}
+
+// setState is the cmdMu-serialized body of SetState.
+func (t *Task) setState(state int32) error {
 	t.mu.Lock()
 
 	target := TaskState(state)
@@ -228,6 +433,12 @@ func (t *Task) SetState(state int32) error {
 // This is an explicit mode switch (e.g. from a mode selector or HAL pin).
 // It clears any transactional mode save — the user deliberately chose this mode.
 func (t *Task) SetMode(mode int32) error {
+	if err := t.preflightSetMode(TaskMode(mode)); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+
 	t.mu.Lock()
 
 	// Accepted in any state (incl. ESTOP/OFF), matching C++ EMC_TASK_SET_MODE —
@@ -265,9 +476,12 @@ func (t *Task) SetMode(mode int32) error {
 			t.abortLocked()
 		}
 		t.mode = ModeMDI
+		// Synch only while the interpreter is idle — a re-assertion of the
+		// current mode during a run must not touch the producer-owned interp.
+		canSynch := t.interp != nil && !t.programBusy()
 		t.mu.Unlock()
 		_ = t.motion.SetCoord()
-		if t.interp != nil {
+		if canSynch {
 			t.canon.syncEndPointFromMachine()
 			_ = t.interp.Synch()
 		}
@@ -277,9 +491,10 @@ func (t *Task) SetMode(mode int32) error {
 			t.abortLocked()
 		}
 		t.mode = ModeAuto
+		canSynch := t.interp != nil && !t.programBusy()
 		t.mu.Unlock()
 		_ = t.motion.SetCoord()
-		if t.interp != nil {
+		if canSynch {
 			t.canon.syncEndPointFromMachine()
 			_ = t.interp.Synch()
 		}
@@ -291,6 +506,11 @@ func (t *Task) SetMode(mode int32) error {
 
 // ProgramOpen opens a G-code file for execution.
 func (t *Task) ProgramOpen(file string) error {
+	if err := t.preflightNotBusy("Can't open a program while one is running"); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -317,7 +537,120 @@ func (t *Task) ProgramOpen(file string) error {
 }
 
 // AutoCommand handles run/pause/resume/step/reverse in AUTO mode.
+//
+// Pause, resume, and step-while-running are abort/signal-class: they must stay
+// responsive while another command holds cmdMu — resuming is the only way to
+// unwedge an MDI producer blocked in EnqueueCmd backpressure on a paused
+// sequencer — so when no mode switch is needed they run without cmdMu. Run,
+// program-starting step, reverse, and any variant that needs a mode switch are
+// mutating commands and serialize on cmdMu.
 func (t *Task) AutoCommand(cmd int32, line int32) error {
+	switch cmd {
+	case AutoPause, AutoResume, AutoStep:
+		if handled, err := t.autoSignal(cmd); handled {
+			return err
+		}
+	}
+	if err := t.preflightAuto(cmd); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+	return t.autoCommand(cmd, line)
+}
+
+// autoSignal executes pause/resume/step without cmdMu when the machine is on,
+// already in AUTO mode, and (for step) a program is mid-run. Returns
+// handled=false when the request needs the serialized path (mode switch or
+// program start).
+func (t *Task) autoSignal(cmd int32) (bool, error) {
+	t.mu.Lock()
+	if t.state != StateOn || t.mode != ModeAuto {
+		t.mu.Unlock()
+		return false, nil
+	}
+
+	switch cmd {
+	case AutoPause:
+		t.interpState = InterpPaused
+		if t.seqPauseCh != nil {
+			select {
+			case <-t.seqPauseCh:
+			default:
+				close(t.seqPauseCh)
+			}
+		}
+		t.mu.Unlock()
+		return true, t.motion.Pause()
+
+	case AutoResume:
+		// Only act when actually paused. A resume issued while running must NOT
+		// close seqResumeCh: seqCheckPause only consumes it after a real pause, so
+		// a stray close stays closed and disarms the NEXT pause — including a
+		// mandatory M0 stop, which the machine would then run straight through.
+		if t.interpState != InterpPaused {
+			t.mu.Unlock()
+			return true, nil
+		}
+		t.interpState = InterpReading
+		t.stepping = false
+		if t.seqResumeCh != nil {
+			select {
+			case <-t.seqResumeCh:
+			default:
+				close(t.seqResumeCh)
+			}
+		}
+		t.mu.Unlock()
+		return true, t.motion.Resume()
+
+	case AutoStep:
+		if t.interpState == InterpIdle {
+			t.mu.Unlock()
+			return false, nil // program not started — serialized start path
+		}
+		if err := t.requireProgram(); err != nil {
+			t.mu.Unlock()
+			return true, err
+		}
+		t.stepping = true
+		if t.interpState != InterpPaused {
+			// Already running — the flag is enough; the sequencer pauses
+			// after the current motion command completes.
+			t.mu.Unlock()
+			return true, nil
+		}
+		t.mu.Unlock()
+
+		// Paused — step one motion segment.
+		// Check if TP has queued segments from the run phase.
+		qd, _ := t.status.GetQueueDepth()
+		if qd > 0 {
+			// TP has moves — use low-level motion step to execute
+			// one segment. The TP re-pauses after the ID changes.
+			_ = t.motion.Step(0)
+			return true, nil
+		}
+
+		// TP is empty — wake sequencer to push more commands.
+		t.mu.Lock()
+		resumeCh := t.seqResumeCh
+		t.mu.Unlock()
+		if resumeCh != nil {
+			select {
+			case <-resumeCh:
+			default:
+				close(resumeCh)
+			}
+		}
+		return true, nil
+	}
+	t.mu.Unlock()
+	return false, nil
+}
+
+// autoCommand is the cmdMu-serialized body of AutoCommand.
+func (t *Task) autoCommand(cmd int32, line int32) error {
 	t.mu.Lock()
 
 	if err := t.requireOn(); err != nil {
@@ -331,6 +664,14 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 
 	switch cmd {
 	case AutoRun:
+		// Reject while a program or MDI is mid-run: a second producer
+		// goroutine would race the first on the non-thread-safe interpreter
+		// (and orphan its runDone). C++ likewise requires an idle interp.
+		if t.programBusy() {
+			t.mu.Unlock()
+			t.operatorError("Can't run a program while one is running")
+			return ErrBusy
+		}
 		if err := t.requireProgram(); err != nil {
 			t.mu.Unlock()
 			return err
@@ -375,7 +716,12 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 		if err := interp.Synch(); err != nil {
 			t.logger.Error("interp synch failed before run", "err", err)
 		}
-		go t.runProgram(interp, startLine, runDone)
+		// Hand the producer its own generation's abort channel — reading the
+		// field would race later generations created by teardown paths.
+		t.mu.Lock()
+		abort := t.seqAbort
+		t.mu.Unlock()
+		go t.runProgram(interp, startLine, runDone, abort)
 		return nil
 
 	case AutoPause:
@@ -422,6 +768,13 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 
 		if t.interpState == InterpIdle {
 			// Program not started yet — start it in step mode.
+			if t.programBusy() {
+				// Producer of a previous run still winding down.
+				t.stepping = false
+				t.mu.Unlock()
+				t.operatorError("Can't run a program while one is running")
+				return ErrBusy
+			}
 			if err := t.requireHomed(); err != nil {
 				t.stepping = false
 				t.mu.Unlock()
@@ -450,7 +803,10 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 			if err := interp.Synch(); err != nil {
 				t.logger.Error("interp synch failed before step", "err", err)
 			}
-			go t.runProgram(interp, line, runDone)
+			t.mu.Lock()
+			abort := t.seqAbort
+			t.mu.Unlock()
+			go t.runProgram(interp, line, runDone, abort)
 			return nil
 		}
 
@@ -497,6 +853,12 @@ func (t *Task) AutoCommand(cmd int32, line int32) error {
 
 // MDI executes an MDI command string.
 func (t *Task) MDI(command string) error {
+	if err := t.preflightMDI(); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+
 	t.mu.Lock()
 
 	if err := t.requireOn(); err != nil {
@@ -534,8 +896,70 @@ func (t *Task) MDI(command string) error {
 	return t.executeMDI(command)
 }
 
+// finishMDI completes an MDI command after its motion has drained. It runs on
+// its own goroutine (spawned by mdiDoneCmd.PostWait) and goes through cmdMu
+// like any external command — it executes the interpreter for queued MDIs, so
+// it must be serialized against every other interpreter-touching command and
+// must NOT run on the sequencer goroutine (self-deadlock on interpQueue
+// backpressure).
+func (t *Task) finishMDI() {
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+
+	// Synch the interpreter now that the MDI command and its motion have
+	// completed. Interp::synch() saves the interpreter parameters to persist,
+	// so parameter changes made by the MDI (e.g. G10 L20/L2 coordinate-system
+	// offsets from a touch off) become visible to the preview interpreter,
+	// which reads parameters from persist on its own interpreter instance.
+	// Without this, parameters are only saved at the *next* synch, leaving the
+	// preview one MDI command behind (the origin marker uses live status and so
+	// updates immediately, but the drawn geometry would lag by one touch off).
+	//
+	// Guard on programBusy: if an abort/estop reset the machine between the
+	// PostWait handoff and this goroutine getting cmdMu, the interpreter may be
+	// owned by a new program run already — leave it alone.
+	t.mu.Lock()
+	canSynch := t.interp != nil && t.interpState != InterpIdle && !t.interpActive
+	t.mu.Unlock()
+	if canSynch {
+		t.canon.syncEndPointFromMachine()
+		if err := t.interp.Synch(); err != nil {
+			t.logger.Error("interp synch after MDI failed", "err", err)
+		}
+		t.updateActiveCodes(t.interp)
+	}
+
+	t.mu.Lock()
+	if t.interpActive {
+		// A program run took over — nothing left to finish here.
+		t.mu.Unlock()
+		return
+	}
+	t.interpState = InterpIdle
+	t.execState = ExecDone
+
+	// Dequeue next MDI command if any are waiting.
+	if len(t.mdiQueue) > 0 {
+		next := t.mdiQueue[0]
+		t.mdiQueue = t.mdiQueue[1:]
+		t.mu.Unlock()
+		// Execute the next MDI command — this will enqueue another mdiDoneCmd.
+		if err := t.executeMDI(next); err != nil {
+			t.logger.Error("queued MDI failed", "cmd", next, "err", err)
+			t.operatorError(fmt.Sprintf("MDI error: %s", err))
+		}
+		return
+	}
+	// MDI queue empty — clear the echoed command and restore mode if this was
+	// a transactional switch (mirrors C++ clearing task.command once the MDI
+	// input queue drains).
+	t.taskCommand = ""
+	t.restoreModeTx()
+	t.mu.Unlock()
+}
+
 // executeMDI runs a single MDI command through the interpreter.
-// Must be called with mu NOT held and interpState == InterpIdle.
+// Must be called with cmdMu held, mu NOT held, and interpState == InterpIdle.
 func (t *Task) executeMDI(command string) error {
 	t.mu.Lock()
 	t.taskCommand = command // echoed to stat.task.command (C++ EMC_TASK_PLAN_EXECUTE)
@@ -587,8 +1011,8 @@ func (t *Task) executeMDI(command string) error {
 // the runProgram goroutine.
 func (t *Task) faultProgram(msg string) {
 	t.operatorError(msg)
-	_ = t.motion.Abort()   // stop what is already moving
-	t.StartSequencer()     // aborts+drains the old sequencer, starts a fresh one
+	_ = t.motion.Abort() // stop what is already moving
+	t.StartSequencer()   // aborts+drains the old sequencer, starts a fresh one
 	t.setInterpState(InterpIdle)
 	t.setExecState(ExecError) // set after StartSequencer so it is not clobbered
 }
@@ -599,7 +1023,9 @@ func (t *Task) faultProgram(msg string) {
 // The interpreter is a "dumb producer": it reads lines, executes canon
 // callbacks (which enqueue commands via EnqueueCmd), and only stops on
 // abort or end-of-file. Pause and step are handled at the sequencer level.
-func (t *Task) runProgram(interp Interpreter, startLine int32, runDone chan struct{}) {
+// abort is this run's sequencer-generation abort channel, passed in so the
+// producer never reads the (mutable) t.seqAbort field unsynchronized.
+func (t *Task) runProgram(interp Interpreter, startLine int32, runDone chan struct{}, abort <-chan struct{}) {
 	t.mu.Lock()
 	t.interpActive = true
 	t.mu.Unlock()
@@ -619,7 +1045,7 @@ func (t *Task) runProgram(interp Interpreter, startLine int32, runDone chan stru
 	// Run-from-line: if startLine > 0, read/execute lines without enqueuing
 	// motion commands until we reach startLine (matching C milltask behavior).
 	if startLine > 0 {
-		if aborted := t.seekToLine(interp, startLine); aborted {
+		if aborted := t.seekToLine(interp, startLine, abort); aborted {
 			return
 		}
 	}
@@ -627,7 +1053,7 @@ func (t *Task) runProgram(interp Interpreter, startLine int32, runDone chan stru
 	for {
 		// Check abort between interpreter lines
 		select {
-		case <-t.seqAbort:
+		case <-abort:
 			return
 		default:
 		}
@@ -691,14 +1117,14 @@ func (t *Task) runProgram(interp Interpreter, startLine int32, runDone chan stru
 // "Run from line N": the interpreter processes preamble (offsets, units, tool
 // changes) so it's in the correct state, but no actual motion is queued.
 // Returns true if aborted.
-func (t *Task) seekToLine(interp Interpreter, startLine int32) bool {
+func (t *Task) seekToLine(interp Interpreter, startLine int32, abort <-chan struct{}) bool {
 	// Temporarily redirect canon enqueue to a discard sink.
 	t.canon.setDiscard(true)
 	defer t.canon.setDiscard(false)
 
 	for {
 		select {
-		case <-t.seqAbort:
+		case <-abort:
 			return true
 		default:
 		}
@@ -755,11 +1181,16 @@ func (t *Task) waitSequencerDrain() bool {
 	for {
 		t.mu.Lock()
 		qLen := len(t.interpQueue)
+		inflight := t.seqInflight
 		exec := t.execState
 		abort := t.seqAbort
 		t.mu.Unlock()
 
-		if qLen == 0 && exec == ExecDone {
+		// seqInflight closes the TOCTOU gap between the sequencer dequeuing a
+		// command and that command's first setExecState — without it this can
+		// observe (empty, ExecDone) mid-command and let the interpreter synch
+		// against a machine position motion hasn't reached yet.
+		if qLen == 0 && !inflight && exec == ExecDone {
 			return false
 		}
 
@@ -782,6 +1213,28 @@ func (t *Task) JogFromHAL(jogType int32, jjogmode bool, axisOrJoint int32, veloc
 }
 
 func (t *Task) jogInternal(jogType int32, jjogmode bool, axisOrJoint int32, velocity, distance float64, fromHAL bool) error {
+	isTeleop := int32(0)
+	if !jjogmode {
+		isTeleop = 1
+	}
+
+	// JOG_STOP is abort-class: releasing the jog button must stop the axis
+	// immediately, never queue behind a command holding cmdMu. It needs no
+	// state guard — aborting a jog is always safe.
+	if jogType == JogStop {
+		t.mu.Lock()
+		if axisOrJoint >= 0 && int(axisOrJoint) < len(t.activeJogs) {
+			t.activeJogs[axisOrJoint].active = false
+		}
+		t.mu.Unlock()
+		return t.motion.JogAbort(axisOrJoint, isTeleop)
+	}
+
+	if err := t.preflightJog(); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -789,32 +1242,24 @@ func (t *Task) jogInternal(jogType int32, jjogmode bool, axisOrJoint int32, velo
 		return err
 	}
 
-	isTeleop := int32(0)
-	if !jjogmode {
-		isTeleop = 1
-	}
-
 	// Ensure motion is in the correct mode for the requested jog type.
-	// JOG_STOP never needs a mode switch — it just aborts whatever is running.
-	if jogType != JogStop {
-		if isTeleop == 1 {
-			ms, err := t.status.GetStatus()
-			if err == nil && ms.Teleop == 0 {
-				t.mu.Unlock()
-				ok := t.waitMotionTeleop()
-				t.mu.Lock()
-				if !ok {
-					return fmt.Errorf("cannot jog: motion did not switch to teleop mode")
-				}
+	if isTeleop == 1 {
+		ms, err := t.status.GetStatus()
+		if err == nil && ms.Teleop == 0 {
+			t.mu.Unlock()
+			ok := t.waitMotionTeleop()
+			t.mu.Lock()
+			if !ok {
+				return fmt.Errorf("cannot jog: motion did not switch to teleop mode")
 			}
-		} else {
-			ms, err := t.status.GetStatus()
-			if err == nil && (ms.Coord != 0 || ms.Teleop != 0) {
-				_ = t.motion.SetFree()
-				t.mu.Unlock()
-				t.waitMotionFree()
-				t.mu.Lock()
-			}
+		}
+	} else {
+		ms, err := t.status.GetStatus()
+		if err == nil && (ms.Coord != 0 || ms.Teleop != 0) {
+			_ = t.motion.SetFree()
+			t.mu.Unlock()
+			t.waitMotionFree()
+			t.mu.Lock()
 		}
 	}
 
@@ -822,11 +1267,6 @@ func (t *Task) jogInternal(jogType int32, jjogmode bool, axisOrJoint int32, velo
 	velocity = t.clampJogVel(velocity, axisOrJoint, jjogmode)
 
 	switch jogType {
-	case JogStop:
-		if axisOrJoint >= 0 && int(axisOrJoint) < len(t.activeJogs) {
-			t.activeJogs[axisOrJoint].active = false
-		}
-		return t.motion.JogAbort(axisOrJoint, isTeleop)
 	case JogContinuous:
 		if axisOrJoint >= 0 && int(axisOrJoint) < len(t.activeJogs) {
 			t.activeJogs[axisOrJoint] = activeJog{
@@ -889,6 +1329,11 @@ func (t *Task) JogStop(jjogmode bool, axisOrJoint int32) error {
 
 // Spindle controls spindle on/off/direction/increase/decrease.
 func (t *Task) Spindle(cmd int32, speed float64, spindleNum, wait int32) error {
+	if err := t.preflightSpindle(cmd); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -949,6 +1394,11 @@ func (t *Task) spindleRunErr() error {
 
 // Home initiates homing for the specified joint.
 func (t *Task) Home(joint int32) error {
+	if err := t.preflightManualMode(true); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -969,6 +1419,11 @@ func (t *Task) Home(joint int32) error {
 
 // Unhome un-homes the specified joint.
 func (t *Task) Unhome(joint int32) error {
+	if err := t.preflightNotBusy("Can't unhome while a program is running"); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	// Rejected only while a program or MDI command is mid-run (or paused):
 	// clearing a joint's home reference while the interpreter is driving motion
 	// would corrupt the run (and, mid-motion, the position reference). Motion's
@@ -1001,6 +1456,11 @@ func (t *Task) Unhome(joint int32) error {
 // non-manual caller (ensureMode still refuses while a program/MDI is running or
 // homing, so we never override limits mid-run).
 func (t *Task) OverrideLimits(joint int32) error {
+	if err := t.preflightManualMode(false); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -1016,6 +1476,8 @@ func (t *Task) OverrideLimits(joint int32) error {
 // TeleopEnable is accepted in any state (matches C++ TRAJ_SET_TELEOP_ENABLE in
 // OFF/ESTOP); it just sets the motion mode.
 func (t *Task) TeleopEnable(enable bool) error {
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	if enable {
 		return t.motion.SetTeleop()
 	}
@@ -1047,6 +1509,11 @@ func (t *Task) SetMaxVelocity(velocity float64) error {
 
 // Flood turns flood coolant on or off.
 func (t *Task) Flood(on bool) error {
+	if err := t.preflightOn(); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -1069,6 +1536,11 @@ func (t *Task) Flood(on bool) error {
 
 // Mist turns mist coolant on or off.
 func (t *Task) Mist(on bool) error {
+	if err := t.preflightOn(); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -1091,6 +1563,13 @@ func (t *Task) Mist(on bool) error {
 
 // Brake engages/disengages spindle brake.
 func (t *Task) Brake(on bool, spindleNum int32) error {
+	// The brake is an ownership command like spindle on/off: rejected while a
+	// program runs. Same preflight chain.
+	if err := t.preflightSpindle(SpindleOff); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -1108,6 +1587,11 @@ func (t *Task) Brake(on bool, spindleNum int32) error {
 
 // Lube turns lubrication on or off.
 func (t *Task) Lube(on bool) error {
+	if err := t.preflightOn(); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -1131,7 +1615,14 @@ func (t *Task) Lube(on bool) error {
 // Abort aborts all motion and interpreter execution.
 // Matches C milltask emcTaskAbort behavior: abort motion, abort IO,
 // stop spindles, turn off coolant, clear interpreter queue, close program.
+//
+// Abort is abort-class: the signals fire before queueing on cmdMu, because
+// they are what unblock a command currently holding cmdMu (EnqueueCmd
+// backpressure, wait loops). The cleanup then serializes normally.
 func (t *Task) Abort() error {
+	t.signalAbort()
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	t.abortLocked()
 	t.mu.Unlock()
@@ -1145,6 +1636,7 @@ func (t *Task) abortLocked() {
 	t.interpState = InterpIdle
 	t.execState = ExecDone
 	t.mdiQueue = t.mdiQueue[:0]
+	t.taskCommand = "" // aborted MDI is no longer executing — clear the stat echo
 	t.stepping = false
 	t.readLine = 0
 	t.currentLine = 0
@@ -1175,6 +1667,7 @@ func (t *Task) abortLocked() {
 		_ = interp.Close()
 		_ = interp.Reset()
 		_ = interp.Synch()
+		t.updateActiveCodes(interp) // republish stat caches after reset
 	}
 
 	t.StartSequencer()
@@ -1201,11 +1694,21 @@ func (t *Task) waitRunProgramDone() {
 
 // TaskPlanSynch forces a sync between interpreter and motion.
 func (t *Task) TaskPlanSynch() error {
+	if err := t.preflightNotBusy(""); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
 	if t.interp == nil {
 		return nil
+	}
+	// The producer goroutine owns the interpreter during a run — touching it
+	// here would be a concurrent access to the non-thread-safe interp.
+	if t.programBusy() {
+		return ErrBusy
 	}
 	t.canon.syncEndPointFromMachine()
 	return t.interp.Synch()
@@ -1231,6 +1734,22 @@ func (t *Task) SetBlockDelete(on bool) error {
 // LoadToolTable reloads the tool table. An empty file uses the default table
 // (matches C++ emcToolLoadToolTable, which accepts the requested filename).
 func (t *Task) LoadToolTable(file string) error {
+	if err := t.preflightNotBusy("Can't load tool table while a program is running"); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+
+	// Reloading tool data mid-run would race the producer on the interpreter
+	// (and change offsets under a running program) — reject while busy.
+	t.mu.Lock()
+	busy := t.programBusy()
+	t.mu.Unlock()
+	if busy {
+		t.operatorError("Can't load tool table while a program is running")
+		return ErrBusy
+	}
+
 	err := t.io.ToolLoadTable(file)
 	if err == nil {
 		// Synch interpreter so it re-reads tool_table[] from the

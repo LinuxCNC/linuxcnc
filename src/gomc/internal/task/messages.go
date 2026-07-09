@@ -13,10 +13,17 @@ type TaskMessage struct {
 	Text string `json:"text"`
 }
 
+// The message list has its OWN mutex (msgMu, in Task) so operatorError /
+// appendMessage are safe to call from ANY locking context, including with
+// t.mu held. Guard rejection paths routinely emit operator errors from inside
+// a locked section; guarding the list with t.mu would self-deadlock there
+// (non-reentrant mutex). msgMu is a leaf lock: nothing is called while
+// holding it.
+
 // appendMessage adds a message to the current list and returns its ID.
 func (t *Task) appendMessage(kind emcerror.ErrorKind, text string) uint64 {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.msgMu.Lock()
+	defer t.msgMu.Unlock()
 	t.nextMessageID++
 	id := t.nextMessageID
 	t.messageList = append(t.messageList, TaskMessage{
@@ -29,8 +36,8 @@ func (t *Task) appendMessage(kind emcerror.ErrorKind, text string) uint64 {
 
 // messageListSnapshot returns a copy of the current message list.
 func (t *Task) messageListSnapshot() []TaskMessage {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.msgMu.Lock()
+	defer t.msgMu.Unlock()
 	if len(t.messageList) == 0 {
 		return nil
 	}
@@ -41,8 +48,8 @@ func (t *Task) messageListSnapshot() []TaskMessage {
 
 // ackMessageByID removes a single message by ID. Returns true if found.
 func (t *Task) ackMessageByID(id uint64) bool {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.msgMu.Lock()
+	defer t.msgMu.Unlock()
 	for i := range t.messageList {
 		if t.messageList[i].ID == id {
 			t.messageList = append(t.messageList[:i], t.messageList[i+1:]...)
@@ -54,8 +61,8 @@ func (t *Task) ackMessageByID(id uint64) bool {
 
 // ackAllMessages removes all messages. Returns count removed.
 func (t *Task) ackAllMessages() int {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.msgMu.Lock()
+	defer t.msgMu.Unlock()
 	n := len(t.messageList)
 	t.messageList = t.messageList[:0]
 	return n
@@ -63,8 +70,8 @@ func (t *Task) ackAllMessages() int {
 
 // ackMessagesByKinds removes all messages matching any of the given kinds.
 func (t *Task) ackMessagesByKinds(kinds ...emcerror.ErrorKind) int {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.msgMu.Lock()
+	defer t.msgMu.Unlock()
 	if len(t.messageList) == 0 || len(kinds) == 0 {
 		return 0
 	}
@@ -87,8 +94,8 @@ func (t *Task) ackMessagesByKinds(kinds ...emcerror.ErrorKind) int {
 
 // messageFlags returns booleans indicating which message categories are present.
 func (t *Task) messageFlags() (hasAny, hasError, hasText, hasDisplay bool) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.msgMu.Lock()
+	defer t.msgMu.Unlock()
 	for _, msg := range t.messageList {
 		switch emcerror.ErrorKind(msg.Kind) {
 		case emcerror.ErrorKind_NML_ERROR, emcerror.ErrorKind_OPERATOR_ERROR:

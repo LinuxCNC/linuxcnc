@@ -6,18 +6,34 @@ import (
 	"errors"
 	"log/slog"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motstat"
 )
 
 // mockMotion implements MotionController for testing.
+// lastCall is written from concurrent goroutines (signal-class task paths run
+// concurrently with serialized commands by design), so writes are locked.
 type mockMotion struct {
+	mu       sync.Mutex
 	lastCall string
 }
 
+func (m *mockMotion) setCall(s string) {
+	m.mu.Lock()
+	m.lastCall = s
+	m.mu.Unlock()
+}
+
+func (m *mockMotion) last() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.lastCall
+}
+
 func (m *mockMotion) SetLine(Pose, float64, float64, float64, int32, int32, float64, int32) error {
-	m.lastCall = "SetLine"
+	m.setCall("SetLine")
 	return nil
 }
 func (m *mockMotion) SetCircle(Pose, Cartesian, Cartesian, int32, float64, float64, float64, int32, int32, float64) error {
@@ -29,63 +45,63 @@ func (m *mockMotion) Probe(Pose, float64, float64, float64, int32, uint8, int32,
 func (m *mockMotion) RigidTap(Pose, float64, float64, float64, float64, int32, float64) error {
 	return nil
 }
-func (m *mockMotion) Abort() error     { m.lastCall = "Abort"; return nil }
-func (m *mockMotion) Pause() error     { m.lastCall = "Pause"; return nil }
-func (m *mockMotion) Resume() error    { m.lastCall = "Resume"; return nil }
-func (m *mockMotion) Step(int32) error { m.lastCall = "Step"; return nil }
-func (m *mockMotion) Reverse() error   { m.lastCall = "Reverse"; return nil }
-func (m *mockMotion) Forward() error   { m.lastCall = "Forward"; return nil }
-func (m *mockMotion) SetFree() error   { m.lastCall = "SetFree"; return nil }
-func (m *mockMotion) SetCoord() error  { m.lastCall = "SetCoord"; return nil }
-func (m *mockMotion) SetTeleop() error { m.lastCall = "SetTeleop"; return nil }
-func (m *mockMotion) Enable() error    { m.lastCall = "Enable"; return nil }
-func (m *mockMotion) Disable() error   { m.lastCall = "Disable"; return nil }
+func (m *mockMotion) Abort() error     { m.setCall("Abort"); return nil }
+func (m *mockMotion) Pause() error     { m.setCall("Pause"); return nil }
+func (m *mockMotion) Resume() error    { m.setCall("Resume"); return nil }
+func (m *mockMotion) Step(int32) error { m.setCall("Step"); return nil }
+func (m *mockMotion) Reverse() error   { m.setCall("Reverse"); return nil }
+func (m *mockMotion) Forward() error   { m.setCall("Forward"); return nil }
+func (m *mockMotion) SetFree() error   { m.setCall("SetFree"); return nil }
+func (m *mockMotion) SetCoord() error  { m.setCall("SetCoord"); return nil }
+func (m *mockMotion) SetTeleop() error { m.setCall("SetTeleop"); return nil }
+func (m *mockMotion) Enable() error    { m.setCall("Enable"); return nil }
+func (m *mockMotion) Disable() error   { m.setCall("Disable"); return nil }
 func (m *mockMotion) JogCont(int32, float64, int32) error {
-	m.lastCall = "JogCont"
+	m.setCall("JogCont")
 	return nil
 }
 func (m *mockMotion) JogIncr(int32, float64, float64, int32) error {
-	m.lastCall = "JogIncr"
+	m.setCall("JogIncr")
 	return nil
 }
 func (m *mockMotion) JogAbs(int32, float64, float64, int32) error {
-	m.lastCall = "JogAbs"
+	m.setCall("JogAbs")
 	return nil
 }
 func (m *mockMotion) JogAbort(int32, int32) error {
-	m.lastCall = "JogAbort"
+	m.setCall("JogAbort")
 	return nil
 }
 func (m *mockMotion) SpindleOn(int32, float64, float64, float64, int32) error {
-	m.lastCall = "SpindleOn"
+	m.setCall("SpindleOn")
 	return nil
 }
-func (m *mockMotion) SpindleOff(int32) error                    { m.lastCall = "SpindleOff"; return nil }
+func (m *mockMotion) SpindleOff(int32) error                    { m.setCall("SpindleOff"); return nil }
 func (m *mockMotion) SpindleOrient(int32, float64, int32) error { return nil }
-func (m *mockMotion) SpindleIncrease(int32) error               { m.lastCall = "SpindleIncrease"; return nil }
-func (m *mockMotion) SpindleDecrease(int32) error               { m.lastCall = "SpindleDecrease"; return nil }
-func (m *mockMotion) SpindleBrakeEngage(int32) error            { m.lastCall = "SpindleBrakeEngage"; return nil }
-func (m *mockMotion) SpindleBrakeRelease(int32) error           { m.lastCall = "SpindleBrakeRelease"; return nil }
+func (m *mockMotion) SpindleIncrease(int32) error               { m.setCall("SpindleIncrease"); return nil }
+func (m *mockMotion) SpindleDecrease(int32) error               { m.setCall("SpindleDecrease"); return nil }
+func (m *mockMotion) SpindleBrakeEngage(int32) error            { m.setCall("SpindleBrakeEngage"); return nil }
+func (m *mockMotion) SpindleBrakeRelease(int32) error           { m.setCall("SpindleBrakeRelease"); return nil }
 func (m *mockMotion) SetSpindleScale(int32, float64) error {
-	m.lastCall = "SetSpindleScale"
+	m.setCall("SetSpindleScale")
 	return nil
 }
-func (m *mockMotion) SetFeedScale(float64) error                   { m.lastCall = "SetFeedScale"; return nil }
-func (m *mockMotion) SetRapidScale(float64) error                  { m.lastCall = "SetRapidScale"; return nil }
+func (m *mockMotion) SetFeedScale(float64) error                   { m.setCall("SetFeedScale"); return nil }
+func (m *mockMotion) SetRapidScale(float64) error                  { m.setCall("SetRapidScale"); return nil }
 func (m *mockMotion) SetMaxFeedOverride(float64) error             { return nil }
 func (m *mockMotion) FeedScaleEnable(int32) error                  { return nil }
 func (m *mockMotion) SpindleScaleEnable(int32, int32) error        { return nil }
 func (m *mockMotion) AdaptiveFeedEnable(int32) error               { return nil }
 func (m *mockMotion) FeedHoldEnable(int32) error                   { return nil }
-func (m *mockMotion) OverrideLimits(int32) error                   { m.lastCall = "OverrideLimits"; return nil }
-func (m *mockMotion) JointHome(int32) error                        { m.lastCall = "JointHome"; return nil }
-func (m *mockMotion) JointUnhome(int32) error                      { m.lastCall = "JointUnhome"; return nil }
+func (m *mockMotion) OverrideLimits(int32) error                   { m.setCall("OverrideLimits"); return nil }
+func (m *mockMotion) JointHome(int32) error                        { m.setCall("JointHome"); return nil }
+func (m *mockMotion) JointUnhome(int32) error                      { m.setCall("JointUnhome"); return nil }
 func (m *mockMotion) SetVel(float64) error                         { return nil }
-func (m *mockMotion) SetVelLimit(float64) error                    { m.lastCall = "SetVelLimit"; return nil }
+func (m *mockMotion) SetVelLimit(float64) error                    { m.setCall("SetVelLimit"); return nil }
 func (m *mockMotion) SetAcc(float64) error                         { return nil }
 func (m *mockMotion) SetTermCond(int32, float64) error             { return nil }
 func (m *mockMotion) SetOffset(Pose) error                         { return nil }
-func (m *mockMotion) SetDebug(int32) error                         { m.lastCall = "SetDebug"; return nil }
+func (m *mockMotion) SetDebug(int32) error                         { m.setCall("SetDebug"); return nil }
 func (m *mockMotion) SetDout(int32, int32) error                   { return nil }
 func (m *mockMotion) SetDoutSynched(int32, int32, int32) error     { return nil }
 func (m *mockMotion) SetAout(int32, float64) error                 { return nil }
@@ -94,15 +110,28 @@ func (m *mockMotion) SetSpindlesync(float64, int32) error          { return nil 
 
 // mockIO implements IOController and IOStatusReader for testing.
 type mockIO struct {
+	mu       sync.Mutex
 	lastCall string
 }
 
-func (m *mockIO) CoolantFloodOn() error     { m.lastCall = "FloodOn"; return nil }
-func (m *mockIO) CoolantFloodOff() error    { m.lastCall = "FloodOff"; return nil }
-func (m *mockIO) CoolantMistOn() error      { m.lastCall = "MistOn"; return nil }
-func (m *mockIO) CoolantMistOff() error     { m.lastCall = "MistOff"; return nil }
-func (m *mockIO) LubeOn() error             { m.lastCall = "LubeOn"; return nil }
-func (m *mockIO) LubeOff() error            { m.lastCall = "LubeOff"; return nil }
+func (m *mockIO) setCall(s string) {
+	m.mu.Lock()
+	m.lastCall = s
+	m.mu.Unlock()
+}
+
+func (m *mockIO) last() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.lastCall
+}
+
+func (m *mockIO) CoolantFloodOn() error     { m.setCall("FloodOn"); return nil }
+func (m *mockIO) CoolantFloodOff() error    { m.setCall("FloodOff"); return nil }
+func (m *mockIO) CoolantMistOn() error      { m.setCall("MistOn"); return nil }
+func (m *mockIO) CoolantMistOff() error     { m.setCall("MistOff"); return nil }
+func (m *mockIO) LubeOn() error             { m.setCall("LubeOn"); return nil }
+func (m *mockIO) LubeOff() error            { m.setCall("LubeOff"); return nil }
 func (m *mockIO) ToolPrepare(int32) error   { return nil }
 func (m *mockIO) ToolLoad() error           { return nil }
 func (m *mockIO) ToolUnload() error         { return nil }
@@ -112,8 +141,8 @@ func (m *mockIO) ToolSetOffset(int32, int32, float64, float64, float64, float64,
 	return nil
 }
 func (m *mockIO) ToolLoadTable(string) error       { return nil }
-func (m *mockIO) EstopOn() error                   { m.lastCall = "Estop"; return nil }
-func (m *mockIO) EstopOff() error                  { m.lastCall = "EstopReset"; return nil }
+func (m *mockIO) EstopOn() error                   { m.setCall("Estop"); return nil }
+func (m *mockIO) EstopOff() error                  { m.setCall("EstopReset"); return nil }
 func (m *mockIO) IoAbort(int32) error              { return nil }
 func (m *mockIO) SetDebug(int32) error             { return nil }
 func (m *mockIO) GetCmdStatus() (int32, error)     { return IOStatusDone, nil }
@@ -167,8 +196,8 @@ func TestSetState_PowerOn(t *testing.T) {
 	if err := task.SetState(int32(StateOn)); err != nil {
 		t.Fatalf("on: %v", err)
 	}
-	if mot.lastCall != "Enable" {
-		t.Fatalf("expected Enable, got %s", mot.lastCall)
+	if mot.last() != "Enable" {
+		t.Fatalf("expected Enable, got %s", mot.last())
 	}
 	if task.state != StateOn {
 		t.Fatalf("expected StateOn, got %s", task.state)
@@ -199,8 +228,8 @@ func TestSetMode_AutoSetCoord(t *testing.T) {
 	if err := task.SetMode(int32(ModeAuto)); err != nil {
 		t.Fatalf("set_mode auto: %v", err)
 	}
-	if mot.lastCall != "SetCoord" {
-		t.Fatalf("expected SetCoord, got %s", mot.lastCall)
+	if mot.last() != "SetCoord" {
+		t.Fatalf("expected SetCoord, got %s", mot.last())
 	}
 	if task.mode != ModeAuto {
 		t.Fatalf("expected ModeAuto, got %s", task.mode)
@@ -235,8 +264,8 @@ func TestSetMode_ManualJogMode(t *testing.T) {
 		if err := task.SetMode(int32(ModeManual)); err != nil {
 			t.Fatalf("SetMode(Manual): %v", err)
 		}
-		if mot.lastCall != "SetFree" {
-			t.Fatalf("lastCall = %s, want SetFree", mot.lastCall)
+		if mot.last() != "SetFree" {
+			t.Fatalf("lastCall = %s, want SetFree", mot.last())
 		}
 	})
 
@@ -250,8 +279,8 @@ func TestSetMode_ManualJogMode(t *testing.T) {
 		if err := task.SetMode(int32(ModeManual)); err != nil {
 			t.Fatalf("SetMode(Manual): %v", err)
 		}
-		if mot.lastCall != "SetTeleop" {
-			t.Fatalf("lastCall = %s, want SetTeleop", mot.lastCall)
+		if mot.last() != "SetTeleop" {
+			t.Fatalf("lastCall = %s, want SetTeleop", mot.last())
 		}
 	})
 }
@@ -272,8 +301,8 @@ func TestJog_ManualMode(t *testing.T) {
 	if err := task.Jog(JogContinuous, true, 0, 100, 0); err != nil {
 		t.Fatalf("jog: %v", err)
 	}
-	if mot.lastCall != "JogCont" {
-		t.Fatalf("expected JogCont, got %s", mot.lastCall)
+	if mot.last() != "JogCont" {
+		t.Fatalf("expected JogCont, got %s", mot.last())
 	}
 }
 
@@ -342,8 +371,8 @@ func TestAutoCommand_PauseCallsMotion(t *testing.T) {
 	if err := task.AutoCommand(AutoPause, 0); err != nil {
 		t.Fatalf("auto pause: %v", err)
 	}
-	if mot.lastCall != "Pause" {
-		t.Fatalf("expected Pause, got %s", mot.lastCall)
+	if mot.last() != "Pause" {
+		t.Fatalf("expected Pause, got %s", mot.last())
 	}
 }
 
@@ -354,8 +383,8 @@ func TestFlood_On(t *testing.T) {
 	if err := task.Flood(true); err != nil {
 		t.Fatalf("flood on: %v", err)
 	}
-	if io.lastCall != "FloodOn" {
-		t.Fatalf("expected FloodOn, got %s", io.lastCall)
+	if io.last() != "FloodOn" {
+		t.Fatalf("expected FloodOn, got %s", io.last())
 	}
 }
 
@@ -365,8 +394,8 @@ func TestAbort_AlwaysSucceeds(t *testing.T) {
 	if err := task.Abort(); err != nil {
 		t.Fatalf("abort: %v", err)
 	}
-	if mot.lastCall != "Abort" {
-		t.Fatalf("expected Abort, got %s", mot.lastCall)
+	if mot.last() != "Abort" {
+		t.Fatalf("expected Abort, got %s", mot.last())
 	}
 	if task.interpState != InterpIdle {
 		t.Fatalf("expected InterpIdle after abort")
@@ -380,8 +409,8 @@ func TestSpindle_Forward(t *testing.T) {
 	if err := task.Spindle(SpindleForward, 1000, 0, 0); err != nil {
 		t.Fatalf("spindle fwd: %v", err)
 	}
-	if mot.lastCall != "SpindleOn" {
-		t.Fatalf("expected SpindleOn, got %s", mot.lastCall)
+	if mot.last() != "SpindleOn" {
+		t.Fatalf("expected SpindleOn, got %s", mot.last())
 	}
 }
 
@@ -420,7 +449,7 @@ func TestHome_CallsMotion(t *testing.T) {
 	if err := task.Home(0); err != nil {
 		t.Fatalf("home: %v", err)
 	}
-	if mot.lastCall != "JointHome" {
-		t.Fatalf("expected JointHome, got %s", mot.lastCall)
+	if mot.last() != "JointHome" {
+		t.Fatalf("expected JointHome, got %s", mot.last())
 	}
 }

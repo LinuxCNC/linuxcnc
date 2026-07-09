@@ -232,8 +232,47 @@ type Pose = motctl.Pose
 type Cartesian = motctl.Cartesian
 
 // Task is the central controller state. One instance per machine.
+//
+// Locking model (three locks, strict order cmdMu > seqLifeMu > mu):
+//
+//   - cmdMu serializes mutating commands for their FULL duration, including
+//     I/O and waits. All emccmd entry points are blocking calls; cmdMu is what
+//     makes their guard->act sequences atomic against each other (the Go
+//     equivalent of the C milltask's single NML command queue). Worker
+//     goroutines (sequencer, runProgram producer, mcode worker) never take
+//     cmdMu. Abort-class operations (Abort, external/UI estop, pause, resume,
+//     jog-stop) fire their signals WITHOUT cmdMu first — signals are what
+//     unblock a command stuck in EnqueueCmd backpressure, so they must never
+//     queue behind one — and only the state cleanup takes cmdMu.
+//   - seqLifeMu serializes sequencer generation changes (StartSequencer /
+//     StopSequencer), so concurrent restart requests (e.g. a monitor fault
+//     teardown racing a user abort) cannot spawn two sequencer loops.
+//   - mu is the short-lived state lock. It is never held across blocking I/O
+//     or channel waits; several internal helpers release and re-acquire it
+//     around external calls (safe because cmdMu holds command-level atomicity).
+//   - msgMu (leaf, below mu) guards only the operator message list, so
+//     operatorError is callable from any locking context, including under mu.
+//
+// Guard evaluation is two-phase: every mutating command runs its full guard
+// set as a preflight BEFORE acquiring cmdMu (immediate rejection instead of
+// queueing behind a long command) and again inside the serialized body (the
+// authoritative check — state may change while waiting for the lock).
+//
+// Interpreter ownership: the C++ interpreter is not thread-safe. It may be
+// touched only (a) under cmdMu with the interpreter idle (checked via
+// programBusy), or (b) by the runProgram producer goroutine, whose lifetime
+// teardown paths synchronize on runDone before touching the interpreter.
+// BuildStat never calls the interpreter; it reads caches published by
+// updateActiveCodes.
 type Task struct {
 	mu sync.Mutex
+
+	// cmdMu serializes mutating command entry points end-to-end (see the
+	// locking model above). Always acquired before mu, never while holding mu.
+	cmdMu sync.Mutex
+
+	// seqLifeMu serializes StartSequencer/StopSequencer generation changes.
+	seqLifeMu sync.Mutex
 
 	// Current state
 	state       TaskState
@@ -291,10 +330,20 @@ type Task struct {
 	// Written by canon at enqueue time; read by BuildStat for halui.program-line.
 	motionMap map[int32]motionInfo
 
-	// Interpreter active codes (updated after each execute)
+	// Interpreter active codes (updated after each execute). These are the
+	// ONLY view of interpreter state stat consumers may use — BuildStat must
+	// not call into the (non-thread-safe) interpreter while the producer
+	// goroutine may be executing it.
 	activeGcodes   []int32
 	activeMcodes   []int32
 	activeSettings []float64
+	callLevel      int32 // cached interp.CallLevel(), updated with the codes
+
+	// canonSnap is a value snapshot of *canon.state, republished by
+	// updateActiveCodes after every interpreter execute. Canon mutates its
+	// state lock-free on the producer goroutine; stat/halui readers must use
+	// this snapshot, never t.canon.state.
+	canonSnap CanonState
 
 	// Dependencies (injected, mockable for tests)
 	motion MotionController
@@ -317,6 +366,11 @@ type Task struct {
 	interpQueue chan QueuedCmd
 	seqDone     chan struct{} // closed when sequencer goroutine exits
 	seqAbort    chan struct{} // close to abort sequencer
+	// seqInflight is true while the sequencer is processing a dequeued command
+	// (from dequeue until its wait/post-wait completes). waitSequencerDrain
+	// needs it: an empty queue with ExecDone is also observable in the instant
+	// between dequeue and the command's first setExecState.
+	seqInflight bool
 
 	// MDI queue — commands queued while interpreter is busy
 	mdiQueue     []string
@@ -334,6 +388,9 @@ type Task struct {
 	hasMotionStatus  bool
 
 	// Current message list (independent of emcerror /errors drain queue).
+	// Guarded by msgMu, NOT mu — a leaf lock, so operatorError is callable
+	// from any locking context (guard rejects emit messages under mu).
+	msgMu         sync.Mutex
 	messageList   []TaskMessage
 	nextMessageID uint64
 
@@ -374,6 +431,7 @@ func NewTask(motion MotionController, io IOController, status MotionStatusReader
 		motionMap:      make(map[int32]motionInfo),
 	}
 	t.canon = NewCanon(t)
+	t.canonSnap = *t.canon.state
 	return t
 }
 
@@ -462,15 +520,22 @@ func (t *Task) operatorError(text string) {
 }
 
 // updateActiveCodes fetches the interpreter's active G/M codes and settings
-// and stores them in the task state for stat reporting.
+// and stores them in the task state for stat reporting. It also republishes
+// the canon state snapshot and call level — this is the single point where
+// interpreter/canon state becomes visible to stat consumers, so it must be
+// called by whoever owns the interpreter after anything that may have changed
+// that state (execute, reset).
 func (t *Task) updateActiveCodes(interp Interpreter) (gc, mc []int32, st []float64) {
 	gc = interp.ActiveGCodes()
 	mc = interp.ActiveMCodes()
 	st = interp.ActiveSettings()
+	cl := int32(interp.CallLevel())
 	t.mu.Lock()
 	t.activeGcodes = gc
 	t.activeMcodes = mc
 	t.activeSettings = st
+	t.callLevel = cl
+	t.canonSnap = *t.canon.state
 	t.mu.Unlock()
 	return gc, mc, st
 }

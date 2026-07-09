@@ -1728,7 +1728,8 @@ func (h *halUI) updateOutputs(t *Task) {
 	jogIncrement := t.jogIncrement
 	jogSpeed := t.jogSpeed
 	ajogSpeed := t.ajogSpeed
-	cs := t.canon.state
+	// Value snapshot — t.canon.state is mutated lock-free by the producer.
+	cs := t.canonSnap
 	t.mu.Unlock()
 
 	// Machine state

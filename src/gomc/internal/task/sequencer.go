@@ -49,7 +49,15 @@ const interpQueueSize = 64
 // If a previous sequencer goroutine is still winding down, StartSequencer waits
 // for it to exit before creating new channels. This prevents a race where the old
 // goroutine could pick up the new (non-closed) seqAbort channel and keep running.
+//
+// seqLifeMu serializes concurrent generation changes: without it, two callers
+// (e.g. a monitor fault teardown racing faultProgram or a user abort) could
+// both wait on the same old seqDone and then both spawn a loop — two consumers
+// on one queue plus a double-close panic on seqDone.
 func (t *Task) StartSequencer() {
+	t.seqLifeMu.Lock()
+	defer t.seqLifeMu.Unlock()
+
 	t.mu.Lock()
 	oldDone := t.seqDone
 	oldAbort := t.seqAbort
@@ -84,6 +92,9 @@ func (t *Task) StartSequencer() {
 
 // StopSequencer aborts and waits for the sequencer goroutine to exit.
 func (t *Task) StopSequencer() {
+	t.seqLifeMu.Lock()
+	defer t.seqLifeMu.Unlock()
+
 	t.mu.Lock()
 	abort := t.seqAbort
 	done := t.seqDone
@@ -166,6 +177,7 @@ func (t *Task) EnqueueCmd(cmd QueuedCmd) error {
 // Pause and step are handled at this level.
 func (t *Task) sequencerLoop() {
 	defer close(t.seqDone)
+	defer t.setSeqInflight(false)
 
 	for {
 		// Check if pause was requested before reading next command
@@ -187,6 +199,10 @@ func (t *Task) sequencerLoop() {
 			}
 
 			t.logger.Debug("sequencer exec", "cmd", cmd.String())
+
+			// Mark a command in flight so waitSequencerDrain cannot observe
+			// the empty-queue/ExecDone gap between dequeue and execution.
+			t.setSeqInflight(true)
 
 			// Update currentLine from motion commands that carry a line ID.
 			if lc, ok := cmd.(interface{ LineID() int32 }); ok {
@@ -313,6 +329,16 @@ func (t *Task) sequencerLoop() {
 				t.operatorError(fmt.Sprintf("Wait failed: %s: %s", cmd.String(), err))
 				t.setExecState(ExecError)
 				t.setInterpState(InterpIdle)
+				// Signal abort like the other error exits — otherwise the
+				// producer can block forever in EnqueueCmd/waitSequencerDrain
+				// with no consumer left.
+				t.mu.Lock()
+				select {
+				case <-t.seqAbort:
+				default:
+					close(t.seqAbort)
+				}
+				t.mu.Unlock()
 				return
 			}
 
@@ -333,8 +359,17 @@ func (t *Task) sequencerLoop() {
 					return // aborted while paused
 				}
 			}
+
+			t.setSeqInflight(false)
 		}
 	}
+}
+
+// setSeqInflight marks whether the sequencer is processing a dequeued command.
+func (t *Task) setSeqInflight(v bool) {
+	t.mu.Lock()
+	t.seqInflight = v
+	t.mu.Unlock()
 }
 
 // isMotionCmd returns true for commands that produce TP motion segments.
@@ -639,14 +674,14 @@ func (t *Task) setInterpState(s InterpState) {
 
 // LinearMoveCmd queues a linear motion segment.
 type LinearMoveCmd struct {
-	Pos        Pose
-	Vel        float64
-	IniMaxVel  float64
-	Acc        float64
-	MotionType int32
-	ID         int32
-	FeedMmPerMin    float64
-	IndexerJ   int32
+	Pos          Pose
+	Vel          float64
+	IniMaxVel    float64
+	Acc          float64
+	MotionType   int32
+	ID           int32
+	FeedMmPerMin float64
+	IndexerJ     int32
 }
 
 func (c *LinearMoveCmd) Execute(t *Task) error {
@@ -658,16 +693,16 @@ func (c *LinearMoveCmd) LineID() int32  { return c.ID }
 
 // CircularMoveCmd queues a circular arc segment.
 type CircularMoveCmd struct {
-	Pos        Pose
-	Center     Cartesian
-	Normal     Cartesian
-	Turn       int32
-	Vel        float64
-	IniMaxVel  float64
-	Acc        float64
-	MotionType int32
-	ID         int32
-	FeedMmPerMin    float64
+	Pos          Pose
+	Center       Cartesian
+	Normal       Cartesian
+	Turn         int32
+	Vel          float64
+	IniMaxVel    float64
+	Acc          float64
+	MotionType   int32
+	ID           int32
+	FeedMmPerMin float64
 }
 
 func (c *CircularMoveCmd) Execute(t *Task) error {
@@ -966,50 +1001,22 @@ func (c *interpDoneCmd) Wait() WaitType { return WaitMotion }
 func (c *interpDoneCmd) String() string { return "interp_done" }
 
 // mdiDoneCmd is enqueued after an MDI command's interpreter execution completes.
-// After motion drains, it transitions to idle and dequeues the next MDI command
-// if one is waiting (matching C milltask mdi_execute_hook behavior).
+// After motion drains, it hands off to finishMDI on a fresh goroutine, which
+// transitions to idle and dequeues the next MDI command if one is waiting
+// (matching C milltask mdi_execute_hook behavior).
+//
+// The handoff is deliberate: finishMDI runs the interpreter (executeMDI) and
+// must go through the cmdMu front door like any other command. Running it here,
+// on the sequencer goroutine, would (a) bypass command serialization and
+// (b) self-deadlock as soon as the next MDI expands to more commands than the
+// interpQueue can buffer — the sequencer would block enqueueing into the very
+// queue only it can drain.
 type mdiDoneCmd struct{}
 
 func (c *mdiDoneCmd) Execute(t *Task) error { return nil }
 
 func (c *mdiDoneCmd) PostWait(t *Task) {
-	// Synch the interpreter now that the MDI command and its motion have
-	// completed. Interp::synch() saves the interpreter parameters to persist,
-	// so parameter changes made by the MDI (e.g. G10 L20/L2 coordinate-system
-	// offsets from a touch off) become visible to the preview interpreter,
-	// which reads parameters from persist on its own interpreter instance.
-	// Without this, parameters are only saved at the *next* synch, leaving the
-	// preview one MDI command behind (the origin marker uses live status and so
-	// updates immediately, but the drawn geometry would lag by one touch off).
-	if t.interp != nil {
-		t.canon.syncEndPointFromMachine()
-		if err := t.interp.Synch(); err != nil {
-			t.logger.Error("interp synch after MDI failed", "err", err)
-		}
-	}
-
-	t.setInterpState(InterpIdle)
-	t.setExecState(ExecDone)
-
-	// Dequeue next MDI command if any are waiting.
-	t.mu.Lock()
-	if len(t.mdiQueue) > 0 {
-		next := t.mdiQueue[0]
-		t.mdiQueue = t.mdiQueue[1:]
-		t.mu.Unlock()
-		// Execute the next MDI command — this will enqueue another mdiDoneCmd.
-		if err := t.executeMDI(next); err != nil {
-			t.logger.Error("queued MDI failed", "cmd", next, "err", err)
-			t.operatorError(fmt.Sprintf("MDI error: %s", err))
-		}
-		return
-	}
-	// MDI queue empty — clear the echoed command and restore mode if this was
-	// a transactional switch (mirrors C++ clearing task.command once the MDI
-	// input queue drains).
-	t.taskCommand = ""
-	t.restoreModeTx()
-	t.mu.Unlock()
+	go t.finishMDI()
 }
 
 func (c *mdiDoneCmd) Wait() WaitType { return WaitMotion }

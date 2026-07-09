@@ -148,6 +148,10 @@ func (m *monitor) checkEstop() {
 	// Machine was ON — this is a real external estop event.
 	m.task.logger.Warn("external estop detected — forcing shutdown")
 
+	// Signal phase — WITHOUT cmdMu, so the machine stops even while a command
+	// holds the lock (the seqAbort close below is also what unblocks a command
+	// stuck in EnqueueCmd backpressure so it can release cmdMu).
+
 	// Abort sequencer and motion
 	m.task.AbortSequencer()
 	m.task.mcodeAbort()
@@ -166,6 +170,13 @@ func (m *monitor) checkEstop() {
 	_ = m.task.io.CoolantFloodOff()
 	_ = m.task.io.CoolantMistOff()
 
+	// Unhome all joints (joint -2 = all)
+	_ = m.task.motion.JointUnhome(-2)
+
+	// Cleanup phase — serialized with commands: the interpreter reset must not
+	// race a command that owns the interpreter (e.g. an MDI in ExecuteString).
+	m.task.cmdMu.Lock()
+
 	m.task.mu.Lock()
 	m.task.floodOn = false
 	m.task.mistOn = false
@@ -176,9 +187,6 @@ func (m *monitor) checkEstop() {
 	m.task.stepping = false
 	m.task.mu.Unlock()
 
-	// Unhome all joints (joint -2 = all)
-	_ = m.task.motion.JointUnhome(-2)
-
 	// Wait for the producer to stop touching the interpreter before reset.
 	m.task.waitRunProgramDone()
 	// Notify interpreter
@@ -187,10 +195,13 @@ func (m *monitor) checkEstop() {
 		_ = m.task.interp.Close()
 		_ = m.task.interp.Reset()
 		_ = m.task.interp.Synch()
+		m.task.updateActiveCodes(m.task.interp)
 	}
 
 	// Restart sequencer for clean state
 	m.task.StartSequencer()
+
+	m.task.cmdMu.Unlock()
 
 	m.task.operatorError("External E-Stop asserted")
 }
@@ -236,6 +247,7 @@ func (m *monitor) checkMotionEnabled() {
 
 	m.task.logger.Warn("motion disabled — switching machine off")
 
+	// Signal phase — without cmdMu (see checkEstop).
 	// Abort everything (matches old emcTaskUpdate when state left ON).
 	m.task.AbortSequencer()
 	m.task.mcodeAbort()
@@ -246,11 +258,16 @@ func (m *monitor) checkMotionEnabled() {
 		_ = m.task.motion.SpindleOff(int32(i))
 	}
 
+	// Cleanup phase — serialized with commands (interpreter ownership).
+	m.task.cmdMu.Lock()
+	defer m.task.cmdMu.Unlock()
+
 	m.task.waitRunProgramDone()
 	if m.task.interp != nil {
 		_ = m.task.interp.Abort(0, "motion disabled")
 		_ = m.task.interp.Close()
 		_ = m.task.interp.Reset()
+		m.task.updateActiveCodes(m.task.interp)
 	}
 
 	m.task.StartSequencer()
@@ -336,6 +353,7 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		m.task.logger.Error("IO error detected — aborting")
 	}
 
+	// Signal phase — without cmdMu (see checkEstop).
 	// Abort everything.
 	m.task.AbortSequencer()
 	m.task.mcodeAbort()
@@ -347,6 +365,10 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		_ = m.task.motion.SpindleOff(int32(i))
 	}
 
+	// Cleanup phase — serialized with commands (interpreter ownership).
+	m.task.cmdMu.Lock()
+	defer m.task.cmdMu.Unlock()
+
 	// Wait for the producer to stop touching the interpreter before reset.
 	m.task.waitRunProgramDone()
 	// Notify interpreter.
@@ -354,6 +376,7 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		_ = m.task.interp.Abort(0, "motion/IO error")
 		_ = m.task.interp.Close()
 		_ = m.task.interp.Reset()
+		m.task.updateActiveCodes(m.task.interp)
 	}
 
 	// Restart sequencer.
@@ -381,8 +404,9 @@ func (m *monitor) checkJogWatchdog() {
 		}
 		if now.Sub(j.lastSeen) > jogTimeout {
 			j.active = false
+			isTeleop := j.isTeleop // copy — j points into state mutated under mu
 			t.mu.Unlock()
-			_ = t.motion.JogAbort(int32(i), j.isTeleop)
+			_ = t.motion.JogAbort(int32(i), isTeleop)
 			t.logger.Warn("jog watchdog: stopped expired jog", "axis_or_joint", i)
 			t.mu.Lock()
 		}

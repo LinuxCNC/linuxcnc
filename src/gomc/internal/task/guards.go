@@ -41,12 +41,12 @@ func (t *Task) requireMode(required TaskMode) error {
 	return nil
 }
 
-// ensureMode switches to the required mode if safe (interpreter idle), or
-// returns nil if already in the right mode. This replaces client-side
-// ensure_mode() calls — the server decides whether a mode switch is allowed.
-// The previous mode is saved for transactional restore after command completion.
-// Must be called with t.mu held. May temporarily unlock t.mu for I/O.
-func (t *Task) ensureMode(required TaskMode) error {
+// canSwitchMode reports whether a switch to the required mode would be
+// accepted, without performing it: always when already in that mode, otherwise
+// only while the interpreter is idle and no joint is homing. This is the
+// reject half of ensureMode, shared with the command preflights so both
+// evaluate identical conditions. Must be called with t.mu held.
+func (t *Task) canSwitchMode(required TaskMode) error {
 	if t.mode == required {
 		return nil
 	}
@@ -57,6 +57,21 @@ func (t *Task) ensureMode(required TaskMode) error {
 	// Cannot switch mode while homing is in progress.
 	if t.anyJointHoming() {
 		return fmt.Errorf("%w: homing in progress", ErrBusy)
+	}
+	return nil
+}
+
+// ensureMode switches to the required mode if safe (interpreter idle), or
+// returns nil if already in the right mode. This replaces client-side
+// ensure_mode() calls — the server decides whether a mode switch is allowed.
+// The previous mode is saved for transactional restore after command completion.
+// Must be called with t.mu held. May temporarily unlock t.mu for I/O.
+func (t *Task) ensureMode(required TaskMode) error {
+	if err := t.canSwitchMode(required); err != nil {
+		return err
+	}
+	if t.mode == required {
+		return nil
 	}
 	// Save previous mode for transactional restore (only first switch in a tx).
 	if !t.modeTx {

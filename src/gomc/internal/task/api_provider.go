@@ -25,7 +25,7 @@ const (
 )
 
 func (m *milltaskModule) ready() error {
-	if m.task == nil || m.stopped {
+	if m.task == nil || m.stopped.Load() {
 		return errNotReady
 	}
 	return nil

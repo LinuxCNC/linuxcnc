@@ -13,19 +13,18 @@ import (
 // This is the single source of truth for all stat consumers (REST, WS, halui).
 func (t *Task) BuildStat() *emcstat.StatFull {
 	t.mu.Lock()
-	// Refresh active G/M codes from interpreter (C milltask does this every cycle).
-	var callLevel int32
-	if t.interp != nil {
-		t.activeGcodes = t.interp.ActiveGCodes()
-		t.activeMcodes = t.interp.ActiveMCodes()
-		t.activeSettings = t.interp.ActiveSettings()
-		callLevel = int32(t.interp.CallLevel())
-	}
+	// Active G/M codes and call level come from the caches published by
+	// updateActiveCodes after each interpreter execute. BuildStat must NOT
+	// call into the interpreter: the producer goroutine may be executing it
+	// concurrently and the C++ interp is not thread-safe. (The C milltask
+	// could re-query every cycle only because it was single-threaded.)
+	callLevel := t.callLevel
 	// Bump the liveness counter once per status build (mirrors NML heartbeat).
 	t.heartbeat++
 	heartbeat := t.heartbeat
-	// Grab canon state for offset reporting
-	cs := t.canon.state
+	// Canon state snapshot for offset reporting (value copy — the live
+	// t.canon.state is mutated lock-free by the producer goroutine).
+	cs := t.canonSnap
 	// Remaining G4 dwell time (only meaningful while waiting for the delay).
 	var delayLeft float64
 	if t.execState == ExecWaitingForDelay {
@@ -111,10 +110,14 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	}
 
 	// Read motion status (lock-free triple buffer, never fails).
+	// The fallback cache is shared by concurrent BuildStat callers (WS push
+	// loops, poslog, C stat callers) and must be accessed under mu.
 	ms, err := t.status.GetStatus()
+	t.mu.Lock()
 	if err != nil {
 		// Should not happen with triple buffer, but handle gracefully.
 		if !t.hasMotionStatus {
+			t.mu.Unlock()
 			return stat
 		}
 		ms = t.lastMotionStatus
@@ -122,6 +125,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		t.lastMotionStatus = ms
 		t.hasMotionStatus = true
 	}
+	t.mu.Unlock()
 
 	// Kinematics type from motion module.
 	stat.KinematicsType = emcstat.KinematicsType(ms.KinType)
@@ -197,14 +201,14 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	for i := 0; i < numJoints; i++ {
 		j := &ms.Joints[i]
 		stat.Joints[i] = emcstat.JointInfo{
-			Homed:          j.Homed != 0,
-			Homing:         j.Homing != 0,
-			Enabled:        j.Enabled != 0,
-			Fault:          j.Fault != 0,
-			MinSoftLimit:   j.MinPosLimit,
-			MaxSoftLimit:   j.MaxPosLimit,
-			MinHardLimit:   j.OnNegLimit != 0,
-			MaxHardLimit:   j.OnPosLimit != 0,
+			Homed:        j.Homed != 0,
+			Homing:       j.Homing != 0,
+			Enabled:      j.Enabled != 0,
+			Fault:        j.Fault != 0,
+			MinSoftLimit: j.MinPosLimit,
+			MaxSoftLimit: j.MaxPosLimit,
+			MinHardLimit: j.OnNegLimit != 0,
+			MaxHardLimit: j.OnPosLimit != 0,
 			// A non-zero override mask means limit checking is currently
 			// overridden; report it on every joint (matches 2.9 taskintf.cc,
 			// which UIs read via joint[0] as a global indicator).

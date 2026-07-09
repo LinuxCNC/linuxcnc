@@ -9,6 +9,7 @@ import (
 	"runtime/cgo"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"unsafe"
 
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/emccmd"
@@ -114,7 +115,7 @@ type milltaskModule struct {
 	interp            *CInterp
 	canonTable        *canonCallbackTable
 	mon               *monitor
-	stopped           bool
+	stopped           atomic.Bool                // read by ready() from arbitrary goroutines
 	haluiPrefix       string                     // if set, export halui pins with this component name
 	halui             *halUI                     // halui HAL component (created in factory)
 	motInstance       string                     // motion module instance name (default "motmod")
@@ -237,7 +238,13 @@ func (m *milltaskModule) Start() error {
 }
 
 func (m *milltaskModule) Stop() {
-	m.stopped = true
+	m.stopped.Store(true)
+	// Fire abort signals first so any command blocked in a wait or in
+	// EnqueueCmd backpressure unwinds — the monitor and sequencer shutdowns
+	// below wait for goroutines that might otherwise never exit.
+	if m.task != nil {
+		m.task.signalAbort()
+	}
 	if m.mon != nil {
 		m.mon.stop()
 	}
