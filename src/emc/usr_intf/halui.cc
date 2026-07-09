@@ -216,6 +216,8 @@ static int axis_mask = 0;
 \
     FIELD(hal_bit_t,gui_ok) /* pin for acknowledging dialog ok */ \
     FIELD(hal_bit_t,gui_cancel) /* pin for acknowledging dialog cancel */ \
+    FIELD(hal_bit_t,gui_reload) /* pin for acknowledging dialog ok */ \
+    FIELD(hal_bit_t,gui_shutdown) /* pin for acknowledging dialog cancel */ \
 \
     FIELD(hal_float_t,units_per_mm) \
 
@@ -561,7 +563,7 @@ static void py_call_cycleStart() {
 
     // check socket messages for jogspeed
     pFuncWrite = PyObject_GetAttrString(pInstance, "cycleStart");
-    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+    if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
         pValue = PyObject_CallNoArgs(pFuncWrite);
         if (pValue == NULL){
             fprintf(stderr, "Halui Bridge: cycleStart function failed: returned NULL\n");
@@ -576,7 +578,7 @@ static void py_call_cyclePause() {
 
     // check socket messages for jogspeed
     pFuncWrite = PyObject_GetAttrString(pInstance, "cyclePause");
-    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+    if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
         pValue = PyObject_CallNoArgs(pFuncWrite);
         if (pValue == NULL){
             fprintf(stderr, "Halui Bridge: cyclePause function failed: returned NULL\n");
@@ -591,7 +593,7 @@ static void py_call_ok() {
 
     // check socket messages for gui ok message
     pFuncWrite = PyObject_GetAttrString(pInstance, "ok");
-    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+    if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
         pValue = PyObject_CallNoArgs(pFuncWrite);
         if (pValue == NULL){
             fprintf(stderr, "Halui Bridge: ok function failed: returned NULL\n");
@@ -605,10 +607,38 @@ static void py_call_cancel() {
 
     // check socket messages for gui cancel message
     pFuncWrite = PyObject_GetAttrString(pInstance, "cancel");
-    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+    if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
         pValue = PyObject_CallNoArgs(pFuncWrite);
         if (pValue == NULL){
             fprintf(stderr, "Halui Bridge: cancel function failed: returned NULL\n");
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncWrite);
+    return ;
+}
+static void py_call_reload_display() {
+
+    // check socket messages for gui reload display message
+    pFuncWrite = PyObject_GetAttrString(pInstance, "reloadDisplay");
+    if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+        pValue = PyObject_CallNoArgs(pFuncWrite);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: reload display function failed: returned NULL\n");
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncWrite);
+    return ;
+}
+static void py_call_shutdown_controller() {
+
+    // check socket messages for gui shutdown message
+    pFuncWrite = PyObject_GetAttrString(pInstance, "shutdownController");
+    if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+        pValue = PyObject_CallNoArgs(pFuncWrite);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: shutdownController function failed: returned NULL\n");
         }
         Py_DECREF(pValue);
     }
@@ -1083,6 +1113,12 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
 
     retval = halui_export_pin_IN_bit(&(halui_data->gui_cancel), "halui.gui.cancel");
+    if (retval < 0) return retval;
+
+    retval = halui_export_pin_IN_bit(&(halui_data->gui_reload), "halui.gui.reload-display");
+    if (retval < 0) return retval;
+
+    retval = halui_export_pin_IN_bit(&(halui_data->gui_shutdown), "halui.gui.shutdown");
     if (retval < 0) return retval;
 
     hal_ready(comp_id);
@@ -2610,6 +2646,17 @@ static void check_hal_changes()
         fprintf(stderr,"GUI CANCEL command called\n");
         py_call_cancel();
     }
+
+    if (check_bit_changed(new_halui_data.gui_reload, old_halui_data.gui_reload) != 0) {
+        fprintf(stderr,"GUI RELOAD DISPLAY command called\n");
+        py_call_reload_display();
+    }
+
+    if (check_bit_changed(new_halui_data.gui_shutdown, old_halui_data.gui_shutdown) != 0) {
+        fprintf(stderr,"GUI SHUTDOWN command called\n");
+        py_call_shutdown_controller();
+    }
+
 }
 
 // this function looks at the received NML status message
