@@ -318,7 +318,9 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 	m.errorLatched = true
 	numSpindles := m.task.numSpindles
 	m.task.interpState = InterpIdle
-	m.task.execState = ExecError
+	// ExecError is latched AFTER the teardown below (see StartSequencer): setting
+	// it here would be clobbered by AbortSequencer, whose exiting sequencerLoop
+	// sets ExecDone — same hazard handled in checkMotionEnabled.
 	m.task.mdiQueue = m.task.mdiQueue[:0]
 	m.task.taskCommand = ""
 	m.task.stepping = false
@@ -356,6 +358,11 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 
 	// Restart sequencer.
 	m.task.StartSequencer()
+
+	// Latch ExecError now that the old sequencer (which sets ExecDone on exit)
+	// is gone and the fresh one is idle — so the error is visible to the UI as
+	// an error-stop, not a clean ExecDone. Matches C++ EMC_TASK_EXEC_ERROR.
+	m.task.setExecState(ExecError)
 }
 
 // checkJogWatchdog stops continuous jogs that haven't been refreshed
