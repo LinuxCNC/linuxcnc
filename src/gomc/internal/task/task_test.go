@@ -289,12 +289,17 @@ func TestJog_MDIBusyRejects(t *testing.T) {
 	}
 }
 
+// TestAutoCommand_EnsureModeWhenIdle pins an INTENTIONAL divergence from C++
+// milltask. In an idle Manual mode, a RUN command auto-switches the machine to
+// AUTO (ensureMode) and proceeds; C++ instead rejects it ("Can't do that in
+// manual mode", emctaskmain.cc:1003-1007). This is the deliberate gomc
+// "auto change mode" model: a mode selector on the command, not a precondition.
+// Verified: with no program loaded the error is ErrNoProgram (the mode switch
+// happened and the run path ran), NOT ErrWrongMode (rejected in manual).
 func TestAutoCommand_EnsureModeWhenIdle(t *testing.T) {
 	task, _, _ := newTestTask()
 	bringUp(task)
 
-	// In Manual mode with idle interpreter, AutoCommand should auto-switch
-	// to AUTO mode. Since no program is loaded, we get ErrNoProgram (not ErrWrongMode).
 	err := task.AutoCommand(AutoRun, 0)
 	if !errors.Is(err, ErrNoProgram) {
 		t.Fatalf("expected ErrNoProgram (mode auto-switched), got %v", err)
