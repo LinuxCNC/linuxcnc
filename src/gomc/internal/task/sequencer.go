@@ -224,36 +224,55 @@ func (t *Task) sequencerLoop() {
 					t.setInterpState(InterpIdle)
 					return
 				}
-				// For motion/TP commands, retry after a short wait (TP queue full)
 				switch cmd.(type) {
 				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd, *SetMotionParamsCmd:
-					retries++
-					if retries == 1 {
-						t.logger.Info("sequencer: TP full, retrying", "cmd", cmd.String())
+					// Distinguish genuine TP-queue-full backpressure from a hard
+					// motion fault. waitForQueueSpace already gates sends on the
+					// high-water mark, and the motion command's error is a
+					// cmd_status rejection (bad params / can't-handle-now), NOT a
+					// "retry later" signal. So retry ONLY while the queue is
+					// actually full; otherwise the send failed with space
+					// available => a real fault, surfaced immediately instead of
+					// spinning ~10s (fail-fast on hard faults).
+					qFull := false
+					if t.status != nil {
+						if qd, qerr := t.status.GetQueueDepth(); qerr == nil && qd >= tpQueueHighWater {
+							qFull = true
+						}
 					}
-					if retries > maxMotionRetries {
-						t.logger.Error("sequencer motion cmd failed after retries", "cmd", cmd.String(), "err", err)
-						t.operatorError(fmt.Sprintf("Motion command failed: %s", err))
-						t.setExecState(ExecError)
-						t.setInterpState(InterpIdle)
-						t.mu.Lock()
+					if qFull && retries < maxMotionRetries {
+						retries++
+						if retries == 1 {
+							t.logger.Info("sequencer: TP full, retrying", "cmd", cmd.String())
+						}
+						// Wait for TP to drain one slot, then retry.
 						select {
 						case <-t.seqAbort:
-						default:
-							close(t.seqAbort)
+							t.setExecState(ExecDone)
+							t.setInterpState(InterpIdle)
+							return
+						case <-time.After(pollInterval):
+							continue
 						}
-						t.mu.Unlock()
-						return
 					}
-					// Wait for TP to drain one slot, then retry
+					// Hard fault (queue had space) or backpressure budget
+					// exhausted — surface immediately.
+					if qFull {
+						t.logger.Error("sequencer motion cmd failed after retries", "cmd", cmd.String(), "err", err)
+					} else {
+						t.logger.Error("sequencer motion cmd failed", "cmd", cmd.String(), "err", err)
+					}
+					t.operatorError(fmt.Sprintf("Motion command failed: %s", err))
+					t.setExecState(ExecError)
+					t.setInterpState(InterpIdle)
+					t.mu.Lock()
 					select {
 					case <-t.seqAbort:
-						t.setExecState(ExecDone)
-						t.setInterpState(InterpIdle)
-						return
-					case <-time.After(pollInterval):
-						continue
+					default:
+						close(t.seqAbort)
 					}
+					t.mu.Unlock()
+					return
 				default:
 					// Non-motion command failed — check if it was due to abort
 					select {

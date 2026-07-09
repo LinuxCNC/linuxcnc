@@ -151,10 +151,12 @@ func TestSequencer_ErrorStopsExecution(t *testing.T) {
 	// Wait for sequencer to stop on error
 	<-task.seqDone
 
-	// First call succeeds, then motion command is retried up to maxMotionRetries (1000).
-	// Expect 1 success + 1001 failed attempts = 1002 total calls.
-	if len(mot.calls) < 2 {
-		t.Fatalf("expected at least 2 calls, got %d: %v", len(mot.calls), mot.calls)
+	// Fail-fast: the mock reports an empty TP queue (depth 0 < high-water), so
+	// the 2nd command's failure is a hard fault, not backpressure — the sequencer
+	// surfaces it immediately WITHOUT the old ~10s / 1000x retry spin. So exactly
+	// 2 motion calls run (ID 1 ok, ID 2 fails) and ID 3 is never dispatched.
+	if len(mot.calls) != 2 {
+		t.Fatalf("expected exactly 2 calls (fail-fast, no retry), got %d: %v", len(mot.calls), mot.calls)
 	}
 
 	task.mu.Lock()
