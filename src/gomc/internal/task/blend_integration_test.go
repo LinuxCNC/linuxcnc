@@ -36,9 +36,20 @@ type recMove struct {
 	motionType          int32
 }
 
+// spindleRec records the full arguments of a SpindleOn/SpindleOff command.
+// css args map to motion.SpindleOn(spindle, speed, css_factor, css_max, wait);
+// the C trace prints css_max as "css_offset".
+type spindleRec struct {
+	on                          bool // true=SpindleOn, false=SpindleOff
+	spindle                     int32
+	speed, cssFactor, cssOffset float64
+	wait                        int32
+}
+
 type recordingMotion struct {
 	mockMotion
-	moves []recMove
+	moves       []recMove
+	spindleCmds []spindleRec
 }
 
 func (m *recordingMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, mt int32, id int32, feedUpm float64, ij int32) error {
@@ -48,6 +59,16 @@ func (m *recordingMotion) SetLine(pos Pose, vel, iniMaxvel, acc float64, mt int3
 
 func (m *recordingMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, mt int32, id int32, feedUpm float64) error {
 	m.moves = append(m.moves, recMove{"circle", pos, vel, iniMaxvel, acc, mt})
+	return nil
+}
+
+func (m *recordingMotion) SpindleOn(spindle int32, speed, cssFactor, cssMax float64, wait int32) error {
+	m.spindleCmds = append(m.spindleCmds, spindleRec{true, spindle, speed, cssFactor, cssMax, wait})
+	return nil
+}
+
+func (m *recordingMotion) SpindleOff(spindle int32) error {
+	m.spindleCmds = append(m.spindleCmds, spindleRec{on: false, spindle: spindle})
 	return nil
 }
 
@@ -174,6 +195,10 @@ func TestBlendIntegration_Arcs(t *testing.T) {
 // in-memory param IO) and returns the recorded moves. Hermetic: INI is parsed
 // from a string, the program is written to a temp dir.
 func runNGCViaInterp(t *testing.T, program string) []recMove {
+	return runNGCViaInterpRec(t, program).moves
+}
+
+func runNGCViaInterpRec(t *testing.T, program string) *recordingMotion {
 	t.Helper()
 	mot := &recordingMotion{}
 	st := &testStatus{}
@@ -257,7 +282,7 @@ func runNGCViaInterp(t *testing.T, program string) []recMove {
 	}
 	task.DrainQueue()
 	task.StopSequencer()
-	return mot.moves
+	return mot
 }
 
 const linesNGC = `G21 G90 G94 G17
@@ -285,6 +310,80 @@ func TestBlendIntegration_Lines_ViaInterpreter(t *testing.T) {
 	checkMove(t, m[4], "line", 0, 0, 0, 20, 35.35534, 565.68542, "XY diagonal")
 	checkMove(t, m[5], "line", 30, 15, -10, 25, 28, 420, "XYZ Z-dominated")
 	checkMove(t, m[6], "line", 30, 15, 5, 8, 8, 120, "Z-only traverse")
+}
+
+// spindleNGC drives the spindle command stream captured in logs/old/spindle.log:
+// S-before-M3 (dir=0 -> speed 0), M3, S re-tune while running, G96 CSS (requires
+// an S word on the same line), G97 back to RPM, M5.
+const spindleNGC = `G21 G90 G94 G17
+S1000
+M3
+G0 Z5
+G1 Z0 F300
+S2000
+G1 X10 F600
+G96 D3000 S200
+G1 X20 F600
+G97 S1500
+M5
+M2
+`
+
+func checkSpindleOn(t *testing.T, got spindleRec, speed, cssFactor, cssOffset float64, wait int32, why string) {
+	t.Helper()
+	if !got.on {
+		t.Errorf("%s: expected SpindleOn, got SpindleOff", why)
+		return
+	}
+	if math.Abs(got.speed-speed) > blendEps {
+		t.Errorf("%s: speed=%.4f want %.4f", why, got.speed, speed)
+	}
+	if math.Abs(got.cssFactor-cssFactor) > blendEps {
+		t.Errorf("%s: css_factor=%.4f want %.4f", why, got.cssFactor, cssFactor)
+	}
+	if math.Abs(got.cssOffset-cssOffset) > blendEps {
+		t.Errorf("%s: css_offset=%.4f want %.4f", why, got.cssOffset, cssOffset)
+	}
+	if got.wait != wait {
+		t.Errorf("%s: wait=%d want %d", why, got.wait, wait)
+	}
+}
+
+// TestBlendIntegration_Spindle_ViaInterpreter drives the spindle program through
+// the REAL interpreter and asserts the emitted spindle command stream against the
+// C milltask oracle (logs/old/spindle.log) exactly:
+//   - S1000 before M3: dir=0, so speed=0, and wait=0 (the initial flag, before
+//     M3 sets wait-for-at-speed).
+//   - M3: dir=+1, re-emit at 1000 with wait=1.
+//   - S2000 while running: re-emit at 2000, carrying the stale wait=1.
+//   - G96 D3000 S200 (CSS): Speed = the D-word RPM cap (3000); css_factor =
+//     (1000/2pi)*S surface speed (mm), i.e. the same k the canon uses.
+//   - G97 S1500: back to RPM mode, css_factor=0.
+//   - M5 then M2: two SPINDLE_OFF (explicit stop + program-end teardown).
+func TestBlendIntegration_Spindle_ViaInterpreter(t *testing.T) {
+	mot := runNGCViaInterpRec(t, spindleNGC)
+	sp := mot.spindleCmds
+	if len(sp) != 7 {
+		t.Fatalf("expected 7 spindle commands, got %d: %+v", len(sp), sp)
+	}
+	cssFactor200 := 1000.0 / (2 * math.Pi) * 200 // mm CSS: k * surface speed(200)
+	checkSpindleOn(t, sp[0], 0, 0, 0, 0, "S1000 before M3: dir=0 -> speed 0, initial wait=0")
+	checkSpindleOn(t, sp[1], 1000, 0, 0, 1, "M3: dir=+1 -> speed 1000, wait=1")
+	checkSpindleOn(t, sp[2], 2000, 0, 0, 1, "S2000 while running: re-emit, wait carried")
+	checkSpindleOn(t, sp[3], 3000, cssFactor200, 0, 1, "G96 D3000 S200: speed=cap, css_factor=(1000/2pi)*200")
+	checkSpindleOn(t, sp[4], 1500, 0, 0, 1, "G97 S1500: back to RPM, css_factor=0")
+	if sp[5].on || sp[6].on {
+		t.Errorf("expected two SPINDLE_OFF at end (M5, M2), got sp[5]=%+v sp[6]=%+v", sp[5], sp[6])
+	}
+
+	// The interleaved moves use the same per-axis blend as the lines test.
+	if len(mot.moves) != 4 {
+		t.Fatalf("expected 4 moves, got %d: %+v", len(mot.moves), mot.moves)
+	}
+	checkMove(t, mot.moves[0], "line", 0, 0, 5, 8, 8, 120, "G0 Z5")
+	checkMove(t, mot.moves[1], "line", 0, 0, 0, 5, 8, 120, "G1 Z0 F300: feed 5 < Z blend 8")
+	checkMove(t, mot.moves[2], "line", 10, 0, 0, 10, 40, 600, "G1 X10 F600")
+	checkMove(t, mot.moves[3], "line", 20, 0, 0, 10, 40, 600, "G1 X20 F600")
 }
 
 // arcsNGC is the arc program whose emitted motion the C milltask captured in
