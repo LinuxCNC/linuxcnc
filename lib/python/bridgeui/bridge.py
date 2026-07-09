@@ -134,7 +134,7 @@ class Bridge(object):
             print ('axis state', self.axesSelected,self.currentSelectedAxis)
 
     # send msg to hal_glib
-    def writeMsg(self, msg, data):
+    def writeMsg(self, msg, data=''):
         #print('Write Msg called')
         if ZMQ:
             topic = self.writeTopic
@@ -161,6 +161,12 @@ class Bridge(object):
 
     def cancel(self):
         self.writeMsg('request_cancel', True)
+
+    def reloadDisplay(self):
+        self.writeMsg('request_reload_display', True)
+
+    def shutdownController(self):
+        self.writeMsg('request_shutdown')
 
         # if the number is bigger then MDI command list
         # then look for MACRO commands
