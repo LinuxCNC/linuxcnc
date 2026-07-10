@@ -214,6 +214,7 @@ const (
 	AutoResume  int32 = 2
 	AutoStep    int32 = 3
 	AutoReverse int32 = 4
+	AutoForward int32 = 5 // resume forward after run-in-reverse (emccmd.gmi AUTO_FORWARD)
 )
 
 // JogType constants.
@@ -853,6 +854,10 @@ func (t *Task) autoCommand(cmd int32, line int32) error {
 	case AutoReverse:
 		t.mu.Unlock()
 		return t.motion.Reverse()
+
+	case AutoForward:
+		t.mu.Unlock()
+		return t.motion.Forward()
 	}
 	t.mu.Unlock()
 	return nil

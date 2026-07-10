@@ -47,7 +47,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 | # | Command | Problem | Verified | Pointer |
 |---|---|---|---|---|
-| 3 | `TASK_PLAN_FORWARD` | **Silent no-op.** `AUTO_FORWARD=5` is in the IDL and `motion.Forward()` exists, but there is no `AutoForward` constant and no switch case — a client sending it gets nil-success, no action. (~3-line fix: add const + `case AutoForward: return t.motion.Forward()`.) | yes | `emccmd.gmi:22`; `commands.go` `autoCommand` (cases stop at `AutoReverse=4`) |
+| 3 | `TASK_PLAN_FORWARD` | ~~**Silent no-op.**~~ **FIXED.** Added the `AutoForward=5` constant and `case AutoForward: return t.motion.Forward()` in `autoCommand` (mirrors `AutoReverse`; the `preflightAuto` fall-through already covers it). Covered by `auto_forward_test.go`. | fixed | `commands.go` `autoCommand` |
 | 4 | canon `MESSAGE` / `(MSG,…)` | **G-code operator messages never reach the UI.** `canon.Message()` only `logger.Info`s; it never publishes to the operator-display channel (which works for other producers) and fires during read-ahead, not in program order. | yes | `canon.go:815` |
 | 5 | `TRAJ_SET_OFFSET` (tool offset) | **`ToolOffset` reported as zero.** Offset is folded into canon coordinate math (moves are correct), but `motion.SetOffset` is never called, and `stat.go` reads `ToolOffset` from motion status → UIs show stale/zero tool offset. (Same item getstat audit flagged.) | yes (grep: `motion.SetOffset` never called) | `stat.go:182`; `SetOffset` uncalled |
 | 6 | `TRAJ_SET_FO/FH/SO_ENABLE` | **PARTIAL — no GUI-immediate command.** The three override-enable toggles are forced ON at machine-on. Capability *is* reachable via G-code (M48/M49/M50/M51/M53 → `EnableFeedOverride`/`FeedHoldEnableCmd`), but there is no immediate command for a GUI to toggle them without an MDI M-code. | yes (downgraded from MISSING) | `commands.go:254-257` (machine-on only); G-code path `canon.go:1262/1275` |
@@ -68,8 +68,8 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 ## Suggested order if fixing
 
-Cheap + high value first: ~~#1 orient timeout~~ (**done**), **#3 `PLAN_FORWARD`**
-(~3 lines), **#4 `(MSG,…)` → operator-display** (small), **#5 ToolOffset**
+Cheap + high value first: ~~#1 orient timeout~~ (**done**), ~~#3 `PLAN_FORWARD`~~
+(**done**), **#4 `(MSG,…)` → operator-display** (small), **#5 ToolOffset**
 (send `SetOffset` to motion or source it from canon). **#2 `LOAD_COMP`** is the
 largest (INI key + file parse + `set_joint_comp` wiring) and only matters for
 comp-file machines. Tier 3 as encountered. **#13** should get a test regardless.
