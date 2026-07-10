@@ -99,7 +99,7 @@ type FileResult {
 # The file must reside in an allowed directory (PROGRAM_PREFIX or SUBROUTINE_PATH).
 @method "POST"
 @path "/get_file"
-func get_file(filename: string) -> FileResult
+func get_file(filename: string @notempty) -> FileResult
 
 # Result of evaluating a numeric G-code expression.
 type EvalResult {

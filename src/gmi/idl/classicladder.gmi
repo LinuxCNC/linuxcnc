@@ -56,14 +56,14 @@ type Rung {
     used: bool
     prevRung: i32
     nextRung: i32
-    label: string
-    comment: string
+    label: string @maxlen(9)
+    comment: string @maxlen(29)
     elements: [60]Element   # RUNG_WIDTH * RUNG_HEIGHT, row-major
 }
 
 type Section {
     used: bool
-    name: string
+    name: string @maxlen(19)
     language: SectionLanguage
     subRoutineNumber: i32
     firstRung: i32
@@ -72,13 +72,13 @@ type Section {
 }
 
 type Symbol {
-    varName: string
-    symbol: string
-    comment: string
+    varName: string @maxlen(9)
+    symbol: string @maxlen(9)
+    comment: string @maxlen(49)
 }
 
 type ArithmExpr {
-    expr: string
+    expr: string @maxlen(48)
 }
 
 type TimerIEC {
@@ -209,22 +209,22 @@ func set_program(program: Program) -> i32
 # Get a single rung by index.
 @method GET
 @path "/rung/{index}"
-func get_rung(index: i32) -> Rung
+func get_rung(index: i32 @min(0)) -> Rung
 
 # Update a single rung (after edit).
 @method PUT
 @path "/rung/{index}"
-func set_rung(index: i32, rung: Rung) -> i32
+func set_rung(index: i32 @min(0), rung: Rung) -> i32
 
 # Get a section by index.
 @method GET
 @path "/section/{index}"
-func get_section(index: i32) -> Section
+func get_section(index: i32 @min(0)) -> Section
 
 # Update a section.
 @method PUT
 @path "/section/{index}"
-func set_section(index: i32, section: Section) -> i32
+func set_section(index: i32 @min(0), section: Section) -> i32
 
 # Get all current variable values (for spy window).
 @method GET
@@ -234,7 +234,7 @@ func get_variables() -> Variables
 # Set a variable value (for testing/forcing).
 @method POST
 @path "/variable"
-func set_variable(varType: i32, offset: i32, value: i32) -> i32
+func set_variable(varType: i32, offset: i32 @min(0), value: i32) -> i32
 
 # Load a .clp project file on the backend.
 @method POST
@@ -263,7 +263,7 @@ enum ModbusReqType {
 }
 
 type ModbusComParams {
-    serialPort: string
+    serialPort: string @maxlen(29)
     serialSpeed: i32
     serialDataBits: i32
     serialStopBits: i32
@@ -283,7 +283,7 @@ type ModbusComParams {
 }
 
 type ModbusRequest {
-    slaveAddr: string          # IP:port for TCP, slave number for serial
+    slaveAddr: string @maxlen(24)          # IP:port for TCP, slave number for serial
     typeReq: ModbusReqType
     firstModbusElement: i32
     nbrModbusElements: i32
@@ -319,7 +319,7 @@ func get_modbus_requests() -> []ModbusRequest
 # Replace all Modbus I/O request definitions (restarts master if running).
 @method PUT
 @path "/modbus/requests"
-func set_modbus_requests(requests: []ModbusRequest) -> i32
+func set_modbus_requests(requests: []ModbusRequest @maxlen(16)) -> i32
 
 # Get Modbus runtime status (running, frame/error counts).
 @method GET

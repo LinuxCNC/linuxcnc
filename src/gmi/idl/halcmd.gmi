@@ -164,13 +164,13 @@ func set_param(name: string, value: string) -> CmdResult
 @method "POST"
 @path "/pin/{name}/alias"
 @rt_safe "false"
-func alias_pin(name: string, alias: string) -> CmdResult
+func alias_pin(name: string, alias: string @maxlen(47)) -> CmdResult
 
 # Create param alias
 @method "POST"
 @path "/param/{name}/alias"
 @rt_safe "false"
-func alias_param(name: string, alias: string) -> CmdResult
+func alias_param(name: string, alias: string @maxlen(47)) -> CmdResult
 
 # Remove pin alias
 @method "DELETE"
@@ -196,7 +196,7 @@ func set_signal(name: string, value: string) -> CmdResult
 @method "POST"
 @path "/signal"
 @rt_safe "false"
-func new_signal(name: string, type: string) -> CmdResult
+func new_signal(name: string @maxlen(47), type: string) -> CmdResult
 
 # Delete signal (delsig)
 @method "DELETE"
@@ -252,7 +252,7 @@ func unload(name: string) -> CmdResult
 @method "POST"
 @path "/thread"
 @rt_safe "false"
-func newthread(name: string, period_ns: i64, fp: bool?, cpu_id: i32?) -> CmdResult
+func newthread(name: string @maxlen(47), period_ns: i64 @min(1), fp: bool?, cpu_id: i32?) -> CmdResult
 
 # Delete thread (delthread)
 @method "DELETE"
@@ -302,7 +302,7 @@ func unlock(level: string?) -> CmdResult
 @method "PUT"
 @path "/debug"
 @rt_safe "false"
-func set_debug(level: i32) -> CmdResult
+func set_debug(level: i32 @min(0) @max(3)) -> CmdResult
 
 # ─── Save/Restore Commands ───
 

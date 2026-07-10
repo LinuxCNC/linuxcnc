@@ -60,7 +60,7 @@ func auto_cmd(cmd: AutoCmd, line: i32) -> i32
 # Execute MDI command string
 @method "POST"
 @path "/mdi"
-func mdi(command: string) -> i32
+func mdi(command: string @maxlen(254)) -> i32
 
 # Jog axis or joint. For JOG_ABSOLUTE, `distance` is the absolute target position.
 @method "POST"
@@ -185,14 +185,14 @@ func set_jog_axis(axis: i32) -> i32
 # Set jog increment (0 = continuous)
 @method "POST"
 @path "/jog-increment"
-func set_jog_increment(increment: f64) -> i32
+func set_jog_increment(increment: f64 @min(0)) -> i32
 
 # Set linear jog speed (units/sec)
 @method "POST"
 @path "/jog-speed"
-func set_jog_speed(speed: f64) -> i32
+func set_jog_speed(speed: f64 @min(0)) -> i32
 
 # Set angular jog speed (deg/sec)
 @method "POST"
 @path "/ajog-speed"
-func set_ajog_speed(speed: f64) -> i32
+func set_ajog_speed(speed: f64 @min(0)) -> i32

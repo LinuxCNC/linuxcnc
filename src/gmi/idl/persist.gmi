@@ -27,10 +27,10 @@ type DeleteResult {
 # Open a namespace, returns a handle for subsequent operations.
 @method POST
 @path /{namespace}
-func open(namespace: string) -> OpenResult
+func open(namespace: string @regex("^[A-Za-z0-9_]+$")) -> OpenResult
 
 # Close a handle (releases resources).
-func close(handle: i32)
+func close(handle: i32 @min(0))
 
 # Get all open namespaces.
 @method GET
@@ -40,29 +40,29 @@ func get_namespaces() -> []string
 # Get all entries via handle.
 @method GET
 @path /{handle}
-func get_entries(handle: i32) -> []Entry
+func get_entries(handle: i32 @min(0)) -> []Entry
 
 # Get a single entry by key.
 @method GET
 @path /{handle}/{key}
-func get_entry(handle: i32, key: string) -> Entry
+func get_entry(handle: i32 @min(0), key: string) -> Entry
 
 # Set a single entry.
 @method PUT
 @path /{handle}/{key}
-func set_entry(handle: i32, key: string, value: string) -> SetResult
+func set_entry(handle: i32 @min(0), key: string, value: string) -> SetResult
 
 # Delete a single entry.
 @method DELETE
 @path /{handle}/{key}
-func delete_entry(handle: i32, key: string) -> DeleteResult
+func delete_entry(handle: i32 @min(0), key: string) -> DeleteResult
 
 # Set multiple entries at once.
 @method PUT
 @path /{handle}
-func set_entries(handle: i32, entries: []Entry) -> SetResult
+func set_entries(handle: i32 @min(0), entries: []Entry) -> SetResult
 
 # Delete all entries (and the namespace).
 @method DELETE
 @path /{handle}
-func delete_all(handle: i32) -> DeleteResult
+func delete_all(handle: i32 @min(0)) -> DeleteResult

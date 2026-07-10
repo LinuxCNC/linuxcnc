@@ -8,7 +8,7 @@
 
 type ToolEntry {
     toolno: i32
-    pocketno: i32
+    pocketno: i32 @min(0) @max(1000)
     x_offset: f64
     y_offset: f64
     z_offset: f64
@@ -21,8 +21,8 @@ type ToolEntry {
     diameter: f64
     frontangle: f64
     backangle: f64
-    orientation: i32
-    comment: string
+    orientation: i32 @min(0) @max(9)
+    comment: string @maxlen(255)
 }
 
 type PutToolResult {
