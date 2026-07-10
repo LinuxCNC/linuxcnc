@@ -250,6 +250,10 @@ class HandlerClass:
         self.log_version()
         STATUS.emit('update-machine-log', '', 'OFF')
 
+        # preset MPG focus object
+        self.MPGFocusWidget = self.w.gcodegraphics
+        self.MPGFocusWidgetBorder= 'stackedWidget_mainTabPage1'
+
     #############################
     # SPECIAL FUNCTIONS SECTION #
     #############################
