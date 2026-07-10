@@ -811,9 +811,16 @@ func (c *Canon) ProgramEnd() {
 	c.enqueue(waitForMotionSingleton)
 }
 
-func (c *Canon) Comment(s string)   {}
-func (c *Canon) Message(s string)   { c.task.logger.Info("MSG: " + s) }
-func (c *Canon) LogMsg(s string)    {}
+func (c *Canon) Comment(s string) {}
+func (c *Canon) Message(s string) {
+	// (MSG,...)/(DEBUG,...): publish to the operator-display channel. Enqueued
+	// (not fired inline during read-ahead) so the message appears in program
+	// order relative to motion, matching C++ MESSAGE() which emits
+	// EMC_OPERATOR_DISPLAY into the interp_list (emccanon.cc:2362).
+	c.task.logger.Info("MSG: " + s)
+	c.enqueue(&DisplayMsgCmd{Text: s})
+}
+func (c *Canon) LogMsg(s string) {}
 func (c *Canon) Logopen(s string)   {}
 func (c *Canon) Logappend(s string) {}
 func (c *Canon) Logclose()          {}
@@ -821,6 +828,14 @@ func (c *Canon) Logclose()          {}
 func (c *Canon) CanonError(msg string) {
 	c.task.logger.Error("canon error", "msg", msg)
 }
+
+// DisplayMsgCmd publishes a G-code operator-display message ((MSG,...)) when
+// the sequencer reaches it, so it appears in program order relative to motion.
+type DisplayMsgCmd struct{ Text string }
+
+func (c *DisplayMsgCmd) Execute(t *Task) error { t.operatorDisplay(c.Text); return nil }
+func (c *DisplayMsgCmd) Wait() WaitType        { return WaitNone }
+func (c *DisplayMsgCmd) String() string        { return "DisplayMsg" }
 
 func (c *Canon) SetBlockDelete(enabled int32) {
 	c.state.blockDelete = enabled != 0

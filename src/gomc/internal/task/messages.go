@@ -34,6 +34,17 @@ func (t *Task) appendMessage(kind emcerror.ErrorKind, text string) uint64 {
 	return id
 }
 
+// operatorDisplay publishes a G-code operator-display message ((MSG,...) /
+// (DEBUG,...)) to connected UIs. Mirrors operatorError; safe to call from the
+// sequencer goroutine (appendMessage uses the msgMu leaf lock).
+func (t *Task) operatorDisplay(text string) {
+	t.appendMessage(emcerror.ErrorKind_OPERATOR_DISPLAY, text)
+	if t.errors != nil {
+		t.errors.OperatorDisplay(text)
+	}
+	t.logger.Info("operator display", "msg", text)
+}
+
 // messageListSnapshot returns a copy of the current message list.
 func (t *Task) messageListSnapshot() []TaskMessage {
 	t.msgMu.Lock()
