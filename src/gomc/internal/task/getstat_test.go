@@ -138,6 +138,13 @@ func TestGetStat_Positions(t *testing.T) {
 	task, _ := newRichTestTask()
 	bringUp(task)
 
+	// Tool offset is reported from the canon (task) side, not motion status —
+	// gomc folds it into coordinate math and never sends it to motion. Set it
+	// distinct from the motion mock's ms.ToolOffset (Z=50) so the assertion
+	// below proves the canon source rather than the (now unused) motion echo.
+	task.canon.state.toolOffset = Pose{Z: 42.0}
+	task.canonSnap = *task.canon.state
+
 	stat := task.BuildStat()
 
 	// Position = commanded cartesian
@@ -148,9 +155,9 @@ func TestGetStat_Positions(t *testing.T) {
 	if stat.ActualPosition.X != 10.1 || stat.ActualPosition.Y != 20.1 || stat.ActualPosition.Z != 30.1 {
 		t.Errorf("ActualPosition = %+v, want {10.1,20.1,30.1,...}", stat.ActualPosition)
 	}
-	// ToolOffset
-	if stat.ToolOffset.Z != 50.0 {
-		t.Errorf("ToolOffset.Z = %f, want 50", stat.ToolOffset.Z)
+	// ToolOffset (from canon, not the motion mock's ms.ToolOffset=50)
+	if stat.ToolOffset.Z != 42.0 {
+		t.Errorf("ToolOffset.Z = %f, want 42 (canon source, not motion's 50)", stat.ToolOffset.Z)
 	}
 	// ProbedPosition
 	if stat.ProbedPosition.X != 5 || stat.ProbedPosition.Y != 6 || stat.ProbedPosition.Z != 7 {

@@ -179,8 +179,17 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	// Positions.
 	stat.Position = poseToPosition(ms.CartePosCmd)
 	stat.ActualPosition = poseToPosition(ms.CartePosFb)
-	stat.ToolOffset = poseToPosition(ms.ToolOffset)
 	stat.ProbedPosition = poseToPosition(ms.Probe.Pos)
+	// Tool offset comes from the canon (task) side: gomc folds it into the
+	// coordinate math (toAbsolute) and never sends it to motion, so
+	// ms.ToolOffset is always zero. This matches C++, which reports
+	// task.toolOffset from the SET_OFFSET command (emctaskmain.cc:1889), not a
+	// motion echo — and is consistent with G5x/G92 above (also from cs).
+	stat.ToolOffset = emcstat.Position{
+		X: cs.toolOffset.X, Y: cs.toolOffset.Y, Z: cs.toolOffset.Z,
+		A: cs.toolOffset.A, B: cs.toolOffset.B, C: cs.toolOffset.C,
+		U: cs.toolOffset.U, V: cs.toolOffset.V, W: cs.toolOffset.W,
+	}
 
 	// Tool info from IO controller.
 	if t.io != nil {
