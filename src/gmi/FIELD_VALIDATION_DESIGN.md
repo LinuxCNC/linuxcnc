@@ -287,6 +287,15 @@ newer peer should pass through rather than 400. Default is closed.
 - **Error shape stays non-exclusive** — the flat `{field, constraint, message}`
   is right for fail-fast, and can gain a `violations: []` array later without
   restructuring, should a consumer ever need all errors at once.
+- **Validation runs only in the userspace gomc-server, never in RT.** All checks
+  live in the Go REST/WS dispatch (`_cgo.go` / `_bridge.go`), which handles the
+  external JSON boundary for both cmod and gomod APIs; the generated C header
+  (`_api.h`) contains no validation. A real RT caller reaches a cmod C→C
+  directly, bypassing the dispatch entirely — so `@regex` (allocation,
+  non-deterministic timing) never executes in RT context. **Guard for the
+  future:** if C-side enforcement is ever emitted into a module's own callbacks,
+  it must exclude `@regex` — and realistically all non-trivial validation — for
+  `@rt_safe` functions, since RT forbids allocation and unbounded work.
 
 ## Build order (as shipped)
 
