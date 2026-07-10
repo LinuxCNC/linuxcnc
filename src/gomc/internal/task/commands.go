@@ -1519,6 +1519,27 @@ func (t *Task) SetRapidOverride(rate float64) error {
 	return t.motion.SetRapidScale(rate)
 }
 
+func boolToInt32(b bool) int32 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+// SetFeedOverrideEnable / SetFeedHoldEnable / SetSpindleOverrideEnable are the
+// GUI-immediate override-enable toggles (C++ EMC_TRAJ_SET_FO/FH/SO_ENABLE). They
+// pass straight to motion like the scale overrides; the G-code path (M48-M53)
+// remains separate. All three are forced on at machine-on.
+func (t *Task) SetFeedOverrideEnable(enable bool) error {
+	return t.motion.FeedScaleEnable(boolToInt32(enable))
+}
+func (t *Task) SetFeedHoldEnable(enable bool) error {
+	return t.motion.FeedHoldEnable(boolToInt32(enable))
+}
+func (t *Task) SetSpindleOverrideEnable(enable bool, spindleNum int32) error {
+	return t.motion.SpindleScaleEnable(spindleNum, boolToInt32(enable))
+}
+
 // SetMaxVelocity sets the maximum trajectory velocity.
 func (t *Task) SetMaxVelocity(velocity float64) error {
 	return t.motion.SetVelLimit(velocity)

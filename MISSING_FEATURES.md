@@ -50,7 +50,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 | 3 | `TASK_PLAN_FORWARD` | ~~**Silent no-op.**~~ **FIXED.** Added the `AutoForward=5` constant and `case AutoForward: return t.motion.Forward()` in `autoCommand` (mirrors `AutoReverse`; the `preflightAuto` fall-through already covers it). Covered by `auto_forward_test.go`. | fixed | `commands.go` `autoCommand` |
 | 4 | canon `MESSAGE` / `(MSG,…)` | ~~**G-code operator messages never reach the UI.**~~ **FIXED.** `Message()` now enqueues a `DisplayMsgCmd` that publishes to the operator-display channel (`operatorDisplay` → `ErrorPublisher.OperatorDisplay`, `ErrorKind_OPERATOR_DISPLAY`) when the sequencer reaches it — in program order, not read-ahead. Covered by `message_display_test.go`. `(LOG,…)`/logfile still no-op (minor). | fixed | `canon.go` `Message`, `messages.go` `operatorDisplay` |
 | 5 | `TRAJ_SET_OFFSET` (tool offset) | ~~**`ToolOffset` reported as zero.**~~ **FIXED.** `stat.go` now sources `ToolOffset` from the canon snapshot (`cs.toolOffset`, the value `toAbsolute` applies) instead of the always-zero motion echo — matching C++ which reports `task.toolOffset` from SET_OFFSET (emctaskmain.cc:1889), and consistent with G5x/G92. `TestGetStat_Positions` now uses a canon offset distinct from the motion mock to prove the source. | fixed | `stat.go` positions block |
-| 6 | `TRAJ_SET_FO/FH/SO_ENABLE` | **PARTIAL — no GUI-immediate command.** The three override-enable toggles are forced ON at machine-on. Capability *is* reachable via G-code (M48/M49/M50/M51/M53 → `EnableFeedOverride`/`FeedHoldEnableCmd`), but there is no immediate command for a GUI to toggle them without an MDI M-code. | yes (downgraded from MISSING) | `commands.go:254-257` (machine-on only); G-code path `canon.go:1262/1275` |
+| 6 | `TRAJ_SET_FO/FH/SO_ENABLE` | ~~**PARTIAL — no GUI-immediate command.**~~ **FIXED.** Added REST commands `set_fo_enable`/`set_fh_enable`/`set_so_enable` (emccmd.gmi) → `api_provider` → Task `SetFeedOverrideEnable`/`SetFeedHoldEnable`/`SetSpindleOverrideEnable` → `motion.FeedScaleEnable`/`FeedHoldEnable`/`SpindleScaleEnable`. A GUI can now toggle the three overrides without an MDI M-code; the G-code path (M48–M53) is unchanged. Covered by `override_enable_test.go`. | fixed | `emccmd.gmi`, `commands.go`, `api_provider.go` |
 
 ## Tier 3 — minor / edge
 
@@ -70,8 +70,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 All of Tier 1 and Tier 2 are now done: ~~#1 orient timeout~~, ~~#3 `PLAN_FORWARD`~~,
 ~~#4 `(MSG,…)` → operator-display~~, ~~#5 ToolOffset~~ (sourced from canon),
-~~#2 `LOAD_COMP`~~ (INI key + file parse + `set_joint_comp` wiring). The FO/FH/SO
-GUI-immediate command (#6) remains partial (capability reachable via G-code).
-Remaining: Tier 3 minor/edge items — **#13** (MDI multi-level o-word) should get
-a test regardless.
+~~#2 `LOAD_COMP`~~ (INI key + file parse + `set_joint_comp` wiring), and
+~~#6 FO/FH/SO GUI-immediate commands~~. Remaining: Tier 3 minor/edge items —
+**#13** (MDI multi-level o-word) should get a test regardless.
 </content>

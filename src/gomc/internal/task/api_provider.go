@@ -138,6 +138,27 @@ func (m *milltaskModule) SetMaxVelocity(velocity float64) (int32, error) {
 	return rcsDone, m.task.SetMaxVelocity(velocity)
 }
 
+func (m *milltaskModule) SetFoEnable(enable bool) (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.SetFeedOverrideEnable(enable)
+}
+
+func (m *milltaskModule) SetFhEnable(enable bool) (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.SetFeedHoldEnable(enable)
+}
+
+func (m *milltaskModule) SetSoEnable(enable bool, spindleNum int32) (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.SetSpindleOverrideEnable(enable, spindleNum)
+}
+
 func (m *milltaskModule) Flood(on bool) (int32, error) {
 	if err := m.ready(); err != nil {
 		return rcsError, err

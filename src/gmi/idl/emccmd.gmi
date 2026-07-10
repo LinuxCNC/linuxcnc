@@ -117,6 +117,21 @@ func set_rapid_override(rate: f64) -> i32
 @path "/max-velocity"
 func set_max_velocity(velocity: f64) -> i32
 
+# Enable/disable feed override (GUI toggle; EMC_TRAJ_SET_FO_ENABLE)
+@method "POST"
+@path "/feed-override-enable"
+func set_fo_enable(enable: bool) -> i32
+
+# Enable/disable feed hold (EMC_TRAJ_SET_FH_ENABLE)
+@method "POST"
+@path "/feed-hold-enable"
+func set_fh_enable(enable: bool) -> i32
+
+# Enable/disable spindle-speed override (EMC_TRAJ_SET_SO_ENABLE)
+@method "POST"
+@path "/spindle-override-enable"
+func set_so_enable(enable: bool, spindle_num: i32) -> i32
+
 # Flood coolant on/off
 @method "POST"
 @path "/flood"
