@@ -1757,7 +1757,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                         inst->command->min_pos_speed, inst->command->max_neg_speed, inst->command->minLimit,
                         inst->command->search_vel, inst->command->home, inst->command->home_sequence);
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < 0){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to configure non-existent spindle"));
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1775,7 +1775,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_ON: spindle %d/%d speed %d\n",
                         inst->command->spindle, inst->config->numSpindles, (int) inst->command->vel);
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to start non-existent spindle"));
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1828,7 +1828,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SPINDLE_OFF:
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_OFF");
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to stop non-existent spindle <%d>"),spindle_num);
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1859,7 +1859,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SPINDLE_ORIENT:
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_ORIENT");
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to orient non-existent spindle <%d>"),spindle_num);
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1910,7 +1910,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SPINDLE_INCREASE:
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_INCREASE");
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to increase non-existent spindle <%d>"),spindle_num);
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1934,7 +1934,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SPINDLE_DECREASE:
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_DECREASE");
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to decrease non-existent spindle <%d>."),spindle_num);
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1958,7 +1958,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SPINDLE_BRAKE_ENGAGE:
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_BRAKE_ENGAGE");
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to engage brake of non-existent spindle <%d>"),spindle_num);
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
@@ -1980,7 +1980,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_SPINDLE_BRAKE_RELEASE:
 	    gomc_log_debugf(inst->log, inst->name, "SPINDLE_BRAKE_RELEASE");
 	    spindle_num = inst->command->spindle;
-        if (spindle_num >= inst->config->numSpindles){
+        if (spindle_num >= inst->config->numSpindles || spindle_num < -1){
             gomc_log_errorf(inst->log, inst->name, _("Attempt to release brake of non-existent spindle <%d>"),spindle_num);
             inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
