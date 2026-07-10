@@ -75,7 +75,7 @@ func jog_stop(jjogmode: bool, axis_or_joint: i32) -> i32
 # Spindle control
 @method "POST"
 @path "/spindle"
-func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32, wait: i32) -> i32
+func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32 @min(0) @max(7), wait: i32) -> i32
 
 # Home a joint (-1 = all)
 @method "POST"
@@ -105,7 +105,7 @@ func set_feed_override(rate: f64) -> i32
 # Set spindle speed override (0.0 - 1.0+)
 @method "POST"
 @path "/spindle-override"
-func set_spindle_override(rate: f64, spindle_num: i32) -> i32
+func set_spindle_override(rate: f64, spindle_num: i32 @min(0) @max(7)) -> i32
 
 # Set rapid override (0.0 - 1.0)
 @method "POST"
@@ -130,7 +130,7 @@ func set_fh_enable(enable: bool) -> i32
 # Enable/disable spindle-speed override (EMC_TRAJ_SET_SO_ENABLE)
 @method "POST"
 @path "/spindle-override-enable"
-func set_so_enable(enable: bool, spindle_num: i32) -> i32
+func set_so_enable(enable: bool, spindle_num: i32 @min(0) @max(7)) -> i32
 
 # Flood coolant on/off
 @method "POST"
@@ -145,7 +145,7 @@ func mist(on: bool) -> i32
 # Spindle brake engage/release
 @method "POST"
 @path "/brake"
-func brake(on: bool, spindle_num: i32) -> i32
+func brake(on: bool, spindle_num: i32 @min(0) @max(7)) -> i32
 
 # Lube on/off
 @method "POST"
