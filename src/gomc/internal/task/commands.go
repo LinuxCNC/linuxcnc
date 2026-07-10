@@ -939,6 +939,42 @@ func (t *Task) finishMDI() {
 			t.logger.Error("interp synch after MDI failed", "err", err)
 		}
 		t.updateActiveCodes(t.interp)
+
+		// Continue an MDI o-word subroutine that yielded INTERP_EXECUTE_FINISH at
+		// a queue-buster (probe, M66, dwell, tool change). Interp::_execute drives
+		// the sub with an internal `while(MDImode && call_level)` loop that bails
+		// out with EXECUTE_FINISH the moment a sub block needs the motion queue
+		// drained, leaving the rest of the sub unexecuted until execute() is
+		// called again. The queued motion has now drained (mdiDoneCmd waited for
+		// it) and the interp is re-synched, so re-run execute() to advance the
+		// sub — mirroring C++ re-issuing emcTaskPlanExecute(0) until the call
+		// level unwinds, and the AUTO path's EXECUTE_FINISH handling. Any motion
+		// the continuation queues is drained by another mdiDoneCmd before we
+		// re-enter, which either continues (call_level still > 0) or completes
+		// (== 0). A plain MDI line, or a single top-level queue-buster, has
+		// call_level 0 here and skips this — its block is already complete.
+		if t.interp.CallLevel() > 0 {
+			// The continuation fires canon callbacks (the sub's queued moves,
+			// probes, M-codes); point them at this task's canon, as executeMDI
+			// and runProgram do before driving the interpreter.
+			setActiveCanon(t.canon)
+			_, err := t.interp.Execute()
+			t.updateActiveCodes(t.interp)
+			if err != nil {
+				t.logger.Error("MDI subroutine continuation failed", "err", err)
+				t.operatorError(fmt.Sprintf("MDI subroutine error: %s", err))
+				t.mu.Lock()
+				t.interpState = InterpIdle
+				t.execState = ExecError
+				t.mu.Unlock()
+				return
+			}
+			// Drain any motion the continuation queued, then re-enter finishMDI
+			// to continue (call_level > 0) or complete (call_level 0) the sub.
+			t.setExecState(ExecWaitingForMotion)
+			t.EnqueueCmd(&mdiDoneCmd{})
+			return
+		}
 	}
 
 	t.mu.Lock()

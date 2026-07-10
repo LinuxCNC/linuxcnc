@@ -22,6 +22,7 @@ type fakeInterp struct {
 	onExecuteString func(cmd string) (int, error)
 	onRead          func(call int) (int, error)
 	onExecute       func(call int) (int, error)
+	onCallLevel     func() int
 	reads, execs    int
 }
 
@@ -77,7 +78,15 @@ func (f *fakeInterp) Reset() error {
 func (f *fakeInterp) Abort(int, string) error { return nil }
 func (f *fakeInterp) Line() int               { f.mu.Lock(); defer f.mu.Unlock(); return f.line }
 func (f *fakeInterp) SequenceNumber() int     { return 0 }
-func (f *fakeInterp) CallLevel() int          { return 0 }
+func (f *fakeInterp) CallLevel() int {
+	f.mu.Lock()
+	fn := f.onCallLevel
+	f.mu.Unlock()
+	if fn != nil {
+		return fn()
+	}
+	return 0
+}
 func (f *fakeInterp) ErrorText(int) string    { return "" }
 func (f *fakeInterp) FileName() string        { return "fake.ngc" }
 func (f *fakeInterp) Command() string         { return "" }
