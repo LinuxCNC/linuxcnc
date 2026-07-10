@@ -5,6 +5,7 @@ package apiserver
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net"
@@ -366,6 +367,21 @@ func writeErrorJSON(w http.ResponseWriter, code int, msg string) {
 }
 
 func writeDispatchError(w http.ResponseWriter, err error) {
+	// A constraint violation renders as a structured 400 identifying the field
+	// and rule, before falling through to the generic errno mapping.
+	var ve *ValidationError
+	if errors.As(err, &ve) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(struct {
+			Error      string `json:"error"`
+			Code       int    `json:"code"`
+			Field      string `json:"field"`
+			Constraint string `json:"constraint"`
+		}{ve.Message, http.StatusBadRequest, ve.Field, ve.Constraint})
+		return
+	}
+
 	// Map errno to HTTP status
 	code := http.StatusInternalServerError
 	switch err {
