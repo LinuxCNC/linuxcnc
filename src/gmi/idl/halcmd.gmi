@@ -126,19 +126,19 @@ func list_threads(pattern: string?) -> []ThreadInfo
 @method "GET"
 @path "/pin/{name}"
 @rt_safe "false"
-func get_pin(name: string) -> PinInfo
+func get_pin(name: string @maxlen(47)) -> PinInfo
 
 # Get single parameter
 @method "GET"
 @path "/param/{name}"
 @rt_safe "false"
-func get_param(name: string) -> ParamInfo
+func get_param(name: string @maxlen(47)) -> ParamInfo
 
 # Get single signal (gets)
 @method "GET"
 @path "/signal/{name}"
 @rt_safe "false"
-func get_signal(name: string) -> SignalInfo
+func get_signal(name: string @maxlen(47)) -> SignalInfo
 
 # Get HAL status
 @method "GET"
@@ -152,37 +152,37 @@ func get_status() -> HalStatus
 @method "PUT"
 @path "/pin/{name}"
 @rt_safe "false"
-func set_pin(name: string, value: string) -> CmdResult
+func set_pin(name: string @maxlen(47), value: string) -> CmdResult
 
 # Set parameter value (setp for params)
 @method "PUT"
 @path "/param/{name}"
 @rt_safe "false"
-func set_param(name: string, value: string) -> CmdResult
+func set_param(name: string @maxlen(47), value: string) -> CmdResult
 
 # Create pin alias
 @method "POST"
 @path "/pin/{name}/alias"
 @rt_safe "false"
-func alias_pin(name: string, alias: string @maxlen(47)) -> CmdResult
+func alias_pin(name: string @maxlen(47), alias: string @maxlen(47)) -> CmdResult
 
 # Create param alias
 @method "POST"
 @path "/param/{name}/alias"
 @rt_safe "false"
-func alias_param(name: string, alias: string @maxlen(47)) -> CmdResult
+func alias_param(name: string @maxlen(47), alias: string @maxlen(47)) -> CmdResult
 
 # Remove pin alias
 @method "DELETE"
 @path "/pin/{name}/alias"
 @rt_safe "false"
-func unalias_pin(name: string) -> CmdResult
+func unalias_pin(name: string @maxlen(47)) -> CmdResult
 
 # Remove param alias
 @method "DELETE"
 @path "/param/{name}/alias"
 @rt_safe "false"
-func unalias_param(name: string) -> CmdResult
+func unalias_param(name: string @maxlen(47)) -> CmdResult
 
 # ─── Signal Commands ───
 
@@ -190,7 +190,7 @@ func unalias_param(name: string) -> CmdResult
 @method "PUT"
 @path "/signal/{name}"
 @rt_safe "false"
-func set_signal(name: string, value: string) -> CmdResult
+func set_signal(name: string @maxlen(47), value: string) -> CmdResult
 
 # Create new signal (newsig)
 @method "POST"
@@ -202,7 +202,7 @@ func new_signal(name: string @maxlen(47), type: string) -> CmdResult
 @method "DELETE"
 @path "/signal/{name}"
 @rt_safe "false"
-func delete_signal(name: string) -> CmdResult
+func delete_signal(name: string @maxlen(47)) -> CmdResult
 
 # ─── Link Commands ───
 
@@ -210,25 +210,25 @@ func delete_signal(name: string) -> CmdResult
 @method "POST"
 @path "/link"
 @rt_safe "false"
-func link(pin: string, signal: string) -> CmdResult
+func link(pin: string @maxlen(47), signal: string @maxlen(47)) -> CmdResult
 
 # Link pin to pin directly (linkpp) - creates implicit signal
 @method "POST"
 @path "/linkpp"
 @rt_safe "false"
-func link_pp(pin1: string, pin2: string) -> CmdResult
+func link_pp(pin1: string @maxlen(47), pin2: string @maxlen(47)) -> CmdResult
 
 # Unlink pin (unlinkp)
 @method "DELETE"
 @path "/link/{pin}"
 @rt_safe "false"
-func unlink(pin: string) -> CmdResult
+func unlink(pin: string @maxlen(47)) -> CmdResult
 
 # Net command - link multiple pins, auto-create signal
 @method "POST"
 @path "/net"
 @rt_safe "false"
-func net(signal: string, pins: []string) -> CmdResult
+func net(signal: string @maxlen(47), pins: []string) -> CmdResult
 
 # ─── Module Commands ───
 
@@ -258,19 +258,19 @@ func newthread(name: string @maxlen(47), period_ns: i64 @min(1), fp: bool?, cpu_
 @method "DELETE"
 @path "/thread/{name}"
 @rt_safe "false"
-func delthread(name: string) -> CmdResult
+func delthread(name: string @maxlen(47)) -> CmdResult
 
 # Add function to thread (addf)
 @method "POST"
 @path "/thread/{thread}/function"
 @rt_safe "false"
-func addf(thread: string, function: string, position: i32?) -> CmdResult
+func addf(thread: string @maxlen(47), function: string @maxlen(47), position: i32?) -> CmdResult
 
 # Remove function from thread (delf)
 @method "DELETE"
 @path "/thread/{thread}/function/{function}"
 @rt_safe "false"
-func delf(thread: string, function: string) -> CmdResult
+func delf(thread: string @maxlen(47), function: string @maxlen(47)) -> CmdResult
 
 # Start all threads
 @method "POST"
@@ -318,13 +318,13 @@ func save(type: string?) -> CmdResult
 @method "POST"
 @path "/signal/{name}/retain"
 @rt_safe "false"
-func retain(name: string) -> CmdResult
+func retain(name: string @maxlen(47)) -> CmdResult
 
 # Clear retain flag on a signal
 @method "DELETE"
 @path "/signal/{name}/retain"
 @rt_safe "false"
-func unretain(name: string) -> CmdResult
+func unretain(name: string @maxlen(47)) -> CmdResult
 
 # ─── Watch Functions (WebSocket push) ───
 
