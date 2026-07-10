@@ -616,21 +616,29 @@ class _Lcnc_Action(object):
     def ADJUST_GRAPHICS_ROTATE(self, x, y):
         STATUS.emit('graphics-view-changed', 'rotate-view', {'X': x, 'Y': y})
 
+    #TODO without the gtk dialog, gnome-sessions
+    # does not start reliably
     def SHUT_SYSTEM_DOWN_PROMPT(self):
-        import subprocess
-        try:
-            try:
-                subprocess.call('gnome-session-quit --power-off', shell=True)
-            except:
-                try:
-                    subprocess.call('xfce4-session-logout', shell=True)
-                except:
-                    try:
-                        subprocess.call('systemctl poweroff', shell=True)
-                    except:
-                        raise
-        except Exception as e:
-            LOG.warning("Couldn't shut system down: {}".format(e))
+        import shutil
+        import time
+
+        dialog = gtk.MessageDialog(parent=None,
+                      message_type=gtk.MessageType.QUESTION,
+                      buttons=gtk.ButtonsType.YES_NO,
+                      text='Shutdown System?')
+        dialog.set_keep_above(True)
+        dialog.format_secondary_text('Unsaved data will be lost')
+        response = dialog.run()
+        dialog.destroy()
+        if response == gtk.ResponseType.YES:
+
+            if shutil.which('gnome-session-quit'):
+                subprocess.run(["gnome-session-quit", "--power-off"])
+            elif shutil.which('xfce4-session-logout'):
+                subprocess.call('xfce4-session-logout', shell=True)
+            else:
+                # force a shutdown - no prompt
+                subprocess.call('systemctl poweroff', shell=True)
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
