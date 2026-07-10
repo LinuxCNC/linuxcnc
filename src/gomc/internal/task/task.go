@@ -298,6 +298,7 @@ type Task struct {
 	axisMaxVel      [9]float64  // per-axis max velocity for jog clamping + canon blend
 	axisMaxAcc      [9]float64  // per-axis max acceleration for canon vel/acc blend
 	startupCode     string
+	debug           int32 // EMC_SET_DEBUG level, echoed to stat.debug
 
 	// Flags
 	optionalStop  bool

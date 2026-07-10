@@ -70,6 +70,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		LinearUnits:    t.linearUnits,
 		State:          rcsStatus,
 		RcsStatus:      rcsStatus,
+		Debug:          t.debug,
 		KinematicsType: emcstat.KinematicsType_IDENTITY,
 		JogAxis:        t.jogAxis,
 		JogIncrement:   t.jogIncrement,

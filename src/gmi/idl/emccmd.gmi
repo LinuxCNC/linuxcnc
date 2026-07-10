@@ -177,6 +177,11 @@ func set_block_delete(on: bool) -> i32
 @path "/load-tool-table"
 func load_tool_table(file: string) -> i32
 
+# Unload the tool from the spindle (EMC_TOOL_UNLOAD)
+@method "POST"
+@path "/tool-unload"
+func tool_unload() -> i32
+
 # Open a program file
 @method "POST"
 @path "/program-open"

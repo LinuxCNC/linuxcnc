@@ -222,6 +222,13 @@ func (m *milltaskModule) LoadToolTable(file string) (int32, error) {
 	return rcsDone, m.task.LoadToolTable(file)
 }
 
+func (m *milltaskModule) ToolUnload() (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.ToolUnload()
+}
+
 func (m *milltaskModule) ProgramOpen(file string) (int32, error) {
 	if err := m.ready(); err != nil {
 		return rcsError, err

@@ -57,11 +57,11 @@ sub-behavior is absent · gaps are grouped by operational impact.
 | # | Command | Problem | Pointer |
 |---|---|---|---|
 | 7 | `TRAJ_CLEAR_PROBE_TRIPPED_FLAG` | `motctl.clear_probe_flags` declared, no caller / no command path. Low impact (motion clears on probe start). | `motctl.gmi:296` |
-| 8 | `TOOL_UNLOAD` | `IOController.ToolUnload()` exists but nothing calls it; a UI tool-unload has no path. | `task.go:186` |
-| 9 | `SET_DEBUG` | Forwarded only to `motion.SetDebug`; C++ also sets IO debug + `status.debug`. `io.SetDebug` never invoked. | `commands.go:1609` |
+| 8 | `TOOL_UNLOAD` | ~~unwired~~ **FIXED.** Added REST `tool_unload` → `Task.ToolUnload` → `io.ToolUnload` (reject-while-busy, interp synch after). `tier3_batch_test.go`. | fixed |
+| 9 | `SET_DEBUG` | ~~motion-only~~ **FIXED.** `SetDebug` now forwards to both `motion.SetDebug` and `io.SetDebug` and records the level to `stat.debug`. `tier3_batch_test.go`. | fixed |
 | 10 | `AUX_INPUT_WAIT` (M66) | Analog-input wait semantics differ (polls analog as boolean for edge/level; C++ restricts non-immediate waits to digital). Edge case. | `canon.go:~1349` |
 | 11 | `JOINT_ENABLE`/`DISABLE` | Only whole-machine amp enable/disable; no per-joint command. Rarely used. | — |
-| 12 | `JOINT_SET_HOMING_PARAMS` | Runtime HAL push zeroes `home_final_vel`/`search_vel`/`latch_vel`/`flags`/`volatile_home`. Homing params are normally INI-fixed. | `inihal.go:302-312` |
+| 12 | `JOINT_SET_HOMING_PARAMS` | **BUG (not just missing):** a runtime HAL change to home/offset/sequence re-pushes `SetJointHomingParams` with `0` for `home_final_vel`/`search_vel`/`latch_vel`/`flags`/`volatile_home`, wiping the INI-configured values — homing would then use zero velocities. Needs the full per-joint homing params cached at INI load so inihal can re-push them unchanged. Not a quick wire; deferred. | `inihal.go:302-312` |
 | 13 | `TASK_PLAN_EXECUTE` multi-level MDI | MDI o-word sub-calls that yield `INTERP_EXECUTE_FINISH` may not be driven to completion the way a running program's loop handles it. **Needs a test to confirm.** | `commands.go` `executeMDI` |
 
 ---

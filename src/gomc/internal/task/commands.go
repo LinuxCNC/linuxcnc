@@ -1808,6 +1808,30 @@ func (t *Task) LoadToolTable(file string) error {
 	return err
 }
 
+// ToolUnload unloads the tool from the spindle (manual EMC_TOOL_UNLOAD).
+// Rejected while a program is running (it changes tool state under the interp).
+func (t *Task) ToolUnload() error {
+	if err := t.preflightNotBusy("Can't unload the tool while a program is running"); err != nil {
+		return err
+	}
+	t.cmdMu.Lock()
+	defer t.cmdMu.Unlock()
+
+	t.mu.Lock()
+	busy := t.programBusy()
+	t.mu.Unlock()
+	if busy {
+		t.operatorError("Can't unload the tool while a program is running")
+		return ErrBusy
+	}
+
+	err := t.io.ToolUnload()
+	if err == nil && t.interp != nil {
+		_ = t.interp.Synch() // re-read tool state after the unload
+	}
+	return err
+}
+
 // WaitComplete waits for motion to complete (with timeout).
 func (t *Task) WaitComplete(timeout float64) error {
 	deadline := time.Now().Add(time.Duration(timeout * float64(time.Second)))
@@ -1831,8 +1855,11 @@ func (t *Task) WaitComplete(timeout float64) error {
 // SetDebug sets the debug level.
 func (t *Task) SetDebug(debug int32) error {
 	t.mu.Lock()
-	defer t.mu.Unlock()
+	t.debug = debug // echoed to stat.debug
+	t.mu.Unlock()
 
+	// C++ sets both the motion and IO debug levels (emcSetDebug -> motion + IO).
+	_ = t.io.SetDebug(debug)
 	return t.motion.SetDebug(debug)
 }
 
