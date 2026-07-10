@@ -963,8 +963,12 @@ func (t *Task) finishMDI(gen uint64) {
 	// Ownership check: a finishMDI left over from a superseded MDI (an Abort or
 	// estop teardown between the mdiDoneCmd handoff and here, followed by a newer
 	// MDI that bumped mdiGen) must NOT synch or commit against the newer
-	// command's state. mdiGen only changes under cmdMu (executeMDI), which we
-	// hold, so this read is stable for the whole call.
+	// command's state. executeMDI bumps mdiGen under cmdMu (which we hold), but
+	// fault paths (seqFaultExit, the monitor ExecError latches) bump it under
+	// t.mu only, so mdiGen CAN advance mid-call. That is safe: a bump can only
+	// mark this call stale (a no-op), never revive a stale one, and a fault
+	// landing after this check is caught by the execState==ExecError guard
+	// below plus the queue those paths already flushed.
 	t.mu.Lock()
 	stale := gen != t.mdiGen || t.interpActive
 	t.mu.Unlock()

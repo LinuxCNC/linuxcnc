@@ -240,7 +240,9 @@ func TestMDI_InterpErrorAbortsMotionAndFaults(t *testing.T) {
 	fi := &fakeInterp{}
 	fi.onExecuteString = func(string) (int, error) {
 		// Block 1 of the MDI queues motion; a later block hits a runtime error.
-		activeCanon().task.EnqueueCmd(&LinearMoveCmd{ID: 1})
+		// Enqueue to `task` directly (not the process-global activeCanon), which
+		// a leaked goroutine from a prior test could swap.
+		task.EnqueueCmd(&LinearMoveCmd{ID: 1})
 		return InterpError, nil
 	}
 	task.SetInterpreter(fi)

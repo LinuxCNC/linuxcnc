@@ -69,27 +69,12 @@ func (e *constraintEmitter) regexVarDecls() string {
 	return b.String()
 }
 
-// usesFmt reports whether the generated validation references fmt (enum checks
-// and element-indexed paths do), so the caller can arrange the import.
-func (e *constraintEmitter) usesFmt() bool {
-	uses := false
-	e.walkValidation(func(t ast.TypeRef, cs []ast.Constraint) {
-		if _, ok := e.enumFor(t); ok && !hasConstraint(cs, ast.ConstraintEnumOpen) {
-			uses = true
-		}
-		if t.Kind == ast.TypeSlice || t.Kind == ast.TypeArray {
-			uses = true // element paths use fmt.Sprintf
-		}
-	})
-	return uses
-}
-
 // walkValidation visits every (type, constraints) pair reachable from an input
 // parameter of any dispatched function, recursing through struct fields and
 // slice/array elements. The seen set breaks cycles in recursive struct types.
 // It must cover EVERY function that allValidationFuncs emits a validator for
-// (including non-REST ones like `close`), so collectRegexVars/usesFmt see the
-// same set — otherwise a @regex on a non-REST function would reference an
+// (including non-REST ones like `close`), so collectRegexVars sees the same
+// set — otherwise a @regex on a non-REST function would reference an
 // uncollected (empty) var and emit invalid Go.
 func (e *constraintEmitter) walkValidation(visit func(ast.TypeRef, []ast.Constraint)) {
 	seen := map[string]bool{}

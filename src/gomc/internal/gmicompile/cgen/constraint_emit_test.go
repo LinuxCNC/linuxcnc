@@ -211,3 +211,21 @@ func put_tool(toolno: i32 @min(1), entry: ToolEntry) -> i32
 		t.Error("WS bridge must not inline the validation checks (D8: shared validator)")
 	}
 }
+
+// Pinning test for the walkValidation/allValidationFuncs invariant (H5): a
+// @regex on a function with NO @method (dispatched but not REST-exported) must
+// still get its compiled pattern var collected. With a REST-only filter in
+// walkValidation the validator would reference an uncollected var and emit
+// invalid Go — genDispatch's parse check catches that, and the explicit
+// assertions pin the collected var and its reference.
+func TestGenerateValidationRegexOnNonRESTFunc(t *testing.T) {
+	src := `@api wsonly
+@version 1
+@license "GPL Version 2"
+
+func set_tag(tag: string @regex("^[a-z]+$")) -> i32
+`
+	out := genDispatch(t, src)
+	assertContains(t, out, `var wsonly0 = apiserver.MustRegex("^[a-z]+$")`)
+	assertContains(t, out, `apiserver.ValidateRegex("tag", wsonly0, tag)`)
+}

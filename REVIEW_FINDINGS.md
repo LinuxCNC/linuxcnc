@@ -479,6 +479,9 @@ motionDispatched" is violated.
 **Fix:** add `*ProbeCmd` to the switch at sequencer.go:246 (one line).
 
 ### [x] R2 — ExecError latch paths outside faultMDI don't flush mdiQueue (stale MDI replay)
+**Recheck 2: fixed for both named triggers** (seqFaultExit flushes + bumps mdiGen,
+sequencer.go:706-715; monitor latch paths bump mdiGen, monitor.go:186/257/338;
+faultMDI intact). One rare pre-existing sibling remains → see H1.
 **Where:** `src/gomc/internal/task/sequencer.go:298-345` (sequencer error exits),
 `monitor.go` checkMotionErrors/checkMotionEnabled latch paths;
 `commands.go:1032-1038` (finishMDI's ExecError early-return skips the dequeue)
@@ -566,6 +569,93 @@ the unmutated tree.
   layers of guards, but contract-fragile — consider a separate ok/err channel if
   the GMI plumbing ever grows one. DisplayMsgCmd not barriering (2.9 barriers
   EMC_OPERATOR_DISPLAY) is a pre-existing divergence, listed for completeness.
+
+---
+
+## H. Second recheck — 2026-07-10, after 9965c88bce + 3eb55771a9
+
+Method: full `-race` suites green (task, gmicompile, launcher); three verification
+agents re-traced C11/D1/R1-R9 against current code; the new C1/C8/C9 regression
+tests were mutation-verified for real (dropping faultMDI on InterpError, dropping
+the mdiGen staleness check, and dropping faultMDI's queue flush each make exactly
+the corresponding test fail). The gmicompile regex-walk fix was verified
+end-to-end by building the old and new compilers against a synthetic non-REST
+@regex .gmi (old emits invalid Go, new emits valid), and 17 regenerated outputs
+were byte-compared (no drift). Verdict: **C11, D1, R1, R3-R8 closed; R2 and R9
+effectively closed with the small leftovers below.** The halscope test fix
+(3eb55771a9) is correct and masks nothing: `CaptureConfig.preTrig` was removed
+from the IDL as dead (the module always computed pre_trig = rec_len/2 and never
+read it).
+
+### [x] H1 — waitMotionDone comm-failure exit latches ExecError without flushing
+**Fixed:** both direct waitMotionDone call sites (D7 precondition drain and
+step-mode) now distinguish context.Canceled (abort → aborter owns terminal
+state) from a hard fault and call `seqFaultExit()` — the same latch+flush every
+other sequencer fault takes; the waitForCompletion path already did.
+**Where:** `sequencer.go:545-546`, reached via the D7 precondition (:233-235) and
+step-mode (:345-347) callers
+**Problem:** pre-existing, rare (needs commFailureThreshold consecutive GetInpos
+errors): this ExecError latch neither flushes mdiQueue/taskCommand nor bumps
+mdiGen, and leaves seqAbort open — the one remaining R2-style path.
+**Fix:** route it through seqFaultExit (or bump mdiGen + flush there too).
+
+### [x] H2 — Stale finishMDI ownership comment (invariant no longer true)
+**Fixed:** comment now states the real invariant — mdiGen can advance mid-call
+via fault paths under t.mu; that only ever increases staleness (safe direction),
+and a post-check fault is caught by the ExecError guard + already-flushed queue.
+**Where:** `commands.go:963-967`
+**Problem:** the comment claims "mdiGen only changes under cmdMu (executeMDI),
+which we hold, so this read is stable for the whole call" — false since
+9965c88bce: seqFaultExit (sequencer goroutine) and the three monitor latch paths
+bump mdiGen holding only `t.mu`. Traced interleavings are benign (extra staleness
+only no-ops a pending finishMDI), but a future edit relying on the stated
+invariant could reintroduce the C8 race.
+**Fix:** correct the comment (mdiGen may also be bumped by fault paths under
+t.mu; staleness can only increase — a stale read is safe, never unsafe).
+
+### [x] H3 — Flaky test: TestMDI_MultiLevelSubContinuation (pre-existing, from 44fe211d9c)
+**Fixed:** the fake's continuations now enqueue via `task.canon.enqueue`, so
+`canon.enqueued()` advances and finishMDI drains motion between continuations
+exactly as in production (E5 fast path no longer skips the drain). 25
+consecutive `-race` runs green.
+**Where:** `mdi_subcall_test.go:69,77,81,112`
+**Problem:** the fake's continuations enqueue moves via `task.EnqueueCmd`
+directly, bypassing `Canon.enqueue`, so `canon.enqueued()` never changes and
+finishMDI's E5 "nothing queued" fast path skips the drain — the terminal commit
+races the sequencer and the `SetLine dispatched 1 times, want 3` assertion can
+fire under load (observed once in a full-package -race run; passes solo).
+Production is unaffected (real canon callbacks go through Canon.enqueue).
+**Fix:** test-side — enqueue via the canon, or wait for lineCount==3 with a
+deadline before asserting.
+
+### [x] H4 — isMotionCmd omits ProbeCmd (step mode won't pause after G38)
+**Fixed:** `*ProbeCmd` added to isMotionCmd, with a comment tying the switch to
+the motionDispatched set (every TP-dispatching command belongs in both).
+**Where:** `sequencer.go:365-371`
+**Problem:** pre-existing sibling of R1: single-step treats a probe move as a
+non-motion command, so step mode runs through a G38 without pausing after it.
+**Fix:** add `*ProbeCmd` to isMotionCmd.
+
+### [x] H5 — No pinning test for the regex-walk invariant
+**Fixed:** TestGenerateValidationRegexOnNonRESTFunc (constraint_emit_test.go)
+generates a dispatch for a no-@method function with @regex and asserts the
+MustRegex var + its reference; mutation-verified — reintroducing the
+`fn.Method == ""` filter in walkValidation makes it fail.
+**Where:** `constraint_emit.go` walkValidation (doc comment declares the
+invariant), test fixtures all use @method functions
+**Problem:** reintroducing a Method filter in walkValidation would pass the
+entire suite while regenerating invalid Go for a non-REST @regex function.
+**Fix:** one fixture in constraint_emit_test.go: non-@method func with @regex;
+assert the MustRegex var is emitted and the generated dispatch parses.
+
+### [x] H6 — usesFmt dead code, now comment-referenced
+**Fixed:** usesFmt deleted; the walkValidation invariant comment now references
+only collectRegexVars.
+**Where:** `constraint_emit.go:74` (zero callers repo-wide; dispatch_c.go imports
+fmt unconditionally with a `var _ = fmt.Sprintf` suppressor), and the new
+walkValidation comment (:91) references it, making it look load-bearing
+**Fix:** delete usesFmt (and the comment reference), or actually use it to gate
+the fmt import.
 
 ---
 

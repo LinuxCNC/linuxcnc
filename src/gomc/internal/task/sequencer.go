@@ -231,7 +231,12 @@ func (t *Task) sequencerLoop() {
 			// already-drained queue returns immediately (E1 fast path).
 			if pc, ok := cmd.(interface{ Precondition() WaitType }); ok && pc.Precondition() == WaitMotion {
 				if err := t.waitMotionDone(); err != nil {
-					return // aborted — aborter owns the terminal state
+					if !errors.Is(err, context.Canceled) {
+						// Hard fault (motion comm failure), not a commanded
+						// abort: latch + flush like any sequencer fault (H1).
+						t.seqFaultExit()
+					}
+					return // on abort the aborter owns the terminal state
 				}
 			}
 
@@ -343,7 +348,12 @@ func (t *Task) sequencerLoop() {
 			// motion to complete and then enter pause.
 			if t.isSeqStepping() && isMotionCmd(cmd) {
 				if err := t.waitMotionDone(); err != nil {
-					return // aborted — aborter owns the terminal state
+					if !errors.Is(err, context.Canceled) {
+						// Hard fault (motion comm failure), not a commanded
+						// abort: latch + flush like any sequencer fault (H1).
+						t.seqFaultExit()
+					}
+					return // on abort the aborter owns the terminal state
 				}
 				t.seqEnterPause()
 				if t.seqCheckPause() {
@@ -362,9 +372,12 @@ func (t *Task) setSeqInflight(v bool) {
 }
 
 // isMotionCmd returns true for commands that produce TP motion segments.
+// Keep in step with the motionDispatched switch in sequencerLoop: every
+// TP-dispatching command belongs here too, so single-step pauses after it
+// (including a G38 probe move — H4).
 func isMotionCmd(cmd QueuedCmd) bool {
 	switch cmd.(type) {
-	case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd:
+	case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd, *ProbeCmd:
 		return true
 	}
 	return false

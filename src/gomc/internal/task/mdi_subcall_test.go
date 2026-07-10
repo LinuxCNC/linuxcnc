@@ -63,22 +63,29 @@ func TestMDI_MultiLevelSubContinuation(t *testing.T) {
 
 	var level int32 // interpreter subroutine nesting level, as CallLevel() reports it
 	fi := &fakeInterp{}
+	// Enqueue via this task's own canon — not task.EnqueueCmd directly, and not
+	// the process-global activeCanon() (which a leaked finishMDI/runProgram
+	// goroutine from a prior test can swap mid-test). Going through
+	// Canon.enqueue keeps canon.enqueued() accurate, so finishMDI drains motion
+	// between continuations exactly as in production; bypassing it trips the E5
+	// "nothing queued" fast path, which commits the terminal state while moves
+	// are still queued and makes the lineCount assertion race the sequencer
+	// (H3 flake).
 	fi.onExecuteString = func(string) (int, error) {
 		// Enter the sub: queue a move, then a queue-buster forces EXECUTE_FINISH
 		// with the sub still on the call stack.
-		activeCanon().task.EnqueueCmd(&LinearMoveCmd{ID: 1})
+		task.canon.enqueue(&LinearMoveCmd{ID: 1})
 		atomic.StoreInt32(&level, 1)
 		return InterpExecuteFinish, nil
 	}
 	fi.onExecute = func(call int) (int, error) {
-		tk := activeCanon().task
 		if call == 1 {
 			// Second queue-buster inside the sub — still mid-sub.
-			tk.EnqueueCmd(&LinearMoveCmd{ID: 2})
+			task.canon.enqueue(&LinearMoveCmd{ID: 2})
 			return InterpExecuteFinish, nil
 		}
 		// Sub runs to its end: final move, call level unwinds.
-		tk.EnqueueCmd(&LinearMoveCmd{ID: 3})
+		task.canon.enqueue(&LinearMoveCmd{ID: 3})
 		atomic.StoreInt32(&level, 0)
 		return InterpOK, nil
 	}
