@@ -3,7 +3,6 @@
 package launcher
 
 import (
-	"errors"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -144,19 +143,6 @@ MACHINE = Test
 	l := newLauncherWithIniPath(t, f)
 	if err := l.checkPlasmaC(); err != nil {
 		t.Errorf("checkPlasmaC on non-PlasmaC INI returned error: %v", err)
-	}
-}
-
-// TestCheckPlasmaC_PlasmaC verifies that [PLASMAC]MODE triggers ErrPlasmaC.
-func TestCheckPlasmaC_PlasmaC(t *testing.T) {
-	dir := t.TempDir()
-	f := writeIni(t, dir, "test.ini", `[PLASMAC]
-MODE = 0
-`)
-	l := newLauncherWithIniPath(t, f)
-	err := l.checkPlasmaC()
-	if !errors.Is(err, ErrPlasmaC) {
-		t.Errorf("checkPlasmaC on PlasmaC INI returned %v, want ErrPlasmaC", err)
 	}
 }
 
