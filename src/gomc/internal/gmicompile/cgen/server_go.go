@@ -476,6 +476,12 @@ func (g *serverGoGen) emitCommands() {
 	ifaceName := apiPascal + "Callbacks"
 	funcName := apiPascal + "Commands"
 
+	// Same @constraint validation as the REST dispatch. The compiled @regex vars
+	// are declared once in the --server-meta output (_cgo.go), which shares this
+	// package; the emitter here references them by the identical generated name
+	// (do not re-declare them via regexVarDecls).
+	ce := newConstraintEmitter(g.api)
+
 	g.printf("// --- WebSocket Commands ---\n\n")
 	g.printf("// %s generates WS command metadata from the callbacks implementation.\n", funcName)
 	g.printf("func %s(impl %s) []apiserver.CommandMeta {\n", funcName, ifaceName)
@@ -517,6 +523,9 @@ func (g *serverGoGen) emitCommands() {
 			g.printf("\t\t\t\t\treturn nil, err\n")
 			g.printf("\t\t\t\t}\n")
 			g.printf("\t\t\t}\n")
+
+			// Validate IDL @constraints (reindented into the handler closure).
+			g.printf("%s", reindent(ce.validation(fn), 2))
 		}
 
 		// Build call args

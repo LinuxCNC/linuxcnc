@@ -11,18 +11,22 @@ by generated code.
 |-------|-------|--------|
 | 1 | AST + scanner + parser + `check.Validate` | ✅ Complete |
 | 2 | Runtime `validate.go` + `writeDispatchError` branch | ✅ Complete |
-| 3 | Server emit (`constraintEmitter`, regex vars, enum auto) | ✅ Complete |
-| — | WebSocket command-handler validation | ❌ Not started |
+| 3 | REST dispatch emit (`constraintEmitter`, regex vars, enum auto) | ✅ Complete |
+| 4 | WebSocket command-handler validation | ✅ Complete |
 | — | Client-side collect-all (TS/Python) | ❌ Not started |
 
-The REST dispatch path (the cgo `_cgo.go` file emitted by `GenerateDispatchC`)
-now validates every input before invoking the callback. Two paths remain:
+Both server-side JSON input paths now validate every input before invoking the
+callback:
 
-- **WebSocket command handlers.** `TooltableCommands`-style handlers (emitted by
-  `GenerateServerGoExtra` into `_bridge.go`) unmarshal the same params over the
-  WS command channel but are not yet validated. They share the same package as
-  `_cgo.go`, so they can reuse the same `constraintEmitter` and the already-emitted
-  regex vars — a small follow-up, deliberately deferred, not a silent gap.
+- **REST dispatch** — the cgo `_cgo.go` file (emitted by `GenerateDispatchC`).
+- **WebSocket command handlers** — `TooltableCommands`-style handlers (emitted by
+  `GenerateServerGoExtra` into `_bridge.go`) that some callers register directly
+  (e.g. `task/watches.go` → `EmccmdCommands(m)`). They share a package with
+  `_cgo.go` and reference its compiled `@regex` vars by the identical generated
+  name rather than re-declaring them.
+
+One path remains as a follow-up:
+
 - **Client-side collect-all** in the generated TS/Python clients, for pre-send UX.
 
 ## Motivation

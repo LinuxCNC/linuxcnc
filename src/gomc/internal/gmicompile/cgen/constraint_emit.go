@@ -305,14 +305,20 @@ func dropConstraint(cs []ast.Constraint, k ast.ConstraintKind) []ast.Constraint 
 	return out
 }
 
-func indentLines(s string) string {
-	if s == "" {
+func indentLines(s string) string { return reindent(s, 1) }
+
+// reindent prefixes every non-empty line with extraTabs tabs. Used to splice the
+// validation block (emitted at one-tab depth) into a more deeply nested scope,
+// e.g. a WebSocket command handler closure.
+func reindent(s string, extraTabs int) string {
+	if s == "" || extraTabs <= 0 {
 		return s
 	}
+	prefix := strings.Repeat("\t", extraTabs)
 	lines := strings.Split(strings.TrimSuffix(s, "\n"), "\n")
 	for i, l := range lines {
 		if l != "" {
-			lines[i] = "\t" + l
+			lines[i] = prefix + l
 		}
 	}
 	return strings.Join(lines, "\n") + "\n"
