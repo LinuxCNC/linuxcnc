@@ -161,7 +161,13 @@ Reading. Do this once in shared helpers (see D4) so both dispatch paths get it.
 
 ## B. Correctness — secondary
 
-### [x] C11 — External-estop teardown diverges from commanded-estop teardown
+### [ ] C11 — External-estop teardown diverges from commanded-estop teardown
+**Recheck 2026-07-10 (after 684a3fbd0e): PARTIAL.** The monitor path is fixed
+(stopSignals turns lube off, finishShutdown syncs the canon endpoint before
+`interp.Synch`; asserted by monitor_test.go:267-274). But the `abortLocked`
+omission named below is still open: `commands.go:1851` calls `interp.Synch()`
+with no preceding `canon.syncEndPointFromMachine` (masked only by the re-syncs
+at the next executeMDI/AutoRun). See R6.
 **Where:** `src/gomc/internal/task/monitor.go:210-252` (checkEstop),
 `commands.go:1739-1743` (abortLocked shares one omission)
 **Problem:** checkEstop hand-rolls the shutdown sequence and has already diverged
@@ -218,7 +224,16 @@ containing a fake `qtplasmac-plasmac2qt`).
 
 ## D. Design / duplication refactors
 
-### [x] D1 — Nine preflight* helpers hand-mirror their command bodies' guard chains
+### [ ] D1 — Nine preflight* helpers hand-mirror their command bodies' guard chains
+**Recheck 2026-07-10 (after 684a3fbd0e): PARTIAL.** The compound chains are
+correctly unified with nothing dropped (autoRunGuardLocked/autoStepGuardLocked,
+requireHomedForMDILocked, spindleOwnedByProgram — old and new conditions and
+operator strings verified identical). Still duplicated: preflightSetMode vs
+SetMode (:52-59 vs :560-563), preflightSetState vs setState's StateOn check
+(:37-48 vs :505-513), preflightNotBusy's programBusy+message re-inlined in four
+bodies (ProgramOpen :618/:631, Unhome :1578/:1592, LoadToolTable :1925/:1937,
+ToolUnload :1958/:1968), and the MDI queue-full check (:164-167 vs :912-917).
+The "keep them in sync" comment (:26-27) still stands. See R7.
 **Where:** `src/gomc/internal/task/commands.go:17-27` (the "keep them in sync"
 comment), helpers at :30, :37, :52, :64, :77, :122, :144, :152, :169;
 `preflightAuto:86-102` duplicates `autoCommand:673-696` verbatim incl. operator
@@ -409,6 +424,115 @@ each repeating the same explanation + blank import of `internal/hallib`
 **Fix:** move the explanation once into a tiny documented package (e.g.
 `internal/hallib/hallibtest` with a doc.go); each per-package file becomes a single
 blank-import line (Go still requires one file per test binary).
+
+---
+
+## G. Recheck residuals — 2026-07-10, after fix commit 684a3fbd0e
+
+Recheck method: full test suite incl. `-race` passes; 6 fix-verification agents
+re-traced every finding against the current code and the 2.9 reference (generated
+GMI outputs re-generated from HEAD emitters and byte-compared); 1 finder swept the
+fix diff for new bugs. Result: 32 of 34 findings fully fixed, 2 partial (C11, D1
+above), plus the following residuals — mostly small gaps at the edges of the new
+mechanisms, found and cross-confirmed by independent agents.
+
+### [ ] R1 — ProbeCmd missing from the motionDispatched set (stale-inpos race for G38)
+**Where:** `src/gomc/internal/task/sequencer.go:246` (marks only
+LinearMoveCmd/CircularMoveCmd/RigidTapCmd), `canon.go:1261-1262` (ProbeCmd also
+dispatches a TP segment)
+**Problem:** E1's settle-skip is gated on `motionDispatched`; ProbeCmd never sets
+it, so its `WaitMotion` drain can take the immediate fast path on stale
+`inpos==1/queueDepth==0` before the servo cycle registers the probe move — probe
+declared complete before it runs; in MDI the following Synch reads stale probe
+parameters (#5061-#5070). The pre-fix unconditional 5-tick settle covered this.
+One agent argues motctl's commandNumEcho ack makes queueDepth>=1 visible before
+Probe() returns; even so the invariant "any TP-dispatching command sets
+motionDispatched" is violated.
+**Fix:** add `*ProbeCmd` to the switch at sequencer.go:246 (one line).
+
+### [ ] R2 — ExecError latch paths outside faultMDI don't flush mdiQueue (stale MDI replay)
+**Where:** `src/gomc/internal/task/sequencer.go:298-345` (sequencer error exits),
+`monitor.go` checkMotionErrors/checkMotionEnabled latch paths;
+`commands.go:1032-1038` (finishMDI's ExecError early-return skips the dequeue)
+**Problem:** only faultMDI/abortLocked/setState flush `mdiQueue`. Two confirmed
+trigger paths strand queued MDIs: (a) a sequencer error exit while MDIs are
+queued; (b) a monitor fault latch (ferror etc.) — finishMDI returns on the
+ExecError guard, machine stays ON, queue untouched. In both cases the next
+operator MDI runs immediately (nothing gates MDI on execState) and its finishMDI
+then dequeues and executes the stale pre-fault entries — e.g. a forgotten
+`M3 S2000` starting the spindle long after the operator abandoned it.
+**Fix:** flush mdiQueue + clear taskCommand (or bump mdiGen) at every point that
+latches ExecError — the sequencer error exits and the monitor latch paths —
+mirroring faultMDI.
+
+### [ ] R3 — Barrier-coalescing state survives aborts and is blind to non-sequencer motion
+**Where:** `src/gomc/internal/task/canon.go:1195-1198` (lastEnqueued), reset only
+at the seek boundary (canon.go:307)
+**Problem:** `lastEnqueued` is set before EnqueueCmd's error check and never reset
+on abort/sequencer restart, and canon cannot see jog/homing motion between two
+barriers. Confirmed scenario: program aborted right after M2/Stop enqueued a
+barrier (flushed unexecuted) → operator jogs → MDI `M6`: StartChange's barrier
+matches stale lastEnqueued and is dropped — ToolChangeCmd (no Precondition)
+executes while the axis is still moving from the jog.
+**Fix:** reset lastEnqueued in restartSequencer/StartSequencer (and on enqueue
+error). Optionally coalesce by sequencer generation instead of object identity.
+
+### [ ] R4 — M66 poll: read errors postpone/disable the timeout
+**Where:** `src/gomc/internal/task/canon.go:1446` (`continue` on GetSynchDi error
+skips the deadline check at the bottom of the tick branch)
+**Problem:** persistent read errors keep jumping back to the select without ever
+evaluating `time.Now().After(deadline)` — the M66 Q-timeout never fires and the
+sequencer blocks until abort/estop. Pre-fix code checked the deadline every tick.
+**Fix:** check the deadline before (or regardless of) the read-error `continue`.
+
+### [ ] R5 — Operator-error burst on normal abort from canon enqueue failures
+**Where:** `src/gomc/internal/task/canon.go:1200-1208` (C3's operator-error on
+dropped commands)
+**Problem:** a user Abort mid-block leaves the producer firing the rest of the
+current block's canon callbacks into the closed queue — each now pops a
+"Motion command dropped (sequencer stopped)" operator error for an expected,
+user-initiated stop. Alarming UI noise the old log-only path avoided (C3 only
+needed the message for the wedged-sequencer case).
+**Fix:** suppress the operator error when the drop is caused by an in-progress
+commanded abort (e.g. only emit if the sequencer is *supposed* to be running —
+check abort-in-progress state), keep it for unexpected drops.
+
+### [ ] R6 — C11 residual: abortLocked still Synchs against the stale canon endpoint
+**Where:** `src/gomc/internal/task/commands.go:1851`
+**Fix:** call `canon.syncEndPointFromMachine` before `interp.Synch()` in
+abortLocked, as finishShutdown now does.
+
+### [ ] R7 — D1 residual: simple preflights still duplicated
+**Where:** `commands.go` — preflightSetMode/SetMode, preflightSetState/setState,
+preflightNotBusy re-inlined in ProgramOpen/Unhome/LoadToolTable/ToolUnload,
+MDI queue-full check ×2; the "keep them in sync" comment at :26-27
+**Fix:** finish the D1 unification for the simple guards; delete the comment when
+nothing is left to keep in sync.
+
+### [ ] R8 — Fixed-but-untested: C1, C3, C4, C5, C8, C9
+**Problem:** the code fixes are in place but no test exercises: MDI interp error →
+faultMDI aborts motion + flushes queue (C1); sequencer restarted on
+estop-while-estopped and later MDI still moves (C3); RigidTap vel unclamped by F
+(C4); M66 two-phase rise/fall edge machine (C5); mdiGen staleness token (C8);
+failed dequeued MDI flush / no out-of-order replay (C9). These are exactly the
+regression-prone paths.
+**Fix:** add the six tests. (C2/C6/C7/C10 already have non-vacuous tests.)
+
+### [ ] R9 — Cosmetic/latent leftovers (batch)
+- `sequencer.go:762` comment still references the deleted `syncBefore()`.
+- `constraint_emit.go:24,28-31`: vestigial `prefix` parameter and stale doc
+  comment describing the removed 'Re'/'CmdRe' scheme.
+- Latent codegen gap (pre-existing pattern): collectRegexVars walks only
+  REST-exported functions while allValidationFuncs emits validators for all
+  dispatched functions — a @regex on a non-REST function would emit invalid Go
+  (`ValidateRegex(path, , expr)`). Not triggered today; align the two walks.
+- `emccmd.gmi` MAX_SPINDLE_INDEX/MAX_JOINT_INDEX consts are hand-synced with
+  motion.h via comment, not mechanically derived (accepted for now).
+- motstat `-1` error sentinel conflates with data on the analog getter and with
+  a "high" digital reading (`di=-1 → high=true`); unreachable today behind three
+  layers of guards, but contract-fragile — consider a separate ok/err channel if
+  the GMI plumbing ever grows one. DisplayMsgCmd not barriering (2.9 barriers
+  EMC_OPERATOR_DISPLAY) is a pre-existing divergence, listed for completeness.
 
 ---
 
