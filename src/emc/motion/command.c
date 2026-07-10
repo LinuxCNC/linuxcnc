@@ -1105,6 +1105,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 			inst->status->atspeed_next_feed = 0;
 		}
 		if(!is_feed_type(inst->command->motion_type) &&
+				inst->command->spindle >= 0 &&
+				inst->command->spindle < inst->config->numSpindles &&
 				inst->status->spindle_status[inst->command->spindle].css_factor) {
 			inst->status->atspeed_next_feed = 1;
 		}
@@ -1872,10 +1874,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         }
         for (n = s0; n<=s1; n++){
 
-	        if (n > inst->config->numSpindles){
-                gomc_log_errorf(inst->log, inst->name, "spindle number <%d> too high in M19",n);
-                break;
-	        }
 	        if (*(inst->hal_data->spindle[n].spindle_orient)) {
 		    gomc_log_debugf(inst->log, inst->name, "orient already in progress");
 
