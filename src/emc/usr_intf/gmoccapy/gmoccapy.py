@@ -228,6 +228,8 @@ class gmoccapy(object):
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
         self.jv_counts = 0        # need to calculate difference in counts to change the jog_vel slider
         self.ro_counts = 0        # need to calculate difference in counts to change the rapid override slider
+        self._last_count = 0      # need to calculate MPG count difference
+        self.mpg_enabled = False
 
         self.spindle_override = 1 # holds the feed override value and is needed to be able to react to halui pin
         self.feed_override = 1    # holds the spindle override value and is needed to be able to react to halui pin
@@ -440,6 +442,7 @@ class gmoccapy(object):
         self.GSTAT.connect('cancel-request', lambda w, state: self._del_notification())
         self.GSTAT.connect('shutdown-request', lambda w: self.system_shutdown(w))
         self.GSTAT.connect('softkey-pressed', lambda w,data: self.softkey_pressed(data))
+        self.GSTAT.connect('axis-selection-changed', lambda w,data: self.mpg_selection_changed(data))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -6403,6 +6406,31 @@ class gmoccapy(object):
         LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
         self.command.set_optional_stop(pin.get())
 
+    # from gmoccapy's MPG input pin
+    def _external_mpg(self, pin):
+        count = pin.get()
+        diff = count - self._last_count
+        if self.mpg_enabled:
+            if diff <0:
+                if self.GSTAT.is_auto_mode() and not self.GSTAT.is_auto_running():
+                    self.widgets.gcode_view.line_up()
+                else:
+                    self.widgets.gremlin.zoom_out()
+            else:
+                if self.GSTAT.is_auto_mode() and not self.GSTAT.is_auto_running():
+                    self.widgets.gcode_view.line_down()
+                    self.widgets.gcode_view.line_down()
+                else:
+                    self.widgets.gremlin.zoom_in()
+        self._last_count = count
+
+    # enabled externally by halui/hal_bridge
+    def mpg_selection_changed(self, data):
+        if data =='MPG0':
+            self.mpg_enabled = True
+        else:
+            self.mpg_enabled = False
+
 # =========================================================
     # external request for a softkey press from HALUI/halbridge
     def softkey_pressed(self, index):
@@ -6637,6 +6665,8 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
 
+        pin = self.halcomp.newpin('mpg-in',hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._external_mpg)
 
     ##############################
     # required class boiler code #
