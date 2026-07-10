@@ -1364,7 +1364,20 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    if (inst->command->scale < 0.0) {
 		inst->command->scale = 0.0;	/* clamp it */
 	    }
-	    inst->status->spindle_status[inst->command->spindle].scale = inst->command->scale;
+	    spindle_num = inst->command->spindle;
+	    if (spindle_num >= inst->config->numSpindles || spindle_num < -1) {
+		gomc_log_errorf(inst->log, inst->name, _("Attempt to scale non-existent spindle <%d>"), spindle_num);
+		inst->status->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+		break;
+	    }
+	    s0 = s1 = spindle_num;
+	    if (spindle_num == -1) {	/* -1 = all spindles */
+		s0 = 0;
+		s1 = inst->num_spindles - 1;
+	    }
+	    for (n = s0; n <= s1; n++) {
+		inst->status->spindle_status[n].scale = inst->command->scale;
+	    }
 	    break;
 
 	case EMCMOT_SS_ENABLE:
