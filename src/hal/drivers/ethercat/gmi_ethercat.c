@@ -544,6 +544,11 @@ static bool gmi_ethercat_sii_write(void *ctx,
     if (!master)
         return false;
 
+    /* ecrt_tool_sii_write() copies nwords*2 bytes from words; reject a request
+     * whose words buffer is shorter than that to avoid an out-of-bounds read. */
+    if ((size_t)sii->nwords * 2 > sii->words_len)
+        return false;
+
     req.slave_position = position;
     req.offset = sii->offset;
     req.nwords = sii->nwords;
