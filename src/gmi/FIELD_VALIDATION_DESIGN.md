@@ -13,10 +13,11 @@ by generated code.
 | 2 | Runtime `validate.go` + `writeDispatchError` branch | ✅ Complete |
 | 3 | REST dispatch emit (`constraintEmitter`, regex vars, enum auto) | ✅ Complete |
 | 4 | WebSocket command-handler validation | ✅ Complete |
-| — | Client-side collect-all (TS/Python) | ❌ Not started |
+| 5 | Client-side collect-all (TypeScript + Python) | ✅ Complete |
 
-Both server-side JSON input paths now validate every input before invoking the
-callback:
+The feature is complete. Both server-side JSON input paths validate every input
+(fail-fast, authoritative) before invoking the callback, and both generated
+clients pre-validate (collect-all) before sending:
 
 - **REST dispatch** — the cgo `_cgo.go` file (emitted by `GenerateDispatchC`).
 - **WebSocket command handlers** — `TooltableCommands`-style handlers (emitted by
@@ -24,10 +25,12 @@ callback:
   (e.g. `task/watches.go` → `EmccmdCommands(m)`). They share a package with
   `_cgo.go` and reference its compiled `@regex` vars by the identical generated
   name rather than re-declaring them.
-
-One path remains as a follow-up:
-
-- **Client-side collect-all** in the generated TS/Python clients, for pre-send UX.
+- **TypeScript & Python clients** — a shared `clientValidation` emitter (with a
+  per-language adapter) gathers *all* violations and raises a `ValidationError`
+  before the request is sent, so a UI can highlight every bad field. Clients
+  skip `@regex` (server-authoritative, avoids JS/Python/RE2 flavor mismatch);
+  everything else mirrors the server, including struct/slice recursion and enum
+  membership.
 
 ## Motivation
 
@@ -283,14 +286,15 @@ newer peer should pass through rather than 400. Default is closed.
   is right for fail-fast, and can gain a `violations: []` array later without
   restructuring, should a consumer ever need all errors at once.
 
-## Build order
+## Build order (as shipped)
 
-Three independently testable, independently valuable slices:
+Independently testable, independently valuable slices:
 
 1. AST + scanner + parser + `check.Validate` + a parser round-trip test.
 2. Runtime `validate.go` + the `writeDispatchError` branch (no codegen).
-3. `emitValidation` / regex-var emit, with a golden-file test asserting the
-   `put_tool` output above.
-
-The generated TypeScript/Python client-side checks (collect-all) mirror the
-server emit against the client generators and follow once the server side lands.
+3. REST dispatch emit (`constraintEmitter`) wired into `GenerateDispatchC`, with
+   a test asserting the `put_tool` output above and an end-to-end compile.
+4. WebSocket command-handler validation (`GenerateServerGoExtra`), referencing
+   the regex vars declared in `_cgo.go`.
+5. Client-side collect-all (`clientValidation` + TS/Python adapters), verified by
+   `tsc --strict`, `py_compile`, and functional collect-all runs.

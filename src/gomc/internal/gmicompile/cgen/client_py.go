@@ -152,6 +152,14 @@ func (g *clientPyGen) emitClient() {
 	g.printf("        super().__init__(f\"{message} (HTTP {status_code})\")\n")
 	g.printf("\n\n")
 
+	// ValidationError — raised client-side (collect-all) before a request.
+	g.printf("class ValidationError(Exception):\n")
+	g.printf("    \"\"\"One or more inputs violated an IDL @constraint.\"\"\"\n\n")
+	g.printf("    def __init__(self, errors: list):\n")
+	g.printf("        self.errors = errors\n")
+	g.printf("        super().__init__(\"validation failed: \" + \"; \".join(errors))\n")
+	g.printf("\n\n")
+
 	// Client class
 	g.printf("class %s:\n", className)
 	g.printf("    \"\"\"REST client for the %s API.\"\"\"\n\n", g.api.Name)
@@ -211,6 +219,11 @@ func (g *clientPyGen) emitClientMethod(fn ast.Func) {
 	// Docstring
 	if fn.Doc != "" {
 		g.printf("        \"\"\"%s\"\"\"\n", fn.Doc)
+	}
+
+	// Client-side collect-all validation of IDL @constraints.
+	if v := clientValidation(pyLang{}, fn, g.api); v != "" {
+		g.printf("%s", spaceIndent(v, 4, 4))
 	}
 
 	// Build path
