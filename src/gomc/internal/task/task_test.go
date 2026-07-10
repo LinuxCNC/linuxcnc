@@ -42,6 +42,7 @@ func (m *mockMotion) SetCircle(Pose, Cartesian, Cartesian, int32, float64, float
 func (m *mockMotion) Probe(Pose, float64, float64, float64, int32, uint8, int32, float64) error {
 	return nil
 }
+func (m *mockMotion) ClearProbeFlags() error { m.setCall("ClearProbeFlags"); return nil }
 func (m *mockMotion) RigidTap(Pose, float64, float64, float64, float64, int32, float64) error {
 	return nil
 }

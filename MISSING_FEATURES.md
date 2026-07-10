@@ -56,7 +56,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 | # | Command | Problem | Pointer |
 |---|---|---|---|
-| 7 | `TRAJ_CLEAR_PROBE_TRIPPED_FLAG` | `motctl.clear_probe_flags` declared, no caller / no command path. Low impact (motion clears on probe start). | `motctl.gmi:296` |
+| 7 | `TRAJ_CLEAR_PROBE_TRIPPED_FLAG` | ~~no caller~~ **FIXED.** The audit under-rated this: C++ `TURN_PROBE_ON` appends `CLEAR_PROBE_TRIPPED_FLAG` to the interp_list, but gomc's `TurnProbeOn` was an empty stub — the probe-tripped flag was never cleared at probe start. `TurnProbeOn` now enqueues a `ClearProbeFlagsCmd` (→ `motion.ClearProbeFlags`) in program order before the STRAIGHT_PROBE move, matching C++. Added `ClearProbeFlags` to the `MotionController` interface (motctl client already implements it). `probe_clear_test.go`. | fixed | `canon.go` `TurnProbeOn` |
 | 8 | `TOOL_UNLOAD` | ~~unwired~~ **FIXED.** Added REST `tool_unload` → `Task.ToolUnload` → `io.ToolUnload` (reject-while-busy, interp synch after). `tier3_batch_test.go`. | fixed |
 | 9 | `SET_DEBUG` | ~~motion-only~~ **FIXED.** `SetDebug` now forwards to both `motion.SetDebug` and `io.SetDebug` and records the level to `stat.debug`. `tier3_batch_test.go`. | fixed |
 | 10 | `AUX_INPUT_WAIT` (M66) | Analog-input wait semantics differ (polls analog as boolean for edge/level; C++ restricts non-immediate waits to digital). Edge case. | `canon.go:~1349` |

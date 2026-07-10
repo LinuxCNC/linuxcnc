@@ -877,7 +877,12 @@ func (c *Canon) OnReset() {
 	// InitCanon() must only be called during true initialization.
 }
 
-func (c *Canon) TurnProbeOn()  {}
+func (c *Canon) TurnProbeOn() {
+	// Matches C++ TURN_PROBE_ON, which appends CLEAR_PROBE_TRIPPED_FLAG to the
+	// interp_list so the motion probe-tripped flag is cleared in program order
+	// at the start of each probe, before the STRAIGHT_PROBE move.
+	c.enqueue(&ClearProbeFlagsCmd{})
+}
 func (c *Canon) TurnProbeOff() {}
 
 func (c *Canon) StartSpeedFeedSynch(spindle int32, feedPerRev float64, velocityMode int32) {
@@ -1185,6 +1190,13 @@ func (c *RigidTapCmd) Execute(t *Task) error {
 func (c *RigidTapCmd) Wait() WaitType { return WaitNone }
 func (c *RigidTapCmd) String() string { return fmt.Sprintf("RigidTap(id=%d)", c.ID) }
 func (c *RigidTapCmd) LineID() int32  { return c.ID }
+
+// ClearProbeFlagsCmd clears the motion probe-tripped flag (canon TURN_PROBE_ON).
+type ClearProbeFlagsCmd struct{}
+
+func (c *ClearProbeFlagsCmd) Execute(t *Task) error { return t.motion.ClearProbeFlags() }
+func (c *ClearProbeFlagsCmd) Wait() WaitType        { return WaitNone }
+func (c *ClearProbeFlagsCmd) String() string        { return "ClearProbeFlags" }
 
 // ProbeCmd queues a probe move.
 type ProbeCmd struct {

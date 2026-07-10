@@ -110,6 +110,7 @@ type MotionController interface {
 	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedMmPerMin float64, indexerJnum int32) error
 	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedMmPerMin float64) error
 	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, feedMmPerMin float64) error
+	ClearProbeFlags() error
 	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, feedMmPerMin float64) error
 
 	// Motion control
