@@ -60,7 +60,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 | 8 | `TOOL_UNLOAD` | ~~unwired~~ **FIXED.** Added REST `tool_unload` → `Task.ToolUnload` → `io.ToolUnload` (reject-while-busy, interp synch after). `tier3_batch_test.go`. | fixed |
 | 9 | `SET_DEBUG` | ~~motion-only~~ **FIXED.** `SetDebug` now forwards to both `motion.SetDebug` and `io.SetDebug` and records the level to `stat.debug`. `tier3_batch_test.go`. | fixed |
 | 10 | `AUX_INPUT_WAIT` (M66) | Analog-input wait semantics differ (polls analog as boolean for edge/level; C++ restricts non-immediate waits to digital). Edge case. | `canon.go:~1349` |
-| 11 | `JOINT_ENABLE`/`DISABLE` | Only whole-machine amp enable/disable; no per-joint command. Rarely used. | — |
+| 11 | `JOINT_ENABLE`/`DISABLE` | **NOT A GAP (verified).** The motion handler `EMCMOT_JOINT_ENABLE_AMPLIFIER`/`DISABLE` is a no-op — byte-identical to LinuxCNC 2.9's, which is also a no-op. Amp-enable is driven automatically by the servo loop (`control.c: amp_enable = GET_JOINT_ENABLE_FLAG`), following machine-enable + joint-active. The per-joint command is vestigial in upstream; exposing it via GMI would wire a do-nothing command. Correctly omitted. | `command.c:1462` (stub) |
 | 12 | `JOINT_SET_HOMING_PARAMS` | ~~**BUG:** runtime HAL home/offset/seq change zeroed the other homing params~~ **FIXED.** `loadJoint` caches the INI-fixed params (`jointHomingParams` on the Task); inihal copies them in `initPins` and re-pushes them intact instead of `0`. `homing_params_test.go`. | fixed |
 | 13 | `TASK_PLAN_EXECUTE` multi-level MDI | MDI o-word sub-calls that yield `INTERP_EXECUTE_FINISH` may not be driven to completion the way a running program's loop handles it. **Needs a test to confirm.** | `commands.go` `executeMDI` |
 
