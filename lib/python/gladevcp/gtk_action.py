@@ -616,21 +616,25 @@ class _Lcnc_Action(object):
     def ADJUST_GRAPHICS_ROTATE(self, x, y):
         STATUS.emit('graphics-view-changed', 'rotate-view', {'X': x, 'Y': y})
 
+    #TODO without the gtk dialog, gnome-sessions
+    # does not start reliably
     def SHUT_SYSTEM_DOWN_PROMPT(self):
-        import subprocess
-        try:
-            try:
-                subprocess.call('gnome-session-quit --power-off', shell=True)
-            except:
-                try:
-                    subprocess.call('xfce4-session-logout', shell=True)
-                except:
-                    try:
-                        subprocess.call('systemctl poweroff', shell=True)
-                    except:
-                        raise
-        except Exception as e:
-            LOG.warning("Couldn't shut system down: {}".format(e))
+        import shutil
+        import time
+        dialog = YesNoDialog(title='System Shutdown')
+        dialog.set_keep_above(True)
+        dialog.format_secondary_text('Unsaved data will be lost')
+        response = dialog.ask_dialog()
+        dialog.destroy()
+        if response == gtk.ResponseType.YES:
+
+            if shutil.which('gnome-session-quit'):
+                subprocess.run(["gnome-session-quit", "--power-off"])
+            elif shutil.which('xfce4-session-logout'):
+                subprocess.call('xfce4-session-logout', shell=True)
+            else:
+                # force a shutdown - no prompt
+                subprocess.call('systemctl poweroff', shell=True)
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
@@ -927,6 +931,58 @@ class FilterProgram:
         dialog.run()
         dialog.destroy()
 
+###########################################
+# Dialog Class
+########################################################################
+
+class YesNoDialog(gtk.MessageDialog):
+    def __init__(self, parent=None, message="Are you sure?", title = "Operator Message"):
+        super(YesNoDialog, self).__init__(
+            parent=parent,
+            flags=gtk.DialogFlags.DESTROY_WITH_PARENT,
+            type=gtk.MessageType.QUESTION,
+            buttons=gtk.ButtonsType.NONE,
+            message_format=message)
+
+        yes_button = gtk.Button.new_with_mnemonic("_Yes")
+        no_button = gtk.Button.new_with_mnemonic("_No")
+        yes_button.set_size_request(-1, 56)
+        no_button.set_size_request(-1, 56)
+        yes_button.connect("clicked",lambda w:self.response(gtk.ResponseType.YES))
+        no_button.connect("clicked",lambda w:self.response(gtk.ResponseType.NO))
+        box = gtk.HButtonBox()
+        box.add(no_button)    
+        box.add(yes_button)
+        box.set_spacing(10)
+        box.set_layout(gtk.ButtonBoxStyle.CENTER)
+        self.action_area.add(box)
+        self.set_border_width(5)
+        self.connect("response", self.on_yn_response)
+        self.set_markup(message)
+        if title:
+            self.set_title(str(title))
+
+    def ask_dialog(self):
+        self.show_all()
+        #self.emit("play_sound", "alert")
+
+        # wait but don't block event loop
+        self.RESPONSE = None
+        while self.RESPONSE is None:
+            while gtk.events_pending():
+                # read any ZMQ messages
+                # then update widgets
+                # till we get a dialog answer
+                STATUS.readNextMsg()
+                gtk.main_iteration()
+
+        rtn = self.RESPONSE 
+        self.hide()
+        return bool(rtn in(gtk.ResponseType.YES, gtk.ResponseType.ACCEPT))
+
+    # update internal variable so dialog will respond
+    def on_yn_response(self,dialog, rtn):
+        self.RESPONSE = rtn
 
 # For testing purposes
 
