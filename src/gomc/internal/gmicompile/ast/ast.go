@@ -108,9 +108,59 @@ type Type struct {
 
 // Field represents a single field in a type.
 type Field struct {
-	Name string
-	Type TypeRef
+	Name        string
+	Type        TypeRef
+	Constraints []Constraint // inline @constraints (validation rules)
+	Pos         Pos
+}
+
+// ---------------------------------------------------------------------------
+// Constraint — inline validation rule on a field or parameter
+// ---------------------------------------------------------------------------
+
+// ConstraintKind identifies a validation constraint.
+type ConstraintKind int
+
+const (
+	ConstraintMin      ConstraintKind = iota // @min(n): numeric >=
+	ConstraintMax                            // @max(n): numeric <=
+	ConstraintMinLen                         // @minlen(n): len >= (string/slice/array)
+	ConstraintMaxLen                         // @maxlen(n): len <=
+	ConstraintNotEmpty                       // @notempty: len > 0
+	ConstraintNotNull                        // @notnull: value present (nullable T? only)
+	ConstraintRegex                          // @regex("…"): full-match pattern (string, Go server only)
+	ConstraintEnumOpen                       // @enum_open: opt out of automatic enum membership check
+)
+
+// Constraint is one inline @constraint on a field or parameter.
+type Constraint struct {
+	Kind ConstraintKind
+	Num  string // raw numeric literal for Min/Max/MinLen/MaxLen ("0", "0.5")
+	Str  string // pattern for Regex
 	Pos  Pos
+}
+
+// ConstraintName returns the IDL spelling of a constraint kind (for diagnostics).
+func ConstraintName(k ConstraintKind) string {
+	switch k {
+	case ConstraintMin:
+		return "min"
+	case ConstraintMax:
+		return "max"
+	case ConstraintMinLen:
+		return "minlen"
+	case ConstraintMaxLen:
+		return "maxlen"
+	case ConstraintNotEmpty:
+		return "notempty"
+	case ConstraintNotNull:
+		return "notnull"
+	case ConstraintRegex:
+		return "regex"
+	case ConstraintEnumOpen:
+		return "enum_open"
+	}
+	return "?"
 }
 
 // ---------------------------------------------------------------------------
@@ -239,12 +289,13 @@ type Func struct {
 
 // Param represents a function parameter.
 type Param struct {
-	Name  string
-	Type  TypeRef
-	ByRef bool // passed as mutable pointer (byref keyword) — in/out
-	IsOut bool // output-only parameter (out keyword) — caller receives value
-	IsPtr bool // passed as opaque typed pointer (ptr keyword) — no marshaling
-	Pos   Pos
+	Name        string
+	Type        TypeRef
+	ByRef       bool         // passed as mutable pointer (byref keyword) — in/out
+	IsOut       bool         // output-only parameter (out keyword) — caller receives value
+	IsPtr       bool         // passed as opaque typed pointer (ptr keyword) — no marshaling
+	Constraints []Constraint // inline @constraints (validation rules)
+	Pos         Pos
 }
 
 // ---------------------------------------------------------------------------
