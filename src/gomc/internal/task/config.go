@@ -53,7 +53,7 @@ func loadConfig(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 		return fmt.Errorf("traj config: %w", err)
 	}
 	for j := int32(0); j < int32(t.numJoints); j++ {
-		if err := loadJoint(ini, j, mc); err != nil {
+		if err := loadJoint(ini, t, j, mc); err != nil {
 			return fmt.Errorf("joint %d config: %w", j, err)
 		}
 		// Store joint max velocity for jog clamping (matches C JointConfig[].MaxVel).
@@ -179,7 +179,15 @@ func loadTraj(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 	return nil
 }
 
-func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
+// jointHomingParams holds the INI-fixed homing parameters that are NOT exposed
+// as runtime HAL pins. They are cached so inihal can re-push them unchanged when
+// a HAL home/offset/sequence change forces a SetJointHomingParams update.
+type jointHomingParams struct {
+	finalVel, searchVel, latchVel float64
+	flags, volatileHome           int32
+}
+
+func loadJoint(ini *inifile.IniFile, t *Task, joint int32, mc MotionConfig) error {
 	section := fmt.Sprintf("JOINT_%d", joint)
 
 	// Position limits
@@ -246,6 +254,14 @@ func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
 
 	if err := mc.SetJointHomingParams(joint, offset, home, finalVel, searchVel, latchVel, flags, int32(sequence), int32(volatileHome)); err != nil {
 		return err
+	}
+	// Cache the INI-fixed params so a runtime HAL home/offset/seq change doesn't
+	// zero them on re-push (inihal).
+	if joint >= 0 && int(joint) < len(t.jointHoming) {
+		t.jointHoming[joint] = jointHomingParams{
+			finalVel: finalVel, searchVel: searchVel, latchVel: latchVel,
+			flags: flags, volatileHome: int32(volatileHome),
+		}
 	}
 
 	// Velocity and acceleration

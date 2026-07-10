@@ -47,6 +47,10 @@ type iniHal struct {
 	jointHomeOffset [maxJoints]*hal.Pin[float64]
 	jointHomeSeq    [maxJoints]*hal.Pin[int32]
 
+	// INI-fixed homing params (not HAL pins), cached from the Task so a
+	// home/offset/seq change re-pushes them instead of zeroing them.
+	jointHoming [maxJoints]jointHomingParams
+
 	// Axis pins (indexed by axis letter position: x=0..w=8)
 	axisMinLimit [maxAxes]*hal.Pin[float64]
 	axisMaxLimit [maxAxes]*hal.Pin[float64]
@@ -229,6 +233,7 @@ func (h *iniHal) initPins(t *Task) {
 		h.old.jointHome[i] = h.jointHome[i].Get()
 		h.old.jointHomeOffset[i] = h.jointHomeOffset[i].Get()
 		h.old.jointHomeSeq[i] = h.jointHomeSeq[i].Get()
+		h.jointHoming[i] = t.jointHoming[i] // INI-fixed params, for re-push
 	}
 	for i := 0; i < maxAxes; i++ {
 		h.old.axisMinLimit[i] = h.axisMinLimit[i].Get()
@@ -309,7 +314,12 @@ func (h *iniHal) check(mc MotionConfig) {
 			h.old.jointHome[i] = newHome
 			h.old.jointHomeOffset[i] = newOffset
 			h.old.jointHomeSeq[i] = newSeq
-			mc.SetJointHomingParams(joint, newOffset, newHome, 0, 0, 0, 0, newSeq, 0)
+			// Re-push with the INI-fixed params intact (final/search/latch vel,
+			// flags, volatile-home) instead of zeros — otherwise a runtime HAL
+			// home change would wipe them and break homing.
+			hp := h.jointHoming[i]
+			mc.SetJointHomingParams(joint, newOffset, newHome,
+				hp.finalVel, hp.searchVel, hp.latchVel, hp.flags, newSeq, hp.volatileHome)
 		}
 	}
 
