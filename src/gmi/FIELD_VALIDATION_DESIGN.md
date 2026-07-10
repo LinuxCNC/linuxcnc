@@ -10,13 +10,20 @@ by generated code.
 | Slice | Scope | Status |
 |-------|-------|--------|
 | 1 | AST + scanner + parser + `check.Validate` | ✅ Complete |
-| 2 | Runtime `validate.go` + `writeDispatchError` branch | ❌ Not started |
-| 3 | Go server emit (`emitValidation` / regex vars) | ❌ Not started |
-| — | Enum auto-validation (folds into slice 3) | ❌ Not started |
+| 2 | Runtime `validate.go` + `writeDispatchError` branch | ✅ Complete |
+| 3 | Server emit (`constraintEmitter`, regex vars, enum auto) | ✅ Complete |
+| — | WebSocket command-handler validation | ❌ Not started |
 | — | Client-side collect-all (TS/Python) | ❌ Not started |
 
-Slice 1 parses `@constraints` on fields and parameters and rejects mistyped or
-contradictory ones at compile time; no enforcement code is generated yet.
+The REST dispatch path (the cgo `_cgo.go` file emitted by `GenerateDispatchC`)
+now validates every input before invoking the callback. Two paths remain:
+
+- **WebSocket command handlers.** `TooltableCommands`-style handlers (emitted by
+  `GenerateServerGoExtra` into `_bridge.go`) unmarshal the same params over the
+  WS command channel but are not yet validated. They share the same package as
+  `_cgo.go`, so they can reuse the same `constraintEmitter` and the already-emitted
+  regex vars — a small follow-up, deliberately deferred, not a silent gap.
+- **Client-side collect-all** in the generated TS/Python clients, for pre-send UX.
 
 ## Motivation
 
@@ -178,20 +185,29 @@ func ValidateRegex(field string, re *regexp.Regexp, v string) *ValidationError
 `*ValidationError` as a 400 with `{error, code, field, constraint}`. The existing
 errno contract is untouched.
 
-### 4. Go server emit (`server_go.go`)
+### 4. Server emit (`constraintEmitter` in `cgen/constraint_emit.go`)
 
-The dispatch closure already unmarshals `req` into a flat `params` struct then
-calls the callback. Validation slots in **between** those, so path/query params
-(merged into the same body by the runtime) are covered for free. A package-scope
-pass emits one compiled regex var per distinct pattern.
+The emit lives in a generator-agnostic `constraintEmitter` (returns code as
+strings) wired into `GenerateDispatchC` — the generator behind the cgo `_cgo.go`
+dispatch file, which is the production REST path (`--server-meta`). *Not*
+`server_go.go`'s `GenerateServerGo`, which is a separate test-only generator.
 
-Generated output for `put_tool`:
+The dispatch wrapper already unmarshals `req` into a flat `params` struct then
+converts and calls the C callback. Validation slots in **between** the unmarshal
+and the conversion, so path/query params (merged into the same body by the
+runtime) are covered for free. A package-scope pass emits one compiled regex var
+per distinct pattern; struct-typed params recurse (dotted paths), slice/array
+params recurse per element (runtime-indexed paths), and enum-typed values get an
+automatic membership `switch`.
+
+Generated output for `put_tool` (verified to compile against the real package):
 
 ```go
-var tooltableRe0 = apiserver.MustRegex(`^[\x20-\x7e]*$`)
+var tooltableRe0 = apiserver.MustRegex("^[a-z]+$")
 
 func tooltableDispatchPutTool(callbacks unsafe.Pointer, req []byte) ([]byte, error) {
-    impl := *(*TooltableCallbacks)(callbacks)
+    cb := (*C.tooltable_callbacks_t)(callbacks)
+    // ... _freeList setup ...
     var params struct {
         Toolno int32     `json:"toolno"`
         Entry  ToolEntry `json:"entry"`
@@ -222,18 +238,15 @@ func tooltableDispatchPutTool(callbacks unsafe.Pointer, req []byte) ([]byte, err
         return nil, apiserver.NewValidationError("entry.orientation", "max", "entry.orientation must be <= 8")
     }
     if apiserver.RuneLen(params.Entry.Comment) > 255 {
-        return nil, apiserver.NewValidationError("entry.comment", "maxlen", "entry.comment must be <= 255 chars")
+        return nil, apiserver.NewValidationError("entry.comment", "maxlen", "entry.comment must have at most 255 chars")
     }
     if verr := apiserver.ValidateRegex("entry.comment", tooltableRe0, params.Entry.Comment); verr != nil {
         return nil, verr
     }
+    // enum-typed fields also get an automatic membership switch here
     // --- end validation ---
 
-    result, err := impl.PutTool(params.Toolno, params.Entry)
-    if err != nil {
-        return nil, err
-    }
-    return json.Marshal(result)
+    // ... convert params → C, call the C wrapper, marshal the result ...
 }
 ```
 

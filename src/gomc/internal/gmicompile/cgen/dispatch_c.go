@@ -31,6 +31,7 @@ type dispatchCGen struct {
 	header string // C header filename, e.g. "hal_api.h"
 	err    error
 	tmpSeq int // counter for unique temp variable names
+	ce     *constraintEmitter
 }
 
 func (g *dispatchCGen) printf(format string, args ...interface{}) {
@@ -41,12 +42,14 @@ func (g *dispatchCGen) printf(format string, args ...interface{}) {
 }
 
 func (g *dispatchCGen) generate() error {
+	g.ce = newConstraintEmitter(g.api)
 	g.emitCgoPreamble()
 	g.emitImports()
 	g.emitConstants()
 	g.emitGoTypes()
 	g.emitConverters()
 	g.emitGoToCConverters()
+	g.printf("%s", g.ce.regexVarDecls())
 	g.emitDispatchFuncs()
 	g.emitMeta()
 	g.emitRegister()
@@ -198,6 +201,7 @@ func cgoArraySizeStr(apiName string, t ast.TypeRef) string {
 func (g *dispatchCGen) emitImports() {
 	g.printf("import (\n")
 	g.printf("\t\"encoding/json\"\n")
+	g.printf("\t\"fmt\"\n")
 	g.printf("\t\"syscall\"\n")
 	g.printf("\t\"unsafe\"\n")
 	g.printf("\n")
@@ -206,6 +210,7 @@ func (g *dispatchCGen) emitImports() {
 
 	// Suppress unused import warnings
 	g.printf("var _ = json.Marshal\n")
+	g.printf("var _ = fmt.Sprintf\n")
 	g.printf("var _ = syscall.EINVAL\n")
 	g.printf("var _ unsafe.Pointer\n\n")
 }
@@ -737,6 +742,9 @@ func (g *dispatchCGen) emitOneDispatch(fn ast.Func) {
 		g.printf("\t\t\treturn nil, syscall.EINVAL\n")
 		g.printf("\t\t}\n")
 		g.printf("\t}\n")
+
+		// Validate IDL @constraints before converting/dispatching.
+		g.printf("%s", g.ce.validation(fn))
 	}
 
 	// Convert Go params → C and build call args

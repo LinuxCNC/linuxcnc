@@ -40,7 +40,7 @@ type Rec {
     tags:  []i32   @notempty
     fixed: [4]f64  @minlen(1)
     mode:  Mode    @enum_open
-    opt:   string?  @notnull
+    opt:   i32?    @notnull
 }
 
 func f(n: i32 @min(0)) -> i32
@@ -64,6 +64,7 @@ func TestValidateRejections(t *testing.T) {
 		{"negative unsigned", `type T { n: u32 @min(-1) }`, "negative on unsigned"},
 		{"min gt max", `type T { n: i32 @min(10) @max(1) }`, "@min(10) > @max(1)"},
 		{"redundant notnull", `type T { s: string @notnull }`, "redundant on non-nullable"},
+		{"notnull on nullable string", `type T { s: string? @notnull }`, "not expressible"},
 		{"unsatisfiable len", `type T { xs: [4]f64 @minlen(9) }`, "exceeds fixed array length 4"},
 		{"bad regex", `type T { s: string @regex("(") }`, "does not compile"},
 		{"duplicate", `type T { n: i32 @min(0) @min(1) }`, "duplicate constraint @min"},

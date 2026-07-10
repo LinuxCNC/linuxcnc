@@ -118,6 +118,9 @@ func (c *checker) checkSite(site string, t ast.TypeRef, cs []ast.Constraint) {
 		case ast.ConstraintNotNull:
 			if !t.Nullable {
 				c.errf(site, "@notnull is redundant on non-nullable type %s", t.String())
+			} else if isString(t) {
+				c.errf(site, "@notnull on a nullable string is not expressible "+
+					"(string? maps to a non-pointer Go string); use @notempty")
 			}
 
 		case ast.ConstraintEnumOpen:
