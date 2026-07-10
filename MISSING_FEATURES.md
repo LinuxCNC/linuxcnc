@@ -40,7 +40,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 | # | Command | Problem | Verified | Pointer |
 |---|---|---|---|---|
-| 1 | `SPINDLE_WAIT_ORIENT_COMPLETE` | **Timeout ignored → infinite hang.** The `Timeout` field is carried into `WaitSpindleOrientedCmd` but the sequencer calls `waitSpindleOriented()` with no arg and polls `OrientState` forever. A spindle that never orients (no fault) hangs the run instead of raising the C++ "wait for orient: TIMED OUT" error. | yes | `sequencer.go:466`, `waitSpindleOriented` `sequencer.go:588`; cmd built with timeout `canon.go:~1209` |
+| 1 | `SPINDLE_WAIT_ORIENT_COMPLETE` | ~~**Timeout ignored → infinite hang.**~~ **FIXED.** `waitForCompletion` now passes the command through; `waitSpindleOriented(timeout)` enforces a deadline and faults with `ExecError` once the M19 timeout elapses (matches C++). A non-positive timeout keeps the wait-indefinitely behavior (abort/fault still end it). Covered by `orient_timeout_test.go`. | fixed | `sequencer.go` `waitSpindleOriented` |
 | 2 | `JOINT_LOAD_COMP` | **Leadscrew compensation silently absent.** No `COMP_FILE` INI key; `motctl.set_joint_comp` (`motctl.gmi:253`) has no caller. Machines relying on screw-error mapping get zero compensation. | yes (grep: no `COMP_FILE`, no `SetJointComp` caller) | `config.go` (no key), `motctl.gmi:253` (unused) |
 
 ## Tier 2 — user-visible (fix)
@@ -68,8 +68,8 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 ## Suggested order if fixing
 
-Cheap + high value first: **#3 `PLAN_FORWARD`** (~3 lines), **#1 orient timeout**
-(contained), **#4 `(MSG,…)` → operator-display** (small), **#5 ToolOffset**
+Cheap + high value first: ~~#1 orient timeout~~ (**done**), **#3 `PLAN_FORWARD`**
+(~3 lines), **#4 `(MSG,…)` → operator-display** (small), **#5 ToolOffset**
 (send `SetOffset` to motion or source it from canon). **#2 `LOAD_COMP`** is the
 largest (INI key + file parse + `set_joint_comp` wiring) and only matters for
 comp-file machines. Tier 3 as encountered. **#13** should get a test regardless.

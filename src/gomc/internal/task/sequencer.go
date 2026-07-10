@@ -315,7 +315,7 @@ func (t *Task) sequencerLoop() {
 			}
 
 			// Wait as required
-			if err := t.waitForCompletion(cmd.Wait()); err != nil {
+			if err := t.waitForCompletion(cmd); err != nil {
 				if errors.Is(err, context.Canceled) {
 					// Abort — not an error condition; aborter owns terminal state.
 					t.logger.Info("sequencer aborted during wait", "cmd", cmd.String())
@@ -434,8 +434,8 @@ func (t *Task) seqCheckPause() bool {
 }
 
 // waitForCompletion blocks until the specified condition is met or abort.
-func (t *Task) waitForCompletion(wt WaitType) error {
-	switch wt {
+func (t *Task) waitForCompletion(cmd QueuedCmd) error {
+	switch cmd.Wait() {
 	case WaitNone:
 		return nil
 
@@ -456,7 +456,12 @@ func (t *Task) waitForCompletion(wt WaitType) error {
 		return nil
 
 	case WaitSpindleOriented:
-		return t.waitSpindleOriented()
+		// Carry the M19 orient timeout (seconds) through to the wait.
+		var timeout float64
+		if c, ok := cmd.(*WaitSpindleOrientedCmd); ok {
+			timeout = c.Timeout
+		}
+		return t.waitSpindleOriented(timeout)
 	}
 	return nil
 }
@@ -578,17 +583,33 @@ func (t *Task) waitIODone() error {
 	}
 }
 
-// waitSpindleOriented polls until spindle orient is complete.
-func (t *Task) waitSpindleOriented() error {
+// waitSpindleOriented polls until spindle orient is complete, faults, or times
+// out. A spindle that never reports oriented (and never faults) must not hang
+// the run forever — matching C++ EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED,
+// which errors with "wait for orient complete: TIMED OUT" once the M19 timeout
+// (seconds) elapses (emctaskmain.cc:2711). A non-positive timeout waits
+// indefinitely (only abort or fault ends it); a nil timer channel is never
+// ready in the select, so that case simply never fires.
+func (t *Task) waitSpindleOriented(timeout float64) error {
 	t.setExecState(ExecWaitingForSpindleOriented)
 	ticker := time.NewTicker(pollInterval)
 	defer ticker.Stop()
+
+	var deadline <-chan time.Time
+	if timeout > 0 {
+		timer := time.NewTimer(time.Duration(timeout * float64(time.Second)))
+		defer timer.Stop()
+		deadline = timer.C
+	}
 	commErrors := 0
 
 	for {
 		select {
 		case <-t.seqAbort:
 			return context.Canceled
+		case <-deadline:
+			t.setExecState(ExecError)
+			return fmt.Errorf("orient timed out after %gs", timeout)
 		case <-ticker.C:
 			if t.status == nil {
 				t.setExecState(ExecDone)
