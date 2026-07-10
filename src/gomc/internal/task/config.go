@@ -3,8 +3,11 @@
 package task
 
 import (
+	"bufio"
 	"fmt"
 	"math"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/sittner/linuxcnc/src/gomc/pkg/inifile"
@@ -31,6 +34,7 @@ type MotionConfig interface {
 	SetJointAccLimit(joint int32, acc float64) error
 	SetJointJerkLimit(joint int32, jerk float64) error
 	SetJointHomingParams(joint int32, offset, home, homeFinalVel, searchVel, latchVel float64, flags, sequence, volatileHome int32) error
+	SetJointComp(joint int32, nominal, fwd, rev float64) error
 
 	// Axes
 	SetAxisPositionLimits(axis int32, min, max float64) error
@@ -260,8 +264,62 @@ func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
 		}
 	}
 
+	// Leadscrew / screw-error compensation ([JOINT_n]COMP_FILE). Loaded before
+	// activation, matching C++ which pushes the table to motion at startup.
+	if compFile := ini.Get(section, "COMP_FILE"); compFile != "" {
+		compType := getIntOrSection(ini, section, "COMP_FILE_TYPE", 0)
+		if err := loadJointComp(joint, compFile, compType, mc.SetJointComp); err != nil {
+			return fmt.Errorf("COMP_FILE %q: %w", compFile, err)
+		}
+	}
+
 	// Activate
 	return mc.JointActivate(joint)
+}
+
+// loadJointComp parses a leadscrew-compensation file and pushes each triplet to
+// motion, matching C++ usrmotLoadComp. Each data line is "nominal forward
+// reverse". compType 0: the file holds nominal/forward/reverse POSITIONS and the
+// motion trims are the diffs (nominal - value); any other type: the values are
+// already trims and are passed through. Blank / non-triplet lines are skipped
+// (C++ stops at the first such line; skipping is a strict superset that loads
+// the same pure-triplet files identically and tolerates comments/headers).
+func loadJointComp(joint int32, file string, compType int, setComp func(joint int32, nominal, fwd, rev float64) error) error {
+	f, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	n := 0
+	sc := bufio.NewScanner(f)
+	for sc.Scan() {
+		fields := strings.Fields(sc.Text())
+		if len(fields) < 3 {
+			continue
+		}
+		nom, e1 := strconv.ParseFloat(fields[0], 64)
+		fwd, e2 := strconv.ParseFloat(fields[1], 64)
+		rev, e3 := strconv.ParseFloat(fields[2], 64)
+		if e1 != nil || e2 != nil || e3 != nil {
+			continue
+		}
+		if compType == 0 {
+			fwd = nom - fwd // positions -> trims (diffs), as C++ does
+			rev = nom - rev
+		}
+		if err := setComp(joint, nom, fwd, rev); err != nil {
+			return err
+		}
+		n++
+	}
+	if err := sc.Err(); err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("no compensation triplets found")
+	}
+	return nil
 }
 
 func loadAxis(ini *inifile.IniFile, axis int32, mc MotionConfig) error {

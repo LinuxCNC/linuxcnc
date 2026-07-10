@@ -41,7 +41,7 @@ sub-behavior is absent · gaps are grouped by operational impact.
 | # | Command | Problem | Verified | Pointer |
 |---|---|---|---|---|
 | 1 | `SPINDLE_WAIT_ORIENT_COMPLETE` | ~~**Timeout ignored → infinite hang.**~~ **FIXED.** `waitForCompletion` now passes the command through; `waitSpindleOriented(timeout)` enforces a deadline and faults with `ExecError` once the M19 timeout elapses (matches C++). A non-positive timeout keeps the wait-indefinitely behavior (abort/fault still end it). Covered by `orient_timeout_test.go`. | fixed | `sequencer.go` `waitSpindleOriented` |
-| 2 | `JOINT_LOAD_COMP` | **Leadscrew compensation silently absent.** No `COMP_FILE` INI key; `motctl.set_joint_comp` (`motctl.gmi:253`) has no caller. Machines relying on screw-error mapping get zero compensation. | yes (grep: no `COMP_FILE`, no `SetJointComp` caller) | `config.go` (no key), `motctl.gmi:253` (unused) |
+| 2 | `JOINT_LOAD_COMP` | ~~**Leadscrew compensation silently absent.**~~ **FIXED.** `loadJoint` now reads `[JOINT_n]COMP_FILE`/`COMP_FILE_TYPE`, parses the `nominal forward reverse` triplets (`loadJointComp`), applies the type-0 position→diff conversion (matching C++ usrmotLoadComp), and pushes each to the already-implemented `motctl.SetJointComp`. Added `SetJointComp` to the `MotionConfig` interface. Covered by `config_comp_test.go`. | fixed | `config.go` `loadJoint`/`loadJointComp` |
 
 ## Tier 2 — user-visible (fix)
 
@@ -68,9 +68,10 @@ sub-behavior is absent · gaps are grouped by operational impact.
 
 ## Suggested order if fixing
 
-Cheap + high value first: ~~#1 orient timeout~~ (**done**), ~~#3 `PLAN_FORWARD`~~
-(**done**), ~~#4 `(MSG,…)` → operator-display~~ (**done**), ~~#5 ToolOffset~~
-(**done** — sourced from canon). **#2 `LOAD_COMP`** is the
-largest (INI key + file parse + `set_joint_comp` wiring) and only matters for
-comp-file machines. Tier 3 as encountered. **#13** should get a test regardless.
+All of Tier 1 and Tier 2 are now done: ~~#1 orient timeout~~, ~~#3 `PLAN_FORWARD`~~,
+~~#4 `(MSG,…)` → operator-display~~, ~~#5 ToolOffset~~ (sourced from canon),
+~~#2 `LOAD_COMP`~~ (INI key + file parse + `set_joint_comp` wiring). The FO/FH/SO
+GUI-immediate command (#6) remains partial (capability reachable via G-code).
+Remaining: Tier 3 minor/edge items — **#13** (MDI multi-level o-word) should get
+a test regardless.
 </content>
