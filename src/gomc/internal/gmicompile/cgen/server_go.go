@@ -480,7 +480,7 @@ func (g *serverGoGen) emitCommands() {
 	// validate<Api><Fn> functions emitted once into _cgo.go (same package) rather
 	// than re-emitting the checks and a duplicate set of compiled @regex vars
 	// here (D8). ce is used only to generate the call expressions.
-	ce := newConstraintEmitter(g.api, "")
+	ce := newConstraintEmitter(g.api)
 
 	g.printf("// --- WebSocket Commands ---\n\n")
 	g.printf("// %s generates WS command metadata from the callbacks implementation.\n", funcName)

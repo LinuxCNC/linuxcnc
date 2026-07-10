@@ -42,7 +42,7 @@ func (g *dispatchCGen) printf(format string, args ...interface{}) {
 }
 
 func (g *dispatchCGen) generate() error {
-	g.ce = newConstraintEmitter(g.api, "")
+	g.ce = newConstraintEmitter(g.api)
 	g.emitCgoPreamble()
 	g.emitImports()
 	g.emitConstants()

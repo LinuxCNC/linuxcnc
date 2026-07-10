@@ -164,13 +164,13 @@ func (t *Task) EnqueueCmd(cmd QueuedCmd) error {
 	t.mu.Unlock()
 
 	if q == nil {
-		return fmt.Errorf("sequencer not running")
+		return errSeqNotRunning
 	}
 
 	t.logger.Debug("enqueue", "cmd", cmd.String())
 	select {
 	case <-abort:
-		return fmt.Errorf("sequencer aborted")
+		return errSeqAborted
 	case q <- cmd:
 		return nil
 	}
@@ -243,9 +243,14 @@ func (t *Task) sequencerLoop() {
 				// This prevents overflowing the 2000-entry TP queue which the
 				// C motion controller treats as a fatal abort.
 				switch cmd.(type) {
-				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd:
+				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd, *ProbeCmd:
 					// Mark motion dispatched so the next drain applies its servo
-					// settle skip (empty barriers stay on the fast path — E1).
+					// settle skip (empty barriers stay on the fast path — E1). Every
+					// command that dispatches a TP segment MUST be here, including
+					// ProbeCmd (G38): otherwise its own WaitMotion drain can take the
+					// fast path on a stale inpos==1/queueDepth==0 before the servo
+					// registers the probe move, declaring the probe complete before
+					// it runs (R1).
 					t.motionDispatched.Store(true)
 					if err := t.waitForQueueSpace(); err != nil {
 						return // aborted — aborter owns the terminal state
@@ -296,11 +301,7 @@ func (t *Task) sequencerLoop() {
 						t.logger.Error("sequencer motion cmd failed", "cmd", cmd.String(), "err", err)
 					}
 					t.operatorError(fmt.Sprintf("Motion command failed: %s", err))
-					t.setExecState(ExecError)
-					t.setInterpState(InterpIdle)
-					t.mu.Lock()
-					t.closeOnceLocked(t.seqAbort)
-					t.mu.Unlock()
+					t.seqFaultExit()
 					return
 				default:
 					// Non-motion command failed — check if it was due to abort
@@ -315,12 +316,7 @@ func (t *Task) sequencerLoop() {
 					t.logger.Error("sequencer command failed", "cmd", cmd.String(), "err", err)
 					t.operatorError(fmt.Sprintf("Command failed: %s: %s", cmd.String(), err))
 					_ = t.motion.Abort() // stop in-flight motion on a command fault (e.g. failed M1xx)
-					t.setExecState(ExecError)
-					t.setInterpState(InterpIdle)
-					// Signal abort so interpreter goroutine unblocks from EnqueueCmd
-					t.mu.Lock()
-					t.closeOnceLocked(t.seqAbort)
-					t.mu.Unlock()
+					t.seqFaultExit()
 					return
 				}
 			}
@@ -334,14 +330,7 @@ func (t *Task) sequencerLoop() {
 				}
 				t.logger.Error("sequencer wait failed", "cmd", cmd.String(), "err", err)
 				t.operatorError(fmt.Sprintf("Wait failed: %s: %s", cmd.String(), err))
-				t.setExecState(ExecError)
-				t.setInterpState(InterpIdle)
-				// Signal abort like the other error exits — otherwise the
-				// producer can block forever in EnqueueCmd/waitSequencerDrain
-				// with no consumer left.
-				t.mu.Lock()
-				t.closeOnceLocked(t.seqAbort)
-				t.mu.Unlock()
+				t.seqFaultExit()
 				return
 			}
 
@@ -709,6 +698,22 @@ func (t *Task) setInterpState(s InterpState) {
 	t.mu.Unlock()
 }
 
+// seqFaultExit latches the terminal state when the sequencer aborts on a
+// command/wait fault: ExecError + Idle, flush the pending MDI queue and echo,
+// and bump mdiGen so a stranded MDI cannot be replayed out of order by a later
+// operator MDI's finishMDI (R2). Closing seqAbort unblocks a producer blocked in
+// EnqueueCmd/waitSequencerDrain. Called only from sequencerLoop.
+func (t *Task) seqFaultExit() {
+	t.mu.Lock()
+	t.execState = ExecError
+	t.interpState = InterpIdle
+	t.mdiQueue = t.mdiQueue[:0]
+	t.taskCommand = ""
+	t.mdiGen++
+	t.closeOnceLocked(t.seqAbort)
+	t.mu.Unlock()
+}
+
 // --- Concrete QueuedCmd types ---
 
 // LinearMoveCmd queues a linear motion segment.
@@ -759,7 +764,7 @@ type DwellCmd struct {
 func (c *DwellCmd) Execute(t *Task) error {
 	// Report the waiting-for-delay state for the duration of the dwell (G4), so
 	// UIs show it rather than a stale ExecDone. (The preceding motion is already
-	// drained by the syncBefore() barrier in Canon.Dwell.)
+	// drained by DwellCmd's WaitMotion precondition — D7.)
 	t.setExecState(ExecWaitingForDelay)
 	dur := time.Duration(c.Seconds * float64(time.Second))
 	t.mu.Lock()

@@ -14,17 +14,65 @@ func (t *Task) mcodeAbort() {
 	}
 }
 
-// --- Command preflights ------------------------------------------------
+// --- Command guards ----------------------------------------------------
 //
-// Every cmdMu command runs its FULL guard set twice: once here, WITHOUT
-// cmdMu, so a request that cannot succeed is rejected immediately instead of
-// queueing behind whatever command currently holds the lock; and once inside
-// the serialized body, which remains the authoritative check (state may
-// change while waiting for cmdMu). A preflight can only produce a spurious
-// early rejection — indistinguishable from the command racing the state
-// change — never a wrong acceptance, so correctness lives entirely in the
-// body. Each preflight mirrors its body's guard chain (same primitives, same
-// operator messages); keep them in sync when guards change.
+// Every cmdMu command runs its FULL guard set twice: once in a preflight,
+// WITHOUT cmdMu, so a request that cannot succeed is rejected immediately
+// instead of queueing behind whatever command currently holds the lock; and
+// once inside the serialized body, which remains the authoritative check
+// (state may change while waiting for cmdMu). A preflight can only produce a
+// spurious early rejection — indistinguishable from the command racing the
+// state change — never a wrong acceptance, so correctness lives entirely in
+// the body. Both call the SAME shared *Locked guard primitives below (each
+// assumes t.mu is held), so the two copies cannot drift.
+
+// canSwitchModeAutoLocked rejects a mode switch away from AUTO while an AUTO
+// program/MDI is mid-run. Must hold t.mu.
+func (t *Task) canSwitchModeAutoLocked(target TaskMode) error {
+	if t.mode == ModeAuto && t.interpState != InterpIdle && target != ModeAuto {
+		t.operatorError("Can't switch mode while mode is AUTO and interpreter is not IDLE")
+		return ErrBusy
+	}
+	return nil
+}
+
+// canPowerOnLocked reports whether STATE_ON is reachable from the current state.
+// Must hold t.mu.
+func (t *Task) canPowerOnLocked() error {
+	if t.state != StateOn && t.state != StateEstopReset && t.state != StateOff {
+		return ErrNotOn
+	}
+	return nil
+}
+
+// rejectIfBusyLocked rejects while a program or MDI is mid-run, emitting msg
+// (empty msg = reject silently). Must hold t.mu.
+func (t *Task) rejectIfBusyLocked(msg string) error {
+	if t.programBusy() {
+		if msg != "" {
+			t.operatorError(msg)
+		}
+		return ErrBusy
+	}
+	return nil
+}
+
+// rejectIfBusy is rejectIfBusyLocked for callers that do not already hold t.mu.
+func (t *Task) rejectIfBusy(msg string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.rejectIfBusyLocked(msg)
+}
+
+// mdiQueueFullLocked rejects an MDI when the interpreter is busy and the MDI
+// queue is already full. Must hold t.mu.
+func (t *Task) mdiQueueFullLocked() error {
+	if t.interpState != InterpIdle && len(t.mdiQueue) >= t.maxMDIQueued {
+		t.operatorError("MDI queue full")
+		return ErrBusy
+	}
+	return nil
+}
 
 // preflightOn rejects when the machine is not on (Flood/Mist/Lube et al.).
 func (t *Task) preflightOn() error {
@@ -41,9 +89,7 @@ func (t *Task) preflightSetState(target TaskState) error {
 	case StateOff:
 		return t.requireNotEstop()
 	case StateOn:
-		if t.state != StateOn && t.state != StateEstopReset && t.state != StateOff {
-			return ErrNotOn
-		}
+		return t.canPowerOnLocked()
 	}
 	return nil
 }
@@ -52,25 +98,12 @@ func (t *Task) preflightSetState(target TaskState) error {
 func (t *Task) preflightSetMode(target TaskMode) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.mode == ModeAuto && t.interpState != InterpIdle && target != ModeAuto {
-		t.operatorError("Can't switch mode while mode is AUTO and interpreter is not IDLE")
-		return ErrBusy
-	}
-	return nil
+	return t.canSwitchModeAutoLocked(target)
 }
 
-// preflightNotBusy rejects while a program or MDI is mid-run, emitting msg
-// (empty msg = reject silently, matching bodies that return a bare error).
+// preflightNotBusy rejects while a program or MDI is mid-run, emitting msg.
 func (t *Task) preflightNotBusy(msg string) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	if t.programBusy() {
-		if msg != "" {
-			t.operatorError(msg)
-		}
-		return ErrBusy
-	}
-	return nil
+	return t.rejectIfBusy(msg)
 }
 
 // autoRunGuardLocked checks the AutoRun preconditions. It is the single copy of
@@ -161,11 +194,7 @@ func (t *Task) preflightMDI() error {
 	if err := t.requireHomedForMDILocked(); err != nil {
 		return err
 	}
-	if t.interpState != InterpIdle && len(t.mdiQueue) >= t.maxMDIQueued {
-		t.operatorError("MDI queue full")
-		return ErrBusy
-	}
-	return nil
+	return t.mdiQueueFullLocked()
 }
 
 // preflightJog mirrors jogInternal's canJog guard for moving jogs.
@@ -507,9 +536,9 @@ func (t *Task) setState(state int32) error {
 			t.mu.Unlock()
 			return nil // idempotent
 		}
-		if t.state != StateEstopReset && t.state != StateOff {
+		if err := t.canPowerOnLocked(); err != nil {
 			t.mu.Unlock()
-			return ErrNotOn
+			return err
 		}
 		t.mu.Unlock()
 		if err := t.motion.Enable(); err != nil {
@@ -557,10 +586,9 @@ func (t *Task) SetMode(mode int32) error {
 	target := TaskMode(mode)
 
 	// Reject mode switch while AUTO is running (matches C milltask behavior).
-	if t.mode == ModeAuto && t.interpState != InterpIdle && target != ModeAuto {
+	if err := t.canSwitchModeAutoLocked(target); err != nil {
 		t.mu.Unlock()
-		t.operatorError("Can't switch mode while mode is AUTO and interpreter is not IDLE")
-		return ErrBusy
+		return err
 	}
 
 	// Explicit mode switch cancels any transactional save.
@@ -627,9 +655,8 @@ func (t *Task) ProgramOpen(file string) error {
 	// mode, but NOT while a program is running/paused: closing and reopening
 	// t.interp here would race the runProgram goroutine's use of it. C++
 	// likewise rejects PROGRAM_OPEN in the READING/PAUSED/WAITING states.
-	if t.programBusy() {
-		t.operatorError("Can't open a program while one is running")
-		return ErrBusy
+	if err := t.rejectIfBusyLocked("Can't open a program while one is running"); err != nil {
+		return err
 	}
 	if t.interp != nil {
 		// Close any previously open file before opening a new one.
@@ -910,10 +937,9 @@ func (t *Task) MDI(command string) error {
 
 	// If interpreter is busy, queue the command for later execution.
 	if t.interpState != InterpIdle {
-		if len(t.mdiQueue) >= t.maxMDIQueued {
+		if err := t.mdiQueueFullLocked(); err != nil {
 			t.mu.Unlock()
-			t.operatorError("MDI queue full")
-			return ErrBusy
+			return err
 		}
 		t.mdiQueue = append(t.mdiQueue, command)
 		t.mu.Unlock()
@@ -1585,12 +1611,8 @@ func (t *Task) Unhome(joint int32) error {
 	// would corrupt the run (and, mid-motion, the position reference). Motion's
 	// per-joint guard only catches free-mode jog/homing, not coordinated moves,
 	// so this guard belongs here.
-	t.mu.Lock()
-	busy := t.programBusy()
-	t.mu.Unlock()
-	if busy {
-		t.operatorError("Can't unhome while a program is running")
-		return ErrBusy
+	if err := t.rejectIfBusy("Can't unhome while a program is running"); err != nil {
+		return err
 	}
 	// Otherwise unhoming is allowed in ANY state (including ESTOP and OFF) and
 	// any mode, matching C++ which accepts EMC_JOINT_UNHOME broadly — you often
@@ -1848,6 +1870,11 @@ func (t *Task) abortLocked() {
 		_ = interp.Abort(0, "user abort")
 		_ = interp.Close()
 		_ = interp.Reset()
+		// Sync the canon endpoint from the machine BEFORE Synch (R6/C11), so the
+		// interpreter re-synchs to the actual stopped position, not the stale
+		// read-ahead endpoint — matching finishShutdown and the executeMDI/AutoRun
+		// re-syncs that otherwise mask this.
+		t.canon.syncEndPointFromMachine()
 		_ = interp.Synch()
 		t.updateActiveCodes(interp) // republish stat caches after reset
 	}
@@ -1930,12 +1957,8 @@ func (t *Task) LoadToolTable(file string) error {
 
 	// Reloading tool data mid-run would race the producer on the interpreter
 	// (and change offsets under a running program) — reject while busy.
-	t.mu.Lock()
-	busy := t.programBusy()
-	t.mu.Unlock()
-	if busy {
-		t.operatorError("Can't load tool table while a program is running")
-		return ErrBusy
+	if err := t.rejectIfBusy("Can't load tool table while a program is running"); err != nil {
+		return err
 	}
 
 	err := t.io.ToolLoadTable(file)
@@ -1961,12 +1984,8 @@ func (t *Task) ToolUnload() error {
 	t.cmdMu.Lock()
 	defer t.cmdMu.Unlock()
 
-	t.mu.Lock()
-	busy := t.programBusy()
-	t.mu.Unlock()
-	if busy {
-		t.operatorError("Can't unload the tool while a program is running")
-		return ErrBusy
+	if err := t.rejectIfBusy("Can't unload the tool while a program is running"); err != nil {
+		return err
 	}
 
 	err := t.io.ToolUnload()

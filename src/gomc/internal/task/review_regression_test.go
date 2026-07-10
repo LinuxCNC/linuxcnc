@@ -217,3 +217,165 @@ func TestSetState_EstopWhileEstoppedKeepsSequencerAlive(t *testing.T) {
 		t.Fatalf("queued move never dispatched after recovery — sequencer dead (dispatched %d)", mot.lineCount())
 	}
 }
+
+// C1 — an interpreter error in a multi-block MDI must abort the motion the
+// earlier blocks already queued and leave the task in ExecError, not just set
+// state and return. The fake interp queues a move (block 1) then errors: MDI
+// must return an error, motion.Abort must fire, execState must be ExecError, and
+// the MDI queue/echo must be cleared. Mutation: reverting the executeMDI error
+// paths to `setInterpState(InterpIdle); return err` (no faultMDI) leaves
+// motion.Abort uncalled and execState != ExecError — this fails.
+func TestMDI_InterpErrorAbortsMotionAndFaults(t *testing.T) {
+	restore := SetPollInterval(time.Millisecond)
+	t.Cleanup(restore)
+
+	mot := &recordMotion{}
+	io := &mockIO{}
+	stat := &mockStatus{}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	task := NewTask(mot, io, stat, logger)
+	task.SetIOStatusReader(io)
+	task.noForceHoming = true
+
+	fi := &fakeInterp{}
+	fi.onExecuteString = func(string) (int, error) {
+		// Block 1 of the MDI queues motion; a later block hits a runtime error.
+		activeCanon().task.EnqueueCmd(&LinearMoveCmd{ID: 1})
+		return InterpError, nil
+	}
+	task.SetInterpreter(fi)
+	bringUp(task)
+	if err := task.SetMode(int32(ModeMDI)); err != nil {
+		t.Fatalf("SetMode(MDI): %v", err)
+	}
+	task.StartSequencer()
+	t.Cleanup(task.StopSequencer)
+
+	if err := task.MDI("o<x> call"); err == nil {
+		t.Fatal("MDI with an interpreter error returned nil, want an error")
+	}
+	if !waitForCond(2*time.Second, func() bool { return mot.hasCall("Abort") }) {
+		t.Fatal("MDI interpreter error did not abort in-flight motion (C1)")
+	}
+	task.mu.Lock()
+	es, is, qn, tc := task.execState, task.interpState, len(task.mdiQueue), task.taskCommand
+	task.mu.Unlock()
+	if es != ExecError {
+		t.Fatalf("execState = %v, want ExecError after MDI interpreter error (C1)", es)
+	}
+	if is != InterpIdle {
+		t.Fatalf("interpState = %v, want InterpIdle", is)
+	}
+	if qn != 0 || tc != "" {
+		t.Fatalf("MDI queue/echo not cleared on fault: len=%d command=%q (C1/C9)", qn, tc)
+	}
+}
+
+// C8 (a) — finishMDI carries the MDI generation captured at issue and must exit
+// without touching state when it is stale (a newer MDI, or an abort, bumped
+// mdiGen after the handoff). Simulate MDI-2 mid-run (mdiGen advanced) and fire a
+// leftover finishMDI from MDI-1: it must NOT synch/commit against MDI-2's state.
+// Mutation: dropping the `gen != t.mdiGen` staleness check makes the stale
+// finishMDI drive InterpIdle/ExecDone over MDI-2 and this fails.
+func TestFinishMDI_StaleGenerationIsNoop(t *testing.T) {
+	task, _, _ := newTestTask()
+	task.noForceHoming = true
+	task.SetInterpreter(&fakeInterp{})
+
+	task.mu.Lock()
+	task.mdiGen = 5                    // MDI-2 was issued after MDI-1
+	task.interpState = InterpReading   // MDI-2 is mid-run
+	task.execState = ExecWaitingForMotion
+	task.mu.Unlock()
+
+	task.finishMDI(3) // leftover completion from MDI-1 (gen 3)
+
+	task.mu.Lock()
+	is, es := task.interpState, task.execState
+	task.mu.Unlock()
+	if is != InterpReading || es != ExecWaitingForMotion {
+		t.Fatalf("stale finishMDI clobbered MDI-2 state: (%v,%v), want (InterpReading, ExecWaitingForMotion) (C8)", is, es)
+	}
+}
+
+// C8 (b) — finishMDI must never downgrade a latched ExecError to ExecDone (a
+// monitor fault teardown that ran after the MDI's motion drained). Mutation:
+// removing the `execState == ExecError` early-return in finishMDI makes it
+// commit ExecDone and this fails.
+func TestFinishMDI_DoesNotDowngradeExecError(t *testing.T) {
+	task, _, _ := newTestTask()
+	task.noForceHoming = true
+	task.SetInterpreter(&fakeInterp{})
+
+	task.mu.Lock()
+	task.mdiGen = 2
+	task.interpState = InterpIdle // fault teardown set idle
+	task.execState = ExecError    // fault latched error
+	task.mu.Unlock()
+
+	task.finishMDI(2) // matching generation, but ExecError must survive
+
+	task.mu.Lock()
+	es := task.execState
+	task.mu.Unlock()
+	if es != ExecError {
+		t.Fatalf("finishMDI downgraded ExecError to %v (C8: never downgrade outside recovery)", es)
+	}
+}
+
+// C9 — when a dequeued MDI fails, the rest of the MDI queue must be flushed so a
+// later entry cannot execute out of order. finishMDI dequeues "cmd2" (which
+// errors) with "cmd3" still queued; after the fault the queue must be empty and
+// cmd3 must never run. Mutation: reverting executeMDI's error path to log-only
+// (no faultMDI flush) leaves cmd3 queued and a subsequent finishMDI would run it.
+func TestFinishMDI_FailedDequeuedMDIFlushesQueue(t *testing.T) {
+	restore := SetPollInterval(time.Millisecond)
+	t.Cleanup(restore)
+
+	mot := &recordMotion{}
+	io := &mockIO{}
+	stat := &mockStatus{}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
+	task := NewTask(mot, io, stat, logger)
+	task.SetIOStatusReader(io)
+	task.noForceHoming = true
+
+	var executed []string
+	fi := &fakeInterp{}
+	fi.onExecuteString = func(cmd string) (int, error) {
+		executed = append(executed, cmd)
+		if cmd == "cmd2" {
+			return InterpError, nil // the dequeued MDI fails
+		}
+		return InterpOK, nil
+	}
+	task.SetInterpreter(fi)
+	bringUp(task)
+	if err := task.SetMode(int32(ModeMDI)); err != nil {
+		t.Fatalf("SetMode(MDI): %v", err)
+	}
+	task.StartSequencer()
+	t.Cleanup(task.StopSequencer)
+
+	// MDI-1 "running" with two more queued; finishMDI(1) dequeues cmd2.
+	task.mu.Lock()
+	task.mdiGen = 1
+	task.interpState = InterpReading
+	task.execState = ExecDone
+	task.mdiQueue = []string{"cmd2", "cmd3"}
+	task.mu.Unlock()
+
+	task.finishMDI(1)
+
+	task.mu.Lock()
+	qn := len(task.mdiQueue)
+	task.mu.Unlock()
+	if qn != 0 {
+		t.Fatalf("mdiQueue not flushed after a failed dequeued MDI: len=%d (C9 out-of-order replay)", qn)
+	}
+	for _, c := range executed {
+		if c == "cmd3" {
+			t.Fatal("cmd3 executed after cmd2 failed — stale queue replayed out of order (C9)")
+		}
+	}
+}

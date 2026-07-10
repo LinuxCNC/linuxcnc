@@ -21,16 +21,15 @@ import (
 
 type constraintEmitter struct {
 	api      *ast.API
-	prefix   string            // regex var-name infix, distinguishing generated files
 	regexVar map[string]string // @regex pattern -> package-scope var name
 }
 
-// newConstraintEmitter builds an emitter. prefix is woven into the compiled
-// @regex var names ("Re", "CmdRe", …) so that each generated file in the shared
-// package declares its own vars without colliding — keeping every file
-// self-contained rather than referencing another file's symbols.
-func newConstraintEmitter(api *ast.API, prefix string) *constraintEmitter {
-	e := &constraintEmitter{api: api, prefix: prefix, regexVar: map[string]string{}}
+// newConstraintEmitter builds an emitter. The compiled @regex vars and the
+// validate<Api><Fn> functions are now emitted once (into _cgo.go) and shared by
+// both the REST dispatch and the WS handler (D8), so there is no per-file prefix
+// scheme any more.
+func newConstraintEmitter(api *ast.API) *constraintEmitter {
+	e := &constraintEmitter{api: api, regexVar: map[string]string{}}
 	e.collectRegexVars()
 	return e
 }
@@ -42,7 +41,7 @@ func (e *constraintEmitter) collectRegexVars() {
 		for _, c := range cs {
 			if c.Kind == ast.ConstraintRegex {
 				if _, ok := e.regexVar[c.Str]; !ok {
-					e.regexVar[c.Str] = fmt.Sprintf("%s%s%d", e.api.Name, e.prefix, len(e.regexVar))
+					e.regexVar[c.Str] = fmt.Sprintf("%s%d", e.api.Name, len(e.regexVar))
 				}
 			}
 		}
@@ -85,9 +84,13 @@ func (e *constraintEmitter) usesFmt() bool {
 	return uses
 }
 
-// walkValidation visits every (type, constraints) pair reachable from REST input
-// parameters, recursing through struct fields and slice/array elements. The seen
-// set breaks cycles in recursive struct types.
+// walkValidation visits every (type, constraints) pair reachable from an input
+// parameter of any dispatched function, recursing through struct fields and
+// slice/array elements. The seen set breaks cycles in recursive struct types.
+// It must cover EVERY function that allValidationFuncs emits a validator for
+// (including non-REST ones like `close`), so collectRegexVars/usesFmt see the
+// same set — otherwise a @regex on a non-REST function would reference an
+// uncollected (empty) var and emit invalid Go.
 func (e *constraintEmitter) walkValidation(visit func(ast.TypeRef, []ast.Constraint)) {
 	seen := map[string]bool{}
 	var walk func(t ast.TypeRef, cs []ast.Constraint)
@@ -106,13 +109,7 @@ func (e *constraintEmitter) walkValidation(visit func(ast.TypeRef, []ast.Constra
 		}
 	}
 	for _, fn := range e.api.Funcs {
-		if fn.Method == "" {
-			continue // not REST-exported
-		}
-		for _, p := range fn.Params {
-			if p.IsOut || p.IsPtr {
-				continue
-			}
+		for _, p := range validatedParams(fn) {
 			walk(p.Type, p.Constraints)
 		}
 	}

@@ -4,6 +4,7 @@ package task
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"time"
@@ -282,10 +283,6 @@ type Canon struct {
 	// continuation Execute to tell whether anything needs draining (E5). Plain
 	// int — interp execution is never concurrent (cmdMu / producer-owned).
 	enqueueCount int64
-	// lastEnqueued is the previous command handed to enqueue, used to coalesce a
-	// run of consecutive motion-drain barriers (E1) — draining an already-drained
-	// queue twice is redundant.
-	lastEnqueued QueuedCmd
 }
 
 // Compile-time check that Canon implements the generated CanonCallbacks interface.
@@ -304,7 +301,6 @@ func NewCanon(t *Task) *Canon {
 // When discard is true, enqueue drops commands instead of queueing them.
 func (c *Canon) setDiscard(d bool) {
 	c.discard = d
-	c.lastEnqueued = nil // don't coalesce a barrier across a seek boundary
 }
 
 // allocSerial returns the next segment serial id and registers the G-code
@@ -1189,22 +1185,18 @@ func (c *Canon) enqueue(cmd QueuedCmd) {
 	if c.discard {
 		return
 	}
-	// Coalesce consecutive motion-drain barriers: a run of syncBefore() calls
-	// (e.g. S1200 M3 M8, each self-barriering) needs only one drain — the queue
-	// is already empty after the first (E1).
-	if cmd == waitForMotionSingleton && c.lastEnqueued == waitForMotionSingleton {
-		return
-	}
-	c.lastEnqueued = cmd
 	c.enqueueCount++
 	if err := c.task.EnqueueCmd(cmd); err != nil {
-		// A dropped motion/IO command is a real fault, not a debug detail:
-		// surface it to the operator, not just the log. Enqueue only fails when
-		// the sequencer is gone (aborted/not running) — normally a teardown is
-		// in progress and the producer/MDI is about to observe the abort and
-		// stop, so this fires at most a bounded number of times.
 		c.task.logger.Error("canon enqueue failed", "cmd", cmd.String(), "err", err)
-		c.task.operatorError(fmt.Sprintf("Motion command dropped (sequencer stopped): %s", cmd.String()))
+		// A dropped command during an in-progress abort/teardown is expected —
+		// the producer keeps firing the rest of the block's canon callbacks into
+		// the just-closed queue — so log only, no operator error (R5: the burst
+		// was alarming UI noise on a user-initiated stop). Surface an operator
+		// error only for an UNEXPECTED drop (sequencer not running at all), the
+		// wedge case C3's message was meant for.
+		if !errors.Is(err, errSeqAborted) {
+			c.task.operatorError(fmt.Sprintf("Motion command dropped (sequencer stopped): %s", cmd.String()))
+		}
 	}
 }
 
@@ -1440,34 +1432,36 @@ func (c *WaitInputCmd) Execute(t *Task) error {
 			// interp_convert.cc), so analog takes the WaitType==0 early return
 			// above. Guard on digital so a future contract change can't sample
 			// the wrong (digital) array for an analog index.
+			// A read error skips only the condition check — NOT the deadline
+			// check below (R4): otherwise persistent read errors would keep
+			// looping and the M66 Q-timeout would never fire, blocking until
+			// abort/estop.
 			if c.InputType == 1 && c.Index >= 0 && c.Index < 64 {
-				di, err := t.status.GetSynchDi(c.Index)
-				if err != nil {
-					continue // transient read error — keep waiting
-				}
-				high := di != 0
-				var satisfied bool
-				switch c.WaitType {
-				case 3: // high (level)
-					satisfied = high
-				case 4: // low (level)
-					satisfied = !high
-				case 1: // rise (edge): observe low, then high
-					if !high {
-						sawOpposite = true
-					} else if sawOpposite {
-						satisfied = true
+				if di, err := t.status.GetSynchDi(c.Index); err == nil {
+					high := di != 0
+					var satisfied bool
+					switch c.WaitType {
+					case 3: // high (level)
+						satisfied = high
+					case 4: // low (level)
+						satisfied = !high
+					case 1: // rise (edge): observe low, then high
+						if !high {
+							sawOpposite = true
+						} else if sawOpposite {
+							satisfied = true
+						}
+					case 2: // fall (edge): observe high, then low
+						if high {
+							sawOpposite = true
+						} else if sawOpposite {
+							satisfied = true
+						}
 					}
-				case 2: // fall (edge): observe high, then low
-					if high {
-						sawOpposite = true
-					} else if sawOpposite {
-						satisfied = true
+					if satisfied {
+						t.setInputTimeout(0) // condition met before timeout
+						return nil
 					}
-				}
-				if satisfied {
-					t.setInputTimeout(0) // condition met before timeout
-					return nil
 				}
 			}
 			if time.Now().After(deadline) {
