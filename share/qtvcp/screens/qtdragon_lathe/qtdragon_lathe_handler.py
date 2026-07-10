@@ -441,6 +441,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Camview xscale', self.cam_xscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview yscale', self.cam_yscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview cam number', self.w.camview._camNum, int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam api', self.w.camview.getAPIName(self.w.camview._camNum), str, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam resolution', self.w.camview.resolution, str, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
         self.adjust_stacked_widgets(TAB_MAIN)
