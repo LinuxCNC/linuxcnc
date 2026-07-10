@@ -21,11 +21,16 @@ import (
 
 type constraintEmitter struct {
 	api      *ast.API
+	prefix   string            // regex var-name infix, distinguishing generated files
 	regexVar map[string]string // @regex pattern -> package-scope var name
 }
 
-func newConstraintEmitter(api *ast.API) *constraintEmitter {
-	e := &constraintEmitter{api: api, regexVar: map[string]string{}}
+// newConstraintEmitter builds an emitter. prefix is woven into the compiled
+// @regex var names ("Re", "CmdRe", …) so that each generated file in the shared
+// package declares its own vars without colliding — keeping every file
+// self-contained rather than referencing another file's symbols.
+func newConstraintEmitter(api *ast.API, prefix string) *constraintEmitter {
+	e := &constraintEmitter{api: api, prefix: prefix, regexVar: map[string]string{}}
 	e.collectRegexVars()
 	return e
 }
@@ -37,7 +42,7 @@ func (e *constraintEmitter) collectRegexVars() {
 		for _, c := range cs {
 			if c.Kind == ast.ConstraintRegex {
 				if _, ok := e.regexVar[c.Str]; !ok {
-					e.regexVar[c.Str] = fmt.Sprintf("%sRe%d", e.api.Name, len(e.regexVar))
+					e.regexVar[c.Str] = fmt.Sprintf("%s%s%d", e.api.Name, e.prefix, len(e.regexVar))
 				}
 			}
 		}

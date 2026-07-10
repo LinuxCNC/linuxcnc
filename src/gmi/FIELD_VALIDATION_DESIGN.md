@@ -22,9 +22,11 @@ clients pre-validate (collect-all) before sending:
 - **REST dispatch** — the cgo `_cgo.go` file (emitted by `GenerateDispatchC`).
 - **WebSocket command handlers** — `TooltableCommands`-style handlers (emitted by
   `GenerateServerGoExtra` into `_bridge.go`) that some callers register directly
-  (e.g. `task/watches.go` → `EmccmdCommands(m)`). They share a package with
-  `_cgo.go` and reference its compiled `@regex` vars by the identical generated
-  name rather than re-declaring them.
+  (e.g. `task/watches.go` → `EmccmdCommands(m)`). This file declares its own
+  compiled `@regex` vars with a distinct `CmdRe` prefix (vs `_cgo.go`'s `Re`), so
+  each generated file in the shared package is self-contained rather than
+  referencing another file's symbols. Compiling a pattern twice is free —
+  `MustRegex` runs once at package init.
 - **TypeScript & Python clients** — a shared `clientValidation` emitter (with a
   per-language adapter) gathers *all* violations and raises a `ValidationError`
   before the request is sent, so a UI can highlight every bad field. Clients

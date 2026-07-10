@@ -168,9 +168,12 @@ func put_tool(toolno: i32 @min(1), entry: ToolEntry) -> i32
 	assertContains(t, out, "// --- validation (generated from @constraints) ---")
 	assertContains(t, out, "\t\t\tif params.Toolno < 1 {")
 	assertContains(t, out, "\t\t\tif params.Entry.Toolno < 1 {")
-	// Regex var is referenced (declared separately in _cgo.go), not re-declared here.
-	assertContains(t, out, "apiserver.ValidateRegex(\"entry.comment\", tooltableRe0, params.Entry.Comment)")
-	if bytes.Contains([]byte(out), []byte("tooltableRe0 = apiserver.MustRegex")) {
-		t.Error("regex var must NOT be re-declared in the bridge file (lives in _cgo.go)")
+	// The bridge declares its OWN compiled regex var (distinct "CmdRe" prefix, so
+	// it does not collide with the "Re" vars in the shared _cgo.go) and uses it —
+	// keeping the file self-contained rather than referencing _cgo.go's symbols.
+	assertContains(t, out, `var tooltableCmdRe0 = apiserver.MustRegex("^[a-z]+$")`)
+	assertContains(t, out, "apiserver.ValidateRegex(\"entry.comment\", tooltableCmdRe0, params.Entry.Comment)")
+	if bytes.Contains([]byte(out), []byte("tooltableRe0 =")) {
+		t.Error("bridge must use its own CmdRe-prefixed vars, not _cgo.go's Re vars")
 	}
 }
