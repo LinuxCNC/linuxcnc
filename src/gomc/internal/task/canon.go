@@ -1363,24 +1363,19 @@ func (c *WaitInputCmd) Execute(t *Task) error {
 				return nil
 			}
 			ms, err := t.status.GetStatus()
-			if err == nil && c.Index >= 0 && c.Index < 64 {
+			// Only digital inputs reach this poll loop: the interp always sends
+			// analog inputs as immediate (it rejects analog + non-immediate wait,
+			// interp_convert.cc), so analog takes the WaitType==0 early return
+			// above. Guard on digital so a future contract change can't sample
+			// the wrong (digital) array for an analog index.
+			if err == nil && c.InputType == 1 && c.Index >= 0 && c.Index < 64 {
+				high := ms.SynchDi[c.Index] != 0
 				var satisfied bool
-				if c.InputType == 1 { // digital
-					high := ms.SynchDi[c.Index] != 0
-					switch c.WaitType {
-					case 1, 3: // rise / high
-						satisfied = high
-					case 2, 4: // fall / low
-						satisfied = !high
-					}
-				} else { // analog
-					pos := ms.AnalogInput[c.Index] > 0
-					switch c.WaitType {
-					case 1, 3:
-						satisfied = pos
-					case 2, 4:
-						satisfied = !pos
-					}
+				switch c.WaitType {
+				case 1, 3: // rise / high
+					satisfied = high
+				case 2, 4: // fall / low
+					satisfied = !high
 				}
 				if satisfied {
 					t.setInputTimeout(0) // condition met before timeout
