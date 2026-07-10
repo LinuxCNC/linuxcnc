@@ -438,7 +438,8 @@ class gmoccapy(object):
         self.GSTAT.connect('ok-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.ACCEPT))
         self.GSTAT.connect('cancel-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.CANCEL))
         self.GSTAT.connect('cancel-request', lambda w, state: self._del_notification())
-        self.GSTAT.connect('shutdown-request', lambda w: self.on_btn_exit_clicked(w))
+        self.GSTAT.connect('shutdown-request', lambda w: self.system_shutdown(w))
+        self.GSTAT.connect('softkey-pressed', lambda w,data: self.softkey_pressed(data))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -2933,6 +2934,9 @@ class gmoccapy(object):
     # If button exit is clicked, press emergency button before closing the application
     def on_btn_exit_clicked(self, widget, data=None):
         self.widgets.window1.destroy()
+
+    def system_shutdown(self, widget):
+        self.ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
 # button handlers End
 # =========================================================
@@ -6400,6 +6404,20 @@ class gmoccapy(object):
         self.command.set_optional_stop(pin.get())
 
 # =========================================================
+    # external request for a softkey press from HALUI/halbridge
+    def softkey_pressed(self, index):
+        if index > 9:
+            location = "bottom"
+            number = index -10
+        elif index < 7:
+            location = "right"
+            number = index
+        else:
+            LOG.debug(f"Could not translate softkey {index} to button number")
+        LOG.debug(f"softkey index: {index}, location: {location}, number: {number}")
+        button = self._get_child_button(location, number)
+        self.process_button(button)
+
 # The actions of the buttons
     def _button_pin_changed(self, pin):
         # we check if the button is pressed or released,
@@ -6423,6 +6441,9 @@ class gmoccapy(object):
             return
 
         button = self._get_child_button(location, number)
+        self.process_button(button)
+
+    def process_button(self, button):
         if not button:
             LOG.debug("no button here")
             return
