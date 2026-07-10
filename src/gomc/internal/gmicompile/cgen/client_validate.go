@@ -42,7 +42,7 @@ func clientValidation(lang clientLang, fn ast.Func, api *ast.API) string {
 		if p.IsOut || p.IsPtr {
 			continue
 		}
-		b.WriteString(clientChecks(lang, api, clientArgName(lang, p.Name), staticPath(p.Name), p.Type, p.Constraints, map[string]bool{}))
+		b.WriteString(clientChecks(lang, api, clientArgName(lang, p.Name), staticPath(p.Name), p.Type, p.Constraints, map[string]bool{}, 0))
 	}
 	checks := b.String()
 	if checks == "" {
@@ -51,104 +51,11 @@ func clientValidation(lang clientLang, fn ast.Func, api *ast.API) string {
 	return lang.open() + checks + lang.closeThrow()
 }
 
-// clientChecks emits validation for one value, handling nullable presence.
-func clientChecks(lang clientLang, api *ast.API, expr string, path valPath, t ast.TypeRef, cs []ast.Constraint, stack map[string]bool) string {
-	if t.Nullable {
-		var b strings.Builder
-		if hasConstraint(cs, ast.ConstraintNotNull) {
-			b.WriteString(lang.check(lang.absent(expr), path.msg(" must not be null")))
-		}
-		inner := t
-		inner.Nullable = false
-		body := clientValue(lang, api, expr, path, inner, dropConstraint(cs, ast.ConstraintNotNull), stack)
-		if body != "" {
-			b.WriteString(lang.guard(expr, body))
-		}
-		return b.String()
-	}
-	return clientValue(lang, api, expr, path, t, cs, stack)
-}
-
-func clientValue(lang clientLang, api *ast.API, expr string, path valPath, t ast.TypeRef, cs []ast.Constraint, stack map[string]bool) string {
-	var b strings.Builder
-
-	for _, c := range cs {
-		switch c.Kind {
-		case ast.ConstraintMin:
-			b.WriteString(lang.check(expr+" < "+c.Num, path.msg(" must be >= "+c.Num)))
-		case ast.ConstraintMax:
-			b.WriteString(lang.check(expr+" > "+c.Num, path.msg(" must be <= "+c.Num)))
-		case ast.ConstraintMinLen:
-			b.WriteString(lang.check(lang.lenExpr(expr, t)+" < "+c.Num, path.msg(" must have at least "+c.Num+" "+lenUnit(t))))
-		case ast.ConstraintMaxLen:
-			b.WriteString(lang.check(lang.lenExpr(expr, t)+" > "+c.Num, path.msg(" must have at most "+c.Num+" "+lenUnit(t))))
-		case ast.ConstraintNotEmpty:
-			b.WriteString(lang.check(lang.lenExpr(expr, t)+" < 1", path.msg(" must not be empty")))
-		case ast.ConstraintRegex:
-			// Server-only — intentionally skipped client-side.
-		}
-	}
-
-	// Automatic enum membership (opt out with @enum_open).
-	if vals, ok := clientEnumValues(api, t); ok && !hasConstraint(cs, ast.ConstraintEnumOpen) {
-		b.WriteString(lang.check(lang.enumMiss(expr, vals), path.msg(": invalid enum value")))
-	}
-
-	// Recurse into struct fields.
-	if st, ok := clientStruct(api, t); ok && !stack[st.Name] {
-		stack[st.Name] = true
-		for _, f := range st.Fields {
-			b.WriteString(clientChecks(lang, api, expr+"."+f.Name, path.field(f.Name), f.Type, f.Constraints, stack))
-		}
-		delete(stack, st.Name)
-	}
-
-	// Recurse into slice/array elements.
-	if t.Kind == ast.TypeSlice || t.Kind == ast.TypeArray {
-		elem := *t.Elem
-		elemPath := valPath{expr: lang.idxPathExpr(path.expr, "i")}
-		inner := clientChecks(lang, api, expr+"[i]", elemPath, elem, nil, stack)
-		if inner != "" {
-			b.WriteString(lang.loop(expr, "i", inner))
-		}
-	}
-
-	return b.String()
-}
-
-// --- shared lookups ---
-
-func clientStruct(api *ast.API, t ast.TypeRef) (*ast.Type, bool) {
-	if t.Kind != ast.TypeNamed {
-		return nil, false
-	}
-	for i := range api.Types {
-		if api.Types[i].Name == t.Name {
-			return &api.Types[i], true
-		}
-	}
-	return nil, false
-}
-
-func clientEnumValues(api *ast.API, t ast.TypeRef) ([]int, bool) {
-	if t.Kind != ast.TypeNamed {
-		return nil, false
-	}
-	for i := range api.Enums {
-		if api.Enums[i].Name != t.Name {
-			continue
-		}
-		seen := map[int]bool{}
-		var vals []int
-		for _, v := range api.Enums[i].Values {
-			if !seen[v.Value] {
-				seen[v.Value] = true
-				vals = append(vals, v.Value)
-			}
-		}
-		return vals, true
-	}
-	return nil, false
+// clientChecks emits collect-all client validation for one value, via the shared
+// walk (walkConstraints) with the language-parameterized clientTarget. The
+// recursion structure is shared with the Go server validator (D9).
+func clientChecks(lang clientLang, api *ast.API, expr string, path valPath, t ast.TypeRef, cs []ast.Constraint, stack map[string]bool, depth int) string {
+	return walkConstraints(clientTarget{lang: lang, api: api}, api, expr, path, t, cs, stack, depth)
 }
 
 func clientArgName(lang clientLang, name string) string {

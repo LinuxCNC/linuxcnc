@@ -119,17 +119,14 @@ func newMDITask(t *testing.T, fi *fakeInterp) *Task {
 // waitIdle polls until the interpreter reports idle or the deadline expires.
 func waitIdle(t *testing.T, task *Task, timeout time.Duration) {
 	t.Helper()
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
+	ok := waitForCond(timeout, func() bool {
 		task.mu.Lock()
-		idle := task.interpState == InterpIdle && len(task.mdiQueue) == 0 && task.taskCommand == ""
-		task.mu.Unlock()
-		if idle {
-			return
-		}
-		time.Sleep(time.Millisecond)
+		defer task.mu.Unlock()
+		return task.interpState == InterpIdle && len(task.mdiQueue) == 0 && task.taskCommand == ""
+	})
+	if !ok {
+		t.Fatalf("task did not become idle within %v", timeout)
 	}
-	t.Fatalf("task did not become idle within %v", timeout)
 }
 
 // TestMDIChain_ExpandsPastQueueSize is the regression test for the sequencer

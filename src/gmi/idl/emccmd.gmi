@@ -10,6 +10,14 @@
 @prefix emccmd
 @rest_export true
 
+# ─── Range bounds ───
+# Max valid indices, = EMCMOT_MAX_* - 1. Defined once so the @max literals on the
+# spindle/joint commands below are not hand-typed at every site (the authoritative
+# check against the *configured* count lives in the task layer). Keep in sync with
+# EMCMOT_MAX_SPINDLES / EMCMOT_MAX_JOINTS in src/emc/motion/motion.h.
+const MAX_SPINDLE_INDEX = 7
+const MAX_JOINT_INDEX = 15
+
 # ─── Enums ───
 
 # Auto command sub-type (linuxcnc.AUTO_*)
@@ -75,22 +83,25 @@ func jog_stop(jjogmode: bool, axis_or_joint: i32) -> i32
 # Spindle control
 @method "POST"
 @path "/spindle"
-func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32 @min(0) @max(7), wait: i32) -> i32
+# spindle_num -1 = all spindles (broadcast); 0..EMCMOT_MAX_SPINDLES-1 select one.
+# The authoritative range check against the *configured* numSpindles is in the
+# task layer (Task.Spindle); this bound only rejects wildly out-of-range indices.
+func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32 @min(-1) @max(MAX_SPINDLE_INDEX), wait: i32) -> i32
 
 # Home a joint (-1 = all)
 @method "POST"
 @path "/home"
-func home(joint: i32 @max(15)) -> i32
+func home(joint: i32 @max(MAX_JOINT_INDEX)) -> i32
 
 # Unhome a joint (-1 = all)
 @method "POST"
 @path "/unhome"
-func unhome(joint: i32 @max(15)) -> i32
+func unhome(joint: i32 @max(MAX_JOINT_INDEX)) -> i32
 
 # Override soft limits for a joint (joint < 0 resumes normal limit checking)
 @method "POST"
 @path "/override-limits"
-func override_limits(joint: i32 @max(15)) -> i32
+func override_limits(joint: i32 @max(MAX_JOINT_INDEX)) -> i32
 
 # Enable/disable teleop mode
 @method "POST"
@@ -105,7 +116,9 @@ func set_feed_override(rate: f64 @min(0)) -> i32
 # Set spindle speed override (0.0 - 1.0+)
 @method "POST"
 @path "/spindle-override"
-func set_spindle_override(rate: f64 @min(0), spindle_num: i32 @min(0) @max(7)) -> i32
+# spindle_num -1 = all spindles (broadcast). Task layer validates against the
+# configured numSpindles (Task.SetSpindleOverride).
+func set_spindle_override(rate: f64 @min(0), spindle_num: i32 @min(-1) @max(MAX_SPINDLE_INDEX)) -> i32
 
 # Set rapid override (0.0 - 1.0)
 @method "POST"
@@ -130,7 +143,7 @@ func set_fh_enable(enable: bool) -> i32
 # Enable/disable spindle-speed override (EMC_TRAJ_SET_SO_ENABLE)
 @method "POST"
 @path "/spindle-override-enable"
-func set_so_enable(enable: bool, spindle_num: i32 @min(0) @max(7)) -> i32
+func set_so_enable(enable: bool, spindle_num: i32 @min(0) @max(MAX_SPINDLE_INDEX)) -> i32
 
 # Flood coolant on/off
 @method "POST"
@@ -145,7 +158,7 @@ func mist(on: bool) -> i32
 # Spindle brake engage/release
 @method "POST"
 @path "/brake"
-func brake(on: bool, spindle_num: i32 @min(0) @max(7)) -> i32
+func brake(on: bool, spindle_num: i32 @min(0) @max(MAX_SPINDLE_INDEX)) -> i32
 
 # Lube on/off
 @method "POST"

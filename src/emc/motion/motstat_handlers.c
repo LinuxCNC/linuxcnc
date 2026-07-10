@@ -280,6 +280,24 @@ static int32_t h_get_command_status(void *ctx)
     return s.commandStatus;
 }
 
+static int32_t h_get_synch_di(void *ctx, int32_t index)
+{
+    CTX;
+    emcmot_status_t s;
+    if (index < 0 || index >= EMCMOT_MAX_DIO) return -1;
+    if (read_status(mc, &s) < 0) return -1;
+    return s.synch_di[index];
+}
+
+static double h_get_analog_input(void *ctx, int32_t index)
+{
+    CTX;
+    emcmot_status_t s;
+    if (index < 0 || index >= EMCMOT_MAX_AIO) return -1;
+    if (read_status(mc, &s) < 0) return -1;
+    return s.analog_input[index];
+}
+
 /* ================================================================
  * Public: build the callback table
  * ================================================================ */
@@ -305,6 +323,8 @@ motstat_callbacks_t motstat_get_callbacks(motstat_ctx_t **ctx_out)
         .get_inpos            = h_get_inpos,
         .get_command_num_echo = h_get_command_num_echo,
         .get_command_status   = h_get_command_status,
+        .get_synch_di         = h_get_synch_di,
+        .get_analog_input     = h_get_analog_input,
     };
     return cb;
 }

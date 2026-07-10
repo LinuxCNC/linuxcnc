@@ -84,9 +84,7 @@ func newBlendCanonTask(t *testing.T) (*Task, *recordingMotion) {
 	st.inPosition.Store(true)
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	task := NewTask(mot, &mockIO{}, st, logger)
-	task.axisMask = 0b111
-	task.axisMaxVel = [9]float64{40, 25, 8}
-	task.axisMaxAcc = [9]float64{600, 400, 120}
+	applyBlendLimits(task) // shared axis mask + per-axis vel/acc limits (S2)
 	task.maxAcceleration = 600
 	task.numJoints = 3
 	task.canon.UseLengthUnits(2) // CANON_UNITS_MM
@@ -208,9 +206,7 @@ func runNGCViaInterpRec(t *testing.T, program string) *recordingMotion {
 	st.inPosition.Store(true)
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	task := NewTask(mot, &mockIO{}, st, logger)
-	task.axisMask = 0b111
-	task.axisMaxVel = [9]float64{40, 25, 8}
-	task.axisMaxAcc = [9]float64{600, 400, 120}
+	applyBlendLimits(task) // shared axis mask + per-axis vel/acc limits (S2)
 	task.maxAcceleration = 600
 	task.numJoints = 3
 	task.linearUnits = 1.0 // mm native; feeds GET_EXTERNAL_LENGTH_UNITS (else 0/0=NaN)
@@ -353,11 +349,19 @@ func checkSpindleOn(t *testing.T, got spindleRec, speed, cssFactor, cssOffset fl
 }
 
 // TestBlendIntegration_Spindle_ViaInterpreter drives the spindle program through
-// the REAL interpreter and asserts the emitted spindle command stream against the
-// C milltask oracle (logs/old/spindle.log) exactly:
-//   - S1000 before M3: dir=0, so speed=0, and wait=0 (the initial flag, before
-//     M3 sets wait-for-at-speed).
-//   - M3: dir=+1, re-emit at 1000 with wait=1.
+// the REAL interpreter and asserts the emitted spindle command stream.
+//
+// Deliberate divergence from the C milltask oracle (logs/old/spindle.log): the C
+// SET_SPINDLE_SPEED always appends a SPINDLE_ON message, and for a *stopped*
+// spindle (dir=0) it carries state=0 (emcSpindleSpeed does not force state), so
+// the machine is not enabled — it is a status-only no-op. gomc's spindle-on GMI
+// call hardcodes state=1 (motctl_handlers.c h_spindle_on), so it cannot express
+// "set speed, stay off". Rather than enable the drive at zero speed and release
+// its brake, the canon drops the command entirely when dir=0 (see
+// Canon.SetSpindleSpeed). Machine behavior is identical to 2.9; only the leading
+// status-only SPINDLE_ON (s=0 speed=0) is absent. The remaining stream matches
+// the oracle:
+//   - M3: dir=+1, emit at 1000 with wait=1.
 //   - S2000 while running: re-emit at 2000, carrying the stale wait=1.
 //   - G96 D3000 S200 (CSS): Speed = the D-word RPM cap (3000); css_factor =
 //     (1000/2pi)*S surface speed (mm), i.e. the same k the canon uses.
@@ -366,17 +370,16 @@ func checkSpindleOn(t *testing.T, got spindleRec, speed, cssFactor, cssOffset fl
 func TestBlendIntegration_Spindle_ViaInterpreter(t *testing.T) {
 	mot := runNGCViaInterpRec(t, spindleNGC)
 	sp := mot.spindleCmds
-	if len(sp) != 7 {
-		t.Fatalf("expected 7 spindle commands, got %d: %+v", len(sp), sp)
+	if len(sp) != 6 {
+		t.Fatalf("expected 6 spindle commands, got %d: %+v", len(sp), sp)
 	}
 	cssFactor200 := 1000.0 / (2 * math.Pi) * 200 // mm CSS: k * surface speed(200)
-	checkSpindleOn(t, sp[0], 0, 0, 0, 0, "S1000 before M3: dir=0 -> speed 0, initial wait=0")
-	checkSpindleOn(t, sp[1], 1000, 0, 0, 1, "M3: dir=+1 -> speed 1000, wait=1")
-	checkSpindleOn(t, sp[2], 2000, 0, 0, 1, "S2000 while running: re-emit, wait carried")
-	checkSpindleOn(t, sp[3], 3000, cssFactor200, 0, 1, "G96 D3000 S200: speed=cap, css_factor=(1000/2pi)*200")
-	checkSpindleOn(t, sp[4], 1500, 0, 0, 1, "G97 S1500: back to RPM, css_factor=0")
-	if sp[5].on || sp[6].on {
-		t.Errorf("expected two SPINDLE_OFF at end (M5, M2), got sp[5]=%+v sp[6]=%+v", sp[5], sp[6])
+	checkSpindleOn(t, sp[0], 1000, 0, 0, 1, "M3: dir=+1 -> speed 1000, wait=1")
+	checkSpindleOn(t, sp[1], 2000, 0, 0, 1, "S2000 while running: re-emit, wait carried")
+	checkSpindleOn(t, sp[2], 3000, cssFactor200, 0, 1, "G96 D3000 S200: speed=cap, css_factor=(1000/2pi)*200")
+	checkSpindleOn(t, sp[3], 1500, 0, 0, 1, "G97 S1500: back to RPM, css_factor=0")
+	if sp[4].on || sp[5].on {
+		t.Errorf("expected two SPINDLE_OFF at end (M5, M2), got sp[4]=%+v sp[5]=%+v", sp[4], sp[5])
 	}
 
 	// The interleaved moves use the same per-axis blend as the lines test.

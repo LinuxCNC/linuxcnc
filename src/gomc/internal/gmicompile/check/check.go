@@ -229,13 +229,5 @@ func asFloatPair(a, b string) (float64, float64, bool) {
 
 // enumFor returns the enum a named type refers to, if any.
 func enumFor(api *ast.API, t ast.TypeRef) (*ast.Enum, bool) {
-	if t.Kind != ast.TypeNamed {
-		return nil, false
-	}
-	for i := range api.Enums {
-		if api.Enums[i].Name == t.Name {
-			return &api.Enums[i], true
-		}
-	}
-	return nil, false
+	return api.EnumByName(t)
 }

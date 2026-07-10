@@ -235,3 +235,11 @@ func get_command_num_echo() -> i32
 @doc "Get command status (CMD_OK, CMD_INVALID, etc.)"
 @returns_value
 func get_command_status() -> i32
+
+@doc "Get one synchronized digital input (M66) without copying full status"
+@returns_value
+func get_synch_di(index: i32 @min(0) @max(63)) -> i32
+
+@doc "Get one analog input (M66) without copying full status"
+@returns_value
+func get_analog_input(index: i32 @min(0) @max(63)) -> f64

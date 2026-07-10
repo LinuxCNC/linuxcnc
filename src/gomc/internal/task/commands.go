@@ -73,7 +73,51 @@ func (t *Task) preflightNotBusy(msg string) error {
 	return nil
 }
 
-// preflightAuto mirrors autoCommand's guard chain for the serialized cases.
+// autoRunGuardLocked checks the AutoRun preconditions. It is the single copy of
+// this guard chain (including operator strings), called by preflightAuto (the
+// lock-free early reject) and by autoCommand (the authoritative check). Must be
+// called with t.mu held; it does not release it.
+func (t *Task) autoRunGuardLocked() error {
+	if t.programBusy() {
+		t.operatorError("Can't run a program while one is running")
+		return ErrBusy
+	}
+	if err := t.requireProgram(); err != nil {
+		return err
+	}
+	if err := t.requireHomed(); err != nil {
+		t.operatorError("Can't run a program when not homed")
+		return fmt.Errorf("can't run program when not homed")
+	}
+	if t.externalOffsetApplied() {
+		t.operatorError("Can't run a program with external offsets applied")
+		return fmt.Errorf("can't run program with external offsets applied")
+	}
+	return nil
+}
+
+// autoStepGuardLocked checks the AutoStep preconditions: a program must be
+// loaded, and when starting fresh (interp idle) the machine must be homed and no
+// other run in progress. Shared by preflightAuto and autoCommand. Must hold t.mu.
+func (t *Task) autoStepGuardLocked() error {
+	if err := t.requireProgram(); err != nil {
+		return err
+	}
+	if t.interpState == InterpIdle {
+		if t.programBusy() {
+			t.operatorError("Can't run a program while one is running")
+			return ErrBusy
+		}
+		if err := t.requireHomed(); err != nil {
+			t.operatorError("Can't run a program when not homed")
+			return fmt.Errorf("can't run program when not homed")
+		}
+	}
+	return nil
+}
+
+// preflightAuto mirrors autoCommand's guard chain for the serialized cases,
+// reusing the same guard funcs so the two can't drift.
 func (t *Task) preflightAuto(cmd int32) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -85,40 +129,25 @@ func (t *Task) preflightAuto(cmd int32) error {
 	}
 	switch cmd {
 	case AutoRun:
-		if t.programBusy() {
-			t.operatorError("Can't run a program while one is running")
-			return ErrBusy
-		}
-		if err := t.requireProgram(); err != nil {
-			return err
-		}
-		if err := t.requireHomed(); err != nil {
-			t.operatorError("Can't run a program when not homed")
-			return fmt.Errorf("can't run program when not homed")
-		}
-		if t.externalOffsetApplied() {
-			t.operatorError("Can't run a program with external offsets applied")
-			return fmt.Errorf("can't run program with external offsets applied")
-		}
+		return t.autoRunGuardLocked()
 	case AutoStep:
-		if err := t.requireProgram(); err != nil {
-			return err
-		}
-		if t.interpState == InterpIdle {
-			if t.programBusy() {
-				t.operatorError("Can't run a program while one is running")
-				return ErrBusy
-			}
-			if err := t.requireHomed(); err != nil {
-				t.operatorError("Can't run a program when not homed")
-				return fmt.Errorf("can't run program when not homed")
-			}
-		}
+		return t.autoStepGuardLocked()
 	}
 	return nil
 }
 
-// preflightMDI mirrors MDI's guard chain.
+// requireHomedForMDILocked is the MDI "not homed" guard shared by preflightMDI
+// and MDI (same operator string). Must hold t.mu.
+func (t *Task) requireHomedForMDILocked() error {
+	if err := t.requireHomed(); err != nil {
+		t.operatorError("Can't issue MDI command when not homed")
+		return fmt.Errorf("can't issue MDI command when not homed")
+	}
+	return nil
+}
+
+// preflightMDI mirrors MDI's guard chain (mode check via canSwitchMode; the body
+// switches via ensureMode).
 func (t *Task) preflightMDI() error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -129,9 +158,8 @@ func (t *Task) preflightMDI() error {
 		t.operatorError("Must be in MDI mode to issue MDI command")
 		return err
 	}
-	if err := t.requireHomed(); err != nil {
-		t.operatorError("Can't issue MDI command when not homed")
-		return fmt.Errorf("can't issue MDI command when not homed")
+	if err := t.requireHomedForMDILocked(); err != nil {
+		return err
 	}
 	if t.interpState != InterpIdle && len(t.mdiQueue) >= t.maxMDIQueued {
 		t.operatorError("MDI queue full")
@@ -157,9 +185,7 @@ func (t *Task) preflightSpindle(cmd int32) error {
 	}
 	switch cmd {
 	case SpindleForward, SpindleReverse, SpindleOff:
-		if t.interpRunning() {
-			return t.spindleRunErr()
-		}
+		return t.spindleOwnedByProgram()
 	}
 	return nil
 }
@@ -191,13 +217,7 @@ func (t *Task) preflightManualMode(requireOn bool) error {
 // call this first, then take cmdMu for the state cleanup.
 func (t *Task) signalAbort() {
 	t.mu.Lock()
-	if t.seqAbort != nil {
-		select {
-		case <-t.seqAbort:
-		default:
-			close(t.seqAbort)
-		}
-	}
+	t.closeOnceLocked(t.seqAbort)
 	t.mu.Unlock()
 	t.mcodeAbort()
 	_ = t.motion.Abort()
@@ -248,43 +268,117 @@ const (
 	emcAbortTaskAbort          int32 = 8 // EMC_ABORT_TASK_ABORT
 )
 
+// shutdownOpts configures a teardown (stopSignals + finishShutdown, or the
+// all-in-one machineShutdown). A full off/estop turns everything off, unhomes
+// volatile-home joints, re-synchs the interpreter, and ends in ExecDone; an
+// error/enable-lost stop only aborts motion+IO, leaves coolant/lube/homing
+// alone (a following error must not lose the home reference), skips the synch,
+// and latches ExecError.
+type shutdownOpts struct {
+	ioReason     int32     // EMC_ABORT_* code passed to io.IoAbort
+	disable      bool      // motion.Disable() — full off only
+	coolantOff   bool      // flood + mist off (and clear their status flags)
+	lubeOff      bool      // lube off (and clear lubeOn)
+	unhome       bool      // JointUnhome(-2) volatile-home joints
+	synch        bool      // re-synch interp to machine position after reset
+	terminalExec ExecState // ExecDone (clean stop) or ExecError (fault)
+	reason       string    // interp.Abort() log reason
+}
+
+// stopSignals fires the lock-free stop signals shared by every teardown: abort
+// the sequencer/mcode/motion, optionally disable motion, stop all spindles,
+// optionally turn off coolant/lube, abort IO, and optionally unhome. MUST run
+// WITHOUT cmdMu (the abort is what unblocks a command stuck holding cmdMu in
+// EnqueueCmd backpressure) and without t.mu. Clears the coolant/lube status
+// flags it acts on so all callers agree.
+func (t *Task) stopSignals(numSpindles int, o shutdownOpts) {
+	t.AbortSequencer()
+	t.mcodeAbort()
+	_ = t.motion.Abort()
+	if o.disable {
+		_ = t.motion.Disable()
+	}
+	for i := 0; i < numSpindles; i++ {
+		_ = t.motion.SpindleOff(int32(i))
+	}
+	if o.coolantOff {
+		_ = t.io.CoolantFloodOff()
+		_ = t.io.CoolantMistOff()
+	}
+	if o.lubeOff {
+		_ = t.io.LubeOff()
+	}
+	_ = t.io.IoAbort(o.ioReason)
+	if o.unhome {
+		_ = t.motion.JointUnhome(-2) // unhome only volatile-home joints
+	}
+	if o.coolantOff || o.lubeOff {
+		t.mu.Lock()
+		if o.coolantOff {
+			t.floodOn = false
+			t.mistOn = false
+		}
+		if o.lubeOff {
+			t.lubeOn = false
+		}
+		t.mu.Unlock()
+	}
+}
+
+// finishShutdown resets the interpreter (after the producer has stopped touching
+// it) and restarts the sequencer, latching the terminal state atomically after
+// the join. The caller manages cmdMu: monitor callers hold it around this phase
+// so the interp reset cannot race a command that owns the interpreter; setState
+// callers already hold cmdMu. Must be called with t.mu NOT held.
+func (t *Task) finishShutdown(o shutdownOpts) {
+	// Wait for the producer to stop before resetting the interpreter (motion/IO
+	// already stopped by stopSignals).
+	t.waitRunProgramDone()
+	if t.interp != nil {
+		_ = t.interp.Abort(0, o.reason)
+		_ = t.interp.Close()
+		_ = t.interp.Reset()
+		if o.synch {
+			t.canon.syncEndPointFromMachine()
+			_ = t.interp.Synch()
+		}
+		t.updateActiveCodes(t.interp) // republish stat caches after reset
+	}
+	t.restartSequencer(InterpIdle, o.terminalExec)
+}
+
+// restartSequencer restarts the sequencer (aborting+joining the old one) and
+// then commits the terminal interp/exec state atomically. Committing AFTER the
+// join is essential: the exiting sequencer writes no state on abort-exit, so
+// once StartSequencer returns nothing else can clobber this commit — the
+// ExecError-clobber race that d600b0e448/152c9ae9d3 fixed. Every teardown that
+// ends by restarting the sequencer uses this. Must be called with t.mu NOT held.
+func (t *Task) restartSequencer(terminalInterp InterpState, terminalExec ExecState) {
+	t.StartSequencer()
+	t.mu.Lock()
+	t.interpState = terminalInterp
+	t.execState = terminalExec
+	t.mu.Unlock()
+}
+
+// fullShutdownOpts returns the options for a full machine off/estop teardown.
+func fullShutdownOpts(ioReason int32, reason string) shutdownOpts {
+	return shutdownOpts{
+		ioReason: ioReason, disable: true, coolantOff: true, lubeOff: true,
+		unhome: true, synch: true, terminalExec: ExecDone, reason: reason,
+	}
+}
+
 // machineShutdown performs the full machine teardown shared by ESTOP and
 // STATE_OFF: abort the sequencer/mcode/motion, disable motion, stop all
 // spindles, coolant and lube, abort IO, unhome volatile-home joints, and reset
 // the interpreter. Mirrors C++ emcTaskSetState(OFF/ESTOP). Must be called
-// WITHOUT t.mu held. ioReason is the EMC_ABORT_* code passed to io.IoAbort.
+// WITHOUT t.mu held (setState callers already hold cmdMu). ioReason is the
+// EMC_ABORT_* code passed to io.IoAbort.
 func (t *Task) machineShutdown(numSpindles int, ioReason int32) {
-	t.AbortSequencer()
-	t.mcodeAbort()
-	_ = t.motion.Abort()
-	_ = t.motion.Disable()
-	for i := 0; i < numSpindles; i++ {
-		_ = t.motion.SpindleOff(int32(i))
-	}
-	_ = t.io.CoolantFloodOff()
-	_ = t.io.CoolantMistOff()
-	_ = t.io.LubeOff()
-	_ = t.io.IoAbort(ioReason)
-	_ = t.motion.JointUnhome(-2) // unhome only volatile-home joints
-	// Wait for the producer to stop before resetting the interpreter (machine
-	// already stopped above).
-	t.waitRunProgramDone()
-	if t.interp != nil {
-		_ = t.interp.Abort(0, "machine off")
-		_ = t.interp.Close()
-		_ = t.interp.Reset()
-		t.canon.syncEndPointFromMachine()
-		_ = t.interp.Synch()
-		t.updateActiveCodes(t.interp) // republish stat caches after reset
-	}
-	t.StartSequencer()
-	// Terminal state commit — after the join implied by StartSequencer, so no
-	// exiting sequencer iteration can overwrite it (the sequencer writes no
-	// state on abort-exit; the aborter owns the terminal state).
-	t.mu.Lock()
-	t.interpState = InterpIdle
-	t.execState = ExecDone
-	t.mu.Unlock()
+	o := fullShutdownOpts(ioReason, "machine off")
+	t.stopSignals(numSpindles, o)
+	t.finishShutdown(o)
 }
 
 // SetState handles state transitions: estop, estop_reset, off, on.
@@ -324,8 +418,15 @@ func (t *Task) setState(state int32) error {
 		if wasOn {
 			t.machineShutdown(numSpindles, emcAbortAuxEstop)
 		} else {
+			// Machine already down: light teardown, but still restart the
+			// sequencer (signalAbort closed seqAbort, so the goroutine is
+			// exiting). restartSequencer also commits the terminal interp/exec
+			// state after the join. Without the restart, every later canon
+			// EnqueueCmd fails "sequencer aborted" and MDI silently produces no
+			// motion after estop-reset + machine-on.
 			_ = t.motion.Disable()
 			_ = t.io.LubeOff()
+			t.restartSequencer(InterpIdle, ExecDone)
 		}
 		_ = t.io.EstopOn()
 
@@ -580,81 +681,84 @@ func (t *Task) autoSignal(cmd int32) (bool, error) {
 
 	switch cmd {
 	case AutoPause:
-		t.interpState = InterpPaused
-		if t.seqPauseCh != nil {
-			select {
-			case <-t.seqPauseCh:
-			default:
-				close(t.seqPauseCh)
-			}
-		}
-		t.mu.Unlock()
-		return true, t.motion.Pause()
-
+		return true, t.doPauseLocked() // releases t.mu
 	case AutoResume:
-		// Only act when actually paused. A resume issued while running must NOT
-		// close seqResumeCh: seqCheckPause only consumes it after a real pause, so
-		// a stray close stays closed and disarms the NEXT pause — including a
-		// mandatory M0 stop, which the machine would then run straight through.
-		if t.interpState != InterpPaused {
-			t.mu.Unlock()
-			return true, nil
-		}
-		t.interpState = InterpReading
-		t.stepping = false
-		if t.seqResumeCh != nil {
-			select {
-			case <-t.seqResumeCh:
-			default:
-				close(t.seqResumeCh)
-			}
-		}
-		t.mu.Unlock()
-		return true, t.motion.Resume()
-
+		return true, t.doResumeLocked() // releases t.mu
 	case AutoStep:
 		if t.interpState == InterpIdle {
 			t.mu.Unlock()
 			return false, nil // program not started — serialized start path
 		}
-		if err := t.requireProgram(); err != nil {
-			t.mu.Unlock()
-			return true, err
-		}
-		t.stepping = true
-		if t.interpState != InterpPaused {
-			// Already running — the flag is enough; the sequencer pauses
-			// after the current motion command completes.
-			t.mu.Unlock()
-			return true, nil
-		}
-		t.mu.Unlock()
-
-		// Paused — step one motion segment.
-		// Check if TP has queued segments from the run phase.
-		qd, _ := t.status.GetQueueDepth()
-		if qd > 0 {
-			// TP has moves — use low-level motion step to execute
-			// one segment. The TP re-pauses after the ID changes.
-			_ = t.motion.Step(0)
-			return true, nil
-		}
-
-		// TP is empty — wake sequencer to push more commands.
-		t.mu.Lock()
-		resumeCh := t.seqResumeCh
-		t.mu.Unlock()
-		if resumeCh != nil {
-			select {
-			case <-resumeCh:
-			default:
-				close(resumeCh)
-			}
-		}
-		return true, nil
+		return true, t.doStepActiveLocked() // releases t.mu
 	}
 	t.mu.Unlock()
 	return false, nil
+}
+
+// doPauseLocked pauses a running program/MDI. The caller holds t.mu; this
+// releases it. It is a no-op (returns nil) unless the interpreter is actively
+// reading — pausing while idle would set InterpPaused with no producer to ever
+// clear it, wedging programBusy() until Abort/E-stop (C10). Shared by both
+// AutoCommand dispatch paths so the guard lives in one place (D4).
+func (t *Task) doPauseLocked() error {
+	if t.interpState != InterpReading {
+		t.mu.Unlock()
+		return nil
+	}
+	t.interpState = InterpPaused
+	t.closeOnceLocked(t.seqPauseCh) // signal the sequencer to pause
+	t.mu.Unlock()
+	return t.motion.Pause()
+}
+
+// doResumeLocked resumes a paused program/MDI. The caller holds t.mu; this
+// releases it. No-op when not paused: a stray resume must NOT close seqResumeCh
+// (seqCheckPause consumes it only after a real pause, so a stray close stays
+// closed and disarms the NEXT pause — including a mandatory M0 stop, which the
+// machine would then run straight through).
+func (t *Task) doResumeLocked() error {
+	if t.interpState != InterpPaused {
+		t.mu.Unlock()
+		return nil
+	}
+	t.interpState = InterpReading
+	t.stepping = false
+	t.closeOnceLocked(t.seqResumeCh) // wake the sequencer from pause
+	t.mu.Unlock()
+	return t.motion.Resume()
+}
+
+// doStepActiveLocked advances one step of an already-started program/MDI
+// (interpState != Idle). The caller holds t.mu; this releases it. It sets the
+// stepping flag; when paused it steps one motion segment — via motion.Step when
+// the TP still has queued moves (the TP re-pauses after the ID changes), else by
+// waking the sequencer to push the next command. Shared by both dispatch paths.
+func (t *Task) doStepActiveLocked() error {
+	if err := t.requireProgram(); err != nil {
+		t.mu.Unlock()
+		return err
+	}
+	t.stepping = true
+	if t.interpState != InterpPaused {
+		// Already running — the flag is enough; the sequencer pauses after the
+		// current motion command completes.
+		t.mu.Unlock()
+		return nil
+	}
+	t.mu.Unlock()
+
+	// Paused — step one motion segment.
+	qd, _ := t.status.GetQueueDepth()
+	if qd > 0 {
+		_ = t.motion.Step(0)
+		return nil
+	}
+	// TP is empty — wake the sequencer to push more commands.
+	t.mu.Lock()
+	resumeCh := t.seqResumeCh
+	t.mu.Unlock()
+	t.closeOnce(resumeCh)
+	return nil
 }
 
 // autoCommand is the cmdMu-serialized body of AutoCommand.
@@ -672,27 +776,12 @@ func (t *Task) autoCommand(cmd int32, line int32) error {
 
 	switch cmd {
 	case AutoRun:
-		// Reject while a program or MDI is mid-run: a second producer
-		// goroutine would race the first on the non-thread-safe interpreter
-		// (and orphan its runDone). C++ likewise requires an idle interp.
-		if t.programBusy() {
-			t.mu.Unlock()
-			t.operatorError("Can't run a program while one is running")
-			return ErrBusy
-		}
-		if err := t.requireProgram(); err != nil {
+		// Shared guard (also run lock-free by preflightAuto). Rejects while a
+		// program/MDI is mid-run — a second producer goroutine would race the
+		// first on the non-thread-safe interpreter — plus not-homed / offsets.
+		if err := t.autoRunGuardLocked(); err != nil {
 			t.mu.Unlock()
 			return err
-		}
-		if err := t.requireHomed(); err != nil {
-			t.mu.Unlock()
-			t.operatorError("Can't run a program when not homed")
-			return fmt.Errorf("can't run program when not homed")
-		}
-		if t.externalOffsetApplied() {
-			t.mu.Unlock()
-			t.operatorError("Can't run a program with external offsets applied")
-			return fmt.Errorf("can't run program with external offsets applied")
 		}
 		if t.interp == nil {
 			t.mu.Unlock()
@@ -733,67 +822,25 @@ func (t *Task) autoCommand(cmd int32, line int32) error {
 		return nil
 
 	case AutoPause:
-		t.interpState = InterpPaused
-		// Signal sequencer to pause
-		if t.seqPauseCh != nil {
-			select {
-			case <-t.seqPauseCh:
-			default:
-				close(t.seqPauseCh)
-			}
-		}
-		t.mu.Unlock()
-		return t.motion.Pause()
+		return t.doPauseLocked() // releases t.mu (C10-gated, shared with autoSignal)
 
 	case AutoResume:
-		// Only act when actually paused. A resume issued while running must NOT
-		// close seqResumeCh: seqCheckPause only consumes it after a real pause, so
-		// a stray close stays closed and disarms the NEXT pause — including a
-		// mandatory M0 stop, which the machine would then run straight through.
-		if t.interpState != InterpPaused {
-			t.mu.Unlock()
-			return nil
-		}
-		t.interpState = InterpReading
-		t.stepping = false
-		// Wake sequencer from pause
-		if t.seqResumeCh != nil {
-			select {
-			case <-t.seqResumeCh:
-			default:
-				close(t.seqResumeCh)
-			}
-		}
-		t.mu.Unlock()
-		return t.motion.Resume()
+		return t.doResumeLocked() // releases t.mu
 
 	case AutoStep:
-		if err := t.requireProgram(); err != nil {
-			t.mu.Unlock()
-			return err
-		}
-		t.stepping = true
-
 		if t.interpState == InterpIdle {
-			// Program not started yet — start it in step mode.
-			if t.programBusy() {
-				// Producer of a previous run still winding down.
-				t.stepping = false
+			// Program not started yet — start it in step mode. Shared guard
+			// (requireProgram + programBusy + homed when idle), also run by
+			// preflightAuto.
+			if err := t.autoStepGuardLocked(); err != nil {
 				t.mu.Unlock()
-				t.operatorError("Can't run a program while one is running")
-				return ErrBusy
-			}
-			if err := t.requireHomed(); err != nil {
-				t.stepping = false
-				t.mu.Unlock()
-				t.operatorError("Can't run a program when not homed")
-				return fmt.Errorf("can't run program when not homed")
+				return err
 			}
 			if t.interp == nil {
-				t.stepping = false
 				t.mu.Unlock()
 				return fmt.Errorf("no interpreter configured")
 			}
+			t.stepping = true
 			t.interpState = InterpReading
 			t.runDone = make(chan struct{})
 			runDone := t.runDone
@@ -818,38 +865,8 @@ func (t *Task) autoCommand(cmd int32, line int32) error {
 			return nil
 		}
 
-		// Program is paused — step one motion segment.
-		if t.interpState == InterpPaused {
-			t.mu.Unlock()
-
-			// Check if TP has queued segments from the run phase.
-			qd, _ := t.status.GetQueueDepth()
-			if qd > 0 {
-				// TP has moves — use low-level motion step to execute
-				// one segment. The TP re-pauses after the ID changes.
-				_ = t.motion.Step(0)
-				return nil
-			}
-
-			// TP is empty — wake sequencer to push more commands.
-			t.mu.Lock()
-			resumeCh := t.seqResumeCh
-			t.mu.Unlock()
-
-			if resumeCh != nil {
-				select {
-				case <-resumeCh:
-				default:
-					close(resumeCh)
-				}
-			}
-			return nil
-		}
-
-		// Already running — just enable stepping. Sequencer will pause
-		// after the current motion cmd completes.
-		t.mu.Unlock()
-		return nil
+		// Program already started (paused or running) — step it.
+		return t.doStepActiveLocked() // releases t.mu
 
 	case AutoReverse:
 		t.mu.Unlock()
@@ -882,10 +899,9 @@ func (t *Task) MDI(command string) error {
 		t.operatorError("Must be in MDI mode to issue MDI command")
 		return err
 	}
-	if err := t.requireHomed(); err != nil {
+	if err := t.requireHomedForMDILocked(); err != nil {
 		t.mu.Unlock()
-		t.operatorError("Can't issue MDI command when not homed")
-		return fmt.Errorf("can't issue MDI command when not homed")
+		return err
 	}
 	if t.interp == nil {
 		t.mu.Unlock()
@@ -914,9 +930,21 @@ func (t *Task) MDI(command string) error {
 // it must be serialized against every other interpreter-touching command and
 // must NOT run on the sequencer goroutine (self-deadlock on interpQueue
 // backpressure).
-func (t *Task) finishMDI() {
+func (t *Task) finishMDI(gen uint64) {
 	t.cmdMu.Lock()
 	defer t.cmdMu.Unlock()
+
+	// Ownership check: a finishMDI left over from a superseded MDI (an Abort or
+	// estop teardown between the mdiDoneCmd handoff and here, followed by a newer
+	// MDI that bumped mdiGen) must NOT synch or commit against the newer
+	// command's state. mdiGen only changes under cmdMu (executeMDI), which we
+	// hold, so this read is stable for the whole call.
+	t.mu.Lock()
+	stale := gen != t.mdiGen || t.interpActive
+	t.mu.Unlock()
+	if stale {
+		return
+	}
 
 	// Synch the interpreter now that the MDI command and its motion have
 	// completed. Interp::synch() saves the interpreter parameters to persist,
@@ -948,38 +976,64 @@ func (t *Task) finishMDI() {
 		// called again. The queued motion has now drained (mdiDoneCmd waited for
 		// it) and the interp is re-synched, so re-run execute() to advance the
 		// sub — mirroring C++ re-issuing emcTaskPlanExecute(0) until the call
-		// level unwinds, and the AUTO path's EXECUTE_FINISH handling. Any motion
-		// the continuation queues is drained by another mdiDoneCmd before we
-		// re-enter, which either continues (call_level still > 0) or completes
-		// (== 0). A plain MDI line, or a single top-level queue-buster, has
-		// call_level 0 here and skips this — its block is already complete.
-		if t.interp.CallLevel() > 0 {
+		// level unwinds, and the AUTO path's EXECUTE_FINISH handling. A plain MDI
+		// line, or a single top-level queue-buster, has call_level 0 here and
+		// skips this loop — its block is already complete.
+		//
+		// E5 fast path: when a continuation Execute enqueues NOTHING (it unwound
+		// the sub to call level 0 with no motion and no further queue-buster),
+		// there is nothing to drain, so we re-synch and loop directly instead of
+		// paying a full mdiDoneCmd round-trip (goroutine spawn + cmdMu +
+		// waitMotionDone's settle floor) per empty level. When it DOES enqueue
+		// something (motion or another queue-buster, which always leaves
+		// call_level > 0), drain it via mdiDoneCmd and re-enter.
+		for t.interp.CallLevel() > 0 {
 			// The continuation fires canon callbacks (the sub's queued moves,
 			// probes, M-codes); point them at this task's canon, as executeMDI
 			// and runProgram do before driving the interpreter.
 			setActiveCanon(t.canon)
+			before := t.canon.enqueued()
 			_, err := t.interp.Execute()
 			t.updateActiveCodes(t.interp)
 			if err != nil {
+				// Same as executeMDI: a fault mid-continuation must stop the
+				// motion the earlier sub blocks already queued, not just set
+				// state. faultMDI unifies this path with executeMDI's (they used
+				// to diverge: one set ExecError, the other left it untouched).
 				t.logger.Error("MDI subroutine continuation failed", "err", err)
-				t.operatorError(fmt.Sprintf("MDI subroutine error: %s", err))
-				t.mu.Lock()
-				t.interpState = InterpIdle
-				t.execState = ExecError
-				t.mu.Unlock()
+				t.faultMDI(fmt.Sprintf("MDI subroutine error: %v", err))
 				return
 			}
-			// Drain any motion the continuation queued, then re-enter finishMDI
-			// to continue (call_level > 0) or complete (call_level 0) the sub.
-			t.setExecState(ExecWaitingForMotion)
-			t.EnqueueCmd(&mdiDoneCmd{})
-			return
+			if t.canon.enqueued() != before {
+				// Something was queued — drain it via mdiDoneCmd, then re-enter
+				// finishMDI to continue (call_level > 0) or complete (0) the sub.
+				t.setExecState(ExecWaitingForMotion)
+				if err := t.EnqueueCmd(&mdiDoneCmd{gen: gen}); err != nil {
+					t.faultMDI(fmt.Sprintf("MDI continuation enqueue failed: %v", err))
+				}
+				return
+			}
+			// Nothing queued — re-synch (the interp expects a synch after each
+			// EXECUTE_FINISH) and loop; if the sub has unwound to call level 0
+			// we fall through to the terminal commit below.
+			t.canon.syncEndPointFromMachine()
+			if err := t.interp.Synch(); err != nil {
+				t.logger.Error("interp synch during MDI continuation failed", "err", err)
+			}
 		}
 	}
 
 	t.mu.Lock()
 	if t.interpActive {
 		// A program run took over — nothing left to finish here.
+		t.mu.Unlock()
+		return
+	}
+	if t.execState == ExecError {
+		// A fault teardown latched ExecError after this MDI's motion drained.
+		// Never downgrade it to ExecDone here — the machine faulted and the UI
+		// must keep showing the error; the teardown already flushed the queue,
+		// and recovery clears ExecError on estop-reset / off→on.
 		t.mu.Unlock()
 		return
 	}
@@ -992,9 +1046,12 @@ func (t *Task) finishMDI() {
 		t.mdiQueue = t.mdiQueue[1:]
 		t.mu.Unlock()
 		// Execute the next MDI command — this will enqueue another mdiDoneCmd.
+		// On failure executeMDI has already faulted (faultMDI: motion stopped,
+		// readahead discarded, queue flushed, operator error reported), so the
+		// dequeue chain ends here rather than stranding the remaining queue and
+		// running a later MDI out of order.
 		if err := t.executeMDI(next); err != nil {
 			t.logger.Error("queued MDI failed", "cmd", next, "err", err)
-			t.operatorError(fmt.Sprintf("MDI error: %s", err))
 		}
 		return
 	}
@@ -1011,6 +1068,8 @@ func (t *Task) finishMDI() {
 func (t *Task) executeMDI(command string) error {
 	t.mu.Lock()
 	t.taskCommand = command // echoed to stat.task.command (C++ EMC_TASK_PLAN_EXECUTE)
+	t.mdiGen++              // new MDI generation — staleness token for finishMDI
+	gen := t.mdiGen
 	t.mu.Unlock()
 	t.setInterpState(InterpReading)
 
@@ -1033,40 +1092,66 @@ func (t *Task) executeMDI(command string) error {
 	rc, err := interp.ExecuteString(command)
 	t.updateActiveCodes(interp)
 	if err != nil {
-		t.setInterpState(InterpIdle)
+		// A runtime error at block N of a multi-block MDI (o-word sub) must stop
+		// the motion already queued by blocks 1..N-1 — faultMDI aborts motion,
+		// discards the queued readahead, and leaves ExecError (C++ clears
+		// interp_list + emcTaskAbort/emcIoAbort on MDI INTERP_ERROR).
+		t.faultMDI(fmt.Sprintf("MDI error: %v", err))
 		return fmt.Errorf("MDI execute: %w", err)
 	}
 
 	switch rc {
 	case InterpError:
-		t.setInterpState(InterpIdle)
+		t.faultMDI("MDI interpreter error")
 		return fmt.Errorf("MDI interpreter error")
 	default:
 		// Mark exec state as busy so WaitComplete doesn't return prematurely.
 		t.setExecState(ExecWaitingForMotion)
 		// Wait for queued motion to finish before going idle.
-		t.EnqueueCmd(&mdiDoneCmd{})
+		if err := t.EnqueueCmd(&mdiDoneCmd{gen: gen}); err != nil {
+			// Sequencer gone (aborted between synch and enqueue): without the
+			// mdiDoneCmd nothing transitions interpState, wedging it at Reading.
+			// Fault it so the state is consistent and the failure is visible.
+			t.faultMDI(fmt.Sprintf("MDI enqueue failed: %v", err))
+			return fmt.Errorf("MDI enqueue: %w", err)
+		}
 	}
 	return nil
 }
 
-// faultProgram handles a fatal interpreter error while a program is running.
-// It stops any in-flight motion and halts the sequencer so the read-ahead
-// segments already queued past the erroring line are NOT dispatched, then
-// leaves the task in ExecError. Without this the machine keeps moving through
-// the queued motion after a G-code runtime error. Mirrors the C++
-// interp_list.clear() + emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR). Runs in
-// the runProgram goroutine.
+// faultProgram handles a fatal interpreter error while a program or MDI command
+// is running. It stops any in-flight motion and halts the sequencer so the
+// read-ahead segments already queued past the erroring line are NOT dispatched
+// (StartSequencer's abort drains interpQueue), then leaves the task in
+// ExecError. Without this the machine keeps moving through the queued motion
+// after a G-code runtime error. Mirrors the C++ interp_list.clear() +
+// emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR).
+//
+// Safe to call from any goroutine that is NOT the sequencer goroutine (it joins
+// the sequencer via StartSequencer): the runProgram producer, and — via
+// faultMDI — the executeMDI/finishMDI callers. It does not touch cmdMu, so an
+// MDI caller already holding cmdMu can call it.
 func (t *Task) faultProgram(msg string) {
 	t.operatorError(msg)
 	_ = t.motion.Abort() // stop what is already moving
-	t.StartSequencer()   // aborts+joins the old sequencer, starts a fresh one
-	// Terminal state, committed atomically in one hold AFTER the join (a
-	// concurrent monitor teardown is safe: StartSequencer generations are
-	// serialized by seqLifeMu and both writers commit the same ExecError).
+	// restartSequencer aborts+joins the old sequencer and commits the terminal
+	// ExecError after the join (a concurrent monitor teardown is safe:
+	// StartSequencer generations are serialized by seqLifeMu and both writers
+	// commit the same ExecError).
+	t.restartSequencer(InterpIdle, ExecError)
+}
+
+// faultMDI aborts an MDI command that failed to execute. Beyond faultProgram's
+// motion-stop + readahead-discard, it flushes the pending MDI queue and clears
+// the MDI echo (stat.task.command), so the failure does not later run the
+// queued MDIs out of order and the UI does not keep showing the failed command.
+// Mirrors C++ mdi_execute_abort. Called from executeMDI and the finishMDI
+// o-word continuation — both off the sequencer goroutine.
+func (t *Task) faultMDI(msg string) {
+	t.faultProgram(msg)
 	t.mu.Lock()
-	t.interpState = InterpIdle
-	t.execState = ExecError
+	t.mdiQueue = t.mdiQueue[:0]
+	t.taskCommand = ""
 	t.mu.Unlock()
 }
 
@@ -1234,10 +1319,12 @@ func (t *Task) waitSequencerDrain() bool {
 	for {
 		t.mu.Lock()
 		qLen := len(t.interpQueue)
-		inflight := t.seqInflight
 		exec := t.execState
 		abort := t.seqAbort
 		t.mu.Unlock()
+		// Read inflight last: if the sequencer dequeues + marks inflight between
+		// the queue read and here, we observe inflight=true and keep waiting.
+		inflight := t.seqInflight.Load()
 
 		// seqInflight closes the TOCTOU gap between the sequencer dequeuing a
 		// command and that command's first setExecState — without it this can
@@ -1382,6 +1469,12 @@ func (t *Task) JogStop(jjogmode bool, axisOrJoint int32) error {
 
 // Spindle controls spindle on/off/direction/increase/decrease.
 func (t *Task) Spindle(cmd int32, speed float64, spindleNum, wait int32) error {
+	// Authoritative range check against the configured spindle count (covers all
+	// transports incl. halui). -1 = all-spindles broadcast is accepted.
+	if err := t.validSpindle(spindleNum, true); err != nil {
+		t.operatorError(err.Error())
+		return err
+	}
 	if err := t.preflightSpindle(cmd); err != nil {
 		return err
 	}
@@ -1394,25 +1487,23 @@ func (t *Task) Spindle(cmd int32, speed float64, spindleNum, wait int32) error {
 		return err
 	}
 
-	// The program owns the spindle while it is running: reject manual on/off
-	// from a UI/halui during an AUTO run, matching C++ (only spindle-override
+	// The program owns the spindle while it is running: reject manual on/off from
+	// a UI/halui during an AUTO run (matching C++ — only spindle-override
 	// increase/decrease/constant are accepted while READING). Manual control is
-	// allowed when idle or paused.
+	// allowed when idle or paused. One guard, before the dispatch switch.
+	switch cmd {
+	case SpindleForward, SpindleReverse, SpindleOff:
+		if err := t.spindleOwnedByProgram(); err != nil {
+			return err
+		}
+	}
+
 	switch cmd {
 	case SpindleForward:
-		if t.interpRunning() {
-			return t.spindleRunErr()
-		}
 		return t.motion.SpindleOn(spindleNum, speed, 0, 0, wait)
 	case SpindleReverse:
-		if t.interpRunning() {
-			return t.spindleRunErr()
-		}
 		return t.motion.SpindleOn(spindleNum, -speed, 0, 0, wait)
 	case SpindleOff:
-		if t.interpRunning() {
-			return t.spindleRunErr()
-		}
 		return t.motion.SpindleOff(spindleNum)
 	case SpindleIncrease:
 		return t.motion.SpindleIncrease(spindleNum) // override, allowed while running
@@ -1443,6 +1534,18 @@ func (t *Task) programBusy() bool {
 func (t *Task) spindleRunErr() error {
 	t.operatorError("Can't control the spindle manually while a program is running")
 	return ErrBusy
+}
+
+// spindleOwnedByProgram rejects a manual spindle on/off/brake command while an
+// AUTO program owns the spindle (interpRunning): only the override
+// increase/decrease/constant are allowed while a program reads. This single
+// guard replaces the copies that preflightSpindle, each Spindle on/off case
+// arm, and Brake used to keep in sync. Must be called with t.mu held.
+func (t *Task) spindleOwnedByProgram() error {
+	if t.interpRunning() {
+		return t.spindleRunErr()
+	}
+	return nil
 }
 
 // Home initiates homing for the specified joint.
@@ -1545,8 +1648,13 @@ func (t *Task) SetFeedOverride(rate float64) error {
 	return t.motion.SetFeedScale(rate)
 }
 
-// SetSpindleOverride sets spindle speed override.
+// SetSpindleOverride sets spindle speed override. spindleNum -1 broadcasts to
+// all spindles; the range is validated against the configured spindle count.
 func (t *Task) SetSpindleOverride(rate float64, spindleNum int32) error {
+	if err := t.validSpindle(spindleNum, true); err != nil {
+		t.operatorError(err.Error())
+		return err
+	}
 	return t.motion.SetSpindleScale(spindleNum, rate)
 }
 
@@ -1650,8 +1758,8 @@ func (t *Task) Brake(on bool, spindleNum int32) error {
 	if err := t.requireOn(); err != nil {
 		return err
 	}
-	if t.interpRunning() {
-		return t.spindleRunErr() // program owns the spindle while running
+	if err := t.spindleOwnedByProgram(); err != nil {
+		return err // program owns the spindle while running
 	}
 	if on {
 		return t.motion.SpindleBrakeEngage(spindleNum)
@@ -1744,17 +1852,17 @@ func (t *Task) abortLocked() {
 		t.updateActiveCodes(interp) // republish stat caches after reset
 	}
 
-	t.StartSequencer()
+	// Terminal state re-commit: the values set at entry were provisional (a
+	// still-draining sequencer iteration may have overwritten them with a
+	// wait-state before it observed the abort). restartSequencer commits the
+	// authoritative interp/exec state after the join; the flag clear follows
+	// (both after the join, no other writer remains). abortLocked returns with
+	// t.mu held (its contract), so re-lock and do not unlock.
+	t.restartSequencer(InterpIdle, ExecDone)
 
 	t.mu.Lock()
 	t.floodOn = false
 	t.mistOn = false
-	// Terminal state re-commit: the values set at entry were provisional (a
-	// still-draining sequencer iteration may have overwritten them with a
-	// wait-state before it observed the abort). After the StartSequencer join
-	// nothing else writes, so this commit is authoritative.
-	t.interpState = InterpIdle
-	t.execState = ExecDone
 }
 
 // waitRunProgramDone blocks until the runProgram goroutine (if any) has exited,

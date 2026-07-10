@@ -201,6 +201,40 @@ func TestSequencer_WaitForMotion(t *testing.T) {
 	}
 }
 
+// TestPreconditionDrainsBeforeCommand is the D7 regression: a command that
+// declares Precondition()==WaitMotion is not executed until preceding motion has
+// drained (replacing the canon-side syncBefore barrier). A DwellCmd (which
+// declares it) queued behind a move must not run while motion is out of position.
+func TestPreconditionDrainsBeforeCommand(t *testing.T) {
+	// Contract: the point-acting commands declare the motion-drain precondition.
+	for _, c := range []interface{ Precondition() WaitType }{
+		&DwellCmd{}, &ProbeCmd{}, &RigidTapCmd{}, &SpindleOnCmd{}, &SpindleOffCmd{},
+		&SpindleOrientCmd{}, &FloodOnCmd{}, &FloodOffCmd{}, &MistOnCmd{}, &MistOffCmd{},
+	} {
+		if c.Precondition() != WaitMotion {
+			t.Errorf("%T.Precondition() = %v, want WaitMotion", c, c.Precondition())
+		}
+	}
+
+	task, _, _, stat := newSeqTestTask()
+	restore := SetPollInterval(100 * time.Microsecond)
+	defer restore()
+	stat.inPosition.Store(false) // motion not drained yet
+	task.StartSequencer()
+
+	// A dwell queued behind the drain must not start until motion is in position.
+	task.EnqueueCmd(&DwellCmd{Seconds: 0}) // Precondition drains first
+	time.Sleep(3 * time.Millisecond)
+	task.mu.Lock()
+	exec := task.execState
+	task.mu.Unlock()
+	if exec != ExecWaitingForMotion {
+		t.Fatalf("dwell ran before motion drained: execState=%d want ExecWaitingForMotion", exec)
+	}
+	stat.inPosition.Store(true) // motion drains → dwell proceeds
+	task.DrainQueue()
+}
+
 func TestSequencer_Dwell(t *testing.T) {
 	task, _, _, _ := newSeqTestTask()
 	restore := SetPollInterval(10 * time.Microsecond)

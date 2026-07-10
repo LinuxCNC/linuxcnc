@@ -45,6 +45,29 @@ func (e *SeqError) Unwrap() error { return e.Err }
 
 const interpQueueSize = 64
 
+// closeOnceLocked closes ch if it is non-nil and not already closed. The caller
+// must hold t.mu, which serializes this idempotent check-then-close against the
+// other closers and against StartSequencer reassigning the channel field.
+// Getting this idiom wrong is a double-close panic, so it lives in one place.
+func (t *Task) closeOnceLocked(ch chan struct{}) {
+	if ch == nil {
+		return
+	}
+	select {
+	case <-ch:
+	default:
+		close(ch)
+	}
+}
+
+// closeOnce is closeOnceLocked for callers that hold a channel value but not
+// t.mu (e.g. a channel captured under mu earlier, then closed after unlocking).
+func (t *Task) closeOnce(ch chan struct{}) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.closeOnceLocked(ch)
+}
+
 // StartSequencer launches the sequencer goroutine. Must be called with mu NOT held.
 // If a previous sequencer goroutine is still winding down, StartSequencer waits
 // for it to exit before creating new channels. This prevents a race where the old
@@ -64,13 +87,7 @@ func (t *Task) StartSequencer() {
 	// Abort the previous sequencer under t.mu so this check-then-close is atomic
 	// against sequencerLoop's own abort-close (also under t.mu) — otherwise both
 	// could close the same channel and panic.
-	if oldAbort != nil {
-		select {
-		case <-oldAbort:
-		default:
-			close(oldAbort)
-		}
-	}
+	t.closeOnceLocked(oldAbort)
 	t.mu.Unlock()
 
 	// Wait for previous goroutine to finish (must NOT hold t.mu — the goroutine
@@ -99,14 +116,7 @@ func (t *Task) StopSequencer() {
 	abort := t.seqAbort
 	done := t.seqDone
 	// Close under t.mu (atomic check-then-close vs sequencerLoop / other closers).
-	if abort != nil {
-		select {
-		case <-abort:
-			// already aborted
-		default:
-			close(abort)
-		}
-	}
+	t.closeOnceLocked(abort)
 	t.mu.Unlock()
 
 	if abort == nil {
@@ -125,13 +135,7 @@ func (t *Task) AbortSequencer() {
 	abort := t.seqAbort
 	q := t.interpQueue
 	// Close under t.mu (atomic check-then-close vs sequencerLoop / other closers).
-	if abort != nil {
-		select {
-		case <-abort:
-		default:
-			close(abort)
-		}
-	}
+	t.closeOnceLocked(abort)
 	t.mu.Unlock()
 
 	if abort == nil {
@@ -219,6 +223,18 @@ func (t *Task) sequencerLoop() {
 				}
 			}
 
+			// Motion-drain precondition (D7): a command that must act *at* a
+			// point (dwell, probe, rigid tap, spindle change, coolant, orient)
+			// declares Precondition()==WaitMotion, and the sequencer drains the
+			// preceding motion before executing it — centralizing what the
+			// scattered canon-side syncBefore() barriers used to do per op. An
+			// already-drained queue returns immediately (E1 fast path).
+			if pc, ok := cmd.(interface{ Precondition() WaitType }); ok && pc.Precondition() == WaitMotion {
+				if err := t.waitMotionDone(); err != nil {
+					return // aborted — aborter owns the terminal state
+				}
+			}
+
 			// Execute the command, retrying motion commands on queue-full errors.
 			const maxMotionRetries = 1000 // ~10s at 10ms poll interval
 			retries := 0
@@ -228,6 +244,9 @@ func (t *Task) sequencerLoop() {
 				// C motion controller treats as a fatal abort.
 				switch cmd.(type) {
 				case *LinearMoveCmd, *CircularMoveCmd, *RigidTapCmd:
+					// Mark motion dispatched so the next drain applies its servo
+					// settle skip (empty barriers stay on the fast path — E1).
+					t.motionDispatched.Store(true)
 					if err := t.waitForQueueSpace(); err != nil {
 						return // aborted — aborter owns the terminal state
 					}
@@ -280,11 +299,7 @@ func (t *Task) sequencerLoop() {
 					t.setExecState(ExecError)
 					t.setInterpState(InterpIdle)
 					t.mu.Lock()
-					select {
-					case <-t.seqAbort:
-					default:
-						close(t.seqAbort)
-					}
+					t.closeOnceLocked(t.seqAbort)
 					t.mu.Unlock()
 					return
 				default:
@@ -304,11 +319,7 @@ func (t *Task) sequencerLoop() {
 					t.setInterpState(InterpIdle)
 					// Signal abort so interpreter goroutine unblocks from EnqueueCmd
 					t.mu.Lock()
-					select {
-					case <-t.seqAbort:
-					default:
-						close(t.seqAbort)
-					}
+					t.closeOnceLocked(t.seqAbort)
 					t.mu.Unlock()
 					return
 				}
@@ -329,11 +340,7 @@ func (t *Task) sequencerLoop() {
 				// producer can block forever in EnqueueCmd/waitSequencerDrain
 				// with no consumer left.
 				t.mu.Lock()
-				select {
-				case <-t.seqAbort:
-				default:
-					close(t.seqAbort)
-				}
+				t.closeOnceLocked(t.seqAbort)
 				t.mu.Unlock()
 				return
 			}
@@ -362,9 +369,7 @@ func (t *Task) sequencerLoop() {
 
 // setSeqInflight marks whether the sequencer is processing a dequeued command.
 func (t *Task) setSeqInflight(v bool) {
-	t.mu.Lock()
-	t.seqInflight = v
-	t.mu.Unlock()
+	t.seqInflight.Store(v)
 }
 
 // isMotionCmd returns true for commands that produce TP motion segments.
@@ -389,12 +394,7 @@ func (t *Task) seqEnterPause() {
 	t.setInterpState(InterpPaused)
 	t.mu.Lock()
 	// Close seqPauseCh so the next seqCheckPause detects paused state
-	select {
-	case <-t.seqPauseCh:
-		// already closed
-	default:
-		close(t.seqPauseCh)
-	}
+	t.closeOnceLocked(t.seqPauseCh)
 	t.mu.Unlock()
 }
 
@@ -497,22 +497,46 @@ func (t *Task) waitForQueueSpace() error {
 	}
 }
 
+// motionDrained reports whether the machine is in position with an empty TP
+// queue right now (no wait). Used by waitMotionDone's fast path.
+func (t *Task) motionDrained() bool {
+	if t.status == nil {
+		return true
+	}
+	v, err := t.status.GetInpos()
+	if err != nil || v != 1 {
+		return false
+	}
+	qd, err := t.status.GetQueueDepth()
+	return err == nil && qd == 0
+}
+
 // waitMotionDone polls motion status until in-position and queue empty, or abort.
 // A communication watchdog detects if the motion controller stops responding.
 func (t *Task) waitMotionDone() error {
 	t.setExecState(ExecWaitingForMotion)
-	// Skip a few poll intervals to allow the servo thread to process any
-	// recently dispatched commands and update status (avoids stale-inPos
-	// race after rapid queue fill).
 	ticker := time.NewTicker(pollInterval)
 	defer ticker.Stop()
-	for i := 0; i < 5; i++ {
-		select {
-		case <-t.seqAbort:
-			return context.Canceled
-		case <-ticker.C:
+
+	if t.motionDispatched.Load() {
+		// Motion was dispatched since the last drain — skip a few poll intervals
+		// so the servo thread reflects it before the first inpos check (avoids a
+		// stale-inPos race after a rapid queue fill).
+		for i := 0; i < 5; i++ {
+			select {
+			case <-t.seqAbort:
+				return context.Canceled
+			case <-ticker.C:
+			}
 		}
+	} else if t.motionDrained() {
+		// No motion since the last drain and already drained — a back-to-back
+		// barrier (e.g. S1200 M3 M8, each self-barriering) returns immediately
+		// instead of paying the settle floor.
+		t.setExecState(ExecDone)
+		return nil
 	}
+
 	commErrors := 0
 	for {
 		select {
@@ -540,6 +564,7 @@ func (t *Task) waitMotionDone() error {
 			}
 			qd, err := t.status.GetQueueDepth()
 			if err == nil && qd == 0 {
+				t.motionDispatched.Store(false) // queue drained
 				t.setExecState(ExecDone)
 				return nil
 			}
@@ -751,8 +776,9 @@ func (c *DwellCmd) Execute(t *Task) error {
 		return nil
 	}
 }
-func (c *DwellCmd) Wait() WaitType { return WaitNone } // dwell is self-contained
-func (c *DwellCmd) String() string { return fmt.Sprintf("Dwell(%.3fs)", c.Seconds) }
+func (c *DwellCmd) Wait() WaitType         { return WaitNone }   // dwell is self-contained
+func (c *DwellCmd) Precondition() WaitType { return WaitMotion } // G4: dwell AT the point
+func (c *DwellCmd) String() string         { return fmt.Sprintf("Dwell(%.3fs)", c.Seconds) }
 
 // SpindleOnCmd turns a spindle on.
 type SpindleOnCmd struct {
@@ -766,7 +792,8 @@ type SpindleOnCmd struct {
 func (c *SpindleOnCmd) Execute(t *Task) error {
 	return t.motion.SpindleOn(c.Spindle, c.Speed, c.CSSFactor, c.CSSMax, c.WaitFlag)
 }
-func (c *SpindleOnCmd) Wait() WaitType { return WaitNone }
+func (c *SpindleOnCmd) Wait() WaitType         { return WaitNone }
+func (c *SpindleOnCmd) Precondition() WaitType { return WaitMotion } // M3/M4/S: spindle change after preceding motion
 func (c *SpindleOnCmd) String() string {
 	return fmt.Sprintf("SpindleOn(s=%d,rpm=%.0f)", c.Spindle, c.Speed)
 }
@@ -779,8 +806,9 @@ type SpindleOffCmd struct {
 func (c *SpindleOffCmd) Execute(t *Task) error {
 	return t.motion.SpindleOff(c.Spindle)
 }
-func (c *SpindleOffCmd) Wait() WaitType { return WaitNone }
-func (c *SpindleOffCmd) String() string { return fmt.Sprintf("SpindleOff(s=%d)", c.Spindle) }
+func (c *SpindleOffCmd) Wait() WaitType         { return WaitNone }
+func (c *SpindleOffCmd) Precondition() WaitType { return WaitMotion } // M5: after preceding motion
+func (c *SpindleOffCmd) String() string         { return fmt.Sprintf("SpindleOff(s=%d)", c.Spindle) }
 
 // ToolPrepareCmd prepares a tool (T word).
 type ToolPrepareCmd struct {
@@ -861,16 +889,18 @@ func (c *ReloadTooldataCmd) String() string { return "ReloadTooldata" }
 // FloodOnCmd turns flood coolant on (M8).
 type FloodOnCmd struct{}
 
-func (c *FloodOnCmd) Execute(t *Task) error { return t.io.CoolantFloodOn() }
-func (c *FloodOnCmd) Wait() WaitType        { return WaitNone }
-func (c *FloodOnCmd) String() string        { return "FloodOn" }
+func (c *FloodOnCmd) Execute(t *Task) error  { return t.io.CoolantFloodOn() }
+func (c *FloodOnCmd) Wait() WaitType         { return WaitNone }
+func (c *FloodOnCmd) Precondition() WaitType { return WaitMotion }
+func (c *FloodOnCmd) String() string         { return "FloodOn" }
 
 // FloodOffCmd turns flood coolant off (M9).
 type FloodOffCmd struct{}
 
-func (c *FloodOffCmd) Execute(t *Task) error { return t.io.CoolantFloodOff() }
-func (c *FloodOffCmd) Wait() WaitType        { return WaitNone }
-func (c *FloodOffCmd) String() string        { return "FloodOff" }
+func (c *FloodOffCmd) Execute(t *Task) error  { return t.io.CoolantFloodOff() }
+func (c *FloodOffCmd) Wait() WaitType         { return WaitNone }
+func (c *FloodOffCmd) Precondition() WaitType { return WaitMotion }
+func (c *FloodOffCmd) String() string         { return "FloodOff" }
 
 // WaitForMotionCmd is an explicit queue-drain sync point (canon FLUSH).
 type WaitForMotionCmd struct{}
@@ -1025,12 +1055,12 @@ func (c *interpDoneCmd) String() string { return "interp_done" }
 // (b) self-deadlock as soon as the next MDI expands to more commands than the
 // interpQueue can buffer — the sequencer would block enqueueing into the very
 // queue only it can drain.
-type mdiDoneCmd struct{}
+type mdiDoneCmd struct{ gen uint64 }
 
 func (c *mdiDoneCmd) Execute(t *Task) error { return nil }
 
 func (c *mdiDoneCmd) PostWait(t *Task) {
-	go t.finishMDI()
+	go t.finishMDI(c.gen)
 }
 
 func (c *mdiDoneCmd) Wait() WaitType { return WaitMotion }

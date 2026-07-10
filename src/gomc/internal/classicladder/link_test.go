@@ -2,9 +2,6 @@
 // License: GPL Version 2
 package classicladder
 
-// Blank-import the HAL implementation so the test binary links the hal_lib /
-// uspace_rtapi symbols that pkg/hal only declares. The production binary gets
-// these by cmd/gomc-server importing internal/hallib; test binaries built from
-// this package alone otherwise fail to link (undefined reference to hal_ready,
-// hal_pin_float_new, ...). Same pattern as internal/task/hallink_test.go.
-import _ "github.com/sittner/linuxcnc/src/gomc/internal/hallib"
+// Blank-import hallibtest so this package's test binary links the HAL C symbols.
+// See internal/hallib/hallibtest for why (one file per test binary is required).
+import _ "github.com/sittner/linuxcnc/src/gomc/internal/hallib/hallibtest"

@@ -12,10 +12,27 @@ import (
 // visible. Expected values below were hand-derived from the C++ canon
 // getStraightVelocity/getStraightAcceleration and confirmed byte-for-byte
 // against the old milltask via the differential oracle.
+// Blend axis limits shared by newBlendTestTask and newBlendCanonTask, mirroring
+// tests/milltask-parity/parity3.ini. Defined once so a parity-config retune can't
+// leave one suite validating stale limits — the hand-derived expected values in
+// the blend tests depend on these exact numbers.
+const blendAxisMask int32 = 0b111 // X|Y|Z
+
+var (
+	blendMaxVel = [9]float64{40, 25, 8}
+	blendMaxAcc = [9]float64{600, 400, 120}
+)
+
+// applyBlendLimits sets the shared blend axis mask and per-axis vel/acc limits.
+func applyBlendLimits(t *Task) {
+	t.axisMask = blendAxisMask
+	t.axisMaxVel = blendMaxVel
+	t.axisMaxAcc = blendMaxAcc
+}
+
 func newBlendTestTask() *Task {
-	t := &Task{axisMask: 0b111} // X|Y|Z
-	t.axisMaxVel = [9]float64{40, 25, 8}
-	t.axisMaxAcc = [9]float64{600, 400, 120}
+	t := &Task{}
+	applyBlendLimits(t)
 	return t
 }
 

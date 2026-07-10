@@ -208,6 +208,22 @@ func (t *Task) requireProgram() error {
 	return nil
 }
 
+// validSpindle validates a spindle index against the CONFIGURED spindle count —
+// the authoritative range check that the IDL @min/@max bound (a fixed
+// EMCMOT_MAX_SPINDLES literal) cannot make because it does not know numSpindles.
+// It covers every transport (REST/WS/halui). spindle_num -1 is the all-spindles
+// broadcast, accepted only when allowBroadcast is true. numSpindles is immutable
+// after config load, so no lock is needed (like the numJoints guards).
+func (t *Task) validSpindle(spindleNum int32, allowBroadcast bool) error {
+	if spindleNum == -1 && allowBroadcast {
+		return nil
+	}
+	if spindleNum < 0 || int(spindleNum) >= t.numSpindles {
+		return fmt.Errorf("spindle number %d out of range [0,%d)", spindleNum, t.numSpindles)
+	}
+	return nil
+}
+
 // allHomed returns true if all joints are homed.
 func (t *Task) allHomed() bool {
 	ms, err := t.status.GetStatus()

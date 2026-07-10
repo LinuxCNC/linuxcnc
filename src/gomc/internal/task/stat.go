@@ -76,9 +76,13 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		JogIncrement:   t.jogIncrement,
 		JogSpeed:       t.jogSpeed,
 		AjogSpeed:      t.ajogSpeed,
-		ActiveGcodes:   append([]int32(nil), t.activeGcodes...),
-		ActiveMcodes:   append([]int32(nil), t.activeMcodes...),
-		ActiveSettings: append([]float64(nil), t.activeSettings...),
+		// Readahead codes as the fallback. Aliased, not copied: updateActiveCodes
+		// always reassigns these fields to fresh interp slices (never mutates in
+		// place), so the value is immutable and safe to share into the snapshot.
+		// Overwritten below by the executing segment's tag when it has one.
+		ActiveGcodes:   t.activeGcodes,
+		ActiveMcodes:   t.activeMcodes,
+		ActiveSettings: t.activeSettings,
 		G5xOffset: emcstat.Position{
 			X: cs.g5xOffset.X, Y: cs.g5xOffset.Y, Z: cs.g5xOffset.Z,
 			A: cs.g5xOffset.A, B: cs.g5xOffset.B, C: cs.g5xOffset.C,
@@ -150,27 +154,34 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	stat.Motion.CurrentVel = ms.CurrentVel
 	stat.Motion.DistanceToGo = ms.DistanceToGo
 	stat.Motion.MotionId = ms.Id
-	stat.Motion.MotionLine = t.lookupMotionLine(ms.Id)
+	// One locked lookup (+ prune) for both the line and the executing segment's
+	// state tag, reused below instead of three separate map acquisitions (E2).
+	info, tagged := t.motionInfoAndPrune(ms.Id)
+	motionLine := int32(0)
+	if tagged {
+		motionLine = info.LineNo
+	}
+	stat.Motion.MotionLine = motionLine
 	stat.Motion.MotionType = ms.MotionType
 	stat.Motion.FeedOverrideEnabled = ms.FeedScaleEnabled != 0
 	stat.Motion.AdaptiveFeedEnabled = ms.AdaptiveFeedEnabled != 0
 	stat.Motion.FeedHoldEnabled = ms.FeedHoldEnabled != 0
 	stat.Motion.Queue = ms.QueueDepth
 	stat.Motion.QueueFull = ms.QueueFull != 0
-	stat.Task.MotionLine = t.lookupMotionLine(ms.Id)
+	stat.Task.MotionLine = motionLine
 	// Resolve the active G/M codes and current line from the state tag of the
 	// segment actually executing (motion echoes only the id back). This makes
 	// status reflect what the machine is running now rather than the
 	// interpreter's readahead. Falls back to the readahead codes set above when
 	// the moving segment has no tag (idle, MDI, or before the first tagged move).
-	if info, ok := t.lookupMotionInfo(ms.Id); ok && info.Gcodes != nil {
-		stat.ActiveGcodes = append([]int32(nil), info.Gcodes...)
-		stat.ActiveMcodes = append([]int32(nil), info.Mcodes...)
-		stat.ActiveSettings = append([]float64(nil), info.Settings...)
+	// Tag slices are isolated at tag time (fresh interp slices), so alias them.
+	if tagged && info.Gcodes != nil {
+		stat.ActiveGcodes = info.Gcodes
+		stat.ActiveMcodes = info.Mcodes
+		stat.ActiveSettings = info.Settings
 		stat.Task.CurrentLine = info.LineNo
 		stat.Task.Line = info.LineNo
 	}
-	t.pruneMotionMap(ms.Id)
 	stat.Motion.Dtg = emcstat.Position{
 		X: ms.Dtg.X, Y: ms.Dtg.Y, Z: ms.Dtg.Z,
 		A: ms.Dtg.A, B: ms.Dtg.B, C: ms.Dtg.C,

@@ -42,7 +42,7 @@ func (g *dispatchCGen) printf(format string, args ...interface{}) {
 }
 
 func (g *dispatchCGen) generate() error {
-	g.ce = newConstraintEmitter(g.api, "Re")
+	g.ce = newConstraintEmitter(g.api, "")
 	g.emitCgoPreamble()
 	g.emitImports()
 	g.emitConstants()
@@ -50,6 +50,10 @@ func (g *dispatchCGen) generate() error {
 	g.emitConverters()
 	g.emitGoToCConverters()
 	g.printf("%s", g.ce.regexVarDecls())
+	// One package-level validate<Api><Fn> per function; both this REST dispatch
+	// and the WS command handler (server_go.go) call them instead of inlining
+	// the same checks twice (D8).
+	g.printf("%s", g.ce.allValidationFuncs())
 	g.emitDispatchFuncs()
 	g.emitMeta()
 	g.emitRegister()
@@ -743,8 +747,10 @@ func (g *dispatchCGen) emitOneDispatch(fn ast.Func) {
 		g.printf("\t\t}\n")
 		g.printf("\t}\n")
 
-		// Validate IDL @constraints before converting/dispatching.
-		g.printf("%s", g.ce.validation(fn))
+		// Validate IDL @constraints before converting/dispatching (shared func).
+		if g.ce.needsValidation(fn) {
+			g.printf("\tif verr := %s; verr != nil {\n\t\treturn nil, verr\n\t}\n", g.ce.validateCallExpr(fn, "params"))
+		}
 	}
 
 	// Convert Go params → C and build call args

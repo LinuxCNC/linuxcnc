@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/emcerror"
@@ -215,6 +216,11 @@ type MotionStatusReader interface {
 	GetQueueDepth() (int32, error)
 	GetCommandNumEcho() (int32, error)
 	GetCommandStatus() (int32, error)
+	// Narrow single-element accessors for the M66 poll loop — avoid copying the
+	// full MotionStatus (joints, spindles, 64-wide DIO/AIO arrays, poses) just to
+	// read one bit/value ~100×/s while waiting (E3).
+	GetSynchDi(index int32) (int32, error)
+	GetAnalogInput(index int32) (float64, error)
 }
 
 // ErrorPublisher publishes operator error/text/display messages to UI clients.
@@ -372,12 +378,28 @@ type Task struct {
 	// seqInflight is true while the sequencer is processing a dequeued command
 	// (from dequeue until its wait/post-wait completes). waitSequencerDrain
 	// needs it: an empty queue with ExecDone is also observable in the instant
-	// between dequeue and the command's first setExecState.
-	seqInflight bool
+	// between dequeue and the command's first setExecState. Atomic (not t.mu-
+	// guarded) — the writers maintain no cross-field invariant with it, so it
+	// need not add two contended t.mu round-trips per dequeued command.
+	seqInflight atomic.Bool
+
+	// motionDispatched is true once a motion segment has been sent since the
+	// last completed drain. waitMotionDone applies its servo-settle skip only
+	// when this is set — an empty barrier (back-to-back S/M-code drains with no
+	// motion between) then clears in one immediate check instead of paying the
+	// ≥50 ms settle floor. Cleared when a drain observes the queue empty.
+	motionDispatched atomic.Bool
 
 	// MDI queue — commands queued while interpreter is busy
 	mdiQueue     []string
 	maxMDIQueued int
+
+	// mdiGen is bumped by executeMDI for every MDI command issued. mdiDoneCmd
+	// carries the generation captured at issue; finishMDI runs it forward only
+	// if the generation still matches, so a finishMDI left over from a
+	// superseded MDI (Abort + new MDI) cannot synch/commit against the newer
+	// command's state. Guarded by t.mu; only mutated under cmdMu (executeMDI).
+	mdiGen uint64
 
 	// Sequencer-level pause/step control
 	seqPauseCh  chan struct{} // closed to request sequencer pause
@@ -458,10 +480,18 @@ func (t *Task) lookupMotionLine(id int32) int32 {
 	return info.LineNo
 }
 
-// lookupMotionInfo returns the full state tag for a motion segment id.
-func (t *Task) lookupMotionInfo(id int32) (motionInfo, bool) {
+// motionInfoAndPrune returns the state tag for motion segment id and, in the
+// SAME lock, prunes entries older than id. BuildStat calls this once per status
+// cycle instead of the separate lookupMotionLine (×2) + lookupMotionInfo +
+// pruneMotionMap acquisitions it used to make (four t.mu round-trips → one).
+func (t *Task) motionInfoAndPrune(id int32) (motionInfo, bool) {
 	t.mu.Lock()
 	info, ok := t.motionMap[id]
+	for k := range t.motionMap {
+		if k < id {
+			delete(t.motionMap, k)
+		}
+	}
 	t.mu.Unlock()
 	return info, ok
 }
@@ -479,18 +509,6 @@ func (t *Task) tagMotionRange(startID, endID int32, gcodes, mcodes []int32, sett
 		if info, ok := t.motionMap[id]; ok {
 			info.Gcodes, info.Mcodes, info.Settings = gcodes, mcodes, settings
 			t.motionMap[id] = info
-		}
-	}
-	t.mu.Unlock()
-}
-
-// pruneMotionMap removes entries with id less than execId to bound map size.
-// Called periodically during status updates.
-func (t *Task) pruneMotionMap(execId int32) {
-	t.mu.Lock()
-	for id := range t.motionMap {
-		if id < execId {
-			delete(t.motionMap, id)
 		}
 	}
 	t.mu.Unlock()

@@ -120,142 +120,124 @@ func (e *constraintEmitter) walkValidation(visit func(ast.TypeRef, []ast.Constra
 
 // --- Per-dispatch validation ---
 
-// validation returns the validation statements for one function's input params
-// (empty if there is nothing to check). The generated code assumes the request
-// has been unmarshaled into a local `params` struct.
-func (e *constraintEmitter) validation(fn ast.Func) string {
-	var b strings.Builder
+// validateFuncName is the package-level validation function generated for fn.
+// Both the REST dispatch and the WS command handler call it, so the checks (and
+// the compiled @regex vars) live once instead of being inlined into each.
+func (e *constraintEmitter) validateFuncName(fn ast.Func) string {
+	return "validate" + toPascalCase(e.api.Name) + toPascalCase(fn.Name)
+}
+
+// validatedParams returns fn's marshaled input params (skipping out/ptr params,
+// which are never validated).
+func validatedParams(fn ast.Func) []ast.Param {
+	var out []ast.Param
 	for _, p := range fn.Params {
 		if p.IsOut || p.IsPtr {
-			continue // not a marshaled input
+			continue
 		}
-		expr := "params." + toPascalCase(p.Name)
-		b.WriteString(e.buildChecks(expr, staticPath(p.Name), p.Type, p.Constraints, map[string]bool{}))
+		out = append(out, p)
 	}
-	code := b.String()
-	if code == "" {
-		return ""
-	}
-	return "\n\t// --- validation (generated from @constraints) ---\n" + code +
-		"\t// --- end validation ---\n"
+	return out
 }
 
-// buildChecks returns the validation statements for one value. For nullable
-// (pointer) values it emits @notnull first, then guards the remaining checks
-// under a non-nil test operating on the pointee.
-func (e *constraintEmitter) buildChecks(expr string, path valPath, t ast.TypeRef, cs []ast.Constraint, stack map[string]bool) string {
-	if e.goIsPointer(t) {
-		var b strings.Builder
-		if hasConstraint(cs, ast.ConstraintNotNull) {
-			fmt.Fprintf(&b, "\tif %s == nil {\n\t\treturn nil, apiserver.NewValidationError(%s, \"notnull\", %s)\n\t}\n",
-				expr, path.expr, path.msg(" must not be null"))
-		}
-		inner := t
-		inner.Nullable = false
-		body := e.buildValue("(*"+expr+")", path, inner, dropConstraint(cs, ast.ConstraintNotNull), stack)
-		if body != "" {
-			fmt.Fprintf(&b, "\tif %s != nil {\n%s\t}\n", expr, indentLines(body))
-		}
-		return b.String()
-	}
-	return e.buildValue(expr, path, t, cs, stack)
-}
-
-// buildValue emits scalar checks, automatic enum membership, and recursion into
-// struct fields / slice-array elements for a non-pointer value.
-func (e *constraintEmitter) buildValue(expr string, path valPath, t ast.TypeRef, cs []ast.Constraint, stack map[string]bool) string {
+// checksFor builds the validation body for fn using base expressions produced by
+// baseExpr(param) — the arg name for the standalone function, or params.Field at
+// a call site. Empty when nothing needs checking.
+func (e *constraintEmitter) checksFor(fn ast.Func, baseExpr func(ast.Param) string) string {
 	var b strings.Builder
-
-	for _, c := range cs {
-		switch c.Kind {
-		case ast.ConstraintMin:
-			e.emitFail(&b, fmt.Sprintf("%s < %s", expr, c.Num), path, "min", path.msg(" must be >= "+c.Num))
-		case ast.ConstraintMax:
-			e.emitFail(&b, fmt.Sprintf("%s > %s", expr, c.Num), path, "max", path.msg(" must be <= "+c.Num))
-		case ast.ConstraintMinLen:
-			e.emitFail(&b, fmt.Sprintf("%s < %s", lenExpr(expr, t), c.Num), path, "minlen",
-				path.msg(fmt.Sprintf(" must have at least %s %s", c.Num, lenUnit(t))))
-		case ast.ConstraintMaxLen:
-			e.emitFail(&b, fmt.Sprintf("%s > %s", lenExpr(expr, t), c.Num), path, "maxlen",
-				path.msg(fmt.Sprintf(" must have at most %s %s", c.Num, lenUnit(t))))
-		case ast.ConstraintNotEmpty:
-			e.emitFail(&b, fmt.Sprintf("%s == 0", lenExpr(expr, t)), path, "notempty", path.msg(" must not be empty"))
-		case ast.ConstraintRegex:
-			fmt.Fprintf(&b, "\tif verr := apiserver.ValidateRegex(%s, %s, %s); verr != nil {\n\t\treturn nil, verr\n\t}\n",
-				path.expr, e.regexVar[c.Str], expr)
-		}
+	for _, p := range validatedParams(fn) {
+		b.WriteString(e.buildChecks(baseExpr(p), staticPath(p.Name), p.Type, p.Constraints, map[string]bool{}, 0))
 	}
-
-	// Automatic enum membership (opt out with @enum_open).
-	if en, ok := e.enumFor(t); ok && !hasConstraint(cs, ast.ConstraintEnumOpen) {
-		fmt.Fprintf(&b, "\tswitch %s {\n\tcase %s:\n\tdefault:\n\t\treturn nil, apiserver.NewValidationError(%s, \"enum\", fmt.Sprintf(\"%%s: invalid enum value %%d\", %s, int32(%s)))\n\t}\n",
-			expr, e.enumCaseList(en), path.expr, path.expr, expr)
-	}
-
-	// Recurse into struct fields.
-	if st, ok := e.structFor(t); ok && !stack[st.Name] {
-		stack[st.Name] = true
-		for _, f := range st.Fields {
-			b.WriteString(e.buildChecks(expr+"."+toPascalCase(f.Name), path.field(f.Name), f.Type, f.Constraints, stack))
-		}
-		delete(stack, st.Name)
-	}
-
-	// Recurse into slice/array elements (validate nested struct fields / enums).
-	if t.Kind == ast.TypeSlice || t.Kind == ast.TypeArray {
-		elem := *t.Elem
-		inner := e.buildChecks(expr+"[i]", path.elem("i"), elem, nil, stack)
-		if inner != "" {
-			fmt.Fprintf(&b, "\tfor i := range %s {\n%s\t}\n", expr, indentLines(inner))
-		}
-	}
-
 	return b.String()
 }
 
-// emitFail writes `if <cond> { return nil, NewValidationError(path, kind, msg) }`.
+// needsValidation reports whether fn has any @constraint checks to emit.
+func (e *constraintEmitter) needsValidation(fn ast.Func) bool {
+	return e.checksFor(fn, func(p ast.Param) string { return goArgName(p.Name) }) != ""
+}
+
+// validationFunc emits the standalone `func validate<Api><Fn>(args...)
+// *apiserver.ValidationError { … return nil }` for fn (empty if nothing to
+// validate). The params are passed by value as positional args, so no shared
+// request struct type is needed and the REST and WS param structs (which have
+// identical Go types for validated params) can both call it.
+func (e *constraintEmitter) validationFunc(fn ast.Func) string {
+	body := e.checksFor(fn, func(p ast.Param) string { return goArgName(p.Name) })
+	if body == "" {
+		return ""
+	}
+	var args []string
+	for _, p := range validatedParams(fn) {
+		args = append(args, goArgName(p.Name)+" "+goTypeForDispatch(p.Type))
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "// %s validates @constraints for the %s params (REST + WS).\n",
+		e.validateFuncName(fn), fn.Name)
+	fmt.Fprintf(&b, "func %s(%s) *apiserver.ValidationError {\n", e.validateFuncName(fn), strings.Join(args, ", "))
+	b.WriteString(body)
+	b.WriteString("\treturn nil\n}\n\n")
+	return b.String()
+}
+
+// allValidationFuncs emits every function's standalone validator (in declaration
+// order), for the shared _cgo.go file that both transports link against. It does
+// NOT filter by @method: the cgo dispatch validates every dispatched function's
+// params (including non-REST ones like `close`), and validationFunc emits
+// nothing for a function with no @constraints, so this matches the call sites'
+// needsValidation guard exactly.
+func (e *constraintEmitter) allValidationFuncs() string {
+	var b strings.Builder
+	for _, fn := range e.api.Funcs {
+		b.WriteString(e.validationFunc(fn))
+	}
+	return b.String()
+}
+
+// validateCallExpr returns `validate<Api><Fn>(structVar.Field, …)` — the call a
+// dispatch/handler makes, passing its unmarshaled struct's fields.
+func (e *constraintEmitter) validateCallExpr(fn ast.Func, structVar string) string {
+	var args []string
+	for _, p := range validatedParams(fn) {
+		args = append(args, structVar+"."+toPascalCase(p.Name))
+	}
+	return e.validateFuncName(fn) + "(" + strings.Join(args, ", ") + ")"
+}
+
+// goArgName returns a valid Go identifier for a function parameter derived from
+// the IDL param name (already a valid ident for the current APIs; the shared
+// keyword guard future-proofs it).
+func goArgName(name string) string { return escapeGoKeyword(name) }
+
+// buildChecks returns the Go-server validation statements for one value, via the
+// shared walk (walkConstraints) with the fail-fast serverTarget. The recursion
+// structure is shared with the Python/TS client validators (D9); only the leaf
+// emission differs (serverTarget vs clientTarget).
+func (e *constraintEmitter) buildChecks(expr string, path valPath, t ast.TypeRef, cs []ast.Constraint, stack map[string]bool, depth int) string {
+	return walkConstraints(serverTarget{e}, e.api, expr, path, t, cs, stack, depth)
+}
+
+// emitFail writes `if <cond> { return NewValidationError(path, kind, msg) }`.
 func (e *constraintEmitter) emitFail(b *strings.Builder, cond string, path valPath, kind, msg string) {
-	fmt.Fprintf(b, "\tif %s {\n\t\treturn nil, apiserver.NewValidationError(%s, %s, %s)\n\t}\n",
+	fmt.Fprintf(b, "\tif %s {\n\t\treturn apiserver.NewValidationError(%s, %s, %s)\n\t}\n",
 		cond, path.expr, strconv.Quote(kind), msg)
 }
 
 // --- Type lookups and helpers ---
 
 func (e *constraintEmitter) enumFor(t ast.TypeRef) (*ast.Enum, bool) {
-	if t.Kind != ast.TypeNamed {
-		return nil, false
-	}
-	for i := range e.api.Enums {
-		if e.api.Enums[i].Name == t.Name {
-			return &e.api.Enums[i], true
-		}
-	}
-	return nil, false
+	return e.api.EnumByName(t)
 }
 
 func (e *constraintEmitter) structFor(t ast.TypeRef) (*ast.Type, bool) {
-	if t.Kind != ast.TypeNamed {
-		return nil, false
-	}
-	for i := range e.api.Types {
-		if e.api.Types[i].Name == t.Name {
-			return &e.api.Types[i], true
-		}
-	}
-	return nil, false
+	return e.api.StructByName(t)
 }
 
 // enumCaseList returns the Go constant names for the enum's distinct values
 // (deduped by value so the switch has no duplicate cases).
 func (e *constraintEmitter) enumCaseList(en *ast.Enum) string {
 	goName := toPascalCase(en.Name)
-	seen := map[int]bool{}
 	var names []string
-	for _, v := range en.Values {
-		if seen[v.Value] {
-			continue
-		}
-		seen[v.Value] = true
+	for _, v := range en.DistinctMembers() {
 		names = append(names, goName+"_"+v.Name)
 	}
 	return strings.Join(names, ", ")

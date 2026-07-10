@@ -3,6 +3,8 @@
 package launcher
 
 import (
+	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -143,6 +145,40 @@ MACHINE = Test
 	l := newLauncherWithIniPath(t, f)
 	if err := l.checkPlasmaC(); err != nil {
 		t.Errorf("checkPlasmaC on non-PlasmaC INI returned error: %v", err)
+	}
+}
+
+// TestCheckPlasmaC_PlasmaC verifies the positive path: a [PLASMAC]MODE config
+// always returns ErrPlasmaC (never continues to launch), regardless of how the
+// migration tool exits. checkPlasmaC invokes the tool by bare name, so a PATH
+// stub replaces the real qtplasmac-plasmac2qt GUI without running it.
+func TestCheckPlasmaC_PlasmaC(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		exitCode int
+	}{
+		{"migration-ok", 0},
+		{"user-cancelled", 2},
+		{"tool-error", 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			binDir := t.TempDir()
+			stub := filepath.Join(binDir, "qtplasmac-plasmac2qt")
+			script := fmt.Sprintf("#!/bin/sh\nexit %d\n", tc.exitCode)
+			if err := os.WriteFile(stub, []byte(script), 0o755); err != nil {
+				t.Fatalf("write stub: %v", err)
+			}
+			t.Setenv("PATH", binDir)
+
+			dir := t.TempDir()
+			f := writeIni(t, dir, "test.ini", `[PLASMAC]
+MODE = 0
+`)
+			l := newLauncherWithIniPath(t, f)
+			if err := l.checkPlasmaC(); !errors.Is(err, ErrPlasmaC) {
+				t.Errorf("checkPlasmaC on PlasmaC INI (tool exit %d) = %v, want ErrPlasmaC", tc.exitCode, err)
+			}
+		})
 	}
 }
 

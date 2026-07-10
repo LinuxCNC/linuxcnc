@@ -55,6 +55,51 @@ type API struct {
 	StreamServers []StreamServer
 }
 
+// StructByName returns the struct Type that TypeRef t names, if t is a named
+// type matching one. Shared by the codegen emitters and the checker so the
+// linear scan over api.Types lives in one place.
+func (api *API) StructByName(t TypeRef) (*Type, bool) {
+	if t.Kind != TypeNamed {
+		return nil, false
+	}
+	for i := range api.Types {
+		if api.Types[i].Name == t.Name {
+			return &api.Types[i], true
+		}
+	}
+	return nil, false
+}
+
+// EnumByName returns the Enum that TypeRef t names, if t is a named type
+// matching one.
+func (api *API) EnumByName(t TypeRef) (*Enum, bool) {
+	if t.Kind != TypeNamed {
+		return nil, false
+	}
+	for i := range api.Enums {
+		if api.Enums[i].Name == t.Name {
+			return &api.Enums[i], true
+		}
+	}
+	return nil, false
+}
+
+// DistinctMembers returns the enum's members with duplicate integer VALUES
+// collapsed (keeping the first name for each value), in declaration order — the
+// single deduping used by both the membership-switch and the client-value
+// emitters.
+func (e *Enum) DistinctMembers() []EnumValue {
+	seen := make(map[int]bool, len(e.Values))
+	var out []EnumValue
+	for _, v := range e.Values {
+		if !seen[v.Value] {
+			seen[v.Value] = true
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
 // ---------------------------------------------------------------------------
 // Import — imported API reference
 // ---------------------------------------------------------------------------

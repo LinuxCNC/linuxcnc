@@ -88,6 +88,8 @@ func (m *mockStatusWithError) GetExecId() (int32, error)         { return 0, nil
 func (m *mockStatusWithError) GetQueueDepth() (int32, error)     { return 0, nil }
 func (m *mockStatusWithError) GetCommandNumEcho() (int32, error) { return 0, nil }
 func (m *mockStatusWithError) GetCommandStatus() (int32, error)  { return 0, nil }
+func (m *mockStatusWithError) GetSynchDi(int32) (int32, error)       { return 0, nil }
+func (m *mockStatusWithError) GetAnalogInput(int32) (float64, error) { return 0, nil }
 
 func (m *mockStatusWithError) setMotionError() {
 	m.mu.Lock()
@@ -260,6 +262,16 @@ func TestMonitor_ExternalEstop(t *testing.T) {
 	}
 	if interpState != InterpIdle {
 		t.Fatalf("expected InterpIdle, got %d", interpState)
+	}
+
+	// C11: an external estop must turn lube off and clear lubeOn, matching the
+	// commanded estop/off teardown (which it now shares via machineShutdown's
+	// stopSignals). Machine-on set lubeOn=true; the estop must clear it.
+	task.mu.Lock()
+	lubeOn := task.lubeOn
+	task.mu.Unlock()
+	if lubeOn {
+		t.Error("expected lubeOn=false after external estop (C11: lube left on)")
 	}
 
 	// Verify motion was aborted and disabled.

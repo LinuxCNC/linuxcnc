@@ -275,13 +275,24 @@ func (p *Parser) parseConstraints() []ast.Constraint {
 	return cs
 }
 
-// constraintNum parses a parenthesized numeric argument: (INT|FLOAT).
+// constraintNum parses a parenthesized numeric argument: (INT|FLOAT|const-name).
+// A named const (e.g. @max(MAX_SPINDLE_INDEX)) resolves to its integer value so a
+// bound literal can be defined once instead of hand-typed at every site.
 func (p *Parser) constraintNum() string {
 	p.expect(LPAREN)
-	if p.cur.Type != INT && p.cur.Type != FLOAT {
-		p.errorf("constraint argument must be numeric, got %q", p.cur.Text)
+	var v string
+	switch p.cur.Type {
+	case INT, FLOAT:
+		v = p.cur.Text
+	case IDENT:
+		val, ok := p.consts[p.cur.Text]
+		if !ok {
+			p.errorf("undefined constant %q in constraint", p.cur.Text)
+		}
+		v = strconv.Itoa(val)
+	default:
+		p.errorf("constraint argument must be numeric or a constant, got %q", p.cur.Text)
 	}
-	v := p.cur.Text
 	p.advance()
 	p.expect(RPAREN)
 	return v

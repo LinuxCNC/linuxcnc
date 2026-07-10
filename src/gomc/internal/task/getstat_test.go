@@ -24,6 +24,18 @@ func (m *richMockStatus) GetExecId() (int32, error)                { return int3
 func (m *richMockStatus) GetQueueDepth() (int32, error)            { return m.status.QueueDepth, nil }
 func (m *richMockStatus) GetCommandNumEcho() (int32, error)        { return m.status.CommandNumEcho, nil }
 func (m *richMockStatus) GetCommandStatus() (int32, error)         { return m.status.CommandStatus, nil }
+func (m *richMockStatus) GetSynchDi(i int32) (int32, error) {
+	if i >= 0 && int(i) < len(m.status.SynchDi) {
+		return m.status.SynchDi[i], nil
+	}
+	return 0, nil
+}
+func (m *richMockStatus) GetAnalogInput(i int32) (float64, error) {
+	if i >= 0 && int(i) < len(m.status.AnalogInput) {
+		return m.status.AnalogInput[i], nil
+	}
+	return 0, nil
+}
 
 func newRichTestTask() (*Task, *richMockStatus) {
 	ms := &richMockStatus{

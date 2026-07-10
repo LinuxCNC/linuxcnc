@@ -205,14 +205,16 @@ func TestCanon_SpindleOnOff(t *testing.T) {
 	c.StopSpindleTurning(0)       // M5
 	task.DrainQueue()
 
-	// C++ parity: SET_SPINDLE_SPEED always re-emits a SPINDLE_ON command
-	// (emccanon.cc:1918), with speed = dir*rpm — which is 0 while the spindle is
-	// stopped (dir=0). So S1000 issued *before* M3 produces an extra SpindleOn
-	// (speed=0), not a no-op. Matches the C milltask oracle capture (spindle.log):
-	//   SPINDLE_ON  s=0 speed=0    wait=0   <- SetSpindleSpeed (dir=0)
-	//   SPINDLE_ON  s=0 speed=1000 wait=1   <- StartSpindleClockwise
-	//   SPINDLE_OFF s=0                      <- StopSpindleTurning
-	want := []string{"SpindleOn", "SpindleOn", "SpindleOff"}
+	// S1000 issued *before* M3 (dir=0) stores the speed only — it does NOT emit a
+	// spindle command. The C SET_SPINDLE_SPEED does append a SPINDLE_ON here, but
+	// with state=0 (emcSpindleSpeed does not force state), so it is a status-only
+	// no-op that leaves the drive off. gomc's spindle-on GMI hardcodes state=1
+	// (h_spindle_on), so emitting the command would enable the drive at zero speed
+	// and release its brake; the canon drops it instead (see SetSpindleSpeed).
+	// Machine behavior matches 2.9; only the leading no-op command is absent:
+	//   SPINDLE_ON  s=0 speed=1000 wait=1   <- StartSpindleClockwise (M3)
+	//   SPINDLE_OFF s=0                      <- StopSpindleTurning (M5)
+	want := []string{"SpindleOn", "SpindleOff"}
 	if len(mot.calls) != len(want) {
 		t.Fatalf("spindle call sequence = %v, want %v", mot.calls, want)
 	}
@@ -220,6 +222,63 @@ func TestCanon_SpindleOnOff(t *testing.T) {
 		if mot.calls[i] != w {
 			t.Fatalf("spindle call[%d] = %s, want %s (full: %v)", i, mot.calls[i], w, mot.calls)
 		}
+	}
+}
+
+// TestCanon_CSSInchFactor verifies the G20 (inch) constant-surface-speed factor
+// carries the mm scaling. Motion computes RPM as css_factor/offset_mm working in
+// mm, so an inch-mode css_factor must be 12/(2π)·surface_speed·25.4 — matching
+// C++ SET_SPINDLE_SPEED's 12/(2π)·speed·TO_EXT_LEN(25.4). Without the 25.4 a
+// G20 G96 spindle runs 25.4× too slow (the mm-only corpus masked this).
+func TestCanon_CSSInchFactor(t *testing.T) {
+	task, _, _ := newCanonTestTask()
+	c := task.canon
+	c.state.lengthUnits = CanonUnitsInches
+	c.SetSpindleMode(0, 3000)     // G96 D3000: constant-surface-speed cap (RPM)
+	c.state.spindleSpeed[0] = 200 // S200 surface speed
+	c.state.spindleDir[0] = 1     // spindle running CW (so a command is emitted)
+
+	cmd := c.spindleCommand(0, 1, 1)
+	want := 12.0 / (2 * math.Pi) * 200 * 25.4
+	if math.Abs(cmd.CSSFactor-want) > 1e-6 {
+		t.Fatalf("inch CSS factor = %.6f, want %.6f (12/2π·200·25.4)", cmd.CSSFactor, want)
+	}
+	// The fix is exactly the 25.4× the buggy inch branch omitted.
+	buggy := 12.0 / (2 * math.Pi) * 200
+	if math.Abs(cmd.CSSFactor/buggy-25.4) > 1e-9 {
+		t.Fatalf("inch CSS factor is %.4f× the un-scaled value, want 25.4×", cmd.CSSFactor/buggy)
+	}
+}
+
+// TestCanon_InputTimeoutReturnsNeg1 verifies the M66 timeout contract: after a
+// wait times out (inputTimeout==1) the digital/analog input getters return -1,
+// which the interpreter stores into #5399 so a program's `if [#5399 LT 0]`
+// timeout check fires. Matches C++ GET_EXTERNAL_*_INPUT.
+func TestCanon_InputTimeoutReturnsNeg1(t *testing.T) {
+	task, _, _ := newCanonTestTask()
+	c := task.canon
+
+	// No timeout latched: getters read the live pin (default here).
+	if v, _ := c.GetExternalDigitalInput(0, 0); v != 0 {
+		t.Fatalf("digital input with no timeout = %d, want 0", v)
+	}
+	if v, _ := c.GetExternalAnalogInput(0, 0); v != 0 {
+		t.Fatalf("analog input with no timeout = %g, want 0", v)
+	}
+
+	// Timeout latched (WaitInputCmd sets inputTimeout=1 on timeout).
+	task.setInputTimeout(1)
+	if v, _ := c.GetExternalDigitalInput(0, 0); v != -1 {
+		t.Fatalf("digital input after timeout = %d, want -1", v)
+	}
+	if v, _ := c.GetExternalAnalogInput(0, 0); v != -1 {
+		t.Fatalf("analog input after timeout = %g, want -1", v)
+	}
+
+	// A fresh immediate wait clears the flag (setInputTimeout(0)); getters read live again.
+	task.setInputTimeout(0)
+	if v, _ := c.GetExternalDigitalInput(0, 0); v != 0 {
+		t.Fatalf("digital input after clear = %d, want 0", v)
 	}
 }
 

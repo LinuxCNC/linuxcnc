@@ -18,11 +18,13 @@ import (
 type mockMotion struct {
 	mu       sync.Mutex
 	lastCall string
+	calls    []string
 }
 
 func (m *mockMotion) setCall(s string) {
 	m.mu.Lock()
 	m.lastCall = s
+	m.calls = append(m.calls, s)
 	m.mu.Unlock()
 }
 
@@ -30,6 +32,18 @@ func (m *mockMotion) last() string {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.lastCall
+}
+
+// hasCall reports whether the named motion call was ever made.
+func (m *mockMotion) hasCall(s string) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, c := range m.calls {
+		if c == s {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *mockMotion) SetLine(Pose, float64, float64, float64, int32, int32, float64, int32) error {
@@ -164,6 +178,8 @@ func (m *mockStatus) GetExecId() (int32, error)                { return 0, nil }
 func (m *mockStatus) GetQueueDepth() (int32, error)            { return 0, nil }
 func (m *mockStatus) GetCommandNumEcho() (int32, error)        { return 0, nil }
 func (m *mockStatus) GetCommandStatus() (int32, error)         { return 0, nil }
+func (m *mockStatus) GetSynchDi(int32) (int32, error)          { return 0, nil }
+func (m *mockStatus) GetAnalogInput(int32) (float64, error)    { return 0, nil }
 
 func newTestTask() (*Task, *mockMotion, *mockIO) {
 	mot := &mockMotion{}
@@ -172,6 +188,9 @@ func newTestTask() (*Task, *mockMotion, *mockIO) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	t := NewTask(mot, io, stat, logger)
 	t.SetIOStatusReader(io)
+	// Match production's default (config.go: [TRAJ]SPINDLES default 1) so the
+	// task-layer spindle range check accepts spindle 0.
+	t.numSpindles = 1
 	return t, mot, io
 }
 
@@ -368,12 +387,44 @@ func TestAutoCommand_PauseCallsMotion(t *testing.T) {
 	task, mot, _ := newTestTask()
 	bringUp(task)
 	task.SetMode(int32(ModeAuto))
+	// Simulate an actively running program so pause is meaningful (C10 gates
+	// pause on the interpreter actually reading).
+	task.mu.Lock()
+	task.interpState = InterpReading
+	task.mu.Unlock()
 
 	if err := task.AutoCommand(AutoPause, 0); err != nil {
 		t.Fatalf("auto pause: %v", err)
 	}
 	if mot.last() != "Pause" {
 		t.Fatalf("expected Pause, got %s", mot.last())
+	}
+}
+
+// TestAutoCommand_PauseWhileIdleIsNoop is the C10 regression: pausing in AUTO
+// with no program running must NOT set InterpPaused (nothing would ever lift it,
+// wedging programBusy() until Abort/E-stop) and must not call motion.Pause.
+func TestAutoCommand_PauseWhileIdleIsNoop(t *testing.T) {
+	task, mot, _ := newTestTask()
+	bringUp(task)
+	task.SetMode(int32(ModeAuto))
+
+	if err := task.AutoCommand(AutoPause, 0); err != nil {
+		t.Fatalf("auto pause: %v", err)
+	}
+	if mot.last() == "Pause" {
+		t.Fatalf("pause while idle must not call motion.Pause")
+	}
+	task.mu.Lock()
+	st := task.interpState
+	task.mu.Unlock()
+	if st == InterpPaused {
+		t.Fatalf("pause while idle wedged interpState at Paused (C10)")
+	}
+
+	// A subsequent MDI/run must still be accepted (not wedged).
+	if busy := func() bool { task.mu.Lock(); defer task.mu.Unlock(); return task.programBusy() }(); busy {
+		t.Fatalf("programBusy() true after idle pause — task wedged")
 	}
 }
 
@@ -395,8 +446,10 @@ func TestAbort_AlwaysSucceeds(t *testing.T) {
 	if err := task.Abort(); err != nil {
 		t.Fatalf("abort: %v", err)
 	}
-	if mot.last() != "Abort" {
-		t.Fatalf("expected Abort, got %s", mot.last())
+	// Abort stops motion (it also stops the configured spindle afterwards, so
+	// Abort is no longer necessarily the *last* motion call).
+	if !mot.hasCall("Abort") {
+		t.Fatalf("expected motion Abort to be called, calls=%v", mot.calls)
 	}
 	if task.interpState != InterpIdle {
 		t.Fatalf("expected InterpIdle after abort")
@@ -412,6 +465,31 @@ func TestSpindle_Forward(t *testing.T) {
 	}
 	if mot.last() != "SpindleOn" {
 		t.Fatalf("expected SpindleOn, got %s", mot.last())
+	}
+}
+
+// TestSpindle_BroadcastAndRange covers C12: spindle_num -1 is the all-spindles
+// broadcast (accepted end-to-end), and an index past the configured spindle
+// count is rejected by the authoritative task-layer check.
+func TestSpindle_BroadcastAndRange(t *testing.T) {
+	task, mot, _ := newTestTask() // numSpindles = 1
+	bringUp(task)
+
+	if err := task.Spindle(SpindleForward, 1000, -1, 0); err != nil {
+		t.Fatalf("broadcast spindle (-1) rejected: %v", err)
+	}
+	if !mot.hasCall("SpindleOn") {
+		t.Fatalf("expected SpindleOn for broadcast, calls=%v", mot.calls)
+	}
+	if err := task.SetSpindleOverride(1.0, -1); err != nil {
+		t.Fatalf("broadcast override (-1) rejected: %v", err)
+	}
+	// Index past the configured count (numSpindles=1) is rejected.
+	if err := task.Spindle(SpindleForward, 1000, 5, 0); err == nil {
+		t.Fatalf("expected spindle 5 rejected with numSpindles=1")
+	}
+	if err := task.SetSpindleOverride(1.0, 5); err == nil {
+		t.Fatalf("expected override spindle 5 rejected with numSpindles=1")
 	}
 }
 

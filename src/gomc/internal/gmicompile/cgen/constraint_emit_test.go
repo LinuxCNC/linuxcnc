@@ -56,32 +56,33 @@ func put_tool(toolno: i32 @min(1), entry: ToolEntry) -> i32
 `
 	out := genDispatch(t, src)
 
-	// Compiled regex var, package scope.
-	assertContains(t, out, `var tooltableRe0 = apiserver.MustRegex("^[a-z]+$")`)
+	// Compiled regex var, package scope (single set — no per-transport prefix).
+	assertContains(t, out, `var tooltable0 = apiserver.MustRegex("^[a-z]+$")`)
 
-	// Validation section marker.
-	assertContains(t, out, "// --- validation (generated from @constraints) ---")
+	// A single standalone validator; the dispatch and WS handler both call it.
+	assertContains(t, out, "func validateTooltablePutTool(toolno int32, entry ToolEntry) *apiserver.ValidationError {")
+	assertContains(t, out, "if verr := validateTooltablePutTool(params.Toolno, params.Entry); verr != nil {")
 
-	// Param constraint.
-	assertContains(t, out, "if params.Toolno < 1 {")
+	// Body uses the arg names (not params.X).
+	assertContains(t, out, "if toolno < 1 {")
 	assertContains(t, out, `apiserver.NewValidationError("toolno", "min", "toolno must be >= 1")`)
 
 	// Nested struct field, dotted path.
-	assertContains(t, out, "if params.Entry.Toolno < 1 {")
+	assertContains(t, out, "if entry.Toolno < 1 {")
 	assertContains(t, out, `apiserver.NewValidationError("entry.toolno", "max", "entry.toolno must be <= 99999")`)
-	assertContains(t, out, "if params.Entry.Diameter < 0 {")
-	assertContains(t, out, "if params.Entry.Orientation > 8 {")
+	assertContains(t, out, "if entry.Diameter < 0 {")
+	assertContains(t, out, "if entry.Orientation > 8 {")
 
 	// String length uses RuneLen.
-	assertContains(t, out, "if apiserver.RuneLen(params.Entry.Comment) > 255 {")
+	assertContains(t, out, "if apiserver.RuneLen(entry.Comment) > 255 {")
 
 	// Regex references the compiled var.
-	assertContains(t, out, `apiserver.ValidateRegex("entry.comment", tooltableRe0, params.Entry.Comment)`)
+	assertContains(t, out, `apiserver.ValidateRegex("entry.comment", tooltable0, entry.Comment)`)
 
 	// Automatic enum membership (non-contiguous 0,2), constant-name cases.
-	assertContains(t, out, "switch params.Entry.Mode {")
+	assertContains(t, out, "switch entry.Mode {")
 	assertContains(t, out, "case Mode_A, Mode_B:")
-	assertContains(t, out, `apiserver.NewValidationError("entry.mode", "enum", fmt.Sprintf("%s: invalid enum value %d", "entry.mode", int32(params.Entry.Mode)))`)
+	assertContains(t, out, `apiserver.NewValidationError("entry.mode", "enum", fmt.Sprintf("%s: invalid enum value %d", "entry.mode", int32(entry.Mode)))`)
 }
 
 func TestGenerateValidationSliceElemsAndEnumOpen(t *testing.T) {
@@ -106,17 +107,52 @@ func set_points(pts: []Point, mode: Kind @enum_open) -> i32
 `
 	out := genDispatch(t, src)
 
-	// Element recursion with a runtime index path.
-	assertContains(t, out, "for i := range params.Pts {")
-	assertContains(t, out, "if params.Pts[i].X < 0 {")
-	assertContains(t, out, `fmt.Sprintf("%s[%d]", "pts", i)`)
+	// Element recursion with a runtime index path (per-depth index i0). The
+	// standalone validator body uses the arg name `pts`.
+	assertContains(t, out, "for i0 := range pts {")
+	assertContains(t, out, "if pts[i0].X < 0 {")
+	assertContains(t, out, `fmt.Sprintf("%s[%d]", "pts", i0)`)
 
 	// Per-element enum still auto-checked.
-	assertContains(t, out, "switch params.Pts[i].K {")
+	assertContains(t, out, "switch pts[i0].K {")
 
 	// @enum_open param: no membership switch emitted for mode.
-	if bytes.Contains([]byte(out), []byte("switch params.Mode {")) {
+	if bytes.Contains([]byte(out), []byte("switch mode {")) {
 		t.Error("@enum_open param should not emit an enum switch")
+	}
+}
+
+// TestGenerateValidationNestedSlices is the C13 regression: a slice-of-slices
+// must emit distinct per-depth range indices (i0, i1) instead of shadowing a
+// single `i`, which silently validated the diagonal (and could index OOB).
+func TestGenerateValidationNestedSlices(t *testing.T) {
+	src := `@api demo
+@version 1
+@license "GPL Version 2"
+@rest_export true
+
+type Row {
+    cells: [][]Cell
+}
+
+type Cell {
+    v: f64 @min(0)
+}
+
+@method POST
+@path /grid
+func set_grid(rows: []Row) -> i32
+`
+	out := genDispatch(t, src)
+
+	// Distinct index per nesting level — no reused `i`. Body uses arg name `rows`.
+	assertContains(t, out, "for i0 := range rows {")
+	assertContains(t, out, "for i1 := range rows[i0].Cells {")
+	assertContains(t, out, "for i2 := range rows[i0].Cells[i1] {")
+	// The innermost constraint indexes all three levels, not a diagonal.
+	assertContains(t, out, "if rows[i0].Cells[i1][i2].V < 0 {")
+	if bytes.Contains([]byte(out), []byte("for i := range")) {
+		t.Error("nested slices must not reuse a single loop index `i` (C13 shadowing)")
 	}
 }
 
@@ -164,16 +200,14 @@ func put_tool(toolno: i32 @min(1), entry: ToolEntry) -> i32
 	}
 	out := buf.String()
 
-	// Validation present inside the command handler, reindented to closure depth.
-	assertContains(t, out, "// --- validation (generated from @constraints) ---")
-	assertContains(t, out, "\t\t\tif params.Toolno < 1 {")
-	assertContains(t, out, "\t\t\tif params.Entry.Toolno < 1 {")
-	// The bridge declares its OWN compiled regex var (distinct "CmdRe" prefix, so
-	// it does not collide with the "Re" vars in the shared _cgo.go) and uses it —
-	// keeping the file self-contained rather than referencing _cgo.go's symbols.
-	assertContains(t, out, `var tooltableCmdRe0 = apiserver.MustRegex("^[a-z]+$")`)
-	assertContains(t, out, "apiserver.ValidateRegex(\"entry.comment\", tooltableCmdRe0, params.Entry.Comment)")
-	if bytes.Contains([]byte(out), []byte("tooltableRe0 =")) {
-		t.Error("bridge must use its own CmdRe-prefixed vars, not _cgo.go's Re vars")
+	// The WS command handler calls the shared validate<Api><Fn> (defined once in
+	// _cgo.go, same package), not an inlined-and-reindented copy of the checks or
+	// a duplicate compiled regex var (D8).
+	assertContains(t, out, "if verr := validateTooltablePutTool(params.Toolno, params.Entry); verr != nil {")
+	if bytes.Contains([]byte(out), []byte("apiserver.MustRegex")) {
+		t.Error("WS bridge must not declare its own compiled regex vars (D8: shared validator)")
+	}
+	if bytes.Contains([]byte(out), []byte("if params.Toolno < 1")) {
+		t.Error("WS bridge must not inline the validation checks (D8: shared validator)")
 	}
 }
