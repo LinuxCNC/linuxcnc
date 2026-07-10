@@ -50,6 +50,9 @@ from qtpy.QtWidgets import (
 from qtpy.QtCore import Qt, QTimer, QSize, Signal, Slot, QPointF, QRectF, QThread, QObject, QEvent
 from qtpy.QtGui import QFont, QColor, QIcon, QTextCursor, QPainter, QTextOption, QPainterPath, QPen, QBrush, QFontMetrics
 
+# Cross-backend window flag compatibility (PyQt5/PySide2 vs PyQt6/PySide6)
+_WIN_STAYS_ON_TOP = getattr(getattr(Qt, "WindowType", None), "WindowStaysOnTop", None) or getattr(Qt, "WindowStaysOnTop", 0x00080000)
+
 # ---------------------------------------------------------------------------
 # HAL API — direct shared memory access via _hal C extension
 # ---------------------------------------------------------------------------
@@ -2452,7 +2455,7 @@ class HalshowMain(QMainWindow):
 
         # Always on top must be set before show(); apply via setWindowFlags then show again
         if prefs.alwaysOnTop:
-            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTop)
+            self.setWindowFlags(self.windowFlags() | _WIN_STAYS_ON_TOP)
 
         self._build_ui()
         self._build_menus()
@@ -3288,12 +3291,12 @@ class HalshowMain(QMainWindow):
 
         # Apply alwaysOnTop dynamically (setWindowFlags + show needed at runtime)
         current_flags = self.windowFlags()
-        has_topmost = bool(current_flags & Qt.WindowStaysOnTop)
+        has_topmost = bool(current_flags & _WIN_STAYS_ON_TOP)
         if self.prefs.alwaysOnTop and not has_topmost:
-            self.setWindowFlags(current_flags | Qt.WindowStaysOnTop)
+            self.setWindowFlags(current_flags | _WIN_STAYS_ON_TOP)
             self.show()  # Re-show to apply flag change
         elif not self.prefs.alwaysOnTop and has_topmost:
-            self.setWindowFlags(current_flags & ~Qt.WindowStaysOnTop)
+            self.setWindowFlags(current_flags & ~_WIN_STAYS_ON_TOP)
             self.show()
 
         if hasattr(self, '_watch_timer') and self._watch_timer.isActive():
