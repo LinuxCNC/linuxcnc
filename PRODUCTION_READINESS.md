@@ -28,6 +28,8 @@ AI review vs. LinuxCNC 2.9 → findings doc → fix PRs → tests → sign-off
    These need written-spec tests verified against the 2.9 C source
    (reference tree: `~/source/linuxcnc-2.9` old code), not capture conversion.
 
+**Bug FIXED this pass (production-relevant): shutdown deadlock with ≥2 HAL threads.** Any config with `BASE_PERIOD>0` (base + servo thread — most stepper configs) hung forever on shutdown: `task_wait()` re-acquired `thread_lock` on the cooperative-exit path, so the first HAL task to be deleted exited holding it and the next task's `pthread_join` blocked. Fixed in `src/gomc/internal/hallib/uspace_rtapi_lib.c` (leave `thread_lock` released on cooperative exit). This was also the root cause of the runtests full-instance flakiness (hung shutdown → leaked gomc-server → shared-REST-port collision → stalled suite). Verified: lathe/abort-g64 now shut down ~0s; 0 leaked servers.
+
 **Runtests progress (branch `reenable-runtests`):** Category C (standalone interp)
 and the HAL `test.hal` bucket are re-enabled and green — interp 71 pass / 9
 Python-skip / 1 xfail; HAL 30 pass / 0 fail / 10 skip. Infra added:
