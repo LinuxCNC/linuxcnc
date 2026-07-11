@@ -1,0 +1,6 @@
+Ported to gomc (config: LIB:linuxcnc.hal; motion-test.hal load sampler + single-instance
+pins; test.sh: resident gomc-server + halsampler capture; test-ui.py: gmi driver). RUNS fully
+(sampler captures ~48k motion samples across the abort cycles) but xfails on a real gomc bug:
+after a program abort the modal G-code state is NOT restored — motion mode reads G64 (640) and
+blend tolerances P1.000/Q2.000 where the pre-program G61 (610) state is expected. gomc's abort
+does not restore interp modal state (motion mode / blend tolerances). Remove xfail once fixed.
