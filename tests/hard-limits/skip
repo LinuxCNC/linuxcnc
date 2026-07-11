@@ -1,0 +1,12 @@
+Config ported to the gomc model (LIB:linuxcnc.hal, loadrt->load, PARAMETER_FILE
+added; the limit switch is drivable via `halcmd sets x-neg-lim-sw 1/0`, and
+gmi.ErrorChannel.poll() works). Driver port to gmi deferred — blocked by two
+gomc behavioral differences found while porting:
+ 1. After c.teleop_enable(0) (switch to joint/free mode), a joint jog
+    c.jog(JOG_CONTINUOUS, joint_flag=1, 0, vel) errors "JOG_CONT Mode is TELEOP,
+    cannot jog joint" — gomc stays in teleop, so per-joint jogging (needed to
+    drive into the limit) is rejected.
+ 2. status.limit[0] reads -1 on a tripped min hard limit; the classic test
+    asserts limit[0]==1 (bitmask). Limit-status encoding differs in gomc.
+Fix targets: gomc jog/teleop mode handling and motion limit[] status encoding.
+Remove this skip and finish the gmi driver port once those match.

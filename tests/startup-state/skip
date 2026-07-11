@@ -1,0 +1,8 @@
+Large full-status-surface test (~400-line driver asserting exact values for
+nearly every gmi.Stat field, plus per-axis/per-joint dicts). Port to the gmi
+REST/WS client deferred: it needs a field-by-field validation of gmi.Stat
+completeness and gomc startup values (g5x/g92 offsets from startup gcode,
+gcodes/mcodes tuples, joint/axis dicts, spindle dicts), and related tests
+already surfaced gomc value bugs (G43 tool offset, random-toolchanger startup
+tool). Convert with a dedicated pass once those gomc status/offset behaviors are
+verified. Config not yet converted.
