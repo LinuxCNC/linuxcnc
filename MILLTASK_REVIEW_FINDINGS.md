@@ -1,4 +1,11 @@
-# Pre-merge review findings — branch `verify-milltask`
+# Milltask pre-merge review findings — branch `verify-milltask`
+
+> **Status: CLOSED — historical record.** Every finding in this document (the
+> original 34: C1-C13/T1/D1-D10/E1-E6/S1-S4, the recheck residuals R1-R9, and
+> the second-recheck leftovers H1-H6) has been fixed and re-verified. The file
+> is kept because ~50 code comments in `src/gomc/internal/task/` and
+> `src/gomc/internal/gmicompile/` cite these finding IDs (e.g. "(C8)",
+> "(D3: one committer)", "(R1)", "(H1)") — this document is their decoder ring.
 
 Review scope: `git diff gomc...HEAD` (81 commits, ~7,900 insertions across 123 files),
 reviewed 2026-07-10 against the C++ 2.9 reference in `~/source/linuxcnc-2.9`.
