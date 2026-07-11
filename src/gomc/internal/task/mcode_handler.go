@@ -106,9 +106,13 @@ func (h *mcodeHandler) Submit(mcode int, p, q float64) error {
 	// Reset abort channel for new job
 	h.mu.Lock()
 	h.abortCh = make(chan struct{})
-	h.done = false
 	abortCh := h.abortCh
 	h.mu.Unlock()
+	// done is guarded by resultMu (the worker writes it under resultMu) —
+	// resetting it under h.mu would be an unsynchronized write.
+	h.resultMu.Lock()
+	h.done = false
+	h.resultMu.Unlock()
 
 	select {
 	case h.jobCh <- mcodeJob{mcode: mcode, p: p, q: q, abortCh: abortCh}:

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/emcerror"
@@ -107,10 +108,11 @@ type activeJog struct {
 // Methods match the motctl.gmi function names.
 type MotionController interface {
 	// Motion queue
-	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64, indexerJnum int32) error
-	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedUpm float64) error
-	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, feedUpm float64) error
-	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, feedUpm float64) error
+	SetLine(pos Pose, vel, iniMaxvel, acc float64, motionType int32, id int32, feedMmPerMin float64, indexerJnum int32) error
+	SetCircle(pos Pose, center, normal Cartesian, turn int32, vel, iniMaxvel, acc float64, motionType int32, id int32, feedMmPerMin float64) error
+	Probe(pos Pose, vel, iniMaxvel, acc float64, motionType int32, probeType uint8, id int32, feedMmPerMin float64) error
+	ClearProbeFlags() error
+	RigidTap(pos Pose, vel, iniMaxvel, acc float64, scale float64, id int32, feedMmPerMin float64) error
 
 	// Motion control
 	Abort() error
@@ -214,6 +216,11 @@ type MotionStatusReader interface {
 	GetQueueDepth() (int32, error)
 	GetCommandNumEcho() (int32, error)
 	GetCommandStatus() (int32, error)
+	// Narrow single-element accessors for the M66 poll loop — avoid copying the
+	// full MotionStatus (joints, spindles, 64-wide DIO/AIO arrays, poses) just to
+	// read one bit/value ~100×/s while waiting (E3).
+	GetSynchDi(index int32) (int32, error)
+	GetAnalogInput(index int32) (float64, error)
 }
 
 // ErrorPublisher publishes operator error/text/display messages to UI clients.
@@ -232,8 +239,47 @@ type Pose = motctl.Pose
 type Cartesian = motctl.Cartesian
 
 // Task is the central controller state. One instance per machine.
+//
+// Locking model (three locks, strict order cmdMu > seqLifeMu > mu):
+//
+//   - cmdMu serializes mutating commands for their FULL duration, including
+//     I/O and waits. All emccmd entry points are blocking calls; cmdMu is what
+//     makes their guard->act sequences atomic against each other (the Go
+//     equivalent of the C milltask's single NML command queue). Worker
+//     goroutines (sequencer, runProgram producer, mcode worker) never take
+//     cmdMu. Abort-class operations (Abort, external/UI estop, pause, resume,
+//     jog-stop) fire their signals WITHOUT cmdMu first — signals are what
+//     unblock a command stuck in EnqueueCmd backpressure, so they must never
+//     queue behind one — and only the state cleanup takes cmdMu.
+//   - seqLifeMu serializes sequencer generation changes (StartSequencer /
+//     StopSequencer), so concurrent restart requests (e.g. a monitor fault
+//     teardown racing a user abort) cannot spawn two sequencer loops.
+//   - mu is the short-lived state lock. It is never held across blocking I/O
+//     or channel waits; several internal helpers release and re-acquire it
+//     around external calls (safe because cmdMu holds command-level atomicity).
+//   - msgMu (leaf, below mu) guards only the operator message list, so
+//     operatorError is callable from any locking context, including under mu.
+//
+// Guard evaluation is two-phase: every mutating command runs its full guard
+// set as a preflight BEFORE acquiring cmdMu (immediate rejection instead of
+// queueing behind a long command) and again inside the serialized body (the
+// authoritative check — state may change while waiting for the lock).
+//
+// Interpreter ownership: the C++ interpreter is not thread-safe. It may be
+// touched only (a) under cmdMu with the interpreter idle (checked via
+// programBusy), or (b) by the runProgram producer goroutine, whose lifetime
+// teardown paths synchronize on runDone before touching the interpreter.
+// BuildStat never calls the interpreter; it reads caches published by
+// updateActiveCodes.
 type Task struct {
 	mu sync.Mutex
+
+	// cmdMu serializes mutating command entry points end-to-end (see the
+	// locking model above). Always acquired before mu, never while holding mu.
+	cmdMu sync.Mutex
+
+	// seqLifeMu serializes StartSequencer/StopSequencer generation changes.
+	seqLifeMu sync.Mutex
 
 	// Current state
 	state       TaskState
@@ -255,9 +301,12 @@ type Task struct {
 	angularUnits    float64
 	maxVelocity     float64
 	maxAcceleration float64
-	jointMaxVel     [16]float64 // per-joint max velocity for jog clamping
-	axisMaxVel      [9]float64  // per-axis max velocity for jog clamping
+	jointMaxVel     [16]float64             // per-joint max velocity for jog clamping
+	jointHoming     [16]jointHomingParams   // INI-fixed homing params, cached so a HAL home/offset/seq change re-pushes them unchanged
+	axisMaxVel      [9]float64              // per-axis max velocity for jog clamping + canon blend
+	axisMaxAcc      [9]float64  // per-axis max acceleration for canon vel/acc blend
 	startupCode     string
+	debug           int32 // EMC_SET_DEBUG level, echoed to stat.debug
 
 	// Flags
 	optionalStop  bool
@@ -268,6 +317,10 @@ type Task struct {
 	noForceHoming bool // [TRAJ]NO_FORCE_HOMING — skip homing check before MDI/AUTO
 	stepping      bool // single-step mode: auto-pause after each interpreter line
 	interpActive  bool // true while runProgram goroutine is executing
+	// runDone is closed by runProgram when it exits, so teardown paths can wait
+	// for the producer to stop touching the interpreter before Close/Reset.
+	runDone  chan struct{}
+	dwellEnd time.Time // wall-clock end of the current G4 dwell (for delayLeft)
 
 	// Jog selection (shared across clients)
 	jogAxis      int32   // selected jog axis (0=X .. 8=W, -1=none)
@@ -286,10 +339,20 @@ type Task struct {
 	// Written by canon at enqueue time; read by BuildStat for halui.program-line.
 	motionMap map[int32]motionInfo
 
-	// Interpreter active codes (updated after each execute)
+	// Interpreter active codes (updated after each execute). These are the
+	// ONLY view of interpreter state stat consumers may use — BuildStat must
+	// not call into the (non-thread-safe) interpreter while the producer
+	// goroutine may be executing it.
 	activeGcodes   []int32
 	activeMcodes   []int32
 	activeSettings []float64
+	callLevel      int32 // cached interp.CallLevel(), updated with the codes
+
+	// canonSnap is a value snapshot of *canon.state, republished by
+	// updateActiveCodes after every interpreter execute. Canon mutates its
+	// state lock-free on the producer goroutine; stat/halui readers must use
+	// this snapshot, never t.canon.state.
+	canonSnap CanonState
 
 	// Dependencies (injected, mockable for tests)
 	motion MotionController
@@ -312,10 +375,31 @@ type Task struct {
 	interpQueue chan QueuedCmd
 	seqDone     chan struct{} // closed when sequencer goroutine exits
 	seqAbort    chan struct{} // close to abort sequencer
+	// seqInflight is true while the sequencer is processing a dequeued command
+	// (from dequeue until its wait/post-wait completes). waitSequencerDrain
+	// needs it: an empty queue with ExecDone is also observable in the instant
+	// between dequeue and the command's first setExecState. Atomic (not t.mu-
+	// guarded) — the writers maintain no cross-field invariant with it, so it
+	// need not add two contended t.mu round-trips per dequeued command.
+	seqInflight atomic.Bool
+
+	// motionDispatched is true once a motion segment has been sent since the
+	// last completed drain. waitMotionDone applies its servo-settle skip only
+	// when this is set — an empty barrier (back-to-back S/M-code drains with no
+	// motion between) then clears in one immediate check instead of paying the
+	// ≥50 ms settle floor. Cleared when a drain observes the queue empty.
+	motionDispatched atomic.Bool
 
 	// MDI queue — commands queued while interpreter is busy
 	mdiQueue     []string
 	maxMDIQueued int
+
+	// mdiGen is bumped by executeMDI for every MDI command issued. mdiDoneCmd
+	// carries the generation captured at issue; finishMDI runs it forward only
+	// if the generation still matches, so a finishMDI left over from a
+	// superseded MDI (Abort + new MDI) cannot synch/commit against the newer
+	// command's state. Guarded by t.mu; only mutated under cmdMu (executeMDI).
+	mdiGen uint64
 
 	// Sequencer-level pause/step control
 	seqPauseCh  chan struct{} // closed to request sequencer pause
@@ -329,14 +413,28 @@ type Task struct {
 	hasMotionStatus  bool
 
 	// Current message list (independent of emcerror /errors drain queue).
+	// Guarded by msgMu, NOT mu — a leaf lock, so operatorError is callable
+	// from any locking context (guard rejects emit messages under mu).
+	msgMu         sync.Mutex
 	messageList   []TaskMessage
 	nextMessageID uint64
+
+	// Status display fields (echoed to stat, mirrors C++ EMC_TASK_STAT).
+	taskCommand  string // last/executing MDI command string ("" when idle)
+	inputTimeout int32  // M66 wait: 0=none/cleared, 1=timed out, 2=waiting
+	heartbeat    int32  // monotonic liveness counter, bumped each BuildStat
 }
 
-// motionInfo stores the G-code location associated with a motion segment.
+// motionInfo is the state tag milltask keeps for each motion segment, keyed by
+// the serial id that motion echoes back. Motion itself is interpreter-agnostic
+// (it only carries the id); milltask maps id → tag to report the source line
+// and the active G/M codes of the segment actually executing (not readahead).
 type motionInfo struct {
-	File   string
-	LineNo int32
+	File     string
+	LineNo   int32
+	Gcodes   []int32   // active G-codes when the segment was queued (nil = untagged)
+	Mcodes   []int32   // active M-codes
+	Settings []float64 // active settings (feed, speed, …)
 }
 
 // NewTask creates a new Task with dependencies injected.
@@ -358,6 +456,7 @@ func NewTask(motion MotionController, io IOController, status MotionStatusReader
 		motionMap:      make(map[int32]motionInfo),
 	}
 	t.canon = NewCanon(t)
+	t.canonSnap = *t.canon.state
 	return t
 }
 
@@ -381,13 +480,35 @@ func (t *Task) lookupMotionLine(id int32) int32 {
 	return info.LineNo
 }
 
-// pruneMotionMap removes entries with id less than execId to bound map size.
-// Called periodically during status updates.
-func (t *Task) pruneMotionMap(execId int32) {
+// motionInfoAndPrune returns the state tag for motion segment id and, in the
+// SAME lock, prunes entries older than id. BuildStat calls this once per status
+// cycle instead of the separate lookupMotionLine (×2) + lookupMotionInfo +
+// pruneMotionMap acquisitions it used to make (four t.mu round-trips → one).
+func (t *Task) motionInfoAndPrune(id int32) (motionInfo, bool) {
 	t.mu.Lock()
-	for id := range t.motionMap {
-		if id < execId {
-			delete(t.motionMap, id)
+	info, ok := t.motionMap[id]
+	for k := range t.motionMap {
+		if k < id {
+			delete(t.motionMap, k)
+		}
+	}
+	t.mu.Unlock()
+	return info, ok
+}
+
+// tagMotionRange attaches the active-code state tag to every motion segment
+// whose serial id is in [startID, endID) — the segments queued while the
+// interpreter executed one source line. Codes are captured after that line's
+// execute (their modal state), completing the id → state_tag mapping.
+func (t *Task) tagMotionRange(startID, endID int32, gcodes, mcodes []int32, settings []float64) {
+	if endID <= startID {
+		return
+	}
+	t.mu.Lock()
+	for id := startID; id < endID; id++ {
+		if info, ok := t.motionMap[id]; ok {
+			info.Gcodes, info.Mcodes, info.Settings = gcodes, mcodes, settings
+			t.motionMap[id] = info
 		}
 	}
 	t.mu.Unlock()
@@ -420,14 +541,22 @@ func (t *Task) operatorError(text string) {
 }
 
 // updateActiveCodes fetches the interpreter's active G/M codes and settings
-// and stores them in the task state for stat reporting.
-func (t *Task) updateActiveCodes(interp Interpreter) {
-	gc := interp.ActiveGCodes()
-	mc := interp.ActiveMCodes()
-	st := interp.ActiveSettings()
+// and stores them in the task state for stat reporting. It also republishes
+// the canon state snapshot and call level — this is the single point where
+// interpreter/canon state becomes visible to stat consumers, so it must be
+// called by whoever owns the interpreter after anything that may have changed
+// that state (execute, reset).
+func (t *Task) updateActiveCodes(interp Interpreter) (gc, mc []int32, st []float64) {
+	gc = interp.ActiveGCodes()
+	mc = interp.ActiveMCodes()
+	st = interp.ActiveSettings()
+	cl := int32(interp.CallLevel())
 	t.mu.Lock()
 	t.activeGcodes = gc
 	t.activeMcodes = mc
 	t.activeSettings = st
+	t.callLevel = cl
+	t.canonSnap = *t.canon.state
 	t.mu.Unlock()
+	return gc, mc, st
 }

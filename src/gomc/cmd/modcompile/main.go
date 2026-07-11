@@ -48,6 +48,7 @@ import (
 	"github.com/sittner/linuxcnc/src/gomc/internal/config"
 	gmiast "github.com/sittner/linuxcnc/src/gomc/internal/gmicompile/ast"
 	gmicgen "github.com/sittner/linuxcnc/src/gomc/internal/gmicompile/cgen"
+	gmicheck "github.com/sittner/linuxcnc/src/gomc/internal/gmicompile/check"
 	gmiparser "github.com/sittner/linuxcnc/src/gomc/internal/gmicompile/parser"
 	"github.com/sittner/linuxcnc/src/gomc/internal/modcompile/ast"
 	"github.com/sittner/linuxcnc/src/gomc/internal/modcompile/cgen"
@@ -1198,6 +1199,13 @@ func processGMIFile(file string, m gmiMode, outputPath string) error {
 
 	if api.License == "" {
 		return fmt.Errorf("%s: missing required @license annotation", file)
+	}
+
+	if errs := gmicheck.Validate(api); len(errs) > 0 {
+		for _, e := range errs {
+			fmt.Fprintln(os.Stderr, e)
+		}
+		return fmt.Errorf("%s: constraint validation failed", file)
 	}
 
 	switch m {

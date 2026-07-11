@@ -418,3 +418,100 @@ func register_oword(name: string, fn: oword_fn, user: ptr) -> i32
 		t.Error("cb.Params[0].IsPtr = false, want true")
 	}
 }
+
+func TestParseFieldConstraints(t *testing.T) {
+	src := `@api test
+@version 1
+
+type ToolEntry {
+    toolno:   i32    @min(1) @max(99999)
+    diameter: f64    @min(0.5)
+    comment:  string @maxlen(255) @regex("^[a-z]+$")
+    label:    string @notempty
+    note:     string?
+}
+
+@method "PUT"
+@path "/{toolno}"
+func put_tool(toolno: i32 @min(1), entry: ToolEntry) -> i32
+`
+	api, errors := Parse("test.gmi", src)
+	if len(errors) > 0 {
+		t.Fatalf("Parse errors: %v", errors)
+	}
+
+	fields := api.Types[0].Fields
+	if len(fields) != 5 {
+		t.Fatalf("len(Fields) = %d, want 5", len(fields))
+	}
+
+	// toolno: i32 @min(1) @max(99999)
+	if got := fields[0].Constraints; len(got) != 2 {
+		t.Fatalf("toolno constraints = %d, want 2", len(got))
+	}
+	if fields[0].Constraints[0].Kind != ast.ConstraintMin || fields[0].Constraints[0].Num != "1" {
+		t.Errorf("toolno[0] = %+v, want min(1)", fields[0].Constraints[0])
+	}
+	if fields[0].Constraints[1].Kind != ast.ConstraintMax || fields[0].Constraints[1].Num != "99999" {
+		t.Errorf("toolno[1] = %+v, want max(99999)", fields[0].Constraints[1])
+	}
+
+	// diameter: f64 @min(0.5) — exercises the FLOAT token
+	if got := fields[1].Constraints; len(got) != 1 || got[0].Kind != ast.ConstraintMin || got[0].Num != "0.5" {
+		t.Errorf("diameter constraints = %+v, want [min(0.5)]", got)
+	}
+
+	// comment: string @maxlen(255) @regex("^[a-z]+$")
+	cc := fields[2].Constraints
+	if len(cc) != 2 {
+		t.Fatalf("comment constraints = %d, want 2", len(cc))
+	}
+	if cc[0].Kind != ast.ConstraintMaxLen || cc[0].Num != "255" {
+		t.Errorf("comment[0] = %+v, want maxlen(255)", cc[0])
+	}
+	if cc[1].Kind != ast.ConstraintRegex || cc[1].Str != "^[a-z]+$" {
+		t.Errorf("comment[1] = %+v, want regex(^[a-z]+$)", cc[1])
+	}
+
+	// label: string @notempty
+	if got := fields[3].Constraints; len(got) != 1 || got[0].Kind != ast.ConstraintNotEmpty {
+		t.Errorf("label constraints = %+v, want [notempty]", got)
+	}
+
+	// note: string? — no constraints
+	if got := fields[4].Constraints; len(got) != 0 {
+		t.Errorf("note constraints = %+v, want none", got)
+	}
+
+	// Param constraint alongside a param mode-free type.
+	fn := api.Funcs[0]
+	if got := fn.Params[0].Constraints; len(got) != 1 || got[0].Kind != ast.ConstraintMin || got[0].Num != "1" {
+		t.Errorf("put_tool param toolno constraints = %+v, want [min(1)]", got)
+	}
+	if got := fn.Params[1].Constraints; len(got) != 0 {
+		t.Errorf("put_tool param entry constraints = %+v, want none", got)
+	}
+}
+
+func TestParseConstraintByRefOrder(t *testing.T) {
+	// Constraints follow the byref/out/ptr mode keyword.
+	src := `@api test
+@version 1
+
+func f(x: i32 byref @min(0), y: i32 @max(10)) -> i32
+`
+	api, errors := Parse("test.gmi", src)
+	if len(errors) > 0 {
+		t.Fatalf("Parse errors: %v", errors)
+	}
+	fn := api.Funcs[0]
+	if !fn.Params[0].ByRef {
+		t.Error("Params[0].ByRef = false, want true")
+	}
+	if got := fn.Params[0].Constraints; len(got) != 1 || got[0].Kind != ast.ConstraintMin {
+		t.Errorf("Params[0].Constraints = %+v, want [min]", got)
+	}
+	if got := fn.Params[1].Constraints; len(got) != 1 || got[0].Kind != ast.ConstraintMax {
+		t.Errorf("Params[1].Constraints = %+v, want [max]", got)
+	}
+}

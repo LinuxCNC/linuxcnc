@@ -278,6 +278,8 @@ class Stat:
             "block_delete": ("block_delete", 0),
             "task_paused": ("task_paused", 0),
             "g5x_index": ("g5x_index", 0),
+            "call_level": ("call_level", 0),
+            "input_timeout": ("input_timeout", 0),
         }
         if name in _TASK_MAP:
             key, default = _TASK_MAP[name]
@@ -371,6 +373,7 @@ class Stat:
             "state": ("state", 0),
             "rotation_xy": ("rotation_xy", 0.0),
             "debug": ("debug", 0),
+            "heartbeat": ("heartbeat", 0),
         }
         if name in _SCALAR_MAP:
             key, default = _SCALAR_MAP[name]

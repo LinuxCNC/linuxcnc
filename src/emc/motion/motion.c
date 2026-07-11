@@ -1081,7 +1081,13 @@ static int init_hal_io(motmod_inst_t *inst)
     CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, (gomc_hal_bit_t **)&(inst->hal_data->enable), inst->comp_id, PFMT("motion.enable")));
     CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(inst->hal_data->is_all_homed), inst->comp_id, PFMT("motion.is-all-homed")));
 
-    /* state tags pins */
+    /* Commanded-feed pins. NOTE: the 2.9 motion.feed-upm pin (feed in G-code
+     * program units/min, derived from the state-tag units flag) was intentionally
+     * dropped: motion now works in internal mm, and the units flag no longer
+     * travels with the move. These per-minute/second pins carry the feed in true
+     * physical units. A consumer that needs "program units" (e.g. plasmac) should
+     * net the pin matching the machine's native units — feed-mm-per-minute for a
+     * metric machine, feed-inches-per-minute for an imperial one. */
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_inches_per_minute), inst->comp_id, PFMT("motion.feed-inches-per-minute")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_inches_per_second), inst->comp_id, PFMT("motion.feed-inches-per-second")));
     CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &(inst->hal_data->feed_mm_per_minute), inst->comp_id, PFMT("motion.feed-mm-per-minute")));

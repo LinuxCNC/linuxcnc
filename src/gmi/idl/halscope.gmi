@@ -43,7 +43,7 @@ enum HalType {
 }
 
 type ChannelConfig {
-    channel: i32
+    channel: i32 @min(0) @max(15)
     pinName: string
 }
 
@@ -55,7 +55,7 @@ type ChannelInfo {
 }
 
 type TriggerConfig {
-    channel: i32
+    channel: i32 @min(-1) @max(15)
     level: f64
     edge: TrigEdge
     autoTrig: bool
@@ -63,9 +63,8 @@ type TriggerConfig {
 
 type CaptureConfig {
     threadName: string
-    maxChannels: i32
-    samplePeriodMult: i32
-    preTrig: i32
+    maxChannels: i32 @max(16)
+    samplePeriodMult: i32 @min(1)
 }
 
 type ChannelOption {
@@ -120,7 +119,7 @@ func set_channel(ch: ChannelConfig) -> i32
 # Remove a channel from the capture set.
 @method DELETE
 @path "/channel/{channel}"
-func clear_channel(channel: i32) -> i32
+func clear_channel(channel: i32 @min(0) @max(15)) -> i32
 
 # Set trigger parameters.
 @method POST

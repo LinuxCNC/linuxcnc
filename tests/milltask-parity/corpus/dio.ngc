@@ -1,0 +1,13 @@
+; Synchronized (M62/M63/M67, now=0) vs immediate (M64/M65/M68, now=1) I/O.
+G21 G90 G94
+G0 X0 Y0 Z0
+M64 P0              ; immediate digital out 0 ON  (now=1)
+M62 P1              ; synched  digital out 1 ON  (now=0, at next move)
+G1 X10 F600         ; the move M62 syncs to
+M63 P1              ; synched  digital out 1 OFF (now=0)
+M65 P0              ; immediate digital out 0 OFF (now=1)
+G1 X0
+M68 E0 Q5.5         ; immediate analog out 0 = 5.5 (now=1)
+M67 E1 Q2.5         ; synched  analog out 1 = 2.5 (now=0)
+G1 X5
+M2

@@ -34,6 +34,8 @@ type Interpreter interface {
 	Line() int
 	// SequenceNumber returns the current N-word sequence number.
 	SequenceNumber() int
+	// CallLevel returns the interpreter subroutine nesting level (0 = top).
+	CallLevel() int
 	// ErrorText returns the error text for a given return code.
 	ErrorText(errcode int) string
 	// FileName returns the currently open file name.

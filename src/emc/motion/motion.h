@@ -268,7 +268,7 @@ extern "C" {
     double maxFeedScale;
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
-    double feed_upm;        /* programmed feed rate in G-code units per minute */
+    double feed_mm_per_min;        /* commanded feed rate in mm/min (canon works in internal mm) */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -624,7 +624,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by G-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by G-code */
 	int misc_error[EMCMOT_MAX_MISC_ERROR]; /* Random Error pins*/
-	double feed_upm; /* programmed feed rate of executing motion in G-code units/min */
+	double feed_mm_per_min; /* commanded feed rate of executing motion in mm/min */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

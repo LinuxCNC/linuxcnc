@@ -17,6 +17,7 @@ const (
 	// Literals
 	IDENT
 	INT
+	FLOAT
 	STRING
 
 	// Keywords
@@ -188,7 +189,16 @@ func (s *Scanner) scanNumber(line, col int) Token {
 	for s.pos < len(s.src) && unicode.IsDigit(s.src[s.pos]) {
 		s.advance()
 	}
-	return Token{INT, string(s.src[start:s.pos]), line, col}
+	typ := INT
+	// Fractional part: a '.' followed by digits makes this a FLOAT literal.
+	if s.pos+1 < len(s.src) && s.src[s.pos] == '.' && unicode.IsDigit(s.src[s.pos+1]) {
+		typ = FLOAT
+		s.advance() // consume '.'
+		for s.pos < len(s.src) && unicode.IsDigit(s.src[s.pos]) {
+			s.advance()
+		}
+	}
+	return Token{typ, string(s.src[start:s.pos]), line, col}
 }
 
 func (s *Scanner) scanString(line, col int) Token {

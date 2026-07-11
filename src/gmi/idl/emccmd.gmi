@@ -10,6 +10,14 @@
 @prefix emccmd
 @rest_export true
 
+# ─── Range bounds ───
+# Max valid indices, = EMCMOT_MAX_* - 1. Defined once so the @max literals on the
+# spindle/joint commands below are not hand-typed at every site (the authoritative
+# check against the *configured* count lives in the task layer). Keep in sync with
+# EMCMOT_MAX_SPINDLES / EMCMOT_MAX_JOINTS in src/emc/motion/motion.h.
+const MAX_SPINDLE_INDEX = 7
+const MAX_JOINT_INDEX = 15
+
 # ─── Enums ───
 
 # Auto command sub-type (linuxcnc.AUTO_*)
@@ -27,6 +35,7 @@ enum JogType {
     JOG_STOP = 0
     JOG_CONTINUOUS = 1
     JOG_INCREMENT = 2
+    JOG_ABSOLUTE = 3
 }
 
 # Spindle command direction (linuxcnc.SPINDLE_*)
@@ -59,9 +68,9 @@ func auto_cmd(cmd: AutoCmd, line: i32) -> i32
 # Execute MDI command string
 @method "POST"
 @path "/mdi"
-func mdi(command: string) -> i32
+func mdi(command: string @maxlen(254)) -> i32
 
-# Jog axis or joint
+# Jog axis or joint. For JOG_ABSOLUTE, `distance` is the absolute target position.
 @method "POST"
 @path "/jog"
 func jog(jog_type: JogType, jjogmode: bool, axis_or_joint: i32, velocity: f64, distance: f64) -> i32
@@ -74,22 +83,25 @@ func jog_stop(jjogmode: bool, axis_or_joint: i32) -> i32
 # Spindle control
 @method "POST"
 @path "/spindle"
-func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32, wait: i32) -> i32
+# spindle_num -1 = all spindles (broadcast); 0..EMCMOT_MAX_SPINDLES-1 select one.
+# The authoritative range check against the *configured* numSpindles is in the
+# task layer (Task.Spindle); this bound only rejects wildly out-of-range indices.
+func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32 @min(-1) @max(MAX_SPINDLE_INDEX), wait: i32) -> i32
 
 # Home a joint (-1 = all)
 @method "POST"
 @path "/home"
-func home(joint: i32) -> i32
+func home(joint: i32 @max(MAX_JOINT_INDEX)) -> i32
 
 # Unhome a joint (-1 = all)
 @method "POST"
 @path "/unhome"
-func unhome(joint: i32) -> i32
+func unhome(joint: i32 @max(MAX_JOINT_INDEX)) -> i32
 
-# Override soft limits
+# Override soft limits for a joint (joint < 0 resumes normal limit checking)
 @method "POST"
 @path "/override-limits"
-func override_limits() -> i32
+func override_limits(joint: i32 @max(MAX_JOINT_INDEX)) -> i32
 
 # Enable/disable teleop mode
 @method "POST"
@@ -99,22 +111,39 @@ func teleop_enable(enable: bool) -> i32
 # Set feed override (0.0 - 1.0+)
 @method "POST"
 @path "/feed-override"
-func set_feed_override(rate: f64) -> i32
+func set_feed_override(rate: f64 @min(0)) -> i32
 
 # Set spindle speed override (0.0 - 1.0+)
 @method "POST"
 @path "/spindle-override"
-func set_spindle_override(rate: f64, spindle_num: i32) -> i32
+# spindle_num -1 = all spindles (broadcast). Task layer validates against the
+# configured numSpindles (Task.SetSpindleOverride).
+func set_spindle_override(rate: f64 @min(0), spindle_num: i32 @min(-1) @max(MAX_SPINDLE_INDEX)) -> i32
 
 # Set rapid override (0.0 - 1.0)
 @method "POST"
 @path "/rapid-override"
-func set_rapid_override(rate: f64) -> i32
+func set_rapid_override(rate: f64 @min(0)) -> i32
 
 # Set maximum velocity
 @method "POST"
 @path "/max-velocity"
-func set_max_velocity(velocity: f64) -> i32
+func set_max_velocity(velocity: f64 @min(0)) -> i32
+
+# Enable/disable feed override (GUI toggle; EMC_TRAJ_SET_FO_ENABLE)
+@method "POST"
+@path "/feed-override-enable"
+func set_fo_enable(enable: bool) -> i32
+
+# Enable/disable feed hold (EMC_TRAJ_SET_FH_ENABLE)
+@method "POST"
+@path "/feed-hold-enable"
+func set_fh_enable(enable: bool) -> i32
+
+# Enable/disable spindle-speed override (EMC_TRAJ_SET_SO_ENABLE)
+@method "POST"
+@path "/spindle-override-enable"
+func set_so_enable(enable: bool, spindle_num: i32 @min(0) @max(MAX_SPINDLE_INDEX)) -> i32
 
 # Flood coolant on/off
 @method "POST"
@@ -129,7 +158,7 @@ func mist(on: bool) -> i32
 # Spindle brake engage/release
 @method "POST"
 @path "/brake"
-func brake(on: bool, spindle_num: i32) -> i32
+func brake(on: bool, spindle_num: i32 @min(0) @max(MAX_SPINDLE_INDEX)) -> i32
 
 # Lube on/off
 @method "POST"
@@ -156,10 +185,15 @@ func set_optional_stop(on: bool) -> i32
 @path "/block-delete"
 func set_block_delete(on: bool) -> i32
 
-# Reload tool table from file
+# Reload tool table from file (empty string = default table)
 @method "POST"
 @path "/load-tool-table"
-func load_tool_table() -> i32
+func load_tool_table(file: string) -> i32
+
+# Unload the tool from the spindle (EMC_TOOL_UNLOAD)
+@method "POST"
+@path "/tool-unload"
+func tool_unload() -> i32
 
 # Open a program file
 @method "POST"
@@ -169,7 +203,7 @@ func program_open(file: string) -> i32
 # Wait for command completion (returns RCS_DONE=2, RCS_ERROR=1, or -1 on timeout)
 @method "POST"
 @path "/wait-complete"
-func wait_complete(timeout: f64) -> i32
+func wait_complete(timeout: f64 @min(0)) -> i32
 
 # Set debug level (bitmask of DEBUG_* flags)
 @method "POST"
@@ -179,19 +213,19 @@ func set_debug(debug: i32) -> i32
 # Set selected jog axis (0=X .. 8=W, -1=none)
 @method "POST"
 @path "/jog-axis"
-func set_jog_axis(axis: i32) -> i32
+func set_jog_axis(axis: i32 @min(-1) @max(8)) -> i32
 
 # Set jog increment (0 = continuous)
 @method "POST"
 @path "/jog-increment"
-func set_jog_increment(increment: f64) -> i32
+func set_jog_increment(increment: f64 @min(0)) -> i32
 
 # Set linear jog speed (units/sec)
 @method "POST"
 @path "/jog-speed"
-func set_jog_speed(speed: f64) -> i32
+func set_jog_speed(speed: f64 @min(0)) -> i32
 
 # Set angular jog speed (deg/sec)
 @method "POST"
 @path "/ajog-speed"
-func set_ajog_speed(speed: f64) -> i32
+func set_ajog_speed(speed: f64 @min(0)) -> i32

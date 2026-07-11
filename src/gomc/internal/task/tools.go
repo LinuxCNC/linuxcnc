@@ -108,7 +108,7 @@ func (t *toolsImpl) DeleteTool(toolno int32) (*tools.CmdResult, error) {
 }
 
 func (t *toolsImpl) ReloadTools() (*tools.CmdResult, error) {
-	_, err := t.module.LoadToolTable()
+	_, err := t.module.LoadToolTable("")
 	if err != nil {
 		return nil, fmt.Errorf("failed to reload tool table: %v", err)
 	}

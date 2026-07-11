@@ -1,0 +1,13 @@
+; Per-axis velocity/acceleration blending (regression H1).
+; With non-uniform axis limits, each move's vel/ini_maxvel/acc should be
+; limited by the participating axes. Pure-Z, diagonal-XY, and full-XYZ moves
+; must each yield a distinct blended limit in the reference (C++) canon.
+G21 G90 G94 G17
+G0 X0 Y0 Z5
+G1 Z0 F600          ; pure Z (slow axis) — reference caps at Z limit
+G1 X20 F600         ; pure X (fast axis)
+G1 Y20 F600         ; pure Y
+G1 X0 Y0 F1200      ; diagonal XY
+G1 X30 Y15 Z-10 F1500 ; full XYZ, Z-dominated
+G0 Z5
+M2

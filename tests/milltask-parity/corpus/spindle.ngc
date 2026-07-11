@@ -1,0 +1,13 @@
+; Spindle: initial speed, mid-program speed change while running (regression H6),
+; and CSS G96 (regression H4). Watch SPINDLE_ON css_factor / mid-run SET speed.
+G21 G90 G94
+M3 S1000            ; spindle on CW at 1000 rpm
+G0 X0 Y0 Z5
+G1 Z0 F300
+S2000               ; change speed WHILE running (H6: should retune spindle)
+G1 X10 F600
+G96 D3000 S200      ; constant surface speed 200, cap 3000 (H4: css_factor != 0)
+G1 X20
+G97 S1500           ; back to rpm mode
+M5
+M2

@@ -117,6 +117,14 @@ func (g *clientTSGen) emitClient() {
 	g.printf("  }\n")
 	g.printf("}\n\n")
 
+	// ValidationError class — thrown client-side (collect-all) before a request.
+	g.printf("export class ValidationError extends Error {\n")
+	g.printf("  constructor(public readonly errors: string[]) {\n")
+	g.printf("    super('validation failed: ' + errors.join('; '));\n")
+	g.printf("    this.name = 'ValidationError';\n")
+	g.printf("  }\n")
+	g.printf("}\n\n")
+
 	// Client class
 	g.printf("export class %s {\n", className)
 	g.printf("  private readonly baseUrl: string;\n\n")
@@ -178,6 +186,11 @@ func (g *clientTSGen) emitClientMethod(fn ast.Func) {
 	params := g.methodParams(fn)
 	retType := g.methodReturnType(fn)
 	g.printf("  async %s(%s): Promise<%s> {\n", methodName, params, retType)
+
+	// Client-side collect-all validation of IDL @constraints.
+	if v := clientValidation(tsLang{}, fn, g.api); v != "" {
+		g.printf("%s", spaceIndent(v, 2, 2))
+	}
 
 	// Build path
 	path := fn.Path

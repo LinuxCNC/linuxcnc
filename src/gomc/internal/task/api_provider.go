@@ -25,7 +25,7 @@ const (
 )
 
 func (m *milltaskModule) ready() error {
-	if m.task == nil || m.stopped {
+	if m.task == nil || m.stopped.Load() {
 		return errNotReady
 	}
 	return nil
@@ -96,11 +96,11 @@ func (m *milltaskModule) Unhome(joint int32) (int32, error) {
 	return rcsDone, m.task.Unhome(joint)
 }
 
-func (m *milltaskModule) OverrideLimits() (int32, error) {
+func (m *milltaskModule) OverrideLimits(joint int32) (int32, error) {
 	if err := m.ready(); err != nil {
 		return rcsError, err
 	}
-	return rcsDone, m.task.OverrideLimits()
+	return rcsDone, m.task.OverrideLimits(joint)
 }
 
 func (m *milltaskModule) TeleopEnable(enable bool) (int32, error) {
@@ -136,6 +136,27 @@ func (m *milltaskModule) SetMaxVelocity(velocity float64) (int32, error) {
 		return rcsError, err
 	}
 	return rcsDone, m.task.SetMaxVelocity(velocity)
+}
+
+func (m *milltaskModule) SetFoEnable(enable bool) (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.SetFeedOverrideEnable(enable)
+}
+
+func (m *milltaskModule) SetFhEnable(enable bool) (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.SetFeedHoldEnable(enable)
+}
+
+func (m *milltaskModule) SetSoEnable(enable bool, spindleNum int32) (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.SetSpindleOverrideEnable(enable, spindleNum)
 }
 
 func (m *milltaskModule) Flood(on bool) (int32, error) {
@@ -194,11 +215,18 @@ func (m *milltaskModule) SetBlockDelete(on bool) (int32, error) {
 	return rcsDone, m.task.SetBlockDelete(on)
 }
 
-func (m *milltaskModule) LoadToolTable() (int32, error) {
+func (m *milltaskModule) LoadToolTable(file string) (int32, error) {
 	if err := m.ready(); err != nil {
 		return rcsError, err
 	}
-	return rcsDone, m.task.LoadToolTable()
+	return rcsDone, m.task.LoadToolTable(file)
+}
+
+func (m *milltaskModule) ToolUnload() (int32, error) {
+	if err := m.ready(); err != nil {
+		return rcsError, err
+	}
+	return rcsDone, m.task.ToolUnload()
 }
 
 func (m *milltaskModule) ProgramOpen(file string) (int32, error) {

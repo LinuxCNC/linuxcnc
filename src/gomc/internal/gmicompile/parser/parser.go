@@ -232,10 +232,82 @@ func (p *Parser) parseType() ast.Type {
 		p.advance()
 		p.expect(COLON)
 		ftype := p.parseTypeRef()
-		typ.Fields = append(typ.Fields, ast.Field{Name: fname, Type: ftype, Pos: fpos})
+		constraints := p.parseConstraints()
+		typ.Fields = append(typ.Fields, ast.Field{Name: fname, Type: ftype, Constraints: constraints, Pos: fpos})
 	}
 	p.expect(RBRACE)
 	return typ
+}
+
+// parseConstraints reads zero or more inline @constraints that follow a field
+// or parameter type, e.g.  toolno: i32 @min(1) @max(99999)
+func (p *Parser) parseConstraints() []ast.Constraint {
+	var cs []ast.Constraint
+	for p.cur.Type == AT {
+		cpos := p.pos()
+		p.advance() // skip @
+		name := p.cur.Text
+		p.advance()
+		c := ast.Constraint{Pos: cpos}
+		switch name {
+		case "min":
+			c.Kind, c.Num = ast.ConstraintMin, p.constraintNum()
+		case "max":
+			c.Kind, c.Num = ast.ConstraintMax, p.constraintNum()
+		case "minlen":
+			c.Kind, c.Num = ast.ConstraintMinLen, p.constraintNum()
+		case "maxlen":
+			c.Kind, c.Num = ast.ConstraintMaxLen, p.constraintNum()
+		case "notempty":
+			c.Kind = ast.ConstraintNotEmpty
+		case "notnull":
+			c.Kind = ast.ConstraintNotNull
+		case "regex":
+			c.Kind, c.Str = ast.ConstraintRegex, p.constraintStr()
+		case "enum_open":
+			c.Kind = ast.ConstraintEnumOpen
+		default:
+			p.errorf("unknown constraint @%s", name)
+			continue
+		}
+		cs = append(cs, c)
+	}
+	return cs
+}
+
+// constraintNum parses a parenthesized numeric argument: (INT|FLOAT|const-name).
+// A named const (e.g. @max(MAX_SPINDLE_INDEX)) resolves to its integer value so a
+// bound literal can be defined once instead of hand-typed at every site.
+func (p *Parser) constraintNum() string {
+	p.expect(LPAREN)
+	var v string
+	switch p.cur.Type {
+	case INT, FLOAT:
+		v = p.cur.Text
+	case IDENT:
+		val, ok := p.consts[p.cur.Text]
+		if !ok {
+			p.errorf("undefined constant %q in constraint", p.cur.Text)
+		}
+		v = strconv.Itoa(val)
+	default:
+		p.errorf("constraint argument must be numeric or a constant, got %q", p.cur.Text)
+	}
+	p.advance()
+	p.expect(RPAREN)
+	return v
+}
+
+// constraintStr parses a parenthesized string-literal argument (for @regex).
+func (p *Parser) constraintStr() string {
+	p.expect(LPAREN)
+	if p.cur.Type != STRING {
+		p.errorf("constraint argument must be a string literal, got %q", p.cur.Text)
+	}
+	v := p.cur.Text
+	p.advance()
+	p.expect(RPAREN)
+	return v
 }
 
 func (p *Parser) parseCallback() ast.Callback {
@@ -374,7 +446,8 @@ func (p *Parser) parseFunc(anns []annotation) ast.Func {
 			isPtr = true
 			p.advance()
 		}
-		fn.Params = append(fn.Params, ast.Param{Name: pname, Type: ptype, ByRef: byref, IsOut: isOut, IsPtr: isPtr, Pos: ppos})
+		constraints := p.parseConstraints()
+		fn.Params = append(fn.Params, ast.Param{Name: pname, Type: ptype, ByRef: byref, IsOut: isOut, IsPtr: isPtr, Constraints: constraints, Pos: ppos})
 		if p.cur.Type == COMMA {
 			p.advance()
 		}

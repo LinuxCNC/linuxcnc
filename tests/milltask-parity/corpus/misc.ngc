@@ -1,0 +1,15 @@
+; Dwell timing (regression M5), feed-per-rev G95 (regression H5), tool change.
+G21 G90 G94 G17
+T1 M6               ; tool change (tool-change-position move? regression M7)
+G43
+G0 X0 Y0 Z5
+G1 Z0 F400
+G4 P0.5             ; dwell — should occur AT the point, after motion drains
+G1 X10 F600
+G95 F0.1            ; feed per rev (needs spindle) — H5
+M3 S500
+G1 X20
+G94                 ; back to per-minute
+G0 Z5
+T2 M6
+M2

@@ -55,7 +55,8 @@ func (m *mockIOWithStatus) clearError() {
 // mockStatusWithError extends mockStatus with configurable error state.
 type mockStatusWithError struct {
 	mu            sync.Mutex
-	commandStatus int32 // 3 = RCS_ERROR
+	enabled       int32 // motion self-enabled flag; 0 => checkMotionEnabled fires
+	commandStatus int32 // cmd_status_t (motion.h): >=2 = rejected motion command
 	onSoftLimit   int32
 	joints        [16]motstat.JointStatus
 }
@@ -64,11 +65,21 @@ func (m *mockStatusWithError) GetStatus() (motstat.MotionStatus, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	ms := motstat.MotionStatus{
+		Enabled:       m.enabled,
 		CommandStatus: m.commandStatus,
 		OnSoftLimit:   m.onSoftLimit,
 	}
 	ms.Joints = m.joints
 	return ms, nil
+}
+
+// setEnabled sets the motion self-enabled flag. Error-detection tests set it to
+// 1 so checkMotionEnabled stays quiet and the abort is attributable to the
+// injected error rather than the Enabled==0 self-disable path.
+func (m *mockStatusWithError) setEnabled(v int32) {
+	m.mu.Lock()
+	m.enabled = v
+	m.mu.Unlock()
 }
 func (m *mockStatusWithError) GetPosCmd() (motstat.Pose, error)  { return motstat.Pose{}, nil }
 func (m *mockStatusWithError) GetPosFb() (motstat.Pose, error)   { return motstat.Pose{}, nil }
@@ -77,10 +88,12 @@ func (m *mockStatusWithError) GetExecId() (int32, error)         { return 0, nil
 func (m *mockStatusWithError) GetQueueDepth() (int32, error)     { return 0, nil }
 func (m *mockStatusWithError) GetCommandNumEcho() (int32, error) { return 0, nil }
 func (m *mockStatusWithError) GetCommandStatus() (int32, error)  { return 0, nil }
+func (m *mockStatusWithError) GetSynchDi(int32) (int32, error)       { return 0, nil }
+func (m *mockStatusWithError) GetAnalogInput(int32) (float64, error) { return 0, nil }
 
 func (m *mockStatusWithError) setMotionError() {
 	m.mu.Lock()
-	m.commandStatus = 3 // RCS_ERROR
+	m.commandStatus = 3 // INVALID_PARAMS: a rejected motion command (cmd_status_t >= 2)
 	m.mu.Unlock()
 }
 
@@ -171,6 +184,33 @@ func newMonitorTestTask() (*Task, *trackingMotion, *mockIOWithStatus, *mockStatu
 	return t, mot, io, stat, ep
 }
 
+// waitForCond polls cond every 2ms until it returns true or the deadline
+// elapses, returning cond's final value. Used to synchronize on a monitor
+// handler's LAST-set signal, so all of the handler's side effects are complete
+// before the test asserts them (the handlers set state/counters/errors in
+// sequence, not atomically).
+func waitForCond(d time.Duration, cond func() bool) bool {
+	deadline := time.Now().Add(d)
+	for {
+		if cond() {
+			return true
+		}
+		if !time.Now().Before(deadline) {
+			return false
+		}
+		time.Sleep(2 * time.Millisecond)
+	}
+}
+
+// waitExecState polls until task.execState == want (read under the task lock).
+func waitExecState(task *Task, want ExecState, d time.Duration) bool {
+	return waitForCond(d, func() bool {
+		task.mu.Lock()
+		defer task.mu.Unlock()
+		return task.execState == want
+	})
+}
+
 func TestMonitor_ExternalEstop(t *testing.T) {
 	task, mot, io, stat, ep := newMonitorTestTask()
 	_ = stat
@@ -195,16 +235,20 @@ func TestMonitor_ExternalEstop(t *testing.T) {
 	// Trigger external estop.
 	io.setEstop(true)
 
-	// Wait for monitor to detect it (max 50ms).
-	deadline := time.Now().Add(50 * time.Millisecond)
-	for time.Now().Before(deadline) {
-		task.mu.Lock()
-		s := task.state
-		task.mu.Unlock()
-		if s == StateEstop {
-			break
+	// checkEstop sets state=StateEstop FIRST, then aborts/disables/unhomes/stops
+	// spindles and publishes the operator error LAST. Synchronize on that last
+	// signal so every side effect below is guaranteed complete (polling on the
+	// early state==StateEstop was the source of this test's flakiness).
+	estopHandled := waitForCond(500*time.Millisecond, func() bool {
+		for _, e := range ep.getErrors() {
+			if e == "External E-Stop asserted" {
+				return true
+			}
 		}
-		time.Sleep(2 * time.Millisecond)
+		return false
+	})
+	if !estopHandled {
+		t.Fatal("external estop not fully handled: no 'External E-Stop asserted' within deadline")
 	}
 
 	// Verify state transitioned to ESTOP.
@@ -218,6 +262,16 @@ func TestMonitor_ExternalEstop(t *testing.T) {
 	}
 	if interpState != InterpIdle {
 		t.Fatalf("expected InterpIdle, got %d", interpState)
+	}
+
+	// C11: an external estop must turn lube off and clear lubeOn, matching the
+	// commanded estop/off teardown (which it now shares via machineShutdown's
+	// stopSignals). Machine-on set lubeOn=true; the estop must clear it.
+	task.mu.Lock()
+	lubeOn := task.lubeOn
+	task.mu.Unlock()
+	if lubeOn {
+		t.Error("expected lubeOn=false after external estop (C11: lube left on)")
 	}
 
 	// Verify motion was aborted and disabled.
@@ -392,6 +446,11 @@ func TestMonitor_MachineOff_EstopSilent(t *testing.T) {
 func TestMonitor_MotionError(t *testing.T) {
 	task, mot, io, stat, _ := newMonitorTestTask()
 
+	// Keep motion self-enabled so checkMotionEnabled stays quiet; otherwise the
+	// Enabled==0 self-disable path would abort on the very first tick and this
+	// test would pass regardless of whether the motion-error path works at all.
+	stat.setEnabled(1)
+
 	// Bring to ON.
 	task.SetState(int32(StateEstopReset))
 	task.SetState(int32(StateOn))
@@ -401,25 +460,69 @@ func TestMonitor_MotionError(t *testing.T) {
 	mon.start()
 	defer mon.stop()
 
-	// Trigger motion error.
+	// Trigger a rejected motion command (cmd_status_t >= 2).
 	stat.setMotionError()
 
-	// Wait for detection (monitor calls Abort).
-	deadline := time.Now().Add(50 * time.Millisecond)
-	for time.Now().Before(deadline) {
-		if mot.abortCount.Load() > 0 {
-			break
-		}
-		time.Sleep(2 * time.Millisecond)
+	// checkMotionErrors sets ExecError LAST (after abort + spindle-off +
+	// StartSequencer), so synchronizing on it guarantees those side effects are
+	// done — and avoids the transient ExecDone that the aborted old sequencer
+	// briefly sets (the flake).
+	if !waitExecState(task, ExecError, 500*time.Millisecond) {
+		t.Fatal("motion error not handled: execState never reached ExecError")
 	}
 
 	if mot.abortCount.Load() == 0 {
 		t.Fatal("expected motion Abort on motion error")
 	}
-
-	// Verify spindles stopped.
 	if mot.spindleOffs.Load() < 2 {
 		t.Errorf("expected 2 SpindleOff calls, got %d", mot.spindleOffs.Load())
+	}
+	// checkMotionErrors keeps the machine ON; the self-disable path
+	// (checkMotionEnabled) would instead drop to EstopReset. Still-ON proves the
+	// abort came from error detection, not the Enabled==0 fallback the previous
+	// version of this test relied on.
+	task.mu.Lock()
+	gotState := task.state
+	task.mu.Unlock()
+	if gotState != StateOn {
+		t.Errorf("state = %v, want StateOn (abort must come from error detection, not self-disable)", gotState)
+	}
+}
+
+// TestMonitor_MotionDisabled covers the checkMotionEnabled path: motion
+// disabling itself while the task believes the machine is on (following error,
+// amp fault, watchdog, external enable drop) must abort and drop to EstopReset.
+// This is the path the old MotionError/IOError tests accidentally exercised via
+// Enabled==0; it now has an intentional owner.
+func TestMonitor_MotionDisabled(t *testing.T) {
+	task, mot, io, stat, _ := newMonitorTestTask()
+	stat.setEnabled(0) // motion reports itself disabled (no command error injected)
+
+	task.SetState(int32(StateEstopReset))
+	task.SetState(int32(StateOn))
+	task.StartSequencer()
+
+	mon := newMonitor(task, nil, nil, io)
+	mon.start()
+	defer mon.stop()
+
+	// checkMotionEnabled sets ExecError LAST; synchronize on it.
+	if !waitExecState(task, ExecError, 500*time.Millisecond) {
+		t.Fatal("self-disable not handled: execState never reached ExecError")
+	}
+
+	if mot.abortCount.Load() == 0 {
+		t.Fatal("expected Abort when motion disables itself")
+	}
+	if mot.spindleOffs.Load() < 2 {
+		t.Errorf("expected 2 SpindleOff calls, got %d", mot.spindleOffs.Load())
+	}
+	// Unexpected self-disable drops the machine out of ON to EstopReset.
+	task.mu.Lock()
+	gotState := task.state
+	task.mu.Unlock()
+	if gotState != StateEstopReset {
+		t.Errorf("state = %v, want StateEstopReset", gotState)
 	}
 }
 
@@ -475,7 +578,8 @@ func TestMonitor_SoftLimit(t *testing.T) {
 }
 
 func TestMonitor_IOError(t *testing.T) {
-	task, mot, io, _, _ := newMonitorTestTask()
+	task, mot, io, stat, _ := newMonitorTestTask()
+	stat.setEnabled(1) // keep checkMotionEnabled quiet — the abort must come from the IO fault
 
 	// Bring to ON.
 	task.SetState(int32(StateEstopReset))
@@ -489,21 +593,92 @@ func TestMonitor_IOError(t *testing.T) {
 	// Trigger IO error with reason <= 0 (hard fault).
 	io.setError(-1)
 
-	// Wait for detection.
-	deadline := time.Now().Add(50 * time.Millisecond)
-	for time.Now().Before(deadline) {
-		if mot.abortCount.Load() > 0 {
-			break
-		}
-		time.Sleep(2 * time.Millisecond)
+	// Synchronize on the terminal ExecError (set last by checkMotionErrors).
+	if !waitExecState(task, ExecError, 500*time.Millisecond) {
+		t.Fatal("IO hard fault not handled: execState never reached ExecError")
 	}
 
 	if mot.abortCount.Load() == 0 {
-		t.Fatal("expected motion Abort on IO error")
+		t.Fatal("expected motion Abort on IO hard fault")
 	}
-
-	// Verify spindles stopped.
 	if mot.spindleOffs.Load() < 2 {
 		t.Errorf("expected 2 SpindleOff calls, got %d", mot.spindleOffs.Load())
 	}
+	// Same discriminator as MotionError: still ON proves the abort came from
+	// IO-fault detection, not the Enabled==0 self-disable path.
+	task.mu.Lock()
+	gotState := task.state
+	task.mu.Unlock()
+	if gotState != StateOn {
+		t.Errorf("state = %v, want StateOn (abort must come from IO fault, not self-disable)", gotState)
+	}
+}
+
+// TestMonitor_IOSoftFault_NoAbort pins the inverse safety case: an IO fault with
+// reason > 0 is a soft/recoverable fault (e.g. a toolchanger prompt) and must
+// NOT abort the machine. Only reason <= 0 is a hard fault. Without this, a
+// regression that aborted on every soft fault (e.g. every M6) would pass.
+func TestMonitor_IOSoftFault_NoAbort(t *testing.T) {
+	task, mot, io, stat, _ := newMonitorTestTask()
+	stat.setEnabled(1)
+
+	task.SetState(int32(StateEstopReset))
+	task.SetState(int32(StateOn))
+	task.StartSequencer()
+
+	mon := newMonitor(task, nil, nil, io)
+	mon.start()
+	defer mon.stop()
+
+	io.setError(1) // reason > 0: soft fault, must be ignored by the safety monitor
+
+	// Give the monitor several ticks to (wrongly) react, then assert it didn't.
+	time.Sleep(30 * time.Millisecond)
+
+	if got := mot.abortCount.Load(); got != 0 {
+		t.Errorf("soft IO fault (reason>0) must NOT abort, got %d Abort calls", got)
+	}
+	task.mu.Lock()
+	gotState := task.state
+	task.mu.Unlock()
+	if gotState != StateOn {
+		t.Errorf("state = %v, want StateOn (soft fault must not change machine state)", gotState)
+	}
+}
+
+// TestMonitor_EstopDetectionWhileCmdMuHeld pins the safety-loop property the
+// monitor/halui split exists for: external-estop detection and its stop
+// signals must fire even while a command (or a halui-dispatched command in
+// the halui loop) holds cmdMu. Only the teardown *cleanup* is allowed to wait
+// for the lock.
+func TestMonitor_EstopDetectionWhileCmdMuHeld(t *testing.T) {
+	task, mot, io, _, _ := newMonitorTestTask()
+	task.StartSequencer()
+	defer task.StopSequencer()
+	bringUp(task)
+
+	mon := newMonitor(task, nil, nil, io)
+	mon.start()
+
+	// Wedge cmdMu, simulating a long-running command.
+	task.cmdMu.Lock()
+
+	io.setEstop(true)
+
+	// Detection + signal phase must complete without cmdMu: state flips to
+	// ESTOP and motion is aborted+disabled.
+	if !waitForCond(2*time.Second, func() bool {
+		task.mu.Lock()
+		st := task.state
+		task.mu.Unlock()
+		return st == StateEstop && mot.abortCount.Load() > 0 && mot.disableCount.Load() > 0
+	}) {
+		task.cmdMu.Unlock()
+		t.Fatal("estop signals did not fire while cmdMu was held")
+	}
+
+	// Release the "command" — the monitor's cleanup phase (interp reset,
+	// sequencer restart) can now finish and the monitor must shut down cleanly.
+	task.cmdMu.Unlock()
+	mon.stop()
 }

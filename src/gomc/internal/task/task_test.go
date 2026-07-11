@@ -6,18 +6,48 @@ import (
 	"errors"
 	"log/slog"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motstat"
 )
 
 // mockMotion implements MotionController for testing.
+// lastCall is written from concurrent goroutines (signal-class task paths run
+// concurrently with serialized commands by design), so writes are locked.
 type mockMotion struct {
+	mu       sync.Mutex
 	lastCall string
+	calls    []string
+}
+
+func (m *mockMotion) setCall(s string) {
+	m.mu.Lock()
+	m.lastCall = s
+	m.calls = append(m.calls, s)
+	m.mu.Unlock()
+}
+
+func (m *mockMotion) last() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.lastCall
+}
+
+// hasCall reports whether the named motion call was ever made.
+func (m *mockMotion) hasCall(s string) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, c := range m.calls {
+		if c == s {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *mockMotion) SetLine(Pose, float64, float64, float64, int32, int32, float64, int32) error {
-	m.lastCall = "SetLine"
+	m.setCall("SetLine")
 	return nil
 }
 func (m *mockMotion) SetCircle(Pose, Cartesian, Cartesian, int32, float64, float64, float64, int32, int32, float64) error {
@@ -26,66 +56,67 @@ func (m *mockMotion) SetCircle(Pose, Cartesian, Cartesian, int32, float64, float
 func (m *mockMotion) Probe(Pose, float64, float64, float64, int32, uint8, int32, float64) error {
 	return nil
 }
+func (m *mockMotion) ClearProbeFlags() error { m.setCall("ClearProbeFlags"); return nil }
 func (m *mockMotion) RigidTap(Pose, float64, float64, float64, float64, int32, float64) error {
 	return nil
 }
-func (m *mockMotion) Abort() error     { m.lastCall = "Abort"; return nil }
-func (m *mockMotion) Pause() error     { m.lastCall = "Pause"; return nil }
-func (m *mockMotion) Resume() error    { m.lastCall = "Resume"; return nil }
-func (m *mockMotion) Step(int32) error { m.lastCall = "Step"; return nil }
-func (m *mockMotion) Reverse() error   { m.lastCall = "Reverse"; return nil }
-func (m *mockMotion) Forward() error   { m.lastCall = "Forward"; return nil }
-func (m *mockMotion) SetFree() error   { m.lastCall = "SetFree"; return nil }
-func (m *mockMotion) SetCoord() error  { m.lastCall = "SetCoord"; return nil }
-func (m *mockMotion) SetTeleop() error { m.lastCall = "SetTeleop"; return nil }
-func (m *mockMotion) Enable() error    { m.lastCall = "Enable"; return nil }
-func (m *mockMotion) Disable() error   { m.lastCall = "Disable"; return nil }
+func (m *mockMotion) Abort() error     { m.setCall("Abort"); return nil }
+func (m *mockMotion) Pause() error     { m.setCall("Pause"); return nil }
+func (m *mockMotion) Resume() error    { m.setCall("Resume"); return nil }
+func (m *mockMotion) Step(int32) error { m.setCall("Step"); return nil }
+func (m *mockMotion) Reverse() error   { m.setCall("Reverse"); return nil }
+func (m *mockMotion) Forward() error   { m.setCall("Forward"); return nil }
+func (m *mockMotion) SetFree() error   { m.setCall("SetFree"); return nil }
+func (m *mockMotion) SetCoord() error  { m.setCall("SetCoord"); return nil }
+func (m *mockMotion) SetTeleop() error { m.setCall("SetTeleop"); return nil }
+func (m *mockMotion) Enable() error    { m.setCall("Enable"); return nil }
+func (m *mockMotion) Disable() error   { m.setCall("Disable"); return nil }
 func (m *mockMotion) JogCont(int32, float64, int32) error {
-	m.lastCall = "JogCont"
+	m.setCall("JogCont")
 	return nil
 }
 func (m *mockMotion) JogIncr(int32, float64, float64, int32) error {
-	m.lastCall = "JogIncr"
+	m.setCall("JogIncr")
 	return nil
 }
 func (m *mockMotion) JogAbs(int32, float64, float64, int32) error {
-	m.lastCall = "JogAbs"
+	m.setCall("JogAbs")
 	return nil
 }
 func (m *mockMotion) JogAbort(int32, int32) error {
-	m.lastCall = "JogAbort"
+	m.setCall("JogAbort")
 	return nil
 }
 func (m *mockMotion) SpindleOn(int32, float64, float64, float64, int32) error {
-	m.lastCall = "SpindleOn"
+	m.setCall("SpindleOn")
 	return nil
 }
-func (m *mockMotion) SpindleOff(int32) error                    { m.lastCall = "SpindleOff"; return nil }
+func (m *mockMotion) SpindleOff(int32) error                    { m.setCall("SpindleOff"); return nil }
 func (m *mockMotion) SpindleOrient(int32, float64, int32) error { return nil }
-func (m *mockMotion) SpindleIncrease(int32) error               { m.lastCall = "SpindleIncrease"; return nil }
-func (m *mockMotion) SpindleDecrease(int32) error               { m.lastCall = "SpindleDecrease"; return nil }
-func (m *mockMotion) SpindleBrakeEngage(int32) error            { m.lastCall = "SpindleBrakeEngage"; return nil }
-func (m *mockMotion) SpindleBrakeRelease(int32) error           { m.lastCall = "SpindleBrakeRelease"; return nil }
+func (m *mockMotion) SpindleIncrease(int32) error               { m.setCall("SpindleIncrease"); return nil }
+func (m *mockMotion) SpindleDecrease(int32) error               { m.setCall("SpindleDecrease"); return nil }
+func (m *mockMotion) SpindleBrakeEngage(int32) error            { m.setCall("SpindleBrakeEngage"); return nil }
+func (m *mockMotion) SpindleBrakeRelease(int32) error           { m.setCall("SpindleBrakeRelease"); return nil }
 func (m *mockMotion) SetSpindleScale(int32, float64) error {
-	m.lastCall = "SetSpindleScale"
+	m.setCall("SetSpindleScale")
 	return nil
 }
-func (m *mockMotion) SetFeedScale(float64) error                   { m.lastCall = "SetFeedScale"; return nil }
-func (m *mockMotion) SetRapidScale(float64) error                  { m.lastCall = "SetRapidScale"; return nil }
+func (m *mockMotion) SetFeedScale(float64) error                   { m.setCall("SetFeedScale"); return nil }
+func (m *mockMotion) SetRapidScale(float64) error                  { m.setCall("SetRapidScale"); return nil }
 func (m *mockMotion) SetMaxFeedOverride(float64) error             { return nil }
 func (m *mockMotion) FeedScaleEnable(int32) error                  { return nil }
 func (m *mockMotion) SpindleScaleEnable(int32, int32) error        { return nil }
 func (m *mockMotion) AdaptiveFeedEnable(int32) error               { return nil }
 func (m *mockMotion) FeedHoldEnable(int32) error                   { return nil }
-func (m *mockMotion) OverrideLimits(int32) error                   { m.lastCall = "OverrideLimits"; return nil }
-func (m *mockMotion) JointHome(int32) error                        { m.lastCall = "JointHome"; return nil }
-func (m *mockMotion) JointUnhome(int32) error                      { m.lastCall = "JointUnhome"; return nil }
+func (m *mockMotion) OverrideLimits(int32) error                   { m.setCall("OverrideLimits"); return nil }
+func (m *mockMotion) JointHome(int32) error                        { m.setCall("JointHome"); return nil }
+func (m *mockMotion) JointUnhome(int32) error                      { m.setCall("JointUnhome"); return nil }
 func (m *mockMotion) SetVel(float64) error                         { return nil }
-func (m *mockMotion) SetVelLimit(float64) error                    { m.lastCall = "SetVelLimit"; return nil }
+func (m *mockMotion) SetVelLimit(float64) error                    { m.setCall("SetVelLimit"); return nil }
 func (m *mockMotion) SetAcc(float64) error                         { return nil }
 func (m *mockMotion) SetTermCond(int32, float64) error             { return nil }
 func (m *mockMotion) SetOffset(Pose) error                         { return nil }
-func (m *mockMotion) SetDebug(int32) error                         { m.lastCall = "SetDebug"; return nil }
+func (m *mockMotion) SetDebug(int32) error                         { m.setCall("SetDebug"); return nil }
 func (m *mockMotion) SetDout(int32, int32) error                   { return nil }
 func (m *mockMotion) SetDoutSynched(int32, int32, int32) error     { return nil }
 func (m *mockMotion) SetAout(int32, float64) error                 { return nil }
@@ -94,15 +125,28 @@ func (m *mockMotion) SetSpindlesync(float64, int32) error          { return nil 
 
 // mockIO implements IOController and IOStatusReader for testing.
 type mockIO struct {
+	mu       sync.Mutex
 	lastCall string
 }
 
-func (m *mockIO) CoolantFloodOn() error     { m.lastCall = "FloodOn"; return nil }
-func (m *mockIO) CoolantFloodOff() error    { m.lastCall = "FloodOff"; return nil }
-func (m *mockIO) CoolantMistOn() error      { m.lastCall = "MistOn"; return nil }
-func (m *mockIO) CoolantMistOff() error     { m.lastCall = "MistOff"; return nil }
-func (m *mockIO) LubeOn() error             { m.lastCall = "LubeOn"; return nil }
-func (m *mockIO) LubeOff() error            { m.lastCall = "LubeOff"; return nil }
+func (m *mockIO) setCall(s string) {
+	m.mu.Lock()
+	m.lastCall = s
+	m.mu.Unlock()
+}
+
+func (m *mockIO) last() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.lastCall
+}
+
+func (m *mockIO) CoolantFloodOn() error     { m.setCall("FloodOn"); return nil }
+func (m *mockIO) CoolantFloodOff() error    { m.setCall("FloodOff"); return nil }
+func (m *mockIO) CoolantMistOn() error      { m.setCall("MistOn"); return nil }
+func (m *mockIO) CoolantMistOff() error     { m.setCall("MistOff"); return nil }
+func (m *mockIO) LubeOn() error             { m.setCall("LubeOn"); return nil }
+func (m *mockIO) LubeOff() error            { m.setCall("LubeOff"); return nil }
 func (m *mockIO) ToolPrepare(int32) error   { return nil }
 func (m *mockIO) ToolLoad() error           { return nil }
 func (m *mockIO) ToolUnload() error         { return nil }
@@ -112,8 +156,8 @@ func (m *mockIO) ToolSetOffset(int32, int32, float64, float64, float64, float64,
 	return nil
 }
 func (m *mockIO) ToolLoadTable(string) error       { return nil }
-func (m *mockIO) EstopOn() error                   { m.lastCall = "Estop"; return nil }
-func (m *mockIO) EstopOff() error                  { m.lastCall = "EstopReset"; return nil }
+func (m *mockIO) EstopOn() error                   { m.setCall("Estop"); return nil }
+func (m *mockIO) EstopOff() error                  { m.setCall("EstopReset"); return nil }
 func (m *mockIO) IoAbort(int32) error              { return nil }
 func (m *mockIO) SetDebug(int32) error             { return nil }
 func (m *mockIO) GetCmdStatus() (int32, error)     { return IOStatusDone, nil }
@@ -134,6 +178,8 @@ func (m *mockStatus) GetExecId() (int32, error)                { return 0, nil }
 func (m *mockStatus) GetQueueDepth() (int32, error)            { return 0, nil }
 func (m *mockStatus) GetCommandNumEcho() (int32, error)        { return 0, nil }
 func (m *mockStatus) GetCommandStatus() (int32, error)         { return 0, nil }
+func (m *mockStatus) GetSynchDi(int32) (int32, error)          { return 0, nil }
+func (m *mockStatus) GetAnalogInput(int32) (float64, error)    { return 0, nil }
 
 func newTestTask() (*Task, *mockMotion, *mockIO) {
 	mot := &mockMotion{}
@@ -142,6 +188,9 @@ func newTestTask() (*Task, *mockMotion, *mockIO) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
 	t := NewTask(mot, io, stat, logger)
 	t.SetIOStatusReader(io)
+	// Match production's default (config.go: [TRAJ]SPINDLES default 1) so the
+	// task-layer spindle range check accepts spindle 0.
+	t.numSpindles = 1
 	return t, mot, io
 }
 
@@ -167,20 +216,28 @@ func TestSetState_PowerOn(t *testing.T) {
 	if err := task.SetState(int32(StateOn)); err != nil {
 		t.Fatalf("on: %v", err)
 	}
-	if mot.lastCall != "Enable" {
-		t.Fatalf("expected Enable, got %s", mot.lastCall)
+	if mot.last() != "Enable" {
+		t.Fatalf("expected Enable, got %s", mot.last())
 	}
 	if task.state != StateOn {
 		t.Fatalf("expected StateOn, got %s", task.state)
 	}
 }
 
-func TestSetMode_RequiresOn(t *testing.T) {
-	task, _, _ := newTestTask()
+// SetMode is accepted in any machine state, including ESTOP/OFF, matching C++:
+// EMC_TASK_SET_MODE is handled under the OFF/ESTOP/ESTOP_RESET case
+// (emctaskmain.cc:825) and emcTaskSetMode itself has no on-state gate
+// (emctask.cc:264). A UI mode selector must be honored before the machine is
+// enabled so the reported mode tracks the selector; the motion-mode side
+// effects are no-ops while motion is disabled.
+func TestSetMode_AllowedInEstop(t *testing.T) {
+	task, _, _ := newTestTask() // fresh task is in ESTOP
 
-	err := task.SetMode(int32(ModeAuto))
-	if !errors.Is(err, ErrNotOn) {
-		t.Fatalf("expected ErrNotOn, got %v", err)
+	if err := task.SetMode(int32(ModeAuto)); err != nil {
+		t.Fatalf("SetMode(Auto) in estop: unexpected error %v", err)
+	}
+	if task.mode != ModeAuto {
+		t.Fatalf("mode = %v, want ModeAuto", task.mode)
 	}
 }
 
@@ -191,25 +248,61 @@ func TestSetMode_AutoSetCoord(t *testing.T) {
 	if err := task.SetMode(int32(ModeAuto)); err != nil {
 		t.Fatalf("set_mode auto: %v", err)
 	}
-	if mot.lastCall != "SetCoord" {
-		t.Fatalf("expected SetCoord, got %s", mot.lastCall)
+	if mot.last() != "SetCoord" {
+		t.Fatalf("expected SetCoord, got %s", mot.last())
 	}
 	if task.mode != ModeAuto {
 		t.Fatalf("expected ModeAuto, got %s", task.mode)
 	}
 }
 
-func TestSetMode_ManualSetFree(t *testing.T) {
-	task, mot, _ := newTestTask()
-	bringUp(task)
-	task.SetMode(int32(ModeAuto))
+// homedStatus reports the first `homed` joints as homed; used to drive
+// allHomed() in SetMode's jog-mode selection.
+type homedStatus struct {
+	mockStatus
+	homed int
+}
 
-	if err := task.SetMode(int32(ModeManual)); err != nil {
-		t.Fatalf("set_mode manual: %v", err)
+func (h *homedStatus) GetStatus() (motstat.MotionStatus, error) {
+	var ms motstat.MotionStatus
+	for j := 0; j < h.homed && j < len(ms.Joints); j++ {
+		ms.Joints[j].Homed = 1
 	}
-	if mot.lastCall != "SetFree" {
-		t.Fatalf("expected SetFree, got %s", mot.lastCall)
-	}
+	return ms, nil
+}
+
+// SetMode(MANUAL) picks the motion jog mode by homing state, matching C++
+// emcTaskSetMode(EMC_TASK_MODE_MANUAL) (emctask.cc:274): all joints homed ->
+// TELEOP (world/axis jog), otherwise FREE (per-joint jog).
+func TestSetMode_ManualJogMode(t *testing.T) {
+	t.Run("unhomed->SetFree", func(t *testing.T) {
+		task, mot, _ := newTestTask()
+		task.numJoints = 3 // mockStatus reports all joints unhomed
+		bringUp(task)
+		task.SetMode(int32(ModeAuto))
+
+		if err := task.SetMode(int32(ModeManual)); err != nil {
+			t.Fatalf("SetMode(Manual): %v", err)
+		}
+		if mot.last() != "SetFree" {
+			t.Fatalf("lastCall = %s, want SetFree", mot.last())
+		}
+	})
+
+	t.Run("homed->SetTeleop", func(t *testing.T) {
+		task, mot, _ := newTestTask()
+		task.status = &homedStatus{homed: 3}
+		task.numJoints = 3
+		bringUp(task)
+		task.SetMode(int32(ModeAuto))
+
+		if err := task.SetMode(int32(ModeManual)); err != nil {
+			t.Fatalf("SetMode(Manual): %v", err)
+		}
+		if mot.last() != "SetTeleop" {
+			t.Fatalf("lastCall = %s, want SetTeleop", mot.last())
+		}
+	})
 }
 
 func TestJog_RequiresOn(t *testing.T) {
@@ -228,8 +321,8 @@ func TestJog_ManualMode(t *testing.T) {
 	if err := task.Jog(JogContinuous, true, 0, 100, 0); err != nil {
 		t.Fatalf("jog: %v", err)
 	}
-	if mot.lastCall != "JogCont" {
-		t.Fatalf("expected JogCont, got %s", mot.lastCall)
+	if mot.last() != "JogCont" {
+		t.Fatalf("expected JogCont, got %s", mot.last())
 	}
 }
 
@@ -245,12 +338,17 @@ func TestJog_MDIBusyRejects(t *testing.T) {
 	}
 }
 
+// TestAutoCommand_EnsureModeWhenIdle pins an INTENTIONAL divergence from C++
+// milltask. In an idle Manual mode, a RUN command auto-switches the machine to
+// AUTO (ensureMode) and proceeds; C++ instead rejects it ("Can't do that in
+// manual mode", emctaskmain.cc:1003-1007). This is the deliberate gomc
+// "auto change mode" model: a mode selector on the command, not a precondition.
+// Verified: with no program loaded the error is ErrNoProgram (the mode switch
+// happened and the run path ran), NOT ErrWrongMode (rejected in manual).
 func TestAutoCommand_EnsureModeWhenIdle(t *testing.T) {
 	task, _, _ := newTestTask()
 	bringUp(task)
 
-	// In Manual mode with idle interpreter, AutoCommand should auto-switch
-	// to AUTO mode. Since no program is loaded, we get ErrNoProgram (not ErrWrongMode).
 	err := task.AutoCommand(AutoRun, 0)
 	if !errors.Is(err, ErrNoProgram) {
 		t.Fatalf("expected ErrNoProgram (mode auto-switched), got %v", err)
@@ -289,12 +387,44 @@ func TestAutoCommand_PauseCallsMotion(t *testing.T) {
 	task, mot, _ := newTestTask()
 	bringUp(task)
 	task.SetMode(int32(ModeAuto))
+	// Simulate an actively running program so pause is meaningful (C10 gates
+	// pause on the interpreter actually reading).
+	task.mu.Lock()
+	task.interpState = InterpReading
+	task.mu.Unlock()
 
 	if err := task.AutoCommand(AutoPause, 0); err != nil {
 		t.Fatalf("auto pause: %v", err)
 	}
-	if mot.lastCall != "Pause" {
-		t.Fatalf("expected Pause, got %s", mot.lastCall)
+	if mot.last() != "Pause" {
+		t.Fatalf("expected Pause, got %s", mot.last())
+	}
+}
+
+// TestAutoCommand_PauseWhileIdleIsNoop is the C10 regression: pausing in AUTO
+// with no program running must NOT set InterpPaused (nothing would ever lift it,
+// wedging programBusy() until Abort/E-stop) and must not call motion.Pause.
+func TestAutoCommand_PauseWhileIdleIsNoop(t *testing.T) {
+	task, mot, _ := newTestTask()
+	bringUp(task)
+	task.SetMode(int32(ModeAuto))
+
+	if err := task.AutoCommand(AutoPause, 0); err != nil {
+		t.Fatalf("auto pause: %v", err)
+	}
+	if mot.last() == "Pause" {
+		t.Fatalf("pause while idle must not call motion.Pause")
+	}
+	task.mu.Lock()
+	st := task.interpState
+	task.mu.Unlock()
+	if st == InterpPaused {
+		t.Fatalf("pause while idle wedged interpState at Paused (C10)")
+	}
+
+	// A subsequent MDI/run must still be accepted (not wedged).
+	if busy := func() bool { task.mu.Lock(); defer task.mu.Unlock(); return task.programBusy() }(); busy {
+		t.Fatalf("programBusy() true after idle pause — task wedged")
 	}
 }
 
@@ -305,8 +435,8 @@ func TestFlood_On(t *testing.T) {
 	if err := task.Flood(true); err != nil {
 		t.Fatalf("flood on: %v", err)
 	}
-	if io.lastCall != "FloodOn" {
-		t.Fatalf("expected FloodOn, got %s", io.lastCall)
+	if io.last() != "FloodOn" {
+		t.Fatalf("expected FloodOn, got %s", io.last())
 	}
 }
 
@@ -316,8 +446,10 @@ func TestAbort_AlwaysSucceeds(t *testing.T) {
 	if err := task.Abort(); err != nil {
 		t.Fatalf("abort: %v", err)
 	}
-	if mot.lastCall != "Abort" {
-		t.Fatalf("expected Abort, got %s", mot.lastCall)
+	// Abort stops motion (it also stops the configured spindle afterwards, so
+	// Abort is no longer necessarily the *last* motion call).
+	if !mot.hasCall("Abort") {
+		t.Fatalf("expected motion Abort to be called, calls=%v", mot.calls)
 	}
 	if task.interpState != InterpIdle {
 		t.Fatalf("expected InterpIdle after abort")
@@ -331,8 +463,33 @@ func TestSpindle_Forward(t *testing.T) {
 	if err := task.Spindle(SpindleForward, 1000, 0, 0); err != nil {
 		t.Fatalf("spindle fwd: %v", err)
 	}
-	if mot.lastCall != "SpindleOn" {
-		t.Fatalf("expected SpindleOn, got %s", mot.lastCall)
+	if mot.last() != "SpindleOn" {
+		t.Fatalf("expected SpindleOn, got %s", mot.last())
+	}
+}
+
+// TestSpindle_BroadcastAndRange covers C12: spindle_num -1 is the all-spindles
+// broadcast (accepted end-to-end), and an index past the configured spindle
+// count is rejected by the authoritative task-layer check.
+func TestSpindle_BroadcastAndRange(t *testing.T) {
+	task, mot, _ := newTestTask() // numSpindles = 1
+	bringUp(task)
+
+	if err := task.Spindle(SpindleForward, 1000, -1, 0); err != nil {
+		t.Fatalf("broadcast spindle (-1) rejected: %v", err)
+	}
+	if !mot.hasCall("SpindleOn") {
+		t.Fatalf("expected SpindleOn for broadcast, calls=%v", mot.calls)
+	}
+	if err := task.SetSpindleOverride(1.0, -1); err != nil {
+		t.Fatalf("broadcast override (-1) rejected: %v", err)
+	}
+	// Index past the configured count (numSpindles=1) is rejected.
+	if err := task.Spindle(SpindleForward, 1000, 5, 0); err == nil {
+		t.Fatalf("expected spindle 5 rejected with numSpindles=1")
+	}
+	if err := task.SetSpindleOverride(1.0, 5); err == nil {
+		t.Fatalf("expected override spindle 5 rejected with numSpindles=1")
 	}
 }
 
@@ -371,7 +528,7 @@ func TestHome_CallsMotion(t *testing.T) {
 	if err := task.Home(0); err != nil {
 		t.Fatalf("home: %v", err)
 	}
-	if mot.lastCall != "JointHome" {
-		t.Fatalf("expected JointHome, got %s", mot.lastCall)
+	if mot.last() != "JointHome" {
+		t.Fatalf("expected JointHome, got %s", mot.last())
 	}
 }

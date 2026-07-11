@@ -16,7 +16,7 @@
 @method "POST"
 @path "/load"
 @rt_safe "false"
-func load(filename: string, scale: f64) -> bool
+func load(filename: string @notempty, scale: f64 @min(0)) -> bool
 
 # Unload the current probe map (disables compensation).
 @method "POST"

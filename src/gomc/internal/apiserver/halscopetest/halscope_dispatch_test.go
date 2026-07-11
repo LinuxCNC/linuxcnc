@@ -44,11 +44,11 @@ func (m *mockHalscope) Configure(config halscope.CaptureConfig) (int32, error) {
 	defer m.mu.Unlock()
 	m.thread = config.ThreadName
 	if config.MaxChannels > 0 {
-		// Derive recLen from maxChannels (simulating server logic)
+		// Derive recLen from maxChannels, then center the trigger at the buffer
+		// midpoint — matching the real module, which always sets
+		// pre_trig = rec_len/2 (pre-trigger is not a CaptureConfig input).
 		m.recLen = 16000 / config.MaxChannels
-	}
-	if config.PreTrig > 0 {
-		m.preTrig = config.PreTrig
+		m.preTrig = m.recLen / 2
 	}
 	return 0, nil
 }
@@ -340,7 +340,7 @@ func TestConfigure(t *testing.T) {
 	defer cleanup()
 
 	code, body := post(t, ts, "/configure",
-		`{"config":{"threadName":"servo-thread","maxChannels":2,"samplePeriodMult":1,"preTrig":4000}}`)
+		`{"config":{"threadName":"servo-thread","maxChannels":2,"samplePeriodMult":1}}`)
 	if code != 200 {
 		t.Fatalf("expected 200, got %d: %s", code, body)
 	}
@@ -351,8 +351,9 @@ func TestConfigure(t *testing.T) {
 	if st.RecLen != 8000 {
 		t.Errorf("expected rec_len=8000, got %d", st.RecLen)
 	}
+	// Pre-trigger is derived (buffer midpoint = rec_len/2), not configured.
 	if st.PreTrig != 4000 {
-		t.Errorf("expected pre_trig=4000, got %d", st.PreTrig)
+		t.Errorf("expected pre_trig=4000 (rec_len/2), got %d", st.PreTrig)
 	}
 }
 
@@ -378,7 +379,7 @@ func TestFullCaptureWorkflow(t *testing.T) {
 	defer cleanup()
 
 	code, _ := post(t, ts, "/configure",
-		`{"config":{"threadName":"servo-thread","maxChannels":2,"samplePeriodMult":1,"preTrig":4000}}`)
+		`{"config":{"threadName":"servo-thread","maxChannels":2,"samplePeriodMult":1}}`)
 	if code != 200 {
 		t.Fatalf("configure failed: %d", code)
 	}

@@ -86,19 +86,19 @@ func set_run_dir(dir: Direction) -> i32
 func add_line(end: Pose,
               canon_motion_type: i32, vel: f64, ini_maxvel: f64,
               acc: f64, enables: u8, atspeed: i8,
-              indexrotary: i32, feed_upm: f64) -> i32
+              indexrotary: i32, feed_mm_per_min: f64) -> i32
 
 @doc "Add a circular arc motion segment"
 func add_circle(end: Pose,
                 center: Cartesian, normal: Cartesian,
                 turn: i32, canon_motion_type: i32,
                 vel: f64, ini_maxvel: f64, acc: f64,
-                enables: u8, atspeed: i8, feed_upm: f64) -> i32
+                enables: u8, atspeed: i8, feed_mm_per_min: f64) -> i32
 
 @doc "Add a rigid tapping motion segment"
 func add_rigid_tap(end: Pose,
                    vel: f64, ini_maxvel: f64, acc: f64,
-                   enables: u8, scale: f64, feed_upm: f64) -> i32
+                   enables: u8, scale: f64, feed_mm_per_min: f64) -> i32
 
 @doc "Set synchronized analog output on current segment"
 func set_aout(index: u8, start_val: f64, end_val: f64) -> i32
@@ -126,8 +126,8 @@ func abort() -> i32
 @doc "Get the executing segment ID"
 func get_exec_id() -> i32
 
-@doc "Get the executing segment's feed rate in G-code units per minute"
-func get_feed_upm() -> f64
+@doc "Get the executing segment feed rate in mm per minute"
+func get_feed_mm_per_min() -> f64
 
 @doc "Get the current position"
 func get_pos(pos: Pose byref) -> i32

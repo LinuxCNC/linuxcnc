@@ -53,77 +53,109 @@ func TestCanon_Rotation(t *testing.T) {
 	}
 }
 
-func TestCanon_StraightFeedEnqueues(t *testing.T) {
-	task, mot, _ := newCanonTestTask()
-	task.StartSequencer()
-	defer task.StopSequencer()
-
-	c := task.canon
-	c.state.traverseRate = 1000
-
-	// Feed a straight line in MM mode
-	c.SetFeedRate(600) // 600 mm/min = 10 mm/sec
-	c.StraightFeed(1, 10, 20, 30, 0, 0, 0, 0, 0, 0)
-
-	task.DrainQueue()
-
-	// Should have SetMotionParams + SetLine (via LinearMoveCmd)
-	found := false
-	for _, call := range mot.calls {
-		if call == "SetLine" {
-			found = true
-		}
+// checkPos asserts a recorded move's kind and absolute (mm) position.
+func checkPos(t *testing.T, got recMove, kind string, x, y, z float64) {
+	t.Helper()
+	if got.kind != kind {
+		t.Errorf("kind=%s, want %s", got.kind, kind)
 	}
-	if !found {
-		t.Fatalf("expected SetLine in calls, got %v", mot.calls)
+	if math.Abs(got.pos.X-x) > blendEps || math.Abs(got.pos.Y-y) > blendEps || math.Abs(got.pos.Z-z) > blendEps {
+		t.Errorf("pos=[%.4f,%.4f,%.4f], want [%.4f,%.4f,%.4f]", got.pos.X, got.pos.Y, got.pos.Z, x, y, z)
 	}
 }
 
-func TestCanon_StraightTraverseEnqueues(t *testing.T) {
-	task, mot, _ := newCanonTestTask()
-	task.StartSequencer()
-	defer task.StopSequencer()
-
+// TestCanon_StraightFeed_UnitsAndOffsets exercises the toAbsolute transform that
+// no other test covers: program->mm unit conversion, then the
+// G92 -> rotate(XY) -> G5x -> tool offset chain, in the exact order C++
+// rotate_and_offset_pos uses (emccanon.cc:242) with FROM_PROG_LEN applied first.
+// Offsets are stored internally in mm. A wrong scale, dropped offset, or wrong
+// offset/rotation ordering would change the asserted position.
+func TestCanon_StraightFeed_UnitsAndOffsets(t *testing.T) {
+	task, mot := newBlendCanonTask(t)
 	c := task.canon
-	c.state.traverseRate = 5000
+	s := c.state
+	s.lengthUnits = CanonUnitsInches // program units = inches (x25.4)
+	s.g92Offset = Pose{X: 1}         // mm
+	s.g5xOffset = Pose{X: 10, Y: 5}  // mm
+	s.toolOffset = Pose{Z: 2}        // mm
+	c.SetFeedRate(60)
 
-	c.StraightTraverse(1, 100, 0, 0, 0, 0, 0, 0, 0, 0)
-	task.DrainQueue()
+	// Move 0 (no rotation): prog X2 Y3 Z1 inches.
+	//   fromProg: (50.8, 76.2, 25.4); +G92 X: (51.8,76.2,25.4);
+	//   +G5x (10,5): (61.8,81.2,25.4); +tool Z2: (61.8,81.2,27.4)
+	c.StraightFeed(1, 2, 3, 1, 0, 0, 0, 0, 0, 0)
 
-	found := false
-	for _, call := range mot.calls {
-		if call == "SetLine" {
-			found = true
-		}
+	// Move 1 with a 90-degree XY rotation, which must apply AFTER G92 but BEFORE
+	// G5x (locks the offset ordering): prog X2 Y0 ->
+	//   fromProg (50.8,0); +G92 (51.8,0); rotate90 (0,51.8); +G5x (10,56.8);
+	//   Z: 0 + tool 2 = 2  => (10, 56.8, 2)
+	s.xyRotation = 90
+	c.StraightFeed(2, 2, 0, 0, 0, 0, 0, 0, 0, 0)
+
+	m := collect(t, task, mot)
+	if len(m) != 2 {
+		t.Fatalf("expected 2 moves, got %d: %+v", len(m), m)
 	}
-	if !found {
-		t.Fatalf("expected SetLine, got %v", mot.calls)
+	checkPos(t, m[0], "line", 61.8, 81.2, 27.4)
+	if m[0].motionType != 2 {
+		t.Errorf("m[0].motionType=%d, want 2 (feed)", m[0].motionType)
+	}
+	checkPos(t, m[1], "line", 10, 56.8, 2)
+}
+
+func TestCanon_StraightTraverse_Args(t *testing.T) {
+	task, mot := newBlendCanonTask(t) // MM units
+	c := task.canon
+	c.state.g5xOffset = Pose{X: 10} // mm
+
+	c.StraightTraverse(1, 100, 0, 0, 0, 0, 0, 0, 0, 0) // prog X100 mm
+
+	m := collect(t, task, mot)
+	if len(m) != 1 {
+		t.Fatalf("expected 1 move, got %d: %+v", len(m), m)
+	}
+	checkPos(t, m[0], "line", 110, 0, 0) // 100 + G5x 10
+	if m[0].motionType != 1 {
+		t.Errorf("motionType=%d, want 1 (traverse)", m[0].motionType) // EMC_MOTION_TYPE_TRAVERSE
+	}
+	if m[0].feed != 0 {
+		t.Errorf("traverse FeedMmPerMin=%v, want 0 (no programmed feed)", m[0].feed)
 	}
 }
 
-func TestCanon_ArcFeedEnqueues(t *testing.T) {
-	task, mot, _ := newCanonTestTask()
-	task.StartSequencer()
-	defer task.StopSequencer()
-
+// TestCanon_ArcFeed_Args pins the XY-plane arc geometry: end position, absolute
+// center (interp passes first/second axis as ABSOLUTE center coords), plane
+// normal, and the turn adjustment (turn = rotation-1 for CCW). The old test used
+// geometrically-inconsistent data (center -10,0 for a 10,0->0,10 arc) and checked
+// only the command type.
+func TestCanon_ArcFeed_Args(t *testing.T) {
+	task, mot := newBlendCanonTask(t) // MM units, XY plane default
 	c := task.canon
-	c.state.traverseRate = 1000
+	c.state.endPoint = Pose{X: 10} // start at (10,0,0)
 	c.SetFeedRate(600)
 
-	// Quarter circle in XY plane: start (10,0), end (0,10), center at origin offset (relative)
-	c.state.endPoint = Pose{X: 10, Y: 0, Z: 0}
-	c.ArcFeed(1, 0, 10, -10, 0, 1, 0, 0, 0, 0, 0, 0, 0)
+	// CCW (G3, rotation=+1) quarter circle: start (10,0), center (0,0), end (0,10).
+	// ArcFeed(lineno, firstEnd=X, secondEnd=Y, firstAxis=cX, secondAxis=cY,
+	//         rotation, axisEndPoint=Z, a,b,c,u,v,w)
+	c.ArcFeed(1, 0, 10, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0)
 
-	task.DrainQueue()
-
-	foundCircle := false
-	for _, call := range mot.calls {
-		if call == "SetCircle" {
-			foundCircle = true
-		}
+	m := collect(t, task, mot)
+	if len(m) != 1 {
+		t.Fatalf("expected 1 move, got %d: %+v", len(m), m)
 	}
-	if !foundCircle {
-		t.Fatalf("expected SetCircle, got %v", mot.calls)
+	g := m[0]
+	checkPos(t, g, "circle", 0, 10, 0)
+	if math.Abs(g.center.X) > blendEps || math.Abs(g.center.Y) > blendEps || math.Abs(g.center.Z) > blendEps {
+		t.Errorf("center=%+v, want (0,0,0)", g.center)
+	}
+	if g.normal != (Cartesian{X: 0, Y: 0, Z: 1}) {
+		t.Errorf("normal=%+v, want (0,0,1) for XY plane", g.normal)
+	}
+	if g.turn != 0 {
+		t.Errorf("turn=%d, want 0 (rotation +1 -> rotation-1)", g.turn)
+	}
+	if g.motionType != 3 {
+		t.Errorf("motionType=%d, want 3 (arc)", g.motionType)
 	}
 }
 
@@ -133,15 +165,33 @@ func (m *testMotion) SetCircle(pos Pose, center, normal Cartesian, turn int32, v
 	return nil
 }
 
-func TestCanon_DwellEnqueues(t *testing.T) {
+// TestCanon_Dwell_Args asserts the dwell duration reaches the queued DwellCmd.
+// Dwell is sequencer-internal (never reaches motion), so we inspect the queue
+// directly instead of running the sequencer.
+func TestCanon_Dwell_Args(t *testing.T) {
 	task, _, _ := newCanonTestTask()
-	task.StartSequencer()
-	defer task.StopSequencer()
+	// Provide the queue channels without a running sequencer so nothing consumes
+	// the enqueued commands before we inspect them.
+	task.mu.Lock()
+	task.interpQueue = make(chan QueuedCmd, 8)
+	task.seqAbort = make(chan struct{})
+	task.mu.Unlock()
 
-	c := task.canon
-	c.Dwell(0.001)
-	task.DrainQueue()
-	// Just verify no panic/error — dwell is self-contained
+	task.canon.Dwell(0.25)
+
+	close(task.interpQueue)
+	var dwell *DwellCmd
+	for cmd := range task.interpQueue {
+		if d, ok := cmd.(*DwellCmd); ok {
+			dwell = d
+		}
+	}
+	if dwell == nil {
+		t.Fatal("no DwellCmd enqueued by Dwell(0.25)")
+	}
+	if dwell.Seconds != 0.25 {
+		t.Errorf("DwellCmd.Seconds=%v, want 0.25", dwell.Seconds)
+	}
 }
 
 func TestCanon_SpindleOnOff(t *testing.T) {
@@ -150,19 +200,85 @@ func TestCanon_SpindleOnOff(t *testing.T) {
 	defer task.StopSequencer()
 
 	c := task.canon
-	c.SetSpindleSpeed(0, 1000)
-	c.StartSpindleClockwise(0, 1)
-	c.StopSpindleTurning(0)
+	c.SetSpindleSpeed(0, 1000)    // S1000 while stopped
+	c.StartSpindleClockwise(0, 1) // M3
+	c.StopSpindleTurning(0)       // M5
 	task.DrainQueue()
 
-	if len(mot.calls) < 2 {
-		t.Fatalf("expected SpindleOn + SpindleOff, got %v", mot.calls)
+	// S1000 issued *before* M3 (dir=0) stores the speed only — it does NOT emit a
+	// spindle command. The C SET_SPINDLE_SPEED does append a SPINDLE_ON here, but
+	// with state=0 (emcSpindleSpeed does not force state), so it is a status-only
+	// no-op that leaves the drive off. gomc's spindle-on GMI hardcodes state=1
+	// (h_spindle_on), so emitting the command would enable the drive at zero speed
+	// and release its brake; the canon drops it instead (see SetSpindleSpeed).
+	// Machine behavior matches 2.9; only the leading no-op command is absent:
+	//   SPINDLE_ON  s=0 speed=1000 wait=1   <- StartSpindleClockwise (M3)
+	//   SPINDLE_OFF s=0                      <- StopSpindleTurning (M5)
+	want := []string{"SpindleOn", "SpindleOff"}
+	if len(mot.calls) != len(want) {
+		t.Fatalf("spindle call sequence = %v, want %v", mot.calls, want)
 	}
-	if mot.calls[0] != "SpindleOn" {
-		t.Fatalf("expected SpindleOn first, got %s", mot.calls[0])
+	for i, w := range want {
+		if mot.calls[i] != w {
+			t.Fatalf("spindle call[%d] = %s, want %s (full: %v)", i, mot.calls[i], w, mot.calls)
+		}
 	}
-	if mot.calls[1] != "SpindleOff" {
-		t.Fatalf("expected SpindleOff second, got %s", mot.calls[1])
+}
+
+// TestCanon_CSSInchFactor verifies the G20 (inch) constant-surface-speed factor
+// carries the mm scaling. Motion computes RPM as css_factor/offset_mm working in
+// mm, so an inch-mode css_factor must be 12/(2π)·surface_speed·25.4 — matching
+// C++ SET_SPINDLE_SPEED's 12/(2π)·speed·TO_EXT_LEN(25.4). Without the 25.4 a
+// G20 G96 spindle runs 25.4× too slow (the mm-only corpus masked this).
+func TestCanon_CSSInchFactor(t *testing.T) {
+	task, _, _ := newCanonTestTask()
+	c := task.canon
+	c.state.lengthUnits = CanonUnitsInches
+	c.SetSpindleMode(0, 3000)     // G96 D3000: constant-surface-speed cap (RPM)
+	c.state.spindleSpeed[0] = 200 // S200 surface speed
+	c.state.spindleDir[0] = 1     // spindle running CW (so a command is emitted)
+
+	cmd := c.spindleCommand(0, 1, 1)
+	want := 12.0 / (2 * math.Pi) * 200 * 25.4
+	if math.Abs(cmd.CSSFactor-want) > 1e-6 {
+		t.Fatalf("inch CSS factor = %.6f, want %.6f (12/2π·200·25.4)", cmd.CSSFactor, want)
+	}
+	// The fix is exactly the 25.4× the buggy inch branch omitted.
+	buggy := 12.0 / (2 * math.Pi) * 200
+	if math.Abs(cmd.CSSFactor/buggy-25.4) > 1e-9 {
+		t.Fatalf("inch CSS factor is %.4f× the un-scaled value, want 25.4×", cmd.CSSFactor/buggy)
+	}
+}
+
+// TestCanon_InputTimeoutReturnsNeg1 verifies the M66 timeout contract: after a
+// wait times out (inputTimeout==1) the digital/analog input getters return -1,
+// which the interpreter stores into #5399 so a program's `if [#5399 LT 0]`
+// timeout check fires. Matches C++ GET_EXTERNAL_*_INPUT.
+func TestCanon_InputTimeoutReturnsNeg1(t *testing.T) {
+	task, _, _ := newCanonTestTask()
+	c := task.canon
+
+	// No timeout latched: getters read the live pin (default here).
+	if v, _ := c.GetExternalDigitalInput(0, 0); v != 0 {
+		t.Fatalf("digital input with no timeout = %d, want 0", v)
+	}
+	if v, _ := c.GetExternalAnalogInput(0, 0); v != 0 {
+		t.Fatalf("analog input with no timeout = %g, want 0", v)
+	}
+
+	// Timeout latched (WaitInputCmd sets inputTimeout=1 on timeout).
+	task.setInputTimeout(1)
+	if v, _ := c.GetExternalDigitalInput(0, 0); v != -1 {
+		t.Fatalf("digital input after timeout = %d, want -1", v)
+	}
+	if v, _ := c.GetExternalAnalogInput(0, 0); v != -1 {
+		t.Fatalf("analog input after timeout = %g, want -1", v)
+	}
+
+	// A fresh immediate wait clears the flag (setInputTimeout(0)); getters read live again.
+	task.setInputTimeout(0)
+	if v, _ := c.GetExternalDigitalInput(0, 0); v != 0 {
+		t.Fatalf("digital input after clear = %d, want 0", v)
 	}
 }
 
@@ -197,7 +313,8 @@ func TestCanon_CoolantEnqueues(t *testing.T) {
 // trackingIO tracks all calls in order.
 type trackingIO struct {
 	mockIO
-	calls []string
+	calls        []string
+	preparedTool int32 // last tool number passed to ToolPrepare
 }
 
 func (m *trackingIO) CoolantFloodOn() error  { m.calls = append(m.calls, "FloodOn"); return nil }
@@ -206,6 +323,7 @@ func (m *trackingIO) CoolantMistOn() error   { m.calls = append(m.calls, "MistOn
 func (m *trackingIO) CoolantMistOff() error  { m.calls = append(m.calls, "MistOff"); return nil }
 func (m *trackingIO) ToolPrepare(t int32) error {
 	m.calls = append(m.calls, "ToolPrepare")
+	m.preparedTool = t
 	return nil
 }
 func (m *trackingIO) ToolLoad() error { m.calls = append(m.calls, "ToolChange"); return nil }
@@ -276,5 +394,10 @@ func TestCanon_ToolChange(t *testing.T) {
 	}
 	if !foundChange {
 		t.Fatalf("expected ToolChange, got %v", tio.calls)
+	}
+	// The selected tool number (T5) must propagate to ToolPrepare, not just the
+	// call happen — a tool-index bug would otherwise be invisible.
+	if tio.preparedTool != 5 {
+		t.Errorf("ToolPrepare tool = %d, want 5", tio.preparedTool)
 	}
 }

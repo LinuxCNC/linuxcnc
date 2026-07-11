@@ -3,6 +3,8 @@
 package task
 
 import (
+	"time"
+
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/emcstat"
 	"github.com/sittner/linuxcnc/src/gomc/generated/gmi/motstat"
 )
@@ -11,14 +13,25 @@ import (
 // This is the single source of truth for all stat consumers (REST, WS, halui).
 func (t *Task) BuildStat() *emcstat.StatFull {
 	t.mu.Lock()
-	// Refresh active G/M codes from interpreter (C milltask does this every cycle).
-	if t.interp != nil {
-		t.activeGcodes = t.interp.ActiveGCodes()
-		t.activeMcodes = t.interp.ActiveMCodes()
-		t.activeSettings = t.interp.ActiveSettings()
+	// Active G/M codes and call level come from the caches published by
+	// updateActiveCodes after each interpreter execute. BuildStat must NOT
+	// call into the interpreter: the producer goroutine may be executing it
+	// concurrently and the C++ interp is not thread-safe. (The C milltask
+	// could re-query every cycle only because it was single-threaded.)
+	callLevel := t.callLevel
+	// Bump the liveness counter once per status build (mirrors NML heartbeat).
+	t.heartbeat++
+	heartbeat := t.heartbeat
+	// Canon state snapshot for offset reporting (value copy — the live
+	// t.canon.state is mutated lock-free by the producer goroutine).
+	cs := t.canonSnap
+	// Remaining G4 dwell time (only meaningful while waiting for the delay).
+	var delayLeft float64
+	if t.execState == ExecWaitingForDelay {
+		if d := time.Until(t.dwellEnd); d > 0 {
+			delayLeft = d.Seconds()
+		}
 	}
-	// Grab canon state for offset reporting
-	cs := t.canon.state
 	// Compute RCS command status (matches NML stat.state: 1=DONE,2=EXEC,3=ERROR).
 	rcsStatus := int32(1) // RCS_DONE
 	switch t.execState {
@@ -44,6 +57,11 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 			ReadLine:          t.readLine,
 			CurrentLine:       t.currentLine,
 			Line:              t.currentLine,
+			ProgramUnits:      cs.lengthUnits,
+			DelayLeft:         delayLeft,
+			Command:           t.taskCommand,
+			CallLevel:         callLevel,
+			InputTimeout:      t.inputTimeout,
 		},
 		Flood:          t.floodOn,
 		Mist:           t.mistOn,
@@ -52,14 +70,19 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		LinearUnits:    t.linearUnits,
 		State:          rcsStatus,
 		RcsStatus:      rcsStatus,
+		Debug:          t.debug,
 		KinematicsType: emcstat.KinematicsType_IDENTITY,
 		JogAxis:        t.jogAxis,
 		JogIncrement:   t.jogIncrement,
 		JogSpeed:       t.jogSpeed,
 		AjogSpeed:      t.ajogSpeed,
-		ActiveGcodes:   append([]int32(nil), t.activeGcodes...),
-		ActiveMcodes:   append([]int32(nil), t.activeMcodes...),
-		ActiveSettings: append([]float64(nil), t.activeSettings...),
+		// Readahead codes as the fallback. Aliased, not copied: updateActiveCodes
+		// always reassigns these fields to fresh interp slices (never mutates in
+		// place), so the value is immutable and safe to share into the snapshot.
+		// Overwritten below by the executing segment's tag when it has one.
+		ActiveGcodes:   t.activeGcodes,
+		ActiveMcodes:   t.activeMcodes,
+		ActiveSettings: t.activeSettings,
 		G5xOffset: emcstat.Position{
 			X: cs.g5xOffset.X, Y: cs.g5xOffset.Y, Z: cs.g5xOffset.Z,
 			A: cs.g5xOffset.A, B: cs.g5xOffset.B, C: cs.g5xOffset.C,
@@ -72,6 +95,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		},
 		RotationXy: cs.xyRotation,
 		PreviewSeq: t.previewSeq,
+		Heartbeat:  heartbeat,
 	}
 	numJoints := t.numJoints
 	numSpindles := t.numSpindles
@@ -91,10 +115,14 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	}
 
 	// Read motion status (lock-free triple buffer, never fails).
+	// The fallback cache is shared by concurrent BuildStat callers (WS push
+	// loops, poslog, C stat callers) and must be accessed under mu.
 	ms, err := t.status.GetStatus()
+	t.mu.Lock()
 	if err != nil {
 		// Should not happen with triple buffer, but handle gracefully.
 		if !t.hasMotionStatus {
+			t.mu.Unlock()
 			return stat
 		}
 		ms = t.lastMotionStatus
@@ -102,6 +130,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		t.lastMotionStatus = ms
 		t.hasMotionStatus = true
 	}
+	t.mu.Unlock()
 
 	// Kinematics type from motion module.
 	stat.KinematicsType = emcstat.KinematicsType(ms.KinType)
@@ -125,10 +154,34 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	stat.Motion.CurrentVel = ms.CurrentVel
 	stat.Motion.DistanceToGo = ms.DistanceToGo
 	stat.Motion.MotionId = ms.Id
-	stat.Motion.MotionLine = t.lookupMotionLine(ms.Id)
+	// One locked lookup (+ prune) for both the line and the executing segment's
+	// state tag, reused below instead of three separate map acquisitions (E2).
+	info, tagged := t.motionInfoAndPrune(ms.Id)
+	motionLine := int32(0)
+	if tagged {
+		motionLine = info.LineNo
+	}
+	stat.Motion.MotionLine = motionLine
 	stat.Motion.MotionType = ms.MotionType
-	stat.Task.MotionLine = t.lookupMotionLine(ms.Id)
-	t.pruneMotionMap(ms.Id)
+	stat.Motion.FeedOverrideEnabled = ms.FeedScaleEnabled != 0
+	stat.Motion.AdaptiveFeedEnabled = ms.AdaptiveFeedEnabled != 0
+	stat.Motion.FeedHoldEnabled = ms.FeedHoldEnabled != 0
+	stat.Motion.Queue = ms.QueueDepth
+	stat.Motion.QueueFull = ms.QueueFull != 0
+	stat.Task.MotionLine = motionLine
+	// Resolve the active G/M codes and current line from the state tag of the
+	// segment actually executing (motion echoes only the id back). This makes
+	// status reflect what the machine is running now rather than the
+	// interpreter's readahead. Falls back to the readahead codes set above when
+	// the moving segment has no tag (idle, MDI, or before the first tagged move).
+	// Tag slices are isolated at tag time (fresh interp slices), so alias them.
+	if tagged && info.Gcodes != nil {
+		stat.ActiveGcodes = info.Gcodes
+		stat.ActiveMcodes = info.Mcodes
+		stat.ActiveSettings = info.Settings
+		stat.Task.CurrentLine = info.LineNo
+		stat.Task.Line = info.LineNo
+	}
 	stat.Motion.Dtg = emcstat.Position{
 		X: ms.Dtg.X, Y: ms.Dtg.Y, Z: ms.Dtg.Z,
 		A: ms.Dtg.A, B: ms.Dtg.B, C: ms.Dtg.C,
@@ -138,8 +191,17 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	// Positions.
 	stat.Position = poseToPosition(ms.CartePosCmd)
 	stat.ActualPosition = poseToPosition(ms.CartePosFb)
-	stat.ToolOffset = poseToPosition(ms.ToolOffset)
 	stat.ProbedPosition = poseToPosition(ms.Probe.Pos)
+	// Tool offset comes from the canon (task) side: gomc folds it into the
+	// coordinate math (toAbsolute) and never sends it to motion, so
+	// ms.ToolOffset is always zero. This matches C++, which reports
+	// task.toolOffset from the SET_OFFSET command (emctaskmain.cc:1889), not a
+	// motion echo — and is consistent with G5x/G92 above (also from cs).
+	stat.ToolOffset = emcstat.Position{
+		X: cs.toolOffset.X, Y: cs.toolOffset.Y, Z: cs.toolOffset.Z,
+		A: cs.toolOffset.A, B: cs.toolOffset.B, C: cs.toolOffset.C,
+		U: cs.toolOffset.U, V: cs.toolOffset.V, W: cs.toolOffset.W,
+	}
 
 	// Tool info from IO controller.
 	if t.io != nil {
@@ -160,15 +222,18 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 	for i := 0; i < numJoints; i++ {
 		j := &ms.Joints[i]
 		stat.Joints[i] = emcstat.JointInfo{
-			Homed:          j.Homed != 0,
-			Homing:         j.Homing != 0,
-			Enabled:        j.Enabled != 0,
-			Fault:          j.Fault != 0,
-			MinSoftLimit:   j.MinPosLimit,
-			MaxSoftLimit:   j.MaxPosLimit,
-			MinHardLimit:   j.OnNegLimit != 0,
-			MaxHardLimit:   j.OnPosLimit != 0,
-			OverrideLimits: false, // TODO: from override_limit_mask
+			Homed:        j.Homed != 0,
+			Homing:       j.Homing != 0,
+			Enabled:      j.Enabled != 0,
+			Fault:        j.Fault != 0,
+			MinSoftLimit: j.MinPosLimit,
+			MaxSoftLimit: j.MaxPosLimit,
+			MinHardLimit: j.OnNegLimit != 0,
+			MaxHardLimit: j.OnPosLimit != 0,
+			// A non-zero override mask means limit checking is currently
+			// overridden; report it on every joint (matches 2.9 taskintf.cc,
+			// which UIs read via joint[0] as a global indicator).
+			OverrideLimits: ms.OverrideLimitMask != 0,
 			Velocity:       j.VelCmd,
 			Input:          j.PosFb,
 			Output:         j.PosCmd,
@@ -187,7 +252,9 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		stat.Axis[i] = emcstat.AxisInfo{
 			MinPositionLimit: ax.MinPosLimit,
 			MaxPositionLimit: ax.MaxPosLimit,
-			Velocity:         ax.VelLimit,
+			// Commanded teleop velocity, matching C++ axis->teleop_vel_cmd
+			// (taskintf.cc:574) — NOT the static vel_limit.
+			Velocity: ax.Velocity,
 		}
 	}
 
@@ -200,7 +267,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 			Brake:           sp.Brake != 0,
 			Enabled:         sp.State != 0,
 			Override:        sp.Scale,
-			OverrideEnabled: true, // always enabled in our implementation
+			OverrideEnabled: ms.SpindleScaleEnabled != 0,
 			Homed:           sp.Homed != 0,
 			OrientState:     sp.OrientState,
 			OrientFault:     sp.OrientFault,

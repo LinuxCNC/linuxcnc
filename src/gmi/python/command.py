@@ -125,9 +125,9 @@ class Command:
         """Unhome a joint (-1 = all)."""
         self._post("/unhome", {"joint": joint})
 
-    def override_limits(self):
-        """Override soft limits."""
-        self._post("/override-limits")
+    def override_limits(self, joint: int = 0):
+        """Override soft limits (joint < 0 resumes normal limit checking)."""
+        self._post("/override-limits", {"joint": joint})
 
     def teleop_enable(self, enable: bool):
         """Enable/disable teleop mode."""
@@ -177,9 +177,9 @@ class Command:
         """Set block delete."""
         self._post("/block-delete", {"on": bool(on)})
 
-    def load_tool_table(self):
-        """Reload tool table from file."""
-        self._post("/load-tool-table")
+    def load_tool_table(self, file: str = ""):
+        """Reload tool table from file (empty string = default table)."""
+        self._post("/load-tool-table", {"file": file})
 
     def program_open(self, filename: str):
         """Open a program file."""

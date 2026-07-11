@@ -3,6 +3,8 @@
 package task
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"math"
 	"time"
@@ -91,9 +93,11 @@ type CanonState struct {
 	traverseRate    float64
 
 	// Spindle
-	spindleNum   int32 // current spindle for synch motion
-	spindleSpeed [8]float64
-	spindleMode  float64
+	spindleNum    int32      // current spindle for synch motion
+	spindleSpeed  [8]float64 // commanded speed: RPM, or surface speed in CSS mode
+	spindleDir    [8]int32   // 0=off, 1=CW, -1=CCW
+	spindleCssMax [8]float64 // G96 constant-surface-speed cap (RPM); 0 = RPM mode
+	spindleWait   [8]int32   // last wait-for-at-speed flag (reused by S retune)
 
 	// Flags
 	feedOverrideEnabled  bool
@@ -274,6 +278,11 @@ type Canon struct {
 	parameterFileName string
 	discard           bool // when true, enqueue is a no-op (used during seek)
 	nextSerial        int32
+	// enqueueCount counts every command enqueued to the sequencer (not just
+	// motion, unlike nextSerial). finishMDI compares it across an o-word
+	// continuation Execute to tell whether anything needs draining (E5). Plain
+	// int — interp execution is never concurrent (cmdMu / producer-owned).
+	enqueueCount int64
 }
 
 // Compile-time check that Canon implements the generated CanonCallbacks interface.
@@ -297,6 +306,11 @@ func (c *Canon) setDiscard(d bool) {
 // allocSerial returns the next segment serial id and registers the G-code
 // location in the task's side table. Serials start at 1; 0 is reserved as
 // the "nothing executing" sentinel used by UI code.
+// serial returns the next motion-segment id the canon will allocate. Callers in
+// the runProgram goroutine use it to bracket the ids queued during one interp
+// execute, so those segments can be tagged with that line's active codes.
+func (c *Canon) serial() int32 { return c.nextSerial }
+
 func (c *Canon) allocSerial(lineno int32) int32 {
 	if c.nextSerial == 0 {
 		c.nextSerial = 1
@@ -382,7 +396,12 @@ func (c *Canon) SetTraverseRate(rate float64) {
 
 func (c *Canon) SetFeedRate(rate float64) {
 	s := c.state
-	s.linearFeedRate = s.fromProg(rate) / 60.0 // input is units/min → mm/sec
+	// units/min → units/sec. Linear feed is in program length units (scaled to
+	// mm); angular feed is in degrees (never unit-scaled), matching C++
+	// FROM_PROG_LEN / FROM_PROG_ANG. Both are set so the per-move blend can
+	// pick the right one for pure-angular vs cartesian moves.
+	s.linearFeedRate = s.fromProg(rate) / 60.0
+	s.angularFeedRate = rate / 60.0
 }
 
 func (c *Canon) SetFeedReference(reference int32) {
@@ -439,26 +458,34 @@ func (c *Canon) UseToolLengthOffset(x, y, z, a, b, _c, u, v, w float64) {
 
 func (c *Canon) StraightTraverse(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 	s := c.state
+	from := s.endPoint
 	pos := s.toAbsolute(x, y, z, a, b, _c, u, v, w)
 	s.endPoint = pos
 	s.lineNo = lineno
 
-	trav := c.task.maxVelocity
+	// Traverse runs at the per-axis-blended maximum — each participating axis at
+	// its own limit, coordinated — not the traj-global cap. Matches C++
+	// STRAIGHT_TRAVERSE (getStraightVelocity/Acceleration).
+	velMax, accMax, _, _ := c.task.straightLimits(from, pos)
+	if velMax <= 0 {
+		velMax = s.linearFeedRate
+	}
 	cmd := &LinearMoveCmd{
-		Pos:        pos,
-		Vel:        trav,
-		IniMaxVel:  trav,
-		Acc:        c.task.maxAcceleration,
-		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
-		ID:         c.allocSerial(lineno),
-		FeedUpm:    0, // traverse: no programmed feed
-		IndexerJ:   s.rotaryUnlockForTraverse,
+		Pos:          pos,
+		Vel:          velMax,
+		IniMaxVel:    velMax,
+		Acc:          accMax,
+		MotionType:   1, // EMC_MOTION_TYPE_TRAVERSE
+		ID:           c.allocSerial(lineno),
+		FeedMmPerMin: 0, // traverse: no programmed feed
+		IndexerJ:     s.rotaryUnlockForTraverse,
 	}
 	c.enqueue(cmd)
 }
 
 func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 	s := c.state
+	from := s.endPoint
 	pos := s.toAbsolute(x, y, z, a, b, _c, u, v, w)
 	s.endPoint = pos
 	s.lineNo = lineno
@@ -466,23 +493,49 @@ func (c *Canon) StraightFeed(lineno int32, x, y, z, a, b, _c, u, v, w float64) {
 	// Set motion parameters before the move (tp uses termCond at add time)
 	c.enqueueMotionParams()
 
+	vel, iniMaxVel, acc, feed := c.feedLimits(from, pos)
 	cmd := &LinearMoveCmd{
-		Pos:        pos,
-		Vel:        s.linearFeedRate,
-		IniMaxVel:  c.task.maxVelocity,
-		Acc:        c.task.maxAcceleration,
-		MotionType: 2, // EMC_MOTION_TYPE_FEED
-		ID:         c.allocSerial(lineno),
-		FeedUpm:    s.linearFeedRate * 60,
-		IndexerJ:   -1,
+		Pos:          pos,
+		Vel:          vel,
+		IniMaxVel:    iniMaxVel,
+		Acc:          acc,
+		MotionType:   2, // EMC_MOTION_TYPE_FEED
+		ID:           c.allocSerial(lineno),
+		FeedMmPerMin: feed * 60,
+		IndexerJ:     -1,
 	}
 	c.enqueue(cmd)
+}
+
+// feedLimits computes the commanded velocity, per-axis-blended max velocity
+// (ini_maxvel), and blended acceleration for a feed move, matching the C++
+// canon: ini_maxvel is the per-axis blend; vel is that blend clamped to the
+// programmed feed rate (linear or angular depending on the move); acc is the
+// per-axis-blended acceleration. Returns the selected programmed feed too (for
+// feed_mm_per_min). A move to nowhere falls back to the programmed feed rate.
+func (c *Canon) feedLimits(from, to Pose) (vel, iniMaxVel, acc, feed float64) {
+	s := c.state
+	velMax, accMax, cartesian, angular := c.task.straightLimits(from, to)
+	feed = s.linearFeedRate
+	if angular && !cartesian {
+		feed = s.angularFeedRate
+	}
+	iniMaxVel = velMax
+	if iniMaxVel <= 0 {
+		iniMaxVel = feed
+	}
+	vel = iniMaxVel
+	if vel > feed {
+		vel = feed
+	}
+	return vel, iniMaxVel, accMax, feed
 }
 
 func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis float64,
 	rotation int32, axisEndPoint, a, b, _c, u, v, w float64) {
 
 	s := c.state
+	from := s.endPoint
 	s.lineNo = lineno
 
 	// Convert arc endpoints and center based on active plane.
@@ -519,17 +572,21 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 		turn = rotation - 1
 	}
 
+	// Per-axis + centripetal-limited arc velocity/acceleration (matches C++
+	// ARC_FEED). Bounds the feed by the planar axes' limits, the centripetal
+	// cap on the arc radius, and the helical/aux-axis traversal time.
+	arcVel, arcIniMaxVel, arcAcc := c.task.arcLimits(from, pos, center, s.activePlane, rotation, s.linearFeedRate)
 	cmd := &CircularMoveCmd{
-		Pos:        pos,
-		Center:     center,
-		Normal:     normal,
-		Turn:       turn,
-		Vel:        s.linearFeedRate,
-		IniMaxVel:  c.task.maxVelocity,
-		Acc:        c.task.maxAcceleration,
-		MotionType: 3, // EMC_MOTION_TYPE_ARC
-		ID:         c.allocSerial(lineno),
-		FeedUpm:    s.linearFeedRate * 60,
+		Pos:          pos,
+		Center:       center,
+		Normal:       normal,
+		Turn:         turn,
+		Vel:          arcVel,
+		IniMaxVel:    arcIniMaxVel,
+		Acc:          arcAcc,
+		MotionType:   3, // EMC_MOTION_TYPE_ARC
+		ID:           c.allocSerial(lineno),
+		FeedMmPerMin: s.linearFeedRate * 60,
 	}
 	c.enqueue(cmd)
 	c.enqueueMotionParams()
@@ -537,18 +594,29 @@ func (c *Canon) ArcFeed(lineno int32, firstEnd, secondEnd, firstAxis, secondAxis
 
 func (c *Canon) RigidTap(lineno int32, x, y, z, scale float64) {
 	s := c.state
+	from := s.endPoint
 	pos := s.toAbsolute(x, y, z, 0, 0, 0, 0, 0, 0)
 	s.lineNo = lineno
 
-	cmd := &RigidTapCmd{
-		Pos:     pos,
-		Vel:     s.linearFeedRate,
-		Acc:     c.task.maxAcceleration,
-		Scale:   scale,
-		ID:      c.allocSerial(lineno),
-		FeedUpm: s.linearFeedRate * 60,
+	// Rigid-tap Z velocity is dictated by spindle synchronization, not the F
+	// word: use the per-axis straight-move max (unclamped by feed) for both vel
+	// and ini_maxvel, matching C++ RIGID_TAP (getStraightVelocity for both). If
+	// this were clamped to the feed rate, tp's position-sync phase — which caps
+	// target_vel at tc->maxvel — would throttle a fast tap to a slow active F
+	// and break the thread / the tap.
+	velMax, accMax, _, _ := c.task.straightLimits(from, pos)
+	if velMax <= 0 {
+		velMax = s.linearFeedRate
 	}
-	c.enqueue(cmd)
+	cmd := &RigidTapCmd{
+		Pos:          pos,
+		Vel:          velMax,
+		Acc:          accMax,
+		Scale:        scale,
+		ID:           c.allocSerial(lineno),
+		FeedMmPerMin: s.linearFeedRate * 60,
+	}
+	c.enqueue(cmd) // RigidTapCmd.Precondition drains preceding motion (D7)
 }
 
 func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, probeType uint8) {
@@ -556,21 +624,31 @@ func (c *Canon) StraightProbe(lineno int32, x, y, z, a, b, _c, u, v, w float64, 
 	pos := s.toAbsolute(x, y, z, a, b, _c, u, v, w)
 	s.lineNo = lineno
 
+	vel, iniMaxVel, acc, _ := c.feedLimits(s.endPoint, pos)
 	cmd := &ProbeCmd{
-		Pos:        pos,
-		Vel:        s.linearFeedRate,
-		IniMaxVel:  c.task.maxVelocity,
-		Acc:        c.task.maxAcceleration,
-		MotionType: 4, // EMC_MOTION_TYPE_PROBING
-		ProbeType:  probeType,
-		ID:         c.allocSerial(lineno),
-		FeedUpm:    s.linearFeedRate * 60,
+		Pos:          pos,
+		Vel:          vel,
+		IniMaxVel:    iniMaxVel,
+		Acc:          acc,
+		MotionType:   4, // EMC_MOTION_TYPE_PROBING
+		ProbeType:    probeType,
+		ID:           c.allocSerial(lineno),
+		FeedMmPerMin: s.linearFeedRate * 60,
 	}
-	c.enqueue(cmd)
+	c.enqueue(cmd) // ProbeCmd.Precondition drains preceding motion (D7)
 }
 
+// Motion-drain barriers are declared per command via Precondition() and applied
+// by the sequencer before it executes that command (D7): the ops that must act
+// *at* a point rather than blend with earlier motion — dwell, probe, rigid tap,
+// spindle on/off/speed, coolant, orient — set Precondition()==WaitMotion on the
+// queued command, so the canon just enqueues. Standalone flush points with no
+// attached command (M0/M1 stop, M2 end, M6 change) still enqueue
+// waitForMotionSingleton directly. (Coordinate/offset changes need no barrier —
+// they are applied canon-side to subsequent move endpoints, not sent to motion.)
+
 func (c *Canon) Dwell(seconds float64) {
-	c.enqueue(&DwellCmd{Seconds: seconds})
+	c.enqueue(&DwellCmd{Seconds: seconds}) // G4: DwellCmd.Precondition drains first
 }
 
 func (c *Canon) Stop() {
@@ -581,34 +659,74 @@ func (c *Canon) Finish() {
 	c.enqueue(waitForMotionSingleton)
 }
 
-func (c *Canon) StartSpindleClockwise(spindle, waitForAtspeed int32) {
+// spindleCommand builds the SpindleOn command for a spindle turning in the
+// given direction, computing the constant-surface-speed factor when G96 is
+// active. Ports the shared body of C++ START_SPINDLE_CW/CCW and
+// SET_SPINDLE_SPEED. In CSS mode the commanded speed is the max-RPM cap, the
+// factor carries the surface-speed constant, and the offset is the X tool-tip
+// offset motion needs to convert radius→RPM.
+func (c *Canon) spindleCommand(spindle, dir, waitForAtspeed int32) *SpindleOnCmd {
 	s := c.state
-	c.enqueue(&SpindleOnCmd{
-		Spindle:  spindle,
-		Speed:    s.spindleSpeed[spindle],
-		WaitFlag: waitForAtspeed,
-	})
+	cmd := &SpindleOnCmd{Spindle: spindle, WaitFlag: waitForAtspeed}
+	if s.spindleCssMax[spindle] != 0 {
+		k := 1000.0 / (2 * math.Pi)
+		if s.lengthUnits == CanonUnitsInches {
+			// Motion computes RPM as css_factor/offset_mm and works in mm, so the
+			// inch-mode factor must be scaled to mm (TO_EXT_LEN(25.4)) — matching
+			// C++ 12/(2π)·speed·TO_EXT_LEN. Without the 25.4 the css_factor is
+			// 25.4× too small and a G20 G96 spindle runs that much too slow.
+			k = 12.0 / (2 * math.Pi) * 25.4
+		}
+		cssFactor := k * s.spindleSpeed[spindle]
+		cmd.Speed = float64(dir) * s.spindleCssMax[spindle]
+		cmd.CSSFactor = float64(dir) * cssFactor
+		cmd.CSSMax = s.g5xOffset.X + s.g92Offset.X + s.toolOffset.X
+	} else {
+		cmd.Speed = float64(dir) * s.spindleSpeed[spindle]
+	}
+	return cmd
+}
+
+func (c *Canon) StartSpindleClockwise(spindle, waitForAtspeed int32) {
+	c.state.spindleDir[spindle] = 1
+	c.state.spindleWait[spindle] = waitForAtspeed
+	c.enqueue(c.spindleCommand(spindle, 1, waitForAtspeed)) // M3: SpindleOnCmd.Precondition drains first
 }
 
 func (c *Canon) StartSpindleCounterclockwise(spindle, waitForAtspeed int32) {
-	s := c.state
-	c.enqueue(&SpindleOnCmd{
-		Spindle:  spindle,
-		Speed:    -s.spindleSpeed[spindle],
-		WaitFlag: waitForAtspeed,
-	})
+	c.state.spindleDir[spindle] = -1
+	c.state.spindleWait[spindle] = waitForAtspeed
+	c.enqueue(c.spindleCommand(spindle, -1, waitForAtspeed)) // M4
 }
 
 func (c *Canon) SetSpindleSpeed(spindle int32, rpm float64) {
-	c.state.spindleSpeed[spindle] = rpm
+	s := c.state
+	s.spindleSpeed[spindle] = math.Abs(rpm)
+	// Only retune a spindle that is actually turning. A bare S word with the
+	// spindle stopped (dir==0) must store the speed only — enqueuing a spindle
+	// command here would send SpindleOnCmd{Speed:0}, whose motion handler
+	// hardcodes state=1 and so enables the drive at zero speed and releases the
+	// brake. C++ SET_SPINDLE_SPEED sends state=0 for a stopped spindle; M3/M4
+	// applies the stored speed when it starts the spindle.
+	if s.spindleDir[spindle] == 0 {
+		return
+	}
+	// Re-issue the spindle command so a running spindle retunes and CSS is
+	// recomputed, matching C++ SET_SPINDLE_SPEED (which re-emits for a running
+	// spindle). The C++ path reuses the last spindle command's stale
+	// wait-for-at-speed flag.
+	// S: SpindleOnCmd.Precondition drains preceding motion before the retune.
+	c.enqueue(c.spindleCommand(spindle, s.spindleDir[spindle], s.spindleWait[spindle]))
 }
 
 func (c *Canon) StopSpindleTurning(spindle int32) {
-	c.enqueue(waitForMotionSingleton)
+	c.state.spindleDir[spindle] = 0
+	// M5: SpindleOffCmd.Precondition drains preceding motion first.
 	c.enqueue(&SpindleOffCmd{Spindle: spindle})
 }
 
 func (c *Canon) OrientSpindle(spindle int32, orientation float64, mode int32) {
+	// M19: SpindleOrientCmd.Precondition drains preceding motion first.
 	c.enqueue(&SpindleOrientCmd{Spindle: spindle, Orientation: orientation, Mode: mode})
 }
 
@@ -630,6 +748,8 @@ func (c *Canon) ChangeTool(slot int32) {
 	c.enqueue(&ToolChangeCmd{})
 }
 
+// Flood/Mist: the *OnCmd/*OffCmd declare Precondition()==WaitMotion, so the
+// sequencer drains preceding motion before switching coolant (M7/M8/M9).
 func (c *Canon) FloodOn()  { c.state.floodOn = true; c.enqueue(&FloodOnCmd{}) }
 func (c *Canon) FloodOff() { c.state.floodOn = false; c.enqueue(&FloodOffCmd{}) }
 func (c *Canon) MistOn()   { c.state.mistOn = true; c.enqueue(&MistOnCmd{}) }
@@ -702,17 +822,29 @@ func (c *Canon) ProgramStop() {
 }
 
 func (c *Canon) OptionalProgramStop() {
-	if c.state.optionalProgramStop {
-		c.enqueue(&ProgramStopCmd{})
-	}
+	// Always enqueue: OptionalProgramStopCmd evaluates the operator's optional-
+	// stop toggle (t.optionalStop, set by the UI/halui) at execution time,
+	// matching 2.9 GET_OPTIONAL_PROGRAM_STOP. The interpreter-owned canon field
+	// c.state.optionalProgramStop was never synced from the task flag, so gating
+	// on it here made M1 a no-op regardless of the toggle.
+	c.enqueue(&OptionalProgramStopCmd{})
 }
 
 func (c *Canon) ProgramEnd() {
 	c.enqueue(waitForMotionSingleton)
 }
 
-func (c *Canon) Comment(s string)   {}
-func (c *Canon) Message(s string)   { c.task.logger.Info("MSG: " + s) }
+func (c *Canon) Comment(s string) {}
+func (c *Canon) Message(s string) {
+	// (MSG,...)/(DEBUG,...): publish to the operator-display channel. Enqueued
+	// (not fired inline during read-ahead) so the message appears in program
+	// order relative to motion, matching C++ MESSAGE() which emits
+	// EMC_OPERATOR_DISPLAY into the interp_list (emccanon.cc:2362). The message
+	// is logged once at execute time (operatorDisplay); logging here too would
+	// double-log AND fire ahead of program order, the very thing the queued
+	// DisplayMsgCmd exists to avoid.
+	c.enqueue(&DisplayMsgCmd{Text: s})
+}
 func (c *Canon) LogMsg(s string)    {}
 func (c *Canon) Logopen(s string)   {}
 func (c *Canon) Logappend(s string) {}
@@ -722,12 +854,27 @@ func (c *Canon) CanonError(msg string) {
 	c.task.logger.Error("canon error", "msg", msg)
 }
 
+// DisplayMsgCmd publishes a G-code operator-display message ((MSG,...)) when
+// the sequencer reaches it, so it appears in program order relative to motion.
+type DisplayMsgCmd struct{ Text string }
+
+func (c *DisplayMsgCmd) Execute(t *Task) error { t.operatorDisplay(c.Text); return nil }
+func (c *DisplayMsgCmd) Wait() WaitType        { return WaitNone }
+func (c *DisplayMsgCmd) String() string        { return "DisplayMsg" }
+
 func (c *Canon) SetBlockDelete(enabled int32) {
 	c.state.blockDelete = enabled != 0
 }
 
 func (c *Canon) GetBlockDelete() (int32, error) {
-	if c.state.blockDelete {
+	// Read the operator's block-delete toggle (t.blockDelete, set by UI/halui) —
+	// the interpreter reads this per line to decide whether to skip "/" lines.
+	// The interpreter-owned c.state.blockDelete was never synced from the task
+	// flag, so "/" lines were never skipped regardless of the toggle.
+	c.task.mu.Lock()
+	on := c.task.blockDelete
+	c.task.mu.Unlock()
+	if on {
 		return 1, nil
 	}
 	return 0, nil
@@ -738,7 +885,10 @@ func (c *Canon) SetOptionalProgramStop(enabled int32) {
 }
 
 func (c *Canon) GetOptionalProgramStop() (int32, error) {
-	if c.state.optionalProgramStop {
+	c.task.mu.Lock()
+	on := c.task.optionalStop
+	c.task.mu.Unlock()
+	if on {
 		return 1, nil
 	}
 	return 0, nil
@@ -752,7 +902,12 @@ func (c *Canon) OnReset() {
 	// InitCanon() must only be called during true initialization.
 }
 
-func (c *Canon) TurnProbeOn()  {}
+func (c *Canon) TurnProbeOn() {
+	// Matches C++ TURN_PROBE_ON, which appends CLEAR_PROBE_TRIPPED_FLAG to the
+	// interp_list so the motion probe-tripped flag is cleared in program order
+	// at the start of each probe, before the STRAIGHT_PROBE move.
+	c.enqueue(&ClearProbeFlagsCmd{})
+}
 func (c *Canon) TurnProbeOff() {}
 
 func (c *Canon) StartSpeedFeedSynch(spindle int32, feedPerRev float64, velocityMode int32) {
@@ -776,73 +931,21 @@ func (c *Canon) UnclampAxis(axis int32) {}
 func (c *Canon) PalletShuttle()         {}
 
 func (c *Canon) WaitInput(index, inputType, waitType int32, timeout float64) (int32, error) {
-	// M66: Wait for digital/analog input condition.
-	// inputType: 1=digital, 2=analog
-	// waitType: 0=immediate, 1=rise, 2=fall, 3=high, 4=low
-	// timeout: seconds (0 = immediate read)
-	// Returns: 0 on success, -1 on error/timeout
-
-	if c.task.status == nil {
-		return -1, nil
+	// M66: wait for a digital/analog input condition.
+	// inputType: 1=digital, 2=analog; waitType: 0=immediate, 1=rise, 2=fall,
+	// 3=high, 4=low; timeout in seconds (0 = immediate read).
+	//
+	// The wait is QUEUED (WaitInputCmd), not run inline here, so it executes in
+	// program order — after the preceding motion drains — instead of during
+	// interpreter readahead. This matches C++ WAIT, which appends the wait to
+	// interp_list and returns immediately (0), letting the interpreter yield
+	// INTERP_EXECUTE_FINISH; the captured value is read post-drain via the
+	// GET_EXTERNAL_*_INPUT getters. Only the out-of-range check is immediate.
+	if index < 0 || index >= 64 {
+		return -1, nil // matches C++ WAIT bounds check (EMCMOT_MAX_DIO/AIO)
 	}
-
-	// Immediate mode — just return, interp will read via GetExternalDigitalInput/AnalogInput
-	if timeout == 0 || waitType == 0 {
-		return 0, nil
-	}
-
-	deadline := time.Now().Add(time.Duration(timeout * float64(time.Second)))
-	ticker := time.NewTicker(pollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-c.task.seqAbort:
-			return -1, nil
-		case <-ticker.C:
-			ms, err := c.task.status.GetStatus()
-			if err != nil {
-				continue
-			}
-
-			var satisfied bool
-			if inputType == 1 { // digital
-				if index < 0 || index >= 64 {
-					return -1, nil
-				}
-				val := ms.SynchDi[index]
-				switch waitType {
-				case 1: // rise (high)
-					satisfied = val != 0
-				case 2: // fall (low)
-					satisfied = val == 0
-				case 3: // high
-					satisfied = val != 0
-				case 4: // low
-					satisfied = val == 0
-				}
-			} else { // analog
-				if index < 0 || index >= 64 {
-					return -1, nil
-				}
-				val := ms.AnalogInput[index]
-				// For analog: rise=above 0, fall=below 0, high=above 0, low=below/equal 0
-				switch waitType {
-				case 1, 3:
-					satisfied = val > 0
-				case 2, 4:
-					satisfied = val <= 0
-				}
-			}
-
-			if satisfied {
-				return 0, nil
-			}
-			if time.Now().After(deadline) {
-				return -1, nil
-			}
-		}
-	}
+	c.enqueue(&WaitInputCmd{Index: index, InputType: inputType, WaitType: waitType, Timeout: timeout})
+	return 0, nil
 }
 
 func (c *Canon) LockRotary(lineno, joint int32) (int32, error) {
@@ -855,14 +958,14 @@ func (c *Canon) UnlockRotary(lineno, joint int32) (int32, error) {
 	// position before unlocking (matches C canon UNLOCK_ROTARY behavior).
 	s := c.state
 	cmd := &LinearMoveCmd{
-		Pos:        s.endPoint,
-		Vel:        1,
-		IniMaxVel:  1,
-		Acc:        1,
-		MotionType: 1, // EMC_MOTION_TYPE_TRAVERSE
-		ID:         c.allocSerial(lineno),
-		FeedUpm:    0,
-		IndexerJ:   -1,
+		Pos:          s.endPoint,
+		Vel:          1,
+		IniMaxVel:    1,
+		Acc:          1,
+		MotionType:   1, // EMC_MOTION_TYPE_TRAVERSE
+		ID:           c.allocSerial(lineno),
+		FeedMmPerMin: 0,
+		IndexerJ:     -1,
 	}
 	c.enqueue(cmd)
 	// The next traverse will carry this joint number for unlock/lock.
@@ -874,8 +977,9 @@ func (c *Canon) SetParameterFileName(name string) {
 	c.parameterFileName = name
 }
 
-func (c *Canon) SetSpindleMode(spindle int32, mode float64) {
-	c.state.spindleMode = mode
+func (c *Canon) SetSpindleMode(spindle int32, cssMax float64) {
+	// G96 D<cssMax> enables constant surface speed (cap in RPM); G97 sets 0.
+	c.state.spindleCssMax[spindle] = math.Abs(cssMax)
 }
 
 func (c *Canon) SetToolTableEntry(pocket, toolno int32, ox, oy, oz, oa, ob, oc, ou, ov, ow, diameter, frontangle, backangle float64, orientation int32) {
@@ -1073,12 +1177,26 @@ func (c *Canon) nurbsArc(lineno int32, x0, y0, x1, y1, dx, dy float64) {
 
 // --- Internal helpers ---
 
+// enqueued returns the running count of commands enqueued to the sequencer,
+// used to detect whether an interp Execute queued anything (E5).
+func (c *Canon) enqueued() int64 { return c.enqueueCount }
+
 func (c *Canon) enqueue(cmd QueuedCmd) {
 	if c.discard {
 		return
 	}
+	c.enqueueCount++
 	if err := c.task.EnqueueCmd(cmd); err != nil {
 		c.task.logger.Error("canon enqueue failed", "cmd", cmd.String(), "err", err)
+		// A dropped command during an in-progress abort/teardown is expected —
+		// the producer keeps firing the rest of the block's canon callbacks into
+		// the just-closed queue — so log only, no operator error (R5: the burst
+		// was alarming UI noise on a user-initiated stop). Surface an operator
+		// error only for an UNEXPECTED drop (sequencer not running at all), the
+		// wedge case C3's message was meant for.
+		if !errors.Is(err, errSeqAborted) {
+			c.task.operatorError(fmt.Sprintf("Motion command dropped (sequencer stopped): %s", cmd.String()))
+		}
 	}
 }
 
@@ -1097,39 +1215,48 @@ func (c *Canon) enqueueMotionParams() {
 
 // RigidTapCmd queues a rigid tap.
 type RigidTapCmd struct {
-	Pos     Pose
-	Vel     float64
-	Acc     float64
-	Scale   float64
-	ID      int32
-	FeedUpm float64
+	Pos          Pose
+	Vel          float64
+	Acc          float64
+	Scale        float64
+	ID           int32
+	FeedMmPerMin float64
 }
 
 func (c *RigidTapCmd) Execute(t *Task) error {
-	return t.motion.RigidTap(c.Pos, c.Vel, c.Vel, c.Acc, c.Scale, c.ID, c.FeedUpm)
+	return t.motion.RigidTap(c.Pos, c.Vel, c.Vel, c.Acc, c.Scale, c.ID, c.FeedMmPerMin)
 }
-func (c *RigidTapCmd) Wait() WaitType { return WaitNone }
-func (c *RigidTapCmd) String() string { return fmt.Sprintf("RigidTap(id=%d)", c.ID) }
-func (c *RigidTapCmd) LineID() int32  { return c.ID }
+func (c *RigidTapCmd) Wait() WaitType         { return WaitNone }
+func (c *RigidTapCmd) Precondition() WaitType { return WaitMotion } // G33.1: no blend with approach
+func (c *RigidTapCmd) String() string         { return fmt.Sprintf("RigidTap(id=%d)", c.ID) }
+func (c *RigidTapCmd) LineID() int32          { return c.ID }
+
+// ClearProbeFlagsCmd clears the motion probe-tripped flag (canon TURN_PROBE_ON).
+type ClearProbeFlagsCmd struct{}
+
+func (c *ClearProbeFlagsCmd) Execute(t *Task) error { return t.motion.ClearProbeFlags() }
+func (c *ClearProbeFlagsCmd) Wait() WaitType        { return WaitNone }
+func (c *ClearProbeFlagsCmd) String() string        { return "ClearProbeFlags" }
 
 // ProbeCmd queues a probe move.
 type ProbeCmd struct {
-	Pos        Pose
-	Vel        float64
-	IniMaxVel  float64
-	Acc        float64
-	MotionType int32
-	ProbeType  uint8
-	ID         int32
-	FeedUpm    float64
+	Pos          Pose
+	Vel          float64
+	IniMaxVel    float64
+	Acc          float64
+	MotionType   int32
+	ProbeType    uint8
+	ID           int32
+	FeedMmPerMin float64
 }
 
 func (c *ProbeCmd) Execute(t *Task) error {
-	return t.motion.Probe(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ProbeType, c.ID, c.FeedUpm)
+	return t.motion.Probe(c.Pos, c.Vel, c.IniMaxVel, c.Acc, c.MotionType, c.ProbeType, c.ID, c.FeedMmPerMin)
 }
-func (c *ProbeCmd) Wait() WaitType { return WaitMotion }
-func (c *ProbeCmd) String() string { return fmt.Sprintf("Probe(id=%d)", c.ID) }
-func (c *ProbeCmd) LineID() int32  { return c.ID }
+func (c *ProbeCmd) Wait() WaitType         { return WaitMotion }
+func (c *ProbeCmd) Precondition() WaitType { return WaitMotion } // G38: probe starts at the point
+func (c *ProbeCmd) String() string         { return fmt.Sprintf("Probe(id=%d)", c.ID) }
+func (c *ProbeCmd) LineID() int32          { return c.ID }
 
 // SpindleOrientCmd orients a spindle.
 type SpindleOrientCmd struct {
@@ -1141,7 +1268,8 @@ type SpindleOrientCmd struct {
 func (c *SpindleOrientCmd) Execute(t *Task) error {
 	return t.motion.SpindleOrient(c.Spindle, c.Orientation, c.Mode)
 }
-func (c *SpindleOrientCmd) Wait() WaitType { return WaitNone }
+func (c *SpindleOrientCmd) Wait() WaitType         { return WaitNone }
+func (c *SpindleOrientCmd) Precondition() WaitType { return WaitMotion } // M19: orient after motion
 func (c *SpindleOrientCmd) String() string {
 	return fmt.Sprintf("SpindleOrient(s=%d)", c.Spindle)
 }
@@ -1159,16 +1287,18 @@ func (c *WaitSpindleOrientedCmd) String() string        { return "WaitSpindleOri
 // MistOnCmd turns mist on.
 type MistOnCmd struct{}
 
-func (c *MistOnCmd) Execute(t *Task) error { return t.io.CoolantMistOn() }
-func (c *MistOnCmd) Wait() WaitType        { return WaitNone }
-func (c *MistOnCmd) String() string        { return "MistOn" }
+func (c *MistOnCmd) Execute(t *Task) error  { return t.io.CoolantMistOn() }
+func (c *MistOnCmd) Wait() WaitType         { return WaitNone }
+func (c *MistOnCmd) Precondition() WaitType { return WaitMotion }
+func (c *MistOnCmd) String() string         { return "MistOn" }
 
 // MistOffCmd turns mist off.
 type MistOffCmd struct{}
 
-func (c *MistOffCmd) Execute(t *Task) error { return t.io.CoolantMistOff() }
-func (c *MistOffCmd) Wait() WaitType        { return WaitNone }
-func (c *MistOffCmd) String() string        { return "MistOff" }
+func (c *MistOffCmd) Execute(t *Task) error  { return t.io.CoolantMistOff() }
+func (c *MistOffCmd) Wait() WaitType         { return WaitNone }
+func (c *MistOffCmd) Precondition() WaitType { return WaitMotion }
+func (c *MistOffCmd) String() string         { return "MistOff" }
 
 // SetMotionParamsCmd sets velocity/acceleration/termination before a move.
 type SetMotionParamsCmd struct {
@@ -1230,6 +1360,121 @@ func (c *AdaptiveFeedEnableCmd) Execute(t *Task) error {
 }
 func (c *AdaptiveFeedEnableCmd) Wait() WaitType { return WaitNone }
 func (c *AdaptiveFeedEnableCmd) String() string { return "AdaptiveFeedEnable" }
+
+// WaitInputCmd implements M66 — wait for a digital/analog input condition.
+// It is queued so it runs in program order: the preceding motion is drained
+// first (so the input is sampled at the commanded point), then the input is
+// polled for the requested edge/level until satisfied or timeout. The captured
+// value is read by the interpreter afterwards via GET_EXTERNAL_*_INPUT.
+type WaitInputCmd struct {
+	Index     int32
+	InputType int32 // 1=digital, 2=analog
+	WaitType  int32 // 0=immediate, 1=rise, 2=fall, 3=high, 4=low
+	Timeout   float64
+}
+
+// setInputTimeout records the M66 wait state for stat.task.input_timeout
+// (0=none/cleared, 1=timed out, 2=waiting). Called from the sequencer goroutine.
+func (t *Task) setInputTimeout(v int32) {
+	t.mu.Lock()
+	t.inputTimeout = v
+	t.mu.Unlock()
+}
+
+// inputTimedOut reports whether the most recent M66 wait timed out
+// (inputTimeout==1). The digital/analog input getters return -1 in that case,
+// which the interpreter stores into #5399 so a program's timeout check
+// (o100 if [#5399 LT 0]) fires. Mirrors C++ GET_EXTERNAL_*_INPUT, which returns
+// -1 when task.input_timeout==1. The flag is not cleared here (as in C++): the
+// next M66 overwrites it via setInputTimeout.
+func (t *Task) inputTimedOut() bool {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.inputTimeout == 1
+}
+
+func (c *WaitInputCmd) Execute(t *Task) error {
+	// Drain preceding motion so the input is sampled at the commanded point.
+	if err := t.waitMotionDone(); err != nil {
+		return err
+	}
+	// Immediate read: nothing to wait for — the interpreter reads the value
+	// post-drain via the getters. No timeout can occur (C++ input_timeout=0).
+	if c.WaitType == 0 || c.Timeout <= 0 {
+		t.setInputTimeout(0)
+		return nil
+	}
+	// Arm the timeout flag (C++ sets input_timeout=2 while waiting).
+	t.setInputTimeout(2)
+	deadline := time.Now().Add(time.Duration(c.Timeout * float64(time.Second)))
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+	// Edge waits (rise/fall) are two-phase: the opposite level must be observed
+	// before the target edge counts, so a signal already at the target level
+	// from a previous cycle does NOT complete the wait immediately. Matches C++
+	// WAIT_MODE_RISE/FALL, which first flips to WAIT_MODE_HIGH/LOW once the
+	// opposite level is seen (emctaskmain.cc). sawOpposite latches that first
+	// phase.
+	var sawOpposite bool
+	for {
+		select {
+		case <-t.seqAbort:
+			t.setInputTimeout(0) // wait cancelled — not a timeout
+			return context.Canceled
+		case <-ticker.C:
+			if t.status == nil {
+				return nil
+			}
+			// Narrow accessor — reads just this one digital input instead of
+			// snapshotting the whole MotionStatus every 10 ms (E3). Only digital
+			// inputs reach this poll loop: the interp always sends analog inputs
+			// as immediate (it rejects analog + non-immediate wait,
+			// interp_convert.cc), so analog takes the WaitType==0 early return
+			// above. Guard on digital so a future contract change can't sample
+			// the wrong (digital) array for an analog index.
+			// A read error skips only the condition check — NOT the deadline
+			// check below (R4): otherwise persistent read errors would keep
+			// looping and the M66 Q-timeout would never fire, blocking until
+			// abort/estop.
+			if c.InputType == 1 && c.Index >= 0 && c.Index < 64 {
+				if di, err := t.status.GetSynchDi(c.Index); err == nil {
+					high := di != 0
+					var satisfied bool
+					switch c.WaitType {
+					case 3: // high (level)
+						satisfied = high
+					case 4: // low (level)
+						satisfied = !high
+					case 1: // rise (edge): observe low, then high
+						if !high {
+							sawOpposite = true
+						} else if sawOpposite {
+							satisfied = true
+						}
+					case 2: // fall (edge): observe high, then low
+						if high {
+							sawOpposite = true
+						} else if sawOpposite {
+							satisfied = true
+						}
+					}
+					if satisfied {
+						t.setInputTimeout(0) // condition met before timeout
+						return nil
+					}
+				}
+			}
+			if time.Now().After(deadline) {
+				t.setInputTimeout(1) // timeout occurred (C++ input_timeout=1)
+				return nil           // interpreter reads the current input value
+			}
+		}
+	}
+}
+func (c *WaitInputCmd) Wait() WaitType { return WaitNone }
+func (c *WaitInputCmd) String() string {
+	return fmt.Sprintf("WaitInput(idx=%d itype=%d wtype=%d to=%.2fs)", c.Index, c.InputType, c.WaitType, c.Timeout)
+}
 
 // SetDoutCmd sets a digital output immediately.
 type SetDoutCmd struct {

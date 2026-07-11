@@ -1,0 +1,7 @@
+logs/
+db/
+_*.ini
+*.var
+*.var.bak
+*.srvout
+PARITY_RESULTS.txt

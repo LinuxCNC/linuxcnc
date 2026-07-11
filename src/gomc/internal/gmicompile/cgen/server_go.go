@@ -476,6 +476,12 @@ func (g *serverGoGen) emitCommands() {
 	ifaceName := apiPascal + "Callbacks"
 	funcName := apiPascal + "Commands"
 
+	// Same @constraint validation as the REST dispatch — but call the shared
+	// validate<Api><Fn> functions emitted once into _cgo.go (same package) rather
+	// than re-emitting the checks and a duplicate set of compiled @regex vars
+	// here (D8). ce is used only to generate the call expressions.
+	ce := newConstraintEmitter(g.api)
+
 	g.printf("// --- WebSocket Commands ---\n\n")
 	g.printf("// %s generates WS command metadata from the callbacks implementation.\n", funcName)
 	g.printf("func %s(impl %s) []apiserver.CommandMeta {\n", funcName, ifaceName)
@@ -517,6 +523,12 @@ func (g *serverGoGen) emitCommands() {
 			g.printf("\t\t\t\t\treturn nil, err\n")
 			g.printf("\t\t\t\t}\n")
 			g.printf("\t\t\t}\n")
+
+			// Validate IDL @constraints via the shared validator (no reindent
+			// splicing of an inlined check block needed).
+			if ce.needsValidation(fn) {
+				g.printf("\t\t\tif verr := %s; verr != nil {\n\t\t\t\treturn nil, verr\n\t\t\t}\n", ce.validateCallExpr(fn, "params"))
+			}
 		}
 
 		// Build call args

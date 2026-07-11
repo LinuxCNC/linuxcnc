@@ -23,9 +23,20 @@ type IOStatusReader interface {
 	GetIOFullStatus() (IOFullStatus, error)
 }
 
-// monitor runs a periodic loop checking for external estop, motion errors,
-// soft limits, and inihal parameter changes. This is the Go equivalent of
-// the C milltask main loop's subordinate health checks.
+// monitor runs the periodic health checks. It owns TWO goroutines:
+//
+//   - the safety loop (loop): external estop, motion-enabled, motion/IO
+//     errors, soft limits, jog watchdog, inihal parameter changes. Nothing in
+//     it dispatches commands, so its detection and signal phases can never
+//     stall behind a command holding cmdMu (teardown *cleanup* serializes on
+//     cmdMu, but only after the stop signals have fired).
+//   - the halui loop (haluiLoop): scans halui pins and dispatches the
+//     resulting commands. Dispatch is synchronous and may block on cmdMu for
+//     the duration of a running command (exactly like any other UI client) —
+//     which is why it must not share a goroutine with the safety checks.
+//
+// This is the Go equivalent of the C milltask main loop's subordinate health
+// checks, with halui (a separate process there) given back its own thread.
 type monitor struct {
 	task   *Task
 	mc     MotionConfig
@@ -34,6 +45,9 @@ type monitor struct {
 	ioStat IOStatusReader // nil if IO doesn't support status read
 	stopCh chan struct{}
 	doneCh chan struct{}
+	// haluiDoneCh is closed when the halui loop exits (nil if halui is not
+	// configured and the loop was never started).
+	haluiDoneCh chan struct{}
 
 	// Latch: suppress repeated error handling until error clears.
 	errorLatched bool
@@ -52,6 +66,10 @@ func (m *monitor) start() {
 	m.stopCh = make(chan struct{})
 	m.doneCh = make(chan struct{})
 	go m.loop()
+	if m.halui != nil {
+		m.haluiDoneCh = make(chan struct{})
+		go m.haluiLoop()
+	}
 }
 
 func (m *monitor) stop() {
@@ -60,8 +78,13 @@ func (m *monitor) stop() {
 	}
 	close(m.stopCh)
 	<-m.doneCh
+	if m.haluiDoneCh != nil {
+		<-m.haluiDoneCh
+	}
 }
 
+// loop is the safety loop: detection and stop signals only, no command
+// dispatch, so it can never wedge behind a command holding cmdMu.
 func (m *monitor) loop() {
 	defer close(m.doneCh)
 
@@ -82,10 +105,29 @@ func (m *monitor) loop() {
 			if m.inihal != nil {
 				m.inihal.check(m.mc)
 			}
-			if m.halui != nil {
-				m.halui.check(m.task)
-				m.halui.updateOutputs(m.task)
-			}
+		}
+	}
+}
+
+// haluiLoop scans halui pins and dispatches the resulting commands, then
+// mirrors task state back to the output pins. A dispatched command can block
+// on cmdMu like any UI client's would — that only delays the next pin scan,
+// never the safety loop. Note the consequence: halui's soft pins (including
+// estop-activate) are serviced with UI-command latency; the hard estop path
+// is emc-enable-in, which the safety loop's checkEstop watches independently.
+func (m *monitor) haluiLoop() {
+	defer close(m.haluiDoneCh)
+
+	ticker := time.NewTicker(monitorInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-m.stopCh:
+			return
+		case <-ticker.C:
+			m.halui.check(m.task)
+			m.halui.updateOutputs(m.task)
 		}
 	}
 }
@@ -131,7 +173,20 @@ func (m *monitor) checkEstop() {
 	}
 	wasEnabled := m.task.state == StateOn
 	numSpindles := m.task.numSpindles
+	// Commit the ENTIRE observable transition in this one hold, like the
+	// sibling setState(ESTOP) path — a reader must never see state=Estop
+	// with interpState still Reading and a populated MDI queue. (The values
+	// are provisional against a still-draining sequencer; the authoritative
+	// re-commit happens after the StartSequencer join below.)
 	m.task.state = StateEstop
+	m.task.interpState = InterpIdle
+	m.task.execState = ExecDone
+	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
+	m.task.mdiGen++ // invalidate any pending finishMDI (R2)
+	m.task.stepping = false
+	m.task.floodOn = false
+	m.task.mistOn = false
 	m.task.mu.Unlock()
 
 	// Set user-enable-out=0 to match the detected state.
@@ -148,46 +203,18 @@ func (m *monitor) checkEstop() {
 	// Machine was ON — this is a real external estop event.
 	m.task.logger.Warn("external estop detected — forcing shutdown")
 
-	// Abort sequencer and motion
-	m.task.AbortSequencer()
-	m.task.mcodeAbort()
-	_ = m.task.motion.Abort()
-	_ = m.task.motion.Disable()
+	// Full estop-off teardown, shared with commanded estop/off (machineShutdown)
+	// so this can no longer drift from it (it previously omitted the lube-off and
+	// the endpoint re-synch). Signal phase runs WITHOUT cmdMu so the machine
+	// stops even while a command holds the lock (the seqAbort close unblocks a
+	// command stuck in EnqueueCmd backpressure); the interp-reset cleanup runs
+	// WITH cmdMu so it cannot race a command that owns the interpreter.
+	o := fullShutdownOpts(emcAbortAuxEstop, "external estop")
+	m.task.stopSignals(numSpindles, o)
 
-	// Abort IO
-	_ = m.task.io.IoAbort(1) // EMC_ABORT_AUX_ESTOP
-
-	// Stop all spindles
-	for i := 0; i < numSpindles; i++ {
-		_ = m.task.motion.SpindleOff(int32(i))
-	}
-
-	// Turn off coolant
-	_ = m.task.io.CoolantFloodOff()
-	_ = m.task.io.CoolantMistOff()
-
-	m.task.mu.Lock()
-	m.task.floodOn = false
-	m.task.mistOn = false
-	m.task.interpState = InterpIdle
-	m.task.execState = ExecDone
-	m.task.mdiQueue = m.task.mdiQueue[:0]
-	m.task.stepping = false
-	m.task.mu.Unlock()
-
-	// Unhome all joints (joint -2 = all)
-	_ = m.task.motion.JointUnhome(-2)
-
-	// Notify interpreter
-	if m.task.interp != nil {
-		_ = m.task.interp.Abort(0, "external estop")
-		_ = m.task.interp.Close()
-		_ = m.task.interp.Reset()
-		_ = m.task.interp.Synch()
-	}
-
-	// Restart sequencer for clean state
-	m.task.StartSequencer()
+	m.task.cmdMu.Lock()
+	m.task.finishShutdown(o)
+	m.task.cmdMu.Unlock()
 
 	m.task.operatorError("External E-Stop asserted")
 }
@@ -215,34 +242,37 @@ func (m *monitor) checkMotionEnabled() {
 		m.task.mu.Unlock()
 		return
 	}
-	// Motion disabled itself — transition to OFF (ESTOP_RESET).
+	// Motion disabled itself while the task believed the machine was on — an
+	// unexpected disable (hard limit, following error, amp fault, watchdog, or
+	// an external enable drop). Latch ExecError so the interruption is visible
+	// rather than a plain ExecDone that reads like a clean stop. (A deliberate
+	// off goes through SetState, which sets state != StateOn first, so this path
+	// is never reached for a normal stop.) The specific cause is reported
+	// separately via the motion module's operator-error message. ExecError is
+	// cleared on the next estop-reset / off→on, so it does not wedge recovery.
 	m.task.state = StateEstopReset
 	m.task.interpState = InterpIdle
-	m.task.execState = ExecDone
 	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
+	m.task.mdiGen++ // invalidate any pending finishMDI (R2)
 	m.task.stepping = false
 	numSpindles := m.task.numSpindles
 	m.task.mu.Unlock()
 
 	m.task.logger.Warn("motion disabled — switching machine off")
 
-	// Abort everything (matches old emcTaskUpdate when state left ON).
-	m.task.AbortSequencer()
-	m.task.mcodeAbort()
-	_ = m.task.motion.Abort()
-	_ = m.task.io.IoAbort(2) // EMC_ABORT_TASK_STATE_NOT_ON
+	// Error stop (motion disabled itself): abort motion+IO, stop spindles, and
+	// latch ExecError — but leave coolant/lube/homing untouched (this is not a
+	// full off; motion already disabled itself). Signal phase without cmdMu,
+	// cleanup with it (see checkEstop / stopSignals). finishShutdown commits the
+	// terminal ExecError after the join; it stays latched until the next
+	// estop-reset / off→on recovery clears it.
+	o := shutdownOpts{ioReason: emcAbortTaskStateNotOn, terminalExec: ExecError, reason: "motion disabled"}
+	m.task.stopSignals(numSpindles, o)
 
-	for i := 0; i < numSpindles; i++ {
-		_ = m.task.motion.SpindleOff(int32(i))
-	}
-
-	if m.task.interp != nil {
-		_ = m.task.interp.Abort(0, "motion disabled")
-		_ = m.task.interp.Close()
-		_ = m.task.interp.Reset()
-	}
-
-	m.task.StartSequencer()
+	m.task.cmdMu.Lock()
+	defer m.task.cmdMu.Unlock()
+	m.task.finishShutdown(o)
 }
 
 // checkMotionErrors polls motion status for errors and soft limits.
@@ -300,9 +330,12 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 	}
 	m.errorLatched = true
 	numSpindles := m.task.numSpindles
+	// Provisional commit (see checkEstop); the authoritative terminal state
+	// is re-committed after the StartSequencer join below.
 	m.task.interpState = InterpIdle
-	m.task.execState = ExecError
 	m.task.mdiQueue = m.task.mdiQueue[:0]
+	m.task.taskCommand = ""
+	m.task.mdiGen++ // invalidate any pending finishMDI (R2)
 	m.task.stepping = false
 	m.task.mu.Unlock()
 
@@ -316,26 +349,17 @@ func (m *monitor) checkMotionErrors(softLimitReported *bool) {
 		m.task.logger.Error("IO error detected — aborting")
 	}
 
-	// Abort everything.
-	m.task.AbortSequencer()
-	m.task.mcodeAbort()
-	_ = m.task.motion.Abort()
-	_ = m.task.io.IoAbort(2) // EMC_ABORT_MOTION_OR_IO_RCS_ERROR
+	// Error stop: abort motion+IO, stop spindles, and latch ExecError, leaving
+	// coolant/lube/homing alone. Signal phase without cmdMu, cleanup with it
+	// (see checkEstop / stopSignals). finishShutdown commits the terminal
+	// ExecError after the join, so the stop is visible to the UI as an
+	// error-stop. Matches C++ EMC_TASK_EXEC_ERROR.
+	o := shutdownOpts{ioReason: emcAbortMotionOrIoRcsError, terminalExec: ExecError, reason: "motion/IO error"}
+	m.task.stopSignals(numSpindles, o)
 
-	// Stop spindles.
-	for i := 0; i < numSpindles; i++ {
-		_ = m.task.motion.SpindleOff(int32(i))
-	}
-
-	// Notify interpreter.
-	if m.task.interp != nil {
-		_ = m.task.interp.Abort(0, "motion/IO error")
-		_ = m.task.interp.Close()
-		_ = m.task.interp.Reset()
-	}
-
-	// Restart sequencer.
-	m.task.StartSequencer()
+	m.task.cmdMu.Lock()
+	defer m.task.cmdMu.Unlock()
+	m.task.finishShutdown(o)
 }
 
 // checkJogWatchdog stops continuous jogs that haven't been refreshed
@@ -354,8 +378,9 @@ func (m *monitor) checkJogWatchdog() {
 		}
 		if now.Sub(j.lastSeen) > jogTimeout {
 			j.active = false
+			isTeleop := j.isTeleop // copy — j points into state mutated under mu
 			t.mu.Unlock()
-			_ = t.motion.JogAbort(int32(i), j.isTeleop)
+			_ = t.motion.JogAbort(int32(i), isTeleop)
 			t.logger.Warn("jog watchdog: stopped expired jog", "axis_or_joint", i)
 			t.mu.Lock()
 		}

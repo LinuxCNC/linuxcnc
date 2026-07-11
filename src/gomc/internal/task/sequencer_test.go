@@ -110,11 +110,14 @@ func TestSequencer_AbortClearsQueue(t *testing.T) {
 	// Give sequencer time to start waiting
 	time.Sleep(5 * time.Millisecond)
 
-	// Abort — should cancel the wait and drain remaining
-	task.AbortSequencer()
-
-	// Wait for goroutine exit
-	<-task.seqDone
+	// Abort via the user-facing command: it signals (AbortSequencer), joins
+	// the old goroutine, and — per the aborter-owns-terminal-state contract —
+	// commits ExecDone/InterpIdle itself. The raw AbortSequencer signal alone
+	// deliberately leaves state untouched (the exiting sequencer writes no
+	// state on abort-exit).
+	if err := task.Abort(); err != nil {
+		t.Fatalf("abort: %v", err)
+	}
 
 	// The motion commands after the wait should NOT have been executed
 	if len(mot.calls) > 0 {
@@ -151,10 +154,12 @@ func TestSequencer_ErrorStopsExecution(t *testing.T) {
 	// Wait for sequencer to stop on error
 	<-task.seqDone
 
-	// First call succeeds, then motion command is retried up to maxMotionRetries (1000).
-	// Expect 1 success + 1001 failed attempts = 1002 total calls.
-	if len(mot.calls) < 2 {
-		t.Fatalf("expected at least 2 calls, got %d: %v", len(mot.calls), mot.calls)
+	// Fail-fast: the mock reports an empty TP queue (depth 0 < high-water), so
+	// the 2nd command's failure is a hard fault, not backpressure — the sequencer
+	// surfaces it immediately WITHOUT the old ~10s / 1000x retry spin. So exactly
+	// 2 motion calls run (ID 1 ok, ID 2 fails) and ID 3 is never dispatched.
+	if len(mot.calls) != 2 {
+		t.Fatalf("expected exactly 2 calls (fail-fast, no retry), got %d: %v", len(mot.calls), mot.calls)
 	}
 
 	task.mu.Lock()
@@ -194,6 +199,40 @@ func TestSequencer_WaitForMotion(t *testing.T) {
 	if len(mot.calls) != 1 {
 		t.Fatalf("expected 1 call after motion done, got %d: %v", len(mot.calls), mot.calls)
 	}
+}
+
+// TestPreconditionDrainsBeforeCommand is the D7 regression: a command that
+// declares Precondition()==WaitMotion is not executed until preceding motion has
+// drained (replacing the canon-side syncBefore barrier). A DwellCmd (which
+// declares it) queued behind a move must not run while motion is out of position.
+func TestPreconditionDrainsBeforeCommand(t *testing.T) {
+	// Contract: the point-acting commands declare the motion-drain precondition.
+	for _, c := range []interface{ Precondition() WaitType }{
+		&DwellCmd{}, &ProbeCmd{}, &RigidTapCmd{}, &SpindleOnCmd{}, &SpindleOffCmd{},
+		&SpindleOrientCmd{}, &FloodOnCmd{}, &FloodOffCmd{}, &MistOnCmd{}, &MistOffCmd{},
+	} {
+		if c.Precondition() != WaitMotion {
+			t.Errorf("%T.Precondition() = %v, want WaitMotion", c, c.Precondition())
+		}
+	}
+
+	task, _, _, stat := newSeqTestTask()
+	restore := SetPollInterval(100 * time.Microsecond)
+	defer restore()
+	stat.inPosition.Store(false) // motion not drained yet
+	task.StartSequencer()
+
+	// A dwell queued behind the drain must not start until motion is in position.
+	task.EnqueueCmd(&DwellCmd{Seconds: 0}) // Precondition drains first
+	time.Sleep(3 * time.Millisecond)
+	task.mu.Lock()
+	exec := task.execState
+	task.mu.Unlock()
+	if exec != ExecWaitingForMotion {
+		t.Fatalf("dwell ran before motion drained: execState=%d want ExecWaitingForMotion", exec)
+	}
+	stat.inPosition.Store(true) // motion drains → dwell proceeds
+	task.DrainQueue()
 }
 
 func TestSequencer_Dwell(t *testing.T) {

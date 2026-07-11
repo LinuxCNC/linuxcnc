@@ -124,9 +124,11 @@ func TestGenerateClientPythonSimple(t *testing.T) {
 	assertContains(t, out, "self.status_code = status_code")
 	assertContains(t, out, "self.message = message")
 
-	// Check client class
+	// Check client class. The base path is instance-scoped and assembled at
+	// runtime ("/api/v1/" + instance, instance defaulting to the API name).
 	assertContains(t, out, "class TestapiClient:")
-	assertContains(t, out, `"/api/v1/testapi"`)
+	assertContains(t, out, `def __init__(self, base_url: str, instance: str = "testapi"):`)
+	assertContains(t, out, `self.base_url = base_url.rstrip("/") + "/api/v1/" + instance`)
 
 	// Check _do_request
 	assertContains(t, out, "def _do_request(self, method: str, path: str,")

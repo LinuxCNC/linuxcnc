@@ -426,7 +426,7 @@ static int tpClear(TP_STRUCT * const tp)
     // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
-    tp->execFeedUpm = 0.0;
+    tp->execFeedMmPerMin = 0.0;
     tp->motionType = 0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
@@ -593,13 +593,13 @@ static int tpGetExecId(TP_STRUCT * const tp)
     return tp->execId;
 }
 
-static double tpGetExecFeedUpm(TP_STRUCT * const tp)
+static double tpGetExecFeedMmPerMin(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return 0.0;
     }
 
-    return tp->execFeedUpm;
+    return tp->execFeedMmPerMin;
 }
 
 
@@ -807,8 +807,8 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     //In the future, radius may be adjustable.
     tcFinalizeLength(blend_tc);
 
-    // copy feed_upm from previous segment during blend motion
-    blend_tc->feed_upm = prev_tc->feed_upm;
+    // copy feed_mm_per_min from previous segment during blend motion
+    blend_tc->feed_mm_per_min = prev_tc->feed_mm_per_min;
 
     return TP_ERR_OK;
 }
@@ -1561,7 +1561,7 @@ static int tpAddRigidTap(TP_STRUCT * const tp,
         double acc,
         unsigned char enables,
         double scale,
-        double feed_upm) {
+        double feed_mm_per_min) {
 
     if (tpErrorCheck(tp)) {
         return TP_ERR_FAIL;
@@ -1586,7 +1586,7 @@ static int tpAddRigidTap(TP_STRUCT * const tp,
             tp->cycleTime,
             enables,
             1);
-    tc.feed_upm = feed_upm;
+    tc.feed_mm_per_min = feed_mm_per_min;
 
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
@@ -2047,7 +2047,7 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
 
 static int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             double vel, double ini_maxvel, double acc, unsigned char enables,
-            char atspeed, int indexer_jnum, double feed_upm)
+            char atspeed, int indexer_jnum, double feed_mm_per_min)
 {
     const mot_callbacks_t *mot = (const mot_callbacks_t *)tp->mot;
     if (tpErrorCheck(tp) < 0) {
@@ -2063,7 +2063,7 @@ static int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             tp->cycleTime,
             enables,
             atspeed);
-    tc.feed_upm = feed_upm;
+    tc.feed_mm_per_min = feed_mm_per_min;
 
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
@@ -2133,7 +2133,7 @@ static int tpAddCircle(TP_STRUCT * const tp,
         double acc,
         unsigned char enables,
         char atspeed,
-        double feed_upm)
+        double feed_mm_per_min)
 {
     const mot_callbacks_t *mot = (const mot_callbacks_t *)tp->mot;
     if (tpErrorCheck(tp)<0) {
@@ -2151,7 +2151,7 @@ static int tpAddCircle(TP_STRUCT * const tp,
             tp->cycleTime,
             enables,
             atspeed);
-    tc.feed_upm = feed_upm;
+    tc.feed_mm_per_min = feed_mm_per_min;
     // Setup any synced IO for this move
     tpSetupSyncedIO(tp, &tc);
 
@@ -2995,7 +2995,7 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Update the feed rate displayed by the TP
-    tp->execFeedUpm = tc->feed_upm;
+    tp->execFeedMmPerMin = tc->feed_mm_per_min;
 
     return TP_ERR_OK;
 }
@@ -3783,20 +3783,20 @@ static int32_t gmi_tp_set_run_dir(void *ctx, tp_direction_t dir)
 static int32_t gmi_tp_add_line(void *ctx, const tp_pose_t *end,
     int32_t canon_motion_type, double vel, double ini_maxvel,
     double acc, uint8_t enables, int8_t atspeed,
-    int32_t indexrotary, double feed_upm)
+    int32_t indexrotary, double feed_mm_per_min)
 {
     tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
     return tpAddLine(&inst->tp, *(EmcPose *)end,
                      canon_motion_type, vel, ini_maxvel, acc,
                      enables, (char)atspeed, indexrotary,
-                     feed_upm);
+                     feed_mm_per_min);
 }
 
 static int32_t gmi_tp_add_circle(void *ctx, const tp_pose_t *end,
     const tp_cartesian_t *center, const tp_cartesian_t *normal,
     int32_t turn, int32_t canon_motion_type,
     double vel, double ini_maxvel, double acc,
-    uint8_t enables, int8_t atspeed, double feed_upm)
+    uint8_t enables, int8_t atspeed, double feed_mm_per_min)
 {
     tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
     return tpAddCircle(&inst->tp, *(EmcPose *)end,
@@ -3804,18 +3804,18 @@ static int32_t gmi_tp_add_circle(void *ctx, const tp_pose_t *end,
                        turn, canon_motion_type,
                        vel, ini_maxvel, acc,
                        enables, (char)atspeed,
-                       feed_upm);
+                       feed_mm_per_min);
 }
 
 static int32_t gmi_tp_add_rigid_tap(void *ctx, const tp_pose_t *end,
     double vel, double ini_maxvel, double acc,
-    uint8_t enables, double scale, double feed_upm)
+    uint8_t enables, double scale, double feed_mm_per_min)
 {
     tpmod_inst_t *inst = (tpmod_inst_t *)ctx;
     return tpAddRigidTap(&inst->tp, *(EmcPose *)end,
                          vel, ini_maxvel, acc,
                          enables, scale,
-                         feed_upm);
+                         feed_mm_per_min);
 }
 
 static int32_t gmi_tp_set_aout(void *ctx, uint8_t index, double start_val, double end_val)
@@ -3836,7 +3836,7 @@ static int32_t gmi_tp_resume(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)c
 static int32_t gmi_tp_abort(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpAbort(&inst->tp); }
 static int32_t gmi_tp_get_exec_id(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecId(&inst->tp); }
 
-static double gmi_tp_get_feed_upm(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecFeedUpm(&inst->tp); }
+static double gmi_tp_get_feed_mm_per_min(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetExecFeedMmPerMin(&inst->tp); }
 
 static int32_t gmi_tp_get_pos(void *ctx, tp_pose_t *pos) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpGetPos(&inst->tp, (EmcPose *)pos); }
 static int32_t gmi_tp_is_done(void *ctx) { tpmod_inst_t *inst = (tpmod_inst_t *)ctx; return tpIsDone(&inst->tp); }

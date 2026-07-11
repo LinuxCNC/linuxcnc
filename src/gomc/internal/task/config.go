@@ -3,8 +3,11 @@
 package task
 
 import (
+	"bufio"
 	"fmt"
 	"math"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/sittner/linuxcnc/src/gomc/pkg/inifile"
@@ -31,6 +34,7 @@ type MotionConfig interface {
 	SetJointAccLimit(joint int32, acc float64) error
 	SetJointJerkLimit(joint int32, jerk float64) error
 	SetJointHomingParams(joint int32, offset, home, homeFinalVel, searchVel, latchVel float64, flags, sequence, volatileHome int32) error
+	SetJointComp(joint int32, nominal, fwd, rev float64) error
 
 	// Axes
 	SetAxisPositionLimits(axis int32, min, max float64) error
@@ -49,7 +53,7 @@ func loadConfig(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 		return fmt.Errorf("traj config: %w", err)
 	}
 	for j := int32(0); j < int32(t.numJoints); j++ {
-		if err := loadJoint(ini, j, mc); err != nil {
+		if err := loadJoint(ini, t, j, mc); err != nil {
 			return fmt.Errorf("joint %d config: %w", j, err)
 		}
 		// Store joint max velocity for jog clamping (matches C JointConfig[].MaxVel).
@@ -64,9 +68,11 @@ func loadConfig(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 		if err := loadAxis(ini, a, mc); err != nil {
 			return fmt.Errorf("axis %d config: %w", a, err)
 		}
-		// Store axis max velocity for jog clamping (matches C AxisConfig[].MaxVel).
+		// Store per-axis max velocity/acceleration for jog clamping and for the
+		// canon's per-move vel/acc blending (matches C AxisConfig[].MaxVel/MaxAcc).
 		axSection := axisSection(a)
 		t.axisMaxVel[a] = getFloatOrSection(ini, axSection, "MAX_VELOCITY", 1.0)
+		t.axisMaxAcc[a] = getFloatOrSection(ini, axSection, "MAX_ACCELERATION", 1.0)
 	}
 	for s := int32(0); s < int32(t.numSpindles); s++ {
 		if err := loadSpindle(ini, s, mc); err != nil {
@@ -173,7 +179,15 @@ func loadTraj(ini *inifile.IniFile, t *Task, mc MotionConfig) error {
 	return nil
 }
 
-func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
+// jointHomingParams holds the INI-fixed homing parameters that are NOT exposed
+// as runtime HAL pins. They are cached so inihal can re-push them unchanged when
+// a HAL home/offset/sequence change forces a SetJointHomingParams update.
+type jointHomingParams struct {
+	finalVel, searchVel, latchVel float64
+	flags, volatileHome           int32
+}
+
+func loadJoint(ini *inifile.IniFile, t *Task, joint int32, mc MotionConfig) error {
 	section := fmt.Sprintf("JOINT_%d", joint)
 
 	// Position limits
@@ -241,6 +255,14 @@ func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
 	if err := mc.SetJointHomingParams(joint, offset, home, finalVel, searchVel, latchVel, flags, int32(sequence), int32(volatileHome)); err != nil {
 		return err
 	}
+	// Cache the INI-fixed params so a runtime HAL home/offset/seq change doesn't
+	// zero them on re-push (inihal).
+	if joint >= 0 && int(joint) < len(t.jointHoming) {
+		t.jointHoming[joint] = jointHomingParams{
+			finalVel: finalVel, searchVel: searchVel, latchVel: latchVel,
+			flags: flags, volatileHome: int32(volatileHome),
+		}
+	}
 
 	// Velocity and acceleration
 	maxVel := getFloatOrSection(ini, section, "MAX_VELOCITY", 1.0)
@@ -258,8 +280,62 @@ func loadJoint(ini *inifile.IniFile, joint int32, mc MotionConfig) error {
 		}
 	}
 
+	// Leadscrew / screw-error compensation ([JOINT_n]COMP_FILE). Loaded before
+	// activation, matching C++ which pushes the table to motion at startup.
+	if compFile := ini.Get(section, "COMP_FILE"); compFile != "" {
+		compType := getIntOrSection(ini, section, "COMP_FILE_TYPE", 0)
+		if err := loadJointComp(joint, compFile, compType, mc.SetJointComp); err != nil {
+			return fmt.Errorf("COMP_FILE %q: %w", compFile, err)
+		}
+	}
+
 	// Activate
 	return mc.JointActivate(joint)
+}
+
+// loadJointComp parses a leadscrew-compensation file and pushes each triplet to
+// motion, matching C++ usrmotLoadComp. Each data line is "nominal forward
+// reverse". compType 0: the file holds nominal/forward/reverse POSITIONS and the
+// motion trims are the diffs (nominal - value); any other type: the values are
+// already trims and are passed through. Blank / non-triplet lines are skipped
+// (C++ stops at the first such line; skipping is a strict superset that loads
+// the same pure-triplet files identically and tolerates comments/headers).
+func loadJointComp(joint int32, file string, compType int, setComp func(joint int32, nominal, fwd, rev float64) error) error {
+	f, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	n := 0
+	sc := bufio.NewScanner(f)
+	for sc.Scan() {
+		fields := strings.Fields(sc.Text())
+		if len(fields) < 3 {
+			continue
+		}
+		nom, e1 := strconv.ParseFloat(fields[0], 64)
+		fwd, e2 := strconv.ParseFloat(fields[1], 64)
+		rev, e3 := strconv.ParseFloat(fields[2], 64)
+		if e1 != nil || e2 != nil || e3 != nil {
+			continue
+		}
+		if compType == 0 {
+			fwd = nom - fwd // positions -> trims (diffs), as C++ does
+			rev = nom - rev
+		}
+		if err := setComp(joint, nom, fwd, rev); err != nil {
+			return err
+		}
+		n++
+	}
+	if err := sc.Err(); err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("no compensation triplets found")
+	}
+	return nil
 }
 
 func loadAxis(ini *inifile.IniFile, axis int32, mc MotionConfig) error {

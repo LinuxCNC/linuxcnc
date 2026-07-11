@@ -188,7 +188,7 @@ type SdoDownloadRequest {
     sdo_index: u16
     sdo_entry_subindex: u8
     complete_access: bool
-    data: []u8
+    data: []u8 @notempty
 }
 
 type SdoDownloadResult {
@@ -208,7 +208,7 @@ type RegReadResult {
 type RegWriteRequest {
     address: u16
     emergency: bool
-    data: []u8
+    data: []u8 @notempty
 }
 
 type FoeReadResult {
@@ -218,8 +218,8 @@ type FoeReadResult {
 }
 
 type FoeWriteRequest {
-    file_name: string
-    data: []u8
+    file_name: string @maxlen(31)
+    data: []u8 @notempty
 }
 
 type FoeWriteResult {
@@ -235,7 +235,7 @@ type SoeReadResult {
 type SoeWriteRequest {
     drive_no: u8
     idn: u16
-    data: []u8
+    data: []u8 @notempty
 }
 
 type SoeWriteResult {
@@ -337,7 +337,7 @@ type EoeIpRequest {
     subnet_mask: string?
     gateway: string?
     dns: string?
-    hostname: string?
+    hostname: string? @maxlen(31)
 }
 
 type EoeIpResult {
@@ -455,7 +455,7 @@ func sdo_download(master_index: u32?, position: u16, sdo_index: u16, subindex: u
 @method "GET"
 @path "/slaves/{position}/sii"
 @rt_safe "false"
-func sii_read(master_index: u32?, position: u16, offset: u16, nwords: u32) -> SiiData
+func sii_read(master_index: u32?, position: u16, offset: u16, nwords: u32 @min(1)) -> SiiData
 
 # SII write (EEPROM)
 @method "POST"
@@ -467,7 +467,7 @@ func sii_write(master_index: u32?, position: u16, sii: SiiData) -> bool
 @method "GET"
 @path "/slaves/{position}/registers/{address}"
 @rt_safe "false"
-func reg_read(master_index: u32?, position: u16, address: u16, size: u32) -> RegReadResult
+func reg_read(master_index: u32?, position: u16, address: u16, size: u32 @min(1)) -> RegReadResult
 
 # Register write
 @method "POST"
@@ -479,13 +479,13 @@ func reg_write(master_index: u32?, position: u16, address: u16, req: RegWriteReq
 @method "GET"
 @path "/slaves/{position}/foe/{file_name}"
 @rt_safe "false"
-func foe_read(master_index: u32?, position: u16, file_name: string) -> FoeReadResult
+func foe_read(master_index: u32?, position: u16, file_name: string @maxlen(31)) -> FoeReadResult
 
 # FoE write (File over EtherCAT)
 @method "POST"
 @path "/slaves/{position}/foe/{file_name}"
 @rt_safe "false"
-func foe_write(master_index: u32?, position: u16, file_name: string, req: FoeWriteRequest) -> FoeWriteResult
+func foe_write(master_index: u32?, position: u16, file_name: string @maxlen(31), req: FoeWriteRequest) -> FoeWriteResult
 
 # SoE read (Servo over EtherCAT)
 @method "GET"
@@ -509,13 +509,13 @@ func get_config(master_index: u32?, config_index: u32) -> ConfigInfo
 @method "GET"
 @path "/configs/{config_index}/syncs/{sync_index}/pdos/{pdo_pos}"
 @rt_safe "false"
-func get_config_pdo(master_index: u32?, config_index: u32, sync_index: u8, pdo_pos: u16) -> ConfigPdoInfo
+func get_config_pdo(master_index: u32?, config_index: u32, sync_index: u8 @max(15), pdo_pos: u16) -> ConfigPdoInfo
 
 # Configuration PDO entry
 @method "GET"
 @path "/configs/{config_index}/syncs/{sync_index}/pdos/{pdo_pos}/entries/{entry_pos}"
 @rt_safe "false"
-func get_config_pdo_entry(master_index: u32?, config_index: u32, sync_index: u8, pdo_pos: u16, entry_pos: u8) -> ConfigPdoEntryInfo
+func get_config_pdo_entry(master_index: u32?, config_index: u32, sync_index: u8 @max(15), pdo_pos: u16, entry_pos: u8) -> ConfigPdoEntryInfo
 
 # Configuration SDO
 @method "GET"

@@ -288,6 +288,11 @@ func (c *Canon) GetExternalAxisMask() (int32, error) {
 }
 
 func (c *Canon) GetExternalDigitalInput(index, def int32) (int32, error) {
+	// An M66 wait that timed out returns -1 so the interpreter stores -1 into
+	// #5399 (C++ GET_EXTERNAL_DIGITAL_INPUT returns -1 when input_timeout==1).
+	if c.task.inputTimedOut() {
+		return -1, nil
+	}
 	if c.task.status == nil {
 		return def, nil
 	}
@@ -299,6 +304,10 @@ func (c *Canon) GetExternalDigitalInput(index, def int32) (int32, error) {
 }
 
 func (c *Canon) GetExternalAnalogInput(index int32, def float64) (float64, error) {
+	// See GetExternalDigitalInput: a timed-out M66 wait returns -1 (#5399).
+	if c.task.inputTimedOut() {
+		return -1, nil
+	}
 	if c.task.status == nil {
 		return def, nil
 	}

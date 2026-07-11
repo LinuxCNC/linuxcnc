@@ -1016,7 +1016,9 @@ func (h *halUI) exit() {
 }
 
 // check reads all input pins and dispatches commands for any that changed.
-// Called from the monitor goroutine at 10ms intervals.
+// Called from the monitor's halui dispatch goroutine at 10ms intervals —
+// dispatched commands may block on cmdMu, which is why this runs on its own
+// loop and not alongside the safety checks.
 func (h *halUI) check(t *Task) {
 	// Increment cycle count
 	if h.cycleCount != nil {
@@ -1712,7 +1714,7 @@ func (h *halUI) checkMessages(t *Task) {
 }
 
 // updateOutputs writes status information to the output pins.
-// Called from the monitor goroutine after check().
+// Called from the monitor's halui dispatch goroutine after check().
 func (h *halUI) updateOutputs(t *Task) {
 	t.mu.Lock()
 	state := t.state
@@ -1728,7 +1730,8 @@ func (h *halUI) updateOutputs(t *Task) {
 	jogIncrement := t.jogIncrement
 	jogSpeed := t.jogSpeed
 	ajogSpeed := t.ajogSpeed
-	cs := t.canon.state
+	// Value snapshot — t.canon.state is mutated lock-free by the producer.
+	cs := t.canonSnap
 	t.mu.Unlock()
 
 	// Machine state

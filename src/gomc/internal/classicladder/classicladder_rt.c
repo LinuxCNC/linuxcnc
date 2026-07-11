@@ -15,7 +15,45 @@
 
 /* --- Variable access helpers --- */
 
+/* Number of valid offsets for a variable type: the configured size of the
+ * region that (type, offset) indexes. Because the backing arrays are packed by
+ * these runtime sizes (each <= its CL_MAX_*), an offset within the region can
+ * never index out of the fixed allocation. Returns 0 for unknown types. */
+static int cl_var_region_size(const classicladder_rt_t *rt, int type) {
+    switch (type) {
+    case CL_VAR_MEM_BIT:          return rt->sizes.nbr_bits;
+    case CL_VAR_PHYS_INPUT:       return rt->sizes.nbr_phys_inputs;
+    case CL_VAR_PHYS_OUTPUT:      return rt->sizes.nbr_phys_outputs;
+    case CL_VAR_ERROR_BIT:        return rt->sizes.nbr_error_bits;
+    case CL_VAR_STEP_ACTIVITY:    return CL_MAX_STEPS;
+    case CL_VAR_STEP_TIME:        return CL_MAX_STEPS;
+    case CL_VAR_MEM_WORD:         return rt->sizes.nbr_words;
+    case CL_VAR_PHYS_WORD_INPUT:  return rt->sizes.nbr_s32_in;
+    case CL_VAR_PHYS_WORD_OUTPUT: return rt->sizes.nbr_s32_out;
+    case CL_VAR_TIMER_DONE:
+    case CL_VAR_TIMER_RUNNING:
+    case CL_VAR_TIMER_PRESET:
+    case CL_VAR_TIMER_VALUE:      return rt->sizes.nbr_timers;
+    case CL_VAR_MONOSTABLE_RUNNING:
+    case CL_VAR_MONOSTABLE_PRESET:
+    case CL_VAR_MONOSTABLE_VALUE: return rt->sizes.nbr_monostables;
+    case CL_VAR_COUNTER_DONE:
+    case CL_VAR_COUNTER_EMPTY:
+    case CL_VAR_COUNTER_FULL:
+    case CL_VAR_COUNTER_PRESET:
+    case CL_VAR_COUNTER_VALUE:    return rt->sizes.nbr_counters;
+    case CL_VAR_TIMER_IEC_DONE:
+    case CL_VAR_TIMER_IEC_PRESET:
+    case CL_VAR_TIMER_IEC_VALUE:  return rt->sizes.nbr_timers_iec;
+    default:                      return 0;
+    }
+}
+
 static int read_var(classicladder_rt_t *rt, int type, int offset) {
+    /* Reject out-of-range offsets (e.g. from the REST set_variable endpoint)
+     * before they index a backing array out of bounds. */
+    if (offset < 0 || offset >= cl_var_region_size(rt, type))
+        return 0;
     switch (type) {
     case CL_VAR_MEM_BIT:
         return rt->var_bits[offset];
@@ -74,6 +112,10 @@ static int read_var(classicladder_rt_t *rt, int type, int offset) {
 }
 
 static void write_var(classicladder_rt_t *rt, int type, int offset, int value) {
+    /* Reject out-of-range offsets (e.g. from the REST set_variable endpoint)
+     * before they index a backing array out of bounds. */
+    if (offset < 0 || offset >= cl_var_region_size(rt, type))
+        return;
     switch (type) {
     case CL_VAR_MEM_BIT:
         rt->var_bits[offset] = value ? 1 : 0;

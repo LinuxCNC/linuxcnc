@@ -31,6 +31,7 @@ type dispatchCGen struct {
 	header string // C header filename, e.g. "hal_api.h"
 	err    error
 	tmpSeq int // counter for unique temp variable names
+	ce     *constraintEmitter
 }
 
 func (g *dispatchCGen) printf(format string, args ...interface{}) {
@@ -41,12 +42,18 @@ func (g *dispatchCGen) printf(format string, args ...interface{}) {
 }
 
 func (g *dispatchCGen) generate() error {
+	g.ce = newConstraintEmitter(g.api)
 	g.emitCgoPreamble()
 	g.emitImports()
 	g.emitConstants()
 	g.emitGoTypes()
 	g.emitConverters()
 	g.emitGoToCConverters()
+	g.printf("%s", g.ce.regexVarDecls())
+	// One package-level validate<Api><Fn> per function; both this REST dispatch
+	// and the WS command handler (server_go.go) call them instead of inlining
+	// the same checks twice (D8).
+	g.printf("%s", g.ce.allValidationFuncs())
 	g.emitDispatchFuncs()
 	g.emitMeta()
 	g.emitRegister()
@@ -198,6 +205,7 @@ func cgoArraySizeStr(apiName string, t ast.TypeRef) string {
 func (g *dispatchCGen) emitImports() {
 	g.printf("import (\n")
 	g.printf("\t\"encoding/json\"\n")
+	g.printf("\t\"fmt\"\n")
 	g.printf("\t\"syscall\"\n")
 	g.printf("\t\"unsafe\"\n")
 	g.printf("\n")
@@ -206,6 +214,7 @@ func (g *dispatchCGen) emitImports() {
 
 	// Suppress unused import warnings
 	g.printf("var _ = json.Marshal\n")
+	g.printf("var _ = fmt.Sprintf\n")
 	g.printf("var _ = syscall.EINVAL\n")
 	g.printf("var _ unsafe.Pointer\n\n")
 }
@@ -737,6 +746,11 @@ func (g *dispatchCGen) emitOneDispatch(fn ast.Func) {
 		g.printf("\t\t\treturn nil, syscall.EINVAL\n")
 		g.printf("\t\t}\n")
 		g.printf("\t}\n")
+
+		// Validate IDL @constraints before converting/dispatching (shared func).
+		if g.ce.needsValidation(fn) {
+			g.printf("\tif verr := %s; verr != nil {\n\t\treturn nil, verr\n\t}\n", g.ce.validateCallExpr(fn, "params"))
+		}
 	}
 
 	// Convert Go params → C and build call args
