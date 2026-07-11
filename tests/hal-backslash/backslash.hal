@@ -1,13 +1,7 @@
 newsig \
     hello \
     bit
-
 sets \
     hello \
     \
     true
-
-\
-show \
-\
-sig
