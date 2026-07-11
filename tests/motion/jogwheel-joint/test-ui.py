@@ -1,11 +1,50 @@
 #!/usr/bin/env python3
 
+# Ported to the gomc REST/WS API (gmi client).  Drive joint.<n>.jog-* directly
+# via halcmd (the userspace jogwheel-encoder hal.component is gone) and read the
+# joint position from gmi.Stat.joint_actual_position.
+
 import linuxcnc
-import hal
+import gmi
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
+
+import subprocess
 import time
 import sys
-import os
 import math
+
+
+def _halcmd(*args):
+    return subprocess.check_output(["halcmd", *args]).split()[-1].decode()
+
+
+class HalShim:
+    """'joint-<n>-position' -> gmi.Stat.joint_actual_position[n];
+       'joint-<n>-jog-*'     -> halcmd getp/setp joint.<n>.jog-*."""
+
+    def __getitem__(self, name):
+        parts = name.split('-')
+        n = int(parts[1])
+        field = '-'.join(parts[2:])
+        if field == 'position':
+            s.poll()
+            return s.joint_actual_position[n]
+        return float(_halcmd("getp", "joint.%d.%s" % (n, field)))
+
+    def __setitem__(self, name, val):
+        parts = name.split('-')
+        n = int(parts[1])
+        field = '-'.join(parts[2:])
+        if field in ('jog-counts', 'jog-enable'):
+            val = int(val)
+        subprocess.check_call(["halcmd", "setp", "joint.%d.%s" % (n, field), str(val)],
+                              stdout=subprocess.DEVNULL)
+
+
+h = HalShim()
 
 
 def wait_for_joint_to_stop(joint_number):
@@ -31,19 +70,18 @@ def close_enough(a, b, epsilon=0.000001):
 def jog_joint(joint_number, counts=1, scale=0.001):
     timeout = 5.0
 
-    start_pos = 3*[0]
-    for j in range(0,3):
+    start_pos = {}
+    for j in range(3):
         start_pos[j] = h['joint-%d-position' % j]
 
     target = h['joint-%d-position' % joint_number] + (counts * scale)
 
     h['joint-%d-jog-scale' % joint_number] = scale
     h['joint-%d-jog-enable' % joint_number] = 1
-    h['joint-%d-jog-counts' % joint_number] += counts
+    h['joint-%d-jog-counts' % joint_number] = int(h['joint-%d-jog-counts' % joint_number]) + counts
 
     start_time = time.time()
     while not close_enough(h['joint-%d-position' % joint_number], target) and (time.time() - start_time < timeout):
-        #print "joint %d is at %.9f" % (joint_number, h['joint-%d-position' % joint_number])
         time.sleep(0.010)
 
     h['joint-%d-jog-enable' % joint_number] = 0
@@ -51,14 +89,14 @@ def jog_joint(joint_number, counts=1, scale=0.001):
     print("joint jogged from %.6f to %.6f (%d counts at scale %.6f)" % (start_pos[joint_number], h['joint-%d-position' % joint_number], counts, scale))
 
     success = True
-    for j in range(0,3):
+    for j in range(3):
         pin_name = 'joint-%d-position' % j
         if j == joint_number:
             if not close_enough(h[pin_name], target):
                 print("joint %d didn't get to target (start=%.6f, target=%.6f, got to %.6f)" % (joint_number, start_pos[joint_number], target, h['joint-%d-position' % joint_number]))
                 success = False
         else:
-            if h[pin_name] != start_pos[j]:
+            if not close_enough(h[pin_name], start_pos[j]):
                 print("joint %d moved from %.6f to %.6f but should not have!" % (j, start_pos[j], h[pin_name]))
                 success = False
 
@@ -69,47 +107,21 @@ def jog_joint(joint_number, counts=1, scale=0.001):
 
 
 #
-# set up pins
-# shell out to halcmd to make nets to halui and motion
-#
-
-h = hal.component("test-ui")
-
-h.newpin("joint-0-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-0-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("joint-0-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
-
-h.newpin("joint-1-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-1-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("joint-1-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
-
-h.newpin("joint-2-jog-enable", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-2-jog-counts", hal.HAL_S32, hal.HAL_OUT)
-h.newpin("joint-2-jog-scale", hal.HAL_FLOAT, hal.HAL_OUT)
-h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
-
-h.ready() # mark the component as 'ready'
-
-os.system("halcmd source ./postgui.hal")
-
-
-#
 # connect to LinuxCNC
 #
 
-c = linuxcnc.command()
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
+
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_MANUAL)
+time.sleep(0.5)
 
 
 #
 # run the test
-#
-# These jog_joint() functions will exit with a return value of 1 if
-# something goes wrong.
 #
 
 jog_joint(0, counts=1, scale=0.001)
@@ -117,4 +129,3 @@ jog_joint(1, counts=10, scale=-0.025)
 jog_joint(2, counts=-100, scale=0.100)
 
 sys.exit(0)
-
