@@ -47,7 +47,8 @@ reasons; these are component bugs, not test problems):
 - **`mux_generic` single-instance only** — rejects the classic multi-instance comma config (`mux-gen.NN`); errors `invalid character ',' in config string`. (mux, multiclick)
 - **mb2hal debug output routing** — mb2hal INI-DEBUG dump goes to the server log, not a capturable stdout stream. (mb2hal.1a/2a)
 - **one-shot `list`/`show` render nothing to stdout** — the `-f` executor's halparse path doesn't emit list/show output (worked around via resident server + `halcmd`).
-- **`modcompile` missing `halcompile` features** — no `option singleton`, no `option rtapi_app no` (+ custom `rtapi_app_main`), no `--personalities`, and no userspace `--install` (.c→`bin/`; modcompile only builds cmod `.so`). Blocks rtapi-shmem, module-loading/rtapi-app-main-fails, halcompile/personalities_mod, halcompile/userspace-count-names.
+- **INTENDED gomc model change (not a gap):** there is no `singleton` concept and no rt/userspace separation — a single cmod can provide both realtime and userspace behavior. So `option singleton`, `option rtapi_app no` (+ custom `rtapi_app_main`), and userspace `--install` (.c→`bin/`) have no direct modcompile equivalent BY DESIGN. Tests built on those concepts (rtapi-shmem, module-loading/rtapi-app-main-fails, halcompile/userspace-count-names) must be re-evaluated against the single-cmod model, not treated as blocked.
+- **`modcompile --personalities`** — halcompile's personality feature: real equivalent TBD (verify against gomc's comp model). (halcompile/personalities_mod)
 - **gomc HAL lock model differs** — `all|tune|none`, not the classic 4-level `LOAD/CONFIG/PARAMS/RUN`; `status`/lock rendering absent. (halrun-lock unfixable as-is)
 - **No two-pass HAL loading (TWOPASS)** in gomc. (twopass, twopass-personality)
 - **`halcmd getp` prints a verbose line** (`s32 OUT name = val`), not a bare value — output-parsing tests must `awk '{print $NF}'`.
