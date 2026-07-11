@@ -35,6 +35,10 @@ for raw in sys.stdin:
     elif low.startswith('set mdi '):
         c.mdi(cmd[len('set mdi '):])
         c.wait_complete(30)
+    elif low.startswith('set home '):
+        c.home(int(cmd.split()[-1]))
+    elif low.startswith('set teleop_enable '):
+        c.teleop_enable(cmd.split()[-1] in ('1', 'true', 'on'))
     elif low == 'shutdown':
         break
     # everything else (get ..., etc.) is ignored
