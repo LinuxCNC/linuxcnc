@@ -1,5 +1,7 @@
-#!/bin/sh
-halstreamer << EOF
+#!/bin/bash
+. "$(dirname "$0")/../hal-stream-driver.sh"
+hal_start_server near.hal
+hal_feed_streamer <<'DATA'
 -12 -12
 -12 -11
 -12 -10
@@ -121,4 +123,6 @@ halstreamer << EOF
 12 10
 12 11
 12 12
-EOF
+DATA
+hal_sample 122
+hal_run

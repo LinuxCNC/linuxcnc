@@ -49,10 +49,14 @@ hal_feed_streamer() {
     halstreamer
 }
 
-# hal_sample <N>: connect halsampler for N samples in the background.  Must be
-# called before hal_run so the live stream is subscribed before threads start.
+# hal_sample <N> [extra halsampler args...]: connect halsampler for N samples
+# in the background.  Must be called before hal_run so the live stream is
+# subscribed before threads start.  Extra args are passed to halsampler (e.g.
+# -t to prefix each line with the sample number).
 hal_sample() {
-    halsampler -n "$1" &
+    local n=$1
+    shift
+    halsampler "$@" -n "$n" &
     _HAL_SAMPLER_PID=$!
     # Give the WebSocket subscription time to establish before threads run.
     sleep 0.5
