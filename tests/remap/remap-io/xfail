@@ -1,0 +1,7 @@
+Ported to gomc (configs +LIB:linuxcnc.hal + PARAMETER_FILE, loadrt->load;
+gomc-server test.sh; driver -> gmi). Multiply blocked by known gomc changes:
+(1) test-py.ini uses PYTHON remaps (gomc removed the embedded Python interp);
+(2) the ngc-remap output relies on (DEBUG,) operator-display messages, which
+gomc routes to the server log, not the gmi client / stdout;
+(3) M62/M63 synchronized digital output is subject to the milltask sync-I/O bug.
+Remove xfail once Python remaps + OPERATOR_DISPLAY delivery are restored.
