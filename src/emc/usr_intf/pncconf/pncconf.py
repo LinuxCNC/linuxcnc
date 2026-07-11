@@ -5661,7 +5661,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
                     elif ptype == _PD.INM0:
                         compnum -= 100
-                        if boardname in ("7i95t"):
+                        if boardname in ("7i95t", "7i97t"):
                             return "%s."% (make_name(boardname,halboardnum)) + "inmux.00.input-%02d"% (compnum)
                         else:
                             return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
