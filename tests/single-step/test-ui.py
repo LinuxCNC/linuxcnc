@@ -1,86 +1,94 @@
 #!/usr/bin/env python3
 
-import linuxcnc
-import linuxcnc_util
-import hal
+# Ported to the gomc REST/WS API: uses the `gmi` client package instead of the
+# removed NML `linuxcnc` python module.  Positions come from gmi.Stat; the
+# custom `motion.analog-out-00` counter is read with `halcmd getp` (there is no
+# userspace HAL component anymore).
 
+import gmi
+from gmi.constants import *
+
+import subprocess
 import time
 import sys
-import os
 
-#
-# connect to LinuxCNC
-#
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
-l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
+_WAITING = (
+    EXEC_WAITING_FOR_MOTION,
+    EXEC_WAITING_FOR_MOTION_AND_IO,
+    EXEC_WAITING_FOR_MOTION_QUEUE,
+)
 
-#
-# Create and connect test feedback comp
-#
-h = hal.component("test-ui")
-h.newpin("Xpos", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("Ypos", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("Zpos", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("counter", hal.HAL_FLOAT, hal.HAL_IN)
-h.ready()
-os.system("halcmd source ./postgui.hal")
+
+def counter():
+    # halcmd getp prints "<type> <dir> <name> = <value>"; take the last field.
+    out = subprocess.check_output(["halcmd", "getp", "motion.analog-out-00"])
+    return float(out.split()[-1])
+
+
+def positions():
+    p = s.actual_position
+    return p[0], p[1], p[2]
+
 
 def print_state():
+    x, y, z = positions()
     sys.stderr.write(
         "line=%d; Xpos=%.2f; Ypos=%.2f; Zpos=%.2f; counter=%d\n" %
-        (s.current_line, h["Xpos"], h["Ypos"], h["Zpos"], h["counter"]))
+        (s.current_line, x, y, z, counter()))
+
 
 #
 # Come out of E-stop, turn the machine on, home, and switch to Auto mode.
 #
 
-c.state(linuxcnc.STATE_ESTOP_RESET)
-c.state(linuxcnc.STATE_ON)
+c.state(STATE_ESTOP_RESET)
+c.state(STATE_ON)
 c.home(0)
 c.home(1)
 c.home(2)
-l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
-c.mode(linuxcnc.MODE_AUTO)
 
+start = time.time()
+while time.time() - start < 5.0:
+    s.poll()
+    if all(s.homed[0:3]):
+        break
+    time.sleep(0.1)
+else:
+    raise SystemExit("timeout waiting for home")
 
-#
-# run the .ngc test file, starting from the special line
-#
-
+c.mode(MODE_AUTO)
 c.program_open('test.ngc')
 
 epsilon = 0.000001
+
+
 def mod_5_is_0(x):
-    return abs((x+epsilon) % 5) < 2*epsilon
+    return abs((x + epsilon) % 5) < 2 * epsilon
 
 
 def wait_complete_step():
-
-    '''The normal `linuxcnc.command.wait_complete()` function does not
-    understand single-stepping.  It waits for the `state` to return to
-    `RCS_DONE` but this does not happen when single-stepping, `state`
-    stays at `RCS_EXEC` while waiting for the next step.
-
-    This function instead waits for status.task.execState to tell us
-    that Task is no longer waiting for Motion in any way.'''
-
+    '''Single-stepping keeps task in RCS_EXEC (not RCS_DONE), so we cannot use
+    wait_complete().  Instead, wait for exec_state to enter a wait-for-motion
+    state (the step was accepted) and then leave it (the step finished).'''
     timeout = 5.0
     start = time.time()
 
-    # Wait for the command to be acknowledged by Task (FIXME or is it motion?).
+    # Wait for the step to be accepted (exec_state enters a waiting state),
+    # or for the interpreter to go idle (program finished).
     while time.time() - start < timeout:
         s.poll()
-        if s.echo_serial_number >= c.serial:
+        if s.exec_state in _WAITING or s.interp_state == INTERP_IDLE:
             break
-        time.sleep(0.1)
+        time.sleep(0.02)
 
     # Wait for Task to be done waiting for Motion.
     while time.time() - start < timeout:
         s.poll()
-        if s.exec_state not in [ linuxcnc.EXEC_WAITING_FOR_MOTION, linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO, linuxcnc.EXEC_WAITING_FOR_MOTION_QUEUE ]:
+        if s.exec_state not in _WAITING:
             return
         time.sleep(0.1)
 
@@ -88,23 +96,23 @@ def wait_complete_step():
 
 
 # Take first three steps (these cause no motion).
-c.auto(linuxcnc.AUTO_STEP)
-c.auto(linuxcnc.AUTO_STEP)
-c.auto(linuxcnc.AUTO_STEP)
+c.auto(AUTO_STEP)
+c.auto(AUTO_STEP)
+c.auto(AUTO_STEP)
 wait_complete_step()
 
 count = 0
 while True:
     s.poll()
-    if s.interp_state == linuxcnc.INTERP_IDLE:
+    if s.interp_state == INTERP_IDLE:
         sys.stderr.write("Finished:  Detected program finish\n")
         break
 
-    (x, y) = (h["Xpos"], h["Ypos"])
+    (x, y) = positions()[0:2]
     if mod_5_is_0(x) and mod_5_is_0(y):
         # Both axes on goal; command the next step and wait for it to finish.
         sys.stderr.write("Taking step from X%.2f Y%.2f\n" % (x, y))
-        c.auto(linuxcnc.AUTO_STEP)
+        c.auto(AUTO_STEP)
         wait_complete_step()
 
     print_state()
@@ -116,8 +124,9 @@ while True:
 
     time.sleep(0.1)
 
-if h["counter"] != 25:
-    sys.stderr.write("End counter incorrect:  %d != 25\n" % h["counter"])
+end_counter = counter()
+if end_counter != 25:
+    sys.stderr.write("End counter incorrect:  %d != 25\n" % end_counter)
     sys.exit(1)
 
 sys.exit(0)

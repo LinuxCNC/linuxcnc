@@ -1,0 +1,13 @@
+Full-instance exemplar: config + driver ported to the gomc model (config adds
+LIB:linuxcnc.hal + [RS274NGC]PARAMETER_FILE; test.sh drives a resident
+gomc-server; test-ui.py ported from the removed NML `linuxcnc` module to the
+`gmi` REST/WS client — positions from gmi.Stat, the M67 analog-output counter
+read via `halcmd getp motion.analog-out-00`).
+
+Still failing on BEHAVIOR, not plumbing: under AUTO_STEP the driver detects
+program finish but the M67 synchronized analog output (motion.analog-out-00)
+ends at 0 instead of 25 — gomc's single-stepping does not appear to execute /
+retain the M67 output through the stepped program (and AUTO_RUN advances the
+program only very slowly). Needs investigation of gomc AUTO_STEP + M67
+(synchronized digital/analog output) motion behavior. Remove this xfail once
+that is resolved.
