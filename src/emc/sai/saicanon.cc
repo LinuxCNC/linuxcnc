@@ -39,6 +39,7 @@ extern "C" {
 enum toolidx_t { IDX_OK = 0, IDX_NEW, IDX_FAIL };
 toolidx_t tooldata_get(CANON_TOOL_TABLE *pdata, int idx);
 toolidx_t tooldata_put(CANON_TOOL_TABLE tdata, int idx);
+int tooldata_last_index_get(void);
 }
 
 #include "rs274ngc.hh"
@@ -1345,6 +1346,31 @@ static int32_t sc_get_external_tool_table(void *ctx, int32_t pocket, int32_t *to
     *orientation = t.orientation;
     return 0;
 }
+static int32_t sc_get_tool_by_number(void *ctx, int32_t toolno, int32_t *pocket, double offset[9], double *diameter, double *frontangle, double *backangle, int32_t *orientation) {
+    if (toolno == -1) return 1;
+    int last = tooldata_last_index_get();
+    int foundidx = -1;
+    /* Prefer the tool's real (non-zero) pocket over the pocket-0 loaded-tool
+       mirror, matching tooldata_find_index_for_tool() semantics. */
+    for (int idx = 0; idx <= last; idx++) {
+        CANON_TOOL_TABLE t;
+        if (tooldata_get(&t, idx) != IDX_OK) continue;
+        if (t.toolno != toolno) continue;
+        foundidx = idx;
+        if (foundidx == 0) continue;
+        break;
+    }
+    if (foundidx < 0) return 1; /* not found */
+    CANON_TOOL_TABLE t;
+    tooldata_get(&t, foundidx);
+    *pocket = foundidx;
+    offset[0] = t.offset.tran.x; offset[1] = t.offset.tran.y; offset[2] = t.offset.tran.z;
+    offset[3] = t.offset.a; offset[4] = t.offset.b; offset[5] = t.offset.c;
+    offset[6] = t.offset.u; offset[7] = t.offset.v; offset[8] = t.offset.w;
+    *diameter = t.diameter; *frontangle = t.frontangle; *backangle = t.backangle;
+    *orientation = t.orientation;
+    return 0;
+}
 static int32_t sc_get_external_tc_fault(void *ctx) { return GET_EXTERNAL_TC_FAULT(); }
 static int32_t sc_get_external_tc_reason(void *ctx) { return GET_EXTERNAL_TC_REASON(); }
 static int32_t sc_get_external_queue_empty(void *ctx) { return GET_EXTERNAL_QUEUE_EMPTY(); }
@@ -1502,6 +1528,7 @@ static const canon_callbacks_t saicanon_table = {
     .get_external_tool_slot = sc_get_external_tool_slot,
     .get_external_selected_tool_slot = sc_get_external_selected_tool_slot,
     .get_external_tool_table = sc_get_external_tool_table,
+    .get_tool_by_number = sc_get_tool_by_number,
     .get_external_tc_fault = sc_get_external_tc_fault,
     .get_external_tc_reason = sc_get_external_tc_reason,
     .get_external_queue_empty = sc_get_external_queue_empty,
