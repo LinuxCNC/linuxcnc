@@ -1,0 +1,5 @@
+Config ported to gomc (LIB:linuxcnc.hal, loadrt->load). Blocked by a gomc bug:
+M61 Q<n> does not set the current tool — after `M61 Q5`, both status
+tool_in_spindle and interp #5400 stay 0 (expected 5). Part of the gomc
+tool-tracking bug cluster (see tests/tool-info/*/xfail: M6 does not update
+#<_current_tool>). Re-enable once M61 sets the tool. Driver port pending the fix.
