@@ -8,5 +8,5 @@ for SRC in *.in; do
     egrep -v '(^ *$)|(^ *#)' ${SRC} > ${DEST}
 done
 
-linuxcnc -r test.ini
+gomc-server -r test.ini
 
