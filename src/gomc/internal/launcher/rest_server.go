@@ -86,9 +86,12 @@ func (l *Launcher) startAPIServer() {
 	}
 	l.apiServer.SetAddr(addr)
 
+	// Capture the server in a local so that a concurrent stopAPIServer() (which
+	// nils l.apiServer during shutdown) cannot cause a nil dereference here.
+	srv := l.apiServer
 	go func() {
 		l.logger.Info("starting REST API server", "addr", addr)
-		if err := l.apiServer.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServe(); err != nil {
 			// http.ErrServerClosed is expected on graceful shutdown
 			if err.Error() != "http: Server closed" {
 				l.logger.Error("REST API server error", "error", err)

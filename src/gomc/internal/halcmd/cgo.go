@@ -1314,6 +1314,27 @@ static int hal_shim_save(const char *type, char *buf, int buf_size) {
 #undef SAVE_LINE
     return count;
 }
+
+// hal_shim_set_exact enables exact_base_period mode, mirroring the classic
+// halcmd "setexact_for_test_suite_only" command.  When set, HAL pretends the
+// requested thread base period is achievable exactly (instead of rounding to
+// the value RTAPI reports), which makes test sample counts deterministic.
+// Must be called before any thread is created.  Returns -EINVAL if a thread
+// has already established a base period, 0 on success.
+static int hal_shim_set_exact(void) {
+    int retval = 0;
+    if (hal_data == NULL) {
+        return -EINVAL;
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+    if (hal_data->base_period) {
+        retval = -EINVAL;
+    } else {
+        hal_data->exact_base_period = 1;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return retval;
+}
 */
 import "C"
 import (
@@ -1324,6 +1345,15 @@ import (
 
 	hal "github.com/sittner/linuxcnc/src/gomc/pkg/hal"
 )
+
+// SetExact enables exact_base_period mode in HAL, mirroring the classic halcmd
+// "setexact_for_test_suite_only" command used by the test suite.  It must be
+// called before any thread is created.  Returns an error if a base period has
+// already been established.
+func SetExact() error {
+	rc := int(C.hal_shim_set_exact())
+	return halError(rc, "setexact")
+}
 
 // halError translates a HAL C error code to a Go error.
 // Returns nil if the code is 0 (success).

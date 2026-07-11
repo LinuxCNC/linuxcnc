@@ -422,18 +422,38 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 // "load" REST endpoint).  It resolves the path, calls loadCPlugin, Init,
 // and Start so the module is fully operational when the call returns.
 func (l *Launcher) runtimeLoadModule(module string, args []string) error {
+	return l.loadModuleNamed(module, "", args)
+}
+
+// loadModuleNamed loads a single module (cmod plugin or Go module) at runtime
+// and immediately runs its Init and Start phases so it is fully operational
+// on return.  This is the sequential load path used by both the REST "load"
+// command (via runtimeLoadModule) and the one-shot halrun executor.
+//
+// instanceName overrides the instance/component name; pass "" to derive the
+// default (the module basename).  The explicit-name form supports HAL-file
+// syntax like "load abs <abs.0>", where the instance must be named "abs.0".
+func (l *Launcher) loadModuleNamed(module, instanceName string, args []string) error {
 	path := resolveCModulePath(module)
 	if !cModuleExists(path) {
 		// Try as a Go module — load and start immediately.
-		if err := l.loadGoModule(module, module, args); err != nil {
+		name := instanceName
+		if name == "" {
+			name = module
+		}
+		if err := l.loadGoModule(module, name, args); err != nil {
 			return err
 		}
 		gm := l.goModules[len(l.goModules)-1]
 		return gm.mod.Start()
 	}
 
-	// Use the module basename (without .so) as the instance name.
-	name := strings.TrimSuffix(filepath.Base(path), ".so")
+	// Use the module basename (without .so) as the instance name when not
+	// explicitly provided.
+	name := instanceName
+	if name == "" {
+		name = strings.TrimSuffix(filepath.Base(path), ".so")
+	}
 
 	if err := l.loadCPlugin(path, name, args); err != nil {
 		return err
