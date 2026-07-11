@@ -1,14 +1,9 @@
 #!/bin/bash
-# Resident-server driver for the abs test.  gomc has no userspace HAL
-# components, so instead of the old 'loadusr -w halsampler/halstreamer' this
-# runs a resident gomc-server and drives it with the halstreamer/halsampler
-# REST clients.  halsampler must connect BEFORE threads start: gomc's sampler
-# stream is live (from connect time), not a replay of the sampler FIFO.
-gomc-server -r -f abs.hal --serve &
-SRVPID=$!
-trap 'kill $SRVPID 2>/dev/null; wait 2>/dev/null' EXIT
-for i in $(seq 100); do halcmd show comp >/dev/null 2>&1 && break; sleep 0.1; done
-halstreamer <<DATA
+# Drive a resident gomc-server to feed abs through a streamer/sampler.
+# See ../hal-stream-driver.sh for the mechanism (gomc has no userspace comps).
+. "$(dirname "$0")/../hal-stream-driver.sh"
+hal_start_server abs.hal
+hal_feed_streamer <<DATA
 0
 0.25
 -0.25
@@ -17,9 +12,5 @@ halstreamer <<DATA
 64
 -64
 DATA
-halsampler -n 7 &
-SAMPLER=$!
-sleep 0.5
-halcmd start
-wait $SAMPLER
-halcmd stop
+hal_sample 7
+hal_run
