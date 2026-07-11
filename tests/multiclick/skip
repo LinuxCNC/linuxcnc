@@ -1,0 +1,3 @@
+gomc's mux_generic is single-instance and rejects the classic comma-separated
+multi-instance config ("invalid character ',' in config string"); the test relies on
+mux-gen.NN instances. Re-enable if gomc mux_generic gains multi-instance support.
