@@ -1,0 +1,3 @@
+gomc does not provide the conv_float_u32 component (not in cmod/ or the Go
+registry), and mux_generic uses different instance naming. Cannot convert to the
+resident-server streaming model without that comp. Re-enable if conv_float_u32 is added.

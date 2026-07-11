@@ -1,0 +1,31 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=ffff depth=3200
+loadrt streamer cfg=f depth=4096
+
+load limit3
+setp limit3.min -50
+setp limit3.max 50
+setp limit3.maxv 4000
+setp limit3.maxa 10000
+
+net in <= streamer.pin.0
+net in => limit3.in
+net in => sampler.pin.0
+
+net out <= limit3.out
+net out => sampler.pin.1
+
+load ddt <vel,acc>
+net out => vel.in
+net vel <= vel.out => sampler.pin.2 => acc.in
+net acc <= acc.out => sampler.pin.3
+
+newthread t 1000000
+
+addf streamer t
+addf limit3 t
+addf vel t
+addf acc t
+addf sampler t
+
