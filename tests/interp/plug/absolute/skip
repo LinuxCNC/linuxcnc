@@ -1,0 +1,2 @@
+gomc removed embedded Python: this test needs the canterp.so python interpreter
+plugin, which is not built. Re-enable if Python support returns.
