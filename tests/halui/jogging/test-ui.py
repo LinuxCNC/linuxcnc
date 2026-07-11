@@ -1,33 +1,63 @@
 #!/usr/bin/env python3
 
-import linuxcnc
-import hal
+# Ported to the gomc REST/WS API. The classic test drove halui.* pins through a
+# userspace `python-ui` HAL component wired in postgui.hal; gomc has no
+# userspace HAL components, so we drive the halui/joint pins directly via
+# halcmd, and use the gmi client for task state/mode. The `h[...]` shim below
+# maps the old logical pin names to the real HAL pins/signals.
+
+import gmi
+from gmi.constants import *
+
+import subprocess
 import time
 import sys
 import os
 
-
-# this is how long we wait for linuxcnc to do our bidding
 timeout = 10.0
 
-
-# unbuffer stdout
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
-
-
 program_start = time.time()
 
 def log(msg):
-    delta_t = time.time() - program_start;
-    print("%.3f: %s" % (delta_t, msg))
-    sys.stdout.flush()
+    print("%.3f: %s" % (time.time() - program_start, msg)); sys.stdout.flush()
 
+def _setp(pin, val):
+    subprocess.call(["halcmd", "setp", pin, str(val)])
+
+def _get(cmd, name):
+    out = subprocess.check_output(["halcmd", cmd, name]).decode()
+    return out.split()[-1]
+
+def _getp_bit(pin):  return 1 if _get("getp", pin) in ("TRUE", "1") else 0
+def _getp_flt(pin):  return float(_get("getp", pin))
+def _gets_flt(sig):  return float(_get("gets", sig))
+
+_POS_SIG = {0: "Xpos", 1: "Ypos", 2: "Zpos"}
+
+class H:
+    # dict-like shim: h[name] read/write maps to real HAL pins/signals.
+    def __getitem__(self, k):
+        if k.endswith("-homed"):    return _getp_bit("halui.joint.%s.is-homed" % k.split("-")[1])
+        if k.endswith("-selected"): return _getp_bit("halui.joint.%s.is-selected" % k.split("-")[1])
+        if k.endswith("-position"): return _gets_flt(_POS_SIG[int(k.split("-")[1])])
+        if k.endswith("-velocity"): return _getp_flt("joint.%s.vel-cmd" % k.split("-")[1])
+        if k == "motion-mode-is-joint": return _getp_bit("halui.mode.is-joint")
+        raise KeyError(k)
+    def __setitem__(self, k, v):
+        if k.endswith("-home"):      _setp("halui.joint.%s.home" % k.split("-")[1], v)
+        elif k.endswith("-select"):  _setp("halui.joint.%s.select" % k.split("-")[1], v)
+        elif k.endswith("-jog-plus"):  _setp("halui.joint.%s.plus" % k.split("-")[1], v)
+        elif k.endswith("-jog-minus"): _setp("halui.joint.%s.minus" % k.split("-")[1], v)
+        elif k == "jog-selected-minus": _setp("halui.joint.selected.minus", v)
+        elif k == "jog-selected-plus":  _setp("halui.joint.selected.plus", v)
+        elif k == "motion-mode-joint":  _setp("halui.mode.joint", v)
+        else: raise KeyError(k)
+
+h = H()
 
 def introspect(h):
-    os.system("halcmd show pin halui")
-    os.system("halcmd show pin python-ui")
-    os.system("halcmd show sig")
-
+    os.system("halcmd show pin halui"); os.system("halcmd show sig")
 
 def home_joint(name):
     log("    homing %s" % name)
@@ -167,61 +197,12 @@ def jog_joint(joint_number, target):
         sys.exit(1)
 
 
-#
-# set up pins
-# shell out to halcmd to make nets to halui and motion
-#
 
-h = hal.component("python-ui")
-
-h.newpin("joint-0-home", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-0-homed", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("joint-0-select", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-0-selected", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-0-velocity", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-0-jog-plus", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-0-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
-
-h.newpin("joint-1-home", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-1-homed", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("joint-1-select", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-1-selected", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-1-velocity", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-1-jog-plus", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-1-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
-
-h.newpin("joint-2-home", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-2-homed", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("joint-2-select", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-2-selected", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-2-velocity", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-2-jog-plus", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("joint-2-jog-minus", hal.HAL_BIT, hal.HAL_OUT)
-
-h.newpin("jog-selected-minus", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("jog-selected-plus", hal.HAL_BIT, hal.HAL_OUT)
-
-h.newpin("motion-mode-joint", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("motion-mode-is-joint", hal.HAL_BIT, hal.HAL_IN)
-
-h.ready() # mark the component as 'ready'
-
-os.system("halcmd source ./postgui.hal")
-
-
-#
-# connect to LinuxCNC
-#
-
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel
-
-c.state(linuxcnc.STATE_ESTOP_RESET)
-c.state(linuxcnc.STATE_ON)
+# ---- task command/status via gmi ----
+c = gmi.Command()
+s = gmi.Stat()
+c.state(STATE_ESTOP_RESET)
+c.state(STATE_ON)
 c.wait_complete()
 
 # Select joints 1 and 2, but do not de-assert the .select pins.
@@ -238,7 +219,7 @@ h['joint-1-select'] = 0
 h['joint-2-select'] = 0
 
 # The machine is homed and all the .joint.N.select pins are deasserted.
-c.mode(linuxcnc.MODE_MANUAL)
+c.mode(MODE_MANUAL)
 c.wait_complete()
 
 h['motion-mode-joint'] = 1
