@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-import linuxcnc, hal
+import linuxcnc
+import gmi
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
 import sys
 
 # Initialization
-c = linuxcnc.command()
-s = linuxcnc.stat()
+c = gmi.Command()
+s = gmi.Stat()
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_MDI)
