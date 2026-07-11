@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
 import linuxcnc
+import gmi
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
 import linuxcnc_util
-import hal
 
 import math
 import time
@@ -169,11 +173,11 @@ def assert_axis_initialized(axis):
     assert(axis['max_position_limit'] == 40.0)
 
 
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
-l = linuxcnc_util.LinuxCNC()
+l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 # Wait for LinuxCNC to initialize itself so the Status buffer stabilizes.
 l.wait_for_linuxcnc_startup()
 

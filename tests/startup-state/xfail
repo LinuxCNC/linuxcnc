@@ -1,0 +1,6 @@
+Ported to gomc (config +LIB:linuxcnc.hal + PARAMETER_FILE, loadrt->load;
+driver -> gmi + linuxcnc_util reuse). Instance + driver run. This test verifies
+the FULL status surface at startup; gmi.Stat does not expose several NML status
+fields it checks (e.g. cycle_time, and likely max_acceleration/max_velocity/
+program_units). Blocked by the gmi.Stat field surface being a subset of the
+classic NML stat. Remove xfail once gmi.Stat exposes the full status surface.
