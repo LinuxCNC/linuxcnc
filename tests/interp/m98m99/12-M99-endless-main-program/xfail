@@ -1,0 +1,3 @@
+motion-logger is not ported to gomc: this test uses motion-logger (out.motion-logger)
+as the motmod stand-in via loadusr, plus dual rs274. gomc has no loadusr/userspace/NML and
+motion-logger.c is not built as a cmod. Needs a gomc cmod port of motion-logger.

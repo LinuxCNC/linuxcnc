@@ -2,4 +2,4 @@
 
 rm -f out.motion-logger
 
-linuxcnc -r mountaindew.ini
+gomc-server -r mountaindew.ini
