@@ -1,175 +1,85 @@
 #!/usr/bin/env python3
 
-import linuxcnc
-import hal
-import time
-import sys
-import os
-import math
+# Ported to the gomc REST/WS API. halui.mdi-command-NN and halui.mode.is-* are
+# driven directly via halcmd (the userspace python-ui HAL component + postgui
+# nets are gone); task state/mode via the gmi client.
+
+import gmi
+from gmi.constants import *
+import subprocess, time, sys, os, math
 
 program_start = time.time()
-
 def log(msg):
-    delta_t = time.time() - program_start;
-    print("%.3f: %s" % (delta_t, msg))
-    sys.stdout.flush()
+    print("%.3f: %s" % (time.time() - program_start, msg)); sys.stdout.flush()
 
+def _setp(pin, val): subprocess.call(["halcmd", "setp", pin, str(val)])
+def _get(cmd, name): return subprocess.check_output(["halcmd", cmd, name]).decode().split()[-1]
+def _bit(pin): return 1 if _get("getp", pin) in ("TRUE", "1") else 0
+_POS = {0: "Xpos", 1: "Ypos", 2: "Zpos"}
 
-def introspect():
-    os.system("halcmd show pin halui")
-    os.system("halcmd show pin python-ui")
-    os.system("halcmd show sig")
-
+class H:
+    def __getitem__(self, k):
+        if k.endswith("-position"): return float(_get("gets", _POS[int(k.split("-")[1])]))
+        if k == "is-manual": return _bit("halui.mode.is-manual")
+        if k == "is-auto":   return _bit("halui.mode.is-auto")
+        if k == "is-mdi":    return _bit("halui.mode.is-mdi")
+        raise KeyError(k)
+    def __setitem__(self, k, v):
+        if k.startswith("mdi-"): _setp("halui.mdi-command-%02d" % int(k.split("-")[1]), v)
+        else: raise KeyError(k)
+h = H()
 
 def wait_for_joint_to_stop_at(joint, target):
-    timeout = 10.0
-    tolerance = 0.0001
-
-    start = time.time()
-
-    curr_pos = 0;
-    while ((time.time() - start) < timeout):
-        prev_pos = curr_pos
-        curr_pos = h['joint-%d-position' % joint]
+    timeout, tol = 10.0, 0.0001
+    start = time.time(); curr_pos = 0
+    while (time.time() - start) < timeout:
+        prev_pos = curr_pos; curr_pos = h['joint-%d-position' % joint]
         vel = curr_pos - prev_pos
-        error = math.fabs(curr_pos - target)
-        if (error < tolerance) and (vel == 0):
-            log("joint %d stopped at %.3f" % (joint, target))
-            return
+        if (math.fabs(curr_pos - target) < tol) and (vel == 0):
+            log("joint %d stopped at %.3f" % (joint, target)); return
         time.sleep(0.1)
-    log("timeout waiting for joint %d to stop at %.3f (pos=%.3f, vel=%.3f)" % (joint, target, curr_pos, vel))
-    sys.exit(1)
-
+    log("timeout waiting for joint %d to stop at %.3f (pos=%.3f)" % (joint, target, curr_pos)); sys.exit(1)
 
 def wait_for_task_mode(target):
-    timeout = 10.0
     start = time.time()
-
-    while ((time.time() - start) < timeout):
+    while (time.time() - start) < 10.0:
         s.poll()
-        if s.task_mode == target:
-            return
+        if s.task_mode == target: return
         time.sleep(0.1)
-
-    log("timeout waiting for task mode to get to  %d (it's %d)" % (target, s.task_mode))
-    sys.exit(1)
-
+    log("timeout waiting for task mode %d (it's %d)" % (target, s.task_mode)); sys.exit(1)
 
 def wait_for_halui_mode(pin_name):
-    timeout = 10.0
-
     start = time.time()
-
-    while ((time.time() - start) < timeout):
+    while (time.time() - start) < 10.0:
         if h[pin_name]:
-            print("halui reports mode {}".format(pin_name))
-            return
+            print("halui reports mode {}".format(pin_name)); return
         time.sleep(0.1)
-    print("timeout waiting for halui to report mode {}".format(pin_name))
-    sys.exit(1)
+    print("timeout waiting for halui mode {}".format(pin_name)); sys.exit(1)
 
+c = gmi.Command(); s = gmi.Stat(); e = gmi.ErrorChannel()
+c.state(STATE_ESTOP_RESET); c.state(STATE_ON); c.wait_complete()
 
+log("setting mode to Manual"); c.mode(MODE_MANUAL); wait_for_halui_mode('is-manual')
+log("running MDI command 0"); h['mdi-0'] = 1
+wait_for_joint_to_stop_at(0, -1); wait_for_joint_to_stop_at(1, 0); wait_for_joint_to_stop_at(2, 0)
+h['mdi-0'] = 0; wait_for_task_mode(MODE_MANUAL); wait_for_halui_mode('is-manual')
 
-#
-# set up pins
-# shell out to halcmd to make nets to halui and motion
-#
+log("setting mode to Auto"); c.mode(MODE_AUTO); wait_for_halui_mode('is-auto')
+log("running MDI command 1"); h['mdi-1'] = 1
+wait_for_joint_to_stop_at(0, 1); wait_for_joint_to_stop_at(1, 0); wait_for_joint_to_stop_at(2, 0)
+h['mdi-1'] = 0; wait_for_task_mode(MODE_AUTO); wait_for_halui_mode('is-auto')
 
-h = hal.component("python-ui")
+log("setting mode to MDI"); c.mode(MODE_MDI); wait_for_halui_mode('is-mdi')
+log("running MDI command 2"); h['mdi-2'] = 1
+wait_for_joint_to_stop_at(0, 1); wait_for_joint_to_stop_at(1, 2); wait_for_joint_to_stop_at(2, 0)
+h['mdi-2'] = 0; s.poll(); wait_for_task_mode(MODE_MDI); wait_for_halui_mode('is-mdi')
 
-h.newpin("mdi-0", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("mdi-1", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("mdi-2", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("mdi-3", hal.HAL_BIT, hal.HAL_OUT)
+log("running MDI command 3"); h['mdi-3'] = 1
+wait_for_joint_to_stop_at(0, 1); wait_for_joint_to_stop_at(1, 2); wait_for_joint_to_stop_at(2, 3)
+h['mdi-3'] = 0; wait_for_task_mode(MODE_MDI); wait_for_halui_mode('is-mdi')
 
-h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
-
-h.newpin("is-manual", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("is-auto", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("is-mdi", hal.HAL_BIT, hal.HAL_IN)
-
-h.ready() # mark the component as 'ready'
-
-os.system("halcmd source ./postgui.hal")
-
-
-#
-# connect to LinuxCNC
-#
-
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
-
-c.state(linuxcnc.STATE_ESTOP_RESET)
-c.state(linuxcnc.STATE_ON)
-c.wait_complete()
-
-
-#
-# run the test
-#
-# These functions will exit with a return value of 1 if something goes
-# wrong.
-#
-
-log("setting mode to Manual")
-c.mode(linuxcnc.MODE_MANUAL)
-wait_for_halui_mode('is-manual')
-log("running MDI command 0")
-h['mdi-0'] = 1
-wait_for_joint_to_stop_at(0, -1);
-wait_for_joint_to_stop_at(1, 0);
-wait_for_joint_to_stop_at(2, 0);
-h['mdi-0'] = 0
-wait_for_task_mode(linuxcnc.MODE_MANUAL)
-wait_for_halui_mode('is-manual')
-
-log("setting mode to Auto")
-c.mode(linuxcnc.MODE_AUTO)
-wait_for_halui_mode('is-auto')
-log("running MDI command 1")
-h['mdi-1'] = 1
-wait_for_joint_to_stop_at(0, 1);
-wait_for_joint_to_stop_at(1, 0);
-wait_for_joint_to_stop_at(2, 0);
-h['mdi-1'] = 0
-wait_for_task_mode(linuxcnc.MODE_AUTO)
-wait_for_halui_mode('is-auto')
-
-log("setting mode to MDI")
-c.mode(linuxcnc.MODE_MDI)
-wait_for_halui_mode('is-mdi')
-log("running MDI command 2")
-h['mdi-2'] = 1
-wait_for_joint_to_stop_at(0, 1);
-wait_for_joint_to_stop_at(1, 2);
-wait_for_joint_to_stop_at(2, 0);
-h['mdi-2'] = 0
-s.poll()
-wait_for_task_mode(linuxcnc.MODE_MDI)
-wait_for_halui_mode('is-mdi')
-
-log("running MDI command 3")
-h['mdi-3'] = 1
-wait_for_joint_to_stop_at(0, 1);
-wait_for_joint_to_stop_at(1, 2);
-wait_for_joint_to_stop_at(2, 3);
-h['mdi-3'] = 0
-wait_for_task_mode(linuxcnc.MODE_MDI)
-wait_for_halui_mode('is-mdi')
-
-log("running MDI command 0")
-h['mdi-0'] = 1
-wait_for_joint_to_stop_at(0, -1);
-wait_for_joint_to_stop_at(1, 0);
-wait_for_joint_to_stop_at(2, 0);
-h['mdi-0'] = 0
-wait_for_task_mode(linuxcnc.MODE_MDI)
-wait_for_halui_mode('is-mdi')
-
+log("running MDI command 0"); h['mdi-0'] = 1
+wait_for_joint_to_stop_at(0, -1); wait_for_joint_to_stop_at(1, 0); wait_for_joint_to_stop_at(2, 0)
+h['mdi-0'] = 0; wait_for_task_mode(MODE_MDI); wait_for_halui_mode('is-mdi')
 
 sys.exit(0)
-
