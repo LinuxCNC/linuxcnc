@@ -1,0 +1,10 @@
+Config + shared driver ported to the gomc model (LIB:linuxcnc.hal; test.sh
+drives resident gomc-server; ../../test-ui.py reads iocontrol.tool-number via
+halcmd instead of a userspace HAL component + postgui net).
+
+Blocked on a gomc BUG: RANDOM_TOOLCHANGER startup tool detection. With
+RANDOM_TOOLCHANGER=1, gomc reports iocontrol.tool-number=0 at startup
+regardless of the pocket-0 (spindle) tool. Expected: the tool in pocket 0
+(tool 2 here -> 2), or -1 when pocket 0 is empty/unknown. The non-random cases
+(this test's siblings) pass. Fix target: gomc io/iocontrol random-toolchanger
+startup current-tool detection. Remove this xfail once fixed.

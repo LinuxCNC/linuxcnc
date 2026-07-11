@@ -1,60 +1,29 @@
 #!/usr/bin/env python3
 
-import linuxcnc_util
-import hal
+# Ported to the gomc model: read the startup tool number directly from
+# iocontrol.tool-number via halcmd (gomc has no userspace HAL components, so the
+# old test-ui HAL component + postgui net are gone).
+
+import subprocess
 import time
 import sys
-import os
+
+with open('expected-startup-tool-number') as f:
+    expected = int(f.read())
+print("expecting tool number %d" % expected)
 
 
-# this is how long we wait for linuxcnc to do our bidding
-timeout = 5.0
+def tool_number():
+    out = subprocess.check_output(["halcmd", "getp", "iocontrol.tool-number"])
+    return int(float(out.split()[-1]))
 
 
-# unbuffer stdout
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
+start = time.time()
+while (time.time() - start) < 5.0:
+    if tool_number() == expected:
+        print("iocontrol.tool-number reached %d" % expected)
+        sys.exit(0)
+    time.sleep(0.1)
 
-
-def wait_for_pin_value(pin_name, value, timeout=5.0):
-    start_time = time.time()
-    while (time.time() - start_time) < timeout:
-        time.sleep(0.1)
-        if h[pin_name] == value:
-            print("pin '%s' reached target value '%s' after %f seconds" % (pin_name, value, time.time() - start_time))
-            return
-    print("Error: pin '%s' didn't reach value '%s' within timeout of %f seconds (it's %s instead)" % (pin_name, value, timeout, h[pin_name]))
-    sys.exit(1)
-
-
-f = open('expected-startup-tool-number', 'r')
-contents = f.read()
-f.close()
-expected_startup_tool_number = int(contents)
-print("expecting tool number %d" % expected_startup_tool_number)
-
-#
-# set up pins
-# shell out to halcmd to make nets to halui and motion
-#
-
-h = hal.component("test-ui")
-
-h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
-
-h.ready() # mark the component as 'ready'
-
-os.system("halcmd source ../../postgui.hal")
-
-
-#
-# connect to LinuxCNC
-#
-
-l = linuxcnc_util.LinuxCNC()
-
-wait_for_pin_value('tool-number', expected_startup_tool_number)
-
-l.wait_for_tool_in_spindle(expected_startup_tool_number)
-
-sys.exit(0)
-
+print("Error: iocontrol.tool-number is %d, expected %d" % (tool_number(), expected))
+sys.exit(1)

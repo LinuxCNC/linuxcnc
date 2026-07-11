@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 
-import linuxcnc
-import linuxcnc_util
-import hal
+# Ported to the gomc gmi REST/WS client (from the removed NML linuxcnc module).
+
+import gmi
+from gmi.constants import *
 
 import math
 import time
 import sys
-import subprocess
-import os
-import signal
-import glob
-import re
 
-retval = 0
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
-
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
-l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
-
-l.wait_for_linuxcnc_startup()
+# Wait for startup + RS274NGC_STARTUP_CODE (G43 H1) to be applied.
+t = time.time()
+while time.time() - t < 10:
+    s.poll()
+    if s.interp_state == INTERP_IDLE and s.task_state != 0:
+        break
+    time.sleep(0.1)
+time.sleep(0.5)
 
 s.poll()
+retval = 0
 
 if s.g5x_index != 1:
     print("Expected g5x_index=1 (startup in G54), got %d instead" % s.g5x_index)
@@ -35,4 +35,3 @@ if math.fabs(s.tool_offset[2] - 0.1234) > 0.000001:
     retval = 1
 
 sys.exit(retval)
-
