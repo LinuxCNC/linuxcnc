@@ -283,6 +283,16 @@ func processFile(path, mode, outputFile string) error {
 		return err
 	}
 
+	// Enforce that the declared component name matches the .comp filename
+	// (classic halcompile behaviour — catches copy/paste mistakes where a
+	// component keeps the name of the file it was copied from).  HAL component
+	// names cannot contain '-', so a filename may use '-' where the name uses
+	// '_' (e.g. svd-ps_vfd.comp -> component svd_ps_vfd); normalize before
+	// comparing so that is accepted while genuine mismatches are rejected.
+	if base := strings.ReplaceAll(strings.TrimSuffix(filepath.Base(path), ".comp"), "-", "_"); pkg.Component.Name != base {
+		return fmt.Errorf("%s: component name %q does not match file name (expected %q)", path, pkg.Component.Name, base)
+	}
+
 	switch mode {
 	case "--parse":
 		enc := json.NewEncoder(os.Stdout)
@@ -434,6 +444,13 @@ func compileComp(compPath string, pkg *ast.Package, outDir string) error {
 		gmiIncludes = append(gmiIncludes, "-I"+filepath.Join(config.EMC2GomcDir, "generated", "gmi", api))
 	}
 
+	// Add the .comp's own directory so a relative #include "local.h" resolves:
+	// the generated C is compiled from a temp dir, so without this the comp's
+	// source directory is not on the include path.
+	if d := filepath.Dir(compPath); d != "" {
+		gmiIncludes = append(gmiIncludes, "-I"+d)
+	}
+
 	return compileToSO(tmpCPath, outDir, pkg.Component.Name, gmiIncludes)
 }
 
@@ -443,7 +460,8 @@ func compileCFile(cPath string, outDir string) error {
 	if err != nil {
 		return err
 	}
-	return compileToSO(absCPath, outDir, "", nil)
+	// Add the .c's own directory so a relative #include "local.h" resolves.
+	return compileToSO(absCPath, outDir, "", []string{"-I" + filepath.Dir(absCPath)})
 }
 
 // printMakeInc outputs a Makefile snippet for external projects.
