@@ -1,15 +1,9 @@
+setexact_for_test_suite_only
 newthread fast 100000
 load flipflop <flipflop.0>
-
 loadrt sampler depth=1000 cfg=b
 loadrt streamer depth=32 cfg=bbbb
-
 source sourced.hal
-
-addf streamer.0 fast
+addf streamer fast
 addf flipflop.0 fast
-addf sampler.0 fast
-
-loadusr -w sh runstreamer
-start
-loadusr -w halsampler -n 10
+addf sampler fast

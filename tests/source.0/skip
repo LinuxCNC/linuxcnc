@@ -1,4 +1,0 @@
-gomc's one-shot HAL executor mishandles the 'source' command: sourcing another
-HAL fragment fails with 'source: maximum include depth exceeded' (include-depth not
-reset across per-line parsing). Needs a fix in src/gomc/internal/halparse. Re-enable
-once 'source' works; conversion is otherwise trivial (flipflop + sampler/streamer).
