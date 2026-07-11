@@ -1,4 +1,4 @@
 #!/bin/sh
 set -xe
-${SUDO} halcompile --install rtmath.comp
+${SUDO} modcompile --install rtmath.comp
 halrun dotest.hal
