@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 
 import linuxcnc
+import gmi
+# Reuse linuxcnc_util with the gmi REST/WS client: the classic NML linuxcnc
+# module is command/stat-less now, so copy gmi's constants onto it and drive
+# via gmi.Command/Stat/ErrorChannel.
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
 import linuxcnc_util
-import hal
 
 import time
 import sys
@@ -21,9 +28,9 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
 # connect to LinuxCNC
 #
 
-c = linuxcnc.command()
-e = linuxcnc.error_channel()
-s = linuxcnc.stat()
+c = gmi.Command()
+e = gmi.ErrorChannel()
+s = gmi.Stat()
 
 l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 

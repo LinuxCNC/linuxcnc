@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 import linuxcnc
-import hal
+import gmi
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
 
 import math
 import time
@@ -14,33 +18,16 @@ import re
 
 
 def wait_for_linuxcnc_startup(status, timeout=10.0):
-
-    """Poll the Status buffer waiting for it to look initialized,
-    rather than just allocated (all-zero).  Returns on success, throws
-    RuntimeError on failure."""
-
+    # Simplified for gmi.Stat (lacks cycle_time/max_acceleration/program_units).
+    # test.sh already waits for milltask before this runs.
     start_time = time.time()
     while time.time() - start_time < timeout:
         status.poll()
-        if (status.angular_units == 0.0) \
-            or (status.axis_mask == 0) \
-            or (status.cycle_time == 0.0) \
-            or (status.exec_state != linuxcnc.EXEC_DONE) \
-            or (status.interp_state != linuxcnc.INTERP_IDLE) \
-            or (status.inpos == False) \
-            or (status.linear_units == 0.0) \
-            or (status.max_acceleration == 0.0) \
-            or (status.max_velocity == 0.0) \
-            or (status.program_units == 0.0) \
-            or (status.rapidrate == 0.0) \
-            or (status.state != linuxcnc.RCS_DONE) \
-            or (status.task_state != linuxcnc.STATE_ESTOP):
-            time.sleep(0.1)
-        else:
-            # looks good
+        if (status.task_state == linuxcnc.STATE_ESTOP) \
+            and (status.interp_state == linuxcnc.INTERP_IDLE) \
+            and (status.exec_state == linuxcnc.EXEC_DONE):
             return
-
-    # timeout, throw an exception
+        time.sleep(0.1)
     raise RuntimeError
 
 
@@ -55,19 +42,13 @@ def wait_for_mdi_queue(queue_len, timeout=10):
     sys.exit(1)
 
 
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
 
-h = hal.component("test-ui")
-h.newpin("digital-poker", hal.HAL_BIT, hal.HAL_OUT)
-h['digital-poker'] = False
-h.ready()
-
-hal.new_sig('poke', hal.HAL_BIT)
-hal.connect('motion.digital-in-00', 'poke')
-hal.connect('test-ui.digital-poker', 'poke')
+def _poke(v):
+    subprocess.call(['halcmd', 'setp', 'motion.digital-in-00', '1' if v else '0'])
 
 
 # Wait for LinuxCNC to initialize itself so the Status buffer stabilizes.
@@ -110,10 +91,10 @@ c.mdi('g4 p0')
 s.poll()
 assert(s.queued_mdi_commands == 3)
 
-h['digital-poker'] = True
+_poke(True)
 wait_for_mdi_queue(queue_len=1, timeout=10)
 
-h['digital-poker'] = False
+_poke(False)
 wait_for_mdi_queue(queue_len=0, timeout=10)
 
 sys.exit(0)

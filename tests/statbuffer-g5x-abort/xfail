@@ -1,0 +1,8 @@
+Ported to gomc (config: +LIB:linuxcnc.hal, core_sim.hal loadrt->load; driver:
+gmi client). The instance comes up and the driver runs.
+
+Fails on a gomc BUG: after aborting a program that was executing in G55, the
+status g5x state is inconsistent — status.gcodes reports G55, but the active
+g5x index reads 3 (G56) and g5x_offset.z reads -6 (the G56 value) instead of
+index 2 / -5 (G55). The g5x active-coordinate-system index/offset is not
+correctly preserved/restored on program abort. Remove xfail once fixed.
