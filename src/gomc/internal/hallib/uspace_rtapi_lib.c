@@ -773,10 +773,14 @@ static void task_wait(void) {
             pthread_mutex_lock(&thread_lock);
         return;
     }
-    /* Check cooperative exit flag before sleeping */
+    /* Check cooperative exit flag before sleeping.  Do NOT re-acquire
+       thread_lock on the way out: the task is being deleted and thread_task()
+       returns immediately after this without needing the lock.  Leaving the
+       lock released lets any other task that is blocked re-acquiring it (below)
+       proceed and exit too — otherwise shutdown deadlocks whenever there is
+       more than one HAL thread (e.g. a base + servo thread), because the first
+       task to exit would leave thread_lock held. */
     if(task->task_exit) {
-        if(do_thread_lock)
-            pthread_mutex_lock(&thread_lock);
         return;
     }
     rtapi_timespec_advance(&task->nextstart, &task->nextstart, task->period + task->pll_correction);
@@ -792,8 +796,13 @@ static void task_wait(void) {
         int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL, &now);
         if(res < 0) perror("clock_nanosleep");
     }
-    if(do_thread_lock)
+    if(do_thread_lock) {
         pthread_mutex_lock(&thread_lock);
+        /* If we were asked to exit while sleeping, release the lock again so
+           the next task waiting to re-acquire it can run and exit. */
+        if(task->task_exit)
+            pthread_mutex_unlock(&thread_lock);
+    }
 }
 
 static unsigned char do_inb(unsigned int port)
