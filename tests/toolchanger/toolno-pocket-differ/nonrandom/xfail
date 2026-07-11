@@ -1,0 +1,9 @@
+Fully ported to gomc: config adds LIB:linuxcnc.hal; the linuxcncrsh telnet driver
+(removed in gomc) is replaced by tests/rsh2gmi.py, which reads the same
+linuxcncrsh command stream and drives the machine via the gmi REST client.
+
+xfail: gomc does not support user M-codes. The test's introspection dumps interp
+params to gcode-output via the user M-code M100 (USER_M_PATH=../subs/M100), but
+gomc's milltask rejects it ("mcode_handler: no handler for M100"), so gcode-output
+stays empty. (Even with M100, the G43 Hn tool-length-offset values would be wrong
+per the known G43 bug.) Remove xfail once user M-codes work.
