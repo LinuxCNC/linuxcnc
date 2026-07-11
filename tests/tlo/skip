@@ -1,0 +1,7 @@
+Tool Length Offset test. Blocked by the same gomc G43 Hn tool-table length-
+offset bug documented in tests/rs274ngc-startup/xfail: G43 Hn returns a wrong
+Z offset (table Z0.1234 -> tool_offset 3.1344), while G43.1 (explicit) works.
+Since this test's whole purpose is exercising G43 tool-length offsets from the
+table, it cannot pass until that bug is fixed; the ~350-line NML driver port is
+deferred until then. Remove this skip (and port the driver to gmi) once G43 Hn
+returns correct table offsets.
