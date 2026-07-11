@@ -1,0 +1,3 @@
+Drives stream_writer.py / stream_reader.py via the deprecated Python 'hal' module
+as userspace programs (loadusr). gomc removed embedded Python and userspace HAL
+components. Re-enable if a gomc-native equivalent is added.
