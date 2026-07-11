@@ -1,1 +1,0 @@
-gomc-server's one-shot/-serve HAL executor (halrun.go) does not honor -k/ContinueOnError: a deliberately-failing 'loadrt streamer' (no cfg) aborts the whole run instead of continuing. The launcher INI path checks ContinueOnError but the halrun load path does not. Re-enable once halrun.go honors -k, then convert to resident + halcmd list.

@@ -167,7 +167,15 @@ func (l *Launcher) halrunExecuteFile(halFile string) error {
 		}
 
 		if err := l.halrunDispatch(line); err != nil {
-			return fmt.Errorf("%s:%d: %w", halFile, lineNum, err)
+			// Honor -k / ContinueOnError, matching the launcher INI path: log
+			// the error and keep executing subsequent commands instead of
+			// aborting the whole run.  Used by e.g. tests that deliberately
+			// issue a failing loadrt and then inspect the surviving state.
+			if l.opts.ContinueOnError {
+				l.logger.Warn("halrun command error (continuing)", "file", halFile, "line", lineNum, "error", err)
+			} else {
+				return fmt.Errorf("%s:%d: %w", halFile, lineNum, err)
+			}
 		}
 		if l.shutdownRequested() {
 			return fmt.Errorf("interrupted")
