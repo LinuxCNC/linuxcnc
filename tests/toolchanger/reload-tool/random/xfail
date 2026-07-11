@@ -1,0 +1,9 @@
+Fully ported to gomc: config adds LIB:linuxcnc.hal + loadrt->load; driver runs
+against gmi via the compat shim (linuxcnc/linuxcnc_util/hal -> gmi + halcmd).
+The io toolchanger handshake works and the early status checks pass.
+
+xfail: gmi API gaps — gmi.Stat has no `tool_from_pocket` field (raises
+AttributeError), and joint position is `joint_actual_position` (not
+`joint_position`). The underlying tool state (tool_in_spindle/pocket_prepped)
+does update correctly, so this likely passes once gmi.Stat exposes
+tool_from_pocket. Remove xfail then.
