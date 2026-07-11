@@ -1,6 +1,9 @@
 #!/bin/bash
-
-cp -f simpockets.tbl.original simpockets.tbl
-rm -f sim.var
-
-exec linuxcnc -r g43-test.ini
+rm -f sim.var*
+cp -f simpockets.tbl.original simpockets.tbl 2>/dev/null
+gomc-server -r g43-test.ini >server.log 2>&1 &
+SRV=$!
+trap 'kill $SRV 2>/dev/null; wait 2>/dev/null' EXIT
+for i in $(seq 100); do halcmd show comp 2>/dev/null | grep -q milltask && break; sleep 0.1; done
+sleep 0.5
+./test-ui.py

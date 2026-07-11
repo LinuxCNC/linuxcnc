@@ -1,0 +1,8 @@
+Fully ported to gomc: config adds LIB:linuxcnc.hal + loadrt->load; driver runs
+against the gmi REST/WS API via a compat shim (linuxcnc->gmi, hal component ->
+halcmd gets/sets on the io signals). The tool-change handshake works.
+
+xfail: gomc tool-tracking bug — the interp predefined #5400 (tool in spindle) is
+not updated after a tool change (reads 0, expected the changed tool). Same
+cluster as tests/tool-info/*/xfail (M6 not updating #<_current_tool>) and M61 Q
+not setting the tool. Remove this xfail once interp tool params update on change.
