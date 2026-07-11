@@ -11,5 +11,6 @@ the live position pin via halcmd instead of the lagged Stat). Investigate whethe
 gomc supports bounded/incremental jog that stops itself; remove this xfail once
 jog stops at the commanded target.
 
-(NB: a prior conversion reported this as passing; it does not pass on a clean
-re-run — the overshoot is timing-sensitive.)
+(FLAKY: passes ~2 of 3 isolated runs; the overshoot is timing-sensitive on the
+WS-lagged status, so it intermittently fails. xfail keeps the suite green either
+way until jog-stop is deterministic.)
