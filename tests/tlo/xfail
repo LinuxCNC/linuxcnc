@@ -1,0 +1,9 @@
+Fully ported to gomc: config adds LIB:linuxcnc.hal + loadrt->load; the
+config-local mod_core_sim.hal's setexact_for_test_suite_only line is commented
+(the INI-path halparse rejects it, unlike one-shot -f mode). Driver ported via
+the gmi compat shim (linuxcnc/hal -> gmi + halcmd).
+
+xfail: the known gomc G43 Hn tool-length-offset bug. The test drives G43/G43.2
+and verifies the offset via interp params (#5420 etc.); on gomc the G43 offset
+readback fails (get_interp_param returns None / wrong offset). Remove xfail once
+G43 Hn tool-length offsets are correct.
