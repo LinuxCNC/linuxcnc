@@ -109,6 +109,7 @@ Options:
 		tpMod         = fs.String("t", "", `Custom trajectory planning module name (overrides [TRAJ]TPMOD)`)
 		homeMod       = fs.String("m", "", `Custom homing module name (overrides [EMCMOT]HOMEMOD)`)
 		halFileFlag   = fs.String("f", "", "One-shot mode: execute the given HAL `file` (halrun) then exit; no INI/task/motion")
+		halServeFlag  = fs.Bool("serve", false, "With -f: stay resident after executing the HAL file and serve the REST/WebSocket API (for streaming/capture tests); block until SIGINT/SIGTERM")
 		halLibDirs    multiFlag
 	)
 	fs.Var(&halLibDirs, "H", "Prepend `dir` to HALLIB_PATH (may be specified multiple times)")
@@ -207,9 +208,10 @@ Options:
 
 	l := launcher.New(opts, logger)
 
-	// One-shot HAL-file (halrun) mode: execute the file and exit.
+	// One-shot HAL-file (halrun) mode: execute the file and exit.  With -serve,
+	// stay resident and serve the API after executing the file.
 	if *halFileFlag != "" {
-		if err := l.RunHalFile(*halFileFlag); err != nil {
+		if err := l.RunHalFile(*halFileFlag, *halServeFlag); err != nil {
 			fmt.Fprintf(os.Stderr, "gomc-server: %v\n", err)
 			return 1
 		}

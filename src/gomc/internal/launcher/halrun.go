@@ -42,7 +42,15 @@ import (
 // It mirrors the classic `halrun -f <file>` behaviour: initialise the HAL/RTAPI
 // environment, execute the file's commands sequentially, then tear everything
 // down.  The process exit status reflects whether every command succeeded.
-func (l *Launcher) RunHalFile(halFile string) (runErr error) {
+//
+// When resident is true, the behaviour instead matches the gomc server+client
+// model: after executing the file (which should set up components, wiring and
+// threads but NOT call `start`), the REST/WebSocket API server is started and
+// the process blocks until SIGINT/SIGTERM.  This lets a shell driver feed a
+// streamer, issue `halcmd start`, read a sampler, and then terminate the
+// server — the replacement for the old `loadusr -w halsampler`/`halstreamer`
+// capture pattern.
+func (l *Launcher) RunHalFile(halFile string, resident bool) (runErr error) {
 	// Initialize the API registry so cmod plugins can register/lookup APIs
 	// (e.g. sampler/streamer stream endpoints).
 	apiserver.SetDefaultRegistry(apiserver.NewRegistry())
@@ -100,19 +108,28 @@ func (l *Launcher) RunHalFile(halFile string) (runErr error) {
 		return fmt.Errorf("initializing CPU pool: %w", err)
 	}
 
-	// NOTE: one-shot mode does NOT start the REST/WebSocket API server.  The
-	// server is only useful for external clients (halsampler/halstreamer/
-	// halcmd), which require a persistent server to connect to; a one-shot
-	// `-f` run executes and exits too quickly for that.  Streaming/capture
-	// tests must instead run gomc-server as a resident server (INI or a future
-	// resident HAL mode) and drive it with shell clients over the API.
+	// One-shot (non-resident) mode does NOT start the REST/WebSocket API server:
+	// it executes and exits too quickly for external clients to connect.
+	// Resident mode DOES start it (below), so shell clients (halsampler/
+	// halstreamer/halcmd) can connect while the server stays up.
 
 	// Execute the HAL file sequentially.
 	if err := l.halrunExecuteFile(halFile); err != nil {
 		return err
 	}
 
-	// End of file — deferred cleanup runs the ordered shutdown.
+	if !resident {
+		// End of file — deferred cleanup runs the ordered shutdown.
+		return nil
+	}
+
+	// Resident mode: start the API server and block until a shutdown signal.
+	// The HAL file is expected to have created (but not started) threads; the
+	// shell driver connects over the API to feed data, `start`, sample, and
+	// finally terminate this process.
+	l.startAPIServer()
+	l.logger.Info("resident HAL mode ready, waiting for shutdown signal (Ctrl+C to stop)")
+	<-l.shutdownCh
 	return nil
 }
 
