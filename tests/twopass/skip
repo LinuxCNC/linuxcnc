@@ -1,0 +1,1 @@
+Uses classic TWOPASS two-pass HAL loading ('halrun tp.ini' with [HAL]TWOPASS). gomc has no TWOPASS support and the one-shot halrun shim does not model loading an INI. Re-enable if gomc adds two-pass loading.

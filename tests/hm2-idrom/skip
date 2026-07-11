@@ -1,0 +1,1 @@
+Verifies hostmot2 IDROM validation error messages by grepping the kernel 'dmesg' ring (check-dmesg.py). gomc is userspace and logs to its own stderr/log, not dmesg; hm2_test.so exists but the harness needs rework to capture and match gomc's log output.

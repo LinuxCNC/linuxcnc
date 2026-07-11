@@ -1,0 +1,1 @@
+Tests the classic 4-level HAL lock model (LOAD/CONFIG/PARAMS/RUN, value 0-255) via the 'status' command's rendered output. gomc's lock model is simpler (all|tune|none) and the one-shot executor does not render 'status' output. Needs the lock model + a rendering path to match.

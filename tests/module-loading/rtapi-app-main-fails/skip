@@ -1,0 +1,4 @@
+Uses a .comp with 'option rtapi_app no;' + a custom failing rtapi_app_main().
+gomc's modcompile does not support that option and fails to COMPILE the comp
+(so the intended 'compiles-ok-but-load-fails' path can't be exercised). Also needs
+sudo. Re-enable if modcompile gains 'option rtapi_app no' support.

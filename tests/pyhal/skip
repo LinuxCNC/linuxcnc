@@ -1,0 +1,1 @@
+Uses the pyhal Python module + 'realtime start' + a userspace component. gomc removed embedded Python, the standalone realtime script, and userspace HAL components.

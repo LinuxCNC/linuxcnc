@@ -1,0 +1,1 @@
+pyVCP is ported to REST/WS in gomc (internal/pyvcpmodule), not Tk. The classic test drives a Tk panel via 'xvfb-run halrun -s do-test.hal'; it needs rework to launch and drive the gomc web pyVCP panel (no Tk/xvfb). Belongs with the display/full-instance phase.
