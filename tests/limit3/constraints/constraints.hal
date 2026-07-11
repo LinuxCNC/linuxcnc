@@ -1,0 +1,58 @@
+setexact_for_test_suite_only
+load siggen <siggen.0>
+setp siggen.0.frequency 2
+setp siggen.0.amplitude 100
+setp siggen.0.offset 0
+net sine <= siggen.0.sine
+net cosine <= siggen.0.cosine
+net square <= siggen.0.square
+net sawtooth <= siggen.0.sawtooth
+net triangle <= siggen.0.triangle
+loadrt mux_generic config=ff8
+net sine => mux_generic.in-float-00
+net cosine => mux_generic.in-float-01
+net square => mux_generic.in-float-02
+net sawtooth => mux_generic.in-float-03
+net triangle => mux_generic.in-float-04
+net input <= mux_generic.out-float
+load limit3
+setp limit3.min -101
+setp limit3.max 101
+setp limit3.maxv 1500
+setp limit3.maxa 15800
+net input => limit3.in
+net output <= limit3.out
+net output => mux_generic.in-float-05
+load ddt <ddt.out-accel,ddt.out-vel>
+net output => ddt.out-vel.in
+net out-vel <= ddt.out-vel.out
+net out-vel => ddt.out-accel.in
+net out-accel <= ddt.out-accel.out
+load charge_pump <charge_pump.0>
+net heartbeat <= charge_pump.0.out
+load encoder <encoder.0>
+setp encoder.0.counter-mode 1
+setp encoder.0.position-scale 500
+net heartbeat => encoder.0.phase-A
+net encoder-position <= encoder.0.position
+load conv_float_u32 <conv_float_u32.0>
+net encoder-position => conv_float_u32.0.in
+net mux-select <= conv_float_u32.0.out
+net mux-select => mux_generic.sel-int
+loadrt sampler depth=1500 cfg=ffffu
+net input => sampler.pin.0
+net output => sampler.pin.1
+net out-vel => sampler.pin.2
+net out-accel => sampler.pin.3
+net mux-select => sampler.pin.4
+newthread t 1000000
+addf charge_pump.0            t
+addf encoder.0.update-counters t
+addf encoder.0.capture-position t
+addf conv_float_u32.0        t
+addf siggen.0               t
+addf mux_generic            t
+addf limit3                 t
+addf ddt.out-vel            t
+addf ddt.out-accel          t
+addf sampler                t
