@@ -28,6 +28,26 @@ AI review vs. LinuxCNC 2.9 → findings doc → fix PRs → tests → sign-off
    These need written-spec tests verified against the 2.9 C source
    (reference tree: `~/source/linuxcnc-2.9` old code), not capture conversion.
 
+**Runtests progress (branch `reenable-runtests`):** Category C (standalone interp)
+and the HAL `test.hal` bucket are re-enabled and green — interp 71 pass / 9
+Python-skip / 1 xfail; HAL 30 pass / 0 fail / 10 skip. Infra added:
+`gomc-server -f` one-shot + `-f --serve` resident HAL modes, `scripts/halrun`
+shim, `tests/hal-stream-driver.sh`. Remaining: ~15 `halrun`-in-`test.sh`, the
+halcompile/build tests, and the ~46 full-instance (Category D) tests (need the
+Python NML→`src/gmi/python` REST port).
+
+### Component gaps surfaced by runtests re-enablement
+
+Real gomc behavior gaps found while converting HAL tests (tests skipped with
+reasons; these are component bugs, not test problems):
+
+- **`conv_float_u32` missing** — comp absent entirely (no cmod, not in registry). (limit3/constraints)
+- **`logic` ignores `personality=`** — only the `.time` pin is created, not the configured and/or/in-NN pins. (loadrt.1)
+- **`stepgen` module-param instance count** — `load stepgen <stepgen.0> step_type="2,2,2"` creates 1 instance, not 3; array module-param count doesn't drive instance count. (modparam.0)
+- **`mux_generic` single-instance only** — rejects the classic multi-instance comma config (`mux-gen.NN`); errors `invalid character ',' in config string`. (mux, multiclick)
+- **mb2hal debug output routing** — mb2hal INI-DEBUG dump goes to the server log, not a capturable stdout stream. (mb2hal.1a/2a)
+- **one-shot `list`/`show` render nothing to stdout** — the `-f` executor's halparse path doesn't emit list/show output (worked around via resident server + `halcmd`).
+
 ---
 
 ## Review tiers
