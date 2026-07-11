@@ -4,11 +4,44 @@ Status: **de-risked, not yet implemented.** This is a focused implementation tas
 (byte-exact log format + status-completion tuning need build/test iteration; it
 is NOT a one-shot job). Everything needed is below.
 
+## Goal / architecture decision
+
+Implement `motion-logger` as a standalone cmod that stands in for `motmod`, AND
+use it to **replace the in-tree parity-trace instrumentation** so the RT motion
+controller stays clean-by-design (no test hooks in production RT code).
+
+Today there is a `motcmd_trace()` hook inside `src/emc/motion/command.c` (a
+`#ifdef MILLTASK_PARITY_TRACE` block, no-op in production, called at ~`command.c:485`)
+that logs the `emcmot_command_t` stream for `tests/milltask-parity`. That is
+test instrumentation embedded in the production RT command path. A `motion-logger`
+cmod logs the **same** command stream from the receiving (motctl-provider) side,
+so it can serve BOTH the `motion-logger/*` tests AND the `milltask-parity`
+comparison — letting us delete the embedded trace entirely. This matches upstream
+LinuxCNC (motion-logger is a separate motmod replacement, not a hook in motmod).
+
 Re-enables 6 runtests (currently xfail "motion-logger not ported"):
 `tests/motion-logger/{basic,mountaindew,startup-gcode-abort}`,
 `tests/interp/m98m99/12-M99-endless-main-program`,
 `tests/abort/{on_abort_command-crazy-move,stop-button-crazy-move}`.
 Each compares per-program logs **byte-for-byte** (all-or-nothing).
+
+## Execution sequence (do NOT remove the trace first)
+
+1. **Implement the `motion-logger` cmod** (design below) and get the 6
+   `motion-logger/*` tests passing byte-for-byte.
+2. **Rewire `tests/milltask-parity`** to run milltask + the `motion-logger` cmod
+   (`[EMCMOT]EMCMOT=motion-logger`) instead of building motmod with
+   `-DMILLTASK_PARITY_TRACE`. Confirm it reproduces the parity comparison; if the
+   log format differs from what the corpus/oracle expects, align formats (and
+   re-capture the C-side oracle with classic `motion-logger` on the 2.9 tree if
+   needed — using the same tool on both trees is the point).
+3. **Only after step 2 passes**, remove `motcmd_trace()` + the
+   `#ifdef MILLTASK_PARITY_TRACE` block + its call site from `src/emc/motion/command.c`.
+   motmod is then free of test instrumentation.
+
+**Coverage guard:** before step 3, verify the cmod's log contains every field /
+decode point the parity comparison actually checks. If something is missing,
+EXTEND the cmod — do not re-add the RT hook.
 
 ## Design
 A cmod that **replaces motmod**: it registers the **motctl** provider (to log the
