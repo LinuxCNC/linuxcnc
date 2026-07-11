@@ -753,6 +753,12 @@ class ActionButton(IndicatedPushButton):
                 ACTION.RESTORE_RECORDED_MODE()
         elif self.ini_macro_command:
             #print('macro',self.ini_macro_keystring,self.ini_macro_num)
+            if self.is_in_mdi_mode_check and not STATUS.is_mdi_mode():
+                try:
+                    self.QTVCP_INSTANCE_.add_status('INI MACRO COMMAND: Not in MDI Mode', WARNING, noLog=False)
+                except:
+                    pass
+                return
             ACTION.RECORD_CURRENT_MODE()
             # we prefer named INI MACRO commands:
             if not self.ini_macro_keystring == '' and \
