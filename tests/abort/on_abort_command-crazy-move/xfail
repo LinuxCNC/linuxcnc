@@ -1,0 +1,3 @@
+motion-logger is not ported to gomc: mock-motion.hal uses 'loadusr -W motion-logger'
+(userspace NML motmod stand-in). gomc has no loadusr/userspace/NML; motion-logger.c is not
+built as a cmod. Needs a gomc cmod port of motion-logger. Re-enable once that exists.
