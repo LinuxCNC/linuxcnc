@@ -11,7 +11,10 @@ CMOD_KINS_COMP_NAMES := millturn userkins xyzab_tdr_kins
 # ---------------------------------------------------------------------------
 # Components built via modcompile (cmod API, output to ../cmod/)
 # ---------------------------------------------------------------------------
-CMOD_COMPS := $(sort $(wildcard hal/components/*.comp))
+# The conv_* comps are generated from conv.comp.in (rules below), so they are
+# not yet present for the wildcard — add them explicitly so their cmod targets
+# exist and trigger generation + modcompile.
+CMOD_COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
 CMOD_COMP_NAMES := $(patsubst hal/components/%.comp,%,$(CMOD_COMPS))
 CMOD_TARGETS := $(addprefix ../cmod/, $(addsuffix .so, $(CMOD_COMP_NAMES)))
 
