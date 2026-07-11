@@ -1,7 +1,56 @@
+# --- gomc compatibility shim (prepended) --------------------------------------
+# Makes the original NML-based driver body run against the gomc REST/WS API:
+#   linuxcnc  -> gmi client (command/stat/error_channel) + gmi.constants
+#   hal       -> halcmd-backed shim; h[sig] reads/writes the io signals the old
+#                userspace test component was connected to.
+import gmi as _gmi
+from gmi.constants import *
+import subprocess as _subprocess
+
+
+class _LinuxcncCompat:
+    command = staticmethod(_gmi.Command)
+    stat = staticmethod(_gmi.Stat)
+    error_channel = staticmethod(_gmi.ErrorChannel)
+    ini = staticmethod(_gmi.IniFile)
+
+    def __getattr__(self, name):
+        return globals()[name]
+
+
+linuxcnc = _LinuxcncCompat()
+
+
+class _HalCompat:
+    HAL_S32 = HAL_U32 = HAL_FLOAT = HAL_BIT = 0
+    HAL_IN = HAL_OUT = HAL_IO = 0
+
+    def component(self, *a, **k):
+        return self
+
+    def newpin(self, *a, **k):
+        return None
+
+    def ready(self, *a, **k):
+        pass
+
+    def connect(self, *a, **k):
+        pass
+
+    def __getitem__(self, name):
+        v = _subprocess.check_output(["halcmd", "gets", name]).decode().strip().split()[-1]
+        if v in ("TRUE", "FALSE"):
+            return v == "TRUE"
+        return float(v)
+
+    def __setitem__(self, name, val):
+        _subprocess.run(["halcmd", "sets", name, "1" if val else "0"], check=True)
+
+
+hal = _HalCompat()
+# --- end shim -----------------------------------------------------------------
 #!/usr/bin/env python3
 
-import linuxcnc
-import hal
 
 import time
 import sys
