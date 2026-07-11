@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 import linuxcnc
-import hal
+import gmi
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
 
 import time
 import sys
@@ -47,20 +51,17 @@ def assert_wait_complete(command):
 # connect to HAL
 #
 
-comp = hal.component("test-ui")
-comp.newpin("x-neg-lim-sw", hal.HAL_BIT, hal.HAL_OUT)
-comp.ready()
-
-hal.connect('test-ui.x-neg-lim-sw', 'x-neg-lim-sw')
+def _set_lim(v):
+    subprocess.call(['halcmd', 'sets', 'x-neg-lim-sw', '1' if v else '0'])
 
 
 #
 # connect to LinuxCNC
 #
 
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
 
 #
@@ -127,7 +128,7 @@ assert(s.inpos == False)
 assert(s.enabled == True)
 
 # trip the limit switch
-comp['x-neg-lim-sw'] = True
+_set_lim(True)
 
 # let linuxcnc react to the limit switch
 expected_error = 'joint 0 on limit switch error'
@@ -220,7 +221,7 @@ print("x started moving (%.6f to %.6f)" % (old_x, s.position[0]))
 print_status(s)
 
 # un-trip the limit switch
-comp['x-neg-lim-sw'] = False
+_set_lim(False)
 
 # let linuxcnc react to the limit switch untripping
 start_time = time.time()
