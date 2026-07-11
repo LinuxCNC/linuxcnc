@@ -1,33 +1,44 @@
 #!/bin/bash
 
-#export PATH=$PATH:$EMC2_HOME/tests/helpers
-#source $EMC2_HOME/tests/helpers/test-functions.sh
+# Ported to gomc: run a resident gomc-server, capture motion samples with
+# halsampler, and drive the machine with the rsh->gmi translator instead of
+# piping linuxcncrsh commands into `nc localhost 5007`.
 
 wait_for_pin() {
     pin="$1"
     value="$2"
     maxwait=10 # seconds
-    while [ 0 -lt $maxwait ] \
-      && [ "$value" != "$(halcmd -s show pin $pin | awk '{print $4}')" ]; do
+    while [ 0 -lt $maxwait ]; do
+        cur=$(halcmd getp "$pin" 2>/dev/null | awk '{print $NF}')
+        [ "$value" = "$cur" ] && return 0
+        # numeric-tolerant compare when the target is a number
+        case "$value" in
+            ''|*[!0-9.-]*) ;;
+            *) awk "BEGIN{exit !(\"$cur\"+0==$value)}" 2>/dev/null && [ -n "$cur" ] && return 0 ;;
+        esac
         sleep 1
-	maxwait=$(($maxwait -1))
+        maxwait=$(($maxwait - 1))
     done
-    if [ 0 -eq $maxwait ] ; then
-	echo "error: waiting for pin $pin timed out"
-	kill $linuxcncpid
-	kill $samplerpid
-	exit 1
-    fi
+    echo "error: waiting for pin $pin (want $value) timed out"
+    exit 1
 }
 
-linuxcnc motion-test.ini &
-linuxcncpid=$!
+gomc-server -r motion-test.ini >server.log 2>&1 &
+gomcpid=$!
+samplerpid=""
+trap 'kill $samplerpid 2>/dev/null; kill $gomcpid 2>/dev/null; wait 2>/dev/null' EXIT
+
+for i in $(seq 100); do
+    halcmd show comp 2>/dev/null | grep -q milltask && break
+    sleep 0.1
+done
 
 wait_for_pin motion.in-position TRUE
 
 echo starting to capture data
 halsampler -t >| result.halsamples &
 samplerpid=$!
+sleep 0.5   # let the sampler subscribe before motion starts
 
 (
     echo hello EMC mt 1.0
@@ -54,14 +65,10 @@ samplerpid=$!
     wait_for_pin joint.1.in-position TRUE
 
     echo shutdown
-) | nc localhost 5007
+) | python3 ../../rsh2gmi.py
 
-kill $samplerpid
-wait $samplerpid
+kill $samplerpid 2>/dev/null
+wait $samplerpid 2>/dev/null
 echo finished capturing data
 
-# wait for linuxcnc to finish
-wait $linuxcncpid
-
 exit 0
-
