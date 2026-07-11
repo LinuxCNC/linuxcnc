@@ -38,6 +38,9 @@ Python NML→`src/gmi/python` REST port).
 
 ### Component gaps surfaced by runtests re-enablement
 
+- **milltask synchronized-I/O bug (M67/M62 + blended motion) — PRODUCTION-RELEVANT.** Synchronized digital/analog output (M62/M63/M67) is not applied when the M-code is followed by multiple continuously-blended moves in AUTO. Verified: M67/M68 work via MDI, in AUTO with a single move, and in AUTO loops of single moves; they FAIL with an M67 followed by ≥2 blended moves (output pin stays 0). The trajectory planner is byte-identical to upstream 2.9 (syncdio attach `tpSetupSyncedIO` + apply `tpToggleDIOs`), and 2.9 works — so the bug is in gomc milltask's (Go) canon-command streaming: `SetAoutSyncCmd`→`set_aout`→`tp->syncdio` ordering vs the move commands→`add_line`→`tpSetupSyncedIO` during read-ahead (single `tp->syncdio` slot mis-attached/overwritten). Affects any real config using M62–M68 with continuous motion (laser/plasma/spindle-sync). Blocks tests/single-step (xfail). Fix target: `src/gomc/internal/task` canon queue/sequencer sync-I/O path.
+
+
 Real gomc behavior gaps found while converting HAL tests (tests skipped with
 reasons; these are component bugs, not test problems):
 
