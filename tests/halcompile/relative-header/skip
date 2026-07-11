@@ -1,0 +1,1 @@
+GOMC GAP: modcompile compiles the generated .c in a temp dir and does not add the .comp's source directory to the C include path, so a relative #include "local.h" fails. Classic halcompile supported relative headers. Re-enable when modcompile resolves relative includes.

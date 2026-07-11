@@ -1,1 +1,1 @@
-The comp uses 'option singleton', which gomc's modcompile rejects ('not supported in cmod/gomod; use multiple load commands'). Re-enable if modcompile gains singleton support.
+Uses 'option singleton', which gomc intentionally removed (no singleton concept; a single cmod can provide multiple instances). Test premise no longer applies.

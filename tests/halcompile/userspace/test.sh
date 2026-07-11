@@ -1,2 +1,2 @@
 #!/bin/sh
-halcompile --compile rand_test.comp
+modcompile --compile rand_test.comp

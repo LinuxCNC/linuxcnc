@@ -1,0 +1,1 @@
+gomc has no realtime/userspace split and no --userspace/--extra-compile-args/--extra-link-args flags. This test compiles a userspace .c with readline and specific extra compile/link args, which the single-cmod model does not use.

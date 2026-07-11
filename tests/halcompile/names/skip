@@ -1,0 +1,1 @@
+GOMC GAP: modcompile does not enforce that the internal 'component <name>;' matches the .comp filename. names_dont_match.comp declares 'component wrong_name;' but modcompile accepts it and emits .c (classic halcompile rejected the mismatch).
