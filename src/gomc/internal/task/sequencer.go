@@ -555,7 +555,9 @@ func (t *Task) waitMotionDone() error {
 				if commErrors >= commFailureThreshold {
 					t.logger.Error("waitMotionDone: motion controller not responding")
 					t.operatorError("Motion controller not responding")
-					t.setExecState(ExecError)
+					// No terminal-state commit here: every caller routes this
+					// error to seqFaultExit, which commits ExecError atomically
+					// with the mdiQueue flush + mdiGen bump (D3: one committer).
 					return fmt.Errorf("waitMotionDone: comm failure (%d consecutive errors)", commErrors)
 				}
 				continue
@@ -596,7 +598,8 @@ func (t *Task) waitIODone() error {
 				if commErrors >= commFailureThreshold {
 					t.logger.Error("waitIODone: IO controller not responding")
 					t.operatorError("IO controller not responding")
-					t.setExecState(ExecError)
+					// Terminal state is committed by seqFaultExit in the caller
+					// chain (D3: one committer), not inline.
 					return fmt.Errorf("waitIODone: comm failure (%d consecutive errors)", commErrors)
 				}
 				continue
@@ -635,7 +638,8 @@ func (t *Task) waitSpindleOriented(timeout float64) error {
 		case <-t.seqAbort:
 			return context.Canceled
 		case <-deadline:
-			t.setExecState(ExecError)
+			// Terminal state is committed by seqFaultExit in the caller chain
+			// (D3: one committer), not inline; same for the two faults below.
 			return fmt.Errorf("orient timed out after %gs", timeout)
 		case <-ticker.C:
 			if t.status == nil {
@@ -647,7 +651,6 @@ func (t *Task) waitSpindleOriented(timeout float64) error {
 				commErrors++
 				if commErrors >= commFailureThreshold {
 					t.logger.Error("waitSpindleOriented: motion controller not responding")
-					t.setExecState(ExecError)
 					return fmt.Errorf("waitSpindleOriented: comm failure")
 				}
 				continue
@@ -657,7 +660,6 @@ func (t *Task) waitSpindleOriented(timeout float64) error {
 			// Check all spindles (the orient command targets one, but status is per-spindle)
 			for i := range ms.Spindles {
 				if ms.Spindles[i].OrientState == 2 {
-					t.setExecState(ExecError)
 					return fmt.Errorf("spindle orient fault")
 				}
 			}

@@ -505,8 +505,12 @@ barriers. Confirmed scenario: program aborted right after M2/Stop enqueued a
 barrier (flushed unexecuted) → operator jogs → MDI `M6`: StartChange's barrier
 matches stale lastEnqueued and is dropped — ToolChangeCmd (no Precondition)
 executes while the axis is still moving from the jog.
-**Fix:** reset lastEnqueued in restartSequencer/StartSequencer (and on enqueue
-error). Optionally coalesce by sequencer generation instead of object identity.
+**Fix (as proposed):** reset lastEnqueued in restartSequencer/StartSequencer
+(and on enqueue error).
+**Fix (as delivered — better):** `lastEnqueued` was deleted entirely; every
+barrier is enqueued unconditionally and waitMotionDone's fast path reads LIVE
+inpos/queueDepth, so there is no coalescing state to invalidate and the
+jog-blindness goes away with it. Strictly stronger than the proposed reset.
 
 ### [x] R4 — M66 poll: read errors postpone/disable the timeout
 **Where:** `src/gomc/internal/task/canon.go:1446` (`continue` on GetSynchDi error
@@ -592,6 +596,14 @@ read it).
 step-mode) now distinguish context.Canceled (abort → aborter owns terminal
 state) from a hard fault and call `seqFaultExit()` — the same latch+flush every
 other sequencer fault takes; the waitForCompletion path already did.
+**Follow-up cleanup (review remark):** the five inline `setExecState(ExecError)`
+commits in the wait helpers (waitMotionDone/waitIODone comm-failure,
+waitSpindleOriented timeout/comm-failure/orient-fault) were removed — they were
+redundant (every error path, incl. WaitInputCmd's M66 pre-drain, ends in
+seqFaultExit) and created a sub-microsecond window where ExecError was visible
+before the flush. seqFaultExit is now the single terminal-state committer on
+fault paths (D3); the orient-timeout test pins the new contract (helper must
+not commit terminal state).
 **Where:** `sequencer.go:545-546`, reached via the D7 precondition (:233-235) and
 step-mode (:345-347) callers
 **Problem:** pre-existing, rare (needs commFailureThreshold consecutive GetInpos

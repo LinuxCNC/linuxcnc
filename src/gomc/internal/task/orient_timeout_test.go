@@ -48,11 +48,14 @@ func TestWaitSpindleOriented_Timeout(t *testing.T) {
 	if elapsed > 500*time.Millisecond {
 		t.Errorf("orient wait returned after %v — timeout not enforced promptly", elapsed)
 	}
+	// The helper must NOT commit the terminal fault state itself: seqFaultExit
+	// in the sequencer owns that, atomically with the mdiQueue flush (D3). A
+	// direct-driven wait therefore leaves execState non-terminal.
 	task.mu.Lock()
 	es := task.execState
 	task.mu.Unlock()
-	if es != ExecError {
-		t.Errorf("execState = %v, want ExecError after timeout", es)
+	if es == ExecError {
+		t.Errorf("execState = ExecError: the wait helper committed the terminal state itself; that is seqFaultExit's job (D3)")
 	}
 }
 
