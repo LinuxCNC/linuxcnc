@@ -3,29 +3,57 @@
 #
 # The classic standalone `halrun` (start realtime, run a HAL file, tear down)
 # was removed when HAL/realtime moved in-process into gomc-server.  This shim
-# forwards to gomc-server's one-shot HAL-file mode so that the runtests suite
-# and manual `halrun -f file.hal` invocations keep working.
+# forwards to gomc-server's one-shot HAL-file mode (`gomc-server -f <file>`) so
+# the runtests suite and manual `halrun -f file.hal` invocations keep working.
 #
-# Only the `-f <file>` form used by the test suite is supported here; other
-# classic halrun options are not implemented.
+# Supported classic forms (as used by the test suite):
+#   halrun [-f] <file>     run a HAL file (one-shot), then exit
+#   halrun -k <file>       keep going after HAL errors  -> gomc-server -k -f
+#   halrun -s <file>       script mode (non-interactive) == one-shot -f
+#   halrun -v|-V <file>    verbose (accepted, no extra effect here)
+#   halrun -U              unload the realtime environment (no persistent
+#                          environment exists between one-shot runs -> no-op)
+# Other classic options (-I interactive, -T tcl, etc.) are not supported.
 
 usage() {
-    echo "Usage: halrun -f <halfile>" >&2
+    echo "Usage: halrun [-f] <halfile>   (gomc one-shot HAL mode)" >&2
+    echo "       halrun -U               (no-op on gomc)" >&2
     exit 1
 }
 
-# Common case: `halrun -f file.hal` (optionally with a leading -I/-k that the
-# test suite does not use).  Pass through to gomc-server, which understands -f.
-case "$1" in
-    -f)
-        [ -n "$2" ] || usage
-        exec gomc-server -f "$2"
-        ;;
-    "" | -h | --help)
-        usage
-        ;;
-    *)
-        # Fall back to forwarding all arguments; gomc-server parses -f itself.
-        exec gomc-server "$@"
-        ;;
-esac
+keep_going=""
+halfile=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -f)
+            shift
+            halfile="$1"
+            ;;
+        -k)
+            keep_going="-k"
+            ;;
+        -s|-v|-V|-q|-Q)
+            # script/verbose/quiet: no behavioural change needed for the shim.
+            ;;
+        -U)
+            # Unload realtime environment: nothing persists between one-shot
+            # runs, so this is a successful no-op.
+            exit 0
+            ;;
+        -h|--help)
+            usage
+            ;;
+        -*)
+            echo "halrun: unsupported option '$1' (gomc shim supports -f/-k/-s/-v/-U)" >&2
+            exit 1
+            ;;
+        *)
+            halfile="$1"
+            ;;
+    esac
+    shift
+done
+
+[ -n "$halfile" ] || usage
+exec gomc-server $keep_going -f "$halfile"
