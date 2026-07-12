@@ -106,7 +106,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.cmb_probe_select.addItems(self.probe_list)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
         # define validators for all lineEdit widgets
-        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{1,5}')))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
@@ -126,7 +126,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.help.hal_init(HAL_NAME='_basic_help')
 
         if self.PREFS_:
-            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
+            tool = self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS')
+            if not tool.isdecimal():
+                tool = '0'
+            self.lineEdit_probe_tool.setText(tool)
             self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
             self.lineEdit_rapid_vel.setText(self.PREFS_.getpref('Probe rapid', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))
