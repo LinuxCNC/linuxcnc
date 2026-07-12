@@ -1,3 +1,3 @@
-loadusr -Wn mypanel pyvcp -c mypanel test.xml
-show pin
-exit 0
+# gomc pyvcp is a REST/WS module loaded into the server (no Tk/xvfb). It parses the
+# XML and creates the widget HAL pins, which is what this test checks.
+load pyvcp <mypanel> xml=test.xml
