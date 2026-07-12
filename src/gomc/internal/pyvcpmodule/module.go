@@ -71,9 +71,14 @@ func newPyVCPModule(ini *inifile.IniFile, logger *slog.Logger, name string, args
 		return nil, fmt.Errorf("pyvcp: missing required xml= parameter")
 	}
 
-	// Resolve relative paths against the INI file directory.
+	// Resolve relative paths against the INI file directory, or the current
+	// working directory when loaded without an INI (e.g. one-shot `gomc-server
+	// -f file.hal`, where ini is nil).
 	if !filepath.IsAbs(xmlPath) {
-		iniDir := filepath.Dir(ini.SourceFile())
+		iniDir := "."
+		if ini != nil && ini.SourceFile() != "" {
+			iniDir = filepath.Dir(ini.SourceFile())
+		}
 		xmlPath = filepath.Join(iniDir, xmlPath)
 	}
 
