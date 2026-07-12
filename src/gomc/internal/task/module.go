@@ -210,6 +210,24 @@ func (m *milltaskModule) Start() error {
 	m.inihal = ih
 	m.mc = mc
 
+	// Register the mcode_handler GMI provider so cmods can register handlers for
+	// user M-codes M100-M199 (IDL: "Provider: milltask.so"). Done here (Start)
+	// because the mcodeHandler registry is created with the Task; cmods look it
+	// up in their own Start(), which runs after milltask's.
+	if reg := apiserver.DefaultRegistry(); reg != nil {
+		mcodeCleanup, err := registerMcodeHandlerProvider(reg, m.name, m.task.mcode)
+		if err != nil {
+			return fmt.Errorf("milltask: mcode_handler register: %w", err)
+		}
+		prevCleanup := m.apiCleanup
+		m.apiCleanup = func() {
+			if prevCleanup != nil {
+				prevCleanup()
+			}
+			mcodeCleanup()
+		}
+	}
+
 	// Wire the error publisher so operator messages reach UI clients.
 	// EnsureDrainStarted creates the ring+drain if the C milltask didn't.
 	if drain := emcerror.EnsureDrainStarted(m.name); drain != nil {
