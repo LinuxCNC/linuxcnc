@@ -1,4 +1,7 @@
-motion-logger is not ported to gomc: mock-motion.hal uses 'loadusr -W motion-logger'
-(a userspace NML program acting as the motmod stand-in). gomc has no loadusr/userspace
-components and no NML; motion-logger.c is still NML-based (not built as a cmod). Needs a
-gomc cmod port of motion-logger. Re-enable once that exists.
+Config converted to the motion-logger interceptor + real motmod (like basic/
+mountaindew), BUT blocked on a gomc feature gap: RS274NGC_STARTUP_CODE is parsed
+but never executed. src/gomc/internal/task/config.go:174 stores it in the unused
+task.go:308 `startupCode` field; module.go:305 reads [TASK]RS274NGC_STARTUP_CODE
+into interpLib and discards it (`_ = interpLib`). So `o<init> call` never runs, the
+startup gcode produces no motion, and this test (Github #49: abort during startup
+gcode) has nothing to abort. Remove this xfail once gomc executes the startup code.
