@@ -1,6 +1,0 @@
-#!/bin/bash
-
-TEST_DIR=$(dirname $1)
-cd $TEST_DIR
-
-diff -u expected-gcode-output gcode-output

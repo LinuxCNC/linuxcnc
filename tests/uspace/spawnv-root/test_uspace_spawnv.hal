@@ -1,2 +1,0 @@
-load and2 <and2.0>
-loadrt test_uspace_spawnv

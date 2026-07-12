@@ -1,6 +1,0 @@
-Ported to the gomc HAL model. xfails on a design difference: the classic
-`num_chan=0` meant "use the component's default channel count" (1 instance). gomc is
-explicit-names-only — the converted `load <comp> <>` (empty list) is rejected
-("empty instance name list <>"), and there is no num_chan / default-count concept.
-The equivalent (load one explicit instance) is already covered by the count=1 test.
-Re-evaluate whether this classic default-count case should exist on gomc.

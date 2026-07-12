@@ -1,1 +1,0 @@
-Tests classic userspace rtapi_spawnv via a .c comp (halcompile --install of a .c) requiring root. gomc has no userspace HAL components / rtapi_spawnv and modcompile builds cmod .so from .comp, not userspace binaries from .c. Removed-functionality; re-enable only if a gomc equivalent is added.
