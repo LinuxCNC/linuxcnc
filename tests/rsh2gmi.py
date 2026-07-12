@@ -24,6 +24,7 @@ def drain_mdi(timeout=30.0):
         if s.queued_mdi_commands == 0 and s.interp_state == INTERP_IDLE:
             return
         time.sleep(0.005)
+    s.poll()  # fresh read so the diagnostic reflects the state AT failure time
     raise SystemExit(
         "rsh2gmi: MDI did not drain within %gs (queued=%d interp_state=%d) — "
         "treating a hung interpreter as failure, not success"
