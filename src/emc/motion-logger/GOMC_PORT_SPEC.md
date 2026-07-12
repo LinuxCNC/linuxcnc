@@ -31,6 +31,37 @@ instance-name keyed (`internal/apiserver/registry.go`: `Get`/`GetAll`/`Instances
 - One clean seam serves BOTH the `motion-logger/*` tests AND `milltask-parity`,
   with zero test hook in production motmod.
 
+## Implementation surface (CONFIRMED feasible — the design's key unknown is resolved)
+
+The GMI mechanism supports the interceptor exactly:
+- **Register providers under own name:** `motctl_api_register(env->api, name, cb)` /
+  `motstat_api_register(env->api, name, cb)` — do this in `New()`
+  (motmod: `motion.c:759-781`).
+- **Get a client to a named instance:** `const motctl_callbacks_t *real =
+  motctl_api_get(env->api, mot_inst_name)` — do this in `Init()` (real motmod's
+  providers exist by then). This is exactly how motmod reaches kins/tp
+  (`motion.c:906/913`), plus `env->api->record_consumer(...)`.
+- **cmod entry:** `New(const cmod_env_t *env, const char *name, int argc,
+  const char **argv, cmod_t **out)` + `Destroy` (`motion.c:668-672`); store
+  `env->api` in the ctx for the `Init()` lookups; parse `mot_instance=` from argv.
+- **ctx struct:** `{ FILE *log; const gomc_api_t *api; char mot_inst_name[];
+  const motctl_callbacks_t *real_motctl; const motstat_callbacks_t *real_motstat; }`.
+- **motctl:** ~70 callbacks. `motctl_callbacks_t` shares ONE `void *ctx`, so each
+  needs its own thin wrapper (can't reuse motmod's fn pointers — the ctx differs):
+  `log_print(<classic fmt>); return real->fn(real->ctx, args…)`. Log maps from the
+  DECODED motctl args (not raw `emcmot_command_t`) — field by field.
+- **motstat:** 10 getters (`get_status/pos_cmd/pos_fb/exec_id/queue_depth/inpos/
+  command_num_echo/command_status/synch_di/analog_input`) — pure forwards, no log.
+- **Build:** mirror `src/emc/motion/Submakefile`'s motmod cmod rule (smaller — needs
+  motctl/motstat generated headers, no TP/kins/GMI-kins).
+
+**Expected-log strategy (important):** the classic `expected.*` were captured at the
+raw-command level of *classic* motion-logger; the interceptor logs gomc's decoded
+motctl sequence — close but not guaranteed identical. So **RE-CAPTURE `expected`
+from the gomc run for all 6 tests** (they become gomc self-regression tests;
+`milltask-parity` remains the cross-tree C-vs-gomc check), then inspect each
+capture is sensible. abort tests additionally differ by real-motion timing.
+
 ## Implementation
 
 **Structure:** a cmod (like motmod but far smaller — no TP/kins/HAL threads). Its
