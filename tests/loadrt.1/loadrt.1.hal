@@ -3,4 +3,5 @@ load mux2 <m.q,m.r>          # names= works
 load or2 <or2.0,or2.1,or2.2> # count= still works
 load xor2 <xor2.0,xor2.1>
 load ddt <d1,d2,d3>
-load logic <l1,l2> personality=0x102,0x203
+load logic <l1> personality=0x102
+load logic <l2> personality=0x203
