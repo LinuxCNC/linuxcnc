@@ -78,23 +78,19 @@ tclsh-extensions, tcllibpath-separator.
 | tooledit | tool-table float fidelity | ✅ **PASS** — classic drove the Tk tooledit to round-trip a `.tbl`; gomc has no Tk tooledit and no `.tbl` writer, so import the 21-tool `.tbl` via a minimal `persist_sqlite`+`tooltable` server and assert every offset/diameter/pocket/comment survives the import→sqlite→REST round-trip exactly. (INI needs `[EMC]VERSION` or gomc treats it as a convert-me config.) |
 | mb2hal/mb2hal.1a · mb2hal.2a | mb2hal cmod (loads/creates pins) | runnable — INI-DEBUG dump routes to server log not stdout | xfail |
 
-### 2d. Mechanism gone / solved-otherwise by the gomc architecture — CONFIRMED skip (user ruling)
+### 2d. FLAGGED — mechanism the migration dropped; disposition PENDING USER RULING
 
-Principle: a feature that is **gone or solved differently** by the gomc architecture is a genuine
-removal → skip (same ruling as §4a). These test transports/concepts the migration dropped; the
-capability, where it matters, is covered by the replacement.
+Not yet ruled (the §4a removal ruling does NOT extend here). Each tests a transport/concept the
+migration dropped; the question is whether the *capability* is genuinely gone (→ skip) or should be
+re-expressed. Proposed column is my suggestion only.
 
-| test | mechanism (removed) | replacement |
-|---|---|---|
-| linuxcncrsh · linuxcncrsh-tcp | `linuxcncrsh` telnet protocol | REST API; rsh-driver tests already ported to gmi |
-| uspace/spawnv-root | userspace `rtapi_spawnv` (spawn a helper) | no `loadusr`/userspace helpers |
-| halrun-getopt-reset | `halrun` getopt-reset across `loadusr` | `gomc-server -f`; no `loadusr` |
-| module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | count-based zero-instance load | explicit instance names |
-
-**Still open** (capability *does* exist → not a §2d removal):
-| test | why |
-|---|---|
-| mdi-while-queuebuster-waitflag | the MDI queue exists → re-examine as port/xfail, not skip |
+| test | mechanism | replacement / note | proposed |
+|---|---|---|---|
+| linuxcncrsh · linuxcncrsh-tcp | `linuxcncrsh` telnet protocol | REST API; rsh-driver tests already ported to gmi | skip |
+| uspace/spawnv-root | userspace `rtapi_spawnv` (spawn a helper) | no `loadusr`/userspace helpers | skip |
+| halrun-getopt-reset | `halrun` getopt-reset across `loadusr` | `gomc-server -f`; no `loadusr` | skip |
+| module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | count-based zero-instance load | explicit instance names | skip |
+| mdi-while-queuebuster-waitflag | MDI "queue-buster" + waitflag | the MDI queue exists | port/xfail |
 
 ---
 
@@ -145,13 +141,13 @@ or handled differently in the single-cmod model. **Correctly removed — do not 
 | halcompile/userspace | "compile a userspace comp" — no separate userspace build |
 | halcompile/userspace-count-names | userspace `count=`/`names=` instancing — replaced by explicit instance names |
 | halcompile/personalities_mod | personality arrays + `--personalities` cycling — no equivalent by design |
-| module-loading/rtapi-app-main-fails | custom `rtapi_app_main` failure path — no `rtapi_app` model |
 
 ### 4b. To restore or disposition
 
 | test | action |
 |---|---|
 | threads.0 · threads.1 | **port** — core multi-thread HAL scheduling (fast/slow period ratio, `threadtest` counter → sampler, 3500-sample capture) |
+| module-loading/rtapi-app-main-fails | **port** (user ruling) — adapt to the cmod/`load` model: module-load-failure handling still exists (a cmod whose `New()` returns an error must fail the load gracefully). Not a §4a removal. |
 | mdi-queue/simple-queue-buster · oword-queue-buster | disposition pending — does the MDI queue-buster mechanism survive? port or skip |
 | mqtt | disposition pending — port to `internal/mqttbridge` if the mechanism survives |
 
