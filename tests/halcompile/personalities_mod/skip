@@ -1,1 +1,0 @@
-GOMC GAP: component personalities are not functional. modcompile has no --personalities and the logic/lincurve/bitslice comps ignore personality= at load (only .time pin created). Re-enable when personalities are supported.
