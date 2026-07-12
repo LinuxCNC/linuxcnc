@@ -78,19 +78,17 @@ tclsh-extensions, tcllibpath-separator.
 | tooledit | tool-table float fidelity | ✅ **PASS** — classic drove the Tk tooledit to round-trip a `.tbl`; gomc has no Tk tooledit and no `.tbl` writer, so import the 21-tool `.tbl` via a minimal `persist_sqlite`+`tooltable` server and assert every offset/diameter/pocket/comment survives the import→sqlite→REST round-trip exactly. (INI needs `[EMC]VERSION` or gomc treats it as a convert-me config.) |
 | mb2hal/mb2hal.1a · mb2hal.2a | mb2hal cmod (loads/creates pins) | runnable — INI-DEBUG dump routes to server log not stdout | xfail |
 
-### 2d. FLAGGED — mechanism the migration dropped; disposition PENDING USER RULING
+### 2d. Ruled (user, 2026-07-12)
 
-Not yet ruled (the §4a removal ruling does NOT extend here). Each tests a transport/concept the
-migration dropped; the question is whether the *capability* is genuinely gone (→ skip) or should be
-re-expressed. Proposed column is my suggestion only.
+| test | mechanism | disposition |
+|---|---|---|
+| linuxcncrsh | telnet remote-shell + bulk-MDI g-code → canon output | ✅ **PASS** — migrated to REST: the rsh command stream (hello/enable/mode/estop/machine/mdi + 201 M100 MDI calls) is translated to gmi by `rsh2gmi.py`; M100 captured by `mcode_coord_log format=raw`. Output matches the classic `expected-gcode-output` exactly. |
+| linuxcncrsh-tcp | same test, forced onto NML-over-TCP (`tcp.nml`) | ⛔ **REMOVED** — NML gone; REST has one transport, nothing distinct left |
+| uspace/spawnv-root | userspace `rtapi_spawnv` (build+spawn a `.c` userspace binary as root) | ⛔ **REMOVED** — no userspace binaries / `rtapi_spawnv` |
+| halrun-getopt-reset | `halrun` getopt-reset across repeated `loadusr` | ⛔ **REMOVED** — no `loadusr`; `halrun` is a shim |
+| module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | `num_chan=0` = load with the *default* channel count (1 instance) | ⛔ **REMOVED** — explicit-names-only; the 1-instance case is already covered by the `count=1` test |
 
-| test | mechanism | replacement / note | proposed |
-|---|---|---|---|
-| linuxcncrsh · linuxcncrsh-tcp | `linuxcncrsh` telnet protocol | REST API; rsh-driver tests already ported to gmi | skip |
-| uspace/spawnv-root | userspace `rtapi_spawnv` (spawn a helper) | no `loadusr`/userspace helpers | skip |
-| halrun-getopt-reset | `halrun` getopt-reset across `loadusr` | `gomc-server -f`; no `loadusr` | skip |
-| module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | count-based zero-instance load | explicit instance names | skip |
-| mdi-while-queuebuster-waitflag | MDI "queue-buster" + waitflag | the MDI queue exists | port/xfail |
+**Pending (Python discussion):** `mdi-while-queuebuster-waitflag` — its `M400` queue-buster is a **Python remap** (§2a-blocked). Either skip (Python-blocked) or re-express the MDI-vs-queuebuster race with a non-Python queue-buster.
 
 ---
 
@@ -117,9 +115,10 @@ re-expressed. Proposed column is my suggestion only.
 | (other) | interp/oword-mdi-sub-update |
 | module-loading array-count (9/17 names, num_chan=9/17) | module-loading/{encoder,sim_encoder}/{9-names,num_chan=9}, module-loading/{pid,siggen}/{17-names,num_chan=17}, module-loading/encoder_ratio/{9-names,num_chan=9} |
 
-### 3b. Reclassified out of xfail (→ §2d)
+### 3b. Reclassified out of xfail (→ §2d, ruled)
 
-module-loading/*/num_chan=0 → skip (concept removed); mdi-while-queuebuster-waitflag → re-examine.
+module-loading/*/num_chan=0 → **removed** (default-channel-count concept gone, covered by `count=1`);
+mdi-while-queuebuster-waitflag → pending Python discussion.
 
 ---
 

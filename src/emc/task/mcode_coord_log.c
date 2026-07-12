@@ -31,6 +31,8 @@ typedef struct {
     const cmod_env_t *env;
     const char *milltask_instance;
     int mcode;
+    int raw;   /* format=raw: dump "P is <P>\nQ is <Q>" like the classic
+                * linuxcncrsh subs/M100, instead of the P-selector fields. */
     char logfile[512];
 } coord_log_module;
 
@@ -41,11 +43,21 @@ static int coord_log_handler(const mcode_handler_mcode_call_t *call, void *user_
     if (!f)
         return -1;
 
+    double q = call->q_number;
+    int rc = 0;
+
+    /* Raw mode: dump both words verbatim, matching the classic linuxcncrsh
+     * subs/M100 ("echo P is $P; echo Q is $Q"). */
+    if (m->raw) {
+        fprintf(f, "P is %f\n", call->p_number);
+        fprintf(f, "Q is %f\n", q);
+        fclose(f);
+        return 0;
+    }
+
     /* P is an integer field selector; Q is the value (formatted like the classic
      * user-M shell script, which received the %f-formatted M-code words). */
     int p = (int)(call->p_number + (call->p_number < 0 ? -0.5 : 0.5));
-    double q = call->q_number;
-    int rc = 0;
 
     switch (p) {
     case 0: fprintf(f, "X = %f\n", q); break;
@@ -113,6 +125,8 @@ int New(const cmod_env_t *env, const char *name,
             snprintf(m->logfile, sizeof(m->logfile), "%s", argv[i] + 8);
         else if (strncmp(argv[i], "mcode=", 6) == 0)
             m->mcode = atoi(argv[i] + 6);
+        else if (strcmp(argv[i], "format=raw") == 0)
+            m->raw = 1;
     }
 
     m->base.Start   = coord_log_start;
