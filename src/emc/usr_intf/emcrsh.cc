@@ -485,7 +485,7 @@ static std::optional<std::string> getIniVar(const std::string &var, const std::s
 {
 	IniFile inifile(emc_inifile);
 	if(!inifile)
-		return nullptr;
+		return std::nullopt;
 
 	return inifile.findString(var, section);
 }
@@ -1269,11 +1269,13 @@ static cmdResponseType setBrake(connectionRecType &ctx)
 static std::optional<std::string> findFilename(const std::string &filename)
 {
 	if (filename.size() < 1)
-		return nullptr;
+		return std::nullopt;
 
 	struct stat sb;
 	if (filename[0] == '/') { // Absolute path
-		return !stat(filename.c_str(), &sb) ? filename : nullptr;
+		if (!stat(filename.c_str(), &sb))
+			return filename;
+		return std::nullopt;
 	}
 
 	// Relative name, try the search path
@@ -1285,7 +1287,9 @@ static std::optional<std::string> findFilename(const std::string &filename)
 	}
 
 	// Last resort, try the filename 'as is'
-	return !stat(filename.c_str(), &sb) ? filename : nullptr;
+	if (!stat(filename.c_str(), &sb))
+		return filename;
+	return std::nullopt;
 }
 
 static cmdResponseType setLoadToolTable(connectionRecType &ctx)
