@@ -29,6 +29,39 @@ func SetLock(level int) error {
 	return halSetLock(level)
 }
 
+// GetLock returns the current HAL lock bitmask (0-255). The bitmask is a HAL-
+// internal detail (see HAL_LOCK_* in hal.h); it is exposed here for the halparse
+// executor's classic `status` rendering, not over REST.
+func GetLock() int {
+	return halGetLock()
+}
+
+// LockStatusString renders the current HAL lock state in the classic halcmd
+// `status` format (upstream print_lock_status in halcmd_commands.cc), byte for
+// byte, so `halrun -f file | grep lock` matches classic output.
+func LockStatusString() string {
+	lock := halGetLock()
+	var b strings.Builder
+	b.WriteString("HAL locking status:\n")
+	fmt.Fprintf(&b, "  current lock value %d (%02x)\n", lock, lock)
+	if lock == 0 { // HAL_LOCK_NONE
+		b.WriteString("  HAL_LOCK_NONE - nothing is locked\n")
+	}
+	if lock&1 != 0 { // HAL_LOCK_LOAD
+		b.WriteString("  HAL_LOCK_LOAD    - loading of new components is locked\n")
+	}
+	if lock&2 != 0 { // HAL_LOCK_CONFIG
+		b.WriteString("  HAL_LOCK_CONFIG  - link and addf is locked\n")
+	}
+	if lock&4 != 0 { // HAL_LOCK_PARAMS
+		b.WriteString("  HAL_LOCK_PARAMS  - setting params is locked\n")
+	}
+	if lock&8 != 0 { // HAL_LOCK_RUN
+		b.WriteString("  HAL_LOCK_RUN     - running/stopping HAL is locked\n")
+	}
+	return b.String()
+}
+
 // StartThreads starts all HAL realtime threads.
 // This is the point at which realtime functions start being called.
 // Equivalent to "halcmd start".
@@ -340,17 +373,17 @@ func Lock(level string) error {
 }
 
 // Unlock sets the HAL lock level to allow previously restricted commands.
-// The level argument names the bits to clear: "unlock all" removes all lock
-// bits (resulting in LockNone=0), "unlock tune" removes the tune bits, etc.
-// This mirrors the halcmd semantics: unlock sets the lock mask to the
-// complement of the named level (lockAll &^ lvl).
+// The level argument names the bits to clear from the CURRENT lock: "unlock all"
+// removes all lock bits (→ LockNone=0), "unlock tune" clears just the tune bits
+// from whatever is currently locked. This mirrors upstream halcmd semantics
+// (do_unlock_cmd: hal_get_lock() & ~lvl).
 // Equivalent to "halcmd unlock <level>".
 func Unlock(level string) error {
 	lvl, err := parseLockLevel(level)
 	if err != nil {
 		return err
 	}
-	return halSetLock(lockAll &^ lvl)
+	return halSetLock(halGetLock() &^ lvl)
 }
 
 // ===== Query commands =====
