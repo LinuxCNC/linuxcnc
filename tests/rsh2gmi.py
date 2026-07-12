@@ -3,11 +3,28 @@
 # commands used by the tool tests on stdin and drives the machine via the gmi
 # REST client. Replaces piping the command stream into `nc localhost 5007`.
 import sys
+import time
 import gmi
 from gmi.constants import *
 
 c = gmi.Command()
 s = gmi.Stat()
+
+
+def drain_mdi(timeout=30.0):
+    """Wait for an MDI command to fully drain before the next is sent. gmi
+    wait_complete lacks serial-number tracking, so back-to-back MDIs would
+    otherwise overrun the MDI queue ("MDI queue full"). c.mdi() is a synchronous
+    POST (the command is registered before it returns), so we only need to wait
+    for the queue to empty and the interpreter to return to idle — which, since
+    the sequencer blocks on any M-code handler, also means the handler finished."""
+    start = time.time()
+    while time.time() - start < timeout:
+        s.poll()
+        if s.queued_mdi_commands == 0 and s.interp_state == INTERP_IDLE:
+            return
+        time.sleep(0.005)
+
 
 for raw in sys.stdin:
     cmd = raw.strip()
@@ -34,7 +51,8 @@ for raw in sys.stdin:
         c.wait_complete(30)
     elif low.startswith('set mdi '):
         c.mdi(cmd[len('set mdi '):])
-        c.wait_complete(30)
+        time.sleep(0.02)  # let the command register before polling for drain
+        drain_mdi(30)
     elif low.startswith('set home '):
         c.home(int(cmd.split()[-1]))
     elif low.startswith('set teleop_enable '):

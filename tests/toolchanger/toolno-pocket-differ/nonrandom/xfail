@@ -1,9 +1,12 @@
-Fully ported to gomc: config adds LIB:linuxcnc.hal; the linuxcncrsh telnet driver
-(removed in gomc) is replaced by tests/rsh2gmi.py, which reads the same
-linuxcncrsh command stream and drives the machine via the gmi REST client.
+Fully ported to gomc and RUNS (was never running: the driver used the removed
+linuxcnc launcher + linuxcncrsh telnet, masked by this xfail). Now: gomc-server -r
+sim.ini + the rsh command stream driven through ../rsh2gmi.py; the classic
+USER_M_PATH subs/M100 introspection is replaced by the mcode_coord_log cmod
+(load mcode.hal), which registers M100 via the milltask mcode_handler provider and
+logs the P->X/Y/Z/toolno/tlo_z/sequence values to gcode-output.
 
-xfail: gomc does not support user M-codes. The test's introspection dumps interp
-params to gcode-output via the user M-code M100 (USER_M_PATH=../subs/M100), but
-gomc's milltask rejects it ("mcode_handler: no handler for M100"), so gcode-output
-stays empty. (Even with M100, the G43 Hn tool-length-offset values would be wrong
-per the known G43 bug.) Remove xfail once user M-codes work.
+xfails on real, documented gomc bugs (PRODUCTION_READINESS.md): (1) G43 tool-length
+offset is wrong by a 25.4x mm/inch factor (Z reads -25.4/-50.8 where -1.0/-2.0 is
+expected); (2) M6 tool-tracking — toolno (#5400) stays 0 after a tool change. The
+full command stream now runs deterministically (455/217 lines), so this is a real
+regression test that will pass once those bugs are fixed.
