@@ -1,8 +1,20 @@
 # `motion-logger` for gomc — interceptor design
 
-Status: **spec'd, not yet implemented.** Focused implementation task with
-build/test iteration. This supersedes the earlier "replacement cmod that fakes
-status" idea — the interceptor is simpler and more correct.
+Status: **Step 1 DONE.** The interceptor cmod is built (`cmod/motion-logger.so`)
+and validated end-to-end. Of the 6 tests: 3 green via runtests
+(motion-logger/basic, motion-logger/mountaindew, interp/m98m99/12), 3 xfail on
+independent gomc/gmi feature gaps (NOT interceptor issues):
+- motion-logger/startup-gcode-abort → `RS274NGC_STARTUP_CODE` never executed.
+- abort/on_abort_command-crazy-move → `ON_ABORT_COMMAND` never wired + gmi queue gap.
+- abort/stop-button-crazy-move → gmi.Stat lacks motion queue depth.
+(the two abort tests turned out not to use motion-logger at all — real core_sim +
+position check; their old xfail reason was stale.) Also fixed a real gomc bug found
+here: main-program M99 now loops in task (`SetLoopOnMainM99`). Steps 2-3 below
+(milltask-parity rewire, then delete the RT parity trace) remain, under human review.
+See PRODUCTION_READINESS.md for the gap entries.
+
+This supersedes the earlier "replacement cmod that fakes status" idea — the
+interceptor is simpler and more correct.
 
 ## Concept
 
