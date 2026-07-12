@@ -1,0 +1,7 @@
+Reworked to native multi-instance load (TWOPASS removed — gomc loads the same module
+again for new instances natively): load logic <gateA,gateB> then load logic <gateC>.
+The multi-instance load WORKS (all three gates created). xfails on the same gomc bug
+as tests/loadrt.1: the 'logic' comp ignores personality= (0x104/0x202/0x503), so only
+gateA/gateB/gateC .time pins are created, not the personality-driven and/or/xor/in-NN
+pins. `expected` encodes the correct personality pins; passes once logic honours
+personality.
