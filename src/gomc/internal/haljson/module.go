@@ -85,9 +85,13 @@ func newHaljsonModule(ini *inifile.IniFile, logger *slog.Logger, name string, ar
 		return nil, fmt.Errorf("haljson: missing required config= parameter")
 	}
 
-	// Resolve relative paths against the INI file directory.
+	// Resolve relative paths against the INI file directory, or the current
+	// working directory when loaded without an INI (e.g. `gomc-server -f`).
 	if !filepath.IsAbs(configPath) {
-		iniDir := filepath.Dir(ini.SourceFile())
+		iniDir := "."
+		if ini != nil {
+			iniDir = filepath.Dir(ini.SourceFile())
+		}
 		configPath = filepath.Join(iniDir, configPath)
 	}
 

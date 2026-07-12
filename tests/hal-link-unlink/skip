@@ -1,3 +1,0 @@
-Drives hallink.py via the deprecated Python `hal` module + the classic `$REALTIME`
-start/stop script (neither exists in gomc). Signal link/unlink is exercised by other
-converted HAL tests via halcmd. Matches the halmodule/pyhal skips.
