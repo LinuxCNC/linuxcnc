@@ -1,1 +1,0 @@
-Uses 'option rtapi_app no' + a custom rtapi_app_main entry point — part of the realtime/userspace split that gomc intentionally removed (single-cmod model). Test premise no longer applies.

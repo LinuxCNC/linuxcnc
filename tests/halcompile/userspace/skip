@@ -1,1 +1,0 @@
-gomc has no realtime/userspace split — a component is always a single cmod .so, with no userspace executable installed to bin/. This test checks for a userspace executable (option userspace), which does not exist in the single-cmod model.
