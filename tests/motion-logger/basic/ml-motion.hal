@@ -1,0 +1,18 @@
+# Real motion (motmod) + the motion-logger interceptor in front of it.
+load [KINS]KINEMATICS
+load [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+load motion-logger mot_instance=motmod logfile=out.motion-logger
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+net j0 joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+net j1 joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+net j2 joint.2.motor-pos-cmd => joint.2.motor-pos-fb
+net j3 joint.3.motor-pos-cmd => joint.3.motor-pos-fb
+net j4 joint.4.motor-pos-cmd => joint.4.motor-pos-fb
+net j5 joint.5.motor-pos-cmd => joint.5.motor-pos-fb
+net j6 joint.6.motor-pos-cmd => joint.6.motor-pos-fb
+net j7 joint.7.motor-pos-cmd => joint.7.motor-pos-fb
+net j8 joint.8.motor-pos-cmd => joint.8.motor-pos-fb
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed

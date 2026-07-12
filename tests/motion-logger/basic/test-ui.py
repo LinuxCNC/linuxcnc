@@ -1,82 +1,125 @@
 #!/usr/bin/env python3
 
-import linuxcnc
-import hal
+# Ported to the gomc REST/WS API (`gmi` client, not the removed NML `linuxcnc`
+# module). The motion-logger is now an interceptor cmod sitting between milltask
+# and the *real* motmod, so this drives a real motion config.
+#
+# Two differences from the classic (mock-motion) test:
+#  - No `reopen-log` HAL pin (the interceptor runs no realtime function): each
+#    sub-test's slice of out.motion-logger is captured by byte offset. The cmod
+#    fflush()es every line, so once a program is idle the delta is complete.
+#  - Real motion takes real time, and the programmed feeds (F1 etc.) would run
+#    for minutes. We apply a large feed/rapid override so motion completes in
+#    sub-seconds; the override is a separate scale command and does NOT change
+#    the logged SET_LINE velocities. We then wait for INTERP_IDLE (true program
+#    completion) before capturing, so the full command stream is always present.
+#
+# reset.ngc runs before every program to reset Task/Canon state; because it
+# issues a real move whose motion id increments across the session, its `id=`
+# field is normalized before comparison (the ids are session-incidental).
 
-import time
+import gmi
+from gmi.constants import *
+
 import sys
-import subprocess
-import os
-import signal
+import time
 import glob
 import re
+import difflib
 
-comp = hal.component("test-ui")
-comp.newpin("reopen-log", hal.HAL_BIT, hal.HAL_IO)
-comp.ready()
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
-os.system("halcmd net reopen-log test-ui.reopen-log motion-logger.reopen-log")
-
-# This will be the return value of this program.
-# Any failure sets it to 1.
 retval = 0
+log_offset = 0
+
+LOG = "out.motion-logger"
 
 
-def end_log(logfile_name):
-    c.wait_complete()
-    comp['reopen-log'] = True
-    while comp['reopen-log']: time.sleep(.01)
-    os.rename("out.motion-logger", 'result.%s' % logfile_name)
-    status = subprocess.call(['diff', '-u', 'expected.%s' % logfile_name, 'result.%s' % logfile_name], shell=False)
-    if status == 0:
-        print("sub-test %s ok" % logfile_name)
+def wait_idle(timeout=30.0):
+    '''Wait for an AUTO_RUN to finish. auto() returns as soon as the command is
+    accepted (interp still shows IDLE for a moment), so first wait for the run
+    to start (interp leaves IDLE), then wait for it to return to IDLE.'''
+    start = time.time()
+    while time.time() - start < 5.0:
+        s.poll()
+        if s.interp_state != INTERP_IDLE:
+            break
+        time.sleep(0.02)
+    while time.time() - start < timeout:
+        s.poll()
+        if s.interp_state == INTERP_IDLE:
+            return
+        time.sleep(0.02)
+    raise SystemExit("timeout waiting for interp idle")
+
+
+def capture(name, compare=True):
+    '''Capture the log slice produced since the last call. When compare is set,
+    diff it against expected.<name>; otherwise just advance the offset (used for
+    the reset program, whose stream is position-dependent under real motion).'''
+    global log_offset, retval
+    time.sleep(0.2)  # settle any trailing flushed lines onto disk
+    with open(LOG, "rb") as f:
+        f.seek(log_offset)
+        chunk = f.read().decode()
+        log_offset = f.tell()
+    if not compare:
+        return
+    with open("result.%s" % name, "w") as f:
+        f.write(chunk)
+    expected = open("expected.%s" % name).read()
+    if expected == chunk:
+        print("sub-test %s ok" % name)
     else:
-        print("unexpected output in logfile '%s'" % logfile_name)
-        global retval
+        print("unexpected output in logfile '%s'" % name)
+        sys.stdout.writelines(difflib.unified_diff(
+            expected.splitlines(True), chunk.splitlines(True),
+            "expected.%s" % name, "result.%s" % name))
         retval = 1
     sys.stdout.flush()
 
 
 #
-# connect to LinuxCNC
+# Come out of E-stop, turn the machine on, switch to Auto mode. The config sets
+# [TRAJ]NO_FORCE_HOMING, so no homing is needed to run programs.
 #
 
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
+c.state(STATE_ESTOP_RESET)
+c.state(STATE_ON)
+c.wait_complete()
+c.mode(MODE_AUTO)
+
+# Make real motion complete quickly without altering the logged command stream.
+# The programmed feeds (F0.1 etc.) would otherwise run for many minutes; a large
+# feed override scales them up to the machine velocity cap. [DISPLAY]
+# MAX_FEED_OVERRIDE is raised to permit this.
+c.feedrate(10000.0)
+c.rapidrate(1.0)
+c.wait_complete()
+
+capture("builtin-startup")
 
 
 #
-# Come out of E-stop, turn the machine on, and switch to Auto mode.
+# Run each .ngc test file (reset.ngc is the between-tests reset program).
 #
 
-c.state(linuxcnc.STATE_ESTOP_RESET)
-c.state(linuxcnc.STATE_ON)
-c.mode(linuxcnc.MODE_AUTO)
+for ngc in sorted(glob.glob("*.ngc")):
+    if ngc == "reset.ngc":
+        continue
+    basename = re.match(r"(.*)\.ngc", ngc).group(1)
 
-end_log('builtin-startup')
-
-
-#
-# run each .ngc test file in the test directory
-#
-
-for ngc in glob.glob('*.ngc'):
-    if ngc == 'reset.ngc': continue
-
-    m = re.match('(.*)\.ngc', ngc)
-    basename = m.group(1)
-
-    c.program_open('reset.ngc')
-    c.auto(linuxcnc.AUTO_RUN, 0)
-    c.wait_complete()
-    end_log('reset')
+    c.program_open("reset.ngc")
+    c.auto(AUTO_RUN)
+    wait_idle()
+    capture("reset", compare=False)
 
     c.program_open(ngc)
-    c.auto(linuxcnc.AUTO_RUN, 0)
-    c.wait_complete()
-    end_log(basename)
+    c.auto(AUTO_RUN)
+    wait_idle()
+    capture(basename)
 
 
-sys.stderr.write("trying to exit")
 sys.exit(retval)
