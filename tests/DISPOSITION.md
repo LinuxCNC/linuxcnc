@@ -78,15 +78,23 @@ tclsh-extensions, tcllibpath-separator.
 | tooledit | tool-table float fidelity | ✅ **PASS** — classic drove the Tk tooledit to round-trip a `.tbl`; gomc has no Tk tooledit and no `.tbl` writer, so import the 21-tool `.tbl` via a minimal `persist_sqlite`+`tooltable` server and assert every offset/diameter/pocket/comment survives the import→sqlite→REST round-trip exactly. (INI needs `[EMC]VERSION` or gomc treats it as a convert-me config.) |
 | mb2hal/mb2hal.1a · mb2hal.2a | mb2hal cmod (loads/creates pins) | runnable — INI-DEBUG dump routes to server log not stdout | xfail |
 
-### 2d. FLAGGED — mechanism removed in a *prior* session, not one of the two official removals (need ruling)
+### 2d. Mechanism gone / solved-otherwise by the gomc architecture — CONFIRMED skip (user ruling)
 
-| test | mechanism | capability now | proposed |
-|---|---|---|---|
-| linuxcncrsh · linuxcncrsh-tcp | `linuxcncrsh` telnet protocol | REST API; rsh-driver tests already ported to gmi | skip (dead transport conformance) |
-| uspace/spawnv-root | userspace `rtapi_spawnv` | no `loadusr`/userspace helpers | skip |
-| halrun-getopt-reset | `halrun` getopt-reset across `loadusr` | `gomc-server -f`; no `loadusr` | skip (removed CLI semantics) |
-| module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | count-based zero-instance load | explicit instance names | skip (concept removed) |
-| mdi-while-queuebuster-waitflag | MDI "queue-buster" + waitflag | MDI queue exists | re-examine → likely port/xfail |
+Principle: a feature that is **gone or solved differently** by the gomc architecture is a genuine
+removal → skip (same ruling as §4a). These test transports/concepts the migration dropped; the
+capability, where it matters, is covered by the replacement.
+
+| test | mechanism (removed) | replacement |
+|---|---|---|
+| linuxcncrsh · linuxcncrsh-tcp | `linuxcncrsh` telnet protocol | REST API; rsh-driver tests already ported to gmi |
+| uspace/spawnv-root | userspace `rtapi_spawnv` (spawn a helper) | no `loadusr`/userspace helpers |
+| halrun-getopt-reset | `halrun` getopt-reset across `loadusr` | `gomc-server -f`; no `loadusr` |
+| module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | count-based zero-instance load | explicit instance names |
+
+**Still open** (capability *does* exist → not a §2d removal):
+| test | why |
+|---|---|
+| mdi-while-queuebuster-waitflag | the MDI queue exists → re-examine as port/xfail, not skip |
 
 ---
 
@@ -121,22 +129,23 @@ module-loading/*/num_chan=0 → skip (concept removed); mdi-while-queuebuster-wa
 
 ## 4. Vanished dirs (12) — deleted on gomc
 
-### 4a. Deleted as "removed-by-design" — REVERSED under the rule; must re-express + test
+### 4a. Deleted — INTENTIONALLY removed (user ruling): rt/userspace-split model is gone
 
-Deleted (f3cd5a61c8 / 6bc8f606ff) as rt-userspace-split casualties, but the capability (modcompile;
-module-load-failure handling) still exists — only userspace/rtapi_app *packaging* changed. Restore
-against the single-cmod model; **xfail** where modcompile lacks the feature (grep confirms no
-personalities/count/extralib surface in `internal/modcompile`).
+Deleted (f3cd5a61c8 / 6bc8f606ff). These test the classic `halcompile` **rt/userspace split** —
+compiling a component as a separate userspace program, `rtapi_app` main, `RTAPI_MP_ARRAY_INT`
+personality arrays, `--personalities` count-cycling, userspace `count=`/`names=` instancing. gomc has
+**no** such split (one cmod does both realtime and userspace), so the features these address are gone
+or handled differently in the single-cmod model. **Correctly removed — do not restore.**
 
-| test | capability | class |
-|---|---|---|
-| halcompile/command_line_flags | modcompile CLI flags | port/xfail |
-| halcompile/extralib | comp links an extra lib | port/xfail (modcompile gap) |
-| halcompile/relative-header-user | relative `#include` (non-user variant already FIXED) | port |
-| halcompile/userspace | compile a "userspace" comp → single cmod | port/re-express |
-| halcompile/userspace-count-names | count/names instancing → explicit-name model | port/re-express |
-| halcompile/personalities_mod | personality-gated pins (separate loads work; `--personalities` array-cycling is a modcompile gap) | xfail |
-| module-loading/rtapi-app-main-fails | module-load-failure handling | port/re-express |
+| test | addressed a feature that is now… |
+|---|---|
+| halcompile/command_line_flags | halcompile CLI-flag surface of the removed model |
+| halcompile/extralib | userspace-comp extra-lib linking — no rt/userspace split |
+| halcompile/relative-header-user | the *userspace* variant of relative-header (the RT/single-cmod variant is covered + green) |
+| halcompile/userspace | "compile a userspace comp" — no separate userspace build |
+| halcompile/userspace-count-names | userspace `count=`/`names=` instancing — replaced by explicit instance names |
+| halcompile/personalities_mod | personality arrays + `--personalities` cycling — no equivalent by design |
+| module-loading/rtapi-app-main-fails | custom `rtapi_app_main` failure path — no `rtapi_app` model |
 
 ### 4b. To restore or disposition
 
