@@ -25,11 +25,11 @@ from pathlib import Path
 
 # Determine locale directory for translations (same domain as Tcl halshow)
 for _p in sys.path:
-    if '/lib/python' in _p:
-        if '/usr' in _p:
-            _LOCALEDIR = 'usr/share/locale'
+    if "/lib/python" in _p:
+        if "/usr" in _p:
+            _LOCALEDIR = "usr/share/locale"
         else:
-            _LOCALEDIR = os.path.join(_p.split("/lib")[0], 'share', 'locale')
+            _LOCALEDIR = os.path.join(_p.split("/lib")[0], "share", "locale")
         break
 else:
     _LOCALEDIR = None
@@ -39,19 +39,72 @@ _translate = _  # alias so it survives tuple-unpacking shadows on `_`
 
 
 from qtpy.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
-    QTabWidget, QTreeWidget, QTreeWidgetItem, QTextBrowser, QLineEdit,
-    QPushButton, QLabel, QCheckBox, QScrollArea, QFrame, QFileDialog,
-    QMessageBox, QInputDialog, QMenu, QAction, QHeaderView, QApplication as app,
-    QSizePolicy, QGraphicsView, QGraphicsScene, QGraphicsRectItem, QGraphicsTextItem,
-    QGraphicsEllipseItem, QGraphicsPathItem, QGraphicsPolygonItem, QGraphicsItem, QDialog, QDialogButtonBox,
-    QFormLayout, QColorDialog
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSplitter,
+    QTabWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QTextBrowser,
+    QLineEdit,
+    QPushButton,
+    QLabel,
+    QCheckBox,
+    QScrollArea,
+    QFrame,
+    QFileDialog,
+    QMessageBox,
+    QInputDialog,
+    QMenu,
+    QAction,
+    QHeaderView,
+    QApplication as app,
+    QSizePolicy,
+    QGraphicsView,
+    QGraphicsScene,
+    QGraphicsRectItem,
+    QGraphicsTextItem,
+    QGraphicsEllipseItem,
+    QGraphicsPathItem,
+    QGraphicsPolygonItem,
+    QGraphicsItem,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QColorDialog,
 )
-from qtpy.QtCore import Qt, QTimer, QSize, Signal, Slot, QPointF, QRectF, QThread, QObject, QEvent
-from qtpy.QtGui import QFont, QColor, QIcon, QTextCursor, QPainter, QTextOption, QPainterPath, QPen, QBrush, QFontMetrics
+from qtpy.QtCore import (
+    Qt,
+    QTimer,
+    QSize,
+    Signal,
+    Slot,
+    QPointF,
+    QRectF,
+    QThread,
+    QObject,
+    QEvent,
+)
+from qtpy.QtGui import (
+    QFont,
+    QColor,
+    QIcon,
+    QTextCursor,
+    QPainter,
+    QTextOption,
+    QPainterPath,
+    QPen,
+    QBrush,
+    QFontMetrics,
+)
 
 # Cross-backend window flag compatibility (PyQt5/PySide2 vs PyQt6/PySide6)
-_WIN_STAYS_ON_TOP = getattr(getattr(Qt, "WindowType", None), "WindowStaysOnTop", None) or getattr(Qt, "WindowStaysOnTop", 0x00080000)
+_WIN_STAYS_ON_TOP = getattr(
+    getattr(Qt, "WindowType", None), "WindowStaysOnTop", None
+) or getattr(Qt, "WindowStaysOnTop", 0x00080000)
 
 # ---------------------------------------------------------------------------
 # HAL API — direct shared memory access via _hal C extension
@@ -69,21 +122,20 @@ class HalApi:
     Supports pins, signals, params, components, functions, and threads via SHM.
     Falls back to subprocess halcmd only on older _hal versions that lack get_info_*."""
 
-
     # Mapping between _hal numeric type constants and human-readable names
     TYPE_NAME = {
-        0: "bit",     # HAL_BIT
-        1: "float",   # HAL_FLOAT
-        2: "s32",     # HAL_S32
-        3: "u32",     # HAL_U32
-        4: "s64",     # HAL_S64
-        5: "u64",     # HAL_U64
-        6: "port",    # HAL_PORT
+        0: "bit",  # HAL_BIT
+        1: "float",  # HAL_FLOAT
+        2: "s32",  # HAL_S32
+        3: "u32",  # HAL_U32
+        4: "s64",  # HAL_S64
+        5: "u64",  # HAL_U64
+        6: "port",  # HAL_PORT
     }
 
     # Mapping for direction constants
-    PIN_DIR = {16: "IN", 32: "OUT", 48: "I/O"}   # HAL_IN=16, HAL_OUT=32, HAL_IO=48
-    PARAM_DIR = {64: "RO", 192: "RW"}          # HAL_RO=64, HAL_RW=192
+    PIN_DIR = {16: "IN", 32: "OUT", 48: "I/O"}  # HAL_IN=16, HAL_OUT=32, HAL_IO=48
+    PARAM_DIR = {64: "RO", 192: "RW"}  # HAL_RO=64, HAL_RW=192
 
     _initialized = False
     _comp = None
@@ -122,10 +174,16 @@ class HalApi:
             try:
                 cls._comp.ready()
             except Exception as e:
-                print(f"[halshow] cleanup: ready() failed ({e}) — proceeding to exit anyway", file=sys.stderr)
+                print(
+                    f"[halshow] cleanup: ready() failed ({e}) — proceeding to exit anyway",
+                    file=sys.stderr,
+                )
             cls._comp.exit()
         except Exception as e:
-            print(f"[halshow] ERROR: cannot unload component {comp_name}: {e}", file=sys.stderr)
+            print(
+                f"[halshow] ERROR: cannot unload component {comp_name}: {e}",
+                file=sys.stderr,
+            )
         finally:
             # Set _initialized to False so a new init() can run if halshow is
             # restarted within the same Python process. Clearing _comp lets GC
@@ -164,7 +222,11 @@ class HalApi:
             # Fallback to halcmd subprocess
             try:
                 lines = cls._halcmd_list("pin").splitlines()
-                indexed = {line.strip(): {"NAME": line.strip()} for line in lines if line.strip()}
+                indexed = {
+                    line.strip(): {"NAME": line.strip()}
+                    for line in lines
+                    if line.strip()
+                }
                 cls._cache["pins"] = indexed
             except Exception as e:
                 print(f"[halshow] Error caching pins: {e}", file=sys.stderr)
@@ -184,7 +246,11 @@ class HalApi:
             # Fallback to halcmd subprocess
             try:
                 lines = cls._halcmd_list("param").splitlines()
-                indexed = {line.strip(): {"NAME": line.strip()} for line in lines if line.strip()}
+                indexed = {
+                    line.strip(): {"NAME": line.strip()}
+                    for line in lines
+                    if line.strip()
+                }
                 cls._cache["params"] = indexed
             except Exception as e:
                 print(f"[halshow] Error caching params: {e}", file=sys.stderr)
@@ -204,7 +270,11 @@ class HalApi:
             # Fallback to halcmd subprocess
             try:
                 lines = cls._halcmd_list("sig").splitlines()
-                indexed = {line.strip(): {"NAME": line.strip()} for line in lines if line.strip()}
+                indexed = {
+                    line.strip(): {"NAME": line.strip()}
+                    for line in lines
+                    if line.strip()
+                }
                 cls._cache["signals"] = indexed
             except Exception as e:
                 print(f"[halshow] Error caching signals: {e}", file=sys.stderr)
@@ -240,8 +310,12 @@ class HalApi:
     def _halcmd_list(cls, halcmd_type):
         """List HAL entities via halcmd subprocess."""
         try:
-            result = subprocess.run([cls._find_halcmd(), "list", halcmd_type],
-                                    capture_output=True, text=True, timeout=5)
+            result = subprocess.run(
+                [cls._find_halcmd(), "list", halcmd_type],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
             if result.returncode != 0:
                 return ""
             names = result.stdout.strip().split()
@@ -305,7 +379,9 @@ class HalApi:
     def set_signal(cls, name, value):
         """Write a signal via halcmd (no direct SHM write for signals in this _hal version)."""
         cls._ensure()
-        result = subprocess.run(["halcmd", "sets", name, str(value)], capture_output=True, text=True)
+        result = subprocess.run(
+            ["halcmd", "sets", name, str(value)], capture_output=True, text=True
+        )
         if result.returncode != 0:
             raise RuntimeError(result.stderr.strip())
 
@@ -322,8 +398,9 @@ class HalApi:
             halcmd = cls._find_halcmd()
         except RuntimeError as e:
             raise RuntimeError(f"Cannot determine type of '{name}': {e}") from None
-        result = subprocess.run([halcmd, "ptype", name],
-                                capture_output=True, text=True, timeout=5)
+        result = subprocess.run(
+            [halcmd, "ptype", name], capture_output=True, text=True, timeout=5
+        )
         if result.returncode != 0:
             raise RuntimeError(result.stderr.strip())
         return result.stdout.strip()
@@ -340,8 +417,9 @@ class HalApi:
             halcmd = cls._find_halcmd()
         except RuntimeError as e:
             raise RuntimeError(f"Cannot determine type of '{name}': {e}") from None
-        result = subprocess.run([halcmd, "stype", name],
-                                capture_output=True, text=True, timeout=5)
+        result = subprocess.run(
+            [halcmd, "stype", name], capture_output=True, text=True, timeout=5
+        )
         if result.returncode != 0:
             raise RuntimeError(result.stderr.strip())
         return result.stdout.strip()
@@ -375,13 +453,19 @@ class HalApi:
                 info = cls.signal_info(name)
                 has_writers_field = info and "WRITERS" in info
                 writer_count = info.get("WRITERS", 0) if has_writers_field else None
-                  # Old _hal.so omits WRITERS from cache — fall back to halcmd per-signal query
+                # Old _hal.so omits WRITERS from cache — fall back to halcmd per-signal query
                 if writer_count is None:
                     try:
                         halcmd = cls._find_halcmd()
-                        out = subprocess.run([halcmd, "show", "sig", name], capture_output=True, text=True).stdout
+                        out = subprocess.run(
+                            [halcmd, "show", "sig", name],
+                            capture_output=True,
+                            text=True,
+                        ).stdout
                         # Count "<==" arrows (writers) in halcmd show sig output
-                        writer_count = sum(1 for line in out.splitlines() if "<==" in line)
+                        writer_count = sum(
+                            1 for line in out.splitlines() if "<==" in line
+                        )
                     except Exception:
                         pass
                 if writer_count is not None and writer_count > 0:
@@ -429,14 +513,20 @@ class HalApi:
                     sig = pe.get("SIGNAL")
                     if sig == name and pe.get("DIRECTION") == 32:  # HAL_OUT (writer)
                         writers.append(pn)
-                    elif sig == name and pe.get("DIRECTION") != 32:  # IN or I/O (reader)
+                    elif (
+                        sig == name and pe.get("DIRECTION") != 32
+                    ):  # IN or I/O (reader)
                         readers.append(pn)
 
                 if not has_signal_field:
                     try:
                         halcmd = cls._find_halcmd()
-                        res = subprocess.run([halcmd, "show", "sig", name],
-                                             capture_output=True, text=True, timeout=2)
+                        res = subprocess.run(
+                            [halcmd, "show", "sig", name],
+                            capture_output=True,
+                            text=True,
+                            timeout=2,
+                        )
                         if res.returncode == 0 and res.stdout.strip():
                             for line in res.stdout.split("\n"):
                                 stripped = line.strip()
@@ -472,24 +562,30 @@ class HalApi:
                 if entry is None:
                     raise KeyError(f"Component '{name}' not found")
                 ready_str = "ready" if entry.get("READY") else "initializing"
-                return (f"{entry['NAME']}\n"
-                        f"  ID: {entry['ID']}  READY: {ready_str}  TYPE: {entry['TYPE']}  PID: {entry['PID']}")
+                return (
+                    f"{entry['NAME']}\n"
+                    f"  ID: {entry['ID']}  READY: {ready_str}  TYPE: {entry['TYPE']}  PID: {entry['PID']}"
+                )
             elif type_ == "funct":
                 items = cls._try_shm_info("get_info_functions")
                 entry = next((f for f in (items or []) if f["NAME"] == name), None)
                 if entry is None:
                     raise KeyError(f"Function '{name}' not found")
-                return (f"{entry['NAME']}\n"
-                        f"  USERS: {entry.get('USERS', '?')}  REENTRANT: {entry.get('REENTRANT', '?')}"
-                        f"  USES_FP: {entry.get('USES_FP', '?')}  OWNER: {entry.get('OWNER', '?')}")
+                return (
+                    f"{entry['NAME']}\n"
+                    f"  USERS: {entry.get('USERS', '?')}  REENTRANT: {entry.get('REENTRANT', '?')}"
+                    f"  USES_FP: {entry.get('USES_FP', '?')}  OWNER: {entry.get('OWNER', '?')}"
+                )
             elif type_ == "thread":
                 items = cls._try_shm_info("get_info_threads")
                 entry = next((t for t in (items or []) if t["NAME"] == name), None)
                 if entry is None:
                     raise KeyError(f"Thread '{name}' not found")
-                return (f"{entry['NAME']}\n"
-                        f"  PERIOD: {entry.get('PERIOD', '?')}  PRIORITY: {entry.get('PRIORITY', '?')}"
-                        f"  OWNER: {entry.get('OWNER', '?')}")
+                return (
+                    f"{entry['NAME']}\n"
+                    f"  PERIOD: {entry.get('PERIOD', '?')}  PRIORITY: {entry.get('PRIORITY', '?')}"
+                    f"  OWNER: {entry.get('OWNER', '?')}"
+                )
             else:
                 raise ValueError(f"Unknown type '{type_}'")
         except Exception as e:
@@ -499,8 +595,12 @@ class HalApi:
             except RuntimeError as e2:
                 raise RuntimeError(f"Cannot show {type_} '{name}': {e2}") from None
             try:
-                result = subprocess.run([halcmd, "show", type_, name],
-                                        capture_output=True, text=True, timeout=5)
+                result = subprocess.run(
+                    [halcmd, "show", type_, name],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
                 if result.returncode != 0:
                     raise RuntimeError(result.stderr.strip())
                 return result.stdout.rstrip("\n")
@@ -541,6 +641,7 @@ class HalApi:
     def _find_halcmd():
         """Locate halcmd executable, checking PATH then common RIP locations."""
         import shutil
+
         path = shutil.which("halcmd")
         if path:
             return path
@@ -573,14 +674,15 @@ class HalApi:
 # Preferences — load and save settings to a Tcl-compatible file
 # ---------------------------------------------------------------------------
 
+
 class Preferences:
     DEFAULTS = {
         "watchlist": [],
         "workmode": "showhal",
         "watchInterval": 200,
         "ratio": 0.3,
-        "old_w_leftf": 160,   # Legacy: saved for Tcl interoperability, not used in Python UI
-        "col1_width": 100,    # Legacy: saved for Tcl interoperability, not used in Python UI
+        "old_w_leftf": 160,  # Legacy: saved for Tcl interoperability, not used in Python UI
+        "col1_width": 100,  # Legacy: saved for Tcl interoperability, not used in Python UI
         "ffmts": "",
         "ifmts": "",
         "alwaysOnTop": False,
@@ -635,9 +737,11 @@ class Preferences:
             text = self.path.read_text()
 
             # Try Tcl format first (set ::varname value)
-            tcl_match = re.search(r'set\s+::watchlist\s*\{([^}]*)\}', text, re.DOTALL)
+            tcl_match = re.search(r"set\s+::watchlist\s*\{([^}]*)\}", text, re.DOTALL)
             if tcl_match:
-                items = [s.strip() for s in tcl_match.group(1).splitlines() if s.strip()]
+                items = [
+                    s.strip() for s in tcl_match.group(1).splitlines() if s.strip()
+                ]
                 self.watchlist = items
 
             for line in text.split("\n"):
@@ -645,7 +749,7 @@ class Preferences:
                 if not stripped or stripped.startswith("#"):
                     continue
                 # Tcl format: set ::varname value
-                m_tcl = re.match(r'^set\s+::(\w+)\s*(.*)$', stripped)
+                m_tcl = re.match(r"^set\s+::(\w+)\s*(.*)$", stripped)
                 if m_tcl:
                     var_name, raw_value = m_tcl.group(1), m_tcl.group(2).strip()
                     # Skip watchlist — already handled by brace block above
@@ -657,7 +761,7 @@ class Preferences:
                     continue
 
                 # Key=value format (new style)
-                m_kv = re.match(r'^(\w+)\s*=\s*(.+)$', stripped)
+                m_kv = re.match(r"^(\w+)\s*=\s*(.+)$", stripped)
                 if m_kv:
                     var_name, raw_value = m_kv.group(1), m_kv.group(2).strip()
                     if var_name in self.DEFAULTS:
@@ -666,7 +770,10 @@ class Preferences:
 
             return True
         except Exception as e:
-            print(f"[halshow] Error reading settings file {self.path}: {e}", file=sys.stderr)
+            print(
+                f"[halshow] Error reading settings file {self.path}: {e}",
+                file=sys.stderr,
+            )
             return False
 
     def save(self):
@@ -689,16 +796,24 @@ class Preferences:
             lines.append(f'ffmts = "{ffmt_val}"')
             lines.append(f'ifmts = "{ifmt_val}"')
             lines.append(f"alwaysOnTop = {'true' if self.alwaysOnTop else 'false'}")
-            lines.append(f"autoSaveWatchlist = {'true' if self.autoSaveWatchlist else 'false'}")
-            lines.append(f"separateParams = {'true' if self.separateParams else 'false'}")
+            lines.append(
+                f"autoSaveWatchlist = {'true' if self.autoSaveWatchlist else 'false'}"
+            )
+            lines.append(
+                f"separateParams = {'true' if self.separateParams else 'false'}"
+            )
             self.path.write_text("\n".join(lines) + "\n")
         except Exception as e:
-            print(f"[halshow] Unable to save settings to {self.path}: {e}", file=sys.stderr)
+            print(
+                f"[halshow] Unable to save settings to {self.path}: {e}",
+                file=sys.stderr,
+            )
 
 
 # ---------------------------------------------------------------------------
 # Watch Row — single watched item widget
 # ---------------------------------------------------------------------------
+
 
 class BitIndicator(QWidget):
     """Small circle that shows TRUE (yellow), FALSE (firebrick4), or unknown (lightgray)."""
@@ -718,9 +833,9 @@ class BitIndicator(QWidget):
             painter.setRenderHint(QPainter.Antialiasing)
 
             if self._state == True:
-                color = QColor(255, 255, 0)    # yellow
+                color = QColor(255, 255, 0)  # yellow
             elif self._state == False:
-                color = QColor(153, 50, 50)    # firebrick4-ish
+                color = QColor(153, 50, 50)  # firebrick4-ish
             else:
                 color = QColor(211, 211, 211)  # lightgray
 
@@ -751,7 +866,9 @@ class WatchRow(QWidget):
 
         # Value area — fixed-width for vertical alignment of name column (Tcl match)
         self.value_area = QWidget()
-        self.value_area.setFixedWidth(60)  # Narrow; very large numbers may overflow slightly
+        self.value_area.setFixedWidth(
+            60
+        )  # Narrow; very large numbers may overflow slightly
         val_layout = QHBoxLayout(self.value_area)
         val_layout.setContentsMargins(0, 0, 0, 0)
         val_layout.setSpacing(2)
@@ -825,7 +942,11 @@ class WatchRow(QWidget):
                         tname = HalApi.ptype(self.name)
                     elif self.vartype == "param":
                         info = HalApi.param_info(self.name)
-                        tname = HalApi.TYPE_NAME.get(info.get("TYPE", -1), "") if info else ""
+                        tname = (
+                            HalApi.TYPE_NAME.get(info.get("TYPE", -1), "")
+                            if info
+                            else ""
+                        )
                     else:
                         tname = ""
                     if str(tname).lower() == "bit":
@@ -843,7 +964,11 @@ class WatchRow(QWidget):
                 sv = str(raw).upper()
                 if isinstance(raw, bool):
                     self._is_bit_cached = True
-                elif isinstance(raw, int) and not isinstance(raw, float) and raw in (0, 1):
+                elif (
+                    isinstance(raw, int)
+                    and not isinstance(raw, float)
+                    and raw in (0, 1)
+                ):
                     self._is_bit_cached = True
                 elif sv in ("TRUE", "FALSE"):
                     self._is_bit_cached = True
@@ -885,7 +1010,7 @@ class WatchRow(QWidget):
                 for label, callback in [
                     (_("Tgl"), self._do_toggle),
                     (_("Set"), lambda: self._do_set("1")),
-                    (_("Clr"), lambda: self._do_set("0"))
+                    (_("Clr"), lambda: self._do_set("0")),
                 ]:
                     btn = QPushButton(label)
                     btn.setMaximumWidth(36)
@@ -904,16 +1029,22 @@ class WatchRow(QWidget):
                 wc = sig_info.get("WRITERS", 0) if has_wf else None
                 # Old _hal.so omits WRITERS — query halcmd once, cache on self._cached_wc
                 if wc is None:
-                    if not hasattr(self, '_cached_wc'):
+                    if not hasattr(self, "_cached_wc"):
                         try:
                             halcmd = HalApi._find_halcmd()
-                            out = subprocess.run([halcmd, "show", "sig", self.name], capture_output=True, text=True).stdout
+                            out = subprocess.run(
+                                [halcmd, "show", "sig", self.name],
+                                capture_output=True,
+                                text=True,
+                            ).stdout
                             # Count "<==" arrows (writers) in halcmd show sig output
-                            wc_count = sum(1 for line in out.splitlines() if "<==" in line)
+                            wc_count = sum(
+                                1 for line in out.splitlines() if "<==" in line
+                            )
                             self._cached_wc = wc_count
                         except Exception:
                             pass
-                    wc = getattr(self, '_cached_wc', None)
+                    wc = getattr(self, "_cached_wc", None)
                 can_write = (wc is None) or (wc == 0)
             except Exception:
                 pass
@@ -977,7 +1108,9 @@ class WatchRow(QWidget):
             current = HalApi.get_value(self.name)
         except Exception:
             current = ""
-        val, ok = QInputDialog.getText(None, _("Set"), _("Set value for %s") % self.name, text=str(current))
+        val, ok = QInputDialog.getText(
+            None, _("Set"), _("Set value for %s") % self.name, text=str(current)
+        )
         if ok and val != str(current):
             try:
                 if self.vartype == "sig":
@@ -1011,7 +1144,9 @@ class WatchRow(QWidget):
             menu.addAction(unlink_act)
 
         show_tree_act = QAction(_("Show in Tree"), self)
-        show_tree_act.triggered.connect(lambda: self.show_in_tree.emit(self.vartype, self.name))
+        show_tree_act.triggered.connect(
+            lambda: self.show_in_tree.emit(self.vartype, self.name)
+        )
         menu.addAction(show_tree_act)
 
         remove_act = QAction(_("Remove"), self)
@@ -1025,6 +1160,7 @@ class WatchRow(QWidget):
 # ---------------------------------------------------------------------------
 # Value formatting helper
 # ---------------------------------------------------------------------------
+
 
 def format_value(raw, vtype, ffmt=None, ifmt=None):
     """Format a HAL value using the specified type and optional format strings."""
@@ -1113,8 +1249,8 @@ class GraphDataBuilder:
         HalApi._cache_signals()
 
         components = {}  # comp_name -> {pins: [...], in_pins: [...], out_pins: [...]}
-        signals = {}     # sig_name -> SignalData
-        pin_index = {}   # pin_fullname -> comp_name (O(1) lookup for edge building)
+        signals = {}  # sig_name -> SignalData
+        pin_index = {}  # pin_fullname -> comp_name (O(1) lookup for edge building)
 
         # Derive component names from known components list (for fallback when OWNER missing in old _hal)
         try:
@@ -1123,12 +1259,27 @@ class GraphDataBuilder:
         except Exception:
             known_comps = set()
 
-        has_owner_field = any(entry.get("OWNER", "") for entry in HalApi._cache["pins"].values())
+        has_owner_field = any(
+            entry.get("OWNER", "") for entry in HalApi._cache["pins"].values()
+        )
         if not has_owner_field:
-            print(f"[halshow] OWNER field missing (old _hal.so), deriving from pin names, known_comps={sorted(known_comps)[:10]}...", file=sys.stderr)
+            print(
+                f"[halshow] OWNER field missing (old _hal.so), deriving from pin names, known_comps={sorted(known_comps)[:10]}...",
+                file=sys.stderr,
+            )
 
-        direction_keywords = {"in", "out", "in0", "in1", "in2", "in3", "in4", "in5",
-                             "rev", "fwd"}
+        direction_keywords = {
+            "in",
+            "out",
+            "in0",
+            "in1",
+            "in2",
+            "in3",
+            "in4",
+            "in5",
+            "rev",
+            "fwd",
+        }
 
         def _resolve_owner(pin_name):
             # a.b.c.d.e → e is pin name, a.b.c.d is component instance name.
@@ -1137,7 +1288,9 @@ class GraphDataBuilder:
             # Strip trailing segments that are clearly part of the pin path:
             # - direction keywords (.in, .out, .rev, .fwd)
             # - hyphenated segments (halui.axis-x.plus → axis-x is pin path)
-            while len(parts) > 1 and (parts[-1].lower() in direction_keywords or "-" in parts[-1]):
+            while len(parts) > 1 and (
+                parts[-1].lower() in direction_keywords or "-" in parts[-1]
+            ):
                 parts.pop()
             return ".".join(parts)
 
@@ -1149,7 +1302,7 @@ class GraphDataBuilder:
             pin_index[pin_name] = owner  # O(1) index for edge building
 
             pin_entry = {
-                "name": pin_name.split(".")[-1],      # short name (last segment)
+                "name": pin_name.split(".")[-1],  # short name (last segment)
                 "fullname": pin_name,
                 "direction": direction,
                 "type": ptype,
@@ -1194,10 +1347,12 @@ class GraphDataBuilder:
         # Mark connected pins
         for comp_data in components.values():
             for pin in comp_data["pins"]:
-                if any(pin["fullname"] == w or pin["fullname"] == r
-                       for sig_info in signals.values()
-                       for w in sig_info.get("writer_pins", [])
-                       for r in sig_info.get("reader_pins", [])):
+                if any(
+                    pin["fullname"] == w or pin["fullname"] == r
+                    for sig_info in signals.values()
+                    for w in sig_info.get("writer_pins", [])
+                    for r in sig_info.get("reader_pins", [])
+                ):
                     pin["connected"] = True
 
         return components, signals, pin_index
@@ -1214,10 +1369,10 @@ class GraphLayout:
     # Rendering constants — kept in sync with ComponentItem / SignalNodeItem.
     COMP_WIDTH = 180
     COMP_HEADER_H = 22
-    PIN_ROW_H = 14            # monospace 7pt text needs ~12px, add 2 margin
-    SIG_HALF_MIN = 10         # minimum half-width/height of diamond
-    PIN_MARKER_R = 3          # radius of pin connection dot
-    PIN_MARKER_PAD = 4        # distance from component edge to marker center
+    PIN_ROW_H = 14  # monospace 7pt text needs ~12px, add 2 margin
+    SIG_HALF_MIN = 10  # minimum half-width/height of diamond
+    PIN_MARKER_R = 3  # radius of pin connection dot
+    PIN_MARKER_PAD = 4  # distance from component edge to marker center
 
     @staticmethod
     def _compute_height(in_pins, out_pins):
@@ -1242,6 +1397,7 @@ class GraphLayout:
 
         Returns list of (sig_name, src_comp, dst_comp).
         """
+
         def _find(pin):
             if pin_index is not None:
                 return pin_index.get(pin)
@@ -1305,11 +1461,15 @@ class GraphLayout:
             writers = set()
             readers = set()
             for wpin in sig_info["writer_pins"]:
-                c = GraphLayout._find_component_for_pin(wpin, components, pin_index=pin_index)
+                c = GraphLayout._find_component_for_pin(
+                    wpin, components, pin_index=pin_index
+                )
                 if c:
                     writers.add(c)
             for rpin in sig_info["reader_pins"]:
-                c = GraphLayout._find_component_for_pin(rpin, components, pin_index=pin_index)
+                c = GraphLayout._find_component_for_pin(
+                    rpin, components, pin_index=pin_index
+                )
                 if c:
                     readers.add(c)
             if writers and readers:
@@ -1327,16 +1487,18 @@ class GraphLayout:
 
         # --- Build pygraphviz AGraph with bipartite structure ---
         g = pgv.AGraph(directed=True)
-        g.graph_attr['rankdir'] = 'LR'
+        g.graph_attr["rankdir"] = "LR"
         # Layout params — nodesep/ranksep control compactness; node margins are the
         # keep-out zone dot uses to route edges around nodes (must be large enough so
         # edges don't cross into visible component/signal areas).
-        g.graph_attr['nodesep'] = '0.3'
-        g.graph_attr['ranksep'] = '1.2'
-        g.graph_attr['margin'] = '0.2'
+        g.graph_attr["nodesep"] = "0.3"
+        g.graph_attr["ranksep"] = "1.2"
+        g.graph_attr["margin"] = "0.2"
 
         # Component nodes
-        for comp_name in set().union(*(s["writers"] | s["readers"] for s in active_signals.values())):
+        for comp_name in set().union(
+            *(s["writers"] | s["readers"] for s in active_signals.values())
+        ):
             if comp_name not in components:
                 continue
             cd = components[comp_name]
@@ -1352,41 +1514,45 @@ class GraphLayout:
                 parts.append("\\nIN:  " + ", ".join(in_labels))
             label = "\\n".join(parts)
 
-            g.add_node(comp_name,
-                       shape='box',
-                       style='filled',
-                       fillcolor='#f5f5f0',
-                       fontname='monospace',
-                       fontsize=9,
-                       width=w / 72.0,   # dot uses inches
-                       height=h / 72.0,
-                       margin='0.35',     # keep-out zone: covers box + pin markers + arrowheads
-                       label=label)
+            g.add_node(
+                comp_name,
+                shape="box",
+                style="filled",
+                fillcolor="#f5f5f0",
+                fontname="monospace",
+                fontsize=9,
+                width=w / 72.0,  # dot uses inches
+                height=h / 72.0,
+                margin="0.35",  # keep-out zone: covers box + pin markers + arrowheads
+                label=label,
+            )
 
         # Signal nodes (diamonds) and bipartite edges: writer → sig → reader
         for sig_name, sinfo in active_signals.items():
             hw = max(GraphLayout.SIG_HALF_MIN, (len(sig_name) * 7 + 12) // 2)
             hh = GraphLayout._sig_height(sig_name) // 2
 
-            g.add_node(sig_name,
-                       shape='diamond',
-                       style='filled',
-                       fillcolor='#ffebc8',
-                       fontname='monospace',
-                       fontsize=7,
-                       label=sig_name,
-                       width=(2 * hw) / 72.0,
-                       height=(2 * hh) / 72.0,
-                       margin='0.25')   # keep-out zone around diamond for edge routing
+            g.add_node(
+                sig_name,
+                shape="diamond",
+                style="filled",
+                fillcolor="#ffebc8",
+                fontname="monospace",
+                fontsize=7,
+                label=sig_name,
+                width=(2 * hw) / 72.0,
+                height=(2 * hh) / 72.0,
+                margin="0.25",
+            )  # keep-out zone around diamond for edge routing
 
             for sc in sinfo["writers"]:
-                g.add_edge(sc, sig_name, color='#6666cc', penwidth=1.5)
+                g.add_edge(sc, sig_name, color="#6666cc", penwidth=1.5)
             for dc in sinfo["readers"]:
-                g.add_edge(sig_name, dc, color='#6666cc', penwidth=1.5)
+                g.add_edge(sig_name, dc, color="#6666cc", penwidth=1.5)
 
         # --- Run dot layout ---
         try:
-            g.layout(prog='dot')
+            g.layout(prog="dot")
         except Exception as e:
             print(f"[halshow] pygraphviz layout failed: {e}", file=sys.stderr)
             return {}, {}, edges, {}
@@ -1401,8 +1567,8 @@ class GraphLayout:
             if comp_name not in g.nodes():
                 continue
             node = g.get_node(comp_name)
-            x_pt = float(node.attr['pos'].split(',')[0])   # center x in points
-            y_pt = float(node.attr['pos'].split(',')[1])   # center y in points
+            x_pt = float(node.attr["pos"].split(",")[0])  # center x in points
+            y_pt = float(node.attr["pos"].split(",")[1])  # center y in points
 
             cd = components[comp_name]
             w = GraphLayout.COMP_WIDTH
@@ -1420,8 +1586,8 @@ class GraphLayout:
             if sig_name not in g.nodes():
                 continue
             node = g.get_node(sig_name)
-            x_pt = float(node.attr['pos'].split(',')[0])
-            y_pt = float(node.attr['pos'].split(',')[1])
+            x_pt = float(node.attr["pos"].split(",")[0])
+            y_pt = float(node.attr["pos"].split(",")[1])
 
             hw_out = max(GraphLayout.SIG_HALF_MIN, (len(sig_name) * 7 + 12) // 2)
             hh_out = GraphLayout._sig_height(sig_name) // 2
@@ -1440,16 +1606,16 @@ class GraphLayout:
         splines = {}  # (src_node, dst_node) -> list of (x_px, y_px) waypoints
         for e in g.edges():
             src_str, dst_str = str(e[0]), str(e[1])
-            pos_raw = e.attr.get('pos', '')
+            pos_raw = e.attr.get("pos", "")
             if not pos_raw:
                 continue
             # Parse: prefix,x,y x,y ...
-            comma_idx = pos_raw.index(',')
-            coords_str = pos_raw[comma_idx + 1:]
+            comma_idx = pos_raw.index(",")
+            coords_str = pos_raw[comma_idx + 1 :]
             parts = coords_str.split()
             pts = []
             for pt in parts:
-                x, y = pt.split(',')
+                x, y = pt.split(",")
                 pts.append((float(x) * SCALE, float(y) * SCALE))
             splines[(src_str, dst_str)] = pts
 
@@ -1494,8 +1660,11 @@ class ComponentItem(QGraphicsRectItem):
         # Component name in header
         painter.setPen(QColor("white"))
         painter.setFont(QFont("monospace", 9, QFont.Bold))
-        painter.drawText(header_rect.adjusted(6, 0, -6, 0),
-                        Qt.AlignLeft | Qt.AlignVCenter, self.comp_name)
+        painter.drawText(
+            header_rect.adjusted(6, 0, -6, 0),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            self.comp_name,
+        )
 
         # Draw IN pins (left column) with markers on left edge
         mid_x = rect.width() / 2
@@ -1511,7 +1680,9 @@ class ComponentItem(QGraphicsRectItem):
             pin_rect = QRectF(4, py, mid_x - 6, GraphLayout.PIN_ROW_H)
             painter.setPen(QColor("darkgreen"))
             painter.setFont(QFont("monospace", 7))
-            painter.drawText(pin_rect, Qt.AlignLeft | Qt.AlignVCenter, f"IN  {pin['name']}")
+            painter.drawText(
+                pin_rect, Qt.AlignLeft | Qt.AlignVCenter, f"IN  {pin['name']}"
+            )
             py += GraphLayout.PIN_ROW_H
 
         # Draw OUT pins (right column) with markers on right edge
@@ -1521,11 +1692,17 @@ class ComponentItem(QGraphicsRectItem):
             # Red connection dot on right edge
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor(200, 0, 0))
-            painter.drawEllipse(QPointF(rect.width() + marker_pad, cy), marker_r, marker_r)
-            pin_rect = QRectF(mid_x + 2, py, rect.width() - mid_x - 4, GraphLayout.PIN_ROW_H)
+            painter.drawEllipse(
+                QPointF(rect.width() + marker_pad, cy), marker_r, marker_r
+            )
+            pin_rect = QRectF(
+                mid_x + 2, py, rect.width() - mid_x - 4, GraphLayout.PIN_ROW_H
+            )
             painter.setPen(QColor("darkred"))
             painter.setFont(QFont("monospace", 7))
-            painter.drawText(pin_rect, Qt.AlignRight | Qt.AlignVCenter, f"{pin['name']}  OUT")
+            painter.drawText(
+                pin_rect, Qt.AlignRight | Qt.AlignVCenter, f"{pin['name']}  OUT"
+            )
             py += GraphLayout.PIN_ROW_H
 
     def hoverMoveEvent(self, event):
@@ -1559,10 +1736,10 @@ class SignalNodeItem(QGraphicsPolygonItem):
         hh = max(self.SIG_HALF_MIN, th + 8)
 
         path = QPainterPath()
-        path.moveTo(0, -hh)   # top
-        path.lineTo(hw, 0)     # right
-        path.lineTo(0, hh)     # bottom
-        path.lineTo(-hw, 0)    # left
+        path.moveTo(0, -hh)  # top
+        path.lineTo(hw, 0)  # right
+        path.lineTo(0, hh)  # bottom
+        path.lineTo(-hw, 0)  # left
         path.closeSubpath()
 
         super().__init__(path.toFillPolygon())
@@ -1572,7 +1749,7 @@ class SignalNodeItem(QGraphicsPolygonItem):
         # Appearance: orange diamond with dark border
         self.setPen(QPen(QColor(200, 120, 0), 1.5))
         self.setBrush(QBrush(QColor(255, 235, 200)))
-        self.setZValue(1)   # Same level as component boxes (both are graph nodes)
+        self.setZValue(1)  # Same level as component boxes (both are graph nodes)
 
         # Signal name centered inside the diamond
         self._name_item = QGraphicsTextItem(sig_name, self)
@@ -1580,8 +1757,7 @@ class SignalNodeItem(QGraphicsPolygonItem):
         self._name_item.setDefaultTextColor(QColor(100, 60, 0))
         # Use boundingRect to account for Qt's internal text positioning offsets.
         br = self._name_item.boundingRect()
-        self._name_item.setPos(-br.width() / 2 - br.left(),
-                               -br.height() / 2 - br.top())
+        self._name_item.setPos(-br.width() / 2 - br.left(), -br.height() / 2 - br.top())
 
         # Store computed half-dimensions for edge routing
         self._hw = hw
@@ -1623,30 +1799,50 @@ def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
 
     # Check if WRITERS/READERS counts are available. Old _hal.so omits them entirely,
     # so they'll all be 0 even for connected signals. If unavailable, fetch everything.
-    has_counts = any(si.get("writers", 0) > 0 or si.get("readers", 0) > 0 for si in signals.values())
+    has_counts = any(
+        si.get("writers", 0) > 0 or si.get("readers", 0) > 0 for si in signals.values()
+    )
 
     if has_counts:
-        unresolved = [sn for sn, si in signals.items()
-                      if (si.get("writers", 0) > 0 and si.get("readers", 0) > 0)
-                      and not (si.get("writer_pins") and si.get("reader_pins"))]
+        unresolved = [
+            sn
+            for sn, si in signals.items()
+            if (si.get("writers", 0) > 0 and si.get("readers", 0) > 0)
+            and not (si.get("writer_pins") and si.get("reader_pins"))
+        ]
     else:
         # Old _hal — no counts available, fetch all unresolved signals
-        unresolved = [sn for sn, si in signals.items()
-                      if not (si.get("writer_pins") or si.get("reader_pins"))]
+        unresolved = [
+            sn
+            for sn, si in signals.items()
+            if not (si.get("writer_pins") or si.get("reader_pins"))
+        ]
 
     # Debug output
     n_total = len(signals)
-    n_connected = sum(1 for s in signals.values() if s.get("writers", 0) > 0 and s.get("readers", 0) > 0)
-    n_resolved = sum(1 for s in signals.values() if s.get("writer_pins") and s.get("reader_pins"))
-    print(f"[{debug_prefix}] {n_total} total, {n_connected} connected "
-          f"(counts={'available' if has_counts else 'MISSING-old_hal'}), "
-          f"{n_resolved} resolved, {len(unresolved)} unresolved", file=_sys.stderr)
+    n_connected = sum(
+        1
+        for s in signals.values()
+        if s.get("writers", 0) > 0 and s.get("readers", 0) > 0
+    )
+    n_resolved = sum(
+        1 for s in signals.values() if s.get("writer_pins") and s.get("reader_pins")
+    )
+    print(
+        f"[{debug_prefix}] {n_total} total, {n_connected} connected "
+        f"(counts={'available' if has_counts else 'MISSING-old_hal'}), "
+        f"{n_resolved} resolved, {len(unresolved)} unresolved",
+        file=_sys.stderr,
+    )
     if signals:
         sn = list(signals.keys())[0]
-        print(f"[{debug_prefix}] sample '{sn}': writers={signals[sn].get('writers')}, "
-              f"readers={signals[sn].get('readers')}, "
-              f"writer_pins={signals[sn].get('writer_pins')}, "
-              f"reader_pins={signals[sn].get('reader_pins')}", file=_sys.stderr)
+        print(
+            f"[{debug_prefix}] sample '{sn}': writers={signals[sn].get('writers')}, "
+            f"readers={signals[sn].get('readers')}, "
+            f"writer_pins={signals[sn].get('writer_pins')}, "
+            f"reader_pins={signals[sn].get('reader_pins')}",
+            file=_sys.stderr,
+        )
 
     try:
         halcmd = HalApi._find_halcmd()
@@ -1657,8 +1853,12 @@ def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
     results = {}
     for sig_name in unresolved:
         try:
-            res = subprocess.run([halcmd, "show", "sig", sig_name],
-                                 capture_output=True, text=True, timeout=5)
+            res = subprocess.run(
+                [halcmd, "show", "sig", sig_name],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
             if res.returncode == 0 and res.stdout.strip():
                 writers, readers = [], []
                 for line in res.stdout.split("\n"):
@@ -1674,10 +1874,16 @@ def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
                         if pin:
                             readers.append(pin)
                 results[sig_name] = {"writers": writers, "readers": readers}
-                print(f"[{debug_prefix}] {sig_name}: {len(writers)} writers, {len(readers)} readers", file=_sys.stderr)
+                print(
+                    f"[{debug_prefix}] {sig_name}: {len(writers)} writers, {len(readers)} readers",
+                    file=_sys.stderr,
+                )
             else:
-                print(f"[{debug_prefix}] {sig_name}: halcmd failed (rc={res.returncode}): "
-                      f"{res.stderr.strip()}", file=_sys.stderr)
+                print(
+                    f"[{debug_prefix}] {sig_name}: halcmd failed (rc={res.returncode}): "
+                    f"{res.stderr.strip()}",
+                    file=_sys.stderr,
+                )
         except subprocess.TimeoutExpired:
             print(f"[{debug_prefix}] {sig_name}: timed out", file=_sys.stderr)
         except Exception as e:
@@ -1691,7 +1897,9 @@ class _HalCmdWorker(QObject):
     """Background worker that runs halcmd show sig for each unresolved signal.
 
     Runs in a separate QThread so subprocess calls can block without freezing Qt's event loop.
-    Collects all results then emits 'finished_all' with the accumulated connection data."""
+    Collects all results then emits 'finished_all' with the accumulated connection data.
+    """
+
     finished_all = Signal(dict)  # {sig_name: {"writers": [...], "readers": [...]}}
 
     @Slot(dict)
@@ -1704,6 +1912,7 @@ class _HalCmdWorker(QObject):
 # ---------------------------------------------------------------------------
 # GRAPH tab widget — QGraphicsView with pan/zoom/context menus
 # ---------------------------------------------------------------------------
+
 
 class GraphWidget(QWidget):
     """QWidget containing the HAL graph visualization.
@@ -1723,8 +1932,12 @@ class GraphWidget(QWidget):
         self._layout_done = False
         self._components_data = None
         self._signals_data = None
-        self._drawn_edges = set()  # Track drawn edges to avoid duplicates during background fetch
-        self._signal_nodes = {}   # sig_name -> (SignalNodeItem, QPointF) for shared signal hub
+        self._drawn_edges = (
+            set()
+        )  # Track drawn edges to avoid duplicates during background fetch
+        self._signal_nodes = (
+            {}
+        )  # sig_name -> (SignalNodeItem, QPointF) for shared signal hub
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1820,24 +2033,40 @@ class GraphWidget(QWidget):
                 connected_comps.add(src_comp)
                 connected_comps.add(dst_comp)
 
-            connected_components = {name: data for name, data in components.items() if name in connected_comps}
+            connected_components = {
+                name: data
+                for name, data in components.items()
+                if name in connected_comps
+            }
 
             # Filter to only connected pins when hide-unused mode is enabled.
             if self.btn_hide_unused.isChecked():
                 _connected_pins = set()
                 for sig_info in signals.values():
-                    for pin in sig_info.get("writer_pins", []) + sig_info.get("reader_pins", []):
+                    for pin in sig_info.get("writer_pins", []) + sig_info.get(
+                        "reader_pins", []
+                    ):
                         _connected_pins.add(pin)
                 filtered = {}
                 for cn, cd in connected_components.items():
                     filtered[cn] = {
-                        "in_pins": [p for p in cd["in_pins"] if p.get("fullname") in _connected_pins],
-                        "out_pins": [p for p in cd["out_pins"] if p.get("fullname") in _connected_pins],
+                        "in_pins": [
+                            p
+                            for p in cd["in_pins"]
+                            if p.get("fullname") in _connected_pins
+                        ],
+                        "out_pins": [
+                            p
+                            for p in cd["out_pins"]
+                            if p.get("fullname") in _connected_pins
+                        ],
                         "pins": cd.get("pins", []),
                     }
                 connected_components = filtered
 
-            placements, signal_placements, edges, splines = GraphLayout.compute(connected_components, signals, pin_index=pin_index)
+            placements, signal_placements, edges, splines = GraphLayout.compute(
+                connected_components, signals, pin_index=pin_index
+            )
 
             # Clear scene
             self.scene.clear()
@@ -1847,8 +2076,7 @@ class GraphWidget(QWidget):
             for comp_name, pdata in connected_components.items():
                 pos = placements[comp_name]
                 item = ComponentItem(
-                    comp_name, pdata["in_pins"], pdata["out_pins"],
-                    pos["x"], pos["y"]
+                    comp_name, pdata["in_pins"], pdata["out_pins"], pos["x"], pos["y"]
                 )
                 item.setAcceptHoverEvents(True)
                 self.scene.addItem(item)
@@ -1875,22 +2103,38 @@ class GraphWidget(QWidget):
                 idx = _edge_indices.get(key, 0)
                 _edge_indices[key] = idx + 1
                 me_total = _multi_edge_counts[key]
-                ec = self._add_edge(sig_name, signals, src_comp, dst_comp,
-                                     me_total=me_total, me_index=idx, splines=splines)
+                ec = self._add_edge(
+                    sig_name,
+                    signals,
+                    src_comp,
+                    dst_comp,
+                    me_total=me_total,
+                    me_index=idx,
+                    splines=splines,
+                )
                 if ec:
                     edge_count += 1
 
             # Update stats label (show only connected components count)
             n_connected = len(connected_comps)
-            connected_sigs = sum(1 for s in signals.values() if s.get("writer_pins") and s.get("reader_pins"))
-            self.lbl_stats.setText(_("%d connected components, %d/%d signals, %d edges") % (n_connected, connected_sigs, len(signals), edge_count))
+            connected_sigs = sum(
+                1
+                for s in signals.values()
+                if s.get("writer_pins") and s.get("reader_pins")
+            )
+            self.lbl_stats.setText(
+                _("%d connected components, %d/%d signals, %d edges")
+                % (n_connected, connected_sigs, len(signals), edge_count)
+            )
 
             # If no connections resolved (old _hal without SIGNAL field), start background
             # fetching via QThread so subprocess calls don't block the UI.
             needs_fetch = not self._drawn_edges and len(signals) > 0
             if needs_fetch:
                 n_total = len(components)
-                self.lbl_stats.setText(_("%d components, resolving connections...") % n_total)
+                self.lbl_stats.setText(
+                    _("%d components, resolving connections...") % n_total
+                )
                 QTimer.singleShot(50, self._start_background_fetch)
 
             # If hide-unused was requested but data is incomplete, re-layout after fetch.
@@ -1905,11 +2149,23 @@ class GraphWidget(QWidget):
 
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             self.lbl_stats.setText(_("Error building graph: %s") % e)
-            QMessageBox.warning(self, _("Graph Error"), _("Failed to build HAL graph:\n%s") % e)
+            QMessageBox.warning(
+                self, _("Graph Error"), _("Failed to build HAL graph:\n%s") % e
+            )
 
-    def _add_edge(self, sig_name, signals, src_comp, dst_comp, me_total=1, me_index=0, splines=None):
+    def _add_edge(
+        self,
+        sig_name,
+        signals,
+        src_comp,
+        dst_comp,
+        me_total=1,
+        me_index=0,
+        splines=None,
+    ):
         """Add edges as two segments: writer_pin→signal and signal→reader_pin.
 
         me_total / me_index describe multi-edge relationships between the same
@@ -1940,9 +2196,13 @@ class GraphWidget(QWidget):
                 break
         if not writer_fullpath or not reader_fullpath:
             import sys as _sys
-            print(f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
-                  f"has no matching pin. writer_pins={sig_info.get('writer_pins',[])}, "
-                  f"reader_pins={sig_info.get('reader_pins',[])}", file=_sys.stderr)
+
+            print(
+                f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
+                f"has no matching pin. writer_pins={sig_info.get('writer_pins',[])}, "
+                f"reader_pins={sig_info.get('reader_pins',[])}",
+                file=_sys.stderr,
+            )
             return False
 
         # Find component items and signal node.
@@ -1956,8 +2216,12 @@ class GraphWidget(QWidget):
         # For self-loops (same component), dst_item is the same as src_item.
         if not src_item or not dst_item:
             import sys as _sys
-            print(f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
-                  f"component item missing.", file=_sys.stderr)
+
+            print(
+                f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
+                f"component item missing.",
+                file=_sys.stderr,
+            )
             return False
 
         if sig_name not in self._signal_nodes:
@@ -1973,8 +2237,9 @@ class GraphWidget(QWidget):
                 if pin.get("fullname") == full_path:
                     pad = GraphLayout.PIN_MARKER_PAD
                     if is_out:
-                        return QPointF(item.x() + item.rect().width() + pad,
-                                       item.y() + cy)
+                        return QPointF(
+                            item.x() + item.rect().width() + pad, item.y() + cy
+                        )
                     else:
                         return QPointF(item.x() - pad, item.y() + cy)
                 py += GraphLayout.PIN_ROW_H
@@ -1984,9 +2249,13 @@ class GraphWidget(QWidget):
         reader_marker = _pin_marker_pos(dst_item, reader_fullpath, is_out=False)
         if not writer_marker or not reader_marker:
             import sys as _sys
-            print(f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
-                  f"pin marker not found. writer={writer_fullpath}({bool(writer_marker)}), "
-                  f"reader={reader_fullpath}({bool(reader_marker)})", file=_sys.stderr)
+
+            print(
+                f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
+                f"pin marker not found. writer={writer_fullpath}({bool(writer_marker)}), "
+                f"reader={reader_fullpath}({bool(reader_marker)})",
+                file=_sys.stderr,
+            )
             return False
 
         # Diamond perimeter intersection: where a ray from (tx,ty) hits the diamond.
@@ -2000,11 +2269,23 @@ class GraphWidget(QWidget):
             return QPointF(cx + dx / denom, cy + dy / denom)
 
         # Entry point on diamond from writer pin (incoming edge).
-        sig_entry = _diamond_perimeter(sig_center.x(), sig_center.y(),
-                                       sig_hw, sig_hh, writer_marker.x(), writer_marker.y())
+        sig_entry = _diamond_perimeter(
+            sig_center.x(),
+            sig_center.y(),
+            sig_hw,
+            sig_hh,
+            writer_marker.x(),
+            writer_marker.y(),
+        )
         # Exit point on diamond toward reader pin (outgoing edge).
-        sig_exit = _diamond_perimeter(sig_center.x(), sig_center.y(),
-                                      sig_hw, sig_hh, reader_marker.x(), reader_marker.y())
+        sig_exit = _diamond_perimeter(
+            sig_center.x(),
+            sig_center.y(),
+            sig_hw,
+            sig_hh,
+            reader_marker.x(),
+            reader_marker.y(),
+        )
 
         BG_COLOR = QColor(245, 245, 240)
         FG_COLOR = QColor(60, 60, 180)
@@ -2015,15 +2296,27 @@ class GraphWidget(QWidget):
             angle = math.atan2(tip_pos.y() - from_pos.y(), tip_pos.x() - from_pos.x())
             p = QPainterPath()
             p.moveTo(tip_pos)
-            p.lineTo(tip_pos.x() - size * math.cos(angle - 0.45),
-                     tip_pos.y() - size * math.sin(angle - 0.45))
-            p.lineTo(tip_pos.x() - size * math.cos(angle + 0.45),
-                     tip_pos.y() - size * math.sin(angle + 0.45))
+            p.lineTo(
+                tip_pos.x() - size * math.cos(angle - 0.45),
+                tip_pos.y() - size * math.sin(angle - 0.45),
+            )
+            p.lineTo(
+                tip_pos.x() - size * math.cos(angle + 0.45),
+                tip_pos.y() - size * math.sin(angle + 0.45),
+            )
             p.closeSubpath()
             return p
 
-        def _add_segment(from_marker, to_perimeter, arrow_tip, arrow_from,
-                         me_total=1, me_index=0, direction='wr', spline=None):
+        def _add_segment(
+            from_marker,
+            to_perimeter,
+            arrow_tip,
+            arrow_from,
+            me_total=1,
+            me_index=0,
+            direction="wr",
+            spline=None,
+        ):
             """Add one segment using dot's native edge spline or fallback bezier.
 
             When `spline` is provided (list of (x,y) waypoints from dot), the
@@ -2052,13 +2345,13 @@ class GraphWidget(QWidget):
                     smooth_r = 20.0
 
                     def _dist(a, b):
-                        return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+                        return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
                     path.moveTo(pts[0][0], pts[0][1])
                     for i in range(1, len(pts) - 1):
-                        prev_pt = pts[i-1]
+                        prev_pt = pts[i - 1]
                         curr_pt = pts[i]
-                        next_pt = pts[i+1]
+                        next_pt = pts[i + 1]
                         d_in = _dist(prev_pt, curr_pt)
                         d_out = _dist(curr_pt, next_pt)
 
@@ -2070,8 +2363,12 @@ class GraphWidget(QWidget):
                         r = min(smooth_r, d_in / 3, d_out / 3)
                         # t_in: point at distance r before curr along incoming segment.
                         frac_in = r / d_in
-                        t_in_x = prev_pt[0] + (curr_pt[0] - prev_pt[0]) * (1.0 - frac_in)
-                        t_in_y = prev_pt[1] + (curr_pt[1] - prev_pt[1]) * (1.0 - frac_in)
+                        t_in_x = prev_pt[0] + (curr_pt[0] - prev_pt[0]) * (
+                            1.0 - frac_in
+                        )
+                        t_in_y = prev_pt[1] + (curr_pt[1] - prev_pt[1]) * (
+                            1.0 - frac_in
+                        )
                         # t_out: point at distance r after curr along outgoing segment.
                         frac_out = r / d_out
                         t_out_x = curr_pt[0] + (next_pt[0] - curr_pt[0]) * frac_out
@@ -2115,8 +2412,9 @@ class GraphWidget(QWidget):
 
                     path = QPainterPath()
                     path.moveTo(from_marker)
-                    path.cubicTo(cp1x, cp1y, cp2x, cp2y,
-                                 to_perimeter.x(), to_perimeter.y())
+                    path.cubicTo(
+                        cp1x, cp1y, cp2x, cp2y, to_perimeter.x(), to_perimeter.y()
+                    )
 
                     tan_dx = 3 * (to_perimeter.x() - cp2x)
                     tan_dy = 3 * (to_perimeter.y() - cp2y)
@@ -2142,10 +2440,14 @@ class GraphWidget(QWidget):
             ah_path = QPainterPath()
             ah_size = 7
             ah_path.moveTo(arrow_tip)
-            ah_path.lineTo(arrow_tip.x() - ah_size * math.cos(ah_angle - 0.45),
-                           arrow_tip.y() - ah_size * math.sin(ah_angle - 0.45))
-            ah_path.lineTo(arrow_tip.x() - ah_size * math.cos(ah_angle + 0.45),
-                           arrow_tip.y() - ah_size * math.sin(ah_angle + 0.45))
+            ah_path.lineTo(
+                arrow_tip.x() - ah_size * math.cos(ah_angle - 0.45),
+                arrow_tip.y() - ah_size * math.sin(ah_angle - 0.45),
+            )
+            ah_path.lineTo(
+                arrow_tip.x() - ah_size * math.cos(ah_angle + 0.45),
+                arrow_tip.y() - ah_size * math.sin(ah_angle + 0.45),
+            )
             ah_path.closeSubpath()
 
             ah = QGraphicsPathItem(ah_path)
@@ -2173,16 +2475,32 @@ class GraphWidget(QWidget):
 
         # Segment 1: writer pin → signal diamond (arrow at diamond edge)
         spline_wr = splines.get((src_comp, sig_name))
-        seg1 = _add_segment(writer_marker, sig_entry, arrow_tip=sig_entry, arrow_from=writer_marker,
-                             me_total=me_total, me_index=me_index, direction='wr', spline=spline_wr)
+        seg1 = _add_segment(
+            writer_marker,
+            sig_entry,
+            arrow_tip=sig_entry,
+            arrow_from=writer_marker,
+            me_total=me_total,
+            me_index=me_index,
+            direction="wr",
+            spline=spline_wr,
+        )
         for fg_item, ah in [(seg1[1], seg1[2])]:
             fg_item.setAcceptHoverEvents(True)
             ah.setAcceptHoverEvents(True)
 
         # Segment 2: signal diamond → reader pin (arrow at reader pin marker)
         spline_rs = splines.get((sig_name, dst_comp))
-        seg2 = _add_segment(sig_exit, reader_marker, arrow_tip=reader_marker, arrow_from=sig_exit,
-                             me_total=me_total, me_index=me_index, direction='rs', spline=spline_rs)
+        seg2 = _add_segment(
+            sig_exit,
+            reader_marker,
+            arrow_tip=reader_marker,
+            arrow_from=sig_exit,
+            me_total=me_total,
+            me_index=me_index,
+            direction="rs",
+            spline=spline_rs,
+        )
         for fg_item, ah in [(seg2[1], seg2[2])]:
             fg_item.setAcceptHoverEvents(True)
             ah.setAcceptHoverEvents(True)
@@ -2199,10 +2517,11 @@ class GraphWidget(QWidget):
     def _start_background_fetch(self):
         """Start a background QThread to fetch signal connections via halcmd.
 
-        Stores thread and worker as instance attributes so they stay alive until completion."""
-        if getattr(self, '_fetching', False):
+        Stores thread and worker as instance attributes so they stay alive until completion.
+        """
+        if getattr(self, "_fetching", False):
             # Abort old fetch if one is running
-            if hasattr(self, '_halcmd_thread') and self._halcmd_thread.isRunning():
+            if hasattr(self, "_halcmd_thread") and self._halcmd_thread.isRunning():
                 self._halcmd_thread.quit()
                 self._halcmd_thread.wait()
             return  # Already fetching
@@ -2213,7 +2532,9 @@ class GraphWidget(QWidget):
         self._halcmd_worker = _HalCmdWorker()
         self._halcmd_worker.moveToThread(self._halcmd_thread)
         self._halcmd_worker.finished_all.connect(self._on_fetch_finished)
-        self._halcmd_thread.started.connect(lambda: self._halcmd_worker.fetch(signals_copy))
+        self._halcmd_thread.started.connect(
+            lambda: self._halcmd_worker.fetch(signals_copy)
+        )
         self._halcmd_thread.start()
 
     @Slot(dict)
@@ -2230,14 +2551,17 @@ class GraphWidget(QWidget):
                     self._signals_data[sig_name]["reader_pins"] = conn["readers"]
                     n_merged += 1
 
-        print(f"[halshow] Merged {n_merged} signals with both writers+readers", file=_sys.stderr)
+        print(
+            f"[halshow] Merged {n_merged} signals with both writers+readers",
+            file=_sys.stderr,
+        )
 
         # Rebuild entire scene with resolved connections
         self.scene.clear()
         self._drawn_edges = set()
         self._signal_nodes = {}
 
-       # Build edge list from signals data (no dot layout needed).
+        # Build edge list from signals data (no dot layout needed).
         edges = GraphLayout._build_edges(self._signals_data, pin_index=self._pin_index)
 
         # Filter to only connected components before layouting.
@@ -2246,31 +2570,47 @@ class GraphWidget(QWidget):
             connected_comps.add(src_comp)
             connected_comps.add(dst_comp)
 
-        connected_components = {name: data for name, data in self._components_data.items() if name in connected_comps}
+        connected_components = {
+            name: data
+            for name, data in self._components_data.items()
+            if name in connected_comps
+        }
 
         # Filter to only connected pins when hide-unused mode is enabled.
-        if hasattr(self, 'btn_hide_unused') and self.btn_hide_unused.isChecked():
+        if hasattr(self, "btn_hide_unused") and self.btn_hide_unused.isChecked():
             _connected_pins = set()
             for sig_info in self._signals_data.values():
-                for pin in sig_info.get("writer_pins", []) + sig_info.get("reader_pins", []):
+                for pin in sig_info.get("writer_pins", []) + sig_info.get(
+                    "reader_pins", []
+                ):
                     _connected_pins.add(pin)
             filtered = {}
             for cn, cd in connected_components.items():
                 filtered[cn] = {
-                    "in_pins": [p for p in cd["in_pins"] if p.get("fullname") in _connected_pins],
-                    "out_pins": [p for p in cd["out_pins"] if p.get("fullname") in _connected_pins],
+                    "in_pins": [
+                        p for p in cd["in_pins"] if p.get("fullname") in _connected_pins
+                    ],
+                    "out_pins": [
+                        p
+                        for p in cd["out_pins"]
+                        if p.get("fullname") in _connected_pins
+                    ],
                     "pins": cd.get("pins", []),
                 }
             connected_components = filtered
 
-        placements, signal_placements, edges, splines = GraphLayout.compute(connected_components, self._signals_data, pin_index=self._pin_index)
-        print(f"[halshow] Layout: {len(placements)} components ({len(self._components_data)-len(placements)} filtered), {len(edges)} layout-edges", file=_sys.stderr)
+        placements, signal_placements, edges, splines = GraphLayout.compute(
+            connected_components, self._signals_data, pin_index=self._pin_index
+        )
+        print(
+            f"[halshow] Layout: {len(placements)} components ({len(self._components_data)-len(placements)} filtered), {len(edges)} layout-edges",
+            file=_sys.stderr,
+        )
 
         for comp_name, pdata in connected_components.items():
             pos = placements[comp_name]
             item = ComponentItem(
-                comp_name, pdata["in_pins"], pdata["out_pins"],
-                pos["x"], pos["y"]
+                comp_name, pdata["in_pins"], pdata["out_pins"], pos["x"], pos["y"]
             )
             item.setAcceptHoverEvents(True)
             self.scene.addItem(item)
@@ -2295,34 +2635,49 @@ class GraphWidget(QWidget):
             idx = _edge_indices.get(key, 0)
             _edge_indices[key] = idx + 1
             me_total = _multi_edge_counts[key]
-            if self._add_edge(sig_name, self._signals_data, src_comp, dst_comp,
-                               me_total=me_total, me_index=idx, splines=splines):
+            if self._add_edge(
+                sig_name,
+                self._signals_data,
+                src_comp,
+                dst_comp,
+                me_total=me_total,
+                me_index=idx,
+                splines=splines,
+            ):
                 edge_count += 1
 
         self._update_graph_stats()
-        self.lbl_stats.setText(_("Connection resolution complete — %d edges") % edge_count)
+        self.lbl_stats.setText(
+            _("Connection resolution complete — %d edges") % edge_count
+        )
         self._fetching = False  # Allow next fetch
 
         # Clean up thread and worker to prevent stale references
-        if hasattr(self, '_halcmd_thread') and self._halcmd_thread.isRunning():
+        if hasattr(self, "_halcmd_thread") and self._halcmd_thread.isRunning():
             self._halcmd_thread.quit()
             self._halcmd_thread.wait()
-            delattr(self, '_halcmd_worker')
-            delattr(self, '_halcmd_thread')
+            delattr(self, "_halcmd_worker")
+            delattr(self, "_halcmd_thread")
 
     def _update_graph_stats(self):
         """Update the stats label with current edge count."""
         n_components = len(self._components_data or {})
         n_signals = len(self._signals_data or {})
-        connected_sigs = sum(1 for s in (self._signals_data or {}).values()
-                            if s.get("writer_pins") and s.get("reader_pins"))
+        connected_sigs = sum(
+            1
+            for s in (self._signals_data or {}).values()
+            if s.get("writer_pins") and s.get("reader_pins")
+        )
         edge_count = len(self._drawn_edges)
-        self.lbl_stats.setText(_("%d total, %d/%d connected signals, %d edges") % (n_components, connected_sigs, n_signals, edge_count))
+        self.lbl_stats.setText(
+            _("%d total, %d/%d connected signals, %d edges")
+            % (n_components, connected_sigs, n_signals, edge_count)
+        )
 
     def _reload_graph(self):
         """Rebuild the graph from scratch (after unlink/link operations)."""
         HalApi._invalidate_cache()
-        if hasattr(self, '_halcmd_thread') and self._halcmd_thread.isRunning():
+        if hasattr(self, "_halcmd_thread") and self._halcmd_thread.isRunning():
             self._halcmd_thread.quit()
             self._halcmd_thread.wait()
             self._fetching = False
@@ -2367,7 +2722,7 @@ class GraphWidget(QWidget):
 
         if isinstance(item, ComponentItem):
             self._component_context_menu(menu, item, pos)
-        elif hasattr(item, 'sig_name'):   # edge items carry sig_name attribute
+        elif hasattr(item, "sig_name"):  # edge items carry sig_name attribute
             self._edge_context_menu(menu, item, pos)
 
         if menu.actions():
@@ -2384,8 +2739,10 @@ class GraphWidget(QWidget):
         menu.addSeparator()
 
         for pin in item.in_pins + item.out_pins:
-            act = QAction(_("%s (watch)") % pin['name'], self)
-            act.triggered.connect(lambda _, p=pin: self.add_to_watch.emit("pin", p["fullname"]))
+            act = QAction(_("%s (watch)") % pin["name"], self)
+            act.triggered.connect(
+                lambda _, p=pin: self.add_to_watch.emit("pin", p["fullname"])
+            )
             menu.addAction(act)
 
         if menu.actions():
@@ -2395,7 +2752,7 @@ class GraphWidget(QWidget):
         """Context menu for a signal edge."""
         sig_name = item.sig_name
 
-        watch_sig = QAction(_("Signal \"%s\" (watch)") % sig_name, self)
+        watch_sig = QAction(_('Signal "%s" (watch)') % sig_name, self)
         watch_sig.triggered.connect(lambda: self.add_to_watch.emit("sig", sig_name))
         menu.addAction(watch_sig)
 
@@ -2403,30 +2760,38 @@ class GraphWidget(QWidget):
         """Add all pins of a component to the watch list."""
         if not self._components_data or comp_name not in self._components_data:
             return
-        for pin in self._components_data[comp_name]["in_pins"] + self._components_data[comp_name]["out_pins"]:
+        for pin in (
+            self._components_data[comp_name]["in_pins"]
+            + self._components_data[comp_name]["out_pins"]
+        ):
             self.add_to_watch.emit("pin", pin["fullname"])
 
     def _delete_link(self, pin_name, sig_name):
         """Delete a HAL link by unlinking the pin."""
         try:
             ret = subprocess.run(
-                ["halcmd", "unlinkp", pin_name],
-                capture_output=True, text=True
+                ["halcmd", "unlinkp", pin_name], capture_output=True, text=True
             )
             if ret.returncode != 0:
-                QMessageBox.warning(self, _("Error"),
-                    _("Failed to delete link:\n%s") % (ret.stderr.strip() or _("Unknown error")))
+                QMessageBox.warning(
+                    self,
+                    _("Error"),
+                    _("Failed to delete link:\n%s")
+                    % (ret.stderr.strip() or _("Unknown error")),
+                )
                 return
             # Refresh the graph and main window data
             self.refresh_graph.emit()
         except Exception as e:
-            QMessageBox.warning(self, _("Error"),
-                _("Failed to delete link:\n%s") % str(e))
+            QMessageBox.warning(
+                self, _("Error"), _("Failed to delete link:\n%s") % str(e)
+            )
 
 
 # ---------------------------------------------------------------------------
 # Main Application Window
 # ---------------------------------------------------------------------------
+
 
 class HalshowMain(QMainWindow):
     def __init__(self, prefs, cli_ffmt=None, cli_ifmt=None):
@@ -2438,12 +2803,13 @@ class HalshowMain(QMainWindow):
         # Set window icon (embedded base64 PNG)
         from qtpy.QtGui import QPixmap
         import base64 as _base64
+
         pixmap = QPixmap()
         if pixmap.loadFromData(_base64.b64decode(_APPLICATION_ICON_B64)):
             self.setWindowIcon(QIcon(pixmap))
 
         # State
-        self.watch_rows = {}   # "type+name" -> WatchRow
+        self.watch_rows = {}  # "type+name" -> WatchRow
         self.command_history = []
         self.history_index = 0
         self.fe_active = False
@@ -2463,7 +2829,7 @@ class HalshowMain(QMainWindow):
 
     def showEvent(self, event):
         super().showEvent(event)
-        if not getattr(self, '_splitter_shown', False):
+        if not getattr(self, "_splitter_shown", False):
             sizes = self.splitter.sizes()
             total = sizes[0] + sizes[1]
             if total > 0:
@@ -2473,7 +2839,7 @@ class HalshowMain(QMainWindow):
 
     def focusOutEvent(self, event):
         """Auto-save preferences when window loses focus (matches Tcl behavior)."""
-        if hasattr(self, '_use_prefs') and self._use_prefs:
+        if hasattr(self, "_use_prefs") and self._use_prefs:
             try:
                 self.prefs.save()
             except Exception:
@@ -2483,8 +2849,9 @@ class HalshowMain(QMainWindow):
     def _parse_hal_names(self, text):
         """Extract HAL pin/param/sig names from halcmd-style output text."""
         import re as _re
+
         # Match dotted HAL names (e.g., axis.0.stepgen.position-command)
-        return _re.findall(r'\b([a-zA-Z_][\w.]*(?:\.\w+)*)\b', text)
+        return _re.findall(r"\b([a-zA-Z_][\w.]*(?:\.\w+)*)\b", text)
 
     def keyPressEvent(self, event):
         """Handle Up/Down arrow keys in command entry for history navigation."""
@@ -2563,7 +2930,9 @@ class HalshowMain(QMainWindow):
         cmd_layout.setContentsMargins(5, 3, 5, 3)
         cmd_layout.addWidget(QLabel(_("HAL command :")))
         self.cmd_entry = QLineEdit()
-        self.cmd_entry.returnPressed.connect(lambda: self._execute_cmd(self.cmd_entry.text()))
+        self.cmd_entry.returnPressed.connect(
+            lambda: self._execute_cmd(self.cmd_entry.text())
+        )
         cmd_layout.addWidget(self.cmd_entry, 1)
         exec_btn = QPushButton(_("Execute"))
         exec_btn.clicked.connect(lambda: self._execute_cmd(self.cmd_entry.text()))
@@ -2575,7 +2944,9 @@ class HalshowMain(QMainWindow):
         self.status_text = QTextBrowser()
         self.status_text.setMaximumHeight(24)
         self.status_text.setStyleSheet("border-width: 1px; border-style: solid;")
-        self.status_text.setHtml(f"<i>{_("Commands may be tested here but they will NOT be saved")}</i>")
+        self.status_text.setHtml(
+            f'<i>{_("Commands may be tested here but they will NOT be saved")}</i>'
+        )
         main_layout.addWidget(self.status_text, 0)
 
     def _build_left_pane(self):
@@ -2614,7 +2985,9 @@ class HalshowMain(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         self.show_browser = QTextBrowser()
         self.show_browser.setFont(QFont("monospace"))
-        self.show_browser.setWordWrapMode(QTextOption.NoWrap)  # Keep monospace alignment intact
+        self.show_browser.setWordWrapMode(
+            QTextOption.NoWrap
+        )  # Keep monospace alignment intact
         self.show_browser.setOpenExternalLinks(True)
         self.show_browser.setContextMenuPolicy(Qt.CustomContextMenu)
         self.show_browser.customContextMenuRequested.connect(self._show_context_menu)
@@ -2636,7 +3009,9 @@ class HalshowMain(QMainWindow):
         self.watch_scroll.setWidget(self.watch_scroll_widget)
         # Context menu on empty area of watch tab (not individual rows)
         self.watch_scroll_widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.watch_scroll_widget.customContextMenuRequested.connect(self._watch_bg_context_menu)
+        self.watch_scroll_widget.customContextMenuRequested.connect(
+            self._watch_bg_context_menu
+        )
         outer.addWidget(self.watch_scroll)
 
         # Placeholder message
@@ -2674,7 +3049,9 @@ class HalshowMain(QMainWindow):
             return row
 
         # Update interval
-        row, self.entry_interval = add_text_row(_("Update interval for this session (ms)"), "watchInterval")
+        row, self.entry_interval = add_text_row(
+            _("Update interval for this session (ms)"), "watchInterval"
+        )
         layout.addLayout(row)
 
         # Format overrides
@@ -2686,7 +3063,14 @@ class HalshowMain(QMainWindow):
 
         # Boolean settings
         for label, key in [
-            ((_("Always on top\n(Note: May not work with all desktop environments)")), "alwaysOnTop"),
+            (
+                (
+                    _(
+                        "Always on top\n(Note: May not work with all desktop environments)"
+                    )
+                ),
+                "alwaysOnTop",
+            ),
             (_("Remember watchlist"), "autoSaveWatchlist"),
             (_("Separate parameters from pins in tree"), "separateParams"),
         ]:
@@ -2697,9 +3081,11 @@ class HalshowMain(QMainWindow):
         label_text = _("(Settings stored in: ") + str(self.prefs.path) + ")"
         self._info_label = QLabel(label_text)
         self._info_label.setContentsMargins(0, 10, 0, 4)
-        if not getattr(self, '_use_prefs', True):
+        if not getattr(self, "_use_prefs", True):
             self._info_label.setStyleSheet("color: red;")
-            self._info_label.setText(_('"--noprefs" option set. Settings will not be saved!'))
+            self._info_label.setText(
+                _('"--noprefs" option set. Settings will not be saved!')
+            )
         bottom_row.addWidget(self._info_label, 1)
 
         apply_btn = QPushButton(_("Apply"))
@@ -2721,11 +3107,15 @@ class HalshowMain(QMainWindow):
         file_menu.addAction(load_wl_act)
 
         self.save_wl_act = QAction(_("Save Watch List"), self)
-        self.save_wl_act.triggered.connect(lambda: self._save_watchlist_file(fmt="oneline"))
+        self.save_wl_act.triggered.connect(
+            lambda: self._save_watchlist_file(fmt="oneline")
+        )
         file_menu.addAction(self.save_wl_act)
 
         self.save_ml_act = QAction(_("Save Watch List (multiline)"), self)
-        self.save_ml_act.triggered.connect(lambda: self._save_watchlist_file(fmt="multiline"))
+        self.save_ml_act.triggered.connect(
+            lambda: self._save_watchlist_file(fmt="multiline")
+        )
         file_menu.addAction(self.save_ml_act)
 
         self._update_save_actions()  # Initial state
@@ -2750,8 +3140,11 @@ class HalshowMain(QMainWindow):
 
         tree_menu.addSeparator()
 
-        for label, node_name in [((_("Expand Pins"), "pin")), ((_("Expand Parameters"), "param")),
-                                ((_("Expand Signals"), "sig"))]:
+        for label, node_name in [
+            ((_("Expand Pins"), "pin")),
+            ((_("Expand Parameters"), "param")),
+            ((_("Expand Signals"), "sig")),
+        ]:
             act = QAction(label, self)
             act.triggered.connect(lambda _, n=node_name: self._tree_expand_type(n))
             tree_menu.addAction(act)
@@ -2765,7 +3158,11 @@ class HalshowMain(QMainWindow):
         # Watch menu
         watch_menu = menubar.addMenu(_("&Watch"))
 
-        for vtype, label in [(("pin", _("Add pin"))), (("sig", _("Add signal"))), (("param", _("Add parameter")))]:
+        for vtype, label in [
+            (("pin", _("Add pin"))),
+            (("sig", _("Add signal"))),
+            (("param", _("Add parameter"))),
+        ]:
             act = QAction(label, self)
             act.triggered.connect(lambda _, t=vtype: self._manual_add_watch(t))
             watch_menu.addAction(act)
@@ -2781,7 +3178,12 @@ class HalshowMain(QMainWindow):
         watch_menu.addAction(reload_w)
 
         erase_w = QAction(_("Erase Watch"), self)
-        erase_w.triggered.connect(lambda: (self._clear_watch(), self.status_text.setHtml(_("Watchlist cleared"))))
+        erase_w.triggered.connect(
+            lambda: (
+                self._clear_watch(),
+                self.status_text.setHtml(_("Watchlist cleared")),
+            )
+        )
         watch_menu.addAction(erase_w)
 
     # ------------------------------------------------------------------
@@ -2821,8 +3223,14 @@ class HalshowMain(QMainWindow):
             except re.error:
                 pass
 
-        top_names = [_("Components"), _("Pins") if separate else _("Pins & Parameters"),
-                    _("Parameters"), _("Signals"), _("Functions"), _("Threads")]
+        top_names = [
+            _("Components"),
+            _("Pins") if separate else _("Pins & Parameters"),
+            _("Parameters"),
+            _("Signals"),
+            _("Functions"),
+            _("Threads"),
+        ]
         search_names = ["comp", "pin", "param", "sig", "funct", "thread"]
 
         for i, sname in enumerate(search_names):
@@ -2840,7 +3248,9 @@ class HalshowMain(QMainWindow):
                 if not separate and sname == "pin":
                     # Also add params under the merged node
                     param_items = HalApi.list("param").split("\n")
-                    pairs = [(p, "pin") for p in items if p] + [(p, "param") for p in param_items if p]
+                    pairs = [(p, "pin") for p in items if p] + [
+                        (p, "param") for p in param_items if p
+                    ]
                     pairs.sort(key=lambda x: x[0])
                 else:
                     pairs = [(p, sname) for p in items if p]
@@ -2885,8 +3295,8 @@ class HalshowMain(QMainWindow):
         e.g. axis.0.stepgen.position-cmd → axis → 0 → stepgen → position-cmd (leaf)
         prefix tracks accumulated path so leaves store their full name.
         """
-        children = {}   # first_part -> [(remaining_path, leaftype), ...]
-        leaves = []     # [(full_name, leaftype)]
+        children = {}  # first_part -> [(remaining_path, leaftype), ...]
+        leaves = []  # [(full_name, leaftype)]
 
         for full_name, leaftype in pairs:
             parts = full_name.split(".")
@@ -2911,7 +3321,9 @@ class HalshowMain(QMainWindow):
 
         # Then add leaves — show only leaf name at deepest level (Tcl match)
         for full_name, leaftype in sorted(leaves, key=lambda x: x[0]):
-            actual_name = f"{prefix}{full_name}" if prefix else full_name  # full path for data
+            actual_name = (
+                f"{prefix}{full_name}" if prefix else full_name
+            )  # full path for data
             leaf = QTreeWidgetItem(parent, [full_name])  # display only leaf segment
             leaf.setData(0, Qt.UserRole, f"{leaftype}+{actual_name}")
 
@@ -2980,15 +3392,18 @@ class HalshowMain(QMainWindow):
 
         copy_act = QAction(_("Copy"), self)
         copy_act.setEnabled(has_selection)
-        copy_act.triggered.connect(lambda: QApplication.clipboard().setText(
-            self.show_browser.selectedText()))
+        copy_act.triggered.connect(
+            lambda: QApplication.clipboard().setText(self.show_browser.selectedText())
+        )
         menu.addAction(copy_act)
 
         if has_selection:
             menu.addSeparator()
-            for vtype, label in [("pin", _("Add as Pin(s)")),
-                                ("sig", _("Add as Signal(s)")),
-                                ("param", _("Add as Param(s)"))]:
+            for vtype, label in [
+                ("pin", _("Add as Pin(s)")),
+                ("sig", _("Add as Signal(s)")),
+                ("param", _("Add as Param(s)")),
+            ]:
                 act = QAction(label, self)
                 act.triggered.connect(lambda vt=vtype: self._add_from_selection(vt))
                 menu.addAction(act)
@@ -3012,7 +3427,9 @@ class HalshowMain(QMainWindow):
         menu = QMenu(self)
 
         paste_act = QAction(_("Add from clipboard"), self)
-        paste_act.triggered.connect(lambda: self._add_from_text(QApplication.clipboard().text()))
+        paste_act.triggered.connect(
+            lambda: self._add_from_text(QApplication.clipboard().text())
+        )
         menu.addAction(paste_act)
 
         add_txt_act = QAction(_("Add from HAL text"), self)
@@ -3020,8 +3437,12 @@ class HalshowMain(QMainWindow):
         menu.addAction(add_txt_act)
 
         erase_act = QAction(_("Erase Watch"), self)
-        erase_act.triggered.connect(lambda: (self._clear_watch(),
-                                            self.status_text.setHtml(_("Watchlist cleared"))))
+        erase_act.triggered.connect(
+            lambda: (
+                self._clear_watch(),
+                self.status_text.setHtml(_("Watchlist cleared")),
+            )
+        )
         menu.addAction(erase_act)
 
         menu.exec_(global_pos)
@@ -3105,11 +3526,16 @@ class HalshowMain(QMainWindow):
             return ""
 
         if key in self.watch_rows:
-            self.status_text.setHtml(f"'{vname}' {_("already in list")}")
+            self.status_text.setHtml(f'"{vname}" {_("already in list")}')
             return ""
 
         if vtype not in ("pin", "param", "sig"):
-            msg = _("Cannot watch type '%s' — only pins, params, and signals can be watched") % vtype
+            msg = (
+                _(
+                    "Cannot watch type '%s' — only pins, params, and signals can be watched"
+                )
+                % vtype
+            )
             self.status_text.setHtml(msg)
             return  # Cannot watch components, functions, or threads
 
@@ -3153,13 +3579,12 @@ class HalshowMain(QMainWindow):
         self.prefs.watchlist.append(key)
         self._update_save_actions()
 
-        if not hasattr(self, '_watch_timer') or not self._watch_timer.isActive():
+        if not hasattr(self, "_watch_timer") or not self._watch_timer.isActive():
             self._start_watch_loop()
-
 
         # Switch to WATCH tab so user sees the new item
         self.tab_widget.setCurrentIndex(1)
-        self.status_text.setHtml(f"'{vname}' {_("added")}")
+        self.status_text.setHtml(f'"{vname}" {_("added")}')
         return ""
 
     def _remove_watch(self, key):
@@ -3179,7 +3604,7 @@ class HalshowMain(QMainWindow):
             row = self.watch_rows.pop(key)
             row.setParent(None)
             row.deleteLater()
-        if hasattr(self, '_watch_timer') and self._watch_timer.isActive():
+        if hasattr(self, "_watch_timer") and self._watch_timer.isActive():
             self._watch_timer.stop()
         self.prefs.watchlist.clear()
         self._update_save_actions()
@@ -3189,17 +3614,25 @@ class HalshowMain(QMainWindow):
         """Find item in tree, expand parents, select it, switch to SHOW tab."""
         target = f"{vtype}+{name}"
         found_item = None
-        top_items = [self.tree.topLevelItem(i) for i in range(self.tree.topLevelItemCount())]
+        top_items = [
+            self.tree.topLevelItem(i) for i in range(self.tree.topLevelItemCount())
+        ]
+
         def _search(item):
             nonlocal found_item
             if found_item:
                 return
-            role_data = item.data(0, Qt.UserRole).toString() if hasattr(item.data(0, Qt.UserRole), 'toString') else str(item.data(0, Qt.UserRole))
+            role_data = (
+                item.data(0, Qt.UserRole).toString()
+                if hasattr(item.data(0, Qt.UserRole), "toString")
+                else str(item.data(0, Qt.UserRole))
+            )
             if role_data == target:
                 found_item = item
                 return
             for i in range(item.childCount()):
                 _search(item.child(i))
+
         for top in top_items:
             _search(top)
             if found_item:
@@ -3225,8 +3658,8 @@ class HalshowMain(QMainWindow):
                 self._add_to_watch(parts[0], parts[1])
 
     def _start_watch_loop(self):
-        interval = int(getattr(self.prefs, 'watchInterval', 100))
-        if not hasattr(self, '_watch_timer'):
+        interval = int(getattr(self.prefs, "watchInterval", 100))
+        if not hasattr(self, "_watch_timer"):
             self._watch_timer = QTimer(self)
             self._watch_timer.timeout.connect(self._watch_tick)
         self._watch_timer.start(interval)
@@ -3239,7 +3672,9 @@ class HalshowMain(QMainWindow):
 
     def _manual_add_watch(self, vtype):
         label_map = {"pin": _("Pin"), "sig": _("Signal"), "param": _("Parameter")}
-        name, ok = QInputDialog.getText(None, _("Add to watch"), _("%s name:") % label_map.get(vtype, vtype))
+        name, ok = QInputDialog.getText(
+            None, _("Add to watch"), _("%s name:") % label_map.get(vtype, vtype)
+        )
         if ok and name:
             self._add_to_watch(vtype, name)
 
@@ -3299,7 +3734,7 @@ class HalshowMain(QMainWindow):
             self.setWindowFlags(current_flags & ~_WIN_STAYS_ON_TOP)
             self.show()
 
-        if hasattr(self, '_watch_timer') and self._watch_timer.isActive():
+        if hasattr(self, "_watch_timer") and self._watch_timer.isActive():
             self._watch_timer.stop()
             self._start_watch_loop()
 
@@ -3312,8 +3747,10 @@ class HalshowMain(QMainWindow):
 
     def _load_watchlist_file(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, _("Load a watch list"), self._last_file_dir or os.path.expanduser("~"),
-            "HALSHOW (*.halshow);;Text Files (*.txt);;All Files (*)"
+            self,
+            _("Load a watch list"),
+            self._last_file_dir or os.path.expanduser("~"),
+            "HALSHOW (*.halshow);;Text Files (*.txt);;All Files (*)",
         )
         if not path:
             return
@@ -3342,18 +3779,25 @@ class HalshowMain(QMainWindow):
                     self._add_to_watch(parts[0], parts[1])
 
             fname = Path(path).name
-            self.status_text.setHtml(_("%s loaded, saved backup for old watchlist in %s") % (fname, backup_path))
+            self.status_text.setHtml(
+                _("%s loaded, saved backup for old watchlist in %s")
+                % (fname, backup_path)
+            )
             # Update window title with loaded filename (matches Tcl behavior)
-            self.setWindowTitle(f"{fname} - {_("Halshow")}")
+            self.setWindowTitle(f'{fname} - {_("Halshow")}')
         except Exception as e:
-            QMessageBox.warning(self, _("Error"), _("Failed to load watchlist:\n%s") % e)
+            QMessageBox.warning(
+                self, _("Error"), _("Failed to load watchlist:\n%s") % e
+            )
 
     def _save_watchlist_file(self, fmt="oneline"):
         if not self.prefs.watchlist:
             return
         path, _ = QFileDialog.getSaveFileName(
-            self, _("Save current watch list"), self._last_file_dir or os.path.expanduser("~"),
-            "HALSHOW (*.halshow);;Text Files (*.txt);;All Files (*)"
+            self,
+            _("Save current watch list"),
+            self._last_file_dir or os.path.expanduser("~"),
+            "HALSHOW (*.halshow);;Text Files (*.txt);;All Files (*)",
         )
         if not path:
             return
@@ -3362,6 +3806,7 @@ class HalshowMain(QMainWindow):
             with open(path, "w") as f:
                 if fmt == "multiline":
                     import datetime
+
                     f.write(f"# halshow watchlist created {datetime.datetime.now()}\n")
                     for item in self.prefs.watchlist:
                         f.write(item + "\n")
@@ -3369,9 +3814,11 @@ class HalshowMain(QMainWindow):
                     f.write(" ".join(self.prefs.watchlist))
             # Update window title with saved filename (matches Tcl behavior)
             fname = Path(path).name
-            self.setWindowTitle(f"{fname} - {_("Halshow")}")
+            self.setWindowTitle(f'{fname} - {_("Halshow")}')
         except Exception as e:
-            QMessageBox.warning(self, _("Error"), _("Failed to save watchlist:\n%s") % e)
+            QMessageBox.warning(
+                self, _("Error"), _("Failed to save watchlist:\n%s") % e
+            )
 
     def _add_from_hal_text_dialog(self):
         dialog = QInputDialog(self)
@@ -3405,8 +3852,8 @@ class HalshowMain(QMainWindow):
             line = line.strip()
             if not line:
                 continue
-            m_net = re.match(r'^\s*net\s+(\S+)\s*(.*)', line)
-            m_setp = re.match(r'^\s*setp\s+(\S+)', line)
+            m_net = re.match(r"^\s*net\s+(\S+)\s*(.*)", line)
+            m_setp = re.match(r"^\s*setp\s+(\S+)", line)
 
             if m_net:
                 sig_name = m_net.group(1)
@@ -3430,13 +3877,13 @@ class HalshowMain(QMainWindow):
             self._save_preferences()
         except Exception as e:
             print(f"[halshow] _save_preferences failed: {e}", file=sys.stderr)
-        if hasattr(self, '_watch_timer'):
+        if hasattr(self, "_watch_timer"):
             self._watch_timer.stop()
         HalApi.cleanup()
         super().closeEvent(event)
 
     def _save_preferences(self):
-        if not getattr(self, '_use_prefs', True):
+        if not getattr(self, "_use_prefs", True):
             return
         # Update settings from UI entries
         try:
@@ -3456,6 +3903,7 @@ class HalshowMain(QMainWindow):
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def detect_config_dir():
     """Try to find the config directory of a running LinuxCNC instance.
 
@@ -3464,12 +3912,15 @@ def detect_config_dir():
     """
     try:
         out = subprocess.run(
-            ["ps", "-e", "-o", "stat,command"], capture_output=True, text=True, timeout=3
+            ["ps", "-e", "-o", "stat,command"],
+            capture_output=True,
+            text=True,
+            timeout=3,
         ).stdout
         for line in out.split("\n"):
             if "^S" not in line:
                 continue
-            m = re.search(r'linuxcnc\s+(/\S+\.ini)', line)
+            m = re.search(r"linuxcnc\s+(/\S+\.ini)", line)
             if m:
                 ini_path = m.group(1)
                 return os.path.dirname(ini_path)
@@ -3485,13 +3936,22 @@ def _signal_handler(signum, frame):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Halshow - Show HAL parameters, pins and signals")
+    parser = argparse.ArgumentParser(
+        description="Halshow - Show HAL parameters, pins and signals"
+    )
     parser.add_argument("--fformat", help="Format string for float values")
     parser.add_argument("--iformat", help="Format string for integer values")
-    parser.add_argument("--noprefs", action="store_true", help="Don't use preference file")
-    parser.add_argument("--dotty", action="store_true",
-                        help="Print HAL graph in DOT format to stdout and exit (for Graphviz)")
-    parser.add_argument("watchfile", nargs="?", default=None, help="Watchlist file to load on startup")
+    parser.add_argument(
+        "--noprefs", action="store_true", help="Don't use preference file"
+    )
+    parser.add_argument(
+        "--dotty",
+        action="store_true",
+        help="Print HAL graph in DOT format to stdout and exit (for Graphviz)",
+    )
+    parser.add_argument(
+        "watchfile", nargs="?", default=None, help="Watchlist file to load on startup"
+    )
     args = parser.parse_args()
 
     app_instance = QApplication(sys.argv)
@@ -3511,7 +3971,9 @@ def main():
             components, signals, _pin_index_dotty = GraphDataBuilder.build()
 
             # Resolve any remaining unconnected signals via halcmd (synchronous)
-            resolved = _resolve_signals_via_halcmd(signals, debug_prefix="[halshow dotty]")
+            resolved = _resolve_signals_via_halcmd(
+                signals, debug_prefix="[halshow dotty]"
+            )
             for sig_name, conn in resolved.items():
                 if conn.get("writers") or conn.get("readers"):
                     signals[sig_name]["writer_pins"] = conn.get("writers", [])
@@ -3524,8 +3986,11 @@ def main():
                     connected_pins.update(sig_info["writer_pins"])
                     connected_pins.update(sig_info["reader_pins"])
 
-            active_comps = {cn: cd for cn, cd in components.items()
-                           if any(p["fullname"] in connected_pins for p in cd["pins"])}
+            active_comps = {
+                cn: cd
+                for cn, cd in components.items()
+                if any(p["fullname"] in connected_pins for p in cd["pins"])
+            }
 
             # Build pin→component lookup for fast edge resolution
             pin_to_comp = {}
@@ -3538,10 +4003,12 @@ def main():
             # node placement — making this output useful for debugging the GRAPH tab.
             print("digraph hal {")
             print('    rankdir="LR";')
-            print('    nodesep=0.3;')
-            print('    ranksep=1.2;')
-            print('    margin=0.2;')
-            print('    node [shape=box, style=filled, fillcolor="#e8f0ff", fontname="monospace"];')
+            print("    nodesep=0.3;")
+            print("    ranksep=1.2;")
+            print("    margin=0.2;")
+            print(
+                '    node [shape=box, style=filled, fillcolor="#e8f0ff", fontname="monospace"];'
+            )
             print('    edge [color="#6666cc", penwidth=1.5];')
 
             # Component nodes — label shows instance name + pin list grouped by direction
@@ -3549,8 +4016,12 @@ def main():
                 cd = active_comps[cn]
                 # Only show pins that participate in connected signals
                 comp_pins = [p for p in cd["pins"] if p["fullname"] in connected_pins]
-                out_pins = sorted(p["name"] for p in comp_pins if p.get("direction", -1) == _HAL_OUT)
-                in_pins = sorted(p["name"] for p in comp_pins if p.get("direction", -1) != _HAL_OUT)
+                out_pins = sorted(
+                    p["name"] for p in comp_pins if p.get("direction", -1) == _HAL_OUT
+                )
+                in_pins = sorted(
+                    p["name"] for p in comp_pins if p.get("direction", -1) != _HAL_OUT
+                )
                 parts = [cn]
                 if out_pins:
                     parts.append("\\n".join(f"  {p}" for p in out_pins))
@@ -3563,8 +4034,10 @@ def main():
                 n_pin_rows = max(len(in_pins), len(out_pins))
                 comp_h = max(50, 22 + n_pin_rows * 14)  # COMP_HEADER_H=22, PIN_ROW_H=14
                 comp_w = 180  # COMP_WIDTH
-                print(f'    "{cn}" [label="{esc_label}", width={comp_w/72.0:.3f}, '
-                      f'height={comp_h/72.0:.3f}, margin=0.35];')
+                print(
+                    f'    "{cn}" [label="{esc_label}", width={comp_w/72.0:.3f}, '
+                    f"height={comp_h/72.0:.3f}, margin=0.35];"
+                )
 
             # Signal nodes (diamonds) and edges: writer → signal → reader
             for sig_name, sig_info in sorted(signals.items()):
@@ -3582,9 +4055,11 @@ def main():
                 hh = max(10, th + 8)  # SIG_HALF_MIN=10
                 full_h = 2 * hh
                 full_w = max(20, tw)  # 2*SIG_HALF_MIN
-                print(f'    "{sig_id}" [shape=diamond, style=filled, fillcolor="#ffebc8", '
-                      f'label="{esc_sig_label}", fontname="monospace", '
-                      f'width={full_w/72.0:.3f}, height={full_h/72.0:.3f}, margin=0.25];')
+                print(
+                    f'    "{sig_id}" [shape=diamond, style=filled, fillcolor="#ffebc8", '
+                    f'label="{esc_sig_label}", fontname="monospace", '
+                    f"width={full_w/72.0:.3f}, height={full_h/72.0:.3f}, margin=0.25];"
+                )
 
                 for wpin in sig_info["writer_pins"]:
                     src_comp = pin_to_comp.get(wpin)
@@ -3601,6 +4076,7 @@ def main():
             print("}")
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             HalApi.cleanup()
             sys.exit(1)
@@ -3652,7 +4128,9 @@ def main():
             print(f"Cannot read file <{args.watchfile}>:\n{e}", file=sys.stderr)
 
     # Restore default status message (watchlist loading may have overwritten it)
-    win.status_text.setHtml(f"<i>{_("Commands may be tested here but they will NOT be saved")}</i>")
+    win.status_text.setHtml(
+        f'<i>{_("Commands may be tested here but they will NOT be saved")}</i>'
+    )
 
     # Restore workmode tab
     if prefs.workmode == "watchhal":
