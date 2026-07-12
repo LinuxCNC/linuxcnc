@@ -255,9 +255,9 @@ In addition, for experienced users who are familiar with Debian system administr
 
 [options="header"]
 |===
+| Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Trixie   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Trixie   | amd64         | RTAI       | linuxcnc        | machine control
-| Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Bookworm | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Bookworm | amd64         | RTAI       | linuxcnc        | machine control
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
