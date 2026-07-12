@@ -1,4 +1,0 @@
-gomc gap: the 'logic' component ignores personality= (e.g. personality=0x102) and
-creates only the .time pin, not the personality-driven pins (l1.and, l1.in-00, l2.or,
-etc.), so 'list pin' cannot match classic output. Re-enable once gomc's logic comp
-honours personality.

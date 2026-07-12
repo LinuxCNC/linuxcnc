@@ -1,0 +1,6 @@
+Ported to the gomc HAL model (load syntax + resident gomc-server + halcmd list).
+xfails on ONE gomc bug: the 'logic' comp ignores personality= (personality=0x102/
+0x203), creating only l1.time/l2.time instead of the personality-driven pins
+(l1.and, l1.in-00/01, l2.or, l2.in-00/01/02). All other comps (and2/mux2/or2/xor2/
+ddt, incl. names=/count= multi-instance) match. `expected` encodes the correct
+personality pins, so this passes once gomc's logic comp honours personality.
