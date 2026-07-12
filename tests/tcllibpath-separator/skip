@@ -1,0 +1,3 @@
+Infra test asserting TCLLIBPATH uses space (not colon) separators for the classic Tcl
+GUI stack. gomc's UIs are REST/WS web apps, not Tcl/Tk; this Tcl-path convention no
+longer applies. (runtests also flags it has neither expected nor checkresult.)

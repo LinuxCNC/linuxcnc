@@ -1,0 +1,3 @@
+Drives ./test.py via the deprecated Python `hal` userspace-module API + `realtime
+start`. gomc removed embedded Python and userspace HAL Python modules. Matches the
+halmodule.1 / hal-stream skips.

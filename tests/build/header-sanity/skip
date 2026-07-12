@@ -1,0 +1,4 @@
+Build-sanity test that compiles every header in $HEADERS standalone. gomc's runtests
+environment does not export $HEADERS (glob resolves to /*.h → cc1 fatal), and the
+header set changed substantially (NML removed, gomc/GMI headers added). This is a
+build-infra check, not a gomc behavioral test; re-evaluate against the gomc header tree.

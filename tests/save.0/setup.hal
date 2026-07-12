@@ -1,0 +1,5 @@
+load stepgen <stepgen.0> step_type=0
+load sampler cfg=bb depth=4096
+newthread fast 100000
+newsig unlinked bit
+net dir stepgen.0.dir => sampler.pin.0

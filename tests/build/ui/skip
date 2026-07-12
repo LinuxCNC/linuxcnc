@@ -1,0 +1,3 @@
+Compiles a UI example (nml-position-logger.cc) against the NML client libs
+(-lnml -llinuxcnc). gomc removed NML entirely, so these libs and headers no longer
+exist. The classic NML UI-client build has no gomc equivalent.
