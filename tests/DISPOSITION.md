@@ -72,7 +72,7 @@ tclsh-extensions, tcllibpath-separator.
 | build/header-sanity | headers compile standalone | run the sweep on gomc headers | port |
 | overrun | RT cycle-overrun detection | non-loadusr overrun trigger (verify gomc detects) | port/xfail |
 | halmodule.0 | pin type/range coercion | ✅ **PASS** — ported: haljson creates s32/u32/float pins, gmi client POSTs values over REST (`haljson.writePin` range-coerces, matching the classic oracle line-for-line). Found+fixed a real gomc bug: haljson nil-INI deref under `-f` (mirrors the pyvcp fix). Binding-object introspection (is_pin/getitem) dropped — that's the removed userspace-Python-binding API. |
-| pyhal | Python HAL binding (scalar + PORT) | scalar s32/u32/float/bit link tests → same haljson-REST pattern as halmodule.0; **PORT** read/write/peek → deferred+documented (HAL_PORT exists in hal_lib core but not exposed via haljson/REST) | port (PORT deferred) |
+| pyhal | Python HAL binding (scalar + PORT) | ✅ **PASS** — scalar s32/u32/float/bit signal-propagation via haljson pins + net links + gmi-client REST. **PORT** read/write/peek omitted → deferred+documented (HAL_PORT exists in hal_lib core but not exposed via haljson/REST). |
 | halmodule.1 · hal-stream | HAL *stream* API | Flavor B — belongs with the streamer/sampler batch (item 7); capability = halstreamer/halsampler + test-io cmod | (item 7) |
 | tooledit | tooltable editing | drive gomc REST/WS tooledit | port |
 | build/ui | external program links the control API | re-express `nml-position-logger.cc` against `libgmi` (already ported as `src/gmi/python/positionlogger.py`) | port |

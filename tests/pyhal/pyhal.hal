@@ -1,0 +1,7 @@
+# haljson creates the pins server-side; link each in/out pair into a signal so
+# writing the out pin propagates to the in pin (hal_lib signal propagation).
+load haljson config=pyhal.xml
+net sigS  haljson.hm.out-s  haljson.hm.in-s
+net sigU  haljson.hm.out-u  haljson.hm.in-u
+net sigF  haljson.hm.out-f  haljson.hm.in-f
+net sigIO haljson.hm.out-io haljson.hm.in-io
