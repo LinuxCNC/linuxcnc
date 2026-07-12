@@ -1,3 +1,0 @@
-gomc gap: 'load stepgen <stepgen.0> step_type="2,2,2"' creates a single stepgen
-instance, not 3 (module-parameter array count does not drive instance count as in
-classic HAL). Re-enable once gomc derives instance count from array module params.
