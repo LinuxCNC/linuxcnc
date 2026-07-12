@@ -75,7 +75,7 @@ tclsh-extensions, tcllibpath-separator.
 | halmodule.0 | pin type/range coercion | ✅ **PASS** — ported: haljson creates s32/u32/float pins, gmi client POSTs values over REST (`haljson.writePin` range-coerces, matching the classic oracle line-for-line). Found+fixed a real gomc bug: haljson nil-INI deref under `-f` (mirrors the pyvcp fix). Binding-object introspection (is_pin/getitem) dropped — that's the removed userspace-Python-binding API. |
 | pyhal | Python HAL binding (scalar + PORT) | ✅ **PASS** — scalar s32/u32/float/bit signal-propagation via haljson pins + net links + gmi-client REST. **PORT** read/write/peek omitted → deferred+documented (HAL_PORT exists in hal_lib core but not exposed via haljson/REST). |
 | halmodule.1 · hal-stream | HAL *stream* API | Flavor B — belongs with the streamer/sampler batch (item 7); capability = halstreamer/halsampler + test-io cmod | (item 7) |
-| tooledit | tooltable editing | drive gomc REST/WS tooledit | port |
+| tooledit | tool-table float fidelity | ✅ **PASS** — classic drove the Tk tooledit to round-trip a `.tbl`; gomc has no Tk tooledit and no `.tbl` writer, so import the 21-tool `.tbl` via a minimal `persist_sqlite`+`tooltable` server and assert every offset/diameter/pocket/comment survives the import→sqlite→REST round-trip exactly. (INI needs `[EMC]VERSION` or gomc treats it as a convert-me config.) |
 | mb2hal/mb2hal.1a · mb2hal.2a | mb2hal cmod (loads/creates pins) | runnable — INI-DEBUG dump routes to server log not stdout | xfail |
 
 ### 2d. FLAGGED — mechanism removed in a *prior* session, not one of the two official removals (need ruling)

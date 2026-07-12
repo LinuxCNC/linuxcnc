@@ -1,3 +1,0 @@
-Drives the classic Tk `tooledit` GUI under xvfb. gomc ships a REST/WS tooledit web app
-(not Tk); the Tk tooledit is not present. Could be reworked to drive the web tooledit
-(like pyvcp), but the Tk GUI path has no gomc equivalent.

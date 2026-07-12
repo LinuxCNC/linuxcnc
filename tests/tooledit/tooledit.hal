@@ -1,0 +1,3 @@
+# Tool table backed by sqlite persistence; the .tbl is imported on first run.
+load persist_sqlite
+load tooltable persist_instance=persist_sqlite
