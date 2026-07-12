@@ -1,0 +1,15 @@
+component rtapi_app_main_fails "component init-error test: EXTRA_SETUP fails the load";
+pin out bit boo;
+option extra_setup yes;
+function _ nofp;
+license "GPL";
+;;
+#include <errno.h>
+
+// A component whose init returns an error must cause the load to fail
+// (gomc: cmod New() propagates a non-zero extra_setup return -> load fails).
+EXTRA_SETUP() {
+    return -ERANGE;
+}
+
+FUNCTION(_) { boo ^= 0x1; }

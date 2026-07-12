@@ -147,7 +147,7 @@ or handled differently in the single-cmod model. **Correctly removed — do not 
 | test | action |
 |---|---|
 | threads.0 · threads.1 | **port** — core multi-thread HAL scheduling (fast/slow period ratio, `threadtest` counter → sampler, 3500-sample capture) |
-| module-loading/rtapi-app-main-fails | **port** (user ruling) — adapt to the cmod/`load` model: module-load-failure handling still exists (a cmod whose `New()` returns an error must fail the load gracefully). Not a §4a removal. |
+| module-loading/rtapi-app-main-fails | ✅ **PASS** — ported to the cmod/`load` model: a comp fails its init via a failing `EXTRA_SETUP` (`-ERANGE`), and `load` correctly fails (`factory returned error code`). Classic used `option rtapi_app no` + custom `rtapi_app_main`. Note: gomc flattens the errno to `-1` (documented gap). |
 | mdi-queue/simple-queue-buster · oword-queue-buster | disposition pending — does the MDI queue-buster mechanism survive? port or skip |
 | mqtt | disposition pending — port to `internal/mqttbridge` if the mechanism survives |
 
