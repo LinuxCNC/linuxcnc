@@ -337,6 +337,11 @@ func (m *milltaskModule) initInterpreter() error {
 	// This enables save_parameters to actually write the var file.
 	interp.SetTaskMode(1)
 
+	// In task mode, M99 in the main program loops the program back to the
+	// start (an endless program), rather than ending like a standalone
+	// interpreter run. Classic task does this in emctask.cc (set_loop_on_main_m99).
+	interp.SetLoopOnMainM99(true)
+
 	// Set up persist-backed parameter I/O (required).
 	persistInstance := m.persistInstance
 	if persistInstance == "" {
