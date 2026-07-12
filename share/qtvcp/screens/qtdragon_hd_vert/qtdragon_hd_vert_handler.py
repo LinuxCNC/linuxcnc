@@ -1969,7 +1969,7 @@ class HandlerClass:
 
         # prpbe widget in not a separate tab
         if main_index == TAB_PROBE:
-            requestedIndex = TAB_MAIN
+            main_index = requestedIndex = TAB_MAIN
             self.probe.show()
             self.w.divider_line.show()
         elif self.probe is not None:
