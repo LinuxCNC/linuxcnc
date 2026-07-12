@@ -1,2 +1,2 @@
-debug 5
+debug 0
 load test_shmem_rtcomp <test_shmem_rtcomp.0>
