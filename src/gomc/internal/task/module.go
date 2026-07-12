@@ -59,6 +59,16 @@ func factory(ini *inifile.IniFile, logger *slog.Logger, name string, args []stri
 		}
 	}
 
+	// Allow the motion module instance to be selected from the INI so a config
+	// can insert a motion interceptor (e.g. motion-logger) in front of motmod
+	// without editing the shared HAL that loads milltask. The load arg
+	// (motion_instance=) still takes precedence.
+	if m.motInstance == "" {
+		if v := m.ini.Get("EMCMOT", "MOTION_INSTANCE"); v != "" {
+			m.motInstance = v
+		}
+	}
+
 	// Register C-compatible callback structs so C modules (halui) can
 	// call emccmd/emcstat via the standard api_get mechanism.
 	reg := apiserver.DefaultRegistry()
@@ -200,6 +210,24 @@ func (m *milltaskModule) Start() error {
 	m.inihal = ih
 	m.mc = mc
 
+	// Register the mcode_handler GMI provider so cmods can register handlers for
+	// user M-codes M100-M199 (IDL: "Provider: milltask.so"). Done here (Start)
+	// because the mcodeHandler registry is created with the Task; cmods look it
+	// up in their own Start(), which runs after milltask's.
+	if reg := apiserver.DefaultRegistry(); reg != nil {
+		mcodeCleanup, err := registerMcodeHandlerProvider(reg, m.name, m.task.mcode)
+		if err != nil {
+			return fmt.Errorf("milltask: mcode_handler register: %w", err)
+		}
+		prevCleanup := m.apiCleanup
+		m.apiCleanup = func() {
+			if prevCleanup != nil {
+				prevCleanup()
+			}
+			mcodeCleanup()
+		}
+	}
+
 	// Wire the error publisher so operator messages reach UI clients.
 	// EnsureDrainStarted creates the ring+drain if the C milltask didn't.
 	if drain := emcerror.EnsureDrainStarted(m.name); drain != nil {
@@ -326,6 +354,11 @@ func (m *milltaskModule) initInterpreter() error {
 	// Mark interpreter as running in task mode (not preview mode).
 	// This enables save_parameters to actually write the var file.
 	interp.SetTaskMode(1)
+
+	// In task mode, M99 in the main program loops the program back to the
+	// start (an endless program), rather than ending like a standalone
+	// interpreter run. Classic task does this in emctask.cc (set_loop_on_main_m99).
+	interp.SetLoopOnMainM99(true)
 
 	// Set up persist-backed parameter I/O (required).
 	persistInstance := m.persistInstance

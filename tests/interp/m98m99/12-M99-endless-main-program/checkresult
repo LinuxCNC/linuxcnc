@@ -1,3 +1,4 @@
 #!/bin/sh
-cd $(dirname $1)
-diff -u expected.motion-logger out.motion-logger
+# The motion-logger diff is done in test-ui.py (before shutdown); the rs274 stdout
+# is compared to `expected` by runtests. If we get here it passed.
+exit 0

@@ -1,0 +1,9 @@
+Ported to gomc (config: +LIB:linuxcnc.hal, core_sim.hal loadrt->load, sim.var;
+driver: gmi client; the userspace hal poker of motion.digital-in-00 replaced
+with `halcmd setp`; startup-readiness check trimmed to gmi.Stat fields).
+Instance + driver run.
+
+Fails on `assert(s.queued_mdi_commands == 1)`: gomc/gmi does not report the
+queued MDI command count (status.queued_mdi_commands stays 0). Either gmi.Stat
+does not expose queued_mdi_commands or milltask does not track the MDI queue
+depth. Remove xfail once the MDI queue length is exposed/tracked.

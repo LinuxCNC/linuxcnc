@@ -1,0 +1,27 @@
+Full-instance exemplar: config + driver ported to the gomc model (config adds
+LIB:linuxcnc.hal + [RS274NGC]PARAMETER_FILE; test.sh drives a resident
+gomc-server; test-ui.py ported from the removed NML `linuxcnc` module to the
+`gmi` REST/WS client — positions from gmi.Stat, the M67 analog-output counter
+read via `halcmd getp motion.analog-out-00`).
+
+Plumbing verified end-to-end (estop/on/home/mode/program_open/motion all work).
+
+Blocked on a gomc BUG in synchronized I/O (M67), localized 2026-07-11:
+ - motion.analog-out-00 stays 0; the ngc uses `M67 E0 Q[#1]` (synchronized
+   analog output) followed by three blended G1 moves per repeat iteration.
+ - M67 and M68 both work via MDI, in AUTO with a single move, and in AUTO with
+   a loop of single moves. It FAILS specifically when an M67 is followed by
+   MULTIPLE continuously-blended moves in AUTO (empirically: 1 move -> works,
+   3 blended moves -> output never applied).
+ - The trajectory planner is NOT at fault: gomc src/emc/tp/tp.c syncdio
+   attachment (tpSetupSyncedIO) and application (tpToggleDIOs / the parabolic
+   blend toggle) are byte-identical to upstream 2.9, which handles this program
+   correctly. So the bug is gomc-specific and upstream of the TP: milltask's
+   (Go) canon-command streaming — the ordering/timing of SetAoutSyncCmd
+   (-> motion set_aout -> tp->syncdio) relative to the move commands
+   (-> add_line -> tpSetupSyncedIO consumes tp->syncdio) during AUTO read-ahead,
+   so with multiple following moves the single tp->syncdio slot is mis-attached
+   or overwritten before the intended move consumes it.
+ - Fix target: src/gomc/internal/task canon queue / sequencer synchronized-I/O
+   path. Remove this xfail once M67 synced output applies correctly with
+   multiple blended moves.

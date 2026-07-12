@@ -770,6 +770,12 @@ func (sp *SingleFileParser) readFileContent(path string) (string, error) {
 	if sp.readFile != nil {
 		return sp.readFile(path)
 	}
+	return defaultReadFile(path)
+}
+
+// defaultReadFile reads a HAL file from disk. It is the fallback used when no
+// readFile shim is installed.
+func defaultReadFile(path string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
@@ -893,9 +899,21 @@ func NewSingleFileParser(ini INILookup, resolver PathResolver) *SingleFileParser
 // performed. This is useful for executing [HAL]HALCMD lines that are already
 // held in memory.
 func (sp *SingleFileParser) ParseContent(filename, content string) (*ParseResult, error) {
-	// Temporarily install a readFile shim that returns our in-memory content.
+	// Temporarily install a readFile shim that returns our in-memory content
+	// ONLY for the virtual filename.  Any other path (e.g. a file pulled in by a
+	// `source` directive within content) must be read normally — otherwise the
+	// in-memory content would be returned for the sourced file too, causing the
+	// `source` line to be re-parsed recursively until the include-depth limit.
 	saved := sp.readFile
-	sp.readFile = func(_ string) (string, error) { return content, nil }
+	sp.readFile = func(path string) (string, error) {
+		if path == filename {
+			return content, nil
+		}
+		if saved != nil {
+			return saved(path)
+		}
+		return defaultReadFile(path)
+	}
 	result, err := sp.Parse(filename)
 	sp.readFile = saved
 	return result, err

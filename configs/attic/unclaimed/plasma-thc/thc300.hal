@@ -11,7 +11,7 @@ load minmax <minmax.0>
 load mult2 <mult2.0,mult2.1>
 load mux2 <mux2.0,mux2.1,mux2.2,mux2.3,mux2.4,mux2.5,mux2.6>
 load not <not.0,not.1,not.2>
-load oneshot count=4
+load oneshot <oneshot.0,oneshot.1,oneshot.2,oneshot.3>
 load or2 <or2.0,or2.1,or2.2,or2.3,or2.4,or2.5,or2.6,or2.7,or2.8>
 load scale <scale.0>
 load sum2 <sum2.0,sum2.1,sum2.2,sum2.3,sum2.4>

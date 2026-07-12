@@ -1,0 +1,2 @@
+gomc removed embedded Python: uses a python o-word sub / inline ';py,' remap and
+hits 'Python support has been removed'. Re-enable if Python support returns.

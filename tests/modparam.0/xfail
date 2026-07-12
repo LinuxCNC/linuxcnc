@@ -1,0 +1,7 @@
+Ported to the gomc HAL model (load syntax + resident server + halcmd list). xfails
+on ONE gomc gap: an array-valued module param (step_type="2,2,2", 3 elements) does
+not drive the instance count — gomc creates only stepgen.0, not stepgen.0/1/2 (in
+classic HAL the array length sets the count). `expected` encodes the 3 instances, so
+this passes once gomc derives instance count from array module params. (If that is
+instead deemed removed-by-design in favor of explicit <name0,name1,name2>, convert
+to skip.)

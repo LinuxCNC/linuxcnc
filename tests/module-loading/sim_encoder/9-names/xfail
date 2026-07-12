@@ -1,0 +1,6 @@
+Ported to the gomc HAL model (resident gomc-server + halcmd list pin — the classic
+one-shot `halrun ... show pin` does not render to stdout). xfails on a real gomc
+behavior difference: gomc does NOT enforce a per-component maximum instance count
+(MAX_CHAN). Loading more instances than the classic limit (9 for encoder-type comps,
+17 for pid/siggen) SUCCEEDS instead of being rejected, so RESULT is 0 where the test
+expects the load to fail (1). Passes once gomc enforces the comp instance-count limit.

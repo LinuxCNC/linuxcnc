@@ -1,3 +1,4 @@
-out.motion-logger
-rs274ngc.var
-rs274ngc.var.bak
+out.motion-logger*
+sim.var*
+db/
+result.*

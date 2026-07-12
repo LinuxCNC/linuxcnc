@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 # Run test file in task
-linuxcnc -r test.ini
+gomc-server -r test.ini
 RES=$?
 
 exit $RES

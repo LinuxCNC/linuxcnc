@@ -9,28 +9,14 @@ cp tool.tbl.original tool.tbl
 
 rm -f gcode-output
 
-if nc -z localhost 5007; then
-    echo "Process already listening on port 5007. Exiting"
-    exit 1
-fi
-
-linuxcnc -r sim.ini &
-
-
-# let linuxcnc come up
-TOGO=80
-while [  $TOGO -gt 0 ]; do
-    echo trying to connect to linuxcncrsh TOGO=$TOGO
-    if nc -z localhost 5007; then
-        break
-    fi
-    sleep 0.25
-    TOGO=$(($TOGO - 1))
-done
-if [  $TOGO -eq 0 ]; then
-    echo connection to linuxcncrsh timed out
-    exit 1
-fi
+# gomc-server does not launch [DISPLAY]; start it and drive the rsh command
+# stream through rsh2gmi.py (linuxcncrsh -> gmi translator). M100 introspection is
+# handled by the mcode_coord_log cmod loaded via mcode.hal.
+gomc-server -r sim.ini &
+SRV=$!
+trap 'kill $SRV 2>/dev/null; wait 2>/dev/null' EXIT
+for i in $(seq 100); do halcmd show comp 2>/dev/null | grep -q milltask && break; sleep 0.1; done
+sleep 0.5
 
 
 (
@@ -663,11 +649,8 @@ fi
     echo set wait done
 
     echo shutdown
-) | nc localhost 5007
+) | ../../rsh2gmi.py
 
-
-# wait for linuxcnc to finish
-wait
 
 exit 0
 

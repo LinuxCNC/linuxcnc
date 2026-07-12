@@ -1,0 +1,7 @@
+newsig \
+    hello \
+    bit
+sets \
+    hello \
+    \
+    true

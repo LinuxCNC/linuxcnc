@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 
 import linuxcnc
-import hal
+import gmi
+# Reuse constants via the gmi client (classic linuxcnc module is command/stat-less).
+import gmi.constants as _gk
+for _n in dir(_gk):
+    if not _n.startswith('_'):
+        setattr(linuxcnc, _n, getattr(_gk, _n))
 
 import math
 import time
@@ -16,9 +21,9 @@ import re
 retval = 0
 
 
-c = linuxcnc.command()
-s = linuxcnc.stat()
-e = linuxcnc.error_channel()
+c = gmi.Command()
+s = gmi.Stat()
+e = gmi.ErrorChannel()
 
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)

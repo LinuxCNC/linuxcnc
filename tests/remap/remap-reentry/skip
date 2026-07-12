@@ -1,0 +1,6 @@
+gomc removed the embedded Python interpreter: this test uses py= remaps
+(REMAP=M405 ... py=body_405) and a [PYTHON] TOPLEVEL module (toplevel.py). gomc's
+rs274 rejects them outright ("python= remaps have been removed. Use ngc= with
+prolog/epilog cmod handlers"). Re-testing py= reentry would require re-adding
+embedded Python (a large, deliberately-reverted change) — obsolete by design.
+Matches the interp/python*, interp/plug/* skips.

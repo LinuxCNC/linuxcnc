@@ -1,0 +1,13 @@
+Config + driver ported to the gomc REST/WS model (gmi.Command/Stat/ErrorChannel;
+io toolchanger handshake driven via halcmd sets/gets; interp vars via
+(debug,...) -> OPERATOR_DISPLAY).
+
+Blocked by a gomc interp bug: the predefined named parameter #<_current_tool>
+is NOT updated after an M6 tool change. After T1 M6 the status buffer
+(tool_in_spindle) and, after task_plan_synch, #<_current_pocket> are correct,
+but #<_current_tool> stays 0 (expected the changed tool number). Classic
+LinuxCNC updates it without an explicit synch. Remove this xfail once M6 updates
+#<_current_tool>.
+
+Also hits the RANDOM_TOOLCHANGER startup bug: iocontrol tool-number reads 0
+at init regardless of the pocket-0 tool (this test expects -1).

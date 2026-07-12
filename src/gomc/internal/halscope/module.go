@@ -77,6 +77,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -107,11 +108,49 @@ type halscope struct {
 	persistHandle   int32
 }
 
-func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []string) (gomc.Module, error) {
-	numSamples := C.int(C.HALSCOPE_DEFAULT_NUM_SAMPLES)
-	// TODO: parse args for num_samples=N
+// parseHalscopeArgs parses the halscope load-line arguments. Recognised keys:
+//
+//	num_samples=N        total sample buffer capacity (must be >= minNumSamples)
+//	persist_instance=V   persistence module instance name (empty uses the default)
+//
+// Unknown keys are ignored (matching historical behaviour). When a key is
+// absent, defaultNumSamples / defaultPersist supply the value.
+func parseHalscopeArgs(args []string, defaultNumSamples, minNumSamples int, defaultPersist string) (numSamples int, persistInstance string, err error) {
+	numSamples = defaultNumSamples
+	persistInstance = defaultPersist
+	for _, arg := range args {
+		k, v, ok := strings.Cut(arg, "=")
+		if !ok {
+			continue
+		}
+		switch k {
+		case "num_samples":
+			n, perr := strconv.Atoi(v)
+			if perr != nil {
+				return 0, "", fmt.Errorf("halscope: invalid num_samples %q: %w", v, perr)
+			}
+			if n < minNumSamples {
+				return 0, "", fmt.Errorf("halscope: num_samples must be >= %d, got %d", minNumSamples, n)
+			}
+			numSamples = n
+		case "persist_instance":
+			// An empty value falls back to the default instance.
+			if v != "" {
+				persistInstance = v
+			}
+		}
+	}
+	return numSamples, persistInstance, nil
+}
 
-	s := C.halscope_alloc(numSamples)
+func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []string) (gomc.Module, error) {
+	numSamples, persistInstance, err := parseHalscopeArgs(args,
+		int(C.HALSCOPE_DEFAULT_NUM_SAMPLES), int(C.HALSCOPE_MAX_CHANNELS), "persistence")
+	if err != nil {
+		return nil, err
+	}
+
+	s := C.halscope_alloc(C.int(numSamples))
 	if s == nil {
 		return nil, fmt.Errorf("halscope: failed to allocate instance")
 	}
@@ -140,13 +179,6 @@ func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []
 	}
 
 	C.hal_ready(compID)
-
-	persistInstance := "persistence"
-	for _, arg := range args {
-		if k, v, ok := strings.Cut(arg, "="); ok && k == "persist_instance" {
-			persistInstance = v
-		}
-	}
 
 	m := &halscope{
 		logger:          logger,
@@ -182,23 +214,21 @@ func newHalscope(ini *inifile.IniFile, logger *slog.Logger, name string, args []
 }
 
 func (m *halscope) Start() error {
-	// Look up persist API (non-fatal if unavailable).
+	// Look up persist API. A configured (or defaulted) instance that cannot be
+	// resolved is a hard error — we do not silently run without persistence.
 	reg := apiserver.DefaultRegistry()
 	if reg != nil {
 		cbs, err := reg.GetAPIFor(m.name, "persist", m.persistInstance, 2)
 		if err != nil {
-			m.logger.Warn("halscope: persist API not available, state will not be saved",
-				"instance", m.persistInstance, "err", err)
-		} else {
-			m.persist = persist.NewPersistClient(unsafe.Pointer(cbs))
-			res, err := m.persist.Open(persistNamespace)
-			if err != nil {
-				m.logger.Warn("halscope: persist open failed", "err", err)
-				m.persist = nil
-			} else {
-				m.persistHandle = res.Handle
-			}
+			return fmt.Errorf("halscope: persist instance %q not found: %w", m.persistInstance, err)
 		}
+		m.persist = persist.NewPersistClient(unsafe.Pointer(cbs))
+		res, err := m.persist.Open(persistNamespace)
+		if err != nil {
+			m.persist = nil
+			return fmt.Errorf("halscope: persist instance %q open failed: %w", m.persistInstance, err)
+		}
+		m.persistHandle = res.Handle
 	}
 
 	if m.persist != nil {

@@ -72,10 +72,9 @@ func executeToken(tok Token) error {
 	case *LockToken:
 		err = halcmd.SetLock(int(d.Level))
 	case *UnlockToken:
-		// unlock semantics: clear the specified lock bits.
-		// e.g. "unlock all" (level=255) → set lock to 0 (LockNone)
-		// e.g. "unlock tune" (level=3)  → set lock to LockAll &^ 3
-		err = halcmd.SetLock(int(LockAll) &^ int(d.Level))
+		// unlock clears the named lock bits from the CURRENT lock (upstream
+		// do_unlock_cmd semantics): "unlock all" → 0, "unlock tune" → current &^ tune.
+		err = halcmd.SetLock(halcmd.GetLock() &^ int(d.Level))
 	case *ListToken:
 		_, err = halcmd.List(halObjTypeToString(d.ObjType), d.Patterns...)
 	case *ShowToken:
@@ -83,7 +82,11 @@ func executeToken(tok Token) error {
 	case *SaveToken:
 		_, err = halcmd.Save(saveTypeToString(d.SaveType), d.File)
 	case *StatusToken:
-		_, err = halcmd.Status()
+		// The one-shot `status` renders the classic HAL lock-status block (upstream
+		// halcmd prints it as part of `status`); this is what `halrun -f | grep lock`
+		// consumes. Only the lock block is emitted — the general status summary has
+		// its own "RT Lock:"/"Mem Lock:" lines that would pollute a `grep lock`.
+		fmt.Print(halcmd.LockStatusString())
 	case *DebugToken:
 		err = halcmd.SetDebug(d.Level)
 	case *PTypeToken:

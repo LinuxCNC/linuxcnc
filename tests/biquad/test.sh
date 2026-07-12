@@ -1,0 +1,17 @@
+#!/bin/bash
+. "$(dirname "$0")/../hal-stream-driver.sh"
+hal_start_server biquad.hal
+hal_feed_streamer <<DATA
+0 0.123
+0 0.55
+0 1.12
+0 0.1231344
+1 0.0001
+1 1.12345
+1 444.555
+1 0
+0 1213
+0 0
+DATA
+hal_sample 10
+hal_run

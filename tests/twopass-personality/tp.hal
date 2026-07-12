@@ -1,0 +1,3 @@
+load logic <gateA> personality=0x104
+load logic <gateB> personality=0x202
+load logic <gateC> personality=0x503

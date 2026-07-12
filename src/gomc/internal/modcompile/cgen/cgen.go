@@ -756,10 +756,11 @@ func (g *generator) emitNew() {
 
 	// Parse personality from argv if needed.
 	if g.hasPersonality() {
-		g.printf("    /* Parse personality from argv: personality=N */\n")
+		g.printf("    /* Parse personality from argv: personality=N (strtol base 0 so\n")
+		g.printf("       hex forms like personality=0x102 work, not just decimal) */\n")
 		g.printf("    for (int i = 0; i < argc; i++) {\n")
 		g.printf("        if (strncmp(argv[i], \"personality=\", 12) == 0)\n")
-		g.printf("            inst->_personality = atoi(argv[i] + 12);\n")
+		g.printf("            inst->_personality = (int)strtol(argv[i] + 12, NULL, 0);\n")
 		g.printf("    }\n\n")
 	}
 

@@ -1,0 +1,3 @@
+Tests the classic 'halrun' getopt-reset behaviour across repeated 'loadusr'
+invocations. gomc removed userspace HAL components (no loadusr) and 'halrun' is
+now a thin gomc-server shim, so this test is obsolete.

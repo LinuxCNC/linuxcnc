@@ -4,6 +4,7 @@ package launcher
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/sittner/linuxcnc/src/gomc/internal/apiserver"
@@ -17,16 +18,28 @@ const (
 	defaultRESTAddr = "127.0.0.1:5080"
 )
 
+// resolveRESTAddr returns the REST API listen address, in precedence order:
+// the GMC_REST_ADDR environment variable, then [GMC]REST_ADDR in the INI, then
+// the compiled default (127.0.0.1:5080).  The env override lets the test
+// harness run several gomc-server instances on distinct ports in parallel
+// without editing per-config REST_ADDR.
+func (l *Launcher) resolveRESTAddr() string {
+	if v := os.Getenv("GMC_REST_ADDR"); v != "" {
+		return v
+	}
+	if l.ini != nil {
+		if v := l.ini.Get("GMC", "REST_ADDR"); v != "" {
+			return v
+		}
+	}
+	return defaultRESTAddr
+}
+
 // createAPIServer creates the API server instance and sets it as the
 // default. Called early in startup so that stream_server registrations
 // from cmod plugins can find it. Does not start listening.
 func (l *Launcher) createAPIServer() {
-	addr := defaultRESTAddr
-	if l.ini != nil {
-		if v := l.ini.Get("GMC", "REST_ADDR"); v != "" {
-			addr = v
-		}
-	}
+	addr := l.resolveRESTAddr()
 
 	reg := apiserver.DefaultRegistry()
 	if reg == nil {
@@ -78,17 +91,15 @@ func (l *Launcher) startAPIServer() {
 		l.logger.Warn("EMC2WebAppDir not set, web apps disabled")
 	}
 
-	addr := defaultRESTAddr
-	if l.ini != nil {
-		if v := l.ini.Get("GMC", "REST_ADDR"); v != "" {
-			addr = v
-		}
-	}
+	addr := l.resolveRESTAddr()
 	l.apiServer.SetAddr(addr)
 
+	// Capture the server in a local so that a concurrent stopAPIServer() (which
+	// nils l.apiServer during shutdown) cannot cause a nil dereference here.
+	srv := l.apiServer
 	go func() {
 		l.logger.Info("starting REST API server", "addr", addr)
-		if err := l.apiServer.ListenAndServe(); err != nil {
+		if err := srv.ListenAndServe(); err != nil {
 			// http.ErrServerClosed is expected on graceful shutdown
 			if err.Error() != "http: Server closed" {
 				l.logger.Error("REST API server error", "error", err)

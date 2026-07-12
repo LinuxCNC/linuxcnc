@@ -31,3 +31,19 @@ $(call TOOBJSDEPS, $(TEST_MCODE_SRCS)): gomc/generated/gmi/mcode_handler/mcode_h
 	@mkdir -p ../cmod
 	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 TARGETS += ../cmod/test_mcode_handler.so
+
+# mcode_coord_log.so — cmod that logs M100 coord/tool introspection to a file,
+# replacing the classic USER_M_PATH subs/M100 script for the tool tests.
+MCODE_COORD_LOG_SRCS := emc/task/mcode_coord_log.c
+USERSRCS += $(MCODE_COORD_LOG_SRCS)
+
+$(call TOOBJSDEPS, $(MCODE_COORD_LOG_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/mcode_handler -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(MCODE_COORD_LOG_SRCS)): gomc/generated/gmi/mcode_handler/mcode_handler_api.h
+
+../cmod/mcode_coord_log.so: $(call TOOBJS, $(MCODE_COORD_LOG_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/mcode_coord_log.so

@@ -1,4 +1,4 @@
-result.*
+out.motion-logger*
 sim.var*
-expected.motion-logger
-out.motion-logger
+db/
+result.*

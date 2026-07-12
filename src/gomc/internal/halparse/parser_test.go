@@ -1171,6 +1171,30 @@ func TestSingleFileParser(t *testing.T) {
 		}
 	})
 
+	t.Run("ParseContent source reads real child, not in-memory content", func(t *testing.T) {
+		// Regression: ParseContent installs a readFile shim for its in-memory
+		// content.  That shim must apply ONLY to the virtual filename; a file
+		// pulled in by a `source` directive must still be read via the
+		// underlying readFile.  Previously the shim returned the in-memory
+		// content for every path, so `source child.hal` re-parsed the parent
+		// content recursively until the include-depth limit was hit.
+		sp := &SingleFileParser{
+			readFile: func(path string) (string, error) {
+				if path == "child.hal" {
+					return "setp pid.0.Pgain 100", nil
+				}
+				return "", fmt.Errorf("file not found: %s", path)
+			},
+		}
+		result, err := sp.ParseContent("<virtual>", "source child.hal\nsetp comp.pin 1")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(result.HALCmd) != 2 {
+			t.Errorf("HALCmd count = %d, want 2", len(result.HALCmd))
+		}
+	})
+
 	t.Run("source depth limit returns error", func(t *testing.T) {
 		// File sources itself to trigger depth limit
 		files := map[string]string{

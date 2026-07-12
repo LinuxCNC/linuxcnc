@@ -1,0 +1,7 @@
+Config converted to the motion-logger interceptor + real motmod (like basic/
+mountaindew), BUT blocked on a gomc feature gap: RS274NGC_STARTUP_CODE is parsed
+but never executed. src/gomc/internal/task/config.go:174 stores it in the unused
+task.go:308 `startupCode` field; module.go:305 reads [TASK]RS274NGC_STARTUP_CODE
+into interpLib and discards it (`_ = interpLib`). So `o<init> call` never runs, the
+startup gcode produces no motion, and this test (Github #49: abort during startup
+gcode) has nothing to abort. Remove this xfail once gomc executes the startup code.

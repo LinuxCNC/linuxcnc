@@ -1,0 +1,1 @@
+loadrt mb2hal config=mb2hal.ini

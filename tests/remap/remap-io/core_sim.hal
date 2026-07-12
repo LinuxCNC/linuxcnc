@@ -5,7 +5,7 @@
 load [KINS]KINEMATICS
 #autoconverted  trivkins
 # motion controller, get name and thread periods from INI file
-loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+load [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load 6 differentiators (for velocity and accel signals
 load ddt <ddt.0,ddt.1,ddt.2,ddt.3,ddt.4,ddt.5>
 # load additional blocks

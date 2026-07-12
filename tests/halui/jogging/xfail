@@ -1,0 +1,10 @@
+Config + driver ported to gomc (LIB:linuxcnc.hal; test.sh drives a resident
+gomc-server; test-ui.py drives halui/joint pins via halcmd instead of the
+removed userspace `python-ui` HAL component). Homing via halui works.
+
+Blocked by a gomc bug (same family as the batch-1 jog/teleop finding):
+switching to joint mode has no effect — after `c.mode(MANUAL)` + setp
+`halui.mode.joint 1`, `halui.mode.is-joint` stays FALSE, so joint jogging
+fails with "JOG_CONT Mode is TELEOP, cannot jog joint". gomc appears to be
+stuck in TELEOP for trivkins and never enters joint mode. Remove this xfail
+once joint-mode switching / joint jog works.

@@ -1,0 +1,23 @@
+newthread fast 100000
+load flipflop <flipflop.0>
+
+loadrt sampler depth=1000 cfg=b
+loadrt streamer depth=32 cfg=bbbb
+
+
+net a streamer.pin.0
+net b streamer.pin.1
+net c streamer.pin.2
+net d streamer.pin.3
+
+net a flipflop.0.data
+net b flipflop.0.clk
+net c flipflop.0.reset
+net d flipflop.0.set
+
+net n0 flipflop.0.out sampler.pin.0
+
+addf streamer fast
+addf flipflop.0 fast
+addf sampler fast
+

@@ -108,6 +108,8 @@ Options:
 		continueOnErr = fs.Bool("k", false, "Continue in the presence of errors in HAL files")
 		tpMod         = fs.String("t", "", `Custom trajectory planning module name (overrides [TRAJ]TPMOD)`)
 		homeMod       = fs.String("m", "", `Custom homing module name (overrides [EMCMOT]HOMEMOD)`)
+		halFileFlag   = fs.String("f", "", "One-shot mode: execute the given HAL `file` (halrun) then exit; no INI/task/motion")
+		halServeFlag  = fs.Bool("serve", false, "With -f: stay resident after executing the HAL file and serve the REST/WebSocket API (for streaming/capture tests); block until SIGINT/SIGTERM")
 		halLibDirs    multiFlag
 	)
 	fs.Var(&halLibDirs, "H", "Prepend `dir` to HALLIB_PATH (may be specified multiple times)")
@@ -143,14 +145,17 @@ Options:
 		}
 	}
 
-	if *useLast && iniFile == "" {
-		fmt.Fprintln(os.Stderr, "gomc-server: -l / last-used INI file not yet implemented")
-		return 1
-	}
+	// One-shot HAL-file (halrun) mode does not use an INI file.
+	if *halFileFlag == "" {
+		if *useLast && iniFile == "" {
+			fmt.Fprintln(os.Stderr, "gomc-server: -l / last-used INI file not yet implemented")
+			return 1
+		}
 
-	if iniFile == "" {
-		fmt.Fprintln(os.Stderr, "gomc-server: no INI file specified")
-		return 1
+		if iniFile == "" {
+			fmt.Fprintln(os.Stderr, "gomc-server: no INI file specified")
+			return 1
+		}
 	}
 
 	// Configure logger with dynamic level.
@@ -202,6 +207,17 @@ Options:
 	}
 
 	l := launcher.New(opts, logger)
+
+	// One-shot HAL-file (halrun) mode: execute the file and exit.  With -serve,
+	// stay resident and serve the API after executing the file.
+	if *halFileFlag != "" {
+		if err := l.RunHalFile(*halFileFlag, *halServeFlag); err != nil {
+			fmt.Fprintf(os.Stderr, "gomc-server: %v\n", err)
+			return 1
+		}
+		return 0
+	}
+
 	if err := l.Run(); err != nil {
 		if daemonMode {
 			// Logger might have already reported this via syslog.

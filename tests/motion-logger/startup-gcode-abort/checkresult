@@ -1,3 +1,4 @@
 #!/bin/sh
-cd $(dirname $1)
-diff -u expected.motion-logger out.motion-logger
+# Pass/fail is determined in test.sh (test-ui.py diffs before shutdown). If we
+# get here it passed.
+exit 0

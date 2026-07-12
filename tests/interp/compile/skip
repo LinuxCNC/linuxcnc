@@ -1,0 +1,2 @@
+gomc removed the embedded Python interpreter: use-rs274.cc #includes <Python.h>
+(interpreter embedding), which is not available. Re-enable if Python support returns.

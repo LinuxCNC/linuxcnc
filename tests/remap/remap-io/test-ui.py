@@ -13,8 +13,8 @@ h.ready() # mark the component as 'ready'
 os.system('halcmd source postgui.hal') # Net above pins to motion I/O pins
 
 # Initialization
-c = linuxcnc.command()
-s = linuxcnc.stat()
+c = gmi.Command()
+s = gmi.Stat()
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.mode(linuxcnc.MODE_MDI)

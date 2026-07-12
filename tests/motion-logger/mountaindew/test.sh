@@ -1,5 +1,16 @@
 #!/bin/bash -e
 
-rm -f out.motion-logger
+# gomc full-instance test: milltask -> motion-logger interceptor -> real motmod.
+rm -f out.motion-logger*
 
-linuxcnc -r mountaindew.ini
+gomc-server -r mountaindew.ini &
+SRV=$!
+trap 'kill $SRV 2>/dev/null; wait 2>/dev/null' EXIT
+
+for i in $(seq 100); do
+    halcmd show comp 2>/dev/null | grep -q milltask && break
+    sleep 0.1
+done
+sleep 0.5
+
+./test-ui.py

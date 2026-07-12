@@ -1,0 +1,10 @@
+Component rewritten to the gomc multi-instance model (this was the real problem, not
+modcompile): dropped 'option singleton' and the module-global comp_id/shmem_id/mem;
+shmem_id is now per-instance ('variable', reached by bare name / the inst_t macro) and
+the helpers take __comp_inst and use __comp_inst->comp_id. It now builds cleanly under
+modcompile and allocates rtapi shmem (log: "smalloc_dn: shmem available").
+xfails on a narrow gomc rtapi gap: rtapi_shmem_delete is not exported to cmods, so the
+.so dlopen fails ("undefined symbol: rtapi_shmem_delete") — even though rtapi_shmem_new
+and rtapi_shmem_getptr ARE exported (shmem allocates) and delete is used internally in
+hal_lib.c. Passes once rtapi_shmem_delete is added to the cmod symbol exports. (Also
+needs sudo per control.)

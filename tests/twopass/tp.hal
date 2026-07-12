@@ -1,0 +1,4 @@
+load and2 <andX,andY>
+net p andX.in0 andX.in1 andY.out
+load and2 <andZ>
+net p andZ.in0

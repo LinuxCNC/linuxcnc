@@ -24,7 +24,7 @@ loadrt hal_ppmc port_addr="0x378" timestamp="0x00"
 # make some signals for the scope for tuning.
 load ddt <ddt.0,ddt.1,ddt.2,ddt.3>
 load not <not.0>
-load estop_latch count=1
+load estop_latch <estop-latch.0>
 load and2 <and2.0>
 load or2 <or2.0>
 load conv_s32_float <conv_s32_float.0>

@@ -1,3 +1,5 @@
 #!/bin/sh
-cd $(dirname $1)
-diff -u expected.motion-logger out.motion-logger
+# Success or failure of this test is handled in test.sh (test-ui.py diffs the
+# motion log before the server shuts down; the clean-shutdown ABORT that would
+# otherwise race into the log is thereby excluded). If we get here it passed.
+exit 0

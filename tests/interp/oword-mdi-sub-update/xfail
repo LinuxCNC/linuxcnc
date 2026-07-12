@@ -1,0 +1,10 @@
+Config + driver ported to gomc (LIB:linuxcnc.hal; test.sh drives a resident
+gomc-server; test-ui.py ported to gmi, runs the o<test1> sub 3× with an edit
+between). The MDI sub calls run correctly.
+
+Blocked by a gomc gap: the sub's `(DEBUG, test RAN)` operator-display messages
+go to the gomc-server LOG, not to the gmi ErrorChannel (e.poll() returns
+nothing for them), so the driver cannot surface 'test RAN' into `result` for
+checkresult to grep. gomc needs to deliver OPERATOR_DISPLAY/(DEBUG,) messages
+to the client error/display channel (headless) for this test to verify.
+Remove this xfail once (DEBUG,) messages reach gmi.ErrorChannel.

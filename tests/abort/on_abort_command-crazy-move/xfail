@@ -1,0 +1,11 @@
+NOT a motion-logger test (the old xfail reason was stale — this config uses real
+motion via LIB:core_sim.hal + motmod; pass/fail is decided by test-ui.py from axis
+position, not out.motion-logger). Blocked on TWO gomc gaps:
+1. ON_ABORT_COMMAND not wired. The test sets [RS274NGC]ON_ABORT_COMMAND=O<on_abort>
+   call and checks the readahead-abort bug (#579) where the on-abort block's segments
+   leak into the interp list. gomc never runs the on-abort handler: interp.OnAbort
+   (internal/task/interp.go:135) is never called and ON_ABORT_COMMAND is never read
+   from the INI (classic calls interp.on_abort at emctask.cc:745).
+2. gmi.Stat has no queue/active_queue/queue_full (see stop-button-crazy-move) — needed
+   to detect readahead fill before aborting.
+Re-enable once ON_ABORT_COMMAND is wired and gmi surfaces the motion queue depth.

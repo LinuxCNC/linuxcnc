@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-halcompile --compile relative_header.comp
+modcompile --compile relative_header.comp

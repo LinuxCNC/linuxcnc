@@ -2,6 +2,3 @@ load or2 <or2.0>
 loadrt streamer                 # this fails, streamer needs depth= and cfg= params
 loadrt streamer depth=10 cfg=f  # this should work
 load and2 <and2.0>
-
-list funct
-list pin

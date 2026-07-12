@@ -1,13 +1,28 @@
-TARGETS += ../bin/motion-logger
+# The classic NML-based userspace bin/motion-logger is not built on gomc (NML is
+# gone). It is replaced by the interceptor cmod below, which milltask loads as
+# its motion module ([EMCMOT]EMCMOT=motion-logger) and which proxies+logs to the
+# real motmod. The old motion-logger.c is kept only as a format reference.
 
-MOTION_LOGGER_SRCS := \
-	$(addprefix emc/motion-logger/, motion-logger.c) \
-	emc/motion/axis.c \
-	emc/motion/simple_tp.c
+# --- gomc interceptor cmod: motion-logger.so -------------------------------
+# Proxies milltask<->motmod, logging the motctl command stream. Registers
+# motctl/motstat under its own instance name; forwards to the real motmod.
 
-USERSRCS += $(MOTION_LOGGER_SRCS)
+MOTION_LOGGER_CMOD_SRCS := emc/motion-logger/motion_logger_cmod.c
 
-../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS)) ../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
+MOTION_LOGGER_CMOD_CFLAGS := \
+	-fPIC -Os -Wall -Wextra -D_GNU_SOURCE \
+	-I. -I../include -Igomc/pkg/cmodule \
+	-Igomc/generated/gmi/motctl -Igomc/generated/gmi/motstat
 
+../cmod/motion-logger.so: $(MOTION_LOGGER_CMOD_SRCS) \
+                   $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                   gomc/generated/gmi/motctl/motctl_api.h \
+                   gomc/generated/gmi/motstat/motstat_api.h \
+                   | headers
+	$(ECHO) "Compiling cmod motion-logger.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(MOTION_LOGGER_CMOD_CFLAGS) $(EXTRA_CFLAGS) \
+	    -o $@ $(MOTION_LOGGER_CMOD_SRCS) $(CMOD_LDFLAGS) -lm
+
+TARGETS += ../cmod/motion-logger.so
+modules: ../cmod/motion-logger.so

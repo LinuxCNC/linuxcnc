@@ -1,0 +1,10 @@
+Ported to the gomc streaming model (multi-instance load multiclick <.0,.1> WORKS —
+22 pins; sampler/streamer via the shared resident driver). xfails on a
+streaming-TIMING difference, not multi-instance: multiclick's click detection
+depends on ns-durations measured over thread cycles (max-hold-ns/max-space-ns vs the
+1ms thread). Under gomc's live streamer/sampler feed the input-to-cycle alignment
+differs from the classic preloaded-FIFO replay, so the detected single/double/triple
+click sequence is time-shifted from expected (values differ; pin set matches). Needs
+the streamer advance to be paced one-line-per-thread-cycle (or the sampler start
+aligned) for timing-sensitive stateful comps. (Stateless streaming comps like abs.0
+convert cleanly.)

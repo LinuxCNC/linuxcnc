@@ -17,9 +17,12 @@ component test_shmem_rtcomp "Validate rtapi's shmem initialization behavior";
 
 option extra_setup;
 option extra_cleanup;
-option singleton;
 
 pin out bit ready = 0 "Goes true when shmem is initialized";
+
+// Per-instance state (gomc is multi-instance: no module globals). The shmem id
+// must persist from EXTRA_SETUP to EXTRA_CLEANUP so it lives in inst_t.
+variable int shmem_id = -1;
 
 function _;
 license "GPL";
@@ -27,21 +30,22 @@ license "GPL";
 ;;
 
 #include <rtapi.h>
+#include <errno.h>
 
 #define SHMEM_KEY 9999
 #define SHMEM_SIZE (4096 * 100) // in bytes
 
-int shmem_id = -1;
-void *mem = NULL;
-
-int shmem_alloc(void) {
+// Helpers take the per-instance context (__comp_inst) — comp_id and shmem_id are
+// per-instance, reached via __comp_inst, never a module global.
+static int shmem_alloc(inst_t *__comp_inst, void **mem_out) {
     int i;
     int r;
     uint8_t *p;
+    void *mem = NULL;
 
     rtapi_print_msg(RTAPI_MSG_ERR, "allocating shmem\n");
 
-    shmem_id = rtapi_shmem_new(SHMEM_KEY, comp_id, SHMEM_SIZE);
+    shmem_id = rtapi_shmem_new(SHMEM_KEY, __comp_inst->comp_id, SHMEM_SIZE);
     if (shmem_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "failed to make new rtapi shmem\n");
         return -EINVAL;
@@ -67,14 +71,16 @@ int shmem_alloc(void) {
 
     rtapi_print_msg(RTAPI_MSG_ERR, "allocated shmem came initialized to all bytes zero\n");
 
+    *mem_out = mem;
     return 0;
 }
 
 
-void shmem_free(void) {
+static void shmem_free(inst_t *__comp_inst) {
     if (shmem_id >= 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "freeing shmem\n");
-        rtapi_shmem_delete(shmem_id, comp_id);
+        rtapi_shmem_delete(shmem_id, __comp_inst->comp_id);
+        shmem_id = -1;
     }
 }
 
@@ -83,8 +89,9 @@ EXTRA_SETUP() {
     int i;
     int r;
     uint8_t *p;
+    void *mem = NULL;
 
-    r = shmem_alloc();
+    r = shmem_alloc(__comp_inst, &mem);
     if (r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "failed to alloc shmem\n");
         return -EINVAL;
@@ -96,9 +103,9 @@ EXTRA_SETUP() {
         p[i] = i % 256;
     }
 
-    shmem_free();
+    shmem_free(__comp_inst);
 
-    r = shmem_alloc();
+    r = shmem_alloc(__comp_inst, &mem);
     if (r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "failed to alloc shmem\n");
         return -EINVAL;
@@ -109,11 +116,10 @@ EXTRA_SETUP() {
 
 
 EXTRA_CLEANUP() {
-    shmem_free();
+    shmem_free(__comp_inst);
 }
 
 
 FUNCTION(_) {
     ready = 1;
 }
-

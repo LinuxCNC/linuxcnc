@@ -1,0 +1,9 @@
+setexact_for_test_suite_only
+newthread fast 100000
+load flipflop <flipflop.0>
+loadrt sampler depth=1000 cfg=b
+loadrt streamer depth=32 cfg=bbbb
+source sourced.hal
+addf streamer fast
+addf flipflop.0 fast
+addf sampler fast

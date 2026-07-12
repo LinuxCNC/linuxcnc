@@ -1,0 +1,7 @@
+Ported to gomc (config +LIB:linuxcnc.hal + PARAMETER_FILE, loadrt->load; driver
+-> gmi; the userspace hal poker of the x-neg-lim-sw signal replaced with
+`halcmd sets`). Instance + driver run. Fails "no jog movement" — the known gomc
+jog/teleop bug (a manual jog produces no movement; joint/axis jog + teleop mode
+handling is broken; also status.limit[] reads -1 not a bitmask on a tripped
+hard limit). See PRODUCTION_READINESS.md. Remove xfail once jog/teleop + limit
+status are fixed.

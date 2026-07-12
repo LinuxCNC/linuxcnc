@@ -1,0 +1,11 @@
+Config + driver ported to the gomc model (LIB:linuxcnc.hal, loadrt->load in
+core_sim.hal, test.sh drives resident gomc-server, test-ui.py -> gmi client).
+
+Blocked on a gomc tool-offset BUG: G43 Hn (tool-table length-offset lookup)
+returns the WRONG Z offset. The tool table has `T1 P1 Z0.1234`, but MDI/startup
+`G43 H1` yields tool_offset[2] = 3.1344 (should be 0.1234). G43.1 (explicit
+value) works correctly (0.1234), and G43 H2 (nonexistent tool) gives 0.0 — so
+tool 1 is found but its table Z offset is mis-read/mis-computed. This test's
+RS274NGC_STARTUP_CODE = G43 H1 is expected to set tool_offset[2]=0.1234.
+Fix target: gomc tooltable/interp G43 H-word tool-length-offset lookup.
+Remove this xfail once G43 Hn returns the correct table offset.

@@ -1,0 +1,5 @@
+Tests the linuxcncrsh telnet remote-shell protocol (port 5007) of a component
+that gomc removed. Its function (remote machine control) is now the gomc REST/WS
+API — tests that merely USED rsh as a driver were ported to gmi (see tests/rsh2gmi.py);
+these two test the protocol itself, so they are obsolete. Re-add only if a
+REST-API smoke test is wanted here.
