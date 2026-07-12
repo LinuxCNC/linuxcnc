@@ -1,0 +1,9 @@
+Reworked per the singleton removal: dropped 'option singleton' (gomc: every comp is
+multi-instance) and load a single named instance; the rtapi shmem alloc/zero/free/
+realloc validation still runs in EXTRA_SETUP. But the comp does not BUILD under
+modcompile, which unlike classic halcompile does not provide the component globals
+the .comp C code relies on: 'comp_id' is undeclared (used in rtapi_shmem_new/delete),
+and <errno.h> is not implicitly included (EINVAL undeclared; added the include here).
+xfails on the modcompile comp_id gap. Also needs sudo (control: Restrictions: sudo)
+and gomc rtapi_shmem_* support (untested — blocked earlier by the build). Passes once
+modcompile exposes comp_id (and gomc rtapi provides shmem).

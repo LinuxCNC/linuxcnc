@@ -1,2 +1,2 @@
 debug 5
-loadrt test_shmem_rtcomp
+load test_shmem_rtcomp <test_shmem_rtcomp.0>

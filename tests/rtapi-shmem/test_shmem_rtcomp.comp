@@ -17,7 +17,6 @@ component test_shmem_rtcomp "Validate rtapi's shmem initialization behavior";
 
 option extra_setup;
 option extra_cleanup;
-option singleton;
 
 pin out bit ready = 0 "Goes true when shmem is initialized";
 
@@ -27,6 +26,7 @@ license "GPL";
 ;;
 
 #include <rtapi.h>
+#include <errno.h>
 
 #define SHMEM_KEY 9999
 #define SHMEM_SIZE (4096 * 100) // in bytes

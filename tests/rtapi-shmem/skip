@@ -1,1 +1,0 @@
-Uses 'option singleton', which gomc intentionally removed (no singleton concept; a single cmod can provide multiple instances). Test premise no longer applies.
