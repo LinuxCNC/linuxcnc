@@ -1,5 +1,19 @@
+# Round-trip config for `halcmd save`: load comps, wire signals, set stepgen
+# parameters (non-default values that must survive save), and addf the funcs.
 load stepgen <stepgen.0> step_type=0
 load sampler cfg=bb depth=4096
 newthread fast 100000
 newsig unlinked bit
-net dir stepgen.0.dir => sampler.pin.0
+net dir  stepgen.0.dir  => sampler.pin.0
+net step stepgen.0.step => sampler.pin.1
+setp stepgen.0.dirhold 1
+setp stepgen.0.dirsetup 1
+setp stepgen.0.maxaccel 2
+setp stepgen.0.maxvel 0.15
+setp stepgen.0.position-scale 32000
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 1
+addf stepgen.0.update-freq fast
+addf stepgen.0.make-pulses fast
+addf stepgen.0.capture-position fast
+addf sampler fast

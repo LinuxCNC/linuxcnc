@@ -24,6 +24,10 @@ def drain_mdi(timeout=30.0):
         if s.queued_mdi_commands == 0 and s.interp_state == INTERP_IDLE:
             return
         time.sleep(0.005)
+    raise SystemExit(
+        "rsh2gmi: MDI did not drain within %gs (queued=%d interp_state=%d) — "
+        "treating a hung interpreter as failure, not success"
+        % (timeout, s.queued_mdi_commands, s.interp_state))
 
 
 for raw in sys.stdin:
@@ -48,7 +52,13 @@ for raw in sys.stdin:
     elif low == 'set mode auto':
         c.mode(MODE_AUTO)
     elif low == 'set wait done':
-        c.wait_complete(30)
+        # wait_complete returns 1 (RCS_DONE), 3 (RCS_ERROR), or -1 (timeout).
+        # A timeout means the interpreter hung — fail loudly rather than silently
+        # continue (which would read a hung run as success). RCS_ERROR is NOT fatal:
+        # these tool tests deliberately issue commands that error (e.g. G10 L1 P0)
+        # and introspect the resulting state afterwards.
+        if c.wait_complete(30) == -1:
+            raise SystemExit("rsh2gmi: wait_complete timed out (interpreter hung)")
     elif low.startswith('set mdi '):
         c.mdi(cmd[len('set mdi '):])
         time.sleep(0.02)  # let the command register before polling for drain

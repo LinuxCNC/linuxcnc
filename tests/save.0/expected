@@ -3,17 +3,23 @@
 # component stepgen.0 (loaded by cmod)
 # component halcmd (loaded by cmod)
 newsig dir bit
+newsig step bit
 newsig unlinked bit
 net dir sampler.pin.0 stepgen.0.dir
+net step sampler.pin.1 stepgen.0.step
 setp fast.tmax 0
 setp sampler.tmax 0
 setp stepgen.0.capture-position.tmax 0
 setp stepgen.0.dirhold 1
 setp stepgen.0.dirsetup 1
 setp stepgen.0.make-pulses.tmax 0
-setp stepgen.0.maxaccel 0
-setp stepgen.0.maxvel 0
-setp stepgen.0.position-scale 1
+setp stepgen.0.maxaccel 2
+setp stepgen.0.maxvel 0.15
+setp stepgen.0.position-scale 32000
 setp stepgen.0.steplen 1
 setp stepgen.0.stepspace 1
 setp stepgen.0.update-freq.tmax 0
+addf stepgen.0.update-freq fast
+addf stepgen.0.make-pulses fast
+addf stepgen.0.capture-position fast
+addf sampler fast

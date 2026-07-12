@@ -23,6 +23,10 @@ _HAL_SRVPID=""
 _HAL_SAMPLER_PID=""
 
 hal_cleanup() {
+    # Kill the background halsampler first: if a test aborts mid-sequence (before
+    # hal_run's `wait`) the sampler would otherwise leak into the next test and
+    # poison it (a stray WS client / held resources).
+    [ -n "$_HAL_SAMPLER_PID" ] && kill "$_HAL_SAMPLER_PID" 2>/dev/null
     [ -n "$_HAL_SRVPID" ] && kill "$_HAL_SRVPID" 2>/dev/null
     wait 2>/dev/null
 }
