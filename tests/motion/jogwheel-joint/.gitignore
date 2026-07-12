@@ -1,2 +1,4 @@
 sim.var
 sim.var.bak
+db/
+server.log
