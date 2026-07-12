@@ -366,7 +366,6 @@ SRCHEADERS := \
     emc/motion/simple_tp.h \
     emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
-    emc/motion/axis.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
     emc/nml_intf/emctool.h \
@@ -387,6 +386,7 @@ SRCHEADERS := \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
+    libnml/inifile/iniparse.h \
     libnml/posemath/posemath.h \
     libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \

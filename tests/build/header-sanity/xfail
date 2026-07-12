@@ -1,8 +1,0 @@
-Compiles every installed header standalone.  Finds 2 real gomc header-packaging
-bugs (public headers that pull in uninstalled headers):
-  - include/axis.h -> "gomc_hal.h" / "gomc_log.h" (cmodule-private, in
-    src/gomc/pkg/cmodule/, not installed to include/)
-  - include/inifile.h -> <iniparse.h> (libiniparse ships, but its header is not
-    installed)
-Flip to pass once those headers are installed (or the includes are fixed).
-See PRODUCTION_READINESS.md.
