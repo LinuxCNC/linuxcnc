@@ -1,3 +1,9 @@
-motion-logger is not ported to gomc: mock-motion.hal uses 'loadusr -W motion-logger'
-(userspace NML motmod stand-in). gomc has no loadusr/userspace/NML; motion-logger.c is not
-built as a cmod. Needs a gomc cmod port of motion-logger. Re-enable once that exists.
+NOT a motion-logger test (the old xfail reason was stale — this config uses real
+motion via LIB:core_sim.hal + motmod, and pass/fail is decided by test-ui.py from
+axis position, not out.motion-logger). Blocked on a gmi client gap: the driver waits
+for `s.queue > 1000` (interp readahead fill) before aborting to reproduce the
+readahead-abort overrun bug (#579/#393/#241), but gmi.Stat exposes no queue /
+active_queue / queue_full field (the controller has it — motstat get_queue_depth).
+Needs gmi.Stat to surface motion queue depth; then port test-ui.py to gmi (positions
+from s.actual_position, drop the userspace test-ui HAL comp + postgui.hal) and verify
+gomc's readahead-abort behavior.
