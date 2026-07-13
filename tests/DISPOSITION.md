@@ -56,7 +56,7 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 ### 2a. Correct skip — Python interpreter removed
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
-interp/{pymove,python/error,python-self,value-returned}, m70-m73/m73-flood-mist-restore.0,
+interp/{pymove,python/error,python-self}, m70-m73/m73-flood-mist-restore.0,
 remap/fail/{body-py,canon_error,epilog,prolog}, remap/{introspect,oword-pycall,predefined-named-params,remap-reentry,spindle,variable-injection}.
 
 ### 2b. Correct skip — TCL-for-HAL removed

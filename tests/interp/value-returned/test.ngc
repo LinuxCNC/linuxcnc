@@ -1,3 +1,7 @@
+; O-word subroutine return-value semantics.
+; Classic verified this.return_value / this.value_returned via inline ;py,
+; asserts; gomc has no embedded Python, so we make #<_value> observable in the
+; canon stream via a rapid move after each call and check the values.
 
 ; return a value via endsub
 o<function1> sub
@@ -12,51 +16,19 @@ o<function2> endsub
 o<proc> sub
 o<proc> endsub
 
-;py,from interpreter import *
-
-;;;py,print this.return_value
-;;;py,print this.value_returned
-
-;py,assert equal(this.return_value,0.0)
-;py,assert this.value_returned == 0
+; before any call the return value is 0
+g0 x#<_value>
 
 o<function1> call
-; make sure they are properly set
-;py,assert equal(this.return_value,4711.0)
-;py,assert this.value_returned == 1
+g0 x#<_value>          ; 4711 — set via endsub
 
 o<proc> call
-; make sure they are cleared
-;py,assert equal(this.return_value,0.0)
-;py,assert this.value_returned == 0
+g0 x#<_value>          ; 0 — cleared after a no-return sub
 
 o<function2> call
-; make sure they are properly set again
-;py,assert equal(this.return_value,4712.0)
-;py,assert this.value_returned == 1
+g0 x#<_value>          ; 4712 — set via return
 
 o<proc> call
-; make sure they are cleared again
-;py,assert equal(this.return_value,0.0)
-;py,assert this.value_returned == 0
-
-; now the same for Python oword subs
-o<returns4711> call
-;py,assert equal(this.return_value,4711.0)
-;py,assert this.value_returned == 1
-
-o<nonereturned> call
-; make sure they are cleared again
-;;py,assert equal(this.return_value,0.0)
-;;py,assert this.value_returned == 0
-
-o<returns4711> call
-;py,assert equal(this.return_value,4711.0)
-;py,assert this.value_returned == 1
-
-o<endswithpass> call
-; make sure they are cleared again
-;py,assert equal(this.return_value,0.0)
-;py,assert this.value_returned == 0
+g0 x#<_value>          ; 0 — cleared again
 
 m2
