@@ -1,0 +1,6 @@
+Dedicated coverage for the WebSocket sampler/streamer comps and the halstreamer /
+halsampler clients.  After the file-based streaming tests migrated to the
+filestream cmod, this is what keeps the WS path exercised: a streamer receives
+values over a WebSocket and drives HAL pins, wired straight into a sampler that
+transmits them back over a WebSocket to halsampler.  A loopback of all four pin
+types, driven from the shell clients through hal-stream-driver.sh.

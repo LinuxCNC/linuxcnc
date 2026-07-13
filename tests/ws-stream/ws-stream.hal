@@ -1,0 +1,13 @@
+# Dedicated coverage for the WebSocket sampler/streamer comps + the halstreamer /
+# halsampler clients: a streamer feeds values received over a WebSocket onto HAL
+# pins, wired straight into a sampler that transmits them back over a WebSocket to
+# halsampler.  A loopback of all four pin types, driven from the shell clients.
+loadrt streamer cfg=fbus depth=100
+loadrt sampler  cfg=fbus depth=100
+net p0 streamer.pin.0 => sampler.pin.0
+net p1 streamer.pin.1 => sampler.pin.1
+net p2 streamer.pin.2 => sampler.pin.2
+net p3 streamer.pin.3 => sampler.pin.3
+newthread fast 1000000
+addf streamer fast
+addf sampler fast
