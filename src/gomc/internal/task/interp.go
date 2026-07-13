@@ -39,6 +39,15 @@ func NewCInterpFromLib(shlib string) (*CInterp, error) {
 	return &CInterp{handle: h}, nil
 }
 
+// RawInterp returns the underlying C++ Interp* — the ctx the interp_ext GMI
+// provider must expose so that a cmod's register_oword/register_remap_* calls
+// reach this interpreter instance. interp_new() returns the InterpBase*/Interp*
+// directly as the handle (single inheritance), which is exactly what
+// interp_ext_register_* static_cast to Interp*.
+func (i *CInterp) RawInterp() unsafe.Pointer {
+	return i.handle
+}
+
 func (i *CInterp) IniLoad(inifile string) error {
 	cs := C.CString(inifile)
 	defer C.free(unsafe.Pointer(cs))

@@ -32,6 +32,21 @@ $(call TOOBJSDEPS, $(TEST_MCODE_SRCS)): gomc/generated/gmi/mcode_handler/mcode_h
 	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 TARGETS += ../cmod/test_mcode_handler.so
 
+# test_interp_ext.so — test cmod for the interp_ext API (register_oword)
+TEST_INTERP_EXT_SRCS := emc/task/test_interp_ext.c
+USERSRCS += $(TEST_INTERP_EXT_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_interp_ext.so: $(call TOOBJS, $(TEST_INTERP_EXT_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_interp_ext.so
+
 # mcode_coord_log.so — cmod that logs M100 coord/tool introspection to a file,
 # replacing the classic USER_M_PATH subs/M100 script for the tool tests.
 MCODE_COORD_LOG_SRCS := emc/task/mcode_coord_log.c
