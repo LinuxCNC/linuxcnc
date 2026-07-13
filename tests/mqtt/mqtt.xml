@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MQTT bridge config for the runtests mqtt test. Publishes the three joint
+     positions as a JSON topic at 100 ms, always (so the publish-count liveness
+     pin advances every tick regardless of motion). The broker is never reached
+     because the test loads the bridge in `dryrun`. -->
+<mqttBridge broker="tcp://broker.local:1883" clientId="gomc-mqtt-test">
+  <topic path="cnc/position" dir="out" type="json" publish="always" rate="100">
+    <pin name="X" type="float" dir="out"/>
+    <pin name="Y" type="float" dir="out"/>
+    <pin name="Z" type="float" dir="out"/>
+  </topic>
+</mqttBridge>

@@ -58,9 +58,15 @@ func newMQTTBridge(ini *inifile.IniFile, logger *slog.Logger, name string, args 
 		return nil, fmt.Errorf("mqtt-bridge: missing required config= parameter")
 	}
 
-	// Resolve relative paths against the INI file directory.
+	// Resolve relative paths against the INI file directory, falling back to the
+	// cwd when loaded without an INI (a one-shot/resident `-f` HAL file has no
+	// INI, so ini is nil — dereferencing it here would segfault, the same nil-INI
+	// class as the haljson/pyvcp fixes).
 	if !filepath.IsAbs(configPath) {
-		iniDir := filepath.Dir(ini.SourceFile())
+		iniDir := "."
+		if ini != nil {
+			iniDir = filepath.Dir(ini.SourceFile())
+		}
 		configPath = filepath.Join(iniDir, configPath)
 	}
 
@@ -79,7 +85,7 @@ func newMQTTBridge(ini *inifile.IniFile, logger *slog.Logger, name string, args 
 	}
 
 	// Create bridge (pins + MQTT wiring).
-	b, err := newBridge(comp, name, cfg, logger)
+	b, err := newBridge(comp, name, cfg, logger, parseDryrunArg(args))
 	if err != nil {
 		comp.Exit()
 		return nil, fmt.Errorf("mqtt-bridge %q: %w", name, err)
@@ -111,4 +117,17 @@ func parseConfigArg(args []string) string {
 		}
 	}
 	return ""
+}
+
+// parseDryrunArg reports whether a bare "dryrun" load argument was given
+// (e.g. `load mqtt-bridge config=mqtt.xml dryrun`). In dryrun the bridge never
+// connects to a broker but still runs its publish loops and advances the
+// publish-count pin — for offline testing/diagnostics.
+func parseDryrunArg(args []string) bool {
+	for _, arg := range args {
+		if arg == "dryrun" {
+			return true
+		}
+	}
+	return false
 }
