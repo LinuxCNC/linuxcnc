@@ -105,17 +105,15 @@ static void write_funct(void *arg, long period) {
     filestream_inst_t *m = (filestream_inst_t *)arg;
     (void)period;
 
-    if (!*(m->enable)) return;
+    if (!*(m->enable) || *(m->done)) return;
 
     if (m->rep_rpos == m->rep_wpos) {
-        // ring empty: either replay is complete, or the I/O thread is behind.
-        // When there is no capture side to signal completion, the replay-drained
-        // condition is the run's `done`.
-        if (m->infile_eof) {
-            if (m->n_sample == 0) *(m->done) = 1;
-        } else {
-            (*(m->underruns))++;
-        }
+        // Ring empty while clocked: an underrun (matching the classic streamer,
+        // which counts an underrun whenever it is clocked with no data).  The
+        // stream pins hold their previous value.  When there is no capture side
+        // to bound the run, replay-drained-at-EOF is also the run's `done`.
+        (*(m->underruns))++;
+        if (m->infile_eof && m->n_sample == 0) *(m->done) = 1;
         return;
     }
 
@@ -136,7 +134,7 @@ static void read_funct(void *arg, long period) {
     filestream_inst_t *m = (filestream_inst_t *)arg;
     (void)period;
 
-    if (!*(m->enable)) return;
+    if (!*(m->enable) || *(m->done)) return;
 
     // Stop after the requested number of samples so the captured file has a
     // deterministic length (and signal completion via `done`).

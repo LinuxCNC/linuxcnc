@@ -1,0 +1,2 @@
+# 'x' is not a valid stream pin type (only f/b/u/s), so this load must fail.
+load filestream sample_cfg=xx outfile=out.txt

@@ -1,1 +1,7 @@
-Creating a hal stream should fail if the cfg string is invalid.
+Verify the HAL stream components reject an invalid cfg pin type.
+
+Re-expressed for gomc: the classic test used the Python hal.stream(...,"xx")
+binding and asserted it raised on the invalid cfg 'x'.  gomc removed the embedded
+Python hal.stream binding, so the same validation is exercised by loading the
+filestream cmod with sample_cfg=xx and confirming the load fails (the cmod's
+hal_stream_parse_cfg rejects any type that is not f/b/u/s).

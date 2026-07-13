@@ -1,0 +1,9 @@
+Test the HAL stream ring's overrun / underrun / sampleno behaviour.
+
+Re-expressed for gomc: the classic test drove the Python hal.stream binding
+(write until full -> raises, read until empty -> None, num_overruns/num_underruns/
+sampleno).  gomc removed the embedded Python hal.stream binding; the same ring
+semantics are now exposed by the stream cmods as HAL pins.  This replays 9
+mixed-type (bfsu) samples through a filestream loopback into a depth-10 ring,
+clocked for 12 ticks, and verifies the ring round-trips the 9 samples, counts 12
+(sample-num), underruns exactly 3 times (12-9 empty clocks), and never overruns.

@@ -1,3 +1,0 @@
-Drives ./test.py, which exercises the HAL stream API via the deprecated Python
-'hal' module as a userspace program. gomc removed embedded Python and userspace
-HAL components; the stream API is exercised instead by halstreamer/halsampler.

@@ -1,23 +1,22 @@
 newthread fast 100000
 load flipflop <flipflop.0>
 
-loadrt sampler depth=1000 cfg=b
-loadrt streamer depth=32 cfg=bbbb
+load filestream stream_cfg=bbbb infile=in.txt sample_cfg=b outfile=out.txt depth=1000 samples=10
 
 
-net a streamer.pin.0
-net b streamer.pin.1
-net c streamer.pin.2
-net d streamer.pin.3
+net a filestream.stream.0
+net b filestream.stream.1
+net c filestream.stream.2
+net d filestream.stream.3
 
 net a flipflop.0.data
 net b flipflop.0.clk
 net c flipflop.0.reset
 net d flipflop.0.set
 
-net n0 flipflop.0.out sampler.pin.0
+net n0 flipflop.0.out filestream.sample.0
 
-addf streamer fast
+addf filestream.write fast
 addf flipflop.0 fast
-addf sampler fast
+addf filestream.read fast
 

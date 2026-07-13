@@ -2,12 +2,11 @@
 # Feeds a streamer through abs into a sampler; the driver primes the streamer,
 # starts threads, then captures the sampler.  (No 'start'/loadusr here.)
 setexact_for_test_suite_only
-loadrt sampler cfg=ff depth=350
-loadrt streamer cfg=f depth=350
+load filestream stream_cfg=f infile=in.txt sample_cfg=ff outfile=out.txt depth=350 samples=7
 load abs <abs.0>
 newthread fast 100000
-net in streamer.pin.0 => sampler.pin.0 abs.0.in
-net out abs.0.out => sampler.pin.1
-addf streamer fast
+net in filestream.stream.0 => filestream.sample.0 abs.0.in
+net out abs.0.out => filestream.sample.1
+addf filestream.write fast
 addf abs.0 fast
-addf sampler fast
+addf filestream.read fast

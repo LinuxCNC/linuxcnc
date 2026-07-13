@@ -18,7 +18,7 @@ setp siggen.0.offset -50
 load ddt <ddt.in-accel,ddt.in-vel,ddt.out-accel,ddt.out-vel>
 
 
-loadrt sampler depth=2000 cfg=ffffff
+load filestream sample_cfg=ffffff outfile=out.txt depth=2000 samples=4000 tag
 
 
 # We use the cosine signal as the input so that the velocity and
@@ -27,25 +27,25 @@ loadrt sampler depth=2000 cfg=ffffff
 net input <= siggen.0.cosine
 net input => limit3.in
 net input => ddt.in-vel.in
-net input => sampler.pin.0
+net input => filestream.sample.0
 
 net in-vel <= ddt.in-vel.out
 net in-vel => ddt.in-accel.in
-net in-vel => sampler.pin.1
+net in-vel => filestream.sample.1
 
 net in-accel <= ddt.in-accel.out
-net in-accel => sampler.pin.2
+net in-accel => filestream.sample.2
 
 net output <= limit3.out
 net output => ddt.out-vel.in
-net output => sampler.pin.3
+net output => filestream.sample.3
 
 net out-vel <= ddt.out-vel.out
 net out-vel => ddt.out-accel.in
-net out-vel => sampler.pin.4
+net out-vel => filestream.sample.4
 
 net out-accel <= ddt.out-accel.out
-net out-accel => sampler.pin.5
+net out-accel => filestream.sample.5
 
 
 newthread t 1000000
@@ -56,6 +56,6 @@ addf ddt.in-vel      t
 addf ddt.in-accel    t
 addf ddt.out-vel     t
 addf ddt.out-accel   t
-addf sampler       t
+addf filestream.read       t
 
 

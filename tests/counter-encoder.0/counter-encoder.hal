@@ -1,15 +1,15 @@
 setexact_for_test_suite_only
 
-loadrt sampler cfg=sss depth=3500
+load filestream sample_cfg=sss outfile=out.txt depth=3500 samples=3500
 load stepgen <stepgen.0> step_type=2
 load encoder <encoder.0,encoder.1,encoder.2>
 newthread fast 100000
 
 net A stepgen.0.phase-A => encoder.0.phase-A encoder.1.phase-A encoder.2.phase-A
 net B stepgen.0.phase-B => encoder.0.phase-B encoder.1.phase-B
-net C0 encoder.0.counts => sampler.pin.0
-net C1 encoder.1.counts => sampler.pin.1
-net C2 encoder.2.counts => sampler.pin.2
+net C0 encoder.0.counts => filestream.sample.0
+net C1 encoder.1.counts => filestream.sample.1
+net C2 encoder.2.counts => filestream.sample.2
 
 addf stepgen.0.update-freq fast
 addf stepgen.0.make-pulses fast
@@ -19,7 +19,7 @@ addf encoder.2.update-counters fast
 addf encoder.0.capture-position fast
 addf encoder.1.capture-position fast
 addf encoder.2.capture-position fast
-addf sampler fast
+addf filestream.read fast
 
 setp stepgen.0.maxvel .15
 setp stepgen.0.maxaccel 2

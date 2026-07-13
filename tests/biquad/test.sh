@@ -1,7 +1,6 @@
 #!/bin/bash
-. "$(dirname "$0")/../hal-stream-driver.sh"
-hal_start_server biquad.hal
-hal_feed_streamer <<DATA
+. "$(dirname "$0")/../filestream-driver.sh"
+cat > in.txt <<DATA
 0 0.123
 0 0.55
 0 1.12
@@ -13,5 +12,4 @@ hal_feed_streamer <<DATA
 0 1213
 0 0
 DATA
-hal_sample 10
-hal_run
+fs_run biquad.hal

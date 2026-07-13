@@ -1,0 +1,8 @@
+time=2026-07-13T11:42:23.613+02:00 level=INFO msg="starting realtime environment"
+time=2026-07-13T11:42:23.613+02:00 level=INFO msg="realtime environment ready (uspace)"
+time=2026-07-13T11:42:23.613+02:00 level=INFO msg="initializing RTAPI app (in-process)"
+time=2026-07-13T11:42:23.616+02:00 level=INFO msg="loading C plugin" path=/home/sascha/source/linuxcnc/cmod/filestream.so name=filestream
+time=2026-07-13T11:42:23.616+02:00 level=ERROR msg="halrun failed" error="bad-cfg.hal:2: <halrun>:1: load C plugin \"/home/sascha/source/linuxcnc/cmod/filestream.so\": factory returned error code -22"
+time=2026-07-13T11:42:23.616+02:00 level=INFO msg="shutting down and cleaning up LinuxCNC..."
+time=2026-07-13T11:42:23.616+02:00 level=ERROR msg="invalid sample_cfg 'xx'" component=filestream
+gomc-server: bad-cfg.hal:2: <halrun>:1: load C plugin "/home/sascha/source/linuxcnc/cmod/filestream.so": factory returned error code -22

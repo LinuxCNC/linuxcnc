@@ -1,5 +1,3 @@
 #!/bin/bash
-. "$(dirname "$0")/../../hal-stream-driver.sh"
-hal_start_server min-max-overshoot.hal
-hal_sample 800 -t
-hal_run
+. "$(dirname "$0")/../../filestream-driver.sh"
+fs_run min-max-overshoot.hal

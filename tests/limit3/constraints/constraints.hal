@@ -39,12 +39,12 @@ load conv_float_u32 <conv_float_u32.0>
 net encoder-position => conv_float_u32.0.in
 net mux-select <= conv_float_u32.0.out
 net mux-select => mux_generic.sel-int
-loadrt sampler depth=1500 cfg=ffffu
-net input => sampler.pin.0
-net output => sampler.pin.1
-net out-vel => sampler.pin.2
-net out-accel => sampler.pin.3
-net mux-select => sampler.pin.4
+load filestream sample_cfg=ffffu outfile=out.txt depth=1500 samples=5100 tag
+net input => filestream.sample.0
+net output => filestream.sample.1
+net out-vel => filestream.sample.2
+net out-accel => filestream.sample.3
+net mux-select => filestream.sample.4
 newthread t 1000000
 addf charge_pump.0            t
 addf encoder.0.update-counters t
@@ -55,4 +55,4 @@ addf mux_generic            t
 addf limit3                 t
 addf ddt.out-vel            t
 addf ddt.out-accel          t
-addf sampler                t
+addf filestream.read                t

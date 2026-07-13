@@ -1,0 +1,16 @@
+time=2026-07-13T11:42:23.843+02:00 level=INFO msg="starting realtime environment"
+time=2026-07-13T11:42:23.843+02:00 level=INFO msg="realtime environment ready (uspace)"
+time=2026-07-13T11:42:23.843+02:00 level=INFO msg="initializing RTAPI app (in-process)"
+time=2026-07-13T11:42:23.845+02:00 level=INFO msg="loading C plugin" path=/home/sascha/source/linuxcnc/cmod/filestream.so name=filestream
+time=2026-07-13T11:42:23.845+02:00 level=INFO msg="runtime-loaded C module" name=filestream path=/home/sascha/source/linuxcnc/cmod/filestream.so
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="configuring web apps" dir=/home/sascha/source/linuxcnc/share/gomc/webapp
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="registered webapp" name=classicladder prefix=/app/classicladder/ dir=/home/sascha/source/linuxcnc/share/gomc/webapp/classicladder
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="registered webapp" name=emccalib prefix=/app/emccalib/ dir=/home/sascha/source/linuxcnc/share/gomc/webapp/emccalib
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="registered webapp" name=halscope prefix=/app/halscope/ dir=/home/sascha/source/linuxcnc/share/gomc/webapp/halscope
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="registered webapp" name=halshow prefix=/app/halshow/ dir=/home/sascha/source/linuxcnc/share/gomc/webapp/halshow
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="registered webapp" name=tooledit prefix=/app/tooledit/ dir=/home/sascha/source/linuxcnc/share/gomc/webapp/tooledit
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="resident HAL mode ready, waiting for shutdown signal (Ctrl+C to stop)"
+time=2026-07-13T11:42:23.846+02:00 level=INFO msg="starting REST API server" addr=127.0.0.1:5080
+time=2026-07-13T11:42:23.848+02:00 level=INFO msg="task 0x1edcec90 period = 1000000 ratio=1\n" component=rtapi
+time=2026-07-13T11:42:24.028+02:00 level=INFO msg="received signal, shutting down" signal=terminated
+time=2026-07-13T11:42:24.028+02:00 level=INFO msg="shutting down and cleaning up LinuxCNC..."

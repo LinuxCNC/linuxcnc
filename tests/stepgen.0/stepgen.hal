@@ -1,13 +1,13 @@
 setexact_for_test_suite_only
-loadrt sampler cfg=bb depth=4096
+load filestream sample_cfg=bb outfile=out.txt depth=4096 samples=3500
 load stepgen <stepgen.0> step_type=0
 newthread fast 100000
-net n0 stepgen.0.dir sampler.pin.0
-net n1 stepgen.0.step sampler.pin.1
+net n0 stepgen.0.dir filestream.sample.0
+net n1 stepgen.0.step filestream.sample.1
 addf stepgen.0.update-freq fast
 addf stepgen.0.make-pulses fast
 addf stepgen.0.capture-position fast
-addf sampler fast
+addf filestream.read fast
 setp stepgen.0.maxvel .15
 setp stepgen.0.maxaccel 2
 setp stepgen.0.position-cmd .04

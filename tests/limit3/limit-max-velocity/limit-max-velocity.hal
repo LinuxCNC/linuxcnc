@@ -1,15 +1,15 @@
 setexact_for_test_suite_only
 
-loadrt sampler cfg=f depth=4096
+load filestream sample_cfg=f outfile=out.txt depth=4096 samples=800 tag
 #load limit3
 load limit3
 newthread t 1000000
 setp limit3.maxv 500.000000
 
-net n0 limit3.out sampler.pin.0
+net n0 limit3.out filestream.sample.0
 
 addf limit3 t
-addf sampler t
+addf filestream.read t
 
 setp limit3.in 500
 
