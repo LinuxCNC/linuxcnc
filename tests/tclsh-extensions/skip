@@ -1,2 +1,0 @@
-Tests the classic tclsh/wish (LINUXCNC_EMCSH) extension commands. gomc's UIs are
-REST/WS web apps; there is no wish-like emcsh. Tcl/Tk GUI stack not ported.

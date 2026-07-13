@@ -51,9 +51,16 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 
 ---
 
-## 2. Skips
+## 2. Removals (genuine feature removals — tests DELETED)
 
-### 2a. Correct skip — Python interpreter removed (all CONFIRMED, #3)
+These tests exercised features gomc removed for good (embedded Python interpreter,
+TCL-for-HAL, custom kernel `rtapi_vsnprintf`). After confirming each (#3) against
+the exact removed mechanism, the test dirs were **deleted** (2026-07-13) rather than
+left as permanent skips — the features are not coming back, the per-test rationale
+below is the record, and the classic tests remain in `linuxcnc-2.9` + git history if
+ever needed. Result: **zero skipped tests remain** in the suite.
+
+### 2a. DELETED — Python interpreter removed (all CONFIRMED #3, then removed)
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
 interp/{pymove,python/error,python-self},
@@ -74,16 +81,19 @@ remap/fail/{body-py,canon_error}, remap/{predefined-named-params,remap-reentry}.
 | remap/predefined-named-params | Python-registered **predefined named params** (`_pi`, `_py_motion_mode`, read-only #<_name>) | interp_ext has no register-named-param; interp_ctx get/set only touch existing params. |
 | remap/remap-reentry | Python **generator** handler bodies doing `self.execute("G0 …")` + repeated `yield INTERP_EXECUTE_FINISH` | interp_ctx has no execute-string accessor; interp_ext's single EXECUTE_FINISH can't reproduce the multi-yield coroutine + self.execute pattern; py= rejected at parse anyway. |
 
-### 2b. Correct skip — TCL-for-HAL removed
+### 2b. DELETED — TCL-for-HAL removed
 
-tclsh-extensions, tcllibpath-separator.
+tclsh-extensions, tcllibpath-separator — tested the classic `tclsh`/`wish`
+(LINUXCNC_EMCSH) HAL extension commands and the Tcl `TCLLIBPATH` separator
+convention. gomc's UIs are REST/WS web apps; there is no wish-like emcsh and the
+Tcl GUI stack is not ported. Deleted.
 
 ### 2c. RECLASSIFIED to must-test (was skip; the capability still exists)
 
 | test | capability | adjusted method | class / status |
 |---|---|---|---|
 | hal-link-unlink | HAL link/unlink value preservation | resident server + `tristate_float` pins + halcmd | ✅ **PASS** — ported; both hal_lib invariants verified green |
-| rtapi_printf.0 | custom `rtapi_vsnprintf` %f formatter | ⏭ **skip** (precise) — custom kernel-safe `rtapi_vsnprintf` removed (gomc uspace-only → libc); no meaningful re-expression. rtapi_print/rtapi_print_msg remain but formatting is libc's now. |
+| rtapi_printf.0 | custom `rtapi_vsnprintf` %f formatter | 🗑 **DELETED** — custom kernel-safe `rtapi_vsnprintf` removed (gomc uspace-only → libc); no meaningful re-expression. rtapi_print/rtapi_print_msg remain but formatting is libc's now. (Was a precise skip; removed 2026-07-13 as a genuine feature removal.) |
 | build/header-sanity | headers compile standalone | ✅ **PASS** — found + **fixed** 2 header-packaging bugs: removed internal `axis.h` from public SRCHEADERS; installed `iniparse.h` (dep of the public `inifile.h`). All 61 headers now compile standalone. |
 | build/ui | external program links the control API | ✅ **PASS** — re-expressed as a minimal gmi C client compiled/linked against `libgmi` (+`-lcurl -lcjson`, which libgmi fails to declare — noted in PRODUCTION_READINESS). |
 | overrun | runtests overrun-*retry* workaround | ⛔ **DROPPED** — it tested `run_without_overruns` (re-run a `test.hal` up to 10× if it prints `overrun`), a flakiness-masking retry that was dormant in gomc (nothing emits `overrun`) and is a workaround, not behavior. Removed `run_without_overruns` from `runtests.in` (a `.hal` now runs once); deleted the test. Tests must be deterministic, not retried. |

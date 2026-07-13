@@ -1,8 +1,0 @@
-CONFIRMED genuine skip (#3) — needs the removed canterp.so Python interpreter plugin.
-
-The test runs `rs274 -p ./canterp.so -g canon`: it loads canterp (the "canonical
-interpreter" written in Python) as an alternate interpreter plugin resolved by a
-RELATIVE path. canterp.so is a Python C-extension and is not built once the embedded
-Python interpreter is removed, so there is no plugin to load. plug/{absolute,
-filename,relative} only differ in how the (missing) plugin path is resolved.
-Genuine removal, nothing to re-express.

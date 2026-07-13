@@ -1,5 +1,0 @@
-The custom kernel-safe rtapi_vsnprintf (and rtapi_vsnprintf.h) is removed: gomc
-is uspace-only and uses libc's vsnprintf.  This test validated that custom
-float-formatting implementation, which no longer exists.  rtapi_print /
-rtapi_print_msg remain, but the actual formatting is now libc's (well-tested;
-not gomc's to re-test), so there is no meaningful re-expression.
