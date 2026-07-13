@@ -156,8 +156,9 @@ static void read_funct(void *arg, long period) {
     for (int n = 0; n < m->n_sample; n++)
         hal_stream_capture(&dst[n], m->sample_types[n], m->sample_pins[n]);
 
-    (*(m->sample_num))++;
+    // 0-based tag, matching halsampler -t (a per-connection counter from 0).
     m->cap_seq[idx] = *(m->sample_num);
+    (*(m->sample_num))++;
 
     __sync_synchronize();     // publish sample before advancing the write index
     m->cap_wpos = m->cap_wpos + 1;
