@@ -1,10 +1,16 @@
-Reworked to the correct gomc multi-instance usage: instead of the classic single
-loadrt mux_generic config="b2b,b2f,...,f5f" (which gomc rightly rejects — that comma
-list was wrong usage, not a bug), load each mux separately:
-load mux_generic <mux-gen.NN> config=<code>. All 18 type-converting muxes build and
-produce the CORRECT output values (rework validated).
-xfails only on a streaming-TIMING difference shared with tests/multiclick: gomc's
-live streamer/sampler feed does not reproduce the classic one-data-line-per-thread-
-cycle temporal pattern, so held inputs yield a different number of repeated sample
-rows (values match; row multiplicity differs; mux-gen.16 also has debounce-us timing).
-Passes once the streamer advance is paced one-line-per-thread-cycle.
+Migrated to the filestream cmod (deterministic, one input line per thread cycle).
+This FIXED the streaming-timing xfail: all 100 real-input sample rows now match the
+classic expected byte-for-byte (the 18 type-converting mux_generic outputs and the
+mux-gen.16 debounce are all correct).
+
+The only remaining difference is the 5 trailing held-last rows (samples 101-105).
+The classic streamer FIFO (depth=100) could hold depth-1=99 entries, so when the
+test preloaded 100 input lines the 100th (`1 4`, the one line where sel flips to 1)
+overflowed and was DROPPED — the classic then held the 99th (sel=0) for the tail.
+filestream loads all 100 input lines (no overflow drop), so it correctly holds the
+100th (sel=1) for the tail. Sibling tests/multiclick (also 100 lines) matches
+exactly because its 100th line equals its 99th, making the classic's drop invisible.
+
+So this is a benign classic-FIFO-overflow artifact in the golden file, not a
+filestream defect. Resolve by either regenerating expected from the deterministic
+filestream output, or having filestream replicate the classic drop-on-overflow.

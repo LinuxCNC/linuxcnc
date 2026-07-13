@@ -2,42 +2,41 @@
 newthread millisecond 1000000
 
 load multiclick <multiclick.0,multiclick.1>
-loadrt sampler depth=100 cfg=bbbbbbbbbsbbbbbbbbbs
-loadrt streamer depth=100 cfg=bb
+load filestream stream_cfg=bb sample_cfg=bbbbbbbbbsbbbbbbbbbs infile=input-signals outfile=out.txt depth=100 samples=105
 
 
-net in0 streamer.pin.0 => multiclick.0.in sampler.pin.0
+net in0 filestream.stream.0 => multiclick.0.in filestream.sample.0
 
-net out0.single         multiclick.0.single-click         => sampler.pin.1
-net out0.single-only    multiclick.0.single-click-only    => sampler.pin.2
-net out0.double         multiclick.0.double-click         => sampler.pin.3
-net out0.double-only    multiclick.0.double-click-only    => sampler.pin.4
-net out0.triple         multiclick.0.triple-click         => sampler.pin.5
-net out0.triple-only    multiclick.0.triple-click-only    => sampler.pin.6
-net out0.quadruple      multiclick.0.quadruple-click      => sampler.pin.7
-net out0.quadruple-only multiclick.0.quadruple-click-only => sampler.pin.8
+net out0.single         multiclick.0.single-click         => filestream.sample.1
+net out0.single-only    multiclick.0.single-click-only    => filestream.sample.2
+net out0.double         multiclick.0.double-click         => filestream.sample.3
+net out0.double-only    multiclick.0.double-click-only    => filestream.sample.4
+net out0.triple         multiclick.0.triple-click         => filestream.sample.5
+net out0.triple-only    multiclick.0.triple-click-only    => filestream.sample.6
+net out0.quadruple      multiclick.0.quadruple-click      => filestream.sample.7
+net out0.quadruple-only multiclick.0.quadruple-click-only => filestream.sample.8
 
-net state.0 multiclick.0.state => sampler.pin.9
-
-
-net in1 streamer.pin.1 => multiclick.1.in sampler.pin.10
-
-net out1.single         multiclick.1.single-click         => sampler.pin.11
-net out1.single-only    multiclick.1.single-click-only    => sampler.pin.12
-net out1.double         multiclick.1.double-click         => sampler.pin.13
-net out1.double-only    multiclick.1.double-click-only    => sampler.pin.14
-net out1.triple         multiclick.1.triple-click         => sampler.pin.15
-net out1.triple-only    multiclick.1.triple-click-only    => sampler.pin.16
-net out1.quadruple      multiclick.1.quadruple-click      => sampler.pin.17
-net out1.quadruple-only multiclick.1.quadruple-click-only => sampler.pin.18
-
-net state.1 multiclick.1.state => sampler.pin.19
+net state.0 multiclick.0.state => filestream.sample.9
 
 
-addf streamer    millisecond
+net in1 filestream.stream.1 => multiclick.1.in filestream.sample.10
+
+net out1.single         multiclick.1.single-click         => filestream.sample.11
+net out1.single-only    multiclick.1.single-click-only    => filestream.sample.12
+net out1.double         multiclick.1.double-click         => filestream.sample.13
+net out1.double-only    multiclick.1.double-click-only    => filestream.sample.14
+net out1.triple         multiclick.1.triple-click         => filestream.sample.15
+net out1.triple-only    multiclick.1.triple-click-only    => filestream.sample.16
+net out1.quadruple      multiclick.1.quadruple-click      => filestream.sample.17
+net out1.quadruple-only multiclick.1.quadruple-click-only => filestream.sample.18
+
+net state.1 multiclick.1.state => filestream.sample.19
+
+
+addf filestream.write    millisecond
 addf multiclick.0  millisecond
 addf multiclick.1  millisecond
-addf sampler     millisecond
+addf filestream.read     millisecond
 
 
 setp multiclick.0.max-hold-ns    2500000

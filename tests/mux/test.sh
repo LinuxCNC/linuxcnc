@@ -1,6 +1,6 @@
 #!/bin/bash
-. "$(dirname "$0")/../hal-stream-driver.sh"
-hal_start_server mux.hal
-grep -vE '^[[:space:]]*#|^[[:space:]]*$' input-signals | hal_feed_streamer
-hal_sample 105
-hal_run
+# 18 type-converting mux_generic instances, driven via the filestream cmod (was
+# WS streamer+sampler). filestream advances one input line per thread cycle — the
+# classic pacing the live WS feed could not reproduce.
+. "$(dirname "$0")/../filestream-driver.sh"
+fs_run mux.hal
