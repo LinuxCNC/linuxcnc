@@ -1,0 +1,59 @@
+# golangci-lint configuration for the gomc Go tree.
+# Pinned tool version: v2.12.2 (see GOLANGCI_LINT_VERSION in ../Makefile and CI).
+#
+# Policy: the *standard* linter set (errcheck, govet, ineffassign, staticcheck,
+# unused) must be clean. Generated code is excluded — fix the generator, not
+# its output (gmicompile emits generated/gmi/**).
+version: "2"
+
+linters:
+  default: standard
+  settings:
+    staticcheck:
+      checks:
+        - all
+        # The tool's default ST exclusions (package-comment/naming style).
+        - -ST1000
+        - -ST1003
+        - -ST1016
+        - -ST1020
+        - -ST1021
+        - -ST1022
+        # QF* are optional refactor suggestions, not defects — too opinionated
+        # for a merge gate.
+        - -QF*
+        # Redundant type on := in tests reads fine and is common here.
+        - -ST1023
+    errcheck:
+      # Cleanup-path calls whose error we deliberately ignore. Everything else
+      # must be checked (or explicitly assigned to _ with a reason).
+      exclude-functions:
+        - (io.Closer).Close
+        - (*os.File).Close
+        - (net.Conn).Close
+        - (*database/sql.DB).Close
+        - (*database/sql.Stmt).Close
+        - (*database/sql.Rows).Close
+        - (*database/sql.Tx).Rollback
+        - os.Remove
+        - os.RemoveAll
+        - os.Setenv
+        - os.Unsetenv
+  exclusions:
+    generated: lax
+    paths:
+      - ^generated/
+    rules:
+      # nhooyr.io/websocket was re-homed to github.com/coder/websocket (drop-in
+      # rename). Migrating the import touches the generated go.mod template —
+      # tracked in PRODUCTION_READINESS.md; silence just this deprecation until
+      # then.
+      - linters: [staticcheck]
+        text: 'SA1019: .*coder now maintains this library'
+
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    paths:
+      - ^generated/

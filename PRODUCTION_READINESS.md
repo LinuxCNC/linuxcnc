@@ -14,11 +14,21 @@ AI review vs. LinuxCNC 2.9 → findings doc → fix PRs → tests → sign-off
 
 ## Immediate next steps
 
-1. **Runtests against gomc** — get the existing `tests/` runtests harness (79 tests, the largest
-   behavioral oracle we have) running against gomc sim configs. Every test it passes is a
-   regression test we don't have to write. Track pass/fail/not-applicable per test.
-2. **CI gates** — extend `.github/workflows/ci.yml` (currently builds RIP + C-side runtests only;
-   **no `go test` at all today**) with a gomc job:
+1. **Runtests against gomc** — DONE (2026-07-13): full suite green, 240 run / 198 pass / 0 fail /
+   42 xfail / 0 skipped; `tests/DISPOSITION.md` is the authoritative ledger.
+2. **CI gates** — DONE (2026-07-13): `ci.yml` `gomc` job = build + C-warning gate (owned paths,
+   `scripts/check-gomc-cwarnings`) + `make gomc-check` (vet, tests, pinned golangci-lint v2.12.2
+   with a no-NEW-findings merge-base gate, fmt) + full runtests + failure-log artifacts.
+   `nightly-gomc.yml` = `gomc-test-race` + runtests against a race-built gomc-server.
+   First `-race` sweep over the full module found+fixed a data race (ads notification test mock).
+   **Lint burn-down (legacy baseline, `make gomc-lint-full`, 69 findings):** 50 errcheck
+   (meaningful ones: unchecked `mc.Set*` motion-limit setup calls, `task.SetState/SetMode`,
+   `reg.Register`) + 19 unused (dead code — incl. `task/guards.go` requireState/requireMode,
+   which look like guards that SHOULD be called; review before deleting). Also: migrate
+   `nhooyr.io/websocket` → `github.com/coder/websocket` (drop-in re-home; touches the generated
+   go.mod template), then drop the SA1019 exclusion in `src/gomc/.golangci.yml`.
+   Still open: branch protection on `gomc` (required checks: gomc + rip-and-test).
+   Original plan for reference:
    - `go build ./...` + `go test -race ./...` in `src/gomc`
    - `go vet` + `golangci-lint` (incl. `staticcheck`, `unused`) — baseline first, then ratchet
    - gomc runtests subset from step 1
