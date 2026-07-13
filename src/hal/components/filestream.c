@@ -108,10 +108,16 @@ static void write_funct(void *arg, long period) {
     if (!*(m->enable) || *(m->done)) return;
 
     if (m->rep_rpos == m->rep_wpos) {
-        // Ring empty while clocked: an underrun (matching the classic streamer,
-        // which counts an underrun whenever it is clocked with no data).  The
-        // stream pins hold their previous value.  When there is no capture side
-        // to bound the run, replay-drained-at-EOF is also the run's `done`.
+        // Ring empty while clocked.  Distinguish startup latency from a genuine
+        // underrun: if the I/O thread has not yet written its first sample
+        // (rep_wpos == 0) and we are not at EOF, replay has not been primed, so
+        // this is not an underrun — hold the initial pin values and wait.
+        if (m->rep_wpos == 0 && !m->infile_eof)
+            return;
+        // A genuine mid-stream underrun (matching the classic streamer, which
+        // counts an underrun whenever it is clocked with no data).  The stream
+        // pins hold their previous value.  When there is no capture side to
+        // bound the run, replay-drained-at-EOF is also the run's `done`.
         (*(m->underruns))++;
         if (m->infile_eof && m->n_sample == 0) *(m->done) = 1;
         return;
