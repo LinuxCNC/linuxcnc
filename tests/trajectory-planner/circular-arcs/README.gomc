@@ -1,0 +1,15 @@
+gomc circular-arc trajectory-planner regression test
+=====================================================
+
+test.sh / checkresult / arc.ngc / arc.ini / capture.hal / run-arc.py are the
+automated regression test added for gomc: a full-circle G3 arc is run through the
+gomc TP, the commanded X/Y joint path is captured every servo cycle by the
+filestream cmod (capture.hal), and checkresult asserts every sample lies on the
+commanded circle (centre (0,10), r=10) within 0.05 mm, and that the arc actually
+swept the whole circle.
+
+The other files in this directory (profile-run.sh, build-*.sh, machine_setup.py,
+run_all_tests.py, octave/, *.tcl configs, nc_files/, ...) are the original
+developer profiling / tuning harness (operf + octave plots + interactive prompts).
+They are classic-LinuxCNC tooling (linuxcnc -r, TCL GUI) and are NOT part of the
+automated suite; kept for reference only.

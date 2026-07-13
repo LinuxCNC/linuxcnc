@@ -1,2 +1,62 @@
-#!/bin/sh
-exit 0 # test failure is indicated by test.sh exit value
+#!/usr/bin/env python3
+# Verify the captured joint path is a proper circular arc.
+#
+# arc.ngc runs a full CCW circle centred at (0,10) radius 10, starting/ending at
+# the origin.  Every point of the path — and the idle origin — lies on that
+# circle, so we assert:
+#   1) motion actually happened (the path reaches the far side of the circle),
+#   2) every sampled point stays on the commanded circle within tolerance
+#      (a straight-chord / wrong-radius planner would deviate).
+#
+# checkresult is passed the test 'result' file by runtests, but the path samples
+# are captured by filestream to path.txt in the test dir; read that.
+import sys, math, os
+
+CX, CY, R = 0.0, 10.0, 10.0
+TOL = 0.05          # mm off the circle we tolerate (well under the 0.5mm ferror)
+
+here = os.path.dirname(os.path.abspath(sys.argv[0]))
+path = os.path.join(here, 'path.txt')
+
+pts = []
+try:
+    with open(path) as f:
+        for line in f:
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            try:
+                pts.append((float(parts[0]), float(parts[1])))
+            except ValueError:
+                continue
+except OSError as e:
+    print("circular-arcs: cannot read %s: %s" % (path, e))
+    sys.exit(1)
+
+if len(pts) < 100:
+    print("circular-arcs: too few samples (%d) — did the arc run?" % len(pts))
+    sys.exit(1)
+
+max_dev = 0.0
+worst = None
+for (x, y) in pts:
+    dev = abs(math.hypot(x - CX, y - CY) - R)
+    if dev > max_dev:
+        max_dev, worst = dev, (x, y)
+
+max_y = max(y for (x, y) in pts)
+
+if max_y < 15.0:
+    # The top of the circle is (0,20); if we never got past y=15 the arc did
+    # not actually sweep around (no motion, or a tiny/straight move).
+    print("circular-arcs: path never swept the circle (max y=%.3f)" % max_y)
+    sys.exit(1)
+
+if max_dev > TOL:
+    print("circular-arcs: point %s deviates %.4f mm from the r=%g circle "
+          "(tol %g)" % (worst, max_dev, R, TOL))
+    sys.exit(1)
+
+print("circular-arcs: OK — %d samples on the r=%g circle, max deviation %.4f mm"
+      % (len(pts), R, max_dev))
+sys.exit(0)

@@ -1,0 +1,7 @@
+; Full circle in the XY plane, CCW, centred at (0,10) radius 10, starting and
+; ending at the origin, so the whole traced path lies on that circle.  Used to
+; verify the trajectory planner keeps circular-arc motion on the commanded circle.
+G21 G17 G90
+G3 I0 J10 F600
+G4 P0.2
+M2
