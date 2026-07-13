@@ -5,13 +5,26 @@ green against gomc, and every `expected` oracle re-baselined from classic-C to g
 Purpose: a parity reviewer can see *what* diverged from LinuxCNC 2.9 and *why* without git
 archaeology.
 
-**Governing rule (user, 2026-07-12):** everything that exists must be tested; the only genuine
-feature removals are (1) **TCL support for HAL** and (2) **Python support in the interpreter**.
-Everything else exists (the mechanism may have changed) → default **port** (adjust method) or
-**xfail** (adjusted method hits a real gomc gap). Reserve **skip** for the two removals only.
-Verify a replacement exists before calling anything removed. See `memory/runtests-only-two-removals`.
+**Governing rule (user, 2026-07-12):** everything that exists must be tested. A test may be
+**deleted** only when the capability it exercises is genuinely gone from the gomc architecture —
+three such classes: (1) **TCL support for HAL**, (2) **Python support in the interpreter**, and
+(3) **a mechanism the gomc model no longer has** (the rt/userspace split, NML transports,
+`loadusr`/`rtapi_spawnv`, the default-channel-count concept, the `overrun` retry). Class (3) is
+narrow: it covers a removed *mechanism*, not a feature that still exists by another means — each
+class-(3) deletion is enumerated with its exact removed mechanism in §2c/§2d/§4a. Everything else
+exists (the mechanism may have changed) → default **port** (adjust method) or **xfail** (adjusted
+method hits a real gomc gap). Verify a replacement is truly absent before calling anything removed.
+See `memory/runtests-only-two-removals`.
 
-First run (2026-07-12, full suite): **216 run, 167 pass, 0 fail, 49 xfail, 37 skip** (+1 XPASS: lathe).
+First run (2026-07-12, full suite): 216 run, 167 pass, 0 fail, 49 xfail, 37 skip (+1 XPASS: lathe).
+*(historical — superseded)*
+
+Current composition (2026-07-13): **0 skipped** (the 37 skips were resolved — re-expressed, reclassified,
+or deleted as genuine removals, §2) and **43 xfail files** in the tree (§3). Since the first run this
+pass added `threads.0`/`threads.1`, `mdi-queue/{simple,oword}-queue-buster`, `mqtt`, and
+`trajectory-planner/circular-arcs`, and re-expressed `mdi-while-queuebuster-waitflag` (xfail→pass) and
+`remap/remap-io` (Python variant removed, NGC variant xfail on the sync-I/O bug). Re-run the full suite
+for exact pass/run totals; `lathe` XPASSes intermittently.
 
 ---
 
@@ -104,7 +117,7 @@ Tcl GUI stack is not ported. Deleted.
 | tooledit | tool-table float fidelity | ✅ **PASS** — classic drove the Tk tooledit to round-trip a `.tbl`; gomc has no Tk tooledit and no `.tbl` writer, so import the 21-tool `.tbl` via a minimal `persist_sqlite`+`tooltable` server and assert every offset/diameter/pocket/comment survives the import→sqlite→REST round-trip exactly. (INI needs `[EMC]VERSION` or gomc treats it as a convert-me config.) |
 | mb2hal/mb2hal.1a · mb2hal.2a | mb2hal cmod (loads/creates pins) | ✅ **skip→xfail** — reclassified: they now RUN (loadrt mb2hal via resident server) and xfail on the format gap, rather than skipping. gomc mb2hal logs progress to the server log via slog ("parse_transaction_section N OK") instead of the classic INI-DEBUG per-key `[SECTION] [KEY] [VALUE]` stdout dump, so the classic `expected` can't be reproduced. (Pin creation covered by 1b/2b.) |
 
-**Item 7 (HAL streaming) — DONE.** The WS sampler/streamer decision was kept for live/GUI use (panelui/qtvcp/gladevcp later) but a new **`filestream`** cmod (`src/hal/components/filestream.c`, file-backed replay+capture, deterministic one-line-per-thread-cycle, byte-identical to halsampler) now backs the tests. The 26 streaming tests migrated off the WS driver to `filestream` + `tests/filestream-driver.sh` (`fs_run`), expected files unchanged; `tests/ws-stream` is the new dedicated WS-path coverage; `hal-stream`/`halmodule.1` re-enabled (above); `multiclick` **xfail→pass** (filestream's one-per-cycle pacing fixed its timing). Only `mux` stays xfail — a documented benign classic-streamer-FIFO-overflow artifact in its golden (100 real rows match; 5 held-last rows differ). The 16 resident-server-only tests still use `hal-stream-driver.sh`'s `hal_start_server`.
+**Item 7 (HAL streaming) — DONE.** The WS sampler/streamer decision was kept for live/GUI use (panelui/qtvcp/gladevcp later) but a new **`filestream`** cmod (`src/hal/components/filestream.c`, file-backed replay+capture, deterministic one-line-per-thread-cycle, byte-identical to halsampler) now backs the tests. The 26 streaming tests migrated off the WS driver to `filestream` + `tests/filestream-driver.sh` (`fs_run`), expected files unchanged; `tests/ws-stream` is the new dedicated WS-path coverage; `hal-stream`/`halmodule.1` re-enabled (above); `multiclick` and `mux` both **xfail→pass** (filestream's one-per-cycle pacing fixed the timing multiplicity that the classic streamer-FIFO-overflow golden encoded — both `xfail` files deleted). The 16 resident-server-only tests still use `hal-stream-driver.sh`'s `hal_start_server`.
 
 ### 2d. Ruled (user, 2026-07-12)
 
@@ -116,7 +129,12 @@ Tcl GUI stack is not ported. Deleted.
 | halrun-getopt-reset | `halrun` getopt-reset across repeated `loadusr` | ⛔ **REMOVED** — no `loadusr`; `halrun` is a shim |
 | module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | `num_chan=0` = load with the *default* channel count (1 instance) | ⛔ **REMOVED** — explicit-names-only; the 1-instance case is already covered by the `count=1` test |
 
-**Pending (Python discussion):** `mdi-while-queuebuster-waitflag` — its `M400` queue-buster is a **Python remap** (§2a-blocked). Either skip (Python-blocked) or re-express the MDI-vs-queuebuster race with a non-Python queue-buster.
+**Resolved — `mdi-while-queuebuster-waitflag` re-expressed non-Python (✅ PASS).** The classic `M400`
+queue-buster was a Python remap doing `M66 E0 L0` + `yield INTERP_EXECUTE_FINISH`. Re-expressed as a
+pure-NGC remap body (`REMAP=M400 … ngc=m400`, body does `M66 E0 L0`) — M66 (synchronised input read)
+is itself a queue-buster, so the MDI-vs-queue-buster race the test guards is preserved. Python files
+deleted; xfail removed. The 20-iteration crash check passes (verified the M400 body runs and reads
+`#5399`).
 
 ### 2e. Re-expressed against the C interp_ext / mcode_handler mechanism (#2, was §2a Python skip)
 
@@ -151,7 +169,7 @@ remap/fail/{body-py,canon_error}, interp/{compile,python-self,python/error}, int
 
 ---
 
-## 3. Xfails (49)
+## 3. Xfails (43)
 
 ### 3a. Legit — runnable, fail on a documented gomc bug (`../PRODUCTION_READINESS.md`)
 
@@ -159,17 +177,17 @@ remap/fail/{body-py,canon_error}, interp/{compile,python-self,python/error}, int
 |---|---|
 | G43 Hn tool-length offset | rs274ngc-startup, tlo |
 | RANDOM_TOOLCHANGER startup tool detection | io-startup/random/{no-tool-in-P0,tool-in-P0}, t0/{random-without-t0,random-with-t0}, tool-info/{random-no-startup-tool,random-with-startup-tool} |
-| tool-tracking (M6 #5400, M61 Q) | t0/nonrandom, tool-info/non-random, toolchanger/m61, toolchanger/reload-tool/{non-random,random}, toolchanger/toolno-pocket-differ/{nonrandom,random} |
+| tool-tracking (M6 #5400, M61 Q) | t0/nonrandom, tool-info/non-random, toolchanger/m61, toolchanger/reload-tool/{non-random,random}, toolchanger/toolno-pocket-differ/{nonrandom,random}, mdi-queue/oword-queue-buster |
 | abort doesn't restore modal state | abort/g64 |
 | g5x active CS inconsistent on abort | statbuffer-g5x-abort |
-| M67/M62 sync-I/O + blended motion | single-step |
+| M67/M62 sync-I/O + (blended) motion | single-step, remap/remap-io (M62/M63/M67 synchronised output + move; M64/M65/M66/M68 pass) |
 | RS274NGC_STARTUP_CODE never executed | motion-logger/startup-gcode-abort |
 | ON_ABORT_COMMAND not wired + gmi.Stat queue depth | abort/{on_abort_command,stop-button}-crazy-move |
 | jog/teleop + joint-mode + limit status | hard-limits, halui/jogging |
 | gmi.Stat client field gaps | startup-state, mdi-queue-length |
 | rtapi_shmem_delete not exported to cmods | rtapi-shmem |
 | stepgen array module-param instance count | modparam.0 |
-| streaming one-row-per-cycle multiplicity | mux, multiclick — expected to flip green via the file-driven test-io cmod |
+| streaming one-row-per-cycle multiplicity | *(mux, multiclick — flipped green via filestream; xfail files removed, see §2c)* |
 | jog overshoot from WS-lagged gmi.Stat | lathe (intermittent; XPASS this run) |
 | (other) | interp/oword-mdi-sub-update |
 | module-loading array-count (9/17 names, num_chan=9/17) | module-loading/{encoder,sim_encoder}/{9-names,num_chan=9}, module-loading/{pid,siggen}/{17-names,num_chan=17}, module-loading/encoder_ratio/{9-names,num_chan=9} |
@@ -177,7 +195,7 @@ remap/fail/{body-py,canon_error}, interp/{compile,python-self,python/error}, int
 ### 3b. Reclassified out of xfail (→ §2d, ruled)
 
 module-loading/*/num_chan=0 → **removed** (default-channel-count concept gone, covered by `count=1`);
-mdi-while-queuebuster-waitflag → pending Python discussion.
+mdi-while-queuebuster-waitflag → **re-expressed non-Python, now PASS** (§2d).
 
 ---
 
@@ -204,10 +222,11 @@ or handled differently in the single-cmod model. **Correctly removed — do not 
 
 | test | action |
 |---|---|
-| threads.0 · threads.1 | **port** — core multi-thread HAL scheduling (fast/slow period ratio, `threadtest` counter → sampler, 3500-sample capture) |
+| threads.0 · threads.1 | ✅ **PASS** — ported: `newthread` fast/slow + `threadtest` counter, captured by `filestream` (gomc has no userspace `halsampler`). threads.0 verifies the 10:1 period-ratio scheduling over 3500 samples; threads.1 verifies per-function `tmax` is nonzero (read via `show param` — gomc `getp` doesn't resolve RW params, noted in PRODUCTION_READINESS). |
 | module-loading/rtapi-app-main-fails | ✅ **PASS** — ported to the cmod/`load` model: a comp fails its init via a failing `EXTRA_SETUP` (`-ERANGE`), and `load` correctly fails (`factory returned error code`). Classic used `option rtapi_app no` + custom `rtapi_app_main`. Note: gomc flattens the errno to `-1` (documented gap). |
-| mdi-queue/simple-queue-buster · oword-queue-buster | disposition pending — does the MDI queue-buster mechanism survive? port or skip |
-| mqtt | disposition pending — port to `internal/mqttbridge` if the mechanism survives |
+| mdi-queue/simple-queue-buster | ✅ **PASS** — ported to REST/gmi (via `rsh2gmi.py`, M100 captured by `mcode_coord_log format=p`, a new P-only mode). Bulk MDI interleaving `t1 m6`/`t2 m6` tool-change queue-busters with `m100 p<i>`; all 1001 M100s logged in order. gomc's `mdi()` is synchronous so the queue-buster serialises rather than races, but the tool-change-vs-MDI sequencing is exercised. |
+| mdi-queue/oword-queue-buster | ⚠ **xfail** — same port, but the queue-buster is an O-word sub that logs the *current tool* via `m100 p-#5400`; hits the documented M6/#5400 tool-tracking bug (reads `-0` not the tool number). Every other line matches. Flips green with the tool-tracking fix (§3a). |
+| mqtt | ✅ **PASS** — ported to the `mqtt-bridge` module (`internal/mqttbridge`). Added a `dryrun` load arg + `publish-count` liveness pin (mirroring the classic `mqtt-publisher --dryrun`/`lastpublish`); test drives motion and asserts publish-count advances. Fixed 3 bridge bugs found doing so (nil-INI segfault, double-prefixed pin names, no offline test path) — see PRODUCTION_READINESS. |
 
 ---
 
@@ -215,4 +234,4 @@ or handled differently in the single-cmod model. **Correctly removed — do not 
 
 | test | action |
 |---|---|
-| trajectory-planner/circular-arcs | **port** — profiling harness (`profile-run.sh`, no `test.sh`); port the TP circular-arc verification to gomc/REST |
+| trajectory-planner/circular-arcs | ✅ **PASS** — added an automated regression test (the classic dir was a developer profiling/tuning harness — operf/octave/interactive — with no `test.sh` in either branch). New `test.sh`/`checkresult`/`arc.ngc`/`arc.ini`/`capture.hal`/`run-arc.py`: run a full-circle G3 through the gomc TP, capture the commanded X/Y joint path every servo cycle with `filestream`, and assert every sample lies on the commanded circle (centre (0,10), r=10) within 0.05 mm and that the arc swept the whole circle. gomc traces it with 0.00000 mm deviation. The legacy profiling files are kept as dev tooling (see `README.gomc`). |
