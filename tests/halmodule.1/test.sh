@@ -15,8 +15,8 @@ cat > in.txt <<DATA
 1 7 7 7
 0 8 8 8
 DATA
-rm -f out.txt log
-gomc-server -r -f halmodule1.hal --serve >log 2>&1 &
+rm -f out.txt server.log
+gomc-server -r -f halmodule1.hal --serve >server.log 2>&1 &
 SRV=$!
 trap '[ -n "$SRV" ] && kill $SRV 2>/dev/null; wait 2>/dev/null' EXIT
 for i in $(seq 100); do halcmd show comp 2>/dev/null | grep -q filestream && break; sleep 0.1; done
