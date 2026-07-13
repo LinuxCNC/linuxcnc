@@ -1,0 +1,25 @@
+#!/bin/bash
+# check-gomc-cwarnings <build-log>
+#
+# Fail if the captured build log contains compiler warnings in gomc-OWNED C
+# code (the C we actively maintain — not the inherited 2.9 tree, which is
+# expected to fade out and is not gated).  The build already compiles with
+# -Wall (see Makefile.inc RTFLAGS/ULFLAGS); this turns those warnings into a
+# CI failure for the owned paths only.
+#
+# Usage in CI:  make -O ... 2>&1 | tee build.log ; scripts/check-gomc-cwarnings build.log
+set -u
+
+LOG="${1:?usage: check-gomc-cwarnings <build-log>}"
+
+# gomc-owned C paths (extend as ownership grows).
+OWNED='gomc/internal/hallib/|gomc/pkg/cmodule/|hal/components/|emc/motion-logger/|emc/task/|emc/sai/'
+
+WARNINGS=$(grep -E ': warning:' "$LOG" | grep -E "$OWNED" || true)
+
+if [ -n "$WARNINGS" ]; then
+    echo "Compiler warnings in gomc-owned C code (gated paths: $OWNED):" >&2
+    echo "$WARNINGS" >&2
+    exit 1
+fi
+echo "check-gomc-cwarnings: no warnings in gomc-owned C code"

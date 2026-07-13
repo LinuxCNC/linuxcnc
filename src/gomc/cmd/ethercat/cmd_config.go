@@ -16,7 +16,7 @@ func init() {
 
 func cmdConfig(client *EthercatClient, opts *GlobalOpts, args []string) error {
 	if len(args) > 0 {
-		return fmt.Errorf("'config' takes no arguments!")
+		return fmt.Errorf("'config' takes no arguments")
 	}
 
 	masterIndex := parseMasterIndex(opts.Masters)

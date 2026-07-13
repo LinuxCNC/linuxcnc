@@ -17,7 +17,7 @@ func init() {
 
 func cmdSlaves(client *EthercatClient, opts *GlobalOpts, args []string) error {
 	if len(args) > 0 {
-		return fmt.Errorf("'slaves' takes no arguments!")
+		return fmt.Errorf("'slaves' takes no arguments")
 	}
 
 	masterIndex := parseMasterIndex(opts.Masters)
@@ -34,13 +34,13 @@ func cmdSlaves(client *EthercatClient, opts *GlobalOpts, args []string) error {
 
 func slavesBrief(client *EthercatClient, masterIndex *uint32, slaveCount uint32, opts *GlobalOpts) error {
 	type slaveRow struct {
-		pos      string
-		alias    string
-		relPos   string
-		state    string
-		flag     string
-		name     string
-		device   uint32
+		pos    string
+		alias  string
+		relPos string
+		state  string
+		flag   string
+		name   string
+		device uint32
 	}
 
 	// Collect all slaves to compute alias tracking.

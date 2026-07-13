@@ -83,10 +83,10 @@ func TestArcLimits(t *testing.T) {
 	const feed = 800.0 / 60.0  // F800 -> 13.333 mm/s
 	const eps = 1e-3
 	cases := []struct {
-		name                          string
-		from, to                      Pose
-		center                        Cartesian
-		rotation                      int32
+		name                            string
+		from, to                        Pose
+		center                          Cartesian
+		rotation                        int32
 		wantVel, wantIniMaxVel, wantAcc float64
 	}{
 		{"semicircle r=10 (planar-axis limited)",

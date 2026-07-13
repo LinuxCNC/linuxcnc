@@ -17,7 +17,7 @@ func init() {
 
 func cmdMaster(client *EthercatClient, opts *GlobalOpts, args []string) error {
 	if len(args) > 0 {
-		return fmt.Errorf("'master' takes no arguments!")
+		return fmt.Errorf("'master' takes no arguments")
 	}
 
 	masterIndex := parseMasterIndex(opts.Masters)

@@ -48,9 +48,9 @@ func TestClientValidationTS(t *testing.T) {
 	assertContains(t, out, "const _verrs: string[] = [];")
 	assertContains(t, out, `if (toolno < 1) {`)
 	assertContains(t, out, `_verrs.push("entry.toolno must be <= 99999");`)
-	assertContains(t, out, `if ([...entry.comment].length > 255) {`) // code-point length
-	assertContains(t, out, `if (![0, 2].includes(entry.mode)) {`)    // enum membership
-	assertContains(t, out, `if (entry.tags.length > 8) {`)           // slice length ("items")
+	assertContains(t, out, `if ([...entry.comment].length > 255) {`)                 // code-point length
+	assertContains(t, out, `if (![0, 2].includes(entry.mode)) {`)                    // enum membership
+	assertContains(t, out, `if (entry.tags.length > 8) {`)                           // slice length ("items")
 	assertContains(t, out, `if (entry.note !== undefined && entry.note !== null) {`) // nullable guard
 	assertContains(t, out, "if (_verrs.length > 0) throw new ValidationError(_verrs);")
 

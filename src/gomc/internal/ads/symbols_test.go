@@ -4,24 +4,35 @@ package ads
 
 import (
 	"encoding/binary"
+	"sync"
 	"testing"
 )
 
-// mockPin is a simple in-memory PinAccessor for testing.
+// mockPin is a simple in-memory PinAccessor for testing.  The real accessors
+// read HAL pins through cgo/HAL shared memory and are safe to call from the
+// notifyManager goroutine; the mock has to uphold that contract itself (the
+// notification tests mutate the value while sendLoop polls it), hence the
+// mutex.
 type mockPin struct {
 	typeName string
 	typeID   uint32
 	size     uint32
-	data     []byte
+
+	mu   sync.Mutex
+	data []byte
 }
 
 func (m *mockPin) ReadBytes() ([]byte, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	out := make([]byte, len(m.data))
 	copy(out, m.data)
 	return out, nil
 }
 
 func (m *mockPin) WriteBytes(data []byte) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	m.data = make([]byte, len(data))
 	copy(m.data, data)
 	return nil
@@ -324,8 +335,8 @@ func TestSymbolTableSumWrite(t *testing.T) {
 	binary.LittleEndian.PutUint32(writeData[12:], sym2.IndexGroup)
 	binary.LittleEndian.PutUint32(writeData[16:], sym2.IndexOffset)
 	binary.LittleEndian.PutUint32(writeData[20:], sym2.Accessor.Size()) // 4
-	writeData[24] = 1 // w1 = true
-	binary.LittleEndian.PutUint32(writeData[25:], uint32(int32(99))) // w2 = 99
+	writeData[24] = 1                                                   // w1 = true
+	binary.LittleEndian.PutUint32(writeData[25:], uint32(int32(99)))    // w2 = 99
 
 	resp, errCode := st.ReadWriteData(IdxGrpSumWrite, 2, 0, writeData)
 	if errCode != ErrNoError {
@@ -407,7 +418,7 @@ func TestSymbolTableSumWriteTruncatedData(t *testing.T) {
 	binary.LittleEndian.PutUint32(writeData[12:], sym2.IndexGroup)
 	binary.LittleEndian.PutUint32(writeData[16:], sym2.IndexOffset)
 	binary.LittleEndian.PutUint32(writeData[20:], 4) // claims 4 bytes but only 1 available
-	writeData[24] = 1                                 // w1 payload
+	writeData[24] = 1                                // w1 payload
 
 	resp, errCode := st.ReadWriteData(IdxGrpSumWrite, 2, 0, writeData)
 	if errCode != ErrNoError {

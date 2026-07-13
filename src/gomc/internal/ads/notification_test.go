@@ -154,8 +154,10 @@ func TestNotifyManagerOnChange(t *testing.T) {
 		t.Fatal("expected no second notification (data unchanged), but got one")
 	}
 
-	// Change the data.
-	pin.data = []byte{0xBB}
+	// Change the data (through the accessor — sendLoop reads it concurrently).
+	if err := pin.WriteBytes([]byte{0xBB}); err != nil {
+		t.Fatalf("WriteBytes: %v", err)
+	}
 
 	// Now a notification should come.
 	pkt3 := readAMSPacket(t, c2, 2*time.Second)

@@ -1124,7 +1124,7 @@ func (c *McodeCmd) Execute(t *Task) error {
 	case result == -2:
 		return context.Canceled
 	default:
-		return fmt.Errorf("M%d handler failed (result %d)", c.Mcode, result)
+		return fmt.Errorf("handler for M%d failed (result %d)", c.Mcode, result)
 	}
 }
 func (c *McodeCmd) Wait() WaitType { return WaitNone } // Execute handles wait internally

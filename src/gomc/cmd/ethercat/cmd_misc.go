@@ -123,13 +123,13 @@ func siiCrc(data []byte) byte {
 func cmdCrc(client *EthercatClient, opts *GlobalOpts, args []string) error {
 	// Handle optional "reset" argument.
 	if len(args) > 1 {
-		return fmt.Errorf("'crc' takes either no or 'reset' argument!")
+		return fmt.Errorf("'crc' takes either no or 'reset' argument")
 	}
 
 	reset := false
 	if len(args) == 1 {
 		if args[0] != "reset" {
-			return fmt.Errorf("'crc' takes either no or 'reset' argument!")
+			return fmt.Errorf("'crc' takes either no or 'reset' argument")
 		}
 		reset = true
 	}

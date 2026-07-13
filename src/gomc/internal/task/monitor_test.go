@@ -81,13 +81,13 @@ func (m *mockStatusWithError) setEnabled(v int32) {
 	m.enabled = v
 	m.mu.Unlock()
 }
-func (m *mockStatusWithError) GetPosCmd() (motstat.Pose, error)  { return motstat.Pose{}, nil }
-func (m *mockStatusWithError) GetPosFb() (motstat.Pose, error)   { return motstat.Pose{}, nil }
-func (m *mockStatusWithError) GetInpos() (int32, error)          { return 1, nil }
-func (m *mockStatusWithError) GetExecId() (int32, error)         { return 0, nil }
-func (m *mockStatusWithError) GetQueueDepth() (int32, error)     { return 0, nil }
-func (m *mockStatusWithError) GetCommandNumEcho() (int32, error) { return 0, nil }
-func (m *mockStatusWithError) GetCommandStatus() (int32, error)  { return 0, nil }
+func (m *mockStatusWithError) GetPosCmd() (motstat.Pose, error)      { return motstat.Pose{}, nil }
+func (m *mockStatusWithError) GetPosFb() (motstat.Pose, error)       { return motstat.Pose{}, nil }
+func (m *mockStatusWithError) GetInpos() (int32, error)              { return 1, nil }
+func (m *mockStatusWithError) GetExecId() (int32, error)             { return 0, nil }
+func (m *mockStatusWithError) GetQueueDepth() (int32, error)         { return 0, nil }
+func (m *mockStatusWithError) GetCommandNumEcho() (int32, error)     { return 0, nil }
+func (m *mockStatusWithError) GetCommandStatus() (int32, error)      { return 0, nil }
 func (m *mockStatusWithError) GetSynchDi(int32) (int32, error)       { return 0, nil }
 func (m *mockStatusWithError) GetAnalogInput(int32) (float64, error) { return 0, nil }
 

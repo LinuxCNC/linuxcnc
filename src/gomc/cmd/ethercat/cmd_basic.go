@@ -65,7 +65,7 @@ func cmdRescan(client *EthercatClient, opts *GlobalOpts, args []string) error {
 
 func cmdStates(client *EthercatClient, opts *GlobalOpts, args []string) error {
 	if len(args) != 1 {
-		return fmt.Errorf("'states' takes exactly one argument!")
+		return fmt.Errorf("'states' takes exactly one argument")
 	}
 	stateStr := strings.ToUpper(args[0])
 	var stateVal uint8

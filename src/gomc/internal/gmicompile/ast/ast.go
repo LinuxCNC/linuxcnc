@@ -38,10 +38,10 @@ func (p Pos) String() string {
 
 // API represents a complete GMI interface definition.
 type API struct {
-	Name       string // API name from @api directive
-	Version    int    // Version from @version directive
-	Prefix     string // REST path prefix from @prefix directive
-	RestExport bool   // Whether to expose via REST from @rest_export directive
+	Name       string   // API name from @api directive
+	Version    int      // Version from @version directive
+	Prefix     string   // REST path prefix from @prefix directive
+	RestExport bool     // Whether to expose via REST from @rest_export directive
 	Authors    []string // Authors from @author directives
 	License    string   // License from @license directive
 	Pos        Pos      // Position of @api directive

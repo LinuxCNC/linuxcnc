@@ -66,6 +66,61 @@ jobs:
         # Note that the package build covers html docs
         eatmydata ../scripts/rip-environment runtests -p
 
+  # gomc gate: build + Go vet/tests + pinned lint (no NEW findings vs the
+  # gomc merge base) + fmt + C-warning gate on gomc-owned paths + full
+  # runtests. The make targets are the source of truth (src/gomc/Submakefile);
+  # this job only orchestrates them.
+  gomc:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.24.x'
+        # go.sum is build-generated (not in the repo), so setup-go's automatic
+        # cache keying cannot work; the module cache is small enough to skip.
+        cache: false
+    - name: Install golangci-lint (pinned — keep in sync with GOLANGCI_LINT_VERSION in src/gomc/Submakefile)
+      run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
+    - name: Build RIP
+      run: |
+        set -x
+        sudo apt-get install -y eatmydata
+        eatmydata ./scripts/travis-install-build-deps.sh
+        cd src
+        eatmydata ./autogen.sh
+        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata make -O -j$((1+$(nproc))) default V=1 2>&1 | tee ../build.log
+        test "${PIPESTATUS[0]}" -eq 0
+    - name: C warning gate (gomc-owned paths)
+      run: ./scripts/check-gomc-cwarnings build.log
+    - name: Go tests + lint + fmt gate
+      run: |
+        export PATH="$PATH:$HOME/go/bin"
+        cd src
+        make gomc-check GOMC_LINT_BASE=origin/gomc
+    - name: runtests
+      run: |
+        cd src
+        ../scripts/rip-environment runtests -p
+    - name: Upload failure logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: gomc-failure-logs
+        path: |
+          build.log
+          tests/**/server.log
+          tests/**/result
+          tests/**/stderr
+          tests/**/out.motion-logger
+        if-no-files-found: ignore
+
   htmldocs:
     runs-on: ubuntu-24.04
     steps:

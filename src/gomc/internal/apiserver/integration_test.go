@@ -289,7 +289,10 @@ func TestIntegrationCreateItem(t *testing.T) {
 	}
 
 	// Verify item exists via GET
-	resp2, _ := http.Get(ts.URL + "/api/v1/items0/item/new-item")
+	resp2, err := http.Get(ts.URL + "/api/v1/items0/item/new-item")
+	if err != nil {
+		t.Fatalf("GET after create: %v", err)
+	}
 	defer resp2.Body.Close()
 	if resp2.StatusCode != 200 {
 		t.Errorf("created item not found: status = %d", resp2.StatusCode)
@@ -327,7 +330,10 @@ func TestIntegrationDeleteItem(t *testing.T) {
 	}
 
 	// Verify item is gone
-	resp2, _ := http.Get(ts.URL + "/api/v1/items0/item/axis.0.pos-cmd")
+	resp2, err := http.Get(ts.URL + "/api/v1/items0/item/axis.0.pos-cmd")
+	if err != nil {
+		t.Fatalf("GET after delete: %v", err)
+	}
 	defer resp2.Body.Close()
 	if resp2.StatusCode != 404 {
 		t.Errorf("deleted item still found: status = %d", resp2.StatusCode)

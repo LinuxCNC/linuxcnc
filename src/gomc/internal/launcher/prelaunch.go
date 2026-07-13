@@ -102,12 +102,10 @@ func (l *Launcher) checkPlasmaC() error {
 		} else {
 			l.logger.Error("QtPlasmaC migration failed", "error", err)
 		}
-	} else {
-		// Exit code 0 — migration tool ran successfully; its output is already
-		// written to stdout.
 	}
+	// On exit code 0 the migration tool ran successfully; its output is
+	// already written to stdout.
 
 	// Always exit after detecting PlasmaC — never continue to start LinuxCNC.
 	return ErrPlasmaC
 }
-

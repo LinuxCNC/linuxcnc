@@ -284,7 +284,7 @@ func (l *Launcher) Run() (runErr error) {
 	// looks up other modules' APIs and performs cross-module initialization
 	// (e.g. wiring function pointers, initializing subsystems).
 	if err := l.initCModules(); err != nil {
-		return fmt.Errorf("C module init failed: %w", err)
+		return fmt.Errorf("init of C module failed: %w", err)
 	}
 
 	// Phase 2: Execute HAL wiring commands (net, addf, setp, etc.).
@@ -319,12 +319,12 @@ func (l *Launcher) Run() (runErr error) {
 
 	// 6d.3. Start Go plugin modules.
 	if err := l.startGoModules(); err != nil {
-		return fmt.Errorf("Go module start failed: %w", err)
+		return fmt.Errorf("starting Go module: %w", err)
 	}
 
 	// 6d.4. Start C plugin modules.
 	if err := l.startCModules(); err != nil {
-		return fmt.Errorf("C module start failed: %w", err)
+		return fmt.Errorf("starting C module: %w", err)
 	}
 
 	// 6d.5. Start the REST API server for halcmd and external tools.

@@ -33,7 +33,7 @@ func (t *Task) BuildStat() *emcstat.StatFull {
 		}
 	}
 	// Compute RCS command status (matches NML stat.state: 1=DONE,2=EXEC,3=ERROR).
-	rcsStatus := int32(1) // RCS_DONE
+	var rcsStatus int32 // RCS command status (1=DONE, 2=EXEC, 3=ERROR)
 	switch t.execState {
 	case ExecError:
 		rcsStatus = 3 // RCS_ERROR

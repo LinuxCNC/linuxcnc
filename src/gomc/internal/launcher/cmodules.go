@@ -465,13 +465,13 @@ func (l *Launcher) loadModuleNamed(module, instanceName string, args []string) e
 	// Init phase — look up other modules' APIs.
 	rc := C.cmod_call_init(cm.mod)
 	if rc != 0 {
-		return fmt.Errorf("C module %q Init() returned error code %d", name, int(rc))
+		return fmt.Errorf("init of C module %q returned error code %d", name, int(rc))
 	}
 
 	// Start phase — begin operation.
 	rc = C.cmod_call_start(cm.mod)
 	if rc != 0 {
-		return fmt.Errorf("C module %q Start() returned error code %d", name, int(rc))
+		return fmt.Errorf("start of C module %q returned error code %d", name, int(rc))
 	}
 	cm.started = true
 
@@ -487,7 +487,7 @@ func (l *Launcher) initCModules() error {
 	for _, cm := range l.cModules {
 		rc := C.cmod_call_init(cm.mod)
 		if rc != 0 {
-			return fmt.Errorf("C module %q Init() returned error code %d", cm.name, int(rc))
+			return fmt.Errorf("init of C module %q returned error code %d", cm.name, int(rc))
 		}
 	}
 	return nil
@@ -502,7 +502,7 @@ func (l *Launcher) startCModules() error {
 		}
 		rc := C.cmod_call_start(cm.mod)
 		if rc != 0 {
-			return fmt.Errorf("C module %q Start() returned error code %d", cm.name, int(rc))
+			return fmt.Errorf("start of C module %q returned error code %d", cm.name, int(rc))
 		}
 		cm.started = true
 	}

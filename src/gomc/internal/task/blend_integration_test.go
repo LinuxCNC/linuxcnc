@@ -167,15 +167,15 @@ func TestBlendIntegration_Arcs(t *testing.T) {
 	c := task.canon
 	// ArcFeed args: (lineno, xEnd, yEnd, centerX, centerY, rotation, zEnd, a..w).
 	// rotation: -1 = CW (G2), +1 = CCW (G3). Center is absolute (interp resolves I/J).
-	st(c, 0, 0, 5)     // G0 Z5
-	c.SetFeedRate(400) // F400 = 6.667 mm/s
-	sf(c, 0, 0, 0)     // G1 Z0
-	c.SetFeedRate(800) // F800 = 13.333 mm/s
-	c.ArcFeed(0, 20, 0, 10, 0, -1, 0, 0, 0, 0, 0, 0, 0)  // G2 X20 Y0 I10 J0  (r=10 CW)
-	c.ArcFeed(0, 0, 0, 10, 0, 1, 0, 0, 0, 0, 0, 0, 0)    // G3 X0 Y0 I-10 J0  (r=10 CCW)
-	c.ArcFeed(0, 2, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0)    // G2 X2 Y0 I1 J0    (r=1 CW)
-	c.ArcFeed(0, 0, 0, 1, 0, -1, -5, 0, 0, 0, 0, 0, 0)   // G2 X0 Y0 Z-5 I-1  (helical)
-	st(c, 0, 0, 5)                                       // G0 Z5
+	st(c, 0, 0, 5)                                      // G0 Z5
+	c.SetFeedRate(400)                                  // F400 = 6.667 mm/s
+	sf(c, 0, 0, 0)                                      // G1 Z0
+	c.SetFeedRate(800)                                  // F800 = 13.333 mm/s
+	c.ArcFeed(0, 20, 0, 10, 0, -1, 0, 0, 0, 0, 0, 0, 0) // G2 X20 Y0 I10 J0  (r=10 CW)
+	c.ArcFeed(0, 0, 0, 10, 0, 1, 0, 0, 0, 0, 0, 0, 0)   // G3 X0 Y0 I-10 J0  (r=10 CCW)
+	c.ArcFeed(0, 2, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0)   // G2 X2 Y0 I1 J0    (r=1 CW)
+	c.ArcFeed(0, 0, 0, 1, 0, -1, -5, 0, 0, 0, 0, 0, 0)  // G2 X0 Y0 Z-5 I-1  (helical)
+	st(c, 0, 0, 5)                                      // G0 Z5
 
 	m := collect(t, task, mot)
 	if len(m) != 7 {

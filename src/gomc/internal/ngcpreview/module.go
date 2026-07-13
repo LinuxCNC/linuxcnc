@@ -929,8 +929,7 @@ func (m *ngcPreview) GenPreview(filename string, initcodes string, unitcode stri
 	C.interp_shim_set_callbacks(h, cbHeap)
 
 	// Set up read-only persist-backed parameter I/O.
-	var paramIO C.interp_param_io_t
-	paramIO = C.preview_param_io_persist_create(
+	var paramIO C.interp_param_io_t = C.preview_param_io_persist_create(
 		(*C.persist_callbacks_t)(m.persistCbs))
 	defer C.preview_param_io_persist_destroy(&paramIO)
 	C.interp_shim_set_param_io(h, &paramIO)
@@ -1267,8 +1266,7 @@ func (m *ngcPreview) EvalExpression(expr string) (*ngcpreview.EvalResult, error)
 	*cbHeap = C.make_preview_canon(ctx)
 	C.interp_shim_set_callbacks(h, cbHeap)
 
-	var paramIO C.interp_param_io_t
-	paramIO = C.preview_param_io_persist_create(
+	var paramIO C.interp_param_io_t = C.preview_param_io_persist_create(
 		(*C.persist_callbacks_t)(m.persistCbs))
 	defer C.preview_param_io_persist_destroy(&paramIO)
 	C.interp_shim_set_param_io(h, &paramIO)

@@ -60,9 +60,10 @@ type Pin[T PinValue] struct {
 //   - string -> hal_pin_port_new()
 //
 // Type inference example:
-//   pin, err := NewPin[float64](comp, "speed", hal.In)
-//   pin, err := NewPin[bool](comp, "enable", hal.In)
-//   pin, err := NewPin[int32](comp, "count", hal.Out)
+//
+//	pin, err := NewPin[float64](comp, "speed", hal.In)
+//	pin, err := NewPin[bool](comp, "enable", hal.In)
+//	pin, err := NewPin[int32](comp, "count", hal.Out)
 func NewPin[T PinValue](c *Component, name string, dir Direction) (*Pin[T], error) {
 	if c == nil {
 		return nil, newError("NewPin", "component is nil", -22)
