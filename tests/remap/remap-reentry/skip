@@ -1,6 +1,21 @@
-gomc removed the embedded Python interpreter: this test uses py= remaps
-(REMAP=M405 ... py=body_405) and a [PYTHON] TOPLEVEL module (toplevel.py). gomc's
-rs274 rejects them outright ("python= remaps have been removed. Use ngc= with
-prolog/epilog cmod handlers"). Re-testing py= reentry would require re-adding
-embedded Python (a large, deliberately-reverted change) — obsolete by design.
-Matches the interp/python*, interp/plug/* skips.
+CONFIRMED genuine skip (#3) — needs removed Python generator/coroutine handler bodies + self.execute().
+
+test.ini uses a py= body (`REMAP=M405 py=body_405`) plus [PYTHON] TOPLEVEL, and the
+handlers (remap.py) are Python GENERATORS that interleave running g-code strings and
+yielding for motion to finish:
+
+    def body_405(self, **words):
+        self.execute("(body_M405 begin)")
+        self.execute("G0 Y1"); yield interpreter.INTERP_EXECUTE_FINISH
+        self.execute("G0 Y2"); yield interpreter.INTERP_EXECUTE_FINISH
+        ...
+
+Two removed features are needed and neither has a C interp_ext equivalent:
+ (1) `self.execute("...")` — running arbitrary g-code strings from inside a handler;
+     interp_ctx exposes no execute-string accessor.
+ (2) a generator/coroutine handler that yields INTERP_EXECUTE_FINISH multiple times,
+     keeping Python local state across each re-entry.
+
+Note interp_ext CAN return a single INTERP_EXT_EXECUTE_FINISH, but that alone cannot
+reproduce the multi-yield coroutine + self.execute pattern this test is about, and
+gomc rejects `py=` remaps at parse anyway. Genuine removal, obsolete by design.

@@ -1,2 +1,13 @@
-gomc removed embedded Python: uses a python o-word sub / inline ';py,' remap and
-hits 'Python support has been removed'. Re-enable if Python support returns.
+CONFIRMED genuine skip (#3) — needs the removed Python `gcode`/interpreter binding.
+
+test.sh runs `python3 -mcanon error.ngc`, and canon.py does `import gcode` and
+drives the interpreter through the Python `gcode` C-extension (gcodemodule.cc),
+checking that an interpreter error (error.ngc: `G2 X1 Y1 I.25 F1`, an arc whose
+radius does not close) is raised out to Python. gomc removed the embedded Python
+interpreter and its `gcode`/`emc` bindings (g-code preview is now the Go ngcpreview
+module over REST), so `import gcode` is unavailable — there is no Python surface to
+raise the error to.
+
+Note: the arc-radius-mismatch detection itself is interpreter behaviour and is
+still exercised by the standalone-interp arc tests; only the Python-binding error
+path is removed.

@@ -1,2 +1,12 @@
-gomc removed the embedded Python interpreter: use-rs274.cc #includes <Python.h>
-(interpreter embedding), which is not available. Re-enable if Python support returns.
+CONFIRMED genuine skip (#3) — needs the removed embedded-Python interpreter.
+
+use-rs274.cc compiles an external C++ program that embeds the interpreter's
+Python-remap support: it `#include <Python.h>` (must be first header) and links
+$PYTHON_CPPFLAGS/$PYTHON_LIBS, because the old interp headers exposed Python types
+(e.g. `struct inttab`) in the public API. gomc removed the embedded Python
+interpreter, so Python.h / $PYTHON_LIBS are not part of the build and rs274ngc.hh
+no longer carries Python types — the program cannot be compiled.
+
+Note: the general capability "compile+link an external program against the control
+API" still exists and is exercised by build/ui (a C client linked against libgmi).
+This test is specifically the Python-embedding compile, which is gone.

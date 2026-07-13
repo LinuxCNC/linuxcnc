@@ -1,3 +1,5 @@
+CONFIRMED genuine skip (#3) — needs the removed Python predefined-named-parameter registration.
+
 gomc removed the embedded Python interpreter. This test's subject is a specific
 Python-only extension point: registering *Python-computed predefined named
 parameters* (namedparams.py defines _pi, _py_motion_mode, _error, _badreturntype,

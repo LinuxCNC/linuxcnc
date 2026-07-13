@@ -53,20 +53,26 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 
 ## 2. Skips
 
-### 2a. Correct skip — Python interpreter removed
+### 2a. Correct skip — Python interpreter removed (all CONFIRMED, #3)
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
 interp/{pymove,python/error,python-self},
 remap/fail/{body-py,canon_error}, remap/{predefined-named-params,remap-reentry}.
 (remap/spindle, remap/fail/{prolog,epilog}, remap/oword-pycall, remap/introspect, remap/variable-injection, m70-m73/m73-flood-mist-restore.0 moved out — re-expressed; see §2e.)
 
-**predefined-named-params** — precise reason: its subject is a *Python-computed predefined named parameter*
-(namedparams.py registers `_pi`/`_py_motion_mode`/… as read-only #<_name> params). interp_ext has no
-register-named-param equivalent and interp_ctx get/set only touch existing params → genuine removal, nothing to
-re-express. **remap-reentry** — python `yield INTERP_EXECUTE_FINISH` generator body; **pymove** — python O-word that
-emits motion directly via the `emccanon` binding (STRAIGHT_FEED/STRAIGHT_TRAVERSE), which interp_ctx does not expose
-(it has canon_enqueue_set_spindle_speed/feed_rate + tool calls, but no motion emit) → motion from a handler is via an
-`ngc=` body, so the direct-emccanon path is a genuine removal.
+**#3 (2026-07-13): each verified against the exact removed mechanism, not blanket "python gone"; per-test reason lives in each `skip` file. Summary:**
+
+| test | exact removed mechanism it needs | why not re-expressible |
+|---|---|---|
+| interp/compile | external C++ program embedding the interp: `#include <Python.h>` + `$PYTHON_LIBS`, Python types in the public interp API (`struct inttab`) | Python.h/$PYTHON_LIBS not in the build; rs274ngc.hh no longer carries Python types. (Linking an external client is covered by build/ui via libgmi.) |
+| interp/plug/{absolute,filename,relative} | `rs274 -p canterp.so` — the Python "canonical interpreter" plugin, resolved by absolute / bare-filename / relative path | canterp.so (a Python C-extension) isn't built; no non-Python interpreter plugin exists to exercise `-p`. |
+| interp/python/error | `python3 -mcanon` + `import gcode` — drives the interp through the Python `gcode` binding to catch an arc error | the Python `gcode`/`emc` binding is removed (preview = Go ngcpreview/REST). Arc-radius-mismatch detection itself stays covered by standalone-interp arc tests. |
+| interp/python-self | Python `self.param1 = x` on the interp object + `interpreter.this` alias, persisting across `;py,`/o-word calls | interp_ext handlers are stateless C callbacks; no interpreter-bound Python `self`/`this`. |
+| interp/pymove | `emccanon.STRAIGHT_FEED/STRAIGHT_TRAVERSE` — direct canon **motion** emission from a handler | interp_ctx exposes only canon_enqueue_set_spindle_speed/_feed_rate + tool calls, no motion emit; motion from a handler is via an `ngc=` body. |
+| remap/fail/body-py | `REMAP=M400 py=interp_error` — a pure Python remap **body** returning INTERP_ERROR | gomc rejects `py=`/`python=` at parse. Handler-fails-conveys-error is covered by remap/fail/{prolog,epilog}; only the py= body form is gone. |
+| remap/fail/canon_error | prolog calls `emccanon.CANON_ERROR("…%s…")` (literal-%s safety of the canon error path) | no `canon_error` accessor on interp_ctx (C handlers use set_error, a different path). Prolog-fail path covered by remap/fail/prolog. |
+| remap/predefined-named-params | Python-registered **predefined named params** (`_pi`, `_py_motion_mode`, read-only #<_name>) | interp_ext has no register-named-param; interp_ctx get/set only touch existing params. |
+| remap/remap-reentry | Python **generator** handler bodies doing `self.execute("G0 …")` + repeated `yield INTERP_EXECUTE_FINISH` | interp_ctx has no execute-string accessor; interp_ext's single EXECUTE_FINISH can't reproduce the multi-yield coroutine + self.execute pattern; py= rejected at parse anyway. |
 
 ### 2b. Correct skip — TCL-for-HAL removed
 

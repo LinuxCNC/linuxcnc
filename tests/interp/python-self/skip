@@ -1,2 +1,13 @@
-gomc removed embedded Python: uses a python o-word sub / inline ';py,' remap and
-hits 'Python support has been removed'. Re-enable if Python support returns.
+CONFIRMED genuine skip (#3) — needs the removed embedded-Python `self`/interpreter.this binding.
+
+test.ngc uses inline `;py,` blocks and Python O-word subs to store an arbitrary
+attribute on the interpreter object (o<retainparam1> does `self.param1 = x`) and
+read it back later — both through another o-word (o<checkparam1_retained>) and via
+`;py,assert interpreter.this.param1 == 25.0`, verifying that the handler `self` is
+aliased to the module-level `interpreter.this` and that attributes persist on it.
+
+gomc removed the embedded Python interpreter. The C interp_ext handlers are
+stateless C callbacks — there is no interpreter-bound Python `self` to attach
+attributes to, and no `interpreter.this` alias, so this has no equivalent. (A cmod
+could keep its own state, but that would not test the Python self/this aliasing the
+test exists to check.) Genuine removal.

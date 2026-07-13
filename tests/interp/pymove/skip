@@ -1,2 +1,13 @@
-gomc removed embedded Python: uses a python o-word sub / inline ';py,' remap and
-hits 'Python support has been removed'. Re-enable if Python support returns.
+CONFIRMED genuine skip (#3) — needs the removed `emccanon` Python binding (direct canon emission from a handler).
+
+oword.py's o<canonmove> emits motion directly from the handler via the emccanon
+Python module: `emccanon.STRAIGHT_FEED(...)` and `emccanon.STRAIGHT_TRAVERSE(...)`.
+gomc removed the embedded Python interpreter and the emccanon binding, and the C
+interp_ext interp_ctx API deliberately exposes only a small canon surface
+(canon_enqueue_set_spindle_speed / _feed_rate, tool select/change) — NOT motion
+emission (STRAIGHT_FEED/STRAIGHT_TRAVERSE).
+
+In gomc a remap/O-word produces motion through its `ngc=` body (plain G0/G1), not
+by calling canon directly, so the "emit canon motion from inside a handler" path is
+a genuine removal. (Re-adding it would mean extending interp_ctx with motion-emit
+accessors — out of scope for a test re-expression.)
