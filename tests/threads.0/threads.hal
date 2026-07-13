@@ -1,0 +1,21 @@
+# Thread-scheduling test, ported to gomc.
+#
+# Classic drove `loadrt threads name1=fast period1=100000 name2=slow
+# period2=1000000` + threadtest + a userspace halsampler.  gomc declares threads
+# with `newthread` and has no userspace comps, so the counter is captured with
+# the file-backed `filestream` cmod (../filestream-driver.sh) instead of halsampler.
+#
+# threadtest.increment runs on the fast thread (10x per slow cycle) and
+# filestream.read captures the count right after; threadtest.reset runs on the
+# slow thread.  With the 10:1 period ratio the captured count therefore ramps
+# 1,2,3,... and drops back to 1 once per slow cycle — checkresult verifies the
+# ramp is gap-free and that at least one reset occurred over 3500 samples.
+setexact_for_test_suite_only
+load filestream sample_cfg=u outfile=out.txt depth=4096 samples=3500
+load threadtest <threadtest.0>
+newthread fast 100000
+newthread slow 1000000
+net count threadtest.0.count => filestream.sample.0
+addf threadtest.0.increment fast
+addf filestream.read fast
+addf threadtest.0.reset slow

@@ -1,0 +1,10 @@
+# threads.1 ported to gomc: verify per-function execution-time accounting.
+#
+# Classic: loadrt threads; loadrt and2; addf and2.0 thread1; start;
+#          loadusr -w sleep 1; getp and2.0.tmax
+# gomc declares the thread with `newthread` and has no loadusr; test.sh starts
+# the threads, lets them run, then reads and2.0.tmax.  The check is unchanged:
+# the max recorded runtime of a function that has actually executed must be > 0.
+load and2 <and2.0>
+newthread thread1 1000000
+addf and2.0 thread1

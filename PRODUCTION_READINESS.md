@@ -87,6 +87,7 @@ reasons; these are component bugs, not test problems):
 - **gomc HAL lock model differs** — `all|tune|none`, not the classic 4-level `LOAD/CONFIG/PARAMS/RUN`; `status`/lock rendering absent. (halrun-lock unfixable as-is)
 - **No two-pass HAL loading (TWOPASS)** in gomc. (twopass, twopass-personality)
 - **`halcmd getp` prints a verbose line** (`s32 OUT name = val`), not a bare value — output-parsing tests must `awk '{print $NF}'`.
+- **`halcmd getp` does not resolve RW params** — `getp and2.0.tmax` prints an empty value even though `show param` lists `and2.0.tmax` with its real value, and `getp` on a pin (`and2.0.time`) works. Function-timing params (`.tmax`) must be read via `show param` (tests/threads.1 reads tmax this way). Minor; worth aligning getp with the param table.
 - **hostmot2 sim / hm2 test comp** path not validated on gomc. (hm2-idrom)
 
 ---
