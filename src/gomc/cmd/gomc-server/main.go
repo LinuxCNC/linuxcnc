@@ -219,9 +219,8 @@ Options:
 	}
 
 	if err := l.Run(); err != nil {
-		if daemonMode {
-			// Logger might have already reported this via syslog.
-		}
+		// In daemon mode the logger may have already reported this via
+		// syslog; print to stderr regardless so foreground callers see it.
 		fmt.Fprintf(os.Stderr, "gomc-server: %v\n", err)
 		return 1
 	}

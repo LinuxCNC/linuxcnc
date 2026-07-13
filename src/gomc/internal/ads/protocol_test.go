@@ -136,13 +136,13 @@ func (c *bytesConn) Write(b []byte) (int, error) {
 }
 
 // Implement the minimal net.Conn interface (unused methods panic).
-func (c *bytesConn) Read(b []byte) (int, error)             { panic("not implemented") }
-func (c *bytesConn) Close() error                            { return nil }
-func (c *bytesConn) LocalAddr() net.Addr                     { return nil }
-func (c *bytesConn) RemoteAddr() net.Addr                    { return nil }
-func (c *bytesConn) SetDeadline(t time.Time) error           { return nil }
-func (c *bytesConn) SetReadDeadline(t time.Time) error       { return nil }
-func (c *bytesConn) SetWriteDeadline(t time.Time) error      { return nil }
+func (c *bytesConn) Read(b []byte) (int, error)         { panic("not implemented") }
+func (c *bytesConn) Close() error                       { return nil }
+func (c *bytesConn) LocalAddr() net.Addr                { return nil }
+func (c *bytesConn) RemoteAddr() net.Addr               { return nil }
+func (c *bytesConn) SetDeadline(t time.Time) error      { return nil }
+func (c *bytesConn) SetReadDeadline(t time.Time) error  { return nil }
+func (c *bytesConn) SetWriteDeadline(t time.Time) error { return nil }
 
 // TestResponsePortEcho verifies that the response SourcePort always echoes
 // the request's TargetPort, not the server's hardcoded port (851).

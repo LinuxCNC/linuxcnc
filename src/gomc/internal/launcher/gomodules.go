@@ -31,7 +31,7 @@ type goModule struct {
 func (l *Launcher) loadGoModule(registryName string, instanceName string, args []string) error {
 	factory := gomc.GetFactory(registryName)
 	if factory == nil {
-		return fmt.Errorf("Go module %q not found in registry", registryName)
+		return fmt.Errorf("no Go module %q in registry", registryName)
 	}
 
 	l.logger.Info("loading Go module", "registry", registryName, "instance", instanceName)
@@ -55,7 +55,7 @@ func (l *Launcher) loadGoModule(registryName string, instanceName string, args [
 func (l *Launcher) startGoModules() error {
 	for _, gm := range l.goModules {
 		if err := gm.mod.Start(); err != nil {
-			return fmt.Errorf("Go module %q Start() failed: %w", gm.name, err)
+			return fmt.Errorf("starting Go module %q: %w", gm.name, err)
 		}
 	}
 	return nil

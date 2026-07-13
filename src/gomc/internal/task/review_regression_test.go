@@ -4,12 +4,12 @@
 // Regression tests for pre-merge review findings whose fixes were correct but
 // previously unprotected by a test that would catch a reversion:
 //   - C4: rigid-tap velocity must use the per-axis straight-move max, unclamped
-//         by the F word (else tp's position-sync phase throttles the tap).
+//     by the F word (else tp's position-sync phase throttles the tap).
 //   - C5: M66 rise/fall are true two-phase edges, not levels (an input already
-//         at the target level must NOT satisfy the wait immediately).
+//     at the target level must NOT satisfy the wait immediately).
 //   - C3: an ESTOP received while already estopped must keep the sequencer
-//         alive (restart it), so the machine still produces motion after
-//         recovery.
+//     alive (restart it), so the machine still produces motion after
+//     recovery.
 package task
 
 import (
@@ -285,8 +285,8 @@ func TestFinishMDI_StaleGenerationIsNoop(t *testing.T) {
 	task.SetInterpreter(&fakeInterp{})
 
 	task.mu.Lock()
-	task.mdiGen = 5                    // MDI-2 was issued after MDI-1
-	task.interpState = InterpReading   // MDI-2 is mid-run
+	task.mdiGen = 5                  // MDI-2 was issued after MDI-1
+	task.interpState = InterpReading // MDI-2 is mid-run
 	task.execState = ExecWaitingForMotion
 	task.mu.Unlock()
 

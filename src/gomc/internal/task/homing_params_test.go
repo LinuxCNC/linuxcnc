@@ -11,13 +11,13 @@ import (
 // noopMotionConfig is a do-nothing MotionConfig for exercising loadJoint.
 type noopMotionConfig struct{}
 
-func (noopMotionConfig) SetVel(float64) error                  { return nil }
-func (noopMotionConfig) SetVelLimit(float64) error             { return nil }
-func (noopMotionConfig) SetAcc(float64) error                  { return nil }
-func (noopMotionConfig) SetMaxFeedOverride(float64) error      { return nil }
-func (noopMotionConfig) SetWorldHome(Pose) error               { return nil }
-func (noopMotionConfig) SetProbeErrInhibit(int32, int32) error { return nil }
-func (noopMotionConfig) JointActivate(int32) error             { return nil }
+func (noopMotionConfig) SetVel(float64) error                                 { return nil }
+func (noopMotionConfig) SetVelLimit(float64) error                            { return nil }
+func (noopMotionConfig) SetAcc(float64) error                                 { return nil }
+func (noopMotionConfig) SetMaxFeedOverride(float64) error                     { return nil }
+func (noopMotionConfig) SetWorldHome(Pose) error                              { return nil }
+func (noopMotionConfig) SetProbeErrInhibit(int32, int32) error                { return nil }
+func (noopMotionConfig) JointActivate(int32) error                            { return nil }
 func (noopMotionConfig) SetJointPositionLimits(int32, float64, float64) error { return nil }
 func (noopMotionConfig) SetJointBacklash(int32, float64) error                { return nil }
 func (noopMotionConfig) SetJointMaxFerror(int32, float64) error               { return nil }

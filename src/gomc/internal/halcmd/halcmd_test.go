@@ -12,50 +12,38 @@ import (
 
 // TestStartThreadsSignature verifies that StartThreads has the correct signature.
 func TestStartThreadsSignature(t *testing.T) {
-	var fn func() error = halcmd.StartThreads
-	if fn == nil {
-		t.Fatal("StartThreads must not be nil")
-	}
+	// Compile-time signature assertion.
+	var _ func() error = halcmd.StartThreads
 }
 
 // TestStopThreadsSignature verifies that StopThreads has the correct signature.
 func TestStopThreadsSignature(t *testing.T) {
-	var fn func() error = halcmd.StopThreads
-	if fn == nil {
-		t.Fatal("StopThreads must not be nil")
-	}
+	// Compile-time signature assertion.
+	var _ func() error = halcmd.StopThreads
 }
 
 // TestCreateThreadCPUSignature verifies that CreateThreadCPU has the correct signature.
 func TestCreateThreadCPUSignature(t *testing.T) {
-	var fn func(string, int64, int, int) error = halcmd.CreateThreadCPU
-	if fn == nil {
-		t.Fatal("CreateThreadCPU must not be nil")
-	}
+	// Compile-time signature assertion.
+	var _ func(string, int64, int, int) error = halcmd.CreateThreadCPU
 }
 
 // TestThreadDeleteSignature verifies that ThreadDelete has the correct signature.
 func TestThreadDeleteSignature(t *testing.T) {
-	var fn func(string) error = halcmd.ThreadDelete
-	if fn == nil {
-		t.Fatal("ThreadDelete must not be nil")
-	}
+	// Compile-time signature assertion.
+	var _ func(string) error = halcmd.ThreadDelete
 }
 
 // TestListComponentsSignature verifies that ListComponents has the correct signature.
 func TestListComponentsSignature(t *testing.T) {
-	var fn func() ([]string, error) = halcmd.ListComponents
-	if fn == nil {
-		t.Fatal("ListComponents must not be nil")
-	}
+	// Compile-time signature assertion.
+	var _ func() ([]string, error) = halcmd.ListComponents
 }
 
 // TestUnloadAllSignature verifies that UnloadAll has the correct signature.
 func TestUnloadAllSignature(t *testing.T) {
-	var fn func(int) error = halcmd.UnloadAll
-	if fn == nil {
-		t.Fatal("UnloadAll must not be nil")
-	}
+	// Compile-time signature assertion.
+	var _ func(int) error = halcmd.UnloadAll
 }
 
 // TestListComponentsReturnType verifies that ListComponents returns the expected types.

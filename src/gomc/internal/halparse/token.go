@@ -241,7 +241,6 @@ type UnlockToken struct {
 
 func (*UnlockToken) tokenData() {}
 
-
 // ListToken represents a "list" command.
 type ListToken struct {
 	ObjType  HalObjType
@@ -335,6 +334,6 @@ type INILookup interface {
 // plugins and resolved against EMC2_GOMOD_DIR by the launcher.
 // HALCmd tokens are everything else, executed in order after components start.
 type ParseResult struct {
-	Loads   []Token // "load" command tokens (*LoadToken) — Go plugins only
-	HALCmd  []Token
+	Loads  []Token // "load" command tokens (*LoadToken) — Go plugins only
+	HALCmd []Token
 }

@@ -45,10 +45,7 @@ func InitCPUPool(logger *slog.Logger) error {
 	// non-primary sibling is isolated (common: isolcpus=2,3 on a 4-logical-CPU
 	// system where 0,2 and 1,3 are sibling pairs), we still use it — the
 	// kernel has already removed it from the general scheduler.
-	var avail []int
-	for _, cpu := range topo.isolated {
-		avail = append(avail, cpu)
-	}
+	avail := append([]int(nil), topo.isolated...)
 	sort.Sort(sort.Reverse(sort.IntSlice(avail)))
 
 	posixRT := rtapiIsRealtime()

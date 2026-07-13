@@ -13,8 +13,8 @@ type recordingDisplayPub struct {
 	displays []string
 }
 
-func (p *recordingDisplayPub) OperatorError(string)   {}
-func (p *recordingDisplayPub) OperatorText(string)    {}
+func (p *recordingDisplayPub) OperatorError(string) {}
+func (p *recordingDisplayPub) OperatorText(string)  {}
 func (p *recordingDisplayPub) OperatorDisplay(s string) {
 	p.mu.Lock()
 	p.displays = append(p.displays, s)

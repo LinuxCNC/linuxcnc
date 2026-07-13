@@ -312,7 +312,7 @@ func processFile(path, mode, outputFile string) error {
 		return cgen.Generate(out, pkg)
 
 	case "--document":
-		out := os.Stdout
+		var out *os.File
 		if outputFile != "" {
 			f, err := os.Create(outputFile)
 			if err != nil {

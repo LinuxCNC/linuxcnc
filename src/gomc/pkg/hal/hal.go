@@ -14,4 +14,3 @@ const (
 	// This matches HAL_NAME_LEN from hal.h.
 	NameLen = 127
 )
-

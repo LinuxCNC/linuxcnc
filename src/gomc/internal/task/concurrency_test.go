@@ -87,12 +87,12 @@ func (f *fakeInterp) CallLevel() int {
 	}
 	return 0
 }
-func (f *fakeInterp) ErrorText(int) string    { return "" }
-func (f *fakeInterp) FileName() string        { return "fake.ngc" }
-func (f *fakeInterp) Command() string         { return "" }
-func (f *fakeInterp) Destroy()                {}
-func (f *fakeInterp) ActiveGCodes() []int32   { return make([]int32, activeGCodesLen) }
-func (f *fakeInterp) ActiveMCodes() []int32   { return make([]int32, activeMCodesLen) }
+func (f *fakeInterp) ErrorText(int) string  { return "" }
+func (f *fakeInterp) FileName() string      { return "fake.ngc" }
+func (f *fakeInterp) Command() string       { return "" }
+func (f *fakeInterp) Destroy()              {}
+func (f *fakeInterp) ActiveGCodes() []int32 { return make([]int32, activeGCodesLen) }
+func (f *fakeInterp) ActiveMCodes() []int32 { return make([]int32, activeMCodesLen) }
 func (f *fakeInterp) ActiveSettings() []float64 {
 	return make([]float64, activeSettingsLen)
 }

@@ -123,7 +123,7 @@ func (m *testModule) Destroy() {}
 
 // testHarness provides helpers for calling emccmd/emcstat.
 type testHarness struct {
-	emccmdCbs  unsafe.Pointer         // C milltask dispatch (nil for Go milltask)
+	emccmdCbs  unsafe.Pointer // C milltask dispatch (nil for Go milltask)
 	emcstatCbs unsafe.Pointer
 	wreg       *apiserver.WatchRegistry // Go milltask commands (nil for C milltask)
 	logger     *slog.Logger

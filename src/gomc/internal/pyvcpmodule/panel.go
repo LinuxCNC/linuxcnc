@@ -359,10 +359,7 @@ func extractPins(widgetName string, children, attrs map[string]string, counters 
 		initval := getParam(children, attrs, "initval")
 		pins := []*pinDef{{name: halpin, halType: halFloat, dir: halOut, initval: initval}}
 		// Derive base name for sub-pins
-		base := halpin
-		if strings.HasSuffix(base, ".count") {
-			base = base[:len(base)-6]
-		}
+		base := strings.TrimSuffix(halpin, ".count")
 		if getBoolParam(children, attrs, "clear_pin") {
 			pins = append(pins, &pinDef{name: base + ".reset", halType: halBit, dir: halIn})
 		}

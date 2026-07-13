@@ -22,15 +22,15 @@ import (
 // return tab-indented code (one leading tab per nesting level); the caller
 // reindents the whole block to the method-body depth.
 type clientLang interface {
-	open() string                                   // declare the error accumulator
-	closeThrow() string                             // raise if any errors collected
-	check(cond, msgExpr string) string              // if <cond> then record msgExpr
-	guard(expr, body string) string                 // if <expr> is present { body }
-	loop(coll, iter, body string) string            // for each element (index iter) of coll
-	lenExpr(expr string, t ast.TypeRef) string      // character/element count
-	absent(expr string) string                      // test that a nullable value is missing
-	enumMiss(expr string, vals []int) string        // test value is not a valid enum member
-	idxPathExpr(baseExpr, iter string) string       // path string expression for coll[iter]
+	open() string                              // declare the error accumulator
+	closeThrow() string                        // raise if any errors collected
+	check(cond, msgExpr string) string         // if <cond> then record msgExpr
+	guard(expr, body string) string            // if <expr> is present { body }
+	loop(coll, iter, body string) string       // for each element (index iter) of coll
+	lenExpr(expr string, t ast.TypeRef) string // character/element count
+	absent(expr string) string                 // test that a nullable value is missing
+	enumMiss(expr string, vals []int) string   // test value is not a valid enum member
+	idxPathExpr(baseExpr, iter string) string  // path string expression for coll[iter]
 }
 
 // clientValidation returns the full validation block for one client method
@@ -99,8 +99,10 @@ func spaceIndent(s string, tabWidth, baseSpaces int) string {
 
 type tsLang struct{}
 
-func (tsLang) open() string       { return "\tconst _verrs: string[] = [];\n" }
-func (tsLang) closeThrow() string { return "\tif (_verrs.length > 0) throw new ValidationError(_verrs);\n" }
+func (tsLang) open() string { return "\tconst _verrs: string[] = [];\n" }
+func (tsLang) closeThrow() string {
+	return "\tif (_verrs.length > 0) throw new ValidationError(_verrs);\n"
+}
 
 func (tsLang) check(cond, msg string) string {
 	return "\tif (" + cond + ") {\n\t\t_verrs.push(" + msg + ");\n\t}\n"
