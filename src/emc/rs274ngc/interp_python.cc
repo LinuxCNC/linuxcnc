@@ -71,18 +71,21 @@ int Interp::pycall(setup_pointer settings,
 
     case PY_OWORDCALL:
     case PY_FINISH_OWORDCALL: {
-        // Gather positional args from the call frame's local params (#1..#30)
-        double args[30];
+        // Positional args are the numbered subroutine params #1..#n_args, set
+        // up by execute_call for the O-word call; n_args comes from the
+        // OWORD_N_ARGS named param.
+        double args[INTERP_SUB_PARAMS];
         int n_args = 0;
-        for (int i = 0; i < 30; i++) {
-            char pname[8];
-            snprintf(pname, sizeof(pname), "%d", i + 1);
-            int found = 0;
-            double val = 0;
-            find_named_param(pname, &found, &val);
-            if (!found) break;
-            args[n_args++] = val;
+        int found = 0;
+        double nv = 0;
+        find_named_param("n_args", &found, &nv);
+        if (found && nv > 0) {
+            n_args = (int)nv;
+            if (n_args > INTERP_SUB_PARAMS)
+                n_args = INTERP_SUB_PARAMS;
         }
+        for (int i = 0; i < n_args; i++)
+            args[i] = settings->parameters[INTERP_FIRST_SUBROUTINE_PARAM + i];
         double retval = 0;
         status = ext_call_oword(funcname, args, n_args, &retval,
                                 calltype == PY_FINISH_OWORDCALL ? 1 : 0);

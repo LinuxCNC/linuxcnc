@@ -17,7 +17,7 @@ sleep 0.5
     echo set estop off
     echo set machine on
     echo set mode mdi
-    echo 'set mdi o<test_oword> call'
+    echo 'set mdi o<test_oword> call [10] [20]'
     echo set wait done
     echo shutdown
 ) | ../rsh2gmi.py

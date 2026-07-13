@@ -28,21 +28,22 @@ typedef struct {
     const char *milltask_instance;
 } test_ext_module;
 
-/* O-word handler: log the call and return a fixed value.
- *
- * NB: gomc does not currently populate the call-frame positional params at
- * C-oword dispatch time, so args_len is always 0 (see PRODUCTION_READINESS.md).
- * This test therefore verifies registration + dispatch + the fixed return value,
- * not argument passing. */
+/* O-word handler: return the sum of the call arguments. */
 static int32_t test_oword(interp_ctx_callbacks_t *ctx, const char *name,
                           const double *args, size_t args_len, double *retval)
 {
     (void)ctx;
-    (void)args;
-    fprintf(stderr, "test_interp_ext: oword '%s' called (n_args=%zu), returning 42\n",
-            name, args_len);
+    double sum = 0.0;
+    for (size_t i = 0; i < args_len; i++)
+        sum += args[i];
+
+    fprintf(stderr, "test_interp_ext: oword '%s' called, args_len=%zu", name, args_len);
+    for (size_t i = 0; i < args_len; i++)
+        fprintf(stderr, " arg[%zu]=%.4f", i, args[i]);
+    fprintf(stderr, ", returning %.4f\n", sum);
+
     if (retval)
-        *retval = 42.0;
+        *retval = sum;
     return 0;
 }
 

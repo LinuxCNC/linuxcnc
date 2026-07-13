@@ -274,9 +274,28 @@ int Interp::execute_call(setup_pointer settings,
 
 	break;
 
-    case CT_PYTHON_OWORD_SUB:
+    case CT_PYTHON_OWORD_SUB: {
+	// Make the call args available to the (C/gomod) handler as #1..#30 and
+	// n_args, the same way the NGC sub path does.  The dispatch is
+	// synchronous, so save the caller's #1..#30 and restore afterwards.
+	double saved_sub_params[INTERP_SUB_PARAMS];
+	for (i = 0; i < INTERP_SUB_PARAMS; i++) {
+	    saved_sub_params[i] =
+		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
+	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
+		eblock->params[i];
+	}
+	CHP(add_named_param("n_args", PA_READONLY));
+	CHP(store_named_param(settings, "n_args",
+			      (double)eblock->param_cnt, OVERRIDE_READONLY));
+
 	status = pycall(settings, current_frame, OWORD_MODULE,
 			current_frame->subName, PY_OWORDCALL);
+
+	for (i = 0; i < INTERP_SUB_PARAMS; i++)
+	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
+		saved_sub_params[i];
+
 	if (status == INTERP_ERROR) {
 	    ERS("O<%s> call: handler not registered - "
 		"register a cmod/gomod handler", current_frame->subName);
@@ -286,6 +305,7 @@ int Interp::execute_call(setup_pointer settings,
 	// successful oword call returns directly (no NGC sub to run)
 	settings->call_level--;
 	return status;
+    }
 
     case CT_REMAP:
 	block_pointer cblock = &CONTROLLING_BLOCK(*settings);

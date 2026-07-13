@@ -2,5 +2,5 @@
 D=$(dirname "$1"); LOG="$D/server.log"
 set -e
 grep -q "test_interp_ext: o<test_oword> registered" "$LOG"
-grep -q "test_interp_ext: oword 'test_oword' called (n_args=0), returning 42" "$LOG"
-echo "interp_ext register_oword: registered a C O-word and it was dispatched from g-code"
+grep -q "test_interp_ext: oword 'test_oword' called, args_len=2 arg\[0\]=10.0000 arg\[1\]=20.0000, returning 30.0000" "$LOG"
+echo "interp_ext register_oword: registered, dispatched with args [10,20] -> 30"
