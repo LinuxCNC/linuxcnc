@@ -57,8 +57,8 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
 interp/{pymove,python/error,python-self}, m70-m73/m73-flood-mist-restore.0,
-remap/fail/{body-py,canon_error}, remap/{introspect,oword-pycall,predefined-named-params,remap-reentry,variable-injection}.
-(remap/spindle, remap/fail/{prolog,epilog} moved out — re-expressed via the C interp_ext mechanism; see §2e.)
+remap/fail/{body-py,canon_error}, remap/{introspect,predefined-named-params,remap-reentry,variable-injection}.
+(remap/spindle, remap/fail/{prolog,epilog}, remap/oword-pycall moved out — re-expressed via the C interp_ext mechanism; see §2e.)
 
 ### 2b. Correct skip — TCL-for-HAL removed
 
@@ -104,6 +104,7 @@ now wired + tested (tests/interp-ext, tests/mcode-handler). Python remap/O-word 
 | remap/spindle | `M500 py=m500` reads `self.speed[]`/`self.active_spindle` | `REMAP=M500 prolog=m500_prolog` C cmod (`test_spindle_remap.so`) reads per-spindle speed via interp_ctx `get_speed()`; full-instance MDI run, checkresult greps the prolog's logged speeds ([0,0,0]→[1000,0,0]→[1000,2000,0]) | ✅ **PASS** |
 | remap/fail/prolog | Python prolog returns INTERP_ERROR; must abort + convey error, NGC body not run | `REMAP=M400 prolog=failingprolog` C cmod (`test_remap_fail.so`) `set_error()`+INTERP_EXT_ERROR; checkresult confirms prolog failed, error text conveyed, body (`o<mark_body>`) NOT run | ✅ **PASS** (found+fixed the pycall message-clobber bug below) |
 | remap/fail/epilog | Python epilog returns INTERP_ERROR after the NGC body ran | `REMAP=M400 ngc=mustbecalled epilog=failingepilog` (same cmod); checkresult confirms body ran, epilog failed, error conveyed | ✅ **PASS** |
+| remap/oword-pycall | Python O-word subs (o<square>, o<multiply>) w/ fixed+variable args and #<_value> return | C interp_ext O-words (cmod `test_oword_math.so`, register_oword); MDI feeds a prior call's #<_value> back as an arg to prove the return round-tripped. checkresult greps args+result: square(5)=25, multiply(25,2)=50, multiply(5,6,7)=210 | ✅ **PASS** |
 
 **gomc bug fixed here (interp error conveyance):** a C interp_ext prolog/epilog/O-word handler that called `ctx->set_error()` and
 returned INTERP_EXT_ERROR had its saved message clobbered with a generic "pycall(...) failed" / "handler not registered".
