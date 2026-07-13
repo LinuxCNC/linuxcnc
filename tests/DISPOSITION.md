@@ -56,9 +56,17 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 ### 2a. Correct skip — Python interpreter removed
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
-interp/{pymove,python/error,python-self}, m70-m73/m73-flood-mist-restore.0,
+interp/{pymove,python/error,python-self},
 remap/fail/{body-py,canon_error}, remap/{predefined-named-params,remap-reentry}.
-(remap/spindle, remap/fail/{prolog,epilog}, remap/oword-pycall, remap/introspect, remap/variable-injection moved out — re-expressed via the C interp_ext mechanism; see §2e.)
+(remap/spindle, remap/fail/{prolog,epilog}, remap/oword-pycall, remap/introspect, remap/variable-injection, m70-m73/m73-flood-mist-restore.0 moved out — re-expressed; see §2e.)
+
+**predefined-named-params** — precise reason: its subject is a *Python-computed predefined named parameter*
+(namedparams.py registers `_pi`/`_py_motion_mode`/… as read-only #<_name> params). interp_ext has no
+register-named-param equivalent and interp_ctx get/set only touch existing params → genuine removal, nothing to
+re-express. **remap-reentry** — python `yield INTERP_EXECUTE_FINISH` generator body; **pymove** — python O-word that
+emits motion directly via the `emccanon` binding (STRAIGHT_FEED/STRAIGHT_TRAVERSE), which interp_ctx does not expose
+(it has canon_enqueue_set_spindle_speed/feed_rate + tool calls, but no motion emit) → motion from a handler is via an
+`ngc=` body, so the direct-emccanon path is a genuine removal.
 
 ### 2b. Correct skip — TCL-for-HAL removed
 
@@ -107,6 +115,7 @@ now wired + tested (tests/interp-ext, tests/mcode-handler). Python remap/O-word 
 | remap/oword-pycall | Python O-word subs (o<square>, o<multiply>) w/ fixed+variable args and #<_value> return | C interp_ext O-words (cmod `test_oword_math.so`, register_oword); MDI feeds a prior call's #<_value> back as an arg to prove the return round-tripped. checkresult greps args+result: square(5)=25, multiply(25,2)=50, multiply(5,6,7)=210 | ✅ **PASS** |
 | remap/introspect | Python O-word reads args + live interp state (feed/speed/named/INI/global params) | C interp_ext O-word (cmod `test_introspect.so`) via interp_ctx get_feed_rate/get_speed/get_param; checkresult greps args [1,2,3,3.14159], feed=200, rpm=3000, global=47.11, ini=3.14159. Python-binding-only bits (block param arrays, sub_context iteration, params.locals()/globals(), self.remaps) dropped — removed embedded-Python API | ✅ **PASS** |
 | remap/variable-injection | Python prolog injects a var, NGC bumps it, epilog retrieves it; per-remap scoping | C interp_ext prolog/epilog (cmod `test_var_inject.so`) via interp_ctx set_param/get_param; M405/406/407 run singly + all-in-one-block. checkresult confirms each prolog injected #<fooNNN>=42, NGC bumped to 43, epilog retrieved 43, and no abort (sibling-remap vars not visible — local scoping intact) | ✅ **PASS** |
+| m70-m73/m73-flood-mist-restore.0 | M73 auto-restore of M7/M8; verified with `;py,assert this.params[...]` | NGC-only (standalone rs274, like sibling m73autorestore.0): drop the py-asserts, surface restored state via `(debug, _mist=#<_mist> _flood=#<_flood>)`; MIST_ON/FLOOD_ON reappear in the canon trace after the sub returns | ✅ **PASS** |
 
 **gomc bug fixed here (interp error conveyance):** a C interp_ext prolog/epilog/O-word handler that called `ctx->set_error()` and
 returned INTERP_EXT_ERROR had its saved message clobbered with a generic "pycall(...) failed" / "handler not registered".
@@ -116,10 +125,10 @@ Classic Python left pycall's own status INTERP_OK and surfaced the handler's ret
 detects genuine not-registered via `ext_has_*` (clear error), and otherwise returns INTERP_OK with the handler's status in
 `last_status`; the O-word caller conveys it through `handler_returned` (interp_python.cc, interp_o_word.cc).
 
-**Next (#2, each needs a C prolog/O-word cmod + config, model on the above):**
-remap/{oword-pycall,introspect,predefined-named-params,remap-reentry,variable-injection}, interp/pymove,
-m70-m73/m73-flood-mist-restore.0. Genuine embedded-interpreter skips stay (§2a: canterp, Python.h,
-python-self, python/error, remap/fail/{body-py,canon_error}).
+**#2 COMPLETE for the re-expressible set.** Remaining §2a Python skips are genuine removals (no C interp_ext / interp_ctx
+equivalent): remap/predefined-named-params (Python-computed predefined named params), remap/remap-reentry (python
+`yield INTERP_EXECUTE_FINISH` generator body), interp/pymove (direct `emccanon` motion emission from a handler),
+remap/fail/{body-py,canon_error}, interp/{compile,python-self,python/error}, interp/plug/* (canterp).
 
 ---
 

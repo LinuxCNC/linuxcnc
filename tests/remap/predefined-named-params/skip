@@ -1,4 +1,13 @@
-gomc removed the embedded Python interpreter: this remap test uses Python remap
-handlers (py= / pycall / [PYTHON] prolog/epilog/body). Re-testing Python remaps would
-require re-adding embedded Python (a large, deliberately-reverted change). Matches the
-remap/remap-reentry and interp/python* skips.
+gomc removed the embedded Python interpreter. This test's subject is a specific
+Python-only extension point: registering *Python-computed predefined named
+parameters* (namedparams.py defines _pi, _py_motion_mode, _error, _badreturntype,
+which the interpreter exposes as read-only #<_name> params mirroring builtins).
+
+The gomc C interp_ext API (register_oword / register_remap_prolog /
+register_remap_epilog) has no equivalent for registering a computed predefined
+named parameter, and interp_ctx get_param/set_param only read/write existing
+params. So there is nothing to re-express against — this is a genuine removal, not
+a transport change. The builtin #<_motion_mode> behaviour the test also touches is
+already covered by ordinary NGC interpretation.
+
+Matches the interp/python* and remap/fail/{body-py,canon_error} skips.
