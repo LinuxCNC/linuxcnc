@@ -1,16 +1,16 @@
-This test verifies that M62-M68 can be remapped through both python
-and NGC, and that calling the original M-codes is supported in the
-remap subroutine.
+This test verifies that M62-M68 can be remapped through NGC subroutines,
+and that calling the original M-codes is supported in the remap subroutine.
 
-It also serves as an example of how to do this, since esp. the M66
-python function is not trivial and must be a generator yielding
-`INTERP_EXECUTE_FINISH`.
+(The classic test also had a Python-remap variant; gomc removed the embedded
+Python interpreter, so only the NGC variant remains — the Python remap is a
+genuine removal.)
 
 The recursive call to the original functions needs supporting code for
 mode 5 M-codes in `interp_convert.cc` `convert_m()`, and for M62-M68
 in `rs274ngc_pre.cc`, `find_remappings()`.
 
-The peculiar M66 needs special handling in the interpreter for
-`input_flag`, and to ensure that its result (in param `#5399`) is
-available within the remap, `Interp::pycall()` runs `read_inputs()`
-before returning control back to the python generator.
+The driver (test-ui.py) presents inputs on the motion I/O pins with halcmd,
+issues the M62-M68 remaps via gmi MDI, and reads the resulting motion I/O pin
+state back with halcmd.  See the `xfail` note: the NGC remaps run and M64/M65,
+M66 and M68 pass; M62/M63/M67 (synchronised output followed by motion) diverge
+on the documented milltask sync-I/O bug.

@@ -1,0 +1,6 @@
+o<m400> sub
+; Queue-buster body: a synchronised input read (immediate, no wait).  M66 forces
+; the interpreter to synchronise, reproducing the classic Python remap's
+; M66 E0 L0 + INTERP_EXECUTE_FINISH without the embedded Python interpreter.
+M66 E0 L0
+o<m400> endsub
