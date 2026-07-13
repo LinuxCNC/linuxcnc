@@ -3,16 +3,15 @@ setexact_for_test_suite_only
 newthread fast 100000
 load edge <edge.0>
 
-loadrt sampler cfg=bbb depth=500
-loadrt streamer cfg=b depth=500
+load filestream stream_cfg=b infile=in.txt sample_cfg=bbb outfile=out.txt depth=500 samples=10
 
-net in         streamer.pin.0  => sampler.pin.0 edge.0.in
-net out        edge.0.out        => sampler.pin.1
-net out-invert edge.0.out-invert => sampler.pin.2
+net in         filestream.stream.0  => filestream.sample.0 edge.0.in
+net out        edge.0.out        => filestream.sample.1
+net out-invert edge.0.out-invert => filestream.sample.2
 
-addf streamer fast
+addf filestream.write fast
 addf edge.0     fast
-addf sampler  fast
+addf filestream.read  fast
 
 # look for falling edges
 setp edge.0.in-edge True

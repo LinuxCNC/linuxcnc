@@ -1,3 +1,0 @@
-Tests realtime cycle-overrun detection using `loadusr -w echo` + a nested $RUNTESTS.
-gomc has no loadusr (userspace HAL processes removed) and a different realtime model.
-The classic overrun-detection path has no direct gomc equivalent.

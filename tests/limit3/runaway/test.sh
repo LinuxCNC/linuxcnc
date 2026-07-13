@@ -1,5 +1,4 @@
 #!/bin/bash
-. "$(dirname "$0")/../../hal-stream-driver.sh"
-hal_start_server runaway.hal
-hal_sample 1500 -t
-hal_run
+. "$(dirname "$0")/../../filestream-driver.sh"
+: > in.txt
+fs_run runaway.hal

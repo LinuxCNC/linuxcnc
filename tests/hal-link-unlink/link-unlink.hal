@@ -1,0 +1,4 @@
+# hal_lib pin link/unlink value-preservation test.
+# tristate_float gives us a float IN pin (`in`) and a float IO pin (`out`)
+# to link/unlink; no thread needs to run — this exercises hal_lib, not the comp.
+load tristate_float

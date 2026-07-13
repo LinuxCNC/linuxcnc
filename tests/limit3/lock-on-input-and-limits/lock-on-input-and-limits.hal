@@ -1,7 +1,7 @@
 setexact_for_test_suite_only
 
 #loadrt sampler cfg=fffffffu depth=1700
-loadrt sampler cfg=ffff depth=3200
+load filestream sample_cfg=ffff outfile=out.txt depth=3200 samples=800 tag
 
 load limit3
 setp limit3.min -50
@@ -13,20 +13,20 @@ load siggen <siggen.0>
 setp siggen.0.amplitude 100
 
 net in => limit3.in
-net in => sampler.pin.0
+net in => filestream.sample.0
 net in <= siggen.0.triangle
 
 net out <= limit3.out
-net out => sampler.pin.1
+net out => filestream.sample.1
 
 load ddt <vel,acc>
 net out => vel.in
-net vel <= vel.out => sampler.pin.2 => acc.in
-net acc <= acc.out => sampler.pin.3
+net vel <= vel.out => filestream.sample.2 => acc.in
+net acc <= acc.out => filestream.sample.3
 
 newthread t 1000000
 
-addf sampler t
+addf filestream.read t
 addf siggen.0 t
 addf limit3 t
 addf vel t

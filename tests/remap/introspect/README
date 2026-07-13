@@ -1,5 +1,13 @@
-Exercise a Python oword subroutine, including parameter passing and return values
+Exercise an O-word subroutine introspecting live interpreter state.
 
-not a remap, but it comes with the remapping code so test it here.
+Re-expressed for gomc: the classic test's Python o<introspect> read its call
+arguments plus interpreter state (feed, spindle speed, named/predefined/INI
+parameters) and returned a value.  gomc removed the embedded Python interpreter,
+so o<introspect> is a C interp_ext O-word (cmod test_introspect) using the
+interp_ctx accessors (get_feed_rate / get_speed / get_param).  The driver sets
+feed/speed and a user global, then calls o<introspect> with #<_ini[example]variable>
+as an argument; checkresult greps the introspected values from the log.
 
-must properly return to top level
+The original's Python-binding-only introspection (block param arrays, sub_context
+iteration, params.locals()/globals() listing, self.remaps) has no C interp_ext
+equivalent and is intentionally dropped — that was the removed embedded-Python API.

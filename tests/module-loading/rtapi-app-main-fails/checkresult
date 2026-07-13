@@ -1,0 +1,10 @@
+#!/bin/sh
+# Confirm the load failed *because the component's init failed* (the component
+# was found and its factory/New returned an error), not because it was missing.
+STDERR=$(dirname "$1")/stderr
+if grep -qE 'rtapi_app_main_fails.*factory returned error code' "$STDERR"; then
+    echo "load found the component and its init failed, as expected"
+    exit 0
+fi
+echo "did not find the expected component-init load failure"
+exit 1

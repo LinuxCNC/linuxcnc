@@ -1,0 +1,2 @@
+# Register the C remap failure handlers (replaces the classic Python remap.py).
+load test_remap_fail

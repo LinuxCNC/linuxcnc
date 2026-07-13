@@ -1,5 +1,7 @@
 result
 stderr
+in.txt
+out.txt
 *.var
 *.var.bak
 *.db

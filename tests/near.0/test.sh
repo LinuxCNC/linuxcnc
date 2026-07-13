@@ -1,7 +1,8 @@
 #!/bin/bash
-. "$(dirname "$0")/../hal-stream-driver.sh"
-hal_start_server near.hal
-hal_feed_streamer <<'DATA'
+# near driven via the filestream cmod (was WS streamer+sampler). 121 input
+# rows; 122 samples (the last repeats the final input, as on the WS path).
+. "$(dirname "$0")/../filestream-driver.sh"
+cat > in.txt <<'DATA'
 -12 -12
 -12 -11
 -12 -10
@@ -124,5 +125,4 @@ hal_feed_streamer <<'DATA'
 12 11
 12 12
 DATA
-hal_sample 122
-hal_run
+fs_run near.hal

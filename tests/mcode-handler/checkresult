@@ -1,0 +1,8 @@
+#!/bin/bash
+# The M101 handler logs to the server's stderr (captured in server.log).
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+grep -q "test_mcode_handler: M101 handler registered" "$LOG"
+grep -q "test_mcode_handler: M101 called, P=2.0000 Q=3.0000" "$LOG"
+grep -q "test_mcode_handler: M101 completed" "$LOG"
+echo "mcode_handler M101 registered, dispatched with P=2 Q=3, and completed"

@@ -1,3 +1,0 @@
-Compiles and runs a C test binary against the rtapi_print API (g++ -DULAPI ... against
-the RT libs). Build-infra test; the ULAPI/rtapi build surface differs on gomc. Re-evaluate
-against the gomc rtapi build, not portable as-is.

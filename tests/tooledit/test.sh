@@ -1,30 +1,24 @@
 #!/bin/bash
-# test if floating point numbers are formatted correctly
+# Tool-table float fidelity (classic tests/tooledit).
+#
+# Classic drove the Tk `tooledit` GUI under xvfb to round-trip a .tbl with
+# tricky float offsets and checked the formatting.  gomc has no Tk tooledit and
+# no .tbl *writer*: the tool table is persist-backed (sqlite) and served over
+# REST.  So we import the same .tbl, read the tools back via the tooltable REST
+# API, and verify every value survives the round-trip exactly (test.py).
+here=$(dirname "$0")
+clean() { rm -f "$here"/*.db* ; rm -rf "$here/db"; }
+cleanup() { kill -TERM "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null; clean; }
+clean
+trap cleanup EXIT
 
-if ! command -v xvfb-run &> /dev/null; then
-    echo "xvfb-run could not be found, we assume everything works" > /dev/stderr
-    cat expected
-    exit 0
-fi
+gomc-server -r "$here/tooledit.ini" >/dev/null 2>&1 &
+SRV=$!
 
+url="${GMC_REST_URL:-http://127.0.0.1:5080}/api/v1/tooltable/"
+for i in $(seq 100); do
+    curl -sf "$url" >/dev/null 2>&1 && break
+    sleep 0.1
+done
 
-#create temporary files so we don't write into write access problems
-infile=$(mktemp)
-outfile=$(mktemp)
-cat test.tbl > $infile
-
-# run the test
-xvfb-run ${LINUXCNC_EMCSH/wish/tclsh} test.tcl $infile $outfile 2> tclerror.log;
-
-if [ $(cat tclerror.log | wc -l) -ne 0 ]; then
-    cat tclerror.log
-    exit 1
-fi
-
-# write the resulting tool table to stdout so the test framework can evaluate it
-cat $outfile
-
-# remove the temporary files
-rm $infile $outfile $outfile".bak"
-
-exit 0
+"$here/test.py"

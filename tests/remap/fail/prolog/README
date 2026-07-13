@@ -1,3 +1,9 @@
-Exercise failed prolog for a remap NGC procedure
+Exercise a failing remap prolog: it must abort the remap, convey the error text,
+and leave the interpreter usable (return to top level) without running the NGC body.
 
-must properly return to top level, convey error text
+Re-expressed for gomc: the classic test used a Python prolog that returned
+INTERP_ERROR.  gomc removed the embedded Python interpreter, so M400's prolog is a
+C interp_ext handler (cmod test_remap_fail, failingprolog) that calls set_error()
+and returns INTERP_EXT_ERROR.  The driver runs M400 via MDI; checkresult confirms
+the prolog ran and failed, the error text was conveyed (logged by milltask), the
+NGC body (notcalled -> o<mark_body>) did NOT run, and a follow-up MDI still works.

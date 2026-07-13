@@ -1,4 +1,8 @@
-;py,from interpreter import *
+; Test M73: restore both M7 mist and M8 flood after a sub turns them off,
+; with M73 auto-restore set.  Re-expressed NGC-only: the classic verified the
+; restore with ;py,assert this.params["_mist"/"_flood"]; gomc removed the embedded
+; Python interpreter, so the restored state is surfaced as a (debug,...) comment in
+; the canon trace and confirmed by the MIST_ON/FLOOD_ON calls after the sub returns.
 
 o1000 sub
 M73
@@ -12,8 +16,6 @@ m8 (flood on)
 o1000 call
 
 (mist+flood must be on again here since restored by M73:)
-
-;py,assert this.params["_mist"] == 1.0
-;py,assert this.params["_flood"] == 1.0
+(debug, _mist=#<_mist> _flood=#<_flood>)
 
 m2

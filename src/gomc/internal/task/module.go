@@ -247,6 +247,23 @@ func (m *milltaskModule) Start() error {
 		return fmt.Errorf("milltask: %w", err)
 	}
 
+	// Register the interp_ext GMI provider now that the interpreter exists, so
+	// cmods (stdglue, custom O-word / remap handlers) can look it up via
+	// interp_ext_api_get in their own Start(), which runs after milltask's.
+	if reg := apiserver.DefaultRegistry(); reg != nil {
+		extCleanup, err := registerInterpExtProvider(reg, m.name, m.interp.RawInterp())
+		if err != nil {
+			return fmt.Errorf("milltask: interp_ext register: %w", err)
+		}
+		prevCleanup := m.apiCleanup
+		m.apiCleanup = func() {
+			if prevCleanup != nil {
+				prevCleanup()
+			}
+			extCleanup()
+		}
+	}
+
 	// Start the sequencer goroutine (executes queued motion commands).
 	t.StartSequencer()
 

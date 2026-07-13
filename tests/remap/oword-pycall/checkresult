@@ -1,0 +1,13 @@
+#!/bin/bash
+# Confirm the O-words were registered and dispatched with the right args, that
+# the return value round-tripped (multiply's first arg is square(5)=25), and that
+# a variable argument count works.
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+grep -q "test_oword_math: o<square>/o<multiply> registered" "$LOG"
+grep -q "test_oword_math: o<square> args_len=1 arg\[0\]=5.0000 -> 25.0000" "$LOG"
+# round-trip: #<_value> from square (25) fed back in as the first multiply arg
+grep -q "test_oword_math: o<multiply> args_len=2 arg\[0\]=25.0000 arg\[1\]=2.0000 -> 50.0000" "$LOG"
+# variable argument count
+grep -q "test_oword_math: o<multiply> args_len=3 arg\[0\]=5.0000 arg\[1\]=6.0000 arg\[2\]=7.0000 -> 210.0000" "$LOG"
+echo "oword-pycall: square(5)=25, multiply(25,2)=50 (round-trip), multiply(5,6,7)=210 (varargs)"

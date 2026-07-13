@@ -1,18 +1,14 @@
-loadrt sampler cfg=bb depth=100
+load filestream sample_cfg=bb outfile=out.txt depth=100 samples=64 tag
 load timedelay
 load not <not.0>
 newthread thread 1953125
 
-# Thread period is 1/512 second.
-# on-delay is 1/128 + 1/1024 second, or 4.5 periods.
-# off-delay is 1/64 + 1/1024 second, or 8.5 periods.
 setp timedelay.on-delay 0.0087890625
 setp timedelay.off-delay 0.0166015625
 
-net square not.0.out => timedelay.in sampler.pin.0
-net delayed timedelay.out => not.0.in sampler.pin.1
+net square not.0.out => timedelay.in filestream.sample.0
+net delayed timedelay.out => not.0.in filestream.sample.1
 
 addf not.0 thread
 addf timedelay thread
-addf sampler thread
-
+addf filestream.read thread

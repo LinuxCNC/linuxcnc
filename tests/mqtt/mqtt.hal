@@ -1,0 +1,7 @@
+# Load the gomc MQTT bridge in dryrun (no broker) and feed it the joint
+# positions.  The JSON topic pins are HAL inputs (component reads them); net the
+# motor position commands into them so real values flow to the (dryrun) publish.
+load mqtt-bridge config=mqtt.xml dryrun
+net Xpos joint.0.motor-pos-cmd => mqtt-bridge.cnc-position.X
+net Ypos joint.1.motor-pos-cmd => mqtt-bridge.cnc-position.Y
+net Zpos joint.2.motor-pos-cmd => mqtt-bridge.cnc-position.Z

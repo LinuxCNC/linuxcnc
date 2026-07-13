@@ -1,3 +1,9 @@
-Exercise failed prolog for a remap NGC procedure
+Exercise a failing remap epilog: the NGC body runs, then the epilog fails and must
+abort the remap, convey the error text, and leave the interpreter usable.
 
-must properly return to top level, convey error text
+Re-expressed for gomc: the classic test used a Python epilog that returned
+INTERP_ERROR.  gomc removed the embedded Python interpreter, so M400's epilog is a
+C interp_ext handler (cmod test_remap_fail, failingepilog) that calls set_error()
+and returns INTERP_EXT_ERROR.  The driver runs M400 via MDI; checkresult confirms
+the NGC body (mustbecalled -> o<mark_body>) DID run, the epilog then failed, its
+error text was conveyed, and a follow-up MDI still works.

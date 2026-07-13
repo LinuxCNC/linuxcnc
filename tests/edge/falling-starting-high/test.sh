@@ -1,8 +1,7 @@
 #!/bin/bash
-# Converted to gomc resident-server model; see ../../hal-stream-driver.sh
-. "$(dirname "$0")/../../hal-stream-driver.sh"
-hal_start_server falling-starting-high.hal
-hal_feed_streamer <<'DATA'
+# Converted to gomc resident-server model; see ../../filestream-driver.sh
+. "$(dirname "$0")/../../filestream-driver.sh"
+cat > in.txt <<'DATA'
 1
 1
 1
@@ -14,5 +13,4 @@ hal_feed_streamer <<'DATA'
 0
 0
 DATA
-hal_sample 10
-hal_run
+fs_run falling-starting-high.hal

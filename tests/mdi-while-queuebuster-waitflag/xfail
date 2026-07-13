@@ -1,5 +1,0 @@
-Ported to gomc (config +LIB:linuxcnc.hal, loadrt->load; driver -> gmi; test.sh
-loops gomc-server checking for segfault). Blocked by gomc's removal of the
-embedded Python interpreter: this test's config REMAPs M400 to a Python
-function (REMAP= M400 ... py=M400, plus a [PYTHON] section), so the M400
-queue-buster cannot execute. Remove xfail if/when Python remaps return.

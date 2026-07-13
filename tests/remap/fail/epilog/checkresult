@@ -1,0 +1,11 @@
+#!/bin/bash
+# Confirm the NGC body ran, then the failing epilog aborted the remap and
+# conveyed its error.
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+grep -q "test_remap_fail: failingprolog/failingepilog/mark_body registered" "$LOG"
+# the NGC body must have executed (no prolog to block it)
+grep -q "test_remap_fail: body executed" "$LOG"
+grep -q "test_remap_fail: epilog failing with INTERP_ERROR" "$LOG"
+grep -q "A failed C epilog returning INTERP_ERROR" "$LOG"
+echo "remap fail/epilog: NGC body ran, epilog failed, error conveyed"

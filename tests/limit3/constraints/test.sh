@@ -1,5 +1,3 @@
 #!/bin/bash
-. "$(dirname "$0")/../../hal-stream-driver.sh"
-hal_start_server constraints.hal
-hal_sample 5100 -t
-hal_run
+. "$(dirname "$0")/../../filestream-driver.sh"
+fs_run constraints.hal

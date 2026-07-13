@@ -1,11 +1,10 @@
 setexact_for_test_suite_only
 newthread fast 100000
 loadrt biquad
-loadrt sampler cfg=bff depth=500
-loadrt streamer cfg=bf depth=500
-net enable streamer.pin.0 => sampler.pin.0 biquad.enable
-net in     streamer.pin.1 => sampler.pin.1 biquad.in
-net out    biquad.out      => sampler.pin.2
-addf streamer fast
+load filestream stream_cfg=bf infile=in.txt sample_cfg=bff outfile=out.txt depth=500 samples=10
+net enable filestream.stream.0 => filestream.sample.0 biquad.enable
+net in     filestream.stream.1 => filestream.sample.1 biquad.in
+net out    biquad.out      => filestream.sample.2
+addf filestream.write fast
 addf biquad   fast
-addf sampler  fast
+addf filestream.read  fast

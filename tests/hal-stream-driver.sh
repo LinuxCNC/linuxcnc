@@ -71,7 +71,21 @@ hal_sample() {
 hal_run() {
     halcmd start
     if [ -n "$_HAL_SAMPLER_PID" ]; then
-        wait "$_HAL_SAMPLER_PID"
+        # Bounded wait: halsampler exits once it has collected its N samples,
+        # normally within a fraction of a second.  If the WS subscription was
+        # missed (or the stream stalls) it would otherwise block forever and
+        # hang the whole suite, so cap it and fail loudly instead.
+        local i
+        for i in $(seq "${_HAL_SAMPLE_TIMEOUT:-100}"); do   # 100 * 0.1s = 10s
+            kill -0 "$_HAL_SAMPLER_PID" 2>/dev/null || break
+            sleep 0.1
+        done
+        if kill -0 "$_HAL_SAMPLER_PID" 2>/dev/null; then
+            echo "hal-stream-driver: halsampler did not finish within" \
+                 "$(( ${_HAL_SAMPLE_TIMEOUT:-100} / 10 ))s (missed subscription?)" >&2
+            kill "$_HAL_SAMPLER_PID" 2>/dev/null
+        fi
+        wait "$_HAL_SAMPLER_PID" 2>/dev/null
     fi
     halcmd stop
 }

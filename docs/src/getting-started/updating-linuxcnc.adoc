@@ -221,7 +221,7 @@ HOME_SEQUENCE = 0 - Accepted but currently does nothing
 
 === Non-Realtime
 mdro
-mqtt-publisher
+mqtt-bridge
 pi500_vfd
 pmx485-test
 qtplasmac-cfg2prefs

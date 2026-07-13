@@ -1,0 +1,24 @@
+#!/bin/bash
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+
+# The prolog registered at load time.
+grep -q "test_interp_ext_finish: M510 prolog finish_prolog registered" "$LOG"
+
+# The two-phase finish cycle: the handler ran once in phase 0 (where it returned
+# INTERP_EXECUTE_FINISH) and once in phase 1 (the post-drain re-execution).
+# Seeing both -- exactly once each -- is the direct signature of the C return
+# value being honoured as a queue-buster: had EXECUTE_FINISH been ignored, only
+# phase 0 would appear; had it looped, phase 0 would repeat.
+grep -q "test_interp_ext_finish: M510 prolog, phase=0" "$LOG"
+grep -q "test_interp_ext_finish: M510 prolog, phase=1" "$LOG"
+[ "$(grep -c "M510 prolog, phase=0" "$LOG")" -eq 1 ]
+[ "$(grep -c "M510 prolog, phase=1" "$LOG")" -eq 1 ]
+
+# The remapped code must not have faulted the interpreter.
+if grep -qiE 'interp_error|Segmentation fault|panic|SIGSEGV' "$LOG"; then
+    echo "unexpected interpreter error/crash in server.log" >&2
+    exit 1
+fi
+
+echo "interp_ext EXECUTE_FINISH: C remap prolog forced queue-buster (phase 0 -> drain -> phase 1)"

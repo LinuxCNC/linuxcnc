@@ -3,16 +3,15 @@ load near <near.0,near.1>
 setp near.0.scale 1.5
 setp near.1.difference 1.5
 
-loadrt sampler depth=1000 cfg=ffbb
-loadrt streamer depth=256 cfg=ff
+load filestream stream_cfg=ff sample_cfg=ffbb infile=in.txt outfile=out.txt depth=1000 samples=122
 
-net in1 streamer.pin.0 => near.0.in1 near.1.in1 sampler.pin.0
-net in2 streamer.pin.1 => near.0.in2 near.1.in2 sampler.pin.1
-net outa near.0.out => sampler.pin.2
-net outb near.1.out => sampler.pin.3
+net in1 filestream.stream.0 => near.0.in1 near.1.in1 filestream.sample.0
+net in2 filestream.stream.1 => near.0.in2 near.1.in2 filestream.sample.1
+net outa near.0.out => filestream.sample.2
+net outb near.1.out => filestream.sample.3
 
-addf streamer fast
+addf filestream.write fast
 addf near.0 fast
 addf near.1 fast
-addf sampler fast
+addf filestream.read fast
 

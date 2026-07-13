@@ -1,0 +1,4 @@
+o<m500> sub
+; All work is done in the C prolog (m500_prolog); the body is a no-op, matching
+; the classic pure-Python handler which emitted no canon of its own.
+o<m500> endsub

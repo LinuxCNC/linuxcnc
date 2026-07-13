@@ -1,0 +1,12 @@
+Ported to gomc (REST/gmi via ../../rsh2gmi.py; M100 captured by mcode_coord_log
+format=p; O-word queue-buster sub in ../subs).  The queue-buster mechanism
+itself works: the o<queue-buster> sub runs, the t#/m6 tool change executes, and
+every m100 p12345 / p54321 / p<i> is logged in order.
+
+XFAIL on the known tool-tracking bug: the sub logs the *current tool* via
+"m100 p-#5400", but gomc's M6 does not update the interp #<_current_tool>/#5400
+(PRODUCTION_READINESS.md, tool-tracking cluster), so that line reads "P is -0"
+instead of "P is -<tool>".  Every other line matches byte-for-byte.
+
+Remove this xfail once M6/#5400 tool-tracking is fixed (same bug as t0/*,
+toolchanger/*, tool-info/*).

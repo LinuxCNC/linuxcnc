@@ -209,14 +209,32 @@ type bridge struct {
 	handlers []*topicHandler
 	stopCh   chan struct{}
 	wg       sync.WaitGroup
+
+	// dryrun skips the real broker connection: publish ticks run and the
+	// publish-count liveness pin advances, but nothing is sent. Used for
+	// offline testing/diagnostics (mirrors the classic mqtt-publisher --dryrun).
+	dryrun bool
+	// pubCount is a HAL output pin (<name>.publish-count) incremented on every
+	// publish tick that emits a payload — a liveness signal a supervisor (or a
+	// test) can watch to confirm the bridge is publishing.
+	pubCount *hal.Pin[uint32]
 }
 
-func newBridge(comp *hal.Component, compName string, cfg *Config, logger *slog.Logger) (*bridge, error) {
+func newBridge(comp *hal.Component, compName string, cfg *Config, logger *slog.Logger, dryrun bool) (*bridge, error) {
 	b := &bridge{
 		logger: logger,
 		cfg:    cfg,
 		stopCh: make(chan struct{}),
+		dryrun: dryrun,
 	}
+
+	// Liveness pin: advances each time a topic publishes (real or dryrun).
+	// hal.NewPin prefixes the component name, so pass the bare pin name.
+	pc, err := hal.NewPin[uint32](comp, "publish-count", hal.Out)
+	if err != nil {
+		return nil, fmt.Errorf("creating pin %q: %w", compName+".publish-count", err)
+	}
+	b.pubCount = pc
 
 	// Create HAL pins and topic handlers.
 	for i := range cfg.Topics {
@@ -225,9 +243,11 @@ func newBridge(comp *hal.Component, compName string, cfg *Config, logger *slog.L
 
 		switch tc.Mode {
 		case ModePin:
-			// Single pin; derive HAL pin name from topic path.
+			// Single pin; derive HAL pin name from topic path.  hal.NewPin
+			// already prefixes the component name, so pass the bare name (the
+			// old compName+"." prefix here double-prefixed every pin).
 			halName := topicToHalName(tc.Path)
-			pin, err := createPin(comp, compName+"."+halName, tc.HalType, tc.Dir)
+			pin, err := createPin(comp, halName, tc.HalType, tc.Dir)
 			if err != nil {
 				return nil, err
 			}
@@ -235,10 +255,11 @@ func newBridge(comp *hal.Component, compName string, cfg *Config, logger *slog.L
 			th.shadow = []interface{}{nil}
 
 		case ModeJSON:
-			// Multiple pins under a topic slug prefix.
+			// Multiple pins under a topic slug prefix.  hal.NewPin adds the
+			// component-name prefix; use just slug.pin here.
 			slug := topicToHalName(tc.Path)
 			for _, pc := range tc.Pins {
-				pinName := compName + "." + slug + "." + pc.Name
+				pinName := slug + "." + pc.Name
 				dir := pc.Dir
 				// For subscribe topics, pins are outputs (component writes them).
 				// For publish topics, pins are inputs (component reads them).
@@ -258,6 +279,19 @@ func newBridge(comp *hal.Component, compName string, cfg *Config, logger *slog.L
 }
 
 func (b *bridge) start() error {
+	if b.dryrun {
+		// Skip the broker entirely; just run the publish loops so the
+		// publish-count pin advances and pin plumbing is exercised.
+		b.logger.Info("MQTT dryrun: not connecting to a broker", "broker", b.cfg.Broker)
+		for _, th := range b.handlers {
+			if th.cfg.Dir == DirOut {
+				b.wg.Add(1)
+				go b.publishLoop(th)
+			}
+		}
+		return nil
+	}
+
 	// Configure MQTT client.
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(b.cfg.Broker)
@@ -375,7 +409,11 @@ func (b *bridge) publishTick(th *topicHandler) {
 	th.updateShadow()
 
 	if payload != nil {
-		b.client.Publish(th.cfg.Path, th.cfg.QoS, th.cfg.Retain, payload)
+		if !b.dryrun && b.client != nil {
+			b.client.Publish(th.cfg.Path, th.cfg.QoS, th.cfg.Retain, payload)
+		}
+		// Advance the liveness counter for both real and dryrun publishes.
+		b.pubCount.Set(b.pubCount.Get() + 1)
 	}
 }
 

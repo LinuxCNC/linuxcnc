@@ -1,0 +1,10 @@
+#!/bin/bash
+# Confirm the M500 C remap prolog was registered and introspected the live
+# per-spindle speeds at each M500 (the classic test's self.speed[] introspection).
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+grep -q "test_spindle_remap: M500 prolog m500_prolog registered" "$LOG"
+grep -q "test_spindle_remap: M500 P0 speeds=\[0.0000,0.0000,0.0000\]" "$LOG"
+grep -q "test_spindle_remap: M500 P1 speeds=\[1000.0000,0.0000,0.0000\]" "$LOG"
+grep -q "test_spindle_remap: M500 P2 speeds=\[1000.0000,2000.0000,0.0000\]" "$LOG"
+echo "remap spindle introspection: prolog saw speeds [0,0,0] -> [1000,0,0] -> [1000,2000,0]"

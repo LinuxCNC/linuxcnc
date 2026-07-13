@@ -1,0 +1,9 @@
+#!/bin/bash
+# Confirm the O-word introspected its args and live interpreter state.
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+grep -q "test_introspect: o<introspect> registered" "$LOG"
+grep -q "test_introspect: argc=4 args=\[1.00000,2.00000,3.00000,3.14159\]" "$LOG"
+grep -q "test_introspect: feed=200.0000 rpm=3000.0000" "$LOG"
+grep -q "test_introspect: _feed=200.0000 _rpm=3000.0000 global=47.1100 ini=3.14159" "$LOG"
+echo "introspect: o<introspect> saw args [1,2,3,3.14159], feed=200, rpm=3000, global=47.11, ini=3.14159"

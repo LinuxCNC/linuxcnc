@@ -1,0 +1,7 @@
+<halJson>
+  <halJsonRoot path="hm">
+    <halJsonPin name="s" type="s32"   dir="io"/>
+    <halJsonPin name="u" type="u32"   dir="io"/>
+    <halJsonPin name="f" type="float" dir="io"/>
+  </halJsonRoot>
+</halJson>

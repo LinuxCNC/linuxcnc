@@ -23,6 +23,7 @@
 
 #include "gomc_env.h"
 #include "hal_sampler_stream_api.h"
+#include "hal_stream_common.h"
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -36,21 +37,10 @@
 // Data types
 // ---------------------------------------------------------------------------
 
-// One sample: array of raw pin values packed as doubles (simplifies encoding).
-// We transmit each sample as num_pins * 8 bytes (little-endian doubles).
-typedef union {
-    double f;
-    int32_t s;
-    uint32_t u;
-    uint32_t b;  // 0 or 1
-} sample_val_t;
-
-typedef union {
-    volatile double *hfloat;
-    volatile int32_t *hs32;
-    volatile uint32_t *hu32;
-    volatile unsigned *hbit;
-} pin_ptr_t;
+// Per-pin value encoding and HAL-pin marshalling are shared across the stream
+// family (sampler/streamer/filestream) via hal_stream_common.h.
+typedef hal_stream_val_t sample_val_t;
+typedef hal_stream_pin_t pin_ptr_t;
 
 // Per-connection state
 typedef struct {
@@ -75,7 +65,8 @@ typedef struct {
     // Ring buffer (allocated at init)
     sample_val_t *ring;     // ring[depth * num_pins]
     int depth;
-    uint32_t write_pos;     // monotonically increasing write position
+    volatile uint32_t write_pos;  // bumped by the RT sampler, read by poll_transmit
+                                  // (another thread) — must be volatile + barriered
 
     // Connection tracking
     conn_state_t conns[MAX_CONNS];
@@ -138,8 +129,11 @@ static int32_t on_poll_transmit(void *ctx, uint32_t conn_id,
 
     if (!conn->active) return -1;
 
-    // Calculate how many samples are available
+    // Calculate how many samples are available.  Pair the acquire barrier with
+    // the RT sampler's release barrier: after observing write_pos we must see the
+    // ring data the sampler wrote before it.
     uint32_t wp = inst->write_pos;
+    __sync_synchronize();
     uint32_t rp = conn->read_pos;
     uint32_t available = wp - rp;
 
@@ -188,23 +182,13 @@ static void sample_funct(void *arg, long period) {
     uint32_t ring_idx = inst->write_pos % inst->depth;
     sample_val_t *dst = &inst->ring[ring_idx * inst->num_pins];
 
-    for (int n = 0; n < inst->num_pins; n++) {
-        switch (inst->pin_types[n]) {
-        case 'f':
-            dst[n].f = *(inst->pins[n].hfloat);
-            break;
-        case 'b':
-            dst[n].b = *(inst->pins[n].hbit) ? 1 : 0;
-            break;
-        case 'u':
-            dst[n].u = *(inst->pins[n].hu32);
-            break;
-        case 's':
-            dst[n].s = *(inst->pins[n].hs32);
-            break;
-        }
-    }
+    for (int n = 0; n < inst->num_pins; n++)
+        hal_stream_capture(&dst[n], inst->pin_types[n], inst->pins[n]);
 
+    // Publish the sample data before advancing write_pos, so a concurrent
+    // poll_transmit that observes the new write_pos also sees the ring contents
+    // (SPSC: RT sampler produces, the per-connection WS goroutine consumes).
+    __sync_synchronize();
     inst->write_pos++;
     (*(inst->sample_num))++;
 

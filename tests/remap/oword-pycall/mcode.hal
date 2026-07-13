@@ -1,0 +1,3 @@
+# Register the C O-word subroutines o<square> / o<multiply>
+# (replaces the classic Python oword.py).
+load test_oword_math

@@ -1,91 +1,45 @@
 #!/usr/bin/env python3
-import hal
-import os
+# Assign values of various Python types and ranges to HAL pins (s32/u32/float)
+# and report ok/fail.  The pins are created server-side by haljson; we write
+# them through the gmi client's REST endpoint, where the range coercion lives
+# (haljson.writePin -> json.Unmarshal into int32/uint32/float64).
+import json
+import urllib.request
+import urllib.error
+import gmi
 
-h = hal.component("x")
-try:
-    ps = h.newpin("s", hal.HAL_S32, hal.HAL_OUT)
-    pu = h.newpin("u", hal.HAL_U32, hal.HAL_OUT)
-    pf = h.newpin("f", hal.HAL_FLOAT, hal.HAL_OUT)
-    param = h.newparam("param", hal.HAL_BIT, hal.HAL_RW)
-    h.ready()
+URL = gmi.rest_url() + "/api/v1/haljson/hm"
 
-    def try_set(p, v):
-        try:
-            h[p] = v
-            hp = h[p]
-            print("set {} {} {}".format(p, v, "ok" if hp == v else repr(hp)))
-        except (ValueError, OverflowError) as e:
-            print("set {} {} {}".format(p, v, "fail"))
 
-    def try_set_pin(p, v):
-        try:
-            p.set(v)
-            print("set {} {} {}".format(p.get_name(), v, p.get()))
-        except (ValueError, OverflowError):
-            print("set {} {} {}".format(p.get_name(), v, "fail"))
+def read():
+    with urllib.request.urlopen(URL, timeout=5) as r:
+        return json.loads(r.read())
 
-    try_set("s", -1)
-    try_set("s", 0)
-    try_set("s", 1)
-    try_set("s", -1)
-    try_set("s", 0)
-    try_set("s", 1)
-    try_set("s", 0x7fffffff)
-    try_set("s", -0x80000000)
 
-    try_set("u", 0)
-    try_set("u", 1)
-    try_set("u", 0xffffffff)
-
-    try_set("f", 0)
-    try_set("f", 0.0)
-    try_set("f", 0)
-    try_set("f", -1)
-    try_set("f", -1.0)
-    try_set("f", -1)
-    try_set("f", 1)
-    try_set("f", 1.0)
-    try_set("f", 1)
-
-    try_set("f", 1 << 1023)
-
-    try_set("s", 0x80000000)
-    try_set("s", -0x80000001)
-
-    try_set("u", -1)
-    try_set("u", 1 << 32)
-
-    try_set("f", 1 << 1024)
-
-    pin = h.getitem("s")
-
-    def pin_validate(i, t, d):
-        print("pincheck {} {} {} {}".format(
-            i.get_name(), i.is_pin(), i.get_type() == t, i.get_dir() == d))
-
-    pin_validate(ps, hal.HAL_S32, hal.HAL_OUT)
-    pin_validate(pu, hal.HAL_U32, hal.HAL_OUT)
-    pin_validate(pf, hal.HAL_FLOAT, hal.HAL_OUT)
-
-    pin = h.getitem("s")
-
-    pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
+def try_set(pin, val):
+    body = json.dumps({pin: val}).encode()
+    req = urllib.request.Request(URL, data=body, method="POST")
     try:
-        pin = h.getitem("not-found")
-        print("{} {} {}".format("getitem", "not-found", "ok"))
-    except:
-        print("{} {} {}".format("getitem", "not-found", "fail"))
+        urllib.request.urlopen(req, timeout=5)
+    except urllib.error.HTTPError:
+        print("set {} {} {}".format(pin, val, "fail"))
+        return
+    got = read()[pin]
+    print("set {} {} {}".format(pin, val, "ok" if got == val else repr(got)))
 
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
-    param = h.getitem("param")
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
 
-    try_set_pin(pu, 0)
-    try_set_pin(pu, -1)
-except:
-    import traceback
-    print("Exception: {}".format(traceback.format_exc()))
-    raise
-finally:
-    h.exit()
+# in-range assignments (any Python type) -> ok
+for v in (-1, 0, 1, -1, 0, 1, 0x7fffffff, -0x80000000):
+    try_set("s", v)
+for v in (0, 1, 0xffffffff):
+    try_set("u", v)
+for v in (0, 0.0, 0, -1, -1.0, -1, 1, 1.0, 1):
+    try_set("f", v)
+try_set("f", 1 << 1023)
+
+# out-of-range assignments -> fail
+try_set("s", 0x80000000)
+try_set("s", -0x80000001)
+try_set("u", -1)
+try_set("u", 1 << 32)
+try_set("f", 1 << 1024)

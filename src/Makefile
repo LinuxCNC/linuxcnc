@@ -366,7 +366,6 @@ SRCHEADERS := \
     emc/motion/simple_tp.h \
     emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
-    emc/motion/axis.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
     emc/nml_intf/emctool.h \
@@ -387,6 +386,7 @@ SRCHEADERS := \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
+    libnml/inifile/iniparse.h \
     libnml/posemath/posemath.h \
     libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \
@@ -808,7 +808,14 @@ install-kernel-dep:
 	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
-	$(FILE) ../cmod/*.so $(DESTDIR)$(EMC2_GOMOD_DIR)
+	# Install the C plugin modules, but keep test-only cmods out of the
+	# package: the test_*.so handlers, mcode_coord_log.so and hm2_test.so are
+	# built into ../cmod for the regression suite only, and modcompile-*.so are
+	# transient artifacts left by `modcompile --install` when tests have run.
+	# (mesa_pktgyro_test.so is a real, documented component and is kept.)
+	$(FILE) $(filter-out ../cmod/test_%.so ../cmod/modcompile-%.so \
+		../cmod/mcode_coord_log.so ../cmod/hm2_test.so, \
+		$(wildcard ../cmod/*.so)) $(DESTDIR)$(EMC2_GOMOD_DIR)
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
 endif # RUN_IN_PLACE
 

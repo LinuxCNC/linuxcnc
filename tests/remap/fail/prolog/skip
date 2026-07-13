@@ -1,4 +1,0 @@
-gomc removed the embedded Python interpreter: this remap test uses Python remap
-handlers (py= / pycall / [PYTHON] prolog/epilog/body). Re-testing Python remaps would
-require re-adding embedded Python (a large, deliberately-reverted change). Matches the
-remap/remap-reentry and interp/python* skips.

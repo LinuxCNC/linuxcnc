@@ -1,0 +1,3 @@
+# haljson creates the s32/u32/float pins server-side; the client drives them
+# over REST (where range coercion applies, in haljson.writePin).
+load haljson config=module0.xml

@@ -1,9 +1,8 @@
 setexact_for_test_suite_only
 newthread fast 100000
 load flipflop <flipflop.0>
-loadrt sampler depth=1000 cfg=b
-loadrt streamer depth=32 cfg=bbbb
+load filestream stream_cfg=bbbb sample_cfg=b infile=in.txt outfile=out.txt depth=1000 samples=10
 source sourced.hal
-addf streamer fast
+addf filestream.write fast
 addf flipflop.0 fast
-addf sampler fast
+addf filestream.read fast

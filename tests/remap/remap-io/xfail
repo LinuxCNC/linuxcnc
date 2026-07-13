@@ -1,7 +1,16 @@
-Ported to gomc (configs +LIB:linuxcnc.hal + PARAMETER_FILE, loadrt->load;
-gomc-server test.sh; driver -> gmi). Multiply blocked by known gomc changes:
-(1) test-py.ini uses PYTHON remaps (gomc removed the embedded Python interp);
-(2) the ngc-remap output relies on (DEBUG,) operator-display messages, which
-gomc routes to the server log, not the gmi client / stdout;
-(3) M62/M63 synchronized digital output is subject to the milltask sync-I/O bug.
-Remove xfail once Python remaps + OPERATOR_DISPLAY delivery are restored.
+Re-expressed for gomc, NGC-only (the classic Python-remap variant test-py.ini is
+a genuine removal — gomc removed the embedded Python interp).  The NGC M62-M68
+remaps now RUN end-to-end via gmi MDI (test-ngc.ini + io_*.ngc), each remap
+recursively calls the original M-code and translates P1->P0, and test-ui.py
+verifies the effect by reading the motion I/O pins with halcmd.
+
+Verified WORKING: M64/M65 (immediate digital out), M66 (digital + analog input
+read, incl. #5399/#100), M68 (immediate analog out).
+
+XFAIL on the documented milltask synchronized-I/O bug (PRODUCTION_READINESS.md,
+"M67/M62 sync-I/O + blended motion", the same bug that blocks tests/single-step):
+synchronised output *followed by motion* is applied late / racily, so M62/M63
+(digital out + move) and M67 (analog out + move) do not reflect the commanded
+value in the post-move read (the pin stays at the old value, then flips after the
+next command).  `expected` here is the correct bug-fixed target; remove this
+xfail once the sync-I/O apply ordering is fixed.

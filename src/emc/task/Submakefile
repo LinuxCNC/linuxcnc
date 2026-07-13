@@ -32,6 +32,112 @@ $(call TOOBJSDEPS, $(TEST_MCODE_SRCS)): gomc/generated/gmi/mcode_handler/mcode_h
 	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 TARGETS += ../cmod/test_mcode_handler.so
 
+# test_interp_ext.so — test cmod for the interp_ext API (register_oword)
+TEST_INTERP_EXT_SRCS := emc/task/test_interp_ext.c
+USERSRCS += $(TEST_INTERP_EXT_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_interp_ext.so: $(call TOOBJS, $(TEST_INTERP_EXT_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_interp_ext.so
+
+# test_spindle_remap.so — test cmod for remap spindle introspection (M500 prolog)
+TEST_SPINDLE_REMAP_SRCS := emc/task/test_spindle_remap.c
+USERSRCS += $(TEST_SPINDLE_REMAP_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_SPINDLE_REMAP_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_SPINDLE_REMAP_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_spindle_remap.so: $(call TOOBJS, $(TEST_SPINDLE_REMAP_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_spindle_remap.so
+
+# test_interp_ext_finish.so — test cmod for a C remap prolog returning
+# INTERP_EXECUTE_FINISH (the C-handler queue-buster / read-ahead-barrier path)
+TEST_INTERP_EXT_FINISH_SRCS := emc/task/test_interp_ext_finish.c
+USERSRCS += $(TEST_INTERP_EXT_FINISH_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_FINISH_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_FINISH_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_interp_ext_finish.so: $(call TOOBJS, $(TEST_INTERP_EXT_FINISH_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_interp_ext_finish.so
+
+# test_remap_fail.so — test cmod for remap prolog/epilog failure handling
+TEST_REMAP_FAIL_SRCS := emc/task/test_remap_fail.c
+USERSRCS += $(TEST_REMAP_FAIL_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_REMAP_FAIL_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_REMAP_FAIL_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_remap_fail.so: $(call TOOBJS, $(TEST_REMAP_FAIL_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_remap_fail.so
+
+# test_oword_math.so — test cmod for C O-word subs (param passing + return value)
+TEST_OWORD_MATH_SRCS := emc/task/test_oword_math.c
+USERSRCS += $(TEST_OWORD_MATH_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_OWORD_MATH_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_OWORD_MATH_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_oword_math.so: $(call TOOBJS, $(TEST_OWORD_MATH_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_oword_math.so
+
+# test_introspect.so — test cmod for O-word introspection of interpreter state
+TEST_INTROSPECT_SRCS := emc/task/test_introspect.c
+USERSRCS += $(TEST_INTROSPECT_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_INTROSPECT_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_INTROSPECT_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_introspect.so: $(call TOOBJS, $(TEST_INTROSPECT_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_introspect.so
+
+# test_var_inject.so — test cmod for remap variable injection/retrieval
+TEST_VAR_INJECT_SRCS := emc/task/test_var_inject.c
+USERSRCS += $(TEST_VAR_INJECT_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_VAR_INJECT_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_VAR_INJECT_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_var_inject.so: $(call TOOBJS, $(TEST_VAR_INJECT_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_var_inject.so
+
 # mcode_coord_log.so — cmod that logs M100 coord/tool introspection to a file,
 # replacing the classic USER_M_PATH subs/M100 script for the tool tests.
 MCODE_COORD_LOG_SRCS := emc/task/mcode_coord_log.c

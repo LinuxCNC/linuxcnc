@@ -1,0 +1,14 @@
+#!/bin/bash
+# Confirm every prolog injected and every epilog retrieved the bumped value, and
+# that no remap aborted or errored (which would mean injection/scoping failed).
+D=$(dirname "$1"); LOG="$D/server.log"
+set -e
+grep -q "test_var_inject: prolog/epilog 405/406/407 registered" "$LOG"
+for n in 405 406 407; do
+    grep -q "test_var_inject: prolog$n injected #<foo$n>=42" "$LOG"
+    grep -q "test_var_inject: epilog$n retrieved #<foo$n>=43 OK" "$LOG"
+done
+# an NGC abort (foo not visible / wrong value / leaked into a sibling remap) or a
+# failing epilog would surface as an operator error — there must be none.
+! grep -qi "operator error\|abort\|!= 43\|WHOA" "$LOG"
+echo "variable-injection: prolog inject -> NGC bump -> epilog retrieve (43) for 405/406/407, scoping intact"

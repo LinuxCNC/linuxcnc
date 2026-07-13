@@ -1,5 +1,0 @@
-gomc: mb2hal is a cmod (loadrt mb2hal config=...), and it loads/creates pins fine,
-but this test compares mb2hal's INI-DEBUG stdout dump. In gomc that diagnostic output
-goes to the server log (rtapi_print) with a different format, not to a capturable stdout
-stream, so the classic expected cannot be reproduced. (The pin-creation variant 1b/2b IS
-converted.) Re-enable if mb2hal debug output is exposed in a comparable form.

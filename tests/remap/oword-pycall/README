@@ -1,5 +1,9 @@
-Exercise a Python oword subroutine, including parameter passing and return values
+Exercise C O-word subroutines, including parameter passing and return values.
 
-not a remap, but it comes with the remapping code so test it here.
-
-must properly return to top level
+Re-expressed for gomc: the classic test called Python O-word subroutines
+(o<square>, o<multiply>) with fixed and variable argument counts and read the
+result back as #<_value>.  gomc removed the embedded Python interpreter, so the
+subs are C interp_ext O-words (cmod test_oword_math, register_oword).  The driver
+calls them via MDI; checkresult greps the cmod log to confirm the arguments were
+passed through (fixed + variable count) and — by feeding a prior call's #<_value>
+back in as an argument — that the return value round-tripped into the interpreter.

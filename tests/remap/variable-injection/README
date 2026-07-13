@@ -1,10 +1,13 @@
-this regression tests whether:
+Regression test for remap variable injection/retrieval and scoping:
+ (1) a variable injected in a prolog is visible in the NGC procedure, and a change
+     made in the NGC procedure is visible back in the epilog;
+ (2) variables injected in a remap are deleted at the end of that remap (not
+     visible in a sibling remap), including for several remaps in one block.
 
-(1)
-- variables inserted in a prolog can be references properly in the NGC procedure
-- changes to variables in the NGC procedure can be properly retrieved in the epilog
-
-(2)
-- variables inserted in a prolog, NGC procedure or epilog are deleted on the end of a remap
-- (1) also works for several remaps in a block
-
+Re-expressed for gomc: the classic test used Python prologs/epilogs.  gomc removed
+the embedded Python interpreter, so the M405/M406/M407 handlers are C interp_ext
+prolog/epilog handlers (cmod test_var_inject) using the interp_ctx set_param /
+get_param accessors.  prologNNN injects #<fooNNN>=42, rmNNN.ngc asserts it is 42
+(and that sibling remaps' vars are not visible), bumps it to 43, and epilogNNN
+requires #<fooNNN> to be 43.  checkresult confirms every prolog/epilog fired with
+the expected values and no abort/error occurred.

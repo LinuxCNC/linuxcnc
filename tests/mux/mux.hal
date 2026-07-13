@@ -18,10 +18,9 @@ load mux_generic <mux-gen.14> config=u2s
 load mux_generic <mux-gen.15> config=u2u
 load mux_generic <mux-gen.16> config=b2b
 load mux_generic <mux-gen.17> config=f5f
-loadrt streamer depth=100 cfg=bu
-loadrt sampler depth=100 cfg=bfsubfsubfsubfsubfbu
+load filestream stream_cfg=bu sample_cfg=bfsubfsubfsubfsubfbu infile=input-signals outfile=out.txt depth=100 samples=105
 
-addf streamer slow
+addf filestream.write slow
 addf mux-gen.00 slow
 addf mux-gen.01 slow
 addf mux-gen.02 slow
@@ -40,7 +39,7 @@ addf mux-gen.14 slow
 addf mux-gen.15 slow
 addf mux-gen.16 slow
 addf mux-gen.17 slow
-addf sampler slow
+addf filestream.read slow
 
 net v0 mux-gen.00.in-bit-00 mux-gen.01.in-bit-00 mux-gen.02.in-bit-00 mux-gen.03.in-bit-00 mux-gen.16.in-bit-00 
 net v1 mux-gen.04.in-float-00 mux-gen.05.in-float-00 mux-gen.06.in-float-00 mux-gen.07.in-float-00
@@ -75,27 +74,27 @@ setp mux-gen.17.in-float-02 3.33
 setp mux-gen.17.in-float-03 4.44
 setp mux-gen.17.in-float-04 5.55
 
-net sel streamer.pin.0 sampler.pin.18
-net u streamer.pin.1 sampler.pin.19 mux-gen.17.sel-int
+net sel filestream.stream.0 filestream.sample.18
+net u filestream.stream.1 filestream.sample.19 mux-gen.17.sel-int
 
-net o0 mux-gen.00.out-bit sampler.pin.0
-net o1 mux-gen.01.out-float sampler.pin.1
-net o2 mux-gen.02.out-s32 sampler.pin.2
-net o3 mux-gen.03.out-u32 sampler.pin.3
-net o4 mux-gen.04.out-bit sampler.pin.4
-net o5 mux-gen.05.out-float sampler.pin.5
-net o6 mux-gen.06.out-s32 sampler.pin.6
-net o7 mux-gen.07.out-u32 sampler.pin.7
-net o8 mux-gen.08.out-bit sampler.pin.8
-net o9 mux-gen.09.out-float sampler.pin.9
-net o10 mux-gen.10.out-s32 sampler.pin.10
-net o11 mux-gen.11.out-u32 sampler.pin.11
-net o12 mux-gen.12.out-bit sampler.pin.12
-net o13 mux-gen.13.out-float sampler.pin.13
-net o14 mux-gen.14.out-s32 sampler.pin.14
-net o15 mux-gen.15.out-u32 sampler.pin.15
-net o16 mux-gen.16.out-bit sampler.pin.16
-net o17 mux-gen.17.out-float sampler.pin.17
+net o0 mux-gen.00.out-bit filestream.sample.0
+net o1 mux-gen.01.out-float filestream.sample.1
+net o2 mux-gen.02.out-s32 filestream.sample.2
+net o3 mux-gen.03.out-u32 filestream.sample.3
+net o4 mux-gen.04.out-bit filestream.sample.4
+net o5 mux-gen.05.out-float filestream.sample.5
+net o6 mux-gen.06.out-s32 filestream.sample.6
+net o7 mux-gen.07.out-u32 filestream.sample.7
+net o8 mux-gen.08.out-bit filestream.sample.8
+net o9 mux-gen.09.out-float filestream.sample.9
+net o10 mux-gen.10.out-s32 filestream.sample.10
+net o11 mux-gen.11.out-u32 filestream.sample.11
+net o12 mux-gen.12.out-bit filestream.sample.12
+net o13 mux-gen.13.out-float filestream.sample.13
+net o14 mux-gen.14.out-s32 filestream.sample.14
+net o15 mux-gen.15.out-u32 filestream.sample.15
+net o16 mux-gen.16.out-bit filestream.sample.16
+net o17 mux-gen.17.out-float filestream.sample.17
 
 
 

@@ -1,0 +1,3 @@
+# Register the C remap prolog/epilog handlers for M405/M406/M407
+# (replaces the classic Python remap.py).
+load test_var_inject

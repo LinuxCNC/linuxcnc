@@ -1,2 +1,0 @@
-loadusr -W ./stream_writer.py
-loadusr -W ./stream_reader.py

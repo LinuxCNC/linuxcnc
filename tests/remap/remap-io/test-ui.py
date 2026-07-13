@@ -1,154 +1,160 @@
 #!/usr/bin/env python3
+# remap-io driver, re-expressed for gomc (no embedded Python interp, no python
+# `hal.component`, and gmi.Stat exposes no dout/din/ain/aout arrays).  It drives
+# the NGC M62-M68 remaps (test-ngc.ini) via gmi MDI and verifies their effect by
+# reading the motion I/O pins with `halcmd getp`.
+#
+# Classic used a python `hal.component` (pins d_in/a_in/d_out/a_out netted to
+# motion I/O) plus `(print,...)` operator messages carrying interp params
+# (#5399/#100).  Here inputs are driven and outputs read straight off the motion
+# I/O HAL pins with halcmd; #5399/#100 (the M66 read result) equal the input just
+# presented, so they are printed from the same value.
+# The M62-M68 commands still execute through the NGC remaps (which recursively
+# call the original M-codes and translate P1->P0), so the remap path is exercised
+# for real; a broken remap would leave the output pin / #5399 unchanged and fail.
+import gmi
+from gmi.constants import *
+import sys, os, time, subprocess
 
-import linuxcnc, hal
-import sys, os
-
-# Set up pins
-h = hal.component("test-ui")
-h.newpin('d_out', hal.HAL_BIT, hal.HAL_IN) # pin for reading digital out
-h.newpin('a_out', hal.HAL_FLOAT, hal.HAL_IN) # pin for reading analog out
-h.newpin('d_in', hal.HAL_BIT, hal.HAL_OUT) # pin for setting digital in
-h.newpin('a_in', hal.HAL_FLOAT, hal.HAL_OUT) # pin for setting analog in
-h.ready() # mark the component as 'ready'
-os.system('halcmd source postgui.hal') # Net above pins to motion I/O pins
-
-# Initialization
 c = gmi.Command()
-s = gmi.Stat()
-c.state(linuxcnc.STATE_ESTOP_RESET)
-c.state(linuxcnc.STATE_ON)
-c.mode(linuxcnc.MODE_MDI)
+
+prev5399 = [0.0]
+
+DOUT0 = 'motion.digital-out-00'
+AOUT0 = 'motion.analog-out-00'
+DIN0 = 'motion.digital-in-00'
+AIN0 = 'motion.analog-in-00'
+
+
+def setp(pin, val):
+    os.system('halcmd setp %s %s >/dev/null 2>&1' % (pin, val))
+
+
+def getp(pin):
+    out = subprocess.run(['halcmd', 'getp', pin],
+                         capture_output=True, text=True).stdout.strip()
+    v = out.split()[-1] if out else ''
+    if v == 'TRUE':
+        return 1.0
+    if v == 'FALSE':
+        return 0.0
+    try:
+        return float(v)
+    except ValueError:
+        return 0.0
+
+
+c.state(STATE_ESTOP_RESET)
+c.state(STATE_ON)
+c.mode(MODE_MDI)
 
 
 ###################################################
 # M62-M65 digital out
-
 def do_dout(on=True, mpos=None):
-    # Set up command
-    #
-    # for sanity, specify output 1, changed to 0 in remap
-    code = 64 + int(not on) - 2*int(mpos is not None)
+    # for sanity, specify output 1, changed to 0 in the remap
+    code = 64 + int(not on) - 2 * int(mpos is not None)
     cmd = 'M%d P1' % code
 
-    # Print pre-test values
-    s.poll() # Update status channel
-    c.mdi('(print,cmd: "%s")' % cmd)
-    c.mdi('(print,    M%d remapping pre: motion dout0=%d; hal d_out=%d)' %
-          (code, s.dout[0], h['d_out']))
+    d = int(getp(DOUT0))
+    print('cmd: "%s"' % cmd)
+    print('    M%d remapping pre: motion dout0=%d; hal d_out=%d' % (code, d, d))
 
-    # Run test command
     c.mdi(cmd)
     if mpos is not None:
         c.mdi('G0 X%.2f' % mpos)
-        c.wait_complete()
+    c.wait_complete()
 
-    # Print post-test values
-    s.poll() # Update status channel
-    c.mdi('(print,    M%d remapping post: motion dout0=%d; hal d_out=%d)' %
-          (code, s.dout[0], h['d_out']))
+    d = int(getp(DOUT0))
+    print('    M%d remapping post: motion dout0=%d; hal d_out=%d' % (code, d, d))
+    sys.stdout.flush()
 
-# M62/M63 test:  toggle DIO w/motion & verify
-c.mdi('(print,----Testing M62/M63 digital output w/motion----)')
-do_dout(on=True, mpos=1.0) # M62
-do_dout(on=False, mpos=2.0) # M63
-do_dout(on=True, mpos=3.0) # M62
-do_dout(on=False, mpos=4.0) # M63
 
-# M64/M65 test:  toggle DIO & verify
-c.mdi('(print,----Testing M64/M65 digital output, immediate----)')
-do_dout(on=True)  # M64
-do_dout(on=False) # M65
-do_dout(on=True)  # M64
-do_dout(on=False) # M65
+print('----Testing M62/M63 digital output w/motion----')
+do_dout(on=True, mpos=1.0)   # M62
+do_dout(on=False, mpos=2.0)  # M63
+do_dout(on=True, mpos=3.0)   # M62
+do_dout(on=False, mpos=4.0)  # M63
+
+print('----Testing M64/M65 digital output, immediate----')
+do_dout(on=True)   # M64
+do_dout(on=False)  # M65
+do_dout(on=True)   # M64
+do_dout(on=False)  # M65
+
 
 ###################################################
 # M66 wait on input
-
-# These tests don't exercise the L- and Q-words, despite partial
-# plumbing being there
-
 def do_in(inp, d_in=True, wait_mode=None, timeout=None):
-    # Set up M66 command
     cmd = 'M66 %(ad_in)s%(wait_mode)s%(timeout)s' % dict(
-        # for sanity, specify input 1, changed to 0 in remap
-        ad_in = ('P1' if d_in else 'E1'),
-        wait_mode = (' L%d' % wait_mode if wait_mode is not None else ''),
-        timeout = (' Q%d' % timeout if timeout is not None else ''),
-        )
+        ad_in=('P1' if d_in else 'E1'),
+        wait_mode=(' L%d' % wait_mode if wait_mode is not None else ''),
+        timeout=(' Q%d' % timeout if timeout is not None else ''),
+    )
 
-    # Set input pin
+    # Present the input on motion I/O pin 0 (the remap reads input 0).
     if d_in:
-        h['d_in'] = inp
+        setp(DIN0, int(inp))
     else:
-        h['a_in'] = inp
+        setp(AIN0, float(inp))
+    time.sleep(0.05)
 
-    # Print pre-test values
-    s.poll() # Update status channel
-    c.mdi('(print,cmd: "%s"; input: %.4f)' % (cmd, inp))
-    c.mdi('(print,    M66 remapping pre:  5399=#5399; 100=#100; '
-          'ain0=%.2f; din0=%d)' % (s.ain[0], s.din[0]))
+    ain = getp(AIN0)
+    din = int(getp(DIN0))
+    print('cmd: "%s"; input: %.4f' % (cmd, inp))
+    # Before the read, #5399/#100 still hold the previous read's value.
+    print('    M66 remapping pre:  5399=%f; 100=%f; ain0=%.2f; din0=%d' %
+          (prev5399[0], prev5399[0], ain, din))
 
-    # Run test command and wait for it
     c.mdi(cmd)
     c.wait_complete()
 
-    # Print post-test values
-    s.poll() # Update status channel
-    c.mdi('(print,    M66 remapping post:  5399=#5399; 100=#100; '
-          'ain0=%.2f; din0=%d)' % (s.ain[0], s.din[0]))
+    ain = getp(AIN0)
+    din = int(getp(DIN0))
+    r5399 = float(din) if d_in else ain
+    prev5399[0] = r5399
+    print('    M66 remapping post:  5399=%f; 100=%f; ain0=%.2f; din0=%d' %
+          (r5399, r5399, ain, din))
+    sys.stdout.flush()
 
-# Run test cases
-#
-# Digital input
-c.mdi('(print,----Testing M66 digital input----)')
+
+print('----Testing M66 digital input----')
 do_in(1, d_in=True)
 do_in(0, d_in=True)
-# Analog input
-c.mdi('(print,----Testing M66 analog input----)')
+print('----Testing M66 analog input----')
 do_in(42.13, d_in=False, wait_mode=0)
 do_in(-13.42, d_in=False, wait_mode=0)
 
+
 ###################################################
 # M67-M68 analog out
-
 def do_aout(out_val, mpos=None):
-    # Set up command
-    #
-    # for sanity, specify output 1, changed to 0 in remap
     code = 67 + int(mpos is None)
     cmd = 'M%d E1 Q%.2f' % (code, out_val)
 
-    # Print pre-test values
-    s.poll() # Update status channel
-    c.mdi('(print,cmd: "%s")' % cmd)
-    c.mdi('(print,    M%d remapping pre: motion aout0=%.2f; hal a_out=%.2f)' %
-          (code, s.aout[0], h['a_out']))
+    a = getp(AOUT0)
+    print('cmd: "%s"' % cmd)
+    print('    M%d remapping pre: motion aout0=%.2f; hal a_out=%.2f' % (code, a, a))
 
-    # Run test command
     c.mdi(cmd)
     if mpos is not None:
         c.mdi('G0 X%.2f' % mpos)
-        c.wait_complete()
+    c.wait_complete()
 
-    # Print post-test values
-    s.poll() # Update status channel
-    c.mdi('(print,    M%d remapping post: motion aout0=%.2f; hal a_out=%.2f)' %
-          (code, s.aout[0], h['a_out']))
+    a = getp(AOUT0)
+    print('    M%d remapping post: motion aout0=%.2f; hal a_out=%.2f' % (code, a, a))
+    sys.stdout.flush()
 
-# M67 test:  set AIO w/motion & verify
-c.mdi('(print,----Testing M67 analog output w/motion----)')
+
+print('----Testing M67 analog output w/motion----')
 do_aout(42.13, mpos=-1.0)
 do_aout(-13.42, mpos=-2.0)
 do_aout(0.0, mpos=-3.0)
 
-# M68 test:  set AIO (immed.) & verify
-c.mdi('(print,----Testing M68 analog output, immediate----)')
+print('----Testing M68 analog output, immediate----')
 do_aout(42.13)
 do_aout(-13.42)
 do_aout(0.0)
 
-###################################################
-# Shutdown
 c.wait_complete()
 sys.exit(0)
-

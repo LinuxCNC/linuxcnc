@@ -1,0 +1,7 @@
+Proof/regression test for the filestream cmod (the file-backed sample/replay
+sibling of the WebSocket sampler/streamer).  A pure loopback replays one sample of
+each pin type (float, bit, u32, s32) from in.txt onto filestream.stream.N, wired
+straight back into filestream.sample.N, and captures them to out.txt.  Exercises:
+both RT functs (write/read) sharing one instance, all four type encodings (output
+byte-identical to halsampler, input parsed like halstreamer), comment/blank-line
+skipping, and the deterministic samples=/done bound.
