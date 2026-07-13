@@ -243,6 +243,7 @@ or handled differently in the single-cmod model. **Correctly removed — do not 
 
 ## 5. Orphaned (no `test.sh` — invisible to the runner)
 
+
 | test | action |
 |---|---|
 | trajectory-planner/circular-arcs | ✅ **PASS** — added an automated regression test (the classic dir was a developer profiling/tuning harness — operf/octave/interactive — with no `test.sh` in either branch). New `test.sh`/`checkresult`/`arc.ngc`/`arc.ini`/`capture.hal`/`run-arc.py`: run a full-circle G3 through the gomc TP, capture the commanded X/Y joint path every servo cycle with `filestream`, and assert every sample lies on the commanded circle (centre (0,10), r=10) within 0.05 mm and that the arc swept the whole circle. gomc traces it with 0.00000 mm deviation. The legacy profiling files are kept as dev tooling (see `README.gomc`). |
