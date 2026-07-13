@@ -57,7 +57,8 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
 interp/{pymove,python/error,python-self}, m70-m73/m73-flood-mist-restore.0,
-remap/fail/{body-py,canon_error,epilog,prolog}, remap/{introspect,oword-pycall,predefined-named-params,remap-reentry,spindle,variable-injection}.
+remap/fail/{body-py,canon_error,epilog,prolog}, remap/{introspect,oword-pycall,predefined-named-params,remap-reentry,variable-injection}.
+(remap/spindle moved out — re-expressed via the C interp_ext mechanism; see §2e.)
 
 ### 2b. Correct skip — TCL-for-HAL removed
 
@@ -89,6 +90,23 @@ tclsh-extensions, tcllibpath-separator.
 | module-loading/{encoder,encoder_ratio,pid,siggen,sim_encoder}/num_chan=0 | `num_chan=0` = load with the *default* channel count (1 instance) | ⛔ **REMOVED** — explicit-names-only; the 1-instance case is already covered by the `count=1` test |
 
 **Pending (Python discussion):** `mdi-while-queuebuster-waitflag` — its `M400` queue-buster is a **Python remap** (§2a-blocked). Either skip (Python-blocked) or re-express the MDI-vs-queuebuster race with a non-Python queue-buster.
+
+### 2e. Re-expressed against the C interp_ext / mcode_handler mechanism (#2, was §2a Python skip)
+
+The gomc replacement for embedded-Python interpreter extensions is the C interp_ext API
+(register_oword / register_remap_prolog / register_remap_epilog) plus mcode_handler — all
+now wired + tested (tests/interp-ext, tests/mcode-handler). Python remap/O-word tests whose
+*capability* still exists are being re-expressed against it rather than skipped.
+
+| test | classic mechanism | re-expression | status |
+|---|---|---|---|
+| interp/value-returned | Python O-word sub returning a value | NGC-only (endsub/return observable via `g0 x#<_value>` canon moves) | ✅ **PASS** |
+| remap/spindle | `M500 py=m500` reads `self.speed[]`/`self.active_spindle` | `REMAP=M500 prolog=m500_prolog` C cmod (`test_spindle_remap.so`) reads per-spindle speed via interp_ctx `get_speed()`; full-instance MDI run, checkresult greps the prolog's logged speeds ([0,0,0]→[1000,0,0]→[1000,2000,0]) | ✅ **PASS** |
+
+**Next (#2, each needs a C prolog/O-word cmod + config, model on the above):** remap/fail/{prolog,epilog},
+remap/{oword-pycall,introspect,predefined-named-params,remap-reentry,variable-injection}, interp/pymove,
+m70-m73/m73-flood-mist-restore.0. Genuine embedded-interpreter skips stay (§2a: canterp, Python.h,
+python-self, python/error, remap/fail/{body-py,canon_error}).
 
 ---
 

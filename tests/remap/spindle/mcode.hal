@@ -1,0 +1,3 @@
+# Register the C M500 remap prolog (replaces the classic Python remap.py m500).
+# spindles=3 must match [TRAJ]SPINDLES so the prolog logs every configured spindle.
+load test_spindle_remap spindles=3

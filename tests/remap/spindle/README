@@ -1,1 +1,8 @@
-Test remap's ability to introspect about spindles.
+Test a remap's ability to introspect the interpreter's spindle state.
+
+Re-expressed for gomc: the classic test used a Python remap handler (M500 py=m500)
+that read self.speed[] / self.active_spindle.  gomc removed the embedded Python
+interpreter, so M500 is remapped to a C interp_ext prolog (cmod test_spindle_remap)
+which reads the per-spindle commanded speed via the interp_ctx get_speed() accessor
+and logs it.  The driver runs a multi-spindle sequence through MDI and checkresult
+confirms the prolog saw the live speeds evolve ([0,0,0] -> [1000,0,0] -> [1000,2000,0]).
