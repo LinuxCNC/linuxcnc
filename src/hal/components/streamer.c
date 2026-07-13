@@ -23,6 +23,7 @@
 
 #include "gomc_env.h"
 #include "hal_streamer_stream_api.h"
+#include "hal_stream_common.h"
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -36,20 +37,10 @@
 // Data types
 // ---------------------------------------------------------------------------
 
-// One sample: array of raw pin values (same layout as sampler for symmetry).
-typedef union {
-    double f;
-    int32_t s;
-    uint32_t u;
-    uint32_t b;  // 0 or 1
-} sample_val_t;
-
-typedef union {
-    volatile double *hfloat;
-    volatile int32_t *hs32;
-    volatile uint32_t *hu32;
-    volatile unsigned *hbit;
-} pin_ptr_t;
+// Per-pin value encoding and HAL-pin marshalling are shared across the stream
+// family (sampler/streamer/filestream) via hal_stream_common.h.
+typedef hal_stream_val_t sample_val_t;
+typedef hal_stream_pin_t pin_ptr_t;
 
 // Per-instance state
 typedef struct {
@@ -155,8 +146,11 @@ static void update_funct(void *arg, long period) {
     streamer_inst_t *inst = (streamer_inst_t *)arg;
     (void)period;
 
-    // Update depth/empty status
+    // Update depth/empty status.  Acquire barrier pairs with the release barrier
+    // in on_data_received: after observing write_pos we must see the sample data
+    // written before it.
     uint32_t wp = inst->write_pos;
+    __sync_synchronize();
     uint32_t rp = inst->read_pos;
     uint32_t available = wp - rp;
     *(inst->curr_depth) = (int32_t)available;
@@ -201,22 +195,8 @@ static void update_funct(void *arg, long period) {
     uint32_t ring_idx = rp % inst->depth;
     sample_val_t *src = &inst->ring[ring_idx * inst->num_pins];
 
-    for (int n = 0; n < inst->num_pins; n++) {
-        switch (inst->pin_types[n]) {
-        case 'f':
-            *(inst->pins[n].hfloat) = src[n].f;
-            break;
-        case 'b':
-            *(inst->pins[n].hbit) = src[n].b ? 1 : 0;
-            break;
-        case 'u':
-            *(inst->pins[n].hu32) = src[n].u;
-            break;
-        case 's':
-            *(inst->pins[n].hs32) = src[n].s;
-            break;
-        }
-    }
+    for (int n = 0; n < inst->num_pins; n++)
+        hal_stream_apply(inst->pin_types[n], inst->pins[n], &src[n]);
 
     inst->read_pos = rp + 1;
 }

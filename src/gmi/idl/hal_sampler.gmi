@@ -2,8 +2,12 @@
 # Realtime data capture from HAL pins, streamed to WebSocket clients.
 #
 # The cmod RT function samples pins every servo cycle into a ring buffer.
-# The bridge goroutine calls poll_transmit (blocking) which returns
-# a chunk of buffered samples when ready (signaled via eventfd).
+# The bridge goroutine calls poll_transmit, which returns any buffered samples
+# immediately (or 0 if none). It is a poll, NOT eventfd-signalled: the RT sampler
+# must not make syscalls (an eventfd write would add jitter), so the non-RT bridge
+# polls the ring instead. The RT producer publishes ring data with a release
+# barrier before advancing write_pos; poll_transmit reads write_pos with a paired
+# acquire barrier (see sampler.c).
 #
 # Usage:
 #   loadrt sampler name=sampler.0 cfg=uffb depth=1000
