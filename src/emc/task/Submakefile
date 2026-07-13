@@ -62,6 +62,22 @@ $(call TOOBJSDEPS, $(TEST_SPINDLE_REMAP_SRCS)): gomc/generated/gmi/interp_ext/in
 	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 TARGETS += ../cmod/test_spindle_remap.so
 
+# test_interp_ext_finish.so — test cmod for a C remap prolog returning
+# INTERP_EXECUTE_FINISH (the C-handler queue-buster / read-ahead-barrier path)
+TEST_INTERP_EXT_FINISH_SRCS := emc/task/test_interp_ext_finish.c
+USERSRCS += $(TEST_INTERP_EXT_FINISH_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_FINISH_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_INTERP_EXT_FINISH_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_interp_ext_finish.so: $(call TOOBJS, $(TEST_INTERP_EXT_FINISH_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_interp_ext_finish.so
+
 # test_remap_fail.so — test cmod for remap prolog/epilog failure handling
 TEST_REMAP_FAIL_SRCS := emc/task/test_remap_fail.c
 USERSRCS += $(TEST_REMAP_FAIL_SRCS)

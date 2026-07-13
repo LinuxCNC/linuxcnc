@@ -1,0 +1,2 @@
+# Register the C M510 remap prolog that returns INTERP_EXECUTE_FINISH.
+load test_interp_ext_finish

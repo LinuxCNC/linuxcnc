@@ -1,0 +1,4 @@
+o<m510> sub
+; All work is done in the C prolog (finish_prolog); the body is a no-op.  The
+; prolog forces the queue-buster on phase 0 and completes on phase 1.
+o<m510> endsub
