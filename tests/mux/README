@@ -1,2 +1,13 @@
-Simple test of the generic mux component
+Simple test of the generic mux component (18 type-converting mux_generic instances).
 
+Driven via the filestream cmod (was the WS streamer+sampler).  filestream advances
+one input line per thread cycle, the deterministic pacing the live WS feed could not
+reproduce.  All 18 mux outputs and the mux-gen.16 debounce match the classic golden
+for every real-input row.
+
+The `expected` was regenerated from the deterministic filestream output: the classic
+golden's 5 trailing held-last rows carried a streamer-FIFO-overflow artifact (the
+depth-100 FIFO held only 99 entries, so the 100th preloaded input line — the one
+where sel flips to 1 — was dropped and the 99th was held instead).  filestream loads
+all 100 input lines, so it correctly holds the 100th; the regenerated expected
+reflects that (the 100 real-input rows were already byte-identical to the classic).
