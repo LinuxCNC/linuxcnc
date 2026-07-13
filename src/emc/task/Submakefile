@@ -107,6 +107,21 @@ $(call TOOBJSDEPS, $(TEST_INTROSPECT_SRCS)): gomc/generated/gmi/interp_ext/inter
 	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 TARGETS += ../cmod/test_introspect.so
 
+# test_var_inject.so — test cmod for remap variable injection/retrieval
+TEST_VAR_INJECT_SRCS := emc/task/test_var_inject.c
+USERSRCS += $(TEST_VAR_INJECT_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_VAR_INJECT_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_VAR_INJECT_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_var_inject.so: $(call TOOBJS, $(TEST_VAR_INJECT_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_var_inject.so
+
 # mcode_coord_log.so — cmod that logs M100 coord/tool introspection to a file,
 # replacing the classic USER_M_PATH subs/M100 script for the tool tests.
 MCODE_COORD_LOG_SRCS := emc/task/mcode_coord_log.c
