@@ -33,6 +33,8 @@ typedef struct {
     int mcode;
     int raw;   /* format=raw: dump "P is <P>\nQ is <Q>" like the classic
                 * linuxcncrsh subs/M100, instead of the P-selector fields. */
+    int p_only; /* format=p: dump only "P is <P>", like the classic mdi-queue
+                 * subs/M100 (which echoed just $1); no Q sentinel line. */
     char logfile[512];
 } coord_log_module;
 
@@ -45,6 +47,15 @@ static int coord_log_handler(const mcode_handler_mcode_call_t *call, void *user_
 
     double q = call->q_number;
     int rc = 0;
+
+    /* P-only mode: dump just the P word, matching the classic mdi-queue
+     * subs/M100 (which echoed only "$1").  gomc sets q_number to a -1 sentinel
+     * when Q is absent, so raw mode's "Q is" line would not match here. */
+    if (m->p_only) {
+        fprintf(f, "P is %f\n", call->p_number);
+        fclose(f);
+        return 0;
+    }
 
     /* Raw mode: dump both words verbatim, matching the classic linuxcncrsh
      * subs/M100 ("echo P is $P; echo Q is $Q"). */
@@ -127,6 +138,8 @@ int New(const cmod_env_t *env, const char *name,
             m->mcode = atoi(argv[i] + 6);
         else if (strcmp(argv[i], "format=raw") == 0)
             m->raw = 1;
+        else if (strcmp(argv[i], "format=p") == 0)
+            m->p_only = 1;
     }
 
     m->base.Start   = coord_log_start;

@@ -1,0 +1,11 @@
+
+o<queue-buster> sub
+    m100 p12345
+
+    t#1
+    m6
+
+    m100 p-#5400  ; current tool
+    m100 p54321
+o<queue-buster> endsub
+
