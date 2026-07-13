@@ -808,7 +808,14 @@ install-kernel-dep:
 	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
-	$(FILE) ../cmod/*.so $(DESTDIR)$(EMC2_GOMOD_DIR)
+	# Install the C plugin modules, but keep test-only cmods out of the
+	# package: the test_*.so handlers, mcode_coord_log.so and hm2_test.so are
+	# built into ../cmod for the regression suite only, and modcompile-*.so are
+	# transient artifacts left by `modcompile --install` when tests have run.
+	# (mesa_pktgyro_test.so is a real, documented component and is kept.)
+	$(FILE) $(filter-out ../cmod/test_%.so ../cmod/modcompile-%.so \
+		../cmod/mcode_coord_log.so ../cmod/hm2_test.so, \
+		$(wildcard ../cmod/*.so)) $(DESTDIR)$(EMC2_GOMOD_DIR)
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
 endif # RUN_IN_PLACE
 
