@@ -1,0 +1,2 @@
+# Register the C O-word o<introspect> (replaces the classic Python oword.py).
+load test_introspect

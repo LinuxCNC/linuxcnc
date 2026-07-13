@@ -57,8 +57,8 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
 interp/{pymove,python/error,python-self}, m70-m73/m73-flood-mist-restore.0,
-remap/fail/{body-py,canon_error}, remap/{introspect,predefined-named-params,remap-reentry,variable-injection}.
-(remap/spindle, remap/fail/{prolog,epilog}, remap/oword-pycall moved out — re-expressed via the C interp_ext mechanism; see §2e.)
+remap/fail/{body-py,canon_error}, remap/{predefined-named-params,remap-reentry,variable-injection}.
+(remap/spindle, remap/fail/{prolog,epilog}, remap/oword-pycall, remap/introspect moved out — re-expressed via the C interp_ext mechanism; see §2e.)
 
 ### 2b. Correct skip — TCL-for-HAL removed
 
@@ -105,6 +105,7 @@ now wired + tested (tests/interp-ext, tests/mcode-handler). Python remap/O-word 
 | remap/fail/prolog | Python prolog returns INTERP_ERROR; must abort + convey error, NGC body not run | `REMAP=M400 prolog=failingprolog` C cmod (`test_remap_fail.so`) `set_error()`+INTERP_EXT_ERROR; checkresult confirms prolog failed, error text conveyed, body (`o<mark_body>`) NOT run | ✅ **PASS** (found+fixed the pycall message-clobber bug below) |
 | remap/fail/epilog | Python epilog returns INTERP_ERROR after the NGC body ran | `REMAP=M400 ngc=mustbecalled epilog=failingepilog` (same cmod); checkresult confirms body ran, epilog failed, error conveyed | ✅ **PASS** |
 | remap/oword-pycall | Python O-word subs (o<square>, o<multiply>) w/ fixed+variable args and #<_value> return | C interp_ext O-words (cmod `test_oword_math.so`, register_oword); MDI feeds a prior call's #<_value> back as an arg to prove the return round-tripped. checkresult greps args+result: square(5)=25, multiply(25,2)=50, multiply(5,6,7)=210 | ✅ **PASS** |
+| remap/introspect | Python O-word reads args + live interp state (feed/speed/named/INI/global params) | C interp_ext O-word (cmod `test_introspect.so`) via interp_ctx get_feed_rate/get_speed/get_param; checkresult greps args [1,2,3,3.14159], feed=200, rpm=3000, global=47.11, ini=3.14159. Python-binding-only bits (block param arrays, sub_context iteration, params.locals()/globals(), self.remaps) dropped — removed embedded-Python API | ✅ **PASS** |
 
 **gomc bug fixed here (interp error conveyance):** a C interp_ext prolog/epilog/O-word handler that called `ctx->set_error()` and
 returned INTERP_EXT_ERROR had its saved message clobbered with a generic "pycall(...) failed" / "handler not registered".
