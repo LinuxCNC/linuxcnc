@@ -1,0 +1,12 @@
+# Proof test for the filestream cmod: a pure loopback that replays one sample of
+# each pin type (float, bit, u32, s32) from a file and captures it straight back,
+# exercising the replay/capture rings, all four type encodings, comment/blank-line
+# skipping in the input, and the deterministic `done`/samples bound.
+load filestream stream_cfg=fbus infile=in.txt sample_cfg=fbus outfile=out.txt depth=100 samples=5
+newthread fast 1000000
+net p0 filestream.stream.0 => filestream.sample.0
+net p1 filestream.stream.1 => filestream.sample.1
+net p2 filestream.stream.2 => filestream.sample.2
+net p3 filestream.stream.3 => filestream.sample.3
+addf filestream.write fast
+addf filestream.read fast

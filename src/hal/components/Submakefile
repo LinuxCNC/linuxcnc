@@ -514,6 +514,14 @@ CMOD_GMI_HAL_STREAMER_API := gomc/generated/gmi/hal_streamer
 TARGETS += ../cmod/streamer.so
 modules: ../cmod/streamer.so
 
+# filestream — file-backed sample/replay comp (deterministic, no WebSocket)
+../cmod/filestream.so: hal/components/filestream.c hal/components/hal_stream_common.h
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -o $@ $< $(CMOD_LDFLAGS) -lpthread
+TARGETS += ../cmod/filestream.so
+modules: ../cmod/filestream.so
+
 clean: cmod-comp-clean
 .PHONY: cmod-comp-clean
 cmod-comp-clean:
