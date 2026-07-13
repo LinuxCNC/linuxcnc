@@ -416,9 +416,17 @@ int Interp::_execute(const char *command)
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
 		  if ((eblock->o_name != 0) ||
-		      (_setup.mdi_interrupt)) { 
+		      (_setup.mdi_interrupt)) {
 
 		      status = convert_control_functions(eblock, &_setup);
+		      // A remap handler (prolog/body) that yields INTERP_EXECUTE_FINISH
+		      // relinquishes here before the while() loop below ever runs, so it
+		      // must arm mdi_interrupt itself — otherwise the continuation
+		      // execute(0) re-enters with MDImode=0 and never drives the remap's
+		      // replacement sub to completion, pinning call_level and spinning.
+		      // Mirrors the EXECUTE_FINISH handling inside the while() loop.
+		      if (status == INTERP_EXECUTE_FINISH)
+			  _setup.mdi_interrupt = true;
 		      CHP(status);
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
