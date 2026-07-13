@@ -120,7 +120,6 @@ struct EvlApp : RtapiApp {
         {
             WithRoot r;
             /* Attach to the core. */
-            rtapi_print("linuxcnc-task:%d\n", gettid());
             int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
             if (tfd < 0) {
                 rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
