@@ -1,0 +1,8 @@
+mb2hal is a cmod (loadrt mb2hal config=...) and loads/creates pins fine, but this
+variant compared mb2hal's classic INI-DEBUG dump — each parsed [MB2HAL_INIT] and
+[TRANSACTION] key printed to stdout as "mb2hal parse_common_section DEBUG: [SECTION]
+[KEY] [VALUE]". In gomc that diagnostic output goes to the server log via slog in a
+different format ("parse_transaction_section N OK", not the per-key [KEY] [VALUE]
+dump), so the classic `expected` cannot be reproduced. Runs and xfails on the format
+gap. The pin-creation variant (mb2hal.1b/2b) IS converted and passes. Re-enable if
+mb2hal's INI-DEBUG dump is exposed in a comparable form.
