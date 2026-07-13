@@ -1,4 +1,5 @@
-o<mustbecalled>sub
-(debug, I should complain if I weren't called but I guess I can not do that)
-o<mustbecalled>endsub
-m2
+o<mustbecalled> sub
+; The remap NGC body runs (there is no prolog); o<mark_body> logs "body executed"
+; so checkresult can assert it ran.  The epilog then fails and aborts.
+o<mark_body> call
+o<mustbecalled> endsub

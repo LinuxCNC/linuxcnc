@@ -57,8 +57,8 @@ expected.reset (047c4962a5), motion-logger/startup-gcode-abort/expected.motion-l
 
 interp/compile (`Python.h`), interp/plug/{absolute,filename,relative} (`canterp`),
 interp/{pymove,python/error,python-self}, m70-m73/m73-flood-mist-restore.0,
-remap/fail/{body-py,canon_error,epilog,prolog}, remap/{introspect,oword-pycall,predefined-named-params,remap-reentry,variable-injection}.
-(remap/spindle moved out — re-expressed via the C interp_ext mechanism; see §2e.)
+remap/fail/{body-py,canon_error}, remap/{introspect,oword-pycall,predefined-named-params,remap-reentry,variable-injection}.
+(remap/spindle, remap/fail/{prolog,epilog} moved out — re-expressed via the C interp_ext mechanism; see §2e.)
 
 ### 2b. Correct skip — TCL-for-HAL removed
 
@@ -102,8 +102,18 @@ now wired + tested (tests/interp-ext, tests/mcode-handler). Python remap/O-word 
 |---|---|---|---|
 | interp/value-returned | Python O-word sub returning a value | NGC-only (endsub/return observable via `g0 x#<_value>` canon moves) | ✅ **PASS** |
 | remap/spindle | `M500 py=m500` reads `self.speed[]`/`self.active_spindle` | `REMAP=M500 prolog=m500_prolog` C cmod (`test_spindle_remap.so`) reads per-spindle speed via interp_ctx `get_speed()`; full-instance MDI run, checkresult greps the prolog's logged speeds ([0,0,0]→[1000,0,0]→[1000,2000,0]) | ✅ **PASS** |
+| remap/fail/prolog | Python prolog returns INTERP_ERROR; must abort + convey error, NGC body not run | `REMAP=M400 prolog=failingprolog` C cmod (`test_remap_fail.so`) `set_error()`+INTERP_EXT_ERROR; checkresult confirms prolog failed, error text conveyed, body (`o<mark_body>`) NOT run | ✅ **PASS** (found+fixed the pycall message-clobber bug below) |
+| remap/fail/epilog | Python epilog returns INTERP_ERROR after the NGC body ran | `REMAP=M400 ngc=mustbecalled epilog=failingepilog` (same cmod); checkresult confirms body ran, epilog failed, error conveyed | ✅ **PASS** |
 
-**Next (#2, each needs a C prolog/O-word cmod + config, model on the above):** remap/fail/{prolog,epilog},
+**gomc bug fixed here (interp error conveyance):** a C interp_ext prolog/epilog/O-word handler that called `ctx->set_error()` and
+returned INTERP_EXT_ERROR had its saved message clobbered with a generic "pycall(...) failed" / "handler not registered".
+Root cause: gomc's `Interp::pycall` returned the handler's mapped status directly, tripping the caller's
+`CHKS(status==INTERP_ERROR,...)` (and the O-word caller's not-registered ERS) *before* `handler_returned()` could convey it.
+Classic Python left pycall's own status INTERP_OK and surfaced the handler's return via `handler_returned`. Fixed: pycall now
+detects genuine not-registered via `ext_has_*` (clear error), and otherwise returns INTERP_OK with the handler's status in
+`last_status`; the O-word caller conveys it through `handler_returned` (interp_python.cc, interp_o_word.cc).
+
+**Next (#2, each needs a C prolog/O-word cmod + config, model on the above):**
 remap/{oword-pycall,introspect,predefined-named-params,remap-reentry,variable-injection}, interp/pymove,
 m70-m73/m73-flood-mist-restore.0. Genuine embedded-interpreter skips stay (§2a: canterp, Python.h,
 python-self, python/error, remap/fail/{body-py,canon_error}).

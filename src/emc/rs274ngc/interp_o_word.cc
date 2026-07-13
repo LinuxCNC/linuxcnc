@@ -296,11 +296,14 @@ int Interp::execute_call(setup_pointer settings,
 	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
 		saved_sub_params[i];
 
-	if (status == INTERP_ERROR) {
-	    ERS("O<%s> call: handler not registered - "
-		"register a cmod/gomod handler", current_frame->subName);
-	    return INTERP_ERROR;
-	}
+	// pycall returns INTERP_ERROR only for a genuine dispatch failure (no
+	// handler registered), with its own saved message; propagate that as-is.
+	CHP(status);
+	// The handler ran: its returned status (and any error text it saved via
+	// ctx->set_error) travels through the frame.  Surface it via
+	// handler_returned so a handler that returned INTERP_ERROR conveys its own
+	// message rather than a generic one.
+	status = handler_returned(settings, current_frame, current_frame->subName, true);
 	CHP(status);
 	// successful oword call returns directly (no NGC sub to run)
 	settings->call_level--;

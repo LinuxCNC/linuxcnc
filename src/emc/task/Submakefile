@@ -62,6 +62,21 @@ $(call TOOBJSDEPS, $(TEST_SPINDLE_REMAP_SRCS)): gomc/generated/gmi/interp_ext/in
 	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 TARGETS += ../cmod/test_spindle_remap.so
 
+# test_remap_fail.so — test cmod for remap prolog/epilog failure handling
+TEST_REMAP_FAIL_SRCS := emc/task/test_remap_fail.c
+USERSRCS += $(TEST_REMAP_FAIL_SRCS)
+
+$(call TOOBJSDEPS, $(TEST_REMAP_FAIL_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(TEST_REMAP_FAIL_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+
+../cmod/test_remap_fail.so: $(call TOOBJS, $(TEST_REMAP_FAIL_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_remap_fail.so
+
 # mcode_coord_log.so — cmod that logs M100 coord/tool introspection to a file,
 # replacing the classic USER_M_PATH subs/M100 script for the tool tests.
 MCODE_COORD_LOG_SRCS := emc/task/mcode_coord_log.c

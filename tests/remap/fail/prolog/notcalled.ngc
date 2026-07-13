@@ -1,0 +1,5 @@
+o<notcalled> sub
+; If the prolog fails (as it must), this body is never reached.  The o<mark_body>
+; call logs "body executed" — checkresult asserts that marker is ABSENT.
+o<mark_body> call
+o<notcalled> endsub
