@@ -206,7 +206,6 @@ ENABLE
 # and aborts.
 #
 
-COORD
 JOG_ABORT joint=0
 JOG_ABORT joint=1
 JOG_ABORT joint=2
@@ -224,3 +223,4 @@ JOG_ABORT joint=13
 JOG_ABORT joint=14
 JOG_ABORT joint=15
 ABORT
+COORD

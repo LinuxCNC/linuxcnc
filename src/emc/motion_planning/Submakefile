@@ -1,0 +1,97 @@
+INCLUDES += emc/motion_planning
+INCLUDES += emc/kinematics_userspace
+
+LIBMOTION_PLANNING_9D_SRCS := $(addprefix emc/motion_planning/, \
+	motion_planning_9d.cc \
+	motion_planning_9d_userspace.cc \
+	motion_planning_9d_stubs.c \
+	path_sampler.cc \
+	jacobian.cc \
+	joint_limits.cc \
+	userspace_kinematics.cc \
+	bezier9.cc \
+	blend_sizing.cc \
+	)
+
+# Userspace kinematics sources
+LIBMOTION_PLANNING_9D_KINS_SRCS := $(addprefix emc/kinematics_userspace/, \
+	kinematics_user.c \
+	)
+
+# Add TP and NML sources needed by userspace planning (dual-layer architecture)
+LIBMOTION_PLANNING_9D_TP_SRCS := $(addprefix emc/tp/, \
+	tp.c \
+	tc.c \
+	tcq.c \
+	blendmath.c \
+	spherical_arc.c \
+	sp_scurve.c \
+	ruckig_wrapper.c \
+	)
+
+LIBMOTION_PLANNING_9D_NML_SRCS := $(addprefix emc/nml_intf/, \
+	emcpose.c \
+	)
+
+# Cruckig (pure C) trajectory generation library (statically linked)
+LIBCRUCKIG_SRCS := $(addprefix emc/tp/cruckig/, \
+	block.c \
+	brake.c \
+	calculator.c \
+	cruckig.c \
+	input_parameter.c \
+	output_parameter.c \
+	profile.c \
+	roots.c \
+	trajectory.c \
+	position_first_step1.c \
+	position_first_step2.c \
+	position_second_step1.c \
+	position_second_step2.c \
+	position_third_step1.c \
+	position_third_step2.c \
+	velocity_second_step1.c \
+	velocity_second_step2.c \
+	velocity_third_step1.c \
+	velocity_third_step2.c \
+	)
+
+USERSRCS += $(LIBCRUCKIG_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_TP_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_NML_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_KINS_SRCS)
+
+$(call TOOBJSDEPS, $(filter %.cc,$(LIBMOTION_PLANNING_9D_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD -std=c++20
+$(call TOOBJSDEPS, $(filter %.c,$(LIBMOTION_PLANNING_9D_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD
+$(call TOOBJSDEPS, $(LIBCRUCKIG_SRCS)) : EXTRAFLAGS=-fPIC
+$(call TOOBJSDEPS, $(filter %.c,$(LIBMOTION_PLANNING_9D_TP_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD
+$(call TOOBJSDEPS, $(LIBMOTION_PLANNING_9D_NML_SRCS)) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD
+$(call TOOBJSDEPS, $(LIBMOTION_PLANNING_9D_KINS_SRCS)) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD -D_GNU_SOURCE
+
+../lib/libmotion_planning_9d.so.0: $(patsubst %.cc,objects/%.o,$(filter %.cc,$(LIBMOTION_PLANNING_9D_SRCS))) \
+                                    $(patsubst %.c,objects/%.o,$(filter %.c,$(LIBMOTION_PLANNING_9D_SRCS))) \
+                                    $(patsubst %.c,objects/%.o,$(filter %.c,$(LIBMOTION_PLANNING_9D_TP_SRCS))) \
+                                    $(patsubst %.c,objects/%.o,$(LIBMOTION_PLANNING_9D_NML_SRCS)) \
+                                    $(patsubst %.c,objects/%.o,$(LIBMOTION_PLANNING_9D_KINS_SRCS)) \
+                                    $(patsubst %.c,objects/%.o,$(LIBCRUCKIG_SRCS)) \
+                                    ../lib/libposemath.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	$(Q)$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -ldl
+
+../lib/libmotion_planning_9d.so: ../lib/libmotion_planning_9d.so.0
+	ln -sf $(notdir $<) $@
+
+TARGETS += ../lib/libmotion_planning_9d.so ../lib/libmotion_planning_9d.so.0
+
+# Only copy headers that are needed by other modules (e.g. bezier9.h is
+# included from emc/tp/tc_types.h).  Internal headers like blend_sizing.h
+# stay local — they reference ../tp/ paths that break in the flat include/.
+MOTION_PLANNING_PUBLIC_H := emc/motion_planning/bezier9.h
+MOTION_PLANNING_PUBLIC_HH := $(wildcard emc/motion_planning/*.hh)
+$(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_PUBLIC_H)): ../include/%.h: emc/motion_planning/%.h
+	cp $^ $@
+$(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_PUBLIC_HH)): ../include/%.hh: emc/motion_planning/%.hh
+	cp $^ $@
+HEADERS += $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_PUBLIC_H) $(MOTION_PLANNING_PUBLIC_HH))

@@ -284,7 +284,7 @@ def check_ints():
         ("EMCMOT", "SERVO_PERIOD", 0, None),
         ("EMCMOT", "TRAJ_PERIOD",  0, None),
         ("TRAJ",   "SPINDLES",     0, EMCMOT_MAX_SPINDLES),
-        ("TRAJ",   "PLANNER_TYPE", 0, 1)
+        ("TRAJ",   "PLANNER_TYPE", 0, 2)
     ]
     # Variables in [JOINT_*]
     INTJVARS = [

@@ -18,6 +18,7 @@
 #include <hal.h>
 #include <emcmotcfg.h>
 #include <kinematics.h>
+#include "kinematics_params.h"
 
 
 #define SET(f) pos->f = joints[i]
@@ -52,13 +53,22 @@ RTAPI_MP_STRING(coordinates, "Existing Axes");
 static char *kinstype = "1"; // use KINEMATICS_IDENTITY
 RTAPI_MP_STRING(kinstype, "Kinematics Type (Identity,Both)");
 
+const char* kinematicsGetName(void)
+{
+    return "trivkins";
+}
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
+
+/* Pointer into HAL shmem, set up by hal_struct_attach() in rtapi_app_main */
+static kinematics_params_t *uspace_params;
 
 int rtapi_app_main(void) {
     kparms ksetup;
@@ -79,6 +89,21 @@ int rtapi_app_main(void) {
     if (identityKinematicsSetup(comp_id, coordinates, &ksetup)) {
        return -1; //setup failed
     }
+
+    /* Register kinematics_params_t in HAL shmem (is_identity=1).
+     * hal_struct_attach() in kinematics_user.c maps this at runtime. */
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "trivkins.params") < 0) {
+        hal_exit(comp_id);
+        return -1;
+    }
+    if (hal_struct_attach("trivkins.params", (void **)&uspace_params) < 0) {
+        hal_exit(comp_id);
+        return -1;
+    }
+    uspace_params->is_identity = 1;
+    uspace_params->valid       = 1;
+    uspace_params->head = uspace_params->tail = 1;
 
     hal_ready(comp_id);
     return 0;

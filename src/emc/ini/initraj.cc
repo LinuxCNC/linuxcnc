@@ -22,10 +22,21 @@
 
 #include "inihal.hh"
 #include "initraj.hh"
+#include <rtapi_string.h>
+#include "motion/motion.h"       // For emcmotConfig, emcmot_config_t
+
+// Userspace kinematics for trajectory planning
+#include "userspace_kinematics.hh"
+
+// Predictive handoff configuration for feed override handling
+#include "motion_planning_9d.hh"
 
 using namespace linuxcnc;
 
 extern value_inihal_data old_inihal_data;
+
+/* Access to emcmotConfig from usrmotintf.cc (initialized by usrmotInit()) */
+extern emcmot_config_t *emcmotConfig;
 
 static void inline print_dbg_config(const std::string &s)
 {
@@ -152,13 +163,152 @@ static int loadTraj(const IniFile &ini)
         return -1;
     }
 
-    // Planner: 0 = trapezoidal, 1 = S-curve
+    // Planner: 0 = trapezoidal, 1 = S-curve, 2 = 9D (EXPERIMENTAL)
     // Default = 0
-    int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 1);
-    // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
+    int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 2);
+    // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
     if (planner_type == 1 && jerk < 1.0) {
-        // FIXME: Should write a warning message to the user
         planner_type = 0;
+    }
+    if (planner_type == 2) {
+        rcs_print("PLANNER_TYPE 2 (9D) is EXPERIMENTAL. Use with caution.\n");
+
+        // Planner type 2 requires userspace kinematics - enable automatically
+        {
+            // Read kinematics module name from emcmotConfig (set by motion module)
+            const char *kins_module = emcmotConfig->kins_module_name;
+
+            if (!kins_module || kins_module[0] == '\0') {
+                rcs_print_error("ERROR: No kinematics module name in emcmotConfig\n");
+                rcs_print_error("PLANNER_TYPE 2 requires a kinematics module to be loaded.\n");
+                rcs_print_error("Ensure your HAL file loads a kinematics module (e.g., loadrt trivkins)\n");
+                return -1;
+            }
+
+            rcs_print("Detected kinematics module: %s\n", kins_module);
+
+            // Get configuration from INI file
+            auto coord = ini.findString("COORDINATES", "TRAJ");
+            int joints = ini.findIntV("JOINTS", "KINS", 3);
+            if (joints <= 0) joints = 3;
+
+            if (motion_planning::userspace_kins_init(kins_module,
+                                                    joints,
+                                                    coord ? coord->c_str() : "XYZ") != 0) {
+                rcs_print_error("WARNING: Failed to initialize userspace kinematics for '%s'\n",
+                                kins_module);
+                rcs_print_error("  Falling back to PLANNER_TYPE 0 (trapezoidal)\n");
+                planner_type = 0;
+            } else {
+                rcs_print("Userspace kinematics initialized (module=%s, joints=%d, coords=%s)\n",
+                          kins_module, joints, coord ? coord->c_str() : "XYZ");
+            }
+        }
+
+        // Parse 9D-specific parameters
+        int optimization_depth = ini.findIntV("OPTIMIZATION_DEPTH", "TRAJ", 8);
+        double ramp_frequency = ini.findRealV("RAMP_FREQUENCY", "TRAJ", 10.0);
+        int smoothing_passes = ini.findIntV("SMOOTHING_PASSES", "TRAJ", 2);
+        int tc_queue_size = ini.findIntV("TC_QUEUE_SIZE", "TRAJ", 50);
+
+        // Validate 9D parameters
+        if (optimization_depth < 4 || optimization_depth > 200) {
+            rcs_print("Warning: OPTIMIZATION_DEPTH %d out of range [4,200], using default 8\n", optimization_depth);
+            optimization_depth = 8;
+        }
+        if (ramp_frequency < 1.0 || ramp_frequency > 1000.0) {
+            rcs_print("Warning: RAMP_FREQUENCY %.1f out of range [1.0,1000.0], using default 10.0\n", ramp_frequency);
+            ramp_frequency = 10.0;
+        }
+        if (smoothing_passes < 1 || smoothing_passes > 10) {
+            rcs_print("Warning: SMOOTHING_PASSES %d out of range [1,10], using default 2\n", smoothing_passes);
+            smoothing_passes = 2;
+        }
+        if (tc_queue_size < 32 || tc_queue_size > 400) {
+            rcs_print("Warning: TC_QUEUE_SIZE %d out of range [32,400], using default 50\n", tc_queue_size);
+            tc_queue_size = 50;
+        }
+
+        rcs_print("9D Planner Configuration:\n");
+        rcs_print("  OPTIMIZATION_DEPTH = %d\n", optimization_depth);
+        rcs_print("  RAMP_FREQUENCY = %.1f Hz\n", ramp_frequency);
+        rcs_print("  SMOOTHING_PASSES = %d\n", smoothing_passes);
+        rcs_print("  TC_QUEUE_SIZE = %d\n", tc_queue_size);
+
+        // TODO: Pass these parameters to motion controller
+        // For now, they will be hardcoded in motion_planning_9d.cc
+
+        // Predictive handoff configuration for feed override handling
+        // All timing values in milliseconds
+        double handoff_horizon_ms = ini.findRealV("HANDOFF_HORIZON_MS", "TRAJ", 100.0);
+        double branch_window_ms = ini.findRealV("BRANCH_WINDOW_MS", "TRAJ", 50.0);
+        double min_buffer_time_ms = ini.findRealV("MIN_BUFFER_TIME_MS", "TRAJ", 100.0);
+        double target_buffer_time_ms = ini.findRealV("TARGET_BUFFER_TIME_MS", "TRAJ", 200.0);
+        double max_buffer_time_ms = ini.findRealV("MAX_BUFFER_TIME_MS", "TRAJ", 500.0);
+        double feed_override_debounce_ms = ini.findRealV("FEED_OVERRIDE_DEBOUNCE_MS", "TRAJ", 50.0);
+
+        // Validate predictive handoff timing parameters
+        if (handoff_horizon_ms < 1.0 || handoff_horizon_ms > 1000.0) {
+            rcs_print("Warning: HANDOFF_HORIZON_MS %.1f out of range [1,1000], using default 100\n", handoff_horizon_ms);
+            handoff_horizon_ms = 100.0;
+        }
+        if (branch_window_ms < 10.0 || branch_window_ms > 500.0) {
+            rcs_print("Warning: BRANCH_WINDOW_MS %.1f out of range [10,500], using default 50\n", branch_window_ms);
+            branch_window_ms = 50.0;
+        }
+        if (min_buffer_time_ms < 10.0 || min_buffer_time_ms > 1000.0) {
+            rcs_print("Warning: MIN_BUFFER_TIME_MS %.1f out of range [10,1000], using default 100\n", min_buffer_time_ms);
+            min_buffer_time_ms = 100.0;
+        }
+        if (target_buffer_time_ms < min_buffer_time_ms || target_buffer_time_ms > 2000.0) {
+            rcs_print("Warning: TARGET_BUFFER_TIME_MS %.1f out of range [%.1f,2000], using default 200\n",
+                      target_buffer_time_ms, min_buffer_time_ms);
+            target_buffer_time_ms = 200.0;
+        }
+        if (max_buffer_time_ms < target_buffer_time_ms || max_buffer_time_ms > 5000.0) {
+            rcs_print("Warning: MAX_BUFFER_TIME_MS %.1f out of range [%.1f,5000], using default 500\n",
+                      max_buffer_time_ms, target_buffer_time_ms);
+            max_buffer_time_ms = 500.0;
+        }
+        if (feed_override_debounce_ms < 1.0 || feed_override_debounce_ms > 500.0) {
+            rcs_print("Warning: FEED_OVERRIDE_DEBOUNCE_MS %.1f out of range [1,500], using default 50\n", feed_override_debounce_ms);
+            feed_override_debounce_ms = 50.0;
+        }
+
+        // Get servo cycle time from motion config (already initialized)
+        double servo_cycle_time_sec = 0.001;
+        if (emcmotConfig && emcmotConfig->trajCycleTime > 0) {
+            servo_cycle_time_sec = emcmotConfig->trajCycleTime;
+        }
+
+        // Use max jerk from INI (already parsed above)
+        double default_max_jerk = jerk;
+        if (default_max_jerk < 1.0) {
+            default_max_jerk = 1e9;
+        }
+
+        // Apply predictive handoff configuration
+        setHandoffConfig(handoff_horizon_ms,
+                         branch_window_ms,
+                         min_buffer_time_ms,
+                         target_buffer_time_ms,
+                         max_buffer_time_ms,
+                         feed_override_debounce_ms,
+                         servo_cycle_time_sec,
+                         default_max_jerk);
+
+        rcs_print("Predictive Handoff Configuration:\n");
+        rcs_print("  HANDOFF_HORIZON_MS = %.1f\n", handoff_horizon_ms);
+        rcs_print("  BRANCH_WINDOW_MS = %.1f\n", branch_window_ms);
+        rcs_print("  MIN_BUFFER_TIME_MS = %.1f\n", min_buffer_time_ms);
+        rcs_print("  TARGET_BUFFER_TIME_MS = %.1f\n", target_buffer_time_ms);
+        rcs_print("  MAX_BUFFER_TIME_MS = %.1f\n", max_buffer_time_ms);
+        rcs_print("  FEED_OVERRIDE_DEBOUNCE_MS = %.1f\n", feed_override_debounce_ms);
+        rcs_print("  servo_cycle_time = %.3f ms\n", servo_cycle_time_sec * 1000.0);
+        rcs_print("  default_max_jerk = %.0f\n", default_max_jerk);
+
+        // Initialize predictive handoff system
+        initPredictiveHandoff();
     }
     if (0 != emcTrajPlannerType(planner_type)) {
         print_dbg_config("emcTrajPlannerType");
@@ -196,6 +346,17 @@ static int loadTraj(const IniFile &ini)
     if (0 != emcSetProbeErrorInhibit(j_inhibit, h_inhibit)) {
         print_dbg_config("emcSetProbeErrorInhibit");
         return -1;
+    }
+
+    // Dual-layer architecture: 1 = send NML after userspace planning (backward compat)
+    // 0 = userspace only mode (new dual-layer architecture)
+    int emulate_legacy = ini.findIntV("EMULATE_LEGACY_MOVE_COMMANDS", "TRAJ", 1);
+    if (0 != emcSetEmulateLegacyMoveCommands(emulate_legacy)) {
+        print_dbg_config("emcSetEmulateLegacyMoveCommands");
+        return -1;
+    }
+    if (!emulate_legacy) {
+        rcs_print("Dual-layer architecture enabled: NML motion commands disabled\n");
     }
 
     if (auto inistring = ini.findString("HOME", "TRAJ")) {
