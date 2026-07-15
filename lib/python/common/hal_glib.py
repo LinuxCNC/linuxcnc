@@ -423,6 +423,7 @@ class _GStat(GObject.GObject):
     def convertMsg(self):
         # get raw message
         topic, data = self.readSocket.recv_multipart()
+        LOG.debug(f'RAW REQUESTED:{topic},{data}')
         # convert from json object to python object
         y = json.loads(data)
         function = y.get('FUNCTION')
@@ -1509,6 +1510,9 @@ class _GStat(GObject.GObject):
 
     def request_cancel(self, data):
         self.emit('cancel-request', data)
+
+    def request_softkey(self, index):
+        self.emit('softkey-pressed', index)
 
     #############################################
 
