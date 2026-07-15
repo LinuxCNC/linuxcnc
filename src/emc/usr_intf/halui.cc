@@ -54,6 +54,7 @@ static int axis_mask = 0;
 #define JOGTELEOP 0
 
 #define MDI_MAX 64
+#define SOFTKEY_MAX 20
 
 #define HAL_FIELDS \
     FIELD(bool,machine_on) /* pin for setting machine On */ \
@@ -210,6 +211,7 @@ static int axis_mask = 0;
 \
     FIELD(bool,gui_ok) /* pin for acknowledging dialog ok */ \
     FIELD(bool,gui_cancel) /* pin for acknowledging dialog cancel */ \
+    ARRAY(bool,gui_soft_keys,SOFTKEY_MAX) \
 \
     FIELD(bool,gui_reload) /* pin for acknowledging dialog ok */ \
     FIELD(bool,gui_shutdown) /* pin for acknowledging dialog cancel */ \
@@ -262,6 +264,8 @@ static int num_mdi_commands=0;
 static char *gui_mdi_commands[MDI_MAX];
 static int num_gui_mdi_commands = 0;
 static int have_home_all = 0;
+
+static int num_gui_soft_keys = SOFTKEY_MAX;
 
 static int comp_id, done;				/* component ID, main while loop */
 
@@ -939,6 +943,10 @@ int halui_hal_init(void)
     for (int n=0; n<num_gui_mdi_commands; n++) {
         printf("MDI name returned: %s %i\n", py_call_get_mdi_name(n),n);
         CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_mdi_commands[n]), 0, "halui.gui.mdi-command-%s", py_call_get_mdi_name(n)));
+    }
+
+    for (int n=0; n<num_gui_soft_keys; n++) {
+        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_soft_keys[n]), 0, "halui.gui.softkey-%d", n));
     }
 
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_ok), 0, "halui.gui.ok"));
@@ -1805,6 +1813,24 @@ static void py_call_request_MDI( int index)
         Py_DECREF(pFuncWrite);
 }
 
+static void py_call_request_softkey( int index)
+{
+        pFuncWrite = PyObject_GetAttrString(pInstance, "softkey");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "i", index);
+            if (pValue == NULL){
+                fprintf(stderr, "halui bridge: softkey function failed: returned NULL\n");
+                if (PyErr_Occurred()) PyErr_Print();
+            }
+            Py_DECREF(pValue);
+
+        }else{
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "halui Bridge: Failed python function softkey");
+        }
+        Py_DECREF(pFuncWrite);
+}
 static int py_call_get_axis_type( int index) {
     int value = 0;
     // check socket messages for selected axis
@@ -2465,11 +2491,19 @@ static void check_hal_changes()
             sendMdiCommand(n);
     }
 
-    // request GUI ti run MDI commands
+    // request GUI to run MDI commands
     for(int n = 0; n < num_gui_mdi_commands; n++) {
         if (check_bit_changed(new_halui_data.gui_mdi_commands[n], old_halui_data.gui_mdi_commands[n]) != 0){
             fprintf(stderr,"GUI MDI command called index: %i\n", n);
             py_call_request_MDI(n);
+        }
+    }
+
+    // request GUI soft keys
+    for(int n = 0; n < num_gui_soft_keys; n++) {
+        if (check_bit_changed(new_halui_data.gui_soft_keys[n], old_halui_data.gui_soft_keys[n]) != 0){
+            fprintf(stderr,"GUI SOFTKEY called index: %i\n", n);
+            py_call_request_softkey(n);
         }
     }
 
