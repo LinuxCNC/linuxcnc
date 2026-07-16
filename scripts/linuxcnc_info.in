@@ -90,7 +90,7 @@ function parse_after_colon () {
 
 function tryversion () {
   prog="$1"
-  if [ $(command -v "$prog") ] ; then
+  if [ "$(command -v "$prog")" ] ; then
      ans=$($prog --version 2>/dev/null)
      if [ -z "$ans" ] ; then
        echo "?"
@@ -165,9 +165,14 @@ for n in $(linuxcnc_var all) ; do
    show "${n%%=*}" "${n##*=}"
 done
 
+# Not everybody runs Debian based distros
 echo
-echo "dpkg -l '*linuxcnc*':"
-dpkg -l '*linuxcnc*'
+if command -v dpkg > /dev/null; then
+    echo "dpkg -l '*linuxcnc*':"
+    dpkg -l '*linuxcnc*'
+else
+    echo "No 'dpkg' available, different distro, probably."
+fi
 echo
 
 [ -n "$VIEWER" ] && $VIEWER "$ofile"

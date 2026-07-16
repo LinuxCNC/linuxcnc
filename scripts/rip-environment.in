@@ -118,8 +118,8 @@ if ! $as_command; then
     else
         _iningc () {
             case "$3" in
-            *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
-            *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
+            *.ini) mapfile -t COMPREPLY < <(compgen -o plusdirs -f -X '!*.ngc' -- "$2") ;;
+            *) mapfile -t COMPREPLY < <(compgen -o plusdirs -f -X '!*.ini' -- "$2")
             esac
         }
         complete -o plusdirs -F _iningc emc axis
