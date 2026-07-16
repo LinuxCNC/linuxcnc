@@ -150,10 +150,13 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        sudo apt-get -q update
+        .github/scripts/install-deps.sh
         sudo apt-get --yes install shellcheck
+    - name: Configure
+      run: |
+        set -x
+        .github/scripts/configure.sh
     - name: Shellcheck
-      continue-on-error: true
       run: |
         set -x
         scripts/shellcheck.sh
