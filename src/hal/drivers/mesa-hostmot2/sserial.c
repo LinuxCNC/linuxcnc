@@ -75,7 +75,7 @@ int hm2_sserial_wait(hostmot2_t *hm2, hm2_sserial_instance_t *inst, long period)
                 "Timeout waiting for CMD to clear\n");
         return -1;
     }
-    if (*(inst->data_reg_read) & (1 < inst->remotes[inst->r_index].index)){
+    if (*(inst->data_reg_read) & (1 << inst->remotes[inst->r_index].index)){
         HM2_ERR("Error after doit clear\n");
         return -1;
     }
