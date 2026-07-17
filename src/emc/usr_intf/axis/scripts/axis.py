@@ -1901,6 +1901,11 @@ def run_warn():
             if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
+        # A truncated preview only checked part of the program; warn rather
+        # than imply a clean all-clear.
+        if getattr(o.canon, "preview_incomplete", False):
+            warnings.append(_("G-code preview was truncated before completion; "
+                "machine limits could not be fully checked."))
     if warnings:
         text = "\n".join(warnings)
         return int(root_window.tk.call("nf_dialog", ".error",

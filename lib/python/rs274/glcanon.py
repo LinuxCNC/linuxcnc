@@ -129,6 +129,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.min_extents_notool_zero_rxy = [9e99,9e99,9e99]
         self.max_extents_notool_zero_rxy = [-9e99,-9e99,-9e99]
         self.colors = colors
+        # Set if the parse was aborted, so the extents above are only partial.
+        self.preview_incomplete = False
         self.in_arc = 0
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
@@ -531,6 +533,8 @@ class GlCanonDraw:
         # The file size limit is set to 20MB or 1/4 of the system memory, whichever is smaller.
         # TODO I don't see any calculation for 1/4 of system_memory_gb ? CMorley 2024
         self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
+
+        self.preview_too_large = False
 
         try:
             if os.environ["INI_FILE_NAME"]:
@@ -1318,10 +1322,8 @@ class GlCanonDraw:
         self.draw_grid()
 
         show_program = self.get_show_program()
-        if os.path.exists(s.file):
-            if 0 < self.max_file_size < os.stat(s.file).st_size :
-                print("File too large to load, disabling preview.")
-                show_program = False
+        if self.preview_too_large:
+            show_program = False
 
         if show_program:
             if self.get_program_alpha():
@@ -2015,7 +2017,16 @@ class GlCanonDraw:
 
     def load_preview(self, f, canon, *args):
         self.set_canon(canon)
-        result, seq = gcode.parse(f, canon, *args)
+        self.preview_too_large = False
+        canon.preview_incomplete = False
+        try:
+            result, seq = gcode.parse(f, canon, *args)
+        except KeyboardInterrupt:
+            # Aborted parse: extents cover only the parsed portion. Flag it so
+            # callers do not treat the partial check as complete.
+            canon.preview_incomplete = True
+            canon.calc_extents()
+            raise
 
         if result <= gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
@@ -2024,6 +2035,14 @@ class GlCanonDraw:
             self.stale_dlist('program_norapids')
             self.stale_dlist('select_rapids')
             self.stale_dlist('select_norapids')
+
+        # Parsed fully (extents and limit check stay valid); only drawing is
+        # suppressed.
+        if 0 < self.max_file_size and os.path.exists(f) \
+                and self.max_file_size < os.stat(f).st_size:
+            self.preview_too_large = True
+            print("Preview disabled: file exceeds GRAPHICAL_MAX_FILE_SIZE."
+                  " The program still runs, but without a graphical extents check.")
 
         return result, seq
 
