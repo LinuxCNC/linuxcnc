@@ -13,9 +13,15 @@
 #     so code samples, tag attributes and existing links are left untouched.
 #   * Case-insensitive match ("AXIS(1)" => axis.1); visible text kept verbatim.
 #
+# Used for both the HTML manpages (sibling links under man/) and the narrative
+# manuals (User/HAL/Integrator), which reference man pages in the same
+# name(section) form and now link across into ../man/man<N>/.
+#
 # manxref-root (passed from the Submakefile) points at the troff man tree
 # docs/build/man[/<lang>], whose man<N>/ dirs enumerate every page including
 # generated component pages and .so stubs.  Absent => no-op, safe to always load.
+# manxref-linkbase is the relative path from the page to those man<N>/ dirs
+# (default "../" for a sibling manpage; narrative pages pass their own depth).
 
 require 'asciidoctor'
 require 'asciidoctor/extensions'
@@ -93,6 +99,12 @@ module LinuxCNCDocs
       self_name = (document.attr('mantitle') || '').downcase
       self_vol  = (document.attr('manvolnum') || '').to_s
 
+      # Relative path from this page to the man<N>/ dirs.  Manpages sit beside
+      # each other under man/, so the default reaches a sibling section dir;
+      # narrative pages pass their own depth-adjusted base (../man/, ../../man/).
+      base = document.attr('manxref-linkbase')
+      base = '../' if base.nil? || base.empty?
+
       self.class.each_editable_text(output) do |text|
         text.gsub(TOKEN) do
           whole = Regexp.last_match(0)
@@ -101,7 +113,7 @@ module LinuxCNCDocs
           # Never link a page to itself.
           next whole if name.downcase == self_name && sec == self_vol
           href = idx["#{name.downcase}\t#{sec}"]
-          href ? %(<a class="man-xref" href="../#{href}">#{whole}</a>) : whole
+          href ? %(<a class="man-xref" href="#{base}#{href}">#{whole}</a>) : whole
         end
       end
     end
