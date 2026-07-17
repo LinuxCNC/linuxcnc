@@ -61,9 +61,9 @@ and press tab to complete the names of items such as pins and signals.
 == COMMANDS
 
 Commands tell *halcmd* what to do. Normally *halcmd* reads a single
-command from the command line and executes it. If the '*-f*' option is
+command from the command line and executes it. If the *-f* option is
 used to read commands from a file, *halcmd* reads each line of the file
-as a new command. Anything following '*#*' on a line is a comment.
+as a new command. Anything following *#* on a line is a comment.
 
 *loadrt* _modname_::
  (short for "load realtime module")
@@ -74,10 +74,10 @@ In systems with kernel-based realtime support (e.g. RTAI), *halcmd*
 calls the *linuxcnc_module_helper* to load realtime modules.
 *linuxcnc_module_helper* is a setuid program and is compiled with a
 whitelist of modules it is allowed to load. This is currently just a
-list of *LinuxCNC*-related modules. The *linuxcnc_module_helper* execs
+list of **LinuxCNC**-related modules. The *linuxcnc_module_helper* execs
 insmod, so return codes and error messages are those from insmod.
 Administrators who wish to restrict which users can load these
-*LinuxCNC*-related kernel modules can do this by setting the permissions
+**LinuxCNC**-related kernel modules can do this by setting the permissions
 and group on *linuxcnc_module_helper* appropriately.
 
 In systems with userspace-based realtime support (e.g. Preempt-RT) and
@@ -95,12 +95,11 @@ requested component with a call to *dlopen(3)*.
   (_load_ __Us__e__r__space component) Executes the given
   _UNIX-command_, usually to load a non-realtime component. _[flags]_
   may be one or more of:
-  +
-  * *-W* to wait for the component to become ready.
+  * *-W* - to wait for the component to become ready.
     The component is assumed to have the same name as the first argument of the command.
-  * *-Wn name* to wait for the component, which will have the given name.
-  * *-w* to wait for the program to exit
-  * *-i* to ignore the program return value (with -w)
+  * *-n* _name_ - to wait for the component, which will have the given name.
+  * *-w* - to wait for the program to exit
+  * *-i* - to ignore the program return value (with -w)
 *waitusr* _name_::
   (_wait_ for __Us__e__r__space component) Waits for non-realtime
   component _name_ to disconnect from HAL (usually on exit). The
@@ -268,10 +267,10 @@ If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, 
   or *alias* of the specified type.
 *list* _type_ [_pattern_]::
   Prints the names of HAL items of the specified type. 'type' is
-  '*comp*', '*pin*', '*sig*', '*param*', '*funct*', or '*thread*'. If
+  *comp*, *pin*, *sig*, *param*, *funct*, or *thread*. If
   'pattern' is specified it prints only those names that match the
-  pattern, which may be a 'shell glob'. For '*sig*', '*pin*' and
-  '*param*', the first pattern may be -t**datatype** where datatype is
+  pattern, which may be a 'shell glob'. For *sig*, *pin* and
+  *param*, the first pattern may be -t**datatype** where datatype is
   the data type (e.g., 'float') in this case, the listed pins, signals,
   or parameters are restricted to the given data type Names are printed
   on a single line, space separated.
@@ -285,8 +284,8 @@ If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, 
   Unlocks HAL to some degree. tune - some tuning is possible (*setp* &
   such). all - HAL completely unlocked.
 *status* [_type_]::
-  Prints status info about HAL. 'type' is '*lock*', '*mem*', or '*all*'.
-  If 'type' is omitted, it assumes '*all*'.
+  Prints status info about HAL. 'type' is *lock*, *mem*, or *all*.
+  If 'type' is omitted, it assumes *all*.
 *debug* [_level_]::
   Sets the rtapi messaging level (see man3 rtapi_set_msg_level).
 *help* [_command_]::

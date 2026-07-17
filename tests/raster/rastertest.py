@@ -252,7 +252,6 @@ def main():
     finally:
         c.exit()
         prog.exit()
-        os.system('halrun -U')
     return 0
 
 if __name__ == "__main__":

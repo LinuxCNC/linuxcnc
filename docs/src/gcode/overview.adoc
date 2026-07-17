@@ -304,6 +304,11 @@ example '##2'  means the value of the parameter whose index is the
   which the G38 took place.  Volatile.
 * '5070' - <<gcode:g38,G38>> probe result: 1 if success, 0 if probe
   failed to close.  Used with G38.3 and G38.5. Volatile.
+* '5081-5089' - Tool length offset currently applied to motion for X, Y,
+  Z, A, B, C, U, V & W, in the current program units.  Set by
+  `G43`/`G43.1`/`G43.2`, and 0 when `G49` is in effect.  These report the
+  offset actually in effect, which differs from the loaded tool's stored
+  offset in '5401-5409'. Volatile.
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5181-5189' - "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
@@ -335,8 +340,11 @@ example '##2'  means the value of the parameter whose index is the
   Persistent.
 * '5399' - Result of M66 - Check or wait for input. Volatile.
 * '5400' - Tool Number. Volatile.
-* '5401-5409' - Currently applied tool length offset for X, Y, Z, A, B, C,
-  U, V & W. Set by `G43`/`G43.1`/`G43.2`, cleared by `G49`. Volatile.
+* '5401-5409' - The loaded tool's stored offset for X, Y, Z, A, B, C, U, V
+  & W. Refreshed from the tool table on tool change (`M6`), at startup, and
+  by `G10 L1`/`L10`/`L11`. These are not affected by `G43`/`G43.1`/`G43.2`
+  or `G49`; for the offset actually applied to motion see '5081-5089'.
+  Volatile.
 * '5410' - Tool Diameter. Volatile.
 * '5411' - Tool Front Angle. Volatile.
 * '5412' - Tool Back Angle. Volatile.

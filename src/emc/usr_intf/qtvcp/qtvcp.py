@@ -589,6 +589,8 @@ Pressing cancel will close linuxcnc.""" % target)
             if retval == QtWidgets.QMessageBox.Abort: #cancel button
                 LOG.critical("Aborted from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))
                 self.shutdown()
+                global APP
+                APP.quit()
             else:
                 ERROR_COUNT = 0
                 LOG.critical("Retry from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))

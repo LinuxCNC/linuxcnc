@@ -1,14 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 test -z "$1" && exit 0
 test -f "$1" || exit 1
 
+includestack=( )
+
 includes () {
 	DIR=$(dirname "$1")
 
-	for f in $(sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1"); do
+	while IFS= read -r f; do
 		# components_gen.adoc will contain only generated content
 		case "$f" in
 			*/components_gen.adoc)
@@ -16,8 +18,15 @@ includes () {
 			;;
 		esac
 		echo "$f"
+		ff=$(realpath "$f")
+		if [[ " ${includestack[*]} " =~ [[:space:]]${ff}[[:space:]] ]]; then
+			echo "Include file recursion detected on '$f'. Skipped." >&2
+			continue
+		fi
+		includestack+=("$ff")
 		includes "$f"
-	done
+		unset 'includestack[${#includestack[@]}-1]'
+	done < <(sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1")
 }
 
 images() {

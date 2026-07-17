@@ -414,7 +414,8 @@ class IndicatedMixIn( _HalWidgetBase):
         if code =='':
             self._flip_state(False)
             self._watch_command_flag = False
-
+            # MDI command done, restore original mode
+            ACTION.RESTORE_RECORDED_MODE()
 
     # override paint function to first paint the stock button
     # then our indicator paint routine

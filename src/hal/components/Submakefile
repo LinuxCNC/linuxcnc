@@ -50,10 +50,12 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 endif
-endif
 
-obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
-
+# Manpage generation is a top-level (non-kbuild) concern.  Keep it inside
+# the KERNELRELEASE else branch: in the kbuild pass COMPS is rebuilt from a
+# wildcard that mixes hal/components and hal/drivers, so deriving the adoc
+# targets from it there yields hal/drivers/*.comp entries that fail the
+# hal/components/%.comp static pattern rule.
 COMP_MANPAGE_ADOCS := $(patsubst hal/components/%.comp, objects/man/man9/%.9.adoc, $(COMPS)) objects/man/man9/tpcomp.9.adoc objects/man/man9/homecomp.9.adoc
 COMP_DRIVER_MANPAGE_ADOCS := $(patsubst hal/drivers/%.comp, objects/man/man9/%.9.adoc, $(COMP_DRIVERS))
 
@@ -86,6 +88,9 @@ $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES): ../docs/build/man/man9/%.9: objects/ma
 	    -a mansource=LinuxCNC \
 	    -a manmanual='LinuxCNC Documentation' \
 	    $<
+endif
+
+obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
 
 objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"

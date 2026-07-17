@@ -101,6 +101,9 @@ def pango_font_post():
     glPopAttrib()
 
 def glTranslateScene(w, s, x, y, mousex, mousey):
+    zoom_boost = max(1.0, (5.0 / w.distance) ** 0.6)
+    s *= zoom_boost
+    s = max(0.005, s)
     glMatrixMode(GL_MODELVIEW)
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
     glLoadIdentity()
@@ -349,11 +352,15 @@ class GlNavBase:
         self._redraw()
 
     def zoomin(self):
-        self.distance = self.distance / 1.1
+        self.distance = self.distance / 1.1 - 0.2
+        if self.distance < 0.1:
+            self.distance = 0.1
         self._redraw()
 
     def zoomout(self):
-        self.distance = self.distance * 1.1
+        self.distance = self.distance * 1.1 + 0.2
+        if self.distance > 6000:
+            self.distance = 6000
         self._redraw()
 
     def startZoom(self, y):
@@ -459,3 +466,4 @@ class GlNavBase:
         self._redraw()
 
 # vim:ts=8:sts=4:sw=4:et:
+

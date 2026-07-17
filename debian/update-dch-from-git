@@ -9,6 +9,8 @@ source scripts/githelper.sh
 githelper "$1"
 
 GIT_VERSION=$(scripts/get-version-from-git "$GIT_BRANCH")
+# Need to use $? because we need the output capture
+# shellcheck disable=SC2181
 if [ $? -ne 0 ]; then
     echo "error determining version!"
     exit 1

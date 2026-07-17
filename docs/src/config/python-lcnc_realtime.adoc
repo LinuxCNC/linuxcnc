@@ -17,13 +17,20 @@ This is a Python wrapper of the realtime script.
 import lcnc_realtime
 
 print("lcnc_realtime.verify " + str(lcnc_realtime.verify()))
+print("lcnc_realtime.verify_info " + str(lcnc_realtime.verify_info()))
 print("lcnc_realtime.status " + str(lcnc_realtime.status()))
 ----
 
 == methods
 
-hal.verify()::
+lcnc_realtime.verify()::
 Returns a boolean to indicate whether the system is realtime capable.
 
-hal.status()::
+lcnc_realtime.verify_info()::
+Returns a tuple `(capable, type)`, where `capable` is the same boolean as
+`verify()` and `type` is a human-readable string naming the realtime type that
+rtapi is running (for example `Preempt RT`, `RTAI` or `Xenomai`), or
+`No realtime` when none is available.
+
+lcnc_realtime.status()::
 Returns a boolean to indicate whether the realtime backend is running.

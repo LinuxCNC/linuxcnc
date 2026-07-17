@@ -4304,5 +4304,6 @@ live_plotter.update()
 live_plotter.error_task()
 o.mainloop()
 live_plotter.stop()
+comp.exit()
 
 # vim:sw=4:sts=4:et:

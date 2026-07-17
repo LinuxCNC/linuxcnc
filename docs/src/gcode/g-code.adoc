@@ -1428,8 +1428,10 @@ G43 <H->
 
 'G43 H__n__' uses the offset for tool _n_.
 
-The active tool length compensation values are stored in the numbered
-parameters '5401-5409'.
+The tool length compensation values actually applied to motion are stored
+in the numbered parameters '5081-5089'.  The numbered parameters
+'5401-5409' instead hold the loaded tool's stored offset, refreshed on tool
+change ('M6') and 'G10 L1'/'L10'/'L11'.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random

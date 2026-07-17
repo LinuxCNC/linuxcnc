@@ -1447,6 +1447,9 @@ class HAL:
                 if self.d[pwmtype] == _PD.PDMP: pulsetype = 3
                 if self.d[pwmtype] == _PD.UDMU: pulsetype = 2
                 print("setp   "+pwmpinname+".output-type %d"% pulsetype, file=file)
+                if '7i97' in pwmpinname:
+                    print("setp   "+pwmpinname+".offset-mode 1", file=file)
+                    print("setp   "+pwmpinname+".dither  1", file=file)
                 print("setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, jnum), file=file)
                 for i in pwminvertlist:
                     print("setp    "+i+".invert_output true", file=file)

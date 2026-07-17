@@ -6,7 +6,7 @@ set max_joints     6     ;# agree with inifile
 set coords "x y z a b c" ;# agree with module coordinates=
 
 package require Linuxcnc ;# must be beore Hal
-emc_init -quick
+emc_init -ini $::env(INI_FILE_NAME) -quick
 package require Hal
 parse_ini $::env(INI_FILE_NAME)
 

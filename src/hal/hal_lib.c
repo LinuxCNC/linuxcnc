@@ -4692,6 +4692,7 @@ EXPORT_SYMBOL(hal_set_unready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
 EXPORT_SYMBOL(hal_comp_name);
+EXPORT_SYMBOL(hal_get_realtime_type);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);

@@ -62,8 +62,9 @@ except ImportError:
     if qtpy.PYQT5:
         try:
             from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
-        except ImportError:
+        except ImportError as e:
             LOG.critical("Can't import QsciScintilla - is package python3-pyqt5.qsci installed?", exc_info=e)
+            sys.exit(1)
     else:
         try:
             from PyQt6.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython

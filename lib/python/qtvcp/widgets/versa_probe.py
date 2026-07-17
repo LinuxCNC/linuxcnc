@@ -348,6 +348,7 @@ class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         if self.proc is not None:
             LOG.info("Probe Routine processor is busy")
             return
+        ACTION.RECORD_CURRENT_MODE()
         self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
         #print("String to send ", string_to_send)
@@ -371,6 +372,7 @@ class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.proc = None
         STATUS.unblock_error_polling()
+        ACTION.RESTORE_RECORDED_MODE()
 
     def parse_input(self, line):
         line = line.decode("utf-8")
