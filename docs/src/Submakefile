@@ -1205,6 +1205,14 @@ $(DOC_OUT_ADOC)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count
 # of the output depth.  Add the +1 here, matching the $(DOC_SRCDIR) rule above.
 $(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$*'.count('/')))")
 
+# man_xref linkbase: relative path from this html page to its language's
+# man/man<N>/ dirs.  CSSREL points one level above the lang root (at the html
+# root, where the css lives); the man tree sits inside the lang root, so this
+# is CSSREL with one fewer "../" plus "man/".  Translated stems include the
+# lang dir; the English stem omits it, hence the extra step, mirroring CSSREL.
+$(DOC_OUT_ADOC)/%.html: MANXREF_LINKBASE=$(shell python3 -c "print('../' * ('$*'.count('/') - 1) + 'man/')")
+$(DOC_OUT_ADOC)/en/%.html: MANXREF_LINKBASE=$(shell python3 -c "print('../' * '$*'.count('/') + 'man/')")
+
 # asciidoctor HTML rule used for every language.
 #	$1 lang tag (en, de, ...)
 #	$2 source root: $(DOC_SRCDIR) for English (DOC_SRCS_EN paths have no
@@ -1216,13 +1224,16 @@ $(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$
 define ASCIIDOCTOR_HTML_RULE
 # Order-only dep on .adoc-images-stamp so translated images are staged before
 # the resolver probes for them at render (it also falls back to docs/src).
-$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html | .adoc-images-stamp
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html | .adoc-images-stamp manpages
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/image_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
+		 -r $$(realpath $$(DOC_SRCDIR))/extensions/man_xref.rb \
+		 -a "manxref-root=$$(realpath $$(if $$(filter en,$1),$$(DOC_MAN),$$(DOC_MAN)/$1))" \
+		 -a "manxref-linkbase=$$(MANXREF_LINKBASE)" \
 		 -a compat-mode \
 		 -a "doc-languages=$$(LANGUAGES)" \
 		 -a "lcnc-lang=$1" \
