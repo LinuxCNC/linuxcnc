@@ -743,7 +743,7 @@ $(foreach L,$(LANGUAGES), \
 # from docs/build/man/<lang>/manN.  cssrel is ../../../ for both: each output
 # sits at docs/build/html/<lang>/man/manN/X.html (4 levels under html/).
 define MAN_HTML_RULE
-$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)/docinfo-header.html
+$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)/docinfo-header.html | manpages
 	@$$(ECHO) Formatting $$(notdir $$<) as HTML
 	@mkdir -p $$(dir $$@)
 	$$(Q)if grep -q '^\.so' $$<; then \
@@ -771,12 +771,14 @@ $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)
 			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
 			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
 			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
+			-r $$(realpath $$(DOC_SRCDIR))/extensions/man_xref.rb \
 			--doctype=manpage \
 			--backend=html5 \
 			-a compat-mode \
 			-a mansource=LinuxCNC \
 			-a manmanual='LinuxCNC Documentation' \
 			-a "lcnc-cssrel=../../../" \
+			-a "manxref-root=$$(realpath $(2))" \
 			-a "lcnc-lang-label=$(LANG_LABEL_$(1))" \
 			-a "lcnc-subpath=$$(patsubst $(DOC_OUT_HTML)/$(1)/%,%,$$@)" \
 			-a docinfo=shared \
