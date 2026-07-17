@@ -115,4 +115,5 @@ try:
         app.after(100)
         app.update()
 except KeyboardInterrupt:
+    h.exit();
     pass

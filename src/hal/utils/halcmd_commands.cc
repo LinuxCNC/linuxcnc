@@ -241,9 +241,10 @@ int do_unlinkp_cmd(char *pin)
 }
 
 int do_set_debug_cmd(char* level){
-    int m=0,retval=-EINVAL;
-    const char *argv[4];
+    int retval = -EINVAL;
 #if defined(RTAPI_USPACE)
+    int m = 0;
+    const char *argv[4];
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
     argv[m++] = "debug";
     argv[m++] = level;

@@ -4902,7 +4902,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
 
                 encoder_cpr = get_value(w[("encoderline")]) * 4
                 encoder_scale = (encoder_pulley_ratio * encoder_worm_ratio * encoder_pitch * encoder_cpr) / rotary_scale
-                w["calcencoder_scale"].set_text(locale.format("%.4f", (encoder_scale)))
+                w["calcencoder_scale"].set_text(locale.format_string("%.4f", (encoder_scale)))
             else:
                 w["calcencoder_scale"].set_sensitive(False)
                 w["encoderscaleframe"].set_sensitive(False)
@@ -5661,7 +5661,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
                     elif ptype == _PD.INM0:
                         compnum -= 100
-                        if boardname in ("7i95t"):
+                        if boardname in ("7i95t", "7i97t"):
                             return "%s."% (make_name(boardname,halboardnum)) + "inmux.00.input-%02d"% (compnum)
                         else:
                             return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)

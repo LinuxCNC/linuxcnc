@@ -304,6 +304,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         if self.proc is not None:
             LOG.info("Probe Routine processor is busy")
             return
+        ACTION.RECORD_CURRENT_MODE()
         t = int(self.lineEdit_probe_tool.text())
         if t != STATUS.get_current_tool():
             msg = "Probe tool # {}. not mounted in spindle".format(t)
@@ -335,6 +336,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.proc = None
         STATUS.unblock_error_polling()
+        ACTION.RESTORE_RECORDED_MODE()
 
     def parse_input(self, line):
         line = line.decode("utf-8")

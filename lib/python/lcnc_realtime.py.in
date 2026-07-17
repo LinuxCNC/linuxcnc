@@ -19,13 +19,17 @@ import subprocess
 
 REALTIME="@REALTIME@"
 
-def verify() -> bool:
+def verify_info() -> tuple[bool, str]:
     #Checks if system is realtime compatible
     cmd = [REALTIME, "verify"]
-    ret = subprocess.run(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    ret = subprocess.run(cmd, stdin=subprocess.DEVNULL, capture_output=True, text=True)
     if ret.returncode != 0 and ret.returncode != 1:
         raise RuntimeError("cmd \"" + " ".join(cmd) + "\" failed with status " + str(ret.returncode))
-    return ret.returncode==0;
+    return ret.returncode==0, ret.stdout.rstrip();
+
+def verify() -> bool:
+    ret, _ = verify_info();
+    return ret;
 
 def status() -> bool:
     #Status: realtime core running (rtapi_app running or kernel modules active)

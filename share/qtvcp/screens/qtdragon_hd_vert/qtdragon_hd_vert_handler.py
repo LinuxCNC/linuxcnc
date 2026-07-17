@@ -250,6 +250,10 @@ class HandlerClass:
         self.log_version()
         STATUS.emit('update-machine-log', '', 'OFF')
 
+        # preset MPG focus object
+        self.MPGFocusWidget = self.w.gcodegraphics
+        self.MPGFocusWidgetBorder= 'stackedWidget_mainTabPage1'
+
     #############################
     # SPECIAL FUNCTIONS SECTION #
     #############################
@@ -391,6 +395,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Camview xscale', self.cam_xscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview yscale', self.cam_yscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview cam number', self.w.camview._camNum, int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam api', self.w.camview.getAPIName(self.w.camview._camNum), str, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam resolution', self.w.camview.resolution, str, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
         self.w.stackedWidget_mainTab.setCurrentIndex(0)
@@ -887,7 +893,7 @@ class HandlerClass:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
                 command = "M61 Q{} G43".format(self.reload_tool)
-                ACTION.CALL_MDI(command)
+                ACTION.CALL_MDI(command, mode_return=True)
             if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
                 if os.path.isfile(self.last_loaded_program):
                     self.w.cmb_gcode_history.addItem(self.last_loaded_program)
@@ -1096,7 +1102,7 @@ class HandlerClass:
 
         self.add_status(_translate("HandlerClass","Laser offsets set"))
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
-        ACTION.CALL_MDI(command)
+        ACTION.CALL_MDI(command, mode_return=True)
     
     def btn_ref_camera_clicked(self):
         x = float(self.w.lineEdit_camera_x.text())
@@ -1111,7 +1117,7 @@ class HandlerClass:
 
         self.add_status(_translate("HandlerClass","Camera offsets set"))
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
-        ACTION.CALL_MDI(command)
+        ACTION.CALL_MDI(command, mode_return=True)
 
     def btn_touchoff_clicked(self):
         if STATUS.get_current_tool() == 0:
@@ -1232,7 +1238,7 @@ class HandlerClass:
             self.add_status(_translate("HandlerClass","Select only 1 tool to load"), CRITICAL)
         elif checked:
             self.add_status("{} {}".format(_translate("HandlerClass","Loaded tool"), checked[0]))
-            ACTION.CALL_MDI("M61 Q{} G43".format(checked[0]))
+            ACTION.CALL_MDI("M61 Q{} G43".format(checked[0]), mode_return=True)
         else:
             self.add_status(_translate("HandlerClass","No tool selected"), WARNING)
 
@@ -1561,7 +1567,7 @@ class HandlerClass:
         if retval == QtWidgets.QMessageBox.Ok:
             self.add_status(f'Run Macro Command:{command}')
             ACTION.SET_GRAPHICS_VIEW('clear')
-            ACTION.CALL_MDI(command)
+            ACTION.CALL_MDI(command, mode_return=True)
             return
 
         self.add_status('Macro cancelled')
@@ -1963,7 +1969,7 @@ class HandlerClass:
 
         # prpbe widget in not a separate tab
         if main_index == TAB_PROBE:
-            requestedIndex = TAB_MAIN
+            main_index = requestedIndex = TAB_MAIN
             self.probe.show()
             self.w.divider_line.show()
         elif self.probe is not None:
