@@ -18,7 +18,6 @@ set -u
 
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SMOKE_DIR="$(cd "$LIB_DIR/.." && pwd)"
-ROOT="$(cd "$SMOKE_DIR/../.." && pwd)"
 
 if ! command -v runtests >/dev/null 2>&1; then
     echo "make-references: 'runtests' not found; source scripts/rip-environment first" >&2
