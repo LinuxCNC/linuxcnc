@@ -352,7 +352,7 @@ class OffsetPage(Gtk.Box):
             return
         # set the text in the table
         try:
-            self.store[row][col] = locale.format("%10.4f", locale.atof(new_text))
+            self.store[row][col] = locale.format_string("%10.4f", locale.atof(new_text))
         except:
             print(_("offsetpage widget error: unrecognized float input"))
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
