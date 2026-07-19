@@ -35,12 +35,27 @@ typedef struct {
     int from;
 } hm2_read_queue_entry_t;
 
-typedef struct {
+typedef struct hm2_eth_t hm2_eth_t;
+
+struct hm2_eth_t {
     hm2_lowlevel_io_t llio;
 
     int sockfd;
     struct sockaddr_in local_addr;
     struct sockaddr_in server_addr;
+
+    char ip[64];
+    char ifname[64];
+
+    //RT network specific functions
+    int (*init_board)(hm2_eth_t *board, const char *board_ip);
+    int (*init_board_realtime)(hm2_eth_t *board);
+    int (*close_board)(hm2_eth_t *board);
+    int (*eth_socket_send)(hm2_eth_t *board, const void *buffer, int len, int flags);
+    int (*eth_socket_recv)(hm2_eth_t *board, void *buffer, int len, int flags);
+
+    //Only for evl implementation
+    bool is_evl_oob_active;
 
     rtapi_u8 read_packet[1400];
     rtapi_u8 *read_packet_ptr;
@@ -70,6 +85,13 @@ typedef struct {
         hal_s32_t *packet_error_level;
         hal_bit_t *packet_error_exceeded;
     } *hal;
-} hm2_eth_t;
+};
+
+bool use_firewall();
+int install_firewall_board(int sockfd);
+int install_firewall_perinterface(const char *ifbuf);
+void clear_firewall();
+char* fetch_ifname(int sockfd, char *buf, size_t n);
+int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
 
 #endif
