@@ -22,4 +22,7 @@
 #include <stdbool.h>
 #endif
 
+// Abstracted for HAL
+typedef bool rtapi_bool;
+
 #endif

@@ -718,6 +718,92 @@ int hal_pin_port_newf(hal_pin_dir_t dir,
     return ret;
 }
 
+// *** New interface ***
+
+int hal_pin_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, bool def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_BIT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_bool(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_S32, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_si32(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_U32, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_ui32(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s64 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_S64, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_sint(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u64 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_U64, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_uint(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, real_t def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_FLOAT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_real(*ref, def);
+    return 0;
+}
+
+#if 0
+// Must wait until switch
+// Note: port has no initial default as it is an 'internal' reference
+int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_PORT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+#endif
 
 /* this is a generic function that does the majority of the work. */
 
@@ -1025,16 +1111,11 @@ int hal_signal_new(const char *name, hal_type_t type)
 	return -EINVAL;
     }
     /* allocate memory for the signal value */
-/*
-because accesses will later be through pointer of type hal_data_u,
-allocate something that big.  Otherwise, gcc -fsanitize=undefined will
-issue diagnostics like
-    hal/hal_lib.c:3203:35: runtime error: member access within misaligned address 0x7fcf3d11f10b for type 'union hal_data_u', which requires 8 byte alignment
-on accesses through hal_data_u.
-
-This does increase memory usage somewhat, but is required for compliance
-with the C standard.
-*/
+    /* It is always the size of the data union. This does increase memory usage
+     * somewhat, but is required for compliance with the C standard. It also
+     * fixes an old memory corruption bug.
+     * See: #421 and https://github.com/machinekit/machinekit/issues/524
+     */
     switch (type) {
     case HAL_BIT:
     case HAL_S32:
@@ -1044,13 +1125,14 @@ with the C standard.
     case HAL_FLOAT:
     case HAL_PORT:
         data_addr = shmalloc_up(sizeof(hal_data_u));
-    break;
+        // Initialize the signal value
+        memset(data_addr, 0, sizeof(hal_data_u));
+        break;
     default:
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: illegal signal type %d'\n", type);
 	return -EINVAL;
-	break;
     }
     /* allocate a new signal structure */
     new = alloc_sig_struct();
@@ -1060,32 +1142,6 @@ with the C standard.
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for signal '%s'\n", name);
 	return -ENOMEM;
-    }
-    /* initialize the signal value */
-    switch (type) {
-    case HAL_BIT:
-	*((hal_bit_t *) data_addr) = 0;
-	break;
-    case HAL_S32:
-	*((hal_s32_t *) data_addr) = 0;
-        break;
-    case HAL_U32:
-	*((hal_u32_t *) data_addr) = 0;
-        break;
-    case HAL_S64:
-	*((hal_s64_t *) data_addr) = 0;
-        break;
-    case HAL_U64:
-	*((hal_u64_t *) data_addr) = 0;
-        break;
-    case HAL_FLOAT:
-	*((hal_float_t *) data_addr) = 0.0;
-	break;
-    case HAL_PORT:
-	*((int *) data_addr) = 0;
-	break;
-    default:
-	break;
     }
     /* initialize the structure */
     new->data_ptr = SHMOFF(data_addr);
@@ -1499,8 +1555,12 @@ int hal_param_s64_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
 
 /* this is a generic function that does the majority of the work. */
 
-int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
-    int comp_id)
+// The old API parameter style uses the 'data_addr' as the actual data storage
+// location.
+// The new API uses local data in the hal param structure and the data_addr is
+// a reference to the data into the hal param structure (just like pins).
+static int hal_param_new_anyapi(const char *name, hal_type_t type, hal_pdir_t dir, void *data_addr,
+    int comp_id, bool newapi)
 {
     rtapi_intptr_t *prev, next;
     int cmp;
@@ -1587,7 +1647,14 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     }
     /* initialize the structure */
     new->owner_ptr = SHMOFF(comp);
-    new->data_ptr = SHMOFF(data_addr);
+    if (newapi) {
+        // New API has the parameter value as part of the param structure
+        new->data_ptr = SHMOFF(&(new->data));
+        *(void **)data_addr = (char *)comp->shmem_base + SHMOFF(&(new->data));
+    } else {
+        // Old API has the parameter value as user supplied pointer
+        new->data_ptr = SHMOFF(data_addr);
+    }
     new->type = type;
     new->dir = dir;
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
@@ -1623,6 +1690,102 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	prev = &(ptr->next_ptr);
 	next = *prev;
     }
+}
+
+// Old API interface
+int hal_param_new(const char *name, hal_type_t type, hal_pdir_t dir, void *data_addr,
+    int comp_id)
+{
+    return hal_param_new_anyapi(name, type, dir, data_addr, comp_id, 0);
+}
+
+// New API interface only used locally
+static int hal_param_new_newapi(hal_type_t type, hal_pdir_t dir, void *data_addr,
+    int comp_id, const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+	    "hal_param_new_newapi: length %d too long for name starting '%s'\n",
+	    sz, name);
+	return -ENOMEM;
+    }
+    return hal_param_new_anyapi(name, type, dir, data_addr, comp_id, 1);
+}
+
+// *** New interface ***
+
+int hal_param_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, bool def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_param_new_newapi(HAL_BIT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_bool(*ref, def);
+    return 0;
+}
+
+int hal_param_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_param_new_newapi(HAL_S32, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_si32(*ref, def);
+    return 0;
+}
+
+int hal_param_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_param_new_newapi(HAL_U32, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_ui32(*ref, def);
+    return 0;
+}
+
+int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s64 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_param_new_newapi(HAL_S64, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_sint(*ref, def);
+    return 0;
+}
+
+int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u64 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_param_new_newapi(HAL_U64, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_uint(*ref, def);
+    return 0;
+}
+
+int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, real_t def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_param_new_newapi(HAL_FLOAT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_real(*ref, def);
+    return 0;
 }
 
 /* wrapper functs for typed params - these call the generic funct below */
@@ -3309,21 +3472,22 @@ static void *shmalloc_up(long int size)
         return NULL;
     }
 
+    // We want to keep allocations on proper 64-bit alignment. The value
+    // allocations are already sizeof(hal_data_u) and this will just enforce
+    // the minimum size so we won't see any memory corruptions.
+    if (size < 8)
+        size = 8;
+
     /* deal with alignment requirements */
     tmp_bot = hal_data->shmem_bot;
     if (size >= 16) {
 	/* align on 16 byte boundary */
 	tmp_bot = (tmp_bot + 15) & (~15);
-    } else if (size >= 8) {
+    } else {
 	/* align on 8 byte boundary */
 	tmp_bot = (tmp_bot + 7) & (~7);
-    } else if (size >= 4) {
-	/* align on 4 byte boundary */
-	tmp_bot = (tmp_bot + 3) & (~3);
-    } else if (size == 2) {
-	/* align on 2 byte boundary */
-	tmp_bot = (tmp_bot + 1) & (~1);
     }
+
     /* is there enough memory available? */
     if ((hal_data->shmem_top - tmp_bot) < size) {
 	/* no */
@@ -3347,22 +3511,23 @@ static void *shmalloc_dn(long int size)
         return NULL;
     }
 
+    // We want to keep allocations on proper 64-bit alignment. The value
+    // allocations are already sizeof(hal_data_u) and this will just enforce
+    // the minimum size so we won't see any memory corruptions.
+    if (size < 8)
+        size = 8;
+
     /* tentatively allocate memory */
     tmp_top = hal_data->shmem_top - size;
     /* deal with alignment requirements */
     if (size >= 16) {
 	/* align on 16 byte boundary */
 	tmp_top &= (~15);
-    } else if (size >= 8) {
+    } else {
 	/* align on 8 byte boundary */
 	tmp_top &= (~7);
-    } else if (size >= 4) {
-	/* align on 4 byte boundary */
-	tmp_top &= (~3);
-    } else if (size == 2) {
-	/* align on 2 byte boundary */
-	tmp_top &= (~1);
     }
+
     /* is there enough memory available? */
     if (tmp_top < hal_data->shmem_bot) {
 	/* no */
@@ -3739,10 +3904,12 @@ static void unlink_pin(hal_pin_t * pin)
 
 static void free_pin_struct(hal_pin_t * pin)
 {
-
     unlink_pin(pin);
     /* clear contents of struct */
-    if ( pin->oldname != 0 ) free_oldname_struct(SHMPTR(pin->oldname));
+    if ( pin->oldname != 0 ) {
+        free_oldname_struct(SHMPTR(pin->oldname));
+        pin->oldname = 0;
+    }
     pin->data_ptr_addr = 0;
     pin->owner_ptr = 0;
     pin->type = 0;
@@ -3782,10 +3949,16 @@ static void free_sig_struct(hal_sig_t * sig)
 static void free_param_struct(hal_param_t * p)
 {
     /* clear contents of struct */
-    if ( p->oldname != 0 ) free_oldname_struct(SHMPTR(p->oldname));
+    if ( p->oldname != 0 ) {
+        free_oldname_struct(SHMPTR(p->oldname));
+        p->oldname = 0;
+    }
     p->data_ptr = 0;
     p->owner_ptr = 0;
     p->type = 0;
+    p->dir = 0;
+    p->reserved = 0;
+    memset(&p->data, 0, sizeof(p->data));
     p->name[0] = '\0';
     /* add it to free list (params use the same struct as src vars) */
     p->next_ptr = hal_data->param_free_ptr;
@@ -4694,6 +4867,14 @@ EXPORT_SYMBOL(hal_malloc);
 EXPORT_SYMBOL(hal_comp_name);
 EXPORT_SYMBOL(hal_get_realtime_type);
 
+EXPORT_SYMBOL(hal_pin_new_bool);
+EXPORT_SYMBOL(hal_pin_new_si32);
+EXPORT_SYMBOL(hal_pin_new_ui32);
+EXPORT_SYMBOL(hal_pin_new_sint);
+EXPORT_SYMBOL(hal_pin_new_uint);
+EXPORT_SYMBOL(hal_pin_new_real);
+//EXPORT_SYMBOL(hal_pin_new_port);
+
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
@@ -4731,6 +4912,13 @@ EXPORT_SYMBOL(hal_param_u32_newf);
 EXPORT_SYMBOL(hal_param_s32_newf);
 EXPORT_SYMBOL(hal_param_u64_newf);
 EXPORT_SYMBOL(hal_param_s64_newf);
+
+EXPORT_SYMBOL(hal_param_new_bool);
+EXPORT_SYMBOL(hal_param_new_si32);
+EXPORT_SYMBOL(hal_param_new_ui32);
+EXPORT_SYMBOL(hal_param_new_sint);
+EXPORT_SYMBOL(hal_param_new_uint);
+EXPORT_SYMBOL(hal_param_new_real);
 
 EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);
