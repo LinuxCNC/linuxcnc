@@ -940,9 +940,9 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->flood_off), "halui.flood.off");
     if (retval < 0) return retval;
-    retval = halui_export_pin_IN_bit(&(halui_data->cycle_start), "halui.cycle.start");
+    retval = halui_export_pin_IN_bit(&(halui_data->cycle_start), "halui.gui.cycle.start");
     if (retval < 0) return retval;
-    retval = halui_export_pin_IN_bit(&(halui_data->cycle_pause), "halui.cycle.pause");
+    retval = halui_export_pin_IN_bit(&(halui_data->cycle_pause), "halui.gui.cycle.pause");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_run), "halui.program.run");
     if (retval < 0) return retval;
@@ -1114,7 +1114,7 @@ int halui_hal_init(void)
     }
 
     for (int n=0; n<num_gui_soft_keys; n++) {
-        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->gui_soft_keys[n]), comp_id, "halui.gui.softkey-%d", n);
+        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->gui_soft_keys[n]), comp_id, "halui.gui.softkey-%02d", n);
         if (retval < 0) return retval;
     }
 
