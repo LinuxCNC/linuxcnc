@@ -47,16 +47,6 @@
 
 #define TP_OPTIMIZATION_LAZY
 
-#define MAKE_TP_HAL_PINS
-#undef  MAKE_TP_HAL_PINS
-
-// api for tpCreate() inherits a component id  provision to include hal pins:
-// (not used by the this default tp implementation but may
-//  be used in alternate user-built implementations)
-#ifdef  MAKE_TP_HAL_PINS // {
-#include <hal.h>
-#endif // }
-
 emcmot_status_t *emcmotStatus;
 emcmot_config_t *emcmotConfig;
 emcmot_command_t *emcmotCommand;
@@ -381,41 +371,6 @@ STATIC inline double tpGetSignedSpindlePosition(spindle_status_t *status) {
  * Create the trajectory planner structure with an empty queue.
  */
 
-#ifdef MAKE_TP_HAL_PINS // {
-static struct  tp_haldata {
-  // Example pin pointers
-  hal_u32_t *in;
-  hal_u32_t *out;
-  // Example parameters
-  hal_float_t param_rw;
-  hal_float_t param_ro;
-} *tp_haldata;
-
-static int makepins(int id) {
-#define HAL_PREFIX "tp"
-    int res=0;
-    if (id < 0) goto error;
-    tp_haldata = hal_malloc(sizeof(struct tp_haldata));
-    if (!tp_haldata) goto error;
-
-    // hal pin examples:
-    res += hal_pin_u32_newf(HAL_IN ,&(tp_haldata->in) ,id,"%s.in" ,HAL_PREFIX);
-    res += hal_pin_u32_newf(HAL_OUT,&(tp_haldata->out),id,"%s.out",HAL_PREFIX);
-
-    // hal parameter examples:
-    res += hal_param_float_newf(HAL_RW, &tp_haldata->param_rw,id,"%s.param-rw",HAL_PREFIX);
-    res += hal_param_float_newf(HAL_RO, &tp_haldata->param_ro,id,"%s.param-ro",HAL_PREFIX);
-
-    if (res) goto error;
-    rtapi_print("@@@ %s:%s: ok\n",__FILE__,__FUNCTION__);
-    return 0;  // caller issues hal_ready()
-error:
-    rtapi_print("\n!!! %s:%s: failed res=%d\n\n",__FILE__,__FUNCTION__,res);
-    return -1;
-#undef HAL_PREFIX
-}
-#endif // }
-
 int tpCreate(TP_STRUCT * const tp, int _queueSize,int id)
 {
     (void)id;
@@ -434,12 +389,6 @@ int tpCreate(TP_STRUCT * const tp, int _queueSize,int id)
     if (-1 == tcqCreate(&tp->queue, tp->queueSize, tcSpace)) {
         return TP_ERR_FAIL;
     }
-
-#ifdef MAKE_TP_HAL_PINS // {
-    if (-1 == makepins(id)) {
-        return TP_ERR_FAIL;
-    }
-#endif // }
 
     /* init the rest of our data */
     return tpInit(tp);
@@ -4389,5 +4338,3 @@ EXPORT_SYMBOL(tpSetVlimit);
 EXPORT_SYMBOL(tpSetVmax);
 
 EXPORT_SYMBOL(tcqFull);
-
-#undef MAKE_TP_HAL_PINS
