@@ -82,6 +82,7 @@ from qtpy.QtCore import (
     QSize,
     Signal,
     Slot,
+    QPoint,
     QPointF,
     QRectF,
     QThread,
@@ -99,6 +100,7 @@ from qtpy.QtGui import (
     QPen,
     QBrush,
     QFontMetrics,
+    QPalette,
 )
 
 # Cross-backend window flag compatibility (PyQt5/PySide2 vs PyQt6/PySide6)
@@ -815,6 +817,87 @@ class Preferences:
 # ---------------------------------------------------------------------------
 
 
+class _WatchHeader(QWidget):
+    """Column header for WATCH tab with draggable separator between Value and Name."""
+
+    def __init__(self, mainwin=None):
+        super().__init__(mainwin)
+        self._mainwin = mainwin  # HalshowMain reference for resizing rows
+        self._value_width = 150  # matches WatchRow default value_area width
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(4, 2, 2, 2)
+        layout.setSpacing(0)
+
+        # Value column area — fixed-width to match row value_area exactly
+        self._value_frame = QWidget()
+        self._value_frame.setFixedWidth(self._value_width)
+        vl = QHBoxLayout(self._value_frame)
+        vl.setContentsMargins(0, 0, 0, 0)
+        self.value_label = QLabel(_("Value"))
+        self.value_label.setFont(QFont("monospace", -1, QFont.Bold))
+        self.value_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        vl.addWidget(self.value_label, 0)
+
+        # Draggable separator between Value and Name columns
+        self.separator = _ColumnSeparator(self)
+        self.separator.width_changed.connect(self._on_separator_resize)
+
+        layout.addWidget(self._value_frame, 0)
+        layout.addWidget(self.separator, 0)
+        layout.addSpacing(12)  # matches WatchRow gap between value_area and name_label
+
+        self.name_label = QLabel(_("Name"))
+        self.name_label.setFont(QFont("monospace", -1, QFont.Bold))
+        self.name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        layout.addWidget(self.name_label, 0)
+        layout.addStretch(1)
+
+    def _on_separator_resize(self, new_width):
+        """Called by separator drag — update header + all watch rows."""
+        self._value_width = max(40, min(new_width, 500))
+        self._value_frame.setFixedWidth(self._value_width)
+        if self._mainwin:
+            self._mainwin._set_all_watch_value_widths(self._value_width)
+
+
+class _ColumnSeparator(QWidget):
+    """Draggable vertical line for resizing columns."""
+
+    width_changed = Signal(int)  # emits new width in pixels
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedWidth(4)
+        self.setCursor(Qt.SizeHorCursor)
+        self._dragging = False
+        self._press_x = 0
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._dragging = True
+            self._press_x = event.globalPosition().x()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self._dragging:
+            delta = event.globalPosition().x() - self._press_x
+            header = self.parent()
+            if hasattr(header, "_value_width"):
+                new_width = max(40, min(header._value_width + int(delta), 500))
+                self.width_changed.emit(new_width)
+                self._press_x = event.globalPosition().x()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._dragging = False
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        color = QColor(160, 160, 160)
+        painter.fillRect(event.rect(), color)
+
+
 class BitIndicator(QWidget):
     """Small circle that shows TRUE (yellow), FALSE (firebrick4), or unknown (lightgray)."""
 
@@ -864,11 +947,9 @@ class WatchRow(QWidget):
         layout.setContentsMargins(4, 0, 2, 0)
         layout.setSpacing(3)
 
-        # Value area — fixed-width for vertical alignment of name column (Tcl match)
+        # Value area — resizable to fit content (Tcl default was 100px char width)
         self.value_area = QWidget()
-        self.value_area.setFixedWidth(
-            60
-        )  # Narrow; very large numbers may overflow slightly
+        self.value_area.setFixedWidth(150)
         val_layout = QHBoxLayout(self.value_area)
         val_layout.setContentsMargins(0, 0, 0, 0)
         val_layout.setSpacing(2)
@@ -876,6 +957,7 @@ class WatchRow(QWidget):
         # Start with gray circle (unknown state) — replaced by text label for non-boolean types
         self.indicator = BitIndicator()
         val_layout.addWidget(self.indicator, 0)
+        val_layout.setAlignment(self.indicator, Qt.AlignLeft | Qt.AlignVCenter)
         self.value_label = None
         self._ui_rebuilt = False  # Tracks whether bit→text UI swap has happened
 
@@ -888,9 +970,15 @@ class WatchRow(QWidget):
         self.name_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.name_label.setFixedWidth(200)
         if vartype == "param":
-            self.name_label.setStyleSheet("color: #6e3400;")
+            palette = QPalette()
+            palette.setColor(QPalette.ColorRole.Foreground, QColor(110, 52, 0))
+            self.name_label.setPalette(palette)
+            self.name_label.setAutoFillBackground(False)
         elif vartype == "sig":
-            self.name_label.setStyleSheet("color: blue3;")
+            palette = QPalette()
+            palette.setColor(QPalette.ColorRole.Foreground, QColor(30, 144, 255))
+            self.name_label.setPalette(palette)
+            self.name_label.setAutoFillBackground(False)
 
         layout.addWidget(self.name_label, 0)
 
@@ -1065,8 +1153,11 @@ class WatchRow(QWidget):
 
                 self.value_label = QLabel("---")
                 self.value_label.setFont(QFont("monospace"))
-                self.value_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                self.value_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
                 val_layout.addWidget(self.value_label, 0)
+                val_layout.setAlignment(
+                    self.value_label, Qt.AlignLeft | Qt.AlignVCenter
+                )
 
             if self.indicator and is_bool:
                 self.indicator.setState(raw is True or raw == "TRUE")
@@ -2001,15 +2092,41 @@ class GraphWidget(QWidget):
             QTimer.singleShot(0, self._build_graph)
 
     def eventFilter(self, obj, event):
-        if obj is self.view and event.type() == QEvent.KeyPress:
-            k = event.key()
-            if k in (Qt.Key_Plus, Qt.Key_Equal):  # +/= on US keyboard
-                self._zoom_in()
-                return True
-            if k in (Qt.Key_Minus, Qt.Key_Underscore):  # -/_
-                self._zoom_out()
+        if obj is self.view:
+            if event.type() == QEvent.KeyPress:
+                k = event.key()
+                if k in (Qt.Key_Plus, Qt.Key_Equal):  # +/= on US keyboard
+                    self._zoom_in()
+                    return True
+                if k in (Qt.Key_Minus, Qt.Key_Underscore):  # -/_
+                    self._zoom_out()
+                    return True
+            elif event.type() == QEvent.Wheel:
+                self._wheel_zoom(event)
                 return True
         return super().eventFilter(obj, event)
+
+    def _wheel_zoom(self, event):
+        """Zoom centered on mouse pointer position."""
+        factor = 1.15 if event.angleDelta().y() > 0 else 1 / 1.15
+        # Scene point under cursor before zoom
+        mouse_pos = self.view.mapFromGlobal(
+            event.globalPosition()
+            if hasattr(event, "globalPosition")
+            else event.globalPos()
+        )
+        scene_pt_before = self.view.mapToScene(mouse_pos)
+        # Zoom centered on viewport center (translate to origin, scale, translate back)
+        vc = self.view.viewport().rect().center()
+        self.view.translate(vc.x(), vc.y())
+        self.view.scale(factor, factor)
+        self.view.translate(-vc.x(), -vc.y())
+        # Compensate so same scene point stays under cursor
+        scene_pt_after = self.view.mapToScene(mouse_pos)
+        self.view.translate(
+            scene_pt_before.x() - scene_pt_after.x(),
+            scene_pt_before.y() - scene_pt_after.y(),
+        )
 
     def _build_graph(self):
         """Collect HAL data and build the graph layout.
@@ -2789,6 +2906,11 @@ class GraphWidget(QWidget):
 
 
 # ---------------------------------------------------------------------------
+# Tree item delegate — colors param leaves brown (Tcl match)
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
 # Main Application Window
 # ---------------------------------------------------------------------------
 
@@ -3014,6 +3136,10 @@ class HalshowMain(QMainWindow):
         )
         outer.addWidget(self.watch_scroll)
 
+        # Column header with draggable separator between Value and Name columns
+        self._watch_header = _WatchHeader(self)
+        self.watch_layout.insertWidget(0, self._watch_header)
+
         # Placeholder message
         self._watch_placeholder = QLabel(_("<-- Select a Leaf.  Click on its name."))
         self._watch_placeholder.setAlignment(Qt.AlignCenter)
@@ -3078,7 +3204,8 @@ class HalshowMain(QMainWindow):
 
         # Bottom row: info label (left) + Apply button (right)
         bottom_row = QHBoxLayout()
-        label_text = _("(Settings stored in: ") + str(self.prefs.path) + ")"
+        prefs_path = str(self.prefs.path).replace(str(Path.home()), "~")
+        label_text = _("(Settings stored in: ") + prefs_path + ")"
         self._info_label = QLabel(label_text)
         self._info_label.setContentsMargins(0, 10, 0, 4)
         if not getattr(self, "_use_prefs", True):
@@ -3327,26 +3454,62 @@ class HalshowMain(QMainWindow):
             leaf = QTreeWidgetItem(parent, [full_name])  # display only leaf segment
             leaf.setData(0, Qt.UserRole, f"{leaftype}+{actual_name}")
 
+            # Color param leaves brown in tree (Tcl match)
+            if leaftype == "param":
+                leaf.setForeground(0, QBrush(QColor(110, 52, 0)))
+
     # ------------------------------------------------------------------
     # Tree interaction
     # ------------------------------------------------------------------
 
     def _on_tree_clicked(self, item, column):
         role_data = item.data(0, Qt.UserRole) or ""
-        if not ("+" in role_data and not role_data.startswith("branch:")):
-            return  # Not a leaf
 
         active_tab = self.tab_widget.currentIndex()
         MODE_MAP = ["showhal", "watchhal", "graphhal", "settings"]
         current_mode = MODE_MAP[active_tab] if active_tab < len(MODE_MAP) else "showhal"
 
-        parts = role_data.split("+", 1)
-        vtype, vname = parts[0], parts[1] if len(parts) > 1 else ""
+        # Leaf node — show single item details or add to watch
+        if "+" in role_data and not role_data.startswith("branch:"):
+            parts = role_data.split("+", 1)
+            vtype, vname = parts[0], parts[1] if len(parts) > 1 else ""
 
-        if current_mode == "showhal":
-            self._show_hal(vtype, vname)
-        elif current_mode == "watchhal":
-            self._add_to_watch(vtype, vname)
+            if current_mode == "showhal":
+                self._show_hal(vtype, vname)
+            elif current_mode == "watchhal":
+                self._add_to_watch(vtype, vname)
+            return
+
+        # Non-leaf node (root or branch): expand and show all leaves in SHOW tab
+        if current_mode != "showhal":
+            return
+
+        item.setExpanded(not item.isExpanded())
+        leaves = self._collect_leaves(item)
+        self._show_leaves(leaves)
+
+    def _show_leaves(self, leaves):
+        """Show collected leaf items in the SHOW tab using compact table format."""
+        if not leaves:
+            return
+        output = self._format_show_lines(leaves)
+        self.show_browser.setPlainText(output)
+
+    def _collect_leaves(self, item):
+        """Recursively collect (vtype, vname) from all leaf children of a tree node."""
+        leaves = []
+        for i in range(item.childCount()):
+            child = item.child(i)
+            role_data = child.data(0, Qt.UserRole) or ""
+            if role_data.startswith("branch:"):
+                leaves.extend(self._collect_leaves(child))
+            elif "+" in role_data:
+                parts = role_data.split("+", 1)
+                vtype = parts[0]
+                vname = parts[1] if len(parts) > 1 else ""
+                if vname:
+                    leaves.append((vtype, vname))
+        return leaves
 
     def _tree_context_menu(self, pos):
         item = self.tree.itemAt(pos)
@@ -3386,43 +3549,276 @@ class HalshowMain(QMainWindow):
 
     def _show_context_menu(self, pos):
         """Right-click context menu on SHOW tab text browser."""
+        selected_text = self.show_browser.textCursor().selectedText().strip()
+        if not selected_text:
+            from qtpy.QtWidgets import QToolTip
+
+            QToolTip.showText(
+                self.show_browser.mapToGlobal(pos),
+                _("Select a name in the show view to get a context menu"),
+            )
+            QTimer.singleShot(2000, QToolTip.hideText)
+            return
+
+        # Capture selection now — right-click clears it before menu item is clicked
+        self._show_selected_text = selected_text
+
         menu = QMenu(self)
-        selected_text = self.show_browser.selectedText().strip()
-        has_selection = bool(selected_text)
 
         copy_act = QAction(_("Copy"), self)
-        copy_act.setEnabled(has_selection)
         copy_act.triggered.connect(
-            lambda: QApplication.clipboard().setText(self.show_browser.selectedText())
+            lambda: QApplication.clipboard().setText(selected_text)
         )
         menu.addAction(copy_act)
 
-        if has_selection:
-            menu.addSeparator()
-            for vtype, label in [
-                ("pin", _("Add as Pin(s)")),
-                ("sig", _("Add as Signal(s)")),
-                ("param", _("Add as Param(s)")),
-            ]:
-                act = QAction(label, self)
-                act.triggered.connect(lambda vt=vtype: self._add_from_selection(vt))
-                menu.addAction(act)
+        menu.addSeparator()
+        for vtype, label in [
+            ("pin", _("Add as Pin(s)")),
+            ("sig", _("Add as Signal(s)")),
+            ("param", _("Add as Param(s)")),
+        ]:
+            act = QAction(label, self)
+            act.triggered.connect(lambda vt=vtype: self._add_from_selection(vt))
+            menu.addAction(act)
 
-        if menu.actions():
-            menu.exec_(self.show_browser.mapToGlobal(pos))
+        menu.exec_(self.show_browser.mapToGlobal(pos))
 
     def _add_from_selection(self, vtype):
         """Parse selected text from show output and add matching items to watchlist."""
-        for name in self._parse_hal_names(self.show_browser.selectedText()):
+        for name in self._parse_hal_names(getattr(self, "_show_selected_text", "")):
             self._add_to_watch(vtype, name)
+
+    def _format_show_lines(self, vtype_vname_pairs):
+        """Format (vtype, vname) pairs as compact aligned tables matching halcmd style.
+
+        Pins/Params: "Owner   Type  Dir                 Value  Name" (+ signal arrow)
+        Signals:    "Type                  Value  Name     (linked to)"
+        Returns the full formatted string ready for setPlainText().
+        """
+        if not vtype_vname_pairs:
+            return ""
+
+        # Group by type so each gets its own header + rows
+        groups = {}
+        for vtype, vname in vtype_vname_pairs:
+            groups.setdefault(vtype, []).append(vname)
+
+        all_lines = []
+        for vtype, names in groups.items():
+            if vtype == "sig":
+                lines = self._format_signals(names)
+            elif vtype in ("pin", "param"):
+                label = _("Pins") if vtype == "pin" else _("Parameters")
+                lines = [label + ":"] + self._format_owner_table(vtype, names)
+            else:
+                continue
+            all_lines.append("\n".join(lines))
+
+        return "\n\n".join(all_lines)
+
+    def _owner_name(self, full_name):
+        """Extract owner component name from a dotted HAL entity path."""
+        parts = full_name.rsplit(".", 1)[0]
+        if not parts:
+            return "?"
+        # Strip trailing direction/pin-path segments like halui.axis-x.plus → axis-x is pin
+        keywords = {"in", "out", "rev", "fwd", "in0", "in1", "in2", "in3", "in4", "in5"}
+        segs = parts.split(".")
+        while len(segs) > 1 and (segs[-1].lower() in keywords or "-" in segs[-1]):
+            segs.pop()
+        return ".".join(segs) if segs else "?"
+
+    def _get_pin_signal(self, pin_name):
+        """Get signal name connected to a pin. SHM cache first, halcmd fallback."""
+        info = HalApi.pin_info(pin_name) or {}
+        sig = info.get("SIGNAL")
+        if sig:
+            return sig
+        # Use cached pin→signal map from halcmd (computed once for all pins)
+        if not hasattr(self, "_pin_sig_cache"):
+            self._build_pin_sig_cache()
+        return self._pin_sig_cache.get(pin_name)
+
+    def _build_pin_sig_cache(self):
+        """Build a pin->signal mapping cache via halcmd."""
+        cache = {}
+        # First try SHM cache (fast, works with new _hal.so)
+        HalApi._cache_pins()
+        has_signal_field = False
+        for pn, pe in HalApi._cache["pins"].items():
+            if "SIGNAL" in pe:
+                has_signal_field = True
+                sig = pe.get("SIGNAL")
+                if sig:
+                    cache[pn] = sig
+        if has_signal_field:
+            self._pin_sig_cache = cache
+            return
+        # halcmd fallback for old _hal.so without SIGNAL field
+        try:
+            halcmd = HalApi._find_halcmd()
+            res = subprocess.run(
+                [halcmd, "show", "pin"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                for line in res.stdout.split("\n"):
+                    stripped = line.strip()
+                    # halcmd pin table rows: Owner Type Dir Value Name <==> Signal
+                    m = re.search(r"(\S+)\s+(?:<==|==>)\s+(\S+)", stripped)
+                    if m:
+                        cache[m.group(1)] = m.group(2)
+        except Exception:
+            pass
+        self._pin_sig_cache = cache
+
+    def _get_signal_pins(self, sig_name):
+        """Get (writers, readers) lists for a signal. SHM cache first, halcmd fallback."""
+        HalApi._cache_pins()
+        writers, readers = [], []
+        has_signal_field = False
+        for pn, pe in HalApi._cache["pins"].items():
+            if "SIGNAL" not in pe:
+                continue
+            has_signal_field = True
+            sig = pe.get("SIGNAL")
+            if sig == sig_name and pe.get("DIRECTION") == _HAL_OUT:
+                writers.append(pn)
+            elif sig == sig_name and pe.get("DIRECTION") != _HAL_OUT:
+                readers.append(pn)
+
+        if has_signal_field:
+            return sorted(writers), sorted(readers)
+
+        # halcmd fallback for old _hal.so
+        try:
+            halcmd = HalApi._find_halcmd()
+            res = subprocess.run(
+                [halcmd, "show", "sig", sig_name],
+                capture_output=True,
+                text=True,
+                timeout=2,
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                for line in res.stdout.split("\n"):
+                    stripped = line.strip()
+                    if not stripped or stripped.startswith(sig_name + " ("):
+                        continue
+                    if "<==" in stripped:
+                        pin = stripped.replace("<==", "").strip()
+                        if pin:
+                            writers.append(pin)
+                    elif "==>" in stripped:
+                        pin = stripped.replace("==> ", "").strip()
+                        if pin:
+                            readers.append(pin)
+        except Exception:
+            pass
+        return sorted(writers), sorted(readers)
+
+    def _format_owner_table(self, vtype, names):
+        """Format pins/params as: Owner   Type  Dir                 Value  Name"""
+        rows = []
+        for vname in names:
+            try:
+                val_raw = HalApi.get_value(vname)
+                if isinstance(val_raw, bool):
+                    val_str = "TRUE" if val_raw else "FALSE"
+                elif isinstance(val_raw, float):
+                    val_str = f"{val_raw:.8g}"
+                else:
+                    val_str = str(val_raw)
+
+                info_fn = HalApi.pin_info if vtype == "pin" else HalApi.param_info
+                dir_map = HalApi.PIN_DIR if vtype == "pin" else HalApi.PARAM_DIR
+                info = info_fn(vname) or {}
+
+                tstr = HalApi.TYPE_NAME.get(info.get("TYPE", -1), "?")
+                dstr = dir_map.get(info.get("DIRECTION", -1), "?")
+                owner = self._owner_name(vname)
+
+                # Signal connection arrow for pins (with halcmd fallback)
+                sig_arrow = ""
+                if vtype == "pin":
+                    sig_name = self._get_pin_signal(vname)
+                    if sig_name:
+                        arrow = (
+                            "<==" if info.get("DIRECTION", -1) != _HAL_OUT else "==>"
+                        )
+                        sig_arrow = f" {arrow} {sig_name}"
+
+            except Exception as e:
+                owner, tstr, dstr, val_str, sig_arrow = "?", "???", "?", str(e), ""
+
+            rows.append((owner, tstr, dstr, val_str, vname, sig_arrow))
+
+        if not rows:
+            return []
+
+        # Compute widths for aligned columns
+        ow = max(5, max(len(r[0]) for r in rows))
+        vw = max(9, max(len(r[3]) for r in rows))
+        nw = max(4, max(len(r[4]) for r in rows))
+
+        lines = [
+            f"{'Owner':<{ow}s}   Type  Dir                 {'Value':>{vw}s}  {'Name':<{nw}s}"
+        ]
+        for owner, tstr, dstr, val_str, vname, sig_arrow in rows:
+            line = f"{owner:<{ow}s}   {tstr:>5s} {dstr:<3s}  {val_str:>{vw}s}  {vname:<{nw}s}{sig_arrow}"
+            lines.append(line)
+
+        return lines
+
+    def _format_signals(self, names):
+        """Format signals as: Type                  Value  Name     (linked to)"""
+        rows = []
+        for vname in names:
+            try:
+                val_raw = HalApi.get_value(vname)
+                if isinstance(val_raw, bool):
+                    val_str = "TRUE" if val_raw else "FALSE"
+                elif isinstance(val_raw, float):
+                    val_str = f"{val_raw:.8g}"
+                else:
+                    val_str = str(val_raw)
+
+                info = HalApi.signal_info(vname) or {}
+                tstr = HalApi.TYPE_NAME.get(info.get("TYPE", -1), "?")
+
+                # Linked pins (SHM cache first, halcmd fallback for old _hal.so)
+                links = []
+                writers, readers = self._get_signal_pins(vname)
+                for wp in writers:
+                    links.append(f"                                 <==  {wp}")
+                for rp in readers:
+                    links.append(f"                                 ==>  {rp}")
+
+            except Exception as e:
+                tstr, val_str, links = "???", str(e), []
+
+            rows.append((tstr, val_str, vname, links))
+
+        if not rows:
+            return []
+
+        nw = max(4, max(len(r[2]) for r in rows))
+        lines = [f"{'Type':<16s}  {'Value':>9s}  {'Name':<{nw}s}     (linked to)"]
+        for tstr, val_str, vname, links in rows:
+            lines.append(f"{tstr:<16s}  {val_str:>9s}  {vname:<{nw}s}")
+            lines.extend(links)
+
+        return lines
 
     def _watch_bg_context_menu(self, pos):
         """Right-click context menu on empty area of WATCH tab background."""
-        # Only show if click was on the background widget (not a WatchRow child)
         global_pos = self.watch_scroll_widget.mapToGlobal(pos)
         child = QApplication.widgetAt(global_pos)
-        if child and not isinstance(child, QLabel):
-            return  # Clicked on a Widget or placeholder label, not background
+        # Show bg menu only when clicking the scroll widget itself or placeholder label.
+        # WatchRow children have their own context menu, so skip them.
+        if child is not None and child is not self.watch_scroll_widget:
+            return
 
         menu = QMenu(self)
 
@@ -3446,6 +3842,12 @@ class HalshowMain(QMainWindow):
         menu.addAction(erase_act)
 
         menu.exec_(global_pos)
+
+    def _set_all_watch_value_widths(self, width):
+        """Apply value column width to all watch rows (called by header separator drag)."""
+        for row in self.watch_rows.values():
+            if hasattr(row, "value_area"):
+                row.value_area.setFixedWidth(width)
 
     def _has_watchable_leaves(self, item):
         """Check if any leaf under this item is watchable (pin/param/sig)."""
@@ -3473,16 +3875,17 @@ class HalshowMain(QMainWindow):
                 self._add_to_watch(vtype, vname)
 
     def _show_hal(self, vtype, vname):
-        try:
-            output = HalApi.show(vtype, vname)
-            if not self.prefs.separateParams and vtype == "pin":
-                # Also show params for this pin's component
-                param_out = HalApi.show("param", vname)
-                if param_out.strip():
-                    output += "\n" + param_out
-        except Exception as e:
-            output = str(e)
-        self.show_browser.setPlainText(output)
+        items = [(vtype, vname)]
+        if not self.prefs.separateParams and vtype == "pin":
+            # Also show params for this pin's component in merged mode
+            owner_part = ".".join(vname.split(".")[:-1])
+            HalApi._cache_params()
+            param_names = [
+                pn for pn in HalApi._cache["params"] if pn.startswith(owner_part + ".")
+            ]
+            items.extend(("param", pn) for pn in sorted(param_names))
+
+        self._show_leaves(items)
 
     def _tree_action(self, action):
         if action == "expand":
@@ -3576,6 +3979,9 @@ class HalshowMain(QMainWindow):
         row.show_in_tree.connect(self._select_in_tree)
         self.watch_layout.insertWidget(self.watch_layout.count() - 1, row)
         self.watch_rows[key] = row
+        # Apply current header width to new row (in case user resized columns before adding this item)
+        if hasattr(self, "_watch_header") and self._watch_header:
+            self._set_all_watch_value_widths(self._watch_header._value_width)
         self.prefs.watchlist.append(key)
         self._update_save_actions()
 
