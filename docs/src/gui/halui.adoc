@@ -117,6 +117,23 @@ Or see http://linuxcnc.org/docs/devel/html/man/man1/halui.1.html
 * 'halui.feed-override.scale' (float, in) - pin for setting the scale for increase and decrease of 'feed-override'.
 * 'halui.feed-override.value' (float, out) - current FO value
 
+=== Gui
+These are pins used to 'request' a function to run in a screen. +
+What these exactly do is dependant on the (GUI) screen used. 
+
+* 'halui.gui.cycle.start' (bit, in) - pin for requesting the screen to run a cycle
+* 'halui.gui.cycle.pause' (bit, in) - pin for requesting the screen to pause a cycle
+* 'halui.gui.cancel' (bit, in) - pin for cancel/closing dialogs
+* 'halui.gui.ok' (bit, in) - pin for ok/apply dialogs
+* 'halui.gui.mdi-command-MACRO_<nn>_' (bit, in) - pin for calling mdi/macro commands
+_<nn>_ is a one or two digit number starting from 0 to 63 +
+There can be up to 64 commands defined in the INI under the [MDI_COMMAND_LIST] or [MACROS] headings. +
+* 'halui.gui.reload-display' (bit, in) - pin for reloading the screen plot
+* 'halui.gui.shutdown' (bit, in) - pin for shutting down linuxcnc or system
+* 'halui.gui.softkey_<nn>_' (bit, in) - pins for screen defined functions
+_<nn>_ is a two digit number starting from 00 to 19 + 
+* 'halui.gui.mpg-select.0' (bit, in) - pin for selecting MPG based control of the screen, such as scrolling
+
 === Mist
 
 * 'halui.mist.is-on' (bit, out) - indicates mist is on
