@@ -8,6 +8,16 @@
 %% Just use the original package and pass the options.
 \RequirePackageWithOptions{docbook}
 
+%% babel-french 4.x (TeX Live 2025) removed the legacy \frenchbsetup keys
+%% (e.g. CompactItemize) that dblatex's dbk_locale.sty still passes.
+%% Use the modern \frenchsetup interface when available (babel-french >= 3.0).
+\makeatletter
+\@ifundefined{frenchsetup}{}{%
+  \let\frenchbsetup\@gobble
+  \frenchsetup{StandardItemizeEnv=true,StandardItemLabels=true}%
+}
+\makeatother
+
 % Sidebar is a boxed minipage that can contain verbatim.
 % Changed shadow box to double box.
 \renewenvironment{sidebar}[1][0.95\textwidth]{
