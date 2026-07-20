@@ -477,7 +477,7 @@ class ToolEdit(Gtk.Box):
         # validate input for float columns
         elif col in range(3,15):
             try:
-                self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+                self.model[path][col] = locale.format_string("%10.4f",locale.atof(new_text))
             except:
                 pass
         # validate input for orientation: check if int and valid range
