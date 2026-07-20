@@ -79,5 +79,10 @@ typedef uintptr_t rtapi_uintptr_t;
 typedef double    rtapi_real;
 typedef rtapi_s64 rtapi_sint;
 typedef rtapi_u64 rtapi_uint;
+typedef rtapi_intptr_t rtapi_port;
+
+#define RTAPI_SINT_MAX RTAPI_INT64_MAX
+#define RTAPI_SINT_MIN RTAPI_INT64_MIN
+#define RTAPI_UINT_MAX RTAPI_UINT64_MAX
 
 #endif
