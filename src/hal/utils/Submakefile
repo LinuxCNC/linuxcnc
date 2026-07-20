@@ -111,13 +111,19 @@ endif
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
+../bin/halcompupdate: ../bin/%: hal/utils/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
 ../bin/mesambccc: ../bin/%: hal/drivers/mesa-hostmot2/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -m py_compile $<
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-TARGETS += ../bin/halcompile ../bin/elbpcom ../bin/mesambccc
+TARGETS += ../bin/halcompile ../bin/elbpcom ../bin/mesambccc ../bin/halcompupdate
 objects/%.py: %.g
 	@mkdir -p $(dir $@)
 	$(Q)$(YAPPS) $< $@
