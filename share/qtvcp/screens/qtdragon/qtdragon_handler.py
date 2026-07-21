@@ -158,6 +158,7 @@ class HandlerClass:
         STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
         STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
         STATUS.connect('axis-selection-changed', lambda w,data: self.mpg_selection_changed(data))
+        STATUS.connect('softkey-pressed', lambda w,data: self.softkey_pressed(data))
 
         self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
         self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
@@ -964,6 +965,17 @@ class HandlerClass:
                 self.add_status(_translate("HandlerClass",f'External requested INI mdi {data} does not match button name/number'), CRITICAL)
         else:
             self.add_status(_translate("HandlerClass",f'External requested INI macro data not recognized:{data}'), CRITICAL)
+
+    # external request for a softkey press from HALUI/halbridge
+    def softkey_pressed(self, index):
+        tmp=['main','file','offsets','tool','status',
+            'probe','gcodes','setup','settings',
+            'utils','user','camera']
+
+        btn = self.w[f'btn_{tmp[index]}']
+        #print(f'index{index}, btn, {btn}')
+        if btn.isVisible():
+            btn.click()
 
     #######################
     # CALLBACKS FROM FORM #
