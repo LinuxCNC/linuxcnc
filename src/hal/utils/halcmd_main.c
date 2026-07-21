@@ -11,6 +11,7 @@
  *                     <fenn AT users DOT sourceforge DOT net>
  *                     Stephen Wille Padnos
  *                     <swpadnos AT users DOT sourceforge DOT net>
+ *                     Petter Reinholdtsen <pere@hungry.com>
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of version 2 of the GNU General
@@ -87,6 +88,8 @@ static char *prompt_continue    = "halcmd+: ";
 
 #define MAX_EXTEND_LINES 20
 
+static int plantuml_mode = 0;
+
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
@@ -113,7 +116,7 @@ int main(int argc, char **argv)
     keep_going = 0;
     /* start parsing the command line, options first */
     while(1) {
-        c = getopt(argc, argv, "+RCfi:kqQsvVhe");
+        c = getopt(argc, argv, "+RCfi:kqQsvVhep");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -159,6 +162,10 @@ int main(int argc, char **argv)
 		break;
 	    case 'e':
                 echo_mode = 1;
+		break;
+	    case 'p':
+                /* -p = generate PlantUML diagram of HAL pins/signals */
+		plantuml_mode = 1;
 		break;
 	    case 'f':
                 filemode = 1;
@@ -250,6 +257,12 @@ int main(int argc, char **argv)
     }
 
     if ( halcmd_startup(0) != 0 ) return 1;
+
+    if (plantuml_mode) {
+        generate_plantuml(stdout);
+        halcmd_shutdown();
+        return 0;
+    }
 
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
@@ -411,6 +424,7 @@ static void print_help_general(int showR)
     printf("\n         halcmd [options] -f [filename]\n\n");
     printf("options:\n\n");
     printf("  -e             echo the commands from stdin to stderr\n");
+    printf("  -p             Generate PlantUML diagram of HAL pins and signals\n");
     printf("  -f [filename]  Read commands from 'filename', not command\n");
     printf("                 line.  If no filename, read from stdin.\n");
 #ifndef NO_INI
