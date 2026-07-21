@@ -1062,7 +1062,7 @@ int halui_hal_init(void)
         if (retval < 0) return retval;
     }
 
-    retval = halui_export_pin_IN_bit(&(halui_data->mpg_select0), "halui.mpg-select.0");
+    retval = halui_export_pin_IN_bit(&(halui_data->mpg_select0), "halui.gui.mpg-select.0");
     if (retval < 0) return retval;
 
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_joints]), comp_id, "halui.joint.selected.home");
