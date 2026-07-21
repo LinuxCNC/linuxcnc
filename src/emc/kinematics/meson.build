@@ -10,6 +10,7 @@ kinematics_srcs = files([
 'maxkins.c',
 'rotatekins.c',
 'tripodkins.c',
+'three21kins.c',
 ])
 
 kinematics_inc = include_directories('.')
@@ -32,3 +33,6 @@ genserkins_srcs  = files('genserkins.c')
 pumakins_srcs  = files('pumakins.c')
 
 scarakins_srcs  = files('scarakins.c')
+
+three21kins_srcs  = files('three21kins.c')
+
