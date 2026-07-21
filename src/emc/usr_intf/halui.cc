@@ -928,7 +928,7 @@ int halui_hal_init(void)
         CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->ajog_increment_minus[axis_num]), 0, "halui.axis.%c.increment-minus", c));
     }
 
-    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->mpg_select0), 0, "halui.mpg-select.0"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->mpg_select0), 0, "halui.gui.mpg-select.0"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->joint_home[num_joints]), 0, "halui.joint.selected.home"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->joint_unhome[num_joints]), 0, "halui.joint.selected.unhome"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->jjog_plus[num_joints]), 0, "halui.joint.selected.plus"));
