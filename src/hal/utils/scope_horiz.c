@@ -240,7 +240,7 @@ static void init_acquire_function(void)
 	return;
     }
     /* function is in use, find out which thread it is linked to */
-    rtapi_mutex_get(&(hal_data->mutex));
+    halpr_mutex_acquire();
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	thread = SHMPTR(next_thread);
@@ -253,7 +253,7 @@ static void init_acquire_function(void)
 		horiz->thread_name = thread->name;
 		horiz->thread_period_ns = thread->period;
 		/* done with hal data */
-		rtapi_mutex_give(&(hal_data->mutex));
+		halpr_mutex_release();
 		/* reset watchdog to give RT code some time */
 		ctrl_shm->watchdog = 1;
 		return;
@@ -263,7 +263,7 @@ static void init_acquire_function(void)
 	next_thread = thread->next_ptr;
     }
     /* didn't find a linked thread - should never get here, but... */
-    rtapi_mutex_give(&(hal_data->mutex));
+    halpr_mutex_release();
     return;
 }
 
@@ -590,7 +590,7 @@ static void dialog_realtime_not_linked(void)
             G_CALLBACK(acquire_selection_made), horiz);
 
     /* get mutex before traversing list */
-    rtapi_mutex_get(&(hal_data->mutex));
+    halpr_mutex_acquire();
     n = 0;
     sel_row = -1;
     next = hal_data->thread_list_ptr;
@@ -619,7 +619,7 @@ static void dialog_realtime_not_linked(void)
 	next = thread->next_ptr;
     }
 
-    rtapi_mutex_give(&(hal_data->mutex));
+    halpr_mutex_release();
 
     /* set up the the layout for the multiplier spinbutton */
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);

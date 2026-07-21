@@ -94,10 +94,10 @@ private:
 //
 struct scoped_hal_mutex {
     scoped_hal_mutex() {
-        rtapi_mutex_get(&(hal_data->mutex));
+        halpr_mutex_acquire();
     }
     ~scoped_hal_mutex() {
-        rtapi_mutex_give(&(hal_data->mutex));
+        halpr_mutex_release();
     }
 };
 

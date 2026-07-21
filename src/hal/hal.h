@@ -1320,6 +1320,36 @@ static inline rtapi_s64 hal_extend_counter(rtapi_s64 old, rtapi_s64 newlow, int 
     return (rtapi_u64)old + (diff_shifted >> nshift); // unsigned to avoid signed overflow
 }
 
+// Only enable the query API when we are compiling the user-land HAL library
+#ifdef ULAPI
+
+//
+// *** Special functions for rtapi_app and halcmd ***
+//
+// Invoke the constructor for a new instance
+// Uspace/rtapi_app only. Not implemented in halcmd/halrmt.
+int hal_comp_invoke_make(const char *compname, const char *newname, const char *arg);
+
+// Add the insmod arguments to a named (and just loaded) RT component
+// The 'args' argument must be in HAL memory.
+int hal_comp_insmod_args(const char *compname, const char *args);
+
+// -----------------------------------------------------
+// Release the HAL mutex with brute force
+// WARNING:
+// *   Do not use this function in normal code. You will
+// *   probably kill your running instance when you do.
+// *   It is only to recover from an error and you need
+// *   to be able to shut down your instance.
+int hal_mutex_force_release(void);
+// -----------------------------------------------------
+
+// HAL will pretend that the exact base period requested is possible.
+// This mode is not suitable for running real hardware.
+// Returns zero (0) on success or a negative -EACCES error if already set.
+int hal_enforce_exact_base_period(void);
+
+#endif // ULAPI
 
 RTAPI_END_DECLS
 

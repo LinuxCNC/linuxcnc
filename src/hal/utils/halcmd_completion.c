@@ -592,7 +592,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     match_writers = -1;
     match_direction = -1;
 
-    rtapi_mutex_get(&(hal_data->mutex));
+    halpr_mutex_acquire();
 
     if(startswith(buffer, "delsig ") && argno == 1) {
         result = func(text, signal_generator);
@@ -722,18 +722,18 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "unload ") && argno == 1) {
         result = func(text, comp_generator);
     } else if(startswith(buffer, "source ") && argno == 1) {
-        rtapi_mutex_give(&(hal_data->mutex));
+        halpr_mutex_release();
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
         return NULL;
     } else if(startswith(buffer, "loadusr ") && argno < 3) {
-        rtapi_mutex_give(&(hal_data->mutex));
+        halpr_mutex_release();
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
         return func(text, loadusr_generator);
     } else if(startswith(buffer, "loadrt ") && argno == 1) {
         result = func(text, loadrt_generator);
     }
 
-    rtapi_mutex_give(&(hal_data->mutex));
+    halpr_mutex_release();
 
     rl_attempted_completion_over = 1;
     return result;

@@ -959,7 +959,7 @@ static gboolean dialog_select_source(int chan_num)
             G_CALLBACK(change_page), vert);
 
     /* populate the pin, signal, and parameter lists */
-    rtapi_mutex_get(&(hal_data->mutex));
+    halpr_mutex_acquire();
     next = hal_data->pin_list_ptr;
     match_tab = -1;
     match_row = 0;
@@ -1010,7 +1010,7 @@ static gboolean dialog_select_source(int chan_num)
         row++;
     }
 
-    rtapi_mutex_give(&(hal_data->mutex));
+    halpr_mutex_release();
 
     gtk_widget_show_all(dialog);
 
