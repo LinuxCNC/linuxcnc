@@ -38,8 +38,25 @@ class Dialogs(GObject.GObject):
                 'play_sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
                }
 
-    def __init__(self):
+    def __init__(self, caller):
         GObject.GObject.__init__(self)
+        self.sys_dialog = self.system_dialog(caller)
+        self.warn_dialog = self.warning_dialog(caller)
+        self.ent_dialog = self.entry_dialog(caller)
+        self.yn_dialog = self.yesno_dialog(caller)
+
+    # sent from Gstat messages
+    # first one found visibly gets the answer
+    # maybe we should check focus?
+    def dialog_ext_control(self, answer):
+        if self.sys_dialog.get_visible():
+                self.sys_dialog.response(answer)
+        elif self.warn_dialog.get_visible():
+                self.warn_dialog.response(answer)
+        elif self.ent_dialog.get_visible():
+                self.ent_dialog.response(answer)
+        elif self.yn_dialog.get_visible():
+                self.yn_dialog.response(answer)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -47,9 +64,12 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.set_modal(True)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
+        dialog._calc = calc
+        dialog._caller = caller
         dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         calc.set_value("")
@@ -57,59 +77,101 @@ class Dialogs(GObject.GObject):
         calc.set_editable(True)
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
+        calc.entry.connect("activate", lambda w : self.on_system_response(dialog,Gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("360x400")
         dialog.set_decorated(True)
+        dialog.connect("response", self.on_system_response)
+        return dialog
+
+    def show_system_dialog(self):
+        dialog = self.sys_dialog
+        dialog._calc.set_value("")
         dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
-        code = calc.get_value()
-        dialog.destroy()
-        if response == Gtk.ResponseType.ACCEPT:
-            if code == int(caller.unlock_code):
-                return True
-        return False
 
-    def entry_dialog(self, caller, data = None, header = _("Enter value") , label = _("Enter the value to set"), integer = False):
-        dialog = Gtk.Dialog(header,
+        # wait but don't block event loop
+        dialog.RESPONSE = None
+        while dialog.RESPONSE is None:
+            while Gtk.events_pending():
+                Gtk.main_iteration()
+
+        dialog.hide()
+
+        code = dialog._calc.get_value()
+        rtn = -1
+        if dialog.RESPONSE == Gtk.ResponseType.ACCEPT:
+            if code == int(dialog._caller.unlock_code):
+                rtn = 1
+            else:
+                rtn = 0
+
+        return rtn
+
+    def on_system_response(self, dialog, rtn):
+        dialog.RESPONSE = rtn
+
+    def entry_dialog(self, caller):
+        dialog = Gtk.Dialog('',
                    caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
-        label = Gtk.Label(label)
-        label.modify_font(Pango.FontDescription("sans 20"))
-        label.set_margin_top(15)
-        calc = gladevcp.Calculator()
+        dialog.label = Gtk.Label('')
+        dialog.label.modify_font(Pango.FontDescription("sans 20"))
+        dialog.label.set_margin_top(15)
+        dialog.calc = gladevcp.Calculator()
         content_area = dialog.get_content_area()
-        content_area.pack_start(child=label, expand=False, fill=False, padding=0)
-        content_area.add(calc)
-        if data != None:
-            calc.set_value(data)
-        else:
-            calc.set_value("")
-        calc.set_property("font", "sans 20")
-        calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
+        content_area.pack_start(child=dialog.label, expand=False, fill=False, padding=0)
+        content_area.add(dialog.calc)
+        dialog.calc.set_property("font", "sans 20")
+        dialog.calc.set_editable(True)
+        dialog.calc.entry.connect("activate", lambda w : self.on_entry_response(dialog, Gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("460x400")
         dialog.set_decorated(True)
+        dialog.connect("response", self.on_entry_response)
+        return dialog
+
+    def show_entry_dialog(self, data = None, header = _("Enter value") ,
+                         label = _("Enter the value to set"), integer = False):
+
+        dialog = self.ent_dialog
+        if data != None:
+            dialog.calc.set_value(data)
+        else:
+           dialog.calc.set_value("")
         if integer: # The user is only allowed to enter integer values, we hide some button
-            calc.integer_entry_only(True)
-            calc.num_pad_only(True)            
+            dialog.calc.integer_entry_only(True)
+            dialog.calc.num_pad_only(True)
+        dialog.label.set_text(label)
+        dialog.set_title(header)
         dialog.show_all()
-        response = dialog.run()
-        value = calc.get_value()
-        dialog.destroy()
-        if response == Gtk.ResponseType.ACCEPT:
+
+        # wait but don't block event loop
+        dialog.RESPONSE = None
+        while dialog.RESPONSE is None:
+            while Gtk.events_pending():
+                Gtk.main_iteration()
+
+        dialog.hide()
+
+        value = dialog.calc.get_value()
+        if dialog.RESPONSE == Gtk.ResponseType.ACCEPT:
             if value != None:
-                if integer:
-                    return int(value)
+                if dialog.calc.integer_only:
+                    qv = int(value)
                 else:
-                    return float(value)
+                    qv = float(value)
             else:
-                return "ERROR"
-        return "CANCEL"
+                qv = "ERROR"
+        else:
+            qv = "CANCEL"
+        return qv
+
+    def on_entry_response(self, dialog, rtn):
+        dialog.RESPONSE = rtn
 
     # display warning dialog
-    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"),\
+    def warning_dialog(self, caller, message = '', secondary = None, title = _("Operator Message"),\
         sound = True, confirm_pin = 'warning-confirm', active_pin = None):
+
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
@@ -123,11 +185,10 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
-        dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
-
+        dialog.context = []
         def periodic():
             if caller.halcomp[confirm_pin]:
                 dialog.response(Gtk.ResponseType.OK)
@@ -138,19 +199,37 @@ class Dialogs(GObject.GObject):
                     return False
             return True
         GLib.timeout_add(100, periodic)
+        dialog.connect("response", self.on_warning_response)
+        return dialog
 
-        response = dialog.run()
-        dialog.destroy()
-        return response == Gtk.ResponseType.OK
+    def show_warning_dialog(self, title, message, sound=True,
+                         confirm_pin = 'warning-confirm', active_pin = None):
+        dialog = self.warn_dialog
+        dialog.set_title(title)
+        dialog.format_secondary_text(message)
+        dialog.set_markup(message)
+        dialog.show_all()
+        if sound:
+            self.emit("play_sound", "alert")
 
-    def yesno_dialog(self, caller, message, title = _("Operator Message")):
+        # wait but don't block event loop
+        dialog.RESPONSE = None
+        while dialog.RESPONSE is None:
+            while Gtk.events_pending():
+                Gtk.main_iteration()
+
+        dialog.hide()
+
+        return dialog.RESPONSE
+
+    def on_warning_response(self, dialog, rtn):
+        dialog.RESPONSE = rtn
+
+    def yesno_dialog(self, caller):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.QUESTION,
                                    Gtk.ButtonsType.NONE)
-        if title:
-            dialog.set_title(str(title))
-        dialog.set_markup(message)
         yes_button = Gtk.Button.new_with_mnemonic(_("_Yes"))
         no_button = Gtk.Button.new_with_mnemonic(_("_No"))
         yes_button.set_size_request(-1, 56)
@@ -164,11 +243,30 @@ class Dialogs(GObject.GObject):
         box.set_layout(Gtk.ButtonBoxStyle.CENTER)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
+        dialog.connect("response", self.on_yn_response)
+        return dialog
+
+    def show_yesno_dialog(self, caller, message, title = _("Operator Message")):
+        dialog = self.yn_dialog
+        dialog.set_markup(message)
+        if title:
+            dialog.set_title(str(title))
         dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
-        dialog.destroy()
-        return response == Gtk.ResponseType.YES
+
+        # wait but don't block event loop
+        dialog.RESPONSE = None
+        while dialog.RESPONSE is None:
+            while Gtk.events_pending():
+                Gtk.main_iteration()
+
+        rtn = dialog.RESPONSE 
+        dialog.hide()
+        return bool(rtn in(Gtk.ResponseType.YES, Gtk.ResponseType.ACCEPT))
+
+    # update internal variable so dialog will respond
+    def on_yn_response(self,dialog, rtn):
+        dialog.RESPONSE = rtn
 
     def show_user_message(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,

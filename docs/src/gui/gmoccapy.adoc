@@ -935,6 +935,64 @@ net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
 Please note, that GMOCCAPY takes care of its own to update the offsets, sending an G43 after any tool change, *but not in auto mode!* +
 So writing a program makes you responsible to include an G43 after each tool change!
 
+== HALUI
+HALUI will create halui.gui pins that interface with Gmoccapy.
+
+- There is a cycle start and pause pin - these call the code in Gmoccapy rather then the motion controller.  ie if in MDI mode the MDI command will be run with a cycle start.+
+- If there are macros defined in the INI there will be (up to 64) pins available to initiate them. +
+- clear/reload the display
+- shutdown the linux system
+- ok/cancel of dialogs and notify (error) messages
+- softkeys 0 - 11 control the main tab keys: +
+halui.gui.softkey-00 - halui.gui.softkey-06 are the vertical keys. +
+halui.gui.softkey-10 - halui.gui.softkey-09 are the horizontal keys.
+
+also:
+
+- enabling halui.gui.mpg-select.0, will allow zooming of the gcode plot with the gmoccapy.mpg-in pin.
+- HALUI selected Axis will be reported to Gmoccapy. +
+- HALUI selected jog rate will be reported to Gmoccapy. +
+In either case the last changed rate/axis (either HALUI or Gmoccapy) will be used for screen button jogging or HALUI pin jogging.
+
+.Typical HAL pins avaialble:
+----
+Component Pins:
+Owner   Type  Dir                 Value  Name
+    25  bit   IN                  FALSE  halui.gui.cancel
+    25  bit   IN                  FALSE  halui.gui.cycle.pause
+    25  bit   IN                  FALSE  halui.gui.cycle.start
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO0
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO1
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO2
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO3
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO4
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO5
+    25  bit   IN                  FALSE  halui.gui.mpg-select.0
+    25  bit   IN                  FALSE  halui.gui.ok
+    25  bit   IN                  FALSE  halui.gui.reload-display
+    25  bit   IN                  FALSE  halui.gui.shutdown
+    25  bit   IN                  FALSE  halui.gui.softkey-00
+    25  bit   IN                  FALSE  halui.gui.softkey-01
+    25  bit   IN                  FALSE  halui.gui.softkey-02
+    25  bit   IN                  FALSE  halui.gui.softkey-03
+    25  bit   IN                  FALSE  halui.gui.softkey-04
+    25  bit   IN                  FALSE  halui.gui.softkey-05
+    25  bit   IN                  FALSE  halui.gui.softkey-06
+    25  bit   IN                  FALSE  halui.gui.softkey-07
+    25  bit   IN                  FALSE  halui.gui.softkey-08
+    25  bit   IN                  FALSE  halui.gui.softkey-09
+    25  bit   IN                  FALSE  halui.gui.softkey-10
+    25  bit   IN                  FALSE  halui.gui.softkey-11
+    25  bit   IN                  FALSE  halui.gui.softkey-12
+    25  bit   IN                  FALSE  halui.gui.softkey-13
+    25  bit   IN                  FALSE  halui.gui.softkey-14
+    25  bit   IN                  FALSE  halui.gui.softkey-15
+    25  bit   IN                  FALSE  halui.gui.softkey-16
+    25  bit   IN                  FALSE  halui.gui.softkey-17
+    25  bit   IN                  FALSE  halui.gui.softkey-18
+    25  bit   IN                  FALSE  halui.gui.softkey-19
+
+----
 [[gmoccapy:auto-tool-measurement]]
 == Auto Tool Measurement
 

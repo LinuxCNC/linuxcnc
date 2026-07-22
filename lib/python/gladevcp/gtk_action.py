@@ -191,19 +191,38 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
         return 0
 
-    def CALL_INI_MDI(self, number):
+    def CALL_INI_MDI(self, key, mode_return = False):
         try:
-            mdi = INFO.MDI_COMMAND_LIST[number]
+            # prefer named INI MDI commands
+            mdi = INFO.get_ini_mdi_command(key)
+            LOG.debug('COMMAND= {}'.format(mdi))
+            if mdi is None: raise Exception
         except:
-            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number)
-            LOG.error(msg)
-            self.SET_ERROR_MESSAGE(msg)
-            return
+            # fallback to legacy nth line
+            try:
+                mdi = INFO.MDI_COMMAND_LIST[key]
+            except:
+                msg = 'MDI_COMMAND_{} Not found under [MDI_COMMAND_LIST] in INI file'.format(key)
+                LOG.error(msg)
+                self.SET_ERROR_MESSAGE(msg)
+                return
+
+
         mdi_list = mdi.split(';')
+        if mode_return:
+            self.RECORD_CURRENT_MODE()
+            self._a = STATUS.connect('command-stopped', lambda w: self.return_mode_after_finish())
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
             LOG.debug('CALL_INI_MDI command:{}'.format(code))
             self.cmd.mdi('%s' % code)
+
+    # when command stops - we try to continue the generator.
+    # if generator is done - return to recorded mode.
+    def return_mode_after_finish(self):
+        print('ini command end')
+        self.RESTORE_RECORDED_MODE()
+        STATUS.handler_disconnect(self._a)
 
     def CALL_OWORD(self, code, time=5):
         LOG.debug('OWORD_COMMAND= {}'.format(code))
@@ -597,21 +616,29 @@ class _Lcnc_Action(object):
     def ADJUST_GRAPHICS_ROTATE(self, x, y):
         STATUS.emit('graphics-view-changed', 'rotate-view', {'X': x, 'Y': y})
 
+    #TODO without the gtk dialog, gnome-sessions
+    # does not start reliably
     def SHUT_SYSTEM_DOWN_PROMPT(self):
-        import subprocess
-        try:
-            try:
-                subprocess.call('gnome-session-quit --power-off', shell=True)
-            except:
-                try:
-                    subprocess.call('xfce4-session-logout', shell=True)
-                except:
-                    try:
-                        subprocess.call('systemctl poweroff', shell=True)
-                    except:
-                        raise
-        except Exception as e:
-            LOG.warning("Couldn't shut system down: {}".format(e))
+        import shutil
+        import time
+
+        dialog = gtk.MessageDialog(parent=None,
+                      message_type=gtk.MessageType.QUESTION,
+                      buttons=gtk.ButtonsType.YES_NO,
+                      text='Shutdown System?')
+        dialog.set_keep_above(True)
+        dialog.format_secondary_text('Unsaved data will be lost')
+        response = dialog.run()
+        dialog.destroy()
+        if response == gtk.ResponseType.YES:
+
+            if shutil.which('gnome-session-quit'):
+                subprocess.run(["gnome-session-quit", "--power-off"])
+            elif shutil.which('xfce4-session-logout'):
+                subprocess.call('xfce4-session-logout', shell=True)
+            else:
+                # force a shutdown - no prompt
+                subprocess.call('systemctl poweroff', shell=True)
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess

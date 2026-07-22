@@ -139,6 +139,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     def reloadfile(self,w):
         try:
             self.fileloaded(None,self._reload_filename)
+            self.clear_live_plotter()
         except:
             pass
         self.gstat.emit('graphics-gcode-properties',self.gcode_properties)

@@ -153,10 +153,12 @@ class HandlerClass:
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
         STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
         STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
-        STATUS.connect('cycle-pause-request', lambda w, state: self.btn_pause_clicked(state))
+        STATUS.connect('cycle-pause-request', lambda w, state: self.ext_pause_toggled(state))
         STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
         STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
         STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
+        STATUS.connect('axis-selection-changed', lambda w,data: self.mpg_selection_changed(data))
+        STATUS.connect('softkey-pressed', lambda w,data: self.softkey_pressed(data))
 
         self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
         self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
@@ -787,7 +789,7 @@ class HandlerClass:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
-        elif wait_code and name == 'MESSAGE':
+        elif wait_code and name == 'MESSAGE' and rtn is True:
             self.lowerSpindle()
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
@@ -920,20 +922,24 @@ class HandlerClass:
 
     # called from hal_glib to run macros from external event
     def request_macro_call(self, data):
+        #print(f'macro call data: {data}')
         if not self.w.chk_auto_mode_ext_macro.isChecked() and not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), WARNING)
             return
-
-        if 'ini-macro-cmd' in data:
+        cmd = INFO.get_ini_mdi_command(data)
+        #print(f'MDI command:{cmd}   data:{data}')
+        if INFO.get_ini_mdi_command(data) is None:
             data = data.replace('ini-macro-cmd-','')
             try:
                 temp = INFO.MACRO_COMMAND_DICT.get(data).get('cmd')
+                #print(temp)
                 self.run_macro(data=temp)
                 return
-            except:
-                self.add_status(_translate(f"HandlerClass",'External requested INI macro data not recognized:{data}'), CRITICAL)
+            except Exception as e:
+                print(e)
+                self.add_status(_translate("HandlerClass",f'External requested INI macro data not recognized:{data}'), CRITICAL)
 
-        elif 'ini-mdi-cmd' in data:
+        elif INFO.get_ini_macro_command(data) is None:
             for b in range(0,10):
                 button = self.w['macrobutton{}'.format(b)]
                 # prefer named INI MDI commands
@@ -956,9 +962,20 @@ class HandlerClass:
                         self.add_status(_translate("HandlerClass",'Error running macro: {} {}\n{}'.format(key, text, e)))
                     break
             else:
-                self.add_status(_translate(f"HandlerClass",'External requested INI mdi {data} does not match button name/number'), CRITICAL)
+                self.add_status(_translate("HandlerClass",f'External requested INI mdi {data} does not match button name/number'), CRITICAL)
         else:
-            self.add_status(_translate(f"HandlerClass",'External requested INI macro data not recognized:{data}'), CRITICAL)
+            self.add_status(_translate("HandlerClass",f'External requested INI macro data not recognized:{data}'), CRITICAL)
+
+    # external request for a softkey press from HALUI/halbridge
+    def softkey_pressed(self, index):
+        tmp=['main','file','offsets','tool','status',
+            'probe','gcodes','setup','settings',
+            'utils','user','camera']
+
+        btn = self.w[f'btn_{tmp[index]}']
+        #print(f'index{index}, btn, {btn}')
+        if btn.isVisible():
+            btn.click()
 
     #######################
     # CALLBACKS FROM FORM #
@@ -993,10 +1010,20 @@ class HandlerClass:
 
     # program frame
     def btn_start_clicked(self, obj):
+
         if not STATUS.is_all_homed():
            self.add_status(_translate("HandlerClass","Machine must be is homed"), CRITICAL)
            return
-        if not  os.path.exists(self.last_loaded_program):
+        if STATUS.is_auto_paused():
+            self.command.auto(linuxcnc.AUTO_RESUME)
+            return
+        if STATUS.is_mdi_mode():
+            self.w.mdiline.submit()
+            return
+        if STATUS.is_man_mode():
+            self.add_status(_translate("HandlerClass","Can't start cycles or submit MDI commands in manual Mode"),WARNING)
+            return
+        if not os.path.exists(self.last_loaded_program):
             self.add_status(_translate("HandlerClass","No program to execute"), WARNING)
             return
         if not STATUS.is_auto_mode():
@@ -1318,6 +1345,12 @@ class HandlerClass:
         if self.h['eoffset-clear'] != True:
             self.h['eoffset-spindle-count'] = int(fval)
 
+    def ext_pause_toggled(self, state):
+        if STATUS.is_auto_paused():
+            self.btn_pause_clicked(False)
+            return
+        self.btn_pause_clicked(True)
+
     def btn_pause_clicked(self, data):
 
         # pause request
@@ -1451,6 +1484,12 @@ class HandlerClass:
         if state:
             STATUS.emit('dro-reference-change-request', 1)
 
+    def mpg_selection_changed(self, data):
+        if data =='MPG0':
+            self.recolorMPGFocusBorder()
+        elif data == 'None':
+            self.removeMPGFocusBorder()
+
     def MPG_select_changed(self, button):
         #print(button)
         # Auto exclusive doesn't allow unchecking all buttons
@@ -1467,8 +1506,10 @@ class HandlerClass:
         if button == self.w.btn_mpg_scroll:
             if self.w.btn_mpg_scroll.isChecked():
                 self.recolorMPGFocusBorder()
-        else:
+            else:
                 self.removeMPGFocusBorder()
+        else:
+            self.removeMPGFocusBorder()
 
         #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
         self._lastSelectButton = button
