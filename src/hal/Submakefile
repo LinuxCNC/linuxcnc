@@ -28,5 +28,19 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
 
+# pybind11 C++ bindings (hal.hh based)
+# setps_util.c only exists in the tree with the HAL query API
+HALPPSRCS := hal/halpybind.cc $(wildcard hal/utils/setps_util.c)
+PYSRCS += $(HALPPSRCS)
+
+# pybind11 headers: python3-pybind11 (system include) or pip user site
+$(call TOOBJS, $(HALPPSRCS)): EXTRAFLAGS += $(shell python3 -m pybind11 --includes 2>/dev/null)
+
+HALPP := ../lib/python/halpp.so
+$(HALPP): $(call TOOBJS, $(HALPPSRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)
+PYTARGETS += $(HALPP)
