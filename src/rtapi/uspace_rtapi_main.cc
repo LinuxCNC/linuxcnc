@@ -38,6 +38,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <grp.h>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -70,86 +71,195 @@ static bool is_master = false;
 // for diagnostic warning at startup; callers must not gate behavior on
 // the kernel string, since SCHED_FIFO on a PREEMPT_DYNAMIC kernel is still
 // useful (better than SCHED_OTHER, worse than PREEMPT_RT).
-static inline int detect_preempt_rt() {
+static bool detect_preempt_rt() {
     struct utsname u;
     if(uname(&u) < 0) return 0;
     return strcasestr(u.version, "PREEMPT RT") != NULL
         || strcasestr(u.version, "PREEMPT_RT") != NULL;
 }
 #else
-static inline int detect_preempt_rt() {
-    return 0;
+static bool detect_preempt_rt() {
+    return false;
 }
 #endif
 
 #ifdef __linux__
 // detect_preempt_dynamic() inspects uname for the PREEMPT_DYNAMIC marker.
-static inline int detect_preempt_dynamic() {
+static bool detect_preempt_dynamic() {
     struct utsname u;
-    if(uname(&u) < 0) return 0;
+    if(uname(&u) < 0) return false;
     return strcasestr(u.version, "PREEMPT DYNAMIC") != NULL
         || strcasestr(u.version, "PREEMPT_DYNAMIC") != NULL;
 }
 #else
-static inline int detect_preempt_dynamic() {
-    return 0;
+static bool detect_preempt_dynamic() {
+    return false;
 }
 #endif
 
-// FIXME: detect_rtai/detect_xenomai/detect_xenomai_evl currently gate on
-// setuid because the RTAI/Xenomai backends still need root for iopl()
-// (RTAI) or RTDM device access (Xenomai/EVL).  Long-term these should
-// probe the actual capability the way can_set_sched_fifo() does, paired
-// with udev rules + a 'xenomai'/'evl' group; @hdiethelm has a follow-up
-// planned.  Until then, an unprivileged user on a Xenomai kernel cannot
-// claim the Xenomai backend, and falls back to the SCHED_FIFO probe.
-[[maybe_unused]] static inline int has_setuid_root() {
+#if defined(USPACE_RTAI) || defined(USPACE_XENOMAI) || defined(USPACE_XENOMAI_EVL)
+static bool has_setuid_root() {
     return geteuid() == 0;
 }
+#endif
+
+#if defined(USPACE_XENOMAI) || defined(USPACE_XENOMAI_EVL)
+static bool is_current_user_in_gid(gid_t target_gid) {
+    int ngroups = getgroups(0, NULL);
+    if (ngroups < 0) {
+        perror("getgroups size failed");
+        return false;
+    }
+
+    gid_t *groups = (gid_t *)malloc(ngroups * sizeof(gid_t));
+    if (groups == NULL) {
+        perror("malloc failed");
+        return false;
+    }
+
+    ngroups = getgroups(ngroups, groups);
+    if (ngroups < 0) {
+        perror("getgroups get failed");
+        free(groups);
+        return false;
+    }
+
+    bool found = false;
+    for (int i = 0; i < ngroups; i++) {
+        if (groups[i] == target_gid) {
+            found = true;
+            break;
+        }
+    }
+
+    free(groups);
+    return found;
+}
+#endif
 
 #ifdef USPACE_RTAI
-static int detect_rtai_lxrt() {
-    if(!has_setuid_root()) return 0;
+// FIXME: detect_rtai_lxrt relays on setuid root
+static bool detect_rtai_lxrt() {
+    if(!has_setuid_root()) return false;
     struct utsname u;
     uname(&u);
     return strcasestr (u.release, "-rtai") != NULL;
 }
 #else
-static int detect_rtai_lxrt() {
-    return 0;
+static bool detect_rtai_lxrt() {
+    return false;
 }
 #endif
 #ifdef USPACE_XENOMAI
-static int detect_xenomai() {
-    if(!has_setuid_root()) return 0;
-    struct stat sb;
+static bool detect_xenomai() {
     //Running xenomai has /proc/xenomai
-    return stat("/proc/xenomai", &sb) == 0;
+    struct stat sb;
+    if (stat("/proc/xenomai", &sb) != 0) {
+        //No xenomai
+        return false;
+    }
+
+    if (has_setuid_root()) {
+        //xenomai and setuid, all fine
+        return true;
+    }
+
+    //Get allowed xenomai group
+    //Set to xenomai by /etc/init.d/xenomai from libxenomai1 debian package
+    int gid = 0;
+    FILE *fp = fopen("/sys/module/xenomai/parameters/allowed_group", "r");
+    if (fp == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: detect_xenomai fopen failed: %m\n");
+        return false;
+    }
+
+    int ret = fscanf(fp, "%i", &gid);
+    if (ret != 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: detect_xenomai fscanf failed: %m\n");
+        fclose(fp);
+        return false;
+    }
+    fclose(fp);
+
+    if (gid == 0) {
+        if(is_master){
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Warning: Xenomai kernel running but xenomai\n"
+                "  access in /sys/module/xenomai/parameters/allowed_group\n"
+                "  is set to root and not setuid root.\n"
+                "  Fix: enable /etc/init.d/xenomai (preferred) or 'sudo make setuid'\n");
+        }
+        return false;
+    }
+
+    if(!is_current_user_in_gid(gid)){
+        if(is_master){
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Warning: Xenomai kernel running but current user not\n"
+                "  in xenomai group (gid: %i) or setuid root\n"
+                "  Fix: 'sudo adduser $USER xenomai' (preferred) or 'sudo make setuid'\n", gid);
+        }
+        return false;
+    }
+
+    return true;
 }
 #else
-static int detect_xenomai() {
-    return 0;
+static bool detect_xenomai() {
+    return false;
 }
 #endif
 #ifdef USPACE_XENOMAI_EVL
-static int detect_xenomai_evl() {
-    if(!has_setuid_root()) return 0;
-    struct stat sb;
+static bool detect_xenomai_evl() {
     //Running xenomai evl has /dev/evl but no /proc/xenomai
-    return stat("/dev/evl", &sb) == 0;
+    struct stat sb;
+    if(stat("/dev/evl/control", &sb) != 0){
+        //No EVL
+        return false;
+    }
+    if(has_setuid_root()){
+        //EVL and setuid, all fine
+        return true;
+    }
+
+    //Check if current user is in group of /dev/evl/control
+    //Set to evl by /usr/lib/udev/rules.d/90-libevl.rules from libevl debian package
+    //Note: There are more files in /dev/evl which need to have the proper
+    //access rights set. However, we check only one of them.
+    if (sb.st_gid == 0) {
+        if(is_master){
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Warning: Xenomai4 EVL kernel running but /dev/evl/control\n"
+                "  access is set to root and not setuid root.\n"
+                "  Fix: enable enable 90-libevl.rules (preferred) or 'sudo make setuid'\n");
+        }
+        return false;
+    }
+
+    if(!is_current_user_in_gid(sb.st_gid)){
+        if(is_master){
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "Warning: Xenomai4 EVL kernel running but current user not\n"
+                "  in evl group (gid: %i) or setuid root\n"
+                "  Fix: 'sudo adduser $USER evl' (preferred) or 'sudo make setuid'\n", sb.st_gid);
+        }
+        return false;
+    }
+
+    return true;
 }
 #else
-static int detect_xenomai_evl() {
-    return 0;
+static bool detect_xenomai_evl() {
+    return false;
 }
 #endif
 
-static int detect_force(){
+static bool detect_force(){
     const char *force = getenv("LINUXCNC_FORCE_REALTIME");
     if(force != NULL && atoi(force) != 0){
-        return 1;
+        return true;
     }else{
-        return 0;
+        return false;
     }
 }
 
@@ -200,29 +310,29 @@ static void report_sched_fifo_error(int sched_err){
 // PREEMPT_RT-vs-stock distinction implicitly: if we can actually get
 // SCHED_FIFO, the platform can deliver realtime, regardless of how.
 // Only report an error if this check fails in master mode to not spam the user.
-static int can_set_sched_fifo(void) {
+static bool can_set_sched_fifo(void) {
     struct sched_param old_param, probe_param;
     int old_policy = sched_getscheduler(0);
     if(old_policy < 0) {
         if(is_master) report_sched_fifo_error(errno);
-        return 0;
+        return false;
     }
     if(sched_getparam(0, &old_param) < 0) {
         if(is_master) report_sched_fifo_error(errno);
-        return 0;
+        return false;
     }
 
     memset(&probe_param, 0, sizeof(probe_param));
     probe_param.sched_priority = sched_get_priority_min(SCHED_FIFO);
     if(sched_setscheduler(0, SCHED_FIFO, &probe_param) < 0) {
         if(is_master) report_sched_fifo_error(errno);
-        return 0;
+        return false;
     }
 
     // Best-effort restore; if this fails we are still on SCHED_FIFO at
     // minimum priority, which is no worse than where we started.
     sched_setscheduler(0, old_policy, &old_param);
-    return 1;
+    return true;
 }
 
 // rtapi_get_realtime_type() reports whether this process can actually run
