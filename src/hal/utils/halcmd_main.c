@@ -340,42 +340,7 @@ int main(int argc, char **argv)
 */
 static int release_HAL_mutex(void)
 {
-    int comp_id, mem_id, retval;
-    void *mem;
-    hal_data_t *hal_data;
-
-    /* do RTAPI init */
-    comp_id = rtapi_init("hal_unlocker");
-    if (comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: rtapi init failed\n");
-        return -EINVAL;
-    }
-    /* get HAL shared memory block from RTAPI */
-    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
-    if (mem_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "ERROR: could not open shared memory\n");
-        rtapi_exit(comp_id);
-        return -EINVAL;
-    }
-    /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "ERROR: could not access shared memory\n");
-        rtapi_exit(comp_id);
-        return -EINVAL;
-    }
-    /* set up internal pointers to shared mem and data structure */
-    hal_data = (hal_data_t *) mem;
-    /* release mutex  */
-    rtapi_mutex_give(&(hal_data->mutex));
-    /* release RTAPI resources */
-    rtapi_shmem_delete(mem_id, comp_id);
-    rtapi_exit(comp_id);
-    /* done */
-    return 0;
-
+    return hal_mutex_force_release() == 0 ? 0 : -EINVAL;
 }
 
 static char **completion_callback(const char *text, hal_generator_func cb) {

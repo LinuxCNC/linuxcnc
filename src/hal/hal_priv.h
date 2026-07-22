@@ -118,7 +118,7 @@
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000012	/* version code */
+#define HAL_VER   0x00000013	/* version code */
 #define HAL_SIZE  (2*256*4096)
 #define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
@@ -247,8 +247,18 @@ typedef struct hal_thread_t hal_thread_t;
 */
 typedef struct hal_data_t {
     int version;		/* version code for structs, etc */
-    rtapi_mutex_t mutex;	/* protection for linked lists, etc. */
-    hal_s32_t shmem_avail;	/* amount of shmem left free */
+
+    // WARNING: Do not touch these mutex lock fields. Only use the proper
+    // functions halpr_mutex_acquire() and halpr_mutex_release(). See comment
+    // above hal_lib.c:halpr_mutex_acquire() for functional explanation.
+    rtapi_mutex_t priv_rdmutex; // Private mutex for recursive lock
+                                // Important: the mutex uses reverse default
+                                // which means: 0==locked, 1==unlocked
+    int lockcnt;                // Lock counter (using interlocked inc/dec)
+    int locklvl;                // Lock recursion level
+    int locktid;                // Lock owner thread ID
+
+    rtapi_s32 shmem_avail;	/* amount of shmem left free */
     constructor pending_constructor;
 			/* pointer to the pending constructor function */
     char constructor_prefix[HAL_NAME_LEN+1];
@@ -499,6 +509,11 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
     used with all other hal_port functions.
 */
 extern int hal_port_alloc(unsigned size, hal_port_t *port);
+
+// Recursive HAL mutex (replaces old mutex)
+int halpr_mutex_acquire(void);
+int halpr_mutex_release(void);
+void halpr_mutex_force_release(void);
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */
