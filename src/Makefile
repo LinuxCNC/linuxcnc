@@ -394,6 +394,7 @@ build-software: headers $(INFILES)
 #
 SRCHEADERS := \
     hal/hal.h \
+    hal/hal.hh \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
