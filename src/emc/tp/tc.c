@@ -64,19 +64,27 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
     return fmin(v_max_target, tc->maxvel);
 }
 
-double tcGetOverallMaxAccel(const TC_STRUCT *tc)
+static double tcOverallMaxAccelScaled(const TC_STRUCT *tc, int apply_parabolic)
 {
     // Handle any acceleration reduction due to an approximate-tangent "blend" with the previous or next segment
     double a_scale = (1.0 - fmax(tc->kink_accel_reduce, tc->kink_accel_reduce_prev));
 
     // Parabolic blending conditions: If the next segment or previous segment
     // has a parabolic blend with this one, acceleration is scaled down by 1/2
-    // so that the sum of the two does not exceed the maximum.
-    if (tc->blend_prev || TC_TERM_COND_PARABOLIC == tc->term_cond) {
+    // so that the sum of the two does not exceed the maximum. This is only
+    // physically required while both segments accelerate simultaneously in the
+    // blend overlap; callers that need the geometric corner limit pass
+    // apply_parabolic != 0, the per-cycle motion cap gates it on the overlap.
+    if (apply_parabolic && (tc->blend_prev || TC_TERM_COND_PARABOLIC == tc->term_cond)) {
         a_scale *= 0.5;
     }
 
     return tc->maxaccel * a_scale;
+}
+
+double tcGetOverallMaxAccel(const TC_STRUCT *tc)
+{
+    return tcOverallMaxAccelScaled(tc, 1);
 }
 
 /**
@@ -91,6 +99,28 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
     // moving along the circular path).
     if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         //Limit acceleration for circular arcs to allow for normal acceleration
+        a_scale *= tc->acc_ratio_tan;
+    }
+    return a_scale;
+}
+
+/**
+ * Per-cycle tangential acceleration limit.
+ *
+ * Same as tcGetTangentialMaxAccel, except the parabolic-blend 1/2 reduction is
+ * only applied when the segment is actually overlapping a neighbor in an active
+ * parabolic blend this cycle (in_overlap != 0). Away from that overlap (a lone
+ * segment, the accel-from-rest of the first segment, or the decel-to-stop of the
+ * last segment) the full path acceleration is used. The path acceleration is
+ * derived to respect every joint's limit for the segment direction, so it is safe
+ * whenever only one segment is moving; the 1/2 split is only needed while two
+ * blended segments accelerate at once and their per-axis contributions add.
+ */
+double tcGetCycleMaxAccel(TC_STRUCT const * const tc, int in_overlap)
+{
+    double a_scale = tcOverallMaxAccelScaled(tc, in_overlap);
+
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         a_scale *= tc->acc_ratio_tan;
     }
     return a_scale;
