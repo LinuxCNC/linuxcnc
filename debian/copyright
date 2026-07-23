@@ -247,7 +247,6 @@ Files:
  src/hal/drivers/hal_speaker.c
  src/hal/drivers/hal_stg.c
  src/hal/drivers/hal_stg.h
- src/hal/drivers/hal_tiro.c
  src/hal/drivers/hal_vti.c
  src/hal/drivers/hal_vti.h
  src/hal/drivers/motenc.h

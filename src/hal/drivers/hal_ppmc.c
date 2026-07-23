@@ -75,6 +75,7 @@
 #include <rtapi_io.h>		/* kmalloc() */
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_stdint.h>	// portable ints
 #include <hal.h>		/* HAL public API decls */
 #include <rtapi_parport.h>
 
@@ -293,12 +294,13 @@ typedef union {
 typedef struct {
   hal_float_t *position;      /* output: scaled position pointer */
   hal_s32_t *count;           /* output: unscaled encoder counts */
+  hal_s64_t *count64;		/* 64 bit version to avoid wrapping */
   hal_s32_t *delta;		/* output: delta counts since last read */
   hal_s32_t prevdir;		/* local: previous direction  */
   hal_float_t scale;          /* parameter: scale factor */
   hal_bit_t *index;           /* output: index flag */
   hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-  hal_s32_t oldreading;     /* used to detect overflow / underflow of the counter JE001 */
+  rtapi_s64 oldreading;     /* used to detect overflow / underflow of the counter JE001 AP001*/
   unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
   unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
   hal_float_t *vel;             /* output: scaled velocity */
@@ -1076,7 +1078,7 @@ static void read_encoders(slot_data_t *slot)
   int i, byteindex, byteindx2;
   double vel;                    // local temporary velocity
     union pos_tag {
-      hal_s32_t l;              // JE001
+      rtapi_s64 l;              // JE001 AP001
         struct byte_tag {
             signed char b0;
             signed char b1;
@@ -1106,16 +1108,16 @@ static void read_encoders(slot_data_t *slot)
     for (i = 0; i < 4; i++) {
       slot->encoder[i].indrescnt++;  /* increment counter each servo cycle */
         oldpos.l = slot->encoder[i].oldreading;
+	pos.l = *(slot->encoder[i].count); // init the higher-order bytes
 	pos.byte.b0 = (signed char)slot->rd_buf[byteindex++];
 	pos.byte.b1 = (signed char)slot->rd_buf[byteindex++];
 	pos.byte.b2 = (signed char)slot->rd_buf[byteindex++];
-        pos.byte.b3 = oldpos.byte.b3;
         /* check for - to + transition */
         if ((oldpos.byte.b2 & 0xc0) == 0xc0 && (pos.byte.b2 == 0))
-            pos.byte.b3++;
+            pos.l += 0x01000000;
         else
             if ((oldpos.byte.b2 == 0) && (pos.byte.b2 & 0xc0) == 0xc0)
-                pos.byte.b3--;
+                pos.l -= 0x01000000;
 	*(slot->encoder[i].delta) = pos.l - slot->encoder[i].oldreading;
 	vel = (pos.l - slot->encoder[i].oldreading) /
 	           (read_period * 1e-9 * slot->encoder[i].scale);
@@ -1135,9 +1137,9 @@ static void read_encoders(slot_data_t *slot)
 		    /* need to properly set the 24->32 bit extension byte */
 		    if ( pos.byte.b2 < 0 ) {
 		      /* going backwards */
-		      pos.byte.b3 = 0xFF;
+		      pos.l |= 0xFFFFFFFFFF000000;
 		    } else {
-		      pos.byte.b3 = 0;
+		      pos.l &= 0x0000000000FFFFFF;
 		    }
 		    oldpos.byte.b3 = pos.byte.b3;
 		}
