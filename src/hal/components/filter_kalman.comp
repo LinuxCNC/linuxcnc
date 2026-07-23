@@ -44,23 +44,23 @@ Common practice is also to conservatively set *Rk* and *Qk* slightly larger then
 ones to get robustness.
 """;
 
-pin    in   bit  debug = FALSE             "When asserted, prints out measured and estimated values.";
-pin    in   bit  passthrough = FALSE       "When asserted, copies measured value into estimated value.";
-pin    in   bit  reset = FALSE
+pin    in bool  debug = FALSE             "When asserted, prints out measured and estimated values.";
+pin    in bool  passthrough = FALSE       "When asserted, copies measured value into estimated value.";
+pin    in bool  reset = FALSE
 """When asserted, resets filter to its initial state and returns 0 as an estimated value (*reset* pin
 has higher priority than *passthrough* pin).""";
-pin    in float     zk                     "Measured value.";
-pin   out float xk_out                     "Estimated value.";
-param  rw float     Rk = 1.17549e-38       "Estimation of the noise covariances (process).";
-param  rw float     Qk = 1.17549e-38       "Estimation of the noise covariances (observation).";
+pin    in real     zk                     "Measured value.";
+pin   out real xk_out                     "Estimated value.";
+param  rw real     Rk = 1.17549e-38       "Estimation of the noise covariances (process).";
+param  rw real     Qk = 1.17549e-38       "Estimation of the noise covariances (observation).";
 
 option extra_setup yes;
 option period no;
 
 function _ "Update *xk-out* based on *zk* input.";
 
-variable float xk_last;
-variable float Pk_last;
+variable rtapi_real xk_last;
+variable rtapi_real Pk_last;
 
 variable bool initialized = FALSE;
 variable int cidx = 0;
@@ -68,7 +68,7 @@ variable int cidx = 0;
 ;;
 #include <rtapi_math.h>
 
-typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalmanFilter implementation.
+typedef rtapi_real D; // to Keep code synchronized with C++ based TrivialKalmanFilter implementation.
 
 // Based on: https://github.com/dwrobel/TrivialKalmanFilter/blob/master/src/TrivialKalmanFilter.h
 // Assumes simplified model
@@ -101,7 +101,7 @@ FUNCTION(_) {
         initialized = TRUE;
 
         if (reset) {
-            xk_out = 0;
+            xk_out_set(0);
 
             if (debug) {
                 print_info(cidx, zk, xk_out);
@@ -112,7 +112,7 @@ FUNCTION(_) {
     }
 
     if (passthrough) {
-        xk_out = zk;
+        xk_out_set(zk);
 
         if (debug) {
             print_info(cidx, zk, xk_out);
@@ -136,7 +136,7 @@ FUNCTION(_) {
 
         xk_last    = xk;
         Pk_last    = Pk;
-        xk_out     = xk;
+        xk_out_set(xk);
 
         if (debug) {
             print_info(cidx, zk, xk_out);

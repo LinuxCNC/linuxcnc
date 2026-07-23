@@ -110,21 +110,21 @@ typedef struct {
 }hm2_sserial_mode_t;
 
 typedef struct {
-    hal_u32_t *u32_pin;
-    hal_s32_t *s32_pin;
-    hal_s32_t *s32_pin2;
-    hal_float_t *float_pin;
-    hal_bit_t **bit_pins;
-    hal_bit_t **bit_pins_not;
-    hal_bit_t *invert;
-    hal_bit_t *boolean;
-    hal_bit_t *boolean2;
-    hal_float_t maxlim;
-    hal_float_t minlim;
-    hal_float_t fullscale;
-    hal_u32_t u32_param;
-    hal_bit_t graycode;
-    hal_bit_t nowrap;
+    hal_uint_t u32_pin;
+    hal_sint_t s32_pin;
+    hal_sint_t s32_pin2;
+    hal_real_t float_pin;
+    hal_bool_t *bit_pins;
+    hal_bool_t *bit_pins_not;
+    hal_bool_t *invert;
+    hal_bool_t boolean;
+    hal_bool_t boolean2;
+    hal_real_t maxlim;
+    hal_real_t minlim;
+    hal_real_t fullscale;
+    hal_uint_t u32_param;
+    rtapi_bool graycode;
+    rtapi_bool nowrap;
     rtapi_s64 oldval; // not pins, but this way every pin can have one
     rtapi_s64 accum; // these two are only currently used by encoders
     rtapi_s64 offset;
@@ -132,22 +132,17 @@ typedef struct {
 
 typedef struct {
     int type;
+    hal_refs_u param;
     union {
-        long long s64_param;
-        hal_u32_t u32_param;
-        hal_s32_t s32_param;
-        hal_float_t float_param;
-        hal_bit_t bit_param;
+        rtapi_u64  u64_written;
+        rtapi_s64  s64_written;
+        rtapi_u32  u32_written;
+        rtapi_s32  s32_written;
+        rtapi_real float_written;
     };
-    union {
-        long long s64_written;
-        hal_u32_t u32_written;
-        hal_s32_t s32_written;
-        hal_float_t float_written;
-        hal_bit_t bit_written;
-    };
-    hal_u32_t timer_num;
-    hal_bit_t *error;
+    hal_real_t fanucf; // HM2_GTAG_FABS frequency because 'param' above is used as filter
+    hal_uint_t timer_num;
+    hal_bool_t error;
 }hm2_sserial_params_t;
 
 typedef struct {
@@ -164,8 +159,9 @@ typedef struct {
     hm2_sserial_data_t *globals;
     hm2_sserial_pins_t *pins;
     hm2_sserial_params_t *params;
-    hal_u32_t serialnumber;
-    hal_u32_t status, seen_remote_errors;
+    rtapi_u32 serialnumber;
+    rtapi_u32 status;
+    rtapi_u32 seen_remote_errors;
 
     rtapi_u32 *reg_cs_read;
     rtapi_u32 *reg_cs_write;
@@ -196,18 +192,18 @@ typedef struct {
     rtapi_u32 data_reg_addr;
     rtapi_u32 *data_reg_read;
     rtapi_u32 *data_reg_write;
-    hal_u32_t *fault_count;
-    hal_u32_t fault_inc;
-    hal_u32_t fault_dec;
-    hal_u32_t fault_lim;
+    hal_uint_t fault_count;
+    hal_uint_t fault_inc;
+    hal_uint_t fault_dec;
+    hal_uint_t fault_lim;
     
-    hal_bit_t *run;
-    hal_u32_t *state;
-    hal_u32_t *state2;
-    hal_u32_t *state3;
-    hal_s32_t *debug;
-    hal_u32_t r_index;
-    hal_u32_t g_index;
+    hal_bool_t run;
+    hal_uint_t state;
+    hal_uint_t state2;
+    hal_uint_t state3;
+    hal_sint_t debug;
+    rtapi_u32 r_index;
+    rtapi_u32 g_index;
     int doit_err_count;
     rtapi_s32 timer;
     bool ever_read;

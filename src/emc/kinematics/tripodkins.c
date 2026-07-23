@@ -76,12 +76,10 @@
 #endif
 
 struct haldata {
-    hal_float_t *bx, *cx, *cy;
-} *haldata = 0;
-
-#define Bx (*(haldata->bx))
-#define Cx (*(haldata->cx))
-#define Cy (*(haldata->cy))
+    hal_real_t bx;
+    hal_real_t cx;
+    hal_real_t cy;
+} *haldata = NULL;
 
 #define sq(x) ((x)*(x))
 
@@ -139,6 +137,9 @@ int kinematicsForward(const double * joints,
 #define Dz (pos->tran.z)
   double P, Q, R;
   double s, t, u;
+  rtapi_real Bx = hal_get_real(haldata->bx);
+  rtapi_real Cx = hal_get_real(haldata->cx);
+  rtapi_real Cy = hal_get_real(haldata->cy);
 
   P = sq(AD);
   Q = sq(BD) - sq(Bx);
@@ -194,6 +195,9 @@ int kinematicsInverse(const EmcPose * pos,
 #define Dx (pos->tran.x)
 #define Dy (pos->tran.y)
 #define Dz (pos->tran.z)
+  rtapi_real Bx = hal_get_real(haldata->bx);
+  rtapi_real Cx = hal_get_real(haldata->cx);
+  rtapi_real Cy = hal_get_real(haldata->cy);
 
   AD = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
   BD = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
@@ -367,11 +371,10 @@ int rtapi_app_main(void) {
     haldata = hal_malloc(sizeof(struct haldata));
     if(!haldata) goto error;
 
-    if((res = hal_pin_float_new("tripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("tripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) < 0) goto error;
+    if((res = hal_pin_new_real(comp_id, HAL_IO, &(haldata->bx), 1.0, "tripodkins.Bx")) < 0) goto error;
+    if((res = hal_pin_new_real(comp_id, HAL_IO, &(haldata->cx), 1.0, "tripodkins.Cx")) < 0) goto error;
+    if((res = hal_pin_new_real(comp_id, HAL_IO, &(haldata->cy), 1.0, "tripodkins.Cy")) < 0) goto error;
 
-    Bx = Cx = Cy = 1.0;
     hal_ready(comp_id);
     return 0;
 

@@ -1,24 +1,24 @@
 component mux16 "Select from one of sixteen input values";
-pin in bit use_graycode"""\
+pin in bool use_graycode"""\
 This signifies the input will use Gray code instead of binary.
 Gray code is a good choice when using physical switches because
 for each increment only one select input changes at a time.
 """;
-pin in bit suppress_no_input"""\
+pin in bool suppress_no_input"""\
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
 but make in00 unavailable.
 """;
-pin in float debounce_time"""\
+pin in real debounce_time"""\
 sets debounce time in seconds.  eg. .10 = a tenth of a second
 input must be stable this long before outputs changes. This
 helps to ignore 'noisy' switches.
 """;
-pin in bit sel#[4] """\
+pin in bool sel#[4] """\
 Together, these determine which **in**__N__ value is copied to *out*.
 """;
-pin out float out_f;
-pin out s32 out_s """\
+pin out real out_f;
+pin out si32 out_s """\
 Follows the value of one of the **in**__N__ values according to the four *sel* values
 and whether use-graycode is active.
 The s32 value will be trunuated and limited to the max and min values of signed values. 
@@ -50,10 +50,10 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 |===
 
 """;
-param r float elapsed "Current value of the internal debounce timer for debugging.";
-param r s32 selected "Current value of the internal selection variable after conversion for debugging";
-pin in float in##[16] "array of selectable outputs";
-variable double delaytime;
+param r real elapsed "Current value of the internal debounce timer for debugging.";
+param r si32 selected "Current value of the internal selection variable after conversion for debugging";
+pin in real in##[16] "array of selectable outputs";
+variable rtapi_real delaytime;
 variable int lastnum;
 variable int running;
 function _;
@@ -78,9 +78,9 @@ FUNCTION(_) {
         for(i = 1; i < 4; i++){
             internal[i] = internal[i] ^ internal[i - 1];
         }
-        selected = num = internal[3]+(internal[2]*2) + (internal[1]*4) + (internal[0]*8);
+        selected_set(num = internal[3]+(internal[2]*2) + (internal[1]*4) + (internal[0]*8));
     }else{
-        selected = num = (sel(0))+(sel(1)*2) + (sel(2)*4) + (sel(3)*8);
+        selected_set(num = (sel(0))+(sel(1)*2) + (sel(2)*4) + (sel(3)*8));
     }
     if(debounce_time) {
         if (num != lastnum) {
@@ -90,17 +90,17 @@ FUNCTION(_) {
             }
             if (delaytime < debounce_time) {
                 delaytime += fperiod;
-                elapsed = delaytime;
+                elapsed_set(delaytime);
                 return;
             }else{
             running = 0;
             lastnum = num;
-            out_s = out_f = in(num);
+            out_s_set(out_f_set(in(num)));
             return;
             }
         }
     }
     /* select the output */
-    out_s = out_f = in(num);
+    out_s_set(out_f_set(in(num)));
 
 }

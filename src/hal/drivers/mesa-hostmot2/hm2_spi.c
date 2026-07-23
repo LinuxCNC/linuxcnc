@@ -152,12 +152,12 @@ static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buff
         if(r < 0) return r;
     }
 
-    PUT(write_command(addr, wsize), 0);
+    PUT(write_command(addr, wsize), NULL);
 
     const uint32_t *wbuffer = buffer;
     int i=0;
     for(i=0; i<wsize; i++)
-        PUT(wbuffer[i], 0);
+        PUT(wbuffer[i], NULL);
 
     return 1;
 }
@@ -180,7 +180,7 @@ static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int
 
     uint32_t *wbuffer = buffer;
     int i=0;
-    PUT(read_command(addr, wsize), 0);
+    PUT(read_command(addr, wsize), NULL);
     for(i=0; i<wsize; i++)
         PUT(0, &wbuffer[i]);
 

@@ -30,8 +30,8 @@
 #endif
 
 struct haldata {
-    hal_float_t *pivot_length;
-    hal_bit_t *conventional_directions; //default is false
+    hal_real_t pivot_length;
+    hal_bool_t conventional_directions; //default is false
 } *haldata;
 
 int kinematicsForward(const double *joints,
@@ -42,11 +42,12 @@ int kinematicsForward(const double *joints,
     (void)fflags;
     (void)iflags;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
 
     // B correction
-    const double zb = (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
-    const double xb = (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
+    const double zb = (pivot_length + joints[8]) * cos(d2r(joints[4]));
+    const double xb = (pivot_length + joints[8]) * sin(d2r(joints[4]));
         
     // C correction
     const double xyr = hypot(joints[0], joints[1]);
@@ -60,7 +61,7 @@ int kinematicsForward(const double *joints,
 
     pos->tran.x = xyr * cos(xytheta) - (con * xb) - xv;
     pos->tran.y = xyr * sin(xytheta) - joints[7];
-    pos->tran.z = joints[2] - zb - (con * zv) + *(haldata->pivot_length);
+    pos->tran.z = joints[2] - zb - (con * zv) + pivot_length;
 
     pos->a = joints[3];
     pos->b = joints[4];
@@ -80,11 +81,12 @@ int kinematicsInverse(const EmcPose * pos,
     (void)iflags;
     (void)fflags;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
 
     // B correction
-    const double zb = (*(haldata->pivot_length) + pos->w) * cos(d2r(pos->b));
-    const double xb = (*(haldata->pivot_length) + pos->w) * sin(d2r(pos->b));
+    const double zb = (pivot_length + pos->w) * cos(d2r(pos->b));
+    const double xb = (pivot_length + pos->w) * sin(d2r(pos->b));
         
     // C correction
     const double xyr = hypot(pos->tran.x, pos->tran.y);
@@ -98,7 +100,7 @@ int kinematicsInverse(const EmcPose * pos,
 
     joints[0] = xyr * cos(xytheta) + (con * xb) + xv;
     joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb - (con * zv) - *(haldata->pivot_length);
+    joints[2] = pos->tran.z + zb - (con * zv) - pivot_length;
 
     joints[3] = pos->a;
     joints[4] = pos->b;
@@ -129,14 +131,12 @@ int rtapi_app_main(void) {
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_pin_float_new("maxkins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
-
-    result += hal_pin_bit_new("maxkins.conventional-directions", HAL_IN, &(haldata->conventional_directions), comp_id);
+    result  = hal_pin_new_real(comp_id, HAL_IO, &(haldata->pivot_length), 0.666, "maxkins.pivot-length");
+    // default is unconventional
+    result += hal_pin_new_bool(comp_id, HAL_IN, &(haldata->conventional_directions), 0, "maxkins.conventional-directions");
 
     if(result < 0) goto error;
 
-    *(haldata->pivot_length) = 0.666;
-    *(haldata->conventional_directions) = 0; // default is unconventional
     hal_ready(comp_id);
     return 0;
 

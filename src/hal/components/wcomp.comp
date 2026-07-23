@@ -1,10 +1,10 @@
 component wcomp "Window comparator";
-pin in float in "Value being compared";
-pin in float min_ "Low boundary for comparison";
-pin in float max_ "High boundary for comparison";
-pin out bit out "True if *in* is strictly between *min* and *max*";
-pin out bit under "True if *in* is less than or equal to *min*";
-pin out bit over "True if *in* is greater than or equal to *max*";
+pin in real in "Value being compared";
+pin in real min_ "Low boundary for comparison";
+pin in real max_ "High boundary for comparison";
+pin out bool out "True if *in* is strictly between *min* and *max*";
+pin out bool under "True if *in* is less than or equal to *min*";
+pin out bool over "True if *in* is greater than or equal to *max*";
 notes "If *max* <= *min* then the behavior is undefined.";
 
 option period no;
@@ -13,8 +13,10 @@ license "GPL";
 author "Jeff Epler";
 ;;
 FUNCTION(_) { 
-  double tmp = in;
-  under = (tmp <= min_);
-  over = (tmp >= max_);
-  out = !(over || under);
+  rtapi_real tmp = in;
+  rtapi_bool u = tmp <= min_;
+  rtapi_bool o= tmp >= max_;
+  under_set(u);
+  over_set(o);
+  out_set(!(o || u));
 }

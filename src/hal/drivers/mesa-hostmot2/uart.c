@@ -79,8 +79,7 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
             hm2->uart.num_instances = hm2->config.num_uarts;
         }
         
-        hm2->uart.instance = (hm2_uart_instance_t *)hal_malloc(hm2->uart.num_instances 
-                                                               * sizeof(hm2_uart_instance_t));
+        hm2->uart.instance = hal_malloc(hm2->uart.num_instances * sizeof(*hm2->uart.instance));
         if (hm2->uart.instance == NULL) {
             HM2_ERR("out of memory!\n");
             r = -ENOMEM;
@@ -141,7 +140,7 @@ EXPORT_SYMBOL_GPL(hm2_uart_setup);
 // use -1 for tx_mode and rx_mode to leave the mode unchanged
 int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode){
     hostmot2_t *hm2;
-    hm2_uart_instance_t *inst = 0;
+    hm2_uart_instance_t *inst = NULL;
     rtapi_u32 buff;
     int i,r;
     

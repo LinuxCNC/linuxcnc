@@ -59,33 +59,33 @@ license "GPLv2 or greater";
 option singleton yes;
 
 // Input Pins
-pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
-pin in float current_vel "Connect to motion.current-vel";
-pin in float requested_vel "Connect to motion.requested-vel";
-pin in float volts_requested "Tip Volts current_vel >= min_velocity requested";
-pin in float vel_tol "Velocity Tolerance (Corner Lock)";
-pin in bit torch_on "Connect to spindle.N.on";
-pin in bit arc_ok "Arc OK from Plasma Torch";
-pin in bit enable "Enable the THC, if not enabled Z position is passed through";
-pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
+pin in real encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
+pin in real current_vel "Connect to motion.current-vel";
+pin in real requested_vel "Connect to motion.requested-vel";
+pin in real volts_requested "Tip Volts current_vel >= min_velocity requested";
+pin in real vel_tol "Velocity Tolerance (Corner Lock)";
+pin in bool torch_on "Connect to spindle.N.on";
+pin in bool arc_ok "Arc OK from Plasma Torch";
+pin in bool enable "Enable the THC, if not enabled Z position is passed through";
+pin in real z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
 
 // Output Pins
-pin out float z_pos_out "Z Motor Position Command Out";
-pin out float z_fb_out "Z Position Feedback to Axis";
-pin out float volts "The Calculated Volts";
-pin out bit vel_status "When the THC thinks we are at requested speed";
-pin out float offset_value "The Current Offset";
+pin out real z_pos_out "Z Motor Position Command Out";
+pin out real z_fb_out "Z Position Feedback to Axis";
+pin out real volts "The Calculated Volts";
+pin out bool vel_status "When the THC thinks we are at requested speed";
+pin out real offset_value "The Current Offset";
 
 // Parameters
-param rw float vel_scale "The scale to convert the Velocity signal to Volts";
-param rw float scale_offset "The offset of the velocity input at 0 volts";
-param rw float velocity_tol "The deviation percent from planned velocity";
-param rw float voltage_tol "The deviation of Tip Voltage before correction takes place";
-param rw float correction_vel "The amount of change in user units per period to move Z to correct";
+param rw real vel_scale "The scale to convert the Velocity signal to Volts";
+param rw real scale_offset "The offset of the velocity input at 0 volts";
+param rw real velocity_tol "The deviation percent from planned velocity";
+param rw real voltage_tol "The deviation of Tip Voltage before correction takes place";
+param rw real correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
-variable float offset;
-variable float last_z_in;
+variable rtapi_real offset;
+variable rtapi_real last_z_in;
 
 option period no;
 function _;
@@ -96,14 +96,14 @@ function _;
 
 FUNCTION(_) {
     // convert encoder velocity to volts
-    volts = (encoder_vel - scale_offset) * vel_scale;
-    if(volts < 0){volts = 0;} // make sure volts is not negative
-    offset_value = offset;
+    volts_set((encoder_vel - scale_offset) * vel_scale);
+    if(volts < 0){volts_set(0);} // make sure volts is not negative
+    offset_value_set(offset);
 
     if(enable){
-        float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
-        if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
-        else {vel_status =0;}
+        rtapi_real min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
+        if(current_vel > 0 && current_vel >= min_velocity){vel_status_set(1);}
+        else {vel_status_set(0);}
         
         if(torch_on && arc_ok && vel_status){ // allow correction
             if((volts + voltage_tol) > volts_requested){
@@ -115,7 +115,7 @@ FUNCTION(_) {
             last_z_in = 0;
         }
         if(!torch_on){ // remove any offset
-            float z_diff;
+            rtapi_real z_diff;
             z_diff = z_pos_in - last_z_in;
             if(z_diff > 0 && offset != 0){ // torch is moving up
                 if(offset > 0){ // positive offset
@@ -133,12 +133,12 @@ FUNCTION(_) {
             }
             last_z_in = z_pos_in;
         }
-        z_pos_out = z_pos_in + offset;
-        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
+        z_pos_out_set(z_pos_in + offset);
+        z_fb_out_set(z_pos_in); // keep axis motor position fb from being confused
     }
     if(!enable){
-        z_pos_out = z_pos_in;
-        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
+        z_pos_out_set(z_pos_in);
+        z_fb_out_set(z_pos_in); // keep axis motor position fb from being confused
     }
 }
 

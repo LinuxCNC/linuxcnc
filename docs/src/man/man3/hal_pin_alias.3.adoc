@@ -1,12 +1,19 @@
+:manvolnum: 3
+
 = hal_pin_alias(3)
 
 == NAME
 
 hal_pin_alias - creates an alternate name for a pin
 
-== SYNTAX
+== SYNOPSIS
 
-int *hal_pin_alias*(const char* _original_name_, const char* _alias_);
+[source,c]
+----
+#include <hal.h>
+
+int hal_pin_alias(const char *original_name, const char *alias);
+----
 
 == ARGUMENTS
 
@@ -19,7 +26,7 @@ alias::
 == DESCRIPTION
 
 A pin may have two names: the original name (the one that was passed to
-a *hal_pin_new* function) and an alias.
+a hal_pin_new(3) function) and an alias.
 
 Usually, aliases are for the convenience of users and should be created and destroyed via halcmd.
 However, in some cases it is sensible to create aliases directly in a component.

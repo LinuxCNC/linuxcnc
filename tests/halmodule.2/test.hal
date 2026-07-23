@@ -1,0 +1,32 @@
+# The goal of this test is to run the 'halmodtest.py' script that will read the
+# pins *without* creating a component. We only need a mapped HAL shared memory
+# segment for that.
+# It is rather unimportant what is loaded. We just need to ensure we have a
+# working HAL system and some pins we can look at.
+loadrt threads
+
+loadrt and2 count=1
+loadrt or2 count=1
+loadrt xor2 count=1
+
+addf and2.0 thread1
+addf or2.0 thread1
+addf xor2.0 thread1
+
+net net-input-a and2.0.in0 or2.0.in0
+net net-input-b and2.0.in1 or2.0.in1
+net net-xor-a and2.0.out xor2.0.in0
+net net-xor-b or2.0.out  xor2.0.in1
+net net-output xor2.0.out
+
+start
+
+# Show the initial state
+loadusr -w ./halmodtest.py
+
+# Force some value change
+sets net-input-a 1
+sets net-input-b 0
+
+# This should show the changed state
+loadusr -w ./halmodtest.py

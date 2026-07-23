@@ -91,32 +91,32 @@ described in the HAL manual.
 The digital input pins conform to the `canonical digital input' interface
 described in the HAL manual.
 """;
-pin in float stepgen.#.position-cmd[4];
-pin out float stepgen.#.velocity-fb[4];
-pin out float stepgen.#.position-fb[4];
-pin out s32 stepgen.#.counts[4];
-pin in bit stepgen.#.enable[4];
-pin in bit stepgen.#.reset[4] "When TRUE, reset position-fb to 0";
-param rw float stepgen.#.scale[4] = 1.0;
-param rw float stepgen.#.maxvel[4] = 0;
-param rw bit stepgen.step_polarity;
+pin in real stepgen.#.position-cmd[4];
+pin out real stepgen.#.velocity-fb[4];
+pin out real stepgen.#.position-fb[4];
+pin out si32 stepgen.#.counts[4];
+pin in bool stepgen.#.enable[4];
+pin in bool stepgen.#.reset[4] "When TRUE, reset position-fb to 0";
+param rw real stepgen.#.scale[4] = 1.0;
+param rw real stepgen.#.maxvel[4] = 0;
+param rw bool stepgen.step_polarity;
 
-param rw u32 stepgen.steplen "Step length in ns.";
-param rw u32 stepgen.stepspace "Step space in ns";
-param rw u32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
+param rw ui32 stepgen.steplen "Step length in ns.";
+param rw ui32 stepgen.stepspace "Step space in ns";
+param rw ui32 stepgen.dirtime "Dir hold/setup in ns.  Refer to the pdf documentation for a diagram of what these timings mean.";
 
-pin in bit dout.##[14]
+pin in bool dout.##[14]
 """dout.\\fIMM\\fR corresponds to the pin labeled
 OUT\\fIM\\fR on the pinout diagram.""";
-param rw bit dout.##-invert[14]
+param rw bool dout.##-invert[14]
 "If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
 
-pin out bit din.##[16];
-pin out bit din.##_not[16]
+pin out bool din.##[16];
+pin out bool din.##_not[16]
 """din.\\fIMM\\fR corresponds to the pin labeled
 IN\\fIM\\fR on the pinout diagram.""";
 
-param rw u32 communication_error """Incremented each time 
+param rw ui32 communication_error """Incremented each time
 pluto-step.read detects an error code in the EPP status register.  While
 this register is nonzero, new values are not being written to the Pluto-P
 board, and the status of digital outputs and the PWM duty cycle of the PWM
@@ -124,10 +124,10 @@ outputs will remain unchanged.  If the hardware watchdog is enabled, it will
 activate shortly after the communication error is detected by LinuxCNC.  To continue
 after a communication error, set this parameter back to zero.""";
 
-param rw s32 debug_0;
-param rw s32 debug_1;
-param rw float debug_2=.5;
-param rw float debug_3=2.0
+param rw si32 debug_0;
+param rw si32 debug_1;
+param rw real debug_2=.5;
+param rw real debug_3=2.0
  """Registers that hold debugging information of interest to developers""";
 
 option singleton;
@@ -184,7 +184,7 @@ FUNCTION(write) {
             "Requested step length %dns decreased to %dns "
             "due to hardware limitations\n",
             stepgen_steplen, TMAX * PLUTO_SPEED_NS);
-        stepgen_steplen = TMAX * PLUTO_SPEED_NS;
+        stepgen_steplen_set(TMAX * PLUTO_SPEED_NS);
     }
 
     if(dirtime_ticks > TMAX) {
@@ -193,7 +193,7 @@ FUNCTION(write) {
             "Requested direction change time %dns decreased to %dns "
             "due to hardware limitations\n",
             stepgen_dirtime, TMAX * PLUTO_SPEED_NS);
-        stepgen_dirtime = TMAX * PLUTO_SPEED_NS;
+        stepgen_dirtime_set(TMAX * PLUTO_SPEED_NS);
     }
 
     // Speed limits come from several sources
@@ -224,7 +224,7 @@ FUNCTION(write) {
 	data.old_position_cmd[i] = new_position_cmd;
 	data.old_velocity_cmd[i] = v;
         actual_max = fmax / scale_abs;
-        if(stepgen_maxvel(i) < 0) stepgen_maxvel(i) = -stepgen_maxvel(i);
+        if(stepgen_maxvel(i) < 0) stepgen_maxvel_set(i, -stepgen_maxvel(i));
         if(stepgen_maxvel(i) != 0 && stepgen_maxvel(i) > actual_max) {
             static int message_printed[4] = {0,0,0,0};
             if(!message_printed[i]) {
@@ -235,7 +235,7 @@ FUNCTION(write) {
                     (int)(fmax));
                 message_printed[i] = 1;
             }
-            stepgen_maxvel(i) = actual_max;
+            stepgen_maxvel_set(i, actual_max);
         }
 
         if(stepgen_maxvel(i) == 0) {
@@ -251,7 +251,7 @@ FUNCTION(write) {
 	if(rate < -maxrate) rate = -maxrate;
 
 	if(!stepgen_enable(i)) rate = 0;
-        if(i == 0) debug_1 = rate;
+        if(i == 0) debug_1_set(rate);
 	write16(rate);
     }
 
@@ -284,7 +284,7 @@ FUNCTION(read) {
         if(i == 0) {
             int status = inb(ioaddr+1) & 1;
             if(status) {
-                communication_error ++;
+                communication_error_set(communication_error + 1);
 		pluto_clear_error_register();
             }
             if(communication_error) { EPP_DIR_WRITE(); return; }
@@ -293,21 +293,21 @@ FUNCTION(read) {
 	newlow = ppdata & MASK;
 
         count = extend(data.last_count[i], newlow, W+F);
-	stepgen_velocity_fb(i) = (count - data.last_count[i]) / stepgen_scale(i) / fperiod / (1 << F);
+	stepgen_velocity_fb_set(i, (count - data.last_count[i]) / stepgen_scale(i) / fperiod / (1 << F));
         data.last_count[i] = count;
         if(reset) data.reset_count[i] = count;
         fcount = (count - data.reset_count[i]) * 1. / (1<<F);
-        stepgen_counts(i) = fcount;
-        stepgen_position_fb(i) = fcount / stepgen_scale(i);
+        stepgen_counts_set(i, fcount);
+        stepgen_position_fb_set(i, fcount / stepgen_scale(i));
 
-        if(i == 0) { debug_0 = ppdata; }
+        if(i == 0) { debug_0_set(ppdata); }
     }
 
     ppdata = read32();
 
     for(i=0; i<16; i++) {
         int b = ppdata & (1<<i);
-        din(i) = !!b; din_not(i) = !b;
+        din_set(i, !!b); din_not_set(i, !b);
     }
 
     EPP_DIR_WRITE();

@@ -9,6 +9,9 @@ rtapi_bool - RTAPI wrappers for linux kernel functionality
 [source,c]
 ----
 #include <rtapi_bool.h>
+
+// Specific abstraction for HAL
+typedef bool rtapi_bool;
 ----
 
 == DESCRIPTION
@@ -19,7 +22,3 @@ to obtain suitable declarations of "bool", "true" and "false".
 == REALTIME CONSIDERATIONS
 
 None.
-
-== NOTES
-
-Also permitted in C++ programs, where including it has no effect.

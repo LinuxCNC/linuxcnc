@@ -64,7 +64,7 @@
 #include "switchkins.h"
 
 struct haldata {
-    hal_float_t *pivot_length;
+    hal_real_t pivot_length;
 } *haldata;
 static int fiveaxis_max_joints;
 
@@ -103,14 +103,15 @@ static int fiveaxis_KinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-    PmCartesian r = s2r(*(haldata->pivot_length) + joints[JW],
+    rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
+    PmCartesian r = s2r(pivot_length + joints[JW],
                         joints[JC],
                         180.0 - joints[JB]);
 
     // Note: 'principal' joints are used
     pos->tran.x = joints[JX] + r.x;
     pos->tran.y = joints[JY] + r.y;
-    pos->tran.z = joints[JZ] + *(haldata->pivot_length) + r.z;
+    pos->tran.z = joints[JZ] + pivot_length + r.z;
     pos->b      = joints[JB];
     pos->c      = joints[JC];
     pos->w      = joints[JW];
@@ -130,14 +131,15 @@ static int fiveaxis_KinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w,
+    rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
+    PmCartesian r = s2r(pivot_length + pos->w,
                         pos->c,
                         180.0 - pos->b);
 
     EmcPose P;  // computed position
     P.tran.x = pos->tran.x - r.x;
     P.tran.y = pos->tran.y - r.y;
-    P.tran.z = pos->tran.z - *(haldata->pivot_length) - r.z;
+    P.tran.z = pos->tran.z - pivot_length - r.z;
 
     P.b = pos->b;
     P.c = pos->c;
@@ -212,11 +214,9 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_pin_float_newf(HAL_IN,&(haldata->pivot_length),comp_id,
-                                "%s.pivot-length",kp->halprefix);
+    result = hal_pin_new_real(comp_id, HAL_IN,&(haldata->pivot_length),
+                              DEFAULT_PIVOT_LENGTH, "%s.pivot-length",kp->halprefix);
     if(result < 0) goto error;
-
-    *haldata->pivot_length = DEFAULT_PIVOT_LENGTH;
 
     rtapi_print("Kinematics Module %s\n",__FILE__);
     rtapi_print("  module name = %s\n"
@@ -225,7 +225,7 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
                 kp->kinsname,
                 coordinates,fiveaxis_max_joints,
                 kp->sparm?kp->sparm:"NOTSPECIFIED");
-    rtapi_print("  default pivot-length = %.3f\n",*haldata->pivot_length);
+    rtapi_print("  default pivot-length = %.3f\n", hal_get_real(haldata->pivot_length));
 
     return 0;
 

@@ -15,11 +15,11 @@
 //   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 component abs_s32 "Compute the absolute value and sign of a integer input signal";
 
-pin in s32 in "input value" ;
-pin out s32 out "output value, always non-negative";
-pin out bit sign "Sign of input, false for positive, true for negative" ;
-pin out bit is_positive "TRUE if input is positive, FALSE if input is 0 or negative";
-pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or positive";
+pin in si32 in "input value" ;
+pin out si32 out "output value, always non-negative";
+pin out bool sign "Sign of input, false for positive, true for negative" ;
+pin out bool is_positive_ "TRUE if input is positive, FALSE if input is 0 or negative";
+pin out bool is_negative_ "TRUE if input is negative, FALSE if input is 0 or positive";
 
 option period no;
 function _;
@@ -27,21 +27,15 @@ license "GPL";
 author "Sebastian Kuzminsky";
 ;;
 FUNCTION(_) {
-    if ( in >= 0 ) {
-	sign = false;
-	out = in;
+    rtapi_s32 i = in;
+    if ( i >= 0 ) {
+        sign_set(false);
+        out_set(i);
     } else {
-	sign = true;
-	out = -in;
+        sign_set(true);
+        out_set(-i);
     }
 
-    if (in > 0)
-        is_positive = true;
-    else
-        is_positive = false;
-
-    if (in < 0)
-        is_negative = true;
-    else
-        is_negative = false;
+    is_positive__set(i > 0);
+    is_negative__set(i < 0);
 }

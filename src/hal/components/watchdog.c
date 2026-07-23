@@ -38,27 +38,27 @@ RTAPI_MP_INT(num_inputs, "Number of inputs");
 
 /* Data needed for each input */
 typedef struct {
-    hal_bit_t *input;		/* pin: the input bit HAL pin */
-    hal_float_t timeout;	/* param: maximum alloewd timeb without a transition on bit */
-    hal_float_t oldtimeout;	/* internal:  used to determine whether the timeout has changed */
-    hal_s32_t c_secs, c_nsecs;	/* internal:  elapsed seconds and nanoseconds */
-    hal_s32_t t_secs, t_nsecs;	/* internal:  seconds and nanoseconds for timeout */
-    hal_bit_t last;		/* internal:  last value of the input pin */
+    hal_bool_t input;		/* pin: the input bit HAL pin */
+    hal_real_t timeout;		/* param: maximum alloewd timeb without a transition on bit */
+    rtapi_real oldtimeout;	/* internal:  used to determine whether the timeout has changed */
+    rtapi_s32  c_secs, c_nsecs;	/* internal:  elapsed seconds and nanoseconds */
+    rtapi_s32  t_secs, t_nsecs;	/* internal:  seconds and nanoseconds for timeout */
+    rtapi_bool last;		/* internal:  last value of the input pin */
 } watchdog_input_t;
 
 #define MAX_INPUTS	32
 
 /* Base data for a weighted summer. */
 typedef struct {
-  hal_bit_t *output;		/* output pin: high if all inputs are toggling, low otherwise */
-  hal_bit_t *enable;		/* pin: only runs while this is high (kind of like an enable) */
+  hal_bool_t output;		/* output pin: high if all inputs are toggling, low otherwise */
+  hal_bool_t enable;		/* pin: only runs while this is high (kind of like an enable) */
 } watchdog_data_t;
 
 /* other globals */
 static int comp_id;		/* component ID */
 watchdog_input_t *inputs;	/* internal: pointer to the input bits and weights */
 watchdog_data_t *data;		/* common data */
-hal_bit_t old_enable;
+rtapi_bool old_enable;
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
@@ -96,7 +96,7 @@ int rtapi_app_main(void)
     }
 
     /* allocate shared memory for watchdog global and pin info */
-    data = hal_malloc(sizeof(watchdog_data_t));
+    data = hal_malloc(sizeof(*data));
     if (data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WATCHDOG: ERROR: hal_malloc() for common data failed\n");
@@ -104,7 +104,7 @@ int rtapi_app_main(void)
 	goto err;
     }
 
-    inputs = hal_malloc(num_inputs * sizeof(watchdog_input_t));
+    inputs = hal_malloc(num_inputs * sizeof(*inputs));
     if (inputs == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WATCHDOG: ERROR: hal_malloc() for input pins failed\n");
@@ -114,34 +114,33 @@ int rtapi_app_main(void)
 
     /* export pins/params for all inputs */
     for (n = 0; n < num_inputs; n++) {
-      retval=hal_pin_bit_newf(HAL_IN, &(inputs[n].input), comp_id, "watchdog.input-%d", n);
+      retval=hal_pin_new_bool(comp_id, HAL_IN, &(inputs[n].input), 0, "watchdog.input-%d", n);
       if (retval != 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "WATCHDOG: ERROR: couldn't create input pin watchdog.input-%d\n", n);
 	  goto err;
       }
-      retval=hal_param_float_newf(HAL_RW, &(inputs[n].timeout), comp_id, "watchdog.timeout-%d", n);
+      retval=hal_param_new_real(comp_id, HAL_RW, &(inputs[n].timeout), 0.0, "watchdog.timeout-%d", n);
       if (retval != 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "WATCHDOG: ERROR: couldn't create input parameter watchdog.timeout-%d\n", n);
 	  goto err;
       }
       
-      inputs[n].timeout=0;
       inputs[n].oldtimeout=-1;
       inputs[n].c_secs = inputs[n].t_secs = 0;
       inputs[n].c_nsecs = inputs[n].t_nsecs = 0;
-      inputs[n].last = *(inputs[n].input);
+      inputs[n].last = hal_get_bool(inputs[n].input);
     }
 
     /* export "global" pins */
-    retval=hal_pin_bit_newf(HAL_OUT, &(data->output), comp_id, "watchdog.ok-out");
+    retval=hal_pin_new_bool(comp_id, HAL_OUT, &(data->output), 0, "watchdog.ok-out");
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WATCHDOG: ERROR: couldn't create output pin watchdog.ok-out\n");
 	goto err;
     }
-    retval=hal_pin_bit_newf(HAL_IN, &(data->enable), comp_id, "watchdog.enable-in");
+    retval=hal_pin_new_bool(comp_id, HAL_IN, &(data->enable), 0, "watchdog.enable-in");
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WATCHDOG: ERROR: couldn't create input pin watchdog.enable-in\n");
@@ -194,9 +193,9 @@ static void process(void *arg, long period)
     int i, fault=0;
     // set_timeouts has to turn on the output when it detects a valid
     // transition on enable
-    if (!(*data->enable) || (!(*data->output))) return;
+    if (!hal_get_bool(data->enable) || (!hal_get_bool(data->output))) return;
     for (i=0;i<num_inputs;i++) {
-      if (*(inputs[i].input) != inputs[i].last) {
+      if (hal_get_bool(inputs[i].input) != inputs[i].last) {
 	inputs[i].c_secs = inputs[i].t_secs;
 	inputs[i].c_nsecs = inputs[i].t_nsecs;
       } else {
@@ -211,9 +210,9 @@ static void process(void *arg, long period)
 	  }
 	}
       }
-      inputs[i].last=*(inputs[i].input);
+      inputs[i].last=hal_get_bool(inputs[i].input);
     }
-    if (fault) *(data->output)=0;
+    if (fault) hal_set_bool(data->output, 0);
 }
 
 static void set_timeouts(void *arg, long period)
@@ -221,10 +220,10 @@ static void set_timeouts(void *arg, long period)
     (void)arg;
     (void)period;
     int i;
-    hal_float_t temp;
+    rtapi_real temp;
     
     for (i=0;i<num_inputs;i++) {
-      temp=inputs[i].timeout;
+      temp = hal_get_real(inputs[i].timeout);
       if (temp<0) temp=0;	// no negative timeout periods
       if (temp != inputs[i].oldtimeout) {
 	// new timeout, convert to secs/ns
@@ -234,17 +233,17 @@ static void set_timeouts(void *arg, long period)
 	inputs[i].t_nsecs=(1e9*temp);
       }
     }
-    if (!*(data->output)) {
-	if (*(data->enable) && !old_enable) {
+    if (!hal_get_bool(data->output)) {
+	if (hal_get_bool(data->enable) && !old_enable) {
 	  // rising edge on enable, so we can restart
 	  for (i=0;i<num_inputs;i++) {
 	    inputs[i].c_secs = inputs[i].t_secs;
 	    inputs[i].c_nsecs = inputs[i].t_nsecs;
 	  }
-	  *(data->output) = 1;
+	  hal_set_bool(data->output, 1);
 	}
     }
-    old_enable=*(data->enable);
+    old_enable=hal_get_bool(data->enable);
 }
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *

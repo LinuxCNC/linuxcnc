@@ -29,30 +29,29 @@ MODULE_LICENSE("GPL");
 
 typedef struct {
     struct {
-        hal_bit_t **key;
-        hal_bit_t **rows;
-        hal_bit_t **cols;
-        hal_u32_t *keycode;
+        hal_bool_t *key;
+        hal_bool_t *rows;
+        hal_bool_t *cols;
+        hal_uint_t keycode;
     } hal;
     struct {
-        hal_u32_t rollover;
-        hal_bit_t invert;
+        hal_uint_t rollover;
+        hal_bool_t invert;
     } param;
-    hal_u32_t ncols;
-    hal_u32_t nrows;
-    hal_u32_t *now;
-    hal_u32_t *then;
-    hal_bit_t invert;
+    rtapi_u32 ncols;
+    rtapi_u32 nrows;
+    rtapi_u32 *now;
+    rtapi_u32 *then;
     char name[HAL_NAME_LEN + 1];
     struct input_dev *key_dev;
-    hal_u32_t index;
+    rtapi_u32 index;
     unsigned keydown;
     unsigned keyup;
     unsigned rowshift;
     unsigned row;
     unsigned num_keys;
-    hal_bit_t scan;
-    hal_bit_t keystroke;
+    rtapi_bool scan;
+    rtapi_bool keystroke;
 }kb_inst_t;
 
 typedef struct {
@@ -70,7 +69,7 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names");
 
 void keyup(kb_inst_t *inst){
     unsigned r, c;
-    unsigned keycode = *inst->hal.keycode & ~(inst->keydown | inst->keyup);
+    unsigned keycode = hal_get_ui32(inst->hal.keycode) & ~(inst->keydown | inst->keyup);
 
     r = keycode >> inst->rowshift;
     c = keycode & ~(0xFFFFFFFF << inst->rowshift);
@@ -83,11 +82,11 @@ void keyup(kb_inst_t *inst){
     
     if (inst->num_keys > 0) inst->num_keys--;
     
-    *inst->hal.key[r * inst->ncols + c] = 0;
+    hal_set_bool(inst->hal.key[r * inst->ncols + c], 0);
 }
 void keydown(kb_inst_t *inst){
     unsigned r, c;
-    unsigned keycode = *inst->hal.keycode & ~(inst->keydown | inst->keyup);
+    unsigned keycode = hal_get_ui32(inst->hal.keycode) & ~(inst->keydown | inst->keyup);
     
     r = keycode >> inst->rowshift;
     c = keycode & ~(0xFFFFFFFF << inst->rowshift);
@@ -98,60 +97,61 @@ void keydown(kb_inst_t *inst){
         return;
     }
     
-    if (inst->num_keys >= inst->param.rollover) return;
+    if (inst->num_keys >= hal_get_ui32(inst->param.rollover)) return;
     inst->num_keys++;
     
-    *inst->hal.key[r * inst->ncols + c] = 1;
+    hal_set_bool(inst->hal.key[r * inst->ncols + c], 1);
 }
 
 void loop(void *arg, long period){
     (void)period;
     unsigned c;
-    hal_u32_t scan = 0;
+    rtapi_u32 scan = 0;
     kb_inst_t *inst = arg;
     
     if (inst->scan){ //scanning request
         for (c = 0; c < inst->ncols; c++){
-            scan += ((*inst->hal.cols[c] != inst->param.invert) << c);
+            scan += ((hal_get_bool(inst->hal.cols[c]) != hal_get_bool(inst->param.invert)) << c);
         }
         if (scan == inst->now[inst->row] && scan != inst->then[inst->row]){
             // debounced and changed
             for (c = 0; c < inst->ncols; c++){
                 int mask = 1 << c;
                 if ((inst->then[inst->row] & mask) && !(scan & mask)){ //keyup
-                    *inst->hal.keycode = inst->keyup 
+                    hal_set_ui32(inst->hal.keycode, inst->keyup
                     + (inst->row << inst->rowshift) 
-                    + c;
+                    + c);
                     keyup(inst);
                 }
                 else if (!(inst->then[inst->row] & mask) && (scan & mask)){//keydown
-                    *inst->hal.keycode = inst->keydown 
+                    hal_set_ui32(inst->hal.keycode, inst->keydown
                     + (inst->row << inst->rowshift) 
-                    + c;
+                    + c);
                     
                     keydown(inst);
                 }
             }
         }
         else {
-            *inst->hal.keycode = 0x40;//nochange
+            hal_set_ui32(inst->hal.keycode, 0x40);//nochange
         }
         
         inst->then[inst->row] = inst->now[inst->row];
         inst->now[inst->row] = scan;
         
-        *inst->hal.rows[inst->row] = inst->param.invert;
+        hal_set_bool(inst->hal.rows[inst->row], hal_get_bool(inst->param.invert));
         inst->row++;
         if (inst->row >= inst->nrows) inst->row = 0;
-        *inst->hal.rows[inst->row] = !inst->param.invert;
+        hal_set_bool(inst->hal.rows[inst->row], !hal_get_bool(inst->param.invert));
     }
     else
     {
-        if (*inst->hal.keycode == 0x40) return;
-        if ((*inst->hal.keycode & inst->keydown) == inst->keydown){
+        rtapi_u32 keycode = hal_get_ui32(inst->hal.keycode);
+        if (keycode == 0x40) return;
+        if ((keycode & inst->keydown) == inst->keydown){
             keydown(inst);
         }
-        else if ((*inst->hal.keycode & inst->keydown) == inst->keyup)
+        else if ((keycode & inst->keydown) == inst->keyup)
         {
             keyup(inst);
         }
@@ -169,7 +169,7 @@ int rtapi_app_main(void){
     }
     
     // allocate shared memory for data
-    kb = hal_malloc(sizeof(kb_t));
+    kb = hal_malloc(sizeof(*kb));
     if (kb == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "matrix_kb component: Out of Memory\n");
@@ -189,7 +189,7 @@ int rtapi_app_main(void){
         return -1;
     }
     
-    kb->insts = hal_malloc(kb->num_insts * sizeof(kb_inst_t));
+    kb->insts = hal_malloc(kb->num_insts * sizeof(*kb->insts));
     
     for (i = 0; i < kb->num_insts; i++){
         int a = 0;
@@ -201,7 +201,7 @@ int rtapi_app_main(void){
         inst->ncols = 0;
         inst->scan = 0;
         inst->keystroke = 0;
-        inst->param.invert = 1;
+        hal_set_bool(inst->param.invert, 1);
         
         for(j = 0; config[i][j] !=0; j++){
             int n = (config[i][j] | 0x20); //lower case
@@ -237,11 +237,11 @@ int rtapi_app_main(void){
              ; (inst->nrows << inst->rowshift) > inst->keydown
              ; inst->keydown <<= 1, inst->keyup <<= 1);
         
-        inst->hal.key = (hal_bit_t **)hal_malloc(inst->nrows * inst->ncols * sizeof(hal_bit_t*));
-        inst->now = hal_malloc(inst->nrows * sizeof(hal_u32_t));
-        inst->then = hal_malloc(inst->nrows * sizeof(hal_u32_t));
+        inst->hal.key = hal_malloc(inst->nrows * inst->ncols * sizeof(*inst->hal.key));
+        inst->now = hal_malloc(inst->nrows * sizeof(*inst->now));
+        inst->then = hal_malloc(inst->nrows * sizeof(*inst->then));
         inst->row = 0;
-        inst->param.rollover = 2;
+        hal_set_ui32(inst->param.rollover, 2);
         
         
         if (names[i]){
@@ -254,9 +254,9 @@ int rtapi_app_main(void){
         
         for (c = 0; c < inst->ncols; c++){
             for (r = 0; r < inst->nrows; r++){  
-                retval = hal_pin_bit_newf(HAL_OUT,
+                retval = hal_pin_new_bool(comp_id, HAL_OUT,
                                           &(inst->hal.key[r * inst->ncols + c]), 
-                                          comp_id,
+                                          0,
                                           "%s.key.r%xc%x", 
                                           inst->name, r, c);
                 if (retval != 0) {
@@ -269,12 +269,12 @@ int rtapi_app_main(void){
         }
         
         if (inst->scan){ //internally generated scanning
-            inst->hal.rows = (hal_bit_t **)hal_malloc(inst->nrows * sizeof(hal_bit_t*));
-            inst->hal.cols = (hal_bit_t **)hal_malloc(inst->ncols * sizeof(hal_bit_t*));
+            inst->hal.rows = hal_malloc(inst->nrows * sizeof(*inst->hal.rows));
+            inst->hal.cols = hal_malloc(inst->ncols * sizeof(*inst->hal.cols));
             
             for (r = 0; r < inst->nrows; r++){
-                retval = hal_pin_bit_newf(HAL_OUT,
-                                          &(inst->hal.rows[r]), comp_id,
+                retval = hal_pin_new_bool(comp_id, HAL_OUT,
+                                          &(inst->hal.rows[r]), 0,
                                           "%s.row-%02i-out",inst->name, r);
                 if (retval != 0) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
@@ -284,8 +284,8 @@ int rtapi_app_main(void){
                 }
             }
             for (c = 0; c < inst->ncols; c++){
-                retval = hal_pin_bit_newf(HAL_IN,
-                                          &(inst->hal.cols[c]), comp_id,
+                retval = hal_pin_new_bool(comp_id, HAL_IN,
+                                          &(inst->hal.cols[c]), 0,
                                           "%s.col-%02i-in",inst->name, c);
                 if (retval != 0) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
@@ -295,8 +295,8 @@ int rtapi_app_main(void){
                 }
             }
                 
-            retval = hal_pin_u32_newf(HAL_OUT,
-                                      &(inst->hal.keycode), comp_id,
+            retval = hal_pin_new_ui32(comp_id, HAL_OUT,
+                                      &(inst->hal.keycode), 0,
                                       "%s.keycode",inst->name);
             if (retval != 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
@@ -305,8 +305,8 @@ int rtapi_app_main(void){
                 return -1;
             }
             
-            retval = hal_param_bit_newf(HAL_RW,
-                                      &(inst->param.invert), comp_id,
+            retval = hal_param_new_bool(comp_id, HAL_RW,
+                                      &(inst->param.invert), 0,
                                       "%s.negative-logic",inst->name);
             if (retval != 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
@@ -316,8 +316,8 @@ int rtapi_app_main(void){
             }
             
             
-            retval = hal_param_u32_newf(HAL_RW,
-                                      &(inst->param.rollover), comp_id,
+            retval = hal_param_new_ui32(comp_id, HAL_RW,
+                                      &(inst->param.rollover), 0,
                                       "%s.key_rollover",inst->name);
             if (retval != 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
@@ -329,8 +329,8 @@ int rtapi_app_main(void){
         }
         else // scanning by 7i73 or similar
         {
-            retval = hal_pin_u32_newf(HAL_IN,
-                                      &(inst->hal.keycode), comp_id,
+            retval = hal_pin_new_ui32(comp_id, HAL_IN,
+                                      &(inst->hal.keycode), 0,
                                       "%s.keycode",inst->name);
             if (retval != 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR,

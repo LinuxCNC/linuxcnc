@@ -26,14 +26,8 @@
 #include "switchkins.h"
 
 struct haldata {
-    hal_float_t *a2, *a3, *d3, *d4, *d6;
-} *haldata = 0;
-
-#define PUMA_A2 (*(haldata->a2))
-#define PUMA_A3 (*(haldata->a3))
-#define PUMA_D3 (*(haldata->d3))
-#define PUMA_D4 (*(haldata->d4))
-#define PUMA_D6 (*(haldata->d6))
+    hal_real_t a2, a3, d3, d4, d6;
+} *haldata = NULL;
 
 static int pumaKinematicsForward(const double * joint,
                                  EmcPose * world,
@@ -105,6 +99,11 @@ static int pumaKinematicsForward(const double * joint,
    hom.rot.z.y = -s1 * t1 + c1 * s4 * s5;
    hom.rot.z.z = s23 * c4 * s5 - c23 * c5;
 
+   rtapi_real PUMA_A2 = hal_get_real(haldata->a2);
+   rtapi_real PUMA_A3 = hal_get_real(haldata->a3);
+   rtapi_real PUMA_D3 = hal_get_real(haldata->d3);
+   rtapi_real PUMA_D4 = hal_get_real(haldata->d4);
+
    /* Calculate term to be used in definition of...  */
    /* position vector.                               */
    t1 = PUMA_A2 * c2 + PUMA_A3 * c23 - PUMA_D4 * s23;
@@ -156,6 +155,7 @@ static int pumaKinematicsForward(const double * joint,
        *iflags |= PUMA_WRIST_FLIP;
      }
    }
+   rtapi_real PUMA_D6 = hal_get_real(haldata->d6);
   /*  add effect of d6 parameter */
     hom.tran.x = hom.tran.x + hom.rot.z.x*PUMA_D6;
     hom.tran.y = hom.tran.y + hom.rot.z.y*PUMA_D6;
@@ -213,6 +213,12 @@ static int pumaKinematicsInverse(const EmcPose * world,
    rpy.y = world->c*PM_PI/180.0;
    pmRpyQuatConvert(&rpy,&worldPose.rot);
    pmPoseHomConvert(&worldPose, &hom);
+
+   rtapi_real PUMA_A2 = hal_get_real(haldata->a2);
+   rtapi_real PUMA_A3 = hal_get_real(haldata->a3);
+   rtapi_real PUMA_D3 = hal_get_real(haldata->d3);
+   rtapi_real PUMA_D4 = hal_get_real(haldata->d4);
+   rtapi_real PUMA_D6 = hal_get_real(haldata->d6);
 
   /* remove effect of d6 parameter */
    px = hom.tran.x - PUMA_D6*hom.rot.z.x;
@@ -336,18 +342,12 @@ int pumaKinematicsSetup(const  int   comp_id,
     if (!haldata) goto error;
 
 
-    res += hal_pin_float_newf(HAL_IN, &(haldata->a2), comp_id,"%s.A2",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->a3), comp_id,"%s.A3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d3), comp_id,"%s.D3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a2), DEFAULT_PUMA560_A2, "%s.A2", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a3), DEFAULT_PUMA560_A3, "%s.A3", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d3), DEFAULT_PUMA560_D3, "%s.D3", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d4), DEFAULT_PUMA560_D4, "%s.D4", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d6), DEFAULT_PUMA560_D6, "%s.D6", kp->halprefix);
     if (res) { goto error; }
-
-    PUMA_A2 = DEFAULT_PUMA560_A2;
-    PUMA_A3 = DEFAULT_PUMA560_A3;
-    PUMA_D3 = DEFAULT_PUMA560_D3;
-    PUMA_D4 = DEFAULT_PUMA560_D4;
-    PUMA_D6 = DEFAULT_PUMA560_D6;
 
     return 0;
 

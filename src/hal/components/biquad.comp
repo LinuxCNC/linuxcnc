@@ -38,31 +38,31 @@ component biquad "Biquad IIR filter";
 description """Biquad IIR filter. Implements the following transfer function:
 H(z) = (n~0~ + n~1~z^-1^ + n~2~z^-2^) / (1 + d~1~z^-1^ + d~2~z^-2^)""";
 
-pin in float in "Filter input.";
-pin out float out "Filter output.";
-pin in bit enable = 0 "Filter enable. When false, the *in* pin \
+pin in real in "Filter input.";
+pin out real out "Filter output.";
+pin in bool enable = 0 "Filter enable. When false, the *in* pin \
 is passed to the *out* pin without any filtering.  \
 A *transition from false to true* causes filter \
 coefficients to be calculated according to the current \
 *type* and the describing pin and parameter settings";
-pin out bit valid = 0 "When false, indicates an error occurred when calculating \
+pin out bool valid = 0 "When false, indicates an error occurred when calculating \
 filter coefficients (require 2>**Q**>0.5 and *f0*>sampleRate/2)";
 
-pin   in u32 type_ = 0 "Filter type determines the type of filter \
+pin   in ui32 type_ = 0 "Filter type determines the type of filter \
 coefficients calculated.  When 0, coefficients must be loaded directly \
 from the *n0,n1,n2,d1* params.  When 1, \
 a low pass filter is created specified by the *f0,Q* pins.  \
 When 2, a notch filter is created specified by the *f0,Q* pins.";
-pin   in float f0 = 250.0 "The corner frequency of the filter.";
-pin   in float Q = 0.7071 "The Q of the filter.";
+pin   in real f0 = 250.0 "The corner frequency of the filter.";
+pin   in real Q = 0.7071 "The Q of the filter.";
 
-param rw float d1 = 0.0 "1st-delayed denominator coef";
-param rw float d2 = 0.0 "2nd-delayed denominator coef";
-param rw float n0 = 1.0 "non-delayed numerator coef";
-param rw float n1 = 0.0 "1st-delayed numerator coef";
-param rw float n2 = 0.0 "2nd-delayed numerator coef";
-pin  out float s1 = 0.0 "1st-delayed internal state (for debug only)";
-pin  out float s2 = 0.0 "2nd-delayed internal state (for debug only)";
+param rw real d1 = 0.0 "1st-delayed denominator coef";
+param rw real d2 = 0.0 "2nd-delayed denominator coef";
+param rw real n0 = 1.0 "non-delayed numerator coef";
+param rw real n1 = 0.0 "1st-delayed numerator coef";
+param rw real n2 = 0.0 "2nd-delayed numerator coef";
+pin  out real s1 = 0.0 "1st-delayed internal state (for debug only)";
+pin  out real s2 = 0.0 "2nd-delayed internal state (for debug only)";
 
 option data Internal;
 option extra_setup;
@@ -92,7 +92,7 @@ typedef enum {
 
 
 typedef struct {
-    hal_bit_t                   lastEnable;
+    rtapi_bool lastEnable;
 } Internal;
 
 
@@ -117,7 +117,7 @@ FUNCTION(_)
 
                 // If not direct coefficient loading.
                 if(type_ != TYPE_DIRECT){
-                    valid = 0;
+                    valid_set(0);
 
                     sampleRate = 1.0 / (period * 1e-9);
 
@@ -145,25 +145,25 @@ FUNCTION(_)
                         break;
                     }
 
-                    n0 = b0 / a0;
-                    n1 = b1 / a0;
-                    n2 = b2 / a0;
-                    d1 = a1 / a0;
-                    d2 = a2 / a0;
-                    s1 = s2 = 0.0;
+                    n0_set(b0 / a0);
+                    n1_set(b1 / a0);
+                    n2_set(b2 / a0);
+                    d1_set(a1 / a0);
+                    d2_set(a2 / a0);
+                    s1_set(s2_set(0.0));
                 }
 
-                valid = 1;
+                valid_set(1);
             } while(0);
     }
 
     if(!enable || !valid){
-        out = in;
+        out_set(in);
     }else{
         // Transposed direct form II.
-        out = in * n0 + s1;
-        s1 = in * n1 - out * d1 + s2;
-        s2 = in * n2 - out * d2;
+        out_set(in * n0 + s1);
+        s1_set(in * n1 - out * d1 + s2);
+        s2_set(in * n2 - out * d2);
     }
 }
 

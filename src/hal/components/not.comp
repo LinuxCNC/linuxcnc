@@ -1,6 +1,6 @@
 component not "Inverter";
-pin in bit in;
-pin out bit out;
+pin in bool in;
+pin out bool out;
 description """
 The *out* output pin is set to the inverted logic level of the *in* input pin.
 """;
@@ -16,4 +16,4 @@ license "GPL";
 author "Jeff Epler";
 option period no;
 ;;
-FUNCTION(_) { out = ! in; }
+FUNCTION(_) { out_set(! in); }

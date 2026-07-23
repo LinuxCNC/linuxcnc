@@ -1,14 +1,15 @@
 component gray2bin "convert a gray-code input to binary";
 description """Converts a gray-coded number into the corresponding binary value""";
-pin in unsigned in "gray code in";
-pin out unsigned out "binary code out";
+pin in ui32 in "gray code in";
+pin out ui32 out "binary code out";
 license "GPL";
 author "Andy Pugh";
 function _;
 option period no;
 ;;
-unsigned int mask;
-out = in;
-for(mask = in >> 1 ; mask != 0 ; mask = mask >> 1){
-    out ^= mask;
+rtapi_u32 mask;
+rtapi_u32 val = in;
+for(mask = val >> 1 ; mask != 0 ; mask = mask >> 1){
+    val ^= mask;
 }
+out_set(val);

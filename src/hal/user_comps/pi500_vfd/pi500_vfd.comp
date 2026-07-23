@@ -1,15 +1,15 @@
 component pi500_vfd "Powtran PI500 Modbus driver";
-param rw unsigned mbslaveaddr     "Modbus slave address";
-pin in float commanded_frequency  "Frequency of vfd";
-pin in bit run                    "run the vfd";
-pin in bit enable                 "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
-pin out bit is_running            "1 when running";
-pin out bit is_at_speed           "1 when running at assigned frequency";
-pin out bit is_ready              "1 when vfd is ready to run";
-pin out bit is_alarm              "1 when vfd alarm is set";
-pin out float motor_current       "Output current in amps";
-pin out float heatsink_temp       "Temperature of drive heatsink";
-pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
+param rw ui32 mbslaveaddr  "Modbus slave address";
+pin in  real commanded_frequency "Frequency of vfd";
+pin in  bool run           "run the vfd";
+pin in  bool enable        "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
+pin out bool is_running    "1 when running";
+pin out bool is_at_speed   "1 when running at assigned frequency";
+pin out bool is_ready      "1 when vfd is ready to run";
+pin out bool is_alarm      "1 when vfd alarm is set";
+pin out real motor_current "Output current in amps";
+pin out real heatsink_temp "Temperature of drive heatsink";
+pin out bool watchdog_out  "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
 option userspace yes;
 option userinit yes;
 license "GPLv2 or greater";
@@ -289,9 +289,9 @@ void user_mainloop(void) {
 			continue;
 		}
 
-		is_running = status.running;
-		is_ready = status.ready;
-		is_alarm = status.alarm;
+		is_running_set(status.running);
+		is_ready_set(status.ready);
+		is_alarm_set(status.alarm);
 
 		if(!status.alarm && !enable) { //  && !pi500_trip(ctx)
 			print_modbus_error(__comp_inst, "failed to trip");
@@ -304,7 +304,7 @@ void user_mainloop(void) {
 		else {
 			calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 10 * (status.freq_two_digits ? 10 : 1));
 
-			is_at_speed = (commanded_frequency > 0 && calculated_frequency == status.frequency ? 1 : 0);
+			is_at_speed_set(commanded_frequency > 0 && calculated_frequency == status.frequency ? 1 : 0);
 			
 			if(commanded_frequency > 0 
 				&& calculated_frequency != status.frequency 
@@ -319,9 +319,9 @@ void user_mainloop(void) {
 				continue;
 			}
 
-			watchdog_out = !watchdog_out;
-			motor_current = status.output_current / 100;
-			heatsink_temp = status.sink_temp / 10;
+			watchdog_out_set(!watchdog_out);
+			motor_current_set(status.output_current / 100);
+			heatsink_temp_set(status.sink_temp / 10);
 		}
 	}
 	}

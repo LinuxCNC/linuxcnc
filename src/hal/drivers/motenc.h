@@ -64,11 +64,11 @@
 
 
 typedef struct {
-    hal_s32_t				encoderCount[MOTENC_FPGA_NUM_ENCODER_CHANNELS];
-    hal_u32_t				digitalIo;
-    hal_u32_t				statusControl;
-    hal_u32_t				reserved;
-    hal_u32_t				boardVersion;
+    volatile rtapi_s32			encoderCount[MOTENC_FPGA_NUM_ENCODER_CHANNELS];
+    volatile rtapi_u32			digitalIo;
+    volatile rtapi_u32			statusControl;
+    volatile rtapi_u32			reserved;
+    volatile rtapi_u32			boardVersion;
 } volatile MotencFpgaRegMap;
 
 // For use with digitalIo reg.
@@ -96,16 +96,16 @@ typedef struct {
 
 typedef struct {
     MotencFpgaRegMap			fpga[MOTENC_NUM_FPGA];
-    hal_u32_t				timerCompare;
-    hal_u32_t				timerIrqDisable;
-    hal_u32_t				timerIrqEnable;
-    hal_u32_t				watchdogControl;
-    hal_u32_t				watchdogReset;
-    hal_u32_t				reserved1[3];
-    hal_u32_t				dac[MOTENC_NUM_DAC_CHANNELS];
-    hal_u32_t				adcDataCommand;
-    hal_u32_t				reserved2[7];
-    hal_u32_t				adcStartConversion;
+    volatile rtapi_u32			timerCompare;
+    volatile rtapi_u32			timerIrqDisable;
+    volatile rtapi_u32			timerIrqEnable;
+    volatile rtapi_u32			watchdogControl;
+    volatile rtapi_u32			watchdogReset;
+    volatile rtapi_u32			reserved1[3];
+    volatile rtapi_u32			dac[MOTENC_NUM_DAC_CHANNELS];
+    volatile rtapi_u32			adcDataCommand;
+    volatile rtapi_u32			reserved2[7];
+    volatile rtapi_u32			adcStartConversion;
 } volatile MotencRegMap;
 
 // For use with watchdogControl reg.

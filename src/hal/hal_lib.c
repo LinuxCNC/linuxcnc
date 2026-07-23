@@ -259,13 +259,123 @@ void halpr_mutex_force_release(void)
 
 static int ref_cnt = 0;
 
+#ifdef ULAPI
+static int init_cnt = 0; // Reference count on hal_lib_init()/hal_lib_exit()
+
+// Only user-space applications linking to hal_lib have access to this part.
+// Especially halmodule will call it on import to map the shared memory.
+int hal_lib_init(void)
+{
+    init_cnt++;  // Reference count init calls
+
+    if(0 != lib_mem_id)
+        return 0;  // Already initialized and mapped
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
+    char rtapi_name[RTAPI_NAME_LEN + 1];
+    rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
+    lib_module_id = rtapi_init(rtapi_name);
+    if (lib_module_id < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: could not initialize RTAPI\n");
+        init_cnt--;
+        return lib_module_id;
+    }
+
+    /* get HAL shared memory block from RTAPI */
+    lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
+    if (lib_mem_id < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: could not open shared memory\n");
+        rtapi_exit(lib_module_id);
+        // Reset the 'lib_mem_id' because it is used as a key in the test to
+        // perform the memory mapping at the start of the function.
+        lib_mem_id = 0;
+        lib_module_id = -1;
+        init_cnt--;
+        return -EINVAL;
+    }
+    /* get address of shared memory area */
+    void *mem;
+    int retval = rtapi_shmem_getptr(lib_mem_id, &mem);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: could not access shared memory\n");
+        rtapi_shmem_delete(lib_mem_id, lib_module_id);
+        rtapi_exit(lib_module_id);
+        lib_mem_id = 0;
+        lib_module_id = -1;
+        init_cnt--;
+        return -EINVAL;
+    }
+    /* set up internal pointers to shared mem and data structure */
+    hal_shmem_base = (char *)mem;
+    hal_data = (hal_data_t *)mem;
+    /* perform a global init if needed */
+    retval = init_hal_data();
+    if (0 != retval) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: could not init shared memory\n");
+        rtapi_shmem_delete(lib_mem_id, lib_module_id);
+        rtapi_exit(lib_module_id);
+        hal_shmem_base = NULL;
+        hal_data = NULL;
+        lib_mem_id = 0;
+        lib_module_id = -1;
+        init_cnt--;
+        return -EINVAL;
+    }
+    return 0;
+}
+
+static int dangling_comp_cb(hal_query_t *q, void *arg)
+{
+    (void)arg;
+    if(q->callerdata.sival == q->comp.pid) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "  dangling component: '%s' id=%d pid=%d ready=%d insmod='%s'\n",
+            q->name, q->comp.comp_id, q->comp.pid, (int)q->comp.ready, q->comp.insmod ? q->comp.insmod : "(null)");
+    }
+    return 0;
+}
+
+void hal_lib_exit(void)
+{
+    if(init_cnt <= 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: hal_lib_exit() called too often (init_cnt=%d)\n", init_cnt);
+        return;
+    }
+
+    init_cnt--;  // Decrease the ref count
+
+    if(init_cnt > 0) {
+        return;  // Not yet final exit.
+    }
+
+    // We check the hal_init() refcount. We can't delete until hal_exit() was
+    // called on all of them. We alse check whether we actually have been
+    // initialized and have a valid shared memory ID. This ID is non-zero when
+    // we sucessfully initialized.
+    if(0 == ref_cnt) {
+        if(0 != lib_mem_id) {
+            rtapi_print_msg(RTAPI_MSG_DBG, "HAL: releasing RTAPI resources\n");
+            /* release RTAPI resources */
+            rtapi_shmem_delete(lib_mem_id, lib_module_id);
+            rtapi_exit(lib_module_id);
+            lib_mem_id = 0;
+            lib_module_id = -1;
+            hal_shmem_base = NULL;
+            hal_data = NULL;
+        } // else it is a no-op
+    } else {
+        int pid = (int)getpid();
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: hal_lib_exit() called"
+                        " while holding %d component references (pid=%d)\n", ref_cnt, pid);
+        hal_query_t q = {};
+        q.callerdata.sival = pid;
+        hal_list_comp(&q, dangling_comp_cb, NULL);
+    }
+}
+#endif /* ULAPI */
+
 int hal_init(const char *name)
 {
     int comp_id;
-#ifdef ULAPI
-    int retval;
-    void *mem;
-#endif
     char rtapi_name[RTAPI_NAME_LEN + 1];
     char hal_name[HAL_NAME_LEN + 1];
     hal_comp_t *comp;
@@ -281,43 +391,10 @@ int hal_init(const char *name)
     }
 
 #ifdef ULAPI
-    if(!lib_mem_id) {
-	rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
-	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
-	lib_module_id = rtapi_init(rtapi_name);
-	if (lib_module_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not initialize RTAPI\n");
-	    return -EINVAL;
-	}
-
-	/* get HAL shared memory block from RTAPI */
-	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
-	if (lib_mem_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not open shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-	/* get address of shared memory area */
-	retval = rtapi_shmem_getptr(lib_mem_id, &mem);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not access shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
-	/* set up internal pointers to shared mem and data structure */
-        hal_shmem_base = (char *) mem;
-        hal_data = (hal_data_t *) mem;
-	/* perform a global init if needed */
-	retval = init_hal_data();
-	if ( retval ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: could not init shared memory\n");
-	    rtapi_exit(lib_module_id);
-	    return -EINVAL;
-	}
+    if(ref_cnt == 0) {
+        int retval = hal_lib_init();
+        if (0 != retval)
+            return retval;
     }
 #endif
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
@@ -329,7 +406,7 @@ int hal_init(const char *name)
     comp_id = rtapi_init(rtapi_name);
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
-	return -EINVAL;
+	return comp_id;
     }
     /* get mutex before manipulating the shared data */
     halpr_mutex_acquire();
@@ -340,7 +417,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: duplicate component name '%s'\n", hal_name);
 	rtapi_exit(comp_id);
-	return -EINVAL;
+	return -EEXIST;
     }
     /* allocate a new component structure */
     comp = halpr_alloc_comp_struct();
@@ -386,7 +463,7 @@ int hal_exit(int comp_id)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: exit called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: removing component %02d\n", comp_id);
     /* grab mutex before manipulating list */
@@ -399,7 +476,7 @@ int hal_exit(int comp_id)
 	halpr_mutex_release();
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return -EINVAL;
+	return -ENOENT;
     }
     comp = SHMPTR(next);
     while (comp->comp_id != comp_id) {
@@ -411,7 +488,7 @@ int hal_exit(int comp_id)
 	    halpr_mutex_release();
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: component %d not found\n", comp_id);
-	    return -EINVAL;
+	    return -ENOENT;
 	}
 	comp = SHMPTR(next);
     }
@@ -442,15 +519,10 @@ int hal_exit(int comp_id)
     halpr_mutex_release();
     --ref_cnt;
 #ifdef ULAPI
-    if(ref_cnt == 0) {
-        rtapi_print_msg(RTAPI_MSG_DBG, "HAL: releasing RTAPI resources\n");
-	/* release RTAPI resources */
-	rtapi_shmem_delete(lib_mem_id, lib_module_id);
-	rtapi_exit(lib_module_id);
-	lib_mem_id = 0;
-	lib_module_id = -1;
-	hal_shmem_base = NULL;
-	hal_data = NULL;
+    if (0 == ref_cnt) {
+        hal_lib_exit();
+    } else if(ref_cnt < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: hal_exit() made reference count negative\n");
     }
 #endif
     rtapi_exit(comp_id);
@@ -666,10 +738,10 @@ const char *hal_strerror(int err)
     }
 }
 
-char *hal_comp_name(int comp_id)
+const char *hal_comp_name(int comp_id)
 {
     hal_comp_t *comp;
-    char *result = NULL;
+    const char *result = NULL;
     halpr_mutex_acquire();
     comp = halpr_find_comp_by_id(comp_id);
     if(comp) result = comp->name;
@@ -678,10 +750,10 @@ char *hal_comp_name(int comp_id)
 }
 
 hal_realtime_type_t hal_get_realtime_type() {
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: hal_get_realtime_type called before init\n");
-        return -EINVAL;
+        return -EFAULT;
     }
     return hal_data->realtime_type;
 }
@@ -696,7 +768,7 @@ int hal_set_lock(unsigned char lock_type) {
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: set_lock called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     hal_data->lock = lock_type;
     return 0;
@@ -935,10 +1007,8 @@ int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def
     return 0;
 }
 
-#if 0
-// Must wait until switch
-// Note: port has no initial default as it is an 'internal' reference
-int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fmt, ...)
+// FIXME: This needs to change into hal_port_t argument when we break the API
+int hal_pin_new_port(int compid, hal_pdir_t dir, hal_sint_t *ref, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -946,7 +1016,6 @@ int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fm
     va_end(ap);
     return ret;
 }
-#endif
 
 /* this is a generic function that does the majority of the work. */
 
@@ -961,7 +1030,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if(*data_ptr_addr) 
@@ -1100,7 +1169,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_alias called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1229,7 +1298,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (strlen(name) > HAL_NAME_LEN) {
@@ -1260,12 +1329,12 @@ int hal_signal_new(const char *name, hal_type_t type)
      * See: #421 and https://github.com/machinekit/machinekit/issues/524
      */
     switch (type) {
-    case HAL_BIT:
+    case HAL_BOOL:
     case HAL_S32:
     case HAL_U32:
-    case HAL_S64:
-    case HAL_U64:
-    case HAL_FLOAT:
+    case HAL_SINT:
+    case HAL_UINT:
+    case HAL_REAL:
     case HAL_PORT:
         data_addr = shmalloc_up(sizeof(hal_data_u));
         // Initialize the signal value
@@ -1327,7 +1396,7 @@ int hal_signal_delete(const char *name)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_delete called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
@@ -1374,7 +1443,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: link called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
@@ -1542,7 +1611,7 @@ int hal_unlink(const char *pin_name)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: unlink called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
@@ -1713,7 +1782,7 @@ static int hal_param_new_anyapi(const char *name, hal_type_t type, hal_pdir_t di
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_S64 && type != HAL_U64) {
@@ -1863,7 +1932,7 @@ int hal_param_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_BIT, dir, (void**)ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_BIT, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1875,7 +1944,7 @@ int hal_param_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32 de
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_S32, dir, (void**)ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_S32, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1887,7 +1956,7 @@ int hal_param_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 de
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_U32, dir, (void**)ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_U32, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1899,7 +1968,7 @@ int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_S64, dir, (void**)ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_S64, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1911,7 +1980,7 @@ int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_U64, dir, (void**)ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_U64, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1923,7 +1992,7 @@ int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_FLOAT, dir, (void**)ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_FLOAT, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1950,6 +2019,10 @@ int hal_param_new_fake(int compid, hal_refs_u *ref)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 int hal_param_bit_set(const char *name, int value)
 {
     return hal_param_set(name, HAL_BIT, &value);
@@ -1979,6 +2052,7 @@ int hal_param_s64_set(const char *name, signed long value)
 {
     return hal_param_set(name, HAL_S64, &value);
 }
+#pragma GCC diagnostic pop
 
 /* this is a generic function that does the majority of the work */
 
@@ -1990,7 +2064,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_set called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     
     if (hal_data->lock & HAL_LOCK_PARAMS)  {
@@ -2072,7 +2146,7 @@ int hal_param_alias(const char *param_name, const char *alias)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_alias called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2277,12 +2351,11 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     int cmp;
     hal_funct_t *new, *fptr;
     hal_comp_t *comp;
-    char buf[HAL_NAME_LEN + 1];
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (strlen(name) > HAL_NAME_LEN) {
@@ -2375,25 +2448,25 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     halpr_mutex_release();
 
     /* create a pin with the function's runtime in it */
-    if (hal_pin_s32_newf(HAL_OUT, &(new->runtime), comp_id,"%s.time",name)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	   "HAL: ERROR: fail to create pin '%s.time'\n", name);
+    if (hal_pin_new_si32(comp_id, HAL_OUT, &(new->runtime), 0, "%s.time", name) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create pin '%s.time'\n", name);
 	return -EINVAL;
     }
-    *(new->runtime) = 0;
 
     /* note that failure to successfully create the following params
        does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
     /* create a parameter with the function's maximum runtime in it */
-    rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
-    new->maxtime = 0;
-    hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
+    if(hal_param_new_si32(comp_id, HAL_RW, &(new->maxtime), 0, "%s.tmax", name) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax'\n", name);
+	return -EINVAL;
+    }
 
     /* create a parameter with the function's maximum runtime in it */
-    rtapi_snprintf(buf, sizeof(buf), "%s.tmax-increased", name);
-    new->maxtime_increased = 0;
-    hal_param_bit_new(buf, HAL_RO, &(new->maxtime_increased), comp_id);
+    if(hal_param_new_bool(comp_id, HAL_RO, &(new->maxtime_increased), 0, "%s.tmax-increased", name) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.tmax-increased'\n", name);
+	return -EINVAL;
+    }
 
     return 0;
 }
@@ -2409,10 +2482,10 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: creating thread %s, %ld nsec\n", name, period_nsec);
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
     if (period_nsec == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2443,7 +2516,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	    halpr_mutex_release();
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: duplicate thread name %s\n", name);
-	    return -EINVAL;
+	    return -EEXIST;
 	}
 	/* didn't find it yet, look at next one */
 	next = tptr->next_ptr;
@@ -2541,6 +2614,13 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     /* insert new structure at head of list */
     new->next_ptr = hal_data->thread_list_ptr;
     hal_data->thread_list_ptr = SHMOFF(new);
+
+    // The counter that increases monotonically once every thread loop cycle.
+    // This is a 'fast' counter with normal access semantics. Separated from
+    // the param 'threadbeat' so it only needs to write _once_ to volatile
+    // memory instead of a very expensive read-modify-write cycle.
+    new->beatcnt = 0;
+
     /* done, release mutex */
     halpr_mutex_release();
 
@@ -2549,23 +2629,29 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     if (new->comp_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create pseudo comp for thread: '%s'\n", new->name);
-        return -EINVAL;
+        return new->comp_id;
     }
 
-    rtapi_snprintf(buf, sizeof(buf), "%s.tmax", new->name);
-    new->maxtime = 0;
-    if (hal_param_s32_new(buf, HAL_RW, &(new->maxtime), new->comp_id)) {
+    if ((retval = hal_param_new_si32(new->comp_id, HAL_RW, &(new->maxtime), 0, "%s.tmax", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create param '%s.tmax'\n", new->name);
-        return -EINVAL;
+        return retval;
     }
 
-    if (hal_pin_s32_newf(HAL_OUT, &(new->runtime), new->comp_id,"%s.time",new->name)) {
+    if ((retval = hal_pin_new_si32(new->comp_id, HAL_OUT, &(new->runtime), 0, "%s.time", new->name)) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
            "HAL: ERROR: fail to create pin '%s.time'\n", new->name);
-        return -EINVAL;
+        return retval;
     }
-    *(new->runtime) = 0;
+
+    // A parameter that increases monotonically once every thread loop cycle.
+    // This way we can detect when a RT-cycle was completed from non-RT and
+    // prevent racy indeterministic sleep() constructs.
+    if((retval = hal_param_new_sint(new->comp_id, HAL_RO, &(new->threadbeat), 0, "%s.threadbeat", name)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: fail to create param '%s.threadbeat'\n", name);
+	return retval;
+    }
+
     hal_ready(new->comp_id);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
@@ -2577,10 +2663,10 @@ extern int hal_thread_delete(const char *name)
     hal_thread_t *thread;
     rtapi_intptr_t *prev, next;
 
-    if (hal_data == 0) {
+    if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread_delete called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
@@ -2618,7 +2704,7 @@ extern int hal_thread_delete(const char *name)
     halpr_mutex_release();
     rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: thread '%s' not found\n",
 	name);
-    return -EINVAL;
+    return -ENOENT;
 }
 
 #endif /* RTAPI */
@@ -2634,7 +2720,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: add_funct called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
@@ -2762,7 +2848,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
     if (hal_data == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: init_funct called before init\n");
-        return -EINVAL;
+        return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
@@ -2793,7 +2879,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
         halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: function '%s' not found\n", funct_name);
-        return -EINVAL;
+        return -ENOENT;
     }
 
     thread = halpr_find_thread_by_name(thread_name);
@@ -2801,7 +2887,7 @@ int hal_init_funct_to_thread(const char *funct_name, const char *thread_name, in
         halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: thread '%s' not found\n", thread_name);
-        return -EINVAL;
+        return -ENOENT;
     }
 
     /* once the special init cycle has executed, further initf calls are a
@@ -2874,7 +2960,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: del_funct called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
@@ -2960,7 +3046,7 @@ int hal_start_threads(void)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: start_threads called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_RUN) {
@@ -2981,7 +3067,7 @@ int hal_stop_threads(void)
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: stop_threads called before init\n");
-	return -EINVAL;
+	return -EFAULT;
     }
 
     if (hal_data->lock & HAL_LOCK_RUN) {
@@ -3536,12 +3622,12 @@ static void thread_task(void *arg)
 		/* point to function structure */
 		funct = SHMPTR(funct_entry->funct_ptr);
 		/* update execution time data */
-		*(funct->runtime) = (hal_s32_t)(end_time - start_time);
-		if ( *(funct->runtime) > funct->maxtime) {
-		    funct->maxtime = *(funct->runtime);
-		    funct->maxtime_increased = 1;
+		rtapi_s32 runtime = hal_set_si32(funct->runtime, end_time - start_time);
+		if ( runtime > hal_get_si32(funct->maxtime)) {
+		    hal_set_si32(funct->maxtime, runtime);
+		    hal_set_bool(funct->maxtime_increased, 1);
 		} else {
-		    funct->maxtime_increased = 0;
+		    hal_set_bool(funct->maxtime_increased, 0);
 		}
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
@@ -3549,10 +3635,11 @@ static void thread_task(void *arg)
 		start_time = end_time;
 	    }
 	    /* update thread execution time */
-	    *(thread->runtime) = (hal_s32_t)(end_time - thread_start_time);
-	    if ( *(thread->runtime) > thread->maxtime) {
-	        thread->maxtime = *(thread->runtime);
+	    rtapi_s32 runtime = hal_set_si32(thread->runtime, end_time - thread_start_time);
+	    if ( runtime > hal_get_si32(thread->maxtime)) {
+	        hal_set_si32(thread->maxtime, runtime);
 	    }
+            hal_set_sint(thread->threadbeat, ++thread->beatcnt);
 	}
 	/* wait until next period */
 	rtapi_wait();
@@ -3584,10 +3671,10 @@ static int init_hal_data(void)
             halpr_mutex_release();
             return 0;
         } else {
+            halpr_mutex_release();
             rtapi_print("HAL: version:%d expected:%d\n",hal_data->version,HAL_VER);
             rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: version code mismatch\n");
-            halpr_mutex_release();
-            return -1;
+            return -EPROTO;
         }
     }
 
@@ -4022,7 +4109,7 @@ static void unlink_pin(hal_pin_t * pin)
     dummy_addr = (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
 
     switch (pin->type) {
-    case HAL_BIT:
+    case HAL_BOOL:
         dummy_addr->b = sig_data_addr->b;
         break;
     case HAL_S32:
@@ -4031,13 +4118,13 @@ static void unlink_pin(hal_pin_t * pin)
     case HAL_U32:
         dummy_addr->u = sig_data_addr->u;
         break;
-    case HAL_S64:
+    case HAL_SINT:
         dummy_addr->s = sig_data_addr->s;
         break;
-    case HAL_U64:
+    case HAL_UINT:
         dummy_addr->u = sig_data_addr->u;
         break;
-    case HAL_FLOAT:
+    case HAL_REAL:
         dummy_addr->f = sig_data_addr->f;
         break;
     case HAL_PORT:
@@ -4392,7 +4479,15 @@ static bool hal_port_compute_copy(unsigned read,
 }
 
 
-int hal_port_alloc(unsigned size, hal_port_t *port) {
+// hal_port_alloc() is DEPRECATED
+// Access to port allocation is done by hal_set_s() on the signal that has the
+// port pins connected.
+int hal_port_alloc(unsigned size, hal_port_t *port)
+{
+    return halpr_port_alloc(size, port);
+}
+
+int halpr_port_alloc(unsigned size, hal_port_t *port) {
     if(!port || size < 1 || size > HAL_PORT_SIZE_MAX)
         return -EINVAL;
 
@@ -5041,7 +5136,7 @@ EXPORT_SYMBOL(hal_pin_new_ui32);
 EXPORT_SYMBOL(hal_pin_new_sint);
 EXPORT_SYMBOL(hal_pin_new_uint);
 EXPORT_SYMBOL(hal_pin_new_real);
-//EXPORT_SYMBOL(hal_pin_new_port);
+EXPORT_SYMBOL(hal_pin_new_port);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
@@ -5089,6 +5184,8 @@ EXPORT_SYMBOL(hal_param_new_uint);
 EXPORT_SYMBOL(hal_param_new_real);
 EXPORT_SYMBOL(hal_param_new_fake);
 
+// Parameter set functions have been deprecated.
+// Use the generic hal_set_p() instead.
 EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);
 EXPORT_SYMBOL(hal_param_u32_set);
@@ -5111,6 +5208,8 @@ EXPORT_SYMBOL(hal_del_funct_from_thread);
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
 
+// All HAL lib internals' access has bee deprecated. All function prefixed with
+// halpr_ are only for private internal use.
 EXPORT_SYMBOL(hal_shmem_base);
 EXPORT_SYMBOL(halpr_find_comp_by_name);
 EXPORT_SYMBOL(halpr_find_pin_by_name);
@@ -5129,7 +5228,7 @@ EXPORT_SYMBOL(halpr_find_pin_by_sig);
 EXPORT_SYMBOL(hal_pin_alias);
 EXPORT_SYMBOL(hal_param_alias);
 
-EXPORT_SYMBOL(hal_port_alloc);
+EXPORT_SYMBOL(hal_port_alloc); // Deprecated
 EXPORT_SYMBOL(hal_port_read);
 EXPORT_SYMBOL(hal_port_peek);
 EXPORT_SYMBOL(hal_port_peek_commit);

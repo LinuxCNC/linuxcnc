@@ -36,12 +36,12 @@ In more complex systems, it may be more appropriate to use classicladder to
 manage the software portion of the estop chain.
 """;
 
-pin in bit ok_in = true;
-pin in bit fault_in = false;
-pin in bit reset;
-pin out bit ok_out = false;
-pin out bit fault_out = true;
-pin out bit watchdog;
+pin in bool ok_in = true;
+pin in bool fault_in = false;
+pin in bool reset;
+pin out bool ok_out = false;
+pin out bool fault_out = true;
+pin out bool watchdog;
 option period no;
 function _;
 option data estop_data;
@@ -57,17 +57,17 @@ FUNCTION(_) {
 	/* no fault conditions, check for reset edge */
 	if ( reset && !data.old_reset ) {
 	    /* got a rising edge, indicate "OK" on outputs */
-	    ok_out = 1;
-	    fault_out = 0;
+	    ok_out_set(1);
+	    fault_out_set(0);
 	}
 	if( ok_out ) {
 	    /* toggle watchdog */
-	    watchdog = !watchdog;
+	    watchdog_set(!watchdog);
 	}
     } else {
 	/* fault condition exists, trip */
-	ok_out = 0;
-	fault_out = 1;
+	ok_out_set(0);
+	fault_out_set(1);
     }
     /* store state of reset input for next pass (for edge detect) */
     data.old_reset = reset;

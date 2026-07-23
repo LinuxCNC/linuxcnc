@@ -37,18 +37,18 @@
  ******************************************************************************/
 
 component reset "Resets an IO signal";
-pin in  bit     trigger             "Trigger input";
-pin io  u32     out_u32      = 0    "Unsigned 32 bit integer output value";
-pin in  u32     reset_u32    = 0    "Unsigned 32 bit integer reset value";
-pin io  s32     out_s32      = 0    "Signed 32 bit integer output value";
-pin in  s32     reset_s32    = 0    "Signed 32 bit integer reset value";
-pin io  float   out_float    = 0.0  "Float output value";
-pin in  float   reset_float  = 0.0  "Float reset value";
-pin io  bit     out_bit      = false  "Bit integer output value";
-pin in  bit     reset_bit    = false  "Bit reset value";
-pin in  bit     retriggerable = true  "Allow additional edges to reset";
-pin in  bit     rising        = true  "Trigger on rising edge";
-pin in  bit     falling       = false "Trigger on falling edge";
+pin in  bool trigger             "Trigger input";
+pin io  ui32 out_u32      = 0    "Unsigned 32 bit integer output value";
+pin in  ui32 reset_u32    = 0    "Unsigned 32 bit integer reset value";
+pin io  si32 out_s32      = 0    "Signed 32 bit integer output value";
+pin in  si32 reset_s32    = 0    "Signed 32 bit integer reset value";
+pin io  real out_float    = 0.0  "Float output value";
+pin in  real reset_float  = 0.0  "Float reset value";
+pin io  bool out_bit      = false  "Bit integer output value";
+pin in  bool reset_bit    = false  "Bit reset value";
+pin in  bool retriggerable = true  "Allow additional edges to reset";
+pin in  bool rising        = true  "Trigger on rising edge";
+pin in  bool falling       = false "Trigger on falling edge";
 option period no;
 function _ "Update the output value";
 description """
@@ -61,16 +61,16 @@ passed via the input pins reset_float/s32/u32/bit.
 """;
 license "GPL";
 author "Alexander Rössler";
-variable hal_bit_t last_trigger = false;
+variable rtapi_bool last_trigger = false;
 ;;
 FUNCTION(_) {
-    if (((rising && (trigger)) || (falling && (!trigger)))
-       && (trigger != last_trigger))
+    rtapi_bool new_trigger = trigger;
+    if ((new_trigger != last_trigger) && ((rising && (new_trigger)) || (falling && (!new_trigger))))
     {
-        out_u32 = reset_u32;
-        out_s32 = reset_s32;
-        out_float = reset_float;
-        out_bit = reset_bit;
+        out_u32_set(reset_u32);
+        out_s32_set(reset_s32);
+        out_float_set(reset_float);
+        out_bit_set(reset_bit);
     }
-    last_trigger = trigger;
+    last_trigger = new_trigger;
 }

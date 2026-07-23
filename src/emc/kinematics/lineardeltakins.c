@@ -23,7 +23,8 @@
 
 struct haldata
 {
-    hal_float_t *r, *l;
+    hal_real_t r;
+    hal_real_t l;
 } *haldata;
 
 int comp_id;
@@ -34,7 +35,7 @@ int kinematicsForward(const double * joints,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
     (void)fflags;
     (void)iflags;
-    set_geometry(*haldata->r, *haldata->l);
+    set_geometry(hal_get_real(haldata->r), hal_get_real(haldata->l));
     return kinematics_forward(joints, pos);
 }
 
@@ -43,7 +44,7 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
         KINEMATICS_FORWARD_FLAGS *fflags) {
     (void)iflags;
     (void)fflags;
-    set_geometry(*haldata->r, *haldata->l);
+    set_geometry(hal_get_real(haldata->r), hal_get_real(haldata->l));
     return kinematics_inverse(pos, joints);
 }
 
@@ -66,17 +67,11 @@ int rtapi_app_main(void)
     }
 
     if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->r, comp_id,
+        retval = hal_pin_new_real(comp_id, HAL_IN, &haldata->r, DELTA_RADIUS,
                 "lineardeltakins.R");
     if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->l, comp_id,
+        retval = hal_pin_new_real(comp_id, HAL_IN, &haldata->l, DELTA_DIAGONAL_ROD,
                 "lineardeltakins.L");
-
-    if(retval == 0)
-    {
-        *haldata->r = DELTA_RADIUS;
-        *haldata->l = DELTA_DIAGONAL_ROD;
-    }
 
     if(retval == 0)
     {

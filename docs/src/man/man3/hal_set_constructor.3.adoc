@@ -1,17 +1,24 @@
+:manvolnum: 3
+
 = hal_set_constructor(3)
 
 == NAME
 
 hal_set_constructor - sets the constructor function for this component
 
-== SYNTAX
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
 
 typedef int (*hal_constructor_t)(const char* prefix, const char* arg);
-int hal_set_constructor(int _comp_id_, hal_constructor_t _constructor_)
+int hal_set_constructor(int comp_id, hal_constructor_t constructor);
+----
 
 == ARGUMENTS
 
-_comp_id_:: A HAL component identifier returned by an earlier call to *hal_init*.
+_comp_id_:: A HAL component identifier returned by an earlier call to hal_init(3).
 
 _prefix_:: The prefix to be given to the pins, parameters, and functions in the new instance.
 

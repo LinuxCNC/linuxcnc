@@ -38,26 +38,26 @@
 // kinematic functions (default=0 for err detection):
 static kparms kp; // kinematics parms (common all types)
 
-static KF kfwd0 = 0; // 0==switchkins_type kinematics forward
-static KF kfwd1 = 0; // 1
-static KF kfwd2 = 0; // 2
+static KF kfwd0 = NULL; // 0==switchkins_type kinematics forward
+static KF kfwd1 = NULL; // 1
+static KF kfwd2 = NULL; // 2
 
-static KI kinv0 = 0; // 0==switchkins_type kinematics inverse
-static KI kinv1 = 0; // 1
-static KI kinv2 = 0; // 2
+static KI kinv0 = NULL; // 0==switchkins_type kinematics inverse
+static KI kinv1 = NULL; // 1
+static KI kinv2 = NULL; // 2
 
-static hal_u32_t switchkins_type;
+static int switchkins_type;
 static struct swdata {
-    hal_bit_t   *kinstype_is_0;
-    hal_bit_t   *kinstype_is_1;
-    hal_bit_t   *kinstype_is_2;
+    hal_bool_t kinstype_is_0;
+    hal_bool_t kinstype_is_1;
+    hal_bool_t kinstype_is_2;
 
-    hal_float_t *gui_x;
-    hal_float_t *gui_y;
-    hal_float_t *gui_z;
-    hal_float_t *gui_a;
-    hal_float_t *gui_b;
-    hal_float_t *gui_c;
+    hal_real_t gui_x;
+    hal_real_t gui_y;
+    hal_real_t gui_z;
+    hal_real_t gui_a;
+    hal_real_t gui_b;
+    hal_real_t gui_c;
 } *swdata;
 
 // Note: parallel kinematics (like genhexkins) often
@@ -113,12 +113,12 @@ static int gui_forward_kins(const double *joints)
                   kp.gui_kinstype);
                   return -1;
      }
-    *swdata->gui_x = lastpose[kp.gui_kinstype].tran.x;
-    *swdata->gui_y = lastpose[kp.gui_kinstype].tran.y;
-    *swdata->gui_z = lastpose[kp.gui_kinstype].tran.z;
-    *swdata->gui_a = lastpose[kp.gui_kinstype].a;
-    *swdata->gui_b = lastpose[kp.gui_kinstype].b;
-    *swdata->gui_c = lastpose[kp.gui_kinstype].c;
+    hal_set_real(swdata->gui_x, lastpose[kp.gui_kinstype].tran.x);
+    hal_set_real(swdata->gui_y, lastpose[kp.gui_kinstype].tran.y);
+    hal_set_real(swdata->gui_z, lastpose[kp.gui_kinstype].tran.z);
+    hal_set_real(swdata->gui_a, lastpose[kp.gui_kinstype].a);
+    hal_set_real(swdata->gui_b, lastpose[kp.gui_kinstype].b);
+    hal_set_real(swdata->gui_c, lastpose[kp.gui_kinstype].c);
     return res;
 } // gui_forward_kins
 
@@ -134,28 +134,28 @@ int kinematicsSwitch(int new_switchkins_type)
     switch (switchkins_type) {
         case 0: rtapi_print_msg(RTAPI_MSG_INFO,
                 "kinematicsSwitch:TYPE0\n");
-                *swdata->kinstype_is_0 = 1;
-                *swdata->kinstype_is_1 = 0;
-                *swdata->kinstype_is_2 = 0;
+                hal_set_bool(swdata->kinstype_is_0, 1);
+                hal_set_bool(swdata->kinstype_is_1, 0);
+                hal_set_bool(swdata->kinstype_is_2, 0);
                 break;
         case 1: rtapi_print_msg(RTAPI_MSG_INFO,
                 "kinematicsSwitch:TYPE1\n");
-                *swdata->kinstype_is_0 = 0;
-                *swdata->kinstype_is_1 = 1;
-                *swdata->kinstype_is_2 = 0;
+                hal_set_bool(swdata->kinstype_is_0, 0);
+                hal_set_bool(swdata->kinstype_is_1, 1);
+                hal_set_bool(swdata->kinstype_is_2, 0);
                 break;
         case 2: rtapi_print_msg(RTAPI_MSG_INFO,
                 "kinematicsSwitch:TYPE2\n");
-                *swdata->kinstype_is_0 = 0;
-                *swdata->kinstype_is_1 = 0;
-                *swdata->kinstype_is_2 = 1;
+                hal_set_bool(swdata->kinstype_is_0, 0);
+                hal_set_bool(swdata->kinstype_is_1, 0);
+                hal_set_bool(swdata->kinstype_is_2, 1);
                 break;
        default: rtapi_print_msg(RTAPI_MSG_ERR,
                 "kinematicsSwitch:BAD VALUE <%d>\n",
                 switchkins_type);
-                *swdata->kinstype_is_1 = 0;
-                *swdata->kinstype_is_0 = 0;
-                *swdata->kinstype_is_2 = 0;
+                hal_set_bool(swdata->kinstype_is_1, 0);
+                hal_set_bool(swdata->kinstype_is_0, 0);
+                hal_set_bool(swdata->kinstype_is_2, 0);
                 return -1; // FAIL
     }
     if (fwd_iterates[switchkins_type]) {
@@ -259,9 +259,9 @@ int rtapi_app_main(void)
 
     kp.sparm = sparm; // module parm passed to kins
 
-    KS ksetup0 = 0;
-    KS ksetup1 = 0;
-    KS ksetup2 = 0;
+    KS ksetup0 = NULL;
+    KS ksetup1 = NULL;
+    KS ksetup2 = NULL;
 
     res = switchkinsSetup(&kp,
                           &ksetup0, &ksetup1, &ksetup2,
@@ -306,17 +306,17 @@ int rtapi_app_main(void)
     swdata = hal_malloc(sizeof(struct swdata));
     if (!swdata) goto error;
 
-    res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(swdata->kinstype_is_0), comp_id);
-    res += hal_pin_bit_new("kinstype.is-1", HAL_OUT, &(swdata->kinstype_is_1), comp_id);
-    res += hal_pin_bit_new("kinstype.is-2", HAL_OUT, &(swdata->kinstype_is_2), comp_id);
+    res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is_0), 0, "kinstype.is-0");
+    res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is_1), 0, "kinstype.is-1");
+    res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is_2), 0, "kinstype.is-2");
 
     if (kp.gui_kinstype >=0) {
-        res += hal_pin_float_newf(HAL_IN, &swdata->gui_x, comp_id, "skgui.x");
-        res += hal_pin_float_newf(HAL_IN, &swdata->gui_y, comp_id, "skgui.y");
-        res += hal_pin_float_newf(HAL_IN, &swdata->gui_z, comp_id, "skgui.z");
-        res += hal_pin_float_newf(HAL_IN, &swdata->gui_a, comp_id, "skgui.a");
-        res += hal_pin_float_newf(HAL_IN, &swdata->gui_b, comp_id, "skgui.b");
-        res += hal_pin_float_newf(HAL_IN, &swdata->gui_c, comp_id, "skgui.c");
+        res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_x, 0.0, "skgui.x");
+        res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_y, 0.0, "skgui.y");
+        res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_z, 0.0, "skgui.z");
+        res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_a, 0.0, "skgui.a");
+        res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_b, 0.0, "skgui.b");
+        res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_c, 0.0, "skgui.c");
         if (res) {emsg = "hal pin create fail";goto error;}
     }
 

@@ -116,22 +116,22 @@ RTAPI_MP_ARRAY_STRING(names,MAX_CHAN,"encoder_ratio names");
 /* this structure contains the runtime data for a single counter */
 
 typedef struct {
-    hal_bit_t *master_A;	/* quadrature input */
-    hal_bit_t *master_B;	/* quadrature input */
-    hal_bit_t *slave_A;		/* quadrature input */
-    hal_bit_t *slave_B;		/* quadrature input */
-    hal_bit_t *enable;		/* enable input */
-    unsigned char master_state;	/* quad decode state machine state */
-    unsigned char slave_state;	/* quad decode state machine state */
+    hal_bool_t master_A;	/* quadrature input */
+    hal_bool_t master_B;	/* quadrature input */
+    hal_bool_t slave_A;		/* quadrature input */
+    hal_bool_t slave_B;		/* quadrature input */
+    hal_bool_t enable;		/* enable input */
+    unsigned master_state;	/* quad decode state machine state */
+    unsigned slave_state;	/* quad decode state machine state */
     int raw_error;		/* internal data */
     int master_increment;	/* internal data */
     int slave_increment;	/* internal data */
     double output_scale;	/* internal data */
-    hal_float_t *error;		/* error output */
-    hal_u32_t *master_ppr;	/* parameter: master encoder PPR */
-    hal_u32_t *slave_ppr;	/* parameter: slave encoder PPR */
-    hal_u32_t *master_teeth;	/* parameter: master "gear" tooth count */
-    hal_u32_t *slave_teeth;	/* parameter: slave "gear" tooth count */
+    hal_real_t error;		/* error output */
+    hal_uint_t master_ppr;	/* parameter: master encoder PPR */
+    hal_uint_t slave_ppr;	/* parameter: slave encoder PPR */
+    hal_uint_t master_teeth;	/* parameter: master "gear" tooth count */
+    hal_uint_t slave_teeth;	/* parameter: slave "gear" tooth count */
 } encoder_pair_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -240,7 +240,7 @@ int rtapi_app_main(void)
 	encoder_pair_array[n].slave_increment = 0;
 	encoder_pair_array[n].raw_error = 0;
 	encoder_pair_array[n].output_scale = 1.0;
-	*(encoder_pair_array[n].error) = 0.0;
+	hal_set_real(encoder_pair_array[n].error, 0.0);
     }
     /* export functions */
     retval = hal_export_funct("encoder-ratio.sample", sample,
@@ -279,7 +279,7 @@ static void sample(void *arg, long period)
     (void)period;
     encoder_pair_t *pair;
     int n;
-    unsigned char state;
+    unsigned state;
 
     pair = arg;
     for (n = 0; n < howmany; n++) {
@@ -287,16 +287,16 @@ static void sample(void *arg, long period)
 	/* get state machine current state */
 	state = pair->master_state;
 	/* add input bits to state code */
-	if (*(pair->master_A)) {
+	if (hal_get_bool(pair->master_A)) {
 	    state |= SM_PHASE_A_MASK;
 	}
-	if (*(pair->master_B)) {
+	if (hal_get_bool(pair->master_B)) {
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
 	state = lut[state & SM_LOOKUP_MASK];
 	/* are we enabled? */
-	if ( *(pair->enable) != 0 ) {
+	if ( hal_get_bool(pair->enable) != 0 ) {
 	    /* has an edge been detected? */
 	    if (state & SM_CNT_UP_MASK) {
 		pair->raw_error -= pair->master_increment;
@@ -310,10 +310,10 @@ static void sample(void *arg, long period)
 	/* get state machine current state */
 	state = pair->slave_state;
 	/* add input bits to state code */
-	if (*(pair->slave_A)) {
+	if (hal_get_bool(pair->slave_A)) {
 	    state |= SM_PHASE_A_MASK;
 	}
-	if (*(pair->slave_B)) {
+	if (hal_get_bool(pair->slave_B)) {
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
@@ -342,13 +342,13 @@ static void update(void *arg, long period)
     for (n = 0; n < howmany; n++) {
 	/* scale raw error to output pin */
 	if ( pair->output_scale > 0 ) {
-	    *(pair->error) = pair->raw_error / pair->output_scale;
+	    hal_set_real(pair->error, pair->raw_error / pair->output_scale);
 	}
 	/* update scale factors (only needed if params change, but
 	   it's faster to do it every time than to detect changes.) */
-	pair->master_increment = *(pair->master_teeth) * *(pair->slave_ppr);
-	pair->slave_increment = *(pair->slave_teeth) * *(pair->master_ppr);
-	pair->output_scale = *(pair->master_ppr) * *(pair->slave_ppr) * *(pair->slave_teeth);
+	pair->master_increment = hal_get_ui32(pair->master_teeth) * hal_get_ui32(pair->slave_ppr);
+	pair->slave_increment = hal_get_ui32(pair->slave_teeth) * hal_get_ui32(pair->master_ppr);
+	pair->output_scale = hal_get_ui32(pair->master_ppr) * hal_get_ui32(pair->slave_ppr) * hal_get_ui32(pair->slave_teeth);
 	/* move on to next pair */
 	pair++;
     }
@@ -372,55 +372,55 @@ static int export_encoder_pair(int num, encoder_pair_t * addr, char* prefix)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins for the quadrature inputs */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->master_A), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->master_A), 0,
 			      "%s.master-A", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->master_B), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->master_B), 0,
 			      "%s.master-B", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->slave_A), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->slave_A), 0,
 			      "%s.slave-A", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->slave_B), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->slave_B), 0,
 			      "%s.slave-B", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the enable input */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(addr->enable), 0,
 			      "%s.enable", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for output */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
+    retval = hal_pin_new_real(comp_id, HAL_OUT, &(addr->error), 0.0,
 				"%s.error", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for config info() */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->master_ppr), comp_id,
+    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->master_ppr), 0,
 			      "%s.master-ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->slave_ppr), comp_id,
+    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->slave_ppr), 0,
 			      "%s.slave-ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->master_teeth), comp_id,
+    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->master_teeth), 0,
 			      "%s.master-teeth", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->slave_teeth), comp_id,
+    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->slave_teeth), 0,
 			      "%s.slave-teeth", prefix);
     if (retval != 0) {
 	return retval;

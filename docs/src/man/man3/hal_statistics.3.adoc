@@ -1,0 +1,74 @@
+:manvolnum: 3
+
+= hal_statistics(3)
+
+== NAME
+
+hal_statistics - Retrieve statistical information about HAL
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+int hal_statistics(hal_statistics_t *sts);
+----
+
+== ARGUMENTS
+
+sts::
+  A pointer to a `hal_statistics_t` variable that will receive the data.
+
+== DESCRIPTION
+
+Retrieve the current statistics about memory, pin, param, signal, etc. usage.
+
+The data is provided in a structure with following layout:
+
+[source,c]
+----
+typedef struct {
+    long mem_total;
+    long mem_free;
+    int ncomps;
+    int ncomps_free;
+    int npins;
+    int npins_free;
+    int nparams;
+    int nparams_free;
+    int naliases;
+    int naliases_free;
+    int nsignals;
+    int nsignals_free;
+    int nthreads;
+    int nthreads_free;
+    int nfuncts;
+    int nfuncts_free;
+} hal_statistics_t;
+----
+
+Fields:
+
+[horizontal]
+mem_total;; The shared memory segment's size.
+mem_free;; The remaining amount of shared memory free for allocation.
+ncomps, ncomps_free;; Component count and number of component reserve structures for reuse.
+npins, npins_free;; Pin count and number of pin reserve structures for reuse.
+nparams, nparams_free;; Param count and number of param reserve structures for reuse.
+naliases, naliases_free;; Alias count (oldname) and number of alias reserve structures for reuse.
+nsignals, nsignals_free;; Signal count and number of signal reserve structures for reuse.
+nthreads, nthreads_free;; Thread count and number of thread reserve structures for reuse.
+nfuncts, nfuncts_free;; Function count and number of function reserve structures for reuse.
+
+== RETURN VALUE
+
+Returns zero (0) on success or a negative errno code:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+
+== SEE ALSO
+
+hal_query_t(3)

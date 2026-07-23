@@ -100,16 +100,16 @@ author "John Thornton, itaib, Moses McKnight";
 license "GPL";
 
 // Input Pins
-pin in bit start "Timer On";
-pin in bit pause = 0 "Pause";
+pin in bool start "Timer On";
+pin in bool pause = 0 "Pause";
 
 // Output Pins
-pin out u32 seconds "Seconds";
-pin out u32 minutes "Minutes";
-pin out u32 hours "Hours";
+pin out ui32 seconds "Seconds";
+pin out ui32 minutes "Minutes";
+pin out ui32 hours "Hours";
 
 // Global Variables
-variable double totalnsec;
+variable rtapi_real totalnsec;
 variable int old_start;
 
 function _;
@@ -120,16 +120,16 @@ function _;
 
 FUNCTION(_) {
     rtapi_u32 totalseconds;
-    int running = start | pause;
+    int running = start || pause;
     if(running && !old_start) totalnsec = 0;
 
     if(start && !pause){
-    totalnsec = totalnsec + period;
-    totalseconds = totalnsec * 0.000000001;
-    seconds = totalseconds % 60;
-	minutes = (totalseconds / 60) % 60;
-	hours = (totalseconds / 3600);
-	}
-	old_start = running;
+        totalnsec = totalnsec + period;
+        totalseconds = totalnsec * 0.000000001;
+        seconds_set(totalseconds % 60);
+        minutes_set((totalseconds / 60) % 60);
+        hours_set((totalseconds / 3600));
+    }
+    old_start = running;
 }
 

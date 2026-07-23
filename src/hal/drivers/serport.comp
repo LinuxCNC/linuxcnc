@@ -19,24 +19,24 @@ the Linux kernel by setting a kernel commandline parameter or not loading
 the serial kernel module if it is a modularized driver.
 """;
 
-pin out bit pin_1_in "Also called DCD (data carrier detect); pin 8 on the 25-pin serial pinout";
-pin out bit pin_6_in "Also called DSR (data set ready); pin 6 on the 25-pin serial pinout";
-pin out bit pin_8_in "Also called CTS (clear to send); pin 5 on the 25-pin serial pinout";
-pin out bit pin_9_in "Also called RI (ring indicator); pin 22 on the 25-pin serial pinout";
+pin out bool pin_1_in "Also called DCD (data carrier detect); pin 8 on the 25-pin serial pinout";
+pin out bool pin_6_in "Also called DSR (data set ready); pin 6 on the 25-pin serial pinout";
+pin out bool pin_8_in "Also called CTS (clear to send); pin 5 on the 25-pin serial pinout";
+pin out bool pin_9_in "Also called RI (ring indicator); pin 22 on the 25-pin serial pinout";
 
-pin out bit pin_1_in_not "Inverted version of pin-1-in";
-pin out bit pin_6_in_not "Inverted version of pin-6-in";
-pin out bit pin_8_in_not "Inverted version of pin-8-in";
-pin out bit pin_9_in_not "Inverted version of pin-9-in";
+pin out bool pin_1_in_not "Inverted version of pin-1-in";
+pin out bool pin_6_in_not "Inverted version of pin-6-in";
+pin out bool pin_8_in_not "Inverted version of pin-8-in";
+pin out bool pin_9_in_not "Inverted version of pin-9-in";
 
-pin in bit pin_3_out  "Also called TX (transmit data); pin 2 on the 25-pin serial pinout";
-pin in bit pin_4_out "Also called DTR (data terminal ready); pin 20 on the 25-pin serial pinout";
-pin in bit pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin serial pinout";
+pin in  bool pin_3_out "Also called TX (transmit data); pin 2 on the 25-pin serial pinout";
+pin in  bool pin_4_out "Also called DTR (data terminal ready); pin 20 on the 25-pin serial pinout";
+pin in  bool pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin serial pinout";
 
-param rw bit pin_3_out_invert;
-param rw bit pin_4_out_invert;
-param rw bit pin_7_out_invert;
-param r u32 ioaddr;
+param rw bool pin_3_out_invert;
+param rw bool pin_4_out_invert;
+param rw bool pin_7_out_invert;
+param r ui32 ioaddr;
 
 option count_function;
 option extra_setup;
@@ -77,7 +77,7 @@ EXTRA_SETUP() {
         io[extra_arg] = 0; 
         return -EBUSY;
     }
-    ioaddr = io[extra_arg];
+    ioaddr_set(io[extra_arg]);
     return 0;
 }
 
@@ -106,17 +106,17 @@ EXTRA_CLEANUP() {
 FUNCTION(read) { 
     int i = rtapi_inb(MSR);
 
-    pin_9_in = (i & RI) == 0;
-    pin_9_in_not = (i & RI) == RI;
+    pin_9_in_set((i & RI) == 0);
+    pin_9_in_not_set((i & RI) == RI);
 
-    pin_1_in = (i & DCD) == 0;
-    pin_1_in_not = (i & DCD) == DCD;
+    pin_1_in_set((i & DCD) == 0);
+    pin_1_in_not_set((i & DCD) == DCD);
 
-    pin_6_in = (i & DSR) == 0;
-    pin_6_in_not = (i & DSR) == DSR;
+    pin_6_in_set((i & DSR) == 0);
+    pin_6_in_not_set((i & DSR) == DSR);
 
-    pin_8_in = (i & CTS) == 0;
-    pin_8_in_not = (i & CTS) == CTS;
+    pin_8_in_set((i & CTS) == 0);
+    pin_8_in_not_set((i & CTS) == CTS);
 }
 
 FUNCTION(write) {

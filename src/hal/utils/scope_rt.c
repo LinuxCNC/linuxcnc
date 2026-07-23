@@ -35,7 +35,6 @@
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <rtapi_app.h>		/* RTAPI realtime module decls */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* HAL private API decls */
 #include "scope_rt.h"		/* scope related declarations */
 #include <rtapi_string.h>
 
@@ -103,7 +102,7 @@ int rtapi_app_main(void)
 	num_samples = SCOPE_NUM_SAMPLES_MAX;
     }
     /* connect to scope shared memory block */
-    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
+    skip = (sizeof(scope_shm_control_t) + 7) & ~7;
     shm_size = skip + num_samples * sizeof(scope_data_t);
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, shm_size);
     if (shm_id < 0) {
@@ -193,7 +192,7 @@ static void sample(void *arg, long period)
 	ctrl_rt->auto_timer = 0;
 	/* get info about channels */
 	for (n = 0; n < 16; n++) {
-	    ctrl_rt->data_addr[n] = SHMPTR(ctrl_shm->data_offset[n]);
+	    ctrl_rt->data_addr[n] = (hal_refs_u)(hal_uint_t)hal_reference_map(ctrl_shm->data_offset[n]);
 	    ctrl_rt->data_type[n] = ctrl_shm->data_type[n];
 	    ctrl_rt->data_len[n] = ctrl_shm->data_len[n];
 	}
@@ -263,30 +262,17 @@ static void capture_sample(void)
     dest = &(ctrl_rt->buffer[ctrl_shm->curr]);
     /* loop through all channels to acquire data */
     for (n = 0; n < 16; n++) {
-	/* capture 1, 2, or 4 bytes, based on data size */
-	switch (ctrl_rt->data_len[n]) {
-	case 1:
-	    dest->d_u8 = *((unsigned char *) (ctrl_rt->data_addr[n]));
-	    dest++;
-	    break;
-	case 4:
-	    dest->d_u32 = *((unsigned long *) (ctrl_rt->data_addr[n]));
-	    dest++;
-	    break;
-	case 8:
-            {
-                ireal_t sample_a, sample_b;
-                do {
-                    sample_a = *((volatile ireal_t *) (ctrl_rt->data_addr[n]));
-                    sample_b = *((volatile ireal_t *) (ctrl_rt->data_addr[n]));
-                } while( sample_a != sample_b );
-                dest->d_ireal = sample_a;
-                dest++;
-            }
-	    break;
-	default:
-	    break;
-	}
+        if(0 == ctrl_rt->data_len[n]) // Unused channel
+            continue;
+        switch(ctrl_rt->data_type[n]) {
+        case HAL_BOOL: dest->b = hal_get_bool(ctrl_rt->data_addr[n].b); dest++; break;
+        case HAL_S32:  dest->s = hal_get_si32(ctrl_rt->data_addr[n].s); dest++; break;
+        case HAL_U32:  dest->u = hal_get_ui32(ctrl_rt->data_addr[n].u); dest++; break;
+        case HAL_SINT: dest->s = hal_get_sint(ctrl_rt->data_addr[n].s); dest++; break;
+        case HAL_UINT: dest->u = hal_get_uint(ctrl_rt->data_addr[n].u); dest++; break;
+        case HAL_REAL: dest->r = hal_get_real(ctrl_rt->data_addr[n].r); dest++; break;
+        default: break;
+        }
     }
     /* increment sample pointer */
     ctrl_shm->curr += ctrl_shm->sample_len;
@@ -297,13 +283,11 @@ static void capture_sample(void)
     }
 }
 
-// TODO: type-independent way to get high bit
-// #define SIGN_BIT (~(((ireal_t)~(ireal_t)0)>>1))
 static int check_trigger(void)
 {
     static int compare_result = 0;
     int prev_compare_result;
-    scope_data_t *value, *level;
+    scope_data_t *level;
 
     /* has user forced trigger? */
     if (ctrl_shm->force_trig != 0) {
@@ -323,66 +307,33 @@ static int check_trigger(void)
     if (ctrl_shm->trig_chan == 0) {
 	return 0;
     }
-    /* point a scope_data_t union at the signal value */
-    value = ctrl_rt->data_addr[ctrl_shm->trig_chan - 1];
     /* and at the trigger level */
     level = &(ctrl_shm->trig_level);
     /* save previous compare result */
     prev_compare_result = compare_result;
     /* compare actual value to trigger level */
     switch (ctrl_rt->data_type[ctrl_shm->trig_chan - 1]) {
-    case HAL_BIT:
-	/* for bits, we don't even look at the trigger level */
-	compare_result = value->d_u8;
-	break;
-    case HAL_FLOAT:
-	{
-	ireal_t tmp1, tmp2;
-	/* don't want to use the FPU in this function, so we use */
-	/* a hack - see http://en.wikipedia.org/wiki/IEEE_754 */
-	/* this _only_ works with IEEE-754 floating point numbers */
-	/* and will probably fail for infinities, NANs, etc. */
-	/* OK, here we go! */
-	/* get the value as an integer */
-	tmp1 = value->d_ireal;
-	/* get the trigger as an integer */
-	tmp2 = level->d_ireal;
-	/* is the value negative? (highest bit) */
-	if (tmp1 & 0x8000000000000000ull) {
-	    /* yes, is the trigger level negative? */
-	    if (tmp2 & 0x8000000000000000ull) {
-		/* yes, make both positive */
-		tmp1 ^= 0x8000000000000000ull;
-		tmp2 ^= 0x8000000000000000ull;
-		/* and compare them as unsigned ints */
-		/* because of negation, we reverse the compare */
-		compare_result = (tmp1 < tmp2);
-	    } else {
-		/* trigger level positive, value negative */
-		compare_result = 0;
-	    }
-	} else {
-	    /* value is positive, is trigger level negative? */
-	    if (tmp2 & 0x8000000000000000ull) {
-		/* trigger level negative, value positive */
-		compare_result = 1;
-	    } else {
-		/* both are positive */
-		/* compare them as unsigned ints */
-		compare_result = (tmp1 > tmp2);
-	    }
-	}
-	}
-	break;
+    case HAL_BOOL:
+        compare_result = hal_get_bool(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].b);
+        break;
     case HAL_S32:
-	compare_result = (value->d_s32 > level->d_s32);
-	break;
+        compare_result = hal_get_si32(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].s) > level->s;
+        break;
+    case HAL_SINT:
+        compare_result = hal_get_sint(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].s) > level->s;
+        break;
     case HAL_U32:
-	compare_result = (value->d_u32 > level->d_u32);
-	break;
+        compare_result = hal_get_ui32(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].u) > level->u;
+        break;
+    case HAL_UINT:
+        compare_result = hal_get_uint(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].u) > level->u;
+        break;
+    case HAL_REAL:
+        compare_result = hal_get_real(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].r) > level->r;
+        break;
     default:
-	compare_result = 0;
-	break;
+        compare_result = 0;
+        break;
     }
     /* test for rising edge */
     if (ctrl_shm->trig_edge && compare_result && !prev_compare_result) {
@@ -411,8 +362,8 @@ static void init_rt_control_struct(void *shmem)
     }
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
-    /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
+    /* round size of shared struct up to a multiple of 8 for alignment */
+    skip = (sizeof(scope_shm_control_t) + 7) & ~7;
     /* the rest of the shared memory area is the data buffer */
     ctrl_rt->buffer = (scope_data_t *) (((char *) (shmem)) + skip);
     init_shm_control_struct();
@@ -431,9 +382,9 @@ static void init_shm_control_struct(void)
     for (n = 0; n < (int)sizeof(scope_shm_control_t); n++) {
 	cp[n] = 0;
     }
-    /* round size of shared struct up to a multiple of 4 for alignment */
+    /* round size of shared struct up to a multiple of 8 for alignment */
     ctrl_shm->shm_size = shm_size;
-    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
+    skip = (sizeof(scope_shm_control_t) + 7) & ~7;
     /* remainder of shmem area is buffer */
     ctrl_shm->buf_len = (shm_size - skip) / sizeof(scope_data_t);
     /* init any non-zero fields */

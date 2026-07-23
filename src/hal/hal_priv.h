@@ -298,9 +298,13 @@ typedef struct hal_data_t {
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 
-/** HAL 'component' type.
-    Assigned according to RTAPI and ULAPI definitions.
- */
+//
+// HAL 'component' type.
+// It now lives in hal.h as 'hal_comp_type_t' and the old code that included
+// HALs privates and used 'compoment_type_t' will be kept alive with this
+// typedef for as long as hal_priv.h is available.
+// FIXME: This should be declared deprecated and retired after a grace period.
+//
 typedef hal_comp_type_t component_type_t;
 
 /** HAL 'component' data structure.
@@ -392,9 +396,12 @@ struct hal_funct_t {
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
-    hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
-    hal_bit_t maxtime_increased;	/* (param) on last call, maxtime increased */
+    // IMPORTANT: The pins and params are valid as seen from the context that
+    // created them. For uspace that is rtapi_app and in the kernel it is the
+    // kernel's module context.
+    hal_sint_t runtime;	/* (pin) duration of last run, in CPU cycles */
+    hal_sint_t maxtime;	/* (param) duration of longest run, in CPU cycles */
+    hal_bool_t maxtime_increased;	/* (param) on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 };
 
@@ -413,8 +420,13 @@ struct hal_thread_t {
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
     int task_id;		/* ID of the task that runs this thread */
-    hal_s32_t* runtime;	/* (pin) duration of last run, in ns */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in ns */
+    // IMPORTANT: The pins and params are valid as seen from the context that
+    // created them. For uspace that is rtapi_app and in the kernel it is the
+    // kernel's module context.
+    hal_sint_t runtime;	/* (pin) duration of last run, in ns */
+    hal_sint_t maxtime;	/* (param) duration of longest run, in ns */
+    hal_sint_t threadbeat; /* (param) visible monotonic loop beat counter */
+    rtapi_sint beatcnt;    /* Thread monotonic increasing loop beat counter (so we don't need to read/write volatile) */
     hal_list_t funct_list;	/* list of functions to run */
     hal_list_t init_funct_list;	/* list of init functions, run once before first cyclic cycle */
     int init_done;		/* 0 = init pending, 1 = init cycle has executed */
@@ -511,8 +523,12 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
     Returns a negative value on failure. On success zero (0) is returned and
     the newly allocated hal_port_t is returned in the port argument and can be
     used with all other hal_port functions.
+    This is supposed to be private. The public function is deprecated and you
+    should use hal_set_s() to allocate the port once the pins are connected to
+    the signal.
 */
-extern int hal_port_alloc(unsigned size, hal_port_t *port);
+int hal_port_alloc(unsigned size, hal_port_t *port) __attribute__((deprecated("Use hal_set_s()")));
+int halpr_port_alloc(unsigned size, hal_port_t *port);
 
 // Recursive HAL mutex (replaces old mutex)
 int halpr_mutex_acquire(void);

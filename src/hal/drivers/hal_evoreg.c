@@ -87,13 +87,13 @@ RTAPI_MP_STRING(cfg, "config string"); */
 
 typedef struct {
 	void *io_base;
-        hal_float_t *dac_out[3];  /* ptrs for dac output */
-	hal_float_t *position[3];	   /* ptrs for encoder input */
-	hal_bit_t *digital_in[47];    /* ptrs for digital input pins 0 - 45 */
-        hal_bit_t *digital_out[25];    /* ptrs for digital output pins 0 - 20 */
+        hal_real_t dac_out[3];  /* ptrs for dac output */
+	hal_real_t position[3];	   /* ptrs for encoder input */
+	hal_bool_t digital_in[47];    /* ptrs for digital input pins 0 - 45 */
+        hal_bool_t digital_out[25];    /* ptrs for digital output pins 0 - 20 */
         __u16 raw_counts_old[3];
         __s32 counts[3];
-        hal_float_t pos_scale;         /*! \todo scale for position command FIXME should be one per axis */
+        hal_real_t pos_scale;         /*! \todo scale for position command FIXME should be one per axis */
 } evoreg_t;
 
 /* pointer to array of evoreg_t structs in shared memory, 1 per port */
@@ -172,8 +172,8 @@ int rtapi_app_main(void)
 
     /* Export DAC pin's */
     for ( num_dac=1; num_dac<=MAX_DAC; num_dac++) {
-      retval = hal_pin_float_newf(HAL_IN, &(port_data_array->dac_out[num_dac-1]),
-				  comp_id, "evoreg.%d.dac-%02d-out", 1, num_dac);
+      retval = hal_pin_new_real(comp_id, HAL_IN, &(port_data_array->dac_out[num_dac-1]),
+				  0.0, "evoreg.%d.dac-%02d-out", 1, num_dac);
       if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	    "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -185,8 +185,8 @@ int rtapi_app_main(void)
 
     /* Export Encoder pin's */
     for ( num_enc=1; num_enc<=MAX_ENC; num_enc++) {
-      retval = hal_pin_float_newf(HAL_OUT, &(port_data_array->position[num_enc - 1]),
-				  comp_id, "evoreg.%d.position-%02d-in", 1, num_enc);
+      retval = hal_pin_new_real(comp_id, HAL_OUT, &(port_data_array->position[num_enc - 1]),
+				  0.0, "evoreg.%d.position-%02d-in", 1, num_enc);
       if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -200,8 +200,8 @@ int rtapi_app_main(void)
 
     /* export write only HAL pin's for the input bit */
     for ( i=0; i<=45;i++) {
-      retval += hal_pin_bit_newf(HAL_OUT, &(port_data_array->digital_in[i]),
-				 comp_id, "evoreg.%d.pin-%02d-in", 1, i);
+      retval += hal_pin_new_bool(comp_id, HAL_OUT, &(port_data_array->digital_in[i]),
+				 0, "evoreg.%d.pin-%02d-in", 1, i);
 
       /* export another write only HAL pin for the same bit inverted */
       /*
@@ -218,8 +218,8 @@ int rtapi_app_main(void)
 
     /* export read only HAL pin's for the output bit */
     for ( i=0; i<=23;i++) {
-      retval += hal_pin_bit_newf(HAL_IN, &(port_data_array->digital_out[i]),
-				 comp_id, "evoreg.%d.pin-%02d-out", 1, i);
+      retval += hal_pin_new_bool(comp_id, HAL_IN, &(port_data_array->digital_out[i]),
+				 0, "evoreg.%d.pin-%02d-out", 1, i);
 
       /* export another read only HAL pin for the same bit inverted */
       /*
@@ -235,8 +235,8 @@ int rtapi_app_main(void)
     }
 
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &(port_data_array->pos_scale),
-				  comp_id, "evoreg.%d.position-scale", 1);
+    retval = hal_param_new_real(comp_id, HAL_RW, &(port_data_array->pos_scale),
+				  0.0, "evoreg.%d.position-scale", 1);
     if (retval != 0) {
 	return retval;
     }
@@ -278,9 +278,9 @@ static void update_port(void *arg, long period)
     port = arg;
 
 /* write DAC's */
-    writew((*(port->dac_out[0])/10 * 0x7fff), (char *)port->io_base + 0x60);
-    writew((*(port->dac_out[1])/10 * 0x7fff), (char *)port->io_base + 0x80);
-    writew((*(port->dac_out[2])/10 * 0x7fff), (char *)port->io_base + 0xa0);
+    writew((hal_get_real(port->dac_out[0])/10 * 0x7fff), (char *)port->io_base + 0x60);
+    writew((hal_get_real(port->dac_out[1])/10 * 0x7fff), (char *)port->io_base + 0x80);
+    writew((hal_get_real(port->dac_out[2])/10 * 0x7fff), (char *)port->io_base + 0xa0);
 
 /* Read Encoders, improve the 16bit hardware counters to 32bit and scale the values */
     raw_counts[0] = (__u16) readw(port->io_base);
@@ -296,29 +296,30 @@ static void update_port(void *arg, long period)
     port->counts[2] += (__s16) (raw_counts[2] - port->raw_counts_old[2]);
     port->raw_counts_old[2] = raw_counts[2];
 
-    *port->position[0] = port->counts[0] * port->pos_scale;
-    *port->position[1] = port->counts[1] * port->pos_scale;
-    *port->position[2] = port->counts[2] * port->pos_scale;
+    rtapi_real pos_scale = hal_get_real(port->pos_scale);
+    hal_set_real(port->position[0], port->counts[0] * pos_scale);
+    hal_set_real(port->position[1], port->counts[1] * pos_scale);
+    hal_set_real(port->position[2], port->counts[2] * pos_scale);
 
 
 /* read digital inputs */
      tmp = readw((char *)port->io_base + 0x20);       /* digital input 0-15 */
       mask = 0x01;
 	for (pin=0 ; pin < 16 ; pin++) {
-	*port->digital_in[pin] = (tmp & mask) ? 1:0 ;
+	hal_set_bool(port->digital_in[pin], (tmp & mask) ? 1:0);
 	mask <<= 1;
 	}
      tmp = readw((char *)port->io_base + 0x40);       /* digital input 16-31 */
       mask = 0x01;
 	for (pin=16 ; pin < 32 ; pin++) {
-	*port->digital_in[pin] = (tmp & mask) ? 1:0 ;
+	hal_set_bool(port->digital_in[pin], (tmp & mask) ? 1:0);
 	mask <<= 1;
 	}
 
      tmp = readw((char *)port->io_base + 0x60);       /* digital input 32-45 */
       mask = 0x01;
 	for (pin=32 ; pin < 46 ; pin++) {
-	*port->digital_in[pin] = (tmp & mask) ? 1:0 ;
+	hal_set_bool(port->digital_in[pin], (tmp & mask) ? 1:0);
 	mask <<= 1;
 	}
 
@@ -327,7 +328,7 @@ static void update_port(void *arg, long period)
      tmp = 0x0;
      mask = 0x01;
      for (pin=0; pin < 16; pin++) {
-        if (port->digital_out[pin]) {
+        if (hal_get_bool(port->digital_out[pin])) {
         tmp |= mask;
         mask <<= 1;
         }
@@ -338,7 +339,7 @@ static void update_port(void *arg, long period)
      tmp = 0x0;
      mask = 0x01;
      for (pin=16; pin < 24; pin++) {
-        if (port->digital_out[pin]) {
+        if (hal_get_bool(port->digital_out[pin])) {
         tmp |= mask;
         mask <<= 1;
         }

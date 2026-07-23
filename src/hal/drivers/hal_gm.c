@@ -14,297 +14,307 @@ MODULE_LICENSE("GPL");
 
 typedef struct { //encoder_t
     // Pins
-	hal_bit_t			*reset;
-	hal_s32_t			*counts;
-	hal_float_t			*position;
-	hal_float_t			*velocity;
-	hal_s32_t			*rawcounts;
-	hal_bit_t			*index_enable;
+	hal_bool_t			reset;
+	hal_sint_t			counts;
+	hal_real_t			position;
+	hal_real_t			velocity;
+	hal_sint_t			rawcounts;
+	hal_bool_t			index_enable;
     
     // Parameters
-	hal_bit_t			counter_mode;
-	hal_bit_t			index_mode;
-	hal_bit_t			index_invert;
-	hal_u32_t			counts_per_rev;
-	hal_float_t			position_scale;
-	hal_float_t			min_speed_estimate;
+	hal_bool_t			counter_mode;
+	hal_bool_t			index_mode;
+	hal_bool_t			index_invert;
+	hal_uint_t			counts_per_rev;
+	hal_real_t			position_scale;
+	hal_real_t			min_speed_estimate;
 
     // Private data
-	hal_s32_t			raw_offset;
-	hal_s32_t			index_offset;
-	hal_s32_t			last_index_latch;
-	hal_bit_t			first_index;
-	hal_bit_t			module_exist;
+	rtapi_s32			raw_offset;
+	rtapi_s32			index_offset;
+	rtapi_s32			last_index_latch;
+	rtapi_bool			first_index;
+	rtapi_bool			module_exist;
 } encoder_t;
 
 typedef struct { //switches_t
     // Pins.
-	hal_bit_t			*home;
-	hal_bit_t			*homeNot;
+	hal_bool_t			home;
+	hal_bool_t			homeNot;
 
-	hal_bit_t			*posLimSwIn;
-	hal_bit_t			*posLimSwInNot;
-	hal_bit_t			*negLimSwIn;
-	hal_bit_t			*negLimSwInNot;    
+	hal_bool_t			posLimSwIn;
+	hal_bool_t			posLimSwInNot;
+	hal_bool_t			negLimSwIn;
+	hal_bool_t			negLimSwInNot;
 } switches_t;
 
 typedef struct { //estop_t
     // Pins.
-	hal_bit_t			*in;
-	hal_bit_t			*inNot;  
+	hal_bool_t			in;
+	hal_bool_t			inNot;
 } estop_t;
 
 typedef struct { //gpio_t
     // Pins.
-	hal_bit_t			*in;
-	hal_bit_t			*inNot;
-	hal_bit_t			*out;
-	hal_bit_t			isOut;
-	hal_bit_t			invertOut;
+	hal_bool_t			in;
+	hal_bool_t			inNot;
+	hal_bool_t			out;
+	// Parameters
+	hal_bool_t			isOut;
+	hal_bool_t			invertOut;
 } gpio_t;
 
 typedef struct { //RS485_8output_t
     // Pins.
-	hal_bit_t			*out_0;
-	hal_bit_t			*out_1;
-	hal_bit_t			*out_2;
-	hal_bit_t			*out_3;
-	hal_bit_t			*out_4;
-	hal_bit_t			*out_5;
-	hal_bit_t			*out_6;
-	hal_bit_t			*out_7;
+	hal_bool_t			out_0;
+	hal_bool_t			out_1;
+	hal_bool_t			out_2;
+	hal_bool_t			out_3;
+	hal_bool_t			out_4;
+	hal_bool_t			out_5;
+	hal_bool_t			out_6;
+	hal_bool_t			out_7;
     // Parameters
-	hal_bit_t			invertOut_0;
-	hal_bit_t			invertOut_1;
-	hal_bit_t			invertOut_2;
-	hal_bit_t			invertOut_3;
-	hal_bit_t			invertOut_4;
-	hal_bit_t			invertOut_5;
-	hal_bit_t			invertOut_6;
-	hal_bit_t			invertOut_7;
+	hal_bool_t			invertOut_0;
+	hal_bool_t			invertOut_1;
+	hal_bool_t			invertOut_2;
+	hal_bool_t			invertOut_3;
+	hal_bool_t			invertOut_4;
+	hal_bool_t			invertOut_5;
+	hal_bool_t			invertOut_6;
+	hal_bool_t			invertOut_7;
 } RS485_8output_t;
 
 typedef struct { //RS485_8input_t
     // Pins.
-	hal_bit_t			*in_0;
-	hal_bit_t			*inNot_0;
-	hal_bit_t			*in_1;
-	hal_bit_t			*inNot_1;
-	hal_bit_t			*in_2;
-	hal_bit_t			*inNot_2;
-	hal_bit_t			*in_3;
-	hal_bit_t			*inNot_3;
-	hal_bit_t			*in_4;
-	hal_bit_t			*inNot_4;
-	hal_bit_t			*in_5;
-	hal_bit_t			*inNot_5;
-	hal_bit_t			*in_6;
-	hal_bit_t			*inNot_6;
-	hal_bit_t			*in_7;
-	hal_bit_t			*inNot_7;
+	hal_bool_t			in_0;
+	hal_bool_t			inNot_0;
+	hal_bool_t			in_1;
+	hal_bool_t			inNot_1;
+	hal_bool_t			in_2;
+	hal_bool_t			inNot_2;
+	hal_bool_t			in_3;
+	hal_bool_t			inNot_3;
+	hal_bool_t			in_4;
+	hal_bool_t			inNot_4;
+	hal_bool_t			in_5;
+	hal_bool_t			inNot_5;
+	hal_bool_t			in_6;
+	hal_bool_t			inNot_6;
+	hal_bool_t			in_7;
+	hal_bool_t			inNot_7;
 } RS485_8input_t;
 
 typedef struct { //RS485_DacAdc_t
     // Pins.
-	hal_float_t			*DAC_0;
-	hal_float_t			*DAC_1;
-	hal_float_t			*DAC_2;
-	hal_float_t			*DAC_3;
+	hal_real_t			DAC_0;
+	hal_real_t			DAC_1;
+	hal_real_t			DAC_2;
+	hal_real_t			DAC_3;
 
-	hal_bit_t			*dac_0_enable;
-	hal_bit_t			*dac_1_enable;
-	hal_bit_t			*dac_2_enable;
-	hal_bit_t			*dac_3_enable;
+	hal_bool_t			dac_0_enable;
+	hal_bool_t			dac_1_enable;
+	hal_bool_t			dac_2_enable;
+	hal_bool_t			dac_3_enable;
 
-	hal_float_t			*ADC_0;
-	hal_float_t			*ADC_1;
-	hal_float_t			*ADC_2;
-	hal_float_t			*ADC_3;
-	hal_float_t			*ADC_4;
-	hal_float_t			*ADC_5;
-	hal_float_t			*ADC_6;
-	hal_float_t			*ADC_7;
+	hal_real_t			ADC_0;
+	hal_real_t			ADC_1;
+	hal_real_t			ADC_2;
+	hal_real_t			ADC_3;
+	hal_real_t			ADC_4;
+	hal_real_t			ADC_5;
+	hal_real_t			ADC_6;
+	hal_real_t			ADC_7;
 
     // Parameters.
-	hal_float_t			DAC_0_offset;
-	hal_float_t			DAC_1_offset;
-	hal_float_t			DAC_2_offset;
-	hal_float_t			DAC_3_offset;
+	hal_real_t			DAC_0_offset;
+	hal_real_t			DAC_1_offset;
+	hal_real_t			DAC_2_offset;
+	hal_real_t			DAC_3_offset;
     
-	hal_float_t			DAC_0_min;
-	hal_float_t			DAC_1_min;
-	hal_float_t			DAC_2_min;
-	hal_float_t			DAC_3_min;
+	hal_real_t			DAC_0_min;
+	hal_real_t			DAC_1_min;
+	hal_real_t			DAC_2_min;
+	hal_real_t			DAC_3_min;
     
-	hal_float_t			DAC_0_max;
-	hal_float_t			DAC_1_max;
-	hal_float_t			DAC_2_max;
-	hal_float_t			DAC_3_max;
+	hal_real_t			DAC_0_max;
+	hal_real_t			DAC_1_max;
+	hal_real_t			DAC_2_max;
+	hal_real_t			DAC_3_max;
 	
-	hal_float_t			ADC_0_offset;
-	hal_float_t			ADC_1_offset;
-	hal_float_t			ADC_2_offset;
-	hal_float_t			ADC_3_offset;
-	hal_float_t			ADC_4_offset;
-	hal_float_t			ADC_5_offset;
-	hal_float_t			ADC_6_offset;
-	hal_float_t			ADC_7_offset;
+	hal_real_t			ADC_0_offset;
+	hal_real_t			ADC_1_offset;
+	hal_real_t			ADC_2_offset;
+	hal_real_t			ADC_3_offset;
+	hal_real_t			ADC_4_offset;
+	hal_real_t			ADC_5_offset;
+	hal_real_t			ADC_6_offset;
+	hal_real_t			ADC_7_offset;
     
-	hal_float_t			ADC_0_scale;
-	hal_float_t			ADC_1_scale;
-	hal_float_t			ADC_2_scale;
-	hal_float_t			ADC_3_scale;
-	hal_float_t			ADC_4_scale;
-	hal_float_t			ADC_5_scale;
-	hal_float_t			ADC_6_scale;
-	hal_float_t			ADC_7_scale;
+	hal_real_t			ADC_0_scale;
+	hal_real_t			ADC_1_scale;
+	hal_real_t			ADC_2_scale;
+	hal_real_t			ADC_3_scale;
+	hal_real_t			ADC_4_scale;
+	hal_real_t			ADC_5_scale;
+	hal_real_t			ADC_6_scale;
+	hal_real_t			ADC_7_scale;
 } RS485_DacAdc_t;
 
 typedef struct { //RS485_TeachPad_t
     // Pins.
 	//6 ADC channel
-	hal_float_t			*ADC_0;
-	hal_float_t			*ADC_1;
-	hal_float_t			*ADC_2;
-	hal_float_t			*ADC_3;
-	hal_float_t			*ADC_4;
-	hal_float_t			*ADC_5;
+	hal_real_t			ADC_0;
+	hal_real_t			ADC_1;
+	hal_real_t			ADC_2;
+	hal_real_t			ADC_3;
+	hal_real_t			ADC_4;
+	hal_real_t			ADC_5;
 	//8 digital input
-	hal_bit_t			*in_0;
-	hal_bit_t			*inNot_0;
-	hal_bit_t			*in_1;
-	hal_bit_t			*inNot_1;
-	hal_bit_t			*in_2;
-	hal_bit_t			*inNot_2;
-	hal_bit_t			*in_3;
-	hal_bit_t			*inNot_3;
-	hal_bit_t			*in_4;
-	hal_bit_t			*inNot_4;
-	hal_bit_t			*in_5;
-	hal_bit_t			*inNot_5;
-	hal_bit_t			*in_6;
-	hal_bit_t			*inNot_6;
-	hal_bit_t			*in_7;
-	hal_bit_t			*inNot_7;	
+	hal_bool_t			in_0;
+	hal_bool_t			inNot_0;
+	hal_bool_t			in_1;
+	hal_bool_t			inNot_1;
+	hal_bool_t			in_2;
+	hal_bool_t			inNot_2;
+	hal_bool_t			in_3;
+	hal_bool_t			inNot_3;
+	hal_bool_t			in_4;
+	hal_bool_t			inNot_4;
+	hal_bool_t			in_5;
+	hal_bool_t			inNot_5;
+	hal_bool_t			in_6;
+	hal_bool_t			inNot_6;
+	hal_bool_t			in_7;
+	hal_bool_t			inNot_7;
 	//encoder
-	hal_bit_t			*enc_reset;
-	hal_s32_t			*enc_counts;
-	hal_float_t			*enc_position;
-	hal_s32_t			*enc_rawcounts;
+	hal_bool_t			enc_reset;
+	hal_sint_t			enc_counts;
+	hal_real_t			enc_position;
+	hal_sint_t			enc_rawcounts;
 
     // Parameters
 	//6 ADC channels
-	hal_float_t			ADC_0_offset;
-	hal_float_t			ADC_1_offset;
-	hal_float_t			ADC_2_offset;
-	hal_float_t			ADC_3_offset;
-	hal_float_t			ADC_4_offset;
-	hal_float_t			ADC_5_offset;
-	hal_float_t			ADC_0_scale;
-	hal_float_t			ADC_1_scale;
-	hal_float_t			ADC_2_scale;
-	hal_float_t			ADC_3_scale;
-	hal_float_t			ADC_4_scale;
-	hal_float_t			ADC_5_scale;
+	hal_real_t			ADC_0_offset;
+	hal_real_t			ADC_1_offset;
+	hal_real_t			ADC_2_offset;
+	hal_real_t			ADC_3_offset;
+	hal_real_t			ADC_4_offset;
+	hal_real_t			ADC_5_offset;
+	hal_real_t			ADC_0_scale;
+	hal_real_t			ADC_1_scale;
+	hal_real_t			ADC_2_scale;
+	hal_real_t			ADC_3_scale;
+	hal_real_t			ADC_4_scale;
+	hal_real_t			ADC_5_scale;
 	//encoder
-	hal_float_t			enc_position_scale;
+	hal_real_t			enc_position_scale;
 	
     // Private data
        //encoder
-       hal_s32_t			enc_raw_offset;
+   rtapi_s32			enc_raw_offset;
 
 } RS485_TeachPad_t;
 
 typedef struct { //RS485_mgr_t
-	hal_u32_t			ID[16];
-	hal_u32_t			BYTES_TO_WRITE[16];
-	hal_u32_t			BYTES_TO_READ[16];
+	rtapi_u32			ID[16];
+	rtapi_u32			BYTES_TO_WRITE[16];
+	rtapi_u32			BYTES_TO_READ[16];
 } RS485_mgr_t;
 
 typedef struct { //axisdac_t
     // Pins.
-	hal_float_t				*value;
-	hal_bit_t				*enable;
+	hal_real_t				value;
+	hal_bool_t				enable;
  
     // Parameters.
-	hal_float_t				min;
-	hal_float_t				max;
-	hal_float_t				offset;
+	hal_real_t				min;
+	hal_real_t				max;
+	hal_real_t				offset;
 	
-	hal_bit_t				invert_serial;
+	hal_bool_t				invert_serial;
 } axisdac_t;
 
 typedef struct { //stepgen_t
     // Pins.
-	hal_float_t		*position_cmd;
-	hal_float_t		*velocity_cmd;
-	hal_float_t		*position_fb;
-	hal_s32_t		*count_fb;	
-	hal_bit_t		*enable;
+	hal_real_t		position_cmd;
+	hal_real_t		velocity_cmd;
+	hal_real_t		position_fb;
+	hal_sint_t		count_fb;
+	hal_bool_t		enable;
 	
     // Parameters
-	hal_u32_t		step_type; //0: StepDir, 1: UpDown, 2: Quadrature
-	hal_bit_t		control_type; //0: position, 1: velocity	
-	hal_u32_t		steplen;
-	hal_u32_t		stepspace;
-	hal_u32_t		dirdelay;
-	hal_float_t		maxaccel;
-	hal_float_t		maxvel;
-	hal_bit_t		polarity_A;
-	hal_bit_t		polarity_B;	
-	hal_float_t		position_scale;
+	hal_uint_t		step_type; //0: StepDir, 1: UpDown, 2: Quadrature
+	hal_bool_t		control_type; //0: position, 1: velocity
+	hal_uint_t		steplen;
+	hal_uint_t		stepspace;
+	hal_uint_t		dirdelay;
+	hal_real_t		maxaccel;
+	hal_real_t		maxvel;
+	hal_bool_t		polarity_A;
+	hal_bool_t		polarity_B;
+	hal_real_t		position_scale;
 	
     //Saved Parameters
-	hal_u32_t		curr_steplen;
-	hal_u32_t		curr_stepspace;
-	hal_u32_t		curr_dirdelay;
-	hal_float_t		curr_maxaccel;
-	hal_float_t		curr_maxvel;	
-	hal_float_t		curr_position_scale;
+	rtapi_u32		curr_steplen;
+	rtapi_u32		curr_stepspace;
+	rtapi_u32		curr_dirdelay;
+	rtapi_real		curr_maxaccel;
+	rtapi_real		curr_maxvel;
+	rtapi_real		curr_position_scale;
 	
     // Private data
-	hal_u32_t		stepgen_fb_offset;
-	hal_float_t		old_pos_cmd;
-	hal_float_t		max_dv;
-	hal_float_t		old_vel;
-	hal_float_t		steprate_scale;
+	rtapi_u32		stepgen_fb_offset;
+	union {
+		rtapi_real		old_pos_cmd;
+		// This is here to guarantee that the pointer hack works.
+		rtapi_uint		__old_pos_cmd_field_size_match_r;
+	};
+	rtapi_real		max_dv;
+	rtapi_real		old_vel;
+	rtapi_real		steprate_scale;
 } stepgen_t;
 
 typedef struct { //CardMgr_t
     // Pins.
-	hal_bit_t		*cardEnable;
-	hal_bit_t		*power_enable;
-	hal_bit_t		*power_fault;
-	hal_bit_t		*watchdog_expired;
+	hal_bool_t		cardEnable;
+	hal_bool_t		power_enable;
+	hal_bool_t		power_fault;
+	hal_bool_t		watchdog_expired;
 	
     // Parameters	
-	hal_bit_t		watchdog_enable;
-	hal_u32_t		watchdog_timeout_ns;
+	hal_bool_t		watchdog_enable;
+	hal_uint_t		watchdog_timeout_ns;
     
     // Private data
-	hal_u32_t		card_control_reg;
-	hal_bit_t		disable;
-	hal_u32_t		dbg_PCI_counter_last;
-	hal_u32_t		cntr;
+	rtapi_u32		card_control_reg;
+	union {
+		rtapi_bool		disable;
+		// These are here to guarantee that the pointer hack works.
+		rtapi_uint		__disable_field_size_match_u;
+		rtapi_real		__disable_field_size_match_r;
+	};
+	rtapi_u32		dbg_PCI_counter_last;
+	rtapi_u32		cntr;
 } cardMgr_t;
 
 typedef struct { //CAN_GM_t
       //Pins
-	hal_bit_t		*enable;
-	hal_float_t		*position_cmd;
-	hal_float_t		*position_fb;
+	hal_bool_t		enable;
+	hal_real_t		position_cmd;
+	hal_real_t		position_fb;
 	
       //Parameters
-	hal_float_t		position_scale;
+	hal_real_t		position_scale;
 
 } CAN_GM_t;
 
 typedef struct { //CANmsg_t
-	hal_bit_t		Ext; //0: Standrad ID, 1: Extended ID
-	hal_u32_t		ID;
-	hal_u32_t		data[8];
-	hal_u32_t		DLC;
-	hal_bit_t		RTR;
+	rtapi_bool		Ext; //0: Standrad ID, 1: Extended ID
+	rtapi_u32		ID;
+	rtapi_u32		data[8];
+	rtapi_u32		DLC;
+	rtapi_bool		RTR;
 }CANmsg_t;
 
 typedef struct { //gm_device_t
@@ -327,15 +337,15 @@ typedef struct { //gm_device_t
 	CAN_GM_t		CAN_GM[6];
 	
 	stepgen_t		stepgen[6];
-	hal_u32_t		stepgen_status;
+	rtapi_u32		stepgen_status;
 	axisdac_t		axisdac[6];
 	encoder_t		encoder[6];
 	
 	cardMgr_t		cardMgr;
 		
-	hal_u32_t		period_ns;
-	hal_float_t		period_s;
-	hal_float_t		rec_period_s;
+	rtapi_u32		period_ns;
+	rtapi_real		period_s;
+	rtapi_real		rec_period_s;
 } gm_device_t;
    
 typedef struct { //gm_driver_t
@@ -396,10 +406,10 @@ rtapi_pci_device_id gm_pci_tbl[] = {
   static void stepgenControl(void *arg, long period, unsigned int i);
   static void stepgenCheckParameters(void *arg, long period, unsigned int channel);
   //RS485
-  static unsigned int RS485_CheckChecksum(hal_u32_t* data, hal_u32_t length);
-  static unsigned int RS485_CalcChecksum(hal_u32_t* data, hal_u32_t length);
-  static void RS485_OrderDataRead(hal_u32_t* dataIn32, hal_u32_t* dataOut8, hal_u32_t length);
-  static void RS485_OrderDataWrite(hal_u32_t* dataIn8, hal_u32_t* dataOut32, hal_u32_t length);
+  static unsigned int RS485_CheckChecksum(rtapi_u32* data, rtapi_u32 length);
+  static unsigned int RS485_CalcChecksum(rtapi_u32* data, rtapi_u32 length);
+  static void RS485_OrderDataRead(rtapi_u32* dataIn32, rtapi_u32* dataOut8, rtapi_u32 length);
+  static void RS485_OrderDataWrite(rtapi_u32* dataIn8, rtapi_u32* dataOut32, rtapi_u32 length);
   //Encoders
   static void encoder(void *arg, long period); 
   //CAN
@@ -408,9 +418,9 @@ rtapi_pci_device_id gm_pci_tbl[] = {
   static void CAN_ReceiveDataFrame(void *arg, CANmsg_t *Msg);
 #ifdef CANOPEN
   static void CAN_Reset(void *arg);
-  static void CAN_SetBaud(void *arg, hal_u32_t Baud);
+  static void CAN_SetBaud(void *arg, rtapi_u32 Baud);
 #endif
-  static int CAN_ReadStatus(void *arg, hal_u32_t *RxCnt, hal_u32_t *TxCnt);
+  static int CAN_ReadStatus(void *arg, rtapi_u32 *RxCnt, rtapi_u32 *TxCnt);
   //Card management
   static void card_mgr(void *arg, long period);
 
@@ -508,7 +518,7 @@ gm_pci_remove(struct rtapi_pci_dev *dev)
         if((pDevice = driver.device[i]) != NULL)
         {
           // turn off all
-          pDevice->pCard->card_control_reg = (hal_s32_t) 0;
+          pDevice->pCard->card_control_reg = 0;
 				
           // Unmap card
           rtapi_iounmap((void *)(pDevice->pCard));
@@ -621,20 +631,20 @@ ExportEncoder(void *arg, int comp_id, int version)
 	      for(i=0;i<6;i++)
 	      {
 	      //Export Pins
-		if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->encoder[i].reset), comp_id, "gm.%1d.encoder.%1d.reset", boardId, i);
-		if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->encoder[i].counts), comp_id, "gm.%1d.encoder.%1d.counts", boardId, i);
-		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->encoder[i].position), comp_id, "gm.%1d.encoder.%1d.position", boardId, i);
-		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->encoder[i].velocity), comp_id, "gm.%1d.encoder.%1d.velocity", boardId, i);
-		if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->encoder[i].rawcounts), comp_id, "gm.%1d.encoder.%1d.rawcounts", boardId, i);
-		if(error == 0) error = hal_pin_bit_newf(HAL_IO, &(device->encoder[i].index_enable), comp_id, "gm.%1d.encoder.%1d.index-enable", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->encoder[i].reset), 0, "gm.%1d.encoder.%1d.reset", boardId, i);
+		if(error == 0) error = hal_pin_new_si32(comp_id, HAL_OUT, &(device->encoder[i].counts), 0, "gm.%1d.encoder.%1d.counts", boardId, i);
+		if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->encoder[i].position), 0.0, "gm.%1d.encoder.%1d.position", boardId, i);
+		if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->encoder[i].velocity), 0.0, "gm.%1d.encoder.%1d.velocity", boardId, i);
+		if(error == 0) error = hal_pin_new_si32(comp_id, HAL_OUT, &(device->encoder[i].rawcounts), 0, "gm.%1d.encoder.%1d.rawcounts", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IO, &(device->encoder[i].index_enable), 0, "gm.%1d.encoder.%1d.index-enable", boardId, i);
 			
 	      //Export Parameters
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->encoder[i].counter_mode), comp_id, "gm.%1d.encoder.%1d.counter-mode", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->encoder[i].index_mode), comp_id, "gm.%1d.encoder.%1d.index-mode", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->encoder[i].index_invert), comp_id, "gm.%1d.encoder.%1d.index-invert", boardId, i);
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->encoder[i].counts_per_rev), comp_id, "gm.%1d.encoder.%1d.counts-per-rev", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->encoder[i].position_scale), comp_id, "gm.%1d.encoder.%1d.position-scale", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->encoder[i].min_speed_estimate), comp_id, "gm.%1d.encoder.%1d.min-speed-estimate", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->encoder[i].counter_mode), 0, "gm.%1d.encoder.%1d.counter-mode", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->encoder[i].index_mode), 0, "gm.%1d.encoder.%1d.index-mode", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->encoder[i].index_invert), 0, "gm.%1d.encoder.%1d.index-invert", boardId, i);
+		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->encoder[i].counts_per_rev), 0, "gm.%1d.encoder.%1d.counts-per-rev", boardId, i);
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->encoder[i].position_scale), 0.0, "gm.%1d.encoder.%1d.position-scale", boardId, i);
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->encoder[i].min_speed_estimate), 0.0, "gm.%1d.encoder.%1d.min-speed-estimate", boardId, i);
 		
 	      //Init parameters
 		device->encoder[i].raw_offset = pCard->ENC_counter[i];
@@ -664,8 +674,10 @@ ExportStepgen(void *arg, int comp_id, int version)
 	  case notPresented:
 	    for(i=0;i<6;i++)
 	      {
-		device->stepgen[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
-		device->stepgen[i].position_cmd = &(device->stepgen[i].old_pos_cmd);
+		// FIXME: This is a hack. We shouldn't reference local variables as if
+		// they were pins or params. That can only end very badly...
+		device->stepgen[i].enable = (hal_bool_t)&(device->cardMgr.disable); //Set enable pointers to a 0 value variable
+		device->stepgen[i].position_cmd = (hal_real_t)&(device->stepgen[i].old_pos_cmd);
 	      }
 	      rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No stepgen module available in this version of the Card.\n");
 	  break;
@@ -676,23 +688,23 @@ ExportStepgen(void *arg, int comp_id, int version)
 	   for(i = 0; i < 6; i++)
 	    {	
 		//Export Pins
-		if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->stepgen[i].position_cmd), comp_id, "gm.%1d.stepgen.%1d.position-cmd", boardId, i);
-		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->stepgen[i].position_fb), comp_id, "gm.%1d.stepgen.%1d.position-fb", boardId, i);
-		if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->stepgen[i].velocity_cmd), comp_id, "gm.%1d.stepgen.%1d.velocity-cmd", boardId, i);
-		if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->stepgen[i].count_fb), comp_id, "gm.%1d.stepgen.%1d.count-fb", boardId, i);		
-		if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->stepgen[i].enable), comp_id, "gm.%1d.stepgen.%1d.enable", boardId, i);
+		if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->stepgen[i].position_cmd), 0.0, "gm.%1d.stepgen.%1d.position-cmd", boardId, i);
+		if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->stepgen[i].position_fb), 0.0, "gm.%1d.stepgen.%1d.position-fb", boardId, i);
+		if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->stepgen[i].velocity_cmd), 0.0, "gm.%1d.stepgen.%1d.velocity-cmd", boardId, i);
+		if(error == 0) error = hal_pin_new_si32(comp_id, HAL_OUT, &(device->stepgen[i].count_fb), 0, "gm.%1d.stepgen.%1d.count-fb", boardId, i);		
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->stepgen[i].enable), 0, "gm.%1d.stepgen.%1d.enable", boardId, i);
 
 		//Export Parameters.
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->stepgen[i].control_type), comp_id, "gm.%1d.stepgen.%1d.control-type", boardId, i); //0: StepDir, 1: UpDown, 2: Quadrature
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].step_type), comp_id, "gm.%1d.stepgen.%1d.step-type", boardId, i); //0: position, 1: velocity		
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].steplen), comp_id, "gm.%1d.stepgen.%1d.steplen", boardId, i);
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].stepspace), comp_id, "gm.%1d.stepgen.%1d.stepspace", boardId, i);
-		if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->stepgen[i].dirdelay), comp_id, "gm.%1d.stepgen.%1d.dirdelay", boardId, i);	
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->stepgen[i].maxaccel), comp_id, "gm.%1d.stepgen.%1d.maxaccel", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->stepgen[i].maxvel), comp_id, "gm.%1d.stepgen.%1d.maxvel", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->stepgen[i].polarity_A), comp_id, "gm.%1d.stepgen.%1d.invert-step1", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->stepgen[i].polarity_B), comp_id, "gm.%1d.stepgen.%1d.invert-step2", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->stepgen[i].position_scale), comp_id, "gm.%1d.stepgen.%1d.position-scale", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->stepgen[i].control_type), 0, "gm.%1d.stepgen.%1d.control-type", boardId, i); //0: position, 1: velocity
+		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].step_type), 0, "gm.%1d.stepgen.%1d.step-type", boardId, i); //0: StepDir, 1: UpDown, 2: Quadrature
+		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].steplen), 0, "gm.%1d.stepgen.%1d.steplen", boardId, i);
+		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].stepspace), 0, "gm.%1d.stepgen.%1d.stepspace", boardId, i);
+		if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->stepgen[i].dirdelay), 0, "gm.%1d.stepgen.%1d.dirdelay", boardId, i);	
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->stepgen[i].maxaccel), 0.0, "gm.%1d.stepgen.%1d.maxaccel", boardId, i);
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->stepgen[i].maxvel), 0.0, "gm.%1d.stepgen.%1d.maxvel", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->stepgen[i].polarity_A), 0, "gm.%1d.stepgen.%1d.invert-step1", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->stepgen[i].polarity_B), 0, "gm.%1d.stepgen.%1d.invert-step2", boardId, i);
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->stepgen[i].position_scale), 0.0, "gm.%1d.stepgen.%1d.position-scale", boardId, i);
                 if(error != 0) break;
 
 		//Init parameters
@@ -731,14 +743,14 @@ ExportDAC(void *arg, int comp_id, int version)
 	  case notPresented:
 	    for(i=0;i<6;i++)
 	      {
-		device->axisdac[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
+		device->axisdac[i].enable = (hal_bool_t)&(device->cardMgr.disable); //Set enable pointers to a 0 value variable
 	      }
 	      rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No DAC module available in this version of the Card.\n");
 	    break;
 	  case dacVersion1:
 	    for(i=0;i<6;i++)
 	      {
-		device->axisdac[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
+		device->axisdac[i].enable = (hal_bool_t)&(device->cardMgr.disable); //Set enable pointers to a 0 value variable
 	      }
               rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: This card supports DAC ver.1 only, which is no longer produced. No DAC pins will be exported to HAL. If you need DAC, contact to bence.kovacs@generalmechatronics.com for firmware upgrade.\n");
 	    break;
@@ -746,20 +758,14 @@ ExportDAC(void *arg, int comp_id, int version)
 	      for(i=0;i<6;i++)
 	      {
 		//Export Pins
-		if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->axisdac[i].enable), comp_id, "gm.%1d.dac.%1d.enable", boardId, i);
-		if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->axisdac[i].value), comp_id, "gm.%1d.dac.%1d.value", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->axisdac[i].enable), 0, "gm.%1d.dac.%1d.enable", boardId, i);
+		if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->axisdac[i].value), 0.0, "gm.%1d.dac.%1d.value", boardId, i);
 
 		//Export Parameters.
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->axisdac[i].min), comp_id, "gm.%1d.dac.%1d.low-limit", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->axisdac[i].max), comp_id, "gm.%1d.dac.%1d.high-limit", boardId, i);
-		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->axisdac[i].offset), comp_id, "gm.%1d.dac.%1d.offset", boardId, i);
-		if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->axisdac[i].invert_serial), comp_id, "gm.%1d.dac.%1d.invert-serial", boardId, i);
-		
-		//Init Parameters
-		device->axisdac[i].max = 10;
-		device->axisdac[i].min = -10;
-		device->axisdac[i].offset = 0;
-		device->axisdac[i].invert_serial = 0;
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->axisdac[i].min), -10.0, "gm.%1d.dac.%1d.low-limit", boardId, i);
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->axisdac[i].max), 10.0, "gm.%1d.dac.%1d.high-limit", boardId, i);
+		if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->axisdac[i].offset), 0.0, "gm.%1d.dac.%1d.offset", boardId, i);
+		if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->axisdac[i].invert_serial), 0, "gm.%1d.dac.%1d.invert-serial", boardId, i);
 		
 		//Init FPGA regs
 		pCard->DAC_0 = 0x1FFF1FFF;
@@ -793,7 +799,7 @@ ExportRS485(void *arg, int comp_id, int version)
 	    //READ IDs of connected modules
 	    for(i=0; i<8; i++)
 	    {
-		temp=(hal_u32_t)pCard->moduleId[i];
+		temp = pCard->moduleId[i];
 		 
 		if(((temp & 0xff)^0xaa) == ((temp & 0xff00)>>8)) 
 		 {
@@ -818,181 +824,149 @@ ExportRS485(void *arg, int comp_id, int version)
 			device-> RS485_mgr.BYTES_TO_WRITE[i]=0;
 			device-> RS485_mgr.BYTES_TO_READ[i]=2;	//1 data byte + 1 Checksum
 			
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_0), comp_id, "gm.%1d.rs485.%02d.in-0", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_0), comp_id, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_1), comp_id, "gm.%1d.rs485.%02d.in-1", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_1), comp_id, "gm.%1d.rs485.%02d.in-not-1", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_2), comp_id, "gm.%1d.rs485.%02d.in-2", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_2), comp_id, "gm.%1d.rs485.%02d.in-not-2", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_3), comp_id, "gm.%1d.rs485.%02d.in-3", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_3), comp_id, "gm.%1d.rs485.%02d.in-not-3", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_4), comp_id, "gm.%1d.rs485.%02d.in-4", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_4), comp_id, "gm.%1d.rs485.%02d.in-not-4", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_5), comp_id, "gm.%1d.rs485.%02d.in-5", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_5), comp_id, "gm.%1d.rs485.%02d.in-not-5", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_6), comp_id, "gm.%1d.rs485.%02d.in-6", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_6), comp_id, "gm.%1d.rs485.%02d.in-not-6", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_7), comp_id, "gm.%1d.rs485.%02d.in-7", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_7), comp_id, "gm.%1d.rs485.%02d.in-not-7", boardId, i);	
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_0), 0, "gm.%1d.rs485.%02d.in-0", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_0), 1, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_1), 0, "gm.%1d.rs485.%02d.in-1", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_1), 1, "gm.%1d.rs485.%02d.in-not-1", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_2), 0, "gm.%1d.rs485.%02d.in-2", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_2), 1, "gm.%1d.rs485.%02d.in-not-2", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_3), 0, "gm.%1d.rs485.%02d.in-3", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_3), 1, "gm.%1d.rs485.%02d.in-not-3", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_4), 0, "gm.%1d.rs485.%02d.in-4", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_4), 1, "gm.%1d.rs485.%02d.in-not-4", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_5), 0, "gm.%1d.rs485.%02d.in-5", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_5), 1, "gm.%1d.rs485.%02d.in-not-5", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_6), 0, "gm.%1d.rs485.%02d.in-6", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_6), 1, "gm.%1d.rs485.%02d.in-not-6", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].in_7), 0, "gm.%1d.rs485.%02d.in-7", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_8input[i].inNot_7), 1, "gm.%1d.rs485.%02d.in-not-7", boardId, i);	
 		  break;		  
 		  case RS485MODUL_ID_8OUTPUT:
 			device-> RS485_mgr.BYTES_TO_WRITE[i]=2; // 1 data byte + 1 Checksum
 			device-> RS485_mgr.BYTES_TO_READ[i]=0;
 			
-		    	if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_0), comp_id, "gm.%1d.rs485.%02d.relay-0", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_1), comp_id, "gm.%1d.rs485.%02d.relay-1", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_2), comp_id, "gm.%1d.rs485.%02d.relay-2", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_3), comp_id, "gm.%1d.rs485.%02d.relay-3", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_4), comp_id, "gm.%1d.rs485.%02d.relay-4", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_5), comp_id, "gm.%1d.rs485.%02d.relay-5", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_6), comp_id, "gm.%1d.rs485.%02d.relay-6", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_7), comp_id, "gm.%1d.rs485.%02d.relay-7", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_0), 0, "gm.%1d.rs485.%02d.relay-0", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_1), 0, "gm.%1d.rs485.%02d.relay-1", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_2), 0, "gm.%1d.rs485.%02d.relay-2", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_3), 0, "gm.%1d.rs485.%02d.relay-3", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_4), 0, "gm.%1d.rs485.%02d.relay-4", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_5), 0, "gm.%1d.rs485.%02d.relay-5", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_6), 0, "gm.%1d.rs485.%02d.relay-6", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_8output[i].out_7), 0, "gm.%1d.rs485.%02d.relay-7", boardId, i);
 			
-		    	if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_0), comp_id, "gm.%1d.rs485.%02d.invert-relay-0", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_1), comp_id, "gm.%1d.rs485.%02d.invert-relay-1", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_2), comp_id, "gm.%1d.rs485.%02d.invert-relay-2", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_3), comp_id, "gm.%1d.rs485.%02d.invert-relay-3", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_4), comp_id, "gm.%1d.rs485.%02d.invert-relay-4", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_5), comp_id, "gm.%1d.rs485.%02d.invert-relay-5", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_6), comp_id, "gm.%1d.rs485.%02d.invert-relay-6", boardId, i);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->RS485_8output[i].invertOut_7), comp_id, "gm.%1d.rs485.%02d.invert-relay-7", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_0), 0, "gm.%1d.rs485.%02d.invert-relay-0", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_1), 0, "gm.%1d.rs485.%02d.invert-relay-1", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_2), 0, "gm.%1d.rs485.%02d.invert-relay-2", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_3), 0, "gm.%1d.rs485.%02d.invert-relay-3", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_4), 0, "gm.%1d.rs485.%02d.invert-relay-4", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_5), 0, "gm.%1d.rs485.%02d.invert-relay-5", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_6), 0, "gm.%1d.rs485.%02d.invert-relay-6", boardId, i);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->RS485_8output[i].invertOut_7), 0, "gm.%1d.rs485.%02d.invert-relay-7", boardId, i);
 
 		  break;
 		  case RS485MODUL_ID_DACADC:
 			device-> RS485_mgr.BYTES_TO_WRITE[i]=5; // 8 data byte + 1 Checksum
 			device-> RS485_mgr.BYTES_TO_READ[i]=9; 
 		      
-			if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->RS485_DacAdc[i].DAC_0), comp_id, "gm.%1d.rs485.%02d.dac-0", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->RS485_DacAdc[i].DAC_1), comp_id, "gm.%1d.rs485.%02d.dac-1", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->RS485_DacAdc[i].DAC_2), comp_id, "gm.%1d.rs485.%02d.dac-2", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->RS485_DacAdc[i].DAC_3), comp_id, "gm.%1d.rs485.%02d.dac-3", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_DacAdc[i].dac_0_enable), comp_id, "gm.%1d.rs485.%02d.dac-enable-0", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_DacAdc[i].dac_1_enable), comp_id, "gm.%1d.rs485.%02d.dac-enable-1", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_DacAdc[i].dac_2_enable), comp_id, "gm.%1d.rs485.%02d.dac-enable-2", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_DacAdc[i].dac_3_enable), comp_id, "gm.%1d.rs485.%02d.dac-enable-3", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_0), comp_id, "gm.%1d.rs485.%02d.adc-0", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_1), comp_id, "gm.%1d.rs485.%02d.adc-1", boardId, i);      
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_2), comp_id, "gm.%1d.rs485.%02d.adc-2", boardId, i);      
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_3), comp_id, "gm.%1d.rs485.%02d.adc-3", boardId, i);        
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_4), comp_id, "gm.%1d.rs485.%02d.adc-4", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_5), comp_id, "gm.%1d.rs485.%02d.adc-5", boardId, i);      
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_6), comp_id, "gm.%1d.rs485.%02d.adc-6", boardId, i);      
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_DacAdc[i].ADC_7), comp_id, "gm.%1d.rs485.%02d.adc-7", boardId, i);      
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_0_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_1_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_2_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_3_offset), comp_id, "gm.%1d.rs485.%02d.dac-offset-3", boardId, i);	      
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_0_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_1_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_2_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_3_max), comp_id, "gm.%1d.rs485.%02d.dac-high-limit-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_0_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_1_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_2_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].DAC_3_min), comp_id, "gm.%1d.rs485.%02d.dac-low-limit-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_6_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-6", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_7_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-7", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_6_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-6", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_DacAdc[i].ADC_7_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-7", boardId, i);	
-			
-			device->RS485_DacAdc[i].DAC_0_max = 10;
-			device->RS485_DacAdc[i].DAC_0_min = -10;
-			device->RS485_DacAdc[i].DAC_1_max = 10;
-			device->RS485_DacAdc[i].DAC_1_min = -10;
-			device->RS485_DacAdc[i].DAC_2_max = 10;
-			device->RS485_DacAdc[i].DAC_2_min = -10;
-			device->RS485_DacAdc[i].DAC_3_max = 10;
-			device->RS485_DacAdc[i].DAC_3_min = -10;
-			device->RS485_DacAdc[i].ADC_0_scale = 1;
-			device->RS485_DacAdc[i].ADC_1_scale = 1;
-			device->RS485_DacAdc[i].ADC_2_scale = 1;
-			device->RS485_DacAdc[i].ADC_3_scale = 1;
-			device->RS485_DacAdc[i].ADC_4_scale = 1;
-			device->RS485_DacAdc[i].ADC_5_scale = 1;
-			device->RS485_DacAdc[i].ADC_6_scale = 1;
-			device->RS485_DacAdc[i].ADC_7_scale = 1;
-		    break;		    
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->RS485_DacAdc[i].DAC_0), 0.0, "gm.%1d.rs485.%02d.dac-0", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->RS485_DacAdc[i].DAC_1), 0.0, "gm.%1d.rs485.%02d.dac-1", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->RS485_DacAdc[i].DAC_2), 0.0, "gm.%1d.rs485.%02d.dac-2", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->RS485_DacAdc[i].DAC_3), 0.0, "gm.%1d.rs485.%02d.dac-3", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_DacAdc[i].dac_0_enable), 0, "gm.%1d.rs485.%02d.dac-enable-0", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_DacAdc[i].dac_1_enable), 0, "gm.%1d.rs485.%02d.dac-enable-1", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_DacAdc[i].dac_2_enable), 0, "gm.%1d.rs485.%02d.dac-enable-2", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_DacAdc[i].dac_3_enable), 0, "gm.%1d.rs485.%02d.dac-enable-3", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_0), 0.0, "gm.%1d.rs485.%02d.adc-0", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_1), 0.0, "gm.%1d.rs485.%02d.adc-1", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_2), 0.0, "gm.%1d.rs485.%02d.adc-2", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_3), 0.0, "gm.%1d.rs485.%02d.adc-3", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_4), 0.0, "gm.%1d.rs485.%02d.adc-4", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_5), 0.0, "gm.%1d.rs485.%02d.adc-5", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_6), 0.0, "gm.%1d.rs485.%02d.adc-6", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_DacAdc[i].ADC_7), 0.0, "gm.%1d.rs485.%02d.adc-7", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_0_offset), 0.0, "gm.%1d.rs485.%02d.dac-offset-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_1_offset), 0.0, "gm.%1d.rs485.%02d.dac-offset-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_2_offset), 0.0, "gm.%1d.rs485.%02d.dac-offset-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_3_offset), 0.0, "gm.%1d.rs485.%02d.dac-offset-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_0_max), 10.0, "gm.%1d.rs485.%02d.dac-high-limit-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_1_max), 10.0, "gm.%1d.rs485.%02d.dac-high-limit-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_2_max), 10.0, "gm.%1d.rs485.%02d.dac-high-limit-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_3_max), 10.0, "gm.%1d.rs485.%02d.dac-high-limit-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_0_min), -10.0, "gm.%1d.rs485.%02d.dac-low-limit-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_1_min), -10.0, "gm.%1d.rs485.%02d.dac-low-limit-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_2_min), -10.0, "gm.%1d.rs485.%02d.dac-low-limit-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].DAC_3_min), -10.0, "gm.%1d.rs485.%02d.dac-low-limit-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_0_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_1_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_2_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_3_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_4_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_5_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_6_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-6", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_7_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-7", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_0_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_1_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_2_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_3_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_4_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_5_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_6_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-6", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_DacAdc[i].ADC_7_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-7", boardId, i);
+		    break;
 		    case RS485MODUL_ID_TEACHPAD:
 			device-> RS485_mgr.BYTES_TO_WRITE[i]=0;
-			device-> RS485_mgr.BYTES_TO_READ[i]=12;	//1 for 8 digit input, 6 for adc, 4 for encoder + 1 Checksum		
-			
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_0), comp_id, "gm.%1d.rs485.%02d.in-0", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_0), comp_id, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_1), comp_id, "gm.%1d.rs485.%02d.in-1", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_1), comp_id, "gm.%1d.rs485.%02d.in-not-1", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_2), comp_id, "gm.%1d.rs485.%02d.in-2", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_2), comp_id, "gm.%1d.rs485.%02d.in-not-2", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_3), comp_id, "gm.%1d.rs485.%02d.in-3", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_3), comp_id, "gm.%1d.rs485.%02d.in-not-3", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_4), comp_id, "gm.%1d.rs485.%02d.in-4", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_4), comp_id, "gm.%1d.rs485.%02d.in-not-4", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_5), comp_id, "gm.%1d.rs485.%02d.in-5", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_5), comp_id, "gm.%1d.rs485.%02d.in-not-5", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_6), comp_id, "gm.%1d.rs485.%02d.in-6", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_6), comp_id, "gm.%1d.rs485.%02d.in-not-6", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_7), comp_id, "gm.%1d.rs485.%02d.in-7", boardId, i);
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_7), comp_id, "gm.%1d.rs485.%02d.in-not-7", boardId, i);	
+			device-> RS485_mgr.BYTES_TO_READ[i]=12;	//1 for 8 digit input, 6 for adc, 4 for encoder + 1 Checksum
 
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_0), comp_id, "gm.%1d.rs485.%02d.adc-0", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_1), comp_id, "gm.%1d.rs485.%02d.adc-1", boardId, i);      
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_2), comp_id, "gm.%1d.rs485.%02d.adc-2", boardId, i);      
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_3), comp_id, "gm.%1d.rs485.%02d.adc-3", boardId, i);        
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_4), comp_id, "gm.%1d.rs485.%02d.adc-4", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_5), comp_id, "gm.%1d.rs485.%02d.adc-5", boardId, i);  
-			
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
-			
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
-			
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_TeachPad[i].enc_reset), comp_id, "gm.%1d.rs485.%02d.enc-reset", boardId, i);
-			if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_counts), comp_id, "gm.%1d.rs485.%02d.enc-counts", boardId, i);
-			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_position), comp_id, "gm.%1d.rs485.%02d.enc-position", boardId, i);
-			if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_rawcounts), comp_id, "gm.%1d.rs485.%02d.enc-rawcounts", boardId, i);
-			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].enc_position_scale), comp_id, "gm.%1d.rs485.%02d.enc-position-scale", boardId, i);
-			
-			device->RS485_TeachPad[i].ADC_0_scale = 1;
-			device->RS485_TeachPad[i].ADC_1_scale = 1;
-			device->RS485_TeachPad[i].ADC_2_scale = 1;
-			device->RS485_TeachPad[i].ADC_3_scale = 1;
-			device->RS485_TeachPad[i].ADC_4_scale = 1;
-			device->RS485_TeachPad[i].ADC_5_scale = 1;
-			
-			device->RS485_TeachPad[i].ADC_0_offset = 0;
-			device->RS485_TeachPad[i].ADC_1_offset = 0;
-			device->RS485_TeachPad[i].ADC_2_offset = 0;
-			device->RS485_TeachPad[i].ADC_3_offset = 0;
-			device->RS485_TeachPad[i].ADC_4_offset = 0;
-			device->RS485_TeachPad[i].ADC_5_offset = 0;
-			
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_0), 0, "gm.%1d.rs485.%02d.in-0", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_0), 1, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_1), 0, "gm.%1d.rs485.%02d.in-1", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_1), 1, "gm.%1d.rs485.%02d.in-not-1", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_2), 0, "gm.%1d.rs485.%02d.in-2", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_2), 1, "gm.%1d.rs485.%02d.in-not-2", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_3), 0, "gm.%1d.rs485.%02d.in-3", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_3), 1, "gm.%1d.rs485.%02d.in-not-3", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_4), 0, "gm.%1d.rs485.%02d.in-4", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_4), 1, "gm.%1d.rs485.%02d.in-not-4", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_5), 0, "gm.%1d.rs485.%02d.in-5", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_5), 1, "gm.%1d.rs485.%02d.in-not-5", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_6), 0, "gm.%1d.rs485.%02d.in-6", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_6), 1, "gm.%1d.rs485.%02d.in-not-6", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].in_7), 0, "gm.%1d.rs485.%02d.in-7", boardId, i);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].inNot_7), 1, "gm.%1d.rs485.%02d.in-not-7", boardId, i);
+
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].ADC_0), 0.0, "gm.%1d.rs485.%02d.adc-0", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].ADC_1), 0.0, "gm.%1d.rs485.%02d.adc-1", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].ADC_2), 0.0, "gm.%1d.rs485.%02d.adc-2", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].ADC_3), 0.0, "gm.%1d.rs485.%02d.adc-3", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].ADC_4), 0.0, "gm.%1d.rs485.%02d.adc-4", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].ADC_5), 0.0, "gm.%1d.rs485.%02d.adc-5", boardId, i);
+
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_0_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_1_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_2_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_3_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_4_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_5_offset), 0.0, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
+
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_0_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_1_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_2_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_3_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_4_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].ADC_5_scale), 1.0, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
+
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->RS485_TeachPad[i].enc_reset), 0, "gm.%1d.rs485.%02d.enc-reset", boardId, i);
+			if(error == 0) error = hal_pin_new_si32(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].enc_counts), 0, "gm.%1d.rs485.%02d.enc-counts", boardId, i);
+			if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].enc_position), 0.0, "gm.%1d.rs485.%02d.enc-position", boardId, i);
+			if(error == 0) error = hal_pin_new_si32(comp_id, HAL_OUT, &(device->RS485_TeachPad[i].enc_rawcounts), 0, "gm.%1d.rs485.%02d.enc-rawcounts", boardId, i);
+			if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->RS485_TeachPad[i].enc_position_scale), 1.0, "gm.%1d.rs485.%02d.enc-position-scale", boardId, i);
+
 			device->RS485_TeachPad[i].enc_raw_offset = 0;
-			device->RS485_TeachPad[i].enc_position_scale=1;
 		    break;
 		    default:
 			rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR, unknown rs485 module type.\nPlease, download the latest driver.\n");
 		}
-	    } 
+	    }
 	    break;
 	  default:
 	    rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR, unknown rs485 version.\nPlease, download the latest driver.\n");
@@ -1013,7 +987,7 @@ ExportCAN(void *arg, int comp_id, int version)
 	  case notPresented:
 	    for(i=0;i<6;i++)
 	      {
-		device->CAN_GM[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
+		device->CAN_GM[i].enable = (hal_bool_t)&(device->cardMgr.disable); //Set enable pointers to a 0 value variable
 	      }	 
 	    rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No CAN module available in this version of the Card.\n");
 	    break;
@@ -1023,12 +997,12 @@ ExportCAN(void *arg, int comp_id, int version)
 	    for(i=0;i<6;i++)
 	    {
 	       //Export Pins
-		  if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->CAN_GM[i].enable), comp_id, "gm.%1d.can-gm.%1d.enable", boardId, i);
-		  if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->CAN_GM[i].position_cmd), comp_id, "gm.%1d.can-gm.%1d.position-cmd", boardId, i);
-		  if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->CAN_GM[i].position_fb), comp_id, "gm.%1d.can-gm.%1d.position-fb", boardId, i);
+		  if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->CAN_GM[i].enable), 0, "gm.%1d.can-gm.%1d.enable", boardId, i);
+		  if(error == 0) error = hal_pin_new_real(comp_id, HAL_IN, &(device->CAN_GM[i].position_cmd), 0.0, "gm.%1d.can-gm.%1d.position-cmd", boardId, i);
+		  if(error == 0) error = hal_pin_new_real(comp_id, HAL_OUT, &(device->CAN_GM[i].position_fb), 0.0, "gm.%1d.can-gm.%1d.position-fb", boardId, i);
 		  
 	       //Export Parameters
-		  if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->CAN_GM[i].position_scale), comp_id, "gm.%1d.can-gm.%1d.position-scale", boardId, i);
+		  if(error == 0) error = hal_param_new_real(comp_id, HAL_RW, &(device->CAN_GM[i].position_scale), 0.0, "gm.%1d.can-gm.%1d.position-scale", boardId, i);
 	    }
 	    
 	    //Export Pins and Parameters for CANopen Servo Controllers
@@ -1052,41 +1026,41 @@ ExportMixed(void *arg, int comp_id)
 	for(i = 0; i < 6; i++)
 	{	
 		// Pins
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->switches[i].home), comp_id, "gm.%1d.axis.%1d.home-sw-in", boardId, i);
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->switches[i].homeNot), comp_id, "gm.%1d.axis.%1d.home-sw-in-not", boardId, i);
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->switches[i].posLimSwIn), comp_id, "gm.%1d.axis.%1d.pos-lim-sw-in", boardId, i);
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->switches[i].posLimSwInNot), comp_id, "gm.%1d.axis.%1d.pos-lim-sw-in-not", boardId, i);
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->switches[i].negLimSwIn), comp_id, "gm.%1d.axis.%1d.neg-lim-sw-in", boardId, i);
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->switches[i].negLimSwInNot), comp_id, "gm.%1d.axis.%1d.neg-lim-sw-in-not", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->switches[i].home), 0, "gm.%1d.axis.%1d.home-sw-in", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->switches[i].homeNot), 0, "gm.%1d.axis.%1d.home-sw-in-not", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->switches[i].posLimSwIn), 0, "gm.%1d.axis.%1d.pos-lim-sw-in", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->switches[i].posLimSwInNot), 0, "gm.%1d.axis.%1d.pos-lim-sw-in-not", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->switches[i].negLimSwIn), 0, "gm.%1d.axis.%1d.neg-lim-sw-in", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->switches[i].negLimSwInNot), 0, "gm.%1d.axis.%1d.neg-lim-sw-in-not", boardId, i);
 	}
 
 	//Power bridge Fault and Error pins
-	if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->cardMgr.power_enable), comp_id, "gm.%1d.power-enable", boardId);
-	if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->cardMgr.power_fault), comp_id, "gm.%1d.power-fault", boardId);
+	if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->cardMgr.power_enable), 0, "gm.%1d.power-enable", boardId);
+	if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->cardMgr.power_fault), 0, "gm.%1d.power-fault", boardId);
 	
 	//Watchdog pins and parameters
-	if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->cardMgr.watchdog_enable), comp_id, "gm.%1d.watchdog-enable", boardId);
-	if(error == 0) error = hal_param_u32_newf(HAL_RW, &(device->cardMgr.watchdog_timeout_ns), comp_id, "gm.%1d.watchdog-timeout-ns", boardId);
-	if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->cardMgr.watchdog_expired), comp_id, "gm.%1d.watchdog-expired", boardId);
+	if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->cardMgr.watchdog_enable), 0, "gm.%1d.watchdog-enable", boardId);
+	if(error == 0) error = hal_param_new_ui32(comp_id, HAL_RW, &(device->cardMgr.watchdog_timeout_ns), 0, "gm.%1d.watchdog-timeout-ns", boardId);
+	if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->cardMgr.watchdog_expired), 0, "gm.%1d.watchdog-expired", boardId);
 		      
 	//Export pins and parameters for parallel IOs
 	for(i=0;i<4;i++)
 	{
 		for(j=0;j<8;j++)
 		{
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->gpio[i*8+j].in), comp_id, "gm.%1d.gpio.%1d.in-%1d", boardId, i, j);	
-			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->gpio[i*8+j].inNot), comp_id, "gm.%1d.gpio.%1d.in-not-%1d", boardId, i, j);		
-			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->gpio[i*8+j].out), comp_id, "gm.%1d.gpio.%1d.out-%1d", boardId, i, j);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->gpio[i*8+j].isOut), comp_id, "gm.%1d.gpio.%1d.is-out-%1d", boardId, i, j);
-			if(error == 0) error = hal_param_bit_newf(HAL_RW, &(device->gpio[i*8+j].invertOut), comp_id, "gm.%1d.gpio.%1d.invert-out-%1d", boardId, i, j);
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->gpio[i*8+j].in), 0, "gm.%1d.gpio.%1d.in-%1d", boardId, i, j);	
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->gpio[i*8+j].inNot), 1, "gm.%1d.gpio.%1d.in-not-%1d", boardId, i, j);		
+			if(error == 0) error = hal_pin_new_bool(comp_id, HAL_IN, &(device->gpio[i*8+j].out), 0, "gm.%1d.gpio.%1d.out-%1d", boardId, i, j);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->gpio[i*8+j].isOut), 0, "gm.%1d.gpio.%1d.is-out-%1d", boardId, i, j);
+			if(error == 0) error = hal_param_new_bool(comp_id, HAL_RW, &(device->gpio[i*8+j].invertOut), 0, "gm.%1d.gpio.%1d.invert-out-%1d", boardId, i, j);
 		}
 	}
 
 	//Export pins and parameters for estops
 	for(i=0;i<2;i++)
 	{
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->estop[i].in), comp_id, "gm.%1d.estop.%1d.in", boardId, i);			
-		if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->estop[i].inNot), comp_id, "gm.%1d.estop.%1d.in-not", boardId, i);
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->estop[i].in), 0, "gm.%1d.estop.%1d.in", boardId, i);			
+		if(error == 0) error = hal_pin_new_bool(comp_id, HAL_OUT, &(device->estop[i].inNot), 1, "gm.%1d.estop.%1d.in-not", boardId, i);
 	}
 	
 	device->cardMgr.cntr = 0; //Counter of executing card_mgr() function
@@ -1124,7 +1098,7 @@ read(void *arg, long period)
     	gm_device_t	*device = (gm_device_t *)arg;
     	card	*pCard = device->pCard;
 	unsigned int i;
-	hal_u32_t temp;
+	rtapi_u32 temp;
 
       //basic card functionality: watchdog, switches, estop
 	card_mgr(arg, period);
@@ -1133,8 +1107,8 @@ read(void *arg, long period)
 	temp=pCard->gpio;
     	for(i = 0; i < 32; i++)
 	{
-		*(device->gpio[i].in) = (hal_bit_t)((temp & ((unsigned int) 1 << i)) == 0 ? 0 : 1);
-		*(device->gpio[i].inNot) = (hal_bit_t)((temp & ((unsigned int) 1 << i)) == 0 ? 1 : 0);
+		hal_set_bool(device->gpio[i].in,    (temp & ((unsigned int) 1 << i)) == 0 ? 0 : 1);
+		hal_set_bool(device->gpio[i].inNot, (temp & ((unsigned int) 1 << i)) == 0 ? 1 : 0);
 	}
 
       //Read Encoders
@@ -1148,25 +1122,25 @@ write(void *arg, long period)
 	card	*pCard = device->pCard;
 
 	int		i, temp1=0, temp2=0;
-	hal_float_t	DAC[6];
-	hal_u32_t	DAC_INTEGER[6];
+	rtapi_real	DAC[6];
+	rtapi_u32	DAC_INTEGER[6];
 
 	//Refresh DAC values
 	  for(i=0;i<6;i++)
 	  {
-		if(*(device->axisdac[i].enable))
+		if(hal_get_bool(device->axisdac[i].enable))
 		{
-			if( (*(device->axisdac[i].value) + device->axisdac[i].offset) > device->axisdac[i].max)
+			if( (hal_get_real(device->axisdac[i].value) + hal_get_real(device->axisdac[i].offset)) > hal_get_real(device->axisdac[i].max))
 			{
-				DAC[i] = device->axisdac[i].max;
+				DAC[i] = hal_get_real(device->axisdac[i].max);
 			}
-			else if (  (*(device->axisdac[i].value) + device->axisdac[i].offset) < device->axisdac[i].min)
+			else if (  (hal_get_real(device->axisdac[i].value) + hal_get_real(device->axisdac[i].offset)) < hal_get_real(device->axisdac[i].min))
 			{
-				DAC[i] = device->axisdac[i].min;
+				DAC[i] = hal_get_real(device->axisdac[i].min);
 			}
 			else
 			{
-				DAC[i] =   (*(device->axisdac[i].value) + device->axisdac[i].offset);
+				DAC[i] =   (hal_get_real(device->axisdac[i].value) + hal_get_real(device->axisdac[i].offset));
 			}
 		}
 		else
@@ -1178,9 +1152,9 @@ write(void *arg, long period)
 		if(DAC[i] < 0) DAC[i] = 0;
 		else if (DAC[i] > 16383) DAC[i] = 16383;
 
-		DAC_INTEGER[i] = (hal_u32_t)(DAC[i]);
+		DAC_INTEGER[i] = (rtapi_u32)(DAC[i]);
 		
-		if(device->axisdac[i].invert_serial) DAC_INTEGER[i] |= 0x8000;
+		if(hal_get_bool(device->axisdac[i].invert_serial)) DAC_INTEGER[i] |= 0x8000;
 	  }
 	  pCard->DAC_0 = ((DAC_INTEGER[1] & 0xFFFF) << 16) | (DAC_INTEGER[0] & 0xFFFF);
 	  pCard->DAC_1 = ((DAC_INTEGER[3] & 0xFFFF) << 16) | (DAC_INTEGER[2] & 0xFFFF);
@@ -1196,8 +1170,8 @@ write(void *arg, long period)
 	  temp1 = 0;
 	  for(i = 0; i < 32; i++)
 	  {
-		if(device->gpio[i].isOut) temp1 |= 0x0001 << i;			//write gpio mask: 1=output, 0=input
-		if((*(device->gpio[i].out)) ^ (device->gpio[i].invertOut)) temp2 |= 0x0001 << i;	//write outputs
+		if(hal_get_bool(device->gpio[i].isOut)) temp1 |= 0x0001 << i;			//write gpio mask: 1=output, 0=input
+		if((hal_get_bool(device->gpio[i].out)) ^ hal_get_bool(device->gpio[i].invertOut)) temp2 |= 0x0001 << i;	//write outputs
 	  }
 	  pCard->gpioDir=temp1;
 	  pCard->gpio=temp2;
@@ -1214,9 +1188,9 @@ GM_CAN_SERVO(void *arg)
 {
 	gm_device_t	*device = (gm_device_t *)arg;
 
-	hal_u32_t	Rx_buf_cntr, Tx_buf_cntr;
-	hal_u32_t	i, temp=0;
-	hal_s32_t	posFb;
+	rtapi_u32	Rx_buf_cntr, Tx_buf_cntr;
+	rtapi_u32	i, temp=0;
+	rtapi_s32	posFb;
 	CANmsg_t	CAN_msg;
 
 	//Position references: ID 0x10 - 0x15
@@ -1224,7 +1198,7 @@ GM_CAN_SERVO(void *arg)
 
       //Do not run, if none of the GM CAN channels are enabled
 	for(i=0;i<6;i++){
-	  if(*(device->CAN_GM[i].enable) == 1) temp++;
+	  if(hal_get_bool(device->CAN_GM[i].enable)) temp++;
 	}
 	if(temp == 0) return;
 
@@ -1238,30 +1212,30 @@ GM_CAN_SERVO(void *arg)
 	  
 	  if((CAN_msg.ID >= 0x20) && (CAN_msg.ID <= 0x25))
 	  {
-	    if((device->CAN_GM[CAN_msg.ID - 0x20].position_scale<10e-6) && (device->CAN_GM[CAN_msg.ID - 0x20].position_scale>-10e-6))
+	    if((hal_get_real(device->CAN_GM[CAN_msg.ID - 0x20].position_scale)<10e-6) && (hal_get_real(device->CAN_GM[CAN_msg.ID - 0x20].position_scale)>-10e-6))
 	    {
-	      device->CAN_GM[CAN_msg.ID - 0x20].position_scale = 1;
+	      hal_set_real(device->CAN_GM[CAN_msg.ID - 0x20].position_scale, 1);
 	    }
 	     posFb = (CAN_msg.data[3] << 24) | (CAN_msg.data[2] << 16) | (CAN_msg.data[1] << 8) | CAN_msg.data[0];
-	     *(device->CAN_GM[CAN_msg.ID - 0x20].position_fb) = (hal_float_t)posFb / device->CAN_GM[CAN_msg.ID - 0x20].position_scale;
+	     hal_set_real(device->CAN_GM[CAN_msg.ID - 0x20].position_fb, (rtapi_real)posFb / hal_get_real(device->CAN_GM[CAN_msg.ID - 0x20].position_scale));
 	  }
 	}
 
       //Send reference
 	for(i=0;i<6;i++)
 	{
-	  if(*(device->CAN_GM[i].enable) == 1)
+	  if(hal_get_bool(device->CAN_GM[i].enable))
 	  {
 	    CAN_msg.RTR = 0; //Not a request frame
 	    CAN_msg.Ext = 0; //Standard ID
 	    CAN_msg.DLC = 4; //4 byte data
 	    CAN_msg.ID = 0x10 + i;
 
-	    if((device->CAN_GM[i].position_scale<10e-6) && (device->CAN_GM[i].position_scale>-10e-6))
+	    if((hal_get_real(device->CAN_GM[i].position_scale)<10e-6) && (hal_get_real(device->CAN_GM[i].position_scale)>-10e-6))
 	    {
-	      device->CAN_GM[i].position_scale = 1;
+	      hal_set_real(device->CAN_GM[i].position_scale, 1);
 	    }
-	    temp = (hal_u32_t)(*(device->CAN_GM[i].position_cmd) * device->CAN_GM[i].position_scale);
+	    temp = (rtapi_u32)(hal_get_real(device->CAN_GM[i].position_cmd) * hal_get_real(device->CAN_GM[i].position_scale));
 	    CAN_msg.data[0] = temp & 0xFF;
 	    CAN_msg.data[1] = (temp >> 8) & 0xFF;
 	    CAN_msg.data[2] = (temp >> 16) & 0xFF;
@@ -1276,12 +1250,12 @@ GM_CAN_SERVO(void *arg)
 	}  
 }
 static int
-CAN_ReadStatus(void *arg, hal_u32_t *RxCnt, hal_u32_t *TxCnt)
+CAN_ReadStatus(void *arg, rtapi_u32 *RxCnt, rtapi_u32 *TxCnt)
 {
 	gm_device_t	*device = (gm_device_t *)arg;
 	card	*pCard = device->pCard;
 	
-	hal_u32_t temp;  
+	rtapi_u32 temp;
 	
 	temp = pCard->CAN_status_reg;
 	*TxCnt = temp & 0x3FF;
@@ -1296,7 +1270,7 @@ CAN_ReceiveDataFrame(void *arg, CANmsg_t *Msg)
 	gm_device_t	*device = (gm_device_t *)arg;
 	card		*pCard = device->pCard;
 	
-	hal_u32_t	temp;
+	rtapi_u32	temp;
 	
 	temp = pCard->CAN_RX_buffer[0];
 	if(temp & 0x80000000)
@@ -1334,7 +1308,7 @@ CAN_SendDataFrame(void *arg, CANmsg_t *Msg)
 	gm_device_t	*device = (gm_device_t *)arg;
 	card		*pCard = device->pCard;
 	
-	hal_u32_t ID;
+	rtapi_u32 ID;
 	
 	ID = Msg->ID;//MsgID;
 	if(Msg->Ext) ID |= 0x80000000;
@@ -1359,7 +1333,7 @@ CAN_Reset(void *arg)
 }
 
 static void
-CAN_SetBaud(void *arg, hal_u32_t Baud)
+CAN_SetBaud(void *arg, rtapi_u32 Baud)
 {
   	gm_device_t		*device = (gm_device_t *)arg;
 	card	*pCard = device->pCard;
@@ -1401,42 +1375,42 @@ card_mgr(void *arg, long period)
 	gm_device_t		*device = (gm_device_t *)arg;
     	card	*pCard = device->pCard;
 	
-	hal_u32_t	temp=0, i, j;
+	rtapi_u32	temp=0, i, j;
 	
       //Read card status reg and process data
 	temp = pCard->card_status_reg; //This resets watch dog timer
 	
-	*(device->cardMgr.watchdog_expired) = 	(hal_bit_t)((temp & (0x0001 << 0)) == 0 ? 0 : 1);
-	*(device->cardMgr.power_fault) = 	(hal_bit_t)((temp & (0x0001 << 2)) == 0 ? 0 : 1);
-	*(device->estop[0].in) = 		(hal_bit_t)((temp & (0x0001 << 3)) == 0 ? 0 : 1);
-	*(device->estop[0].inNot) = 		(hal_bit_t)((temp & (0x0001 << 3)) == 0 ? 1 : 0);
-	*(device->estop[1].in) = 		(hal_bit_t)((temp & (0x0001 << 4)) == 0 ? 0 : 1);
-	*(device->estop[1].inNot) = 		(hal_bit_t)((temp & (0x0001 << 4)) == 0 ? 1 : 0);
+	hal_set_bool(device->cardMgr.watchdog_expired, 	(temp & (0x0001 << 0)) == 0 ? 0 : 1);
+	hal_set_bool(device->cardMgr.power_fault, 		(temp & (0x0001 << 2)) == 0 ? 0 : 1);
+	hal_set_bool(device->estop[0].in, 		(temp & (0x0001 << 3)) == 0 ? 0 : 1);
+	hal_set_bool(device->estop[0].inNot,	(temp & (0x0001 << 3)) == 0 ? 1 : 0);
+	hal_set_bool(device->estop[1].in, 		(temp & (0x0001 << 4)) == 0 ? 0 : 1);
+	hal_set_bool(device->estop[1].inNot,	(temp & (0x0001 << 4)) == 0 ? 1 : 0);
 	
     	for(i=5, j=0; i<11; i++,j++)
 	{
-		*(device->switches[j].home) = 		(hal_bit_t)((temp & (0x0001 << i)) == 0 ? 0 : 1);
-		*(device->switches[j].homeNot) = 	(hal_bit_t)((temp & (0x0001 << i)) == 0 ? 1 : 0);
+		hal_set_bool(device->switches[j].home, 		(temp & (0x0001 << i)) == 0 ? 0 : 1);
+		hal_set_bool(device->switches[j].homeNot, 	(temp & (0x0001 << i)) == 0 ? 1 : 0);
 	}
 	for(j=0;i<17;i++,j++){
-		*(device->switches[j].posLimSwIn) = 	(hal_bit_t)((temp & (0x0001 << i)) == 0 ? 0 : 1);
-		*(device->switches[j].posLimSwInNot) = 	(hal_bit_t)((temp & (0x0001 << i)) == 0 ? 1 : 0);
+		hal_set_bool(device->switches[j].posLimSwIn, 	(temp & (0x0001 << i)) == 0 ? 0 : 1);
+		hal_set_bool(device->switches[j].posLimSwInNot,	(temp & (0x0001 << i)) == 0 ? 1 : 0);
 	}
 	for(j=0;i<23;i++,j++){
-		*(device->switches[j].negLimSwIn) = 	(hal_bit_t)((temp & (0x0001 << i)) == 0 ? 0 : 1);
-		*(device->switches[j].negLimSwInNot) = 	(hal_bit_t)((temp & (0x0001 << i)) == 0 ? 1 : 0);
+		hal_set_bool(device->switches[j].negLimSwIn, 	(temp & (0x0001 << i)) == 0 ? 0 : 1);
+		hal_set_bool(device->switches[j].negLimSwInNot,	(temp & (0x0001 << i)) == 0 ? 1 : 0);
 	}
 	
 	
       //Check if change happened in control reg and write control reg if well
 	 //  ... Estop_1 | Estop_0 | Pwr_fault | Bus_err | Wdt_err  //Card status read resets wdt
 	temp = 1; //EMC run
-	if(*(device->cardMgr.power_enable)) temp |= (0x0001 << 1); //power enable
+	if(hal_get_bool(device->cardMgr.power_enable)) temp |= (0x0001 << 1); //power enable
 	
-	if(device->cardMgr.watchdog_enable) //watchdog timeout in ns*256 unit. 0 if watchdog is disabled
+	if(hal_get_bool(device->cardMgr.watchdog_enable)) //watchdog timeout in ns*256 unit. 0 if watchdog is disabled
 	{
-	  if(device->cardMgr.watchdog_timeout_ns < 256) temp |= 0x100;
-	  else temp |= (device->cardMgr.watchdog_timeout_ns & 0xFFFFFF00);
+	  if(hal_get_ui32(device->cardMgr.watchdog_timeout_ns) < 256) temp |= 0x100;
+	  else temp |= (hal_get_ui32(device->cardMgr.watchdog_timeout_ns) & 0xFFFFFF00);
 	}
 	
 	if(temp != device->cardMgr.card_control_reg)
@@ -1454,7 +1428,7 @@ card_mgr(void *arg, long period)
 	      temp = rtapi_get_msg_level();
 	      rtapi_set_msg_level(RTAPI_MSG_ALL);
 	      rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: PCI clk frequency is %d khz.\n",
-		      (int)((hal_float_t)(pCard->PCI_clk_counter - device->cardMgr.dbg_PCI_counter_last)/period*62500));	//Calculate frequency
+		      (int)((rtapi_real)(pCard->PCI_clk_counter - device->cardMgr.dbg_PCI_counter_last)/period*62500));	//Calculate frequency
 	      rtapi_set_msg_level(temp);
 	  }
 	  device->cardMgr.cntr++;
@@ -1472,14 +1446,14 @@ encoder(void *arg, long period)
     card	*pCard = device->pCard;
 
     int		i;
-	hal_s32_t	temp1 = 0, temp2;
-	hal_float_t	vel;
+	rtapi_s32	temp1 = 0, temp2;
+	rtapi_real	vel;
 
 	//Update parameters
 	for(i=0; i<6; i++)
 	{
-	   if(device->encoder[i].index_invert == 1) temp1 |= (0x1 << i);
-	   if(device->encoder[i].counter_mode == 1) temp1 |= (0x1 << (i+6));
+	   if(hal_get_bool(device->encoder[i].index_invert)) temp1 |= (0x1 << i);
+	   if(hal_get_bool(device->encoder[i].counter_mode)) temp1 |= (0x1 << (i+6));
 	}
 	pCard->ENC_control_reg = temp1;
 	
@@ -1491,18 +1465,18 @@ encoder(void *arg, long period)
 		temp1 = pCard->ENC_counter[i];
 		temp2 = pCard->ENC_index_latch[i];
 		
-		if(*(device->encoder[i].reset) == 1) //If encoder in reset state
+		if(hal_get_bool(device->encoder[i].reset)) //If encoder in reset state
 		{
 		  device->encoder[i].index_offset = temp1;
 		}
-		else if(*(device->encoder[i].index_enable) == 1) //If not in reset and index is enabled
+		else if(hal_get_bool(device->encoder[i].index_enable) == 1) //If not in reset and index is enabled
 		{
 		  if (temp2 != device->encoder[i].last_index_latch) //If index pulse come
 		  {
-		    if(device->encoder[i].index_mode == 0)  //reset counter at index
+		    if(!hal_get_bool(device->encoder[i].index_mode))  //reset counter at index
 		    {
 		      device->encoder[i].index_offset = temp2;  
-		      *(device->encoder[i].index_enable) = 0; //disable index
+		      hal_set_bool(device->encoder[i].index_enable, 0); //disable index
 		    }
 		    else	//round counter at index
 		    {
@@ -1512,13 +1486,13 @@ encoder(void *arg, long period)
 		      }
 		      else
 		      {
-			if(temp2 > (device->encoder[i].last_index_latch + (hal_s32_t)(device->encoder[i].counts_per_rev/4)))
+			if(temp2 > (device->encoder[i].last_index_latch + (rtapi_sint)(hal_get_ui32(device->encoder[i].counts_per_rev)/4)))
 			{
-			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch + device->encoder[i].counts_per_rev - temp2;
+			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch + hal_get_ui32(device->encoder[i].counts_per_rev) - temp2;
 			}
-			else if(temp2 < (device->encoder[i].last_index_latch - (hal_s32_t)(device->encoder[i].counts_per_rev/4)))
+			else if(temp2 < (device->encoder[i].last_index_latch - (rtapi_sint)(hal_get_ui32(device->encoder[i].counts_per_rev)/4)))
 			{
-			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch - device->encoder[i].counts_per_rev - temp2;
+			  device->encoder[i].index_offset -=  device->encoder[i].last_index_latch - hal_get_ui32(device->encoder[i].counts_per_rev) - temp2;
 			}
 			else
 			{
@@ -1530,23 +1504,23 @@ encoder(void *arg, long period)
 		}
 		device->encoder[i].last_index_latch = temp2;
 		
-		*(device->encoder[i].rawcounts) =  temp1 - device->encoder[i].raw_offset;
-		*(device->encoder[i].counts) = *(device->encoder[i].rawcounts) - device->encoder[i].index_offset;
+		hal_set_si32(device->encoder[i].rawcounts, temp1 - device->encoder[i].raw_offset);
+		hal_set_si32(device->encoder[i].counts, hal_get_si32(device->encoder[i].rawcounts) - device->encoder[i].index_offset);
 		
-		if((device->encoder[i].position_scale < 0.000001) && (device->encoder[i].position_scale > -0.000001))  device->encoder[i].position_scale = 1; //Don't like to divide by 0
-		*(device->encoder[i].position) = (hal_float_t) *(device->encoder[i].counts) / device->encoder[i].position_scale;
+		if((hal_get_real(device->encoder[i].position_scale) < 0.000001) && (hal_get_real(device->encoder[i].position_scale) > -0.000001))  hal_set_real(device->encoder[i].position_scale, 1); //Don't like to divide by 0
+		hal_set_real(device->encoder[i].position, (rtapi_real) hal_get_si32(device->encoder[i].counts) / hal_get_real(device->encoder[i].position_scale));
 		
-		vel = (hal_float_t) pCard->ENC_period[i];
+		vel = (rtapi_real) pCard->ENC_period[i];
 		if(vel == 0) vel = 1;
-		vel = 33333333 / ( vel * device->encoder[i].position_scale); //velocity in position units / s
+		vel = 33333333 / ( vel * hal_get_real(device->encoder[i].position_scale)); //velocity in position units / s
 		
-		if(fabs(vel) > device->encoder[i].min_speed_estimate)
+		if(fabs(vel) > hal_get_real(device->encoder[i].min_speed_estimate))
 		{
-		  *(device->encoder[i].velocity) =  vel;
+		  hal_set_real(device->encoder[i].velocity, vel);
 		}
 		else
 		{
-		  *(device->encoder[i].velocity) = 0;
+		  hal_set_real(device->encoder[i].velocity, 0);
 		}
 	  }
 }
@@ -1565,7 +1539,7 @@ stepgen(void *arg, long period)
       //Update stepgen status with enable bits
 	for(i=0;i<6;i++)
 	{
-	  if(*(device->stepgen[i].enable) == 1) device->stepgen_status |= (0x1 << i);	//six stepgens share one status reg, 5 bits for each.
+	  if(hal_get_bool(device->stepgen[i].enable)) device->stepgen_status |= (0x1 << i);	//six stepgens share one status reg, 5 bits for each.
 	  else
           {
             device->stepgen_status &= ~(0x1 << i);			//LS bits of 5 bits are the enable bits
@@ -1576,7 +1550,7 @@ stepgen(void *arg, long period)
       //Check parameter changes, if enabled
 	for(i=0;i<6;i++)
 	{
-	  if(*(device->stepgen[i].enable) == 1)
+	  if(hal_get_bool(device->stepgen[i].enable))
 	  {
 	    stepgenCheckParameters(arg, period, i);
 	  }
@@ -1588,7 +1562,7 @@ stepgen(void *arg, long period)
       //Run steppers, if enabled
 	for(i=0;i<6;i++)
 	{
-	  if(*(device->stepgen[i].enable) == 1)
+	  if(hal_get_bool(device->stepgen[i].enable))
 	  {
 	    stepgenControl(arg, period, i);
 	  }
@@ -1597,7 +1571,7 @@ stepgen(void *arg, long period)
       //update old pos_cmd
 	for(i=0;i<6;i++)
 	{
-	  device->stepgen[i].old_pos_cmd = *(device->stepgen[i].position_cmd);
+	  device->stepgen[i].old_pos_cmd = hal_get_real(device->stepgen[i].position_cmd);
 	}
 }
 
@@ -1607,8 +1581,8 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       gm_device_t		*device = (gm_device_t *)arg;
       card	*pCard = device->pCard;
       
-      hal_u32_t 	temp1, temp2;
-      hal_float_t 	min_period, max_vel;
+      rtapi_u32 	temp1, temp2;
+      rtapi_real 	min_period, max_vel;
       
       //If period changed : recalc period related parameters
       if(device->period_ns != period)
@@ -1618,41 +1592,41 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       }
       
       //If position scale changed : update steprate_scale
-      if(device->stepgen[channel].curr_position_scale != device->stepgen[channel].position_scale)
+      if(device->stepgen[channel].curr_position_scale != hal_get_real(device->stepgen[channel].position_scale))
       {	
 	//30 ns is circley time of CLK, 1/10e9 is ns -sec conversion, 42.. is 2^32 because steprate is 32 bit
-	device->stepgen[channel].steprate_scale = device->stepgen[channel].position_scale * 30.0 / 1000000000.0 * 4294967296.0;
+	device->stepgen[channel].steprate_scale = hal_get_real(device->stepgen[channel].position_scale) * 30.0 / 1000000000.0 * 4294967296.0;
       }
             
       //If steplen, stepspace, position_scale or max_vel changed  :  update max_vel
-      if((device->stepgen[channel].steplen != device->stepgen[channel].curr_steplen) || (device->stepgen[channel].stepspace != device->stepgen[channel].curr_stepspace) || 
-	  (device->stepgen[channel].maxvel != device->stepgen[channel].curr_maxvel) || (device->stepgen[channel].curr_position_scale != device->stepgen[channel].position_scale))
+      if((hal_get_ui32(device->stepgen[channel].steplen) != device->stepgen[channel].curr_steplen) || (hal_get_ui32(device->stepgen[channel].stepspace) != device->stepgen[channel].curr_stepspace) ||
+	  (hal_get_real(device->stepgen[channel].maxvel) != device->stepgen[channel].curr_maxvel) || (device->stepgen[channel].curr_position_scale != hal_get_real(device->stepgen[channel].position_scale)))
       {
-	min_period = (device->stepgen[channel].steplen + device->stepgen[channel].stepspace) * 0.000000001;
-	max_vel = 1/((hal_float_t)min_period * fabs(device->stepgen[channel].position_scale));
+	min_period = (hal_get_ui32(device->stepgen[channel].steplen) + hal_get_ui32(device->stepgen[channel].stepspace)) * 0.000000001;
+	max_vel = 1.0/((rtapi_real)min_period * fabs(hal_get_real(device->stepgen[channel].position_scale)));
 	
-	if(device->stepgen[channel].maxvel <= 0)
+	if(hal_get_real(device->stepgen[channel].maxvel) <= 0)
 	{
-	  device->stepgen[channel].maxvel = max_vel;
+	  hal_set_real(device->stepgen[channel].maxvel, max_vel);
 	}
 	else
 	{
-	  if(max_vel < device->stepgen[channel].maxvel) //if stepgen given velocity is higher, then what is possible with step timing parameters
+	  if(max_vel < hal_get_real(device->stepgen[channel].maxvel)) //if stepgen given velocity is higher, then what is possible with step timing parameters
 	  {
-	    device->stepgen[channel].maxvel = max_vel;
+	    hal_set_real(device->stepgen[channel].maxvel, max_vel);
 	    rtapi_print_msg(RTAPI_MSG_ERR, "GM: stepgen.%d.maxvel can not be reached with given 'steplen' and 'stepspace' parameters.\n", channel);
 	  }
 	}
       }
       
       //If steplen or dirdelay changed : update FPGA time parameter regs
-      if((device->stepgen[channel].steplen != device->stepgen[channel].curr_steplen) || (device->stepgen[channel].dirdelay != device->stepgen[channel].curr_dirdelay))
+      if((hal_get_ui32(device->stepgen[channel].steplen) != device->stepgen[channel].curr_steplen) || (hal_get_ui32(device->stepgen[channel].dirdelay) != device->stepgen[channel].curr_dirdelay))
       {	
 	//Init time constants, send them to PCI 
-	temp1= (device->stepgen[channel].steplen <= 1900000) ? (device->stepgen[channel].steplen/30) : 63333;
-	temp2= (device->stepgen[channel].dirdelay <= 1900000) ? (device->stepgen[channel].dirdelay/30) : 63333;
+	temp1= (hal_get_ui32(device->stepgen[channel].steplen) <= 1900000) ? (hal_get_ui32(device->stepgen[channel].steplen)/30) : 63333;
+	temp2= (hal_get_ui32(device->stepgen[channel].dirdelay) <= 1900000) ? (hal_get_ui32(device->stepgen[channel].dirdelay)/30) : 63333;
 	
-	if((device->stepgen[channel].steplen > 1900000) || (device->stepgen[channel].dirdelay > 1900000))
+	if((hal_get_ui32(device->stepgen[channel].steplen) > 1900000) || (hal_get_ui32(device->stepgen[channel].dirdelay) > 1900000))
 	{
 	  rtapi_print_msg(RTAPI_MSG_ERR, "GM: stepgen: 'steplen' and 'dirdelay' must be lower than 1 900 000 ns.\n");
 	}
@@ -1660,30 +1634,30 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       }
       
       //If enable, step_type or polarity bits changed : update fpga status reg
-      if (*(device->stepgen[channel].enable) == 1) device->stepgen_status |= (0x1 << channel);	//Bit 0-5 is the enable bit
+      if (hal_get_bool(device->stepgen[channel].enable)) device->stepgen_status |= (0x1 << channel);	//Bit 0-5 is the enable bit
 	else device->stepgen_status &= ~(0x1 << channel);
-      if (device->stepgen[channel].step_type == 1) device->stepgen_status |= (0x1 << (channel + 6));	//Bits 6-17 are the step_mode bits
+      if (hal_get_ui32(device->stepgen[channel].step_type) == 1) device->stepgen_status |= (0x1 << (channel + 6));	//Bits 6-17 are the step_mode bits
 	else device->stepgen_status &= ~(0x1 << (channel + 6));
-      if (device->stepgen[channel].step_type == 2) device->stepgen_status |= (0x1 << (channel + 12));	
+      if (hal_get_ui32(device->stepgen[channel].step_type) == 2) device->stepgen_status |= (0x1 << (channel + 12));
 	else device->stepgen_status &= ~(0x1 << (channel + 12));
-      if (device->stepgen[channel].polarity_A == 1) device->stepgen_status |= (0x1 << (channel + 18));	//18-23. bit is polarity of channel A
+      if (hal_get_bool(device->stepgen[channel].polarity_A)) device->stepgen_status |= (0x1 << (channel + 18));	//18-23. bit is polarity of channel A
 	else device->stepgen_status &= ~(0x1 << (channel + 18));
-      if (device->stepgen[channel].polarity_B == 1) device->stepgen_status |= (0x1 << (channel + 24));	//24-29. bit is polarity of channel B
+      if (hal_get_bool(device->stepgen[channel].polarity_B)) device->stepgen_status |= (0x1 << (channel + 24));	//24-29. bit is polarity of channel B
 	else device->stepgen_status &= ~(0x1 << (channel + 24));
 	
       pCard->StepGen_status = device->stepgen_status;
       
       //If max_vel, max_accel or period changed : calc max_dv
-      if((device->stepgen[channel].maxvel != device->stepgen[channel].curr_maxvel) || (device->stepgen[channel].maxaccel != device->stepgen[channel].curr_maxaccel) || (device->period_ns != period))
+      if((hal_get_real(device->stepgen[channel].maxvel) != device->stepgen[channel].curr_maxvel) || (hal_get_real(device->stepgen[channel].maxaccel) != device->stepgen[channel].curr_maxaccel) || (device->period_ns != period))
       {
-	if(device->stepgen[channel].maxaccel <= 1e-20)
+	if(hal_get_real(device->stepgen[channel].maxaccel) <= 1e-20)
 	{
-	  device->stepgen[channel].maxaccel = device->stepgen[channel].maxvel * device->rec_period_s;
-	  device->stepgen[channel].max_dv = device->stepgen[channel].maxvel;
+	  hal_set_real(device->stepgen[channel].maxaccel, hal_get_real(device->stepgen[channel].maxvel) * device->rec_period_s);
+	  device->stepgen[channel].max_dv = hal_get_real(device->stepgen[channel].maxvel);
 	}
 	else
 	{
-	  device->stepgen[channel].max_dv =  device->stepgen[channel].maxaccel * device->period_s; //max velocity change in position_unit/period^2
+	  device->stepgen[channel].max_dv =  hal_get_real(device->stepgen[channel].maxaccel) * device->period_s; //max velocity change in position_unit/period^2
 	}
 	//vel = freq/pos_scale
 	//pos=counts/pos_scale
@@ -1691,12 +1665,12 @@ stepgenCheckParameters(void *arg, long period, unsigned int channel)
       
       //Update current values
       device->period_ns = period;
-      device->stepgen[channel].curr_position_scale = device->stepgen[channel].position_scale;
-      device->stepgen[channel].curr_stepspace = device->stepgen[channel].stepspace;
-      device->stepgen[channel].curr_maxvel = device->stepgen[channel].maxvel;
-      device->stepgen[channel].curr_maxaccel = device->stepgen[channel].maxaccel;
-      device->stepgen[channel].curr_steplen = device->stepgen[channel].steplen;
-      device->stepgen[channel].curr_dirdelay= device->stepgen[channel].dirdelay;
+      device->stepgen[channel].curr_position_scale = hal_get_real(device->stepgen[channel].position_scale);
+      device->stepgen[channel].curr_stepspace = hal_get_ui32(device->stepgen[channel].stepspace);
+      device->stepgen[channel].curr_maxvel = hal_get_real(device->stepgen[channel].maxvel);
+      device->stepgen[channel].curr_maxaccel = hal_get_real(device->stepgen[channel].maxaccel);
+      device->stepgen[channel].curr_steplen = hal_get_ui32(device->stepgen[channel].steplen);
+      device->stepgen[channel].curr_dirdelay= hal_get_ui32(device->stepgen[channel].dirdelay);
       
 }
 
@@ -1707,63 +1681,63 @@ stepgenControl(void *arg, long period, unsigned int channel)
     gm_device_t		*device = (gm_device_t *)arg;
     card	*pCard = device->pCard;
 	
-	hal_s32_t stepgen_fb, stepgen_fb_int, last_count_fb_LS16_bits, last_count_fb_MS16_bits, last_count_fb;	
-	hal_float_t	ref_vel = 0, match_acc, match_time, avg_v, est_out, est_cmd, est_err, dp;
+	rtapi_s32 stepgen_fb, stepgen_fb_int, last_count_fb_LS16_bits, last_count_fb_MS16_bits, last_count_fb;
+	rtapi_real	ref_vel = 0, match_acc, match_time, avg_v, est_out, est_cmd, est_err, dp;
 	
      //read and count feedbacks
 	stepgen_fb = pCard->StepGen_fb[channel];	//pCard->StepGen_Fb[channel] is 16.16 bit fixed point feedback in [step] unit
 	stepgen_fb -= device->stepgen[channel].stepgen_fb_offset;
 	stepgen_fb_int= stepgen_fb >> 16;		//get integer part of step feedback
 	
-	last_count_fb = *(device->stepgen[channel].count_fb);
+	last_count_fb = hal_get_si32(device->stepgen[channel].count_fb);
 	last_count_fb_LS16_bits = last_count_fb & 0xFFFF;
 	last_count_fb_MS16_bits = last_count_fb & 0xFFFF0000;
 	
       //Check for 16 bit overflow of stepgen_fb
 	if(stepgen_fb_int > last_count_fb_LS16_bits + 32768) //16 bit step counter down overflow  
 	{
-	  *(device->stepgen[channel].count_fb) = (last_count_fb_MS16_bits + stepgen_fb_int - 65536);
+	  hal_set_si32(device->stepgen[channel].count_fb, (last_count_fb_MS16_bits + stepgen_fb_int - 65536));
 	}
 	else if (stepgen_fb_int + 32768 < last_count_fb_LS16_bits) //16 bit step counter up overflow
 	{
-	   *(device->stepgen[channel].count_fb) = (last_count_fb_MS16_bits + stepgen_fb_int + 65536);
+	   hal_set_si32(device->stepgen[channel].count_fb, (last_count_fb_MS16_bits + stepgen_fb_int + 65536));
 	}
 	else //no overflow
 	{
-	  *(device->stepgen[channel].count_fb) =   (last_count_fb_MS16_bits + stepgen_fb_int);
+	  hal_set_si32(device->stepgen[channel].count_fb, (last_count_fb_MS16_bits + stepgen_fb_int));
 	}
 
       //save old position and get new one
-	*(device->stepgen[channel].position_fb) = (*(device->stepgen[channel].count_fb) + ((hal_float_t)(stepgen_fb & 0xFFFF))/65536)/device->stepgen[channel].position_scale;	//[pos_unit]
+	hal_set_real(device->stepgen[channel].position_fb, (hal_get_si32(device->stepgen[channel].count_fb) + ((rtapi_real)(stepgen_fb & 0xFFFF))/65536)/hal_get_real(device->stepgen[channel].position_scale));	//[pos_unit]
 	
       //velocity control is easy
-	if(device->stepgen[channel].control_type == 1)
+	if(hal_get_bool(device->stepgen[channel].control_type))
 	{
-	  ref_vel = *(device->stepgen[channel].velocity_cmd); 
+	  ref_vel = hal_get_real(device->stepgen[channel].velocity_cmd);
 	}
 	
       //Position control is more difficult
 	/*Position control based on John Kasunich's stepgen hal component.*/
-	else if(device->stepgen[channel].control_type == 0)
+	else if(hal_get_bool(device->stepgen[channel].control_type) == 0)
 	{
 	//Reference velocity:
-	  ref_vel =  (*(device->stepgen[channel].position_cmd) - device->stepgen[channel].old_pos_cmd) * device->rec_period_s;
+	  ref_vel =  (hal_get_real(device->stepgen[channel].position_cmd) - device->stepgen[channel].old_pos_cmd) * device->rec_period_s;
 	  
 	  if(ref_vel > device->stepgen[channel].old_vel)
 	  {
-	    match_acc = device->stepgen[channel].maxaccel;
+	    match_acc = hal_get_real(device->stepgen[channel].maxaccel);
 	  }
 	  else
 	  {
-	   match_acc =  -device->stepgen[channel].maxaccel;
+	   match_acc =  -hal_get_real(device->stepgen[channel].maxaccel);
 	  }
 	  
 	  match_time = (ref_vel - device->stepgen[channel].old_vel) / match_acc;
 	  
 	  avg_v = (ref_vel + device->stepgen[channel].old_vel) * 0.5;
 	  
-	  est_out = *(device->stepgen[channel].position_fb) + avg_v * match_time;;
-	  est_cmd =  *(device->stepgen[channel].position_cmd) + ref_vel * (match_time - 1.5 * device->period_s);	  
+	  est_out = hal_get_real(device->stepgen[channel].position_fb) + avg_v * match_time;;
+	  est_cmd =  hal_get_real(device->stepgen[channel].position_cmd) + ref_vel * (match_time - 1.5 * device->period_s);
 	  
 	  est_err = est_out - est_cmd;
 	  
@@ -1794,8 +1768,8 @@ stepgenControl(void *arg, long period, unsigned int channel)
       //Check max velocity, max acceleration and output baudrate
       
 	//Check max velocity
-	if(ref_vel > device->stepgen[channel].maxvel) ref_vel = device->stepgen[channel].maxvel;
-	else if(ref_vel < -device->stepgen[channel].maxvel) ref_vel = -device->stepgen[channel].maxvel;
+	if(ref_vel > hal_get_real(device->stepgen[channel].maxvel)) ref_vel = hal_get_real(device->stepgen[channel].maxvel);
+	else if(ref_vel < -hal_get_real(device->stepgen[channel].maxvel)) ref_vel = -hal_get_real(device->stepgen[channel].maxvel);
 	  
 	//Check max acceleration
 	if((device->stepgen[channel].old_vel-ref_vel) > device->stepgen[channel].max_dv) 
@@ -1809,7 +1783,7 @@ stepgenControl(void *arg, long period, unsigned int channel)
 	//Save old velocity
 	device->stepgen[channel].old_vel=ref_vel; 
 	//Set steprate
-	pCard->StepGen_steprate[channel] = (hal_s32_t)(ref_vel * device->stepgen[channel].steprate_scale);
+	pCard->StepGen_steprate[channel] = (rtapi_s32)(ref_vel * device->stepgen[channel].steprate_scale);
 	
 }
 
@@ -1824,21 +1798,21 @@ RS485(void *arg, long period)
 	card	*pCard = device->pCard;
 	
 	unsigned int i, j;
-	hal_float_t temp;
-        hal_u32_t temp_u32;
+	rtapi_real temp;
+        rtapi_u32 temp_u32;
         bool data_wr = 0;
-        static hal_bit_t failed=0;
+        static rtapi_bool failed=0;
 	
 	//for write function
-	hal_u32_t RS485DataIn8[32], RS485DataOut32[8];
+	rtapi_u32 RS485DataIn8[32], RS485DataOut32[8];
 	//for read function
-	hal_u32_t RS485DataIn32[8], RS485DataOut8[32];
+	rtapi_u32 RS485DataIn32[8], RS485DataOut8[32];
 
        //Check modules if any of it failed:
        //READ IDs of correctly connected modules and compare it with saved ID-s.
 	for(i=0; i<8; i++)
 	{
-	temp_u32=(hal_u32_t)pCard->moduleId[i];
+	temp_u32 = pCard->moduleId[i];
 		 
 	  if(((temp_u32 & 0xff)^0xaa) == ((temp_u32 & 0xff00)>>8)) 
 	  {
@@ -1850,7 +1824,7 @@ RS485(void *arg, long period)
                 failed=1;
                 rtapi_print_msg(RTAPI_MSG_ERR, "GM: ERROR: RS485 module ID:%2d failed.\n", 2*i);
               }
-              *(device->cardMgr.power_fault) = 1;
+              hal_set_bool(device->cardMgr.power_fault, 1);
             }
 	  }
 		 
@@ -1864,7 +1838,7 @@ RS485(void *arg, long period)
                 failed=1; 
                 rtapi_print_msg(RTAPI_MSG_ERR, "GM: ERROR: RS485 module ID:%2d failed.\n", 2*i+1);
               }
-              *(device->cardMgr.power_fault) = 1;
+              hal_set_bool(device->cardMgr.power_fault, 1);
             }
 	  }
         }
@@ -1876,7 +1850,7 @@ RS485(void *arg, long period)
 		if(i != 0) *(&(pCard->serialModulesDataIn[i-1][7])); 
 		else *(&(pCard->serialModulesDataOut[15][7]));
 	      //Read bytes to RS485DataIn32 array
-		for(j=0; j<8; j++) RS485DataIn32[j]= (hal_u32_t)pCard->serialModulesDataIn[i][j];
+		for(j=0; j<8; j++) RS485DataIn32[j]= (rtapi_u32)pCard->serialModulesDataIn[i][j];
 		
 	      //Order data to RS485DataOut8 buffer
 		RS485_OrderDataRead(RS485DataIn32, RS485DataOut8, device-> RS485_mgr.BYTES_TO_READ[i]);
@@ -1886,72 +1860,71 @@ RS485(void *arg, long period)
 		  switch (device-> RS485_mgr.ID[i])
 		  {
 		    case RS485MODUL_ID_8INPUT:
-			*(device->RS485_8input[i].in_0) = ((hal_bit_t)(RS485DataOut8[0] & 0x1) ? 1 : 0);
-			*(device->RS485_8input[i].inNot_0) = (hal_bit_t)(RS485DataOut8[0] & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_1) = (hal_bit_t)((RS485DataOut8[0] >> 1) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_1) = (hal_bit_t)((RS485DataOut8[0] >> 1) & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_2) = (hal_bit_t)((RS485DataOut8[0] >> 2) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_2) = (hal_bit_t)((RS485DataOut8[0] >> 2) & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_3) = (hal_bit_t)((RS485DataOut8[0] >> 3) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_3) = (hal_bit_t)((RS485DataOut8[0] >> 3) & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_4) = (hal_bit_t)((RS485DataOut8[0] >> 4) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_4) = (hal_bit_t)((RS485DataOut8[0] >> 4) & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_5) = (hal_bit_t)((RS485DataOut8[0] >> 5) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_5) = (hal_bit_t)((RS485DataOut8[0] >> 5) & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_6) = (hal_bit_t)((RS485DataOut8[0] >> 6) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_6) = (hal_bit_t)((RS485DataOut8[0] >> 6) & 0x1) ? 0 : 1;
-			*(device->RS485_8input[i].in_7) = (hal_bit_t)((RS485DataOut8[0] >> 7) & 0x1) ? 1 : 0;
-			*(device->RS485_8input[i].inNot_7) = (hal_bit_t)((RS485DataOut8[0] >> 7) & 0x1) ? 0 : 1;
+			hal_set_bool(device->RS485_8input[i].in_0,    (RS485DataOut8[0] & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_0, (RS485DataOut8[0] & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_1,    ((RS485DataOut8[0] >> 1) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_1, ((RS485DataOut8[0] >> 1) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_2,    ((RS485DataOut8[0] >> 2) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_2, ((RS485DataOut8[0] >> 2) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_3,    ((RS485DataOut8[0] >> 3) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_3, ((RS485DataOut8[0] >> 3) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_4,    ((RS485DataOut8[0] >> 4) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_4, ((RS485DataOut8[0] >> 4) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_5,    ((RS485DataOut8[0] >> 5) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_5, ((RS485DataOut8[0] >> 5) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_6,    ((RS485DataOut8[0] >> 6) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_6, ((RS485DataOut8[0] >> 6) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_8input[i].in_7,    ((RS485DataOut8[0] >> 7) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_8input[i].inNot_7, ((RS485DataOut8[0] >> 7) & 0x1) ? 0 : 1);
 		      break;
 		      
 		   case RS485MODUL_ID_DACADC:
-			*(device->RS485_DacAdc[i].ADC_0) = (((hal_float_t)RS485DataOut8[0])/25.5-5) * device->RS485_DacAdc[i].ADC_0_scale - device->RS485_DacAdc[i].ADC_0_offset;
-			*(device->RS485_DacAdc[i].ADC_1) = (((hal_float_t)RS485DataOut8[1])/25.5-5) * device->RS485_DacAdc[i].ADC_1_scale - device->RS485_DacAdc[i].ADC_1_offset;
-			*(device->RS485_DacAdc[i].ADC_2) = (((hal_float_t)RS485DataOut8[2])/25.5-5) * device->RS485_DacAdc[i].ADC_2_scale - device->RS485_DacAdc[i].ADC_2_offset;
-			*(device->RS485_DacAdc[i].ADC_3) = (((hal_float_t)RS485DataOut8[3])/25.5-5) * device->RS485_DacAdc[i].ADC_3_scale - device->RS485_DacAdc[i].ADC_3_offset;
-			*(device->RS485_DacAdc[i].ADC_4) = (((hal_float_t)RS485DataOut8[4])/25.5-5) * device->RS485_DacAdc[i].ADC_4_scale - device->RS485_DacAdc[i].ADC_4_offset;
-			*(device->RS485_DacAdc[i].ADC_5) = (((hal_float_t)RS485DataOut8[5])/25.5-5) * device->RS485_DacAdc[i].ADC_5_scale - device->RS485_DacAdc[i].ADC_5_offset;
-			*(device->RS485_DacAdc[i].ADC_6) = (((hal_float_t)RS485DataOut8[6])/25.5-5) * device->RS485_DacAdc[i].ADC_6_scale - device->RS485_DacAdc[i].ADC_6_offset;
-			*(device->RS485_DacAdc[i].ADC_7) = (((hal_float_t)RS485DataOut8[7])/25.5-5) * device->RS485_DacAdc[i].ADC_7_scale - device->RS485_DacAdc[i].ADC_7_offset;
-			
+			hal_set_real(device->RS485_DacAdc[i].ADC_0, (((rtapi_real)RS485DataOut8[0])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_0_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_0_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_1, (((rtapi_real)RS485DataOut8[1])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_1_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_1_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_2, (((rtapi_real)RS485DataOut8[2])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_2_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_2_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_3, (((rtapi_real)RS485DataOut8[3])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_3_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_3_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_4, (((rtapi_real)RS485DataOut8[4])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_4_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_4_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_5, (((rtapi_real)RS485DataOut8[5])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_5_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_5_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_6, (((rtapi_real)RS485DataOut8[6])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_6_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_6_offset));
+			hal_set_real(device->RS485_DacAdc[i].ADC_7, (((rtapi_real)RS485DataOut8[7])/25.5-5) * hal_get_real(device->RS485_DacAdc[i].ADC_7_scale) - hal_get_real(device->RS485_DacAdc[i].ADC_7_offset));
 		      break;
 		      
 		   case RS485MODUL_ID_TEACHPAD:
 
-			*(device->RS485_TeachPad[i].in_0) = ((hal_bit_t)(RS485DataOut8[0] & 0x1) ? 1 : 0);
-			*(device->RS485_TeachPad[i].inNot_0) = (hal_bit_t)(RS485DataOut8[0] & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_1) = (hal_bit_t)((RS485DataOut8[0] >> 1) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_1) = (hal_bit_t)((RS485DataOut8[0] >> 1) & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_2) = (hal_bit_t)((RS485DataOut8[0] >> 2) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_2) = (hal_bit_t)((RS485DataOut8[0] >> 2) & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_3) = (hal_bit_t)((RS485DataOut8[0] >> 3) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_3) = (hal_bit_t)((RS485DataOut8[0] >> 3) & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_4) = (hal_bit_t)((RS485DataOut8[0] >> 4) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_4) = (hal_bit_t)((RS485DataOut8[0] >> 4) & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_5) = (hal_bit_t)((RS485DataOut8[0] >> 5) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_5) = (hal_bit_t)((RS485DataOut8[0] >> 5) & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_6) = (hal_bit_t)((RS485DataOut8[0] >> 6) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_6) = (hal_bit_t)((RS485DataOut8[0] >> 6) & 0x1) ? 0 : 1;
-			*(device->RS485_TeachPad[i].in_7) = (hal_bit_t)((RS485DataOut8[0] >> 7) & 0x1) ? 1 : 0;
-			*(device->RS485_TeachPad[i].inNot_7) = (hal_bit_t)((RS485DataOut8[0] >> 7) & 0x1) ? 0 : 1;
+			hal_set_bool(device->RS485_TeachPad[i].in_0,    (RS485DataOut8[0] & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_0, (RS485DataOut8[0] & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_1,    ((RS485DataOut8[0] >> 1) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_1, ((RS485DataOut8[0] >> 1) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_2,    ((RS485DataOut8[0] >> 2) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_2, ((RS485DataOut8[0] >> 2) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_3,    ((RS485DataOut8[0] >> 3) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_3, ((RS485DataOut8[0] >> 3) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_4,    ((RS485DataOut8[0] >> 4) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_4, ((RS485DataOut8[0] >> 4) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_5,    ((RS485DataOut8[0] >> 5) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_5, ((RS485DataOut8[0] >> 5) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_6,    ((RS485DataOut8[0] >> 6) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_6, ((RS485DataOut8[0] >> 6) & 0x1) ? 0 : 1);
+			hal_set_bool(device->RS485_TeachPad[i].in_7,    ((RS485DataOut8[0] >> 7) & 0x1) ? 1 : 0);
+			hal_set_bool(device->RS485_TeachPad[i].inNot_7, ((RS485DataOut8[0] >> 7) & 0x1) ? 0 : 1);
 
-			*(device->RS485_TeachPad[i].ADC_0) = (hal_float_t)RS485DataOut8[1]/51.2 * device->RS485_TeachPad[i].ADC_0_scale - device->RS485_TeachPad[i].ADC_0_offset;
-			*(device->RS485_TeachPad[i].ADC_1) = (hal_float_t)RS485DataOut8[2]/51.2 * device->RS485_TeachPad[i].ADC_1_scale - device->RS485_TeachPad[i].ADC_1_offset;
-			*(device->RS485_TeachPad[i].ADC_2) = (hal_float_t)RS485DataOut8[3]/51.2 * device->RS485_TeachPad[i].ADC_2_scale - device->RS485_TeachPad[i].ADC_2_offset;
-			*(device->RS485_TeachPad[i].ADC_3) = (hal_float_t)RS485DataOut8[4]/51.2 * device->RS485_TeachPad[i].ADC_3_scale - device->RS485_TeachPad[i].ADC_3_offset;
-			*(device->RS485_TeachPad[i].ADC_4) = (hal_float_t)RS485DataOut8[5]/51.2 * device->RS485_TeachPad[i].ADC_4_scale - device->RS485_TeachPad[i].ADC_4_offset;
-			*(device->RS485_TeachPad[i].ADC_5) = (hal_float_t)RS485DataOut8[6]/51.2 * device->RS485_TeachPad[i].ADC_5_scale - device->RS485_TeachPad[i].ADC_5_offset;
-			
-			*(device->RS485_TeachPad[i].enc_rawcounts)= (RS485DataOut8[7] & 0xff) | ((RS485DataOut8[8] & 0xff) << 8) | ((RS485DataOut8[9] & 0xff) << 16) | (RS485DataOut8[10] << 24);
-			if(*(device->RS485_TeachPad[i].enc_reset))
+			hal_set_real(device->RS485_TeachPad[i].ADC_0, (rtapi_real)RS485DataOut8[1]/51.2 * hal_get_real(device->RS485_TeachPad[i].ADC_0_scale) - hal_get_real(device->RS485_TeachPad[i].ADC_0_offset));
+			hal_set_real(device->RS485_TeachPad[i].ADC_1, (rtapi_real)RS485DataOut8[2]/51.2 * hal_get_real(device->RS485_TeachPad[i].ADC_1_scale) - hal_get_real(device->RS485_TeachPad[i].ADC_1_offset));
+			hal_set_real(device->RS485_TeachPad[i].ADC_2, (rtapi_real)RS485DataOut8[3]/51.2 * hal_get_real(device->RS485_TeachPad[i].ADC_2_scale) - hal_get_real(device->RS485_TeachPad[i].ADC_2_offset));
+			hal_set_real(device->RS485_TeachPad[i].ADC_3, (rtapi_real)RS485DataOut8[4]/51.2 * hal_get_real(device->RS485_TeachPad[i].ADC_3_scale) - hal_get_real(device->RS485_TeachPad[i].ADC_3_offset));
+			hal_set_real(device->RS485_TeachPad[i].ADC_4, (rtapi_real)RS485DataOut8[5]/51.2 * hal_get_real(device->RS485_TeachPad[i].ADC_4_scale) - hal_get_real(device->RS485_TeachPad[i].ADC_4_offset));
+			hal_set_real(device->RS485_TeachPad[i].ADC_5, (rtapi_real)RS485DataOut8[6]/51.2 * hal_get_real(device->RS485_TeachPad[i].ADC_5_scale) - hal_get_real(device->RS485_TeachPad[i].ADC_5_offset));
+
+			hal_set_si32(device->RS485_TeachPad[i].enc_rawcounts, (RS485DataOut8[7] & 0xff) | ((RS485DataOut8[8] & 0xff) << 8) | ((RS485DataOut8[9] & 0xff) << 16) | (RS485DataOut8[10] << 24));
+			if(hal_get_bool(device->RS485_TeachPad[i].enc_reset))
 			{
-			  device->RS485_TeachPad[i].enc_raw_offset = *(device->RS485_TeachPad[i].enc_rawcounts);
+			  device->RS485_TeachPad[i].enc_raw_offset = hal_get_si32(device->RS485_TeachPad[i].enc_rawcounts);
 			}
-			*(device->RS485_TeachPad[i].enc_counts) = *(device->RS485_TeachPad[i].enc_rawcounts) - device->RS485_TeachPad[i].enc_raw_offset;
+			hal_set_si32(device->RS485_TeachPad[i].enc_counts, hal_get_si32(device->RS485_TeachPad[i].enc_rawcounts) - device->RS485_TeachPad[i].enc_raw_offset);
 			
-			if((device->RS485_TeachPad[i].enc_position_scale < 0.000001) && (device->RS485_TeachPad[i].enc_position_scale > -0.000001)) device->RS485_TeachPad[i].enc_position_scale=1; //don't divide by 0
+			if((hal_get_real(device->RS485_TeachPad[i].enc_position_scale) < 0.000001) && (hal_get_real(device->RS485_TeachPad[i].enc_position_scale) > -0.000001)) hal_set_real(device->RS485_TeachPad[i].enc_position_scale, 1); //don't divide by 0
 			
-			*(device->RS485_TeachPad[i].enc_position) = *(device->RS485_TeachPad[i].enc_counts) / device->RS485_TeachPad[i].enc_position_scale;
+			hal_set_real(device->RS485_TeachPad[i].enc_position, hal_get_si32(device->RS485_TeachPad[i].enc_counts) / hal_get_real(device->RS485_TeachPad[i].enc_position_scale));
 			
 		    default:
 		      break;     
@@ -1967,24 +1940,24 @@ RS485(void *arg, long period)
 		switch (device-> RS485_mgr.ID[i])
 		{
 		    case RS485MODUL_ID_8OUTPUT:
-		      RS485DataIn8[0]=((*(device->RS485_8output[i].out_7) ^ (device->RS485_8output[i].invertOut_7)) << 7) |
-				      ((*(device->RS485_8output[i].out_6) ^ (device->RS485_8output[i].invertOut_6)) << 6) |
-				      ((*(device->RS485_8output[i].out_5) ^ (device->RS485_8output[i].invertOut_5)) << 5) |
-				      ((*(device->RS485_8output[i].out_4) ^ (device->RS485_8output[i].invertOut_4)) << 4) |
-				      ((*(device->RS485_8output[i].out_3) ^ (device->RS485_8output[i].invertOut_3)) << 3) |
-				      ((*(device->RS485_8output[i].out_2) ^ (device->RS485_8output[i].invertOut_2)) << 2) |
-				      ((*(device->RS485_8output[i].out_1) ^ (device->RS485_8output[i].invertOut_1)) << 1) |
-				      ((*(device->RS485_8output[i].out_0) ^ (device->RS485_8output[i].invertOut_0)) << 0);
+		      RS485DataIn8[0]=((hal_get_bool(device->RS485_8output[i].out_7) ^ hal_get_bool(device->RS485_8output[i].invertOut_7)) << 7) |
+				      ((hal_get_bool(device->RS485_8output[i].out_6) ^ hal_get_bool(device->RS485_8output[i].invertOut_6)) << 6) |
+				      ((hal_get_bool(device->RS485_8output[i].out_5) ^ hal_get_bool(device->RS485_8output[i].invertOut_5)) << 5) |
+				      ((hal_get_bool(device->RS485_8output[i].out_4) ^ hal_get_bool(device->RS485_8output[i].invertOut_4)) << 4) |
+				      ((hal_get_bool(device->RS485_8output[i].out_3) ^ hal_get_bool(device->RS485_8output[i].invertOut_3)) << 3) |
+				      ((hal_get_bool(device->RS485_8output[i].out_2) ^ hal_get_bool(device->RS485_8output[i].invertOut_2)) << 2) |
+				      ((hal_get_bool(device->RS485_8output[i].out_1) ^ hal_get_bool(device->RS485_8output[i].invertOut_1)) << 1) |
+				      ((hal_get_bool(device->RS485_8output[i].out_0) ^ hal_get_bool(device->RS485_8output[i].invertOut_0)) << 0);
 		    break;
 
 		    case RS485MODUL_ID_DACADC:
 		     //DAC 0 
-		      if(*(device->RS485_DacAdc[i].dac_0_enable))
+		      if(hal_get_bool(device->RS485_DacAdc[i].dac_0_enable))
 		      {
-			temp = *(device->RS485_DacAdc[i].DAC_0)+ device->RS485_DacAdc[i].DAC_0_offset;
+			temp = hal_get_real(device->RS485_DacAdc[i].DAC_0)+ hal_get_real(device->RS485_DacAdc[i].DAC_0_offset);
 			
-			if(temp > device->RS485_DacAdc[i].DAC_0_max) {  temp = device->RS485_DacAdc[i].DAC_0_max; }
-			else if(temp < device->RS485_DacAdc[i].DAC_0_min) { temp = device->RS485_DacAdc[i].DAC_0_min; }
+			if(temp > hal_get_real(device->RS485_DacAdc[i].DAC_0_max)) {  temp = hal_get_real(device->RS485_DacAdc[i].DAC_0_max); }
+			else if(temp < hal_get_real(device->RS485_DacAdc[i].DAC_0_min)) { temp = hal_get_real(device->RS485_DacAdc[i].DAC_0_min); }
 			
 			temp = (temp + 10)*12.8 + 0.5;
 		      }
@@ -1992,14 +1965,14 @@ RS485(void *arg, long period)
 		      
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
-		      RS485DataIn8[0]= (hal_u32_t)temp;
+		      RS485DataIn8[0]= (rtapi_u32)temp;
 		    //DAC 1
-		      if(*(device->RS485_DacAdc[i].dac_1_enable))
+		      if(hal_get_bool(device->RS485_DacAdc[i].dac_1_enable))
 		      {
-			temp = *(device->RS485_DacAdc[i].DAC_1)+ device->RS485_DacAdc[i].DAC_1_offset;
+			temp = hal_get_real(device->RS485_DacAdc[i].DAC_1)+ hal_get_real(device->RS485_DacAdc[i].DAC_1_offset);
 			
-			if(temp > device->RS485_DacAdc[i].DAC_1_max) {  temp = device->RS485_DacAdc[i].DAC_1_max; }
-			else if(temp < device->RS485_DacAdc[i].DAC_1_min) { temp = device->RS485_DacAdc[i].DAC_1_min; }
+			if(temp > hal_get_real(device->RS485_DacAdc[i].DAC_1_max)) {  temp = hal_get_real(device->RS485_DacAdc[i].DAC_1_max); }
+			else if(temp < hal_get_real(device->RS485_DacAdc[i].DAC_1_min)) { temp = hal_get_real(device->RS485_DacAdc[i].DAC_1_min); }
 			
 			temp = (temp + 10)*12.8 + 0.5;
                       }
@@ -2007,15 +1980,15 @@ RS485(void *arg, long period)
 
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
-		      RS485DataIn8[1]= (hal_u32_t)temp;
+		      RS485DataIn8[1]= (rtapi_u32)temp;
 		      
 		    //DAC 2
-		      if(*(device->RS485_DacAdc[i].dac_2_enable))
+		      if(hal_get_bool(device->RS485_DacAdc[i].dac_2_enable))
 		      {
-			temp = *(device->RS485_DacAdc[i].DAC_2)+ device->RS485_DacAdc[i].DAC_2_offset;
+			temp = hal_get_real(device->RS485_DacAdc[i].DAC_2)+ hal_get_real(device->RS485_DacAdc[i].DAC_2_offset);
 			
-			if(temp > device->RS485_DacAdc[i].DAC_2_max) {  temp = device->RS485_DacAdc[i].DAC_2_max; }
-			else if(temp < device->RS485_DacAdc[i].DAC_2_min) { temp = device->RS485_DacAdc[i].DAC_2_min; }
+			if(temp > hal_get_real(device->RS485_DacAdc[i].DAC_2_max)) {  temp = hal_get_real(device->RS485_DacAdc[i].DAC_2_max); }
+			else if(temp < hal_get_real(device->RS485_DacAdc[i].DAC_2_min)) { temp = hal_get_real(device->RS485_DacAdc[i].DAC_2_min); }
 			
 			temp = (temp + 10)*12.8 + 0.5;
                       }
@@ -2023,15 +1996,15 @@ RS485(void *arg, long period)
 
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
-		      RS485DataIn8[2]= (hal_u32_t)temp;
+		      RS485DataIn8[2]= (rtapi_u32)temp;
 		      
 		    //DAC 3
-		      if(*(device->RS485_DacAdc[i].dac_3_enable))
+		      if(hal_get_bool(device->RS485_DacAdc[i].dac_3_enable))
 		      {
-			temp = *(device->RS485_DacAdc[i].DAC_3)+ device->RS485_DacAdc[i].DAC_3_offset;
+			temp = hal_get_real(device->RS485_DacAdc[i].DAC_3)+ hal_get_real(device->RS485_DacAdc[i].DAC_3_offset);
 			
-			if(temp > device->RS485_DacAdc[i].DAC_3_max) {  temp = device->RS485_DacAdc[i].DAC_3_max; }
-			else if(temp < device->RS485_DacAdc[i].DAC_3_min) { temp = device->RS485_DacAdc[i].DAC_3_min; }
+			if(temp > hal_get_real(device->RS485_DacAdc[i].DAC_3_max)) {  temp = hal_get_real(device->RS485_DacAdc[i].DAC_3_max); }
+			else if(temp < hal_get_real(device->RS485_DacAdc[i].DAC_3_min)) { temp = hal_get_real(device->RS485_DacAdc[i].DAC_3_min); }
 			
 			temp = (temp + 10)*12.8 + 0.5;
                       }
@@ -2039,7 +2012,7 @@ RS485(void *arg, long period)
 
 		      if(temp>255) temp=255;
 		      else if(temp <0) temp=0;
-		      RS485DataIn8[3]= (hal_u32_t)temp;
+		      RS485DataIn8[3]= (rtapi_u32)temp;
 
 		    break;		    
 		    		      
@@ -2064,7 +2037,7 @@ RS485(void *arg, long period)
 
 
 static void
-RS485_OrderDataRead(hal_u32_t* dataIn32, hal_u32_t* dataOut8, hal_u32_t length)
+RS485_OrderDataRead(rtapi_u32* dataIn32, rtapi_u32* dataOut8, rtapi_u32 length)
 {
 	int i, j;
 	//Order data (received to dataIn in reverse order and shifted) to dataOut[0]-dataOut[length-1]
@@ -2077,7 +2050,7 @@ RS485_OrderDataRead(hal_u32_t* dataIn32, hal_u32_t* dataOut8, hal_u32_t length)
  }
  
 static void
-RS485_OrderDataWrite(hal_u32_t* dataIn8, hal_u32_t* dataOut32, hal_u32_t length)
+RS485_OrderDataWrite(rtapi_u32* dataIn8, rtapi_u32* dataOut32, rtapi_u32 length)
 {
 	unsigned i, j;
 	/* Byte order: 
@@ -2100,7 +2073,7 @@ RS485_OrderDataWrite(hal_u32_t* dataIn8, hal_u32_t* dataOut32, hal_u32_t length)
  }
  
 static unsigned int
-RS485_CheckChecksum(hal_u32_t* data, hal_u32_t length)
+RS485_CheckChecksum(rtapi_u32* data, rtapi_u32 length)
 {
       unsigned int i=0, tempChecksum=0;
       
@@ -2116,7 +2089,7 @@ RS485_CheckChecksum(hal_u32_t* data, hal_u32_t length)
 }
 
 static unsigned int
-RS485_CalcChecksum(hal_u32_t* data, hal_u32_t length)
+RS485_CalcChecksum(rtapi_u32* data, rtapi_u32 length)
 {
       unsigned int i, tempChecksum=0;
       

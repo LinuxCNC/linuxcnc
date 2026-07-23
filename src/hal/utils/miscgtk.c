@@ -183,7 +183,7 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
     return;
 }
 
-void add_to_list(GtkWidget *list, char *strs[], const int num_cols)
+void add_to_list(GtkWidget *list, const char *strs[], const int num_cols)
 {
     GtkListStore *store;
     GtkTreeIter iter;
@@ -201,7 +201,7 @@ void add_to_list(GtkWidget *list, char *strs[], const int num_cols)
     }
 }
 
-void init_list(GtkWidget *list, char *titles[], const int len)
+void init_list(GtkWidget *list, const char *titles[], const int len)
 {
     GtkCellRenderer *renderer;
     GtkListStore *store;

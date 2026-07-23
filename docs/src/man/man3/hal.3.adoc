@@ -1,3 +1,5 @@
+:manvolnum: 3
+
 = hal(3)
 
 == NAME
@@ -67,12 +69,102 @@ so that realtime components and non-realtime programs can access the data.
 
 == REALTIME CONSIDERATIONS
 
-For an explanation of realtime considerations, see *rtapi(3)*.
+For an explanation of realtime considerations, see rtapi(3).
 
 == HAL STATUS CODES
 
 Except as noted in specific manual pages, HAL returns negative errno
 values for errors, and non-negative values for success.
+
+== EXAMPLE
+
+A simple component with two pins that copies data from one to the other:
+
+[source,c]
+----
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
+
+static const char cname[] = "mycomp";
+static int comp_id;
+
+// Container structure type for our pins
+typedef struct {
+    hal_real_t pino;
+    hal_sint_t pini;
+    hal_sint_t offs;
+    hal_real_t mult;
+} mycomp_hal_t;
+
+static mycomp_hal_t *pins;
+
+// Macro to make error checking easier
+#define CHKP(x,p) do {  \
+        int _rv = (x);  \
+        if(_rv < 0) {   \
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: Failed to create '%s.%s', err=%d\n", \
+                            cname, cname, (p), _rv); \
+            return _rv; \
+        }               \
+    } while(0)
+
+static void process(void *arg, long period)
+{
+    (void)arg;    // Unused
+    (void)period; // Unused
+
+    // pino = (pini - offs) * mult
+    // Also converts from signed integer input to floating point output
+    rtapi_sint sint = hal_get_sint(pins->pini) - hal_get_sint(pins->offs);
+    hal_set_real(pins->pino, sint * hal_get_real(pins->mult));
+}
+
+int rtapi_app_main(void)
+{
+    // Get memory for the pins
+    pins = (mycomp_hal_t *)hal_malloc(sizeof(*pins));
+    if(!pins) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Failed to allocate HAL memory\n", cname);
+        return -ENOMEM;
+    }
+
+    // Initialize HAL for this component
+    if((comp_id = hal_init(cname)) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: hal_init() failed err=%d\n", cname, comp_id);
+        return comp_id;
+    }
+
+    // Create some pins
+    CHKP(hal_pin_new_real(comp_id, HAL_OUT, &pins->pino, 3.14, "%s.pino", cname), "pino");
+    CHKP(hal_pin_new_sint(comp_id, HAL_IN,  &pins->pini, 3,    "%s.pini", cname), "pini");
+
+    // Create some parameters
+    CHKP(hal_param_new_real(comp_id, HAL_RW, &pins->mult, 0, "%s.scale",  cname), "scale");
+    CHKP(hal_param_new_sint(comp_id, HAL_RW, &pins->offs, 0, "%s.offset", cname), "offset");
+
+    // Export our function
+    int rv = hal_export_functf(process, NULL, 1, 0, comp_id, "%s.process", cname);
+    if(rv < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: Failed export of 'process' err=%d\n", cname, rv);
+        return rv;
+    }
+
+    // Mark us ready
+    if((rv = hal_ready(comp_id)) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: hal_ready() failed err=%d\n", cname, rv);
+        return rv;
+    }
+
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    if(comp_id > 0)
+        hal_exit(comp_id);
+}
+----
 
 == SEE ALSO
 

@@ -6,12 +6,14 @@
 
 hal_add_funct_to_thread, hal_del_funct_from_thread - cause a function to be executed at regular intervals
 
-== SYNTAX
+== SYNOPSIS
 
 [source,c]
 ----
-int hal_add_funct_to_thread(const char* funct_name, const char* thread_name, int position)
-int hal_del_funct_from_thread(const char* funct_name, const char* thread_name)
+#include <hal.h>
+
+int hal_add_funct_to_thread(const char* funct_name, const char* thread_name, int position);
+int hal_del_funct_from_thread(const char* funct_name, const char* thread_name);
 ----
 
 == ARGUMENTS
@@ -31,10 +33,10 @@ position::
 
 == DESCRIPTION
 
-The function *hal_add_funct_to_thread* adds another function that is exported by a realtime HAL component to a realtime thread.
+The function *hal_add_funct_to_thread()* adds another function that is exported by a realtime HAL component to a realtime thread.
 This determines how often and in what order functions are executed.
 
-The function *hal_del_funct_from_thread* removes a function from a thread.
+The function *hal_del_funct_from_thread()* removes a function from a thread.
 
 == RETURN VALUE
 

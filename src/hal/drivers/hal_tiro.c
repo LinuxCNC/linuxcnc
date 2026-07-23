@@ -85,9 +85,9 @@ RTAPI_MP_INT(num_chan, "number of channels");
 /* this structure contains the runtime data for a single counter */
 
 typedef struct {
-    hal_s32_t *count;		/* captured binary count value */
-    hal_float_t *pos;		/* scaled position (floating point) */
-    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
+    hal_sint_t count;		/* captured binary count value */
+    hal_real_t pos;		/* scaled position (floating point) */
+    hal_real_t pos_scale;	/* parameter: scaling factor for pos */
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -149,9 +149,9 @@ int rtapi_app_main(void)
 			return -1;
 		}
 		/* init counter */
-		*(counter_array[n].count) = 0;
-		*(counter_array[n].pos) = 0.0;
-		counter_array[n].pos_scale = 1.0;
+		hal_set_si32(counter_array[n].count, 0);
+		hal_set_real(counter_array[n].pos, 0.0);
+		hal_set_real(counter_array[n].pos_scale, 1.0);
 		
 		/* init counter chip */		
 		LS7166Init(n);
@@ -189,9 +189,9 @@ static void capture(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 
 	/* capture raw counts to latches */
-	*(cntr->count) = LS7166Read(n);
+	hal_set_si32(cntr->count, LS7166Read(n));
 	/* scale count to make floating point position */
-	*(cntr->pos) = *(cntr->count) * cntr->pos_scale;
+	hal_set_real(cntr->pos, hal_get_si32(cntr->count) * hal_get_real(cntr->pos_scale));
 	/* move on to next channel */
 	cntr++;
     }
@@ -254,19 +254,19 @@ static int export_counter(int num, counter_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pin for counts captured by update() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+    retval = hal_pin_new_si32(comp_id, HAL_OUT, &(addr->count), 0,
 			      "tiro.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
+    retval = hal_pin_new_real(comp_id, HAL_OUT, &(addr->pos), 0.0,
 				"tiro.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
+    retval = hal_param_new_real(comp_id, HAL_RW, &(addr->pos_scale), 1.0,
 				  "tiro.%d.position-scale", num);
     if (retval != 0) {
 	return retval;

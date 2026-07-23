@@ -111,8 +111,8 @@ static custom_home_local_data customH[EMCMOT_MAX_JOINTS];
 
 // data for per-joint custom-homing-specific hal pins:
 typedef struct {
-    hal_bit_t *request_custom_homing; // input  requests custom homing
-    hal_bit_t *is_custom_homing;      // output verifies custom homing
+    hal_bool_t request_custom_homing; // input  requests custom homing
+    hal_bool_t is_custom_homing;      // output verifies custom homing
 } custom_one_joint_home_data_t;
 
 typedef struct {
@@ -126,7 +126,7 @@ static int custom_makepins(int id,int njoints)
     int jno,retval;
     custom_one_joint_home_data_t *addr;
 
-    custom_joint_home_data = hal_malloc(sizeof(custom_all_joints_home_data_t));
+    custom_joint_home_data = hal_malloc(sizeof(*custom_joint_home_data));
     if (custom_joint_home_data == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HOMING: custom_all_joints_home_data_t malloc failed\n");
         return -1;
@@ -136,9 +136,9 @@ static int custom_makepins(int id,int njoints)
     for (jno = 0; jno < njoints; jno++) {
         addr = &(custom_joint_home_data->custom_jhd[jno]);
 
-        retval += hal_pin_bit_newf(HAL_IN, &(addr->request_custom_homing), id,
+        retval += hal_pin_new_bool(id, HAL_IN, &(addr->request_custom_homing), 0,
                                   "joint.%d.request-custom-homing", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->is_custom_homing), id,
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->is_custom_homing), 0,
                                   "joint.%d.is-custom-homing", jno);
     }
     return retval;
@@ -150,7 +150,7 @@ static void custom_read_homing_in_pins(int njoints)
     custom_one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(custom_joint_home_data->custom_jhd[jno]);
-        customH[jno].request_custom_homing = *(addr->request_custom_homing); // IN
+        customH[jno].request_custom_homing = hal_get_bool(addr->request_custom_homing); // IN
 
         // echo for verification:
         customH[jno].is_custom_homing = customH[jno].request_custom_homing;
@@ -163,7 +163,7 @@ static void custom_write_homing_out_pins(int njoints)
     custom_one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(custom_joint_home_data->custom_jhd[jno]);
-        *(addr->is_custom_homing) = customH[jno].is_custom_homing; // OUT
+        hal_set_bool(addr->is_custom_homing, customH[jno].is_custom_homing); // OUT
     }
 }
 
@@ -344,12 +344,12 @@ static emcmot_joint_t  *joints;
 
 // data for per-joint homing-specific hal pins:
 typedef struct {
-    hal_bit_t *home_sw;      // home switch input
-    hal_bit_t *homing;       // joint is homing
-    hal_bit_t *homed;        // joint was homed
-    hal_bit_t *index_enable; // motmod sets: request reset on index
+    hal_bool_t home_sw;      // home switch input
+    hal_bool_t homing;       // joint is homing
+    hal_bool_t homed;        // joint was homed
+    hal_bool_t index_enable; // motmod sets: request reset on index
                              //        encoder clears: index arrived
-    hal_s32_t *home_state;   // homing state machine state
+    hal_sint_t home_state;   // homing state machine state
 } one_joint_home_data_t;
 
 typedef struct {
@@ -374,15 +374,15 @@ static int makepins(int id,int njoints)
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
 
-        retval += hal_pin_bit_newf(HAL_IN, &(addr->home_sw), id,
+        retval += hal_pin_new_bool(id, HAL_IN, &(addr->home_sw), 0,
                                   "joint.%d.home-sw-in", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homing), id,
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homing), 0,
                                   "joint.%d.homing", jno);
-        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homed), id,
+        retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homed), 0,
                                   "joint.%d.homed", jno);
-        retval += hal_pin_s32_newf(HAL_OUT, &(addr->home_state), id,
+        retval += hal_pin_new_si32(id, HAL_OUT, &(addr->home_state), 0,
                                   "joint.%d.home-state", jno);
-        retval += hal_pin_bit_newf(HAL_IO, &(addr->index_enable), id,
+        retval += hal_pin_new_bool(id, HAL_IO, &(addr->index_enable), 0,
                                   "joint.%d.index-enable", jno);
     }
     return retval;

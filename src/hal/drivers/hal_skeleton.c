@@ -109,7 +109,7 @@ RTAPI_MP_STRING(cfg, "config string"); */
 */
 
 typedef struct {
-    hal_u32_t *data_out;		/* ptrs for output */
+    hal_uint_t data_out;		/* ptrs for output */
 } skeleton_t;
 
 /* pointer to array of skeleton_t structs in shared memory, 1 per port */
@@ -161,8 +161,8 @@ int rtapi_app_main(void)
     }
 
     /* STEP 3: export the pin(s) */
-    retval = hal_pin_u32_newf(HAL_IN, &(port_data_array->data_out),
-			     comp_id, "skeleton.%d.pin-%02d-out", n, 1);
+    retval = hal_pin_new_ui32(comp_id, HAL_IN, &(port_data_array->data_out),
+			     0, "skeleton.%d.pin-%02d-out", n, 1);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n,
@@ -202,7 +202,7 @@ static void write_port(void *arg, long period)
     unsigned char outdata;
     port = arg;
 
-    outdata = *(port->data_out) & 0xFF;
+    outdata = hal_get_ui32(port->data_out) & 0xFF;
     /* write it to the hardware */
     rtapi_outb(outdata, 0x378);
 }

@@ -30,11 +30,11 @@
 static int comp_id;
 
 typedef struct{
-    hal_u32_t *keycode;
-    hal_s32_t *current_event;
-    hal_bit_t *init;
-    hal_bit_t **trigger;
-    hal_u32_t *event;
+    hal_uint_t keycode;
+    hal_sint_t current_event;
+    hal_bool_t init;
+    hal_bool_t *trigger;
+    hal_uint_t *event;
 } sendkeys_hal;
 
 typedef struct {
@@ -44,7 +44,7 @@ typedef struct {
     bool inited;
     int fd;
     bool *prev;
-    hal_u32_t oldcode;
+    rtapi_u32 oldcode;
 } sendkeys_param;
 
 typedef struct {
@@ -85,9 +85,9 @@ int init(int argc, char* argv[]){
         return -1;
     }
 
-    me = hal_malloc(sizeof(sendkeys));
-    codes = malloc(sizeof(int));
-    pins = malloc(sizeof(int));
+    me = hal_malloc(sizeof(*me));
+    codes = malloc(sizeof(*codes));
+    pins = malloc(sizeof(*pins));
     // This is all because RTAPI_MP_ARRAY_** macros do not appear to work in userspace
     for (i = 1; i < argc; i++){
         static int index = -1;
@@ -105,8 +105,8 @@ int init(int argc, char* argv[]){
                 case ' ':
                 case ',':
                     index++;
-                    v1 = realloc(codes, (index + 1) * sizeof(int));
-                    v2 = realloc(pins, (index + 1) * sizeof(int));
+                    v1 = realloc(codes, (index + 1) * sizeof(*codes));
+                    v2 = realloc(pins, (index + 1) * sizeof(*codes));
                     if (!v1 || !v2) {
                         free(v1 ? v1 : codes);
                         free(v2 ? v2 : pins);
@@ -156,24 +156,24 @@ int init(int argc, char* argv[]){
             break;
         }
     }
-    me->hal = (sendkeys_hal*)hal_malloc(me->num_insts * sizeof(sendkeys_hal));
-    me->param = malloc(me->num_insts * sizeof(sendkeys_param));
+    me->hal = (sendkeys_hal*)hal_malloc(me->num_insts * sizeof(*me->hal));
+    me->param = malloc(me->num_insts * sizeof(*me->param));
     for (i = 0; i < me->num_insts; i++){
         sendkeys_hal* hal = &(me->hal[i]);
         sendkeys_param* param = &(me->param[i]);
-        if (hal_pin_u32_newf(HAL_IN, &(hal->keycode), comp_id,
+        if (hal_pin_new_ui32(comp_id, HAL_IN, &(hal->keycode), 0,
         "sendkeys.%i.keycode", i) < 0) {
         free(codes);
         free(pins);
         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.keycode error\n");
         return -ENOMEM;}
-        if (hal_pin_s32_newf(HAL_OUT, &(hal->current_event), comp_id,
+        if (hal_pin_new_si32(comp_id, HAL_OUT, &(hal->current_event), 0,
         "sendkeys.%i.current-event", i) < 0) {
         free(codes);
         free(pins);
         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.current-event error\n");
         return -ENOMEM;}
-        if (hal_pin_bit_newf(HAL_IN, &(hal->init), comp_id,
+        if (hal_pin_new_bool(comp_id, HAL_IN, &(hal->init), 0,
         "sendkeys.%i.init", i) < 0) {
         free(codes);
         free(pins);
@@ -184,9 +184,9 @@ int init(int argc, char* argv[]){
         param->num_triggers = pins[i];
         param->num_codes = codes[i];
         param->num_events = codes[i] + pins[i];
-        hal->event = hal_malloc(param->num_events  * sizeof(hal_u32_t*));
+        hal->event = hal_malloc(param->num_events * sizeof(*hal->event));
         for (j = 0; j < param->num_codes; j++){
-            if (hal_param_u32_newf(HAL_RW, &(hal->event[j]), comp_id,
+            if (hal_param_new_ui32(comp_id, HAL_RW, &(hal->event[j]), 0,
                     "sendkeys.%i.scan-event-%02i", i, j) < 0) {
                 free(codes);
                 free(pins);
@@ -194,7 +194,7 @@ int init(int argc, char* argv[]){
                 return -ENOMEM;}
         }
         for (j = 0; j < param->num_triggers; j++){
-            if (hal_param_u32_newf(HAL_RW, &(hal->event[j + param->num_codes]), comp_id,
+            if (hal_param_new_ui32(comp_id, HAL_RW, &(hal->event[j + param->num_codes]), 0,
                     "sendkeys.%i.pin-event-%02i", i, j) < 0) {
                 free(codes);
                 free(pins);
@@ -202,10 +202,10 @@ int init(int argc, char* argv[]){
                 return -ENOMEM;}
         }
         // trigger pins
-        hal->trigger = hal_malloc(param->num_triggers * sizeof(hal_bit_t*));
-        param->prev = malloc(param->num_triggers * sizeof(hal_bit_t));
+        hal->trigger = hal_malloc(param->num_triggers * sizeof(*hal->trigger));
+        param->prev = malloc(param->num_triggers * sizeof(*param->prev));
         for (j = 0; j < param->num_triggers; j++){
-            if (hal_pin_bit_newf(HAL_IN, &(hal->trigger[j]), comp_id,
+            if (hal_pin_new_bool(comp_id, HAL_IN, &(hal->trigger[j]), 0,
                     "sendkeys.%i.trigger-%02i", i, j) < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.trigger-%02i error\n",j);
                 free(codes);
@@ -234,17 +234,18 @@ int main(int argc, char* argv[]) {
         for (i = 0; i < me->num_insts; i++){
             sendkeys_hal* hal = &(me->hal[i]);
             sendkeys_param* param = &(me->param[i]);
-            if ((*hal->keycode & 0xC0) == 0x80){
-                *hal->current_event = (*hal->keycode & 0x3f);
+            rtapi_u32 kk = hal_get_ui32(hal->keycode);
+            if ((kk & 0xC0) == 0x80){
+                hal_set_si32(hal->current_event, (kk & 0x3f));
             } else {
-                *hal->current_event = -1;
+                hal_set_si32(hal->current_event, -1);
             }
             // The event codes are written to pins in HAL after the 
             // component is loaded.
             // We need to set up the keyboard based on the events selected
             // so there is a secondary init here.
-            if (! *hal->init) continue;
-            if (*hal->init && ! param->inited) {
+            if (!hal_get_bool(hal->init)) continue;
+            if (hal_get_bool(hal->init) && ! param->inited) {
                 param->fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
                 if (param->fd < 0) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
@@ -253,9 +254,10 @@ int main(int argc, char* argv[]) {
                 }
                 ioctl(param->fd, UI_SET_EVBIT, EV_KEY);
                 for (j = 0; j < param->num_events; j++){
-                    if (hal->event[j] > 0 && hal->event[j] < KEY_MAX){
-                        ioctl(param->fd, UI_SET_KEYBIT, hal->event[j]);
-                        rtapi_print("SET_EVBIT %i\n", hal->event[j]);
+                    rtapi_u32 evj = hal_get_ui32(hal->event[j]);
+                    if (evj > 0 && evj < KEY_MAX){
+                        ioctl(param->fd, UI_SET_KEYBIT, evj);
+                        rtapi_print("SET_EVBIT %i\n", evj);
                     }
                 }
                 struct uinput_user_dev uidev;
@@ -270,29 +272,31 @@ int main(int argc, char* argv[]) {
                 if (ioctl(param->fd, UI_DEV_CREATE) < 0) { perror("ioctl(UI_DEV_CREATE)"); abort(); }
                 param->inited = 1;
             }
-            if (*hal->keycode != param->oldcode) {
+            rtapi_u32 kc = hal_get_ui32(hal->keycode);
+            if (kc != param->oldcode) {
                 /* Key press, report the event, send key release, and report again*/
-                if ((int)(*hal->keycode & 0x3F) > param->num_events) continue;
-                if (hal->event[*hal->keycode & 0x3F] == 0) continue;
-                if ((*hal->keycode & 0xC0) == 0xC0){ // keydown
-                    emit(param->fd, EV_KEY, hal->event[*hal->keycode & 0x3F], 1);
+                if ((int)(kc & 0x3F) > param->num_events) continue;
+                if (hal_get_ui32(hal->event[kc & 0x3F]) == 0) continue;
+                if ((kc & 0xC0) == 0xC0){ // keydown
+                    emit(param->fd, EV_KEY, hal_get_ui32(hal->event[kc & 0x3F]), 1);
                     emit(param->fd, EV_SYN, SYN_REPORT, 0);
-                } else if ((*hal->keycode & 0xC0) == 0x80){ // keyup
-                    emit(param->fd, EV_KEY, hal->event[*hal->keycode & 0x3F], 0);
+                } else if ((kc & 0xC0) == 0x80){ // keyup
+                    emit(param->fd, EV_KEY, hal_get_ui32(hal->event[kc & 0x3F]), 0);
                     emit(param->fd, EV_SYN, SYN_REPORT, 0);
                 }
-                param->oldcode = *hal->keycode;
+                param->oldcode = kc;
             }
             for (j = 0; j < param->num_triggers; j++){
-                if (param->prev[j] != *hal->trigger[j]){
-                    if (*hal->trigger[j]){ // keydown
-                        emit(param->fd, EV_KEY, hal->event[param->num_codes + j], 1);
+                rtapi_bool trj = hal->trigger[j];
+                if (param->prev[j] != trj){
+                    if (trj){ // keydown
+                        emit(param->fd, EV_KEY, hal_get_ui32(hal->event[param->num_codes + j]), 1);
                         emit(param->fd, EV_SYN, SYN_REPORT, 0);
                     } else { // keyup
-                        emit(param->fd, EV_KEY, hal->event[param->num_codes + j], 0);
+                        emit(param->fd, EV_KEY, hal_get_ui32(hal->event[param->num_codes + j]), 0);
                         emit(param->fd, EV_SYN, SYN_REPORT, 0);
                     }
-                    param->prev[j] = *hal->trigger[j];
+                    param->prev[j] = trj;
                 }
             }
         }

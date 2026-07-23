@@ -47,22 +47,24 @@ void hm2_xy2mod_process_tram_read(hostmot2_t *hm2) {
 	rtapi_u32 status = hm2->xy2mod.status_reg[i];
 
         // those tricky users are always trying to get us to divide by zero
-        if (fabs(*s->hal.pin.posx_scale) < 1e-6) {
-            if (*s->hal.pin.posx_scale >= 0.0) {
-                *s->hal.pin.posx_scale = 1.0;
+        rtapi_real posx_scale = hal_get_real(s->hal.pin.posx_scale);
+        if (fabs(posx_scale) < 1e-6) {
+            if (posx_scale >= 0.0) {
+                posx_scale = hal_set_real(s->hal.pin.posx_scale, 1.0);
                 HM2_ERR("xy2mod %d position_scalex is too close to 0, resetting to 1.0\n", i);
             } else {
-                *s->hal.pin.posx_scale = -1.0;
+                posx_scale = hal_set_real(s->hal.pin.posx_scale, -1.0);
                 HM2_ERR("xy2mod %d position_scalxe is too close to 0, resetting to -1.0\n", i);
             }
         }
 
-        if (fabs(*s->hal.pin.posy_scale) < 1e-6) {
-            if (*s->hal.pin.posy_scale >= 0.0) {
-                *s->hal.pin.posy_scale = 1.0;
+        rtapi_real posy_scale = hal_get_real(s->hal.pin.posy_scale);
+        if (fabs(posy_scale) < 1e-6) {
+            if (posy_scale >= 0.0) {
+                posy_scale = hal_set_real(s->hal.pin.posy_scale, 1.0);
                 HM2_ERR("xy2mod %d position_scaley is too close to 0, resetting to 1.0\n", i);
             } else {
-                *s->hal.pin.posy_scale = -1.0;
+                posy_scale = hal_set_real(s->hal.pin.posy_scale, -1.0);
                 HM2_ERR("xy2mod %d position_scaley is too close to 0, resetting to -1.0\n", i);
             }
         }
@@ -75,19 +77,19 @@ void hm2_xy2mod_process_tram_read(hostmot2_t *hm2) {
 
 	// need to "unscale" the position registers to return to machine units 
 
-        *(s->hal.pin.posx_fb) = ((double)(int32_t)(posx) / 2147483647.0) / *s->hal.pin.posx_scale;
-        *(s->hal.pin.posy_fb) = ((double)(int32_t)(posy) / 2147483647.0) / *s->hal.pin.posy_scale;
+        hal_set_real(s->hal.pin.posx_fb, ((double)(int32_t)(posx) / 2147483647.0) / posx_scale);
+        hal_set_real(s->hal.pin.posy_fb, ((double)(int32_t)(posy) / 2147483647.0) / posy_scale);
 
 	// need to "unscale" the velocity registers to return to machine units 
 
-	*(s->hal.pin.velx_fb) = ((double)(int32_t)velx) / (*s->hal.pin.posx_scale * (256*2147483647.0/(double)hm2->xy2mod.clock_frequency));
- 	*(s->hal.pin.vely_fb) = ((double)(int32_t)vely) / (*s->hal.pin.posy_scale * (256*2147483647.0/(double)hm2->xy2mod.clock_frequency));
+	hal_set_real(s->hal.pin.velx_fb, ((double)(int32_t)velx) / (posx_scale * (256*2147483647.0/(double)hm2->xy2mod.clock_frequency)));
+	hal_set_real(s->hal.pin.vely_fb, ((double)(int32_t)vely) / (posy_scale * (256*2147483647.0/(double)hm2->xy2mod.clock_frequency)));
 
-	*(s->hal.pin.posx_overflow) = (mode & (1 << 6));
-	*(s->hal.pin.posy_overflow) = (mode & (1 << 7));
-	*(s->hal.pin.velx_overflow) = (mode & (1 << 8));
-	*(s->hal.pin.vely_overflow) = (mode & (1 << 9));
-	*(s->hal.pin.status) = (status & 0x000FFFFF);
+	hal_set_bool(s->hal.pin.posx_overflow, mode & (1 << 6));
+	hal_set_bool(s->hal.pin.posy_overflow, mode & (1 << 7));
+	hal_set_bool(s->hal.pin.velx_overflow, mode & (1 << 8));
+	hal_set_bool(s->hal.pin.vely_overflow, mode & (1 << 9));
+	hal_set_ui32(s->hal.pin.status, status & 0x000FFFFF);
 
 
     }
@@ -113,98 +115,106 @@ static void hm2_xy2mod_instance_write(hostmot2_t *hm2, int i) {
     hm2_xy2mod_instance_t *s = &hm2->xy2mod.instance[i];
     istride = i * sizeof(rtapi_u32);
     	
-    if (*s->hal.pin.enable != 0) { 
+    if (hal_get_bool(s->hal.pin.enable)) {
         // position setting
-        stepsx_cmd =( *s->hal.pin.posx_cmd * 2147483647.0) / *s->hal.pin.posx_scale;
-        stepsy_cmd =( *s->hal.pin.posy_cmd * 2147483647.0) / *s->hal.pin.posy_scale;
+        rtapi_real posx_scale = hal_get_real(s->hal.pin.posx_scale);
+        rtapi_real posy_scale = hal_get_real(s->hal.pin.posy_scale);
+        rtapi_real posx_cmd = hal_get_real(s->hal.pin.posx_cmd);
+        rtapi_real posy_cmd = hal_get_real(s->hal.pin.posy_cmd);
+        stepsx_cmd = (posx_cmd * 2147483647.0) / posx_scale;
+        stepsy_cmd = (posy_cmd * 2147483647.0) / posy_scale;
         // the double cast here is intentional.  (uint32_t)(-1.0) is undefined in
         // C (and in practice it gives the undesired value 0 on arm systems), but
         // (uint32_t)(int32-t)(-1.0) is defined and gives the desired value on all
         // systems.
-        if (*s->hal.pin.posx_cmd != s->prev_posx_cmd) {
+        if (posx_cmd != s->prev_posx_cmd) {
 	    lposx_reg = (int32_t)(stepsx_cmd);
             hm2->xy2mod.posx_reg[i] = lposx_reg;
         //  HM2_PRINT("StepsX register set to: %f\n",stepsx_cmd);
         //  HM2_PRINT("POSX register set to:0x%08X\n",lposx_reg);
             hm2->llio->write(hm2->llio, hm2->xy2mod.posx_addr + istride, &hm2->xy2mod.posx_reg[i], sizeof(rtapi_u32));
-   	    s->prev_posx_cmd = *s->hal.pin.posx_cmd;
+	    s->prev_posx_cmd = posx_cmd;
         }
 
-        if (*s->hal.pin.posy_cmd != s->prev_posy_cmd) {
+        if (posy_cmd != s->prev_posy_cmd) {
             lposy_reg = (int32_t)(stepsy_cmd);
             hm2->xy2mod.posy_reg[i] = lposy_reg;
         //  HM2_PRINT("Stepsy register set to: %fhalcmd\n",stepsy_cmd);
         //  HM2_PRINT("POSY register set to:0x%08X\n",lposy_reg);
             hm2->llio->write(hm2->llio, hm2->xy2mod.posy_addr + istride, &hm2->xy2mod.posy_reg[i], sizeof(rtapi_u32));
-            s->prev_posy_cmd = *s->hal.pin.posy_cmd;
+            s->prev_posy_cmd = posy_cmd;
         }
 
         // velocity setting
-        steps_per_secx_cmd = *s->hal.pin.velx_cmd * *s->hal.pin.posx_scale;
-        steps_per_secy_cmd = *s->hal.pin.vely_cmd * *s->hal.pin.posy_scale;
+        rtapi_real velx_cmd = hal_get_real(s->hal.pin.velx_cmd);
+        rtapi_real vely_cmd = hal_get_real(s->hal.pin.vely_cmd);
+        steps_per_secx_cmd = velx_cmd * posx_scale;
+        steps_per_secy_cmd = vely_cmd * posy_scale;
         // the double cast here is intentional.  (uint32_t)(-1.0) is undefined in
         // C (and in practice it gives the undesired value 0 on arm systems), but
         // (uint32_t)(int32-t)(-1.0) is defined and gives the desired value on all
         // systems.
 	// Note 256 factor is from velocity scaling in xy2mod hardware (velocity added only every 256 clocks)
-        if (*s->hal.pin.velx_cmd != s->prev_velx_cmd) {
+        if (velx_cmd != s->prev_velx_cmd) {
             lvelx_reg = (uint32_t)(int32_t)(steps_per_secx_cmd * (256*2147483648.0 / (double)hm2->xy2mod.clock_frequency));
             hm2->xy2mod.velx_reg[i] = lvelx_reg;
     //      HM2_PRINT("VELX register set to:0x%08X\n",lvelx_reg);
             hm2->llio->write(hm2->llio, hm2->xy2mod.velx_addr + istride, &hm2->xy2mod.velx_reg[i], sizeof(rtapi_u32));
-            s->prev_velx_cmd = *s->hal.pin.velx_cmd;
+            s->prev_velx_cmd = velx_cmd;
         }
 
-        if (*s->hal.pin.vely_cmd != s->prev_vely_cmd) {
+        if (vely_cmd != s->prev_vely_cmd) {
             lvely_reg = (uint32_t)(int32_t)(steps_per_secy_cmd * (256*2147483648.0 / (double)hm2->xy2mod.clock_frequency));
             hm2->xy2mod.vely_reg[i] = lvely_reg;
     //      HM2_PRINT("VELY register set to:0x%08X\n",lvely_reg);
             hm2->llio->write(hm2->llio, hm2->xy2mod.vely_addr + istride, &hm2->xy2mod.vely_reg[i], sizeof(rtapi_u32));
-            s->prev_vely_cmd = *s->hal.pin.vely_cmd;
+            s->prev_vely_cmd = vely_cmd;
         }
 
 
         // acceleration setting no idea if anywhere near reality
-        steps_per_sec2x_cmd = *s->hal.pin.accx_cmd * *s->hal.pin.posx_scale;
-        steps_per_sec2y_cmd = *s->hal.pin.accy_cmd * *s->hal.pin.posy_scale;
+        rtapi_real accx_cmd = hal_get_real(s->hal.pin.accx_cmd);
+        rtapi_real accy_cmd = hal_get_real(s->hal.pin.accy_cmd);
+        steps_per_sec2x_cmd = accx_cmd * posx_scale;
+        steps_per_sec2y_cmd = accy_cmd * posy_scale;
         // the double cast here is intentional.  (uint32_t)(-1.0) is undefined in
         // C (and in practice it gives the undesired value 0 on arm systems), but
         // (uint32_t)(int32-t)(-1.0) is defined and gives the desired value on all
         // systems.
-        if (*s->hal.pin.accx_cmd != s->prev_accx_cmd) {
+        if (accx_cmd != s->prev_accx_cmd) {
         laccx_reg = (uint32_t)(int32_t)(steps_per_sec2x_cmd * (double)(4096.0*4294967296.0*32768.0) / ((double)(hm2->xy2mod.clock_frequency*(double)hm2->xy2mod.clock_frequency*256)));
         hm2->xy2mod.accx_reg[i] = laccx_reg;
         //    HM2_PRINT("ACCX register set to:0x%08X\n",laccx_reg);
         hm2->llio->write(hm2->llio, hm2->xy2mod.accx_addr + istride, &hm2->xy2mod.accx_reg[i], sizeof(rtapi_u32));
-        s->prev_accx_cmd = *s->hal.pin.accx_cmd;
+        s->prev_accx_cmd = accx_cmd;
         }
 
-        if (*s->hal.pin.accy_cmd != s->prev_accy_cmd) {
+        if (accy_cmd != s->prev_accy_cmd) {
         laccy_reg = (uint32_t)(int32_t)(steps_per_sec2y_cmd * (double)(4096.0*4294967296.0*32768.0) / ((double)(hm2->xy2mod.clock_frequency*(double)hm2->xy2mod.clock_frequency*256)));
         hm2->xy2mod.accy_reg[i] = laccy_reg;
         //    HM2_PRINT("ACCY register set to:0x%08X\n",laccy_reg);
         hm2->llio->write(hm2->llio, hm2->xy2mod.accy_addr + istride, &hm2->xy2mod.accy_reg[i], sizeof(rtapi_u32));
-        s->prev_accy_cmd = *s->hal.pin.accy_cmd;
+        s->prev_accy_cmd = accy_cmd;
         }
-	*s->hal.pin.controlx = (*s->hal.pin.controlx & 7);
-	*s->hal.pin.controly = (*s->hal.pin.controly & 7);
+	hal_set_ui32(s->hal.pin.controlx, hal_get_ui32(s->hal.pin.controlx) & 7);
+	hal_set_ui32(s->hal.pin.controly, hal_get_ui32(s->hal.pin.controly) & 7);
         
 	hm2->xy2mod.mode_reg[i] = 
-        *s->hal.pin.controlx << 0  |
-        *s->hal.pin.controly << 3  |
-        *s->hal.pin.mode18bitx<< 10 |
-        *s->hal.pin.mode18bity<< 11 |
-        *s->hal.pin.commandmodex<< 12 |
-        *s->hal.pin.commandmodey<< 13;
+        (hal_get_ui32(s->hal.pin.controlx) << 0)  |
+        (hal_get_ui32(s->hal.pin.controly) << 3)  |
+        (hal_get_bool(s->hal.pin.mode18bitx)<< 10) |
+        (hal_get_bool(s->hal.pin.mode18bity)<< 11) |
+        (hal_get_bool(s->hal.pin.commandmodex)<< 12) |
+        (hal_get_bool(s->hal.pin.commandmodey)<< 13);
 
         hm2->llio->write(hm2->llio,hm2->xy2mod.mode_addr + istride, &hm2->xy2mod.mode_reg[i], sizeof(rtapi_u32));
 
-	*s->hal.pin.commandx = (*s->hal.pin.commandx & 0xFFFF);
-	*s->hal.pin.commandy = (*s->hal.pin.commandy & 0xFFFF);
+	hal_set_ui32(s->hal.pin.commandx, hal_get_ui32(s->hal.pin.commandx) & 0xFFFF);
+	hal_set_ui32(s->hal.pin.commandy, hal_get_ui32(s->hal.pin.commandy) & 0xFFFF);
 
 	hm2->xy2mod.command_reg[i] = 
-        *s->hal.pin.commandx << 0  |
-        *s->hal.pin.commandy << 16;
+            (hal_get_ui32(s->hal.pin.commandx) << 0)  |
+            (hal_get_ui32(s->hal.pin.commandy) << 16);
 
         hm2->llio->write(hm2->llio,hm2->xy2mod.command_addr + istride, &hm2->xy2mod.command_reg[i], sizeof(rtapi_u32));
 
@@ -213,43 +223,43 @@ static void hm2_xy2mod_instance_write(hostmot2_t *hm2, int i) {
 // may eventually want to spilt out resetting the overflow flags
 
 // reset position registers
-        *s->hal.pin.posx_cmd = 0;
+        hal_set_real(s->hal.pin.posx_cmd, 0);
    	s->prev_posx_cmd = 0;
         hm2->xy2mod.posx_reg[i] =0;
         hm2->llio->write(hm2->llio, hm2->xy2mod.posx_addr + istride, &hm2->xy2mod.posx_reg[i], sizeof(rtapi_u32));
 
-        *s->hal.pin.posy_cmd = 0;
+        hal_set_real(s->hal.pin.posy_cmd, 0);
    	s->prev_posy_cmd = 0;
         hm2->xy2mod.posy_reg[i] =0;
         hm2->llio->write(hm2->llio, hm2->xy2mod.posy_addr + istride, &hm2->xy2mod.posy_reg[i], sizeof(rtapi_u32));
  
 
 // reset velocity registers
-        *s->hal.pin.velx_cmd = 0;
+        hal_set_real(s->hal.pin.velx_cmd, 0);
         s->prev_velx_cmd = 0;
         hm2->xy2mod.velx_reg[i] = 0;
         hm2->llio->write(hm2->llio, hm2->xy2mod.velx_addr + istride, &hm2->xy2mod.velx_reg[i], sizeof(rtapi_u32));
 
-        *s->hal.pin.vely_cmd = 0;
+        hal_set_real(s->hal.pin.vely_cmd, 0);
         s->prev_vely_cmd = 0;
         hm2->xy2mod.vely_reg[i] = 0;
         hm2->llio->write(hm2->llio, hm2->xy2mod.vely_addr + istride, &hm2->xy2mod.vely_reg[i], sizeof(rtapi_u32));
 
 // reset acceleration registers
-        *s->hal.pin.accx_cmd = 0;
+        hal_set_real(s->hal.pin.accx_cmd, 0);
         s->prev_accx_cmd = 0;
         hm2->xy2mod.accx_reg[i] = 0;
         hm2->llio->write(hm2->llio, hm2->xy2mod.accx_addr + istride, &hm2->xy2mod.accx_reg[i], sizeof(rtapi_u32));
 
-        *s->hal.pin.accy_cmd = 0;
+        hal_set_real(s->hal.pin.accy_cmd, 0);
         s->prev_accy_cmd = 0;
         hm2->xy2mod.accy_reg[i] = 0;
         hm2->llio->write(hm2->llio, hm2->xy2mod.accy_addr + istride, &hm2->xy2mod.accy_reg[i], sizeof(rtapi_u32));
 
 //reset control bits and overflow flags
 
-        *s->hal.pin.controlx = 1;  // default to 16 bit mode	
-        *s->hal.pin.controly = 1;
+        hal_set_ui32(s->hal.pin.controlx, 1);  // default to 16 bit mode
+        hal_set_ui32(s->hal.pin.controly, 1);
         hm2->xy2mod.mode_reg[i] = 0x000003C9; // reset X and Y overflow bits when disabled
         hm2->llio->write(hm2->llio, hm2->xy2mod.mode_addr + istride, &hm2->xy2mod.mode_reg[i], sizeof(rtapi_u32));
     }   
@@ -258,28 +268,30 @@ static void hm2_xy2mod_instance_write(hostmot2_t *hm2, int i) {
 
 static void hm2_xy2mod_set_dpll_rtimer(hostmot2_t *hm2) {
     rtapi_u32 data = 0;
+    rtapi_s32 dpll_rtimer_num = hal_get_si32(hm2->xy2mod.hal->pin.dpll_rtimer_num);
 
-    if ((*hm2->xy2mod.hal->pin.dpll_rtimer_num < -1) || (*hm2->xy2mod.hal->pin.dpll_rtimer_num > 4)) {
-        *hm2->xy2mod.hal->pin.dpll_rtimer_num = 0;
+    if ((dpll_rtimer_num < -1) || (dpll_rtimer_num > 4)) {
+        dpll_rtimer_num = hal_set_si32(hm2->xy2mod.hal->pin.dpll_rtimer_num, 0);
     }
-    if (*hm2->xy2mod.hal->pin.dpll_rtimer_num > -1) {
-        data = (*hm2->xy2mod.hal->pin.dpll_rtimer_num << 12) | (1 << 15);
+    if (dpll_rtimer_num > -1) {
+        data = (dpll_rtimer_num << 12) | (1 << 15);
     }
     hm2->llio->write(hm2->llio, hm2->xy2mod.dpll_rtimer_num_addr, &data, sizeof(rtapi_u32));
-    hm2->xy2mod.written_dpll_rtimer_num = *hm2->xy2mod.hal->pin.dpll_rtimer_num;
+    hm2->xy2mod.written_dpll_rtimer_num = dpll_rtimer_num;
 }
 
 static void hm2_xy2mod_set_dpll_wtimer(hostmot2_t *hm2) {
     rtapi_u32 data = 0;
+    rtapi_s32 dpll_wtimer_num = hal_get_si32(hm2->xy2mod.hal->pin.dpll_wtimer_num);
 
-    if ((*hm2->xy2mod.hal->pin.dpll_wtimer_num < -1) || (*hm2->xy2mod.hal->pin.dpll_wtimer_num > 4)) {
-        *hm2->xy2mod.hal->pin.dpll_wtimer_num = 0;
+    if ((dpll_wtimer_num < -1) || (dpll_wtimer_num > 4)) {
+        dpll_wtimer_num = hal_set_si32(hm2->xy2mod.hal->pin.dpll_wtimer_num, 0);
     }
-    if (*hm2->xy2mod.hal->pin.dpll_wtimer_num > -1) {
-        data = (*hm2->xy2mod.hal->pin.dpll_wtimer_num << 12) | (1 << 15);
+    if (dpll_wtimer_num > -1) {
+        data = (dpll_wtimer_num << 12) | (1 << 15);
     }
     hm2->llio->write(hm2->llio, hm2->xy2mod.dpll_wtimer_num_addr, &data, sizeof(rtapi_u32));
-    hm2->xy2mod.written_dpll_wtimer_num = *hm2->xy2mod.hal->pin.dpll_wtimer_num;
+    hm2->xy2mod.written_dpll_wtimer_num = dpll_wtimer_num;
 }
 
 
@@ -289,10 +301,10 @@ void hm2_xy2mod_write(hostmot2_t *hm2) {
          hm2_xy2mod_instance_write(hm2, i);
     }
     if (hm2->xy2mod.num_instances > 0 && hm2->dpll_module_present) {
-        if (*hm2->xy2mod.hal->pin.dpll_rtimer_num != (int)hm2->xy2mod.written_dpll_rtimer_num) {
+        if (hal_get_si32(hm2->xy2mod.hal->pin.dpll_rtimer_num) != hm2->xy2mod.written_dpll_rtimer_num) {
             hm2_xy2mod_set_dpll_rtimer(hm2);
         }
-        if (*hm2->xy2mod.hal->pin.dpll_wtimer_num != (int)hm2->xy2mod.written_dpll_wtimer_num) {
+        if (hal_get_si32(hm2->xy2mod.hal->pin.dpll_wtimer_num) != hm2->xy2mod.written_dpll_wtimer_num) {
             hm2_xy2mod_set_dpll_wtimer(hm2);
         }
     }
@@ -322,16 +334,13 @@ void hm2_xy2mod_force_write(hostmot2_t *hm2) {
 
 
 void hm2_xy2mod_tram_init(hostmot2_t *hm2) {
-    int i;
-
-    for (i = 0; i < hm2->xy2mod.num_instances; i ++) {
-
-    *hm2->xy2mod.instance[i].hal.pin.posx_cmd = 0;
-    *hm2->xy2mod.instance[i].hal.pin.posy_cmd = 0;
-    *hm2->xy2mod.instance[i].hal.pin.velx_cmd = 0;
-    *hm2->xy2mod.instance[i].hal.pin.vely_cmd = 0;
-    *hm2->xy2mod.instance[i].hal.pin.accx_cmd = 0;
-    *hm2->xy2mod.instance[i].hal.pin.accy_cmd = 0;
+    for (int i = 0; i < hm2->xy2mod.num_instances; i ++) {
+        hal_set_real(hm2->xy2mod.instance[i].hal.pin.posx_cmd, 0);
+        hal_set_real(hm2->xy2mod.instance[i].hal.pin.posy_cmd, 0);
+        hal_set_real(hm2->xy2mod.instance[i].hal.pin.velx_cmd, 0);
+        hal_set_real(hm2->xy2mod.instance[i].hal.pin.vely_cmd, 0);
+        hal_set_real(hm2->xy2mod.instance[i].hal.pin.accx_cmd, 0);
+        hal_set_real(hm2->xy2mod.instance[i].hal.pin.accy_cmd, 0);
     }
 }
 
@@ -417,14 +426,14 @@ int hm2_xy2mod_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // allocate the module-global HAL shared memory
-    hm2->xy2mod.hal = (hm2_xy2mod_module_global_t *)hal_malloc(sizeof(hm2_xy2mod_module_global_t));
+    hm2->xy2mod.hal = hal_malloc(sizeof(*hm2->xy2mod.hal));
     if (hm2->xy2mod.hal == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    hm2->xy2mod.instance = (hm2_xy2mod_instance_t *)hal_malloc(hm2->xy2mod.num_instances * sizeof(hm2_xy2mod_instance_t));
+    hm2->xy2mod.instance = hal_malloc(hm2->xy2mod.num_instances * sizeof(*hm2->xy2mod.instance));
     if (hm2->xy2mod.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -513,268 +522,208 @@ int hm2_xy2mod_parse_md(hostmot2_t *hm2, int md_index) {
     // export to HAL
 
     {
-        int i;
-        char name[HAL_NAME_LEN + 1];
-
         if (hm2->dpll_module_present) {
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.read-timer-number", hm2->llio->name);
-            r = hal_pin_s32_new(name, HAL_IN, &(hm2->xy2mod.hal->pin.dpll_rtimer_num), hm2->llio->comp_id);
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.hal->pin.dpll_rtimer_num),
+                                 -1, "%s.xy2mod.read-timer-number", hm2->llio->name);
             if (r < 0) {
-                HM2_ERR("error adding read timer number param, aborting\n");
+                HM2_ERR("error %d adding pin '%s.xy2mod.read-timer-number', aborting\n", r, hm2->llio->name);
                 return -EINVAL;
             }
-            *(hm2->xy2mod.hal->pin.dpll_rtimer_num) = -1;
-        }
 
-        if (hm2->dpll_module_present) {
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.write-timer-number", hm2->llio->name);
-            r = hal_pin_s32_new(name, HAL_IN, &(hm2->xy2mod.hal->pin.dpll_wtimer_num), hm2->llio->comp_id);
+            r = hal_pin_new_si32(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.hal->pin.dpll_wtimer_num),
+                                 -1, "%s.xy2mod.write-timer-number", hm2->llio->name);
             if (r < 0) {
-                HM2_ERR("error adding write timer number param, aborting\n");
+                HM2_ERR("error %d adding pin '%s.xy2mod.write-timer-number', aborting\n", r, hm2->llio->name);
                 return -EINVAL;
             }
-            *(hm2->xy2mod.hal->pin.dpll_wtimer_num) = -1;
         }
 
-        for (i = 0; i < hm2->xy2mod.num_instances; i ++) {
-            
+        for (int i = 0; i < hm2->xy2mod.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posx-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posx_cmd), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posx_cmd),
+                                 0.0, "%s.xy2mod.%02d.posx-cmd", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posx-cmd', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posy-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posy_cmd), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posy_cmd),
+                                 0.0, "%s.xy2mod.%02d.posy-cmd", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posy-cmd', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.velx-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.velx_cmd), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.velx_cmd),
+                                 0.0, "%s.xy2mod.%02d.velx-cmd", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.velx-cmd', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.vely-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.vely_cmd), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.vely_cmd),
+                                 0.0, "%s.xy2mod.%02d.vely-cmd", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.vely-cmd', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.accx-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.accx_cmd), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.accx_cmd),
+                                 0.0, "%s.xy2mod.%02d.accx-cmd", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.accx-cmd', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.accy-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.accy_cmd), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.accy_cmd),
+                                 0.0, "%s.xy2mod.%02d.accy-cmd", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.accy-cmd', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.velx-fb", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.velx_fb), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.velx_fb),
+                                 0.0, "%s.xy2mod.%02d.velx-fb", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.velx-fb', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.vely-fb", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.vely_fb), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.vely_fb),
+                                 0.0, "%s.xy2mod.%02d.vely-fb", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.vely-fb', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posx-fb", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posx_fb), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posx_fb),
+                                 0.0, "%s.xy2mod.%02d.posx-fb", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posx-fb', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posy-fb", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posy_fb), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posy_fb),
+                                 0.0, "%s.xy2mod.%02d.posy-fb", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posy-fb', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
  
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posx-scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posx_scale), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posx_scale),
+                                 1.0, "%s.xy2mod.%02d.posx-scale", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posx-scale', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posy-scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posy_scale), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.posy_scale),
+                                 1.0, "%s.xy2mod.%02d.posy-scale", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posy-scale', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.enable", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.enable), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.enable),
+                                 0, "%s.xy2mod.%02d.enable", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.enable', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
  
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.controlx", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.controlx), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.controlx),
+                                 1, "%s.xy2mod.%02d.controlx", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.controlx', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
  
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.controly", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.controly), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.controly),
+                                 1, "%s.xy2mod.%02d.controly", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.controly', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.commandx", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandx), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandx),
+                                 0, "%s.xy2mod.%02d.commandx", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.commandx', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
  
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.commandy", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandy), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandy),
+                                 0, "%s.xy2mod.%02d.commandy", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.commandy', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.18bitmodex", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.mode18bitx), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.mode18bitx),
+                                 0, "%s.xy2mod.%02d.18bitmodex", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.18bitmodex', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.18bitmodey", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.mode18bity), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.mode18bity),
+                                 0, "%s.xy2mod.%02d.18bitmodey", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.18bitmodey', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.commandmodex", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandmodex), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandmodex),
+                                 0, "%s.xy2mod.%02d.commandmodex", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.commandmodex', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.commandmodey", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandmodey), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->xy2mod.instance[i].hal.pin.commandmodey),
+                                 0, "%s.xy2mod.%02d.commandmodey", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.commandmodey', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posx-overflow", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posx_overflow), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posx_overflow),
+                                 0, "%s.xy2mod.%02d.posx-overflow", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posx-overflow', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.posy-overflow", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posy_overflow), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.posy_overflow),
+                                 0, "%s.xy2mod.%02d.posy-overflow", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.posy-overflow', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.velx-overflow", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.velx_overflow), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.velx_overflow),
+                                 0, "%s.xy2mod.%02d.velx-overflow", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.velx-overflow', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
 
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.vely-overflow", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.vely_overflow), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.vely_overflow),
+                                 0, "%s.xy2mod.%02d.vely-overflow", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.vely-overflow', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
  
-           rtapi_snprintf(name, sizeof(name), "%s.xy2mod.%02d.status", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.status), hm2->llio->comp_id);
+            r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(hm2->xy2mod.instance[i].hal.pin.status),
+                                 0, "%s.xy2mod.%02d.status", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
+                HM2_ERR("error %d adding pin '%s.xy2mod.%02d.status', aborting\n", r, hm2->llio->name, i);
                 goto fail0;
             }
- 
-
-            // init
-            *(hm2->xy2mod.instance[i].hal.pin.posx_cmd) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.posy_cmd) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.velx_cmd) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.vely_cmd) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.accx_cmd) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.accy_cmd) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.posx_fb) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.posy_fb) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.velx_fb) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.vely_fb) = 0.0;
-            *(hm2->xy2mod.instance[i].hal.pin.posx_scale) = 1.0;
-            *(hm2->xy2mod.instance[i].hal.pin.posy_scale) = 1.0;
-            *(hm2->xy2mod.instance[i].hal.pin.enable) = 0;
-            *(hm2->xy2mod.instance[i].hal.pin.controlx) = 1;
-            *(hm2->xy2mod.instance[i].hal.pin.controly) = 1;
-            *(hm2->xy2mod.instance[i].hal.pin.commandx) = 0;
-            *(hm2->xy2mod.instance[i].hal.pin.commandy) = 0;
-            *(hm2->xy2mod.instance[i].hal.pin.mode18bitx) = 0;
-            *(hm2->xy2mod.instance[i].hal.pin.mode18bity) = 0;
-            *(hm2->xy2mod.instance[i].hal.pin.commandmodex) = 0;
-            *(hm2->xy2mod.instance[i].hal.pin.commandmodey) = 0;
-
-
         }
     }
 
@@ -810,7 +759,7 @@ void hm2_xy2mod_print_module(hostmot2_t *hm2) {
     HM2_PRINT("    status_addr: 0x%04X\n", hm2->xy2mod.status_addr);
     for (i = 0; i < hm2->xy2mod.num_instances; i ++) {
         HM2_PRINT("    instance %d:\n", i);
-        HM2_PRINT("        enable = %d\n", *hm2->xy2mod.instance[i].hal.pin.enable);
+        HM2_PRINT("        enable = %d\n", hal_get_bool(hm2->xy2mod.instance[i].hal.pin.enable));
         HM2_PRINT("        hw:\n");
         HM2_PRINT("            accx = 0x%08X\n", hm2->xy2mod.accx_reg[i]);
         HM2_PRINT("            accy = 0x%08X\n", hm2->xy2mod.accy_reg[i]);

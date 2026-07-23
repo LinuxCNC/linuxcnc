@@ -305,7 +305,7 @@ void emcmotSetRotaryUnlock(int jnum, int unlock) {
         jnum,1<<jnum);
         return;
     }
-    *(emcmot_hal_data->joint[jnum].unlock) = unlock;
+    hal_set_bool(emcmot_hal_data->joint[jnum].unlock, unlock);
 }
 
 int emcmotGetRotaryIsUnlocked(int jnum) {
@@ -320,7 +320,7 @@ int emcmotGetRotaryIsUnlocked(int jnum) {
         gave_message = 1;
         return 0;
     }
-    return *(emcmot_hal_data->joint[jnum].is_unlocked);
+    return hal_get_bool(emcmot_hal_data->joint[jnum].is_unlocked);
 }
 
 /*! \function emcmotDioWrite()
@@ -336,11 +336,7 @@ void emcmotDioWrite(int index, char value)
     if ((index >= emcmotConfig->numDIO) || (index < 0)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_dio/EMCMOT_MAX_DIO=%d)\n", index, emcmotConfig->numDIO, EMCMOT_MAX_DIO);
     } else {
-	if (value != 0) {
-	    *(emcmot_hal_data->synch_do[index])=1;
-	} else {
-	    *(emcmot_hal_data->synch_do[index])=0;
-	}
+	hal_set_bool(emcmot_hal_data->synch_do[index], value != 0);
     }
 }
 
@@ -357,7 +353,7 @@ void emcmotAioWrite(int index, double value)
     if ((index >= emcmotConfig->numAIO) || (index < 0)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_aio/EMCMOT_MAX_AIO=%d)\n", index, emcmotConfig->numAIO, EMCMOT_MAX_AIO);
     } else {
-        *(emcmot_hal_data->analog_output[index]) = value;
+        hal_set_real(emcmot_hal_data->analog_output[index], value);
     }
 }
 
@@ -550,13 +546,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    emcmotStatus->atspeed_next_feed = 0;
 	    // Clear pins on abort so tests see a clean state
 		if (emcmot_hal_data) {
-				*(emcmot_hal_data->interp_arc_radius) = 0.0;
-				*(emcmot_hal_data->interp_arc_center_x) = 0.0;
-				*(emcmot_hal_data->interp_arc_center_y) = 0.0;
-				*(emcmot_hal_data->interp_arc_center_z) = 0.0;
-				*(emcmot_hal_data->interp_straight_heading) = 0.0;
-				*(emcmot_hal_data->interp_normal_heading) = 0.0;
-				*(emcmot_hal_data->iscircle) = 0.0;
+				hal_set_real(emcmot_hal_data->interp_arc_radius, 0.0);
+				hal_set_real(emcmot_hal_data->interp_arc_center_x, 0.0);
+				hal_set_real(emcmot_hal_data->interp_arc_center_y, 0.0);
+				hal_set_real(emcmot_hal_data->interp_arc_center_z, 0.0);
+				hal_set_real(emcmot_hal_data->interp_straight_heading, 0.0);
+				hal_set_real(emcmot_hal_data->interp_normal_heading, 0.0);
+				hal_set_bool(emcmot_hal_data->iscircle, 0);
 		}
 	    break;
 
@@ -809,7 +805,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		break;
 	    }
             // cannot jog if jog-inhibit is TRUE
-            if (*(emcmot_hal_data->jog_inhibit)){
+            if (hal_get_bool(emcmot_hal_data->jog_inhibit)){
                     reportError(_("Cannot jog while jog-inhibit is active."));
                 break;
             }
@@ -878,7 +874,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		break;
 	    }
             // cannot jog if jog-inhibit is TRUE
-            if (*(emcmot_hal_data->jog_inhibit)){
+            if (hal_get_bool(emcmot_hal_data->jog_inhibit)){
                     reportError(_("Cannot jog while jog-inhibit is active."));
                 break;
             }
@@ -958,7 +954,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		break;
 	    }
             // cannot jog if jog-inhibit is TRUE
-            if (*(emcmot_hal_data->jog_inhibit)){
+            if (hal_get_bool(emcmot_hal_data->jog_inhibit)){
                     reportError(_("Cannot jog while jog-inhibit is active."));
                 break;
             }
@@ -1373,7 +1369,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* set the emcmotInternal->enabling flag to defer enable until
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE");
-	    if ( *(emcmot_hal_data->enable) == 0 ) {
+	    if ( !hal_get_bool(emcmot_hal_data->enable) ) {
 		reportError(_("can't enable motion, enable input is false"));
 	    } else {
 		emcmotInternal->enabling = 1;
@@ -1421,7 +1417,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		reportError(_("must be in joint mode to home"));
 		return;
 	    }
-	    if (*(emcmot_hal_data->homing_inhibit)) {
+	    if (hal_get_bool(emcmot_hal_data->homing_inhibit)) {
 	        reportError(_("Homing denied by motion.homing-inhibit joint=%d\n"),
 	                   joint_num);
                 return;
@@ -1497,7 +1493,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    } else if (!(emcmotCommand->probe_type & 1)) {
                 // if suppress errors = off...
 
-                int probeval = !!*(emcmot_hal_data->probe_input);
+                int probeval = hal_get_bool(emcmot_hal_data->probe_input);
                 int probe_whenclears = !!(emcmotCommand->probe_type & 2);
 
                 if (probeval != probe_whenclears) {
@@ -1662,12 +1658,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         }
         for (n = s0; n<=s1; n++){
 
-	        if (*(emcmot_hal_data->spindle[n].spindle_orient))
+	        if (hal_get_bool(emcmot_hal_data->spindle[n].spindle_orient))
 	    	rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON\n");
-	        if (*(emcmot_hal_data->spindle[n].spindle_locked))
+	        if (hal_get_bool(emcmot_hal_data->spindle[n].spindle_locked))
 		    rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON\n");
-	        *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
-	        *(emcmot_hal_data->spindle[n].spindle_orient) = 0;
+	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_locked, 0);
+	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_orient, 0);
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
 
 	        /* if (emcmotStatus->spindle.orient) { */
@@ -1719,13 +1715,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        emcmotStatus->spindle_status[n].speed = 0;
 	        emcmotStatus->spindle_status[n].direction = 0;
 	        emcmotStatus->spindle_status[n].brake = 1; // engage brake
-	        if (*(emcmot_hal_data->spindle[n].spindle_orient))
+	        if (hal_get_bool(emcmot_hal_data->spindle[n].spindle_orient))
 		    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_OFF");
-	        if (*(emcmot_hal_data->spindle[n].spindle_locked)){
+	        if (hal_get_bool(emcmot_hal_data->spindle[n].spindle_locked)){
 		    rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_OFF");
-	            *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
+	            hal_set_bool(emcmot_hal_data->spindle[n].spindle_locked, 0);
             }
-	        *(emcmot_hal_data->spindle[n].spindle_orient) = 0;
+	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_orient, 0);
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
         }
         /* Optionally make the spindle stop an at-speed barrier: the next feed
@@ -1754,7 +1750,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 rtapi_print_msg(RTAPI_MSG_ERR, "spindle number <%d> too high in M19",n);
                 break;
 	        }
-	        if (*(emcmot_hal_data->spindle[n].spindle_orient)) {
+	        if (hal_get_bool(emcmot_hal_data->spindle[n].spindle_orient)) {
 		    rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
 
 		    // mah:FIXME unsure whether this is ok or an error
@@ -1771,13 +1767,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
             // https://github.com/LinuxCNC/linuxcnc/issues/3389
             emcmotStatus->spindle_status[n].state = 0;
-            *(emcmot_hal_data->spindle[n].spindle_on) = 0;
+            hal_set_bool(emcmot_hal_data->spindle[n].spindle_on, 0);
             // https://github.com/LinuxCNC/linuxcnc/issues/3389
 
-	        *(emcmot_hal_data->spindle[n].spindle_orient_angle) = emcmotCommand->orientation;
-	        *(emcmot_hal_data->spindle[n].spindle_orient_mode) = emcmotCommand->mode;
-	        *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
-	        *(emcmot_hal_data->spindle[n].spindle_orient) = 1;
+	        hal_set_real(emcmot_hal_data->spindle[n].spindle_orient_angle, emcmotCommand->orientation);
+	        hal_set_si32(emcmot_hal_data->spindle[n].spindle_orient_mode, emcmotCommand->mode);
+	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_locked, 0);
+	        hal_set_bool(emcmot_hal_data->spindle[n].spindle_orient, 1);
 
 	        // mirror in spindle status
 	        emcmotStatus->spindle_status[n].orient_fault = 0; // this pin read during spindle-orient == 1

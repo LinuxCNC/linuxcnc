@@ -8,16 +8,16 @@ A pin (index-enable) is provided for use when
 *[JOINT_n]HOME_USE_INDEX* is specified to reset
 the I/O pin *joint.N.index-enable*.
 """;
-pin in float cur_pos "Current position (typically: joint.n.motor-pos-fb)";
-pin in float home_pos = 1 "Home switch position";
-pin in float hysteresis = 0.1"Travel required to backoff (hysteresis)";
-pin out bit  home_sw"Home switch activated";
+pin in  real cur_pos "Current position (typically: joint.n.motor-pos-fb)";
+pin in  real home_pos = 1 "Home switch position";
+pin in  real hysteresis = 0.1"Travel required to backoff (hysteresis)";
+pin out bool home_sw"Home switch activated";
 
-pin io  bit  index_enable "typ: connect to joint.N.index-enable";
-pin in float index_delay_ms = 10 "delay in msec to reset index-enable";
+pin io  bool index_enable "typ: connect to joint.N.index-enable";
+pin in  real index_delay_ms = 10 "delay in msec to reset index-enable";
 
 variable int    old_index_enable;
-variable double index_timer_ms;
+variable rtapi_real index_timer_ms;
 
 function _;
 license "GPL";
@@ -29,30 +29,30 @@ FUNCTION(_) {
     if (home_pos >= 0) {
         // home switch is on positive side
         if (cur_pos >= home_pos) {
-            home_sw = 1;
+            home_sw_set(1);
         } else {
             if (cur_pos <= (home_pos - hysteresis) ) {
-                home_sw = 0;
+                home_sw_set(0);
             } else {
                 if (home_sw) {
-                    home_sw = 1;
+                    home_sw_set(1);
                 } else {
-                    home_sw = 0;
+                    home_sw_set(0);
                 }
             }
         }
     } else {
         // negative home switch location
         if (cur_pos <= home_pos) {
-            home_sw = 1;
+            home_sw_set(1);
         } else {
             if (cur_pos >= (home_pos + hysteresis) ) {
-                home_sw = 0;
+                home_sw_set(0);
             } else {
                 if (home_sw) {
-                    home_sw = 1;
+                    home_sw_set(1);
                 } else {
-                    home_sw = 0;
+                    home_sw_set(0);
                 }
             }
         }
@@ -63,7 +63,7 @@ FUNCTION(_) {
        index_timer_ms -= period * 1e-6; // period is in nS
        if (index_timer_ms <= 0) {
            index_timer_ms = 0;
-           index_enable = 0;
+           index_enable_set(0);
            return;
        }
     }

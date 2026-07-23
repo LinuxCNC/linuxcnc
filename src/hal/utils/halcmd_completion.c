@@ -41,10 +41,10 @@
 #include "config.h"
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
 #include <rtapi_mutex.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 static int argno;
 
@@ -134,111 +134,209 @@ static int writer_match(hal_pin_dir_t dir, int writers) {
     return 0;
 }
 
-static void check_match_type_pin(const char *name) {
-    int next = hal_data->pin_list_ptr;
-    size_t sz = strcspn(name, " \t");
+typedef struct {
+    char name[HAL_NAME_LEN+1]; // HAL name strings
+    int val;
+    union {
+        struct { // Pins,params and signals
+            hal_pdir_t dir;
+            hal_type_t type;
+            const char *sig;   // Pin is attached to a signal
+            const char *alias; // Pin/param has an alias
+            bool drive;        // Signal has writers
+        };
+        struct { // Components
+            hal_comp_type_t ctype;
+            bool ready;
+        };
+    };
+} gendata_entry_t;
+ 
+typedef struct {
+    size_t na;
+    size_t n;
+    gendata_entry_t *data; // Array of fixed HAL name strings
+} gendata_list_t;
 
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
-	if ( sz == strlen(pin->name) && strncmp(name, pin->name, sz) == 0 ) {
-            match_type = pin->type;
-            match_direction = pin->dir;
-            return;
-        }
-    }
+static inline void gendata_clr(gendata_list_t *g)
+{
+    g->n = 0;
 }
 
-static void check_match_type_signal(const char *name) {
-    int next = hal_data->sig_list_ptr;
-    size_t sz = strcspn(name, " \t");
-
-    while(next) {
-        hal_sig_t *sig = SHMPTR(next);
-        next = sig->next_ptr;
-	if ( sz == strlen(sig->name) && strncmp(name, sig->name, sz) == 0 ) {
-            match_type = sig->type;
-            match_writers = sig->writers;
-            return;
+static gendata_entry_t *gendata_add(gendata_list_t *g, const char *s, int v)
+{
+    if(!g->data) {
+        g->n = 0;
+        g->na = 64;
+        g->data = (gendata_entry_t *)calloc(g->na, sizeof(*g->data));
+        if(!g->data) {
+            g->na = 0;
+            return NULL;
         }
+    } else if(g->n >= g->na) {
+        g->na *= 2;
+        g->data = reallocarray(g->data, g->na, sizeof(*g->data));
+        if(!g->data) {
+            g->na = 0;
+            g->n = 0;
+            return NULL;
+        }
+        memset(&g->data[g->n], 0, (g->na - g->n) * sizeof(*g->data));
     }
+    strcpy(g->data[g->n].name, s); // This string should always fit
+    g->data[g->n].val = v;
+    g->n++;
+    return &g->data[g->n-1];
+}
+
+static int match_pintype_cb(hal_query_t *q, void *arg)
+{
+    const char *name = (const char *)arg;
+    if (q->callerdata.uival == strlen(q->name) && !strncmp(name, q->name, q->callerdata.uival)) {
+        match_type = q->pp.type;
+        match_direction = q->pp.dir;
+        return 1;  // Break the loop
+    }
+    return 0;
+}
+
+static void check_match_type_pin(const char *name)
+{
+    hal_query_t q = {};
+    q.qtype = HAL_QTYPE_PIN;
+    q.callerdata.uival = strcspn(name, " \t");
+    hal_list_p(&q, match_pintype_cb, (void *)name);
+}
+
+static int match_sigtype_cb(hal_query_t *q, void *arg)
+{
+    const char *name = (const char *)arg;
+    if (q->callerdata.uival == strlen(q->name) && !strncmp(name, q->name, q->callerdata.uival)) {
+        match_type = q->sig.type;
+        match_writers = q->sig.writers > 0;
+        return 1;  // Break the loop
+    }
+    return 0;
+}
+
+static void check_match_type_signal(const char *name)
+{
+    hal_query_t q = {};
+    q.callerdata.uival = strcspn(name, " \t");
+    hal_list_s(&q, match_sigtype_cb, (void *)name);
+}
+
+static int genthread_cb(hal_query_t *q, void *arg)
+{
+    gendata_add((gendata_list_t *)arg, q->name, 0);
+    return 0;
 }
 
 static char *thread_generator(const char *text, int state) { 
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->thread_list_ptr;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        gendata_clr(&gdl);
+        hal_query_t q = {}; // By default, we only get thread names
+        hal_list_thread(&q, genthread_cb, &gdl);
+        idx = 0;
         len = strlen(text);
     }
-
-    while(next) {
-        hal_thread_t *thread = SHMPTR(next);
-        next = thread->next_ptr;
-	if ( strncmp(text, thread->name, len) == 0 )
-            return strdup(thread->name);
+    for(; idx < gdl.n; idx++) {
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     return NULL;
 }
 
-static char *parameter_generator(const char *text, int state) { 
-    static int len;
-    static int next;
-    static int aliased;
-    char *name;
+static int genpin_cb(hal_query_t *q, void *arg)
+{
+    gendata_list_t *gdl = (gendata_list_t *)arg;
+    gendata_entry_t *gde = gendata_add(gdl, q->name, 0);
+    if(!gde)
+        return 1;  // Allocation error, just drop out
+    gde->dir   = q->pp.dir;
+    gde->type  = q->pp.type;
+    gde->sig   = q->pp.signal;
+    gde->alias = q->pp.alias;
+    return 0;
+}
 
-    if(!state) {
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
+static void build_pinparam_list(gendata_list_t *gdlp, size_t *idx, int *len, const char *text, hal_qtype_t ctype)
+{
+    gendata_clr(gdlp);
+    hal_query_t q = {};
+    q.qtype = ctype;
+    hal_list_p(&q, genpin_cb, gdlp);
+    *idx = 0;
+    *len = strlen(text);
+}
+
+static char *parameter_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
+    static int len;
+    static size_t idx;
+    static int aliased;
+    if(!state) { // Initial state, fill generator data
+        build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_PARAM);
         aliased = 0;
     }
 
-    while(next) {
-        hal_param_t *param = SHMPTR(next);
-        switch (aliased) {
-            case 0: // alias (if any) has not been output
-                if (param->oldname != 0) {
-                    // there's an alias, so use that and do not update the pin pointer
-                    hal_oldname_t *oldname = SHMPTR(param->oldname);
-                    name = oldname->name;
-                    aliased = 1;
-                } else {
-                    // no alias, so use the name and update the pin pointer
-                    name = param->name;
-                    next = param->next_ptr;
-                }
-            break;
-            case 1:  // there is an alias, and it has been processed already
-                name = param->name;
-                next = param->next_ptr;
-                aliased = 0;
-            break;
-            default:
-                // shouldn't be able to get here, so assume we're done
-                rl_attempted_completion_over = 1;
-                return NULL;
-            break;
+    const char *name;
+    for(; idx < gdl.n; idx++) {
+        if(!aliased) {
+            if(gdl.data[idx].alias) {
+                name = gdl.data[idx].alias;
+                aliased = 1;
+            } else {
+                name = gdl.data[idx].name;
+            }
+        } else {
+            name = gdl.data[idx].name;
+            aliased = 0;
         }
-        if ( strncmp(text, name, len) == 0 )
+
+        if(!writer_match(gdl.data[idx].dir, match_writers)) {
+            idx -= aliased;
+            continue;
+        }
+        if(!direction_match(gdl.data[idx].dir, match_direction)) {
+            idx -= aliased;
+            continue;
+        }
+	if(!strncmp(text, name, len)) {
+            idx += 1 - aliased;
             return strdup(name);
+        }
     }
     return NULL;
 }
 
+static int genfunct_cb(hal_query_t *q, void *arg)
+{
+    gendata_add((gendata_list_t *)arg, q->name, q->callerdata.sival);
+    return 0;
+}
+
 static char *funct_generator_common(const char *text, int state, int inuse) { 
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->funct_list_ptr;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        gendata_clr(&gdl);
+        hal_query_t q = {};
+        q.callerdata.sival = inuse;
+        hal_list_funct(&q, genfunct_cb, &gdl);
+        idx = 0;
         len = strlen(text);
     }
-
-    while(next) {
-        hal_funct_t *funct = SHMPTR(next);
-        next = funct->next_ptr;
-	if (( strncmp(text, funct->name, len) == 0 ) 
-            && (inuse == funct->users))
-            return strdup(funct->name);
+    for(; idx < gdl.n; idx++) {
+	if(gdl.data[idx].val == inuse && !strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     return NULL;
 }
@@ -251,103 +349,108 @@ static char *attached_funct_generator(const char *text, int state) {
     return funct_generator_common(text, state, 1);
 }
 
-static char *signal_generator(const char *text, int state) {
-    static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->sig_list_ptr;
-        len = strlen(text);
-    }
-
-    while(next) {
-        hal_sig_t *sig = SHMPTR(next);
-        next = sig->next_ptr;
-        if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != sig->type ) continue; 
-        if ( !writer_match( match_direction, sig->writers ) ) continue;
-	if ( strncmp(text, sig->name, len) == 0 )
-            return strdup(sig->name);
-    }
-    return NULL;
+static int gensignal_cb(hal_query_t *q, void *arg)
+{
+    gendata_list_t *gdl = (gendata_list_t *)arg;
+    gendata_entry_t *gde = gendata_add(gdl, q->name, 0);
+    if(!gde)
+        return 1;  // Allocation error, just drop out
+    gde->type = q->sig.type;
+    gde->drive = q->sig.writers > 0;
+    return 0;
 }
 
-static char *getp_generator(const char *text, int state) {
+static char *signal_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    static int what;
-    if(!state) {
-        what = 0;
-        next = hal_data->param_list_ptr;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        gendata_clr(&gdl);
+        hal_query_t q = {};
+        hal_list_s(&q, gensignal_cb, &gdl);
+        idx = 0;
         len = strlen(text);
     }
-
-    if(what == 0) {
-        while(next) {
-            hal_param_t *param = SHMPTR(next);
-            next = param->next_ptr;
-            if ( strncmp(text, param->name, len) == 0 )
-                return strdup(param->name);
+    for(; idx < gdl.n; idx++) {
+        if(match_type != HAL_TYPE_UNSPECIFIED && match_type != gdl.data[idx].type)
+            continue; 
+        if(!writer_match(match_direction, gdl.data[idx].drive))
+            continue;
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
         }
-        what = 1;
-        next = hal_data->pin_list_ptr;
     }
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
-        if ( strncmp(text, pin->name, len) == 0 )
-            return strdup(pin->name);
-    }
-
     return NULL;
 }
 
-static char *setp_generator(const char *text, int state) {
+static char *getp_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    static int what;
-    if(!state) {
-        what = 0;
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_ANY);
     }
-
-    if(what == 0) {
-        while(next) {
-            hal_param_t *param = SHMPTR(next);
-            next = param->next_ptr;
-            if ( param->dir != HAL_RO && strncmp(text, param->name, len) == 0 )
-                return strdup(param->name);
+    for(; idx < gdl.n; idx++) {
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
         }
-        what = 1;
-        next = hal_data->pin_list_ptr;
     }
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
-        if ( pin->dir != HAL_OUT && pin->signal == 0 && 
-                 strncmp(text, pin->name, len) == 0 )
-            return strdup(pin->name);
-    }
+    return NULL;
+}
 
+static char *setp_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
+    static int len;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_ANY);
+    }
+    for(; idx < gdl.n; idx++) {
+        if(0 == (gdl.data[idx].dir & (HAL_WO | HAL_OUT)) || NULL != gdl.data[idx].sig)
+            continue; // Not writable or has a signal attached
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
+    }
     return NULL;
 }
 
 
-static char *usrcomp_generator(const char *text, int state) {
+static int gencomp_cb(hal_query_t *q, void *arg)
+{
+    gendata_list_t *gdl = (gendata_list_t *)arg;
+    gendata_entry_t *gde = gendata_add(gdl, q->name, 0);
+    if(!gde)
+        return 1;  // Allocation error, just drop out
+    gde->ctype = q->comp.type;
+    gde->ready = q->comp.ready;
+    return 0;
+}
+
+static char *usrcomp_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->comp_list_ptr;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        gendata_clr(&gdl);
+        hal_query_t q = {}; // By default, we only get thread names
+        hal_list_comp(&q, gencomp_cb, &gdl);
+        idx = 0;
         len = strlen(text);
-        if(strncmp(text, "all", len) == 0)
+        if(!strncmp(text, "all", len))
             return strdup("all");
     }
 
-    while(next) {
-        hal_comp_t *comp = SHMPTR(next);
-        next = comp->next_ptr;
-        if(comp->type != COMPONENT_TYPE_USER) continue;
-	if(strncmp(text, comp->name, len) == 0)
-            return strdup(comp->name);
+    for(; idx < gdl.n; idx++) {
+        if(gdl.data[idx].ctype != HAL_COMP_TYPE_USER)
+            continue;
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     rl_attempted_completion_over = 1;
     return NULL;
@@ -355,129 +458,136 @@ static char *usrcomp_generator(const char *text, int state) {
 
 
 
-static char *comp_generator(const char *text, int state) {
+static char *comp_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->comp_list_ptr;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        gendata_clr(&gdl);
+        hal_query_t q = {}; // By default, we only get thread names
+        hal_list_comp(&q, gencomp_cb, &gdl);
+        idx = 0;
         len = strlen(text);
-        if(strncmp(text, "all", len) == 0)
+        if(!strncmp(text, "all", len))
             return strdup("all");
     }
 
-    while(next) {
-        hal_comp_t *comp = SHMPTR(next);
-        next = comp->next_ptr;
-	if ( strncmp(text, comp->name, len) == 0 )
-            return strdup(comp->name);
+    for(; idx < gdl.n; idx++) {
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     rl_attempted_completion_over = 1;
     return NULL;
 }
 
 
-static char *rtcomp_generator(const char *text, int state) {
+static char *rtcomp_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-    if(!state) {
-        next = hal_data->comp_list_ptr;
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        gendata_clr(&gdl);
+        hal_query_t q = {}; // By default, we only get thread names
+        hal_list_comp(&q, gencomp_cb, &gdl);
+        idx = 0;
         len = strlen(text);
-        if(strncmp(text, "all", len) == 0)
+        if(!strncmp(text, "all", len))
             return strdup("all");
     }
 
-    while(next) {
-        hal_comp_t *comp = SHMPTR(next);
-        next = comp->next_ptr;
-        if(comp->type == COMPONENT_TYPE_USER) continue;
-	if ( strncmp(text, comp->name, len) == 0 )
-            return strdup(comp->name);
+    for(; idx < gdl.n; idx++) {
+        if(gdl.data[idx].ctype != HAL_COMP_TYPE_REALTIME)
+            continue;
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     rl_attempted_completion_over = 1;
     return NULL;
 }
 
-static char *parameter_alias_generator(const char *text, int state) {
+static char *parameter_alias_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-
-    if(!state) {
-        next = hal_data->param_list_ptr;
-        len = strlen(text);
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_PARAM);
     }
 
-    while(next) {
-        hal_param_t *param = SHMPTR(next);
-        next = param->next_ptr;
-        if (param->oldname==0) continue;  // no alias here, move along
-        if ( strncmp(text, param->name, len) == 0 )
-            return strdup(param->name);
+    for(; idx < gdl.n; idx++) {
+        if(!gdl.data[idx].alias)
+            continue;
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     return NULL;
 }
 
-static char *pin_alias_generator(const char *text, int state) {
+static char *pin_alias_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
-
-    if(!state) {
-        next = hal_data->pin_list_ptr;
-        len = strlen(text);
+    static size_t idx;
+    if(!state) { // Initial state, fill generator data
+        build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_PIN);
     }
 
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
-        if (pin->oldname==0) continue;  // no alias here, move along
-        if ( strncmp(text, pin->name, len) == 0 )
-            return strdup(pin->name);
+    for(; idx < gdl.n; idx++) {
+        if(!gdl.data[idx].alias)
+            continue;
+	if(!strncmp(text, gdl.data[idx].name, len)) {
+            return strdup(gdl.data[idx++].name);
+        }
     }
     return NULL;
 }
 
-static char *pin_generator(const char *text, int state) {
+static char *pin_generator(const char *text, int state)
+{
+    static gendata_list_t gdl = {};
     static int len;
-    static int next;
+    static size_t idx;
     static int aliased;
-    char *name;
-
-    if(!state) {
-        next = hal_data->pin_list_ptr;
-        len = strlen(text);
+    if(!state) { // Initial state, fill generator data
+        build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_PIN);
         aliased = 0;
     }
 
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        switch (aliased) {
-            case 0: // alias (if any) has not been output
-                if (pin->oldname != 0) {
-                    // there's an alias, so use that and do not update the pin pointer
-                    hal_oldname_t *oldname = SHMPTR(pin->oldname);
-                    name = oldname->name;
-                    aliased = 1;
-                } else {
-                    // no alias, so use the name and update the pin pointer
-                    name = pin->name;
-                    next = pin->next_ptr;
-                }
-            break;
-            case 1:  // there is an alias, and it has been processed already
-                name = pin->name;
-                next = pin->next_ptr;
-                aliased = 0;
-            break;
-            default:
-                // shouldn't be able to get here, so assume we're done
-                rl_attempted_completion_over = 1;
-                return NULL;
-            break;
+    const char *name;
+    for(; idx < gdl.n; idx++) {
+        if(!aliased) {
+            if(gdl.data[idx].alias) {
+                name = gdl.data[idx].alias;
+                aliased = 1;
+            } else {
+                name = gdl.data[idx].name;
+            }
+        } else {
+            name = gdl.data[idx].name;
+            aliased = 0;
         }
-        if ( !writer_match( pin->dir, match_writers ) ) continue;
-        if ( !direction_match( pin->dir, match_direction ) ) continue;
-        if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != pin->type ) continue; 
-	if ( strncmp(text, name, len) == 0 )
+
+        if(!writer_match(gdl.data[idx].dir, match_writers)) {
+            idx -= aliased;
+            continue;
+        }
+        if(!direction_match(gdl.data[idx].dir, match_direction)) {
+            idx -= aliased;
+            continue;
+        }
+        if(match_type != HAL_TYPE_UNSPECIFIED && match_type != gdl.data[idx].type) {
+            idx -= aliased;
+            continue;
+        }
+	if(!strncmp(text, name, len)) {
+            idx += 1 - aliased;
             return strdup(name);
+        }
     }
     rl_attempted_completion_over = 1;
     return NULL;
@@ -591,8 +701,6 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     match_type = -1;
     match_writers = -1;
     match_direction = -1;
-
-    halpr_mutex_acquire();
 
     if(startswith(buffer, "delsig ") && argno == 1) {
         result = func(text, signal_generator);
@@ -722,18 +830,14 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "unload ") && argno == 1) {
         result = func(text, comp_generator);
     } else if(startswith(buffer, "source ") && argno == 1) {
-        halpr_mutex_release();
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
         return NULL;
     } else if(startswith(buffer, "loadusr ") && argno < 3) {
-        halpr_mutex_release();
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
         return func(text, loadusr_generator);
     } else if(startswith(buffer, "loadrt ") && argno == 1) {
         result = func(text, loadrt_generator);
     }
-
-    halpr_mutex_release();
 
     rl_attempted_completion_over = 1;
     return result;

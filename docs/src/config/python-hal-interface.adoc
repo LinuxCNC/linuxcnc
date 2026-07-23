@@ -206,6 +206,23 @@ In that case, the call uses the _value_ to set the port's queue size and it must
 See below xref:_hal_port_pipes[on configuring a port]. +
 Throws a `RuntimeError` exception if HAL is not initialized.
 
+hal.get_p(_name_:string)::
+Returns the value of the pin or param with _name_.
+If _name_ refers to a pin and that pin is connected, then the connected signal's value is returned.
+Boolean types return `True` or `False`.
+Integer scalar types return an integer.
+Floating point types return a float.
+A `RuntimeError` exception is thrown if no pin or param is found by that name. +
+Throws a `RuntimeError` exception if HAL is not initialized.
+
+hal.get_s(_name_:string)::
+Returns the value of the signal with _name_.
+Boolean types return `True` or `False`.
+Integer scalar types return an integer.
+Floating point types return a float.
+A `RuntimeError` exception is thrown if no signal is found by that name. +
+Throws a `RuntimeError` exception if HAL is not initialized.
+
 hal.get_value(_name_:string)::
 Returns the value of the pin, param or signal with _name_, searched in that order.
 Boolean types return `True` or `False`.

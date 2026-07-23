@@ -24,8 +24,8 @@
 #include "switchkins.h"
 
 struct scara_data {
-    hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
-} *haldata = 0;
+    hal_real_t d1, d2, d3, d4, d5, d6;
+} *haldata = NULL;
 
 /* key dimensions
 
@@ -63,13 +63,6 @@ struct scara_data {
                 on the value of joint[3].
 */
 
-#define D1 (*(haldata->d1))
-#define D2 (*(haldata->d2))
-#define D3 (*(haldata->d3))
-#define D4 (*(haldata->d4))
-#define D5 (*(haldata->d5))
-#define D6 (*(haldata->d6))
-
 /* joint[0], joint[1] and joint[3] are in degrees and joint[2] is in length units */
 static
 int scaraKinematicsForward(const double * joint,
@@ -90,6 +83,13 @@ int scaraKinematicsForward(const double * joint,
 
     a1 = a1 + a0;
     a3 = a3 + a1;
+
+    rtapi_real D1 = hal_get_real(haldata->d1);
+    rtapi_real D2 = hal_get_real(haldata->d2);
+    rtapi_real D3 = hal_get_real(haldata->d3);
+    rtapi_real D4 = hal_get_real(haldata->d4);
+    rtapi_real D5 = hal_get_real(haldata->d5);
+    rtapi_real D6 = hal_get_real(haldata->d6);
 
     x = D2*cos(a0) + D4*cos(a1) + D6*cos(a3);
     y = D2*sin(a0) + D4*sin(a1) + D6*sin(a3);
@@ -128,6 +128,13 @@ static int scaraKinematicsInverse(const EmcPose * world,
 
     /* convert degrees to radians */
     a3 = c * ( PM_PI / 180 );
+
+    rtapi_real D1 = hal_get_real(haldata->d1);
+    rtapi_real D2 = hal_get_real(haldata->d2);
+    rtapi_real D3 = hal_get_real(haldata->d3);
+    rtapi_real D4 = hal_get_real(haldata->d4);
+    rtapi_real D5 = hal_get_real(haldata->d5);
+    rtapi_real D6 = hal_get_real(haldata->d6);
 
     /* center of end effector (correct for D6) */
     xt = x - D6*cos(a3);
@@ -188,20 +195,13 @@ static int scaraKinematicsSetup(const  int   comp_id,
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
 
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d1), comp_id,"%s.D1",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d2), comp_id,"%s.D2",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d3), comp_id,"%s.D3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d5), comp_id,"%s.D5",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d1), DEFAULT_D1, "%s.D1", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d2), DEFAULT_D2, "%s.D2", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d3), DEFAULT_D3, "%s.D3", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d4), DEFAULT_D4, "%s.D4", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d5), DEFAULT_D5, "%s.D5", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d6), DEFAULT_D6, "%s.D6", kp->halprefix);
     if (res) { goto error; }
-
-    D1 = DEFAULT_D1;
-    D2 = DEFAULT_D2;
-    D3 = DEFAULT_D3;
-    D4 = DEFAULT_D4;
-    D5 = DEFAULT_D5;
-    D6 = DEFAULT_D6;
 
     return 0;
 

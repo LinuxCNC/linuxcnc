@@ -219,31 +219,31 @@ an unsafe condition, then the board will immediately return to the ESTOP state.
 
 /* this structure contains the runtime data for a digital output */
 typedef struct {
-    hal_bit_t *data;		/* output pin value */
-    hal_bit_t invert;		/* parameter to invert output pin */
+    hal_bool_t data;		/* output pin value */
+    hal_bool_t invert;		/* parameter: to invert output pin */
 } dout_t;
 
 /* this structure contains the runtime data for a digital input */
 typedef struct {
-    hal_bit_t *data;		/* input pin value */
-    hal_bit_t *data_not;	/* inverted input pin value */
+    hal_bool_t data;		/* input pin value */
+    hal_bool_t data_not;	/* inverted input pin value */
 } din_t;
 
 /* this structure contains the runtime data for a step pulse generator */
 typedef struct {
-    hal_bit_t *enable;		/* enable pin for step generator */
-    hal_float_t *vel;		/* velocity command pin*/
-    hal_float_t scale;		/* parameter: scaling for vel to Hz */
-    hal_float_t max_vel;	/* velocity limit */
-    hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
+    hal_bool_t enable;		/* enable pin for step generator */
+    hal_real_t vel;		/* velocity command pin*/
+    hal_real_t scale;		/* parameter: scaling for vel to Hz */
+    hal_real_t max_vel;		/* parameter: velocity limit */
+    hal_real_t freq;		/* parameter: velocity cmd scaled to Hz */
 } stepgen_t;
 
 /* runtime data for a set of 4 step pulse generators */
 typedef struct {
     stepgen_t sg[4];		/* per generator data */
-    hal_u32_t setup_time_ns;	/* setup time in nanoseconds */
-    hal_u32_t pulse_width_ns;	/* pulse width in nanoseconds */
-    hal_u32_t pulse_space_ns;	/* min pulse space in nanoseconds */
+    hal_uint_t setup_time_ns;	/* parameter: setup time in nanoseconds */
+    hal_uint_t pulse_width_ns;	/* parameter: pulse width in nanoseconds */
+    hal_uint_t pulse_space_ns;	/* parameter: min pulse space in nanoseconds */
 } stepgens_t;
 
 #define BOOT_NORMAL 0
@@ -252,13 +252,13 @@ typedef struct {
 
 /* this structure contains the runtime data for a PWM generator */
 typedef struct {
-    hal_bit_t *enable;		/* enable pin for PWM generator */
-    hal_float_t *value;		/* value command pin */
-    hal_float_t scale;		/* parameter: scaling */
-    hal_float_t max_dc;		/* maximum duty cycle 0.0-1.0 */
-    hal_float_t min_dc;		/* minimum duty cycle 0.0-1.0 */
-    hal_float_t duty_cycle;	/* actual duty cycle output */
-    hal_bit_t bootstrap;	/* enable bootstrap mode (pulses at startup) */
+    hal_bool_t enable;		/* enable pin for PWM generator */
+    hal_real_t value;		/* value command pin */
+    hal_real_t scale;		/* parameter: scaling */
+    hal_real_t max_dc;		/* parameter: maximum duty cycle 0.0-1.0 */
+    hal_real_t min_dc;		/* parameter: minimum duty cycle 0.0-1.0 */
+    hal_real_t duty_cycle;	/* parameter: actual duty cycle output */
+    hal_bool_t bootstrap;	/* parameter: enable bootstrap mode (pulses at startup) */
     unsigned char boot_state;	/* state for bootstrap state machine */
     unsigned char old_enable;	/* used to detect rising edge, for boot */
 } pwmgen_t;
@@ -266,16 +266,16 @@ typedef struct {
 /* runtime data for a set of 4 PWM generators */
 typedef struct {
     pwmgen_t pg[4];		/* per generator data */
-    hal_float_t freq;		/* PWM frequency */
-    hal_float_t old_freq;	/* previous value, to detect changes */
+    hal_real_t freq;		/* parameter: PWM frequency */
+    rtapi_real old_freq;	/* previous value, to detect changes */
     unsigned short period;	/* period in clock ticks */
     double period_recip;	/* reciprocal of period */
 } pwmgens_t;
 
 /* this structure contains the runtime data for a 16-bit DAC */
 typedef struct {
-    hal_float_t *value;		/* value command pin */
-    hal_float_t scale;		/* parameter: scaling */
+    hal_real_t value;		/* value command pin */
+    hal_real_t scale;		/* parameter: scaling */
 } DAC_t;
 
 /* runtime data for a 4-channel 16-bit DAC */
@@ -291,19 +291,19 @@ typedef union {
 
 /* runtime data for a single encoder */
 typedef struct {
-  hal_float_t *position;      /* output: scaled position pointer */
-  hal_s32_t *count;           /* output: unscaled encoder counts */
-  hal_s32_t *delta;		/* output: delta counts since last read */
-  hal_s32_t prevdir;		/* local: previous direction  */
-  hal_float_t scale;          /* parameter: scale factor */
-  hal_bit_t *index;           /* output: index flag */
-  hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-  hal_s32_t oldreading;     /* used to detect overflow / underflow of the counter JE001 */
-  unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
-  unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
-  hal_float_t *vel;             /* output: scaled velocity */
-  hal_float_t min_speed;        /* parameter: min speed for velocity estimation */
-  hal_u32_t counts_since_timeout;    /* for velocity estimation */
+  hal_real_t position;      /* output: scaled position pointer */
+  hal_sint_t count;         /* output: unscaled encoder counts */
+  hal_sint_t delta;         /* output: delta counts since last read */
+  rtapi_s32 prevdir;        /* local: previous direction  */
+  hal_real_t scale;         /* parameter: scale factor */
+  hal_bool_t index;         /* output: index flag */
+  hal_bool_t index_enable;  /* enable index pulse to reset encoder count */
+  rtapi_s32 oldreading;     /* used to detect overflow / underflow of the counter JE001 */
+  unsigned int indres;      /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
+  unsigned int indrescnt;   /* counts servo cycles since index reset was turned on */
+  hal_real_t vel;           /* output: scaled velocity */
+  hal_real_t min_speed;     /* parameter: min speed for velocity estimation */
+  rtapi_u32 counts_since_timeout;    /* for velocity estimation */
   unsigned short old_timestamp;
   unsigned short timestamp;
 } encoder_t;
@@ -957,8 +957,8 @@ static void read_digins(slot_data_t *slot)
     b = 0;
     mask = 0x01;
     while ( b < 8 ) {
-	*(slot->digin[b].data) = indata & mask;
-	*(slot->digin[b].data_not) = !(indata & mask);
+	hal_set_bool(slot->digin[b].data, indata & mask);
+	hal_set_bool(slot->digin[b].data_not, !(indata & mask));
 	mask <<= 1;
 	b++;
     }
@@ -967,8 +967,8 @@ static void read_digins(slot_data_t *slot)
     /* and split them too */
     mask = 0x01;
     while ( b < 16 ) {
-	*(slot->digin[b].data) = indata & mask;
-	*(slot->digin[b].data_not) = !(indata & mask);
+	hal_set_bool(slot->digin[b].data, indata & mask);
+	hal_set_bool(slot->digin[b].data_not, !(indata & mask));
 	mask <<= 1;
 	b++;
     }
@@ -984,10 +984,10 @@ static void write_digouts(slot_data_t *slot)
     /* assemble output byte from 8 source variables */
     for (b = 0; b < 8; b++) {
 	/* get the data, add to output byte */
-	if ((*(slot->digout[b].data)) && (!slot->digout[b].invert)) {
+	if ((hal_get_bool(slot->digout[b].data)) && !hal_get_bool(slot->digout[b].invert)) {
 	    outdata |= mask;
 	}
-	if ((!*(slot->digout[b].data)) && (slot->digout[b].invert)) {
+	if ((!hal_get_bool(slot->digout[b].data)) && hal_get_bool(slot->digout[b].invert)) {
 	    outdata |= mask;
 	}
 	mask <<= 1;
@@ -1008,8 +1008,8 @@ static void read_PPMC_digins(slot_data_t *slot)
     b = 0;
     mask = 0x01;
     while ( b < 8 ) {
-	*(slot->digin[b].data) = indata & mask;
-	*(slot->digin[b].data_not) = !(indata & mask);
+	hal_set_bool(slot->digin[b].data, indata & mask);
+	hal_set_bool(slot->digin[b].data_not, !(indata & mask));
 	mask <<= 1;
 	b++;
     }
@@ -1018,8 +1018,8 @@ static void read_PPMC_digins(slot_data_t *slot)
     /* and split them too */
     mask = 0x01;
     while ( b < 16 ) {
-	*(slot->digin[b].data) = indata & mask;
-	*(slot->digin[b].data_not) = !(indata & mask);
+	hal_set_bool(slot->digin[b].data, indata & mask);
+	hal_set_bool(slot->digin[b].data_not, !(indata & mask));
 	mask <<= 1;
 	b++;
     }
@@ -1029,8 +1029,8 @@ static void read_PPMC_digins(slot_data_t *slot)
       /* and split them too */
       mask = 0x01;
       while ( b < 18 ) {
-	*(slot->digin[b].data) = indata & mask;
-	*(slot->digin[b].data_not) = !(indata & mask);
+	hal_set_bool(slot->digin[b].data, indata & mask);
+	hal_set_bool(slot->digin[b].data_not, !(indata & mask));
 	mask <<= 1;
 	b++;
       }
@@ -1048,10 +1048,10 @@ static void write_PPMC_digouts(slot_data_t *slot)
     /* assemble output byte from 8 source variables */
     for (b = 0; b < 8; b++) {
 	/* get the data, add to output byte */
-	if ((*(slot->digout[b].data)) && (!slot->digout[b].invert)) {
+	if ((hal_get_bool(slot->digout[b].data)) && !hal_get_bool(slot->digout[b].invert)) {
 	    outdata |= mask;
 	}
-	if ((!*(slot->digout[b].data)) && (slot->digout[b].invert)) {
+	if ((!hal_get_bool(slot->digout[b].data)) && hal_get_bool(slot->digout[b].invert)) {
 	    outdata |= mask;
 	}
 	mask <<= 1;
@@ -1060,10 +1060,10 @@ static void write_PPMC_digouts(slot_data_t *slot)
     slot->wr_buf[DIO_DOUTA] = outdata;
     if (slot->digout[8].data != NULL) {  // no estop funct on slave boards - hal pin doesn't exist
       outdata = 0;  // now process estop bit
-      if ((*(slot->digout[8].data)) && (!slot->digout[8].invert)) {
+      if ((hal_get_bool(slot->digout[8].data)) && !hal_get_bool(slot->digout[8].invert)) {
 	outdata =1;
       }
-      if ((!*(slot->digout[8].data)) && (slot->digout[8].invert)) {
+      if ((!hal_get_bool(slot->digout[8].data)) && hal_get_bool(slot->digout[8].invert)) {
 	outdata |= 1;
       }
       slot->wr_buf[DIO_ESTOP_OUT] = outdata;
@@ -1076,7 +1076,7 @@ static void read_encoders(slot_data_t *slot)
   int i, byteindex, byteindx2;
   double vel;                    // local temporary velocity
     union pos_tag {
-      hal_s32_t l;              // JE001
+      rtapi_s32 l;               // JE001
         struct byte_tag {
             signed char b0;
             signed char b1;
@@ -1092,8 +1092,6 @@ static void read_encoders(slot_data_t *slot)
       } byte;
     } timebase, timestamp;
     unsigned short delta_time;
-    //    hal_u32_t timestamp;
-    //    hal_u32_t timebase;
       
     // sample timebase only on boards so equipped
     if (slot->use_timestamp) {
@@ -1116,22 +1114,22 @@ static void read_encoders(slot_data_t *slot)
         else
             if ((oldpos.byte.b2 == 0) && (pos.byte.b2 & 0xc0) == 0xc0)
                 pos.byte.b3--;
-	*(slot->encoder[i].delta) = pos.l - slot->encoder[i].oldreading;
+	hal_set_si32(slot->encoder[i].delta, pos.l - slot->encoder[i].oldreading);
 	vel = (pos.l - slot->encoder[i].oldreading) /
-	           (read_period * 1e-9 * slot->encoder[i].scale);
+	           (read_period * 1e-9 * hal_get_real(slot->encoder[i].scale));
 	/* index processing */
 	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) != 0 ) {
 	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "index seen for axis %d",i);
 	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "indrescnt %d\n",slot->encoder[i].indrescnt);
 	    /* index edge occurred since last time this code ran */
-	    *(slot->encoder[i].index) = 1;
+	    hal_set_bool(slot->encoder[i].index, 1);
 	    /* index-enable only works on version 2 and up */
 	    if (slot->ver >= 2) {
 		/* were we looking for an index edge? */
 		if ( ((slot->encoder[0].indres & ( 1 << i )) != 0) &&
 		     (slot->encoder[i].indrescnt > 3)) {
 		    /* yes, clear index-enable to announce that we found it */
-		    *(slot->encoder[i].index_enable) = 0;
+		    hal_set_bool(slot->encoder[i].index_enable, 0);
 		    /* need to properly set the 24->32 bit extension byte */
 		    if ( pos.byte.b2 < 0 ) {
 		      /* going backwards */
@@ -1144,18 +1142,18 @@ static void read_encoders(slot_data_t *slot)
 	    }
 	} else {
 	  /* no index edge since last check */
-	  *(slot->encoder[i].index) = 0;
+	  hal_set_bool(slot->encoder[i].index, 0);
 	}
 	slot->encoder[i].oldreading = pos.l;
-	*(slot->encoder[i].count) = pos.l;
-	if (slot->encoder[i].scale < 0.0) {
-	  if (slot->encoder[i].scale > -EPSILON)
-	    slot->encoder[i].scale = -1.0;
+	hal_set_si32(slot->encoder[i].count, pos.l);
+	if (hal_get_real(slot->encoder[i].scale) < 0.0) {
+	  if (hal_get_real(slot->encoder[i].scale) > -EPSILON)
+	    hal_set_real(slot->encoder[i].scale, -1.0);
 	} else {
-	  if (slot->encoder[i].scale < EPSILON)
-	    slot->encoder[i].scale = 1.0;
+	  if (hal_get_real(slot->encoder[i].scale) < EPSILON)
+	    hal_set_real(slot->encoder[i].scale, 1.0);
 	}
-	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
+	hal_set_real(slot->encoder[i].position, pos.l / hal_get_real(slot->encoder[i].scale));
 	// perform velocity estimate when hardware provides timestamps
 	if (slot->use_timestamp) {
 	  slot->encoder[i].old_timestamp = slot->encoder[i].timestamp;
@@ -1163,20 +1161,20 @@ static void read_encoders(slot_data_t *slot)
 	  timestamp.byte.b1 = slot->rd_buf[byteindx2++];
 	  slot->encoder[i].timestamp = timestamp.s;
 	  // one or more counts this sample
-	  if (*(slot->encoder[i].delta) != 0.0) {
+	  if (hal_get_si32(slot->encoder[i].delta) != 0.0) {
 	    delta_time = timestamp.s - slot->encoder[i].old_timestamp;
 	    delta_time = delta_time & 0xffff;
 	    if (slot->encoder[i].counts_since_timeout < 2) {
 	      // just keep simple vel calc from above
 	      slot->encoder[i].counts_since_timeout++;
-	      *(slot->encoder[i].vel) = vel;  // cannot make estimate
+	      hal_set_real(slot->encoder[i].vel, vel);  // cannot make estimate
 	    } else {
-	      vel = *(slot->encoder[i].delta) / (delta_time * 1e-6 * slot->encoder[i].scale);
-	      *(slot->encoder[i].vel) = vel;
+	      vel = hal_get_si32(slot->encoder[i].delta) / (delta_time * 1e-6 * hal_get_real(slot->encoder[i].scale));
+	      hal_set_real(slot->encoder[i].vel, vel);
 	    }
-	    if (((slot->encoder[i].prevdir > 0) && (*(slot->encoder[i].delta) < 0)) ||
-		((slot->encoder[i].prevdir < 0) && (*(slot->encoder[i].delta) > 0))) {
-	      *(slot->encoder[i].vel) = 0.0;    /* suppress velocity of dithering encoder at reversal */
+	    if (((slot->encoder[i].prevdir > 0) && (hal_get_si32(slot->encoder[i].delta) < 0)) ||
+		((slot->encoder[i].prevdir < 0) && (hal_get_si32(slot->encoder[i].delta) > 0))) {
+	      hal_set_real(slot->encoder[i].vel, 0.0);    /* suppress velocity of dithering encoder at reversal */
 	    }
 	  } else {
 	    // no counts this sample
@@ -1186,27 +1184,27 @@ static void read_encoders(slot_data_t *slot)
 	      //  if (delta_time < slot->encoder[i].scale * slot->encoder[i].min_speed) {
 	      if (delta_time < 65500) {
 		// 1e-6 is timebase period
-		vel = 1.0 / (slot->encoder[i].scale * delta_time * 1e-6);
+		vel = 1.0 / (hal_get_real(slot->encoder[i].scale) * delta_time * 1e-6);
 		if (vel < 0.0) vel = -vel;
-		if (vel < *(slot->encoder[i].vel)) {
-		  *(slot->encoder[i].vel) = vel;
+		if (vel < hal_get_real(slot->encoder[i].vel)) {
+		  hal_set_real(slot->encoder[i].vel, vel);
 		}
-		if (-vel > *(slot->encoder[i].vel)) {
-		  *(slot->encoder[i].vel) = -vel;
+		if (-vel > hal_get_real(slot->encoder[i].vel)) {
+		  hal_set_real(slot->encoder[i].vel, -vel);
 		}
 	      } else {
 		slot->encoder[i].counts_since_timeout = 0;
-		*(slot->encoder[i].vel) = 0;
+		hal_set_real(slot->encoder[i].vel, 0);
 	      }
 	    } else {
-	      *(slot->encoder[i].vel) = 0;
+	      hal_set_real(slot->encoder[i].vel, 0);
 	    }
 	  }
 	} else {
-	  *(slot->encoder[i].vel) = vel;  // encoder without timestamp
+	  hal_set_real(slot->encoder[i].vel, vel);  // encoder without timestamp
 	}
-	if (*(slot->encoder[i].delta) > 0) slot->encoder[i].prevdir = 1;  // mark last direction moved
-	if (*(slot->encoder[i].delta) < 0) slot->encoder[i].prevdir = -1;
+	if (hal_get_si32(slot->encoder[i].delta) > 0) slot->encoder[i].prevdir = 1;  // mark last direction moved
+	if (hal_get_si32(slot->encoder[i].delta) < 0) slot->encoder[i].prevdir = -1;
     }
 }
 
@@ -1224,7 +1222,7 @@ static void write_encoders(slot_data_t *slot)
 	return;
     }
     for (i = 0; i < 4; i++) {
-	if ( *(slot->encoder[i].index_enable) ) {
+	if ( hal_get_bool(slot->encoder[i].index_enable) ) {
 	    /* all 4 control bits are packed into the same register */
 	  if ((slot->encoder[0].indres & (1 << i)) == 0) {
 	    slot->encoder[i].indrescnt = 0; /* clear counter first time only */
@@ -1244,16 +1242,16 @@ static void write_encoders(slot_data_t *slot)
 /* fetch a time parameter (in nS), make sure it is a multiple
    of 100nS, and is between min_ns and 25.4uS, and return the
    value in 10MHz clock pulses. */
-static unsigned int ns2cp( hal_u32_t *pns, unsigned int min_ns )
+static unsigned int ns2cp( hal_uint_t pns, unsigned int min_ns )
 {
     unsigned ns, cp;
 
-    ns = *pns;
+    ns = hal_get_ui32(pns);
     if ( ns < min_ns ) ns = min_ns;
     if ( ns > 25400 ) ns = 25400;
     cp = ns / 100;
     ns = cp * 100;
-    *pns = ns;
+    hal_set_ui32(pns, ns);
     return cp;
 }
 
@@ -1267,13 +1265,13 @@ static void write_stepgens(slot_data_t *slot)
     unsigned char control_byte;
 
     /* pulse width cannot be less than 200nS (HW limit) */
-    pulse_width = ns2cp(&(slot->stepgen->pulse_width_ns), 200);
+    pulse_width = ns2cp(slot->stepgen->pulse_width_ns, 200);
     /* write pulse width to the cache, inverted */
     slot->wr_buf[RATE_WIDTH_0] = 256 - pulse_width;
     /* pulse space cannot be less than 300nS (HW limitation) */
-    pulse_space = ns2cp(&(slot->stepgen->pulse_space_ns), 300);
+    pulse_space = ns2cp(slot->stepgen->pulse_space_ns, 300);
     /* setup time cannot be less than 2 (HW limit) */
-    setup_time = ns2cp(&(slot->stepgen->setup_time_ns), 200);
+    setup_time = ns2cp(slot->stepgen->setup_time_ns, 200);
     /* write it to the cache, inverted */
     slot->wr_buf[RATE_SETUP_0] = 256 - setup_time;
     /* calculate the max frequency, varies with pulse width and
@@ -1285,37 +1283,37 @@ static void write_stepgens(slot_data_t *slot)
 	/* point to the specific stepgen */
 	sg = &(slot->stepgen->sg[n]);
 	/* validate the scale value */
-	if ( sg->scale < 0.0 ) {
-	    if ( sg->scale > -EPSILON ) {
+	if ( hal_get_real(sg->scale) < 0.0 ) {
+	    if ( hal_get_real(sg->scale) > -EPSILON ) {
 		/* too small, divide by zero is bad */
-		sg->scale = -1.0;
+		hal_set_real(sg->scale, -1.0);
 	    }
-	    abs_scale = -sg->scale;
+	    abs_scale = -hal_get_real(sg->scale);
 	} else {
-	    if ( sg->scale < EPSILON ) {
-		sg->scale = 1.0;
+	    if ( hal_get_real(sg->scale) < EPSILON ) {
+		hal_set_real(sg->scale, 1.0);
 	    }
-	    abs_scale = sg->scale;
+	    abs_scale = hal_get_real(sg->scale);
 	}
 	ch_max_freq = bd_max_freq;
 	/* check for user specified max velocity */
-	if (sg->max_vel <= 0.0) {
+	if (hal_get_real(sg->max_vel) <= 0.0) {
 	    /* set to zero if negative, and ignore if zero */
-	    sg->max_vel = 0.0;
+	    hal_set_real(sg->max_vel, 0.0);
 	} else {
 	    /* parameter is non-zero and positive, compare to max_freq */
-	    if ( (sg->max_vel * abs_scale) > ch_max_freq) {
+	    if ( (hal_get_real(sg->max_vel) * abs_scale) > ch_max_freq) {
 		/* parameter is too high, lower it */
-		sg->max_vel = ch_max_freq / abs_scale;
+		hal_set_real(sg->max_vel, ch_max_freq / abs_scale);
 	    } else {
 		/* lower max_freq to match parameter */
-		ch_max_freq = sg->max_vel * abs_scale;
+		ch_max_freq = hal_get_real(sg->max_vel) * abs_scale;
 	    }
 	}
 	/* calculate desired frequency */
-	freq = *(sg->vel) * sg->scale;
+	freq = hal_get_real(sg->vel) * hal_get_real(sg->scale);
 	/* should we be running? */
-	if ( *(sg->enable) != 0 ) {
+	if ( hal_get_bool(sg->enable) != 0 ) {
 	    run = 1;
 	} else {
 	    run = 0;
@@ -1350,9 +1348,9 @@ static void write_stepgens(slot_data_t *slot)
 	}
 	/* set dir bit in the control byte, and save the frequency */
 	if ( reverse ) {
-	    sg->freq = -freq;
+	    hal_set_real(sg->freq, -freq);
 	} else {
-	    sg->freq = freq;
+	    hal_set_real(sg->freq, freq);
 	    control_byte |= 0x40;
 	}
 	/* correct for an offset of 4 in the hardware */
@@ -1378,17 +1376,17 @@ static void write_pwmgens(slot_data_t *slot)
     unsigned char control_byte;
 
     /* zero frequency is a special case, turn off everything */
-    if ( slot->pwmgen->freq == 0.0 ) {
-	slot->pwmgen->old_freq = slot->pwmgen->freq;
+    if ( hal_get_real(slot->pwmgen->freq) == 0.0 ) {
+	slot->pwmgen->old_freq = hal_get_real(slot->pwmgen->freq);
 	/* write control byte to cache */
 	slot->wr_buf[PWM_CTRL_0] = 0;
 	/* done */
 	return;
     }
     /* check for new frequency setting */
-    if ( slot->pwmgen->freq != slot->pwmgen->old_freq ) {
+    if ( hal_get_real(slot->pwmgen->freq) != slot->pwmgen->old_freq ) {
 	/* process new frequency value */
-	freq = slot->pwmgen->freq;
+	freq = hal_get_real(slot->pwmgen->freq);
 	/* frequency must be between 153Hz and 500KHz */
 	if ( freq < 153.0 ) {
 	    freq = 153.0;
@@ -1404,7 +1402,7 @@ static void write_pwmgens(slot_data_t *slot)
 	/* calculate actual frequency (after rounding, etc) */
 	freq = 10000000.0 / period;
 	/* save values */
-	slot->pwmgen->freq = freq;
+	hal_set_real(slot->pwmgen->freq, freq);
 	slot->pwmgen->old_freq = freq;
 	slot->pwmgen->period = period;
 	slot->pwmgen->period_recip = 1.0 / period;
@@ -1420,31 +1418,31 @@ static void write_pwmgens(slot_data_t *slot)
 	/* point to the specific pwm generator */
 	pg = &(slot->pwmgen->pg[n]);
 	/* validate the scale value */
-	if ( pg->scale < 0.0 ) {
-	    if ( pg->scale > -EPSILON ) {
+	if ( hal_get_real(pg->scale) < 0.0 ) {
+	    if ( hal_get_real(pg->scale) > -EPSILON ) {
 		/* too small, divide by zero is bad */
-		pg->scale = -1.0;
+		hal_set_real(pg->scale, -1.0);
 	    }
 	} else {
-	    if ( pg->scale < EPSILON ) {
-		pg->scale = 1.0;
+	    if ( hal_get_real(pg->scale) < EPSILON ) {
+		hal_set_real(pg->scale, 1.0);
 	    }
 	}
 	/* calculate desired duty cycle */
-	dc = *(pg->value) / pg->scale;
+	dc = hal_get_real(pg->value) / hal_get_real(pg->scale);
 	/* Special code to deal with the requirements of the Pico PWM
 	   amps.  They need at least one PWM pulse in each direction 
 	   every time you enable the amps.  So we override the commanded
 	   duty cycle with +5%, then -5%, for one thread execution time 
 	   each, when we see a rising edge on enable.
 	*/
-	if ( pg->bootstrap != 0 ) {
+	if ( hal_get_bool(pg->bootstrap) != 0 ) {
 	    /* check for rising edge on enable */
-	    if (( *(pg->enable) != 0 ) && ( pg->old_enable == 0 )) {
+	    if (( hal_get_bool(pg->enable) != 0 ) && ( pg->old_enable == 0 )) {
 		/* kick off state machine */
 		pg->boot_state = BOOT_FWD;
 	    }
-	    pg->old_enable = *(pg->enable);
+	    pg->old_enable = hal_get_bool(pg->enable);
 	    /* now execute a state machine */
 	    switch(pg->boot_state) {
 	    case BOOT_NORMAL:
@@ -1471,21 +1469,21 @@ static void write_pwmgens(slot_data_t *slot)
 	    abs_dc = dc;
 	}
 	/* reset any illegal duty cycle limits */
-	if (( pg->min_dc > 1.0 ) || ( pg->min_dc < 0.0 )) {
-	    pg->min_dc = 0.0;
+	if (( hal_get_real(pg->min_dc) > 1.0 ) || ( hal_get_real(pg->min_dc) < 0.0 )) {
+	    hal_set_real(pg->min_dc, 0.0);
 	} 
-	if (( pg->max_dc > 1.0 ) || ( pg->max_dc < 0.0 )) {
-	    pg->max_dc = 1.0;
+	if (( hal_get_real(pg->max_dc) > 1.0 ) || ( hal_get_real(pg->max_dc) < 0.0 )) {
+	    hal_set_real(pg->max_dc, 1.0);
 	} 
-	if ( pg->min_dc >= pg->max_dc ) {
-	    pg->min_dc = 0.0;
-	    pg->max_dc = 1.0;
+	if ( hal_get_real(pg->min_dc) >= hal_get_real(pg->max_dc) ) {
+	    hal_set_real(pg->min_dc, 0.0);
+	    hal_set_real(pg->max_dc, 1.0);
 	}
 	/* apply limits */
-	if ( abs_dc > pg->max_dc ) {
-	    abs_dc = pg->max_dc;
-	} else if ( abs_dc < pg->min_dc ) {
-	    abs_dc = pg->min_dc;
+	if ( abs_dc > hal_get_real(pg->max_dc) ) {
+	    abs_dc = hal_get_real(pg->max_dc);
+	} else if ( abs_dc < hal_get_real(pg->min_dc) ) {
+	    abs_dc = hal_get_real(pg->min_dc);
 	}
 	/* calculate length of PWM pulse in clocks */
 	len = ( abs_dc * slot->pwmgen->period ) + 0.5;
@@ -1493,14 +1491,14 @@ static void write_pwmgens(slot_data_t *slot)
 	abs_dc = len * slot->pwmgen->period_recip;
 	/* set run bit in the control byte */
 	control_byte >>= 2;
-	if ( *(pg->enable) != 0 ) {
+	if ( hal_get_bool(pg->enable) != 0 ) {
 	    control_byte |= 0x80;
 	}
 	/* set dir bit in the control byte, and save the duty cycle */
 	if ( reverse ) {
-	    pg->duty_cycle = -abs_dc;
+	    hal_set_real(pg->duty_cycle, -abs_dc);
 	} else {
-	    pg->duty_cycle = abs_dc;
+	    hal_set_real(pg->duty_cycle, abs_dc);
 	    control_byte |= 0x40;
 	}
 	/* calculate count at which to turn off output */
@@ -1527,18 +1525,18 @@ static void write_DACs(slot_data_t *slot)
       /* point to the specific DAC */
       pg = &(slot->DAC->pg[n]);
       /* validate the scale value */
-      if ( pg->scale < 0.0 ) {
-	if ( pg->scale > -EPSILON ) {
+      if ( hal_get_real(pg->scale) < 0.0 ) {
+	if ( hal_get_real(pg->scale) > -EPSILON ) {
 	  /* too small, divide by zero is bad */
-	  pg->scale = -1.0;
+	  hal_set_real(pg->scale, -1.0);
 	}
       } else {
-	if ( pg->scale < EPSILON ) {
-	  pg->scale = 1.0;
+	if ( hal_get_real(pg->scale) < EPSILON ) {
+	  hal_set_real(pg->scale, 1.0);
 	}
       }
       /* calculate desired output voltage */
-      volts = *(pg->value) / pg->scale;
+      volts = hal_get_real(pg->value) / hal_get_real(pg->scale);
       /* output to DAC word works like:
 	 0xFFFF -> +10 V
 	 0x8000 ->   0 V
@@ -1568,14 +1566,14 @@ static void write_extraDAC(slot_data_t *slot)
     /* point to the DAC */
     pg = &(slot->extra->dac);
     /* validate the scale value */
-    if ( pg->scale < 0.0 ) {
-	if ( pg->scale > -EPSILON ) {
+    if ( hal_get_real(pg->scale) < 0.0 ) {
+	if ( hal_get_real(pg->scale) > -EPSILON ) {
 	    /* too small, divide by zero is bad */
-	    pg->scale = -1.0;
+	    hal_set_real(pg->scale, -1.0);
 	}
     } else {
-	if ( pg->scale < EPSILON ) {
-	    pg->scale = 1.0;
+	if ( hal_get_real(pg->scale) < EPSILON ) {
+	    hal_set_real(pg->scale, 1.0);
 	}
     }
     /* calculate desired output voltage */
@@ -1589,7 +1587,7 @@ static void write_extraDAC(slot_data_t *slot)
        UPC and USC boards sold with the spindle DAC option
        have SSR1 set up for + output, and SSR2 for - output.  */
 
-    volts = *(pg->value) / pg->scale;
+    volts = hal_get_real(pg->value) / hal_get_real(pg->scale);
     if (volts < 0.0 ) volts = -volts;  // no fabs function available!!
     /* output to DAC word works like:
 	0xFF -> +10 V
@@ -1620,10 +1618,10 @@ static void write_extra_dout(slot_data_t *slot)
     for (b = 0; b < 8; b++) {
       pg = &(slot->extra->douts[b]);
 	/* get the data, add to output byte */
-	if ((*(pg->data)) && (!pg->invert)) {
+	if ((hal_get_bool(pg->data)) && !hal_get_bool(pg->invert)) {
 	    outdata |= mask;
 	}
-	if ((!*(pg->data)) && (pg->invert)) {
+	if ((!hal_get_bool(pg->data)) && hal_get_bool(pg->invert)) {
 	    outdata |= mask;
 	}
 	mask <<= 1;
@@ -1704,12 +1702,12 @@ static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus)
     }
     for ( n = 0 ; n < 16 ; n++ ) {
 	/* export pins for input data */
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[n].data), 0,
 				  "ppmc.%d.din.%02d.in", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data_not), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[n].data_not), 0,
 				  "ppmc.%d.din.%02d.in-not", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
@@ -1744,18 +1742,17 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
     }
     for ( n = 0 ; n < 8 ; n++ ) {
 	/* export pin for output data */
-	retval = hal_pin_bit_newf(HAL_IN, &(slot->digout[n].data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_IN, &(slot->digout[n].data), 0,
 				  "ppmc.%d.dout.%02d.out", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* export parameter for inversion */
-	retval = hal_param_bit_newf(HAL_RW, &(slot->digout[n].invert), comp_id,
+	retval = hal_param_new_bool(comp_id, HAL_RW, &(slot->digout[n].invert), 0,
 				    "ppmc.%d.dout.%02d-invert", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
-	slot->digout[n].invert = 0;
 	/* increment number to prepare for next output */
 	bus->last_digout++;
     }
@@ -1780,12 +1777,12 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
     }
     for ( n = 0 ; n < 16 ; n++ ) {
 	/* export pins for input data */
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[n].data), 0,
 				  "ppmc.%d.din.%02d.in", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data_not), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[n].data_not), 0,
 				  "ppmc.%d.din.%02d.in-not", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
@@ -1794,22 +1791,22 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
 	bus->last_digin++;
     }
     if (bus->last_digin < 31) {
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[16].data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[16].data), 0,
 				  "ppmc.%d.din.estop.in", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[16].data_not), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[16].data_not), 0,
 				  "ppmc.%d.din.estop.in-not", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[17].data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[17].data), 0,
 				  "ppmc.%d.din.fault.in", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[17].data_not), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->digin[17].data_not), 0,
 				  "ppmc.%d.din.fault.in-not", bus->busnum);
 	if (retval != 0) {
 	    return retval;
@@ -1848,36 +1845,34 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
     }
     for ( n = 0 ; n < 8 ; n++ ) {
 	/* export pin for output data */
-	retval = hal_pin_bit_newf(HAL_IN, &(slot->digout[n].data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_IN, &(slot->digout[n].data), 0,
 				  "ppmc.%d.dout.%02d.out", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* export parameter for inversion */
-	retval = hal_param_bit_newf(HAL_RW, &(slot->digout[n].invert), comp_id,
+	retval = hal_param_new_bool(comp_id, HAL_RW, &(slot->digout[n].invert), 0,
 				    "ppmc.%d.dout.%02d.invert", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
-	slot->digout[n].invert = 0;
 	/* increment number to prepare for next output */
 	bus->last_digout++;
     }
 	/* export pin for E-Stop control */
     if (bus->last_digout < 15) {                // only on first DIO board
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  master DIO at # %d\n",bus->last_digout);
-      retval = hal_pin_bit_newf(HAL_IN, &(slot->digout[8].data), comp_id,
+      retval = hal_pin_new_bool(comp_id, HAL_IN, &(slot->digout[8].data), 0,
 				"ppmc.%d.dout.Estop.out", bus->busnum);
       if (retval != 0) {
 	return retval;
       }
       /* export parameter for inversion */
-      retval = hal_param_bit_newf(HAL_RW, &(slot->digout[8].invert), comp_id,
+      retval = hal_param_new_bool(comp_id, HAL_RW, &(slot->digout[8].invert), 0,
 				  "ppmc.%d.dout.Estop.invert", bus->busnum);
       if (retval != 0) {
 	return retval;
       }
-      slot->digout[8].invert = 0;
       add_wr_funct(write_PPMC_digouts, slot, block(DIO_DOUTA, DIO_ESTOP_OUT));
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D Out\n");
     }
@@ -1907,59 +1902,54 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	return -1;
     }
     /* export params that apply to all four stepgens */
-    retval = hal_param_u32_newf(HAL_RW, &(slot->stepgen->setup_time_ns), comp_id,
+    /* 10uS default setup time */
+    retval = hal_param_new_ui32(comp_id, HAL_RW, &(slot->stepgen->setup_time_ns), 10000,
 	"ppmc.%d.stepgen.%02d-%02d.setup-time-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
-    /* 10uS default setup time */
-    slot->stepgen->setup_time_ns = 10000;
-    retval = hal_param_u32_newf(HAL_RW, &(slot->stepgen->pulse_width_ns), comp_id,
+    /* 4uS default pulse width */
+    retval = hal_param_new_ui32(comp_id, HAL_RW, &(slot->stepgen->pulse_width_ns), 4000,
 	"ppmc.%d.stepgen.%02d-%02d.pulse-width-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
-    /* 4uS default pulse width */
-    slot->stepgen->pulse_width_ns = 4000;
-    retval = hal_param_u32_newf(HAL_RW, &(slot->stepgen->pulse_space_ns), comp_id,
+    /* 4uS default pulse spacing */
+    retval = hal_param_new_ui32(comp_id, HAL_RW, &(slot->stepgen->pulse_space_ns), 4000,
 	"ppmc.%d.stepgen.%02d-%02d.pulse-space-min-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
-    /* 4uS default pulse spacing */
-    slot->stepgen->pulse_space_ns = 4000;
     /* export per-stepgen pins and params */
     for ( n = 0 ; n < 4 ; n++ ) {
 	/* pointer to the stepgen struct */
 	sg = &(slot->stepgen->sg[n]);
 	/* enable pin */
-	retval = hal_pin_bit_newf(HAL_IN, &(sg->enable), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_IN, &(sg->enable), 0,
 		"ppmc.%d.stepgen.%02d.enable", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* velocity command pin */
-	retval = hal_pin_float_newf(HAL_IN, &(sg->vel), comp_id,
+	retval = hal_pin_new_real(comp_id, HAL_IN, &(sg->vel), 0.0,
 		"ppmc.%d.stepgen.%02d.velocity", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* velocity scaling parameter */
-	retval = hal_param_float_newf(HAL_RW, &(sg->scale), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RW, &(sg->scale), 1.0,
 		"ppmc.%d.stepgen.%02d.scale", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
-	sg->scale = 1.0;
 	/* maximum velocity parameter */
-	retval = hal_param_float_newf(HAL_RW, &(sg->max_vel), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RW, &(sg->max_vel), 0.0,
 		"ppmc.%d.stepgen.%02d.max-vel", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
-	sg->max_vel = 0.0;
 	/* actual frequency parameter */
-	retval = hal_param_float_newf(HAL_RO, &(sg->freq), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RO, &(sg->freq), 0.0,
 		"ppmc.%d.stepgen.%02d.freq", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
@@ -1989,63 +1979,57 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	return -1;
     }
     /* export params that apply to all four pwmgens */
-    retval = hal_param_float_newf(HAL_RW, &(slot->pwmgen->freq), comp_id,
+    retval = hal_param_new_real(comp_id, HAL_RW, &(slot->pwmgen->freq), 0.0,
 	"ppmc.%d.pwm.%02d-%02d.freq", bus->busnum, bus->last_pwmgen, bus->last_pwmgen+3);
     if (retval != 0) {
 	return retval;
     }
-    /* set initial value for param */
-    slot->pwmgen->freq = 0.0;
     /* export per-pwmgen pins and params, and set initial values */
     for ( n = 0 ; n < 4 ; n++ ) {
 	/* pointer to the pwmgen struct */
 	pg = &(slot->pwmgen->pg[n]);
 	/* enable pin */
-	retval = hal_pin_bit_newf(HAL_IN, &(pg->enable), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_IN, &(pg->enable), 0,
 		"ppmc.%d.pwm.%02d.enable", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* value command pin */
-	retval = hal_pin_float_newf(HAL_IN, &(pg->value), comp_id,
+	retval = hal_pin_new_real(comp_id, HAL_IN, &(pg->value), 0.0,
 		"ppmc.%d.pwm.%02d.value", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* output scaling parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->scale), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RW, &(pg->scale), 1.0,
 		"ppmc.%d.pwm.%02d.scale", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
-	pg->scale = 1.0;
 	/* maximum duty cycle parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->max_dc), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RW, &(pg->max_dc), 1.0,
 		"ppmc.%d.pwm.%02d.max-dc", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
-	pg->max_dc = 1.0;
 	/* minimum duty cycle parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->min_dc), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RW, &(pg->min_dc), 0.0,
 		"ppmc.%d.pwm.%02d.min-dc", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
-	pg->min_dc = 0.0;
 	/* actual duty cycle parameter */
-	retval = hal_param_float_newf(HAL_RO, &(pg->duty_cycle), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RO, &(pg->duty_cycle), 0.0,
 		"ppmc.%d.pwm.%02d.duty-cycle", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* bootstrap mode parameter */
-	retval = hal_param_bit_newf(HAL_RW, &(pg->bootstrap), comp_id,
+	retval = hal_param_new_bool(comp_id, HAL_RW, &(pg->bootstrap), 0,
 		"ppmc.%d.pwm.%02d.bootstrap", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
-	pg->bootstrap = 0;
 	pg->boot_state = 0;
 	pg->old_enable = 0;
 	/* increment number to prepare for next output */
@@ -2076,18 +2060,17 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
 	/* pointer to the DAC struct */
 	pg = &(slot->DAC->pg[n]);
 	/* value command pin */
-	retval = hal_pin_float_newf(HAL_IN, &(pg->value), comp_id,
+	retval = hal_pin_new_real(comp_id, HAL_IN, &(pg->value), 0.0,
 		"ppmc.%d.DAC.%02d.value", bus->busnum, bus->last_DAC);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* output scaling parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->scale), comp_id,
+	retval = hal_param_new_real(comp_id, HAL_RW, &(pg->scale), 1.0,
 		"ppmc.%d.DAC.%02d.scale", bus->busnum, bus->last_DAC);
 	if (retval != 0) {
 	    return retval;
 	}
-	pg->scale = 1.0;
 	/* increment number to prepare for next output */
 	bus->last_DAC++;
     }
@@ -2184,36 +2167,36 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
     }
     for ( n = 0 ; n < 4 ; n++ ) {
         /* scale input parameter */
-        retval = hal_param_float_newf(HAL_RW, &(slot->encoder[n].scale), comp_id,
+        retval = hal_param_new_real(comp_id, HAL_RW, &(slot->encoder[n].scale), 1.0,
 		"ppmc.%d.encoder.%02d.scale", bus->busnum, bus->last_encoder);
         if (retval != 0) {
             return retval;
         }
         /* scaled encoder position */
-        retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].position), comp_id,
+        retval = hal_pin_new_real(comp_id, HAL_OUT, &(slot->encoder[n].position), 0.0,
 		"ppmc.%d.encoder.%02d.position", bus->busnum, bus->last_encoder);
         if (retval != 0) {
             return retval;
         }
 	/* raw encoder position */
-	retval = hal_pin_s32_newf(HAL_OUT, &(slot->encoder[n].count), comp_id,
+	retval = hal_pin_new_si32(comp_id, HAL_OUT, &(slot->encoder[n].count), 0,
 		"ppmc.%d.encoder.%02d.count", bus->busnum, bus->last_encoder);
 	if (retval != 0) {
 		return retval;
 	}
 	/* raw encoder delta */
-	retval = hal_pin_s32_newf(HAL_OUT, &(slot->encoder[n].delta), comp_id,
+	retval = hal_pin_new_si32(comp_id, HAL_OUT, &(slot->encoder[n].delta), 0,
 		"ppmc.%d.encoder.%02d.delta", bus->busnum, bus->last_encoder);
 	if (retval != 0) {
 		return retval;
 	}
 	/* encoder index bit */
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->encoder[n].index), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_OUT, &(slot->encoder[n].index), 0,
 		"ppmc.%d.encoder.%02d.index", bus->busnum, bus->last_encoder);
 	if (retval != 0) {
 		return retval;
 	}
-	retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].vel), comp_id,
+	retval = hal_pin_new_real(comp_id, HAL_OUT, &(slot->encoder[n].vel), 0.0,
 	    "ppmc.%d.encoder.%02d.velocity",bus->busnum,bus->last_encoder);
 	if (retval != 0) {
 	  return retval;
@@ -2222,7 +2205,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	  /* encoder index enable bit */
 	  /* if the ver of the board firmware is >= 2 then the board supports
 	     this function, so export the pin */
-	  retval = hal_pin_bit_newf(HAL_IO, &(slot->encoder[n].index_enable), comp_id,
+	  retval = hal_pin_new_bool(comp_id, HAL_IO, &(slot->encoder[n].index_enable), 0,
 		"ppmc.%d.encoder.%02d.index-enable", bus->busnum, bus->last_encoder);
 	  if (retval != 0) {
 	    return retval;
@@ -2230,7 +2213,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	  if (slot->use_timestamp) {
 	    /* encoder time stamp function / velocity estimation */
 	    /* only implemented on latest UPC right now */
-	    retval = hal_param_float_newf(HAL_RW, &(slot->encoder[n].min_speed), comp_id,
+	    retval = hal_param_new_real(comp_id, HAL_RW, &(slot->encoder[n].min_speed), 0.0,
 		   "ppmc.%d.encoder.%02d.min-speed-estimate", bus->busnum, bus->last_encoder);
 	    if (retval != 0) {
 	      return retval;
@@ -2276,18 +2259,17 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     /* pointer to the DAC struct */
     pg = &(slot->extra->dac);
     /* value command pin */
-    retval = hal_pin_float_newf(HAL_IN, &(pg->value), comp_id,
+    retval = hal_pin_new_real(comp_id, HAL_IN, &(pg->value), 0.0,
 	"ppmc.%d.DAC8.%02d.value", bus->busnum, bus->last_extraDAC);
     if (retval != 0) {
 	return retval;
     }
     /* output scaling parameter */
-    retval = hal_param_float_newf(HAL_RW, &(pg->scale), comp_id,
+    retval = hal_param_new_real(comp_id, HAL_RW, &(pg->scale), 1.0,
 	"ppmc.%d.DAC8.%02d.scale", bus->busnum, bus->last_extraDAC);
     if (retval != 0) {
 	return retval;
     }
-    pg->scale = 1.0;
     /* increment number to prepare for next output */
     bus->last_extraDAC++;
     add_wr_funct(write_extraDAC, slot, block(UxC_EXTRA, UxC_EXTRA));
@@ -2340,18 +2322,17 @@ static int export_extra_dout(slot_data_t *slot, bus_data_t *bus)
     for ( n = 0 ; n < 8 ; n++ ) {
       pg = &(slot->extra->douts[n]);
 	/* export pin for output data */
-	retval = hal_pin_bit_newf(HAL_IN, &(pg->data), comp_id,
+	retval = hal_pin_new_bool(comp_id, HAL_IN, &(pg->data), 0,
 		"ppmc.%d.dout.%02d.out", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* export parameter for inversion */
-	retval = hal_param_bit_newf(HAL_RW, &(pg->invert), comp_id,
+	retval = hal_param_new_bool(comp_id, HAL_RW, &(pg->invert), 0,
 		"ppmc.%d.dout.%02d.invert", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
-	pg->invert = 0;
 	/* increment number to prepare for next output */
 	bus->last_digout++;
     }
