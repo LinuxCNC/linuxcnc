@@ -1,0 +1,17 @@
+#
+# HAL for modbus testing.
+#
+#loadrt hostmot2 debug_idrom=1 debug_pin_descriptors=1 debug_module_descriptors=1
+loadrt hostmot2 
+
+#
+# Load hm2_test that allows us to run test without physical mesa board or ethernet or RS485.
+# TEST_PATTERN goes to the realtime hm2_test component.
+#
+loadrt hm2_test test_pattern=$(TEST_PATTERN) 
+
+#
+# Now load the component with the configuration we want to test.
+#
+loadrt hm2_modbus  ports=hm2_test.0.pktuart.0 mbccbs=$(TEST_MBCCB)
+show param hm2_modbus.0
