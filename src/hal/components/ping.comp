@@ -5,17 +5,18 @@ Ping an IP address for latency tuning / debugging hostmot2
 or other Ethernet connected peripherals.
 
 Example:
-loadrt ping ip_address=192.168.1.121
+loadrt ping ip_address=192.168.1.121 if_name=eth0 timeout=800000
 loadrt threads name1=thread period1=1000000
 addf ping thread
 start
+loadusr -w ../scripts/rip-environment ../scripts/hal-histogram --minvalue 0 --binsize 1e3 --nbins 200 ping.ping-rtt
 
 You can use hal-histogram to show a histogram:
 hal-histogram ping.ping-rtt
 Note: You need to tweak minval / bsize / nbins to have a
 useful display. maxval = minval + bsize * nbins
-A good starting point for 30...130 us is:
-hal-histogram --minvalue 3e4 --binsize 2e3 --nbins 50 ping.ping-rtt
+A good starting point for 0...200 us is:
+hal-histogram --minvalue 0 --binsize 1e3 --nbins 200 ping.ping-rtt
 
 This component works only in userspace.
 
@@ -27,6 +28,7 @@ pin out s32 ping_rtt_max=0 "Maximum roundtrip time (ns).";
 pin in bit reset "Set this pin to true, then back to false, to reset ping_rtt_max.";
 function _;
 option extra_setup;
+option extra_cleanup;
 option singleton yes;
 
 license "GPL";
@@ -42,6 +44,10 @@ EXTRA_SETUP() {
     rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: kernel mode not supported\n");
 
     return 0;
+}
+
+EXTRA_CLEANUP() {
+
 }
 
 FUNCTION(_) {
@@ -62,6 +68,9 @@ FUNCTION(_) {
 static char *ip_address = "127.0.0.1";
 RTAPI_MP_STRING(ip_address, "IP address to ping");
 
+static char *if_name = NULL;
+RTAPI_MP_STRING(if_name, "Interface name to ping");
+
 static int timeout = 800000;
 RTAPI_MP_INT(timeout, "Timeout in ns");
 
@@ -71,6 +80,7 @@ typedef struct{
     char *ip_address;
     int sockfd;
     struct sockaddr_in addr;
+    struct arpreq arp_request;
     long long int time_start;
     long long int time_end;
     uint16_t tx_seq;
@@ -164,6 +174,50 @@ bool setup_ping(ping_data *data){
     return true;
 }
 
+bool setup_arp(ping_data *data, char* if_name) {
+    int ret = 0;
+    memset(&data->arp_request, 0, sizeof(data->arp_request));
+    ((struct sockaddr_in *)&data->arp_request.arp_pa)->sin_family = AF_INET;
+    ((struct sockaddr_in *)&data->arp_request.arp_pa)->sin_addr = data->addr.sin_addr;
+    strncpy(data->arp_request.arp_dev, if_name, sizeof(data->arp_request.arp_dev)-1);
+    ret = ioctl(data->sockfd, SIOCGARP, &data->arp_request);
+    if(ret < 0){
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCGARP %m\n");
+        return false;
+    }
+    if(!(data->arp_request.arp_flags | ATF_COM)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: arp request failed\n");
+        return false;
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: ip=%s mac=%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+                        data->ip_address,
+                        (uint8_t)data->arp_request.arp_ha.sa_data[0],
+                        (uint8_t)data->arp_request.arp_ha.sa_data[1],
+                        (uint8_t)data->arp_request.arp_ha.sa_data[2],
+                        (uint8_t)data->arp_request.arp_ha.sa_data[3],
+                        (uint8_t)data->arp_request.arp_ha.sa_data[4],
+                        (uint8_t)data->arp_request.arp_ha.sa_data[5]);
+    }
+
+    data->arp_request.arp_flags |= ATF_PERM;
+    ret = ioctl(data->sockfd, SIOCSARP, &data->arp_request);
+    if(ret < 0){
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCSARP %m\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool cleanup_arp(ping_data *data){
+    int ret = ioctl(data->sockfd, SIOCDARP, &data->arp_request);
+    if(ret < 0){
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCSARP %m\n");
+        return false;
+    }
+    return true;
+}
+
 bool send_ping(ping_data *data) {
     struct icmphdr *hdr = (struct icmphdr *)(data->tbuffer);
     unsigned char *msg = data->tbuffer + sizeof(struct icmphdr);
@@ -246,39 +300,27 @@ EXTRA_SETUP() {
         return -1;
     }
 
-    struct arpreq arp_request;
-
-    int ret = 0;
-    memset(&arp_request, 0, sizeof(arp_request));
-    ((struct sockaddr_in *)&arp_request.arp_pa)->sin_family = AF_INET;
-    ((struct sockaddr_in *)&arp_request.arp_pa)->sin_addr = data.addr.sin_addr;
-    strcpy(arp_request.arp_dev, "enp1s0");
-    ret = ioctl(data.sockfd, SIOCGARP, &arp_request);
-    if(ret < 0){
-        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCGARP %m\n");
-    }
-    if(!(arp_request.arp_flags | ATF_COM)) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: arp request failed\n");
+    if(if_name == 0){
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: warning: if_name not given, can not set\n"
+            "    static arp. Might increase latency.\n");
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "ping: mac=%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
-			(uint8_t)arp_request.arp_ha.sa_data[0],
-			(uint8_t)arp_request.arp_ha.sa_data[1],
-			(uint8_t)arp_request.arp_ha.sa_data[2],
-			(uint8_t)arp_request.arp_ha.sa_data[3],
-			(uint8_t)arp_request.arp_ha.sa_data[4],
-			(uint8_t)arp_request.arp_ha.sa_data[5]);
-    }
+        //Ping once to resolve arp
+        if(send_ping(&data)){
+            recv_ping(&data);
+        }
 
-    if(!(arp_request.arp_flags | ATF_PERM)) {
-        arp_request.arp_flags |= ATF_PERM;
-        ret = ioctl(data.sockfd, SIOCSARP, &arp_request);
-        if(ret < 0){
-            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCSARP %m\n");
+        if(!setup_arp(&data, if_name)){
+            return -1;
         }
     }
-    //ioctl(data.sockfd, SIOCDARP, &arp_request);
 
     return 0;
+}
+
+EXTRA_CLEANUP() {
+    if(if_name == 0){
+        cleanup_arp(&data);
+    }
 }
 
 FUNCTION(_) {
