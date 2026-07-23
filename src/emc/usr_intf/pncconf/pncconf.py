@@ -4194,13 +4194,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         # stepper vrs servo configs. But we still want to allow user setting it.
         # If the value is None then we should set a default value, if not then
         # that means it's been set to something already...hopefully right.
-        # TODO this should be smarter - after going thru a config once it
-        # always uses the value set here - if it is set to a default value
-        # if should keep checking that the value is still right.
-        # but that's a bigger change then we want now.
         # We check for None and 'None' because when None is saved 
         # it's saved as a string
-        if not d[axis + "P"] == None and not d[axis + "P"] == 'None':
+        if not d[axis + "P"] == None and not d[axis + "P"] == 'None' and (stepdriven and not self.d.adjust_p_values):
             set_value("P")
         elif stepdriven == True:
             w[axis + "P"].set_value(1/(d.servoperiod/1000000000))
