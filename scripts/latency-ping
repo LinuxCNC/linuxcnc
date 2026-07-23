@@ -1,0 +1,89 @@
+#!/bin/bash
+SCRIPT_LOCATION=$(dirname "$(readlink -f "$0")");
+if [ -f "$SCRIPT_LOCATION/rip-environment" ] && [ -z "$EMC2_HOME" ]; then
+    . "$SCRIPT_LOCATION/rip-environment"
+fi
+
+T=$(mktemp -d)
+trap 'cd / && [ -d "$T" ] && rm -rf "$T"' SIGINT SIGTERM EXIT
+cd "$T" || { echo "E: Cannot change directory to '$T'"; exit 1; }
+
+calc() { awk "BEGIN { print ($1); }" < /dev/null; }
+icalc() { awk "BEGIN { printf \"%.0f\n\", ($1); }" < /dev/null; }
+
+parse_time () {
+    case $1 in
+    -)   echo "0" ;;
+    *ns) icalc "${1%ns}" ;;
+    *us|*µs) icalc "1000*${1%us}" ;;
+    *ms) icalc "1000*1000*${1%ms}" ;;
+    *s)  icalc "1000*1000*1000*${1%s}" ;;
+    *)   if [ "$1" -lt 1000 ]; then icalc "1000*$1"; else icalc "$1"; fi ;;
+    esac
+}
+
+human_time () {
+    if [ "$1" -eq 0 ]; then echo "-"
+    elif [ "$1" -ge 1000000000 ]; then echo "$(calc "$1"/1000/1000/1000)s"
+    elif [ "$1" -ge 1000000 ]; then echo "$(calc "$1"/1000/1000)ms"
+    elif [ "$1" -ge 1000 ]; then echo "$(calc "$1"/1000)µs"
+    else echo "$1ns"
+    fi
+}
+
+usage () {
+    echo "Usage:"
+    echo "       latency-ping ip_address [if_name] [timeout] [period]  # for single thread"
+    echo ""
+    echo "Example:"
+    echo "       latency-ping 192.168.122.1 enp1s0 800000 1000000"
+    echo ""
+    echo "Defaults:     period=${PERIOD}nS"
+    echo "Equivalently: period=$(human_time "$PERIOD")"
+    echo ""
+    echo "Times may be specified with suffix \"s\", \"ms\", \"us\" \"µs\", or \"ns\""
+    echo "Times without a suffix and less than 1000 are taken to be in us;"
+    echo "other times without a suffix are taken to be in ns"
+    echo ""
+    echo "If two periods are specified then the shortest time period will"
+    echo "always be the base-period"
+    echo ""
+    echo "The worst-case latency seen in any run of latency-test"
+    echo "is written to the file ~/.latency"
+    exit 1
+}
+
+TIMEOUT=$(parse_time 800us)
+PERIOD=$(parse_time 1ms)
+
+case $1 in
+  -h|--help) usage;;
+esac
+
+case $# in
+1) IP="$1" ;;
+2) IP="$1" IF="$2" ;;
+3) IP="$1" IF="$2" TIMEOUT=$(parse_time "$3") ;;
+4) IP="$1" IF="$2" TIMEOUT=$(parse_time "$3") PERIOD=$(parse_time "$4") ;;
+*) usage;;
+esac
+
+if [ -z "$IF" ]; then
+cat > lat.hal <<EOF
+loadrt ping ip_address=$IP timeout=$TIMEOUT
+loadrt threads name1=thread period1=$PERIOD
+addf ping thread
+start
+loadusr -w hal-histogram --minvalue 0 --binsize 1e3 --nbins 200 ping.ping-rtt
+EOF
+else
+cat > lat.hal <<EOF
+loadrt ping ip_address=$IP if_name=$IF timeout=$TIMEOUT
+loadrt threads name1=thread period1=$PERIOD
+addf ping thread
+start
+loadusr -w hal-histogram --minvalue 0 --binsize 1e3 --nbins 200 ping.ping-rtt
+EOF
+fi
+
+halrun lat.hal
