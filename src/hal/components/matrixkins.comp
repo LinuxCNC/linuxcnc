@@ -19,6 +19,7 @@ component matrixkins "Calibrated kinematics for 3-axis machines";
 description
 """
 The matrixkins component implements custom kinematics for 3-axis
+Use coordinates=XYZ for standard and coordinates=XYYZ for gantry
 Cartesian machines that allows compensating minor alignment inaccuracies
 in software.
 
@@ -30,6 +31,11 @@ By default identity matrix is used, which is equal to trivial kinematics:
 | X_joint |   | 1 0 0 |   | X_axis |
 | Y_joint | = | 0 1 0 | * | Y_axis |
 | Z_joint |   | 0 0 1 |   | Z_axis |
+or
+| X_joint  |   | 1 0 0 |   | X_axis |
+| Y1_joint | = | 0 1 0 | * | Y_axis |
+| Y2_joint | = | 0 1 0 | * | Y_axis |
+| Z_joint  |   | 0 0 1 |   | Z_axis |
 ....
 
 Adjusting the calibration matrix allows compensating out many
@@ -46,6 +52,11 @@ For 3 axis machine, the equations become:
 ....
 X_joint = C_xx * X_axis + C_xy * Y_axis + C_xz * Z_axis
 Y_joint = C_yx * X_axis + C_yy * Y_axis + C_yz * Z_axis
+Z_joint = C_zx * X_axis + C_zy * Y_axis + C_zz * Z_axis
+or:
+X_joint = C_xx * X_axis + C_xy * Y_axis + C_xz * Z_axis
+Y1_joint = C_yx * X_axis + C_yy * Y_axis + C_yz * Z_axis
+Y2_joint = C_yx * X_axis + C_yy * Y_axis + C_yz * Z_axis
 Z_joint = C_zx * X_axis + C_zy * Y_axis + C_zz * Z_axis
 ....
 
@@ -176,8 +187,21 @@ the adjustment values should be added to the old values instead of replacing the
 """;
 see_also "kins(9)";
 pin out bit dummy=1; // halcompile requires at least one pin
+option  extra_setup;
 license "GPL";
 ;;
+
+#include "kinematics.h"
+#include "emcmotcfg.h"
+
+static char *coordinates = "XYZ";
+RTAPI_MP_STRING(coordinates, "Existing Axes");
+
+static char *kinstype = "b"; // use KINEMATICS_BOTH
+RTAPI_MP_STRING(kinstype, "Kinematics Type (Both)");
+
+bool is_gantry=false;
+int num_joints=0;
 
 static struct haldata {
     hal_float_t C_xx;
@@ -191,14 +215,48 @@ static struct haldata {
     hal_float_t C_zz;
 } *haldata;
 
-static int matrixkins_setup(void) {
+bool checkCoordinates(int off){
+    char* allowed = "ABCUVW";
+    int len_allowed = strlen(allowed);
+    int len_coordinates = strlen(coordinates);
+    int i;
+    for(i=0; i < len_allowed && i < len_coordinates - off; i++){
+        if(coordinates[i+off] != allowed[i]){
+            return false;
+        }
+    }
+    return i == len_coordinates - off;
+}
+
+// EXTRA_SETUP is executed before rtapi_app_main()
+EXTRA_SETUP() {
+    (void)prefix;
+    (void)extra_arg;
+    (void)__comp_inst;
     int res=0;
 
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
 
-    res = hal_set_unready(comp_id);
-    if (res) goto error;
+    if(*kinstype != 'b' && *kinstype != 'B') {
+        rtapi_print("Error: Not supported kinstype %s\n", kinstype);
+        goto error;
+    }
+
+    num_joints = strlen(coordinates);
+    if (num_joints > EMCMOT_MAX_JOINTS) {
+        rtapi_print("Error: To many coordinates %s\n", coordinates);
+        goto error;
+    }
+
+    if(strncmp(coordinates, "XYZ", 3) == 0 && checkCoordinates(3)) {
+        is_gantry=false;
+    }else if(strncmp(coordinates, "XYYZ", 4) == 0 && checkCoordinates(4)) {
+        is_gantry=true;
+    }else{
+        rtapi_print("Error: Not supported coordinates %s\n", coordinates);
+        goto error;
+    }
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
@@ -220,18 +278,16 @@ static int matrixkins_setup(void) {
 
     if (res) goto error;
 
-    res = hal_ready(comp_id);
-    if (res) goto error;
-
-    rtapi_print("*** %s setup ok\n",__FILE__);
+    if(is_gantry){
+        rtapi_print("%s gantry %s setup ok\n",__FILE__, coordinates);
+    }else{
+        rtapi_print("%s standard %s setup ok\n",__FILE__, coordinates);
+    }
     return 0;
 error:
-    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
+    rtapi_print("\n %s setup failed res=%d\n\n",__FILE__,res);
     return -1;
 }
-
-#include "kinematics.h"
-#include "emcmotcfg.h"
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
@@ -240,8 +296,6 @@ EXPORT_SYMBOL(kinematicsForward);
 
 KINEMATICS_TYPE kinematicsType()
 {
-    static bool is_setup=0;
-    if (!is_setup) matrixkins_setup();
     return KINEMATICS_BOTH;
 }
 
@@ -274,27 +328,49 @@ int kinematicsForward(const double *j,
                + c * (d * h - e * g);
     double invdet = 1.0 / det;
 
-    // Apply inverse matrix transform to the 3 cartesian coordinates
-    pos->tran.x = invdet * ( (e * i - f * h) * j[0]
-                            +(c * h - b * i) * j[1]
-                            +(b * f - c * e) * j[2]);
+    if(is_gantry){
+        // Apply inverse matrix transform to the 3 cartesian coordinates
+        pos->tran.x = invdet * ( (e * i - f * h) * j[0]
+                                +(c * h - b * i) * (j[1] + j[2])/2
+                                +(b * f - c * e) * j[3]);
 
-    pos->tran.y = invdet * ( (f * g - d * i) * j[0]
-                            +(a * i - c * g) * j[1]
-                            +(c * d - a * f) * j[2]);
+        pos->tran.y = invdet * ( (f * g - d * i) * j[0]
+                                +(a * i - c * g) * (j[1] + j[2])/2
+                                +(c * d - a * f) * j[3]);
 
-    pos->tran.z = invdet * ( (d * h - e * g) * j[0]
-                            +(b * g - a * h) * j[1]
-                            +(a * e - b * d) * j[2]);
+        pos->tran.z = invdet * ( (d * h - e * g) * j[0]
+                                +(b * g - a * h) * (j[1] + j[2])/2
+                                +(a * e - b * d) * j[3]);
 
-    // Pass rest of axes as identity
-    if (EMCMOT_MAX_JOINTS > 3) pos->a = j[3];
-    if (EMCMOT_MAX_JOINTS > 4) pos->b = j[4];
-    if (EMCMOT_MAX_JOINTS > 5) pos->c = j[5];
-    if (EMCMOT_MAX_JOINTS > 6) pos->u = j[6];
-    if (EMCMOT_MAX_JOINTS > 7) pos->v = j[7];
-    if (EMCMOT_MAX_JOINTS > 8) pos->w = j[8];
+        // Pass rest of axes as identity
+        if (num_joints > 4) pos->a = j[4];
+        if (num_joints > 5) pos->b = j[5];
+        if (num_joints > 6) pos->c = j[6];
+        if (num_joints > 7) pos->u = j[7];
+        if (num_joints > 8) pos->v = j[8];
+        if (num_joints > 9) pos->w = j[9];
+    }else{
+        // Apply inverse matrix transform to the 3 cartesian coordinates
+        pos->tran.x = invdet * ( (e * i - f * h) * j[0]
+                                +(c * h - b * i) * j[1]
+                                +(b * f - c * e) * j[2]);
 
+        pos->tran.y = invdet * ( (f * g - d * i) * j[0]
+                                +(a * i - c * g) * j[1]
+                                +(c * d - a * f) * j[2]);
+
+        pos->tran.z = invdet * ( (d * h - e * g) * j[0]
+                                +(b * g - a * h) * j[1]
+                                +(a * e - b * d) * j[2]);
+
+        // Pass rest of axes as identity
+        if (num_joints > 3) pos->a = j[3];
+        if (num_joints > 4) pos->b = j[4];
+        if (num_joints > 5) pos->c = j[5];
+        if (num_joints > 6) pos->u = j[6];
+        if (num_joints > 7) pos->v = j[7];
+        if (num_joints > 8) pos->w = j[8];
+    }
     return 0;
 }
 
@@ -315,18 +391,35 @@ int kinematicsInverse(const EmcPose * pos,
     double h = haldata->C_zy;
     double i = haldata->C_zz;
 
-    // Apply matrix transform to the 3 cartesian coordinates
-    j[0] = pos->tran.x * a + pos->tran.y * b + pos->tran.z * c;
-    j[1] = pos->tran.x * d + pos->tran.y * e + pos->tran.z * f;
-    j[2] = pos->tran.x * g + pos->tran.y * h + pos->tran.z * i;
+    
+    if(is_gantry){
+        // Apply matrix transform to the 3 cartesian coordinates
+        j[0] = pos->tran.x * a + pos->tran.y * b + pos->tran.z * c;
+        j[1] = pos->tran.x * d + pos->tran.y * e + pos->tran.z * f;
+        j[2] = j[1];
+        j[3] = pos->tran.x * g + pos->tran.y * h + pos->tran.z * i;
 
-    // Pass rest of axes as identity
-    if (EMCMOT_MAX_JOINTS > 3) j[3] = pos->a;
-    if (EMCMOT_MAX_JOINTS > 4) j[4] = pos->b;
-    if (EMCMOT_MAX_JOINTS > 5) j[5] = pos->c;
-    if (EMCMOT_MAX_JOINTS > 6) j[6] = pos->u;
-    if (EMCMOT_MAX_JOINTS > 7) j[7] = pos->v;
-    if (EMCMOT_MAX_JOINTS > 8) j[8] = pos->w;
+        // Pass rest of axes as identity
+        if (num_joints > 4) j[4] = pos->a;
+        if (num_joints > 5) j[5] = pos->b;
+        if (num_joints > 6) j[6] = pos->c;
+        if (num_joints > 7) j[7] = pos->u;
+        if (num_joints > 8) j[8] = pos->v;
+        if (num_joints > 9) j[9] = pos->w;
+    }else{
+        // Apply matrix transform to the 3 cartesian coordinates
+        j[0] = pos->tran.x * a + pos->tran.y * b + pos->tran.z * c;
+        j[1] = pos->tran.x * d + pos->tran.y * e + pos->tran.z * f;
+        j[2] = pos->tran.x * g + pos->tran.y * h + pos->tran.z * i;
+
+        // Pass rest of axes as identity
+        if (num_joints > 3) j[3] = pos->a;
+        if (num_joints > 4) j[4] = pos->b;
+        if (num_joints > 5) j[5] = pos->c;
+        if (num_joints > 6) j[6] = pos->u;
+        if (num_joints > 7) j[7] = pos->v;
+        if (num_joints > 8) j[8] = pos->w;
+    }
 
     return 0;
 }
