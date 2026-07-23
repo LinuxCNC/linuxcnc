@@ -20,6 +20,8 @@ hal-histogram --minvalue 3e4 --binsize 2e3 --nbins 50 ping.ping-rtt
 This component works only in userspace.
 
 """;
+pin out s32 ping_err=0 "Error counter";
+pin out s32 ping_timeout=0 "Timeout counter";
 pin out s32 ping_rtt=0 "Roundtrip time (ns)";
 pin out s32 ping_rtt_max=0 "Maximum roundtrip time (ns).";
 pin in bit reset "Set this pin to true, then back to false, to reset ping_rtt_max.";
@@ -58,6 +60,9 @@ FUNCTION(_) {
 static char *ip_address = "127.0.0.1";
 RTAPI_MP_STRING(ip_address, "IP address to ping");
 
+static int timeout = 800000;
+RTAPI_MP_INT(timeout, "Timeout in ns");
+
 #define PING_PKT_SIZE 64
 
 typedef struct{
@@ -68,6 +73,7 @@ typedef struct{
     long long int time_end;
     uint16_t tx_seq;
     uint16_t tx_id;
+    bool send;
     unsigned char tbuffer[PING_PKT_SIZE];
     unsigned char rbuffer[2*PING_PKT_SIZE];
 }ping_data;
@@ -141,8 +147,9 @@ bool setup_ping(ping_data *data){
     }
 
     struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 100000;
+    tv.tv_sec = timeout/1000000000;
+    tv.tv_usec = (timeout/1000)%1000000;
+
     // Setting timeout
     if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv) != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: setsockopt SO_RCVTIMEO %m\n");
@@ -151,6 +158,7 @@ bool setup_ping(ping_data *data){
     }
     data->tx_id=getpid();
     data->sockfd=sockfd;
+    data->send=true;
     return true;
 }
 
@@ -180,15 +188,22 @@ bool send_ping(ping_data *data) {
     }
 }
 
+enum{
+    ERR_TIMEOUT = -1,
+    ERR_SKIP = -2,
+    ERR_CORRUPT = -3
+};
+
 rtapi_s32 recv_ping(ping_data *data) {
     struct sockaddr_in r_addr;
-    rtapi_s64 rtt_nsec = 0;
+    rtapi_s32 rtt_nsec = 0;
 
     // Receive packet
     socklen_t addr_len = sizeof(r_addr);
     ssize_t ret = recvfrom(data->sockfd, data->rbuffer, sizeof(data->rbuffer), 0, (struct sockaddr*)&r_addr, &addr_len);
     if (ret <= 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: recvfrom failed: %m\n");
+        return ERR_TIMEOUT;
     } else {
         data->time_end = rtapi_get_time();
 
@@ -196,10 +211,19 @@ rtapi_s32 recv_ping(ping_data *data) {
         struct icmphdr *recv_hdr = (struct icmphdr *)(data->rbuffer);
         unsigned short checksum = in_cksum((unsigned short *)data->rbuffer, ret, 0);
         uint16_t rx_seq=ntohs(recv_hdr->un.echo.sequence);
-        if (!(recv_hdr->type == 0 && recv_hdr->code == 0 && rx_seq == data->tx_seq)) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: package corrupt: received size %li with ICMP type %d code %d tx_seq %d rx_seq %d\n", ret, recv_hdr->type, recv_hdr->code, data->tx_seq, rx_seq);
-        } else if (checksum != 0) {
+        if (checksum != 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: received checksum wrong\n");
+            return ERR_CORRUPT;
+        } else if (recv_hdr->type != 0 || recv_hdr->code != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: package corrupt: received size %li with ICMP type %d code %d tx_seq %d rx_seq %d\n", ret, recv_hdr->type, recv_hdr->code, data->tx_seq, rx_seq);
+            return ERR_CORRUPT;
+        } else if (data->tx_seq > rx_seq) {
+            //Probably did skiped a package due to timeout, don't send on next round, so we get to the correct sequence again
+            return ERR_SKIP;
+        } else if (data->tx_seq < rx_seq) {
+            //The sequence of the received package should never be > than the sent one
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: sequence wrong: received size %li with ICMP type %d code %d tx_seq %d rx_seq %d\n", ret, recv_hdr->type, recv_hdr->code, data->tx_seq, rx_seq);
+            return ERR_CORRUPT;
         } else {
             rtt_nsec = data->time_end - data->time_start;
             //rtapi_print_msg(RTAPI_MSG_ERR, "%li bytes from %s msg_seq = %d rtt = %.3f us.\n", ret, data->ip_address, rx_seq, (double)rtt_nsec/1000);
@@ -225,9 +249,25 @@ EXTRA_SETUP() {
 
 FUNCTION(_) {
     (void)period;
-    if(send_ping(&data)){
-        ping_rtt = recv_ping(&data);
-        ping_rtt_max = max(ping_rtt_max, ping_rtt);
+    bool ret = true;
+    if(data.send){
+        ret = send_ping(&data);
+    }
+    if(ret){
+        rtapi_s32 rtt = recv_ping(&data);
+        data.send = true;
+        if(rtt == ERR_TIMEOUT){
+            ping_timeout ++;
+        }else if(rtt == ERR_CORRUPT){
+            ping_err ++;
+        }else if(rtt == ERR_SKIP){
+            data.send = false;
+        }else if(rtt >= 0){
+            ping_rtt = rtt;
+            ping_rtt_max = max(ping_rtt_max, rtt);
+        }else{
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: bug");
+        }
     }
     if(reset) {
         ping_rtt_max = 0;
