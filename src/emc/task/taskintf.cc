@@ -796,7 +796,11 @@ int emcJointOverrideLimits(int joint)
 int emcJointHome(int joint)
 {
     if (joint < -1 || joint >= EMCMOT_MAX_JOINTS) {
-	return 0;
+	// Was silently "succeeding" here (return 0 == EMCMOT_COMM_OK to every
+	// caller), so an out-of-range G28.2 Pn joint number looked like a
+	// completed home instead of surfacing as an error.
+	rcs_print("emcJointHome: invalid joint number %d\n", joint);
+	return EMCMOT_COMM_ERROR_COMMAND;
     }
 
     emcmotCommand.command = EMCMOT_JOINT_HOME;
@@ -808,7 +812,10 @@ int emcJointHome(int joint)
 int emcJointUnhome(int joint)
 {
 	if (joint < -2 || joint >= EMCMOT_MAX_JOINTS) {
-		return 0;
+		// See emcJointHome: don't silently report success for an
+		// out-of-range joint number (e.g. from G28.3 Pn).
+		rcs_print("emcJointUnhome: invalid joint number %d\n", joint);
+		return EMCMOT_COMM_ERROR_COMMAND;
 	}
 
 	emcmotCommand.command = EMCMOT_JOINT_UNHOME;

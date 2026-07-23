@@ -3144,6 +3144,64 @@ Called by: convert_modal_0.
 
 */
 
+/*! convert_home_cycle
+
+Handles G28.2 (run the homing cycle on all joints) and G28.3 (unhome all
+joints) from a G-code line, so machines can reference / clear references
+from MDI or a program instead of only from the GUI. Bare form (no P word)
+acts on all joints, in HOME_SEQUENCE order.
+
+An optional Pn word homes/unhomes a single joint by its 0-based joint number
+(matching [JOINT_n] INI section numbering, e.g. P1 -> JOINT_1). This is the
+primitive Sigma1912 asked for in the PR #4172 discussion for re-homing a
+joint that is switched between rotary-axis and spindle use mid-program
+(https://github.com/LinuxCNC/linuxcnc/pull/4172) -- it reuses the existing
+EMC_JOINT_HOME/UNHOME 'joint' field, so it needs no NML change and works
+identically on any kinematics (per grandixximo's review comment on that PR).
+Axis-letter forms (G28.2 X) are deliberately NOT supported: resolving an
+axis letter to a joint needs the kinematics coordinate map and isn't
+trivial even on trivkins (duplicate letters on gantries) -- andypugh's
+review also objected that homing is a joint concept, not an axis one.
+
+On a synchronized (negative HOME_SEQUENCE) joint pair, Pn on either joint
+homes both (motion's existing gantry-homing behavior); on a positive shared
+sequence Pn homes only the named joint -- use the bare form to home both.
+
+Motion still enforces its own safety (idle / not on limits) and does the
+final range check of the joint number against the machine's actual joint
+count.
+*/
+int Interp::convert_home_cycle(int move,
+                               block_pointer block,
+                               setup_pointer settings)
+{
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         "Cannot home (G28.2/G28.3) with cutter radius compensation on");
+
+    int joint = -1;
+    if (block->p_flag) {
+        CHKS(((block->p_number < 0.0) ||
+              (block->p_number != round_to_int(block->p_number))),
+             "P value for G28.2/G28.3 must be a non-negative whole joint number");
+        joint = round_to_int(block->p_number);
+    }
+
+    if (move == G_28_2) {
+        if (joint < 0) {
+            HOME_CYCLE();
+        } else {
+            HOME_CYCLE_JOINT(joint);
+        }
+    } else {
+        if (joint < 0) {
+            UNHOME_AXES();
+        } else {
+            UNHOME_JOINT(joint);
+        }
+    }
+    return INTERP_OK;
+}
+
 int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
                         block_pointer block,    //!< pointer to a block of RS274 instructions
                         setup_pointer settings) //!< pointer to machine settings
@@ -3175,6 +3233,16 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
+
+  /* GCODE_HOMING ([RS274NGC]GCODE_HOMING=1): a plain G28 references the
+   * machine (runs the homing cycle on all joints) BEFORE the waypoint +
+   * return moves below, but only when it is not already fully homed - task
+   * drops the home when all_homed(), so a homed machine sees a pure legacy
+   * G28. The home is emitted first so it completes (motion stays busy, the
+   * return waits) while the joint positions are still unknown. Flag-gated and
+   * G28-only; G30/G28.2/G28.3 are unchanged. */
+  if (FEATURE(GCODE_HOMING) && move == G_28)
+      HOME_CYCLE_IF_UNHOMED();
 
   // waypoint is in currently active coordinate system
 
@@ -4323,6 +4391,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
+  } else if ((code == G_28_2) || (code == G_28_3)) {
+    CHP(convert_home_cycle(code, block, settings));
   } else if ((code == G_52) || (code == G_92)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf

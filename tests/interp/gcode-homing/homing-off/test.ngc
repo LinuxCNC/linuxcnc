@@ -1,0 +1,6 @@
+; Default (GCODE_HOMING off): a plain G28 is a pure return move and emits NO
+; homing op. G28.2 / G28.3 still home / unhome (they are flag-independent).
+g28            ; default: return only, no HOME_CYCLE_IF_UNHOMED
+g28.2          ; home all joints (flag-independent)
+g28.3          ; unhome all joints (flag-independent)
+m2

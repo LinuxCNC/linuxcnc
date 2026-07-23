@@ -1416,9 +1416,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 
-	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-		/* can't home unless in free mode */
-		reportError(_("must be in joint mode to home"));
+	    /* Normally homing requires free (joint) mode. Allow it also when
+	     * motion is otherwise IDLE (in position, nothing queued) so a
+	     * G-code-triggered home (G28.2) works from MDI / a program. */
+	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE
+		&& !(GET_MOTION_INPOS_FLAG() && emcmotStatus->depth == 0)) {
+		reportError(_("must be in joint mode (or idle) to home"));
 		return;
 	    }
 	    if (*(emcmot_hal_data->homing_inhibit)) {
