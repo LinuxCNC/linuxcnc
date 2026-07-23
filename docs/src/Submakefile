@@ -97,6 +97,22 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_MAN)/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
+# asciidoctor names the troff from the page's NAME section, not the make
+# target, so a translated NAME can misname the file and collide with another
+# page under -j.  Pin the name with -o.  NAME drift itself is reported
+# separately by scripts/manpage-name-check.py (a CI warning), not here, to
+# keep the build output quiet.
+define MAKE_MANPAGE
+@mkdir -p $(dir $@)
+$(Q)asciidoctor --doctype=manpage \
+	--backend=manpage \
+	-o "$@" \
+	-a compat-mode \
+	-a mansource=LinuxCNC \
+	-a manmanual='LinuxCNC Documentation' \
+	$<
+endef
+
 $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in $(SRCDIR)/config.status
 	@mkdir -p $(@D)
 	$(SRCDIR)/config.status --file=$@:$<
@@ -106,14 +122,7 @@ $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.a
 # $(DOC_DIR)/src/man/, so override with an explicit rule.
 $(DOC_MAN)/man1/linuxcnc.1: $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc
 	$(ECHO) Making manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)asciidoctor --doctype=manpage \
-		--backend=manpage \
-		--destination-dir="$(dir $@)" \
-		-a compat-mode \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
-		$<
+	$(MAKE_MANPAGE)
 
 info::
 	@echo "I: Expecting the following languages: $(LANGUAGES)"
@@ -1355,14 +1364,7 @@ TARGETS += manpages
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
 $(DOC_MAN)/%: $(DOC_DIR)/src/man/%.adoc
 	$(ECHO) Making manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)asciidoctor --doctype=manpage \
-		--backend=manpage \
-		--destination-dir="$(dir $@)" \
-		-a compat-mode \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
-		$<
+	$(MAKE_MANPAGE)
 
 # Translated manpages.  po4a writes per-lang adocs under
 # $(DOC_OUT_ADOC)/<L>/man/manN/X.adoc; generate troff under
@@ -1375,14 +1377,7 @@ ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 define TRANSLATED_TROFF_RULE
 $$(DOC_MAN)/$1/%: $$(DOC_OUT_ADOC)/$1/man/%.adoc | $$(DOC_DIR)/.translateddocs-stamp
 	$$(ECHO) Making translated manpage $1 $$(notdir $$@)
-	@mkdir -p $$(dir $$@)
-	$$(Q)asciidoctor --doctype=manpage \
-		--backend=manpage \
-		--destination-dir="$$(dir $$@)" \
-		-a compat-mode \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
-		$$<
+	$$(MAKE_MANPAGE)
 endef
 $(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_TROFF_RULE,$(L))))
 
