@@ -5442,6 +5442,53 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
+
+  // Auto-rotary-rebase: on a G0 with a rotary word, if the programmed
+  // (work-frame) delta exceeds MAX_UNWIND_TURNS, fold the whole turns of
+  // unwind into the axis (G92) offset so the motor takes the shortest path
+  // to the target's angular position (within +/- 180 deg) while the work-frame
+  // position still reaches the programmed target. Riding the existing G92
+  // plumbing means the DRO, #<_a> and #5423 all report the programmed value
+  // with no special-casing, and the motion-side accumulated position is left
+  // alone so stepgens, encoders and PID see no discontinuity.
+  // Only applies in absolute mode (G90); G53 explicitly bypasses; incremental
+  // (G91) does not need it.
+  if (move == G_0 &&
+      block->g_modes[GM_MODAL_0] != G_53 &&
+      settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
+      auto rebase = [](double cur, double *off, double max_turns, int flag,
+                       double bnum) -> bool {
+          if (!flag || max_turns <= 0.0) return false;
+          double delta = bnum - cur;
+          if (fabs(delta) / 360.0 <= max_turns) return false;
+          double mod = fmod(delta + 180.0, 360.0);
+          if (mod < 0.0) mod += 360.0;
+          double delta_short = mod - 180.0;
+          // Absorb the whole-turn remainder into the existing axis offset; the
+          // sub-turn delta_short is the only physical motion that results.
+          *off += (cur + delta_short) - bnum;
+          return true;
+      };
+      bool rebased = false;
+      rebased |= rebase(settings->AA_current, &settings->AA_axis_offset,
+                        settings->a_max_unwind_turns, block->a_flag, block->a_number);
+      rebased |= rebase(settings->BB_current, &settings->BB_axis_offset,
+                        settings->b_max_unwind_turns, block->b_flag, block->b_number);
+      rebased |= rebase(settings->CC_current, &settings->CC_axis_offset,
+                        settings->c_max_unwind_turns, block->c_flag, block->c_number);
+      if (rebased) {
+          SET_G92_OFFSET(settings->axis_offset_x, settings->axis_offset_y,
+                         settings->axis_offset_z, settings->AA_axis_offset,
+                         settings->BB_axis_offset, settings->CC_axis_offset,
+                         settings->u_axis_offset, settings->v_axis_offset,
+                         settings->w_axis_offset);
+          settings->parameters[G92_APPLIED] = 1.0;
+          settings->parameters[5214] = PROGRAM_TO_USER_ANG(settings->AA_axis_offset);
+          settings->parameters[5215] = PROGRAM_TO_USER_ANG(settings->BB_axis_offset);
+          settings->parameters[5216] = PROGRAM_TO_USER_ANG(settings->CC_axis_offset);
+      }
+  }
+
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
 
