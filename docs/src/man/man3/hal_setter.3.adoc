@@ -1,0 +1,38 @@
+:manvolnum: 3
+
+= hal_setter(3)
+
+== NAME
+
+hal_setter, hal_set_bool, hal_set_real, hal_set_sint, hal_set_uint,
+hal_set_si32, hal_set_ui32 - HAL pin and param data writer
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+rtapi_bool hal_set_bool(hal_bool_t refp, rtapi_bool value);
+rtapi_real hal_set_real(hal_real_t refp, rtapi_real value);
+rtapi_sint hal_set_sint(hal_sint_t refp, rtapi_sint value);
+rtapi_uint hal_set_uint(hal_uint_t refp, rtapi_uint value);
+rtapi_s32 hal_set_si32(hal_sint_t refp, rtapi_s32 value);
+rtapi_u32 hal_set_ui32(hal_uint_t refp, rtapi_u32 value);
+----
+
+== ARGUMENTS
+
+refp::
+  Pin or param opaque reference.
+value::
+  The pin or parameter value to set according to the type of the function.
+
+== DESCRIPTION
+
+The **hal_set_*()** family of functions will set a pin or param to the value of the argument.
+The setter ensures that booleans and 32-bit values are properly extended for the underlying storage.
+
+== SEE ALSO
+
+hal_getter(), hal_type_t(3), hal_pin_new(3), hal_param_new(3)

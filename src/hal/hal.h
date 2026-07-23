@@ -159,6 +159,42 @@ RTAPI_BEGIN_DECLS
 *                   GENERAL PURPOSE FUNCTIONS                          *
 ************************************************************************/
 
+// hal_is_init() returns the current state of HAL for the calling process. It
+// determines whether hal_init() has been called by checking whether the shared
+// memory segment is present.
+// The return value is one (1) if HAL is initialized and zero (0) if not.
+int hal_is_init(void);
+
+#ifdef ULAPI
+// 'hal_lib_init()' will register an rtapi application (HAL_LIB_<pid>) and map
+// the shared HAL memory segment.
+// Only user-space applications linking to hal_lib can initialize the library
+// in this way. This is useful for any program wishing to do set[ps], get[ps]
+// and the like, which do not need a component. Any hal_lib function that does
+// not require an associated component can be executed with HAL shared memory
+// mapped.
+// Note: A caller who creates a component with hal_init() does not need to call
+//       hal_lib_init(). The initialization is automatically performed on
+//       component creation.
+//
+// 'hal_lib_exit()' will unmap the shared HAL memory segment and de-register
+// the rtapi application (HAL_LIB_<pid>).
+// The de-initialization will only occur if no references are left in this
+// instance. A reference is any call to hal_init() with an unmatched hal_exit()
+// (i.e. a component exists). An error message will be emitted when you call
+// hal_lib_exit() while there still are components referenced.
+//
+// Only user-space applications linking to hal_lib can de-init the library.
+// This is useful for any program that accesses HAL constructs but does itself
+// not need any components.
+// Note: A caller is not required to call hal_lib_exit() when the library was
+//       finalized through a call matching call pair to hal_init()/hal_exit.
+//       The last component exit will invoke hal_lib_exit() automatically.
+//
+int  hal_lib_init(void);
+void hal_lib_exit(void);
+#endif
+
 /** 'hal_init()' is called by a HAL component before any other hal
     function is called, to open the HAL shared memory block and
     do other initialization.
@@ -1359,6 +1395,202 @@ typedef enum {
 
 // Only enable the query API when we are compiling the user-land HAL library
 #ifdef ULAPI
+
+// Query type of a HAL item
+typedef enum {
+    HAL_QTYPE_ANY = 0,
+    HAL_QTYPE_PIN,
+    HAL_QTYPE_PARAM,
+    HAL_QTYPE_SIGNAL,
+    HAL_QTYPE_COMP,
+    HAL_QTYPE_FUNCT,
+    HAL_QTYPE_THREAD,
+    HAL_QTYPE_THREAD_FUNCT,
+} hal_qtype_t;
+
+typedef struct {
+    int comp_id;          // Return: Component ID (RTAPI module id)
+    hal_comp_type_t type; // Return: Component type (name in query struct)
+    int pid;              // Return: PID of component (user components only)
+    bool ready;           // Return: True if ready, false if not
+    const char *insmod;   // Return: Arguments passed via insmod or NULL if none present
+} hal_query_comp_t;
+
+typedef struct {
+    int comp_id;          // Return: Component ID
+    const char *comp;     // Return: Component's name
+    int users;            // Return: Number of threads using function
+    rtapi_intptr_t funct; // Return: Pointer to function code
+    rtapi_intptr_t arg;   // Return: Argument for function
+    bool reentrant;       // Return: True if function is re-entrant
+} hal_query_funct_t;
+
+typedef struct {
+    int comp_id;          // Return: Owning component
+    const char *comp;     // Return: Component's name
+    int priority;         // Return: Thread priority
+    long int period;      // Return: Thread period in nsec
+    int functidx;         // Return: Function iteration counter
+    const char *funct;    // Return: Attached function name
+    bool is_init;         // Return: True if funct is an init function
+} hal_query_thread_t;
+
+typedef union {
+    rtapi_bool b;   // values used in hal_[gs]et_[ps]
+    rtapi_sint s;
+    rtapi_uint u;
+    rtapi_real r;
+} hal_query_value_u;
+
+typedef struct {
+    hal_type_t type;    // Request: Enforce specific type (any when == 0);
+                        // Return: HAL_XXX type
+    hal_refs_u ref;     // Return: Value reference
+    hal_query_value_u value; // Request: Set in the callback or in advance for set_p with enforced type;
+                             // Return(get_p): value read
+    hal_pdir_t dir;     // Return: pin/param direction
+    const char *alias;  // Return: non-NULL if there is an alias name
+    const char *signal; // Return: get_p/getref_p/list_p signal name if connected
+    const char *comp;   // Return: Owner's name (component name)
+    int comp_id;        // Return: Owner ID
+} hal_query_pp_t;
+
+typedef struct {
+    hal_type_t type;    // Request: Enforce specific type (any when == 0);
+                        // Return: HAL_XXX type
+    hal_refs_u ref;     // Return: Value reference
+    hal_query_value_u value; // Request: Set in the callback or in advance for set_s with enforced type;
+                             // Return(get_s): value read
+    int writers;        // Return: Number of writer pins attached to the signal
+    int readers;        // Return: Number of reader pins attached to the signal
+    int bidirs;         // Return: Number of bidirectional pins attached to the signal
+} hal_query_sig_t;
+
+//
+// HAL query structure used both for input and output
+//
+typedef struct {
+    const char *name;              // Request: name to search for;
+                                   // Return: name found (live pointer)
+    hal_qtype_t qtype;             // Request: limit search;
+                                   // Return: Connection type found
+    union {
+        void *vpval;         // Generic pointer
+        const void *cpval;   // const pointer (for easier cast'ability)
+        rtapi_intptr_t ipval;
+        rtapi_uintptr_t upval;
+        rtapi_sint sival;
+        rtapi_uint uival;
+    } callerdata;                  // Caller private data additional to 'arg'
+    union {
+        // Query data specific according to 'qtype'
+        // See details above
+        hal_query_pp_t     pp;     // Pins, params
+        hal_query_sig_t    sig;    // Signals
+        hal_query_comp_t   comp;   // Components
+        hal_query_funct_t  funct;  // Functions
+        hal_query_thread_t thread; // Threads
+    };
+} hal_query_t;
+
+// Callback prototype
+// A callback is invoked while holding the HAL mutex. You are allowed to call
+// back into the HAL library from within the callback (the mutex is recursive).
+// A fair warning:
+//    You should not take too long in callbacks and _MUST_NOT_ terminate the
+//    program inside a callback. Doing so will keep the mutex locked and other
+//    processes will hang indefinitely when they call into the HAL library.
+// Returning non-zero will automatically break any iteration loop. Use negative
+// return values to signal error conditions and positive return values to
+// simply terminate any iteration loop. The callback's return value is used as
+// the iteration function's return value.
+typedef int (*hal_query_cb)(hal_query_t *query, void *arg);
+
+// Pin/Param/Signal setters based on name
+// get_p/set_p - get or set pin or param
+// get_s/set_s - get or set signal
+// getref_p    - return only the pin/param reference
+// getref_s    - return only the signal reference
+//
+// set_s(): If the type is HAL_PORT, then the action sets the port's
+//          queue size according to the `query->value.u` setting.
+//
+// set_p/set_s: The callback function is called after it is determined that the
+// name exists and optionally if the type matches. If the setter 'cb' callback
+// is NULL, then it is required that you set both the query->{pp,sig}.type to
+// the proper type and the matching query->{pp,sig}.value field to its
+// associated value.
+//
+// get_p/get_s: The callback function is called after it is determined that
+// the name exists and optionally if the type matches. The getter calls the
+// callback with the appropriate query->{pp,sig}.value field set to the value
+// read, according to the type. If the getter 'cb' callback is NULL, then it is
+// simply skipped and the value is still available in the query structure.
+//
+// For all query functions: The callback should return zero when it succeeds
+// and a negative errno value on error. If the callback returns with a non-zero
+// value, then that value is returned.
+// Returning a positive value from a callback function in iterations terminates
+// the iteration loop. The caller can determine from the return value's sign
+// whether it was an error or an intentional iteration loop termination.
+//
+int hal_getref_p(hal_query_t *query);
+int hal_get_p(hal_query_t *query, hal_query_cb cb, void *arg);
+int hal_set_p(hal_query_t *query, hal_query_cb cb, void *arg);
+
+int hal_getref_s(hal_query_t *query);
+int hal_get_s(hal_query_t *query, hal_query_cb cb, void *arg);
+int hal_set_s(hal_query_t *query, hal_query_cb cb, void *arg);
+
+//
+// *** HAL structure iteration functions ***
+//
+// Each function will invoke the callback on each of the HAL structures
+// of interest:
+//   hal_list_p      - callback on pins and/or params
+//   hal_list_p_s    - callback on pins connected to named signal
+//   hal_list_s      - callback on signals
+//   hal_list_comp   - callback on components
+//   hal_list_funct  - callback on registered functions
+//   hal_list_thread - callback on registered threads (and its functions)
+//
+int hal_list_p(hal_query_t *q, hal_query_cb cb, void *arg);
+int hal_list_p_s(hal_query_t *q, hal_query_cb cb, void *arg);
+int hal_list_s(hal_query_t *q, hal_query_cb cb, void *arg);
+int hal_list_comp(hal_query_t *q, hal_query_cb cb, void *arg);
+int hal_list_funct(hal_query_t *q, hal_query_cb cb, void *arg);
+int hal_list_thread(hal_query_t *q, hal_query_cb cb, void *arg);
+
+//
+// *** Component queries ***
+//
+// Query components by name or ID
+int hal_comp_by_name(const char *name, hal_query_t *q);
+int hal_comp_by_id(int comp_id, hal_query_t *q);
+
+//
+// *** General HAL statistics ***
+//
+typedef struct {
+    long mem_total;
+    long mem_free;
+    int ncomps;
+    int ncomps_free;
+    int npins;
+    int npins_free;
+    int nparams;
+    int nparams_free;
+    int naliases;
+    int naliases_free;
+    int nsignals;
+    int nsignals_free;
+    int nthreads;
+    int nthreads_free;
+    int nfuncts;
+    int nfuncts_free;
+} hal_statistics_t;
+
+int hal_statistics(hal_statistics_t *sts);
 
 //
 // *** Special functions for rtapi_app and halcmd ***
