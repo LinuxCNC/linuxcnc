@@ -505,11 +505,18 @@ void readahead_reading(void)
                     int count = 0;
 interpret_again:
 		    if (emcTaskPlanIsWait()) {
-			// delay reading of next line until all is done
+			// delay reading of next line until all is done.
+			// Match the stricter check used by mdi_execute_hook:
+			// trusting only execState==DONE can race when motion
+			// hasn't yet processed a just-issued command (e.g. a
+			// G38 probe), letting the next read see a non-empty
+			// queue.
 			if (interp_list.len() == 0 &&
 			    emcTaskCommand == 0 &&
 			    emcStatus->task.execState ==
-			    EMC_TASK_EXEC_DONE) {
+			    EMC_TASK_EXEC_DONE &&
+			    emcStatus->motion.traj.queue == 0 &&
+			    emcStatus->io.status == RCS_DONE) {
 			    emcTaskPlanClearWait();
 			 }
 		    } else {
