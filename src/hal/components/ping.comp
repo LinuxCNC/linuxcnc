@@ -349,6 +349,8 @@ FUNCTION(_) {
         }
     }
     if(reset) {
+        ping_timeout = 0;
+        ping_err = 0;
         ping_rtt_max = 0;
     }
 }
