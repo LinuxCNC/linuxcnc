@@ -43,10 +43,14 @@ QUIT_GRACE=15
 . "$LIB_DIR/crashdump.sh"
 crashdump_arm
 
+# Absolute path the offscreen-Qt self-grab writes to (the test dir, this
+# shell's cwd); see launch.sh for why a relative name would miss.
+export UI_SMOKE_QT_SHOT="$PWD/ui-smoke-qt.png"
+
 export CONFIG_INI LIB_DIR DRIVER_TIMEOUT GUI_MATCH QUIT_GRACE
 
 # shellcheck disable=SC2016
-xvfb-run -a --server-args="-screen 0 1024x768x24" \
+xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
     timeout "$LINUXCNC_TIMEOUT" \
     bash -c '
         setsid linuxcnc -r "$CONFIG_INI" >linuxcnc.out 2>linuxcnc.err &
@@ -95,6 +99,11 @@ xvfb-run -a --server-args="-screen 0 1024x768x24" \
 
         if kill -0 "$GUI_PID" 2>/dev/null; then
             echo "UI_SMOKE_QUIT_FAIL: GUI (pid $GUI_PID) still alive ${QUIT_GRACE}s after SIGTERM"
+            # A GUI that absorbs SIGTERM is usually blocked on a modal it
+            # cannot dismiss headless. Photograph it before teardown so the
+            # offending dialog is visible. The GUI is still up here.
+            . "$LIB_DIR/screenshot.sh"
+            screenshot_grab screenshot.png
             RC=1
         else
             echo "UI_SMOKE_QUIT_OK: GUI exited ${waited}s after SIGTERM"
@@ -125,5 +134,8 @@ echo "=== ui-smoke.err ==="
 
 # If the GUI dumped a core, print its native backtrace.
 crashdump_report
+
+# Note any failure screenshot for the CI artifact step and reviewer.
+[ -f screenshot.png ] && echo "=== screenshot: $TEST_DIR/screenshot.png ==="
 
 exit "$RC"

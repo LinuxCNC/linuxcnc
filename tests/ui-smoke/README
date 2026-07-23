@@ -19,6 +19,35 @@ Shared helpers live in _lib/:
   checkresult.sh      shared pass/fail predicate
   skip-if-missing.sh  shared skip predicate
 
+Failure diagnostics (failure path only, no cost on a green run):
+  crashdump.sh   arms a core dump and prints a native backtrace if a GUI
+                 segfaults (the Qt/dbus/GL frames PYTHONFAULTHANDLER misses)
+  screenshot.sh  photographs the Xvfb root window before teardown. On a
+                 failure it captures the cause (a GUI hung on a blocking
+                 modal leaves no core and no traceback); on a clean Phase 2
+                 run it captures confirm.png, the GUI in its post-movement
+                 idle state (final DRO / toolpath) for visual confirmation.
+                 CI uploads both as build artifacts (ui-smoke-screenshots-*
+                 in ci.yml).
+  compare.sh     on a clean run, compares confirm.png to the committed
+                 known-good reference.png (ImageMagick) and writes a
+                 highlighted diff.png, also uploaded as an artifact.
+
+Reference images:
+  reference.png  committed per-GUI known-good shot (in a --run-program test
+                 directory); diff.png is confirm.png compared against it.
+                 The comparison NEVER fails a test: freetype/font versions
+                 differ across distros, so some drift is expected. The diff
+                 is only recorded, not used to gate the test.
+
+  Create or refresh the references on a built run-in-place tree:
+      . scripts/rip-environment
+      tests/ui-smoke/_lib/make-references.sh           # all run-program GUIs
+      tests/ui-smoke/_lib/make-references.sh axis      # just one
+  This sets UI_SMOKE_UPDATE_REFERENCE=1, which makes compare.sh save each
+  clean confirm shot as that test's reference.png. Review the PNGs before
+  committing; they are baselines from the generating machine's fonts.
+
 Skip vs fail policy: the only condition we skip on is xvfb-run absence
 (rare local dev env). Python and gi typelib deps the GUIs need are
 declared in debian/control under !nocheck so apt-get build-dep
