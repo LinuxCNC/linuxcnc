@@ -40,23 +40,26 @@ using namespace linuxcnc;
 ********************************************************************/
 int Task::iocontrol_hal_init(void)
 {
-    iocontrol.add_pin("user-enable-out", hal_dir::OUT, iocontrol_data.user_enable_out);
-    iocontrol.add_pin("emc-enable-in", hal_dir::IN, iocontrol_data.emc_enable_in);
-    iocontrol.add_pin("user-request-enable", hal_dir::OUT, iocontrol_data.user_request_enable);
-    iocontrol.add_pin("coolant-mist", hal_dir::OUT, iocontrol_data.coolant_mist);
-    iocontrol.add_pin("coolant-flood", hal_dir::OUT, iocontrol_data.coolant_flood);
-    iocontrol.add_pin("tool-prep-pocket", hal_dir::OUT, iocontrol_data.tool_prep_pocket);
-    iocontrol.add_pin("tool-from-pocket", hal_dir::OUT, iocontrol_data.tool_from_pocket);
-    iocontrol.add_pin("tool-prep-index", hal_dir::OUT, iocontrol_data.tool_prep_index);
-    iocontrol.add_pin("tool-prep-number", hal_dir::OUT, iocontrol_data.tool_prep_number);
-    iocontrol.add_pin("tool-number", hal_dir::OUT, iocontrol_data.tool_number);
-    iocontrol.add_pin("tool-prepare", hal_dir::OUT, iocontrol_data.tool_prepare);
-    iocontrol.add_pin("tool-prepared", hal_dir::IN, iocontrol_data.tool_prepared);
-    iocontrol.add_pin("tool-change", hal_dir::OUT, iocontrol_data.tool_change);
-    iocontrol.add_pin("tool-changed", hal_dir::IN, iocontrol_data.tool_changed);
-    iocontrol.ready();
-    if (iocontrol.error < 0)
+    try {
+        iocontrol.add_pin("user-enable-out", hal_dir::OUT, iocontrol_data.user_enable_out);
+        iocontrol.add_pin("emc-enable-in", hal_dir::IN, iocontrol_data.emc_enable_in);
+        iocontrol.add_pin("user-request-enable", hal_dir::OUT, iocontrol_data.user_request_enable);
+        iocontrol.add_pin("coolant-mist", hal_dir::OUT, iocontrol_data.coolant_mist);
+        iocontrol.add_pin("coolant-flood", hal_dir::OUT, iocontrol_data.coolant_flood);
+        iocontrol.add_pin("tool-prep-pocket", hal_dir::OUT, iocontrol_data.tool_prep_pocket);
+        iocontrol.add_pin("tool-from-pocket", hal_dir::OUT, iocontrol_data.tool_from_pocket);
+        iocontrol.add_pin("tool-prep-index", hal_dir::OUT, iocontrol_data.tool_prep_index);
+        iocontrol.add_pin("tool-prep-number", hal_dir::OUT, iocontrol_data.tool_prep_number);
+        iocontrol.add_pin("tool-number", hal_dir::OUT, iocontrol_data.tool_number);
+        iocontrol.add_pin("tool-prepare", hal_dir::OUT, iocontrol_data.tool_prepare);
+        iocontrol.add_pin("tool-prepared", hal_dir::IN, iocontrol_data.tool_prepared);
+        iocontrol.add_pin("tool-change", hal_dir::OUT, iocontrol_data.tool_change);
+        iocontrol.add_pin("tool-changed", hal_dir::IN, iocontrol_data.tool_changed);
+        iocontrol.ready();
+    } catch(const std::exception &e) {
+        fprintf(stderr, "iocontrol_hal_init: %s\n", e.what());
         return -1;
+    }
     return 0;
 }
 
