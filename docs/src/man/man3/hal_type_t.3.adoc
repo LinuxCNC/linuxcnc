@@ -4,62 +4,41 @@
 
 == NAME
 
-hal_type_t, hal_bool, hal_bit_t, hal_s32_t, hal_u32_t, hal_port_t, hal_float_t, real_t, ireal_t - typedefs for HAL datatypes
+hal_type_t, hal_bool_t, hal_real_t, hal_sint_t, hal_uint_t, hal_port_t - typedefs for HAL data types
 
 == DESCRIPTION
 
-typedef ... *hal_bool;*::
-  A type which may have a value of 0 or nonzero.
-typedef ... *hal_bit_t;*::
-  A volatile type which may have a value of 0 or nonzero.
-typedef ... *hal_s32_t*;::
-  A volatile type which may have a value from -2147483648 to 2147483647.
-typedef ... *hal_u32_t*;::
-  A volatile type which may have a value from 0 to 4294967295.
+typedef ... *hal_bool_t*;::
+  An opaque type reference for a boolean with a value of zero/false (0) or one/true (1).
+typedef ... *hal_real_t*;::
+  An opaque type reference for a floating-point value with the same precision as a C double type.
+typedef ... *hal_sint_t*;::
+  An opaque type reference for a value from -2^63^ ... +2^63^-1.
+typedef ... *hal_uint_t*;::
+  An opaque type reference for a value from 0 ... +2^64^-1.
 typedef ... *hal_port_t*;::
-  A volatile handle to a port object. Used with hal_port* functions.
-typedef ... *hal_float_t*;::
-  A volatile floating-point type, which typically has the same precision
-  and range as the C type *double*.
-typedef ... *real_t*;::
-  A nonvolatile floating-point type with at least as much precision as
-  *hal_float_t*.
-typedef ... *ireal_t*;::
-  A nonvolatile unsigned integral type the same size as *hal_float_t*.
+  An opaque type reference as a handle to a port object. Used with hal_port*() functions.
 typedef enum *hal_type_t*;::
-  
-  *HAL_BIT*;;
-    Corresponds to the type *hal_bit_t*.
-  *HAL_FLOAT*;;
-    Corresponds to the type *hal_float_t*.
-  *HAL_S32*;;
-    Corresponds to the type *hal_s32_t*.
-  *HAL_U32*;;
-    Corresponds to the type *hal_u32_t*.
+  *HAL_BOOL*;;
+    Corresponds to the type *hal_bool_t*.
+  *HAL_REAL*;;
+    Corresponds to the type *hal_real_t*.
+  *HAL_SINT*;;
+    Corresponds to the type *hal_sint_t*.
+  *HAL_UINT*;;
+    Corresponds to the type *hal_uint_t*.
+  *HAL_PORT*;;
+    Corresponds to the type *hal_port_t*.
 
 == NOTES
 
-*hal_bit_t* is typically a typedef to an integer type whose range is
-larger than just 0 and 1. When testing the value of a *hal_bit_t*, never
-compare it to 1. Prefer one of the following:
-
-* if(b)
-* if(b != 0)
-
-It is often useful to refer to a type that can represent all the values
-as a HAL type, but without the volatile qualifier. The following types
-correspond with the HAL types:
-
-hal_bit_t:: int
-hal_s32_t:: __s32
-hal_u32_t:: __u32
-hal_float_t:: hal_real_t
-hal_port_t:: int
-
-Take care not to use the types *s32* and *u32*. These will compile in
-kernel modules but not in userspace, and not for realtime components
-when using uspace realtime.
+HAL types cannot be read or written directly.
+They are opaque structures that reference a value of the type indicated by the name.
+Reading and writing HAL types is done with getters and setters.
+There are 32-bit compatibility getters and setters to handle smaller coding types.
 
 == SEE ALSO
 
-hal_pin_new(3), hal_param_new(3)
+hal_pin_new(3), hal_param_new(3),
+hal_query_t(3),
+hal_setter(3), hal_getter(3)

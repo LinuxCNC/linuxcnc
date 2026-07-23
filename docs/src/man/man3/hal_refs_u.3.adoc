@@ -1,0 +1,32 @@
+:manvolnum: 3
+
+= hal_refs_u(3)
+
+== NAME
+
+hal_refs_u - Combined pin, param and signal opaque data reference
+
+== DESCRIPTION
+
+A union of opaque references to all hal_type_t(3) types.
+You need to have access to the type enumeration to select the correct union field.
+
+[source,c]
+----
+typedef union {
+    hal_bool_t b;
+    hal_sint_t s;
+    hal_uint_t u;
+    hal_real_t r;
+    hal_port_t p;
+} hal_refs_u;
+----
+
+HAL data cannot be read or written directly.
+The *hal_refs_u* contains opaque structures that reference a value of the type indicated by the name.
+Reading and writing HAL types is performed with getters and setters.
+
+== SEE ALSO
+
+hal_query_t(3),
+hal_setter(3), hal_getter(3)
