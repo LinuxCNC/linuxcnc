@@ -46,4 +46,4 @@ Call only from realtime init code, not from other realtime or non-realtime code.
 
 == SEE ALSO
 
-hal_thread_new(3), hal_export_funct(3)
+hal_create_thread(3), hal_export_funct(3)
