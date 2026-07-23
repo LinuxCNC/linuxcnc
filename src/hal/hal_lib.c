@@ -355,10 +355,10 @@ int hal_init(const char *name)
     /* initialize the structure */
     comp->comp_id = comp_id;
 #ifdef RTAPI
-    comp->type = COMPONENT_TYPE_REALTIME;
+    comp->type = HAL_COMP_TYPE_REALTIME;
     comp->pid = 0;
 #else /* ULAPI */
-    comp->type = COMPONENT_TYPE_USER;
+    comp->type = HAL_COMP_TYPE_USER;
     comp->pid = getpid();
 #endif
     comp->ready = 0;
@@ -460,6 +460,25 @@ int hal_exit(int comp_id)
 
 
     return 0;
+}
+
+int hal_is_init(void)
+{
+    return hal_shmem_base != NULL;
+}
+
+rtapi_intptr_t hal_reference_unmap(const void *ref)
+{
+    if(!hal_shmem_base || !ref || !SHMCHK(ref))
+        return 0;
+    return (rtapi_intptr_t)SHMOFF(ref);
+}
+
+void *hal_reference_map(rtapi_intptr_t ref)
+{
+    if(!hal_shmem_base || ref <= 0 || ref >= HAL_SIZE)
+        return NULL;
+    return SHMPTR(ref);
 }
 
 void *hal_malloc(long int size)
@@ -620,6 +639,33 @@ int hal_unready(int comp_id) {
     return 0;
 }
 
+//
+// Return an appropriate error string for HAL error values
+//
+// The error value should be a negative errno value returned by
+// a HAL function.
+//
+const char *hal_strerror(int err)
+{
+    switch(err) {
+    case -EINVAL:  return "invalid argument";
+    case -ENOENT:  return "not found";
+    case -EACCES:  return "not writable";
+    case -EIO:     return "missing target storage";
+    case -EBADF:   return "invalid type";
+    case -ERANGE:  return "value out of range";
+    case -ENOMEM:  return "out of memory";
+    case -EISCONN: return "queue already allocated";
+    case -EEXIST:  return "name exists";  // also when pin/param/sig matched with different type
+    case -EFAULT:  return "shared memory not mapped";
+    case -EMFILE:  return "too many modules";
+    case -EPROTO:  return "hal data version mismatch";
+    case -EPERM:   return "hal is locked";
+    case -ENOEXEC: return "missing constructor";
+    default:       return "unknown error";
+    }
+}
+
 char *hal_comp_name(int comp_id)
 {
     hal_comp_t *comp;
@@ -662,9 +708,12 @@ int hal_set_lock(unsigned char lock_type) {
 
 unsigned char hal_get_lock() {
     if (hal_data == NULL) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: get_lock called before init\n");
-	return -EINVAL;
+        rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: get_lock called before init\n");
+        // There is no point in returning a negative error value. The return
+        // type wont allow it. We just pretend that everything is locked tight
+        // and nothing can change, which would adequately describe the
+        // unavailability of shared memory.
+        return HAL_LOCK_ALL;
     }
     return hal_data->lock;
 }
@@ -814,7 +863,7 @@ int hal_pin_port_newf(hal_pin_dir_t dir,
 
 // *** New interface ***
 
-int hal_pin_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, bool def, const char *fmt, ...)
+int hal_pin_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -850,7 +899,7 @@ int hal_pin_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 def,
     return 0;
 }
 
-int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s64 def, const char *fmt, ...)
+int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -862,7 +911,7 @@ int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s64 def,
     return 0;
 }
 
-int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u64 def, const char *fmt, ...)
+int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -874,7 +923,7 @@ int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u64 def,
     return 0;
 }
 
-int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, real_t def, const char *fmt, ...)
+int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -1444,7 +1493,7 @@ int hal_link(const char *pin_name, const char *sig_name)
         //*((hal_data_u *)data_addr) = pin->dummysig;
 
         switch (pin->type) {
-        case HAL_BIT:
+        case HAL_BOOL:
             *((hal_bit_t *) data_addr) = pin->dummysig.b;
             break;
         case HAL_S32:
@@ -1453,13 +1502,13 @@ int hal_link(const char *pin_name, const char *sig_name)
         case HAL_U32:
             *((hal_u32_t *) data_addr) = pin->dummysig.u;
             break;
-        case HAL_S64:
-            *((hal_s64_t *) data_addr) = pin->dummysig.s;
+        case HAL_SINT:
+            *((hal_s64_t *) data_addr) = pin->dummysig.ls;
             break;
-        case HAL_U64:
-            *((hal_u64_t *) data_addr) = pin->dummysig.u;
+        case HAL_UINT:
+            *((hal_u64_t *) data_addr) = pin->dummysig.lu;
             break;
-        case HAL_FLOAT:
+        case HAL_REAL:
             *((hal_float_t *) data_addr) = pin->dummysig.f;
             break;
         default:
@@ -1810,7 +1859,7 @@ static int hal_param_new_newapi(hal_type_t type, hal_pdir_t dir, void *data_addr
 
 // *** New interface ***
 
-int hal_param_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, bool def, const char *fmt, ...)
+int hal_param_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -1846,7 +1895,7 @@ int hal_param_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 de
     return 0;
 }
 
-int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s64 def, const char *fmt, ...)
+int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -1858,7 +1907,7 @@ int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s64 de
     return 0;
 }
 
-int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u64 def, const char *fmt, ...)
+int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -1870,7 +1919,7 @@ int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u64 de
     return 0;
 }
 
-int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, real_t def, const char *fmt, ...)
+int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -1879,6 +1928,23 @@ int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, real_t def, 
     if(ret)
         return ret;
     hal_set_real(*ref, def);
+    return 0;
+}
+
+// This is a special case for parameters, where you want them available, but
+// not exposed. This is for example used in hostmot2.
+// We ensure a valid target for the pointer destination but do not have a name
+// attached. The code can then use whatever type read/write and run.
+int hal_param_new_fake(int compid, hal_refs_u *ref)
+{
+    (void)compid;
+    if(!ref)
+        return -EINVAL;
+    __hal_private_vals_u *ptr = hal_malloc(sizeof(*ptr));
+    if(!ptr)
+        return -ENOMEM;
+    memset(ptr, 0, sizeof(*ptr));
+    *(void **)ref = ptr;
     return 0;
 }
 
@@ -2242,7 +2308,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
     }
-    if (comp->type == COMPONENT_TYPE_USER) {
+    if (comp->type == HAL_COMP_TYPE_USER) {
 	/* not a realtime component */
 	halpr_mutex_release();
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -3502,11 +3568,14 @@ static int init_hal_data(void)
 {
     /* has the hal_data block already been initialized? */
 
-    /* Lock hal_data by taking the mutex, so that two processes
-    don't both try to initialize hal_data at the same time.  NOTE:
-    The first time through, the hal_data memory buffer is fresh from
-    rtapi_shmem_new(), which means it's initialized to all zero bytes.
-    This means mutex is valid and locked. */
+    // Lock hal_data by taking the mutex, so that two processes don't both try
+    // to initialize hal_data at the same time.
+    // NOTE: The first time through, the hal_data memory buffer is fresh from
+    // rtapi_shmem_new(), which means it's initialized to all zero bytes.
+    // The used mutex in halpr_mutex_acquire()/halpr_mutex_release() uses a
+    // reversed default mutex, where zero means it is locked and non-zero when
+    // unlocked. This is required for recursive mutex functionality where the
+    // default is locked at init.
     halpr_mutex_acquire();
 
     if (hal_data->version != 0) {
@@ -3655,7 +3724,7 @@ hal_comp_t *halpr_alloc_comp_struct(void)
 	p->next_ptr = 0;
 	p->comp_id = 0;
 	p->mem_id = 0;
-	p->type = COMPONENT_TYPE_USER;
+	p->type = HAL_COMP_TYPE_USER;
 	p->shmem_base = NULL;
 	p->name[0] = '\0';
     }
@@ -3923,7 +3992,7 @@ static void free_comp_struct(hal_comp_t * comp)
     /* clear contents of struct */
     comp->comp_id = 0;
     comp->mem_id = 0;
-    comp->type = COMPONENT_TYPE_USER;
+    comp->type = HAL_COMP_TYPE_USER;
     comp->shmem_base = NULL;
     comp->name[0] = '\0';
     /* add it to free list */
@@ -4954,12 +5023,17 @@ int hal_stream_num_underruns(hal_stream_t *stream)
 /* only export symbols when we're building a kernel module */
 
 EXPORT_SYMBOL(hal_init);
+EXPORT_SYMBOL(hal_is_init);
 EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_set_unready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
 EXPORT_SYMBOL(hal_comp_name);
 EXPORT_SYMBOL(hal_get_realtime_type);
+EXPORT_SYMBOL(hal_strerror);
+
+EXPORT_SYMBOL(hal_reference_map);
+EXPORT_SYMBOL(hal_reference_unmap);
 
 EXPORT_SYMBOL(hal_pin_new_bool);
 EXPORT_SYMBOL(hal_pin_new_si32);
@@ -5013,6 +5087,7 @@ EXPORT_SYMBOL(hal_param_new_ui32);
 EXPORT_SYMBOL(hal_param_new_sint);
 EXPORT_SYMBOL(hal_param_new_uint);
 EXPORT_SYMBOL(hal_param_new_real);
+EXPORT_SYMBOL(hal_param_new_fake);
 
 EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);

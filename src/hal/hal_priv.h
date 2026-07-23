@@ -120,7 +120,6 @@
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
 #define HAL_VER   0x00000013	/* version code */
 #define HAL_SIZE  (2*256*4096)
-#define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /* These pointers are set by hal_init() to point to the shmem block
    and to the master data structure. All access should use these
@@ -203,6 +202,16 @@ static_assert(sizeof(hal_shmfield<void>) == sizeof(rtapi_intptr_t), "hal_shmfiel
 /***********************************************************************
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
+
+// The underlying HAL pin/param data storage unit. Not normally exposed because
+// we need everything to go through the getter/setter interface. However, there
+// is a reason to have it for sizeof() queries.
+typedef union {
+    rtapi_bool _b;
+    rtapi_sint _s;
+    rtapi_uint _u;
+    rtapi_real _r;
+} __hal_private_vals_u;
 
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
@@ -292,12 +301,7 @@ typedef struct hal_data_t {
 /** HAL 'component' type.
     Assigned according to RTAPI and ULAPI definitions.
  */
-typedef enum {
-    COMPONENT_TYPE_UNKNOWN = -1,
-    COMPONENT_TYPE_USER,
-    COMPONENT_TYPE_REALTIME,
-    COMPONENT_TYPE_OTHER
-} component_type_t;
+typedef hal_comp_type_t component_type_t;
 
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.

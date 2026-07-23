@@ -139,6 +139,7 @@ RTAPI_BEGIN_DECLS
 #include "rtapi_errno.h"
 
 #define HAL_NAME_LEN     55	/* length for pin, signal, etc, names */
+#define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a -EPERM error message **/
@@ -233,6 +234,10 @@ extern int hal_set_unready(int comp_id);
 */
 extern int hal_unready(int comp_id);
 
+// hal_strerror() returns a brief textual description string about the error
+// identified. The argument should be the negative errno value, as returned by
+// most HAL functions.
+const char *hal_strerror(int err);
 
 /** hal_comp_name() returns the name of the given component, or NULL
     if comp_id is not a loaded component
@@ -556,6 +561,7 @@ int hal_param_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32  d
 int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...) __HAL_PFMT(5,6);
 int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...) __HAL_PFMT(5,6);
 int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_param_new_fake(int compid, hal_refs_u *refs);
 #undef __HAL_PFMT
 
 /***********************************************************************
@@ -1173,12 +1179,12 @@ extern void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic
  */
 
 typedef union hal_stream_data {
-    real_t f;
-    bool b;
+    rtapi_real f;
+    rtapi_bool b;
     rtapi_s32 s;
     rtapi_u32 u;
-    rtapi_s64 l;
-    rtapi_u64 k;
+    rtapi_sint l;
+    rtapi_uint k;
 } hal_stream_data_u;
 typedef hal_stream_data_u *hal_stream_data_ptr_u;
 
@@ -1319,6 +1325,37 @@ static inline rtapi_s64 hal_extend_counter(rtapi_s64 old, rtapi_s64 newlow, int 
     rtapi_s64 diff_shifted = newlow_shifted - oldlow_shifted;
     return (rtapi_u64)old + (diff_shifted >> nshift); // unsigned to avoid signed overflow
 }
+
+//***********************************************************************
+// Mapping/umapping HAL memory segment pointers
+//***********************************************************************
+
+// Pointers into HAL memory are dependent on process memory. Transporting them
+// between processes does not work. These need to be handled as offsets from
+// where the memory is mapped.
+rtapi_intptr_t hal_reference_unmap(const void *ref);
+void *hal_reference_map(rtapi_intptr_t ref);
+
+//***********************************************************************
+//
+// User-land only functions to query HAL's internals
+//
+//***********************************************************************
+
+// HAL 'component' type.
+//    Assigned according to RTAPI and ULAPI definitions.
+typedef enum {
+    HAL_COMP_TYPE_UNKNOWN = -1,
+    HAL_COMP_TYPE_USER,
+    HAL_COMP_TYPE_REALTIME,
+    HAL_COMP_TYPE_OTHER
+} hal_comp_type_t;
+// These COMPONENT_TYPE_* names are for compatibility. The HAL_COMP_TYPE_*
+// versions are better names for what they represent.
+#define COMPONENT_TYPE_UNKNOWN  HAL_COMP_TYPE_UNKNOWN
+#define COMPONENT_TYPE_USER     HAL_COMP_TYPE_USER
+#define COMPONENT_TYPE_REALTIME HAL_COMP_TYPE_REALTIME
+#define COMPONENT_TYPE_OTHER    HAL_COMP_TYPE_OTHER
 
 // Only enable the query API when we are compiling the user-land HAL library
 #ifdef ULAPI
