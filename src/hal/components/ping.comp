@@ -258,11 +258,14 @@ rtapi_s32 recv_ping(ping_data *data) {
     socklen_t addr_len = sizeof(r_addr);
     ssize_t ret = recvfrom(data->sockfd, data->rbuffer, sizeof(data->rbuffer), 0, (struct sockaddr*)&r_addr, &addr_len);
     if (ret <= 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: recvfrom failed: %m\n");
-        return ERR_TIMEOUT;
+        if( errno == EAGAIN){
+            return ERR_TIMEOUT;
+        }else{
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: recvfrom failed: %m\n");
+            return ERR_CORRUPT;
+        }
     } else {
         data->time_end = rtapi_get_time();
-
 
         struct icmphdr *recv_hdr = (struct icmphdr *)(data->rbuffer);
         unsigned short checksum = in_cksum((unsigned short *)data->rbuffer, ret, 0);
@@ -300,7 +303,7 @@ EXTRA_SETUP() {
         return -1;
     }
 
-    if(if_name == 0){
+    if(if_name == NULL){
         rtapi_print_msg(RTAPI_MSG_ERR, "ping: warning: if_name not given, can not set\n"
             "    static arp. Might increase latency.\n");
     } else {
@@ -318,7 +321,7 @@ EXTRA_SETUP() {
 }
 
 EXTRA_CLEANUP() {
-    if(if_name == 0){
+    if(if_name != NULL){
         cleanup_arp(&data);
     }
 }
