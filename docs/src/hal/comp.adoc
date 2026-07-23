@@ -267,8 +267,14 @@ In this case, r-strings are particularly useful, because the backslashes in an r
 r"\fIexample\fB"
 ----
 
-* 'TYPE' - One of the HAL types: 'bit', 's32', 'u32', 's64', 'u64' or 'float'.
-  The names 'signed' and 'unsigned' may also be used for 's32' and 'u32' but 's32' and 'u32' are preferred.
+* 'TYPE' - One of the HAL types: 'real', 'bool', 'si32', 'ui32', 'sint' or 'uint'.
+  'real' is a floating point value, 'bool' a boolean, 'si32' and 'ui32' are 32-bit signed and unsigned integers,
+  and 'sint' and 'uint' are 64-bit signed and unsigned integers.
+  The legacy types 'float' (for 'real'), 'bit' (for 'bool'), 's32' (for 'si32'), 'u32' (for 'ui32'),
+  's64' (for 'sint') and 'u64' (for 'uint') are still accepted, as are the aliases 'signed' and 'unsigned'
+  (for 'si32' and 'ui32'), but they are deprecated, 'halcompile' will warn about them,
+  and they will be removed when the HAL API break is performed.
+  See <<sub:hal-comp-migration,Migrating to the new HAL API>>.
 * 'PINDIRECTION' - One of the following: 'in', 'out', or 'io'.
   A component sets a value for an 'out' pin, it reads a value from an 'in' pin, and it may read or set the value of an 'io' pin.
 * 'PARAMDIRECTION' - One of the following: 'r' or 'rw'. A component sets a value for a 'r' parameter, and it may read or set the value of a 'rw' parameter.
@@ -458,6 +464,15 @@ The details of `struct __comp_state` and these macros may change from one versio
 +
 When the item is a conditional item, it is only legal to refer to it when its 'condition' evaluated to a nonzero value.
 
+* `pin_name_set(`__value__`)` or `param_name_set(`__value__`)` - For each 'out' or 'io' pin and each parameter
+  of a new-style type ('real', 'bool', 'si32', 'ui32', 'sint', 'uint'), there is a macro which sets the value of the pin or parameter.
+  For arrays the form is 'pin_name_set(idx, value)'.
+  With the new-style types, assigning to an 'out' or 'io' pin or to a parameter with plain C assignment is not possible;
+  the '_set' macro must be used instead (reading stays transparent through the bare name).
+  The '_set' macro evaluates to the value that was set, so chained use like 'a_set(b_set(x))' works.
+  There is also a 'pin_name_ptr' macro, but with new-style types it evaluates to an opaque reference
+  which can only be used with the 'hal_get_*' and 'hal_set_*' functions; it cannot be dereferenced.
+
 * 'variable_name' - For each variable 'variable_name' there is a macro which allows the name to be used on its own to refer to the variable.
   When 'variable_name' is an array, the normal C-style subscript is used: 'variable_name[idx]'.
 * 'data' - If "option data" is specified, this macro allows access to the instance data.
@@ -465,6 +480,47 @@ When the item is a conditional item, it is only legal to refer to it when its 'c
 * `FOR_ALL_INSTS() {`...`}` - For non-realtime components.
   This macro iterates over all the defined instances.
   Inside the body of the loop, the 'pin_name', 'parameter_name', and 'data' macros work as they do in realtime functions.
+
+[[sub:hal-comp-migration]]
+== Migrating to the new HAL API
+
+HAL is moving from direct memory access of pin and parameter values to strongly typed getter/setter access.
+New-style declaration types replace the legacy types:
+
+[cols="1,1,3",options="header"]
+|===
+| Legacy type | New type | Underlying C type
+| 'float'     | 'real'   | 'rtapi_real' (floating point)
+| 'bit'       | 'bool'   | 'rtapi_bool' (boolean)
+| 's32'       | 'si32'   | 'rtapi_s32' (32-bit signed)
+| 'u32'       | 'ui32'   | 'rtapi_u32' (32-bit unsigned)
+| 's64'       | 'sint'   | 'rtapi_sint' (64-bit signed)
+| 'u64'       | 'uint'   | 'rtapi_uint' (64-bit unsigned)
+| 'signed'    | 'si32'   | 'rtapi_s32' (32-bit signed)
+| 'unsigned'  | 'ui32'   | 'rtapi_u32' (32-bit unsigned)
+|===
+
+The legacy types still work, but 'halcompile' warns about them and they will be removed when the HAL API break is performed.
+With the new-style types:
+
+* reading a pin or parameter is unchanged (the bare name, or 'name(idx)' for arrays, evaluates to the value);
+* writing an 'out' or 'io' pin or a parameter requires the generated 'name_set(value)' macro
+  (or 'name_set(idx, value)' for arrays) instead of plain assignment;
+* 'name_ptr' is an opaque reference for use with 'hal_get_*'/'hal_set_*' and can no longer be dereferenced.
+
+Existing components can be migrated automatically with the 'halcompupdate' tool:
+
+----
+halcompupdate mycomponent.comp          # show a diff of the required changes
+halcompupdate -i mycomponent.comp       # rewrite the file in place (keeps a .bak)
+----
+
+The tool converts the declaration types and rewrites writes to pins and parameters
+(including compound assignments and dereferences of 'name_ptr') to the '_set' form.
+It deliberately does not rename pins or parameters, because their names are part of the HAL configuration interface.
+Components that use the legacy 'hal_pin_*_new'/'hal_param_*_new' creation functions or that pass
+the address of a pin ('&name') to helper functions cannot be converted automatically;
+'halcompupdate' prints a warning for those cases so they can be converted by hand.
 
 == Components with one function
 
