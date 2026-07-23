@@ -28,6 +28,9 @@ ECHO ?= /usr/bin/echo
 SRCDIR=../src
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
+# Asciidoctor extensions loaded via -r for every doc render; a prerequisite of
+# the HTML and PDF rules so editing one rebuilds the affected docs.
+DOC_EXTENSIONS=$(wildcard $(DOC_SRCDIR)/extensions/*.rb)
 
 # Unified output tree.  All asciidoctor-generated artefacts (HTML, PDF,
 # po4a-translated .adoc) live under DOC_BUILD so the source tree stays
@@ -955,7 +958,7 @@ $(DOC_FONT_DIR):
 # to rebuild on every run.  Order-only (after the |) instead; the SVGs
 # the PDF embeds are tracked via .adoc-images-stamp.
 define ASCIIDOCTOR_PDF_RULE
-$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) | svgs_made_from_dots
+$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) $$(DOC_EXTENSIONS) | svgs_made_from_dots
 	$$(ECHO) Building $$@
 	@mkdir -p $$(dir $$@)
 	@rm -f $$@ $$@.raw
@@ -1214,7 +1217,7 @@ $(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$
 define ASCIIDOCTOR_HTML_RULE
 # Order-only dep on .adoc-images-stamp so translated images are staged before
 # the resolver probes for them at render (it also falls back to docs/src).
-$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html | .adoc-images-stamp
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html $$(DOC_EXTENSIONS) | .adoc-images-stamp
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/image_resolver.rb \
