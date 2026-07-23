@@ -50,11 +50,13 @@ FUNCTION(_) {
 #else
 
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
 #include <netinet/ip_icmp.h>
+#include <net/if_arp.h>
 #include <stdbool.h>
 
 static char *ip_address = "127.0.0.1";
@@ -243,6 +245,38 @@ EXTRA_SETUP() {
     if(!setup_ping(&data)){
         return -1;
     }
+
+    struct arpreq arp_request;
+
+    int ret = 0;
+    memset(&arp_request, 0, sizeof(arp_request));
+    ((struct sockaddr_in *)&arp_request.arp_pa)->sin_family = AF_INET;
+    ((struct sockaddr_in *)&arp_request.arp_pa)->sin_addr = data.addr.sin_addr;
+    strcpy(arp_request.arp_dev, "enp1s0");
+    ret = ioctl(data.sockfd, SIOCGARP, &arp_request);
+    if(ret < 0){
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCGARP %m\n");
+    }
+    if(!(arp_request.arp_flags | ATF_COM)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: arp request failed\n");
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "ping: mac=%.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
+			(uint8_t)arp_request.arp_ha.sa_data[0],
+			(uint8_t)arp_request.arp_ha.sa_data[1],
+			(uint8_t)arp_request.arp_ha.sa_data[2],
+			(uint8_t)arp_request.arp_ha.sa_data[3],
+			(uint8_t)arp_request.arp_ha.sa_data[4],
+			(uint8_t)arp_request.arp_ha.sa_data[5]);
+    }
+
+    if(!(arp_request.arp_flags | ATF_PERM)) {
+        arp_request.arp_flags |= ATF_PERM;
+        ret = ioctl(data.sockfd, SIOCSARP, &arp_request);
+        if(ret < 0){
+            rtapi_print_msg(RTAPI_MSG_ERR, "ping: error: ioctl SIOCSARP %m\n");
+        }
+    }
+    //ioctl(data.sockfd, SIOCDARP, &arp_request);
 
     return 0;
 }
