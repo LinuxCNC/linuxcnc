@@ -7,13 +7,17 @@ IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ] [**firewall=**__auto|iptables|nft|none__]
+*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_rtnet=**__posix|evl__[,__posix|evl__...] ]  [**board_mac=**__mac__[,__mac__...] ] [**firewall=**__auto|iptables|nft|none__]
 
 *config* [default: ""]::
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *board_ip* [default: ""]::
   The IP address of the board(s), separated by commas.
   As shipped, the board address is 192.168.1.121.
+*board_rtnet* [default: posix]::
+  The real time ethernet implementation of the board(s), separated by
+  commas. Use *posix* for PREEMT_RT. Use *evl* if you are running a
+  Xenomai4 EVL kernel and have a supported network card.
 *firewall* [default: auto]::
   Selects the firewall backend used to isolate the dedicated interface.
   By default hm2_eth installs the rules itself; rtapi_app raises
@@ -124,6 +128,8 @@ hm2___<BoardType>__.__<BoardNum>__.packet-error-level (s32, out)::
   The error level is always in the range from 0 to packet-error-limit, inclusive.
 hm2___<BoardType>__.__<BoardNum>__.packet-error-exceeded (bit, out)::
   This pin is TRUE when the current error level is equal to the maximum, and FALSE at other times.
+hm2___<BoardType>__.__<BoardNum>__.packet-error-total (u32, io)::
+  This pin shows the total package error count.
 
 == PARAMETERS
 
@@ -149,6 +155,16 @@ hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (s32, rw)::
 
 Setting this value too low can cause spurious read errors.
 Setting it too high can cause realtime delay errors.
+
+== FUNCTIONS
+
+hm2_eth.realtime-init::
+  Realtime initialization function. This function initializes the realtime
+  ethernet for *evl*. With *posix*, this function is not needed.
+  It needs to be called once at startup using:
+....
+initf hm2_eth.realtime-init servo-thread
+....
 
 == NOTES
 
