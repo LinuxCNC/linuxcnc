@@ -33,14 +33,14 @@ every time the real time function is called.
 """;
 
 
-pin in float in;
-pin out float out;
+pin in real in;
+pin out real out;
 
-variable double old;
+variable rtapi_real old;
 
 function _;
 license "GPL";
 ;;
-double tmp = in;
-out = (tmp - old) / (period * 1e-9);
+rtapi_real tmp = in;
+out_set((tmp - old) / (period * 1e-9));
 old = tmp;

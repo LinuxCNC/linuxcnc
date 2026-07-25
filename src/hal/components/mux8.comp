@@ -1,10 +1,10 @@
 component mux8 "Select from one of eight input values";
-pin in bit sel0;
-pin in bit sel1;
-pin in bit sel2 """\
+pin in bool sel0;
+pin in bool sel1;
+pin in bool sel2 """\
 Together, these determine which **in**__N__ value is copied to *out*.
 """;
-pin out float out """\
+pin out real out """\
 Follows the value of one of the **in**__N__ values according to the three *sel* values
 
 [cols="^1,^1,^1,1"]
@@ -25,14 +25,14 @@ Follows the value of one of the **in**__N__ values according to the three *sel* 
 |===
 
 """;
-pin in float in0;
-pin in float in1;
-pin in float in2;
-pin in float in3;
-pin in float in4;
-pin in float in5;
-pin in float in6;
-pin in float in7;
+pin in real in0;
+pin in real in1;
+pin in real in2;
+pin in real in3;
+pin in real in4;
+pin in real in5;
+pin in real in6;
+pin in real in7;
 option period no;
 function _;
 license "GPL";
@@ -42,22 +42,22 @@ see_also "mux2(9), mux4(9), mux16(9), mux_generic(9).";
 FUNCTION(_) {
     if(sel0) {
         if(sel1) {
-            if(sel2) out = in7;
-            else     out = in3;
+            if(sel2) out_set(in7);
+            else     out_set(in3);
         }
         else {
-            if(sel2) out = in5;
-            else     out = in1;
+            if(sel2) out_set(in5);
+            else     out_set(in1);
         }
     }
     else {
        if(sel1) {
-            if(sel2) out = in6;
-            else     out = in2;
+            if(sel2) out_set(in6);
+            else     out_set(in2);
         }
         else {
-            if(sel2) out = in4;
-            else     out = in0;
+            if(sel2) out_set(in4);
+            else     out_set(in0);
         }
     }
 }
