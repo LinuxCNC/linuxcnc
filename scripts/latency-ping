@@ -36,7 +36,7 @@ usage () {
     echo "       latency-ping ip_address [if_name] [timeout] [period]  # for single thread"
     echo ""
     echo "Example:"
-    echo "       latency-ping 192.168.122.1 enp1s0 800000 1000000"
+    echo "       latency-ping 192.168.1.121 enp1s0 800000 1000000"
     echo ""
     echo "Defaults:     period=${PERIOD}nS"
     echo "Equivalently: period=$(human_time "$PERIOD")"
