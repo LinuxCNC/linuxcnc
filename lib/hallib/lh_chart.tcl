@@ -175,6 +175,11 @@ proc lh_chart::cmd_element_apply {w name optlist} {
         if {[info exists stipple_map($s)]} { set s $stipple_map($s) }
         set state($w,el,$name,stipple) $s
     }
+    if {[info exists opts(-fg)] || [info exists opts(-bg)] \
+        || [info exists opts(-stipple)]} {
+        # Style changed: repaint existing bar items on the next redraw.
+        set state($w,el,$name,restyle) 1
+    }
 }
 
 proc lh_chart::cmd_legend {w sub args} {
@@ -207,13 +212,9 @@ proc lh_chart::redraw {w} {
     if {![winfo exists $w]} return
     if {!$state($w,dirty)} return
     set state($w,dirty) 0
-    set c ::lh_chart::_orig_$w
-    $c delete all
 
     set W $state($w,width)
     set H $state($w,height)
-    if {$W <= 1} { set W $state($w,width) }
-
     set ml 55 ; set mr 18 ; set mt 20 ; set mb 42
     set pw [expr {$W - $ml - $mr}]
     set ph [expr {$H - $mt - $mb}]
@@ -284,19 +285,100 @@ proc lh_chart::redraw {w} {
     set state($w,ymin) $ymin
     set state($w,ymax) $ymax
 
-    set lxmin [expr {$state($w,ylogscale) ? log10($ymin) : 0}]
-    set lxmax [expr {$state($w,ylogscale) ? log10($ymax) : 0}]
-    set lyrange [expr {$lxmax - $lxmin}]
-    if {$lyrange == 0} { set lyrange 1 }
+    # Tk 9 leaks memory for every deleted canvas item (Tk 8.6 does not),
+    # so steady-state redraws must not delete anything: bars are
+    # persistent items repositioned via `coords` (which does not leak),
+    # and the static scene (gridlines, axes, tick labels) is recreated
+    # only when the layout signature changes (Y auto-scale, resize).
+    # Bar items are recreated only when a bar count/stipple structure
+    # changes. See create_bars/layout/update_bars.
+    set lsig [list $W $H $xmin $xmax $ymin $ymax $state($w,ylogscale) \
+                   $state($w,xticks) $state($w,title) $state($w,plotbg)]
+    set bsig {}
+    foreach name $state($w,elements) {
+        lappend bsig $name \
+            [llength $state($w,el,$name,xdata)] \
+            [expr {$state($w,el,$name,stipple) ne ""}]
+    }
+    if {![info exists state($w,layout_sig)] || $lsig ne $state($w,layout_sig)} {
+        set rebars [expr {![info exists state($w,bar_sig)] \
+                          || $bsig ne $state($w,bar_sig)}]
+        set state($w,layout_sig) $lsig
+        set state($w,bar_sig) $bsig
+        layout $w $ml $mt $pw $ph $ml_d $mt_d $pw_d $ph_d \
+            $xmin $xmax $xrange $rebars
+    } elseif {![info exists state($w,bar_sig)] || $bsig ne $state($w,bar_sig)} {
+        set state($w,bar_sig) $bsig
+        create_bars $w
+    }
+    update_bars $w $ml_d $mt_d $pw_d $ph_d $xmin $xmax $xrange
+}
+
+# Create the persistent bar items for all elements: one rectangle per
+# bar (degenerate offscreen coords; update_bars positions them), plus a
+# 1 px baseline line per element. Stippled bars get a bg item plus a
+# stippled fg overlay item. All items carry the `bars` tag. Bars must
+# stack above the gridlines but below the frame/axes/ticks (tag `top`);
+# when `top` items already exist the new bars are lowered beneath them
+# (during a full layout `top` is drawn after this, same stacking).
+proc lh_chart::create_bars {w} {
+    variable state
+    set c ::lh_chart::_orig_$w
+    $c delete bars
+    foreach name $state($w,elements) {
+        set state($w,el,$name,restyle) 0
+        set state($w,el,$name,lastcoords) {}
+        set fg $state($w,el,$name,fg)
+        set bg $state($w,el,$name,bg)
+        set st $state($w,el,$name,stipple)
+        set ids {}
+        set n [llength $state($w,el,$name,xdata)]
+        for {set k 0} {$k < $n} {incr k} {
+            if {$st ne ""} {
+                set bgid [$c create rectangle -10 -10 -10 -10 \
+                    -fill $bg -outline $bg -width 0 -tags bars]
+                set fgid [$c create rectangle -10 -10 -10 -10 \
+                    -fill $fg -outline $fg -width 0 -stipple $st -tags bars]
+                lappend ids [list $bgid $fgid]
+            } else {
+                lappend ids [list [$c create rectangle -10 -10 -10 -10 \
+                    -fill $fg -outline $fg -width 0 -tags bars]]
+            }
+        }
+        set state($w,el,$name,barids) $ids
+        # Continuous baseline: 1 px line in the element's fg color along
+        # the bottom of the data area, so the bottom doesn't look broken
+        # where bins have zero counts. Coords set by update_bars.
+        set state($w,el,$name,baseid) \
+            [$c create line -10 -10 -10 -10 -fill $fg -tags bars]
+    }
+    if {[llength [$c find withtag top]] > 0} {
+        $c lower bars top
+    }
+}
+
+# Rebuild the static scene (background, gridlines, frame, axes, tick
+# labels): delete `static`-tagged items and redraw them. Persistent
+# bars are kept unless $rebars (bar count/structure changed) and are
+# re-stacked between gridlines and frame. Called on layout-signature
+# change; see redraw().
+proc lh_chart::layout {w ml mt pw ph ml_d mt_d pw_d ph_d xmin xmax xrange rebars} {
+    variable state
+    set c ::lh_chart::_orig_$w
+    $c delete static
+
+    set ymin $state($w,ymin)
+    set ymax $state($w,ymax)
 
     # plot area background (no border yet, axis lines drawn last)
     $c create rectangle $ml $mt [expr {$ml+$pw}] [expr {$mt+$ph}] \
-        -fill $state($w,plotbg) -outline ""
+        -fill $state($w,plotbg) -outline "" -tags static
 
     # title
     if {$state($w,title) ne ""} {
         $c create text [expr {$ml + $pw/2}] [expr {$mt - 9}] \
-            -text $state($w,title) -anchor center -font {Helvetica -12}
+            -text $state($w,title) -anchor center -font {Helvetica -12} \
+            -tags static
     }
 
     # Y axis: build tick lists + draw gridlines now (ticks/labels at end).
@@ -313,7 +395,7 @@ proc lh_chart::redraw {w} {
                 if {$v > $ymax + 0.1} break
                 set y [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax $v]
                 $c create line $ml $y [expr {$ml+$pw}] $y \
-                    -fill gray70 -dash {1 1}
+                    -fill gray70 -dash {1 1} -tags static
                 lappend y_minor_ticks $v
             }
             set d [expr {$d * 10}]
@@ -323,7 +405,8 @@ proc lh_chart::redraw {w} {
         set exp 0
         while {$d <= $ymax + 0.001} {
             set y [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax $d]
-            $c create line $ml $y [expr {$ml+$pw}] $y -fill gray70 -dash {1 1}
+            $c create line $ml $y [expr {$ml+$pw}] $y -fill gray70 -dash {1 1} \
+                -tags static
             lappend y_ticks [list $d "1E$exp"]
             set d [expr {$d * 10}]
             incr exp
@@ -341,91 +424,39 @@ proc lh_chart::redraw {w} {
         for {set i 0} {$i <= $steps} {incr i} {
             set v [expr {$ymin + ($ymax - $ymin) * $i / double($steps)}]
             set y [lh_chart::ymap_lin $mt_d $ph_d $ymin $ymax $v]
-            $c create line $ml $y [expr {$ml+$pw}] $y -fill gray80 -dash {2 2}
+            $c create line $ml $y [expr {$ml+$pw}] $y -fill gray80 -dash {2 2} \
+                -tags static
             lappend y_ticks [list $v [lh_chart::fmt_num $v]]
         }
     }
 
-    # baseline (y=0 in linear or y=1 in log) using inset mapping
-    set y0 [expr {$state($w,ylogscale) \
-                  ? [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax 1.0] \
-                  : [lh_chart::ymap_lin $mt_d $ph_d $ymin $ymax 0.0]}]
-
-    # Bars: BLT semantics — `-fg` is the fill color, `-bg` shows through
-    # stipple. We draw solid fg-fill with matching outline so narrow bars
-    # render as a single fg-colored column (1-2 px) without any sub-bar
-    # outline lines splitting adjacent bars. For stippled bars (off-chart
-    # indicators) we paint bg first, then a stippled fg layer on top.
-    foreach name $state($w,elements) {
-        set xd $state($w,el,$name,xdata)
-        set yd $state($w,el,$name,ydata)
-        set bw $state($w,el,$name,barwidth)
-        set fg $state($w,el,$name,fg)
-        set bg $state($w,el,$name,bg)
-        set st $state($w,el,$name,stipple)
-        set hbw [expr {$bw / 2.0}]
-        foreach x $xd y $yd {
-            if {$y <= 0} continue
-            if {$state($w,ylogscale) && $y < $ymin} continue
-            set xa [expr {$x - $hbw}]
-            set xb [expr {$x + $hbw}]
-            if {$xb < $xmin || $xa > $xmax} continue
-            if {$xa < $xmin} { set xa $xmin }
-            if {$xb > $xmax} { set xb $xmax }
-            set pxa [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xa]
-            set pxb [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xb]
-            # Pixel-snap so sub-pixel bars (e.g. 0.1us bins at ~1.2 px each)
-            # always paint at least one full pixel and adjacent bars touch.
-            set pxa [expr {int(floor($pxa))}]
-            set pxb [expr {int(ceil($pxb))}]
-            if {$pxb <= $pxa} { set pxb [expr {$pxa + 1}] }
-            # Off-chart (stippled) end-of-range bars: minimum 2 px so the
-            # stipple pattern is actually visible and matches BLT.
-            if {$st ne "" && [expr {$pxb - $pxa}] < 2} {
-                set pxb [expr {$pxa + 2}]
-            }
-            if {$state($w,ylogscale)} {
-                set py [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax $y]
-            } else {
-                set py [lh_chart::ymap_lin $mt_d $ph_d $ymin $ymax $y]
-            }
-            if {$st ne ""} {
-                $c create rectangle $pxa $py $pxb $y0 \
-                    -fill $bg -outline $bg -width 0
-                $c create rectangle $pxa $py $pxb $y0 \
-                    -fill $fg -outline $fg -width 0 -stipple $st
-            } else {
-                $c create rectangle $pxa $py $pxb $y0 \
-                    -fill $fg -outline $fg -width 0
-            }
-        }
-        # Continuous baseline: 1 px line in the element's fg color along
-        # the bottom of the data area, so the bottom doesn't look broken
-        # where bins have zero counts.
-        if {[llength $xd] > 0} {
-            $c create line \
-                [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xmin] $y0 \
-                [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xmax] $y0 \
-                -fill $fg
-        }
+    # Bars stack above the background + gridlines drawn so far: raise
+    # the persistent bars back, or recreate them on a structure change
+    # (new items land on top, which is the right level at this point).
+    if {$rebars} {
+        create_bars $w
+    } else {
+        $c raise bars static
     }
 
     # Plot frame: 3D raised look. Only TOP and LEFT have a black outline
     # (the lit edges); BOTTOM and RIGHT are left without an outer black
     # line. Inside, top+left have a darker shadow line and bottom+right
     # a lighter highlight, giving the panel-edge relief BLT used.
+    # Frame, axes and ticks stay on top of the bars; the `top` tag lets
+    # create_bars lower later-recreated bars back beneath them.
     set xR [expr {$ml+$pw}]
     set yB [expr {$mt+$ph}]
-    $c create line $ml $mt $xR $mt -fill black
-    $c create line $ml $mt $ml $yB -fill black
+    $c create line $ml $mt $xR $mt -fill black -tags {static top}
+    $c create line $ml $mt $ml $yB -fill black -tags {static top}
     $c create line [expr {$ml+1}] [expr {$mt+1}] [expr {$xR-1}] [expr {$mt+1}] \
-        -fill gray45
+        -fill gray45 -tags {static top}
     $c create line [expr {$ml+1}] [expr {$mt+1}] [expr {$ml+1}] [expr {$yB-1}] \
-        -fill gray45
+        -fill gray45 -tags {static top}
     $c create line [expr {$ml+1}] [expr {$yB-1}] [expr {$xR-1}] [expr {$yB-1}] \
-        -fill white
+        -fill white -tags {static top}
     $c create line [expr {$xR-1}] [expr {$mt+1}] [expr {$xR-1}] [expr {$yB-1}] \
-        -fill white
+        -fill white -tags {static top}
 
     # Axis line: separate black line OUTSIDE the plot border, with a
     # small gap between them. Spans only the data-inset range so its
@@ -440,15 +471,17 @@ proc lh_chart::redraw {w} {
     set axis_bottom [expr {$mt_d + $ph_d}]
     set axis_left   $ml_d                 ;# = $ml + pad
     set axis_right  [expr {$ml_d + $pw_d}]
-    $c create line $axis_x $axis_top $axis_x $axis_bottom -fill black
-    $c create line $axis_left $axis_y $axis_right $axis_y -fill black
+    $c create line $axis_x $axis_top $axis_x $axis_bottom -fill black \
+        -tags {static top}
+    $c create line $axis_left $axis_y $axis_right $axis_y -fill black \
+        -tags {static top}
 
     # Tick marks attach to (touch) the axis line and point OUTWARD
     # toward the labels. Major ticks long, minor ticks (Y only) short.
     foreach v $y_minor_ticks {
         set y [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax $v]
         $c create line [expr {$axis_x - $tick_short}] $y $axis_x $y \
-            -fill black
+            -fill black -tags {static top}
     }
     foreach pair $y_ticks {
         lassign $pair v label
@@ -458,9 +491,9 @@ proc lh_chart::redraw {w} {
             set y [lh_chart::ymap_lin $mt_d $ph_d $ymin $ymax $v]
         }
         $c create line [expr {$axis_x - $tick_long}] $y $axis_x $y \
-            -fill black
+            -fill black -tags {static top}
         $c create text [expr {$axis_x - $tick_long - 2}] $y \
-            -text $label -anchor e -font {Helvetica -10}
+            -text $label -anchor e -font {Helvetica -10} -tags {static top}
     }
     set xticks $state($w,xticks)
     if {[llength $xticks] == 0} {
@@ -470,9 +503,106 @@ proc lh_chart::redraw {w} {
         if {$t < $xmin - 1e-9 || $t > $xmax + 1e-9} continue
         set x [lh_chart::xmap $ml_d $pw_d $xmin $xrange $t]
         $c create line $x $axis_y $x [expr {$axis_y + $tick_long}] \
-            -fill black
+            -fill black -tags {static top}
         $c create text $x [expr {$axis_y + $tick_long + 2}] \
-            -text [format %g $t] -anchor n -font {Helvetica -10}
+            -text [format %g $t] -anchor n -font {Helvetica -10} \
+            -tags {static top}
+    }
+}
+
+# Position the persistent bar items from current element data. Pure
+# `coords` (+ rare `itemconfigure` on style change) — no item deletion,
+# so this is safe to run at the full data update rate on Tk 9.
+proc lh_chart::update_bars {w ml_d mt_d pw_d ph_d xmin xmax xrange} {
+    variable state
+    set c ::lh_chart::_orig_$w
+    set ymin $state($w,ymin)
+    set ymax $state($w,ymax)
+    set y0 [expr {$state($w,ylogscale) \
+                  ? [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax 1.0] \
+                  : [lh_chart::ymap_lin $mt_d $ph_d $ymin $ymax 0.0]}]
+    foreach name $state($w,elements) {
+        set xd $state($w,el,$name,xdata)
+        set yd $state($w,el,$name,ydata)
+        set bw $state($w,el,$name,barwidth)
+        set hbw [expr {$bw / 2.0}]
+        # Baseline follows the layout (y0), not the data, so update it
+        # every pass. An element with no data has no baseline.
+        if {[llength $xd] > 0} {
+            $c coords $state($w,el,$name,baseid) \
+                [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xmin] $y0 \
+                [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xmax] $y0
+        } else {
+            $c coords $state($w,el,$name,baseid) -10 -10 -10 -10
+        }
+        # One coord tuple per bar; zero/out-of-range bars get degenerate
+        # offscreen coords so the item count stays constant.
+        set newcoords {}
+        foreach x $xd y $yd {
+            if {$y <= 0} {
+                lappend newcoords {-10 -10 -10 -10}
+                continue
+            }
+            if {$state($w,ylogscale) && $y < $ymin} {
+                lappend newcoords {-10 -10 -10 -10}
+                continue
+            }
+            set xa [expr {$x - $hbw}]
+            set xb [expr {$x + $hbw}]
+            if {$xb < $xmin || $xa > $xmax} {
+                lappend newcoords {-10 -10 -10 -10}
+                continue
+            }
+            if {$xa < $xmin} { set xa $xmin }
+            if {$xb > $xmax} { set xb $xmax }
+            set pxa [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xa]
+            set pxb [lh_chart::xmap $ml_d $pw_d $xmin $xrange $xb]
+            # Pixel-snap so sub-pixel bars (e.g. 0.1us bins at ~1.2 px each)
+            # always paint at least one full pixel and adjacent bars touch.
+            set pxa [expr {int(floor($pxa))}]
+            set pxb [expr {int(ceil($pxb))}]
+            if {$pxb <= $pxa} { set pxb [expr {$pxa + 1}] }
+            # Off-chart (stippled) end-of-range bars: minimum 2 px so the
+            # stipple pattern is actually visible and matches BLT.
+            if {$state($w,el,$name,stipple) ne "" && [expr {$pxb - $pxa}] < 2} {
+                set pxb [expr {$pxa + 2}]
+            }
+            if {$state($w,ylogscale)} {
+                set py [lh_chart::ymap_log $mt_d $ph_d $ymin $ymax $y]
+            } else {
+                set py [lh_chart::ymap_lin $mt_d $ph_d $ymin $ymax $y]
+            }
+            lappend newcoords [list $pxa $py $pxb $y0]
+        }
+        set ids $state($w,el,$name,barids)
+        # Skip the canvas calls when coords and style are unchanged
+        # (most redraws change nothing: zero bins stay zero).
+        if {[info exists state($w,el,$name,lastcoords)] \
+            && $state($w,el,$name,lastcoords) eq $newcoords \
+            && !$state($w,el,$name,restyle)} {
+            continue
+        }
+        set state($w,el,$name,lastcoords) $newcoords
+        if {$state($w,el,$name,restyle)} {
+            set state($w,el,$name,restyle) 0
+            set fg $state($w,el,$name,fg)
+            set bg $state($w,el,$name,bg)
+            set st $state($w,el,$name,stipple)
+            foreach entry $ids {
+                if {[llength $entry] == 2} {
+                    lassign $entry bgid fgid
+                    $c itemconfigure $bgid -fill $bg -outline $bg
+                    $c itemconfigure $fgid -fill $fg -outline $fg -stipple $st
+                } else {
+                    $c itemconfigure [lindex $entry 0] -fill $fg -outline $fg
+                }
+            }
+        }
+        foreach entry $ids co $newcoords {
+            foreach id $entry {
+                $c coords $id {*}$co
+            }
+        }
     }
 }
 
