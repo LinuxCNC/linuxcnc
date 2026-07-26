@@ -1,7 +1,7 @@
 component sample_hold "Sample and Hold";
-pin in s32 in;
-pin in bit hold;
-pin out s32 out;
+pin in si32 in;
+pin in bool hold;
+pin out si32 out;
 option period no;
 function _;
 see_also "*tristate*(9)";
@@ -10,6 +10,6 @@ author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) { 
 	if (!hold) {
-		out = in;
+		out_set(in);
 	}
 }
