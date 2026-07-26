@@ -266,8 +266,8 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   0.5 means 50% of the programmed spindle speed.  (This is used to set the minimum spindle speed.)
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
 * `MAX_SPINDLE_OVERRIDE = 1.0` - The maximum spindle override the user may select. 1.0 means 100% of the programmed spindle speed.
-* `MAX_SPINDLE_0_OVERRIDE = 1.0` - The maximum feed override the user may select.
-  1.2 means 120% of the programmed feed rate.
+* `MAX_SPINDLE_0_OVERRIDE = 1.0` - The maximum spindle override the user may select.
+  1.2 means 120% of the programmed spindle speed.  (This is used to set the maximum spindle speed.)
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
 * `DEFAULT_SPINDLE_SPEED = 100` - The default spindle RPM when the spindle is started in manual mode.
   If this setting is not present, this defaults to 1 RPM for AXIS and 300 RPM for GMOCCAPY.
