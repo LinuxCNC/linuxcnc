@@ -1234,12 +1234,11 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_ptr - board->write_packet, 0);
     if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-        return 0;
     }
     t1 = rtapi_get_time();
     LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
     board->write_packet_ptr = board->write_packet;
-    return 1;
+    return send < 0 ? 0 : 1;
 }
 
 static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
