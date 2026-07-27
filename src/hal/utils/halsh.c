@@ -81,7 +81,7 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
 
     target_interp = interp;
     pending_cr = 0;
-    result = halcmd_parse_cmd((char **)argv+1);
+    result = halcmd_parse_cmd((const char **)argv+1);
     target_interp = NULL;
 
     if(result == 0) return TCL_OK;

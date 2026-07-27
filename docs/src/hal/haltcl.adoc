@@ -40,7 +40,7 @@ getp, gets
 ptype,
 stype,
 help,
-linkpp, linkps, linksp, list, loadrt, loadusr, lock,
+linkps, linksp, list, loadrt, loadusr, lock,
 net, newsig,
 save, setp, sets, show, source, start, status, stop,
 unalias, unlinkp, unload, unloadrt, unloadusr, unlock,
