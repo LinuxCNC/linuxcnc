@@ -176,7 +176,7 @@ I.e., the data is filled right-to-left and right-justified with consecutive pack
 
 Because the transactions are necessarily split over multiple reads, and some steps will have serial-port latency delays it is recommended to use a state machine in the realtime code where waiting on input is not possible.
 
-[source, C]
+[source,c]
 ----
 int process(void *arg, long period) {
     static int state = START;
