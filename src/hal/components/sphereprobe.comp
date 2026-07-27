@@ -2,16 +2,16 @@ component sphereprobe "Probe a pretend hemisphere";
 author "Jeff Epler";
 license "GPL";
 
-pin in signed px;
-pin in signed py;
-pin in signed pz "*rawcounts* position from software encoder";
+pin in si32 px;
+pin in si32 py;
+pin in si32 pz "*rawcounts* position from software encoder";
 
-pin in signed cx;
-pin in signed cy;
-pin in signed cz "Center of sphere in counts";
-pin in signed r "Radius of hemisphere in counts";
+pin in si32 cx;
+pin in si32 cy;
+pin in si32 cz "Center of sphere in counts";
+pin in si32 r "Radius of hemisphere in counts";
 
-pin out bit probe-out;
+pin out bool probe-out;
 
 option period no;
 function _ "update probe-out based on inputs";
@@ -24,9 +24,9 @@ FUNCTION(_) {
     rtapi_u64 d2 = dx*dx + dy*dy;
     rtapi_u64 r2 = (rtapi_s64)r*(rtapi_s64)r;
     if(d2 > r2) {
-        probe_out = pz < cz;
+        probe_out_set(pz < cz);
     } else {
         d2 += dz*dz;
-        probe_out = d2 <= r2;
+        probe_out_set(d2 <= r2);
     }
 }

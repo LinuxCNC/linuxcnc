@@ -1,13 +1,13 @@
 component spindle_monitor "spindle at-speed and underspeed detection";
-pin in bit spindle-is-on;
-pin in float spindle-command;
-pin in float spindle-feedback;
+pin in bool spindle-is-on;
+pin in real spindle-command;
+pin in real spindle-feedback;
 
-pin out bit spindle-at-speed;
-pin out bit spindle-underspeed;
+pin out bool spindle-at-speed;
+pin out bool spindle-underspeed;
 
-param rw unsigned level "state machine state";
-param rw float threshold;
+param rw ui32 level "state machine state";
+param rw real threshold;
 
 option period no;
 function _;
@@ -22,28 +22,28 @@ FUNCTION(_) {
 
 switch (level){
     case 0:  // idle
-        spindle_at_speed = 0;
-        spindle_underspeed = 0;
-        if (spindle_is_on) level = 1;
+        spindle_at_speed_set(0);
+        spindle_underspeed_set(0);
+        if (spindle_is_on) level_set(1);
         break;
     case 1: // waiting for spindle-at-speed
         if ( ! spindle_is_on ) {
-            level = 0;
+            level_set(0);
             return; }
         if (fabs(spindle_command - spindle_feedback) < threshold) {
-            level = 2;
-            spindle_at_speed = 1;
+            level_set(2);
+            spindle_at_speed_set(1);
             return; }
         break;
     case 2: // monitoring speed
         if ( ! spindle_is_on ) {
-            level = 0;
+            level_set(0);
             return; }
         if  ((spindle_command - spindle_feedback) > threshold) {
-            spindle_underspeed = 1; }
+            spindle_underspeed_set(1); }
         break;
     default:
         // not sure how we got here, but fix the situation
-        level = 0;
+        level_set(0);
     }
 }
