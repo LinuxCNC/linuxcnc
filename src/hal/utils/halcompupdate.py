@@ -442,6 +442,7 @@ class BodyRewriter:
         self.last_ident = None  # last identifier copied to output
         self.fragment = False   # True when rewriting a sub-expression
         self.line_offset = 0
+        self.section = None     # EXTRA_SETUP / EXTRA_CLEANUP / FUNCTION
 
     @classmethod
     def for_fragment(cls, parent, text, exclude=(), line_offset=0):
@@ -468,6 +469,7 @@ class BodyRewriter:
         sub.last_ident = None
         sub.fragment = True
         sub.line_offset = line_offset
+        sub.section = parent.section
         return sub
 
     def rewrite_expr(self, expr):
@@ -590,6 +592,9 @@ class BodyRewriter:
                     self.last_ident = ident
                     i = m.end()
                     continue
+                if not self.fragment and ident in ('EXTRA_SETUP',
+                                                   'EXTRA_CLEANUP', 'FUNCTION'):
+                    self.section = ident
                 if self.c_types and ident in self.ctype_map:
                     # keep 'long double' intact
                     if ident == 'double' and self.last_ident == 'long':
@@ -732,6 +737,7 @@ class BodyRewriter:
             else:
                 new = "%s_set(%s%s %s (%s))" % (ident, args, target,
                                                 opstr[0], expr)
+            self.warn_setup_write(ident, decl, start)
             self.emit(new)
             self.changed = True
             return exprend
@@ -759,6 +765,7 @@ class BodyRewriter:
                 self.emit_gap(a, b)
             target = "%s(%s)" % (ident, idx) if idx is not None else ident
             args = "%s, " % idx if idx is not None else ""
+            self.warn_setup_write(ident, decl, start)
             self.emit("%s_set(%s%s %s 1)" % (ident, args, target, sign))
             self.changed = True
             return after + 2
@@ -783,6 +790,7 @@ class BodyRewriter:
                 after = close
             target = "%s(%s)" % (ident, idx) if idx is not None else ident
             args = "%s, " % idx if idx is not None else ""
+            self.warn_setup_write(ident, decl, i)
             self.emit("%s_set(%s%s %s 1)" % (ident, args, target, sign))
             self.changed = True
             return after
@@ -843,6 +851,7 @@ class BodyRewriter:
             else:
                 new = "%s_set(%s%s %s (%s))" % (base, args, target,
                                                 opstr[0], expr)
+            self.warn_setup_write(base, decl, start)
             self.emit(new)
             self.changed = True
             return exprend
@@ -893,6 +902,26 @@ class BodyRewriter:
         return after
 
     # -- checks --------------------------------------------------------------
+
+    def warn_setup_write(self, ident, decl, pos):
+        """A pin/param write inside EXTRA_SETUP becomes a setter call on a
+        reference that halcompile only initializes after extra_setup() has
+        run, so the converted component crashes when loaded."""
+        if self.section != 'EXTRA_SETUP':
+            return
+        if decl.kind == 'param':
+            self.rep.warn("param '%s' is written in EXTRA_SETUP; the setter "
+                          "uses a reference that halcompile initializes only "
+                          "after extra_setup() runs, so the component will "
+                          "crash at load - move the write to the first "
+                          "FUNCTION pass" % ident, self.line(pos))
+        else:
+            self.rep.warn("pin '%s' is written in EXTRA_SETUP; the setter "
+                          "uses a reference that halcompile initializes only "
+                          "after extra_setup() runs, so the component will "
+                          "crash at load (direct pin writes here were already "
+                          "invalid) - move the write to the first FUNCTION "
+                          "pass" % ident, self.line(pos))
 
     def handle_define(self, line, dm, pos):
         """Rewrite the body of a #define directive.  The directive head
