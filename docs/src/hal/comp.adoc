@@ -328,6 +328,10 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
   If specified, call the function defined by 'EXTRA_CLEANUP' from the automatically defined 'rtapi_app_exit' or,
   in case of a detected error, in the automatically defined 'rtapi_app_main'.
 
+* 'option post_export yes' - (default: no) +
+  If specified, call the function defined by 'POST_EXPORT' for each instance.
+  If using the automatically defined 'rtapi_app_main', 'extra_arg' is the number of this instance.
+
 * 'option userspace yes' - (default: no) +
   If specified, this file describes a non-realtime (formerly known as "userspace") component, rather than a regular (i.e., realtime) one.
   A non-realtime component may not have functions defined by the 'function' directive.
@@ -434,6 +438,7 @@ Variable and function names that can not be used or are likely to cause problems
 * 'rtapi_app_exit'
 * 'extra_setup'
 * 'extra_cleanup'
+* 'post_export'
 
 == Convenience Macros
 
@@ -449,6 +454,12 @@ The details of `struct __comp_state` and these macros may change from one versio
 * `EXTRA_CLEANUP()` - Use this macro to begin the definition of the function called to perform extra cleanup of the component.
   Note that this function must clean up all instances of the component, not just one.
   The "pin_name", "parameter_name", and "data" macros may not be used here.
+* `POST_EXPORT()` - Use this macro to begin the definition of the function called to perform extra setup _after_ all pins and parameters have been created for this instance.
+  This function is called just before the export() function returns.
+  You can use the POST_EXPORT() function to preset parameter values you otherwise would not be able to set.
+  Return a negative UNIX 'errno' value to indicate failure, or 0 to indicate success. +
+  Note: POST_EXPORT() should not change 'personality'.
+  If you need to adapt 'personality', then you must do so in EXTRA_SETUP(), which runs before pins and parameters are created.
 
 * 'pin_name' or 'parameter_name' - For each pin 'pin_name' or param 'parameter_name'
   there is a macro which allows the name to be used on its own to refer to the pin or parameter.

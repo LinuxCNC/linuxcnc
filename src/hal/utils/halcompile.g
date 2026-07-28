@@ -120,7 +120,7 @@ mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 # names.  That includes not only global variables and functions, but also
 # HAL pins & parameters, because comp adds #defines with the names of HAL
 # pins & params.
-reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup' ]
+reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'extra_setup', 'extra_cleanup', 'post_export' ]
 
 def _parse(rule, text, filename=None):
     global P, S
@@ -401,6 +401,8 @@ static int comp_id;
         print("static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg);", file=f)
     if options.get("extra_cleanup"):
         print("static void extra_cleanup(void);", file=f)
+    if options.get("post_export"):
+        print("static int post_export(struct __comp_state *__comp_inst, char *prefix, long extra_arg);", file=f)
 
     if not options.get("no_convenience_defines"):
         print("#undef TRUE", file=f)
@@ -538,6 +540,9 @@ static int comp_id;
     print("    if(__comp_last_inst) __comp_last_inst->_next = inst;", file=f)
     print("    __comp_last_inst = inst;", file=f)
     print("    if(!__comp_first_inst) __comp_first_inst = inst;", file=f)
+    if options.get("post_export"):
+        print("    r = post_export(inst, prefix, extra_arg);", file=f)
+        print("    if(r != 0) return r;", file=f)
     print("    return 0;", file=f)
     print("}", file=f)
 
@@ -776,6 +781,8 @@ int __comp_parse_names(int *argc, char **argv) {
         print("#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         print("#undef EXTRA_CLEANUP", file=f)
         print("#define EXTRA_CLEANUP() static void extra_cleanup(void)", file=f)
+        print("#undef POST_EXPORT", file=f)
+        print("#define POST_EXPORT() static int post_export(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         if options.get("period"):
             print("#undef fperiod", file=f)
             print("#define fperiod (period * 1e-9)", file=f)
