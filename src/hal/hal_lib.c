@@ -617,6 +617,45 @@ int hal_set_constructor(int comp_id, constructor make) {
     halpr_mutex_release();
     return 0;
 }
+
+// Invoke the constructor for a new instance
+int hal_comp_invoke_make(const char *compname, const char *newname, const char *arg)
+{
+    if(NULL == hal_data) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "hal_invoke_make: HAL shared memory not mapped\n");
+        return -EFAULT;
+    }
+    if(!compname || !newname || !arg) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "hal_invoke_make: Invalid arguments\n");
+        return -EINVAL;
+    }
+
+    halpr_mutex_acquire();
+    hal_comp_t *comp = halpr_find_comp_by_name(compname);
+    if(!comp) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_DBG, "hal_invoke_make: Component '%s' not found\n", compname);
+        return -ENOENT;
+    }
+
+    if(!comp->make) {
+        halpr_mutex_release();
+        rtapi_print_msg(RTAPI_MSG_DBG, "hal_invoke_make: Component '%s' has no contructor\n", compname);
+        return -ENOEXEC;
+    }
+    halpr_mutex_release();
+    // This is a race, but only if the module gets unloaded before we call its
+    // constructor. Luckily, this is rather unlikely. However, the original in
+    // uspace_rtapi_main.cc:so_newinst_cmd() also had this race. It is unclear
+    // how it can be prevented. Unless we want to hold the mutex while the
+    // module calls hal_init() and creates pins and the like, which is not
+    // necessarily a good idea. But with the recursive mutex, it could be made
+    // working.
+    // The code assumes that the constructor is called from the rtapi_app
+    // context (which houses all uspace RT modules). If not, then the function
+    // pointer will point into the wrong context and a crash is expected.
+    return comp->make(newname, arg);
+}
 #endif
 
 int hal_set_unready(int comp_id) {
@@ -5178,6 +5217,7 @@ EXPORT_SYMBOL(hal_param_s64_set);
 EXPORT_SYMBOL(hal_param_set);
 
 EXPORT_SYMBOL(hal_set_constructor);
+EXPORT_SYMBOL(hal_comp_invoke_make);
 
 EXPORT_SYMBOL(hal_export_funct);
 EXPORT_SYMBOL(hal_export_functf);
