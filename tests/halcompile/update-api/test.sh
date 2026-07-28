@@ -95,5 +95,42 @@ for pat in "postfix ++" "index with side effects" "parenthesized dereference" "a
     fi
 done
 
-exit 0
+# writes to pins/params in EXTRA_SETUP become setters on references that
+# halcompile initializes only after extra_setup() runs, so the converted
+# component would crash at load: the conversion must still happen and a
+# warning must be issued.  Writes in EXTRA_CLEANUP and FUNCTION must not warn.
+cat > extrasetup.comp <<'EOF'
+component extrasetup;
+pin out bit flag;
+param rw s32 level;
+function _;
+license "GPL";
+;;
+EXTRA_SETUP(){
+    flag = 1;
+    level = 5;
+}
+EXTRA_CLEANUP(){
+    level = 0;
+}
+FUNCTION(_) {
+    level = 0;
+}
+EOF
+halcompupdate -i --no-backup extrasetup.comp 2>setup-warnings.txt
+if ! grep -q "flag_set(1)" extrasetup.comp || ! grep -q "level_set(5)" extrasetup.comp; then
+    echo "EXTRA_SETUP writes were not converted"
+    exit 1
+fi
+for pat in "pin 'flag' is written in EXTRA_SETUP" "param 'level' is written in EXTRA_SETUP"; do
+    if ! grep -q "$pat" setup-warnings.txt; then
+        echo "expected warning missing: $pat"
+        exit 1
+    fi
+done
+if [ "$(grep -c "is written in EXTRA_SETUP" setup-warnings.txt)" != "2" ]; then
+    echo "EXTRA_CLEANUP or FUNCTION write triggered a spurious warning"
+    exit 1
+fi
 
+exit 0
