@@ -1,0 +1,108 @@
+#!/bin/bash
+# Copyright (C) 2026 Petter Reinholdtsen <pere@hungry.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# Functional test: halcmd -p produces valid PlantUML diagram rendered by plantuml
+# Run by scripts/runtests framework as ./test
+
+TESTDIR="$(cd "$(dirname "$0")" && pwd)"
+SRCDIR="$TESTDIR/../.."
+
+# Find plantuml (java jar or command)
+PLANTUML=""
+if command -v plantuml >/dev/null 2>&1; then
+    PLANTUML="plantuml"
+elif [ -x /usr/bin/plantuml ]; then
+    PLANTUML="/usr/bin/plantuml"
+fi
+
+if [ -z "$PLANTUML" ] || ! command -v "$PLANTUML" >/dev/null 2>&1; then
+    echo "SKIP: plantuml not found on PATH"
+    exit 0
+fi
+
+# Find halcmd binary
+HALCMD="$SRCDIR/bin/halcmd"
+if [ ! -x "$HALCMD" ]; then
+    echo "SKIP: halcmd binary not found at $HALCMD"
+    exit 0
+fi
+
+# Find halrun script
+HALRUN="$SRCDIR/scripts/halrun"
+if [ ! -x "$HALRUN" ]; then
+    echo "SKIP: halrun not found at $HALRUN"
+    exit 0
+fi
+
+# Stop any existing realtime session
+$SRCDIR/scripts/realtime stop >/dev/null 2>&1
+sleep 0.5
+
+TMPDIR_TEST=$(mktemp -d /tmp/plantuml_test.XXXXXX)
+HALFIFO="$TMPDIR_TEST/halfifo"
+trap "rm -rf $TMPDIR_TEST; kill %1 2>/dev/null; wait 2>/dev/null" EXIT
+
+# Create HAL config file with components and linked pins
+cat > "$TMPDIR_TEST/test.hal" << 'EOF'
+loadrt and2 count=2
+net sig_a and2.0.out => and2.1.in0
+net sig_b and2.1.out => and2.0.in1
+EOF
+
+# Use a FIFO to keep halrun alive while we query it
+mkfifo "$HALFIFO"
+
+# Start interactive halrun reading from the FIFO (keeps process alive)
+$HALRUN < "$HALFIFO" &
+HALRUN_PID=$!
+sleep 2
+
+# Send commands through the FIFO without closing it
+exec 3>"$HALFIFO"
+cat "$TMPDIR_TEST/test.hal" >&3
+sleep 1
+
+# Generate PlantUML output using the -g flag
+PUML_FILE="$TMPDIR_TEST/output.puml"
+$HALCMD -p > "$PUML_FILE" 2>/dev/null
+
+exec 3>&-
+
+if [ ! -f "$PUML_FILE" ] || [ ! -s "$PUML_FILE" ]; then
+    echo "FAIL: no PlantUML file generated or empty output"
+    exit 1
+fi
+
+# Render SVG using plantuml to validate syntax
+SVG_FILE="$TMPDIR_TEST/output.svg"
+$PLANTUML -tsvg "$PUML_FILE" 2>/dev/null
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    echo "FAIL: plantuml returned error code $RC for generated .puml file"
+    cat "$PUML_FILE"
+    exit 1
+fi
+
+if [ ! -f "$SVG_FILE" ]; then
+    echo "FAIL: plantuml did not produce SVG output"
+    exit 1
+fi
+
+cat "$PUML_FILE"
+
+echo "PASS: PlantUML diagram generated and rendered to SVG successfully"

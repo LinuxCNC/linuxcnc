@@ -11,6 +11,7 @@
  *                     <fenn AT users DOT sourceforge DOT net>
  *                     Stephen Wille Padnos
  *                     <swpadnos AT users DOT sourceforge DOT net>
+ *                     Petter Reinholdtsen <pere@hungry.com>
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of version 2 of the GNU General
@@ -2821,6 +2822,264 @@ int do_setexact_cmd() {
     }
     rtapi_mutex_give(&(hal_data->mutex));
     return retval;
+}
+
+#include <map>
+#include <vector>
+#include <algorithm>
+
+static void plantuml_escape_alias(const char *name, FILE *dst) {
+    const char *p = name;
+    while (*p) {
+        if (*p == '-' || *p == '.' || *p == ' ') fputc('_', dst);
+        else fputc(*p, dst);
+        p++;
+    }
+}
+
+static void plantuml_escape_string(const char *name, FILE *dst) {
+    const char *p = name;
+    while (*p) {
+        if (*p == '\\' || *p == '"') fputc('\\', dst);
+        fputc(*p, dst);
+        p++;
+    }
+}
+
+
+static std::string pin_to_instance(const char *pin_name) {
+    const char *last_dot = strrchr(pin_name, '.');
+    if (last_dot) return std::string(pin_name, last_dot - pin_name);
+    return std::string(pin_name);
+}
+
+static const char *pin_field_name(const char *pin_name) {
+    const char *last_dot = strrchr(pin_name, '.');
+    return last_dot ? last_dot + 1 : pin_name;
+}
+
+void generate_plantuml(FILE *dst) {
+    struct pin_entry_t {
+        char full_name[HAL_NAME_LEN+1];
+        bool connected;
+    };
+
+    struct inst_pins_t {
+        char display_name[HAL_NAME_LEN+1];
+        char comp_type[HAL_NAME_LEN+1];
+        std::vector<pin_entry_t> in_pins;
+        std::vector<pin_entry_t> out_pins;
+    };
+
+    // Signal entity: hexagon with connected writer/readers per pin
+    struct sig_pin_t {
+        char alias[HAL_NAME_LEN+1];   // instance alias (e.g. and2_0)
+        char field[64];               // last segment of pin name
+    };
+
+    struct sig_entry_t {
+        char name[HAL_NAME_LEN+1];
+        sig_pin_t *writer;            // single writer pin (or NULL)
+        std::vector<sig_pin_t *> readers;
+    };
+
+    std::map<std::string, inst_pins_t *> inst_map;
+    std::vector<sig_entry_t> signals;
+
+    try {
+        rtapi_mutex_get(&(hal_data->mutex));
+
+        // Collect all pins per instance
+        SHMFIELD(hal_pin_t) next = hal_data->pin_list_ptr;
+        while (next != 0) {
+            hal_pin_t *pin = SHMPTR(next);
+            std::string inst_name = pin_to_instance(pin->name);
+
+            if (inst_map.find(inst_name) == inst_map.end()) {
+                inst_pins_t *ip = new inst_pins_t();
+                snprintf(ip->display_name, sizeof(ip->display_name), "%s", inst_name.c_str());
+                ip->comp_type[0] = '\0';
+                ip->in_pins.reserve(32);
+                ip->out_pins.reserve(32);
+                inst_map[inst_name] = ip;
+            }
+
+            // Look up component type from pin owner
+            hal_comp_t *owner = SHMPTR(pin->owner_ptr);
+            if (owner && strlen(inst_map[inst_name]->comp_type) == 0) {
+                snprintf(inst_map[inst_name]->comp_type, sizeof(inst_map[inst_name]->comp_type), "%s", owner->name);
+            }
+
+            pin_entry_t pe;
+            snprintf(pe.full_name, sizeof(pe.full_name), "%s", pin->name);
+            pe.connected = false;
+
+            if (pin->dir == HAL_IN) {
+                inst_map[inst_name]->in_pins.push_back(pe);
+            } else {
+                inst_map[inst_name]->out_pins.push_back(pe);
+            }
+
+            next = pin->next_ptr;
+        }
+
+        // Walk signals to find connected pins and build signal entries
+        SHMFIELD(hal_sig_t) sig_next = hal_data->sig_list_ptr;
+        while (sig_next != 0) {
+            hal_sig_t *sig = SHMPTR(sig_next);
+            hal_pin_t *writer = NULL;
+            std::vector<hal_pin_t *> readers;
+
+            hal_pin_t *pin = halpr_find_pin_by_sig(sig, 0);
+            while (pin != 0) {
+                if (pin->dir == HAL_OUT) writer = pin;
+                else readers.push_back(pin);
+                pin = halpr_find_pin_by_sig(sig, pin);
+            }
+
+            // Emit signals that have at least one writer or reader connected
+            if (writer || !readers.empty()) {
+                sig_entry_t se;
+                snprintf(se.name, sizeof(se.name), "%s", sig->name);
+                se.writer = NULL;
+                se.readers.reserve(readers.size());
+
+                // Build writer entry and mark pin connected
+                if (writer) {
+                    std::string wi = pin_to_instance(writer->name);
+                    auto *wip = inst_map[wi];
+                    if (wip) {
+                        for (auto &pe : wip->out_pins) {
+                            if (strcmp(pe.full_name, writer->name) == 0) pe.connected = true;
+                        }
+                    }
+                    sig_pin_t *sp = new sig_pin_t();
+                    snprintf(sp->alias, sizeof(sp->alias), "%s", wi.c_str());
+                    const char *wf = pin_field_name(writer->name);
+                    size_t wflen = strlen(wf);
+                    if (wflen >= sizeof(sp->field)) wflen = sizeof(sp->field) - 1;
+                    memcpy(sp->field, wf, wflen);
+                    sp->field[wflen] = '\0';
+                    se.writer = sp;
+                }
+
+                // Build reader entries and mark pins connected
+                for (auto &reader : readers) {
+                    std::string ri = pin_to_instance(reader->name);
+                    auto *rip = inst_map[ri];
+                    if (rip) {
+                        for (auto &pe : rip->in_pins) {
+                            if (strcmp(pe.full_name, reader->name) == 0) pe.connected = true;
+                        }
+                    }
+                    sig_pin_t *sp = new sig_pin_t();
+                    snprintf(sp->alias, sizeof(sp->alias), "%s", ri.c_str());
+                    const char *rf = pin_field_name(reader->name);
+                    size_t rflen = strlen(rf);
+                    if (rflen >= sizeof(sp->field)) rflen = sizeof(sp->field) - 1;
+                    memcpy(sp->field, rf, rflen);
+                    sp->field[rflen] = '\0';
+                    se.readers.push_back(sp);
+                }
+
+                signals.push_back(se);
+            }
+
+            sig_next = sig->next_ptr;
+        }
+
+        rtapi_mutex_give(&(hal_data->mutex));
+    } catch (...) {
+        rtapi_mutex_give(&(hal_data->mutex));
+
+        // Cleanup any partial allocations before re-throwing
+        for (auto &se : signals) {
+            delete se.writer;
+            for (auto &rp : se.readers) delete rp;
+        }
+        for (auto &kv : inst_map) delete kv.second;
+        throw;
+    }
+
+    fprintf(dst, "@startuml\n");
+
+    // Emit only instances that have at least one connected pin
+    for (auto &kv : inst_map) {
+        inst_pins_t *ip = kv.second;
+        bool has_conn = false;
+        for (const auto &pe : ip->in_pins) if (pe.connected) { has_conn = true; break; }
+        for (const auto &pe : ip->out_pins) if (pe.connected) { has_conn = true; break; }
+        if (!has_conn) continue;
+
+         fputs("[", dst);
+        fputs(ip->display_name, dst);
+        if (strlen(ip->comp_type) > 0) {
+            fprintf(dst, " (%s)", ip->comp_type);
+        }
+
+        for (const auto &pe : ip->in_pins) {
+            const char *f = pin_field_name(pe.full_name);
+            fputs("\\n", dst);
+            fputs(f, dst);
+            fputs(" in", dst);
+            if (!pe.connected) fputs(" (unconnected)", dst);
+        }
+        for (const auto &pe : ip->out_pins) {
+            const char *f = pin_field_name(pe.full_name);
+            fputs("\\n", dst);
+            fputs(f, dst);
+            fputs(" out", dst);
+            if (!pe.connected) fputs(" (unconnected)", dst);
+        }
+
+        fprintf(dst, "] as ");
+        plantuml_escape_alias(ip->display_name, dst);
+        fprintf(dst, "\n");
+    }
+
+   // Emit signals as queue entities (hexagon not available in PlantUML v1.2020)
+    for (size_t i = 0; i < signals.size(); i++) {
+        char alias_buf[HAL_NAME_LEN + 1];
+        snprintf(alias_buf, sizeof(alias_buf), "sig_%zu", i);
+        fprintf(dst, "queue \"");
+        plantuml_escape_string(signals[i].name, dst);
+        fprintf(dst, "\" as %s\n", alias_buf);
+    }
+
+    // Emit edges: writer --> signal and signal --> reader
+    for (size_t i = 0; i < signals.size(); i++) {
+        char alias_buf[HAL_NAME_LEN + 1];
+        snprintf(alias_buf, sizeof(alias_buf), "sig_%zu", i);
+
+        if (signals[i].writer) {
+            plantuml_escape_alias(signals[i].writer->alias, dst);
+            fprintf(dst, " \"");
+            plantuml_escape_string(signals[i].writer->field, dst);
+            fprintf(dst, "\" --> ");
+            fputs(alias_buf, dst);
+            fprintf(dst, "\n");
+        }
+        for (auto &rp : signals[i].readers) {
+            fputs(alias_buf, dst);
+            fprintf(dst, " --> \"");
+            plantuml_escape_string(rp->field, dst);
+            fprintf(dst, "\" ");
+            plantuml_escape_alias(rp->alias, dst);
+            fprintf(dst, "\n");
+        }
+    }
+
+    // Cleanup signal allocations
+    for (auto &se : signals) {
+        delete se.writer;
+        for (auto &rp : se.readers) delete rp;
+    }
+
+    for (auto &kv : inst_map) {
+        delete kv.second;
+    }
+
+    fprintf(dst, "@enduml\n");
 }
 
 int do_help_cmd(char *command)

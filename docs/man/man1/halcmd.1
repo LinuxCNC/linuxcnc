@@ -1,5 +1,6 @@
 .\" Copyright (c) 2003 John Kasunich
 .\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\" Copyright (c) 2026 Petter Reinholdtsen <pere@hungry.com>
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -86,6 +87,9 @@ display results of each command
 .TP
 \fB\-V\fR
 display lots of debugging junk
+.TP
+\fB\-p\fR
+Generate a PlantUML diagram of HAL pins and signals. Components are rendered as bracket-style boxes grouped by instance, with the component type name in parentheses. Signals are shown as queue entities, allowing one writer to fan out to multiple readers via a single node. Only components with at least one connected pin are included. Output is written to stdout.
 .TP
 \fB\-h\fR [\fI<command>\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
