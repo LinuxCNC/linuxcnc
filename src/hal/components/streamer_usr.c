@@ -186,10 +186,10 @@ int main(int argc, char **argv)
 		cp++;
 	    }
 	    switch ( hal_stream_element_type(&stream, n) ) {
-	    case HAL_FLOAT:
+	    case HAL_REAL:
 		dptr->f = strtod(cp, &cp2);
 		break;
-	    case HAL_BIT:
+	    case HAL_BOOL:
 		if ( *cp == '0' ) {
 		    dptr->b = 0;
 		    cp2 = cp + 1;
@@ -206,6 +206,12 @@ int main(int argc, char **argv)
 		break;
 	    case HAL_S32:
 		dptr->s = strtol(cp, &cp2, 10);
+		break;
+	    case HAL_UINT:
+		dptr->k = strtoull(cp, &cp2, 10);
+		break;
+	    case HAL_SINT:
+		dptr->l = strtoll(cp, &cp2, 10);
 		break;
 	    default:
 		/* better not happen */
