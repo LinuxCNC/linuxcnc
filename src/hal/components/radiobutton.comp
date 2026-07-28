@@ -9,11 +9,11 @@ The \\fBselected\\fR pin will indicate which set of outputs is currently
 active.
 Note that channel-0 should be used to provide the default values.""";
 
-pin in bit sel-##[32:personality] "Inputs to select a channel";
-pin out bit out-##[32:personality] "output selected";
-pin out signed selected = 0 "indicates which output is currently active";
-pin in float input-##[32:personality] "Possible output values";
-pin out float value "currently-selected output value";
+pin in  bool sel-##[32:personality] "Inputs to select a channel";
+pin out bool out-##[32:personality] "output selected";
+pin out si32 selected = 0 "indicates which output is currently active";
+pin in  real input-##[32:personality] "Possible output values";
+pin out real value "currently-selected output value";
 
 function _;
 option period no;
@@ -23,18 +23,18 @@ author "Andy Pugh";
 ;;
 
 FUNCTION(_){
-	int i;
-	for(i = 0; i < personality; i++){
+	rtapi_s32 s = selected;
+	for(int i = 0; i < personality; i++){
 		if(sel(i) !=0){
-			selected = i;
+			s = selected_set(i);
 		}
 	}
-	for(i = 0; i < personality; i++){
-		if(i == selected){
-			out(i) = 1;
-			value = input(i);
+	for(int i = 0; i < personality; i++){
+		if(i == s){
+			out_set(i, 1);
+			value_set(input(i));
 		} else {
-			out(i) = 0;
+			out_set(i, 0);
 		}
 	}
 }
