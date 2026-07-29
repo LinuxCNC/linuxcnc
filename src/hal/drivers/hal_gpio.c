@@ -81,8 +81,8 @@ RTAPI_MP_ARRAY_STRING(pullup, MAX_CHAN, "set BIAS_PULL_UP flag");
 */
 
 typedef struct{
-    hal_bit_t *value;
-    hal_bit_t *value_not;
+    hal_bool_t value;
+    hal_bool_t value_not;
 } hal_gpio_hal_t;
 
 /* flags are defined such:
@@ -115,7 +115,7 @@ typedef struct {
 typedef struct {
     // Bulk line access has to all be to the same "chip" so we have an
     // array of chips with their bulk line collections.
-    hal_u32_t *reset_ns;
+    hal_uint_t *reset_ns;
     int num_in_chips;
     int num_out_chips;
     hal_gpio_bulk_t *in_chips;
@@ -400,8 +400,8 @@ rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
 	gpio->in_chips[c].hal = hal_malloc(gpio->in_chips[c].num_lines * sizeof(hal_gpio_hal_t));
 	for (i = 0; i < gpio->in_chips[c].num_lines; i++){
 	    line_name = get_line_name(&gpio->in_chips[c], i);
-	    retval += hal_pin_bit_newf(HAL_OUT, &(gpio->in_chips[c].hal[i].value), comp_id, "hal_gpio.%s-in", line_name);
-	    retval += hal_pin_bit_newf(HAL_OUT, &(gpio->in_chips[c].hal[i].value_not), comp_id, "hal_gpio.%s-in-not", line_name);
+	    retval += hal_pin_new_bool(comp_id, HAL_OUT, &(gpio->in_chips[c].hal[i].value), 0, "hal_gpio.%s-in", line_name);
+	    retval += hal_pin_new_bool(comp_id, HAL_OUT, &(gpio->in_chips[c].hal[i].value_not), 1, "hal_gpio.%s-in-not", line_name);
 	}
 	if (retval < 0){
 	    rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio: Failed to allocate GPIO input HAL pins\n");
@@ -437,7 +437,7 @@ rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
 	gpio->out_chips[c].hal = hal_malloc(gpio->out_chips[c].num_lines * sizeof(hal_gpio_hal_t));
 	for (i = 0; i < gpio->out_chips[c].num_lines; i++){
 	    line_name = get_line_name(&gpio->out_chips[c], i);
-	    retval += hal_pin_bit_newf(HAL_IN, &(gpio->out_chips[c].hal[i].value), comp_id, "hal_gpio.%s-out", line_name);
+	    retval += hal_pin_new_bool(comp_id, HAL_IN, &(gpio->out_chips[c].hal[i].value), 0, "hal_gpio.%s-out", line_name);
 	}
 	if (retval < 0){
 	    rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio: Failed to allocate GPIO output HAL pins\n");
@@ -451,9 +451,9 @@ rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
     retval += hal_export_funct(hal_name, hal_gpio_write, gpio, 0, 0, comp_id);
 
     if (reset_active){
-	gpio->reset_ns = hal_malloc(sizeof(hal_u32_t));
+	gpio->reset_ns = hal_malloc(sizeof(*gpio->reset_ns));
 	rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.reset");
-	retval += hal_param_u32_newf(HAL_RW, gpio->reset_ns, comp_id, "hal_gpio.reset_ns");
+	retval += hal_param_new_ui32(comp_id, HAL_RW, gpio->reset_ns, 0, "hal_gpio.reset_ns");
 	retval += hal_export_funct(hal_name, hal_gpio_reset, gpio, 0, 0, comp_id);
     }
     if (retval < 0){
@@ -484,8 +484,8 @@ static void hal_gpio_read(void *arg, __attribute__((unused)) long period)
 	gpiod_line_get_value_bulk(gpio->in_chips[c].lines, gpio->in_chips[c].vals);
 #endif
 	for (i = 0; i < gpio->in_chips[c].num_lines; i++){
-	   *(gpio->in_chips[c].hal[i].value) = gpio->in_chips[c].vals[i];
-	   *(gpio->in_chips[c].hal[i].value_not) = ! gpio->in_chips[c].vals[i];
+	   hal_set_bool(gpio->in_chips[c].hal[i].value, gpio->in_chips[c].vals[i]);
+	   hal_set_bool(gpio->in_chips[c].hal[i].value_not, ! gpio->in_chips[c].vals[i]);
 	}
     }
 }
@@ -497,9 +497,9 @@ static void hal_gpio_write(void *arg, __attribute__((unused)) long period)
     for (c = 0; c < gpio->num_out_chips; c++){
 	for (i = 0; i < gpio->out_chips[c].num_lines; i++){
 	    if (gpio->out_chips[c].flags[i] & 0x20){
-		gpio->out_chips[c].vals[i] = ! *(gpio->out_chips[c].hal[i].value);
+		gpio->out_chips[c].vals[i] = ! hal_get_bool(gpio->out_chips[c].hal[i].value);
 	    } else {
-		gpio->out_chips[c].vals[i] = *(gpio->out_chips[c].hal[i].value);
+		gpio->out_chips[c].vals[i] = hal_get_bool(gpio->out_chips[c].hal[i].value);
 	    }
 	}
 #if LIBGPIOD_VER >200
@@ -525,8 +525,8 @@ static void hal_gpio_reset(void *arg, long period)
 		gpio->out_chips[c].vals[i] = 0;
 	    }
 	}
-	if (*gpio->reset_ns > period/4) *gpio->reset_ns = period/4;
-	deadline = last_reset + *gpio->reset_ns;
+	if (hal_get_ui32(*gpio->reset_ns) > period/4) hal_set_ui32(*gpio->reset_ns, period/4);
+	deadline = last_reset + hal_get_ui32(*gpio->reset_ns);
         while(rtapi_get_time() < deadline) {} // busy-wait!
 #if LIBGPIOD_VER > 200
 	gpiod_line_request_set_values(gpio->out_chips[c].lines, gpio->out_chips[c].vals);

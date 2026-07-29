@@ -41,10 +41,10 @@ license "GPL";
 
 include <hostmot2-serial.h>;
 
-pin in u32 tx-data-##[16] "Data to be transmitted";
-pin out u32 rx-data-##[16] "Data received";
-pin in s32 tx-bytes "Number of bytes to transmit";
-pin out s32 rx-bytes "Number of Bytes received";
+pin in  ui32 tx-data-##[16] "Data to be transmitted";
+pin out ui32 rx-data-##[16] "Data received";
+pin in  si32 tx-bytes "Number of bytes to transmit";
+pin out si32 rx-bytes "Number of Bytes received";
 
 variable char *name; // UART name
 
@@ -59,7 +59,7 @@ function receive;
 /* This uses the RTAPI_MP_ARRAY_STRING macro to load the list of UART channels
 into an array. This is copied into the *name string of each */
 
-char *uart_chans[18] = {0,};
+char *uart_chans[18] = {};
 RTAPI_MP_ARRAY_STRING(uart_chans, 16, "UART Channel names");
 
 FUNCTION(send){
@@ -82,9 +82,9 @@ FUNCTION(receive){
     
     int i;
     unsigned char data[16];
-    rx_bytes = hm2_uart_read(name, data);
+    rx_bytes_set(hm2_uart_read(name, data));
     for (i = 0 ; i < rx_bytes ; i++){
-         rx_data(i) = data[i];
+         rx_data_set(i, data[i]);
     }
 }
     
