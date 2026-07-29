@@ -4,8 +4,29 @@
 #include <hal.h>
 #include <kinematics.h>
 
-#include "three21kins.h"
 #include "switchkins.h"
+
+/* default values for ar2 robot */
+#define DEFAULT_THREE21_A1 64.2
+#define DEFAULT_THREE21_A2 305.0
+#define DEFAULT_THREE21_A3 0.0
+#define DEFAULT_THREE21_D1 169.77
+#define DEFAULT_THREE21_D2 0.0
+#define DEFAULT_THREE21_D3 -6.25
+#define DEFAULT_THREE21_D4 223.63
+#define DEFAULT_THREE21_D6 36.5
+
+#define SINGULAR_FUZZ 0.000001
+#define FLAG_FUZZ     0.000001
+
+/* flags for inverse kinematics */
+#define THREE21_SHOULDER_RIGHT 0x01
+#define THREE21_ELBOW_DOWN     0x02
+#define THREE21_WRIST_FLIP     0x04
+#define THREE21_SINGULAR       0x08
+
+/* flags for forward kinematics */
+#define THREE21_REACH          0x01
 
 struct haldata {
     hal_float_t *a1, *a2, *a3, *d1, *d2, *d3, *d4, *d6;
@@ -26,6 +47,15 @@ static int three21KinematicsForward(const double * joint,
                                     KINEMATICS_INVERSE_FLAGS * iflags)
 {
    (void)fflags;
+   double a1 = THREE21_A1;
+   double a2 = THREE21_A2;
+   double a3 = THREE21_A3;
+   double d1 = THREE21_D1;
+   double d2 = THREE21_D2;
+   double d3 = THREE21_D3;
+   double d4 = THREE21_D4;
+   double d6 = THREE21_D6;
+
    double s1, s2, s3, s4, s5, s6;
    double c1, c2, c3, c4, c5, c6;
    double s23;
@@ -89,20 +119,20 @@ static int three21KinematicsForward(const double * joint,
    hom.rot.z.z = s23 * c4 * s5 - c23 * c5;
 
    /* calculate term for position vector */
-   t1 = THREE21_A1 + THREE21_A2 * c2 + THREE21_A3 * c23 - THREE21_D4 * s23;
+   t1 = a1 + a2 * c2 + a3 * c23 - d4 * s23;
 
    /* define position vector */
-   d23 = THREE21_D2 + THREE21_D3;
+   d23 = d2 + d3;
    hom.tran.x = c1 * t1 - d23 * s1;
    hom.tran.y = s1 * t1 + d23 * c1;
-   hom.tran.z = THREE21_D1 - THREE21_A3 * s23 - THREE21_A2 * s2 - THREE21_D4 * c23;
+   hom.tran.z = d1 - a3 * s23 - a2 * s2 - d4 * c23;
 
    /* calculate terms to determine flags */
    sumSq = hom.tran.x * hom.tran.x + hom.tran.y * hom.tran.y - d23 * d23;
-   k = (sumSq + (hom.tran.z - THREE21_D1) * (hom.tran.z - THREE21_D1) + THREE21_A1 * THREE21_A1 -
-       2.0 * THREE21_A1 * (c1 * hom.tran.x + s1 * hom.tran.y) -
-       THREE21_A2 * THREE21_A2 - THREE21_A3 * THREE21_A3 - THREE21_D4 * THREE21_D4) /
-       (2.0 * THREE21_A2);
+   k = (sumSq + (hom.tran.z - d1) * (hom.tran.z - d1) + a1 * a1 -
+       2.0 * a1 * (c1 * hom.tran.x + s1 * hom.tran.y) -
+       a2 * a2 - a3 * a3 - d4 * d4) /
+       (2.0 * a2);
 
    /* reset flags */
    *iflags = 0;
@@ -115,8 +145,8 @@ static int three21KinematicsForward(const double * joint,
    }
 
    /* set elbow flag */
-   if (fabs(joint[2]*PM_PI/180 - atan2(THREE21_A3, THREE21_D4) +
-       atan2(k, -sqrt(THREE21_A3 * THREE21_A3 + THREE21_D4 * THREE21_D4 - k * k))) < FLAG_FUZZ)
+   if (fabs(joint[2]*PM_PI/180 - atan2(a3, d4) +
+       atan2(k, -sqrt(a3 * a3 + d4 * d4 - k * k))) < FLAG_FUZZ)
    {
       *iflags |= THREE21_ELBOW_DOWN;
    }
@@ -137,9 +167,9 @@ static int three21KinematicsForward(const double * joint,
    }
 
    /* add effect of d6 parameter */
-   hom.tran.x = hom.tran.x + hom.rot.z.x*THREE21_D6;
-   hom.tran.y = hom.tran.y + hom.rot.z.y*THREE21_D6;
-   hom.tran.z = hom.tran.z + hom.rot.z.z*THREE21_D6;
+   hom.tran.x = hom.tran.x + hom.rot.z.x * d6;
+   hom.tran.y = hom.tran.y + hom.rot.z.y * d6;
+   hom.tran.z = hom.tran.z + hom.rot.z.z * d6;
 
    /* convert hom to pose */
    pmHomPoseConvert(&hom, &worldPose);
@@ -160,6 +190,15 @@ static int three21KinematicsInverse(const EmcPose * world,
    PmHomogeneous hom;
    PmPose worldPose;
    PmRpy rpy;
+
+   double a1 = THREE21_A1;
+   double a2 = THREE21_A2;
+   double a3 = THREE21_A3;
+   double d1 = THREE21_D1;
+   double d2 = THREE21_D2;
+   double d3 = THREE21_D3;
+   double d4 = THREE21_D4;
+   double d6 = THREE21_D6;
 
    double t1, t2, t3;
    double k;
@@ -194,12 +233,12 @@ static int three21KinematicsInverse(const EmcPose * world,
    pmPoseHomConvert(&worldPose, &hom);
 
    /* remove effect of d6 parameter */
-   px = hom.tran.x - THREE21_D6*hom.rot.z.x;
-   py = hom.tran.y - THREE21_D6*hom.rot.z.y;
-   pz = hom.tran.z - THREE21_D1 - THREE21_D6*hom.rot.z.z;
+   px = hom.tran.x - d6 * hom.rot.z.x;
+   py = hom.tran.y - d6 * hom.rot.z.y;
+   pz = hom.tran.z - d1 - d6 * hom.rot.z.z;
 
    /* joint 1 (2 independent solutions) */
-   d23 = THREE21_D2 + THREE21_D3;
+   d23 = d2 + d3;
    sumSq = px * px + py * py - d23 * d23;
 
    if (*iflags & THREE21_SHOULDER_RIGHT) {
@@ -213,17 +252,17 @@ static int three21KinematicsInverse(const EmcPose * world,
    c1 = cos(th1);
 
    /* joint 3 (2 independent solutions) */
-   k = (sumSq + pz * pz + THREE21_A1 * THREE21_A1 -
-       2.0 * THREE21_A1 * (c1 * px + s1 * py) -
-       THREE21_A2 * THREE21_A2 - THREE21_A3 * THREE21_A3 - THREE21_D4 * THREE21_D4) /
-       (2.0 * THREE21_A2);
+   k = (sumSq + pz * pz + a1 * a1 -
+       2.0 * a1 * (c1 * px + s1 * py) -
+       a2 * a2 - a3 * a3 - d4 * d4) /
+       (2.0 * a2);
 
    if (*iflags & THREE21_ELBOW_DOWN) {
-     th3 = atan2(THREE21_A3, THREE21_D4) -
-           atan2(k, -sqrt(THREE21_A3 * THREE21_A3 + THREE21_D4 * THREE21_D4 - k * k));
+     th3 = atan2(a3, d4) -
+           atan2(k, -sqrt(a3 * a3 + d4 * d4 - k * k));
    } else {
-     th3 = atan2(THREE21_A3, THREE21_D4) -
-           atan2(k, sqrt(THREE21_A3 * THREE21_A3 + THREE21_D4 * THREE21_D4 - k * k));
+     th3 = atan2(a3, d4) -
+           atan2(k, sqrt(a3 * a3 + d4 * d4 - k * k));
    }
 
    /* compute sin, cos for later calcs */
@@ -231,11 +270,11 @@ static int three21KinematicsInverse(const EmcPose * world,
    c3 = cos(th3);
 
    /* joint 2 */
-   t1 = (-THREE21_A3 - THREE21_A2 * c3) * pz +
-        (c1 * px + s1 * py - THREE21_A1) * (THREE21_A2 * s3 - THREE21_D4);
-   t2 = (THREE21_A2 * s3 - THREE21_D4) * pz +
-        (THREE21_A3 + THREE21_A2 * c3) * (c1 * px + s1 * py - THREE21_A1);
-   t3 = pz * pz + (c1 * px + s1 * py - THREE21_A1) * (c1 * px + s1 * py - THREE21_A1);
+   t1 = (-a3 - a2 * c3) * pz +
+        (c1 * px + s1 * py - a1) * (a2 * s3 - d4);
+   t2 = (a2 * s3 - d4) * pz +
+        (a3 + a2 * c3) * (c1 * px + s1 * py - a1);
+   t3 = pz * pz + (c1 * px + s1 * py - a1) * (c1 * px + s1 * py - a1);
 
    th23 = atan2(t1, t2);
    th2 = th23 - th3;

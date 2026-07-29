@@ -2,7 +2,7 @@
 
 == NAME
 
-kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, scarakins, tripodkins, trivkins - kinematics definitions for LinuxCNC
+kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, scarakins, three21kins, tripodkins, trivkins - kinematics definitions for LinuxCNC
 
 == SYNOPSIS
 
@@ -31,6 +31,8 @@ kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, scarakin
 *loadrt rotatekins*
 
 *loadrt scarakins*
+
+*loadrt three21kins*
 
 *loadrt tripodkins*
 
@@ -285,6 +287,27 @@ Kinematics for a puma-style robot with 6 joints:
 *pumakins.D3*::
   +
 *pumakins.D4*::
+  Describe the geometry of the robot
+
+=== three21kins - analytical kinematics solver for 6-DOF arm + wrist robots
+
+Kinematics for 6-DOF arm + wrist style robots:
+
+*three21kins.A1*::
+  +
+*three21kins.A2*::
+  +
+*three21kins.A3*::
+  +
+*three21kins.D1*::
+  +
+*three21kins.D2*::
+  +
+*three21kins.D3*::
+  +
+*three21kins.D4*::
+  +
+*three21kins.D6*::
   Describe the geometry of the robot
 
 === rosekins - kinematics for a rose engine using
