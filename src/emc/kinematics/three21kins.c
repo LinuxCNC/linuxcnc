@@ -129,6 +129,9 @@ static int three21KinematicsForward(const double * joint,
 
    /* calculate terms to determine flags */
    sumSq = hom.tran.x * hom.tran.x + hom.tran.y * hom.tran.y - d23 * d23;
+   if (sumSq < 0.0) {
+       sumSq = 0.0;
+   }
    k = (sumSq + (hom.tran.z - d1) * (hom.tran.z - d1) + a1 * a1 -
        2.0 * a1 * (c1 * hom.tran.x + s1 * hom.tran.y) -
        a2 * a2 - a3 * a3 - d4 * d4) /
@@ -145,8 +148,12 @@ static int three21KinematicsForward(const double * joint,
    }
 
    /* set elbow flag */
+   double discr = a3 * a3 + d4 * d4 - k * k;
+   if (discr < 0.0) {
+       discr = 0.0;
+   }
    if (fabs(joint[2]*PM_PI/180 - atan2(a3, d4) +
-       atan2(k, -sqrt(a3 * a3 + d4 * d4 - k * k))) < FLAG_FUZZ)
+       atan2(k, -sqrt(discr))) < FLAG_FUZZ)
    {
       *iflags |= THREE21_ELBOW_DOWN;
    }
@@ -240,6 +247,9 @@ static int three21KinematicsInverse(const EmcPose * world,
    /* joint 1 (2 independent solutions) */
    d23 = d2 + d3;
    sumSq = px * px + py * py - d23 * d23;
+   if (sumSq < 0.0) {
+       sumSq = 0.0;
+   }
 
    if (*iflags & THREE21_SHOULDER_RIGHT) {
      th1 = atan2(py, px) - atan2(d23, -sqrt(sumSq));
@@ -257,12 +267,17 @@ static int three21KinematicsInverse(const EmcPose * world,
        a2 * a2 - a3 * a3 - d4 * d4) /
        (2.0 * a2);
 
+   double discr = a3 * a3 + d4 * d4 - k * k;
+   if (discr < 0.0) {
+       discr = 0.0;
+   }
+
    if (*iflags & THREE21_ELBOW_DOWN) {
      th3 = atan2(a3, d4) -
-           atan2(k, -sqrt(a3 * a3 + d4 * d4 - k * k));
+           atan2(k, -sqrt(discr));
    } else {
      th3 = atan2(a3, d4) -
-           atan2(k, sqrt(a3 * a3 + d4 * d4 - k * k));
+           atan2(k, sqrt(discr));
    }
 
    /* compute sin, cos for later calcs */
