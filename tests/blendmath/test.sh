@@ -9,7 +9,7 @@ TOPDIR=$(dirname "$HEADERS")
 # build with function sections and let the linker garbage-collect the rest
 # instead of linking the whole trajectory planner.
 gcc -O2 -Wall -ffunction-sections -fdata-sections -DULAPI -DUNIT_TEST \
-    -I"$HEADERS" -I"$TOPDIR/src" -I"$TOPDIR/src/emc/tp" -I"$TOPDIR/src/emc/motion" \
+    -I"$HEADERS" -I"$TOPDIR/src" -I"$TOPDIR/src/emc" \
     -o test_blendmath test_blendmath.c "$TOPDIR/src/emc/tp/blendmath.c" \
     -L"$LIBDIR" -Wl,-rpath,"$LIBDIR" -Wl,--gc-sections -lposemath -lm
 

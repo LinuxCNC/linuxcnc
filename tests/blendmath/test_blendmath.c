@@ -11,9 +11,9 @@
 #include <stdarg.h>
 
 #include <rtapi.h>
-#include "posemath.h"
-#include "blendmath.h"
-#include "tp_types.h"
+#include <posemath.h>
+#include "tp/blendmath.h"
+#include "tp/tp_types.h"
 
 /* kludge: satisfy rtapi_print_msg references without an rtapi app */
 void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
