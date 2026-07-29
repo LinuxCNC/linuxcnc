@@ -1110,7 +1110,7 @@ extern int hal_stop_threads(void);
     instance of its component.  Return value is >=0 for success,
     <0 for error.
 */
-typedef int(*constructor)(char *prefix, char *arg);
+typedef int(*constructor)(const char *prefix, const char *arg);
 
 /** hal_set_constructor() sets the constructor function for this component
 */
