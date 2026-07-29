@@ -128,6 +128,10 @@ for pat in "pin 'flag' is written in EXTRA_SETUP" "param 'level' is written in E
         exit 1
     fi
 done
+if [ "$(grep -c "POST_EXPORT()" setup-warnings.txt)" != "2" ]; then
+    echo "warnings should point at POST_EXPORT()"
+    exit 1
+fi
 if [ "$(grep -c "is written in EXTRA_SETUP" setup-warnings.txt)" != "2" ]; then
     echo "EXTRA_CLEANUP or FUNCTION write triggered a spurious warning"
     exit 1
