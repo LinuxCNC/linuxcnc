@@ -913,15 +913,15 @@ class BodyRewriter:
             self.rep.warn("param '%s' is written in EXTRA_SETUP; the setter "
                           "uses a reference that halcompile initializes only "
                           "after extra_setup() runs, so the component will "
-                          "crash at load - move the write to the first "
-                          "FUNCTION pass" % ident, self.line(pos))
+                          "crash at load - move the write to POST_EXPORT() "
+                          "(option post_export yes)" % ident, self.line(pos))
         else:
             self.rep.warn("pin '%s' is written in EXTRA_SETUP; the setter "
                           "uses a reference that halcompile initializes only "
                           "after extra_setup() runs, so the component will "
                           "crash at load (direct pin writes here were already "
-                          "invalid) - move the write to the first FUNCTION "
-                          "pass" % ident, self.line(pos))
+                          "invalid) - move the write to POST_EXPORT() "
+                          "(option post_export yes)" % ident, self.line(pos))
 
     def handle_define(self, line, dm, pos):
         """Rewrite the body of a #define directive.  The directive head
