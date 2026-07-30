@@ -28,8 +28,8 @@
 
 static int userk_inited = 0;
 static struct udata {
-    hal_s32_t *fct;
-    hal_s32_t *ict;
+    hal_sint_t fct;
+    hal_sint_t ict;
 } *udata;
 
 //**********************************************************************
@@ -48,8 +48,8 @@ int userkKinematicsSetup(const int   comp_id,
     if (!udata) goto error;
 
     // HAL_IO used to allow resetting demo pins:
-    res += hal_pin_s32_new("userk.fct", HAL_IO, &(udata->fct), comp_id);
-    res += hal_pin_s32_new("userk.ict", HAL_IO, &(udata->ict), comp_id);
+    res += hal_pin_new_si32(comp_id, HAL_IO, &(udata->fct), 0, "userk.fct");
+    res += hal_pin_new_si32(comp_id, HAL_IO, &(udata->ict), 0, "userk.ict");
     if (res) goto error;
 
     userk_inited = 1;
@@ -69,7 +69,7 @@ int userkKinematicsForward(const double *joint,
              "userkKinematics: not initialized\n");
         return -1;
     }
-    (*udata->fct)++;
+    hal_set_si32(udata->fct, hal_get_si32(udata->fct) + 1);
     return identityKinematicsForward(joint,world,fflags,iflags);
 }
 
@@ -78,6 +78,6 @@ int userkKinematicsInverse(const EmcPose * pos,
                            const KINEMATICS_INVERSE_FLAGS * iflags,
                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    (*udata->ict)++;
+    hal_set_si32(udata->ict, hal_get_si32(udata->ict) + 1);
     return identityKinematicsInverse(pos,joint,iflags,fflags);
 }
