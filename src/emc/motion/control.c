@@ -263,6 +263,10 @@ void emcmotController(void *arg, long period)
         switch_to_teleop_mode();
     }
 
+    /* PLANNER_SWITCH_DEFER (reversible): apply a latched PLANNER_TYPE switch once the
+     * coordinated queue has gone idle. No-op unless a switch is pending + motion idle. */
+    emcmotApplyPendingPlannerType();
+
     get_pos_cmds(period);
     compute_screw_comp();
     *(emcmot_hal_data->eoffset_active) = axis_plan_external_offsets(servo_period, GET_MOTION_ENABLE_FLAG(), get_allhomed());

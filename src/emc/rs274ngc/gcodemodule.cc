@@ -848,7 +848,8 @@ static bool check_abort() {
 USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 
 CANON_MOTION_MODE motion_mode;
-void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/) { motion_mode = mode; }
+/* G64_R_PLANNER: preview module ignores the planner-mode args (no motion) */
+void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/, int /*planner_type*/, double /*scurve_peak_scale*/) { motion_mode = mode; }
 void SET_MOTION_CONTROL_MODE(double /*tolerance*/) { }
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }

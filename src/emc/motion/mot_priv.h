@@ -316,6 +316,10 @@ int joint_is_lockable(int joint_num);
 
 #define SET_TRAK_PLANNER_TYPE(tp) (emcmotStatus->planner_type = tp)
 
+/* PLANNER_SWITCH_DEFER (reversible): defined in command.c, called each servo cycle
+ * from emcmotController() to apply a latched planner-type switch once motion is idle. */
+extern void emcmotApplyPendingPlannerType(void);
+
 /* joint flags */
 
 #define GET_JOINT_ENABLE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0)
