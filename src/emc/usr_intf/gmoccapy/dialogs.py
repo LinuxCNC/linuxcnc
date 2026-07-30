@@ -40,10 +40,11 @@ class Dialogs(GObject.GObject):
 
     def __init__(self, caller):
         GObject.GObject.__init__(self)
-        self.sys_dialog = self.system_dialog(caller)
-        self.warn_dialog = self.warning_dialog(caller)
-        self.ent_dialog = self.entry_dialog(caller)
-        self.yn_dialog = self.yesno_dialog(caller)
+        self._caller = caller
+        self.sys_dialog = self.system_dialog()
+        self.warn_dialog = self.warning_dialog()
+        self.ent_dialog = self.entry_dialog()
+        self.yn_dialog = self.yesno_dialog()
 
     # sent from Gstat messages
     # first one found visibly gets the answer
@@ -57,19 +58,30 @@ class Dialogs(GObject.GObject):
                 self.ent_dialog.response(answer)
         elif self.yn_dialog.get_visible():
                 self.yn_dialog.response(answer)
+        else:
+            # Get the widget that currently has user focus
+            focused_widget = self._caller.widgets.window1.get_focus()
+
+            # To inspect all open windows (including dialogs) in your application:
+            for window in Gtk.Window.list_toplevels():
+                if window.get_visible() and isinstance(window, Gtk.Dialog):
+                    print("Found active dialog title:", window.get_title())
+                    window.response(answer)
+                    return
+
+        print("Can't send external response: No dialog found")
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
-    def system_dialog(self, caller):
+    def system_dialog(self):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
-                   caller.widgets.window1,
+                   self._caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
         dialog.set_modal(True)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
         dialog._calc = calc
-        dialog._caller = caller
         dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         calc.set_value("")
@@ -93,6 +105,10 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = None
         while dialog.RESPONSE is None:
             while Gtk.events_pending():
+                # read any ZMQ messages
+                # then update widgets
+                # till we get a dialog answer
+                self._caller.GSTAT.readNextMsg()
                 Gtk.main_iteration()
 
         dialog.hide()
@@ -100,7 +116,7 @@ class Dialogs(GObject.GObject):
         code = dialog._calc.get_value()
         rtn = -1
         if dialog.RESPONSE == Gtk.ResponseType.ACCEPT:
-            if code == int(dialog._caller.unlock_code):
+            if code == int(self._caller.unlock_code):
                 rtn = 1
             else:
                 rtn = 0
@@ -110,9 +126,9 @@ class Dialogs(GObject.GObject):
     def on_system_response(self, dialog, rtn):
         dialog.RESPONSE = rtn
 
-    def entry_dialog(self, caller):
+    def entry_dialog(self):
         dialog = Gtk.Dialog('',
-                   caller.widgets.window1,
+                   self._caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
         dialog.label = Gtk.Label('')
         dialog.label.modify_font(Pango.FontDescription("sans 20"))
@@ -148,6 +164,10 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = None
         while dialog.RESPONSE is None:
             while Gtk.events_pending():
+                # read any ZMQ messages
+                # then update widgets
+                # till we get a dialog answer
+                self._caller.GSTAT.readNextMsg()
                 Gtk.main_iteration()
 
         dialog.hide()
@@ -169,10 +189,10 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = rtn
 
     # display warning dialog
-    def warning_dialog(self, caller, message = '', secondary = None, title = _("Operator Message"),\
+    def warning_dialog(self, message = '', secondary = None, title = _("Operator Message"),\
         sound = True, confirm_pin = 'warning-confirm', active_pin = None):
 
-        dialog = Gtk.MessageDialog(caller.widgets.window1,
+        dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
         # if there is a secondary message then the first message text is bold
@@ -190,11 +210,11 @@ class Dialogs(GObject.GObject):
         dialog.set_title(title)
         dialog.context = []
         def periodic():
-            if caller.halcomp[confirm_pin]:
+            if self._caller.halcomp[confirm_pin]:
                 dialog.response(Gtk.ResponseType.OK)
                 return False
             if active_pin is not None:
-                if not caller.halcomp[active_pin]:
+                if not self._caller.halcomp[active_pin]:
                     dialog.response(Gtk.ResponseType.CANCEL)
                     return False
             return True
@@ -216,6 +236,10 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = None
         while dialog.RESPONSE is None:
             while Gtk.events_pending():
+                # read any ZMQ messages
+                # then update widgets
+                # till we get a dialog answer
+                self._caller.GSTAT.readNextMsg()
                 Gtk.main_iteration()
 
         dialog.hide()
@@ -225,8 +249,8 @@ class Dialogs(GObject.GObject):
     def on_warning_response(self, dialog, rtn):
         dialog.RESPONSE = rtn
 
-    def yesno_dialog(self, caller):
-        dialog = Gtk.MessageDialog(caller.widgets.window1,
+    def yesno_dialog(self):
+        dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.QUESTION,
                                    Gtk.ButtonsType.NONE)
@@ -246,7 +270,7 @@ class Dialogs(GObject.GObject):
         dialog.connect("response", self.on_yn_response)
         return dialog
 
-    def show_yesno_dialog(self, caller, message, title = _("Operator Message")):
+    def show_yesno_dialog(self, message, title = _("Operator Message")):
         dialog = self.yn_dialog
         dialog.set_markup(message)
         if title:
@@ -258,6 +282,10 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = None
         while dialog.RESPONSE is None:
             while Gtk.events_pending():
+                # read any ZMQ messages
+                # then update widgets
+                # till we get a dialog answer
+                self._caller.GSTAT.readNextMsg()
                 Gtk.main_iteration()
 
         rtn = dialog.RESPONSE 
@@ -268,8 +296,8 @@ class Dialogs(GObject.GObject):
     def on_yn_response(self,dialog, rtn):
         dialog.RESPONSE = rtn
 
-    def show_user_message(self, caller, message, title = _("Operator Message")):
-        dialog = Gtk.MessageDialog(caller.widgets.window1,
+    def show_user_message(self, message, title = _("Operator Message")):
+        dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO,
                                    Gtk.ButtonsType.NONE)
@@ -290,7 +318,7 @@ class Dialogs(GObject.GObject):
         return response == Gtk.ResponseType.OK
 
     # dialog for run from line
-    def restart_dialog(self, caller):
+    def restart_dialog(self):
 
         # highlight the gcode down one line lower
         # used for run-at-line restart
@@ -314,16 +342,16 @@ class Dialogs(GObject.GObject):
             obj.widgets.gcode_view.set_line_number(line)
 
         restart_dialog = Gtk.Dialog(_("Restart Entry"),
-                   caller.widgets.window1, Gtk.DialogFlags.DESTROY_WITH_PARENT)
+                   self._caller.widgets.window1, Gtk.DialogFlags.DESTROY_WITH_PARENT)
         label = Gtk.Label(_("Restart Entry"))
         label.modify_font(Pango.FontDescription("sans 20"))
         restart_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         restart_dialog.vbox.add(calc)
-        calc.set_value("%d" % caller.widgets.gcode_view.get_line_number())
+        calc.set_value("%d" % self._caller.widgets.gcode_view.get_line_number())
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", on_enter_button, caller, calc)
+        calc.entry.connect("activate", on_enter_button, self._caller, calc)
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
         # add additional buttons
@@ -336,9 +364,9 @@ class Dialogs(GObject.GObject):
         calc.table.attach(upbutton,3,1,1,1)
         calc.table.attach(downbutton,3,2,1,1)
         calc.table.attach(enterbutton,3,3,1,1)
-        upbutton.connect("clicked", restart_up, caller, calc)
-        downbutton.connect("clicked", restart_down, caller, calc)
-        enterbutton.connect("clicked", on_enter_button, caller, calc)
+        upbutton.connect("clicked", restart_up, self._caller, calc)
+        downbutton.connect("clicked", restart_down, self._caller, calc)
+        enterbutton.connect("clicked", on_enter_button, self._caller, calc)
 
         restart_dialog.parse_geometry("410x400+0+0")
         restart_dialog.show_all()
@@ -350,5 +378,5 @@ class Dialogs(GObject.GObject):
             line = int(calc.get_value())
             if line == None:
                 line = 0
-        caller.widgets.gcode_view.set_line_number(line)
-        caller.start_line = line
+        self._caller.widgets.gcode_view.set_line_number(line)
+        self._caller.start_line = line
