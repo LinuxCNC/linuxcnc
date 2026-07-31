@@ -1842,7 +1842,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
 	  (unsigned int)tptr->period, 
 	  (tptr->uses_fp ? "YES" : "NO "),  
 	  runtime_pin_value,
-	  (unsigned int)tptr->maxtime);
+	  (unsigned int)hal_get_si32(tptr->maxtime));
 	sockWrite(context);
         list_root = &(tptr->funct_list);
         list_entry = list_next(list_root);
