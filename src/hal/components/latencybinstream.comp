@@ -41,22 +41,22 @@ of the *stream* pin.
 Maintainers note: hardcoded for MAXBINNUMBER==1000
 """;
 
-pin in  s64 maxbinnumber = 1000 "Number of active bins N on each side (-N...0...N).";  // MAXBINNUMBER
-pin in  s64 nsbinsize    "Time interval for one bin in nanoseconds (ns).";
-pin in  bit reset = 1    "Reset state and bins.";
-pin in  bit stream = 0   "Set to high to stream all bins and tails on rising edge.";
+pin in  sint maxbinnumber = 1000 "Number of active bins N on each side (-N...0...N).";  // MAXBINNUMBER
+pin in  sint nsbinsize    "Time interval for one bin in nanoseconds (ns).";
+pin in  bool reset = 1    "Reset state and bins.";
+pin in  bool stream = 0   "Set to high to stream all bins and tails on rising edge.";
 
-pin out bit stream_error "Set if the data stream did not fit and was never sent.";
-pin out s64 latency      "Last measured latency.";
-pin out s64 latency_avg  "Average latency (when stream pin is asserted).";
-pin out s64 latency_max  "Maximum latency (when stream pin is asserted).";
-pin out s64 latency_min  "Minimum latency (when stream pin is asserted).";
-pin out s64 variance     "Variance of the latency (when stream pin is asserted).";
-pin out s64 stream_time  "The time it took for the stream data to be pushed out in nanoseconds (ns).";
+pin out bool stream_error "Set if the data stream did not fit and was never sent.";
+pin out sint latency      "Last measured latency.";
+pin out sint latency_avg  "Average latency (when stream pin is asserted).";
+pin out sint latency_max  "Maximum latency (when stream pin is asserted).";
+pin out sint latency_min  "Minimum latency (when stream pin is asserted).";
+pin out sint variance     "Variance of the latency (when stream pin is asserted).";
+pin out sint stream_time  "The time it took for the stream data to be pushed out in nanoseconds (ns).";
 
 // user may interrogate available bins to determine this compiled-in limit
 // MAXBINNUMBER
-pin out s64 availablebins = 1000 """
+pin out sint availablebins = 1000 """
 Hard-coded maximum number of bins. You need to change the source code if you need more bins.
 """;
 
@@ -68,7 +68,7 @@ modparam dummy keys "Stream shmem unique key for each instance";
 include <rtapi_bool.h>;
 include <rtapi_stdint.h>;
 
-variable rtapi_s64 last_time = 0;
+variable rtapi_sint last_time = 0;
 variable int last_binmax = 0;
 variable int first = 1;
 variable hal_stream_data_u ptail;  // Positive overflow count
@@ -78,11 +78,11 @@ variable hal_stream_data_u nbins[1001]; // MAXBINNUMBER+1
 
 variable bool last_stream = 0;
 variable hal_stream_t fifo;
-variable rtapi_u64 nsamples;
-variable rtapi_u64 sum;
-variable rtapi_u64 sq_sum;
-variable rtapi_s64 lat_min = RTAPI_INT64_MAX;
-variable rtapi_s64 lat_max = RTAPI_INT64_MIN;
+variable rtapi_uint nsamples;
+variable rtapi_uint sum;
+variable rtapi_uint sq_sum;
+variable rtapi_sint lat_min = RTAPI_INT64_MAX;
+variable rtapi_sint lat_max = RTAPI_INT64_MIN;
 
 license "GPL";
 author "B.Stultiens";
@@ -110,11 +110,11 @@ EXTRA_SETUP() {
 }
 
 FUNCTION(_) {
-	rtapi_s64 now = rtapi_get_time();
-	rtapi_s64 lat = now - last_time - period;
+	rtapi_sint now = rtapi_get_time();
+	rtapi_sint lat = now - last_time - period;
 	last_time = now;
 
-	rtapi_s64 binmax = maxbinnumber;
+	rtapi_sint binmax = maxbinnumber;
 	if (binmax > MAXBINNUMBER) {
 		binmax = MAXBINNUMBER;
 	}
@@ -124,7 +124,7 @@ FUNCTION(_) {
 		first = 1;
 	}
 
-	rtapi_s64 nsbs = nsbinsize;  // May not be zero, important to avoid divide by zero
+	rtapi_sint nsbs = nsbinsize;  // May not be zero, important to avoid divide by zero
 	if (first || binmax != last_binmax || !nsbs) {
 		first = 0;
 		lat_min = RTAPI_INT64_MAX;
@@ -135,13 +135,13 @@ FUNCTION(_) {
 		nsamples = 0;
 		sum = 0;
 		sq_sum = 0;
-		latency = 0;
-		variance = 0;
-		latency_avg = 0;
-		latency_min = 0;
-		latency_max = 0;
+		latency_set(0);
+		variance_set(0);
+		latency_avg_set(0);
+		latency_min_set(0);
+		latency_max_set(0);
 	} else {
-		latency = lat;
+		latency_set(lat);
 		int i = lat/nsbs;
 		if (lat > lat_max) lat_max = lat;
 		if (lat < lat_min) lat_min = lat;
@@ -170,10 +170,10 @@ FUNCTION(_) {
 			//          1     (          sum^2 )
 			// s^2 =  ----- * ( sq_sum - ----- )
 			//        n - 1   (            n   )
-			variance = (sq_sum - (sum * sum / nsamples)) / (nsamples - 1);
-			latency_avg = sum / nsamples;
-			latency_min = lat_min;
-			latency_max = lat_max;
+			variance_set((sq_sum - (sum * sum / nsamples)) / (nsamples - 1));
+			latency_avg_set(sum / nsamples);
+			latency_min_set(lat_min);
+			latency_max_set(lat_max);
 		}
 		int avail = hal_stream_maxdepth(&fifo) - hal_stream_depth(&fifo);
 		if (avail >= 2 * binmax + 1 + 2) {
@@ -187,12 +187,12 @@ FUNCTION(_) {
 				hal_stream_write(&fifo, &pbins[i]);
 			// Positive overflow
 			hal_stream_write(&fifo, &ptail);
-			stream_error = 0;
-			stream_time = rtapi_get_time() - now;
+			stream_error_set(0);
+			stream_time_set(rtapi_get_time() - now);
 		} else {
 			// Else we have not enough room to stream an entire set and
 			// will not stream incomplete data sets.
-			stream_error = 1;
+			stream_error_set(1);
 		}
 	}
 	last_stream = b;
