@@ -10,13 +10,14 @@
 # Алексей Челюканов <chel469@gmail.com>, 2023.
 # Steffen Möller <steffen_moeller@gmx.de>, 2026.
 # Luca Toniolo <toniolo.luca@outlook.com>, 2026.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-06-23 08:23+0000\n"
-"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
+"PO-Revision-Date: 2026-07-31 13:23+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: none\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -95,7 +96,7 @@ msgstr ""
 #: src/user/user-foreword.adoc:1 src/user/user-intro.adoc:1 README.adoc:1
 #: INSTALL.adoc:1
 msgid "en"
-msgstr "en"
+msgstr "ru"
 
 #. type: Title =
 #: src/Master_Developer.adoc:6
