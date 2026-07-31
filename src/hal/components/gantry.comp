@@ -63,8 +63,9 @@ Drives multiple physical motors (joints) from a single axis input
 --- End deprecation notice
 Drives multiple physical motors (joints) from a single axis input
 
-The `personality' value is the number of joints to control.  Two is typical, but
-up to seven is supported (a three joint setup has been tested with hardware).
+The `personality' value is the number of joints to control and must be at least one.
+Two is typical, but up to seven is supported (a three joint setup has been tested
+with hardware).
 
 All controlled joints track the commanded position (with a per-joint offset) unless in the process of homing.
 Homing is when the commanded position is moving towards the homing switches
@@ -81,6 +82,7 @@ When a joint home switch trips, the commanded velocity will drop immediately fro
 license "GPL";
 author "Charles Steinkuehler";
 option period no;
+option extra_setup;
 variable rtapi_real offset[7] = 0.0;
 variable rtapi_real prev_cmd = 0.0;
 variable int   fb_joint = 0;
@@ -169,3 +171,17 @@ FUNCTION(write) {
     }
 }
 
+EXTRA_SETUP() {
+    (void)prefix;
+    (void)extra_arg;
+
+    // personality=0 leaves joint.0.* pins unexported, and read/write
+    // dereference joint_home(0) before the loop, which segfaults rtapi_app
+    // the moment the function runs.
+    if (personality < 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "gantry: personality must be >= 1 (use personality=N to set the number of joints)\n");
+        return -EINVAL;
+    }
+    return 0;
+}
