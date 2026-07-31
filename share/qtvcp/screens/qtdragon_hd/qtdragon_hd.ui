@@ -3563,7 +3563,7 @@ LOG</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>483</width>
+                       <width>268</width>
                        <height>800</height>
                       </rect>
                      </property>
@@ -9248,7 +9248,7 @@ LINE 0</string>
                   <bool>false</bool>
                  </property>
                  <property name="isAutoSensitive" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -17257,7 +17257,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>07:03:42 PM</string>
+         <string>10:40:05 AM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
