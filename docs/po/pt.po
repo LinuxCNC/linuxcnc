@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-07-19 23:31+0000\n"
+"PO-Revision-Date: 2026-07-30 08:37+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
 "Language-Team: none\n"
 "Language: pt\n"
@@ -16602,7 +16602,7 @@ msgstr "1: girar sempre no sentido dos ponteiros do relógio"
 #. type: Plain text
 #: src/config/core-components.adoc:288
 msgid "2: always rotate counterclockwise"
-msgstr "2: sempre girar no sentido contrário aos ponteiros do relógio"
+msgstr "2: girar sempre no sentido contrário aos ponteiros do relógio"
 
 #. type: Plain text
 #: src/config/core-components.adoc:292
@@ -16629,24 +16629,32 @@ msgid ""
 "joints and axes.] They are read and updated by the 'motion-controller' "
 "function."
 msgstr ""
+"Estes pinos e parâmetros são criados pelo módulo de tempo real 'motmod' [Em "
+"máquinas 'trivial kinematics', há uma correspondência um-para-um entre "
+"articulações e eixos.] Eles são lidos e atualizados pela função 'motion-"
+"controller'."
 
 #. type: Plain text
 #: src/config/core-components.adoc:301
 msgid ""
 "See the motion man page 'motion(9)' for details on the pins and parameters."
 msgstr ""
+"Veja o manual de movimento 'motion(9)' para detalhes sobre os pinos e os "
+"parâmetros."
 
 #. type: Title ==
 #: src/config/core-components.adoc:302
 #, no-wrap
 msgid "iocontrol"
-msgstr ""
+msgstr "iocontrol"
 
 #. type: Plain text
 #: src/config/core-components.adoc:305
 msgid ""
 "iocontrol - accepts non-realtime I/O commands via NML, interacts with HAL."
 msgstr ""
+"iocontrol - aceita comandos I/O não de tempo real via NML, interage com o "
+"HAL."
 
 #. type: Plain text
 #: src/config/core-components.adoc:307
@@ -16655,23 +16663,31 @@ msgid ""
 "have strict timing requirements or simply need more I/O, consider using the "
 "realtime synchronized I/O provided by <<sec:motion,motion>> instead."
 msgstr ""
+"Os pinos HAL do iocontrol são ligados e desligados no contexto que não é "
+"tempo real.  Se você tem requerimentos de tempos muito estritos ou se "
+"simplesmente precisar de mais I/O, considere usar o I/O sincronizado em "
+"tempo real fornecido por <<sec:motion,motion>> em vez disto."
 
 #. type: Index entry
 #: src/config/core-components.adoc:311
 msgid "iocontrol (HAL pins"
-msgstr ""
+msgstr "iocontrol (pinos HAL"
 
 #. type: Plain text
 #: src/config/core-components.adoc:312
 msgid ""
 "'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested."
 msgstr ""
+"'iocontrol.0.coolant-flood' (bit, saída) TRUE quando é pedido refrigerante "
+"em inundação."
 
 #. type: Plain text
 #: src/config/core-components.adoc:313
 msgid ""
 "'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested."
 msgstr ""
+"'iocontrol.0.coolant-mist' (bit, saída) TRUE quando é pedido refrigerante em "
+"névoa."
 
 #. type: Plain text
 #: src/config/core-components.adoc:314
@@ -16679,12 +16695,16 @@ msgid ""
 "'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an "
 "external E-Stop condition exists."
 msgstr ""
+"'iocontrol.0.emc-enable-in' (bit, entrada) Deve ser FALSE quando existe uma "
+"condição E-Stop (paragem de emergência) externa."
 
 #. type: Plain text
 #: src/config/core-components.adoc:315
 msgid ""
 "'iocontrol.0.tool-change' (bit, out) TRUE when a tool change is requested."
 msgstr ""
+"'iocontrol.0.tool-change' (bit, saída) TRUE quando é pedida mudança de "
+"ferramenta."
 
 #. type: Plain text
 #: src/config/core-components.adoc:316
@@ -16692,11 +16712,13 @@ msgid ""
 "'iocontrol.0.tool-changed' (bit, in) Should be driven TRUE when a tool "
 "change is completed."
 msgstr ""
+"'iocontrol.0.tool-changed' (bit, entrada) Deve ser TRUE quando uma mudança "
+"de ferramenta está concluída."
 
 #. type: Plain text
 #: src/config/core-components.adoc:317
 msgid "'iocontrol.0.tool-number' (s32, out) The current tool number."
-msgstr ""
+msgstr "'iocontrol.0.tool-number' (s32, saída) O número de ferramenta atual."
 
 #. type: Plain text
 #: src/config/core-components.adoc:318
@@ -16704,12 +16726,16 @@ msgid ""
 "'iocontrol.0.tool-prep-number' (s32, out) The number of the next tool, from "
 "the RS274NGC T-word."
 msgstr ""
+"'iocontrol.0.tool-prep-number' (s32, saída) O número da próxima ferramenta, "
+"a partir da palavra-T de RS274NGC."
 
 #. type: Plain text
 #: src/config/core-components.adoc:319
 msgid ""
 "'iocontrol.0.tool-prepare' (bit, out) TRUE when a tool prepare is requested."
 msgstr ""
+"'iocontrol.0.tool-prepare' (bit, saída) TRUE quando é pedida uma preparação "
+"de ferramenta."
 
 #. type: Plain text
 #: src/config/core-components.adoc:320
@@ -16717,6 +16743,8 @@ msgid ""
 "'iocontrol.0.tool-prepared' (bit, in) Should be driven TRUE when a tool "
 "prepare is completed."
 msgstr ""
+"'iocontrol.0.tool-prepared' (bit, entrada) Deve ser TRUE quando uma "
+"preparação de ferramenta está concluída."
 
 #. type: Plain text
 #: src/config/core-components.adoc:321
@@ -16724,6 +16752,8 @@ msgid ""
 "'iocontrol.0.user-enable-out' (bit, out) FALSE when an internal E-Stop "
 "condition exists."
 msgstr ""
+"'iocontrol.0.user-enable-out' (bit, saída) FALSE quando existe uma condição "
+"E-Stop (paragem de emergência) interna."
 
 #. type: Plain text
 #: src/config/core-components.adoc:322
@@ -16731,98 +16761,107 @@ msgid ""
 "'iocontrol.0.user-request-enable' (bit, out) TRUE when the user has "
 "requested that E-Stop be cleared."
 msgstr ""
+"'iocontrol.0.user-request-enable' (bit, saída) TRUE quando o utilizador "
+"pediu que a condição E-Stop seja limpa."
 
 #. type: Title ====
 #: src/config/core-components.adoc:323 src/gui/axis.adoc:36
 #: src/gui/qtvcp-widgets.adoc:3266
 #, no-wrap
 msgid "INI settings"
-msgstr ""
+msgstr "Definições de INI"
 
 #. type: Plain text
 #: src/config/core-components.adoc:326
 msgid "A number of INI settings are made available as HAL input pins."
 msgstr ""
+"Um número de definições INI estão disponíveis como pinos de entrada HAL."
 
 #. type: Index entry
 #: src/config/core-components.adoc:331
 msgid "INI settings (HAL pins"
-msgstr ""
+msgstr "Definições INI (pinos HAL"
 
 #. type: Plain text
 #: src/config/core-components.adoc:331
 msgid ")  _N_ refers to a joint number, _L_ refers to an axis letter."
-msgstr ""
+msgstr ")  _N_ refere um número de articulação, _L_ refere uma letra de eixo."
 
 #. type: Plain text
 #: src/config/core-components.adoc:333
 msgid "'ini.__N__.ferror' - (float, in) [JOINT_N]FERROR"
-msgstr ""
+msgstr "'ini.__N__.ferror' - (float, entrada) [ARTICULAÇÃO_N]FERROR"
 
 #. type: Plain text
 #: src/config/core-components.adoc:334
 msgid "'ini.__N__.min_ferror' - (float, in) [JOINT_N]MIN_FERROR"
-msgstr ""
+msgstr "'ini.__N__.min_ferror' - (float, entrada) [ARTICULAÇÃO_N]MIN_FERROR"
 
 #. type: Plain text
 #: src/config/core-components.adoc:335
 msgid "'ini.__N__.backlash' - (float, in) [JOINT_N]BACKLASH"
-msgstr ""
+msgstr "'ini.__N__.backlash' - (float, entrada) [ARTICULAÇÃO_N]REAÇÃO"
 
 #. type: Plain text
 #: src/config/core-components.adoc:336
 msgid "'ini.__N__.min_limit' - (float, in) [JOINT_N]MIN_LIMIT"
-msgstr ""
+msgstr "'ini.__N__.min_limit' - (float, entrada) [ARTICULAÇÃO_N]MIN_LIMITE"
 
 #. type: Plain text
 #: src/config/core-components.adoc:337
 msgid "'ini.__N__.max_limit' - (float, in) [JOINT_N]MAX_LIMIT"
-msgstr ""
+msgstr "'ini.__N__.max_limit' - (float, entrada [ARTICULAÇÃO_N]MAX_LIMITE"
 
 #. type: Plain text
 #: src/config/core-components.adoc:338
 msgid "'ini.__N__.max_velocity' - (float, in) [JOINT_N]MAX_VELOCITY"
 msgstr ""
+"'ini.__N__.max_velocity' - (float, entrada) [ARTICULAÇÃO_N]MAX_VELOCIDADE"
 
 #. type: Plain text
 #: src/config/core-components.adoc:339
 msgid "'ini.__N__.max_acceleration' - (float, in) [JOINT_N]MAX_ACCELERATION"
 msgstr ""
+"'ini.__N__.max_acceleration' - (float, entrada) [ARTICULAÇÃO_N]MAX_ACELERAÇÃO"
 
 #. type: Plain text
 #: src/config/core-components.adoc:340
 msgid "'ini.__N__.home' - (float, in) [JOINT_N]HOME"
-msgstr ""
+msgstr "'ini.__N__.home' - (float, entrada) [ARTICULAÇÃO_N]POSIÇÃO-INICIAL"
 
 #. type: Plain text
 #: src/config/core-components.adoc:341
 msgid "'ini.__N__.home_offset' - (float, in) [JOINT_N]HOME_OFFSET"
 msgstr ""
+"'ini.__N__.home_offset' - (float, entrada) [ARTICULAÇÃO_N]DESVIO-DA-POSIÇÃO-"
+"INICIAL"
 
 #. type: Plain text
 #: src/config/core-components.adoc:342
 msgid "'ini.__N__.home_offset' - (s32, in) [JOINT_N]HOME_SEQUENCE"
 msgstr ""
+"'ini.__N__.home_offset' - (s32, entrada) [ARTICULAÇÃO_N]SEQUÊNCIA-DA-POSIÇÃO-"
+"INICIAL"
 
 #. type: Plain text
 #: src/config/core-components.adoc:343
 msgid "'ini.__L__.min_limit' - (float, in) [AXIS_L]MIN_LIMIT"
-msgstr ""
+msgstr "'ini.__L__.min_limit' - (float, entrada) [EIXO_L]MIN_LIMITE"
 
 #. type: Plain text
 #: src/config/core-components.adoc:344
 msgid "'ini.__L__.max_limit' - (float, in) [AXIS_L]MAX_LIMIT"
-msgstr ""
+msgstr "'ini.__L__.max_limit' - (float, entrada) [EIXO_L]MAX_LIMITE"
 
 #. type: Plain text
 #: src/config/core-components.adoc:345
 msgid "'ini.__L__.max_velocity' - (float, in) [AXIS_L]MAX_VELOCITY"
-msgstr ""
+msgstr "'ini.__L__.max_velocity' - (float, entrada) [EIXO_L]MAX_VELOCIDADE"
 
 #. type: Plain text
 #: src/config/core-components.adoc:346
 msgid "'ini.__L__.max_acceleration' - (float, in) [AXIS_L]MAX_ACCELERATION"
-msgstr ""
+msgstr "'ini.__L__.max_acceleration' - (float, entrada) [EIXO_L]MAX_ACELERAÇÃO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:356
@@ -16836,11 +16875,20 @@ msgid ""
 "pin values when a program is running will not have effect until the program "
 "is stopped and the motion_state is again free."
 msgstr ""
+"Os pinos min_limit e max_limit por-eixo são honrados continuamente após a "
+"colocação na posição inicial. Os pinos ferror e min_ferror por-eixo são "
+"honrados quando a máquina está ligada e não em posição. Os pinos "
+"max_velocity e max_acceleration por-eixo são mostrados quando a máquina está "
+"ligada e o estado de movimento é livre (voltar a posição inicial ou "
+"deslocamento) mas não são mostrados quando um programa está a correr (modo "
+"automático) ou em modo MDI.  Como consequência, mudar os valores de pino "
+"quando um programa está a correr não vai ter efeito até que o programa seja "
+"parado e o estado de movimento seja outra vez livre."
 
 #. type: NOTE
 #: src/config/core-components.adoc:358
 msgid "'ini.traj_arc_blend_enable' - (bit, in) [TRAJ]ARC_BLEND_ENABLE"
-msgstr ""
+msgstr "'ini.traj_arc_blend_enable' - (bit, entrada) [TRAJ]MISTURA-ARCO-ATIVA"
 
 #. type: NOTE
 #: src/config/core-components.adoc:359
@@ -16848,12 +16896,16 @@ msgid ""
 "'ini.traj_arc_blend_fallback_enable' - (bit, in) "
 "[TRAJ]ARC_BLEND_FALLBACK_ENABLE"
 msgstr ""
+"'ini.traj_arc_blend_fallback_enable' - (bit, entrada) [TRAJ]MISTURA-ARCO-DE-"
+"RECURSO-ATIVA"
 
 #. type: NOTE
 #: src/config/core-components.adoc:360
 msgid ""
 "'ini.traj_arc_blend_gap_cycles' - (float, in) [TRAJ]ARC_BLEND_GAP_CYCLES"
 msgstr ""
+"'ini.traj_arc_blend_gap_cycles' - (float, entrada) [TRAJ]CICLOS-DE-LACUNA-DE-"
+"MISTURA-DE-ARCO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:361
@@ -16861,11 +16913,15 @@ msgid ""
 "'ini.traj_arc_blend_optimization_depth' - (float, in) "
 "[TRAJ]ARC_BLEND_OPTIMIZATION_DEPTH"
 msgstr ""
+"'ini.traj_arc_blend_optimization_depth' - (float, entrada) "
+"[TRAJ]PROFUNDIDADE-OTIMIZAÇÃO-MISTURA-DE-ARCO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:362
 msgid "'ini.traj_arc_blend_ramp_freq' - (float, in) [TRAJ]ARC_BLEND_RAMP_FREQ"
 msgstr ""
+"'ini.traj_arc_blend_ramp_freq' - (float, entrada) [TRAJ]FREQUÊNCIA-RAMPA-"
+"MISTURA-DE-ARCO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:367
@@ -16874,22 +16930,28 @@ msgid ""
 "while a program is running may not have immediate effect due to queueing of "
 "commands."
 msgstr ""
+"Os pinos traj_arc_blend são mostrados continuamente mas mudar os valores de "
+"pino enquanto um programa está a correr pode não ter efeito imediato devido "
+"à colocação em fila de espera dos comandos."
 
 #. type: NOTE
 #: src/config/core-components.adoc:369
 msgid ""
 "'ini.traj_default_acceleration' - (float, in) [TRAJ]DEFAULT_ACCELERATION"
 msgstr ""
+"'ini.traj_default_acceleration' - (float, entrada) [TRAJ]ACELERAÇÃO-"
+"PREDEFINIDA"
 
 #. type: NOTE
 #: src/config/core-components.adoc:370
 msgid "'ini.traj_default_velocity' - (float, in) [TRAJ]DEFAULT_VELOCITY"
 msgstr ""
+"'ini.traj_default_velocity' - (float, entrada) [TRAJ]VELOCIDADE-PREDEFINIDA"
 
 #. type: NOTE
 #: src/config/core-components.adoc:371
 msgid "'ini.traj_max_acceleration' - (float, in) [TRAJ]MAX_ACCELERATION"
-msgstr ""
+msgstr "'ini.traj_max_acceleration' - (float, entrada) [TRAJ]MAX-ACELERAÇÃO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:373
@@ -16897,47 +16959,54 @@ msgid ""
 "S-curve trajectory planning pins (sampled continuously, can be changed at "
 "runtime):"
 msgstr ""
+"Pinos de planeamento de trajetória de curva S (mostrados continuamente, "
+"podem ser mudados em tempo de execução):"
 
 #. type: NOTE
 #: src/config/core-components.adoc:375
 msgid "'ini.traj_planner_type' - (s32, in) [TRAJ]PLANNER_TYPE"
-msgstr ""
+msgstr "'ini.traj_planner_type' - (s32, entrada) [TRAJ]TIPO-PLANEADOR"
 
 #. type: NOTE
 #: src/config/core-components.adoc:376
 msgid "'ini.traj_max_jerk' - (float, in) [TRAJ]MAX_LINEAR_JERK"
-msgstr ""
+msgstr "'ini.traj_max_jerk' - (float, entrada) [TRAJ]JERK-LINEAR-MÁXIMO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:377
 msgid "'ini.traj_default_jerk' - (float, in) [TRAJ]DEFAULT_LINEAR_JERK"
 msgstr ""
+"'ini.traj_default_jerk' - (float, entrada) [TRAJ]JERK-LINEAR-PREDEFINIDO"
 
 #. type: NOTE
 #: src/config/core-components.adoc:379
 msgid "Per-axis jerk limit pins (where _L_ is x, y, z, a, b, c, u, v, or w):"
 msgstr ""
+"Pinos de limite de jerk (suavidade de aceleração) por eixo (onde _L_ é x, y, "
+"z, a, b, c, u, v, ou w):"
 
 #. type: NOTE
 #: src/config/core-components.adoc:381
 msgid "'ini._L_.jerk' - (float, in) [AXIS__L_]MAX_JERK"
-msgstr ""
+msgstr "'ini._L_.jerk' - (float, entrada) [AXIS__L_]MAX_JERK"
 
 #. type: NOTE
 #: src/config/core-components.adoc:383
 msgid "Per-joint jerk limit pins (where _N_ is the joint number 0-8):"
 msgstr ""
+"Pinos de limite de jerk por articulação (onde _N_ é o número de articulação "
+"0-8):"
 
 #. type: NOTE
 #: src/config/core-components.adoc:385
 msgid "'ini._N_.jerk' - (float, in) [JOINT__N_]MAX_JERK"
-msgstr ""
+msgstr "'ini._N_.jerk' - (float, entrada [ARTICULAÇÃO__N_]MAX_JERK"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:5 src/gui/qtvcp.adoc:682
 #, no-wrap
 msgid "INI Configuration"
-msgstr ""
+msgstr "Configuração de INI"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:13 src/config/ini-config.adoc:24
@@ -16954,7 +17023,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:537
 #, no-wrap
 msgid "INI File"
-msgstr ""
+msgstr "Ficheiro INI"
 
 #. type: Title ==
 #: src/config/ini-config.adoc:13 src/config/ini-config.adoc:24
@@ -16969,12 +17038,13 @@ msgstr "Componentes"
 #: src/config/ini-config.adoc:13
 #, no-wrap
 msgid "The INI File Components"
-msgstr "OS Componentes do Ficheiro INI"
+msgstr "Os Componentes do Ficheiro INI"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:16
 msgid "A typical INI file follows a rather simple layout that includes;"
 msgstr ""
+"Um ficheiro INI típico segue uma disposição bastante simples que inclui;"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:18
@@ -16997,6 +17067,8 @@ msgid ""
 "Each of these elements is separated on single lines.  Each end of line or "
 "newline character creates a new element."
 msgstr ""
+"Cada um destes elementos está separado em linhas únicas.  Cada fim de linha "
+"ou caractere de nova linha cria um novo elemento."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:24 html/gcode.html:175 src/gcode/o-code.adoc:46
@@ -17015,6 +17087,10 @@ msgid ""
 "by the software.  Comments can be used to describe what an INI element will "
 "do."
 msgstr ""
+"Uma linha de comentário é começada com uma marca ; ou #.  Quando o leitor de "
+"INI vê uma destas marcas no início da linha, o resto da linha é ignorada "
+"pelo software.  Os comentários podem ser usados para descrever o que um "
+"elemento INI vai fazer."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:34
@@ -17023,6 +17099,8 @@ msgid ""
 "; This is my mill configuration file.\n"
 "# I set it up on January 12, 2012\n"
 msgstr ""
+"; Este é o meu ficheiro de configuração de fresa.\n"
+"# Configurei-o em 12 Janeiro, 2012\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:38
@@ -17030,6 +17108,8 @@ msgid ""
 "Comments can also be used to 'turn off' a variable.  This makes it easier to "
 "pick between different variables."
 msgstr ""
+"Comentários também pode ser usados para \"desligar\" uma variável.  Isto "
+"facilita a escolha entre diferentes variáveis."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:43
@@ -17048,6 +17128,9 @@ msgid ""
 "is commented out.  If someone carelessly edits a list like this and leaves "
 "two of the lines uncommented, the first one encountered will be used."
 msgstr ""
+"Nesta lista, a variável DISPLAY vai ser definida para axis porque a outra "
+"está comentada.  Se alguém descuidado editar uma lista como esta e deixar "
+"duas das linhas não comentadas, a primeira encontrada vai ser a usada."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:49
@@ -17055,12 +17138,14 @@ msgid ""
 "Note that inside a variable, the \"#\" and \";\" characters do not denote "
 "comments:"
 msgstr ""
+"Note que dentro duma variável os caracteres \"#\" e \";\" não designam "
+"comentários:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:53
 #, no-wrap
 msgid "INCORRECT = value     # and a comment\n"
-msgstr ""
+msgstr "INCORRECT = valor     # e um comentário\n"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:56
@@ -17069,6 +17154,8 @@ msgid ""
 "# Correct Comment\n"
 "CORRECT = value\n"
 msgstr ""
+"# Comentário de Correct\n"
+"CORRECT = valor\n"
 
 #. type: Index entry
 #: src/config/ini-config.adoc:59 src/config/ini-config.adoc:210
@@ -17092,16 +17179,20 @@ msgid ""
 "unimportant.  Sections begin at the section name and end at the next section "
 "name."
 msgstr ""
+"As partes relacionadas de um ficheiro INI são separadas em secções.  Um nome "
+"de secção é fechado em parênteses retos assim: `[ESTA_SECÇÃO]`.  A ordem das "
+"secções não é importante.  As secções começam no nome da secção e terminam "
+"no nome da próxima secção."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:67
 msgid "The following sections are used by LinuxCNC:"
-msgstr ""
+msgstr "As seguintes secções são usadas pelo LinuxCNC:"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:69
 msgid "<<sub:ini:sec:emc,`[EMC]`>> general information"
-msgstr ""
+msgstr "<<sub:ini:sec:emc,`[EMC]`>> informação geral"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:70
@@ -17109,17 +17200,23 @@ msgid ""
 "<<sub:ini:sec:display,`[DISPLAY]`>> settings related to the graphical user "
 "interface"
 msgstr ""
+"<<sub:ini:sec:display,`[DISPLAY]`>> definições relacionadas com a interface "
+"gráfica do utilizador"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:71
 msgid "<<sub:ini:sec:filter,`[FILTER]`>> settings input filter programs"
 msgstr ""
+"<<sub:ini:sec:filter,`[FILTER]`>> definições de programas de filtro de "
+"entrada"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:72
 msgid ""
 "<<sub:ini:sec:rs274ngc,`[RS274NGC]`>> settings used by the G-code interpreter"
 msgstr ""
+"<<sub:ini:sec:rs274ngc,`[RS274NGC]`>> definições usadas pelo interpretador "
+"de código G"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:73
@@ -17127,21 +17224,24 @@ msgid ""
 "<<sub:ini:sec:emcmot,`[EMCMOT]`>> settings used by the real time motion "
 "controller"
 msgstr ""
+"<<sub:ini:sec:emcmot,`[EMCMOT]`>> definições usadas pelo controlador de "
+"movimento de tempo real"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:74
 msgid "<<sub:ini:sec:task,`[TASK]`>> settings used by the task controller"
 msgstr ""
+"<<sub:ini:sec:task,`[TASK]`>> definições usadas pelo controlador de tarefa"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:75
 msgid "<<sub:ini:sec:hal,`[HAL]`>> specifies .hal files"
-msgstr ""
+msgstr "<<sub:ini:sec:hal,`[HAL]`>> especifica ficheiros .hal"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:76
 msgid "<<sub:ini:sec:halui,`[HALUI]`>> MDI commands used by HALUI"
-msgstr ""
+msgstr "<<sub:ini:sec:halui,`[HALUI]`>> Comandos MDI usados pelo HALUI"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:77
@@ -17149,6 +17249,8 @@ msgid ""
 "<<sub:ini:sec:applications,`[APPLICATIONS]`>> Other applications to be "
 "started by LinuxCNC"
 msgstr ""
+"<<sub:ini:sec:applications,`[APPLICATIONS]`>> Outras aplicações a serem "
+"arrancadas pelo LinuxCNC"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:78
@@ -17156,26 +17258,30 @@ msgid ""
 "<<sub:ini:sec:traj,`[TRAJ]`>> additional settings used by the real time "
 "motion controller"
 msgstr ""
+"<<sub:ini:sec:traj,`[TRAJ]`>> definições adicionar usadas pelo controlador "
+"de movimento de tempo real"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:79
 msgid "<<sub:ini:sec:joint-num,`[JOINT_n]`>> individual joint variables"
 msgstr ""
+"<<sub:ini:sec:joint-num,`[JOINT_n]`>> variáveis de articulação individual"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:80
 msgid "<<sub:ini:sec:axis-letter,`[AXIS_l]`>> individual axis variables"
-msgstr ""
+msgstr "<<sub:ini:sec:axis-letter,`[AXIS_l]`>> variáveis de eixo individual"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:81
 msgid "<<sub:ini:sec:kins,`[KINS]`>> kinematics variables"
-msgstr ""
+msgstr "<<sub:ini:sec:kins,`[KINS]`>> variáveis de cinemática"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:82
 msgid "<<sub:ini:sec:emcio,`[EMCIO]`>> settings used by the I/O Controller"
 msgstr ""
+"<<sub:ini:sec:emcio,`[EMCIO]`>> definições usadas pelo Controlador de I/O"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:84 src/ladder/classic-ladder.adoc:75
@@ -17192,6 +17298,11 @@ msgid ""
 "string symbols if you want to or need to.  A variable name is often called a "
 "keyword."
 msgstr ""
+"Uma linha de variável é feita de um nome de variável, um sinal de igual (`=`)"
+", e um valor.  Tudo a partir do primeiro não espaço em branco após o `=` até "
+"ao fim da linha é passado como o valor, assim você pode embeber espaços em "
+"símbolos de sequência de caracteres se o desejar ou precisar.  Um nome de "
+"variável é muitas vezes chamado de palavra chave."
 
 #. type: Block title
 #: src/config/ini-config.adoc:91
@@ -17203,7 +17314,7 @@ msgstr "Exemplo de Variável"
 #: src/config/ini-config.adoc:95
 #, no-wrap
 msgid "MACHINE = My Machine\n"
-msgstr ""
+msgstr "MACHINE = Minha Máquina\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:100
@@ -17212,17 +17323,22 @@ msgid ""
 "(\\) character.  A maximum of `MAX_EXTEND_LINES` (==20) are allowed.  There "
 "must be no whitespace following the trailing backslash character."
 msgstr ""
+"Uma linha de variável pode ser estendida a múltiplas linhas com o caractere "
+"backslash de termina (\\).  São permitidas o máximo de `MAX_EXTEND_LINES` "
+"(==20).  Não pode existir espaço em branco a seguir ao último caractere "
+"backslash."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:102
 msgid "Section identifiers may not be extended to multiple lines."
 msgstr ""
+"Os identificadores de secção não podem ser estendidos a múltiplas linhas."
 
 #. type: Block title
 #: src/config/ini-config.adoc:103
 #, no-wrap
 msgid "Variable with Line extends Example"
-msgstr ""
+msgstr "Exemplo de Variável com extensões de Linha"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:113
@@ -17236,6 +17352,13 @@ msgid ""
 "ini.1.max_velocity \\\n"
 "ini.2.max_velocity\n"
 msgstr ""
+"APP = sim_pin \\\n"
+"ini.0.max_acceleration \\\n"
+"ini.1.max_acceleration \\\n"
+"ini.2.max_acceleration \\\n"
+"ini.0.max_velocity \\\n"
+"ini.1.max_velocity \\\n"
+"ini.2.max_velocity\n"
 
 #. type: Block title
 #: src/config/ini-config.adoc:115
@@ -17249,6 +17372,9 @@ msgid ""
 "Boolean values can be on one of `TRUE`, `YES` or `1` for true/enabled and "
 "one of `FALSE`, `NO` or `0` for false/disabled. The case is ignored."
 msgstr ""
+"Valores booleanos podem ser um de `TRUE`, `YES` ou `1` para verdadeiro/ativo "
+"e um de `FALSE`, `NO` ou `0` para falso/desativado. É ignorado serem "
+"maiúsculas ou minúsculas."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:120
@@ -17256,6 +17382,8 @@ msgid ""
 "The following sections detail each section of the configuration file, using "
 "sample values for the configuration lines."
 msgstr ""
+"As seguintes secções detalham cada secção no ficheiro de configuração, "
+"usando valores exemplo para as linhas de configuração."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:122
@@ -17263,17 +17391,19 @@ msgid ""
 "Variables that are used by LinuxCNC must always use the section names and "
 "variable names as shown."
 msgstr ""
+"As variáveis que são usadas pelo LinuxCNC têm sempre de usar os nomes de "
+"secção e nomes de variável como se mostra."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:124
 msgid "Custom sections and variables"
-msgstr ""
+msgstr "Secções e variáveis personalizadas"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:124
 #, no-wrap
 msgid "Custom Sections and Variables"
-msgstr ""
+msgstr "Secções e Variáveis Personalizadas"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:127
@@ -17281,6 +17411,9 @@ msgid ""
 "Most sample configurations use custom sections and variables to put all of "
 "the settings into one location for convenience."
 msgstr ""
+"A maioria das configurações de exemplo usam secções e variáveis "
+"personalizadas para colocar todas as definições numa única localização por "
+"conveniência."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:129
@@ -17288,12 +17421,16 @@ msgid ""
 "To add a custom variable to an existing LinuxCNC section, simply include the "
 "variable in that section."
 msgstr ""
+"Para adicionar uma variável a uma secção de LinuxCNC existente, simplesmente "
+"inclua essa variável nessa secção."
 
 #. type: Block title
 #: src/config/ini-config.adoc:130
 #, no-wrap
 msgid "Custom Variable Example, assigning the value 'LINEAR' to the variable 'TYPE', and the value '16000' to the variable 'SCALE'."
 msgstr ""
+"Exemplo de Secção Personalizada, a atribuir o valor 'LINEAR' à variável "
+"'TYPE', e o valor '16000' à variável 'SCALE'."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:137
@@ -17315,12 +17452,14 @@ msgid ""
 "To introduce a custom section with its own variables, add the section and "
 "variables to the INI file."
 msgstr ""
+"Para introduzir uma secção personalizada e as suas variáveis, adicione a "
+"secção e as variáveis ao ficheiro INI."
 
 #. type: Block title
 #: src/config/ini-config.adoc:141
 #, no-wrap
 msgid "Custom Section Example"
-msgstr ""
+msgstr "Exemplo de Secção Personalizada"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:148
@@ -17342,6 +17481,8 @@ msgid ""
 "To use the custom variables in your HAL file, put the section and variable "
 "name in place of the value."
 msgstr ""
+"Para usar as variáveis personalizadas no seu ficheiro HAL, ponha a secção e "
+"nome de variável no lugar do valor."
 
 #. type: Block title
 #: src/config/ini-config.adoc:152
@@ -17356,6 +17497,8 @@ msgid ""
 "setp offset.1.offset [PROBE]Z_OFFSET\n"
 "setp stepgen.0.position-scale [JOINT_0]SCALE\n"
 msgstr ""
+"setp offset.1.offset [PROBE]Z_OFFSET\n"
+"setp stepgen.0.position-scale [JOINT_0]SCALE\n"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:161
@@ -17363,6 +17506,8 @@ msgid ""
 "The value stored in the variable must match the type specified by the "
 "component pin."
 msgstr ""
+"O valor armazenado na variável tem de corresponder ao tipo especificado pelo "
+"pino do componente."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:164
@@ -17371,12 +17516,16 @@ msgid ""
 "`#<_ini[section]variable>`.  The following example shows a simple Z-axis "
 "touch-off routine for a router or mill using a probe plate."
 msgstr ""
+"Para usar as variáveis personalizadas em código G, use a sintaxe global de "
+"variáveis `#<_ini[secção]variável>`.  O exemplo seguinte mostra uma rotina "
+"simples sem toque de eixo Z para um roteador ou fresa que usa um prato de "
+"sonda."
 
 #. type: Block title
 #: src/config/ini-config.adoc:165
 #, no-wrap
 msgid "G-code Example"
-msgstr ""
+msgstr "Exemplo de Código G"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:173
@@ -17397,13 +17546,13 @@ msgstr ""
 #. type: Index entry
 #: src/config/ini-config.adoc:176
 msgid "Include"
-msgstr ""
+msgstr "Incluir"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:176
 #, no-wrap
 msgid "Include Files"
-msgstr ""
+msgstr "Incluir Ficheiros"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:179
@@ -17411,6 +17560,8 @@ msgid ""
 "An INI file may include the contents of another file by using a #INCLUDE "
 "directive."
 msgstr ""
+"Um ficheiro INI pode incluir o conteúdo de outro ficheiro ao usar a diretiva "
+"#INCLUDE."
 
 #. type: Block title
 #: src/config/ini-config.adoc:180
@@ -17432,33 +17583,34 @@ msgstr "O nome de ficheiro pode se especificado como:"
 #. type: Plain text
 #: src/config/ini-config.adoc:189
 msgid "a file in the same directory as the INI file"
-msgstr ""
+msgstr "um ficheiro no mesmo diretório que o ficheiro INI"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:190
 msgid "a file located relative to the working directory"
-msgstr ""
+msgstr "um ficheiro com localização relativa ao diretório de trabalho"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:191
 msgid "an absolute file name (starts with a /)"
-msgstr ""
+msgstr "um nome de ficheiro absoluto (começa com um /)"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:192
 msgid "a user-home-relative file name (starts with a ~)"
 msgstr ""
+"um nome de ficheiro relativo à pasta pessoal do utilizador (começa com um ~)"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:194
 msgid "Multiple #INCLUDE directives are supported."
-msgstr ""
+msgstr "São suportadas múltiplas diretivas #INCLUDE."
 
 #. type: Block title
 #: src/config/ini-config.adoc:195
 #, no-wrap
 msgid "#INCLUDE Examples"
-msgstr ""
+msgstr "Exemplos de #INCLUDE"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:203
@@ -17470,6 +17622,11 @@ msgid ""
 "#INCLUDE /home/myusername/myincludes/display.inc\n"
 "#INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc\n"
 msgstr ""
+"#INCLUDE joint_0.inc\n"
+"#INCLUDE ../parallel/joint_1.inc\n"
+"#INCLUDE below/joint_2.inc\n"
+"#INCLUDE /home/myusername/myincludes/display.inc\n"
+"#INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:208
@@ -17479,12 +17636,16 @@ msgid ""
 "extension is '.inc'.  Do _not_ use a file extension of '.ini' for included "
 "files."
 msgstr ""
+"As diretivas #INCLUDE são suportadas apenas para um nível de expansão -- um "
+"ficheiro incluído não pode incluir ficheiros adicionais.  A extensão de "
+"ficheiro recomendada é '.inc'.  _Não_ use uma extensão de ficheiro '.ini' "
+"para ficheiros incluídos."
 
 #. type: Title ==
 #: src/config/ini-config.adoc:210
 #, no-wrap
 msgid "INI File Sections"
-msgstr "Secções de Ficheiro INI"
+msgstr "Secções do Ficheiro INI"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:213
@@ -17499,6 +17660,10 @@ msgid ""
 "than 1.1 will cause the configuration checker to run and try to update the "
 "configuration to the new style joint axes type of configuration."
 msgstr ""
+"`VERSION = 1.1` - A versão de formato desta configuração.  Qualquer valor "
+"diferente de 1.1 vai fazer com que o verificador de configuração correr e "
+"tentar atualizar a configuração para o tipo de configuração do novo estilo "
+"de articulações e eixos."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:219
@@ -17507,6 +17672,9 @@ msgid ""
 "printed out at the top of most graphical interfaces.  You can put whatever "
 "you want here as long as you make it a single line long."
 msgstr ""
+"`MACHINE = My Controller` - Isto é o nome do controlador, que é escrito no "
+"topo da maioria das interfaces gráficas.  Pode colocar o que quiser aqui "
+"desde que o faça numa linha única longa."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:221
@@ -17515,6 +17683,10 @@ msgid ""
 "is run from a <<faq:terminal,terminal>>.  Debug flags are usually only "
 "useful to developers. See src/emc/nml_intf/debugflags.h for other settings."
 msgstr ""
+"`DEBUG = 0` - Debug nível 0 significa nenhumas mensagens vão se rescritas "
+"quando o LinuxCNC corre a partir de um <<faq:terminal,terminal>>.  As "
+"bandeiras Debug são geralmente apenas úteis para desenvolvedores. Veja src/"
+"emc/nml_intf/debugflags.h para outras definições."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:223
@@ -17524,6 +17696,11 @@ msgid ""
 "print all (-1). Use this to select RCS debug messages. See src/libnml/rcs/"
 "rcs_print.hh for all MODE flags."
 msgstr ""
+"`RCS_DEBUG = 1` Mensagens de depuração RCS para mostrar. Escreve apenas "
+"erros (1) por predefinição se os bits EMC_DEBUG_RCS e EMC_DEBUG_RCS em "
+"`DEBUG` estiverem desativados, caso contrário escreve todos (-1). Use isto "
+"para selecionar mensagens de depuração RCS. Veja src/libnml/rcs/rcs_print.hh "
+"para todas as bandeiras de MODE."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:224
@@ -17531,6 +17708,8 @@ msgid ""
 "`RCS_DEBUG_DEST = STDOUT` - how to output RCS_DEBUG messages (NULL, STDOUT, "
 "STDERR, FILE, LOGGER, MSGBOX)."
 msgstr ""
+"`RCS_DEBUG_DEST = STDOUT` - como enviar mensagens RCS_DEBUG (NULL, STDOUT, "
+"STDERR, FILE, LOGGER, MSGBOX)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:225
@@ -17538,6 +17717,8 @@ msgid ""
 "`RCS_MAX_ERR = -1` - Number after which RCS errors are not reported anymore "
 "(-1 = infinite)."
 msgstr ""
+"`RCS_MAX_ERR = -1` - Número após o qual os erros RCS não são mais reportados "
+"(-1 = infinito)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:226
@@ -17545,6 +17726,8 @@ msgid ""
 "`NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Set this if you want to use "
 "a non-default NML configuration file."
 msgstr ""
+"`NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Defina isto se quiser usar "
+"um ficheiro de configuração NML não predefinido."
 
 #. type: Block title
 #: src/config/ini-config.adoc:228 src/gui/qtvcp.adoc:684
@@ -17563,6 +17746,13 @@ msgid ""
 "connections for hardware controls.  Descriptions of the interfaces are in "
 "the Interfaces section of the User Manual."
 msgstr ""
+"Diferentes programas  de interface de utilizador usam diferentes opções, e "
+"nem todas as opções são suportadas por todas as interfaces de utilizador.  "
+"Existem várias interfaces,como AXIS, GMOCCAPY, Touchy, QtVCP's QtDragon e "
+"Gscreen.  AXIS é uma interface para usar com computador e monitor normais, "
+"Touchy é para usar com ecrãs táctil.  GMOCCAPY pode ser usado de ambas "
+"maneiras e oferece também muitas ligações a controles de hardware.  As "
+"descrições das interfaces estão na secção Interfaces do Manual de Utilizador."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:238
@@ -17572,6 +17762,10 @@ msgid ""
 "`touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, `qtvcp qtdragon` or "
 "`qtvcp qtplasmac`."
 msgstr ""
+"`DISPLAY = axis` - O nome de ficheiro do executável que fornece a interface "
+"de utilizador a usar.  As opções válidas proeminentes são (todas em "
+"minúsculas): `axis`, `touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, "
+"`qtvcp qtdragon` ou `qtvcp qtplasmac`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:240
@@ -17581,6 +17775,10 @@ msgid ""
 "coordinate system reflects the G92 and G5__x__ coordinate offsets currently "
 "in effect."
 msgstr ""
+"`POSITION_OFFSET = RELATIVE` - O sistema de coordenadas (`RELATIVE` ou "
+"`MACHINE`) para mostrar no DRO quando a interface de utilizador arranca.  O "
+"sistema de coordenadas RELATIVE reflete o G92 e desvios de coordenadas "
+"G5__x__ atualmente em efeito."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:245
@@ -17592,6 +17790,12 @@ msgid ""
 "motors if they have feedback like most servo systems.  Typically the "
 "COMMANDED value is used."
 msgstr ""
+"`POSITION_FEEDBACK = COMMANDED` - O valor de coordenada (`COMMANDED` ou "
+"`ACTUAL`) a mostrar no DRO quando a interface de utilizador arranca.  No "
+"AXIS isto pode ser mudado a partir do menu Ver.  A posição COMMANDED é a "
+"posição pedida pelo LinuxCNC.  A posição ACTUAL é a posição de feedback dos "
+"motores se eles tiverem retorno informativo como a maioria dos sistemas "
+"servo tem.  Tipicamente é usado o valor COMMANDED."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:249
@@ -17604,6 +17808,13 @@ msgid ""
 "mini-language .  An error will be raised if the format can not accept a "
 "floating-point value."
 msgstr ""
+"`DRO_FORMAT_MM = %+08.6f` - Sobrepõe o formato DRO predefinido em modo "
+"métrico (normalmente 3 casas decimais, rmally 3 decimal places, com espaço "
+"para 6 dígitos à esquerda).  O exemplo de cima vai ter zeros, mostrar 6 "
+"dígitos decimais e forçar um sinal + para números positivos.  A formatação "
+"segue a prática de Python: https://docs.python.org/2/library/"
+"string.html#format-specification-mini-language .  Será gerado um erro se o "
+"formato não puder aceitar um valor de vírgula flutuante (float)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:253
@@ -17615,6 +17826,12 @@ msgid ""
 "string.html#format-specification-mini-language .  An error will be raised if "
 "the format can not accept a floating-point value."
 msgstr ""
+"`DRO_FORMAT_IN = % 4.1f` - Sobrepõe o formato DRO predefinido em modo "
+"imperial (normalmente 4 casas decimais, com espaço para 6 dígitos à esquerda)"
+".  O exemplo de cima vai mostrar apenas 1 dígito decimal. A formatação segue "
+"a prática de Python: https://docs.python.org/2/library/string.html#format-"
+"specification-mini-language .  Será gerado um erro se o formato não puder "
+"aceitar um valor de vírgula flutuante (float)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:254
@@ -17622,6 +17839,9 @@ msgid ""
 "`CONE_BASESIZE = .25` - Override the default cone/tool base size of .5 in "
 "the graphics display. Valid values are between 0.025 and 2.0."
 msgstr ""
+"`CONE_BASESIZE = .25` - Sobrepõe o tamanho base de cone/ferramenta "
+"predefinido de .5 no mostrador gráfico. Valores válidos são entre 0.025 e "
+"2.0."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:255
@@ -17630,6 +17850,10 @@ msgid ""
 "override the default behavior of scaling the cone/tool size using the "
 "extents of the currently loaded G-code program in the graphics display."
 msgstr ""
+"`DISABLE_CONE_SCALING = TRUE` - Qualquer valor não vazio (incluindo \"0\") "
+"vai sobrepor o comportamento predefinido de dimensionar o tamanho do cone/"
+"ferramenta usando as extensões do programa de código G atualmente carregado "
+"no mostrador gráfico."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:257
@@ -17637,6 +17861,9 @@ msgid ""
 "`MAX_FEED_OVERRIDE = 1.2` - The maximum feed override the user may select.  "
 "1.2 means 120% of the programmed feed rate."
 msgstr ""
+"`MAX_FEED_OVERRIDE = 1.2` - A máxima sobreposição de alimentação que o "
+"utilizador pode selecionar.  1.2 significa 120% da taxa de alimentação "
+"programada."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:259
@@ -17645,6 +17872,9 @@ msgid ""
 "select.  0.5 means 50% of the programmed spindle speed. (This is used to set "
 "the minimum spindle speed.)"
 msgstr ""
+"`MIN_SPINDLE_OVERRIDE = 0.5` - O mínimo de sobreposição de fuso que o "
+"utilizador pode selecionar.  0.5 significa 50% da velocidade de fuso "
+"programada. (Isto é usado para definir a velocidade de fuso mínima.)"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:262
@@ -17655,6 +17885,11 @@ msgid ""
 "entries for each spindle number. Only used by the QtVCP based user "
 "interfaces."
 msgstr ""
+"`MIN_SPINDLE_0_OVERRIDE = 0.5` - O mínimo de sobreposição de fuso que o "
+"utilizador pode selecionar.  0.5 significa 50% da velocidade de fuso "
+"programada. (Isto é usado para definir a velocidade de fuso mínima.)  Numa "
+"máquina de múltiplos fusos vão existir entradas para cada número de fuso. "
+"Usado apenas pelas interfaces de utilizador baseadas em QtVCP."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:263
@@ -17662,15 +17897,28 @@ msgid ""
 "`MAX_SPINDLE_OVERRIDE = 1.0` - The maximum spindle override the user may "
 "select. 1.0 means 100% of the programmed spindle speed."
 msgstr ""
+"`MAX_SPINDLE_OVERRIDE = 1.0` - O máximo de sobreposição de fuso que o "
+"utilizador pode selecionar. 1.0 significa 100% da velocidade de fuso "
+"programada."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:266
+#, fuzzy
 msgid ""
 "`MAX_SPINDLE_0_OVERRIDE = 1.0` - The maximum feed override the user may "
 "select.  1.2 means 120% of the programmed feed rate.  On multi spindle "
 "machine there will be entries for each spindle number. Only used by the "
 "QtVCP based user interfaces."
 msgstr ""
+"`MAX_SPINDLE_0_OVERRIDE = 1.0` - O máximo de sobreposição de alimentação que "
+"o utilizador pode selecionar.  1.2 significa 120% da taxa de alimentação "
+"programada.  Numa máquina de múltiplos fusos vão existir entradas para cada "
+"número de fuso. Usado apenas pelas interfaces de utilizador baseadas em "
+"QtVCP. \n"
+"\n"
+"\n"
+"a mensagem original parece errada\n"
+"the original message is wrong - mix speed spindle with feed rate"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:268
@@ -17679,6 +17927,9 @@ msgid ""
 "started in manual mode.  If this setting is not present, this defaults to 1 "
 "RPM for AXIS and 300 RPM for GMOCCAPY."
 msgstr ""
+"`DEFAULT_SPINDLE_SPEED = 100` - As RPM de fuso predefinidas quando o fuso é "
+"arrancado em modo manual.  Se esta definição não estiver presente, isto "
+"predefine para 1 RPM para AXIS e 300 RPM para GMOCCAPY."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:269
@@ -17692,6 +17943,10 @@ msgid ""
 "is started in manual mode.  On multi spindle machine there will be entries "
 "for each spindle number. Only used by the QtVCP-based user interfaces."
 msgstr ""
+"`DEFAULT_SPINDLE_0_SPEED = 100` - As RPM de fuso predefinidas quando o fuso "
+"é arrancado em modo manual.  Numa máquina de múltiplos fusos vão existir "
+"entradas para cada número de fuso. Usado apenas pelas interfaces de "
+"utilizador baseadas em QtVCP."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:272 src/config/ini-config.adoc:274
@@ -17705,6 +17960,9 @@ msgid ""
 "`SPINDLE_INCREMENT = 200` - The increment used when clicking increase/"
 "decrease buttons. Only used by the QtVCP based user interfaces."
 msgstr ""
+"`SPINDLE_INCREMENT = 200` - O incremento usado quando se clica nos botões "
+"aumentar/diminuir. Usado apenas pelas interfaces de utilizador baseadas em "
+"QtVCP."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:276
@@ -17713,6 +17971,10 @@ msgid ""
 "selected.  On multi spindle machine there will be entries for each spindle "
 "number. Only used by the QtVCP-based user interfaces."
 msgstr ""
+"`MIN_SPINDLE_0_SPEED = 1000` - As RPM mínimas que podem ser selecionadas "
+"manualmente.  Numa máquina de múltiplos fusos vão existir entradas para cada "
+"número de fuso. Usado apenas pelas interfaces de utilizador baseadas em "
+"QtVCP."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:279
@@ -17721,6 +17983,10 @@ msgid ""
 "selected.  On multi spindle machine there will be entries for each spindle "
 "number. Only used by the QtVCP-based user interfaces."
 msgstr ""
+"`MAX_SPINDLE_0_SPEED = 20000` - As RPM máximas que podem ser selecionadas "
+"manualmente.  Numa máquina de múltiplos fusos vão existir entradas para cada "
+"número de fuso. Usado apenas pelas interfaces de utilizador baseadas em "
+"QtVCP."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:282
@@ -17730,17 +17996,23 @@ msgid ""
 "directory is searched before the directories listed in "
 "`[RS274]SUBROUTINE_PATH` and `[RS274]USER_M_PATH`."
 msgstr ""
+"`PROGRAM_PREFIX = ~/linuxcnc/nc_files` - O diretório predefinido para "
+"ficheiros de código G, sub-rotinas nomeadas, e códigos M definidos pelo "
+"utilizador.  O diretório `PROGRAM_PREFIX` é procurado antes dos diretórios "
+"listados em `[RS274]SUBROUTINE_PATH` e `[RS274]USER_M_PATH`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:283
 msgid "`INTRO_GRAPHIC = emc2.gif` - The image shown on the splash screen."
-msgstr ""
+msgstr "`INTRO_GRAPHIC = emc2.gif` - A imagem mostrada no ecrã de boas vindas."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:284
 msgid ""
 "`INTRO_TIME = 5` - The maximum time to show the splash screen, in seconds."
 msgstr ""
+"`INTRO_TIME = 5` - O tempo máximo para mostrar o ecrã de boas vindas, em "
+"segundos."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:291
@@ -17753,6 +18025,14 @@ msgid ""
 "s) may be useable.  An under powered CPU may see improvement with a longer "
 "setting.  Usually the default is fine."
 msgstr ""
+"`CYCLE_TIME = 100` - Tempo de ciclo da GUI do ecrã. Dependendo do ecrã, isto "
+"pode ser segundos ou milissegundos (ms) (preferência para ms).  Isto é "
+"geralmente a taxa de atualização em vez do tempo de inatividade entre "
+"atualizações.  Se o tempo de atualização não for definido corretamente, o "
+"ecrã pode deixar de responder ou ficar muito irregular.  Um valor de 100 ms "
+"(0,1 s) é uma definição comum, embora se possa usar uma gama de 50 a 200 ms "
+"(0,05 a 0,2 s).  Uma CPU com pouca potência pode apresentar melhorias com "
+"uma definição mais longa.  Normalmente a predefinição fica bem."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:292
@@ -17760,6 +18040,8 @@ msgid ""
 "`PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview "
 "of G-code. Currently AXIS only."
 msgstr ""
+"`PREVIEW_TIMEOUT = 5` - Tempo limite (em segundos) para carregar uma "
+"antevisão gráfica do código G. Atualmente apenas para AXIS."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:293
@@ -17769,16 +18051,21 @@ msgid ""
 "pressed in AXIS GUI. Pressing the \"Ok\" button in prompt message is "
 "equivalent to pressing the \"Home All\" button(or the Ctrl-HOME key)."
 msgstr ""
+"`HOMING_PROMPT = TRUE` - Qualquer valor não vazio (incluindo \"0\") vai "
+"ativar o mostrar de mensagem de aviso com pedido de levar a posição inicial, "
+"quando o botão de Ligar Máquina é pressionado na GUI AXIS. Pressionar o "
+"botão \"Ok\" na mensagem de aviso é equivalente a pressionar o botão "
+"\"Posição Inicial de Todos\" (ou a tecla Ctrl-HOME)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:294
 msgid "`FOAM_W = 1.5` sets the foam W height."
-msgstr ""
+msgstr "`FOAM_W = 1.5` define a altura W da espuma."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:295
 msgid "`FOAM_Z = 0` sets the foam Z height."
-msgstr ""
+msgstr "`FOAM_Z = 0` define a altura Z da espuma."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:299
@@ -17789,6 +18076,11 @@ msgid ""
 "of the system memory, which ever is smaller.  A negative value is "
 "interpreted as unlimited."
 msgstr ""
+"`GRAPHICAL_MAX_FILE_SIZE = 20` tamanho maior (em mega bytes) que vai ser "
+"mostrado graficamente.  Se o programa for maior que esta definição, vai ser "
+"mostrada uma caixa delimitadora.  Por predefinição, esta definição fica em "
+"20 MB ou 1/4 da memória do sistema, o que for menor. Um valor negativo é "
+"interpretado como ilimitado."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:303
@@ -17797,11 +18089,14 @@ msgid ""
 "<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter "
 "or the <<cha:pyvcp,PyVCP Chapter>> for more information."
 msgstr ""
+"Os seguintes items de [DISPLAY] são usados pelo GladeVCP e PyVCP, veja a "
+"secção <<gladevcp:embedding-tab,embeber um separador>> do Capítulo GladeVCP "
+"ou o <<cha:pyvcp,Capítulo PyVCP>> para mais informação."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:305
 msgid "`EMBED_TAB_NAME = GladeVCP demo`"
-msgstr ""
+msgstr "`EMBED_TAB_NAME = Demonstração do GladeVCP`"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:306
@@ -17809,6 +18104,8 @@ msgid ""
 "`EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \\"
 "{XID\\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui`"
 msgstr ""
+"`EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \\"
+"{XID\\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui`"
 
 #. type: delimited block =
 #: src/config/ini-config.adoc:312
@@ -17818,6 +18115,10 @@ msgid ""
 "document for AXIS details.  See <<cha:gmoccapy,GMOCCAPY>> document for "
 "GMOCCAPY details."
 msgstr ""
+"Programas de interface de utilizador diferentes usam opções diferentes, e "
+"nem todas as opções são suportadas por todas as interfaces de utilizador.  "
+"Veja o documento <<cha:axis-gui,AXIS GUI>> para detalhes do AXIS.  Veja o "
+"documento <<cha:gmoccapy,GMOCCAPY>> para detalhes do GMOCCAPY."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:315
@@ -17825,11 +18126,15 @@ msgid ""
 "`DEFAULT_LINEAR_VELOCITY = .25` - The default velocity for linear jogs, in "
 "<<sub:ini:sec:traj,machine units>> per second."
 msgstr ""
+"`DEFAULT_LINEAR_VELOCITY = .25` - A velocidade predefinida para deslocações "
+"lineares, em <<sub:ini:sec:traj,unidades máquina>> por segundo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:316
 msgid "`MIN_VELOCITY = .01` - The approximate lowest value the jog slider."
 msgstr ""
+"`MIN_VELOCITY = .01` - O valor mais baixo aproximado do cursor deslizante do "
+"deslocamento."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:317
@@ -17837,12 +18142,16 @@ msgid ""
 "`MAX_LINEAR_VELOCITY = 1.0` - The maximum velocity for linear jogs, in "
 "machine units per second."
 msgstr ""
+"`MAX_LINEAR_VELOCITY = 1.0` - A velocidade máxima para deslocamentos "
+"lineares, em unidades máquina por segundo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:318
 msgid ""
 "`MIN_LINEAR_VELOCITY = .01` - The approximate lowest value the jog slider."
 msgstr ""
+"`MIN_LINEAR_VELOCITY = .01` - O valor mais baixo aproximado do cursor "
+"deslizante do deslocamento."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:319
@@ -17850,6 +18159,8 @@ msgid ""
 "`DEFAULT_ANGULAR_VELOCITY = .25` - The default velocity for angular jogs, in "
 "machine units per second."
 msgstr ""
+"`DEFAULT_ANGULAR_VELOCITY = .25` - A velocidade predefinida para "
+"deslocamentos angulares, em unidades máquina por segundo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:320
@@ -17857,6 +18168,8 @@ msgid ""
 "`MIN_ANGULAR_VELOCITY = .01` - The approximate lowest value the angular jog "
 "slider."
 msgstr ""
+"`MIN_ANGULAR_VELOCITY = .01` - O valor mais baixo aproximado do cursor "
+"deslizante do deslocamento angular."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:321
@@ -17864,6 +18177,8 @@ msgid ""
 "`MAX_ANGULAR_VELOCITY = 1.0` - The maximum velocity for angular jogs, in "
 "machine units per second."
 msgstr ""
+"`MAX_ANGULAR_VELOCITY = 1.0` - A velocidade máxima para deslocamentos "
+"angulares, em unidades máquina por segundo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:326
@@ -17876,6 +18191,13 @@ msgid ""
 "distances may be mixed: INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a "
 "valid entry."
 msgstr ""
+"`INCREMENTS = 1 mm, .5 in, ...` - Define os incrementos disponíveis para "
+"deslocamentos incrementais.  O INCREMENTS ode ser usado para sobrepor a "
+"predefinição.  Os valores podem ser números decimais (ex, 0.1000) ou número "
+"fracionais (ex, 1/16), opcionalmente seguidos por uma unidade (cm, mm, um, "
+"inch, in ou mil).  Se não for especificada uma unidade é assumida a unidade "
+"máquina.  Podem ser misturadas distâncias métricas e imperiais: INCREMENTS = "
+"1 inch, 1 mil, 1 cm, 1 mm, 1 um são entradas válidas."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:328
@@ -17883,6 +18205,8 @@ msgid ""
 "`GRIDS = 10 mm, 1 in, ...` - Defines the preset values for grid lines.  The "
 "value is interpreted the same way as `INCREMENTS`."
 msgstr ""
+"`GRIDS = 10 mm, 1 in, ...` - Define os valores predefinidos para linhas de "
+"grelha.  O valor é interpretado da mesma maneira que `INCREMENTS`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:331
@@ -17892,6 +18216,11 @@ msgid ""
 "start up.  GMOCCAPY will not use this setting, as it offers a corresponding "
 "entry on its settings page."
 msgstr ""
+"`OPEN_FILE = /caminho/completo/para/ficheiro.ngc` - O ficheiro a mostrar na "
+"antevisão quando o AXIS arranca.  Use uma string vazia \"\" e nenhum "
+"ficheiro será carregado no arranque.  O GMOCCAPY não vai usar esta "
+"definição, pois oferece uma entrada correspondente na sua página de "
+"definições."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:335
@@ -17901,6 +18230,11 @@ msgid ""
 "work.  Another valid entry is `gnome-terminal -e vim`.  This entry does not "
 "apply to GMOCCAPY, as GMOCCAPY has an integrated editor."
 msgstr ""
+"`EDITOR = gedit` - O editor a usar quando se seleciona Ficheiro > Editar "
+"para editar o código G a partir do menu do AXIS.  Isto tem de ser "
+"configurado para que este item de menu funcione.  Outra entrada válida é "
+"`gnome-terminal -e vim`.  Esta entrada não se aplica ao GMOCCAPY, pois o "
+"GMOCCAPY tem um editor integrado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:339
@@ -17910,6 +18244,11 @@ msgid ""
 "valid entries are `gedit`, `gnome-terminal -e vim`, and `gvim`.  This entry "
 "does not apply to GMOCCAPY, as GMOCCAPY has an integrated editor."
 msgstr ""
+"`TOOL_EDITOR = tooledit` - O editor a usar quando se edita a tabela de "
+"ferramentas (por exemplo ao selecionar \"Ficheiro > Editar Tabela de "
+"Ferramenta...\" no AXIS).  Outras entradas válidas são `gedit`, `gnome-"
+"terminal -e vim`, e `gvim`.  Esta entrada não se aplica ao GMOCCAPY, pois o "
+"GMOCCAPY tem um editor integrado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:341
@@ -17917,6 +18256,8 @@ msgid ""
 "`PYVCP = /filename.xml` - The PyVCP panel description file.  See the "
 "<<cha:pyvcp,PyVCP Chapter>>for more information."
 msgstr ""
+"`PYVCP = /filename.xml` - O ficheiro da descrição do painel PyVCP.  Veja o "
+"<<cha:pyvcp,Capítulo PyVCP>>para mais informação."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:344
@@ -17926,6 +18267,10 @@ msgid ""
 "right side.  The only valid alternative is `BOTTOM`. See the "
 "<<cha:pyvcp,PyVCP Chapter>> for more information."
 msgstr ""
+"`PYVCP_POSITION = BOTTOM` - A colocação do painel PyVCP na interface de "
+"utilizador AXIS.  Se esta variável fo omitida o painel vai predefinir para o "
+"lado direito.  A única alternativa válida é `BOTTOM`. Veja o "
+"<<cha:pyvcp,Capítulo PyVCP>> para mais informação."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:345
@@ -17933,6 +18278,8 @@ msgid ""
 "`LATHE = 1` - Any non-empty value (including \"0\") causes axis to use "
 "\"lathe mode\" with a top view and with Radius and Diameter on the DRO."
 msgstr ""
+"`LATHE = 1` - Qualquer valor não vazio (incluindo \"0\") faz o axis usar o "
+"\"modo de torno\" com uma vista de topo e com Raio e Diâmetro no DRO."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:346
@@ -17940,6 +18287,8 @@ msgid ""
 "`BACK_TOOL_LATHE = 1` - Any non-empty value (including \"0\") causes axis to "
 "use \"back tool lathe mode\" with inverted X axis."
 msgstr ""
+"`BACK_TOOL_LATHE = 1` - Qualquer valor não vazio (incluindo \"0\") faz o "
+"axis usar \"modo de torno de ferramenta traseira\" com o eixo X invertido."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:347
@@ -17947,6 +18296,8 @@ msgid ""
 "`FOAM = 1` - Any non-empty value (including \"0\") causes axis to change the "
 "display for foam-cutter mode."
 msgstr ""
+"`FOAM = 1` - Qualquer valor não vazio (incluindo \"0\") faz o axis mudar o "
+"ecrã para modo de corte de espuma."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:349
@@ -17955,28 +18306,36 @@ msgid ""
 "This item consists of a sequence of axis letters and control characters, "
 "optionally preceded with a \"-\" sign:"
 msgstr ""
+"`GEOMETRY = XYZABCUVW` - Controla a *antevisão* e *traço de fundo* do "
+"movimento.  Este item consiste de uma sequência de letras de eixo e "
+"caracteres de controle, opcionalmente precedidos por um sinal \"-\":"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:351
 msgid "The letters X, Y, Z specify translation along the named coordinate."
-msgstr ""
+msgstr "As letras X, Y, Z especificam translação entre a coordenada nomeada."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:352
 msgid ""
 "The letters A, B, C specify rotation about the corresponding axes X, Y, Z."
 msgstr ""
+"As letras A, B, C especificam rotação acerca dos eixos correspondentes X, Y, "
+"Z."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:353
 msgid "The letters U, V, W specify translation along the related axes X, Y, Z."
 msgstr ""
+"As letras U, V, W especificam translação entre os eixos relacionados X, Y, Z."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:354
 msgid ""
 "Each letter specified must occur in `[TRAJ]COORDINATES` to have an effect."
 msgstr ""
+"Cada letra especificada tem de ocorrer em `[TRAJ]COORDENADAS` para ter um "
+"efeito."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:355
@@ -17984,6 +18343,7 @@ msgid ""
 "A \"*-*\" character preceding any letter inverts the direction of the "
 "operation."
 msgstr ""
+"Um caractere \"*-*\" a preceder qualquer letra inverte a direção da operação."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:358
@@ -17993,6 +18353,10 @@ msgid ""
 "followed by Z, Y, X translations.  The ordering of consecutive translation "
 "letters is immaterial."
 msgstr ""
+"As operações de translação e rotação são avaliadas *da-direita-para-"
+"esquerda*.  Assim usando `GEOMETRY=XYZBC` especifica uma rotação C seguida "
+"por uma rotação B seguida por translações Z, Y, X.  A ordem das letras de "
+"translação consecutivas é imaterial."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:361
@@ -18001,6 +18365,9 @@ msgid ""
 "kinematics used to control it.  The order of the letters is important.  For "
 "example, rotating around C then B is different than rotating around B then C."
 msgstr ""
+"A string GEOMETRY apropriada depende da configuração da máquina e da "
+"cinemática usada para a controlar.  A ordem das letras é importante.  Por "
+"exemplo, rodar em C e depois B é diferente de rodar em B e depois C."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:363
@@ -18009,6 +18376,9 @@ msgid ""
 "Example: `GEOMETRY=CXYZ` first translates the control point to X, Y, Z and "
 "then performs a C rotation about the Z axis centered at the machine origin."
 msgstr ""
+"As rotações são por predefinição aplicadas com respeito à origem da máquina. "
+"Exemplo: `GEOMETRY=CXYZ` primeiro translada o ponto de controle para X, Y, Z "
+"e depois efetua a rotação C no eixo Z centrado na origem da máquina."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:364
@@ -18017,6 +18387,8 @@ msgid ""
 "coordinate system of the tool and XYZ to move in the coordinate system of "
 "the material."
 msgstr ""
+"Exemplo de translação UVW: `GEOMETRY=XYZUVW` faz UVW mover no sistema de "
+"coordenada da ferramenta e XYZ mover no sistema de coordenada do material."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:366
@@ -18026,6 +18398,11 @@ msgid ""
 "mode.  A future version may define what \";\" means, but if it does "
 "\"XY;UV\" will mean the same as the current foam default."
 msgstr ""
+"Máquinas de corte de espuma (`FOAM = 1`) deve especificar \"XY;UV\" ou "
+"deixar o valor vazio mesmo sendo este valor presentemente ignorado no modo "
+"cortador-de-espuma.  Uma versão futura poderá definir o que \";\" significa, "
+"mas se o fizer, \"XY;UV\" irá significar o mesmo que a predefinição atual de "
+"espuma."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:371
@@ -18039,6 +18416,15 @@ msgid ""
 "indicated by #<_task> == 1.  If nonzero offsets exist at startup due to "
 "persistence, offsets should be zeroed and preview reloaded."
 msgstr ""
+"Experimental: Se o caractere de ponto de exclamação (`!`) for incluído na "
+"string GEOMETRY, os pontos de mostrador para rotações A, B, C respeitam os "
+"desvios X, Y, Z definidos por códigos G5x, G92.  Exemplo: Usar `GEOMETRY = "
+"!CXZ` para uma maquina `[TRAJ]COORDINATES=XZC`.  Esta provisão aplica-se "
+"apenas para gráficos de tempo real -- as antevisões de código G devem ser "
+"feitas com desvios G5x, G92 a zero.  Isto pode ser facilitado ao definir "
+"desvios em programas apenas quando a tarefa é correr como indicado por "
+"#<_task> == 1.  Se existirem desvios não-zero no arranque devido a "
+"persistência, os desvios devem ser \"zerados\" e a antevisão recarregada."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:375
@@ -18046,6 +18432,9 @@ msgid ""
 "If no `[DISPLAY]GEOMETRY` is included in the INI file, a default is provided "
 "by the `[DISPLAY]DISPLAY` GUI program (typically \"XYZABCUVW\")."
 msgstr ""
+"Se nenhum `[DISPLAY]GEOMETRY` for incluído no ficheiro INI, é fornecida uma "
+"predefinição pelo `[DISPLAY]DISPLAY` do programa GUI (tipicamente "
+"\"XYZABCUVW\")."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:381
@@ -18058,6 +18447,14 @@ msgid ""
 "faster display.  The default value of 64 means a circle of up to 3 inches "
 "will be displayed to within 1 mil (.03%)."
 msgstr ""
+"`ARCDIVISION = 64` - Define a quantidade de antevisão de arcos.  Os arcos "
+"são pré-visualizados ao dividi-los num número de linhas retas; um semi-"
+"circulo é dividido em partes de *ARCDIVISION*.  Valores maiores dão uma "
+"antevisão mais precisa, mas demoram mais a carregar e resultam num ecrã mais "
+"lento. Valores menores dão uma antevisão menos precisa, mas demoram menos "
+"tempo a carregar e pode resultar num ecrã mais rápido.  O valor predefinido "
+"de 64 significa que um círculo até 3 polegadas será mostrado com uma "
+"precisão de 1 milímetro (.03%)."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:384
@@ -18067,6 +18464,10 @@ msgid ""
 "user`s home directory.  This is useful if you have multiple configurations "
 "on one computer."
 msgstr ""
+"`MDI_HISTORY_FILE =` - O nome de um ficheiro de histórico MDI local.  Se "
+"isto não for especificado, o AXIS vai salvar o histórico MDI em "
+"*.axis_mdi_history* no diretório home do utilizador.  Isto é útil se tiver "
+"múltiplas configurações em um computador."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:387
@@ -18077,6 +18478,12 @@ msgid ""
 "the fourth.  If unspecified, the default is determined from the "
 "`[TRAJ]COORDINATES`, `[DISPLAY]LATHE` and `[DISPLAY]FOAM` values."
 msgstr ""
+"`JOG_AXES =` - A ordem na qual as teclas de movimento são atribuídas a "
+"letras de eixos.  As setas esquerda e direita são atribuídas à primeira "
+"letra de eixo, cima e baixo à segunda, page up/page down à terceira, e "
+"parênteses esquerdo e direito à quarta.  Se não especificado, a predefinição "
+"é determinada a partir dos valores `[TRAJ]COORDINATES`, `[DISPLAY]LATHE` e "
+"`[DISPLAY]FOAM`."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:389
@@ -18084,6 +18491,8 @@ msgid ""
 "`JOG_INVERT =` - For each axis letter, the jog direction is inverted.  The "
 "default is \"X\" for lathes and blank otherwise."
 msgstr ""
+"`JOG_INVERT =` - Para cada letra de eixo, a direção de deslocamento é "
+"invertida.  A predefinição e \"X\" para tornos e vazio caso contrário."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:393
@@ -18094,6 +18503,13 @@ msgid ""
 "jog keys are assigned in a fixed sequence: left/right: joint0, up/down: "
 "joint1, page up/page down: joint2, left/right bracket: joint3"
 msgstr ""
+"As definições para `JOG_AXES` e `JOG_INVERT` aplicam-se ao deslocamento de "
+"modo global por letra de coordenada de eixo e estão em efeito após se "
+"atingir a posição inicial com sucesso.  Ao se operar em modo de articulação "
+"antes da posição inicial, as teclas de deslocamento do teclado são "
+"atribuídas nua sequência fixa: esquerda/direita: articulação0, cima/baixo: "
+"articulação1, page up/page down: articulação2, parêntese esquerdo/direito: "
+"articulação3"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:395
@@ -18102,17 +18518,20 @@ msgid ""
 "specific Python file sourced by the AXIS GUI instead of the user-specific "
 "file `~/.axisrc`."
 msgstr ""
+"`USER_COMMAND_FILE = mycommands.py` - O nome de um ficheiro Python opcional, "
+"específico da configuração, para fonte da GUI AXIS em vez do ficheiro "
+"específico do utilizador `~/.axisrc`."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:398
 msgid ""
 "The following `[DISPLAY]` item is used by the TKLinuxCNC interface only."
-msgstr ""
+msgstr "O seguinte item `[DISPLAY]` é usado apenas pela interface TKLinuxCNC."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:400
 msgid "`HELP_FILE = tklinucnc.txt` - Path to help file."
-msgstr ""
+msgstr "`HELP_FILE = tklinucnc.txt` - Caminho para ficheiro de ajuda."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:402
@@ -18134,11 +18553,23 @@ msgid ""
 "code to standard output.  This output is what will be displayed in the text "
 "area, previewed in the display area, and executed by LinuxCNC when Run."
 msgstr ""
+"AXIS e GMOCCAPY têm a habilidade de enviar ficheiros carregados através de "
+"um programa filtro.  Este filtro pode fazer qualquer tarefa desejada: Algo "
+"simples como certificar que o ficheiro termina com M2, ou algo mais "
+"complicado como detetar se a entrada é uma imagem de fundo, e gerar código G "
+"para fresar o formato que define.  A secção `[FILTER]` no ficheiro INI "
+"controla como o filtro funciona.  Primeiro, para cada tipo de ficheiro, "
+"escreva uma linha `PROGRAM_EXTENSION`.  Depois, especifique o programa a "
+"executar para cada tipo de ficheiro.  A este programa é dado o nome do "
+"ficheiro de entrada como o seu primeiro argumento, e tem de escrever código "
+"RS274NGC na saída standard.  Esta saída é o que vai ser mostrada na área de "
+"texto, pre-visualizada na área de ecrã, e executada pelo LinuxCNC quando "
+"corre."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:414
 msgid "`PROGRAM_EXTENSION = .extension Description`"
-msgstr ""
+msgstr "`PROGRAM_EXTENSION = .extension Description`"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:416
@@ -18146,12 +18577,14 @@ msgid ""
 "If your post processor outputs files in all caps you might want to add the "
 "following line:"
 msgstr ""
+"Se o seu pós processador gerar ficheiros com tudo em maiúsculas, poderá "
+"querer adicionar a seguinte linha:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:420
 #, no-wrap
 msgid "PROGRAM_EXTENSION = .NGC XYZ Post Processor\n"
-msgstr ""
+msgstr "PROGRAM_EXTENSION = .NGC XYZ Post Processor\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:423
@@ -18159,6 +18592,8 @@ msgid ""
 "The following lines add support for the image-to-G-code converter included "
 "with LinuxCNC."
 msgstr ""
+"As seguintes linhas adicionam o conversor de imagem-para-código-G incluído "
+"com o LinuxCNC."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:430
@@ -18169,12 +18604,18 @@ msgid ""
 "  gif = image-to-gcode\n"
 "  jpg = image-to-gcode\n"
 msgstr ""
+"PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image\n"
+"  png = image-to-gcode\n"
+"  gif = image-to-gcode\n"
+"  jpg = image-to-gcode\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:433
 msgid ""
 "An example of a custom G-code converter located in the linuxcnc directory."
 msgstr ""
+"Um exemplo de um conversor de código G personalizado localizado no diretório "
+"do linuxcnc."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:438
@@ -18183,6 +18624,8 @@ msgid ""
 "PROGRAM_EXTENSION = .gcode 3D Printer\n"
 "  gcode = /home/mill/linuxcnc/convert.py\n"
 msgstr ""
+"PROGRAM_EXTENSION = .gcode 3D Printer\n"
+"  gcode = /home/mill/linuxcnc/convert.py\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:441
@@ -18190,12 +18633,15 @@ msgid ""
 "The program file associated with an extension must have either the full path "
 "to the program or be located in a directory that is on the system path."
 msgstr ""
+"O ficheiro de programa associado com uma extensão tem de ou ter o caminho "
+"completo para o programa ou estar localizado num diretório que está na path "
+"do sistema."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:443 src/gui/axis.adoc:836
 #: src/gui/filter-programs.adoc:40
 msgid "It is also possible to specify an interpreter:"
-msgstr ""
+msgstr "Também é possível especificar um interpretar:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:448
@@ -18204,6 +18650,8 @@ msgid ""
 "PROGRAM_EXTENSION = .py Python Script\n"
 "  py = python\n"
 msgstr ""
+"PROGRAM_EXTENSION = .py Python Script\n"
+"  py = python\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:454
@@ -18214,12 +18662,20 @@ msgid ""
 "of a circle.  Many more G-code generators are on the LinuxCNC Wiki site "
 "https://wiki.linuxcnc.org/[https://wiki.linuxcnc.org/]."
 msgstr ""
+"Desta maneira, qualquer script Python pode ser aberto, e o seu resultado é "
+"tratado como código G.  Um tal script de exemplo está disponível em nc_files/"
+"holecircle.py.  Este script cria código G para furar uma série de furos ao "
+"longo da circunferência de um círculo.  Muitos mais geradores de código G "
+"estão no sítio Wiki do LinuxCNC https://wiki.linuxcnc.org/[https://"
+"wiki.linuxcnc.org/]."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:456
 msgid ""
 "Python filters should use the print function to output the result to AXIS."
 msgstr ""
+"Os filtros Python devem usar a função print para enviar os resultados ao "
+"AXIS."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:459
@@ -18227,6 +18683,9 @@ msgid ""
 "This example program filters a file and adds a W axis to match the Z axis.  "
 "It depends on there being a space between each axis word to work."
 msgstr ""
+"Este programa exemplo filtra um ficheiro e adiciona um eixo W a corresponder "
+"ao eixo Z.  Depende de existir um espaço entre cada palavra de eixo para "
+"trabalhar."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:463 src/gui/filter-programs.adoc:102
@@ -18249,7 +18708,7 @@ msgstr "import sys\n"
 #: src/config/ini-config.adoc:467
 #, no-wrap
 msgid "def main(argv):\n"
-msgstr ""
+msgstr "def main(argv):\n"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:471
@@ -18286,6 +18745,24 @@ msgid ""
 "  for item in file_out:\n"
 "    print(\"%s\" % item)\n"
 msgstr ""
+"  file_out = []\n"
+"  for line in file_in:\n"
+"    # print(line)\n"
+"    if line.find('Z') != -1:\n"
+"      words = line.rstrip('\\n')\n"
+"      words = words.split(' ')\n"
+"      newword = ''\n"
+"      for i in words:\n"
+"        if i[0] == 'Z':\n"
+"          newword = 'W'+ i[1:]\n"
+"      if len(newword) > 0:\n"
+"        words.append(newword)\n"
+"        newline = ' '.join(words)\n"
+"        file_out.append(newline)\n"
+"    else:\n"
+"      file_out.append(line)\n"
+"  for item in file_out:\n"
+"    print(\"%s\" % item)\n"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:493
@@ -18304,6 +18781,11 @@ msgid ""
 "`FILTER_PROGRESS=%d`\n"
 "If the environment variable AXIS_PROGRESS_BAR is set, then lines written to stderr of the form above sets the AXIS progress bar to the given percentage. This feature should be used by any filter that runs for a long time."
 msgstr ""
+"`FILTER_PROGRESS=%d`\n"
+"Se a variável de ambiente AXIS_PROGRESS_BAR estiver definida, então as "
+"linhas escritas no stderr do formato em cima definem a barra de progresso do "
+"AXIS para a percentagem dada. Esta funcionalidade deve ser usada por "
+"qualquer filtro que corra durante muito tempo."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:500
@@ -18323,6 +18805,9 @@ msgid ""
 "the INI file which contains the parameters used by the interpreter (saved "
 "between runs)."
 msgstr ""
+"`PARAMETER_FILE = myfile.var` - O ficheiro localizado no mesmo diretório que "
+"o ficheiro INI e que contém os parâmetros usados pelo interpretador (salvos "
+"entre execuções)."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:507
@@ -18336,6 +18821,10 @@ msgid ""
 "<<mcode:m19,M19 Orient Spindle>> operation.  Used to define an arbitrary "
 "zero position regardless of encoder mount orientation."
 msgstr ""
+"`ORIENT_OFFSET = 0` - Um valor float adicionado ao parâmetro de palavra R de "
+"uma operação <<mcode:m19,M19 Orientação de Fuso>>.  Usado para definir uma "
+"posição zero arbitrária independentemente da orientação de montagem do "
+"codificador."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:511
@@ -18351,6 +18840,11 @@ msgid ""
 "file, because the modal codes of machines differ, and may be changed by G-"
 "code interpreted earlier in the session."
 msgstr ""
+"`RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92.1 G94 G97 "
+"G98` - Uma string de códigos NC com que o interpretador é inicializado.  "
+"Isto não é substituição para o especificar de códigos G modais no topo de "
+"cada ficheiro NGC, porque os códigos modais de máquinas diferem, e podem ser "
+"mudados pelo interpretador de código G cedo na sessão."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:518
@@ -18370,6 +18864,16 @@ msgid ""
 "current directory for the INI file or as absolute paths.  The list must "
 "contain no intervening whitespace."
 msgstr ""
+"`SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs` - "
+"Especifica uma lista separada por dois pontos (:) de até 10 directórios a "
+"serem procurados quando sub-rotinas de ficheiro-único são especificadas no "
+"código G.  Estes diretórios são sondados após se sondar "
+"`[DISPLAY]PROGRAM_PREFIX` (se estiver especificado) e antes de se sondar "
+"`[WIZARD]WIZARD_ROOT` (se especificado).  Os caminhos são sondados pela "
+"ordem que estão listados.  O primeiro ficheiro de sub-rotina correspondente "
+"encontrado na busca é usado.  Os diretórios são especificados relativamente "
+"ao diretório atual para o ficheiro INI ou como caminhos absolutos.  A lista "
+"não pode conter nenhum espaço em branco interveniente."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:520
@@ -18377,6 +18881,8 @@ msgid ""
 "`G64_DEFAULT_TOLERANCE =` _n_ (Default: 0)  Default P value for G64 if P is "
 "not called out."
 msgstr ""
+"`G64_DEFAULT_TOLERANCE =` _n_ (Predefinição: 0)  Valor P predefinido para "
+"G64 se P não for mencionado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:522
@@ -18384,16 +18890,18 @@ msgid ""
 "`G64_DEFAULT_NAIVETOLERANCE =` _n_ (Default: 0)  Default Q value for G64 if "
 "Q is not called out."
 msgstr ""
+"`G64_DEFAULT_NAIVETOLERANCE =` _n_ (Predefinição: 0)  Valor Q predefinido "
+"para G64 se Q não for mencionado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:523
 msgid "`CENTER_ARC_RADIUS_TOLERANCE_INCH =` _n_ (Default: 0.00005)"
-msgstr ""
+msgstr "`CENTER_ARC_RADIUS_TOLERANCE_INCH =` _n_ (Predefinição: 0.00005)"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:524
 msgid "`CENTER_ARC_RADIUS_TOLERANCE_MM =` _n_ (Default: 0.00127)"
-msgstr ""
+msgstr "`CENTER_ARC_RADIUS_TOLERANCE_MM =` _n_ (Predefinição: 0.00127)"
 
 #. type: Index entry
 #: src/config/ini-config.adoc:528
@@ -18408,6 +18916,11 @@ msgid ""
 "specified relative to the current directory for the INI file or as absolute "
 "paths.  The list must contain no intervening whitespace."
 msgstr ""
+"`USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes` - Especifica uma "
+"lista separada por dois pontos (:) de directórios para funções definidas "
+"pelo utilizador.  Os diretórios são especificados relativamente ao diretório "
+"atual para o ficheiro INI ou como caminhos absolutos.  A lista não pode "
+"conter nenhum espaço em branco interveniente."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:530
@@ -18415,11 +18928,13 @@ msgid ""
 "A search is made for each possible user defined function, typically (M100-"
 "M199). The search order is:"
 msgstr ""
+"É feita uma busca para cada possível função definida pelo utilizador, "
+"tipicamente (M100-M199). A ordem de busca é:"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:532
 msgid "`[DISPLAY]PROGRAM_PREFIX` (if specified)"
-msgstr ""
+msgstr "`[DISPLAY]PROGRAM_PREFIX` (se especificado)"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:533
@@ -18427,17 +18942,21 @@ msgid ""
 "If `[DISPLAY]PROGRAM_PREFIX` is not specified, search the default location: "
 "nc_files"
 msgstr ""
+"Se `[DISPLAY]PROGRAM_PREFIX` não for especificado, procura a localização "
+"predefinida: nc_files"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:534
 msgid "Then search each directory in the list `[RS274NGC]USER_M_PATH`."
-msgstr ""
+msgstr "Depois procura cada diretório na lista `[RS274NGC]USER_M_PATH`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:536
 msgid ""
 "The first executable M1__xx__ found in the search is used for each M1__xx__."
 msgstr ""
+"O primeiro executável M1__xx__ encontrado na busca é usado para cada "
+"M1__xx__."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:540
@@ -18445,6 +18964,8 @@ msgid ""
 "The maximum number of `USER_M_PATH` directories is defined at compile time "
 "(typ: `USER_DEFINED_FUNCTION_MAX_DIRS == 5`)."
 msgstr ""
+"O número máximo de diretórios `USER_M_PATH` é definido durante a compilação "
+"(typ: `USER_DEFINED_FUNCTION_MAX_DIRS == 5`)."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:544
@@ -18453,6 +18974,10 @@ msgid ""
 "`INI_VARS = 1` (Default: 1)\n"
 "Allows G-code programs to read values from the INI file using the format #<_ini[section]name>. See <<sec:overview-parameters,G-code Parameters>>."
 msgstr ""
+"`INI_VARS = 1` (Predefinição: 1)\n"
+"Permite a programas de código G lerem valores do ficheiro INI usando o "
+"formato #<_ini[secção]nome>. Veja <<sec:overview-parameters,Parâmetros de "
+"código G>>."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:548
@@ -18461,6 +18986,11 @@ msgid ""
 "`HAL_PIN_VARS = 1` (Default: 1)\n"
 "Allows G-code programs to read the values of HAL pins using the format #<_hal[HAL item]>. Variable access is read-only. See <<sec:overview-parameters,G-code Parameters>> for more details and an important caveat."
 msgstr ""
+"`HAL_PIN_VARS = 1` (Predefinição: 1)\n"
+"Permite programas de código G ler os valores de pinos HAL usando o formato "
+"#<_hal[item HAL]>. O acesso à variável é de só leitura. Veja <<sec:overview-"
+"parameters,Parâmetros de código G>> para mais detalhes e uma ressalva "
+"importante."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:551
@@ -18469,6 +18999,10 @@ msgid ""
 "`RETAIN_G43 = 0` (Default: 0)\n"
 "When set, you can  turn on G43 after loading the first tool, and then not worry about it through the program. When you finally unload the last tool, G43 mode is canceled."
 msgstr ""
+"`RETAIN_G43 = 0` (Predefinição: 0)\n"
+"Quando definido, pode ativar G43 após carregar a primeira ferramenta, e "
+"depois não se preocupar com isso durante o programa. Quando finalmente "
+"descarrega a última ferramenta, o modo G43 é cancelado."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:553
@@ -18477,6 +19011,10 @@ msgid ""
 "`OWORD_NARGS = 0` (Default: 0)\n"
 "If this feature is enabled then a called subroutine can determine the number of actual positional parameters passed by inspecting the +#<n_args>+ parameter."
 msgstr ""
+"`OWORD_NARGS = 0` (Predefinição: 0)\n"
+"Se esta funcionalidade estiver ativa então uma sub-rotina chamada pode "
+"determinar o número de parâmetros de posição atuais passados ao inspecionar "
+"o parâmetro +#<n_args>+."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:555
@@ -18485,6 +19023,10 @@ msgid ""
 "`NO_DOWNCASE_OWORD = 0` (Default: 0)\n"
 "Preserve case in O-word names within comments if set, enables reading of mixed-case HAL items in structured comments like `(debug, #<_hal[MixedCaseItem])`."
 msgstr ""
+"`NO_DOWNCASE_OWORD = 0` (Predefinição: 0)\n"
+"Preserva maiúsculas/minúsculas em nomes de O-word dentro de comentários se "
+"definido, ativa a leitura de items HAL com mistura de maiúsculas/minúsculas "
+"em comentários estruturados como `(debug, #<_hal[MixedCaseItem])`."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:557
@@ -18493,6 +19035,8 @@ msgid ""
 "`OWORD_WARNONLY = 0` (Default: 0)\n"
 "Warn rather than error in case of errors in O-word subroutines."
 msgstr ""
+"`OWORD_WARNONLY = 0` (Predefinição: 0)\n"
+"Avisa em vez de entrar em erro em caso de erros em sub-rotinas O-word."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:559
@@ -18500,6 +19044,8 @@ msgid ""
 "`DISABLE_G92_PERSISTENCE = 0` (Default: 0)  Allow to clear the G92 offset "
 "automatically when config start-up."
 msgstr ""
+"`DISABLE_G92_PERSISTENCE = 0` (Predefinição: 0)  Permite limpar o desvio G92 "
+"automaticamente quando a configuração arranca."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:561
@@ -18507,6 +19053,8 @@ msgid ""
 "`DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)  If there is reason to disable "
 "Fanuc subroutines set it to 1."
 msgstr ""
+"`DISABLE_FANUC_STYLE_SUB = 0` (Predefinição: 0)  Se existir uma razão para "
+"desativar as sub-rotinas Fanuc defina para 1."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:563
@@ -18514,6 +19062,9 @@ msgid ""
 "'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: "
 ".050 inches)  Chip breaking back-off distance in machine units"
 msgstr ""
+"'G73_PECK_CLEARANCE = .020' (Predefinição: Máquina métrica: 1mm, máquina "
+"imperial: .050 polegadas)  Distância de recuo para quebra de lascas em "
+"unidades máquina"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:565
@@ -18522,6 +19073,10 @@ msgid ""
 ".050 inches)  Clearance distance from last feed depth when machine rapids "
 "back to bottom of hole, in machine units."
 msgstr ""
+"'G83_PECK_CLEARANCE = .020' (Predefinição: Máquina métrica: 1mm, máquina "
+"imperial: .050 polegadas)  Distância de segurança desde a última "
+"profundidade de alimentação quando a máquina regressa rapidamente ao fundo "
+"do furo, em unidades máquina."
 
 #. type: delimited block =
 #: src/config/ini-config.adoc:571
@@ -18530,6 +19085,10 @@ msgid ""
 "The above six options were controlled by the `FEATURES` bitmask in versions of LinuxCNC prior to 2.8. This INI tag will no longer work.\n"
 "For reference:"
 msgstr ""
+"As seis opções de cima eram controladas pela máscara de bit `FEATURES` em "
+"versões do LinuxCNC anteriores a 2.8. Esta etiqueta INI não vai mais "
+"funcionar.\n"
+"Para referência:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:578
@@ -18555,12 +19114,14 @@ msgid ""
 "`[WIZARD]WIZARD_ROOT` is a valid search path but the Wizard has not been "
 "fully implemented and the results of using it are unpredictable."
 msgstr ""
+"`[WIZARD]WIZARD_ROOT` é um caminho de busca válido mas o Mágico não foi "
+"completamente implementado e os resultados de o usar são imprevisíveis."
 
 #. FIXME: Inconsistent
 #. type: NOTE
 #: src/config/ini-config.adoc:586
 msgid "`LOG_LEVEL = 0` Specify the log_level (default: 0)"
-msgstr ""
+msgstr "`LOG_LEVEL = 0` Especifica o nível de relatório (predefinição: 0)"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:589
@@ -18569,6 +19130,8 @@ msgid ""
 "`LOG_FILE = file-name.log`\n"
 "For specify the file used for log the data."
 msgstr ""
+"`LOG_FILE = file-name.log`\n"
+"Para especificar o ficheiro usado para registar os dados."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:591
@@ -18576,6 +19139,8 @@ msgid ""
 "`REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure` See <<cha:remap,Remap "
 "Extending G-code>> chapter for details."
 msgstr ""
+"`REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure` Veja o capítulo "
+"<<cha:remap,Remapear Código G Extentido>> para detalhes."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:593
@@ -18583,6 +19148,8 @@ msgid ""
 "`ON_ABORT_COMMAND=O <on_abort> call` See <<cha:remap,Remap Extending G-"
 "code>> chapter for details."
 msgstr ""
+"`ON_ABORT_COMMAND=O <on_abort> call` Veja o capítulo <<cha:remap,Remapear "
+"código G Extendido>> para detalhes."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:595
@@ -18598,22 +19165,30 @@ msgid ""
 "For more information on the motion controller see the <<sec:motion,Motion>> "
 "section."
 msgstr ""
+"Esta é uma secção personalizada e não usada diretamente pelo LinuxCNC.  A "
+"maioria das configurações usam valores desta secção para carregar o "
+"controlador de movimento.  Para mais informação sobre o controlador de "
+"movimento veja a secção <<sec:motion,Movimento>>."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:602
 msgid "`EMCMOT = motmod` - the motion controller name is typically used here."
 msgstr ""
+"`EMCMOT = motmod` - tipicamente o nome do controlador de movimento é usado "
+"aqui."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:603
 msgid "`BASE_PERIOD = 50000` - the 'Base' task period in nanoseconds."
-msgstr ""
+msgstr "`BASE_PERIOD = 50000` - o período da tarefa 'Base' em nano-segundos."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:604
 msgid ""
 "`SERVO_PERIOD = 1000000` - This is the \"Servo\" task period in nanoseconds."
 msgstr ""
+"`SERVO_PERIOD = 1000000` - Isto é o período da tarefa \"Servo\" em nano-"
+"segundos."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:605
@@ -18621,6 +19196,8 @@ msgid ""
 "`TRAJ_PERIOD = 100000` - This is the 'Trajectory Planner' task period in "
 "nanoseconds."
 msgstr ""
+"`TRAJ_PERIOD = 100000` - Isto é o período da tarefa 'Planeador de "
+"Trajetória' em nano-segundos."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:606
@@ -18629,6 +19206,9 @@ msgid ""
 "part of the motion controller) to acknowledge receipt of messages from Task "
 "(the non-realtime part of the motion controller)."
 msgstr ""
+"`COMM_TIMEOUT = 1.0` - Número de segundos a esperar por Motion (a parte de "
+"tempo real do controlador de movimento) para reconhecer receção de Task (a "
+"parte de não tempo real do controlador de movimento)."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:610
@@ -18639,6 +19219,12 @@ msgid ""
 "included if supported by the named module.  The setting may be overridden "
 "from the command line using the -m option ($ linuxcnc -h)."
 msgstr ""
+"`HOMEMOD =` _módulo_alternativo_posição-inicial_ [home_parms=valor] A "
+"variável HOMEMOD é opcional.  Se especificado, usa um módulo especificado "
+"(compilado pelo utilizador) em vez do predefinido (homemod).  Os parâmetros "
+"do módulo (home_parms) podem ser incluídos se tal for suportado pelo módulo "
+"nomeado.  A definição pode ser sobreposta a partir da linha de comandos "
+"usando a opção -m ($ linuxcnc -h)."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:612
@@ -18652,22 +19238,26 @@ msgid ""
 "`TASK = milltask` - Specifies the name of the 'task' executable.  The 'task' "
 "executable does various things, such as"
 msgstr ""
+"`TASK = milltask` - Especifica o nome do executável 'task'.  O executável "
+"'task' faz várias coisas, tais como"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:618
 msgid "communicate with the UIs over NML,"
-msgstr ""
+msgstr "comunicar com as UIs por NML,"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:619
 msgid ""
 "communicate with the realtime motion planner over non-HAL shared memory, and"
 msgstr ""
+"comunicar com o planeador de movimento de tempo real por memória partilhada "
+"não-HAL, e"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:620
 msgid "interpret G-code."
-msgstr ""
+msgstr "interpretar código G."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:621
@@ -18675,6 +19265,8 @@ msgid ""
 "Currently there is only one task executable that makes sense for 99.9% of "
 "users, milltask."
 msgstr ""
+"Atualmente há apenas um executável de tarefa (task) que faz sentido para "
+"99.9% dos utilizadores, o milltask."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:625
@@ -18684,6 +19276,11 @@ msgid ""
 "when executing a pause instruction, and when accepting a command from a user "
 "interface.  There is usually no need to change this number."
 msgstr ""
+"`CYCLE_TIME = 0.010` - O período, em segundos, no qual TASK vai correr.  "
+"Este parâmetro afeta o intervalo de sondagem quando se espera que o "
+"movimento termine, quando se executa uma instrução de pausa, e quando de "
+"aceita um comando vindo da interface de utilizador.  Normalmente não há "
+"necessidade de se alterar este valor."
 
 #. type: Block title
 #: src/config/ini-config.adoc:627 src/gui/qtvcp.adoc:697
@@ -18700,7 +19297,7 @@ msgstr "secção [HAL]"
 #. type: NOTE
 #: src/config/ini-config.adoc:630
 msgid "`HALFILE = example.hal` - Execute the file 'example.hal' at start up."
-msgstr ""
+msgstr "`HALFILE = example.hal` - Executa o ficheiro 'example.hal' no arranque."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:636
@@ -18714,6 +19311,15 @@ msgid ""
 "configuration ('core_stepper.hal') and one which specifies the machine pin "
 "out ('xxx_pinout.hal')."
 msgstr ""
+"Se `HALFILE` for especificado múltiplas vezes, os ficheiros são "
+"interpretados pela ordem que aparecem no ficheiro INI.  Ficheiros HAL são "
+"descritivos, a execução do que está descrito nos ficheiros HAL é despoletada "
+"pelas linhas de execução nas quais as funções estão embebidas, não por se "
+"ler o ficheiro HAL.  Quase todas as configurações vão ter pelo menos um "
+"`HALFILE`, e sistemas de passo a passo tipicamente têm dois de tais "
+"ficheiros, isto é, um que especifica a configuração de passos genérica "
+"('core_stepper.hal') e um que especifica os pinos de saída da máquina "
+"('xxx_pinout.hal')."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:640
@@ -18723,6 +19329,11 @@ msgid ""
 "used.  If the named file is not found in this INI file directory, a search "
 "is made using a system library of HAL files."
 msgstr ""
+"Os ficheiros HAL especificados na variável `HALFILES` são encontrados usando "
+"uma busca.  Se o ficheiro nomeado for encontrado no diretório que contém o "
+"ficheiro INI, é usado.  Se o ficheiro nomeado não for encontrado neste "
+"diretório do ficheiro INI, é feita uma busca usando uma biblioteca de "
+"sistema dos ficheiros HAL."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:643
@@ -18732,6 +19343,10 @@ msgid ""
 "described above so that _dirname_ is searched first.  The \"`-H` _dirname_\" "
 "option may be specified more than once, directories are prepended in order."
 msgstr ""
+"Se o LinuxCNC for arrancado com o script `linuxcnc` usando a opção \"`-H` "
+"_dirname_\", o nome de diretório é anteposto à busca descrita em cima para "
+"que _dirname_ seja procurado primeiro.  A opção \"`-H` _dirname_\" pode ser "
+"especificada mais do que uma vez, os diretórios são antepostos pela ordem."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:646
@@ -18740,6 +19355,9 @@ msgid ""
 "with a '/' character).  Absolute paths are not recommended as their use may "
 "limit relocation of configurations."
 msgstr ""
+"Um HALFILE também pode ser especificado como um caminho absoluto (quando o "
+"nome começa com o caractere '/').  Os caminhos absolutos não são "
+"recomendados porque o seu uso pode limitar a mudança de configurações."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:650
@@ -18749,6 +19367,10 @@ msgid ""
 "a .tcl suffix are processed as above but use haltcl for processing.  See the "
 "<<cha:haltcl,HALTCL Chapter>> for more information."
 msgstr ""
+"`HALFILE = texample.tcl` [_arg1_ [_arg2_] ...] - Executa o ficheiro tcl "
+"'texample.tcl' no arranque com arg1, arg2, etc. como lista de argumentos.  "
+"Ficheiros com sufixo .tcl são processados como em cima mas usam haltcl para "
+"processamento. Veja o <<cha:haltcl,Capítulo HALTCL>> para mais informação."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:652
@@ -18757,6 +19379,10 @@ msgid ""
 "_sys_example.hal_ at start up.  Explicit use of the LIB: prefix causes use "
 "of the system library HALFILE without searching the INI file directory."
 msgstr ""
+"`HALFILE = LIB:sys_example.hal` - Executa o ficheiro de biblioteca de "
+"sistema _sys_example.hal_ no arranque.  O uso explícito do prefixo LIB: faz "
+"usar a biblioteca de sistema HALFILE sem se procurar no diretório do "
+"ficheiro INI."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:654
@@ -18766,6 +19392,10 @@ msgid ""
 "prefix causes use of the system library HALFILE without searching the INI "
 "file directory."
 msgstr ""
+"`HALFILE = LIB:sys_texample.tcl` [_arg1_ [_arg2_ ...]] - Executa o ficheiro "
+"de biblioteca de sistema _sys_texample.tcl_ no arranque.  O uso explícito do "
+"prefixo LIB: faz usar a biblioteca de sistema HALFILE sem se procurar no "
+"diretório do ficheiro INI."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:657
@@ -18773,6 +19403,8 @@ msgid ""
 "HALFILE items specify files that loadrt HAL components and make signal "
 "connections between component pins.  Common mistakes are"
 msgstr ""
+"Os items HALFILE especificam ficheiros que carregam componentes HAL e criam "
+"ligações de sinais entre pinos dos componentes.  Enganos comuns são"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:659
@@ -18780,11 +19412,13 @@ msgid ""
 "omission of the addf statement needed to add a component's function(s) to a "
 "thread,"
 msgstr ""
+"omissão da declaração de adicionar ficheiro (addf) necessária para adicionar "
+"uma função de componente a uma linha de execução,"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:660
 msgid "incomplete signal (net) specifiers."
-msgstr ""
+msgstr "especificadores de sinal (rede) incompletos."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:664
@@ -18794,12 +19428,17 @@ msgid ""
 "are not strictly required).  A system library file is provided to make "
 "checks for these conditions and report to stdout and in a pop-up GUI:"
 msgstr ""
+"A omissão das declarações addf é quase sempre um erro.  Os sinais geralmente "
+"incluem uma ou mais ligações de entrada e uma única saída (mas ambas não são "
+"estritamente requeridas).  Um ficheiro de biblioteca de sistema é fornecido "
+"para fazer verificações para estas condições e reportar para o stdout e uma "
+"mensagem de GUI:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:668
 #, no-wrap
 msgid "HALFILE = LIB:halcheck.tcl [nopopup]\n"
-msgstr ""
+msgstr "HALFILE = LIB:halcheck.tcl [nopopup]\n"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:674
@@ -18808,6 +19447,10 @@ msgid ""
 "'nopopup' option to suppress the popup message and allow immediate "
 "starting.  Connections made using a POSTGUI_HALFILE are not checked."
 msgstr ""
+"A linha LIB:halcheck.tcl deve ser a última [HAL]HALFILE.  Especifique a "
+"opção 'nopopup' para suprimir o aparecimento da mensagem e permitir o "
+"arranque imediato.  As ligações feitas usando um POSTGUI_HALFILE não são "
+"verificadas."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:681
@@ -18822,6 +19465,16 @@ msgid ""
 "second pass (pass1), the HALFILES are reread and all commands except the "
 "previously executed load commands are executed."
 msgstr ""
+"`TWOPASS = ON` - Usa processamento de dois passos para carregar componentes "
+"HAL.  Com o processamento TWOPASS, as linhas de ficheiros especificadas em "
+"`[HAL]HALFILE` são processadas em dois passos.  No primeiro passo (pass0), "
+"todos os HALFILES são lidos e as múltiplas aparições de comandos loadrt e "
+"loadusr são acumuladas.  Estes comandos de carga acumulados são executados "
+"no fim do pass0.  Esta acumulação permite que linhas de carga sejam "
+"especificadas mais do que uma vez para um dado componente (desde que names= "
+"nomes usados sejam únicos em cada uso).  No segundo passo (pass1), os "
+"HALFILES são re-lidos e todos os comandos são executados excepto os comandos "
+"de carga previamente executados."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:684
@@ -18831,11 +19484,15 @@ msgid ""
 "verbose keyword causes printing of details to stdout.  The nodelete keyword "
 "preserves temporary files in /tmp."
 msgstr ""
+"`TWOPASS = nodelete verbose` - A funcionalidade `TWOPASS` pode ser ativada "
+"com qualquer string não-nula incluindo as palavras chave 'verbose' e "
+"'nodelete'.  A palavra chave verbose faz escrever detalhes no stdout.  A "
+"palavra chave nodelete preserva os ficheiro temporários em /tmp."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:686
 msgid "For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter."
-msgstr ""
+msgstr "Para mais informação veja o capítulo <<cha:hal-twopass,HAL TWOPASS>>."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:690
@@ -18845,6 +19502,10 @@ msgid ""
 "they appear in the INI file.  `HALCMD`-lines are executed after all "
 "`HALFILE`-lines."
 msgstr ""
+"`HALCMD =` _command_ - Executa _command_ como um único comando HAL.  Se "
+"`HALCMD` for especificado múltiplas vezes, os comandos são executados pela "
+"ordem que aparecem no ficheiro INI.  As linhas `HALCMD` são executadas após "
+"todas as linhas `HALFILE`."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:694
@@ -18856,6 +19517,13 @@ msgid ""
 "the case of a computer crash), it is not a replacement for a proper physical "
 "e-stop chain or other protections against software failure."
 msgstr ""
+"`SHUTDOWN = shutdown.hal` - Executa o ficheiro 'shutdown.hal' quando o "
+"LinuxCNC termina.  Dependendo dos controladores de hardware usados, isto "
+"pode tornar possível definir resultados para valores definidos quando o "
+"LinuxCNC termina normalmente.  No entanto, porque não é garantido que este "
+"ficheiro seja executado (or exemplo, em caso de falha do computador), não é "
+"um substituto para uma sequência física apropriada de paragem de emergência "
+"ou para outras proteções contra falha do software."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:698
@@ -18864,6 +19532,11 @@ msgid ""
 "`POSTGUI_HALFILE = example2.hal` - Execute 'example2.hal' after the GUI has created its HAL pins. Some GUIs create HAL pins and support the use of a postgui halfile to use them. GUIs that support postgui HAL files include Touchy, AXIS, Gscreen, and GMOCCAPY.\n"
 "See section <<sec:pyvcp-with-axis,PyVCP with AXIS>> for more information."
 msgstr ""
+"`POSTGUI_HALFILE = example2.hal` - Executa 'example2.hal' após a GUI ter "
+"criado os seus pinos HAL. Algumas GUIs criam pinos HAL e suportam o uso de "
+"um halfile pós-gui para os usar. As GUIs que suportam ficheiros HAL postgui "
+"incluem Touchy, AXIS, Gscreen, e GMOCCAPY.\n"
+"Veja a secção <<sec:pyvcp-with-axis,PyVCP com AXIS>> para mais informação."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:700
@@ -18872,6 +19545,9 @@ msgid ""
 "`HALUI = halui` - adds the HAL user interface pins.\n"
 "For more information see the <<cha:hal-user-interface,HAL User Interface>> chapter."
 msgstr ""
+"`HALUI = halui` - adiciona os pinos da interface de utilizador HAL.\n"
+"Para mais informação veja o capítulo <<cha:hal-user-interface,Interface de "
+"Utilizador HAL>>."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:702
@@ -18892,6 +19568,10 @@ msgid ""
 "[HALUI] section.  It is also possible to start subroutines. `MDI_COMMAND = "
 "o<yoursub> CALL [#<yourvariable>]`"
 msgstr ""
+"`MDI_COMMAND = G53 G0 X0 Y0 Z0` - Um comando MDI pode ser executado ao usar "
+"`halui.mdi-command-00`. Incremente o número para comando listado na secção "
+"[HALUI].  Também  é possível arrancar sub-rotinas. `MDI_COMMAND = o<a-sua-"
+"sub> CALL [#<a-sua-variável>]`"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:709
@@ -18906,6 +19586,10 @@ msgid ""
 "The applications can be started after a specified delay to allow for GUI-"
 "dependent actions (like creating GUI-specific HAL pins)."
 msgstr ""
+"O LinuxCNC pode arrancar outras aplicações antes da GUI especificada ser "
+"arrancada.  As aplicações podem ser arrancadas após um atraso especificado "
+"para permitir ações dependentes da GUI (tais como criar pinos HAL "
+"específicos da GUI)."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:716
@@ -18914,6 +19598,10 @@ msgid ""
 "delay may be needed if an application has dependencies on "
 "`[HAL]POSTGUI_HALFILE` actions or GUI-created HAL pins (default `DELAY=0`)."
 msgstr ""
+"`DELAY =` _valor_ - segundos a esperar antes de arrancar outras aplicações. "
+"Pode ser necessário um atraso se uma aplicação tiver dependências em ações "
+"`[HAL]POSTGUI_HALFILE` ou em pinos HAL criados pela GUI (predefinição "
+"`DELAY=0`)."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:722
@@ -18922,6 +19610,14 @@ msgid ""
 "`APP =` _appname_ [arg1 [arg2 ...]]' - Application to be started. This specification can be included multiple times. The appname can be explicitly named as an absolute or tilde specified filename (first character is / or ~), a relative filename (first characters of filename are ./), or as a file in the INI file directory. If no executable file is found using these names, then the user search PATH is used to find the application.\n"
 "Examples:"
 msgstr ""
+"`APP =` _appname_ [arg1 [arg2 ...]]' - Aplicação a ser arrancada. Esta "
+"especificação pode ser incluída várias vezes. O nome da aplicação pode ser "
+"explicitamente nomeado como nome de ficheiro absoluto ou com til (o primeiro "
+"caractere é / ou ~), um nome de ficheiro relativo (os primeiros caracteres "
+"do nome de ficheiro são ./), ou como um ficheiro no diretório do ficheiro "
+"INI. Se nenhum ficheiro executável for encontrado usando estes nomes, então "
+"a PATH de busca do utilizador é usada para encontrar a aplicação.\n"
+"Exemplos:"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:723
@@ -18929,12 +19625,15 @@ msgid ""
 "Simulate inputs to HAL pins for testing (using sim_pin -- a simple GUI to "
 "set inputs to parameters, unconnected pins, or signals with no writers):"
 msgstr ""
+"Simula entradas para pinos HAL para testes (usando sim_pin -- uma GUI "
+"simples para definir entradas para parâmetros, desligar pinos, ou sinais sem "
+"escritores):"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:727
 #, no-wrap
 msgid "APP = sim_pin motion.probe-input halui.abort motion.analog-in-00\n"
-msgstr ""
+msgstr "APP = sim_pin motion.probe-input halui.abort motion.analog-in-00\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:730
@@ -18943,12 +19642,15 @@ msgid ""
 "working directory to the directory for the INI file, you can refer to files "
 "in that directory (example: my.halshow):"
 msgstr ""
+"Invoca halshow com uma lista de observações gravada previamente.  Como o "
+"LinuxCNC define o diretório de trabalho para o diretório do ficheiro INI, "
+"pode referir aos ficheiros nesse diretório (exemplo: my.halshow):"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:734
 #, no-wrap
 msgid "APP = halshow my.halshow\n"
-msgstr ""
+msgstr "APP = halshow my.halshow\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:736
@@ -18956,23 +19658,25 @@ msgid ""
 "Alternatively, a watchlist file identified with a full pathname could be "
 "specified:"
 msgstr ""
+"Em alternativa, pode ser especificada uma lista de observações identificada "
+"com um nome de caminho completo:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:740
 #, no-wrap
 msgid "APP = halshow ~/saved_shows/spindle.halshow\n"
-msgstr ""
+msgstr "APP = halshow ~/saved_shows/spindle.halshow\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:742
 msgid "Open halscope using a previously saved configuration:"
-msgstr ""
+msgstr "Abre o halscope usando uma configuração gravada previamente:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:746
 #, no-wrap
 msgid "APP = halscope -i my.halscope\n"
-msgstr ""
+msgstr "APP = halscope -i my.halscope\n"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:749
@@ -18991,6 +19695,13 @@ msgid ""
 "ARC_BLEND_GAP_CYCLES = 4\n"
 "ARC_BLEND_RAMP_FREQ = 100"
 msgstr ""
+"O novo Planeador de Trajetória (TP) está ligado por predefinição. Se não "
+"tiver definições de TP na sua secção [TRAJ] - o LinuxCNC predefine para:\n"
+"ARC_BLEND_ENABLE = 1\n"
+"ARC_BLEND_FALLBACK_ENABLE = 0\n"
+"ARC_BLEND_OPTIMIZATION_DEPTH = 50\n"
+"ARC_BLEND_GAP_CYCLES = 4\n"
+"ARC_BLEND_RAMP_FREQ = 100"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:763
@@ -18998,6 +19709,8 @@ msgid ""
 "The [TRAJ] section contains general parameters for the trajectory planning "
 "module in 'motion'."
 msgstr ""
+"A secção [TRAJ] contém parâmetros gerais para o módulo de planeamento de "
+"trajetória em 'motion'."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:766
@@ -19005,6 +19718,8 @@ msgid ""
 "`ARC_BLEND_ENABLE = 1` - Turn on new TP.  If set to 0 TP uses parabolic "
 "blending (1 segment look ahead) (Default: 1)."
 msgstr ""
+"`ARC_BLEND_ENABLE = 1` - Liga o novo TP.  Se definido para 0, o TP usa "
+"mistura parabólica (vista adiantada de 1 segmento) (Predefinição: 1)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:768
@@ -19013,12 +19728,18 @@ msgid ""
 "if the estimated speed is faster.  However, this estimate is rough, and it "
 "seems that just disabling it gives better performance (Default: 0)."
 msgstr ""
+"`ARC_BLEND_FALLBACK_ENABLE = 0` - Opcionalmente cai para misturas "
+"parabólicas se a velocidade estimada for mais rápida.  No entanto, esta "
+"estimativa é bruta, e parece que apenas desativando-a consegue-se melhor "
+"performance (Predefinição: 0)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:769
 msgid ""
 "`ARC_BLEND_OPTIMIZATION_DEPTH = 50` - Look ahead depth in number of segments."
 msgstr ""
+"`ARC_BLEND_OPTIMIZATION_DEPTH = 50` - Profundidade adiantada em número de "
+"segmentos."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:772
@@ -19027,6 +19748,9 @@ msgid ""
 "Here's a formula to estimate how much 'depth' you need for a particular "
 "config:"
 msgstr ""
+"Para expandir isto um pouco, pode escolher este valor de certa maneira "
+"arbitrário.  Aqui está uma fórmula para estimar quanta 'profundidade' "
+"precisa para uma configuração particular:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:780
@@ -19039,6 +19763,12 @@ msgid ""
 "# a_max = max axis acceleration (UU / sec)\n"
 "# t_c = servo period (seconds)\n"
 msgstr ""
+"# n = v_max / (2.0 * a_max * t_c)\n"
+"# onde:\n"
+"# n = profundidade de otimização\n"
+"# v_max = velocidade máxima de eixo (UU / segundo)\n"
+"# a_max = aceleração máxima de eixo (UU / segundo)\n"
+"# t_c = período servo (segundos)\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:783
@@ -19046,6 +19776,9 @@ msgid ""
 "So, a machine with a maximum axis velocity of 10 IPS, a max acceleration of "
 "100 IPS^2^, and a servo period of 0.001 s would need:"
 msgstr ""
+"Assim, uma máquina com uma velocidade de eixo máxima de 10 IPS, uma "
+"aceleração máxima de 100 IPS^2^, e um período servo de 0.001 s iria precisar "
+"de:"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:785
@@ -19053,6 +19786,8 @@ msgid ""
 "10 / (2.0 * 100 * 0.001) = 50 segments to always reach maximum velocity "
 "along the fastest axis."
 msgstr ""
+"10 / (2.0 * 100 * 0.001) = 50 segmentos para alcançar sempre a velocidade "
+"máxima no eixo mais rápido."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:788
@@ -19062,6 +19797,11 @@ msgid ""
 "during testing, you notice strange slowdowns and can't figure out where they "
 "come from, first try increasing this depth using the formula above."
 msgstr ""
+"Na prática, este número não é tão importante de afinar, pois a vista "
+"adiantada raramente precisa da profundidade total a menos que tenha muitos "
+"segmentos muito curtos.  Se durante os testes, notar abrandamentos estranhos "
+"e não consegue perceber de onde vêm, primeiro tente aumentar esta "
+"profundidade usando a fórmula de cima."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:792
@@ -19070,6 +19810,9 @@ msgid ""
 "segments in the program.  If this is the case, try adding a small tolerance "
 "for Naive CAM detection.  A good rule of thumb is this:"
 msgstr ""
+"Se continuar a ver abrandamentos estranhos, pode ser devido a ter segmentos "
+"curtos no programa.  Neste caso, tente adicionar ma pequena tolerância para "
+"deteção Naive CAM.  Uma boa regra geral é esta:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:798
@@ -19080,6 +19823,10 @@ msgid ""
 "# v_req = desired velocity in UU / sec\n"
 "# t_c = servo period (seconds)\n"
 msgstr ""
+"# min_length ~= v_req * t_c\n"
+"# onde:\n"
+"# v_req = velocidade desejada em UU / segundo\n"
+"# t_c = período servo (segundos)\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:804
@@ -19092,6 +19839,14 @@ msgid ""
 "have to play with it a bit to find a good value.  I'd start at 1/2 of the "
 "min_length, then work up as needed."
 msgstr ""
+"Se quer viajar por um trajeto a 1 IPS = 60 IPM, e o seu período servo é de "
+"0.001 s, então quaisquer segmentos mais curtos que o comprimento mínimo vão "
+"abrandar o trajeto.  Se definir tolerância Naive CAM para cerca deste "
+"comprimento mínimo, segmentos curtos em demasia vão ser combinados "
+"juntamente para eliminar este estrangulamento.  Claro que, definir a "
+"tolerância para muito alto significa grandes desvios de trajeto, assim tem "
+"de jogar um pouco com isto para encontrar um bom valor.  Eu começaria com 1/"
+"2 do comprimento mínimo, e depois trabalhar conforme necessário."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:805
@@ -19099,6 +19854,8 @@ msgid ""
 "`ARC_BLEND_GAP_CYCLES = 4` How short the previous segment must be before the "
 "trajectory planner 'consumes' it."
 msgstr ""
+"`ARC_BLEND_GAP_CYCLES = 4` Quanto curto o segmento anterior tem de ser antes "
+"do planeador de trajetória o 'consumir'."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:812
@@ -19112,6 +19869,15 @@ msgid ""
 "segment, we don't have to slow down to hit the very short segment.  Likely, "
 "you won't need to touch this setting."
 msgstr ""
+"Geralmente, uma mistura de arco circular vai deixar segmentos de linha "
+"curtos entre as misturas.  Como a geometria tem de ser circular, não podemos "
+"misturar tudo duma linha se a próxima for um pouco mais curta.  Como o "
+"planeador de trajetória tem de tocar cada segmento pelo menos uma vez, isso "
+"significa segmentos muito pequenos vão abrandar as coisas "
+"significativamente.  A minha correção para esta maneira de \"consumir\" o "
+"segmento curto é torna-lo parte do arco misturado.  Como a linha+mistura é "
+"um segmento, não temos de abrandar para atingir o segmento muito curto.  "
+"Provavelmente, você não precisa de mexer nesta definição."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:813
@@ -19119,6 +19885,8 @@ msgid ""
 "`ARC_BLEND_RAMP_FREQ = 20` - This is a 'cutoff' frequency for using ramped "
 "velocity."
 msgstr ""
+"`ARC_BLEND_RAMP_FREQ = 20` - Isto é uma frequência de 'corte limite' para "
+"usar em velocidade em rampa."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:822
@@ -19136,6 +19904,18 @@ msgid ""
 "performance gain.  This setting is a way to eliminate this jerk for short "
 "segments."
 msgstr ""
+"'Velocidade em rampa' neste caso significa aceleração constante em todo o "
+"segmento.  Isto é menos ótimo que um perfil de velocidade trapezoidal, pois "
+"a aceleração não é maximizada.  No entanto, se o segmento for "
+"suficientemente curto, não existe tempo suficiente para acelerar muito antes "
+"de atingirmos o próximo segmento.  Recorde os segmentos de linha curta do "
+"exemplo anterior.  Como são linhas, não há aceleração de cantos, assim somos "
+"livres para acelerar até à velocidade requisitada.  No entanto, se esta "
+"linha ficar entre dois arcos, então vai ter que desacelerar rapidamente de "
+"novo para ficar dentro da velocidade máxima do próximo segmento.  Isto "
+"significa que temos um pico de aceleração depois um pico de desaceleração, o "
+"que causa um jerk grande, para pouco ganho de performance.  Esta definição é "
+"uma maneira de eliminar este jerk para segmentos curtos."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:825
@@ -19146,6 +19926,11 @@ msgid ""
 "= 1000` is equivalent to always using trapezoidal acceleration, if the servo "
 "loop is 1 kHz)."
 msgstr ""
+"Basicamente, se um segmento for completo em menos tempo que 1 / "
+"ARC_BLEND_RAMP_FREQ, não nos preocupamos com perfis de velocidade "
+"trapezoidal nesse segmento, e usamos aceleração constante.  (Definir "
+"`ARC_BLEND_RAMP_FREQ = 1000` e equivalente a usar sempre aceleração "
+"trapezoidal, se o ciclo do servo for 1 kHz)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:827
@@ -19153,6 +19938,8 @@ msgid ""
 "You can characterize the worst-case loss of performance by comparing the "
 "velocity that a trapezoidal profile reaches vs. the ramp:"
 msgstr ""
+"Você pode caracterizar o pior caso de perda de performance ao comparar a "
+"velocidade que um perfil trapezoidal atinge contra a rampa:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:834
@@ -19164,6 +19951,11 @@ msgid ""
 "# a_max = max axis acceleration\n"
 "# f = cutoff frequency from INI\n"
 msgstr ""
+"# v_ripple = a_max / (4.0 * f)\n"
+"# onde:\n"
+"# v_ripple = média de \"perda\" de velocidade devido a rampa\n"
+"# a_max = aceleração máxima de eixo\n"
+"# f = frequência limite de corte a partir do INI\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:841
@@ -19177,6 +19969,15 @@ msgid ""
 "rougher due to acceleration discontinuities.  A value in the range 20 Hz to "
 "200 Hz should be reasonable to start."
 msgstr ""
+"Para a máquina mencionada em cima, a ondulação para uma frequência de limite "
+"de corte de 20 Hz é 100 / (4 * 20) = 1.25 IPS.  Isto parece alto, mas lembre-"
+"se que isto é só uma estimativa de pior caso.  Na realidade, o perfil de "
+"movimento trapezoidal é limitado por outros fatores, tais como aceleração "
+"normal ou velocidade requisitada, e assim a perda de performance real deve "
+"ser muito menor.  Aumentar a frequência de limite de corte pode espremer "
+"mais performance, mas torna o movimento mais irregular devido às "
+"descontinuidades da aceleração.  Um valor na gama de 20 Hz até 200 Hz deve "
+"ser razoável para começar."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:843
@@ -19184,6 +19985,9 @@ msgid ""
 "Finally, no amount of tweaking will speed up a tool path with lots of small, "
 "tight corners, since you're limited by cornering acceleration."
 msgstr ""
+"Finalmente, nenhuma quantidade de ajustes vai acelerar o caminho duma "
+"ferramenta com montes de cantos apertados, pois vais estar limitado pela "
+"aceleração dos cantos."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:845
@@ -19192,6 +19996,8 @@ msgid ""
 "this number matches the \"num_spindles\" parameter passed to the motion "
 "module."
 msgstr ""
+"`SPINDLES = 3` - O número de fusos a suportar. E imperativo que este número "
+"corresponda ao parâmetro \"num_spindles\" passado ao módulo de movimento."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:851
@@ -19205,11 +20011,20 @@ msgid ""
 "and joint1 corresponds to Z.  See the kinematics man page ('$ man kins') for "
 "information on trivkins and other kinematics modules."
 msgstr ""
+"`COORDINATES = X Y Z` - Os nomes dos eixos a serem controlados.  Apenas X, "
+"Y, Z, A, B, C, U, V, W são válidos.  Apenas eixos nomeados em `COORDINATES` "
+"são aceites em código G.  É permitido escrever um nome de eixo mais do que "
+"uma vez (ex., X Y Y Z para uma máquina de pórtico).  Para as 'cinemáticas "
+"trivkins' comuns, os números de articulação são atribuídos em sequência de "
+"acordo com o parâmetro 'coordinates=' do trivkins.  Assim, para "
+"'coordinates=xz' de trivkins, joint0 corresponde a X e joint1 corresponde a "
+"Z.  Veja o manual de cinemáticas ('$ man kins') para informação sobre o "
+"trivkins e outros módulos de cinemática."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:854
 msgid "LINEAR UNITS"
-msgstr "LINEAR UNITS"
+msgstr "UNIDADES LINEARES"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:854
@@ -19218,11 +20033,14 @@ msgid ""
 "Possible choices are mm or inch.  This does not affect the linear units in "
 "NC code (the G20 and G21 words do this)."
 msgstr ""
+"`LINEAR_UNITS =` <units>_ - Especifica as 'unidades máquina' para eixos "
+"lineares.  Escolhas possíveis são mm ou inch.  Isto não afeta as unidades "
+"lineares em código NC (as palavras G20 e G21 fazem isso)."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:857
 msgid "ANGULAR UNITS"
-msgstr "ANGULAR UNITS"
+msgstr "UNIDADES ANGULARES"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:857
@@ -19233,6 +20051,11 @@ msgid ""
 "affect the angular units of NC code. In RS274NGC, A-, B- and C- words are "
 "always expressed in degrees."
 msgstr ""
+"`ANGULAR_UNITS =` _<units>_ - Especifica as 'unidades máquina' para eixos "
+"rotacionais.  Escolhas possíveis são 'deg', 'degree' (360 por círculo), "
+"'rad', 'radian' (2*π por círculo), 'grad', ou 'gon' (400 por círculo).  Isto "
+"não afeta as unidades angulares do código NC. Em RS274NGC, as palavras A-, "
+"B- e C- são sempre expressadas em degrees (graus)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:859
@@ -19241,6 +20064,9 @@ msgid ""
 "axes, in machine units per second.  The value shown in 'AXIS' equals machine "
 "units per minute."
 msgstr ""
+"`DEFAULT_LINEAR_VELOCITY = 0.0167` - A gama inicial para deslocações de "
+"eixos lineares, em unidades máquina por segundo.  O valor mostrado em 'AXIS' "
+"é igual a unidades máquina por minuto."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:860
@@ -19249,11 +20075,14 @@ msgid ""
 "kinematics, the acceleration used for \"teleop\" (Cartesian space) jogs, in "
 "'machine units' per second per second."
 msgstr ""
+"`DEFAULT_LINEAR_ACCELERATION = 2.0` - Em máquinas com cinemáticas não "
+"triviais, a aceleração usada para deslocações \"teleop\" (espaço Cartesiano)"
+", em 'unidades máquina' por segundo."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:862
 msgid "MAX VELOCITY"
-msgstr ""
+msgstr "VELOCIDADE MÁXIMA"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:862
@@ -19262,11 +20091,14 @@ msgid ""
 "coordinated move, in 'machine units' per second.  The value shown equals 300 "
 "units per minute."
 msgstr ""
+"`MAX_LINEAR_VELOCITY = 5.0` - A velocidade máxima para qualquer eixo ou "
+"movimento coordenado, em 'unidades máquina' por segundo.  O valor mostrado é "
+"igual a 300 unidades por minuto."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:863
 msgid "MAX ACCELERATION"
-msgstr ""
+msgstr "ACELERAÇÃO MÁXIMA"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:863
@@ -19274,11 +20106,13 @@ msgid ""
 "`MAX_LINEAR_ACCELERATION = 20.0` - The maximum acceleration for any axis or "
 "coordinated axis move, in 'machine units' per second per second."
 msgstr ""
+"`MAX_LINEAR_ACCELERATION = 20.0` - A aceleração máxima para qualquer eixo ou "
+"movimento de eixo coordenado, em 'unidades máquina' por segundo."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:865
 msgid "PLANNER TYPE"
-msgstr ""
+msgstr "TIPO DE PLANEADOR"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:865
@@ -19287,11 +20121,14 @@ msgid ""
 "(default), 1 = S-curve with jerk limiting.  S-curve planning is only active "
 "when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`."
 msgstr ""
+"`PLANNER_TYPE = 0` - Seleciona o tipo de planeador de trajetória: 0 = "
+"trapezoidal (predefinido), 1 = Curva-S com limite de jerk.  O planeamento de "
+"curva-S só é ativo quando `PLANNER_TYPE = 1` e `MAX_LINEAR_JERK > 0`."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:868
 msgid "MAX JERK"
-msgstr ""
+msgstr "JERK MÁXIMO"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:868
@@ -19301,6 +20138,11 @@ msgid ""
 "(default), jerk limiting is disabled.  When greater than 0 and `PLANNER_TYPE "
 "= 1`, enables S-curve trajectory planning."
 msgstr ""
+"`MAX_LINEAR_JERK = 0.0` - O jerk máximo (taxa de alteração da aceleração) "
+"para movimentos coordenados, em 'unidades máquina' por segundo ao cubo.  "
+"quando definido para 0 (predefinido), a limitação de jerk é desativada.  "
+"quando maior que 0 e `PLANNER_TYPE = 1`, ativa o planeamento de trajetória "
+"de curva-S."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:870
@@ -19309,6 +20151,9 @@ msgid ""
 "in 'machine units' per second cubed.  When set to 0, `MAX_LINEAR_JERK` is "
 "used."
 msgstr ""
+"`DEFAULT_LINEAR_JERK = 0.0` - O valor de jerk predefinido para movimentos "
+"coordenados, em 'unidades máquina' por segundo ao cubo.  Quando definido "
+"para 0, é usado `MAX_LINEAR_JERK`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:877
@@ -19323,6 +20168,16 @@ msgid ""
 "the need for homing (with no loss of accuracy).  See the hostmot2 manpage "
 "for more details."
 msgstr ""
+"`POSITION_FILE =` _position.txt_ - Se definido para um valor não vazio, as "
+"posições das articulações são guardadas entre execuções neste ficheiro.  "
+"Isto permite que a máquina arranque com as mesmas coordenadas que tinha ao "
+"encerrar.  Isto assume que não houve movimentos na máquina enquanto esteve "
+"desligada.  Se não definido, as posições de articulações não são guardadas e "
+"irá iniciar em 0 cada vez que o LinuxCNC é arrancado.  Isto pode ajudar em "
+"máquinas pequenas sem interruptores de posição inicial.  Se estiver a usar a "
+"interface de resolução Mesa, este ficheiro pode ser usado para emular "
+"codificadores absolutos e eliminar a necessidade de levar à posição inicial "
+"(sem perda de precisão).  Veja o manual do hostmot2 para mais detalhes."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:881
@@ -19335,6 +20190,14 @@ msgid ""
 "using identity kinematics without homing ability will need to have this "
 "option set to 1."
 msgstr ""
+"`NO_FORCE_HOMING = 1` - O comportamento predefinido é o LinuxCNC forçar o "
+"utilizador a levar a máquina à posição inicial antes de qualquer comando MDI "
+"ou correr um programa.  Normalmente, apenas deslocações são permitidas antes "
+"da posição inicial.  Para configurações que usam cinemáticas de identidade, "
+"definir `NO_FORCE_HOMING = 1` permite ao utilizador fazer movimentos MDI e "
+"correr programas sem primeiro levar a máquina à posição inicial.  As "
+"interfaces que usam cinemáticas de identidade sem a habilidade de posição "
+"inicial, vão precisar de ter esta opção definida para 1."
 
 #. type: delimited block =
 #: src/config/ini-config.adoc:885
@@ -19342,6 +20205,8 @@ msgid ""
 "LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING "
 "= 1`."
 msgstr ""
+"O LinuxCNC não vai conhecer os seus limites de viagem de articulação quando "
+"se usa `NO_FORCE_HOMING = 1`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:892
@@ -19354,6 +20219,14 @@ msgid ""
 "with trivial kinematics (mill, lathe, gantry types) this value is ignored.  "
 "Note: The sim hexapod config requires a non-zero value for the Z coordinate."
 msgstr ""
+"`HOME = 0 0 0 0 0 0 0 0 0` - Palavra de posição inicial necessária para "
+"módulos de cinemática que computam palavras de coordenadas usando "
+"kinematicsForward() quando mudam de modo de articulação para teleop.  Podem "
+"ser especificados até nove valores de coordenada (X Y Z A B C U V W), os "
+"items finais não usados podem ser omitidos.  Este valor é apenas usado para "
+"máquinas com cinemáticas não triviais.  Em máquinas com cinemáticas triviais "
+"(do tipo fresa, torno, pórtico) este valor é ignorado. Nota: A configuração "
+"de hexápode sim requer um valor não zero para a coordenada Z."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:896
@@ -19362,6 +20235,13 @@ msgid ""
 "`TPMOD =` _alternate_trajectory_planning module_ [tp_parms=value]\n"
 "The `TPMOD` variable is optional.  If specified, use a specified (user-built) module instead of the default (tpmod). Module parameters (tp_parms) may be included if supported by the named module. The setting may be overridden from the command line using the -t option ($ linuxcnc -h)."
 msgstr ""
+"`TPMOD =` _módulo de planeamento de trajetória alternativo_ "
+"[tp_parms=valor]\n"
+"A variável `TPMOD` é opcional.  Se especificada, usa um módulo especificado "
+"(compilado pelo utilizador) em vez do predefinido (tpmod). Parâmetros do "
+"módulo (tp_parms) pode ser incluídos se isso for suportado pelo módulo "
+"nomeado. A definição pode ser sobreposta a partir da linha de comandos "
+"usando a opção -t ($ linuxcnc -h)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:897
@@ -19369,6 +20249,8 @@ msgid ""
 "`NO_PROBE_JOG_ERROR = 0` - Allow to bypass probe tripped check when you jog "
 "manually."
 msgstr ""
+"`NO_PROBE_JOG_ERROR = 0` - Permite ultrapassar a verificação de prova de "
+"tropeçar quando desloca manualmente."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:898
@@ -19376,6 +20258,8 @@ msgid ""
 "`NO_PROBE_HOME_ERROR = 0` - Allow to bypass probe tripped check when homing "
 "is in progress."
 msgstr ""
+"`NO_PROBE_HOME_ERROR = 0` - Permite ultrapassar a verificação de prova de "
+"tropeçar quando está em progresso o posicionamento inicial."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:901
@@ -19386,7 +20270,7 @@ msgstr "Secção KINS"
 #: src/config/ini-config.adoc:901
 #, no-wrap
 msgid "[KINS] Section"
-msgstr ""
+msgstr "Secção [KINS]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:907
@@ -19398,6 +20282,12 @@ msgid ""
 "by a GUI to set the number of joints (num_joints) specified to the motion "
 "module (motmod).)"
 msgstr ""
+"`JOINTS = 3` - Especifica o número de articulações (motores) no sistema. Por "
+"exemplo, uma máquina trivkins XYZ com um único motor para cada eixo tem 3 "
+"articulações.  Uma máquina de pórtico com um motor em cada dois dos eixos, e "
+"dois motores no terceiro eixo, tem 4 articulações.  (Esta variável de "
+"configuração pode ser usada por uma GUI para definir o número de "
+"articulações (num_joints) especificado ao módulo de movimento (motmod).)"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:910
@@ -19407,22 +20297,26 @@ msgid ""
 "files for the motmod module.  For more information on kinematics modules see "
 "the manpage: `$ man kins`."
 msgstr ""
+"`KINEMATICS = trivkins` - Especifica um módulo de cinemática para o módulo "
+"de movimento.  As GUIs podem usar esta variável para especificar a linha "
+"`loadrt` nos ficheiros HAL para o módulo motmod.  Para mais informação sobre "
+"módulos de cinemática veja o manual: `$ man kins`."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:912
 msgid "[AXIS_<letter>] Sections"
-msgstr "Secções [AXIS_<letter>]"
+msgstr "Secções [AXIS_<letra>]"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:912
 #, no-wrap
 msgid "[AXIS_<letter>] Section"
-msgstr "Secção [AXIS_<letter>]"
+msgstr "Secção [AXIS_<letra>]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:915
 msgid "The _<letter>_ specifies one of: X Y Z A B C U V W"
-msgstr ""
+msgstr "A _<letra>_ especifica uma de: X Y Z A B C U V W"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:921
@@ -19432,6 +20326,11 @@ msgid ""
 "are X,Y,Z,U,V,W = LINEAR and A,B,C = ANGULAR.  This setting is effective "
 "with the AXIS GUI but note that other GUI's may handle things differently."
 msgstr ""
+"`TYPE = LINEAR` - O tipo deste eixo, seja `LINEAR` ou `ANGULAR`.  Requerido "
+"se este eixo não for do tipo de eixo predefinido.  Os tipos de eixo "
+"predefinidos são X,Y,Z,U,V,W = LINEAR e A,B,C = ANGULAR.  Esta definição é "
+"efetiva com a GUI AXIS mas note que as outras GUI's podem lidar com as "
+"coisas de maneira diferente."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:922
@@ -19439,6 +20338,8 @@ msgid ""
 "`MAX_VELOCITY = 1.2` - Maximum velocity for this axis in "
 "<<sub:ini:sec:traj,machine units>> per second."
 msgstr ""
+"`MAX_VELOCITY = 1.2` - Velocidade máxima para este eixo em "
+"<<sub:ini:sec:traj,unidades máquina>> por segundo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:923
@@ -19446,6 +20347,8 @@ msgid ""
 "`MAX_ACCELERATION = 20.0` - Maximum acceleration for this axis in machine "
 "units per second squared."
 msgstr ""
+"`MAX_ACCELERATION = 20.0` - Aceleração máxima para este eixo em unidades "
+"máquina por segundo ao quadrado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:926
@@ -19454,11 +20357,15 @@ msgid ""
 "cubed.  Used when S-curve trajectory planning is enabled.  When set to 0 "
 "(default), no per-axis jerk limiting is applied."
 msgstr ""
+"`MAX_JERK = 0.0` - Máximo de jerk para este eixo em unidades máquina por "
+"segundo ao cubo.  Usado quando o planeamento de trajetória em curva S está "
+"ativo.  Quando definido para 0 (predefinição), não é aplicado nenhum limite "
+"de jerk por eixo."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:930 src/config/ini-config.adoc:1047
 msgid "MIN LIMIT"
-msgstr ""
+msgstr "LIMITE MÍNIMO"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:930
@@ -19469,11 +20376,17 @@ msgid ""
 "rotary axis (A,B,C typ)  with unlimited rotation having no `MIN_LIMIT` for "
 "that axis in the `[AXIS_`<letter>`]` section a value of -1e99 is used."
 msgstr ""
+"`MIN_LIMIT = -1000` - O limite mínimo (limite de software) para movimento de "
+"eixo, em unidades máquina.  Quando este limite é excedido, o controlador "
+"aborta o movimento do eixo.  O eixo tem de ser levado à posição inicial "
+"antes de se forçar o `MIN_LIMIT`.  Para um eixo rotativo (tipo A,B,C)  com "
+"rotação ilimitada, não ter nenhum `MIN_LIMIT` para esse eixo na secção "
+"`[AXIS_`<letra>`]`, faz usar um valor de -1e99."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:934 src/config/ini-config.adoc:1051
 msgid "MAX LIMIT"
-msgstr ""
+msgstr "LIMITE MÁXIMO"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:934
@@ -19484,6 +20397,12 @@ msgid ""
 "axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis "
 "in the `[AXIS_`<letter>`]` section a value of 1e99 is used."
 msgstr ""
+"`MAX_LIMIT = 1000` - O limite máximo (limite de software) para movimento de "
+"eixo, em unidades máquina.  Quando este limite é excedido, o controlador "
+"aborta o movimento do eixo.  O eixo tem de ser levado à posição inicial "
+"antes de se forçar o `MAX_LIMIT`.  Para um eixo rotativo (tipo A,B,C) com "
+"rotação ilimitada, não ter nenhum `MAX_LIMIT` para esse eixo na secção "
+"`[AXIS_`<letra>`]`, faz usar um valor de 1e99."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:936
@@ -19493,6 +20412,10 @@ msgid ""
 "positive direction and negative numbers will move the axis in the negative "
 "direction."
 msgstr ""
+"`WRAPPED_ROTARY = 1` - Quando isto está definido para 1 para um eixo "
+"ANGULAR, o eixo vai mover 0-359.999 graus.  Números Positivos vão mover o "
+"eixo numa direção positiva e números negativos vão mover o eixo numa direção "
+"negativa."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:942
@@ -19508,17 +20431,28 @@ msgid ""
 "allowed when moving a locked rotary joint.  To create the unlock pins, use "
 "the motmod parameter:"
 msgstr ""
+"`LOCKING_INDEXER_JOINT = 4` - Este valor seleciona uma articulação a usar "
+"para um indexador de bloqueio para o eixo _<letra>_ especificado.  Neste "
+"exemplo, a articulação é 4 que deverá corresponder ao eixo B para um sistema "
+"XYZAB com cinemática trivkins (identidade).  Quando definido, um movimento "
+"G0 para este eixo vai iniciar um desbloqueio com o pino `joint.4.unlock pin` "
+"depois espera pelo pino `joint.4.is-unlocked` depois move a articulação na "
+"taxa rápida para essa articulação.  Após o movimento o `joint.4.unlock` vai "
+"ser falso e o movimento vai esperar por `joint.4.is-unlocked` ir para "
+"falso.  Mover outras articulações não é permitido quando se move uma "
+"articulação rotativa bloqueada.  Para criar os pinos de desbloqueio, use o "
+"parâmetro do motmod:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:946
 #, no-wrap
 msgid "unlock_joints_mask=jointmask\n"
-msgstr ""
+msgstr "unlock_joints_mask=jointmask\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:949
 msgid "The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ..."
-msgstr ""
+msgstr "Os bits de jointmask são: (LSB)0:joint0, 1:joint1, 2:joint2, ..."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:951
@@ -19526,6 +20460,8 @@ msgid ""
 "Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock-pins for "
 "joints 3,4,5."
 msgstr ""
+"Exemplo: `loadrt motmod ... unlock_joints_mask=0x38` cria pinos de "
+"desbloqueio para articulações 3,4,5."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:953
@@ -19533,6 +20469,8 @@ msgid ""
 "`OFFSET_AV_RATIO = 0.1` - If nonzero, this item enables the use of HAL input "
 "pins for external axis offsets:"
 msgstr ""
+"`OFFSET_AV_RATIO = 0.1` - Se não-zero, este item ativa o uso de pinos de "
+"entrada HAL para desvios de eixos externos."
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:959
@@ -19542,6 +20480,9 @@ msgid ""
 "axis.<letter>.eoffset-count\n"
 "axis.<letter>.eoffset-scale\n"
 msgstr ""
+"axis.<letter>.eoffset-enable\n"
+"axis.<letter>.eoffset-count\n"
+"axis.<letter>.eoffset-scale\n"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:962
@@ -19549,12 +20490,14 @@ msgid ""
 "See the chapter: <<cha:external-offsets,'External Axis Offsets'>> for usage "
 "information."
 msgstr ""
+"Veja o capítulo: <<cha:external-offsets,'Desvios de Eixos Externos'>> para "
+"informação de utilização."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:964
 #, no-wrap
 msgid "[JOINT_<num>] Sections"
-msgstr "Secções [JOINT_<número]"
+msgstr "Secções [JOINT_<num>]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:968
@@ -19562,6 +20505,8 @@ msgid ""
 "The _<num>_ specifies the joint number 0 ... (num_joints-1)  The value of "
 "'num_joints' is set by `[KINS]JOINTS=`."
 msgstr ""
+"O _<num>_ especifica o número de articulação 0 ... (num_joints-1)  O valor "
+"de 'num_joints' é definido por `[KINS]JOINTS=`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:971
@@ -19571,6 +20516,10 @@ msgid ""
 "names begin numbering at 0, and run through the number of joints specified "
 "in the `[KINS]JOINTS` entry minus 1."
 msgstr ""
+"As secções `[JOINT_0]`, `[JOINT_1]`, etc. contêm parâmetros gerais para os "
+"componentes individuais no módulo de controle de articulação.  Os nomes das "
+"secções de articulação começam a numeração em 0, e vão até ao número de "
+"articulações especificado na entrada `[KINS]JOINTS` menos 1."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:973
@@ -19578,6 +20527,9 @@ msgid ""
 "Typically (for systems using 'trivkins kinematics', there is a 1:1 "
 "correspondence between a joint and an axis coordinate letter):"
 msgstr ""
+"Tipicamente (para sistemas que usa 'cinemática trivkins', há uma "
+"correspondência de 1:1 entre uma articulação e uma letra de coordenada de "
+"eixo):"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:975 src/config/ini-config.adoc:988
@@ -19631,6 +20583,9 @@ msgid ""
 "configurations with partial sets of axes.  For example, using trivkins with "
 "`coordinates=XZ`, the joint-axes relationships are:"
 msgstr ""
+"Outros módulos de cinemática com cinemática de identidade estão disponíveis "
+"para suportar configurações com conjuntos parciais de eixos.  Por exemplo, "
+"ao usar trivkins com `coordinates=XZ`, as relações de articulação-eixo são:"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:989
@@ -19643,16 +20598,18 @@ msgid ""
 "For more information on kinematics modules see the manpage 'kins' (on the "
 "UNIX terminal type `man kins`)."
 msgstr ""
+"Para mais informação sobre módulos de cinemática veja o manual do 'kins' "
+"(num terminal UNIX escreva `man kins`)."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:993
 msgid "`TYPE = LINEAR` - The type of joint, either `LINEAR` or `ANGULAR`."
-msgstr ""
+msgstr "`TYPE = LINEAR` - O tipo de articulação, seja `LINEAR` ou `ANGULAR`."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:996
 msgid "UNITS"
-msgstr ""
+msgstr "UNIDADES"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:996
@@ -19661,6 +20618,10 @@ msgid ""
 "UNITS` setting, e.g., `[TRAJ]LINEAR_UNITS` if the `TYPE` of this joint is "
 "`LINEAR`, `[TRAJ]ANGULAR_UNITS` if the `TYPE` of this joint is `ANGULAR`."
 msgstr ""
+"`UNITS = INCH` - Se especificada, esta definição sobrepõe a definição "
+"`[TRAJ] UNITS` relacionada, ex., `[TRAJ]LINEAR_UNITS` se o `TYPE` desta "
+"articulação for `LINEAR`, `[TRAJ]ANGULAR_UNITS` se o `TYPE` desta "
+"articulação for `ANGULAR`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:997
@@ -19668,6 +20629,8 @@ msgid ""
 "`MAX_VELOCITY = 1.2` - Maximum velocity for this joint in "
 "<<sub:ini:sec:traj,machine units>> per second."
 msgstr ""
+"`MAX_VELOCITY = 1.2` - Velocidade máxima para esta articulação em "
+"<<sub:ini:sec:traj,unidades máquina>> por segundo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:998
@@ -19675,6 +20638,8 @@ msgid ""
 "`MAX_ACCELERATION = 20.0` - Maximum acceleration for this joint in machine "
 "units per second squared."
 msgstr ""
+"`MAX_ACCELERATION = 20.0` - Aceleração máxima para esta articulação em "
+"unidades máquina por segundo ao quadrado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1001
@@ -19683,6 +20648,10 @@ msgid ""
 "cubed.  Used when S-curve trajectory planning is enabled.  When set to 0 "
 "(default), no per-joint jerk limiting is applied."
 msgstr ""
+"`MAX_JERK = 0.0` - Máximo de jerk para esta articulação em unidades máquina "
+"por segundo ao cubo.  Usado quando o planeamento de trajetória em curva S "
+"está ativo.  Quando definido para 0 (predefinição), não é aplicado nenhum "
+"limite de jerk por articulação."
 
 #.  add a link to machine units
 #. type: Plain text
@@ -19696,6 +20665,14 @@ msgid ""
 "an joint to jerk as it changes direction.  If a COMP_FILE is specified for a "
 "joint BACKLASH is not used."
 msgstr ""
+"`BACKLASH = 0.0000` - Reação adversa (Backlash) em unidades máquina.  O "
+"valor de compensação de backlash pode ser usado para compensar pequenas "
+"deficiências no hardware usado para mexer uma articulação.  Se o backlash "
+"for adicionado a uma articulação e estiver a usar motores de passo, o "
+"`STEPGEN_MAXACCEL` tem de ser aumentado para 1.5 até 2 vezes a "
+"`MAX_ACCELERATION` para a articulação.  Compensação de backlash excessiva "
+"pode provocar jerk na articulação quando esta muda de direção.  Se um "
+"COMP_FILE for especificado para um BACKLASH de articulação, não é usado."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:1017
@@ -19721,6 +20698,8 @@ msgstr ""
 #: src/config/ini-config.adoc:1019
 msgid "If `COMP_FILE` is specified for a joint, `BACKLASH` is not used."
 msgstr ""
+"Se for especificado `COMP_FILE` para uma articulação, o `BACKLASH` não é "
+"usado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1023
@@ -19729,6 +20708,9 @@ msgid ""
 "`COMP_FILE_TYPE = 0` or `1` - Specifies the type of compensation file. The first value is the nominal (commanded) position for both types.\n"
 "A `COMP_FILE_TYPE` must be specified for each `COMP_FILE`."
 msgstr ""
+"`COMP_FILE_TYPE = 0` ou `1` - Especifica o tipo e ficheiro de compensação. O "
+"primeiro valor é a posição nominal (comandada) para ambos tipos.\n"
+"Tem de ser especificado um `COMP_FILE_TYPE` para cada `COMP_FILE`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1025
@@ -19830,7 +20812,7 @@ msgstr ""
 #. type: Index entry
 #: src/config/ini-config.adoc:1074
 msgid "MIN FERROR"
-msgstr "MIN FERROR"
+msgstr "FERROR MÍNIMO"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1074
@@ -19870,6 +20852,8 @@ msgstr ""
 msgid ""
 "`LOCKING_INDEXER = 1` - Indicates the joint is used as a locking indexer."
 msgstr ""
+"`LOCKING_INDEXER = 1` - Indica que a articulação é usada como indexador de "
+"bloqueio."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1087
@@ -19877,6 +20861,9 @@ msgid ""
 "These parameters are Homing related, for a better explanation read the "
 "<<cha:homing-configuration,Homing Configuration>> Chapter."
 msgstr ""
+"Estes parâmetros são relacionadas com a Posição Inicial, para uma melhor "
+"explicação leia o capítulo <<cha:homing-configuration,Configuração de "
+"Posição Inicial>>."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1089
@@ -19884,6 +20871,8 @@ msgid ""
 "`HOME = 0.0` - The position that the joint will go to upon completion of the "
 "homing sequence."
 msgstr ""
+"`HOME = 0.0` - A posição para onde a articulação irá após conclusão da "
+"sequência de posicionamento inicial."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1094
@@ -19900,7 +20889,7 @@ msgstr ""
 #. type: Index entry
 #: src/config/ini-config.adoc:1098 src/config/ini-homing.adoc:130
 msgid "HOME SEARCH VEL"
-msgstr "HOME SEARCH VEL"
+msgstr "VELOCIDADE DE PROCURA DE POSIÇÃO INICIAL"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1098
@@ -20001,12 +20990,13 @@ msgstr ""
 #: src/config/ini-config.adoc:1135
 #, no-wrap
 msgid "Servos"
-msgstr ""
+msgstr "Servos"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1138
 msgid "These parameters are relevant to joints controlled by servos."
 msgstr ""
+"Estes parâmetros são relevantes para articulações controladas por servos."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1144
@@ -20071,7 +21061,7 @@ msgstr ""
 #: src/config/ini-config.adoc:1171
 #, no-wrap
 msgid "images/encoder-counts-math.png"
-msgstr ""
+msgstr "images/encoder-counts-math.png"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1180
@@ -20192,7 +21182,7 @@ msgstr ""
 #: src/config/ini-config.adoc:1222
 #, no-wrap
 msgid "images/scale-math.png"
-msgstr ""
+msgstr "images/scale-math.png"
 
 #.  latexmath:[$ amplifier [volts] = (output [\frac{mm}{sec}]
 #.  - offset [\frac{mm}{sec}]) / 250 \frac{mm}{sec\, volt} ] $]
@@ -20242,12 +21232,12 @@ msgstr ""
 #. type: Plain text
 #: src/config/ini-config.adoc:1239
 msgid "image:images/calibration-2.png[]"
-msgstr ""
+msgstr "image:images/calibration-2.png[]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1240
 msgid "image:images/calibration-3.png[]"
-msgstr ""
+msgstr "image:images/calibration-3.png[]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1241 src/config/pncconf.adoc:417
@@ -20265,7 +21255,7 @@ msgstr ""
 #: src/config/ini-config.adoc:1248 src/config/pncconf.adoc:400
 #, no-wrap
 msgid "Output Voltage Measurements"
-msgstr ""
+msgstr "Medições de Voltagem de Saída"
 
 #. type: Table
 #: src/config/ini-config.adoc:1251 src/config/pncconf.adoc:403
@@ -20765,7 +21755,7 @@ msgstr ""
 #: src/config/ini-config.adoc:1376
 #, no-wrap
 msgid "[EMCIO] Section"
-msgstr ""
+msgstr "Secção [EMCIO]"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1379
@@ -20828,7 +21818,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:5
 #, no-wrap
 msgid "Homing Configuration"
-msgstr ""
+msgstr "Configuração da Posição Inicial"
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:13 src/config/stepper.adoc:153
@@ -20840,7 +21830,7 @@ msgstr ""
 #: src/gui/tooledit.adoc:13 src/remap/remap.adoc:587
 #, no-wrap
 msgid "Overview"
-msgstr ""
+msgstr "Vista geral"
 
 #. type: Plain text
 #: src/config/ini-homing.adoc:22
@@ -20998,7 +21988,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:60
 #, no-wrap
 msgid "images/HomeAxisTravel_V2.png"
-msgstr ""
+msgstr "images/HomeAxisTravel_V2.png"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:63
@@ -21056,6 +22046,8 @@ msgid ""
 "The distance between the limit switches and soft limits (-L<->A and D<-+L) "
 "is magnified in this example"
 msgstr ""
+"A distância entre os interruptores de limite e os limites de software (-L<->"
+"A e D<->+L) está ampliada neste exemplo"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:74 src/config/ini-homing.adoc:99
@@ -21077,7 +22069,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:80
 #, no-wrap
 msgid "Shared Limit/Home Switch Example Layout"
-msgstr ""
+msgstr "Exemplo de Disposição de Interruptor Limite/Inicio Partilhado"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:83
@@ -21090,7 +22082,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:84
 #, no-wrap
 msgid "Demonstrative Shared Switch Layout"
-msgstr ""
+msgstr "Disposição de Interruptor Partilhado Demonstrativa"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/ini-homing.adoc:85
@@ -21102,7 +22094,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:85
 #, no-wrap
 msgid "images/HomeAxisTravel_V3.png"
-msgstr ""
+msgstr "images/HomeAxisTravel_V3.png"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:88
@@ -21165,7 +22157,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:100
 #, no-wrap
 msgid "Homing Sequence"
-msgstr ""
+msgstr "Sequência de Posição Inicial"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:105
@@ -21182,13 +22174,13 @@ msgstr ""
 #: src/config/ini-homing.adoc:106 src/config/ini-homing.adoc:107
 #, no-wrap
 msgid "Homing Sequences"
-msgstr ""
+msgstr "Sequências de Posição Inicial"
 
 #. type: Target for macro image
 #: src/config/ini-homing.adoc:107
 #, no-wrap
 msgid "images/emc2-motion-homing-diag.png"
-msgstr ""
+msgstr "images/emc2-motion-homing-diag.png"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:113
@@ -21201,7 +22193,7 @@ msgstr ""
 #: src/config/ini-homing.adoc:116
 #, no-wrap
 msgid "Homing Type"
-msgstr ""
+msgstr "Tipo de Posição Inicial"
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:116 src/config/ini-homing.adoc:126
@@ -21237,14 +22229,14 @@ msgstr "NÃO"
 #: src/config/ini-homing.adoc:118
 #, no-wrap
 msgid "Index-only"
-msgstr ""
+msgstr "Apenas-índice"
 
 #. type: Table
 #: src/config/ini-homing.adoc:118 src/config/ini-homing.adoc:119
 #: src/config/ini-homing.adoc:120
 #, no-wrap
 msgid "nonzero"
-msgstr ""
+msgstr "não zero"
 
 #. type: Table
 #: src/config/ini-homing.adoc:119 src/config/ini-homing.adoc:121
@@ -21256,13 +22248,13 @@ msgstr "SIM"
 #: src/config/ini-homing.adoc:119
 #, no-wrap
 msgid "Switch-only"
-msgstr ""
+msgstr "Apenas-interruptor"
 
 #. type: Table
 #: src/config/ini-homing.adoc:120
 #, no-wrap
 msgid "Switch and Index"
-msgstr ""
+msgstr "Interruptor e Índice"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:125
@@ -21341,12 +22333,12 @@ msgstr ""
 #: src/config/ini-homing.adoc:168
 #, no-wrap
 msgid "HOME_IGNORE_LIMITS"
-msgstr ""
+msgstr "HOME_IGNORE_LIMITS"
 
 #. type: Index entry
 #: src/config/ini-homing.adoc:177
 msgid "HOME IGNORE LIMITS"
-msgstr ""
+msgstr "HOME IGNORE LIMITS"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:177
@@ -21364,7 +22356,7 @@ msgstr ""
 #. type: Index entry
 #: src/config/ini-homing.adoc:185
 msgid "HOME USE INDEX"
-msgstr ""
+msgstr "HOME USE INDEX"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:185
@@ -21387,12 +22379,12 @@ msgstr ""
 #: src/config/ini-homing.adoc:189
 #, no-wrap
 msgid "HOME_INDEX_NO_ENCODER_RESET"
-msgstr ""
+msgstr "HOME_INDEX_NO_ENCODER_RESET"
 
 #. type: Index entry
 #: src/config/ini-homing.adoc:195
 msgid "HOME INDEX NO ENCODER RESET"
-msgstr ""
+msgstr "HOME INDEX NO ENCODER RESET"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:195
@@ -21406,12 +22398,12 @@ msgstr ""
 #: src/config/ini-homing.adoc:196
 #, no-wrap
 msgid "HOME_OFFSET"
-msgstr ""
+msgstr "HOME_OFFSET"
 
 #. type: Index entry
 #: src/config/ini-homing.adoc:203
 msgid "HOME OFFSET"
-msgstr ""
+msgstr "HOME OFFSET"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:203
@@ -21465,7 +22457,7 @@ msgstr "HOME_IS_SHARED"
 #. type: Index entry
 #: src/config/ini-homing.adoc:227
 msgid "HOME IS SHARED"
-msgstr ""
+msgstr "HOME IS SHARED"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:227
@@ -21480,12 +22472,12 @@ msgstr ""
 #: src/config/ini-homing.adoc:228
 #, no-wrap
 msgid "HOME_ABSOLUTE_ENCODER"
-msgstr ""
+msgstr "HOME_ABSOLUTE_ENCODER"
 
 #. type: Index entry
 #: src/config/ini-homing.adoc:232
 msgid "HOME ABSOLUTE ENCODER"
-msgstr ""
+msgstr "HOME ABSOLUTE ENCODER"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:232
@@ -21529,7 +22521,7 @@ msgstr "HOME_SEQUENCE"
 #. type: Index entry
 #: src/config/ini-homing.adoc:254
 msgid "HOME SEQUENCE"
-msgstr ""
+msgstr "HOME SEQUENCE"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:254
@@ -21686,7 +22678,7 @@ msgstr "VOLATILE_HOME"
 #. type: Index entry
 #: src/config/ini-homing.adoc:326
 msgid "VOLATILE HOME"
-msgstr ""
+msgstr "VOLATILE HOME"
 
 #. type: Plain text
 #: src/config/ini-homing.adoc:326
@@ -21706,7 +22698,7 @@ msgstr "LOCKING_INDEXER"
 #. type: Index entry
 #: src/config/ini-homing.adoc:331
 msgid "LOCKING INDEXER"
-msgstr ""
+msgstr "LOCKING INDEXER"
 
 #. type: Plain text
 #: src/config/ini-homing.adoc:331
@@ -21963,7 +22955,7 @@ msgstr ""
 #: src/config/integrator-concepts.adoc:45 src/ladder/classic-ladder.adoc:48
 #, no-wrap
 msgid "Files"
-msgstr ""
+msgstr "Ficheiros"
 
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:48
@@ -21973,7 +22965,7 @@ msgstr ""
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:50
 msgid "An INI file .ini"
-msgstr ""
+msgstr "Um ficheiro INI .ini"
 
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:52
@@ -21995,7 +22987,7 @@ msgstr ""
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:59
 msgid "A Variables file .var"
-msgstr ""
+msgstr "Um ficheiro de Variáveis .var"
 
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:62
@@ -22024,7 +23016,7 @@ msgstr ""
 #: src/config/integrator-concepts.adoc:68
 #, no-wrap
 msgid "Stepper Systems"
-msgstr "Sistemas Stepper"
+msgstr "Sistemas Stepper (passo a passo)"
 
 #. type: Title ===
 #: src/config/integrator-concepts.adoc:70
@@ -22351,10 +23343,9 @@ msgstr ""
 
 #. type: Title ==
 #: src/config/integrator-concepts.adoc:261
-#, fuzzy, no-wrap
-#| msgid "'tpmod' - trajectory planning"
+#, no-wrap
 msgid "S-Curve Trajectory Planning"
-msgstr "'tpmod' - planeamento de trajetória"
+msgstr "Planeamento de Trajetória Curva-S"
 
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:266
@@ -22368,7 +23359,7 @@ msgstr ""
 #: src/config/integrator-concepts.adoc:267
 #, no-wrap
 msgid "Enabling"
-msgstr ""
+msgstr "Ativar"
 
 #. type: NOTE
 #: src/config/integrator-concepts.adoc:270
@@ -22403,7 +23394,7 @@ msgstr ""
 #: src/config/integrator-concepts.adoc:282
 #, no-wrap
 msgid "Tuning"
-msgstr ""
+msgstr "Afinar"
 
 #. type: Plain text
 #: src/config/integrator-concepts.adoc:285
@@ -23069,6 +24060,11 @@ msgid ""
 "HALFILE = LIB:hookup_moveoff.tcl\n"
 "HALFILE = LIB:moveoff_external.hal\n"
 msgstr ""
+"[HAL]\n"
+"HALUI = halui\n"
+"...\n"
+"HALFILE = LIB:hookup_moveoff.tcl\n"
+"HALFILE = LIB:moveoff_external.hal\n"
 
 #. type: Plain text
 #: src/config/moveoff.adoc:233
@@ -23143,6 +24139,8 @@ msgid ""
 "Usage:\n"
 "moveoff_gui [Options]\n"
 msgstr ""
+"Utilização:\n"
+"moveoff_gui [Opções]\n"
 
 #. type: delimited block -
 #: src/config/moveoff.adoc:267
@@ -23151,6 +24149,8 @@ msgid ""
 "Options:\n"
 "    [--help | -? | -- -h ]  (This text)\n"
 msgstr ""
+"Opções:\n"
+"    [--help | -? | -- -h ]  (Este texto)\n"
 
 #. type: delimited block -
 #: src/config/moveoff.adoc:271
@@ -23282,7 +24282,7 @@ msgstr ""
 #: src/config/pncconf.adoc:28
 #, no-wrap
 msgid "Step by Step Instructions"
-msgstr ""
+msgstr "Instruções Passo a Passo"
 
 #. type: Block title
 #: src/config/pncconf.adoc:30
@@ -23294,7 +24294,7 @@ msgstr ""
 #: src/config/pncconf.adoc:31
 #, no-wrap
 msgid "PnCconf Configuration Wizard"
-msgstr ""
+msgstr "Mago de Configuração do PnCconf"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:31
@@ -23336,7 +24336,7 @@ msgstr ""
 #: src/config/pncconf.adoc:48
 #, no-wrap
 msgid "Basic Machine Information"
-msgstr ""
+msgstr "Informação de Máquina Básica"
 
 #. type: Block title
 #: src/config/pncconf.adoc:50
@@ -23360,7 +24360,7 @@ msgstr "images/pncconf-basic.png"
 #: src/config/pncconf.adoc:53
 #, no-wrap
 msgid "Machine Basics"
-msgstr ""
+msgstr "Básicas de Máquina"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:58
@@ -23427,7 +24427,7 @@ msgstr ""
 #: src/config/pncconf.adoc:78
 #, no-wrap
 msgid "I/O Control Ports/Boards"
-msgstr ""
+msgstr "Portos/Placas de Controle I/O"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:81
@@ -23465,7 +24465,7 @@ msgstr ""
 #: src/getting-started/hardware-interface.adoc:31
 #, no-wrap
 msgid "Parallel Port"
-msgstr "Porta Paralela"
+msgstr "Porto Paralelo"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:102
@@ -23545,7 +24545,7 @@ msgstr "janela gráfica separada"
 #. type: Plain text
 #: src/config/pncconf.adoc:119 src/config/pncconf.adoc:133
 msgid "no VCP integration"
-msgstr ""
+msgstr "nenhuma integração VCP"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:120 src/gui/gladevcp.adoc:28
@@ -23963,7 +24963,7 @@ msgstr ""
 #. type: Plain text
 #: src/config/pncconf.adoc:262
 msgid "Popup Tool Prompt"
-msgstr ""
+msgstr "Aparecimento do Aviso de Ferramenta"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:263
@@ -23980,7 +24980,7 @@ msgstr ""
 #. type: Plain text
 #: src/config/pncconf.adoc:265
 msgid "Used for lathes"
-msgstr ""
+msgstr "Usado para tornos"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:266
@@ -24018,7 +25018,7 @@ msgstr ""
 #: src/config/pncconf.adoc:272
 #, no-wrap
 msgid "Mesa Configuration"
-msgstr ""
+msgstr "Configuração do Mesa"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:276
@@ -24158,7 +25158,7 @@ msgstr ""
 #: src/config/pncconf.adoc:327
 #, no-wrap
 msgid "images/pncconf-mesa-io2.png"
-msgstr ""
+msgstr "images/pncconf-mesa-io2.png"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:333
@@ -24234,13 +25234,13 @@ msgstr ""
 #: src/config/stepconf.adoc:153
 #, no-wrap
 msgid "Axis Configuration"
-msgstr ""
+msgstr "Configuração de Eixos"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/pncconf.adoc:357 src/config/pncconf.adoc:358
 #, no-wrap
 msgid "Axis Drive Configuration"
-msgstr ""
+msgstr "Configuração de Controlador de Eixos"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:358
@@ -24260,7 +25260,7 @@ msgstr ""
 #: src/config/pncconf.adoc:364
 #, no-wrap
 msgid "Open Loop Test"
-msgstr ""
+msgstr "Teste de Ciclo Aberto"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:374
@@ -24308,7 +25308,7 @@ msgstr ""
 #: src/config/pncconf.adoc:382
 #, no-wrap
 msgid "Compute DAC"
-msgstr ""
+msgstr "Computar DAC"
 
 #. type: WARNING
 #: src/config/pncconf.adoc:389
@@ -24398,7 +25398,7 @@ msgstr ""
 #: src/config/pncconf.adoc:423
 #, no-wrap
 msgid "Tuning Test"
-msgstr ""
+msgstr "Teste de Afinação"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:430
@@ -24417,7 +25417,7 @@ msgstr ""
 #: src/config/pncconf.adoc:431 src/integrator/stepper-timing.adoc:4
 #, no-wrap
 msgid "Stepper Timing"
-msgstr ""
+msgstr "Temporização do Stepper (passo a passo)"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:436
@@ -24434,7 +25434,7 @@ msgstr ""
 #: src/config/pncconf.adoc:437
 #, no-wrap
 msgid "Brushless Motor Control"
-msgstr ""
+msgstr "Controle de Motor Sem Escovas"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:442
@@ -24450,7 +25450,7 @@ msgstr ""
 #: src/config/pncconf.adoc:443 src/config/pncconf.adoc:444
 #, no-wrap
 msgid "Axis Scale Calculation"
-msgstr ""
+msgstr "Cálculo de Escala de Eixos"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:444
@@ -24526,7 +25526,7 @@ msgstr ""
 #: src/config/pncconf.adoc:469
 #, no-wrap
 msgid "On a typical lathe"
-msgstr ""
+msgstr "Num torno típico"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:471
@@ -24671,7 +25671,7 @@ msgstr ""
 #: src/config/pncconf.adoc:551
 #, no-wrap
 msgid "Travel distance"
-msgstr ""
+msgstr "Distância de viagem"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:558
@@ -24686,7 +25686,7 @@ msgstr ""
 #: src/config/pncconf.adoc:559
 #, no-wrap
 msgid "POSITIVE TRAVEL DISTANCE"
-msgstr ""
+msgstr "POSITIVE TRAVEL DISTANCE"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:566
@@ -24701,7 +25701,7 @@ msgstr ""
 #: src/config/pncconf.adoc:567
 #, no-wrap
 msgid "NEGATIVE TRAVEL DISTANCE"
-msgstr ""
+msgstr "NEGATIVE TRAVEL DISTANCE"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:576
@@ -24733,7 +25733,7 @@ msgstr ""
 #: src/config/pncconf.adoc:587
 #, no-wrap
 msgid "HOME SWITCH LOCATION"
-msgstr ""
+msgstr "HOME SWITCH LOCATION"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:597
@@ -24824,7 +25824,7 @@ msgstr ""
 #: src/config/pncconf.adoc:621
 #, no-wrap
 msgid "Use Compensation File"
-msgstr ""
+msgstr "Usar Ficheiro de Compensação"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:625
@@ -24878,7 +25878,7 @@ msgstr ""
 #: src/config/stepconf.adoc:268
 #, no-wrap
 msgid "Spindle Configuration"
-msgstr ""
+msgstr "Configuração do Fuso"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:650
@@ -24997,13 +25997,13 @@ msgstr ""
 #: src/config/pncconf.adoc:701
 #, no-wrap
 msgid "PnCconf, advanced options"
-msgstr ""
+msgstr "PnCconf, opções avançadas"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/pncconf.adoc:702
 #, no-wrap
 msgid "PnCconf Advanced Options"
-msgstr ""
+msgstr "Opções Avançadas do PnCconf"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:702
@@ -25074,7 +26074,7 @@ msgstr ""
 #: src/config/pncconf.adoc:732
 #, no-wrap
 msgid "Advanced Usage Of PnCconf"
-msgstr ""
+msgstr "Utilização Avançada do PnCconf"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:737
@@ -25124,29 +26124,29 @@ msgstr ""
 #: src/config/pncconf.adoc:756 src/man/man3/hal_add_funct_to_thread.3.adoc:23
 #, no-wrap
 msgid "position"
-msgstr ""
+msgstr "posição"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:757 src/man/man3/hal_port.3.adoc:108
 #, no-wrap
 msgid "count"
-msgstr ""
+msgstr "contagem"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:758
 msgid "velocity"
-msgstr ""
+msgstr "velocidade"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:759
 msgid "index-enable"
-msgstr ""
+msgstr "índice-ativo"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:760 src/drivers/hal_gpio.adoc:62
 #, no-wrap
 msgid "reset"
-msgstr ""
+msgstr "reiniciar"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:762
@@ -25156,12 +26156,12 @@ msgstr ""
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:764 src/config/pncconf.adoc:772
 msgid "enable"
-msgstr ""
+msgstr "ativar"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:765
 msgid "counts"
-msgstr ""
+msgstr "contagens"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:766
@@ -25188,7 +26188,7 @@ msgstr ""
 #: src/gui/gladevcp.adoc:1124
 #, no-wrap
 msgid "value"
-msgstr ""
+msgstr "valor"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:775
@@ -25213,7 +26213,7 @@ msgstr ""
 #: src/config/pncconf.adoc:784
 #, no-wrap
 msgid "Loading Custom Firmware"
-msgstr ""
+msgstr "Carregar Firmware Personalizado"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:792
@@ -25248,7 +26248,7 @@ msgstr ""
 #: src/config/pncconf.adoc:802
 #, no-wrap
 msgid "Custom HAL Files"
-msgstr ""
+msgstr "Ficheiros HAL Personalizados"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:805
@@ -25360,7 +26360,7 @@ msgstr ""
 #: src/config/python-hal-interface.adoc:51 src/hal/halmodule.adoc:81
 #, no-wrap
 msgid "h.newpin(\"in\", hal.HAL_FLOAT, hal.HAL_IN)\n"
-msgstr ""
+msgstr "h.newpin(\"in\", hal.HAL_FLOAT, hal.HAL_IN)\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:54
@@ -25402,7 +26402,7 @@ msgstr ""
 #: src/config/python-hal-interface.adoc:67
 #, no-wrap
 msgid "hal.component_exists(\"testpanel\")\n"
-msgstr ""
+msgstr "hal.component_exists(\"testpanel\")\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:69
@@ -25452,13 +26452,13 @@ msgstr "*connect* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:86
 msgid "Connect a pin to a signal."
-msgstr ""
+msgstr "Ligar um pino a um sinal."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:90
 #, no-wrap
 msgid "hal.connect(\"pinname\",\"signal_name\")\n"
-msgstr ""
+msgstr "hal.connect(\"nome-pino\",\"nome-sinal\")\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:92
@@ -25475,7 +26475,7 @@ msgstr ""
 #: src/config/python-hal-interface.adoc:98
 #, no-wrap
 msgid "hal.disconnect(\"pinname\")\n"
-msgstr ""
+msgstr "hal.disconnect(\"nome-pino\")\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:100
@@ -61396,7 +62396,7 @@ msgstr ""
 #. type: Plain text
 #: src/getting-started/running-linuxcnc.adoc:96
 msgid "gladevcp - Example GladeVCP applications."
-msgstr "gladevcp - Aplicações GladeVCP de exemplo"
+msgstr "gladevcp - Aplicações GladeVCP de exemplo."
 
 #. type: Plain text
 #: src/getting-started/running-linuxcnc.adoc:97
@@ -238111,7 +239111,7 @@ msgstr "XOR2"
 #. type: Plain text
 #: man/man9/xor2.9:32
 msgid "xor2 - Two-input XOR (exclusive OR) gate"
-msgstr "xor2 -  Porta XOR de duas entradas (OR exclusivo)"
+msgstr "xor2 - Porta XOR de duas entradas (OR exclusivo)"
 
 #. type: Plain text
 #: man/man9/xor2.9:35
