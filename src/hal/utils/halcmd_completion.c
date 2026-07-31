@@ -409,7 +409,7 @@ static char *setp_generator(const char *text, int state)
         build_pinparam_list(&gdl, &idx, &len, text, HAL_QTYPE_ANY);
     }
     for(; idx < gdl.n; idx++) {
-        if(0 == (gdl.data[idx].dir & (HAL_WO | HAL_OUT)) || NULL != gdl.data[idx].sig)
+        if(HAL_OUT == gdl.data[idx].dir || HAL_RO == gdl.data[idx].dir || NULL != gdl.data[idx].sig)
             continue; // Not writable or has a signal attached
 	if(!strncmp(text, gdl.data[idx].name, len)) {
             return strdup(gdl.data[idx++].name);
