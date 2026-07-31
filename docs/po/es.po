@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-07-18 20:07+0000\n"
+"PO-Revision-Date: 2026-07-28 01:01+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -44134,12 +44134,14 @@ msgid ""
 "The gratis version of Quartus II runs only on Microsoft Windows, although "
 "there is apparently a paid version that runs on Linux."
 msgstr ""
+"La versión gratis de Quartus II corre solo en Windows de Microsoft, aunque "
+"aparentemente hay una versión de pago que corre en Linux."
 
 #. type: Title ===
 #: src/drivers/pluto-p.adoc:104
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "For more information"
-msgstr "Informacion de herramient"
+msgstr "Para más información"
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:109
@@ -44148,12 +44150,15 @@ msgid ""
 "FPGA-Parallel.html[KNJC LLC] and from http://emergent.unpy.net/"
 "01165081407[the developer's blog]."
 msgstr ""
+"Alguna información adicional acerca de él esta disponible en https://"
+"www.knjn.com/FPGA-Parallel.html[KNJC LLC] y en http://emergent.unpy.net/"
+"01165081407[el blog del desarrollador]."
 
 #. type: Title ==
 #: src/drivers/pluto-p.adoc:110
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Pluto Servo"
-msgstr "pluto_servo"
+msgstr "Pluto Servo"
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:116
@@ -44162,11 +44167,15 @@ msgid ""
 "servo motors, a 3-axis mill with PWM spindle control, a lathe with spindle "
 "encoder, etc. The large number of inputs allows a full set of limit switches."
 msgstr ""
+"El sistema pluto_servo es adecuado para controlar una fresadora CNC de 4 "
+"ejes con servo motores, una fresadora de 3 ejes con control de husillo PWM, "
+"un torno con codificador de husillo, etc. La gran cantidad de entradas "
+"permite un conjunto completo de interruptores de límite."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:118
 msgid "This driver features:"
-msgstr ""
+msgstr "Este controlador tiene:"
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:123
@@ -44175,6 +44184,10 @@ msgid ""
 "mode. The maximum useful quadrature rate is 8191 counts per LinuxCNC servo "
 "cycle, or about 8 MHz for LinuxCNC's default 1 ms servo rate."
 msgstr ""
+"4 canales en cuadratura con velocidad de muestreo de 40 MHz. Los contadores "
+"operan en modo '4x'. La tasa de cuadratura útil máxima es 8191 conteos por "
+"ciclo servo de LinuxCNC, o alrededor 8 MHz para la tasa servo predeterminada "
+"de 1 ms."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:126
@@ -44183,6 +44196,9 @@ msgid ""
 "+100%, including 0%. The PWM period is approximately 19.5 kHz (40 MHz / "
 "2047). A PDM-like mode is also available."
 msgstr ""
+"4 canales PWM, estilo 'arriba/abajo' o 'pwm+dir'. 4095 ciclos de trabajo "
+"desde -100% hasta +100%, incluyendo 0%. El período PWM es aproximadamente "
+"19.5 kHz (40 MHz / 2047). También está disponible un modo estilo PDM."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:129
@@ -44191,6 +44207,9 @@ msgid ""
 "lathe with unidirectional PWM spindle control may use 13 total digital "
 "outputs)"
 msgstr ""
+"18 salidas digitales: 10 dedicadas, 8 compartidas con funciones PWM.  "
+"(Ejemplo: Un torno con control de husillo PWM unidireccional puede usar 13 "
+"salidas digitales totales)"
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:132
@@ -44199,6 +44218,9 @@ msgid ""
 "(Example: A lathe with index pulse only on the spindle may use 13 total "
 "digital inputs.)"
 msgstr ""
+"20 entradas digitales: 8 dedicadas, 12 compartidas con función de "
+"cuadratura.  (Ejemplo: Un torno con solo pulso de índice en el husillo puede "
+"usar 13 entradas digitales totales.)"
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:135
@@ -44206,6 +44228,9 @@ msgid ""
 "EPP communication with the PC. The EPP communication typically takes around "
 "100 µs on machines tested so far, enabling servo rates above 1 kHz."
 msgstr ""
+"Comunicación EPP con la PC. La comunicación EPP toma típicamente alrededor "
+"de 100 µs en las máquinas probadas hasta ahora, habilitando velocidades de "
+"servos por encima de 1 kHz."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:143
@@ -44216,6 +44241,11 @@ msgid ""
 "corresponding digital output invert may be set to TRUE to make UPx active "
 "low rather than active high."
 msgstr ""
+"'UPx' - La señal 'up' (modo arriba/abajo) o 'pwm' (modo pwm+dirección) del "
+"generador PWM X. Puede usarse como salida digital si el canal PWM "
+"correspondiente esta en desuso, o si la salida en el canal es siempre "
+"negativa. La inversión de la salida digital correspondiente puede "
+"establecerse en Verdadero para hacer UPx activo bajo en lugar de activo alto."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:148
@@ -44226,6 +44256,11 @@ msgid ""
 "negative. The corresponding digital output invert may be set to TRUE to make "
 "DNx active low rather than active high."
 msgstr ""
+"'DNx' - La señal 'down' (modo arriba/abajo) o 'direction' (modo "
+"pwm+dirección) del generador PWM X. Puede usarse como salida digital si el "
+"canal PWM correspondiente está en desuso, o si la salida en el canal nunca "
+"es negativa. La inversión de la salida digital correspondiente puede "
+"establecerse en Verdadero para hacer DNx activo bajo en lugar de activo alto."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:150
@@ -44233,6 +44268,9 @@ msgid ""
 "'QAx, QBx' - The A and B signals for Quadrature counter X. May be used as a "
 "digital input if the corresponding quadrature channel is unused."
 msgstr ""
+"'QAx, QBx' - Las señales A y B para el contador en cuadratura X. Puede "
+"usarse como una entrada digital si el canal en cuadratura correspondiente "
+"está en desuso."
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:153
@@ -44241,326 +44279,327 @@ msgid ""
 "digital input if the index feature of the corresponding quadrature channel "
 "is unused."
 msgstr ""
+"'QZx' - La señal Z (índice) para el contador en cuadratura X. Puede usarse "
+"como una entrada digital si la característica de índice en el canal en "
+"cuadratura correspondiente está en desuso."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:154 src/drivers/pluto-p.adoc:242
 msgid "'INx' - Dedicated digital input #x"
-msgstr ""
+msgstr "'INx' - Entrada digital dedicada #x"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:155 src/drivers/pluto-p.adoc:243
 msgid "'OUTx' - Dedicated digital output #x"
-msgstr ""
+msgstr "'OUTx' - Salida digital dedicada #x"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:156 src/drivers/pluto-p.adoc:244
 msgid "'GND' - Ground"
-msgstr ""
+msgstr "'GND' - Tierra"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:157 src/drivers/pluto-p.adoc:245
 msgid "'VCC' - +3.3V regulated DC"
-msgstr ""
+msgstr "'VCC' - +3.3V regulados DC"
 
 #. type: Index entry
 #: src/drivers/pluto-p.adoc:160
-#, fuzzy
 msgid "pluto-servo pinout"
-msgstr "pluto_servo"
+msgstr "Asignación de pines de pluto-servo"
 
 #. type: NOTE
 #: src/drivers/pluto-p.adoc:160
-#, fuzzy
 msgid ".Pluto-Servo Pinout"
-msgstr "pluto_servo"
+msgstr "Asignación de pines de .Pluto-servo"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/drivers/pluto-p.adoc:160
 #, no-wrap
 msgid "Pluto-Servo Pinout"
-msgstr ""
+msgstr "Asignación de pines de pluto-servo"
 
 #. type: Target for macro image
 #: src/drivers/pluto-p.adoc:160
 #, fuzzy, no-wrap
 msgid "images/pluto-pinout.png"
-msgstr "images/tooledit.png"
+msgstr "images/pluto-pinout.png"
 
 #. type: Block title
 #: src/drivers/pluto-p.adoc:162
 #, no-wrap
 msgid "Pluto-Servo Alternate Pin Functions"
-msgstr ""
+msgstr "Funciones alternativas de los pines de Pluto-Servo"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:165
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Primary function"
-msgstr "Movimiento preliminar"
+msgstr "Función primaria"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:165
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Alternate Function"
-msgstr "not Funciones"
+msgstr "Función alternativa"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:166
 #, no-wrap
 msgid "Behavior if both functions used"
-msgstr ""
+msgstr "Comportamiento si se utilizan ambas funciones"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:166
 #, no-wrap
 msgid "UP0"
-msgstr ""
+msgstr "UP0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:166
 #, no-wrap
 msgid "PWM0"
-msgstr ""
+msgstr "PWM0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:167
 #, no-wrap
 msgid "When pwm-0-pwmdir is TRUE, this pin is the PWM output"
-msgstr ""
+msgstr "Cuando pwm-0-pwmdir es Verdadero, este pin es la salida PWM"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:167
 #, no-wrap
 msgid "OUT10"
-msgstr ""
+msgstr "OUT10"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:168
 #, no-wrap
 msgid "XOR'd with UP0 or PWM0"
-msgstr ""
+msgstr "XOR con UP0 o PWM0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:168
 #, no-wrap
 msgid "UP1"
-msgstr ""
+msgstr "UP1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:168
 #, no-wrap
 msgid "PWM1"
-msgstr ""
+msgstr "PWM1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:169
 #, no-wrap
 msgid "When pwm-1-pwmdir is TRUE, this pin is the PWM output"
-msgstr ""
+msgstr "Cuando pwm-1-pwmdir es Verdadero, este pin es la salida PWM"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:169
 #, no-wrap
 msgid "OUT12"
-msgstr ""
+msgstr "OUT12"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:170
 #, no-wrap
 msgid "XOR'd with UP1 or PWM1"
-msgstr ""
+msgstr "XOR con UP1 o PWM1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:170
 #, no-wrap
 msgid "UP2"
-msgstr ""
+msgstr "UP2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:170
 #, no-wrap
 msgid "PWM2"
-msgstr ""
+msgstr "PWM2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:171
 #, no-wrap
 msgid "When pwm-2-pwmdir is TRUE, this pin is the PWM output"
-msgstr ""
+msgstr "Cuando pwm-2-pwmdir es Verdadero, este pin es la salida PWM"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:171
 #, no-wrap
 msgid "OUT14"
-msgstr ""
+msgstr "OUT14"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:172
 #, no-wrap
 msgid "XOR'd with UP2 or PWM2"
-msgstr ""
+msgstr "XOR con UP2 o PWM2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:172
 #, no-wrap
 msgid "UP3"
-msgstr ""
+msgstr "UP3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:172
 #, no-wrap
 msgid "PWM3"
-msgstr ""
+msgstr "PWM3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:173
 #, no-wrap
 msgid "When pwm-3-pwmdir is TRUE, this pin is the PWM output"
-msgstr ""
+msgstr "Cuando pwm-3-pwmdir es Verdadero, este pin es la salida PWM"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:173
 #, no-wrap
 msgid "OUT16"
-msgstr ""
+msgstr "OUT16"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:174
 #, no-wrap
 msgid "XOR'd with UP3 or PWM3"
-msgstr ""
+msgstr "XOR con UP3 o PWM3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:174
 #, no-wrap
 msgid "DN0"
-msgstr ""
+msgstr "DN0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:174
 #, no-wrap
 msgid "DIR0"
-msgstr ""
+msgstr "DIR0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:175
 #, no-wrap
 msgid "When pwm-0-pwmdir is TRUE, this pin is the DIR output"
-msgstr ""
+msgstr "Cuando pwm-0-pwmdir es Verdadero, este pin es la salida DIR"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:175
 #, no-wrap
 msgid "OUT11"
-msgstr ""
+msgstr "OUT11"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:176
 #, no-wrap
 msgid "XOR'd with DN0 or DIR0"
-msgstr ""
+msgstr "XOR con DN0 o DIR0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:176
 #, no-wrap
 msgid "DN1"
-msgstr ""
+msgstr "DN1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:176
 #, no-wrap
 msgid "DIR1"
-msgstr ""
+msgstr "DIR1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:177
 #, no-wrap
 msgid "When pwm-1-pwmdir is TRUE, this pin is the DIR output"
-msgstr ""
+msgstr "Cuando pwm-1-pwmdir es Verdadero, este pin es la salida DIR"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:177
 #, no-wrap
 msgid "OUT13"
-msgstr ""
+msgstr "OUT13"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:178
 #, no-wrap
 msgid "XOR'd with DN1 or DIR1"
-msgstr ""
+msgstr "XOR con DN1 o DIR1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:178
 #, no-wrap
 msgid "DN2"
-msgstr ""
+msgstr "DN2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:178
 #, no-wrap
 msgid "DIR2"
-msgstr ""
+msgstr "DIR2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:179
 #, no-wrap
 msgid "When pwm-2-pwmdir is TRUE, this pin is the DIR output"
-msgstr ""
+msgstr "Cuando pwm-2-pwmdir es Verdadero, este pin es la salida DIR"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:179
 #, no-wrap
 msgid "OUT15"
-msgstr ""
+msgstr "OUT15"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:180
 #, no-wrap
 msgid "XOR'd with DN2 or DIR2"
-msgstr ""
+msgstr "XOR con DN2 o DIR2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:180
 #, no-wrap
 msgid "DN3"
-msgstr ""
+msgstr "DN3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:180
 #, no-wrap
 msgid "DIR3"
-msgstr ""
+msgstr "DIR3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:181
 #, no-wrap
 msgid "When pwm-3-pwmdir is TRUE, this pin is the DIR output"
-msgstr ""
+msgstr "Cuando pwm-3-pwmdir es Verdadero, este pin es la salida DIR"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:181
 #, no-wrap
 msgid "OUT17"
-msgstr ""
+msgstr "OUT17"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:182
 #, no-wrap
 msgid "XOR'd with DN3 or DIR3"
-msgstr ""
+msgstr "XOR con DN3 o DIR3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:182
 #, no-wrap
 msgid "QZ0"
-msgstr ""
+msgstr "QZ0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:182
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "IN8"
-msgstr "INI"
+msgstr "IN8"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:183 src/drivers/pluto-p.adoc:184
@@ -44569,152 +44608,154 @@ msgstr "INI"
 #: src/drivers/pluto-p.adoc:189 src/drivers/pluto-p.adoc:190
 #: src/drivers/pluto-p.adoc:191 src/drivers/pluto-p.adoc:192
 #: src/drivers/pluto-p.adoc:193 src/drivers/pluto-p.adoc:194
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Read same value"
-msgstr "Lectura de valores de archivo ini"
+msgstr "Lee el mismo valor"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:183
 #, no-wrap
 msgid "QZ1"
-msgstr ""
+msgstr "QZ1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:183
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "IN9"
-msgstr "INI"
+msgstr "IN9"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:184
 #, no-wrap
 msgid "QZ2"
-msgstr ""
+msgstr "QZ2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:184
 #, no-wrap
 msgid "IN10"
-msgstr ""
+msgstr "IN10"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:185
 #, no-wrap
 msgid "QZ3"
-msgstr ""
+msgstr "QZ3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:185
 #, no-wrap
 msgid "IN11"
-msgstr ""
+msgstr "IN11"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:186
 #, no-wrap
 msgid "QA0"
-msgstr ""
+msgstr "QA0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:186
 #, no-wrap
 msgid "IN12"
-msgstr ""
+msgstr "IN12"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:187
 #, no-wrap
 msgid "QA1"
-msgstr ""
+msgstr "QA1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:187
 #, no-wrap
 msgid "IN13"
-msgstr ""
+msgstr "IN13"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:188
 #, no-wrap
 msgid "QA2"
-msgstr ""
+msgstr "QA2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:188
 #, no-wrap
 msgid "IN14"
-msgstr ""
+msgstr "IN14"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:189
 #, no-wrap
 msgid "QA3"
-msgstr ""
+msgstr "QA3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:189
 #, no-wrap
 msgid "IN15"
-msgstr ""
+msgstr "IN15"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:190
 #, no-wrap
 msgid "QB0"
-msgstr ""
+msgstr "QB0"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:190
 #, no-wrap
 msgid "IN16"
-msgstr ""
+msgstr "IN16"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:191
 #, no-wrap
 msgid "QB1"
-msgstr ""
+msgstr "QB1"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:191
 #, no-wrap
 msgid "IN17"
-msgstr ""
+msgstr "IN17"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:192
 #, no-wrap
 msgid "QB2"
-msgstr ""
+msgstr "QB2"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:192
 #, no-wrap
 msgid "IN18"
-msgstr ""
+msgstr "IN18"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:193
 #, no-wrap
 msgid "QB3"
-msgstr ""
+msgstr "QB3"
 
 #. type: Table
 #: src/drivers/pluto-p.adoc:193
 #, no-wrap
 msgid "IN19"
-msgstr ""
+msgstr "IN19"
 
 #. type: Title ===
 #: src/drivers/pluto-p.adoc:196 src/drivers/pluto-p.adoc:255
 #, no-wrap
 msgid "Input latching and output updating"
-msgstr ""
+msgstr "Aseguramiento de entrada y actualización de salida"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:199
 msgid "PWM duty cycles for each channel are updated at different times."
 msgstr ""
+"Los ciclos de trabajo de PWM para cada canal son actualizados en momentos "
+"distintos."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:202
@@ -44723,22 +44764,27 @@ msgid ""
 "outputs OUT10 through OUT17 are updated at the same time as the pwm function "
 "they are shared with."
 msgstr ""
+"Las salidas digitales de OUT0 a OUT9 se actualizan al mismo tiempo.  Las "
+"salidas digitales de OUT10 a OUT17 se actualizan al mismo tiempo que la "
+"función pwm que comparten."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:203
 msgid "Digital inputs IN0 through IN19 are all latched at the same time."
-msgstr ""
+msgstr "Las entradas digitales IN0 a IN19 se aseguran al mismo tiempo."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:204
 msgid "Quadrature positions for each channel are latched at different times."
 msgstr ""
+"Las posiciones en cuadratura para cada canal se aseguran en momentos "
+"distintos."
 
 #. type: Title ===
 #: src/drivers/pluto-p.adoc:205 src/drivers/pluto-p.adoc:275
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "HAL Functions, Pins and Parameters"
-msgstr "Pines y parámetros de ejes y articulaciones"
+msgstr "Funciones HAL, pines y parámetros"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:209
@@ -44746,12 +44792,14 @@ msgid ""
 "A list of all 'loadrt' arguments, HAL function names, pin names and "
 "parameter names is in the manual page, 'pluto_servo.9'."
 msgstr ""
+"En la página del manual 'pluto_servo.9' hay una lista de todos los "
+"argumentos 'loadrt' y de nombres de funciones HAL, pines y parámetros."
 
 #. type: Title ===
 #: src/drivers/pluto-p.adoc:210
 #, no-wrap
 msgid "Compatible driver hardware"
-msgstr ""
+msgstr "Hardware de controlador compatible"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:220
@@ -44764,18 +44812,26 @@ msgid ""
 "stall currents. For higher currents and voltages, some users have reported "
 "success with International Rectifier's integrated high-side/low-side drivers."
 msgstr ""
+"Un diagrama para una placa amplificadora de servomotor PWM de 2 ejes y 2A "
+"está disponible en (http://emergent.unpy.net/projects/01148303608[el "
+"desarrollador del software]).  El puente H L298 puede usarse para motores de "
+"hasta 4A (un motor por L298) o hasta 2A (dos motores por L298) con la "
+"tensión de alimentación de hasta 46V. Sin embargo, el L298 no tiene "
+"limitador de corriente interconstruido, un problema para motores con altas "
+"corrientes de bloqueo. Para corrientes y voltajes elevados algunos usuarios "
+"han reportado logros con controladores de lado alto/lado bajo integrados de "
+"International Rectifiers."
 
 #. type: Title ==
 #: src/drivers/pluto-p.adoc:222
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Pluto Step"
-msgstr "pluto_servo"
+msgstr "Pluto step"
 
 #. type: Index entry
 #: src/drivers/pluto-p.adoc:228
-#, fuzzy
 msgid "pluto-step"
-msgstr "pluto_step"
+msgstr "pluto-step"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:228
@@ -44783,11 +44839,14 @@ msgid ""
 "Pluto-step is suitable for control of a 3- or 4-axis CNC mill with stepper "
 "motors. The large number of inputs allows for a full set of limit switches."
 msgstr ""
+"Pluto-step es adecuado para controlar una fresadora CNC de 3 o 4 ejes con "
+"motores a pasos. El gran número de entradas permite un conjunto completo de "
+"interruptores de límite."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:230
 msgid "The board features:"
-msgstr ""
+msgstr "La placa contiene:"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:233
@@ -44795,32 +44854,33 @@ msgid ""
 "4 'step+direction' channels with 312.5 kHz maximum step rate, programmable "
 "step length, space, and direction change times"
 msgstr ""
+"4 canales 'paso+dirección' con una tasa de paso máxima de 312.5 kHz, "
+"longitud de paso, espacio y tiempos de cambio de dirección programables"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:234
 msgid "14 dedicated digital outputs"
-msgstr ""
+msgstr "14 salidas digitales dedicadas"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:235
 msgid "16 dedicated digital inputs"
-msgstr ""
+msgstr "16 entradas digitales dedicadas"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:236
-#, fuzzy
 msgid "EPP communication with the PC"
-msgstr "Los interruptores de comunicación deben configurarse en RS-232C"
+msgstr "Comunicación EPP con la PC"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:240
 msgid "'STEPx' - The 'step' (clock) output of stepgen channel 'x'"
-msgstr ""
+msgstr "'STEPx' - La salida 'step' (reloj) del canal de stepgen 'x'"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:241
 msgid "'DIRx' - The 'direction' output of stepgen channel 'x'"
-msgstr ""
+msgstr "'DIRx' - La salida 'direction' del canal de stepgen 'x'"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:251
@@ -44830,50 +44890,59 @@ msgid ""
 "general-purpose outputs--the layout on this header is different than the "
 "layout of a standard 26-pin ribbon cable to DB25 connector."
 msgstr ""
+"Mientras el 'conector principal extendido' tiene un superconjunto de señales "
+"normalmente encontrado en un conector DB25 de paso y dirección --4 "
+"generadores de pasos, 9 entradas y 6 salidas de propósito general-- la "
+"distribución de este conector es diferente a la de un cable plano de 26 "
+"pines estándar a un conector DB25."
 
 #. type: Block title
 #: src/drivers/pluto-p.adoc:252
 #, no-wrap
 msgid "Pluto-Step Pinout (((pluto-step pinout)))"
-msgstr ""
+msgstr "Asignación de pines en Pluto-Step (((pluto-step, asignación de pines)))"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/drivers/pluto-p.adoc:253
 #, no-wrap
 msgid "Pluto-Step Pinout"
-msgstr ""
+msgstr "Asignación de pines en Pluto-Step"
 
 #. type: Target for macro image
 #: src/drivers/pluto-p.adoc:253
 #, fuzzy, no-wrap
 msgid "images/pluto-step-pinout.png"
-msgstr "images/tooledit.png"
+msgstr "images/pluto-step-pinout.png"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:258
 msgid "Step frequencies for each channel are updated at different times."
 msgstr ""
+"Las frecuencias de paso para cada canal son actualizadas en momentos "
+"diferentes."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:259
 msgid "Digital outputs are all updated at the same time."
-msgstr ""
+msgstr "Todas las salidas digitales son actualizadas al mismo tiempo."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:260
 msgid "Digital inputs are all latched at the same time."
-msgstr ""
+msgstr "Todas las entradas digitales son aseguradas al mismo tiempo."
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:261
 msgid "Feedback positions for each channel are latched at different times."
 msgstr ""
+"Las posiciones de retroalimentación para cada canal son aseguradas en "
+"momentos diferentes."
 
 #. type: Title ===
 #: src/drivers/pluto-p.adoc:262
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Step Waveform Timings"
-msgstr "Cronometraje"
+msgstr "Tiempos de la forma de onda de paso"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:271
@@ -44885,24 +44954,31 @@ msgid ""
 "parameter 'dirtime' which should be the maximum of the two, and that the "
 "same step timings are always applied to all channels."
 msgstr ""
+"El firmware y el controlador imponen la longitud de paso, el espacio y los "
+"tiempos de cambio de dirección. Los tiempos son redondeados al siguiente "
+"múltiplo de 1.6μs, con un máximo de 49.6μs. Los tiempos son los mismos según "
+"el software del componente stepgen, excepto que 'dirhold' y 'dirsetup' han "
+"sido fusionados en un solo parámetro 'dirime' el cual debería ser el máximo "
+"de los dos, y los mismos tiempos de paso son aplicados siempre a todos los "
+"canales."
 
 #. type: Block title
 #: src/drivers/pluto-p.adoc:272
 #, no-wrap
 msgid "Pluto-Step Timings (((pluto-step timings)))"
-msgstr ""
+msgstr "Tiempos de Pluto-Step (((pluto-step, tiempos)))"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/drivers/pluto-p.adoc:273
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Pluto-Step Timings"
-msgstr "Temporizacion de pasos"
+msgstr "Tiempos de Pluto-Step"
 
 #. type: Target for macro image
 #: src/drivers/pluto-p.adoc:273
 #, fuzzy, no-wrap
 msgid "images/pluto_step_waveform.png"
-msgstr "images/tester_editor.png"
+msgstr "images/pluto_step_waveform.png"
 
 #. type: Plain text
 #: src/drivers/pluto-p.adoc:279
@@ -44910,6 +44986,8 @@ msgid ""
 "A list of all 'loadrt' arguments, HAL function names, pin names and "
 "parameter names is in the manual page, 'pluto_step.9'."
 msgstr ""
+"Hay una lista de todos los argumentos a 'loadrt' y de nombres de funciones, "
+"pines y parámetros en la página del manual 'pluto_step.9'."
 
 #. type: Title =
 #: src/drivers/pmx485.adoc:5
@@ -45096,7 +45174,7 @@ msgstr ""
 #: src/drivers/servo-to-go.adoc:5
 #, no-wrap
 msgid "Servo To Go Driver"
-msgstr ""
+msgstr "Controlador Servo To Go"
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:18
@@ -45107,6 +45185,12 @@ msgid ""
 "encoder input, 8 channels of analog input and output, 32 bits digital I/O, "
 "an interval timer with interrupt and a watchdog."
 msgstr ""
+"La Servo-To-Go (STG) es una de las primeras tarjetas de control de "
+"movimiento para PC soportadas por LinuxCNC. Es una tarjeta ISA y hay en "
+"diferentes sabores (todas compatibles con este controlador). La placa "
+"incluye hasta 8 canales de entrada de codificador en cuadratura, 8 canales "
+"de entrada y salida analógica, E/S digital de 32 bits, un temporizador de "
+"intervalo con interrupción y un perro guardián."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:25
@@ -45118,6 +45202,13 @@ msgid ""
 "voltage regulators do not have this problem, and work fine with the STG "
 "cards."
 msgstr ""
+"Hemos tenido reportes de que los amplificadores operacionales en la tarjeta "
+"Servo To Go no funcionan con las fuentes de poder ATX más recientes que usan "
+"los modernos convertidores DC-DC de cambio de modo.  El modo de falla es que "
+"la tarjeta emite un voltaje constante independientemente de lo que le ordene "
+"el controlador.  Las fuentes de poder ATX antiguas con reguladores de "
+"voltaje lineales no tienen este problema, y funcionan bien con las tarjetas "
+"STG."
 
 #. type: delimited block -
 #: src/drivers/servo-to-go.adoc:32
@@ -45126,6 +45217,8 @@ msgid ""
 "loadrt hal_stg [base=<address>] [num_chan=<nr>] [dio=\"<dio-string>\"] \\\n"
 "                 [model=<model>]\n"
 msgstr ""
+"loadrt hal_stg [base=<dirección>] [num_chan=<no>] [dio=\"<cadena-des>\"] \\\n"
+"                 [model=<modelo>]\n"
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:46
@@ -45142,6 +45235,19 @@ msgid ""
 "the fourth sets port D (Port D - DIO.24-31). The model field can be used in "
 "case the driver doesn't autodetect the right card version."
 msgstr ""
+"El campo de dirección base es opcional; si no se proporciona, el controlador "
+"intenta detectar automáticamente la placa. El campo num_chan se usa para "
+"especificar el número de canales disponibles en la tarjeta, si no se usa se "
+"asume la versión de 8 ejes. La configuración de las entradas/salidas "
+"digitales se determina por una cadena pasada a insmod al cargar el módulo.  "
+"El formato consiste en una cadena de cuatro caracteres que establece la "
+"dirección de cada grupo de pines. Cada caracter en la cadena de dirección es "
+"una \"I\" o una \"O\". El primer caracter configura la dirección del puerto "
+"A (Puerto A - DIO.0-7), el siguiente configura el puerto B (Puerto B - DIO.8-"
+"15), el siguiente configura el puerto C (Puerto C - DIO.16-23) y el cuarto "
+"configura el puerto D (Puerto D - DIO.24-31). El campo model puede usarse en "
+"caso de que el controlador no detecte automáticamente la versión correcta de "
+"tarjeta."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:50
@@ -45150,12 +45256,15 @@ msgid ""
 "relevant to the driver (e.g. autodetected version number and base address). "
 "For example:"
 msgstr ""
+"Sugerencia: Después de iniciar el controlador se pueden consultar mensajes "
+"relevantes al controlador con 'dmesg' (p. ej. el número de versión "
+"autodetectada y la dirección base). Por ejemplo:"
 
 #. type: delimited block -
 #: src/drivers/servo-to-go.adoc:54
 #, no-wrap
 msgid "loadrt hal_stg base=0x300 num_chan=4 dio=\"IOIO\"\n"
-msgstr ""
+msgstr "loadrt hal_stg base=0x300 num_chan=4 dio=\"IOIO\"\n"
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:62
@@ -45166,12 +45275,18 @@ msgid ""
 "next 8 (Port B) configured as Output, the next 8 (Port C) configured as "
 "Input, and the last 8 (Port D) configured as Output"
 msgstr ""
+"Este ejemplo instala el controlador STG para una tarjeta en la dirección "
+"base 0x300, 4 canales de retroalimentación de codificador, DACs y ADCs, "
+"junto con 32 bits de E/S configurados así: los primeros 8 (Puerto A) "
+"configurados como entradas, los 8 siguientes (Puerto B) configurados como "
+"salidas, los 8 siguientes (Puerto C) configurados como entradas y los "
+"últimos 8 (Puerto D) configurados como salidas"
 
 #. type: delimited block -
 #: src/drivers/servo-to-go.adoc:66
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "loadrt hal_stg\n"
-msgstr "loadrt ddt\n"
+msgstr "loadrt hal_stg\n"
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:72
@@ -45180,6 +45295,10 @@ msgid ""
 "address and board model, it installs 8 axes by default along with a standard "
 "I/O setup: Port A & B configured as Input, Port C & D configured as Output."
 msgstr ""
+"Este ejemplo instala el controlador e intenta autodetectar la dirección y el "
+"modelo de la placa; instala 8 ejes predeterminadamente junto con las "
+"configuración estándar de E/S: Puertos A y B como entradas y Puertos C y D "
+"como salidas."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:76
