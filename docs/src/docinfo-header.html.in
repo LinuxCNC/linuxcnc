@@ -13,5 +13,8 @@
     <span class="lcnc-sep" aria-hidden="true">&bull;</span>
     <a data-lcnc-link="4" href="{lcnc-cssrel}en/gcode.html">G-Code Quick Reference</a>
   </nav>
+  <!-- Extension slot for optional post-processing add-ons (for example a search
+       box injected by a separate tool). Empty in the base build. -->
+  <div class="lcnc-topbar-slot" data-lcnc-slot="topbar-end"></div>
 @LANGUAGE_SWITCHER@
 </header>
