@@ -1442,6 +1442,7 @@ class HandlerClass:
     def update_pause_button(self,data):
         self.w.action_pause._blockSignals(True)
         self.w.action_pause.setChecked(data)
+        self.pause_timer(data)
         # only enable the lift selection button if pins are connected
         if self.spindle_lift_pins_present and self.w.chk_eoffsets.isChecked():
             self.w.btn_spindle_pause.setEnabled(not data)
@@ -1780,6 +1781,22 @@ class HandlerClass:
         self.run_time = 0
         self.timer_on = True
         self.timer_tick = time.time()
+
+    def pause_timer(self, state):
+        # stop the timer update but
+        # keep track of accumulated time
+        if state:
+            self.timer_on = False
+            tick = time.time()
+            self.run_time += tick - self.timer_tick
+            txt = _translate("HandlerClass","Run timer paused at")
+            self.add_status("{} {}".format(txt, self.w.lbl_runtime.text()))
+
+        # reset the time reference point to now
+        # but don't reset the accumulated time
+        else:
+            self.timer_on = True
+            self.timer_tick = time.time()
 
     def stop_timer(self):
         self.timer_on = False
