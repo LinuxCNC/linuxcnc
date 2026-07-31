@@ -2351,7 +2351,7 @@ class HandlerClass:
             ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_pause(self,event,state,shift,cntrl):
-        if state and STATUS.is_auto_mode() and self.use_keyboard():
+        if state and self.use_keyboard():
             self.w.action_pause.click()
 
     def on_keycall_jograte(self,event,state,shift,cntrl,value):
