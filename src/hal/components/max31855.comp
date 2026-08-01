@@ -43,6 +43,7 @@ variable unsigned data_frame [15];
 variable unsigned state = 1;
 
 option period no;
+option extra_setup yes;
 function bitbang_spi;
 license "GPL";
 author "Joseph Calderon";
@@ -197,4 +198,19 @@ FUNCTION(bitbang_spi) {
   }
   state = (delay << 7) | (nbit << 1) | cs;
   cs_out = cs;
+}
+
+EXTRA_SETUP(){
+    (void)prefix;
+    (void)extra_arg;
+    // The pins are sized by (personality & 0xf) but the function uses the
+    // raw value capped at 15, so a larger value exports fewer pins than
+    // the function accesses, and dereferencing the unexported pins kills
+    // rtapi_app when the function runs.
+    if (personality > 15) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "max31855: personality must be at most 15 (use personality=N to set the number of sensors)\n");
+        return -EINVAL;
+    }
+    return 0;
 }
