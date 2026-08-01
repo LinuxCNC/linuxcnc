@@ -16,89 +16,40 @@
 
 # INI access for the MTConnect agent.
 #
-# Prefers LinuxCNC's own parser (linuxcnc.ini) so semantics match the running
-# machine exactly.  Falls back to a small tolerant pure-Python parser when the
-# linuxcnc module is not importable, which lets the /probe generator and its
-# tests run offline against a plain .ini file.
-
-import os
+# A thin wrapper over LinuxCNC's own INI parser (linuxcnc.ini) so semantics match
+# the running machine exactly -- in particular, LinuxCNC treats everything after
+# '=' as the value (inline ';'/'#' are NOT comment delimiters).  Adds only typed
+# convenience helpers and default handling.
 
 
 class IniReader:
     def __init__(self, path):
+        import linuxcnc
         self.path = path
-        self._lcnc = None
-        self._data = None  # dict[section] -> dict[key] -> [values...]
-        try:
-            import linuxcnc
-            self._lcnc = linuxcnc.ini(path)
-        except Exception:
-            # No linuxcnc module (or it could not open the file): use fallback.
-            self._data = _parse_ini(path)
+        self._ini = linuxcnc.ini(path)
 
     def find(self, section, key, default=None):
         """Return the first value for section/key as a str, or default."""
-        if self._lcnc is not None:
-            val = self._lcnc.find(section, key)
-            return default if val is None else val
-        vals = self._data.get(section, {}).get(key)
-        return vals[0] if vals else default
+        val = self._ini.find(section, key)
+        return default if val is None else val
 
     def findall(self, section, key):
         """Return every value for a (possibly repeated) section/key."""
-        if self._lcnc is not None:
-            return list(self._lcnc.findall(section, key))
-        return list(self._data.get(section, {}).get(key, []))
+        return list(self._ini.findall(section, key))
 
     def has_section(self, section):
-        if self._lcnc is not None:
-            return bool(self._lcnc.hassection(section))
-        return section in self._data
+        return bool(self._ini.hassection(section))
 
     # -- typed helpers -------------------------------------------------------
 
     def find_float(self, section, key, default=None):
-        val = self.find(section, key)
         try:
-            return float(val)
+            return float(self.find(section, key))
         except (TypeError, ValueError):
             return default
 
     def find_int(self, section, key, default=None):
-        val = self.find(section, key)
         try:
-            return int(float(val))
+            return int(float(self.find(section, key)))
         except (TypeError, ValueError):
             return default
-
-
-def _parse_ini(path):
-    """Minimal LinuxCNC-compatible INI parser.
-
-    Handles '[SECTION]' headers, 'KEY = VALUE', leading/aligned whitespace,
-    '#'/';' comments, and repeated keys (values accumulate into a list).
-    """
-    data = {}
-    section = None
-    with open(path, "r") as fh:
-        for raw in fh:
-            line = raw.strip()
-            if not line or line[0] in "#;":
-                continue
-            if line[0] == "[" and line.endswith("]"):
-                section = line[1:-1].strip()
-                data.setdefault(section, {})
-                continue
-            if section is None or "=" not in line:
-                continue
-            key, _, value = line.partition("=")
-            key = key.strip()
-            # Strip trailing inline comments introduced by '#'.
-            value = value.split("#", 1)[0].strip()
-            data[section].setdefault(key, []).append(value)
-    return data
-
-
-def default_ini_path():
-    """Best-effort INI path: the one LinuxCNC exports when launching a comp."""
-    return os.environ.get("INI_FILE_NAME")
