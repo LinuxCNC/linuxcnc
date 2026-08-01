@@ -1,0 +1,16 @@
+# Load the MTConnect agent as a userspace HAL component.
+#
+# -W waits until the component ("mtconnect-agent") is ready before HAL
+# processing continues, so its pins exist for any links below.  The machine INI
+# is taken from $INI_FILE_NAME (set by LinuxCNC), so no argument is needed.
+#
+# Once loaded the component exposes:
+#   in : mtconnect-agent.enable      (bit) gate polling/serving
+#        mtconnect-agent.sample-hz    (u32) override the INI SAMPLE_HZ
+#   out: mtconnect-agent.active       (bit) polling + serving
+#        mtconnect-agent.connected    (bit) MQTT broker link up
+#        mtconnect-agent.heartbeat     (u32) increments each poll
+loadusr -W mtconnect-agent
+
+# Example: drive a panel lamp from agent state (uncomment + wire to your HAL):
+# net mtc-up mtconnect-agent.active => some-lamp.in
