@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!--
+  Copyright (C) 2026 LinuxCNC contributors
+
+  This program is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free Software
+  Foundation; either version 2 of the License, or (at your option) any later
+  version.  It is distributed WITHOUT ANY WARRANTY; see the GNU GPL for details.
+
+  MTConnect digital-twin viewer: fetches /probe for the device model, loads the
+  referenced SolidModel meshes, and animates them from /current using the Motion
+  chain.  three.js is loaded from the system libjs-three package, served by the
+  agent under /three/ (so no third-party JS is vendored into LinuxCNC).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>LinuxCNC MTConnect Twin</title>
+<style>
+  html,body{margin:0;height:100%;background:#15181c;color:#cdd6e0;
+    font:13px/1.5 system-ui,sans-serif;overflow:hidden}
+  #hud{position:fixed;top:10px;left:10px;z-index:10;background:#0d0f12cc;
+    border:1px solid #2a2f37;border-radius:8px;padding:10px 12px;min-width:220px}
+  #hud h1{font-size:13px;margin:0 0 6px;color:#8ab4ff}
+  #hud table{border-collapse:collapse;width:100%}
+  #hud td{padding:1px 6px 1px 0;white-space:nowrap}
+  #hud td.k{color:#7f8a99}
+  #hud td.v{text-align:right;font-variant-numeric:tabular-nums;color:#e6edf5}
+  #err{color:#ff8f8f}
+  #tip{position:fixed;bottom:8px;left:10px;color:#5b6675;z-index:10}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "/three/build/three.module.js",
+  "three/addons/": "/three/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="hud">
+  <h1>LinuxCNC · MTConnect Twin</h1>
+  <table id="stat"></table>
+  <div id="err"></div>
+</div>
+<div id="tip">drag = orbit · scroll = zoom · right-drag = pan</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader }     from 'three/addons/loaders/STLLoader.js';
+import { OBJLoader }     from 'three/addons/loaders/OBJLoader.js';
+import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
+
+const DEG = Math.PI / 180;
+const UNIT_MM = { MILLIMETER: 1, INCH: 25.4, CENTIMETER: 10, METER: 1000, DEGREE: 1, RADIAN: 1 };
+const err = m => document.getElementById('err').textContent = m || '';
+
+// local-name helpers (namespace-agnostic XML parsing)
+const kids = (el, name) => [...el.children].filter(c => c.localName === name);
+const all  = (root, name) => [...root.getElementsByTagName('*')].filter(e => e.localName === name);
+function ownerComponent(el){
+  for (let p = el.parentElement; p; p = p.parentElement)
+    if (p.getAttribute && p.getAttribute('id') &&
+        !['Configuration','CoordinateSystems','DataItems','Motion','SolidModel'].includes(p.localName))
+      return p;
+  return null;
+}
+
+// ---- three.js scene ----
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x15181c);
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.01, 1e6);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x33383f, 1.1));
+const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(1,1,1); scene.add(key);
+// LinuxCNC/machine frame is Z-up
+const machineRoot = new THREE.Group(); machineRoot.rotation.x = -Math.PI/2; scene.add(machineRoot);
+scene.add(new THREE.GridHelper(400, 20, 0x2a2f37, 0x22262c));
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+(function loop(){ requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+
+const links = {};   // componentId -> {group,type,axis:THREE.Vector3,posId,scale}
+let posUnitMM = 25.4;
+
+async function build(){
+  const xml = new DOMParser().parseFromString(await (await fetch('probe')).text(), 'text/xml');
+  const device = all(xml, 'Device')[0];
+  if (!device){ err('no Device in /probe'); return; }
+
+  // machine linear units (from any ACTUAL POSITION DataItem)
+  const pos0 = all(device,'DataItem').find(d => d.getAttribute('type')==='POSITION' && d.getAttribute('subType')==='ACTUAL');
+  posUnitMM = UNIT_MM[(pos0 && pos0.getAttribute('units')) || 'MILLIMETER'] || 1;
+
+  // Motions: componentId -> motion info; and motionId -> componentId
+  const motionOf = {}, compOfMotion = {};
+  for (const m of all(device,'Motion')){
+    const comp = ownerComponent(m); if (!comp) continue;
+    const cid = comp.getAttribute('id');
+    const axisEl = kids(m,'Axis')[0];
+    const v = (axisEl ? axisEl.textContent.trim().split(/\s+/).map(Number) : [0,0,1]);
+    motionOf[cid] = { id:m.getAttribute('id'), parent:m.getAttribute('parentIdRef'),
+      type:m.getAttribute('type'), axis:new THREE.Vector3(v[0],v[1],v[2]) };
+    compOfMotion[m.getAttribute('id')] = cid;
+  }
+  // ACTUAL position/angle DataItem per component
+  const posIdOf = {};
+  for (const d of all(device,'DataItem')){
+    const t = d.getAttribute('type');
+    if ((t==='POSITION'||t==='ANGLE') && d.getAttribute('subType')==='ACTUAL'){
+      const comp = ownerComponent(d); if (comp) posIdOf[comp.getAttribute('id')] = d.getAttribute('id');
+    }
+  }
+  // create groups for moving links, nest by parent motion
+  for (const [cid, mo] of Object.entries(motionOf)){
+    links[cid] = { group:new THREE.Group(), type:mo.type, axis:mo.axis.clone().normalize(),
+      posId:posIdOf[cid], scale: mo.type==='PRISMATIC' ? posUnitMM : DEG };
+  }
+  for (const [cid, mo] of Object.entries(motionOf)){
+    const parentCid = mo.parent ? compOfMotion[mo.parent] : null;
+    (parentCid && links[parentCid] ? links[parentCid].group : machineRoot).add(links[cid].group);
+  }
+  // load every SolidModel mesh into its component group (or static at root)
+  const jobs = all(device,'SolidModel').filter(s => s.getAttribute('href')).map(s => {
+    const comp = ownerComponent(s);
+    const cid = comp && comp.getAttribute('id');
+    const target = (cid && links[cid]) ? links[cid].group : machineRoot;
+    const meshMM = UNIT_MM[(s.getAttribute('units')||'MILLIMETER').toUpperCase()] || 1;
+    return loadMesh(s.getAttribute('href'), s.getAttribute('mediaType'), target, meshMM);
+  });
+  await Promise.allSettled(jobs);
+  fit();
+  poll();
+}
+
+const COLORS = [0x9aa7b4, 0x6f9fbd, 0xb58f6f, 0x7fae7f, 0xa78fbd];
+let colorIx = 0;
+function loadMesh(href, media, target, meshMM){
+  return new Promise((resolve) => {
+    const m = (media||'').toUpperCase();
+    const done = obj => {
+      // scale mesh into machine units (mm), positions are converted the same way
+      obj.scale.multiplyScalar(meshMM);
+      target.add(obj); resolve();
+    };
+    const fail = e => { console.warn('mesh load failed', href, e); err('mesh load failed: '+href); resolve(); };
+    try {
+      if (m==='STL'){
+        new STLLoader().load(href, g => {
+          g.computeVertexNormals();
+          const mat = new THREE.MeshStandardMaterial({ color: COLORS[colorIx++ % COLORS.length],
+            metalness:0.15, roughness:0.7, side:THREE.DoubleSide });
+          done(new THREE.Mesh(g, mat));
+        }, undefined, fail);
+      } else if (m==='OBJ'){
+        new OBJLoader().load(href, o => done(o), undefined, fail);
+      } else if (m==='GLTF'){
+        new GLTFLoader().load(href, gltf => done(gltf.scene), undefined, fail);
+      } else fail('unknown media '+media);
+    } catch(e){ fail(e); }
+  });
+}
+
+function fit(){
+  const box = new THREE.Box3().setFromObject(machineRoot);
+  if (!box.isEmpty()){
+    const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
+    const r = Math.max(s.x,s.y,s.z) || 100;
+    controls.target.copy(c);
+    camera.position.set(c.x + r*1.2, c.y + r*1.0, c.z + r*1.4);
+    camera.near = r/100; camera.far = r*100; camera.updateProjectionMatrix();
+  }
+}
+
+// ---- live update ----
+const tmpQ = new THREE.Quaternion();
+async function poll(){
+  try {
+    const xml = new DOMParser().parseFromString(await (await fetch('current')).text(), 'text/xml');
+    const val = {};
+    for (const e of [...xml.getElementsByTagName('*')]){
+      const id = e.getAttribute && e.getAttribute('dataItemId');
+      if (id) val[id] = e.textContent.trim();
+    }
+    for (const lk of Object.values(links)){
+      const raw = lk.posId ? parseFloat(val[lk.posId]) : NaN;
+      if (isNaN(raw)) continue;
+      if (lk.type==='PRISMATIC') lk.group.position.copy(lk.axis).multiplyScalar(raw * lk.scale);
+      else lk.group.quaternion.copy(tmpQ.setFromAxisAngle(lk.axis, raw * lk.scale));
+    }
+    hud(val); err('');
+  } catch(e){ err('poll error: '+e.message); }
+  setTimeout(poll, 200);
+}
+
+function hud(val){
+  const rows = [
+    ['Execution', val.execution], ['Mode', val.mode], ['E-stop', val.estop],
+    ['Program', val.program], ['Tool', val.toolnum],
+    ['X', val.pos_x], ['Y', val.pos_y], ['Z', val.pos_z],
+    ['Feed', val.pathfeed], ['Spindle', val.spdl_speed],
+  ].filter(r => r[1] !== undefined && r[1] !== 'UNAVAILABLE');
+  document.getElementById('stat').innerHTML =
+    rows.map(([k,v]) => `<tr><td class="k">${k}</td><td class="v">${v}</td></tr>`).join('');
+}
+
+build().catch(e => err('build error: '+e.message));
+</script>
+</body>
+</html>
