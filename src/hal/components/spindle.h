@@ -10,13 +10,13 @@
 ********************************************************************/
 
 typedef struct {
-    hal_float_t *scale;
-    hal_float_t *min;
-    hal_float_t *max;
-    hal_float_t *accel;
-    hal_float_t *decel;
-    hal_float_t *speed_tolerance;
-    hal_float_t *zero_tolerance;
-    hal_float_t *offset;
-    hal_bit_t *select;
+    hal_real_t scale;
+    hal_real_t min;
+    hal_real_t max;
+    hal_real_t accel;
+    hal_real_t decel;
+    hal_real_t speed_tolerance;
+    hal_real_t zero_tolerance;
+    hal_real_t offset;
+    hal_bool_t select;
 } gear_t;

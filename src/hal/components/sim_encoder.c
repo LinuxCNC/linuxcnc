@@ -90,13 +90,13 @@ typedef struct {
     unsigned long accum;	/* frequency generator accumulator */
     signed char state;		/* current quadrature state */
     long cycle;			/* current cycle */
-    hal_bit_t *phaseA;		/* pins for output signals */
-    hal_bit_t *phaseB;		/* pins for output signals */
-    hal_bit_t *phaseZ;		/* pins for output signals */
-    hal_u32_t *ppr;		/* pin: pulses per revolution */
-    hal_float_t *scale;		/* pin: pulses per revolution */
-    hal_float_t *speed;		/* pin: speed in revs/second */
-    hal_s32_t *rawcounts;       /* pin: raw counts */
+    hal_bool_t phaseA;		/* pins for output signals */
+    hal_bool_t phaseB;		/* pins for output signals */
+    hal_bool_t phaseZ;		/* pins for output signals */
+    hal_uint_t ppr;		/* pin: pulses per revolution */
+    hal_real_t scale;		/* pin: pulses per revolution */
+    hal_real_t speed;		/* pin: speed in revs/second */
+    hal_sint_t rawcounts;       /* pin: raw counts */
     double old_scale;		/* internal, used to detect changes */
     double scale_mult;		/* internal, reciprocal of scale */
 } sim_enc_t;
@@ -257,7 +257,7 @@ static void make_pulses(void *arg, long period)
 	    /* get direction bit, 1 if negative, 0 if positive */
 	    dir = sim_enc->addval >> 31;
 	    if ( dir ) {
-		(*sim_enc->rawcounts) --;
+		hal_set_si32(sim_enc->rawcounts, hal_get_si32(sim_enc->rawcounts) - 1);
 		/* negative rotation, decrement state, detect underflow */
 		if (--(sim_enc->state) < 0) {
 		    /* state underflow, roll over */
@@ -265,19 +265,19 @@ static void make_pulses(void *arg, long period)
 		    /* decrement cycle, detect underflow */
 		    if (--(sim_enc->cycle) < 0) {
 			/* cycle underflow, roll over */
-			sim_enc->cycle += *(sim_enc->ppr);
+			sim_enc->cycle += hal_get_ui32(sim_enc->ppr);
 		    }
 		}
 	    } else {
-		(*sim_enc->rawcounts) ++;
+		hal_set_si32(sim_enc->rawcounts, hal_get_si32(sim_enc->rawcounts) + 1);
 		/* positive rotation, increment state, detect overflow */
 		if (++(sim_enc->state) > 3) {
 		    /* state overflow, roll over */
 		    sim_enc->state = 0;
 		    /* increment cycle, detect overflow */
-		    if (++(sim_enc->cycle) >= *(sim_enc->ppr)) {
+		    if (++(sim_enc->cycle) >= hal_get_ui32(sim_enc->ppr)) {
 			/* cycle overflow, roll over */
-			sim_enc->cycle -= *(sim_enc->ppr);
+			sim_enc->cycle -= hal_get_ui32(sim_enc->ppr);
 		    }
 		}
 	    }
@@ -285,30 +285,26 @@ static void make_pulses(void *arg, long period)
 	/* generate outputs */
 	switch (sim_enc->state) {
 	case 0:
-	    *(sim_enc->phaseA) = 1;
-	    *(sim_enc->phaseB) = 0;
+	    hal_set_bool(sim_enc->phaseA, 1);
+	    hal_set_bool(sim_enc->phaseB, 0);
 	    break;
 	case 1:
-	    *(sim_enc->phaseA) = 1;
-	    *(sim_enc->phaseB) = 1;
+	    hal_set_bool(sim_enc->phaseA, 1);
+	    hal_set_bool(sim_enc->phaseB, 1);
 	    break;
 	case 2:
-	    *(sim_enc->phaseA) = 0;
-	    *(sim_enc->phaseB) = 1;
+	    hal_set_bool(sim_enc->phaseA, 0);
+	    hal_set_bool(sim_enc->phaseB, 1);
 	    break;
 	case 3:
-	    *(sim_enc->phaseA) = 0;
-	    *(sim_enc->phaseB) = 0;
+	    hal_set_bool(sim_enc->phaseA, 0);
+	    hal_set_bool(sim_enc->phaseB, 0);
 	    break;
 	default:
 	    /* illegal state, reset to legal one */
 	    sim_enc->state = 0;
 	}
-	if ((sim_enc->state == 0) && (sim_enc->cycle == 0)) {
-	    *(sim_enc->phaseZ) = 1;
-	} else {
-	    *(sim_enc->phaseZ) = 0;
-	}
+	hal_set_bool(sim_enc->phaseZ, (sim_enc->state == 0) && (sim_enc->cycle == 0));
 	/* move on to next 'encoder' */
 	sim_enc++;
     }
@@ -337,21 +333,22 @@ static void update_speed(void *arg, long period)
     sim_enc = arg;
     for (n = 0; n < howmany; n++) {
 	/* check for change in scale value */
-	if ( *(sim_enc->scale) != sim_enc->old_scale ) {
+	rtapi_real scale = hal_get_real(sim_enc->scale);
+	if ( scale != sim_enc->old_scale ) {
 	    /* save new scale to detect future changes */
-	    sim_enc->old_scale = *(sim_enc->scale);
+	    sim_enc->old_scale = scale;
 	    /* scale value has changed, test and update it */
-	    if ((*(sim_enc->scale) < 1e-20) && (*(sim_enc->scale) > -1e-20)) {
+	    if ((scale < 1e-20) && (scale > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		*(sim_enc->scale) = 1.0;
+		scale = hal_set_real(sim_enc->scale, 1.0);
 	    }
 	    /* we actually want the reciprocal */
-	    sim_enc->scale_mult = 1.0 / *(sim_enc->scale);
+	    sim_enc->scale_mult = 1.0 / scale;
 	}
 	/* convert speed command (user units) to revs/sec */
-	rev_sec = *(sim_enc->speed) * sim_enc->scale_mult;
+	rev_sec = hal_get_real(sim_enc->speed) * sim_enc->scale_mult;
 	/* convert speed command (revs per sec) to counts/sec */
-	freq = rev_sec * (*(sim_enc->ppr)) * 4.0;
+	freq = rev_sec * (hal_get_ui32(sim_enc->ppr)) * 4.0;
 	/* limit the commanded frequency */
 	if (freq > maxf) {
 	    freq = maxf;
@@ -380,48 +377,45 @@ static int export_sim_enc(sim_enc_t * addr, char *prefix)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->ppr), comp_id,
+    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->ppr), 100,
 			      "%s.ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export param variable for scaling */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
+    retval = hal_pin_new_real(comp_id, HAL_IO, &(addr->scale), 1.0,
 				"%s.scale", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for speed command */
-    retval = hal_pin_float_newf(HAL_IN, &(addr->speed), comp_id,
+    retval = hal_pin_new_real(comp_id, HAL_IN, &(addr->speed), 0.0,
 				"%s.speed", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for output phases */
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseA), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(addr->phaseA), 0,
 			      "%s.phase-A", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseB), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(addr->phaseB), 0,
 			      "%s.phase-B", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseZ), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(addr->phaseZ), 0,
 			      "%s.phase-Z", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for rawcounts */
-    retval = hal_pin_s32_newf(HAL_IN, &(addr->rawcounts), comp_id,
+    retval = hal_pin_new_si32(comp_id, HAL_IN, &(addr->rawcounts), 0,
 			      "%s.rawcounts", prefix);
     if (retval != 0) {
 	return retval;
     }
-    /* init parameters */
-    *(addr->ppr) = 100;
-    *(addr->scale) = 1.0;
     /* init internal vars */
     addr->old_scale = 0.0;
     addr->scale_mult = 1.0;
@@ -430,10 +424,6 @@ static int export_sim_enc(sim_enc_t * addr, char *prefix)
     addr->addval = 0;
     addr->state = 0;
     addr->cycle = 0;
-    /* init the outputs */
-    *(addr->phaseA) = 0;
-    *(addr->phaseB) = 0;
-    *(addr->phaseZ) = 0;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
