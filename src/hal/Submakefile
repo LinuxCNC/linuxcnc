@@ -20,7 +20,7 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(HALLIB_LIBS) $(ULAPI_LDFLAGS)
 
-HALMODULESRCS := hal/halmodule.cc
+HALMODULESRCS := hal/halmodule.cc hal/utils/setps_util.c
 PYSRCS += $(HALMODULESRCS)
 
 HALMODULE := ../lib/python/_hal.so

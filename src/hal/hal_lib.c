@@ -1046,10 +1046,11 @@ int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def
     return 0;
 }
 
-#if 0
-// Must wait until switch
 // Note: port has no initial default as it is an 'internal' reference
-int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fmt, ...)
+//int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fmt, ...)
+// FIXME: This needs to change into hal_port_t argument when we break the API
+// It is here so we may add halmodule without too  much trouble until then.
+int hal_pin_new_port(int compid, hal_pdir_t dir, hal_sint_t *ref, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -1057,7 +1058,6 @@ int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fm
     va_end(ap);
     return ret;
 }
-#endif
 
 /* this is a generic function that does the majority of the work. */
 
@@ -5173,7 +5173,7 @@ EXPORT_SYMBOL(hal_pin_new_ui32);
 EXPORT_SYMBOL(hal_pin_new_sint);
 EXPORT_SYMBOL(hal_pin_new_uint);
 EXPORT_SYMBOL(hal_pin_new_real);
-//EXPORT_SYMBOL(hal_pin_new_port);
+EXPORT_SYMBOL(hal_pin_new_port);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
