@@ -555,15 +555,22 @@ static int comp_id;
             print("    int arg = simple_strtol(argstr, NULL, 0);", file=f)
             print("    return export(prefix, arg);", file=f)
             print("}"   , file=f)
-        if not options.get("singleton") and not options.get("count_function") :
-            print("static int default_count=%s, count=0;" \
-                % options.get("default_count", 1), file=f)
-            if options.get("userspace"):
-                print("char *names[%d] = {NULL,};"%(MAX_USERSPACE_NAMES), file=f)
+        if not options.get("singleton"):
+            if not options.get("count_function"):
+                print("static int default_count=%s, count=0;" \
+                    % options.get("default_count", 1), file=f)
+                if options.get("userspace"):
+                    print("char *names[%d] = {NULL,};"%(MAX_USERSPACE_NAMES), file=f)
+                else:
+                    print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
+                    print("char *names = \"\"; // comma separated names", file=f)
+                    print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
             else:
-                print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
-                print("char *names = \"\"; // comma separated names", file=f)
-                print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
+                if options.get("userspace"):
+                    print("char *names[%d] = {NULL,};"%(MAX_USERSPACE_NAMES), file=f)
+                else:
+                    print("char *names = \"\"; // comma separated names", file=f)
+                    print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
         if has_personality:
             init1 = str(int(options.get('default_personality', 0)))
             init = ",".join([init1] * MAX_PERSONALITIES)
@@ -608,16 +615,88 @@ static int comp_id;
                 print("    r = export(\"%s\", 0);" % \
                         to_hal(removeprefix(comp_name, "hal_")), file=f)
         elif options.get("count_function"):
-            print("    for(i=0; i<count; i++) {", file=f)
-            print("        char buf[HAL_NAME_LEN + 1];", file=f)
-            print("        rtapi_snprintf(buf, sizeof(buf), " \
-                                        "\"%s.%%d\", i);" % \
-                    to_hal(removeprefix(comp_name, "hal_")), file=f)
-            if has_personality:
-                print("        r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
+            if options.get("userspace"):
+                print("    if(names[0]) {", file=f)
+                print("        rtapi_print_msg(RTAPI_MSG_ERR, \"names= is not supported with count_function\\n\");", file=f)
+                print("        r = -EINVAL;", file=f)
+                print("    } else {", file=f)
+                print("        for(i=0; i<count; i++) {", file=f)
+                print("            char buf[HAL_NAME_LEN + 1];", file=f)
+                print("            rtapi_snprintf(buf, sizeof(buf), " \
+                                            "\"%s.%%d\", i);" % \
+                        to_hal(removeprefix(comp_name, "hal_")), file=f)
+                if has_personality:
+                    print("            r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
+                else:
+                    print("            r = export(buf, i);", file=f)
+                print("            if(r != 0) break;", file=f)
+                print("        }", file=f)
+                print("    }", file=f)
             else:
-                print("        r = export(buf, i);", file=f)
-            print("    }", file=f)
+                print("    if(names[0]) {", file=f)
+                print("        int name_count = 0;", file=f)
+                print("        int name_start = 0;", file=f)
+                print("        size_t i, j;", file=f)
+                print("        char buf[HAL_NAME_LEN+1];", file=f)
+                print("        const size_t length = strlen(names);", file=f)
+                print("        for (i = j = 0; i <= length && r == 0; i++) {", file=f)
+                print("            const char c = buf[j] = names[i];", file=f)
+                print("            if ((c == ',') || (c == '\\0')) {", file=f)
+                print("                buf[j] = '\\0';", file=f)
+                print("                if (j == 0) {", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR, \"names[%d] is invalid (empty string)\\n\", name_count);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
+                print("                name_count++;", file=f)
+                print("                j = 0;", file=f)
+                print("            } else {", file=f)
+                print("                if (++j == (sizeof(buf) / sizeof(buf[0]))) {", file=f)
+                print("                    buf[j - 1] = '\\0';", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR,\"names: \\\"%s\\\" too long\\n\", buf);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
+                print("            }", file=f)
+                print("        }", file=f)
+                print("        if(r == 0 && name_count != count) {", file=f)
+                fmt = "\"names= count (%%d) does not match %s count (%%d)\\n\"" % comp_name
+                print("            rtapi_print_msg(RTAPI_MSG_ERR, %s, name_count, count);" % fmt, file=f)
+                print("            r = -EINVAL;", file=f)
+                print("        }", file=f)
+                print("        for (i = j = 0; i <= length && r == 0; i++) {", file=f)
+                print("            const char c = buf[j] = names[i];", file=f)
+                print("            if ((c == ',') || (c == '\\0')) {", file=f)
+                print("                buf[j] = '\\0';", file=f)
+                if has_personality:
+                    print("                r = export(buf, name_start, p_value(\"%s\", buf, name_start) );"%comp_name, file=f)
+                else:
+                    print("                r = export(buf, name_start);", file=f)
+                print("                if(r != 0) {break;}", file=f)
+                print("                name_start++;", file=f)
+                print("                j = 0;", file=f)
+                print("            } else {", file=f)
+                print("                if (++j == (sizeof(buf) / sizeof(buf[0]))) {", file=f)
+                print("                    buf[j - 1] = '\\0';", file=f)
+                print("                    rtapi_print_msg(RTAPI_MSG_ERR,\"names: \\\"%s\\\" too long\\n\", buf);", file=f)
+                print("                    r = -EINVAL;", file=f)
+                print("                    break;", file=f)
+                print("                }", file=f)
+                print("            }", file=f)
+                print("        }", file=f)
+                print("    } else {", file=f)
+                print("        for(i=0; i<count; i++) {", file=f)
+                print("            char buf[HAL_NAME_LEN + 1];", file=f)
+                print("            rtapi_snprintf(buf, sizeof(buf), " \
+                                            "\"%s.%%d\", i);" % \
+                        to_hal(removeprefix(comp_name, "hal_")), file=f)
+                if has_personality:
+                    print("            r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
+                else:
+                    print("            r = export(buf, i);", file=f)
+                print("            if(r != 0) break;", file=f)
+                print("        }", file=f)
+                print("    }", file=f)
         else:
             print("    if(count && names[0]) {", file=f)
             print("        rtapi_print_msg(RTAPI_MSG_ERR," \
