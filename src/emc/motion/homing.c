@@ -557,7 +557,6 @@ static void base_write_homing_out_pins(int njoints)
             // must be delayed until the state machine is done.
             hal_set_bool(addr->homing, H[jno].homing);
         }
-        hal_set_bool(addr->homing,     H[jno].homing);     // OUT
         hal_set_bool(addr->homed,      H[jno].homed);      // OUT
         hal_set_si32(addr->home_state, H[jno].home_state); // OUT
         // index_enable is a HAL_IO pin: the encoder driver also writes it
