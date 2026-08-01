@@ -68,6 +68,8 @@ include::motion/tweaking-steppers.adoc[]
 
 include::config/ini-config.adoc[]
 
+include::config/mtconnect.adoc[]
+
 include::config/ini-homing.adoc[]
 
 include::config/lathe-config.adoc[]

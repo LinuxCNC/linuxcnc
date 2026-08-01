@@ -1500,4 +1500,35 @@ Control screens can limit these settings further.
   This is for machines that cannot place the tool back into the pocket it came from.
   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
 
+[[sub:ini:sec:mtconnect]]
+=== [MTCONNECT] Section(((INI File,Sections,[MTCONNECT] Section)))
+
+Optional.  Configures the `mtconnect-agent`(1) userspace component, which
+publishes machine status, kinematics and tool data using the MTConnect standard.
+Load it from a HAL file with `loadusr -W mtconnect-agent`.  The MTConnect device
+model is generated automatically from the `[TRAJ]`, `[KINS]`, `[AXIS_<letter>]`
+and `[JOINT_<num>]` sections, so only the keys below are required.
+
+* `ENABLE = 1` - (bool) Enable the agent.  Default 1.
+* `DEVICE_NAME = my_mill` - (string) MTConnect device name.
+  Default: `[EMC]MACHINE`.
+* `UUID = 0e2c...` - (string) MTConnect device uuid.
+* `TRANSPORT = http` - (string) Comma-separated list of transports:
+  `http`, `mqtt`, `shdr`.  Default `http`.
+* `HTTP_PORT = 5000` - (int) Port for the embedded HTTP agent.
+* `HTTP_BIND = 127.0.0.1` - (string) Interface to bind the HTTP agent to.
+  Default 127.0.0.1 (loopback only); set to `0.0.0.0` to expose on the network.
+* `SAMPLE_HZ = 10` - (real) Poll and publish rate in Hz.
+* `ENABLE_TWIN = 0` - (bool) Serve the browser digital-twin viewer at `/twin`.
+  Off by default.  Its 3D rendering uses the distribution's `libjs-three`
+  package, served by the agent from `/three/`.
+* `MQTT_BROKER`, `MQTT_PORT`, `MQTT_PREFIX`, `MQTT_USERNAME`, `MQTT_PASSWORD` -
+  Settings for the standard MTConnect MQTT binding.  Requires the
+  `python3-paho-mqtt` package.
+
+The embedded HTTP agent serves `/probe`, `/current`, `/sample` and `/assets`, an
+optional digital-twin viewer at `/twin`, and geometry under `/models/`.  The spindle speed
+band from `[SPINDLE_0]MIN_FORWARD_VELOCITY`/`MAX_FORWARD_VELOCITY` is advertised
+as an MTConnect Specification.  See `mtconnect-agent`(1) for the full reference.
+
 // vim: set syntax=asciidoc:

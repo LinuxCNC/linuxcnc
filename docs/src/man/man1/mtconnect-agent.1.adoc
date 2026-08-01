@@ -1,0 +1,126 @@
+= mtconnect-agent(1)
+
+== NAME
+
+mtconnect-agent - expose LinuxCNC machine status and kinematics over MTConnect
+
+== SYNOPSIS
+
+*loadusr -W mtconnect-agent*
+
+*mtconnect-agent* [_INI_] [*--dump-probe*] [*--port* _N_]
+
+== DESCRIPTION
+
+*mtconnect-agent* is a non-realtime userspace HAL component that reads machine
+status, kinematics and tool data via the *linuxcnc* Python module and the INI
+file, and publishes them using the MTConnect standard.  It provides an embedded
+HTTP agent and, optionally, the standard MTConnect MQTT binding.  No external
+MTConnect agent (cppagent) is required.
+
+The device model, including the kinematic description, is generated automatically
+from the *[TRAJ]*, *[KINS]*, *[AXIS_n]* and *[JOINT_n]* sections, so only a small
+*[MTCONNECT]* section is needed to enable the feature.
+
+It is normally started from a HAL file so its status pins are available:
+
+----
+loadusr -W mtconnect-agent
+----
+
+The INI file is taken from the *INI_FILE_NAME* environment variable that LinuxCNC
+sets, so no argument is required.
+
+== HTTP ENDPOINTS
+
+When the HTTP transport is enabled the following are served (default port 5000):
+
+*/probe*::   MTConnectDevices - the device model and kinematics.
+*/current*:: MTConnectStreams - the latest value of every data item.
+*/sample*::  MTConnectStreams - a sequence range (`?from=<seq>&count=<n>`).
+*/assets*::  MTConnectAssets - the tool table as CuttingTool assets.
+*/twin*::    A browser digital-twin viewer.  Off by default; enable with
+*[MTCONNECT]ENABLE_TWIN = 1*.  3D rendering uses the distribution's *libjs-three*
+package (served from `/three/`), so it works offline once that is installed.
+*/models/<name>*:: A referenced or auto-generated geometry mesh.
+*/mtconnect-linuxcnc-1.xsd*:: The LinuxCNC MTConnect extension schema.
+
+By default the HTTP server binds to 127.0.0.1 (loopback only).  Set
+*[MTCONNECT]HTTP_BIND = 0.0.0.0* to expose it on the network.
+
+== OPTIONS
+
+*--dump-probe*::
+  Print the MTConnectDevices (/probe) document to standard output and exit.
+
+*--port* _N_::
+  Override *[MTCONNECT]HTTP_PORT*.
+
+== INI CONFIGURATION
+
+All configuration is read from the *[MTCONNECT]* section:
+
+*ENABLE*::       1 to enable the agent (default), 0 to disable.
+*DEVICE_NAME*::  MTConnect device name (default: *[EMC]MACHINE*).
+*UUID*::         MTConnect device uuid.
+*TRANSPORT*::    Comma-separated list of *http*, *mqtt*, *shdr* (default *http*).
+*HTTP_PORT*::    Embedded HTTP agent port (default 5000).
+*HTTP_BIND*::    Interface to bind (default 127.0.0.1; use 0.0.0.0 for the LAN).
+*SHDR_PORT*::    Port for the SHDR adapter when *shdr* is in *TRANSPORT* (default
+  7878).  SHDR feeds an external MTConnect agent (e.g. cppagent) `<ts>|id|value`
+  lines; configure that agent with a Devices.xml from *--dump-probe*.
+*SAMPLE_HZ*::    Poll/publish rate in Hz (default 10).
+*MQTT_BROKER*, *MQTT_PORT*, *MQTT_PREFIX*, *MQTT_USERNAME*, *MQTT_PASSWORD*::
+  Standard MTConnect MQTT binding settings (requires the *python3-paho-mqtt*
+  package).
+
+Spindle speed limits from *[SPINDLE_0]MIN_FORWARD_VELOCITY* and
+*MAX_FORWARD_VELOCITY* are advertised as an MTConnect Specification.
+
+*HAL_ITEM*::
+  Expose a HAL pin/signal as an MTConnect data item.  Repeatable; each is a
+  comma-separated list of fields: *pin=* (HAL name, read via `hal.get_value`),
+  *id=* (data item id), *type=* (a standard MTConnect SAMPLE type such as LOAD,
+  TEMPERATURE, PRESSURE, VOLTAGE, AMPERAGE, FREQUENCY, ANGLE, VELOCITY, TORQUE),
+  and optionally *units=*, *name=*, *subType=*, and *component=* (the host
+  component: the default *sensors* generic Sensor, or *spindle*, *controller*,
+  *path*, or an axis letter).  Example:
++
+----
+HAL_ITEM = pin=spindle.0.load, id=spindle_load, type=LOAD, units=PERCENT, component=spindle
+----
++
+Non-standard types and non-SAMPLE categories are skipped with a warning.
+
+== HAL PINS
+
+*mtconnect-agent.enable*  (bit, in)::   Gate polling and publishing (default TRUE).
+*mtconnect-agent.sample-hz* (u32, in):: Override *SAMPLE_HZ*.
+*mtconnect-agent.active*  (bit, out)::   TRUE while polling and serving.
+*mtconnect-agent.connected* (bit, out):: TRUE while the MQTT broker link is up.
+*mtconnect-agent.heartbeat* (u32, out):: Increments on each poll.
+
+== EXTENSION SCHEMA
+
+Machine data with no standard MTConnect type - coolant flood/mist and the active
+XY work-offset rotation (G10 L2 R) - is published in the *urn:linuxcnc:mtconnect:1*
+namespace and defined by the extension schema *mtconnect-linuxcnc-1.xsd*
+(installed under *share/linuxcnc/mtconnect*).  The streaming documents validate
+against the official MTConnect 1.7 schemas together with this extension schema.
+
+== SEE ALSO
+
+*mqtt-publisher*(1), *halcmd*(1)
+
+The MTConnect standard: https://www.mtconnect.org/
+
+== AUTHOR
+
+This man page was written as part of the LinuxCNC MTConnect feature.
+
+== COPYRIGHT
+
+Copyright \(C) 2026 LinuxCNC contributors.
+
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
