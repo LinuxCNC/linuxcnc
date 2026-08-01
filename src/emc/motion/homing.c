@@ -110,6 +110,7 @@ typedef struct {
   bool         homed;                // OUT pin
   bool         home_sw;              // IN  pin
   bool         index_enable;         // IO  pin
+  bool         index_enable_prev;    // last value driven onto index_enable pin
   bool         joint_in_sequence;
   int          pause_timer;
   double       home_offset;          // intfc, updateable
@@ -546,7 +547,16 @@ static void base_write_homing_out_pins(int njoints)
         *(addr->homing)       = H[jno].homing;       // OUT
         *(addr->homed)        = H[jno].homed;        // OUT
         *(addr->home_state)   = H[jno].home_state;   // OUT
-        *(addr->index_enable) = H[jno].index_enable; // IO
+        // index_enable is a HAL_IO pin: the encoder driver also writes it
+        // (clears it on the index pulse). We do not own it, so we must not
+        // clamp it every cycle; drive it only on our own edges and otherwise
+        // leave it to whoever else is on the signal.
+        if (H[jno].index_enable && !H[jno].index_enable_prev) {
+            *(addr->index_enable) = 1; // arm the index search
+        } else if (!H[jno].index_enable && H[jno].index_enable_prev) {
+            *(addr->index_enable) = 0; // release if aborted while armed
+        }
+        H[jno].index_enable_prev = H[jno].index_enable;
     }
 }
 
