@@ -4,6 +4,33 @@
 = PyVCP Examples
 
 
+== Testing a Panel Without HAL
+
+A PyVCP panel can be opened directly with the `pyvcp` command to check the
+layout and widgets before connecting it to HAL.
+Put the following in a file named `hello_world.xml`:
+
+[source,xml]
+----
+<pyvcp>
+  <vbox>
+    <label>
+      <text>"Hello CNC"</text>
+    </label>
+  </vbox>
+</pyvcp>
+----
+
+Then run the command from a terminal:
+
+[source,shell]
+----
+pyvcp hello_world.xml
+----
+
+This opens the panel as a standalone window.
+It makes the edit/test cycle fast because no HAL setup is required.
+
 == AXIS
 
 To create a PyVCP panel to use with the AXIS interface that is
