@@ -1625,7 +1625,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         goto fail1;
     }
 
-    hm2_queue_read(hm2);
+    r = hm2_queue_read(hm2);
     if (r != 0) {
         goto fail1;
     }
