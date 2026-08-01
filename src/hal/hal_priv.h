@@ -118,7 +118,7 @@
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000013	/* version code */
+#define HAL_VER   0x00000014	/* version code */
 #define HAL_SIZE  (2*256*4096)
 
 /* These pointers are set by hal_init() to point to the shmem block
@@ -396,9 +396,12 @@ struct hal_funct_t {
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
-    hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
-    hal_bit_t maxtime_increased;	/* (param) on last call, maxtime increased */
+    // IMPORTANT: The pins and params are valid as seen from the context that
+    // created them. For uspace that is rtapi_app and in the kernel it is the
+    // kernel's module context.
+    hal_sint_t runtime;	/* (pin) duration of last run, in CPU cycles */
+    hal_sint_t maxtime;	/* (param) duration of longest run, in CPU cycles */
+    hal_bool_t maxtime_increased;	/* (param) on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 };
 
@@ -417,8 +420,13 @@ struct hal_thread_t {
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
     int task_id;		/* ID of the task that runs this thread */
-    hal_s32_t* runtime;	/* (pin) duration of last run, in ns */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in ns */
+    // IMPORTANT: The pins and params are valid as seen from the context that
+    // created them. For uspace that is rtapi_app and in the kernel it is the
+    // kernel's module context.
+    hal_sint_t runtime;	/* (pin) duration of last run, in ns */
+    hal_sint_t maxtime;	/* (param) duration of longest run, in ns */
+    hal_sint_t threadbeat; /* (pin) visible monotonic loop beat counter */
+    rtapi_sint beatcnt;    /* Thread monotonic increasing loop beat counter (so we don't need to read/write volatile) */
     hal_list_t funct_list;	/* list of functions to run */
     hal_list_t init_funct_list;	/* list of init functions, run once before first cyclic cycle */
     int init_done;		/* 0 = init pending, 1 = init cycle has executed */
