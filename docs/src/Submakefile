@@ -138,6 +138,7 @@ DOC_SRCS_EN := \
 	common/overleaf.adoc \
 	config/core-components.adoc \
 	config/ini-config.adoc \
+	config/mtconnect.adoc \
 	config/ini-homing.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
