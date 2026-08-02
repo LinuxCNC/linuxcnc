@@ -515,6 +515,34 @@ If the requested number of instances exceeds the number of allowed personalities
 personalities are assigned by indexing modulo the number of allowed personalities.
 A message is printed denoting such assignments.
 
+[NOTE]
+====
+If a component uses personality, then it should generally check its value.
+The value of personality is zero if the 'personality=N' argument is not provided to loadrt.
+Pins and params whose personality constraint evaluates to zero are not created, and their memory remains NULL.
+Unconditionally accessing such a pin or param dereferences a NULL pointer and crashes the realtime process.
+
+You can use a test in EXTRA_SETUP() to test the acceptable values of personality for your component.
+You should return -EINVAL if your conditions are not met.
+
+Example testing personality:
+
+[source,c]
+----
+EXTRA_SETUP(){
+    // Silence warnings for the unused arguments.
+    (void)prefix;
+    (void)extra_arg;
+    if (personality < 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "mycomp: personality must be >= 1 (use personality=N to set the number of channels)\n");
+        return -EINVAL;
+    }
+    return 0;
+}
+----
+====
+
 == Examples
 
 === constant
