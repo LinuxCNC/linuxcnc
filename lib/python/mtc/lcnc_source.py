@@ -173,32 +173,36 @@ class LcncSource:
             tool_no = getattr(entry, "id", 0)
             if tool_no <= 0:
                 continue  # index 0 is the "fake pocket" spindle mirror
+            info = self._toolinfo(tool_no)
             assets.append(ToolAsset(
                 tool_no=tool_no,
-                pocket=getattr(entry, "pocketno", getattr(entry, "id", 0)),
+                # tool_table entries carry no real pocket; only toolinfo() does.
+                # On a random toolchanger the pocket != the tool number.
+                pocket=_as_int(info.get("pocketno"), tool_no),
                 in_spindle=(tool_no == in_spindle),
                 diameter=getattr(entry, "diameter", 0.0) * self._lin,
                 length_z=getattr(entry, "zoffset", 0.0) * self._lin,
                 length_x=getattr(entry, "xoffset", 0.0) * self._lin,
                 orientation=getattr(entry, "orientation", 0),
-                comment=self._tool_comment(tool_no),
+                comment=(info.get("comment", "") or "").strip(),
             ))
         return assets
 
-    def _tool_comment(self, tool_no):
-        """Fetch a tool's comment string (trailing whitespace trimmed).
+    def _toolinfo(self, tool_no):
+        """Return stat.toolinfo(tool_no) as a dict, or {} if unavailable.
 
-        stat.tool_table entries don't carry the comment (the struct-sequence
-        binding omits it); stat.toolinfo(toolno) returns a dict that does.
-        toolinfo rejects toolno==0 and may raise before tooldata is ready.
+        stat.tool_table entries omit the comment (the struct-sequence binding
+        drops it) and carry no real pocket number; stat.toolinfo(toolno) returns
+        a dict with both.  toolinfo rejects toolno==0 and may raise before
+        tooldata is ready.
         """
         info = getattr(self.stat, "toolinfo", None)
         if info is None or tool_no <= 0:
-            return ""
+            return {}
         try:
-            return ((info(tool_no) or {}).get("comment", "") or "").strip()
+            return info(tool_no) or {}
         except Exception:
-            return ""
+            return {}
 
 
 _MODE_NAMES = {
@@ -249,3 +253,10 @@ def _get(stat, attr, default=None):
 
 def _basename(path):
     return os.path.basename(path) if path else ""
+
+
+def _as_int(value, default):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default

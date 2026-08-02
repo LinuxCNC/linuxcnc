@@ -3,18 +3,6 @@ sim.var
 sim.var.bak
 position.txt
 
-# Python bytecode
-__pycache__/
-*.pyc
-
-# 3D model assets — supply your own; never tracked. The example uses
-# MODEL_AUTO (generated box geometry) and needs no mesh files.
-models/*.stl
-models/*.obj
-models/*.gltf
-models/*.glb
-models/*.ply
-models/*.step
-models/*.stp
-models/*.FCStd
-models/*.FCStd1
+# 3D model assets are user-supplied. The example uses MODEL_AUTO (generated box
+# geometry) and needs no mesh files, so the whole directory stays untracked.
+models/
