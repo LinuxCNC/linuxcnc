@@ -29,6 +29,7 @@
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
+from xml.sax.saxutils import escape, quoteattr
 
 from .agent import OutOfRange, now_iso
 
@@ -36,13 +37,18 @@ _XML = "application/xml; charset=utf-8"
 
 
 def _error_document(code, message):
+    # code and message are escaped: message embeds the raw request route, so an
+    # unescaped '<'/'&'/'"' would otherwise break well-formedness or let a
+    # crafted route forge sibling elements.  quoteattr() supplies the attribute
+    # quotes itself.
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<MTConnectError xmlns="urn:mtconnect.org:MTConnectError:1.7">\n'
         '  <Header creationTime="%s" sender="linuxcnc-mtconnect" '
         'instanceId="1" version="1.7" bufferSize="131072"/>\n'
-        '  <Errors><Error errorCode="%s">%s</Error></Errors>\n'
-        '</MTConnectError>\n' % (now_iso(), code, message)
+        '  <Errors><Error errorCode=%s>%s</Error></Errors>\n'
+        '</MTConnectError>\n'
+        % (now_iso(), quoteattr(str(code)), escape(str(message)))
     )
 
 

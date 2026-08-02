@@ -29,9 +29,18 @@ from mtc.agent import AgentState
 from mtc.http_agent import HttpAgent
 from mtc.shdr_agent import ShdrAgent
 
+# Resolve config paths relative to this file, not the current directory, so the
+# suite runs from any CWD (e.g. when wired into tests/ and driven by runtests).
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _cfg(relpath):
+    return os.path.normpath(os.path.join(_HERE, relpath))
+
+
 CONFIGS = {
-    "3axis": "../axis.ini",
-    "5axis": "../vismach/5axis/table-rotary-tilting/xyzac-trt.ini",
+    "3axis": _cfg("../axis.ini"),
+    "5axis": _cfg("../vismach/5axis/table-rotary-tilting/xyzac-trt.ini"),
 }
 TS = "2026-07-01T12:00:00.000Z"
 
@@ -190,7 +199,7 @@ def test_assets():
 def test_probe_standard_blocks():
     # spindle Specifications, Coolant system, and the kinematics extension living
     # inside the (schema-valid) Description host.
-    _, model, config = load("example.ini")
+    _, model, config = load(_cfg("example.ini"))
     root = ET.fromstring(probe_xml(model, config, creation_time=TS))
     ns = "{%s}" % MTC_NS
     spec = root.find(".//%sRotary[@id='spindle']//%sSpecification" % (ns, ns))
@@ -220,7 +229,7 @@ def test_spindle_constraints():
         raise AssertionError("spdl_speed_cmd missing")
 
     # example.ini declares [SPINDLE_0] MIN/MAX_FORWARD_VELOCITY -> Constraints
-    di = spdl_cmd("example.ini")
+    di = spdl_cmd(_cfg("example.ini"))
     con = di.find("%sConstraints" % ns)
     assert con is not None, "no Constraints on spdl_speed_cmd"
     assert con.find("%sMinimum" % ns).text == "100", ET.tostring(di)
@@ -248,7 +257,7 @@ def test_schema_validation():
     base = (lambda n: os.path.join(xsd_dir, n)) if xsd_dir else \
         (lambda n: "http://schemas.mtconnect.org/schemas/" + n)
     ext = os.path.join(asset_dir(), "mtconnect-linuxcnc-1.xsd")
-    state = AgentState("example.ini")
+    state = AgentState(_cfg("example.ini"))
     state.poll_once()
     checks = [("MTConnectDevices_1.7.xsd", state.probe_document()),
               ("MTConnectAssets_1.7.xsd", state.assets_document()),

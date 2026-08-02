@@ -41,12 +41,18 @@ from .agent import now_iso
 _MISSING = object()
 
 
+# SHDR is a line-oriented, pipe-delimited protocol with no escaping mechanism,
+# so a '|', tab, CR or LF inside a value (e.g. a program named 'a|b.ngc') would
+# corrupt field or line framing.  Replace those characters with spaces.
+_SHDR_UNSAFE = {ord(c): " " for c in "|\t\r\n"}
+
+
 def _fmt_value(value):
     # SHDR values are plain text; scalars stringify directly.  (Structured
     # TABLE / data-set values are filtered out before we get here.)
     if isinstance(value, bool):
         return "true" if value else "false"
-    return str(value)
+    return str(value).translate(_SHDR_UNSAFE)
 
 
 def _format_line(pairs):
