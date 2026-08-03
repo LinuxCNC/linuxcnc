@@ -131,6 +131,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
+        .github/scripts/use-main-ubuntu-mirror.sh
         sudo apt-get -q update
         sudo apt-get --yes install cppcheck
     - name: Cppcheck
