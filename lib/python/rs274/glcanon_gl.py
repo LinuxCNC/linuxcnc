@@ -1,13 +1,31 @@
-#    OpenGL 3.3 core renderer infrastructure for the rs274 G-code preview.
+#    OpenGL renderer infrastructure for the rs274 G-code preview.
 #
-#    This module holds the low-level, reusable GL building blocks for the core-
-#    profile preview renderer that replaces the legacy fixed-function drawing in
+#    This module holds the low-level, reusable GL building blocks for the
+#    preview renderer that replaces the legacy fixed-function drawing in
 #    glcanon.py: shader compile/link helpers with proper error reporting, thin
-#    VBO/VAO wrappers, a per-pass glGetError debug check, and the GLSL 330 line
-#    shader (position + color + line-number + distance-along-line, driven by a
-#    single MVP uniform, with shader-side dashing). The glyph-atlas overlay
-#    text, at the end of the file, is the same kind of thing: a shader, a
-#    texture and a dynamic VBO whose lifetimes this module owns.
+#    VBO/VAO wrappers, a per-pass glGetError debug check, and the line shader
+#    (position + color + line-number + distance-along-line, driven by a single
+#    MVP uniform, with shader-side dashing). The glyph-atlas overlay text, at
+#    the end of the file, is the same kind of thing: a shader, a texture and a
+#    dynamic VBO whose lifetimes this module owns.
+#
+#    COMPATIBILITY LEVEL: the target is the *intersection* of OpenGL 3.3 core
+#    profile and OpenGL ES 3.1 - roughly GLES 3.0 feature level plus explicit
+#    attribute locations. That is VAOs/VBOs, FBOs with multiple render targets,
+#    textures, uniforms and uniform arrays, `flat` interpolation, instancing,
+#    and GLSL with `layout(location=)` on inputs and outputs.
+#
+#    Nothing here may use a feature exclusive to either side. Excluded from
+#    GLES 3.1 (and so from this module even though desktop GL 4.3+ has them):
+#    compute shaders, SSBOs, `layout(binding = N)` in GLSL. Excluded from
+#    desktop GL: glPolygonMode, gl_ClipDistance, 1D textures, and reading the
+#    depth buffer with glReadPixels(GL_DEPTH_COMPONENT) - which is why the pick
+#    pass carries depth in a second colour attachment on both APIs.
+#
+#    Which API is live is detected once into :class:`GLCaps` and read from
+#    there; the GLSL version directive is injected at compile time by
+#    :func:`_glsl` rather than written into the shader sources, so the shader
+#    bodies are byte-identical between the two APIs.
 #
 #    It deliberately contains no GlCanonDraw policy and no numpy geometry baking
 #    (that lives in glcanon_bake.py, which stays GL-free and unit-testable). The
@@ -22,6 +40,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import Any, Callable, Iterator, Sequence
 
 from OpenGL.GL import *
@@ -120,6 +139,49 @@ PROGRAM_ATTR_ATTRIBUTES = (
 _INTEGER_ATTRIB_TYPES = (GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT,
                          GL_UNSIGNED_SHORT, GL_INT, GL_UNSIGNED_INT)
 
+# ---------------------------------------------------------------------------
+# The second endpoint, for the quad-expanded (wide) line path.
+#
+# Expanding a segment to a quad needs both of its endpoints in one shader
+# invocation, so the same vertex buffer is bound a second time one vertex
+# further on. These are the locations that second binding lands in; the layouts
+# themselves are the ones above, re-pointed. Nothing is duplicated in memory.
+#
+# GL 3.3 core and GLES 3.0 both guarantee 16 vertex attributes; this reaches 7.
+# ---------------------------------------------------------------------------
+ATTR_POSITION_B = 5
+ATTR_COLOR_B = 6
+ATTR_DISTANCE_B = 7
+
+#: Per-vertex-colour (36-byte) layout, split into the two endpoints.
+WIDE_LINE_A_ATTRIBUTES = (
+    (ATTR_POSITION, 3, 0),
+    (ATTR_COLOR, 4, 3 * 4),
+    (ATTR_DISTANCE, 1, 8 * 4),
+)
+WIDE_LINE_B_ATTRIBUTES = (
+    (ATTR_POSITION_B, 3, 0),
+    (ATTR_COLOR_B, 4, 3 * 4),
+    (ATTR_DISTANCE_B, 1, 8 * 4),
+)
+
+#: Program-array plane buffer, split into the two endpoints.
+WIDE_PLANE_A_ATTRIBUTES = (
+    (ATTR_POSITION, 3, 0),
+    (ATTR_DISTANCE, 1, 3 * 4),
+)
+WIDE_PLANE_B_ATTRIBUTES = (
+    (ATTR_POSITION_B, 3, 0),
+    (ATTR_DISTANCE_B, 1, 3 * 4),
+)
+#: Program-array attribute buffer. Bound at the segment's **end** vertex only:
+#: that is how the expanded path reproduces the last-vertex convention the
+#: strip gets from ``flat`` interpolation, and so keeps the KIND_NOOP contract
+#: - a jump kills the segment *into* it and not the one out of it.
+WIDE_ATTR_B_ATTRIBUTES = (
+    (ATTR_KINDTOOL, 1, 4, GL_UNSIGNED_INT),
+)
+
 # rs274.glcanon_bake names the primitive a part wants rather than importing GL,
 # so it stays GL-free and unit-testable. This is the only place the names are
 # turned into enums.
@@ -179,6 +241,133 @@ def check_gl_error(where: str) -> None:
         raise RuntimeError("GL error(s) at %s: %s" % (where, ", ".join(errors)))
 
 
+# ---------------------------------------------------------------------------
+# Capability record
+#
+# The renderer is one code path across two APIs. Where they differ it branches
+# on this record, read once from the live context, rather than on an extension
+# query at the point of use or on an exception the driver happened to raise.
+# ---------------------------------------------------------------------------
+
+#: The prefix every OpenGL ES implementation must put in front of GL_VERSION
+#: ("OpenGL ES 3.1 Mesa 23.2.1"). Desktop GL_VERSION begins with the number.
+#: Specified on both APIs, so it needs no extension query - and unlike "did we
+#: come through EGL?", it is not confused by a desktop context on EGL, which is
+#: what the headless test harness and Wayland sessions both use.
+GLES_VERSION_PREFIX = "OpenGL ES "
+
+
+@dataclass(frozen=True)
+class GLCaps:
+    """What the live context can do, where the two APIs differ.
+
+    Frozen because it describes a context, not a preference: a part that could
+    write to it would be choosing its own capabilities. Constructed once (see
+    :func:`active_caps`) and passed down; no scene part queries GL itself.
+
+    The defaults describe desktop GL 3.3 core, which is what a caps-free
+    caller - a unit test with no context - should get.
+    """
+
+    #: The context is OpenGL ES rather than desktop OpenGL. Read at exactly
+    #: one place - the GLSL preamble :func:`_glsl` prepends at compile time.
+    is_gles: bool = False
+    #: GL_ALIASED_LINE_WIDTH_RANGE's maximum. Core profiles guarantee only
+    #: 1.0, and Mesa's v3d grants exactly that; a part wanting more than this
+    #: gets it by quad expansion rather than by asking twice. Not an API
+    #: question - a forward-compatible desktop core profile answers 1.0 too.
+    max_line_width: float = 1.0
+
+    @classmethod
+    def from_version(cls, version: str,
+                     max_line_width: float = 1.0) -> GLCaps:
+        """Build from the strings a context reports. No GL calls, so this is
+        the form the unit tests exercise."""
+        return cls(is_gles=version.startswith(GLES_VERSION_PREFIX),
+                   max_line_width=float(max_line_width))
+
+    @classmethod
+    def probe(cls) -> GLCaps:
+        """Read the capabilities of the context that is current now.
+
+        Both queries are core in GL 3.0+ and GLES 3.0+ alike. A driver that
+        refuses one leaves the conservative default in place rather than
+        failing the frame.
+        """
+        version = _gl_string(GL_VERSION)
+        widths = _gl_floats(GL_ALIASED_LINE_WIDTH_RANGE, 2, (1.0, 1.0))
+        return cls.from_version(version, max_line_width=widths[1])
+
+    def describe(self) -> str:
+        """One line for the startup log: which API and version actually ran.
+
+        On a Raspberry Pi the two paths look identical from the outside, so a
+        bug report has to be able to say which one it was without asking the
+        reporter to run eglinfo.
+        """
+        return "%s (renderer: %s, max line width %.1f)" % (
+            _gl_string(GL_VERSION) or "unknown GL version",
+            _gl_string(GL_RENDERER) or "unknown",
+            self.max_line_width)
+
+
+def _gl_string(name: GLEnum) -> str:
+    try:
+        value = glGetString(name)
+    except Exception:
+        _drain_gl_error()
+        return ""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("ascii", "replace")
+    return str(value)
+
+
+def _gl_floats(name: GLEnum, count: int,
+               default: Sequence[float]) -> tuple[float, ...]:
+    try:
+        values = glGetFloatv(name)
+    except Exception:
+        _drain_gl_error()
+        return tuple(default)
+    try:
+        flat = [float(v) for v in np.asarray(values).reshape(-1)[:count]]
+    except Exception:
+        return tuple(default)
+    return tuple(flat) if len(flat) == count else tuple(default)
+
+
+#: The capabilities of the process's preview context, probed on first use.
+#:
+#: A module global for the same reason the line-width probe below is one: the
+#: shader compiler needs the GLSL version before any renderer object is in
+#: scope (the glyph atlas is built by glnav, which has no renderer), and every
+#: preview context in one process comes from the same driver and the same
+#: request. :meth:`GlCanonRenderer.caps` is the supported way to read it;
+#: nothing outside this module should call it directly.
+_ACTIVE_CAPS: GLCaps | None = None
+
+
+def active_caps() -> GLCaps:
+    """The process's :class:`GLCaps`, probing the current context once."""
+    global _ACTIVE_CAPS
+    if _ACTIVE_CAPS is None:
+        _ACTIVE_CAPS = GLCaps.probe()
+    return _ACTIVE_CAPS
+
+
+def reset_active_caps(caps: GLCaps | None = None) -> None:
+    """Forget the probed capabilities, or force a specific record.
+
+    For context loss and for tests that drive both APIs in one process. Not
+    part of the drawing path.
+    """
+    global _ACTIVE_CAPS, _MAX_LINE_WIDTH
+    _ACTIVE_CAPS = caps
+    _MAX_LINE_WIDTH = None
+
+
 _MAX_LINE_WIDTH: float | None = None
 
 
@@ -214,10 +403,23 @@ def _try_line_width(w: float) -> bool:
     return err == GL_NO_ERROR
 
 
+#: The width the scene last *asked* for, whatever the driver then granted.
+#: Kept because a buffer that can quad-expand needs the request, not the
+#: clamp - see :func:`pending_line_expansion`.
+_REQUESTED_LINE_WIDTH: float = 1.0
+
+
 def set_line_width(width: float) -> None:
     """Set the line width, degrading thick lines to 1.0 where the driver only
-    supports width 1.0 (core profiles guarantee no more). Probed once, cached."""
-    global _MAX_LINE_WIDTH
+    supports width 1.0 (core profiles guarantee no more, and GLES on Mesa's
+    v3d grants exactly 1.0). Probed once, cached.
+
+    The requested width is remembered even when it is refused, so a buffer
+    small enough to quad-expand can still honour it. The program trajectory is
+    deliberately not one of those: see :meth:`ProgramArrayBuffers.draw`.
+    """
+    global _MAX_LINE_WIDTH, _REQUESTED_LINE_WIDTH
+    _REQUESTED_LINE_WIDTH = max(1.0, float(width))
     if _MAX_LINE_WIDTH is None:
         _MAX_LINE_WIDTH = 3.0 if _try_line_width(3.0) else 1.0
     w = max(1.0, min(float(width), _MAX_LINE_WIDTH))
@@ -226,11 +428,62 @@ def set_line_width(width: float) -> None:
         _try_line_width(1.0)
 
 
+def pending_line_expansion() -> float:
+    """The width a quad-expanding buffer should draw at, or 0 for "none".
+
+    Non-zero exactly when the scene asked for a width the driver would not
+    give - GLES on v3d, and equally a forward-compatible desktop core profile
+    that refuses anything above 1.0. Branching on the granted width rather than
+    on the API is what keeps the expansion path exercised by the desktop test
+    corpus instead of only on a Pi.
+    """
+    granted = 1.0 if _MAX_LINE_WIDTH is None else _MAX_LINE_WIDTH
+    return _REQUESTED_LINE_WIDTH if _REQUESTED_LINE_WIDTH > granted else 0.0
+
+
 # ---------------------------------------------------------------------------
 # Shader / program helpers
 # ---------------------------------------------------------------------------
-def compile_shader(source: str, shader_type: GLEnum) -> int:
-    """Compile one shader stage; raise RuntimeError with the info log on failure."""
+
+#: GLSL ES 3.00 is the version paired with GLES 3.0/3.1 and is what the
+#: intersection compiles to. The two precision statements are not decoration:
+#: the ES fragment language defines no default precision for float at all, so
+#: every fragment stage here fails to compile without the first, and defaults
+#: int to mediump - only 16 bits - which would silently truncate the 32-bit
+#: source-line ids the pick stage packs into a colour, hence the second.
+#: highp also keeps v_distance exact far into a large program, where a mediump
+#: dash phase would visibly drift.
+GLSL_ES_PREAMBLE = """#version 300 es
+precision highp float;
+precision highp int;
+"""
+
+#: GLSL 330 is the version paired with OpenGL 3.3 core.
+GLSL_CORE_PREAMBLE = """#version 330 core
+"""
+
+
+def _glsl(source: str, caps: GLCaps | None = None) -> str:
+    """``source`` with the right ``#version`` line for the live API in front.
+
+    The shader bodies in this module carry no version directive, so there is
+    one body per stage rather than one per API: the only difference between a
+    GLES compile and a desktop compile is what this function prepends.
+    """
+    if caps is None:
+        caps = active_caps()
+    return (GLSL_ES_PREAMBLE if caps.is_gles else GLSL_CORE_PREAMBLE) + source
+
+
+def compile_shader(source: str, shader_type: GLEnum,
+                   caps: GLCaps | None = None) -> int:
+    """Compile one shader stage; raise RuntimeError with the info log on failure.
+
+    ``source`` is a bare shader body: the version directive and, on GLES, the
+    precision statements are prepended here. This is the module's only
+    glShaderSource, so no stage can escape the preamble.
+    """
+    source = _glsl(source, caps)
     shader = glCreateShader(shader_type)
     glShaderSource(shader, source)
     glCompileShader(shader)
@@ -271,9 +524,10 @@ def link_program(*shaders: int) -> int:
 class ShaderProgram:
     """A linked GLSL program with a cached uniform-location lookup."""
 
-    def __init__(self, vertex_source: str, fragment_source: str) -> None:
-        vs = compile_shader(vertex_source, GL_VERTEX_SHADER)
-        fs = compile_shader(fragment_source, GL_FRAGMENT_SHADER)
+    def __init__(self, vertex_source: str, fragment_source: str,
+                 caps: GLCaps | None = None) -> None:
+        vs = compile_shader(vertex_source, GL_VERTEX_SHADER, caps)
+        fs = compile_shader(fragment_source, GL_FRAGMENT_SHADER, caps)
         self.program = link_program(vs, fs)
         self._uniforms: dict[str, int] = {}
 
@@ -379,7 +633,8 @@ class VertexArray:
 
     def configure(self, buffer: GLBuffer,
                   attributes: Sequence[Sequence[int]] = LINE_ATTRIBUTES,
-                  stride: int = VERTEX_STRIDE) -> None:
+                  stride: int = VERTEX_STRIDE,
+                  divisor: int = 0, base: int = 0) -> None:
         """Bind `buffer` and enable `attributes`.
 
         Each attribute is ``(location, size, offset)`` - float components, the
@@ -387,6 +642,13 @@ class VertexArray:
         goes through glVertexAttribIPointer so it reaches the shader as an
         integer rather than being converted to float, which is what lets the
         trajectory carry a packed uint32 the shader can mask and shift.
+
+        ``divisor`` and ``base`` are what the quad-expanded line path is made
+        of: the same buffer is bound twice, once at ``base = 0`` and once at
+        ``base = one vertex``, both with ``divisor = 1`` and a stride of one
+        *segment*, so each instance sees a segment's two endpoints without a
+        byte of vertex data being duplicated. Instanced arrays are core in both
+        GL 3.3 and GLES 3.0.
         """
         self.bind()
         buffer.bind()
@@ -396,10 +658,12 @@ class VertexArray:
             glEnableVertexAttribArray(location)
             if gl_type in _INTEGER_ATTRIB_TYPES:
                 glVertexAttribIPointer(location, size, gl_type, stride,
-                                       ctypes_offset(offset))
+                                       ctypes_offset(base + offset))
             else:
                 glVertexAttribPointer(location, size, gl_type, GL_FALSE,
-                                      stride, ctypes_offset(offset))
+                                      stride, ctypes_offset(base + offset))
+            if divisor:
+                glVertexAttribDivisor(location, divisor)
         self.unbind()
 
     def delete(self) -> None:
@@ -415,10 +679,9 @@ def ctypes_offset(byte_offset: int) -> Any:
 
 
 # ---------------------------------------------------------------------------
-# Line shader (GLSL 330 core)
+# Line shader (GL 3.3 core / GLES 3.1 intersection)
 # ---------------------------------------------------------------------------
 LINE_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec4 in_color;
 layout(location = 2) in float in_lineno;
@@ -437,7 +700,6 @@ void main() {
 """
 
 LINE_FRAGMENT_SHADER = """
-#version 330 core
 in vec4 v_color;
 in float v_distance;
 
@@ -459,6 +721,80 @@ void main() {
 """
 
 
+# ---------------------------------------------------------------------------
+# Wide lines, without glLineWidth.
+#
+# A core profile guarantees only width 1.0, and Mesa's v3d - the Raspberry Pi's
+# driver - grants exactly that, so on a Pi every glLineWidth above 1 is refused
+# and the whole preview would be hairlines. The portable answer is to expand
+# each segment into a screen-space quad in the vertex shader.
+#
+# That is applied ONLY to buffers whose vertex counts are trivial and whose
+# width carries meaning: the transient grid/axes/extents/label arrays, the
+# dwell markers, and the highlight overlay. The program trajectory keeps
+# GL_LINE_STRIP at whatever the driver grants - expanding 10M vertices costs
+# about 4x the vertex shading and 2x the fragments, which on a tile-based GPU
+# is the difference between a slow preview and an unusable one. See
+# `openspec/.../gles-compatible-renderer/design.md` decision 5.
+#
+# The expansion runs when the driver refused the width that was asked for, not
+# when the API is GLES: a forward-compatible desktop core profile (Qt's) also
+# refuses widths above 1, so the desktop corpus exercises this path rather than
+# leaving it to be discovered on hardware.
+# ---------------------------------------------------------------------------
+WIDE_LINE_EXPAND = """
+uniform vec2  u_viewport;     // drawable size in pixels
+uniform float u_line_width;   // desired width in pixels
+
+// Where corner ``gl_VertexID`` of the quad expanding the segment a->b belongs,
+// in clip space. Corners 0/1 sit at a and 2/3 at b; odd corners take the
+// +normal side. Drawn as a 4-vertex triangle strip, one instance per segment,
+// so a segment's two endpoints arrive as two bindings of one buffer.
+vec4 expand(vec4 ca, vec4 cb) {
+    vec4 clip = (gl_VertexID > 1) ? cb : ca;
+    float side = ((gl_VertexID & 1) == 1) ? 1.0 : -1.0;
+    vec2 half_vp = 0.5 * u_viewport;
+    vec2 offset = vec2(0.0);
+    // A non-positive w means the segment crosses the eye plane and has no
+    // honest screen-space direction; it collapses to the unexpanded point
+    // rather than flaring across the viewport. Butt caps, as GL wide lines
+    // have, so no extension along the segment either.
+    if (ca.w > 0.0 && cb.w > 0.0 && half_vp.x > 0.0 && half_vp.y > 0.0) {
+        vec2 d = (cb.xy / cb.w - ca.xy / ca.w) * half_vp;
+        float len = length(d);
+        if (len > 0.0)
+            offset = vec2(-d.y, d.x) / len * (0.5 * u_line_width * side);
+    }
+    return vec4(clip.xy + offset / half_vp * clip.w, clip.z, clip.w);
+}
+"""
+
+#: The line shader's vertex stage, quad-expanding. Same outputs as
+#: ``LINE_VERTEX_SHADER``, so the fragment stage is shared unchanged.
+WIDE_LINE_VERTEX_SHADER = """
+layout(location = 0) in vec3  in_position;
+layout(location = 1) in vec4  in_color;
+layout(location = 3) in float in_distance;
+layout(location = 5) in vec3  in_position_b;
+layout(location = 6) in vec4  in_color_b;
+layout(location = 7) in float in_distance_b;
+
+uniform mat4 u_mvp;
+
+out vec4 v_color;
+out float v_distance;
+%(expand)s
+void main() {
+    vec4 ca = u_mvp * vec4(in_position,   1.0);
+    vec4 cb = u_mvp * vec4(in_position_b, 1.0);
+    bool at_b = gl_VertexID > 1;
+    v_color    = at_b ? in_color_b    : in_color;
+    v_distance = at_b ? in_distance_b : in_distance;
+    gl_Position = expand(ca, cb);
+}
+""" % {"expand": WIDE_LINE_EXPAND}
+
+
 class LineProgram:
     """The line shader plus its default uniform state.
 
@@ -466,10 +802,16 @@ class LineProgram:
     uniforms), bind a configured VAO, then ``glDrawArrays``. :meth:`begin`
     resets the optional uniforms to their inert defaults so each pass starts
     from a known state.
+
+    ``VERTEX_SHADER`` names which vertex stage a subclass compiles - the plain
+    one, or :class:`WideLineProgram`'s quad-expanding one. The fragment stage
+    and every uniform below are shared.
     """
 
+    VERTEX_SHADER = LINE_VERTEX_SHADER
+
     def __init__(self) -> None:
-        self.shader = ShaderProgram(LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER)
+        self.shader = ShaderProgram(self.VERTEX_SHADER, LINE_FRAGMENT_SHADER)
 
     def use(self) -> None:
         self.shader.use()
@@ -504,8 +846,21 @@ class LineProgram:
         self.shader.delete()
 
 
+class WideLineProgram(LineProgram):
+    """:class:`LineProgram` with the quad-expanding vertex stage."""
+
+    VERTEX_SHADER = WIDE_LINE_VERTEX_SHADER
+
+    def set_expansion(self, viewport: Sequence[float], width: float) -> None:
+        """The two uniforms the expansion needs: the drawable size in pixels
+        and the width to draw at. Set per pass, after :meth:`begin`."""
+        glUniform2f(self.shader.uniform("u_viewport"),
+                    float(viewport[0]), float(viewport[1]))
+        self.shader.set_float("u_line_width", width)
+
+
 # ---------------------------------------------------------------------------
-# Trajectory shader (GLSL 330 core): the program's own line shader.
+# Trajectory shader: the program's own line shader.
 #
 # The line shader above stays as it is - the dwell markers, the live backplot
 # and the transient grid/axes/label geometry each carry a colour per vertex and
@@ -519,7 +874,6 @@ class LineProgram:
 # highlight contract - a segment belongs to the source line of its END point.
 # ---------------------------------------------------------------------------
 TRAJ_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3  in_position;
 layout(location = 2) in uint  in_packed;     // lineno | category << 24
 layout(location = 3) in float in_distance;
@@ -540,7 +894,6 @@ void main() {
 # the two-buffer 24-byte layout: the line number is its own uint32 attribute
 # and the kind rides in the low byte of the kind/tool word.
 PROGRAM_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3  in_position;
 layout(location = 3) in float in_distance;
 layout(location = 4) in uint  in_kindtool;
@@ -558,7 +911,6 @@ void main() {
 """ % {"kind_mask": KIND_MASK}
 
 TRAJ_FRAGMENT_SHADER = """
-#version 330 core
 flat in uint v_kind;
 in float v_distance;
 
@@ -695,7 +1047,6 @@ class TrajectoryProgram:
 
 
 TRAJ_PICK_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3 in_position;
 layout(location = 2) in uint in_packed;
 
@@ -714,7 +1065,6 @@ void main() {
 # The program array's pick vertex stage: a full 32-bit line number, its own
 # attribute, and the kind out of the kind/tool word.
 PROGRAM_PICK_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3 in_position;
 layout(location = 2) in uint in_lineno;
 layout(location = 4) in uint in_kindtool;
@@ -731,16 +1081,63 @@ void main() {
 }
 """ % {"kind_mask": KIND_MASK}
 
+# Window-space depth, packed into an RGBA8 colour attachment.
+#
+# OpenGL ES permits glReadPixels on colour attachments only - there is no
+# extension that lifts it, so on a Pi the depth *buffer* cannot be read back at
+# all. The pick pass therefore writes depth a second time, as colour, into a
+# second attachment. It does so on **both** APIs: a desktop-only
+# GL_DEPTH_COMPONENT branch would leave this code untested by the desktop pick
+# corpus, which is the whole value of sharing it.
+#
+# 24 bits of fixed point - exactly the precision of the GL_DEPTH_COMPONENT24
+# renderbuffer it mirrors, so nothing is lost against the value the depth test
+# itself used, and the nearest-hit ordering is preserved bit for bit. Integer
+# packing rather than the usual vec3/fract trick because the ES preamble
+# declares `precision highp int`, which makes the arithmetic exact on both.
+#: The largest value the packer can produce, and the sentinel decode compares
+#: against. 24 bits, matching GL_DEPTH_COMPONENT24.
+DEPTH_MAX = (1 << 24) - 1
+
+
+def pack_depth_rgba8(values: Any) -> bytes:
+    """The bytes ``DEPTH_TO_RGBA8`` would write for depths in 0..1.
+
+    The GLSL packer's counterpart in Python, so a test can build the patch
+    :meth:`PickTarget.decode` reads without needing a GL context to render one.
+    """
+    z = np.clip(np.asarray(values, dtype=np.float64), 0.0, 1.0)
+    q = np.rint(z * DEPTH_MAX).astype(np.uint32)
+    out = np.zeros(z.shape + (4,), dtype=np.uint8)
+    out[..., 0] = (q & 0xFF).astype(np.uint8)
+    out[..., 1] = ((q >> 8) & 0xFF).astype(np.uint8)
+    out[..., 2] = ((q >> 16) & 0xFF).astype(np.uint8)
+    out[..., 3] = 255
+    return out.tobytes()
+
+
+DEPTH_TO_RGBA8 = """
+const float DEPTH_SCALE = 16777215.0;      // 2^24 - 1
+
+vec4 pack_depth(float z) {
+    uint q = uint(clamp(z, 0.0, 1.0) * DEPTH_SCALE + 0.5);
+    return vec4(float( q         & 0xFFu) / 255.0,
+                float((q >>  8u) & 0xFFu) / 255.0,
+                float((q >> 16u) & 0xFFu) / 255.0,
+                1.0);
+}
+"""
+
 TRAJ_PICK_FRAGMENT_SHADER = """
-#version 330 core
 flat in uint v_kind;
 flat in uint v_id;
 
 uniform int u_hide_cat;           // kind that is discarded, -1 for none
 uniform int u_last_drawn_kind;    // kinds above this are records
 
-out vec4 frag_color;
-
+layout(location = 0) out vec4 frag_color;
+layout(location = 1) out vec4 frag_depth;
+%(pack)s
 void main() {
     // The same two rejections the drawing shader applies, driven by the same
     // per-buffer uniforms, so pickable geometry cannot diverge from drawn
@@ -760,8 +1157,9 @@ void main() {
         float((v_id >>  8u) & 0xFFu) / 255.0,
         float((v_id >> 16u) & 0xFFu) / 255.0,
         float((v_id >> 24u) & 0xFFu) / 255.0);
+    frag_depth = pack_depth(gl_FragCoord.z);
 }
-"""
+""" % {"pack": DEPTH_TO_RGBA8}
 
 
 class TrajectoryPickProgram:
@@ -789,10 +1187,53 @@ class TrajectoryPickProgram:
         self.shader.delete()
 
 
+# The program array's quad-expanding vertex stage: the same outputs as
+# PROGRAM_VERTEX_SHADER off the same two buffers, with the plane buffer bound
+# twice for the two endpoints and the attribute buffer bound once, at the
+# segment's END vertex. That single choice is what reproduces the last-vertex
+# provoking convention here - see WIDE_ATTR_B_ATTRIBUTES.
+#
+# Used for the dwell markers and the highlight overlay, never for the program
+# body; see the WIDE_LINE_EXPAND note.
+PROGRAM_WIDE_VERTEX_SHADER = """
+layout(location = 0) in vec3  in_position;
+layout(location = 3) in float in_distance;
+layout(location = 4) in uint  in_kindtool;    // the segment's END vertex
+layout(location = 5) in vec3  in_position_b;
+layout(location = 7) in float in_distance_b;
+
+uniform mat4 u_mvp;
+
+flat out uint v_kind;
+out float v_distance;
+%(expand)s
+void main() {
+    vec4 ca = u_mvp * vec4(in_position,   1.0);
+    vec4 cb = u_mvp * vec4(in_position_b, 1.0);
+    v_kind = in_kindtool & %(kind_mask)uu;
+    v_distance = (gl_VertexID > 1) ? in_distance_b : in_distance;
+    gl_Position = expand(ca, cb);
+}
+""" % {"expand": WIDE_LINE_EXPAND, "kind_mask": KIND_MASK}
+
+
 class ProgramArrayProgram(TrajectoryProgram):
     """:class:`TrajectoryProgram` over the program array's 24-byte layout."""
 
     VERTEX_SHADER = PROGRAM_VERTEX_SHADER
+
+
+class WideProgramArrayProgram(ProgramArrayProgram):
+    """:class:`ProgramArrayProgram` with the quad-expanding vertex stage."""
+
+    VERTEX_SHADER = PROGRAM_WIDE_VERTEX_SHADER
+
+    def set_expansion(self, viewport: Sequence[float], width: float) -> None:
+        """The drawable size in pixels and the width to draw at; see
+        :meth:`WideLineProgram.set_expansion`."""
+        glUniform2f(self.shader.uniform("u_viewport"),
+                    float(viewport[0]), float(viewport[1]))
+        self.shader.set_float("u_line_width", width)
 
 
 class ProgramArrayPickProgram(TrajectoryPickProgram):
@@ -802,7 +1243,7 @@ class ProgramArrayPickProgram(TrajectoryPickProgram):
 
 
 # ---------------------------------------------------------------------------
-# Pick shader (GLSL 330 core) for the per-vertex-colour layout: draw pickable
+# Pick shader for the per-vertex-colour layout: draw pickable
 # geometry with the source line number encoded into the colour attachment, for
 # the offscreen ID-buffer pass that replaces legacy GL_SELECT. The id is
 # `lineno + 1` so a cleared (black) framebuffer reads back as "no hit". 24 bits
@@ -815,7 +1256,6 @@ class ProgramArrayPickProgram(TrajectoryPickProgram):
 # rather than be deleted along with its last routine caller.
 # ---------------------------------------------------------------------------
 PICK_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3 in_position;
 layout(location = 2) in float in_lineno;
 
@@ -830,11 +1270,11 @@ void main() {
 """
 
 PICK_FRAGMENT_SHADER = """
-#version 330 core
 flat in int v_id;
 
-out vec4 frag_color;
-
+layout(location = 0) out vec4 frag_color;
+layout(location = 1) out vec4 frag_depth;
+%(pack)s
 void main() {
     // Four channels, matching the trajectory pick stage so one decode serves
     // both. This stage's id comes from a float attribute and so is 24-bit
@@ -844,8 +1284,11 @@ void main() {
         float((v_id >>  8) & 0xFF) / 255.0,
         float((v_id >> 16) & 0xFF) / 255.0,
         float((v_id >> 24) & 0xFF) / 255.0);
+    // Second attachment, same as the trajectory stage: both pick stages must
+    // write both targets, or a patch mixing them would read stale depth.
+    frag_depth = pack_depth(gl_FragCoord.z);
 }
-"""
+""" % {"pack": DEPTH_TO_RGBA8}
 
 
 class PickProgram:
@@ -876,7 +1319,6 @@ MESH_ATTRIBUTES = (
 )
 
 CONE_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec3 in_normal;
 
@@ -892,7 +1334,6 @@ void main() {
 """
 
 CONE_FRAGMENT_SHADER = """
-#version 330 core
 in vec3 v_normal;
 
 uniform vec3 u_light_dir;   // direction toward the light (normalised)
@@ -967,16 +1408,31 @@ class MeshBuffers:
 
 
 class PickTarget:
-    """Offscreen RGBA8 + depth framebuffer used by the ID-buffer pick pass.
+    """Offscreen framebuffer used by the ID-buffer pick pass.
+
+    Three attachments: an RGBA8 colour buffer carrying the per-vertex source
+    line number, a second RGBA8 colour buffer carrying window-space depth
+    packed to 24 bits, and a real depth renderbuffer that the depth *test* uses
+    (the pass still needs one - the packed copy is read back, not tested
+    against).
+
+    The second colour attachment exists because OpenGL ES refuses
+    ``glReadPixels(..., GL_DEPTH_COMPONENT, ...)`` under all circumstances,
+    and it is used on desktop GL too so that one code path serves both and the
+    desktop pick corpus exercises what a Pi runs. Multiple render targets are
+    core in GL 3.3 and GLES 3.0 alike, with at least 4 draw buffers
+    guaranteed; this uses 2.
 
     Sized to the preview window; :meth:`ensure` reallocates on a size change.
-    Renderbuffers (not textures) back both attachments because the pass only
+    Renderbuffers (not textures) back every attachment because the pass only
     reads a small patch back with ``glReadPixels``, never samples them.
     """
 
     def __init__(self) -> None:
         self.fbo = 0
         self.color = 0
+        #: RGBA8 renderbuffer holding depth as colour - see the class docstring.
+        self.depth_color = 0
         self.depth = 0
         self.w = 0
         self.h = 0
@@ -988,8 +1444,11 @@ class PickTarget:
         self.w, self.h = w, h
         self.fbo = glGenFramebuffers(1)
         self.color = glGenRenderbuffers(1)
+        self.depth_color = glGenRenderbuffers(1)
         self.depth = glGenRenderbuffers(1)
         glBindRenderbuffer(GL_RENDERBUFFER, self.color)
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h)
+        glBindRenderbuffer(GL_RENDERBUFFER, self.depth_color)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h)
         glBindRenderbuffer(GL_RENDERBUFFER, self.depth)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h)
@@ -997,6 +1456,8 @@ class PickTarget:
         glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                   GL_RENDERBUFFER, self.color)
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
+                                  GL_RENDERBUFFER, self.depth_color)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                   GL_RENDERBUFFER, self.depth)
         status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
@@ -1024,6 +1485,10 @@ class PickTarget:
         prev_viewport = [int(v) for v in glGetIntegerv(GL_VIEWPORT)]
         glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
         glViewport(0, 0, self.w, self.h)
+        # Both colour attachments are written by the pick stages. Draw-buffer
+        # state belongs to the framebuffer object, so this is set on ours and
+        # needs no restoring on the way out.
+        glDrawBuffers(2, [GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1])
         glDisable(GL_BLEND)                       # solid ids, no coverage blend
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
@@ -1048,13 +1513,25 @@ class PickTarget:
         rx = max(0, min(px - 2, self.w - 5))
         ry = max(0, min(py - 2, self.h - 5))
         glPixelStorei(GL_PACK_ALIGNMENT, 1)
+        # Two RGBA8 reads rather than one RGBA8 and one GL_DEPTH_COMPONENT:
+        # ES rejects the latter outright, and using the colour form on both
+        # APIs is what keeps this path covered by the desktop pick corpus.
+        glReadBuffer(GL_COLOR_ATTACHMENT0)
         color = glReadPixels(rx, ry, 5, 5, GL_RGBA, GL_UNSIGNED_BYTE)
-        depth = glReadPixels(rx, ry, 5, 5, GL_DEPTH_COMPONENT, GL_FLOAT)
+        glReadBuffer(GL_COLOR_ATTACHMENT1)
+        depth = glReadPixels(rx, ry, 5, 5, GL_RGBA, GL_UNSIGNED_BYTE)
+        glReadBuffer(GL_COLOR_ATTACHMENT0)
         return self.decode(color, depth)
 
     @staticmethod
     def decode(color: Any, depth: Any) -> int | None:
         """Decode a 5x5 id/depth patch to the nearest-hit line number, or None.
+
+        Both patches are RGBA8: ``color`` carries the source line id in all
+        four channels, ``depth`` carries window-space depth as a 24-bit
+        little-endian fixed point in RGB (see ``DEPTH_TO_RGBA8``). The depth
+        values are compared, never scaled back to 0..1, so the fixed point is
+        the comparison and no float conversion can reorder it.
 
         Kept apart from the read-back because it is pure: the nearest-by-depth
         rule and the empty-space case are checkable without a GL context.
@@ -1064,7 +1541,7 @@ class PickTarget:
         integration.
         """
         rgba = np.frombuffer(bytes(color), dtype=np.uint8).reshape(5, 5, 4)
-        d = np.frombuffer(bytes(depth), dtype=np.float32).reshape(5, 5)
+        dz = np.frombuffer(bytes(depth), dtype=np.uint8).reshape(5, 5, 4)
         # All four channels: alpha carries the id's top byte, so a line number
         # that fits the vertex also fits a pick. The target clears to
         # (0,0,0,0) and blending is off for the pass, so alpha is the id's and
@@ -1073,10 +1550,15 @@ class PickTarget:
                | (rgba[..., 1].astype(np.uint32) << 8)
                | (rgba[..., 2].astype(np.uint32) << 16)
                | (rgba[..., 3].astype(np.uint32) << 24))
+        d = (dz[..., 0].astype(np.uint32)
+             | (dz[..., 1].astype(np.uint32) << 8)
+             | (dz[..., 2].astype(np.uint32) << 16))
         hit = ids > 0
         if not hit.any():
             return None
-        nearest = int(np.argmin(np.where(hit, d, np.inf)))
+        # The sentinel has to be above every packed depth, not np.inf: these
+        # are integers now, and inf would force the comparison into float.
+        nearest = int(np.argmin(np.where(hit, d, DEPTH_MAX + 1)))
         return int(ids.flat[nearest]) - 1
 
     def delete(self) -> None:
@@ -1084,6 +1566,8 @@ class PickTarget:
             glDeleteFramebuffers(1, [self.fbo]); self.fbo = 0
         if self.color:
             glDeleteRenderbuffers(1, [self.color]); self.color = 0
+        if self.depth_color:
+            glDeleteRenderbuffers(1, [self.depth_color]); self.depth_color = 0
         if self.depth:
             glDeleteRenderbuffers(1, [self.depth]); self.depth = 0
         self.w = self.h = 0
@@ -1159,7 +1643,7 @@ class ProgramBuffers:
              dash_period: float = 1.0, dash_duty: float = 0.5) -> None:
         """Draw the whole program: the trajectory, then the dwell markers.
 
-        The trajectory is one multi-draw whatever its mix of categories; the
+        The trajectory is one draw whatever its mix of categories; the
         shader colours each segment from the palette and rejects the rapids
         when they are hidden. Each buffer nominates which of its own categories
         dashes and which the show-rapids toggle hides, so a buffer that
@@ -1230,7 +1714,15 @@ class GlCanonRenderer:
 
     def __init__(self) -> None:
         # Every one of these is created on first use, once a context exists.
+        self._caps: GLCaps | None = None
+        #: The drawable size in pixels, told to us by whoever called
+        #: glViewport. Quad expansion is a screen-space operation and needs it;
+        #: (0, 0) means "not told yet", and the expanded path declines rather
+        #: than guessing or spending a glGetIntegerv round-trip per draw.
+        self._viewport: tuple[int, int] = (0, 0)
         self._line: LineProgram | None = None
+        self._wide_line: WideLineProgram | None = None
+        self._wide_prog_array: WideProgramArrayProgram | None = None
         self._traj: TrajectoryProgram | None = None
         self._cone: ConeProgram | None = None
         self._pick: PickProgram | None = None
@@ -1249,6 +1741,21 @@ class GlCanonRenderer:
         #: would have to import.
         self._owned: list[Any] = []
 
+    # -- capability record -------------------------------------------------
+    @property
+    def caps(self) -> GLCaps:
+        """What the live context can do - the one place the scene reads it.
+
+        Probed on first access rather than in ``__init__`` because this object
+        is deliberately constructible before a context is current (the shader
+        programs below are lazy for the same reason). First access is the first
+        program creation, which is inside the first frame, so every draw sees a
+        populated record.
+        """
+        if self._caps is None:
+            self._caps = active_caps()
+        return self._caps
+
     # -- lifetime registry -------------------------------------------------
     def register(self, resource: Any) -> Any:
         """Take responsibility for releasing ``resource`` on :meth:`delete`.
@@ -1264,11 +1771,47 @@ class GlCanonRenderer:
         self._owned.append(resource)
         return resource
 
+    # -- viewport ----------------------------------------------------------
+    def set_viewport(self, width: int, height: int) -> None:
+        """Record the drawable size, alongside the caller's own glViewport.
+
+        The quad-expanded line path works in pixels and needs this. Told
+        rather than queried: a glGetIntegerv(GL_VIEWPORT) per draw is a
+        pipeline stall, and the caller already knows the number it just passed
+        to GL.
+        """
+        self._viewport = (int(width), int(height))
+
+    @property
+    def viewport(self) -> tuple[int, int]:
+        return self._viewport
+
+    def expansion_width(self) -> float:
+        """The width the quad-expanding buffers should draw at, or 0.
+
+        Zero whenever the driver already granted what the scene asked for, or
+        the viewport is unknown - in both cases the plain ``GL_LINES`` path is
+        correct and cheaper.
+        """
+        if self._viewport[0] <= 0 or self._viewport[1] <= 0:
+            return 0.0
+        return pending_line_expansion()
+
     # -- lazy program/resource creation ------------------------------------
     def line_program(self) -> LineProgram:
         if self._line is None:
             self._line = LineProgram()
         return self._line
+
+    def wide_line_program(self) -> WideLineProgram:
+        if self._wide_line is None:
+            self._wide_line = WideLineProgram()
+        return self._wide_line
+
+    def wide_program_array_program(self) -> WideProgramArrayProgram:
+        if self._wide_prog_array is None:
+            self._wide_prog_array = WideProgramArrayProgram()
+        return self._wide_prog_array
 
     def cone_program(self) -> ConeProgram:
         if self._cone is None:
@@ -1318,6 +1861,13 @@ class GlCanonRenderer:
         is restored - a shared drawing service that quietly widened and
         un-widened around one caller's draw is the pattern the scene rule
         exists to prevent.
+
+        It does *read* the width the scene asked for: when the driver refused
+        it, these arrays - grid, axes, extents, limits, labels, all of them a
+        few thousand vertices at most - are drawn as quads instead of lines, so
+        the width a part asked for is the width it gets on a driver that caps
+        glLineWidth at 1.0. Reading state is not setting it; nothing here
+        changes what the next caller sees.
         """
         verts = np.ascontiguousarray(verts, dtype=np.float32)
         if verts.size == 0:
@@ -1325,6 +1875,14 @@ class GlCanonRenderer:
         if self._scratch is None:
             self._scratch = CategoryBuffers()
         self._scratch.upload(verts)
+        width = self.expansion_width()
+        if width:
+            wide = self.wide_line_program()
+            wide.begin(mvp, alpha)
+            wide.set_dashed(dashed, dash_period)
+            wide.set_expansion(self._viewport, width)
+            self._scratch.draw_wide()
+            return
         line = self.line_program()
         line.begin(mvp, alpha)
         line.set_dashed(dashed, dash_period)
@@ -1361,6 +1919,10 @@ class GlCanonRenderer:
         self._cone_mesh.draw()
 
     def delete(self) -> None:
+        # The capability record describes the context, so it goes with it: a
+        # renderer revived against a new context re-probes rather than drawing
+        # on the old one's answers.
+        self._caps = None
         for resource in self._owned:
             resource.delete()
         del self._owned[:]
@@ -1372,6 +1934,10 @@ class GlCanonRenderer:
             self._cone_mesh.delete(); self._cone_mesh = None
         if self._line:
             self._line.delete(); self._line = None
+        if self._wide_line:
+            self._wide_line.delete(); self._wide_line = None
+        if self._wide_prog_array:
+            self._wide_prog_array.delete(); self._wide_prog_array = None
         if self._traj:
             self._traj.delete(); self._traj = None
         if self._cone:
@@ -1407,6 +1973,12 @@ class ProgramArrayBuffers:
         self.attr_buffer = GLBuffer()
         self.plane_buffers: list[GLBuffer] = []
         self.vaos: list[VertexArray] = []
+        #: Per plane, the same buffers presented as segment endpoint pairs for
+        #: the quad-expanded path, and the (first_vertex, step) each is
+        #: currently pointed at. Built on first use - on a driver that grants
+        #: the width asked for, never.
+        self.wide_vaos: list[VertexArray] = []
+        self._wide_keys: dict[int, tuple[int, int]] = {}
         self.count = 0                  # vertices
         #: One palette per plane. Foam's two planes are the same program in
         #: different colours (``_xy`` and ``_uv``), so the palette is a
@@ -1465,6 +2037,11 @@ class ProgramArrayBuffers:
         while len(self.plane_buffers) > len(planes):
             self.plane_buffers.pop().delete()
             self.vaos.pop().delete()
+        # The endpoint-pair VAOs point into the plane buffers, so they go with
+        # them; the rest are rebuilt lazily against whatever is uploaded now.
+        while len(self.wide_vaos) > len(planes):
+            self.wide_vaos.pop().delete()
+        self._wide_keys.clear()
         if not self.count:
             return
         self.attr_buffer.set_data(attrs)
@@ -1526,8 +2103,14 @@ class ProgramArrayBuffers:
         out[:, 3] += out[:, 2] * dz
         return out
 
-    def _use(self, plane: int) -> None:
-        """Establish the recorded pass's shader state for one plane."""
+    def _use(self, plane: int, wide: float = 0.0) -> None:
+        """Establish the recorded pass's shader state for one plane.
+
+        ``wide`` is the quad expansion's line width in pixels, or 0 for the
+        plain vertex stage. The ids pass never expands: what is pickable is
+        the geometry, not the widened drawing of it, which is how it behaved
+        when the width came from glLineWidth too.
+        """
         if self._pass is None:
             return
         what, renderer = self._pass[0], self._pass[1]
@@ -1538,29 +2121,78 @@ class ProgramArrayBuffers:
                 mvp, hide_cat=-1 if self._pass[3] else self.hide_cat,
                 last_drawn_kind=self.last_drawn_kind)
             return
-        program = renderer.program_array_program()
+        program = (renderer.wide_program_array_program() if wide
+                   else renderer.program_array_program())
         if what == "override":
             program.begin(mvp, palette, dash_cat=-1, hide_cat=-1,
                           last_drawn_kind=self.last_drawn_kind)
             program.set_override_color(self._pass[3])
-            return
-        _w, _r, _m, alpha, show_rapids, dash_period, dash_duty = self._pass
-        program.begin(mvp, palette, alpha,
-                      dash_cat=self.dash_cat,
-                      hide_cat=-1 if show_rapids else self.hide_cat,
-                      dashed=True, dash_period=dash_period,
-                      dash_duty=dash_duty,
-                      last_drawn_kind=self.last_drawn_kind)
+        else:
+            _w, _r, _m, alpha, show_rapids, dash_period, dash_duty = self._pass
+            program.begin(mvp, palette, alpha,
+                          dash_cat=self.dash_cat,
+                          hide_cat=-1 if show_rapids else self.hide_cat,
+                          dashed=True, dash_period=dash_period,
+                          dash_duty=dash_duty,
+                          last_drawn_kind=self.last_drawn_kind)
+        if wide:
+            program.set_expansion(renderer.viewport, wide)
+
+    def _expansion_width(self) -> float:
+        """The width a *body* draw of this buffer should quad-expand at, or 0.
+
+        Non-zero only for a disjoint-segment buffer whose requested width the
+        driver refused. GL_LINES here means the dwell markers, whose arms are
+        a few hundred vertices and are meaningless at one pixel. GL_LINE_STRIP
+        means the program trajectory, which is never expanded whatever the
+        driver grants - see the WIDE_LINE_EXPAND note.
+        """
+        if self.mode != GL_LINES or self._pass is None:
+            return 0.0
+        return self._pass[1].expansion_width()
+
+    def _wide_vao(self, plane: int, first: int, step: int) -> VertexArray:
+        """This plane's endpoint-pair VAO, pointed at ``first`` with ``step``
+        vertices per segment (2 for GL_LINES, 1 for a strip).
+
+        The plane buffer is bound twice, one vertex apart; the attribute buffer
+        once, at the segment's END vertex, which is where the last-vertex
+        convention lives on this path.
+        """
+        while len(self.wide_vaos) <= plane:
+            self.wide_vaos.append(VertexArray())
+        vao = self.wide_vaos[plane]
+        key = (first, step)
+        if self._wide_keys.get(plane) != key:
+            pstride = PLANE_DTYPE.itemsize
+            astride = ATTR_DTYPE.itemsize
+            buf = self.plane_buffers[plane]
+            vao.configure(buf, WIDE_PLANE_A_ATTRIBUTES, step * pstride,
+                          divisor=1, base=first * pstride)
+            vao.configure(buf, WIDE_PLANE_B_ATTRIBUTES, step * pstride,
+                          divisor=1, base=(first + 1) * pstride)
+            vao.configure(self.attr_buffer, WIDE_ATTR_B_ATTRIBUTES,
+                          step * astride, divisor=1,
+                          base=(first + 1) * astride)
+            self._wide_keys[plane] = key
+        return vao
 
     def draw(self) -> None:
         """One draw per plane, each over the whole contiguous vertex range."""
         if not self.count:
             return
+        width = self._expansion_width()
         for plane, vao in enumerate(self.vaos):
-            self._use(plane)
-            vao.bind()
-            glDrawArrays(self.mode, 0, self.count)
-            vao.unbind()
+            self._use(plane, width)
+            if width:
+                wide = self._wide_vao(plane, 0, 2)
+                wide.bind()
+                glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, self.count // 2)
+                wide.unbind()
+            else:
+                vao.bind()
+                glDrawArrays(self.mode, 0, self.count)
+                vao.unbind()
 
     def _resolve_spans(self) -> Any:
         """The span index, building it on first use if it was deferred.
@@ -1573,7 +2205,13 @@ class ProgramArrayBuffers:
         return self.spans
 
     def draw_line(self, lineno: int | None) -> None:
-        """Draw only the spans belonging to source line ``lineno``."""
+        """Draw only the spans belonging to source line ``lineno``.
+
+        This is the highlight overlay, and unlike the body draw above it quad-
+        expands whatever the mode: one source line is a handful of segments,
+        and a highlight the user cannot see against the program is the one
+        thing a 1px program most needs to keep.
+        """
         if not self.count or self.spans is None or lineno is None:
             return
         spans = self._resolve_spans()
@@ -1584,19 +2222,36 @@ class ProgramArrayBuffers:
         hi = int(np.searchsorted(keys, lineno, side="right"))
         if lo == hi:
             return
+        width = 0.0 if self._pass is None else self._pass[1].expansion_width()
+        step = 2 if self.mode == GL_LINES else 1
         for plane, vao in enumerate(self.vaos):
-            self._use(plane)
-            vao.bind()
-            for i in range(lo, hi):
-                glDrawArrays(self.mode, int(firsts[i]), int(counts[i]))
-            vao.unbind()
+            self._use(plane, width)
+            if width:
+                for i in range(lo, hi):
+                    first, count = int(firsts[i]), int(counts[i])
+                    segments = count // 2 if step == 2 else count - 1
+                    if segments <= 0:
+                        continue
+                    wide = self._wide_vao(plane, first, step)
+                    wide.bind()
+                    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, segments)
+                    wide.unbind()
+            else:
+                vao.bind()
+                for i in range(lo, hi):
+                    glDrawArrays(self.mode, int(firsts[i]), int(counts[i]))
+                vao.unbind()
 
     def delete(self) -> None:
         for vao in self.vaos:
             vao.delete()
+        for vao in self.wide_vaos:
+            vao.delete()
         for buf in self.plane_buffers:
             buf.delete()
         del self.vaos[:]
+        del self.wide_vaos[:]
+        self._wide_keys.clear()
         del self.plane_buffers[:]
         self.attr_buffer.delete()
         self.count = 0
@@ -1606,9 +2261,9 @@ class TrajectoryBuffers:
     """A buffer in the shared 20-byte vertex format, drawn through the
     trajectory shader.
 
-    Holds the vertex buffer, an optional chain table that
-    ``glMultiDrawArrays`` walks, the per-line spans the highlight pass draws,
-    and the colour palette the shader indexes with each vertex's category.
+    Holds the vertex buffer, an optional chain table :meth:`draw` walks, the
+    per-line spans the highlight pass draws, and the colour palette the shader
+    indexes with each vertex's category.
 
     The program supplies a chain table and is drawn as connected strips - one
     of these replaces the three per-category buffers, which is what lets a
@@ -1702,13 +2357,23 @@ class TrajectoryBuffers:
 
         With a chain table that is a single multi-draw over the chains; with
         none it is a single ``glDrawArrays`` of the whole vertex range.
+
+        The chain-table branch is a plain loop rather than glMultiDrawArrays,
+        which is core on desktop GL but only an extension on GLES that Mesa's
+        v3d is not required to have. Looping unconditionally costs nothing
+        measurable *because this path does not carry the program*: the program
+        array is one contiguous range with no chain table at all (record-kind
+        vertices took its place), and the dwell markers and the live backplot
+        both supply none and take the single-draw branch below. What reaches
+        the loop is at most a few thousand vertices - and one path means the
+        desktop corpus exercises the same code a Pi runs.
         """
         if not self.count:
             return
         self.vao.bind()
         if len(self.firsts):
-            glMultiDrawArrays(self.mode, self.firsts, self.counts,
-                              len(self.firsts))
+            for first, count in zip(self.firsts, self.counts):
+                glDrawArrays(self.mode, int(first), int(count))
         else:
             glDrawArrays(self.mode, 0, self.count)
         self.vao.unbind()
@@ -1753,6 +2418,10 @@ class CategoryBuffers:
         self.mode = mode
         self.buffer = GLBuffer()
         self.vao = VertexArray()
+        #: The same buffer presented as segment endpoint pairs, for the
+        #: quad-expanded path. Built on first use, which on a driver that
+        #: grants the width asked for is never.
+        self.wide_vao: VertexArray | None = None
         self.count = 0
         self.line_ranges: LineRanges = {}
         self._configured = False
@@ -1767,6 +2436,35 @@ class CategoryBuffers:
             if not self._configured:
                 self.vao.configure(self.buffer)
                 self._configured = True
+
+    def _segment_vao(self) -> VertexArray:
+        """The VAO presenting this buffer as GL_LINES endpoint pairs.
+
+        One instance per segment, the buffer bound twice - at vertex 0 and at
+        vertex 1 - with a stride of two vertices. No vertex data is duplicated;
+        the buffer's own bytes are read twice.
+        """
+        if self.wide_vao is None:
+            self.wide_vao = VertexArray()
+            step = 2 * VERTEX_STRIDE
+            self.wide_vao.configure(self.buffer, WIDE_LINE_A_ATTRIBUTES,
+                                    step, divisor=1, base=0)
+            self.wide_vao.configure(self.buffer, WIDE_LINE_B_ATTRIBUTES,
+                                    step, divisor=1, base=VERTEX_STRIDE)
+        return self.wide_vao
+
+    def draw_wide(self) -> None:
+        """Draw as quads, one instance per GL_LINES segment.
+
+        Only meaningful for ``GL_LINES`` content; the caller decides, because
+        the caller is the one that knows the driver refused the width.
+        """
+        if not self.count:
+            return
+        vao = self._segment_vao()
+        vao.bind()
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, self.count // 2)
+        vao.unbind()
 
     def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
               show_rapids: bool = True, dash_period: float = 1.0,
@@ -1814,6 +2512,9 @@ class CategoryBuffers:
 
     def delete(self) -> None:
         self.vao.delete()
+        if self.wide_vao is not None:
+            self.wide_vao.delete()
+            self.wide_vao = None
         self.buffer.delete()
 
 
@@ -2040,7 +2741,6 @@ _OVERLAY_STRIDE = 4 * 4
 _OVERLAY_ATTRS = ((0, 2, 0), (1, 2, 2 * 4))
 
 TEXT_VERTEX_SHADER = """
-#version 330 core
 layout(location = 0) in vec2 in_pos;   // pixels, origin bottom-left
 layout(location = 1) in vec2 in_uv;
 uniform vec2 u_screen;                  // viewport (width, height) in pixels
@@ -2054,7 +2754,6 @@ void main() {
 """
 
 TEXT_FRAGMENT_SHADER = """
-#version 330 core
 in vec2 v_uv;
 uniform sampler2D u_atlas;
 uniform vec4 u_color;

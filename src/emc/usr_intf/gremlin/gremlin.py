@@ -64,10 +64,22 @@ _glx.glXMakeCurrent.restype = c_int
 _glx.glXMakeCurrent.argtypes = [c_void_p, c_ulong, c_void_p]
 _glx.glXSwapBuffers.restype = None
 _glx.glXSwapBuffers.argtypes = [c_void_p, c_ulong]
+_glx.XSetErrorHandler.restype = c_void_p
+_glx.XSetErrorHandler.argtypes = [c_void_p]
+_glx.XSync.restype = c_int
+_glx.XSync.argtypes = [c_void_p, c_int]
 _ccaa_proc = _glx.glXGetProcAddress(b"glXCreateContextAttribsARB")
 _glXCreateContextAttribsARB = CFUNCTYPE(
     c_void_p, c_void_p, c_void_p, c_void_p, c_int, POINTER(c_int))(
     _ccaa_proc) if _ccaa_proc else None
+
+# A refused context request raises BadMatch/BadValue on the X connection, and
+# Xlib's default handler exits the process. Asking for 3.3 core on a driver
+# that has none is now an expected step rather than a fatal one, so the
+# attempt below installs this for its duration: swallow, and let the null
+# return value be the answer.
+_XErrorHandler = CFUNCTYPE(c_int, c_void_p, c_void_p)
+_IGNORE_X_ERROR = _XErrorHandler(lambda display, event: 0)
 
 # FBConfig / GLX_ARB_create_context(_profile) attribute tokens (stable GLX ints).
 GLX_X_RENDERABLE                 = 0x8012
@@ -85,6 +97,10 @@ GLX_CONTEXT_MAJOR_VERSION_ARB    = 0x2091
 GLX_CONTEXT_MINOR_VERSION_ARB    = 0x2092
 GLX_CONTEXT_PROFILE_MASK_ARB     = 0x9126
 GLX_CONTEXT_CORE_PROFILE_BIT_ARB = 0x00000001
+# GLX_EXT_create_context_es2_profile. Mesa exposes it wherever it exposes
+# GLES, which includes the Raspberry Pi's v3d - the driver that has no desktop
+# core profile at all and is the reason this second request exists.
+GLX_CONTEXT_ES_PROFILE_BIT_EXT   = 0x00000004
 
 try:
     import Xlib
@@ -245,13 +261,22 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
 
     def _create_core_context(self):
-        """Create an OpenGL 3.3 core-profile context via GLX.
+        """Create the preview's GL context: 3.3 core, else GLES 3.1.
 
         GTK3 only hands out core contexts through GtkGLArea, so gremlin builds
         one by hand (as it always has for the legacy context): pick an FBConfig
         and call glXCreateContextAttribsARB for 3.3 core. The X window binding
-        (activate/swapbuffers) is unchanged. Hard failure with a diagnostic if a
-        core context cannot be made - the preview renderer requires 3.3 core.
+        (activate/swapbuffers) is unchanged.
+
+        A driver with no desktop core profile at all - Mesa's ``v3d`` on the
+        Raspberry Pi 4, whose maximum core version is 0.0 and whose
+        compatibility profile stops at 2.1 - fails that request. Its real API
+        is OpenGL ES 3.1, so that is tried next, over the same GLX drawable
+        through ``GLX_EXT_create_context_es2_profile``. The renderer is the
+        same renderer either way; only the API differs, which is what
+        ``rs274.glcanon_gl.GLCaps`` reads off the context afterwards.
+
+        Hard failure with a diagnostic naming both if neither can be made.
         """
         if not _glXCreateContextAttribsARB:
             self._core_context_failed(
@@ -277,23 +302,55 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         if not fbconfigs or n.value < 1:
             self._core_context_failed("no suitable framebuffer configuration")
 
-        ctx_attribs = [
+        # Desktop 3.3 core first: where both are available it is what runs, so
+        # a machine that has always taken this path keeps taking it.
+        self.context = self._try_context(dpy, fbconfigs[0], [
             GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
             GLX_CONTEXT_MINOR_VERSION_ARB, 3,
             GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
             0,
-        ]
-        self.context = _glXCreateContextAttribsARB(
-            dpy, fbconfigs[0], None, True,
-            (c_int * len(ctx_attribs))(*ctx_attribs))
-        if not self.context:
-            self._core_context_failed(
-                "glXCreateContextAttribsARB returned no context")
+        ])
+        if self.context:
+            self.gl_api = "OpenGL 3.3 core"
+            return
+        self.context = self._try_context(dpy, fbconfigs[0], [
+            GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+            GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+            GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_ES_PROFILE_BIT_EXT,
+            0,
+        ])
+        if self.context:
+            self.gl_api = "OpenGL ES 3.1"
+            return
+        self._core_context_failed(
+            "neither request returned a context")
+
+    @staticmethod
+    def _try_context(dpy, fbconfig, ctx_attribs):
+        """One glXCreateContextAttribsARB attempt, or None.
+
+        A refused request is normal here - it is how the desktop and GLES
+        paths are told apart - so the X error it raises must not reach the
+        default handler, which would exit the process. The handler is swapped
+        for the duration of the call and put back afterwards.
+        """
+        previous = _glx.XSetErrorHandler(_IGNORE_X_ERROR)
+        try:
+            context = _glXCreateContextAttribsARB(
+                dpy, fbconfig, None, True,
+                (c_int * len(ctx_attribs))(*ctx_attribs))
+        except Exception:
+            context = None
+        finally:
+            _glx.XSync(dpy, False)
+            _glx.XSetErrorHandler(previous)
+        return context or None
 
     def _core_context_failed(self, why):
         sys.stderr.write(
-            "\nGremlin: could not create an OpenGL 3.3 core context: %s\n"
-            "The preview renderer requires OpenGL 3.3 core (Mesa). On a machine\n"
+            "\nGremlin: could not create a usable OpenGL context: %s\n"
+            "The preview renderer needs either OpenGL 3.3 core or OpenGL ES\n"
+            "3.1; both were requested and both were refused. On a machine\n"
             "without a capable GPU, force software rendering with:\n"
             "    LIBGL_ALWAYS_SOFTWARE=1\n\n" % why)
         raise SystemExit(1)

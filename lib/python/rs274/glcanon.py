@@ -751,16 +751,32 @@ class GlCanonDraw:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
+        self._announce_gl_context()
         if glcanon_gl.GL_DEBUG:
             self._log_gl_context()
         self.initialised = 1
 
+    def _announce_gl_context(self):
+        """State which API and version the preview actually got, once.
+
+        Unconditional, unlike the debug dump below. Two contexts are now
+        accepted - OpenGL 3.3 core and OpenGL ES 3.1 - and on a Raspberry Pi
+        they are visually indistinguishable apart from line width, so a bug
+        report has to be able to say which one ran without asking the reporter
+        to install and run eglinfo. One line, at realize, per widget.
+        """
+        import sys
+        caps = self.renderer.caps
+        print("preview renderer: %s %s"
+              % ("OpenGL ES" if caps.is_gles else "OpenGL",
+                 caps.describe()), file=sys.stderr)
+
     def _log_gl_context(self):
         """Report the created OpenGL context (version/renderer/GLSL) to stderr.
 
-        Enabled with GLCANON_GL_DEBUG=1. The preview needs a 3.3 core profile;
-        this makes the context that was actually obtained visible - e.g. to
-        confirm 3.3 core on X11/XWayland, or that llvmpipe (software) is in use."""
+        Enabled with GLCANON_GL_DEBUG=1. Adds the GLSL version to the line
+        above, which is the part that differs between the two accepted
+        contexts (GLSL 330 against GLSL ES 300)."""
         import sys
         def s(name):
             try:
@@ -952,6 +968,9 @@ class GlCanonDraw:
         w = self.winfo_width()
         h = self.winfo_height()
         glViewport(0, 0, w, h)
+        # Told, not queried: the quad-expanded line path works in pixels and
+        # needs the drawable size, and this is where GL is given it.
+        self.renderer.set_viewport(w, h)
 
         # Clear the background and depth buffer.
         glClearColor(*(self.colors['back'] + (0,)))
@@ -974,6 +993,9 @@ class GlCanonDraw:
         w = self.winfo_width()
         h = self.winfo_height()
         glViewport(0, 0, w, h)
+        # Told, not queried: the quad-expanded line path works in pixels and
+        # needs the drawable size, and this is where GL is given it.
+        self.renderer.set_viewport(w, h)
 
         # Clear the background and depth buffer.
         glClearColor(*(self.colors['back'] + (0,)))
@@ -1160,7 +1182,7 @@ class GlCanonDraw:
         """
         return glcanon_scene.FrameContext(
             mv=self.mv, prim=self.prim, renderer=self.renderer,
-            colors=self.colors,
+            caps=self.renderer.caps, colors=self.colors,
 
             stat=self.stat, canon=self.canon, lp=self.lp,
             geometry=self.get_geometry(), is_lathe=self.is_lathe(),

@@ -187,15 +187,58 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     zRotationChanged = Signal(int)
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
+    @staticmethod
+    def _desktop_core_available():
+        """Whether this machine can give the widget an OpenGL 3.3 core context.
+
+        Asked by creating a throwaway context and reading back the format that
+        came out - Qt has no way to answer it from the format alone, and a
+        create() that "succeeds" at 2.1 would leave the widget with a context
+        the renderer cannot use.
+
+        Anything unexpected answers True, which keeps the pre-change behaviour
+        (request 3.3 core, fail loudly if it is not there) rather than quietly
+        dropping a capable machine onto the GLES path.
+        """
+        try:
+            from qtpy.QtGui import QOpenGLContext
+            if QOpenGLContext.openGLModuleType() == QOpenGLContext.LibGLES:
+                # Qt itself is linked against GLES; no desktop request can be
+                # satisfied whatever the driver holds.
+                return False
+            probe = QSurfaceFormat()
+            probe.setVersion(3, 3)
+            probe.setProfile(QSurfaceFormat.CoreProfile)
+            ctx = QOpenGLContext()
+            ctx.setFormat(probe)
+            if not ctx.create():
+                return False
+            got = ctx.format()
+            return (got.profile() == QSurfaceFormat.CoreProfile
+                    and (got.majorVersion(), got.minorVersion()) >= (3, 3))
+        except Exception:
+            return True
+
     def __init__(self, parent=None):
         super(Lcnc_3dGraphics,self).__init__(parent)
-        # Request an OpenGL 3.3 core-profile surface before the widget's context
-        # is created; the shared preview renderer (rs274.glcanon_gl) requires
-        # 3.3 core. setFormat must precede the widget's first show.
+        # Request the surface the shared preview renderer (rs274.glcanon_gl)
+        # can draw on, before the widget's context is created; setFormat must
+        # precede the widget's first show.
+        #
+        # OpenGL 3.3 core where it exists. Where it does not - Mesa's v3d on a
+        # Raspberry Pi 4 has no desktop core profile at all - the same renderer
+        # runs on OpenGL ES 3.1, so that is asked for instead. Qt cannot report
+        # whether a format is obtainable before the context exists, so the
+        # choice is made from what the default (throwaway) context says the
+        # driver supports.
         fmt = QSurfaceFormat()
-        fmt.setVersion(3, 3)
-        fmt.setProfile(QSurfaceFormat.CoreProfile)
         fmt.setDepthBufferSize(24)
+        if self._desktop_core_available():
+            fmt.setVersion(3, 3)
+            fmt.setProfile(QSurfaceFormat.CoreProfile)
+        else:
+            fmt.setRenderableType(QSurfaceFormat.OpenGLES)
+            fmt.setVersion(3, 1)
         self.setFormat(fmt)
         glnav.GlNavBase.__init__(self)
 

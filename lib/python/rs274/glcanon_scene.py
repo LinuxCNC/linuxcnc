@@ -176,7 +176,7 @@ class FrameContext:
 
     __slots__ = (
         # drawing services
-        'mv', 'prim', 'renderer', 'colors',
+        'mv', 'prim', 'renderer', 'caps', 'colors',
         # machine and program state
         'stat', 'canon', 'lp', 'geometry', 'is_lathe', 'is_foam',
         'foam_z', 'foam_w', 'limits', 'joints_mode',
@@ -201,6 +201,14 @@ class FrameContext:
     mv: MatrixStack
     prim: Primitives
     renderer: glcanon_gl.GlCanonRenderer
+    #: What the live GL context can do, where OpenGL 3.3 core and OpenGL ES 3.1
+    #: differ - the API, and the widest line the driver grants. Read once
+    #: from the context at the top of the frame and passed
+    #: down: a part that wants to know must read this, and MUST NOT call
+    #: ``glGetString``, query an extension, or probe a limit itself. That is
+    #: the same rule as the visibility gate - a part does not decide, and does
+    #: not discover, the conditions it draws under.
+    caps: glcanon_gl.GLCaps
     #: Colour table, ``rs274.glcanon.GlCanonDraw.colors`` resolved for this
     #: host. Values are either an rgb 3-tuple of floats in 0..1 or, for the
     #: ``*_alpha`` keys, a bare float - hence ``Any`` rather than a union that
@@ -923,12 +931,31 @@ class HighlightPart(Part):
     def __init__(self, resource: ProgramResource | None = None) -> None:
         self.resource = resource if resource is not None else ProgramResource()
 
+    #: Width over a program the driver drew at the same width. The tie-break
+    #: below plus three pixels against one is what makes the highlight read.
+    WIDTH = 3.0
+    #: Width over a program the driver drew as hairlines. Wider because there
+    #: is less to win against - a 1px highlight over a 1px program differs
+    #: only in colour, and at a shallow angle on a busy program that is not
+    #: enough to find the selected line by eye.
+    HAIRLINE_WIDTH = 4.0
+
     @contextmanager
     def scope(self, ctx: FrameContext) -> Iterator[None]:
         """The program's alpha compositing, plus the depth tie-break and the
-        width that make the highlight sit over the geometry it duplicates."""
+        width that make the highlight sit over the geometry it duplicates.
+
+        The width is the one place in the scene where the driver's own limit
+        changes what a part asks for. Where ``glLineWidth`` is capped at 1 -
+        a forward-compatible core profile, or GLES on the Raspberry Pi's v3d -
+        the program body is drawn as hairlines and is not quad-expanded (10M
+        vertices is too many), so the highlight asks for more and gets it: it
+        *is* quad-expanded, being a handful of segments. Read from the frame's
+        capability record; a part never asks GL this itself.
+        """
         with super().scope(ctx), program_alpha(ctx):
-            set_line_width(3.0)
+            set_line_width(self.WIDTH if ctx.caps.max_line_width >= self.WIDTH
+                           else self.HAIRLINE_WIDTH)
             glDepthFunc(GL_LEQUAL)
             try:
                 yield
