@@ -1109,9 +1109,10 @@ M2 (end program)
 It is an error if:
 
 * All axis words are omitted.
-* The spindle is not turning when this command is executed.
-* The requested linear motion exceeds machine velocity limits
-  due to the spindle speed.
+* No K word is given.
+* An F word is given (the feed follows from K and the spindle speed).
+* The selected spindle is not commanded to turn (M3 or M4 active) when
+  this command is executed.
 
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
@@ -1123,6 +1124,7 @@ G33.1 X- Y- Z- K- I- $-
 
 * 'K' - distance per revolution
 * 'I' - optional spindle speed multiplier for faster return move
+  (values less than 1 are treated as 1)
 * '$' - optional spindle selector
 
 [WARNING]
@@ -1175,9 +1177,10 @@ M2 (end program)
 It is an error if:
 
 * All axis words are omitted.
-* The spindle is not turning when this command is executed
-* The requested linear motion exceeds machine velocity limits
-  due to the spindle speed
+* No K word is given.
+* An F word is given (the feed follows from K and the spindle speed).
+* The selected spindle is not commanded to turn (M3 or M4 active) when
+  this command is executed.
 
 [[gcode:g38]]
 == G38._n_ Straight Probe(((G38.n Probe)))
@@ -1718,6 +1721,11 @@ Behavior details:
   meanings would be ambiguous); this is an error.
 
 It is a good idea to include a path control specification in the preamble of each G-code file.
+
+It is an error if:
+
+* The path control mode is changed (G61, G61.1 or G64) while cutter
+  radius compensation is active.
 
 .G64 P- Q- Example Line
 [source,ngc]
@@ -2762,7 +2770,8 @@ G96 <D-> S- <$-> (Constant Surface Speed Mode)
 G97 S- <$-> (RPM Mode)
 ----
 
-. 'D' - maximum rotation speed (RPM), optional
+. 'D' - maximum rotation speed (RPM), optional. Without D the spindle
+  speed in CSS mode is not limited by the interpreter.
 . 'S' - spindle speed
 . '$' - the spindle of which the speed will be varied, optional.
 
@@ -2789,7 +2798,6 @@ G96 D2500 S250 (set CSS with a max rpm of 2500 and a surface speed of 250)
 It is an error if:
 
 * S is not specified with G96
-* A feed move is specified in G96 mode while the spindle is not turning
 
 [[gcode:g98-g99]]
 == G98, G99 Canned Cycle Return Level(((G98, G99 Canned Cycle Return)))
