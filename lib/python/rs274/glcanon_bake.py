@@ -8,7 +8,7 @@
 #    parameterised by a radius and a height rather than anything the canon
 #    records, and the live backplot, which is the path the machine has actually
 #    travelled, streamed out of the C position logger's ring buffer while a
-#    program runs. The backplot shares the program's *shader* and its 20-byte
+#    program runs. The backplot shares the program's *shader* and its 16-byte
 #    palette-indexed vertex; the solids' interleaved position+normal layout is
 #    its own and is named as such.
 #
@@ -63,7 +63,7 @@ AXIS_MASK_C = 0x20
 # float64 -> float32 boundary in this module speaks this type.
 Float64Points = npt.NDArray[np.float64]
 
-# Interleaved layout: position(3) rgba(4) lineno(1) distance(1) -> 9 float32.
+# Interleaved layout: position(3) rgba(4) lineno(1) -> 8 float32.
 # ``WideVerts`` is the type saying so; rs274.glcanon_gl names the same layout
 # through this alias, which is what keeps the two modules' strides one
 # statement rather than two comments asking each other to agree. It is what
@@ -71,17 +71,17 @@ Float64Points = npt.NDArray[np.float64]
 # uses, since that is rebuilt every frame from view-dependent colours that
 # don't reduce to a small palette, and what the live backplot falls back to
 # when its colours overflow its palette.
-FLOATS_PER_VERTEX = 9
+FLOATS_PER_VERTEX = 8
 WideVerts = npt.NDArray[np.float32]              # (N, FLOATS_PER_VERTEX)
 
-# The live backplot's layout: position(3 float32), a uint32 holding a palette
-# index in its high byte, and an unused distance (float32) -> 20 bytes. Colour
-# is not stored per vertex; the shader looks it up in the palette. The packed
-# word is carried in a float32 column purely as a bit container - it is never
-# read as a number, and the values involved (an index <= 7) can never form a
-# NaN pattern that a copy might quiet. See :func:`backplot_vertices`, which is
-# the only thing that writes it; the program has its own layout, below.
-TRAJ_FLOATS_PER_VERTEX = 5
+# The live backplot's layout: position(3 float32) and a uint32 holding a
+# palette index in its high byte -> 16 bytes. Colour is not stored per vertex;
+# the shader looks it up in the palette. The packed word is carried in a
+# float32 column purely as a bit container - it is never read as a number, and
+# the values involved (an index <= 7) can never form a NaN pattern that a copy
+# might quiet. See :func:`backplot_vertices`, which is the only thing that
+# writes it; the program has its own layout, below.
+TRAJ_FLOATS_PER_VERTEX = 4
 TrajectoryVerts = npt.NDArray[np.float32]        # (N, TRAJ_FLOATS_PER_VERTEX)
 
 # The Lambert-shaded solids' layout: position(3) + normal(3) float32, (N, 6),
@@ -130,21 +130,20 @@ MODE_LINES = "lines"
 
 # ---------------------------------------------------------------------------
 # The program array's vertex layout, stated once here and read by
-# rs274.glcanon_gl rather than restated there - as the 20-byte layout above is.
+# rs274.glcanon_gl rather than restated there - as the 16-byte layout above is.
 #
-# 24 bytes per vertex, in two arrays rather than one interleaved buffer:
+# 20 bytes per vertex, in two arrays rather than one interleaved buffer:
 #
-#     per plane   position 3 x float32 + distance float32   = 16 B
+#     per plane   position 3 x float32                      = 12 B
 #     shared      source line uint32 + kind/tool uint32     =  8 B
 #
 # The split is what lets foam - which draws the same program on two planes,
 # ``XY`` at ``foam_z`` and ``UV`` at ``foam_w`` - store the line, kind and tool
-# columns once for both. Distance sits with the position, not with them,
-# because the dash phase accumulates along *transformed* points and the two
-# planes' points differ; sharing it would silently change one plane's dashes.
-PLANE_DTYPE = np.dtype([('pos', '<f4', (3,)), ('dist', '<f4')])
+# columns once for both. The positions cannot be shared with them: each plane
+# is a different transform of the same moves, so each holds its own.
+PLANE_DTYPE = np.dtype([('pos', '<f4', (3,))])
 ATTR_DTYPE = np.dtype([('line', '<u4'), ('kindtool', '<u4')])
-VERTEX_STRIDE = PLANE_DTYPE.itemsize + ATTR_DTYPE.itemsize     # 24
+VERTEX_STRIDE = PLANE_DTYPE.itemsize + ATTR_DTYPE.itemsize     # 20
 
 # The kind/tool word: kind in the low 8 bits, tool ordinal in the next 16.
 # The top 8 are spare and are asserted zero rather than left unspecified -
@@ -304,6 +303,57 @@ def _unrotate_xy(pts: Float64Points, rotation_xy: float,
     return out
 
 
+def _box_of(*point_arrays: Float64Points
+            ) -> tuple[Float64Points, Float64Points]:
+    """``(min, max)`` over the first three columns, taken one column at a time.
+
+    numpy's ``axis=0`` reduction vectorises the three-wide row, not the k-long
+    column: 258 us against 22 us at k=16384. Same answer, either way - which
+    is why this exists as one named helper rather than four open-coded loops.
+    Several arrays reduce into one box without concatenating them, since the
+    copy costs more than the reduction it saves.
+
+    Every caller has at least one row; an empty batch never reaches the fill.
+    """
+    lo = np.empty(3, dtype=np.float64)
+    hi = np.empty(3, dtype=np.float64)
+    for j in range(3):
+        col = point_arrays[0][:, j]
+        col_lo = col.min()
+        col_hi = col.max()
+        for arr in point_arrays[1:]:
+            col = arr[:, j]
+            col_lo = min(col_lo, col.min())
+            col_hi = max(col_hi, col.max())
+        lo[j] = col_lo
+        hi[j] = col_hi
+    return lo, hi
+
+
+def _seg_lengths(p1: Float64Points, p2: Float64Points) -> Float64Points:
+    """Each move's XYZ segment length, over the three columns it reads.
+
+    Bit-identical to ``np.linalg.norm((p2 - p1)[:, :3], axis=1)``, which
+    subtracted all nine columns to use three and then took a row-wise
+    reduction over a three-wide array. ``norm`` reduces the three squares in
+    this same order, so the sum - and therefore the root - is the same float.
+    """
+    dx = p2[:, 0] - p1[:, 0]
+    dy = p2[:, 1] - p1[:, 1]
+    dz = p2[:, 2] - p1[:, 2]
+    return np.sqrt(dx * dx + dy * dy + dz * dz)
+
+
+#: Runs of one commanded feed rate that :meth:`ProgramGeometry.
+#: _accumulate_lengths` will find by walking rate changes rather than by
+#: sorting the batch. Past it the run form's ``unique`` + ``repeat`` costs more
+#: than the sort it replaces, so the sort runs instead. A **cost** switch, not
+#: a correctness one: both branches feed the same ``bincount`` the same bins
+#: and produce the same table bit for bit, so a wrong value here costs time and
+#: nothing else.
+_RATE_RUN_LIMIT = 64
+
+
 class ProgramGeometry:
     """The parsed program, as arrays. The authoritative record of what it is.
     It is the program record and the ready-to-go GPU's source data at once.
@@ -316,8 +366,8 @@ class ProgramGeometry:
     and nothing here knows that OpenGL exists.
 
     **Storage.** Two arrays, per the layout stated at the top of this module:
-    one :data:`PLANE_DTYPE` array per drawn plane (position and dash distance,
-    which are both plane-specific because the transform is) and one shared
+    one :data:`PLANE_DTYPE` array per drawn plane (the transformed position,
+    which is plane-specific because the transform is) and one shared
     :data:`ATTR_DTYPE` array (source line, and the packed kind/tool word). Both
     grow by doubling; the move count is not known in advance and a counting
     pass would mean holding or re-walking the source.
@@ -385,10 +435,6 @@ class ProgramGeometry:
         self._n = 0
         self._planes = [np.empty(0, dtype=PLANE_DTYPE) for _ in self.planes]
         self._attrs = np.empty(0, dtype=ATTR_DTYPE)
-        # Per plane: the last vertex's position and its dash distance, so a
-        # chunk continues the previous chunk's segment and dash phase.
-        self._prev_pos = [np.zeros(3) for _ in self.planes]
-        self._dash = [0.0 for _ in self.planes]
         #: The 9-DOF point the trajectory is currently at, or ``None`` before
         #: the first move. A move starting anywhere else is a jump.
         self._cur9: Optional[npt.NDArray[np.float64]] = None
@@ -462,9 +508,6 @@ class ProgramGeometry:
     def positions(self, plane: int = 0) -> npt.NDArray[np.float32]:
         return self._planes[plane]['pos'][:self._n]
 
-    def distance(self, plane: int = 0) -> npt.NDArray[np.float32]:
-        return self._planes[plane]['dist'][:self._n]
-
     @property
     def lines(self) -> npt.NDArray[np.uint32]:
         return self._attrs['line'][:self._n]
@@ -520,8 +563,8 @@ class ProgramGeometry:
 
         A different quantity from :attr:`extents`, and named apart because it
         coincides with it only when the GEOMETRY transform is the identity. It
-        is the box a dash period or a view fit wants; the four pairs above are
-        the machine-frame boxes the properties dialog and the DRO show.
+        is the box a view fit wants; the four pairs above are the machine-frame
+        boxes the properties dialog and the DRO show.
 
         The foam planes' Z offsets are not included, for the same reason they
         are not baked into the positions.
@@ -634,37 +677,52 @@ class ProgramGeometry:
         # 2. How many points each move contributes, and whether it needs a
         #    record vertex at its start because the trajectory jumped to get
         #    there.
-        steps = _rotary_steps_batch(p1, p2)
-        prev = np.empty_like(p1)
-        prev[1:] = p2[:-1]
-        jump = np.empty(k, dtype=bool)
-        jump[1:] = np.any(p1[1:] != prev[1:], axis=1)
+        turning = _any_rotary_change(p1, p2)
+        steps = _rotary_steps_batch(p1, p2) if turning else None
         # Nothing has been drawn yet: the first move's start point is a jump
         # by definition, which is also what starts the strip.
-        jump[0] = (True if self._cur9 is None
-                   else bool(np.any(p1[0] != self._cur9)))
-        counts = steps + jump
-        total = int(counts.sum())
+        first_jump = (True if self._cur9 is None
+                      else bool(np.any(p1[0] != self._cur9)))
+        # p2[:-1] is the previous move's end point, so this is the whole
+        # continuity test; the per-move flags are built only when it fails.
+        continuous = not first_jump and bool(np.array_equal(p1[1:], p2[:-1]))
 
         # 3. Expand. ``t == 0`` reproduces p1 exactly, which is what makes the
         #    jump record fall out of the same expression as the interpolation
         #    rather than needing a branch.
-        ends = np.cumsum(counts)
-        move_idx = np.repeat(np.arange(k), counts)
-        within = np.arange(total) - (ends - counts)[move_idx]
-        sub = within - jump[move_idx] + 1
-        if steps.max() == 1 and not jump.any():
-            pts9 = p2                       # the common case: no copy at all
-        else:
-            t = (sub / steps[move_idx])[:, np.newaxis]
-            pts9 = t * p2[move_idx] + (1.0 - t) * p1[move_idx]
-
+        #
         # 4. Columns. The record vertex at a jump carries the kind that says
         #    "discard the segment into me" and the line number of the move it
         #    starts, which is what the pre-change chain head carried.
-        line_col = lines[move_idx].astype(np.uint32)
-        kind_col = kind_in[move_idx].copy()
-        kind_col[sub == 0] = KIND_NOOP
+        if not turning and continuous:
+            # Nothing turning, nothing jumping: the vertices are the moves' end
+            # points, and every index array below would be the identity.
+            pts9 = p2
+            line_col = lines.astype(np.uint32)
+            kind_col = kind_in
+        else:
+            if continuous:
+                jump = np.zeros(k, dtype=bool)
+            else:
+                jump = np.empty(k, dtype=bool)
+                jump[1:] = np.any(p1[1:] != p2[:-1], axis=1)
+                jump[0] = first_jump
+            if steps is None:
+                steps = np.ones(k, dtype=np.int64)
+            counts = steps + jump
+            total = int(counts.sum())
+            ends = np.cumsum(counts)
+            move_idx = np.repeat(np.arange(k), counts)
+            within = np.arange(total) - (ends - counts)[move_idx]
+            sub = within - jump[move_idx] + 1
+            if steps.max() == 1 and not jump.any():
+                pts9 = p2                   # the common case: no copy at all
+            else:
+                t = (sub / steps[move_idx])[:, np.newaxis]
+                pts9 = t * p2[move_idx] + (1.0 - t) * p1[move_idx]
+            line_col = lines[move_idx].astype(np.uint32)
+            kind_col = kind_in[move_idx].copy()
+            kind_col[sub == 0] = KIND_NOOP
 
         # 5. One transform per plane per batch, never one per move.
         points = [transform_points(pts9, geom, self.ro)
@@ -749,20 +807,18 @@ class ProgramGeometry:
         n = self._n
         for i, arr in enumerate(self._planes):
             pos = points[i]
-            dist = self._distances(i, pos, kind_col)
             arr['pos'][n:n + m] = pos
-            arr['dist'][n:n + m] = dist
-            # Both carried at float64: the stored column is float32, and
-            # rounding a running total once per batch would make the dash
-            # phase depend on where the batches happened to fall.
-            self._prev_pos[i] = pos[-1]
-            self._dash[i] = float(dist[-1])
-            np.minimum(self._drawn[0], pos.min(axis=0), out=self._drawn[0])
-            np.maximum(self._drawn[1], pos.max(axis=0), out=self._drawn[1])
+            lo, hi = _box_of(pos)
+            np.minimum(self._drawn[0], lo, out=self._drawn[0])
+            np.maximum(self._drawn[1], hi, out=self._drawn[1])
         self._attrs['line'][n:n + m] = line_col
-        self._attrs['kindtool'][n:n + m] = (
-            kind_col.astype(np.uint32)
-            | (np.uint32(self._tool) << np.uint32(TOOL_SHIFT)))
+        # Into the array's own field, tool ordinal or-ed on there: no
+        # batch-sized temporaries. Must not mutate kind_col - the unsubdivided
+        # path hands over the canon's pending kinds themselves, which can be a
+        # read-only ``frombuffer`` view.
+        field = self._attrs['kindtool'][n:n + m]
+        np.copyto(field, kind_col)
+        field |= np.uint32(self._tool) << np.uint32(TOOL_SHIFT)
         self._n = n + m
         self._index = None
 
@@ -783,35 +839,6 @@ class ProgramGeometry:
         grown_attrs[:self._n] = self._attrs[:self._n]
         self._attrs = grown_attrs
 
-    def _distances(self, plane: int, pos: Float64Points,
-                   kind_col: npt.NDArray[np.uint8]) -> npt.NDArray[np.float64]:
-        """Dash distance for one batch of vertices on one plane.
-
-        The same segmented accumulation ``_chain_distances`` performed per
-        chain, carried across batches: it climbs through a maximal run of
-        rapid segments and resets at the start of every such run, which keeps
-        the magnitude small enough for float32 to resolve the dash period
-        however long the program is.
-
-        A record vertex is neither: a jump resets the phase, because it is
-        exactly where a chain used to restart; a dwell or a tool-change record
-        does not, because it adds no length and the rapid run it interrupts is
-        still one run. Getting that second case wrong would change the dashes
-        of any rapid that happens to straddle a ``G4``.
-        """
-        m = len(pos)
-        step = np.empty((m, 3), dtype=np.float64)
-        step[0] = pos[0] - self._prev_pos[plane]
-        step[1:] = np.diff(pos, axis=0)
-        seglen = np.linalg.norm(step, axis=1)
-        running = np.cumsum(np.where(kind_col == KIND_TRAVERSE, seglen, 0.0))
-        resets = ((kind_col == KIND_FEED) | (kind_col == KIND_ARC)
-                  | (kind_col == KIND_NOOP))
-        last = np.maximum.accumulate(np.where(resets, np.arange(m), -1))
-        prior = np.where(last >= 0, running[np.maximum(last, 0)],
-                         -self._dash[plane])
-        return running - prior
-
     # -- extents accumulation ---------------------------------------------
 
     def _accumulate_extents(self, p1: Float64Points, p2: Float64Points,
@@ -826,15 +853,37 @@ class ProgramGeometry:
         region, say - is invisible to it. The two agree on every fixture in
         the corpus; where they could differ this is the larger box and the
         right one.
+
+        Of the four pairs, only the first is always reduced. The other three
+        are derived from it where the batch permits, and reduced in full where
+        it does not - each derivation has its general form as the else branch
+        beside it, so a batch containing a tool change, or filled under a g5x
+        rotation, is answered exactly as it was before this shortcut existed.
         """
-        pts = np.concatenate([p1[:, :3], p2[:, :3]])
-        tool = np.concatenate([offsets, offsets])
-        rot = _unrotate_xy(pts, rotation_xy, g5x_xy)
-        for i, values in enumerate((pts, pts + tool, rot, rot + tool)):
-            np.minimum(self._extents[i, 0], values.min(axis=0),
-                       out=self._extents[i, 0])
-            np.maximum(self._extents[i, 1], values.max(axis=0),
-                       out=self._extents[i, 1])
+        raw = _box_of(p1, p2)
+        one_offset = bool((offsets == offsets[0]).all())
+        if one_offset:
+            # One offset for the whole batch - i.e. no tool change in it - so
+            # the corrected box is the raw box shifted. Adding a constant is
+            # monotonic, so this is the same box, not an approximation of it.
+            shift = offsets[0]
+            notool = (raw[0] + shift, raw[1] + shift)
+        else:
+            notool = _box_of(p1[:, :3] + offsets, p2[:, :3] + offsets)
+        if not rotation_xy:
+            # No rotation to remove: these two pairs are the two above.
+            rot, rot_notool = raw, notool
+        else:
+            r1 = _unrotate_xy(p1[:, :3], rotation_xy, g5x_xy)
+            r2 = _unrotate_xy(p2[:, :3], rotation_xy, g5x_xy)
+            rot = _box_of(r1, r2)
+            if one_offset:
+                rot_notool = (rot[0] + shift, rot[1] + shift)
+            else:
+                rot_notool = _box_of(r1 + offsets, r2 + offsets)
+        for i, (lo, hi) in enumerate((raw, notool, rot, rot_notool)):
+            np.minimum(self._extents[i, 0], lo, out=self._extents[i, 0])
+            np.maximum(self._extents[i, 1], hi, out=self._extents[i, 1])
 
     def _accumulate_lengths(self, p1: Float64Points, p2: Float64Points,
                             kind_in: npt.NDArray[np.uint8],
@@ -843,19 +892,38 @@ class ProgramGeometry:
 
         Same raw XYZ endpoints as :meth:`_accumulate_extents`, so this must be
         called before subdivision too. The per-rate reduction is vectorised
-        (``np.unique`` + ``np.bincount``) rather than looped per move; only the
-        result - one Python dict update per *distinct rate in this batch* - is
-        a Python-level loop, which is what keeps the table bounded by feed-rate
-        changes rather than move count.
+        (``np.bincount`` over the distinct rates) rather than looped per move;
+        only the result - one Python dict update per *distinct rate in this
+        batch* - is a Python-level loop, which is what keeps the table bounded
+        by feed-rate changes rather than move count.
         """
-        seglen = np.linalg.norm((p2 - p1)[:, :3], axis=1)
+        seglen = _seg_lengths(p1, p2)
         is_traverse = kind_in == CAT_TRAVERSE
-        self._rapid_length += float(seglen[is_traverse].sum())
-        cut_rates = feedrates[~is_traverse]
-        if len(cut_rates) == 0:
+        n_traverse = int(is_traverse.sum())
+        if n_traverse == len(kind_in):
+            # Nothing cutting: no selection copy, and no table to update.
+            self._rapid_length += float(seglen.sum())
             return
-        cut_lengths = seglen[~is_traverse]
-        uniq, inverse = np.unique(cut_rates, return_inverse=True)
+        if n_traverse == 0:
+            # Nothing traversing: the batch *is* its own cutting selection, so
+            # neither boolean index copy is made.
+            cut_rates, cut_lengths = feedrates, seglen
+        else:
+            self._rapid_length += float(seglen[is_traverse].sum())
+            cutting = ~is_traverse
+            cut_rates = feedrates[cutting]
+            cut_lengths = seglen[cutting]
+        # A commanded rate holds for a run of moves, so sort the runs, not the
+        # batch. Same bincount over the same bins, so the table is unchanged
+        # bit for bit. Past the limit the run form costs more than the sort.
+        starts = np.concatenate(
+            ([0], np.flatnonzero(cut_rates[1:] != cut_rates[:-1]) + 1))
+        if len(starts) <= _RATE_RUN_LIMIT:
+            uniq, run_bins = np.unique(cut_rates[starts], return_inverse=True)
+            inverse = np.repeat(
+                run_bins, np.diff(np.append(starts, len(cut_rates))))
+        else:
+            uniq, inverse = np.unique(cut_rates, return_inverse=True)
         sums = np.bincount(inverse, weights=cut_lengths, minlength=len(uniq))
         for rate, length in zip(uniq.tolist(), sums.tolist()):
             self._cut_length_by_feed[rate] = (
@@ -1072,9 +1140,9 @@ def dwell_marker_part(geometry: "ProgramGeometry", is_lathe: bool = False,
             "palettes": [padded] * n_planes,
             "plane_offsets": tuple(offsets[:n_planes]),
             "mode": MODE_LINES,
-            # No record kinds here, and no rapid to hide or dash: every entry
-            # is a colour, so the whole palette is drawable.
-            "dash_cat": -1, "hide_cat": -1,
+            # No record kinds here, and no rapid to hide: every entry is a
+            # colour, so the whole palette is drawable.
+            "hide_cat": -1,
             "last_drawn_kind": PALETTE_SIZE - 1,
             "spans": _spans_from_pairs(
                 [ln for j, ln in enumerate(linenos) if j % 2 == 0], 2)}
@@ -1109,9 +1177,13 @@ def program_parts(geometry: "ProgramGeometry", colors: dict[str, Any],
         {"name": "program", "kind": "program_array",
          "planes": planes, "attrs": geometry.attrs, "palettes": palettes,
          "plane_offsets": offsets,
-         # The program is the buffer that nominates a dash and a hidden kind,
-         # and both are its rapid code. Every other buffer nominates neither.
-         "dash_cat": KIND_TRAVERSE, "hide_cat": KIND_TRAVERSE,
+         # The program is the buffer that nominates a hidden kind - its rapid
+         # code - and every other buffer nominates none. Rapids draw solid:
+         # LinuxCNC removed GL_LINE_STIPPLE from the rapid traverse and the
+         # soft-limit wireframe deliberately (f1c1209f52, "unreliable on some
+         # graphics cards"), so there is nothing left in this renderer that
+         # dashes, and no attribute or uniform to support it.
+         "hide_cat": KIND_TRAVERSE,
          "last_drawn_kind": LAST_DRAWN_KIND,
          # Passed as a callable, not as the index itself: ``index`` builds on
          # first mention, and the only thing that reads it is the highlight.
@@ -1141,6 +1213,20 @@ def _coalesce_spans(keys: npt.NDArray[np.int64], firsts: npt.NDArray[np.int64],
     return (keys[heads],
             firsts[heads].astype(np.int32),
             (firsts[tails] + counts[tails] - firsts[heads]).astype(np.int32))
+
+
+def _any_rotary_change(p1: Float64Points, p2: Float64Points) -> bool:
+    """Whether any move turns A, B or C.
+
+    Short-circuits per column, so a 3-axis batch answers no in three
+    comparisons and never builds the per-move subdivision count at all. The
+    equality it tests is the same one :func:`_rotary_steps_batch` reduces, so
+    the two cannot disagree about whether a batch turns.
+    """
+    for col in (3, 4, 5):
+        if not np.array_equal(p1[:, col], p2[:, col]):
+            return True
+    return False
 
 
 def _rotary_steps_batch(p1: Float64Points,
@@ -1292,10 +1378,10 @@ def cylinder_mesh(radius: float, height: float,
 # The backplot is not program geometry: it is the path the machine has actually
 # travelled, streamed out of the C position logger's ring buffer while a
 # program runs, and re-uploaded a tail at a time. It shares the program's
-# *shader* and its 20-byte palette-indexed vertex (:data:`TrajectoryVerts`),
+# *shader* and its 16-byte palette-indexed vertex (:data:`TrajectoryVerts`),
 # and nothing else - it reads no ``ProgramGeometry`` and is filled by no canon.
 
-# The backplot's own packing convention for the 20-byte vertex's uint32 word:
+# The backplot's own packing convention for the 16-byte vertex's uint32 word:
 # the palette index in the high byte, the rest zero. It is not a source line
 # number and never was - the backplot is neither picked nor highlighted - so
 # the field the program array gives to the line number is simply unused here.
@@ -1439,9 +1525,9 @@ def backplot_vertices(raw: Any, npts: int, is_xyuv: bool,
     legacy positionlogger.call vertex stream (full stride vs half stride).
 
     With a :class:`ColorPalette`, each vertex carries its colour's palette
-    index in the shared 20-byte layout: ``(M, TRAJ_FLOATS_PER_VERTEX)``, the
-    index packed into the word whose line-number bits stay zero, distance
-    zero. The backplot is neither picked nor dashed, so neither is read.
+    index in the shared 16-byte layout: ``(M, TRAJ_FLOATS_PER_VERTEX)``, the
+    index packed into the word whose line-number bits stay zero. The backplot
+    is not picked, so those bits are never read.
 
     The palette is keyed on the **stored bytes**, not on the preview's colour
     table. The C resolves a motion type to a ``struct color`` of four uint8

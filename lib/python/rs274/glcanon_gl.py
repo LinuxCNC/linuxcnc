@@ -4,10 +4,10 @@
 #    preview renderer that replaces the legacy fixed-function drawing in
 #    glcanon.py: shader compile/link helpers with proper error reporting, thin
 #    VBO/VAO wrappers, a per-pass glGetError debug check, and the line shader
-#    (position + color + line-number + distance-along-line, driven by a single
-#    MVP uniform, with shader-side dashing). The glyph-atlas overlay text, at
-#    the end of the file, is the same kind of thing: a shader, a texture and a
-#    dynamic VBO whose lifetimes this module owns.
+#    (position + color + line-number, driven by a single MVP uniform). The
+#    glyph-atlas overlay text, at the end of the file, is the same kind of
+#    thing: a shader, a texture and a dynamic VBO whose lifetimes this module
+#    owns.
 #
 #    COMPATIBILITY LEVEL: the target is the *intersection* of OpenGL 3.3 core
 #    profile and OpenGL ES 3.1 - roughly GLES 3.0 feature level plus explicit
@@ -47,9 +47,10 @@ from OpenGL.GL import *
 import numpy as np
 import numpy.typing as npt
 
-from rs274.glcanon_bake import (ATTR_DTYPE, KIND_MASK, LineRanges, MeshVerts,
-                                PLANE_DTYPE, PaletteRGBA, TrajectoryVerts,
-                                WideVerts)
+from rs274.glcanon_bake import (ATTR_DTYPE, FLOATS_PER_VERTEX, KIND_MASK,
+                                LineRanges, MeshVerts, PLANE_DTYPE,
+                                PaletteRGBA, TRAJ_FLOATS_PER_VERTEX,
+                                TrajectoryVerts, WideVerts)
 
 # PyOpenGL's enum constants are int subclasses, so this is honest rather than
 # decorative: it says "one of the GL_* names" where a bare ``int`` would say
@@ -61,75 +62,69 @@ GLEnum = int
 GL_DEBUG = os.environ.get("GLCANON_GL_DEBUG", "") not in ("", "0")
 
 # ---------------------------------------------------------------------------
-# Interleaved per-vertex-colour layout. Each vertex is 9 float32: position(3)
-# color-rgba(4) lineno(1) distance(1).
+# Interleaved per-vertex-colour layout. Each vertex is 8 float32: position(3)
+# color-rgba(4) lineno(1).
 #
 # The program trajectory, the dwell markers and the live backplot all draw
-# through the trajectory shader in the narrower 20-byte layout below instead -
+# through the trajectory shader in the narrower 16-byte layout below instead -
 # this one is what is left: the transient grid/axes/extents/Hershey-label
 # geometry (rebuilt every frame from live view state, so a palette index would
 # cost more CPU than the bandwidth it saves) and the lathe-tool profile fill,
 # plus the landing place for any of those palette-indexed parts whose colours
 # overflow their palette and fall back to storing colour per vertex.
 #
-# ``WideVerts``, imported above, is this layout as a type; the stride here and
-# the one in rs274.glcanon_bake are two views of that single statement.
+# ``WideVerts``, imported above, is this layout as a type; the column count is
+# rs274.glcanon_bake's, imported rather than restated, so the two modules cannot
+# drift into disagreeing about the stride.
 # ---------------------------------------------------------------------------
-FLOATS_PER_VERTEX = 9
-VERTEX_STRIDE = FLOATS_PER_VERTEX * 4        # bytes
+VERTEX_STRIDE = FLOATS_PER_VERTEX * 4        # bytes, 32
 
 ATTR_POSITION = 0
 ATTR_COLOR = 1
 ATTR_LINENO = 2
-ATTR_DISTANCE = 3
 
 # (location, num_components, byte-offset-within-vertex[, gl type])
 LINE_ATTRIBUTES = (
     (ATTR_POSITION, 3, 0),
     (ATTR_COLOR, 4, 3 * 4),
     (ATTR_LINENO, 1, 7 * 4),
-    (ATTR_DISTANCE, 1, 8 * 4),
 )
 
 # ---------------------------------------------------------------------------
-# The program trajectory's narrower layout: position(3 float32), a uint32 with
-# the source line number and the draw category packed together, and distance-
-# along-line (float32). 20 bytes, against 36 for the layout above - colour is
-# not stored per vertex but looked up from a palette indexed by the category.
+# The program trajectory's narrower layout: position(3 float32) and a uint32
+# with the source line number and the draw category packed together. 16 bytes,
+# against 32 for the layout above - colour is not stored per vertex but looked
+# up from a palette indexed by the category.
 #
 # A separate GL_UNSIGNED_BYTE attribute for the category would leave the stride
-# at 21 bytes, which pads to 24; packing keeps it at 20.
+# at 17 bytes, which pads to 20; packing keeps it at 16.
 #
 # ``TrajectoryVerts``, imported above, is this layout as a type.
 # ---------------------------------------------------------------------------
-TRAJ_FLOATS_PER_VERTEX = 5
-TRAJ_VERTEX_STRIDE = TRAJ_FLOATS_PER_VERTEX * 4      # bytes
+TRAJ_VERTEX_STRIDE = TRAJ_FLOATS_PER_VERTEX * 4      # bytes, 16
 
 TRAJ_ATTRIBUTES = (
     (ATTR_POSITION, 3, 0, GL_FLOAT),
     (ATTR_LINENO, 1, 3 * 4, GL_UNSIGNED_INT),
-    (ATTR_DISTANCE, 1, 4 * 4, GL_FLOAT),
 )
 
 # ---------------------------------------------------------------------------
-# The program array's layout: 24 bytes per vertex in two buffers rather than
+# The program array's layout: 20 bytes per vertex in two buffers rather than
 # one interleaved. rs274.glcanon_bake states it (PLANE_DTYPE / ATTR_DTYPE);
 # these are the same statement as attribute pointers.
 #
-#     plane buffer   position 3 x float32 + distance float32   16 B, per plane
+#     plane buffer   position 3 x float32                      12 B, per plane
 #     attr buffer    source line uint32 + kind/tool uint32       8 B, shared
 #
-# Two buffers because foam draws the same program on two planes: the positions
-# and their dash distances differ (the transform differs, and dash phase
-# accumulates along transformed points), while the line, kind and tool columns
-# are the same storage for both. It also gets the line number out of the
-# packed word, so it is a full uint32 and nothing has to range-check it.
+# Two buffers because foam draws the same program on two planes: the transform
+# differs, so the positions do, while the line, kind and tool columns are the
+# same storage for both. It also gets the line number out of the packed word,
+# so it is a full uint32 and nothing has to range-check it.
 # ---------------------------------------------------------------------------
 ATTR_KINDTOOL = 4
 
 PROGRAM_PLANE_ATTRIBUTES = (
     (ATTR_POSITION, 3, 0, GL_FLOAT),
-    (ATTR_DISTANCE, 1, 3 * 4, GL_FLOAT),
 )
 PROGRAM_ATTR_ATTRIBUTES = (
     (ATTR_LINENO, 1, 0, GL_UNSIGNED_INT),
@@ -147,32 +142,27 @@ _INTEGER_ATTRIB_TYPES = (GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT,
 # further on. These are the locations that second binding lands in; the layouts
 # themselves are the ones above, re-pointed. Nothing is duplicated in memory.
 #
-# GL 3.3 core and GLES 3.0 both guarantee 16 vertex attributes; this reaches 7.
+# GL 3.3 core and GLES 3.0 both guarantee 16 vertex attributes; this reaches 5.
 # ---------------------------------------------------------------------------
 ATTR_POSITION_B = 5
 ATTR_COLOR_B = 6
-ATTR_DISTANCE_B = 7
 
-#: Per-vertex-colour (36-byte) layout, split into the two endpoints.
+#: Per-vertex-colour (32-byte) layout, split into the two endpoints.
 WIDE_LINE_A_ATTRIBUTES = (
     (ATTR_POSITION, 3, 0),
     (ATTR_COLOR, 4, 3 * 4),
-    (ATTR_DISTANCE, 1, 8 * 4),
 )
 WIDE_LINE_B_ATTRIBUTES = (
     (ATTR_POSITION_B, 3, 0),
     (ATTR_COLOR_B, 4, 3 * 4),
-    (ATTR_DISTANCE_B, 1, 8 * 4),
 )
 
 #: Program-array plane buffer, split into the two endpoints.
 WIDE_PLANE_A_ATTRIBUTES = (
     (ATTR_POSITION, 3, 0),
-    (ATTR_DISTANCE, 1, 3 * 4),
 )
 WIDE_PLANE_B_ATTRIBUTES = (
     (ATTR_POSITION_B, 3, 0),
-    (ATTR_DISTANCE_B, 1, 3 * 4),
 )
 #: Program-array attribute buffer. Bound at the segment's **end** vertex only:
 #: that is how the expanded path reproduces the last-vertex convention the
@@ -451,8 +441,6 @@ def pending_line_expansion() -> float:
 #: every fragment stage here fails to compile without the first, and defaults
 #: int to mediump - only 16 bits - which would silently truncate the 32-bit
 #: source-line ids the pick stage packs into a colour, hence the second.
-#: highp also keeps v_distance exact far into a large program, where a mediump
-#: dash phase would visibly drift.
 GLSL_ES_PREAMBLE = """#version 300 es
 precision highp float;
 precision highp int;
@@ -685,27 +673,20 @@ LINE_VERTEX_SHADER = """
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec4 in_color;
 layout(location = 2) in float in_lineno;
-layout(location = 3) in float in_distance;
 
 uniform mat4 u_mvp;
 
 out vec4 v_color;
-out float v_distance;
 
 void main() {
     gl_Position = u_mvp * vec4(in_position, 1.0);
     v_color = in_color;
-    v_distance = in_distance;
 }
 """
 
 LINE_FRAGMENT_SHADER = """
 in vec4 v_color;
-in float v_distance;
 
-uniform bool  u_dashed;        // enable shader dashing on the distance attribute
-uniform float u_dash_period;   // world units for one on+off cycle
-uniform float u_dash_duty;     // fraction of the period drawn (0..1)
 uniform float u_alpha;         // multiplies vertex alpha (program_alpha)
 uniform bool  u_use_override;  // draw a single flat colour (e.g. highlight)
 uniform vec4  u_override_color;
@@ -713,8 +694,6 @@ uniform vec4  u_override_color;
 out vec4 frag_color;
 
 void main() {
-    if (u_dashed && fract(v_distance / u_dash_period) > u_dash_duty)
-        discard;
     vec4 c = u_use_override ? u_override_color : v_color;
     frag_color = vec4(c.rgb, c.a * u_alpha);
 }
@@ -774,22 +753,17 @@ vec4 expand(vec4 ca, vec4 cb) {
 WIDE_LINE_VERTEX_SHADER = """
 layout(location = 0) in vec3  in_position;
 layout(location = 1) in vec4  in_color;
-layout(location = 3) in float in_distance;
 layout(location = 5) in vec3  in_position_b;
 layout(location = 6) in vec4  in_color_b;
-layout(location = 7) in float in_distance_b;
 
 uniform mat4 u_mvp;
 
 out vec4 v_color;
-out float v_distance;
 %(expand)s
 void main() {
     vec4 ca = u_mvp * vec4(in_position,   1.0);
     vec4 cb = u_mvp * vec4(in_position_b, 1.0);
-    bool at_b = gl_VertexID > 1;
-    v_color    = at_b ? in_color_b    : in_color;
-    v_distance = at_b ? in_distance_b : in_distance;
+    v_color = (gl_VertexID > 1) ? in_color_b : in_color;
     gl_Position = expand(ca, cb);
 }
 """ % {"expand": WIDE_LINE_EXPAND}
@@ -798,7 +772,7 @@ void main() {
 class LineProgram:
     """The line shader plus its default uniform state.
 
-    A draw call is: :meth:`use`, set ``u_mvp`` (and any dashing/alpha/override
+    A draw call is: :meth:`use`, set ``u_mvp`` (and any alpha/override
     uniforms), bind a configured VAO, then ``glDrawArrays``. :meth:`begin`
     resets the optional uniforms to their inert defaults so each pass starts
     from a known state.
@@ -821,18 +795,10 @@ class LineProgram:
         self.shader.use()
         self.shader.set_mat4("u_mvp", mvp)
         self.shader.set_float("u_alpha", alpha)
-        self.shader.set_bool("u_dashed", False)
         self.shader.set_bool("u_use_override", False)
 
     def set_alpha(self, alpha: float) -> None:
         self.shader.set_float("u_alpha", alpha)
-
-    def set_dashed(self, enabled: bool, period: float = 1.0,
-                   duty: float = 0.5) -> None:
-        self.shader.set_bool("u_dashed", enabled)
-        if enabled:
-            self.shader.set_float("u_dash_period", period)
-            self.shader.set_float("u_dash_duty", duty)
 
     def set_override_color(self, rgba: Sequence[float] | None) -> None:
         if rgba is None:
@@ -865,7 +831,7 @@ class WideLineProgram(LineProgram):
 # The line shader above stays as it is - the dwell markers, the live backplot
 # and the transient grid/axes/label geometry each carry a colour per vertex and
 # cannot be reduced to a four-entry palette. The program can, and that is what
-# pays for the 20-byte vertex, so it gets its own pair of stages.
+# pays for the 16-byte vertex, so it gets its own pair of stages.
 #
 # The category is carried `flat`: adjacent segments of one chain routinely
 # differ in category, and an interpolated code would blend the rapid's colour
@@ -876,50 +842,39 @@ class WideLineProgram(LineProgram):
 TRAJ_VERTEX_SHADER = """
 layout(location = 0) in vec3  in_position;
 layout(location = 2) in uint  in_packed;     // lineno | category << 24
-layout(location = 3) in float in_distance;
 
 uniform mat4 u_mvp;
 
 flat out uint v_kind;
-out float v_distance;
 
 void main() {
     gl_Position = u_mvp * vec4(in_position, 1.0);
     v_kind = in_packed >> 24u;
-    v_distance = in_distance;
 }
 """
 
 # The program array's vertex stage. Same outputs as the packed one above, off
-# the two-buffer 24-byte layout: the line number is its own uint32 attribute
+# the two-buffer 20-byte layout: the line number is its own uint32 attribute
 # and the kind rides in the low byte of the kind/tool word.
 PROGRAM_VERTEX_SHADER = """
 layout(location = 0) in vec3  in_position;
-layout(location = 3) in float in_distance;
 layout(location = 4) in uint  in_kindtool;
 
 uniform mat4 u_mvp;
 
 flat out uint v_kind;
-out float v_distance;
 
 void main() {
     gl_Position = u_mvp * vec4(in_position, 1.0);
     v_kind = in_kindtool & %(kind_mask)uu;
-    v_distance = in_distance;
 }
 """ % {"kind_mask": KIND_MASK}
 
 TRAJ_FRAGMENT_SHADER = """
 flat in uint v_kind;
-in float v_distance;
 
 uniform vec4  u_palette[%(palette)d];
-uniform bool  u_dashed;        // enable dashing of the dash kind
-uniform float u_dash_period;   // world units for one on+off cycle
-uniform float u_dash_duty;     // fraction of the period drawn (0..1)
 uniform float u_alpha;         // multiplies the palette alpha (program_alpha)
-uniform int   u_dash_cat;      // kind that dashes, -1 for none
 uniform int   u_hide_cat;      // kind that is discarded, -1 for none
 uniform int   u_last_drawn_kind;  // kinds above this are records, never drawn
 uniform bool  u_use_override;  // draw a single flat colour (the highlight)
@@ -939,22 +894,15 @@ void main() {
     if (cat > u_last_drawn_kind)
         discard;
 
-    // Which kind dashes and which is hidden are the drawing buffer's to
-    // nominate, not properties of the number zero: the program nominates its
-    // rapid code for both, the dwell markers and the live backplot nominate
-    // neither and so are never dashed or discarded whatever code their
-    // vertices carry. The highlight pass overrides both - it draws the
-    // selected line solid, and draws it whether or not rapids are shown,
+    // Which kind is hidden is the drawing buffer's to nominate, not a property
+    // of the number zero: the program nominates its rapid code, the dwell
+    // markers and the live backplot nominate none and so are never discarded
+    // whatever code their vertices carry. The highlight pass overrides the
+    // nomination - it draws the selected line whether or not rapids are shown,
     // exactly as it did when rapids were a separate buffer whose draw call was
     // skipped.
-    if (!u_use_override) {
-        if (cat == u_hide_cat)
-            discard;
-        if (cat == u_dash_cat
-                && u_dashed
-                && fract(v_distance / u_dash_period) > u_dash_duty)
-            discard;
-    }
+    if (!u_use_override && cat == u_hide_cat)
+        discard;
     vec4 c = u_use_override ? u_override_color : u_palette[cat];
     frag_color = vec4(c.rgb, c.a * u_alpha);
 }
@@ -981,9 +929,9 @@ def _pin_provoking_vertex() -> None:
 class TrajectoryProgram:
     """The trajectory shader plus its palette and pass state.
 
-    Two vertex stages share one fragment stage: the packed 20-byte layout the
-    live backplot uses, and the program array's 24-byte one. They differ only
-    in where the kind comes from, so the colouring, dashing and record-kind
+    Two vertex stages share one fragment stage: the packed 16-byte layout the
+    live backplot uses, and the program array's 20-byte one. They differ only
+    in where the kind comes from, so the colouring and the record-kind
     rejection are written once. ``VERTEX_SHADER`` names which one a subclass
     compiles.
     """
@@ -998,11 +946,10 @@ class TrajectoryProgram:
         self.shader.use()
 
     def begin(self, mvp: Any, palette: Any, alpha: float = 1.0,
-              dash_cat: int = -1, hide_cat: int = -1, dashed: bool = True,
-              dash_period: float = 1.0, dash_duty: float = 0.5,
+              hide_cat: int = -1,
               last_drawn_kind: int = PALETTE_SIZE - 1) -> None:
-        """Start a pass. ``dash_cat``/``hide_cat`` are the drawing buffer's own
-        kind codes, or -1 for "this buffer has none".
+        """Start a pass. ``hide_cat`` is the drawing buffer's own kind code,
+        or -1 for "this buffer hides nothing".
 
         ``last_drawn_kind`` is likewise the buffer's own: the program array
         carries record kinds above it, while a buffer that has none - the
@@ -1012,12 +959,8 @@ class TrajectoryProgram:
         self.shader.set_mat4("u_mvp", mvp)
         self.set_palette(palette)
         self.shader.set_float("u_alpha", alpha)
-        self.shader.set_int("u_dash_cat", dash_cat)
         self.shader.set_int("u_hide_cat", hide_cat)
         self.shader.set_int("u_last_drawn_kind", last_drawn_kind)
-        self.shader.set_bool("u_dashed", dashed)
-        self.shader.set_float("u_dash_period", dash_period)
-        self.shader.set_float("u_dash_duty", dash_duty)
         self.shader.set_bool("u_use_override", False)
 
     def set_palette(self, palette: Any) -> None:
@@ -1141,8 +1084,7 @@ layout(location = 1) out vec4 frag_depth;
 void main() {
     // The same two rejections the drawing shader applies, driven by the same
     // per-buffer uniforms, so pickable geometry cannot diverge from drawn
-    // geometry. Deliberately *not* the dash rejection: a rapid was pickable in
-    // the gaps of its dash pattern before, and still is.
+    // geometry.
     int cat = int(v_kind);
     if (cat > u_last_drawn_kind)
         discard;
@@ -1197,28 +1139,24 @@ class TrajectoryPickProgram:
 # body; see the WIDE_LINE_EXPAND note.
 PROGRAM_WIDE_VERTEX_SHADER = """
 layout(location = 0) in vec3  in_position;
-layout(location = 3) in float in_distance;
 layout(location = 4) in uint  in_kindtool;    // the segment's END vertex
 layout(location = 5) in vec3  in_position_b;
-layout(location = 7) in float in_distance_b;
 
 uniform mat4 u_mvp;
 
 flat out uint v_kind;
-out float v_distance;
 %(expand)s
 void main() {
     vec4 ca = u_mvp * vec4(in_position,   1.0);
     vec4 cb = u_mvp * vec4(in_position_b, 1.0);
     v_kind = in_kindtool & %(kind_mask)uu;
-    v_distance = (gl_VertexID > 1) ? in_distance_b : in_distance;
     gl_Position = expand(ca, cb);
 }
 """ % {"expand": WIDE_LINE_EXPAND, "kind_mask": KIND_MASK}
 
 
 class ProgramArrayProgram(TrajectoryProgram):
-    """:class:`TrajectoryProgram` over the program array's 24-byte layout."""
+    """:class:`TrajectoryProgram` over the program array's 20-byte layout."""
 
     VERTEX_SHADER = PROGRAM_VERTEX_SHADER
 
@@ -1251,7 +1189,7 @@ class ProgramArrayPickProgram(TrajectoryPickProgram):
 #
 # Everything that persists now picks through TRAJ_PICK_* instead. This pair is
 # reached only when a part's colours would not fit the palette and the bake
-# fell back to the 36-byte vertex - which cannot happen with the two colours
+# fell back to the 32-byte vertex - which cannot happen with the two colours
 # the canon gives dwells, but is exactly why the fallback has to keep working
 # rather than be deleted along with its last routine caller.
 # ---------------------------------------------------------------------------
@@ -1616,7 +1554,6 @@ class ProgramBuffers:
             if kind == "program_array":
                 buf.upload(part["planes"], part["attrs"],
                            part.get("palettes", ()),
-                           dash_cat=part.get("dash_cat", -1),
                            hide_cat=part.get("hide_cat", -1),
                            last_drawn_kind=part.get("last_drawn_kind",
                                                     PALETTE_SIZE - 1),
@@ -1629,7 +1566,6 @@ class ProgramBuffers:
                            part.get("firsts", empty),
                            part.get("counts", empty),
                            part["ranges"], part["palette"],
-                           dash_cat=part.get("dash_cat", -1),
                            hide_cat=part.get("hide_cat", -1),
                            mode=primitive_mode(part.get("mode")))
             else:
@@ -1639,19 +1575,17 @@ class ProgramBuffers:
                 self.buffers.pop(name).delete()
 
     def draw(self, renderer: GlCanonRenderer, mvp: Any,
-             show_rapids: bool = True, alpha: float = 1.0,
-             dash_period: float = 1.0, dash_duty: float = 0.5) -> None:
+             show_rapids: bool = True, alpha: float = 1.0) -> None:
         """Draw the whole program: the trajectory, then the dwell markers.
 
         The trajectory is one draw whatever its mix of categories; the
         shader colours each segment from the palette and rejects the rapids
         when they are hidden. Each buffer nominates which of its own categories
-        dashes and which the show-rapids toggle hides, so a buffer that
-        nominates neither is unaffected by either.
+        the show-rapids toggle hides, so a buffer that nominates none is
+        unaffected by it.
         """
         for buf in self.buffers.values():
-            buf.begin(renderer, mvp, alpha, show_rapids,
-                      dash_period, dash_duty)
+            buf.begin(renderer, mvp, alpha, show_rapids)
             buf.draw()
 
     def draw_line(self, renderer: GlCanonRenderer, mvp: Any,
@@ -1852,9 +1786,8 @@ class GlCanonRenderer:
 
     # -- transient line geometry (grid/axes/extents/limits/labels) ---------
     def draw_line_array(self, mvp: Any, verts: WideVerts,
-                        dashed: bool = False, dash_period: float = 1.0,
                         alpha: float = 1.0) -> None:
-        """Draw an interleaved (N,9) line array through the line shader.
+        """Draw an interleaved (N,8) line array through the line shader.
 
         Sets no line-width state. A part wanting a line wider than the frame
         baseline puts that in its own scope, where it is visible and where it
@@ -1879,19 +1812,17 @@ class GlCanonRenderer:
         if width:
             wide = self.wide_line_program()
             wide.begin(mvp, alpha)
-            wide.set_dashed(dashed, dash_period)
             wide.set_expansion(self._viewport, width)
             self._scratch.draw_wide()
             return
         line = self.line_program()
         line.begin(mvp, alpha)
-        line.set_dashed(dashed, dash_period)
         self._scratch.draw()
 
     def draw_flat_array(self, mvp: Any, verts: WideVerts,
                         mode: GLEnum = GL_TRIANGLES,
                         alpha: float = 1.0) -> None:
-        """Draw an interleaved (N,9) array as flat primitives (default
+        """Draw an interleaved (N,8) array as flat primitives (default
         GL_TRIANGLES) through the line shader, which is a flat vertex-colour
         shader - used for the lathe-tool profile fill."""
         verts = np.ascontiguousarray(verts, dtype=np.float32)
@@ -1955,7 +1886,7 @@ class GlCanonRenderer:
 
 
 class ProgramArrayBuffers:
-    """A buffer in the program array's 24-byte format.
+    """A buffer in the program array's 20-byte format.
 
     One attribute buffer - the source line and the kind/tool word, shared -
     and one position buffer per drawn plane, each with its own VAO. Foam draws
@@ -1992,11 +1923,10 @@ class ProgramArrayBuffers:
         #: from the same place; an offset in one pass and not another would
         #: make picking disagree with the screen while both looked correct.
         self.plane_offsets: list[float] = []
-        # This buffer's own kind codes: which dashes, which the show-rapids
-        # toggle hides, and where its drawn kinds stop. A buffer with no
-        # records - the dwell markers - names its whole palette, so nothing it
-        # holds is ever taken for one.
-        self.dash_cat = -1
+        # This buffer's own kind codes: which the show-rapids toggle hides,
+        # and where its drawn kinds stop. A buffer with no records - the dwell
+        # markers - names its whole palette, so nothing it holds is ever taken
+        # for one.
         self.hide_cat = -1
         self.last_drawn_kind = PALETTE_SIZE - 1
         #: (first_vertex, count) spans per source line, as parallel arrays
@@ -2010,7 +1940,7 @@ class ProgramArrayBuffers:
 
     def upload(self, planes: Sequence[Any], attrs: Any,
                palettes: Sequence[Sequence[Sequence[float]]] = (),
-               dash_cat: int = -1, hide_cat: int = -1,
+               hide_cat: int = -1,
                last_drawn_kind: int = PALETTE_SIZE - 1,
                mode: GLEnum | None = None,
                spans: Any = None,
@@ -2020,7 +1950,6 @@ class ProgramArrayBuffers:
             self.mode = mode
         attrs = np.ascontiguousarray(attrs, dtype=ATTR_DTYPE)
         self.count = int(len(attrs))
-        self.dash_cat = dash_cat
         self.hide_cat = hide_cat
         self.last_drawn_kind = last_drawn_kind
         self.spans = spans
@@ -2063,10 +1992,8 @@ class ProgramArrayBuffers:
     # pattern stays the one every other buffer here uses.
 
     def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
-              show_rapids: bool = True, dash_period: float = 1.0,
-              dash_duty: float = 0.5) -> None:
-        self._pass = ("draw", renderer, mvp, alpha, show_rapids, dash_period,
-                      dash_duty)
+              show_rapids: bool = True) -> None:
+        self._pass = ("draw", renderer, mvp, alpha, show_rapids)
 
     def begin_ids(self, renderer: GlCanonRenderer, mvp: Any,
                   show_rapids: bool = True) -> None:
@@ -2076,8 +2003,8 @@ class ProgramArrayBuffers:
                        color: Sequence[float]) -> None:
         """One flat colour: the highlight.
 
-        No dash and no hidden kind - a highlighted rapid draws solid, and
-        draws while rapids are hidden. ``last_drawn_kind`` is *not* relaxed:
+        No hidden kind - a highlighted rapid draws while rapids are hidden.
+        ``last_drawn_kind`` is *not* relaxed:
         the highlight overrides a toggle, not the structure.
         """
         self._pass = ("override", renderer, mvp, color)
@@ -2124,16 +2051,13 @@ class ProgramArrayBuffers:
         program = (renderer.wide_program_array_program() if wide
                    else renderer.program_array_program())
         if what == "override":
-            program.begin(mvp, palette, dash_cat=-1, hide_cat=-1,
+            program.begin(mvp, palette, hide_cat=-1,
                           last_drawn_kind=self.last_drawn_kind)
             program.set_override_color(self._pass[3])
         else:
-            _w, _r, _m, alpha, show_rapids, dash_period, dash_duty = self._pass
+            _w, _r, _m, alpha, show_rapids = self._pass
             program.begin(mvp, palette, alpha,
-                          dash_cat=self.dash_cat,
                           hide_cat=-1 if show_rapids else self.hide_cat,
-                          dashed=True, dash_period=dash_period,
-                          dash_duty=dash_duty,
                           last_drawn_kind=self.last_drawn_kind)
         if wide:
             program.set_expansion(renderer.viewport, wide)
@@ -2258,7 +2182,7 @@ class ProgramArrayBuffers:
 
 
 class TrajectoryBuffers:
-    """A buffer in the shared 20-byte vertex format, drawn through the
+    """A buffer in the shared 16-byte vertex format, drawn through the
     trajectory shader.
 
     Holds the vertex buffer, an optional chain table :meth:`draw` walks, the
@@ -2283,18 +2207,16 @@ class TrajectoryBuffers:
         self.line_ranges: LineRanges = {}
         self.palette: Sequence[Sequence[float]] = (
             [(1.0, 1.0, 1.0, 1.0)] * PALETTE_SIZE)
-        # Which of this buffer's own categories dashes, and which one the
-        # show-rapids toggle hides. -1 means "this buffer has none", which is
-        # what keeps another buffer's palette slot 0 from inheriting the
-        # program's rapid behaviour.
-        self.dash_cat = -1
+        # Which of this buffer's own categories the show-rapids toggle hides.
+        # -1 means "this buffer has none", which is what keeps another buffer's
+        # palette slot 0 from inheriting the program's rapid behaviour.
         self.hide_cat = -1
         self._configured = False
 
     def upload(self, verts: TrajectoryVerts, firsts: Any, counts: Any,
                line_ranges: LineRanges | None = None,
                palette: Sequence[Sequence[float]] | None = None,
-               dash_cat: int = -1, hide_cat: int = -1,
+               hide_cat: int = -1,
                mode: GLEnum | None = None) -> None:
         if mode is not None:
             self.mode = mode
@@ -2303,7 +2225,6 @@ class TrajectoryBuffers:
         self.firsts = np.ascontiguousarray(firsts, dtype=np.int32)
         self.counts = np.ascontiguousarray(counts, dtype=np.int32)
         self.line_ranges = line_ranges or {}
-        self.dash_cat = dash_cat
         self.hide_cat = hide_cat
         if palette is not None:
             self.palette = palette
@@ -2315,20 +2236,16 @@ class TrajectoryBuffers:
                 self._configured = True
 
     def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
-              show_rapids: bool = True, dash_period: float = 1.0,
-              dash_duty: float = 0.5) -> None:
+              show_rapids: bool = True) -> None:
         """Configure the trajectory shader for this buffer's own draw.
 
-        The buffer nominates which of its categories dashes and which the
-        show-rapids toggle hides, so a buffer nominating neither is unaffected
-        by either. The shader programs stay shared, hence ``renderer``.
+        The buffer nominates which of its categories the show-rapids toggle
+        hides, so a buffer nominating none is unaffected by it. The shader
+        programs stay shared, hence ``renderer``.
         """
         traj = renderer.traj_program()
         traj.begin(mvp, self.palette, alpha,
-                   dash_cat=self.dash_cat,
-                   hide_cat=-1 if show_rapids else self.hide_cat,
-                   dashed=True, dash_period=dash_period,
-                   dash_duty=dash_duty)
+                   hide_cat=-1 if show_rapids else self.hide_cat)
 
     def begin_ids(self, renderer: GlCanonRenderer, mvp: Any,
                   show_rapids: bool = True) -> None:
@@ -2344,12 +2261,11 @@ class TrajectoryBuffers:
                        color: Sequence[float]) -> None:
         """Configure the shader to draw this buffer in one flat colour."""
         traj = renderer.traj_program()
-        # No dash and no hidden category: a highlighted rapid draws solid, and
-        # draws even while rapids are hidden. That held before because
-        # ``u_use_override`` short-circuited the category test; leaving both at
-        # -1 says it a second way, so the behaviour does not rest on the
-        # override alone.
-        traj.begin(mvp, self.palette, dash_cat=-1, hide_cat=-1)
+        # No hidden category: a highlighted rapid draws even while rapids are
+        # hidden. That held before because ``u_use_override`` short-circuited
+        # the category test; leaving it at -1 says it a second way, so the
+        # behaviour does not rest on the override alone.
+        traj.begin(mvp, self.palette, hide_cat=-1)
         traj.set_override_color(color)
 
     def draw(self) -> None:
@@ -2401,7 +2317,7 @@ class CategoryBuffers:
     is retained so a highlight pass can redraw only a selected line's spans.
 
     Nothing persistent uses this any more. The program, the dwell markers and
-    the live backplot all carry a palette index in the shared 20-byte vertex
+    the live backplot all carry a palette index in the shared 16-byte vertex
     and draw through the trajectory shader. What is left here is the geometry
     that genuinely does need a colour per vertex: the transient grid, axes,
     extents and Hershey-label arrays, which are rebuilt every frame from live
@@ -2467,13 +2383,12 @@ class CategoryBuffers:
         vao.unbind()
 
     def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
-              show_rapids: bool = True, dash_period: float = 1.0,
-              dash_duty: float = 0.5) -> None:
+              show_rapids: bool = True) -> None:
         """Configure the line shader for this buffer's own draw.
 
         Colour is per vertex here, so there is no palette, no category and
-        therefore nothing for the dash or show-rapids arguments to select: they
-        are accepted and ignored, which is the whole of this kind's answer.
+        therefore nothing for the show-rapids argument to select: it is
+        accepted and ignored, which is the whole of this kind's answer.
         """
         renderer.line_program().begin(mvp, alpha)
 
@@ -2527,7 +2442,7 @@ class BackplotRing:
     or GL_LINES (foam), matching the legacy positionlogger draw.
 
     The trail is its own buffer, separate from the program's, and normally
-    holds the shared 20-byte vertex with a palette index - ``indexed`` - drawn
+    holds the shared 16-byte vertex with a palette index - ``indexed`` - drawn
     through the trajectory shader. It falls back to the per-vertex-colour
     layout if a palette could not hold every colour the logger emitted.
 
@@ -2549,7 +2464,7 @@ class BackplotRing:
         self.capacity = 0           # vertices the store can hold
         self.count = 0              # vertices to draw
         self.mode: GLEnum = GL_LINE_STRIP
-        self.indexed = True         # 20-byte palette-indexed layout
+        self.indexed = True         # 16-byte palette-indexed layout
         #: foam mode the resident vertices were built in. An int rather than a
         #: bool because it is compared with the logger's own flag.
         self.is_xyuv: int = 0
@@ -2690,12 +2605,11 @@ class BackplotRing:
         if self.count < 2:
             return
         if self.indexed:
-            # The trail nominates no dash and no hidden category, so a point
-            # whose palette index happens to equal the program's rapid code is
-            # neither dashed nor hidden with rapids off.
+            # The trail nominates no hidden category, so a point whose palette
+            # index happens to equal the program's rapid code is still drawn
+            # with rapids off.
             renderer.traj_program().begin(
-                mvp, self.shader_palette or [], alpha,
-                dash_cat=-1, hide_cat=-1, dashed=False)
+                mvp, self.shader_palette or [], alpha, hide_cat=-1)
         else:
             renderer.line_program().begin(mvp, alpha)
         self._draw_arrays()

@@ -102,6 +102,15 @@ R = 9
 #: GLCANON_SCENE_DEBUG=1 logs the drawn/skipped part split each time it changes
 SCENE_DEBUG = bool(os.environ.get("GLCANON_SCENE_DEBUG"))
 
+#: OpenGL's default ``GL_LIGHT_MODEL_AMBIENT`` - the scene-wide ambient every
+#: lit surface receives on top of any light's own ambient. The fixed-function
+#: tool marker this renderer replaced never set it, so it took the default,
+#: and its material ambient is ``(1,1,1)`` - which makes this a flat addition
+#: to ``tool_ambient``. Not a colour-table entry, because it was never one:
+#: it is a property of the pipeline being reproduced. See
+#: :meth:`Primitives.draw_cone`.
+LIGHT_MODEL_AMBIENT = 0.2
+
 # View ports coordinates
 VX = 0
 VY = 1
@@ -414,7 +423,7 @@ class Primitives:
     @staticmethod
     def lines_to_array(points: LineEndpoints, color: Color,
                        alpha: float = 1.0) -> WideVerts:
-        """Pack a flat list of (x,y,z) GL_LINES endpoints into an (N,9) array."""
+        """Pack a flat list of (x,y,z) GL_LINES endpoints into an (N,8) array."""
         n = len(points)
         arr = np.zeros((n, glcanon_bake.FLOATS_PER_VERTEX), dtype=np.float32)
         if n:
@@ -500,13 +509,28 @@ class Primitives:
         current model-view stack transform (position/rotation/scale already
         applied). Eye-space normals come from the stack's 3x3, so the blend
         state the caller set still applies. ``mesh_verts`` overrides the cone
-        mesh (e.g. a cylinder for a large-diameter tool)."""
+        mesh (e.g. a cylinder for a large-diameter tool).
+
+        The ambient term is ``LIGHT_MODEL_AMBIENT + tool_ambient``, not
+        ``tool_ambient`` alone: the fixed-function pipeline this replaces lit
+        the marker with *two* ambient contributions, the light's own
+        (``glLightfv(GL_LIGHT0, GL_AMBIENT, tool_ambient)``) and the global
+        light model's, and the material ambient it multiplies is ``(1,1,1)``.
+        Dropping the global one is a visible 0.2 off the marker's darkest
+        faces - 153 to 102 on the default colours.
+
+        Saturation is left to the framebuffer write, as it is in fixed
+        function: with the default colours the lit faces reach 1.2 and clamp
+        there. An explicit clamp here would be a second one.
+        """
         mv = ctx.mv.top()
+        ambient = tuple(c + LIGHT_MODEL_AMBIENT
+                        for c in ctx.colors['tool_ambient'])
         ctx.renderer.draw_cone(
             ctx.mv.mvp(), mv[:3, :3], tuple(color) + (1.0,),
             mesh_verts=self.cone_mesh() if mesh_verts is None else mesh_verts,
             light_dir=(1.0, -1.0, 1.0),
-            ambient=ctx.colors['tool_ambient'],
+            ambient=ambient,
             diffuse=ctx.colors['tool_diffuse'])
         self._unbind()
 
@@ -561,10 +585,15 @@ class Scene:
         Most parts want exactly this and so have an empty ``scope()``; a part
         wanting something else sets it in its scope and puts this back.
 
-        Blending stays ON: the baked program colours carry a per-category
-        alpha (traverse 1/3, arcs 1/2), so they are meant to be composited.
-        Opaque geometry with alpha 1 is unaffected by it, and disabling blend
-        here is NOT pixel-neutral.
+        Blending is ON here because the parts that composite outnumber the
+        ones that must not: the live backplot's colours carry their own alpha,
+        and geometry with alpha 1 is unaffected either way. It is NOT a
+        statement that everything drawn is meant to composite. The program is
+        the case that is not - its baked per-category alpha reaches the
+        framebuffer only when the alpha toggle says so - and it turns blending
+        off in its own scope, which is where a part's non-baseline state
+        belongs. Choosing the baseline to suit one part instead would make
+        that part's requirement invisible at the point it applies.
         """
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
@@ -851,32 +880,54 @@ class ProgramResource:
 
 @contextmanager
 def program_alpha(ctx: FrameContext) -> Iterator[None]:
-    """Composite the program translucently when the toggle wants it: no depth
-    test, plain source-alpha blend.
+    """The toggle's compositing, in *both* of its states.
+
+    The baked colours carry a per-category alpha (traverse 1/3, feed 1/3, arcs
+    1/2), and whether that alpha reaches the framebuffer is the toggle's to
+    decide - exactly as it was when the colour was a ``glColor4f`` and the
+    toggle was the ``glEnable(GL_BLEND)`` around the display lists. So:
+
+    ==========  =============================  ====================
+    toggle      depth                          blend
+    ==========  =============================  ====================
+    on          off, so every line composites  baseline (on)
+    off         baseline (on)                  off, alpha discarded
+    ==========  =============================  ====================
+
+    Blend-off is what makes the default view opaque. Without it the alpha is
+    applied unconditionally and white feed lines land at 1/3 grey - and, on a
+    software rasteriser, every fragment becomes a read-modify-write of the
+    colour buffer that no depth rejection can skip.
+
+    Each branch restores what it changed and nothing else, so the frame's
+    baseline is in effect again for the parts drawn after the program - the
+    live backplot among them, whose own alpha is not this toggle's business.
 
     A property of how the program sits in the rest of the scene, not of its own
     geometry - which is why both parts drawn from the program's buffers need
     it. Shared as a context manager the scopes compose with ``with``, rather
     than as a base class: composition, not inheritance.
     """
-    if not ctx.program_alpha:
-        yield
-        return
-    glDisable(GL_DEPTH_TEST)
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    try:
-        yield
-    finally:
+    if ctx.program_alpha:
+        glDisable(GL_DEPTH_TEST)
+        try:
+            yield
+        finally:
+            glEnable(GL_DEPTH_TEST)
+    else:
         glDisable(GL_BLEND)
-        glEnable(GL_DEPTH_TEST)
+        try:
+            yield
+        finally:
+            glEnable(GL_BLEND)
 
 
 class ProgramPart(Part):
     """The program's trajectory: traverse, feed and arc moves.
 
-    Rapids are dashed in the shader, at a period scaled to the program so the
-    dash count stays roughly view-independent.
+    Rapids draw solid, as they do in the pre-change renderer: nothing in this
+    renderer dashes, and there is no attribute or uniform left to do it with
+    (see ``glcanon_bake.program_parts``).
     """
 
     def __init__(self, resource: ProgramResource | None = None) -> None:
@@ -897,18 +948,7 @@ class ProgramPart(Part):
     def draw(self, ctx: FrameContext) -> None:
         self.resource.ensure_uploaded(ctx)
         self.resource.buffers.draw(ctx.renderer, ctx.preview_mvp(),
-                                   show_rapids=ctx.show_rapids, alpha=1.0,
-                                   dash_period=self.dash_period(ctx))
-
-    @staticmethod
-    def dash_period(ctx: FrameContext) -> float:
-        """World-space dash period giving a roughly view-independent dash count."""
-        if ctx.canon is not None:
-            span = max((a - b) for a, b in
-                       zip(ctx.canon.max_extents, ctx.canon.min_extents))
-            if span > 0:
-                return span / 60.0
-        return 0.5
+                                   show_rapids=ctx.show_rapids, alpha=1.0)
 
 
 class HighlightPart(Part):
@@ -1652,7 +1692,18 @@ class ToolPart(Part):
 
     @staticmethod
     def _draw_cone(ctx: FrameContext) -> None:
-        """The default marker, scaled to the program so it stays legible."""
+        """The default marker, scaled to the program so it stays legible.
+
+        Sets its own blend constant, as the two paths in :meth:`draw_solid`
+        do and as the legacy ``make_cone`` display list did. Without it the
+        constant is whatever GL was last left holding - 0 on a fresh context,
+        but ``tool_alpha`` or ``lathetool_alpha`` once a large-diameter or
+        lathe tool has been drawn - so the marker's pixels would depend on
+        which tool the session happened to load first. Under the caller's
+        GL_ONE/GL_CONSTANT_ALPHA blend this is what lets the geometry behind
+        the marker show through it.
+        """
+        glBlendColor(0, 0, 0, ctx.colors['tool_alpha'])
         if ctx.canon and not ctx.disable_cone_scaling:
             g = ctx.canon
 

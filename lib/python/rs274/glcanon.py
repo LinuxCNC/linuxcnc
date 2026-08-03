@@ -917,9 +917,6 @@ class GlCanonDraw:
     def _draw_cone_core(self, color, mesh_verts=None):
         self.prim.draw_cone(self, color, mesh_verts)
 
-    def _dash_period(self):
-        return glcanon_scene.ProgramPart.dash_period(self.frame_context())
-
     def select(self, x_view, y_view):
         """Select the program line under the cursor. Thin delegate to the
         Picker; the ID-buffer pick itself lives there."""
