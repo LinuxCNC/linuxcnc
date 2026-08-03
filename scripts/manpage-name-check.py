@@ -4,7 +4,8 @@
 # Run after building the docs.  Argument: the built man tree (default docs/build/man).
 # Quiet when nothing drifted.  When something has, it prints each page with the
 # string to search in Weblate and its current value, so a translator can fix it.
-# Never fails the build: under GitHub Actions it writes the same list to the job
+# Never fails the build unless --enforce or MANPAGE_NAME_CHECK_ENFORCE is set:
+# under GitHub Actions it writes the same list to the job
 # summary and emits one warning pointing at it.  The NAME lines are managed in
 # Weblate, so fixes go there.
 
@@ -131,7 +132,9 @@ def write_summary(rows, fh):
         fh.write('| %s | %s | %s |\n' % tuple(cells))
 
 def main(argv):
-    man = argv[1] if len(argv) > 1 else MAN
+    enforce = '--enforce' in argv or os.environ.get('MANPAGE_NAME_CHECK_ENFORCE')
+    args = [a for a in argv if a != '--enforce']
+    man = args[1] if len(args) > 1 else MAN
     # A built tree has troff pages; without them the docs are not built and a
     # silent "all clean" would read as success when nothing was actually scanned.
     if not any(re.search(r'\.\d$', f) for _root, _dirs, files in os.walk(man) for f in files):
@@ -147,7 +150,7 @@ def main(argv):
             write_summary(rows, fh)
     if os.environ.get('GITHUB_ACTIONS'):
         print(f'::warning title=manpage NAME drift::{len(rows)} manpage NAME line(s) disagree with their filename, see the job summary for the list to fix in Weblate')
-    return 0
+    return 1 if enforce else 0
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
