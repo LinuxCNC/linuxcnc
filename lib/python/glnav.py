@@ -1,11 +1,6 @@
 import math
-import array, itertools
-import sys
 
 import numpy as np
-
-from OpenGL.GL import *
-from OpenGL.GLU import *
 
 def use_pango_font(font, start, count, will_call_prepost=False):
     """Build a glyph-atlas font for the OpenGL 3.3 core overlay renderer.
@@ -20,101 +15,6 @@ def use_pango_font(font, start, count, will_call_prepost=False):
     atlas = glcanon_gl.build_atlas(font, start, count)
     return atlas, atlas.char_width, atlas.line_space
 
-
-def _legacy_use_pango_font(font, start, count, will_call_prepost=False):
-    import gi
-    gi.require_version('Pango','1.0')
-    gi.require_version('PangoCairo','1.0')
-    from gi.repository import Pango
-    from gi.repository import PangoCairo
-    #from gi.repository import Cairo as cairo
-    import cairo
-
-    fontDesc = Pango.FontDescription(font)
-    a = array.array('b', itertools.repeat(0, 256*256))
-    surface = cairo.ImageSurface.create_for_data(a, cairo.FORMAT_A8, 256, 256)
-    context  = cairo.Context(surface)
-    pango_context = PangoCairo.create_context(context)
-    layout = PangoCairo.create_layout(context)
-    fontmap = PangoCairo.font_map_get_default()
-    font = fontmap.load_font(fontmap.create_context(), fontDesc)
-    layout.set_font_description(fontDesc)
-    metrics = font.get_metrics()
-    descent = metrics.get_descent()
-    d = descent / Pango.SCALE
-    linespace = metrics.get_ascent() + metrics.get_descent()
-    width = metrics.get_approximate_char_width()
-
-    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT)
-    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0)
-    glPixelStorei(GL_UNPACK_LSB_FIRST, 1)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 256)
-    glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 256)
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0)
-    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0)
-    glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0)
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-    glPixelZoom(1, -1)
-
-    base = glGenLists(count)
-    for i in range(count):
-        ch = chr(start+i)
-        layout.set_text(ch, -1)
-        w, h = layout.get_size()
-        context.save()
-        context.new_path()
-        context.rectangle(0, 0, 256, 256)
-        context.set_source_rgba(0., 0., 0., 0.)
-        context.set_operator (cairo.OPERATOR_SOURCE)
-        context.paint()
-        context.restore()
-
-        context.save()
-        context.set_source_rgba(1., 1., 1., 1.)
-        context.set_operator (cairo.OPERATOR_SOURCE)
-        context.move_to(0, 0)
-        PangoCairo.update_context(context,pango_context)
-        PangoCairo.show_layout(context,layout)
-        context.restore()
-        w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
-        glNewList(base+i, GL_COMPILE)
-        #workaround: https://github.com/LinuxCNC/linuxcnc/pull/2446
-        try:
-            glBitmap(1, 0, 0, 0, 0, h-d, bytearray([0]*4))
-        except OpenGL.error.GLError:
-            glBitmap(1, 1, 0, 0, 0, h-d, bytearray([0]*4))
-
-
-        #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
-        if not will_call_prepost:
-            pango_font_pre()
-        if w and h: 
-            try:
-                pass
-                glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a.tobytes())
-            except Exception as e:
-                print("glnav Exception ",e)
-        #workaround: https://github.com/LinuxCNC/linuxcnc/pull/2446
-        try:
-            glBitmap(1, 0, 0, 0, w, -h+d, bytearray([0]*4))
-        except OpenGL.error.GLError:
-            glBitmap(1, 1, 0, 0, w, -h+d, bytearray([0]*4))
-
-        if not will_call_prepost:
-            pango_font_post()
-        glEndList()
-
-    glPopClientAttrib()
-    return base, int(width / Pango.SCALE), int(linespace / Pango.SCALE)
-
-
-def pango_font_pre(rgba=(1., 1., 0., 1.)):
-    glPushAttrib(GL_COLOR_BUFFER_BIT)
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_ONE, GL_ONE)
-
-def pango_font_post():
-    glPopAttrib()
 
 def identity_matrix():
     return np.identity(4, dtype=np.float64)
@@ -273,22 +173,14 @@ class GlNavBase:
         self._totaly = 0.0
         self.modelview = identity_matrix()
 
-    # This should almost certainly be part of some derived class.
-    # But I have put it here for convenience.
     def basic_lighting(self):
         """\
-        Set up some basic lighting (single infinite light source).
+        Reset the camera for the first expose.
 
-        Also switch on the depth buffer."""
+        Widgets that own a fixed-function context (rs274.OpenGLTk.Opengl,
+        vismach) override this to set their lighting and depth state up first;
+        the camera itself has no GL state to configure."""
 
-        self.activate()
-        glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, (.4, .4, .4, 1))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, (.6, .6, .6, 1))
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glDepthFunc(GL_LESS)
-        glEnable(GL_DEPTH_TEST)
         self.modelview = identity_matrix()
 
 
@@ -364,7 +256,7 @@ class GlNavBase:
 
         Dragging up zooms in, while dragging down zooms out
         """
-        scale = 1 - 0.01 * (event.y - self.ymouse)
+        scale = 1 - 0.01 * (y - self.ymouse)
         # do some sanity checks, scale no more than
         # 1:1000 on any given click+drag
         if scale < 0.001:
@@ -384,8 +276,9 @@ class GlNavBase:
         self.perspective = True
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, x, y, self.xmouse, self.ymouse)
         if self.is_lathe():
-            glRotatef(90, 1, 0, 0)
-            glRotatef(90, 0, 1, 0)
+            self.modelview = multiply(self.modelview,
+                                      rotation_matrix(90, 1, 0, 0),
+                                      rotation_matrix(90, 0, 1, 0))
         self._redraw()
         self.recordMouse(x, y)
 
@@ -557,8 +450,9 @@ class GlNavBase:
         self.lon = 335
         glRotateScene(self, 1.0, mid[0], mid[1], mid[2], 0, 0, 0, 0)
         if self.is_lathe():
-            glRotatef(90, 1, 0, 0)
-            glRotatef(90, 0, 1, 0)
+            self.modelview = multiply(self.modelview,
+                                      rotation_matrix(90, 1, 0, 0),
+                                      rotation_matrix(90, 0, 1, 0))
         self._redraw()
 
 # vim:ts=8:sts=4:sw=4:et:
