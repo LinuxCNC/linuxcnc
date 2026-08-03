@@ -51,9 +51,17 @@ typedef struct {
     rtapi_u8 write_packet[1400];
     rtapi_u8 *write_packet_ptr;
     uint32_t read_cnt, write_cnt;
-    // these two fields must be kept together, they're read by a single
-    // read-request
-    uint32_t confirm_read_cnt, confirm_write_cnt;
+    struct {
+        // These two fields must be kept together. They are read by a single
+        // queued read-request and retrieve the above read_cnt and write_cnt
+        // added by hm2_eth_send_queued_reads() and hm2_eth_send_queued_writes().
+        // The values of the two should match or we know that the send/recv
+        // packets are out of sync.
+        uint32_t read_cnt;
+        uint32_t write_cnt;
+    } confirm_rw_cnt;
+    // Set when a queued write has set write_cnt in the board
+    int has_written_cnt;
 
     int comm_error_counter;
     uint16_t old_rxudpcount, rxudpcount;

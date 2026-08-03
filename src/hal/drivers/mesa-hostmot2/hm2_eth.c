@@ -1023,10 +1023,11 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_COMM_CTRL_ADDR16(1), 0x8);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = &board->rxudpcount;
-    board->queue_reads[board->queue_reads_count].size = 2;
+    static_assert(sizeof(board->rxudpcount)==2, "board->rxudpcount must be one 16-bit word");
+    board->queue_reads[board->queue_reads_count].size = sizeof(board->rxudpcount);
     board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
     board->queue_reads_count++;
-    board->queue_buff_size += 2;
+    board->queue_buff_size += sizeof(board->rxudpcount);
     
     board->read_cnt++;
     // write then read back space 4 scratch register at 0010 to verify we got the right receive packet
@@ -1038,11 +1039,12 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
 
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)(board->read_packet_ptr), CMD_READ_TIMER_ADDR16_INCR(4), 0x10);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
-    board->queue_reads[board->queue_reads_count].buffer = &board->confirm_read_cnt;
-    board->queue_reads[board->queue_reads_count].size = 8;
+    board->queue_reads[board->queue_reads_count].buffer = &board->confirm_rw_cnt;
+    static_assert(sizeof(board->confirm_rw_cnt)==8, "board->confirm_rw_cnt must be two 32-bit words");
+    board->queue_reads[board->queue_reads_count].size = sizeof(board->confirm_rw_cnt);
     board->queue_reads[board->queue_reads_count].from = board->queue_buff_size;
     board->queue_reads_count++;
-    board->queue_buff_size += 8;
+    board->queue_buff_size += sizeof(board->confirm_rw_cnt);
 
     send = eth_socket_send(board->sockfd, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet, 0);
     if(send < 0) {
@@ -1125,15 +1127,16 @@ do_recv_packet:
         memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
     }
 
-    if(board->confirm_read_cnt != board->read_cnt && t2 < read_deadline)
+    if(board->confirm_rw_cnt.read_cnt != board->read_cnt && t2 < read_deadline)
         goto do_recv_packet;
 
     hm2_eth_reset_queued_reads(board);
 
     int result = 1;
-    // (this means that one in 2^32 lost writes will not be diagnosed,
-    // each time board->write_cnt overflows)
-    if(board->write_cnt && board->write_cnt != board->confirm_write_cnt) {
+    // The has_written_cnt is necessary because the thread cycle uses first
+    // read, then write. If we didn't check, then we'd be using uninitialized
+    // data read back from the board.
+    if(board->has_written_cnt && board->write_cnt != board->confirm_rw_cnt.write_cnt) {
         result = record_soft_error(board);
     } else {
         decrement_soft_error(board);
@@ -1229,6 +1232,7 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     static_assert(sizeof(board->write_cnt)==4, "board->write_cnt must be 4 bytes");
     memcpy(board->write_packet_ptr, &board->write_cnt, sizeof(board->write_cnt));
     board->write_packet_ptr += sizeof(board->write_cnt);
+    board->has_written_cnt = 1;
     
     t0 = rtapi_get_time();
     send = eth_socket_send(board->sockfd, (void*) &board->write_packet, board->write_packet_ptr - board->write_packet, 0);
@@ -1815,6 +1819,7 @@ int rtapi_app_main(void) {
             continue;
         } 
         boards[i].read_cnt = boards[i].write_cnt = 0;
+        boards[i].has_written_cnt = 0;
         int *added = kvlist_lookup(&ifnames, ifptr);
         if(!added)
             goto error;
