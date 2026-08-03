@@ -1137,7 +1137,8 @@ class ProgramBuffers:
                            last_drawn_kind=part.get("last_drawn_kind",
                                                     PALETTE_SIZE - 1),
                            mode=primitive_mode(part.get("mode")),
-                           spans=part.get("spans"))
+                           spans=part.get("spans"),
+                           plane_offsets=part.get("plane_offsets", ()))
             elif kind == "trajectory":
                 empty = np.empty(0, dtype=np.int32)
                 buf.upload(part["verts"],
@@ -1412,6 +1413,13 @@ class ProgramArrayBuffers:
         #: property of the plane, not of the buffer - which is the one thing
         #: sharing the attribute array must not quietly flatten.
         self.palettes: list[Sequence[Sequence[float]]] = []
+        #: One Z offset per plane: where that plane is drawn, not what the
+        #: program is. Foam's ``foam_z``/``foam_w`` are the only non-zero
+        #: values today. Held here and applied by :meth:`_use` so that every
+        #: pass this buffer can be drawn in - colour, ids, override - gets it
+        #: from the same place; an offset in one pass and not another would
+        #: make picking disagree with the screen while both looked correct.
+        self.plane_offsets: list[float] = []
         # This buffer's own kind codes: which dashes, which the show-rapids
         # toggle hides, and where its drawn kinds stop. A buffer with no
         # records - the dwell markers - names its whole palette, so nothing it
@@ -1420,7 +1428,10 @@ class ProgramArrayBuffers:
         self.hide_cat = -1
         self.last_drawn_kind = PALETTE_SIZE - 1
         #: (first_vertex, count) spans per source line, as parallel arrays
-        #: sorted by line, or None. Searched rather than dict-indexed.
+        #: sorted by line, or None. Searched rather than dict-indexed. May be
+        #: supplied as a zero-argument callable, resolved on first use by
+        #: :meth:`_resolve_spans` - which is how the program keeps an index
+        #: only the highlight reads off the upload path.
         self.spans: Any = None
         #: The pass ``begin`` recorded, issued per plane by ``draw``.
         self._pass: tuple[Any, ...] | None = None
@@ -1430,7 +1441,8 @@ class ProgramArrayBuffers:
                dash_cat: int = -1, hide_cat: int = -1,
                last_drawn_kind: int = PALETTE_SIZE - 1,
                mode: GLEnum | None = None,
-               spans: Any = None) -> None:
+               spans: Any = None,
+               plane_offsets: Sequence[float] = ()) -> None:
         """Upload one attribute array and one position array per plane."""
         if mode is not None:
             self.mode = mode
@@ -1443,6 +1455,10 @@ class ProgramArrayBuffers:
         blank = [(1.0, 1.0, 1.0, 1.0)] * PALETTE_SIZE
         self.palettes = [list(palettes[i]) if i < len(palettes) else blank
                          for i in range(len(planes))]
+        # A buffer that names no offsets draws exactly where its vertices are.
+        self.plane_offsets = [
+            float(plane_offsets[i]) if i < len(plane_offsets) else 0.0
+            for i in range(len(planes))]
         while len(self.plane_buffers) < len(planes):
             self.plane_buffers.append(GLBuffer())
             self.vaos.append(VertexArray())
@@ -1489,11 +1505,33 @@ class ProgramArrayBuffers:
         """
         self._pass = ("override", renderer, mvp, color)
 
+    def _plane_mvp(self, mvp: Any, plane: int) -> Any:
+        """``mvp`` with this plane's Z offset folded in.
+
+        A rigid translation along Z, which is what the offset is - so it
+        belongs in the matrix rather than added to every vertex. Doing it here
+        rather than in a uniform keeps the shaders inside the GL 3.3 core /
+        GLES 3.1 intersection without a new one to verify.
+
+        ``mvp @ translate(0, 0, dz)`` written out: that translation is the
+        identity with ``[2][3] = dz``, so the product is ``mvp`` with its
+        fourth column advanced by ``dz`` times its third. Spelled arithmetically
+        rather than through ``glnav`` so the GL layer keeps its current imports.
+        """
+        dz = (self.plane_offsets[plane] if plane < len(self.plane_offsets)
+              else 0.0)
+        if not dz:
+            return mvp
+        out = np.array(mvp, dtype=np.float64)
+        out[:, 3] += out[:, 2] * dz
+        return out
+
     def _use(self, plane: int) -> None:
         """Establish the recorded pass's shader state for one plane."""
         if self._pass is None:
             return
-        what, renderer, mvp = self._pass[0], self._pass[1], self._pass[2]
+        what, renderer = self._pass[0], self._pass[1]
+        mvp = self._plane_mvp(self._pass[2], plane)
         palette = self.palettes[plane] if plane < len(self.palettes) else ()
         if what == "ids":
             renderer.program_array_pick_program().begin(
@@ -1524,11 +1562,24 @@ class ProgramArrayBuffers:
             glDrawArrays(self.mode, 0, self.count)
             vao.unbind()
 
+    def _resolve_spans(self) -> Any:
+        """The span index, building it on first use if it was deferred.
+
+        Replaces the callable with what it returned, so a program highlighted
+        many times builds it once and one highlighted never builds it at all.
+        """
+        if callable(self.spans):
+            self.spans = self.spans()
+        return self.spans
+
     def draw_line(self, lineno: int | None) -> None:
         """Draw only the spans belonging to source line ``lineno``."""
         if not self.count or self.spans is None or lineno is None:
             return
-        keys, firsts, counts = self.spans
+        spans = self._resolve_spans()
+        if spans is None:
+            return
+        keys, firsts, counts = spans
         lo = int(np.searchsorted(keys, lineno, side="left"))
         hi = int(np.searchsorted(keys, lineno, side="right"))
         if lo == hi:

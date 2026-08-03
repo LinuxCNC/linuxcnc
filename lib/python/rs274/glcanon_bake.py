@@ -306,6 +306,7 @@ def _unrotate_xy(pts: Float64Points, rotation_xy: float,
 
 class ProgramGeometry:
     """The parsed program, as arrays. The authoritative record of what it is.
+    It is the program record and the ready-to-go GPU's source data at once.
 
     Owned by :class:`rs274.glcanon.GLCanon` and filled during the parse, so a
     canon driven with no GL context still holds the complete program: every
@@ -427,6 +428,27 @@ class ProgramGeometry:
     def n_moves(self) -> int:
         """Moves reported, as opposed to vertices written."""
         return self._moves
+
+    @property
+    def capacity(self) -> int:
+        """Vertices the arrays can hold before the next :meth:`_reserve`.
+
+        Reported rather than inferred because the doubling growth means it is
+        anywhere between :attr:`n_vertices` and twice it. Note that the
+        difference is address space and not resident memory: :meth:`_reserve`
+        allocates with ``np.empty`` and only the written prefix is ever
+        touched, so the unused tail is never faulted in.
+        """
+        return len(self._attrs)
+
+    @property
+    def nbytes(self) -> int:
+        """Bytes the position and attribute arrays span, slack included.
+
+        Address span, not resident memory - see :attr:`capacity`. Reading this
+        as RAM overstates a grown array by up to a factor of two.
+        """
+        return int(sum(a.nbytes for a in self._planes) + self._attrs.nbytes)
 
     def plane_array(self, plane: int = 0) -> npt.NDArray[Any]:
         """The ``(N,)`` :data:`PLANE_DTYPE` array for one drawn plane."""
@@ -990,6 +1012,12 @@ def dwell_marker_part(geometry: "ProgramGeometry", is_lathe: bool = False,
     the GEOMETRY string and the rotation offsets as arguments and applied
     neither. In foam the program is drawn on two planes and so is each marker.
 
+    ``offsets`` are reported, not applied, exactly as they are for the
+    trajectory. The markers are small enough that a translation here would cost
+    nothing; they follow the same rule so that the offset has one home. Two
+    places applying it is how a marker and the path it marks come to sit at
+    different heights after a later change to only one of them.
+
     Both planes use the marker's own colour: unlike the trajectory, which has
     ``straight_feed_xy``/``_uv`` variants, the colour table has no per-plane
     entry for a dwell, and the canon stores the resolved colour rather than
@@ -1036,13 +1064,13 @@ def dwell_marker_part(geometry: "ProgramGeometry", is_lathe: bool = False,
         arr = np.zeros(n, dtype=PLANE_DTYPE)
         if n:
             arr['pos'] = np.asarray(plane_points[i], dtype=np.float32)
-            arr['pos'][:, 2] += offsets[i] if i < len(offsets) else 0.0
         planes.append(arr)
     padded = list(entries) + [(0.0, 0.0, 0.0, 1.0)] * (PALETTE_SIZE
                                                       - len(entries))
     return {"name": "dwell", "kind": "program_array",
             "planes": planes, "attrs": attrs,
             "palettes": [padded] * n_planes,
+            "plane_offsets": tuple(offsets[:n_planes]),
             "mode": MODE_LINES,
             # No record kinds here, and no rapid to hide or dash: every entry
             # is a colour, so the whole palette is drawable.
@@ -1061,28 +1089,36 @@ def program_parts(geometry: "ProgramGeometry", colors: dict[str, Any],
     Two: the trajectory - one draw over a contiguous range, per drawn plane,
     off one shared attribute array - and the dwell markers.
 
-    The planes' Z offsets are applied here rather than in the fill, because
-    ``foam_z``/``foam_w`` can still move while the program is being parsed (an
-    ``(AXIS,XY_Z_POS)`` comment sets them), and this runs after it.
+    The planes' Z offsets are *reported* here rather than applied, and neither
+    the fill nor this stores them in a position. ``foam_z``/``foam_w`` say
+    where a plane is drawn, not what the program is: they can still move while
+    the program is being parsed (an ``(AXIS,XY_Z_POS)`` comment sets them), and
+    they are a rigid translation, so they belong in the draw's matrix. The
+    buffer applies them once for every pass it can be drawn in.
+
+    That is also what makes this function free of copies. Every array here is
+    the one the fill wrote, handed to ``glBufferData`` as a view, so the
+    process is not holding a second copy of the program at the moment the
+    driver allocates the first - which on a Pi is the same pool of memory.
     """
     suffixes = ("_xy", "_uv") if is_foam else ("",)
     offsets = (foam_z, foam_w) if is_foam else (0.0,)
-    planes = []
-    palettes = []
-    for i, (suffix, dz) in enumerate(zip(suffixes, offsets)):
-        arr = geometry.plane_array(i).copy()
-        if arr.size and dz:
-            arr['pos'][:, 2] += dz
-        planes.append(arr)
-        palettes.append(palette(colors, suffix))
+    planes = [geometry.plane_array(i) for i in range(len(offsets))]
+    palettes = [palette(colors, suffix) for suffix in suffixes]
     return [
         {"name": "program", "kind": "program_array",
          "planes": planes, "attrs": geometry.attrs, "palettes": palettes,
+         "plane_offsets": offsets,
          # The program is the buffer that nominates a dash and a hidden kind,
          # and both are its rapid code. Every other buffer nominates neither.
          "dash_cat": KIND_TRAVERSE, "hide_cat": KIND_TRAVERSE,
          "last_drawn_kind": LAST_DRAWN_KIND,
-         "mode": MODE_LINE_STRIP, "spans": geometry.index},
+         # Passed as a callable, not as the index itself: ``index`` builds on
+         # first mention, and the only thing that reads it is the highlight.
+         # Naming it here would build it at load, where its full-length
+         # temporaries peak a few statements before the driver is asked for the
+         # buffer - and for a program nobody clicks, never be read at all.
+         "mode": MODE_LINE_STRIP, "spans": lambda: geometry.index},
         dwell_marker_part(geometry, is_lathe, cross, offsets),
     ]
 
