@@ -51,7 +51,7 @@ HOMEMOD=user_homecomp
 https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/homecomp.comp
 """;
 
-pin out bit is_module=1; //one pin is required to use halcompile)
+pin out bool is_module=1; //one pin is required to use halcompile)
 
 license "GPL";
 author "Dewey Garrett";
