@@ -228,6 +228,7 @@ struct Togl
    int StereoFlag;
    int AuxNumber;
    int Indirect;
+   int CoreProfileFlag;         /* request an OpenGL 3.3 core-profile context */
    char *ShareList;             /* name (ident) of Togl to share dlists with */
    char *ShareContext;          /* name (ident) to share OpenGL context with */
 
@@ -356,6 +357,9 @@ static Tk_ConfigSpec configSpecs[] = {
 
     {TK_CONFIG_BOOLEAN, "-stereo", "stereo", "Stereo",
      "false", Tk_Offset(struct Togl, StereoFlag), 0, NULL},
+
+    {TK_CONFIG_BOOLEAN, "-coreprofile", "coreprofile", "CoreProfile",
+     "false", Tk_Offset(struct Togl, CoreProfileFlag), 0, NULL},
 
 #ifndef NO_TK_CURSOR
     { TK_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
@@ -1609,6 +1613,21 @@ static LRESULT CALLBACK Win32WinProc( HWND hwnd, UINT message,
 #endif /* WIN32 */
 
 
+/* GLX_ARB_create_context tokens (from GL/glxext.h), defined here so the core-
+ * profile path builds even against an older glx.h. */
+#ifndef GLX_CONTEXT_MAJOR_VERSION_ARB
+#define GLX_CONTEXT_MAJOR_VERSION_ARB      0x2091
+#endif
+#ifndef GLX_CONTEXT_MINOR_VERSION_ARB
+#define GLX_CONTEXT_MINOR_VERSION_ARB      0x2092
+#endif
+#ifndef GLX_CONTEXT_PROFILE_MASK_ARB
+#define GLX_CONTEXT_PROFILE_MASK_ARB       0x9126
+#endif
+#ifndef GLX_CONTEXT_CORE_PROFILE_BIT_ARB
+#define GLX_CONTEXT_CORE_PROFILE_BIT_ARB   0x00000001
+#endif
+
 
 /*
  * Togl_CreateWindow
@@ -1671,6 +1690,70 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
       assert(shareWith->GlCtx);
       togl->GlCtx = shareWith->GlCtx;
       printf("SHARE CTX\n");
+   }
+   else if (togl->CoreProfileFlag) {
+      /* OpenGL 3.3 core-profile context via an FBConfig and
+       * glXCreateContextAttribsARB. Used by AXIS's modern preview renderer;
+       * the default (below) is left untouched so vismach and other Togl users
+       * keep their legacy contexts. */
+      int fb_attribs[] = {
+         GLX_X_RENDERABLE,  True,
+         GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+         GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+         GLX_RED_SIZE,      togl->RgbaRed,
+         GLX_GREEN_SIZE,    togl->RgbaGreen,
+         GLX_BLUE_SIZE,     togl->RgbaBlue,
+         GLX_DEPTH_SIZE,    (togl->DepthFlag ? togl->DepthSize : 24),
+         GLX_DOUBLEBUFFER,  (togl->DoubleFlag ? True : False),
+         None
+      };
+      int nconfigs = 0;
+      GLXFBConfig *fbconfigs;
+      GLXFBConfig fbconfig;
+      GLXContext (*createContextAttribs)(Display*, GLXFBConfig, GLXContext,
+                                         Bool, const int*);
+      int ctx_attribs[] = {
+         GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+         GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+         GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+         None
+      };
+
+      fbconfigs = glXChooseFBConfig(dpy, Tk_ScreenNumber(togl->TkWin),
+                                    fb_attribs, &nconfigs);
+      if (!fbconfigs || nconfigs < 1) {
+         Tcl_SetResult(togl->Interp, "Togl: no framebuffer config for OpenGL "
+            "3.3 core; requires Mesa (try LIBGL_ALWAYS_SOFTWARE=1)", TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
+      fbconfig = fbconfigs[0];
+      visinfo = glXGetVisualFromFBConfig(dpy, fbconfig);
+      XFree(fbconfigs);
+      if (!visinfo) {
+         Tcl_SetResult(togl->Interp,
+            "Togl: glXGetVisualFromFBConfig failed for OpenGL 3.3 core",
+            TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
+
+      createContextAttribs = (GLXContext (*)(Display*, GLXFBConfig, GLXContext,
+                                             Bool, const int*))
+         glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
+      if (!createContextAttribs) {
+         Tcl_SetResult(togl->Interp, "Togl: glXCreateContextAttribsARB "
+            "unavailable; OpenGL 3.3 core required (try LIBGL_ALWAYS_SOFTWARE=1)",
+            TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
+
+      if (togl->Indirect) directCtx = GL_FALSE;
+      togl->GlCtx = createContextAttribs(dpy, fbconfig, NULL, directCtx,
+                                         ctx_attribs);
+      if (togl->GlCtx == NULL) {
+         Tcl_SetResult(togl->Interp, "Togl: could not create an OpenGL 3.3 "
+            "core context (try LIBGL_ALWAYS_SOFTWARE=1)", TCL_STATIC);
+         return DUMMY_WINDOW;
+      }
    }
    else {
       int attempt;

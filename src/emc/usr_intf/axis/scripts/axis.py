@@ -664,12 +664,11 @@ class MyOpengl(GlCanonDraw, Opengl):
             self.last_font = new_font
 
 def init():
-    glDrawBuffer(GL_BACK)
-    glDisable(GL_CULL_FACE)
-    glLineStipple(2, 0x5555)
-    glDisable(GL_LIGHTING)
-    glClearColor(0,0,0,0)
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    # The OpenGL 3.3 core preview renderer sets all needed GL state per frame
+    # (GlCanonDraw.realize and redraw), so the legacy fixed-function init here
+    # (glLineStipple/glDisable(GL_LIGHTING)/... - removed from core profiles) is
+    # gone.
+    pass
 
 def toggle_perspective(e):
     o.perspective = not o.perspective
@@ -1841,11 +1840,6 @@ property_names = [
     ('b', _("B bounds:")),('c', _("C bounds:"))
 ]
 
-def dist(xxx_todo_changeme, xxx_todo_changeme1):
-    (x,y,z) = xxx_todo_changeme
-    (p,q,r) = xxx_todo_changeme1
-    return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
-
 # returns units/sec
 def get_jog_speed(a):
     if vars.teleop_mode.get():
@@ -2087,16 +2081,10 @@ class TclCommands(nf.TclCommands):
                 fmt = "%.4f"
 
             mf = vars.max_speed.get()
-            #print o.canon.traverse[0]
 
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.canon.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.canon.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in o.canon.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.canon.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.canon.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.canon.traverse) +
-                o.canon.dwell_time
-                )
+            g0 = o.canon.g0_length
+            g1 = o.canon.g1_length
+            gt = o.canon.run_time(mf)
 
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
@@ -3853,7 +3841,10 @@ c.wait_complete()
 c.set_optional_stop(vars.optional_stop.get())
 c.wait_complete()
 
-o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
+# coreprofile=1 requests an OpenGL 3.3 core context from the vendored Togl for
+# the modern preview renderer (see togl.c -coreprofile). AXIS always enables it.
+o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1,
+             coreprofile=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
 

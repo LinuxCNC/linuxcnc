@@ -346,6 +346,8 @@ http://www.yorvic.york.ac.uk/~mjh/
                 self.xcenter, self.ycenter, self.zcenter,
                 0., 1., 0.)
             glMatrixMode(GL_MODELVIEW)
+
+        glLoadMatrixd(self.get_modelview_matrix().T)
     
         # Call objects redraw method.
         self.redraw()

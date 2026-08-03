@@ -2657,12 +2657,16 @@ static void vertex9(const double pt[9], double p[3], const char *geometry) {
     }
 }
 
+// Deprecated: uses immediate-mode OpenGL (glVertex3dv), which is removed in
+// the 3.3 core profile now used for preview rendering.
 static void glvertex9(const double pt[9], const char *geometry) {
     double p[3];
     vertex9(pt, p, geometry);
     glVertex3dv(p);
 }
 
+// Deprecated: emits immediate-mode OpenGL vertices via glvertex9(), invalid
+// in the 3.3 core profile now used for preview rendering.
 static void line9(const double p1[9], const double p2[9], const char *geometry) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
         double dc = std::max({
@@ -2684,6 +2688,8 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
     }
 }
 
+// Deprecated: emits immediate-mode OpenGL vertices via glvertex9(), invalid
+// in the 3.3 core profile now used for preview rendering.
 static void line9b(const double p1[9], const double p2[9], const char *geometry) {
     glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
@@ -2766,6 +2772,8 @@ static PyObject *pygui_rot_offsets(PyObject * /*s*/, PyObject *o) {
     return Py_None;
 }
 
+// Deprecated: draws with immediate-mode OpenGL (glBegin/glVertex*/glEnd),
+// invalid in the 3.3 core profile now used for preview rendering.
 static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
     PyListObject *li;
     int for_selection = 0;
@@ -2818,6 +2826,8 @@ static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
     return Py_None;
 }
 
+// Deprecated: draws with immediate-mode OpenGL (glBegin/glVertex*/glEnd),
+// invalid in the 3.3 core profile now used for preview rendering.
 static PyObject *pydraw_dwells(PyObject * /*s*/, PyObject *o) {
     PyListObject *li;
     int for_selection = 0, is_lathe = 0, i, n;
@@ -3214,6 +3224,31 @@ static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
     return result;
 }
 
+// Additive accessor for the OpenGL 3.3 core renderer: hand Python a private
+// copy of the logged-point ring buffer so it can upload changed ranges to a
+// VBO, instead of the deprecated immediate-mode Logger_call. The copy is taken
+// under the same lock that guards realloc/memmove of s->p in the sampler
+// thread. Returns (bytes, npts, is_xyuv); each point is a `struct logger_point`
+// (see the matching numpy dtype in rs274.glcanon_bake.LOGGER_DTYPE).
+//
+// This is the core renderer's draw-time handoff of the plotted points, so it
+// advances lpts to npts exactly as Logger_call did. Logger_last(flag=1) reads
+// lpts to report the last *drawn* point (used to position the tool marker so it
+// stays in sync with the plotted line); without this, lpts stays 0 and the tool
+// marker snaps to the origin whenever the live plot is shown.
+static PyObject *Logger_get_points(pyPositionLogger *s, PyObject * /*o*/) {
+    LOCK();
+    int npts = s->npts;
+    if(npts < 0) npts = 0;
+    Py_ssize_t nbytes = (Py_ssize_t)npts * (Py_ssize_t)sizeof(struct logger_point);
+    PyObject *buf = PyBytes_FromStringAndSize((const char*)s->p, nbytes);
+    int is_xyuv = s->is_xyuv;
+    s->lpts = s->npts;
+    UNLOCK();
+    if(!buf) return NULL;
+    return Py_BuildValue("Nii", buf, npts, is_xyuv);
+}
+
 static PyMemberDef Logger_members[] = {
     {(char*)"npts", T_INT, offsetof(pyPositionLogger, npts), READONLY, NULL},
     {},
@@ -3228,6 +3263,9 @@ static PyMethodDef Logger_methods[] = {
         "Stop the position logger"},
     {"call", (PyCFunction)Logger_call, METH_NOARGS,
         "Plot the backplot now"},
+    {"points", (PyCFunction)Logger_get_points, METH_NOARGS,
+        "Return (bytes, npts, is_xyuv): a copy of the logged point buffer for "
+        "VBO upload by the core renderer"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
     {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,

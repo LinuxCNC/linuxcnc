@@ -51,6 +51,41 @@ from OpenGL.raw.GLX._types import struct__XDisplay
 from OpenGL import GL
 from ctypes import *
 
+# The 3.3-core GLX context is created and bound through libGL directly with
+# ctypes: PyOpenGL cannot resolve the glXCreateContextAttribsARB extension entry
+# point (it comes back as a null function), so we go to the driver ourselves and
+# keep make-current/swap on the same handle to avoid mixing context pointers.
+_glx = CDLL("libGL.so.1")
+_glx.glXChooseFBConfig.restype = POINTER(c_void_p)
+_glx.glXChooseFBConfig.argtypes = [c_void_p, c_int, POINTER(c_int), POINTER(c_int)]
+_glx.glXGetProcAddress.restype = c_void_p
+_glx.glXGetProcAddress.argtypes = [c_char_p]
+_glx.glXMakeCurrent.restype = c_int
+_glx.glXMakeCurrent.argtypes = [c_void_p, c_ulong, c_void_p]
+_glx.glXSwapBuffers.restype = None
+_glx.glXSwapBuffers.argtypes = [c_void_p, c_ulong]
+_ccaa_proc = _glx.glXGetProcAddress(b"glXCreateContextAttribsARB")
+_glXCreateContextAttribsARB = CFUNCTYPE(
+    c_void_p, c_void_p, c_void_p, c_void_p, c_int, POINTER(c_int))(
+    _ccaa_proc) if _ccaa_proc else None
+
+# FBConfig / GLX_ARB_create_context(_profile) attribute tokens (stable GLX ints).
+GLX_X_RENDERABLE                 = 0x8012
+GLX_DRAWABLE_TYPE                = 0x8010
+GLX_WINDOW_BIT                   = 0x00000001
+GLX_RENDER_TYPE                  = 0x8011
+GLX_RGBA_BIT                     = 0x00000001
+GLX_RED_SIZE                     = 8
+GLX_GREEN_SIZE                   = 9
+GLX_BLUE_SIZE                    = 10
+GLX_ALPHA_SIZE                   = 11
+GLX_DEPTH_SIZE                   = 12
+GLX_DOUBLEBUFFER                 = 5
+GLX_CONTEXT_MAJOR_VERSION_ARB    = 0x2091
+GLX_CONTEXT_MINOR_VERSION_ARB    = 0x2092
+GLX_CONTEXT_PROFILE_MASK_ARB     = 0x9126
+GLX_CONTEXT_CORE_PROFILE_BIT_ARB = 0x00000001
+
 try:
     import Xlib
     from Xlib.display import Display
@@ -116,18 +151,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return (c_int * len(attrs))(*attrs)
 
     def __init__(self, inifile):
-    
+
         self.xwindow_id = None
 
-        self.add_attribute(GLX.GLX_RGBA, True)
-        self.add_attribute(GLX.GLX_RED_SIZE, 1)
-        self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
-        self.add_attribute(GLX.GLX_BLUE_SIZE, 1)
-        self.add_attribute(GLX.GLX_DOUBLEBUFFER, 1)
-
-        xvinfo = GLX.glXChooseVisual(self.xdisplay, self.display.get_default_screen(), self.get_attributes())
-        configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
-        self.context = GLX.glXCreateContext(self.xdisplay, xvinfo, None, True)
+        self._create_core_context()
 
         Gtk.DrawingArea.__init__(self)
         glnav.GlNavBase.__init__(self)
@@ -210,23 +237,75 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             if self.stat.axis_mask & (1<<i) == 0: continue
             live_axis_count += 1
         self.num_joints = self.inifile.getint("KINS", "JOINTS", fallback=live_axis_count)
-        glDrawBuffer(GL_BACK)
-        glDisable(GL_CULL_FACE)
-        glLineStipple(2, 0x5555)
-        glDisable(GL_LIGHTING)
-        glClearColor(0,0,0,0)
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        # The OpenGL 3.3 core preview renderer sets all needed GL state per frame
+        # (GlCanonDraw.realize and redraw), so the legacy fixed-function init here
+        # (glLineStipple/glDisable(GL_LIGHTING)/... - removed from core profiles)
+        # is gone.
 
 
+
+    def _create_core_context(self):
+        """Create an OpenGL 3.3 core-profile context via GLX.
+
+        GTK3 only hands out core contexts through GtkGLArea, so gremlin builds
+        one by hand (as it always has for the legacy context): pick an FBConfig
+        and call glXCreateContextAttribsARB for 3.3 core. The X window binding
+        (activate/swapbuffers) is unchanged. Hard failure with a diagnostic if a
+        core context cannot be made - the preview renderer requires 3.3 core.
+        """
+        if not _glXCreateContextAttribsARB:
+            self._core_context_failed(
+                "glXCreateContextAttribsARB unavailable "
+                "(GLX_ARB_create_context missing)")
+        dpy = cast(self.xdisplay, c_void_p)
+        screen = self.display.get_default_screen()
+        fb_attribs = [
+            GLX_X_RENDERABLE,  1,
+            GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+            GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+            GLX_RED_SIZE,      8,
+            GLX_GREEN_SIZE,    8,
+            GLX_BLUE_SIZE,     8,
+            GLX_ALPHA_SIZE,    8,
+            GLX_DEPTH_SIZE,    24,
+            GLX_DOUBLEBUFFER,  1,
+            0,
+        ]
+        n = c_int()
+        fbconfigs = _glx.glXChooseFBConfig(
+            dpy, screen, (c_int * len(fb_attribs))(*fb_attribs), byref(n))
+        if not fbconfigs or n.value < 1:
+            self._core_context_failed("no suitable framebuffer configuration")
+
+        ctx_attribs = [
+            GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+            GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+            GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+            0,
+        ]
+        self.context = _glXCreateContextAttribsARB(
+            dpy, fbconfigs[0], None, True,
+            (c_int * len(ctx_attribs))(*ctx_attribs))
+        if not self.context:
+            self._core_context_failed(
+                "glXCreateContextAttribsARB returned no context")
+
+    def _core_context_failed(self, why):
+        sys.stderr.write(
+            "\nGremlin: could not create an OpenGL 3.3 core context: %s\n"
+            "The preview renderer requires OpenGL 3.3 core (Mesa). On a machine\n"
+            "without a capable GPU, force software rendering with:\n"
+            "    LIBGL_ALWAYS_SOFTWARE=1\n\n" % why)
+        raise SystemExit(1)
 
     def activate(self):
         """make cairo context current for drawing"""
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
+        if(not _glx.glXMakeCurrent(cast(self.xdisplay, c_void_p), self.xwindow_id, self.context)):
             print("failed binding opengl context")
         return True
 
     def swapbuffers(self):
-        GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
+        _glx.glXSwapBuffers(cast(self.xdisplay, c_void_p), self.xwindow_id)
         return
 
     def deactivate(self):
@@ -242,7 +321,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.width = event.width
         self.height = event.height
         self.xwindow_id = GdkX11.X11Window.get_xid(widget.get_window())
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
+        if(not _glx.glXMakeCurrent(cast(self.xdisplay, c_void_p), self.xwindow_id, self.context)):
             print('failed binding opengl context')
         glViewport(0, 0, self.width, self.height)
 
@@ -347,10 +426,6 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return v*lu
 
     def calculate_gcode_properties(self, canon):
-        def dist(xxx_todo_changeme, xxx_todo_changeme1):
-            (x,y,z) = xxx_todo_changeme
-            (p,q,r) = xxx_todo_changeme1
-            return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
         def from_internal_units(pos, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
@@ -397,16 +472,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
                 mach = 'Imperial'
 
             mf = max_speed
-            #print canon.traverse[0]
 
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in canon.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in canon.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in canon.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in canon.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
-                canon.dwell_time
-                )
+            g0 = canon.g0_length
+            g1 = canon.g1_length
+            gt = canon.run_time(mf)
 
             props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)

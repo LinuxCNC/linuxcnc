@@ -2,10 +2,26 @@ import math
 import array, itertools
 import sys
 
+import numpy as np
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
 def use_pango_font(font, start, count, will_call_prepost=False):
+    """Build a glyph-atlas font for the OpenGL 3.3 core overlay renderer.
+
+    Signature preserved for callers (axis.py, gremlin.py, qt5_graphics.py):
+    returns ``(handle, char_width, line_space)``. The handle is now an opaque
+    ``rs274.glcanon_gl.GlyphAtlas`` (a texture atlas + overlay shader) instead
+    of a per-glyph display-list base; consumers pass it through get_font_info()
+    to the shared overlay pass, which draws text as textured quads.
+    """
+    from rs274 import glcanon_gl
+    atlas = glcanon_gl.build_atlas(font, start, count)
+    return atlas, atlas.char_width, atlas.line_space
+
+
+def _legacy_use_pango_font(font, start, count, will_call_prepost=False):
     import gi
     gi.require_version('Pango','1.0')
     gi.require_version('PangoCairo','1.0')
@@ -100,15 +116,79 @@ def pango_font_pre(rgba=(1., 1., 0., 1.)):
 def pango_font_post():
     glPopAttrib()
 
+def identity_matrix():
+    return np.identity(4, dtype=np.float64)
+
+
+def multiply(*matrices):
+    """Multiply 4x4 matrices using OpenGL's column-vector convention."""
+    result = identity_matrix()
+    for matrix in matrices:
+        result = result @ np.asarray(matrix, dtype=np.float64)
+    return result
+
+
+def translation_matrix(x, y, z):
+    result = identity_matrix()
+    result[:3, 3] = (x, y, z)
+    return result
+
+
+def rotation_matrix(angle, x, y, z):
+    axis = np.asarray((x, y, z), dtype=np.float64)
+    length = np.linalg.norm(axis)
+    if not length:
+        return identity_matrix()
+    x, y, z = axis / length
+    c = math.cos(math.radians(angle))
+    s = math.sin(math.radians(angle))
+    d = 1.0 - c
+    return np.array(((x*x*d+c,   x*y*d-z*s, x*z*d+y*s, 0.0),
+                     (y*x*d+z*s, y*y*d+c,   y*z*d-x*s, 0.0),
+                     (z*x*d-y*s, z*y*d+x*s, z*z*d+c,   0.0),
+                     (0.0,       0.0,       0.0,       1.0)), dtype=np.float64)
+
+
+def perspective_matrix(fovy, aspect, near, far):
+    f = 1.0 / math.tan(math.radians(fovy) / 2.0)
+    return np.array(((f / aspect, 0.0, 0.0,                         0.0),
+                     (0.0,        f,   0.0,                         0.0),
+                     (0.0,        0.0, (far + near) / (near - far), 2*far*near / (near - far)),
+                     (0.0,        0.0, -1.0,                        0.0)), dtype=np.float64)
+
+
+def ortho_matrix(left, right, bottom, top, near, far):
+    return np.array(((2.0 / (right - left), 0.0, 0.0, -(right + left) / (right - left)),
+                     (0.0, 2.0 / (top - bottom), 0.0, -(top + bottom) / (top - bottom)),
+                     (0.0, 0.0, -2.0 / (far - near), -(far + near) / (far - near)),
+                     (0.0, 0.0, 0.0, 1.0)), dtype=np.float64)
+
+
+def project(point, modelview, projection, viewport):
+    clip = np.asarray(projection) @ np.asarray(modelview) @ np.append(point, 1.0)
+    ndc = clip[:3] / clip[3]
+    x, y, width, height = viewport
+    return np.array((x + (ndc[0] + 1.0) * width / 2.0,
+                     y + (ndc[1] + 1.0) * height / 2.0,
+                     (ndc[2] + 1.0) / 2.0))
+
+
+def unproject(point, modelview, projection, viewport):
+    x, y, width, height = viewport
+    ndc = np.array(((point[0] - x) * 2.0 / width - 1.0,
+                    (point[1] - y) * 2.0 / height - 1.0,
+                    point[2] * 2.0 - 1.0, 1.0))
+    obj = np.linalg.inv(np.asarray(projection) @ np.asarray(modelview)) @ ndc
+    return obj[:3] / obj[3]
+
+
 def glTranslateScene(w, s, x, y, mousex, mousey):
     zoom_boost = max(1.0, (5.0 / w.distance) ** 0.6)
     s *= zoom_boost
     s = max(0.005, s)
-    glMatrixMode(GL_MODELVIEW)
-    mat = glGetDoublev(GL_MODELVIEW_MATRIX)
-    glLoadIdentity()
-    glTranslatef(s * (x - mousex), s * (mousey - y), 0.0)
-    glMultMatrixd(mat)
+    w.modelview = multiply(translation_matrix(s * (x - mousex),
+                                              s * (mousey - y), 0.0),
+                           w.modelview)
 
 def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     def snap(a):
@@ -123,17 +203,14 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     lat = min(w.maxlat, max(w.minlat, w.lat + (y - mousey) * .5))
     lon = (w.lon + (x - mousex) * .5) % 360
 
-    glMatrixMode(GL_MODELVIEW)
-
-    glTranslatef(xcenter, ycenter, zcenter)
-    mat = glGetDoublev(GL_MODELVIEW_MATRIX)
-
-    glLoadIdentity()
-    tx, ty, tz = mat[3][:3]
-    glTranslatef(tx, ty, tz)
-    glRotatef(snap(lat), *w.rotation_vectors[0])
-    glRotatef(snap(lon), *w.rotation_vectors[1])
-    glTranslatef(-xcenter, -ycenter, -zcenter)
+    # The legacy sequence preserved the translated origin while replacing the
+    # rotational part of the modelview matrix.  Express that sequence directly.
+    translated = multiply(w.modelview, translation_matrix(xcenter, ycenter, zcenter))
+    tx, ty, tz = translated[:3, 3]
+    w.modelview = multiply(translation_matrix(tx, ty, tz),
+                           rotation_matrix(snap(lat), *w.rotation_vectors[0]),
+                           rotation_matrix(snap(lon), *w.rotation_vectors[1]),
+                           translation_matrix(-xcenter, -ycenter, -zcenter))
     w.lat = lat
     w.lon = lon
 
@@ -194,6 +271,7 @@ class GlNavBase:
         # since last view reset
         self._totalx = 0.0
         self._totaly = 0.0
+        self.modelview = identity_matrix()
 
     # This should almost certainly be part of some derived class.
     # But I have put it here for convenience.
@@ -211,8 +289,7 @@ class GlNavBase:
         glEnable(GL_LIGHT0)
         glDepthFunc(GL_LESS)
         glEnable(GL_DEPTH_TEST)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        self.modelview = identity_matrix()
 
 
     def set_background(self, r, g, b):
@@ -269,8 +346,7 @@ class GlNavBase:
     def reset(self):
         """Reset rotation matrix for this widget."""
 
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        self.modelview = identity_matrix()
         self._redraw()
         # zero the translations - we will be recentering
         self._totalx = 0.0
@@ -305,7 +381,6 @@ class GlNavBase:
     def rotate(self, x, y):
         """Perform rotation of scene."""
 
-        self.activate()
         self.perspective = True
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, x, y, self.xmouse, self.ymouse)
         if self.is_lathe():
@@ -317,13 +392,14 @@ class GlNavBase:
     def translate(self, x, y):
         """Perform translation of scene."""
 
-        self.activate()
-
         # Scale mouse translations to object viewplane so object tracks with mouse
-        win_height = max( 1,self.winfo_height() )
+        win_width = max(1, self.winfo_width())
+        win_height = max(1, self.winfo_height())
         obj_c     = ( self.xcenter, self.ycenter, self.zcenter )
-        win     = gluProject( obj_c[0], obj_c[1], obj_c[2])
-        obj     = gluUnProject( win[0], win[1] + 0.5 * win_height, win[2])
+        projection = self.get_projection_matrix(win_width, win_height)
+        win     = project(obj_c, self.modelview, projection, (0, 0, win_width, win_height))
+        obj     = unproject((win[0], win[1] + 0.5 * win_height, win[2]),
+                            self.modelview, projection, (0, 0, win_width, win_height))
         dist       = math.sqrt( v3distsq( obj, obj_c ) )
         scale     = abs( dist / ( 0.5 * win_height ) )
 
@@ -393,12 +469,27 @@ class GlNavBase:
     def get_total_translation(self):
         return self._totalx, self._totaly
 
+    def get_projection_matrix(self, width, height):
+        """Return the complete legacy projection, including its eye translation."""
+        width = max(1, width)
+        height = max(1, height)
+        if self.perspective:
+            return multiply(perspective_matrix(self.fovy, float(width) / height,
+                                               self.near, self.far + self.distance),
+                            translation_matrix(0.0, 0.0, -self.distance))
+        k = abs(self.distance or 1.0) ** .55555
+        return multiply(ortho_matrix(-k, k, -k * height / width, k * height / width,
+                                     -1000.0, 1000.0),
+                        translation_matrix(0.0, 0.0, -1.0))
+
+    def get_modelview_matrix(self):
+        return self.modelview.copy()
+
     def set_view_x(self):
         self.reset()
-        glRotatef(-90, 0, 1, 0)
-        glRotatef(-90, 1, 0, 0)
+        self.modelview = multiply(self.modelview, rotation_matrix(-90, 0, 1, 0), rotation_matrix(-90, 1, 0, 0))
         mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.modelview = multiply(self.modelview, translation_matrix(-mid[0], -mid[1], -mid[2]))
         self.set_eyepoint_from_extents(size[1], size[2])
         self.perspective = False
         self.lat = -90
@@ -407,11 +498,11 @@ class GlNavBase:
 
     def set_view_y(self):
         self.reset()
-        glRotatef(-90, 1, 0, 0)
+        self.modelview = multiply(self.modelview, rotation_matrix(-90, 1, 0, 0))
         if self.is_lathe():
-            glRotatef(90, 0, 1, 0)
+            self.modelview = multiply(self.modelview, rotation_matrix(90, 0, 1, 0))
         mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.modelview = multiply(self.modelview, translation_matrix(-mid[0], -mid[1], -mid[2]))
         self.set_eyepoint_from_extents(size[0], size[2])
         self.perspective = False
         self.lat = -90
@@ -421,10 +512,9 @@ class GlNavBase:
         # lathe backtool display
     def set_view_y2(self):
         self.reset()
-        glRotatef(90, 1, 0, 0)
-        glRotatef(90, 0, 1, 0)
+        self.modelview = multiply(self.modelview, rotation_matrix(90, 1, 0, 0), rotation_matrix(90, 0, 1, 0))
         mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.modelview = multiply(self.modelview, translation_matrix(-mid[0], -mid[1], -mid[2]))
         self.set_eyepoint_from_extents(size[0], size[2])
         self.perspective = False
         self.lat = -90
@@ -434,7 +524,7 @@ class GlNavBase:
     def set_view_z(self):
         self.reset()
         mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.modelview = multiply(self.modelview, translation_matrix(-mid[0], -mid[1], -mid[2]))
         self.set_eyepoint_from_extents(size[0], size[1])
         self.perspective = False
         self.lat = self.lon = 0
@@ -442,9 +532,9 @@ class GlNavBase:
 
     def set_view_z2(self):
         self.reset()
-        glRotatef(-90, 0, 0, 1)
+        self.modelview = multiply(self.modelview, rotation_matrix(-90, 0, 0, 1))
         mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.modelview = multiply(self.modelview, translation_matrix(-mid[0], -mid[1], -mid[2]))
         self.set_eyepoint_from_extents(size[1], size[0])
         self.perspective = False
         self.lat = 0
@@ -455,7 +545,7 @@ class GlNavBase:
         self.reset()
         self.perspective = True
         mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.modelview = multiply(self.modelview, translation_matrix(-mid[0], -mid[1], -mid[2]))
         size = (size[0] ** 2 + size[1] ** 2 + size[2] ** 2) ** .5
         if size > 1e99: size = 5. # in case there are no moves in the preview
         w = self.winfo_width()
@@ -472,4 +562,3 @@ class GlNavBase:
         self._redraw()
 
 # vim:ts=8:sts=4:sw=4:et:
-

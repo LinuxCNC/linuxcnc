@@ -1,0 +1,2271 @@
+#    OpenGL 3.3 core renderer infrastructure for the rs274 G-code preview.
+#
+#    This module holds the low-level, reusable GL building blocks for the core-
+#    profile preview renderer that replaces the legacy fixed-function drawing in
+#    glcanon.py: shader compile/link helpers with proper error reporting, thin
+#    VBO/VAO wrappers, a per-pass glGetError debug check, and the GLSL 330 line
+#    shader (position + color + line-number + distance-along-line, driven by a
+#    single MVP uniform, with shader-side dashing). The glyph-atlas overlay
+#    text, at the end of the file, is the same kind of thing: a shader, a
+#    texture and a dynamic VBO whose lifetimes this module owns.
+#
+#    It deliberately contains no GlCanonDraw policy and no numpy geometry baking
+#    (that lives in glcanon_bake.py, which stays GL-free and unit-testable). The
+#    split keeps this module the sole owner of GL object lifetimes.
+#
+#    This program is free software; you can redistribute it and/or modify it
+#    under the terms of the GNU General Public License as published by the Free
+#    Software Foundation; either version 2 of the License, or (at your option)
+#    any later version.
+
+from __future__ import annotations
+
+import os
+from contextlib import contextmanager
+from typing import Any, Callable, Iterator, Sequence
+
+from OpenGL.GL import *
+import numpy as np
+import numpy.typing as npt
+
+from rs274.glcanon_bake import (ATTR_DTYPE, KIND_MASK, LineRanges, MeshVerts,
+                                PLANE_DTYPE, PaletteRGBA, TrajectoryVerts,
+                                WideVerts)
+
+# PyOpenGL's enum constants are int subclasses, so this is honest rather than
+# decorative: it says "one of the GL_* names" where a bare ``int`` would say
+# nothing.
+GLEnum = int
+
+# Enable with GLCANON_GL_DEBUG=1 to check glGetError after each pass. Off by
+# default because a glGetError round-trip stalls the pipeline.
+GL_DEBUG = os.environ.get("GLCANON_GL_DEBUG", "") not in ("", "0")
+
+# ---------------------------------------------------------------------------
+# Interleaved per-vertex-colour layout. Each vertex is 9 float32: position(3)
+# color-rgba(4) lineno(1) distance(1).
+#
+# The program trajectory, the dwell markers and the live backplot all draw
+# through the trajectory shader in the narrower 20-byte layout below instead -
+# this one is what is left: the transient grid/axes/extents/Hershey-label
+# geometry (rebuilt every frame from live view state, so a palette index would
+# cost more CPU than the bandwidth it saves) and the lathe-tool profile fill,
+# plus the landing place for any of those palette-indexed parts whose colours
+# overflow their palette and fall back to storing colour per vertex.
+#
+# ``WideVerts``, imported above, is this layout as a type; the stride here and
+# the one in rs274.glcanon_bake are two views of that single statement.
+# ---------------------------------------------------------------------------
+FLOATS_PER_VERTEX = 9
+VERTEX_STRIDE = FLOATS_PER_VERTEX * 4        # bytes
+
+ATTR_POSITION = 0
+ATTR_COLOR = 1
+ATTR_LINENO = 2
+ATTR_DISTANCE = 3
+
+# (location, num_components, byte-offset-within-vertex[, gl type])
+LINE_ATTRIBUTES = (
+    (ATTR_POSITION, 3, 0),
+    (ATTR_COLOR, 4, 3 * 4),
+    (ATTR_LINENO, 1, 7 * 4),
+    (ATTR_DISTANCE, 1, 8 * 4),
+)
+
+# ---------------------------------------------------------------------------
+# The program trajectory's narrower layout: position(3 float32), a uint32 with
+# the source line number and the draw category packed together, and distance-
+# along-line (float32). 20 bytes, against 36 for the layout above - colour is
+# not stored per vertex but looked up from a palette indexed by the category.
+#
+# A separate GL_UNSIGNED_BYTE attribute for the category would leave the stride
+# at 21 bytes, which pads to 24; packing keeps it at 20.
+#
+# ``TrajectoryVerts``, imported above, is this layout as a type.
+# ---------------------------------------------------------------------------
+TRAJ_FLOATS_PER_VERTEX = 5
+TRAJ_VERTEX_STRIDE = TRAJ_FLOATS_PER_VERTEX * 4      # bytes
+
+TRAJ_ATTRIBUTES = (
+    (ATTR_POSITION, 3, 0, GL_FLOAT),
+    (ATTR_LINENO, 1, 3 * 4, GL_UNSIGNED_INT),
+    (ATTR_DISTANCE, 1, 4 * 4, GL_FLOAT),
+)
+
+# ---------------------------------------------------------------------------
+# The program array's layout: 24 bytes per vertex in two buffers rather than
+# one interleaved. rs274.glcanon_bake states it (PLANE_DTYPE / ATTR_DTYPE);
+# these are the same statement as attribute pointers.
+#
+#     plane buffer   position 3 x float32 + distance float32   16 B, per plane
+#     attr buffer    source line uint32 + kind/tool uint32       8 B, shared
+#
+# Two buffers because foam draws the same program on two planes: the positions
+# and their dash distances differ (the transform differs, and dash phase
+# accumulates along transformed points), while the line, kind and tool columns
+# are the same storage for both. It also gets the line number out of the
+# packed word, so it is a full uint32 and nothing has to range-check it.
+# ---------------------------------------------------------------------------
+ATTR_KINDTOOL = 4
+
+PROGRAM_PLANE_ATTRIBUTES = (
+    (ATTR_POSITION, 3, 0, GL_FLOAT),
+    (ATTR_DISTANCE, 1, 3 * 4, GL_FLOAT),
+)
+PROGRAM_ATTR_ATTRIBUTES = (
+    (ATTR_LINENO, 1, 0, GL_UNSIGNED_INT),
+    (ATTR_KINDTOOL, 1, 4, GL_UNSIGNED_INT),
+)
+
+_INTEGER_ATTRIB_TYPES = (GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT,
+                         GL_UNSIGNED_SHORT, GL_INT, GL_UNSIGNED_INT)
+
+# rs274.glcanon_bake names the primitive a part wants rather than importing GL,
+# so it stays GL-free and unit-testable. This is the only place the names are
+# turned into enums.
+PRIMITIVE_MODES = {
+    "line_strip": GL_LINE_STRIP,
+    "lines": GL_LINES,
+}
+
+
+def primitive_mode(name: str | None,
+                   default: GLEnum = GL_LINE_STRIP) -> GLEnum:
+    """The GL enum for a baked part's named primitive mode."""
+    if name is None:
+        return default
+    try:
+        return PRIMITIVE_MODES[name]
+    except KeyError:
+        raise ValueError("unknown primitive mode %r" % (name,))
+
+# Palette slots. Four cover the program's categories; the live backplot needs
+# six (one per motion type the position logger distinguishes), so the array is
+# eight - the next size that costs nothing to reason about and leaves room. A
+# vec4[8] uniform array is 128 bytes. ``PaletteRGBA``, imported above, is the
+# array as a type.
+PALETTE_SIZE = 8
+
+
+_GL_ERROR_NAMES = {
+    GL_INVALID_ENUM: "GL_INVALID_ENUM",
+    GL_INVALID_VALUE: "GL_INVALID_VALUE",
+    GL_INVALID_OPERATION: "GL_INVALID_OPERATION",
+    GL_INVALID_FRAMEBUFFER_OPERATION: "GL_INVALID_FRAMEBUFFER_OPERATION",
+    GL_OUT_OF_MEMORY: "GL_OUT_OF_MEMORY",
+}
+
+
+def gl_error_name(err: GLEnum) -> str:
+    return _GL_ERROR_NAMES.get(err, "0x%04x" % err)
+
+
+def check_gl_error(where: str) -> None:
+    """Drain glGetError and raise if anything is pending (debug builds only).
+
+    Call after a logical pass (clear, program draw, FBO read) with a short label
+    so a driver error is attributed to the pass that caused it rather than the
+    next unrelated GL call.
+    """
+    if not GL_DEBUG:
+        return
+    errors = []
+    while True:
+        err = glGetError()
+        if err == GL_NO_ERROR:
+            break
+        errors.append(gl_error_name(err))
+    if errors:
+        raise RuntimeError("GL error(s) at %s: %s" % (where, ", ".join(errors)))
+
+
+_MAX_LINE_WIDTH: float | None = None
+
+
+def _drain_gl_error() -> None:
+    """Swallow any pending GL errors so they don't surface on a later call."""
+    for _ in range(32):
+        try:
+            if glGetError() == GL_NO_ERROR:
+                return
+        except Exception:
+            return
+
+
+def _try_line_width(w: float) -> bool:
+    """glLineWidth(w) that reports success, swallowing driver rejection.
+
+    A forward-compatible core context (e.g. Qt's) rejects glLineWidth(>1) with
+    GL_INVALID_VALUE - which PyOpenGL turns into an exception and/or leaves as a
+    pending error. Both are absorbed here so the caller degrades gracefully and
+    no stale error propagates to the next GL call.
+    """
+    try:
+        glLineWidth(w)
+    except Exception:
+        _drain_gl_error()
+        return False
+    err = GL_NO_ERROR
+    try:
+        err = glGetError()
+    except Exception:
+        pass
+    _drain_gl_error()
+    return err == GL_NO_ERROR
+
+
+def set_line_width(width: float) -> None:
+    """Set the line width, degrading thick lines to 1.0 where the driver only
+    supports width 1.0 (core profiles guarantee no more). Probed once, cached."""
+    global _MAX_LINE_WIDTH
+    if _MAX_LINE_WIDTH is None:
+        _MAX_LINE_WIDTH = 3.0 if _try_line_width(3.0) else 1.0
+    w = max(1.0, min(float(width), _MAX_LINE_WIDTH))
+    if not _try_line_width(w) and w != 1.0:
+        _MAX_LINE_WIDTH = 1.0
+        _try_line_width(1.0)
+
+
+# ---------------------------------------------------------------------------
+# Shader / program helpers
+# ---------------------------------------------------------------------------
+def compile_shader(source: str, shader_type: GLEnum) -> int:
+    """Compile one shader stage; raise RuntimeError with the info log on failure."""
+    shader = glCreateShader(shader_type)
+    glShaderSource(shader, source)
+    glCompileShader(shader)
+    if glGetShaderiv(shader, GL_COMPILE_STATUS) != GL_TRUE:
+        log = glGetShaderInfoLog(shader)
+        if isinstance(log, bytes):
+            log = log.decode("utf-8", "replace")
+        glDeleteShader(shader)
+        kind = "vertex" if shader_type == GL_VERTEX_SHADER else \
+               "fragment" if shader_type == GL_FRAGMENT_SHADER else str(shader_type)
+        raise RuntimeError("%s shader compile failed:\n%s" % (kind, log))
+    return shader
+
+
+def link_program(*shaders: int) -> int:
+    """Link the given compiled shaders into a program; raise on failure.
+
+    The shaders are detached and deleted after a successful link (the program
+    retains them), so the caller only owns the returned program handle.
+    """
+    program = glCreateProgram()
+    for shader in shaders:
+        glAttachShader(program, shader)
+    glLinkProgram(program)
+    linked = glGetProgramiv(program, GL_LINK_STATUS)
+    for shader in shaders:
+        glDetachShader(program, shader)
+        glDeleteShader(shader)
+    if linked != GL_TRUE:
+        log = glGetProgramInfoLog(program)
+        if isinstance(log, bytes):
+            log = log.decode("utf-8", "replace")
+        glDeleteProgram(program)
+        raise RuntimeError("program link failed:\n%s" % log)
+    return program
+
+
+class ShaderProgram:
+    """A linked GLSL program with a cached uniform-location lookup."""
+
+    def __init__(self, vertex_source: str, fragment_source: str) -> None:
+        vs = compile_shader(vertex_source, GL_VERTEX_SHADER)
+        fs = compile_shader(fragment_source, GL_FRAGMENT_SHADER)
+        self.program = link_program(vs, fs)
+        self._uniforms: dict[str, int] = {}
+
+    def use(self) -> None:
+        glUseProgram(self.program)
+
+    def uniform(self, name: str) -> int:
+        loc = self._uniforms.get(name)
+        if loc is None:
+            loc = glGetUniformLocation(self.program, name)
+            self._uniforms[name] = loc
+        return loc
+
+    def set_mat4(self, name: str, matrix: Any) -> None:
+        # glnav matrices are row-major (math convention); GL wants column-major,
+        # so upload with transpose=GL_TRUE rather than transposing in numpy.
+        m = np.ascontiguousarray(matrix, dtype=np.float32)
+        glUniformMatrix4fv(self.uniform(name), 1, GL_TRUE, m)
+
+    def set_float(self, name: str, value: float) -> None:
+        glUniform1f(self.uniform(name), float(value))
+
+    def set_int(self, name: str, value: int) -> None:
+        glUniform1i(self.uniform(name), int(value))
+
+    def set_bool(self, name: str, value: Any) -> None:
+        glUniform1i(self.uniform(name), 1 if value else 0)
+
+    def set_vec4(self, name: str, x: float, y: float, z: float,
+                 w: float) -> None:
+        glUniform4f(self.uniform(name), x, y, z, w)
+
+    def delete(self) -> None:
+        if self.program:
+            glDeleteProgram(self.program)
+            self.program = 0
+
+
+# ---------------------------------------------------------------------------
+# Buffer / vertex-array wrappers
+# ---------------------------------------------------------------------------
+def _as_bytes(array: Any) -> Any:
+    """A contiguous array to hand GL, whatever layout it came in.
+
+    A plain float array is taken as float32, which is what every interleaved
+    layout here is. A structured array - the program's two-buffer layout is
+    one - is taken as it stands, because its dtype *is* the layout and
+    coercing it to float32 would reinterpret the integer columns as numbers.
+    """
+    array = np.asarray(array)
+    if array.dtype.fields is not None:
+        return np.ascontiguousarray(array)
+    return np.ascontiguousarray(array, dtype=np.float32)
+
+
+class GLBuffer:
+    """A single VBO. `set_data` (re)allocates; `update_sub` uploads a range."""
+
+    def __init__(self, target: GLEnum = GL_ARRAY_BUFFER) -> None:
+        self.target = target
+        #: The GL name glGenBuffers handed out. A plain int, not a GLEnum.
+        self.handle: int = glGenBuffers(1)
+        self.size_bytes = 0
+
+    def bind(self) -> None:
+        glBindBuffer(self.target, self.handle)
+
+    def set_data(self, array: Any, usage: GLEnum = GL_STATIC_DRAW) -> None:
+        data = _as_bytes(array)
+        self.bind()
+        glBufferData(self.target, data.nbytes, data, usage)
+        self.size_bytes = data.nbytes
+
+    def orphan(self, size_bytes: int,
+               usage: GLEnum = GL_DYNAMIC_DRAW) -> None:
+        """Allocate `size_bytes` of uninitialised storage (ring-buffer backing)."""
+        self.bind()
+        glBufferData(self.target, int(size_bytes), None, usage)
+        self.size_bytes = int(size_bytes)
+
+    def update_sub(self, byte_offset: int, array: Any) -> None:
+        data = _as_bytes(array)
+        self.bind()
+        glBufferSubData(self.target, int(byte_offset), data.nbytes, data)
+
+    def delete(self) -> None:
+        if self.handle:
+            glDeleteBuffers(1, [self.handle])
+            self.handle = 0
+
+
+class VertexArray:
+    """A VAO. `configure` wires an interleaved VBO to a set of attributes."""
+
+    def __init__(self) -> None:
+        self.handle: int = glGenVertexArrays(1)
+
+    def bind(self) -> None:
+        glBindVertexArray(self.handle)
+
+    def unbind(self) -> None:
+        glBindVertexArray(0)
+
+    def configure(self, buffer: GLBuffer,
+                  attributes: Sequence[Sequence[int]] = LINE_ATTRIBUTES,
+                  stride: int = VERTEX_STRIDE) -> None:
+        """Bind `buffer` and enable `attributes`.
+
+        Each attribute is ``(location, size, offset)`` - float components, the
+        common case - or ``(location, size, offset, gl_type)``. An integer type
+        goes through glVertexAttribIPointer so it reaches the shader as an
+        integer rather than being converted to float, which is what lets the
+        trajectory carry a packed uint32 the shader can mask and shift.
+        """
+        self.bind()
+        buffer.bind()
+        for attribute in attributes:
+            location, size, offset = attribute[:3]
+            gl_type = attribute[3] if len(attribute) > 3 else GL_FLOAT
+            glEnableVertexAttribArray(location)
+            if gl_type in _INTEGER_ATTRIB_TYPES:
+                glVertexAttribIPointer(location, size, gl_type, stride,
+                                       ctypes_offset(offset))
+            else:
+                glVertexAttribPointer(location, size, gl_type, GL_FALSE,
+                                      stride, ctypes_offset(offset))
+        self.unbind()
+
+    def delete(self) -> None:
+        if self.handle:
+            glDeleteVertexArrays(1, [self.handle])
+            self.handle = 0
+
+
+def ctypes_offset(byte_offset: int) -> Any:
+    """A void* offset for glVertexAttribPointer (None means 0)."""
+    import ctypes
+    return ctypes.c_void_p(int(byte_offset))
+
+
+# ---------------------------------------------------------------------------
+# Line shader (GLSL 330 core)
+# ---------------------------------------------------------------------------
+LINE_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3 in_position;
+layout(location = 1) in vec4 in_color;
+layout(location = 2) in float in_lineno;
+layout(location = 3) in float in_distance;
+
+uniform mat4 u_mvp;
+
+out vec4 v_color;
+out float v_distance;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_color = in_color;
+    v_distance = in_distance;
+}
+"""
+
+LINE_FRAGMENT_SHADER = """
+#version 330 core
+in vec4 v_color;
+in float v_distance;
+
+uniform bool  u_dashed;        // enable shader dashing on the distance attribute
+uniform float u_dash_period;   // world units for one on+off cycle
+uniform float u_dash_duty;     // fraction of the period drawn (0..1)
+uniform float u_alpha;         // multiplies vertex alpha (program_alpha)
+uniform bool  u_use_override;  // draw a single flat colour (e.g. highlight)
+uniform vec4  u_override_color;
+
+out vec4 frag_color;
+
+void main() {
+    if (u_dashed && fract(v_distance / u_dash_period) > u_dash_duty)
+        discard;
+    vec4 c = u_use_override ? u_override_color : v_color;
+    frag_color = vec4(c.rgb, c.a * u_alpha);
+}
+"""
+
+
+class LineProgram:
+    """The line shader plus its default uniform state.
+
+    A draw call is: :meth:`use`, set ``u_mvp`` (and any dashing/alpha/override
+    uniforms), bind a configured VAO, then ``glDrawArrays``. :meth:`begin`
+    resets the optional uniforms to their inert defaults so each pass starts
+    from a known state.
+    """
+
+    def __init__(self) -> None:
+        self.shader = ShaderProgram(LINE_VERTEX_SHADER, LINE_FRAGMENT_SHADER)
+
+    def use(self) -> None:
+        self.shader.use()
+
+    def begin(self, mvp: Any, alpha: float = 1.0) -> None:
+        """Start a pass: bind program, load the MVP, clear optional state."""
+        self.shader.use()
+        self.shader.set_mat4("u_mvp", mvp)
+        self.shader.set_float("u_alpha", alpha)
+        self.shader.set_bool("u_dashed", False)
+        self.shader.set_bool("u_use_override", False)
+
+    def set_alpha(self, alpha: float) -> None:
+        self.shader.set_float("u_alpha", alpha)
+
+    def set_dashed(self, enabled: bool, period: float = 1.0,
+                   duty: float = 0.5) -> None:
+        self.shader.set_bool("u_dashed", enabled)
+        if enabled:
+            self.shader.set_float("u_dash_period", period)
+            self.shader.set_float("u_dash_duty", duty)
+
+    def set_override_color(self, rgba: Sequence[float] | None) -> None:
+        if rgba is None:
+            self.shader.set_bool("u_use_override", False)
+        else:
+            r, g, b, a = rgba
+            self.shader.set_bool("u_use_override", True)
+            self.shader.set_vec4("u_override_color", r, g, b, a)
+
+    def delete(self) -> None:
+        self.shader.delete()
+
+
+# ---------------------------------------------------------------------------
+# Trajectory shader (GLSL 330 core): the program's own line shader.
+#
+# The line shader above stays as it is - the dwell markers, the live backplot
+# and the transient grid/axes/label geometry each carry a colour per vertex and
+# cannot be reduced to a four-entry palette. The program can, and that is what
+# pays for the 20-byte vertex, so it gets its own pair of stages.
+#
+# The category is carried `flat`: adjacent segments of one chain routinely
+# differ in category, and an interpolated code would blend the rapid's colour
+# into the feed across the join. Flat also means each segment takes its
+# provoking (last) vertex's line number, which is the existing picking and
+# highlight contract - a segment belongs to the source line of its END point.
+# ---------------------------------------------------------------------------
+TRAJ_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3  in_position;
+layout(location = 2) in uint  in_packed;     // lineno | category << 24
+layout(location = 3) in float in_distance;
+
+uniform mat4 u_mvp;
+
+flat out uint v_kind;
+out float v_distance;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_kind = in_packed >> 24u;
+    v_distance = in_distance;
+}
+"""
+
+# The program array's vertex stage. Same outputs as the packed one above, off
+# the two-buffer 24-byte layout: the line number is its own uint32 attribute
+# and the kind rides in the low byte of the kind/tool word.
+PROGRAM_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3  in_position;
+layout(location = 3) in float in_distance;
+layout(location = 4) in uint  in_kindtool;
+
+uniform mat4 u_mvp;
+
+flat out uint v_kind;
+out float v_distance;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_kind = in_kindtool & %(kind_mask)uu;
+    v_distance = in_distance;
+}
+""" % {"kind_mask": KIND_MASK}
+
+TRAJ_FRAGMENT_SHADER = """
+#version 330 core
+flat in uint v_kind;
+in float v_distance;
+
+uniform vec4  u_palette[%(palette)d];
+uniform bool  u_dashed;        // enable dashing of the dash kind
+uniform float u_dash_period;   // world units for one on+off cycle
+uniform float u_dash_duty;     // fraction of the period drawn (0..1)
+uniform float u_alpha;         // multiplies the palette alpha (program_alpha)
+uniform int   u_dash_cat;      // kind that dashes, -1 for none
+uniform int   u_hide_cat;      // kind that is discarded, -1 for none
+uniform int   u_last_drawn_kind;  // kinds above this are records, never drawn
+uniform bool  u_use_override;  // draw a single flat colour (the highlight)
+uniform vec4  u_override_color;
+
+out vec4 frag_color;
+
+void main() {
+    int cat = int(v_kind);
+
+    // Structural, and first: kinds above the last drawn one are records - a
+    // coordinate jump, a dwell, a tool change - and are not geometry at all.
+    // One comparison rather than an enumeration, which is what the ordering
+    // of the kind codes is for. Outside the override test on purpose: the
+    // highlight pass overrides the rapid-hiding toggle, and must not be able
+    // to resurrect a record by doing so.
+    if (cat > u_last_drawn_kind)
+        discard;
+
+    // Which kind dashes and which is hidden are the drawing buffer's to
+    // nominate, not properties of the number zero: the program nominates its
+    // rapid code for both, the dwell markers and the live backplot nominate
+    // neither and so are never dashed or discarded whatever code their
+    // vertices carry. The highlight pass overrides both - it draws the
+    // selected line solid, and draws it whether or not rapids are shown,
+    // exactly as it did when rapids were a separate buffer whose draw call was
+    // skipped.
+    if (!u_use_override) {
+        if (cat == u_hide_cat)
+            discard;
+        if (cat == u_dash_cat
+                && u_dashed
+                && fract(v_distance / u_dash_period) > u_dash_duty)
+            discard;
+    }
+    vec4 c = u_use_override ? u_override_color : u_palette[cat];
+    frag_color = vec4(c.rgb, c.a * u_alpha);
+}
+""" % {"palette": PALETTE_SIZE}
+
+
+def _pin_provoking_vertex() -> None:
+    """Ask for the last-vertex provoking convention, explicitly.
+
+    GL's default already is last-vertex, and that default is what makes a
+    segment take its END vertex's flat line number and category - the existing
+    picking and highlight contract. Saying so costs one call at program
+    creation and removes the dependence on nothing else in the process having
+    changed it. Swallowed if the context does not expose it (the convention is
+    then the default anyway).
+    """
+    try:
+        glProvokingVertex(GL_LAST_VERTEX_CONVENTION)
+    except Exception:
+        pass
+    _drain_gl_error()
+
+
+class TrajectoryProgram:
+    """The trajectory shader plus its palette and pass state.
+
+    Two vertex stages share one fragment stage: the packed 20-byte layout the
+    live backplot uses, and the program array's 24-byte one. They differ only
+    in where the kind comes from, so the colouring, dashing and record-kind
+    rejection are written once. ``VERTEX_SHADER`` names which one a subclass
+    compiles.
+    """
+
+    VERTEX_SHADER = TRAJ_VERTEX_SHADER
+
+    def __init__(self) -> None:
+        self.shader = ShaderProgram(self.VERTEX_SHADER, TRAJ_FRAGMENT_SHADER)
+        _pin_provoking_vertex()
+
+    def use(self) -> None:
+        self.shader.use()
+
+    def begin(self, mvp: Any, palette: Any, alpha: float = 1.0,
+              dash_cat: int = -1, hide_cat: int = -1, dashed: bool = True,
+              dash_period: float = 1.0, dash_duty: float = 0.5,
+              last_drawn_kind: int = PALETTE_SIZE - 1) -> None:
+        """Start a pass. ``dash_cat``/``hide_cat`` are the drawing buffer's own
+        kind codes, or -1 for "this buffer has none".
+
+        ``last_drawn_kind`` is likewise the buffer's own: the program array
+        carries record kinds above it, while a buffer that has none - the
+        markers, the backplot - says so by naming its whole palette.
+        """
+        self.shader.use()
+        self.shader.set_mat4("u_mvp", mvp)
+        self.set_palette(palette)
+        self.shader.set_float("u_alpha", alpha)
+        self.shader.set_int("u_dash_cat", dash_cat)
+        self.shader.set_int("u_hide_cat", hide_cat)
+        self.shader.set_int("u_last_drawn_kind", last_drawn_kind)
+        self.shader.set_bool("u_dashed", dashed)
+        self.shader.set_float("u_dash_period", dash_period)
+        self.shader.set_float("u_dash_duty", dash_duty)
+        self.shader.set_bool("u_use_override", False)
+
+    def set_palette(self, palette: Any) -> None:
+        """Upload a palette, padding short ones to the uniform array's size.
+
+        A buffer supplies only the entries it uses - three for the program,
+        six for the backplot - and the rest are never indexed, but the uniform
+        array is uploaded whole, so the tail has to be something rather than
+        whatever was left in the caller's array.
+        """
+        entries: PaletteRGBA = np.zeros((PALETTE_SIZE, 4), dtype=np.float32)
+        given = np.ascontiguousarray(palette, dtype=np.float32).reshape(-1, 4)
+        n = min(len(given), PALETTE_SIZE)
+        entries[:n] = given[:n]
+        glUniform4fv(self.shader.uniform("u_palette"), PALETTE_SIZE, entries)
+
+    def set_override_color(self, rgba: Sequence[float] | None) -> None:
+        if rgba is None:
+            self.shader.set_bool("u_use_override", False)
+        else:
+            r, g, b, a = rgba
+            self.shader.set_bool("u_use_override", True)
+            self.shader.set_vec4("u_override_color", r, g, b, a)
+
+    def delete(self) -> None:
+        self.shader.delete()
+
+
+TRAJ_PICK_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3 in_position;
+layout(location = 2) in uint in_packed;
+
+uniform mat4 u_mvp;
+
+flat out uint v_kind;
+flat out uint v_id;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_kind = in_packed >> 24u;
+    v_id = (in_packed & 0xFFFFFFu) + 1u;   // +1: id 0 == "no hit"
+}
+"""
+
+# The program array's pick vertex stage: a full 32-bit line number, its own
+# attribute, and the kind out of the kind/tool word.
+PROGRAM_PICK_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3 in_position;
+layout(location = 2) in uint in_lineno;
+layout(location = 4) in uint in_kindtool;
+
+uniform mat4 u_mvp;
+
+flat out uint v_kind;
+flat out uint v_id;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_kind = in_kindtool & %(kind_mask)uu;
+    v_id = in_lineno + 1u;                 // +1: id 0 == "no hit"
+}
+""" % {"kind_mask": KIND_MASK}
+
+TRAJ_PICK_FRAGMENT_SHADER = """
+#version 330 core
+flat in uint v_kind;
+flat in uint v_id;
+
+uniform int u_hide_cat;           // kind that is discarded, -1 for none
+uniform int u_last_drawn_kind;    // kinds above this are records
+
+out vec4 frag_color;
+
+void main() {
+    // The same two rejections the drawing shader applies, driven by the same
+    // per-buffer uniforms, so pickable geometry cannot diverge from drawn
+    // geometry. Deliberately *not* the dash rejection: a rapid was pickable in
+    // the gaps of its dash pattern before, and still is.
+    int cat = int(v_kind);
+    if (cat > u_last_drawn_kind)
+        discard;
+    if (cat == u_hide_cat)
+        discard;
+    // All four channels. Alpha is free: the target clears to (0,0,0,0),
+    // blending is off for the pass and the read-back already asks for RGBA -
+    // so the id carries every bit of a line number the vertex can hold, and
+    // the cleared pixel still decodes as "no hit".
+    frag_color = vec4(
+        float( v_id        & 0xFFu) / 255.0,
+        float((v_id >>  8u) & 0xFFu) / 255.0,
+        float((v_id >> 16u) & 0xFFu) / 255.0,
+        float((v_id >> 24u) & 0xFFu) / 255.0);
+}
+"""
+
+
+class TrajectoryPickProgram:
+    """The trajectory's ID-buffer pick stage; rejects records and the buffer's
+    hidden kind exactly as the drawing pass does.
+
+    Paired with :class:`TrajectoryProgram` - same two vertex stages, one
+    fragment stage - for the same reason.
+    """
+
+    VERTEX_SHADER = TRAJ_PICK_VERTEX_SHADER
+
+    def __init__(self) -> None:
+        self.shader = ShaderProgram(self.VERTEX_SHADER,
+                                    TRAJ_PICK_FRAGMENT_SHADER)
+
+    def begin(self, mvp: Any, hide_cat: int = -1,
+              last_drawn_kind: int = PALETTE_SIZE - 1) -> None:
+        self.shader.use()
+        self.shader.set_mat4("u_mvp", mvp)
+        self.shader.set_int("u_hide_cat", hide_cat)
+        self.shader.set_int("u_last_drawn_kind", last_drawn_kind)
+
+    def delete(self) -> None:
+        self.shader.delete()
+
+
+class ProgramArrayProgram(TrajectoryProgram):
+    """:class:`TrajectoryProgram` over the program array's 24-byte layout."""
+
+    VERTEX_SHADER = PROGRAM_VERTEX_SHADER
+
+
+class ProgramArrayPickProgram(TrajectoryPickProgram):
+    """:class:`TrajectoryPickProgram` over the program array's layout."""
+
+    VERTEX_SHADER = PROGRAM_PICK_VERTEX_SHADER
+
+
+# ---------------------------------------------------------------------------
+# Pick shader (GLSL 330 core) for the per-vertex-colour layout: draw pickable
+# geometry with the source line number encoded into the colour attachment, for
+# the offscreen ID-buffer pass that replaces legacy GL_SELECT. The id is
+# `lineno + 1` so a cleared (black) framebuffer reads back as "no hit". 24 bits
+# (RGB8) cover ~16M source lines.
+#
+# Everything that persists now picks through TRAJ_PICK_* instead. This pair is
+# reached only when a part's colours would not fit the palette and the bake
+# fell back to the 36-byte vertex - which cannot happen with the two colours
+# the canon gives dwells, but is exactly why the fallback has to keep working
+# rather than be deleted along with its last routine caller.
+# ---------------------------------------------------------------------------
+PICK_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3 in_position;
+layout(location = 2) in float in_lineno;
+
+uniform mat4 u_mvp;
+
+flat out int v_id;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_id = int(in_lineno + 0.5) + 1;   // +1: id 0 reserved for "no hit"
+}
+"""
+
+PICK_FRAGMENT_SHADER = """
+#version 330 core
+flat in int v_id;
+
+out vec4 frag_color;
+
+void main() {
+    // Four channels, matching the trajectory pick stage so one decode serves
+    // both. This stage's id comes from a float attribute and so is 24-bit
+    // anyway; the top byte it writes is zero, which is what the decode reads.
+    frag_color = vec4(
+        float( v_id        & 0xFF) / 255.0,
+        float((v_id >>  8) & 0xFF) / 255.0,
+        float((v_id >> 16) & 0xFF) / 255.0,
+        float((v_id >> 24) & 0xFF) / 255.0);
+}
+"""
+
+
+class PickProgram:
+    """The per-vertex-colour pick shader: an MVP and a float line number.
+
+    Kept for the palette-overflow fallback only; see the note above.
+    """
+
+    def __init__(self) -> None:
+        self.shader = ShaderProgram(PICK_VERTEX_SHADER, PICK_FRAGMENT_SHADER)
+
+    def use(self) -> None:
+        self.shader.use()
+
+    def set_mvp(self, mvp: Any) -> None:
+        self.shader.use()
+        self.shader.set_mat4("u_mvp", mvp)
+
+    def delete(self) -> None:
+        self.shader.delete()
+
+
+# position(3) + normal(3) mesh layout for the Lambert-shaded tool cone.
+MESH_STRIDE = 6 * 4
+MESH_ATTRIBUTES = (
+    (ATTR_POSITION, 3, 0),
+    (ATTR_COLOR, 3, 3 * 4),   # reuse location 1 as the normal input
+)
+
+CONE_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec3 in_position;
+layout(location = 1) in vec3 in_normal;
+
+uniform mat4 u_mvp;
+uniform mat3 u_normal_matrix;
+
+out vec3 v_normal;
+
+void main() {
+    gl_Position = u_mvp * vec4(in_position, 1.0);
+    v_normal = normalize(u_normal_matrix * in_normal);
+}
+"""
+
+CONE_FRAGMENT_SHADER = """
+#version 330 core
+in vec3 v_normal;
+
+uniform vec3 u_light_dir;   // direction toward the light (normalised)
+uniform vec3 u_ambient;
+uniform vec3 u_diffuse;
+uniform vec4 u_color;       // material colour + alpha
+
+out vec4 frag_color;
+
+void main() {
+    float ndl = max(dot(normalize(v_normal), normalize(u_light_dir)), 0.0);
+    vec3 c = u_color.rgb * (u_ambient + u_diffuse * ndl);
+    frag_color = vec4(c, u_color.a);
+}
+"""
+
+
+class ConeProgram:
+    """Lambert-shaded program for the tool cone / lathe tool solid."""
+
+    def __init__(self) -> None:
+        self.shader = ShaderProgram(CONE_VERTEX_SHADER, CONE_FRAGMENT_SHADER)
+
+    def begin(self, mvp: Any, normal_matrix: Any, color: Sequence[float],
+              light_dir: Sequence[float] = (1.0, -1.0, 1.0),
+              ambient: Sequence[float] = (0.40, 0.40, 0.40),
+              diffuse: Sequence[float] = (0.60, 0.60, 0.60)) -> None:
+        self.shader.use()
+        self.shader.set_mat4("u_mvp", mvp)
+        m = np.ascontiguousarray(normal_matrix, dtype=np.float32)
+        glUniformMatrix3fv(self.shader.uniform("u_normal_matrix"), 1, GL_TRUE, m)
+        ld = np.asarray(light_dir, dtype=np.float64)
+        ld = ld / (np.linalg.norm(ld) or 1.0)
+        glUniform3f(self.shader.uniform("u_light_dir"), *ld)
+        glUniform3f(self.shader.uniform("u_ambient"), *ambient)
+        glUniform3f(self.shader.uniform("u_diffuse"), *diffuse)
+        r, g, b, a = color
+        self.shader.set_vec4("u_color", r, g, b, a)
+
+    def delete(self) -> None:
+        self.shader.delete()
+
+
+class MeshBuffers:
+    """A position+normal triangle mesh (VBO+VAO) drawn as GL_TRIANGLES."""
+
+    def __init__(self) -> None:
+        self.buffer = GLBuffer()
+        self.vao = VertexArray()
+        self.count = 0
+        self._configured = False
+
+    def upload(self, verts: MeshVerts) -> None:
+        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        self.count = 0 if verts.size == 0 else verts.shape[0]
+        if self.count:
+            self.buffer.set_data(verts)
+            if not self._configured:
+                self.vao.configure(self.buffer, MESH_ATTRIBUTES, MESH_STRIDE)
+                self._configured = True
+
+    def draw(self) -> None:
+        if not self.count:
+            return
+        self.vao.bind()
+        glDrawArrays(GL_TRIANGLES, 0, self.count)
+        self.vao.unbind()
+
+    def delete(self) -> None:
+        self.vao.delete()
+        self.buffer.delete()
+
+
+class PickTarget:
+    """Offscreen RGBA8 + depth framebuffer used by the ID-buffer pick pass.
+
+    Sized to the preview window; :meth:`ensure` reallocates on a size change.
+    Renderbuffers (not textures) back both attachments because the pass only
+    reads a small patch back with ``glReadPixels``, never samples them.
+    """
+
+    def __init__(self) -> None:
+        self.fbo = 0
+        self.color = 0
+        self.depth = 0
+        self.w = 0
+        self.h = 0
+
+    def ensure(self, w: int, h: int) -> None:
+        if self.fbo and (w, h) == (self.w, self.h):
+            return
+        self.delete()
+        self.w, self.h = w, h
+        self.fbo = glGenFramebuffers(1)
+        self.color = glGenRenderbuffers(1)
+        self.depth = glGenRenderbuffers(1)
+        glBindRenderbuffer(GL_RENDERBUFFER, self.color)
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, w, h)
+        glBindRenderbuffer(GL_RENDERBUFFER, self.depth)
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h)
+        glBindRenderbuffer(GL_RENDERBUFFER, 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                  GL_RENDERBUFFER, self.color)
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                  GL_RENDERBUFFER, self.depth)
+        status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        if status != GL_FRAMEBUFFER_COMPLETE:
+            self.delete()
+            raise RuntimeError(
+                "pick framebuffer incomplete: 0x%x" % int(status))
+
+    @contextmanager
+    def offscreen(self) -> Iterator[PickTarget]:
+        """Render into this target, leaving the visible frame undisturbed.
+
+        Binds the framebuffer, sizes the viewport to it, establishes the state
+        an id pass needs - no blend, so ids stay exact rather than being mixed
+        by coverage - and clears to id 0, meaning "no hit". The previous
+        framebuffer binding and viewport are restored on the way out, including
+        when an exception unwinds through the pass.
+
+        Read the result back *inside* the block: ``glReadPixels`` takes the
+        currently bound framebuffer, so a resolve after the restore would read
+        the visible frame.
+        """
+        prev_fbo = int(glGetIntegerv(GL_FRAMEBUFFER_BINDING))
+        prev_viewport = [int(v) for v in glGetIntegerv(GL_VIEWPORT)]
+        glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+        glViewport(0, 0, self.w, self.h)
+        glDisable(GL_BLEND)                       # solid ids, no coverage blend
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LESS)
+        glClearColor(0.0, 0.0, 0.0, 0.0)          # id 0 == no hit
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        try:
+            yield self
+        finally:
+            glBindFramebuffer(GL_FRAMEBUFFER, prev_fbo)
+            glViewport(*prev_viewport)
+
+    def resolve(self, x: int, y: int) -> int | None:
+        """The line number under window pixel (``x``, ``y``), or None.
+
+        Reads back the 5x5 patch around the cursor - matching the region the
+        legacy ``gluPickMatrix`` covered - and returns the nearest hit by
+        depth, so a click near two lines takes the one in front. Must be called
+        while this target is bound, i.e. inside :meth:`offscreen`.
+        """
+        # glReadPixels origin is bottom-left; the window y is top-down.
+        px = int(round(x)); py = self.h - 1 - int(round(y))
+        rx = max(0, min(px - 2, self.w - 5))
+        ry = max(0, min(py - 2, self.h - 5))
+        glPixelStorei(GL_PACK_ALIGNMENT, 1)
+        color = glReadPixels(rx, ry, 5, 5, GL_RGBA, GL_UNSIGNED_BYTE)
+        depth = glReadPixels(rx, ry, 5, 5, GL_DEPTH_COMPONENT, GL_FLOAT)
+        return self.decode(color, depth)
+
+    @staticmethod
+    def decode(color: Any, depth: Any) -> int | None:
+        """Decode a 5x5 id/depth patch to the nearest-hit line number, or None.
+
+        Kept apart from the read-back because it is pure: the nearest-by-depth
+        rule and the empty-space case are checkable without a GL context.
+
+        ``bytes()`` normalises PyOpenGL's return (numpy array or raw buffer)
+        into a byte string this can reinterpret regardless of the build's numpy
+        integration.
+        """
+        rgba = np.frombuffer(bytes(color), dtype=np.uint8).reshape(5, 5, 4)
+        d = np.frombuffer(bytes(depth), dtype=np.float32).reshape(5, 5)
+        # All four channels: alpha carries the id's top byte, so a line number
+        # that fits the vertex also fits a pick. The target clears to
+        # (0,0,0,0) and blending is off for the pass, so alpha is the id's and
+        # nothing else's - and the cleared pixel is still id 0, "no hit".
+        ids = (rgba[..., 0].astype(np.uint32)
+               | (rgba[..., 1].astype(np.uint32) << 8)
+               | (rgba[..., 2].astype(np.uint32) << 16)
+               | (rgba[..., 3].astype(np.uint32) << 24))
+        hit = ids > 0
+        if not hit.any():
+            return None
+        nearest = int(np.argmin(np.where(hit, d, np.inf)))
+        return int(ids.flat[nearest]) - 1
+
+    def delete(self) -> None:
+        if self.fbo:
+            glDeleteFramebuffers(1, [self.fbo]); self.fbo = 0
+        if self.color:
+            glDeleteRenderbuffers(1, [self.color]); self.color = 0
+        if self.depth:
+            glDeleteRenderbuffers(1, [self.depth]); self.depth = 0
+        self.w = self.h = 0
+
+
+class ProgramBuffers:
+    """The baked program's GPU buffers - one per baked part, keyed by name.
+
+    The tagged trajectory (one normally, two in foam mode) and the dwell
+    markers are separate VBOs with separate palettes that merely share a format
+    and a shader, so they are separate buffers rather than one.
+
+    Owning the dict is what lets the drawing part and the :class:`Picker` share
+    exactly the geometry that is resident, and what keeps the choice of shader
+    with the buffers it applies to. The shader *programs* are still the
+    renderer's - they are shared with the rest of the scene - so each draw is
+    handed the renderer to fetch them from.
+    """
+
+    def __init__(self) -> None:
+        #: part name -> Trajectory/CategoryBuffers
+        self.buffers: dict[str, Any] = {}
+
+    def upload(self, parts: Sequence[dict[str, Any]]) -> None:
+        """Upload the baked program (from glcanon_bake.bake_program).
+
+        Each part gets its own buffer, keyed by name. A part with no chain
+        table - the dwell markers - draws as one ``glDrawArrays`` in its own
+        primitive mode. A part that fell back to the per-vertex-colour format
+        goes to a :class:`CategoryBuffers`.
+        """
+        seen: set[str] = set()
+        kinds = {"program_array": ProgramArrayBuffers,
+                 "trajectory": TrajectoryBuffers}
+        for part in parts:
+            name = part["name"]
+            seen.add(name)
+            kind = part.get("kind")
+            want = kinds.get(kind, CategoryBuffers)
+            buf = self.buffers.get(name)
+            if not isinstance(buf, want):
+                if buf is not None:
+                    buf.delete()
+                buf = want()
+                self.buffers[name] = buf
+            if kind == "program_array":
+                buf.upload(part["planes"], part["attrs"],
+                           part.get("palettes", ()),
+                           dash_cat=part.get("dash_cat", -1),
+                           hide_cat=part.get("hide_cat", -1),
+                           last_drawn_kind=part.get("last_drawn_kind",
+                                                    PALETTE_SIZE - 1),
+                           mode=primitive_mode(part.get("mode")),
+                           spans=part.get("spans"))
+            elif kind == "trajectory":
+                empty = np.empty(0, dtype=np.int32)
+                buf.upload(part["verts"],
+                           part.get("firsts", empty),
+                           part.get("counts", empty),
+                           part["ranges"], part["palette"],
+                           dash_cat=part.get("dash_cat", -1),
+                           hide_cat=part.get("hide_cat", -1),
+                           mode=primitive_mode(part.get("mode")))
+            else:
+                buf.upload(part["verts"], part["ranges"])
+        for name in list(self.buffers):
+            if name not in seen:
+                self.buffers.pop(name).delete()
+
+    def draw(self, renderer: GlCanonRenderer, mvp: Any,
+             show_rapids: bool = True, alpha: float = 1.0,
+             dash_period: float = 1.0, dash_duty: float = 0.5) -> None:
+        """Draw the whole program: the trajectory, then the dwell markers.
+
+        The trajectory is one multi-draw whatever its mix of categories; the
+        shader colours each segment from the palette and rejects the rapids
+        when they are hidden. Each buffer nominates which of its own categories
+        dashes and which the show-rapids toggle hides, so a buffer that
+        nominates neither is unaffected by either.
+        """
+        for buf in self.buffers.values():
+            buf.begin(renderer, mvp, alpha, show_rapids,
+                      dash_period, dash_duty)
+            buf.draw()
+
+    def draw_line(self, renderer: GlCanonRenderer, mvp: Any,
+                  lineno: int | None, color: Sequence[float]) -> None:
+        """Draw only the spans belonging to source line ``lineno``, flat.
+
+        Sets no depth or line-width state. The highlight overlaps the geometry
+        it duplicates and needs ``GL_LEQUAL`` and a wider line to win the depth
+        tie, but that belongs to the scope of the part that wants it - here it
+        would apply to every caller and sit inside a draw.
+        """
+        for buf in self.buffers.values():
+            buf.begin_override(renderer, mvp, color)
+            buf.draw_line(lineno)
+
+    def draw_ids(self, renderer: GlCanonRenderer, mvp: Any,
+                 show_rapids: bool = True) -> None:
+        """Draw the program with each segment's source line number as colour.
+
+        The same buffers the scene draws from, so what is pickable cannot drift
+        from what is drawn. Meant for an offscreen target - see
+        :meth:`PickTarget.offscreen`.
+        """
+        for buf in self.buffers.values():
+            buf.begin_ids(renderer, mvp, show_rapids)
+            buf.draw()
+        glBindVertexArray(0)
+        glUseProgram(0)
+
+    def delete(self) -> None:
+        for buf in self.buffers.values():
+            buf.delete()
+        self.buffers.clear()
+
+
+class GlCanonRenderer:
+    """The scene's shared GL resources, and the registry that releases them.
+
+    Two jobs, and deliberately no third:
+
+    * **A cache of what is genuinely shared** - the five shader programs, the
+      offscreen pick target, the scratch and flat buffers behind
+      :meth:`draw_line_array` and :meth:`draw_flat_array`, and the cone mesh
+      behind :meth:`draw_cone`. Parts that rebuild their geometry every frame
+      (grid, axes, extents, limits, Hershey labels) hand it over as a vertex
+      array and keep no GPU state.
+    * **A lifetime registry.** :meth:`register` takes anything with a
+      ``delete()``, so one :meth:`delete` still releases every GL object on
+      context loss or reload. That is what lets a part own the buffer it draws
+      from - :class:`ProgramBuffers`, :class:`BackplotRing` - without the
+      renderer owning the policy for drawing it.
+
+    It holds no feature's resident geometry and exposes no per-feature upload
+    or draw. Owning a GL resource used to require living here, because this was
+    the only object with a ``delete()``; the registry is what separates the two.
+
+    Programs are created lazily on first draw so the object can be constructed
+    before a context is current.
+    """
+
+    def __init__(self) -> None:
+        # Every one of these is created on first use, once a context exists.
+        self._line: LineProgram | None = None
+        self._traj: TrajectoryProgram | None = None
+        self._cone: ConeProgram | None = None
+        self._pick: PickProgram | None = None
+        self._traj_pick: TrajectoryPickProgram | None = None
+        self._prog_array: ProgramArrayProgram | None = None
+        self._prog_array_pick: ProgramArrayPickProgram | None = None
+        self._pick_fbo: PickTarget | None = None
+        #: reusable buffer for transient line arrays
+        self._scratch: CategoryBuffers | None = None
+        #: reusable buffer for flat triangle arrays
+        self._flat: CategoryBuffers | None = None
+        #: MeshBuffers for the tool cone
+        self._cone_mesh: MeshBuffers | None = None
+        #: registered resources, released by delete(). Anything with a
+        #: ``delete()`` - hence ``Any`` rather than a protocol the callers
+        #: would have to import.
+        self._owned: list[Any] = []
+
+    # -- lifetime registry -------------------------------------------------
+    def register(self, resource: Any) -> Any:
+        """Take responsibility for releasing ``resource`` on :meth:`delete`.
+
+        Anything with a ``delete()``. This is what lets a feature own its own
+        GPU buffer outright and still be torn down by one call on context loss
+        or reload, so that owning a GL resource no longer drags the policy for
+        drawing it onto the renderer. It is a lifetime list and nothing more -
+        no dispatch, no draw order, no lifecycle hooks.
+
+        Returns the resource, so a caller can register and keep in one line.
+        """
+        self._owned.append(resource)
+        return resource
+
+    # -- lazy program/resource creation ------------------------------------
+    def line_program(self) -> LineProgram:
+        if self._line is None:
+            self._line = LineProgram()
+        return self._line
+
+    def cone_program(self) -> ConeProgram:
+        if self._cone is None:
+            self._cone = ConeProgram()
+        return self._cone
+
+    def traj_program(self) -> TrajectoryProgram:
+        if self._traj is None:
+            self._traj = TrajectoryProgram()
+        return self._traj
+
+    def pick_program(self) -> PickProgram:
+        if self._pick is None:
+            self._pick = PickProgram()
+        return self._pick
+
+    def traj_pick_program(self) -> TrajectoryPickProgram:
+        if self._traj_pick is None:
+            self._traj_pick = TrajectoryPickProgram()
+        return self._traj_pick
+
+    def program_array_program(self) -> ProgramArrayProgram:
+        if self._prog_array is None:
+            self._prog_array = ProgramArrayProgram()
+        return self._prog_array
+
+    def program_array_pick_program(self) -> ProgramArrayPickProgram:
+        if self._prog_array_pick is None:
+            self._prog_array_pick = ProgramArrayPickProgram()
+        return self._prog_array_pick
+
+    def pick_target(self, w: int, h: int) -> PickTarget:
+        """The offscreen pick target, created once and sized to the window."""
+        if self._pick_fbo is None:
+            self._pick_fbo = PickTarget()
+        self._pick_fbo.ensure(int(w), int(h))
+        return self._pick_fbo
+
+    # -- transient line geometry (grid/axes/extents/limits/labels) ---------
+    def draw_line_array(self, mvp: Any, verts: WideVerts,
+                        dashed: bool = False, dash_period: float = 1.0,
+                        alpha: float = 1.0) -> None:
+        """Draw an interleaved (N,9) line array through the line shader.
+
+        Sets no line-width state. A part wanting a line wider than the frame
+        baseline puts that in its own scope, where it is visible and where it
+        is restored - a shared drawing service that quietly widened and
+        un-widened around one caller's draw is the pattern the scene rule
+        exists to prevent.
+        """
+        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        if verts.size == 0:
+            return
+        if self._scratch is None:
+            self._scratch = CategoryBuffers()
+        self._scratch.upload(verts)
+        line = self.line_program()
+        line.begin(mvp, alpha)
+        line.set_dashed(dashed, dash_period)
+        self._scratch.draw()
+
+    def draw_flat_array(self, mvp: Any, verts: WideVerts,
+                        mode: GLEnum = GL_TRIANGLES,
+                        alpha: float = 1.0) -> None:
+        """Draw an interleaved (N,9) array as flat primitives (default
+        GL_TRIANGLES) through the line shader, which is a flat vertex-colour
+        shader - used for the lathe-tool profile fill."""
+        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        if verts.size == 0:
+            return
+        if self._flat is None:
+            self._flat = CategoryBuffers(mode=mode)
+        self._flat.mode = mode
+        self._flat.upload(verts)
+        line = self.line_program()
+        line.begin(mvp, alpha)
+        self._flat.draw()
+
+    # -- tool cone ---------------------------------------------------------
+    def draw_cone(self, mvp: Any, normal_matrix: Any,
+                  color: Sequence[float],
+                  mesh_verts: MeshVerts | None = None,
+                  **lighting: Any) -> None:
+        cone = self.cone_program()
+        if self._cone_mesh is None:
+            self._cone_mesh = MeshBuffers()
+        if mesh_verts is not None:
+            self._cone_mesh.upload(mesh_verts)
+        cone.begin(mvp, normal_matrix, color, **lighting)
+        self._cone_mesh.draw()
+
+    def delete(self) -> None:
+        for resource in self._owned:
+            resource.delete()
+        del self._owned[:]
+        if self._scratch:
+            self._scratch.delete(); self._scratch = None
+        if self._flat:
+            self._flat.delete(); self._flat = None
+        if self._cone_mesh:
+            self._cone_mesh.delete(); self._cone_mesh = None
+        if self._line:
+            self._line.delete(); self._line = None
+        if self._traj:
+            self._traj.delete(); self._traj = None
+        if self._cone:
+            self._cone.delete(); self._cone = None
+        if self._pick:
+            self._pick.delete(); self._pick = None
+        if self._traj_pick:
+            self._traj_pick.delete(); self._traj_pick = None
+        if self._prog_array:
+            self._prog_array.delete(); self._prog_array = None
+        if self._prog_array_pick:
+            self._prog_array_pick.delete(); self._prog_array_pick = None
+        if self._pick_fbo:
+            self._pick_fbo.delete(); self._pick_fbo = None
+
+
+class ProgramArrayBuffers:
+    """A buffer in the program array's 24-byte format.
+
+    One attribute buffer - the source line and the kind/tool word, shared -
+    and one position buffer per drawn plane, each with its own VAO. Foam draws
+    the same program twice and the per-vertex line, kind and tool data is
+    stored once for both; on any other config there is simply one plane.
+
+    No chain table. The discontinuities live in the vertex data as record
+    kinds the shader rejects, so the whole program is one ``glDrawArrays`` over
+    a contiguous range - which is also what lets the highlight spans be
+    computed from the line column rather than carried alongside it.
+    """
+
+    def __init__(self, mode: GLEnum = GL_LINE_STRIP) -> None:
+        self.mode = mode
+        self.attr_buffer = GLBuffer()
+        self.plane_buffers: list[GLBuffer] = []
+        self.vaos: list[VertexArray] = []
+        self.count = 0                  # vertices
+        #: One palette per plane. Foam's two planes are the same program in
+        #: different colours (``_xy`` and ``_uv``), so the palette is a
+        #: property of the plane, not of the buffer - which is the one thing
+        #: sharing the attribute array must not quietly flatten.
+        self.palettes: list[Sequence[Sequence[float]]] = []
+        # This buffer's own kind codes: which dashes, which the show-rapids
+        # toggle hides, and where its drawn kinds stop. A buffer with no
+        # records - the dwell markers - names its whole palette, so nothing it
+        # holds is ever taken for one.
+        self.dash_cat = -1
+        self.hide_cat = -1
+        self.last_drawn_kind = PALETTE_SIZE - 1
+        #: (first_vertex, count) spans per source line, as parallel arrays
+        #: sorted by line, or None. Searched rather than dict-indexed.
+        self.spans: Any = None
+        #: The pass ``begin`` recorded, issued per plane by ``draw``.
+        self._pass: tuple[Any, ...] | None = None
+
+    def upload(self, planes: Sequence[Any], attrs: Any,
+               palettes: Sequence[Sequence[Sequence[float]]] = (),
+               dash_cat: int = -1, hide_cat: int = -1,
+               last_drawn_kind: int = PALETTE_SIZE - 1,
+               mode: GLEnum | None = None,
+               spans: Any = None) -> None:
+        """Upload one attribute array and one position array per plane."""
+        if mode is not None:
+            self.mode = mode
+        attrs = np.ascontiguousarray(attrs, dtype=ATTR_DTYPE)
+        self.count = int(len(attrs))
+        self.dash_cat = dash_cat
+        self.hide_cat = hide_cat
+        self.last_drawn_kind = last_drawn_kind
+        self.spans = spans
+        blank = [(1.0, 1.0, 1.0, 1.0)] * PALETTE_SIZE
+        self.palettes = [list(palettes[i]) if i < len(palettes) else blank
+                         for i in range(len(planes))]
+        while len(self.plane_buffers) < len(planes):
+            self.plane_buffers.append(GLBuffer())
+            self.vaos.append(VertexArray())
+        while len(self.plane_buffers) > len(planes):
+            self.plane_buffers.pop().delete()
+            self.vaos.pop().delete()
+        if not self.count:
+            return
+        self.attr_buffer.set_data(attrs)
+        for i, plane in enumerate(planes):
+            plane = np.ascontiguousarray(plane, dtype=PLANE_DTYPE)
+            self.plane_buffers[i].set_data(plane)
+            # Two configure calls on one VAO: the attribute-to-buffer binding
+            # is captured per glVertexAttribPointer, so the second does not
+            # displace the first.
+            self.vaos[i].configure(self.plane_buffers[i],
+                                   PROGRAM_PLANE_ATTRIBUTES,
+                                   PLANE_DTYPE.itemsize)
+            self.vaos[i].configure(self.attr_buffer, PROGRAM_ATTR_ATTRIBUTES,
+                                   ATTR_DTYPE.itemsize)
+
+    # The pass is recorded by ``begin`` and issued by ``draw``, rather than
+    # set once and drawn, because each plane carries its own palette: the
+    # shader state has to be re-established between the two draws. The call
+    # pattern stays the one every other buffer here uses.
+
+    def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
+              show_rapids: bool = True, dash_period: float = 1.0,
+              dash_duty: float = 0.5) -> None:
+        self._pass = ("draw", renderer, mvp, alpha, show_rapids, dash_period,
+                      dash_duty)
+
+    def begin_ids(self, renderer: GlCanonRenderer, mvp: Any,
+                  show_rapids: bool = True) -> None:
+        self._pass = ("ids", renderer, mvp, show_rapids)
+
+    def begin_override(self, renderer: GlCanonRenderer, mvp: Any,
+                       color: Sequence[float]) -> None:
+        """One flat colour: the highlight.
+
+        No dash and no hidden kind - a highlighted rapid draws solid, and
+        draws while rapids are hidden. ``last_drawn_kind`` is *not* relaxed:
+        the highlight overrides a toggle, not the structure.
+        """
+        self._pass = ("override", renderer, mvp, color)
+
+    def _use(self, plane: int) -> None:
+        """Establish the recorded pass's shader state for one plane."""
+        if self._pass is None:
+            return
+        what, renderer, mvp = self._pass[0], self._pass[1], self._pass[2]
+        palette = self.palettes[plane] if plane < len(self.palettes) else ()
+        if what == "ids":
+            renderer.program_array_pick_program().begin(
+                mvp, hide_cat=-1 if self._pass[3] else self.hide_cat,
+                last_drawn_kind=self.last_drawn_kind)
+            return
+        program = renderer.program_array_program()
+        if what == "override":
+            program.begin(mvp, palette, dash_cat=-1, hide_cat=-1,
+                          last_drawn_kind=self.last_drawn_kind)
+            program.set_override_color(self._pass[3])
+            return
+        _w, _r, _m, alpha, show_rapids, dash_period, dash_duty = self._pass
+        program.begin(mvp, palette, alpha,
+                      dash_cat=self.dash_cat,
+                      hide_cat=-1 if show_rapids else self.hide_cat,
+                      dashed=True, dash_period=dash_period,
+                      dash_duty=dash_duty,
+                      last_drawn_kind=self.last_drawn_kind)
+
+    def draw(self) -> None:
+        """One draw per plane, each over the whole contiguous vertex range."""
+        if not self.count:
+            return
+        for plane, vao in enumerate(self.vaos):
+            self._use(plane)
+            vao.bind()
+            glDrawArrays(self.mode, 0, self.count)
+            vao.unbind()
+
+    def draw_line(self, lineno: int | None) -> None:
+        """Draw only the spans belonging to source line ``lineno``."""
+        if not self.count or self.spans is None or lineno is None:
+            return
+        keys, firsts, counts = self.spans
+        lo = int(np.searchsorted(keys, lineno, side="left"))
+        hi = int(np.searchsorted(keys, lineno, side="right"))
+        if lo == hi:
+            return
+        for plane, vao in enumerate(self.vaos):
+            self._use(plane)
+            vao.bind()
+            for i in range(lo, hi):
+                glDrawArrays(self.mode, int(firsts[i]), int(counts[i]))
+            vao.unbind()
+
+    def delete(self) -> None:
+        for vao in self.vaos:
+            vao.delete()
+        for buf in self.plane_buffers:
+            buf.delete()
+        del self.vaos[:]
+        del self.plane_buffers[:]
+        self.attr_buffer.delete()
+        self.count = 0
+
+
+class TrajectoryBuffers:
+    """A buffer in the shared 20-byte vertex format, drawn through the
+    trajectory shader.
+
+    Holds the vertex buffer, an optional chain table that
+    ``glMultiDrawArrays`` walks, the per-line spans the highlight pass draws,
+    and the colour palette the shader indexes with each vertex's category.
+
+    The program supplies a chain table and is drawn as connected strips - one
+    of these replaces the three per-category buffers, which is what lets a
+    point shared by two segments be stored once. A buffer of disjoint segments
+    (the dwell arms, the foam backplot) supplies no chain table and is drawn as
+    one ``glDrawArrays`` in its own ``mode``, rather than manufacturing a
+    two-entry chain per pair.
+    """
+
+    def __init__(self, mode: GLEnum = GL_LINE_STRIP) -> None:
+        self.mode = mode
+        self.buffer = GLBuffer()
+        self.vao = VertexArray()
+        self.count = 0                  # vertices
+        self.firsts: npt.NDArray[np.int32] = np.empty(0, dtype=np.int32)
+        self.counts: npt.NDArray[np.int32] = np.empty(0, dtype=np.int32)
+        self.line_ranges: LineRanges = {}
+        self.palette: Sequence[Sequence[float]] = (
+            [(1.0, 1.0, 1.0, 1.0)] * PALETTE_SIZE)
+        # Which of this buffer's own categories dashes, and which one the
+        # show-rapids toggle hides. -1 means "this buffer has none", which is
+        # what keeps another buffer's palette slot 0 from inheriting the
+        # program's rapid behaviour.
+        self.dash_cat = -1
+        self.hide_cat = -1
+        self._configured = False
+
+    def upload(self, verts: TrajectoryVerts, firsts: Any, counts: Any,
+               line_ranges: LineRanges | None = None,
+               palette: Sequence[Sequence[float]] | None = None,
+               dash_cat: int = -1, hide_cat: int = -1,
+               mode: GLEnum | None = None) -> None:
+        if mode is not None:
+            self.mode = mode
+        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        self.count = 0 if verts.size == 0 else verts.shape[0]
+        self.firsts = np.ascontiguousarray(firsts, dtype=np.int32)
+        self.counts = np.ascontiguousarray(counts, dtype=np.int32)
+        self.line_ranges = line_ranges or {}
+        self.dash_cat = dash_cat
+        self.hide_cat = hide_cat
+        if palette is not None:
+            self.palette = palette
+        if self.count:
+            self.buffer.set_data(verts)
+            if not self._configured:
+                self.vao.configure(self.buffer, TRAJ_ATTRIBUTES,
+                                   TRAJ_VERTEX_STRIDE)
+                self._configured = True
+
+    def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
+              show_rapids: bool = True, dash_period: float = 1.0,
+              dash_duty: float = 0.5) -> None:
+        """Configure the trajectory shader for this buffer's own draw.
+
+        The buffer nominates which of its categories dashes and which the
+        show-rapids toggle hides, so a buffer nominating neither is unaffected
+        by either. The shader programs stay shared, hence ``renderer``.
+        """
+        traj = renderer.traj_program()
+        traj.begin(mvp, self.palette, alpha,
+                   dash_cat=self.dash_cat,
+                   hide_cat=-1 if show_rapids else self.hide_cat,
+                   dashed=True, dash_period=dash_period,
+                   dash_duty=dash_duty)
+
+    def begin_ids(self, renderer: GlCanonRenderer, mvp: Any,
+                  show_rapids: bool = True) -> None:
+        """Configure the pick shader, which writes the line number as colour.
+
+        Rapids follow their visibility here as they do on screen, so a hidden
+        rapid cannot be selected by clicking where it would have been.
+        """
+        renderer.traj_pick_program().begin(
+            mvp, hide_cat=-1 if show_rapids else self.hide_cat)
+
+    def begin_override(self, renderer: GlCanonRenderer, mvp: Any,
+                       color: Sequence[float]) -> None:
+        """Configure the shader to draw this buffer in one flat colour."""
+        traj = renderer.traj_program()
+        # No dash and no hidden category: a highlighted rapid draws solid, and
+        # draws even while rapids are hidden. That held before because
+        # ``u_use_override`` short-circuited the category test; leaving both at
+        # -1 says it a second way, so the behaviour does not rest on the
+        # override alone.
+        traj.begin(mvp, self.palette, dash_cat=-1, hide_cat=-1)
+        traj.set_override_color(color)
+
+    def draw(self) -> None:
+        """One draw for the whole buffer, whatever its mix of categories.
+
+        With a chain table that is a single multi-draw over the chains; with
+        none it is a single ``glDrawArrays`` of the whole vertex range.
+        """
+        if not self.count:
+            return
+        self.vao.bind()
+        if len(self.firsts):
+            glMultiDrawArrays(self.mode, self.firsts, self.counts,
+                              len(self.firsts))
+        else:
+            glDrawArrays(self.mode, 0, self.count)
+        self.vao.unbind()
+
+    def draw_line(self, lineno: int | None) -> None:
+        """Draw only the spans belonging to source line ``lineno``."""
+        spans = self.line_ranges.get(lineno)
+        if not spans:
+            return
+        self.vao.bind()
+        for first, count in spans:
+            glDrawArrays(self.mode, first, count)
+        self.vao.unbind()
+
+    def delete(self) -> None:
+        self.vao.delete()
+        self.buffer.delete()
+
+
+class CategoryBuffers:
+    """One baked draw-category (VBO + VAO + vertex count) drawn as GL_LINES.
+
+    Wraps an interleaved float32 vertex array from rs274.glcanon_bake so a draw
+    is a single :meth:`draw`. ``line_ranges`` (line-number -> [(first, count)])
+    is retained so a highlight pass can redraw only a selected line's spans.
+
+    Nothing persistent uses this any more. The program, the dwell markers and
+    the live backplot all carry a palette index in the shared 20-byte vertex
+    and draw through the trajectory shader. What is left here is the geometry
+    that genuinely does need a colour per vertex: the transient grid, axes,
+    extents and Hershey-label arrays, which are rebuilt every frame from live
+    view state, and the lathe-tool profile fill. Their colours are
+    view-dependent - a label's colour depends on whether it is past a soft
+    limit - so they do not reduce to a small palette, and packing indices for
+    them each frame would cost more CPU than the bandwidth it saved.
+
+    It also serves as the landing place for a part whose colours overflowed
+    its palette and fell back to this format.
+    """
+
+    def __init__(self, mode: GLEnum = GL_LINES) -> None:
+        self.mode = mode
+        self.buffer = GLBuffer()
+        self.vao = VertexArray()
+        self.count = 0
+        self.line_ranges: LineRanges = {}
+        self._configured = False
+
+    def upload(self, verts: WideVerts,
+               line_ranges: LineRanges | None = None) -> None:
+        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        self.count = 0 if verts.size == 0 else verts.shape[0]
+        self.line_ranges = line_ranges or {}
+        if self.count:
+            self.buffer.set_data(verts)
+            if not self._configured:
+                self.vao.configure(self.buffer)
+                self._configured = True
+
+    def begin(self, renderer: GlCanonRenderer, mvp: Any, alpha: float = 1.0,
+              show_rapids: bool = True, dash_period: float = 1.0,
+              dash_duty: float = 0.5) -> None:
+        """Configure the line shader for this buffer's own draw.
+
+        Colour is per vertex here, so there is no palette, no category and
+        therefore nothing for the dash or show-rapids arguments to select: they
+        are accepted and ignored, which is the whole of this kind's answer.
+        """
+        renderer.line_program().begin(mvp, alpha)
+
+    def begin_ids(self, renderer: GlCanonRenderer, mvp: Any,
+                  show_rapids: bool = True) -> None:
+        """Configure the pick shader, which writes the line number as colour.
+
+        No categories here, so nothing for show-rapids to hide - see
+        :meth:`begin`.
+        """
+        renderer.pick_program().set_mvp(mvp)
+
+    def begin_override(self, renderer: GlCanonRenderer, mvp: Any,
+                       color: Sequence[float]) -> None:
+        """Configure the shader to draw this buffer in one flat colour."""
+        line = renderer.line_program()
+        line.begin(mvp)
+        line.set_override_color(color)
+
+    def draw(self) -> None:
+        if not self.count:
+            return
+        self.vao.bind()
+        glDrawArrays(self.mode, 0, self.count)
+        self.vao.unbind()
+
+    def draw_line(self, lineno: int | None) -> None:
+        """Draw only the spans belonging to source line ``lineno`` (highlight)."""
+        spans = self.line_ranges.get(lineno)
+        if not spans:
+            return
+        self.vao.bind()
+        for first, count in spans:
+            glDrawArrays(self.mode, first, count)
+        self.vao.unbind()
+
+    def delete(self) -> None:
+        self.vao.delete()
+        self.buffer.delete()
+
+
+class BackplotRing:
+    """The live backplot's growable ring VBO, and everything resident in it.
+
+    Uploaded incrementally with glBufferSubData as the logger appends points;
+    grows by doubling. A grow orphans the store (contents lost), so a frame
+    that grows re-uploads the whole trail. ``mode`` is GL_LINE_STRIP (normal)
+    or GL_LINES (foam), matching the legacy positionlogger draw.
+
+    The trail is its own buffer, separate from the program's, and normally
+    holds the shared 20-byte vertex with a palette index - ``indexed`` - drawn
+    through the trajectory shader. It falls back to the per-vertex-colour
+    layout if a palette could not hold every colour the logger emitted.
+
+    **One object answers "how much of the trail is already here?"** Every piece
+    of state that question needs is here: how many vertices are resident, in
+    what layout, how many the store can hold, which foam mode they were built
+    in, and the palette their indices refer to. Split between the drawing part
+    and the renderer, as it was, the answer had to be assembled from two halves
+    by the caller and policed by an exception on the way back in.
+    """
+
+    def __init__(self, palette: Any = None) -> None:
+        """``palette`` is a ``glcanon_bake.ColorPalette``, supplied by the
+        caller rather than constructed here so this module keeps its
+        independence from the baking module - which is also why it is ``Any``
+        rather than an import."""
+        self.buffer = GLBuffer()
+        self.vao = VertexArray()
+        self.capacity = 0           # vertices the store can hold
+        self.count = 0              # vertices to draw
+        self.mode: GLEnum = GL_LINE_STRIP
+        self.indexed = True         # 20-byte palette-indexed layout
+        #: foam mode the resident vertices were built in. An int rather than a
+        #: bool because it is compared with the logger's own flag.
+        self.is_xyuv: int = 0
+        # Append-only across every frame of the session, deliberately: only the
+        # changed tail is re-uploaded, so vertices already resident keep the
+        # index they were written with. Rebuilding this - even on a full
+        # re-upload - would risk renumbering a colour that resident vertices
+        # still refer to. It holds at most the six colours the C picks from, so
+        # it never needs pruning. Supplied by the caller rather than constructed
+        # here, so this module keeps its independence from the baking module.
+        self.palette = palette
+        #: the padded list the shader indexes
+        self.shader_palette: list[tuple[float, ...]] | None = None
+        self._configured = False
+
+    @property
+    def stride(self) -> int:
+        return TRAJ_VERTEX_STRIDE if self.indexed else VERTEX_STRIDE
+
+    @property
+    def vertices_per_point(self) -> int:
+        """Foam draws each logger point as a segment: two vertices, not one."""
+        return 2 if self.is_xyuv else 1
+
+    @property
+    def npts(self) -> int:
+        """Logger points resident, derived from the vertices and the layout.
+
+        Not stored: it is the vertex count over the layout's vertices-per-point,
+        and a second field holding it is a second thing to keep in step.
+        """
+        return self.count // self.vertices_per_point
+
+    def resident_points(self, npts: int, is_xyuv: int) -> int:
+        """How many leading logger points the next frame may keep.
+
+        0 means convert and upload the whole trail. Four conditions force that,
+        all of them read from this object's own state:
+
+        1. the resident vertices are in the wide per-vertex-colour layout, so a
+           palette-indexed tail cannot go into them;
+        2. holding ``npts`` would grow the store, and a grow orphans it;
+        3. the foam mode changed, so the vertices mean something else;
+        4. the source shrank - a clear, or the C ring dropping its oldest -
+           so what is resident is not a prefix of what is being asked for.
+
+        Otherwise every resident point but the last survives. The last is
+        always re-converted because the C moves it in place
+        (``s->p[s->npts-1]``) while the tool runs along a colinear stretch, so
+        it is dirty every frame.
+        """
+        if is_xyuv != self.is_xyuv:                     # 3
+            return 0
+        if not self.indexed:                            # 1
+            return 0
+        resident = self.npts
+        if npts < resident:                             # 4
+            return 0
+        if npts * self.vertices_per_point > self.capacity:   # 2
+            return 0
+        return max(resident - 1, 0)
+
+    def write(self, verts: TrajectoryVerts | WideVerts, first_point: int,
+              is_xyuv: int) -> None:
+        """Write ``verts`` into the store starting at logger point ``first_point``.
+
+        ``verts`` is exactly what should be transferred - the caller has
+        already narrowed it to the tail :meth:`resident_points` allowed - and
+        the layout is derived here, once, from the array itself: a palette
+        overflow that widened every vertex is handled by re-configuring the
+        VAO rather than by being announced.
+
+        No guard is needed against a tail at an offset the store cannot accept.
+        The offset came from :meth:`resident_points`, which read the same
+        capacity and layout this acts on; there is no second party to disagree
+        with.
+        """
+        verts = np.ascontiguousarray(verts, dtype=np.float32)
+        sent = 0 if verts.size == 0 else verts.shape[0]
+        indexed = verts.ndim == 2 and verts.shape[1] == TRAJ_FLOATS_PER_VERTEX
+        vpp = 2 if is_xyuv else 1
+        first_vertex = max(int(first_point), 0) * vpp
+        total = first_vertex + sent
+        self.is_xyuv = is_xyuv
+        self.mode = GL_LINES if is_xyuv else GL_LINE_STRIP
+        self.shader_palette = (self.palette.padded()
+                               if indexed and self.palette is not None
+                               else None)
+        # A format change invalidates the resident contents as surely as a
+        # grow does: the same bytes mean something else at the new stride.
+        self.ensure(total, indexed)
+        if sent:
+            self.buffer.update_sub(first_vertex * self.stride, verts)
+        self.count = total
+
+    def invalidate(self) -> None:
+        """Force the next frame to convert and upload the whole trail.
+
+        Residency only. The palette deliberately survives: resident vertices
+        refer to palette indices, and a clear followed by new points must not
+        renumber a colour a surviving vertex still uses.
+        """
+        self.count = 0
+
+    def ensure(self, total: int, indexed: bool = True) -> bool:
+        """Grow to hold >= ``total`` vertices in the given layout.
+
+        Returns True if the resident contents were invalidated - by a grow, or
+        by a layout change, which reinterprets every resident byte and so must
+        force the same full re-upload a grow does.
+        """
+        changed = indexed != self.indexed
+        if changed:
+            self.indexed = indexed
+            self._configured = False
+            self.capacity = 0
+        if total <= self.capacity:
+            return False
+        newcap = max(total, self.capacity * 2, 1024)
+        self.buffer.orphan(newcap * self.stride)
+        self.capacity = newcap
+        if not self._configured:
+            if self.indexed:
+                self.vao.configure(self.buffer, TRAJ_ATTRIBUTES,
+                                   TRAJ_VERTEX_STRIDE)
+            else:
+                self.vao.configure(self.buffer)
+            self._configured = True
+        return True
+
+    def draw(self, renderer: GlCanonRenderer, mvp: Any,
+             alpha: float = 1.0) -> None:
+        """Draw the resident trail, selecting its own shader for its layout.
+
+        Sets no depth or line-width state: the trail wants a wider line than
+        the baseline, and that belongs in the scope of the part that wants it.
+        """
+        if self.count < 2:
+            return
+        if self.indexed:
+            # The trail nominates no dash and no hidden category, so a point
+            # whose palette index happens to equal the program's rapid code is
+            # neither dashed nor hidden with rapids off.
+            renderer.traj_program().begin(
+                mvp, self.shader_palette or [], alpha,
+                dash_cat=-1, hide_cat=-1, dashed=False)
+        else:
+            renderer.line_program().begin(mvp, alpha)
+        self._draw_arrays()
+
+    def _draw_arrays(self) -> None:
+        self.vao.bind()
+        glDrawArrays(self.mode, 0, self.count)
+        self.vao.unbind()
+
+    def delete(self) -> None:
+        self.vao.delete()
+        self.buffer.delete()
+
+
+# ---------------------------------------------------------------------------
+# Glyph-atlas overlay text.
+#
+# Replaces the legacy glBitmap/glDrawPixels Pango font (one display list per
+# glyph) with a single texture atlas drawn as textured quads in an
+# orthographic overlay pass. Pango/Cairo rasterises each glyph once into the
+# atlas; per-glyph metrics (size, advance, bearing) are kept so text lays out
+# with the same spacing as the legacy path. The same pass draws the semi-
+# transparent overlay background and the home/limit icons (from the existing
+# 1-bit bitmap arrays) as textured quads.
+#
+# It is built on the shader/buffer/VAO wrappers above and owns its own GL
+# objects the same way the rest of this module does; nothing here reaches into
+# GlCanonDraw policy, and it sets no GL state of its own (the caller's overlay
+# pass owns depth and blend).
+
+# Overlay vertex: screen-pixel position (2f) + atlas uv (2f). Its own
+# layout, distinct from the two vertex formats rs274.glcanon_bake names: this
+# pass draws in screen pixels and never reaches the world shaders.
+OverlayVerts = Sequence[tuple[float, float, float, float]]
+
+#: (width, height) of the viewport, in pixels.
+Screen = tuple[int, int]
+
+#: rgba, 0..1.
+Color = Sequence[float]
+
+_OVERLAY_STRIDE = 4 * 4
+_OVERLAY_ATTRS = ((0, 2, 0), (1, 2, 2 * 4))
+
+TEXT_VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec2 in_pos;   // pixels, origin bottom-left
+layout(location = 1) in vec2 in_uv;
+uniform vec2 u_screen;                  // viewport (width, height) in pixels
+out vec2 v_uv;
+void main() {
+    vec2 ndc = vec2(in_pos.x / u_screen.x * 2.0 - 1.0,
+                    in_pos.y / u_screen.y * 2.0 - 1.0);
+    gl_Position = vec4(ndc, 0.0, 1.0);
+    v_uv = in_uv;
+}
+"""
+
+TEXT_FRAGMENT_SHADER = """
+#version 330 core
+in vec2 v_uv;
+uniform sampler2D u_atlas;
+uniform vec4 u_color;
+uniform bool u_textured;   // false -> flat fill (overlay background)
+out vec4 frag_color;
+void main() {
+    float a = u_textured ? texture(u_atlas, v_uv).r : 1.0;
+    frag_color = vec4(u_color.rgb, u_color.a * a);
+}
+"""
+
+
+class GlyphAtlas:
+    """A Pango-rasterised glyph atlas plus the shader to draw overlay quads.
+
+    Built by :func:`build_atlas` (via glnav.use_pango_font). Holds one alpha
+    texture with the glyphs packed in a grid, per-glyph metrics, and a dynamic
+    VBO reused for each string/quad. Rendering assumes an orthographic, screen-
+    pixel coordinate space (origin bottom-left), matching the legacy overlay.
+    """
+
+    def __init__(self, char_width: int, line_space: int,
+                 descent: int) -> None:
+        self.char_width = char_width
+        self.line_space = line_space
+        self.descent = descent
+        self.texture: int = 0
+        self.tex_w = self.tex_h = 0
+        #: codepoint -> dict(u0, v0, u1, v1, w, h, advance)
+        self.glyphs: dict[int, dict[str, float]] = {}
+        #: key -> (texture, w, h) for home/limit icons
+        self._icons: dict[Any, tuple[int, int, int]] = {}
+        # Created together on the first draw, once a context exists.
+        self._program: ShaderProgram | None = None
+        self._buffer: GLBuffer | None = None
+        self._vao: VertexArray | None = None
+
+    # -- lazy GL resources -------------------------------------------------
+    def _prog(self) -> ShaderProgram:
+        if self._program is None:
+            self._program = ShaderProgram(TEXT_VERTEX_SHADER,
+                                          TEXT_FRAGMENT_SHADER)
+            self._buffer = GLBuffer()
+            self._vao = VertexArray()
+            self._vao.configure(self._buffer, _OVERLAY_ATTRS, _OVERLAY_STRIDE)
+        return self._program
+
+    def _draw_array(self, verts: OverlayVerts | npt.NDArray[np.float32],
+                    color: Color, textured: bool, screen: Screen,
+                    texture: int | None = None) -> None:
+        prog = self._prog()
+        prog.use()
+        glUniform2f(prog.uniform("u_screen"), screen[0], screen[1])
+        r, g, b, a = color
+        prog.set_vec4("u_color", r, g, b, a)
+        prog.set_bool("u_textured", textured)
+        if textured:
+            glActiveTexture(GL_TEXTURE0)
+            glBindTexture(GL_TEXTURE_2D, texture or self.texture)
+            prog.set_int("u_atlas", 0)
+        verts = np.asarray(verts, dtype=np.float32)
+        self._buffer.set_data(verts, usage=GL_DYNAMIC_DRAW)
+        self._vao.bind()
+        glDrawArrays(GL_TRIANGLES, 0, len(verts))   # one vertex per row
+        self._vao.unbind()
+        glUseProgram(0)
+
+    # -- public draw calls -------------------------------------------------
+    def draw_quad(self, x0: float, y0: float, x1: float, y1: float,
+                  color: Color, screen: Screen) -> None:
+        """Flat-filled quad (overlay background)."""
+        verts = _quad(x0, y0, x1, y1, 0, 0, 0, 0)
+        self._draw_array(verts, color, False, screen)
+
+    def string_quads(self, s: str, x: float, y: float) -> list[
+            tuple[float, float, float, float]]:
+        """Build atlas-textured triangles for ``s`` with the pen at (x, y).
+
+        ``y`` is the text-line origin; each glyph occupies screen y in
+        ``[y - descent, y - descent + h]`` and advances the pen by its width,
+        reproducing the legacy raster placement.
+        """
+        verts: list[tuple[float, float, float, float]] = []
+        pen = x
+        for ch in s:
+            g = self.glyphs.get(ord(ch))
+            if g is None:
+                pen += self.char_width
+                continue
+            if g["w"] and g["h"]:
+                y0 = y - self.descent
+                y1 = y0 + g["h"]
+                verts.extend(_quad(pen, y0, pen + g["w"], y1,
+                                   g["u0"], g["v1"], g["u1"], g["v0"]))
+            pen += g["advance"]
+        return verts
+
+    def draw_string(self, s: str, x: float, y: float, color: Color,
+                    screen: Screen) -> None:
+        verts = self.string_quads(s, x, y)
+        if verts:
+            self._draw_array(verts, color, True, screen)
+
+    # -- home/limit icons --------------------------------------------------
+    def _icon_texture(self, key: Any, data: Sequence[int], w: int,
+                      h: int) -> int:
+        """(Build once and) return the coverage texture for a 1-bit icon.
+
+        ``data`` is the legacy glBitmap byte array: ``ceil(w/8)`` bytes per row,
+        MSB-first, first row at the image bottom (OpenGL image order). It expands
+        to a GL_R8 coverage texture (255 where a bit is set) so the overlay
+        shader draws it in ``u_color`` exactly where glBitmap set pixels.
+        """
+        cached = self._icons.get(key)
+        if cached is not None:
+            return cached[0]
+        row_bytes = (w + 7) // 8
+        img = np.zeros((h, w), dtype=np.uint8)
+        for row in range(h):
+            bits = 0
+            for b in range(row_bytes):
+                bits = (bits << 8) | data[row * row_bytes + b]
+            top = row_bytes * 8 - 1
+            for x in range(w):
+                if bits & (1 << (top - x)):
+                    img[row, x] = 255
+        tex = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, tex)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, w, h, 0, GL_RED,
+                     GL_UNSIGNED_BYTE, img.tobytes())
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        self._icons[key] = (tex, w, h)
+        return tex
+
+    def draw_icon(self, key: Any, data: Sequence[int], x: float, y: float,
+                  w: int, h: int, color: Color, screen: Screen) -> None:
+        """Draw a 1-bit icon as a textured quad with its bottom-left at (x, y).
+
+        Matches the legacy ``glBitmap(w, h, ...)`` placement: the texture is
+        stored bottom-up, so screen-bottom (y) samples the first data row.
+        """
+        tex = self._icon_texture(key, data, w, h)
+        verts = _quad(x, y, x + w, y + h, 0.0, 0.0, 1.0, 1.0)
+        self._draw_array(verts, color, True, screen, texture=tex)
+
+    def delete(self) -> None:
+        if self.texture:
+            glDeleteTextures([self.texture]); self.texture = 0
+        for tex, _w, _h in self._icons.values():
+            glDeleteTextures([tex])
+        self._icons.clear()
+        if self._program:
+            self._program.delete(); self._program = None
+        if self._buffer:
+            self._buffer.delete()
+        if self._vao:
+            self._vao.delete()
+
+
+def _quad(x0: float, y0: float, x1: float, y1: float, u0: float, v0: float,
+          u1: float, v1: float) -> list[tuple[float, float, float, float]]:
+    """Two triangles (6 verts) for the rectangle, with the given uv corners."""
+    return [
+        (x0, y0, u0, v0), (x1, y0, u1, v0), (x1, y1, u1, v1),
+        (x0, y0, u0, v0), (x1, y1, u1, v1), (x0, y1, u0, v1),
+    ]
+
+
+def build_atlas(font: str, start: int, count: int) -> GlyphAtlas:
+    """Rasterise glyphs ``start..start+count`` of ``font`` into a GlyphAtlas.
+
+    Mirrors glnav.use_pango_font's Pango/Cairo setup so metrics match, but packs
+    the glyphs into one GL_R8 texture instead of per-glyph display lists.
+    Returns the GlyphAtlas.
+    """
+    import gi
+    gi.require_version('Pango', '1.0')
+    gi.require_version('PangoCairo', '1.0')
+    from gi.repository import Pango
+    from gi.repository import PangoCairo
+    import cairo
+
+    font_desc = Pango.FontDescription(font)
+    surface = cairo.ImageSurface(cairo.FORMAT_A8, 256, 256)
+    context = cairo.Context(surface)
+    pango_context = PangoCairo.create_context(context)
+    layout = PangoCairo.create_layout(context)
+    fontmap = PangoCairo.font_map_get_default()
+    loaded = fontmap.load_font(fontmap.create_context(), font_desc)
+    layout.set_font_description(font_desc)
+    metrics = loaded.get_metrics()
+    # int metrics, matching the legacy use_pango_font return so callers that do
+    # integer pixel arithmetic (e.g. glRasterPos2i) keep working.
+    descent = int(metrics.get_descent() / Pango.SCALE)
+    line_space = int((metrics.get_ascent() + metrics.get_descent()) / Pango.SCALE)
+    char_width = int(metrics.get_approximate_char_width() / Pango.SCALE)
+
+    # First pass: rasterise every glyph, record its bitmap and size.
+    bitmaps = {}
+    max_w = max_h = 1
+    for i in range(count):
+        cp = start + i
+        layout.set_text(chr(cp), -1)
+        w, h = layout.get_size()
+        w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
+        w = max(0, min(w, 256))
+        h = max(0, min(h, 256))
+        surface.flush()
+        # clear
+        context.save(); context.set_operator(cairo.OPERATOR_CLEAR)
+        context.paint(); context.restore()
+        context.save(); context.set_operator(cairo.OPERATOR_SOURCE)
+        context.set_source_rgba(1, 1, 1, 1); context.move_to(0, 0)
+        PangoCairo.update_context(context, pango_context)
+        PangoCairo.show_layout(context, layout)
+        context.restore()
+        surface.flush()
+        stride = surface.get_stride()
+        buf = bytes(surface.get_data())
+        glyph = np.zeros((h, w), dtype=np.uint8)
+        for row in range(h):
+            base = row * stride
+            glyph[row, :] = np.frombuffer(buf[base:base + w], dtype=np.uint8)
+        bitmaps[cp] = (glyph, w, h, char_width)
+        max_w = max(max_w, w)
+        max_h = max(max_h, h)
+
+    # Pack into a grid atlas.
+    cols = 16
+    rows = (count + cols - 1) // cols
+    cell_w, cell_h = max_w + 1, max_h + 1
+    atlas_w, atlas_h = cols * cell_w, rows * cell_h
+    atlas = np.zeros((atlas_h, atlas_w), dtype=np.uint8)
+
+    result = GlyphAtlas(char_width, line_space, descent)
+    for i in range(count):
+        cp = start + i
+        glyph, w, h, adv = bitmaps[cp]
+        cx = (i % cols) * cell_w
+        cy = (i // cols) * cell_h
+        if w and h:
+            atlas[cy:cy + h, cx:cx + w] = glyph
+        result.glyphs[cp] = {
+            "w": w, "h": h, "advance": adv,
+            "u0": cx / atlas_w, "v0": cy / atlas_h,
+            "u1": (cx + w) / atlas_w, "v1": (cy + h) / atlas_h,
+        }
+
+    tex = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, tex)
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, atlas_w, atlas_h, 0, GL_RED,
+                 GL_UNSIGNED_BYTE, atlas.tobytes())
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+    # R8 single channel: swizzle so .r replicates (sampled as coverage).
+    result.texture = tex
+    result.tex_w, result.tex_h = atlas_w, atlas_h
+    return result
