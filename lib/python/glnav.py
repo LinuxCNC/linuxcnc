@@ -378,6 +378,22 @@ class GlNavBase:
     def get_modelview_matrix(self):
         return self.modelview.copy()
 
+    def translate_modelview(self, x, y, z):
+        """Compose a translation onto the camera's modelview matrix.
+
+        This is the supported replacement for the legacy ``glTranslatef()``
+        against the fixed-function matrix stack: both camera consumers reload
+        the GL modelview from this matrix every frame, so a translation issued
+        outside the camera is discarded.  The translation is post-multiplied,
+        matching what ``glTranslatef()`` did to the current matrix, so call
+        sites port with no numeric change.
+
+        Deliberately does not redraw.  This is a composition primitive rather
+        than a settled camera state, and callers follow it with
+        ``set_eyepoint*()`` or an explicit refresh, which redraws anyway.
+        """
+        self.modelview = multiply(self.modelview, translation_matrix(x, y, z))
+
     def set_view_x(self):
         self.reset()
         self.modelview = multiply(self.modelview, rotation_matrix(-90, 0, 1, 0), rotation_matrix(-90, 1, 0, 0))

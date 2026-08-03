@@ -29,6 +29,7 @@ import linuxcnc
 import gcode
 import numpy as np
 import os
+import warnings
 from functools import reduce
 
 # Axis views, viewport coordinates and the DRO home/limit icons now live with
@@ -540,9 +541,39 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return x, y, z
 
     def color_with_alpha(self, colorname):
-        glColor4f(*(self.colors[colorname] + (self.colors.get(colorname+'_alpha', 1/3.),)))
+        """Retired: set the fixed-function current colour.  Does nothing.
+
+        The renderer resolves per-kind colours in rs274.glcanon_bake and feeds
+        them to the shaders, so there is no current colour left to set.  Kept
+        as an inert shim because it is a public method and out-of-tree screens
+        may still call it, where it would otherwise raise GLError under a core
+        context.
+        """
+        global _warned_color_with_alpha
+        if not _warned_color_with_alpha:
+            _warned_color_with_alpha = True
+            warnings.warn("GlCanonDraw.color_with_alpha() no longer draws; the "
+                          "renderer resolves per-kind colours in rs274.glcanon_bake",
+                          DeprecationWarning, stacklevel=2)
+
     def color(self, colorname):
-        glColor3f(*self.colors[colorname])
+        """Retired: set the fixed-function current colour.  Does nothing.
+
+        See color_with_alpha().
+        """
+        global _warned_color
+        if not _warned_color:
+            _warned_color = True
+            warnings.warn("GlCanonDraw.color() no longer draws; the renderer "
+                          "resolves per-kind colours in rs274.glcanon_bake",
+                          DeprecationWarning, stacklevel=2)
+
+# Warn once per process per method.  A module-level flag rather than the
+# warnings filter, so a GUI that has installed its own filter still gets
+# exactly one notice — and so these per-frame draw-path methods cost a branch
+# rather than the warning machinery on every call.
+_warned_color_with_alpha = False
+_warned_color = False
 
 def with_context(f):
     def inner(self, *args, **kw):

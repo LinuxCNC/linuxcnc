@@ -21,8 +21,6 @@
 # import pdb
 import sys, os
 import string
-from OpenGL.GL import *
-from OpenGL.GLU import *
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 

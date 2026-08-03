@@ -16,8 +16,6 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import itertools
-from OpenGL.GL import *
-from OpenGL.GLU import *
 
 translate = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '-': 10, '.': 11, 'X': 12, 'Y': 13, 'Z': 14, 'G': 15,
         'U': 16, 'V': 17, 'W': 18}
