@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-07-28 01:01+0000\n"
+"PO-Revision-Date: 2026-08-03 08:40+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -44993,7 +44993,7 @@ msgstr ""
 #: src/drivers/pmx485.adoc:5
 #, no-wrap
 msgid "Powermax Modbus Driver"
-msgstr ""
+msgstr "Controlador Modbus de Powermax"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:14
@@ -45001,6 +45001,9 @@ msgid ""
 "This is a non-realtime HAL program, written in python, to control Hypetherm "
 "Powermax plasma cutters using the Modbus ASCII protocol over RS485."
 msgstr ""
+"Este es un programa HAL en tiempo no-real, escrito en python para controlar "
+"cortadores de plasma Hypetherm de Powermax usando el protocolo Modbus ASCII "
+"sobre RS485."
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:16
@@ -45010,12 +45013,16 @@ msgid ""
 "by a change in the status output. One should always have an Estop circuit "
 "that kills the power to the unit in case of emergency."
 msgstr ""
+"Dado que es un programa en tiempo no-real se puede ver afectado por carga y "
+"latencia de la computadora. Es posible perder comunicación, lo cual se "
+"indicará con un cambio en la salida de estado. Uno debería tener siempre un "
+"circuito Estop que corte la energía a la unidad en caso de emergencia."
 
 #. type: delimited block -
 #: src/drivers/pmx485.adoc:22
 #, no-wrap
 msgid "loadusr -Wn pmx485 pmx485 /dev/ttyUSB0\n"
-msgstr ""
+msgstr "loadusr -Wn pmx485 pmx485 /dev/ttyUSB0\n"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:26
@@ -45023,76 +45030,79 @@ msgid ""
 "This will load the pmx485 component using the /dev/ttyUSB0 port and wait for "
 "it to become ready."
 msgstr ""
+"Esto cargará el componente pmx485 usando el puerto /dev/ttyUSB0 y esperará a "
+"que esté listo."
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:28
 msgid "It is necessary to name the port to use for communications."
-msgstr ""
+msgstr "Es necesario nombrar el puerto a usar para comunicación."
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:32
 msgid "*pmx485.mode-set* (bit, in) # set cutting mode"
-msgstr ""
+msgstr "*pmx485.mode-set* (bit, in) # establece el modo de corte"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:33
 msgid "*pmx485.current-set* (bit, in) # set cutting current"
-msgstr ""
+msgstr "*pmx485.current-set* (bit, in) # establece la corriente de corte"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:34
 msgid "*pmx485.pressure-set* (bit, in) # set gas pressure"
-msgstr ""
+msgstr "*pmx485.pressure-set* (bit, in) # establece la presión del gas"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:35
 msgid "*pmx485.enable* (bit, in) # enable the component"
-msgstr ""
+msgstr "*pmx485.enable* (bit, in) # activa el componente"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:36
 msgid "*pmx485.mode* (bit, out) # cut mode feedback"
-msgstr ""
+msgstr "*pmx485.mode* (bit, out) # retroalimentación del modo de corte"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:37
 msgid "*pmx485.current* (bit, out) # cutting current feedback"
 msgstr ""
+"*pmx485.current* (bit, out) # retroalimentación de la corriente de corte"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:38
 msgid "*pmx485.pressure* (bit, out) # gas pressure feedback"
-msgstr ""
+msgstr "*pmx485.pressure* (bit, out) # retroalimentación de la presión del gas"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:39
 msgid "*pmx485.fault* (bit, out) # powermax fault code"
-msgstr ""
+msgstr "*pmx485.fault* (bit, out) # código de falla de powermax"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:40
 msgid "*pmx485.status* (bit, out) # connection status"
-msgstr ""
+msgstr "*pmx485.status* (bit, out) # estado de la conexión"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:41
 msgid "*pmx485.current-min* (bit, out) # minimum allowed current"
-msgstr ""
+msgstr "*pmx485.current-min* (bit, out) # corriente mínima permitida"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:42
 msgid "*pmx485.current-max* (bit, out) # maximum allowed current"
-msgstr ""
+msgstr "*pmx485.current-max* (bit, out) # corriente máxima permitida"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:43
 msgid "*pmx485.pressure-min* (bit, out) # minimum allowed gas pressure"
-msgstr ""
+msgstr "*pmx485.pressure-min* (bit, out) # presión de gas mínima permitida"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:44
 msgid "*pmx485.pressure-max* (bit, out) # maximum allowed gas pressure"
-msgstr ""
+msgstr "*pmx485.pressure-max* (bit, out) # presión de gas máxima permitida"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:50
@@ -45101,24 +45111,24 @@ msgid ""
 "*enable* pin and it may then initiate a request to the Powermax by writing a "
 "valid string to the following pins:"
 msgstr ""
+"Para comunicarse con un Powermax, el componente debe estar activado primero "
+"con el pin *enable\" y puede entonces iniciar una solicitud al powermax "
+"escribiendo una cadena válida a los pines siguientes:"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:52
-#, fuzzy
 msgid "*mode-set*"
-msgstr "jjogmode"
+msgstr "*mode-set*"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:53
-#, fuzzy
 msgid "*current-set*"
-msgstr "*current_vel*"
+msgstr "*current-set*"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:54
-#, fuzzy
 msgid "*pressure-set*"
-msgstr "*estop*"
+msgstr "*pressure-set*"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:57
@@ -45126,6 +45136,8 @@ msgid ""
 "A *pressure-set* value of zero is valid, the Powermax will then calculate "
 "the required pressure internally."
 msgstr ""
+"Un valor de cero en *pressure-set* es válido, el Powermax calculará entonces "
+"internamente la presión requerida."
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:61
@@ -45134,19 +45146,22 @@ msgid ""
 "pin. While in remote mode, the mode, current and pressure may be changed as "
 "needed."
 msgstr ""
+"La comunicación puede validarse en la pantalla del Powermax o con el pin "
+"*status*. Estando en modo remoto, modo, corriente y presión pueden ser "
+"modificados según sea necesario."
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:63
-#, fuzzy
 msgid "To terminate the communications, do one of the following:"
-msgstr ""
-"Por 'Remapeado de Códigos' nos referimos a uno de los siguientes casos:"
+msgstr "Para finalizar la comunicación, realice alguno de los siguientes:"
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:66
 msgid ""
 "Set all set pins to zero: *mode-set*, *current-set*, and *pressure-set*."
 msgstr ""
+"Establecer todos los pines a cero: *mode-set*, *current-set* y *pressure-"
+"set*."
 
 #. type: Plain text
 #: src/drivers/pmx485.adoc:69
@@ -45155,6 +45170,9 @@ msgid ""
 "30 seconds. When you power the system back ON, it will no longer be in "
 "remote mode."
 msgstr ""
+"Desconectar la fuente de alimentación del Powermax de su fuente de energía "
+"por aproximadamente 30 segundos. Al volver a encender el sistema ya no "
+"estará en modo remoto."
 
 #. type: Title ==
 #: src/drivers/pmx485.adoc:70
@@ -45169,6 +45187,8 @@ msgid ""
 "Hypertherm Application Note #807220\n"
 "\"Powermax45 XP/65/85/105/125® Serial Communication Protocol\""
 msgstr ""
+"Hypertherm Application Note #807220\n"
+"\"Powermax45 XP/65/85/105/125® Serial Communication Protocol\""
 
 #. type: Title =
 #: src/drivers/servo-to-go.adoc:5
@@ -45302,18 +45322,13 @@ msgstr ""
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:76
-#, fuzzy
 msgid "'stg.<channel>.counts' - (s32) Tracks the counted encoder ticks."
-msgstr ""
-"'encoder.<chan>.counts' (s32, salida) - Posición, en conteos del codificador."
+msgstr "'stg.<canal>.counts' - (s32) Lleva el conteo de pulsos del codificador."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:77
-#, fuzzy
 msgid "'stg.<channel>.position' - (float) Outputs a converted position."
-msgstr ""
-"'encoder.<chan>.position' (float, salida) - Posición en unidades escaladas "
-"(ver 'position-scale')."
+msgstr "'stg.<canal>.position' - (float) Da salida a una posición convertida."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:79
@@ -45321,6 +45336,7 @@ msgid ""
 "'stg.<channel>.dac-value' - (float) Drives the voltage for the corresponding "
 "DAC."
 msgstr ""
+"'stg.<canal>.dac-value' - (float) Conduce el voltaje al DAC correspondiente."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:81
@@ -45328,28 +45344,26 @@ msgid ""
 "'stg.<channel>.adc-value' - (float) Tracks the measured voltage from the "
 "corresponding ADC."
 msgstr ""
+"'stg.<canal>.adc-value' - (float) Registra el voltaje medido del ADC "
+"correspondiente."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:82
-#, fuzzy
 msgid "'stg.in-<pinnum>' - (bit) Tracks a physical input pin."
-msgstr ""
-"'parport.<p>.pin-<n>-in' (bit) Realiza el seguimiento de un pin de entrada "
-"física."
+msgstr "'stg.in-<númpin>' - (bit) Registra un pin de entrada física."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:84
-#, fuzzy
 msgid ""
 "'stg.in-<pinnum>-not' - (bit) Tracks a physical input pin, but inverted."
 msgstr ""
-"'parport.<p>.pin-<n>-in-not' (bit) Realiza el seguimiento de un pin de "
-"entrada física, pero invertido."
+"'stg.in-<númpin>-not' - (bit) Registra un pin de entrada física, pero "
+"invertido."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:85
 msgid "'stg.out-<pinnum>' - (bit) Drives a physical output pin"
-msgstr "'stg.out-<número-de-pin>' - (bit) Maneja un pin de salida física"
+msgstr "'stg.out-<númpin>' - (bit) Conduce un pin de salida física"
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:90
@@ -45359,6 +45373,10 @@ msgid ""
 "in-15) and 16 output pins (out-00 .. out-15), and they correspond to PORTs "
 "ABCD (in-00 is PORTA.0, out-15 is PORTD.7)."
 msgstr ""
+"Para cada pin, <canal> es el número de eje y <númpin> es el número de pin "
+"lógico del STG; si se define `IIOO` hay 16 pines de entrada (in-00 .. in-15) "
+"y 16 pines de salida (out-00 .. out-15), y corresponden a los puertos ABCD "
+"(in-00 es PORTA.0, out-15 es PORTD.7)."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:95
@@ -45368,10 +45386,10 @@ msgid ""
 "FALSE if the physical pin is high. By connecting a signal to one or the "
 "other, the user can determine the state of the input."
 msgstr ""
-"El pin HAL in-<número-de-pin> es VERDADERO si el pin físico es alto, y FALSO "
-"si el pin físico es bajo. El pin HAL in-<número-de-pin>-not está invertido y "
-"es FALSO si el pin físico es alto. El usuario puede determinar el estado de "
-"la entrada conectando una señal a uno u otro."
+"El pin HAL in-<númpin> es Verdadero si el pin físico es alto, y False si el "
+"pin físico es bajo. El pin HAL in-<númpin>-not está invertido y es Falso si "
+"el pin físico es alto. El usuario puede determinar el estado de la entrada "
+"conectando una señal a uno u otro."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:100
@@ -45379,6 +45397,8 @@ msgid ""
 "'stg.<channel>.position-scale' - (float) The number of counts / user unit "
 "(to convert from counts to units)."
 msgstr ""
+"'stg.<canal>.position-scale' - (float) El número de conteos / unidad de "
+"usuario (para convertir conteos a unidades)."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:102
@@ -45386,12 +45406,16 @@ msgid ""
 "'stg.<channel>.dac-offset' - (float) Sets the offset for the corresponding "
 "DAC."
 msgstr ""
+"'stg.<canal>.dac-offset' - (float) Establece el desplazamiento para el DAC "
+"correspondiente."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:104
 msgid ""
 "'stg.<channel>.dac-gain' - (float) Sets the gain of the corresponding DAC."
 msgstr ""
+"'stg.<canal>.dac-gain' - (float) Establece la ganancia para el DAC "
+"correspondiente."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:106
@@ -45399,74 +45423,77 @@ msgid ""
 "'stg.<channel>.adc-offset' - (float) Sets the offset of the corresponding "
 "ADC."
 msgstr ""
+"'stg.<canal>.adc-offset' - (float) Establece el desplazamiento para el ADC "
+"correspondiente."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:108
 msgid ""
 "'stg.<channel>.adc-gain' - (float) Sets the gain of the corresponding ADC."
 msgstr ""
+"'stg.<canal>.adc-gain' - (float) Establece la ganancia para el ADC "
+"correspondiente."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:109
-#, fuzzy
 msgid "'stg.out-<pinnum>-invert' - (bit) Inverts an output pin."
-msgstr "'parport.<p>.pin-<n>-out-invert' (bit) Invierte un pin de salida."
+msgstr "'stg.out-<númpin>-invert' - (bit) Invierte un pin de salida."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:115
-#, fuzzy
 msgid ""
 "The -invert parameter determines whether an output pin is active high or "
 "active low. If -invert is FALSE, setting the HAL out- pin TRUE drives the "
 "physical pin high, and FALSE drives it low. If -invert is TRUE, then setting "
 "the HAL out- pin TRUE will drive the physical pin low."
 msgstr ""
-"El parámetro '-invert' determina si un pin de salida está activo alto o "
-"activo bajo. Si '-invert' es FALSE, establecer el pin HAL '-out' TRUE lleva "
-"al pin físico a alto, y FALSO lo conduce bajo. Si '-invert' es TRUE, "
-"entonces al establecer el pin HAL '-out' TRUE, el pin físico estará bajo."
+"El parámetro -invert determina si un pin de salida está activo alto o activo "
+"bajo. Si -invert es Falso, establecer el pin HAL out- a Verdadero lleva al "
+"pin físico a alto, y Falso lo conduce a bajo. Si -invert es Verdadero, "
+"entonces al establecer el pin HAL out- a Verdadero, llevará el pin físico a "
+"bajo."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:120
 msgid ""
 "'stg.capture-position' - Reads the encoder counters from the axis <channel>."
 msgstr ""
+"'stg.capture-position' - Lee los contadores del codificador desde el eje "
+"<canal>."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:121
 msgid "'stg.write-dacs' - Writes the voltages to the DACs."
-msgstr ""
+msgstr "'stg.write-dacs' - Escribe los voltajes a los DACs."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:122
 msgid "'stg.read-adcs' - Reads the voltages from the ADCs."
-msgstr ""
+msgstr "'stg.read-adcs' - Lee los voltajes desde los ADCs."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:124
-#, fuzzy
 msgid ""
 "'stg.di-read' - Reads physical in- pins of all ports and updates all HAL in-"
 "<pinnum> and in-<pinnum>-not pins."
 msgstr ""
-"'parport.read-all' (funct) Lee los pines de entrada física de todos los "
-"puertos y actualiza los pines HAL '-in' y '-in-not'."
+"'stg.di-read' - Lee los pines físicos in- de todos los puertos y actualiza "
+"todos los pines HAL in-<númpin> y in-<númpin>-not."
 
 #. type: Plain text
 #: src/drivers/servo-to-go.adoc:126
-#, fuzzy
 msgid ""
 "'stg.do-write' - Reads all HAL out-<pinnum> pins and updates all physical "
 "output pins."
 msgstr ""
-"'parport.write-all' (funct) Lee los pines HAL '-out' de todos los puertos y "
-"actualiza todos los pines de salida física."
+"'stg.do-write' - Lee todos los pines HAL out-<númpin> y actualiza todos los "
+"pines de salida físicos."
 
 #. type: Title =
 #: src/drivers/shuttle.adoc:5
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Shuttle"
-msgstr "shuttle"
+msgstr "Shuttle"
 
 #. type: Plain text
 #: src/drivers/shuttle.adoc:10 src/man/man1/shuttle.1.adoc:16

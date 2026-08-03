@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-07-30 08:37+0000\n"
+"PO-Revision-Date: 2026-08-03 08:40+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
 "Language-Team: none\n"
 "Language: pt\n"
@@ -20470,7 +20470,7 @@ msgid ""
 "pins for external axis offsets:"
 msgstr ""
 "`OFFSET_AV_RATIO = 0.1` - Se não-zero, este item ativa o uso de pinos de "
-"entrada HAL para desvios de eixos externos."
+"entrada HAL para desvios de eixos externos:"
 
 #. type: delimited block -
 #: src/config/ini-config.adoc:959
@@ -20693,6 +20693,17 @@ msgid ""
 "letters and/or numbers.  Currently the limit inside LinuxCNC is for 256 "
 "triplets per joint."
 msgstr ""
+"`COMP_FILE =` _ficheiro.extensão_ -  O ficheiro de compensação consiste de "
+"um mapa de informações de posição da articulação.  Os valores do ficheiro de "
+"compensação estão em unidades máquina.  Cada conjunto de valores fica em uma "
+"linha separados por um espaço.  O primeiro valor é o valor nominal (a "
+"posição comandada).  O segundo e terceiro valores dependem da definição de "
+"`COMP_FILE_TYPE`.  Os pontos entre valores nominais são interpolados entre "
+"os dois nominais.  Os ficheiros de compensação têm de começar pelo menor "
+"nominal e estar em ordem ascendente até ao maior valor dos nominais.  Os "
+"nomes de ficheiros são sensíveis a maiúsculas/minúsculas e podem conter "
+"letras e/ou números.  Atualmente o limite dentro do LinuxCNC é de 256 "
+"trigémeos por articulação."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1019
@@ -20720,6 +20731,10 @@ msgid ""
 "specifies the actual position as the joint is moving in the negative "
 "direction (decreasing value)."
 msgstr ""
+"'Type 0:' O segundo valor especifica a posição real quando a articulação se "
+"está a mexer na direção positiva (valor a aumentar).  O terceiro valor "
+"especifica a posição real quando a articulação se está a mexer na direção "
+"negativa (valor a diminuir)."
 
 #. type: Block title
 #: src/config/ini-config.adoc:1026
@@ -20746,6 +20761,9 @@ msgid ""
 "traveling in the positive direction.  The third value specifies the negative "
 "offset from nominal while traveling in a negative direction."
 msgstr ""
+"'Type 1:' O segundo valor especifica o desvio positivo do valor nominal "
+"enquanto se viaja na direção positiva.  O terceiro valor especifica o desvio "
+"negativo do nominal enquanto se viaja na direção negativa."
 
 #. type: Block title
 #: src/config/ini-config.adoc:1036
@@ -20773,6 +20791,11 @@ msgid ""
 "rotary joint with unlimited rotation having no `MIN_LIMIT` for that joint in "
 "the `[JOINT_N]` section a the value -1e99 is used."
 msgstr ""
+"`MIN_LIMIT = -1000` - O limite mínimo para movimento de articulação, em "
+"unidades máquina.  Quando este limite é atingido, o controlador aborta o "
+"movimento da articulação.  Para uma articulação rotativa com rotação "
+"ilimitada, não ter nenhum `MIN_LIMIT` para essa articulação na secção "
+"`[JOINT_N]`, faz usar um valor de -1e99."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1051
@@ -20782,6 +20805,11 @@ msgid ""
 "rotary joint with unlimited rotation having no `MAX_LIMIT` for that joint in "
 "the `[JOINT_N]` section a the value 1e99 is used."
 msgstr ""
+"`MAX_LIMIT = 1000` - O limite máximo para movimento de articulação, em "
+"unidades máquina.  Quando este limite é atingido, o controlador aborta o "
+"movimento da articulação.  Para uma articulação rotativa com rotação "
+"ilimitada, não ter nenhum `MAX_LIMIT` para essa articulação na secção "
+"`[JOINT_N]`, faz usar um valor de 1e99."
 
 #. type: delimited block =
 #: src/config/ini-config.adoc:1056
@@ -20791,6 +20819,10 @@ msgid ""
 "limits.  These settings are verified at startup when the trivkins kinematics "
 "modules is specified."
 msgstr ""
+"Para cinemáticas de *identidade*, as definições `[JOINT_N]MIN_LIMIT`/"
+"`MAX_LIMIT` têm de ser iguais ou exceder os limites de `[AXIS_L]` "
+"(identidade de um-para-um).  Estas definições são verificadas no arranque "
+"quando os módulos de cinemática trivkins são especificados."
 
 #. type: delimited block =
 #: src/config/ini-config.adoc:1067
@@ -20808,6 +20840,20 @@ msgid ""
 "commands.  See also related https://github.com/LinuxCNC/linuxcnc/issues/"
 "97[GitHub issue #97]."
 msgstr ""
+"As definições `[JOINT_N]MIN_LIMIT`/`MAX_LIMIT` são impostas enquanto se "
+"desloca em modo de articulação antes da posição inicial.  Após a iniciação "
+"de posição inicial, os limites de coordenada `[AXIS_L]MIN_LIMIT`/`MAX_LIMIT` "
+"são usados como restrições para deslocações de eixos (letra de coordenada) e "
+"pelo planeador de trajetória usado por movimentos de código G (programas e "
+"comandos MDI).  O planeador de trajetória trabalha no espaço Cartesiano "
+"(XYZABCUVW) e não tem nenhuma informação sobre o movimento das articulações "
+"implementado por *qualquer* módulo de cinemática.  É possível que ocorram "
+"violações do limite de articulação para código G que obedece a limites de "
+"posição do planeador de trajetória quando não são usadas cinemáticas de "
+"identidade.  O módulo de movimento deteta sempre violações de limite de "
+"posição de articulação e entra em erro se ocorrerem durante a execução de "
+"comandos de código G.  Veja também isto relacionado https://github.com/"
+"LinuxCNC/linuxcnc/issues/97[GitHub issue #97]."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:1074
@@ -20824,6 +20870,13 @@ msgid ""
 "the other is permitted following error.  As speed increases the amount of "
 "following error also increases toward the `FERROR` value."
 msgstr ""
+"`MIN_FERROR = 0.010` - Este é o valor em unidades máquina o qual a "
+"articulação tem permissão de se desviar da posição comandada a velocidades "
+"muito baixas.  Se MIN_FERROR for menor que FERROR, os dois produzem uma "
+"rampa de pontos de viagem de erro.  Pode pensar nisto como um gráfico onde "
+"uma dimensão é a velocidade e a outra é o erro que se segue permitido.  "
+"Conforme a velocidade aumenta a quantidade de erro de acompanhamento também "
+"aumenta na direção do valor `FERROR`."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:1082
@@ -20846,6 +20899,19 @@ msgid ""
 "aborting motion.  Small following errors will always be present due to "
 "vibration, etc."
 msgstr ""
+"`FERROR = 1.0` - `FERROR` é o erro de acompanhamento máximo permitido, em "
+"unidades máquina.  Se a diferença entre a posição comandada e sentida "
+"exceder esta quantidade, o controlador desativa os cálculos do servo, define "
+"todas as saídas para 0.0, e desativa os amplificadores. Se `MIN_FERROR` "
+"estiver presente no ficheiro INI, são usados erros de acompanhamento "
+"proporcionais à velocidade.  Aqui, o erro de acompanhamento máximo permitido "
+"é proporcional à velocidade, com `FERROR` a ser aplicado à taxa rápida "
+"definida por `[TRAJ]MAX_VELOCITY`, e erros de acompanhamento "
+"proporcionalmente menores para velocidades inferiores.  O erro de "
+"acompanhamento máximo permitido será sempre maior que `MIN_FERROR`.  Isto "
+"previne que erros de acompanhamento pequenos para eixos estacionários "
+"abortem inadvertidamente o movimento.  Estes pequenos erros de "
+"acompanhamento vão estar sempre presentes devido a vibrações e etc."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1083
@@ -20885,6 +20951,15 @@ msgid ""
 "used define the home switch position to be other than 0 if your HOME "
 "position is desired to be 0."
 msgstr ""
+"`HOME_OFFSET = 0.0` - A posição de articulação do interruptor de posição "
+"inicial ou impulso de indexação, em <<sub:ini:sec:traj,unidades máquina>>.  "
+"Quando o ponto inicial é encontrado durante o processo de iniciação da "
+"posição inicial, esta é a posição que é atribuída a esse ponto.  Quando se "
+"partilha a posição inicial e os interruptores de limite e se usa uma "
+"sequência de posicionamento inicial que vai deixar o interruptor de posição "
+"inicial/limite em estado comutado, o desvio de posição inicial pode ser "
+"usado para definir a posição do interruptor de posição inicial ou para ser "
+"algo diferente de 0 se a sua posição HOME for desejada a ser 0."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:1098 src/config/ini-homing.adoc:130
@@ -20899,6 +20974,11 @@ msgid ""
 "that the current location is the home position for the machine.  If your "
 "machine has no home switches you will want to leave this value at zero."
 msgstr ""
+"`HOME_SEARCH_VEL = 0.0` - Velocidade de posicionamento inicial em unidades "
+"máquina por segundo.  O sinal denota a direção da viagem.  Um valor de zero "
+"significa que se assume que a localização atual é a posição inicial da "
+"máquina.  Se a sua máquina não tiver interruptores de posição inicial vai "
+"querer deixar este valor em zero."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1101
@@ -20906,6 +20986,9 @@ msgid ""
 "`HOME_LATCH_VEL = 0.0` - Homing velocity in machine units per second to the "
 "home switch latch position.  Sign denotes direction of travel."
 msgstr ""
+"`HOME_LATCH_VEL = 0.0` - Velocidade de voltar à posição inicial em unidades "
+"máquina por segundo até ao interruptor de posição inicial de torno.  O sinal "
+"denota a direção da viagem."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1105
@@ -20914,6 +20997,10 @@ msgid ""
 "latch position to home position.  If left at 0 or not included in the joint "
 "rapid velocity is used.  Must be a positive number."
 msgstr ""
+"`HOME_FINAL_VEL = 0.0` - Velocidade em unidades máquina por segundo desde a "
+"posição inicial de torno até a posição inicial. Se deixado a zero ou não "
+"incluído, e usada a velocidade rápida da articulação.  Tem de ser um número "
+"positivo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1109
@@ -20924,6 +21011,12 @@ msgid ""
 "Currently, you can't home to index with steppers unless you're using StepGen "
 "in velocity mode and PID."
 msgstr ""
+"`HOME_USE_INDEX = NO` - Se o codificador usado para esta articulação tiver "
+"um impulso de índice, e a placa de movimento tiver provisão para este sinal, "
+"pode definir isto para YES.  Quando está em yes, vai afetar o padrão de "
+"posicionamento inicial usado.  Atualmente, não pode fazer o posicionamento "
+"inicial para índice com motores de passo a menos que esteja a usar StepGen "
+"em modo de velocidade e PID."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1112
@@ -20933,6 +21026,10 @@ msgid ""
 "assertion of the joint `index_enable` HAL pin.  Applicable only for "
 "`HOME_USE_INDEX = YES`."
 msgstr ""
+"`HOME_INDEX_NO_ENCODER_RESET = NO` - Use YES se o codificador usado para "
+"esta articulação não reiniciar o seu contador quando deteta um impulso de "
+"índice após atribuição do pino HAL `index_enable` da articulação.  Aplicável "
+"apenas para `HOME_USE_INDEX = YES`."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1116
@@ -20943,6 +21040,14 @@ msgid ""
 "homing so that at the end of your home move the home/limit switch is not in "
 "the toggled state you will get a limit switch error after the home move."
 msgstr ""
+"`HOME_IGNORE_LIMITS = NO` - Quando se usa o interruptor de limite como um "
+"interruptor de posição inicial e interruptor de limite, isto deve ser "
+"definido para YES.  Quando definido para YES o interruptor de limite para "
+"esta articulação é ignorado quando se faz o posicionamento inicial.  Você "
+"tem de configurar a sua posição inicial para que no final do movimento de "
+"posicionamento inicial o interruptor de posição inicial/limite não fique no "
+"modo comutado ou vai obter um erro do interruptor de limite após o movimento "
+"de posicionamento inicial."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1119
@@ -20952,6 +21057,11 @@ msgid ""
 "shared switches is already closed.  Set _<n>_ to 0 to permit homing if a "
 "switch is closed."
 msgstr ""
+"`HOME_IS_SHARED =` _<n>_ - Se a entrada de posição inicial for partilhada "
+"por mais do que uma articulação, defina _<n>_ para 1 para prevenir que o "
+"posicionamento inicial comece se um dos interruptores partilhados já estiver "
+"fechado.  Defina _<n>_ para 0 para permitir o posicionamento inicial se um "
+"interruptor estiver fechado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1123
@@ -20962,6 +21072,12 @@ msgid ""
 "the machine makes the usual final move to the `HOME` value.  If the "
 "`HOME_ABSOLUTE_ENCODER` setting is 2, no final move is made."
 msgstr ""
+"`HOME_ABSOLUTE_ENCODER = 0` | `1` | `2` - Usado para indicar se a "
+"articulação usa um codificador absoluto.  Num pedido de posicionamento "
+"inicial, o valor atual da articulação é definido para o valor de "
+"`HOME_OFFSET`.  Se a definição `HOME_ABSOLUTE_ENCODER` for 1, a máquina faz "
+"o movimento final normal para o valor `HOME`.  Se a definição "
+"`HOME_ABSOLUTE_ENCODER` for 2, não é feito nenhum movimento final."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1131
@@ -21014,6 +21130,8 @@ msgid ""
 "The following items might be used by a PID component and the assumption is "
 "that the output is volts."
 msgstr ""
+"Os seguintes items podem ser usados por um componente de PID e assume-se que "
+"a saída é volts."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1148
@@ -21021,6 +21139,8 @@ msgid ""
 "`DEADBAND = 0.000015` - How close is close enough to consider the motor in "
 "position, in <<sub:ini:sec:traj,machine units>>."
 msgstr ""
+"`DEADBAND = 0.000015` - Quanto perto é próximo o suficiente para considerar "
+"o motor em posição, em <<sub:ini:sec:traj,unidades máquina>>."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1155
@@ -21050,6 +21170,8 @@ msgid ""
 "Example of calculating machine units per encoder pulse to use in deciding "
 "`DEADBAND` value:"
 msgstr ""
+"Exemplo de calcular unidades máquina por impulso de codificador para usar em "
+"decidir o valor `DEADBAND`:"
 
 #. latexmath:[ \frac{X\, inches}{1\, encoder\, count} =
 #. \frac{1\, revolution}{1000\, encoder\, lines} \times
@@ -21154,6 +21276,8 @@ msgid ""
 "These two values are the scale and offset factors for the joint output to "
 "the motor amplifiers."
 msgstr ""
+"Estes dois valores são os fatores de escala e desvio para a saída da "
+"articulação para os amplificadores de motor."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1216
@@ -21249,7 +21373,7 @@ msgstr ""
 #. type: Plain text
 #: src/config/ini-config.adoc:1243
 msgid "See the following table for an example of voltage measurements."
-msgstr ""
+msgstr "Veja a seguinte tabela para um exemplo de medições de voltagem."
 
 #. type: Block title
 #: src/config/ini-config.adoc:1248 src/config/pncconf.adoc:400
