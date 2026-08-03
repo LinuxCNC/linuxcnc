@@ -366,8 +366,10 @@ The ENABLE command enables the motion controller.
 
 ==== Requirements
 
-None. The command can be issued at any time, and will always be
-accepted.
+The command is rejected with an error message ("can't enable motion,
+enable input is false") if the motion.enable HAL pin is low. The
+hardware enable chain must be satisfied before the controller can be
+enabled.
 
 ==== Results
 
@@ -464,10 +466,26 @@ modify the joint's amp enable pin.
 
 === PAUSE
 
-The PAUSE command stops the trajectory planner. It has no effect in
-free or teleop mode. At this point I don't know if it pauses all motion
-immediately, or if it completes the current move and then pauses before
-pulling another move from the queue.
+The PAUSE command pauses the trajectory planner. It has no effect in
+free or teleop mode.
+
+The machine neither stops instantly nor completes the current move: the
+planner treats pause as a request to bring the feed to zero, so the
+machine decelerates to a stop within the current segment, at that
+segment's acceleration limit, and halts wherever the deceleration ramp
+ends. The run-down is jerk-limited only on machines configured for the
+S-curve planner ([TRAJ]PLANNER_TYPE = 1 and MAX_JERK at 1.0 or above; a
+smaller jerk forces the planner back to trapezoidal). Both default to off,
+so a stock machine decelerates on a trapezoidal profile.
+
+Pause is ignored while the active segment is position-synchronized with
+the spindle (spindle-synchronized motion such as G33 threading and
+rigid tapping): for those segments the planner forces full feed and
+bypasses both pause and feed override, because tool position is slaved
+to spindle angle and pausing mid-thread would destroy the work.
+The pause takes effect when the synchronized segment ends.
+Velocity-synchronized segments (G95 feed per revolution) can be paused
+normally.
 
 ==== Requirements
 
@@ -476,7 +494,10 @@ accepted.
 
 ==== Results
 
-The trajectory planner pauses.
+The planner's pausing flag is set. Motion ramps down to zero velocity
+within the current segment (except during position-synchronized
+segments, see above) and the planner stops pulling new segments from
+the queue until RESUME or STEP.
 
 === RESUME
 
@@ -495,15 +516,15 @@ The trajectory planner resumes.
 === STEP
 
 The STEP command restarts the trajectory planner if it is paused, and
-tells the planner to stop again when it reaches a specific point. It
-has no effect in free or teleop mode. At this point I don't know
-exactly how this works. I'll add more documentation here when I dig
-deeper into the trajectory planner.
+tells the planner to pause again when the executing motion id changes
+(i.e. after the current line of the program completes). It has no
+effect in free or teleop mode.
 
 ==== Requirements
 
-None. The command can be issued at any time, and will always be
-accepted.
+The planner must already be paused. If motion is executing, the
+command is rejected with an error message ("can't STEP while already
+executing").
 
 ==== Results
 
@@ -541,10 +562,12 @@ accepted. (I think it should only work in free mode.)
 
 ==== Results
 
-Limits on all joints are over-ridden until the end of the next JOG
-command. (This is currently broken... once an OVERRIDE_LIMITS command
-is received, limits are ignored until another OVERRIDE_LIMITS command
-re-enables them.)
+Limits that are currently tripped are over-ridden until the end of the
+next jog command, at which point they are automatically re-enabled.
+Only the tripped limits are over-ridden: the command handler builds a
+mask from each joint's negative/positive hard-limit flags, so joints
+that are not on a limit keep their protection. Issuing the command
+with a negative joint number cancels an override explicitly.
 
 === HOME
 
@@ -718,10 +741,14 @@ iocontrol. These are relatively low speed events, high speed coordinated I/O is 
 
 emctaskmain.cc sends I/O commands via taskclass.cc.
 
-iocontrol main loop process:
+Historically this was a separate process named iocontrol, talking to
+task over its own NML channels; the HAL component is still named
+iocontrol.0 (and the INI section [EMCIO]) for compatibility, but the
+code now runs inside the task process. On each pass through the task
+loop it:
 
-- checks to see it HAL inputs have changed
-- checks if read_tool_inputs() indicates the tool change is finished and set emcioStatus.status
+- checks whether the iocontrol HAL input pins have changed
+- checks if read_tool_inputs() indicates the tool change is finished and sets emcioStatus.status
 
 == User Interfaces
 
@@ -844,7 +871,10 @@ The original NIST format of the buffer line is:
 * 'B name type host size neut RPC# buffer# max_procs key [type specific configs]'
 * 'B' - identifies this line as a Buffer configuration.
 * 'name' - is the identifier of the buffer.
-* 'type' - describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or GLOBMEM.
+* 'type' - describes the buffer type - SHMEM, LOCMEM, or PHANTOM.
+  (Older RCS documents also list FILEMEM, GLOBMEM and RTLMEM; none of these is
+  implemented in src/libnml/ - cms_config() rejects RTLMEM explicitly and does
+  not recognise the other two at all.)
 * 'host' - is either an IP address or host name for the NML server
 * 'size' - is the size of the buffer
 * 'neut' - a boolean to indicate if the data in the buffer is encoded in a
@@ -902,12 +932,10 @@ The original NIST format of the process line is:
 === Configuration Comments
 
 Some of the configuration combinations are invalid, whilst others
-imply certain constraints. On a Linux system, GLOBMEM is obsolete,
-whilst PHANTOM is only really useful in the testing stage of an
-application, likewise for FILEMEM. LOCMEM is of little use for a
-multi-process application, and only offers limited performance
-advantages over SHMEM. This leaves SHMEM as the only buffer type to use
-with LinuxCNC.
+imply certain constraints. PHANTOM is only really useful in the testing
+stage of an application. LOCMEM is of little use for a multi-process
+application, and only offers limited performance advantages over SHMEM.
+This leaves SHMEM as the only buffer type to use with LinuxCNC.
 
 The neut option is only of use in a multi-processor system where
 different (and incompatible) architectures are sharing a block of
@@ -1344,9 +1372,10 @@ FIXME: `axis_mask` and `axes` overspecify the number of axes
   An array of `EMCMOT_MAX_JOINTS` joint structures.
   `joint[0]` through `joint[joints-1]` are valid, the others do not exist on this machine and must be ignored.
 
-Things are not this way currently in the joints-axes branch, but deviations from this design are considered bugs.
-For an example of such a bug, see the treatment of axes in src/emc/ini/initraj.cc:loadTraj().
-There are undoubtedly more, and I need your help to find them and fix them.
+Deviations from this design are considered bugs; if you find one,
+please report it. (An earlier revision of this document pointed at the
+treatment of axes in src/emc/ini/initraj.cc:loadTraj() as an example;
+that code has since been fixed to handle all nine axes.)
 
 === In Motion
 
