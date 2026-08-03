@@ -1,0 +1,98 @@
+= halcompupdate(1)
+
+== NAME
+
+halcompupdate - Migrate HAL .comp components to the new HAL pin/param API
+
+== SYNOPSIS
+
+*halcompupdate* [--in-place] [--no-backup] [--check] [--no-c-types] [--quiet] compfile...
+
+== DESCRIPTION
+
+*halcompupdate* converts HAL components written for the legacy HAL API
+(pins and params declared with the types *float*, *bit*, *s32*, *u32*,
+*s64*, *u64*, *signed* or *unsigned* and written with plain C assignment)
+to the new HAL API, where pins and params are declared with the types
+*real*, *bool*, *si32*, *ui32*, *sint* and *uint* and written with the
+generated *<name>_set(value)* accessor.
+
+The legacy types still work, but halcompile(1) warns about them and they
+will be removed when the HAL API break is performed.
+
+The following transformations are applied:
+
+* Declaration types are replaced: *float* -> *real*, *bit* -> *bool*,
+  *s32* -> *si32*, *u32* -> *ui32*, *s64* -> *sint*, *u64* -> *uint*,
+  *signed* -> *si32*, *unsigned* -> *ui32*.  The type *port* is not
+  converted yet.
+* Assignments to *out* and *io* pins and to parameters are rewritten to
+  the *<name>_set(...)* form, including compound assignments
+  (*name += x* becomes *name_set(name + (x))*), increments/decrements
+  and array pins (*name(i) = x* becomes *name_set(i, x)*).
+* Dereferences of the old pin pointer macro are rewritten:
+  ***name_ptr*** reads become *(name)* and ***name_ptr = x*** writes
+  become *name_set(x)*.
+* Legacy C types are modernized with their variable-use replacements
+  (*double* -> *rtapi_real*, *hal_float_t* -> *rtapi_real*,
+  *hal_bit_t* -> *rtapi_bool*, and so on).  The *volatile* qualifier of
+  the legacy types is dropped on purpose: it existed for direct access
+  to HAL memory and was never right for variables.  Pointers to the
+  legacy types referenced HAL memory and become opaque references in the
+  new API; those are warned about and left unchanged.  Use
+  *--no-c-types* to skip this conversion.
+
+Reading pins and params is unchanged: the bare name (or *name(idx)* for
+arrays) evaluates to the value in both APIs.
+
+Pin and parameter names are never changed, because they are part of the
+HAL configuration interface used by .hal files.
+
+Components that use the legacy *hal_pin_*_new*/*hal_param_*_new* creation
+functions directly, or that pass the address of a pin (*&name*) to helper
+functions, cannot be converted automatically.  *halcompupdate* prints a
+warning for those cases so they can be converted by hand.
+
+== OPTIONS
+
+*compfile...*::
+One or more .comp files to convert.
+Without other options, a unified diff of the required changes is printed.
+
+*-i*, *--in-place*::
+Rewrite the files in place.  A backup with the suffix *.bak* is kept
+unless *--no-backup* is given.
+
+*--no-backup*::
+With *--in-place*, do not keep a *.bak* backup.
+
+*--check*::
+Do not write anything; exit with status 1 if any file would be changed.
+Useful in build systems to verify that components are migrated.
+
+*--no-c-types*::
+Only convert pin/param declarations and accesses; do not modernize
+C types in the component body.
+
+*-q*, *--quiet*::
+Suppress warnings on stderr.
+
+== EXAMPLES
+
+Show what would change:
+
+----
+halcompupdate mycomponent.comp
+----
+
+Migrate in place:
+
+----
+halcompupdate -i mycomponent.comp
+----
+
+== SEE ALSO
+
+*halcompile*(1), the _Halcompile_ / _HAL Component Generator_ section in
+the LinuxCNC documentation for a full description of the *.comp* syntax
+and the new HAL API.

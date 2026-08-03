@@ -99,6 +99,9 @@ Extra arguments passed to the linker.
 
 == SEE ALSO
 
+* *halcompupdate*(1) to migrate existing *.comp* files to the new HAL
+  pin/param API (new-style declaration types and *<name>_set()* accessors)
+
 * _Halcompile_ / _HAL Component Generator_ in the LinuxCNC documentation for a
   full description of the *.comp* syntax, along with examples
 
