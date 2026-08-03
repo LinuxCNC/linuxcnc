@@ -202,11 +202,18 @@ static InterpBase *pinterp;
 //
 // An *opt-in* alternative to the per-event callback protocol, for consumers
 // that would rather receive a million moves as a few numpy-shaped blocks than
-// as a million Python calls. A canon object opts in by setting a truthy
-// `use_move_batches` attribute and providing a callable `move_batch`; both are
+// as a million Python calls. A canon object opts in by setting
+// `use_move_batches = True` and providing a callable `move_batch`; both are
 // read once, in parse_file, before any interpretation. Everything below is
 // inert when the flag is absent, and the legacy callback sequence is then
 // byte-for-byte what it always was.
+//
+// The flag must be a *bool*, not merely truthy: a canon that answers every
+// unknown attribute with a stub - `def __getattr__(self, name): return lambda
+// *a: None`, a common idiom for partial canons, and what
+// tests/interp_initcode's does - would otherwise hand back a callable for both
+// `use_move_batches` and `move_batch` and be opted in without ever asking,
+// silently dropping every batched move into the stub.
 //
 // In batch mode the canon functions listed under `MoveBatch::Kind` do not call
 // Python at all. Each appends one fixed-width row of 13 float64s to a C-owned
@@ -307,9 +314,11 @@ public:
             PyErr_Clear();              // no attribute: the legacy protocol
             return true;
         }
-        int opted_in = PyObject_IsTrue(flag);
+        // Anything that is not a bool is not an opt-in - see the note on
+        // catch-all `__getattr__` above. Legacy protocol, no complaint: a
+        // canon that never mentions the flag must not be made to fail.
+        bool opted_in = PyBool_Check(flag) && flag == Py_True;
         Py_DECREF(flag);
-        if(opted_in < 0) return false;
         if(!opted_in) return true;
         // Fail fast rather than fall back: a canon that asked for batches and
         // silently got per-move callbacks would look like it worked and quietly

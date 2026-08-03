@@ -16,8 +16,9 @@
 """The reference consumer of ``gcode.parse``'s move-batch protocol.
 
 The protocol is opt-in and lives in ``src/emc/rs274ngc/gcodemodule.cc`` (class
-``MoveBatch``): a canon that sets ``use_move_batches`` and provides
-``move_batch`` stops receiving ``straight_feed``/``straight_traverse``/
+``MoveBatch``): a canon that sets ``use_move_batches = True`` (the bool itself -
+anything else, including a merely truthy value, stays on the legacy protocol)
+and provides a callable ``move_batch`` stops receiving ``straight_feed``/``straight_traverse``/
 ``straight_probe``/``rigid_tap``/``dwell``/``user_defined_function``/
 ``change_tool``/``tool_offset`` as one Python call per event, and receives them
 instead as blocks of fixed-width float64 rows. On a million-move file that is
@@ -115,6 +116,7 @@ class MoveBatchMixin:
     """
 
     #: What the C side reads to choose the protocol, once, at parse start.
+    #: Must be the bool ``True``; the C side ignores any other value.
     use_move_batches = True
 
     def batch_progress(self, lineno):
