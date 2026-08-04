@@ -5,6 +5,10 @@ Example of a plug-in homing module buildable with halcompile.
 Demonstrates the required code structure for #includes, function
 definitions, HAL pins, etc.
 
+The complete homing module interface (every function a homing module
+must export, when motmod calls it, and what it should do) is
+documented in `src/emc/motion/homing.h`.
+
 Build modes:
 
 * *Skeleton* (default).  If HOMING_BASE is _not_ #defined, the module
