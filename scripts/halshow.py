@@ -21,6 +21,7 @@ import argparse
 import re
 import math
 import gettext
+from collections import OrderedDict
 from pathlib import Path
 
 # Determine locale directory for translations (same domain as Tcl halshow)
@@ -874,20 +875,29 @@ class _ColumnSeparator(QWidget):
         self._dragging = False
         self._press_x = 0
 
+    @staticmethod
+    def _event_global_x(event):
+        """Get global X coordinate from a mouse event (Qt5/Qt6 compatible)."""
+        gp = getattr(event, "globalPosition", None)
+        if gp is not None:
+            return gp().x()
+        pos = event.globalPos()
+        return pos.x() if hasattr(pos, 'x') else pos[0]
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self._dragging = True
-            self._press_x = event.globalPosition().x()
+            self._press_x = self._event_global_x(event)
             event.accept()
 
     def mouseMoveEvent(self, event):
         if self._dragging:
-            delta = event.globalPosition().x() - self._press_x
+            delta = self._event_global_x(event) - self._press_x
             header = self.parent()
             if hasattr(header, "_value_width"):
                 new_width = max(40, min(header._value_width + int(delta), 500))
                 self.width_changed.emit(new_width)
-                self._press_x = event.globalPosition().x()
+                self._press_x = self._event_global_x(event)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -1451,70 +1461,22 @@ class GraphDataBuilder:
 
 
 class GraphLayout:
-    """Graph layout engine using pygraphviz + dot.
+    """Graph layout via pygraphviz dot → SVG rendering → XML parsing.
 
-    Builds a bipartite graph (component → signal → component) and delegates
-    positioning to Graphviz's `dot` layout engine for high-quality node placement
-    and edge routing.  The existing QGraphicsItem rendering code consumes the
-    returned placements unchanged."""
+    Component-only nodes (no signal diamonds).  Returns placements and direct
+    pin-to-pin connection list for cubic bezier edge drawing."""
 
-    # Rendering constants — kept in sync with ComponentItem / SignalNodeItem.
-    COMP_WIDTH = 180
-    COMP_HEADER_H = 22
-    PIN_ROW_H = 14  # monospace 7pt text needs ~12px, add 2 margin
-    SIG_HALF_MIN = 10  # minimum half-width/height of diamond
-    PIN_MARKER_R = 3  # radius of pin connection dot
-    PIN_MARKER_PAD = 4  # distance from component edge to marker center
+    COMP_WIDTH = 160
+    PIN_ROW_H = 16  # height of one pin row including padding
+    HEADER_H = 24   # header bar height
+    PAD_LEFT = 8    # left/right text padding inside component box
+    RADIUS = 5      # corner radius
+    PIN_MARKER_PAD = 4  # distance from box edge to connection dot center
 
     @staticmethod
-    def _compute_height(in_pins, out_pins):
-        """Height for a component box. IN/OUT run side-by-side."""
-        n_pin_rows = max(len(in_pins), len(out_pins))
-        return max(50, GraphLayout.COMP_HEADER_H + n_pin_rows * GraphLayout.PIN_ROW_H)
-
-    @staticmethod
-    def _sig_height(sig_name):
-        """Full height of a signal diamond node (2*hh)."""
-        tw = len(sig_name) * 7 + 12
-        th = 10
-        hh = max(GraphLayout.SIG_HALF_MIN, th + 8)
-        return 2 * hh
-
-    @staticmethod
-    def _build_edges(signals, pin_index=None):
-        """Build edge list (sig_name, src_comp, dst_comp) without running dot layout.
-
-        Uses an optional pin_index dict {pin_fullname: comp_name} for O(1) lookups.
-        Falls back to scanning components if index not provided.
-
-        Returns list of (sig_name, src_comp, dst_comp).
-        """
-
-        def _find(pin):
-            if pin_index is not None:
-                return pin_index.get(pin)
-            # Fallback: scan all components (deprecated path)
-            return None  # Caller must provide index
-
-        edges = []
-        for sig_name, sig_info in signals.items():
-            if not sig_info.get("writer_pins") or not sig_info.get("reader_pins"):
-                continue
-            writers = set()
-            readers = set()
-            for wpin in sig_info["writer_pins"]:
-                c = _find(wpin)
-                if c:
-                    writers.add(c)
-            for rpin in sig_info["reader_pins"]:
-                c = _find(rpin)
-                if c:
-                    readers.add(c)
-            if writers and readers:
-                for sc in writers:
-                    for dc in readers:
-                        edges.append((sig_name, sc, dc))
-        return edges
+    def _compute_height(pins):
+        """Height for a component box with given pin list."""
+        return max(40, GraphLayout.HEADER_H + len(pins) * GraphLayout.PIN_ROW_H + GraphLayout.RADIUS)
 
     @staticmethod
     def _find_component_for_pin(pin_name, components, pin_index=None):
@@ -1529,412 +1491,400 @@ class GraphLayout:
 
     @staticmethod
     def compute(components, signals, pin_index=None):
-        """Compute layout via pygraphviz + dot.
-
-        Builds a directed graph with component and signal nodes, runs `dot`,
-        then maps the resulting coordinates back into our placement dicts.
+        """Compute component-only layout via dot → SVG → XML parsing.
 
         Returns:
             placements: dict[comp_name -> {"x", "y", "width", "height"}]
-            signal_placements: dict[sig_name -> {"x", "y", "hw", "hh"}]
-            edges: list of (sig_name, src_comp, dst_comp) tuples
+            connections: list of (sig_name, writer_pin_fullname, reader_pin_fullname) tuples
         """
         import pygraphviz as pgv
+        import xml.etree.ElementTree as ET
 
         if not components:
-            return {}, {}, [], {}
+            return {}, []
 
-        # --- Discover active signals and build writer/reader sets per signal ---
-        active_signals = {}  # sig_name -> {"writers": set[comp], "readers": set[comp]}
+        # --- Discover active signals and build direct pin-to-pin connections ---
+        active_comps = set()
+        connections = []  # (sig_name, writer_fullname, reader_fullname)
 
         for sig_name, sig_info in signals.items():
-            if not sig_info.get("writer_pins") or not sig_info.get("reader_pins"):
+            writer_pins = sig_info.get("writer_pins") or []
+            reader_pins = sig_info.get("reader_pins") or []
+            if not writer_pins or not reader_pins:
                 continue
-            writers = set()
-            readers = set()
-            for wpin in sig_info["writer_pins"]:
-                c = GraphLayout._find_component_for_pin(
-                    wpin, components, pin_index=pin_index
-                )
-                if c:
-                    writers.add(c)
-            for rpin in sig_info["reader_pins"]:
-                c = GraphLayout._find_component_for_pin(
-                    rpin, components, pin_index=pin_index
-                )
-                if c:
-                    readers.add(c)
-            if writers and readers:
-                active_signals[sig_name] = {"writers": writers, "readers": readers}
+            for wpin in writer_pins:
+                wc = GraphLayout._find_component_for_pin(wpin, components, pin_index)
+                if wc:
+                    active_comps.add(wc)
+            for rpin in reader_pins:
+                rc = GraphLayout._find_component_for_pin(rpin, components, pin_index)
+                if rc:
+                    active_comps.add(rc)
+            # Build direct writer→reader connections (no intermediate signal node)
+            for wpin in writer_pins:
+                for rpin in reader_pins:
+                    wc = GraphLayout._find_component_for_pin(wpin, components, pin_index)
+                    rc = GraphLayout._find_component_for_pin(rpin, components, pin_index)
+                    if wc and rc:
+                        connections.append((sig_name, wpin, rpin))
 
-        # --- Build edge list (sig_name, src_comp, dst_comp) for the caller ---
-        edges = []
-        for sig_name, sinfo in active_signals.items():
-            for sc in sinfo["writers"]:
-                for dc in sinfo["readers"]:
-                    edges.append((sig_name, sc, dc))
+        if not active_comps or not connections:
+            return {}, []
 
-        if not active_signals:
-            return {}, {}, edges, {}
-
-        # --- Build pygraphviz AGraph with bipartite structure ---
+        # --- Build DOT graph with component-only nodes ---
         g = pgv.AGraph(directed=True)
         g.graph_attr["rankdir"] = "LR"
-        # Layout params — nodesep/ranksep control compactness; node margins are the
-        # keep-out zone dot uses to route edges around nodes (must be large enough so
-        # edges don't cross into visible component/signal areas).
-        g.graph_attr["nodesep"] = "0.3"
-        g.graph_attr["ranksep"] = "1.2"
-        g.graph_attr["margin"] = "0.2"
+        g.graph_attr["nodesep"] = "0.5"
+        g.graph_attr["ranksep"] = "1.5"
+        g.graph_attr["margin"] = "0.3"
 
-        # Component nodes
-        for comp_name in set().union(
-            *(s["writers"] | s["readers"] for s in active_signals.values())
-        ):
-            if comp_name not in components:
-                continue
+        # Add edges between connected component pairs (for layout routing)
+        comp_pairs = set()
+        for sig_name, wpin, rpin in connections:
+            wc = pin_index.get(wpin) if pin_index else None
+            rc = pin_index.get(rpin) if pin_index else None
+            if wc and rc:
+                comp_pairs.add((wc, rc))
+
+        # Only layout components that have connected pins (filter out orphans)
+        active_comps_with_pins = {
+            cn for cn in active_comps
+            if cn in components and any(p.get("connected") for p in components[cn]["pins"])
+        }
+
+        for comp_name in active_comps_with_pins:
             cd = components[comp_name]
-            h = GraphLayout._compute_height(cd["in_pins"], cd["out_pins"])
+            connected_pins = [p for p in cd["pins"] if p.get("connected")]
+            h = GraphLayout._compute_height(connected_pins)
             w = GraphLayout.COMP_WIDTH
-            # Build label with pin lists for visual reference inside the dot node.
-            out_labels = [p["name"] for p in cd["out_pins"]]
-            in_labels = [p["name"] for p in cd["in_pins"]]
-            parts = [comp_name]
-            if out_labels:
-                parts.append("\\nOUT: " + ", ".join(out_labels))
-            if in_labels:
-                parts.append("\\nIN:  " + ", ".join(in_labels))
-            label = "\\n".join(parts)
 
             g.add_node(
                 comp_name,
                 shape="box",
                 style="filled",
-                fillcolor="#f5f5f0",
+                fillcolor="#2d2d3d",
                 fontname="monospace",
                 fontsize=9,
-                width=w / 72.0,  # dot uses inches
+                width=w / 72.0,
                 height=h / 72.0,
-                margin="0.35",  # keep-out zone: covers box + pin markers + arrowheads
-                label=label,
+                margin="0.4",
+                label=comp_name,
             )
 
-        # Signal nodes (diamonds) and bipartite edges: writer → sig → reader
-        for sig_name, sinfo in active_signals.items():
-            hw = max(GraphLayout.SIG_HALF_MIN, (len(sig_name) * 7 + 12) // 2)
-            hh = GraphLayout._sig_height(sig_name) // 2
+        for wc, rc in comp_pairs:
+            g.add_edge(wc, rc, color="#6666cc", penwidth=1)
 
-            g.add_node(
-                sig_name,
-                shape="diamond",
-                style="filled",
-                fillcolor="#ffebc8",
-                fontname="monospace",
-                fontsize=7,
-                label=sig_name,
-                width=(2 * hw) / 72.0,
-                height=(2 * hh) / 72.0,
-                margin="0.25",
-            )  # keep-out zone around diamond for edge routing
-
-            for sc in sinfo["writers"]:
-                g.add_edge(sc, sig_name, color="#6666cc", penwidth=1.5)
-            for dc in sinfo["readers"]:
-                g.add_edge(sig_name, dc, color="#6666cc", penwidth=1.5)
-
-        # --- Run dot layout ---
+        # --- Render to SVG and parse positions ---
         try:
-            g.layout(prog="dot")
+            svg_bytes = g.draw(prog="dot", format="svg")
         except Exception as e:
-            print(f"[halshow] pygraphviz layout failed: {e}", file=sys.stderr)
-            return {}, {}, edges, {}
+            print(f"[halshow] dot draw failed: {e}", file=sys.stderr)
+            return {}, []
 
-        # --- Extract positions and build placement dicts ---
-        # dot returns coords in points (1/72 inch).  QGraphicsView uses device pixels.
-        # Scale by ~1.33 to go from points → approximate CSS px at 96dpi.
+        try:
+            root = ET.fromstring(svg_bytes)
+        except ET.ParseError as e:
+            print(f"[halshow] SVG parse failed: {e}", file=sys.stderr)
+            return {}, []
+
+        ns = {"svg": "http://www.w3.org/2000/svg"}
         SCALE = 96.0 / 72.0
 
         placements = {}
-        for comp_name in components:
-            if comp_name not in g.nodes():
+        for node_g in root.findall(".//svg:g[@class='node']", ns):
+            title_el = node_g.find("svg:title", ns)
+            if title_el is None or not title_el.text:
                 continue
-            node = g.get_node(comp_name)
-            x_pt = float(node.attr["pos"].split(",")[0])  # center x in points
-            y_pt = float(node.attr["pos"].split(",")[1])  # center y in points
+            name = title_el.text
+            if name not in components:
+                continue
 
-            cd = components[comp_name]
+            poly_el = node_g.find("svg:polygon", ns)
+            if poly_el is None:
+                continue
+
+            pts_str = poly_el.get("points", "")
+            xs, ys = [], []
+            for pt in pts_str.split():
+                x_s, y_s = pt.rsplit(",", 1)
+                xs.append(float(x_s))
+                ys.append(float(y_s))
+
+            cd = components[name]
             w = GraphLayout.COMP_WIDTH
-            h = GraphLayout._compute_height(cd["in_pins"], cd["out_pins"])
-
-            placements[comp_name] = {
-                "x": x_pt * SCALE - w / 2,
-                "y": y_pt * SCALE - h / 2,
+            h = GraphLayout._compute_height(cd["pins"])
+            cx_pt = (min(xs) + max(xs)) / 2
+            cy_pt = (min(ys) + max(ys)) / 2
+            placements[name] = {
+                "x": cx_pt * SCALE - w / 2,
+                "y": cy_pt * SCALE - h / 2,
                 "width": w,
                 "height": h,
             }
 
-        signal_placements = {}
-        for sig_name in active_signals:
-            if sig_name not in g.nodes():
-                continue
-            node = g.get_node(sig_name)
-            x_pt = float(node.attr["pos"].split(",")[0])
-            y_pt = float(node.attr["pos"].split(",")[1])
-
-            hw_out = max(GraphLayout.SIG_HALF_MIN, (len(sig_name) * 7 + 12) // 2)
-            hh_out = GraphLayout._sig_height(sig_name) // 2
-
-            signal_placements[sig_name] = {
-                "x": x_pt * SCALE - hw_out,
-                "y": y_pt * SCALE - hh_out,
-                "hw": hw_out,
-                "hh": hh_out,
-            }
-
-        # --- Extract edge splines from dot (crossing-minimized routing) ---
-        # Each spline is parsed from e.attr['pos']: prefix,x,y x,y ...
-        # 'e,' = polyline waypoints; 'c,' = cubic bezier control points.
-        # Scaled to Qt pixel space for direct use in rendering.
-        splines = {}  # (src_node, dst_node) -> list of (x_px, y_px) waypoints
-        for e in g.edges():
-            src_str, dst_str = str(e[0]), str(e[1])
-            pos_raw = e.attr.get("pos", "")
-            if not pos_raw:
-                continue
-            # Parse: prefix,x,y x,y ...
-            comma_idx = pos_raw.index(",")
-            coords_str = pos_raw[comma_idx + 1 :]
-            parts = coords_str.split()
-            pts = []
-            for pt in parts:
-                x, y = pt.split(",")
-                pts.append((float(x) * SCALE, float(y) * SCALE))
-            splines[(src_str, dst_str)] = pts
-
-        return placements, signal_placements, edges, splines
+        return placements, connections
 
 
-class ComponentItem(QGraphicsRectItem):
-    """Visual representation of a HAL component instance.
+class CompGroupItem(QGraphicsItem):
+    """Component group box with header and pin list (halviewer style).
 
     Renders as a rounded rectangle with:
-    - Header bar showing component name
-    - Left column for IN pins (green tint)
-    - Right column for OUT pins (red tint)
-    """
+    - Colored header bar showing component/group name
+    - Pin rows with direction arrows on left/right edges
+    - Connection dots at port positions for edge attachment"""
 
-    def __init__(self, comp_name, in_pins, out_pins, x, y):
-        width = GraphLayout.COMP_WIDTH
-        height = GraphLayout._compute_height(in_pins, out_pins)
+    HEADER_H = GraphLayout.HEADER_H
+    PIN_ROW_H = GraphLayout.PIN_ROW_H
+    RADIUS = GraphLayout.RADIUS
+    PORT_PAD_LEFT = 6   # distance from box edge to connection dot center
 
-        super().__init__(0, 0, width, height)
-        self.comp_name = comp_name
-        self.in_pins = in_pins
-        self.out_pins = out_pins
-        self.setPos(x, y)
+    def __init__(self, title, pins_dict, x, y):
+        """title: component/group name.
+        pins_dict: ordered dict {short_pin_name -> pin_info} where pin_info has keys:
+            'pin', 'direction' (IN/OUT/I/O), 'signal', 'value', 'vtype'"""
+        super().__init__()
+        self.title = title
+        self.pins_dict = pins_dict  # OrderedDict preserving display order
+        self.width = GraphLayout.COMP_WIDTH
+        if x is not None and y is not None:
+            self.setPos(x, y)
         self.setFlag(QGraphicsItem.ItemIsMovable, False)
-        self.setZValue(1)  # Above edges
+        self.setZValue(1)
+        self.hover = False
+
+    def boundingRect(self):
+        h = GraphLayout._compute_height(list(self.pins_dict))
+        return QRectF(-2, -2, self.width + 4, h + 4)
 
     def paint(self, painter, option, widget=None):
-        rect = QRectF(0, 0, self.rect().width(), self.rect().height())
+        h = GraphLayout._compute_height(list(self.pins_dict))
 
-        # Main background
-        painter.setBrush(QBrush(QColor(245, 245, 240)))
-        painter.setPen(QPen(QColor(100, 100, 100), 1.5))
-        painter.drawRoundedRect(rect, 6, 6)
+        # Background
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(0, 0, self.width, h), self.RADIUS, self.RADIUS)
+        painter.setPen(QPen(QColor(120, 120, 140), 2))
+        painter.setBrush(QBrush(QColor(45, 45, 61)))
+        painter.drawPath(path)
 
         # Header bar
-        header_rect = QRectF(1, 1, rect.width() - 2, GraphLayout.COMP_HEADER_H - 1)
-        painter.setBrush(QBrush(QColor(70, 130, 180)))
-        painter.setPen(Qt.NoPen)
-        painter.drawRoundedRect(header_rect, 5, 5)
+        header_path = QPainterPath()
+        header_rect = QRectF(0, 0, self.width, self.HEADER_H)
+        header_path.addRoundedRect(header_rect, self.RADIUS, self.RADIUS)
 
-        # Component name in header
+        painter.save()
+        painter.setClipPath(header_path)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(QColor(70, 130, 180)))
+        painter.drawPath(header_path)
+        painter.restore()
+
+        # Title text
         painter.setPen(QColor("white"))
         painter.setFont(QFont("monospace", 9, QFont.Bold))
         painter.drawText(
-            header_rect.adjusted(6, 0, -6, 0),
-            Qt.AlignLeft | Qt.AlignVCenter,
-            self.comp_name,
+            QRectF(6, 2, self.width - 12, self.HEADER_H - 4),
+            Qt.AlignCenter,
+            self.title,
         )
 
-        # Draw IN pins (left column) with markers on left edge
-        mid_x = rect.width() / 2
-        marker_r = GraphLayout.PIN_MARKER_R
-        marker_pad = GraphLayout.PIN_MARKER_PAD
-        py = GraphLayout.COMP_HEADER_H
-        for pin in self.in_pins:
-            cy = py + GraphLayout.PIN_ROW_H / 2
-            # Green connection dot on left edge
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor(0, 160, 0))
-            painter.drawEllipse(QPointF(-marker_pad, cy), marker_r, marker_r)
-            pin_rect = QRectF(4, py, mid_x - 6, GraphLayout.PIN_ROW_H)
-            painter.setPen(QColor("darkgreen"))
-            painter.setFont(QFont("monospace", 7))
-            painter.drawText(
-                pin_rect, Qt.AlignLeft | Qt.AlignVCenter, f"IN  {pin['name']}"
-            )
-            py += GraphLayout.PIN_ROW_H
+        # Pin rows
+        py = self.HEADER_H
+        font_small = QFont("monospace", 7)
+        painter.setFont(font_small)
 
-        # Draw OUT pins (right column) with markers on right edge
-        py = GraphLayout.COMP_HEADER_H
-        for pin in self.out_pins:
-            cy = py + GraphLayout.PIN_ROW_H / 2
-            # Red connection dot on right edge
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor(200, 0, 0))
-            painter.drawEllipse(
-                QPointF(rect.width() + marker_pad, cy), marker_r, marker_r
-            )
-            pin_rect = QRectF(
-                mid_x + 2, py, rect.width() - mid_x - 4, GraphLayout.PIN_ROW_H
-            )
-            painter.setPen(QColor("darkred"))
-            painter.setFont(QFont("monospace", 7))
+        pin_list = list(self.pins_dict.items())
+        for idx, (pin_name, pdata) in enumerate(pin_list):
+            cy = py + self.PIN_ROW_H / 2
+            direction = pdata.get("direction", "IN")
+            signal = pdata.get("signal")
+            value = pdata.get("value", "")
+
+            # Determine colors
+            if signal:
+                pen_color = QColor(200, 200, 220)  # connected pin — bright text
+            else:
+                pen_color = QColor(140, 140, 160)  # unconnected — dimmer
+
+            painter.setPen(pen_color)
+
+            # Draw direction arrows on edges
+            if signal:
+                self._paint_arrow(painter, self.PORT_PAD_LEFT, cy, "RIGHT")
+                self._paint_arrow(painter, self.width - self.PORT_PAD_LEFT, cy, "LEFT")
+
+            # Connection dots at port positions (save/restore to avoid NoPen leaking into text)
+            if signal and direction == "OUT":
+                painter.save()
+                painter.setPen(Qt.NoPen)
+                painter.setBrush(QColor(0, 180, 80))
+                painter.drawEllipse(
+                    QPointF(self.width + GraphLayout.PIN_MARKER_PAD - 2, cy), 3, 3
+                )
+                painter.restore()
+            elif signal and direction == "IN":
+                painter.save()
+                painter.setPen(Qt.NoPen)
+                painter.setBrush(QColor(180, 0, 60))
+                painter.drawEllipse(
+                    QPointF(GraphLayout.PIN_MARKER_PAD - 2, cy), 3, 3
+                )
+                painter.restore()
+
+            # Pin name text (centered)
+            label = f"{pin_name}"
+            if value is not None:
+                vtype = pdata.get("vtype", "")
+                if isinstance(value, float):
+                    label += f"={value:.2f}"
+                else:
+                    label += f"={value}"
+
             painter.drawText(
-                pin_rect, Qt.AlignRight | Qt.AlignVCenter, f"{pin['name']}  OUT"
+                QRectF(16, py - 4, self.width - 32, self.PIN_ROW_H + 4),
+                Qt.AlignCenter,
+                label,
             )
-            py += GraphLayout.PIN_ROW_H
+
+            py += self.PIN_ROW_H
+
+    def _paint_arrow(self, painter, x, y, direction):
+        """Draw a small triangle arrow at (x,y) pointing in given direction."""
+        size = 4
+        path = QPainterPath()
+        if direction == "RIGHT":
+            path.moveTo(QPointF(x + size, y))
+            path.lineTo(QPointF(x - size, y + size))
+            path.lineTo(QPointF(x - size, y - size))
+        else:  # LEFT
+            path.moveTo(QPointF(x - size, y))
+            path.lineTo(QPointF(x + size, y + size))
+            path.lineTo(QPointF(x + size, y - size))
+        path.closeSubpath()
+        painter.save()
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(QColor(200, 160, 0)))
+        painter.drawPath(path)
+        painter.restore()
+
+    def port_pos(self, pin_shortname, target_item):
+        """Compute the scene coordinate of a pin's connection point.
+
+        Returns QPointF at left or right edge depending on whether this node is
+        to the left or right of the target."""
+        px = self.x()
+        py = self.y()
+
+        # Determine which side to attach from
+        if px < target_item.x():
+            port_x = px + self.width - GraphLayout.PIN_MARKER_PAD + 2
+        else:
+            port_x = px + GraphLayout.PIN_MARKER_PAD - 2
+
+        # Find pin row index and compute y position
+        pin_list = list(self.pins_dict.items())
+        for idx, (pname, _) in enumerate(pin_list):
+            if pname == pin_shortname:
+                port_y = py + self.HEADER_H + idx * self.PIN_ROW_H + self.PIN_ROW_H / 2
+                return QPointF(port_x, port_y)
+
+        # Fallback to center
+        h = GraphLayout._compute_height(list(self.pins_dict))
+        return QPointF(port_x if px < target_item.x() else px + GraphLayout.PIN_MARKER_PAD - 2, py + h / 2)
 
     def hoverMoveEvent(self, event):
-        self.setCursor(Qt.PointingHandCursor)
-        super().hoverMoveEvent(event)
+        self.hover = True
+        self.update()
 
     def hoverLeaveEvent(self, event):
-        self.setCursor(Qt.ArrowCursor)
-        super().hoverLeaveEvent(event)
+        self.hover = False
+        self.update()
 
 
-class SignalNodeItem(QGraphicsPolygonItem):
-    """Visual representation of a HAL signal as a diamond-shaped node.
+class EdgeItem(QGraphicsPathItem):
+    """Cubic bezier edge between two pin ports (halviewer style).
 
-    Renders as a filled diamond with the signal name in a label above it, positioned
-    between writer(s) and reader(s). Acts as a hub: edges route from writer pin
-    → signal node perimeter → reader pins.
-    """
+    Draws a smooth curve from source port to target port. Color reflects signal type:
+    green for bit=1, red for bit=0, blue-gray default."""
 
-    SIG_HALF_MIN = 10  # minimum half-width/height of diamond (for short names)
+    WIDTH = 2
+    HOVER_WIDTH = 5
 
-    def __init__(self, sig_name, pos):
-        font = QFont("monospace", 7, QFont.Bold)
-        font.setStyleHint(QFont.Monospace)
-        fm = QFontMetrics(font)
-        tw = fm.horizontalAdvance(sig_name) + 12  # padding inside diamond
-        th = fm.height()
+    def __init__(self, signal_name, sig_value, src_node, src_port, dst_node, dst_port):
+        super().__init__()
+        self.signal_name = signal_name
+        self.sig_value = sig_value
+        self._src_node = src_node
+        self._src_port = src_port  # short pin name on source
+        self._dst_node = dst_node
+        self._dst_port = dst_port  # short pin name on destination
 
-        # Size diamond to fit the signal name comfortably
-        hw = max(self.SIG_HALF_MIN, tw // 2)
-        hh = max(self.SIG_HALF_MIN, th + 8)
+        # Set color based on signal value/type
+        if isinstance(sig_value, bool) or (isinstance(sig_value, (int, float)) and sig_value in (0, 1)):
+            if sig_value:
+                self.color = QColor(80, 200, 80)  # green for bit=1
+            else:
+                self.color = QColor(200, 60, 60)  # red for bit=0
+        else:
+            self.color = QColor(100, 100, 200)   # blue-gray default
 
-        path = QPainterPath()
-        path.moveTo(0, -hh)  # top
-        path.lineTo(hw, 0)  # right
-        path.lineTo(0, hh)  # bottom
-        path.lineTo(-hw, 0)  # left
-        path.closeSubpath()
-
-        super().__init__(path.toFillPolygon())
-        self.setPos(pos)
-        self.sig_name = sig_name
-
-        # Appearance: orange diamond with dark border
-        self.setPen(QPen(QColor(200, 120, 0), 1.5))
-        self.setBrush(QBrush(QColor(255, 235, 200)))
-        self.setZValue(1)  # Same level as component boxes (both are graph nodes)
-
-        # Signal name centered inside the diamond
-        self._name_item = QGraphicsTextItem(sig_name, self)
-        self._name_item.setFont(font)
-        self._name_item.setDefaultTextColor(QColor(100, 60, 0))
-        # Use boundingRect to account for Qt's internal text positioning offsets.
-        br = self._name_item.boundingRect()
-        self._name_item.setPos(-br.width() / 2 - br.left(), -br.height() / 2 - br.top())
-
-        # Store computed half-dimensions for edge routing
-        self._hw = hw
-        self._hh = hh
-
-        # Wider hit area
+        self.setPen(QPen(self.color, self.WIDTH))
+        self.setZValue(0.5)  # Below component boxes
         self.setAcceptHoverEvents(True)
-        self.setToolTip(_("Signal: %s") % sig_name)
+        self.hover = False
+        self.setToolTip(_("Signal: %s") % signal_name)
+        self.update_path()
 
-    def shape(self):
-        """Wider hit area for clicking."""
-        path = QPainterPath()
-        hw, hh = self._hw + 5, self._hh + 5
-        path.moveTo(0, -hh)
-        path.lineTo(hw, 0)
-        path.lineTo(0, hh)
-        path.lineTo(-hw, 0)
-        path.closeSubpath()
-        return path
+    def update_path(self):
+        """Recompute the bezier curve path from current node positions."""
+        if not self._src_node or not self._dst_node:
+            return
 
-    def hoverMoveEvent(self, event):
-        self.setPen(QPen(QColor(255, 165, 0), 3))
-        self.setCursor(Qt.PointingHandCursor)
-        super().hoverMoveEvent(event)
+        p1 = self._src_node.port_pos(self._src_port, self._dst_node)
+        p2 = self._dst_node.port_pos(self._dst_port, self._src_node)
+
+        dx = (p2.x() - p1.x()) / 2
+        path = QPainterPath(p1)
+        path.cubicTo(
+            QPointF(p1.x() + dx, p1.y()),
+            QPointF(p2.x() - dx, p2.y()),
+            p2,
+        )
+        self.setPath(path)
+
+    def paint(self, painter, option, widget=None):
+        pen = QPen(self.color, self.HOVER_WIDTH if self.hover else self.WIDTH)
+        painter.setPen(pen)
+        self.update_path()
+        painter.drawPath(self.path())
+
+    def hoverEnterEvent(self, event):
+        self.hover = True
+        self.update()
 
     def hoverLeaveEvent(self, event):
-        self.setPen(QPen(QColor(200, 120, 0), 1.5))
-        self.setCursor(Qt.ArrowCursor)
-        super().hoverLeaveEvent(event)
+        self.hover = False
+        self.update()
 
 
 def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
-    """Resolve pin connections for unresolved signals using halcmd show sig (synchronous).
-
-    Shared by both --dotty and GRAPH tab background fetch.
-
-    Returns dict[sig_name -> {"writers": [pin_names], "readers": [pin_names]}]."""
+    """Resolve pin connections for unresolved signals using halcmd show sig."""
     import sys as _sys
 
-    # Check if WRITERS/READERS counts are available. Old _hal.so omits them entirely,
-    # so they'll all be 0 even for connected signals. If unavailable, fetch everything.
     has_counts = any(
         si.get("writers", 0) > 0 or si.get("readers", 0) > 0 for si in signals.values()
     )
 
     if has_counts:
         unresolved = [
-            sn
-            for sn, si in signals.items()
+            sn for sn, si in signals.items()
             if (si.get("writers", 0) > 0 and si.get("readers", 0) > 0)
             and not (si.get("writer_pins") and si.get("reader_pins"))
         ]
     else:
-        # Old _hal — no counts available, fetch all unresolved signals
         unresolved = [
-            sn
-            for sn, si in signals.items()
+            sn for sn, si in signals.items()
             if not (si.get("writer_pins") or si.get("reader_pins"))
         ]
-
-    # Debug output
-    n_total = len(signals)
-    n_connected = sum(
-        1
-        for s in signals.values()
-        if s.get("writers", 0) > 0 and s.get("readers", 0) > 0
-    )
-    n_resolved = sum(
-        1 for s in signals.values() if s.get("writer_pins") and s.get("reader_pins")
-    )
-    print(
-        f"[{debug_prefix}] {n_total} total, {n_connected} connected "
-        f"(counts={'available' if has_counts else 'MISSING-old_hal'}), "
-        f"{n_resolved} resolved, {len(unresolved)} unresolved",
-        file=_sys.stderr,
-    )
-    if signals:
-        sn = list(signals.keys())[0]
-        print(
-            f"[{debug_prefix}] sample '{sn}': writers={signals[sn].get('writers')}, "
-            f"readers={signals[sn].get('readers')}, "
-            f"writer_pins={signals[sn].get('writer_pins')}, "
-            f"reader_pins={signals[sn].get('reader_pins')}",
-            file=_sys.stderr,
-        )
 
     try:
         halcmd = HalApi._find_halcmd()
@@ -1947,9 +1897,7 @@ def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
         try:
             res = subprocess.run(
                 [halcmd, "show", "sig", sig_name],
-                capture_output=True,
-                text=True,
-                timeout=5,
+                capture_output=True, text=True, timeout=5,
             )
             if res.returncode == 0 and res.stdout.strip():
                 writers, readers = [], []
@@ -1966,37 +1914,19 @@ def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
                         if pin:
                             readers.append(pin)
                 results[sig_name] = {"writers": writers, "readers": readers}
-                print(
-                    f"[{debug_prefix}] {sig_name}: {len(writers)} writers, {len(readers)} readers",
-                    file=_sys.stderr,
-                )
-            else:
-                print(
-                    f"[{debug_prefix}] {sig_name}: halcmd failed (rc={res.returncode}): "
-                    f"{res.stderr.strip()}",
-                    file=_sys.stderr,
-                )
-        except subprocess.TimeoutExpired:
-            print(f"[{debug_prefix}] {sig_name}: timed out", file=_sys.stderr)
-        except Exception as e:
-            print(f"[{debug_prefix}] {sig_name}: error: {e}", file=_sys.stderr)
+        except Exception:
+            pass
 
-    print(f"[{debug_prefix}] Resolved {len(results)} signals total", file=_sys.stderr)
     return results
 
 
 class _HalCmdWorker(QObject):
-    """Background worker that runs halcmd show sig for each unresolved signal.
+    """Background worker for halcmd signal resolution."""
 
-    Runs in a separate QThread so subprocess calls can block without freezing Qt's event loop.
-    Collects all results then emits 'finished_all' with the accumulated connection data.
-    """
-
-    finished_all = Signal(dict)  # {sig_name: {"writers": [...], "readers": [...]}}
+    finished_all = Signal(dict)
 
     @Slot(dict)
     def fetch(self, signals):
-        """Fetch connections for all unresolved signals via halcmd."""
         results = _resolve_signals_via_halcmd(signals, debug_prefix="[halshow worker]")
         self.finished_all.emit(results)
 
@@ -2024,12 +1954,8 @@ class GraphWidget(QWidget):
         self._layout_done = False
         self._components_data = None
         self._signals_data = None
-        self._drawn_edges = (
-            set()
-        )  # Track drawn edges to avoid duplicates during background fetch
-        self._signal_nodes = (
-            {}
-        )  # sig_name -> (SignalNodeItem, QPointF) for shared signal hub
+        self._comp_items = {}    # comp_name -> CompGroupItem
+        self._edge_items = []    # list of EdgeItem
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -2129,508 +2055,140 @@ class GraphWidget(QWidget):
             scene_pt_before.y() - scene_pt_after.y(),
         )
 
-    def _build_graph(self):
-        """Collect HAL data and build the graph layout.
+    def _build_graph(self, skip_shm=False):
+        """Collect HAL data and build the graph layout (halviewer style).
 
-        Uses QTimer.singleShot to defer heavy computation until after paint,
-        keeping the UI responsive during tab switch.
-        """
+        When skip_shm=True, reuses stored data (after halcmd resolved connections)
+        instead of refetching from SHM."""
         try:
-            components, signals, pin_index = GraphDataBuilder.build()
-            self._components_data = components
-            self._signals_data = signals
-            self._pin_index = pin_index  # O(1) pin->comp lookup for edge building
+            if not skip_shm or not self._signals_data:
+                components, signals, pin_index = GraphDataBuilder.build()
+                self._components_data = components
+                self._signals_data = signals
+                self._pin_index = pin_index
 
-            # Build edge list from signals data (no dot layout needed — O(S) set ops).
-            edges = GraphLayout._build_edges(signals, pin_index=pin_index)
+            else:
+                # Reuse stored data (already merged with halcmd results)
+                components = self._components_data
+                signals = self._signals_data
+                pin_index = self._pin_index
 
-            # Filter to only connected components (those participating in at least one edge),
-            # then re-layout so orphaned instances don't inflate vertical space.
-            connected_comps = set()
-            for sig_name, src_comp, dst_comp in edges:
-                connected_comps.add(src_comp)
-                connected_comps.add(dst_comp)
-
-            connected_components = {
-                name: data
-                for name, data in components.items()
-                if name in connected_comps
-            }
-
-            # Filter to only connected pins when hide-unused mode is enabled.
-            if self.btn_hide_unused.isChecked():
-                _connected_pins = set()
-                for sig_info in signals.values():
-                    for pin in sig_info.get("writer_pins", []) + sig_info.get(
-                        "reader_pins", []
-                    ):
-                        _connected_pins.add(pin)
-                filtered = {}
-                for cn, cd in connected_components.items():
-                    filtered[cn] = {
-                        "in_pins": [
-                            p
-                            for p in cd["in_pins"]
-                            if p.get("fullname") in _connected_pins
-                        ],
-                        "out_pins": [
-                            p
-                            for p in cd["out_pins"]
-                            if p.get("fullname") in _connected_pins
-                        ],
-                        "pins": cd.get("pins", []),
-                    }
-                connected_components = filtered
-
-            placements, signal_placements, edges, splines = GraphLayout.compute(
-                connected_components, signals, pin_index=pin_index
+            # Compute layout via dot → SVG (component-only, no signal nodes)
+            placements, connections = GraphLayout.compute(
+                components, signals, pin_index=pin_index
             )
 
-            # Clear scene
+            if not placements and not skip_shm:
+                # On old _hal.so without SIGNAL/WRITERS/READERS fields, SHM can't resolve anything.
+                # Always fall back to halcmd when we have signals but zero SHM connections.
+                if len(signals) > 0:
+                    self.scene.clear()
+                    self.lbl_stats.setText(_("Resolving signal connections…"))
+                    QTimer.singleShot(50, self._start_background_fetch)
+                else:
+                    self.scene.clear()
+                    self.lbl_stats.setText(_("No connected components to display"))
+                    self._layout_done = True
+                return
+
+            if not placements and skip_shm:
+                self.scene.clear()
+                self.lbl_stats.setText(_("Failed to resolve connections"))
+                self._fetching = False
+                self._layout_done = True
+                return
+
+            # Clear scene and build new graph
             self.scene.clear()
-            self._signal_nodes = {}
+            self._comp_items = {}  # comp_name -> CompGroupItem
+            self._edge_items = []  # list of EdgeItem
 
-            # Add component items
-            for comp_name, pdata in connected_components.items():
+            # Create component group items
+            for comp_name, pdata in components.items():
+                if comp_name not in placements:
+                    continue
                 pos = placements[comp_name]
-                item = ComponentItem(
-                    comp_name, pdata["in_pins"], pdata["out_pins"], pos["x"], pos["y"]
-                )
-                item.setAcceptHoverEvents(True)
+
+                # Build pins_dict from component data (only connected pins)
+                pins_dict = OrderedDict()
+                seen = set()
+                for pin in pdata.get("pins", []):
+                    if not pin.get("connected"):
+                        continue
+                    short = pin["name"]
+                    if short not in seen:
+                        # Convert integer direction to string
+                        d = pin.get("direction", -1)
+                        if d == _HAL_OUT:
+                            dir_str = "OUT"
+                        elif d in (_HAL_IN, _HAL_IO):
+                            dir_str = "IN"
+                        else:
+                            dir_str = "I/O"
+
+                        pins_dict[short] = {
+                            "pin": short,
+                            "direction": dir_str,
+                            "signal": None,  # will be filled below
+                            "value": pin.get("value"),
+                            "vtype": pin.get("type", ""),
+                        }
+                        seen.add(short)
+
+                # Mark connected pins with their signal names
+                for sig_name, wpin_full, rpin_full in connections:
+                    for short, pinfo in pins_dict.items():
+                        full = comp_name + "." + short
+                        if full == wpin_full or full == rpin_full:
+                            pinfo["signal"] = sig_name
+
+                item = CompGroupItem(comp_name, pins_dict, pos["x"], pos["y"])
                 self.scene.addItem(item)
+                self._comp_items[comp_name] = item
 
-            # Pre-create signal nodes from layout-computed positions
-            self._drawn_edges = set()
-            for sig_name, sp in signal_placements.items():
-                node_pos = QPointF(sp["x"] + sp["hw"], sp["y"] + sp["hh"])
-                node = SignalNodeItem(sig_name, node_pos)
-                self.scene.addItem(node)
-                self._signal_nodes[sig_name] = (node, node_pos, sp["hw"], sp["hh"])
+            # Create direct pin-to-pin edges (no intermediate signal nodes)
+            for sig_name, wpin_full, rpin_full in connections:
+                writer_comp = pin_index.get(wpin_full)
+                reader_comp = pin_index.get(rpin_full)
+                if not writer_comp or not reader_comp:
+                    continue
 
-            # Build edges routed through signal nodes
-            # Track multi-edges (multiple signals between same component pair) for curve spreading
-            _multi_edge_counts = {}  # (src, dst) -> count
-            for sig_name, src_comp, dst_comp in edges:
-                key = (src_comp, dst_comp)
-                _multi_edge_counts[key] = _multi_edge_counts.get(key, 0) + 1
-            _edge_indices = {}  # (src, dst) -> current index
+                src_item = self._comp_items.get(writer_comp)
+                dst_item = self._comp_items.get(reader_comp)
+                if not src_item or not dst_item:
+                    continue
 
-            edge_count = 0
-            for sig_name, src_comp, dst_comp in edges:
-                key = (src_comp, dst_comp)
-                idx = _edge_indices.get(key, 0)
-                _edge_indices[key] = idx + 1
-                me_total = _multi_edge_counts[key]
-                ec = self._add_edge(
-                    sig_name,
-                    signals,
-                    src_comp,
-                    dst_comp,
-                    me_total=me_total,
-                    me_index=idx,
-                    splines=splines,
+                # Get short pin names from full path (last segment after last dot)
+                wpin_short = wpin_full.rsplit(".", 1)[-1]
+                rpin_short = rpin_full.rsplit(".", 1)[-1]
+
+                sig_info = signals.get(sig_name, {})
+                sig_val = sig_info.get("value")
+
+                edge = EdgeItem(
+                    sig_name, sig_val,
+                    src_item, wpin_short,
+                    dst_item, rpin_short
                 )
-                if ec:
-                    edge_count += 1
+                self.scene.addItem(edge)
+                self._edge_items.append(edge)
 
-            # Update stats label (show only connected components count)
-            n_connected = len(connected_comps)
-            connected_sigs = sum(
-                1
-                for s in signals.values()
-                if s.get("writer_pins") and s.get("reader_pins")
-            )
+            # Update stats
+            n_comps = len(placements)
+            connected_sigs = sum(1 for s in signals.values() if s.get("writer_pins") and s.get("reader_pins"))
             self.lbl_stats.setText(
-                _("%d connected components, %d/%d signals, %d edges")
-                % (n_connected, connected_sigs, len(signals), edge_count)
+                _("%d components, %d/%d signals, %d connections")
+                % (n_comps, connected_sigs, len(signals), len(connections))
             )
-
-            # If no connections resolved (old _hal without SIGNAL field), start background
-            # fetching via QThread so subprocess calls don't block the UI.
-            needs_fetch = not self._drawn_edges and len(signals) > 0
-            if needs_fetch:
-                n_total = len(components)
-                self.lbl_stats.setText(
-                    _("%d components, resolving connections...") % n_total
-                )
-                QTimer.singleShot(50, self._start_background_fetch)
-
-            # If hide-unused was requested but data is incomplete, re-layout after fetch.
-            if needs_fetch and self.btn_hide_unused.isChecked():
-                # Will be handled by _on_fetch_finished which has complete signal data.
-                pass
 
             self._layout_done = True
-
-            # Auto-fit to view after a brief delay (let scene settle)
             QTimer.singleShot(100, self._zoom_fit)
 
         except Exception as e:
             import traceback
-
             traceback.print_exc()
             self.lbl_stats.setText(_("Error building graph: %s") % e)
-            QMessageBox.warning(
-                self, _("Graph Error"), _("Failed to build HAL graph:\n%s") % e
-            )
-
-    def _add_edge(
-        self,
-        sig_name,
-        signals,
-        src_comp,
-        dst_comp,
-        me_total=1,
-        me_index=0,
-        splines=None,
-    ):
-        """Add edges as two segments: writer_pin→signal and signal→reader_pin.
-
-        me_total / me_index describe multi-edge relationships between the same
-        component pair so curves can spread apart rather than overlap.
-        splines is an optional dict from dot layout: (src_node, dst_node) -> waypoints.
-
-        Each segment has its own arrowhead pointing toward the target node.
-        This correctly models HAL signals as buses (not pass-through wires).
-        Handles self-loops where src_comp == dst_comp naturally.
-        """
-        if splines is None:
-            splines = {}
-        edge_key = (sig_name, src_comp, dst_comp)
-        if edge_key in self._drawn_edges:
-            return False
-
-        sig_info = signals.get(sig_name, {})
-        # Find the actual writer pin on src_comp and reader pin on dst_comp.
-        writer_fullpath = None  # e.g. "iocontrol.0.user-enable-out"
-        for wp in sig_info.get("writer_pins", []):
-            if wp.startswith(src_comp + "."):
-                writer_fullpath = wp
-                break
-        reader_fullpath = None
-        for rp in sig_info.get("reader_pins", []):
-            if rp.startswith(dst_comp + "."):
-                reader_fullpath = rp
-                break
-        if not writer_fullpath or not reader_fullpath:
-            import sys as _sys
-
-            print(
-                f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
-                f"has no matching pin. writer_pins={sig_info.get('writer_pins',[])}, "
-                f"reader_pins={sig_info.get('reader_pins',[])}",
-                file=_sys.stderr,
-            )
-            return False
-
-        # Find component items and signal node.
-        src_item = dst_item = None
-        for item in self.scene.items():
-            if isinstance(item, ComponentItem):
-                if item.comp_name == src_comp:
-                    src_item = item
-                if item.comp_name == dst_comp:  # NOT elif — handles self-loops!
-                    dst_item = item
-        # For self-loops (same component), dst_item is the same as src_item.
-        if not src_item or not dst_item:
-            import sys as _sys
-
-            print(
-                f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
-                f"component item missing.",
-                file=_sys.stderr,
-            )
-            return False
-
-        if sig_name not in self._signal_nodes:
-            return False
-        __, sig_center, sig_hw, sig_hh = self._signal_nodes[sig_name]
-
-        # Compute pin marker position — match by fullname only.
-        def _pin_marker_pos(item, full_path, is_out):
-            pins = item.out_pins if is_out else item.in_pins
-            py = GraphLayout.COMP_HEADER_H
-            for pin in pins:
-                cy = py + GraphLayout.PIN_ROW_H / 2
-                if pin.get("fullname") == full_path:
-                    pad = GraphLayout.PIN_MARKER_PAD
-                    if is_out:
-                        return QPointF(
-                            item.x() + item.rect().width() + pad, item.y() + cy
-                        )
-                    else:
-                        return QPointF(item.x() - pad, item.y() + cy)
-                py += GraphLayout.PIN_ROW_H
-            return None
-
-        writer_marker = _pin_marker_pos(src_item, writer_fullpath, is_out=True)
-        reader_marker = _pin_marker_pos(dst_item, reader_fullpath, is_out=False)
-        if not writer_marker or not reader_marker:
-            import sys as _sys
-
-            print(
-                f"[halshow] WARNING: edge ({sig_name}, {src_comp}, {dst_comp}) "
-                f"pin marker not found. writer={writer_fullpath}({bool(writer_marker)}), "
-                f"reader={reader_fullpath}({bool(reader_marker)})",
-                file=_sys.stderr,
-            )
-            return False
-
-        # Diamond perimeter intersection: where a ray from (tx,ty) hits the diamond.
-        def _diamond_perimeter(cx, cy, dhw, dhh, tx, ty):
-            dx, dy = tx - cx, ty - cy
-            if abs(dx) < 1e-9 and abs(dy) < 1e-9:
-                return QPointF(cx + dhw, cy)
-            denom = max(abs(dx) / dhw, abs(dy) / dhh)
-            if denom < 1e-12:
-                return QPointF(cx + dhw, cy)
-            return QPointF(cx + dx / denom, cy + dy / denom)
-
-        # Entry point on diamond from writer pin (incoming edge).
-        sig_entry = _diamond_perimeter(
-            sig_center.x(),
-            sig_center.y(),
-            sig_hw,
-            sig_hh,
-            writer_marker.x(),
-            writer_marker.y(),
-        )
-        # Exit point on diamond toward reader pin (outgoing edge).
-        sig_exit = _diamond_perimeter(
-            sig_center.x(),
-            sig_center.y(),
-            sig_hw,
-            sig_hh,
-            reader_marker.x(),
-            reader_marker.y(),
-        )
-
-        BG_COLOR = QColor(245, 245, 240)
-        FG_COLOR = QColor(60, 60, 180)
-        HOVER_COLOR = QColor(255, 165, 0)
-
-        def _make_arrowhead(tip_pos, from_pos, size=7):
-            """Build an arrowhead path pointing at tip_pos."""
-            angle = math.atan2(tip_pos.y() - from_pos.y(), tip_pos.x() - from_pos.x())
-            p = QPainterPath()
-            p.moveTo(tip_pos)
-            p.lineTo(
-                tip_pos.x() - size * math.cos(angle - 0.45),
-                tip_pos.y() - size * math.sin(angle - 0.45),
-            )
-            p.lineTo(
-                tip_pos.x() - size * math.cos(angle + 0.45),
-                tip_pos.y() - size * math.sin(angle + 0.45),
-            )
-            p.closeSubpath()
-            return p
-
-        def _add_segment(
-            from_marker,
-            to_perimeter,
-            arrow_tip,
-            arrow_from,
-            me_total=1,
-            me_index=0,
-            direction="wr",
-            spline=None,
-        ):
-            """Add one segment using dot's native edge spline or fallback bezier.
-
-            When `spline` is provided (list of (x,y) waypoints from dot), the
-            path follows those crossing-minimized waypoints that avoid all nodes.
-            The start/end are replaced with our pin marker / diamond perimeter points.
-
-            Without a spline, falls back to cubic bezier curves.
-            """
-            if spline and len(spline) >= 2:
-                # Use dot's native spline — replace first/last waypoint with
-                # our actual connection points (pin marker → diamond perimeter).
-                pts = list(spline)
-                pts[0] = (from_marker.x(), from_marker.y())
-                pts[-1] = (to_perimeter.x(), to_perimeter.y())
-
-                path = QPainterPath()
-                if len(pts) <= 2:
-                    # Straight line, no smoothing needed.
-                    path.moveTo(pts[0][0], pts[0][1])
-                    for px, py in pts[1:]:
-                        path.lineTo(px, py)
-                else:
-                    # Smooth sharp turns at interior waypoints using quadratic
-                    # beziers. Each corner is rounded by pulling the curve back
-                    # along the incoming/outgoing directions by a small radius.
-                    smooth_r = 20.0
-
-                    def _dist(a, b):
-                        return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
-
-                    path.moveTo(pts[0][0], pts[0][1])
-                    for i in range(1, len(pts) - 1):
-                        prev_pt = pts[i - 1]
-                        curr_pt = pts[i]
-                        next_pt = pts[i + 1]
-                        d_in = _dist(prev_pt, curr_pt)
-                        d_out = _dist(curr_pt, next_pt)
-
-                        # Skip smoothing if segments too short (avoids artifacts).
-                        if d_in < 2 or d_out < 2:
-                            path.lineTo(curr_pt[0], curr_pt[1])
-                            continue
-
-                        r = min(smooth_r, d_in / 3, d_out / 3)
-                        # t_in: point at distance r before curr along incoming segment.
-                        frac_in = r / d_in
-                        t_in_x = prev_pt[0] + (curr_pt[0] - prev_pt[0]) * (
-                            1.0 - frac_in
-                        )
-                        t_in_y = prev_pt[1] + (curr_pt[1] - prev_pt[1]) * (
-                            1.0 - frac_in
-                        )
-                        # t_out: point at distance r after curr along outgoing segment.
-                        frac_out = r / d_out
-                        t_out_x = curr_pt[0] + (next_pt[0] - curr_pt[0]) * frac_out
-                        t_out_y = curr_pt[1] + (next_pt[1] - curr_pt[1]) * frac_out
-
-                        path.lineTo(t_in_x, t_in_y)
-                        path.quadTo(curr_pt[0], curr_pt[1], t_out_x, t_out_y)
-
-                    # Last point via straight line.
-                    lx, ly = pts[-1]
-                    path.lineTo(lx, ly)
-
-                # Arrowhead angle from last segment direction.
-                if len(pts) >= 3:
-                    prev = pts[-2]
-                    tan_dx = pts[-1][0] - prev[0]
-                    tan_dy = pts[-1][1] - prev[1]
-                else:
-                    tan_dx = to_perimeter.x() - from_marker.x()
-                    tan_dy = to_perimeter.y() - from_marker.y()
-            else:
-                # Fallback: cubic bezier curve (no obstacle awareness).
-                dx = to_perimeter.x() - from_marker.x()
-                dy = to_perimeter.y() - from_marker.y()
-                dist = math.sqrt(dx * dx + dy * dy)
-
-                if dist > 10:
-                    nx, ny = -dy / dist, dx / dist
-
-                    if me_total == 1:
-                        curve = min(5 + dist * 0.03, 12)
-                    else:
-                        center = (me_total - 1) / 2.0
-                        offset = me_index - center
-                        curve = abs(offset) * min(8 + dist * 0.06, 25)
-
-                    cp1x = from_marker.x() + dx * 0.4 + nx * curve
-                    cp1y = from_marker.y() + dy * 0.4 + ny * curve
-                    cp2x = to_perimeter.x() - dx * 0.4 - nx * curve
-                    cp2y = to_perimeter.y() - dy * 0.4 - ny * curve
-
-                    path = QPainterPath()
-                    path.moveTo(from_marker)
-                    path.cubicTo(
-                        cp1x, cp1y, cp2x, cp2y, to_perimeter.x(), to_perimeter.y()
-                    )
-
-                    tan_dx = 3 * (to_perimeter.x() - cp2x)
-                    tan_dy = 3 * (to_perimeter.y() - cp2y)
-                else:
-                    path = QPainterPath()
-                    path.moveTo(from_marker)
-                    path.lineTo(to_perimeter)
-                    tan_dx = dx
-                    tan_dy = dy
-
-            bg = QGraphicsPathItem(path)
-            self.scene.addItem(bg)
-            bg.setPen(QPen(BG_COLOR, 5))
-            bg.setZValue(2.5)
-
-            fg = QGraphicsPathItem(path)
-            self.scene.addItem(fg)
-            fg.setPen(QPen(FG_COLOR, 1.5))
-            fg.setToolTip(_("%s (%s)") % (sig_name, sig_info.get("type", "?")))
-
-            # Use tangent-based angle for arrowhead alignment on curves
-            ah_angle = math.atan2(tan_dy, tan_dx)
-            ah_path = QPainterPath()
-            ah_size = 7
-            ah_path.moveTo(arrow_tip)
-            ah_path.lineTo(
-                arrow_tip.x() - ah_size * math.cos(ah_angle - 0.45),
-                arrow_tip.y() - ah_size * math.sin(ah_angle - 0.45),
-            )
-            ah_path.lineTo(
-                arrow_tip.x() - ah_size * math.cos(ah_angle + 0.45),
-                arrow_tip.y() - ah_size * math.sin(ah_angle + 0.45),
-            )
-            ah_path.closeSubpath()
-
-            ah = QGraphicsPathItem(ah_path)
-            self.scene.addItem(ah)
-            bg.setZValue(2.5)
-            fg.setZValue(3.0)
-            ah.setPen(QPen(FG_COLOR, 1.5))
-            ah.setBrush(QBrush(FG_COLOR))
-            ah.setToolTip(fg.toolTip())
-            ah.setZValue(3.5)
-
-            return (bg, fg, ah)
-
-        def _enter(items):
-            for _, f, a in items:
-                f.setPen(QPen(HOVER_COLOR, 3))
-                a.setPen(QPen(HOVER_COLOR, 2))
-                a.setBrush(QBrush(HOVER_COLOR))
-
-        def _leave(items):
-            for _, f, a in items:
-                f.setPen(QPen(FG_COLOR, 1.5))
-                a.setPen(QPen(FG_COLOR, 1.5))
-                a.setBrush(QBrush(FG_COLOR))
-
-        # Segment 1: writer pin → signal diamond (arrow at diamond edge)
-        spline_wr = splines.get((src_comp, sig_name))
-        seg1 = _add_segment(
-            writer_marker,
-            sig_entry,
-            arrow_tip=sig_entry,
-            arrow_from=writer_marker,
-            me_total=me_total,
-            me_index=me_index,
-            direction="wr",
-            spline=spline_wr,
-        )
-        for fg_item, ah in [(seg1[1], seg1[2])]:
-            fg_item.setAcceptHoverEvents(True)
-            ah.setAcceptHoverEvents(True)
-
-        # Segment 2: signal diamond → reader pin (arrow at reader pin marker)
-        spline_rs = splines.get((sig_name, dst_comp))
-        seg2 = _add_segment(
-            sig_exit,
-            reader_marker,
-            arrow_tip=reader_marker,
-            arrow_from=sig_exit,
-            me_total=me_total,
-            me_index=me_index,
-            direction="rs",
-            spline=spline_rs,
-        )
-        for fg_item, ah in [(seg2[1], seg2[2])]:
-            fg_item.setAcceptHoverEvents(True)
-            ah.setAcceptHoverEvents(True)
-
-        all_items = [seg1, seg2]
-        for seg in all_items:
-            for itm in (seg[1], seg[2]):  # fg and arrowhead
-                itm.hoverEnterEvent = lambda e, i=all_items: _enter(i)
-                itm.hoverLeaveEvent = lambda e, i=all_items: _leave(i)
-
-        self._drawn_edges.add(edge_key)
-        return True
+            QMessageBox.warning(self, _("Graph Error"), _("Failed to build HAL graph:\n%s") % e)
 
     def _start_background_fetch(self):
         """Start a background QThread to fetch signal connections via halcmd.
@@ -2658,9 +2216,6 @@ class GraphWidget(QWidget):
     @Slot(dict)
     def _on_fetch_finished(self, results):
         """Called when all signal connections have been fetched. Rebuilds scene."""
-        import sys as _sys
-
-        # Merge resolved connections into signals data
         n_merged = 0
         for sig_name, conn in results.items():
             if sig_name in self._signals_data:
@@ -2669,127 +2224,33 @@ class GraphWidget(QWidget):
                     self._signals_data[sig_name]["reader_pins"] = conn["readers"]
                     n_merged += 1
 
-        print(
-            f"[halshow] Merged {n_merged} signals with both writers+readers",
-            file=_sys.stderr,
-        )
-
-        # Rebuild entire scene with resolved connections
-        self.scene.clear()
-        self._drawn_edges = set()
-        self._signal_nodes = {}
-
-        # Build edge list from signals data (no dot layout needed).
-        edges = GraphLayout._build_edges(self._signals_data, pin_index=self._pin_index)
-
-        # Filter to only connected components before layouting.
-        connected_comps = set()
-        for sig_name, src_comp, dst_comp in edges:
-            connected_comps.add(src_comp)
-            connected_comps.add(dst_comp)
-
-        connected_components = {
-            name: data
-            for name, data in self._components_data.items()
-            if name in connected_comps
-        }
-
-        # Filter to only connected pins when hide-unused mode is enabled.
-        if hasattr(self, "btn_hide_unused") and self.btn_hide_unused.isChecked():
-            _connected_pins = set()
-            for sig_info in self._signals_data.values():
-                for pin in sig_info.get("writer_pins", []) + sig_info.get(
-                    "reader_pins", []
+        # Mark connected pins in component data so layout height is correct
+        for comp_data in self._components_data.values():
+            for pin in comp_data["pins"]:
+                if any(
+                    pin["fullname"] == w or pin["fullname"] == r
+                    for sig_info in self._signals_data.values()
+                    for w in sig_info.get("writer_pins", [])
+                    for r in sig_info.get("reader_pins", [])
                 ):
-                    _connected_pins.add(pin)
-            filtered = {}
-            for cn, cd in connected_components.items():
-                filtered[cn] = {
-                    "in_pins": [
-                        p for p in cd["in_pins"] if p.get("fullname") in _connected_pins
-                    ],
-                    "out_pins": [
-                        p
-                        for p in cd["out_pins"]
-                        if p.get("fullname") in _connected_pins
-                    ],
-                    "pins": cd.get("pins", []),
-                }
-            connected_components = filtered
+                    pin["connected"] = True
 
-        placements, signal_placements, edges, splines = GraphLayout.compute(
-            connected_components, self._signals_data, pin_index=self._pin_index
-        )
-        print(
-            f"[halshow] Layout: {len(placements)} components ({len(self._components_data)-len(placements)} filtered), {len(edges)} layout-edges",
-            file=_sys.stderr,
-        )
+        # Rebuild graph using cached data (skip SHM refetch)
+        QTimer.singleShot(0, lambda: self._build_graph(skip_shm=True))
+        self._fetching = False
 
-        for comp_name, pdata in connected_components.items():
-            pos = placements[comp_name]
-            item = ComponentItem(
-                comp_name, pdata["in_pins"], pdata["out_pins"], pos["x"], pos["y"]
-            )
-            item.setAcceptHoverEvents(True)
-            self.scene.addItem(item)
-
-        # Pre-create signal nodes from layout-computed positions
-        for sig_name, sp in signal_placements.items():
-            node_pos = QPointF(sp["x"] + sp["hw"], sp["y"] + sp["hh"])
-            node = SignalNodeItem(sig_name, node_pos)
-            self.scene.addItem(node)
-            self._signal_nodes[sig_name] = (node, node_pos, sp["hw"], sp["hh"])
-
-        # Track multi-edges for curve spreading
-        _multi_edge_counts = {}
-        for sig_name, src_comp, dst_comp in edges:
-            key = (src_comp, dst_comp)
-            _multi_edge_counts[key] = _multi_edge_counts.get(key, 0) + 1
-        _edge_indices = {}
-
-        edge_count = 0
-        for sig_name, src_comp, dst_comp in edges:
-            key = (src_comp, dst_comp)
-            idx = _edge_indices.get(key, 0)
-            _edge_indices[key] = idx + 1
-            me_total = _multi_edge_counts[key]
-            if self._add_edge(
-                sig_name,
-                self._signals_data,
-                src_comp,
-                dst_comp,
-                me_total=me_total,
-                me_index=idx,
-                splines=splines,
-            ):
-                edge_count += 1
-
-        self._update_graph_stats()
-        self.lbl_stats.setText(
-            _("Connection resolution complete — %d edges") % edge_count
-        )
-        self._fetching = False  # Allow next fetch
-
-        # Clean up thread and worker to prevent stale references
         if hasattr(self, "_halcmd_thread") and self._halcmd_thread.isRunning():
             self._halcmd_thread.quit()
             self._halcmd_thread.wait()
-            delattr(self, "_halcmd_worker")
-            delattr(self, "_halcmd_thread")
 
     def _update_graph_stats(self):
         """Update the stats label with current edge count."""
         n_components = len(self._components_data or {})
         n_signals = len(self._signals_data or {})
-        connected_sigs = sum(
-            1
-            for s in (self._signals_data or {}).values()
-            if s.get("writer_pins") and s.get("reader_pins")
-        )
-        edge_count = len(self._drawn_edges)
+        connected_sigs = sum(1 for s in (self._signals_data or {}).values() if s.get("writer_pins") and s.get("reader_pins"))
         self.lbl_stats.setText(
-            _("%d total, %d/%d connected signals, %d edges")
-            % (n_components, connected_sigs, n_signals, edge_count)
+            _("%d components, %d/%d signals, %d connections")
+            % (n_components, connected_sigs, n_signals, len(self._edge_items))
         )
 
     def _reload_graph(self):
@@ -2838,17 +2299,17 @@ class GraphWidget(QWidget):
         item = items_at_pos[0]
         menu = QMenu(self)
 
-        if isinstance(item, ComponentItem):
+        if isinstance(item, CompGroupItem):
             self._component_context_menu(menu, item, pos)
-        elif hasattr(item, "sig_name"):  # edge items carry sig_name attribute
+        elif hasattr(item, "signal_name"):  # EdgeItem carries signal_name attribute
             self._edge_context_menu(menu, item, pos)
 
         if menu.actions():
             menu.exec_(self.view.mapToGlobal(pos))
 
     def _component_context_menu(self, menu, item, pos):
-        """Context menu for a component node."""
-        comp_name = item.comp_name
+        """Context menu for a component group node."""
+        comp_name = item.title
 
         add_all_pins = QAction(_("Add all pins to watch"), self)
         add_all_pins.triggered.connect(lambda: self._add_comp_pins_to_watch(comp_name))
@@ -2856,10 +2317,11 @@ class GraphWidget(QWidget):
 
         menu.addSeparator()
 
-        for pin in item.in_pins + item.out_pins:
-            act = QAction(_("%s (watch)") % pin["name"], self)
+        for short, pdata in item.pins_dict.items():
+            full = comp_name + "." + short
+            act = QAction(_("%s (watch)") % short, self)
             act.triggered.connect(
-                lambda _, p=pin: self.add_to_watch.emit("pin", p["fullname"])
+                lambda _, f=full: self.add_to_watch.emit("pin", f)
             )
             menu.addAction(act)
 
@@ -2868,7 +2330,7 @@ class GraphWidget(QWidget):
 
     def _edge_context_menu(self, menu, item, pos):
         """Context menu for a signal edge."""
-        sig_name = item.sig_name
+        sig_name = item.signal_name
 
         watch_sig = QAction(_('Signal "%s" (watch)') % sig_name, self)
         watch_sig.triggered.connect(lambda: self.add_to_watch.emit("sig", sig_name))
@@ -2878,11 +2340,11 @@ class GraphWidget(QWidget):
         """Add all pins of a component to the watch list."""
         if not self._components_data or comp_name not in self._components_data:
             return
-        for pin in (
-            self._components_data[comp_name]["in_pins"]
-            + self._components_data[comp_name]["out_pins"]
-        ):
-            self.add_to_watch.emit("pin", pin["fullname"])
+        cd = self._components_data[comp_name]
+        for pin in cd.get("pins", []) + cd.get("in_pins", []) + cd.get("out_pins", []):
+            full = pin.get("fullname")
+            if full:
+                self.add_to_watch.emit("pin", full)
 
     def _delete_link(self, pin_name, sig_name):
         """Delete a HAL link by unlinking the pin."""
