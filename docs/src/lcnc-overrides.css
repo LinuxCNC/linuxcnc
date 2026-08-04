@@ -35,6 +35,11 @@ body:is(.article,.book,.manpage) mark {
   color: inherit;
 }
 
+.man-xref {
+  font-family: monospace;
+  font-size: 90%;
+}
+
 /* Headings + block titles: asciidoctor default is #ba3925 (brick red).
    Use near-black / very dark blue.  Apply to h1..h6 and to .title
    (image/listing/table captions) so figure captions like
