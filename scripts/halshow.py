@@ -101,6 +101,7 @@ from qtpy.QtGui import (
     QBrush,
     QFontMetrics,
     QPalette,
+    QPixmap,
 )
 
 # Cross-backend window flag compatibility (PyQt5/PySide2 vs PyQt6/PySide6)
@@ -2915,6 +2916,70 @@ class GraphWidget(QWidget):
 # ---------------------------------------------------------------------------
 
 
+class _CollapsedStrip(QWidget):
+    """Narrow vertical strip with « expand button and rotated 'Tree View' text (Tcl match)."""
+
+    def __init__(self, mainwin=None, toggle_callback=None):
+        super().__init__()
+        self._mainwin = mainwin
+        self.setVisible(False)  # Hidden initially; shown by _toggle_tree_visible
+
+        font = QFont("", 9, QFont.Bold)
+        fm = QFontMetrics(font)
+        text_rect = fm.boundingRect(_("Tree View"))
+        # After 90° rotation: pixmap width = text height + padding
+        self._strip_width = max(24, text_rect.height() + 10)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 8, 0, 8)
+        layout.setSpacing(6)
+
+        expand_btn = QPushButton("«")
+        expand_btn.setToolTip(_("Expand tree view"))
+        if toggle_callback:
+            expand_btn.clicked.connect(toggle_callback)
+        # Constrain button to strip width so it doesn't make the layout wider than intended
+        btn_max_w = max(self._strip_width - 16, 20)
+        expand_btn.setFixedWidth(btn_max_w)
+        layout.addWidget(expand_btn, 0, Qt.AlignHCenter)
+
+        # Rotated "Tree View" — drawn in paintEvent (no pixmap needed)
+        self._rot_text = _("Tree View")
+        layout.addStretch(1)
+
+    def sizeHint(self):
+        return QSize(self._strip_width, 64)
+
+    def minimumSizeHint(self):
+        return QSize(self._strip_width, 32)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        try:
+            font = QFont("", 9, QFont.Bold)
+            fm = QFontMetrics(font)
+            text = self._rot_text
+
+            # Center rotation point in widget
+            cx = self.width() // 2
+            cy = self.height() // 2
+
+            painter.save()
+            painter.translate(cx, cy)
+            painter.rotate(-90)
+            painter.setFont(font)
+            painter.setPen(self.palette().color(QPalette.ColorRole.Text))
+
+            # Draw text centered at origin in rotated coordinate system
+            tr = fm.boundingRect(text)
+            x = -tr.width() // 2
+            y = fm.ascent() // 2
+            painter.drawText(x, y, text)
+            painter.restore()
+        finally:
+            painter.end()
+
+
 class HalshowMain(QMainWindow):
     def __init__(self, prefs, cli_ffmt=None, cli_ifmt=None):
         super().__init__()
@@ -3077,8 +3142,10 @@ class HalshowMain(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
-        # Filter bar
-        filter_frame = QHBoxLayout()
+        # Filter bar (wrapped in container so it can be hidden when tree collapsed)
+        self.filter_container = QWidget()
+        filter_frame = QHBoxLayout(self.filter_container)
+        filter_frame.setContentsMargins(0, 0, 0, 0)
         self.filter_entry = QLineEdit()
         self.filter_entry.setPlaceholderText(_("Filter tree"))
         self.filter_entry.textChanged.connect(self._on_filter_changed)
@@ -3089,15 +3156,33 @@ class HalshowMain(QMainWindow):
         self.cb_fullpath = QCheckBox(_("Full path (regex)"))
         self.cb_fullpath.stateChanged.connect(self._on_filter_changed)
         filter_frame.addWidget(self.cb_fullpath)
-        layout.addLayout(filter_frame)
 
-        # Tree widget
+        # Collapse button — hides tree into narrow strip (Tcl match)
+        self.collapse_btn = QPushButton("»")
+        self.collapse_btn.setFixedWidth(24)
+        self.collapse_btn.setToolTip(_("Collapse / expand tree view"))
+        self.collapse_btn.clicked.connect(self._toggle_tree_visible)
+        filter_frame.addWidget(self.collapse_btn)
+        layout.addWidget(self.filter_container)
+
+        # Tree widget (wrapped in a container so we can hide it cleanly)
+        self.tree_container = QWidget()
+        tc_layout = QVBoxLayout(self.tree_container)
+        tc_layout.setContentsMargins(0, 0, 0, 0)
+        tc_layout.setSpacing(0)
+
         self.tree = QTreeWidget()
         self.tree.setHeaderHidden(True)
         self.tree.itemClicked.connect(self._on_tree_clicked)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(self._tree_context_menu)
-        layout.addWidget(self.tree, 1)
+        tc_layout.addWidget(self.tree, 1)
+        layout.addWidget(self.tree_container, 1)
+
+        # Narrow strip shown when tree is collapsed (Tcl match)
+        self.collapse_strip = _CollapsedStrip(self, self._toggle_tree_visible)
+        self.collapse_strip.setFixedWidth(self.collapse_strip._strip_width)
+        layout.addWidget(self.collapse_strip, 0)
 
         return frame
 
@@ -3333,6 +3418,32 @@ class HalshowMain(QMainWindow):
                 if any(re.search(pattern, part) for part in parts):
                     result.append((full_name, leaftype))
         return result
+
+    def _toggle_tree_visible(self):
+        """Toggle tree view between expanded and collapsed narrow strip (Tcl match)."""
+        is_collapsed = self.collapse_strip.isVisible()
+        if is_collapsed:
+            # Expand: restore tree, hide strip
+            self.tree_container.setVisible(True)
+            self.filter_container.setVisible(True)
+            self.left_frame.setMinimumWidth(0)  # Clear width constraints
+            self.left_frame.setMaximumWidth(9999)
+            self.collapse_btn.setText("»")
+            self.collapse_strip.setVisible(False)
+            # Restore splitter sizes from before collapse
+            if hasattr(self, "_saved_splitter_sizes"):
+                self.splitter.setSizes(self._saved_splitter_sizes)
+        else:
+            # Collapse: save splitter state, hide tree, show strip
+            self._saved_splitter_sizes = self.splitter.sizes()
+            self.tree_container.setVisible(False)
+            self.filter_container.setVisible(False)
+            self.collapse_btn.setText("«")
+            self.collapse_strip.setVisible(True)
+            # Force left pane to exact strip width (bypasses all size hints)
+            strip_w = getattr(self.collapse_strip, "_strip_width", 32) + 4
+            self.left_frame.setMinimumWidth(strip_w)
+            self.left_frame.setMaximumWidth(strip_w)
 
     def refresh_tree(self):
         HalApi._invalidate_cache()
