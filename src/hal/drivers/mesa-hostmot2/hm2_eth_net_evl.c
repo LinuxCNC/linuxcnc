@@ -39,6 +39,7 @@
 
 #include "hostmot2-lowlevel.h"
 #include "hm2_eth_net_evl.h"
+#include "hm2_eth_net_posix.h"
 
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
@@ -260,7 +261,7 @@ static int check_evl(hm2_eth_t *board) {
     }
 }
 
-int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags) {
+int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len) {
     ssize_t ret = 0;
     ret = check_evl(board);
     if (ret < 0) {
@@ -273,8 +274,8 @@ int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int f
 
         evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
         ts_timeout.tv_nsec += 1000*SEND_TIMEOUT_US;
-        while (ts_timeout.tv_nsec >= 1000000000) {
-            ts_timeout.tv_nsec -= 1000000000;
+        while (ts_timeout.tv_nsec >= 1e9) {
+            ts_timeout.tv_nsec -= 1e9;
             ts_timeout.tv_sec ++;
         }
 
@@ -290,17 +291,19 @@ int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int f
         /*msghdr.msg_name = NULL;
         msghdr.msg_namelen = 0;*/
         msghdr.msg_flags = 0;
-        ret = oob_sendmsg(board->sockfd, &msghdr, &ts_timeout, flags);
+        ret = oob_sendmsg(board->sockfd, &msghdr, &ts_timeout, 0);
         if (ret == -1) {
             LL_PRINT("ERROR: oob_sendmsg %m %i %li\n", errno, ret);
         }
     } else {
-        ret = send(board->sockfd, buffer, len, flags);
+        //While initialisation, use posix mode due
+        //to we are not in an evl thread
+        ret = hm2_posix_eth_socket_send(board, buffer, len);
     }
     return ret;
 }
 
-int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags) {
+int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns) {
     ssize_t ret = 0;
     ret = check_evl(board);
     if (ret < 0) {
@@ -312,9 +315,9 @@ int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags) 
         struct timespec ts_timeout;
 
         evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
-        ts_timeout.tv_nsec += 1000*RECV_TIMEOUT_US;
-        while (ts_timeout.tv_nsec >= 1000000000) {
-            ts_timeout.tv_nsec -= 1000000000;
+        ts_timeout.tv_nsec += recv_timeout_ns;
+        while (ts_timeout.tv_nsec >= 1e9) {
+            ts_timeout.tv_nsec -= 1e9;
             ts_timeout.tv_sec ++;
         }
 
@@ -330,9 +333,11 @@ int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags) 
         /*msghdr.msg_name = NULL;
         msghdr.msg_namelen = 0;*/
         msghdr.msg_flags = 0;
-        ret = oob_recvmsg(board->sockfd, &msghdr, &ts_timeout, flags);
+        ret = oob_recvmsg(board->sockfd, &msghdr, &ts_timeout, 0);
     } else {
-        ret = recv(board->sockfd, buffer, len, flags);
+        //While initialisation, use posix mode due
+        //to we are not in an evl thread
+        ret = hm2_posix_eth_socket_recv(board, buffer, len, recv_timeout_ns);
     }
     return ret;
 }

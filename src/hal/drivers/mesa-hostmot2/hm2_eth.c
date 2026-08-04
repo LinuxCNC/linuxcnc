@@ -54,6 +54,8 @@
 #include "hm2_eth_net_evl.h"
 #endif
 
+#define RECV_TIMEOUT_NON_RT_NS (200 * 1000 * 1000) //200ms for initialisation / non-realtime part
+
 struct kvlist {
     struct rtapi_list_head list;
     char key[16+1];
@@ -462,12 +464,10 @@ static const char *hm2_8cSS_pin_names[] = {
 
 };
 
-#define READ_PCK_DELAY_NS 10000
-
 static hm2_eth_t boards[MAX_ETH_BOARDS];
 
-static int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags);
-static int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags);
+static int eth_socket_send(hm2_eth_t *board, const void *buffer, int len);
+static int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns);
 
 /// firewall functions
 
@@ -799,13 +799,11 @@ int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
-    int res = eth_socket_send(board, &packet, sizeof(packet), 0);
+    int res = eth_socket_send(board, &packet, sizeof(packet));
     if(res < 0) return -errno;
 
     int i=0;
-    do {
-        res = eth_socket_recv(board, &response, sizeof(response), 0);
-    } while(++i < 10 && res < 0 && errno == EAGAIN);
+    res = eth_socket_recv(board, &response, sizeof(response), RECV_TIMEOUT_NON_RT_NS);
     if(res < 0) return -errno;
 
     // eeprom order is backwards from arp AF_LOCAL order
@@ -858,28 +856,19 @@ static inline int close_board(hm2_eth_t *board){
     return board->close_board(board);
 }
 
-static inline int eth_socket_send(hm2_eth_t *board, const void *buffer, int len, int flags){
-    return board->eth_socket_send(board, buffer, len, flags);
+static inline int eth_socket_send(hm2_eth_t *board, const void *buffer, int len){
+    return board->eth_socket_send(board, buffer, len);
 }
 
-static inline int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int flags){
-    return board->eth_socket_recv(board, buffer, len, flags);
-}
-
-int eth_socket_recv_loop(hm2_eth_t *board, void *buffer, int len, int flags, long timeout) {
-    long long end = rtapi_get_time() + timeout;
-    int result;
-    do {
-        result = eth_socket_recv(board, buffer, len, flags);
-    } while(result < 0 && rtapi_get_time() < end);
-    return result;
+static inline int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns){
+    return board->eth_socket_recv(board, buffer, len, recv_timeout_ns);
 }
 
 /// hm2_eth io functions
 
 static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_eth_t *board = this->private;
-    int send, recv, i = 0;
+    int send, recv;
     rtapi_u8 tmp_buffer[size + 4];
     long long t1, t2;
 
@@ -900,24 +889,20 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
-    send = eth_socket_send(board, (void*) &read_packet, sizeof(read_packet), 0);
+    send = eth_socket_send(board, (void*) &read_packet, sizeof(read_packet));
     if(send < 0)
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
     LL_PRINT_IF(debug, "read(%d) : PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", board->read_cnt, read_packet.cmd_hi, read_packet.cmd_lo,
       read_packet.addr_lo, read_packet.addr_hi, size);
+
     t1 = rtapi_get_time();
-    do {
-        errno = 0;
-        recv = eth_socket_recv(board, (void*) &tmp_buffer, size, 0);
-        if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
-        t2 = rtapi_get_time();
-        i++;
-    } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
+    recv = eth_socket_recv(board, (void*) &tmp_buffer, size, RECV_TIMEOUT_NON_RT_NS);
+    t2 = rtapi_get_time();
 
     if (recv == 4) {
-        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, *tmp_buffer, recv, i, t2 - t1);
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TIME: %llu]\n", board->read_cnt, *tmp_buffer, recv, t2 - t1);
     } else {
-        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TIME: %llu]\n", board->read_cnt, recv, t2 - t1);
     }
     if (recv < 0)
         return 0;
@@ -977,7 +962,7 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     board->queue_reads_count++;
     board->queue_buff_size += sizeof(board->confirm_rw_cnt);
 
-    send = eth_socket_send(board, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet, 0);
+    send = eth_socket_send(board, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet);
     if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
         return 0;
@@ -1038,21 +1023,19 @@ static int hm2_eth_receive_queued_reads(hm2_lowlevel_io_t *this) {
  
     if(!board->hal) this->read_time = t1;
     unsigned long long read_deadline = this->read_time + read_timeout;
-    do {
+
 do_recv_packet:
-        errno = 0;
-        recv = eth_socket_recv(board, (void*) &tmp_buffer, board->queue_buff_size, MSG_DONTWAIT);
-        if(recv < 0) rtapi_delay(READ_PCK_DELAY_NS);
-        t2 = rtapi_get_time();
-        i++;
-    } while (recv != board->queue_buff_size && t2 < read_deadline);
+    recv = eth_socket_recv(board, (void*) &tmp_buffer, board->queue_buff_size, read_timeout);
+    t2 = rtapi_get_time();
+
     if(recv != board->queue_buff_size) {
+        LL_PRINT("receive_queued_reads: error (%m) after %llins timeout=%lins\n", t2 - t1, read_timeout);
         hm2_eth_reset_queued_reads(board);
         if(!record_soft_error(board)) return 0;
         return -EAGAIN;
     }
 
-    LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", board->read_cnt, recv, i, t2 - t1);
+    LL_PRINT_IF(debug, "receive_queued_reads(%d) : PACKET RECV [SIZE: %d | TIME: %llu]\n", board->read_cnt, recv, t2 - t1);
 
     for (i = 0; i < board->queue_reads_count; i++) {
         memcpy(board->queue_reads[i].buffer, &tmp_buffer[board->queue_reads[i].from], board->queue_reads[i].size);
@@ -1083,7 +1066,7 @@ static int hm2_eth_reset(hm2_lowlevel_io_t *this) {
     // Make the watchdog timer bite in 1ns from now
     lbp16_cmd_addr_data32 bite_packet;
     LBP16_INIT_PACKET8(bite_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(1), HM2_ADDR_WATCHDOG, 0x0001);
-    int ret = eth_socket_send(board, (void*) &bite_packet, sizeof(bite_packet), 0);
+    int ret = eth_socket_send(board, (void*) &bite_packet, sizeof(bite_packet));
     if(ret < 0) perror("eth_socket_send(bite_packet)");
     return ret < 0 ? -errno : 0;
 }
@@ -1134,7 +1117,7 @@ static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *bu
     memcpy(packet.tmp_buffer, buffer, size);
     LBP16_INIT_PACKET4(packet.wr_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
-    send = eth_socket_send(board, (void*) &packet, sizeof(lbp16_cmd_addr) + size, 0);
+    send = eth_socket_send(board, (void*) &packet, sizeof(lbp16_cmd_addr) + size);
     if(send < 0)
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
     LL_PRINT_IF(debug, "write(%d): PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", board->write_cnt, packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
@@ -1166,7 +1149,7 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     board->has_written_cnt = 1;
     
     t0 = rtapi_get_time();
-    send = eth_socket_send(board, (void*) &board->write_packet, board->write_packet_ptr - board->write_packet, 0);
+    send = eth_socket_send(board, (void*) &board->write_packet, board->write_packet_ptr - board->write_packet);
     if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
     }
@@ -1221,13 +1204,12 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     char llio_name[16] = {};
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_BOARD_INFO_ADDR16_INCR(16/2), 0);
-    send = eth_socket_send(board, (void*) &read_packet, sizeof(read_packet), 0);
+    send = eth_socket_send(board, (void*) &read_packet, sizeof(read_packet));
     if(send < 0) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
         return -errno;
     }
-    recv = eth_socket_recv_loop(board, (void*) &board_name, 16, 0,
-                200 * 1000 * 1000);
+    recv = eth_socket_recv(board, (void*) &board_name, 16, RECV_TIMEOUT_NON_RT_NS);
     if(recv < 0) {
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
         return -errno;
