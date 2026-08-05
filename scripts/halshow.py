@@ -268,7 +268,13 @@ class HalApi:
             if raw is not None:
                 indexed = {}
                 for entry in raw:
-                    indexed[entry["NAME"]] = entry
+                    e = dict(entry)
+                    # Normalize master _hal.so fields (DRIVER=writer_pin_name) → legacy fields
+                    if "DRIVER" in e and "WRITERS" not in e:
+                        driver_pin = e["DRIVER"]
+                        e["WRITERS"] = 1 if driver_pin else 0
+                        e["READERS"] = 0  # Unknown from SHM alone; halcmd fallback needed
+                    indexed[entry["NAME"]] = e
                 cls._cache["signals"] = indexed
                 return
             # Fallback to halcmd subprocess
@@ -1303,10 +1309,10 @@ class GraphDataBuilder:
 
         Returns dict[sig_name -> {"writers": [pin_names], "readers": [pin_names]}].
 
-        Three approaches, tried in order:
-        1) Group cached pins by their SIGNAL field from get_info_pins() (new _hal — pure SHM)
-        2) Call _hal.get_signal_connections() if it exists (older extended _hal)
-        3) Walk all pins via halcmd 'show pin' (stock _hal fallback, may be slow)
+        Approaches, tried in order:
+        1) Group cached pins by their SIGNAL field from get_info_pins() (pure SHM, fastest)
+        2) Use DRIVER field from signal cache (master _hal.so — writer pin name via SHM)
+        3) Call _hal.get_signal_connections() if it exists (older extended _hal)
         """
         # Method 1: Group cached pins by SIGNAL field (pure SHM, fastest)
         sig_pins = {}  # sig_name -> {"writers": [], "readers": []}
@@ -1329,8 +1335,44 @@ class GraphDataBuilder:
         if has_signal_field:
             return sig_pins
 
-        # Method 2: Use _hal.get_signal_connections() if available (older extended _hal)
-        if hasattr(_hal, "get_signal_connections"):
+        # Method 2: Use DRIVER field from signal cache (master _hal.so)
+        # get_info_signals() returns {NAME, VALUE, DRIVER, TYPE} where DRIVER is the writer pin name
+        for sig_name, entry in HalApi._cache.get("signals", {}).items():
+            driver_pin = entry.get("DRIVER")
+            if not driver_pin:
+                continue
+            if sig_name not in sig_pins:
+                sig_pins[sig_name] = {"writers": [], "readers": []}
+            sig_pins[sig_name]["writers"].append(driver_pin)
+
+        # Method 2b: Resolve missing reader pins via halcmd (master _hal.so only provides writer)
+        if sig_pins:
+            try:
+                halcmd_bin = HalApi._find_halcmd()
+                for sig_name, conn in list(sig_pins.items()):
+                    if conn["readers"]:
+                        continue  # Already resolved by Method 1
+                    res = subprocess.run(
+                        [halcmd_bin, "show", "sig", sig_name],
+                        capture_output=True,
+                        text=True,
+                        timeout=2,
+                    )
+                    if res.returncode == 0 and res.stdout.strip():
+                        for line in res.stdout.split("\n"):
+                            stripped = line.strip()
+                            if not stripped or stripped.startswith(sig_name + " ("):
+                                continue
+                            # "==>" indicates reader pins (output arrow from signal to pin)
+                            if "==>" in stripped and "<==" not in stripped:
+                                pin = stripped.replace("==> ", "").strip()
+                                if pin:
+                                    conn["readers"].append(pin)
+            except Exception as e:
+                print(f"[halshow] halcmd reader fallback failed: {e}", file=sys.stderr)
+
+        # Method 3: Use _hal.get_signal_connections() if available (older extended _hal)
+        if not sig_pins and hasattr(_hal, "get_signal_connections"):
             try:
                 result = _hal.get_signal_connections()
                 if result:
@@ -1338,10 +1380,6 @@ class GraphDataBuilder:
             except Exception:
                 pass
 
-        # Method 3: Use halcmd show pin <name> for each connected signal — but only
-        # if the SIGNAL field is available. Without it, we can't reliably determine
-        # which pins belong to which signal, so skip connections entirely rather than
-        # risk false edges from heuristics or subprocess hangs.
         return sig_pins
 
     @staticmethod
@@ -1490,8 +1528,12 @@ class GraphLayout:
         return None
 
     @staticmethod
-    def compute(components, signals, pin_index=None):
+    def compute(components, signals, pin_index=None, hide_unused=True):
         """Compute component-only layout via dot → SVG → XML parsing.
+
+        Args:
+            hide_unused: If True, only connected pins count for box heights.
+                         If False, all pins are included in height computation.
 
         Returns:
             placements: dict[comp_name -> {"x", "y", "width", "height"}]
@@ -1554,8 +1596,11 @@ class GraphLayout:
 
         for comp_name in active_comps_with_pins:
             cd = components[comp_name]
-            connected_pins = [p for p in cd["pins"] if p.get("connected")]
-            h = GraphLayout._compute_height(connected_pins)
+            if hide_unused:
+                layout_pins = [p for p in cd["pins"] if p.get("connected")]
+            else:
+                layout_pins = cd["pins"]
+            h = GraphLayout._compute_height(layout_pins)
             w = GraphLayout.COMP_WIDTH
 
             g.add_node(
@@ -1877,7 +1922,7 @@ def _resolve_signals_via_halcmd(signals, *, debug_prefix=""):
     if has_counts:
         unresolved = [
             sn for sn, si in signals.items()
-            if (si.get("writers", 0) > 0 and si.get("readers", 0) > 0)
+            if (si.get("writers", 0) > 0 or si.get("readers", 0) > 0)
             and not (si.get("writer_pins") and si.get("reader_pins"))
         ]
     else:
@@ -2074,8 +2119,9 @@ class GraphWidget(QWidget):
                 pin_index = self._pin_index
 
             # Compute layout via dot → SVG (component-only, no signal nodes)
+            hide_unused = self.btn_hide_unused.isChecked()
             placements, connections = GraphLayout.compute(
-                components, signals, pin_index=pin_index
+                components, signals, pin_index=pin_index, hide_unused=hide_unused
             )
 
             if not placements and not skip_shm:
@@ -2109,11 +2155,11 @@ class GraphWidget(QWidget):
                     continue
                 pos = placements[comp_name]
 
-                # Build pins_dict from component data (only connected pins)
+                # Build pins_dict — filter to connected-only when hide_unused is toggled
                 pins_dict = OrderedDict()
                 seen = set()
                 for pin in pdata.get("pins", []):
-                    if not pin.get("connected"):
+                    if hide_unused and not pin.get("connected"):
                         continue
                     short = pin["name"]
                     if short not in seen:
