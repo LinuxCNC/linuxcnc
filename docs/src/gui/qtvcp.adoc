@@ -77,6 +77,7 @@ You are free to mix them in any way on your panel.
 A very important widget for CNC control is the *`ScreenOptions` widget*:
 It does not add anything visually to the screen but, allows important details to be selected rather then be coded in the handler file.
 
+[[_ini_settings]]
 === INI Settings
 
 If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file, in the `[DISPLAY]` section, add a line with the following pattern:
