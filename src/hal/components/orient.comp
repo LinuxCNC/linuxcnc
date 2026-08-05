@@ -1,16 +1,23 @@
 component orient "Provide a PID command input for orientation mode based on current spindle position, target angle and orient mode";
 
 pin in  bool enable      "enable angular output for orientation mode";
-pin in  si32 mode        "0: rotate - shortest move; 1: always rotate clockwise; 2: always rotate counterclockwise";
+pin in  si32 mode        "sets rotation direction and optional preceding reset to index signal";
 pin in  real position    "spindle position input, unit 1 rev";
 pin in  real angle       "orient target position in degrees, 0 ≤ angle < 360";
 pin out real command     "target spindle position, input to PID command";
 pin out real poserr      "in degrees - aid for PID tuning";
 pin out bool is-oriented   "This pin goes high when poserr < tolerance. Use to drive spindle.N.is-oriented";
-pin in  real tolerance = 0.5  "The tolerance in degrees for considering the align completed";
+pin in real tolerance = 0.5  "The tolerance in degrees for considering the align completed";
+pin io bool index-enable   "Connect to the spindle encoder counter to reset to index before orienting";
 
-variable int   last_enable = 0;
-variable int    debounce = 0; // to prevent the in-position triggering with the spindle moving
+param r ui32 state "state machine for index homing";
+
+variable int last_enable = 0;
+variable int debounce = 0; // to prevent the in-position triggering with the spindle moving
+variable int m = 0;
+variable rtapi_real target_angle = 0;
+variable rtapi_real latched_position = 0;
+
 
 option period no;
 
@@ -36,6 +43,9 @@ The *mode* pin is interpreted as follows:
 which may be clockwise or counterclockwise.
 * 1: the spindle rotates always rotates clockwise to the new angle.
 * 2: the spindle rotates always rotates counterclockwise to the new angle.
+* 3: same as mode 0 but with homing to index before orienting to the new angle.
+* 4: same as mode 1 but with homing to index before orienting to the new angle.
+* 5: same as mode 2 but with homing to index before orienting to the new angle.
 
 === HAL USAGE
 
@@ -62,31 +72,81 @@ license "GPL";
 
 FUNCTION(_) {
 
-    rtapi_real target_angle;
-    rtapi_real latched_position;
+    rtapi_bool en = enable;
+
+    if (!en) {
+        if (state == 4) index_enable_set(0);
+        state_set(0);
+    }
+
     is_oriented_set(0); // spindle.is-oriented inhibits spindle.orient
-    if (enable) {
-       if (enable ^ last_enable) {     // positive edge on enable
-           is_oriented_set(0);
+
+    switch (state){
+        case 0: // waiting
+            if (en && !last_enable) {     // positive edge on enable
+                m = mode;
+                if ((0 > m) || (5 < m)) {
+                    rtapi_print_msg(RTAPI_MSG_ERR, "orient.comp: Unhandled mode %i\n", m);
+                }
+                if (m < 3){
+                    state_set(1);
+                } else {
+                    state_set(3);
+                }
+            }
+            break;
+
+        case 1: // normal orient - init
             debounce = 0;
             latched_position = position; // sample now
             target_angle =  angle/360.0;
-            switch (mode) {
-            case 0: // shortest move
-                command_set(floor(latched_position+0.5-target_angle) + target_angle);
-                break;
-            case 1: // always cw
-                command_set(ceil(latched_position-target_angle)  + target_angle);
-                break;
-            case 2: // always ccw
-                command_set(floor(latched_position-target_angle) + target_angle );
+            state_set(2);
+            break;
+
+        case 2: // orienting
+            switch (m % 3) {
+                case 0: // shortest move
+                    command_set(floor(latched_position+0.5-target_angle) + target_angle);
+                    break;
+                case 1: // always cw
+                    command_set(ceil(latched_position-target_angle)  + target_angle);
+                    break;
+                case 2: // always ccw
+                    command_set(floor(latched_position-target_angle) + target_angle);
+                    break;
+            }
+            poserr_set((position - command) * 360.0);
+            debounce += (fabs(poserr) < tolerance && debounce <=100);
+            is_oriented_set(debounce > 100);
+            break;
+
+        case 3: // index search - init
+            latched_position = position; // sample now
+            index_enable_set(1);
+            state_set(4);
+            break;
+
+        case 4: // waiting for spindle index
+            if (! index_enable){ // index has reset
+                state_set(1);
                 break;
             }
-       }
-       poserr_set((position - command) * 360.0);
-       debounce += (fabs(poserr) < tolerance && debounce <=100);
-       is_oriented_set((debounce > 100));
+            switch (m) {
+                case 3: // shortest move to index
+                    if (0.5 <= (latched_position - floor(latched_position))) {
+                        command_set(position + 0.5);
+                    } else {
+                        command_set(position - 0.5);
+                    }
+                    break;
+                case 4: // always cw to index
+                        command_set(position + 0.5);
+                    break;
+                case 5: // always ccw to index
+                        command_set(position - 0.5);
+                    break;
+            }
+            break;
     }
-    last_enable = enable;
+    last_enable = en;
 }
-
