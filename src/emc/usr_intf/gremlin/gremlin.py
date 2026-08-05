@@ -106,6 +106,8 @@ try:
     import Xlib
     from Xlib.display import Display
 except ImportError:
+    # Printed, not logged: this runs at import, before anything could have
+    # configured a handler, and the process exits on the next line.
     print("missing xlib, run sudo apt install python3-xlib")
     sys.exit(-1)
 
@@ -117,6 +119,7 @@ import linuxcnc
 import gcode
 import preview_helpers
 
+import logging
 import time
 import re
 import tempfile
@@ -124,6 +127,8 @@ import shutil
 import os
 
 import _thread
+
+log = logging.getLogger(__name__)
 
 class DummyProgress:
     def nextphase(self, unused): pass
@@ -244,6 +249,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
+        #: Set once glXMakeCurrent has failed, so the per-frame bind reports
+        #: the failure once rather than on every expose. See _make_current.
+        self._bind_failed = False
+
         self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
         self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
         self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
@@ -347,6 +356,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return context or None
 
     def _core_context_failed(self, why):
+        # Written straight to stderr rather than logged: this is fatal and
+        # actionable (it names the environment variable that works around it),
+        # and it must reach the terminal whether or not anything configured
+        # logging. The SystemExit below ends the process.
         sys.stderr.write(
             "\nGremlin: could not create a usable OpenGL context: %s\n"
             "The preview renderer needs either OpenGL 3.3 core or OpenGL ES\n"
@@ -355,10 +368,25 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             "    LIBGL_ALWAYS_SOFTWARE=1\n\n" % why)
         raise SystemExit(1)
 
+    def _make_current(self):
+        """Bind the GL context, reporting a failure once per widget.
+
+        Both callers run per frame - activate() on every expose, reshape() on
+        every resize step - and a bind that fails once generally keeps failing,
+        so an unlatched report is tens of lines a second. Latched on the widget,
+        so a second gremlin still reports its own failure.
+        """
+        if _glx.glXMakeCurrent(cast(self.xdisplay, c_void_p),
+                               self.xwindow_id, self.context):
+            return True
+        if not self._bind_failed:
+            self._bind_failed = True
+            log.error("failed binding opengl context")
+        return False
+
     def activate(self):
         """make cairo context current for drawing"""
-        if(not _glx.glXMakeCurrent(cast(self.xdisplay, c_void_p), self.xwindow_id, self.context)):
-            print("failed binding opengl context")
+        self._make_current()
         return True
 
     def swapbuffers(self):
@@ -378,8 +406,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.width = event.width
         self.height = event.height
         self.xwindow_id = GdkX11.X11Window.get_xid(widget.get_window())
-        if(not _glx.glXMakeCurrent(cast(self.xdisplay, c_void_p), self.xwindow_id, self.context)):
-            print('failed binding opengl context')
+        self._make_current()
         glViewport(0, 0, self.width, self.height)
 
     def expose(self, widget=None, event=None):
@@ -424,8 +451,12 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         s = self.stat
         try:
             s.poll()
-        except Exception as e:
-            print(e)
+        except Exception:
+            # Not a routine failure: realize() gives up here, so the widget is
+            # left without its font base or file state. Logged with the
+            # traceback rather than swallowed at debug level.
+            log.exception("could not read machine status; "
+                          "preview left uninitialised")
             return
         self._current_file = None
 

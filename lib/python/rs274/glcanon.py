@@ -23,6 +23,7 @@ from rs274.glcanon_bake import CAT_TRAVERSE, CAT_FEED, CAT_ARC
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
+import logging
 import math
 import hershey
 import linuxcnc
@@ -31,6 +32,8 @@ import numpy as np
 import os
 import warnings
 from functools import reduce
+
+log = logging.getLogger(__name__)
 
 # Axis views, viewport coordinates and the DRO home/limit icons now live with
 # the scene that draws from them; they are re-exported here because they have
@@ -405,8 +408,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.first_move = True
         try:
             self.tool_list.append(arg)
-        except Exception as e:
-            print(e)
+        except Exception:
+            log.exception("could not record tool change to %r", arg)
         # Flush first: the record vertex has to land between the move before
         # the change and the move after it, and the moves before it are still
         # sitting in the pending buffer. The jump that follows is not recorded
@@ -686,15 +689,26 @@ class GlCanonDraw:
 
         try:
             system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-        except Exception as e:
-            system_memory_bytes = 4
-            print("Error: Unable to determine system memory, defaulting to 4 GB")
+        except Exception:
+            # 4 GB, as the message says. This used to read `= 4`, four bytes,
+            # which drove max_file_size below one byte and so refused to preview
+            # every non-empty file - on the one path where nothing else went
+            # wrong enough to explain it.
+            system_memory_bytes = 4 * 1024 ** 3
+            log.warning("unable to determine system memory, "
+                        "defaulting to 4 GB for the preview file size limit")
         system_memory_gb = system_memory_bytes / (1024 ** 3)
 
         # Set to -1 to disable the file size limit.
-        # The file size limit is set to 20MB or 1/4 of the system memory, whichever is smaller.
-        # TODO I don't see any calculation for 1/4 of system_memory_gb ? CMorley 2024
+        # One megabyte per gigabyte of system memory, capped at 20MB. The
+        # "or 1/4 of system memory" this comment used to claim is not what the
+        # line computes and never was (CMorley noted the discrepancy in 2024);
+        # the cap is left as it behaves rather than as it was described.
         self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
+
+        #: Name of the file the size limit last refused, so that the refusal is
+        #: reported once instead of on every frame. See _resolve_show_program.
+        self._refused_file = None
 
         try:
             if os.environ["INI_FILE_NAME"]:
@@ -705,7 +719,8 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
+                        log.warning("invalid [DISPLAY] DRO_FORMAT_IN in INI "
+                                    "file: %r", temp)
                     else:
                         self.dro_in = temp
 
@@ -714,7 +729,8 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
+                        log.warning("invalid [DISPLAY] DRO_FORMAT_MM in INI "
+                                    "file: %r", temp)
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
@@ -750,8 +766,8 @@ class GlCanonDraw:
 
     def set_cone_basesize(self, size):
         if size > 2 or size < .025:
+            log.warning("invalid cone base size %r, resetting to 0.5", size)
             size = 0.5
-            print("Invalid Cone Base size resetting to 0.5")
         self.cone_basesize = size
         self._redraw()
 
@@ -759,9 +775,8 @@ class GlCanonDraw:
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
         self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
-        if (msg != ""):
-            print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
+        log.debug("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d",
+                  msg, self.trajcoordinates, self.kinsmodule, self.no_joint_display)
 
         g = self.get_geometry().upper()
         linuxcnc.gui_respect_offsets(self.trajcoordinates,int('!' in g))
@@ -772,9 +787,9 @@ class GlCanonDraw:
             if g.count(ch) >1: dupchars.append(ch)
             if not ch in geometry_chars: badchars.append(ch)
         if dupchars:
-            print("Warning: duplicate chars %s in geometry: %s"%(dupchars,g))
+            log.warning("duplicate chars %s in geometry: %s", dupchars, g)
         if badchars:
-            print("Warning: unknown chars %s in geometry: %s"%(badchars,g))
+            log.warning("unknown chars %s in geometry: %s", badchars, g)
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -782,42 +797,37 @@ class GlCanonDraw:
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glEnable(GL_DEPTH_TEST)
         glDepthFunc(GL_LESS)
-        self._announce_gl_context()
-        if glcanon_gl.GL_DEBUG:
-            self._log_gl_context()
+        self._log_gl_context()
         self.initialised = 1
 
-    def _announce_gl_context(self):
-        """State which API and version the preview actually got, once.
-
-        Unconditional, unlike the debug dump below. Two contexts are now
-        accepted - OpenGL 3.3 core and OpenGL ES 3.1 - and on a Raspberry Pi
-        they are visually indistinguishable apart from line width, so a bug
-        report has to be able to say which one ran without asking the reporter
-        to install and run eglinfo. One line, at realize, per widget.
-        """
-        import sys
-        caps = self.renderer.caps
-        print("preview renderer: %s %s"
-              % ("OpenGL ES" if caps.is_gles else "OpenGL",
-                 caps.describe()), file=sys.stderr)
-
     def _log_gl_context(self):
-        """Report the created OpenGL context (version/renderer/GLSL) to stderr.
+        """Record which API and version the preview actually got, once.
 
-        Enabled with GLCANON_GL_DEBUG=1. Adds the GLSL version to the line
-        above, which is the part that differs between the two accepted
-        contexts (GLSL 330 against GLSL ES 300)."""
-        import sys
+        Two contexts are accepted - OpenGL 3.3 core and OpenGL ES 3.1 - and on
+        a Raspberry Pi they are visually indistinguishable apart from line
+        width, so a bug report has to be able to say which one ran without
+        asking the reporter to install and run eglinfo.
+
+        Not on the terminal, though: it says nothing the operator can act on,
+        and at one line per widget per realize it is noise for everyone who is
+        not chasing a rendering bug. Ask a reporter for GLCANON_DEBUG=1, which
+        adds the full version/renderer/GLSL strings - the GLSL version is the
+        part that distinguishes the two accepted contexts (GLSL 330 against
+        GLSL ES 300) and the renderer string names the driver.
+        """
+        caps = self.renderer.caps
+        log.info("preview renderer: %s %s",
+                 "OpenGL ES" if caps.is_gles else "OpenGL", caps.describe())
+        if not log.isEnabledFor(logging.DEBUG):
+            return
         def s(name):
             try:
                 v = glGetString(name)
                 return v.decode("ascii", "replace") if isinstance(v, bytes) else str(v)
             except Exception as e:
                 return "<%s>" % e
-        print("glcanon GL context: version=%r renderer=%r glsl=%r" % (
-            s(GL_VERSION), s(GL_RENDERER), s(GL_SHADING_LANGUAGE_VERSION)),
-            file=sys.stderr)
+        log.debug("glcanon GL context: version=%r renderer=%r glsl=%r",
+                  s(GL_VERSION), s(GL_RENDERER), s(GL_SHADING_LANGUAGE_VERSION))
 
     def set_canon(self, canon):
         self.canon = canon
@@ -1262,13 +1272,27 @@ class GlCanonDraw:
         self.scene.draw(self.frame_context())
 
     def _resolve_show_program(self):
-        """get_show_program(), refused for a file too large to preview."""
+        """get_show_program(), refused for a file too large to preview.
+
+        Called from frame_context(), so this runs once per frame - which is why
+        the refusal is latched on the file it refused rather than logged where
+        it is decided. Unlatched, a single over-size file produces a warning per
+        redraw for as long as it stays loaded. Latching on the name and not on a
+        bool means a different over-size file still reports.
+        """
         show_program = self.get_show_program()
         s = self.stat
-        if os.path.exists(s.file):
-            if 0 < self.max_file_size < os.stat(s.file).st_size :
-                print("File too large to load, disabling preview.")
-                show_program = False
+        if (os.path.exists(s.file)
+                and 0 < self.max_file_size < os.stat(s.file).st_size):
+            if self._refused_file != s.file:
+                self._refused_file = s.file
+                log.warning("%s is larger than the %.0f MB preview limit; "
+                            "preview disabled for it",
+                            s.file, self.max_file_size / (1024 * 1024))
+            return False
+        # Cleared rather than left set, so that loading a small file and then
+        # coming back to the big one reports it again.
+        self._refused_file = None
         return show_program
 
     def lathe_historical_config(self,trajcoordinates):

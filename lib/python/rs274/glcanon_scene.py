@@ -37,8 +37,8 @@ widget (``rs274.glcanon.GlCanonDraw``) builds the context and runs the scene.
 from __future__ import annotations
 
 import array
+import logging
 import math
-import os
 import re
 from contextlib import contextmanager
 from typing import Any, Callable, Iterator, Sequence
@@ -59,6 +59,8 @@ from rs274 import glcanon_bake, glcanon_gl
 from rs274.glcanon_bake import (LineRanges, MeshVerts, TrajectoryVerts,
                                 WideVerts)
 from rs274.glcanon_gl import ProgramBuffers, set_line_width
+
+log = logging.getLogger(__name__)
 
 #: A 4x4 row-major transform, float64 - what glnav builds and the matrix stack
 #: multiplies. The shaders take these; nothing here holds a 3x3 except the
@@ -99,8 +101,10 @@ V = 7
 W = 8
 R = 9
 
-#: GLCANON_SCENE_DEBUG=1 logs the drawn/skipped part split each time it changes
-SCENE_DEBUG = bool(os.environ.get("GLCANON_SCENE_DEBUG"))
+#: GLCANON_DEBUG=1 logs the drawn/gated-out part split each time it changes.
+#: The same flag the renderer's glGetError check reads - one switch for the
+#: whole preview - so it is taken from there rather than read again here.
+SCENE_DEBUG = glcanon_gl.GL_DEBUG
 
 #: OpenGL's default ``GL_LIGHT_MODEL_AMBIENT`` - the scene-wide ambient every
 #: lit surface receives on top of any light's own ambient. The fixed-function
@@ -618,17 +622,20 @@ class Scene:
             self._log(drawn, gated_out)
 
     def _log(self, drawn: list[str], gated_out: list[str]) -> None:
-        """GLCANON_SCENE_DEBUG=1: report the gated-in set, so "a hidden part is
-        never entered" is checkable at runtime. Logged when the set changes,
-        not once per frame."""
-        import sys
+        """GLCANON_DEBUG=1: report the gated-in set, so "a hidden part is
+        never entered" is checkable at runtime.
+
+        Emitted when the set changes, not once per frame - the debug level is
+        not a substitute for that, since the composition is the same on most
+        consecutive frames and a per-frame record would bury the change that
+        matters.
+        """
         state = (tuple(drawn), tuple(gated_out))
         if state == self._logged:
             return
         self._logged = state
-        print("glcanon scene: drew %s | gated out %s"
-              % (", ".join(drawn) or "-", ", ".join(gated_out) or "-"),
-              file=sys.stderr)
+        log.debug("glcanon scene: drew %s | gated out %s",
+                  ", ".join(drawn) or "-", ", ".join(gated_out) or "-")
 
     def invalidate(self) -> None:
         for part in self:

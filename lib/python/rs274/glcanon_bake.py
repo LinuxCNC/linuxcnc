@@ -47,11 +47,14 @@
 
 from __future__ import annotations
 
+import logging
 import math
 from typing import Any, Optional, Sequence
 
 import numpy as np
 import numpy.typing as npt
+
+log = logging.getLogger(__name__)
 
 # Rotary axis-mask bits, mirroring emcmodule.cc.
 AXIS_MASK_A = 0x08
@@ -1119,8 +1122,8 @@ def dwell_marker_part(geometry: "ProgramGeometry", is_lathe: bool = False,
         kinds.extend([kind] * 4)
         linenos.extend([lineno] * 4)
     if overflowed:
-        print("glcanon: more dwell colours than the palette holds; the "
-              "excess draw in the last entry's colour", flush=True)
+        log.warning("glcanon: more dwell colours than the palette holds; the "
+                    "excess draw in the last entry's colour")
 
     n = len(kinds)
     attrs = np.zeros(n, dtype=ATTR_DTYPE)

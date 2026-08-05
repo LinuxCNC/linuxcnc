@@ -38,6 +38,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -57,9 +58,35 @@ from rs274.glcanon_bake import (ATTR_DTYPE, FLOATS_PER_VERTEX, KIND_MASK,
 # nothing.
 GLEnum = int
 
-# Enable with GLCANON_GL_DEBUG=1 to check glGetError after each pass. Off by
+# GLCANON_DEBUG=1 is the preview's single verbosity switch. It does four things:
+# raises the ``rs274`` logger to DEBUG and gives it somewhere to write (below),
+# turns on the glGetError check after each pass, and turns on the scene's
+# drawn/gated-out bookkeeping (rs274.glcanon_scene reads this same flag). Off by
 # default because a glGetError round-trip stalls the pipeline.
-GL_DEBUG = os.environ.get("GLCANON_GL_DEBUG", "") not in ("", "0")
+#
+# It replaces GLCANON_GL_DEBUG and GLCANON_SCENE_DEBUG, which are no longer read.
+GL_DEBUG = os.environ.get("GLCANON_DEBUG", "") not in ("", "0")
+
+# The one place the preview configures logging, and only when explicitly asked
+# to. Library code normally has no business installing handlers - and none of
+# the rest of this package does - but most of what imports rs274 (AXIS, gremlin,
+# the standalone preview tools) never configures logging at all, so without this
+# the debug records would be unreachable in exactly the setups that produce bug
+# reports. Guarded on the handler list so a re-import cannot stack handlers.
+#
+# Unset, nothing here runs: the rs274 logger keeps its default level, debug and
+# info records are discarded for want of a handler, and warnings and errors
+# still reach stderr through logging's last-resort handler.
+# "gremlin" is in the list because the GTK preview host is part of this surface
+# and logs the same kind of thing; it is simply not inside the package, so the
+# rs274 logger would not reach it. Naming a logger that nothing imported just
+# creates an unused logger object.
+if GL_DEBUG:
+    for _name in ("rs274", "gremlin"):
+        _log = logging.getLogger(_name)
+        if not _log.handlers:
+            _log.setLevel(logging.DEBUG)
+            _log.addHandler(logging.StreamHandler())
 
 # ---------------------------------------------------------------------------
 # Interleaved per-vertex-colour layout. Each vertex is 8 float32: position(3)
