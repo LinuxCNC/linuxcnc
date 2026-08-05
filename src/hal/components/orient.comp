@@ -26,9 +26,7 @@ to support the M19 code.
 The spindle is assumed to have stopped in an arbitrary position. The spindle
 encoder position is linked to the *position* pin.  The current value of the
 position pin is sampled on a positive edge on the *enable* pin, and *command*
-is computed and set as follows: +
-floor(number of full spindle revolutions in the *position* sampled on positive
-edge) plus *angle*/360 (the fractional revolution) +1/-1/0 depending on *mode*.
+is computed and set depending on *mode*.
 
 The *mode* pin is interpreted as follows:
 
