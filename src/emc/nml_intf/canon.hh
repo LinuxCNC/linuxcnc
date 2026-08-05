@@ -243,6 +243,21 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 
 extern void SET_XY_ROTATION(double t);
 
+/* G28.2 / G28.3: trigger the machine homing cycle / unhome from G-code
+ * (bare form = all joints). Maps to EMC_JOINT_HOME/UNHOME(-1). */
+extern void HOME_CYCLE(void);
+extern void UNHOME_AXES(void);
+/* G28.2 Pn / G28.3 Pn: home/unhome a single joint by its 0-based joint
+ * number (matching [JOINT_n] INI section numbering). Maps to
+ * EMC_JOINT_HOME/UNHOME(joint). */
+extern void HOME_CYCLE_JOINT(int joint);
+extern void UNHOME_JOINT(int joint);
+/* GCODE_HOMING (plain G28 with [RS274NGC]GCODE_HOMING=1): reference the
+ * machine before the G28 return move, but only when it is not already fully
+ * homed (a homed machine sees a pure legacy G28). Emits EMC_JOINT_HOME with
+ * the EMC_HOME_ALL_IF_UNHOMED sentinel; task skips it when all_homed(). */
+extern void HOME_CYCLE_IF_UNHOMED(void);
+
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
 numbers. The units are whatever length units are being used at the time 

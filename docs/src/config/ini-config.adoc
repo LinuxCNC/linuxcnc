@@ -633,6 +633,14 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Preserve case in O-word names within comments if set, enables reading of mixed-case HAL items in structured comments like `(debug, #<_hal[MixedCaseItem])`.
 * `OWORD_WARNONLY = 0` (Default: 0) +
   Warn rather than error in case of errors in O-word subroutines.
+* `GCODE_HOMING = 0` (bool, Default: 0) +
+  When set, a plain `G28` (no axis words) references the machine before its
+  return move: it runs the homing cycle on all joints when the machine is not
+  already fully homed, then performs the normal `G28` return. An already-homed
+  machine skips the homing step, so `G28` keeps its stock behavior. The option
+  affects only the bare `G28`; `G28 axes`, `G28.1`, `G30`, `G30.1`, `G28.2`
+  and `G28.3` are unchanged. With the default of 0, behavior is identical to
+  stock LinuxCNC. See <<gcode:g28-g28.1,G28>> and <<gcode:g28.2-g28.3,G28.2/G28.3>>.
 * `DISABLE_G92_PERSISTENCE = 0` (bool, Default: 0)
   Allow to clear the G92 offset automatically when config start-up.
 * `DISABLE_AUTO_G54 = 0` (bool, Default: 0) +

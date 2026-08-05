@@ -1,0 +1,8 @@
+; G28.2 Pn / G28.3 Pn: home/unhome a single joint by its 0-based joint
+; number (matching [JOINT_n] INI section numbering), instead of all joints.
+; Bare G28.2/G28.3 (no P) are unaffected and still act on all joints.
+g28.2 p1       ; home joint 1 only
+g28.3 p0       ; unhome joint 0 only
+g28.2          ; home all joints (unaffected by P support)
+g28.3          ; unhome all joints (unaffected by P support)
+m2

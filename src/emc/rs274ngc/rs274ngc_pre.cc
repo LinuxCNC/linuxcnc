@@ -909,6 +909,8 @@ int Interp::init()
               _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
           if (inifile.findBoolV("OWORD_WARNONLY", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_WARNONLY;
+          if (inifile.findBoolV("GCODE_HOMING", "RS274NGC", false))
+              _setup.feature_set |= FEATURE_GCODE_HOMING;
 
           if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_A")) {
               _setup.a_indexer_jnum = *inival;
