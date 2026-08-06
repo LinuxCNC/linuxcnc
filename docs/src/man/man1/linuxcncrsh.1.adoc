@@ -178,6 +178,7 @@ The supported commands are as follows:
   Help will respond regardless of whether a 'HELLO' has been
   successfully negotiated.
 
+[[_subcommands]]
 == SUBCOMMANDS
 
 Commands and parameters are not case sensitive, except for the

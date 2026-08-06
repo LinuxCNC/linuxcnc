@@ -58,6 +58,7 @@ and press tab to complete the names of items such as pins and signals.
   display a help screen and exit, displays extended help on _command_ if
   specified
 
+[[_commands]]
 == COMMANDS
 
 Commands tell *halcmd* what to do. Normally *halcmd* reads a single
