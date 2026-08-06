@@ -1,0 +1,38 @@
+:manvolnum: 3
+
+= hal_pdir_t(3)
+
+== NAME
+
+hal_pdir_t - HAL data direction enumeration
+
+== DESCRIPTION
+
+typedef enum *hal_pdir_t*;::
+  HAL_IN;;
+    An input pin.
+    The owning component can only read the pin.
+    Multiple input pins can be connected to the same signal.
+  HAL_OUT;;
+    An output pin.
+    The owning component can read and write the pin.
+    Only one (1) output pin can be connected to a signal.
+  HAL_IO;;
+    A bidirectional pin.
+    The owning component can read and write the pin.
+    Multiple bidirectional pins can be connected to the same signal.
+    It must be ensured that _at least_ one component will be writing data onto the signal.
+  HAL_RW;;
+    A bidirectional parameter.
+    User-space programs can read and write the parameter.
+    The owning component can read and write the parameter.
+    Parameters cannot be connected to signals.
+  HAL_RO;;
+    An output parameter.
+    User-space programs can only read the parameter.
+    The component can read and write the parameter.
+    Parameters cannot be connected to signals.
+
+== SEE ALSO
+
+hal_pin_new(3), hal_param_new(3)

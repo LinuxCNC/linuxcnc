@@ -17,13 +17,13 @@
 
 component knob2float "Convert counts (probably from an encoder) to a float value";
 
-pin in s32 counts "Counts";
-pin in bit enable "When TRUE, output is controlled by count, when FALSE, output is fixed";
-pin in float scale "Amount of output change per count";
-pin out float out "Output value";
+pin in si32 counts "Counts";
+pin in bool enable "When TRUE, output is controlled by count, when FALSE, output is fixed";
+pin in real scale "Amount of output change per count";
+pin out real out "Output value";
 
-param rw float max_out=1.0 "Maximum output value, further increases in count will be ignored";
-param rw float min_out=0.0 "Minimum output value, further decreases in count will be ignored";
+param rw real max_out=1.0 "Maximum output value, further increases in count will be ignored";
+param rw real min_out=0.0 "Minimum output value, further decreases in count will be ignored";
 
 option data knob2float_data;
 
@@ -35,27 +35,27 @@ author "John Kasunich";
 
 typedef struct {
     long old_counts;
-    double old_out;
+    rtapi_real old_out;
 } knob2float_data;
 
 FUNCTION(_) {
     long delta_counts;
-    double tmp_out;
+    rtapi_real tmp_out;
 
     if ( min_out > max_out ) {
-	min_out = max_out;
+        min_out_set(max_out);
     }
     delta_counts = counts - data.old_counts;
     if ( enable ) {
-	tmp_out = data.old_out + delta_counts * scale;
-	if ( tmp_out > max_out ) {
-	    data.old_out = max_out;
-	} else if ( tmp_out < min_out ) {
-	    data.old_out = min_out;
-	} else {
-	    data.old_out = tmp_out;
-	}
+        tmp_out = data.old_out + delta_counts * scale;
+        if ( tmp_out > max_out ) {
+            data.old_out = max_out;
+        } else if ( tmp_out < min_out ) {
+            data.old_out = min_out;
+        } else {
+            data.old_out = tmp_out;
+        }
     }
-    out = data.old_out;
+    out_set(data.old_out);
     data.old_counts += delta_counts;
 }

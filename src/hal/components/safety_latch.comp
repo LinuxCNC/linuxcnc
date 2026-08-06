@@ -52,20 +52,20 @@ return to false when reset is set to true.
 The inputs pin min and max clamp the error count value to a
 specified range.
 """;
-pin in bit error_in = false "Error Input";
-pin in s32 heal = 1 "Heal when ok per tick";
-pin in s32 harm = 1 "Harm when error per tick";
-pin in bit latching = true "If a reset is necessary to heal an error";
-pin in bit reset = false "Reset input";
-pin in s32 threshold = 100 "Error output threshold";
-pin in s32 min = 0 "Minimum count";
-pin in s32 max = 1000 "Maximum count";
-pin in bit enable = true "If not enabled the error count is passed to the output";
-pin out s32 count = 0 "Current count";
-pin out bit error_out = false "Error output";
-pin out bit ok_out = true "Ok output";
+pin in bool error_in = false "Error Input";
+pin in si32 heal = 1 "Heal when ok per tick";
+pin in si32 harm = 1 "Harm when error per tick";
+pin in bool latching = true "If a reset is necessary to heal an error";
+pin in bool reset = false "Reset input";
+pin in si32 threshold = 100 "Error output threshold";
+pin in si32 min_ = 0 "Minimum count";
+pin in si32 max_ = 1000 "Maximum count";
+pin in bool enable = true "If not enabled the error count is passed to the output";
+pin out si32 count = 0 "Current count";
+pin out bool error_out = false "Error output";
+pin out bool ok_out = true "Ok output";
 
-variable hal_bit_t last_reset = false;
+variable bool last_reset = false;
 
 option period no;
 function _;
@@ -79,38 +79,38 @@ FUNCTION(_)
 {
     if (!enable)
     {
-        error_out = error_in;
-        ok_out = !error_in;
-        count = 0;
+        error_out_set(error_in);
+        ok_out_set(!error_in);
+        count_set(0);
     }
     else
     {
         if ((reset ^ last_reset) && reset)
         {
-            count = 0;
-            error_out = false;
-            ok_out = true;
+            count_set(0);
+            error_out_set(false);
+            ok_out_set(true);
         }
 
         if (error_in)
         {
-            count += harm;
+            count_set(count + harm);
         }
         else
         {
-            count -= heal;
+            count_set(count - heal);
         }
-        count = MIN(MAX(count, min), max);
+        count_set(MIN(MAX(count, min_), max_));
 
         if (count >= threshold)
         {
-            error_out = true;
-            ok_out = false;
+            error_out_set(true);
+            ok_out_set(false);
         }
         else if (!latching)
         {
-            error_out = false;
-            ok_out = true;
+            error_out_set(false);
+            ok_out_set(true);
         }
     }
 

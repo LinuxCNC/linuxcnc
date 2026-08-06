@@ -42,7 +42,6 @@
 #include <rtapi_mutex.h>
 #include <hal.h>
 #include <linuxcnc.h>
-#include "../hal_priv.h"
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"
@@ -257,7 +256,7 @@ int main(int argc, char **argv)
         if(errorcount == 0 && argc > optind) {
             halcmd_set_filename("<commandline>");
             halcmd_set_linenumber(0);
-            retval = halcmd_parse_cmd(&argv[optind]);
+            retval = halcmd_parse_cmd((const char **)&argv[optind]);
             if (retval != 0) {
                 errorcount++;
             }
@@ -268,7 +267,7 @@ int main(int argc, char **argv)
         char *elineptr=eline, *elineend=eline + sizeof(eline);
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
-	    char *tokens[MAX_TOK+1];
+	    const char *tokens[MAX_TOK+1];
             int   newLinePos;
 
 	    halcmd_set_linenumber(linenumber++);
@@ -340,42 +339,7 @@ int main(int argc, char **argv)
 */
 static int release_HAL_mutex(void)
 {
-    int comp_id, mem_id, retval;
-    void *mem;
-    hal_data_t *hal_data;
-
-    /* do RTAPI init */
-    comp_id = rtapi_init("hal_unlocker");
-    if (comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: rtapi init failed\n");
-        return -EINVAL;
-    }
-    /* get HAL shared memory block from RTAPI */
-    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
-    if (mem_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "ERROR: could not open shared memory\n");
-        rtapi_exit(comp_id);
-        return -EINVAL;
-    }
-    /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "ERROR: could not access shared memory\n");
-        rtapi_exit(comp_id);
-        return -EINVAL;
-    }
-    /* set up internal pointers to shared mem and data structure */
-    hal_data = (hal_data_t *) mem;
-    /* release mutex  */
-    rtapi_mutex_give(&(hal_data->mutex));
-    /* release RTAPI resources */
-    rtapi_shmem_delete(mem_id, comp_id);
-    rtapi_exit(comp_id);
-    /* done */
-    return 0;
-
+    return hal_mutex_force_release() == 0 ? 0 : -EINVAL;
 }
 
 static char **completion_callback(const char *text, hal_generator_func cb) {
@@ -424,14 +388,14 @@ static void print_help_general(int showR)
     printf("  -V             Very verbose - print lots of junk.\n");
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
-    printf("  loadrt, loadusr, waitusr, unload, unloadrt, unloadusr, lock, unlock, net, linkpp, linkps, linksp,\n");
+    printf("  loadrt, loadusr, waitusr, unload, unloadrt, unloadusr, lock, unlock, net, linkps, linksp,\n");
     printf("  unlinkp, alias, unalias, newsig, delsig, setp, getp, ptype, sets, gets, stype, addf, delf,\n");
     printf("  show, list, save, status, start, stop, source, echo, unecho, quit, exit, debug, print\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
 
-#ifdef HAVE_READLINE
+#if defined(HAVE_READLINE) || defined(HAVE_EDITLINE_READLINE_H)
 #include "halcmd_completion.h"
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {

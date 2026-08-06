@@ -343,10 +343,13 @@ class GetIniInfo:
                 raw_ext = data.split(",")
                 for extension in raw_ext:
                     ext = extension.split()
-                    ext_list.append(ext[0].replace(".", "*."))
+                    if ext[0] == "no_ngc":
+                        ext_list.remove("*.ngc")
+                    else:
+                        ext_list.append(ext[0].replace(".", "*."))
         else:
-            LOG.warning("Error converting the file extensions from INI file [FILTER]PROGRAM_PREFIX, "
-            "using as default '*.ngc'")
+            LOG.warning("Error converting the file extensions from INI file [FILTER]PROGRAM_EXTENSION, "
+            "Using default '.ngc'")
             ext_list = ["*.ngc"]
         return ext_list
 

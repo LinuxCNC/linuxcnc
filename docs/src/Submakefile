@@ -28,6 +28,9 @@ ECHO ?= /usr/bin/echo
 SRCDIR=../src
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
+# Asciidoctor extensions loaded via -r for every doc render; a prerequisite of
+# the HTML and PDF rules so editing one rebuilds the affected docs.
+DOC_EXTENSIONS=$(wildcard $(DOC_SRCDIR)/extensions/*.rb)
 
 # Unified output tree.  All asciidoctor-generated artefacts (HTML, PDF,
 # po4a-translated .adoc) live under DOC_BUILD so the source tree stays
@@ -97,6 +100,22 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_MAN)/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
+# asciidoctor names the troff from the page's NAME section, not the make
+# target, so a translated NAME can misname the file and collide with another
+# page under -j.  Pin the name with -o.  NAME drift itself is reported
+# separately by scripts/manpage-name-check.py (a CI warning), not here, to
+# keep the build output quiet.
+define MAKE_MANPAGE
+@mkdir -p $(dir $@)
+$(Q)asciidoctor --doctype=manpage \
+	--backend=manpage \
+	-o "$@" \
+	-a compat-mode \
+	-a mansource=LinuxCNC \
+	-a manmanual='LinuxCNC Documentation' \
+	$<
+endef
+
 $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in $(SRCDIR)/config.status
 	@mkdir -p $(@D)
 	$(SRCDIR)/config.status --file=$@:$<
@@ -106,14 +125,7 @@ $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.a
 # $(DOC_DIR)/src/man/, so override with an explicit rule.
 $(DOC_MAN)/man1/linuxcnc.1: $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc
 	$(ECHO) Making manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)asciidoctor --doctype=manpage \
-		--backend=manpage \
-		--destination-dir="$(dir $@)" \
-		-a compat-mode \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
-		$<
+	$(MAKE_MANPAGE)
 
 info::
 	@echo "I: Expecting the following languages: $(LANGUAGES)"
@@ -381,12 +393,18 @@ DOC_TARGETS_HTML_EN := $(addprefix $(DOC_OUT_HTML)/en/, \
 	$(filter-out $(foreach L,$(LANGUAGES),$(L)/%), \
 	$(patsubst %.adoc,%.html, \
 	$(filter-out Master_%, $(DOC_SRCS_EN)))))
+# Page stems English builds (Master_* are PDF-only; include::d partials are not
+# pages).  Translations are filtered to this set: the per-language list comes
+# from po4a.cfg, which lists partials too, so without it a partial renders
+# standalone with a dead en/ language-switcher link.
+DOC_HTML_PAGE_STEMS := $(patsubst %.adoc,%.html,$(filter-out Master_% man/%,$(DOC_SRCS_EN)))
 $(foreach L,$(LANGUAGES), \
 	$(eval DOC_TARGETS_HTML_$(call toUC,$(L)) := \
-		$$(addprefix $(DOC_OUT_HTML)/, \
-		$$(patsubst %.adoc,%.html, \
+		$$(addprefix $(DOC_OUT_HTML)/$(L)/, \
+		$$(filter $$(DOC_HTML_PAGE_STEMS), \
+		$$(patsubst $(L)/%.adoc,%.html, \
 		$$(filter-out $(L)/Master_% $(L)/man/%, \
-		$$(DOC_SRCS_$(call toUC,$(L))))))))
+		$$(DOC_SRCS_$(call toUC,$(L)))))))))
 DOC_TARGETS_HTML = $(DOC_TARGETS_HTML_EN)
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 DOC_TARGETS_HTML += $(foreach L,$(LANGUAGES),$(DOC_TARGETS_HTML_$(call toUC,$(L))))
@@ -743,7 +761,7 @@ $(foreach L,$(LANGUAGES), \
 # from docs/build/man/<lang>/manN.  cssrel is ../../../ for both: each output
 # sits at docs/build/html/<lang>/man/manN/X.html (4 levels under html/).
 define MAN_HTML_RULE
-$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)/docinfo-header.html
+$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)/docinfo-header.html | manpages
 	@$$(ECHO) Formatting $$(notdir $$<) as HTML
 	@mkdir -p $$(dir $$@)
 	$$(Q)if grep -q '^\.so' $$<; then \
@@ -771,12 +789,15 @@ $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html $(DOC_SRCDIR)
 			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
 			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
 			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
+			-r $$(realpath $$(DOC_SRCDIR))/extensions/man_xref.rb \
 			--doctype=manpage \
 			--backend=html5 \
 			-a compat-mode \
 			-a mansource=LinuxCNC \
 			-a manmanual='LinuxCNC Documentation' \
+			-a "lang=$(1)" \
 			-a "lcnc-cssrel=../../../" \
+			-a "manxref-root=$$(realpath $(2))" \
 			-a "lcnc-lang-label=$(LANG_LABEL_$(1))" \
 			-a "lcnc-subpath=$$(patsubst $(DOC_OUT_HTML)/$(1)/%,%,$$@)" \
 			-a docinfo=shared \
@@ -955,7 +976,7 @@ $(DOC_FONT_DIR):
 # to rebuild on every run.  Order-only (after the |) instead; the SVGs
 # the PDF embeds are tracked via .adoc-images-stamp.
 define ASCIIDOCTOR_PDF_RULE
-$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) | svgs_made_from_dots
+$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) $$(DOC_EXTENSIONS) | svgs_made_from_dots
 	$$(ECHO) Building $$@
 	@mkdir -p $$(dir $$@)
 	@rm -f $$@ $$@.raw
@@ -1203,6 +1224,14 @@ $(DOC_OUT_ADOC)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count
 # of the output depth.  Add the +1 here, matching the $(DOC_SRCDIR) rule above.
 $(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$*'.count('/')))")
 
+# man_xref linkbase: relative path from this html page to its language's
+# man/man<N>/ dirs.  CSSREL points one level above the lang root (at the html
+# root, where the css lives); the man tree sits inside the lang root, so this
+# is CSSREL with one fewer "../" plus "man/".  Translated stems include the
+# lang dir; the English stem omits it, hence the extra step, mirroring CSSREL.
+$(DOC_OUT_ADOC)/%.html: MANXREF_LINKBASE=$(shell python3 -c "print('../' * ('$*'.count('/') - 1) + 'man/')")
+$(DOC_OUT_ADOC)/en/%.html: MANXREF_LINKBASE=$(shell python3 -c "print('../' * '$*'.count('/') + 'man/')")
+
 # asciidoctor HTML rule used for every language.
 #	$1 lang tag (en, de, ...)
 #	$2 source root: $(DOC_SRCDIR) for English (DOC_SRCS_EN paths have no
@@ -1214,13 +1243,16 @@ $(DOC_OUT_ADOC)/en/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$
 define ASCIIDOCTOR_HTML_RULE
 # Order-only dep on .adoc-images-stamp so translated images are staged before
 # the resolver probes for them at render (it also falls back to docs/src).
-$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html | .adoc-images-stamp
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html $$(DOC_EXTENSIONS) | .adoc-images-stamp manpages
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/image_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
+		 -r $$(realpath $$(DOC_SRCDIR))/extensions/man_xref.rb \
+		 -a "manxref-root=$$(realpath $$(if $$(filter en,$1),$$(DOC_MAN),$$(DOC_MAN)/$1))" \
+		 -a "manxref-linkbase=$$(MANXREF_LINKBASE)" \
 		 -a compat-mode \
 		 -a "doc-languages=$$(LANGUAGES)" \
 		 -a "lcnc-lang=$1" \
@@ -1355,14 +1387,7 @@ TARGETS += manpages
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
 $(DOC_MAN)/%: $(DOC_DIR)/src/man/%.adoc
 	$(ECHO) Making manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)asciidoctor --doctype=manpage \
-		--backend=manpage \
-		--destination-dir="$(dir $@)" \
-		-a compat-mode \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
-		$<
+	$(MAKE_MANPAGE)
 
 # Translated manpages.  po4a writes per-lang adocs under
 # $(DOC_OUT_ADOC)/<L>/man/manN/X.adoc; generate troff under
@@ -1375,14 +1400,7 @@ ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 define TRANSLATED_TROFF_RULE
 $$(DOC_MAN)/$1/%: $$(DOC_OUT_ADOC)/$1/man/%.adoc | $$(DOC_DIR)/.translateddocs-stamp
 	$$(ECHO) Making translated manpage $1 $$(notdir $$@)
-	@mkdir -p $$(dir $$@)
-	$$(Q)asciidoctor --doctype=manpage \
-		--backend=manpage \
-		--destination-dir="$$(dir $$@)" \
-		-a compat-mode \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
-		$$<
+	$$(MAKE_MANPAGE)
 endef
 $(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_TROFF_RULE,$(L))))
 

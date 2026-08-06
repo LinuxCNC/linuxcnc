@@ -106,6 +106,7 @@ class HandlerClass:
         self._lastSelectButton = None
         self.MPGFocusWidget = None
         self.CycleFocusWidget = None
+        self.auto_mode_switch = False
         self.timer_on = False
         self.home_all = False
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
@@ -355,6 +356,7 @@ class HandlerClass:
         self.w.camview._camNum = self.w.PREFS_.getpref('Camview cam number', 0, int, 'CUSTOM_FORM_ENTRIES')
         self.w.camview.setAPI(self.w.PREFS_.getpref('Camview cam api', 'ANY', str, 'CUSTOM_FORM_ENTRIES'))
         self.w.camview.setResolution(self.w.PREFS_.getpref('Camview cam resolution', 'DEFAULT', str, 'CUSTOM_FORM_ENTRIES'))
+        self.auto_mode_switch = self.w.PREFS_.getpref('auto mode switching', False, bool, 'CUSTOM_FORM_ENTRIES')
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -1010,7 +1012,7 @@ class HandlerClass:
     def btn_start_clicked(self, obj):
         if self.w.stackedWidget_mainTab.currentIndex() != 0:
             return
-        if not STATUS.is_auto_mode():
+        if not STATUS.is_auto_mode()  and not self.auto_mode_switch:
             self.add_status(_translate("HandlerClass","Must be in AUTO mode to run a program"), CRITICAL)
             return
         if STATUS.is_auto_running():
@@ -1500,6 +1502,7 @@ class HandlerClass:
     def update_pause_button(self,data):
         self.w.action_pause._blockSignals(True)
         self.w.action_pause.setChecked(data)
+        self.pause_timer(data)
         # only enable the lift selection button if pins are connected
         if self.spindle_lift_pins_present and self.w.chk_eoffsets.isChecked():
             self.w.btn_spindle_pause.setEnabled(not data)
@@ -1823,6 +1826,22 @@ class HandlerClass:
         self.timer_on = True
         self.timer_tick = time.time()
 
+    def pause_timer(self, state):
+        # stop the timer update but
+        # keep track of accumulated time
+        if state:
+            self.timer_on = False
+            tick = time.time()
+            self.run_time += tick - self.timer_tick
+            txt = _translate("HandlerClass","Run timer paused at")
+            self.add_status("{} {}".format(txt, self.w.lbl_runtime.text()))
+
+        # reset the time reference point to now
+        # but don't reset the accumulated time
+        else:
+            self.timer_on = True
+            self.timer_tick = time.time()
+
     def stop_timer(self):
         if self.timer_on:
             self.timer_on = False
@@ -1928,9 +1947,14 @@ class HandlerClass:
         IGNORE = -1
         SHOW_DRO = 0
         mode = STATUS.get_current_mode()
+        if self.auto_mode_switch and not STATUS.is_auto_running():
+            fileopt = requestedIndex,PAGE_GCODE,SHOW_DRO,NO_MACRO
+        else:
+            fileopt = TAB_MAIN,PAGE_GCODE,SHOW_DRO,NO_MACRO
+
         if mode == STATUS.AUTO:
             seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,SHOW_DRO,NO_MACRO),
-                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,SHOW_DRO,NO_MACRO),
+                    TAB_FILE: (fileopt),
                     TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,SHOW_DRO,NO_MACRO),
                     TAB_TOOL: (TAB_MAIN,PAGE_GCODE,SHOW_DRO,NO_MACRO),
                     TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,SHOW_DRO,NO_MACRO),
@@ -2020,6 +2044,11 @@ class HandlerClass:
         else:
             # set main tab to adjusted index
             self.w.stackedWidget_mainTab.setCurrentIndex(main_index)
+
+        # switch modes if file is pressed in auto mode
+        if main_index == TAB_FILE and self.auto_mode_switch:
+            if STATUS.is_auto_mode():
+                ACTION.SET_MANUAL_MODE()
 
         # if indexes don't match then request is disallowed
         # give a warning and reset the button check
@@ -2315,7 +2344,7 @@ class HandlerClass:
             ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_PAUSE(self,event,state,shift,cntrl):
-        if state and STATUS.is_auto_mode() and self.use_keyboard():
+        if state and self.use_keyboard():
             self.w.action_pause.click()
 
     def on_keycall_jograte(self,event,state,shift,cntrl,value):

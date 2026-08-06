@@ -36,8 +36,8 @@ MODULE_LICENSE("GPL");
 #define MAX_CHAN 256
 
 typedef struct {
-    hal_bit_t *bit;
-    hal_u32_t *en; // note use index 0 differently
+    hal_bool_t bit;
+    hal_uint_t en; // note use index 0 differently
 } enum_hal_t;
 
 typedef struct{
@@ -137,10 +137,10 @@ int rtapi_app_main(void){
 
         // create single per-instance int pin in index 0
         if (inst->dir == HAL_OUT) {
-            retval = hal_pin_u32_newf(HAL_IN, &(inst->hal[0].en), comp_id,
+            retval = hal_pin_new_ui32(comp_id, HAL_IN, &(inst->hal[0].en), 0,
                                     "%s.input", this);
         } else {
-            retval = hal_pin_u32_newf(HAL_OUT, &(inst->hal[0].en), comp_id,
+            retval = hal_pin_new_ui32(comp_id, HAL_OUT, &(inst->hal[0].en), 0,
                                     "%s.output", this);
         }
         v = 0;
@@ -150,12 +150,11 @@ int rtapi_app_main(void){
             //increment for skipped enumerations
             while (*(++token) == 0) v++;
 
-            retval = hal_pin_bit_newf(inst->dir, &(inst->hal[j].bit),
-                    comp_id, "%s.%s-%s",this, token,
+            retval = hal_pin_new_bool(comp_id, inst->dir, &(inst->hal[j].bit),
+                    0, "%s.%s-%s",this, token,
                     (inst->dir == HAL_IN)?"in":"out");
-            retval += hal_pin_u32_newf(HAL_IN, &(inst->hal[j].en),
-                    comp_id, "%s.%s-val",this, token);
-            *(inst->hal[j].en) = v++;
+            retval += hal_pin_new_ui32(comp_id, HAL_IN, &(inst->hal[j].en),
+                    v++, "%s.%s-val",this, token);
 
             if (retval < 0){
                 rtapi_print_msg(RTAPI_MSG_ERR, "Failed to create HAL pins\n");
@@ -191,10 +190,10 @@ static void decode(void *v_inst, long period){
     int i;
     enum_inst_t *inst = v_inst;
     for (i = 1; i <= inst->num_pins; i++){
-        if (*(inst->hal[0].en) == *(inst->hal[i].en)){
-           *(inst->hal[i].bit) = 1;
+        if (hal_get_ui32(inst->hal[0].en) == hal_get_ui32(inst->hal[i].en)){
+           hal_set_bool(inst->hal[i].bit, 1);
         } else {
-           *(inst->hal[i].bit) = 0;
+           hal_set_bool(inst->hal[i].bit, 0);
         }
     }
 }
@@ -202,10 +201,10 @@ static void encode(void *v_inst, long period){
     (void)period;
     int i;
     enum_inst_t *inst = v_inst;
-    *(inst->hal[0].en) = 0;
+    hal_set_ui32(inst->hal[0].en, 0);
     for (i = 1; i <= inst->num_pins; i++){
-        if (*(inst->hal[i].bit)){
-            *(inst->hal[0].en) = *(inst->hal[i].en);
+        if (hal_get_bool(inst->hal[i].bit)){
+            hal_set_ui32(inst->hal[0].en, hal_get_ui32(inst->hal[i].en));
         }
     }
 }

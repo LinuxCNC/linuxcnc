@@ -3376,8 +3376,8 @@ LOG</string>
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>286</width>
-                       <height>668</height>
+                       <width>268</width>
+                       <height>616</height>
                       </rect>
                      </property>
                      <property name="maximumSize">
@@ -11084,7 +11084,7 @@ LINE 0</string>
                       <bool>false</bool>
                      </property>
                      <property name="isAutoSensitive" stdset="0">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -17941,7 +17941,7 @@ SCROLL</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>07:11:24 PM</string>
+         <string>10:40:44 AM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18982,8 +18982,8 @@ SCROLL</string>
   <slot>chk_auto_mode_macro_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="selectButtonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

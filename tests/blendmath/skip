@@ -1,0 +1,5 @@
+#!/bin/sh
+# This test compiles blendmath.c and internal TP headers from the source
+# tree, which is only available in run-in-place builds. Skip when testing
+# installed packages.
+[ -z "$SYSTEM_BUILD" ]

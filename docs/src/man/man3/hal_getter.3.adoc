@@ -1,0 +1,42 @@
+:manvolnum: 3
+
+= hal_getter(3)
+
+== NAME
+
+hal_getter, hal_get_bool, hal_get_real, hal_get_sint, hal_get_uint,
+hal_get_si32, hal_get_ui32, hal_get_si32_clamped, hal_get_ui32_clamped - HAL pin and param data reader
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+rtapi_bool hal_get_bool(hal_bool_t refp);
+rtapi_real hal_get_real(hal_real_t refp);
+rtapi_sint hal_get_sint(hal_sint_t refp);
+rtapi_uint hal_get_uint(hal_uint_t refp);
+
+rtapi_s32 hal_get_si32(hal_sint_t refp);
+rtapi_u32 hal_get_ui32(hal_uint_t refp);
+rtapi_s32 hal_get_si32_clamped(hal_sint_t refp);
+rtapi_u32 hal_get_ui32_clamped(hal_uint_t refp);
+----
+
+== ARGUMENTS
+
+refp::
+  Pin, param or signal data reference.
+
+== DESCRIPTION
+
+The **hal_get_*()** family of functions will get the value of a pin, param or signal from its data reference.
+
+Reading 32-bit values normally truncates the value from the underlying storage.
+The *hal_get_si32_clamped()* and *hal_get_ui32_clamped()* functions will clamp the read value based on type.
+The ranges are `RTAPI_INT32_MIN`...`RTAPI_INT32_MAX` for signed and `0`...`RTAPI_UINT32_MAX` for unsigned values.
+
+== SEE ALSO
+
+hal_setter(3), hal_type_t(3), hal_pin_new(3), hal_param_new(3)

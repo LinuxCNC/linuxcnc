@@ -1,3 +1,5 @@
+:manvolnum: 3
+
 = hal_stream(3)
 
 == NAME
@@ -9,6 +11,7 @@ hal_stream - non-blocking realtime streams
 [source,c]
 ----
 #include <hal.h>
+
 int hal_stream_create(hal_stream_t* stream, int comp_id, int key, int depth, const char* typestring);
 void hal_stream_destroy(hal_stream_t* stream);
 int hal_stream_attach(hal_stream_t* stream, int comp_id, int key, const char* typestring);
@@ -42,73 +45,82 @@ and a data structure specified by _typestring_.
 They must also agree which component (the first one loaded) will *hal_stream_create* the stream,
 and which component (the second one loaded) will *hal_stream_attach* to the already-created stream.
 
-The non-realtime part can be *halstreamer* or *halsampler*.
-In the case of *halstreamer* the key is 0x48535430 plus the channel number.
-In the case of *halsampler* the key is 0x48534130 plus the channel number.
+The non-realtime part can be halstreamer(1) or halsampler(1).
+In the case of halstreamer(1) the key is 0x48535430 plus the channel number.
+In the case of halsampler(1)* the key is 0x48534130 plus the channel number.
 
-*hal_stream_create*::
+hal_stream_create()::
   Create the given stream, initializing the _stream_ which is passed by reference.
   It is an undiagnosed error if a stream has already been created with the same _key_.
 
-*hal_stream_destroy*::
+hal_stream_destroy()::
   Destroy the given stream. It is an undiagnosed error if the stream is
   still attached by another component. It is an undiagnosed error if the
-  stream was attached with *hal_stream_attach* rather than created with
-  *hal_stream_create*. It is an undiagnosed error if the call to
-  *hal_stream_destroy* is omitted.
+  stream was attached with *hal_stream_attach()* rather than created with
+  *hal_stream_create()*. It is an undiagnosed error if the call to
+  *hal_stream_destroy()* is omitted.
 
-*hal_stream_attach*::
-  Attach the given stream, which was already created by *hal_stream_create*.
+hal_stream_attach()::
+  Attach the given stream, which was already created by *hal_stream_create()*.
   If the typestring is specified, this call fails if it does not match the typestring the stream was created with.
   If the typestring argument is NULL, then any typestring is accepted.
 
-*hal_stream_detach*::
+hal_stream_detach()::
   Detach the given stream. It is an undiagnosed error if the stream was
-  created with *hal_stream_create* rather than attached with *hal_stream_attach*.
-  It is an undiagnosed error if the call to *hal_stream_detach* is omitted.
+  created with *hal_stream_create()* rather than attached with *hal_stream_attach()*.
+  It is an undiagnosed error if the call to *hal_stream_detach()* is omitted.
 
-*hal_stream_element_count*:: Returns the number of pins.
+hal_stream_element_count():: Returns the number of pins.
 
-*hal_stream_element_type*:: Returns the type of the given pin number.
+hal_stream_element_type():: Returns the type of the given pin number.
 
-*hal_stream_readable*:: Returns true if the stream has at least one sample to read
+hal_stream_readable():: Returns true if the stream has at least one sample to read
 
-*hal_stream_read*:: If the stream has one sample to read, stores it in buf.
+hal_stream_read():: If the stream has one sample to read, stores it in buf.
 
-*hal_stream_writable*:: Returns true if the stream has room for at least one sample to be written.
+hal_stream_writable():: Returns true if the stream has room for at least one sample to be written.
 
-*hal_stream_depth*:: Returns the number of samples waiting to be read.
+hal_stream_depth():: Returns the number of samples waiting to be read.
 
-*hal_stream_maxdepth*:: Returns the *depth* argument that the stream was created with.
+hal_stream_maxdepth():: Returns the _depth_ argument that the stream was created with.
 
-*hal_stream_num_overruns*:: Returns a number which is incremented each time *hal_stream_write* is called without space available.
+hal_stream_num_overruns()::
+  Returns a number which is incremented each time *hal_stream_write()* is called without space available.
 
-*hal_stream_num_underruns*:: Returns a number which is incremented each time *hal_stream_read* is called without a sample available.
+hal_stream_num_underruns()::
+  Returns a number which is incremented each time *hal_stream_read()* is called without a sample available.
 
-*hal_stream_wait_readable*:: Waits until the stream is readable or the stop flag is set.
+hal_stream_wait_readable()::
+  Waits until the stream is readable or the stop flag is set. +
+  This function cannot be called from realtime.
 
-*hal_stream_wait_writable*:: Waits until the stream is writable or the stop flag is set.
+hal_stream_wait_writable()::
+  Waits until the stream is writable or the stop flag is set. +
+  This function cannot be called from realtime.
 
-*hal_stream_read*:: Reads a record from stream.
+hal_stream_read()::
+  Reads a record from stream.
   If successful, it is stored in the given buffer.
-  Optionally, the sample number can be retrieved. If no sample is available, _num_underruns_ is incremented.
-  It is an undetected error if more than one component or real-time function calls *hal_stream_read* concurrently.
+  Optionally, the sample number can be retrieved.
+  If no sample is available, _num_underruns_ is incremented.
+  It is an undetected error if more than one component or real-time function calls *hal_stream_read()* concurrently.
 
-*hal_stream_write*:: Writes a record to the stream.
+hal_stream_write()::
+  Writes a record to the stream.
   If successful, it copied from the given buffer.
   If no room is available, _num_overruns_ is incremented.
   In either case, the internal _sampleno_ value is incremented.
-  It is an undetected error if more than one component or real-time function calls *hal_stream_write* concurrently.
+  It is an undetected error if more than one component or real-time function calls *hal_stream_write()* concurrently.
 
 == ARGUMENTS
 
 stream::
-  A pointer to a stream object. In the case of *hal_stream_create* and
-  *hal_stream_attach* this is an uninitialized stream; in other cases,
+  A pointer to a stream object. In the case of *hal_stream_create()* and
+  *hal_stream_attach()* this is an uninitialized stream; in other cases,
   it must be a stream created or attached by an earlier call and not yet
   detached or destroyed.
 hal_id::
-  An HAL component identifier returned by an earlier call to *hal_init*.
+  An HAL component identifier returned by an earlier call to hal_init(3).
 key::
   The key for the shared memory segment.
 depth::
@@ -145,19 +157,14 @@ In the source tree under `src/hal/components`, *sampler.c* and
 
 == REALTIME CONSIDERATIONS
 
-*hal_stream_read*, *hal_stream_readable*, *hal_stream_write*,
-*hal_stream_writable*, *hal_stream_element_count*, *hal_tream_pin_type*,
-*hal_stream_depth*, *hal_stream_maxdepth*, *hal_stream_num_underruns*,
-*hal_stream_number_overruns* may be called from realtime code.
-
-*hal_stream_wait_writable*, *hal_stream_wait_writable* may be called from ULAPI code.
+The *hal_stream_wait_readable()* and *hal_stream_wait_writable()* cannot be called from realtime.
 
 Other functions may be called in any context, including realtime contexts.
 
 == RETURN VALUE
 
-The functions *hal_stream_create*, *hal_stream_attach*, *hal_stream_read*,
-*hal_stream_write*, *hal_stream_detach* and *hal_stream_destroy* return
+The functions *hal_stream_create()*, *hal_stream_attach()*, *hal_stream_read()*,
+*hal_stream_write()*, *hal_stream_detach()* and *hal_stream_destroy()* return
 an RTAPI status code. Other functions' return values are explained above.
 
 == BUGS

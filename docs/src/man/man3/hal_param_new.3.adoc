@@ -4,57 +4,65 @@
 
 == NAME
 
-hal_param_new, hal_param_bit_new, hal_param_float_new, hal_param_u32_new, hal_param_s32_new, hal_param_bit_newf, hal_param_float_newf, hal_param_u32_newf, hal_param_s32_newf - creates a HAL parameter
+hal_param_new, hal_param_new_bool, hal_param_new_real,
+hal_param_new_sint, hal_param_new_uint, hal_param_new_fake - creates a HAL parameter
 
-== SYNTAX
+== SYNOPSIS
 
-int hal_param_bit_new(const char* _name_, hal_param_dir_t _dir_, hal_bit_t* _data_addr_, int _comp_id_)
+[source,c]
+----
+#include <hal.h>
 
-int hal_param_float_new(const char* _name_, hal_param_dir_t _dir_, hal_float_t* _data_addr_, int _comp_id_)
-
-int hal_param_u32_new(const char* _name_, hal_param_dir_t _dir_, hal_u32_t* _data_addr_, int _comp_id_)
-
-int hal_param_s32_new(const char* _name_, hal_param_dir_t _dir_, hal_s32_t* _data_addr_, int _comp_id_)
-
-int hal_param_bit_newf(hal_param_dir_t _dir_, hal_bit_t* _data_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_param_float_newf(hal_param_dir_t _dir_, hal_float_t* _data_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_param_u32_newf(hal_param_dir_t _dir_, hal_u32_t * _data_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_param_s32_newf(hal_param_dir_t _dir_, hal_s32_t * _data_addr_, int _comp_id_, const char* _fmt_, _..._)
-
-int hal_param_new(const char* _name_, hal_type_t _type_, hal_param_dir_t _dir_, void* _data_addr_, int _comp_id_)
+int hal_param_new_bool(int comp_id, hal_pdir_t dir, hal_bool_t *param_ptr, rtapi_bool dflt, const char *fmt, ...);
+int hal_param_new_real(int comp_id, hal_pdir_t dir, hal_real_t *param_ptr, rtapi_real dflt, const char *fmt, ...);
+int hal_param_new_sint(int comp_id, hal_pdir_t dir, hal_sint_t *param_ptr, rtapi_sint dflt, const char *fmt, ...);
+int hal_param_new_uint(int comp_id, hal_pdir_t dir, hal_uint_t *param_ptr, rtapi_uint dflt, const char *fmt, ...);
+int hal_param_new_fake(int comp_id, hal_refs_t *param_ptr);
+----
 
 == ARGUMENTS
 
-_name_::
-  The name to give to the created parameter.
-_dir_::
+comp_id::
+  A HAL component identifier returned by an earlier call to hal_init(3).
+dir::
   The direction of the parameter, from the viewpoint of the component.
-  It may be one of *HAL_RO*, or *HAL_RW*.
+  It may be one of `HAL_RO`, or `HAL_RW`.
   A component may assign a value to any parameter,
-  but other programs (such as halcmd) may only assign a value to a parameter that is *HAL_RW*.
-_data_addr_::
-  The address of the data, which must lie within memory allocated by *hal_malloc*.
-_comp_id_::
-  A HAL component identifier returned by an earlier call to *hal_init*.
-_fmt, ..._::
+  but other programs (such as halcmd) may only assign a value to a parameter that is `HAL_RW`.
+param_ptr::
+  The address of the opaque param data storage reference, which must lie within memory allocated by hal_malloc(3).
+dflt::
+  The default assigned parameter value when the param is created.
+fmt, ...::
   A printf-style format string and arguments.
-_type_::
-  The type of the parameter, as specified in *hal_type_t(3)*.
 
 == DESCRIPTION
 
-The *hal_param_new* family of functions create a new _param_ object.
+The **hal_param_new_*()** family of functions create a new _param_ object.
 
 There are functions for each of the data types that the HAL supports.
-Pins may only be linked to signals of the same type.
+Parameters cannot be linked to signals.
+They serve as static configuration and informational status for LinuxCNC.
+
+The *hal_param_new_fake()* function will allocate backing storage for the parameter but not export a name.
+The storage size is guaranteed to be large enough to hold any hal_type_t(3) value.
+You can set and get the value using the getters and setters using any of the unionized hal_type_t fields.
+
+Allocating a fake parameter is added for compatibility with older code that used local parameter storage.
+All parameters behave like pins now and you can no longer use local storage for parameter values.
+All access to parameters changed to use getters and setters.
+But old code may still (ab)use these parameters as very expensive variables.
+There can be initialization cases where the actual parameter is not exported but it is still used as a variable.
+For the getters and setters to work in this case, you need to allocate storage.
+Changing the code path may prove very difficult and *hal_param_new_fake()* may then provide a way around the problem.
+You can allocate a fake parameter in the initialization path so that storage is present and all getters and setters will work as expected.
 
 == RETURN VALUE
 
-Returns a HAL status code.
+Returns zero (0) on success, or a negative errno value on failure.
 
 == SEE ALSO
 
-hal_type_t(3)
+hal_pin_new(3),
+hal_type_t(3), hal_pdir_t(3),
+hal_getter(3), hal_setter(3)

@@ -5,17 +5,9 @@
 ********************************************************************/
 
 #include <rtapi.h>
-#include <rtapi.h>
 #include <rtapi_app.h>
-#include <rtapi_math.h>
-#include <rtapi_string.h>
 #include <hal.h>
-#include <emcmotcfg.h>
 #include <kinematics.h>
-
-static struct data {
-    hal_s32_t joints[EMCMOT_MAX_JOINTS];
-} *data;
 
 int kinematicsForward(const double *joints
                      ,EmcPose *pos
@@ -79,8 +71,6 @@ static int comp_id;
 int rtapi_app_main(void) {
     comp_id = hal_init("corexykins");
     if(comp_id < 0) return comp_id;
-
-    data = hal_malloc(sizeof(struct data));
 
     hal_ready(comp_id);
     return 0;

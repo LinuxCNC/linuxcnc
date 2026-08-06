@@ -1,12 +1,19 @@
+:manvolnum: 3
+
 = hal_param_alias(3)
 
 == NAME
 
 hal_param_alias - create an alternate name for a param
 
-== SYNTAX
+== SYNOPSIS
 
-int *hal_param_alias*(const char **original_name*, const char **alias*);
+[source,c]
+----
+#include <hal.h>
+
+int hal_param_alias(const char original_name, const char alias);
+----
 
 == ARGUMENTS
 
@@ -18,7 +25,7 @@ alias::
 == DESCRIPTION
 
 A param may have two names: the original name
-(the one that was passed to a *hal_param_new* function) and an alias.
+(the one that was passed to a hal_param_new(3) function) and an alias.
 
 Usually, aliases are for the convenience of users and should be created and destroyed via halcmd.
 However, in some cases it is sensible to create aliases directly in a component.

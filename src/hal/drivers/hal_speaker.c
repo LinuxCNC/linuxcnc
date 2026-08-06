@@ -98,7 +98,7 @@ RTAPI_MP_STRING(cfg, "config string"); */
 */
 
 typedef struct {
-    hal_bit_t *signals[8];
+    hal_bool_t signals[8];
     uint8_t last;
 } speaker_t;
 
@@ -125,7 +125,7 @@ static void write_port(void *arg, long period)
     port = arg;
     
     for(i=0; i<8; i++) {
-        if(*(port->signals[i])) v = v | (1<<i);
+        if(hal_get_bool(port->signals[i])) v = v | (1<<i);
     }
 
     /* write it to the hardware */
@@ -171,7 +171,7 @@ int rtapi_app_main(void)
 #endif /* RTAPI_RTAI */
 
     /* STEP 2: allocate shared memory for skeleton data */
-    port_data_array = hal_malloc(num_ports * sizeof(speaker_t));
+    port_data_array = hal_malloc(num_ports * sizeof(*port_data_array));
     if (port_data_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SPEAKER: ERROR: hal_malloc() failed\n");
@@ -181,8 +181,8 @@ int rtapi_app_main(void)
 
     /* STEP 3: export the pin(s) */
     for(i = 0; i < 8; i++) {
-        retval = hal_pin_bit_newf(HAL_IN, &(port_data_array->signals[i]),
-				  comp_id, "speaker.%d.pin-%02d-out", n, i);
+        retval = hal_pin_new_bool(comp_id, HAL_IN, &(port_data_array->signals[i]),
+				  0, "speaker.%d.pin-%02d-out", n, i);
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "SPEAKER: ERROR: port %d var export failed with err=%i\n", n,

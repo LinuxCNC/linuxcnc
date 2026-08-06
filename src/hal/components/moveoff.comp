@@ -93,39 +93,39 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-pin in  bit power_on      "Connect to motion.motion-enabled";
-pin in  bit move_enable   "Enable offsets (Enabling requires apply-offset TRUE also)";
-pin in  bit apply_offsets "Enable offsets (Enabling requires move-enable TRUE also)";
-pin in  bit backtrack-enable = 1 "Enable backtrack on auto-return";
+pin in  bool power_on      "Connect to motion.motion-enabled";
+pin in  bool move_enable   "Enable offsets (Enabling requires apply-offset TRUE also)";
+pin in  bool apply_offsets "Enable offsets (Enabling requires move-enable TRUE also)";
+pin in  bool backtrack-enable = 1 "Enable backtrack on auto-return";
 
-pin in  float epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot.  A minimum value of 0.0001 is *silently enforced*.";
-pin in float waypoint-threshold = 0.02 "Minimum distance (in a single axis) for a new waypoint";
-pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for a new waypoint";
+pin in  real epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot.  A minimum value of 0.0001 is *silently enforced*.";
+pin in  real waypoint-threshold = 0.02 "Minimum distance (in a single axis) for a new waypoint";
+pin in  real waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for a new waypoint";
 
-pin out bit warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE.";
-pin out bit offset_applied "TRUE if one or more offsets are applied.";
-pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position.";
-pin out s32 waypoint-ct "Waypoint count (for debugging)";
-pin out s32 waypoint-percent-used "Percent of available waypoints used";
+pin out bool warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE.";
+pin out bool offset_applied "TRUE if one or more offsets are applied.";
+pin out bool waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position.";
+pin out si32 waypoint-ct "Waypoint count (for debugging)";
+pin out si32 waypoint-percent-used "Percent of available waypoints used";
 
-pin in  float offset-in-#[9 : personality] "Joint offset input value";
-pin in  float pos-#[9 : personality] "Joint position (typ: axis.0.motor-pos-cmd)";
-pin in  float fb-#[9 : personality] "Joint feedback (typ from encoder and input to pid controller (pid.feedback))";
+pin in  real offset-in-#[9 : personality] "Joint offset input value";
+pin in  real pos-#[9 : personality] "Joint position (typ: axis.0.motor-pos-cmd)";
+pin in  real fb-#[9 : personality] "Joint feedback (typ from encoder and input to pid controller (pid.feedback))";
 
-pin out float offset-current-#[9 : personality]"Joint offset current value";
-pin out float pos-plusoffset-#[9 : personality] "Computed joint position plus offset (typically connect to pid command input)";
-pin out float fb-minusoffset-#[9 : personality] "Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb)";
+pin out real offset-current-#[9 : personality]"Joint offset current value";
+pin out real pos-plusoffset-#[9 : personality] "Computed joint position plus offset (typically connect to pid command input)";
+pin out real fb-minusoffset-#[9 : personality] "Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb)";
 
-pin in  float offset-vel-#[9 : personality]=10 "Joint offset velocity limit";
-pin in  float offset-accel-#[9 : personality]=100 "Joint offset acceleration limit";
-pin in  float offset-min-#[9 : personality] = -1e20 "Minimum limit for applied joint offset (typ negative)";
-pin in  float offset-max-#[9 : personality] = 1e20 "Maximum limit for applied offset (typ positive)";
+pin in  real offset-vel-#[9 : personality]=10 "Joint offset velocity limit";
+pin in  real offset-accel-#[9 : personality]=100 "Joint offset acceleration limit";
+pin in  real offset-min-#[9 : personality] = -1e20 "Minimum limit for applied joint offset (typ negative)";
+pin in  real offset-max-#[9 : personality] = 1e20 "Maximum limit for applied offset (typ positive)";
 
 // inputs for debugging:
-pin  in bit   dbg_waypoint_limit_test "Debug input to test with limited number of waypoints";
+pin  in bool dbg_waypoint_limit_test "Debug input to test with limited number of waypoints";
 
 // outputs for debugging:
-pin out s32   dbg_state "Debug output for current state of state machine";
+pin out si32 dbg_state "Debug output for current state of state machine";
 
 option personality;
 option extra_setup;
@@ -150,21 +150,21 @@ typedef enum {
 
 typedef struct {
 int state[NCHANNELS];
-    hal_float_t old_in[NCHANNELS];
-    hal_float_t old_out[NCHANNELS];
-    hal_float_t old_v[NCHANNELS];
-    hal_float_t old_limited_in[NCHANNELS];
+    rtapi_real old_in[NCHANNELS];
+    rtapi_real old_out[NCHANNELS];
+    rtapi_real old_v[NCHANNELS];
+    rtapi_real old_limited_in[NCHANNELS];
 } old_values_t;
 
 struct lim3_input {
-    hal_float_t  minlimit;
-    hal_float_t  maxlimit;
-    hal_float_t  maxvlimit;
-    hal_float_t  maxalimit;
-    hal_float_t  in;
-    hal_float_t  old_in;
-    hal_float_t  old_out;
-    hal_float_t  old_v;
+    rtapi_real  minlimit;
+    rtapi_real  maxlimit;
+    rtapi_real  maxvlimit;
+    rtapi_real  maxalimit;
+    rtapi_real  in;
+    rtapi_real  old_in;
+    rtapi_real  old_out;
+    rtapi_real  old_v;
 };
 
 static void reset_old(int nchan, old_values_t* d) {
@@ -177,7 +177,7 @@ static void reset_old(int nchan, old_values_t* d) {
     }
 }
 
-static int offset_removed(int nchan, old_values_t d, hal_float_t eps) {
+static int offset_removed(int nchan, old_values_t d, rtapi_real eps) {
     int removed = 1;
     int i;
     for (i = 0 ; i < nchan ; i++) {
@@ -190,8 +190,8 @@ static int offset_removed(int nchan, old_values_t d, hal_float_t eps) {
 }
 
 static int at_waypoint(int nchan,
-                       hal_float_t g[],
-                       hal_float_t p[],hal_float_t eps) {
+                       rtapi_real g[],
+                       rtapi_real p[], rtapi_real eps) {
     int within_eps = 1;
     int i;
 
@@ -206,17 +206,17 @@ static int at_waypoint(int nchan,
 
 static long theperiod;
 static void lim3(struct lim3_input input,
-                 hal_float_t* old_in,
-                 hal_float_t* limited_out,
-                 hal_float_t* old_v
+                 rtapi_real* old_in,
+                 rtapi_real* limited_out,
+                 rtapi_real* old_v
                 ) {
     /* following code is adapted from limit3.comp */
-    hal_float_t dt = theperiod * 1e-9;
-    hal_float_t in_v, min_v, max_v, avg_v;
-    hal_float_t min_out,max_out;
-    hal_float_t ramp_a, match_time, est_in, est_out;
-    hal_float_t err, dv, dp;
-    hal_float_t limited_in;
+    rtapi_real dt = theperiod * 1e-9;
+    rtapi_real in_v, min_v, max_v, avg_v;
+    rtapi_real min_out,max_out;
+    rtapi_real ramp_a, match_time, est_in, est_out;
+    rtapi_real err, dv, dp;
+    rtapi_real limited_in;
 
     /* apply first order limit */
     limited_in = input.in;
@@ -289,18 +289,18 @@ static the_state    state = IDLE;
 static int          next_waypoint_index;
 static rtapi_s64    last_waypoint_time;
 static rtapi_s64    now;
-static hal_float_t  time_since_last_sample;
-static hal_float_t  move_threshold;
-static hal_float_t  min_sample_interval;
+static rtapi_real   time_since_last_sample;
+static rtapi_real   move_threshold;
+static rtapi_real   min_sample_interval;
 static bool         backtrack;
 static bool         gave_msg;
 static int          max_waypoints = NWAYPOINTS;
 static struct       lim3_input input;
-static hal_float_t  goal[NCHANNELS];
-static hal_float_t  waypoints[NCHANNELS][NWAYPOINTS];
+static rtapi_real   goal[NCHANNELS];
+static rtapi_real   waypoints[NCHANNELS][NWAYPOINTS];
 static old_values_t data;
 
-static hal_float_t  eps_in_use;
+static rtapi_real   eps_in_use;
 static bool         move_in_progress = 0;
 static the_state    next_state;
 
@@ -313,7 +313,7 @@ static const bool   allow_backtrack_enable_change = 1;
 //       (e.g., unlimited no. of offset samples)
 
 FUNCTION(read_inputs) {
-    hal_float_t last,delta;
+    rtapi_real last,delta;
     int r;
     bool all_enables  = power_on && move_enable && apply_offsets;
 
@@ -344,7 +344,7 @@ FUNCTION(read_inputs) {
         int r;
         bool sufficient_movement_for_new_waypoint = 0;
 
-        time_since_last_sample = (hal_float_t)(now - last_waypoint_time)/1e9;
+        time_since_last_sample = (rtapi_real)(now - last_waypoint_time)/1e9;
         switch (state) {
             case IDLE:
                   next_waypoint_index = 0;
@@ -369,9 +369,9 @@ FUNCTION(read_inputs) {
                 last_waypoint_time = now;
                 next_waypoint_index++;
                 if (next_waypoint_index > max_waypoints - 1) {
-                    waypoint_limit = 1;
+                    waypoint_limit_set(1);
                 } else {
-                    waypoint_limit = 0;
+                    waypoint_limit_set(0);
                 }
                 break;
             case MOVE_BACK: break;
@@ -404,7 +404,7 @@ FUNCTION(read_inputs) {
             if (!power_on) {
                 reset_old(personality, &data);
                 move_in_progress = 0;
-                offset_applied = 0;
+                offset_applied_set(0);
                 next_state = IDLE;
                 break;
             }
@@ -416,7 +416,7 @@ FUNCTION(read_inputs) {
                     for (r = 0; r < personality; r++) {
                         goal[r] = waypoints[r][next_waypoint_index-1];
                     }
-                    waypoint_limit = 0;
+                    waypoint_limit_set(0);
                     next_waypoint_index--;
                 }
             }
@@ -426,14 +426,14 @@ FUNCTION(read_inputs) {
             if (!power_on) {
                 reset_old(personality, &data);
                 move_in_progress = 0;
-                offset_applied = 0;
+                offset_applied_set(0);
                 next_state = IDLE;
                 break;
             }
             move_in_progress = 1;
             if (backtrack) {
                 if ( next_waypoint_index > 0 ) {
-                    hal_float_t pcur[NCHANNELS];
+                    rtapi_real pcur[NCHANNELS];
                     for (r=0; r < personality; r++) {
                         pcur[r] = offset_current(r);
                     }
@@ -462,7 +462,7 @@ FUNCTION(read_inputs) {
     if (   !apply_offsets
         &&  offset_applied
         ) {
-        warning = 1;
+        warning_set(1);
         if (!gave_msg) {
             // apply_offsets deasserted while offset_applied
             // for example:
@@ -482,7 +482,7 @@ FUNCTION(read_inputs) {
         }
     } else {
         gave_msg = 0;
-        warning = 0;
+        warning_set(0);
     }
     //}end state control
 } //read_inputs
@@ -505,35 +505,35 @@ FUNCTION(write_outputs) {
             if ( waypoint_limit && (state == MOVE_AWAY) ) {
                 // no movement in MOVE_AWAY (require: remove enable)
             } else {
-                hal_float_t last_old = data.old_out[r];
+                rtapi_real last_old = data.old_out[r];
                 lim3(input,
                      &data.old_in[r],
                      &data.old_out[r],
                      &data.old_v[r]
                      );
-                offset_current(r) = data.old_out[r];
-                fb_minusoffset(r) = fb(r)  - offset_current(r)
-                                  - (last_old - data.old_out[r]);
-                pos_plusoffset(r) = pos(r) + offset_current(r);
+                offset_current_set(r, data.old_out[r]);
+                fb_minusoffset_set(r, fb(r)  - offset_current(r)
+                                  - (last_old - data.old_out[r]));
+                pos_plusoffset_set(r, pos(r) + offset_current(r));
             }
         } else {
-            pos_plusoffset(r) = pos(r);
-            offset_current(r) = 0;
-            fb_minusoffset(r) = fb(r);
+            pos_plusoffset_set(r, pos(r));
+            offset_current_set(r, 0);
+            fb_minusoffset_set(r, fb(r));
         }
     }
 
-    offset_applied = ! offset_removed(personality, data, eps_in_use);
+    offset_applied_set(! offset_removed(personality, data, eps_in_use));
     if ( !offset_applied ) {
         // reset backtrack
         next_waypoint_index = 0;
-        waypoint_limit = 0;
+        waypoint_limit_set(0);
     }
 
-    waypoint_ct = next_waypoint_index;
-    waypoint_percent_used = 100*next_waypoint_index/max_waypoints;
+    waypoint_ct_set(next_waypoint_index);
+    waypoint_percent_used_set(100*next_waypoint_index/max_waypoints);
 
-    dbg_state = state;
+    dbg_state_set(state);
     state = next_state;
 } //write_outputs
 

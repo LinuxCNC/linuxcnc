@@ -54,14 +54,14 @@ static int JV = -1;
 static int JW = -1;
 
 struct haldata {
-    hal_float_t *x_rot_point;
-    hal_float_t *y_rot_point;
-    hal_float_t *z_rot_point;
-    hal_float_t *x_offset;
-    hal_float_t *y_offset;
-    hal_float_t *z_offset;
-    hal_float_t *tool_offset;
-    hal_bit_t *conventional_directions; // default: false
+    hal_real_t x_rot_point;
+    hal_real_t y_rot_point;
+    hal_real_t z_rot_point;
+    hal_real_t x_offset;
+    hal_real_t y_offset;
+    hal_real_t z_offset;
+    hal_real_t tool_offset;
+    hal_bool_t conventional_directions; // default: false
 } *haldata;
 
 
@@ -128,22 +128,22 @@ int trtKinematicsSetup(const int   comp_id,
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) {goto error;}
 
-    res += hal_pin_float_newf(HAL_IN, &(haldata->x_rot_point), comp_id,
-                 "%s.x-rot-point",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->y_rot_point), comp_id,
-                 "%s.y-rot-point",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->z_rot_point), comp_id,
-                 "%s.z-rot-point",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->x_offset),    comp_id,
-                 "%s.x-offset",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->y_offset),    comp_id,
-                 "%s.y-offset",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->z_offset),    comp_id,
-                 "%s.z-offset",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->tool_offset), comp_id,
-                 "%s.tool-offset",kp->halprefix);
-    res += hal_pin_bit_newf(HAL_IN, &(haldata->conventional_directions), comp_id,
-                 "%s.conventional-directions", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->x_rot_point),
+                            0.0, "%s.x-rot-point",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->y_rot_point),
+                            0.0, "%s.y-rot-point",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->z_rot_point),
+                            0.0, "%s.z-rot-point",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->x_offset),
+                            0.0, "%s.x-offset",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->y_offset),
+                            0.0, "%s.y-offset",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->z_offset),
+                            0.0, "%s.z-offset",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->tool_offset),
+                            0.0, "%s.tool-offset",kp->halprefix);
+    res += hal_pin_new_bool(comp_id, HAL_IN, &(haldata->conventional_directions),
+                            0, "%s.conventional-directions", kp->halprefix);
     if (res) {goto error;}
     return 0;
 
@@ -159,16 +159,16 @@ int xyzacKinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-    const double x_rot_point = *(haldata->x_rot_point);
-    const double y_rot_point = *(haldata->y_rot_point);
-    const double z_rot_point = *(haldata->z_rot_point);
-    const double          dt = *(haldata->tool_offset);
-    const double          dy = *(haldata->y_offset);
-    const double          dz = *(haldata->z_offset) + dt;
+    const double x_rot_point = hal_get_real(haldata->x_rot_point);
+    const double y_rot_point = hal_get_real(haldata->y_rot_point);
+    const double z_rot_point = hal_get_real(haldata->z_rot_point);
+    const double          dt = hal_get_real(haldata->tool_offset);
+    const double          dy = hal_get_real(haldata->y_offset);
+    const double          dz = hal_get_real(haldata->z_offset) + dt;
     const double       a_rad = joints[JA]*TO_RAD;
     const double       c_rad = joints[JC]*TO_RAD;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
 
     pos->tran.x = +       cos(c_rad)              * (joints[JX]      - x_rot_point)
                   - con * sin(c_rad) * cos(a_rad) * (joints[JY] - dy - y_rot_point)
@@ -207,16 +207,16 @@ int xyzacKinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    const double x_rot_point = *(haldata->x_rot_point);
-    const double y_rot_point = *(haldata->y_rot_point);
-    const double z_rot_point = *(haldata->z_rot_point);
-    const double         dy  = *(haldata->y_offset);
-    const double         dt  = *(haldata->tool_offset);
-    const double         dz  = *(haldata->z_offset) + dt;
+    const double x_rot_point = hal_get_real(haldata->x_rot_point);
+    const double y_rot_point = hal_get_real(haldata->y_rot_point);
+    const double z_rot_point = hal_get_real(haldata->z_rot_point);
+    const double         dy  = hal_get_real(haldata->y_offset);
+    const double         dt  = hal_get_real(haldata->tool_offset);
+    const double         dz  = hal_get_real(haldata->z_offset) + dt;
     const double      a_rad  = pos->a*TO_RAD;
     const double      c_rad  = pos->c*TO_RAD;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
 
     EmcPose P; // computed position
 
@@ -268,16 +268,16 @@ int xyzbcKinematicsForward(const double *joints,
     (void)fflags;
     (void)iflags;
     // Note: 'principal' joints are used
-    const double x_rot_point = *(haldata->x_rot_point);
-    const double y_rot_point = *(haldata->y_rot_point);
-    const double z_rot_point = *(haldata->z_rot_point);
-    const double          dx = *(haldata->x_offset);
-    const double          dt = *(haldata->tool_offset);
-    const double          dz = *(haldata->z_offset) + dt;
+    const double x_rot_point = hal_get_real(haldata->x_rot_point);
+    const double y_rot_point = hal_get_real(haldata->y_rot_point);
+    const double z_rot_point = hal_get_real(haldata->z_rot_point);
+    const double          dx = hal_get_real(haldata->x_offset);
+    const double          dt = hal_get_real(haldata->tool_offset);
+    const double          dz = hal_get_real(haldata->z_offset) + dt;
     const double       b_rad = joints[JB]*TO_RAD;
     const double       c_rad = joints[JC]*TO_RAD;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
 
     pos->tran.x =         cos(c_rad) * cos(b_rad) * (joints[JX] - dx - x_rot_point)
                   - con * sin(c_rad) *              (joints[JY]      - y_rot_point)
@@ -315,18 +315,18 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    const double x_rot_point = *(haldata->x_rot_point);
-    const double y_rot_point = *(haldata->y_rot_point);
-    const double z_rot_point = *(haldata->z_rot_point);
-    const double          dx = *(haldata->x_offset);
-    const double          dt = *(haldata->tool_offset);
-    const double          dz = *(haldata->z_offset) + dt;
+    const double x_rot_point = hal_get_real(haldata->x_rot_point);
+    const double y_rot_point = hal_get_real(haldata->y_rot_point);
+    const double z_rot_point = hal_get_real(haldata->z_rot_point);
+    const double          dx = hal_get_real(haldata->x_offset);
+    const double          dt = hal_get_real(haldata->tool_offset);
+    const double          dz = hal_get_real(haldata->z_offset) + dt;
     const double       b_rad = pos->b*TO_RAD;
     const double       c_rad = pos->c*TO_RAD;
     const double         dpx = -cos(b_rad)*dx + sin(b_rad)*dz + dx;
     const double         dpz = -sin(b_rad)*dx - cos(b_rad)*dz + dz;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
 
     EmcPose P; // computed position
 

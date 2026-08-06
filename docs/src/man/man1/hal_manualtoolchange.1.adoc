@@ -89,4 +89,4 @@ net tool-changed-btn hal_manualtoolchange.change_button <= parport.0.pin-15-in
 
 == SEE ALSO
 
-motion(1), iocontrol(1), halcmd(1).
+motion(9), iocontrol(1), halcmd(1).

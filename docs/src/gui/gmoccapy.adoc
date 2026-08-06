@@ -1370,7 +1370,13 @@ To avoid that any program is loaded at start up, just press the None button.
 
 The file selection screen will use the filters you have set in the INI file,
 if there aren't any filters given, you will only see *NGC files*.
-The path will be set according to the INI settings in `[DISPLAY] PROGRAM_PREFIX`.
+The path will be set according to the INI settings in `[DISPLAY] PROGRAM_PREFIX`. +
+NGC files can be explicitly excluded from the file selection screen by passing *no_ngc* instead of an extension:
+
+[source,ini]
+----
+PROGRAM_EXTENSION = no_ngc Exclude ngc files from selection screen
+----
 
 .Jump to dir
 
