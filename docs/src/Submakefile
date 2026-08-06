@@ -252,6 +252,7 @@ DOC_SRCS_EN := \
 	motion/kinematics.adoc \
 	motion/dh-parameters.adoc \
 	motion/pid-theory.adoc \
+	motion/dual-pid-example.adoc \
 	motion/tweaking-steppers.adoc \
 	motion/5-axis-kinematics.adoc \
 	motion/external-offsets.adoc \
