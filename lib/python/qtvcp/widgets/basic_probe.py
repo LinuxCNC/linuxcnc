@@ -175,7 +175,10 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self.set_checkableButtons(not self._runImmediately)
 
         if self.PREFS_:
-            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '-1', str, 'PROBE OPTIONS'))
+            tool = self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS')
+            if not tool.isdecimal():
+                tool = '-1'
+            self.lineEdit_probe_tool.setText(tool)
             self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
             self.lineEdit_rapid_vel.setText(self.PREFS_.getpref('Probe rapid', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))

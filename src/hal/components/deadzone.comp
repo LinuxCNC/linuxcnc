@@ -1,8 +1,8 @@
 component deadzone "Return the center if within the threshold";
-param rw float center = 0.0 "The center of the dead zone";
-param rw float threshold = 1.0 "The dead zone is *center* ±(*threshold*/2)";
-pin in float in;
-pin out float out;
+param rw real center = 0.0 "The center of the dead zone";
+param rw real threshold = 1.0 "The dead zone is *center* ±(*threshold*/2)";
+pin in real in;
+pin out real out;
 
 option period no;
 function _ "Update *out* based on *in* and the parameters.";
@@ -11,12 +11,12 @@ license "GPL";
 author "Jeff Epler";
 ;;
 FUNCTION(_) {
-    double th2 = threshold / 2;
-    double lo = center - th2;
-    double hi = center + th2;
-    double in_ = in;
+    rtapi_real th2 = threshold / 2;
+    rtapi_real lo = center - th2;
+    rtapi_real hi = center + th2;
+    rtapi_real in_ = in;
     
-    if(in_ < lo) out = in_ + th2;
-    else if(in_ > hi) out = in_ - th2;
-    else out = center;
+    if(in_ < lo) out_set(in_ + th2);
+    else if(in_ > hi) out_set(in_ - th2);
+    else out_set(center);
 }

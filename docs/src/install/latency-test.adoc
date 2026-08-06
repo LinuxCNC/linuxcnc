@@ -227,6 +227,7 @@ isolcpus::
     for latency>>.
 
 
+[[_latency_tuning]]
 == Latency tuning
 
 LinuxCNC can run on many different hardware platforms and with many

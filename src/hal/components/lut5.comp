@@ -1,11 +1,11 @@
 component lut5 """Arbitrary 5-input logic function based on a look-up table""";
-pin in bit in_0;
-pin in bit in_1;
-pin in bit in_2;
-pin in bit in_3;
-pin in bit in_4;
-pin out bit out;
-param rw u32 function;
+pin in bool in_0;
+pin in bool in_1;
+pin in bool in_2;
+pin in bool in_3;
+pin in bool in_4;
+pin out bool out;
+param rw ui32 function;
 function _;
 description """
 *lut5*
@@ -103,5 +103,5 @@ FUNCTION(_) {
     if(in_3) shift += 8;
     if(in_4) shift += 16;
 
-    out = (function & (1<<shift)) != 0;
+    out_set((function & (1<<shift)) != 0);
 }

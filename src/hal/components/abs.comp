@@ -15,11 +15,11 @@
 //   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 component abs "Compute the absolute value and sign of a float input signal";
 
-pin in float in "Analog input value" ;
-pin out float out "Analog output value, always positive";
-pin out bit sign "Sign of input, false for positive, true for negative" ;
-pin out bit is_positive "TRUE if input is positive, FALSE if input is 0 or negative";
-pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or positive";
+pin in real in "Analog input value" ;
+pin out real out "Analog output value, always positive";
+pin out bool sign "Sign of input, false for positive, true for negative" ;
+pin out bool is_positive_ "TRUE if input is positive, FALSE if input is 0 or negative";
+pin out bool is_negative_ "TRUE if input is negative, FALSE if input is 0 or positive";
 
 option period no;
 function _;
@@ -27,18 +27,15 @@ license "GPL";
 author "John Kasunich";
 ;;
 FUNCTION(_) {
-    double tmp = in;
+    rtapi_real tmp = in;
     if ( tmp >= 0.0 ) {
-	sign = 0;
-	out = tmp;
+        sign_set(0);
+        out_set(tmp);
     } else {
-	sign = 1;
-	out = -tmp;
+        sign_set(1);
+        out_set(-tmp);
     }
 
-    if (tmp > 0.000001) is_positive = 1;
-    else is_positive = 0;
-
-    if (tmp < -0.000001) is_negative = 1;
-    else is_negative = 0;
+    is_positive__set(tmp > 0.000001);
+    is_negative__set(tmp < -0.000001);
 }

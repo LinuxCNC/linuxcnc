@@ -1,12 +1,19 @@
+:manvolnum: 3
+
 = hal_exit(3)
 
 == NAME
 
 hal_exit - Shut down HAL
 
-== SYNTAX
+== SYNOPSIS
 
-int hal_exit(int _comp_id_)
+[source,c]
+----
+#include <hal.h>
+
+int hal_exit(int comp_id);
+----
 
 == ARGUMENTS
 
@@ -15,8 +22,12 @@ comp_id::
 
 == DESCRIPTION
 
-The function *hal_exit* shuts down and cleans up HAL and RTAPI.
-It must be called prior to exit by any module that called *hal_init*.
+The function *hal_exit()* shuts down and cleans up HAL and RTAPI.
+It must be called prior to exit by any module that called hal_init(3).
+
+Each hal_init(3) call must be matched with a *hal_exit()* call.
+Failing to do so will leak resources in HAL memory and may hamper proper shutdown.
+Usually you'd call *hal_exit()* in rtapi_app_exit(3).
 
 == REALTIME CONSIDERATIONS
 
@@ -24,4 +35,13 @@ Call only from within non-realtime or init/cleanup code, not from realtime tasks
 
 == RETURN VALUE
 
-Returns a HAL status code.
+Returns zero (0) on success or a HAL status code:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-ENOENT:: The component does not exist.
+
+== SEE ALSO
+
+hal_init(3),
+rtapi_app_exit(3)

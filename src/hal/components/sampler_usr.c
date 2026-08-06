@@ -210,10 +210,10 @@ int main(int argc, char **argv)
 	}
 	for ( n = 0 ; n < num_pins; n++ ) {
 	    switch ( hal_stream_element_type(&stream, n) ) {
-	    case HAL_FLOAT:
+	    case HAL_REAL:
 		printf ( "%f ", buf[n].f);
 		break;
-	    case HAL_BIT:
+	    case HAL_BOOL:
 		if ( buf[n].b ) {
 		    printf ( "1 " );
 		} else {
@@ -225,6 +225,12 @@ int main(int argc, char **argv)
 		break;
 	    case HAL_S32:
 		printf ( "%ld ", (long)buf[n].s);
+		break;
+	    case HAL_UINT:
+		printf ( "%llu ", (unsigned long long)buf[n].k);
+		break;
+	    case HAL_SINT:
+		printf ( "%lld ", (long long)buf[n].l);
 		break;
 	    default:
 		/* better not happen */

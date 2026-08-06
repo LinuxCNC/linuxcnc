@@ -6,6 +6,8 @@
 #include <variant>
 #include "hal.h"
 
+#warning "Do not use hal.hh. It will be removed (and, eventually, replaced)."
+
 enum class hal_dir{
     IN = HAL_IN,
     OUT = HAL_OUT,

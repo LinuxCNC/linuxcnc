@@ -3,23 +3,23 @@ Limit the output signal to fall between min and max, limit its slew
 rate to less than maxv per second, and limit its second derivative to
 less than maxa per second squared.  When the signal is a position,
 this means that the position, velocity, and acceleration are limited.""";
-pin in float in;
-pin in bit enable = 1 "1: out follows in, 0: out returns to 0 (always per constraints)";
-pin out float out;
-pin in bit load=0
+pin in real in;
+pin in bool enable = 1 "1: out follows in, 0: out returns to 0 (always per constraints)";
+pin out real out;
+pin in bool load=0
     """When TRUE, immediately set *out* to *in*, ignoring maxv
 and maxa""";
-pin in float min_=-1e20;
-pin in float max_=1e20;
-pin in float maxv=1e20;
-pin in float maxa=1e7 """Max Acceleration. Note that the component becomes
+pin in real min_=-1e20;
+pin in real max_=1e20;
+pin in real maxv=1e20;
+pin in real maxa=1e7 """Max Acceleration. Note that the component becomes
 unstable with maxa greater than about 1e7 in a 1kHz thread""";
-pin in u32 smooth_steps=2
+pin in ui32 smooth_steps=2
     """Smooth out acceleration this many periods before reaching input or
 max/min limit.  Higher values avoid oscillation, but will accelerate
 slightly more slowly.""";
-variable double in_pos_old;
-variable double out_old;
+variable rtapi_real in_pos_old;
+variable rtapi_real out_old;
 function _;
 license "GPL";
 author "John Kasunich";
@@ -30,7 +30,7 @@ author "John Kasunich";
 #define SET_NEXT_STATE(_out, _in)			\
     do {						\
 	out_old = out;					\
-	out = _out;					\
+	out_set(_out);					\
 	in_pos_old = _in;				\
 	return;						\
     } while (0)
@@ -47,19 +47,19 @@ author "John Kasunich";
 #define EPSILON 1e-9
 
 FUNCTION(_) {
-    double invalue;
-    double in_pos_lim, in_vel;
-    double min_vel, max_vel, min_pos, max_pos;
-    double stop_pos_max, stop_pos_min;
-    double stop_time_max, stop_time_min;
-    double in_vel_time_max, in_vel_time_min;
-    double out_pos_max, out_pos_min, in_pos_max, in_pos_min;
-    double ach_pos_min, ach_pos_max;
+    rtapi_real invalue;
+    rtapi_real in_pos_lim, in_vel;
+    rtapi_real min_vel, max_vel, min_pos, max_pos;
+    rtapi_real stop_pos_max, stop_pos_min;
+    rtapi_real stop_time_max, stop_time_min;
+    rtapi_real in_vel_time_max, in_vel_time_min;
+    rtapi_real out_pos_max, out_pos_min, in_pos_max, in_pos_min;
+    rtapi_real ach_pos_min, ach_pos_max;
 
-    double out_vel = (out-out_old)/fperiod;
-    double goal_pos_min, goal_pos_max, goal_pos_cur;
-    double pos_diff, vel_diff, goal_pos_prev;
-    double t, ti, a, v, s;
+    rtapi_real out_vel = (out-out_old)/fperiod;
+    rtapi_real goal_pos_min, goal_pos_max, goal_pos_cur;
+    rtapi_real pos_diff, vel_diff, goal_pos_prev;
+    rtapi_real t, ti, a, v, s;
 
     if (enable) {
         invalue = in; // out pin follows in pin per limits

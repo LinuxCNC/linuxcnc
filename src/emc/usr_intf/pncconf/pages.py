@@ -301,6 +301,12 @@ class Pages:
         elif self.d.axes == 2: self.d.available_axes = ['x','z','s']
         self.d.include_spindle = self.w.include_spindle_checkbutton.get_active()
         self.d.units = self.w.units.get_active()
+        self.d.adjust_p_values = False
+        if not self.w.createconfig.get_active() and not self.d.servoperiod == self.w.servoperiod.get_value():
+            msg1 = _("You have changed the Servo Period\n")
+            msg2 = _("This will influence the PID performance for motors driven by step/dir signals \n\n")
+            msg3 = _("Do you want the P values of the PID settings for step/dir driven motors to be changed to the recommended values?")
+            self.d.adjust_p_values = self.a.warning_dialog(msg1 + msg2 + msg3,False)
         self.d.servoperiod = self.w.servoperiod.get_value()
         self.page_set_state('mesa1',self.w.mesa1_checkbutton.get_active())
         for let in ['x','y','z','a']:

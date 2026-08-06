@@ -17,17 +17,17 @@
 
 component differential "kinematics for a differential transmission";
 
-pin in float roll-cmd  "position command for roll (in degrees)";
-pin in float pitch-cmd "position command for pitch (in degrees)";
+pin in real roll-cmd  "position command for roll (in degrees)";
+pin in real pitch-cmd "position command for pitch (in degrees)";
 
-pin out float roll-fb  "position feedback for roll (in degrees)";
-pin out float pitch-fb "position feedback for pitch (in degrees)";
+pin out real roll-fb  "position feedback for roll (in degrees)";
+pin out real pitch-fb "position feedback for pitch (in degrees)";
 
-pin out float motor0-cmd "position command to motor0 (based on roll & pitch inputs)";
-pin out float motor1-cmd "position command to motor1 (based on roll & pitch inputs)";
+pin out real motor0-cmd "position command to motor0 (based on roll & pitch inputs)";
+pin out real motor1-cmd "position command to motor1 (based on roll & pitch inputs)";
 
-pin in float motor0-fb "position feedback from motor0";
-pin in float motor1-fb "position feedback from motor1";
+pin in real motor0-fb "position feedback from motor0";
+pin in real motor1-fb "position feedback from motor1";
 
 option period no;
 function _;
@@ -37,9 +37,9 @@ author "Sebastian Kuzminsky";
 ;;
 
 FUNCTION(_) {
-    motor0_cmd = roll_cmd + pitch_cmd;
-    motor1_cmd = roll_cmd - pitch_cmd;
+    motor0_cmd_set(roll_cmd + pitch_cmd);
+    motor1_cmd_set(roll_cmd - pitch_cmd);
 
-    roll_fb = (motor0_fb + motor1_fb)/2;
-    pitch_fb = (motor0_fb - motor1_fb)/2;
+    roll_fb_set((motor0_fb + motor1_fb)/2);
+    pitch_fb_set((motor0_fb - motor1_fb)/2);
 }

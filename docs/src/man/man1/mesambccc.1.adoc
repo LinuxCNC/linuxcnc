@@ -28,6 +28,7 @@ below.
   Output a verbose list of configuration parameters, devices, Modbus messages
   and HAL pins.
 
+[[_mbccs_file_format]]
 == MBCCS FILE FORMAT
 The Modbus command control source file (mbccs file) is an XML formatted
 document describing the communication parameters, connected devices, HAL pins
@@ -59,6 +60,7 @@ All values are checked to be within an acceptable range. Errors and warnings
 are emitted when values are out of bounds. In case of a warning they may be
 clamped to the acceptable range.
 
+[[_modbus_functions]]
 === MODBUS FUNCTIONS
 A subset of the Modbus functions is supported (with function number in parentheses):
 
@@ -82,6 +84,7 @@ A subset of the Modbus functions is supported (with function number in parenthes
 You can use the function's symbolic name or numerical value in '<command>' in
 the 'function' attribute (as in `function="W_REGISTERS"` or `function="16"`).
 
+[[_modbus_types]]
 === MODBUS TYPES
 The 'modbustype' attribute declares the interpretation of values to or from a
 Modbus device's registers. They can be a signed integer (S), unsigned integer
@@ -387,6 +390,7 @@ Recognized '<initlist>/<command>/<data>' attributes:
   16-bit integer but depends on the 'modbustype' attribute and the range of
   acceptable values depends on the Modbus function.
 
+[[_hal_types]]
 === HAL TYPES
 A '<command>' in the '<commands>' section maps to one or more HAL pins with
 specific type using the 'haltype' attribute. Recognized are:

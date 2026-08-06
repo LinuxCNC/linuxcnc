@@ -39,6 +39,7 @@ class _Lcnc_Action(object):
         self.home_all_warning_flag = False
         self.proc = None
         self.lastOriginSet = [0,0,0,0,0,0,0,0,0]
+        self.last_mode = linuxcnc.MODE_MANUAL
 
         # imported here to avoid circular imports
         from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand

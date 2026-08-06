@@ -16,16 +16,16 @@
 //   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 component edge "Edge detector";
 
-pin in bit in;
-pin out bit out "Goes high when the desired edge is seen on 'in'";
-pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
+pin in bool in;
+pin out bool out "Goes high when the desired edge is seen on 'in'";
+pin out bool out_invert "Goes low when the desired edge is seen on 'in'";
 
-param rw bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
-param rw bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
-param rw signed out_width_ns=0 "Time in nanoseconds of the output pulse";
+param rw bool both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
+param rw bool in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
+param rw si32 out_width_ns=0 "Time in nanoseconds of the output pulse";
 
-param r signed time_left_ns "Time left in this output pulse";
-param r bit last_in "Previous input value";
+param r si32 time_left_ns "Time left in this output pulse";
+param r bool last_in "Previous input value";
 variable int first = 1;
 
 function _ "Produce output pulses from input edges";
@@ -35,8 +35,9 @@ author "Jeff Epler";
 
 FUNCTION(_){ 
     int new_in = in;
-    if (time_left_ns > 0) {
-        time_left_ns -= period;
+    rtapi_s32 tlns = time_left_ns;
+    if (tlns > 0) {
+        time_left_ns_set(tlns -= period);
     }
     if ( !first ) {
         int rise = new_in && !last_in;
@@ -45,18 +46,18 @@ FUNCTION(_){
             both ? rise || fall
                     : in_edge ? fall : rise;
         if(desired_edge) {
-            time_left_ns = out_width_ns;
-            out = 1;
-        } else if(time_left_ns > 0) {
-            out = 1;
+            time_left_ns_set(out_width_ns);
+            out_set(1);
+        } else if(tlns > 0) {
+            out_set(1);
         } else {
-            time_left_ns = 0;
-            out = 0;
+            time_left_ns_set(0);
+            out_set(0);
         }
     } else {
         first = 0;
     }
-    last_in = new_in;
-    out_invert = !out;
+    last_in_set(new_in);
+    out_invert_set(!out);
 }
 

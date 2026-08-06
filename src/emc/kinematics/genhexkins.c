@@ -116,46 +116,46 @@
 #include "switchkins.h"
 
 static struct haldata {
-    hal_float_t *basex[NUM_STRUTS];
-    hal_float_t *basey[NUM_STRUTS];
-    hal_float_t *basez[NUM_STRUTS];
-    hal_float_t *platformx[NUM_STRUTS];
-    hal_float_t *platformy[NUM_STRUTS];
-    hal_float_t *platformz[NUM_STRUTS];
-    hal_float_t *basenx[NUM_STRUTS];
-    hal_float_t *baseny[NUM_STRUTS];
-    hal_float_t *basenz[NUM_STRUTS];
-    hal_float_t *platformnx[NUM_STRUTS];
-    hal_float_t *platformny[NUM_STRUTS];
-    hal_float_t *platformnz[NUM_STRUTS];
-    hal_float_t *correction[NUM_STRUTS];
-    hal_float_t *screw_lead;
-    hal_u32_t   *last_iter;
-    hal_u32_t   *max_iter;
-    hal_u32_t   *iter_limit;
-    hal_float_t *max_error;
-    hal_float_t *conv_criterion;
-    hal_float_t *tool_offset;
-    hal_float_t *spindle_offset;
-    hal_bit_t   *fwd_kins_fail;
+    hal_real_t basex[NUM_STRUTS];
+    hal_real_t basey[NUM_STRUTS];
+    hal_real_t basez[NUM_STRUTS];
+    hal_real_t platformx[NUM_STRUTS];
+    hal_real_t platformy[NUM_STRUTS];
+    hal_real_t platformz[NUM_STRUTS];
+    hal_real_t basenx[NUM_STRUTS];
+    hal_real_t baseny[NUM_STRUTS];
+    hal_real_t basenz[NUM_STRUTS];
+    hal_real_t platformnx[NUM_STRUTS];
+    hal_real_t platformny[NUM_STRUTS];
+    hal_real_t platformnz[NUM_STRUTS];
+    hal_real_t correction[NUM_STRUTS];
+    hal_real_t screw_lead;
+    hal_uint_t last_iter;
+    hal_uint_t max_iter;
+    hal_uint_t iter_limit;
+    hal_real_t max_error;
+    hal_real_t conv_criterion;
+    hal_real_t tool_offset;
+    hal_real_t spindle_offset;
+    hal_bool_t fwd_kins_fail;
 
-    hal_float_t *gui_x;
-    hal_float_t *gui_y;
-    hal_float_t *gui_z;
-    hal_float_t *gui_a;
-    hal_float_t *gui_b;
-    hal_float_t *gui_c;
+    hal_real_t gui_x;
+    hal_real_t gui_y;
+    hal_real_t gui_z;
+    hal_real_t gui_a;
+    hal_real_t gui_b;
+    hal_real_t gui_c;
 
 } *haldata;
 
 static int genhex_gui_forward_kins(EmcPose *pos)
 {
-    *haldata->gui_x = pos->tran.x;
-    *haldata->gui_y = pos->tran.y;
-    *haldata->gui_z = pos->tran.z;
-    *haldata->gui_a = pos->a;
-    *haldata->gui_b = pos->b;
-    *haldata->gui_c = pos->c;
+    hal_set_real(haldata->gui_x, pos->tran.x);
+    hal_set_real(haldata->gui_y, pos->tran.y);
+    hal_set_real(haldata->gui_z, pos->tran.z);
+    hal_set_real(haldata->gui_a, pos->a);
+    hal_set_real(haldata->gui_b, pos->b);
+    hal_set_real(haldata->gui_c, pos->c);
     return 0;
 } // genhex_gui_forward_kins
 
@@ -275,20 +275,22 @@ static int genhex_read_hal_pins(void) {
     int t;
 
   /* set the base and platform coordinates from hal pin values */
+    rtapi_real spindle_offset = hal_get_real(haldata->spindle_offset);
+    rtapi_real tool_offset = hal_get_real(haldata->tool_offset);
     for (t = 0; t < NUM_STRUTS; t++) {
-        b[t].x   = *haldata->basex[t];
-        b[t].y   = *haldata->basey[t];
-        b[t].z   = *haldata->basez[t] + *haldata->spindle_offset + *haldata->tool_offset;
-        a[t].x   = *haldata->platformx[t];
-        a[t].y   = *haldata->platformy[t];
-        a[t].z   = *haldata->platformz[t] + *haldata->spindle_offset + *haldata->tool_offset;
+        b[t].x   = hal_get_real(haldata->basex[t]);
+        b[t].y   = hal_get_real(haldata->basey[t]);
+        b[t].z   = hal_get_real(haldata->basez[t]) + spindle_offset + tool_offset;
+        a[t].x   = hal_get_real(haldata->platformx[t]);
+        a[t].y   = hal_get_real(haldata->platformy[t]);
+        a[t].z   = hal_get_real(haldata->platformz[t]) + spindle_offset + tool_offset;
 
-        nb1[t].x = *haldata->basenx[t];
-        nb1[t].y = *haldata->baseny[t];
-        nb1[t].z = *haldata->basenz[t];
-        na0[t].x = *haldata->platformnx[t];
-        na0[t].y = *haldata->platformny[t];
-        na0[t].z = *haldata->platformnz[t];
+        nb1[t].x = hal_get_real(haldata->basenx[t]);
+        nb1[t].y = hal_get_real(haldata->baseny[t]);
+        nb1[t].z = hal_get_real(haldata->basenz[t]);
+        na0[t].x = hal_get_real(haldata->platformnx[t]);
+        na0[t].y = hal_get_real(haldata->platformny[t]);
+        na0[t].z = hal_get_real(haldata->platformnz[t]);
 
     }
     return 0;
@@ -317,7 +319,7 @@ static int StrutLengthCorrection(const PmCartesian * StrutVectUnit,
   /* define dot product */
   pmCartCartDot(&nb3, &na2, &dotprod);
 
-  *correction = *haldata->screw_lead * asin(dotprod) / PM_2_PI;
+  *correction = hal_get_real(haldata->screw_lead) * asin(dotprod) / PM_2_PI;
 
   return 0;
 } // StrutLengthCorrection()
@@ -374,12 +376,13 @@ static int genhexKinematicsForward(const double * joints,
   q_trans.z = pos->tran.z;
 
   /* Enter Newton-Raphson iterative method   */
+  rtapi_real max_error = hal_get_real(haldata->max_error);
   while (iterate) {
     /* check for large error and return error flag if no convergence */
-    if ((conv_err > +(*haldata->max_error)) ||
-        (conv_err < -(*haldata->max_error))) {
+    if ((conv_err > +max_error) ||
+        (conv_err < -max_error)) {
       /* we can't converge */
-      *haldata->fwd_kins_fail = 1;
+      hal_set_bool(haldata->fwd_kins_fail, 1);
       return -2;
     };
 
@@ -387,9 +390,9 @@ static int genhexKinematicsForward(const double * joints,
 
     /* check iteration to see if the kinematics can reach the
        convergence criterion and return error flag if it can't */
-    if (iteration > *haldata->iter_limit) {
+    if (iteration > hal_get_ui32(haldata->iter_limit)) {
       /* we can't converge */
-      *haldata->fwd_kins_fail = 1;
+      hal_set_bool(haldata->fwd_kins_fail, 1);
       return -5;
     }
 
@@ -404,12 +407,12 @@ static int genhexKinematicsForward(const double * joints,
       pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
       pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-        *haldata->fwd_kins_fail = 1;
+        hal_set_bool(haldata->fwd_kins_fail, 1);
         return -1;
       }
       pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
 
-      if (*haldata->screw_lead != 0.0) {
+      if (hal_get_real(haldata->screw_lead) != 0.0) {
         /* enable strut length correction */
         StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
         /* define corrected joint lengths */
@@ -452,8 +455,9 @@ static int genhexKinematicsForward(const double * joints,
 
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;            /*assume iteration is done */
+    rtapi_real conv_criterion = hal_get_real(haldata->conv_criterion);
     for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > *haldata->conv_criterion) {
+      if (fabs(StrutLengthDiff[i]) > conv_criterion) {
     iterate = 1;
       }
     }
@@ -469,12 +473,12 @@ static int genhexKinematicsForward(const double * joints,
   pos->tran.y = q_trans.y;
   pos->tran.z = q_trans.z;
 
-  *haldata->last_iter = iteration;
+  hal_set_ui32(haldata->last_iter, iteration);
 
-  if (iteration > *haldata->max_iter){
-    *haldata->max_iter = iteration;
+  if (iteration > hal_get_ui32(haldata->max_iter)){
+    hal_set_ui32(haldata->max_iter, iteration);
   }
-  *haldata->fwd_kins_fail = 0;
+  hal_set_bool(haldata->fwd_kins_fail, 0);
 
   genhex_gui_forward_kins(pos);
 
@@ -522,7 +526,7 @@ static int genhexKinematicsInverse(const EmcPose * pos,
     pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
     pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
 
-    if (*haldata->screw_lead != 0.0) {
+    if (hal_get_real(haldata->screw_lead) != 0.0) {
       /* enable strut length correction */
       /* define unit strut vector */
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
@@ -530,7 +534,7 @@ static int genhexKinematicsInverse(const EmcPose * pos,
       }
       /* define correction value and corrected joint lengths */
       StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
-      *haldata->correction[i] = corr;
+      hal_set_real(haldata->correction[i], corr);
       InvKinStrutLength += corr;
     }
 
@@ -540,6 +544,57 @@ static int genhexKinematicsInverse(const EmcPose * pos,
   return 0;
 } //genhexKinematicsInverse()
 
+// HAL pin initializaion values. In small arrays so we can easily
+// address them in the pin creation loop.
+static const rtapi_real init_basex[NUM_STRUTS] = {
+    DEFAULT_BASE_0_X, DEFAULT_BASE_1_X, DEFAULT_BASE_2_X,
+    DEFAULT_BASE_3_X, DEFAULT_BASE_4_X, DEFAULT_BASE_5_X,
+};
+static const rtapi_real init_basey[NUM_STRUTS] = {
+    DEFAULT_BASE_0_Y, DEFAULT_BASE_1_Y, DEFAULT_BASE_2_Y,
+    DEFAULT_BASE_3_Y, DEFAULT_BASE_4_Y, DEFAULT_BASE_5_Y,
+};
+static const rtapi_real init_basez[NUM_STRUTS] = {
+    DEFAULT_BASE_0_Z, DEFAULT_BASE_1_Z, DEFAULT_BASE_2_Z,
+    DEFAULT_BASE_3_Z, DEFAULT_BASE_4_Z, DEFAULT_BASE_5_Z,
+};
+static const rtapi_real init_platformx[NUM_STRUTS] = {
+    DEFAULT_PLATFORM_0_X, DEFAULT_PLATFORM_1_X, DEFAULT_PLATFORM_2_X,
+    DEFAULT_PLATFORM_3_X, DEFAULT_PLATFORM_4_X, DEFAULT_PLATFORM_5_X,
+};
+static const rtapi_real init_platformy[NUM_STRUTS] = {
+    DEFAULT_PLATFORM_0_Y, DEFAULT_PLATFORM_1_Y, DEFAULT_PLATFORM_2_Y,
+    DEFAULT_PLATFORM_3_Y, DEFAULT_PLATFORM_4_Y, DEFAULT_PLATFORM_5_Y,
+};
+static const rtapi_real init_platformz[NUM_STRUTS] = {
+    DEFAULT_PLATFORM_0_Z, DEFAULT_PLATFORM_1_Z, DEFAULT_PLATFORM_2_Z,
+    DEFAULT_PLATFORM_3_Z, DEFAULT_PLATFORM_4_Z, DEFAULT_PLATFORM_5_Z,
+};
+static const rtapi_real init_basenx[NUM_STRUTS] = {
+    DEFAULT_BASE_0_NX, DEFAULT_BASE_1_NX, DEFAULT_BASE_2_NX,
+    DEFAULT_BASE_3_NX, DEFAULT_BASE_4_NX, DEFAULT_BASE_5_NX,
+};
+static const rtapi_real init_baseny[NUM_STRUTS] = {
+    DEFAULT_BASE_0_NY, DEFAULT_BASE_1_NY, DEFAULT_BASE_2_NY,
+    DEFAULT_BASE_3_NY, DEFAULT_BASE_4_NY, DEFAULT_BASE_5_NY,
+};
+static const rtapi_real init_basenz[NUM_STRUTS] = {
+    DEFAULT_BASE_0_NZ, DEFAULT_BASE_1_NZ, DEFAULT_BASE_2_NZ,
+    DEFAULT_BASE_3_NZ, DEFAULT_BASE_4_NZ, DEFAULT_BASE_5_NZ,
+};
+static const rtapi_real init_platformnx[NUM_STRUTS] = {
+    DEFAULT_PLATFORM_0_NX, DEFAULT_PLATFORM_1_NX, DEFAULT_PLATFORM_2_NX,
+    DEFAULT_PLATFORM_3_NX, DEFAULT_PLATFORM_4_NX, DEFAULT_PLATFORM_5_NX,
+};
+static const rtapi_real init_platformny[NUM_STRUTS] = {
+    DEFAULT_PLATFORM_0_NY, DEFAULT_PLATFORM_1_NY, DEFAULT_PLATFORM_2_NY,
+    DEFAULT_PLATFORM_3_NY, DEFAULT_PLATFORM_4_NY, DEFAULT_PLATFORM_5_NY,
+};
+static const rtapi_real init_platformnz[NUM_STRUTS] = {
+    DEFAULT_PLATFORM_0_NZ, DEFAULT_PLATFORM_1_NZ, DEFAULT_PLATFORM_2_NZ,
+    DEFAULT_PLATFORM_3_NZ, DEFAULT_PLATFORM_4_NZ, DEFAULT_PLATFORM_5_NZ,
+};
+
 static
 int genhexKinematicsSetup(const  int   comp_id,
                           const  char* coordinates,
@@ -548,6 +603,12 @@ int genhexKinematicsSetup(const  int   comp_id,
     (void)coordinates;
     int i,res=0;
 
+    if (kp->max_joints < 0 || kp->max_joints > NUM_STRUTS) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "genhexKinematicsSetup: max_joints %d less than 0 or larger NUM_STRUTS %d\n",
+                        kp->max_joints, NUM_STRUTS);
+        return -1;
+    }
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) {
         rtapi_print_msg(RTAPI_MSG_ERR,"genhexKinematicsSetup: hal_malloc fail\n");
@@ -555,150 +616,64 @@ int genhexKinematicsSetup(const  int   comp_id,
     }
 
     for (i = 0; i < kp->max_joints; i++) {
-        res += hal_pin_float_newf(HAL_IN, &(haldata->basex[i]), comp_id,
-            "%s.base.%d.x", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->basey[i], comp_id,
-            "%s.base.%d.y", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->basez[i], comp_id,
-            "%s.base.%d.z", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->platformx[i], comp_id,
-            "%s.platform.%d.x", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->platformy[i], comp_id,
-            "%s.platform.%d.y", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->platformz[i], comp_id,
-            "%s.platform.%d.z", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->basenx[i], comp_id,
-            "%s.base-n.%d.x", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->baseny[i], comp_id,
-            "%s.base-n.%d.y", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->basenz[i], comp_id,
-            "%s.base-n.%d.z", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->platformnx[i], comp_id,
-            "%s.platform-n.%d.x", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->platformny[i], comp_id,
-            "%s.platform-n.%d.y", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_IN, &haldata->platformnz[i], comp_id,
-            "%s.platform-n.%d.z", kp->halprefix, i);
-        res += hal_pin_float_newf(HAL_OUT, &haldata->correction[i], comp_id,
-            "%s.correction.%d", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->basex[i]),
+                                init_basex[i], "%s.base.%d.x", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basey[i],
+                                init_basey[i], "%s.base.%d.y", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basez[i],
+                                init_basez[i], "%s.base.%d.z", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformx[i],
+                                init_platformx[i], "%s.platform.%d.x", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformy[i],
+                                init_platformy[i], "%s.platform.%d.y", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformz[i],
+                                init_platformz[i], "%s.platform.%d.z", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basenx[i],
+                                init_basenx[i], "%s.base-n.%d.x", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->baseny[i],
+                                init_baseny[i], "%s.base-n.%d.y", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basenz[i],
+                                init_basenz[i], "%s.base-n.%d.z", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformnx[i],
+                                init_platformnx[i], "%s.platform-n.%d.x", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformny[i],
+                                init_platformny[i], "%s.platform-n.%d.y", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformnz[i],
+                                init_platformnz[i], "%s.platform-n.%d.z", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_OUT, &haldata->correction[i],
+                                0.0, "%s.correction.%d", kp->halprefix, i);
         if (res) {goto error;}
-        *haldata->correction[i] = 0.0;
-
     }
 
-    res += hal_pin_u32_newf(HAL_OUT, &haldata->last_iter, comp_id,
-        "genhexkins.last-iterations");
-    *haldata->last_iter = 0;
-    res += hal_pin_u32_newf(HAL_OUT, &haldata->max_iter, comp_id,
-        "genhexkins.max-iterations");
-    *haldata->max_iter = 0;
-    res += hal_pin_float_newf(HAL_IN, &haldata->max_error, comp_id,
-        "genhexkins.max-error");
-    *haldata->max_error = 500.0;
-    res += hal_pin_float_newf(HAL_IN, &haldata->conv_criterion, comp_id,
-        "genhexkins.convergence-criterion");
-    *haldata->conv_criterion = 1e-9;
-    res += hal_pin_u32_newf(HAL_IN, &haldata->iter_limit, comp_id,
-        "genhexkins.limit-iterations");
-    *haldata->iter_limit = 120;
-    res += hal_pin_float_newf(HAL_IN, &haldata->tool_offset, comp_id,
-        "genhexkins.tool-offset");
-    *haldata->tool_offset = 0.0;
-    res += hal_pin_float_newf(HAL_IN, &haldata->spindle_offset, comp_id,
-        "genhexkins.spindle-offset");
-    *haldata->spindle_offset = 0.0;
-    res += hal_pin_float_newf(HAL_IN, &haldata->screw_lead, comp_id,
-        "genhexkins.screw-lead");
-    *haldata->screw_lead = DEFAULT_SCREW_LEAD;
+    res += hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->last_iter,
+                            0, "genhexkins.last-iterations");
+    res += hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->max_iter,
+                            0, "genhexkins.max-iterations");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->max_error,
+                            500.0, "genhexkins.max-error");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->conv_criterion,
+                            1e-9, "genhexkins.convergence-criterion");
+    res += hal_pin_new_ui32(comp_id, HAL_IN, &haldata->iter_limit,
+                            120, "genhexkins.limit-iterations");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->tool_offset,
+                            0.0, "genhexkins.tool-offset");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->spindle_offset,
+                            0.0, "genhexkins.spindle-offset");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->screw_lead,
+                            DEFAULT_SCREW_LEAD, "genhexkins.screw-lead");
 
     if (res) {goto error;}
 
-    *haldata->basex[0] = DEFAULT_BASE_0_X;
-    *haldata->basey[0] = DEFAULT_BASE_0_Y;
-    *haldata->basez[0] = DEFAULT_BASE_0_Z;
-    *haldata->basex[1] = DEFAULT_BASE_1_X;
-    *haldata->basey[1] = DEFAULT_BASE_1_Y;
-    *haldata->basez[1] = DEFAULT_BASE_1_Z;
-    *haldata->basex[2] = DEFAULT_BASE_2_X;
-    *haldata->basey[2] = DEFAULT_BASE_2_Y;
-    *haldata->basez[2] = DEFAULT_BASE_2_Z;
-    *haldata->basex[3] = DEFAULT_BASE_3_X;
-    *haldata->basey[3] = DEFAULT_BASE_3_Y;
-    *haldata->basez[3] = DEFAULT_BASE_3_Z;
-    *haldata->basex[4] = DEFAULT_BASE_4_X;
-    *haldata->basey[4] = DEFAULT_BASE_4_Y;
-    *haldata->basez[4] = DEFAULT_BASE_4_Z;
-    *haldata->basex[5] = DEFAULT_BASE_5_X;
-    *haldata->basey[5] = DEFAULT_BASE_5_Y;
-    *haldata->basez[5] = DEFAULT_BASE_5_Z;
-
-    *haldata->platformx[0] = DEFAULT_PLATFORM_0_X;
-    *haldata->platformy[0] = DEFAULT_PLATFORM_0_Y;
-    *haldata->platformz[0] = DEFAULT_PLATFORM_0_Z;
-    *haldata->platformx[1] = DEFAULT_PLATFORM_1_X;
-    *haldata->platformy[1] = DEFAULT_PLATFORM_1_Y;
-    *haldata->platformz[1] = DEFAULT_PLATFORM_1_Z;
-    *haldata->platformx[2] = DEFAULT_PLATFORM_2_X;
-    *haldata->platformy[2] = DEFAULT_PLATFORM_2_Y;
-    *haldata->platformz[2] = DEFAULT_PLATFORM_2_Z;
-    *haldata->platformx[3] = DEFAULT_PLATFORM_3_X;
-    *haldata->platformy[3] = DEFAULT_PLATFORM_3_Y;
-    *haldata->platformz[3] = DEFAULT_PLATFORM_3_Z;
-    *haldata->platformx[4] = DEFAULT_PLATFORM_4_X;
-    *haldata->platformy[4] = DEFAULT_PLATFORM_4_Y;
-    *haldata->platformz[4] = DEFAULT_PLATFORM_4_Z;
-    *haldata->platformx[5] = DEFAULT_PLATFORM_5_X;
-    *haldata->platformy[5] = DEFAULT_PLATFORM_5_Y;
-    *haldata->platformz[5] = DEFAULT_PLATFORM_5_Z;
-
-    *haldata->basenx[0] = DEFAULT_BASE_0_NX;
-    *haldata->baseny[0] = DEFAULT_BASE_0_NY;
-    *haldata->basenz[0] = DEFAULT_BASE_0_NZ;
-    *haldata->basenx[1] = DEFAULT_BASE_1_NX;
-    *haldata->baseny[1] = DEFAULT_BASE_1_NY;
-    *haldata->basenz[1] = DEFAULT_BASE_1_NZ;
-    *haldata->basenx[2] = DEFAULT_BASE_2_NX;
-    *haldata->baseny[2] = DEFAULT_BASE_2_NY;
-    *haldata->basenz[2] = DEFAULT_BASE_2_NZ;
-    *haldata->basenx[3] = DEFAULT_BASE_3_NX;
-    *haldata->baseny[3] = DEFAULT_BASE_3_NY;
-    *haldata->basenz[3] = DEFAULT_BASE_3_NZ;
-    *haldata->basenx[4] = DEFAULT_BASE_4_NX;
-    *haldata->baseny[4] = DEFAULT_BASE_4_NY;
-    *haldata->basenz[4] = DEFAULT_BASE_4_NZ;
-    *haldata->basenx[5] = DEFAULT_BASE_5_NX;
-    *haldata->baseny[5] = DEFAULT_BASE_5_NY;
-    *haldata->basenz[5] = DEFAULT_BASE_5_NZ;
-
-    *haldata->platformnx[0] = DEFAULT_PLATFORM_0_NX;
-    *haldata->platformny[0] = DEFAULT_PLATFORM_0_NY;
-    *haldata->platformnz[0] = DEFAULT_PLATFORM_0_NZ;
-    *haldata->platformnx[1] = DEFAULT_PLATFORM_1_NX;
-    *haldata->platformny[1] = DEFAULT_PLATFORM_1_NY;
-    *haldata->platformnz[1] = DEFAULT_PLATFORM_1_NZ;
-    *haldata->platformnx[2] = DEFAULT_PLATFORM_2_NX;
-    *haldata->platformny[2] = DEFAULT_PLATFORM_2_NY;
-    *haldata->platformnz[2] = DEFAULT_PLATFORM_2_NZ;
-    *haldata->platformnx[3] = DEFAULT_PLATFORM_3_NX;
-    *haldata->platformny[3] = DEFAULT_PLATFORM_3_NY;
-    *haldata->platformnz[3] = DEFAULT_PLATFORM_3_NZ;
-    *haldata->platformnx[4] = DEFAULT_PLATFORM_4_NX;
-    *haldata->platformny[4] = DEFAULT_PLATFORM_4_NY;
-    *haldata->platformnz[4] = DEFAULT_PLATFORM_4_NZ;
-    *haldata->platformnx[5] = DEFAULT_PLATFORM_5_NX;
-    *haldata->platformny[5] = DEFAULT_PLATFORM_5_NY;
-    *haldata->platformnz[5] = DEFAULT_PLATFORM_5_NZ;
-
     //note: switchkins does not uses these as it provides gui.x, gui.y, etc.
-    res += hal_pin_float_newf(HAL_IN, &haldata->gui_x, comp_id, "genhexkins.x");
-    res += hal_pin_float_newf(HAL_IN, &haldata->gui_y, comp_id, "genhexkins.y");
-    res += hal_pin_float_newf(HAL_IN, &haldata->gui_z, comp_id, "genhexkins.z");
-    res += hal_pin_float_newf(HAL_IN, &haldata->gui_a, comp_id, "genhexkins.a");
-    res += hal_pin_float_newf(HAL_IN, &haldata->gui_b, comp_id, "genhexkins.b");
-    res += hal_pin_float_newf(HAL_IN, &haldata->gui_c, comp_id, "genhexkins.c");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_x, 0.0, "genhexkins.x");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_y, 0.0, "genhexkins.y");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_z, 0.0, "genhexkins.z");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_a, 0.0, "genhexkins.a");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_b, 0.0, "genhexkins.b");
+    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_c, 0.0, "genhexkins.c");
 
-    res += hal_pin_bit_newf(HAL_OUT, &haldata->fwd_kins_fail, comp_id,
-        "genhexkins.fwd-kins-fail");
+    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->fwd_kins_fail,
+                            0, "genhexkins.fwd-kins-fail");
 
     if (res) goto error;
     return 0;

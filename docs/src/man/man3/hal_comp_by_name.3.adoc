@@ -1,0 +1,47 @@
+:manvolnum: 3
+
+= hal_comp_by_name(3)
+
+== NAME
+
+hal_comp_by_name, hal_comp_by_id - Retrieve information about a named component
+
+== SYNOPSIS
+
+[source,c]
+----
+#include <hal.h>
+
+int hal_comp_by_name(const char *comp, hal_query_t *query);
+int hal_comp_by_id(int comp_id, hal_query_t *query);
+----
+
+== ARGUMENTS
+
+comp::
+  A HAL component name.
+comp_id::
+  A HAL component identifier.
+query::
+  A query structure that will receive the component's information.
+  May be NULL if no information is required, besides determining whether the component exists.
+
+== DESCRIPTION
+
+The *hal_comp_by_name()* and *hal_comp_by_id()* functions retrieve component information by name or ID.
+
+If no component was found, then *-ENOENT* is returned.
+If the _query_ argument is not NULL, then the query structure will contain all available information about the component.
+
+== RETURN VALUE
+
+Returns zero (0) on success or a negative errno code:
+
+[horizontal]
+-EFAULT:: The shared memory was not mapped.
+-EINVAL:: An invalid argument was passed.
+-ENOENT:: The component does not exist.
+
+== SEE ALSO
+
+hal_query_t(3)

@@ -120,10 +120,10 @@ RTAPI_MP_STRING(cfg, "config string");
 */
 
 typedef struct {
-    hal_bit_t *data;		/* basic pin for input or output */
+    hal_bool_t data;		/* basic pin for input or output */
     union {
-	hal_bit_t *not;		/* pin for inverted data (input only) */
-	hal_bit_t invert;	/* param for inversion (output only) */
+	hal_bool_t not;		/* pin for inverted data (input only) */
+	hal_bool_t invert;	/* param for inversion (output only) */
 	} io;
 } io_pin_t;
 
@@ -295,12 +295,12 @@ static void split_input(unsigned char data, io_pin_t *dest, int num)
     for (b = 0 ; b < num ; b++ ) {
 	if ( data & mask ) {
 	    /* input high, which means FALSE (active low) */
-	    *(dest->data) = 0;
-	    *(dest->io.not) = 1;
+	    hal_set_bool(dest->data, 0);
+	    hal_set_bool(dest->io.not, 1);
 	} else {
 	    /* input low, which means TRUE */
-	    *(dest->data) = 1;
-	    *(dest->io.not) = 0;
+	    hal_set_bool(dest->data, 1);
+	    hal_set_bool(dest->io.not, 0);
 	}
 	mask <<= 1;
 	dest++;
@@ -361,12 +361,12 @@ unsigned char build_output(io_pin_t *src, int num)
     /* assemble output byte for data port from 'num' source variables */
     for (b = 0; b < num; b++) {
 	/* get the data, add to output byte */
-	if ( *(src->data) ) {
-	    if ( !(src->io.invert) ) {
+	if ( hal_get_bool(src->data) ) {
+	    if ( !hal_get_bool(src->io.invert) ) {
 		data |= mask;
 	    }
 	} else {
-	    if ( (src->io.invert) ) {
+	    if ( hal_get_bool(src->io.invert) ) {
 		data |= mask;
 	    }
 	}
@@ -644,17 +644,14 @@ static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin)
     int retval;
 
     /* export read only HAL pin for input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(pin->data), 0,
 			      "ax5214h.%d.in-%02d", boardnum, pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export additional pin for inverted input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(pin->io.not), 1,
 			      "ax5214h.%d.in-%02d-not", boardnum, pinnum);
-    /* initialize HAL pins */
-    *(pin->data) = 0;
-    *(pin->io.not) = 1;
     return retval;
 }
 
@@ -663,16 +660,13 @@ static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin)
     int retval;
 
     /* export read only HAL pin for output data */
-    retval = hal_pin_bit_newf(HAL_IN, &(pin->data), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(pin->data), 0,
 			      "ax5214h.%d.out-%02d", boardnum, pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert), comp_id,
+    retval = hal_param_new_bool(comp_id, HAL_RW, &(pin->io.invert), 0,
 				"ax5214h.%d.out-%02d-invert", boardnum, pinnum);
-    /* initialize HAL pin and param */
-    *(pin->data) = 0;
-    pin->io.invert = 0;
     return retval;
 }

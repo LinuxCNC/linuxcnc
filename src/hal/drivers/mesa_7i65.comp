@@ -13,16 +13,16 @@ sequence, one for each bspi instance included in the bitfile loaded to each
 installed card during the Hostmot2 setup sequence. Type "dmesg" at the terminal
 prompt to view the output.""";
 
-pin in float analogue.#.out [8] """Analogue output values. The value will be
+pin in real analogue.#.out [8] """Analogue output values. The value will be
 limited to a  -1.0 to +1.0 range""";
-pin out float analogue.#.in [8] "Analogue outputs read by the 7i65 (in Volts)";
-pin out bit digital.#.in [4] "Miscellaneous Digital Inputs";
-pin in bit enable.#.out [8] "Amplifier-enable control pins";
-pin out bit watchdog.has-bit """Indicates the status of the 7i65 Watchdog (which
+pin out real analogue.#.in [8] "Analogue outputs read by the 7i65 (in Volts)";
+pin out bool digital.#.in [4] "Miscellaneous Digital Inputs";
+pin in bool enable.#.out [8] "Amplifier-enable control pins";
+pin out bool watchdog.has-bit """Indicates the status of the 7i65 Watchdog (which
 is separate from the FPGA card watchdog""";
-param rw float scale-# [8] = 10 """Analogue output scale factor. For example if
+param rw real scale-# [8] = 10 """Analogue output scale factor. For example if
 the scale is 7 then an input of 1.0 will give 7V on the output terminals""";
-param rw bit is-bipolar-# [8] = 1 """Set this value to TRUE for a plus/minus
+param rw bool is-bipolar-# [8] = 1 """Set this value to TRUE for a plus/minus
 "scale" output. Set to 0 for a 0-"scale" output""";
 
 option extra_setup yes;
@@ -50,7 +50,7 @@ include <hostmot2-serial.h>;
 ;;
 
 // to parse the modparam
-char *bspi_chans[16] = {0,};
+char *bspi_chans[16] = {};
 RTAPI_MP_ARRAY_STRING(bspi_chans, 16, "BSPI Channel names");
 
 static int read(void *subdata) {
@@ -78,9 +78,9 @@ static int read(void *subdata) {
     // Limit DAC Outputs
     for (i = 0 ; i < 8 ; i++) {
         if (scale(i) > 10)
-            scale(i) = 10;
+            scale_set(i, 10);
         if (scale(i) < -10)
-            scale(i) = -10;
+            scale_set(i, -10);
 
         aout[i] = analogue_out(i);
         if (aout[i] > 1)
@@ -147,15 +147,15 @@ static int read(void *subdata) {
     }
 
     // Read Misc IO and Watchdog from CPLD
-    digital_in(0) = (*CPLD_read & 0x1) ? 1:0;
-    digital_in(1) = (*CPLD_read & 0x2) ? 1:0;
-    digital_in(2) = (*CPLD_read & 0x4) ? 1:0;
-    digital_in(3) = (*CPLD_read & 0x8) ? 1:0;
-    watchdog_has_bit = (*CPLD_read & 0x100) ? 1:0;
+    digital_in_set(0, (*CPLD_read & 0x1) ? 1:0);
+    digital_in_set(1, (*CPLD_read & 0x2) ? 1:0);
+    digital_in_set(2, (*CPLD_read & 0x4) ? 1:0);
+    digital_in_set(3, (*CPLD_read & 0x8) ? 1:0);
+    watchdog_has_bit_set((*CPLD_read & 0x100) ? 1:0);
 
     // Read ADC's into Pins
     for(i=0; i < 8; i++) {
-        analogue_in(i) = (double)((int16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
+        analogue_in_set(i, (double)((int16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8);
     }
     return 0;
 }
@@ -231,14 +231,14 @@ EXTRA_SETUP(){
     }
 
     // analog outputs
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1A,0);
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1B,0);
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1C,0);
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1D,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2A,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2B,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2C,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2D,0);
+    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1A, NULL);
+    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1B, NULL);
+    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1C, NULL);
+    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1D, NULL);
+    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2A, NULL);
+    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2B, NULL);
+    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2C, NULL);
+    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2D, NULL);
 
     // This is required, or nothing happens.
     r += hm2_allocate_bspi_tram(name);

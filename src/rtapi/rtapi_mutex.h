@@ -41,6 +41,17 @@
 
 typedef unsigned long rtapi_mutex_t;
 
+/*
+ * The normal mutex functions use zero (0) as the unlocked state and one (1) as
+ * the locked state.
+ * The mutex functions with the _rd suffix are `reverse default' versions, in
+ * which the locked state is represented by zero (0) and the unlocked state by
+ * one (1).
+ *
+ * A shared memory recursive mutex must be initialized in the locked state.
+ * This maps cleanly to reverse default when the shared memory is created,
+ * which defaults to zero and thus a locked mutex.
+ */
 
 /**
  * @brief Releases the mutex.
@@ -51,6 +62,9 @@ typedef unsigned long rtapi_mutex_t;
  */
     static __inline__ void rtapi_mutex_give(unsigned long *mutex) {
 	test_and_clear_bit(0, mutex);
+    }
+    static __inline__ void rtapi_mutex_give_rd(unsigned long *mutex) {
+	test_and_set_bit(0, mutex);
     }
 /**
  * @brief Non-blocking attempt to get the mutex.
@@ -67,6 +81,9 @@ typedef unsigned long rtapi_mutex_t;
     static __inline__ int rtapi_mutex_try(unsigned long *mutex) {
 	return test_and_set_bit(0, mutex);
     }
+    static __inline__ int rtapi_mutex_try_rd(unsigned long *mutex) {
+	return !test_and_clear_bit(0, mutex);
+    }
 
 /**
  * @brief Blocking attempt to gGet the mutex.
@@ -78,6 +95,15 @@ typedef unsigned long rtapi_mutex_t;
  */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
+#if defined(__KERNEL__)
+	    schedule();
+#else
+	    sched_yield();
+#endif
+	}
+    }
+    static __inline__ void rtapi_mutex_get_rd(unsigned long *mutex) {
+	while (!test_and_clear_bit(0, mutex)) {
 #if defined(__KERNEL__)
 	    schedule();
 #else

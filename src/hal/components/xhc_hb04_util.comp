@@ -8,43 +8,43 @@ calculating the filter time constant ($ man lowpass).
 
 """;
 
-pin in bit start_or_pause;
-pin in bit is_paused;
-pin in bit is_idle;
-pin in bit is_running;
-pin out bit pause;
-pin out bit resume;
-pin out bit run;
+pin in bool start_or_pause;
+pin in bool is_paused;
+pin in bool is_idle;
+pin in bool is_running;
+pin out bool pause;
+pin out bool resume;
+pin out bool run;
 
 // integer low pass filters (see ilowpass.comp)
-pin in s32 in0;
-pin in s32 in1;
-pin in s32 in2;
-pin in s32 in3;
-pin out s32 out0;
-pin out s32 out1;
-pin out s32 out2;
-pin out s32 out3;
-pin in float scale0 = 1.0;
-pin in float scale1 = 1.0;
-pin in float scale2 = 1.0;
-pin in float scale3 = 1.0;
-pin in float coef0 = 1.0;
-pin in float coef1 = 1.0;
-pin in float coef2 = 1.0;
-pin in float coef3 = 1.0;
+pin in si32 in0;
+pin in si32 in1;
+pin in si32 in2;
+pin in si32 in3;
+pin out si32 out0;
+pin out si32 out1;
+pin out si32 out2;
+pin out si32 out3;
+pin in real scale0 = 1.0;
+pin in real scale1 = 1.0;
+pin in real scale2 = 1.0;
+pin in real scale3 = 1.0;
+pin in real coef0 = 1.0;
+pin in real coef1 = 1.0;
+pin in real coef2 = 1.0;
+pin in real coef3 = 1.0;
 
-pin in  float divide_by_k_in;
-pin out float divide_by_k_out;
-pin in  float k = 1.0;
+pin in  real divide_by_k_in;
+pin out real divide_by_k_out;
+pin in  real k = 1.0;
 
 option data xhc_data;
 option period no;
 
-variable double value0;
-variable double value1;
-variable double value2;
-variable double value3;
+variable rtapi_real value0;
+variable rtapi_real value1;
+variable rtapi_real value2;
+variable rtapi_real value3;
 
 function _;
 license "GPL";
@@ -57,9 +57,9 @@ typedef struct { int old_start_or_pause; } xhc_data;
 FUNCTION(_) {
 
     if (k == 0) {
-      divide_by_k_out = 1e99;
+      divide_by_k_out_set(1e99);
     } else {
-      divide_by_k_out = divide_by_k_in / k;
+      divide_by_k_out_set(divide_by_k_in / k);
     }
 
     // protect so that 0 <= coef <= 1
@@ -68,18 +68,18 @@ FUNCTION(_) {
     value2 += (in2 - value2) * (fabs(coef2) < 1 ? fabs(coef2) : 1);
     value3 += (in3 - value3) * (fabs(coef3) < 1 ? fabs(coef3) : 1);
 
-    out0 =  ceil(value0 * scale0 - .5);
-    out1 =  ceil(value1 * scale1 - .5);
-    out2 =  ceil(value2 * scale2 - .5);
-    out3 =  ceil(value3 * scale3 - .5);
+    out0_set(ceil(value0 * scale0 - .5));
+    out1_set(ceil(value1 * scale1 - .5));
+    out2_set(ceil(value2 * scale2 - .5));
+    out3_set(ceil(value3 * scale3 - .5));
 
     if (data.old_start_or_pause == start_or_pause) return;
     data.old_start_or_pause = start_or_pause;
     if (!start_or_pause) {
-        pause = run = resume = 0;
+        pause_set(0); run_set(0); resume_set(0);
         return;
     }
-    if (is_paused)  {pause = 0; run = 0; resume = 1; }
-    if (is_running) {pause = 1; run = 0; resume = 0; }
-    if (is_idle)    {pause = 0; run = 1; resume = 0; }
+    if (is_paused)  {pause_set(0); run_set(0); resume_set(1); }
+    if (is_running) {pause_set(1); run_set(0); resume_set(0); }
+    if (is_idle)    {pause_set(0); run_set(1); resume_set(0); }
 }

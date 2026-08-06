@@ -12,9 +12,9 @@ out: └─────┘           └─────
 
 """;
 
-pin in bit in "button input";
-pin io bit out "on/off output";
-param rw u32 debounce = 2 "debounce delay in periods";
+pin in bool in "button input";
+pin io bool out "on/off output";
+param rw ui32 debounce = 2 "debounce delay in periods";
 option data toggle_data;
 option period no;
 
@@ -29,19 +29,19 @@ typedef struct {
 } toggle_data;
 
 FUNCTION(_) {
-
-    if (( debounce < 1 ) || ( debounce > 10000 )) {
+    rtapi_u32 deb = debounce;
+    if (( deb < 1 ) || ( deb > 10000 )) {
 	/* set a sane value, we don't want 2 million second delays */
-	debounce = 2;
+	debounce_set(deb = 2);
     }
     if ( in ) {
 	/* pressed */
 	data.debounce_cntr++;
-	if ( data.debounce_cntr >= (int)debounce ) {
-	    data.debounce_cntr = debounce;
+	if ( data.debounce_cntr >= (int)deb ) {
+	    data.debounce_cntr = deb;
 	    if ( data.debounced == 0 ) {
 		/* toggle output */
-		out = !out;
+		out_set(!out);
 	    }
 	    data.debounced = 1;
 	}
