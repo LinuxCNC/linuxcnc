@@ -16,99 +16,102 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from rs274 import Translated, ArcsToSegmentsMixin
+from rs274 import glcanon_gl, glcanon_bake, glcanon_scene
+# Bound locally: the canon tags every move with one of these, so the lookup is
+# on the parse hot path.
+from rs274.glcanon_bake import CAT_TRAVERSE, CAT_FEED, CAT_ARC
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
+import logging
 import math
 import hershey
 import linuxcnc
-import array
 import gcode
+import numpy as np
 import os
-import re
+import warnings
 from functools import reduce
 
-def minmax(*args):
-    return min(*args), max(*args)
+log = logging.getLogger(__name__)
 
-allhomedicon = array.array('B',
-        [0x00, 0x00,
-         0x00, 0x00,
-         0x00, 0x00,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x0f, 0xe0,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x08, 0x20,
-         0x00, 0x00,
-         0x00, 0x00,
-         0x00, 0x00])
+# Axis views, viewport coordinates and the DRO home/limit icons now live with
+# the scene that draws from them; they are re-exported here because they have
+# long been part of this module's surface.
+from rs274.glcanon_scene import (X, Y, Z, A, B, C, U, V, W, R,   # noqa: F401
+                                 VX, VY, VZ, VP, minmax,
+                                 allhomedicon, somelimiticon, homeicon,
+                                 limiticon)
 
-somelimiticon = array.array('B',
-        [0x00, 0x00,
-         0x00, 0x00,
-         0x00, 0x00,
-         0x0f, 0xc0,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x08, 0x00,
-         0x00, 0x00,
-         0x00, 0x00,
-         0x00, 0x00])
+# Moves the canon lets pile up before filling them into the program record.
+# Checked once per source line, not once per move, so it costs nothing on the
+# move path; it bounds the fill's peak working set rather than the batch size
+# exactly, which is all it is for.
+FILL_BATCH = 4096
 
-homeicon = array.array('B',
-        [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
-        0x1e, 0x40,   0x3e, 0x20,   0x3e, 0x20,   0x3e, 0x20,
-        0xff, 0xf8,   0x23, 0xe0,   0x23, 0xe0,   0x23, 0xe0,
-        0x13, 0xc0,   0x0f, 0x80,   0x02, 0x00,   0x02, 0x00])
 
-limiticon = array.array('B',
-        [  0,   0,  128, 0,  134, 0,  140, 0,  152, 0,  176, 0,  255, 255,
-         255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
-           0,   0,    0, 0])
+def _removed_attribute(name, replacement):
+    """A read-only property that raises, naming what replaced it.
 
-# Axis Views
-X = 0
-Y = 1
-Z = 2
-A = 3
-B = 4
-C = 5
-U = 6
-V = 7
-W = 8
-R = 9
+    ``traverse``/``feed``/``arcfeed``/``moves``/``move_cats`` and
+    ``preview_zero_rxy`` are undocumented but twenty years old, and a
+    third-party GUI or a user's canon subclass may still read one. Silently
+    returning nothing - or a bare ``AttributeError`` - leaves such code
+    guessing; this is a signpost, not a compatibility shim, and it must not
+    appear to work.
+    """
+    def getter(self):
+        raise AttributeError(
+            "GLCanon.%s was removed (see retire-canon-move-lists); %s"
+            % (name, replacement))
+    return property(getter)
 
-# View ports coordinates
-VX = 0
-VY = 1
-VZ = 2
-VP = 3
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
     lineno = -1
+
+    # See _removed_attribute: these were the per-move category lists,
+    # emission-order list and un-rotated preview copy. The program record
+    # (self.program_geometry) replaces all of them.
+    traverse = _removed_attribute(
+        "traverse", "read program_geometry (positions()/lines/kinds) or g0_length")
+    feed = _removed_attribute(
+        "feed", "read program_geometry (positions()/lines/kinds) or g1_length/run_time()")
+    arcfeed = _removed_attribute(
+        "arcfeed", "read program_geometry (positions()/lines/kinds) or g1_length/run_time()")
+    moves = _removed_attribute(
+        "moves", "read program_geometry - it is the program record, in emission order")
+    move_cats = _removed_attribute(
+        "move_cats", "read program_geometry.kinds")
+    preview_zero_rxy = _removed_attribute(
+        "preview_zero_rxy",
+        "read program_geometry.extents_zero_rxy / extents_notool_zero_rxy, "
+        "accumulated during the fill")
+
     def __init__(self, colors, geometry, is_foam=0, foam_w=1.5, foam_z=0.0):
-        # traverse list of tuples - [(line number, (start position), (end position), (tlo x, tlo y, tlo z))]
-        self.traverse = []
-        # feed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
-        self.feed = []
-        # arcfeed list of tuples - [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
-        self.arcfeed = []
         # dwell list - [line number, color, pos x, pos y, pos z, plane]
         self.dwells = []
         self.tool_list = []
-        # preview list - combines the unrotated points of the lists: self.traverse, self.feed, self.arcfeed
-        self.preview_zero_rxy = []
+        # The program record. Constructed here rather than lazily so that
+        # "the canon always has one" is true of a canon nothing ever parsed
+        # into, and readable the moment gcode.parse returns - which is when
+        # load_preview wants the extents, long before any GL context exists.
+        # Named program_geometry, not geometry: that name is already this
+        # class's GEOMETRY *string*, which the fill reads.
+        self._program_geometry = glcanon_bake.ProgramGeometry(
+            geometry=geometry, is_foam=bool(is_foam))
+        # Moves recorded since the last flush: a reusable float64 chunk
+        # (lineno, p1, p2, feedrate, offset per row - see STAGING_ROW_WIDTH)
+        # that rotate_and_translate's result is written straight into, plus a
+        # parallel byte per move naming its category. Neither is retained
+        # once flushed. Cost is bounded by FILL_BATCH, never by program
+        # length - and normally by one allocation for the file, since the
+        # array is reused in place and only grows if a single source line
+        # emits more moves than fit before the next flush check.
+        self._staging = np.empty(
+            (FILL_BATCH, glcanon_bake.STAGING_ROW_WIDTH), dtype=np.float64)
+        self._staged = 0
+        self._pending_kinds = bytearray()
         self.choice = None
         self.feedrate = 1
         self.lo = (0,) * 9
@@ -129,6 +132,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.min_extents_notool_zero_rxy = [9e99,9e99,9e99]
         self.max_extents_notool_zero_rxy = [-9e99,-9e99,-9e99]
         self.colors = colors
+        # Set if the parse was aborted, so the extents above are only partial.
+        self.preview_incomplete = False
         self.in_arc = 0
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
@@ -195,37 +200,128 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def next_line(self, st):
         self.state = st
         self.lineno = self.state.sequence_number
+        if self._staged >= FILL_BATCH:
+            self._flush_moves()
 
-    def draw_lines(self, lines, for_selection, j=0, geometry=None):
-        return linuxcnc.draw_lines(geometry or self.geometry, lines, for_selection)
+    # -- the program record ------------------------------------------------
 
-    def colored_lines(self, color, lines, for_selection, j=0):
-        if self.is_foam:
-            if not for_selection:
-                self.color_with_alpha(color + "_xy")
-            glPushMatrix()
-            glTranslatef(0, 0, self.foam_z)
-            self.draw_lines(lines, for_selection, 2*j, 'XY')
-            glPopMatrix()
-            if not for_selection:
-                self.color_with_alpha(color + "_uv")
-            glPushMatrix()
-            glTranslatef(0, 0, self.foam_w)
-            self.draw_lines(lines, for_selection, 2*j+len(lines), 'UV')
-            glPopMatrix()
-        else:
-            if not for_selection:
-                self.color_with_alpha(color)
-            self.draw_lines(lines, for_selection, j)
+    @property
+    def program_geometry(self):
+        """The program record, with every move reported so far filled in.
 
-    def draw_dwells(self, dwells, alpha, for_selection, j0=0):
-        return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
+        A property rather than a plain attribute so that reading it is always
+        reading a complete record: moves accumulate between flushes, and a
+        reader that took the object during the parse would otherwise see a
+        prefix of the program and no way to know it.
+        """
+        self._flush_moves()
+        return self._program_geometry
+
+    def configure_program_geometry(self, geometry, ro, is_foam):
+        """Choose the transform the fill will apply, and clear what it filled.
+
+        Called by the widget when the canon is set, i.e. just before the
+        parse. The points are converted once, on the way in, so this is not
+        something that can be changed afterwards - which is why it discards
+        whatever was already filled rather than leaving a half-transformed
+        array behind.
+
+        Deliberately does NOT write back to ``self.geometry`` or
+        ``self.is_foam``. Those are the canon's own, set by whoever
+        constructed it, and gremlin's does not set ``is_foam`` at all while
+        its widget may report foam - so adopting the widget's answer here
+        would quietly change which programs get the foam Z override in
+        calc_extents. The drawn planes follow the widget, exactly as the
+        pre-change bake did; the extents rule follows the canon, exactly as
+        it did.
+        """
+        self._staged = 0
+        self._pending_kinds = bytearray()
+        self._program_geometry.configure(geometry=geometry, ro=ro,
+                                         is_foam=is_foam)
+
+    def _reserve_staging(self, extra):
+        """Grow the staging chunk to hold ``extra`` more rows, by doubling.
+
+        Normally a no-op: the chunk is reused across flushes at its initial
+        ``FILL_BATCH`` capacity. It only grows for the rare source line that
+        emits more moves than that in one callback - a large arc's segments,
+        say - since the flush check in ``next_line`` runs once per source
+        line, not once per move.
+        """
+        need = self._staged + extra
+        cap = len(self._staging)
+        if need <= cap:
+            return
+        new_cap = max(FILL_BATCH, cap * 2)
+        while new_cap < need:
+            new_cap *= 2
+        grown = np.empty((new_cap, glcanon_bake.STAGING_ROW_WIDTH),
+                        dtype=np.float64)
+        grown[:self._staged] = self._staging[:self._staged]
+        self._staging = grown
+
+    def _stage_move(self, lineno, p1, p2, feedrate, offset, kind):
+        """Write one move straight into the staging chunk. No tuple, no list
+        append beyond the one-byte kind."""
+        self._reserve_staging(1)
+        row = self._staging[self._staged]
+        row[glcanon_bake.STAGE_LINE] = lineno
+        row[glcanon_bake.STAGE_P1] = p1
+        row[glcanon_bake.STAGE_P2] = p2
+        row[glcanon_bake.STAGE_FEEDRATE] = feedrate
+        row[glcanon_bake.STAGE_OFFSET] = offset
+        self._pending_kinds.append(kind)
+        self._staged += 1
+
+    def _flush_moves(self):
+        """Fill everything recorded since the last flush.
+
+        The rotation and g5x origin are passed per batch because they are per
+        batch: they are what the rotation-removed extents are accumulated
+        with, and a program that rotates mid-file gets each move's own. That
+        is why set_xy_rotation and set_g5x_offset flush before changing them.
+        """
+        n = self._staged
+        if n == 0:
+            return
+        chunk = self._staging[:n]
+        kinds = self._pending_kinds
+        # Cleared before the call, not after: add_moves_raw is where a
+        # malformed move would raise, and a non-empty pending count would
+        # re-fill the same rows into the array on the next flush. The chunk
+        # itself is not reallocated - add_moves_raw reads it before this
+        # method returns, and self._staged = 0 alone is what lets the next
+        # _stage_move start overwriting it.
+        self._staged = 0
+        self._pending_kinds = bytearray()
+        self._program_geometry.add_moves_raw(
+            chunk, kinds, self.rotation_xy,
+            (self.g5x_offset_x, self.g5x_offset_y))
+
+    def set_xy_rotation(self, theta):
+        self._flush_moves()
+        Translated.set_xy_rotation(self, theta)
+
+    def set_g5x_offset(self, *args, **kw):
+        self._flush_moves()
+        Translated.set_g5x_offset(self, *args, **kw)
 
     def calc_extents(self):
-        # in the event of a "blank" gcode file (M2 only for example) this sets each of the extents to [0,0,0]
+        # A delegation onto the values accumulated during the fill, plus the
+        # two rules that have always lived here and are not properties of the
+        # move data at all: the blank-program case and the foam Z override.
+        #
+        # gcode.calc_extents (C) stays in emcmodule.cc as public module API,
+        # but nothing here calls it any more - see
+        # tests/gcode-bake/test_extents_oracle.py, which now pins the
+        # accumulated values against fixtures recorded from that oracle
+        # rather than calling it live.
+        geometry = self.program_geometry
+        # In the event of a "blank" gcode file (M2 only for example) this sets each of the extents to [0,0,0]
         # to prevent passing the very large [9e99,9e99,9e99] values and populating the gcode properties with
         # unusably large values. Some screens use the extents information to set the view distance so 0 values are preferred.
-        if not self.arcfeed and not self.feed and not self.traverse:
+        if geometry.is_empty:
             self.min_extents = \
             self.max_extents = \
             self.min_extents_notool = \
@@ -235,9 +331,20 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.min_extents_notool_zero_rxy = \
             self.max_extents_notool_zero_rxy = [0,0,0]
             return
-        self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
-        self.unrotate_preview()
-        self.min_extents_zero_rxy, self.max_extents_zero_rxy, self.min_extents_notool_zero_rxy, self.max_extents_notool_zero_rxy = gcode.calc_extents(self.preview_zero_rxy)
+        # Plain floats, not numpy scalars: these eight are read outside
+        # rs274 - by the AXIS, gremlin and QtVCP properties dialogs - and have
+        # always been lists of Python floats, which is what the C returned.
+        def pair(extents):
+            return [[float(v) for v in vector] for vector in extents]
+
+        (self.min_extents, self.max_extents) = pair(geometry.extents)
+        (self.min_extents_notool,
+         self.max_extents_notool) = pair(geometry.extents_notool)
+        (self.min_extents_zero_rxy,
+         self.max_extents_zero_rxy) = pair(geometry.extents_zero_rxy)
+        (self.min_extents_notool_zero_rxy,
+         self.max_extents_notool_zero_rxy) = pair(
+            geometry.extents_notool_zero_rxy)
         if self.is_foam:
             min_z = min(self.foam_z, self.foam_w)
             max_z = max(self.foam_z, self.foam_w)
@@ -248,36 +355,37 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.max_extents_notool = \
                 self.max_extents_notool[0], self.max_extents_notool[1], max_z
 
-    # unrotates the current preview points defined by self.feed, self.arcfeed, self.traverse
-    # by the current rotation_xy amount and populates self.preview_zero_rxy. Because this is
-    # only used to calculate the extents and not to draw to the screen, this can all be contained in the same list.
-    def unrotate_preview(self):
-        angle = math.radians(-self.rotation_xy)
-        cos = math.cos(angle)
-        sin = math.sin(angle)
-        g5x_x = self.g5x_offset_x
-        g5x_y = self.g5x_offset_y
-        for movelist in self.feed, self.arcfeed:
-            for linenum, start, end, feed, tooloffset in movelist:
-                tsx = start[0] - g5x_x
-                tsy = start[1] - g5x_y
-                tex = end[0] - g5x_x
-                tey = end[1] - g5x_y
-                rsx = (tsx * cos) - (tsy * sin) + g5x_x
-                rsy = (tsx * sin) + (tsy * cos) + g5x_y
-                rex = (tex * cos) - (tey * sin) + g5x_x
-                rey = (tex * sin) + (tey * cos) + g5x_y
-                self.preview_zero_rxy.append((linenum, (rsx, rsy) + start[2:], (rex, rey) + end[2:], feed, tooloffset))
-        for linenum, start, end, tooloffset in self.traverse:
-            tsx = start[0] - g5x_x
-            tsy = start[1] - g5x_y
-            tex = end[0] - g5x_x
-            tey = end[1] - g5x_y
-            rsx = (tsx * cos) - (tsy * sin) + g5x_x
-            rsy = (tsx * sin) + (tsy * cos) + g5x_y
-            rex = (tex * cos) - (tey * sin) + g5x_x
-            rey = (tex * sin) + (tey * cos) + g5x_y
-            self.preview_zero_rxy.append((linenum, (rsx, rsy) + start[2:], (rex, rey) + end[2:], tooloffset))
+    @property
+    def g0_length(self):
+        """Total rapid (traverse) path length, accumulated during the fill.
+
+        Replaces ``sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)``,
+        read by the gremlin/AXIS/qt5_graphics properties dialogs.
+        """
+        return self.program_geometry.rapid_length
+
+    @property
+    def g1_length(self):
+        """Total cutting (feed + arc) path length, accumulated during the fill.
+
+        Replaces the equivalent summation over ``canon.feed``/``canon.arcfeed``.
+        """
+        return self.program_geometry.cutting_length
+
+    def run_time(self, max_feed_rate):
+        """Cutting + rapid time at ``max_feed_rate``, plus ``self.dwell_time``.
+
+        ``max_feed_rate`` is the machine's ``max_speed``, known only to the
+        GUI that built this canon - not to the parse - which is why this is a
+        method rather than a plain attribute; see the design's discussion of
+        why ``min(max_feed_rate, feed)`` cannot be pre-summed into one scalar.
+        Replaces the ``gt`` summation the properties dialogs used to run over
+        ``traverse``/``feed``/``arcfeed``.
+        """
+        geometry = self.program_geometry
+        return (geometry.cutting_time(max_feed_rate)
+               + geometry.rapid_length / max_feed_rate
+               + self.dwell_time)
 
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
@@ -302,14 +410,22 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.first_move = True
         try:
             self.tool_list.append(arg)
-        except Exception as e:
-            print(e)
+        except Exception:
+            log.exception("could not record tool change to %r", arg)
+        # Flush first: the record vertex has to land between the move before
+        # the change and the move after it, and the moves before it are still
+        # sitting in the pending buffer. The jump that follows is not recorded
+        # here - first_move means the next move starts wherever the tool
+        # ended up, so the fill sees the discontinuity itself.
+        self._flush_moves()
+        self._program_geometry.mark_toolchange(self.lineno, self.lo, arg)
 
     def straight_traverse(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         if not self.first_move:
-                self.traverse.append((self.lineno, self.lo, l, (self.xo, self.yo, self.zo)))
+                self._stage_move(self.lineno, self.lo, l, 0.0,
+                                 (self.xo, self.yo, self.zo), CAT_TRAVERSE)
         self.lo = l
 
     def rigid_tap(self, x, y, z):
@@ -318,9 +434,11 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
         l += (self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8])
-        self.feed.append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
+        offset = (self.xo, self.yo, self.zo)
         # self.dwells.append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
-        self.feed.append((self.lineno, l, self.lo, self.feedrate, (self.xo, self.yo, self.zo)))
+        self._reserve_staging(2)
+        self._stage_move(self.lineno, self.lo, l, self.feedrate, offset, CAT_FEED)
+        self._stage_move(self.lineno, l, self.lo, self.feedrate, offset, CAT_FEED)
 
     def arc_feed(self, *args):
         if self.suppress > 0: return
@@ -337,9 +455,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         lineno = self.lineno
         feedrate = self.feedrate
         to = (self.xo, self.yo, self.zo)
-        append = self.arcfeed.append
+        # Reserved once for the whole arc, not once per segment: an arc can
+        # subdivide into tens of segments in one call, all before next_line
+        # next checks the flush threshold.
+        self._reserve_staging(len(segs))
         for l in segs:
-            append((lineno, lo, l, feedrate, to))
+            self._stage_move(lineno, lo, l, feedrate, to, CAT_ARC)
             lo = l
         self.lo = lo
 
@@ -347,57 +468,77 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self.feed.append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
+        self._stage_move(self.lineno, self.lo, l, self.feedrate,
+                         (self.xo, self.yo, self.zo), CAT_FEED)
         self.lo = l
 
     def straight_probe(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self.feed.append((self.lineno, self.lo, l, self.feedrate, (self.xo, self.yo, self.zo)))
+        self._stage_move(self.lineno, self.lo, l, self.feedrate,
+                         (self.xo, self.yo, self.zo), CAT_FEED)
         self.lo = l
 
     def user_defined_function(self, i, p, q):
         if self.suppress > 0: return
         color = self.colors['m1xx']
-        self.dwells.append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
+        self._record_dwell(color)
 
     def dwell(self, arg):
         if self.suppress > 0: return
         self.dwell_time += arg
         color = self.colors['dwell']
-        self.dwells.append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
+        self._record_dwell(color)
+
+    def _record_dwell(self, color):
+        """Append a dwell to ``self.dwells`` and to the program record.
+
+        ``self.dwells`` keeps raw machine coordinates, because that is what it
+        has always held; it is bounded by event count, not move count, so it
+        is kept (unlike the per-move category lists). The record takes the
+        9-DOF point and transforms it, which is the marker position fix: the
+        pre-change marker bake was handed the GEOMETRY string and the
+        rotation offsets and applied neither.
+        """
+        plane = int(self.state.plane/10-17)
+        self.dwells.append((self.lineno, color, self.lo[0], self.lo[1],
+                            self.lo[2], plane))
+        self._flush_moves()
+        self._program_geometry.mark_dwell(self.lineno, self.lo, color, plane)
 
     def highlight(self, lineno, geometry):
-        glLineWidth(3)
-        glColor3f(*self.colors['selected'])
-        glBegin(GL_LINES)
-        coords = []
-        for line in self.traverse:
-            if line[0] != lineno: continue
-            linuxcnc.line9(geometry, line[1], line[2])
-            coords.append(line[1][:3])
-            coords.append(line[2][:3])
-        for line in self.arcfeed:
-            if line[0] != lineno: continue
-            linuxcnc.line9(geometry, line[1], line[2])
-            coords.append(line[1][:3])
-            coords.append(line[2][:3])
-        for line in self.feed:
-            if line[0] != lineno: continue
-            linuxcnc.line9(geometry, line[1], line[2])
-            coords.append(line[1][:3])
-            coords.append(line[2][:3])
-        glEnd()
-        for line in self.dwells:
-            if line[0] != lineno: continue
-            self.draw_dwells([(line[0], self.colors['selected']) + line[2:]], 2, 0)
-            coords.append(line[2:5])
-        glLineWidth(1)
-        if coords:
-            x = reduce(lambda _x, _y: _x+_y, [p[0] for p in coords]) / len(coords)
-            y = reduce(lambda _x, _y: _x+_y, [p[1] for p in coords]) / len(coords)
-            z = reduce(lambda _x, _y: _x+_y, [p[2] for p in coords]) / len(coords)
+        # Return the centroid of the highlighted line's segments; the view
+        # recentres on it. The highlight geometry itself is drawn by
+        # glcanon_scene.HighlightPart, so no GL is emitted here. In
+        # particular we must NOT call linuxcnc.line9() (as the legacy path did):
+        # it emits immediate-mode glVertex, which is invalid in the 3.3 core
+        # profile and leaves a GL_INVALID_OPERATION pending that later surfaces
+        # on an unrelated glViewport.
+        #
+        # A mask on the array's line column, covering drawn segments and dwell
+        # records in one expression, replacing four full-program Python loops.
+        # The former loops collected BOTH endpoints of every matching segment,
+        # so an interior point shared by two same-line segments counted twice;
+        # reproduced here by weighting each vertex by the number of incident
+        # same-line drawn segments, plus one for a dwell record of its own.
+        geom = self.program_geometry
+        n = len(geom)
+        weight = np.zeros(n, dtype=np.float64)
+        if n > 1:
+            lines = geom.lines
+            kinds = geom.kinds
+            seg_match = ((lines[1:] == lineno)
+                        & (kinds[1:] <= glcanon_bake.LAST_DRAWN_KIND))
+            weight[:-1] += seg_match
+            weight[1:] += seg_match
+            weight += (lines == lineno) & (kinds == glcanon_bake.KIND_DWELL)
+        total = weight.sum()
+        if total > 0:
+            pos = geom.positions()
+            x = float((pos[:, 0] * weight).sum() / total)
+            y = float((pos[:, 1] * weight).sum() / total)
+            z = float((pos[:, 2] * weight).sum() / total)
         else:
             x = (self.min_extents[X] + self.max_extents[X])/2
             y = (self.min_extents[Y] + self.max_extents[Y])/2
@@ -405,21 +546,39 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return x, y, z
 
     def color_with_alpha(self, colorname):
-        glColor4f(*(self.colors[colorname] + (self.colors.get(colorname+'_alpha', 1/3.),)))
+        """Retired: set the fixed-function current colour.  Does nothing.
+
+        The renderer resolves per-kind colours in rs274.glcanon_bake and feeds
+        them to the shaders, so there is no current colour left to set.  Kept
+        as an inert shim because it is a public method and out-of-tree screens
+        may still call it, where it would otherwise raise GLError under a core
+        context.
+        """
+        global _warned_color_with_alpha
+        if not _warned_color_with_alpha:
+            _warned_color_with_alpha = True
+            warnings.warn("GlCanonDraw.color_with_alpha() no longer draws; the "
+                          "renderer resolves per-kind colours in rs274.glcanon_bake",
+                          DeprecationWarning, stacklevel=2)
+
     def color(self, colorname):
-        glColor3f(*self.colors[colorname])
+        """Retired: set the fixed-function current colour.  Does nothing.
 
-    def draw(self, for_selection=0, no_traverse=True):
-        if not no_traverse:
-            self.colored_lines('traverse', self.traverse, for_selection)
-        else:
-            self.colored_lines('straight_feed', self.feed, for_selection, len(self.traverse))
+        See color_with_alpha().
+        """
+        global _warned_color
+        if not _warned_color:
+            _warned_color = True
+            warnings.warn("GlCanonDraw.color() no longer draws; the renderer "
+                          "resolves per-kind colours in rs274.glcanon_bake",
+                          DeprecationWarning, stacklevel=2)
 
-            self.colored_lines('arc_feed', self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
-
-            glLineWidth(2)
-            self.draw_dwells(self.dwells, int(self.colors.get('dwell_alpha', 1/3.)), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
-            glLineWidth(1)
+# Warn once per process per method.  A module-level flag rather than the
+# warnings filter, so a GUI that has installed its own filter still gets
+# exactly one notice — and so these per-frame draw-path methods cost a branch
+# rather than the warning machinery on every call.
+_warned_color_with_alpha = False
+_warned_color = False
 
 def with_context(f):
     def inner(self, *args, **kw):
@@ -501,7 +660,18 @@ class GlCanonDraw:
         self.stat = s
         self.lp = lp
         self.canon = g
-        self._dlists = {}
+        self._renderer = None       # rs274.glcanon_gl.GlCanonRenderer (lazy)
+        # Explicit numpy model-view stack replacing the legacy GL matrix stack;
+        # (re)seeded to the camera modelview at frame start. self._projection is
+        # the frame's projection (glnav folds the eye translation into it).
+        self.mv = glcanon_scene.MatrixStack()
+        # Shared drawing services the scene parts call through ctx.prim, and
+        # the ordered scene redraw() runs.
+        self.prim = glcanon_scene.Primitives()
+        self.scene = self.build_scene()
+        # Click-to-select shares the program's baked geometry with the scene,
+        # so what is pickable is exactly what is drawn.
+        self.picker = glcanon_scene.Picker(self.scene.program.resource)
         self.select_buffer_size = 100
         self.cached_tool = -1
         self.initialised = 0
@@ -510,7 +680,6 @@ class GlCanonDraw:
         self.trajcoordinates = "unknown"
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
-        self.show_overlay = False
         self.enable_dro = True
         self.cone_basesize = .5
         self.show_small_origin = True
@@ -522,15 +691,27 @@ class GlCanonDraw:
 
         try:
             system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-        except Exception as e:
-            system_memory_bytes = 4
-            print("Error: Unable to determine system memory, defaulting to 4 GB")
+        except Exception:
+            # 4 GB, as the message says. This used to read `= 4`, four bytes,
+            # which drove max_file_size below one byte and so refused to preview
+            # every non-empty file - on the one path where nothing else went
+            # wrong enough to explain it.
+            system_memory_bytes = 4 * 1024 ** 3
+            log.warning("unable to determine system memory, "
+                        "defaulting to 4 GB for the preview file size limit")
         system_memory_gb = system_memory_bytes / (1024 ** 3)
 
         # Set to -1 to disable the file size limit.
-        # The file size limit is set to 20MB or 1/4 of the system memory, whichever is smaller.
-        # TODO I don't see any calculation for 1/4 of system_memory_gb ? CMorley 2024
+        # One megabyte per gigabyte of system memory, capped at 20MB. The
+        # "or 1/4 of system memory" this comment used to claim is not what the
+        # line computes and never was (CMorley noted the discrepancy in 2024);
+        # the cap is left as it behaves rather than as it was described.
         self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
+
+        #: Set once per load in load_preview() when the file exceeds the size
+        #: limit; _resolve_show_program() reads it instead of re-stat'ing the
+        #: file on every frame.
+        self.preview_too_large = False
 
         try:
             if os.environ["INI_FILE_NAME"]:
@@ -541,7 +722,8 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
+                        log.warning("invalid [DISPLAY] DRO_FORMAT_IN in INI "
+                                    "file: %r", temp)
                     else:
                         self.dro_in = temp
 
@@ -550,7 +732,8 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
+                        log.warning("invalid [DISPLAY] DRO_FORMAT_MM in INI "
+                                    "file: %r", temp)
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
@@ -574,10 +757,20 @@ class GlCanonDraw:
             # Probably started in an editor so no INI
             pass
 
+    @property
+    def show_overlay(self):
+        """Whether the DRO backdrop is showing. The latch lives on the overlay
+        part; kept as an attribute because the GTK/Qt widgets set it."""
+        return self.scene.overlay.backdrop
+
+    @show_overlay.setter
+    def show_overlay(self, value):
+        self.scene.overlay.backdrop = bool(value)
+
     def set_cone_basesize(self, size):
         if size > 2 or size < .025:
+            log.warning("invalid cone base size %r, resetting to 0.5", size)
             size = 0.5
-            print("Invalid Cone Base size resetting to 0.5")
         self.cone_basesize = size
         self._redraw()
 
@@ -585,9 +778,8 @@ class GlCanonDraw:
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
         self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
-        if (msg != ""):
-            print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
+        log.debug("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d",
+                  msg, self.trajcoordinates, self.kinsmodule, self.no_joint_display)
 
         g = self.get_geometry().upper()
         linuxcnc.gui_respect_offsets(self.trajcoordinates,int('!' in g))
@@ -598,87 +790,193 @@ class GlCanonDraw:
             if g.count(ch) >1: dupchars.append(ch)
             if not ch in geometry_chars: badchars.append(ch)
         if dupchars:
-            print("Warning: duplicate chars %s in geometry: %s"%(dupchars,g))
+            log.warning("duplicate chars %s in geometry: %s", dupchars, g)
         if badchars:
-            print("Warning: unknown chars %s in geometry: %s"%(badchars,g))
+            log.warning("unknown chars %s in geometry: %s", badchars, g)
 
     def realize(self):
         self.hershey = hershey.Hershey()
+        self.prim.hershey = self.hershey
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-        self.basic_lighting()
+        glEnable(GL_DEPTH_TEST)
+        glDepthFunc(GL_LESS)
+        self._log_gl_context()
         self.initialised = 1
+
+    def _log_gl_context(self):
+        """Record which API and version the preview actually got, once.
+
+        Two contexts are accepted - OpenGL 3.3 core and OpenGL ES 3.1 - and on
+        a Raspberry Pi they are visually indistinguishable apart from line
+        width, so a bug report has to be able to say which one ran without
+        asking the reporter to install and run eglinfo.
+
+        Not on the terminal, though: it says nothing the operator can act on,
+        and at one line per widget per realize it is noise for everyone who is
+        not chasing a rendering bug. Ask a reporter for GLCANON_DEBUG=1, which
+        adds the full version/renderer/GLSL strings - the GLSL version is the
+        part that distinguishes the two accepted contexts (GLSL 330 against
+        GLSL ES 300) and the renderer string names the driver.
+        """
+        caps = self.renderer.caps
+        log.info("preview renderer: %s %s",
+                 "OpenGL ES" if caps.is_gles else "OpenGL", caps.describe())
+        if not log.isEnabledFor(logging.DEBUG):
+            return
+        def s(name):
+            try:
+                v = glGetString(name)
+                return v.decode("ascii", "replace") if isinstance(v, bytes) else str(v)
+            except Exception as e:
+                return "<%s>" % e
+        log.debug("glcanon GL context: version=%r renderer=%r glsl=%r",
+                  s(GL_VERSION), s(GL_RENDERER), s(GL_SHADING_LANGUAGE_VERSION))
 
     def set_canon(self, canon):
         self.canon = canon
         self.canon.foam_z = self.foam_z_height
         self.canon.foam_w = self.foam_w_height
+        # Configure the canon's program record with the two things only the
+        # widget knows, and do it here because load_preview calls set_canon
+        # immediately before gcode.parse - the last moment at which the
+        # transform the fill will apply can still be chosen.
+        #
+        # Deliberate consequence: a later change to the g5x/g92 offsets that
+        # rotation_offsets() reads no longer re-transforms the preview. It
+        # never did in practice - nothing invalidates the program on an offset
+        # change, only a reload does - so this makes the existing behaviour
+        # explicit rather than changing it.
+        canon.configure_program_geometry(self.get_geometry().upper(),
+                                         self.rotation_offsets(),
+                                         bool(self.is_foam()))
+        self.scene.program.invalidate()
 
-    @with_context
-    def basic_lighting(self):
-        glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, self.colors['tool_ambient'] + (0,))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, self.colors['tool_diffuse'] + (0,))
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (1,1,1,0))
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glDepthFunc(GL_LESS)
-        glEnable(GL_DEPTH_TEST)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+    # -- core-profile renderer plumbing ------------------------------------
+    def _ensure_renderer(self):
+        if self._renderer is None:
+            self._renderer = glcanon_gl.GlCanonRenderer()
+        return self._renderer
+
+    @property
+    def renderer(self):
+        """The GL renderer the parts draw through (created on first use)."""
+        return self._ensure_renderer()
+
+    # -- explicit model-view stack (replaces the legacy GL matrix stack) ----
+    # The stack itself lives in glcanon_scene.MatrixStack (self.mv), which the
+    # scene parts use through the per-frame context with scoped pushes; these
+    # stay as the shims the pre-scene call sites (and qt5_graphics) use.
+    @property
+    def _projection(self):
+        return self.mv.projection
+
+    @_projection.setter
+    def _projection(self, matrix):
+        self.mv.projection = np.asarray(matrix, dtype=np.float64)
+
+    def _mv_reset(self, matrix):
+        self.mv.reset(matrix)
+
+    def _mv_top(self):
+        return self.mv.top()
+
+    def _mv_push(self):
+        self.mv.push_unscoped()
+
+    def _mv_pop(self):
+        self.mv.pop_unscoped()
+
+    def _mv_mult(self, matrix):
+        self.mv.mult(matrix)
+
+    def _mv_translate(self, x, y, z):
+        self.mv.translate(x, y, z)
+
+    def _mv_rotate(self, angle, x, y, z):
+        self.mv.rotate(angle, x, y, z)
+
+    def _mv_scale(self, x, y, z):
+        self.mv.scale(x, y, z)
+
+    def preview_mvp(self):
+        """Model-view-projection for the camera (the frame's world transform)."""
+        return self._preview_mvp()
+
+    def _preview_mvp(self):
+        """Model-view-projection for the current camera, as a numpy 4x4.
+
+        Combines the explicit glnav projection (which folds in the eye
+        translation) and modelview - the same matrices the legacy path loads
+        onto the GL stack - so the shader path draws in the identical frame.
+        """
+        w = self.winfo_width()
+        h = self.winfo_height()
+        return self.get_projection_matrix(w, h) @ self.get_modelview_matrix()
+
+    def rotation_offsets(self):
+        """glcanon_bake.RotationOffsets matching the C gui_respect_offsets state."""
+        g = self.get_geometry().upper()
+        respect = '!' in g
+        x = y = z = 0.0
+        if respect and self.stat is not None:
+            x = self.stat.g5x_offset[0] + self.stat.g92_offset[0]
+            y = self.stat.g5x_offset[1] + self.stat.g92_offset[1]
+            z = self.stat.g5x_offset[2] + self.stat.g92_offset[2]
+        return glcanon_bake.RotationOffsets(respect_offsets=respect,
+                                            coords=self.trajcoordinates.upper(),
+                                            x=x, y=y, z=z)
+
+    _rotation_offsets = rotation_offsets
+
+    @property
+    def _program_stale(self):
+        """Whether the program's GPU buffers need re-uploading. The flag lives
+        on the shared ProgramResource the draw and pick paths both use."""
+        return self.scene.program.resource.stale
+
+    def _bake_program_geometry(self):
+        self.scene.program.resource.upload(self.frame_context())
+
+    def _stack_mvp(self):
+        """MVP folding the current explicit model-view stack into the frame
+        projection - used by preview elements (axes, limits, cone, offsets,
+        extents labels) positioned with the _mv_* stack helpers."""
+        return self.mv.mvp()
+
+    # -- shared drawing primitives -----------------------------------------
+    # These live on glcanon_scene.Primitives (self.prim), which the parts reach
+    # through the frame context; the shims keep the pre-scene names working.
+    def _lines_to_array(self, points, color, alpha=1.0):
+        return self.prim.lines_to_array(points, color, alpha)
+
+    def _limit_color(self, cond):
+        return self.prim.limit_color(self.colors, cond)
+
+    def _draw_hershey(self, s, color, frac=0.0, bbox=False):
+        self.prim.draw_hershey(self, s, color, frac, bbox)
+
+    def _cone_mesh_verts(self):
+        return self.prim.cone_mesh()
+
+    def _draw_cone_core(self, color, mesh_verts=None):
+        self.prim.draw_cone(self, color, mesh_verts)
 
     def select(self, x_view, y_view):
+        """Select the program line under the cursor. Thin delegate to the
+        Picker; the ID-buffer pick itself lives there."""
         if self.canon is None: return
-        pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        vport = glGetIntegerv(GL_VIEWPORT)
-        gluPickMatrix(x_view, vport[3]-y_view, 5, 5, vport)
-        glMultMatrixd(pmatrix)
-        glMatrixMode(GL_MODELVIEW)
-
-        glSelectBuffer(self.select_buffer_size)
-        glRenderMode(GL_SELECT)
-        glInitNames()
-        glPushName(0)
-
-        if self.get_show_rapids():
-            glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
-        glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
-
-        try:
-            buffer = glRenderMode(GL_RENDER)
-        except:
-            buffer = []
-
-        if buffer:
-            min_depth, max_depth, names = (buffer[0].near, buffer[0].far, buffer[0].names)
-            for point in buffer:
-                if min_depth < point.near:
-                    min_depth, max_depth, names = (point.near, point.far, point.names)
-            self.set_highlight_line(names[0])
-        else:
-            self.set_highlight_line(None)
-
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-
-    def dlist(self, listname, n=1, gen=lambda n: None):
-        if listname not in self._dlists:
-            base = glGenLists(n)
-            self._dlists[listname] = base, n
-            gen(base)
-        return self._dlists[listname][0]
+        self.set_highlight_line(
+            self.picker.pick(self.frame_context(), x_view, y_view))
 
     def stale_dlist(self, listname):
-        if listname not in self._dlists: return
-        base, count = self._dlists.pop(listname)
-        glDeleteLists(base, count)
-
-    def __del__(self):
-        for base, count in list(self._dlists.values()):
-            glDeleteLists(base, count)
+        # GPU-cache invalidation (was a GL display-list free). The baked program
+        # VBOs replace the old program_*/select_* display lists, so invalidating
+        # any of those names marks the bake stale and the next frame rebuilds the
+        # buffers - preserving the legacy call surface (e.g. subclass calls to
+        # stale_dlist('program_norapids')). Other names are now no-ops.
+        if listname in ('program_rapids', 'program_norapids',
+                        'select_rapids', 'select_norapids'):
+            self.scene.program.invalidate()
 
     def update_highlight_variable(self,line):
         self.highlight_line = line
@@ -687,16 +985,12 @@ class GlCanonDraw:
     def set_highlight_line(self, line):
         if line == self.get_highlight_line(): return
         self.update_highlight_variable(line)
-        highlight = self.dlist('highlight')
-        glNewList(highlight, GL_COMPILE)
+        # The highlight geometry is drawn by glcanon_scene.HighlightPart; here
+        # we only recompute the centrepoint the selection recentres the view on.
         if line is not None and self.canon is not None:
             if self.is_foam():
-                glPushMatrix()
-                glTranslatef(0, 0, self.get_foam_z())
                 x, y, z = self.canon.highlight(line, "XY")
-                glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
                 u, v, w = self.canon.highlight(line, "UV")
-                glPopMatrix()
                 x = (x+u)/2
                 y = (y+v)/2
                 z = (self.get_foam_z() + self.get_foam_w())/2
@@ -708,34 +1002,30 @@ class GlCanonDraw:
             z = (self.canon.min_extents[Z] + self.canon.max_extents[Z])/2
         else:
             x, y, z = 0.0, 0.0, 0.0
-        glEndList()
         self.set_centerpoint(x, y, z)
 
     @with_context_swap
     def redraw_perspective(self):
-
         w = self.winfo_width()
         h = self.winfo_height()
         glViewport(0, 0, w, h)
+        # Told, not queried: the quad-expanded line path works in pixels and
+        # needs the drawable size, and this is where GL is given it.
+        self.renderer.set_viewport(w, h)
 
         # Clear the background and depth buffer.
         glClearColor(*(self.colors['back'] + (0,)))
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(self.fovy, float(w)/float(h), self.near, self.far + self.distance)
-
-        gluLookAt(0, 0, self.distance,
-            0, 0, 0,
-            0., 1., 0.)
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
+        # Explicit projection (glnav folds the eye translation in) and model-view
+        # seed - no GL matrix stack. get_projection_matrix branches on
+        # self.perspective, true here.
+        self._projection = self.get_projection_matrix(w, h)
+        self._mv_reset(self.get_modelview_matrix())
         try:
             self.redraw()
         finally:
-            glFlush()                               # Tidy up
-            glPopMatrix()                   # Restore the matrix
+            glFlush()
 
     @with_context_swap
     def redraw_ortho(self):
@@ -744,246 +1034,33 @@ class GlCanonDraw:
         w = self.winfo_width()
         h = self.winfo_height()
         glViewport(0, 0, w, h)
+        # Told, not queried: the quad-expanded line path works in pixels and
+        # needs the drawable size, and this is where GL is given it.
+        self.renderer.set_viewport(w, h)
 
         # Clear the background and depth buffer.
         glClearColor(*(self.colors['back'] + (0,)))
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        ztran = self.distance
-        k = (abs(ztran or 1)) ** .55555
-        l = k * h / w
-        glOrtho(-k, k, -l, l, -1000, 1000.)
-
-        gluLookAt(0, 0, 1,
-            0, 0, 0,
-            0., 1., 0.)
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
+        self._projection = self.get_projection_matrix(w, h)
+        self._mv_reset(self.get_modelview_matrix())
         try:
             self.redraw()
         finally:
-            glFlush()                               # Tidy up
-            glPopMatrix()                   # Restore the matrix
+            glFlush()
 
     def color_limit(self, cond):
-        if cond:
-            glColor3f(*self.colors['label_limit'])
-        else:
-            glColor3f(*self.colors['label_ok'])
+        # The colour is now applied per label via _limit_color/_draw_hershey;
+        # this keeps returning the predicate (used as the out-of-limit bbox flag
+        # and by any external callers).
         return cond
 
 
     def show_extents(self):
-        s = self.stat
-        g = self.canon
-
-        if g is None: return
-
-        # Dimensions
-        view = self.get_view()
-        is_metric = self.get_show_metric()
-        dimscale = is_metric and 25.4 or 1.0
-        fmt = is_metric and "%.1f" or "%.2f"
-
-        machine_limit_min, machine_limit_max = self.soft_limits()
-
-        pullback = max(g.max_extents[X] - g.min_extents[X],
-                       g.max_extents[Y] - g.min_extents[Y],
-                       g.max_extents[Z] - g.min_extents[Z],
-                       2) * .1
-
-        dashwidth = pullback/4
-        charsize = dashwidth * 1.5
-        halfchar = charsize * .5
-
-        if view == VZ or view == VP:
-            z_pos = g.min_extents[VZ]
-            zdashwidth = 0
-        else:
-            z_pos = g.min_extents[VZ] - pullback
-            zdashwidth = dashwidth
-
-        #draw dimension lines
-        self.color_limit(0)
-        glBegin(GL_LINES)
-
-        # x dimension
-        if view != VX and g.max_extents[X] > g.min_extents[X]:
-            y_pos = g.min_extents[Y] - pullback
-            #dimension line
-            glVertex3f(g.min_extents[X], y_pos, z_pos)
-            glVertex3f(g.max_extents[X], y_pos, z_pos)
-            #line perpendicular to dimension line at min extent
-            glVertex3f(g.min_extents[X], y_pos - dashwidth, z_pos - zdashwidth)
-            glVertex3f(g.min_extents[X], y_pos + dashwidth, z_pos + zdashwidth)
-            #line perpendicular to dimension line at max extent
-            glVertex3f(g.max_extents[X], y_pos - dashwidth, z_pos - zdashwidth)
-            glVertex3f(g.max_extents[X], y_pos + dashwidth, z_pos + zdashwidth)
-
-        # y dimension
-        if view != VY and g.max_extents[Y] > g.min_extents[Y]:
-            x_pos = g.min_extents[X] - pullback
-            #dimension line
-            glVertex3f(x_pos, g.min_extents[Y], z_pos)
-            glVertex3f(x_pos, g.max_extents[Y], z_pos)
-            #line perpendicular to dimension line at min extent
-            glVertex3f(x_pos - dashwidth, g.min_extents[Y], z_pos - zdashwidth)
-            glVertex3f(x_pos + dashwidth, g.min_extents[Y], z_pos + zdashwidth)
-            #line perpendicular to dimension line at max extent
-            glVertex3f(x_pos - dashwidth, g.max_extents[Y], z_pos - zdashwidth)
-            glVertex3f(x_pos + dashwidth, g.max_extents[Y], z_pos + zdashwidth)
-
-        # z dimension
-        if view != VZ and g.max_extents[Z] > g.min_extents[Z]:
-            x_pos = g.min_extents[X] - pullback
-            y_pos = g.min_extents[Y] - pullback
-            #dimension line
-            glVertex3f(x_pos, y_pos, g.min_extents[Z])
-            glVertex3f(x_pos, y_pos, g.max_extents[Z])
-            #line perpendicular to dimension line at min extent
-            glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.min_extents[Z])
-            glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.min_extents[Z])
-            #line perpendicular to dimension line at max extent
-            glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.max_extents[Z])
-            glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.max_extents[Z])
-
-        glEnd()
-
-        # Labels
-        # get_show_relative == True calculates extents from the local origin
-        # get_show_relative == False calculates extents from the machine origin
-        if self.get_show_relative():
-            offset = self.to_internal_units(s.g5x_offset + s.g92_offset)
-        else:
-            offset = 0, 0, 0
-        #Z extent labels
-        if view != VZ and g.max_extents[Z] > g.min_extents[Z]:
-            if view == VX:
-                x_pos = g.min_extents[X] - pullback
-                y_pos = g.min_extents[Y] - 6.0*dashwidth
-            else:
-                x_pos = g.min_extents[X] - 6.0*dashwidth
-                y_pos = g.min_extents[Y] - pullback
-            #Z MIN extent
-            bbox = self.color_limit(g.min_extents_notool[Z] < machine_limit_min[Z])
-            glPushMatrix()
-            f = fmt % ((g.min_extents[Z]-offset[Z]) * dimscale)
-            glTranslatef(x_pos, y_pos, g.min_extents[Z] - halfchar)
-            glScalef(charsize, charsize, charsize)
-            glRotatef(-90, 0, 1, 0)
-            glRotatef(-90, 0, 0, 1)
-            if view != VX:
-                glRotatef(-90, 0, 1, 0)
-            self.hershey.plot_string(f, 0, bbox)
-            glPopMatrix()
-            #Z MAX extent
-            bbox = self.color_limit(g.max_extents_notool[Z] > machine_limit_max[Z])
-            glPushMatrix()
-            f = fmt % ((g.max_extents[Z]-offset[Z]) * dimscale)
-            glTranslatef(x_pos, y_pos, g.max_extents[Z] - halfchar)
-            glScalef(charsize, charsize, charsize)
-            glRotatef(-90, 0, 1, 0)
-            glRotatef(-90, 0, 0, 1)
-            if view != VX:
-                glRotatef(-90, 0, 1, 0)
-            self.hershey.plot_string(f, 0, bbox)
-            glPopMatrix()
-            self.color_limit(0)
-            glPushMatrix()
-            #Z Midpoint
-            f = fmt % ((g.max_extents[Z] - g.min_extents[Z]) * dimscale)
-            glTranslatef(x_pos, y_pos, (g.max_extents[Z] + g.min_extents[Z])/2)
-            glScalef(charsize, charsize, charsize)
-            if view != VX:
-                glRotatef(-90, 0, 0, 1)
-            glRotatef(-90, 0, 1, 0)
-            self.hershey.plot_string(f, .5, bbox)
-            glPopMatrix()
-        #Y extent labels
-        if view != VY and g.max_extents[Y] > g.min_extents[Y]:
-            x_pos = g.min_extents[X] - 6.0*dashwidth
-            #Y MIN extent
-            bbox = self.color_limit(g.min_extents_notool[Y] < machine_limit_min[Y])
-            glPushMatrix()
-            f = fmt % ((g.min_extents[Y] - offset[Y]) * dimscale)
-            glTranslatef(x_pos, g.min_extents[Y] + halfchar, z_pos)
-            glRotatef(-90, 0, 0, 1)
-            glRotatef(-90, 0, 0, 1)
-            if view == VX:
-                glRotatef(90, 0, 1, 0)
-                glTranslatef(dashwidth*1.5, 0, 0)
-            glScalef(charsize, charsize, charsize)
-            self.hershey.plot_string(f, 0, bbox)
-            glPopMatrix()
-            #Y MAX extent
-            bbox = self.color_limit(g.max_extents_notool[Y] > machine_limit_max[Y])
-            glPushMatrix()
-            f = fmt % ((g.max_extents[Y] - offset[Y]) * dimscale)
-            glTranslatef(x_pos, g.max_extents[Y] + halfchar, z_pos)
-            glRotatef(-90, 0, 0, 1)
-            glRotatef(-90, 0, 0, 1)
-            if view == VX:
-                glRotatef(90, 0, 1, 0)
-                glTranslatef(dashwidth*1.5, 0, 0)
-            glScalef(charsize, charsize, charsize)
-            self.hershey.plot_string(f, 0, bbox)
-            glPopMatrix()
-
-            self.color_limit(0)
-            glPushMatrix()
-            #Y midpoint
-            f = fmt % ((g.max_extents[Y] - g.min_extents[Y]) * dimscale)
-            glTranslatef(x_pos, (g.max_extents[Y] + g.min_extents[Y])/2,
-                        z_pos)
-            glRotatef(-90, 0, 0, 1)
-            if view == VX:
-                glRotatef(-90, 1, 0, 0)
-                glTranslatef(0, halfchar, 0)
-            glScalef(charsize, charsize, charsize)
-            self.hershey.plot_string(f, .5)
-            glPopMatrix()
-        #X extent labels
-        if view != VX and g.max_extents[X] > g.min_extents[X]:
-            y_pos = g.min_extents[Y] - 6.0*dashwidth
-            #X MIN extent
-            bbox = self.color_limit(g.min_extents_notool[X] < machine_limit_min[X])
-            glPushMatrix()
-            f = fmt % ((g.min_extents[X] - offset[X]) * dimscale)
-            glTranslatef(g.min_extents[X] - halfchar, y_pos, z_pos)
-            glRotatef(-90, 0, 0, 1)
-            if view == VY:
-                glRotatef(90, 0, 1, 0)
-                glTranslatef(dashwidth*1.5, 0, 0)
-            glScalef(charsize, charsize, charsize)
-            self.hershey.plot_string(f, 0, bbox)
-            glPopMatrix()
-            #X MAX extent
-            bbox = self.color_limit(g.max_extents_notool[X] > machine_limit_max[X])
-            glPushMatrix()
-            f = fmt % ((g.max_extents[X] - offset[X]) * dimscale)
-            glTranslatef(g.max_extents[X] - halfchar, y_pos, z_pos)
-            glRotatef(-90, 0, 0, 1)
-            if view == VY:
-                glRotatef(90, 0, 1, 0)
-                glTranslatef(dashwidth*1.5, 0, 0)
-            glScalef(charsize, charsize, charsize)
-            self.hershey.plot_string(f, 0, bbox)
-            glPopMatrix()
-
-            self.color_limit(0)
-            glPushMatrix()
-            #X midpoint
-            f = fmt % ((g.max_extents[X] - g.min_extents[X]) * dimscale)
-            glTranslatef((g.max_extents[X] + g.min_extents[X])/2, y_pos,
-                        z_pos)
-            if view == VY:
-                glRotatef(-90, 1, 0, 0)
-                glTranslatef(0, halfchar, 0)
-            glScalef(charsize, charsize, charsize)
-            self.hershey.plot_string(f, .5)
-            glPopMatrix()
+        """Program dimension lines and labels. Kept as a method for the GUIs
+        that call it directly; the drawing lives in the scene's extents part."""
+        if self.canon is not None:
+            self.scene.extents.draw(self.frame_context())
 
     def draw_cube(self, min_extents, max_extents, color=(1, 1, 1)):
         """
@@ -992,57 +1069,12 @@ class GlCanonDraw:
         :param max_extents: Tuple of X,Y,Z Maximum Limits
         :param color: Tuple of RGB color values
         """
-        glColor3f(color[0], color[1], color[2])
-        glBegin(GL_LINES)
-        # Bottom of part bounding box
-        glVertex3f(min_extents[X], min_extents[Y], min_extents[Z])
-        glVertex3f(max_extents[X], min_extents[Y], min_extents[Z])
-
-        glVertex3f(max_extents[X], min_extents[Y], min_extents[Z])
-        glVertex3f(max_extents[X], max_extents[Y], min_extents[Z])
-
-        glVertex3f(max_extents[X], max_extents[Y], min_extents[Z])
-        glVertex3f(min_extents[X], max_extents[Y], min_extents[Z])
-
-        glVertex3f(min_extents[X], max_extents[Y], min_extents[Z])
-        glVertex3f(min_extents[X], min_extents[Y], min_extents[Z])
-
-        # Top of part bounding box
-        glVertex3f(min_extents[X], min_extents[Y], max_extents[Z])
-        glVertex3f(max_extents[X], min_extents[Y], max_extents[Z])
-
-        glVertex3f(max_extents[X], min_extents[Y], max_extents[Z])
-        glVertex3f(max_extents[X], max_extents[Y], max_extents[Z])
-
-        glVertex3f(max_extents[X], max_extents[Y], max_extents[Z])
-        glVertex3f(min_extents[X], max_extents[Y], max_extents[Z])
-
-        glVertex3f(min_extents[X], max_extents[Y], max_extents[Z])
-        glVertex3f(min_extents[X], min_extents[Y], max_extents[Z])
-
-        # Middle connections
-        glVertex3f(min_extents[X], min_extents[Y], min_extents[Z])
-        glVertex3f(min_extents[X], min_extents[Y], max_extents[Z])
-
-        glVertex3f(max_extents[X], min_extents[Y], min_extents[Z])
-        glVertex3f(max_extents[X], min_extents[Y], max_extents[Z])
-
-        glVertex3f(max_extents[X], max_extents[Y], min_extents[Z])
-        glVertex3f(max_extents[X], max_extents[Y], max_extents[Z])
-
-        glVertex3f(min_extents[X], max_extents[Y], min_extents[Z])
-        glVertex3f(min_extents[X], max_extents[Y], max_extents[Z])
-
-        glEnd()
+        self.prim.draw_cube(self, min_extents, max_extents, color)
 
     def draw_bounding_box(self):
         """Draw a bounding box around the extents of the program if we skip loading the entire part."""
-        g = self.canon
-
-        if g is None:
-            return
-
-        self.draw_cube(g.min_extents, g.max_extents, color=(0.57, 0.68, 0.71))
+        if self.canon is not None:
+            self.scene.bounding_box.draw(self.frame_context())
 
     def to_internal_linear_unit(self, v, unit=None):
         if unit is None:
@@ -1085,138 +1117,19 @@ class GlCanonDraw:
         if self.canon and self.canon.grid: return self.canon.grid
         return 5./25.4
 
-    def comp(self, sx_sy, cx_cy):
-        (sx, sy) = sx_sy
-        (cx, cy) = cx_cy
-        return -(sx*cx + sy*cy) / (sx*sx + sy*sy)
-
-    def param(self, x1_y1, dx1_dy1, x3_y3, dx3_dy3):
-        (x1, y1) = x1_y1
-        (dx1, dy1) = dx1_dy1
-        (x3, y3) = x3_y3
-        (dx3, dy3) = dx3_dy3
-        den = (dy3)*(dx1) - (dx3)*(dy1)
-        if den == 0: return 0
-        num = (dx3)*(y1-y3) - (dy3)*(x1-x3)
-        return num * 1. / den
-
-    def draw_grid_lines(self, space, ox_oy, dx_dy, lim_min, lim_max,
-            inverse_permutation):
-        # draw a series of line segments of the form
-        #   dx(x-ox) + dy(y-oy) + k*space = 0
-        # for integers k that intersect the AABB [lim_min, lim_max]
-        (ox, oy) = ox_oy
-        (dx, dy) = dx_dy
-        lim_pts = [
-                (lim_min[0], lim_min[1]),
-                (lim_max[0], lim_min[1]),
-                (lim_min[0], lim_max[1]),
-                (lim_max[0], lim_max[1])]
-        od = self.comp((dy, -dx), (ox, oy))
-        d0, d1 = minmax(*(self.comp((dy, -dx), i)-od for i in lim_pts))
-        k0 = int(math.ceil(d0/space))
-        k1 = int(math.floor(d1/space))
-        delta = (dx, dy)
-        for k in range(k0, k1+1):
-            d = k*space
-            # Now we're drawing the line dx(x-ox) + dx(y-oy) + d = 0
-            p0 = (ox - dy * d, oy + dx * d)
-            # which is the same as the line p0 + u * delta
-
-            # but we only want the part that's inside the box lim_pts...
-            if dx and dy:
-                times = [
-                        self.param(p0, delta, lim_min[:2], (0, 1)),
-                        self.param(p0, delta, lim_min[:2], (1, 0)),
-                        self.param(p0, delta, lim_max[:2], (0, 1)),
-                        self.param(p0, delta, lim_max[:2], (1, 0))]
-                times.sort()
-                t0, t1 = times[1], times[2] # Take the middle two times
-            elif dx:
-                times = [
-                        self.param(p0, delta, lim_min[:2], (0, 1)),
-                        self.param(p0, delta, lim_max[:2], (0, 1))]
-                times.sort()
-                t0, t1 = times[0], times[1] # Take the only two times
-            else:
-                times = [
-                        self.param(p0, delta, lim_min[:2], (1, 0)),
-                        self.param(p0, delta, lim_max[:2], (1, 0))]
-                times.sort()
-                t0, t1 = times[0], times[1] # Take the only two times
-            x0, y0 = p0[0] + delta[0]*t0, p0[1] + delta[1]*t0
-            x1, y1 = p0[0] + delta[0]*t1, p0[1] + delta[1]*t1
-
-            glVertex3f(*inverse_permutation((x0, y0, lim_min[2])))
-            glVertex3f(*inverse_permutation((x1, y1, lim_min[2])))
+    def draw_grid(self):
+        """Draw the ground grid. Override point: plasmac2 replaces this method
+        on the instance and calls back into draw_grid_permuted."""
+        self.scene.grid.draw_default(self.frame_context())
 
     def draw_grid_permuted(self, rotation, permutation, inverse_permutation):
-        grid_size=self.get_grid_size()
-        if not grid_size: return
-
-        glLineWidth(1)
-        glColor3f(*self.colors['grid'])
-
-        s = self.stat
-        tlo_offset = permutation(self.to_internal_units(s.tool_offset)[:3])
-        g5x_offset = permutation(self.to_internal_units(s.g5x_offset)[:3])[:2]
-        g92_offset = permutation(self.to_internal_units(s.g92_offset)[:3])[:2]
-
-        lim_min, lim_max = self.soft_limits()
-        lim_min = permutation(lim_min)
-        lim_max = permutation(lim_max)
-
-        lim_min = tuple(a-b for a,b in zip(lim_min, tlo_offset))
-        lim_max = tuple(a-b for a,b in zip(lim_max, tlo_offset))
-
-        if self.get_show_relative():
-            cos_rot = math.cos(rotation)
-            sin_rot = math.sin(rotation)
-            offset = (
-                    g5x_offset[0] + g92_offset[0] * cos_rot
-                                  - g92_offset[1] * sin_rot,
-                    g5x_offset[1] + g92_offset[0] * sin_rot
-                                  + g92_offset[1] * cos_rot)
-        else:
-            offset = 0., 0.
-            cos_rot = 1.
-            sin_rot = 0.
-        glDepthMask(False)
-        glBegin(GL_LINES)
-        self.draw_grid_lines(grid_size, offset, (cos_rot, sin_rot),
-                lim_min, lim_max, inverse_permutation)
-        self.draw_grid_lines(grid_size, offset, (sin_rot, -cos_rot),
-                lim_min, lim_max, inverse_permutation)
-        glEnd()
-        glDepthMask(True)
-
-    def draw_grid(self):
-
-        view = self.get_view()
-        rotation = math.radians(self.stat.rotation_xy % 90)
-
-        # perspective view (code stolen from the QtPlasmac crew)
-        if view == VP:
-            def permutation(x_y_z2):
-                return x_y_z2[0], x_y_z2[1], x_y_z2[2]  # XY Z
-            def inverse_permutation(x_y_z3):
-                return x_y_z3[0], x_y_z3[1], x_y_z3[2]  # XY Z
-            self.draw_grid_permuted(rotation, permutation, inverse_permutation)
-
-        # all other views
-        else:
-            permutations = [
-                lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
-                lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
-                lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2]),  # XY Z
-            ]
-            inverse_permutations = [
-                lambda z_y_x: (z_y_x[2], z_y_x[1], z_y_x[0]),  # YZ X
-                lambda z_x_y: (z_x_y[1], z_x_y[2], z_x_y[0]),  # ZX Y
-                lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2]),  # XY Z
-            ]
-            self.draw_grid_permuted(rotation, permutations[view],
-                inverse_permutations[view])
+        """Override point: plasmac2 replaces ``draw_grid`` and calls back in
+        here directly, bypassing the scene - so this must enter the grid's
+        scope itself, or the grid silently starts writing depth."""
+        ctx = self.frame_context()
+        with self.scene.grid.scope(ctx):
+            self.scene.grid.draw_permuted(ctx, rotation, permutation,
+                                          inverse_permutation)
 
     def all_joints_homed(self):
         for i in range (self.stat.joints):
@@ -1288,20 +1201,68 @@ class GlCanonDraw:
             return -1 # no icon display
 
     def show_icon_init(self):
-        self.show_icon_home_list  = []
-        self.show_icon_limit_list = []
+        self.scene.overlay.reset_icons()
 
-    def show_icon(self,idx,icon):
-        # only show icon once for idx for home,limit icons
-        #   accommodates hal_gremlin override format_dro()
-        #   and prevents display for both Rad and Dia
-        if icon is homeicon:
-            if idx in self.show_icon_home_list: return
-            self.show_icon_home_list.append(idx)
-        if icon is limiticon:
-            if idx in self.show_icon_limit_list: return
-            self.show_icon_limit_list.append(idx)
-        glBitmap(13, 16, 0, 3, 17, 0, icon.tobytes())
+    def show_icon(self, idx, icon):
+        """Draw a home/limit icon on the current DRO line. Kept as a method
+        because hal_gremlin's format_dro() override interacts with it."""
+        self.scene.overlay.show_icon(idx, icon)
+
+    def build_scene(self):
+        """The scene this widget draws. Overridable by a hosting GUI that wants
+        a different set or order of parts."""
+        return glcanon_scene.PreviewScene()
+
+    def frame_context(self) -> glcanon_scene.FrameContext:
+        """Build the narrow context the scene parts draw from.
+
+        This is the whole coupling between the drawing code and this widget:
+        the parts see these fields and nothing else. Flags every frame reads
+        anyway are resolved here; hooks a hosting GUI may override, and values
+        only some parts need, are passed as bound methods.
+        """
+        return glcanon_scene.FrameContext(
+            mv=self.mv, prim=self.prim, renderer=self.renderer,
+            caps=self.renderer.caps, colors=self.colors,
+
+            stat=self.stat, canon=self.canon, lp=self.lp,
+            geometry=self.get_geometry(), is_lathe=self.is_lathe(),
+            is_foam=self.is_foam(), foam_z=self.get_foam_z(),
+            foam_w=self.get_foam_w(), limits=self.soft_limits(),
+            joints_mode=self.get_joints_mode(),
+
+            view=self.get_view(),
+            width=self.winfo_width(), height=self.winfo_height(),
+            show_program=self._resolve_show_program(),
+            show_rapids=self.get_show_rapids(),
+            show_extents=self.get_show_extents(),
+            show_offsets=self.get_show_offsets(),
+            show_limits=self.get_show_limits(),
+            show_tool=self.get_show_tool(),
+            show_live_plot=self.get_show_live_plot(),
+            show_relative=self.get_show_relative(),
+            show_metric=self.get_show_metric(),
+            show_small_origin=self.show_small_origin,
+            program_alpha=self.get_program_alpha(),
+            grid_size=self.get_grid_size(),
+            highlight_line=self.get_highlight_line(),
+            enable_dro=self.enable_dro,
+            cone_basesize=self.cone_basesize,
+            disable_cone_scaling=self.disable_cone_scaling,
+            view_tool_min_dia=self.view_tool_min_dia,
+
+            preview_mvp=self._preview_mvp,
+            to_internal_units=self.to_internal_units,
+            to_internal_linear_unit=self.to_internal_linear_unit,
+            color_limit=self.color_limit,
+            draw_grid=self.draw_grid,
+            posstrs=self.posstrs,
+            font_info=self.get_font_info,
+            current_tool=self.get_current_tool,
+            icon_index=self.idx_for_home_or_limit_icon,
+            show_icon=self.show_icon,
+            user_plot=getattr(self, 'user_plot', None),
+        )
 
     def redraw(self):
         s = self.stat
@@ -1311,336 +1272,17 @@ class GlCanonDraw:
                                  s.g5x_offset[1] + s.g92_offset[1],
                                  s.g5x_offset[2] + s.g92_offset[2])
 
-        machine_limit_min, machine_limit_max = self.soft_limits()
+        self.scene.draw(self.frame_context())
 
-        glDisable(GL_LIGHTING)
-        glMatrixMode(GL_MODELVIEW)
-        self.draw_grid()
+    def _resolve_show_program(self):
+        """get_show_program(), refused for a file too large to preview.
 
-        show_program = self.get_show_program()
-        if os.path.exists(s.file):
-            if 0 < self.max_file_size < os.stat(s.file).st_size :
-                print("File too large to load, disabling preview.")
-                show_program = False
-
-        if show_program:
-            if self.get_program_alpha():
-                glDisable(GL_DEPTH_TEST)
-                glEnable(GL_BLEND)
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-            if self.get_show_rapids():
-                glCallList(self.dlist('program_rapids', gen=self.make_main_list))
-            glCallList(self.dlist('program_norapids', gen=self.make_main_list))
-            glCallList(self.dlist('highlight'))
-
-            if self.get_program_alpha():
-                glDisable(GL_BLEND)
-                glEnable(GL_DEPTH_TEST)
-
-            if self.get_show_extents():
-                self.show_extents()
-        else:
-            self.show_extents()
-            self.draw_bounding_box()
-
-        try:
-            self.user_plot()
-        except:
-            pass
-        if self.get_show_live_plot() or show_program:
-
-            alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
-            glPushMatrix()
-            if self.get_show_relative() and (s.g5x_offset[X] or s.g5x_offset[Y] or s.g5x_offset[Z] or
-                                             s.g92_offset[X] or s.g92_offset[Y] or s.g92_offset[Z] or
-                                             s.rotation_xy):
-                olist = self.dlist('draw_small_origin',
-                                        gen=self.draw_small_origin)
-                if self.show_small_origin:
-                    glCallList(olist)
-                g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
-                g92_offset = self.to_internal_units(s.g92_offset)[:3]
-
-
-                if self.get_show_offsets() and (g5x_offset[X] or g5x_offset[Y] or g5x_offset[Z]):
-                    glBegin(GL_LINES)
-                    glVertex3f(0,0,0)
-                    glVertex3f(*g5x_offset)
-                    glEnd()
-
-                    i = s.g5x_index
-                    if i<7:
-                        label = "G5%d" % (i+3)
-                    else:
-                        label = "G59.%d" % (i-6)
-                    glPushMatrix()
-                    glScalef(0.2,0.2,0.2)
-                    if self.is_lathe():
-                        g5xrot=math.atan2(g5x_offset[0], -g5x_offset[2])
-                        glRotatef(90, 1, 0, 0)
-                        glRotatef(-90, 0, 0, 1)
-                    else:
-                        g5xrot=math.atan2(g5x_offset[1], g5x_offset[0])
-                    glRotatef(math.degrees(g5xrot), 0, 0, 1)
-                    glTranslatef(0.5, 0.5, 0)
-                    self.hershey.plot_string(label, 0.1)
-                    glPopMatrix()
-
-                glTranslatef(*g5x_offset)
-                glRotatef(s.rotation_xy, 0, 0, 1)
-
-
-                if  self.get_show_offsets() and (g92_offset[X] or g92_offset[Y] or g92_offset[Z]):
-                    glBegin(GL_LINES)
-                    glVertex3f(0,0,0)
-                    glVertex3f(*g92_offset)
-                    glEnd()
-
-                    glPushMatrix()
-                    glScalef(0.2,0.2,0.2)
-                    if self.is_lathe():
-                        g92rot=math.atan2(g92_offset[X], -g92_offset[Z])
-                        glRotatef(90, 1, 0, 0)
-                        glRotatef(-90, 0, 0, 1)
-                    else:
-                        g92rot=math.atan2(g92_offset[Y], g92_offset[X])
-                    glRotatef(math.degrees(g92rot), 0, 0, 1)
-                    glTranslatef(0.5, 0.5, 0)
-                    self.hershey.plot_string("G92", 0.1)
-                    glPopMatrix()
-
-                glTranslatef(*g92_offset)
-
-            if self.is_foam():
-                glTranslatef(0, 0, self.get_foam_z())
-                glCallList(alist)
-                uwalist = self.dlist(('axes_uw', self.get_view()), gen=lambda n: self.draw_axes(n, 'UVW'))
-                glTranslatef(0, 0, self.get_foam_w()-self.get_foam_z())
-                glCallList(uwalist)
-            else:
-                glCallList(alist)
-            glPopMatrix()
-
-        if self.get_show_limits():
-            glTranslatef(*[-pos for pos in self.to_internal_units(s.tool_offset)[:3]])
-            glLineWidth(1)
-            self.draw_cube(machine_limit_min, machine_limit_max, color=self.colors['limits'])
-
-            glTranslatef(*self.to_internal_units(s.tool_offset)[:3])
-
-        if self.get_show_live_plot():
-            glDepthFunc(GL_LEQUAL)
-            glLineWidth(3)
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            glEnable(GL_BLEND)
-            glPushMatrix()
-            lu = 1/((s.linear_units or 1)*25.4)
-            glScalef(lu, lu, lu)
-            glMatrixMode(GL_PROJECTION)
-            glPushMatrix()
-            glTranslatef(0,0,.003)
-
-            self.lp.call()
-
-            glPopMatrix()
-            glMatrixMode(GL_MODELVIEW)
-            glPopMatrix()
-            glDisable(GL_BLEND)
-            glLineWidth(1)
-            glDepthFunc(GL_LESS)
-
-        if self.get_show_tool():
-            pos = self.lp.last(self.get_show_live_plot())
-            if pos is None: pos = [0] * 6
-            rx, ry, rz = pos[3:6]
-            pos = self.to_internal_units(pos[:3])
-            if self.is_foam():
-                glEnable(GL_COLOR_MATERIAL)
-                glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
-                glPushMatrix()
-                glTranslatef(pos[0], pos[1], self.get_foam_z())
-                glRotatef(180, 1, 0, 0)
-                cone = self.dlist("cone", gen=self.make_cone)
-                glColor3f(*self.colors['cone_xy'])
-                glCallList(cone)
-                glPopMatrix()
-                u = self.to_internal_linear_unit(rx)
-                v = self.to_internal_linear_unit(ry)
-                glPushMatrix()
-                glTranslatef(u, v, self.get_foam_w())
-                glColor3f(*self.colors['cone_uv'])
-                glCallList(cone)
-                glPopMatrix()
-            else:
-                glPushMatrix()
-                glTranslatef(*pos)
-                sign = 1
-                g = re.split(" *(-?[XYZABCUVW])", self.get_geometry())
-                g = "".join(reversed(g))
-
-                for ch in g: # Apply in original non-reversed GEOMETRY order
-                    if ch == '-':
-                        sign = -1
-                    elif ch == 'A':
-                        glRotatef(rx*sign, 1, 0, 0)
-                        sign = 1
-                    elif ch == 'B':
-                        glRotatef(ry*sign, 0, 1, 0)
-                        sign = 1
-                    elif ch == 'C':
-                        glRotatef(rz*sign, 0, 0, 1)
-                        sign = 1
-                    else:
-                        sign = 1 # reset sign for non-rotational axis "XYZUVW"
-                glEnable(GL_BLEND)
-                glEnable(GL_CULL_FACE)
-                glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-
-                current_tool = self.get_current_tool()
-                if current_tool is None or current_tool.diameter <= self.view_tool_min_dia:
-                    if self.canon and not self.disable_cone_scaling:
-                        g = self.canon
-
-                        cone_scale = max(g.max_extents[X] - g.min_extents[X],
-                                       g.max_extents[Y] - g.min_extents[Y],
-                                       g.max_extents[Z] - g.min_extents[Z],
-                                       2 ) * self.cone_basesize
-                    else:
-                        cone_scale = self.cone_basesize
-                    if self.is_lathe():
-                        glRotatef(90, 0, 1, 0)
-                        # if Rotation = 180 - back tool
-                        if self.stat.rotation_xy == 180:
-                            glRotatef(180, 1, 0, 0)
-                    cone = self.dlist("cone", gen=self.make_cone)
-                    glScalef(cone_scale, cone_scale, cone_scale)
-                    glColor3f(*self.colors['cone'])
-                    glCallList(cone)
-                else:
-                    if current_tool != self.cached_tool:
-                        self.cache_tool(current_tool)
-                    glColor3f(*self.colors['cone'])
-                    glCallList(self.dlist('tool'))
-                glPopMatrix()
-
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        ypos = self.winfo_height()
-        glOrtho(0.0, self.winfo_width(), 0.0, ypos, -1.0, 1.0)
-        glMatrixMode(GL_MODELVIEW)
-
-        glPushMatrix()
-        glLoadIdentity()
-
-        limit, homed, posstrs, droposstrs = self.posstrs()
-
-        charwidth, linespace, base = self.get_font_info()
-
-        pixel_width = charwidth * max(len(p) for p in posstrs)
-
-        if self.show_overlay:
-            glDepthFunc(GL_ALWAYS)
-            glDepthMask(GL_FALSE)
-            glEnable(GL_BLEND)
-            glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-            glColor3f(*self.colors['overlay_background'])
-            glBlendColor(0,0,0,1-self.colors['overlay_alpha'])
-            glBegin(GL_QUADS)
-            glVertex3f(0, ypos, 1)
-            glVertex3f(0, ypos - 8 - linespace*len(posstrs), 1)
-            glVertex3f(pixel_width+42, ypos - 8 - linespace*len(posstrs), 1)
-            glVertex3f(pixel_width+42, ypos, 1)
-            glEnd()
-            glDisable(GL_BLEND)
-
-        maxlen = 0
-        ypos -= linespace+5
-        glColor3f(*self.colors['overlay_foreground'])
-
-        self.show_icon_init()
-        stringstart_xpos = 15
-        #-----------------------------------------------------------------------
-        if   self.get_show_offsets(): thestring = droposstrs
-        else:                         thestring =    posstrs
-
-        # allows showing/hiding overlay DRO readout
-        if self.enable_dro:
-            self.show_overlay = True
-            for string in thestring:
-                maxlen = max(maxlen, len(string))
-                glRasterPos2i(stringstart_xpos, ypos)
-                for char in string:
-                    glCallList(base + ord(char))
-
-                idx = self.idx_for_home_or_limit_icon(string)
-                if (idx == -1): # skip icon display for this line
-                    if (len(string) != 0): ypos -= linespace
-                    continue
-
-                glRasterPos2i(0, ypos)
-                if (idx == -2 or idx == -6): # use allhomedicon
-                    self.show_icon(idx,allhomedicon)
-                if (idx == -4 or idx == -6): # use somelimiticon
-                    self.show_icon(idx,somelimiticon)
-                if (idx <= -2):
-                    ypos -= linespace
-                    continue
-
-                if  (   self.get_joints_mode()
-                     or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
-                    ):
-                    if homed[idx]:
-                        self.show_icon(idx,homeicon)
-                    if limit[idx]:
-                        self.show_icon(idx,limiticon)
-                    ypos -= linespace
-                    continue
-
-                # extra joint after homing, world mode
-                if  ((self.stat.num_extrajoints>0) and (not self.get_joints_mode())):
-                    self.show_icon(idx,homeicon)
-                    if limit[idx]:
-                        self.show_icon(idx,limiticon)
-
-                ypos -= linespace
-        else:
-            self.show_overlay = False
-
-        glDepthFunc(GL_LESS)
-        glDepthMask(GL_TRUE)
-
-        glPopMatrix()
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-
-    def cache_tool(self, current_tool):
-        self.cached_tool = current_tool
-        glNewList(self.dlist('tool'), GL_COMPILE)
-        if self.is_lathe() and current_tool and current_tool.orientation != 0:
-            glBlendColor(0,0,0,self.colors['lathetool_alpha'])
-            self.lathetool(current_tool)
-        else:
-            glBlendColor(0,0,0,self.colors['tool_alpha'])
-            if self.is_lathe():
-                glRotatef(90, 0, 1, 0)
-            else:
-                dia = current_tool.diameter
-                r = self.to_internal_linear_unit(dia) / 2.
-                q = gluNewQuadric()
-                glEnable(GL_LIGHTING)
-                gluCylinder(q, r, r, 8*r, 32, 1)
-                glPushMatrix()
-                glRotatef(180, 1, 0, 0)
-                gluDisk(q, 0, r, 32, 1)
-                glPopMatrix()
-                glTranslatef(0,0,8*r)
-                gluDisk(q, 0, r, 32, 1)
-                glDisable(GL_LIGHTING)
-                gluDeleteQuadric(q)
-        glEndList()
+        The size decision is made once per load in load_preview(); this only
+        reads the flag, so no file is stat'ed per frame.
+        """
+        if self.preview_too_large:
+            return False
+        return self.get_show_program()
 
     def lathe_historical_config(self,trajcoordinates):
         # detect historical lathe config with dummy joint 1
@@ -1797,191 +1439,8 @@ class GlCanonDraw:
                     posstrs.append(jstr)
             return limit, homed, posstrs, droposstrs
 
-    def draw_small_origin(self, n):
-        glNewList(n, GL_COMPILE)
-        r = 2.0/25.4
-        glColor3f(*self.colors['small_origin'])
-
-        glBegin(GL_LINE_STRIP)
-        for i in range(37):
-            theta = (i*10)*math.pi/180.0
-            glVertex3f(r*math.cos(theta),r*math.sin(theta),0.0)
-        glEnd()
-        glBegin(GL_LINE_STRIP)
-        for i in range(37):
-            theta = (i*10)*math.pi/180.0
-            glVertex3f(0.0, r*math.cos(theta), r*math.sin(theta))
-        glEnd()
-        glBegin(GL_LINE_STRIP)
-        for i in range(37):
-            theta = (i*10)*math.pi/180.0
-            glVertex3f(r*math.cos(theta),0.0, r*math.sin(theta))
-        glEnd()
-
-        glBegin(GL_LINES)
-        glVertex3f(-r, -r, 0.0)
-        glVertex3f( r,  r, 0.0)
-        glVertex3f(-r,  r, 0.0)
-        glVertex3f( r, -r, 0.0)
-
-        glVertex3f(-r, 0.0, -r)
-        glVertex3f( r, 0.0,  r)
-        glVertex3f(-r, 0.0,  r)
-        glVertex3f( r, 0.0, -r)
-
-        glVertex3f(0.0, -r, -r)
-        glVertex3f(0.0,  r,  r)
-        glVertex3f(0.0, -r,  r)
-        glVertex3f(0.0,  r, -r)
-        glEnd()
-        glEndList()
-
-    def draw_axes(self, n, letters="XYZ"):
-        glNewList(n, GL_COMPILE)
-
-        view = self.get_view()
-
-        glColor3f(*self.colors['axis_x'])
-        glBegin(GL_LINES)
-        glVertex3f(1.0,0.0,0.0)
-        glVertex3f(0.0,0.0,0.0)
-        glEnd()
-
-        if view != VX:
-            glPushMatrix()
-            if self.is_lathe():
-                glTranslatef(1.3, -0.1, 0)
-                glTranslatef(0, 0, -0.1)
-                glRotatef(-90, 0, 1, 0)
-                glRotatef(90, 1, 0, 0)
-                glTranslatef(0.1, 0, 0)
-            else:
-                glTranslatef(1.2, -0.1, 0)
-                if view == VY:
-                    glTranslatef(0, 0, -0.1)
-                    glRotatef(90, 1, 0, 0)
-            glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string(letters[0], 0.5)
-            glPopMatrix()
-
-        glColor3f(*self.colors['axis_y'])
-        glBegin(GL_LINES)
-        glVertex3f(0.0,0.0,0.0)
-        glVertex3f(0.0,1.0,0.0)
-        glEnd()
-
-        if view != VY:
-            glPushMatrix()
-            glTranslatef(0, 1.2, 0)
-            if view == VX:
-                glTranslatef(0, 0, -0.1)
-                glRotatef(90, 0, 1, 0)
-                glRotatef(90, 0, 0, 1)
-            glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string(letters[1], 0.5)
-            glPopMatrix()
-
-        glColor3f(*self.colors['axis_z'])
-        glBegin(GL_LINES)
-        glVertex3f(0.0,0.0,0.0)
-        glVertex3f(0.0,0.0,1.0)
-        glEnd()
-
-        if view != VZ:
-            glPushMatrix()
-            glTranslatef(0, 0, 1.2)
-            if self.is_lathe():
-                glRotatef(-90, 0, 1, 0)
-            if view == VX:
-                glRotatef(90, 0, 1, 0)
-                glRotatef(90, 0, 0, 1)
-            elif view == VY or view == VP:
-                glRotatef(90, 1, 0, 0)
-            if self.is_lathe():
-                glTranslatef(0, -.1, 0)
-            glScalef(0.2, 0.2, 0.2)
-            self.hershey.plot_string(letters[2], 0.5)
-            glPopMatrix()
-
-        glEndList()
-
-    def make_cone(self, n):
-        q = gluNewQuadric()
-        glNewList(n, GL_COMPILE)
-        glBlendColor(0,0,0,self.colors['tool_alpha'])
-        glEnable(GL_LIGHTING)
-        gluCylinder(q, 0, .1, .25, 32, 1)
-        glPushMatrix()
-        glTranslatef(0,0,.25)
-        gluDisk(q, 0, .1, 32, 1)
-        glPopMatrix()
-        glDisable(GL_LIGHTING)
-        glEndList()
-        gluDeleteQuadric(q)
-
-
-    lathe_shapes = [
-        None,                           # 0
-        (1,-1), (1,1), (-1,1), (-1,-1), # 1..4
-        (0,-1), (1,0), (0,1), (-1,0),   # 5..8
-        (0,0)                           # 9
-    ]
-    def lathetool(self, current_tool):
-        glDepthFunc(GL_ALWAYS)
-        diameter, frontangle, backangle, orientation = current_tool[-4:]
-        w = 3/8.
-        glDisable(GL_CULL_FACE)#lathe tool needs to be visible form both sides
-        radius = self.to_internal_linear_unit(diameter) / 2.
-        glColor3f(*self.colors['lathetool'])
-        glBegin(GL_LINES)
-        glVertex3f(-radius/2.0,0.0,0.0)
-        glVertex3f(radius/2.0,0.0,0.0)
-        glVertex3f(0.0,0.0,-radius/2.0)
-        glVertex3f(0.0,0.0,radius/2.0)
-        glEnd()
-
-        glNormal3f(0,1,0)
-
-        if orientation == 9:
-            glBegin(GL_TRIANGLE_FAN)
-            for i in range(37):
-                t = i * math.pi / 18
-                glVertex3f(radius * math.cos(t), 0.0, radius * math.sin(t))
-            glEnd()
-        else:
-            dx, dy = self.lathe_shapes[orientation]
-
-            min_angle = min(backangle, frontangle) * math.pi / 180
-            max_angle = max(backangle, frontangle) * math.pi / 180
-
-            sinmax = math.sin(max_angle)
-            cosmax = math.cos(max_angle)
-            sinmin = math.sin(min_angle)
-            cosmin = math.cos(min_angle)
-
-            circleminangle = - math.pi/2 + min_angle
-            circlemaxangle = - 3*math.pi/2 + max_angle
-
-
-            sz = max(w, 3*radius)
-
-            glBegin(GL_TRIANGLE_FAN)
-            glVertex3f(
-                radius * dx + radius * math.sin(circleminangle) + sz * sinmin,
-                0,
-                radius * dy + radius * math.cos(circleminangle) + sz * cosmin)
-            for i in range(37):
-                t = circleminangle + i * (circlemaxangle - circleminangle)/36.
-                glVertex3f(radius*dx + radius * math.sin(t), 0.0, radius*dy + radius * math.cos(t))
-
-            glVertex3f(
-                radius * dx + radius * math.sin(circlemaxangle) + sz * sinmax,
-                0,
-                radius * dy + radius * math.cos(circlemaxangle) + sz * cosmax)
-
-            glEnd()
-        glEnable(GL_CULL_FACE)
-        glDepthFunc(GL_LESS)
+    #: Kept for external callers; the tool part owns the table it draws from.
+    lathe_shapes = glcanon_scene.ToolPart.LATHE_SHAPES
 
     def extents_info(self):
         if self.canon:
@@ -1992,38 +1451,34 @@ class GlCanonDraw:
             size = [3, 3, 3]
         return mid, size
 
-    def make_selection_list(self, unused=None):
-        select_rapids = self.dlist('select_rapids')
-        select_program = self.dlist('select_norapids')
-        glNewList(select_rapids, GL_COMPILE)
-        if self.canon: self.canon.draw(1, False)
-        glEndList()
-        glNewList(select_program, GL_COMPILE)
-        if self.canon: self.canon.draw(1, True)
-        glEndList()
-
-    def make_main_list(self, unused=None):
-        program = self.dlist('program_norapids')
-        rapids = self.dlist('program_rapids')
-        glNewList(program, GL_COMPILE)
-        if self.canon: self.canon.draw(0, True)
-        glEndList()
-
-        glNewList(rapids, GL_COMPILE)
-        if self.canon: self.canon.draw(0, False)
-        glEndList()
-
     def load_preview(self, f, canon, *args):
         self.set_canon(canon)
-        result, seq = gcode.parse(f, canon, *args)
+        self.preview_too_large = False
+        canon.preview_incomplete = False
+        try:
+            result, seq = gcode.parse(f, canon, *args)
+        except KeyboardInterrupt:
+            # Aborted parse: extents cover only the parsed portion. Flag it so
+            # callers do not treat the partial check as complete.
+            canon.preview_incomplete = True
+            canon.calc_extents()
+            raise
 
         if result <= gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
             canon.calc_extents()
             self.stale_dlist('program_rapids')
             self.stale_dlist('program_norapids')
-            self.stale_dlist('select_rapids')
-            self.stale_dlist('select_norapids')
+
+        # Parsed fully (extents and the run-time limit check stay valid); only
+        # drawing is suppressed.
+        if 0 < self.max_file_size and os.path.exists(f) \
+                and self.max_file_size < os.stat(f).st_size:
+            self.preview_too_large = True
+            log.warning("%s is larger than the %.0f MB preview limit; "
+                        "preview disabled for it. The program still runs, "
+                        "but without a graphical extents check.",
+                        f, self.max_file_size / (1024 * 1024))
 
         return result, seq
 

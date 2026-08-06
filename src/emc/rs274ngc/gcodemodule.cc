@@ -196,13 +196,262 @@ static InterpBase *pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
+// ---------------------------------------------------------------------------
+// The move-batch protocol
+// ---------------------------------------------------------------------------
+//
+// An *opt-in* alternative to the per-event callback protocol, for consumers
+// that would rather receive a million moves as a few numpy-shaped blocks than
+// as a million Python calls. A canon object opts in by setting
+// `use_move_batches = True` and providing a callable `move_batch`; both are
+// read once, in parse_file, before any interpretation. Everything below is
+// inert when the flag is absent, and the legacy callback sequence is then
+// byte-for-byte what it always was.
+//
+// The flag must be a *bool*, not merely truthy: a canon that answers every
+// unknown attribute with a stub - `def __getattr__(self, name): return lambda
+// *a: None`, a common idiom for partial canons, and what
+// tests/interp_initcode's does - would otherwise hand back a callable for both
+// `use_move_batches` and `move_batch` and be opted in without ever asking,
+// silently dropping every batched move into the stub.
+//
+// In batch mode the canon functions listed under `MoveBatch::Kind` do not call
+// Python at all. Each appends one fixed-width row of 13 float64s to a C-owned
+// buffer:
+//
+//     [kind, line_number, x, y, z, a, b, c, u, v, w, feedrate, spindle_speed]
+//
+// Move rows (kinds 0-3) carry exactly the axis values the legacy call would
+// have passed - after the `_pos_*` update and after the metric division - so a
+// consumer reproduces the legacy geometry bit for bit. Rigid-tap rows carry
+// x,y,z and zeros for a..w, as the legacy `rigid_tap` callback did.
+//
+// Non-move rows keep the row width by carrying their payload in the axis
+// slots, zeros elsewhere:
+//
+//     dwell (4)        seconds in x
+//     m1xx  (5)        function index, P, Q in x, y, z
+//     change_tool (6)  tool number in x
+//     tool_offset (7)  the nine offsets in x..w
+//
+// `feedrate` is the last SET_FEED_RATE value, post-conversion, so a consumer
+// never has to correlate rows with a separate rate callback; it starts at 60.0
+// because GLCanon starts at feedrate 1 (= rate/60). `spindle_speed` is the last
+// SET_SPINDLE_SPEED for spindle 0 - data the legacy protocol never delivered,
+// since that canon call is an empty stub - carried here so an S word costs
+// nothing and never fragments a batch.
+//
+// Ordering: the buffer is flushed before *any* still-forwarded Python callback,
+// which is guaranteed by flushing at the top of maybe_new_line() - see the
+// invariant comment there - and also when full, before the periodic
+// check_abort(), and at end of parse. What deliberately does NOT flush is
+// anything whose effect the rows already carry: the batched events (a G81 cycle
+// emits a DWELL per hole, and flushing on those would shred a 100k-hole file
+// into four-row batches) and SET_FEED_RATE / SET_SPINDLE_SPEED (both travel in
+// the row's own columns; CAM output with adaptive feed emits an F word every
+// few moves, and flushing there made batch mode slower than the protocol it
+// replaces - see SET_FEED_RATE).
+//
+// Lifetime: rows are delivered as a read-only memoryview over the buffer, valid
+// only for the duration of the move_batch call - the consumer must copy or
+// fully consume it before returning. The buffer is allocated once and never
+// freed or reallocated, so a consumer that illegally retains the view reads
+// stale numbers rather than freed memory.
+//
+// Ownership: like every other piece of canon state in this file (`callback`,
+// `pinterp`, `metric`, `_pos_*`), the buffer is per-process, not per-parse -
+// there is exactly one copy, since this translation unit is linked into
+// lib/python/gcode.so and nothing else. `interp_from_shlib` swaps the
+// *interpreter*, not the canon, so an alternate interpreter still appends here.
+// What the batch protocol adds is a way for that to fail *quietly*: a second
+// parse_file entered while one is in flight (gcode.parse is not reentrant, and
+// AXIS's check_abort pumps the Tk event loop) would re-arm the buffer for a
+// different canon, and the outer parse's rows would then be delivered to the
+// inner parse's consumer. Hence `owner_`: the canon the buffer was armed for,
+// compared - never dereferenced - on every append and flush, so a mismatch
+// raises instead of misdelivering.
+//
+// Opting a GUI in is a separate change; nothing in tree sets the flag yet.
+
+class MoveBatch {
+public:
+    // Column 0 of a row. Values are protocol, not implementation detail: a
+    // consumer switches on them, so they may be appended to but never
+    // renumbered. Kinds 0-3 are moves; 4-7 carry the payloads listed above.
+    enum Kind : int {
+        Traverse = 0,
+        Feed = 1,
+        Probe = 2,
+        RigidTap = 3,
+        Dwell = 4,
+        M1xx = 5,
+        ChangeTool = 6,
+        ToolOffset = 7,
+    };
+
+    static constexpr int ROW = 13;      // float64s per row, per the layout above
+    // Rows per delivery: 1.7 MB of buffer, and the size the consumer's
+    // per-batch numpy temporaries are proportional to. Measured on 500k moves
+    // (aarch64 dev container): 65536 costs ~32 MB more peak RSS than the
+    // per-move canon for no gain, while 16384 and 4096 both land at the
+    // per-move canon's peak exactly and run marginally faster. 16384 is the
+    // larger of the two that costs nothing, leaving headroom for a consumer
+    // whose per-batch overhead is higher than the reference one's.
+    static constexpr int CAP = 16384;
+
+    // Read the opt-in off `canon` and, if it is set, make the buffer ready for
+    // it. Returns false with a Python exception set; true means the parse may
+    // proceed, in whichever protocol active() now reports.
+    static bool arm(PyObject *canon) {
+        owner_ = nullptr;
+        count_ = 0;
+        rate_ = 60.0;
+        rate_seen_ = false;
+        speed_ = 0.0;
+        PyObject *flag = PyObject_GetAttrString(canon, "use_move_batches");
+        if(!flag) {
+            if(!PyErr_ExceptionMatches(PyExc_AttributeError)) return false;
+            PyErr_Clear();              // no attribute: the legacy protocol
+            return true;
+        }
+        // Anything that is not a bool is not an opt-in - see the note on
+        // catch-all `__getattr__` above. Legacy protocol, no complaint: a
+        // canon that never mentions the flag must not be made to fail.
+        bool opted_in = PyBool_Check(flag) && flag == Py_True;
+        Py_DECREF(flag);
+        if(!opted_in) return true;
+        // Fail fast rather than fall back: a canon that asked for batches and
+        // silently got per-move callbacks would look like it worked and quietly
+        // build a different program.
+        PyObject *consumer = PyObject_GetAttrString(canon, "move_batch");
+        bool usable = consumer && PyCallable_Check(consumer);
+        Py_XDECREF(consumer);
+        if(!usable) {
+            PyErr_Clear();
+            PyErr_SetString(PyExc_TypeError,
+                    "parse: canon sets use_move_batches but has no callable "
+                    "move_batch");
+            return false;
+        }
+        if(!buf_) {
+            buf_ = (double*)malloc((size_t)CAP * ROW * sizeof(double));
+            if(!buf_) { PyErr_NoMemory(); return false; }
+        }
+        owner_ = canon;
+        return true;
+    }
+
+    static bool active() { return owner_ != nullptr; }
+
+    static void append(Kind kind, int line_number,
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w) {
+        if(!owned()) return;
+        double *row = buf_ + (size_t)count_ * ROW;
+        row[0] = static_cast<double>(kind);
+        row[1] = line_number;
+        row[2] = x; row[3] = y; row[4] = z;
+        row[5] = a; row[6] = b; row[7] = c;
+        row[8] = u; row[9] = v; row[10] = w;
+        row[11] = rate_;
+        row[12] = speed_;
+        count_ ++;
+        // No next_line is delivered for a batched row, but the error line the
+        // parse reports must still advance with it.
+        last_sequence_number = line_number;
+        if(count_ >= CAP) flush();
+    }
+
+    static void flush() {
+        if(!active()) return;
+        if(count_ == 0) return;
+        // Never call into Python with an exception pending: the consumer would
+        // be handed a broken interpreter state, and the error we already have
+        // is the one worth reporting.
+        if(interp_error) return;
+        if(!owned()) return;
+        int n = count_;
+        // Reset before the call, not after: if move_batch raises, these rows
+        // have still been handed over once, and re-delivering them from a later
+        // flush would duplicate them in the consumer's program.
+        count_ = 0;
+        PyObject *view = PyMemoryView_FromMemory((char*)buf_,
+                (Py_ssize_t)n * ROW * sizeof(double), PyBUF_READ);
+        if(!view) { interp_error ++; return; }
+        PyObject *result = callmethod(callback, "move_batch", "O", view);
+        Py_DECREF(view);
+        if(result == NULL) interp_error ++;
+        Py_XDECREF(result);
+    }
+
+    // Record the rate the following rows will carry, and answer whether it
+    // actually moved. The interpreter reports an F word whether or not it
+    // changes anything - interp_execute.cc branches on `block->f_flag` alone,
+    // with no comparison against settings->feed_rate - so CAM output that
+    // repeats the same `F600` on every line calls in here once per move. In
+    // batch mode there is nothing to say about a rate that did not change: the
+    // value already reached the consumer in every row's feedrate column. The
+    // first call of a parse always counts as a change, so a consumer's own
+    // starting feed rate is set from the file even when the file opens with the
+    // same 60.0 this starts at.
+    static bool feed_rate(double rate) {
+        if(rate == rate_ && rate_seen_) return false;
+        rate_ = rate;
+        rate_seen_ = true;
+        return true;
+    }
+
+    // Tracked whether or not batch mode is on - one store, and in legacy mode
+    // nothing ever reads it. There is no callback to suppress here: this canon
+    // call has never forwarded anything.
+    static void spindle_speed(double rpm) { speed_ = rpm; }
+
+private:
+    MoveBatch() = delete;
+
+    // Is the buffer still the one armed for the canon being parsed into? Only
+    // a re-entered parse_file can make this false; say so rather than deliver
+    // one canon's moves to another.
+    static bool owned() {
+        if(owner_ == callback) return true;
+        PyErr_SetString(PyExc_RuntimeError,
+                "gcode.parse: the move batch belongs to a different canon - "
+                "gcode.parse was re-entered");
+        interp_error ++;
+        return false;
+    }
+
+    static inline PyObject *owner_ = nullptr;   // compared, never dereferenced
+    static inline double *buf_ = nullptr;
+    static inline int count_ = 0;
+    static inline double rate_ = 60.0;
+    static inline bool rate_seen_ = false;
+    static inline double speed_ = 0.0;
+};
+
+// The `next_line` delivery guard, split off from last_sequence_number: batched
+// rows advance that one (parse_file returns it, and error reporting reads it)
+// without a next_line having been delivered, so a still-forwarded callback
+// later on the same line must not be mistaken for a repeat. The two move in
+// lockstep in legacy mode, where nothing but delivery touches either.
+static int last_delivered_sequence_number;
+
 static void maybe_new_line(int sequence_number);
 static void maybe_new_line();
 
-static void maybe_new_line(int sequence_number) {
+// The line number for a batched event whose canon function is not given one.
+static int batch_line_number() {
+    return pinterp ? pinterp->sequence_number() : last_sequence_number;
+}
+
+// Deliver next_line, without flushing. Split out for SET_FEED_RATE, which is
+// the one forwarder whose state the batch rows already carry - see there. In
+// legacy mode this *is* maybe_new_line(), since the flush is a no-op.
+static void deliver_new_line(int sequence_number) {
     if(!pinterp) return;
     if(interp_error) return;
-    if(sequence_number == last_sequence_number)
+    if(sequence_number == last_delivered_sequence_number)
         return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
@@ -211,11 +460,24 @@ static void maybe_new_line(int sequence_number) {
     pinterp->active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
-    PyObject *result = 
+    last_delivered_sequence_number = sequence_number;
+    PyObject *result =
         callmethod(callback, "next_line", "O", new_line_code);
     Py_DECREF(new_line_code);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
+}
+
+static void maybe_new_line(int sequence_number) {
+    // INVARIANT: every canon function that forwards a Python callback calls
+    // maybe_new_line() first, and this flush is what makes that the batch
+    // protocol's ordering guarantee - pending rows are delivered before the
+    // callback that would change the state they were produced under. A new
+    // forwarder added without this call would silently deliver its callback
+    // ahead of moves that preceded it; the legacy-vs-batch equality test is
+    // the tripwire for that. The one deliberate exception is SET_FEED_RATE.
+    MoveBatch::flush();
+    deliver_new_line(sequence_number);
 }
 
 static void maybe_new_line() {
@@ -362,6 +624,11 @@ void STRAIGHT_FEED(int line_number,
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        MoveBatch::append(MoveBatch::Feed, line_number, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
@@ -379,6 +646,11 @@ void STRAIGHT_TRAVERSE(int line_number,
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        MoveBatch::append(MoveBatch::Traverse, line_number, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
@@ -456,9 +728,15 @@ void SET_FEED_MODE(int /*spindle*/, int /*mode*/) {
 }
 
 void CHANGE_TOOL() {
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        MoveBatch::append(MoveBatch::ChangeTool, batch_line_number(),
+                     selected_tool, 0, 0, 0, 0, 0, 0, 0, 0);
+        return;
+    }
     maybe_new_line();
     if(interp_error) return;
-    PyObject *result = 
+    PyObject *result =
         callmethod(callback, "change_tool", "i", selected_tool);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -479,9 +757,30 @@ void RELOAD_TOOLDATA(void) {
  * time feed wrong anyway..
  */
 void SET_FEED_RATE(double rate) {
-    maybe_new_line();   
-    if(interp_error) return;
     if(metric) rate /= 25.4;
+    if(MoveBatch::active()) {
+        // Two departures here, both because the rate is already in every row.
+        //
+        // It does not flush. There is nothing a batch boundary would tell the
+        // consumer that the feedrate column has not. Cutting one is expensive
+        // on real files - CAM output with adaptive feed emits an F word every
+        // few moves, which would deliver the program in batches of a handful of
+        // rows and make batch mode *slower* than the per-move protocol it
+        // replaces (measured on 500k moves: 0.59x with the flush, 1.85x
+        // without).
+        //
+        // And it does not forward at all unless the rate moved - see
+        // MoveBatch::feed_rate for why the interpreter calls this so often.
+        //
+        // Neither affects arcs: ARC_FEED still flushes, and the arc path stages
+        // its segments at arc time with the rate current then, which is this
+        // one whether or not the callback that set it was suppressed.
+        if(!MoveBatch::feed_rate(rate)) return;
+        deliver_new_line(batch_line_number());
+    } else {
+        maybe_new_line();
+    }
+    if(interp_error) return;
     PyObject *result =
         callmethod(callback, "set_feed_rate", "f", rate);
     if(result == NULL) interp_error ++;
@@ -489,7 +788,14 @@ void SET_FEED_RATE(double rate) {
 }
 
 void DWELL(double time) {
-    maybe_new_line();   
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        // Appended, not flushed: a G81/G82 cycle emits one of these per hole.
+        MoveBatch::append(MoveBatch::Dwell, batch_line_number(),
+                     time, 0, 0, 0, 0, 0, 0, 0, 0);
+        return;
+    }
+    maybe_new_line();
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "dwell", "f", time);
@@ -526,6 +832,22 @@ void SET_TOOL_TABLE_ENTRY(int /*pocket*/, int /*toolno*/, const EmcPose& /*offse
 
 void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {
     tool_offset = offset;
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        if(metric) {
+            MoveBatch::append(MoveBatch::ToolOffset, batch_line_number(),
+                    offset.tran.x / 25.4, offset.tran.y / 25.4,
+                    offset.tran.z / 25.4,
+                    offset.a, offset.b, offset.c,
+                    offset.u / 25.4, offset.v / 25.4, offset.w / 25.4);
+        } else {
+            MoveBatch::append(MoveBatch::ToolOffset, batch_line_number(),
+                    offset.tran.x, offset.tran.y, offset.tran.z,
+                    offset.a, offset.b, offset.c,
+                    offset.u, offset.v, offset.w);
+        }
+        return;
+    }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result;
@@ -555,7 +877,12 @@ void START_SPINDLE_COUNTERCLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) 
 void START_SPINDLE_CLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}
 void SET_SPINDLE_MODE(int /*spindle*/, double) {}
 void STOP_SPINDLE_TURNING(int /*spindle*/, int /*wait_for_at_speed*/) {}
-void SET_SPINDLE_SPEED(int /*spindle*/, double /*rpm*/) {}
+// Forwards nothing - it never has - but the value is worth carrying: recording
+// it here costs one store and gives the batch rows a spindle-speed column the
+// per-move protocol never had, without adding a callback or a flush point.
+void SET_SPINDLE_SPEED(int spindle, double rpm) {
+    if(spindle == 0) MoveBatch::spindle_speed(rpm);
+}
 void ORIENT_SPINDLE(int /*spindle*/, double /*d*/, int /*i*/) {}
 void WAIT_SPINDLE_ORIENT_COMPLETE(int /*s*/, double /*timeout*/) {}
 void PROGRAM_STOP() {}
@@ -624,6 +951,11 @@ void STRAIGHT_PROBE(int line_number,
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        MoveBatch::append(MoveBatch::Probe, line_number, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
@@ -636,6 +968,14 @@ void STRAIGHT_PROBE(int line_number,
 void RIGID_TAP(int line_number,
                double x, double y, double z, double /*scale*/) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
+    if(MoveBatch::active()) {
+        if(interp_error) return;
+        // a..w are zero, exactly the arguments the legacy `rigid_tap` callback
+        // did not have; the consumer joins x,y,z to the chain point's a..w as
+        // GLCanon.rigid_tap does.
+        MoveBatch::append(MoveBatch::RigidTap, line_number, x, y, z, 0, 0, 0, 0, 0, 0);
+        return;
+    }
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
@@ -707,6 +1047,11 @@ int WAIT(int /*index*/, int /*input_type*/, int /*wait_type*/, double /*timeout*
 
 static void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;
+    if(MoveBatch::active()) {
+        MoveBatch::append(MoveBatch::M1xx, batch_line_number(),
+                     num, arg1, arg2, 0, 0, 0, 0, 0, 0);
+        return;
+    }
     maybe_new_line();
     PyObject *result =
         callmethod(callback, "user_defined_function",
@@ -848,7 +1193,8 @@ static bool check_abort() {
 USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 
 CANON_MOTION_MODE motion_mode;
-void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/) { motion_mode = mode; }
+/* G64_R_PLANNER: preview module ignores the planner-mode args (no motion) */
+void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/, int /*planner_type*/, double /*scurve_peak_scale*/) { motion_mode = mode; }
 void SET_MOTION_CONTROL_MODE(double /*tolerance*/) { }
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
@@ -872,6 +1218,13 @@ static PyObject *parse_file(PyObject * /*self*/, PyObject *args) {
                 &f, &callback, &unitcode, &initcode, &interpname))
             return NULL;
     }
+
+    // Protocol selection, once, before anything is interpreted: a mode that
+    // could flip mid-parse would leave the consumer's program half in each
+    // protocol, and a per-call attribute check would cost more than batching
+    // saves.
+    if(!MoveBatch::arm(callback)) return NULL;
+    last_delivered_sequence_number = -1;
 
     if(pinterp) {
         delete pinterp;
@@ -929,6 +1282,11 @@ static PyObject *parse_file(PyObject * /*self*/, PyObject *args) {
         result = pinterp->read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
+            // Bounds how stale a batch consumer's progress can get, and keeps
+            // check_abort() - which pumps AXIS's event loop - from running with
+            // a pending exception raised by the flush.
+            MoveBatch::flush();
+            if(interp_error) break;
             if(check_abort()) return NULL;
             t0 = t1;
         }

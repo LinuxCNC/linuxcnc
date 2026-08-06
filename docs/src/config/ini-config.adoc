@@ -686,6 +686,7 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 * `COMM_TIMEOUT = 1.0` - Number of seconds to wait for Motion (the realtime part of the motion controller) to acknowledge receipt of messages from Task (the non-realtime part of the motion controller).
 * `HOMEMOD =` _alternate_homing_module_ [home_parms=value]
   The HOMEMOD variable is optional.  If specified, use a specified (user-built) module instead of the default (homemod).
+  The homecomp(9) component provides a buildable template for custom homing modules.
   Module parameters (home_parms) may be included if supported by the named module.
   The setting may be overridden from the command line using the -m option ($ linuxcnc -h).
 
@@ -946,6 +947,24 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
 * `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
   S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+  The planner can be changed at runtime via the `ini.traj-planner-type` HAL pin or the
+  <<gcode:g64,G64 R word>>; a switch requested while the machine is moving is deferred
+  and applied when motion next becomes idle (never aborts), with an operator message.
+* `SMOOTH_PLANNER = 1` - (((SMOOTH PLANNER))) Which planner a <<gcode:g64,G64 R>>
+  greater than zero ("smooth") request resolves to. Part programs only request
+  trapezoidal (R0) or smooth (R greater than 0); this key names the implementation, so
+  programs stay valid when the machine's smooth planner changes. 0 disables G64 R
+  smooth requests (they are refused with an operator error). Defaults to
+  `PLANNER_TYPE` when that is non-zero, else 1. Currently the only smooth planner is
+  type 1. A missing or invalid `MAX_LINEAR_JERK` (below 1) also disables smooth
+  requests. Note that the `ini.traj-planner-type` HAL pin is the machine-side surface
+  and writes planner numbers directly; it bypasses this resolution and its guards.
+* `SCURVE_PEAK_SCALE = 1.0` - (((SCURVE PEAK SCALE))) Scales the S-curve rest-to-rest
+  peak velocity used by the corner look-ahead, i.e. how aggressively the machine may
+  corner within its jerk and acceleration limits. 1.0 (the default) allows the full
+  jerk-feasible corner speed; lower values corner more gently (0.5 matches the
+  initial S-curve release). Clamped to 0.1..1.0. Tunable at runtime via the
+  `ini.traj-scurve-peak-scale` HAL pin or the <<gcode:g64,G64 R word>>.
 * `MAX_LINEAR_JERK = 10000.0` - (((MAX JERK))) The maximum jerk (rate of change of acceleration) for coordinated moves, in 'machine units' per second cubed.
   Default is 1e9 (1 billion) if not specified, which effectively disables jerk limiting while avoiding numerical instability.
   Values are clamped to a maximum of 1e9 to prevent numerical issues in S-curve calculations.
@@ -1480,5 +1499,33 @@ Control screens can limit these settings further.
 * `RANDOM_TOOLCHANGER = 1` - (bool)
   This is for machines that cannot place the tool back into the pocket it came from.
   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
+
+[[sub:ini:sec:mtconnect]]
+=== [MTCONNECT] Section(((INI File,Sections,[MTCONNECT] Section)))
+
+Optional.  Configures the `mtconnect-agent`(1) userspace component, which
+publishes machine status, kinematics and tool data using the MTConnect standard.
+Load it from a HAL file with `loadusr -W mtconnect-agent`.  The MTConnect device
+model is generated automatically from the `[TRAJ]`, `[KINS]`, `[AXIS_<letter>]`
+and `[JOINT_<num>]` sections, so only the keys below are required.
+
+* `ENABLE = 1` - (bool) Enable the agent.  Default 1.
+* `DEVICE_NAME = my_mill` - (string) MTConnect device name.
+  Default: `[EMC]MACHINE`.
+* `UUID = 0e2c...` - (string) MTConnect device uuid.
+* `TRANSPORT = http` - (string) Comma-separated list of transports:
+  `http`, `mqtt`, `shdr`.  Default `http`.
+* `HTTP_PORT = 5000` - (int) Port for the embedded HTTP agent.
+* `HTTP_BIND = 127.0.0.1` - (string) Interface to bind the HTTP agent to.
+  Default 127.0.0.1 (loopback only); set to `0.0.0.0` to expose on the network.
+* `SAMPLE_HZ = 10` - (real) Poll and publish rate in Hz.
+* `MQTT_BROKER`, `MQTT_PORT`, `MQTT_PREFIX`, `MQTT_USERNAME`, `MQTT_PASSWORD` -
+  Settings for the standard MTConnect MQTT binding.  Requires the
+  `python3-paho-mqtt` package.
+
+The embedded HTTP agent serves `/probe`, `/current`, `/sample` and `/assets`, and
+referenced geometry under `/models/`.  The spindle speed
+band from `[SPINDLE_0]MIN_FORWARD_VELOCITY`/`MAX_FORWARD_VELOCITY` is advertised
+as an MTConnect Specification.  See `mtconnect-agent`(1) for the full reference.
 
 // vim: set syntax=asciidoc:

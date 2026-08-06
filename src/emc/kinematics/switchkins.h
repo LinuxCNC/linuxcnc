@@ -6,8 +6,8 @@
 
 #include <kinematics.h>
 
-//hardcoded number of switchkins types (KS,KF,KI):
-#define SWITCHKINS_MAX_TYPES 3
+//max number of switchkins types (KS,KF,KI) a module may provide:
+#define SWITCHKINS_MAX_TYPES 9
 
 // KinematicsFORWARD functions
 typedef int (*KF)(const double *joint,
@@ -28,9 +28,13 @@ typedef int (*KS)(const int   comp_id,     // halpins
                  );
 
 //*********************************************************************
+// supplied by the using module, provides types 0,1,2
 extern int switchkinsSetup(kparms* ksetup_parms,
                            KS* kset0, KS* kset1, KS* kset2,
                            KF* kfwd0, KF* kfwd1, KF* kfwd2,
                            KI* kinv0, KI* kinv1, KI* kinv2
                           );
+
+// called from switchkinsSetup(), once per type it does not provide itself
+extern int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 #endif // }

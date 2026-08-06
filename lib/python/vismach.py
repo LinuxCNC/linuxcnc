@@ -128,6 +128,88 @@ class Rotate(Collection):
         glPopMatrix()
 
 
+class HalRotateEuler(Collection):
+    def __init__(self, parts, comp, th1, th2, th3, order=123):
+        self.parts = parts
+        self.comp = comp
+        self.order = order
+        self.th1 = th1
+        self.th2 = th2
+        self.th3 = th3
+
+    def apply(self):
+        # check whether pins or values have been passed
+        if isinstance(self.order, str):
+            order = int(self.comp[self.order])
+        else:
+            order = self.order
+        if isinstance(self.th1, str):
+            th1 = self.comp[self.th1]
+        else:
+            th1 = self.th1
+        if isinstance(self.th2, str):
+            th2 = self.comp[self.th2]
+        else:
+            th2 = self.th2
+        if isinstance(self.th3, str):
+            th3 = self.comp[self.th3]
+        else:
+            th3 = self.th3
+
+        glPushMatrix()
+        if order == 131:
+            glRotatef(th1, 1, 0, 0)
+            glRotatef(th2, 0, 0, 1)
+            glRotatef(th3, 1, 0, 0)
+        elif order == 121:
+            glRotatef(th1, 1, 0, 0)
+            glRotatef(th2, 0, 1, 0)
+            glRotatef(th3, 1, 0, 0)
+        elif order == 212:
+            glRotatef(th1, 0, 1, 0)
+            glRotatef(th2, 1, 0, 0)
+            glRotatef(th3, 0, 1, 0)
+        elif order == 232:
+            glRotatef(th1, 0, 1, 0)
+            glRotatef(th2, 0, 0, 1)
+            glRotatef(th3, 0, 1, 0)
+        elif order == 323:
+            glRotatef(th1, 0, 0, 1)
+            glRotatef(th2, 0, 1, 0)
+            glRotatef(th3, 0, 0, 1)
+        elif order == 313:
+            glRotatef(th1, 0, 0, 1)
+            glRotatef(th2, 1, 0, 0)
+            glRotatef(th3, 0, 0, 1)
+        elif order == 123:
+            glRotatef(th1, 1, 0, 0)
+            glRotatef(th2, 0, 1, 0)
+            glRotatef(th3, 0, 0, 1)
+        elif order == 132:
+            glRotatef(th1, 1, 0, 0)
+            glRotatef(th2, 0, 0, 1)
+            glRotatef(th3, 0, 1, 0)
+        elif order == 213:
+            glRotatef(th1, 0, 1, 0)
+            glRotatef(th2, 1, 0, 0)
+            glRotatef(th3, 0, 0, 1)
+        elif order == 231:
+            glRotatef(th1, 0, 1, 0)
+            glRotatef(th2, 0, 0, 1)
+            glRotatef(th3, 1, 0, 0)
+        elif order == 321:
+            glRotatef(th1, 0, 0, 1)
+            glRotatef(th2, 0, 1, 0)
+            glRotatef(th3, 1, 0, 0)
+        elif order == 312:
+            glRotatef(th1, 0, 0, 1)
+            glRotatef(th2, 1, 0, 0)
+            glRotatef(th3, 0, 1, 0)
+
+    def unapply(self):
+        glPopMatrix()
+
+
 class Track(Collection):
     '''move and rotate an object to point from one capture()'d 
         coordinate system to another.
@@ -186,6 +268,92 @@ class Track(Collection):
     def unapply(self):
                 glPopMatrix()
 
+
+# scales an object by the value of a halpin
+class HalScale(Collection):
+    def __init__(self, parts, comp, x, y, z, var):
+        self.parts = parts
+        self.comp = comp
+        self.var = var
+        self.xyz = x, y, z
+
+    def apply(self):
+        x, y, z = self.xyz
+        factor = self.comp[self.var]
+        glPushMatrix()
+        glScalef(x*factor,y*factor,z*factor)
+
+    def unapply(self):
+        glPopMatrix()
+
+
+# shows an object if const=var and hides it otherwise, behavior can be changed
+# using the optional arguments for scalefactors when true or false
+class HalShow(Collection):
+    def __init__(self, parts, comp, const, var, scaleby_true=1, scaleby_false=0):
+        self.parts = parts
+        self.comp = comp
+        self.const = const
+        self.var = var
+        self.scaleby_true = scaleby_true
+        self.scaleby_false = scaleby_false
+
+    def apply(self):
+        s_t = self.scaleby_true
+        s_f = self.scaleby_false
+        glPushMatrix()
+        if self.const == self.comp[self.var]:
+            glScalef(s_t,s_t,s_t)
+        else:
+            glScalef(s_f,s_f,s_f)
+
+    def unapply(self):
+        glPopMatrix()
+
+
+# translates an object using a variable translation vector
+# use scale=-1 to change direction
+class HalVectorTranslate(Collection):
+    def __init__(self, parts, comp, xvar, yvar, zvar, scale=1):
+        self.parts = parts
+        self.comp = comp
+        self.xvar = xvar
+        self.yvar = yvar
+        self.zvar = zvar
+        self.sc   = scale
+
+    def apply(self):
+        # check for zero vector components
+        xvar = 0 if self.xvar == 0 else self.comp[self.xvar]
+        yvar = 0 if self.yvar == 0 else self.comp[self.yvar]
+        zvar = 0 if self.zvar == 0 else self.comp[self.zvar]
+        sc = self.sc
+        glPushMatrix()
+        glTranslatef(sc*xvar, sc*yvar, sc*zvar)
+
+    def unapply(self):
+        glPopMatrix()
+
+
+class HalVectorRotate(Collection):
+    def __init__(self, parts, comp, var, th, x, y, z):
+        self.parts = parts
+        self.comp = comp
+        self.var = var
+        self.values = th, x, y, z
+
+    def get_values(self):
+        return self.values
+
+    def apply(self):
+        th, x, y, z = self.get_values()
+        glPushMatrix()
+        glRotatef(th * self.comp[self.var], x, y, z)
+
+    def unapply(self):
+        glPopMatrix()
+
+
 class CoordsBase(object):
     def __init__(self, *args):
         if args and isinstance(args[0], hal.component):
@@ -202,6 +370,302 @@ class CoordsBase(object):
     def _coord(self, v):
         if isinstance(v, str): return self.comp[v]
         return v
+
+
+# draw an open cylinder from point_1 to point_2, radius is optional (defaults to 5)
+class HalLine():
+    def __init__(self, comp, x1var, y1var, z1var, x2var, y2var, z2var, stretch, r=5):
+        self.comp = comp
+        self.x1var = x1var
+        self.y1var = y1var
+        self.z1var = z1var
+        self.x2var = x2var
+        self.y2var = y2var
+        self.z2var = z2var
+        self.stretch = stretch
+        self.r = r
+        self.q = gluNewQuadric()
+
+    def cross(self, a, b):
+        return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+    # calculate polar coordinates in degrees
+    # a rotates around the x-axis; b rotates around the y axis
+    def polar(self, v):
+        length = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]) * self.stretch
+        axis = (1, 0, 0) if hypot(v[0], v[1]) < 0.001 else self.cross(v, (0, 0, 1))
+        angle = -atan2(hypot(v[0], v[1]), v[2])*180/pi
+        return (length, angle, axis)
+
+    def draw(self):
+        x1 = 0 if self.x1var == 0 else self.comp[self.x1var]
+        y1 = 0 if self.y1var == 0 else self.comp[self.y1var]
+        z1 = 0 if self.z1var == 0 else self.comp[self.z1var]
+        x2 = 0 if self.x2var == 0 else self.comp[self.x2var]
+        y2 = 0 if self.y2var == 0 else self.comp[self.y2var]
+        z2 = 0 if self.z2var == 0 else self.comp[self.z2var]
+        r = self.r
+        v = [x2,y2,z2]
+        length, angle, axis = self.polar(v)
+        glPushMatrix()
+        glTranslate(x1, y1, z1)
+        glRotate(angle,*axis)
+        gluCylinder(self.q, r, r, length, 32, 1)
+
+    def unapply(self):
+        glPopMatrix()
+
+# draw a plane defined by it's normal vector(vx,vy,vz) origin at (x,y,z)
+class HalPlaneFromNormal():
+    def __init__(self, comp,  x, y, z, vx, vy, vz, s=500):
+        self.comp = comp
+        self.x = x
+        self.y = y
+        self.z = z
+        self.vx = vx
+        self.vy = vy
+        self.vz = vz
+        self.s = s
+        self.q = gluNewQuadric()
+
+    def cross(self, a, b):
+        return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+    # calculate polar coordinates in degrees
+    # a rotates around the x-axis; b rotates around the y axis
+    def polar(self, v):
+        length = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+        axis = (1, 0, 0) if hypot(v[0], v[1]) < 0.001 else self.cross(v, (0, 0, 1))
+        angle = -atan2(hypot(v[0], v[1]), v[2])*180/pi
+        return (length, angle, axis)
+
+    def square(self,n, s):
+        glBegin(GL_QUADS)
+        glNormal3f(n[0],n[1],n[2])
+        glVertex3f( s,  s, 0)
+        glVertex3f(-s,  s, 0)
+        glVertex3f(-s, -s, 0)
+        glVertex3f( s, -s, 0)
+        glEnd()
+
+    def draw(self):
+        # check for zero values in the arguments
+        x = 0 if self.x == 0 else self.comp[self.x]
+        y = 0 if self.y == 0 else self.comp[self.y]
+        z = 0 if self.z == 0 else self.comp[self.z]
+        vx = 0 if self.vx == 0 else self.comp[self.vx]
+        vy = 0 if self.vy == 0 else self.comp[self.vy]
+        vz = 0 if self.vz == 0 else self.comp[self.vz]
+        s = self.s
+        v = [vx, vy, vz]
+        length, angle, axis = self.polar(v)
+        glPushMatrix()
+        glTranslate(x,y,z)
+        glRotate(angle,*axis)
+        self.square(v,s)
+
+    def unapply(self):
+        glPopMatrix()
+
+
+# draw a coordinate system defined by it's normal vector(zx,zy,zz) and x-direction vector(xx, xy, xz)
+# optional r to define the thickness of the cylinders
+class HalCoordsFromNormalAndDirection():
+    def __init__(self, comp, ox, oy, oz, xx, xy, xz, zx, zy, zz, stretch, r=5):
+        self.comp = comp
+        self.ox = ox
+        self.oy = oy
+        self.oz = oz
+        self.xx = xx
+        self.xy = xy
+        self.xz = xz
+        self.zx = zx
+        self.zy = zy
+        self.zz = zz
+        self.stretch = stretch
+        self.r = r
+        self.q = gluNewQuadric()
+
+
+    def draw_vector(self, color):
+        gluCylinder(self.q, self.r, self.r, 50*self.stretch, 32, 1)
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
+
+    def cross(self, a, b):
+        return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+    def draw(self):
+        # check for zero values in the arguments
+        ox = 0 if self.ox == 0 else self.comp[self.ox]
+        oy = 0 if self.oy == 0 else self.comp[self.oy]
+        oz = 0 if self.oz == 0 else self.comp[self.oz]
+        xx = 0 if self.xx == 0 else self.comp[self.xx]
+        xy = 0 if self.xy == 0 else self.comp[self.xy]
+        xz = 0 if self.xz == 0 else self.comp[self.xz]
+        zx = 0 if self.zx == 0 else self.comp[self.zx]
+        zy = 0 if self.zy == 0 else self.comp[self.zy]
+        zz = 0 if self.zz == 0 else self.comp[self.zz]
+        r = self.r
+        vo = [ox, oy, oz]
+        vx = [xx, xy, xz]
+        vz = [zx, zy, zz]
+        # calculate the missing y vector
+        vy = [yx, yy, yz] = self.cross(vz,vx)
+        # for some reason we need to rotate in the opposite (transpose) sense
+        m_t=[[ xx, xy, xz, 0],
+             [ yx, yy, yz, 0],
+             [ zx, zy, zz, 0],
+             [ ox, oy, oz, 1]]
+
+        glPushMatrix()
+        glMultMatrixf(m_t)
+        self.draw_vector([1,0,0,1])
+        glRotate(90,0,1,0)
+        self.draw_vector([0,1,0,1])
+        glRotate(-90,1,0,0)
+        self.draw_vector([0,0,1,1])
+
+    def unapply(self):
+        glPopMatrix()
+
+
+# draw a grid defined by it's normal vector(zx,zy,zz) and x-direction vector(xx, xy, xz)
+# optional s to define the half-width from the origin (ox,oy,oz)
+class HalGridFromNormalAndDirection():
+    def __init__(self, comp, ox, oy, oz, xx, xy, xz, zx, zy, zz, s=500):
+        self.comp = comp
+        self.ox = ox
+        self.oy = oy
+        self.oz = oz
+        self.xx = xx
+        self.xy = xy
+        self.xz = xz
+        self.zx = zx
+        self.zy = zy
+        self.zz = zz
+        self.s = s
+        self.q = gluNewQuadric()
+
+    def square(self, s):
+        glBegin(GL_LINES);
+        for i in range (-s,s+10,10):
+            # line 1 in x direction
+            glVertex3f(-s, i, 0)
+            glVertex3f( s, i, 0)
+            # line 1 in y direction
+            glVertex3f( i,-s, 0)
+            glVertex3f( i, s, 0)
+        glEnd()
+
+    def cross(self, a, b):
+        return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+    def draw(self):
+        # check for zero values in the arguments
+        ox = 0 if self.ox == 0 else self.comp[self.ox]
+        oy = 0 if self.oy == 0 else self.comp[self.oy]
+        oz = 0 if self.oz == 0 else self.comp[self.oz]
+        xx = 0 if self.xx == 0 else self.comp[self.xx]
+        xy = 0 if self.xy == 0 else self.comp[self.xy]
+        xz = 0 if self.xz == 0 else self.comp[self.xz]
+        zx = 0 if self.zx == 0 else self.comp[self.zx]
+        zy = 0 if self.zy == 0 else self.comp[self.zy]
+        zz = 0 if self.zz == 0 else self.comp[self.zz]
+        s = self.s
+        vo = [ox, oy, oz]
+        vx = [xx, xy, xz]
+        vz = [zx, zy, zz]
+        # calculate the missing y vector
+        vy = [yx, yy, yz] = self.cross(vz,vx)
+        # for some reason we need to rotate in the opposite (transpose) sense
+        m_t=[[ xx, xy, xz, 0],
+             [ yx, yy, yz, 0],
+             [ zx, zy, zz, 0],
+             [ ox, oy, oz, 1]]
+
+        glPushMatrix()
+        glMultMatrixf(m_t)
+        self.square(s)
+
+    def unapply(self):
+        glPopMatrix()
+
+# draw a grid defined by it's normal vector(vx,vy,vz) origin at (x,y,z)
+class HalGridFromNormal():
+    def __init__(self, comp,  x, y, z, vx, vy, vz, s=500):
+        self.comp = comp
+        self.x = x
+        self.y = y
+        self.z = z
+        self.vx = vx
+        self.vy = vy
+        self.vz = vz
+        self.s = s
+        self.q = gluNewQuadric()
+
+    def cross(self, a, b):
+        return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+
+    # calculate polar coordinates in degrees
+    # a rotates around the x-axis; b rotates around the y axis
+    def polar(self, v):
+        length = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+        axis = (1, 0, 0) if hypot(v[0], v[1]) < 0.001 else self.cross(v, (0, 0, 1))
+        angle = -atan2(hypot(v[0], v[1]), v[2])*180/pi
+        return (length, angle, axis)
+
+    def square(self,n, s):
+        glBegin(GL_LINES);
+        for i in range (-s,s+10,10):
+            # line 1 in x direction
+            glVertex3f(-s, i, 0)
+            glVertex3f( s, i, 0)
+            # line 1 in y direction
+            glVertex3f( i,-s, 0)
+            glVertex3f( i, s, 0)
+        glEnd()
+
+    def draw(self):
+        # check for zero values in the arguments
+        x = 0 if self.x == 0 else self.comp[self.x]
+        y = 0 if self.y == 0 else self.comp[self.y]
+        z = 0 if self.z == 0 else self.comp[self.z]
+        vx = 0 if self.vx == 0 else self.comp[self.vx]
+        vy = 0 if self.vy == 0 else self.comp[self.vy]
+        vz = 0 if self.vz == 0 else self.comp[self.vz]
+        s = self.s
+        v = [vx, vy, vz]
+        length, angle, axis = self.polar(v)
+        glPushMatrix()
+        glTranslate(x,y,z)
+        glRotate(angle,*axis)
+        self.square(v,s)
+
+    def unapply(self):
+        glPopMatrix()
+
+# draw a grid defined by it's normal vector(vx,vy,vz) origin at (x,y,z)
+class HalGrid():
+    def __init__(self, comp, s=500):
+        self.comp = comp
+        self.s = s
+        self.q = gluNewQuadric()
+
+    def grid(self, s):
+        glBegin(GL_LINES);
+        for i in range (-s,s+10,10):
+            # line 1 in x direction
+            glVertex3f(-s, i, 0)
+            glVertex3f( s, i, 0)
+            # line 1 in y direction
+            glVertex3f( i,-s, 0)
+            glVertex3f( i, s, 0)
+        glEnd()
+
+    def draw(self):
+        s = self.s
+        self.grid(s)
+
 
 # give endpoint X values and radii
 # resulting cylinder is on the X axis
@@ -675,52 +1139,125 @@ def invert(src):
         inv[3][2] = -(src[3][0]*inv[0][2] + src[3][1]*inv[1][2] + src[3][2]*inv[2][2])
         return inv
 
+# head up display - draws a semi-transparent text box.
 class Hud(object):
-        '''head up display - draws a semi-transparent text box.
-        use HUD.strs for things that must be updated constantly,
-        and HUD.show("stuff") for one-shot things like error messages'''
-        def __init__(self,  showme=1):
-                self.app = []
-                self.strs = []
-                self.messages = []
-                self.showme = 0
-                self.fontbase = []
-                
-        def show(self, string="xyzzy"):
-                self.showme = 1
-                if string != "xyzzy":
-                        self.messages += [str(string)]
-                
+        def __init__(self, showme=1):
+            self.app = []
+            self.strs = []
+            self.messages = []
+            self.fontbase = []
+            self.hud_lines = []
+            self.show_tags = []
+            self.hide_alls = []
+            self.hud_rgba_r = 0
+            self.hud_rgba_g = 0.2
+            self.hud_rgba_b = 0
+            self.hud_rgba_a = 0.5
+            self.hud_text_rgb_r = 1
+            self.hud_text_rgb_g = 0.8
+            self.hud_text_rgb_b = 0.4
+            self.hide_hud = showme == 0
+
+        # legacy function, unconditionally hides the overlay
         def hide(self):
-                self.showme = 0
-                
+            self.hide_hud = True
+
+        # legacy function, no longer supported, use add_txt() with a tag instead
         def clear(self):
-                self.messages = []
-                
+            print("vismach.py, clear() deprecated, use add_txt() with a tag instead ")
+
+        # legacy vismach models used this
+        def show(self, string):
+            self.hide_hud = False
+            self.add_txt(string)
+
+        # displays a string, optionally a tag or list of tags can be assigned
+        def add_txt(self, string, tag=None):
+            self.hud_lines += [[str(string), None, tag]]
+
+        # displays a formatted pin value (can be embedded in a string)
+        def add_pin(self, string, pin=None, tag=None):
+            self.hud_lines += [[str(string), pin, tag]]
+
+        # shows all lines with the specified tag if the pin value = val
+        def show_tag_if_same(self, tag, pin, val=True):
+            self.show_tags += [[tag, pin, val]]
+
+        # shows all lines with a tag equal to the pin value + offset
+        def show_tags_in_pin(self, pin, offs=0):
+            self.show_tags += [[pin, None, offs]]
+
+        # hides the complete hud if the pin value is equal to val
+        def hide_all(self, pin, val=True):
+            self.hide_alls += [[pin, val]]
+
+        # changes the hud color and transparency
+        def set_hud_rgba(self, r, g, b, a):
+            self.hud_rgba_r = r
+            self.hud_rgba_g = g
+            self.hud_rgba_b = b
+            self.hud_rgba_a = a
+
+        # changes the hud text color
+        def set_hud_text_rgb(self, r, g, b):
+            self.hud_text_rgb_r = r
+            self.hud_text_rgb_g = g
+            self.hud_text_rgb_b = b
+
+        # update the lines in the hud using the lists created above
         def draw(self):
-                drawtext = self.strs + self.messages
-                self.lines = len(drawtext)
-                #draw head-up-display
-                #see axis.py for more font/color configurability
-                if ((self.showme == 0) or (self.lines == 0)):
-                        return
-                
+            messages = []
+            show_list = [None]
+            # check if hud should be hidden
+            hide_hud_requested = False
+            for a in self.hide_alls:
+                if hal.get_value(a[0]) == a[1]:
+                    hide_hud_requested = True
+            if not self.hide_hud and not hide_hud_requested:
+                # create list of all line tags to be shown
+                for b in self.show_tags:
+                    tag = None
+                    if b[1] == None: # _show_tags_in_pin
+                        tag = int(hal.get_value(b[0]) + b[2])
+                    else: # _show_tag_if_same
+                        if  hal.get_value(b[1]) == b[2]:
+                            tag = b[0]
+                    if not isinstance(tag, list):
+                        tag = [tag]
+                    if tag is not None:
+                        show_list = show_list + tag
+                # build the
+                for c in self.hud_lines:
+                    if not isinstance(c[2], list):
+                        c[2] = [c[2]]
+                    if any(item in c[2] for item in show_list):
+                        if c[1] == None: # _txt
+                            messages += [c[0]]
+                        else: # _pin
+                            messages += [c[0].format(hal.get_value(c[1]))]
+                drawtext = self.strs + messages
+
+                # draw head-up-display
+                # see axis.py for more font/color configurability
+                if len(drawtext) == 0:
+                    return
+
                 glMatrixMode(GL_PROJECTION)
                 glPushMatrix()
                 glLoadIdentity()
-                
+
                 if not self.fontbase:
                         self.fontbase = int(self.app.loadbitmapfont("9x15"))
                 char_width, char_height = 9, 15
                 xmargin,ymargin = 5,5
                 ypos = float(self.app.winfo_height())
-                
+
                 glOrtho(0.0, self.app.winfo_width(), 0.0, ypos, -1.0, 1.0)
                 glMatrixMode(GL_MODELVIEW)
                 glPushMatrix()
                 glLoadIdentity()
-                
-                #draw the text box
+
+                # draw the text box
                 maxlen = max([len(p) for p in drawtext])
                 box_width = maxlen * char_width
                 glDepthFunc(GL_ALWAYS)
@@ -729,8 +1266,10 @@ class Hud(object):
                 glEnable(GL_BLEND)
                 glEnable(GL_NORMALIZE)
                 glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-                glColor3f(0.2,0,0)
-                glBlendColor(0,0,0,0.5) #rgba
+                # sets the color of the hud overlay
+                glColor3f(self.hud_rgba_r, self.hud_rgba_g, self.hud_rgba_b)
+                # rgba, sets the transparency of the overlay using the 'a' value
+                glBlendColor(0,0,0,self.hud_rgba_a)
                 glBegin(GL_QUADS)
                 glVertex3f(0, ypos, 1) #upper left
                 glVertex3f(0, ypos - 2*ymargin - char_height*len(drawtext), 1) #lower left
@@ -739,29 +1278,25 @@ class Hud(object):
                 glEnd()
                 glDisable(GL_BLEND)
                 glEnable(GL_LIGHTING)
-                
-                #fill the box with text
+
+                # fill the box with text
                 maxlen = 0
                 ypos -= char_height+ymargin
-                i=0
+                i = 0
                 glDisable(GL_LIGHTING)
-                glColor3f(0.9,0.9,0.9)
+                # sets the color of the text in the hud
+                glColor3f(self.hud_text_rgb_r, self.hud_text_rgb_g, self.hud_text_rgb_b)
                 for string in drawtext:
                         maxlen = max(maxlen, len(string))
-                #        if i < len(homed) and homed[i]:
-                #                glRasterPos2i(6, ypos)
-                #                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
                         glRasterPos2i(xmargin, int(ypos))
                         for char in string:
                                 glCallList(self.fontbase + ord(char))
-                #        if i < len(homed) and limit[i]:
-                #                glBitmap(13, 16, -5, 3, 17, 0, limiticon)
                         ypos -= char_height
                         i = i + 1
                 glDepthFunc(GL_LESS)
                 glDepthMask(GL_TRUE)
                 glEnable(GL_LIGHTING)
-        
+
                 glPopMatrix()
                 glMatrixMode(GL_PROJECTION)
                 glPopMatrix()

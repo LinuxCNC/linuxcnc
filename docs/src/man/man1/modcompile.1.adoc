@@ -2,7 +2,7 @@
 
 == NAME
 
-modcompile - Utility for compiling Modbus drivers
+modcompile - Utility for compiling Modbus drivers (DEPRECATED)
 
 == SYNOPSIS
 
@@ -13,6 +13,9 @@ modcompile - Utility for compiling Modbus drivers
 *modcompile* [*-k*] [*-n*] [*-v*] module.mod ...
 
 == DESCRIPTION
+
+*modcompile* and the mesa_modbus framework are deprecated and will be removed in a future release.
+New configurations should use the *hm2_modbus* driver with *mesambccc*-compiled MBCCB files instead.
 
 The *modcompile* utility is used to compile modbus drivers that use the PktUART
 interface of Mesa cards.

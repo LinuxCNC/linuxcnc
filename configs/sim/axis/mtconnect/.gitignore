@@ -1,0 +1,3 @@
+# 3D model assets are user-supplied. The example uses MODEL_AUTO (generated box
+# geometry) and needs no mesh files, so the whole directory stays untracked.
+models/

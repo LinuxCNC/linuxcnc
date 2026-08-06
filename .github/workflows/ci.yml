@@ -68,6 +68,58 @@ jobs:
       run: |
         .github/scripts/verify-clean-repo.sh
 
+  rip-headless:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: false
+        fetch-depth: 1
+    - name: Install minimal headless dependencies
+      run: |
+        set -x
+        .github/scripts/install-deps-headless.sh
+    - name: Build RIP headless
+      run: |
+        set -x
+        .github/scripts/build-rip.sh --with-realtime=uspace --disable-gui --disable-manpages --disable-build-documentation
+    - name: Verify GUI artifacts are absent and headless artifacts exist
+      run: |
+        set -x
+        for f in bin/axis bin/axis-remote bin/touchy bin/gscreen bin/gmoccapy \
+                 bin/halshow bin/pyvcp bin/gladevcp bin/stepconf bin/pncconf \
+                 bin/image-to-gcode tcl/linuxcnc.so tcl/hal.so; do
+            if test -e "$f"; then
+                echo "error: GUI artifact built despite --disable-gui: $f"
+                exit 1
+            fi
+        done
+        for f in scripts/linuxcnc scripts/halrun bin/linuxcncrsh bin/linuxcncsvr \
+                 bin/halcmd bin/halui bin/mdi bin/linuxcnctop; do
+            if test ! -x "$f"; then
+                echo "error: missing headless artifact: $f"
+                exit 1
+            fi
+        done
+    - name: Verify no untracked or modified files after build
+      run: |
+        .github/scripts/verify-clean-repo.sh
+    - name: Test
+      run: |
+        set -x
+        scripts/rip-environment runtests -p ./tests
+    - name: Verify no untracked or modified files after test
+      run: |
+        .github/scripts/verify-clean-repo.sh
+
   rip-rtai:
     runs-on: ubuntu-24.04
     timeout-minutes: 45

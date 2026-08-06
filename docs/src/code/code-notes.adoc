@@ -151,6 +151,8 @@ or command line options.  Custom modules must implement all
 functions used by the default modules.  The halcompile utility
 can be used to create a custom module.
 
+The interface a homing module must implement is declared and documented function by function in `src/emc/motion/homing.h`. It comprises one-time initialization (`homing_init`), per-servo-period control (`read_homing_in_pins`, `do_homing`, `write_homing_out_pins`), command entry points (`do_home_joint`, `do_cancel_homing`, `set_unhomed`, and the homing parameter setters), status queries (`get_allhomed`, `get_homed`, `get_homing`, and friends), and a callback registration for the rotary unlock functions (`homeMotFunctions`). The `homecomp` component (`src/hal/components/homecomp.comp`) is a buildable template implementing the full interface; see the homecomp(9) man page.
+
 image::LinuxCNC-motion-controller-small.png[align="center",pdfwidth=100%]
 
 == Block diagrams and Data Flow
@@ -238,12 +240,6 @@ More on that function later.
 
 There are approximately 44 commands - this list is still under
 construction.
-
-[NOTE]
-The cmd_code_t enumeration, in motion.h, contains 73 commands, but the switch
-statement in command.c contemplates only 70 commands (as of 6/5/2020).
-ENABLE_WATCHDOG / DISABLE_WATCHDOG commands are in motion-logger.c. Maybe they are obsolete.
-The SET_TELEOP_VECTOR command only appears in motion-logger.c, with no effect other than its own log.
 
 === ABORT
 
@@ -466,38 +462,6 @@ Calculations for the specified joint are enabled. The amp enable pin
 is not changed, and subsequent ENABLE or DISABLE commands will not
 modify the joint's amp enable pin.
 
-=== ENABLE_WATCHDOG
-
-The ENABLE_WATCHDOG command enables a hardware based watchdog (if
-present).
-
-==== Requirements
-
-None. The command can be issued at any time, and will always be
-accepted.
-
-==== Results
-
-Currently nothing. The old watchdog was a strange thing that used a
-specific sound card. A new watchdog interface may be designed in the
-future.
-
-=== DISABLE_WATCHDOG
-
-The DISABLE_WATCHDOG command disables a hardware based watchdog (if
-present).
-
-==== Requirements
-
-None. The command can be issued at any time, and will always be
-accepted.
-
-==== Results
-
-Currently nothing. The old watchdog was a strange thing that used a
-specific sound card. A new watchdog interface may be designed in the
-future.
-
 === PAUSE
 
 The PAUSE command stops the trajectory planner. It has no effect in
@@ -702,13 +666,6 @@ queue.
 
 The SET_CIRCLE command adds a circular move to the trajectory planner
 queue.
-
-(More later)
-
-=== SET_TELEOP_VECTOR
-
-The SET_TELEOP_VECTOR command instructs the motion controller to move
-along a specific vector in Cartesian space.
 
 (More later)
 

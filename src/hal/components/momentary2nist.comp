@@ -1,0 +1,85 @@
+component momentary2nist "momentary button to nist logic";
+
+description
+"""
+Momentary2nist can be used with a momentary push button
+to control a device that has separate on and off inputs
+and an is-on output.
+A debounce delay in cycles can be set for 'in'. (default = 2)
+A maximum output pulse length in cycles can be set for 'on' and 'off'. (default = 100)
+
+* On a rising edge on pin *in* when *is-on* is low: It sets *on* until *is-on* becomes high.
+* On a rising edge on pin *in* when *is-on* is high: It sets *off* until *is-on* becomes low.
+* Pins *on* and *off* remain high until *is-on* confirms the respective state or until *max-pulse-length* is reached.
+....
+       ┐     ┌─────xxxxxxxxxxxx┐           ┌─────xxxxxxxxxxxx┐
+in   : └─────┘     xxxxxxxxxxxx└───────────┘     xxxxxxxxxxxx└─────
+
+       ┐     ┌───────────┐
+on   : └─────┘           └─────────────────────────────────────────
+
+       ┐                                   ┌───────────┐
+off  : └───────────────────────────────────┘           └───────────
+
+       ┐                 ┌─────────────────────────────┐
+is-on: └─────────────────┘                             └───────────
+....
+
+""";
+
+pin in bool in  "momentary button in";
+pin in bool is_on "current state of device";
+pin in ui32 debounce = 2 "debounce delay for 'in'-pin in cycles";
+pin in ui32 max_pulse_length = 100 "max output pulse length";
+pin out bool on "turn device on";
+pin out bool off "turn device off";
+variable unsigned debounce_cntr;
+variable unsigned pulse_length;
+variable bool state;
+
+option period no;
+function _;
+license "GPL";
+author "David Mueller";
+;;
+FUNCTION(_)  {
+
+    rtapi_bool in_val = in;
+    rtapi_bool ison_val = is_on;
+    rtapi_uint debounce_val = debounce;
+
+    if (( debounce_val < 1 ) || ( debounce_val > 10000 )) {
+        debounce_val = 2; // set a sane value
+    }
+
+    if (in_val && state == 0 )  { // input has changed from debounced 0 -> 1
+        debounce_cntr++;
+        if ( debounce_cntr >= debounce_val ) {
+            if (!ison_val) { // turn ON if it's off
+                on_set(1);
+                off_set(0);
+            } else { // turn OFF if it's on
+                on_set(0);
+                off_set(1);
+            }
+            state = 1;
+            debounce_cntr = 0;
+        }
+    } else if (!in_val && state == 1) { // input has changed from debounced 1 -> 0
+        debounce_cntr++;
+        if ( debounce_cntr >= debounce_val ) {
+            state = 0;
+            debounce_cntr = 0;
+        }
+    } else if ((!ison_val && off) || (ison_val && on) || (pulse_length > max_pulse_length)) {
+        // reset outputs once device has switched or maximum pulse length is reached
+        on_set(0);
+        off_set(0);
+        debounce_cntr = 0;
+        pulse_length = 0;
+    } else {
+        debounce_cntr = 0;
+        pulse_length ++;
+    }
+}
+

@@ -848,38 +848,190 @@ if error:
 ----
 
 [[python:reading-ini-values]]
-== Reading INI file values
+== Reading INI file values using `linuxcnc.ini`
 
-Here's an example for reading values from an INI file through the `linuxcnc.ini` object:
+The `linuxcnc.ini` module includes all functions to read values and information from INI-files.
+
+Reading an INI-file is done by creating an instance of the module class:
+
+[source,python]
+----
+import linuxcnc
+
+try:
+    ini = linuxcnc.ini("/path/to/ini-file.ini")
+except linuxcnc.error:
+    print("Ini-file not found or invalid")
+----
+
+The `ini` instance can then be used to extract values and other information from the INI-file.
+
+[IMPORTANT]
+====
+You should not roll your own type conversion functions to read boolean, integer or floating point values.
+The INI-file parser and Python wrapper already include these functions.
+
+Using the built-in functions guarantees consistent interpretation of values, also across locales.
+There are also helpers for enumerated types to read and convert them correctly and consistently.
+====
+
+=== `linuxcnc.ini` Methods
+
+All methods will throw an error on the following conditions:
+
+* `TypeError`, `ValueError`, `UnicodeError`, `OverflowError`: an argument was of the wrong type or value,
+* `linuxcnc.error`: the _num_ argument, if given, was less or equal zero (0).
+
+[NOTE]
+====
+All methods that retrieve a `[SECTION]VARIABLE` value can provide an empty string ("") for the _section_.
+In that case, the first matching _variable_ found in any section of the INI-file is used or returned.
+
+This behavior is for compatibility only.
+You should not rely on this property.
+====
+
+For all methods, the _fallback_= value, if given, may be of any type.
+It is returned verbatim if the method otherwise would have failed or returned `None`.
+
+Conversion to both integer and floating point will ignore trailing content if it is separated by whitespace.
+
+.Example
+[source,ini]
+----
+[BLUEBERRY]
+PIE = 3.14159265 This is _/*very*/_ bad style but accepted
+FAIL= 0.12345#Warning will be issued
+----
+
+The above example will correctly convert when using `ini.getreal("BLUEBERRY","PIE")` and the trailing content is ignored.
+A warning message (`inifile:line: warning: Trailing character(s)...`) will be reported on `ini.getreal("BLUEBERRY","FAIL")`.
+
+==== Method details
+
+ini = linuxcnc.ini(_filename_:string)::
+  Creates an INI-file instance reading INI-file _filename_.
+  Throws a `linuxcnc.error` if the file does not exist or cannot be parsed.
+
+bool = ini.hassection(_section_:string)::
+  Returns a boolean indicating whether or not the given _section_ was found in the ini-file.
+
+bool = ini.hasvariable(_section_:string, _variable_:string [, _num_:int])::
+  Returns a boolean indicating whether or not the given _variable_ in _section_ was found in the ini-file.
+  The first occurrence of the _variable_ name in any section will be searched if the _section_ name is empty.
+  The optional _num_ argument may be used to test whether the num'th _variable_ exists in the _section_.
+
+bool|None = ini.getbool(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Returns the value of the _variable_ converted to boolean if it was a valid boolean.
+  The return value is `None` if the _variable_ was not found or an invalid value was detected and no _fallback_= was provided.
+  The optional _num_ argument may be used to select the num'th _variable_ of that name in the _section_.
+
+int|None = ini.getsint(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Returns the value of the _variable_ converted to signed integer if it was a valid integer.
+  The return value is `None` if the _variable_ was not found or an invalid value was detected and no _fallback_= was provided.
+  The optional _num_ argument may be used to select the num'th _variable_ of that name in the _section_.
+
+int|None = ini.getint(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Alias of `ini.getsint()`.
+
+int|None = ini.getuint(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Returns the value of the _variable_ converted to unsigned integer if it was a valid unsigned integer.
+  The return value is `None` if the _variable_ was not found or an invalid value was detected and no _fallback_= was provided.
+  The optional _num_ argument may be used to select the num'th _variable_ of that name in the _section_.
+
+float|None = ini.getreal(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Returns the value of the _variable_ converted to floating point real if it was a valid real.
+  The return value is `None` if the _variable_ was not found or an invalid value was detected and no _fallback_= was provided.
+  The optional num argument may be used to select the num'th _variable_ of that name in the _section_.
+
+float|None = ini.getfloat(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Alias of `ini.getreal()`.
+
+string|None = ini.getstring(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Returns the value of the _variable_ as a string if it exists.
+  The return value is `None` if the _variable_ was not found and no _fallback_= was provided.
+  The optional _num_ argument may be used to select the num'th _variable_ of that name in the _section_.
+
+list = ini.getsections()::
+  Returns a list of _section_ names.
+
+list(name,value) = ini.getvariables([_section_:string])::
+  Returns a list of (name,value) tuples of all variables in the named _section_,
+  or the variables from all sections if the _section_ name is not specified.
+
+string|None = ini.find(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Alias of `ini.getstring()`.
+
+list = ini.findall(_section_:string [,_variable_:string])::
+  Find value(s) from named _section_ as a list matching the optional _variable_ name.
+
+tuple(filename,lineno) = ini.lineof(_section_:string, _variable_:string [, _num_:int])::
+  Returns a tuple with the filename and line number of _num_'th _variable_ in the _section_.
+  The first matching _section_ _variable_ is returned if _num_ is not provided.
+  The tuple (None, None) is returned if the _variable_ is not found.
+
+float|None = ini.maplinearunits(_enumstr_:string [, _fallback_=])::
+  Take the _enumstr_ enumeration string argument and try to convert.
+  Returns the value associated with enumerated type defined by ['mm', 'metric', 'in', 'inch', 'imperial'].
+  Returns `None` if the _enumstr_ contains an invalid string and _fallback_= is not specified.
+
+float|None = ini.mapangularunits(_enumstr_:string [, _fallback_=])::
+  Take the _enumstr_ enumeration string argument and try to convert.
+  Returns the value associated with enumerated type defined by ['deg', 'degree', 'grad', 'gon', 'rad', 'radian'].
+  Returns `None` if the _enumstr_ contains an invalid string and _fallback_= is not specified.
+
+int|None = ini.mapjointtype(_enumstr_:string [, _fallback_=])::
+  Take the _enumstr_ enumeration string argument and try to convert.
+  Returns the value associated with enumerated type defined by ['LINEAR', 'ANGULAR'].
+  Returns `None` if the _enumstr_ contains an invalid string and _fallback_= is not specified.
+
+float|None = ini.getlinearunits(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Get the ini _variable_ from the _section_ and convert the enumerated type.
+  The optional _num_ argument may be used to select the num'th _variable_ of that name in the _section_.
+  Returns the value associated with the enumerated type defined by ['mm', 'metric', 'in', 'inch', 'imperial'].
+  Returns `None` if the _variable_ is not found and _fallback_= is not specified.
+
+float|None = ini.getangularunits(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Get the ini _variable_ from the _section_ and convert the enumerated type.
+  The optional _num_ argument may be used to select the num'th _variable_ of that name in the _section_.
+  Returns the value associated with the enumerated type defined by ['deg', 'degree', 'grad', 'gon', 'rad', 'radian'].
+  Returns `None` if the _variable_ is not found and _fallback_= is not specified.
+
+int|None = ini.getjointtype(_section_:string, _variable_:string [, _num_:int] [, _fallback_=])::
+  Get the ini _variable_ from the _section_ and convert the enumerated type.
+  The optional num argument may be used to select the num'th _variable_ of that name in the _section_.
+  Returns the value associated with enumerated type defined by ['LINEAR', 'ANGULAR'].
+  Returns `None` if the _variable_ is not found and _fallback_= is not specified.
+
+=== `linuxcnc.ini` Examples
+
+Reading values from an INI file through the `linuxcnc.ini` object:
 
 [source,python]
 ----
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # run as:
 # python3 ini-example.py ~/emc2-dev/configs/sim/axis/axis_mm.ini
 
 import sys
 import linuxcnc
 
-inifile = linuxcnc.ini(sys.argv[1])
+fname = sys.argv[1] if len(sys.argv) > 1 else "<missing filename>"
+try:
+    inifile = linuxcnc.ini(fname)
+except linuxcnc.error as detail:
+    print("{}: error: {}".format(fname, detail))
+    sys.exit(1)
 
-# inifile.find() returns None if the key wasn't found - the
+# inifile.getstring() returns None if the key wasn't found - the
 # following idiom is useful for setting a default value:
-
 machine_name = inifile.getstring("EMC", "MACHINE", fallback="unknown")
-print("machine name: ", machine_name)
+print("machine name:", machine_name)
 
 # inifile.findall() returns a list of matches, or an empty list
 # if the key wasn't found:
-
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
-print("extensions: ", extensions)
-
-# override default NML file by INI parameter if given
-nmlfile = inifile.getstring("EMC", "NML_FILE", fallback="")
-if nmlfile:
-    linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
+print("extensions  :", extensions)
 
 # Other examples:
 realval = inifile.getreal("AXIS_X", "MAX_VELOCITY", fallback=5.0)
@@ -887,9 +1039,10 @@ boolval = inifile.getbool("JOINT_0", "HOME_USE_INDEX", fallback=False)
 
 # None is returned without fallback= if the variable was not found
 intval  = inifile.getint( "KINS", "JOINTS")
-if None == intval:
-    print("Error: [KINS]JOINTS not defined or an invalid integer"
-
+if intval is None:
+    print("Error: [KINS]JOINTS not defined or an invalid integer")
+else:
+    print("[KINS]JOINTS:", intval)
 ----
 
 Or for the same INI file as LinuxCNC:
@@ -897,7 +1050,6 @@ Or for the same INI file as LinuxCNC:
 [source,python]
 ----
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # run as:
 # python3 ini-example2.py
 
@@ -910,6 +1062,7 @@ inifile = linuxcnc.ini(stat.ini_filename)
 
 # See example above for usage of 'inifile' object
 ----
+
 
 == The `linuxcnc.positionlogger` type
 
@@ -934,6 +1087,14 @@ Some usage hints can be gleaned from
 
 `call()`::
   Plot the backplot now.
+
+`points()`::
+  Return `(bytes, npts, is_xyuv)`: a copy (taken under the sampler lock) of the
+  logged point buffer, the number of points, and whether the machine is a foam
+  (XY/UV) cutter. Each point is a C `logger_point` -- 3 float32 (x, y, z), 4
+  uint8 RGBA, 3 float32 (rx, ry, rz or u, v, w), 4 uint8 RGBA -- so the buffer
+  is `npts * 32` bytes. Added for the OpenGL 3.3 core renderer to upload the
+  backplot to a GPU buffer; see `rs274.glcanon` for the numpy layout.
 
 `last([int])`::
   Return the most recent point on the plot or None

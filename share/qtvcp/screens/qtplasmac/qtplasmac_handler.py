@@ -35,7 +35,6 @@ import math
 import glob
 import linuxcnc
 import hal
-from OpenGL.GL import glTranslatef
 from qtpy import QtCore, QtWidgets, QtGui
 from qtpy.QtCore import *
 from qtpy.QtWidgets import *
@@ -2125,7 +2124,7 @@ class HandlerClass:
         yTableCenter = (self.yMin + self.yLen / 2) / mult - mid[1]
         xSize = self.xLen / mult / zoomScale
         ySize = self.yLen / mult / zoomScale
-        glTranslatef(-xTableCenter, -yTableCenter, 0)
+        widget.translate_modelview(-xTableCenter, -yTableCenter, 0)
         widget.set_eyepoint_from_extents(xSize, ySize)
         widget.perspective = False
         widget.lat = widget.lon = 0

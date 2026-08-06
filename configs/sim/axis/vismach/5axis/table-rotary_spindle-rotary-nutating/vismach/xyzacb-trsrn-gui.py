@@ -7,8 +7,8 @@
 import hal
 import math
 import sys
-
 import os
+from vismach import *
 
 # getting the name of the directory
 # where the this file is present.
@@ -21,7 +21,6 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 # now we can import the module in the parent
 # directory.
-from twp_vismach import *
 
 
 # Machine zero as measured from center surface of the rotary c table
@@ -99,7 +98,6 @@ c.newpin("twp_zz", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_xx", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_xy", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_xz", hal.HAL_FLOAT, hal.HAL_IN)
-
 c.ready()
 
 
@@ -209,9 +207,9 @@ class CoordSystem(Collection):
 class Point(Collection):
     # creates a visual object for a point
     def __init__(self, comp, r=1, l=20, color=[1,1,1,1]):
-        self.parts = [Color(color,[CylinderX(-l,r,l,r)],1),
-                      Color(color,[CylinderY(-l,r,l,r)],1),
-                      Color(color,[CylinderZ(-l,r,l,r)],1)
+        self.parts = [Color(color,[CylinderX(-l,r,l,r)]),
+                      Color(color,[CylinderY(-l,r,l,r)]),
+                      Color(color,[CylinderZ(-l,r,l,r)])
                      ]
 
 # used to rotate parts around the nutation axis
@@ -527,9 +525,8 @@ table = Collection([
         rot_axis,
         work_coords_tcp,
         coords,
-        work_plane,
+        work_plane
         ])
-
 #/work-side
 
 #base
@@ -542,7 +539,7 @@ base = Collection([
 base = Color([0.2,0.2,0.2,1], [base] )
 #/base
 
-model = Collection([table, spindle_xyz, base,])
+model = Collection([table, spindle_xyz, base])
 
 #hud
 myhud = Hud()

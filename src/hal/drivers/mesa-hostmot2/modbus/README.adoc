@@ -1,3 +1,7 @@
+WARNING: The mesa_modbus framework (this directory and modcompile) is
+deprecated and will be removed in a future release. Use the hm2_modbus
+driver with mesambccc-compiled .mbccb files instead.
+
 Do not edit mesa_modbus.c (Unless you are sure that you want to, of
 course).
 Create a new xxxxx.mod file that describes your particular modbus device

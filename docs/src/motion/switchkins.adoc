@@ -41,6 +41,7 @@ The following kinematics modules support switchable kinematics:
 . *genhexkins*     (type0:genhexkins     type1:identity)
 . *genserkins*     (type0:genserkins     type1:identity) (puma560 example)
 . *pumakins*       (type0:pumakins       type1:identity)
+. *three21kins*     (type0:three21kins    type1:identity)
 . *scarakins*      (type0:scarakins      type1:identity)
 . *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
 
@@ -126,6 +127,9 @@ program behavior in accordance with the active kinematics type.
 . *kinstype.is-0*           Output (bit)
 . *kinstype.is-1*           Output (bit)
 . *kinstype.is-2*           Output (bit)
+
+A module providing more than three kinematics types has one
+'kinstype.is-N' pin per type.
 
 == Usage
 
@@ -387,13 +391,84 @@ routines and the functions for forward an inverse calculation for
 each kinstype (0,1,2) and sets a number of configuration
 settings.
 
+A module can provide further kinstypes by calling
+switchkinsRegister() from within switchkinsSetup(), once per
+kinstype:
+
+----
+int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
+----
+
+'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
+switchkins.h).  A kinstype has to come from one route or the
+other, so registering one that switchkinsSetup() has already
+filled in is an error, and so is leaving a gap below the highest
+kinstype provided.  Either mistake fails the module load and says
+which kinstype is at fault.
+
+Each kinstype gets its own 'kinstype.is-N' pin, so a module
+providing the usual three keeps the pin names it always had.
+
 After calling switchkinsSetup(), rtapi_app_main() checks the
 supplied parameters, creates a HAL component, and then invokes
-the setup routine identified for each kinstype (0,1,2).
+the setup routine identified for each kinstype.
 
-Each kinstype (0,1,2) setup routine can (optionally) create HAL
-pins and set them to default values.  When all setup routines
-finish, rtapi_app_main() issues hal_ready() for the component
-to complete creation of the module.
+Each kinstype setup routine can (optionally) create HAL
+pins and set them to default values.  A setup routine is called
+once per kinstype it is registered for, so a routine used for two
+kinstypes must not create the same pin twice.  When all setup
+routines finish, rtapi_app_main() issues hal_ready() for the
+component to complete creation of the module.
+
+=== Outline
+
+The two routes in one switchkinsSetup(), with the kinematics itself
+left out.  Types 0 to 2 are filled in through the pointer arguments as
+they always were, and a fourth is registered:
+
+[source,c]
+----
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    kp->kinsname             = "mykins"; // must agree with the filename
+    kp->halprefix            = "mykins"; // hal pin names
+    kp->required_coordinates = "xyzab";
+    kp->max_joints           = strlen(kp->required_coordinates);
+    // remaining kparms fields
+
+    *kset0 = identityKinematicsSetup;    // kinstype 0 is the startup default
+    *kfwd0 = identityKinematicsForward;
+    *kinv0 = identityKinematicsInverse;
+
+    *kset1 = myKinematicsSetup;
+    *kfwd1 = myKinematicsForward;
+    *kinv1 = myKinematicsInverse;
+
+    *kset2 = userkKinematicsSetup;
+    *kfwd2 = userkKinematicsForward;
+    *kinv2 = userkKinematicsInverse;
+
+    // any further kinstype comes from switchkinsRegister(), and the
+    // numbering carries on from the three above with no gaps
+    if (switchkinsRegister(3, myOtherKinematicsSetup,
+                              myOtherKinematicsForward,
+                              myOtherKinematicsInverse)) { return -1; }
+
+    return 0;
+} // switchkinsSetup()
+----
+
+A module wanting fewer than three kinstypes leaves the unused pointer
+arguments alone and starts registering at the first free number.
+
+For the surrounding shape, the in-tree switchkinsSetup() routines are
+in src/emc/kinematics: 5axiskins.c, xyzac-trt-kins.c, genserkins.c,
+scarakins.c and the others listed at the top of this document.  None of
+them registers a fourth kinstype yet, so the call above has no in-tree
+example to copy.
 
 // vim: set syntax=asciidoc:

@@ -38,19 +38,18 @@
 // kinematic functions (default=0 for err detection):
 static kparms kp; // kinematics parms (common all types)
 
-static KF kfwd0 = NULL; // 0==switchkins_type kinematics forward
-static KF kfwd1 = NULL; // 1
-static KF kfwd2 = NULL; // 2
+// indexed by switchkins_type (NULL==not provided, for err detection):
+static KS ksetups[SWITCHKINS_MAX_TYPES] = {NULL};
+static KF kfwds[SWITCHKINS_MAX_TYPES]   = {NULL};
+static KI kinvs[SWITCHKINS_MAX_TYPES]   = {NULL};
 
-static KI kinv0 = NULL; // 0==switchkins_type kinematics inverse
-static KI kinv1 = NULL; // 1
-static KI kinv2 = NULL; // 2
+// types provided, counted in rtapi_app_main() once they are all in
+static int kins_count;
+static int register_error;
 
 static int switchkins_type;
 static struct swdata {
-    hal_bool_t kinstype_is_0;
-    hal_bool_t kinstype_is_1;
-    hal_bool_t kinstype_is_2;
+    hal_bool_t kinstype_is[SWITCHKINS_MAX_TYPES];
 
     hal_real_t gui_x;
     hal_real_t gui_y;
@@ -104,15 +103,16 @@ static int gui_forward_kins(const double *joints)
     int res;
     KINEMATICS_FORWARD_FLAGS  fflags = 0;
     KINEMATICS_INVERSE_FLAGS  iflags;
-    switch (kp.gui_kinstype) {
-        case 0: res = kfwd0(joints, &lastpose[0], &fflags, &iflags);break;
-        case 1: res = kfwd1(joints, &lastpose[1], &fflags, &iflags);break;
-        case 2: res = kfwd2(joints, &lastpose[2], &fflags, &iflags);break;
-       default: rtapi_print_msg(RTAPI_MSG_ERR,
-                  "gui_forward_kins BAD gui_kinstype <%d>\n",
-                  kp.gui_kinstype);
-                  return -1;
-     }
+    if (   kp.gui_kinstype < 0
+        || kp.gui_kinstype >= kins_count
+        || !kfwds[kp.gui_kinstype]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "gui_forward_kins BAD gui_kinstype <%d>\n",
+                        kp.gui_kinstype);
+        return -1;
+    }
+    res = kfwds[kp.gui_kinstype](joints, &lastpose[kp.gui_kinstype],
+                                 &fflags, &iflags);
     hal_set_real(swdata->gui_x, lastpose[kp.gui_kinstype].tran.x);
     hal_set_real(swdata->gui_y, lastpose[kp.gui_kinstype].tran.y);
     hal_set_real(swdata->gui_z, lastpose[kp.gui_kinstype].tran.z);
@@ -128,36 +128,25 @@ int kinematicsSwitchable() {return 1;}
 int kinematicsSwitch(int new_switchkins_type)
 {
     int k;
+
+    // reject first, so a bad request leaves the running kinematics alone
+    if (new_switchkins_type < 0 || new_switchkins_type >= kins_count) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "kinematicsSwitch:BAD VALUE <%d>\n",
+                        new_switchkins_type);
+        return -1; // FAIL
+    }
+
     for (k=0; k< SWITCHKINS_MAX_TYPES; k++) { use_lastpose[k] = 0;}
 
     switchkins_type = new_switchkins_type;
-    switch (switchkins_type) {
-        case 0: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE0\n");
-                hal_set_bool(swdata->kinstype_is_0, 1);
-                hal_set_bool(swdata->kinstype_is_1, 0);
-                hal_set_bool(swdata->kinstype_is_2, 0);
-                break;
-        case 1: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE1\n");
-                hal_set_bool(swdata->kinstype_is_0, 0);
-                hal_set_bool(swdata->kinstype_is_1, 1);
-                hal_set_bool(swdata->kinstype_is_2, 0);
-                break;
-        case 2: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE2\n");
-                hal_set_bool(swdata->kinstype_is_0, 0);
-                hal_set_bool(swdata->kinstype_is_1, 0);
-                hal_set_bool(swdata->kinstype_is_2, 1);
-                break;
-       default: rtapi_print_msg(RTAPI_MSG_ERR,
-                "kinematicsSwitch:BAD VALUE <%d>\n",
-                switchkins_type);
-                hal_set_bool(swdata->kinstype_is_1, 0);
-                hal_set_bool(swdata->kinstype_is_0, 0);
-                hal_set_bool(swdata->kinstype_is_2, 0);
-                return -1; // FAIL
+
+    rtapi_print_msg(RTAPI_MSG_INFO,
+                    "kinematicsSwitch:TYPE%d\n", switchkins_type);
+    for (k=0; k < kins_count; k++) {
+        hal_set_bool(swdata->kinstype_is[k], k == switchkins_type);
     }
+
     if (fwd_iterates[switchkins_type]) {
         use_lastpose[switchkins_type] = 1; // restarting a kins types
     }
@@ -177,15 +166,15 @@ int kinematicsForward(const double *joint,
         use_lastpose[switchkins_type] = 0;
     }
 
-    switch (switchkins_type) {
-       case 0: r = kfwd0(joint, pos, fflags, iflags); break;
-       case 1: r = kfwd1(joint, pos, fflags, iflags); break;
-       case 2: r = kfwd2(joint, pos, fflags, iflags); break;
-      default: rtapi_print_msg(RTAPI_MSG_ERR,
-                    "switchkins: Forward BAD switchkins_type </%d>\n",
-                    switchkins_type);
-               return -1;
+    if (   switchkins_type < 0
+        || switchkins_type >= kins_count
+        || !kfwds[switchkins_type]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkins: Forward BAD switchkins_type </%d>\n",
+                        switchkins_type);
+        return -1;
     }
+    r = kfwds[switchkins_type](joint, pos, fflags, iflags);
     if (fwd_iterates[switchkins_type]) {save_lastpose(switchkins_type,pos);}
     if (r) return r;
 
@@ -211,15 +200,15 @@ int kinematicsInverse(const EmcPose * pos,
 {
     int r;
 
-    switch (switchkins_type) {
-       case 0: r = kinv0(pos, joint, iflags, fflags); break;
-       case 1: r = kinv1(pos, joint, iflags, fflags); break;
-       case 2: r = kinv2(pos, joint, iflags, fflags); break;
-       default: rtapi_print_msg(RTAPI_MSG_ERR,
-                     "switchkins: Inverse BAD switchkins_type </%d>\n",
-                     switchkins_type);
-               return -1;
+    if (   switchkins_type < 0
+        || switchkins_type >= kins_count
+        || !kinvs[switchkins_type]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkins: Inverse BAD switchkins_type </%d>\n",
+                        switchkins_type);
+        return -1;
     }
+    r = kinvs[switchkins_type](pos, joint, iflags, fflags);
     return r;
 } // kinematicsInverse()
 
@@ -227,6 +216,29 @@ KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
 }
+
+int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegister: BAD switchkins_type <%d>"
+                        " (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    if (ksetups[ktype] || kfwds[ktype] || kinvs[ktype]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegister: switchkins-type %d"
+                        " already provided\n", ktype);
+        register_error = 1;
+        return -1;
+    }
+    ksetups[ktype] = kset;
+    kfwds[ktype]   = kfwd;
+    kinvs[ktype]   = kinv;
+    return 0;
+} // switchkinsRegister()
 
 //*********************************************************************
 static char *coordinates;
@@ -239,6 +251,7 @@ EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(switchkinsRegister);
 MODULE_LICENSE("GPL");
 
 static int    comp_id;
@@ -259,15 +272,19 @@ int rtapi_app_main(void)
 
     kp.sparm = sparm; // module parm passed to kins
 
-    KS ksetup0 = NULL;
-    KS ksetup1 = NULL;
-    KS ksetup2 = NULL;
-
+    // may also call switchkinsRegister()
     res = switchkinsSetup(&kp,
-                          &ksetup0, &ksetup1, &ksetup2,
-                          &kfwd0,   &kfwd1,   &kfwd2,
-                          &kinv0,   &kinv1,   &kinv2);
+                          &ksetups[0], &ksetups[1], &ksetups[2],
+                          &kfwds[0],   &kfwds[1],   &kfwds[2],
+                          &kinvs[0],   &kinvs[1],   &kinvs[2]);
     if (res) {emsg="switchkinsSetp FAIL"; goto error;}
+    if (register_error) {emsg="switchkinsRegister FAIL"; goto error;}
+
+    // the highest type provided by either route sets the count
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
+        if (ksetups[i] || kfwds[i] || kinvs[i]) { kins_count = i + 1; }
+    }
+    if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
 
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
        if (kp.fwd_iterates_mask & (1<<i)) {
@@ -286,18 +303,20 @@ int rtapi_app_main(void)
     if (kp.max_joints <= 0 || kp.max_joints > EMCMOT_MAX_JOINTS) {
         emsg = "bogus max_joints"; goto error;
     }
-    if (kp.gui_kinstype >= SWITCHKINS_MAX_TYPES) {
+    if (kp.gui_kinstype >= kins_count) {
         emsg = "bogus gui_kinstype"; goto error;
     }
 
-    if (!ksetup0 || !ksetup1 || !ksetup2) {
-        emsg = "Missing setup function"; goto error;
-    }
-    if (!kfwd0 || !kfwd1 || !kfwd2) {
-        emsg = "Missing fwd functionn"; goto error;
-    }
-    if (!kinv0 || !kinv1 || !kinv2) {
-        emsg =  "Missing inv function"; goto error;
+    // a type left out below the highest one provided is a gap, not a count
+    for (i=0; i < kins_count; i++) {
+        if (ksetups[i] && kfwds[i] && kinvs[i]) { continue; }
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkins: switchkins-type %d incomplete:%s%s%s\n",
+                        i,
+                        ksetups[i] ? "" : " no setup",
+                        kfwds[i]   ? "" : " no forward",
+                        kinvs[i]   ? "" : " no inverse");
+        emsg = "incomplete switchkins-type"; goto error;
     }
 
     comp_id = hal_init(kp.kinsname);
@@ -306,9 +325,10 @@ int rtapi_app_main(void)
     swdata = hal_malloc(sizeof(struct swdata));
     if (!swdata) goto error;
 
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is_0), 0, "kinstype.is-0");
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is_1), 0, "kinstype.is-1");
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is_2), 0, "kinstype.is-2");
+    for (i=0; i < kins_count; i++) {
+        res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is[i]),
+                                0, "kinstype.is-%d", i);
+    }
 
     if (kp.gui_kinstype >=0) {
         res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_x, 0.0, "skgui.x");
@@ -325,9 +345,9 @@ int rtapi_app_main(void)
 
     if (!coordinates) {coordinates = kp.required_coordinates;}
 
-    ksetup0(comp_id,coordinates,&kp);
-    ksetup1(comp_id,coordinates,&kp);
-    ksetup2(comp_id,coordinates,&kp);
+    for (i=0; i < kins_count; i++) {
+        ksetups[i](comp_id,coordinates,&kp);
+    }
 
     hal_ready(comp_id);
     return 0;

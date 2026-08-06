@@ -17,7 +17,7 @@ $(call TOOBJSDEPS, $(TKDARMODULESRCS)) : EXTRAFLAGS = $(TCL_CFLAGS)
 $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
               ../lib/liblinuxcncini.so ../lib/libtooldata.so.0
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lepoxy
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm
 
 $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
@@ -27,10 +27,18 @@ $(TKDARMODULE): $(call TOOBJS, $(TKDARMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -lX11 $(TCL_LIBS)
 
-PYTARGETS += $(EMCMODULE) $(TOGLMODULE) $(TKDARMODULE)
+PYTARGETS += $(EMCMODULE)
+ifeq ($(BUILD_GUI),yes)
+PYTARGETS += $(TOGLMODULE) $(TKDARMODULE)
+endif
 
-PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
+ALL_PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
 	mdi.py image-to-gcode.py lintini.py debuglevel.py teach-in.py tracking-test.py
+
+PYSCRIPTS := linuxcnctop.py mdi.py lintini.py debuglevel.py tracking-test.py
+ifeq ($(BUILD_GUI),yes)
+PYSCRIPTS += axis.py axis-remote.py hal_manualtoolchange.py image-to-gcode.py teach-in.py
+endif
 PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 PYTARGETS += $(PYBIN)
 
@@ -41,6 +49,6 @@ $(PYBIN): ../bin/%: emc/usr_intf/axis/scripts/%.py
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-PYI18NSRCS += $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
+PYI18NSRCS += $(addprefix emc/usr_intf/axis/scripts/, $(ALL_PYSCRIPTS))  \
 	../lib/python/propertywindow.py \
 	../share/axis/tcl/axis.tcl

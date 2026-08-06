@@ -63,7 +63,8 @@ using namespace linuxcnc;
 // Maximum wait time in WAIT_HEARTBEAT to see real-time move along
 #define WAIT_HEARTBEAT_TIMEOUT 1.0
 
-// Maximum number of heartbeats to wait for EMC_TASK_STATE to change
+// Maximum number of heartbeats to wait for the motion controller to catch
+// up and reflect a requested state change in the status
 #define WAIT_TASK_STATE_CHANGE_MAX 25
 
 typedef enum { cmdUnknown, cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp } cmdType;
@@ -875,8 +876,23 @@ static cmdResponseType setJointWaitHomed(connectionRecType &ctx)
 		return rtError;
 	}
 	if (joint >= 0 && !emcStatus->motion.joint[joint].homing && !emcStatus->motion.joint[joint].homed) {
-		errornl(ctx, fmt::format("Joint '{}' is not homed and not in the process of homing.", joint));
-		return rtError;
+		// The motion controller needs a servo-thread run to raise the
+		// homing flag after a 'SET JOINT_HOME' was acknowledged.
+		for (unsigned toc = 0; toc < WAIT_TASK_STATE_CHANGE_MAX; toc++) {
+			updateStatus(); // Get fresh value about joint status
+			if (emcStatus->motion.joint[joint].homing || emcStatus->motion.joint[joint].homed)
+				break;
+			// Wait for the motion control to run
+			if (rtOk != doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT)) {
+				// Bad sign,... can't wait for a heartbeat
+				errornl(ctx, "Waiting for motion controller heartbeat while running 'SET JOINT_WAIT_HOMED' failed");
+				return rtError;
+			}
+		}
+		if (!emcStatus->motion.joint[joint].homing && !emcStatus->motion.joint[joint].homed) {
+			errornl(ctx, fmt::format("Joint '{}' is not homed and not in the process of homing.", joint));
+			return rtError;
+		}
 	}
 
 	double timeout = JOINT_WAIT_HOMED_TIMEOUT;
@@ -1382,6 +1398,27 @@ static cmdResponseType setJointHome(connectionRecType &ctx)
 	}
 	if (sendHome(joint))
 		return rtError;
+
+	if (joint >= 0) {
+		// The motion controller needs a servo-thread run to raise the
+		// homing flag. Wait for it so that a following command, like
+		// 'SET JOINT_WAIT_HOMED', can rely on the state being visible.
+		// Note: a homed joint may not enter the homing state again
+		// (HOME_NO_REHOME), hence the check for either state.
+		for (unsigned toc = 0; toc < WAIT_TASK_STATE_CHANGE_MAX; toc++) {
+			// Wait for the motion control to run
+			if (rtOk != doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT)) {
+				// Bad sign,... can't wait for a heartbeat
+				errornl(ctx, "Waiting for motion controller heartbeat while running 'SET JOINT_HOME' failed");
+				return rtError;
+			}
+			updateStatus();
+			if (emcStatus->motion.joint[joint].homing || emcStatus->motion.joint[joint].homed)
+				return rtOk;
+		}
+		errornl(ctx, fmt::format("Joint '{}' did not start homing", joint));
+		return rtError;
+	}
 	return rtOk;
 }
 
@@ -3043,7 +3080,7 @@ int commandGetSet(connectionRecType &ctx, cmdType getset)
 			errornl(
 				ctx,
 				fmt::format("Too few arguments to SET {}, have {}, need {} or more", tag->name, ctx.toks.size() - 2, tag->nset));
-			replynl(ctx, fmt::format("GET {} NAK", tag->name));
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
 			return -1;
 		}
 

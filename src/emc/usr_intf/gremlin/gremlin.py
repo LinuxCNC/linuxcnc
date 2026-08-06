@@ -51,10 +51,89 @@ from OpenGL.raw.GLX._types import struct__XDisplay
 from OpenGL import GL
 from ctypes import *
 
+# The 3.3-core GLX context is created and bound through libGL directly with
+# ctypes: PyOpenGL cannot resolve the glXCreateContextAttribsARB extension entry
+# point (it comes back as a null function), so we go to the driver ourselves and
+# keep make-current/swap on the same handle to avoid mixing context pointers.
+_glx = CDLL("libGL.so.1")
+_glx.glXChooseFBConfig.restype = POINTER(c_void_p)
+_glx.glXChooseFBConfig.argtypes = [c_void_p, c_int, POINTER(c_int), POINTER(c_int)]
+_glx.glXGetProcAddress.restype = c_void_p
+_glx.glXGetProcAddress.argtypes = [c_char_p]
+_glx.glXMakeCurrent.restype = c_int
+_glx.glXMakeCurrent.argtypes = [c_void_p, c_ulong, c_void_p]
+_glx.glXSwapBuffers.restype = None
+_glx.glXSwapBuffers.argtypes = [c_void_p, c_ulong]
+_glx.XSetErrorHandler.restype = c_void_p
+_glx.XSetErrorHandler.argtypes = [c_void_p]
+_glx.XSync.restype = c_int
+_glx.XSync.argtypes = [c_void_p, c_int]
+_ccaa_proc = _glx.glXGetProcAddress(b"glXCreateContextAttribsARB")
+_glXCreateContextAttribsARB = CFUNCTYPE(
+    c_void_p, c_void_p, c_void_p, c_void_p, c_int, POINTER(c_int))(
+    _ccaa_proc) if _ccaa_proc else None
+
+# A refused context request raises BadMatch/BadValue on the X connection, and
+# Xlib's default handler exits the process. Asking for 3.3 core on a driver
+# that has none is now an expected step rather than a fatal one, so the
+# attempt below installs this for its duration: swallow, and let the null
+# return value be the answer.
+_XErrorHandler = CFUNCTYPE(c_int, c_void_p, c_void_p)
+_IGNORE_X_ERROR = _XErrorHandler(lambda display, event: 0)
+
+# FBConfig / GLX_ARB_create_context(_profile) attribute tokens (stable GLX ints).
+GLX_X_RENDERABLE                 = 0x8012
+GLX_DRAWABLE_TYPE                = 0x8010
+GLX_WINDOW_BIT                   = 0x00000001
+GLX_RENDER_TYPE                  = 0x8011
+GLX_RGBA_BIT                     = 0x00000001
+GLX_RED_SIZE                     = 8
+GLX_GREEN_SIZE                   = 9
+GLX_BLUE_SIZE                    = 10
+GLX_ALPHA_SIZE                   = 11
+GLX_DEPTH_SIZE                   = 12
+GLX_DOUBLEBUFFER                 = 5
+GLX_CONTEXT_MAJOR_VERSION_ARB    = 0x2091
+GLX_CONTEXT_MINOR_VERSION_ARB    = 0x2092
+GLX_CONTEXT_PROFILE_MASK_ARB     = 0x9126
+GLX_CONTEXT_CORE_PROFILE_BIT_ARB = 0x00000001
+# GLX_EXT_create_context_es2_profile. Mesa exposes it wherever it exposes
+# GLES, which includes the Raspberry Pi's v3d - the driver that has no desktop
+# core profile at all and is the reason this second request exists.
+GLX_CONTEXT_ES_PROFILE_BIT_EXT   = 0x00000004
+# Not passed by either request below, and that is the point: this shell has
+# always asked for a plain core profile. A forward-compatible context removes
+# wide lines outright - glLineWidth(3.0) raises GL_INVALID_VALUE there even
+# where the driver reports a maximum of 255 - which is what made the Qt screens
+# draw a one-pixel backplot where this one draws three. Named so a test can
+# assert its absence rather than trusting that nobody adds it.
+GLX_CONTEXT_FLAGS_ARB            = 0x2094
+GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB = 0x00000002
+
+#: The two context requests, in the order they are tried: desktop 3.3 core
+#: first, then GLES 3.1 over the same GLX drawable for a driver with no desktop
+#: core profile at all (Mesa's v3d). Module constants rather than literals
+#: inside the creation method so what is asked for can be asserted without an X
+#: display, a window or a driver - see ``tests/gremlin-context/``.
+CORE_CONTEXT_ATTRIBS = (
+    GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+    GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+    GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+    0,
+)
+GLES_CONTEXT_ATTRIBS = (
+    GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+    GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+    GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_ES_PROFILE_BIT_EXT,
+    0,
+)
+
 try:
     import Xlib
     from Xlib.display import Display
 except ImportError:
+    # Printed, not logged: this runs at import, before anything could have
+    # configured a handler, and the process exits on the next line.
     print("missing xlib, run sudo apt install python3-xlib")
     sys.exit(-1)
 
@@ -66,6 +145,7 @@ import linuxcnc
 import gcode
 import preview_helpers
 
+import logging
 import time
 import re
 import tempfile
@@ -73,6 +153,8 @@ import shutil
 import os
 
 import _thread
+
+log = logging.getLogger(__name__)
 
 class DummyProgress:
     def nextphase(self, unused): pass
@@ -116,18 +198,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return (c_int * len(attrs))(*attrs)
 
     def __init__(self, inifile):
-    
+
         self.xwindow_id = None
 
-        self.add_attribute(GLX.GLX_RGBA, True)
-        self.add_attribute(GLX.GLX_RED_SIZE, 1)
-        self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
-        self.add_attribute(GLX.GLX_BLUE_SIZE, 1)
-        self.add_attribute(GLX.GLX_DOUBLEBUFFER, 1)
-
-        xvinfo = GLX.glXChooseVisual(self.xdisplay, self.display.get_default_screen(), self.get_attributes())
-        configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
-        self.context = GLX.glXCreateContext(self.xdisplay, xvinfo, None, True)
+        self._create_core_context()
 
         Gtk.DrawingArea.__init__(self)
         glnav.GlNavBase.__init__(self)
@@ -201,6 +275,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
+        #: Set once glXMakeCurrent has failed, so the per-frame bind reports
+        #: the failure once rather than on every expose. See _make_current.
+        self._bind_failed = False
+
         self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
         self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
         self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
@@ -210,23 +288,127 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             if self.stat.axis_mask & (1<<i) == 0: continue
             live_axis_count += 1
         self.num_joints = self.inifile.getint("KINS", "JOINTS", fallback=live_axis_count)
-        glDrawBuffer(GL_BACK)
-        glDisable(GL_CULL_FACE)
-        glLineStipple(2, 0x5555)
-        glDisable(GL_LIGHTING)
-        glClearColor(0,0,0,0)
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        # The OpenGL 3.3 core preview renderer sets all needed GL state per frame
+        # (GlCanonDraw.realize and redraw), so the legacy fixed-function init here
+        # (glLineStipple/glDisable(GL_LIGHTING)/... - removed from core profiles)
+        # is gone.
 
 
+
+    def _create_core_context(self):
+        """Create the preview's GL context: 3.3 core, else GLES 3.1.
+
+        GTK3 only hands out core contexts through GtkGLArea, so gremlin builds
+        one by hand (as it always has for the legacy context): pick an FBConfig
+        and call glXCreateContextAttribsARB for 3.3 core. The X window binding
+        (activate/swapbuffers) is unchanged.
+
+        A driver with no desktop core profile at all - Mesa's ``v3d`` on the
+        Raspberry Pi 4, whose maximum core version is 0.0 and whose
+        compatibility profile stops at 2.1 - fails that request. Its real API
+        is OpenGL ES 3.1, so that is tried next, over the same GLX drawable
+        through ``GLX_EXT_create_context_es2_profile``. The renderer is the
+        same renderer either way; only the API differs, which is what
+        ``rs274.glcanon_gl.GLCaps`` reads off the context afterwards.
+
+        Hard failure with a diagnostic naming both if neither can be made.
+        """
+        if not _glXCreateContextAttribsARB:
+            self._core_context_failed(
+                "glXCreateContextAttribsARB unavailable "
+                "(GLX_ARB_create_context missing)")
+        dpy = cast(self.xdisplay, c_void_p)
+        screen = self.display.get_default_screen()
+        fb_attribs = [
+            GLX_X_RENDERABLE,  1,
+            GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+            GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+            GLX_RED_SIZE,      8,
+            GLX_GREEN_SIZE,    8,
+            GLX_BLUE_SIZE,     8,
+            GLX_ALPHA_SIZE,    8,
+            GLX_DEPTH_SIZE,    24,
+            GLX_DOUBLEBUFFER,  1,
+            0,
+        ]
+        n = c_int()
+        fbconfigs = _glx.glXChooseFBConfig(
+            dpy, screen, (c_int * len(fb_attribs))(*fb_attribs), byref(n))
+        if not fbconfigs or n.value < 1:
+            self._core_context_failed("no suitable framebuffer configuration")
+
+        # Desktop 3.3 core first: where both are available it is what runs, so
+        # a machine that has always taken this path keeps taking it.
+        self.context = self._try_context(dpy, fbconfigs[0],
+                                         list(CORE_CONTEXT_ATTRIBS))
+        if self.context:
+            self.gl_api = "OpenGL 3.3 core"
+            return
+        self.context = self._try_context(dpy, fbconfigs[0],
+                                         list(GLES_CONTEXT_ATTRIBS))
+        if self.context:
+            self.gl_api = "OpenGL ES 3.1"
+            return
+        self._core_context_failed(
+            "neither request returned a context")
+
+    @staticmethod
+    def _try_context(dpy, fbconfig, ctx_attribs):
+        """One glXCreateContextAttribsARB attempt, or None.
+
+        A refused request is normal here - it is how the desktop and GLES
+        paths are told apart - so the X error it raises must not reach the
+        default handler, which would exit the process. The handler is swapped
+        for the duration of the call and put back afterwards.
+        """
+        previous = _glx.XSetErrorHandler(_IGNORE_X_ERROR)
+        try:
+            context = _glXCreateContextAttribsARB(
+                dpy, fbconfig, None, True,
+                (c_int * len(ctx_attribs))(*ctx_attribs))
+        except Exception:
+            context = None
+        finally:
+            _glx.XSync(dpy, False)
+            _glx.XSetErrorHandler(previous)
+        return context or None
+
+    def _core_context_failed(self, why):
+        # Written straight to stderr rather than logged: this is fatal and
+        # actionable (it names the environment variable that works around it),
+        # and it must reach the terminal whether or not anything configured
+        # logging. The SystemExit below ends the process.
+        sys.stderr.write(
+            "\nGremlin: could not create a usable OpenGL context: %s\n"
+            "The preview renderer needs either OpenGL 3.3 core or OpenGL ES\n"
+            "3.1; both were requested and both were refused. On a machine\n"
+            "without a capable GPU, force software rendering with:\n"
+            "    LIBGL_ALWAYS_SOFTWARE=1\n\n" % why)
+        raise SystemExit(1)
+
+    def _make_current(self):
+        """Bind the GL context, reporting a failure once per widget.
+
+        Both callers run per frame - activate() on every expose, reshape() on
+        every resize step - and a bind that fails once generally keeps failing,
+        so an unlatched report is tens of lines a second. Latched on the widget,
+        so a second gremlin still reports its own failure.
+        """
+        if _glx.glXMakeCurrent(cast(self.xdisplay, c_void_p),
+                               self.xwindow_id, self.context):
+            return True
+        if not self._bind_failed:
+            self._bind_failed = True
+            log.error("failed binding opengl context")
+        return False
 
     def activate(self):
         """make cairo context current for drawing"""
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
-            print("failed binding opengl context")
+        self._make_current()
         return True
 
     def swapbuffers(self):
-        GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
+        _glx.glXSwapBuffers(cast(self.xdisplay, c_void_p), self.xwindow_id)
         return
 
     def deactivate(self):
@@ -242,8 +424,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.width = event.width
         self.height = event.height
         self.xwindow_id = GdkX11.X11Window.get_xid(widget.get_window())
-        if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
-            print('failed binding opengl context')
+        self._make_current()
         glViewport(0, 0, self.width, self.height)
 
     def expose(self, widget=None, event=None):
@@ -288,8 +469,12 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         s = self.stat
         try:
             s.poll()
-        except Exception as e:
-            print(e)
+        except Exception:
+            # Not a routine failure: realize() gives up here, so the widget is
+            # left without its font base or file state. Logged with the
+            # traceback rather than swallowed at debug level.
+            log.exception("could not read machine status; "
+                          "preview left uninitialised")
             return
         self._current_file = None
 
@@ -347,10 +532,6 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         return v*lu
 
     def calculate_gcode_properties(self, canon):
-        def dist(xxx_todo_changeme, xxx_todo_changeme1):
-            (x,y,z) = xxx_todo_changeme
-            (p,q,r) = xxx_todo_changeme1
-            return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
         def from_internal_units(pos, unit=None):
             if unit is None:
                 unit = self.stat.linear_units
@@ -397,16 +578,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
                 mach = 'Imperial'
 
             mf = max_speed
-            #print canon.traverse[0]
 
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in canon.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in canon.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in canon.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in canon.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
-                canon.dwell_time
-                )
+            g0 = canon.g0_length
+            g1 = canon.g1_length
+            gt = canon.run_time(mf)
 
             props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)

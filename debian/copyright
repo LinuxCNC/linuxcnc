@@ -362,7 +362,7 @@ License: GPL-2
 
 Files: src/libnml/*
        src/libnml/linklist/*
-       src/libnml/posemath/*
+       src/libposemath/*
        src/libnml/rcs/*
        src/libnml/cms/*
        src/libnml/buffer/*

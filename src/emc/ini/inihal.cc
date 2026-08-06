@@ -172,6 +172,7 @@ int ini_hal_init(int numjoints)
     MAKE_FLOAT_PIN(traj_max_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_jerk,HAL_IN);
     MAKE_S32_PIN(traj_planner_type,HAL_IN);
+    MAKE_FLOAT_PIN(traj_scurve_peak_scale,HAL_IN);
 
     MAKE_BIT_PIN(traj_arc_blend_enable,HAL_IN);
     MAKE_BIT_PIN(traj_arc_blend_fallback_enable,HAL_IN);
@@ -192,6 +193,7 @@ int ini_hal_init_pins(int numjoints)
     INIT_PIN_R(traj_max_acceleration);
     INIT_PIN_R(traj_max_jerk);
     INIT_PIN_S(traj_planner_type);
+    INIT_PIN_R(traj_scurve_peak_scale);
 
     INIT_PIN_B(traj_arc_blend_enable);
     INIT_PIN_B(traj_arc_blend_fallback_enable);
@@ -242,6 +244,18 @@ static void copy_hal_data(const ptr_inihal_data &i, value_inihal_data &j)
 #undef FIELD
 #undef ARRAY
 } // copy_hal_data()
+
+// S-curve planner requires max jerk >= 1.0; when a HAL pin change forces
+// the planner back to trapezoidal, warn once instead of on every change.
+static void warn_planner_fallback_once(void)
+{
+    static bool warned = false;
+    if (!warned) {
+        rcs_print_error("S-curve planner (planner type 1) requires max jerk >= 1.0; "
+                        "using trapezoidal planner\n");
+        warned = true;
+    }
+}
 
 int check_ini_hal_items(int numjoints)
 {
@@ -300,6 +314,9 @@ int check_ini_hal_items(int numjoints)
         }
         // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
         if (NEW(traj_max_jerk) < 1.0) {
+            if (old_inihal_data.traj_planner_type == 1) {
+                warn_planner_fallback_once();
+            }
             if (0 != emcTrajPlannerType(0)) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
@@ -318,11 +335,22 @@ int check_ini_hal_items(int numjoints)
             planner_type = 0;
         }
         if (planner_type == 1 && NEW(traj_max_jerk) < 1.0) {
+            warn_planner_fallback_once();
             planner_type = 0;
         }
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
+            }
+        }
+    }
+
+    if (CHANGED(traj_scurve_peak_scale)) {
+        if (debug) SHOW_CHANGE(traj_scurve_peak_scale)
+        UPDATE(traj_scurve_peak_scale);
+        if (0 != emcTrajSetScurvePeakScale(NEW(traj_scurve_peak_scale))) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("check_ini_hal_items:bad return value from emcTrajSetScurvePeakScale\n");
             }
         }
     }

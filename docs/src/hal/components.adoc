@@ -157,7 +157,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/latency-plot.1.html[latency-plot] |Another way to view latency numbers ||
 | link:../man/man1/latency-test.1.html[latency-test] |Tests the realtime system latency ||
 | link:../man/man1/linuxcncmkdesktop.1.html[linuxcncmkdesktop] |Create a desktop icon for LinuxCNC ||
-| link:../man/man1/modcompile.1.html[modcompile] |Utility for compiling Modbus drivers||
+| link:../man/man1/modcompile.1.html[modcompile] |Utility for compiling Modbus drivers. Deprecated: use hm2_modbus with mesambccc instead.||
 | link:../man/man1/motion-logger.1.html[motion-logger] |Log motion commands sent from LinuxCNC ||
 | link:../man/man1/pncconf.1.html[pncconf] |Configuration wizard for Mesa cards ||
 | link:../man/man1/sim_pin.1.html[sim_pin] |GUI for displaying and setting one or more HAL inputs ||
@@ -338,6 +338,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/rosekins.9.html[rosekins] |Kinematics for a rose engine ||
 | link:../man/man9/rotatekins.9.html[rotatekins] |The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. ||
 | link:../man/man9/scarakins.9.html[scarakins] |Kinematics for SCARA-type robots. ||
+| link:../man/man9/kins.9.html[three21kins] |Analytical kinematics solver for 6-DOF arm + wrist robots. ||
 | link:../man/man9/tripodkins.9.html[tripodkins] |The joints represent the distance of the controlled point from three predefined locations (the motors), giving three degrees of freedom in position (XYZ). ||
 | link:../man/man9/userkins.9.html[userkins] |Template for user-built kinematics ||
 | link:../man/man9/xyzab_tdr_kins.9.html[xyzab_tdr_kins] |Switchable kinematics for 5 axis machine with rotary table A and B||

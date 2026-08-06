@@ -147,6 +147,7 @@ DOC_SRCS_EN := \
 	common/overleaf.adoc \
 	config/core-components.adoc \
 	config/ini-config.adoc \
+	config/mtconnect.adoc \
 	config/ini-homing.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
@@ -252,6 +253,7 @@ DOC_SRCS_EN := \
 	motion/kinematics.adoc \
 	motion/dh-parameters.adoc \
 	motion/pid-theory.adoc \
+	motion/dual-pid-example.adoc \
 	motion/tweaking-steppers.adoc \
 	motion/5-axis-kinematics.adoc \
 	motion/external-offsets.adoc \
@@ -976,7 +978,7 @@ $(DOC_FONT_DIR):
 # to rebuild on every run.  Order-only (after the |) instead; the SVGs
 # the PDF embeds are tracked via .adoc-images-stamp.
 define ASCIIDOCTOR_PDF_RULE
-$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) $$(DOC_EXTENSIONS) | svgs_made_from_dots
+$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) $$(DOC_EXTENSIONS) | svgs_made_from_dots stage-en
 	$$(ECHO) Building $$@
 	@mkdir -p $$(dir $$@)
 	@rm -f $$@ $$@.raw
@@ -1087,21 +1089,29 @@ $(DOC_OUT_HTML)/en/pdf/LinuxCNC_Manual_Pages_en.pdf: objects/LinuxCNC_Manual_Pag
 	    || (X=$$?; rm -f $@ $@.raw; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_OUT_ADOC)/en/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
+# Target a page's include:: and image: prerequisites hang off.  A page is
+# consumed by its .html; a Master document has no HTML, only the PDF that
+# pulls its chapters in, and the English ones render into objects/.  Not
+# derivable from the source path, so asciideps is told.
+EN_DEP_TARGET = $(if $(filter Master_%,$*),objects/$*.pdf,$(DOC_OUT_ADOC)/en/$*.html)
+
+depends/%.d: $(DOC_OUT_ADOC)/en/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp | stage-en
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
-	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
+	$(Q)$(DOC_SRCDIR)/asciideps $< $(EN_DEP_TARGET) > $@.tmp
 	@mv $@.tmp $@
 
 # Translated .adoc lives in $(DOC_OUT_ADOC)/<lang>/; same recipe, just a
 # different source dir so the per-language depends/<lang>/X.d targets
 # resolve.  The pattern only matches paths starting with a known language
 # tag, so the English depends/%.d above wins for non-translated entries.
+# Translated Master PDFs render beside their source, so unlike English the
+# target is the sibling .pdf.
 define TRANSLATED_DEP_RULE
-depends/$(1)/%.d: $(DOC_OUT_ADOC)/$(1)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
+depends/$(1)/%.d: $(DOC_OUT_ADOC)/$(1)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp | stage-en
 	$$(ECHO) Depending $$<
 	@mkdir -p $$(dir $$@)
-	$$(Q)$$(DOC_SRCDIR)/asciideps $$< > $$@.tmp
+	$$(Q)$$(DOC_SRCDIR)/asciideps $$< $$(if $$(filter Master_%,$$*),$(DOC_OUT_ADOC)/$(1)/$$*.pdf,$(DOC_OUT_ADOC)/$(1)/$$*.html) > $$@.tmp
 	@mv $$@.tmp $$@
 endef
 $(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_DEP_RULE,$(L))))
@@ -1190,6 +1200,11 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 # has no work to do (filter-out yields empty) so we skip the dep too.  HTML
 # image placement is no longer done here: the image_resolver rewrites HTML src
 # to the shared pool and .html-images-stamp materialises it.
+#
+# Matched anywhere on the line, like asciideps, so both see the same set.
+# Anchored at the start it missed the 39 inline refs, leaving those images
+# out of the translated PDFs that embed them from here.  Keyed on the macro
+# shape, or prose mentioning image:: is taken for a path and the copy fails.
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 ADOC_IMAGES_STAMP_DEPS := $(DOC_DIR)/.translateddocs-stamp
 endif
@@ -1197,7 +1212,7 @@ endif
 	set -e; for ADOC_FILE in $(addprefix $(DOC_OUT_ADOC)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS))); do \
 		ADOC_DIR=$$(echo $$(dirname $$ADOC_FILE) | sed s%$(DOC_OUT_ADOC)/%% ); \
 		echo Processing $$ADOC_FILE, dir $$ADOC_DIR; \
-		for IMAGE_FILE in $$(grep -E ^image:[^[:space:]] $$ADOC_FILE | sed -E "s/image:+([^[]+)\[/\nimage:\1\n/g" | grep image: | cut -d: -f2-); do \
+		for IMAGE_FILE in $$(grep -v '^[[:space:]]*//' $$ADOC_FILE | grep -oE 'image::?[^[:space:][]+\[' | sed -E 's/^image::?//; s/\[$$//'); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
 			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$ADOC_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
 			if [ ! -e $$IMAGE_PATH ] ; then \
@@ -1208,10 +1223,30 @@ endif
 			mkdir -p $(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_DIR; \
 			if [ ! -e $$TIMAGE_PATH ] ; then \
 				echo "Generating $$TIMAGE_PATH for $$ADOC_FILE"; \
-				cp -f $$IMAGE_PATH $$TIMAGE_PATH; \
+				TIMAGE_TMP=$$(mktemp $$TIMAGE_PATH.tmp.XXXXXX) && \
+				cp $$IMAGE_PATH $$TIMAGE_TMP && mv -f $$TIMAGE_TMP $$TIMAGE_PATH && \
+				chmod 644 $$TIMAGE_PATH; \
 			fi ; \
 		done; \
 	done > $@.new && mv $@.new $@
+
+# Same staging, one file at a time.  The dependency files name these images,
+# so a clean -j build reaches one before the bulk pass has written it and
+# falls through to the "Required image file" error at the end of this file.
+# Source lookup as above: the English original, else the English build tree
+# for images generated there, such as the .dot-rendered SVGs.
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+define TRANSLATED_IMAGE_RULE
+$(DOC_OUT_ADOC)/$(1)/%.$(2): | $(DOC_DIR)/.translateddocs-stamp
+	@mkdir -p $$(@D)
+	$$(Q)S=$(DOC_SRCDIR)/$$*.$(2); \
+	[ -e "$$$$S" ] || S=$(DOC_OUT_ADOC)/en/$$*.$(2); \
+	T=$$$$(mktemp "$$@.tmp.XXXXXX") && cp "$$$$S" "$$$$T" && mv -f "$$$$T" $$@ && chmod 644 $$@
+endef
+$(foreach L,$(LANGUAGES), \
+	$(foreach E,png jpg jpeg gif svg, \
+		$(eval $(call TRANSLATED_IMAGE_RULE,$(L),$(E)))))
+endif
 
 # Relative path from this html target back to $(DOC_OUT_HTML)/, used to
 # point the lcnc-overrides.css <link> in docinfo.html at the right place.
@@ -1243,7 +1278,7 @@ $(DOC_OUT_ADOC)/en/%.html: MANXREF_LINKBASE=$(shell python3 -c "print('../' * '$
 define ASCIIDOCTOR_HTML_RULE
 # Order-only dep on .adoc-images-stamp so translated images are staged before
 # the resolver probes for them at render (it also falls back to docs/src).
-$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html $$(DOC_EXTENSIONS) | .adoc-images-stamp manpages
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html $$(DOC_SRCDIR)/docinfo-header.html $$(DOC_EXTENSIONS) | .adoc-images-stamp manpages stage-en
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/image_resolver.rb \
@@ -1279,27 +1314,35 @@ endef
 # gui/panelui_handler.py) into build/adoc/en so English renders from the build
 # tree like translations: docs/src stays clean and includes resolve relatively.
 # components_gen.adoc generates straight into build/adoc/en/hal; svgs_made_from_dots
-# runs first.  find|tar avoids an rsync dependency.  The stamp lives in build/ so
-# docclean drops it and the next build re-stages.
+# runs first.
+#
+# One rule per staged file, not a bulk copy behind a stamp with the staged
+# copies hanging off it order-only.  make stats a prerequisite once per run
+# and re-stats it only if it decided to remake it, which an order-only edge
+# never triggers, so a bulk copy rewriting the staged .adoc mid-run stayed
+# invisible and editing a page took two `make` runs to reach the HTML.
 EN_STAGE_TYPES := -name '*.adoc' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.gif' -o -name '*.svg' -o -name '*.py'
 EN_STAGE_SRCS := $(shell find $(DOC_SRCDIR) \( $(EN_STAGE_TYPES) \))
-$(DOC_BUILD)/.stage-en-stamp: $(EN_STAGE_SRCS) | svgs_made_from_dots
-	@mkdir -p $(DOC_OUT_ADOC)/en
-	$(Q)dest=$$(cd $(DOC_OUT_ADOC)/en && pwd); \
-	cd $(DOC_SRCDIR) && find . \( $(EN_STAGE_TYPES) \) -print0 \
-		| tar --null -cf - -T - | (cd "$$dest" && tar -xpf -)
-	@touch $@
+EN_STAGED := $(patsubst $(DOC_SRCDIR)/%,$(DOC_OUT_ADOC)/en/%,$(EN_STAGE_SRCS))
 
-# Staged .adoc come from the stamp.  Order-only (|), like the translated rule
-# above: staging finishes before any consumer reads.  components_gen.adoc keeps
-# its own rule above.  tar -p preserves mtimes, so consumers still rebuild on
-# source change.
-$(DOC_OUT_ADOC)/en/%.adoc: | $(DOC_BUILD)/.stage-en-stamp ;
+# cp -p keeps the source mtime to the nanosecond.  tar rounded down to the
+# whole second, which could leave a staged copy a shade older than a .html
+# rendered from it in that same second and lose the edit.
+$(EN_STAGED): $(DOC_OUT_ADOC)/en/%: $(DOC_SRCDIR)/% | svgs_made_from_dots
+	@mkdir -p $(@D)
+	$(Q)cp -p $< $@
 
-# Pattern-rule outputs used only as prerequisites: mark .SECONDARY so make does
+# Stage the whole set up front, as the bulk copy did.  On demand is not
+# enough: asciidoctor resolves include:: and image: against this tree at
+# render time and asciideps recurses into it, yet few of those files are make
+# prerequisites.  Left to demand, a partial like hal/halshow.adoc never lands
+# and the page including it renders an "Unresolved directive" placeholder.
+.PHONY: stage-en
+stage-en: $(EN_STAGED)
+
+# Staged files are used only as prerequisites: mark .SECONDARY so make does
 # not delete them as intermediates mid -j build (like the .SECONDARY above).
-EN_STAGED_ADOC := $(patsubst $(DOC_SRCDIR)/%,$(DOC_OUT_ADOC)/en/%,$(filter %.adoc,$(EN_STAGE_SRCS)))
-.SECONDARY: $(EN_STAGED_ADOC)
+.SECONDARY: $(EN_STAGED)
 
 # English now renders from build/adoc/en, the same model as the translations.
 $(eval $(call ASCIIDOCTOR_HTML_RULE,en,$(DOC_OUT_ADOC)/en,$(DOC_OUT_ADOC)/en,^($(LANGUAGES_MATCH))/))
@@ -1381,7 +1424,9 @@ clean:
 endif
 
 manpages: $(GENERATED_MANPAGES)
+ifeq ($(BUILD_MANPAGES),yes)
 TARGETS += manpages
+endif
 
 # make manpages from all the asciidoc manpage-sources
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))

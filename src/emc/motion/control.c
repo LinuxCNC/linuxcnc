@@ -263,6 +263,10 @@ void emcmotController(void *arg, long period)
         switch_to_teleop_mode();
     }
 
+    /* PLANNER_SWITCH_DEFER (reversible): apply a latched PLANNER_TYPE switch once the
+     * coordinated queue has gone idle. No-op unless a switch is pending + motion idle. */
+    emcmotApplyPendingPlannerType();
+
     get_pos_cmds(period);
     compute_screw_comp();
     hal_set_bool(emcmot_hal_data->eoffset_active, axis_plan_external_offsets(servo_period, GET_MOTION_ENABLE_FLAG(), get_allhomed()));
@@ -956,8 +960,8 @@ static void set_operating_mode(void)
             // entering teleop (INPOS), remove ext offsets
             axis_sync_teleop_tp_to_carte_pos(-1, pcmd_p);
 	} else {
-	    /* not in position-- don't honor mode change */
-	    emcmotInternal->teleoperating = 0;
+	    /* not in position-- defer the mode change; the request stays
+	       pending and is honored when motion comes to rest */
 	}
     } else {
 	if (GET_MOTION_INPOS_FLAG()) {
@@ -996,8 +1000,8 @@ static void set_operating_mode(void)
 		SET_MOTION_TELEOP_FLAG(0);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		/* not in position-- don't honor mode change */
-		emcmotInternal->coordinating = 0;
+		/* not in position-- defer the mode change; the request stays
+		   pending and is honored when motion comes to rest */
 	    }
 	}
 
@@ -1016,8 +1020,8 @@ static void set_operating_mode(void)
 		SET_MOTION_TELEOP_FLAG(0);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		/* not in position-- don't honor mode change */
-		emcmotInternal->coordinating = 1;
+		/* not in position-- defer the mode change; the request stays
+		   pending and is honored when motion comes to rest */
 	    }
 	}
     }

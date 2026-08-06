@@ -353,14 +353,6 @@ int main(int argc, char* argv[]) {
                 update_motion_state();
                 break;
 
-            case EMCMOT_ENABLE_WATCHDOG:
-                log_print("ENABLE_WATCHDOG\n");
-                break;
-
-            case EMCMOT_DISABLE_WATCHDOG:
-                log_print("DISABLE_WATCHDOG\n");
-                break;
-
             case EMCMOT_JOINT_ACTIVATE:
                 log_print("JOINT_ACTIVATE joint=%d\n", c->joint);
                 break;
@@ -491,10 +483,6 @@ int main(int argc, char* argv[]) {
                 );
                 break;
 
-            case EMCMOT_SET_TELEOP_VECTOR:
-                log_print("SET_TELEOP_VECTOR\n");
-                break;
-
             case EMCMOT_CLEAR_PROBE_FLAGS:
                 log_print("CLEAR_PROBE_FLAGS\n");
                 break;
@@ -583,6 +571,10 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_SET_PLANNER_TYPE:
                 log_print("SET_PLANNER_TYPE planner_type=%d\n", c->planner_type);
+                break;
+
+            case EMCMOT_SET_SCURVE_PEAK_SCALE:
+                log_print("SET_SCURVE_PEAK_SCALE scale=%.6g\n", c->scurve_peak_scale);
                 break;
 
             case EMCMOT_SET_TERM_COND:
