@@ -302,6 +302,7 @@ The currently defined options are:
   Normally, the number of instances to create is specified in the module parameter 'count'; if
   'count_function' is specified, the value returned by the function 'int get_count(void)' is
   used instead, and the 'count' module parameter is not defined.
+  In userspace components, 'names=' is not supported with 'count_function'.
 
 * 'option rtapi_app no' - (default: yes) +
   Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are automatically defined.
