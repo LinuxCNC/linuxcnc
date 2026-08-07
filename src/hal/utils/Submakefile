@@ -27,12 +27,12 @@ TARGETS += ../tcl/hal.so
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS) -lfmt
 TARGETS += ../bin/halcmd
 
-HALRMTSRCS := hal/utils/halrmt.c
+HALRMTSRCS := hal/utils/halrmt.cc hal/utils/setps_util.c
 USERSRCS += $(HALRMTSRCS)
 
-../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/liblinuxcnchal.so.0
+../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.1
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lpthread
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lfmt
 TARGETS += ../bin/halrmt
 
 ifneq ($(GTK_VERSION),)
