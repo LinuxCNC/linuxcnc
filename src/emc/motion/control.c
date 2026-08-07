@@ -956,8 +956,8 @@ static void set_operating_mode(void)
             // entering teleop (INPOS), remove ext offsets
             axis_sync_teleop_tp_to_carte_pos(-1, pcmd_p);
 	} else {
-	    /* not in position-- don't honor mode change */
-	    emcmotInternal->teleoperating = 0;
+	    /* not in position-- defer the mode change; the request stays
+	       pending and is honored when motion comes to rest */
 	}
     } else {
 	if (GET_MOTION_INPOS_FLAG()) {
@@ -996,8 +996,8 @@ static void set_operating_mode(void)
 		SET_MOTION_TELEOP_FLAG(0);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		/* not in position-- don't honor mode change */
-		emcmotInternal->coordinating = 0;
+		/* not in position-- defer the mode change; the request stays
+		   pending and is honored when motion comes to rest */
 	    }
 	}
 
@@ -1016,8 +1016,8 @@ static void set_operating_mode(void)
 		SET_MOTION_TELEOP_FLAG(0);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		/* not in position-- don't honor mode change */
-		emcmotInternal->coordinating = 1;
+		/* not in position-- defer the mode change; the request stays
+		   pending and is honored when motion comes to rest */
 	    }
 	}
     }
