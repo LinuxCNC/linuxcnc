@@ -99,6 +99,15 @@ static void exit_on_signal(int signum) {
     exit(1);
 }
 
+/* callback for hal_list_funct(), matches a function by name */
+static int find_funct_cb(hal_query_t *q, void *arg)
+{
+    if (!strcmp((const char *)arg, q->name)) {
+        return 1;  /* positive, break the loop without error */
+    }
+    return 0;
+}
+
 /* Read just the SAMPLES value from config file before loading scope_rt */
 static int read_samples_from_config(const char *filename)
 {
@@ -199,8 +208,9 @@ int main(int argc, gchar * argv[])
 	return -1;
     }
 
-    int rv = hal_comp_by_name("scope.sample", NULL);
-    if (-ENOENT == rv) {
+    hal_query_t qf = {};
+    int rv = hal_list_funct(&qf, find_funct_cb, (void *)"scope.sample");
+    if (0 == rv) {
 	char buf[1000];
 	snprintf(buf, sizeof(buf), EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
 		num_samples);
@@ -209,12 +219,15 @@ int main(int argc, gchar * argv[])
 	    hal_exit(comp_id);
 	    exit(1);
 	}
-    } else {
+    } else if (rv > 0) {
 	/* scope_rt already loaded - we'll check if sample count matches later */
-        if(0 == rv)
-            rtapi_print_msg(RTAPI_MSG_DBG, "SCOPE: scope_rt already loaded, requested %d samples\n", num_samples);
-        else
-            rtapi_print_msg(RTAPI_MSG_DBG, "SCOPE: hal_comp_by_name() returned error %d\n", rv);
+        rtapi_print_msg(RTAPI_MSG_DBG, "SCOPE: scope_rt already loaded, requested %d samples\n", num_samples);
+    } else {
+	/* the query itself failed, we cannot tell whether scope_rt is loaded
+	   and must not try to load it again */
+        rtapi_print_msg(RTAPI_MSG_ERR, "SCOPE: ERROR: hal_list_funct() returned error %d (%s)\n", rv, hal_strerror(rv));
+        hal_exit(comp_id);
+        exit(1);
     }
     /* set up a shared memory region for the scope data */
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, sizeof(scope_shm_control_t));
