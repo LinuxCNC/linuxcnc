@@ -3080,7 +3080,7 @@ int commandGetSet(connectionRecType &ctx, cmdType getset)
 			errornl(
 				ctx,
 				fmt::format("Too few arguments to SET {}, have {}, need {} or more", tag->name, ctx.toks.size() - 2, tag->nset));
-			replynl(ctx, fmt::format("GET {} NAK", tag->name));
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
 			return -1;
 		}
 
