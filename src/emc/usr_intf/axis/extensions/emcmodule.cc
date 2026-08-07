@@ -117,7 +117,7 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject * /*k*/) {
 }
 
 //
-// PyBool linuxcnc.ini.hasvariable(string:section, string:variable)
+// PyBool linuxcnc.ini.hasvariable(string:section, string:variable [, int:num])
 //
 // Find [section]variable and return true if found. The 'section' may be an
 // empty string and the first occurrence of 'variable' in any section is
@@ -125,9 +125,9 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject * /*k*/) {
 //
 static PyObject *Ini_has_variable(pyIniFile *self, PyObject *args)
 {
-    const char *sect = "", *var;
+    const char *sect, *var;
     int num = 1;
-    if(!PyArg_ParseTuple(args, "s|si:hasvariable", &sect, &var, &num))
+    if(!PyArg_ParseTuple(args, "ss|i:hasvariable", &sect, &var, &num))
         return NULL;
 
     IniFile ini(self->inifile);
@@ -718,10 +718,12 @@ static PyMethodDef Ini_methods[] = {
         "Returns a boolean indicating whether or not the given section was found "
         "in the ini-file." },
     {"hasvariable", (PyCFunction)Ini_has_variable, METH_VARARGS,
-        "PyBool hasvariable(section, variable)\n"
+        "PyBool hasvariable(section, variable [, num])\n"
         "Returns a boolean indicating whether or not the given [section]variable "
         "was found in the ini-file. The first occurrence of the variable name will "
-        "be searched if the section name is empty." },
+        "be searched if the section name is empty. The optional num argument may "
+        "be used to test whether the num'th variable of that name exists in the "
+        "section." },
     {"getbool", (PyCFunction)Ini_get_bool, METH_VARARGS|METH_KEYWORDS,
         "PyBool|None getbool(section, variable [, num] [, fallback=])\n"
         "Returns the value of the variable converted to boolean if it was a valid "
