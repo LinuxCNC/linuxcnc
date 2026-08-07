@@ -307,7 +307,7 @@ extern int emcJointSetHomingParams(int joint, double home, double offset, double
 				  double search_vel, double latch_vel,
 				  int use_index, int encoder_does_not_reset, int ignore_limits,
 				  int is_shared, int home_sequence, int volatile_home, int locking_indexer,
-                  int absolute_encoder);
+                  int absolute_encoder, int home_dogbone);
 extern int emcJointUpdateHomingParams(int joint, double home, double offset, int sequence);
 extern int emcJointSetMaxVelocity(int joint, double vel);
 extern int emcJointSetMaxAcceleration(int joint, double acc);
