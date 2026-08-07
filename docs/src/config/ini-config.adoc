@@ -686,6 +686,7 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 * `COMM_TIMEOUT = 1.0` - Number of seconds to wait for Motion (the realtime part of the motion controller) to acknowledge receipt of messages from Task (the non-realtime part of the motion controller).
 * `HOMEMOD =` _alternate_homing_module_ [home_parms=value]
   The HOMEMOD variable is optional.  If specified, use a specified (user-built) module instead of the default (homemod).
+  The homecomp(9) component provides a buildable template for custom homing modules.
   Module parameters (home_parms) may be included if supported by the named module.
   The setting may be overridden from the command line using the -m option ($ linuxcnc -h).
 

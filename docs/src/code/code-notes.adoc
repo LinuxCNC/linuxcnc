@@ -151,6 +151,8 @@ or command line options.  Custom modules must implement all
 functions used by the default modules.  The halcompile utility
 can be used to create a custom module.
 
+The interface a homing module must implement is declared and documented function by function in `src/emc/motion/homing.h`. It comprises one-time initialization (`homing_init`), per-servo-period control (`read_homing_in_pins`, `do_homing`, `write_homing_out_pins`), command entry points (`do_home_joint`, `do_cancel_homing`, `set_unhomed`, and the homing parameter setters), status queries (`get_allhomed`, `get_homed`, `get_homing`, and friends), and a callback registration for the rotary unlock functions (`homeMotFunctions`). The `homecomp` component (`src/hal/components/homecomp.comp`) is a buildable template implementing the full interface; see the homecomp(9) man page.
+
 image::LinuxCNC-motion-controller-small.png[align="center",pdfwidth=100%]
 
 == Block diagrams and Data Flow
