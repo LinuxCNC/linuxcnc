@@ -209,6 +209,11 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             probe = QSurfaceFormat()
             probe.setVersion(3, 3)
             probe.setProfile(QSurfaceFormat.CoreProfile)
+            # Probe the same context class that will actually be used - see
+            # the DeprecatedFunctions note in __init__. A forward-compatible
+            # probe can succeed where the real format would differ, and the
+            # availability decision would then be made about something else.
+            probe.setOption(QSurfaceFormat.DeprecatedFunctions)
             ctx = QOpenGLContext()
             ctx.setFormat(probe)
             if not ctx.create():
@@ -236,6 +241,25 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if self._desktop_core_available():
             fmt.setVersion(3, 3)
             fmt.setProfile(QSurfaceFormat.CoreProfile)
+            # Ask for a core profile that is NOT forward-compatible.
+            #
+            # The option name says the opposite of what it does here: it does
+            # not reinstate deprecated functionality, it clears
+            # GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, which QSurfaceFormat
+            # otherwise sets for every 3.0+ request. The profile stays core and
+            # no fixed-function returns.
+            #
+            # It matters because a forward-compatible context removes wide
+            # lines outright: glLineWidth(3.0) raises GL_INVALID_VALUE there
+            # even on a driver reporting GL_ALIASED_LINE_WIDTH_RANGE [1, 255].
+            # The live backplot asks for width 3, so on Qt it was drawn one
+            # pixel wide where a stock master build draws three - measured in
+            # qtplasmac as trail runs of [1,1,1] against master's [3,3,1].
+            #
+            # The GLX shell never asked for forward-compatible (gremlin.py
+            # passes the core-profile bit alone), which is why the divergence
+            # was confined to the Qt screens. This makes the two agree.
+            fmt.setOption(QSurfaceFormat.DeprecatedFunctions)
         else:
             fmt.setRenderableType(QSurfaceFormat.OpenGLES)
             fmt.setVersion(3, 1)
