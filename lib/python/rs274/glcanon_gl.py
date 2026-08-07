@@ -38,6 +38,8 @@
 
 from __future__ import annotations
 
+import ctypes
+import ctypes.util
 import logging
 import os
 from contextlib import contextmanager
@@ -66,6 +68,12 @@ GLEnum = int
 #
 # It replaces GLCANON_GL_DEBUG and GLCANON_SCENE_DEBUG, which are no longer read.
 GL_DEBUG = os.environ.get("GLCANON_DEBUG", "") not in ("", "0")
+
+#: This module's logger, matching the sibling modules' ``log`` convention. Not
+#: gated on GL_DEBUG: the records it carries are warnings about a context
+#: behaving in a way that will show up as a visual defect, which is precisely
+#: what a bug report needs and what nobody thinks to switch a flag on for.
+log = logging.getLogger(__name__)
 
 # The one place the preview configures logging, and only when explicitly asked
 # to. Library code normally has no business installing handlers - and none of
@@ -379,10 +387,16 @@ def reset_active_caps(caps: GLCaps | None = None) -> None:
 
     For context loss and for tests that drive both APIs in one process. Not
     part of the drawing path.
+
+    The line-width verdict goes with them, and so does the context it was
+    reached in: leaving the latter behind would let the next
+    :func:`set_line_width` compare a fresh probe against a dead context's token
+    and discard the answer it had just made.
     """
-    global _ACTIVE_CAPS, _MAX_LINE_WIDTH
+    global _ACTIVE_CAPS, _MAX_LINE_WIDTH, _LINE_WIDTH_CONTEXT
     _ACTIVE_CAPS = caps
     _MAX_LINE_WIDTH = None
+    _LINE_WIDTH_CONTEXT = None
 
 
 _MAX_LINE_WIDTH: float | None = None
@@ -405,7 +419,22 @@ def _try_line_width(w: float) -> bool:
     GL_INVALID_VALUE - which PyOpenGL turns into an exception and/or leaves as a
     pending error. Both are absorbed here so the caller degrades gracefully and
     no stale error propagates to the next GL call.
+
+    The drains before and after the call are one pair, and neither is
+    redundant. glGetError reports the *oldest* queued error, so without the
+    drain in front, an error queued by something else is read as this call's
+    refusal - and since the verdict is cached (:func:`set_line_width`), one
+    foreign error clamps every width the preview asks for. The drain behind
+    keeps a genuine refusal here from surfacing on someone else's next call.
+
+    The foreign error need not come from Python: PyOpenGL raises on its own
+    calls and consumes the flag doing so, but ``togl.c`` and whatever
+    ``user_plot()`` resolves to draw into the same context without going
+    through it. Reproduced in the dev container on llvmpipe, a context that
+    accepts glLineWidth(3.0): one GL_INVALID_ENUM issued through libGL by
+    ctypes was enough to pin the granted width at 1.0 for the session.
     """
+    _drain_gl_error()
     try:
         glLineWidth(w)
     except Exception:
@@ -425,24 +454,133 @@ def _try_line_width(w: float) -> bool:
 #: clamp - see :func:`pending_line_expansion`.
 _REQUESTED_LINE_WIDTH: float = 1.0
 
+#: The context ``_MAX_LINE_WIDTH`` was probed in, or None for "not yet probed".
+#: The verdict describes a context, not a process - see :func:`_context_token`.
+_LINE_WIDTH_CONTEXT: int | None = None
+
+#: The (library, symbol) pairs :func:`_context_token` asks, in order. Resolved
+#: lazily on first use and then reused; ``()`` records that neither could be
+#: opened, so the lookup is not retried on every frame. Pairs rather than two
+#: lists: with a missing libEGL, a positional match would ask libGL for the EGL
+#: symbol, fail, and never reach the GLX one.
+_CONTEXT_PROBES: tuple[tuple[Any, str], ...] | None = None
+
+
+def _context_token() -> int:
+    """An opaque identity for the GL context that is current now, or 0.
+
+    The width probe's answer belongs to the context it was made in, so the
+    cache needs to notice when a different context becomes current. There is no
+    portable "current context" call, so this asks the two window-system
+    bindings the preview is ever built on - EGL (Qt on most builds, and the
+    test corpus) and GLX (``gremlin.py``, ``togl.c``) - and takes whichever
+    answers. EGL first: where both libraries are present but GLX is what is in
+    use, ``eglGetCurrentContext`` returns EGL_NO_CONTEXT and the GLX call is
+    reached.
+
+    0 means the question could not be asked - no library, no symbol, no current
+    context. The caller then behaves as it did before this was here, caching
+    process-wide, which is right for the single-context case that 0 mostly
+    means.
+    """
+    global _CONTEXT_PROBES
+    if _CONTEXT_PROBES is None:
+        probes = []
+        for name, symbol in (("EGL", "eglGetCurrentContext"),
+                             ("GL", "glXGetCurrentContext")):
+            try:
+                path = ctypes.util.find_library(name)
+                lib = ctypes.CDLL(path) if path else None
+                fn = getattr(lib, symbol) if lib else None
+            except Exception:
+                fn = None
+            if fn is not None:
+                # Without this the default int restype truncates a 64-bit
+                # handle, and two contexts can compare equal on their low
+                # 32 bits.
+                fn.restype = ctypes.c_void_p
+                probes.append((fn, symbol))
+        _CONTEXT_PROBES = tuple(probes)
+    for fn, _symbol in _CONTEXT_PROBES:
+        try:
+            handle = fn()
+        except Exception:
+            continue
+        if handle:
+            return int(handle)
+    return 0
+
 
 def set_line_width(width: float) -> None:
     """Set the line width, degrading thick lines to 1.0 where the driver only
     supports width 1.0 (core profiles guarantee no more, and GLES on Mesa's
-    v3d grants exactly 1.0). Probed once, cached.
+    v3d grants exactly 1.0). Probed once per context, cached.
 
     The requested width is remembered even when it is refused, so a buffer
     small enough to quad-expand can still honour it. The program trajectory is
     deliberately not one of those: see :meth:`ProgramArrayBuffers.draw`.
+
+    **The probe is the source of truth, not** ``GLCaps.max_line_width``.
+    Replacing it with the capability query looks like an obvious tidy-up and is
+    wrong: ``GL_ALIASED_LINE_WIDTH_RANGE`` reports 255 in exactly the
+    forward-compatible core context that rejects 3, because the range does not
+    account for context restrictions. The query would then say "granted" where
+    the driver refuses, and every part that asks for a wide line - the
+    highlight, the dwell markers, the grid - would draw at one pixel with
+    nothing left to notice it. ``GLCaps.max_line_width`` stays for describing a
+    context; it does not decide a width.
     """
-    global _MAX_LINE_WIDTH, _REQUESTED_LINE_WIDTH
+    global _MAX_LINE_WIDTH, _REQUESTED_LINE_WIDTH, _LINE_WIDTH_CONTEXT
     _REQUESTED_LINE_WIDTH = max(1.0, float(width))
+    token = _context_token()
+    # Only a *change* discards. Starting from None adopts the current context
+    # without touching the verdict, so a test that forces _MAX_LINE_WIDTH to
+    # stand in for a driver keeps the value it set.
+    if _LINE_WIDTH_CONTEXT is not None and token != _LINE_WIDTH_CONTEXT:
+        _MAX_LINE_WIDTH = None
+    _LINE_WIDTH_CONTEXT = token
     if _MAX_LINE_WIDTH is None:
         _MAX_LINE_WIDTH = 3.0 if _try_line_width(3.0) else 1.0
+        _warn_if_range_disagrees(_MAX_LINE_WIDTH)
     w = max(1.0, min(float(width), _MAX_LINE_WIDTH))
     if not _try_line_width(w) and w != 1.0:
         _MAX_LINE_WIDTH = 1.0
         _try_line_width(1.0)
+
+
+#: Contexts a width disagreement has already been reported for, so the note is
+#: made once per context rather than once per probe.
+_RANGE_DISAGREEMENT_SEEN: set[int] = set()
+
+
+def _warn_if_range_disagrees(granted: float) -> None:
+    """Record, once per context, a probe that refuses a width the reported
+    range covers.
+
+    Two different causes produce a thin line - a context that removes wide
+    lines (expected, and fixed by not asking for one), and a probe that read
+    someone else's error (a defect). From a screenshot they are the same
+    picture. This is the line that tells them apart without a debugger.
+
+    Silent when the two agree, which is every healthy session and, on a Pi's
+    ``v3d``, every honest refusal too: it reports ``[1, 1]``, so there is
+    nothing to disagree about.
+    """
+    if granted >= 3.0:
+        return
+    reported = _gl_floats(GL_ALIASED_LINE_WIDTH_RANGE, 2, (1.0, 1.0))[1]
+    if reported < 3.0:
+        return
+    token = _context_token()
+    if token in _RANGE_DISAGREEMENT_SEEN:
+        return
+    _RANGE_DISAGREEMENT_SEEN.add(token)
+    log.warning(
+        "preview: driver refused glLineWidth(3.0) though "
+        "GL_ALIASED_LINE_WIDTH_RANGE reports a maximum of %.1f; "
+        "wide lines will be drawn at %.1f. A forward-compatible context "
+        "does this by design; anything else means the width probe read an "
+        "error it did not cause.", reported, granted)
 
 
 def pending_line_expansion() -> float:

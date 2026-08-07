@@ -101,6 +101,32 @@ GLX_CONTEXT_CORE_PROFILE_BIT_ARB = 0x00000001
 # GLES, which includes the Raspberry Pi's v3d - the driver that has no desktop
 # core profile at all and is the reason this second request exists.
 GLX_CONTEXT_ES_PROFILE_BIT_EXT   = 0x00000004
+# Not passed by either request below, and that is the point: this shell has
+# always asked for a plain core profile. A forward-compatible context removes
+# wide lines outright - glLineWidth(3.0) raises GL_INVALID_VALUE there even
+# where the driver reports a maximum of 255 - which is what made the Qt screens
+# draw a one-pixel backplot where this one draws three. Named so a test can
+# assert its absence rather than trusting that nobody adds it.
+GLX_CONTEXT_FLAGS_ARB            = 0x2094
+GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB = 0x00000002
+
+#: The two context requests, in the order they are tried: desktop 3.3 core
+#: first, then GLES 3.1 over the same GLX drawable for a driver with no desktop
+#: core profile at all (Mesa's v3d). Module constants rather than literals
+#: inside the creation method so what is asked for can be asserted without an X
+#: display, a window or a driver - see ``tests/gremlin-context/``.
+CORE_CONTEXT_ATTRIBS = (
+    GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+    GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+    GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+    0,
+)
+GLES_CONTEXT_ATTRIBS = (
+    GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+    GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+    GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_ES_PROFILE_BIT_EXT,
+    0,
+)
 
 try:
     import Xlib
@@ -313,21 +339,13 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
         # Desktop 3.3 core first: where both are available it is what runs, so
         # a machine that has always taken this path keeps taking it.
-        self.context = self._try_context(dpy, fbconfigs[0], [
-            GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-            GLX_CONTEXT_MINOR_VERSION_ARB, 3,
-            GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
-            0,
-        ])
+        self.context = self._try_context(dpy, fbconfigs[0],
+                                         list(CORE_CONTEXT_ATTRIBS))
         if self.context:
             self.gl_api = "OpenGL 3.3 core"
             return
-        self.context = self._try_context(dpy, fbconfigs[0], [
-            GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-            GLX_CONTEXT_MINOR_VERSION_ARB, 1,
-            GLX_CONTEXT_PROFILE_MASK_ARB,  GLX_CONTEXT_ES_PROFILE_BIT_EXT,
-            0,
-        ])
+        self.context = self._try_context(dpy, fbconfigs[0],
+                                         list(GLES_CONTEXT_ATTRIBS))
         if self.context:
             self.gl_api = "OpenGL ES 3.1"
             return

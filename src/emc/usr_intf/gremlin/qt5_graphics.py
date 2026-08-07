@@ -177,6 +177,49 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
     def output_notify_message(self, message):
         pass
 
+
+def preview_surface_format(desktop_core):
+    """The surface the shared preview renderer (rs274.glcanon_gl) draws on.
+
+    OpenGL 3.3 core where the machine has it. Where it does not - Mesa's v3d on
+    a Raspberry Pi 4 has no desktop core profile at all - the same renderer runs
+    on OpenGL ES 3.1, so that is asked for instead. Qt cannot report whether a
+    format is obtainable before the context exists, hence ``desktop_core`` being
+    passed in rather than decided here.
+
+    **The core request is deliberately NOT forward-compatible.** The
+    ``DeprecatedFunctions`` option name says the opposite of what it does here:
+    it does not reinstate deprecated functionality, it clears
+    ``GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB``, which QSurfaceFormat otherwise
+    sets for every 3.0+ request. The profile stays core and no fixed-function
+    returns.
+
+    It matters because a forward-compatible context removes wide lines
+    outright: ``glLineWidth(3.0)`` raises GL_INVALID_VALUE there even on a
+    driver reporting ``GL_ALIASED_LINE_WIDTH_RANGE`` [1, 255]. The live backplot
+    asks for width 3, so on Qt it was drawn one pixel wide where a stock master
+    build draws three - measured in qtplasmac as trail runs of [1,1,1] against
+    master's [3,3,1]. The GLX shell never asked for forward-compatible
+    (``gremlin.py`` passes the core-profile bit alone), which is why the
+    divergence was confined to the Qt screens.
+
+    A function rather than eight lines inside ``__init__`` so the request can be
+    asserted without constructing a widget, a context or a QApplication - see
+    ``tests/gremlin-context/``. The flag is invisible in a screenshot and its
+    absence costs three pixels of trail, so "nobody noticed" is not evidence.
+    """
+    fmt = QSurfaceFormat()
+    fmt.setDepthBufferSize(24)
+    if desktop_core:
+        fmt.setVersion(3, 3)
+        fmt.setProfile(QSurfaceFormat.CoreProfile)
+        fmt.setOption(QSurfaceFormat.DeprecatedFunctions)
+    else:
+        fmt.setRenderableType(QSurfaceFormat.OpenGLES)
+        fmt.setVersion(3, 1)
+    return fmt
+
+
 ###############################
 # widget for graphics plotting
 ###############################
@@ -226,44 +269,10 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def __init__(self, parent=None):
         super(Lcnc_3dGraphics,self).__init__(parent)
-        # Request the surface the shared preview renderer (rs274.glcanon_gl)
-        # can draw on, before the widget's context is created; setFormat must
-        # precede the widget's first show.
-        #
-        # OpenGL 3.3 core where it exists. Where it does not - Mesa's v3d on a
-        # Raspberry Pi 4 has no desktop core profile at all - the same renderer
-        # runs on OpenGL ES 3.1, so that is asked for instead. Qt cannot report
-        # whether a format is obtainable before the context exists, so the
-        # choice is made from what the default (throwaway) context says the
-        # driver supports.
-        fmt = QSurfaceFormat()
-        fmt.setDepthBufferSize(24)
-        if self._desktop_core_available():
-            fmt.setVersion(3, 3)
-            fmt.setProfile(QSurfaceFormat.CoreProfile)
-            # Ask for a core profile that is NOT forward-compatible.
-            #
-            # The option name says the opposite of what it does here: it does
-            # not reinstate deprecated functionality, it clears
-            # GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, which QSurfaceFormat
-            # otherwise sets for every 3.0+ request. The profile stays core and
-            # no fixed-function returns.
-            #
-            # It matters because a forward-compatible context removes wide
-            # lines outright: glLineWidth(3.0) raises GL_INVALID_VALUE there
-            # even on a driver reporting GL_ALIASED_LINE_WIDTH_RANGE [1, 255].
-            # The live backplot asks for width 3, so on Qt it was drawn one
-            # pixel wide where a stock master build draws three - measured in
-            # qtplasmac as trail runs of [1,1,1] against master's [3,3,1].
-            #
-            # The GLX shell never asked for forward-compatible (gremlin.py
-            # passes the core-profile bit alone), which is why the divergence
-            # was confined to the Qt screens. This makes the two agree.
-            fmt.setOption(QSurfaceFormat.DeprecatedFunctions)
-        else:
-            fmt.setRenderableType(QSurfaceFormat.OpenGLES)
-            fmt.setVersion(3, 1)
-        self.setFormat(fmt)
+        # Before the widget's context is created: setFormat must precede the
+        # widget's first show. What is asked for, and why, is in
+        # preview_surface_format().
+        self.setFormat(preview_surface_format(self._desktop_core_available()))
         glnav.GlNavBase.__init__(self)
 
         def C(s):
