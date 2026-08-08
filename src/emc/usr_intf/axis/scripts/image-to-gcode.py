@@ -65,7 +65,7 @@ def make_tool_shape(f, wdia, resp):
     dia = int(wdia*res+.5)
     wrad = wdia/2.
     if dia < 2: dia = 2
-    n = numpy.array([[plus_inf] * dia] * dia, dtype=numpy.float32)
+    n = numpy.array([[plus_inf] * dia] * dia, dtype="float32")
     hdia = dia / 2.
     l = []
     for x in range(dia):
@@ -792,7 +792,7 @@ def main():
         tw, th = tool.shape
         w1 = w + 2*tw
         h1 = h + 2*th
-        nim1 = numpy.zeros((w1, h1), dtype=numpy.float32) + pixel
+        nim1 = numpy.zeros((w1, h1), dtype='float32') + pixel
         nim1[tw:tw+w, th:th+h] = nim
         nim = nim1
         w, h = w1, h1

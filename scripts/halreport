@@ -70,7 +70,7 @@ set ::HR(comps,userspace)    [list ini iocontrol halui hal_manualtoolchange \
                                    xhc-hb04 \
                                    pumagui puma560gui scaragui hexagui \
                                    5axisgui max5gui maho600gui hbmgui\
-                                   xyzac-trt-gui xyzbc-trt-gui \
+                                   ar2gui xyzac-trt-gui xyzbc-trt-gui \
                                    lineardelta rotarydelta \
                                    3axis-tutorial \
                              ]
