@@ -1200,6 +1200,14 @@ pumakins-objs += emc/kinematics/kins_util.o
 pumakins-objs += emc/kinematics/switchkins.o
 pumakins-objs += $(USERKFUNCS)
 
+obj-m += three21kins.o
+three21kins-objs := emc/kinematics/three21kins.o
+three21kins-objs += libnml/posemath/_posemath.o
+three21kins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+three21kins-objs += emc/kinematics/kins_util.o
+three21kins-objs += emc/kinematics/switchkins.o
+three21kins-objs += $(USERKFUNCS)
+
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
 5axiskins-objs += libnml/posemath/_posemath.o
@@ -1419,6 +1427,7 @@ endif
 ../rtlib/xyzbc-trt-kins$(MODULE_EXT): $(addprefix objects/rt,$(xyzbc-trt-kins-objs))
 ../rtlib/scarakins$(MODULE_EXT):      $(addprefix objects/rt,$(scarakins-objs))
 ../rtlib/pumakins$(MODULE_EXT):       $(addprefix objects/rt,$(pumakins-objs))
+../rtlib/three21kins$(MODULE_EXT):     $(addprefix objects/rt,$(three21kins-objs))
 #----------------------------------------------------------------
 
 ifeq ($(TRIVIAL_BUILD),no)

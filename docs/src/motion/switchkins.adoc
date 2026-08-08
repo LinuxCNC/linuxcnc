@@ -41,6 +41,7 @@ The following kinematics modules support switchable kinematics:
 . *genhexkins*     (type0:genhexkins     type1:identity)
 . *genserkins*     (type0:genserkins     type1:identity) (puma560 example)
 . *pumakins*       (type0:pumakins       type1:identity)
+. *three21kins*     (type0:three21kins    type1:identity)
 . *scarakins*      (type0:scarakins      type1:identity)
 . *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
 
