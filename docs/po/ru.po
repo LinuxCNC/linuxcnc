@@ -9,13 +9,15 @@
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2023.
 # Алексей Челюканов <chel469@gmail.com>, 2023.
 # Steffen Möller <steffen_moeller@gmx.de>, 2026.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-01-27 13:25+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2026-08-03 08:40+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -94,7 +96,7 @@ msgstr ""
 #: src/user/user-foreword.adoc:1 src/user/user-intro.adoc:1 README.adoc:1
 #: INSTALL.adoc:1
 msgid "en"
-msgstr "en"
+msgstr "ru"
 
 #. type: Title =
 #: src/Master_Developer.adoc:6
@@ -132001,7 +132003,7 @@ msgstr "link:../man/man1/touchy.1.html[touchy]"
 #: src/hal/components.adoc:45
 #, no-wrap
 msgid "AXIS - TOUCHY LinuxCNC Graphical User Interface"
-msgstr "AXIS — TOUCHY ГИП LinuxCNC"
+msgstr "AXIS - TOUCHY ГИП LinuxCNC"
 
 #. type: Title ====
 #: src/hal/components.adoc:48
@@ -132031,7 +132033,9 @@ msgstr "link:../man/man1/gladevcp_demo.1.html[gladevcp_demo]"
 #: src/hal/components.adoc:52
 #, no-wrap
 msgid "GladeVCP - used by sample configs to demonstrate Glade Virtual_demo"
-msgstr "GladeVCP — используется в примерах конфигураций для демонстрации Glade Virtual_demo"
+msgstr ""
+"GladeVCP - используется в примерах конфигураций для демонстрации Glade "
+"Virtual_demo"
 
 #. type: Table
 #: src/hal/components.adoc:53
@@ -132235,7 +132239,7 @@ msgstr "link:../man/man1/io.1.html[io]"
 #: src/hal/components.adoc:83
 #, no-wrap
 msgid "iocontrol - interacts with HAL or G-code in non-realtime"
-msgstr "iocontrol — взаимодействует с HAL или G-кодом не в реальном времени"
+msgstr "iocontrol - взаимодействует с HAL или G-кодом не в реальном времени"
 
 #. type: Table
 #: src/hal/components.adoc:84
@@ -132733,7 +132737,9 @@ msgstr "link:../man/man9/sserial.9.html[sserial]"
 #: src/hal/components.adoc:135
 #, no-wrap
 msgid "hostmot2 - Smart Serial LinuxCNC HAL driver for the Mesa Electronics HostMot2 Smart-Serial remote cards"
-msgstr "hostmot2 — драйвер Smart Serial LinuxCNC HAL для удаленных карт Mesa Electronics HostMot2 Smart-Serial"
+msgstr ""
+"hostmot2 - драйвер Smart Serial LinuxCNC HAL для удаленных карт Mesa "
+"Electronics HostMot2 Smart-Serial"
 
 #. type: Title ===
 #: src/hal/components.adoc:138
@@ -158027,7 +158033,7 @@ msgstr ""
 #: src/man/man1/gladevcp_demo.1.adoc:6
 msgid "gladevcp_demo - used by sample configs to deonstrate Glade Virtual_demo"
 msgstr ""
-"gladevcp_demo — используется в примерах конфигураций для демонстрации Glade "
+"gladevcp_demo - используется в примерах конфигураций для демонстрации Glade "
 "Virtual_demo"
 
 #. type: Plain text
@@ -166018,8 +166024,7 @@ msgstr ""
 #. type: Plain text
 #: src/man/man1/io.1.adoc:6
 msgid "io, iocontrol - interacts with HAL or G-code in non-realtime"
-msgstr ""
-"io, iocontrol — взаимодействует с HAL или G-кодом не в реальном времени"
+msgstr "io, iocontrol - взаимодействует с HAL или G-кодом не в реальном времени"
 
 #. type: Plain text
 #: src/man/man1/io.1.adoc:11
@@ -168820,7 +168825,7 @@ msgid ""
 "D700 E700 F700-series VFDs (others may work) This uses the COMPUTER LINK "
 "protocol _not_ MODBUS. The connection is made through the PU connector."
 msgstr ""
-"mitsub_vfd — компонент HAL, работающий не в реальном времени, для "
+"mitsub_vfd - компонент HAL, работающий не в реальном времени, для "
 "преобразователей частоты Mitsubishi A500 F500 E500 A500 D700 E700 серии F700 "
 "(другие могут работать). Он использует протокол COMPUTER LINK _not_ MODBUS. "
 "Подключение осуществляется через разъем PU."
@@ -172209,7 +172214,7 @@ msgstr "touchy(1)"
 #. type: Plain text
 #: src/man/man1/touchy.1.adoc:6
 msgid "touchy - TOUCHY LinuxCNC Graphical User Interface"
-msgstr "touchy — TOUCHY ГИП LinuxCNC"
+msgstr "touchy - TOUCHY ГИП LinuxCNC"
 
 #. type: Plain text
 #: src/man/man1/touchy.1.adoc:10
@@ -183085,7 +183090,7 @@ msgstr "encoder_ratio(9)"
 #. type: Plain text
 #: src/man/man9/encoder_ratio.9.adoc:6
 msgid "encoder_ratio - an electronic gear to synchronize two axes"
-msgstr "encoder_ratio — электронный механизм синхронизации двух осей"
+msgstr "encoder_ratio - электронный механизм синхронизации двух осей"
 
 #. type: Plain text
 #: src/man/man9/encoder_ratio.9.adoc:10
@@ -184417,7 +184422,7 @@ msgid ""
 "hm2_eth - LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO "
 "boards, with HostMot2 firmware."
 msgstr ""
-"hm2_eth — HAL драйвер LinuxCNC для плат Mesa Electronics Ethernet Anything "
+"hm2_eth - HAL драйвер LinuxCNC для плат Mesa Electronics Ethernet Anything "
 "IO с прошивкой HostMot2."
 
 #. type: Plain text
@@ -185548,8 +185553,7 @@ msgstr ""
 #: src/man/man9/hostmot2.9.adoc:6
 msgid ""
 "hostmot2 - LinuxCNC HAL driver for the Mesa Electronics HostMot2 firmware."
-msgstr ""
-"hostmot2 — HAL-драйвер LinuxCNC для прошивки Mesa Electronics HostMot2."
+msgstr "hostmot2 - HAL-драйвер LinuxCNC для прошивки Mesa Electronics HostMot2."
 
 #. type: Plain text
 #: src/man/man9/hostmot2.9.adoc:11
@@ -194905,7 +194909,7 @@ msgid ""
 "sserial - Smart Serial LinuxCNC HAL driver for the Mesa Electronics HostMot2 "
 "Smart-Serial remote cards"
 msgstr ""
-"sserial — драйвер Smart Serial LinuxCNC HAL для удаленных карт Mesa "
+"sserial - драйвер Smart Serial LinuxCNC HAL для удаленных карт Mesa "
 "Electronics HostMot2 Smart-Serial"
 
 #. type: Plain text

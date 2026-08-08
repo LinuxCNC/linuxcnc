@@ -146,17 +146,17 @@ MODULE_LICENSE("GPL");
 
 typedef struct {
     // Pins.
-    hal_s32_t				*pCount;	// Captured binary count value.
-    hal_float_t				*pPosition;	// Scaled position (floating point).
-    hal_bit_t				*pIndex;	// Current state of index.
-    hal_bit_t				*pIndexEnable;	// Setting this pin causes the count
+    hal_sint_t				pCount;	// Captured binary count value.
+    hal_real_t				pPosition;	// Scaled position (floating point).
+    hal_bool_t				pIndex;	// Current state of index.
+    hal_bool_t				pIndexEnable;	// Setting this pin causes the count
 							// to be cleared on the next index pulse.
 							// Use this feature at your own risk as the PID loop
 							// may get upset. This pin is self clearing.
-    hal_bit_t				*pReset;	// Setting this pin causes Count to be reset.
+    hal_bool_t				pReset;	// Setting this pin causes Count to be reset.
 
     // Parameters.
-    hal_float_t				scale;		// Scaling factor for position.
+    hal_real_t				scale;		// Scaling factor for position.
 
     // Private data.
     double				oldScale;	// Stored scale value.
@@ -165,44 +165,44 @@ typedef struct {
 
 typedef struct {
     // Pins.
-    hal_float_t				*pValue;	// Desired value.
+    hal_real_t				pValue;	// Desired value.
 
     // Parameters.
-    hal_float_t				offset;
-    hal_float_t				gain;
+    hal_real_t				offset;
+    hal_real_t				gain;
 } DacPinsParams;
 
 typedef struct {
     // Pins.
-    hal_float_t				*pValue;	// Converted value.
+    hal_real_t				pValue;	// Converted value.
 
     // Parameters.
-    hal_float_t				offset;
-    hal_float_t				gain;
+    hal_real_t				offset;
+    hal_real_t				gain;
 } AdcPinsParams;
 
 typedef struct {
     // Pins.
-    hal_bit_t				*pValue;
-    hal_bit_t				*pValueNot;
+    hal_bool_t				pValue;
+    hal_bool_t				pValueNot;
 } DigitalInPinsParams;
 
 typedef struct {
     // Pins.
-    hal_bit_t				*pValue;
+    hal_bool_t				pValue;
 
     // Parameters.
-    hal_bit_t				invert;
+    hal_bool_t				invert;
 } DigitalOutPinsParams;
 
 typedef struct {
     // Pins.
-    hal_bit_t				*pEstopIn;
-    hal_bit_t				*pEstopInNot;
-    hal_bit_t				*pWatchdogReset;// This pin is self clearing.
+    hal_bool_t				pEstopIn;
+    hal_bool_t				pEstopInNot;
+    hal_bool_t				pWatchdogReset;// This pin is self clearing.
 
     // Parameters.
-    hal_u32_t				watchdogControl;
+    hal_uint_t				watchdogControl;
 } MiscPinsParams;
 
 typedef struct {
@@ -213,7 +213,7 @@ typedef struct {
     int					boardID;
     int					numFpga;
     int					adcState;
-    hal_u32_t				watchdogControl;// Shadow HW register.
+    rtapi_u32				watchdogControl;// Shadow HW register.
 
     // Exported to HAL.
     EncoderPinsParams			encoder[MOTENC_NUM_ENCODER_CHANNELS];
@@ -490,40 +490,34 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
     halError = 0;
     for(channel = 0; channel < this->numFpga * MOTENC_FPGA_NUM_ENCODER_CHANNELS; channel++){
 	// Pins.
-	if((halError = hal_pin_s32_newf(HAL_OUT, &(this->encoder[channel].pCount),
-	  componentId, "motenc.%d.enc-%02d-count", boardId, channel)) != 0)
+	if((halError = hal_pin_new_si32(componentId, HAL_OUT, &(this->encoder[channel].pCount),
+	  0, "motenc.%d.enc-%02d-count", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_pin_float_newf(HAL_OUT, &(this->encoder[channel].pPosition),
-	  componentId, "motenc.%d.enc-%02d-position", boardId, channel)) != 0)
+	if((halError = hal_pin_new_real(componentId, HAL_OUT, &(this->encoder[channel].pPosition),
+	  0.0, "motenc.%d.enc-%02d-position", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_pin_bit_newf(HAL_OUT, &(this->encoder[channel].pIndex),
-	  componentId, "motenc.%d.enc-%02d-index", boardId, channel)) != 0)
+	if((halError = hal_pin_new_bool(componentId, HAL_OUT, &(this->encoder[channel].pIndex),
+	  0, "motenc.%d.enc-%02d-index", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_pin_bit_newf(HAL_IO, &(this->encoder[channel].pIndexEnable),
-	  componentId, "motenc.%d.enc-%02d-index-enable", boardId, channel)) != 0)
+	if((halError = hal_pin_new_bool(componentId, HAL_IO, &(this->encoder[channel].pIndexEnable),
+	  0, "motenc.%d.enc-%02d-index-enable", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_pin_bit_newf(HAL_IN, &(this->encoder[channel].pReset),
-	  componentId, "motenc.%d.enc-%02d-reset", boardId, channel)) != 0)
+	if((halError = hal_pin_new_bool(componentId, HAL_IN, &(this->encoder[channel].pReset),
+	  0, "motenc.%d.enc-%02d-reset", boardId, channel)) != 0)
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_float_newf(HAL_RW, &(this->encoder[channel].scale),
-	  componentId, "motenc.%d.enc-%02d-scale", boardId, channel)) != 0)
+	if((halError = hal_param_new_real(componentId, HAL_RW, &(this->encoder[channel].scale),
+	  1.0, "motenc.%d.enc-%02d-scale", boardId, channel)) != 0)
 	    break;
 
 	// Init encoder.
-	*(this->encoder[channel].pCount) = 0;
-	*(this->encoder[channel].pPosition) = 0.0;
-	*(this->encoder[channel].pIndex) = 0;
-	*(this->encoder[channel].pIndexEnable) = 0;
-	*(this->encoder[channel].pReset) = 0;
-	this->encoder[channel].scale = 1.0;
 	this->encoder[channel].oldScale = 1.0;
-	this->encoder[channel].scaleRecip = 1.0 / this->encoder[channel].scale;
+	this->encoder[channel].scaleRecip = 1.0 / hal_get_real(this->encoder[channel].scale);
     }
 
     // Export functions.
@@ -549,23 +543,18 @@ Device_ExportDacPinsParametersFunctions(Device *this, int componentId, int board
     halError = 0;
     for(channel = 0; channel < MOTENC_NUM_DAC_CHANNELS; channel++){
 	// Pins.
-	if((halError = hal_pin_float_newf(HAL_IN, &(this->dac[channel].pValue),
-	  componentId, "motenc.%d.dac-%02d-value", boardId, channel)) != 0)
+	if((halError = hal_pin_new_real(componentId, HAL_IN, &(this->dac[channel].pValue),
+	  0.0, "motenc.%d.dac-%02d-value", boardId, channel)) != 0)
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_float_newf(HAL_RW, &(this->dac[channel].offset),
-	  componentId, "motenc.%d.dac-%02d-offset", boardId, channel)) != 0)
+	if((halError = hal_param_new_real(componentId, HAL_RW, &(this->dac[channel].offset),
+	  0.0, "motenc.%d.dac-%02d-offset", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_param_float_newf(HAL_RW, &(this->dac[channel].gain),
-	  componentId, "motenc.%d.dac-%02d-gain", boardId, channel)) != 0)
+	if((halError = hal_param_new_real(componentId, HAL_RW, &(this->dac[channel].gain),
+	  1.0, "motenc.%d.dac-%02d-gain", boardId, channel)) != 0)
 	    break;
-
-	// Init DAC.
-	*(this->dac[channel].pValue) = 0.0;
-	this->dac[channel].offset = 0.0;
-	this->dac[channel].gain = 1.0;
     }
 
     // Export functions.
@@ -591,23 +580,18 @@ Device_ExportAdcPinsParametersFunctions(Device *this, int componentId, int board
     halError = 0;
     for(channel = 0; channel < MOTENC_NUM_ADC_CHANNELS; channel++){
 	// Pins.
-	if((halError = hal_pin_float_newf(HAL_OUT, &(this->adc[channel].pValue),
-	  componentId, "motenc.%d.adc-%02d-value", boardId, channel)) != 0)
+	if((halError = hal_pin_new_real(componentId, HAL_OUT, &(this->adc[channel].pValue),
+	  0.0, "motenc.%d.adc-%02d-value", boardId, channel)) != 0)
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_float_newf(HAL_RW, &(this->adc[channel].offset),
-	  componentId, "motenc.%d.adc-%02d-offset", boardId, channel)) != 0)
+	if((halError = hal_param_new_real(componentId, HAL_RW, &(this->adc[channel].offset),
+	  0.0, "motenc.%d.adc-%02d-offset", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_param_float_newf(HAL_RW, &(this->adc[channel].gain),
-	  componentId, "motenc.%d.adc-%02d-gain", boardId, channel)) != 0)
+	if((halError = hal_param_new_real(componentId, HAL_RW, &(this->adc[channel].gain),
+	  1.0, "motenc.%d.adc-%02d-gain", boardId, channel)) != 0)
 	    break;
-
-	// Init ADC.
-	*(this->adc[channel].pValue) = 0.0;
-	this->adc[channel].offset = 0.0;
-	this->adc[channel].gain = 1.0;
     }
 
     // Export functions.
@@ -633,17 +617,13 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
     halError = 0;
     for(channel = 0; channel < (this->numFpga * MOTENC_FPGA_NUM_DIGITAL_INPUTS - 4); channel++){
 	// Pins.
-	if((halError = hal_pin_bit_newf(HAL_OUT, &(this->in[channel].pValue),
-	  componentId, "motenc.%d.in-%02d", boardId, channel)) != 0)
+	if((halError = hal_pin_new_bool(componentId, HAL_OUT, &(this->in[channel].pValue),
+	  0, "motenc.%d.in-%02d", boardId, channel)) != 0)
 	    break;
 
-	if((halError = hal_pin_bit_newf(HAL_OUT, &(this->in[channel].pValueNot),
-	  componentId, "motenc.%d.in-%02d-not", boardId, channel)) != 0)
+	if((halError = hal_pin_new_bool(componentId, HAL_OUT, &(this->in[channel].pValueNot),
+	  1, "motenc.%d.in-%02d-not", boardId, channel)) != 0)
 	    break;
-
-	// Init pin.
-	*(this->in[channel].pValue) = 0;
-	*(this->in[channel].pValueNot) = 1;
     }
 
     // Export functions.
@@ -669,18 +649,14 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
     halError = 0;
     for(channel = 0; channel < this->numFpga * MOTENC_FPGA_NUM_DIGITAL_OUTPUTS; channel++){
 	// Pins.
-	if((halError = hal_pin_bit_newf(HAL_IN, &(this->out[channel].pValue),
-	  componentId, "motenc.%d.out-%02d", boardId, channel)) != 0)
+	if((halError = hal_pin_new_bool(componentId, HAL_IN, &(this->out[channel].pValue),
+	  0, "motenc.%d.out-%02d", boardId, channel)) != 0)
 	    break;
 
 	// Parameters.
-	if((halError = hal_param_bit_newf(HAL_RW, &(this->out[channel].invert),
-	  componentId, "motenc.%d.out-%02d-invert", boardId, channel)) != 0)
+	if((halError = hal_param_new_bool(componentId, HAL_RW, &(this->out[channel].invert),
+	  0, "motenc.%d.out-%02d-invert", boardId, channel)) != 0)
 	    break;
-
-	// Init pin.
-	*(this->out[channel].pValue) = 0;
-	this->out[channel].invert = 0;
     }
 
     // Export functions.
@@ -703,31 +679,23 @@ Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boar
     int					halError;
 
     // Export Pins.
-    halError = hal_pin_bit_newf(HAL_OUT, &(this->misc.pEstopIn), componentId,
+    halError = hal_pin_new_bool(componentId, HAL_OUT, &(this->misc.pEstopIn), 0,
 				"motenc.%d.estop-in", boardId);
 
     if(!halError){
-	halError = hal_pin_bit_newf(HAL_OUT, &(this->misc.pEstopInNot), componentId,
+	halError = hal_pin_new_bool(componentId, HAL_OUT, &(this->misc.pEstopInNot), 1,
 				    "motenc.%d.estop-in-not", boardId);
     }
 
     if(!halError){
-	halError = hal_pin_bit_newf(HAL_IO, &(this->misc.pWatchdogReset), componentId,
+	halError = hal_pin_new_bool(componentId, HAL_IO, &(this->misc.pWatchdogReset), 0,
 				    "motenc.%d.watchdog-reset", boardId);
     }
 
     // Export Parameters.
     if(!halError){
-	halError = hal_param_u32_newf(HAL_RW, &(this->misc.watchdogControl), componentId,
+	halError = hal_param_new_ui32(componentId, HAL_RW, &(this->misc.watchdogControl), this->watchdogControl,
 				      "motenc.%d.watchdog-control", boardId);
-    }
-
-    // Init pins.
-    if(!halError){
-	*(this->misc.pEstopIn) = 0;
-	*(this->misc.pEstopInNot) = 1;
-	*(this->misc.pWatchdogReset) = 0;
-	this->misc.watchdogControl = this->watchdogControl;
     }
 
     // Export functions.
@@ -755,7 +723,7 @@ Device_EncoderRead(void *arg, long period)
     MotencRegMap			*pCard = this->pCard;
     EncoderPinsParams			*pEncoder;
     int					i, j;
-    hal_u32_t				status;
+    rtapi_u32				status;
 
     pEncoder = &this->encoder[0];
 
@@ -769,22 +737,22 @@ Device_EncoderRead(void *arg, long period)
 	for(j = 0; j < MOTENC_FPGA_NUM_ENCODER_CHANNELS; j++, pEncoder++){
 
 	    // Check reset pin.
-	    if(*(pEncoder->pReset)){
+	    if(hal_get_bool(pEncoder->pReset)){
 		// Reset encoder.
 		pCard->fpga[i].statusControl = 1 << (MOTENC_CONTROL_ENCODER_RESET_SHFT + j);
 	    }
 
 	    // check state of hardware index pin
-	    *(pEncoder->pIndex) = (status >> (MOTENC_STATUS_INDEX_SHFT + j)) & 1;
+	    hal_set_bool(pEncoder->pIndex, (status >> (MOTENC_STATUS_INDEX_SHFT + j)) & 1);
 
 	    // check for index pulse detected
 	    if((status >> (MOTENC_STATUS_INDEX_LATCH_SHFT + j)) & 1){
 		// cancel index-enable
-		*(pEncoder->pIndexEnable) = 0;
+		hal_set_bool(pEncoder->pIndexEnable, 0);
 	    }
 
 	    // Check for index enable request from HAL
-	    if(*(pEncoder->pIndexEnable)){
+	    if(hal_get_bool(pEncoder->pIndexEnable)){
 		// tell hardware to latch on index
 		pCard->fpga[i].encoderCount[j] = 1;
 	    } else {
@@ -793,25 +761,25 @@ Device_EncoderRead(void *arg, long period)
 	    }
 
 	    // Read encoder counts.
-	    *(pEncoder->pCount) = pCard->fpga[i].encoderCount[j];
+	    hal_set_si32(pEncoder->pCount, pCard->fpga[i].encoderCount[j]);
 
 	    // Check for change in scale value.
-	    if ( pEncoder->scale != pEncoder->oldScale ) {
+	    if ( hal_get_real(pEncoder->scale) != pEncoder->oldScale ) {
 		// Get ready to detect future scale changes.
-		pEncoder->oldScale = pEncoder->scale;
+		pEncoder->oldScale = hal_get_real(pEncoder->scale);
 
 		// Validate the new scale value.
-		if ((pEncoder->scale < 1e-20) && (pEncoder->scale > -1e-20)) {
+		if ((hal_get_real(pEncoder->scale) < 1e-20) && (hal_get_real(pEncoder->scale) > -1e-20)) {
 		    // Value too small, divide by zero is a bad thing.
-		    pEncoder->scale = 1.0;
+		    hal_set_real(pEncoder->scale, 1.0);
 		}
 
 		// We will need the reciprocal.
-		pEncoder->scaleRecip = 1.0 / pEncoder->scale;
+		pEncoder->scaleRecip = 1.0 / hal_get_real(pEncoder->scale);
 	    }
 
 	    // Scale count to make floating point position.
-	    *(pEncoder->pPosition) = *(pEncoder->pCount) * pEncoder->scaleRecip;
+	    hal_set_real(pEncoder->pPosition, hal_get_si32(pEncoder->pCount) * pEncoder->scaleRecip);
 	}
     }
 }
@@ -824,8 +792,8 @@ Device_DacWrite(void *arg, long period)
     MotencRegMap			*pCard = this->pCard;
     DacPinsParams			*pDac;
     int					i;
-    hal_float_t				volts;
-    hal_u32_t				dacCount;
+    rtapi_real				volts;
+    rtapi_u32				dacCount;
 
     pDac = &this->dac[0];
 
@@ -833,7 +801,7 @@ Device_DacWrite(void *arg, long period)
     for(i = 0; i < MOTENC_NUM_DAC_CHANNELS; i++, pDac++){
 
 	// Calculate hardware register value.
-	volts = (*(pDac->pValue) - pDac->offset) * pDac->gain;
+	volts = (hal_get_real(pDac->pValue) - hal_get_real(pDac->offset)) * hal_get_real(pDac->gain);
 
 	// Truncate volts to DAC limits.
 	if(volts > MOTENC_DAC_VOLTS_MAX){
@@ -843,7 +811,7 @@ Device_DacWrite(void *arg, long period)
 	}
 
 	// Transform volts to counts.
-	dacCount = (hal_u32_t)(volts * MOTENC_DAC_SCALE_MULTIPLY /
+	dacCount = (rtapi_u32)(volts * MOTENC_DAC_SCALE_MULTIPLY /
 				MOTENC_DAC_SCALE_DIVIDE + MOTENC_DAC_COUNT_ZERO);
 
 	// Write DAC.
@@ -900,8 +868,8 @@ Device_AdcRead4(Device *this, int startChannel)
     MotencRegMap			*pCard = this->pCard;
     AdcPinsParams			*pAdc;
     int					i;
-    hal_s32_t				adcCount;
-    hal_float_t				volts;
+    rtapi_s32				adcCount;
+    rtapi_real				volts;
 
     if(pCard->fpga[0].statusControl & MOTENC_STATUS_ADC_DONE)
 	return(0);
@@ -921,10 +889,10 @@ Device_AdcRead4(Device *this, int startChannel)
 	volts = adcCount * MOTENC_ADC_SCALE_MULTIPLY / MOTENC_ADC_SCALE_DIVIDE;
 
 	// Scale and offset volts.
-	volts = volts * pAdc->gain - pAdc->offset;
+	volts = volts * hal_get_real(pAdc->gain) - hal_get_real(pAdc->offset);
 
 	// Update pin.
-	*(pAdc->pValue) = volts;
+	hal_set_real(pAdc->pValue, volts);
     }
 
     return(1);
@@ -938,7 +906,7 @@ Device_DigitalInRead(void *arg, long period)
     MotencRegMap			*pCard = this->pCard;
     DigitalInPinsParams			*pDigitalIn;
     int					i, j, n;
-    hal_u32_t				pins;
+    rtapi_u32				pins;
 
     pDigitalIn = &this->in[0];
 
@@ -952,8 +920,8 @@ Device_DigitalInRead(void *arg, long period)
 	for(j = 0; j < 16; j++, pDigitalIn++){
 
 	    // Update pins.
-	    *(pDigitalIn->pValue) = pins & 1;
-	    *(pDigitalIn->pValueNot) = !*(pDigitalIn->pValue);
+	    rtapi_bool b = hal_set_bool(pDigitalIn->pValue, pins & 1);
+	    hal_set_bool(pDigitalIn->pValueNot, !b);
 
 	    pins >>= 1;
 	}
@@ -969,8 +937,8 @@ Device_DigitalInRead(void *arg, long period)
 	for(j = 0; j < n; j++, pDigitalIn++){
 
 	    // Update pins.
-	    *(pDigitalIn->pValue) = pins & 1;
-	    *(pDigitalIn->pValueNot) = !*(pDigitalIn->pValue);
+	    rtapi_bool b = hal_set_bool(pDigitalIn->pValue, pins & 1);
+	    hal_set_bool(pDigitalIn->pValueNot, !b);
 
 	    pins >>= 1;
 	}
@@ -985,7 +953,7 @@ Device_DigitalOutWrite(void *arg, long period)
     MotencRegMap			*pCard = this->pCard;
     DigitalOutPinsParams		*pDigitalOut;
     int					i, j;
-    hal_u32_t				pins, mask;
+    rtapi_u32				pins, mask;
 
     pDigitalOut = &this->out[0];
 
@@ -999,7 +967,7 @@ Device_DigitalOutWrite(void *arg, long period)
 	for(j = 0; j < MOTENC_FPGA_NUM_DIGITAL_OUTPUTS; j++, pDigitalOut++){
 
 	    // Build hardware register value.
-	    if(*(pDigitalOut->pValue) != pDigitalOut->invert){
+	    if(hal_get_bool(pDigitalOut->pValue) != hal_get_bool(pDigitalOut->invert)){
 		pins |= mask;
 	    }
 
@@ -1020,24 +988,24 @@ Device_MiscUpdate(void *arg, long period)
     MotencRegMap			*pCard = this->pCard;
 
     // Check watchdog control parameter.
-    if(this->watchdogControl != this->misc.watchdogControl){
+    if(this->watchdogControl != hal_get_ui32(this->misc.watchdogControl)){
 	// Update shadow register.
-	this->watchdogControl = this->misc.watchdogControl;
+	this->watchdogControl = hal_get_ui32(this->misc.watchdogControl);
 
 	// Write hardware.
 	pCard->watchdogControl = this->watchdogControl;
     }
 
     // Check watchdog reset pin.
-    if(*(this->misc.pWatchdogReset)){
+    if(hal_get_bool(this->misc.pWatchdogReset)){
 	// Clear pin.
-	*(this->misc.pWatchdogReset) = 0;
+	hal_set_bool(this->misc.pWatchdogReset, 0);
 
 	// Reset the watchdog timer.
 	pCard->watchdogReset = MOTENC_WATCHDOG_RESET_VALUE;
     }
 
     // Update E-STOP pin.
-    *(this->misc.pEstopIn) = (pCard->fpga[0].statusControl & MOTENC_STATUS_ESTOP)? 1: 0;
-    *(this->misc.pEstopInNot) = !*(this->misc.pEstopIn);
+    rtapi_bool b = hal_set_bool(this->misc.pEstopIn, (pCard->fpga[0].statusControl & MOTENC_STATUS_ESTOP)? 1: 0);
+    hal_set_bool(this->misc.pEstopInNot, !b);
 }

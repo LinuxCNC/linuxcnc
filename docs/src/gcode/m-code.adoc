@@ -235,7 +235,7 @@ M19 R- Q- [P-] [$-]
 M19 is a command of modal group 7, like M3, M4 and M5.
 M19 is cleared by any of M3,M4,M5.
 
-Spindle orientation requires a quadrature encoder with an index to sense the
+Spindle orientation requires a quadrature encoder to sense the
 spindle shaft position and direction of rotation.
 
 INI Settings in the [RS274NGC] section:

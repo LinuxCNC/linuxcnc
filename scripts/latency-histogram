@@ -671,6 +671,10 @@ proc start_collection {} {
     hal addf $::LH($thd,name) t_$thd
     hal setp $::LH($thd,name).maxbinnumber $::LH($thd,maxbins)
     hal setp $::LH($thd,name).nsbinsize    $::LH($thd,binsize,ns)
+    # Acquisition bin count stays at this startup value: the "Display
+    # +/- bins" radio only zooms the chart, the streamed snapshot size
+    # must not follow it.
+    set ::LH($thd,acqbins) $::LH($thd,maxbins)
     if {!$::LH(legacy)} {
       # Comp boots with reset=1 so bins start clean. Drop reset and let
       # samples flow.
@@ -788,9 +792,14 @@ proc update_bin_data {thd} {
     set ::LH($thd,nextra) [hal getp $::LH($thd,name).nextra]
   } else {
     # Atomic snapshot via latencybinstream FIFO. Rising edge on
-    # `stream` makes RT push 2N+3 records. Wait for FIFO depth, drain
-    # via the Tcl hal_stream binding, lower trigger.
-    set need [expr {2*$N + 3}]
+    # `stream` makes RT push 2A+3 records, where A is the startup
+    # acquisition bin count (comp maxbinnumber). The display bin count
+    # N may be smaller after a "Display +/- bins" change; only the
+    # first N bins of the snapshot are shown. Wait for FIFO depth,
+    # drain via the Tcl hal_stream binding, lower trigger.
+    set A $::LH($thd,acqbins)
+    if {$N > $A} { set N $A }
+    set need [expr {2*$A + 3}]
     set h $::LH($thd,stream,h)
     hal setp $::LH($thd,name).stream 1
     # Wait until exactly `need` records are queued. Reading early can
@@ -831,16 +840,17 @@ proc update_bin_data {thd} {
     }
     set ntail [lindex $vals 0]
     set ptail [lindex $vals end]
-    # Stream order: ntail, nbin[N..1], pbin[0..N], ptail
+    # Stream order: ntail, nbin[A..1], pbin[0..A], ptail. Display uses
+    # only bins 0..N (N <= A).
     for {set k 0} {$k <= $N} {incr k} {
       lappend pxd [expr $k * $bs]
-      set v [lindex $vals [expr {$N + 1 + $k}]]
+      set v [lindex $vals [expr {$A + 1 + $k}]]
       if {$v == 1} { set v 1.1 }
       lappend pyd $v
     }
     for {set k 1} {$k <= $N} {incr k} {
       lappend nxd [expr -$k * $bs]
-      set v [lindex $vals [expr {$N - $k + 1}]]
+      set v [lindex $vals [expr {$A - $k + 1}]]
       if {$v == 1} { set v 1.1 }
       lappend nyd $v
     }

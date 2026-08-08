@@ -6,13 +6,15 @@
 # Ivan Melnyk <ivanmel.vn23@gmail.com>, 2024.
 # Максим Горпиніч <gorpinicmaksim0@gmail.com>, 2025, 2026.
 # Steffen Möller <steffen_moeller@gmx.de>, 2025.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-01-21 23:15+0000\n"
-"Last-Translator: Максим Горпиніч <gorpinicmaksim0@gmail.com>\n"
+"PO-Revision-Date: 2026-07-31 13:23+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -91,7 +93,7 @@ msgstr ""
 #: src/user/user-foreword.adoc:1 src/user/user-intro.adoc:1 README.adoc:1
 #: INSTALL.adoc:1
 msgid "en"
-msgstr "en"
+msgstr "uk"
 
 #. type: Title =
 #: src/Master_Developer.adoc:6
@@ -147184,7 +147186,9 @@ msgstr "link:../man/man1/gladevcp_demo.1.html[gladevcp_demo]"
 #: src/hal/components.adoc:52
 #, no-wrap
 msgid "GladeVCP - used by sample configs to demonstrate Glade Virtual_demo"
-msgstr "GladeVCP — використовується зразками конфігурацій для демонстрації Glade Virtual_demo"
+msgstr ""
+"GladeVCP - використовується зразками конфігурацій для демонстрації Glade "
+"Virtual_demo"
 
 #. type: Table
 #: src/hal/components.adoc:53
@@ -147310,7 +147314,7 @@ msgstr "link:../man/man1/maho600gui.1.html[maho600gui]"
 #: src/man/man1/hexagui.1.adoc:6
 #, no-wrap
 msgid "hexagui - Vismach Virtual Machine GUI"
-msgstr "hexagui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "hexagui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Table
 #: src/hal/components.adoc:69
@@ -174113,7 +174117,7 @@ msgstr "gladevcp_demo(1)"
 #: src/man/man1/gladevcp_demo.1.adoc:6
 msgid "gladevcp_demo - used by sample configs to deonstrate Glade Virtual_demo"
 msgstr ""
-"gladevcp_demo — використовується зразками конфігурацій для демонстрації "
+"gladevcp_demo - використовується зразками конфігурацій для демонстрації "
 "Glade Virtual_demo"
 
 #. type: Plain text
@@ -174434,7 +174438,7 @@ msgstr "gs2_vfd(1)"
 #: src/man/man1/gs2_vfd.1.adoc:6
 msgid "gs2_vfd - HAL non-realtime component for Automation Direct GS2 VFDs"
 msgstr ""
-"gs2_vfd — компонент HAL нереального часу для частотних перетворювачів "
+"gs2_vfd - компонент HAL нереального часу для частотних перетворювачів "
 "Automation Direct GS2"
 
 #. type: Plain text
@@ -175672,7 +175676,7 @@ msgid ""
 "hal_manualtoolchange - HAL non-realtime component to enable manual tool "
 "changes."
 msgstr ""
-"hal_manualtoolchange – компонент HAL, що не працює в режимі реального часу, "
+"hal_manualtoolchange - компонент HAL, що не працює в режимі реального часу, "
 "для ручної зміни інструментів."
 
 #. type: Plain text
@@ -177090,7 +177094,7 @@ msgstr "halcompile(1)"
 #. type: Plain text
 #: src/man/man1/halcompile.1.adoc:6
 msgid "halcompile - Build, compile and install LinuxCNC HAL components"
-msgstr "halcompile — збирає, компілює та встановлює компоненти LinuxCNC HAL"
+msgstr "halcompile - збирає, компілює та встановлює компоненти LinuxCNC HAL"
 
 #. type: delimited block _
 #: src/man/man1/halcompile.1.adoc:11
@@ -178982,7 +178986,7 @@ msgstr "halscope(1)"
 #. type: Plain text
 #: src/man/man1/halscope.1.adoc:6
 msgid "halscope - short description"
-msgstr "галоскоп - короткий опис"
+msgstr "halscope - короткий опис"
 
 #. type: Plain text
 #: src/man/man1/halscope.1.adoc:10
@@ -181457,7 +181461,7 @@ msgstr "hbmgui(1)"
 #. type: Plain text
 #: src/man/man1/hbmgui.1.adoc:6
 msgid "hbmgui - Vismach Virtual Machine GUI"
-msgstr "hbmgui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "hbmgui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Plain text
 #: src/man/man1/hbmgui.1.adoc:10
@@ -182274,7 +182278,7 @@ msgstr "hy_vfd(1)"
 #: src/man/man1/hy_vfd.1.adoc:6
 msgid "hy_vfd - HAL non-realtime component for Huanyang VFDs"
 msgstr ""
-"hy_vfd — компонент HAL, що не працює в режимі реального часу, для частотних "
+"hy_vfd - компонент HAL, що не працює в режимі реального часу, для частотних "
 "перетворювачів Huanyang"
 
 #. type: Plain text
@@ -183417,7 +183421,7 @@ msgstr "latency-histogram(1)"
 #. type: Plain text
 #: src/man/man1/latency-histogram.1.adoc:6
 msgid "latency-histogram - plot a histogram of machine latency"
-msgstr "latency-histogram — побудувати гістограму затримки машини"
+msgstr "latency-histogram - побудувати гістограму затримки машини"
 
 #. type: Plain text
 #: src/man/man1/latency-histogram.1.adoc:10
@@ -183800,7 +183804,7 @@ msgstr "linuxcnc_info(1)"
 #: src/man/man1/linuxcnc_info.1.adoc:6
 msgid ""
 "linuxcnc_info - collects information about the LinuxCNC version and the host"
-msgstr "linuxcnc_info — збирає інформацію про версію LinuxCNC та хост"
+msgstr "linuxcnc_info - збирає інформацію про версію LinuxCNC та хост"
 
 #. type: Plain text
 #: src/man/man1/linuxcnc_info.1.adoc:10
@@ -183832,7 +183836,7 @@ msgstr "linuxcnc_module_helper(1)"
 #: src/man/man1/linuxcnc_module_helper.1.adoc:6
 msgid "linuxcnc_module_helper - controls root access for system hardware"
 msgstr ""
-"linuxcnc_module_helper — контролює root-доступ для системного обладнання"
+"linuxcnc_module_helper - контролює root-доступ для системного обладнання"
 
 #. type: Plain text
 #: src/man/man1/linuxcnc_module_helper.1.adoc:10
@@ -187193,7 +187197,7 @@ msgstr "moveoff_gui(1)"
 #. type: Plain text
 #: src/man/man1/moveoff_gui.1.adoc:6
 msgid "moveoff_gui - a GUI for the moveoff component"
-msgstr "moveoff_gui — графічний інтерфейс для компонента moveoff"
+msgstr "moveoff_gui - графічний інтерфейс для компонента moveoff"
 
 #. type: Plain text
 #: src/man/man1/moveoff_gui.1.adoc:10
@@ -187812,7 +187816,7 @@ msgstr "pncconf(1)"
 #. type: Plain text
 #: src/man/man1/pncconf.1.adoc:6
 msgid "pncconf - configuration wizard for Mesa cards"
-msgstr "pncconf — майстер налаштування для карт Mesa"
+msgstr "pncconf - майстер налаштування для карт Mesa"
 
 #. type: Plain text
 #: src/man/man1/pncconf.1.adoc:10
@@ -188060,7 +188064,7 @@ msgid ""
 "qtplasmac_gcode - Python script shipping with Plasmac, a Plasma cutting "
 "system."
 msgstr ""
-"qtplasmac_gcode — скрипт Python, що постачається разом із Plasmac, системою "
+"qtplasmac_gcode - скрипт Python, що постачається разом із Plasmac, системою "
 "плазмового різання."
 
 #. type: Plain text
@@ -188090,7 +188094,7 @@ msgstr "qtvcp(1)"
 #. type: Plain text
 #: src/man/man1/qtvcp.1.adoc:6
 msgid "qtvcp - Qt-based virtual control panels"
-msgstr "qtvcp — віртуальні панелі керування на основі Qt"
+msgstr "qtvcp - віртуальні панелі керування на основі Qt"
 
 #. type: Plain text
 #: src/man/man1/qtvcp.1.adoc:10
@@ -189535,7 +189539,7 @@ msgid ""
 "shuttle - control HAL pins with the ShuttleXpress, ShuttlePRO, and "
 "ShuttlePRO2 device made by Contour Design"
 msgstr ""
-"шаттл - керування контактами HAL за допомогою пристроїв ShuttleXpress, "
+"shuttle - керування контактами HAL за допомогою пристроїв ShuttleXpress, "
 "ShuttlePRO та ShuttlePRO2 від Contour Design"
 
 #. type: Plain text
@@ -189709,7 +189713,7 @@ msgstr "sim_pin(1)"
 #: src/man/man1/sim_pin.1.adoc:6
 msgid "sim_pin - GUI for displaying and setting one or more HAL inputs"
 msgstr ""
-"sim_pin — графічний інтерфейс для відображення та налаштування одного або "
+"sim_pin - графічний інтерфейс для відображення та налаштування одного або "
 "кількох входів HAL"
 
 #. type: Plain text
@@ -189869,7 +189873,7 @@ msgstr "stepconf(1)"
 #. type: Plain text
 #: src/man/man1/stepconf.1.adoc:6
 msgid "stepconf - A configuration wizard for parallel-port based machines."
-msgstr "stepconf — майстер налаштування для машин з паралельним портом."
+msgstr "stepconf - майстер налаштування для машин з паралельним портом."
 
 #. type: Plain text
 #: src/man/man1/stepconf.1.adoc:10
@@ -190196,7 +190200,7 @@ msgstr "teach-in(1)"
 #. type: Plain text
 #: src/man/man1/teach-in.1.adoc:6
 msgid "teach-in - jog the machine to a position, and record the state"
-msgstr "навчання - перевести машину в потрібне положення та записати стан"
+msgstr "teach-in - перевести машину в потрібне положення та записати стан"
 
 #. type: Plain text
 #: src/man/man1/teach-in.1.adoc:10
@@ -190413,7 +190417,7 @@ msgid ""
 "vfdb_vfd - HAL non-realtime component for Delta VFD-B Variable Frequency "
 "Drives"
 msgstr ""
-"vfdb_vfd — компонент HAL нереального часу для частотних приводів Delta VFD-B"
+"vfdb_vfd - компонент HAL нереального часу для частотних приводів Delta VFD-B"
 
 #. type: Plain text
 #: src/man/man1/vfdb_vfd.1.adoc:10
@@ -191061,7 +191065,7 @@ msgid ""
 "vfs11_vfd - HAL non-realtime component for Toshiba-Schneider VF-S11 Variable "
 "Frequency Drives"
 msgstr ""
-"vfs11_vfd — компонент HAL нереального часу для частотних приводів Toshiba-"
+"vfs11_vfd - компонент HAL нереального часу для частотних приводів Toshiba-"
 "Schneider VF-S11"
 
 #. type: Plain text
@@ -194666,7 +194670,7 @@ msgstr "xyzac-trt-gui(1)"
 #. type: Plain text
 #: src/man/man1/xyzac-trt-gui.1.adoc:6
 msgid "xyzac-trt-gui - Vismach Virtual Machine GUI"
-msgstr "xyzac-trt-gui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "xyzac-trt-gui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Plain text
 #: src/man/man1/xyzac-trt-gui.1.adoc:11
@@ -194686,7 +194690,7 @@ msgstr "xyzbc-trt-gui(1)"
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:6
 msgid "xyzbc-trt-gui - Vismach Virtual Machine GUI"
-msgstr "xyzbc-trt-gui — графічний інтерфейс віртуальної машини Vismach"
+msgstr "xyzbc-trt-gui - графічний інтерфейс віртуальної машини Vismach"
 
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:11
@@ -199265,7 +199269,7 @@ msgstr "rtapi_atomic(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_atomic.3.adoc:6
 msgid "rtapi_atomic - subset of C11 stdatomic.h"
-msgstr "rtapi_atomic — підмножина C11 stdatomic.h"
+msgstr "rtapi_atomic - підмножина C11 stdatomic.h"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_atomic.3.adoc:17
@@ -201471,7 +201475,7 @@ msgid ""
 "rtapi_region, rtapi_request_region, rtapi_release_region - functions to "
 "manage I/O memory regions"
 msgstr ""
-"rtapi_region, rtapi_request_region, rtapi_release_region — функції для "
+"rtapi_region, rtapi_request_region, rtapi_release_region - функції для "
 "керування регіонами пам'яті вводу/виводу"
 
 #. type: delimited block -
@@ -202521,7 +202525,7 @@ msgstr "counter(9)"
 #. type: Plain text
 #: src/man/man9/counter.9.adoc:6
 msgid "counter - counts input pulses (DEPRECATED)"
-msgstr "лічильник - підраховує вхідні імпульси (ЗАСТАРІЛО)"
+msgstr "counter - підраховує вхідні імпульси (ЗАСТАРІЛО)"
 
 #. type: Plain text
 #: src/man/man9/counter.9.adoc:10
@@ -202826,7 +202830,7 @@ msgstr "Встановлює рівень фільтрації для всіх �
 #. type: Plain text
 #: src/man/man9/encoder.9.adoc:6
 msgid "encoder - software counting of quadrature encoder signals"
-msgstr "енкодер - програмний підрахунок сигналів квадратурного енкодера"
+msgstr "encoder - програмний підрахунок сигналів квадратурного енкодера"
 
 #. type: Plain text
 #: src/man/man9/encoder.9.adoc:10
@@ -203747,7 +203751,7 @@ msgid ""
 "hal_parport - Realtime HAL component to communicate with one or more pc "
 "parallel ports."
 msgstr ""
-"hal_parport — компонент HAL реального часу для зв'язку з одним або кількома "
+"hal_parport - компонент HAL реального часу для зв'язку з одним або кількома "
 "паралельними портами ПК."
 
 #. type: Plain text
@@ -204772,7 +204776,7 @@ msgid ""
 "hm2_eth - LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO "
 "boards, with HostMot2 firmware."
 msgstr ""
-"hm2_eth — драйвер LinuxCNC HAL для плат вводу-виводу Mesa Electronics "
+"hm2_eth - драйвер LinuxCNC HAL для плат вводу-виводу Mesa Electronics "
 "Ethernet Anything з прошивкою HostMot2."
 
 #. type: Plain text
@@ -205292,7 +205296,7 @@ msgid ""
 "HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 "
 "firmware."
 msgstr ""
-"hm2_rpspi – цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC "
+"hm2_rpspi - цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC "
 "HAL для плат вводу-виводу Mesa Electronics SPI Anything з прошивкою HostMot2."
 
 #. type: Plain text
@@ -205899,7 +205903,7 @@ msgid ""
 "HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 "
 "firmware."
 msgstr ""
-"hm2_spi – цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC HAL "
+"hm2_spi - цей драйвер було замінено драйвером hm2_spix. Драйвер LinuxCNC HAL "
 "для плат вводу-виводу Mesa Electronics SPI Anything з прошивкою HostMot2."
 
 #. type: Plain text
@@ -211182,8 +211186,8 @@ msgid ""
 "kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, "
 "scarakins, tripodkins, trivkins - kinematics definitions for LinuxCNC"
 msgstr ""
-"кінси, генхекскіни, генсеркіни, макскіни, пентакини, пумакіни, ротатакини, "
-"скаракіни, триподкіни, тривкіни — визначення кінематики для LinuxCNC"
+"kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, "
+"scarakins, tripodkins, trivkins - визначення кінематики для LinuxCNC"
 
 #. type: Plain text
 #: src/man/man9/kins.9.adoc:10
@@ -212870,7 +212874,8 @@ msgstr "motion(9)"
 msgid ""
 "motion, axis - accepts NML motion commands, interacts with HAL in realtime"
 msgstr ""
-"рух, вісь - приймає команди руху NML, взаємодіє з HAL у режимі реального часу"
+"motion, axis - приймає команди руху NML, взаємодіє з HAL у режимі реального "
+"часу"
 
 #. type: Plain text
 #: src/man/man9/motion.9.adoc:10
@@ -265272,7 +265277,7 @@ msgstr "Чарльз Штайнкюлер"
 #: man/man9/gearchange.9:10
 #, no-wrap
 msgid "GEARCHANGE"
-msgstr "ПЕРЕМИКАЧ ПЕРЕДАЧ"
+msgstr "GEARCHANGE"
 
 #. type: Plain text
 #: man/man9/gearchange.9:32
@@ -268445,7 +268450,7 @@ msgstr "GPL v2"
 #: man/man9/millturn.9:10
 #, no-wrap
 msgid "MILLTURN"
-msgstr "ВЕЖА МЛИНА"
+msgstr "MILLTURN"
 
 #. type: Plain text
 #: man/man9/millturn.9:32
@@ -270840,7 +270845,7 @@ msgstr "Род Вебстер"
 #: man/man9/oneshot.9:10
 #, no-wrap
 msgid "ONESHOT"
-msgstr "ОДИН ПОСТРІЛ"
+msgstr "ONESHOT"
 
 #. type: Plain text
 #: man/man9/oneshot.9:32
@@ -274977,7 +274982,7 @@ msgstr "B<demux>(9)"
 #: man/man9/serport.9:10
 #, no-wrap
 msgid "SERPORT"
-msgstr "СЕРВІСНИЙ ПОРТ"
+msgstr "SERPORT"
 
 #. type: Plain text
 #: man/man9/serport.9:32
@@ -277679,7 +277684,7 @@ msgstr "gpl версії 2 або вище"
 #: man/man9/steptest.9:10
 #, no-wrap
 msgid "STEPTEST"
-msgstr "ТЕСТ СТІПІВ"
+msgstr "STEPTEST"
 
 #. type: Plain text
 #: man/man9/steptest.9:32
@@ -278451,7 +278456,7 @@ msgstr "B<thcud>\\&.B<velocity-tol> float rw"
 #: man/man9/threadtest.9:10
 #, no-wrap
 msgid "THREADTEST"
-msgstr "ТЕСТ НИТОК"
+msgstr "THREADTEST"
 
 #. type: Plain text
 #: man/man9/threadtest.9:32
@@ -278754,7 +278759,7 @@ msgstr "Джон Торнтон, Ітаїб, Мозес Макнайт"
 #: man/man9/timedelay.9:10
 #, no-wrap
 msgid "TIMEDELAY"
-msgstr "ЗАТРИМКА ЧАСУ"
+msgstr "TIMEDELAY"
 
 #. type: Plain text
 #: man/man9/timedelay.9:32
@@ -278835,7 +278840,7 @@ msgstr ""
 #: man/man9/timedelta.9:10
 #, no-wrap
 msgid "TIMEDELTA"
-msgstr "З ЧАСУ"
+msgstr "TIMEDELTA"
 
 #. type: Plain text
 #: man/man9/timedelta.9:32
@@ -279308,7 +279313,7 @@ msgstr "B<tristate-float>\\&.I<N>\\&.B<enable> bit in"
 #: man/man9/updown.9:10
 #, no-wrap
 msgid "UPDOWN"
-msgstr "ВГОРУ ВНИЗ"
+msgstr "UPDOWN"
 
 #. type: Plain text
 #: man/man9/updown.9:32

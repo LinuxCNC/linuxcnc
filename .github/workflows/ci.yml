@@ -131,6 +131,7 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
+        .github/scripts/use-main-ubuntu-mirror.sh
         sudo apt-get -q update
         sudo apt-get --yes install cppcheck
     - name: Cppcheck
@@ -184,6 +185,10 @@ jobs:
       run: |
         set -x
         .github/scripts/build-doc.sh
+    - name: Check manpage names match filenames
+      run: scripts/manpage-name-check.py --enforce docs/build/man
+    - name: Check for derived-id section references
+      run: scripts/docs-anchor-check.py --enforce
     - name: Verify no untracked or modified files after build
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.

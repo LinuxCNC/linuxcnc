@@ -78,7 +78,7 @@ static unsigned exclude_map;
 
 static int comp_id;		/* component ID */
 static unsigned char *pins, *gpios;
-hal_bit_t **port_data;
+hal_bool_t *port_data;
 
 static void write_port(void *arg, long period);
 static void read_port(void *arg, long period);
@@ -262,8 +262,8 @@ int rtapi_app_main(void)
       }
       break;
     }
-    port_data = hal_malloc(npins * sizeof(void *));
-    if (port_data == 0) {
+    port_data = hal_malloc(npins * sizeof(*port_data));
+    if (NULL == port_data) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_PI_GPIO: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
@@ -312,13 +312,13 @@ int rtapi_app_main(void)
       pinno = pins[n];
       if (dir_map & RTAPI_BIT(n)) {
 	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_OUTP);
-	if ((retval = hal_pin_bit_newf(HAL_IN, &port_data[n],
-				       comp_id, "hal_pi_gpio.pin-%02d-out", pinno)) < 0)
+	if ((retval = hal_pin_new_bool(comp_id, HAL_IN, &port_data[n],
+				       0, "hal_pi_gpio.pin-%02d-out", pinno)) < 0)
 	  break;
       } else {
 	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_INPT);
-	if ((retval = hal_pin_bit_newf(HAL_OUT, &port_data[n],
-				       comp_id, "hal_pi_gpio.pin-%02d-in", pinno)) < 0)
+	if ((retval = hal_pin_new_bool(comp_id, HAL_OUT, &port_data[n],
+				       0, "hal_pi_gpio.pin-%02d-in", pinno)) < 0)
 	  break;
       }
     }
@@ -372,7 +372,7 @@ static void write_port(void *arg, long period)
     if (exclude_map & RTAPI_BIT(n))
       continue;
     if (dir_map & RTAPI_BIT(n)) {
-      if (*(port_data[n])) {
+      if (hal_get_bool(port_data[n])) {
 	bcm2835_gpio_set(gpios[n]);
       } else {
 	bcm2835_gpio_clr(gpios[n]);
@@ -389,6 +389,6 @@ static void read_port(void *arg, long period)
 
   for (n = 0; n < npins; n++) {
     if ((~dir_map & RTAPI_BIT(n)) && (~exclude_map & RTAPI_BIT(n)))
-      *port_data[n] = bcm2835_gpio_lev(gpios[n]);
+      hal_set_bool(port_data[n], bcm2835_gpio_lev(gpios[n]));
   }
 }

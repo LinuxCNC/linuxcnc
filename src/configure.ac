@@ -264,7 +264,7 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     CONFIG_USPACE_XENOMAI_EVL=y
     XENOMAI_EVL_CFLAGS=
     XENOMAI_EVL_LDFLAGS=-levl
-    AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai-evl])
+    AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai EVL])
   fi
 
   AC_SUBST([CONFIG_USPACE_XENOMAI_EVL])

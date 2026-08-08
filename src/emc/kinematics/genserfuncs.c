@@ -53,12 +53,12 @@
 #endif
 
 static struct haldata {
-    hal_u32_t     *max_iterations;
-    hal_u32_t     *last_iterations;
-    hal_float_t   *a[GENSER_MAX_JOINTS];
-    hal_float_t   *alpha[GENSER_MAX_JOINTS];
-    hal_float_t   *d[GENSER_MAX_JOINTS];
-    hal_s32_t     *unrotate[GENSER_MAX_JOINTS];
+    hal_uint_t max_iterations;
+    hal_uint_t last_iterations;
+    hal_real_t a[GENSER_MAX_JOINTS];
+    hal_real_t alpha[GENSER_MAX_JOINTS];
+    hal_real_t d[GENSER_MAX_JOINTS];
+    hal_sint_t unrotate[GENSER_MAX_JOINTS];
     genser_struct *kins;
     go_pose *pos; // used in various functions, we malloc it
                   // only once in genserKinematicsSetup()
@@ -66,10 +66,6 @@ static struct haldata {
 
 static int total_joints;
 double j[GENSER_MAX_JOINTS];
-
-#define A(i) (*(haldata->a[i]))
-#define ALPHA(i) (*(haldata->alpha[i]))
-#define D(i) (*(haldata->d[i]))
 
 #define KINS_PTR (haldata->kins)
 
@@ -87,9 +83,9 @@ int genser_kin_init(void) {
     /* init them all and make them revolute joints */
     /* FIXME: should allow LINEAR joints based on HAL param too */
     for (t = 0; t < GENSER_MAX_JOINTS; t++) {
-        genser->links[t].u.dh.a = A(t);
-        genser->links[t].u.dh.alpha = ALPHA(t);
-        genser->links[t].u.dh.d = D(t);
+        genser->links[t].u.dh.a = hal_get_real(haldata->a[t]);
+        genser->links[t].u.dh.alpha = hal_get_real(haldata->alpha[t]);
+        genser->links[t].u.dh.d = hal_get_real(haldata->d[t]);
         genser->links[t].u.dh.theta = 0;
         genser->links[t].type = GO_LINK_DH;
         genser->links[t].quantity = GO_QUANTITY_ANGLE;
@@ -341,8 +337,9 @@ int genserKinematicsForward(const double *joint,
         if (!GO_ROT_CLOSE(j[i],joint[i])) changed = 1;
         // convert to radians to pass to genser_kin_fwd
         jcopy[i] = joint[i] * PM_PI / 180;
-        if ((i) && *(haldata->unrotate[i]))
-            jcopy[i] -= *(haldata->unrotate[i])*jcopy[i-1];
+        rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[i]);
+        if ((i) && unrotate)
+            jcopy[i] -= unrotate * jcopy[i-1];
     }
 
     if (changed) {
@@ -473,9 +470,9 @@ int genserKinematicsInverse(const EmcPose * world,
     }
 
     for (genser->iterations = 0;
-         genser->iterations < *haldata->max_iterations;
+         genser->iterations < hal_get_ui32(haldata->max_iterations);
          genser->iterations++) {
-         *(haldata->last_iterations) = genser->iterations;
+         hal_set_ui32(haldata->last_iterations, genser->iterations);
         /* update the Jacobians */
         for (link = 0; link < genser->link_num; link++) {
             go_link_joint_set(&genser->links[link], jest[link], &linkout[link]);
@@ -557,8 +554,9 @@ int genserKinematicsInverse(const EmcPose * world,
             for (link = 0; link < genser->link_num; link++) {
                 // convert from radians back to angles
                 joints[link] = jest[link] * 180 / PM_PI;
-                if ((link) && *(haldata->unrotate[link]))
-                    joints[link] += *(haldata->unrotate[link]) * joints[link-1];
+                rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[link]);
+                if ((link) && unrotate)
+                    joints[link] += unrotate * joints[link-1];
             }
             //rtapi_print("DONEkineInverse(joints: %f %f %f %f %f %f), (iterations=%d)\n",
             //     joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
@@ -591,14 +589,25 @@ int genser_kin_inv_iterations(genser_struct * genser)
 int genser_kin_inv_set_max_iterations(int i)
 {
     if (i <= 0) return GO_RESULT_ERROR;
-    *haldata->max_iterations = i;
+    hal_set_ui32(haldata->max_iterations, i);
     return GO_RESULT_OK;
 }
 
 int genser_kin_inv_get_max_iterations()
 {
-    return *haldata->max_iterations;
+    return hal_get_ui32(haldata->max_iterations);
 }
+
+static const rtapi_real init_a[GENSER_MAX_JOINTS] = {
+    DEFAULT_A1, DEFAULT_A2, DEFAULT_A3, DEFAULT_A4, DEFAULT_A5, DEFAULT_A6
+};
+static const rtapi_real init_alpha[GENSER_MAX_JOINTS] = {
+    DEFAULT_ALPHA1, DEFAULT_ALPHA2, DEFAULT_ALPHA3, DEFAULT_ALPHA4, DEFAULT_ALPHA5, DEFAULT_ALPHA6
+};
+static const rtapi_real init_d[GENSER_MAX_JOINTS] = {
+    DEFAULT_D1, DEFAULT_D2, DEFAULT_D3, DEFAULT_D4, DEFAULT_D5, DEFAULT_D6
+};
+
 
 int genserKinematicsSetup(const int comp_id,
                     const char* coordinates,
@@ -613,52 +622,27 @@ int genserKinematicsSetup(const int comp_id,
     total_joints = kp->max_joints;
 
     // only the first 6 joints have A,ALPHA,D,unrotate pins
-    for (i = 0; i < 6; i++) {
-        res += hal_pin_float_newf(HAL_IN, &(haldata->a[i]), comp_id,
-               "%s.A-%d", kp->halprefix, i);
-        *(haldata->a[i])=0;
-        res += hal_pin_float_newf(HAL_IN, &(haldata->alpha[i]), comp_id,
-               "%s.ALPHA-%d", kp->halprefix, i);
-        *(haldata->alpha[i])=0;
-        res += hal_pin_float_newf(HAL_IN, &(haldata->d[i]), comp_id,
-               "%s.D-%d", kp->halprefix, i);
-        *(haldata->d[i])=0;
-        res += hal_pin_s32_newf(HAL_IN, &(haldata->unrotate[i]), comp_id,
-              "%s.unrotate-%d", kp->halprefix, i);
-        *haldata->unrotate[i]=0;
+    for (i = 0; i < GENSER_MAX_JOINTS; i++) {
+        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a[i]),
+                                init_a[i], "%s.A-%d", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->alpha[i]),
+                                init_alpha[i], "%s.ALPHA-%d", kp->halprefix, i);
+        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d[i]),
+                                init_d[i], "%s.D-%d", kp->halprefix, i);
+        res += hal_pin_new_si32(comp_id, HAL_IN, &(haldata->unrotate[i]),
+                                0, "%s.unrotate-%d", kp->halprefix, i);
     }
-    res += hal_pin_u32_newf(HAL_OUT, &(haldata->last_iterations), comp_id,
-          "%s.last-iterations",kp->halprefix);
+    res += hal_pin_new_ui32(comp_id, HAL_OUT, &(haldata->last_iterations),
+                            0, "%s.last-iterations",kp->halprefix);
 
     KINS_PTR = hal_malloc(sizeof(genser_struct));
     haldata->pos = (go_pose *) hal_malloc(sizeof(go_pose));
     if (KINS_PTR     == NULL) {goto error;}
     if (haldata->pos == NULL) {goto error;}
-    res += hal_pin_u32_newf(HAL_IN, &haldata->max_iterations, comp_id,
-          "%s.max-iterations",kp->halprefix);
+    res += hal_pin_new_ui32(comp_id, HAL_IN, &haldata->max_iterations,
+                            GENSER_DEFAULT_MAX_ITERATIONS, "%s.max-iterations",kp->halprefix);
 
     if (res) {goto error;}
-
-    *haldata->max_iterations = GENSER_DEFAULT_MAX_ITERATIONS;
-
-    A(0) = DEFAULT_A1;
-    A(1) = DEFAULT_A2;
-    A(2) = DEFAULT_A3;
-    A(3) = DEFAULT_A4;
-    A(4) = DEFAULT_A5;
-    A(5) = DEFAULT_A6;
-    ALPHA(0) = DEFAULT_ALPHA1;
-    ALPHA(1) = DEFAULT_ALPHA2;
-    ALPHA(2) = DEFAULT_ALPHA3;
-    ALPHA(3) = DEFAULT_ALPHA4;
-    ALPHA(4) = DEFAULT_ALPHA5;
-    ALPHA(5) = DEFAULT_ALPHA6;
-    D(0) = DEFAULT_D1;
-    D(1) = DEFAULT_D2;
-    D(2) = DEFAULT_D3;
-    D(3) = DEFAULT_D4;
-    D(4) = DEFAULT_D5;
-    D(5) = DEFAULT_D6;
 
     genser_hal_inited = 1;
     return 0;

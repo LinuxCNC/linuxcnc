@@ -50,30 +50,30 @@ Each gear has individual control of speeds, acceleration, driver gain and direct
 
 see_also "*motion*(9)";
 
-pin in unsigned select-gear
+pin in ui32 select-gear
 """Select a gear. Must be in the range 0 -> number of available gears -1. If you use this, do not use the select.x input pins.""";
 
-pin in float commanded-speed "Commanded spindle speed (in RPM)";
-pin in float actual-speed """Actual spindle speed from a spindle encoder (in RPS).
+pin in real commanded-speed "Commanded spindle speed (in RPM)";
+pin in real actual-speed """Actual spindle speed from a spindle encoder (in RPS).
 If you do not have a spindle encoder set the simulate_encoder parameter to 1.""";
-pin in bit simulate-encoder "If you do not have an encoder, set this to 1.";
-pin in bit enable "If FALSE, the spindle is stopped at the gear's maximum deceleration.";
-pin in float spindle-lpf """Smooth the spindle-rpm-abs output when at speed, 0 = disabled.
+pin in bool simulate-encoder "If you do not have an encoder, set this to 1.";
+pin in bool enable "If FALSE, the spindle is stopped at the gear's maximum deceleration.";
+pin in real spindle-lpf """Smooth the spindle-rpm-abs output when at speed, 0 = disabled.
 Suitable values are probably between 1 and 20 depending on how stable your spindle is.""";
 
-pin out float spindle-rpm """Current spindle speed in RPM.+ve = forward, -ve = reverse.
+pin out real spindle-rpm """Current spindle speed in RPM.+ve = forward, -ve = reverse.
 Uses the encoder input if available. If not, uses a simulated encoder speed.""";
 
-pin out float spindle-rpm-abs "Absolute spindle speed in RPM. Useful for spindle speed displays.";
-pin out float output "Scaled output";
-pin out unsigned current-gear "Currently selected gear.";
+pin out real spindle-rpm-abs "Absolute spindle speed in RPM. Useful for spindle speed displays.";
+pin out real output "Scaled output";
+pin out ui32 current-gear "Currently selected gear.";
 
-pin out bit at-speed "TRUE when the spindle is at speed";
-pin out bit forward "TRUE for forward rotation";
-pin out bit reverse "TRUE for reverse rotation. Both forward and reverse are false when the spindle is stopped.";
-pin out bit brake "TRUE when decelerating";
-pin out bit zero-speed "TRUE when the spindle is stationary";
-pin out bit limited """TRUE when the commanded spindle speed is >max or <min.""";
+pin out bool at-speed "TRUE when the spindle is at speed";
+pin out bool forward "TRUE for forward rotation";
+pin out bool reverse "TRUE for reverse rotation. Both forward and reverse are false when the spindle is stopped.";
+pin out bool brake "TRUE when decelerating";
+pin out bool zero-speed "TRUE when the spindle is stationary";
+pin out bool limited """TRUE when the commanded spindle speed is >max or <min.""";
 
 notes """
 The following pins are created depending the 'numgears=' parameter.
@@ -146,21 +146,21 @@ FUNCTION(_) {
 
     gear_t * thisgear = gears;
     if(select_gear != 0){
-        current_gear = select_gear;
-        if(current_gear > 15) current_gear = 15;
+        current_gear_set(select_gear);
+        if(current_gear > 15) current_gear_set(15);
         thisgear = &gears[current_gear];
     }else{
-        current_gear = 0;
+        current_gear_set(0);
         for(ct = ngears-1; ct >= 0; ct--){
             thisgear = &gears[ct];
-            if(*(thisgear->select)){
-                current_gear = ct;
+            if(hal_get_bool(thisgear->select)){
+                current_gear_set(ct);
                 break;
             }
         }
     }
     if(!simulate_encoder){
-        spindle_rpm = actual_speed * 60; /*RPS to RPM*/
+        spindle_rpm_set(actual_speed * 60); /*RPS to RPM*/
     }
     curspeed = spindle_rpm;
     if(enable){
@@ -174,21 +174,21 @@ FUNCTION(_) {
     }else{
         tmp = -curspeed;
     }
-    zero_speed = (tmp <= *(thisgear->zero_tolerance));
+    zero_speed_set((tmp <= hal_get_real(thisgear->zero_tolerance)));
     if(spindle_lpf >0 && at_speed){
-        spindle_rpm_abs += (tmp - spindle_rpm_abs) * spindle_lpf * fperiod;
+        spindle_rpm_abs_set(spindle_rpm_abs + (tmp - spindle_rpm_abs) * spindle_lpf * fperiod);
     }else{
-        spindle_rpm_abs = tmp;
+        spindle_rpm_abs_set(tmp);
     }
 
     reversing = (cmdspeed > 0 && curspeed < 0) || (cmdspeed < 0 && curspeed > 0);
 
     diff = cmdspeed - curspeed;
     if(diff <0) diff = -diff;
-    tmp = *(thisgear->speed_tolerance);
-    at_speed = (tmp >0 && tmp >= diff) && !reversing;
+    tmp = hal_get_real(thisgear->speed_tolerance);
+    at_speed_set((tmp >0 && tmp >= diff) && !reversing);
 
-    tmp = *(thisgear->min);
+    tmp = hal_get_real(thisgear->min);
     if(tmp > 0){
         if(cmdspeed > 0){
             if(cmdspeed < tmp){
@@ -202,7 +202,7 @@ FUNCTION(_) {
             }
         }
     }
-    tmp = *(thisgear->max);
+    tmp = hal_get_real(thisgear->max);
     if(tmp > 0){
         if(cmdspeed > 0 && cmdspeed > tmp){
             cmdspeed = tmp;
@@ -220,7 +220,7 @@ FUNCTION(_) {
     if(curspeed > 0 && diff < -curspeed) diff = -curspeed;
     if(curspeed < 0 && diff > -curspeed) diff = -curspeed;
 
-    tmp = *(thisgear->accel);
+    tmp = hal_get_real(thisgear->accel);
     if(tmp > 0 && !reversing){
         if(simulate_encoder) tmp *= fperiod;
         if(cmdspeed > 0 && diff > tmp){
@@ -231,7 +231,7 @@ FUNCTION(_) {
         }
     }
 
-    tmp = *(thisgear->decel);
+    tmp = hal_get_real(thisgear->decel);
     if(tmp > 0){
         if(simulate_encoder) tmp *= fperiod;
         if(reversing){
@@ -250,19 +250,19 @@ FUNCTION(_) {
     }
 
     if(simulate_encoder){
-        spindle_rpm = curspeed;
+        spindle_rpm_set(curspeed);
     }
 
     if(cmdspeed !=0){
-        forward = (curspeed >0);
-        reverse = (curspeed <0);
+        forward_set(curspeed > 0);
+        reverse_set(curspeed < 0);
     }else{ /* don't try to move once stopped */
-        forward = (curspeed >0) && forward;
-        reverse = (curspeed <0) && forward;
+        forward_set((curspeed > 0) && forward);
+        reverse_set((curspeed < 0) && forward);
     }
     if(curspeed < 0) curspeed = -curspeed;
-    output = (curspeed + (*(thisgear->offset))) * (*(thisgear->scale));
-    limited = limit;
+    output_set((curspeed + (hal_get_real(thisgear->offset))) * (hal_get_real(thisgear->scale)));
+    limited_set(limit);
 }
 
 EXTRA_SETUP(){
@@ -278,7 +278,7 @@ EXTRA_SETUP(){
         if(r != 0) return r;
     }
     if(ngears ==1){
-        *(gears[0].select) = true;
+        hal_set_bool(gears[0].select, true);
     }
     return(0);
 }
@@ -286,49 +286,40 @@ EXTRA_SETUP(){
 int add_gear(int index, char *prefix, gear_t * g)
 {
     int r;
-    r = hal_pin_float_newf(HAL_IN, &(g->scale), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->scale), 1.0,
         "%s.scale.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->min), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->min), 0.0,
         "%s.min.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->max), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->max), 0.0,
         "%s.max.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->accel), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->accel), 0.0,
         "%s.accel.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->decel), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->decel), 0.0,
         "%s.decel.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->speed_tolerance), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->speed_tolerance), 20.0,
         "%s.speed-tolerance.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->zero_tolerance), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->zero_tolerance), 20.0,
         "%s.zero-tolerance.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_float_newf(HAL_IN, &(g->offset), comp_id,
+    r = hal_pin_new_real(comp_id, HAL_IN, &(g->offset), 0.0,
         "%s.offset.%i", prefix,index);
     if(r != 0) return r;
 
-    r = hal_pin_bit_newf(HAL_IN, &(g->select), comp_id,
+    r = hal_pin_new_bool(comp_id, HAL_IN, &(g->select), false,
         "%s.select.%i", prefix,index);
     if(r != 0) return r;
-    *g->scale = 1;
-    *g->min = 0;
-    *g->max = 0;
-    *g->accel = 0;
-    *g->decel = 0;
-    *g->speed_tolerance = 20;
-    *g->zero_tolerance = 20;
-    *g->offset = 0;
-    *g->select = false;
     return(0);
 }

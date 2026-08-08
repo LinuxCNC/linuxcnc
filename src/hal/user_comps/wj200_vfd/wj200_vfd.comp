@@ -1,20 +1,20 @@
 component wj200_vfd "Hitachi wj200 modbus driver";
-param rw unsigned mbslaveaddr     "Modbus slave address";
-param rw float frequency_scale = 1 "RPM / frequency, default 1";
-pin in float commanded_frequency  "Frequency of vfd (scaled to RPM)";
-pin out float motor_frequency     "Motor's actual frequency (scaled to RPM)";
-pin out bit motor_reverse         "1 when actually turning in reverse";
-pin in bit reverse                "1 when reverse 0 when forward";
-pin in bit run                    "run the vfd";
-pin in bit enable                 "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
-pin out bit is_running            "1 when running";
-pin out bit is_at_speed           "1 when running at assigned frequency";
-pin out bit is_stopped            "1 when stopped";
-pin out bit is_ready              "1 when vfd is ready to run";
-pin out bit is_alarm              "1 when vfd alarm is set";
-pin out float motor_current       "Output current in amps";
-pin out float heatsink_temp       "Temperature of drive heatsink";
-pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
+param rw ui32 mbslaveaddr         "Modbus slave address";
+param rw real frequency_scale = 1 "RPM / frequency, default 1";
+pin in  real commanded_frequency  "Frequency of vfd (scaled to RPM)";
+pin out real motor_frequency      "Motor's actual frequency (scaled to RPM)";
+pin out bool motor_reverse        "1 when actually turning in reverse";
+pin in  bool reverse              "1 when reverse 0 when forward";
+pin in  bool run                  "run the vfd";
+pin in  bool enable               "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
+pin out bool is_running           "1 when running";
+pin out bool is_at_speed          "1 when running at assigned frequency";
+pin out bool is_stopped           "1 when stopped";
+pin out bool is_ready             "1 when vfd is ready to run";
+pin out bool is_alarm             "1 when vfd alarm is set";
+pin out real motor_current        "Output current in amps";
+pin out real heatsink_temp        "Temperature of drive heatsink";
+pin out bool watchdog_out         "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
 option userspace yes;
 option userinit yes;
 license "GPLv2 or greater";
@@ -339,21 +339,21 @@ void user_mainloop(void) {
             continue;
         }
 
-		is_running = status.running;
-		is_ready = status.ready;
-		is_alarm = status.alarm;
-		is_stopped = status.stopped;
-		motor_frequency = status.actual_frequency * frequency_scale;
-		motor_reverse = status.output_rotation == 2;
+		is_running_set(status.running);
+		is_ready_set(status.ready);
+		is_alarm_set(status.alarm);
+		is_stopped_set(status.stopped);
+		motor_frequency_set(status.actual_frequency * frequency_scale);
+		motor_reverse_set(status.output_rotation == 2);
 
 		/* The WJ200 has a "bug" in that is_at_speed is set
 		even if it's running in the wrong direction, which is
 		not what we want.  Check that here.  */
 		if (reverse == motor_reverse)
-		  is_at_speed = (status.frequency == 0
+		  is_at_speed_set(status.frequency == 0
 		  	      ? status.stopped : status.at_speed);
 		else
-		  is_at_speed = 0;
+		  is_at_speed_set(0);
 
 		if(!status.alarm && !enable && !wj200_trip(ctx)) {
 			print_modbus_error(__comp_inst, "failed to trip");
@@ -382,9 +382,9 @@ void user_mainloop(void) {
 				continue;
 			}
 
-			watchdog_out = !watchdog_out;
-			motor_current = status.output_current / 100;
-			heatsink_temp = status.sink_temp / 10;
+			watchdog_out_set(!watchdog_out);
+			motor_current_set(status.output_current / 100);
+			heatsink_temp_set(status.sink_temp / 10);
 		}
 	}
 	}

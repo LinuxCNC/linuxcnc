@@ -69,28 +69,28 @@ license "GPLv2 or greater";
 option singleton yes;
 
 // Input Pins
-pin in bit torch_up "Connect to an input pin";
-pin in bit torch_down "Connect to input pin";
-pin in float current_vel "Connect to motion.current-vel";
-pin in float requested_vel "Connect to motion.requested-vel";
-pin in bit torch_on "Connect to spindle.N.on";
-pin in bit arc_ok "Arc Ok from Plasma Torch";
-pin in bit enable "Enable the THC, if not enabled Z position is passed through";
-pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
+pin in bool torch_up "Connect to an input pin";
+pin in bool torch_down "Connect to input pin";
+pin in real current_vel "Connect to motion.current-vel";
+pin in real requested_vel "Connect to motion.requested-vel";
+pin in bool torch_on "Connect to spindle.N.on";
+pin in bool arc_ok "Arc Ok from Plasma Torch";
+pin in bool enable "Enable the THC, if not enabled Z position is passed through";
+pin in real z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
 
 // Output Pins
-pin out float z_pos_out "Z Motor Position Command Out";
-pin out float z_fb_out "Z Position Feedback to Axis";
-pin out float cur_offset "The Current Offset";
-pin out bit vel_status "When the THC thinks we are at requested speed";
-pin out bit removing_offset "Pin for testing";
-pin in float correction_vel "The Velocity to move Z to correct";
+pin out real z_pos_out "Z Motor Position Command Out";
+pin out real z_fb_out "Z Position Feedback to Axis";
+pin out real cur_offset "The Current Offset";
+pin out bool vel_status "When the THC thinks we are at requested speed";
+pin out bool removing_offset "Pin for testing";
+pin in  real correction_vel "The Velocity to move Z to correct";
 
 // Parameters
-param rw float velocity_tol "The deviation percent from planned velocity";
+param rw real velocity_tol "The deviation percent from planned velocity";
 
 // Global Variables
-variable float last_z_in;
+variable rtapi_real last_z_in;
 
 option period no;
 function _;
@@ -101,46 +101,46 @@ function _;
 
 FUNCTION(_) {
     if(enable){
-        float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
-        if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
-        else {vel_status =0;}
+        rtapi_real min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
+        if(current_vel > 0 && current_vel >= min_velocity){vel_status_set(1);}
+        else {vel_status_set(0);}
         
         if(torch_on && arc_ok && vel_status){ // allow correction
             if(torch_down){
-                cur_offset -= correction_vel;
+                cur_offset_set(cur_offset - correction_vel);
             }
             if(torch_up){
-                cur_offset += correction_vel;
+                cur_offset_set(cur_offset + correction_vel);
             }    
             last_z_in = 0;
         }
         if(!torch_on){ // remove any offset
-            float z_diff;
+            rtapi_real z_diff;
             z_diff = z_pos_in - last_z_in;
             if(z_diff > 0 && cur_offset != 0){ // torch is moving up
-                removing_offset = 1;
+                removing_offset_set(1);
                 if(cur_offset > 0){ // positive offset
                     if(cur_offset > z_diff){ // remove some
-                        cur_offset -= z_diff;
+                        cur_offset_set(cur_offset - z_diff);
                     }
-                    else {cur_offset = 0;}
+                    else {cur_offset_set(0);}
                 }
                 if(cur_offset < 0){ // negative offset
                     if(cur_offset < z_diff){ // remove some
-                        cur_offset += z_diff;
+                        cur_offset_set(cur_offset + z_diff);
                     }
-                    else {cur_offset = 0;}
+                    else {cur_offset_set(0);}
                 }
             }
-            else {removing_offset = 0;}
+            else {removing_offset_set(0);}
             last_z_in = z_pos_in;
         }
-        z_pos_out = z_pos_in + cur_offset;
-        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
+        z_pos_out_set(z_pos_in + cur_offset);
+        z_fb_out_set(z_pos_in); // keep axis motor position fb from being confused
     }
     if(!enable){
-        z_pos_out = z_pos_in + cur_offset;
-        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
+        z_pos_out_set(z_pos_in + cur_offset);
+        z_fb_out_set(z_pos_in); // keep axis motor position fb from being confused
     }
 }
 

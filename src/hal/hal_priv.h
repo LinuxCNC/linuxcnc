@@ -118,9 +118,8 @@
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000011	/* version code */
+#define HAL_VER   0x00000014	/* version code */
 #define HAL_SIZE  (2*256*4096)
-#define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /* These pointers are set by hal_init() to point to the shmem block
    and to the master data structure. All access should use these
@@ -204,6 +203,16 @@ static_assert(sizeof(hal_shmfield<void>) == sizeof(rtapi_intptr_t), "hal_shmfiel
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
+// The underlying HAL pin/param data storage unit. Not normally exposed because
+// we need everything to go through the getter/setter interface. However, there
+// is a reason to have it for sizeof() queries.
+typedef union {
+    rtapi_bool _b;
+    rtapi_sint _s;
+    rtapi_uint _u;
+    rtapi_real _r;
+} __hal_private_vals_u;
+
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
     lists.  Such lists have the following characteristics:
@@ -247,8 +256,18 @@ typedef struct hal_thread_t hal_thread_t;
 */
 typedef struct hal_data_t {
     int version;		/* version code for structs, etc */
-    rtapi_mutex_t mutex;	/* protection for linked lists, etc. */
-    hal_s32_t shmem_avail;	/* amount of shmem left free */
+
+    // WARNING: Do not touch these mutex lock fields. Only use the proper
+    // functions halpr_mutex_acquire() and halpr_mutex_release(). See comment
+    // above hal_lib.c:halpr_mutex_acquire() for functional explanation.
+    rtapi_mutex_t priv_rdmutex; // Private mutex for recursive lock
+                                // Important: the mutex uses reverse default
+                                // which means: 0==locked, 1==unlocked
+    int lockcnt;                // Lock counter (using interlocked inc/dec)
+    int locklvl;                // Lock recursion level
+    int locktid;                // Lock owner thread ID
+
+    rtapi_s32 shmem_avail;	/* amount of shmem left free */
     constructor pending_constructor;
 			/* pointer to the pending constructor function */
     char constructor_prefix[HAL_NAME_LEN+1];
@@ -279,15 +298,14 @@ typedef struct hal_data_t {
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 
-/** HAL 'component' type.
-    Assigned according to RTAPI and ULAPI definitions.
- */
-typedef enum {
-    COMPONENT_TYPE_UNKNOWN = -1,
-    COMPONENT_TYPE_USER,
-    COMPONENT_TYPE_REALTIME,
-    COMPONENT_TYPE_OTHER
-} component_type_t;
+//
+// HAL 'component' type.
+// It now lives in hal.h as 'hal_comp_type_t' and the old code that included
+// HALs privates and used 'compoment_type_t' will be kept alive with this
+// typedef for as long as hal_priv.h is available.
+// FIXME: This should be declared deprecated and retired after a grace period.
+//
+typedef hal_comp_type_t component_type_t;
 
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
@@ -378,9 +396,12 @@ struct hal_funct_t {
     int users;			/* number of threads using function */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
-    hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
-    hal_bit_t maxtime_increased;	/* (param) on last call, maxtime increased */
+    // IMPORTANT: The pins and params are valid as seen from the context that
+    // created them. For uspace that is rtapi_app and in the kernel it is the
+    // kernel's module context.
+    hal_sint_t runtime;	/* (pin) duration of last run, in CPU cycles */
+    hal_sint_t maxtime;	/* (param) duration of longest run, in CPU cycles */
+    hal_bool_t maxtime_increased;	/* (param) on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 };
 
@@ -399,8 +420,13 @@ struct hal_thread_t {
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
     int task_id;		/* ID of the task that runs this thread */
-    hal_s32_t* runtime;	/* (pin) duration of last run, in ns */
-    hal_s32_t maxtime;	/* (param) duration of longest run, in ns */
+    // IMPORTANT: The pins and params are valid as seen from the context that
+    // created them. For uspace that is rtapi_app and in the kernel it is the
+    // kernel's module context.
+    hal_sint_t runtime;	/* (pin) duration of last run, in ns */
+    hal_sint_t maxtime;	/* (param) duration of longest run, in ns */
+    hal_sint_t threadbeat; /* (pin) visible monotonic loop beat counter */
+    rtapi_sint beatcnt;    /* Thread monotonic increasing loop beat counter (so we don't need to read/write volatile) */
     hal_list_t funct_list;	/* list of functions to run */
     hal_list_t init_funct_list;	/* list of init functions, run once before first cyclic cycle */
     int init_done;		/* 0 = init pending, 1 = init cycle has executed */
@@ -497,8 +523,17 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
     Returns a negative value on failure. On success zero (0) is returned and
     the newly allocated hal_port_t is returned in the port argument and can be
     used with all other hal_port functions.
+    This is supposed to be private. The public function is deprecated and you
+    should use hal_set_s() to allocate the port once the pins are connected to
+    the signal.
 */
 extern int hal_port_alloc(unsigned size, hal_port_t *port);
+int halpr_port_alloc(unsigned size, hal_port_t *port);
+
+// Recursive HAL mutex (replaces old mutex)
+int halpr_mutex_acquire(void);
+int halpr_mutex_release(void);
+void halpr_mutex_force_release(void);
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

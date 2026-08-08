@@ -46,11 +46,11 @@ RTAPI_BEGIN_DECLS
 
 extern int halcmd_startup(int quiet);
 extern void halcmd_shutdown();
-extern int halcmd_parse_cmd(char * tokens[]);
+extern int halcmd_parse_cmd(const char * tokens[]);
 extern int halcmd_parse_line(char * line);
 extern void halcmd_shutdown(void);
 extern int prompt_mode, echo_mode, errorcount, halcmd_done;
-extern int halcmd_preprocess_line ( char *line, char **tokens);
+extern int halcmd_preprocess_line (char *line, const char **tokens);
 
 void halcmd_info(const char *format,...) __attribute__((format(printf,1,2)));
 void halcmd_output(const char *format,...) __attribute__((format(printf,1,2)));
@@ -78,15 +78,15 @@ enum halcmd_argtype {
 
 
 typedef int(*halcmd_func_v_t)(void);
-typedef int(*halcmd_func_cp_t)(char *);
-typedef int(*halcmd_func_cpp_t)(char **);
+typedef int(*halcmd_func_cp_t)(const char *);
+typedef int(*halcmd_func_cpp_t)(const char **);
 typedef int(*halcmd_func_ccpp_t)(const char **);
-typedef int(*halcmd_func_cp_cp_t)(char *, char *);
-typedef int(*halcmd_func_ccp_cp_t)(const char *, char *);
-typedef int(*halcmd_func_cp_cpp_t)(char *, char **);
-typedef int(*halcmd_func_cp_cp_cp_t)(char *, char *, char *);
-typedef int(*halcmd_func_cp_cp_cpp_t)(char *, char *, char **);
-typedef int(*halcmd_func_cp_cp_cp_cpp_t)(char *, char *, char *, char **);
+typedef int(*halcmd_func_cp_cp_t)(const char *, const char *);
+typedef int(*halcmd_func_ccp_cp_t)(const char *, const char *);
+typedef int(*halcmd_func_cp_cpp_t)(const char *, const char **);
+typedef int(*halcmd_func_cp_cp_cp_t)(const char *, const char *, const char *);
+typedef int(*halcmd_func_cp_cp_cpp_t)(const char *, const char *, const char **);
+typedef int(*halcmd_func_cp_cp_cp_cpp_t)(const char *, const char *, const char *, const char **);
 
 typedef union {
 	halcmd_func_v_t		v;

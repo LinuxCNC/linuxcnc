@@ -11,20 +11,21 @@
 # Hans Unzner <hansunzner@gmail.com>, 2022, 2023, 2024, 2025.
 # FireplayerDB <FireplayerDB@onlinehome.de>, 2023.
 # BsAtHome <bertho@vagrearg.org>, 2025.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-02-09 10:51+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2026-06-23 08:23+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -10294,7 +10295,7 @@ msgstr ""
 #: man/man9/spindle.9:10
 #, no-wrap
 msgid "SPINDLE"
-msgstr "SPINDLE (engl. für Spindel)"
+msgstr "SPINDLE"
 
 #. type: delimited block -
 #: src/code/nml-messages.adoc:189
@@ -176525,7 +176526,7 @@ msgstr "gladevcp_demo(1)"
 #: src/man/man1/gladevcp_demo.1.adoc:6
 msgid "gladevcp_demo - used by sample configs to deonstrate Glade Virtual_demo"
 msgstr ""
-"gladevcp_demo – Wird von Beispielkonfigurationen verwendet, um Glade "
+"gladevcp_demo - Wird von Beispielkonfigurationen verwendet, um Glade "
 "Virtual_demo zu demonstrieren"
 
 #. type: Plain text
@@ -186119,7 +186120,7 @@ msgstr "latency-plot(1)"
 #. type: Plain text
 #: src/man/man1/latency-plot.1.adoc:6
 msgid "latency-plot - another way to view latency numbers"
-msgstr "Latenzplot - eine weitere Möglichkeit, Latenzzahlen zu betrachten"
+msgstr "latency-plot - eine weitere Möglichkeit, Latenzzahlen zu betrachten"
 
 #. type: Plain text
 #: src/man/man1/latency-plot.1.adoc:10
@@ -188246,7 +188247,7 @@ msgstr "mb2hal(1)"
 #. type: Plain text
 #: src/man/man1/mb2hal.1.adoc:6
 msgid "mb2hal - HAL non-realtime component for Modbus"
-msgstr "*mb2hal* - HAL Nicht-Echtzeit-Komponente für Modbus"
+msgstr "mb2hal - HAL Nicht-Echtzeit-Komponente für Modbus"
 
 #. type: Labeled list
 #: src/man/man1/mb2hal.1.adoc:9
@@ -192787,7 +192788,7 @@ msgid ""
 "tool_mmap_read - A component of the tool database system (an alternative to "
 "the classic tooltable)"
 msgstr ""
-"tool_mmap_read – Eine Komponente des Werkzeugdatenbanksystems (eine "
+"tool_mmap_read - Eine Komponente des Werkzeugdatenbanksystems (eine "
 "Alternative zur klassischen Werkzeugtabelle)"
 
 #. type: Plain text
@@ -197250,7 +197251,7 @@ msgstr "xyzbc-trt-gui(1)"
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:6
 msgid "xyzbc-trt-gui - Vismach Virtual Machine GUI"
-msgstr "xyzac-trt-gui - Vismach Virtuelle Maschine GUI"
+msgstr "xyzbc-trt-gui - Vismach Virtuelle Maschine GUI"
 
 #. type: Plain text
 #: src/man/man1/xyzbc-trt-gui.1.adoc:11
@@ -197525,7 +197526,7 @@ msgid ""
 "hal_add_funct_to_thread, hal_del_funct_from_thread - cause a function to be "
 "executed at regular intervals"
 msgstr ""
-"hal_add_funct_to_thread , hal_del_funct_from_thread - eine Funktion in "
+"hal_add_funct_to_thread, hal_del_funct_from_thread - eine Funktion in "
 "regelmäßigen Abständen ausführen lassen"
 
 #. type: delimited block -
@@ -198002,7 +198003,7 @@ msgstr "hal_init(3)"
 #. type: Plain text
 #: src/man/man3/hal_init.3.adoc:6
 msgid "hal_init - Sets up HAL and RTAPI"
-msgstr "hal_init – Richtet HAL und RTAPI ein"
+msgstr "hal_init - Richtet HAL und RTAPI ein"
 
 #. type: Plain text
 #: src/man/man3/hal_init.3.adoc:10
@@ -200400,7 +200401,7 @@ msgid ""
 "hm2_bspi_set_read_function - Register a function to handle the tram write "
 "phase of a hostmot2 buffered SPI driver."
 msgstr ""
-"hm2_bspi_set_write_function - Registriert eine Funktion, um die Tram-"
+"hm2_bspi_set_read_function - Registriert eine Funktion, um die Tram-"
 "Schreibphase eines hostmot2 gepufferten SPI-Treibers zu handhaben."
 
 #. type: delimited block .
@@ -200867,7 +200868,7 @@ msgstr "hm2_pktuart_read(3)"
 #. type: Plain text
 #: src/man/man3/hm2_pktuart_read.3.adoc:6
 msgid "hm2_pktuart_read - read data from a Hostmot2 UART buffer"
-msgstr "hm2_uart_read - liest Daten aus einem Hostmot2 UART-Puffer"
+msgstr "hm2_pktuart_read - liest Daten aus einem Hostmot2 UART-Puffer"
 
 #. type: delimited block -
 #: src/man/man3/hm2_pktuart_read.3.adoc:14
@@ -201894,7 +201895,7 @@ msgstr "rtapi_atomic(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_atomic.3.adoc:6
 msgid "rtapi_atomic - subset of C11 stdatomic.h"
-msgstr "rtapi_atomisch - Teil-Implementierung von C11 stdatomic.h"
+msgstr "rtapi_atomic - Teil-Implementierung von C11 stdatomic.h"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_atomic.3.adoc:17
@@ -202602,7 +202603,7 @@ msgstr "rtapi_get_time(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_get_time.3.adoc:8
 msgid "rtapi_get_time, rtapi_get_clocks - get the current time"
-msgstr "rtapi_get_time , rtapi_get_clocks - liefert die aktuelle Zeit"
+msgstr "rtapi_get_time, rtapi_get_clocks - liefert die aktuelle Zeit"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_get_time.3.adoc:15
@@ -204455,7 +204456,7 @@ msgstr "rtapi_string(3)"
 #. type: Plain text
 #: src/man/man3/rtapi_string.3.adoc:6
 msgid "rtapi_string - RTAPI wrappers for linux kernel functionality"
-msgstr "rtapi_stdint - RTAPI-Wrapper für Linux-Kernelfunktionen"
+msgstr "rtapi_string - RTAPI-Wrapper für Linux-Kernelfunktionen"
 
 #. type: delimited block -
 #: src/man/man3/rtapi_string.3.adoc:15
@@ -206138,7 +206139,7 @@ msgstr "gantrykins(9)"
 #: src/man/man9/gantrykins.9.adoc:6
 msgid ""
 "gantrykins - Superseded by the general purpose 'trivkins' kinematics module."
-msgstr "gentrivkins - Ersetzt durch das Allzweck-Kinematikmodul 'trivkins'."
+msgstr "gantrykins - Ersetzt durch das Allzweck-Kinematikmodul 'trivkins'."
 
 #. type: Plain text
 #: src/man/man9/gantrykins.9.adoc:11
@@ -206236,7 +206237,7 @@ msgstr "hal_bb_gpio(9)"
 #. type: Plain text
 #: src/man/man9/hal_bb_gpio.9.adoc:6
 msgid "hal_bb_gpio - Driver for beaglebone GPIO pins"
-msgstr "hal_bb_gpio – Treiber für Beaglebone-GPIO-Pins"
+msgstr "hal_bb_gpio - Treiber für Beaglebone-GPIO-Pins"
 
 #. type: Plain text
 #: src/man/man9/hal_bb_gpio.9.adoc:10
@@ -233833,7 +233834,7 @@ msgstr "Zeigt an, dass der Schwimmerschalter aktiviert ist."
 #: src/plasma/qtplasmac.adoc:819 man/man9/ohmic.9:10
 #, no-wrap
 msgid "OHMIC"
-msgstr "OHMSCH (engl. ohmic)"
+msgstr "OHMIC"
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:820
@@ -271959,7 +271960,7 @@ msgstr "Boris Skegin"
 #: man/man9/message.9:10
 #, no-wrap
 msgid "MESSAGE"
-msgstr "NACHRICHT (engl. message)"
+msgstr "MESSAGE"
 
 #. type: Plain text
 #: man/man9/message.9:32

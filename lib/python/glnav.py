@@ -308,6 +308,9 @@ class GlNavBase:
         self.activate()
         self.perspective = True
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, x, y, self.xmouse, self.ymouse)
+        if self.is_lathe():
+            glRotatef(90, 1, 0, 0)
+            glRotatef(90, 0, 1, 0)
         self._redraw()
         self.recordMouse(x, y)
 
@@ -463,6 +466,9 @@ class GlNavBase:
         self.lat = -60
         self.lon = 335
         glRotateScene(self, 1.0, mid[0], mid[1], mid[2], 0, 0, 0, 0)
+        if self.is_lathe():
+            glRotatef(90, 1, 0, 0)
+            glRotatef(90, 0, 1, 0)
         self._redraw()
 
 # vim:ts=8:sts=4:sw=4:et:

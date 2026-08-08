@@ -38,27 +38,40 @@ using namespace linuxcnc;
 *
 * Called By: main
 ********************************************************************/
+#define IOC0 "iocontrol.0"
+
+#define CHK(x) do { \
+        int _rv = (x); \
+        if(_rv < 0) { \
+            rtapi_print_msg(RTAPI_MSG_ERR, IOC0": cannot create HAL pin\n"); \
+            return -1; \
+        } \
+    } while(0)
+
 int Task::iocontrol_hal_init(void)
 {
-    iocontrol.add_pin("user-enable-out", hal_dir::OUT, iocontrol_data.user_enable_out);
-    iocontrol.add_pin("emc-enable-in", hal_dir::IN, iocontrol_data.emc_enable_in);
-    iocontrol.add_pin("user-request-enable", hal_dir::OUT, iocontrol_data.user_request_enable);
-    iocontrol.add_pin("coolant-mist", hal_dir::OUT, iocontrol_data.coolant_mist);
-    iocontrol.add_pin("coolant-flood", hal_dir::OUT, iocontrol_data.coolant_flood);
-    iocontrol.add_pin("tool-prep-pocket", hal_dir::OUT, iocontrol_data.tool_prep_pocket);
-    iocontrol.add_pin("tool-from-pocket", hal_dir::OUT, iocontrol_data.tool_from_pocket);
-    iocontrol.add_pin("tool-prep-index", hal_dir::OUT, iocontrol_data.tool_prep_index);
-    iocontrol.add_pin("tool-prep-number", hal_dir::OUT, iocontrol_data.tool_prep_number);
-    iocontrol.add_pin("tool-number", hal_dir::OUT, iocontrol_data.tool_number);
-    iocontrol.add_pin("tool-prepare", hal_dir::OUT, iocontrol_data.tool_prepare);
-    iocontrol.add_pin("tool-prepared", hal_dir::IN, iocontrol_data.tool_prepared);
-    iocontrol.add_pin("tool-change", hal_dir::OUT, iocontrol_data.tool_change);
-    iocontrol.add_pin("tool-changed", hal_dir::IN, iocontrol_data.tool_changed);
-    iocontrol.ready();
-    if (iocontrol.error < 0)
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->user_enable_out,  0, IOC0".user-enable-out"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->emc_enable_in,    0, IOC0".emc-enable-in"));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->user_request_enable, 0, IOC0".user-request-enable"));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->coolant_mist,     0, IOC0".coolant-mist"));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->coolant_flood,    0, IOC0".coolant-flood"));
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &iocontrol_data->tool_prep_pocket, 0, IOC0".tool-prep-pocket"));
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &iocontrol_data->tool_from_pocket, 0, IOC0".tool-from-pocket"));
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &iocontrol_data->tool_prep_index,  0, IOC0".tool-prep-index"));
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &iocontrol_data->tool_prep_number, 0, IOC0".tool-prep-number"));
+    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &iocontrol_data->tool_number,      0, IOC0".tool-number"));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->tool_prepare,     0, IOC0".tool-prepare"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->tool_prepared,    0, IOC0".tool-prepared"));
+    CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->tool_change,      0, IOC0".tool-change"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->tool_changed,     0, IOC0".tool-changed"));
+    if(hal_ready(comp_id) < 0) {
+        hal_exit(comp_id);
+        comp_id = -1;
         return -1;
+    }
     return 0;
 }
+#undef CHK
 
 /********************************************************************
 *
@@ -70,17 +83,17 @@ int Task::iocontrol_hal_init(void)
 ********************************************************************/
 void Task::hal_init_pins(void)
 {
-    iocontrol_data.user_enable_out=0;    /* output, FALSE when EMC wants stop */
-    iocontrol_data.user_request_enable=0;/* output, used to reset HAL latch */
-    iocontrol_data.coolant_mist=0;       /* coolant mist output pin */
-    iocontrol_data.coolant_flood=0;      /* coolant flood output pin */
-    iocontrol_data.tool_prepare=0;       /* output, pin that notifies HAL it needs to prepare a tool */
-    iocontrol_data.tool_prep_number=0;   /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
-    iocontrol_data.tool_prep_pocket=0;   /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
-    iocontrol_data.tool_from_pocket=0;   /* output, always 0 at startup */
-    iocontrol_data.tool_prep_index=0;      /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
-    iocontrol_data.tool_change=0;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
-    iocontrol_data.tool_number = emcioStatus.tool.toolInSpindle;
+    hal_set_bool(iocontrol_data->user_enable_out, 0);    /* output, FALSE when EMC wants stop */
+    hal_set_bool(iocontrol_data->user_request_enable, 0);/* output, used to reset HAL latch */
+    hal_set_bool(iocontrol_data->coolant_mist, 0);       /* coolant mist output pin */
+    hal_set_bool(iocontrol_data->coolant_flood, 0);      /* coolant flood output pin */
+    hal_set_bool(iocontrol_data->tool_prepare, 0);       /* output, pin that notifies HAL it needs to prepare a tool */
+    hal_set_si32(iocontrol_data->tool_prep_number, 0);   /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_set_si32(iocontrol_data->tool_prep_pocket, 0);   /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
+    hal_set_si32(iocontrol_data->tool_from_pocket, 0);   /* output, always 0 at startup */
+    hal_set_si32(iocontrol_data->tool_prep_index, 0);    /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
+    hal_set_bool(iocontrol_data->tool_change, 0);        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+    hal_set_si32(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle);
 }
 
 Task *task_methods;
@@ -110,7 +123,11 @@ int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number)
 
 int emcTaskOnce(const char * /*filename*/, EMC_IO_STAT &emcioStatus)
 {
-	task_methods = new Task(emcioStatus);
+    task_methods = new Task(emcioStatus);
+    if(task_methods->comp_id < 0) {
+        // This happens when init is incomplete
+        return -1;
+    }
     if (int res = task_methods->iocontrol_hal_init()) {
         return res;
     }
@@ -129,11 +146,24 @@ struct _inittab builtin_modules[] = {
 
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),
-    iocontrol_data{},
-    iocontrol("iocontrol.0"),
+    iocontrol_data(nullptr),
+    comp_id(-1),
     ini_filename(emc_inifile),
     tool_status(0)
     {
+
+    comp_id = hal_init(IOC0);
+    if(comp_id < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, IOC0": ERROR: hal_init() failed\n");
+        return;  // emcTaskOnce() fails on comp_id
+    }
+    iocontrol_data = reinterpret_cast<iocontrol_str *>(hal_malloc(sizeof(*iocontrol_data)));
+    if(!iocontrol_data) {
+        rtapi_print_msg(RTAPI_MSG_ERR, IOC0": ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        comp_id = -1;
+        return;  // emcTaskOnce() fails on comp_id
+    }
 
     IniFile inifile(ini_filename);
 
@@ -365,10 +395,10 @@ int Task::emcIoAbort(EMC_ABORT /*reason*/)//EMC_TOOL_ABORT_TYPE
     rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
     emcioStatus.coolant.mist = 0;
     emcioStatus.coolant.flood = 0;
-    iocontrol_data.coolant_mist = 0;                /* coolant mist output pin */
-    iocontrol_data.coolant_flood = 0;                /* coolant flood output pin */
-    iocontrol_data.tool_change = 0;                /* abort tool change if in progress */
-    iocontrol_data.tool_prepare = 0;                /* abort tool prepare if in progress */
+    hal_set_bool(iocontrol_data->coolant_mist, 0);    /* coolant mist output pin */
+    hal_set_bool(iocontrol_data->coolant_flood, 0);   /* coolant flood output pin */
+    hal_set_bool(iocontrol_data->tool_change, 0);     /* abort tool change if in progress */
+    hal_set_bool(iocontrol_data->tool_prepare, 0);    /* abort tool prepare if in progress */
     // release task wait on pending tool-change/prepare (old NML iocontrol
     // returned RCS_DONE by default; in-process call must do it explicitly)
     emcioStatus.status = RCS_STATUS::DONE;
@@ -378,8 +408,8 @@ int Task::emcIoAbort(EMC_ABORT /*reason*/)//EMC_TOOL_ABORT_TYPE
 int Task::emcAuxEstopOn()//EMC_AUX_ESTOP_ON_TYPE
 {
     /* assert an ESTOP to the outside world (thru HAL) */
-    iocontrol_data.user_enable_out = 0; //disable on ESTOP_ON
-    iocontrol_data.user_request_enable = 0;
+    hal_set_bool(iocontrol_data->user_enable_out, 0); //disable on ESTOP_ON
+    hal_set_bool(iocontrol_data->user_request_enable, 0);
     hal_init_pins(); //resets all HAL pins to safe valuea
     return 0;
 }
@@ -387,9 +417,9 @@ int Task::emcAuxEstopOn()//EMC_AUX_ESTOP_ON_TYPE
 int Task::emcAuxEstopOff()
 {
     /* remove ESTOP */
-    iocontrol_data.user_enable_out = 1; //we're good to enable on ESTOP_OFF
+    hal_set_bool(iocontrol_data->user_enable_out, 1); //we're good to enable on ESTOP_OFF
     /* generate a rising edge to reset optional HAL latch */
-    iocontrol_data.user_request_enable = 1;
+    hal_set_bool(iocontrol_data->user_request_enable, 1);
     emcioStatus.aux.estop = 0;
     return 0;
 }
@@ -397,28 +427,28 @@ int Task::emcAuxEstopOff()
 int Task::emcCoolantMistOn()
 {
     emcioStatus.coolant.mist = 1;
-    iocontrol_data.coolant_mist = 1;
+    hal_set_bool(iocontrol_data->coolant_mist, 1);
     return 0;
 }
 
 int Task::emcCoolantMistOff()
 {
     emcioStatus.coolant.mist = 0;
-    iocontrol_data.coolant_mist = 0;
+    hal_set_bool(iocontrol_data->coolant_mist, 0);
     return 0;
 }
 
 int Task::emcCoolantFloodOn()
 {
     emcioStatus.coolant.flood = 1;
-    iocontrol_data.coolant_flood = 1;
+    hal_set_bool(iocontrol_data->coolant_flood, 1);
     return 0;
 }
 
 int Task::emcCoolantFloodOff()
 {
     emcioStatus.coolant.flood = 0;
-    iocontrol_data.coolant_flood = 0;
+    hal_set_bool(iocontrol_data->coolant_flood, 0);
     return 0;
 }
 
@@ -438,29 +468,29 @@ int Task::emcToolPrepare(int toolno)
         }
         rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d idx=%d\n", toolno, idx);
 
-        iocontrol_data.tool_prep_index = idx; // any type of changer
+        hal_set_si32(iocontrol_data->tool_prep_index, idx); // any type of changer
 
         // Note: some of the following logic could be simplified
         //       but is maintained to preserve runtests expectations
         // Set HAL pins for tool number, pocket, and index.
         if (random_toolchanger) {
             // RANDOM_TOOLCHANGER
-            iocontrol_data.tool_prep_number = tdata.toolno;
+            hal_set_si32(iocontrol_data->tool_prep_number, tdata.toolno);
             if (idx == 0) {
                 emcioStatus.tool.pocketPrepped      = 0; // pocketPrepped is an idx
-                iocontrol_data.tool_prep_pocket = 0;
+                hal_set_si32(iocontrol_data->tool_prep_pocket, 0);
                 return 0;
             }
-            (iocontrol_data.tool_prep_pocket) = tdata.pocketno;
+            hal_set_si32(iocontrol_data->tool_prep_pocket, tdata.pocketno);
         } else {
             // NON_RANDOM_TOOLCHANGER
             if (idx == 0) {
                 emcioStatus.tool.pocketPrepped      = 0; // pocketPrepped is an idx
-                iocontrol_data.tool_prep_number = 0;
-                iocontrol_data.tool_prep_pocket = 0;
+                hal_set_si32(iocontrol_data->tool_prep_number, 0);
+                hal_set_si32(iocontrol_data->tool_prep_pocket, 0);
             } else {
-                iocontrol_data.tool_prep_number = tdata.toolno;
-                iocontrol_data.tool_prep_pocket = tdata.pocketno;
+                hal_set_si32(iocontrol_data->tool_prep_number, tdata.toolno);
+                hal_set_si32(iocontrol_data->tool_prep_pocket, tdata.pocketno);
             }
         }
         // it doesn't make sense to prep the spindle pocket
@@ -471,7 +501,7 @@ int Task::emcToolPrepare(int toolno)
     }
 
     /* then set the prepare pin to tell external logic to get started */
-    iocontrol_data.tool_prepare = 1;
+    hal_set_bool(iocontrol_data->tool_prepare, 1);
     // the feedback logic is done inside read_hal_inputs()
     // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
     if (tool_status != 10) //set above to 10 in case PREP already finished (HAL loopback machine)
@@ -498,7 +528,7 @@ int Task::emcToolLoad()//EMC_TOOL_LOAD_TYPE
 
     if (emcioStatus.tool.pocketPrepped != -1) {
         //notify HW for toolchange
-        iocontrol_data.tool_change = 1;
+        hal_set_bool(iocontrol_data->tool_change, 1);
         // the feedback logic is done inside read_hal_inputs() we only
         // need to set RCS_EXEC if RCS_DONE is not already set by the
         // above logic
@@ -589,9 +619,9 @@ int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
             "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_idx_number=%d new_tool=%d\n"
             , emcioStatus.tool.toolInSpindle, idx, tdata.toolno);
     //likewise in HAL
-    iocontrol_data.tool_number = emcioStatus.tool.toolInSpindle;
+    hal_set_si32(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle);
     if (emcioStatus.tool.toolInSpindle == 0) {
-        emcioStatus.tool.toolFromPocket = iocontrol_data.tool_from_pocket = 0; // no tool in spindle
+        emcioStatus.tool.toolFromPocket = hal_set_si32(iocontrol_data->tool_from_pocket, 0); // no tool in spindle
     }
 
     return 0;
@@ -613,17 +643,17 @@ int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
 ********************************************************************/
 int Task::read_tool_inputs(void)
 {
-    if (iocontrol_data.tool_prepare && iocontrol_data.tool_prepared) {
-        emcioStatus.tool.pocketPrepped = iocontrol_data.tool_prep_index; //check if tool has been (idx) prepared
-        iocontrol_data.tool_prepare = 0;
+    if (hal_get_bool(iocontrol_data->tool_prepare) && hal_get_bool(iocontrol_data->tool_prepared)) {
+        emcioStatus.tool.pocketPrepped = hal_get_si32(iocontrol_data->tool_prep_index); //check if tool has been (idx) prepared
+        hal_set_bool(iocontrol_data->tool_prepare, 0);
         emcioStatus.status = RCS_STATUS::DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
         return 10; //prepped finished
     }
 
-    if (iocontrol_data.tool_change && iocontrol_data.tool_changed) {
+    if (hal_get_bool(iocontrol_data->tool_change) && hal_get_bool(iocontrol_data->tool_changed)) {
         if(!random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
             emcioStatus.tool.toolInSpindle = 0;
-            emcioStatus.tool.toolFromPocket = iocontrol_data.tool_from_pocket = 0;
+            emcioStatus.tool.toolFromPocket = hal_set_si32(iocontrol_data->tool_from_pocket, 0);
         } else {
             // the tool now in the spindle is the one that was prepared
             CANON_TOOL_TABLE tdata;
@@ -631,18 +661,18 @@ int Task::read_tool_inputs(void)
                 UNEXPECTED_MSG; return -1;
             }
             emcioStatus.tool.toolInSpindle = tdata.toolno;
-            emcioStatus.tool.toolFromPocket = iocontrol_data.tool_from_pocket = tdata.pocketno;
+            emcioStatus.tool.toolFromPocket = hal_set_si32(iocontrol_data->tool_from_pocket, tdata.pocketno);
         }
         if (emcioStatus.tool.toolInSpindle == 0) {
-             emcioStatus.tool.toolFromPocket = iocontrol_data.tool_from_pocket = 0;
+             emcioStatus.tool.toolFromPocket = hal_set_si32(iocontrol_data->tool_from_pocket, 0);
         }
-        iocontrol_data.tool_number = emcioStatus.tool.toolInSpindle; //likewise in HAL
+        hal_set_si32(iocontrol_data->tool_number, emcioStatus.tool.toolInSpindle); //likewise in HAL
         load_tool(emcioStatus.tool.pocketPrepped);
         emcioStatus.tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
-        iocontrol_data.tool_prep_number = 0; //likewise in HAL
-        iocontrol_data.tool_prep_pocket = 0; //likewise in HAL
-        iocontrol_data.tool_prep_index = 0; //likewise in HAL
-        iocontrol_data.tool_change = 0; //also reset the tool change signal
+        hal_set_si32(iocontrol_data->tool_prep_number, 0); //likewise in HAL
+        hal_set_si32(iocontrol_data->tool_prep_pocket, 0); //likewise in HAL
+        hal_set_si32(iocontrol_data->tool_prep_index, 0); //likewise in HAL
+        hal_set_bool(iocontrol_data->tool_change, 0); //also reset the tool change signal
         emcioStatus.status = RCS_STATUS::DONE;        // we finally finished to do tool-changing, signal task with RCS_DONE
         return 11; //change finished
     }
@@ -651,12 +681,12 @@ int Task::read_tool_inputs(void)
 
 void Task::run(){ // called periodically from emctaskmain.cc
     tool_status = read_tool_inputs();
-    if (iocontrol_data.emc_enable_in == 0) //check for estop from HW
+    if (!hal_get_bool(iocontrol_data->emc_enable_in)) //check for estop from HW
         emcioStatus.aux.estop = 1;
     else {
         emcioStatus.aux.estop = 0;
-        if (iocontrol_data.user_request_enable == 1) {
-            iocontrol_data.user_request_enable = 0;
+        if (hal_get_bool(iocontrol_data->user_request_enable)) {
+            hal_set_bool(iocontrol_data->user_request_enable, 0);
         }
     }
 }

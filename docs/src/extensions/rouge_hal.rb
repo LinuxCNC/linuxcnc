@@ -28,7 +28,7 @@ module Rouge
       COMMANDS = %w[
         loadrt unloadrt loadusr waitusr unloadusr
         newsig delsig sets gets stype ptype getp setp
-        linkps linksp linkpp net unlinkp
+        linkps linksp net unlinkp
         addf delf start stop
         show item save source
         alias unalias list

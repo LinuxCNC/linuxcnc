@@ -32,33 +32,33 @@ variant of the Steinhart-Hart equation, described here:
 include <unistd.h>;
 include <rtapi_math.h>;
 
-pin in float t0_c """Reference temperature of the thermistor, in degrees
+pin in real t0_c """Reference temperature of the thermistor, in degrees
 Celsius (typically 25 C).  This must be set before the component can
 compute the thermistor temperature.  The reference temperature information
 is supplied by the thermistor manufacturer.""";
 
-pin in float r0 """Resistance of the thermistor at the reference
+pin in real r0 """Resistance of the thermistor at the reference
 temperature.  This must be set before the component can compute the
 thermistor temperature.  The reference resistance information is supplied
 by the thermistor manufacturer.""";
 
-pin in float beta """Beta parameter of the thermistor (sometimes
+pin in real beta """Beta parameter of the thermistor (sometimes
 just called B).  This must be set before the component can compute the
 thermistor temperature.  The Beta parameter is supplied by the thermistor
 manufacturer.""";
 
-pin in float r_other """Resistance of the other resistor in the
+pin in real r_other """Resistance of the other resistor in the
 voltage-divider ladder.  This must be set before the component can
 compute the thermistor temperature.""";
 
-pin in float v_total "Supply voltage of the voltage-divider ladder.";
-pin in float v_thermistor "Voltage drop across the termistor.";
+pin in real v_total "Supply voltage of the voltage-divider ladder.";
+pin in real v_thermistor "Voltage drop across the termistor.";
 
-pin out float temperature_c "Temperature sensed by the thermistor, in degrees Celsius.";
-pin out float temperature_k "Temperature sensed by the thermistor, in Kelvins.";
-pin out float temperature_f "Temperature sensed by the thermistor, in degrees Fahrenheit.";
+pin out real temperature_c "Temperature sensed by the thermistor, in degrees Celsius.";
+pin out real temperature_k "Temperature sensed by the thermistor, in Kelvins.";
+pin out real temperature_f "Temperature sensed by the thermistor, in degrees Fahrenheit.";
 
-pin out float resistance "Computed resistance of the thermistor.";
+pin out real resistance "Computed resistance of the thermistor.";
 
 ;;
 
@@ -80,9 +80,9 @@ static void userinit(int argc, char **argv) {
 void user_mainloop(void) {
     while (!should_exit) {
         FOR_ALL_INSTS() {
-            hal_float_t t0_k = t0_c + 273.15;
-            hal_float_t r_inf;
-            hal_float_t current;
+            rtapi_real t0_k = t0_c + 273.15;
+            rtapi_real r_inf;
+            rtapi_real current;
 
             if (t0_k <= 0.0) {
                 goto problem;
@@ -102,12 +102,12 @@ void user_mainloop(void) {
                 goto problem;
             }
 
-            resistance = v_thermistor / current;
+            resistance_set(v_thermistor / current);
             if (isnan(resistance) || isinf(resistance) || (resistance <= 0.0)) {
                 goto problem;
             }
 
-            temperature_k = beta / log(resistance/r_inf);
+            temperature_k_set(beta / log(resistance/r_inf));
             if (isnan(temperature_k) || isinf(temperature_k) || (temperature_k < 0.0)) {
                 goto problem;
             }
@@ -117,12 +117,12 @@ void user_mainloop(void) {
 
 problem:
             // override problematic output pins with bogus but not invalid values
-            resistance = 0;
-            temperature_k = 9999;
+            resistance_set(0);
+            temperature_k_set(9999);
 
 ok:
-            temperature_c = temperature_k - 273.15;
-            temperature_f = (temperature_c * 9.0 / 5.0) + 32.0;
+            temperature_c_set(temperature_k - 273.15);
+            temperature_f_set((temperature_c * 9.0 / 5.0) + 32.0);
         }
         usleep(100 * 1000);
     }

@@ -58,6 +58,7 @@ and press tab to complete the names of items such as pins and signals.
   display a help screen and exit, displays extended help on _command_ if
   specified
 
+[[_commands]]
 == COMMANDS
 
 Commands tell *halcmd* what to do. Normally *halcmd* reads a single
@@ -149,12 +150,6 @@ requested component with a call to *dlopen(3)*.
   (OBSOLETE - use *net* instead) (_link_ __s__ignal to __p__in) Works
   like *linkps* but reverses the order of the arguments. *halcmd* treats
   both link commands exactly the same. Use whichever you prefer.
-*linkpp* _pinname1_ [_arrow_] _pinname2_::
-  (OBSOLETE - use *net* instead) (_link_ __p__in to __p__in) Shortcut
-  for *linkps* that creates the signal (named like the first pin), then
-  links them both to that signal. *halcmd* treats this just as if it
-  were: *halcmd* *newsig* pinname1 *halcmd* *linksp* pinname1 pinname1
-  *halcmd* *linksp* pinname1 pinname2
 *net* _signame_ _pinname_ _..._::
   Create _signname_ to match the type of _pinname_ if it does not yet
   exist. Then, link _signame_ to each _pinname_ in turn. Arrows may be

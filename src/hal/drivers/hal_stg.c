@@ -161,33 +161,33 @@ RTAPI_MP_STRING(dio, "dio config string - expects something like IIOO");
 ************************************************************************/
 
 typedef struct {
-    hal_bit_t *data;		/* basic pin for input or output */
+    hal_bool_t data;		/* basic pin for input or output */
     union {
-	hal_bit_t *not;		/* pin for inverted data (input only) */
-	hal_bit_t invert;	/* param for inversion (output only) */
+	hal_bool_t not;		/* pin for inverted data (input only) */
+	hal_bool_t invert;	/* param for inversion (output only) */
 	} io;
 } io_pin;
 
 typedef struct {
 /* counter data */
-    hal_s32_t *count[MAX_CHANS];		/* captured binary count value */
-	hal_s32_t offset[MAX_CHANS];		/* offset to hold latched position from index pulse */
-    hal_float_t *pos[MAX_CHANS];		/* scaled position (floating point) */
-    hal_float_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
-    hal_bit_t *index_enable[MAX_CHANS];		/* pins for index homing */
-    hal_bit_t *index_latch[MAX_CHANS];    /* value of the index latch for the axis */
+    hal_sint_t count[MAX_CHANS];		/* captured binary count value */
+    rtapi_s32  offset[MAX_CHANS];		/* offset to hold latched position from index pulse */
+    hal_real_t pos[MAX_CHANS];		/* scaled position (floating point) */
+    hal_real_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
+    hal_bool_t index_enable[MAX_CHANS];		/* pins for index homing */
+    hal_bool_t index_latch[MAX_CHANS];    /* value of the index latch for the axis */
 //    hal_s32_t check_index[MAX_CHANS];           /* internal marker for two stage index pulse check */
-    hal_bit_t *index_polarity[MAX_CHANS];       /* Polarity of index pulse */
+    hal_bool_t index_polarity[MAX_CHANS];       /* Polarity of index pulse */
 
 /* dac data */
-    hal_float_t *dac_value[MAX_CHANS];		/* value to be written to dac */
-    hal_float_t dac_offset[MAX_CHANS];		/* offset value for DAC */
-    hal_float_t dac_gain[MAX_CHANS];		/* gain to be applied */
+    hal_real_t dac_value[MAX_CHANS];		/* value to be written to dac */
+    hal_real_t dac_offset[MAX_CHANS];		/* offset value for DAC */
+    hal_real_t dac_gain[MAX_CHANS];		/* gain to be applied */
 
 /* adc data */
-    hal_float_t *adc_value[MAX_CHANS];		/* value to be read from adc */
-    hal_float_t adc_offset[MAX_CHANS];		/* offset value for ADC */
-    hal_float_t adc_gain[MAX_CHANS];		/* gain to be applied */
+    hal_real_t adc_value[MAX_CHANS];		/* value to be read from adc */
+    hal_real_t adc_offset[MAX_CHANS];		/* offset value for ADC */
+    hal_real_t adc_gain[MAX_CHANS];		/* gain to be applied */
     int adc_current_chan;			/* holds the currently converting channel */
 
 /* dio data */
@@ -357,23 +357,23 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* init counter */
-	*(stg_driver->count[n]) = 0;
+	hal_set_si32(stg_driver->count[n], 0);
 	stg_driver->offset[n] = 0;
-	*(stg_driver->pos[n]) = 0.0;
+	hal_set_real(stg_driver->pos[n], 0.0);
 
     /* By default the index pulse is not processed/used */
-	*(stg_driver->index_enable[n]) = 0;
+	hal_set_bool(stg_driver->index_enable[n], 0);
 
     /* Default polarity for the index pulse is active high */
     if( stg_driver->model == 1 )
     {
-	    *(stg_driver->index_polarity[n]) = 1;
+	    hal_set_bool(stg_driver->index_polarity[n], 1);
     }
 
     /* Default value for the index latch output is false */
-	  *(stg_driver->index_latch[n]) = 0;
+	hal_set_bool(stg_driver->index_latch[n], 0);
 
-	stg_driver->pos_scale[n] = 1.0;
+	hal_set_real(stg_driver->pos_scale[n], 1.0);
 
 	/* init counter chip */
 	stg_counter_init(n);
@@ -386,9 +386,9 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* init counter */
-	*(stg_driver->dac_value[n]) = 0;
-	stg_driver->dac_offset[n] = 0.0;
-	stg_driver->dac_gain[n] = 1.0;
+	hal_set_real(stg_driver->dac_value[n], 0);
+	hal_set_real(stg_driver->dac_offset[n], 0.0);
+	hal_set_real(stg_driver->dac_gain[n], 1.0);
 
 	/* init dac chip */
 	stg_dac_init(n);
@@ -401,9 +401,9 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* init counter */
-	*(stg_driver->adc_value[n]) = 0;
-	stg_driver->adc_offset[n] = 0.0;
-	stg_driver->adc_gain[n] = 1.0;
+	hal_set_real(stg_driver->adc_value[n], 0);
+	hal_set_real(stg_driver->adc_offset[n], 0.0);
+	hal_set_real(stg_driver->adc_gain[n], 1.0);
 	
 	stg_driver->adc_current_chan = -1; /* notify that no conversion has been started yet */
 
@@ -521,15 +521,15 @@ static void stg_counter_capture(void *arg, long period)
 
       if (stg1_get_index_pulse_latch(arg, n)) 
       {
-        *(stg->index_latch[n]) = 1;
+        hal_set_bool(stg->index_latch[n], 1);
 
-      	if ( *(stg->index_enable[n]) == 1 ) 
+        if (hal_get_bool(stg->index_enable[n]))
         {
           // read the value without latching, latching was done on index
           // remember this as an offset, it will be substracted from nominal
           stg->offset[n] = stg_counter_read(n);
     			/* set index-enable false, so outside knows we found the index, and reset the position */
-  				*(stg->index_enable[n]) = 0;
+          hal_set_bool(stg->index_enable[n], 0);
 
           /*
           msg = rtapi_get_msg_level();
@@ -542,7 +542,7 @@ static void stg_counter_capture(void *arg, long period)
            *  pair is selected */   
 		} 
       } else {
-        *(stg->index_latch[n]) = 0;
+        hal_set_bool(stg->index_latch[n], 0);
       }
 
     }
@@ -555,7 +555,7 @@ static void stg_counter_capture(void *arg, long period)
     // Set IDLEN
     for( mask = 0, n = 0; n < num_chan; n++ ) 
     {
-      if( *(stg->index_enable[n]) == 1 )
+      if(hal_get_bool(stg->index_enable[n]))
       {
         mask |= ( 1<<n );
       }
@@ -571,15 +571,15 @@ static void stg_counter_capture(void *arg, long period)
     {
       if( index_pulse_latches & (1<<n) )
       {
-        *(stg->index_latch[n]) = 1;
+        hal_set_bool(stg->index_latch[n], 1);
 
-      	if ( *(stg->index_enable[n]) == 1 ) 
+        if (hal_get_bool(stg->index_enable[n]))
         {
           // read the value without latching, latching was done on index
 														// remember this as an offset, it will be substracted from nominal
           stg->offset[n] = stg_counter_read(n);
 				/* set index-enable false, so outside knows we found the index, and reset the position */
-				*(stg->index_enable[n]) = 0;
+				hal_set_bool(stg->index_enable[n], 0);
 
           /*
           msg = rtapi_get_msg_level();
@@ -591,7 +591,7 @@ static void stg_counter_capture(void *arg, long period)
           /* NOP, no action needed, since all index latches will be clearer for the next iteration anyway */
         }
       } else {
-        *(stg->index_latch[n]) = 0;
+        hal_set_bool(stg->index_latch[n], 0);
 			}
 		}
     // Reset all latches
@@ -606,17 +606,17 @@ static void stg_counter_capture(void *arg, long period)
 	/* capture raw counts to latches */
 	stg_counter_latch(n);
 	/* read raw count, and substract the offset (determined by indexed homing) */
-	*(stg->count[n]) = stg_counter_read(n) - stg->offset[n]; 
+	hal_set_si32(stg->count[n], stg_counter_read(n) - stg->offset[n]);
 	/* make sure scale isn't zero or tiny to avoid divide error */
-	if (stg->pos_scale[n] < 0.0) {
-	    if (stg->pos_scale[n] > -EPSILON)
-		stg->pos_scale[n] = -1.0;
+	if (hal_get_real(stg->pos_scale[n]) < 0.0) {
+	    if (hal_get_real(stg->pos_scale[n]) > -EPSILON)
+		hal_set_real(stg->pos_scale[n], -1.0);
 	} else {
-	    if (stg->pos_scale[n] < EPSILON)
-		stg->pos_scale[n] = 1.0;
+	    if (hal_get_real(stg->pos_scale[n]) < EPSILON)
+		hal_set_real(stg->pos_scale[n], 1.0);
 	}
 	/* scale count to make floating point position */
-	*(stg->pos[n]) = *(stg->count[n]) / stg->pos_scale[n];
+	hal_set_real(stg->pos[n], hal_get_si32(stg->count[n]) / hal_get_real(stg->pos_scale[n]));
     }
     /* done */
   return;
@@ -682,7 +682,7 @@ static void stg_dacs_write(void *arg, long period)
     stg=arg;
     for (i=0;i < num_chan; i++) {
 	/* scale the voltage to be written based on offset and gain */
-	volts = (*(stg->dac_value[i]) - stg->dac_offset[i]) * stg->dac_gain[i];
+	volts = (hal_get_real(stg->dac_value[i]) - hal_get_real(stg->dac_offset[i])) * hal_get_real(stg->dac_gain[i]);
         /* clamp the scaled voltage value to the -10V to 10V output range of the STG */
         if (volts < -10.0)
                 volts = -10.0;
@@ -731,7 +731,7 @@ static void stg_adcs_read(void *arg, long period)
 	/* we should have the conversion done for adc_num_chan */
 	ncounts = stg_adc_read(stg,i);
 	volts = ncounts * 10.0 / 4096;
-	*(stg->adc_value[i]) = volts * stg->adc_gain[i] - stg->adc_offset[i];
+	hal_set_real(stg->adc_value[i], volts * hal_get_real(stg->adc_gain[i]) - hal_get_real(stg->adc_offset[i]));
     }
     /* if adc_num_chan < 0, it's the first time this routine runs
        thus we don't have any ready data, we simply start the next conversion */
@@ -757,12 +757,12 @@ static void split_input(unsigned char data, io_pin *dest, int num)
     for (b = 0 ; b < num ; b++ ) {
 	if ( data & mask ) {
 	    /* input high, which means FALSE (active low) */
-	    *(dest->data) = 0;
-	    *(dest->io.not) = 1;
+	    hal_set_bool(dest->data, 0);
+	    hal_set_bool(dest->io.not, 1);
 	} else {
 	    /* input low, which means TRUE */
-	    *(dest->data) = 1;
-	    *(dest->io.not) = 0;
+	    hal_set_bool(dest->data, 1);
+	    hal_set_bool(dest->io.not, 0);
 	}
 	mask <<= 1;
 	dest++;
@@ -782,12 +782,12 @@ unsigned char build_output(io_pin *src, int num)
     /* assemble output byte for data port from 'num' source variables */
     for (b = 0; b < num; b++) {
 	/* get the data, add to output byte */
-	if ( *(src->data) ) {
-	    if ( !(src->io.invert) ) {
+	if ( hal_get_bool(src->data) ) {
+	    if ( !hal_get_bool(src->io.invert) ) {
 		data |= mask;
 	    }
 	} else {
-	    if ( (src->io.invert) ) {
+	    if ( hal_get_bool(src->io.invert) ) {
 		data |= mask;
 	    }
 	}
@@ -1054,7 +1054,7 @@ static void stg1_select_index_axis(void *arg, unsigned int channel)
     /*
      * Set polarity to low active if that is requested
      */
-    if( *(stg->index_polarity[channel]) == 0 ) 
+    if( hal_get_bool(stg->index_polarity[channel]) == 0 )
     {
       byPol = 0;
     }
@@ -1436,34 +1436,34 @@ static int export_counter(int num, stg_struct *addr)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for counts captured by update() */
-    retval = hal_pin_s32_newf(HAL_OUT, &addr->count[num],
-			      comp_id, "stg.%d.counts", num);
+    retval = hal_pin_new_si32(comp_id, HAL_OUT, &addr->count[num],
+			      0, "stg.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    retval = hal_pin_float_newf(HAL_OUT, &addr->pos[num],
-				comp_id, "stg.%d.position", num);
+    retval = hal_pin_new_real(comp_id, HAL_OUT, &addr->pos[num],
+				0.0, "stg.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &addr->pos_scale[num],
-				  comp_id, "stg.%d.position-scale", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->pos_scale[num],
+				  1.0, "stg.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }
 
   /* export pin for index homing */
-    retval = hal_pin_bit_newf(HAL_IO, &addr->index_enable[num],
-			      comp_id, "stg.%d.index-enable", num);
+    retval = hal_pin_new_bool(comp_id, HAL_IO, &addr->index_enable[num],
+			      0, "stg.%d.index-enable", num);
     if (retval != 0) {
 	return retval;
     }
 
   /* export pin for reading the index latch */
-  retval = hal_pin_bit_newf(HAL_OUT, &addr->index_latch[num],
-			    comp_id, "stg.%d.index-latch", num);
+  retval = hal_pin_new_bool(comp_id, HAL_OUT, &addr->index_latch[num],
+			    0, "stg.%d.index-latch", num);
   if (retval != 0) {
     return retval;
   }
@@ -1476,8 +1476,8 @@ static int export_counter(int num, stg_struct *addr)
   if( addr->model == 1 ) 
   {
     /* export read only HAL pin for index pulse polarity */
-    retval = hal_pin_bit_newf(HAL_IN, &addr->index_polarity[num],
-			      comp_id, "stg.%d.index-polarity", num);
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &addr->index_polarity[num],
+			      0, "stg.%d.index-polarity", num);
     if (retval != 0) 
     {
       return retval;
@@ -1502,20 +1502,20 @@ static int export_dac(int num, stg_struct *addr)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for voltage received by the board() */
-    retval = hal_pin_float_newf(HAL_IN, &addr->dac_value[num],
-				comp_id, "stg.%d.dac-value", num);
+    retval = hal_pin_new_real(comp_id, HAL_IN, &addr->dac_value[num],
+				0.0, "stg.%d.dac-value", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
-    retval = hal_param_float_newf(HAL_RW, &addr->dac_offset[num],
-				  comp_id, "stg.%d.dac-offset", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->dac_offset[num],
+				  0.0, "stg.%d.dac-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    retval = hal_param_float_newf(HAL_RW, &addr->dac_gain[num],
-				  comp_id, "stg.%d.dac-gain", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->dac_gain[num],
+				  1.0, "stg.%d.dac-gain", num);
     if (retval != 0) {
 	return retval;
     }
@@ -1537,20 +1537,20 @@ static int export_adc(int num, stg_struct *addr)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for voltage received by the board() */
-    retval = hal_pin_float_newf(HAL_OUT, &addr->adc_value[num],
-				comp_id, "stg.%d.adc-value", num);
+    retval = hal_pin_new_real(comp_id, HAL_OUT, &addr->adc_value[num],
+				0.0, "stg.%d.adc-value", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
-    retval = hal_param_float_newf(HAL_RW, &addr->adc_offset[num],
-				  comp_id, "stg.%d.adc-offset", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->adc_offset[num],
+				  0.0, "stg.%d.adc-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    retval = hal_param_float_newf(HAL_RW, &addr->adc_gain[num],
-				  comp_id, "stg.%d.adc-gain", num);
+    retval = hal_param_new_real(comp_id, HAL_RW, &addr->adc_gain[num],
+				  1.0, "stg.%d.adc-gain", num);
     if (retval != 0) {
 	return retval;
     }
@@ -1599,17 +1599,14 @@ static int export_input_pin(int pinnum, io_pin * pin)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export read only HAL pin for input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(pin->data), 0,
 			      "stg.in-%02d", pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export additional pin for inverted input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not), comp_id,
+    retval = hal_pin_new_bool(comp_id, HAL_OUT, &(pin->io.not), 1,
 			      "stg.in-%02d-not", pinnum);
-    /* initialize HAL pins */
-    *(pin->data) = 0;
-    *(pin->io.not) = 1;
 
     /* restore saved message level */
     rtapi_set_msg_level(msg);
@@ -1632,18 +1629,14 @@ static int export_output_pin(int pinnum, io_pin * pin)
   rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export read only HAL pin for output data */
-    retval = hal_pin_bit_newf(HAL_IN, &(pin->data),
-			      comp_id, "stg.out-%02d", pinnum);
+    retval = hal_pin_new_bool(comp_id, HAL_IN, &(pin->data),
+			      0, "stg.out-%02d", pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert),
-				comp_id, "stg.out-%02d-invert", pinnum);
-    /* initialize HAL pin and param */
-    *(pin->data) = 0;
-    pin->io.invert = 0;
-
+    retval = hal_param_new_bool(comp_id, HAL_RW, &(pin->io.invert),
+				0, "stg.out-%02d-invert", pinnum);
 
     /* restore saved message level */
     rtapi_set_msg_level(msg);
