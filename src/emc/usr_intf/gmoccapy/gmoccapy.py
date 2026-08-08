@@ -1828,7 +1828,8 @@ class gmoccapy(object):
                 cmd = c.replace('{XID}', str(xid))
                 child = subprocess.Popen(cmd.split())
                 self._dynamic_childs[xid] = child
-                nb.show_all()
+                # not show_all(): it would resurrect widgets hidden on purpose
+                nb.show()
         except:
             LOG.error(_("ERROR, trying to initialize the user tabs or panels, check for typos"))
             LOG.error(tab_locations)
@@ -1839,10 +1840,14 @@ class gmoccapy(object):
     def _dynamic_tab(self, widget, text):
         s = Gtk.Socket()
         try:
-            widget.append_page(s, Gtk.Label.new(" " + text + " "))
+            label = Gtk.Label.new(" " + text + " ")
+            widget.append_page(s, label)
+            s.show()
+            label.show()
         except:
             try:
                 widget.pack_end(s, True, True, 0)
+                s.show()
             except:
                 return None
         return s.get_id()
