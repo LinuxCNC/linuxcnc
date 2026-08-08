@@ -97,6 +97,17 @@ Extra arguments passed to the linker.
   require _sudo_ to write to system directories.
 * Preprocess *.comp* files into *.c* files (the *--preprocess* flag)
 
+== NAMES
+
+A name declared in a *.comp* file is a C identifier, but it is exported under a
+mangled HAL identifier: underscores become dashes, and a trailing dash or period
+is removed. *pin in float my_input* is reached from HAL as
+*component.N.my-input*, and *loadrt my_comp* exports its pins under
+*my-comp.N.*. Two declarations that mangle to the same HAL name are rejected.
+
+See HALNAME under _Syntax_ in the _Halcompile HAL Component Generator_
+documentation for the full rules.
+
 == SEE ALSO
 
 * _Halcompile_ / _HAL Component Generator_ in the LinuxCNC documentation for a
