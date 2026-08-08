@@ -222,7 +222,133 @@ HOME_SEQUENCE = 0 - Accepted but currently does nothing
 
 Touchy: the Touchy MACRO entries should now be placed in a [MACROS]
 section of the INI rather than in the [TOUCHY] section. This is part of
-a process of commonising the INI setting between GUIs. 
+a process of commonising the INI setting between GUIs.
+
+
+== Preview renderer now requires OpenGL 3.3 core
+
+The G-code preview shared by AXIS, the GTK screens (Gremlin / gmoccapy /
+gscreen / GladeVCP `hal_gremlin` / QtPlasmaC), and QtVCP was rewritten to use
+a single modern OpenGL 3.3 *core-profile* renderer (shaders, VBOs, an offscreen
+framebuffer for click selection, a glyph-atlas for overlay text). The legacy
+fixed-function path (display lists, immediate mode, `GL_SELECT` picking,
+`glBitmap` text, line stipple, `GL_LIGHTING`) has been removed. There is no
+runtime switch and no in-process fallback.
+
+*Hardware requirement.* OpenGL 3.3 core is needed. On the supported platform
+(Linux with Mesa) this is available on Intel Sandy Bridge (2011) and newer, AMD
+r600 and newer, and nouveau. Machines without a capable GPU can use Mesa's
+software renderer (llvmpipe), which handles the line-dominated preview
+acceptably:
+
+----
+LIBGL_ALWAYS_SOFTWARE=1 linuxcnc myconfig.ini
+----
+
+If a core context cannot be created the GUI exits at start-up with a diagnostic
+naming the OpenGL 3.3 requirement and suggesting `LIBGL_ALWAYS_SOFTWARE=1`,
+rather than starting with a blank or corrupt preview.
+
+[WARNING]
+.BREAKING: out-of-tree screens that inject raw legacy OpenGL
+====
+Custom screens that subclass the in-tree preview classes and *override a
+drawing internal to emit raw fixed-function OpenGL* (immediate mode, display
+lists, `glBitmap`, etc.) will fail against a core context. Compatibility is
+preserved only at the *calling surface*: the public methods and attributes of
+`rs274.glcanon.GlCanonDraw` / `glnav.GlNavBase` used by the in-tree GUIs keep
+their names, signatures, and behaviour (`realize`, `redraw`,
+`redraw_perspective`, `redraw_ortho`, `select`, `set_highlight_line`,
+`set_canon`, `posstrs`, the `stale_dlist(...)` cache-invalidation entry points,
+and the `get_*`/`is_*` callback contract). Move any custom drawing onto those
+supported entry points, or draw with your own modern-OpenGL code.
+====
+
+The immediate-mode drawing helpers used by the old renderer remain available for
+compatibility (`linuxcnc.draw_lines`, `linuxcnc.line9`, `linuxcnc.draw_dwells`,
+`linuxcnc.positionlogger.call()`); they are unused by the in-tree GUIs, which
+bake geometry to VBOs and upload the backplot from `positionlogger.points()`,
+but still work for out-of-tree tools under a legacy/compatibility context.
+
+=== Notes for integrators and driver authors
+
+* *AXIS / Togl.* The vendored Togl widget (`src/emc/usr_intf/axis/extensions/togl.c`)
+  gained a boolean `-coreprofile` option (default *false*). When true it creates
+  the context with `glXChooseFBConfig` + `glXGetVisualFromFBConfig` +
+  `glXCreateContextAttribsARB` (OpenGL 3.3 core), raising a descriptive Tcl error
+  on failure. AXIS always enables it. The default (false) path is unchanged, so
+  `vismach` and any out-of-tree Togl users keep their legacy contexts.
+
+* *Gremlin (GTK).* GTK3 only hands out core contexts through `GtkGLArea`, so the
+  gremlin widget still builds its context by hand via GLX, now requesting 3.3
+  core with `glXCreateContextAttribsARB`. PyOpenGL cannot resolve that extension
+  entry point (it comes back as a null function), so gremlin loads `libGL`
+  directly with `ctypes` and creates *and binds* the context (choose-fbconfig /
+  make-current / swap) through that one handle to avoid mixing context pointers.
+
+* *Line width in core profiles.* A forward-compatible core context (Qt requests
+  one) rejects `glLineWidth(> 1)` with `GL_INVALID_VALUE` even though
+  `GL_ALIASED_LINE_WIDTH_RANGE` reports a larger maximum. The renderer probes
+  the accepted width once and caches it, so thick lines (the selection
+  highlight, dwell markers) degrade to 1 px on such drivers instead of raising;
+  a non-forward-compatible core context (AXIS's Togl, Gremlin's GLX) keeps the
+  wider lines. Thick lines via quad expansion are a possible future improvement.
+
+* *vismach* is unaffected: it keeps its legacy Togl context and immediate-mode
+  drawing; only its camera consumes the (now GL-free) explicit matrices from
+  `glnav`.
+
+=== How the preview is put together
+
+The drawing itself lives in `lib/python/rs274/glcanon_scene.py`, in four tiers.
+Nothing here changes what the preview looks like; it is where to start reading
+if you need to fix or extend one part of it.
+
+* *Parts.* One class per drawing concern - grid, program geometry, extents,
+  bounding box, offsets, small origin, axes, machine-limits box, tool, live
+  backplot, DRO overlay, the `user_plot()` hook. A part draws that one thing
+  and nothing else. Adding a preview element means adding a part and placing it
+  in the scene's order, not editing an existing part.
+
+* *The scene.* `PreviewScene` holds the parts in draw order and runs them.
+  *Visibility is decided by the scene, not the part*: it evaluates each part's
+  `visible(ctx)` and simply does not call a part whose gate is false, so
+  `draw()` may assume it is visible and must not open with an
+  `if not shown: return`. Gates that couple parts belong to the scene too - the
+  extents-versus-bounding-box either/or, and the translucent compositing
+  `program_alpha` wraps the program in.
+
+* *Primitives.* Services several parts share - a line array, a wireframe box,
+  Hershey vector text, the tool-cone mesh - reached as `ctx.prim`. Letters are a
+  primitive that axes, extents and offsets all use, not a sibling of "axes".
+
+* *Passes.* The preview is three sets of depth/blend state, not an arbitrary
+  order: world geometry, translucent geometry drawn over it at equal depth, and
+  the screen-space overlay. Each part declares its `pass_`; the scene sets the
+  state when the pass changes. A part that needs something else for its own
+  drawing (the tool's constant-alpha blend) restores it afterwards.
+
+Transforms go through a scoped model-view stack: `with ctx.mv.push():` restores
+the previous transform on exit, including when an exception unwinds through it,
+so a part cannot leak a transform onto a later one. Offsets, small origin and
+axes share one such scope (`RelativeCoordGroup`), because the axes are drawn in
+the offset frame the offsets progressively build.
+
+Parts read a `FrameContext` - an explicit, enumerated list of machine, view and
+renderer state, built once per frame by `GlCanonDraw` - rather than the widget
+itself. That is what lets them be tested without a window: build a context by
+hand, call `part.draw(ctx)`, and assert on the vertices it emitted. See
+`tests/glcanon-scene/`.
+
+Click-to-select is not a part - it draws nothing to the screen. `Picker` renders
+the *same* program geometry into an offscreen framebuffer with line numbers
+encoded as colour and resolves the nearest hit; `GlCanonDraw.select(x, y)`
+delegates to it. It shares one `ProgramGeometry` with the drawing part, so the
+pickable geometry and the drawn geometry cannot drift apart.
+
+Setting `GLCANON_SCENE_DEBUG=1` logs which parts the scene drew and which it
+skipped whenever that split changes, and reports depth/blend state a part left
+behind.
 
 
 == New HAL components
