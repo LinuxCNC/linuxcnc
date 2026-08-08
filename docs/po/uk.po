@@ -13,8 +13,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-07-31 13:23+0000\n"
-"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
+"PO-Revision-Date: 2026-08-08 22:52+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -3674,7 +3674,7 @@ msgid ""
 "<<Setting-up-the-environment,Setting up the test environment>>."
 msgstr ""
 "Це також може не вийти! Прочитайте весь цей документ, особливо розділ "
-"<<Налаштування середовища, Налаштування тестового середовища>>."
+"<<Setting-up-the-environment,Налаштування тестового середовища>>."
 
 #. type: Title ==
 #: src/code/building-linuxcnc.adoc:106
@@ -3836,9 +3836,9 @@ msgid ""
 "Start>> section at the top of this document, possibly with different "
 "arguments to `src/configure` and `make`."
 msgstr ""
-"Збірка для Run-In-Place виконує кроки, описані в розділі <<Швидкий старт, "
-"Швидкий старт>> на початку цього документа, можливо, з різними аргументами "
-"для `src/configure` та `make`."
+"Збірка для Run-In-Place виконує кроки, описані в розділі <<Quick-"
+"Start,Швидкий старт>> на початку цього документа, можливо, з різними "
+"аргументами для `src/configure` та `make`."
 
 #. type: Title ====
 #: src/code/building-linuxcnc.adoc:161
@@ -4115,7 +4115,7 @@ msgid ""
 msgstr ""
 "Потрібно встановити залежності часу збірки, тобто файли заголовків для "
 "зовнішніх бібліотек коду, що використовуються, як описано в розділі "
-"<<Задоволення залежностей збірки, Задоволення залежностей збірки>>."
+"<<Satisfying-Build-Dependencies,Задоволення залежностей збірки>>."
 
 #. type: Plain text
 #: src/code/building-linuxcnc.adoc:254
@@ -53022,8 +53022,8 @@ msgid ""
 "'L' - tool orientation (see <<sec:lathe-tool-orientation,lathe tool "
 "orientation>>)"
 msgstr ""
-"'L' - орієнтація інструменту (див. <<розділ: орієнтація-токарного-"
-"інструменту, орієнтація токарного інструменту>>)"
+"'L' - орієнтація інструменту (див. <<sec:lathe-tool-orientation, орієнтація "
+"токарного інструменту>>)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1384
@@ -60859,7 +60859,7 @@ msgid ""
 "and 'M99' M-codes.  See <<ocode:fanuc-style-programs,Fanuc-Style Programs>>."
 msgstr ""
 "Інтерпретатор підтримує головні та підпрограми у стилі Fanuc за допомогою M-"
-"кодів 'M98' та 'M99'. Див. <<ocode:programs-style-fanuc,Програми у стилі "
+"кодів 'M98' та 'M99'. Див. <<ocode:fanuc-style-programs,Програми у стилі "
 "Fanuc>>."
 
 #. type: Title ===
@@ -77740,7 +77740,7 @@ msgid ""
 "section."
 msgstr ""
 "Це лише торкається концепції — механізм зворотного виклику буде розглянуто "
-"детальніше в розділі <<gladevcp:програмування,Програмування GladeVCP>>."
+"детальніше в розділі <<gladevcp:programming,Програмування GladeVCP>>."
 
 #. type: Title ==
 #: src/gui/gladevcp.adoc:179
@@ -91271,8 +91271,8 @@ msgid ""
 "to the directory specified as `SUBROUTINE_PATH`, see "
 "<<gmocappy:rs274ngc,RS274NGC Section>>."
 msgstr ""
-"до каталогу, вказаного як `SUBROUTINE_PATH`, див. <<розділ "
-"gmocappy:rs274ngc,RS274NGC>>."
+"до каталогу, вказаного як `SUBROUTINE_PATH`, див. "
+"<<gmocappy:rs274ngc,RS274NGC>>."
 
 #. type: Plain text
 #: src/gui/gmoccapy.adoc:1063
@@ -226472,7 +226472,7 @@ msgstr "Увімкнення омічного датчика (вихід)"
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:407
 msgid "See the <<ohmic-sensing,ohmic sensing>> schematic."
-msgstr "Див. схему <<омічне зондування, омічне зондування>>."
+msgstr "Див. схему <<ohmic-sensing, омічне зондування>>."
 
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:408
@@ -226505,8 +226505,8 @@ msgid ""
 "Take care to follow the <<ohmic-sensing,ohmic sensing>> schematic shown "
 "previously."
 msgstr ""
-"Уважно дотримуйтесь схеми <<омічне зондування, омічне зондування>>, "
-"наведеної раніше."
+"Уважно дотримуйтесь схеми <<ohmic-sensing, омічне зондування>>, наведеної "
+"раніше."
 
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:414
@@ -229090,8 +229090,7 @@ msgid ""
 msgstr ""
 "Автоматична міграція з PlasmaC до QtPlasmaC більше не підтримується. "
 "Користувач повинен буде або вручну перетворити конфігурацію PlasmaC, або "
-"створити нову конфігурацію за допомогою <<майстра конфігурації, "
-"конфігурації>>."
+"створити нову конфігурацію за допомогою <<configuring,конфігурації>>."
 
 #. type: Title ==
 #: src/plasma/qtplasmac.adoc:362
@@ -229989,7 +229988,7 @@ msgid ""
 "feature, please read <<cha:external-offsets,External Axis Offsets>> in the "
 "LinuxCNC documentation."
 msgstr ""
-"За винятком <<плазми:різання труб,різання труб>> з кутовою віссю A, B або C, "
+"За винятком <<plasma:tube_cutting,різання труб>> з кутовою віссю A, B або C, "
 "QtPlasmaC використовує функцію зовнішніх зміщень LinuxCNC для всіх рухів осі "
 "Z, а також для переміщення осі X та/або Y для заміни витратних матеріалів "
 "або відновлення різання під час паузи.  Для отримання додаткової інформації "
@@ -237478,7 +237477,7 @@ msgid ""
 "tools>>."
 msgstr ""
 "Для отримання додаткової інформації про кілька інструментів див. "
-"<<plasma:багатоінструмент,кілька інструментів>>."
+"<<plasma:multi-tool,кілька інструментів>>."
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:2489
@@ -244644,7 +244643,7 @@ msgstr ""
 #: src/plasma/qtplasmac.adoc:4348
 #, no-wrap
 msgid "Set feed rate from <<plasma:material-handling,material>>."
-msgstr "Встановіть швидкість подачі з <<plasma:material-handing,material>>."
+msgstr "Встановіть швидкість подачі з <<plasma:material-handling,material>>."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:4349
@@ -246505,8 +246504,7 @@ msgstr ""
 #: src/remap/remap.adoc:120
 msgid ""
 "For G-codes, see the <<remap:unallocated-g-codes,unallocated G-codes list>>."
-msgstr ""
-"Щодо G-кодів див. <<список remap:unallocated-g-codes,unallocated G-codes>>."
+msgstr "Щодо G-кодів див. <<remap:unallocated-g-codes,unallocated G-codes>>."
 
 #. type: Plain text
 #: src/remap/remap.adoc:121

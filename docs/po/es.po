@@ -9,13 +9,14 @@
 # Hans Unzner <hansunzner@gmail.com>, 2023.
 # gallegonovato <fran-carro@hotmail.es>, 2024.
 # Salvador Peña <salvadorp74@hotmail.com>, 2025, 2026.
+# Luca Toniolo <toniolo.luca@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
 "PO-Revision-Date: 2026-08-08 22:51+0000\n"
-"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -9187,7 +9188,7 @@ msgid ""
 "feature, and if other changes break your feature it can go unnoticed without "
 "a test."
 msgstr ""
-"Agregar documentación y <<cha:writing-test,escribir pruebas>> es una parte "
+"Agregar documentación y <<cha:writing-tests,escribir pruebas>> es una parte "
 "importante de agregar una nueva característica.  De lo contrario, otros no "
 "sabrán cómo usar tu característica, y si otros cambios corrompen tu "
 "característica, pueden pasar desapercibidos sin una prueba."
@@ -17963,7 +17964,7 @@ msgid ""
 "or the <<cha:pyvcp,PyVCP Chapter>> for more information."
 msgstr ""
 "GladeVCP y PyVCP utilizan los siguientes elementos [DISPLAY], consulte la "
-"sección <<gladevcp:embeding-tab,Incrustando una pestaña>> del capítulo "
+"sección <<gladevcp:embedding-tab,Incrustando una pestaña>> del capítulo "
 "GladeVCP o el <<cha:pyvcp,Capítulo PyVCP>> para más información."
 
 #. type: NOTE
@@ -71880,18 +71881,6 @@ msgstr "Requerimientos mínimos"
 
 #. type: Plain text
 #: src/getting-started/system-requirements.adoc:20
-#, fuzzy
-#| msgid ""
-#| "The minimum system to run LinuxCNC and Debian / Ubuntu may vary depending "
-#| "on the exact usage. Stepper systems in general require faster threads to "
-#| "generate step pulses than servo systems. You can use the Live CD to test "
-#| "the software before committing to a permanent installation on a "
-#| "computer.  Keep in mind that the Latency Test numbers are more important "
-#| "than the processor speed for software step generation. More information "
-#| "on the Latency Test is <<sec:latency-test,here>>.  In addition LinuxCNC "
-#| "needs to be run on an operating system that uses a specially modified "
-#| "kernel, see <<sec:kernel_and_version_requirements,Kernel and Version "
-#| "Requirements>>."
 msgid ""
 "The minimum system to run LinuxCNC and Debian / Ubuntu may vary depending on "
 "the exact usage. Stepper systems in general require faster threads to "
@@ -71911,7 +71900,7 @@ msgstr ""
 "de instalarlo en la computadora.  Tenga en cuenta que los resultados del "
 "test de latencia son mas importantes que la velocidad del procesador para la "
 "generación de pasos por software. Encontrara mas información sobre el test "
-"de latencia <<sub:latency-test,aqui>>.  Además, LinuxCNC debe ejecutarse en "
+"de latencia <<sec:latency-test,aqui>>.  Además, LinuxCNC debe ejecutarse en "
 "un sistema operativo que utiliza un kernel especialmente modificado, ver "
 "<<sec:kernel_and_version_requirements,Requisitos de versión y kernel>>."
 
@@ -74253,7 +74242,7 @@ msgstr ""
 "es relativo al sistema de coordenadas de la pieza actual ('G5x'), modificado "
 "por el offset del eje ('G92'). Cuando se completa el Touch off, la "
 "coordenada relativa para el eje elegido se convertirá en el valor "
-"ingresado.  Consultar <<gcode:g10-l10,G10 L10 en el capítulo de código G."
+"ingresado.  Consultar <<gcode:g10-l10,G10 L10>> en el capítulo de código G."
 
 #. type: WARNING
 #: src/gui/axis.adoc:199
@@ -84216,7 +84205,7 @@ msgstr ""
 #: src/gui/gladevcp.adoc:2101
 msgid "More information on GStat can be found here: <<cha:gstat,GStat>>."
 msgstr ""
-"Se puede encontrar mas información sobre GStat aquí: <<cha:gstat.GStat>>."
+"Se puede encontrar mas información sobre GStat aquí: <<cha:gstat,GStat>>."
 
 #. type: Title ===
 #: src/gui/gladevcp.adoc:2102
@@ -135280,7 +135269,7 @@ msgid ""
 "is opened."
 msgstr ""
 "Cuando se lance LinuxCNC se abrirá la <<cap:tklinuxcnc-display,ventana de "
-"TkLinuxCNC."
+"TkLinuxCNC>>."
 
 #. type: Title ===
 #: src/gui/tklinuxcnc.adoc:43
@@ -158612,7 +158601,7 @@ msgstr ""
 "verifica alguna acción particular. Por ejemplo, una placa madre Intel "
 "funcionaba bastante bien la mayor parte del tiempo, pero cada 64 segundos "
 "tenía una latencia muy mala de 300 µs. Afortunadamente eso fue reparable; "
-"vea <<_latency_tunning>>."
+"vea <<_latency_tuning>>."
 
 #. type: Plain text
 #: src/install/latency-test.adoc:109
@@ -219225,12 +219214,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:1121
-#, fuzzy
 msgid ""
 "See the <<plasma:thick-materials,thick materials>> section for more "
 "information on puddle jump."
 msgstr ""
-"Vea la sección <<sec:overview-parameters,Parametros para más información."
+"Vea la sección <<plasma:thick-materials,Parámetros>> para más información."
 
 #. type: Block title
 #: src/plasma/qtplasmac.adoc:1122

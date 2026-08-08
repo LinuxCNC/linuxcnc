@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-03 08:40+0000\n"
+"PO-Revision-Date: 2026-08-08 22:51+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: ru\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -79517,7 +79517,7 @@ msgstr ""
 "который будет использоваться. В большинстве случаев эта строка не нужна, она "
 "используется GMOCCAPY для хранения настроек графического пользовательского "
 "интерфейса, таких как темы, единицы измерения УЦИ, цвета, настройки "
-"клавиатуры и т. д., см. <<gmoccapy:settings-page,settingspage> > подробнее."
+"клавиатуры и т. д., см. <<gmoccapy:settings-page,settingspage>> подробнее."
 
 #. type: NOTE
 #: src/gui/gmoccapy.adoc:132
@@ -82664,8 +82664,8 @@ msgid ""
 "measurement,Settings Page Tool Measurement>>."
 msgstr ""
 "Перед началом первого теста не забудьте ввести высоту и скорость зонда на "
-"странице настроек! См. <<gmoccapy:tool-measurement, Страница настроек "
-"Измерение инструмента."
+"странице настроек! См. <<gmoccapy:tool-measurement,Страница настроек "
+"Измерение инструмента>>."
 
 #. type: IMPORTANT
 #: src/gui/gmoccapy.adoc:956
@@ -128618,7 +128618,7 @@ msgid ""
 "For further components see <<sec:hal-components,HAL Components List>> or the "
 "man pages."
 msgstr ""
-"Дополнительные компоненты см. в <<sec:hal-comComponents,HAL Components List> "
+"Дополнительные компоненты см. в <<sec:hal-components,HAL Components List>> "
 "или на страницах руководства."
 
 #. type: Index entry
