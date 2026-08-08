@@ -29,17 +29,8 @@
 #define THREE21_REACH          0x01
 
 struct haldata {
-    hal_float_t *a1, *a2, *a3, *d1, *d2, *d3, *d4, *d6;
-} *haldata = 0;
-
-#define THREE21_A1 (*(haldata->a1))
-#define THREE21_A2 (*(haldata->a2))
-#define THREE21_A3 (*(haldata->a3))
-#define THREE21_D1 (*(haldata->d1))
-#define THREE21_D2 (*(haldata->d2))
-#define THREE21_D3 (*(haldata->d3))
-#define THREE21_D4 (*(haldata->d4))
-#define THREE21_D6 (*(haldata->d6))
+    hal_real_t a1, a2, a3, d1, d2, d3, d4, d6;
+} *haldata = NULL;
 
 static int three21KinematicsForward(const double * joint,
                                     EmcPose * world,
@@ -47,14 +38,14 @@ static int three21KinematicsForward(const double * joint,
                                     KINEMATICS_INVERSE_FLAGS * iflags)
 {
    (void)fflags;
-   double a1 = THREE21_A1;
-   double a2 = THREE21_A2;
-   double a3 = THREE21_A3;
-   double d1 = THREE21_D1;
-   double d2 = THREE21_D2;
-   double d3 = THREE21_D3;
-   double d4 = THREE21_D4;
-   double d6 = THREE21_D6;
+   double a1 = hal_get_real(haldata->a1);
+   double a2 = hal_get_real(haldata->a2);
+   double a3 = hal_get_real(haldata->a3);
+   double d1 = hal_get_real(haldata->d1);
+   double d2 = hal_get_real(haldata->d2);
+   double d3 = hal_get_real(haldata->d3);
+   double d4 = hal_get_real(haldata->d4);
+   double d6 = hal_get_real(haldata->d6);
 
    double s1, s2, s3, s4, s5, s6;
    double c1, c2, c3, c4, c5, c6;
@@ -198,14 +189,14 @@ static int three21KinematicsInverse(const EmcPose * world,
    PmPose worldPose;
    PmRpy rpy;
 
-   double a1 = THREE21_A1;
-   double a2 = THREE21_A2;
-   double a3 = THREE21_A3;
-   double d1 = THREE21_D1;
-   double d2 = THREE21_D2;
-   double d3 = THREE21_D3;
-   double d4 = THREE21_D4;
-   double d6 = THREE21_D6;
+   double a1 = hal_get_real(haldata->a1);
+   double a2 = hal_get_real(haldata->a2);
+   double a3 = hal_get_real(haldata->a3);
+   double d1 = hal_get_real(haldata->d1);
+   double d2 = hal_get_real(haldata->d2);
+   double d3 = hal_get_real(haldata->d3);
+   double d4 = hal_get_real(haldata->d4);
+   double d6 = hal_get_real(haldata->d6);
 
    double t1, t2, t3;
    double k;
@@ -358,24 +349,15 @@ int three21KinematicsSetup(const  int   comp_id,
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
 
-    res += hal_pin_float_newf(HAL_IN, &(haldata->a1), comp_id,"%s.A1",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->a2), comp_id,"%s.A2",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->a3), comp_id,"%s.A3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d1), comp_id,"%s.D1",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d2), comp_id,"%s.D2",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d3), comp_id,"%s.D3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6",kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a1), DEFAULT_THREE21_A1, "%s.A1", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a2), DEFAULT_THREE21_A2, "%s.A2", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a3), DEFAULT_THREE21_A3, "%s.A3", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d1), DEFAULT_THREE21_D1, "%s.D1", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d2), DEFAULT_THREE21_D2, "%s.D2", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d3), DEFAULT_THREE21_D3, "%s.D3", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d4), DEFAULT_THREE21_D4, "%s.D4", kp->halprefix);
+    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d6), DEFAULT_THREE21_D6, "%s.D6", kp->halprefix);
     if (res) { goto error; }
-
-    THREE21_A1 = DEFAULT_THREE21_A1;
-    THREE21_A2 = DEFAULT_THREE21_A2;
-    THREE21_A3 = DEFAULT_THREE21_A3;
-    THREE21_D1 = DEFAULT_THREE21_D1;
-    THREE21_D2 = DEFAULT_THREE21_D2;
-    THREE21_D3 = DEFAULT_THREE21_D3;
-    THREE21_D4 = DEFAULT_THREE21_D4;
-    THREE21_D6 = DEFAULT_THREE21_D6;
 
     return 0;
 
