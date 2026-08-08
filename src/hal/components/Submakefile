@@ -42,7 +42,9 @@ else
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 endif
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/build/man/man9/%.9, $(COMP_DRIVERS))
+ifeq ($(BUILD_MANPAGES),yes)
 TARGETS += manpages
+endif
 GENERATED_MANPAGES += $(COMP_MANPAGES)
 GENERATED_MANPAGES += $(COMP_DRIVER_MANPAGES)
 .PHONY: manpages

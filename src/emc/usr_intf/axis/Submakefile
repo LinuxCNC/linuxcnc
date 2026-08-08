@@ -27,7 +27,10 @@ $(TKDARMODULE): $(call TOOBJS, $(TKDARMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -lX11 $(TCL_LIBS)
 
-PYTARGETS += $(EMCMODULE) $(TOGLMODULE) $(TKDARMODULE)
+PYTARGETS += $(EMCMODULE)
+ifeq ($(BUILD_GUI),yes)
+PYTARGETS += $(TOGLMODULE) $(TKDARMODULE)
+endif
 
 PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
 	mdi.py image-to-gcode.py lintini.py debuglevel.py teach-in.py tracking-test.py
