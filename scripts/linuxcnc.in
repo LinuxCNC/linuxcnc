@@ -987,8 +987,15 @@ case $EMCDISPLAY in
     echo "DUMMY DISPLAY MODULE, press <ENTER> to continue."
     read -r ;
   ;;
+
   linuxcncrsh)
+    if ! program_available "$EMCDISPLAY"; then
+      echo "Can't execute DISPLAY program $EMCDISPLAY ${EMCDISPLAYARGS[*]} ${EXTRA_ARGS[*]}"
+      Cleanup
+      exit 1
+    fi
     $EMCDISPLAY "${EMCDISPLAYARGS[@]}" "${EXTRA_ARGS[@]}" -- -ini "$INIFILE"
+    result=$?
   ;;
   *)
     # all other displays are assumed to be commands on the PATH

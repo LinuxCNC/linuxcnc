@@ -13,14 +13,20 @@ HALSHSRCS := \
 ifneq ($(READLINE_LIBS),)
 HALCMDSRCS += hal/utils/halcmd_completion.c
 endif
+ifeq ($(BUILD_GUI),yes)
 USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS))
+else
+USERSRCS += $(sort $(HALCMDSRCS))
+endif
 
 $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 ../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.1 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@ -lfmt
+ifeq ($(BUILD_GUI),yes)
 TARGETS += ../tcl/hal.so
+endif
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.1 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)

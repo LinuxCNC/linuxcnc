@@ -124,7 +124,7 @@ reserved_names = [ 'comp_id', 'fperiod', 'rtapi_app_main', 'rtapi_app_exit', 'ex
 
 def _parse(rule, text, filename=None):
     global P, S
-    S = HalScanner(text, filename=filename)
+    S = HalScanner(text)
     P = Hal(S)
     return runtime.wrap_error_reporter(P, rule)
 

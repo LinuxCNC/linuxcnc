@@ -1421,7 +1421,9 @@ clean:
 endif
 
 manpages: $(GENERATED_MANPAGES)
+ifeq ($(BUILD_MANPAGES),yes)
 TARGETS += manpages
+endif
 
 # make manpages from all the asciidoc manpage-sources
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
