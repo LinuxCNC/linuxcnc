@@ -482,7 +482,7 @@ void SET_SPINDLE_SPEED(int spindle, double rpm)
   _sai._spindle_speed[spindle] = rpm;
 }
 
-void STOP_SPINDLE_TURNING(int spindle)
+void STOP_SPINDLE_TURNING(int spindle, int /*wait_for_atspeed*/)
 {
   PRINT("STOP_SPINDLE_TURNING(%i)\n", spindle);
   _sai._spindle_turning[spindle] = CANON_STOPPED;
