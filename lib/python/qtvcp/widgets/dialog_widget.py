@@ -104,6 +104,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self.timer = QTimer()
         self.seconds_left = 0
         self.timer.timeout.connect(self.update_timer)
+        self._waitflag = False
 
     def _hal_init(self):
         self.read_preference_geometry(self._geoName)
@@ -251,10 +252,19 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self.timer.start(1000)
 
         if use_exec:
-            retval = self.exec()
+            self._waitflag = True
+            while self._waitflag:
+                # read any ZMQ messages
+                # then update widgets
+                # till we get a dialog answer
+                STATUS.readNextMsg()
+                QApplication.processEvents()
+            retval = self.result()
             STATUS.emit('focus-overlay-changed', False, None, None)
-            LOG.debug('Value of pressed button: {}'.format(retval))
-            return self.qualifiedReturn(retval)
+            LOG.debug('^Value of pressed button: {}'.format(retval))
+            rtn = self.qualifiedReturn(retval)
+            print('return:',rtn)
+            return rtn
 
     # hack to force details box to present open on first display
     def forceDetailsOpen(self):
@@ -276,25 +286,21 @@ class LcncDialog(QMessageBox, GeometryMixin):
 
     def qualifiedReturn(self, retval):
         if retval in(QMessageBox.No, QMessageBox.Cancel):
+            #print('no/cancel')
             return False
-        elif retval in(QMessageBox.Ok, QMessageBox.Yes):
+        if retval in(QMessageBox.Ok, QMessageBox.Yes):
+            #print('ok/yes')
             return True
-        else:
+        if self.buttonRole(self.clickedButton()) != -1:
+            #print('button role')
+            # destruction role button
             return self.buttonRole(self.clickedButton())
+        return retval
 
     # move dialog when shown
     def showEvent(self, event):
         self.set_geometry()
         super(LcncDialog, self).showEvent(event)
-        return
-        if self._nblock:
-            self.set_geometry()
-        else:
-            geom = self.frameGeometry()
-            geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
-            self.setGeometry(geom)
-        super(LcncDialog, self).showEvent(event)
-
 
     def update_timer(self):
         self.seconds_left -= 1
@@ -307,7 +313,8 @@ class LcncDialog(QMessageBox, GeometryMixin):
 
     def btn_callback(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
-
+        # stop waiting
+        self._waitflag = False
         # update the dialog position
         self.record_geometry()
 
@@ -315,26 +322,30 @@ class LcncDialog(QMessageBox, GeometryMixin):
             return
 
         self.hide()
-
         btn = self.standardButton(self.clickedButton())
         result = self.qualifiedReturn(btn)
         LOG.debug('Value of {} pressed button: {}'.format(self, result))
         self.process_result(result)
 
     def process_result(self, result):
+        self._waitflag = False
         self.timer.stop()
         # these directly call a function with btn info
         if not self._return_callback is None:
+            #print('callback return')
             self._return_callback(self, result)
         # these return via status messages
         elif self._message is not None:
+            #print('message return')
             self._message['RETURN'] = result
             STATUS.emit('general', self._message)
             STATUS.emit('focus-overlay-changed', False, None, None)
             self._message = None
         # just return result
         else:
+            #print('just return')
             LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
+            return result
 
     def setGeometry(self,*args):
         #print(args,len(args))
@@ -360,12 +371,24 @@ class LcncDialog(QMessageBox, GeometryMixin):
                 LOG.debug('Response is: {}'.format(response))
                 # update the dialog position
                 self.record_geometry()
-                self.hide()
 
+                self._message = message
                 if response == 0:
                     self.process_result(False)
+                    self.reject()
                 elif response == 1:
                     self.process_result(True)
+                    self.accept()
+
+    def accept(self):
+        self.record_geometry()
+        super().accept()
+        self._waitflag = False
+
+    def reject(self):
+        self.record_geometry()
+        super().reject()
+        self._waitflag = False
 
     # **********************
     # Designer properties
@@ -416,6 +439,7 @@ class CloseDialog(LcncDialog, GeometryMixin):
 class ToolDialog(LcncDialog, GeometryMixin):
     def __init__(self, parent=None):
         super(ToolDialog, self).__init__(parent)
+        self._request_name = 'TOOLCHANGE'
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
@@ -458,6 +482,8 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'READY', str, 'DIALOG_OPTIONS')
         else:
             self.play_sound = False
+        # can acknowledge from status messages too
+        STATUS.connect('dialog-update', self._status_update)
 
     # process callback from 'change' HAL pin
     def tool_change(self, change):
@@ -508,7 +534,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
     # process callback for 'change-button' HAL pin
     # hide the message dialog or desktop notify message
     def external_acknowledge(self, state):
-        #print('external acklnowledge: {}'.format(state))
+        #print('external acknowledge: {}'.format(state))
         if state:
             if self._useDesktopNotify:
                 self.deskNotice.close()
@@ -516,10 +542,27 @@ class ToolDialog(LcncDialog, GeometryMixin):
                 self.hide()
             self._processChange(True)
 
+    # callback from status 'update-dialog'
+    def _status_update(self, w, message):
+        if message.get('NAME') == self._request_name:
+            if not self.isVisible(): return
+            response = message.get('response')
+            if not response is None:
+                # 'ok'
+                if response == 1:
+                    if self._useDesktopNotify:
+                        self.deskNotice.close()
+                    elif self.isVisible():
+                        self.hide()
+                        self._processChange(True)
+                # 'cancel'
+                elif response == 0:
+                    self.hide()
+                    self._processChange(False)
 
     # This also is called from DesktopDialog
     def _processChange(self,answer):
-        #print('proces change: {}'.format(answer))
+        print('process change: {}'.format(answer))
         if answer == -1:
             self.changed.set(True)
             ACTION.ABORT()
@@ -534,6 +577,16 @@ class ToolDialog(LcncDialog, GeometryMixin):
 
         self.record_geometry()
         STATUS.emit('focus-overlay-changed', False, None, None)
+
+    # decode button presses
+    def msgbtn(self, i):
+        LOG.debug('Button pressed is: {}'.format(i.text()))
+        if self.clickedButton() == self._actionbutton:
+            self._processChange(-1)
+        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
+            self._processChange(True)
+        else:
+            self._processChange(False)
 
     ###### overridden functions ################
 
@@ -575,16 +628,6 @@ class ToolDialog(LcncDialog, GeometryMixin):
     def showEvent(self, event):
         self.set_geometry()
         super(LcncDialog, self).showEvent(event)
-
-    # decode button presses
-    def msgbtn(self, i):
-        LOG.debug('Button pressed is: {}'.format(i.text()))
-        if self.clickedButton() == self._actionbutton:
-            self._processChange(-1)
-        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
-            self._processChange(True)
-        else:
-            self._processChange(False)
 
     ############################################
 
@@ -1849,6 +1892,10 @@ class CalculatorDialog(Calculator, GeometryMixin):
             if wait:
                 self._flag = True
                 while self._flag:
+                    # read any ZMQ messages
+                    # then update widgets
+                    # till we get a dialog answer
+                    STATUS.readNextMsg()
                     QApplication.processEvents()
                 return (self.display.text(), self._result)
         else:

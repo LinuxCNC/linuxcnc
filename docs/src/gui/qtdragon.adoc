@@ -463,6 +463,66 @@ POSTGUI_HALCMD = loadusr qtvcp test_probe
 POSTGUI_HALCMD = loadusr qtvcp test_led
 POSTGUI_HALCMD = loadusr halmeter
 ----
+=== HALUI
+HALUI will create halui.gui pins that interface with QtDragon.
+
+- There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller.  +
+ This allows custom behaviour, such as spindle lift to work with external buttons.
+- If there are macros defined in the INI (see: <<sec:macro-buttons,Macro Buttons>>), there will be (up to 64) pins available to initiate them. +
+ These macros can require the mode to be preset to MDI or to automatically switch from MANUAL to MDI mode by 
+setting preferences on the settings page.
+- clear/reload the display
+- shutdown the screen
+- ok/cancel of dialogs and notify (error) messages
+- softkeys 0 - 11 control the main tab keys: +
+'MAIN','FILE','OFFSETS','TOOL','STATUS','PROBE','GCODES','SETUP','SETTINGS','UTILITIES','USER','CAMERA'
+
+also:
+
+- enabling halui.gui.mpg-select.0, will allow zooming/scrolling of the gcode plot or text display with an MPG.
+- HALUI selected axis will be reported to QtDragon. +
+- HALUI selected jog rates/increments will be reported to QtDragon. +
+In either case the last changed rate/axis (either HALUI or QtDragon) will be used for screen button jogging or HALUI pin jogging.
+
+.Typical HAL pins avaialble:
+----
+Component Pins:
+Owner   Type  Dir                 Value  Name
+    25  bit   IN                  FALSE  halui.gui.cancel
+    25  bit   IN                  FALSE  halui.gui.cycle.pause
+    25  bit   IN                  FALSE  halui.gui.cycle.start
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO0
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO1
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO2
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO3
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO4
+    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO5
+    25  bit   IN                  FALSE  halui.gui.mpg-select.0
+    25  bit   IN                  FALSE  halui.gui.ok
+    25  bit   IN                  FALSE  halui.gui.reload-display
+    25  bit   IN                  FALSE  halui.gui.shutdown
+    25  bit   IN                  FALSE  halui.gui.softkey-00
+    25  bit   IN                  FALSE  halui.gui.softkey-01
+    25  bit   IN                  FALSE  halui.gui.softkey-02
+    25  bit   IN                  FALSE  halui.gui.softkey-03
+    25  bit   IN                  FALSE  halui.gui.softkey-04
+    25  bit   IN                  FALSE  halui.gui.softkey-05
+    25  bit   IN                  FALSE  halui.gui.softkey-06
+    25  bit   IN                  FALSE  halui.gui.softkey-07
+    25  bit   IN                  FALSE  halui.gui.softkey-08
+    25  bit   IN                  FALSE  halui.gui.softkey-09
+    25  bit   IN                  FALSE  halui.gui.softkey-10
+    25  bit   IN                  FALSE  halui.gui.softkey-11
+    25  bit   IN                  FALSE  halui.gui.softkey-12
+    25  bit   IN                  FALSE  halui.gui.softkey-13
+    25  bit   IN                  FALSE  halui.gui.softkey-14
+    25  bit   IN                  FALSE  halui.gui.softkey-15
+    25  bit   IN                  FALSE  halui.gui.softkey-16
+    25  bit   IN                  FALSE  halui.gui.softkey-17
+    25  bit   IN                  FALSE  halui.gui.softkey-18
+    25  bit   IN                  FALSE  halui.gui.softkey-19
+
+----
 [[sec:bridge]]
 === HAL Bridge
 Hal Bridge is similar to HALUI - it has HAL pins that communicate with QtDragon. +

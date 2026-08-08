@@ -198,7 +198,8 @@ class gmoccapy(object):
         self.error_channel.poll()
 
         # set INI path for INI info class before widgets are loaded
-        INFO = Info(ini=argv[2])
+        self.INFO = Info(ini=argv[2])
+        self.ACTION = Action()
 
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
@@ -227,6 +228,8 @@ class gmoccapy(object):
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
         self.jv_counts = 0        # need to calculate difference in counts to change the jog_vel slider
         self.ro_counts = 0        # need to calculate difference in counts to change the rapid override slider
+        self._last_count = 0      # need to calculate MPG count difference
+        self.mpg_enabled = False
 
         self.spindle_override = 1 # holds the feed override value and is needed to be able to react to halui pin
         self.feed_override = 1    # holds the spindle override value and is needed to be able to react to halui pin
@@ -270,9 +273,6 @@ class gmoccapy(object):
         self.icon_theme = Gtk.IconTheme()
         self.icon_theme.append_search_path(ICON_THEME_DIR)
         self.icon_theme.append_search_path(USER_ICON_THEME_DIR)
-
-        self.dialogs = dialogs.Dialogs()
-        self.dialogs.connect("play_sound", self._on_play_sound)
 
         # check the arguments given from the command line (Ini file)
         self.user_mode = False
@@ -351,6 +351,9 @@ class gmoccapy(object):
         self.halcomp.ready()
 
         self.builder.connect_signals(self)
+
+        self.dialogs = dialogs.Dialogs(caller = self)
+        self.dialogs.connect("play_sound", self._on_play_sound)
 
         # this are settings to be done before window show
         self._init_preferences()
@@ -431,6 +434,15 @@ class gmoccapy(object):
         self.GSTAT = Status()
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
+        self.GSTAT.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
+        self.GSTAT.connect('cycle-start-request', lambda w, state :self.request_start(state))
+        self.GSTAT.connect('cycle-pause-request', lambda w, state: self.request_pause(state))
+        self.GSTAT.connect('ok-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.ACCEPT))
+        self.GSTAT.connect('cancel-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.CANCEL))
+        self.GSTAT.connect('cancel-request', lambda w, state: self._del_notification())
+        self.GSTAT.connect('shutdown-request', lambda w: self.system_shutdown(w))
+        self.GSTAT.connect('softkey-pressed', lambda w,data: self.softkey_pressed(data))
+        self.GSTAT.connect('axis-selection-changed', lambda w,data: self.mpg_selection_changed(data))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -1314,6 +1326,70 @@ class gmoccapy(object):
 
                 self.joints_button_dic[name] = btn
 
+    # halui/external cycle start request
+    def request_start(self,data):
+        print('start request')
+        if self.GSTAT.is_auto_paused():
+            self.command.auto(linuxcnc.AUTO_RESUME)
+        elif self.stat.task_mode == linuxcnc.MODE_MDI:
+            print('Submit MDI')
+            self.widgets.hal_mdihistory.submit()
+        elif self.stat.task_mode == linuxcnc.MODE_MANUAL:
+            self._show_error((13, _("Can't start cycles or submit MDI commands in manual Mode")))
+        else:
+            print('Cycle Start')
+            self.widgets.btn_run.emit('clicked')
+
+    # halui/external pause request
+    def request_pause(self,data):
+        print('pause request')
+
+        # don't toggle
+        if self.GSTAT.is_auto_paused():
+            return
+
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            self.widgets.tbtn_pause.emit('clicked')
+        else:
+            self.command.auto(linuxcnc.AUTO_PAUSE)
+
+    # call INI macro (from hal_glib message)
+    def request_macro_call(self, data):
+        # if MDI command change to MDI and run
+        cmd = self.INFO.get_ini_mdi_command(data)
+        print(f'MDI command:{cmd}   data:{data}')
+        if not cmd is None:
+            LOG.debug("INI MDI COMMAND #: {} = {}".format(data, cmd))
+            self.ACTION.CALL_INI_MDI(data,mode_return = True)
+            return
+
+        # run Macros
+        # some error checking
+        if not self.GSTAT.is_mdi_mode():
+            message = _("You must be in MDI mode to run macros")
+            self.dialogs.show_warning_dialog( _("Important Warning!"),
+                     message)
+            return
+
+        # look thru the INI macros
+        macros = self.get_ini_info.get_macros()
+        num_macros = len(macros)
+        if num_macros > 14:
+            num_macros = 14
+        for pos in range(0, num_macros):
+            # extract just the macro name
+            name = macros[pos].split()[0]
+            if data == name:
+                # get the button instance and click it
+                button = self["button_macro_{0}".format(pos)]
+                button.emit("clicked")
+                break
+        else:
+            # didn't match a name - give a hint
+            message = _("Macro {} not found ".format(data))
+            self.dialogs.show_warning_dialog( _("Important Warning!"),
+                     message)
+
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
         LOG.debug("Entering make macro button")
@@ -1355,7 +1431,9 @@ class gmoccapy(object):
                 btn.set_halign(Gtk.Align.CENTER)
                 btn.set_valign(Gtk.Align.CENTER)
                 btn.set_property("name","macro_{0}".format(pos))
-            btn.set_property("tooltip-text", _("Press to run macro {0}").format(name))
+            # keep a reference of the button
+            self["button_macro_{0}".format(pos)] = btn
+            btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
             btn.position = pos
             btn.show()
@@ -1488,7 +1566,8 @@ class gmoccapy(object):
             message += _("this is not a lathe, as a lathe must have at least\n")
             message += _("an X and an Z axis\n")
             message += _("Wrong lathe configuration, we will leave here")
-            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            self.dialogs.show_warning_dialog( _("Very critical situation"),
+                     message)
             sys.exit()
         else:
             if not len(self.axis_list) == 2 and not len(self.axis_list) < 6:
@@ -1939,7 +2018,8 @@ class gmoccapy(object):
         if not tooltable:
             message = _("Did not find a toolfile file in [EMCIO] TOOL_TABLE")
             LOG.error(message)
-            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            self.dialogs.show_warning_dialog( _("Very critical situation"),
+                     message)
             sys.exit()
         toolfile = os.path.join(CONFIGPATH, tooltable)
         self.widgets.tooledit1.set_filename(toolfile)
@@ -2096,15 +2176,15 @@ class gmoccapy(object):
         toolpage = self.widgets.tooledit1
         toolview = toolpage.view1
         model, treeiter = toolview.get_selection().get_selected()
-        value = self.dialogs.entry_dialog(self,
-                                    data=model[treeiter][col],
+        value = self.dialogs.show_entry_dialog(data=model[treeiter][col],
                                     header=_("Enter value"),
                                     label=_("Tool") + f" {model[treeiter][1]}, {captations[col]}:",
                                     integer=col in [1,2,15])
+
         if value == "ERROR":
             LOG.debug("conversion error")
-            self.dialogs.warning_dialog(self, _("Conversion error !"),
-                                        ("Please enter only numerical values\nValues have not been applied"))
+            self.dialogs.warning_dialog(_("Conversion error !"),
+                                       ("Please enter only numerical values\nValues have not been applied"))
         elif value == "CANCEL":
             pass
         else:
@@ -2399,7 +2479,8 @@ class gmoccapy(object):
         if not parameterfile:
             message = _("Did not find a parameter file in [RS274NGC] PARAMETER_FILE")
             LOG.error(message)
-            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            self.dialogs.show_warning_dialog( _("Very critical situation"),
+                     message)
             sys.exit()
         path = os.path.join(CONFIGPATH, parameterfile)
         self.widgets.offsetpage1.set_filename(path)
@@ -2498,12 +2579,13 @@ class gmoccapy(object):
         path = offsetpage.modelfilter.get_path(treeiter)
         (store_path,) = offsetpage.modelfilter.convert_path_to_child_path(path)
         row = store_path
-        if self.widgets.offsetpage1.btn_edit_offsets.get_active():
-            offset = self.dialogs.entry_dialog(self,
-                                        data=offsetpage.store[row][col],
+        if self.widgets.offsetpage1.btn_edit_offsets.get_active() or \
+                self.touch_button_dic["edit_offsets"].get_active():
+            value = self.dialogs.show_entry_dialog(data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
                                         label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
+
             if offset == "ERROR":
                 LOG.debug("conversion error")
                 self.dialogs.warning_dialog(self, _("Conversion error !"),
@@ -2655,7 +2737,7 @@ class gmoccapy(object):
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 self.halcomp["messages." + message[2] + "-response"] = 0
                 title = "Pin " + message[2] + " message"
-                response = self.dialogs.yesno_dialog(self, message[0], title)
+                response = self.dialogs.show_yesno_dialog(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
                 self.halcomp["messages." + message[2] + "-response"] = response
             else:
@@ -2855,6 +2937,9 @@ class gmoccapy(object):
     # If button exit is clicked, press emergency button before closing the application
     def on_btn_exit_clicked(self, widget, data=None):
         self.widgets.window1.destroy()
+
+    def system_shutdown(self, widget):
+        self.ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
 # button handlers End
 # =========================================================
@@ -3163,13 +3248,14 @@ class gmoccapy(object):
             self.last_key_event = None, 0
 
     def on_mdi_calculation_start(self, *args):
-        position = self.widgets.hal_mdihistory.entry.get_position()
-        print("position: ", position)
-        value = self.dialogs.entry_dialog(self,
+        value = self.dialogs.show_entry_dialog(
                             data=self.widgets.hal_mdihistory.entry.get_text(),
                             header=_("Enter value"),
                             label=_("Calculate value to insert"),
                             integer=False)
+
+        position = self.widgets.hal_mdihistory.entry.get_position()
+
         if value == "ERROR":
             LOG.debug("conversion error")
             self.dialogs.warning_dialog(self, _("Conversion error !"),
@@ -3375,8 +3461,9 @@ class gmoccapy(object):
         command = str( "O<" + o_codes[0] + "> call" )
 
         for code in o_codes[1:]:
-            parameter = self.dialogs.entry_dialog(self, data=None, header=_("Enter value:"),
+            parameter = self.dialogs.show_entry_dialog(data=None, header=_("Enter value:"),
                                                   label=f"{code}:", integer=False)
+
             if parameter == "ERROR":
                 LOG.debug("conversion error")
                 self.dialogs.warning_dialog(self, _("Conversion error !"),
@@ -4229,8 +4316,12 @@ class gmoccapy(object):
                 code = True
             # else we ask for the code using the system.dialog
             if self.widgets.rbt_use_unlock.get_active():
-                if self.dialogs.system_dialog(self):
-                    code = True
+                code =  self.dialogs.show_system_dialog()
+                # cancelled?
+                if code == -1:
+                    self.widgets.tbtn_setup.set_active(False)
+                    widget.set_image(self.widgets.img_settings)
+                    return
             # Lets see if the user has the right to enter settings
             if code:
                 self.widgets.ntb_main.set_current_page(1)
@@ -4242,7 +4333,7 @@ class gmoccapy(object):
                     message = _("Hal Pin is low, Access denied")
                 else:
                     message = _("wrong code entered, Access denied")
-                self.dialogs.warning_dialog(self, _("Just to warn you"), message)
+                self.dialogs.show_warning_dialog(_("Just to warn you"), message)
                 self.widgets.tbtn_setup.set_active(False)
                 widget.set_image(self.widgets.img_settings)
         else:
@@ -4398,8 +4489,8 @@ class gmoccapy(object):
         if hal.component_exists("classicladder_rt"):
             p = os.popen("classicladder  &", "w")
         else:
-            self.dialogs.warning_dialog(self, _("INFO:"),
-                                   _("Classicladder real-time component not detected"))
+            self.dialogs.show_warning_dialog(_("INFO:"),
+                 _("Classicladder real-time component not detected"))
 
 # =========================================================
 # spindle stuff
@@ -4693,7 +4784,7 @@ class gmoccapy(object):
         message = _("Do you really want to delete the MDI history?\n")
         message += _("This will not delete the MDI History file, but will\n"
                      "delete the listbox entries for this session.")
-        result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
+        result = self.dialogs.show_yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
 
@@ -4707,14 +4798,13 @@ class gmoccapy(object):
                 text = mdi_entry.get_text()
                 data = text[bounds[0]:bounds[1]]
                 has_selection = True
-            value = self.dialogs.entry_dialog(self,
-                                data=data,
+            value = self.dialogs.show_entry_dialog(data=data,
                                 header=_("Enter value"),
                                 label=_("Calculate value to insert"),
                                 integer=False)
             if value == "ERROR":
                 LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                self.dialogs.show_warning_dialog(_("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
             elif value == "CANCEL":
                 return
@@ -4733,14 +4823,13 @@ class gmoccapy(object):
                 bounds = buffer.get_selection_bounds()
                 data = buffer.get_text(bounds[0],bounds[1],False)
                 has_selection = True
-            value = self.dialogs.entry_dialog(self,
-                                data=data,
+            value = self.dialogs.show_entry_dialog(data=data,
                                 header=_("Enter value"),
                                 label=_("Calculate value to insert"),
                                 integer=False)
             if value == "ERROR":
                 LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                self.dialogs.show_warning_dialog(_("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
             elif value == "CANCEL":
                 return
@@ -4800,7 +4889,7 @@ class gmoccapy(object):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
             if self.file_changed:
                 message = _("Exit and discard changes?")
-                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+                result = self.dialogs.show_yesno_dialog(self, message, _("Attention!"))
                 if not result: # user says no, he want to save
                     return
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
@@ -4813,7 +4902,7 @@ class gmoccapy(object):
         else:  # else we go to main button on manual
             if self.widgets.tooledit1.edited:
                 message = _("Discard unsaved changes and exit?")
-                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+                result = self.dialogs.show_yesno_dialog(self, message, _("Attention!"))
                 if not result: # user says no, he want to save
                     return
             # check if offset values for current tool have been changed
@@ -4835,7 +4924,7 @@ class gmoccapy(object):
                             "Do you want to activate tool compensation (G43)\n" \
                             "using the currently active tool offset?")
             if message:
-                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+                result = self.dialogs.show_yesno_dialog(self, message, _("Attention!"))
                 if result: # user says YES
                     self.command.mode(linuxcnc.MODE_MDI)
                     self.command.wait_complete()
@@ -4913,22 +5002,22 @@ class gmoccapy(object):
         if self.lathe_mode and axis =="x":
             if self.diameter_mode:
                 preset = self.prefs.getpref("diameter offset_axis_{0}".format(axis), 0, float)
-                offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for diameter"),
+                offset = self.dialogs.show_entry_dialog(data=preset, header=_("Enter value for diameter"),
                                                    label=_("Set diameter to:"), integer=False)
             else:
                 preset = self.prefs.getpref("radius offset_axis_{0}".format(axis), 0, float)
-                offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for radius"),
+                offset = self.dialogs.show_entry_dialog(data=preset, header=_("Enter value for radius"),
                                                    label=_("Set radius to:"), integer=False)
         else:
             preset = self.prefs.getpref("offset_axis_{0}".format(axis), 0, float)
-            offset = self.dialogs.entry_dialog(self, data=preset, header=_("Enter value for axis {0}").format(axis.upper()),
+            offset = self.dialogs.show_entry_dialog(data=preset, header=_("Enter value for axis {0}").format(axis.upper()),
                                                label=_("Set axis {0} to:").format(axis.upper()), integer=False)
         if offset == "CANCEL":
             return
         elif offset == "ERROR":
             LOG.debug("Conversion error in btn_set_value")
-            self.dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
-                                   _("Please enter only numerical values. Values have not been applied"))
+            self.dialogs.show_warning_dialog(_("Conversion error in btn_set_value!"),
+                     _("Please enter only numerical values\nValues have not been applied"))
         else:
             self.command.mode(linuxcnc.MODE_MDI)
             self.command.wait_complete()
@@ -4949,7 +5038,8 @@ class gmoccapy(object):
         system, name = self.widgets.offsetpage1.get_selected()
         if system not in ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"]:
             message = _("You did not select a system to be changed to, so nothing will be changed")
-            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.show_warning_dialog(_("Important Warning!"),
+                     message)
             return
         if system == self.system_list[self.stat.g5x_index]:
             return
@@ -4999,7 +5089,7 @@ class gmoccapy(object):
     def on_btn_block_height_clicked(self, widget, data=None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
         preset = self.prefs.getpref("blockheight", 0.0, float)
-        blockheight = self.dialogs.entry_dialog(self, data=preset, header=_("Enter the block height"),
+        blockheight = self.dialogs.show_entry_dialog(data=preset, header=_("Enter the block height"),
                                                 label=_("Block height measured from base table"), integer=False)
 
         if blockheight == "CANCEL" or blockheight == "ERROR":
@@ -5012,8 +5102,8 @@ class gmoccapy(object):
         else:
             self.prefs.putpref("blockheight", 0.0, float)
             self.prefs.putpref("probeheight", 0.0, float)
-            self.dialogs.warning_dialog(self, _("Conversion error in btn_block_height!"),
-                                        _("Please enter only numerical values\nValues have not been applied"))
+            self.dialogs.show_warning_dialog(_("Conversion error in btn_block_height!"),
+                     _("Please enter only numerical values\nValues have not been applied"))
 
         # set coordinate system to new origin
         origin = self.get_ini_info.get_axis_2_min_limit() + blockheight
@@ -5041,7 +5131,9 @@ class gmoccapy(object):
         if name is None or name == "none":
             # Switching to none required a restart (skip entire icon theme stuff)
             message = "Change to no icon theme requires a restart to take effect."
-            self.dialogs.warning_dialog(self, _("Just to warn you"), message)
+            self.dialogs.show_warning_dialog( _("Just to warn you"),
+                     message)
+
         else:
             self.icon_theme.set_custom_theme(name)
             self.notification.set_property('icon_theme_name', name)
@@ -5585,8 +5677,11 @@ class gmoccapy(object):
                 except:
                     message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
 
-            result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"),\
-                confirm_pin = 'toolchange-confirm', active_pin = 'toolchange-change')
+            result = self.dialogs.show_warning_dialog( _("Manual Tool change"),
+                     message, context='mantoolchange',
+                     confirm_pin = 'toolchange-confirm',
+                     active_pin = 'toolchange-change')
+
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
@@ -5597,16 +5692,19 @@ class gmoccapy(object):
                 self.halcomp['toolchange-changed'] = True
                 message = _("Tool Change has been aborted!\n")
                 message += _("The old tool will remain set!")
-                self.dialogs.warning_dialog(self, message)
+                self.dialogs.show_warning_dialog( _("Just to warn you"),
+                      message)
+
         else:
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
         selected_tool = self.widgets.tooledit1.get_selected_row()
         if self.stat.tool_in_spindle == selected_tool:
-            message = _("You are trying to delete the tool mounted in the spindle.\n"
-                        "This is not allowed, please change tool prior to delete it.")
-            self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
+            message = _("You are trying to delete the tool mounted in the spindle\n")
+            message += _("This is not allowed, please change tool prior to delete it")
+            self.dialogs.show_warning_dialog( _("Warning Tool can not be deleted!"),
+                     message)
             return
         self.widgets.tooledit1.delete_selected_row(widget)
         self.widgets.tooledit1.edited = True
@@ -5618,7 +5716,7 @@ class gmoccapy(object):
     def on_btn_reload_tooltable_clicked(self, widget, data=None):
         if self.widgets.tooledit1.edited:
             message = _("Discard unsaved changes and reload the table?")
-            result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+            result = self.dialogs.show_yesno_dialog(self, message, _("Attention!"))
             if not result: # user says no, he want to save
                 return
         self.widgets.tooledit1.reload(None)
@@ -5634,13 +5732,15 @@ class gmoccapy(object):
         if not tool:
             message = _("No tool selected in the tool table. ")
             message += _("Please select only one tool in the table!")
-            self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
+            self.dialogs.show_warning_dialog( _("Warning Tool Touch off not possible!"),
+                     message)
             return
 
         if tool != self.stat.tool_in_spindle:
             message = _("You can not touch off a tool, which is not mounted in the spindle! ")
             message += _("Your selection has been reset to the tool in spindle.")
-            self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
+            self.dialogs.show_warning_dialog( _("Warning Tool Touch off not possible!"),
+                     message)
             self.widgets.tooledit1.reload(self)
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
             return
@@ -5648,7 +5748,8 @@ class gmoccapy(object):
         if "G41" in self.active_gcodes or "G42" in self.active_gcodes:
             message = _("Tool touch off is not possible with cutter radius compensation switched on!\n")
             message += _("Please emit an G40 before tool touch off.")
-            self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
+            self.dialogs.show_warning_dialog( _("Warning Tool Touch off not possible!"),
+                     message)
             return
 
         if widget == self.widgets.btn_tool_touchoff_x:
@@ -5656,18 +5757,19 @@ class gmoccapy(object):
         elif widget == self.widgets.btn_tool_touchoff_z:
             axis = "z"
         else:
-            self.dialogs.warning_dialog(self, _("Real big error!"),
-                                   _("You managed to come to a place that is not possible in on_btn_tool_touchoff"))
+            self.dialogs.show_warning_dialog(_("Real big error!"),
+                      _("You managed to come to a place that is not possible in on_btn_tool_touchoff"))
             return
 
-        value = self.dialogs.entry_dialog(self, data=None,
+        value = self.dialogs.show_entry_dialog(data=None,
                                      header=_("Enter value for axis {0} to set:").format(axis.upper()),
                                      label=_("Set parameter of tool {0:d} and axis {1} to:").format(self.stat.tool_in_spindle, axis.upper()),
                                      integer=False)
 
         if value == "ERROR":
             message = _("Conversion error because of wrong entry for touch off axis {0}").format(axis.upper())
-            self.dialogs.warning_dialog(self, _("Conversion error !"), message)
+            self.dialogs.show_warning_dialog( _("Conversion error !"),
+                     message)
             return
         elif value == "CANCEL":
             return
@@ -5687,21 +5789,23 @@ class gmoccapy(object):
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
         if self.widgets.tooledit1.edited:
             message = _("Discard unsaved changes and change tool?")
-            result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+            result = self.dialogs.show_yesno_dialog(self, message, _("Attention!"))
             if not result: # user says no, he want to save
                 return
-        value = self.dialogs.entry_dialog(self, data=None, header=_("Enter the tool number as integer "),
+        value = self.dialogs.show_entry_dialog(data=None, header=_("Enter the tool number as integer "),
                                      label=_("Select the tool to change"), integer=True)
         if value == "ERROR":
             message = _("Conversion error because of wrong entry for tool number.\n")
             message += _("Enter only integer numbers!")
-            self.dialogs.warning_dialog(self, _("Conversion error !"), message)
+            self.dialogs.show_warning_dialog( _("Conversion error !"),
+                     message)
             return
         elif value == "CANCEL":
             return
         elif int(value) == self.stat.tool_in_spindle:
             message = _("Selected tool is already in spindle, no change needed.")
-            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.show_warning_dialog( _("Important Warning!"),
+                     message)
             return
         else:
             self.tool_change = True
@@ -5716,17 +5820,19 @@ class gmoccapy(object):
     def on_btn_selected_tool_clicked(self, widget, data=None):
         if self.widgets.tooledit1.edited:
             message = _("Discard unsaved changes and change tool?")
-            result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+            result = self.dialogs.show_yesno_dialog(self, message, _("Attention!"))
             if not result: # user says no, he want to save
                 return
         tool = self.widgets.tooledit1.get_selected_row()
         if tool == None:
             message = _("you selected no or more than one tool, the tool selection must be unique")
-            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.show_warning_dialog( _("Important Warning!"),
+                     message)
             return
         if tool == self.stat.tool_in_spindle:
             message = _("Selected tool is already in spindle, no change needed.")
-            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.show_warning_dialog( _("Important Warning!"),
+                     message)
             return
         if tool or tool == 0:
             self.tool_change = True
@@ -5744,7 +5850,9 @@ class gmoccapy(object):
             self.command.mdi(command)
         else:
             message = _("Could not understand the entered tool number. Will not change anything!")
-            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+            self.dialogs.show_warning_dialog( _("Important Warning!"),
+                     message)
+
 
 # =========================================================
 # gremlin relevant calls
@@ -6238,6 +6346,9 @@ class gmoccapy(object):
 
     def _del_message_changed(self, pin):
         if pin.get():
+            self._del_notification()
+
+    def _del_notification(self):
             if self.halcomp["error"] == True:
                 number = []
                 messages = self.notification.messages
@@ -6295,7 +6406,46 @@ class gmoccapy(object):
         LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
         self.command.set_optional_stop(pin.get())
 
+    # from gmoccapy's MPG input pin
+    def _external_mpg(self, pin):
+        count = pin.get()
+        diff = count - self._last_count
+        if self.mpg_enabled:
+            if diff <0:
+                if self.GSTAT.is_auto_mode() and not self.GSTAT.is_auto_running():
+                    self.widgets.gcode_view.line_up()
+                else:
+                    self.widgets.gremlin.zoom_out()
+            else:
+                if self.GSTAT.is_auto_mode() and not self.GSTAT.is_auto_running():
+                    self.widgets.gcode_view.line_down()
+                    self.widgets.gcode_view.line_down()
+                else:
+                    self.widgets.gremlin.zoom_in()
+        self._last_count = count
+
+    # enabled externally by halui/hal_bridge
+    def mpg_selection_changed(self, data):
+        if data =='MPG0':
+            self.mpg_enabled = True
+        else:
+            self.mpg_enabled = False
+
 # =========================================================
+    # external request for a softkey press from HALUI/halbridge
+    def softkey_pressed(self, index):
+        if index > 9:
+            location = "bottom"
+            number = index -10
+        elif index < 7:
+            location = "right"
+            number = index
+        else:
+            LOG.debug(f"Could not translate softkey {index} to button number")
+        LOG.debug(f"softkey index: {index}, location: {location}, number: {number}")
+        button = self._get_child_button(location, number)
+        self.process_button(button)
+
 # The actions of the buttons
     def _button_pin_changed(self, pin):
         # we check if the button is pressed or released,
@@ -6319,6 +6469,9 @@ class gmoccapy(object):
             return
 
         button = self._get_child_button(location, number)
+        self.process_button(button)
+
+    def process_button(self, button):
         if not button:
             LOG.debug("no button here")
             return
@@ -6512,6 +6665,18 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
 
+        pin = self.halcomp.newpin('mpg-in',hal.HAL_S32, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._external_mpg)
+
+    ##############################
+    # required class boiler code #
+    # for subscriptable objects  #
+    ##############################
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 # Hal Pin Handling End
 # =========================================================
@@ -6552,6 +6717,7 @@ if __name__ == "__main__":
     # Some of these libraries log when imported so logging level must already be set.
     import gladevcp.makepins
     from gladevcp.core import Info, Status
+    from gladevcp.core import Info, Status, Action
     from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
     from gmoccapy import widgets       # a class to handle the widgets
 
