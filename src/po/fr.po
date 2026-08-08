@@ -4,13 +4,14 @@
 # Axel BRUA <axel.brua.19@gmail.com>, 2024.
 # Paul Sauvignac <paul.sauvignac@gmail.com>, 2024.
 # BsAtHome <bertho@vagrearg.org>, 2026.
+# Olivier M <olinews@free.fr>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-04-08 20:41+0000\n"
-"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
+"PO-Revision-Date: 2026-08-08 11:51+0000\n"
+"Last-Translator: Olivier M <olinews@free.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -18,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -2027,6 +2028,8 @@ msgstr ""
 msgid ""
 "Starting acquisition will clear the data loaded from the CSV file. Continue?"
 msgstr ""
+"Démarrer l'acquisition va effacer les données chargées depuis le fichier "
+"CSV. Continuer ?"
 
 #: src/hal/utils/scope.c:547
 #, fuzzy
@@ -3610,9 +3613,9 @@ msgid "Serial parity"
 msgstr "Programme Modbus série"
 
 #: src/hal/classicladder/config_gtk.c:761
-#, c-format
+#, c-format, fuzzy
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Stop bit série"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
@@ -3655,7 +3658,7 @@ msgstr "NIVEAU 1"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBEUX"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, fuzzy, c-format
@@ -3819,7 +3822,7 @@ msgstr "Type de variable incompatible (doit être un entier !)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "Erreur d'analyseur syntaxique pour la variable indexée !"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
@@ -3850,10 +3853,11 @@ msgstr "Plus de bloc de fonction disponible... Effacez s'il vous plait !"
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
 msgstr ""
+"Il n'y a plus d'expression arithmétique libre pour ce type de variable..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
-msgstr ""
+msgstr "Vous avec cliqué en dehors de l'échelon actuellement sélectionné..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
@@ -12059,6 +12063,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
