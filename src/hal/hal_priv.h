@@ -57,6 +57,10 @@
 
 */
 
+#if !defined(__HAL_LIBRARY_INTERNAL_ONLY)
+#warning "You should not be including HAL's private hal_priv.h. Please use the HAL query API."
+#endif
+
 /***********************************************************************
 *                       GENERAL INFORMATION                            *
 ************************************************************************/
@@ -527,7 +531,7 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
     should use hal_set_s() to allocate the port once the pins are connected to
     the signal.
 */
-extern int hal_port_alloc(unsigned size, hal_port_t *port);
+int hal_port_alloc(unsigned size, hal_port_t *port) __attribute__((deprecated("Use hal_set_s()")));
 int halpr_port_alloc(unsigned size, hal_port_t *port);
 
 // Recursive HAL mutex (replaces old mutex)

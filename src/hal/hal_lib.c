@@ -69,6 +69,7 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
+#define __HAL_LIBRARY_INTERNAL_ONLY 1
 #include "hal_priv.h"		/* HAL private decls */
 
 #include <rtapi_string.h>
@@ -777,10 +778,10 @@ const char *hal_strerror(int err)
     }
 }
 
-char *hal_comp_name(int comp_id)
+const char *hal_comp_name(int comp_id)
 {
     hal_comp_t *comp;
-    char *result = NULL;
+    const char *result = NULL;
     halpr_mutex_acquire();
     comp = halpr_find_comp_by_id(comp_id);
     if(comp) result = comp->name;
@@ -2061,6 +2062,10 @@ int hal_param_new_fake(int compid, hal_refs_u *ref)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 int hal_param_bit_set(const char *name, int value)
 {
     return hal_param_set(name, HAL_BIT, &value);
@@ -2090,6 +2095,7 @@ int hal_param_s64_set(const char *name, signed long value)
 {
     return hal_param_set(name, HAL_S64, &value);
 }
+#pragma GCC diagnostic pop
 
 /* this is a generic function that does the majority of the work */
 
@@ -5221,6 +5227,8 @@ EXPORT_SYMBOL(hal_param_new_uint);
 EXPORT_SYMBOL(hal_param_new_real);
 EXPORT_SYMBOL(hal_param_new_fake);
 
+// Parameter set functions have been deprecated.
+// Use the generic hal_set_p() instead.
 EXPORT_SYMBOL(hal_param_bit_set);
 EXPORT_SYMBOL(hal_param_float_set);
 EXPORT_SYMBOL(hal_param_u32_set);
@@ -5244,6 +5252,8 @@ EXPORT_SYMBOL(hal_del_funct_from_thread);
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
 
+// All HAL lib internals' access has bee deprecated. All function prefixed with
+// halpr_ are only for private internal use.
 EXPORT_SYMBOL(hal_shmem_base);
 EXPORT_SYMBOL(halpr_find_comp_by_name);
 EXPORT_SYMBOL(halpr_find_pin_by_name);
@@ -5262,7 +5272,7 @@ EXPORT_SYMBOL(halpr_find_pin_by_sig);
 EXPORT_SYMBOL(hal_pin_alias);
 EXPORT_SYMBOL(hal_param_alias);
 
-EXPORT_SYMBOL(hal_port_alloc);
+EXPORT_SYMBOL(hal_port_alloc); // Deprecated
 EXPORT_SYMBOL(hal_port_read);
 EXPORT_SYMBOL(hal_port_peek);
 EXPORT_SYMBOL(hal_port_peek_commit);

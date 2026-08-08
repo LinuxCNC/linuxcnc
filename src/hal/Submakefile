@@ -28,5 +28,14 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
 
+HALQUERYSRCS := hal/halquery.c hal/utils/setps_util.c
+PYSRCS += $(HALQUERYSRCS)
+
+HALQUERY := ../lib/python/halquery.so
+$(HALQUERY): $(call TOOBJS, $(HALQUERYSRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^
+
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)
+PYTARGETS += $(HALQUERY)

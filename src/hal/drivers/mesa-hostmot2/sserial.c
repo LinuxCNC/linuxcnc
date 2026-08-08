@@ -66,7 +66,7 @@ int hm2_sserial_wait(hostmot2_t *hm2, hm2_sserial_instance_t *inst, long period)
     // real-time wait function (relies on process data)
     *inst->command_reg_write = 0x80000000; // mask pointless writes
     inst->timer -= period;
-    *inst->debug = inst->timer;
+    hal_set_si32(inst->debug, inst->timer);
     if (*inst->command_reg_read != 0) {
         if (inst->timer > 0) {
             return 1;
@@ -359,30 +359,30 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
             r = hm2_sserial_get_bytes(hm2, chan, (void*)&(p->u32_written),
                                       g->ParmAddr, g->DataLength/8);
             if (r < 0) {HM2_ERR("SSerial Parameter read error\n") ; return -EINVAL;}
-            if (set_hal) p->u32_param = p->u32_written;
-            HM2_DBG("LBP_UNSIGNED %i %i \n", p->u32_param, p->u32_written);
-            if ((strcmp(g->NameString, "swrevision") == 0) && (p->u32_param < 14)) {
+            if (set_hal) hal_set_ui32(p->param.u, p->u32_written);
+            HM2_DBG("LBP_UNSIGNED %i %i \n", hal_get_ui32(p->param.u), p->u32_written);
+            if ((strcmp(g->NameString, "swrevision") == 0) && (hal_get_ui32(p->param.u) < 14)) {
                 HM2_ERR("Warning: sserial remote device %s channel %d has old firmware that should be updated\n", chan->raw_name, chan->index);
             }
             break;
         case LBP_SIGNED:
             r = hm2_sserial_get_bytes(hm2, chan, (void*)&(p->s32_written),
                                       g->ParmAddr, g->DataLength/8);
-            if (set_hal) p->s32_param = p->s32_written;
-            HM2_DBG("LBP_SIGNED %i %i \n", p->s32_param, p->s32_written);
+            if (set_hal) hal_set_si32(p->param.s, p->s32_written);
+            HM2_DBG("LBP_SIGNED %i %i \n", hal_get_si32(p->param.s), p->s32_written);
             break;
         case LBP_NONVOL_UNSIGNED:
             r = hm2_sserial_read_nvram_word(hm2, chan, (void*)&(p->u32_written),
                                                 g->ParmAddr,
                                                 g->DataLength/8);
-            if (set_hal) p->u32_param = p->u32_written;
-            HM2_DBG("LBP_NONVOL_UNSIGNED %i %i \n", p->u32_param, p->u32_written);
+            if (set_hal) hal_set_ui32(p->param.u, p->u32_written);
+            HM2_DBG("LBP_NONVOL_UNSIGNED %i %i \n", hal_get_ui32(p->param.u), p->u32_written);
             break;
         case LBP_NONVOL_SIGNED:
             r = hm2_sserial_read_nvram_word(hm2, chan, (void*)&(p->s32_written),
                                                 g->ParmAddr,
                                                 g->DataLength/8);
-            if (set_hal) p->s32_param = p->s32_written;
+            if (set_hal) hal_set_si32(p->param.s, p->s32_written);
         case LBP_STREAM:
             break; // Have not seen a stream type yet
         case LBP_BOOLEAN:
@@ -405,8 +405,8 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
                     HM2_ERR("sserial get param value: LBP_FLOAT of bit-length %i not handled\n", g->DataLength);
                 }
             }
-            if (set_hal) p->float_param = p->float_written;
-            HM2_DBG("LBP_FLOAT %f %f \n", p->float_param, p->float_written);
+            if (set_hal) hal_set_real(p->param.r, p->float_written);
+            HM2_DBG("LBP_FLOAT %f %f \n", hal_get_real(p->param.r), p->float_written);
             break;
         case LBP_ENCODER_H:
         case LBP_ENCODER_L:
@@ -423,7 +423,7 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     hm2_sserial_data_t global;
     int hal_dir;
 
-    chan->params = hal_malloc(chan->num_globals * sizeof(hm2_sserial_params_t));
+    chan->params = hal_malloc(chan->num_globals * sizeof(*chan->params));
     for (i = 0 ; i < chan->num_globals ; i++){
         global = chan->globals[i];
 
@@ -437,9 +437,9 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_UNSIGNED:
             case LBP_NONVOL_UNSIGNED:
-                r = hal_param_u32_newf(hal_dir,
-                                       &(chan->params[i].u32_param),
-                                       hm2->llio->comp_id,
+                r = hal_param_new_ui32(hm2->llio->comp_id, hal_dir,
+                                       &(chan->params[i].param.u),
+                                       0,
                                        "%s.%s",
                                        chan->name,
                                        global.NameString);
@@ -447,9 +447,9 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_SIGNED:
             case LBP_NONVOL_SIGNED:
-                r = hal_param_s32_newf(hal_dir,
-                                       &(chan->params[i].s32_param),
-                                       hm2->llio->comp_id,
+                r = hal_param_new_si32(hm2->llio->comp_id, hal_dir,
+                                       &(chan->params[i].param.s),
+                                       0,
                                        "%s.%s",
                                        chan->name,
                                        global.NameString);
@@ -457,18 +457,23 @@ int hm2_sserial_create_params(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_FLOAT:
             case LBP_NONVOL_FLOAT:
-                r = hal_param_float_newf(hal_dir,
-                                       &(chan->params[i].float_param),
-                                       hm2->llio->comp_id,
+                r = hal_param_new_real(hm2->llio->comp_id, hal_dir,
+                                       &(chan->params[i].param.r),
+                                       0.0,
                                        "%s.%s",
                                        chan->name,
                                        global.NameString);
                 if (r < 0) {HM2_ERR("Out of memory\n") ; return -ENOMEM;}
+                break;
             case LBP_STREAM: // Don't anticipate seeing these as params
             case LBP_BOOLEAN:
             case LBP_ENCODER:
             case LBP_ENCODER_H:
             case LBP_ENCODER_L:
+            default:
+                // Still make sure we have memory allocated for a fake parameter
+                r = hal_param_new_fake(hm2->llio->comp_id, (hal_refs_u *)&(chan->params[i].param.r));
+                if (r < 0) {HM2_ERR("Out of memory\n") ; return -ENOMEM;}
                 break;
         }
 
@@ -628,8 +633,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index){
     HM2_DBG("sserial_num_instances = %i\n", hm2->sserial.num_instances);
 
     // allocate the per-instance HAL shared memory
-    hm2->sserial.instance = (hm2_sserial_instance_t *)
-    hal_malloc(hm2->sserial.num_instances * sizeof(hm2_sserial_instance_t));
+    hm2->sserial.instance = hal_malloc(hm2->sserial.num_instances * sizeof(*hm2->sserial.instance));
     if (hm2->sserial.instance == NULL) {
         HM2_ERR("hm2_sserial_parse_md: hm2_sserial_instance: out of memory!\n");
         r = -ENOMEM;
@@ -849,97 +853,74 @@ fail0:
 int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int index){
     int r;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(inst->debug),
-                         hm2->llio->comp_id,
-                         "%s.%i.debug",
-                         hm2->llio->name, index);
+    r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(inst->debug),
+                         0, "%s.%i.debug", hm2->llio->name, index);
     if (r < 0) {
-        HM2_ERR("error adding pin %s.sserial.%1d.run. aborting\n",
-                hm2->llio->name, index);
+        HM2_ERR("error %d adding pin %s.sserial.%1d.run. aborting\n",
+                r, hm2->llio->name, index);
         return -EINVAL;
     }
 
-    r = hal_pin_bit_newf(HAL_IN, &(inst->run),
-                         hm2->llio->comp_id,
-                         "%s.sserial.port-%1d.run",
-                         hm2->llio->name, index);
+    r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(inst->run),
+                         true, "%s.sserial.port-%1d.run", hm2->llio->name, index);
     if (r < 0) {
-        HM2_ERR("error adding pin %s.sserial.%1d.run. aborting\n",
-                hm2->llio->name, index);
-        return -EINVAL;
-    }
-    *inst->run = true;
-
-    r = hal_pin_u32_newf(HAL_OUT, &(inst->state),
-                         hm2->llio->comp_id,
-                         "%s.sserial.port-%1d.port_state",
-                         hm2->llio->name, index);
-    if (r < 0) {
-        HM2_ERR("error adding pin %s.sserial.%1d.port_state. aborting\n",
-                hm2->llio->name, index);
-        return -EINVAL;
-    }
-    r = hal_pin_u32_newf(HAL_OUT, &(inst->state2),
-                         hm2->llio->comp_id,
-                         "%s.sserial.port-%1d.port_state2",
-                         hm2->llio->name, index);
-    if (r < 0) {
-        HM2_ERR("error adding pin %s.sserial.%1d.port_state. aborting\n",
-                hm2->llio->name, index);
-        return -EINVAL;
-    }
-     r = hal_pin_u32_newf(HAL_OUT, &(inst->state3),
-                         hm2->llio->comp_id,
-                         "%s.sserial.port-%1d.port_state3",
-                         hm2->llio->name, index);
-    if (r < 0) {
-        HM2_ERR("error adding pin %s.sserial.%1d.port_state. aborting\n",
-                hm2->llio->name, index);
+        HM2_ERR("error %d adding pin %s.sserial.%1d.run. aborting\n",
+                r, hm2->llio->name, index);
         return -EINVAL;
     }
 
-    r = hal_pin_u32_newf(HAL_OUT, &(inst->fault_count),
-                         hm2->llio->comp_id,
-                         "%s.sserial.port-%1d.fault-count",
-                         hm2->llio->name, index);
+    r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->state),
+                         0, "%s.sserial.port-%1d.port_state", hm2->llio->name, index);
     if (r < 0) {
-        HM2_ERR("error adding pin %s.sserial.%1d.fault-count. aborting\n",
-                hm2->llio->name, index);
+        HM2_ERR("error %d adding pin %s.sserial.%1d.port_state. aborting\n",
+                r, hm2->llio->name, index);
         return -EINVAL;
     }
-    r = hal_param_u32_newf(HAL_RW, &(inst->fault_inc),
-                           hm2->llio->comp_id,
-                           "%s.sserial.port-%1d.fault-inc",
-                           hm2->llio->name, index);
+    r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->state2),
+                         0, "%s.sserial.port-%1d.port_state2", hm2->llio->name, index);
     if (r < 0) {
-        HM2_ERR("error adding parameter %s.sserial.port-%1d.fault-inc"
-                " aborting\n",hm2->llio->name, index);
+        HM2_ERR("error %d adding pin %s.sserial.%1d.port_state. aborting\n",
+                r, hm2->llio->name, index);
         return -EINVAL;
     }
-
-    r = hal_param_u32_newf(HAL_RW, &(inst->fault_dec),
-                           hm2->llio->comp_id,
-                           "%s.sserial.port-%1d.fault-dec",
-                           hm2->llio->name, index);
+     r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->state3),
+                         0, "%s.sserial.port-%1d.port_state3", hm2->llio->name, index);
     if (r < 0) {
-        HM2_ERR("error adding parameter %s.sserial.port-%1d.fault-dec"
-                " aborting\n",hm2->llio->name, index);
+        HM2_ERR("error %d adding pin %s.sserial.%1d.port_state. aborting\n",
+                r, hm2->llio->name, index);
         return -EINVAL;
     }
 
-    r = hal_param_u32_newf(HAL_RW, &(inst->fault_lim),
-                           hm2->llio->comp_id,
-                           "%s.sserial.port-%1d.fault-lim",
-                           hm2->llio->name, index);
+    r = hal_pin_new_ui32(hm2->llio->comp_id, HAL_OUT, &(inst->fault_count),
+                         0, "%s.sserial.port-%1d.fault-count", hm2->llio->name, index);
     if (r < 0) {
-        HM2_ERR("error adding parameter %s.sserial.port-%1d.fault-lim"
-                " aborting\n",hm2->llio->name, index);
+        HM2_ERR("error %d adding pin %s.sserial.%1d.fault-count. aborting\n",
+                r, hm2->llio->name, index);
         return -EINVAL;
     }
-    //parameter defaults;
-    inst->fault_dec = 1;
-    inst->fault_inc = 10;
-    inst->fault_lim = 200;
+    r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->fault_inc),
+                           10, "%s.sserial.port-%1d.fault-inc", hm2->llio->name, index);
+    if (r < 0) {
+        HM2_ERR("error %d adding parameter %s.sserial.port-%1d.fault-inc"
+                " aborting\n", r, hm2->llio->name, index);
+        return -EINVAL;
+    }
+
+    r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->fault_dec),
+                           1, "%s.sserial.port-%1d.fault-dec", hm2->llio->name, index);
+    if (r < 0) {
+        HM2_ERR("error %d adding parameter %s.sserial.port-%1d.fault-dec"
+                " aborting\n", r, hm2->llio->name, index);
+        return -EINVAL;
+    }
+
+    r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(inst->fault_lim),
+                           200, "%s.sserial.port-%1d.fault-lim", hm2->llio->name, index);
+    if (r < 0) {
+        HM2_ERR("error %d adding parameter %s.sserial.port-%1d.fault-lim"
+                " aborting\n", r, hm2->llio->name, index);
+        return -EINVAL;
+    }
 
     // setup read-back in all modes
 
@@ -1118,10 +1099,8 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
 int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     int i, j;
     int r = 0;
-    char name[HAL_NAME_LEN + 1];
     int data_dir;
-    chan->pins = (hm2_sserial_pins_t*)hal_malloc(chan->num_confs
-                                                 * sizeof(hm2_sserial_pins_t));
+    chan->pins = hal_malloc(chan->num_confs * sizeof(*chan->pins));
 
     chan->num_read_bits = 0 ; chan->num_write_bits = 0;
 
@@ -1173,51 +1152,31 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
             case LBP_PAD:
                 break;
             case LBP_BITS:
-                chan->pins[i].bit_pins = (hal_bit_t**)
-                hal_malloc(chan->confs[i].DataLength * sizeof(hal_bit_t*));
-                chan->pins[i].bit_pins_not = (hal_bit_t**)
-                hal_malloc(chan->confs[i].DataLength * sizeof(hal_bit_t*));
-                chan->pins[i].invert = (hal_bit_t*)
-                hal_malloc(chan->confs[i].DataLength * sizeof(hal_bit_t));
+                chan->pins[i].bit_pins = hal_malloc(chan->confs[i].DataLength * sizeof(*chan->pins[i].bit_pins));
+                chan->pins[i].bit_pins_not = hal_malloc(chan->confs[i].DataLength * sizeof(*chan->pins[i].bit_pins_not));
+                chan->pins[i].invert = hal_malloc(chan->confs[i].DataLength * sizeof(*chan->pins[i].invert));
                 for (j = 0; j < chan->confs[i].DataLength ; j++){
 
-                    rtapi_snprintf(name, sizeof(name), "%s.%s-%02d",
-                                   chan->name,
-                                   chan->confs[i].NameString,
-                                   j);
-                    r = hal_pin_bit_new(name,
-                                        data_dir,
-                                        &(chan->pins[i].bit_pins[j]),
-                                        hm2->llio->comp_id);
+                    r = hal_pin_new_bool(hm2->llio->comp_id, data_dir, &(chan->pins[i].bit_pins[j]),
+                                        0, "%s.%s-%02d", chan->name, chan->confs[i].NameString, j);
                     if (r < 0) {
-                        HM2_ERR("error adding pin '%s', aborting\n", name);
+                        HM2_ERR("error %d adding pin '%s.%s-%02d', aborting\n", r, chan->name, chan->confs[i].NameString, j);
                         return r;
                     }
                     if (data_dir == HAL_OUT) {
-                        rtapi_snprintf(name, sizeof(name), "%s.%s-%02d-not",
-                                       chan->name,
-                                       chan->confs[i].NameString,
-                                       j);
-                        r = hal_pin_bit_new(name,
-                                            data_dir,
-                                            &(chan->pins[i].bit_pins_not[j]),
-                                            hm2->llio->comp_id);
+                        r = hal_pin_new_bool(hm2->llio->comp_id, data_dir, &(chan->pins[i].bit_pins_not[j]),
+                                            0, "%s.%s-%02d-not", chan->name, chan->confs[i].NameString, j);
                         if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
+                            HM2_ERR("error %d adding pin '%s.%s-%02d-not', aborting\n", r, chan->name, chan->confs[i].NameString, j);
                             return r;
                         }
                     }
                     if (data_dir == HAL_IN){
-                        rtapi_snprintf(name, sizeof(name), "%s.%s-%02d-invert",
-                                       chan->name,
-                                       chan->confs[i].NameString,
-                                       j);
-                        r = hal_param_bit_new(name,
-                                              HAL_RW,
-                                              &(chan->pins[i].invert[j]),
-                                              hm2->llio->comp_id);
+                        r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].invert[j]),
+                                              0, "%s.%s-%02d-invert", chan->name, chan->confs[i].NameString, j);
                         if (r < 0) {
-                            HM2_ERR("error adding pin '%s', aborting\n", name);
+                            HM2_ERR("error %d adding pin '%s.%s-%02d-invert', aborting\n",
+                                    r, chan->name, chan->confs[i].NameString, j);
                             return r;
                         }
                     }
@@ -1225,54 +1184,31 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 break;
             case LBP_UNSIGNED:
             case LBP_SIGNED:
-                rtapi_snprintf(name, sizeof(name), "%s.%s",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_float_new(name,
-                                      data_dir,
-                                      &(chan->pins[i].float_pin),
-                                      hm2->llio->comp_id);
+                r = hal_pin_new_real(hm2->llio->comp_id, data_dir, &(chan->pins[i].float_pin),
+                                      0.0, "%s.%s", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
-                rtapi_snprintf(name, sizeof(name), "%s.%s-scalemax",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                        HAL_RW,
-                                        &(chan->pins[i].fullscale),
-                                        hm2->llio->comp_id);
+                r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].fullscale),
+                                        chan->confs[i].ParmMax, "%s.%s-scalemax", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s-scalemax', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
-                chan->pins[i].fullscale = chan->confs[i].ParmMax;
                 if (data_dir == HAL_OUT) {break;}
-                rtapi_snprintf(name, sizeof(name), "%s.%s-maxlim",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                        HAL_RW,
-                                        &(chan->pins[i].maxlim),
-                                        hm2->llio->comp_id);
+                r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].maxlim),
+                                        chan->confs[i].ParmMax, "%s.%s-maxlim", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s-maxlim', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
-                chan->pins[i].maxlim = chan->confs[i].ParmMax;
-                rtapi_snprintf(name, sizeof(name), "%s.%s-minlim",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                        HAL_RW,
-                                        &(chan->pins[i].minlim),
-                                        hm2->llio->comp_id);
+                r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].minlim),
+                                        chan->confs[i].ParmMin, "%s.%s-minlim", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s-minlim', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
-                chan->pins[i].minlim = chan->confs[i].ParmMin;
                 break;
             case LBP_NONVOL_UNSIGNED:
             case LBP_NONVOL_SIGNED:
@@ -1280,156 +1216,95 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                         "never happen. Aborting");
                 return r;
             case LBP_STREAM:
-                rtapi_snprintf(name, sizeof(name), "%s.%s",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_u32_new(name,
-                                    data_dir,
-                                    &(chan->pins[i].u32_pin),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_ui32(hm2->llio->comp_id, data_dir, &(chan->pins[i].u32_pin),
+                                    0, "%s.%s", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
                 break;
             case LBP_BOOLEAN:
-                rtapi_snprintf(name, sizeof(name), "%s.%s",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_bit_new(name,
-                                    data_dir,
-                                    &(chan->pins[i].boolean),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, data_dir, &(chan->pins[i].boolean),
+                                    0, "%s.%s", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
                 if (data_dir == HAL_OUT) {
-                    rtapi_snprintf(name, sizeof(name), "%s.%s-not",
-                                   chan->name,
-                                   chan->confs[i].NameString);
-                    r = hal_pin_bit_new(name,
-                                        data_dir,
-                                        &(chan->pins[i].boolean2),
-                                        hm2->llio->comp_id);
+                    r = hal_pin_new_bool(hm2->llio->comp_id, data_dir, &(chan->pins[i].boolean2),
+                                        0, "%s.%s-not", chan->name, chan->confs[i].NameString);
                     if (r < 0) {
-                        HM2_ERR("error adding pin '%s', aborting\n", name);
+                        HM2_ERR("error %d adding pin '%s.%s-not', aborting\n", r, chan->name, chan->confs[i].NameString);
                         return r;
                     }
                 }
                 if (data_dir == HAL_IN) {
-                    chan->pins[i].invert = hal_malloc(sizeof(hal_bit_t));
-                    rtapi_snprintf(name, sizeof(name), "%s.%s-invert",
-                                   chan->name,
-                                   chan->confs[i].NameString);
-                    r = hal_param_bit_new(name,
-                                          HAL_RW,
-                                          chan->pins[i].invert,
-                                          hm2->llio->comp_id);
+                    chan->pins[i].invert = hal_malloc(sizeof(*chan->pins[i].invert));
+                    r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, chan->pins[i].invert,
+                                           0, "%s.%s-invert", chan->name, chan->confs[i].NameString);
                     if (r < 0) {
-                        HM2_ERR("error adding pin '%s', aborting\n", name);
+                        HM2_ERR("error %d adding pin '%s.%s-invert', aborting\n", r, chan->name, chan->confs[i].NameString);
                         return r;
                     }
                 }
                 break;
             case LBP_ENCODER:
             case LBP_ENCODER_H:
-
-                rtapi_snprintf(name, sizeof(name), "%s.%s.count",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_s32_new(name,
-                                    HAL_OUT,
-                                    &(chan->pins[i].s32_pin),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].s32_pin),
+                                    0, "%s.%s.count", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.count', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
-                rtapi_snprintf(name, sizeof(name), "%s.%s.rawcounts",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_s32_new(name,
-                                    HAL_OUT,
-                                    &(chan->pins[i].s32_pin2),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_si32(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].s32_pin2),
+                                    0, "%s.%s.rawcounts", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.rawcounts', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
-                rtapi_snprintf(name, sizeof(name), "%s.%s.position",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_float_new(name,
-                                    HAL_OUT,
-                                    &(chan->pins[i].float_pin),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_real(hm2->llio->comp_id, HAL_OUT, &(chan->pins[i].float_pin),
+                                    0.0, "%s.%s.position", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.position', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
-                rtapi_snprintf(name, sizeof(name), "%s.%s.index-enable",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_bit_new(name,
-                                    HAL_IO,
-                                    &(chan->pins[i].boolean),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IO, &(chan->pins[i].boolean),
+                                    0, "%s.%s.index-enable", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.index-enable', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
 
-                rtapi_snprintf(name, sizeof(name), "%s.%s.reset",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_bit_new(name,
-                                    HAL_IO,
-                                    &(chan->pins[i].boolean2),
-                                    hm2->llio->comp_id);
+                r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IO, &(chan->pins[i].boolean2),
+                                    0, "%s.%s.reset", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.reset', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
-                rtapi_snprintf(name, sizeof(name), "%s.%s.scale",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_param_float_new(name,
-                                    HAL_RW,
-                                    &(chan->pins[i].fullscale),
-                                    hm2->llio->comp_id);
+                r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].fullscale),
+                                    chan->confs[i].ParmMax, "%s.%s.scale", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.scale', aborting\n",
+                            r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
 
-                rtapi_snprintf(name, sizeof(name), "%s.%s.counts-per-rev",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_param_u32_new(name,
-                                    HAL_RW,
-                                    &(chan->pins[i].u32_param),
-                                    hm2->llio->comp_id);
+                r = hal_param_new_ui32(hm2->llio->comp_id, HAL_RW, &(chan->pins[i].u32_param),
+                                    256, "%s.%s.counts-per-rev", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s.counts-per-rev', aborting\n",
+                            r, chan->name, chan->confs[i].NameString);
                     return -EINVAL;
                 }
-                chan->pins[i].fullscale = chan->confs[i].ParmMax;
-                chan->pins[i].u32_param = 256;
                 break;
             case LBP_ENCODER_L:
                 //No pins for encoder L
                 break;
             case LBP_FLOAT:
-                rtapi_snprintf(name, sizeof(name), "%s.%s",
-                               chan->name,
-                               chan->confs[i].NameString);
-                r = hal_pin_float_new(name,
-                                      data_dir,
-                                      &(chan->pins[i].float_pin),
-                                      hm2->llio->comp_id);
+                r = hal_pin_new_real(hm2->llio->comp_id, data_dir, &(chan->pins[i].float_pin),
+                                      0.0, "%s.%s", chan->name, chan->confs[i].NameString);
                 if (r < 0) {
-                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    HM2_ERR("error %d adding pin '%s.%s', aborting\n", r, chan->name, chan->confs[i].NameString);
                     return r;
                 }
                 break;
@@ -1499,11 +1374,11 @@ fail1:
     hm2_sserial_data_t   *g;
     int shift; // used for floating point comparisons
 
-    switch (*inst->state2){
+    switch (hal_get_ui32(inst->state2)){
         case 0: // init loop counters
             inst->r_index = 0;
             inst->g_index = 0;
-            *inst->state2 = 1;
+            hal_set_ui32(inst->state2, 1);
             /* Fallthrough */
         case 1:
             if (inst->num_remotes == 0) return 0;
@@ -1512,29 +1387,27 @@ fail1:
                 p = &(r->params[inst->g_index]);
                 g = &(r->globals[inst->g_index]);
             } else {
-                *inst->state2 = 2;
+                hal_set_ui32(inst->state2, 2);
                 break;
             }
-            switch (*inst->state3){
+            switch (hal_get_ui32(inst->state3)){
                 //Commands are queued for TRAM write, so every change in
                 //command needs a break to poll the thread
                 int ret;
                 default:
-                    HM2_ERR("Unhandled state %i", *inst->state3);
+                    HM2_ERR("Unhandled state %i", hal_get_ui32(inst->state3));
                     return 1;
                 case 0:
                     HM2_DBG("Checking Param %s datatype %02X\n", g->NameString, p->type);
                     switch (p->type){
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
-                            if (p->s32_param != p->s32_written) break;
-                            *inst->state2 = 2; // increment indices
-                            return *inst->state2;
+                            if (hal_get_si32(p->param.s) != p->s32_written) break;
+                            return hal_set_ui32(inst->state2, 2); // increment indices
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
-                            if (p->u32_param != p->u32_written) break;
-                            *inst->state2 = 2; // increment indices
-                            return *inst->state2;
+                            if (hal_get_ui32(p->param.u) != p->u32_written) break;
+                            return hal_set_ui32(inst->state2, 2); // increment indices
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
                             // comparing floats that might have different sizes is not trivial
@@ -1554,30 +1427,31 @@ fail1:
                                 case 64:
                                     shift = 0;
                                 }
-                            if (xlabs((p->s64_param - p->s64_written) >> shift) > 2) break;
-                            *inst->state2 = 2; // increment indices
-                            return *inst->state2;
+                            // FIXME: This overlayed s64 read is very wrong!
+                            if (xlabs((hal_get_sint(p->param.s) - p->s64_written) >> shift) > 2) break;
+                            return hal_set_ui32(inst->state2, 2); // increment indices
                         default:
-                            *inst->state2 = 2; // increment indices
-                            return *inst->state2;
+                            return hal_set_ui32(inst->state2, 2); // increment indices
                         }
                     HM2_WARN("Writing value of %s datatype %02X\n", g->NameString, p->type);
-                    *inst->state3 = 1;
+                    hal_set_ui32(inst->state3, 1);
                     inst->timer = 20000000;
                     *inst->command_reg_write = 0x800; // stop all
                     break;
                  case 1:
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
-                    if (ret < 0) *inst->state3 = 100; // quit and tidy up
-                    *inst->state3 = 2;
+                    // FIXME: Assigns 100 to state3 and then unconditionally assigns 2
+                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
+                    hal_set_ui32(inst->state3, 2);
                     inst->timer = 20000000;
                     *inst->command_reg_write = 0xF00 | (1 << r->index); // channel in setup mode
                     break;
                 case 2: // Unlock Nonvol access
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
-                    if (ret < 0) *inst->state3 = 100; // quit and tidy up
+                    // FIXME: Assigns 100 to state3 and then 3 or 4 inside the if/else.
+                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
                     if (   p->type == LBP_NONVOL_FLOAT
                         || p->type == LBP_NONVOL_UNSIGNED
                         || p->type == LBP_NONVOL_SIGNED){
@@ -1585,38 +1459,39 @@ fail1:
                         *r->write[0] = LBPNONVOLEEPROM;
                         *inst->command_reg_write = 0x1000 | (1 << r->index); // doit command
                         inst->timer = 20000000;
-                        *inst->state3 = 3;
+                        hal_set_ui32(inst->state3, 3);
                         HM2_PRINT("A non-volatile smart-serial parameter has been changed\n"
                                         "A full power-cycle will be needed before the effect is seen\n");
                     } else {
-                        *inst->state3 = 4;
+                        hal_set_ui32(inst->state3, 4);
                     }
                     break;
                 case 3: // wait for doit clear
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
-                    if (ret < 0) *inst->state3 = 100; // quit and tidy up
+                    // FIXME: Assigns 100 to state3 and then unconditionally assigns 4
+                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
                     // NV access now enabled.
                     HM2_DBG("NV Access unlocked: param %s\n", g->NameString);
-                    *inst->state3 = 4;
+                    hal_set_ui32(inst->state3, 4);
                     break;
                 case 4: // Now send the data
                     switch (p->type){
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
-                            *r->write[0] = (rtapi_u32) p->s32_param;
+                            *r->write[0] = (rtapi_u32)hal_get_si32(p->param.s);
                             break;
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
-                            *r->write[0] = p->u32_param;
+                            *r->write[0] = hal_get_ui32(p->param.u);
                             break;
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
                             if (g->DataLength == sizeof(float) * 8 ){
-                                float temp = p->float_param;
+                                float temp = hal_get_real(p->param.r);
                                 memcpy(r->write[0], &temp, sizeof(float));    // Data Value
                             } else if (g->DataLength == sizeof(double) * 8){
-                                double temp = p->float_param;
+                                double temp = hal_get_real(p->param.r);
                                 memcpy(r->write[0], &temp, sizeof(double));
                             } else {
                                 HM2_ERR("sserial write: LBP_FLOAT of bit-length %i not handled\n", g->DataLength);
@@ -1642,26 +1517,27 @@ fail1:
                         }
                     *inst->command_reg_write = 0x1000 | (1 << r->index); // doit command
                     inst->timer = 200000000;
-                    *inst->state3 = 5;
+                    hal_set_ui32(inst->state3, 5);
                     break;
                 case 5: // wait for doit clear
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
-                    if (ret < 0) *inst->state3 = 100; // quit and tidy up
+                    // FIXME: Assigns 100 to state3 and then 7 or 8 inside the if/else.
+                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
 
                     // success? Set the written = param
                     switch (p->type){
                         case LBP_SIGNED:
                         case LBP_NONVOL_SIGNED:
-                            p->s32_written = p->s32_param;
+                            p->s32_written = hal_get_si32(p->param.s);
                             break;
                         case LBP_UNSIGNED:
                         case LBP_NONVOL_UNSIGNED:
-                            p->u32_written = p->u32_param;
+                            p->u32_written = hal_get_ui32(p->param.u);
                             break;
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
-                            p->float_written = p->float_param;
+                            p->float_written = hal_get_real(p->param.r);
                             break;
                         default:
                             break;
@@ -1676,52 +1552,54 @@ fail1:
                         *r->write[0] = LBPNONVOLCLEAR;
                         *inst->command_reg_write = 0x1000 | (1 << r->index); // doit command
                         inst->timer = 0x2000000;
-                        *inst->state3 = 7;
+                        hal_set_ui32(inst->state3, 7);
                     } else {
-                        *inst->state3 = 8;
+                        hal_set_ui32(inst->state3, 8);
                     }
                     break;
                 case 7: // wait for doit clear
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
-                    if (ret < 0) *inst->state3 = 100; // quit and tidy up
+                    // FIXME: Assigns 100 to state3 and then unconditionally assigns 8
+                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
                     // NV access now cleared
                     HM2_DBG("NV Access Cleared: param %s\n", g->NameString);
-                    * inst->state3 = 8;
+                    hal_set_ui32(inst->state3, 8);
                     break;
                 case 8: // stop-all
                     inst->timer = 0x2000000;
                     *inst->command_reg_write = 0x800; //stop
-                    *inst->state3 = 9;
+                    hal_set_ui32(inst->state3, 9);
                     break;
                 case 9: //wait for final stop-all
                     ret = hm2_sserial_wait(hm2, inst, period);
                     if (ret > 0) break;
-                    if (ret < 0) *inst->state3 = 100; // quit and tidy up
+                    // FIXME: Assigns 100 to state3 and then unconditionally assigns 0
+                    if (ret < 0) hal_set_ui32(inst->state3, 100); // quit and tidy up
                     // NV access now cleared
                     HM2_DBG("Board out of setup mode: param %s\n", g->NameString);
-                    *inst->state3 = 0;
-                    *inst->state2 = 2; // increment indices
+                    hal_set_ui32(inst->state3, 0);
+                    hal_set_ui32(inst->state2, 2); // increment indices
                     break;
                 case 100: // error recovery
                     HM2_ERR("Problem found writing sserial parameter %s\n", g->NameString);
                     *inst->command_reg_write = 0x800; //stop all command
-                    *inst->state3 = 0;
-                    *inst->state2 = 2; // increment indices
+                    hal_set_ui32(inst->state3, 0);
+                    hal_set_ui32(inst->state2, 2); // increment indices
                     break;
             } // End of switch(inst->state3)
         break;
     case 2:
-        *inst->state2 = 1;
+        hal_set_ui32(inst->state2, 1);
         if ((int)++inst->g_index >= inst->remotes[inst->r_index].num_globals){
             inst->g_index = 0;
             if ((int)++inst->r_index >= inst->num_remotes){//checked them all
-                *inst->state2 = 0;
+                hal_set_ui32(inst->state2, 0);
             }
         }
         break;
     } // end of switch(inst->state2)
-    return *inst->state2;
+    return hal_get_ui32(inst->state2);
 }
 
 void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
@@ -1733,7 +1611,8 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     // the side effect of reporting this error will suffice
     (void)hm2_sserial_check_remote_errors(hm2, inst);
 
-    if (*inst->fault_count > inst->fault_lim) {
+    rtapi_u32 fault_count = hal_get_ui32(inst->fault_count);
+    if (fault_count > hal_get_ui32(inst->fault_lim)) {
         // If there have been a large percentage of misses, for quite
         // a long time, it's time to take it seriously.
         hm2_sserial_check_local_errors(hm2, inst);
@@ -1741,9 +1620,9 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                 "There have been more than %i errors in %i "
                 "thread executions at least %i times. "
                 "See other error messages for details.\n",
-                inst->fault_dec,
-                inst->fault_inc,
-                inst->fault_lim);
+                hal_get_ui32(inst->fault_dec),
+                hal_get_ui32(inst->fault_inc),
+                hal_get_ui32(inst->fault_lim));
         HM2_ERR("***Smart Serial Port %i will be stopped***\n",inst->index);
         static bool printed;
         if(!inst->ever_read && !printed) {
@@ -1753,7 +1632,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                 "This error message will not repeat.\n");
             printed = true;
         }
-        *inst->state = 10;
+        hal_set_ui32(inst->state, 10);
         *inst->command_reg_write = 0x800; // stop command
         return;
     }
@@ -1767,20 +1646,20 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                     "if this is happening frequently.\n",
                     inst->index, hm2->llio->name, inst->index);
         }
-        *inst->fault_count += inst->fault_inc;
+        fault_count = hal_set_ui32(inst->fault_count, fault_count + hal_get_ui32(inst->fault_inc));
         *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
         return; // give the register chance to clear
     }
     if (*inst->data_reg_read & 0xff) { // indicates a failed transfer
-        *inst->fault_count += inst->fault_inc;
+        fault_count = hal_set_ui32(inst->fault_count, fault_count + hal_get_ui32(inst->fault_inc));
     }
 
-    if (*inst->fault_count > inst->fault_dec) {
-        *inst->fault_count -= inst->fault_dec;
+    if (fault_count > hal_get_ui32(inst->fault_dec)) {
+        fault_count = hal_set_ui32(inst->fault_count, fault_count - hal_get_ui32(inst->fault_dec));
     }
     else
     {
-        *inst->fault_count = 0;
+        fault_count = hal_set_ui32(inst->fault_count, 0);
     }
 
     // All seems well, handle the pins.
@@ -1805,32 +1684,32 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                     case LBP_BITS:
                         buff = 0;
                         for (b = 0 ; b < conf->DataLength ; b++){
-                            buff |= ((rtapi_u64)(*pin->bit_pins[b] != 0) << b)
-                            ^ ((rtapi_u64)(pin->invert[b] != 0) << b);
+                            buff |= ((rtapi_u64)(hal_get_bool(pin->bit_pins[b])) << b)
+                            ^ ((rtapi_u64)hal_get_bool(pin->invert[b]) << b);
                         }
                         break;
                     case LBP_UNSIGNED:
-                        val = *pin->float_pin;
-                        if (val > pin->maxlim) val = pin->maxlim;
-                        if (val < pin->minlim) val = pin->minlim;
-                        buff = (rtapi_u64)((val / pin->fullscale)
+                        val = hal_get_real(pin->float_pin);
+                        if (val > hal_get_real(pin->maxlim)) val = hal_get_real(pin->maxlim);
+                        if (val < hal_get_real(pin->minlim)) val = hal_get_real(pin->minlim);
+                        buff = (rtapi_u64)((val / hal_get_real(pin->fullscale))
                                      * (~0ull >> (64 - conf->DataLength)));
                         break;
                     case LBP_SIGNED:
                         //this only works if DataLength <= 32
-                        val = *pin->float_pin;
-                        if (val > pin->maxlim) val = pin->maxlim;
-                        if (val < pin->minlim) val = pin->minlim;
-                        buff = (((rtapi_s32)(val / pin->fullscale * 2147483647))
+                        val = hal_get_real(pin->float_pin);
+                        if (val > hal_get_real(pin->maxlim)) val = hal_get_real(pin->maxlim);
+                        if (val < hal_get_real(pin->minlim)) val = hal_get_real(pin->minlim);
+                        buff = (((rtapi_s32)(val / hal_get_real(pin->fullscale) * 2147483647))
                                 >> (32 - conf->DataLength))
                         & (~0ull >> (64 - conf->DataLength));
                         break;
                     case LBP_STREAM:
-                        buff = *pin->u32_pin & (~0ull >> (64 - conf->DataLength));
+                        buff = hal_get_ui32(pin->u32_pin) & (~0ull >> (64 - conf->DataLength));
                         break;
                     case LBP_BOOLEAN:
                         buff = 0;
-                        if (*pin->boolean ^ ((conf->DataDir == LBP_OUT)?(*pin->invert):0)){
+                        if (hal_get_bool(pin->boolean) ^ ((conf->DataDir == LBP_OUT)?(hal_get_bool(*pin->invert)):0)){
                             buff = (~0ull >> (64 - conf->DataLength));
                         }
                         break;
@@ -1840,10 +1719,10 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
                         break;
                     case LBP_FLOAT:
                         if (conf->DataLength == sizeof(float) * 8 ){
-                            float temp = *pin->float_pin;
+                            float temp = hal_get_real(pin->float_pin);
                             memcpy(&buff, &temp, sizeof(float));
                         } else if (conf->DataLength == sizeof(double) * 8){
-                            double temp = *pin->float_pin;
+                            double temp = hal_get_real(pin->float_pin);
                             memcpy(&buff, &temp, sizeof(double));
                         } else {
                             HM2_ERR_NO_LL("sserial write: LBP_FLOAT of bit-length %i not handled\n", conf->DataLength);
@@ -1877,28 +1756,28 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
 
         hm2_sserial_instance_t *inst = &(hm2->sserial.instance[i]);
 
-        switch ((*inst->state) & 0xFF){
+        switch (hal_get_ui32(inst->state) & 0xFF){
 
             case 0: // Idle
-                if (! *inst->run){ break; }
+                if (! hal_get_bool(inst->run)){ break; }
                 // Check for any changed parameters
                 if (hm2_sserial_update_params(hm2, inst, period) > 0) break;
                 //set the modes for the cards
                 hm2_sserial_setmode(hm2, inst);
                 *inst->command_reg_write = 0x900 | inst->tag;
                 HM2_DBG("Enabled Remotes tag = = %x\n", inst->tag);
-                *inst->fault_count = 0;
+                hal_set_ui32(inst->fault_count, 0);
                 inst->doit_err_count = 0;
                 inst->timer = 2100000000;
-                 *inst->state = 2;
+                hal_set_ui32(inst->state, 2);
                 break;
             case 2: // just transitioning to running
                 if (hm2_sserial_wait(hm2, inst, period) > 0) break;
-                *inst->state = 3;
+                hal_set_ui32(inst->state, 3);
                 break;
             case 3: // normal running
-                if (!*inst->run){
-                     *inst->state = 4;
+                if (!hal_get_bool(inst->run)){
+                    hal_set_ui32(inst->state, 4);
                     break;
                 }
                 hm2_sserial_write_pins(hm2, inst);
@@ -1906,21 +1785,21 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
             case 4: // run to stop transition
                 *inst->command_reg_write = 0x800;
                 inst->timer = 2100000000;
-                *inst->state = 5;
+                hal_set_ui32(inst->state, 5);
                 break;
             case 5:
                 if (hm2_sserial_wait(hm2, inst, period) > 0) break;
-                *inst->state = 0;
+                hal_set_ui32(inst->state, 0);
                 break;
             case 10:// Do-nothing state for serious errors. require run pin to cycle
                 *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
-                if ( ! *inst->run){*inst->state = 0;}
+                if ( !hal_get_bool(inst->run)){hal_set_ui32(inst->state, 0);}
                 break;
             default: // Should never happen
                 HM2_ERR("Unhandled run/stop configuration in \n"
                         "hm2_sserial_write (%x)\n",
-                        *inst->state);
-                *inst->state = 0;
+                        hal_get_ui32(inst->state));
+                hal_set_ui32(inst->state, 0);
         }
     }
 }
@@ -1948,8 +1827,8 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 break;
             case LBP_BITS:
                 for (b = 0 ; b < conf->DataLength ; b++){
-                    *pin->bit_pins[b] = ((buff & (1LL << b)) != 0);
-                    *pin->bit_pins_not[b] = ! *pin->bit_pins[b];
+                    rtapi_bool _v = hal_set_bool(pin->bit_pins[b], (buff & (1LL << b)) != 0);
+                    hal_set_bool(pin->bit_pins_not[b], !_v);
                 }
                 break;
             case LBP_UNSIGNED:
@@ -1961,21 +1840,19 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     }
                 }
 
-                *pin->float_pin = (buff * pin->fullscale)
-                / ((1 << conf->DataLength) - 1);
+                hal_set_real(pin->float_pin, (buff * hal_get_real(pin->fullscale)) / ((1 << conf->DataLength) - 1));
                 break;
             case LBP_SIGNED:
                 buff32 = (buff & 0xFFFFFFFFL) << (32 - conf->DataLength);
-                *pin->float_pin = (buff32 / 2147483647.0 )
-                                    * pin->fullscale;
+                hal_set_real(pin->float_pin, (buff32 / 2147483647.0 ) * hal_get_real(pin->fullscale));
                 break;
             case LBP_STREAM:
-                *pin->u32_pin = buff & (~0ull >> (64 - conf->DataLength));
+                hal_set_ui32(pin->u32_pin, buff & (~0ull >> (64 - conf->DataLength)));
                 break;
             case LBP_BOOLEAN:
-                *pin->boolean = (buff != 0);
+                hal_set_bool(pin->boolean, buff != 0);
                 if(conf->DataDir == LBP_IN){
-                    *pin->boolean2 = (buff == 0);
+                    hal_set_bool(pin->boolean2, buff == 0);
                 }
                 break;
             case LBP_ENCODER_H:
@@ -1998,7 +1875,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 int bitlength;
                 rtapi_s32 rem1, rem2;
                 rtapi_s64 previous;
-                rtapi_u32 ppr = pin->u32_param;
+                rtapi_u32 ppr = hal_get_ui32(pin->u32_param);
 
                 if (conf->DataType == LBP_ENCODER){
                     bitlength = conf->DataLength;
@@ -2031,10 +1908,10 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 pin->accum += (buff64 - pin->oldval);
 
                 //reset
-                if (*pin->boolean2){pin->offset = pin->accum;}
+                if (hal_get_bool(pin->boolean2)){pin->offset = pin->accum;}
 
                 //index-enable
-                if (*pin->boolean && ppr > 0){ // index-enable set
+                if (hal_get_bool(pin->boolean) && ppr > 0){ // index-enable set
                     rtapi_div_s64_rem(previous, ppr, &rem1);
                     rtapi_div_s64_rem(pin->accum, ppr, &rem2);
                     if ((unsigned)abs(rem1 - rem2) > ppr / 2
@@ -2057,23 +1934,23 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                                 pin->offset = 0;
                             }
                         }
-                        *pin->boolean = 0;
+                        hal_set_bool(pin->boolean, 0);
                     }
                 }
                 pin->oldval = buff64;
-                *pin->s32_pin = pin->accum - pin->offset;
-                *pin->s32_pin2 = pin->accum;
-                *pin->float_pin = (double)(pin->accum - pin->offset) / pin->fullscale ;
+                hal_set_si32(pin->s32_pin, pin->accum - pin->offset);
+                hal_set_si32(pin->s32_pin2, pin->accum);
+                hal_set_real(pin->float_pin, (double)(pin->accum - pin->offset) / hal_get_real(pin->fullscale));
                 break;
             case LBP_FLOAT:
                 if (conf->DataLength == sizeof(float) * 8){
                     float temp;
                     memcpy(&temp, &buff, sizeof(float));
-                    *pin->float_pin = temp;
+                    hal_set_real(pin->float_pin, temp);
                 } else if (conf->DataLength == sizeof(double) * 8){
                     double temp;
                     memcpy(&temp, &buff, sizeof(double));
-                    *pin->float_pin = temp;
+                    hal_set_real(pin->float_pin, temp);
                 } else {
                     HM2_ERR_NO_LL("sserial read: LBP_FLOAT of bit-length %i not handled\n", conf->DataLength);
                     conf->DataType = 0; // Only warn once, then ignore
@@ -2099,7 +1976,7 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
     for (i = 0 ; i < hm2->sserial.num_instances ; i++){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
         inst->ever_read = true;
-        if (*inst->state != 3) continue ; // Only work on running instances
+        if (hal_get_ui32(inst->state) != 3) continue ; // Only work on running instances
         for (c = 0 ; c < inst->num_remotes ; c++ ) {
             hm2_sserial_remote_t *chan = &inst->remotes[c];
             hm2_sserial_read_pins(chan);
