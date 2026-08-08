@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-03 08:40+0000\n"
+"PO-Revision-Date: 2026-08-08 22:52+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
 "Language-Team: none\n"
 "Language: pt\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -21092,6 +21092,17 @@ msgid ""
 "joints having that (negative or positive) sequence number.  For additional "
 "info, see: <<sec:homing-section,HOME SEQUENCE>>."
 msgstr ""
+"`HOME_SEQUENCE =` _<n>_ - Usado para definir a sequência \"Home All\".  _<n>"
+"_ tem de começar em `0` ou `1` ou `-1`.  Podem ser especificadas sequências "
+"adicionais com números aumentados em 1 (em valor absoluto).  O saltar de "
+"números de sequência não é permitido.  Se um `HOME_SEQUENCE` for omitido, a "
+"articulação não vai ser levada à posição inicial pela função \"Home All\".  "
+"Mais do que uma articulação pode ser levada à posição inicial ao mesmo tempo "
+"ao especificar o mesmo número de sequência para mais do que uma "
+"articulação.  Um número de sequência negativo é usado para adiar o movimento "
+"final para todas as articulações que tenham esse número de sequência "
+"(negativo ou positivo).  Para informação adicional, veja: <<sec:homing-"
+"section,SEQUÊNCIA DE POSICIONAMENTO INICIAL>>."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1134
@@ -21101,6 +21112,11 @@ msgid ""
 "machine has home switches and does not have position feedback such as a step "
 "and direction driven machine."
 msgstr ""
+"`VOLATILE_HOME = 0` - Quando ativo (definido para `1`) esta articulação vai "
+"perder a posição inicial se a Energia da Máquina for desligada ou se a "
+"paragem de Emergência for ligada.  Isto é útil se a sua máquina tiver "
+"interruptores de posição inicial e não tiver retorno informativo de posição "
+"como uma máquina movida por passo e direção."
 
 #. type: Title ====
 #: src/config/ini-config.adoc:1135
@@ -21123,6 +21139,12 @@ msgid ""
 "more information on custom INI file entries see the <<sub:ini:custom,Custom "
 "Sections and Variables>> subsection."
 msgstr ""
+"As seguintes são entradas de ficheiro INI personalizadas que pode encontrar "
+"num ficheiro INI de exemplo ou num ficheiro gerado por assistente.  Estas "
+"não são usadas pelo software LinuxCNC.  Só estão lá para se pôr todas as "
+"definições em um lugar.  Para mais informação sobre entradas de ficheiro INI "
+"personalizadas veja a sub-secção <<sub:ini:custom,Secções e Variáveis "
+"Personalizadas>>."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1146
@@ -21139,8 +21161,8 @@ msgid ""
 "`DEADBAND = 0.000015` - How close is close enough to consider the motor in "
 "position, in <<sub:ini:sec:traj,machine units>>."
 msgstr ""
-"`DEADBAND = 0.000015` - Quanto perto é próximo o suficiente para considerar "
-"o motor em posição, em <<sub:ini:sec:traj,unidades máquina>>."
+"`DEADBAND = 0.000015` - Quanto próximo é suficiente para se considerar o "
+"motor em posição, em <<sub:ini:sec:traj,unidades máquina>>."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1155
@@ -21152,6 +21174,13 @@ msgid ""
 "it really more accurate if it's also more uncertain? As a general rule, it's "
 "good to avoid, or at least limit, servo 'hunting' if you can."
 msgstr ""
+"Isto é geralmente definido para uma distância equivalente a 1, 1.5, 2, ou 3 "
+"contagens de codificador, mas não há regras estritas.  Definições mais "
+"folgadas (largas) permitem menos 'oscilação' do servo à custa de menos "
+"precisão.  Definições mais apertadas (pequenas) tentam maior precisão à "
+"custa de mais 'oscilação' do servo.  Será que realmente é mais preciso se "
+"for também mais incerto? Como regra geral, é bom evitar, ou pelo menos "
+"limitar, a 'oscilação' do servo se o conseguir."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1159
@@ -21163,6 +21192,12 @@ msgid ""
 "a count or two loose here at first, until you've been through 'gross tuning' "
 "at least."
 msgstr ""
+"Tenha cuidado ao ir para uma contagem de codificador abaixo de 1, pois pode "
+"criar uma condição onde não há nenhum lugar onde o seu servo seja feliz.  "
+"Isto pode ir para lá de 'oscilação' (lento) a 'nervoso' (rápido), e até ao "
+"'guinchar' o que é fácil de confundir com a oscilação causada por afinação "
+"inapropriada.  É melhor ser uma contagem ou duas folgada ao princípio, até "
+"que tenha passado pelo menos a 'afinação aproximada'."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1161
@@ -21195,6 +21230,12 @@ msgid ""
 "vertically.  Bias is turned off when the PID loop is disabled, just like all "
 "other components of the output."
 msgstr ""
+"`BIAS = 0.000` - Isto é usado pelo hm2-servo e alguns outros.  Bias é uma "
+"quantidade constante que é adicionada à saída.  Na maioria dos casos deve "
+"ser deixado em zero.  No entanto, pode por vezes ser útil para compensar "
+"desvios nos amplificadores do servo, ou para balancear o peso de um objeto "
+"que se move na vertical.  O Bias é desligado quando o ciclo PID é "
+"desativado, tal como todos os outros componentes da saída."
 
 #. latexmath:[$\frac{volt}{mu}$].
 #. type: Plain text
@@ -21206,6 +21247,11 @@ msgid ""
 "units on the P gain are volts per machine unit, e.g., image:images/p-"
 "term.png[height=25]"
 msgstr ""
+"`P = 50` - O ganho proporcional para o servo da articulação.  Este valor "
+"multiplica o erro entre posição comandada e real em unidades máquina, "
+"resultado numa contribuição para a voltagem computada para o amplificador do "
+"motor.  As unidades no ganho P são volts por unidade máquina, ex., "
+"image:images/p-term.png[altura=25]"
 
 #. latexmath:[$\frac{volt}{mu\, s}$].
 #. type: Plain text
@@ -21217,6 +21263,11 @@ msgid ""
 "amplifier.  The units on the I gain are volts per machine unit second, e.g., "
 "image:images/i-term.png[height=25]"
 msgstr ""
+"`I = 0` - O ganho integral para o servo da articulação.  O valor multiplica "
+"o erro cumulativo entre a posição comandada e real em unidades máquina, "
+"resultando numa contribuição para a voltagem computada para o amplificador "
+"do motor.  As unidades no ganho I são volts por unidade máquina por segundo, "
+"ex., image:images/i-term.png[altura=25]"
 
 #.  latexmath:[$\frac{volt}{mu/s}$].
 #. type: Plain text
@@ -21228,6 +21279,11 @@ msgid ""
 "the D gain are volts per machine unit per second, e.g., image:images/i-"
 "term.png[height=25]"
 msgstr ""
+"`D = 0` - O ganho derivativo para o servo da articulação.  O valor "
+"multiplica a diferença entre os erros atuais e anteriores, resultando numa "
+"contribuição para a voltagem computada para o amplificador do motor.  As "
+"unidades no ganho D são volts por unidade máquina por segundo, ex., "
+"image:images/i-term.png[altura=25]"
 
 #.  latexmath:[$\frac{volt}{mu}$].
 #. type: Plain text
@@ -21238,6 +21294,10 @@ msgid ""
 "for the motor amplifier.  The units on the FF0 gain are volts per machine "
 "unit, e.g., image:images/p-term.png[height=25]"
 msgstr ""
+"`FF0 = 0` - O ganho direto de alimentação da 0ª ordem.  Este número é "
+"multiplicado pela posição comandada, resultando numa contribuição para a "
+"voltagem computada para o amplificador do motor.  As unidades no ganho FF0 "
+"são volts por unidade máquina, ex., image:images/p-term.png[altura=25]"
 
 #.  latexmath:[$\frac{volt}{mu\, s}$].
 #. type: Plain text
@@ -21248,6 +21308,11 @@ msgid ""
 "the computed voltage for the motor amplifier.  The units on the FF1 gain are "
 "volts per machine unit per second, e.g., image:images/i-term.png[height=25]"
 msgstr ""
+"`FF1 = 0` - O ganho direto de alimentação da 1ª ordem.  Este número é "
+"multiplicado pela alteração na posição comandada por segundo, resultando "
+"numa contribuição para a voltagem computada para o amplificador do motor.  "
+"As unidades no ganho FF1 são volts por unidade máquina por segundo, ex., "
+"image:images/i-term.png[altura=25]"
 
 #.  latexmath:[$\frac{volt}{mu\, s^{2}}$].
 #. type: Plain text
@@ -21259,6 +21324,11 @@ msgid ""
 "the FF2 gain are volts per machine unit per second per second, e.g., "
 "image:images/ff2.png[height=25]"
 msgstr ""
+"`FF2 = 0` - O ganho direto de alimentação da 2ª ordem.  Este número é "
+"multiplicado pela alteração na posição comandada por segundo por segundo, "
+"resultando numa contribuição para a voltagem computada para o amplificador "
+"do motor.  As unidades no ganho FF2 são volts por unidade máquina por "
+"segundo por segundo, ex, image:images/ff2.png[altura=25]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1205
@@ -21291,6 +21361,14 @@ msgid ""
 "Volts for an amplifier DAC.  This scaling looks like: image:images/output-"
 "offset.png[]"
 msgstr ""
+"O segundo valor (desvio) é subtraído da saída computada (em volts), e "
+"dividido pelo primeiro valor (fator de escala), antes de ser escrito nos "
+"conversores D/A.  As unidades no valor de escala são em volts reais por "
+"volts de saída DAC.  As unidades no desvio são em volts.  Estes podem ser "
+"usados para linearizar o DAC.  Especificamente, quando escreve saídas, o "
+"LinuxCNC primeiro converte a saída desejada em unidades quase-SI em valores "
+"brutos de atuador, ex., Volts para um amplificador DAC.  Este escalar parece-"
+"se com: image:images/output-offset.png[]"
 
 #.  latexmath:[raw=\frac{output-offset}{scale}]
 #. type: Plain text
@@ -21301,6 +21379,10 @@ msgid ""
 "machine with a velocity mode amplifier such that 1 V results in 250 mm/s "
 "velocity."
 msgstr ""
+"O valor para escala pode ser obtido analiticamente fazendo uma análise de "
+"unidade, isto é, unidades são [unidades SI de saída]/[unidades do atuador].  "
+"Por exemplo, numa máquina com um amplificador de modo de velocidade em que 1 "
+"V resulte em velocidade de 250 mm/s."
 
 #. type: Target for macro image
 #: src/config/ini-config.adoc:1222
@@ -21318,6 +21400,10 @@ msgid ""
 "obtained by finding the value of your output which yields 0.0 for the "
 "actuator output.  If the DAC is linearized, this offset is normally 0.0."
 msgstr ""
+"Note que as unidades do desvio são em unidades máquina, ex., mm/s, e elas "
+"são subtraídas das leituras do sensor.  O valor para este desvio é obtido ao "
+"encontrar o valor da sua saída o que resulta em 0.0 para a saída do "
+"atuador.  Se o DAC for linearizado, este desvio é normalmente 0.0."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1232
@@ -21326,6 +21412,9 @@ msgid ""
 "values that reflect the combined effects of amplifier gain, DAC non-"
 "linearity, DAC units, etc."
 msgstr ""
+"A escala e o desvio também podem ser usados para linearizar o DAC, "
+"resultando em valores que refletem os efeitos combinados do ganho do "
+"amplificador, não-linearidade do DAC, unidades do DAC, etc."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1234
@@ -21338,6 +21427,8 @@ msgid ""
 "Build a calibration table for the output, driving the DAC with a desired "
 "voltage and measuring the result."
 msgstr ""
+"Construa uma tabela de calibração para a saída, atuando o DAC com uma "
+"voltagem desejada e medindo o resultado."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1237
@@ -21345,6 +21436,8 @@ msgid ""
 "Do a least-squares linear fit to get coefficients a, b such that "
 "image:images/calibration-1.png[]"
 msgstr ""
+"Faça um ajuste linear por mínimos quadrados para obter os coeficientes a, b "
+"tal com em image:images/calibration-1.png[]"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1238 src/config/pncconf.adoc:414
@@ -21352,6 +21445,8 @@ msgid ""
 "Note that we want raw output such that our measured result is identical to "
 "the commanded output. This means"
 msgstr ""
+"Note que queremos saída em bruto de modo que o nosso resultado de medição "
+"seja idêntico à saída comandada. Isto significa"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1239
@@ -21369,6 +21464,8 @@ msgid ""
 "As a result, the a and b coefficients from the linear fit can be used as the "
 "scale and offset for the controller directly."
 msgstr ""
+"Como resultado, os coeficientes a e b do ajuste linear podem ser usados como "
+"a escala e desvio para o controlador diretamente."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1243
@@ -21385,7 +21482,7 @@ msgstr "Medições de Voltagem de Saída"
 #: src/config/ini-config.adoc:1251 src/config/pncconf.adoc:403
 #, no-wrap
 msgid "Raw"
-msgstr "Crú"
+msgstr "Bruto"
 
 #. type: Table
 #: src/config/ini-config.adoc:1252 src/config/pncconf.adoc:404
@@ -21649,16 +21746,21 @@ msgid ""
 "units.  The value is applied symmetrically to both the plus and the minus "
 "side."
 msgstr ""
+"`MAX_OUTPUT = 10` - O valor máximo para a saída da compensação PID que é "
+"escrito no amplificador do motor, em volts.  O valor de saída computado é "
+"cortado a este limite.  O limite é aplicado antes de se escalar para "
+"unidades de saída brutas.  O valor é aplicado simetricamente a ambos lados "
+"positivo e negativo."
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1266
 msgid "`INPUT_SCALE = 20000` - in Sample configs"
-msgstr ""
+msgstr "`INPUT_SCALE = 20000` - configurações Sample de entrada"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1267
 msgid "`ENCODER_SCALE = 20000` - in PnCconf built configs"
-msgstr ""
+msgstr "`ENCODER_SCALE = 20000` - configurações e compilação PnCconf de entrada"
 
 #. type: Plain text
 #: src/config/ini-config.adoc:1273
@@ -21670,6 +21772,13 @@ msgid ""
 "specified, is ignored.  For example, on a 2000 counts per rev encoder, and "
 "10 revs/inch gearing, and desired units of inch, we have:"
 msgstr ""
+"Especifica o número de impulsos que corresponde a um movimento de uma "
+"unidade máquina como definido na secção `[TRAJ]`.  Para uma articulação "
+"linear uma unidade máquina será igual à definição de `LINEAR_UNITS`.  Para "
+"uma articulação angular uma unidade é igual à definição em `ANGULAR_UNITS`.  "
+"Um segundo número, se especificado, é ignorado.  Por exemplo, numa contagem "
+"de 2000 por volta de codificador, e engrenagem de 10 voltas/polegada, e as "
+"unidades desejadas em polegadas, temos:"
 
 #. type: Target for macro image
 #: src/config/ini-config.adoc:1274 src/config/ini-config.adoc:1319
@@ -21690,6 +21799,8 @@ msgstr "Stepper"
 #: src/config/ini-config.adoc:1283
 msgid "These parameters are relevant to joints controlled by steppers."
 msgstr ""
+"Estes parâmetros são relevantes para articulações controladas por motores de "
+"passo."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1288
@@ -21700,21 +21811,27 @@ msgid ""
 "information on custom INI file entries see the <<sub:ini:custom,Custom "
 "Sections and Variables>> subsection."
 msgstr ""
+"As seguintes são entradas de ficheiro INI personalizadas que pode encontrar "
+"num ficheiro INI de exemplo ou num ficheiro gerado por assistente.  Estas "
+"não são usadas pelo software LinuxCNC e destinam-se apenas a se pôr todas as "
+"definições em um lugar.  Para mais informação sobre entradas de ficheiro INI "
+"personalizadas veja a sub-secção <<sub:ini:custom,Secções e Variáveis "
+"Personalizadas>>."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1290
 msgid "The following items might be used by a StepGen component."
-msgstr ""
+msgstr "Os seguintes items podem ser usados por um componente de StepGen."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1292
 msgid "`SCALE = 4000` - in Sample configs"
-msgstr ""
+msgstr "`SCALE = 4000` - configurações Sample de entrada"
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1293
 msgid "`STEP_SCALE = 4000` - in PnCconf built configs"
-msgstr ""
+msgstr "`STEP_SCALE = 4000` - configurações e compilação PnCconf de entrada"
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1300
@@ -21727,6 +21844,14 @@ msgid ""
 "systems, this is the number of feedback pulses per machine unit.  A second "
 "number, if specified, is ignored."
 msgstr ""
+"Especifica o número de impulsos que corresponde a um movimento de uma "
+"unidade máquina como definido na secção `[TRAJ]`.  Para sistemas de motor de "
+"passo, isto é o número de impulsos de passo usados por unidade máquina.  "
+"Para uma articulação linear uma unidade máquina vai ser igual à definição de "
+"`LINEAR_UNITS`.  Para uma articulação angular uma unidade máquina é igual à "
+"definição em `ANGULAR_UNITS`.  Para sistemas servo, isto é o número de "
+"impulsos de retorno informativo por unidade máquina.  Um segundo número, se "
+"especificado, é ignorado."
 
 #. type: WARNING
 #: src/config/ini-config.adoc:1302
@@ -21735,6 +21860,9 @@ msgid ""
 "inch gearing, and desired <<sub:ini:sec:traj,machine units>> of inch, we "
 "have:"
 msgstr ""
+"Por exemplo, num motor de passo de 1.8 graus com meio-passo, e engrenagem de "
+"10 rotações/polegada, e as <<sub:ini:sec:traj,unidades máquina>> desejadas "
+"em polegadas, temos:"
 
 #. type: Target for macro image
 #: src/config/ini-config.adoc:1303
@@ -21745,7 +21873,7 @@ msgstr "images/stepper-scale.png"
 #. type: NOTE
 #: src/config/ini-config.adoc:1311
 msgid "Old INI and HAL files used `INPUT_SCALE` for this value."
-msgstr ""
+msgstr "Os ficheiros INI e HAL antigos usavam `INPUT_SCALE` para este valor."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1318
@@ -21758,6 +21886,15 @@ msgid ""
 "specified, is ignored.  For example, on a 2000 counts per rev encoder, and "
 "10 revs/inch gearing, and desired units of inch, we have:"
 msgstr ""
+"`ENCODER_SCALE = 20000` (Usado opcionalmente em configurações de compilação "
+"de PnCconf) - Especifica o número de impulsos que corresponde a um movimento "
+"de uma unidade máquina como definido na secção `[TRAJ]`.  Para uma "
+"articulação linear uma unidade máquina será igual à definição de "
+"`LINEAR_UNITS`.  Para uma articulação angular uma unidade é igual à "
+"definição em `ANGULAR_UNITS`.  Um segundo número, se especificado, é "
+"ignorado.  Por exemplo, numa contagem de 2000 por volta de codificador, e "
+"engrenagem de 10 voltas/polegada, e as unidades desejadas em polegadas, "
+"temos:"
 
 #. latexmath:[ ENCODER\_SCALE =
 #. \frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
@@ -21771,6 +21908,11 @@ msgid ""
 "backlash compensation to an joint then this should be 1.5 to 2 times greater "
 "than `MAX_ACCELERATION`."
 msgstr ""
+"`STEPGEN_MAXACCEL = 21.0` - Limite de aceleração para o gerador de passo.  "
+"Isto deve ser 1% a 10% maior que a `MAX_ACCELERATION` da articulação.  Este "
+"valor melhora a afinação de \"ciclo de posição\" do StepGen.  Se adicionou "
+"compensação de reação adversa a uma articulação estão isto deve ser 1.5 a 2 "
+"vezes maior que `MAX_ACCELERATION`."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1332
@@ -21780,17 +21922,22 @@ msgid ""
 "larger than the joint `MAX_VELOCITY`.  Subsequent testing has shown that use "
 "of `STEPGEN_MAXVEL` does not improve the tuning of StepGen's position loop."
 msgstr ""
+"`STEPGEN_MAXVEL = 1.4` - Ficheiros de configuração antigos também tinham um "
+"limite de velocidade para o gerador de passo.  Se especificado, deve também "
+"ser 1% a 10% maior que o `MAX_VELOCITY` da articulação.  Testes subsequentes "
+"mostraram que o uso de `STEPGEN_MAXVEL` não melhora a afinação do ciclo de "
+"posição do StepGen."
 
 #. type: Index entry
 #: src/config/ini-config.adoc:1334
 msgid "[SPINDLE_<num>] Section(s"
-msgstr ""
+msgstr "[SPINDLE_<num>] Secção(s"
 
 #. type: Title ===
 #: src/config/ini-config.adoc:1334
 #, no-wrap
 msgid "[SPINDLE_<num>] Section(s))"
-msgstr ""
+msgstr "[SPINDLE_<num>] Secção(ões))"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1342
@@ -21803,6 +21950,14 @@ msgid ""
 "By default the increment is 100 RPM.\n"
 "You change these default by setting the following INI variables:"
 msgstr ""
+"O _<num>_ especifica o número de fuso desde 0 ... (num_spindles-1)\n"
+"O valor de _num_spindles_ é definido por `[TRAJ]SPINDLES=` .\n"
+"Por predefinição a velocidade máxima do fuso em avanço ou reverso é "
+"aproximadamente de 2147483000 RPM.\n"
+"Por predefinição a velocidade mínima do fuso em avanço ou reverso é de 0 "
+"RPM.\n"
+"Por predefinição os incrementos são de 100 RPM.\n"
+"Você pode mudar estas predefinições ao definir as seguintes variáveis INI:"
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1346
@@ -21810,6 +21965,8 @@ msgid ""
 "These settings are for the motion controller component.  Control screens can "
 "limit these settings further."
 msgstr ""
+"Estas definições são par ao componente de controlador de movimento.  Ecrãs "
+"de controle podem limitar mais estas definições."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1350
@@ -21818,6 +21975,9 @@ msgid ""
 "specified spindle. Optional.  This will also set MAX_REVERSE_VELOCITY to the "
 "negative value unless overridden."
 msgstr ""
+"`MAX_FORWARD_VELOCITY = 20000` A velocidade de fuso máxima (em rpm) para o "
+"fuso especificado. Opcional.  Isto também vai definir MAX_REVERSE_VELOCITY "
+"para o valor negativo a menos que sobreposto."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1354
@@ -21827,6 +21987,10 @@ msgid ""
 "they should not be run.  Any spindle speed command below this limit will be /"
 "increased/ to this limit."
 msgstr ""
+"`MIN_FORWARD_VELOCITY = 3000` A velocidade de fuso mínima (em rpm) para o "
+"fuso especificado. Opcional.  Muitos fusos têm uma velocidade mínima abaixo "
+"da qual eles não devem rodar.  Qualquer comando de velocidade de fuso abaixo "
+"deste limite vai ser /aumentado/ para este limite."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1359
@@ -21837,6 +22001,11 @@ msgid ""
 "not be run in reverse.  In this context \"max\" refers to the absolute "
 "magnitude of the spindle speed."
 msgstr ""
+"`MAX_REVERSE_VELOCITY = 20000` Esta definição vai predefinir para "
+"`MAX_FORWARD_VELOCITY` se omitida.  Pode ser usada em casos onde a "
+"velocidade do fuso é limitada em reverso.  Defina para zero para fusos que "
+"não devem ser rodados em reverso.  Neste contexto o \"max\" refere-se à "
+"magnitude absoluta da velocidade do fuso."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1362
@@ -21845,6 +22014,9 @@ msgid ""
 "`MIN_FORWARD_VELOCITY` but for reverse spindle rotation.  It will default to "
 "the MIN_FORWARD_VELOCITY if omitted."
 msgstr ""
+"`MIN_REVERSE_VELOCITY = 3000`` Esta definição é equivalente a "
+"`MIN_FORWARD_VELOCITY` mas para rotação de fuso reversa.  Vai predefinir "
+"para MIN_FORWARD_VELOCITY se omitida."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1367
@@ -21854,6 +22026,10 @@ msgid ""
 "is effective with AXIS and Touchy but note that some control screens may "
 "handle things differently."
 msgstr ""
+"`INCREMENT = 200` Define o tamanho de passo para os comandos de incrementar/"
+"diminuir a velocidade do fuso.  Isto pode ter um valor diferente para cada "
+"fuso.  Esta definição é efetiva com AXIS e Touchy mas note que alguns ecrãs "
+"de controle podem lidar com as coisas de maneira diferente."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1371
@@ -21865,6 +22041,13 @@ msgid ""
 "sense for the spindle home position to be any value other than zero, and so "
 "there is no provision to do so."
 msgstr ""
+"`HOME_SEARCH_VELOCITY = 100` - FIXME: Posicionamento inicial de fuso ainda "
+"não funciona.  Define a velocidade (rpm) de posicionamento inicial para o "
+"fuso.  O fuso vai rodar a esta velocidade durante a sequência de "
+"posicionamento inicial até o índice do fuso ser localizado, que nesse ponto "
+"a posição do fuso vai ser definida para zero.  Note que não faz nenhum "
+"sentido que a posição inicial do fuso seja qualquer valor diferente de zero, "
+"e assim não há nenhuma provisão para o ser."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1374
@@ -21874,6 +22057,11 @@ msgid ""
 "`HOME_SEARCH_VELOCITY` to zero to avoid spindle rotation during the homing "
 "sequence."
 msgstr ""
+"`HOME_SEQUENCE = 0` - FIXME: Posicionamento inicial de fuso ainda não "
+"funciona.  Controla onde na sequência de posicionamento inicial geral do "
+"fuso as rotações do posicionamento inicial acontecem.  Defina "
+"`HOME_SEARCH_VELOCITY` para zero para evitar rotação do fuso durante a "
+"sequência de posicionamento inicial."
 
 #. type: Title ===
 #: src/config/ini-config.adoc:1376
@@ -21887,6 +22075,8 @@ msgid ""
 "`TOOL_TABLE = tool.tbl` - The file which contains tool information, "
 "described in the User Manual."
 msgstr ""
+"`TOOL_TABLE = tool.tbl` - O ficheiro que contém informação de ferramenta, "
+"descrita no Manual do Utilizador."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1381
@@ -21894,6 +22084,9 @@ msgid ""
 "`DB_PROGRAM = db_program` - Path to an executable program that manages tool "
 "data.  When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored."
 msgstr ""
+"`DB_PROGRAM = db_program` - Caminho para um programa executável que gere os "
+"dados da ferramenta.  Quando um DB_PROGRAM é especificado, uma entrada "
+"TOOL_TABLE é ignorada."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1387
@@ -21904,6 +22097,12 @@ msgid ""
 "digits are used.  Tool Changes can be combined.  For example if you combine "
 "the quill up with change position you can move the Z first then the X and Y."
 msgstr ""
+"`TOOL_CHANGE_POSITION = 0 0 2` - Especifica a localização XYZ para onde "
+"mover para efetuar uma mudança de ferramenta se forem usados 3 dígitos.  "
+"Especifica a localização XYZABC quando são usados 6 dígitos.  Especifica a "
+"localização XYZABCUVW quando são usados 9 dígitos.  As mudanças de "
+"ferramenta podem ser combinadas.  Por exemplo se combinar a pena em cima com "
+"posição de mudança você pode mover primeiro o Z depois o X e Y."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1390
@@ -21912,6 +22111,9 @@ msgid ""
 "tool change when the value is 1.  Useful for lathes or machines where the "
 "material is in the spindle, not the tool."
 msgstr ""
+"`TOOL_CHANGE_WITH_SPINDLE_ON = 1` - O fuso vai ser deixado ligado durante a "
+"troca de ferramenta quando o valor é 1.  Útil para tornos ou máquinas onde o "
+"material fica no fuso e não a ferramenta."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1393
@@ -21920,6 +22122,9 @@ msgid ""
 "to the tool change when the value is 1.  This is the same as issuing a `G0 "
 "G53 Z0`."
 msgstr ""
+"`TOOL_CHANGE_QUILL_UP = 1` - O eixo Z vai ser movido para zero máquina antes "
+"da troca de ferramenta quando o valor é 1.  Isto é o mesmo que emitir um `G0 "
+"G53 Z0`."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1396
@@ -21929,6 +22134,10 @@ msgid ""
 "<<sec:overview-parameters,G-code Parameters>> and <<gcode:g30-g30.1,G-code "
 "G30-G30.1>>."
 msgstr ""
+"`TOOL_CHANGE_AT_G30 = 1` - A máquina é movida para um ponto de referência "
+"definido pelos parâmetros 5181-5186 para G30 se o valor for 1. Para mais "
+"informação veja <<sec:overview-parameters,Parâmetros de Código G>> e "
+"<<gcode:g30-g30.1,Código G G30-G30.1>>."
 
 #. type: NOTE
 #: src/config/ini-config.adoc:1399
@@ -21937,12 +22146,15 @@ msgid ""
 "back into the pocket it came from.  For example, machines that exchange the "
 "tool in the active pocket with the tool in the spindle."
 msgstr ""
+"`RANDOM_TOOLCHANGER = 1` - Isto é para maquinas que não conseguem colocar a "
+"ferramenta de volta no bolso de onde veio.  Por exemplo, máquinas que trocam "
+"a ferramenta no bolso ativo com a ferramenta que está no fuso."
 
 #. type: Title =
 #: src/config/ini-homing.adoc:5
 #, no-wrap
 msgid "Homing Configuration"
-msgstr "Configuração da Posição Inicial"
+msgstr "Configuração do Posicionamento Inicial"
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:13 src/config/stepper.adoc:153
@@ -21971,6 +22183,20 @@ msgid ""
 "different machines have different requirements, and homing is actually quite "
 "complicated."
 msgstr ""
+"O posicionamento inicial define a origem zero das coordenadas máquina G53.  "
+"Os limites de software são definidos relativamente à origem da máquina.  Os "
+"limites de software desaceleram e param automaticamente os eixos antes "
+"destes atingirem os interruptores de limite.  Uma máquina configurada e a "
+"funcionar de maneira apropriada não se vai mover para lá dos limites de "
+"software e vai ter a origem da máquina definida tão repetidamente quando o "
+"mecanismo de interruptor/índice de posição inicial o é.  O Linuxcnc pode ser "
+"levado à posição inicial a olho (marcas de alinhamento), com interruptores, "
+"com interruptores e um índice codificador, ou usando codificadores "
+"absolutos.  O posicionamento inicial parece bastante simples - basta mover "
+"cada articulação para uma localização conhecida, e definir as variáveis "
+"internas do LinuxCNC de acordo com isso.  No entanto, máquinas diferentes "
+"têm diferentes requerimentos, e o posicionamento inicial é na realidade "
+"bastante complicado."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:26
@@ -21978,6 +22204,9 @@ msgid ""
 "While it is possible to use LinuxCNC without homing switches/home procedures "
 "or limit switches, It defeats the extra security of the soft limits."
 msgstr ""
+"Apesar de ser possível usar o LinuxCNC sem interruptores de posição inicial/"
+"procedimentos de posicionamento inicial ou interruptores de limite, isso "
+"derrota a segurança extra dos limites de software."
 
 #. type: Title ==
 #: src/config/ini-homing.adoc:27
@@ -21989,6 +22218,8 @@ msgstr "Pré-requisito"
 #: src/config/ini-homing.adoc:30
 msgid "Homing relies on some fundamental machine assumptions."
 msgstr ""
+"O posicionamento inicial depende de alguns pressupostos fundamentais da "
+"máquina."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:33
@@ -21998,6 +22229,10 @@ msgid ""
 "machine movement.  I.e., on a mill typically the table moves rather then the "
 "tool."
 msgstr ""
+"As direções negativa e positiva são baseadas em <<sec:machine-"
+"configurations,Movimento da Ferramenta>> que pode ser diferente do movimento "
+"da máquina real.  Isto é, numa fresadora é tipicamente a mesa que se move em "
+"vez da ferramenta."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:34
@@ -22005,6 +22240,8 @@ msgid ""
 "Everything is referenced from the G53 machine zero origin, the origin can be "
 "anywhere (even outside where you can move)"
 msgstr ""
+"Tudo é referenciado a partir da origem zero da máquina G53, a origem pode "
+"ser em qualquer sitio (mesmo fora de onde se pode mover)"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:35
@@ -22012,6 +22249,8 @@ msgid ""
 "The G53 machine zero origin is typically inside the soft limits area but not "
 "necessarily."
 msgstr ""
+"A origem zero de máquina G53 fica tipicamente dentro da área dos limites de "
+"software mas não necessariamente."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:36
@@ -22019,6 +22258,8 @@ msgid ""
 "The homing switch offset sets where the origin is, but even it is referenced "
 "from the origin."
 msgstr ""
+"O desvio do interruptor de posição inicial define onde a origem fica, mas "
+"mesmo assim é referenciado a partir da origem."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:37
@@ -22026,6 +22267,9 @@ msgid ""
 "When using encoder index homing, the home switch offset is calculated from "
 "the encoder reference position, after the home switch has been tripped."
 msgstr ""
+"Quando se usa posicionamento inicial com índice de codificação, o desvio do "
+"interruptor de posição inicial é calculado a partir da posição de referência "
+"do codificados, após o interruptor de posição inicial ter sido acionado."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:39
@@ -22034,6 +22278,9 @@ msgid ""
 "direction after homing.  (but they might not be negative in the absolute "
 "sense)"
 msgstr ""
+"Os limites de software negativos são o máximo que pode mover na direção "
+"negativa após o posicionamento inicial.  (mas podem não ser negativos no "
+"sentido absoluto)"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:41
@@ -22042,16 +22289,20 @@ msgid ""
 "direction after homing.  (but they might not be positive in the absolute "
 "sense, though it is usual to set it as a positive number)"
 msgstr ""
+"Os limites de software positivos são o máximo que pode mover na direção "
+"positiva após o posicionamento inicial.  (mas podem não ser positivos no "
+"sentido absoluto, apesar de ser normal defini-los como números positivos)"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:42
 msgid "Soft(ware) limits are inside the limit switch area."
 msgstr ""
+"Os limites de software ficam dentro da área dos interruptores de limite."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:43
 msgid "(Final) Homed Position is inside the soft limit area"
-msgstr ""
+msgstr "A Posição Inicial (Final) fica dentro da área de limite de software"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:45
@@ -22060,6 +22311,10 @@ msgid ""
 "limit switches (shared home / limit switch), or when using a separate home "
 "switch, are inside the limit switch area."
 msgstr ""
+"(Se usar posicionamento inicial baseado em interruptor) os interruptores de "
+"posição inicial ou usam os interruptores de limite (posição inicial "
+"partilhada / interruptor de limite), ou quando se usa um interruptor de "
+"posição inicial separado, fica dentro da área dos interruptores de limite."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:50
@@ -22073,6 +22328,16 @@ msgid ""
 "_after_ the switch), and must stay that way even if the dog coasts past the "
 "switch in the same direction."
 msgstr ""
+"Se usar um interruptor de posição inicial separado, é possível de começar o "
+"posicionamento no lado errado do interruptor de posição inicial, o que "
+"combinado com a opção HOME_IGNORE_LIMITS vai levar a uma colisão grave.  "
+"Pode evitar isto usando um interruptor de posição inicial que comuta o seu "
+"estado quando o cão que aciona o interruptor está num lado particular até "
+"que retorna e passa pelo ponto de ativação outra vez.  Dito doutra forma, o "
+"estado do interruptor de posição inicial tem de representar a posição do cão "
+"em relação ao interruptor (isto é, _antes_ ou _depois_ do interruptor), e "
+"tem de permanecer nesse estado mesmo que o cão passe para lá do interruptor "
+"na mesma direção."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:54
@@ -22082,12 +22347,16 @@ msgid ""
 "goes to the origin by default.  This would trip the limit switches before "
 "getting to position."
 msgstr ""
+"Apesar de ser possível usar o LinuxCNC com a origem máquina G53 fora dos "
+"limites de software da máquina, se você usar G28 ou G30 sem definir os "
+"parâmetros ela vai para a origem por predefinição.  Isto deve acionar os "
+"interruptores de limite antes de atingir a posição."
 
 #. type: Title ==
 #: src/config/ini-homing.adoc:55
 #, no-wrap
 msgid "Separate Home Switch Example Layout"
-msgstr ""
+msgstr "Disposição Exemplo de Interruptor de Posição Inicial Separado"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:58
@@ -22095,18 +22364,20 @@ msgid ""
 "This example shows minimum and maximum limit switches with a separate home "
 "switch."
 msgstr ""
+"Este exemplo mostra interruptores limite de mínimo e máximo com um "
+"interruptor de posição inicial separado."
 
 #. type: Block title
 #: src/config/ini-homing.adoc:59
 #, no-wrap
 msgid "Demonstrative Separate Switch Layout"
-msgstr ""
+msgstr "Disposição de Interruptor Separado Demonstrativa"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/ini-homing.adoc:60
 #, no-wrap
 msgid "Example Homing Switch layout"
-msgstr ""
+msgstr "Exemplo de disposição de Interruptor de Posição Inicial"
 
 #. type: Target for macro image
 #: src/config/ini-homing.adoc:60
@@ -22122,12 +22393,12 @@ msgstr "A é o limite de software negativo"
 #. type: NOTE
 #: src/config/ini-homing.adoc:64
 msgid "B is the G53 machine coordinate Origin"
-msgstr ""
+msgstr "B é a Origem de coordenada máquina G53"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:65
 msgid "C is the home switch trip point"
-msgstr ""
+msgstr "C é o ponto de acionamento do interruptor de posição inicial"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:66
@@ -22137,32 +22408,32 @@ msgstr "D é o limite de software positivo"
 #. type: NOTE
 #: src/config/ini-homing.adoc:67
 msgid "H is the final home position (HOME) = 0 units"
-msgstr ""
+msgstr "H é a posição inicial final (HOME) = 0 unidades"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:68
 msgid "The -L and +L are the limit switches trip points"
-msgstr ""
+msgstr "Os -L e +L são os pontos de acionamento dos interruptores de limite"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:69
 msgid "A<->B is the negative soft limits (MIN_LIMITS) = -3 units"
-msgstr ""
+msgstr "A<->B é os limites de software negativos (MIN_LIMITS) = -3 unidades"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:70
 msgid "B<->C is the home_offset (HOME_OFFSET) = -2.3 units"
-msgstr ""
+msgstr "B<->C é o desvio da posição inicial (HOME_OFFSET) = -2.3 unidades"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:71
 msgid "B<->D is the positive soft limits (MAX_LIMITS) = 7 units"
-msgstr ""
+msgstr "B<->D é os limites de software positivos (MAX_LIMITS) = 7 unidades"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:72
 msgid "A<->D is the total travel = 10 units"
-msgstr ""
+msgstr "A<->D é o deslocamento total = 10 unidades"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:73
@@ -22179,6 +22450,8 @@ msgid ""
 "Note that there is distance between the limit switches and actual physical "
 "hard contact for coasting after the amplifier is disabled."
 msgstr ""
+"Note que existe uma distância entre os interruptores de limite e o contacto "
+"físico real para inércia após o amplificador ser desativado."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:79
@@ -22188,6 +22461,11 @@ msgid ""
 "G53 coordinates positive, which is probably easiest to remember. Do this by "
 "setting MIN_LIMIT = 0 and make sure MAX_LIMIT is positive."
 msgstr ""
+"O posicionamento inicial define o sistema de coordenadas G53, enquanto a "
+"origem máquina (ponto zero) pode ser em qualquer sítio, definir o ponto zero "
+"no limite de software negativo torna todas as coordenadas G53 positivas, o "
+"que é provavelmente mais fácil de lembrar. Faça isto ao definir MIN_LIMIT = "
+"0 e certifique que MAX_LIMIT é positivo."
 
 #. type: Title ==
 #: src/config/ini-homing.adoc:80
@@ -22201,6 +22479,8 @@ msgid ""
 "This example shows a maximum limit switch and a combined minimum limit/home "
 "switch."
 msgstr ""
+"Este exemplo mostra um interruptor de limite máximo e um interruptor de "
+"limite mínimo/posição inicial combinado."
 
 #. type: Block title
 #: src/config/ini-homing.adoc:84
@@ -22213,6 +22493,7 @@ msgstr "Disposição de Interruptor Partilhado Demonstrativa"
 #, no-wrap
 msgid "Example shared Home Limit Switch layout"
 msgstr ""
+"Exemplo de disposição de Interruptor de Posição Inicial e Limite partilhado"
 
 #. type: Target for macro image
 #: src/config/ini-homing.adoc:85
@@ -22228,12 +22509,14 @@ msgstr "A é o limite de software negativo."
 #. type: NOTE
 #: src/config/ini-homing.adoc:89
 msgid "B is the G53 machine coordinate Origin."
-msgstr ""
+msgstr "B é a Origem de coordenada máquina G53."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:90
 msgid "C is the home switch trip point shared with (-L) minimum limit trip."
 msgstr ""
+"C é o ponto de acionamento do interruptor de posição inicial partilhado com "
+"(-L) ponto de acionamento de limite mínimo."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:91
@@ -22243,32 +22526,32 @@ msgstr "D é o limite de software positivo."
 #. type: NOTE
 #: src/config/ini-homing.adoc:92
 msgid "H is the final home position (HOME) = 3 units."
-msgstr ""
+msgstr "H é a posição inicial final (HOME) = 3 unidades."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:93
 msgid "The -L and +L are the limit switch trip points."
-msgstr ""
+msgstr "Os -L e +L são os pontos de acionamento do interruptor de limite."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:94
 msgid "A<->B is the negative soft limits (MIN_LIMITS) = 0 units."
-msgstr ""
+msgstr "A<->B é os limites de software negativos (MIN_LIMITS) = 0 unidades."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:95
 msgid "B<->C is the home_offset (HOME_OFFSET) = -0.7 units."
-msgstr ""
+msgstr "B<->C é o desvio da posição inicial (HOME_OFFSET) = -0.7 unidades."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:96
 msgid "B<->D is the positive soft limits (MAX_LIMITS) 10 units."
-msgstr ""
+msgstr "B<->D é os limites de software positivos (MAX_LIMITS) 10 unidades."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:97
 msgid "A<->D is the total travel = 10 units."
-msgstr ""
+msgstr "A<->D é o deslocamento total = 10 unidades."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:98
@@ -22276,12 +22559,14 @@ msgid ""
 "The distance between the limits switches and soft limits (-L<->A and D<->+L) "
 "is magnified in this example."
 msgstr ""
+"A distância entre os interruptores de limite e os limites de software (-L<->"
+"A e D<->+L) está ampliada neste exemplo."
 
 #. type: Title ==
 #: src/config/ini-homing.adoc:100
 #, no-wrap
 msgid "Homing Sequence"
-msgstr "Sequência de Posição Inicial"
+msgstr "Sequência de Posicionamento Inicial"
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:105
@@ -22293,12 +22578,18 @@ msgid ""
 "signs.  For a more detailed description of what each configuration parameter "
 "does, see the following section."
 msgstr ""
+"Existem 4 sequências possíveis de posicionamento inicial definidas pelo "
+"sinal de HOME_SEARCH_VEL e HOME_LATCH_VEL, juntamente com os parâmetros da "
+"configuração associada como mostrado na seguinte tabela.  Existem duas "
+"condições básicas, HOME_SEARCH_VEL e HOME_LATCH_VEL são do mesmo sinal ou "
+"são de sinais opostos.  Para uma descrição mais detalhada do que cada "
+"parâmetro de configuração faz, veja a secção seguinte."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/ini-homing.adoc:106 src/config/ini-homing.adoc:107
 #, no-wrap
 msgid "Homing Sequences"
-msgstr "Sequências de Posição Inicial"
+msgstr "Sequências de Posicionamento Inicial"
 
 #. type: Target for macro image
 #: src/config/ini-homing.adoc:107
@@ -22312,12 +22603,14 @@ msgid ""
 "The following determines exactly how the home sequence behaves.  They are "
 "defined in an [JOINT_n] section of the INI file."
 msgstr ""
+"O seguinte determina exatamente como a sequência de posicionamento inicial "
+"se comporta.  Estão definidos numa secção [JOINT_n] do ficheiro INI."
 
 #. type: Table
 #: src/config/ini-homing.adoc:116
 #, no-wrap
 msgid "Homing Type"
-msgstr "Tipo de Posição Inicial"
+msgstr "Tipo de Posicionamento Inicial"
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:116 src/config/ini-homing.adoc:126
@@ -22383,13 +22676,13 @@ msgstr "Interruptor e Índice"
 #. type: NOTE
 #: src/config/ini-homing.adoc:125
 msgid "Any other combinations may result in an error."
-msgstr ""
+msgstr "Quaisquer outras combinações podem resultar em erro."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:130 src/config/ini-homing.adoc:148
 #: src/config/ini-homing.adoc:162
 msgid "This variable has units of machine-units per second."
-msgstr ""
+msgstr "Esta variável tem unidades por unidades-máquina por segundo."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:133
@@ -22397,6 +22690,9 @@ msgid ""
 "The default value is zero. A value of zero causes LinuxCNC to assume that "
 "there is no home switch; the search stage of homing is skipped."
 msgstr ""
+"O valor predefinido é zero. Um valor de zero faz o LinuxCNC assumir que não "
+"existe um interruptor de posição inicial; o estágio de busca do "
+"posicionamento inicial é saltado."
 
 #. type: NOTE
 #: src/config/ini-homing.adoc:143
@@ -22413,6 +22709,19 @@ msgid ""
 "crash into the end of travel.  On the other hand, if HOME_SEARCH_VEL is too "
 "low, homing can take a long time."
 msgstr ""
+"Se HOME_SEARCH_VEL for não-zero, então o LinuxCNC assume que existe um "
+"interruptor de posição inicial.  Começa por verificar se o interruptor de "
+"posição inicial já está acionado.  Se acionado afasta-se do interruptor a "
+"HOME_SEARCH_VEL.  A direção ao afastar-se é oposta ao sinal de "
+"HOME_SEARCH_VEL.  Depois procura pelo interruptor de posição inicial movendo "
+"na direção especificada pelo sinal de HOME_SEARCH_VEL, à velocidade "
+"determinada pelo seu valor absoluto.  Quando o interruptor de posição "
+"inicial é detetado, a articulação vai parar o mais rápido possível, mas vai "
+"sempre haver algum excesso.  A quantidade de excesso depende da velocidade.  "
+"Se for muito alta, a articulação pode exceder o suficiente para atingir um "
+"interruptor de limite ou bater no final da deslocação.  Por outro lado, se "
+"HOME_SEARCH_VEL for muito baixo, o posicionamento inicial pode demorar "
+"imenso tempo."
 
 #. type: Index entry
 #: src/config/ini-homing.adoc:148
@@ -22437,6 +22746,22 @@ msgid ""
 "zero and this parameter is zero, it is an error and the homing operation "
 "will fail.  The default value is zero."
 msgstr ""
+"Especifica a velocidade e direção que o LinuxCNC usa quando faz a sua "
+"determinação precisa final do interruptor de posição inicial (se presente) e "
+"localização de impulso de índice (se presente).  É normalmente mais lenta "
+"que a velocidade de busca para maximizar a precisão.  Se HOME_SEARCH_VEL e "
+"HOME_LATCH_VEL tiverem o mesmo sinal, então a fase de fecho é feita enquanto "
+"se move na mesma direção que a fase de busca.  (Nesse caso o LinuxCNC "
+"primeiro afasta-se do interruptor, antes de se mover na direção dele outra "
+"vez à velocidade de fecho.)  Se HOME_SEARCH_VEL e HOME_LATCH_VEL tiverem "
+"sinais opostos, a fase de fecho é feita enquanto se move na direção oposta "
+"da fase de busca.  Isto significa que o LinuxCNC vai fechar o primeiro "
+"impulso após se mover a afastar do interruptor.  Se HOME_SEARCH_VEL for zero "
+"(o que significa que não há interruptor de posição inicial), e este "
+"parâmetro for não-zero, o LinuxCNC avança para a busca de impulso de "
+"índice.  Se HOME_SEARCH_VEL for não-zero e este parâmetro for zero, é um "
+"erro e a operação de posicionamento inicial vai falhar.  O valor predefinido "
+"é zero."
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:159
@@ -22452,6 +22777,10 @@ msgid ""
 "INI file, then the maximum joint speed is used to make this move.  The value "
 "must be a positive number."
 msgstr ""
+"Especifica a velocidade que o LinuxCNC usa quando faz o movimento desde "
+"HOME_OFFSET para a posição HOME. Se o HOME_FINAL_VEL estiver em falta no "
+"ficheiro INI, então é usada a velocidade máxima da articulação para este "
+"movimento.  O valor tem de ser um número positivo."
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:168
@@ -22476,6 +22805,18 @@ msgid ""
 "use only one input for all homing and limits you will have to block the "
 "limit signals of the joints not homing in HAL and home one joint at a time."
 msgstr ""
+"Pode conter os valores YES / NO. O valor predefinido para este parâmetro é "
+"NO.  Esta bandeira determina se o LinuxCNC vai ignorar a entrada do "
+"interruptor de limite para esta articulação enquanto faz o posicionamento "
+"inicial.  Esta definição não vai ignorar entradas limite para outras "
+"articulações.  Se não tem um interruptor de posição inicial separado defina "
+"isto para YES e ligue o sinal do interruptor de limite à entrada do "
+"interruptor de posição inicial da articulação no HAL.  O LinuxCNC vai "
+"ignorar a entrada do interruptor limite para esta articulação ao efetuar o "
+"posicionamento inicial.  Para usar apenas uma entrada para todo o "
+"posicionamento inicial e limites vai ter de bloquear os sinais de limite das "
+"articulações não posicionadas no HAL e fazer o posicionamento inicial a uma "
+"articulação de cada vez."
 
 #. type: Index entry
 #: src/config/ini-homing.adoc:185
@@ -22498,6 +22839,8 @@ msgid ""
 "HOME_USE_INDEX requires connections in your HAL file to `joint.n.index-"
 "enable` from the `encoder.n.index-enable`."
 msgstr ""
+"HOME_USE_INDEX requer ligações no seu ficheiro HAL para `joint.n.index-"
+"enable` a partir de `encoder.n.index-enable`."
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:189
@@ -22635,6 +22978,8 @@ msgstr "Uma definição HOME_IS_SHARED é ignorada em silêncio."
 #: src/config/ini-homing.adoc:246
 msgid "A request to rehome the joint is silently ignored."
 msgstr ""
+"Um pedido para restabelecer a posição inicial da articulação é ignorado em "
+"silêncio."
 
 #. type: Title ===
 #: src/config/ini-homing.adoc:248
