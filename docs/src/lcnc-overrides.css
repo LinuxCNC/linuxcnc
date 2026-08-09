@@ -75,6 +75,11 @@ body:is(.article,.book,.manpage) .literalblock pre.highlight {
 body:has(.lcnc-topbar) {
   padding-top: 3rem;
 }
+/* Anchor jumps park the target at viewport top, which the fixed bar then
+   covers; drop every in-page target just below it instead. */
+body:has(.lcnc-topbar) [id] {
+  scroll-margin-top: 3.5rem;
+}
 /* Static landing pages (index.html, gcode.html) have no asciidoctor
    #header margin to space them off the topbar -- add some breathing room. */
 body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
