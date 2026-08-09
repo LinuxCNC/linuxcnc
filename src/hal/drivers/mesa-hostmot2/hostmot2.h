@@ -194,15 +194,15 @@ typedef struct {
     struct {
 
         struct {
-            hal_bit_t *in;
-            hal_bit_t *in_not;
-            hal_bit_t *out;
+            hal_bool_t in;
+            hal_bool_t in_not;
+            hal_bool_t out;
         } pin;
 
         struct {
-            hal_bit_t is_output;
-            hal_bit_t is_opendrain;
-            hal_bit_t invert_output;
+            hal_bool_t is_output;
+            hal_bool_t is_opendrain;
+            hal_bool_t invert_output;
         } param;
 
     } hal;
@@ -281,35 +281,35 @@ typedef struct {
     struct {
 
         struct {
-            hal_s32_t *rawcounts;       // raw encoder counts (truncated view of 64-bit internal)
-            hal_s32_t *rawlatch;        // raw encoder of latch (truncated view)
-            hal_s32_t *count;           // (rawcounts - zero_offset), truncated view
-            hal_s32_t *count_latch;     // (rawlatch - zero_offset), truncated view
-            hal_float_t *position;
-            hal_float_t *position_latch;
-            hal_float_t *position_interpolated;
-            hal_float_t *velocity;
-            hal_float_t *velocity_rpm;
-            hal_bit_t *reset;
-            hal_bit_t *index_enable;
-            hal_bit_t *latch_enable;
-            hal_bit_t *latch_polarity;
-            hal_bit_t *no_clear_on_index;
-            hal_bit_t *quadrature_error;
-            hal_bit_t *quadrature_error_enable;
-            hal_bit_t *input_a;
-            hal_bit_t *input_b;
-            hal_bit_t *input_idx;
+            hal_sint_t rawcounts;       // raw encoder counts (truncated view of 64-bit internal)
+            hal_sint_t rawlatch;        // raw encoder of latch (truncated view)
+            hal_sint_t count;           // (rawcounts - zero_offset), truncated view
+            hal_sint_t count_latch;     // (rawlatch - zero_offset), truncated view
+            hal_real_t position;
+            hal_real_t position_latch;
+            hal_real_t position_interpolated;
+            hal_real_t velocity;
+            hal_real_t velocity_rpm;
+            hal_bool_t reset;
+            hal_bool_t index_enable;
+            hal_bool_t latch_enable;
+            hal_bool_t latch_polarity;
+            hal_bool_t no_clear_on_index;
+            hal_bool_t quadrature_error;
+            hal_bool_t quadrature_error_enable;
+            hal_bool_t input_a;
+            hal_bool_t input_b;
+            hal_bool_t input_idx;
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_bit_t index_invert;
-            hal_bit_t index_mask;
-            hal_bit_t index_mask_invert;
-            hal_bit_t counter_mode;
-            hal_bit_t filter;
-            hal_float_t vel_timeout;
+            hal_real_t scale;
+            hal_bool_t index_invert;
+            hal_bool_t index_mask;
+            hal_bool_t index_mask_invert;
+            hal_bool_t counter_mode;
+            hal_bool_t filter;
+            hal_real_t vel_timeout;
 
 
         } param;
@@ -331,8 +331,8 @@ typedef struct {
 
     rtapi_u32 prev_control;
 
-    hal_bit_t prev_quadrature_error_enable; // shadow for detecting rising edge on the quadrature_error_enable
-    hal_bit_t reset_quadrature_error; // bit to indicate if we want to reset the quadrature error
+    rtapi_bool prev_quadrature_error_enable; // shadow for detecting rising edge on the quadrature_error_enable
+    rtapi_bool reset_quadrature_error; // bit to indicate if we want to reset the quadrature error
 
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
@@ -350,10 +350,10 @@ typedef struct {
 // these hal pins affect all encoder instances
 typedef struct {
     struct {
-        hal_u32_t *sample_frequency;
-        hal_u32_t *skew;
-        hal_s32_t *dpll_timer_num;
-        hal_bit_t *hires_timestamp;
+        hal_uint_t sample_frequency;
+        hal_uint_t skew;
+        hal_sint_t dpll_timer_num;
+        hal_bool_t hires_timestamp;
 
     } pin;
 } hm2_encoder_module_global_t;
@@ -374,7 +374,7 @@ typedef struct {
     int has_skew;
     rtapi_u32 written_skew;
     rtapi_u32 written_hires_timestamp;
-    uint32_t desired_dpll_timer_reg, written_dpll_timer_reg;
+    rtapi_u32 desired_dpll_timer_reg, written_dpll_timer_reg;
 
     // hw registers
     rtapi_u32 counter_addr;
@@ -386,7 +386,7 @@ typedef struct {
 
     rtapi_u32 timestamp_div_addr;
     rtapi_u32 timestamp_div_reg;  // one register for the whole Function
-    hal_float_t seconds_per_tsdiv_clock;
+    rtapi_real seconds_per_tsdiv_clock;
 
     rtapi_u32 timestamp_count_addr;
     rtapi_u32 *timestamp_count_reg;
@@ -442,23 +442,23 @@ typedef struct {
     struct {
 
         struct {
-            hal_s32_t *rawcounts;
-            hal_s32_t *count;
-            hal_float_t *angle;
-            hal_float_t *position;
-            hal_float_t *velocity;
-            hal_float_t *velocity_rpm;
-            hal_bit_t *reset;
-            hal_bit_t *index_enable;
-            hal_bit_t *error;
-            hal_float_t *joint_pos_fb;
+            hal_sint_t rawcounts;
+            hal_sint_t count;
+            hal_real_t angle;
+            hal_real_t position;
+            hal_real_t velocity;
+            hal_real_t velocity_rpm;
+            hal_bool_t reset;
+            hal_bool_t index_enable;
+            hal_bool_t error;
+            hal_real_t joint_pos_fb;
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_float_t vel_scale;
-            hal_u32_t index_div;
-            hal_bit_t use_abs;
+            hal_real_t scale;
+            hal_real_t vel_scale;
+            hal_uint_t index_div;
+            hal_bool_t use_abs;
         } param;
 
     } hal;
@@ -472,7 +472,7 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_float_t excitation_khz;
+        hal_real_t excitation_khz;
     } param;
 } hm2_resolver_global_t;
 
@@ -501,8 +501,8 @@ typedef struct {
     rtapi_u32 velocity_addr;
     rtapi_s32 *velocity_reg;
     
-    hal_float_t written_khz;
-    hal_float_t kHz;
+    rtapi_real written_khz;
+    rtapi_real kHz;
     
 } hm2_resolver_t;
 
@@ -521,15 +521,15 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *value;
-            hal_bit_t *enable;
+            hal_real_t value;
+            hal_bool_t enable;
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_bit_t offset_mode;
-            hal_s32_t output_type; 
-            hal_bit_t dither;            
+            hal_real_t scale;
+            hal_bool_t offset_mode;
+            hal_sint_t output_type;
+            hal_bool_t dither;
         } param;
 
     } hal;
@@ -556,8 +556,8 @@ typedef struct {
 // these hal params affect all pwmgen instances
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency;
-        hal_u32_t pdm_frequency;
+        hal_uint_t pwm_frequency;
+        hal_uint_t pdm_frequency;
     } param;
 } hm2_pwmgen_module_global_t;
 
@@ -609,31 +609,31 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *width1;
-            hal_float_t *width2; 
-            hal_float_t *filter1;
-            hal_float_t *filter2;
-            hal_float_t *rate;
-            hal_u32_t *trigselect1;
-            hal_u32_t *trigselect2;
-            hal_bit_t *trigrise1;
-            hal_bit_t *trigrise2;
-            hal_bit_t *trigfall1;
-            hal_bit_t *trigfall2;
-            hal_bit_t *retrig1;
-            hal_bit_t *retrig2;
-            hal_bit_t *enable1;
-            hal_bit_t *enable2;
-            hal_bit_t *reset1;
-            hal_bit_t *reset2;
-            hal_bit_t *swtrig1;
-            hal_bit_t *swtrig2;
-            hal_bit_t *exttrig1;
-            hal_bit_t *exttrig2;
-            hal_bit_t *out1;
-            hal_bit_t *out2;
+            hal_real_t width1;
+            hal_real_t width2;
+            hal_real_t filter1;
+            hal_real_t filter2;
+            hal_real_t rate;
+            hal_uint_t trigselect1;
+            hal_uint_t trigselect2;
+            hal_bool_t trigrise1;
+            hal_bool_t trigrise2;
+            hal_bool_t trigfall1;
+            hal_bool_t trigfall2;
+            hal_bool_t retrig1;
+            hal_bool_t retrig2;
+            hal_bool_t enable1;
+            hal_bool_t enable2;
+            hal_bool_t reset1;
+            hal_bool_t reset2;
+            hal_bool_t swtrig1;
+            hal_bool_t swtrig2;
+            hal_bool_t exttrig1;
+            hal_bool_t exttrig2;
+            hal_bool_t out1;
+            hal_bool_t out2;
             
-            hal_s32_t *dpll_timer_num;
+            hal_sint_t dpll_timer_num;
         } pin;
 
     } hal;
@@ -682,18 +682,18 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *period;
-            hal_float_t *width;
-            hal_float_t *dutycycle;
-            hal_float_t *frequency;
-            hal_float_t *filtertc;
-            hal_float_t *dutyscale;
-            hal_float_t *dutyoffset;
-            hal_float_t *minfreq;
-            hal_u32_t *averages;
-            hal_bit_t *polarity;
-            hal_bit_t *valid;
-            hal_bit_t *input;
+            hal_real_t period;
+            hal_real_t width;
+            hal_real_t dutycycle;
+            hal_real_t frequency;
+            hal_real_t filtertc;
+            hal_real_t dutyscale;
+            hal_real_t dutyoffset;
+            hal_real_t minfreq;
+            hal_uint_t averages;
+            hal_bool_t polarity;
+            hal_bool_t valid;
+            hal_bool_t input;
         } pin;
 
     } hal;
@@ -735,9 +735,9 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *width;
-            hal_float_t *scale;
-            hal_float_t *offset;
+            hal_real_t width;
+            hal_real_t scale;
+            hal_real_t offset;
         } pin;
 
     } hal;
@@ -747,7 +747,7 @@ typedef struct {
 // this hal pin affects all rcpwmgen instances
 typedef struct {
     struct {
-        hal_float_t *rate;
+        hal_real_t rate;
     } pin;
 } hm2_rcpwmgen_module_global_t;
 
@@ -784,31 +784,30 @@ typedef struct {
     struct {
 
         struct {
-            hal_bit_t *filt_data[32];
-            hal_bit_t *raw_data[32];
-            hal_bit_t *filt_data_not[32];
-            hal_bit_t *raw_data_not[32];
-            hal_bit_t *slow[32] ;
-            hal_s32_t *enc0_count; 
-            hal_s32_t *enc1_count; 
-            hal_s32_t *enc2_count; 
-            hal_s32_t *enc3_count;
-            hal_bit_t *enc0_reset; 
-            hal_bit_t *enc1_reset; 
-            hal_bit_t *enc2_reset; 
-            hal_bit_t *enc3_reset; 
-             		
+            hal_bool_t filt_data[32];
+            hal_bool_t raw_data[32];
+            hal_bool_t filt_data_not[32];
+            hal_bool_t raw_data_not[32];
+            hal_bool_t slow[32];
+            hal_sint_t enc0_count;
+            hal_sint_t enc1_count;
+            hal_sint_t enc2_count;
+            hal_sint_t enc3_count;
+            hal_bool_t enc0_reset;
+            hal_bool_t enc1_reset;
+            hal_bool_t enc2_reset;
+            hal_bool_t enc3_reset;
         } pin;
 
         struct {
-            hal_u32_t scan_rate;
-            hal_u32_t slow_scans; 
-            hal_u32_t fast_scans; 		
-            hal_bit_t enc0_mode; 
-            hal_bit_t enc1_mode; 
-            hal_bit_t enc2_mode; 
-            hal_bit_t enc3_mode; 
-            hal_u32_t scan_width; 	    	
+            hal_uint_t scan_rate;
+            hal_uint_t slow_scans;
+            hal_uint_t fast_scans;
+            hal_bool_t enc0_mode;
+            hal_bool_t enc1_mode;
+            hal_bool_t enc2_mode;
+            hal_bool_t enc3_mode;
+            hal_uint_t scan_width;
         } param;
 
     } hal;
@@ -879,30 +878,30 @@ typedef struct {
     struct {
 
         struct {
-            hal_bit_t *filt_data[32];
-            hal_bit_t *raw_data[32];
-            hal_bit_t *filt_data_not[32];
-            hal_bit_t *raw_data_not[32];
-            hal_bit_t *slow[32] ;
-            hal_s32_t *enc0_count; 
-            hal_s32_t *enc1_count; 
-            hal_s32_t *enc2_count; 
-            hal_s32_t *enc3_count; 		
-            hal_bit_t *enc0_reset; 
-            hal_bit_t *enc1_reset; 
-            hal_bit_t *enc2_reset; 
-            hal_bit_t *enc3_reset; 
+            hal_bool_t filt_data[32];
+            hal_bool_t raw_data[32];
+            hal_bool_t filt_data_not[32];
+            hal_bool_t raw_data_not[32];
+            hal_bool_t slow[32];
+            hal_sint_t enc0_count;
+            hal_sint_t enc1_count;
+            hal_sint_t enc2_count;
+            hal_sint_t enc3_count;
+            hal_bool_t enc0_reset;
+            hal_bool_t enc1_reset;
+            hal_bool_t enc2_reset;
+            hal_bool_t enc3_reset;
         } pin;
 
         struct {
-            hal_u32_t scan_rate;
-            hal_u32_t slow_scans; 
-            hal_u32_t fast_scans; 		
-            hal_bit_t enc0_mode; 
-            hal_bit_t enc1_mode; 
-            hal_bit_t enc2_mode; 
-            hal_bit_t enc3_mode; 
-            hal_u32_t scan_width; 	    	
+            hal_uint_t scan_rate;
+            hal_uint_t slow_scans;
+            hal_uint_t fast_scans;
+            hal_bool_t enc0_mode;
+            hal_bool_t enc1_mode;
+            hal_bool_t enc2_mode;
+            hal_bool_t enc3_mode;
+            hal_uint_t scan_width;
         } param;
 
     } hal;
@@ -979,53 +978,53 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *accx_cmd;
-            hal_float_t *accy_cmd;
-            hal_float_t *velx_cmd;
-            hal_float_t *vely_cmd;
-            hal_float_t *posx_cmd;
-            hal_float_t *posy_cmd;
-            hal_float_t *velx_fb;
-            hal_float_t *vely_fb;
-            hal_float_t *posx_fb;
-            hal_float_t *posy_fb;
-            hal_float_t *posx_scale;
-            hal_float_t *posy_scale;
-            hal_bit_t 	*enable;
-            hal_u32_t 	*controlx;
-            hal_u32_t 	*controly;
-            hal_u32_t 	*commandx;
-            hal_u32_t 	*commandy;
-            hal_bit_t 	*mode18bitx;
-            hal_bit_t 	*mode18bity;
-            hal_bit_t 	*commandmodex;
-            hal_bit_t 	*commandmodey;
-            hal_u32_t 	*status;
-            hal_bit_t 	*posx_overflow;
-            hal_bit_t 	*posy_overflow;
-            hal_bit_t 	*velx_overflow;
-            hal_bit_t 	*vely_overflow;
+            hal_real_t accx_cmd;
+            hal_real_t accy_cmd;
+            hal_real_t velx_cmd;
+            hal_real_t vely_cmd;
+            hal_real_t posx_cmd;
+            hal_real_t posy_cmd;
+            hal_real_t velx_fb;
+            hal_real_t vely_fb;
+            hal_real_t posx_fb;
+            hal_real_t posy_fb;
+            hal_real_t posx_scale;
+            hal_real_t posy_scale;
+            hal_bool_t enable;
+            hal_uint_t controlx;
+            hal_uint_t controly;
+            hal_uint_t commandx;
+            hal_uint_t commandy;
+            hal_bool_t mode18bitx;
+            hal_bool_t mode18bity;
+            hal_bool_t commandmodex;
+            hal_bool_t commandmodey;
+            hal_uint_t status;
+            hal_bool_t posx_overflow;
+            hal_bool_t posy_overflow;
+            hal_bool_t velx_overflow;
+            hal_bool_t vely_overflow;
         } pin;
 
     } hal;
 
 
     //previous MPG counts for this instance	
-    hal_float_t prev_accx_cmd;	
-    hal_float_t prev_accy_cmd;	
-    hal_float_t prev_velx_cmd;	
-    hal_float_t prev_vely_cmd;	
-    hal_float_t prev_posx_cmd;	
-    hal_float_t prev_posy_cmd;	
+    rtapi_real prev_accx_cmd;
+    rtapi_real prev_accy_cmd;
+    rtapi_real prev_velx_cmd;
+    rtapi_real prev_vely_cmd;
+    rtapi_real prev_posx_cmd;
+    rtapi_real prev_posy_cmd;
 
  
 } hm2_xy2mod_instance_t;
 
-// these hal params affect all xy2mod instances
+// these hal pins affect all xy2mod instances
 typedef struct {
     struct {
-        hal_s32_t *dpll_rtimer_num;
-        hal_s32_t *dpll_wtimer_num;
+        hal_sint_t dpll_rtimer_num;
+        hal_sint_t dpll_wtimer_num;
     } pin;
 } hm2_xy2mod_module_global_t;
 
@@ -1041,8 +1040,8 @@ typedef struct {
     // module-global HAL objects...
 
     hm2_xy2mod_module_global_t *hal;
-    rtapi_u32 written_dpll_rtimer_num;
-    rtapi_u32 written_dpll_wtimer_num;
+    rtapi_s32 written_dpll_rtimer_num;
+    rtapi_s32 written_dpll_wtimer_num;
 
 
     rtapi_u32 accx_addr;
@@ -1092,18 +1091,18 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *Avalue;
-            hal_float_t *Bvalue;
-            hal_float_t *Cvalue;
-            hal_bit_t *fault;
-            hal_bit_t *enable;
+            hal_real_t Avalue;
+            hal_real_t Bvalue;
+            hal_real_t Cvalue;
+            hal_bool_t fault;
+            hal_bool_t enable;
         } pin;
 
         struct {
-            hal_float_t scale;
-            hal_float_t deadzone;
-            hal_bit_t faultpolarity;
-            hal_float_t sampletime;
+            hal_real_t scale;
+            hal_real_t deadzone;
+            hal_bool_t faultpolarity;
+            hal_real_t sampletime;
         } param;
 
     } hal;
@@ -1112,14 +1111,14 @@ typedef struct {
     // know if an update-write is needed
     // enable is a little more complicated and is based on the read-back
     // of the fault/enable register
-    double written_deadzone;
-    int written_faultpolarity;
-    double written_sampletime;
+    rtapi_real written_deadzone;
+    rtapi_bool written_faultpolarity;
+    rtapi_real written_sampletime;
 } hm2_tp_pwmgen_instance_t;
 
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency; // One PWM rate for all instances
+        hal_uint_t pwm_frequency; // One PWM rate for all instances
     } param;
 } hm2_tp_pwmgen_global_hal_t;
 
@@ -1205,49 +1204,55 @@ typedef struct {
     struct {
 
         struct {
-            hal_float_t *position_cmd;
-            hal_float_t *velocity_cmd;
-            hal_s32_t *counts;
-            hal_float_t *position_fb;
-            hal_float_t *position_latch;
-            hal_float_t *velocity_fb;
-            hal_bit_t *enable;
-            hal_bit_t *control_type;   // 0="position control", 1="velocity control"
-            hal_bit_t *position_reset; // reset position when true
-            hal_bit_t *index_enable;	
-            hal_bit_t *index_polarity;
-            hal_bit_t *latch_enable;
-            hal_bit_t *latch_polarity;
+            hal_real_t position_cmd;
+            hal_real_t velocity_cmd;
+            hal_sint_t counts;
+            hal_real_t position_fb;
+            hal_real_t position_latch;
+            hal_real_t velocity_fb;
+            hal_bool_t enable;
+            hal_bool_t control_type;   // 0="position control", 1="velocity control"
+            hal_bool_t position_reset; // reset position when true
+            hal_bool_t index_enable;	
+            hal_bool_t index_polarity;
+            hal_bool_t latch_enable;
+            hal_bool_t latch_polarity;
 
             // debug pins
-            hal_float_t *dbg_ff_vel;
-            hal_float_t *dbg_vel_error;
-            hal_float_t *dbg_s_to_match;
-            hal_float_t *dbg_err_at_match;
-            hal_s32_t *dbg_step_rate;
-            hal_float_t *dbg_pos_minus_prev_cmd;
+            hal_real_t dbg_ff_vel;
+            hal_real_t dbg_vel_error;
+            hal_real_t dbg_s_to_match;
+            hal_real_t dbg_err_at_match;
+            hal_sint_t dbg_step_rate;
+            hal_real_t dbg_pos_minus_prev_cmd;
         } pin;
 
         struct {
-            hal_float_t position_scale;
-            hal_float_t maxvel;
-            hal_float_t maxaccel;
+            hal_real_t position_scale;
+            hal_real_t maxvel;
+            hal_real_t maxaccel;
 
-            hal_u32_t steplen;
-            hal_u32_t stepspace;
-            hal_u32_t dirsetup;
-            hal_u32_t dirhold;
+            hal_uint_t steplen;
+            hal_uint_t stepspace;
+            hal_uint_t dirsetup;
+            hal_uint_t dirhold;
 
-            hal_u32_t step_type;
-            hal_bit_t swap_step_dir;
-            hal_u32_t table[5]; // the Fifth Element is used as a very crude hash
+            hal_uint_t step_type;
+            hal_bool_t swap_step_dir;
+            hal_uint_t table[4];
+            // the Fifth Element was moved below (used as a very crude hash)
         } param;
 
     } hal;
 
+    // This was originally the fifth parameter element in 'table'. It was moved
+    // here because there was no parameter allocated and is an instance value.
+    // Parameters work like pins now and cannot be used as local storage.
+    rtapi_u32 tablehash;
+
     // this variable holds the previous position command, for
     // computing the feedforward velocity
-    hal_float_t old_position_cmd;
+    rtapi_real old_position_cmd;
 
     rtapi_u32 prev_accumulator;
 
@@ -1275,7 +1280,7 @@ typedef struct {
 // these hal params affect all stepgen instances
 typedef struct {
     struct {
-        hal_s32_t *dpll_timer_num;
+        hal_sint_t dpll_timer_num;
     } pin;
 } hm2_stepgen_module_global_t;
 
@@ -1335,7 +1340,6 @@ typedef struct {
     int conf_flag[16];
     rtapi_u16 cd_addr;
     rtapi_u16 count_addr;
-    hal_u32_t *count;
     int num_frames;
     rtapi_u32 clock_freq;
     rtapi_u16 base_address;
@@ -1426,16 +1430,16 @@ typedef struct {
 //
 
 typedef struct {
-    hal_float_t *time1_us;
-    hal_float_t *time2_us;
-    hal_float_t *time3_us;
-    hal_float_t *time4_us;
-    hal_float_t *base_freq;
-    hal_float_t *phase_error;
-    hal_u32_t *plimit;
-    hal_u32_t *ddssize;
-    hal_u32_t *time_const;
-    hal_u32_t *prescale;
+    hal_real_t time1_us;
+    hal_real_t time2_us;
+    hal_real_t time3_us;
+    hal_real_t time4_us;
+    hal_real_t base_freq;
+    hal_real_t phase_error;
+    hal_uint_t plimit;
+    hal_uint_t ddssize;
+    hal_uint_t time_const;
+    hal_uint_t prescale;
 } hm2_dpll_pins_t ;
 
 typedef struct {
@@ -1470,11 +1474,11 @@ typedef struct {
     struct {
 
         struct {
-            hal_bit_t *has_bit;
+            hal_bool_t has_bit;
         } pin;
 
         struct {
-            hal_u32_t timeout_ns;
+            hal_uint_t timeout_ns;
         } param;
 
     } hal;
@@ -1508,7 +1512,7 @@ typedef struct {
 //
 
 typedef struct {
-        hal_bit_t *led;
+        hal_bool_t led;
     } hm2_led_instance_t ;
 
 typedef struct {
@@ -1533,9 +1537,9 @@ typedef struct {
     struct {
 
         struct {
-            hal_u32_t *rate;
-            hal_bit_t *out[32];
-            hal_bit_t *invert[32];
+            hal_uint_t rate;
+            hal_bool_t out[32];
+            hal_bool_t invert[32];
         } pin;
 
     } hal;
@@ -1566,8 +1570,8 @@ typedef struct {
     struct {
 
         struct {
-            hal_bit_t *out[32];
-            hal_bit_t *invert[32];
+            hal_bool_t out[32];
+            hal_bool_t invert[32];
         } pin;
 
     } hal;
@@ -1596,14 +1600,14 @@ typedef struct {
 typedef struct {
     struct {
         struct {
-            hal_u32_t *read_address;
-            hal_u32_t *read_data;
+            hal_uint_t read_address;
+            hal_uint_t read_data;
 
-            hal_u32_t *write_address;
-            hal_u32_t *write_data;
-            hal_bit_t *write_strobe;
+            hal_uint_t write_address;
+            hal_uint_t write_data;
+            hal_bool_t write_strobe;
 
-            hal_bit_t *dump_state;
+            hal_bool_t dump_state;
         } pin;
     } hal;
 } hm2_raw_t;
