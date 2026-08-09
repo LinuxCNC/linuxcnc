@@ -19,6 +19,7 @@
 #include <system_error>
 
 #include "hal.hh"
+#include "halenum.hh"
 
 #ifdef HALXX_WITH_QUERY_API
 #include "utils/setps_util.h"
@@ -26,6 +27,76 @@
 
 namespace py = pybind11;
 namespace halxx = linuxcnc::hal;
+
+namespace pybind11 { namespace detail {
+
+// Casts between the native enum values and the shared IntEnum classes
+// registered by _hal (single source of truth: halenum.hh). Arguments
+// accept the enums and plain ints alike; results come back as enum
+// members, so tags print with their names.
+template <> struct type_caster<hal_type_t> {
+    PYBIND11_TYPE_CASTER(hal_type_t, const_name("hal.Type"));
+
+    bool load(handle src, bool) {
+        PyObject *idx = PyNumber_Index(src.ptr());
+        if(!idx) {
+            PyErr_Clear();
+            return false;
+        }
+        long v = PyLong_AsLong(idx);
+        Py_DECREF(idx);
+        if(v == -1 && PyErr_Occurred()) {
+            PyErr_Clear();
+            return false;
+        }
+        value = static_cast<hal_type_t>(v);
+        return true;
+    }
+
+    static handle cast(hal_type_t v, return_value_policy, handle) {
+        PyObject *cls = halenum_shared_class("Type");
+        if(!cls)
+            throw pybind11::error_already_set();
+        PyObject *obj = halenum_instance(cls, static_cast<long>(v));
+        Py_DECREF(cls);
+        if(!obj)
+            throw pybind11::error_already_set();
+        return pybind11::reinterpret_steal<pybind11::object>(obj).release();
+    }
+};
+
+template <> struct type_caster<linuxcnc::hal::dir> {
+    PYBIND11_TYPE_CASTER(linuxcnc::hal::dir, const_name("hal.Dir"));
+
+    bool load(handle src, bool) {
+        PyObject *idx = PyNumber_Index(src.ptr());
+        if(!idx) {
+            PyErr_Clear();
+            return false;
+        }
+        long v = PyLong_AsLong(idx);
+        Py_DECREF(idx);
+        if(v == -1 && PyErr_Occurred()) {
+            PyErr_Clear();
+            return false;
+        }
+        value = static_cast<linuxcnc::hal::dir>(v);
+        return true;
+    }
+
+    static handle cast(linuxcnc::hal::dir v, return_value_policy, handle) {
+        PyObject *cls = halenum_shared_class("Dir");
+        if(!cls)
+            throw pybind11::error_already_set();
+        PyObject *obj = halenum_instance(cls, static_cast<long>(v));
+        Py_DECREF(cls);
+        if(!obj)
+            throw pybind11::error_already_set();
+        return pybind11::reinterpret_steal<pybind11::object>(obj).release();
+    }
+};
+
+}} // namespace pybind11::detail
 
 #ifdef HALXX_WITH_QUERY_API
 // Text-to-value conversion is delegated to setps_common_cb so that
@@ -181,17 +252,28 @@ PYBIND11_MODULE(halpp, m) {
             return std::string(buf);
         });
 
-    py::enum_<hal_type_t>(m, "hal_type_t")
-        .value("HAL_BIT", HAL_BIT)
-        .value("HAL_BOOL", HAL_BOOL)
-        .value("HAL_FLOAT", HAL_FLOAT)
-        .value("HAL_REAL", HAL_REAL)
-        .value("HAL_S32", HAL_S32)
-        .value("HAL_U32", HAL_U32)
-        .value("HAL_S64", HAL_S64)
-        .value("HAL_U64", HAL_U64)
-        .value("HAL_PORT", HAL_PORT)
-        .export_values();
+    // Type and direction tags: the shared IntEnum classes from _hal,
+    // the same objects the casters above instantiate. The plain integer
+    // constants stay for compatibility; they compare equal to the enum
+    // members.
+    py::module_ halmod = py::module_::import("_hal");
+    m.attr("Type") = halmod.attr("Type");
+    m.attr("Dir") = halmod.attr("Dir");
+    m.attr("HAL_BIT") = py::int_(static_cast<long>(HAL_BIT));
+    m.attr("HAL_BOOL") = py::int_(static_cast<long>(HAL_BOOL));
+    m.attr("HAL_FLOAT") = py::int_(static_cast<long>(HAL_FLOAT));
+    m.attr("HAL_REAL") = py::int_(static_cast<long>(HAL_REAL));
+    m.attr("HAL_S32") = py::int_(static_cast<long>(HAL_S32));
+    m.attr("HAL_U32") = py::int_(static_cast<long>(HAL_U32));
+    m.attr("HAL_S64") = py::int_(static_cast<long>(HAL_S64));
+    m.attr("HAL_U64") = py::int_(static_cast<long>(HAL_U64));
+    m.attr("HAL_PORT") = py::int_(static_cast<long>(HAL_PORT));
+    m.attr("HAL_IN") = py::int_(static_cast<long>(HAL_IN));
+    m.attr("HAL_OUT") = py::int_(static_cast<long>(HAL_OUT));
+    m.attr("HAL_IO") = py::int_(static_cast<long>(HAL_IO));
+    m.attr("HAL_RO") = py::int_(static_cast<long>(HAL_RO));
+    m.attr("HAL_WO") = py::int_(static_cast<long>(HAL_WO));
+    m.attr("HAL_RW") = py::int_(static_cast<long>(HAL_RW));
 
     // 'halcmd unload' terminates a userspace component with SIGTERM.
     // Raise KeyboardInterrupt for it, as the _hal module does, so the
@@ -199,12 +281,4 @@ PYBIND11_MODULE(halpp, m) {
     // dying where it stands.
     py::module_ signal = py::module_::import("signal");
     signal.attr("signal")(signal.attr("SIGTERM"), signal.attr("default_int_handler"));
-
-    py::enum_<halxx::dir>(m, "hal_dir")
-        .value("HAL_IN", halxx::dir::IN)
-        .value("HAL_OUT", halxx::dir::OUT)
-        .value("HAL_IO", halxx::dir::IO)
-        .value("HAL_RO", halxx::dir::RO)
-        .value("HAL_RW", halxx::dir::RW)
-        .export_values();
 }

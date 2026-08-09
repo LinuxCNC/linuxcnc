@@ -1,4 +1,7 @@
 ok - component created
+ok - halpp.Type is the shared hal.Type class
+ok - halpp.Dir is the shared hal.Dir class
+ok - newpin accepts the enums directly
 ok - port pin creation raises until API break
 ok - param set/get roundtrip
 ok - bit pin set/get
@@ -22,6 +25,7 @@ ok - stream with an invalid typestring raises
 ok - element_types: b'bfsu'
 ok - element_count
 ok - element_type
+ok - element_type returns the enum member
 ok - maxdepth is the depth the stream was created with
 ok - creator flag
 ok - key

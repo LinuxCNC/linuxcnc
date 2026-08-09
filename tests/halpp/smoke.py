@@ -21,6 +21,13 @@ def check(cond, msg):
 h = halpp.component("halpp-test")
 check(isinstance(h.id, int) or True, "component created")
 
+# --- shared type/dir tagging enums (halenum.hh) ---------------------------
+import hal
+check(halpp.Type is hal.Type, "halpp.Type is the shared hal.Type class")
+check(halpp.Dir is hal.Dir, "halpp.Dir is the shared hal.Dir class")
+p_tag = h.newpin("tag-in", halpp.Type.REAL, halpp.Dir.IN)
+check(p_tag.name == "halpp-test.tag-in", "newpin accepts the enums directly")
+
 # --- typed pins via runtime type dispatch --------------------------------
 p_bit = h.newpin("bit-out", halpp.HAL_BIT, halpp.HAL_OUT)
 p_f = h.newpin("float-in", halpp.HAL_FLOAT, halpp.HAL_IN)
@@ -103,6 +110,7 @@ s = halpp.stream(h, halpp.streamer_base, 10, "bfsu")
 check(s.element_types == b"bfsu", "element_types: " + repr(s.element_types))
 check(s.element_count == 4, "element_count")
 check(s.element_type(1) == halpp.HAL_FLOAT, "element_type")
+check(s.element_type(1) is halpp.Type.REAL, "element_type returns the enum member")
 check(s.maxdepth == 10, "maxdepth is the depth the stream was created with")
 check(s.is_creator, "creator flag")
 check(s.key == halpp.streamer_base, "key")

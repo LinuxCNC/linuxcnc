@@ -34,6 +34,10 @@ import sys
 import warnings
 import lcnc_realtime
 
+# _hal exports the IntEnum tagging classes as 'Type' and 'Dir', bound
+# here by the star import: hal.Type.REAL, hal.Dir.IN, and pickle's
+# lookup of the class names all resolve to the shared classes in _hal.
+
 # _hal.query is a submodule, not a plain attribute. Registering it in
 # sys.modules under its dotted name makes 'import hal.query' and
 # 'from hal import query' work as they would for a real package.

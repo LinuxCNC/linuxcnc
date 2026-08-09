@@ -1,0 +1,4 @@
+sanity checks for the native IntEnum tagging classes hal.Type and hal.Dir,
+built from the hal.h constants by halenum.hh and shared by all consumers
+(_hal, hal.py, the halpp bindings). Covers canonical members, aliases,
+integer interoperability, construction from values, and pickling.

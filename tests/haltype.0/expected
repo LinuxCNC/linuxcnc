@@ -1,0 +1,40 @@
+ok - hal.Type canonical members
+ok - hal.Dir canonical members
+ok - hal.Type.BOOL == _hal.HAL_BOOL (1)
+ok - hal.Type.REAL == _hal.HAL_REAL (2)
+ok - hal.Type.S32 == _hal.HAL_S32 (3)
+ok - hal.Type.U32 == _hal.HAL_U32 (4)
+ok - hal.Type.PORT == _hal.HAL_PORT (5)
+ok - hal.Type.S64 == _hal.HAL_S64 (6)
+ok - hal.Type.U64 == _hal.HAL_U64 (7)
+ok - hal.Type.SINT == _hal.HAL_SINT (6)
+ok - hal.Type.UINT == _hal.HAL_UINT (7)
+ok - hal.Dir.IN == _hal.HAL_IN (16)
+ok - hal.Dir.OUT == _hal.HAL_OUT (32)
+ok - hal.Dir.IO == _hal.HAL_IO (48)
+ok - hal.Dir.RO == _hal.HAL_RO (64)
+ok - hal.Dir.WO == _hal.HAL_WO (128)
+ok - hal.Dir.RW == _hal.HAL_RW (192)
+ok - HAL_REAL aliases REAL
+ok - HAL_FLOAT aliases REAL
+ok - HAL_BIT aliases BOOL
+ok - HAL_S32 aliases S32
+ok - S64 aliases SINT
+ok - U64 aliases UINT
+ok - HAL_SINT aliases SINT
+ok - HAL_S64 aliases SINT
+ok - HAL_U64 aliases UINT
+ok - HAL_IN aliases IN
+ok - HAL_RW aliases RW
+ok - hal.Type.REAL is an int
+ok - hal.Type.REAL == hal.HAL_FLOAT
+ok - hal.Dir.IO is IN|OUT
+ok - hal.Dir.RW is RO|WO
+ok - hal.Type is _hal.Type
+ok - hal.Dir is _hal.Dir
+ok - hal.Type(2) is REAL
+ok - hal.Dir(16) is IN
+ok - hal.Type(99) raises ValueError
+ok - repr shows the member name
+ok - hal.Type.REAL survives pickle
+ALL TESTS PASSED
