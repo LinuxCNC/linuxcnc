@@ -1222,7 +1222,9 @@ endif
 			mkdir -p $(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_DIR; \
 			if [ ! -e $$TIMAGE_PATH ] ; then \
 				echo "Generating $$TIMAGE_PATH for $$ADOC_FILE"; \
-				cp -f $$IMAGE_PATH $$TIMAGE_PATH; \
+				TIMAGE_TMP=$$(mktemp $$TIMAGE_PATH.tmp.XXXXXX) && \
+				cp $$IMAGE_PATH $$TIMAGE_TMP && mv -f $$TIMAGE_TMP $$TIMAGE_PATH && \
+				chmod 644 $$TIMAGE_PATH; \
 			fi ; \
 		done; \
 	done > $@.new && mv $@.new $@
@@ -1238,7 +1240,7 @@ $(DOC_OUT_ADOC)/$(1)/%.$(2): | $(DOC_DIR)/.translateddocs-stamp
 	@mkdir -p $$(@D)
 	$$(Q)S=$(DOC_SRCDIR)/$$*.$(2); \
 	[ -e "$$$$S" ] || S=$(DOC_OUT_ADOC)/en/$$*.$(2); \
-	cp -f "$$$$S" $$@
+	T=$$$$(mktemp "$$@.tmp.XXXXXX") && cp "$$$$S" "$$$$T" && mv -f "$$$$T" $$@ && chmod 644 $$@
 endef
 $(foreach L,$(LANGUAGES), \
 	$(foreach E,png jpg jpeg gif svg, \
