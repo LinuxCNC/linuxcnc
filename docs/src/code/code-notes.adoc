@@ -367,9 +367,9 @@ The ENABLE command enables the motion controller.
 ==== Requirements
 
 The command is rejected with an error message ("can't enable motion,
-enable input is false") if the motion.enable HAL pin is low. The
-hardware enable chain must be satisfied before the controller can be
-enabled.
+enable input is false") if the motion.enable HAL pin is low. That pin is
+created with a default value of TRUE, so a machine that leaves it
+unconnected is never refused.
 
 ==== Results
 
@@ -470,22 +470,13 @@ The PAUSE command pauses the trajectory planner. It has no effect in
 free or teleop mode.
 
 The machine neither stops instantly nor completes the current move: the
-planner treats pause as a request to bring the feed to zero, so the
-machine decelerates to a stop within the current segment, at that
-segment's acceleration limit, and halts wherever the deceleration ramp
-ends. The run-down is jerk-limited only on machines configured for the
-S-curve planner ([TRAJ]PLANNER_TYPE = 1 and MAX_JERK at 1.0 or above; a
-smaller jerk forces the planner back to trapezoidal). Both default to off,
-so a stock machine decelerates on a trapezoidal profile.
+planner brings the feed to zero within the current segment, at that
+segment's acceleration limit, and halts wherever the ramp ends.
 
 Pause is ignored while the active segment is position-synchronized with
-the spindle (spindle-synchronized motion such as G33 threading and
-rigid tapping): for those segments the planner forces full feed and
-bypasses both pause and feed override, because tool position is slaved
-to spindle angle and pausing mid-thread would destroy the work.
-The pause takes effect when the synchronized segment ends.
-Velocity-synchronized segments (G95 feed per revolution) can be paused
-normally.
+the spindle (G33 threading, rigid tapping): there the planner forces full
+feed and bypasses both pause and feed override, and the pause takes effect only when the segment ends. Velocity-synchronized segments (G95 feed per revolution) can be
+paused normally.
 
 ==== Requirements
 
@@ -872,9 +863,6 @@ The original NIST format of the buffer line is:
 * 'B' - identifies this line as a Buffer configuration.
 * 'name' - is the identifier of the buffer.
 * 'type' - describes the buffer type - SHMEM, LOCMEM, or PHANTOM.
-  (Older RCS documents also list FILEMEM, GLOBMEM and RTLMEM; none of these is
-  implemented in src/libnml/ - cms_config() rejects RTLMEM explicitly and does
-  not recognise the other two at all.)
 * 'host' - is either an IP address or host name for the NML server
 * 'size' - is the size of the buffer
 * 'neut' - a boolean to indicate if the data in the buffer is encoded in a
@@ -1373,9 +1361,7 @@ FIXME: `axis_mask` and `axes` overspecify the number of axes
   `joint[0]` through `joint[joints-1]` are valid, the others do not exist on this machine and must be ignored.
 
 Deviations from this design are considered bugs; if you find one,
-please report it. (An earlier revision of this document pointed at the
-treatment of axes in src/emc/ini/initraj.cc:loadTraj() as an example;
-that code has since been fixed to handle all nine axes.)
+please report it.
 
 === In Motion
 

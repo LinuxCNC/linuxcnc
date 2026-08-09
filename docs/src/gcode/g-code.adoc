@@ -1114,6 +1114,11 @@ It is an error if:
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
 
+[NOTE]
+The pitch and the spindle speed together set the axis feed. If they ask for
+more than the machine can deliver, the program is not rejected: there is no
+interpreter check and no error message for that case.
+
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
 
@@ -1181,6 +1186,11 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
+
+[NOTE]
+The pitch and the spindle speed together set the axis feed. If they ask for
+more than the machine can deliver, the program is not rejected: there is no
+interpreter check and no error message for that case.
 
 [[gcode:g38]]
 == G38._n_ Straight Probe(((G38.n Probe)))
