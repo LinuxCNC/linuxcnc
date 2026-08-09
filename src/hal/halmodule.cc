@@ -2212,6 +2212,18 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "streamer_base", 0x48535430);
     PyModule_AddIntConstant(m, "sampler_base", 0x48534130);
 
+    // The HAL query API is exposed as a submodule of _hal, which hal.py
+    // registers under the name hal.query. This is a placeholder that
+    // carries no bindings yet; it establishes where they will live.
+    PyObject *query = PyModule_New("_hal.query");
+    if(!query) {
+        Py_DECREF(m);
+        return NULL;
+    }
+    PyModule_AddStringConstant(query, "__doc__",
+            "Interface to the HAL query API. No bindings yet.");
+    PyModule_AddObject(m, "query", query);
+
 #ifdef RTAPI_KERNEL_VERSION
     PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
 #else

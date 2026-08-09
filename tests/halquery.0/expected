@@ -1,0 +1,6 @@
+ok - import _hal; _hal.query
+ok - hal.query attribute access
+ok - from hal import query
+ok - import hal.query
+ok - submodule keeps its own name
+ALL TESTS PASSED
