@@ -144,6 +144,22 @@ body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
 }
 /* hide the links on narrow screens where they would collide */
 @media (max-width: 900px) { .lcnc-topbar-links { display: none; } }
+/* Slim the bar on phones: logo + language label (+ an injected search
+   icon, when present) must fit ~360px without wrapping or clipping. */
+@media (max-width: 480px) {
+  .lcnc-topbar { padding: 0 0.75rem; }
+  .lcnc-topbar-home img { height: 2rem; }
+  /* .lcnc-topbar prefix needed: the bare-class base rule below would
+     otherwise win on source order. */
+  .lcnc-topbar .lcnc-lang-label { padding: 0 0.5em; }
+}
+/* Tighter still for ~320-360px: the longest label (Українська) plus an
+   injected search icon must leave the icon its full width. */
+@media (max-width: 360px) {
+  .lcnc-topbar { padding: 0 0.5rem; }
+  .lcnc-topbar-home img { height: 1.75rem; }
+  .lcnc-topbar .lcnc-lang-label { font-size: 0.9em; padding: 0 0.4em; }
+}
 
 /* Language switcher: hidden checkbox + label drives the dropdown.
    Total CSS control, no native disclosure widget to fight. */
@@ -164,6 +180,7 @@ body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
 }
 .lcnc-lang-label {
   cursor: pointer;
+  white-space: nowrap; /* never drop the ▾ onto its own line */
   padding: 0 0.75em;
   color: hsla(0,0%,100%,.8);
   font-weight: 500;
@@ -190,10 +207,16 @@ body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
 .lcnc-lang-switcher:has(.lcnc-lang-toggle:checked) .lcnc-lang-list {
   display: block;
 }
-.lcnc-lang-list li {
+/* The base page sheets (index.css, asciidoctor.css) style bare ul/li
+   generically and that leaks into the dropdown: index adds li margin-top,
+   asciidoctor forces line-height 1.6.  Pin the metrics at #lcnc-topbar
+   specificity so the list looks the same on every page. */
+#lcnc-topbar .lcnc-lang-list { line-height: 1.35; }
+#lcnc-topbar .lcnc-lang-list li {
   margin: 0;
   padding: 0;
   list-style: none;
+  line-height: 1.35;
 }
 /* The #lcnc-topbar id (1,0,0) cleanly outranks the index-page rules
    body:not(.article):not(.book):not(.manpage) a / a:visited (0,4,2), so
