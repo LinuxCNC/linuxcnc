@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-06-23 08:23+0000\n"
+"PO-Revision-Date: 2026-08-08 22:51+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.7.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -49298,7 +49298,7 @@ msgstr ""
 "die Einstellung von 'G52' jede frühere Einstellung von 'G92', und 'G52' "
 "bleibt über das Zurücksetzen der Maschine hinaus erhalten, wenn die 'G92'-"
 "Persistenz aktiviert ist. Diese Wechselwirkungen können zu unerwarteten "
-"Offsets führen. Siehe <<ec:g92-g52-interaction-cautions, G92- und G52-"
+"Offsets führen. Siehe <<sec:g92-g52-interaction-cautions, G92- und G52-"
 "Interaktionshinweise>> weiter unten."
 
 #. type: CAUTION
@@ -49770,11 +49770,11 @@ msgid ""
 msgstr ""
 "'G52' und 'G92' teilen sich die gleichen Offset-Register. Sofern die 'G92'-"
 "Persistenz in der INI-Datei nicht deaktiviert ist (siehe <<sec:g92-"
-"Befehle,G92-Befehle>>), bleiben 'G52'-Offsets auch nach dem Zurücksetzen der "
-"Maschine, 'M02' oder 'M30' bestehen. Beachten Sie, dass ein während eines "
-"Programmabbruchs wirksamer 'G52'-Offset zu unbeabsichtigten Offsets führen "
-"kann, wenn das nächste Programm ausgeführt wird. Siehe obige <<sec:g92-"
-"persistence-cautions,G92 Warnungen zur Persistenz>>."
+"commands,G92-Befehle>>), bleiben 'G52'-Offsets auch nach dem Zurücksetzen "
+"der Maschine, 'M02' oder 'M30' bestehen. Beachten Sie, dass ein während "
+"eines Programmabbruchs wirksamer 'G52'-Offset zu unbeabsichtigten Offsets "
+"führen kann, wenn das nächste Programm ausgeführt wird. Siehe obige "
+"<<sec:g92-persistence-cautions,G92 Warnungen zur Persistenz>>."
 
 #. type: Title ==
 #: src/gcode/coordinates.adoc:401
@@ -50950,11 +50950,11 @@ msgid ""
 "will produce coordinated motion to the destination point at the current feed "
 "rate (or slower)."
 msgstr ""
-"Für eine lineare (geradlinige) Bewegung mit der programmierten "
-"<<Sek:Vorschub-Sollwert,Vorschubgeschwindigkeit>> (zum Schneiden oder "
-"nicht), programmieren Sie 'G1 'Achsen'', wobei alle Achsenwörter optional "
-"sind. Das 'G1' ist optional, wenn der aktuelle Bewegungsmodus 'G1' ist. Dies "
-"führt zu einer koordinierten Bewegung zum Zielpunkt mit der aktuellen "
+"Für eine lineare (geradlinige) Bewegung mit der programmierten <<sec:set-"
+"feed-rate,Vorschubgeschwindigkeit>> (zum Schneiden oder nicht), "
+"programmieren Sie 'G1 'Achsen'', wobei alle Achsenwörter optional sind. Das "
+"'G1' ist optional, wenn der aktuelle Bewegungsmodus 'G1' ist. Dies führt zu "
+"einer koordinierten Bewegung zum Zielpunkt mit der aktuellen "
 "Vorschubgeschwindigkeit (oder langsamer)."
 
 #. type: Block title
@@ -72742,7 +72742,8 @@ msgstr ""
 "ein automatischer Prozess, wenn Ihr PC mit dem Internet verbunden ist. Nach "
 "einem Minor-Release wird eine Update-Aufforderung zusammen mit anderen "
 "Software-Updates angezeigt. Wenn Ihr PC nicht mit dem Internet verbunden "
-"ist, lesen Sie bitte <<start:update-no-network,Updating without Network>>."
+"ist, lesen Sie bitte <<getting-started:update-no-network,Updating without "
+"Network>>."
 
 #. type: Title ==
 #: src/getting-started/updating-linuxcnc.adoc:20
@@ -112469,7 +112470,7 @@ msgstr ""
 "Diese Techniken sind nützlich für Maschinen, die nicht wiederholbare "
 "Werkzeughalter haben und keine automatischen Werkzeugwechselvorrichtungen "
 "aufweisen. (für Maschinen mit wiederholbaren Werkzeughaltern siehe Abschnitt "
-"auf <<sub: touch-plate,Messwerkzeuglänge>>. Für Maschinen mit automatischen "
+"auf <<sub:touch-plate,Messwerkzeuglänge>>. Für Maschinen mit automatischen "
 "Werkzeugwechselgeräten, konsultieren Sie die Arbeiten im LinuxCNC-Repository "
 "bei `configs/sim/axis/remap/rack-toolchange`.)"
 
@@ -118202,7 +118203,7 @@ msgstr "<<cha:qtvcp:code,QtVCP Handler Datei Code Kurz-Beispiele>>"
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1158
 msgid "<<cha:qtvcp:devel,QtVCP Development>>"
-msgstr "<<cha:qtvcp:development,QtVCP Entwicklung>>"
+msgstr "<<cha:qtvcp:devel,QtVCP Entwicklung>>"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:1160
@@ -174060,7 +174061,7 @@ msgid ""
 "If your using GMOCCAPY then see the <<gmoccapy:lathe-section,the GMOCCAPY "
 "Lathe>> section."
 msgstr ""
-"Wenn Sie GMOCCAPY verwenden, lesen Sie den <<gmoccapy:lathe-Abschnitt, "
+"Wenn Sie GMOCCAPY verwenden, lesen Sie den <<gmoccapy:lathe-section, "
 "GMOCCAPY-Drehmaschine>>-Abschnitt."
 
 #. type: Index entry
@@ -229516,7 +229517,7 @@ msgid ""
 "Take care to follow the <<ohmic-sensing,ohmic sensing>> schematic shown "
 "previously."
 msgstr ""
-"Beachten Sie das zuvor gezeigte Schema zu <<Ohmic-sensing,ohmic sensing>>."
+"Beachten Sie das zuvor gezeigte Schema zu <<ohmic-sensing,ohmic sensing>>."
 
 #. type: NOTE
 #: src/plasma/plasma-cnc-primer.adoc:414
@@ -231043,7 +231044,7 @@ msgstr ""
 "Wenn die Plasmastromquelle über einen Arc OK (Transfer)-Ausgang verfügt, "
 "wird empfohlen, diesen für Arc OK anstelle des weichen (berechneten) Arc OK "
 "zu verwenden, der von Modus 0 bereitgestellt wird.  Es kann auch möglich "
-"sein, ein <<plasma:reed-Arc-OK,Reed-Relais>> als alternative Methode zu "
+"sein, ein <<plasma:reed-arc-ok,Reed-Relais>> als alternative Methode zu "
 "verwenden, um ein Arc OK-Signal herzustellen, wenn die Stromquelle keines "
 "liefert."
 
@@ -231890,7 +231891,7 @@ msgid ""
 "*CONFIGURATION* section which shows the user settable parameters.  It is "
 "necessary to ensure every one of these settings is tailored to the machine."
 msgstr ""
-"Klicken Sie auf die Registerkarte <<plasma:parameters,Parameter>> um den "
+"Klicken Sie auf die Registerkarte <<plasma:parameters-tab,Parameter>> um den "
 "Abschnitt *CONFIGURATION* anzuzeigen, in dem die vom Benutzer einstellbaren "
 "Parameter angezeigt werden. Es muss sichergestellt werden, dass jede dieser "
 "Einstellungen auf die Maschine zugeschnitten ist."
@@ -232141,7 +232142,7 @@ msgstr ""
 "Die automatisierte Migration auf QtPlasmaC von PlasmaC wird nicht mehr "
 "unterstützt. Der Benutzer muss entweder die PlasmaC-Konfiguration manuell "
 "umwandeln oder eine neue Konfiguration mit der <<configuring,Konfigurations-"
-"Assistenz> (engl. configuration wizard) erstellen."
+"Assistenz>> (engl. configuration wizard) erstellen."
 
 #. type: Title ==
 #: src/plasma/qtplasmac.adoc:362
@@ -233188,7 +233189,10 @@ msgstr "PH:"
 #: src/plasma/qtplasmac.adoc:689
 #, no-wrap
 msgid "If \"View Material\" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Pierce Height."
-msgstr "Wenn auf der Registerkarte mit <<qt_settings-tab,EINSTELLUNGEN>> die Option \"View Material\" ausgewählt ist, wird hier die Durchstechhöhe des aktuell ausgewählten Materials angezeigt."
+msgstr ""
+"Wenn auf der Registerkarte mit <<plasma:settings-tab,EINSTELLUNGEN>> die "
+"Option \"View Material\" ausgewählt ist, wird hier die Durchstechhöhe des "
+"aktuell ausgewählten Materials angezeigt."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:689
@@ -233664,7 +233668,11 @@ msgstr "VELOCITY ANTI DIVE"
 #: src/plasma/qtplasmac.adoc:785
 #, no-wrap
 msgid "Indicates that the THC is locked at the current height due to the cut velocity falling below the Velocity Anti Dive (VAD) Threshold percentage set on the <<plasma:parameters-tab,PARAMETERS Tab>>."
-msgstr "Zeigt an, dass die THC auf der aktuellen Höhe blockiert ist, weil die Schnittgeschwindigkeit unter den prozentualen Schwellenwert für den Geschwindigkeitsabbau (VAD) fällt, der auf der << plasma:parameters-tab,Registerkarte PARAMETER>> eingestellt ist."
+msgstr ""
+"Zeigt an, dass die THC auf der aktuellen Höhe blockiert ist, weil die "
+"Schnittgeschwindigkeit unter den prozentualen Schwellenwert für den "
+"Geschwindigkeitsabbau (VAD) fällt, der auf der <<plasma:parameters-"
+"tab,Registerkarte PARAMETER>> eingestellt ist."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:785 src/plasma/qtplasmac.adoc:3788
@@ -235936,7 +235944,7 @@ msgid ""
 "Tab>> then the machine log is also included in the backup."
 msgstr ""
 "Das *MACHINE LOG* wird auch auf der Registerkarte zu <<plasma:statistics-"
-"Tab,STATISTIKEN>> angezeigt, dieses Protokoll zeigt alle Fehler und / oder "
+"tab,STATISTIKEN>> angezeigt, dieses Protokoll zeigt alle Fehler und / oder "
 "wichtigen Informationen an, die während der aktuellen LinuxCNC-Sitzung "
 "auftreten.  Wenn der Benutzer eine Sicherungskopie der Konfiguration über "
 "die Registerkarte mit <<plasma:settings,EINSTELLUNGEN>> erstellt, wird auch "
@@ -236236,7 +236244,7 @@ msgid ""
 "with the Z axis selected to set the Z axis at zero offset.  This should not "
 "need to be done again."
 msgstr ""
-"Wie im Abschnitt zur <<plasma:initial-Setup,Ersteinrichtung>> erwähnt, wird "
+"Wie im Abschnitt zur <<plasma:initial-setup,Ersteinrichtung>> erwähnt, wird "
 "empfohlen, dass der Benutzer bei der ersten Verwendung von QtPlasmaC "
 "sicherstellt, dass sich unter der Taschenlampe nichts befindet, und dann die "
 "Z-Achse nach unten zieht, bis sie an der Z-Achse anhält, MINIMUM_LIMIT dann "
@@ -239566,7 +239574,7 @@ msgid ""
 "tab,SETTINGS Tab>>, or a custom user button is specified as a "
 "<<plasma:button-mancut,manual cut>> button."
 msgstr ""
-"Für den manuellen Einzelschnitt muss entweder <<plama:keyboard-"
+"Für den manuellen Einzelschnitt muss entweder <<plasma:keyboard-"
 "shortcuts,Tastaturkürzel>> im Abschnitt GUI SETTINGS der <<plasma:settings-"
 "tab,Registerkarte EINSTELLUNGEN>> aktiviert sein, oder eine "
 "benutzerdefinierte Schaltfläche muss als <<plasma:button-mancut,Manueller "
@@ -239774,7 +239782,7 @@ msgid ""
 "Setting for *Puddle Jump* are described in <<plasma:material,cut parameters>>"
 msgstr ""
 "Die Einstellungen für den *Puddle Jump* sind in "
-"<<Plasma:Material,Schnittparameter>> beschrieben."
+"<<plasma:material,Schnittparameter>> beschrieben."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2262
@@ -239885,7 +239893,7 @@ msgid ""
 "<<plasma:main-tab,MAIN Tab>>."
 msgstr ""
 "Aktivieren Sie die Schaltfläche *Ignore Arc OK* im Abschnitt CONTROL der "
-"<<plasma:main-Tab,HAUPTREGISTERKARTE>>."
+"<<plasma:main-tab,HAUPTREGISTERKARTE>>."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2288
@@ -239975,7 +239983,7 @@ msgid ""
 "when motion is paused."
 msgstr ""
 "Diese Funktion erzeugt eine Tafel CUT RECOVERY, die es ermöglicht, den "
-"Brenner während einer <<Plasma:paused-motion,unterbrochenen Bewegung>> "
+"Brenner während einer <<plasma:paused-motion,unterbrochenen Bewegung>> "
 "(engl. paused motion)-Ereignisses von der Schneidbahn wegzubewegen, um den "
 "Brenner über einem Reststück des zu schneidenden Materials zu positionieren, "
 "so dass der Schnitt mit einem minimierten Lichtbogen-Divot neu beginnt.  Das "
@@ -240472,7 +240480,7 @@ msgid ""
 msgstr ""
 "Hat der Benutzer die HAL-Pins für den Schreiber (engl. scribe) im "
 "Konfigurationsassistent noch nicht zugewiesen, so können sie dies tun, indem "
-"er den entsprechenden <<configuration,Konfigurations-Assistenten> (engl. "
+"er den entsprechenden <<configuring,Konfigurations-Assistenten>> (engl. "
 "configuration wizard) nutzt oder durch manuelle Bearbeitung der HAL-Datei, "
 "siehe <<plasma:modify-config,Anpassen von QtPlasmaC>>."
 
@@ -242070,10 +242078,10 @@ msgid ""
 msgstr ""
 "Die Funktion \"Conversational Block\" ermöglicht die Durchführung von "
 "Blockoperationen mit der aktuellen Form oder einer Gruppe von Formen, die im "
-"<<plasma:onversational-tab,CONVERSATIONAL Registerkarte>> angezeigt werden.  "
-"Dies kann eine G-Code-Datei einschließen, die nicht mit der Conversational "
-"Shape Library erstellt wurde, die zuvor von der <<plasma:main-tab,Haupt-"
-"Registrierkarte>> geladen wurde."
+"<<plasma:conversational-tab,CONVERSATIONAL Registerkarte>> angezeigt "
+"werden.  Dies kann eine G-Code-Datei einschließen, die nicht mit der "
+"Conversational Shape Library erstellt wurde, die zuvor von der <<plasma:main-"
+"tab,Haupt-Registrierkarte>> geladen wurde."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2802
@@ -243739,7 +243747,7 @@ msgstr "<<plasma:button-probe,Sondentest>>"
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3256
 msgid "<<plasma:button-ohmic,Ohmic Test>>"
-msgstr "<<plasma:button-ohmischer, ohmscher Test>>"
+msgstr "<<plasma:button-ohmic, ohmscher Test>>"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:3257
@@ -244360,7 +244368,7 @@ msgid ""
 msgstr ""
 "QtPlasmaC startet eine Sonde und wenn das Material erkannt wird, steigt die "
 "Z-Achse auf die Pierce-Höhe, die derzeit im Abschnitt MATERIAL der "
-"<<plasm:parameters-tab,PARAMETER>> Registerkarte angezeigt wird.  Wenn der "
+"<<plasma:parameters-tab,PARAMETER>> Registerkarte angezeigt wird.  Wenn der "
 "Benutzer im Abschnitt GUI-SETTINGS der <<plasma:settings-tab,EINSTELLUNGEN>> "
 "(engl. settings) Registerkarte die Option \"Material anzeigen\" (engl. view "
 "material) ausgewählt hat, wird dieser Wert in der oberen linken Ecke des "
@@ -245928,7 +245936,7 @@ msgid ""
 msgstr ""
 "Die folgenden HAL-Bit-Ausgangspins werden immer erstellt und können entweder "
 "von den benutzerdefinierten Tasten <<plasma:button-toggle,Toggle HAL Pin>> "
-"oder <<qt_button-pulse,Pulse HAL Pin>> verwendet werden, um den Zustand "
+"oder <<plasma:button-pulse,Pulse HAL Pin>> verwendet werden, um den Zustand "
 "eines Ausgangs zu ändern."
 
 #. type: Table
@@ -246908,7 +246916,8 @@ msgstr ""
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:4074
 msgid "Disable PowerMax Comms from the <<plasma:main-tab, MAIN Tab>>"
-msgstr "PowerMax Comms auf der<<qt_main-tab,Haup-Registerkarte>> deaktivieren"
+msgstr ""
+"PowerMax Comms auf der <<plasma:main-tab,Haup-Registerkarte>> deaktivieren"
 
 #. type: Plain text
 #: src/plasma/qtplasmac.adoc:4075
@@ -246930,7 +246939,7 @@ msgid ""
 "Mode>> will automatically select CPA mode on the PowerMax unit."
 msgstr ""
 "Wenn die PowerMax-Kommunikation aktiv ist, wird durch Auswahl von "
-"<<plasma.mesh-mode,Mesh Mode>> automatisch der CPA-Modus auf dem PowerMax-"
+"<<plasma:mesh-mode,Mesh Mode>> automatisch der CPA-Modus auf dem PowerMax-"
 "Gerät ausgewählt."
 
 #. type: NOTE
@@ -249189,7 +249198,7 @@ msgid ""
 "See the <<plasma:modes,QtPlasmaC Modes>> sections for more information."
 msgstr ""
 "Dies erfordert, dass QtPlasmaC im Modus 1 und nicht im Modus 0 betrieben "
-"wird. Siehe die <<plasma:mode,QtPlasmaC Modes>> Abschnitte für weitere "
+"wird. Siehe die <<plasma:modes,QtPlasmaC Modes>> Abschnitte für weitere "
 "Informationen."
 
 #. type: Target for macro image
@@ -249214,7 +249223,7 @@ msgstr "images/qtplasmac_relay_contact.png"
 #: src/plasma/qtplasmac.adoc:4661
 msgid "A full description is at <<plasma:qt-contact-load,Contact Load>>."
 msgstr ""
-"Eine vollständige Beschreibung finden Sie unter <<plasma:contact-"
+"Eine vollständige Beschreibung finden Sie unter <<plasma:qt-contact-"
 "load,Contact Load>>."
 
 #. type: Title ===
@@ -251808,11 +251817,11 @@ msgid ""
 "So the stuff NGC can't handle will be done in Python prolog and epilog "
 "functions."
 msgstr ""
-"Unser O-Wort-Verfahren würde also die Schritte <<Abbildung:Interpreter-"
-"Aktion-auf-m6,hier>> ersetzen.  Wenn Sie sich diese Schritte ansehen, werden "
-"Sie feststellen, dass NGC-Code für die meisten, aber nicht für alle, "
-"verwendet werden kann.  Das, was NGC nicht kann, wird in Python Prolog- und "
-"Epilog-Funktionen erledigt."
+"Unser O-Wort-Verfahren würde also die Schritte <<remap:interpreter-action-on-"
+"m6,hier>> ersetzen.  Wenn Sie sich diese Schritte ansehen, werden Sie "
+"feststellen, dass NGC-Code für die meisten, aber nicht für alle, verwendet "
+"werden kann.  Das, was NGC nicht kann, wird in Python Prolog- und Epilog-"
+"Funktionen erledigt."
 
 #. type: Title ===
 #: src/remap/remap.adoc:676
