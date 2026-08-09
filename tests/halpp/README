@@ -1,0 +1,12 @@
+smoke test for the pybind11 HAL bindings (halpp) and the C++ API in hal.hh:
+component and pin/param lifecycle, item access, signals, the by-name query
+functions, and streams.
+
+smoke.py exercises a stream from the component that created it. The
+create/attach pair needs two components in two processes, the way sampler and
+streamer are used, so it lives in stream_writer.py and stream_reader.py.
+
+test.sh runs the Python suite under halrun, then compiles cpp_test.cc
+against the tree headers and runs it in a live HAL session, so the native
+C++ API is covered without a build-system target of its own. The skip file
+disables the test when halpp.so was not built (pybind11 headers missing).

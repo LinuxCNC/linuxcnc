@@ -8,11 +8,15 @@
     Exposes:
       component  - userspace component with pins/params
       Pin        - runtime-typed pin/param reference
+      stream     - sample FIFO shared with sampler/streamer
       module fns - by-name get/set (when the query API is available),
                    signals, component queries
 */
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include <cstdio>
+#include <system_error>
 
 #include "hal.hh"
 
@@ -46,6 +50,20 @@ static void set_signal_str(const std::string &name, const std::string &value)
 
 PYBIND11_MODULE(halpp, m) {
     m.doc() = "Interface to linuxcnc hal";
+
+    // Failures reported by the library as a negative errno become
+    // OSError, as they do in the _hal module. Everything else keeps
+    // pybind11's default mapping (invalid_argument -> ValueError,
+    // out_of_range -> IndexError, ...).
+    py::register_exception_translator([](std::exception_ptr p) {
+        try {
+            if(p)
+                std::rethrow_exception(p);
+        } catch(const std::system_error &e) {
+            PyErr_SetObject(PyExc_OSError,
+                Py_BuildValue("(is)", e.code().value(), e.what()));
+        }
+    });
 
 #ifdef HALXX_WITH_QUERY_API
     // Initialize the user-land HAL library at import so the by-name
@@ -116,6 +134,53 @@ PYBIND11_MODULE(halpp, m) {
         .def("ready", &halxx::component::ready)
         .def("exit", &halxx::component::exit);
 
+    // Streams. The key is an integer; sampler and streamer derive theirs
+    // from these bases, so a Python reader/writer can pair with them.
+    m.attr("streamer_base") = py::int_(0x48535430);
+    m.attr("sampler_base") = py::int_(0x48534130);
+
+    py::class_<halxx::stream>(m, "stream")
+        .def(py::init<halxx::component &, int, unsigned, const std::string &>(),
+             py::arg("comp"), py::arg("key"), py::arg("depth"), py::arg("typestring"),
+             py::keep_alive<1, 2>())
+        .def(py::init<halxx::component &, int, const std::string &>(),
+             py::arg("comp"), py::arg("key"), py::arg("typestring") = std::string(),
+             py::keep_alive<1, 2>())
+        // A tuple, like the _hal stream, so samples can be compared and
+        // unpacked the same way.
+        .def("read", [](halxx::stream &s) -> py::object {
+            auto sample = s.read();
+            if(!sample)
+                return py::none();
+            return py::tuple(py::cast(*sample));
+        })
+        .def("write", [](halxx::stream &s, const std::vector<halxx::value_t> &data) {
+            s.write(data);
+        }, py::arg("data"))
+        .def("close", &halxx::stream::close)
+        .def("element_type", &halxx::stream::element_type, py::arg("idx"))
+        .def_property_readonly("element_count", &halxx::stream::element_count)
+        // Bytes of typestring characters, as in the _hal stream.
+        .def_property_readonly("element_types", [](const halxx::stream &s) {
+            return py::bytes(s.typestring());
+        })
+        .def_property_readonly("key", &halxx::stream::key)
+        .def_property_readonly("is_creator", &halxx::stream::is_creator)
+        .def_property_readonly("is_open", &halxx::stream::is_open)
+        .def_property_readonly("readable", &halxx::stream::readable)
+        .def_property_readonly("writable", &halxx::stream::writable)
+        .def_property_readonly("depth", &halxx::stream::depth)
+        .def_property_readonly("maxdepth", &halxx::stream::maxdepth)
+        .def_property_readonly("num_underruns", &halxx::stream::num_underruns)
+        .def_property_readonly("num_overruns", &halxx::stream::num_overruns)
+        .def_property_readonly("sampleno", &halxx::stream::sampleno)
+        .def("__repr__", [](const halxx::stream &s) {
+            char buf[64];
+            snprintf(buf, sizeof(buf), "<stream 0x%x%s>", (unsigned)s.key(),
+                     s.is_creator() ? " creator" : "");
+            return std::string(buf);
+        });
+
     py::enum_<hal_type_t>(m, "hal_type_t")
         .value("HAL_BIT", HAL_BIT)
         .value("HAL_BOOL", HAL_BOOL)
@@ -127,6 +192,13 @@ PYBIND11_MODULE(halpp, m) {
         .value("HAL_U64", HAL_U64)
         .value("HAL_PORT", HAL_PORT)
         .export_values();
+
+    // 'halcmd unload' terminates a userspace component with SIGTERM.
+    // Raise KeyboardInterrupt for it, as the _hal module does, so the
+    // component runs its cleanup and flushes its output instead of
+    // dying where it stands.
+    py::module_ signal = py::module_::import("signal");
+    signal.attr("signal")(signal.attr("SIGTERM"), signal.attr("default_int_handler"));
 
     py::enum_<halxx::dir>(m, "hal_dir")
         .value("HAL_IN", halxx::dir::IN)

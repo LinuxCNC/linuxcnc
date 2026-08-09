@@ -26,7 +26,9 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <optional>
 #include <stdexcept>
+#include <system_error>
 #include <cstdint>
 #include <cstring>
 #include <cerrno>
@@ -406,6 +408,230 @@ private:
     std::string prefix_;
     std::map<std::string, pin_t> items_;
     std::map<std::string, pin_t> params_;
+};
+
+//----------------------------------------------------------------------
+// Streams. hal_stream_t is the fixed-depth sample FIFO behind sampler
+// and streamer: one component creates it with a depth and a typestring,
+// another attaches to the same integer key. Each character of the
+// typestring names the type of one element of a sample.
+//----------------------------------------------------------------------
+namespace detail {
+
+// The typestring characters used by hal_stream_create(), as reported
+// back through hal_stream_element_type().
+inline char stream_typechar(hal_type_t t)
+{
+    switch(t) {
+    case HAL_BOOL: return 'b';
+    case HAL_REAL: return 'f';
+    case HAL_S32:  return 's';
+    case HAL_U32:  return 'u';
+    case HAL_SINT: return 'l';
+    case HAL_UINT: return 'k';
+    default:       return '?';
+    }
+}
+
+inline value_t value_from_stream(hal_type_t t, const hal_stream_data_u &d)
+{
+    switch(t) {
+    case HAL_BOOL: return (rtapi_bool)d.b;
+    case HAL_S32:  return (rtapi_s32)d.s;
+    case HAL_U32:  return (rtapi_u32)d.u;
+    case HAL_SINT: return (rtapi_sint)d.l;
+    case HAL_UINT: return (rtapi_uint)d.k;
+    case HAL_REAL: return (rtapi_real)d.f;
+    default:
+        throw std::invalid_argument("hal::stream: element has an unsupported type");
+    }
+}
+
+// Coerce a runtime value into a stream element of the given type.
+// Returns false on a range error; the caller reports it.
+inline bool convert_stream_value(hal_type_t target, const value_t &v, hal_stream_data_u *out)
+{
+    bool ok = true;
+    std::visit([&ok, out, target](auto &&x) {
+        long double xv = static_cast<long double>(x);
+        switch(target) {
+        case HAL_BOOL:
+            out->b = (0 != xv);
+            break;
+        case HAL_S32:
+            if(xv < RTAPI_INT32_MIN || xv > RTAPI_INT32_MAX) { ok = false; break; }
+            out->s = static_cast<rtapi_s32>(xv); break;
+        case HAL_U32:
+            if(xv < 0 || xv > RTAPI_UINT32_MAX) { ok = false; break; }
+            out->u = static_cast<rtapi_u32>(xv); break;
+        case HAL_SINT:
+            if(xv < (long double)RTAPI_SINT_MIN || xv > (long double)RTAPI_SINT_MAX) { ok = false; break; }
+            out->l = static_cast<rtapi_sint>(xv); break;
+        case HAL_UINT:
+            if(xv < 0 || xv > (long double)RTAPI_UINT_MAX) { ok = false; break; }
+            out->k = static_cast<rtapi_uint>(xv); break;
+        case HAL_REAL:
+            out->f = static_cast<rtapi_real>(xv); break;
+        default:
+            ok = false;
+        }
+    }, v);
+    return ok;
+}
+
+} // namespace detail
+
+//----------------------------------------------------------------------
+// stream - an open HAL stream, either created (and owned) or attached
+// to. The library permits only one reader and one writer, but does not
+// enforce it.
+//
+// Like the other HAL objects, a stream is move-only: destroying or
+// detaching twice would corrupt the FIFO's user counts.
+//----------------------------------------------------------------------
+class stream {
+public:
+    // Create a stream holding 'depth' samples of the layout described
+    // by 'typestring'. The stream is destroyed with this object.
+    stream(component &comp, int key, unsigned depth, const std::string &typestring)
+        : key_(key), creator_(true)
+    {
+        int rv = hal_stream_create(&s_, comp.id(), key, depth, typestring.c_str());
+        if(rv < 0)
+            throw std::system_error(-rv, std::generic_category(),
+                "hal::stream: create(" + std::to_string(key) + ", " + typestring + ") failed");
+        open_ = true;
+        read_element_types();
+    }
+
+    // Attach to an existing stream. An empty typestring accepts
+    // whatever layout the stream was created with; a non-empty one must
+    // match it.
+    stream(component &comp, int key, const std::string &typestring = std::string())
+        : key_(key), creator_(false)
+    {
+        int rv = hal_stream_attach(&s_, comp.id(), key,
+                                   typestring.empty() ? nullptr : typestring.c_str());
+        if(rv < 0)
+            throw std::system_error(-rv, std::generic_category(),
+                "hal::stream: attach(" + std::to_string(key) + ") failed");
+        open_ = true;
+        read_element_types();
+    }
+
+    stream() = delete;
+    stream(const stream &) = delete;
+    stream &operator=(const stream &) = delete;
+    stream(stream &&o) noexcept { adopt(o); }
+    stream &operator=(stream &&o) noexcept {
+        if(this != &o) { close(); adopt(o); }
+        return *this;
+    }
+    ~stream() { close(); }
+
+    // Destroy (creator) or detach from (attacher) the stream. Further
+    // access throws; this is what the destructor does.
+    void close() {
+        if(!open_)
+            return;
+        open_ = false;
+        if(creator_)
+            hal_stream_destroy(&s_);
+        else
+            hal_stream_detach(&s_);
+    }
+
+    int key() const { return key_; }
+    bool is_creator() const { return creator_; }
+    bool is_open() const { return open_; }
+
+    int element_count() const { return (int)types_.size(); }
+    hal_type_t element_type(int idx) const {
+        if(idx < 0 || idx >= element_count())
+            throw std::out_of_range("hal::stream: element index out of range");
+        return types_[idx];
+    }
+    // The layout in hal_stream_create() typestring form.
+    const std::string &typestring() const { return typestring_; }
+
+    // Read one sample. Returns nothing when the stream is empty, which
+    // also counts an underrun in the library.
+    std::optional<std::vector<value_t>> read() {
+        if(types_.empty())
+            return std::nullopt;
+        std::vector<hal_stream_data_u> buf(types_.size());
+        if(hal_stream_read(handle(), buf.data(), &sampleno_) < 0)
+            return std::nullopt;
+        std::vector<value_t> out;
+        out.reserve(types_.size());
+        for(size_t i = 0; i < types_.size(); i++)
+            out.push_back(detail::value_from_stream(types_[i], buf[i]));
+        return out;
+    }
+
+    // Write one sample. The values are coerced to the element types
+    // with range checks. Writing to a full stream fails and counts an
+    // overrun in the library.
+    void write(const std::vector<value_t> &data) {
+        if(data.size() != types_.size())
+            throw std::invalid_argument("hal::stream: write expects " +
+                std::to_string(types_.size()) + " elements, got " + std::to_string(data.size()));
+        std::vector<hal_stream_data_u> buf(types_.size());
+        for(size_t i = 0; i < types_.size(); i++)
+            if(!detail::convert_stream_value(types_[i], data[i], &buf[i]))
+                throw std::out_of_range("hal::stream: element " + std::to_string(i) +
+                    " does not fit its type");
+        int rv = hal_stream_write(handle(), buf.data());
+        if(rv < 0)
+            throw std::system_error(-rv, std::generic_category(), "hal::stream: write failed");
+    }
+
+    bool readable() const { return hal_stream_readable(handle()); }
+    bool writable() const { return hal_stream_writable(handle()); }
+    int depth() const { return hal_stream_depth(handle()); }
+    unsigned maxdepth() const { return hal_stream_maxdepth(handle()); }
+    int num_underruns() const { return hal_stream_num_underruns(handle()); }
+    int num_overruns() const { return hal_stream_num_overruns(handle()); }
+
+    // Number of the last sample read().
+    unsigned sampleno() const { return sampleno_; }
+
+private:
+    // The C API takes a non-const hal_stream_t * even where it only
+    // reads, so the const accessors go through here.
+    hal_stream_t *handle() const {
+        if(!open_)
+            throw std::logic_error("hal::stream: access to a closed stream");
+        return const_cast<hal_stream_t *>(&s_);
+    }
+
+    void read_element_types() {
+        int n = hal_stream_element_count(&s_);
+        for(int i = 0; i < n; i++) {
+            hal_type_t t = hal_stream_element_type(&s_, i);
+            types_.push_back(t);
+            typestring_.push_back(detail::stream_typechar(t));
+        }
+    }
+
+    void adopt(stream &o) {
+        s_ = o.s_;
+        types_ = std::move(o.types_);
+        typestring_ = std::move(o.typestring_);
+        key_ = o.key_;
+        creator_ = o.creator_;
+        sampleno_ = o.sampleno_;
+        open_ = o.open_;
+        o.open_ = false;
+    }
+
+    hal_stream_t s_ = {};
+    std::vector<hal_type_t> types_;
+    std::string typestring_;
+    int key_ = 0;
+    bool creator_ = false;
+    bool open_ = false;
+    unsigned sampleno_ = 0;
 };
 
 //----------------------------------------------------------------------
