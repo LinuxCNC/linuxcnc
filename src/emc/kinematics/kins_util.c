@@ -1282,6 +1282,7 @@ int identityKinematicsJacobian(const double *joint,
                                       jac);
 } // identityKinematicsJacobian()
 
+#ifdef RTAPI
 EXPORT_SYMBOL(map_coordinates_to_jnumbers);
 EXPORT_SYMBOL(mapped_joints_to_position);
 EXPORT_SYMBOL(position_to_mapped_joints);
@@ -1300,3 +1301,4 @@ EXPORT_SYMBOL(kinsJacobianFromMappedAxes);
 EXPORT_SYMBOL(kinsJacobianFromDhArm);
 EXPORT_SYMBOL(TOOL_FRAME_SPINDLE);
 EXPORT_SYMBOL(TOOL_FRAME_FLANGE);
+#endif
