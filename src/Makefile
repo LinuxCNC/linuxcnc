@@ -193,6 +193,7 @@ SUBDIRS := \
     \
     $(GUI_SUBDIRS) \
     emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/canterp \
+    emc/motion_planning emc/kinematics_userspace \
     emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \

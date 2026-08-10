@@ -36,6 +36,7 @@ usr/bin/hy_vfd
 usr/bin/image-to-gcode
 usr/bin/inivalue
 usr/bin/inivar
+usr/bin/kinslimits
 usr/bin/latency-histogram
 usr/bin/latency-plot
 usr/bin/latency-test
