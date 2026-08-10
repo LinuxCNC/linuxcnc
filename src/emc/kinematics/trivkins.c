@@ -18,6 +18,7 @@
 #include <hal.h>
 #include <emcmotcfg.h>
 #include <kinematics.h>
+#include "nonrt_kins.h"
 
 
 #define SET(f) pos->f = joints[i]
@@ -110,3 +111,17 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+// Non-RT entry point: joints are axes, so a non-RT caller needs no
+// module code at all and reads nothing from HAL.
+int nonrt_attach(const char* coordinates, nonrt_ops_t* ops,
+                 nonrt_resolve_fn resolve, void* arg)
+{
+    (void)coordinates; (void)resolve; (void)arg;
+    ops->forward     = NULL;
+    ops->inverse     = NULL;
+    ops->is_identity = 1;
+    return 0;
+}
+
+EXPORT_SYMBOL(nonrt_attach);
