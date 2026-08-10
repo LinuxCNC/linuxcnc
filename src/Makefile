@@ -193,6 +193,7 @@ SUBDIRS := \
     \
     $(GUI_SUBDIRS) \
     emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/canterp \
+    emc/motion_planning emc/kinematics_userspace \
     emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
@@ -403,6 +404,8 @@ SRCHEADERS := \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/switchkins.h \
+    emc/kinematics/nonrt_kins.h \
+    emc/kinematics_userspace/kinematics_user.h \
     emc/nml_intf/emcmotcfg.h \
     emc/ini/inifile.hh \
     emc/ini/inifile.h \
