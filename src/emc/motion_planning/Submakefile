@@ -1,0 +1,46 @@
+INCLUDES += emc/motion_planning
+INCLUDES += emc/kinematics_userspace
+
+# Jacobian-based world-space limit calculation, plus the non-RT kinematics
+# loader it sits on top of.
+LIBKINSLIMITS_CXXSRCS := $(addprefix emc/motion_planning/, \
+	jacobian.cc \
+	joint_limits.cc \
+	)
+
+LIBKINSLIMITS_CSRCS := $(addprefix emc/kinematics_userspace/, \
+	kinematics_user.c \
+	)
+
+USERSRCS += $(LIBKINSLIMITS_CXXSRCS) $(LIBKINSLIMITS_CSRCS)
+
+$(call TOOBJSDEPS, $(LIBKINSLIMITS_CXXSRCS)): EXTRAFLAGS = -fPIC
+$(call TOOBJSDEPS, $(LIBKINSLIMITS_CSRCS)): EXTRAFLAGS = -fPIC -D_GNU_SOURCE
+
+../lib/libkinslimits.so.0: $(call TOOBJS, $(LIBKINSLIMITS_CXXSRCS) $(LIBKINSLIMITS_CSRCS)) \
+                           ../lib/libposemath.so.0 ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -ldl
+
+../lib/libkinslimits.so: ../lib/libkinslimits.so.0
+	ln -sf $(notdir $<) $@
+
+TARGETS += ../lib/libkinslimits.so ../lib/libkinslimits.so.0
+
+# Diagnostic: print the Jacobian and the caps it implies for one move.
+KINSLIMITS_SRCS := emc/motion_planning/kinslimits.cc
+USERSRCS += $(KINSLIMITS_SRCS)
+
+../bin/kinslimits: $(call TOOBJS, $(KINSLIMITS_SRCS)) \
+                   ../lib/libkinslimits.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libposemath.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../bin
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
+
+TARGETS += ../bin/kinslimits
+
+MOTION_PLANNING_HH := emc/motion_planning/jacobian.hh emc/motion_planning/joint_limits.hh
+$(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_HH)): ../include/%.hh: emc/motion_planning/%.hh
+	cp $^ $@
+HEADERS += $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_HH))
