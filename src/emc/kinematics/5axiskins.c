@@ -61,6 +61,7 @@
 #include <emcmotcfg.h>
 
 #include <switchkins.h>
+#include <nonrt_kins.h>
 
 static struct haldata {
     hal_real_t pivot_length;
@@ -200,11 +201,20 @@ static int fiveaxis_KinematicsJacobian(const double *joints,
                                       jac);
 } // fiveaxis_KinematicsJacobian()
 
-int fiveaxis_KinematicsSetup(const  int   comp_id,
-                             const  char* coordinates,
-                             kparms*      kp)
+// module constants, shared by switchkinsSetup() and nonrt_attach()
+static void fiveaxis_kparms(kparms* kp)
 {
-    int result=0;
+    kp->kinsname    = "5axiskins"; // !!! must agree with filename
+    kp->halprefix   = "5axiskins"; // hal pin names
+    kp->required_coordinates = REQUIRED_COORDINATES;
+    kp->allow_duplicates     = 1;
+    kp->max_joints           = EMCMOT_MAX_JOINTS;
+}
+
+// assign principal joint numbers from the coordinates string.
+// No HAL involvement, so the non-RT path can use it too.
+static int fiveaxis_map_joints(const char* coordinates, kparms* kp)
+{
     int i,jno;
     int axis_idx_for_jno[EMCMOT_MAX_JOINTS];
     int minjoints = strlen(kp->required_coordinates);
@@ -253,6 +263,20 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
         if (axis_idx_for_jno[jno] == 8) {if (JW == -1) JW=jno;}
     }
 
+    return 0;
+
+error:
+    return -1;
+} // fiveaxis_map_joints()
+
+int fiveaxis_KinematicsSetup(const  int   comp_id,
+                             const  char* coordinates,
+                             kparms*      kp)
+{
+    int result=0;
+
+    if (fiveaxis_map_joints(coordinates, kp)) goto error;
+
     haldata = hal_malloc(sizeof(*haldata));
     if(!haldata) goto error;
 
@@ -281,11 +305,7 @@ int switchkinsSetup(kparms* kp,
                     KI* kinv0, KI* kinv1, KI* kinv2
                    )
 {
-    kp->kinsname    = "5axiskins"; // !!! must agree with filename
-    kp->halprefix   = "5axiskins"; // hal pin names
-    kp->required_coordinates = REQUIRED_COORDINATES;
-    kp->allow_duplicates     = 1;
-    kp->max_joints           = EMCMOT_MAX_JOINTS;
+    fiveaxis_kparms(kp);
 
     if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
         rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
@@ -314,3 +334,28 @@ int switchkinsSetup(kparms* kp,
 
     return 0;
 } // switchkinsSetup()
+
+// Non-RT entry point: bind this copy of the module to the pins the
+// running RT instance owns, then hand back the unmodified kinematics.
+int nonrt_attach(const char* coordinates, nonrt_ops_t* ops,
+                 nonrt_resolve_fn resolve, void* arg)
+{
+    static struct haldata nonrt_haldata; // private to this copy of the module
+    kparms kp = {0};
+
+    fiveaxis_kparms(&kp);
+
+    haldata = &nonrt_haldata;
+
+    if (nonrt_resolve_real(resolve, arg, &haldata->pivot_length,
+                           "%s.pivot-length", kp.halprefix)) return -1;
+
+    if (fiveaxis_map_joints(coordinates, &kp)) return -1;
+
+    ops->forward     = fiveaxis_KinematicsForward;
+    ops->inverse     = fiveaxis_KinematicsInverse;
+    ops->is_identity = 0;
+    return 0;
+} // nonrt_attach()
+
+EXPORT_SYMBOL(nonrt_attach);
