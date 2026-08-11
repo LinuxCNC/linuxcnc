@@ -52,12 +52,16 @@ class Dialogs(GObject.GObject):
     def dialog_ext_control(self, answer):
         if self.sys_dialog.get_visible():
                 self.sys_dialog.response(answer)
+                return
         elif self.warn_dialog.get_visible():
                 self.warn_dialog.response(answer)
+                return
         elif self.ent_dialog.get_visible():
                 self.ent_dialog.response(answer)
+                return
         elif self.yn_dialog.get_visible():
                 self.yn_dialog.response(answer)
+                return
         else:
             # Get the widget that currently has user focus
             focused_widget = self._caller.widgets.window1.get_focus()
