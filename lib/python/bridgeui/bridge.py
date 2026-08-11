@@ -16,7 +16,7 @@ LOG = logger.initBaseLogger('HAL bridge', log_file=None,
              log_level=logger.WARNING, logToFile=False)
 
 # Force the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     import zmq
@@ -112,7 +112,7 @@ class Bridge(object):
         elif msg == 'joint-selection-changed':
             self.activeJoint = int(data[0])
         elif msg == 'axis-selection-changed':
-            print ('pre axis state', self.axesSelected,self.currentSelectedAxis)
+            #print ('pre axis state', self.axesSelected,self.currentSelectedAxis)
             flag = 1
             if data[0] == 'MPG0':
                 self.currentSelectedAxis = data[0]
@@ -131,7 +131,7 @@ class Bridge(object):
 
             if flag:
                 self.currentSelectedAxis = 'None'
-            print ('axis state', self.axesSelected,self.currentSelectedAxis)
+            #print ('axis state', self.axesSelected,self.currentSelectedAxis)
 
     # send msg to hal_glib
     def writeMsg(self, msg, data=''):
@@ -169,7 +169,7 @@ class Bridge(object):
         self.writeMsg('request_shutdown')
 
     def softkey(self, index):
-        print(f'Softkey index {index}')
+        #print(f'Softkey index {index}')
         self.writeMsg('request_softkey', index)
 
     # if the number is bigger then MDI command list
