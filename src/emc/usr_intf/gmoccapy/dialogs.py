@@ -52,12 +52,16 @@ class Dialogs(GObject.GObject):
     def dialog_ext_control(self, answer):
         if self.sys_dialog.get_visible():
                 self.sys_dialog.response(answer)
+                return
         elif self.warn_dialog.get_visible():
                 self.warn_dialog.response(answer)
+                return
         elif self.ent_dialog.get_visible():
                 self.ent_dialog.response(answer)
+                return
         elif self.yn_dialog.get_visible():
                 self.yn_dialog.response(answer)
+                return
         else:
             # Get the widget that currently has user focus
             focused_widget = self._caller.widgets.window1.get_focus()
@@ -77,6 +81,7 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    self._caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.connect("delete-event", self.on_delete_event)
         dialog.set_modal(True)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
@@ -130,6 +135,7 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog('',
                    self._caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.connect("delete-event", self.on_delete_event)
         dialog.label = Gtk.Label('')
         dialog.label.modify_font(Pango.FontDescription("sans 20"))
         dialog.label.set_margin_top(15)
@@ -189,15 +195,12 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = rtn
 
     # display warning dialog
-    def warning_dialog(self, message = '', secondary = None, title = _("Operator Message"),\
-        sound = True, confirm_pin = 'warning-confirm', active_pin = None):
-
+    def warning_dialog(self):
         dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                                   Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
-        # if there is a secondary message then the first message text is bold
-        if secondary:
-            dialog.format_secondary_text(secondary)
+                                   Gtk.MessageType.INFO,
+                                   Gtk.ButtonsType.NONE)
+        dialog.connect("delete-event", self.on_delete_event)
         ok_button = Gtk.Button.new_with_mnemonic("_Ok")
         ok_button.set_size_request(-1, 56)
         ok_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.OK))
@@ -205,16 +208,16 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
-        if sound:
-            self.emit("play_sound", "alert")
-        dialog.set_title(title)
-        dialog.context = []
+        # HAL pin names
+        dialog.confirm_pin = 'warning-confirm'
+        dialog.active_pin = None
+
         def periodic():
-            if self._caller.halcomp[confirm_pin]:
+            if self._caller.halcomp[dialog.confirm_pin]:
                 dialog.response(Gtk.ResponseType.OK)
                 return False
-            if active_pin is not None:
-                if not self._caller.halcomp[active_pin]:
+            if dialog.active_pin is not None:
+                if not self._caller.halcomp[dialog.active_pin]:
                     dialog.response(Gtk.ResponseType.CANCEL)
                     return False
             return True
@@ -226,8 +229,10 @@ class Dialogs(GObject.GObject):
                          confirm_pin = 'warning-confirm', active_pin = None):
         dialog = self.warn_dialog
         dialog.set_title(title)
-        dialog.format_secondary_text(message)
-        dialog.set_markup(message)
+        dialog.set_markup('<b>'+message+'</b>')
+        dialog.confirm_pin = confirm_pin
+        dialog.active_pin = active_pin
+
         dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
@@ -249,11 +254,17 @@ class Dialogs(GObject.GObject):
     def on_warning_response(self, dialog, rtn):
         dialog.RESPONSE = rtn
 
+    def on_delete_event(self, dialog, event):
+        dialog.RESPONSE = Gtk.ResponseType.CANCEL
+        #widget.hide()
+        return True
+
     def yesno_dialog(self):
         dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.QUESTION,
                                    Gtk.ButtonsType.NONE)
+        dialog.connect("delete-event", self.on_delete_event)
         yes_button = Gtk.Button.new_with_mnemonic(_("_Yes"))
         no_button = Gtk.Button.new_with_mnemonic(_("_No"))
         yes_button.set_size_request(-1, 56)
@@ -270,7 +281,7 @@ class Dialogs(GObject.GObject):
         dialog.connect("response", self.on_yn_response)
         return dialog
 
-    def show_yesno_dialog(self, message, title = _("Operator Message")):
+    def show_yesno_dialog(self, _caller,message, title = _("Operator Message")):
         dialog = self.yn_dialog
         dialog.set_markup(message)
         if title:
@@ -301,6 +312,7 @@ class Dialogs(GObject.GObject):
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO,
                                    Gtk.ButtonsType.NONE)
+        dialog.connect("delete-event", self.on_delete_event)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)

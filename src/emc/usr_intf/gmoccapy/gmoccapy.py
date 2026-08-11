@@ -2201,7 +2201,7 @@ class gmoccapy(object):
 
         if value == "ERROR":
             LOG.debug("conversion error")
-            self.dialogs.warning_dialog(_("Conversion error !"),
+            self.dialogs.show_warning_dialog(_("Conversion error !"),
                                        ("Please enter only numerical values\nValues have not been applied"))
         elif value == "CANCEL":
             pass
@@ -2599,14 +2599,14 @@ class gmoccapy(object):
         row = store_path
         if self.widgets.offsetpage1.btn_edit_offsets.get_active() or \
                 self.touch_button_dic["edit_offsets"].get_active():
-            value = self.dialogs.show_entry_dialog(data=offsetpage.store[row][col],
+            offset = self.dialogs.show_entry_dialog(data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
                                         label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
 
             if offset == "ERROR":
                 LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                self.dialogs.show_warning_dialog(_("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
             elif offset == "CANCEL":
                 pass
@@ -2895,7 +2895,7 @@ class gmoccapy(object):
 
     def on_gremlin_gcode_error(self, widget, errortext):
         self.gcodeerror = errortext
-        self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
+        self.dialogs.show_warning_dialog(_("Important Warning"), errortext)
 
 
 # =========================================================
@@ -3276,7 +3276,7 @@ class gmoccapy(object):
 
         if value == "ERROR":
             LOG.debug("conversion error")
-            self.dialogs.warning_dialog(self, _("Conversion error !"),
+            self.dialogs.show_warning_dialog(_("Conversion error !"),
                                         ("Please enter only numerical values\nValues have not been applied"))
         elif value == "CANCEL":
             return
@@ -3484,7 +3484,7 @@ class gmoccapy(object):
 
             if parameter == "ERROR":
                 LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                self.dialogs.show_warning_dialog(_("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
                 return
             elif parameter == "CANCEL":
@@ -5696,8 +5696,7 @@ class gmoccapy(object):
                     message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
 
             result = self.dialogs.show_warning_dialog( _("Manual Tool change"),
-                     message, context='mantoolchange',
-                     confirm_pin = 'toolchange-confirm',
+                     message, confirm_pin = 'toolchange-confirm',
                      active_pin = 'toolchange-change')
 
             if result:
