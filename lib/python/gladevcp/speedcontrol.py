@@ -185,10 +185,8 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self.hal_pin_decrease.connect("value-changed", self._on_minus_changed)
 
         if self.type_linear_jog:
-            print('linear jograte ->>',self.type_linear_jog)
             self._status.connect('jograte-changed', lambda w, data: self.set_value(data))
         elif self.type_angular_jog:
-            print('Angular jograte ->>',self.type_angular_jog)
             self._status.connect('jograte-angular-changed', lambda w, data: self.set_value(data))
 
     # this draws our widget on the screen
@@ -476,7 +474,6 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
                 if name == "do_hide_button":
                     self.hide_button(value)
                 if name == "type":
-                    print(name,value)
                     if value == 0:
                         self.type_linear_jog = True
                         self.type_angular_jog = False
