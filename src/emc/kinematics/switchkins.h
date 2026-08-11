@@ -1,10 +1,10 @@
 /*
 ** License GPL Version 2
 */
-#ifndef SWITCHKINS_H // {
-#define SWITCHKINS_H
+#ifndef __LINUXCNC_SWITCHKINS_H
+#define __LINUXCNC_SWITCHKINS_H
 
-#include <kinematics.h>
+#include "kinematics.h"
 
 //SWITCHKINS_MAX_TYPES (max number of types a module may provide)
 //is in kinematics.h: motion and the NML status channel need it too
@@ -91,4 +91,4 @@ extern int switchkinsInit(const int   comp_id,
                           kparms*     ksetup_parms,
                           const char* coordinates
                          );
-#endif // }
+#endif
