@@ -128,6 +128,9 @@ program behavior in accordance with the active kinematics type.
 . *kinstype.is-1*           Output (bit)
 . *kinstype.is-2*           Output (bit)
 
+A module providing more than three kinematics types has one
+'kinstype.is-N' pin per type.
+
 == Usage
 
 === HAL Connections
@@ -388,13 +391,29 @@ routines and the functions for forward an inverse calculation for
 each kinstype (0,1,2) and sets a number of configuration
 settings.
 
+A module needing more than three kinstypes calls
+switchkinsRegister() from within switchkinsSetup() for each
+additional one:
+
+----
+int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
+----
+
+'ktype' runs from 3 to SWITCHKINS_MAX_TYPES-1 (defined in
+switchkins.h) and every kinstype below the highest one registered
+must be provided.  Each additional kinstype gets its own
+'kinstype.is-N' pin, so 'kinstype.is-0', 'kinstype.is-1' and
+'kinstype.is-2' keep the names they always had.
+
 After calling switchkinsSetup(), rtapi_app_main() checks the
 supplied parameters, creates a HAL component, and then invokes
-the setup routine identified for each kinstype (0,1,2).
+the setup routine identified for each kinstype.
 
-Each kinstype (0,1,2) setup routine can (optionally) create HAL
-pins and set them to default values.  When all setup routines
-finish, rtapi_app_main() issues hal_ready() for the component
-to complete creation of the module.
+Each kinstype setup routine can (optionally) create HAL
+pins and set them to default values.  A setup routine is called
+once per kinstype it is registered for, so a routine used for two
+kinstypes must not create the same pin twice.  When all setup
+routines finish, rtapi_app_main() issues hal_ready() for the
+component to complete creation of the module.
 
 // vim: set syntax=asciidoc:
