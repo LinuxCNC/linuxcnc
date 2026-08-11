@@ -861,8 +861,8 @@ int halui_hal_init(void)
     CHK(halui_export_pin_IN_bit(&(halui_data->mist_off), "halui.mist.off"));
     CHK(halui_export_pin_IN_bit(&(halui_data->flood_on), "halui.flood.on"));
     CHK(halui_export_pin_IN_bit(&(halui_data->flood_off), "halui.flood.off"));
-    CHK(halui_export_pin_IN_bit(&(halui_data->cycle_start), "halui.gui.cycle.start"));
-    CHK(halui_export_pin_IN_bit(&(halui_data->cycle_pause), "halui.gui.cycle.pause"));
+    CHK(halui_export_pin_IN_bit(&(halui_data->cycle_start), "halui.gui.cycle-start"));
+    CHK(halui_export_pin_IN_bit(&(halui_data->cycle_pause), "halui.gui.cycle-pause"));
     CHK(halui_export_pin_IN_bit(&(halui_data->program_run), "halui.program.run"));
     CHK(halui_export_pin_IN_bit(&(halui_data->program_pause), "halui.program.pause"));
     CHK(halui_export_pin_IN_bit(&(halui_data->program_resume), "halui.program.resume"));
@@ -955,18 +955,18 @@ int halui_hal_init(void)
 
     for (int n=0; n<num_gui_mdi_commands; n++) {
         printf("MDI name returned: %s %i\n", py_call_get_mdi_name(n),n);
-        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_mdi_commands[n]), 0, "halui.gui.mdi-command-%s", py_call_get_mdi_name(n)));
+        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_mdi_commands[n]), 0, "halui.gui.mdi-command.%s", py_call_get_mdi_name(n)));
     }
 
     for (int n=0; n<num_gui_soft_keys; n++) {
-        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_soft_keys[n]), 0, "halui.gui.softkey-%02d", n));
+        CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_soft_keys[n]), 0, "halui.gui.softkey.%02d", n));
     }
 
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_ok), 0, "halui.gui.ok"));
 
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_cancel), 0, "halui.gui.cancel"));
 
-    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_reload), 0, "halui.gui.reload-display"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_reload), 0, "halui.gui.reload-preview"));
 
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_shutdown), 0, "halui.gui.shutdown"));
 
