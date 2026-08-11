@@ -1191,3 +1191,11 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
 void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
 }
+
+void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+{
+    (void)adjustKinsVar0;
+    printf("saicanon: ADJUST_KINS_OFFSET\n");
+
+    return;
+}

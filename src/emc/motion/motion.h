@@ -176,6 +176,8 @@ extern "C" {
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
 	    EMCMOT_SET_AXIS_JERK_LIMIT,         /* set the max axis jerk */
 
+	EMCMOT_ADJUST_KINS_OFFSET_DATA,  /* set the offset in kins (G12.1) */
+
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
     } cmd_code_t;
@@ -270,6 +272,8 @@ extern "C" {
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
     struct state_tag_t tag;
+
+    double adjustKinsVar0;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -667,6 +671,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+
+	char   kinsType;
+	double adjustKinsVar0;
     } emcmot_status_t;
 
 /*********************************
@@ -738,6 +745,9 @@ Suggestion: Split this in to an Error and a Status flag register..
         double maxFeedScale;
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
+
+        double adjustKinsVar0;
+        char   kinsType;
     } emcmot_config_t;
 
 /* error structure - lockfree MPSC ring buffer. See emcmotutil.c. */

@@ -1205,6 +1205,17 @@ void ON_RESET() {
     drop_segments();
 }
 
+void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+{
+    flush_segments();
+
+    auto adjustKinsOffsetMsg = std::make_unique<EMC_ADJUST_KINS_OFFSET_DATA>();
+
+    adjustKinsOffsetMsg->adjustKinsVar0 = adjustKinsVar0;
+
+    interp_list.append(std::move(adjustKinsOffsetMsg));
+}
+
 
 CanonConfig_t& get_canon(){
     return canon;

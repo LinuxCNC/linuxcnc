@@ -890,6 +890,13 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
+void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+{
+    (void)adjustKinsVar0;
+    printf("gcodemodule: ADJUST_KINS_OFFSET\n");
+
+    return;
+}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}

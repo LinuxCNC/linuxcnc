@@ -111,7 +111,10 @@ EMC_MOTION_STAT::EMC_MOTION_STAT()
     eoffset_pose{},
     numExtraJoints(0),
     jogging_active(0),
-    heartbeat(0)
+    heartbeat(0),
+    trajKinsType(0),
+    trajKinsTypeModified(false),
+    adjustKinsVar0(0.0)
 {
 }
 

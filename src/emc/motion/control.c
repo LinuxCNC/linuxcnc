@@ -300,12 +300,34 @@ static bool joint_jog_is_active(void) {
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
+    static int prev_hal_switchkins_type = 0;
+    int requested_type;
 
     if (!kinematicsSwitchable()) return;
-    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
-    if (switchkins_type == hal_switchkins_type) return;
 
-    switchkins_type = hal_switchkins_type;
+    /* Two things can ask for a kinematics: G12.1/G13.1, and the
+       motion.switchkins-type pin.  Both are taken on their edge, so that
+       whichever asked most recently wins.  Writing the pin here instead
+       would not work: configs source it from an analog output, which
+       would put its own value back on the next servo cycle. */
+    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
+    requested_type      = switchkins_type;
+
+    if (emcmotStatus->kinsType != emcmotConfig->kinsType) {
+        requested_type         = (int)emcmotConfig->adjustKinsVar0;
+        emcmotStatus->kinsType = emcmotConfig->kinsType;
+    } else if (hal_switchkins_type != prev_hal_switchkins_type) {
+        requested_type = hal_switchkins_type;
+    }
+    prev_hal_switchkins_type = hal_switchkins_type;
+
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->adjustKinsVar0 = switchkins_type;
+    if (switchkins_type == requested_type) return;
+
+    switchkins_type = requested_type;
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->adjustKinsVar0 = switchkins_type;
 
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};

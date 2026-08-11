@@ -296,6 +296,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_SET_OFFSET_TYPE:
 	((EMC_TRAJ_SET_OFFSET *) buffer)->update(cms);
 	break;
+    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+	((EMC_ADJUST_KINS_OFFSET_DATA *) buffer)->update(cms);
+	break;
     case EMC_TRAJ_SET_G5X_TYPE:
 	((EMC_TRAJ_SET_G5X *) buffer)->update(cms);
 	break;
@@ -520,6 +523,8 @@ const char *emc_symbol_lookup(uint32_t type)
 	return "EMC_TRAJ_SET_MODE";
     case EMC_TRAJ_SET_OFFSET_TYPE:
 	return "EMC_TRAJ_SET_OFFSET";
+    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+	return "EMC_ADJUST_KINS_OFFSET_DATA";
     case EMC_TRAJ_SET_G5X_TYPE:
 	return "EMC_TRAJ_SET_G5X";
     case EMC_TRAJ_SET_G92_TYPE:
@@ -1589,6 +1594,13 @@ void EMC_TRAJ_SET_OFFSET::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &offset);
+}
+
+// cppcheck-suppress duplInheritedMember
+void EMC_ADJUST_KINS_OFFSET_DATA::update(CMS * cms)
+{
+    EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(adjustKinsVar0);
 }
 
 /*

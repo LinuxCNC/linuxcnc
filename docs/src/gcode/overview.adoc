@@ -503,6 +503,10 @@ can be added easily without changes to the source code.
 |      G89   | 890
 |===
 
+* '#<_kins_type>' - Kinematics selected by 'G12.1' or 'G13.1'. Returns the
+  'P' number of the last 'G12.1', or 0 after 'G13.1' or when no kinematics
+  has been selected. See <<gcode:g12.1-g13.1,G12.1, G13.1>>.
+
 * '#<_plane>' - returns the value designating the current plane:
 
 [width="20%",options="header"]

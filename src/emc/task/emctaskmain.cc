@@ -418,6 +418,8 @@ static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
 static int emcAuxInputWaitIndex = -1;
 
+static EMC_ADJUST_KINS_OFFSET_DATA *kSwitch_msg;
+
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
 //static EMC_TASK_PLAN_INIT taskPlanInitCmd;
@@ -1605,6 +1607,10 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
+    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
+	break;
+
     default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2427,6 +2433,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
+    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+	kSwitch_msg = (EMC_ADJUST_KINS_OFFSET_DATA *) cmd;
+	emcStatus->motion.adjustKinsVar0 = kSwitch_msg->adjustKinsVar0;
+	retval =  emcAdjustKinsOffset(kSwitch_msg->adjustKinsVar0);
+	break;
+
      default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2536,6 +2548,10 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
 	return EMC_TASK_EXEC::DONE;
+	break;
+
+    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+	return EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH;
 	break;
 
     default:
@@ -2757,6 +2773,17 @@ static int emcTaskExecute(void)
 		}
 	}
 	break;
+
+    case EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH:
+	{
+		if(emcStatus->motion.trajKinsTypeModified)
+		{
+			emcStatus->motion.trajKinsTypeModified = false;
+			emcTaskPlanSynch();
+			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		}
+		break;
+	}
 
     case EMC_TASK_EXEC::WAITING_FOR_DELAY:
 	STEPPING_CHECK();
