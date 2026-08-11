@@ -960,13 +960,27 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
     double vel, ini_maxvel, acc, scale, ini_maxjerk;
 };
 
+class EMC_ADJUST_KINS_OFFSET_DATA:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_ADJUST_KINS_OFFSET_DATA():EMC_TRAJ_CMD_MSG(EMC_ADJUST_KINS_OFFSET_DATA_TYPE,
+                        sizeof(EMC_ADJUST_KINS_OFFSET_DATA)),
+        adjustKinsVar0(0.0)
+    {};
+
+    double adjustKinsVar0;
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+};
+
 // EMC_TRAJ status base class
 class EMC_TRAJ_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_TRAJ_STAT_MSG(NMLTYPE t, size_t s)
       : RCS_STAT_MSG(t, s)
     {};
-
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
@@ -1167,6 +1181,10 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int numExtraJoints;
     bool jogging_active;
     uint64_t heartbeat;  // motion controller's heartbeat counter
+
+    char trajKinsType;
+    bool trajKinsTypeModified;
+    double adjustKinsVar0;
 };
 
 // declarations for EMC_TASK classes
