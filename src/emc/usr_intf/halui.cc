@@ -696,7 +696,7 @@ static char* py_call_get_mdi_name( int num) {
                     PyObject *pBytes = PyUnicode_AsUTF8String(pValue);
                     char *result_string = PyBytes_AsString(pBytes);
                     Py_XDECREF(pBytes);
-                    printf("Python function returned: %s %i\n", result_string,num);
+                    //printf("Python function returned: %s %i\n", result_string,num);
                     Py_DECREF(pValue);
                     Py_DECREF(pFuncWrite);
                     return result_string;
@@ -954,7 +954,7 @@ int halui_hal_init(void)
     }
 
     for (int n=0; n<num_gui_mdi_commands; n++) {
-        printf("MDI name returned: %s %i\n", py_call_get_mdi_name(n),n);
+        //printf("MDI name returned: %s %i\n", py_call_get_mdi_name(n),n);
         CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_mdi_commands[n]), 0, "halui.gui.mdi-command.%s", py_call_get_mdi_name(n)));
     }
 
@@ -1541,7 +1541,6 @@ static int iniLoad(const char *filename)
 
     int temp = py_call_get_mdi_count();
     for (int n=0; n<temp; n++) {
-        printf("MDI process %i\n", n);
         gui_mdi_commands[num_gui_mdi_commands++] = py_call_get_mdi_name(n);
     }
 
@@ -1976,12 +1975,10 @@ static void check_hal_changes()
 	sendFloodOff();
 
     if (check_bit_changed(new_halui_data.cycle_start, old_halui_data.cycle_start) != 0){
-        fprintf(stderr, "cycle-start value = %i\n", new_halui_data.cycle_start );
         py_call_cycleStart();
     }
 
     if (check_bit_changed(new_halui_data.cycle_pause, old_halui_data.cycle_pause) != 0){
-        fprintf(stderr, "cycle-pause value = %i\n", new_halui_data.cycle_pause );
         py_call_cyclePause();
     }
 
@@ -2173,7 +2170,6 @@ static void check_hal_changes()
         ajog_speed_changed = 1;
         lastjogspeed = jogspeed;
         internaljogspeed = jogspeed;
-        fprintf(stderr, "JogRate value = %f\n", jogspeed );
     }
 
     // if the ANGULAR jog-speed changes while in a continuous jog, we want to
@@ -2193,7 +2189,6 @@ static void check_hal_changes()
         ajog_speed_changed = 1;
         lastangularjogspeed = angularjogspeed;
         internalangularjogspeed = angularjogspeed;
-        fprintf(stderr, "angular JogRate value = %f\n", angularjogspeed );
     }
 
 
@@ -2374,7 +2369,7 @@ static void check_hal_changes()
     }
 
     if (aselect_changed >= 0) {
-        fprintf(stderr, "halui Bridge: axis selected %d\n",aselect_changed);
+        //fprintf(stderr, "halui Bridge: axis selected %d\n",aselect_changed);
         for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
             if ( !(axis_mask & (1 << axis_num)) ) { continue; }
             if (axis_num != aselect_changed) {
@@ -2393,7 +2388,6 @@ static void check_hal_changes()
 
                 hal_set_bool(halui_data->axis_is_selected[axis_num], 1);
                 if (hal_get_bool(halui_data->ajog_plus[num_axes])) {
-                    fprintf(stderr, "halui: jog plus: %d\n",num_axes);
                     sendJogCont(axis_num, tempjogspeed,JOGTELEOP);
                 } else if (hal_get_bool(halui_data->ajog_minus[num_axes])) {
                     sendJogCont(axis_num, -tempjogspeed,JOGTELEOP);
@@ -2507,7 +2501,6 @@ static void check_hal_changes()
     // request GUI to run MDI commands
     for(int n = 0; n < num_gui_mdi_commands; n++) {
         if (check_bit_changed(new_halui_data.gui_mdi_commands[n], old_halui_data.gui_mdi_commands[n]) != 0){
-            fprintf(stderr,"GUI MDI command called index: %i\n", n);
             py_call_request_MDI(n);
         }
     }
@@ -2515,28 +2508,23 @@ static void check_hal_changes()
     // request GUI soft keys
     for(int n = 0; n < num_gui_soft_keys; n++) {
         if (check_bit_changed(new_halui_data.gui_soft_keys[n], old_halui_data.gui_soft_keys[n]) != 0){
-            fprintf(stderr,"GUI SOFTKEY called index: %i\n", n);
             py_call_request_softkey(n);
         }
     }
 
     if (check_bit_changed(new_halui_data.gui_ok, old_halui_data.gui_ok) != 0) {
-        fprintf(stderr,"GUI OK command called\n");
         py_call_ok();
     }
 
     if (check_bit_changed(new_halui_data.gui_cancel, old_halui_data.gui_cancel) != 0) {
-        fprintf(stderr,"GUI CANCEL command called\n");
         py_call_cancel();
     }
 
     if (check_bit_changed(new_halui_data.gui_reload, old_halui_data.gui_reload) != 0) {
-        fprintf(stderr,"GUI RELOAD DISPLAY command called\n");
         py_call_reload_display();
     }
 
     if (check_bit_changed(new_halui_data.gui_shutdown, old_halui_data.gui_shutdown) != 0) {
-        fprintf(stderr,"GUI SHUTDOWN command called\n");
         py_call_shutdown_controller();
     }
 
