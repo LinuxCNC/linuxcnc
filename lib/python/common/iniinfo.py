@@ -18,7 +18,7 @@ class _IStat(object):
         global LOG
         LOG = logger.getLogger(__name__)
         # Force the log level for this module only
-        LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+        #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
         inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.LINUXCNC_IS_RUNNING = bool(inipath != '/dev/null')
@@ -641,7 +641,7 @@ class _IStat(object):
                             LOG.error('INI MDI command parse error:{}'.format(e))
             except Exception as e:
                 LOG.error('INI MDI command parse error:{}'.format(e))
-            print(self.MDI_COMMAND_DICT)
+            #print(self.MDI_COMMAND_DICT)
 
         ################
         # MACRO commands #
@@ -940,16 +940,25 @@ class _IStat(object):
         using an integer is the legacy way to refer to the nth line.
         using a string will refer to the specific command regardless what line 
         it is on."""
+        # try the string:
         try:
-            # should fail if not string
             return self.MDI_COMMAND_DICT[key]['cmd']
-        except:
-            # fallback to legacy variable
-            try:
-                # should fail if not int
-                return self.MDI_COMMAND_LIST[key]
-            except:
-                return None
+        except Exception as e:
+            LOG.verbose(e)
+        # try an integer by finding the nth string:
+        try:
+            keystr=list(self.MDI_COMMAND_DICT.keys())[int(key)]
+            return self.MDI_COMMAND_DICT[keystr]['cmd']
+        except Exception as e:
+            LOG.verbose(e)
+
+        # fallback to legacy variable
+        try:
+            # should fail if not int
+            return self.MDI_COMMAND_LIST[int(key)]
+        except Exception as e:
+            LOG.verbose(e)
+            return None
 
     def get_ini_mdi_label(self, key):
         """ returns A MDI label string from the INI heading [MDI_COMMAND_LIST] or None
