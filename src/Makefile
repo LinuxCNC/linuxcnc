@@ -170,7 +170,7 @@ GENERATED_MANPAGES :=
 
 # Submakefiles from each of these directories will be included if they exist
 ifeq ($(BUILD_GUI),yes)
-GUI_SUBDIRS := emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
+GUI_SUBDIRS := emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
     emc/usr_intf/gmoccapy emc/usr_intf/qtplasmac emc/usr_intf/mdro
 endif
@@ -191,7 +191,7 @@ SUBDIRS := \
 	hal/user_comps/xhc-whb04b-6 \
     \
     $(GUI_SUBDIRS) \
-    emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
+    emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
@@ -692,7 +692,9 @@ ifeq ($(BUILD_MANPAGES),yes)
 	$(FILE) $(wildcard ../docs/build/man/man3/*.3) $(DESTDIR)$(mandir)/man3
 	$(FILE) $(wildcard ../docs/build/man/man9/*.9) $(DESTDIR)$(mandir)/man9
 endif
+ifeq ($(BUILD_GUI),yes)
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
+endif
 	$(EXE) ../scripts/realtime $(DESTDIR)$(prefix)/lib/linuxcnc
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halcmd_twopass $(DESTDIR)$(bindir)
@@ -701,7 +703,9 @@ endif
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 	$(FILE) ../lib/hallib/*   $(DESTDIR)$(datadir)/linuxcnc/hallib
+ifeq ($(BUILD_GUI),yes)
 	$(FILE) ../tcl/*.png $(DESTDIR)$(tcldir)
+endif
 
 	# install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
@@ -732,17 +736,17 @@ endif
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
-	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc
-	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 ifeq ($(BUILD_GUI),yes)
+	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
+	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/linuxcnc.so $(DESTDIR)$(tcldir)
-endif
 	$(FILE) ../tcl/pkgIndex.tcl $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
+endif
 ifeq ($(BUILD_GUI),yes)
 	$(FILE) ../share/linuxcnc/*.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/stepconf/*.glade $(DESTDIR)$(prefix)/share/linuxcnc/stepconf
@@ -824,12 +828,12 @@ endif
 	$(EXE) ../bin/z_level_compensation $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pmx485 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/sim-torch $(DESTDIR)$(bindir)
-	$(EXE) ../bin/axis-remote $(DESTDIR)$(bindir)
 	$(EXE) ../bin/debuglevel $(DESTDIR)$(bindir)
 	$(EXE) ../bin/linuxcnctop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mdi $(DESTDIR)$(bindir)
-	$(EXE) ../bin/hal_manualtoolchange $(DESTDIR)$(bindir)
 ifeq ($(BUILD_GUI),yes)
+	$(EXE) ../bin/hal_manualtoolchange $(DESTDIR)$(bindir)
+	$(EXE) ../bin/axis-remote $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)

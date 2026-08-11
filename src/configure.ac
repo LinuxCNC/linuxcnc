@@ -699,6 +699,8 @@ AC_ARG_WITH([tcl-dir],
            [
             if test "$BUILD_GUI" = "yes"; then
                 AC_MSG_ERROR([could not determine Tcl package dir from tcl_pkgPath])
+            else
+                TCL_GET_DIR="${libdir}/tcltk"
             fi
            ])
      EMC2_TCL_DIR="$TCL_GET_DIR/linuxcnc"])
@@ -818,9 +820,6 @@ AC_ARG_ENABLE(gui,
     AS_HELP_STRING([--disable-gui], [Disable building graphical user interfaces (Tk, Tcl, X11, Xinerama, GTK)]),
     [BUILD_GUI=$enableval],
     [BUILD_GUI=yes])
-if test "$BUILD_GUI" = "no"; then
-    BUILD_GTK=no
-fi
 AC_SUBST([BUILD_GUI])
 
 AC_ARG_ENABLE(gtk,
@@ -836,7 +835,7 @@ AC_ARG_ENABLE(gtk,
 	    BUILD_GTK=no ;;
 	esac
     ],
-    [BUILD_GTK=yes])
+    [BUILD_GTK=$BUILD_GUI])
 
 if test "$BUILD_GTK" = "yes"; then
   AC_MSG_CHECKING([for GTK 3.22.4 or above])
@@ -1089,7 +1088,7 @@ AC_ARG_ENABLE(build-documentation,
 # only the missing PDF tools; users who want PDF best-effort can pass
 # =html and rebuild after installing the missing tools.
 AC_ARG_ENABLE(manpages,
-    [  --disable-manpages      Disable building man pages],
+    AS_HELP_STRING([--disable-manpages], [Disable building man pages]),
     [BUILD_MANPAGES=$enableval],
     [BUILD_MANPAGES=yes])
 AC_SUBST([BUILD_MANPAGES])
