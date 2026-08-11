@@ -10,15 +10,14 @@ rotary axis.
 
 type1 is a turn (Z-YX) configuration with A configured to be a spindle.
 
+The kinematics-type switching, the *kinstype.is-N* pins and the
+joints-to-coordinates mapping are provided by switchkins.c, so the
+*coordinates=* module parameter and the kinematics switching described in
+the switchkins document chapter apply here too.
+
 For an example configuration, run the sim config: 'configs/sim/axis/vismach/millturn/millturn.ini'.
 
 Further explanations can be found in the README in 'configs/sim/axis/vismach/millturn'.
-
-millturn.comp was constructed by modifying the template file:
-userkins.comp.
-
-For more information on how to modify userkins.comp run: $ man
-userkins.   Also, see additional information inside: 'userkins.comp'.
 
 For information on kinematics in general see the kinematics
 document chapter (docs/src/motion/kinematics.txt) and for
@@ -27,7 +26,7 @@ chapter (docs/src/motion/switchkins.txt)
 
 """;
 // The fpin pin is not accessible in kinematics functions.
-// Use EXTRA_SETUP() for pins and params used by kinematics.
+// Use the *_setup() function for pins and params used by kinematics.
 pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
 option extra_setup;
@@ -36,20 +35,10 @@ license "GPL";
 author "David Mueller";
 ;;
 
-#include <kinematics.h>
+#include <switchkins.h>
 
-static struct haldata {
-  // Example pin pointers:
-  hal_uint_t in;
-  hal_uint_t out;
-  // Example parameters:
-  //hal_real_t param_rw;
-  //hal_real_t param_ro;
-
-  //Declare hal pin pointers used for switchable kinematics
-  hal_bool_t kinstype_is_0;
-  hal_bool_t kinstype_is_1;
-} *haldata;
+static char *coordinates;
+RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 
 FUNCTION(fdemo) {
    // This function can be added to a thread (addf) for
@@ -60,111 +49,30 @@ FUNCTION(fdemo) {
    fpin_set(fpin + 1);
 }
 
-EXTRA_SETUP() {
-    (void)__comp_inst;
-    (void)prefix;
-    (void)extra_arg;
-#define HAL_PREFIX "millturn"
-    int res=0;
-
-    // inherit comp_id from rtapi_main()
-    if (comp_id < 0) goto error;
-
-    haldata = hal_malloc(sizeof(*haldata));
-    if (!haldata) goto error;
-
-    // hal pin examples:
-    res += hal_pin_new_ui32(comp_id, HAL_IN,  &haldata->in,  0, "%s.in",  HAL_PREFIX);
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->out, 0, "%s.out", HAL_PREFIX);
-    // hal parameter examples:
-    //res += hal_param_new_real(comp_id, HAL_RW, &haldata->param_rw, 0.0, "%s.param-rw", HAL_PREFIX);
-    //res += hal_param_new_real(comp_id, HAL_RO, &haldata->param_ro, 0.0, "%s.param-ro", HAL_PREFIX);
-
-    // hal pins required for switchable kinematics:
-    //default at startup -> mill configuration
-    //-> turn configuration
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_0, 1, "kinstype.is-0");
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_1, 0, "kinstype.is-1");
-
-    if (res) goto error;
-    rtapi_print("*** %s setup ok\n",__FILE__);
+// the turn kinematics need no hal pins of their own
+static int turnKinematicsSetup(const int   comp_id,
+                               const char* coords,
+                               kparms*     kp)
+{
+    (void)comp_id;
+    (void)coords;
+    (void)kp;
     return 0;
-error:
-    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
-    return -1;
-#undef HAL_PREFIX
-}
+} // turnKinematicsSetup()
 
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsSwitchable);
-EXPORT_SYMBOL(kinematicsSwitch);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsJacobian);
-EXPORT_SYMBOL(kinematicsForward);
-
-static rtapi_u32 switchkins_type;
-
-int kinematicsSwitchable() {return 1;}
-
-int kinematicsSwitch(int new_switchkins_type)
-{
-    switchkins_type = new_switchkins_type;
-    rtapi_print("kinematicsSwitch(): type=%d\n",switchkins_type);
-    // create case structure for switchable kinematics
-    switch (switchkins_type) {
-        case 0: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE0\n");
-                hal_set_bool(haldata->kinstype_is_0, 1);
-                hal_set_bool(haldata->kinstype_is_1, 0);
-                break;
-        case 1: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE1\n");
-                hal_set_bool(haldata->kinstype_is_0, 0);
-                hal_set_bool(haldata->kinstype_is_1, 1);
-                break;
-       default: rtapi_print_msg(RTAPI_MSG_ERR,
-                "kinematicsSwitch:BAD VALUE <%d>\n",
-                switchkins_type);
-                hal_set_bool(haldata->kinstype_is_1, 0);
-                hal_set_bool(haldata->kinstype_is_0, 0);
-                return -1; // FAIL
-    }
-    return 0; // ok
-}
-
-KINEMATICS_TYPE kinematicsType()
-{
-    return KINEMATICS_BOTH; // set as required
-           // Note: If kinematics are identity, using KINEMATICS_BOTH
-           //       may be used in order to allow a gui to display
-           //       joint values in preview prior to homing
-} // kinematicsType()
-
-static bool is_ready=0;
-int kinematicsForward(const double *j,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+static int turnKinematicsForward(const double *j,
+                                 EmcPose * pos,
+                                 const KINEMATICS_FORWARD_FLAGS * fflags,
+                                 KINEMATICS_INVERSE_FLAGS * iflags)
 {
     (void)fflags;
     (void)iflags;
-    static bool gave_msg;
-    // define forward kinematic models using case structure for
-    // for switchable kinematics
-    switch (switchkins_type) {
-        case 0:
-            pos->tran.x = j[0];
-            pos->tran.y = j[1];
-            pos->tran.z = j[2];
-            pos->a      = j[3];
-            break;
-        case 1:
-            pos->tran.x = j[2];
-            pos->tran.y = -j[1];
-            pos->tran.z = j[0];
-            pos->a      = j[3];
-            break;
-    }
+
+    pos->tran.x =  j[2];
+    pos->tran.y = -j[1];
+    pos->tran.z =  j[0];
+    pos->a      =  j[3];
+
     // unused coordinates:
     pos->b = 0;
     pos->c = 0;
@@ -172,77 +80,68 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (hal_get_ui32(haldata->in) && !is_ready && !gave_msg) {
-       rtapi_print_msg(RTAPI_MSG_ERR,
-                       "%s the 'in' pin not echoed until Inverse called\n",
-                      __FILE__);
-       gave_msg=1;
-    }
     return 0;
-} // kinematicsForward()
+} // turnKinematicsForward()
 
-int kinematicsInverse(const EmcPose * pos,
-                      double *j,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int turnKinematicsInverse(const EmcPose * pos,
+                                 double *j,
+                                 const KINEMATICS_INVERSE_FLAGS * iflags,
+                                 KINEMATICS_FORWARD_FLAGS * fflags)
 {
     (void)iflags;
     (void)fflags;
-    is_ready = 1; // Inverse is not called until homed for KINEMATICS_BOTH
 
-    // Update the kinematic joints specified by the
-    // [KINS]JOINTS setting (4 required for this template).
-    // define forward kinematic models using case structure for
-    // for switchable kinematics
-    switch (switchkins_type) {
-        case 0:
-            j[0] = pos->tran.x;
-            j[1] = pos->tran.y;
-            j[2] = pos->tran.z;
-            j[3] = pos->a;
-            break;
-        case 1:
-            j[2] = pos->tran.x;
-            j[1] = -pos->tran.y;
-            j[0] = pos->tran.z;
-            j[3] = pos->a;
-            break;
-    }
-
-    //example hal pin update (homing reqd before kinematicsInverse)
-    hal_set_ui32(haldata->out, hal_get_ui32(haldata->in)); //dereference
-    //read from param example: *haldata->out = hal_get_real(haldata->param_rw);
+    j[0] =  pos->tran.z;
+    j[1] = -pos->tran.y;
+    j[2] =  pos->tran.x;
+    j[3] =  pos->a;
 
     return 0;
-} // kinematicsInverse()
+} // turnKinematicsInverse()
 
-int kinematicsJacobian(const double *j,
-                       const EmcPose * pos,
-                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                       const KINEMATICS_INVERSE_FLAGS * iflags)
+static int turnKinematicsJacobian(const double *j,
+                                  const EmcPose * pos,
+                                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                  const KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    int r, c;
+    int R, C;
     (void)j;
     (void)pos;
     (void)iflags;
-    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
-        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    for (R = 0; R < EMCMOT_MAX_JOINTS; R++) {
+        for (C = 0; C < EMCMOT_MAX_AXIS; C++) { jac[R][C] = 0; }
     }
-    // the derivative of kinematicsInverse() for each type: which joint
-    // follows which pose coordinate, and in which sense
-    switch (switchkins_type) {
-        case 0:
-            jac[0][0] = 1;
-            jac[1][1] = 1;
-            jac[2][2] = 1;
-            jac[3][3] = 1;
-            break;
-        case 1:
-            jac[2][0] = 1;
-            jac[1][1] = -1;
-            jac[0][2] = 1;
-            jac[3][3] = 1;
-            break;
-    }
+    // the derivative of turnKinematicsInverse(): which joint follows which
+    // pose coordinate, and in which sense
+    jac[2][0] =  1;
+    jac[1][1] = -1;
+    jac[0][2] =  1;
+    jac[3][3] =  1;
     return 0;
-} // kinematicsJacobian()
+} // turnKinematicsJacobian()
+
+// halcompile has done hal_init() and does hal_ready() after this returns,
+// which is what switchkinsInit() expects
+EXTRA_SETUP() {
+    kparms kp;
+    (void)__comp_inst; (void)prefix; (void)extra_arg;
+
+    kp.kinsname    = "millturn";
+    kp.halprefix   = "millturn";
+    kp.required_coordinates = "xyza";
+    kp.allow_duplicates     = 0;
+    kp.fwd_iterates_mask    = 0;
+    kp.gui_kinstype         = -1;
+    kp.sparm                = NULL;
+    kp.max_joints           = strlen(kp.required_coordinates);
+
+    if (switchkinsRegister(0, identityKinematicsSetup,
+                              identityKinematicsForward,
+                              identityKinematicsInverse)) { return -1; }
+    if (switchkinsRegister(1, turnKinematicsSetup,
+                              turnKinematicsForward,
+                              turnKinematicsInverse))     { return -1; }
+    if (switchkinsRegisterJacobian(1, turnKinematicsJacobian)) { return -1; }
+
+    return switchkinsInit(comp_id, &kp, coordinates);
+} // EXTRA_SETUP()
