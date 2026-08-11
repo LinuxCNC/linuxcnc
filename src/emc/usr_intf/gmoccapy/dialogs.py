@@ -270,7 +270,7 @@ class Dialogs(GObject.GObject):
         dialog.connect("response", self.on_yn_response)
         return dialog
 
-    def show_yesno_dialog(self, message, title = _("Operator Message")):
+    def show_yesno_dialog(self, _caller,message, title = _("Operator Message")):
         dialog = self.yn_dialog
         dialog.set_markup(message)
         if title:
