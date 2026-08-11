@@ -2435,7 +2435,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
 	kSwitch_msg = (EMC_ADJUST_KINS_OFFSET_DATA *) cmd;
-	emcStatus->motion.adjustKinsVar0 = kSwitch_msg->adjustKinsVar0;
 	retval =  emcAdjustKinsOffset(kSwitch_msg->adjustKinsVar0);
 	break;
 

@@ -2131,6 +2131,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
         stat->trajKinsType = emcmotStatus.kinsType;
         stat->trajKinsTypeModified = true;
     }
+    // the kinematics motion is running, whoever selected it
+    stat->adjustKinsVar0 = emcmotStatus.adjustKinsVar0;
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
