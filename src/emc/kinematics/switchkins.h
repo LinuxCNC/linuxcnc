@@ -1,10 +1,10 @@
 /*
 ** License GPL Version 2
 */
-#ifndef SWITCHKINS_H // {
-#define SWITCHKINS_H
+#ifndef __LINUXCNC_SWITCHKINS_H
+#define __LINUXCNC_SWITCHKINS_H
 
-#include <kinematics.h>
+#include "kinematics.h"
 
 //max number of switchkins types (KS,KF,KI) a module may provide:
 #define SWITCHKINS_MAX_TYPES 9
@@ -44,4 +44,4 @@ extern int switchkinsInit(const int   comp_id,
                           kparms*     ksetup_parms,
                           const char* coordinates
                          );
-#endif // }
+#endif
