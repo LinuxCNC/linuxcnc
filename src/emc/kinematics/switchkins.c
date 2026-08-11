@@ -128,6 +128,15 @@ int kinematicsSwitchable() {return 1;}
 int kinematicsSwitch(int new_switchkins_type)
 {
     int k;
+
+    // reject first, so a bad request leaves the running kinematics alone
+    if (new_switchkins_type < 0 || new_switchkins_type >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "kinematicsSwitch:BAD VALUE <%d>\n",
+                        new_switchkins_type);
+        return -1; // FAIL
+    }
+
     for (k=0; k< SWITCHKINS_MAX_TYPES; k++) { use_lastpose[k] = 0;}
 
     switchkins_type = new_switchkins_type;
@@ -150,13 +159,6 @@ int kinematicsSwitch(int new_switchkins_type)
                 hal_set_bool(swdata->kinstype_is_1, 0);
                 hal_set_bool(swdata->kinstype_is_2, 1);
                 break;
-       default: rtapi_print_msg(RTAPI_MSG_ERR,
-                "kinematicsSwitch:BAD VALUE <%d>\n",
-                switchkins_type);
-                hal_set_bool(swdata->kinstype_is_1, 0);
-                hal_set_bool(swdata->kinstype_is_0, 0);
-                hal_set_bool(swdata->kinstype_is_2, 0);
-                return -1; // FAIL
     }
     if (fwd_iterates[switchkins_type]) {
         use_lastpose[switchkins_type] = 1; // restarting a kins types
