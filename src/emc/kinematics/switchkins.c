@@ -43,8 +43,9 @@ static KS ksetups[SWITCHKINS_MAX_TYPES] = {NULL};
 static KF kfwds[SWITCHKINS_MAX_TYPES]   = {NULL};
 static KI kinvs[SWITCHKINS_MAX_TYPES]   = {NULL};
 
-// types provided: 3 from switchkinsSetup(), more from switchkinsRegister()
-static int kins_count = 3;
+// types provided, counted in rtapi_app_main() once they are all in
+static int kins_count;
+static int register_error;
 
 static int switchkins_type;
 static struct swdata {
@@ -218,17 +219,24 @@ KINEMATICS_TYPE kinematicsType()
 
 int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv)
 {
-    if (ktype < 3 || ktype >= SWITCHKINS_MAX_TYPES) {
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkinsRegister: BAD switchkins_type <%d>"
-                        " (must be 3..%d)\n",
+                        " (must be 0..%d)\n",
                         ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    if (ksetups[ktype] || kfwds[ktype] || kinvs[ktype]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegister: switchkins-type %d"
+                        " already provided\n", ktype);
+        register_error = 1;
         return -1;
     }
     ksetups[ktype] = kset;
     kfwds[ktype]   = kfwd;
     kinvs[ktype]   = kinv;
-    if (ktype >= kins_count) { kins_count = ktype + 1; }
     return 0;
 } // switchkinsRegister()
 
@@ -264,12 +272,19 @@ int rtapi_app_main(void)
 
     kp.sparm = sparm; // module parm passed to kins
 
-    // may call switchkinsRegister() for types above 2
+    // may also call switchkinsRegister()
     res = switchkinsSetup(&kp,
                           &ksetups[0], &ksetups[1], &ksetups[2],
                           &kfwds[0],   &kfwds[1],   &kfwds[2],
                           &kinvs[0],   &kinvs[1],   &kinvs[2]);
     if (res) {emsg="switchkinsSetp FAIL"; goto error;}
+    if (register_error) {emsg="switchkinsRegister FAIL"; goto error;}
+
+    // the highest type provided by either route sets the count
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
+        if (ksetups[i] || kfwds[i] || kinvs[i]) { kins_count = i + 1; }
+    }
+    if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
 
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
        if (kp.fwd_iterates_mask & (1<<i)) {
@@ -292,10 +307,16 @@ int rtapi_app_main(void)
         emsg = "bogus gui_kinstype"; goto error;
     }
 
+    // a type left out below the highest one provided is a gap, not a count
     for (i=0; i < kins_count; i++) {
-        if (!ksetups[i]) { emsg = "Missing setup function"; goto error; }
-        if (!kfwds[i])   { emsg = "Missing fwd function";   goto error; }
-        if (!kinvs[i])   { emsg = "Missing inv function";   goto error; }
+        if (ksetups[i] && kfwds[i] && kinvs[i]) { continue; }
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkins: switchkins-type %d incomplete:%s%s%s\n",
+                        i,
+                        ksetups[i] ? "" : " no setup",
+                        kfwds[i]   ? "" : " no forward",
+                        kinvs[i]   ? "" : " no inverse");
+        emsg = "incomplete switchkins-type"; goto error;
     }
 
     comp_id = hal_init(kp.kinsname);

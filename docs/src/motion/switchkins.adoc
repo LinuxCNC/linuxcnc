@@ -391,19 +391,23 @@ routines and the functions for forward an inverse calculation for
 each kinstype (0,1,2) and sets a number of configuration
 settings.
 
-A module needing more than three kinstypes calls
-switchkinsRegister() from within switchkinsSetup() for each
-additional one:
+A module can provide further kinstypes by calling
+switchkinsRegister() from within switchkinsSetup(), once per
+kinstype:
 
 ----
 int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 ----
 
-'ktype' runs from 3 to SWITCHKINS_MAX_TYPES-1 (defined in
-switchkins.h) and every kinstype below the highest one registered
-must be provided.  Each additional kinstype gets its own
-'kinstype.is-N' pin, so 'kinstype.is-0', 'kinstype.is-1' and
-'kinstype.is-2' keep the names they always had.
+'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
+switchkins.h).  A kinstype has to come from one route or the
+other, so registering one that switchkinsSetup() has already
+filled in is an error, and so is leaving a gap below the highest
+kinstype provided.  Either mistake fails the module load and says
+which kinstype is at fault.
+
+Each kinstype gets its own 'kinstype.is-N' pin, so a module
+providing the usual three keeps the pin names it always had.
 
 After calling switchkinsSetup(), rtapi_app_main() checks the
 supplied parameters, creates a HAL component, and then invokes

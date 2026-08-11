@@ -35,6 +35,6 @@ extern int switchkinsSetup(kparms* ksetup_parms,
                            KI* kinv0, KI* kinv1, KI* kinv2
                           );
 
-// called from switchkinsSetup() for each type above 2
+// called from switchkinsSetup(), once per type it does not provide itself
 extern int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 #endif // }
