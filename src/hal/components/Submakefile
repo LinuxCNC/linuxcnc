@@ -92,11 +92,20 @@ endif
 
 obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
 
+# A component that links objects besides its own names them here as
+# <component>-extra-objs.  The list is expanded when the .mak is written,
+# so it has to be defined in this file (which the .mak depends on).
+SWITCHKINS_OBJS := emc/kinematics/switchkins.o emc/kinematics/kins_util.o
+millturn-extra-objs       := $(SWITCHKINS_OBJS)
+xyzab_tdr_kins-extra-objs := $(SWITCHKINS_OBJS)
+xyzacb_trsrn-extra-objs   := $(SWITCHKINS_OBJS)
+xyzbca_trsrn-extra-objs   := $(SWITCHKINS_OBJS)
+
 objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
 	@mkdir -p $(dir $@)
-	$(Q)echo $(notdir $*)-objs := objects/$*.o > $@.tmp
-	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
+	$(Q)echo $(notdir $*)-objs := objects/$*.o $($(notdir $*)-extra-objs) > $@.tmp
+	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o $(addprefix objects/rt,$($(notdir $*)-extra-objs)) >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
 objects/%.c: %.comp ../bin/halcompile

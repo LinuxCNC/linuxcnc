@@ -44,6 +44,10 @@ The following kinematics modules support switchable kinematics:
 . *three21kins*     (type0:three21kins    type1:identity)
 . *scarakins*      (type0:scarakins      type1:identity)
 . *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
+. *millturn*       (type0:identity       type1:turn)
+. *xyzab_tdr_kins* (type0:identity       type1:tcp)
+. *xyzacb_trsrn*   (type0:identity       type1:tcp        type2:tool)
+. *xyzbca_trsrn*   (type0:identity       type1:tcp        type2:tool)
 
 The xyz[ab]c-trt-kins modules by default use type0==xyz[ab]c-trt-kins
 for backwards compatibility.  The provided sim configs alter the
@@ -333,6 +337,10 @@ configs/sim/axis/vismach/ .
 . puma/puma560.ini (genserkins)
 . puma/puma.ini (pumakins)
 . hexapod-sim/hexapod.ini (genhexkins)
+. millturn/millturn.ini (millturn)
+. 5axis/table-dual-rotary/xyzab-tdr.ini (xyzab_tdr_kins)
+. 5axis/table-rotary_spindle-rotary-nutating/xyzacb-trsrn_twp/xyzacb-trsrn.ini (xyzacb_trsrn)
+. 5axis/table-rotary_spindle-rotary-nutating/xyzbca-trsrn_twp/xyzbca-trsrn.ini (xyzbca_trsrn)
 
 == User kinematics provisions
 
@@ -380,19 +388,14 @@ protocols.
 == Code Notes
 
 Kinematic modules providing switchkins functionality are linked to
-the switchkins.o object (switchkins.c) that provides the module
-'main' program (rtapi_app_main()) and related functions.  This
-'main' program reads (optional) module command-line parameters
-(coordinates, sparm) and passes them to the module-provided
-function switchkinsSetup().
+the switchkins.o object (switchkins.c).  It provides
+kinematicsForward(), kinematicsInverse(), kinematicsSwitch() and
+the rest of the kinematics interface, dispatching each call to the
+kinstype currently selected, and it creates the HAL pins common to
+all switchkins modules.  It does not provide the module 'main'
+program, so a module can get that from wherever suits it.
 
-The switchkinsSetup() function identifies kinstype-specific setup
-routines and the functions for forward an inverse calculation for
-each kinstype (0,1,2) and sets a number of configuration
-settings.
-
-A module can provide further kinstypes by calling
-switchkinsRegister() from within switchkinsSetup(), once per
+A kinstype is supplied by calling switchkinsRegister(), once per
 kinstype:
 
 ----
@@ -400,24 +403,59 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 ----
 
 'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
-switchkins.h).  A kinstype has to come from one route or the
-other, so registering one that switchkinsSetup() has already
-filled in is an error, and so is leaving a gap below the highest
-kinstype provided.  Either mistake fails the module load and says
-which kinstype is at fault.
+switchkins.h).  Registering a kinstype twice is an error, and so is
+leaving a gap below the highest kinstype provided.  Either mistake
+fails the module load and says which kinstype is at fault.
 
 Each kinstype gets its own 'kinstype.is-N' pin, so a module
 providing the usual three keeps the pin names it always had.
 
-After calling switchkinsSetup(), rtapi_app_main() checks the
-supplied parameters, creates a HAL component, and then invokes
-the setup routine identified for each kinstype.
+When every kinstype is registered, the module calls:
+
+----
+int switchkinsInit(const int comp_id, kparms* kp, const char* coordinates);
+----
+
+which checks the supplied parameters, creates the HAL pins, selects
+kinstype 0, and then invokes the setup routine registered for each
+kinstype.  The caller owns the HAL component: it does hal_init()
+before switchkinsInit() and hal_ready() after it.
 
 Each kinstype setup routine can (optionally) create HAL
 pins and set them to default values.  A setup routine is called
 once per kinstype it is registered for, so a routine used for two
-kinstypes must not create the same pin twice.  When all setup
-routines finish, rtapi_app_main() issues hal_ready() for the
-component to complete creation of the module.
+kinstypes must not create the same pin twice.
+
+=== Module main program
+
+A module written as a plain C file links switchkins_main.o
+(switchkins_main.c) for its rtapi_app_main().  That 'main' program
+reads the (optional) module command-line parameters (coordinates,
+sparm) and passes them to the module-provided function
+switchkinsSetup():
+
+----
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2);
+----
+
+which identifies the setup, forward and inverse routines for
+kinstypes 0,1,2 and sets a number of configuration settings.  Those
+three are registered for the module, so it can supply further
+kinstypes by calling switchkinsRegister() itself, and registering
+one that switchkinsSetup() has already filled in is the same error
+as any other duplicate.
+
+A module written as a halcompile component gets rtapi_app_main()
+from halcompile instead.  It registers its kinstypes and calls
+switchkinsInit() from its EXTRA_SETUP() routine, which halcompile
+runs after hal_init() and before hal_ready().  The component names
+the objects it needs in hal/components/Submakefile:
+
+----
+millturn-extra-objs := emc/kinematics/switchkins.o emc/kinematics/kins_util.o
+----
 
 // vim: set syntax=asciidoc:

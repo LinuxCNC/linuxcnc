@@ -35,7 +35,8 @@ $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 PYTARGETS += $(RDELTAMODULE)
 
 EMCKINEMATICSINCS = \
-	./emc/kinematics/kinematics.h
+	./emc/kinematics/kinematics.h \
+	./emc/kinematics/switchkins.h
 
 $(patsubst ./emc/kinematics/%,../include/%,$(EMCKINEMATICSINCS)): ../include/%.h: ./emc/kinematics/%.h
 	cp $^ $@
