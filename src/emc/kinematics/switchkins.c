@@ -27,7 +27,6 @@
 *  Using modules must supply function: switchkinsSetup()
 */
 #include <rtapi.h>
-#include <rtapi_app.h>
 #include <hal.h>
 #include <emcmotcfg.h>
 #include <kinematics.h>
@@ -384,12 +383,6 @@ int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv)
     return 0;
 } // switchkinsRegisterToolFrameInverse()
 
-//*********************************************************************
-static char *coordinates;
-RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
-static char *sparm;
-RTAPI_MP_STRING(sparm,  "switchkins module-specific parameter");
-
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsType);
@@ -403,33 +396,23 @@ EXPORT_SYMBOL(switchkinsRegister);
 EXPORT_SYMBOL(switchkinsRegisterFrames);
 EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
 EXPORT_SYMBOL(switchkinsRegisterJacobian);
-MODULE_LICENSE("GPL");
+EXPORT_SYMBOL(switchkinsInit);
 
-static int    comp_id;
 //*********************************************************************
-int rtapi_app_main(void)
+// The caller owns the hal component: it does hal_init() before this and
+// hal_ready() after it.  Every switchkins-type must be registered by
+// now.
+int switchkinsInit(const int   comp_id,
+                   kparms*     ksetup_parms,
+                   const char* coordinates)
 {
-    int i,res;
-    char* emsg="other";
+    int i;
+    int res = 0;
+    char* emsg = "other";
 
-    // defaults prior to switchkinsSetup() call
-    kp.kinsname   = NULL;
-    kp.halprefix  = NULL;
-    kp.required_coordinates = "";
-    kp.max_joints        =  0; // Setup must supply
-    kp.allow_duplicates  =  0;
-    kp.fwd_iterates_mask =  0;
-    kp.gui_kinstype      = -1; // negative means: not used
+    kp = *ksetup_parms; // kinematics parms are needed after this returns
 
-    kp.sparm = sparm; // module parm passed to kins
-
-    // may also call switchkinsRegister()
-    res = switchkinsSetup(&kp,
-                          &ksetups[0], &ksetups[1], &ksetups[2],
-                          &kfwds[0],   &kfwds[1],   &kfwds[2],
-                          &kinvs[0],   &kinvs[1],   &kinvs[2]);
-    if (res) {emsg="switchkinsSetp FAIL"; goto error;}
-    if (register_error) {emsg="switchkinsRegister FAIL"; goto error;}
+    if (register_error) {emsg = "switchkinsRegister FAIL"; goto error;}
 
     // an identity type answers the tool frame the same way whichever module
     // asked for it, so supply it here rather than in every switchkinsSetup()
@@ -445,7 +428,7 @@ int rtapi_app_main(void)
         }
     }
 
-    // the highest type provided by either route sets the count
+    // the highest type registered sets the count
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
         if (ksetups[i] || kfwds[i] || kinvs[i]) { kins_count = i + 1; }
     }
@@ -484,11 +467,8 @@ int rtapi_app_main(void)
         emsg = "incomplete switchkins-type"; goto error;
     }
 
-    comp_id = hal_init(kp.kinsname);
-    if(comp_id < 0) goto error;
-
     swdata = hal_malloc(sizeof(struct swdata));
-    if (!swdata) goto error;
+    if (!swdata) {emsg = "hal_malloc fail"; goto error;}
 
     for (i=0; i < kins_count; i++) {
         res += hal_pin_new_bool(comp_id, HAL_OUT, &(swdata->kinstype_is[i]),
@@ -502,8 +482,8 @@ int rtapi_app_main(void)
         res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_a, 0.0, "skgui.a");
         res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_b, 0.0, "skgui.b");
         res += hal_pin_new_real(comp_id, HAL_IN, &swdata->gui_c, 0.0, "skgui.c");
-        if (res) {emsg = "hal pin create fail";goto error;}
     }
+    if (res) {emsg = "hal pin create fail"; goto error;}
 
     switchkins_type = 0; // startup with default type
     kinematicsSwitch(switchkins_type);
@@ -514,14 +494,10 @@ int rtapi_app_main(void)
         ksetups[i](comp_id,coordinates,&kp);
     }
 
-    hal_ready(comp_id);
     return 0;
 
 error:
     rtapi_print_msg(RTAPI_MSG_ERR,
         "\nSwitchkins FAIL %s:<%s>\n",kp.kinsname,emsg);
-    hal_exit(comp_id);
     return -1;
-} // rtapi_app_main()
-
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+} // switchkinsInit()
