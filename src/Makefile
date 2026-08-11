@@ -1181,6 +1181,7 @@ genhexkins-objs += libposemath/_posemath.o
 genhexkins-objs += $(MATHSTUB)
 genhexkins-objs += emc/kinematics/kins_util.o
 genhexkins-objs += emc/kinematics/switchkins.o
+genhexkins-objs += emc/kinematics/switchkins_main.o
 genhexkins-objs += $(USERKFUNCS)
 
 obj-m += genserkins.o
@@ -1190,6 +1191,7 @@ genserkins-objs += libposemath/gomath.o
 genserkins-objs += $(MATHSTUB)
 genserkins-objs += emc/kinematics/kins_util.o
 genserkins-objs += emc/kinematics/switchkins.o
+genserkins-objs += emc/kinematics/switchkins_main.o
 genserkins-objs += $(USERKFUNCS)
 
 obj-m += xyzac-trt-kins.o
@@ -1197,6 +1199,7 @@ xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
 xyzac-trt-kins-objs += emc/kinematics/trtfuncs.o
 xyzac-trt-kins-objs += emc/kinematics/kins_util.o
 xyzac-trt-kins-objs += emc/kinematics/switchkins.o
+xyzac-trt-kins-objs += emc/kinematics/switchkins_main.o
 xyzac-trt-kins-objs += $(USERKFUNCS)
 
 obj-m += xyzbc-trt-kins.o
@@ -1204,6 +1207,7 @@ xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
 xyzbc-trt-kins-objs += emc/kinematics/trtfuncs.o
 xyzbc-trt-kins-objs += emc/kinematics/kins_util.o
 xyzbc-trt-kins-objs += emc/kinematics/switchkins.o
+xyzbc-trt-kins-objs += emc/kinematics/switchkins_main.o
 xyzbc-trt-kins-objs += $(USERKFUNCS)
 
 obj-m += scarakins.o
@@ -1212,6 +1216,7 @@ scarakins-objs += libposemath/_posemath.o
 scarakins-objs += $(MATHSTUB)
 scarakins-objs += emc/kinematics/kins_util.o
 scarakins-objs += emc/kinematics/switchkins.o
+scarakins-objs += emc/kinematics/switchkins_main.o
 scarakins-objs += $(USERKFUNCS)
 
 obj-m += pumakins.o
@@ -1220,6 +1225,7 @@ pumakins-objs += libposemath/_posemath.o
 pumakins-objs += $(MATHSTUB)
 pumakins-objs += emc/kinematics/kins_util.o
 pumakins-objs += emc/kinematics/switchkins.o
+pumakins-objs += emc/kinematics/switchkins_main.o
 pumakins-objs += $(USERKFUNCS)
 
 obj-m += three21kins.o
@@ -1228,6 +1234,7 @@ three21kins-objs += libposemath/_posemath.o
 three21kins-objs += $(MATHSTUB)
 three21kins-objs += emc/kinematics/kins_util.o
 three21kins-objs += emc/kinematics/switchkins.o
+three21kins-objs += emc/kinematics/switchkins_main.o
 three21kins-objs += $(USERKFUNCS)
 
 obj-m += 5axiskins.o
@@ -1236,6 +1243,7 @@ obj-m += 5axiskins.o
 5axiskins-objs += $(MATHSTUB)
 5axiskins-objs += emc/kinematics/kins_util.o
 5axiskins-objs += emc/kinematics/switchkins.o
+5axiskins-objs += emc/kinematics/switchkins_main.o
 5axiskins-objs += $(USERKFUNCS)
 #----------------------------------------------------------------
 
