@@ -76,12 +76,12 @@ EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@
 ifeq ($(RUN_IN_PLACE),yes)
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include -I$(EMC2_HOME)/share/linuxcnc
 RTLIBDIR := @EMC2_HOME@/rtlib
 LIBDIR := @EMC2_HOME@/lib
 else
 prefix := @prefix@
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/linuxcnc
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/linuxcnc -I${prefix}/share/linuxcnc
 RTLIBDIR := @EMC2_RTLIB_DIR@
 LIBDIR := @libdir@
 endif
