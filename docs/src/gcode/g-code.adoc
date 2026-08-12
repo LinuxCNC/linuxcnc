@@ -947,11 +947,13 @@ G13.1
 module, and 'G13.1' cancels back to kinematics 0. The 'P' word is the
 kinematics number, so 'G13.1' and `G12.1 P0` do the same thing.
 
-These are the way to select a kinematics. The `motion.switchkins-type`
-HAL pin does the same thing and takes the same numbering, but it is
-deprecated: the interpreter never sees it, so a program is read, its
-limits checked and its path looked ahead in whatever kinematics the
-interpreter last knew about, which need not be the one that runs it.
+[WARNING]
+Deprecation notice: selecting the kinematics by writing the
+`motion.switchkins-type` HAL pin is deprecated. It takes the same
+numbering and still works, but it does not tell the interpreter that
+anything changed, so a program is read, its limits checked and its path
+looked ahead in whatever kinematics the interpreter last knew about,
+which need not be the one that runs it. Use 'G12.1' and 'G13.1'.
 
 Both codes are queue synchronisation points. The interpreter waits for
 queued motion to finish before the kinematics changes, so no move is ever
