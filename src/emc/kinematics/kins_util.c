@@ -1281,3 +1281,22 @@ int identityKinematicsJacobian(const double *joint,
                                       (const double (*)[EMCMOT_MAX_AXIS])dP,
                                       jac);
 } // identityKinematicsJacobian()
+
+EXPORT_SYMBOL(map_coordinates_to_jnumbers);
+EXPORT_SYMBOL(mapped_joints_to_position);
+EXPORT_SYMBOL(position_to_mapped_joints);
+EXPORT_SYMBOL(identityKinematicsSetup);
+EXPORT_SYMBOL(identityKinematicsForward);
+EXPORT_SYMBOL(identityKinematicsInverse);
+EXPORT_SYMBOL(identityKinematicsWorkFrame);
+EXPORT_SYMBOL(identityKinematicsToolFrame);
+EXPORT_SYMBOL(identityKinematicsJacobian);
+EXPORT_SYMBOL(toolFrameIsProper);
+EXPORT_SYMBOL(toolFrameApplyNative);
+EXPORT_SYMBOL(toolFrameInWork);
+EXPORT_SYMBOL(toolFrameSolve);
+EXPORT_SYMBOL(kinsJacobianFromInverse);
+EXPORT_SYMBOL(kinsJacobianFromMappedAxes);
+EXPORT_SYMBOL(kinsJacobianFromDhArm);
+EXPORT_SYMBOL(TOOL_FRAME_SPINDLE);
+EXPORT_SYMBOL(TOOL_FRAME_FLANGE);
