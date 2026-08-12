@@ -20,7 +20,7 @@
 #include <rtapi_string.h>
 #include <hal.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 static struct scara_data {
     hal_real_t d1, d2, d3, d4, d5, d6;

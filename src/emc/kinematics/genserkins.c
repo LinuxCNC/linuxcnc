@@ -42,7 +42,7 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 #include <emcmotcfg.h>
 
 #include "genserkins.h"
-#include "switchkins.h"
+#include <switchkins.h>
 
 //-7 is system defined -3 ok, -4 ok, -5 ok,-6 ok (mm system)
 #undef  GO_REAL_EPSILON

@@ -3,7 +3,7 @@
 #include <rtapi_string.h>
 #include <hal.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 /* default values for ar2 robot */
 #define DEFAULT_THREE21_A1 64.2
