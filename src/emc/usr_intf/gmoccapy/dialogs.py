@@ -232,8 +232,7 @@ class Dialogs(GObject.GObject):
                          confirm_pin = 'warning-confirm', active_pin = None):
         dialog = self.warn_dialog
         dialog.set_title(title)
-        dialog.format_secondary_text(message)
-        dialog.set_markup(message)
+        dialog.set_markup('<b>'+message+'</b>')
         dialog.set_deletable(False)
         dialog.show_all()
         if sound:
