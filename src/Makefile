@@ -1237,6 +1237,12 @@ three21kins-objs += emc/kinematics/switchkins.o
 three21kins-objs += emc/kinematics/switchkins_main.o
 three21kins-objs += $(USERKFUNCS)
 
+obj-m += switchkins_core.o
+switchkins_core-objs := emc/kinematics/switchkins_core.o
+switchkins_core-objs += emc/kinematics/switchkins.o
+switchkins_core-objs += emc/kinematics/kins_util.o
+switchkins_core-objs += $(MATHSTUB)
+
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
 5axiskins-objs += libposemath/_posemath.o
@@ -1409,6 +1415,7 @@ endif
 ../rtlib/homemod$(MODULE_EXT): $(addprefix objects/rt,$(homemod-objs))
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
+../rtlib/switchkins_core$(MODULE_EXT): $(addprefix objects/rt,$(switchkins_core-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))

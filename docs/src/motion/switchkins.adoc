@@ -430,6 +430,12 @@ configs/sim/axis/vismach/ .
 
 == User kinematics provisions
 
+There are two ways to supply custom kinematics.  Adding a kinstype to
+a module that is already in the tree is the smaller job; building a
+module of your own gives you every kinstype it provides.
+
+=== Adding a kinstype to an in-tree module
+
 Custom kinematics can be coded and tested on Run-In-Place ('RIP')
 builds.  A template file src/emc/kinematics/userkfuncs.c is provided
 in the distribution.  This file can be copied/renamed to a user
@@ -445,6 +451,57 @@ Preempt-rt make example:
 
 ----
 $ userkfuncs=/home/myname/kins/mykins.c make && sudo make setuid
+----
+
+[[sec:switchkins-own-module]]
+=== Building a switchkins module of your own
+
+A complete kinematics module can be built out-of-tree with halcompile
+using the same switchkins implementation the in-tree modules use, so
+it gets the kinematics switching, the 'kinstype.is-N' pins, the
+'coordinates=' identity mapping and the G-code and HAL controls
+without reimplementing any of them.
+
+The implementation is the switchkins_core module.  It provides no
+kinstypes of its own; it exports switchkinsRegister(), switchkinsInit()
+and the rest of the switchkins.h interface, and the identity kinematics
+and helpers kinematics.h declares.  A module of your own includes
+switchkins.h, registers each of its kinstypes and calls switchkinsInit()
+from EXTRA_SETUP(), which halcompile runs after hal_init() and before
+hal_ready().  See <<sec:switchkins-code-notes,Code Notes>> for both
+calls.
+
+The template is src/hal/components/switchkinscomp.comp.  Copy and
+rename it (both the file and the component name) and replace the
+example kinstype with the real kinematics.  Start from the template,
+not from an in-tree component such as millturn.comp: those link the
+switchkins objects into the module through hal/components/Submakefile,
+which a halcompile build outside the tree does not do.
+
+----
+$ halcompile --install user_switchkins.comp
+----
+
+[source,ini]
+----
+[KINS]
+KINEMATICS = user_switchkins
+JOINTS = 3
+----
+
+The HAL file loads switchkins_core ahead of the module:
+
+----
+loadrt switchkins_core
+loadrt [KINS]KINEMATICS
+----
+
+A module loaded without switchkins_core ahead of it fails to load,
+and the error names the first switchkins or kinematics function it
+could not find:
+
+----
+user_switchkins: dlopen: .../rtlib/user_switchkins.so: undefined symbol: ...
 ----
 
 == Warnings
@@ -471,6 +528,7 @@ The management of coordinate offsets, tool compensation, and
 INI file limits may require complicated and non-standard operating
 protocols.
 
+[[sec:switchkins-code-notes]]
 == Code Notes
 
 Kinematic modules providing switchkins functionality are linked to
@@ -570,8 +628,30 @@ as any other duplicate.
 A module written as a halcompile component gets rtapi_app_main()
 from halcompile instead.  It registers its kinstypes and calls
 switchkinsInit() from its EXTRA_SETUP() routine, which halcompile
-runs after hal_init() and before hal_ready().  The component names
-the objects it needs in hal/components/Submakefile:
+runs after hal_init() and before hal_ready():
+
+[source,c]
+----
+EXTRA_SETUP() {
+    kparms kp;
+    (void)__comp_inst; (void)prefix; (void)extra_arg;
+
+    kp.kinsname = "mykins"; // must agree with the module name
+    // ... the other kparms settings
+    if (switchkinsRegister(0, identityKinematicsSetup,
+                              identityKinematicsForward,
+                              identityKinematicsInverse)) { return -1; }
+    if (switchkinsRegister(1, mySetup, myForward, myInverse)) { return -1; }
+    return switchkinsInit(comp_id, &kp, coordinates);
+}
+----
+
+Where the switchkins code comes from depends on where the component
+is built.  Out of tree, the switchkins_core module provides it, loaded
+ahead of the component (see
+<<sec:switchkins-own-module,Building a switchkins module of your
+own>>).  In tree, the component links the objects into
+itself instead, named in hal/components/Submakefile:
 
 ----
 millturn-extra-objs := emc/kinematics/switchkins.o emc/kinematics/kins_util.o
