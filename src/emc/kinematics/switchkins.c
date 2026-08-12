@@ -29,7 +29,6 @@
 #include <rtapi.h>
 #include <hal.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>
 
 #include "switchkins.h"
 

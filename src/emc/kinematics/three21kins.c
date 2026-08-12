@@ -2,7 +2,6 @@
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
-#include <kinematics.h>
 
 #include "switchkins.h"
 

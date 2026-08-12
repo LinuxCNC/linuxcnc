@@ -110,7 +110,6 @@
 #include <rtapi_string.h>
 #include <hal.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
 
 #include "genhexkins.h"
 #include "switchkins.h"
