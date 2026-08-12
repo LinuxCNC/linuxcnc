@@ -406,6 +406,12 @@ configs/sim/axis/vismach/ .
 
 == User kinematics provisions
 
+There are two ways to supply custom kinematics.  Adding a kinstype to
+a module that is already in the tree is the smaller job; building a
+module of your own gives you every kinstype it provides.
+
+=== Adding a kinstype to an in-tree module
+
 Custom kinematics can be coded and tested on Run-In-Place ('RIP')
 builds.  A template file src/emc/kinematics/userkfuncs.c is provided
 in the distribution.  This file can be copied/renamed to a user
@@ -422,6 +428,47 @@ Preempt-rt make example:
 ----
 $ userkfuncs=/home/myname/kins/mykins.c make && sudo make setuid
 ----
+
+=== Building a switchkins module of your own
+
+A complete kinematics module can be built out-of-tree with halcompile
+using the same switchkins implementation the in-tree modules use, so
+it gets the kinematics switching, the 'kinstype.is-N' pins, the
+'coordinates=' identity mapping and the G-code and HAL controls
+without reimplementing any of them.
+
+The template is src/hal/components/switchkinscomp.comp.  Copy and
+rename it (both the file and the component name), point its TOPDIR
+at a LinuxCNC source tree, and replace the example kinstype with the
+real kinematics:
+
+[source,c]
+----
+#define TOPDIR /home/myname/linuxcnc-dev
+// ...
+#include USE_TOPDIR(src/emc/kinematics/switchkins.c)
+#include USE_TOPDIR(src/emc/kinematics/kins_util.c)
+----
+
+The module registers each of its kinstypes and calls switchkinsInit()
+from EXTRA_SETUP(), which halcompile runs after hal_init() and before
+hal_ready().  See <<sec:switchkins-code-notes,Code Notes>> for both
+calls.
+
+----
+$ halcompile --install user_switchkins.comp
+----
+
+[source,ini]
+----
+[KINS]
+KINEMATICS = user_switchkins
+JOINTS = 3
+----
+
+[NOTE]
+The switchkins sources are compiled into the module, so it is built
+against one source tree and has to be rebuilt when that tree changes.
 
 == Warnings
 
@@ -447,6 +494,7 @@ The management of coordinate offsets, tool compensation, and
 INI file limits may require complicated and non-standard operating
 protocols.
 
+[[sec:switchkins-code-notes]]
 == Code Notes
 
 Kinematic modules providing switchkins functionality are linked to
