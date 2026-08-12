@@ -75,7 +75,6 @@ def read_options(ini):
         "http_port": ini.find_int("MTCONNECT", "HTTP_PORT", 5000),
         "http_bind": first_token(ini.find("MTCONNECT", "HTTP_BIND", "127.0.0.1"),
                                  "127.0.0.1"),
-        "enable_twin": truthy(ini.find("MTCONNECT", "ENABLE_TWIN", "0")),
         "transports": transports(ini.find("MTCONNECT", "TRANSPORT", "http")),
         "shdr_port": ini.find_int("MTCONNECT", "SHDR_PORT", 7878),
         "sample_hz": ini.find_float("MTCONNECT", "SAMPLE_HZ", 10.0) or 10.0,
@@ -162,12 +161,10 @@ def main():
     mqtt_agent = None
     shdr_agent = None
     if "http" in transports:
-        http_agent = HttpAgent(state, host=opts["http_bind"], port=opts["http_port"],
-                               enable_twin=opts["enable_twin"])
+        http_agent = HttpAgent(state, host=opts["http_bind"], port=opts["http_port"])
         http_agent.start()
-        print("info: MTConnect HTTP agent on %s:%d (/probe /current /sample /assets%s)"
-              % (opts["http_bind"], http_agent.port,
-                 " /twin" if opts["enable_twin"] else ""))
+        print("info: MTConnect HTTP agent on %s:%d (/probe /current /sample /assets)"
+              % (opts["http_bind"], http_agent.port))
     if "mqtt" in transports:
         from mtc.mqtt_agent import MqttAgent
         mqtt_agent = MqttAgent(state, broker=opts["mqtt_broker"],

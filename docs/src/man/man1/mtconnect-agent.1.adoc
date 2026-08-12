@@ -39,10 +39,8 @@ When the HTTP transport is enabled the following are served (default port 5000):
 */current*:: MTConnectStreams - the latest value of every data item.
 */sample*::  MTConnectStreams - a sequence range (`?from=<seq>&count=<n>`).
 */assets*::  MTConnectAssets - the tool table as CuttingTool assets.
-*/twin*::    A browser digital-twin viewer.  Off by default; enable with
-*[MTCONNECT]ENABLE_TWIN = 1*.  3D rendering uses the distribution's *libjs-three*
-package (served from `/three/`), so it works offline once that is installed.
-*/models/<name>*:: A referenced or auto-generated geometry mesh.
+*/models/<name>*:: A referenced or auto-generated geometry mesh (`SolidModel`),
+for a standard MTConnect twin viewer to render.
 */mtconnect-linuxcnc-1.xsd*:: The LinuxCNC MTConnect extension schema.
 
 By default the HTTP server binds to 127.0.0.1 (loopback only).  Set

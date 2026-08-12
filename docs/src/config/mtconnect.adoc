@@ -110,21 +110,18 @@ compact extension block, `x:Kinematics`, in the LinuxCNC extension namespace
 example a FreeCAD machine-configuration plugin) that wants to reconstruct the
 machine automatically.
 
-== Digital twin
+== Solid models (geometry)
 
-The agent ships a browser digital-twin viewer at `/twin`.  It reads `/probe`
-for the geometry references and animates the machine from `/current`.  Geometry
-is *referenced, never streamed*: the device model points to mesh files with
-`SolidModel` elements that the viewer fetches once.
-
-The twin is *off by default*; enable it with `ENABLE_TWIN = 1` in the
-`[MTCONNECT]` section.  Its 3D rendering uses three.js, which LinuxCNC does not
-bundle - it uses the distribution's `libjs-three` package (a `Recommends`), and
-the agent serves it from `/three/`.  With that package installed the viewer
-works fully offline; no internet access or CDN is required.
+The device model can carry 3D geometry so a standard MTConnect twin viewer (for
+example the one at demo.mtconnect.org, or TrakHound) can render the machine.
+Geometry is *referenced, never streamed*: the `/probe` document points to mesh
+files with `SolidModel` elements, and the agent serves each mesh at
+`/models/<name>`.  A viewer fetches each mesh once and animates it from
+`/current` using the `CoordinateSystems` and `Motion` chain in `/probe`.  This is
+standard MTConnect - LinuxCNC bundles no viewer and no JavaScript.
 
 With `MODEL_AUTO = 1` the agent generates simple placeholder box geometry from the
-travel limits, so any machine gets a working twin with no mesh files.  Supply
+travel limits, so any machine gets usable geometry with no mesh files.  Supply
 STL/OBJ/glTF meshes (authored in millimetres) with `MODEL_BASE`, `MODEL_X`, etc.
 for higher fidelity.  Because a trivial-kinematics INI does not describe the
 mechanical assembly, `MODEL_CHAIN`, `MODEL_PARENT_<axis>` and `MODEL_INVERT`

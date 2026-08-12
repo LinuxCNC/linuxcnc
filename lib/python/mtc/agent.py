@@ -37,7 +37,7 @@ def now_iso():
 
 
 def asset_dir():
-    """Directory holding runtime data assets (twin.html, the extension schema).
+    """Directory holding runtime data assets (the extension schema).
 
     Installed / RIP layout: $EMC2_HOME/share/linuxcnc/mtconnect.  Falls back to a
     'mtconnect' dir beside this package for an uninstalled source checkout.
@@ -48,16 +48,6 @@ def asset_dir():
         if os.path.isdir(d):
             return d
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), "mtconnect")
-
-
-def three_dir():
-    """Directory of the system three.js (Debian's libjs-three package).
-
-    The digital twin loads three.js from here rather than bundling a copy, so
-    the library is vetted and security-updated by the distribution.  Override
-    with $MTC_THREE_DIR (e.g. for testing).
-    """
-    return os.environ.get("MTC_THREE_DIR", "/usr/share/javascript/three")
 
 
 class OutOfRange(Exception):
@@ -114,14 +104,6 @@ class AgentState:
         return probe_xml(self.model, self.config, models=self.models,
                          creation_time=now_iso(), asset_count=asset_count)
 
-    def twin_html(self):
-        """Return the bundled three.js twin viewer HTML, or None if absent."""
-        path = os.path.join(asset_dir(), "twin.html")
-        if not os.path.isfile(path):
-            return None
-        with open(path, "r") as fh:
-            return fh.read()
-
     def extension_schema(self):
         """Return (bytes, content_type) for the LinuxCNC extension XSD, or None."""
         path = os.path.join(asset_dir(), "mtconnect-linuxcnc-1.xsd")
@@ -141,32 +123,6 @@ class AgentState:
             with open(ref.path, "rb") as fh:
                 return fh.read(), ref.content_type
         return None
-
-    def three_file(self, relpath):
-        """Return (bytes, content_type) for a file from the system three.js, or None.
-
-        Serves the distribution's libjs-three (three_dir()) for the digital twin.
-        Rejects path traversal: no absolute paths and no '..' components, so only
-        files inside the three.js tree can be reached.
-        """
-        relpath = (relpath or "").lstrip("/")
-        if not relpath:
-            return None
-        parts = relpath.split("/")
-        if any(p in ("", ".", "..") for p in parts):
-            return None
-        root = three_dir()
-        path = os.path.normpath(os.path.join(root, *parts))
-        # Defense in depth: ensure the resolved path stays under the three.js root.
-        if os.path.commonpath([os.path.abspath(root), os.path.abspath(path)]) \
-                != os.path.abspath(root):
-            return None
-        if not os.path.isfile(path):
-            return None
-        content_type = ("text/javascript" if path.endswith(".js")
-                        else "application/octet-stream")
-        with open(path, "rb") as fh:
-            return fh.read(), content_type
 
     def current_document(self):
         with self._lock:

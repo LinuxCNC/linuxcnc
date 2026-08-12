@@ -1519,15 +1519,12 @@ and `[JOINT_<num>]` sections, so only the keys below are required.
 * `HTTP_BIND = 127.0.0.1` - (string) Interface to bind the HTTP agent to.
   Default 127.0.0.1 (loopback only); set to `0.0.0.0` to expose on the network.
 * `SAMPLE_HZ = 10` - (real) Poll and publish rate in Hz.
-* `ENABLE_TWIN = 0` - (bool) Serve the browser digital-twin viewer at `/twin`.
-  Off by default.  Its 3D rendering uses the distribution's `libjs-three`
-  package, served by the agent from `/three/`.
 * `MQTT_BROKER`, `MQTT_PORT`, `MQTT_PREFIX`, `MQTT_USERNAME`, `MQTT_PASSWORD` -
   Settings for the standard MTConnect MQTT binding.  Requires the
   `python3-paho-mqtt` package.
 
-The embedded HTTP agent serves `/probe`, `/current`, `/sample` and `/assets`, an
-optional digital-twin viewer at `/twin`, and geometry under `/models/`.  The spindle speed
+The embedded HTTP agent serves `/probe`, `/current`, `/sample` and `/assets`, and
+referenced geometry under `/models/`.  The spindle speed
 band from `[SPINDLE_0]MIN_FORWARD_VELOCITY`/`MAX_FORWARD_VELOCITY` is advertised
 as an MTConnect Specification.  See `mtconnect-agent`(1) for the full reference.
 

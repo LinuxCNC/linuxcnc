@@ -36,7 +36,6 @@ Recommends:
     librsvg2-dev,
     x11-xserver-utils,
     python3-paho-mqtt,
-    libjs-three,
     @EXTRA_RECOMMENDS@,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@

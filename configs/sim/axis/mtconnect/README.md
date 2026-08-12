@@ -113,19 +113,15 @@ A FreeCAD plugin reads the standard `Axes`/`Motion` tree, or the compact
 `x:Kinematics` block, to create/configure a machine: axis list and type,
 travel limits, home positions, kinematics module/type, and the joint↔axis map.
 
-## Digital twin (solid models)
+## Solid models (geometry)
 
-An MTConnect twin (e.g. the viewer at demo.mtconnect.org/twin) renders a machine
-from `/probe` alone: geometry is **referenced, never streamed**. The device model
-carries `<SolidModel href="...">` elements pointing to external mesh files, plus
-`<CoordinateSystems>` and a `<Motion>` chain; the viewer fetches each mesh once
-and animates it using the streamed positions.
-
-The bundled viewer at `/twin` is **off by default**; enable it with
-`ENABLE_TWIN = 1`. Its 3D rendering uses three.js from the distribution's
-`libjs-three` package (a Debian *Recommends*), which the agent serves from
-`/three/` — LinuxCNC vendors no third-party JavaScript, and the twin still works
-fully offline once that package is installed.
+A standard MTConnect twin viewer (e.g. the one at demo.mtconnect.org, or
+TrakHound) renders a machine from `/probe` alone: geometry is **referenced, never
+streamed**. The device model carries `<SolidModel href="...">` elements pointing
+to external mesh files, plus `<CoordinateSystems>` and a `<Motion>` chain; the
+viewer fetches each mesh once (from the agent's `/models/<name>`) and animates it
+using the streamed positions. LinuxCNC bundles no viewer and no JavaScript — this
+is plain, standards-compliant MTConnect.
 
 ### Zero-config geometry (`MODEL_AUTO`)
 
@@ -212,12 +208,11 @@ lib/python/mtc/                          the agent package:
   observations.py  shared DataItem registry (keeps probe and streams in sync)
   device_model.py  /probe MTConnectDevices document (+ CLI --dump-probe)
   lcnc_source.py   live status + tool table from linuxcnc.stat()
-  models.py        solid-model config + served mesh registry (digital twin)
+  models.py        solid-model config + served mesh registry (SolidModel geometry)
   streams.py       /current, /sample buffer + XML; /assets XML
   agent.py         transport-agnostic agent core (document builders)
   http_agent.py    embedded HTTP server
   mqtt_agent.py    optional MQTT publisher (vendor-neutral MTConnect binding)
-share/linuxcnc/mtconnect/twin.html                 digital-twin viewer
 share/linuxcnc/mtconnect/mtconnect-linuxcnc-1.xsd  extension schema
 configs/sim/axis/mtconnect/                         this demo config + tests
   contrib/mtconnect-ha-bridge   opt-in Home Assistant MQTT-discovery bridge
@@ -257,6 +252,6 @@ axis). Unsupported types are skipped with a warning. See `mtconnect-agent(1)`.
 
 Complete and packaged for the build: the HTTP transport, HAL component and
 schema-valid documents; the vendor-neutral MQTT binding plus the optional
-Home Assistant bridge contrib; the opt-in offline digital twin (three.js from
-the distribution's `libjs-three`); and the SHDR adapter for an external
-cppagent. Realtime servo-rate data is explicitly out of scope.
+Home Assistant bridge contrib; `SolidModel` geometry under `/models/` for any
+standard MTConnect twin viewer; and the SHDR adapter for an external cppagent.
+Realtime servo-rate data is explicitly out of scope.

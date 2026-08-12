@@ -52,7 +52,7 @@ def _error_document(code, message):
     )
 
 
-def make_handler(agent, enable_twin=False):
+def make_handler(agent):
     class Handler(BaseHTTPRequestHandler):
         server_version = "linuxcnc-mtconnect/0.1"
 
@@ -88,28 +88,6 @@ def make_handler(agent, enable_twin=False):
                     else:
                         data, content_type = result
                         self._send(data, content_type=content_type)
-                elif route == "/twin" or route.startswith("/three/"):
-                    # The digital twin (viewer + its three.js) is opt-in.
-                    if not enable_twin:
-                        self._send(_error_document("UNSUPPORTED",
-                                   "digital twin disabled; enable with "
-                                   "[MTCONNECT]ENABLE_TWIN=1"), status=404)
-                    elif route == "/twin":
-                        html = agent.twin_html()
-                        if html is None:
-                            self._send(_error_document("NOT_FOUND",
-                                       "twin viewer not bundled"), status=404)
-                        else:
-                            self._send(html, content_type="text/html; charset=utf-8")
-                    else:  # /three/<path> -> the system three.js (libjs-three)
-                        result = agent.three_file(route[len("/three/"):])
-                        if result is None:
-                            self._send(_error_document("NOT_FOUND",
-                                       "no such three.js file: %s (is libjs-three "
-                                       "installed?)" % route), status=404)
-                        else:
-                            data, content_type = result
-                            self._send(data, content_type=content_type)
                 elif route.startswith("/models/"):
                     result = agent.model_file(route[len("/models/"):])
                     if result is None:
@@ -145,9 +123,9 @@ def _int(values, default):
 class HttpAgent:
     # Default to loopback; exposing the agent on the LAN is an explicit opt-in
     # (INI [MTCONNECT]HTTP_BIND) so a machine isn't published by accident.
-    def __init__(self, agent, host="127.0.0.1", port=5000, enable_twin=False):
+    def __init__(self, agent, host="127.0.0.1", port=5000):
         self.httpd = ThreadingHTTPServer((host, port),
-                                         make_handler(agent, enable_twin))
+                                         make_handler(agent))
         self.thread = threading.Thread(target=self.httpd.serve_forever,
                                        name="mtconnect-http", daemon=True)
 
