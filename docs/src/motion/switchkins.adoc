@@ -21,17 +21,18 @@ switched to identity kinematics for control of individual joints
 after homing.
 
 The kinematics type is selected with 'G12.1 P-' and 'G13.1', from a
-G-code program or by interactive MDI commands. It can also be selected
-by a motion module HAL pin, which allows the halui provisions for
-activating MDI commands to be used so that buttons select the
-kinematics type from hardware controls or a virtual panel (PyVCP,
-GladeVCP, etc.).
+G-code program or by interactive MDI commands. Buttons on a virtual
+panel (PyVCP, GladeVCP, etc.) or on hardware controls select a
+kinematics type through the halui provisions for activating MDI
+commands.
 
 Changing the kinematics type requires the interpreter and motion parts
-of LinuxCNC to be *synchronized*. 'G12.1' and 'G13.1' do this
-themselves. When the HAL pin is written instead, the G-code must force
-synchronization, typically with a HAL pin 'read' command (M66 E0 L0)
-immediately after altering the pin.
+of LinuxCNC to be *synchronized*, which 'G12.1' and 'G13.1' do
+themselves.
+
+A deprecated HAL pin, 'motion.switchkins-type', selects a kinematics
+type as well. It is described under Usage below, because existing
+configurations use it.
 
 == Switchable Kinematic Modules
 
@@ -178,8 +179,9 @@ These codes ask motion for the kinstype directly and synchronize task and
 motion themselves, so no HAL connection and no separate sync command are
 needed. The G-code words and the *motion.switchkins-type* pin are both
 acted on when they change, so whichever asked most recently is the one in
-force, and a config can use either or both. *motion.kins-type* reports
-what is currently selected.
+force. *motion.kins-type* reports what is currently selected.
+
+The pin is deprecated, see the warning under HAL Connections.
 
 The kinstype in force is readable in G-code as '#<_kins_type>', which lets
 a subroutine restore whatever its caller had selected:
