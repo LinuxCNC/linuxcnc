@@ -854,7 +854,7 @@ def set_view_t(event=None, scale=None):
     xTableCenter = (machineBounds['X-'] + (machineBounds['xLen'] / 2)) / mult
     yTableCenter = (machineBounds['Y-'] + (machineBounds['yLen'] / 2)) / mult
     o.reset()
-    glTranslatef(-xTableCenter, -yTableCenter, 0)
+    o.translate_modelview(-xTableCenter, -yTableCenter, 0)
     o.set_eyepoint_from_extents(xTableLength, yTableLength)
     o.perspective = False
     o.lat = o.lon = 0

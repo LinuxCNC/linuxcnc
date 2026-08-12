@@ -935,6 +935,14 @@ Some usage hints can be gleaned from
 `call()`::
   Plot the backplot now.
 
+`points()`::
+  Return `(bytes, npts, is_xyuv)`: a copy (taken under the sampler lock) of the
+  logged point buffer, the number of points, and whether the machine is a foam
+  (XY/UV) cutter. Each point is a C `logger_point` -- 3 float32 (x, y, z), 4
+  uint8 RGBA, 3 float32 (rx, ry, rz or u, v, w), 4 uint8 RGBA -- so the buffer
+  is `npts * 32` bytes. Added for the OpenGL 3.3 core renderer to upload the
+  backplot to a GPU buffer; see `rs274.glcanon` for the numpy layout.
+
 `last([int])`::
   Return the most recent point on the plot or None
 

@@ -8,6 +8,10 @@ def float_fmt(f):
     return "%5s" % f
 
 class Canon:
+    # Stay on the per-event canon protocol; the catch-all __getattr__ below
+    # would otherwise answer gcode.parse's move-batch probe with a callable.
+    use_move_batches = False
+
     def __getattr__(self, attr):
         """Assume that any unknown attribute is a canon call; just print
         its args and return None"""
