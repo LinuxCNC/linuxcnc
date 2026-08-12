@@ -110,10 +110,9 @@
 #include <rtapi_string.h>
 #include <hal.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
 
 #include "genhexkins.h"
-#include "switchkins.h"
+#include <switchkins.h>
 
 static struct haldata {
     hal_real_t basex[NUM_STRUTS];
