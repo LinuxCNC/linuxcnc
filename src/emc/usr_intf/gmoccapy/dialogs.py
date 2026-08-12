@@ -102,6 +102,7 @@ class Dialogs(GObject.GObject):
     def show_system_dialog(self):
         dialog = self.sys_dialog
         dialog._calc.set_value("")
+        dialog.set_deletable(False)
         dialog.show_all()
         self.emit("play_sound", "alert")
 
@@ -162,6 +163,7 @@ class Dialogs(GObject.GObject):
             dialog.calc.num_pad_only(True)
         dialog.label.set_text(label)
         dialog.set_title(header)
+        dialog.set_deletable(False)
         dialog.show_all()
 
         # wait but don't block event loop
@@ -232,6 +234,7 @@ class Dialogs(GObject.GObject):
         dialog.set_title(title)
         dialog.format_secondary_text(message)
         dialog.set_markup(message)
+        dialog.set_deletable(False)
         dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
@@ -279,6 +282,7 @@ class Dialogs(GObject.GObject):
         dialog.set_markup(message)
         if title:
             dialog.set_title(str(title))
+        dialog.set_deletable(False)
         dialog.show_all()
         self.emit("play_sound", "alert")
 
@@ -315,6 +319,7 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
+        dialog.set_deletable(False)
         dialog.show_all()
         self.emit("play_sound", "alert")
         response = dialog.run()
