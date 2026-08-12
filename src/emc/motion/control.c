@@ -314,9 +314,9 @@ static void handle_kinematicsSwitch(void) {
     hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
     requested_type      = switchkins_type;
 
-    if (emcmotStatus->kinsType != emcmotConfig->kinsType) {
-        requested_type         = (int)emcmotConfig->adjustKinsVar0;
-        emcmotStatus->kinsType = emcmotConfig->kinsType;
+    if (emcmotStatus->switchkins_seq != emcmotConfig->switchkins_seq) {
+        requested_type         = emcmotConfig->switchkins_type;
+        emcmotStatus->switchkins_seq = emcmotConfig->switchkins_seq;
     } else if (hal_switchkins_type != prev_hal_switchkins_type) {
         requested_type = hal_switchkins_type;
         /* Once per session.  The pin cannot become the general way to
@@ -334,7 +334,7 @@ static void handle_kinematicsSwitch(void) {
     prev_hal_switchkins_type = hal_switchkins_type;
 
     hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
-    emcmotStatus->adjustKinsVar0 = switchkins_type;
+    emcmotStatus->switchkins_type = switchkins_type;
     if (switchkins_type == requested_type) return;
 
     emcmot_joint_t *jointKinsSwitch;
@@ -361,7 +361,7 @@ static void handle_kinematicsSwitch(void) {
 
     switchkins_type = requested_type;
     hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
-    emcmotStatus->adjustKinsVar0 = switchkins_type;
+    emcmotStatus->switchkins_type = switchkins_type;
 
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
     KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;

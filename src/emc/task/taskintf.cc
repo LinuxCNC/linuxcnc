@@ -2126,13 +2126,13 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
-    if(stat->trajKinsType != emcmotStatus.kinsType)
+    if(stat->traj.switchkins_seq != emcmotStatus.switchkins_seq)
     {
-        stat->trajKinsType = emcmotStatus.kinsType;
-        stat->trajKinsTypeModified = true;
+        stat->traj.switchkins_seq = emcmotStatus.switchkins_seq;
+        stat->traj.switchkins_changed = true;
     }
     // the kinematics motion is running, whoever selected it
-    stat->adjustKinsVar0 = emcmotStatus.adjustKinsVar0;
+    stat->traj.switchkins_type = emcmotStatus.switchkins_type;
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
@@ -2226,10 +2226,10 @@ EmcPose emcGetExternalOffsets(void) {
     return emcmotStatus.eoffset_pose;
 }
 
-int emcAdjustKinsOffset(double adjustKinsVar0)
+int emcSelectKinsType(int switchkins_type)
 {
-    emcmotCommand.command = EMCMOT_ADJUST_KINS_OFFSET_DATA;
-    emcmotCommand.adjustKinsVar0 = adjustKinsVar0;
+    emcmotCommand.command = EMCMOT_SELECT_KINS_TYPE;
+    emcmotCommand.switchkins_type = switchkins_type;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

@@ -960,14 +960,14 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
     double vel, ini_maxvel, acc, scale, ini_maxjerk;
 };
 
-class EMC_ADJUST_KINS_OFFSET_DATA:public EMC_TRAJ_CMD_MSG {
+class EMC_TRAJ_SELECT_KINS:public EMC_TRAJ_CMD_MSG {
   public:
-    EMC_ADJUST_KINS_OFFSET_DATA():EMC_TRAJ_CMD_MSG(EMC_ADJUST_KINS_OFFSET_DATA_TYPE,
-                        sizeof(EMC_ADJUST_KINS_OFFSET_DATA)),
-        adjustKinsVar0(0.0)
+    EMC_TRAJ_SELECT_KINS():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SELECT_KINS_TYPE,
+                        sizeof(EMC_TRAJ_SELECT_KINS)),
+        switchkins_type(0)
     {};
 
-    double adjustKinsVar0;
+    int switchkins_type;
 
     // For internal NML/CMS use only.
     // Sub-class update() calls base-class update()
@@ -1039,6 +1039,11 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     //bool spindle_override_enabled; moved to SPINDLE_STAT
     bool adaptive_feed_enabled;
     bool feed_hold_enabled;
+
+    int switchkins_type;     // switchkins type now in force
+    int switchkins_seq;      // motion's request counter, echoed once seen
+    bool switchkins_changed; // a switch landed, task has yet to synch
+
     StateTag tag;
 };
 
@@ -1182,9 +1187,6 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     bool jogging_active;
     uint64_t heartbeat;  // motion controller's heartbeat counter
 
-    char trajKinsType;
-    bool trajKinsTypeModified;
-    double adjustKinsVar0;
 };
 
 // declarations for EMC_TASK classes

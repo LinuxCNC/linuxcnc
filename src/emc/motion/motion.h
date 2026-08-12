@@ -174,10 +174,9 @@ extern "C" {
         EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
-	    EMCMOT_SET_AXIS_JERK_LIMIT,         /* set the max axis jerk */
+	EMCMOT_SET_AXIS_JERK_LIMIT,     /* set the max axis jerk */
 
-	EMCMOT_ADJUST_KINS_OFFSET_DATA,  /* set the offset in kins (G12.1) */
-
+	EMCMOT_SELECT_KINS_TYPE,        /* select the switchkins type (G12.1) */
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
     } cmd_code_t;
@@ -273,7 +272,7 @@ extern "C" {
     double ext_offset_acc;	/* acceleration for an external axis offset */
     struct state_tag_t tag;
 
-    double adjustKinsVar0;
+    int switchkins_type;        /* switchkins type requested by G12.1 */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -672,8 +671,8 @@ Suggestion: Split this in to an Error and a Status flag register..
     int stepping;
     bool jogging_active;
 
-	char   kinsType;
-	double adjustKinsVar0;
+	int    switchkins_seq;  /* echoes the config counter once acted on */
+	int    switchkins_type; /* switchkins type now in force */
     } emcmot_status_t;
 
 /*********************************
@@ -746,8 +745,9 @@ Suggestion: Split this in to an Error and a Status flag register..
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
 
-        double adjustKinsVar0;
-        char   kinsType;
+        int switchkins_type;    /* switchkins type requested by G12.1 */
+        int switchkins_seq;     /* bumped per request, so a repeat of
+                                   the same type is still seen */
     } emcmot_config_t;
 
 /* error structure - lockfree MPSC ring buffer. See emcmotutil.c. */

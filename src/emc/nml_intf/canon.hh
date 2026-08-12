@@ -1074,6 +1074,6 @@ extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(const StateTag& tag);
 
 // adjust kins offset (G12.1 kinematics switch)
-extern void ADJUST_KINS_OFFSET(double adjustKinsVar0);
+extern void SELECT_KINS_TYPE(int switchkins_type);
 
 #endif				/* ifndef CANON_HH */
