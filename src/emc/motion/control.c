@@ -325,10 +325,6 @@ static void handle_kinematicsSwitch(void) {
     emcmotStatus->adjustKinsVar0 = switchkins_type;
     if (switchkins_type == requested_type) return;
 
-    switchkins_type = requested_type;
-    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
-    emcmotStatus->adjustKinsVar0 = switchkins_type;
-
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
     /* copy joint position feedback to local array */
@@ -339,12 +335,21 @@ static void handle_kinematicsSwitch(void) {
         joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
     }
 
-    if (kinematicsSwitch(switchkins_type)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
-                        hal_get_real(emcmot_hal_data->switchkins_type));
+    /* a module refuses a type it does not provide and goes on running the
+       one it has, so nothing is recorded until the switch has happened */
+    if (kinematicsSwitch(requested_type)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%d>\n",
+                        requested_type);
+        reportError(_("kinematics type %d is not provided by this module,"
+                      " type %d is still in force"),
+                    requested_type, switchkins_type);
         SET_MOTION_ERROR_FLAG(1);  // abort
-        return; // no updates for abort
+        return; // the kinematics in force is unchanged
     }
+
+    switchkins_type = requested_type;
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->adjustKinsVar0 = switchkins_type;
 
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
     KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
