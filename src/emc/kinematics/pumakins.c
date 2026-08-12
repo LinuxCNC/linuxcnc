@@ -22,7 +22,7 @@
 #include <hal.h>
 
 #include "pumakins.h"
-#include "switchkins.h"
+#include <switchkins.h>
 
 struct haldata {
     hal_real_t a2, a3, d3, d4, d6;

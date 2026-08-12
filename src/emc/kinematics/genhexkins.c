@@ -112,7 +112,7 @@
 #include <emcmotcfg.h>
 
 #include "genhexkins.h"
-#include "switchkins.h"
+#include <switchkins.h>
 
 static struct haldata {
     hal_real_t basex[NUM_STRUTS];
