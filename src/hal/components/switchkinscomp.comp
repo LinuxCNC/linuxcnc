@@ -12,10 +12,10 @@ the same 'kinstype.is-N' pins, the same 'coordinates=' identity
 mapping, and the same G-code and HAL controls, without reimplementing
 any of it.
 
-The example switchkinscomp.comp is not usable until modified for the
-user environment.  To create a runnable switchkinscomp module, the
-file must be edited to supply a valid '#define TOPDIR' pointing at a
-LinuxCNC source tree.
+The example builds as it stands, its type 1 being an X offset to
+replace with the kinematics wanted.  The switchkins implementation is
+installed as source alongside the headers, so nothing needs a path to
+a LinuxCNC source tree.
 
 To avoid updates that overwrite switchkinscomp.comp, best practice is
 to rename the file and its component name (example:
@@ -33,7 +33,8 @@ JOINTS = 3
 
 *Note:* If using a deb install:
 
-1. halcompile is provided by the deb package linuxcnc-dev
+1. halcompile and the switchkins source are provided by the deb
+   package linuxcnc-dev
 2. This source file for BRANCHNAME (master, 2.9, etc) is downloadable from github:
 
 https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/switchkinscomp.comp
@@ -49,30 +50,15 @@ option  extra_setup;
 ;;
 
 //=====================================================================
-/* To use the switchkins implementation from a local git src tree:
-** set TOPDIR to the git tree top directory
-** (Edit 'myname' as required)
-*/
-
-//#define TOPDIR /home/myname/linuxcnc-dev
-
-#ifdef TOPDIR // {
-
-#define STR(s)        #s
-#define XSTR(s)       STR(s)
-#define USE_TOPDIR(b) XSTR(TOPDIR/b)
-
 // switchkins.c provides kinematicsForward(), kinematicsInverse(),
 // kinematicsSwitch() and the rest of the kinematics interface, and
 // dispatches each call to the currently selected switchkins-type.
 // kins_util.c provides the identity kinematics and the coordinates
-// letters-to-joints mapping they use.
-#include USE_TOPDIR(src/emc/kinematics/switchkins.c)
-#include USE_TOPDIR(src/emc/kinematics/kins_util.c)
+// letters-to-joints mapping they use.  Both are installed with the
+// headers, so halcompile finds them with no path of your own.
 
-#else
-#error No TOPDIR defined, skeleton component provides no kinematics functions.
-#endif // }
+#include <switchkins.c>
+#include <kins_util.c>
 //=====================================================================
 
 // module parameter naming the joint order for the identity type
