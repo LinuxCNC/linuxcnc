@@ -137,17 +137,27 @@ A module providing more than three kinematics types has one
 
 === HAL Connections
 
-Switchkins functionality is enabled by the pin
-*motion.switchkins-type*, which 'G12.1' and 'G13.1' write directly.
-To select a kinstype from HAL instead, source the pin from an analog
-output pin like motion.analog-out-03 so that it can be set by M68
-commands.  Example:
+'G12.1' and 'G13.1' ask motion for a kinstype directly and need no HAL
+connection at all.
+
+A kinstype can also be selected by writing the pin
+*motion.switchkins-type*, which is sourced from an analog output pin
+like motion.analog-out-03 so that it can be set by M68 commands:
 
 [source,hal]
 ----
 net :kinstype-select <= motion.analog-out-03
 net :kinstype-select => motion.switchkins-type
 ----
+
+[WARNING]
+Selecting the kinstype from HAL is deprecated and motion says so, once,
+the first time the pin is used to change it. The interpreter does not
+see the pin, so a program is read, its limits checked and its path
+looked ahead in whatever kinematics the interpreter last knew about,
+which is not necessarily the one that will run it. Use 'G12.1' and
+'G13.1'. The pin is in a grace period: it keeps working for now, but is
+meant to be removed in the future.
 
 === G-code commands
 
@@ -191,9 +201,14 @@ description.
 
 === M-code commands
 
-A kinstype can also be selected by writing *motion.switchkins-type*
-through an analog output pin, which needs the HAL connection shown
-above. Kinstype selection is then managed using G-code sequences like:
+[WARNING]
+This is the deprecated route described under HAL Connections above. It
+is documented because existing configurations use it. New ones should
+use 'G12.1' and 'G13.1'.
+
+Writing *motion.switchkins-type* through an analog output pin needs the
+HAL connection shown above. Kinstype selection is then managed using
+G-code sequences like:
 
 [source,ngc]
 ----

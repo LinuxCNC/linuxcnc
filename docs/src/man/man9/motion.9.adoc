@@ -253,15 +253,20 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 *motion.switchkins-type* IN float::
   Kinematics modules that define the functions kinematicsSwitchable()
   and kinematicsSwitch() receive the *integer* value of this pin to
-  select the machine kinematics functions. Extra G-code commands may be
+  select the machine kinematics functions. Extra G-code commands are
   required to synchronize task and motion before and after changes to
   the pin value.
-  The G-code words *G12.1 P-* and *G13.1* write this pin and synchronize
-  task and motion themselves, so a program that uses them needs no such
-  extra commands.
+  *Deprecated*: the interpreter does not see this pin, so limits and
+  look ahead go on using the kinematics it last knew about. Use the
+  G-code words *G12.1 P-* and *G13.1*, which ask motion directly and
+  synchronize task and motion themselves. Motion reports the
+  deprecation once, the first time the pin is used to change the
+  kinematics. The pin is in a grace period: it keeps working for now,
+  but is meant to be removed in the future.
 *motion.kins-type* OUT float::
-  The kinematics currently selected, echoing the value that was last
-  applied from *motion.switchkins-type*.
+  The kinematics currently in force, whether it was selected by
+  *G12.1*, by *G13.1* or from *motion.switchkins-type*. A kinematics
+  type the module refuses is not reported here.
 *motion.teleop-mode* OUT BIT::
   Motion mode is teleop (axis coordinate jogging available).
 *motion.tooloffset.L* OUT FLOAT::
