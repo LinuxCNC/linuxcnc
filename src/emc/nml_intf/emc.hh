@@ -112,7 +112,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 
-#define EMC_ADJUST_KINS_OFFSET_DATA_TYPE             ((NMLTYPE) 289)
+#define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
 // EMC_MOTION aggregate class type declaration
@@ -462,7 +462,7 @@ int emcSetupArcBlends(int arcBlendEnable,
 int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
 int emcGetExternalOffsetApplied(void);
 EmcPose emcGetExternalOffsets(void);
-extern int emcAdjustKinsOffset(double adjustKinsVar0);
+extern int emcSelectKinsType(int switchkins_type);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

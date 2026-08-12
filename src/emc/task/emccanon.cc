@@ -1205,15 +1205,15 @@ void ON_RESET() {
     drop_segments();
 }
 
-void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+void SELECT_KINS_TYPE(int switchkins_type)
 {
     flush_segments();
 
-    auto adjustKinsOffsetMsg = std::make_unique<EMC_ADJUST_KINS_OFFSET_DATA>();
+    auto selectKinsMsg = std::make_unique<EMC_TRAJ_SELECT_KINS>();
 
-    adjustKinsOffsetMsg->adjustKinsVar0 = adjustKinsVar0;
+    selectKinsMsg->switchkins_type = switchkins_type;
 
-    interp_list.append(std::move(adjustKinsOffsetMsg));
+    interp_list.append(std::move(selectKinsMsg));
 }
 
 
@@ -4057,7 +4057,7 @@ int GET_EXTERNAL_KINS_TYPE()
     // not necessarily the one G-code last asked for: an abort can drop a
     // queued switch, and the motion.switchkins-type pin can select one
     // without the interpreter seeing it
-    return (int)emcStatus->motion.adjustKinsVar0;
+    return emcStatus->motion.traj.switchkins_type;
 }
 
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()

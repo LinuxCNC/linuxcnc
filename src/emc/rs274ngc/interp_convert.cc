@@ -6532,7 +6532,7 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
 
   CHKS((kins_type < 0), _("G12.1 requires a non-negative P word"));
 
-  ADJUST_KINS_OFFSET((double)kins_type);
+  SELECT_KINS_TYPE(kins_type);
   settings->kins_type = kins_type;
   return INTERP_OK;
 }

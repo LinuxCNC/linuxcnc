@@ -1197,10 +1197,10 @@ void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
 }
 
-void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+void SELECT_KINS_TYPE(int switchkins_type)
 {
-    (void)adjustKinsVar0;
-    printf("saicanon: ADJUST_KINS_OFFSET\n");
+    (void)switchkins_type;
+    printf("saicanon: SELECT_KINS_TYPE\n");
 
     return;
 }
