@@ -18,7 +18,7 @@
 #include <emcpos.h>
 #include "libnml/rcs/rcs_print.hh"
 #include "nml_intf/emcglb.h"
-#include "inifile.hh"
+#include <inifile.hh>
 
 #include "inihal.hh"
 #include "initraj.hh"

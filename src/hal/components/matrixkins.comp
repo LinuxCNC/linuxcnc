@@ -225,8 +225,8 @@ error:
     return -1;
 }
 
-#include "kinematics.h"
-#include "emcmotcfg.h"
+#include <kinematics.h>
+#include <emcmotcfg.h>
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);

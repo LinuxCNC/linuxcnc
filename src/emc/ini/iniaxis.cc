@@ -19,7 +19,7 @@
 #include "nml_intf/emcglb.h"
 #include "nml_intf/emccfg.h"
 #include "libnml/rcs/rcs_print.hh"
-#include "inifile.hh"
+#include <inifile.hh>
 
 #include "inihal.hh"
 #include "iniaxis.hh"
