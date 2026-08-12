@@ -35,7 +35,7 @@ if __name__ == "__main__":
 else:
     from .hal_widgets import _HalSpeedControlBase
 
-from gladevcp.core import Status, Action
+from gladevcp.core import Status, Action, Info
 
 class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     '''
@@ -118,6 +118,7 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
 
         self._action = Action()
         self._status = Status()
+        self._info = Info()
 
         # basic settings
         self._size = size
@@ -185,7 +186,7 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self.hal_pin_decrease.connect("value-changed", self._on_minus_changed)
 
         if self.type_linear_jog:
-            self._status.connect('jograte-changed', lambda w, data: self.set_value(data))
+            self._status.connect('jograte-changed', lambda w, data: self.status_set_value(data))
         elif self.type_angular_jog:
             self._status.connect('jograte-angular-changed', lambda w, data: self.set_value(data))
 
@@ -264,6 +265,14 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self.cr.show_text(label)
         self.cr.stroke()
 
+    # hal_glib (_status) sends jograte in machine units
+    def status_set_value(self, value):
+        if self._status.is_metric_mode():
+            v = self._info.convert_machine_to_metric(value)
+        else:
+            v = self._info.convert_machine_to_imperial(value)
+        self.set_value(v)
+
     # This allows to set the value from external, i.e. propertys
     def set_value(self, value):
         self.adjustment.set_value(value)
@@ -285,7 +294,12 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         value = widget.get_value()
 
         if self.type_linear_jog:
-            self._action.SET_JOG_RATE(value)
+            # hal_glib (_status) expects jograte in machine units
+            if self._status.is_metric_mode():
+                v = self._info.convert_metric_to_machine(value)
+            else:
+                v = self._info.convert_imperial_to_machine(value)
+            self._action.SET_JOG_RATE(v)
         elif self.type_angular_jog:
             self._action.SET_JOG_RATE_ANGULAR(value)
 
