@@ -33,3 +33,16 @@ $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(RDELTAMODULE)
+
+# The switchkins implementation is shipped as source, since a realtime module
+# cannot link a library, so a module built out of tree includes it the way the
+# in-tree ones link it.
+EMCKINEMATICSSRCS = \
+	../share/linuxcnc/switchkins.c \
+	../share/linuxcnc/kins_util.c
+
+$(EMCKINEMATICSSRCS): ../share/linuxcnc/%.c: ./emc/kinematics/%.c
+	$(ECHO) Copying switchkins source $(notdir $@)
+	$(Q)cp -f $< $@
+
+TARGETS += $(EMCKINEMATICSSRCS)

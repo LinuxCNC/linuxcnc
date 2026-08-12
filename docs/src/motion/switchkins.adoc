@@ -438,17 +438,20 @@ it gets the kinematics switching, the 'kinstype.is-N' pins, the
 without reimplementing any of them.
 
 The template is src/hal/components/switchkinscomp.comp.  Copy and
-rename it (both the file and the component name), point its TOPDIR
-at a LinuxCNC source tree, and replace the example kinstype with the
-real kinematics:
+rename it (both the file and the component name) and replace the
+example kinstype with the real kinematics.  The implementation itself
+is included:
 
 [source,c]
 ----
-#define TOPDIR /home/myname/linuxcnc-dev
-// ...
-#include USE_TOPDIR(src/emc/kinematics/switchkins.c)
-#include USE_TOPDIR(src/emc/kinematics/kins_util.c)
+#include <switchkins.c>
+#include <kins_util.c>
 ----
+
+A realtime module cannot link a library, so the implementation arrives
+as source: switchkins.c and kins_util.c are installed beside the
+headers, in share/linuxcnc, and halcompile already looks there.  With
+a deb install they come from the linuxcnc-dev package.
 
 The module registers each of its kinstypes and calls switchkinsInit()
 from EXTRA_SETUP(), which halcompile runs after hal_init() and before
