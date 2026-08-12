@@ -945,10 +945,13 @@ G13.1
 
 'G12.1' selects one of the kinematics provided by a switchable kinematics
 module, and 'G13.1' cancels back to kinematics 0. The 'P' word is the
-kinematics number, the same number that the `motion.switchkins-type` pin
-takes, so 'G13.1' and `G12.1 P0` do the same thing. A config may select
-the kinematics from G-code, from that pin, or from both: each is acted on
-when it changes, so the most recent request is the one in force.
+kinematics number, so 'G13.1' and `G12.1 P0` do the same thing.
+
+These are the way to select a kinematics. The `motion.switchkins-type`
+HAL pin does the same thing and takes the same numbering, but it is
+deprecated: the interpreter never sees it, so a program is read, its
+limits checked and its path looked ahead in whatever kinematics the
+interpreter last knew about, which need not be the one that runs it.
 
 Both codes are queue synchronisation points. The interpreter waits for
 queued motion to finish before the kinematics changes, so no move is ever
