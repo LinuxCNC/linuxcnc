@@ -39,8 +39,6 @@
 
 #include <cmath>
 
-#include <epoxy/gl.h>
-#include <epoxy/glx.h>
 #include <algorithm>
 
 using namespace linuxcnc;
@@ -2659,58 +2657,12 @@ static void vertex9(const double pt[9], double p[3], const char *geometry) {
     }
 }
 
-static void glvertex9(const double pt[9], const char *geometry) {
-    double p[3];
-    vertex9(pt, p, geometry);
-    glVertex3dv(p);
-}
-
-static void line9(const double p1[9], const double p2[9], const char *geometry) {
-    if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = std::max({
-            fabs(p2[3] - p1[3]),
-            fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5])});
-        int st = (int)ceil(std::max(10.0, dc/10));
-        int i;
-
-        for(i=1; i<=st; i++) {
-            double t = i * 1.0 / st;
-            double v = 1.0 - t;
-            double pt[9];
-            for(int j=0; j<9; j++) { pt[j] = t * p2[j] + v * p1[j]; }
-            glvertex9(pt, geometry);
-        }
-    } else {
-        glvertex9(p2, geometry);
-    }
-}
-
-static void line9b(const double p1[9], const double p2[9], const char *geometry) {
-    glvertex9(p1, geometry);
-    if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = std::max({
-            fabs(p2[3] - p1[3]),
-            fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5])});
-        int st = (int)ceil(std::max(10.0, dc/10));
-        int i;
-
-        for(i=1; i<=st; i++) {
-            double t = i * 1.0 / st;
-            double v = 1.0 - t;
-            double pt[9];
-            for(int j=0; j<9; j++) { pt[j] = t * p2[j] + v * p1[j]; }
-            glvertex9(pt, geometry);
-            if(i != st)
-                glvertex9(pt, geometry);
-        }
-    } else {
-        glvertex9(p2, geometry);
-    }
-}
-
+// Retired: this emitted immediate-mode OpenGL vertices, which the 3.3 core
+// profile used for preview rendering does not have.  The name, signature,
+// argument checking, and return value are kept for out-of-tree callers; it no
+// longer draws.  Replacement: rs274.glcanon_scene.
 static PyObject *pyline9(PyObject * /*s*/, PyObject *o) {
+    static bool warned = false;
     double pt1[9], pt2[9];
     const char *geometry;
 
@@ -2724,7 +2676,13 @@ static PyObject *pyline9(PyObject * /*s*/, PyObject *o) {
             &pt2[6], &pt2[7], &pt2[8]))
         return NULL;
 
-    line9b(pt1, pt2, geometry);
+    if(!warned) {
+        warned = true;
+        if(PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "linuxcnc.line9() no longer draws; use rs274.glcanon_scene",
+                    1) < 0)
+            return NULL;
+    }
 
     Py_RETURN_NONE;
 }
@@ -2768,13 +2726,17 @@ static PyObject *pygui_rot_offsets(PyObject * /*s*/, PyObject *o) {
     return Py_None;
 }
 
+// Retired: this drew with immediate-mode OpenGL (glBegin/glVertex*/glEnd),
+// invalid in the 3.3 core profile now used for preview rendering.  The name,
+// signature, argument checking, and return value are kept for out-of-tree
+// callers; it no longer draws.  Replacement: rs274.glcanon_scene.
 static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
+    static bool warned = false;
     PyListObject *li;
     int for_selection = 0;
     int i;
-    int first = 1;
-    int nl = -1, n;
-    double p1[9], p2[9], pl[9];
+    int n;
+    double p1[9], p2[9];
     char *geometry;
 
     if(!PyArg_ParseTuple(o, "sO!|i:draw_lines",
@@ -2791,47 +2753,35 @@ static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
                     p2+0, p2+1, p2+2,
                     p2+3, p2+4, p2+5,
                     p2+6, p2+7, p2+8,
-                    &dummy1, &dummy2, &dummy3)) {
-            if(!first) glEnd();
+                    &dummy1, &dummy2, &dummy3))
             return NULL;
-        }
-
-        // Suppress cppcheck false positive:
-        // 'first' == 1 when 'pl' is undefined and therefore not a problem.
-        // cppcheck-suppress uninitvar
-        if(first || memcmp(p1, pl, sizeof(p1))
-                || (for_selection && n != nl)) {
-            if(!first) glEnd();
-            if(for_selection && n != nl) {
-                glLoadName(n);
-                nl = n;
-            }
-            glBegin(GL_LINE_STRIP);
-            glvertex9(p1, geometry);
-            first = 0;
-        }
-        line9(p1, p2, geometry);
-        memcpy(pl, p2, sizeof(p1));
     }
 
-    if(!first) glEnd();
+    if(!warned) {
+        warned = true;
+        if(PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "linuxcnc.draw_lines() no longer draws; use rs274.glcanon_scene",
+                    1) < 0)
+            return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+// Retired: this drew with immediate-mode OpenGL (glBegin/glVertex*/glEnd),
+// invalid in the 3.3 core profile now used for preview rendering.  The name,
+// signature, argument checking, and return value are kept for out-of-tree
+// callers; it no longer draws.  Replacement: rs274.glcanon_scene.
 static PyObject *pydraw_dwells(PyObject * /*s*/, PyObject *o) {
+    static bool warned = false;
     PyListObject *li;
     int for_selection = 0, is_lathe = 0, i, n;
     double alpha;
     char *geometry;
-    double delta = 0.015625;
 
     if(!PyArg_ParseTuple(o, "sO!dii:draw_dwells", &geometry, &PyList_Type, &li, &alpha, &for_selection, &is_lathe))
         return NULL;
-
-    if (for_selection == 0)
-        glBegin(GL_LINES);
 
     for(i=0; i<PyList_GET_SIZE(li); i++) {
         PyObject *it = PyList_GET_ITEM(li, i);
@@ -2840,52 +2790,15 @@ static PyObject *pydraw_dwells(PyObject * /*s*/, PyObject *o) {
         if(!PyArg_ParseTuple(it, "i(ddd)dddi", &n, &red, &green, &blue, &x, &y, &z, &axis)) {
             return NULL;
         }
-        if (for_selection != 1)
-            glColor4d(red, green, blue, alpha);
-        if (for_selection == 1) {
-            glLoadName(n);
-            glBegin(GL_LINES);
-        }
-        if (is_lathe == 1)
-            axis = 1;
-
-        if (axis == 0) {
-            glVertex3f(x-delta,y-delta,z);
-            glVertex3f(x+delta,y+delta,z);
-            glVertex3f(x-delta,y+delta,z);
-            glVertex3f(x+delta,y-delta,z);
-
-            glVertex3f(x+delta,y+delta,z);
-            glVertex3f(x-delta,y-delta,z);
-            glVertex3f(x+delta,y-delta,z);
-            glVertex3f(x-delta,y+delta,z);
-        } else if (axis == 1) {
-            glVertex3f(x-delta,y,z-delta);
-            glVertex3f(x+delta,y,z+delta);
-            glVertex3f(x-delta,y,z+delta);
-            glVertex3f(x+delta,y,z-delta);
-
-            glVertex3f(x+delta,y,z+delta);
-            glVertex3f(x-delta,y,z-delta);
-            glVertex3f(x+delta,y,z-delta);
-            glVertex3f(x-delta,y,z+delta);
-        } else {
-            glVertex3f(x,y-delta,z-delta);
-            glVertex3f(x,y+delta,z+delta);
-            glVertex3f(x,y+delta,z-delta);
-            glVertex3f(x,y-delta,z+delta);
-
-            glVertex3f(x,y+delta,z+delta);
-            glVertex3f(x,y-delta,z-delta);
-            glVertex3f(x,y-delta,z+delta);
-            glVertex3f(x,y+delta,z-delta);
-        }
-        if (for_selection == 1)
-            glEnd();
     }
 
-    if (for_selection == 0)
-        glEnd();
+    if(!warned) {
+        warned = true;
+        if(PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "linuxcnc.draw_dwells() no longer draws; use rs274.glcanon_scene",
+                    1) < 0)
+            return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -3159,35 +3072,20 @@ static PyObject* Logger_stop(pyPositionLogger *s, PyObject * /*o*/) {
     return Py_None;
 }
 
-static PyObject* Logger_call(pyPositionLogger *s, PyObject * /*o*/) {
-    if(!s->clear) {
-        LOCK();
-        if(s->is_xyuv) {
-            if(s->changed) {
-                glVertexPointer(3, GL_FLOAT,
-                        sizeof(struct logger_point)/2, &s->p->x);
-                glColorPointer(4, GL_UNSIGNED_BYTE,
-                        sizeof(struct logger_point)/2, &s->p->c);
-                glEnableClientState(GL_COLOR_ARRAY);
-                glEnableClientState(GL_VERTEX_ARRAY);
-                s->changed = 0;
-            }
-            s->lpts = s->npts;
-            glDrawArrays(GL_LINES, 0, 2*s->npts);
-        } else {
-            if(s->changed) {
-                glVertexPointer(3, GL_FLOAT,
-                        sizeof(struct logger_point), &s->p->x);
-                glColorPointer(4, GL_UNSIGNED_BYTE,
-                        sizeof(struct logger_point), &s->p->c);
-                glEnableClientState(GL_COLOR_ARRAY);
-                glEnableClientState(GL_VERTEX_ARRAY);
-                s->changed = 0;
-            }
-            s->lpts = s->npts;
-            glDrawArrays(GL_LINE_STRIP, 0, s->npts);
-        }
-        UNLOCK();
+// Retired: this plotted the backplot through the fixed-function client-state
+// vertex arrays (glVertexPointer/glColorPointer/glDrawArrays), which the 3.3
+// core profile does not have.  The name and return value are kept for
+// out-of-tree callers; it no longer draws.  Replacement: points(), which hands
+// the same buffer to the core renderer for VBO upload — and which advances
+// lpts, so the tool marker still tracks the plotted line.
+static PyObject* Logger_call(pyPositionLogger * /*s*/, PyObject * /*o*/) {
+    static bool warned = false;
+    if(!warned) {
+        warned = true;
+        if(PyErr_WarnEx(PyExc_DeprecationWarning,
+                    "positionlogger.call() no longer draws; use positionlogger.points()",
+                    1) < 0)
+            return NULL;
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -3216,6 +3114,31 @@ static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
     return result;
 }
 
+// Additive accessor for the OpenGL 3.3 core renderer: hand Python a private
+// copy of the logged-point ring buffer so it can upload changed ranges to a
+// VBO, instead of the deprecated immediate-mode Logger_call. The copy is taken
+// under the same lock that guards realloc/memmove of s->p in the sampler
+// thread. Returns (bytes, npts, is_xyuv); each point is a `struct logger_point`
+// (see the matching numpy dtype in rs274.glcanon_bake.LOGGER_DTYPE).
+//
+// This is the core renderer's draw-time handoff of the plotted points, so it
+// advances lpts to npts exactly as Logger_call did. Logger_last(flag=1) reads
+// lpts to report the last *drawn* point (used to position the tool marker so it
+// stays in sync with the plotted line); without this, lpts stays 0 and the tool
+// marker snaps to the origin whenever the live plot is shown.
+static PyObject *Logger_get_points(pyPositionLogger *s, PyObject * /*o*/) {
+    LOCK();
+    int npts = s->npts;
+    if(npts < 0) npts = 0;
+    Py_ssize_t nbytes = (Py_ssize_t)npts * (Py_ssize_t)sizeof(struct logger_point);
+    PyObject *buf = PyBytes_FromStringAndSize((const char*)s->p, nbytes);
+    int is_xyuv = s->is_xyuv;
+    s->lpts = s->npts;
+    UNLOCK();
+    if(!buf) return NULL;
+    return Py_BuildValue("Nii", buf, npts, is_xyuv);
+}
+
 static PyMemberDef Logger_members[] = {
     {(char*)"npts", T_INT, offsetof(pyPositionLogger, npts), READONLY, NULL},
     {},
@@ -3230,6 +3153,9 @@ static PyMethodDef Logger_methods[] = {
         "Stop the position logger"},
     {"call", (PyCFunction)Logger_call, METH_NOARGS,
         "Plot the backplot now"},
+    {"points", (PyCFunction)Logger_get_points, METH_NOARGS,
+        "Return (bytes, npts, is_xyuv): a copy of the logged point buffer for "
+        "VBO upload by the core renderer"},
     {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
         "set the Z and W depths for foam cutter"},
     {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
@@ -3307,9 +3233,9 @@ static PyTypeObject PositionLoggerType = {
 
 static PyMethodDef emc_methods[] = {
 #define METH(name, doc) { #name, (PyCFunction) py##name, METH_VARARGS, doc }
-METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
-METH(draw_dwells, "Draw a bunch of dwell positions in the 'rs274.glcanon' format"),
-METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(GL_LINES)"),
+METH(draw_lines, "Retired: no longer draws, use rs274.glcanon_scene"),
+METH(draw_dwells, "Retired: no longer draws, use rs274.glcanon_scene"),
+METH(line9, "Retired: no longer draws, use rs274.glcanon_scene"),
 METH(vertex9, "Get the 3d location for a 9d point"),
 METH(gui_rot_offsets, "Set x,y,z offsets for A,B,C rotations"),
 METH(gui_respect_offsets, "Enable rotations about g5x,g92 offsets"),
