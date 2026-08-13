@@ -962,9 +962,9 @@ int halui_hal_init(void)
         CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_soft_keys[n]), 0, "halui.gui.softkey.%02d", n));
     }
 
-    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_ok), 0, "halui.gui.ok"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_ok), 0, "halui.gui.response.ok"));
 
-    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_cancel), 0, "halui.gui.cancel"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_cancel), 0, "halui.gui.response.cancel"));
 
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(halui_data->gui_reload), 0, "halui.gui.reload-preview"));
 
