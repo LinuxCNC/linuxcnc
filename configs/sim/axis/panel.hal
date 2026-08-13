@@ -33,8 +33,8 @@ net pause   halui.gui.cycle-start  panel.cycle-start
 net start   halui.gui.cycle-pause  panel.cycle-pause
 net abort   halui.abort            panel.cycle-abort
 
-net cancel  halui.gui.cancel panel.cancel
-net ok      halui.gui.ok     panel.ok
+net cancel  halui.gui.response.cancel panel.cancel
+net ok      halui.gui.response.ok     panel.ok
 
 net softkey0  halui.gui.softkey.00    panel.softkey-0
 net softkey1  halui.gui.softkey.01    panel.softkey-1
