@@ -1797,6 +1797,7 @@ class _prompt_float:
         return None
 
     def run(self):
+        self.t.wait_visibility()
         self.t.grab_set()
         self._after = self.t.after_idle(self.do_focus)
         self.t.wait_window()
