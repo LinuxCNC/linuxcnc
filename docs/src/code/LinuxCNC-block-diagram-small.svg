@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LinuxCNC architecture block diagram - corrected, hand-written SVG.
+
+  Same topology as the PNG it replaces; ten corrections, each established by reading
+  master at caa13ca6 and listed with its source location at
+  https://zia-research.github.io/linuxcnc-audit/sheets/linuxcnc-code-notes-errata.html
+
+  Self-contained: the class rules are inlined in the <style> block below and the sheet
+  background is painted explicitly, so the file renders on its own with no build step
+  and no tooling dependency. Contributed under GPL-2.0.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 900" width="1160" height="900"
+     role="img" aria-label="Corrected LinuxCNC architecture diagram based on master sources">
+  <style>
+  .bx{fill:#DCE0DC;stroke:#5E6A63;stroke-width:1.3}
+  .bx-new{fill:#F0DCBE;stroke:#B06E12;stroke-width:1.5}
+  .bx-ok{fill:#D3E2E3;stroke:#1D6E78;stroke-width:1.4}
+  .bx-q{fill:#FBF0DA;stroke:#B06E12;stroke-width:1.8;stroke-dasharray:5 3}
+  .ln{stroke:#5E6A63;stroke-width:1.3;fill:none}
+  .ln-d{stroke:#5E6A63;stroke-width:1.3;fill:none;stroke-dasharray:6 4}
+  .tg{font-family:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:9.5px;fill:#4A544F;letter-spacing:.14em;text-transform:uppercase}
+  .ts{font-family:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:8.8px;fill:#4A544F}
+  .tt{font-family:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:11px;fill:#141A1D;font-weight:600}
+  </style>
+  <rect x="0" y="0" width="1160" height="900" fill="#E4E7E4"/>
+
+    <rect class="bx-ok" x="380" y="28" width="390" height="58"/>
+    <text class="tt" x="575" y="52" text-anchor="middle">GUI · halui · linuxcncrsh</text>
+    <text class="ts" x="575" y="68" text-anchor="middle">axis · gmoccapy · qtvcp · touchy · gscreen</text>
+    <line class="ln" x1="575" y1="86" x2="575" y2="108"/>
+    <rect class="bx-ok" x="460" y="108" width="230" height="30"/>
+    <line class="ln" x1="537" y1="108" x2="537" y2="138"/><line class="ln" x1="614" y1="108" x2="614" y2="138"/>
+    <text class="ts" x="498" y="121" text-anchor="middle">emcCommand</text>
+    <text class="ts" x="498" y="132" text-anchor="middle">8192 B · queue</text>
+    <text class="ts" x="575" y="121" text-anchor="middle">emcStatus</text>
+    <text class="ts" x="575" y="132" text-anchor="middle">20480 B</text>
+    <text class="ts" x="652" y="121" text-anchor="middle">emcError</text>
+    <text class="ts" x="652" y="132" text-anchor="middle">8192 B · queue</text>
+    <text class="tg" x="452" y="126" text-anchor="end">NML</text>
+    <text class="ts" x="700" y="126">the only triplet · owned by linuxcncsvr</text>
+    <line class="ln" x1="575" y1="138" x2="575" y2="158"/>
+
+    <rect class="bx-new" x="240" y="158" width="680" height="150"/>
+    <text class="tt" x="906" y="178" text-anchor="end">milltask</text>
+    <rect class="bx-ok" x="270" y="196" width="170" height="66"/>
+    <text class="tt" x="355" y="222" text-anchor="middle">RS-274</text>
+    <text class="ts" x="355" y="237" text-anchor="middle">interpreter · rs274ngc</text>
+    <rect class="bx-q" x="456" y="196" width="150" height="66"/>
+    <text class="tt" x="531" y="218" text-anchor="middle" fill="#B06E12">interp_list</text>
+    <text class="ts" x="531" y="232" text-anchor="middle">std::deque</text>
+    <text class="ts" x="531" y="244" text-anchor="middle">throttled at 1000</text>
+    <rect class="bx-ok" x="622" y="196" width="140" height="66"/>
+    <text class="tt" x="692" y="222" text-anchor="middle">sequencing</text>
+    <text class="ts" x="692" y="237" text-anchor="middle">emctaskmain.cc</text>
+    <rect class="bx-new" x="778" y="196" width="126" height="66"/>
+    <text class="tt" x="841" y="216" text-anchor="middle" fill="#7A4A08">iocontrol.0.*</text>
+    <text class="ts" x="841" y="230" text-anchor="middle">14 HAL pins</text>
+    <text class="ts" x="841" y="242" text-anchor="middle">former io process</text>
+    <text class="ts" x="270" y="284">tool, coolant, estop — no NML channel left for I/O</text>
+
+    <line class="ln" x1="420" y1="308" x2="420" y2="336"/>
+    <rect class="bx-new" x="150" y="336" width="620" height="72"/>
+    <text class="tg" x="162" y="352" fill="#7A4A08">RTAPI shmem · key 100 · emcmot segment</text>
+    <rect class="bx-new" x="166" y="358" width="196" height="42"/>
+    <text class="ts" x="264" y="374" text-anchor="middle">emcmot_command_t</text>
+    <text class="ts" x="264" y="386" text-anchor="middle">SINGLE SLOT</text>
+    <text class="ts" x="264" y="396" text-anchor="middle">mutex + commandNum</text>
+    <rect class="bx-new" x="374" y="358" width="186" height="42"/>
+    <text class="ts" x="467" y="374" text-anchor="middle">emcmot_status_t</text>
+    <text class="ts" x="467" y="386" text-anchor="middle">seqlock head / tail</text>
+    <text class="ts" x="467" y="396" text-anchor="middle">+ config, internal</text>
+    <rect class="bx-q" x="572" y="358" width="184" height="42"/>
+    <text class="ts" x="664" y="374" text-anchor="middle" fill="#B06E12">emcmot_error_t</text>
+    <text class="ts" x="664" y="386" text-anchor="middle">MPSC RING 32 × 1024</text>
+    <text class="ts" x="664" y="396" text-anchor="middle">the only real queue here</text>
+    <text class="ts" x="786" y="368">not NML,</text>
+    <text class="ts" x="786" y="380">not a FIFO:</text>
+    <text class="ts" x="786" y="392">one exchange at a time</text>
+
+    <line class="ln-d" x1="24" y1="432" x2="1136" y2="432"/>
+    <text class="tg" x="30" y="426">ordinary scheduling</text>
+    <text class="tg" x="30" y="446" fill="#7A4A08">SCHED_FIFO — rtapi_app, user space</text>
+    <text class="ts" x="700" y="428">a scheduling boundary, no longer a kernel boundary — except under RTAI</text>
+
+    <rect class="bx-new" x="40" y="462" width="1080" height="222"/>
+    <text class="tt" x="1104" y="482" text-anchor="end" fill="#7A4A08">motmod + loaded modules</text>
+    <rect class="bx-new" x="66" y="494" width="150" height="52"/>
+    <text class="ts" x="141" y="512" text-anchor="middle">tpmod</text>
+    <text class="ts" x="141" y="524" text-anchor="middle">trajectory planner</text>
+    <text class="ts" x="141" y="536" text-anchor="middle">cruckig · finite jerk</text>
+    <rect class="bx-new" x="228" y="494" width="140" height="52"/>
+    <text class="ts" x="298" y="512" text-anchor="middle">homemod</text>
+    <text class="ts" x="298" y="524" text-anchor="middle">homing</text>
+    <rect class="bx-new" x="380" y="494" width="160" height="52"/>
+    <text class="ts" x="460" y="512" text-anchor="middle">*kins</text>
+    <text class="ts" x="460" y="524" text-anchor="middle">forward and inverse</text>
+    <text class="ts" x="460" y="536" text-anchor="middle">kinematics · 19 modules</text>
+    <rect class="bx-q" x="552" y="494" width="164" height="52"/>
+    <text class="tt" x="634" y="514" text-anchor="middle" fill="#B06E12">TC_QUEUE</text>
+    <text class="ts" x="634" y="528" text-anchor="middle">ring · 2000 segments</text>
+    <text class="ts" x="634" y="540" text-anchor="middle">≈ 1 MB</text>
+    <rect class="bx-new" x="728" y="494" width="180" height="52"/>
+    <text class="ts" x="818" y="512" text-anchor="middle">spindle × 8</text>
+    <text class="ts" x="818" y="524" text-anchor="middle">spindle.N.on · speed-out</text>
+    <text class="ts" x="818" y="536" text-anchor="middle">at-speed · index-enable</text>
+    <rect class="bx-ok" x="920" y="494" width="180" height="52"/>
+    <text class="ts" x="1010" y="512" text-anchor="middle">limit and home</text>
+    <text class="ts" x="1010" y="524" text-anchor="middle">status</text>
+    <rect class="bx-new" x="66" y="566" width="474" height="102"/>
+    <text class="tg" x="78" y="584" fill="#7A4A08">JOINT 1 … 16 — a motor, not an axis · 9 separate Cartesian axes</text>
+    <rect class="bx-ok" x="86" y="594" width="160" height="26"/>
+    <text class="ts" x="166" y="611" text-anchor="middle">cubic interpolator</text>
+    <rect class="bx-new" x="266" y="594" width="160" height="26"/>
+    <text class="ts" x="346" y="611" text-anchor="middle">backlash + screw comp</text>
+    <text class="ts" x="86" y="640">output: motor_pos_cmd on a HAL pin — the controller stops there</text>
+    <rect class="bx-ok" x="566" y="566" width="534" height="102" fill="none" stroke-dasharray="5 4"/>
+    <text class="tg" x="578" y="584">WHAT THE DIAGRAM GOT RIGHT</text>
+    <text class="ts" x="578" y="606">cubic interpolator · forward and inverse kinematics · limit/home status</text>
+    <text class="ts" x="578" y="620">RS-274 interpreter · sequencing logic · NML triplet to the GUI</text>
+    <text class="ts" x="578" y="634">encoder and motor closing the loop · the principle of a real-time boundary</text>
+
+    <rect class="bx-new" x="40" y="700" width="1080" height="42"/>
+    <text class="tt" x="56" y="718" fill="#7A4A08">HAL</text>
+    <text class="ts" x="94" y="718">2 MiB shared block · key 0x48414C32 · components ▸ pins ▸ signals ▸ functions ▸ threads</text>
+    <text class="ts" x="94" y="732">absent from the original — yet it now carries every bit of hardware coupling</text>
+
+    <rect class="bx-new" x="40" y="758" width="530" height="112"/>
+    <text class="tg" x="56" y="776" fill="#7A4A08">HAL COMPONENTS — wired by the integrator, moved out of the controller</text>
+    <rect class="bx" x="58" y="788" width="110" height="26"/><text class="ts" x="113" y="805" text-anchor="middle">pid</text>
+    <rect class="bx" x="178" y="788" width="110" height="26"/><text class="ts" x="233" y="805" text-anchor="middle">stepgen</text>
+    <rect class="bx" x="298" y="788" width="110" height="26"/><text class="ts" x="353" y="805" text-anchor="middle">pwmgen</text>
+    <rect class="bx" x="418" y="788" width="134" height="26"/><text class="ts" x="485" y="805" text-anchor="middle">encoder</text>
+    <rect class="bx" x="58" y="822" width="110" height="26"/><text class="ts" x="113" y="839" text-anchor="middle">estop_latch</text>
+    <rect class="bx" x="178" y="822" width="110" height="26"/><text class="ts" x="233" y="839" text-anchor="middle">limit3</text>
+    <text class="ts" x="298" y="839">124 .comp + 25 .c source files</text>
+
+    <rect class="bx" x="590" y="758" width="530" height="112"/>
+    <text class="tg" x="606" y="776">DRIVERS AND HARDWARE</text>
+    <rect class="bx" x="608" y="788" width="150" height="26"/><text class="ts" x="683" y="805" text-anchor="middle">hostmot2 · Mesa</text>
+    <rect class="bx" x="768" y="788" width="150" height="26"/><text class="ts" x="843" y="805" text-anchor="middle">hal_parport</text>
+    <rect class="bx" x="928" y="788" width="174" height="26"/><text class="ts" x="1015" y="805" text-anchor="middle">gpio · rpi, beaglebone</text>
+    <rect class="bx-ok" x="608" y="822" width="494" height="26"/>
+    <text class="ts" x="855" y="839" text-anchor="middle">motor · encoder · limit switches · spindle — 23 driver files + hostmot2 (42 modules, one driver)</text>
+  
+</svg>

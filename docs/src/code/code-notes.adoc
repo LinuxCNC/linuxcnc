@@ -100,7 +100,7 @@ document, both from the design point of view and from the developers
 point of view (where to find needed data, how to easily extend/modify
 things, etc.).
 
-image::LinuxCNC-block-diagram-small.png[align="center",pdfwidth=100%]
+image::LinuxCNC-block-diagram-small.svg[align="center",pdfwidth=100%]
 
 === LinuxCNC software architecture
 
