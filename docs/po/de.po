@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-08 22:51+0000\n"
+"PO-Revision-Date: 2026-08-13 23:51+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -52754,7 +52754,7 @@ msgstr ""
 "'Einheiten' wie in der INI-Datei angegeben. Alle in der INI-Datei "
 "definierten Achsen werden bewegt, wenn ein G28 ausgegeben wird. Wenn keine "
 "Positionen mit G28.1 gespeichert werden, dann werden alle Achsen auf den "
-"<<sec:Maschinenkoordinatensystem,Maschinenursprung>> gehen."
+"<<sec:machine-coordinate-system,Maschinenursprung>> gehen."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:986
@@ -52846,8 +52846,8 @@ msgstr ""
 "Maschinenkoordinaten in den maschineneigenen 'Einheiten' wie in der INI-"
 "Datei angegeben.  Alle in der INI-Datei definierten Achsen werden bewegt, "
 "wenn ein G30 ausgegeben wird. Wenn keine Positionen mit G30.1 gespeichert "
-"werden, dann gehen alle Achsen zum "
-"<<sec:Maschinenkoordinatensystem,Maschinenursprung>>."
+"werden, dann gehen alle Achsen zum <<sec:machine-coordinate-"
+"system,Maschinenursprung>>."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1021
@@ -63138,7 +63138,7 @@ msgstr "<<sec:overview-parameters,Parameter>>"
 #. type: Plain text
 #: src/gcode/o-code.adoc:383
 msgid "<<gcode:expressions,Expressions>>"
-msgstr "<<gcode:Ausdrücke,Ausdrücke>> (engl. expressions)"
+msgstr "<<gcode:expressions,Ausdrücke>>"
 
 #. type: Plain text
 #: src/gcode/o-code.adoc:384
@@ -64028,7 +64028,7 @@ msgstr "O"
 #: src/gcode/overview.adoc:139
 #, no-wrap
 msgid "o-codes for program flow control (See <<cha:o-codes,o-Codes>>)"
-msgstr "o-Codes für die Programmflusssteuerung (siehe <<cha:o-Codes,o-Codes>>)"
+msgstr "o-Codes für die Programmflusssteuerung (siehe <<cha:o-codes,o-Codes>>)"
 
 #. type: Table
 #: src/gcode/overview.adoc:140
@@ -64133,8 +64133,8 @@ msgid ""
 msgstr ""
 "Auch als \"o-Codes\" bezeichnet, werden diese Programm-Kontrollfluss "
 "Kommandos (wie z.B. if-else logic und aufrufbare Unterprogramme (engl. "
-"callable subroutines)) angeboten und auf der Seite zu <<<cha:o-Codes,o-"
-"Codes>>> und auch unten im Abschnitt <<sub:subroutine-Parameter,Subroutine-"
+"callable subroutines)) angeboten und auf der Seite zu <<cha:o-codes,o-"
+"Codes>> und auch unten im Abschnitt <<sub:subroutine-parameters,Subroutine-"
 "Codes und Parameter>> beschrieben."
 
 #. type: Plain text
@@ -64868,7 +64868,7 @@ msgstr ""
 #. type: Plain text
 #: src/gcode/overview.adoc:401
 msgid "See the chapter on <<cha:o-codes,o-Codes>>."
-msgstr "Siehe Kapitel über <<cha:o-Codes,o-Codes>>."
+msgstr "Siehe Kapitel über <<cha:o-codes,o-Codes>>."
 
 #. type: Plain text
 #: src/gcode/overview.adoc:403
@@ -64881,7 +64881,7 @@ msgstr ""
 "Werden o-Codes zur Bildung von Subroutinen verwendet, so können o-Codes auch "
 "solche Subroutinen aufrufen und bis zu 30 Parameter angeben, die der "
 "Subroutine lokal zur Verfügung stehen und flüchtig sind. (Siehe den "
-"Abschnitt zu <<cha:o-Codes,o-Codes>> für eine vollständigere Beschreibung "
+"Abschnitt zu <<cha:o-codes,o-Codes>> für eine vollständigere Beschreibung "
 "und Beispiele.)"
 
 #. type: Plain text
@@ -230917,7 +230917,7 @@ msgid ""
 "section from link:../getting-started/getting-linuxcnc.html[here]."
 msgstr ""
 "Folgen Sie den Anweisungen des Abschnitts \"Update von LinuxCNC auf Debian "
-"Bookworm\" in link:./getting-started/getting-linuxcnc.html[diesem Dokument]."
+"Bookworm\" in link:../getting-started/getting-linuxcnc.html[diesem Dokument]."
 
 #. type: Title ===
 #: src/plasma/qtplasmac.adoc:69
@@ -233177,7 +233177,10 @@ msgstr "FR:"
 #: src/plasma/qtplasmac.adoc:688
 #, no-wrap
 msgid "If \"View Material\" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Feed Rate."
-msgstr "Wenn \"View Material\" auf der <<plasma:parameters-tab,PARAMETER-Registerkarte>> ausgewählt ist, wird die Vorschubgeschwindigkeit des aktuell ausgewählten Materials angezeigt."
+msgstr ""
+"Wenn \"View Material\" auf der <<plasma:settings-tab,PARAMETER-"
+"Registerkarte>> ausgewählt ist, wird die Vorschubgeschwindigkeit des aktuell "
+"ausgewählten Materials angezeigt."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:688
@@ -235381,7 +235384,7 @@ msgid ""
 "*16:9* aspect ratio:"
 msgstr ""
 "Screenshot-Beispiel des QtPlasmaC-Registerkarte <<plasma:settings-"
-"Tab,EINSTELLUNGEN>> im Seitenverhältnis *16:9*:"
+"tab,EINSTELLUNGEN>> im Seitenverhältnis *16:9*:"
 
 #. type: Target for macro image
 #: src/plasma/qtplasmac.adoc:1136
@@ -235947,8 +235950,8 @@ msgstr ""
 "tab,STATISTIKEN>> angezeigt, dieses Protokoll zeigt alle Fehler und / oder "
 "wichtigen Informationen an, die während der aktuellen LinuxCNC-Sitzung "
 "auftreten.  Wenn der Benutzer eine Sicherungskopie der Konfiguration über "
-"die Registerkarte mit <<plasma:settings,EINSTELLUNGEN>> erstellt, wird auch "
-"das Maschinenprotokoll in die Sicherung einbezogen."
+"die Registerkarte mit <<plasma:settings-tab,EINSTELLUNGEN>> erstellt, wird "
+"auch das Maschinenprotokoll in die Sicherung einbezogen."
 
 #. type: Target for macro image
 #: src/plasma/qtplasmac.adoc:1254
@@ -238666,8 +238669,8 @@ msgid ""
 "offsets,Peripheral Offsets>>."
 msgstr ""
 "Um diese Funktion verwenden zu können, muss der Benutzer den Versatz der "
-"Sonde von der Brennermitte aus einstellen, indem er das unter <<Peripherie-"
-"Offsets,Peripherie-Offsets>> beschriebene Verfahren befolgt."
+"Sonde von der Brennermitte aus einstellen, indem er das unter <<peripheral-"
+"offsets,Peripherie-Offsets>> beschriebene Verfahren befolgt."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:1963
@@ -240144,7 +240147,7 @@ msgid ""
 "to start from any line in a G-code program via the following methods:"
 msgstr ""
 "Wenn der Benutzer die Option Run From Line im Abschnitt GUI SETTINGS der "
-"<<plasma:settings-Tab,Registerkarte EINSTELLUNGEN>> aktiviert hat, kann er "
+"<<plasma:settings-tab,Registerkarte EINSTELLUNGEN>> aktiviert hat, kann er "
 "mit den folgenden Methoden von jeder Zeile in einem G-Code-Programm aus "
 "starten:"
 
@@ -240518,7 +240521,7 @@ msgid ""
 "procedure described in <<peripheral-offsets,Peripheral Offsets>>."
 msgstr ""
 "Der erste Schritt ist die Einstellung der Offsets für die Gravur (engl. "
-"scribe), wie unter <<Peripherie-Offsets,Peripherie-Offsets>> beschrieben."
+"scribe), wie unter <<peripheral-offsets,Peripherie-Offsets>> beschrieben."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:2435
@@ -243179,8 +243182,8 @@ msgstr ""
 "Die oben genannten Farben werden für die folgenden Widgets verwendet. Daher "
 "muss jedes benutzerdefinierte Styling diese berücksichtigen.  Die unten "
 "gezeigten Farben sind die Standardwerte, die in QtPlasmaC zusammen mit dem "
-"Farbnamen aus der Registerkarte <<plasma:settings,EINSTELLUNGEN>>, verwendet "
-"werden."
+"Farbnamen aus der Registerkarte <<plasma:settings-tab,EINSTELLUNGEN>>, "
+"verwendet werden."
 
 #. type: Table
 #: src/plasma/qtplasmac.adoc:3088
