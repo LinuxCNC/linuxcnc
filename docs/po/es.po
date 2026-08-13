@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
 "PO-Revision-Date: 2026-08-13 23:51+0000\n"
-"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
+"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -45977,6 +45977,14 @@ msgid ""
 "UL and FH parameters must be changed on the panel.  See the VF-S11 manual "
 "for instructions how to set the maximum frequency."
 msgstr ""
+"'<n>.max-rpm' (float, R)  límite real de RPM con base en la frecuencia "
+"máxima que puede generar el VFD, y los valores de la placa de fabricante del "
+"motor.  Por ejemplo, si la placa del fabricante indica is 50 HZ y 1410 RPM, "
+"pero el VFD puede generar hasta 80 Hz, entonces en max-rpm se leerá 2256 "
+"(80*1410/50).  El límite de frecuencia se lee desde el VFD en el arranque.  "
+"Para incrementar el límite superior de frecuencia se deben modificar los "
+"parámetros UL y FH en el panel.  Ver el manual de VF-S11 para instrucciones "
+"sobre cómo configurar la frecuencia máxima."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:90
@@ -45984,26 +45992,33 @@ msgid ""
 "'<n>.modbus-ok' (bit, out)  true when the Modbus session is successfully "
 "established and the last 10 transactions returned without error."
 msgstr ""
+"'<n>.modbus-ok' (bit, out)  Verdadero cuando se establece exitosamente la "
+"sesión Modbus y las últimas 10 transacciones regresaron sin error."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:92
 msgid "'<n>.motor-RPM' (float, out)  estimated current RPM value, from the VFD"
 msgstr ""
+"'<n>.motor-RPM' (float, out)  valor estimado actual de RPM, desde el VFD"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:94
 msgid "'<n>.output-current-percentage' (float, out)  from the VFD"
 msgstr ""
+"'<n>.output-current-percentage' (float, out)  porcentaje de corriente de "
+"salida, desde el VFD"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:96
 msgid "'<n>.output-voltage-percentage' (float, out)  from the VFD"
 msgstr ""
+"'<n>.output-voltage-percentage' (float, out)  porcentaje de voltaje de "
+"salida, desde el VFD"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:98
 msgid "'<n>.output-voltage' (float, out)  from the VFD"
-msgstr ""
+msgstr "'<n>.output-voltage' (float, out)  voltaje de salida, desde el VFD"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:100
@@ -46011,11 +46026,16 @@ msgid ""
 "'<n>.speed-command' (float, in)  speed sent to VFD in RPM. It is an error to "
 "send a speed faster than the Motor Max RPM as set in the VFD"
 msgstr ""
+"'<n>.speed-command' (float, in)  velocidad enviada al VFD en RPM. Es un "
+"error enviar una velocidad mayor que las RPM máx. del motor configuradas en "
+"el VFD"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:102
 msgid "'<n>.spindle-fwd' (bit, in)  1 for FWD and 0 for REV, sent to VFD"
 msgstr ""
+"'<n>.spindle-fwd' (bit, in)  dirección del husillo, 1 para adelante y 0 para "
+"reversa, enviada al VFD"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:104
@@ -46023,12 +46043,16 @@ msgid ""
 "'<n>.spindle-on' (bit, in)  1 for ON and 0 for OFF sent to VFD, only on when "
 "running"
 msgstr ""
+"'<n>.spindle-on' (bit, in)  encendido del husillo, 1 para encendido y 0 para "
+"apagado. Enviado al VFD solo cuando está corriendo"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:106
 msgid ""
 "'<n>.spindle-rev' (bit, in)  1 for ON and 0 for OFF, only on when running"
 msgstr ""
+"'<n>.spindle-rev' (bit, in)  reversa del husillo, 1 para encendido y 0 para "
+"apagado, solo cuando está corriendo"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:111
@@ -46039,6 +46063,11 @@ msgid ""
 "orientation.  In normal mode, the VFD shuts off if the frequency drops below "
 "12 Hz."
 msgstr ""
+"'<n>.jog-mode' (bit, in)  modo de trote, 1 para encendido y 0 para apagado, "
+"habilita el 'modo trote' del VF-S11.  Se inhabilita el control de velocidad "
+"y la frecuencia de salida la determina el registro F262 (preestablecido a 5 "
+"Hz).  Este puede ser útil para la orientación del husillo.  En modo normal "
+"el VFD se apaga si la frecuencia cae por debajo de 12 Hz."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:114
@@ -46046,11 +46075,15 @@ msgid ""
 "'<n>.status' (s32, out)  Drive Status of the VFD (see the TOSVERT VF-S11 "
 "Communications Function Instruction Manual, register FD01).  A bitmap."
 msgstr ""
+"'<n>.status' (s32, out)  estado del controlador del VFD (ver TOSVERT VF-S11 "
+"Communications Function Instruction Manual, registro FD01).  Un mapa de bits."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:116
 msgid "'<n>.trip-code' (s32, out)  trip code if VF-S11 is in tripped state."
 msgstr ""
+"'<n>.trip-code' (s32, out)  código de tropiezo si el VF-S11 esta en estado "
+"de tropiezo."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:118
@@ -46058,6 +46091,8 @@ msgid ""
 "'<n>.error-count' (s32, out)  number of Modbus transactions which returned "
 "an error"
 msgstr ""
+"'<n>.error-count' (s32, out)  número de transacciones Modbus que regresaron "
+"un error"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:121
@@ -46066,11 +46101,16 @@ msgid ""
 "maximum speed, at the expense of higher CPU usage.  Suggested use during "
 "spindle positioning."
 msgstr ""
+"'<n>.max-speed' (bit, in)  velocidad máxima; ignora el parámetro loop-time y "
+"ejecuta Modbus a velocidad máxima, a expensas de un mayor uso de CPU.  Uso "
+"sugerido durante el posicionamiento del husillo."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:128
 msgid "'<n>.frequency-limit' (float, RO)  upper limit read from VFD setup."
 msgstr ""
+"'<n>.frequency-limit' (float, RO)  límite superior de frecuencia leído desde "
+"la configuración del VFD."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:130
@@ -46078,6 +46118,8 @@ msgid ""
 "'<n>.loop-time' (float, RW)  how often the Modbus is polled (default "
 "interval 0.1 seconds)"
 msgstr ""
+"'<n>.loop-time' (float, RW)  con qué frecuencia es consultado el Modbus "
+"(predeterminado a un intervalo de 0.1 segundos)"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:132
@@ -46086,11 +46128,17 @@ msgid ""
 "calculate target frequency (together with nameplate-RPM ) for a target RPM "
 "value as given by speed-command."
 msgstr ""
+"'<n>.nameplate-HZ' (float, RW)  Hz en la placa del fabricante del motor "
+"(predeterminado a 50). Se usa para calcular la frecuencia objetivo (junto "
+"con las RPM en la placa del fabricante) para un valor objetivo de RPM dado "
+"por un comando de velocidad."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:134
 msgid "'<n>.nameplate-RPM' (float, RW)  Nameplate RPM of motor (default 1410)"
 msgstr ""
+"'<n>.nameplate-RPM' (float, RW)  RPM en la placa del fabricante del motor "
+"(predeterminado a 1410)"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:136
@@ -46098,6 +46146,8 @@ msgid ""
 "'<n>.rpm-limit' (float, RW)  do-not-exceed soft limit for motor RPM "
 "(defaults to nameplate-RPM )."
 msgstr ""
+"'<n>.rpm-limit' (float, RW)  límite suave de RPM, que no debe exceder las "
+"RPM del motor (predeterminado a nameplate-RPM)."
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:139
@@ -46106,12 +46156,15 @@ msgid ""
 "whether spindle is at speed (0.01 meaning: Output frequency is within 1% of "
 "target frequency)"
 msgstr ""
+"'<n>.tolerance' (float, RW)  tolerancia de velocidad (predeterminado a 0.01) "
+"para determinar si el husillo esta en velocidad (0.01 significa: la "
+"frecuencia de salida esta dentro del 1% de la frecuencia objetivo)"
 
 #. type: Title ==
 #: src/drivers/vfs11.adoc:140
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "INI file configuration"
-msgstr "Configuración de git"
+msgstr "Configuración del archivo INI"
 
 #. type: NOTE
 #: src/drivers/vfs11.adoc:144
@@ -46119,6 +46172,9 @@ msgid ""
 "This lists all options understood by vfs11_vfd.  Typical setups for RS-232, "
 "RS-485 and TCP can be found in 'src/hal/user_comps/vfs11_vfd/*.ini'."
 msgstr ""
+"Aquí se listan todas las opciones que maneja el vfs11_vfd.  Las "
+"configuraciones típicas para RS-232, RS-485 y TCP se encuentran en 'src/hal/"
+"user_comps/vfs11_vfd/*.ini'."
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:150
@@ -46128,6 +46184,9 @@ msgid ""
 "# serial connection\n"
 "TYPE=rtu\n"
 msgstr ""
+"[VFS11]\n"
+"# conexión serie\n"
+"TYPE=rtu\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:153
@@ -46136,6 +46195,8 @@ msgid ""
 "# serial port\n"
 "DEVICE=/dev/ttyS0\n"
 msgstr ""
+"# puerto serie\n"
+"DEVICE=/dev/ttyS0\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:156
@@ -46144,6 +46205,8 @@ msgid ""
 "# TCP server - wait for incoming connection\n"
 "TYPE=tcpserver\n"
 msgstr ""
+"# servidor TCP - espera conexión entrante\n"
+"TYPE=tcpserver\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:159
@@ -46152,6 +46215,8 @@ msgid ""
 "# tcp portnumber for TYPE=tcpserver or tcpclient\n"
 "PORT=1502\n"
 msgstr ""
+"# número de puerto tcp para TYPE=tcpserver o tcpclient\n"
+"PORT=1502\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:162
@@ -46160,6 +46225,8 @@ msgid ""
 "# TCP client - active outgoing connection\n"
 "TYPE=tcpclient\n"
 msgstr ""
+"# cliente TCP - conexión saliente activa\n"
+"TYPE=tcpclient\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:165
@@ -46168,6 +46235,8 @@ msgid ""
 "# destination to connect to if TYPE=tcpclient\n"
 "TCPDEST=192.168.1.1\n"
 msgstr ""
+"# destino a conectar si TYPE=tcpclient\n"
+"TCPDEST=192.168.1.1\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:170
@@ -46178,6 +46247,10 @@ msgid ""
 "# 5 6 7 8\n"
 "BITS= 5\n"
 msgstr ""
+"#---------- válido solo si TYPE=rtu -------\n"
+"# detalle de dispositivo serie\n"
+"# 5 6 7 8\n"
+"BITS= 5\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:173
@@ -46186,6 +46259,8 @@ msgid ""
 "# even odd none\n"
 "PARITY=none\n"
 msgstr ""
+"# even odd none\n"
+"PARITY=none\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:176
@@ -46194,6 +46269,8 @@ msgid ""
 "# 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200\n"
 "BAUD=19200\n"
 msgstr ""
+"# 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200\n"
+"BAUD=19200\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:179
@@ -46202,6 +46279,8 @@ msgid ""
 "# 1 2\n"
 "STOPBITS=1\n"
 msgstr ""
+"# 1 2\n"
+"STOPBITS=1\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:182
@@ -46210,6 +46289,8 @@ msgid ""
 "#rs232 rs485\n"
 "SERIAL_MODE=rs485\n"
 msgstr ""
+"#rs232 rs485\n"
+"SERIAL_MODE=rs485\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:189
@@ -46222,6 +46303,12 @@ msgid ""
 "RTS_MODE=up\n"
 "#---------------------\n"
 msgstr ""
+"# up down none\n"
+"# esta característica podría no funcionar con un paquete Ubuntu\n"
+"# estándar libmodbus5/libmodbus-dev, y generar una advertencia\n"
+"# la ejecución continuará como si se hubiera dado RTS_MODE=up.\n"
+"RTS_MODE=up\n"
+"#---------------------\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:195
@@ -46233,6 +46320,11 @@ msgid ""
 "# packet timer\n"
 "RESPONSE_TIMEOUT=0.5\n"
 msgstr ""
+"# temporizadores modbus en segundos\n"
+"# temporizador inter-caracter\n"
+"BYTE_TIMEOUT=0.5\n"
+"# temporizador de paquete\n"
+"RESPONSE_TIMEOUT=0.5\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:198
@@ -46241,6 +46333,8 @@ msgid ""
 "# target modbus ID\n"
 "TARGET=1\n"
 msgstr ""
+"# identificador modbus objetivo\n"
+"TARGET=1\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:202
@@ -46250,6 +46344,9 @@ msgid ""
 "# for RECONNECT_DELAY seconds\n"
 "RECONNECT_DELAY=1\n"
 msgstr ""
+"# en falla de E/S intentar reconexión después de dormir\n"
+"# RECONNECT_DELAY segundos\n"
+"RECONNECT_DELAY=1\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:207
@@ -46260,6 +46357,10 @@ msgid ""
 "MODBUS_DEBUG=0\n"
 "POLLCYCLES=10\n"
 msgstr ""
+"# parámetros misceláneos\n"
+"DEBUG=10\n"
+"MODBUS_DEBUG=0\n"
+"POLLCYCLES=10\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:218
@@ -46271,6 +46372,11 @@ msgid ""
 "#\n"
 "loadusr -Wn spindle-vfd vfs11_vfd -n spindle-vfd\n"
 msgstr ""
+"#\n"
+"# ejemplo de uso del controlador VFD VF-S11\n"
+"#\n"
+"#\n"
+"loadusr -Wn spindle-vfd vfs11_vfd -n spindle-vfd\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:222
@@ -46280,39 +46386,39 @@ msgid ""
 "net vfs11-fwd spindle-vfd.spindle-fwd <= spindle.0.forward\n"
 "net vfs11-rev spindle-vfd.spindle-rev <= spindle.0.reverse\n"
 msgstr ""
-"# conecte el pin de dirección del husillo al VFD\n"
+"# conecta los pines de dirección del husillo al VFD\n"
 "net vfs11-fwd spindle-vfd.spindle-fwd <= spindle.0.forward\n"
 "net vfs11-rev spindle-vfd.spindle-rev <= spindle.0.reverse\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:225
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the spindle on pin to the VF-S11\n"
 "net vfs11-run spindle-vfd.spindle-on <= spindle.0.on\n"
 msgstr ""
-"# conecte el pin de arranque del husillo al GS2\n"
-"net gs2-run spindle-vfd.spindle-on <= spindle.N.on\n"
+"# conecta el pin de arranque del husillo al VF-S11\n"
+"net vfs11-run spindle-vfd.spindle-on <= spindle.0.on\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:228
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the VF-S11 at speed to the motion at speed\n"
 "net vfs11-at-speed spindle.0.at-speed <= spindle-vfd.at-speed\n"
 msgstr ""
-"# conecte el GS2 a velocidad al movimiento a velocidad\n"
-"net gs2-at-speed spindle.N.at-speed <= spindle-vfd.at-speed\n"
+"# conecta at-speed del VF-S11 al at-speed de motion\n"
+"net vfs11-at-speed spindle.0.at-speed <= spindle-vfd.at-speed\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:231
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the spindle RPM to the VF-S11\n"
 "net vfs11-RPM spindle-vfd.speed-command <= spindle.0.speed-out\n"
 msgstr ""
-"# conecte RPM de husillo al GS2\n"
-"net gs2-RPM spindle-vfd.speed-command <= spindle.N.speed-out\n"
+"# conecta RPM del husillo al VF-S11\n"
+"net vfs11-RPM spindle-vfd.speed-command <= spindle.0.speed-out\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:236
@@ -46323,6 +46429,12 @@ msgid ""
 "# better be driven by a monoflop which triggers on spindle-on falling edge\n"
 "#net vfs11-spindle-brake spindle.N.brake => spindle-vfd.dc-brake\n"
 msgstr ""
+"# conecta el freno DC del VF-S11\n"
+"# dado que esto consume corriente durante el apagado del husillo, es mejor "
+"que\n"
+"# el pin dc-brake sea controlado por un monostable que se dispare en el "
+"flanco descendente de spindle-on\n"
+"#net vfs11-spindle-brake spindle.N.brake => spindle-vfd.dc-brake\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:240
@@ -46332,6 +46444,10 @@ msgid ""
 "# see orient.9 and motion.9\n"
 "net spindle-orient spindle.0.orient spindle-vfd.max-speed spindle-vfd.jog-mode\n"
 msgstr ""
+"# para usar el modo de trote del VFS11 para orientación del husillo\n"
+"# ver orient.9 y motion.9\n"
+"net spindle-orient spindle.0.orient spindle-vfd.max-speed spindle-vfd.jog-"
+"mode\n"
 
 #. type: delimited block -
 #: src/drivers/vfs11.adoc:243
@@ -46340,12 +46456,14 @@ msgid ""
 "# take precedence over control panel\n"
 "setp spindle-vfd.enable 1\n"
 msgstr ""
+"# toma precedencia sobre el panel de control\n"
+"setp spindle-vfd.enable 1\n"
 
 #. type: Title ==
 #: src/drivers/vfs11.adoc:245
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Panel operation"
-msgstr "Configuración del panel"
+msgstr "Operación del panel"
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:252
@@ -46358,6 +46476,14 @@ msgid ""
 "vfs11_vfd driver in a controlled way will release the VFD from the bus and "
 "restore panel control."
 msgstr ""
+"El controlador vfs11_vfd toma precedencia sobre el panel de control mientras "
+"esté habilitado (ver pin 'enable'), deshabilitando efectivamente el panel.  "
+"Limpiar el pin 'enable' rehabilita el panel.  Los pines y parámetros aún "
+"pueden ser configurados, pero no serán escritos al VFD hasta que se "
+"establezca el pin 'enable'.  Los parámetros en operación aún son legibles "
+"cuando el bus de control esta deshabilitado.  Terminar el controlador "
+"vfs11_vfd de manera controlada liberará el VFD del bus y restablecerá el "
+"panel de control."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:255
@@ -46368,12 +46494,17 @@ msgid ""
 "E6581222) and the \"TOSVERT VF-S11 Instruction manual\" (Toshiba document "
 "number E6581158)."
 msgstr ""
+"Ver el Manual de integradores de LinuxCNC para más información.  Para una "
+"descripción detallada del registro de los VFDs de Toshiba ver \"TOSVERT VF-"
+"S11 Communications Function Instruction Manual\" (número de documento de "
+"Toshiba E6581222) y el \"TOSVERT VF-S11 Instruction manual\" (número de "
+"documento de Toshiba E6581158)."
 
 #. type: Title ==
 #: src/drivers/vfs11.adoc:256
 #, no-wrap
 msgid "Error Recovery"
-msgstr ""
+msgstr "Recuperación de errores"
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:259
@@ -46382,11 +46513,16 @@ msgid ""
 "to default values, and the driver will sleep for +RECONNECT_DELAY+ seconds "
 "(default 1 second)."
 msgstr ""
+"El +vfs11_vfd+ se recupera de errores de E/S de la siguiente manera: "
+"Primero, todos los pines HAL se establecen con los valores predeterminados, "
+"y el controlador dormirá por +RECONNECT_DELAY+ segundos (predeterminado a 1 "
+"segundo)."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:261
 msgid "Serial (+TYPE=rtu+) mode: on error, close and reopen the serial port."
 msgstr ""
+"Modo serie (+TYPE=rtu+): en caso de error, cierra y reabre el puerto serie."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:262
@@ -46394,6 +46530,8 @@ msgid ""
 "TCP server (+TYPE=tcpserver+) mode: on losing the TCP connection, the driver "
 "will go back to listen for incoming connections."
 msgstr ""
+"Modo servidor TCP (+TYPE=tcpserver+): al perder la conexión TCP, el "
+"controlador volverá a escuchar conexiones entrantes."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:263
@@ -46401,6 +46539,8 @@ msgid ""
 "TCP client (+TYPE=tcpclient+) mode: on losing the TCP connection, the driver "
 "will reconnect to 'TCPDEST:PORTNO'."
 msgstr ""
+"Modo cliente TCP (+TYPE=tcpclient+): al perder la conexión TCP, el "
+"controlador se reconectará a 'TCPDEST:PORTNO'."
 
 #. type: Title ==
 #: src/drivers/vfs11.adoc:264
