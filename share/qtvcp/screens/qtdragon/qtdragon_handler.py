@@ -973,9 +973,11 @@ class HandlerClass:
         tmp=['main','file','offsets','tool','status',
             'probe','gcodes','setup','settings',
             'utils','user','camera']
-
-        btn = self.w[f'btn_{tmp[index]}']
-        #print(f'index{index}, btn, {btn}')
+        try:
+            btn = self.w[f'btn_{tmp[index]}']
+            #print(f'index{index}, btn, {btn}')
+        except:
+            pass
         if btn.isVisible():
             btn.click()
 
