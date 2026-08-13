@@ -15,9 +15,8 @@ PktUART ports.
   parameter. Example: `ports="hm2_7i96s.0.pktuart.0","hm2_5i25.0.pktuart.2"`
 *mbccbs* [default: <empty>]::
   A comma separated list of "Modbus Command Control Binary" (MBCCB) file paths
-  to use for each PktUART port as specified in the *ports* parameter. The path
-  should be an absolute path to prevent nasty surprises.
-  Example: `mbccbs="/path/to/rly-and-spindle.mbccb","/path/to/lightsparks.mbccb"`
+  to use for each PktUART port as specified in the *ports* parameter.
+  Example: `mbccbs="rly-and-spindle.mbccb","lightsparks.mbccb"`
 *debug* [default: -1]::
   Set the message level of the running process. The message level is set
   if *debug* is set to a positive value between 0 and 5, where 0 means no
