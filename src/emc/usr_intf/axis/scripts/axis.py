@@ -68,6 +68,9 @@ import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
 import linuxcnc
+from hal_glib import GStat
+from common.iniinfo import _IStat as IStatParent
+
 from glnav import *
 
 if "AXIS_NO_HAL" in os.environ:
@@ -111,12 +114,39 @@ class AxisPreferences(cp):
         self.set("DEFAULT", option, str(value))
         self.write(open(self.fn, "w"))
 
+class Info(IStatParent):
+    _instance = None
+    _instanceNum = 0
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = IStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
+
 if sys.argv[1] != "-ini":
     raise SystemExit("-ini must be first argument")
 
 inifile = linuxcnc.ini(sys.argv[2])
 
 ap = AxisPreferences()
+
+INFO = Info()
+GSTAT = GStat()
+GSTAT.forced_update()
+GSTAT.connect('jograte-changed', lambda w, data: vars.jog_speed.set(data))
+GSTAT.connect('axis-selection-changed', lambda w,data: select_axis(data))
+GSTAT.connect('cycle-start-request', lambda w, state : cycle_start_request(state))
+GSTAT.connect('cycle-pause-request', lambda w, state: pause_request(state))
+GSTAT.connect('ok-request', lambda w, state: dialog_ext_control(w,1,1))
+GSTAT.connect('cancel-request', lambda w, state: dialog_ext_control(w,1,0))
+GSTAT.connect('macro-call-request', lambda w, name: request_macro_call(name))
+GSTAT.connect('softkey-pressed', lambda w,data: softkey_pressed(data))
+GSTAT.connect('shutdown-request', lambda w : General_Halt())
+GSTAT.connect('reload-display', lambda w : commands.clear_live_plot())
+
+global last_mpg
+last_mpg = 0
+mpg_enabled = 0
 
 # Handle repeated key press events
 pressed_keys_list = []
@@ -973,6 +1003,27 @@ class LivePlotter:
             if s.homed[jno]: state="disabled"
             else:            state="normal"
             root_window.call(jname,"configure","-state",state)
+
+        GSTAT.run_iteration()
+        global mpg_enabled
+        try:
+            if comp['mpg-enable'] or mpg_enabled: 
+                global last_mpg
+                if comp['mpg-in'] == last_mpg: return
+                if comp['mpg-in'] > last_mpg:
+                    if s.task_mode == linuxcnc.MODE_MDI:
+                        commands._mdi_up_cmd()
+                    else:
+                        scroll_up(None)
+                if comp['mpg-in'] < last_mpg:
+                    if s.task_mode == linuxcnc.MODE_MDI:
+                        commands._mdi_down_cmd()
+                    else:
+                        scroll_down(None)
+
+                last_mpg = comp['mpg-in']
+        except Exception as e:
+            print(e)
 
         user_live_update()
 
@@ -2443,7 +2494,11 @@ class TclCommands(nf.TclCommands):
         comp["abort"] = False
 
     def mdi_up_cmd(*args):
+        print(args)
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
+        _mdi_up_cmd()
+
+    def _mdi_up_cmd():
         global mdi_history_index
         if widgets.mdi_command.cget("state") == "disabled":
             return
@@ -2461,6 +2516,9 @@ class TclCommands(nf.TclCommands):
 
     def mdi_down_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
+        _mdi_down_cmd()
+
+    def _mdi_down_cmd():
         global mdi_history_index
         if widgets.mdi_command.cget("state") == "disabled":
             return
@@ -3958,6 +4016,8 @@ if hal_present == 1 :
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin('mpg-enable', hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin('mpg-in', hal.HAL_S32, hal.HAL_IN)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
@@ -4057,6 +4117,119 @@ if o.canon:
     y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
     z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
     o.set_centerpoint(x, y, z)
+
+def select_axis(data):
+    global mpg_enabled
+    if data is None: return
+    if data =='MPG0':
+        mpg_enabled = True
+        return
+    mpg_enabled = False
+    if data.upper() =='NONE':
+        return
+    try:
+        widget = getattr(widgets, "axis_%s" % data.lower())
+        widget.focus()
+        widget.invoke()
+    except:
+        pass
+
+def cycle_start_request(state):
+    if s.task_mode == linuxcnc.MODE_MDI:
+        command = vars.mdi_command.get()
+        commands.send_mdi_command(command)
+    else:
+        commands.task_run(None)
+
+def pause_request(state):
+    commands.task_pauseresume(None)
+
+def dialog_ext_control(widget,t,state):
+    flag = False
+    for child in root_window.winfo_children():
+        #print(child)
+        if isinstance(child, Tkinter.Toplevel):
+            #print(f"Found a Toplevel window: {child}")
+            if '.!toplevel' in str(child):
+                #print('sending command:',child)
+                for child2 in child.winfo_children():
+                    #print(child2)
+                    if isinstance(child2, Tkinter.Frame):
+                        for child3 in child2.winfo_children():
+                            #print(child3)
+                            if isinstance(child3, Tkinter.Button):
+                                #print(dir(child3))
+                                txt = child3.cget("text")
+                                if txt.lower() == 'ok' and state:
+                                    #print('Ok')
+                                    child3.invoke()
+                                    flag = True
+                                    break
+                                elif txt.lower() == 'cancel' and not state:
+                                    #print('Cancel')
+                                    child3.invoke()
+                                    flag = True
+                                    break
+                    if flag: break
+            if flag: break
+    else:
+        #print('No window')
+        # remove one error message
+        if state == 0:
+            notifications.clear_one()
+
+def request_macro_call(name):
+    #print('request macro:',name)
+    cmd = INFO.get_ini_mdi_command(name)
+    #print(f'MDI command:{cmd}   name:{name}')
+    if not INFO.get_ini_mdi_command(name) is None:
+        run_mdi(data=cmd)
+    else:
+        #print(INFO.get_ini_macro_command(name))
+        try:
+            temp = INFO.MACRO_COMMAND_DICT.get(name).get('cmd')
+            #print(temp)
+            run_macro(data=temp)
+        except Exception as e:
+            print(e)
+
+def run_mdi(data):
+    #print(f'run mdi command:{data}')
+    mdi_list = data.split(';')
+    for code in (mdi_list):
+        commands.send_mdi_command(code)
+
+def run_macro(data):
+    #print(f'run macro:{data}')
+    o_codes = data.split()
+    command = str( "O<" + o_codes[0] + "> call" )
+    # check for oword and confirm path exists
+    #if not self.check_macro_path(command):
+    #    return
+    for code in o_codes[1:]:
+        if vars.metric.get(): unit_str = " " + _("mm")
+        else: unit_str = " " + _("in")
+        param = prompt_float("Macro", f"Enter a value for: {code}:",
+                "", unit_str)
+        if param <= 0: return
+        if vars.metric.get(): param /= 25.4
+        command = command + " [" + str(param) + "] "
+    commands.send_mdi_command(command)
+
+def softkey_pressed(index):
+
+    if index == 0:
+        root_window.tk.call('.pane.top.tabs','raise','manual')
+    elif index == 1:
+        root_window.tk.call('.pane.top.tabs','raise','mdi')
+    elif index == 2:
+        root_window.tk.call('.pane.top.right','raise','preview')
+    elif index == 3:
+        root_window.tk.call('.pane.top.right','raise','numbers')
+    elif index == 4:
+        root_window.tk.call('.pane.top.right','raise','user_0')
+    else:
+        print(f'Softkey index:{index}')
 
 def destroy_splash():
     try:
