@@ -195,15 +195,11 @@ class Dialogs(GObject.GObject):
         dialog.RESPONSE = rtn
 
     # display warning dialog
-    def warning_dialog(self, message = '', secondary = None, title = _("Operator Message"),\
-        sound = True, confirm_pin = 'warning-confirm', active_pin = None):
-
+    def warning_dialog(self):
         dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                                   Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
-        # if there is a secondary message then the first message text is bold
-        if secondary:
-            dialog.format_secondary_text(secondary)
+                                   Gtk.MessageType.INFO,
+                                   Gtk.ButtonsType.NONE)
         ok_button = Gtk.Button.new_with_mnemonic("_Ok")
         ok_button.set_size_request(-1, 56)
         ok_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.OK))
@@ -211,16 +207,16 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
-        if sound:
-            self.emit("play_sound", "alert")
-        dialog.set_title(title)
-        dialog.context = []
+        # HAL pin names
+        dialog.confirm_pin = 'warning-confirm'
+        dialog.active_pin = None
+
         def periodic():
-            if self._caller.halcomp[confirm_pin]:
+            if self._caller.halcomp[dialog.confirm_pin]:
                 dialog.response(Gtk.ResponseType.OK)
                 return False
-            if active_pin is not None:
-                if not self._caller.halcomp[active_pin]:
+            if dialog.active_pin is not None:
+                if not self._caller.halcomp[dialog.active_pin]:
                     dialog.response(Gtk.ResponseType.CANCEL)
                     return False
             return True
@@ -234,6 +230,9 @@ class Dialogs(GObject.GObject):
         dialog.set_title(title)
         dialog.set_markup('<b>'+message+'</b>')
         dialog.set_deletable(False)
+        dialog.confirm_pin = confirm_pin
+        dialog.active_pin = active_pin
+
         dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")

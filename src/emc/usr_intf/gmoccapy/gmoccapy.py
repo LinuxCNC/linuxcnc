@@ -5683,8 +5683,7 @@ class gmoccapy(object):
                     message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
 
             result = self.dialogs.show_warning_dialog( _("Manual Tool change"),
-                     message, context='mantoolchange',
-                     confirm_pin = 'toolchange-confirm',
+                     message, confirm_pin = 'toolchange-confirm',
                      active_pin = 'toolchange-change')
 
             if result:
