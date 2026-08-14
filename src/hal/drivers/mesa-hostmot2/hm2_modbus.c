@@ -316,11 +316,11 @@ RTAPI_MP_ARRAY_STRING(ports, MAX_PORTS, "PktUART HAL names");
 /*
  * The Modbus configuration and command structure files for each PktUART
  * interface to be read by the hm2_modbus module. This should be a list of
- * absolute path file names like:
- *   files="/usr/share/linuxcnc/modbus/spindle.mbccb","/home/test/xyz.mbccb"
+ * path file names like:
+ *   files="spindle.mbccb","xyz.mbccb"
  */
 static char *mbccbs[MAX_PORTS];
-RTAPI_MP_ARRAY_STRING(mbccbs, MAX_PORTS, "Binary Modbus configuration and command sequence absolute path file names");
+RTAPI_MP_ARRAY_STRING(mbccbs, MAX_PORTS, "Binary Modbus configuration and command sequence path file names");
 
 /*
  * Set the message level for debugging purpose. This has the (side-)effect that
@@ -2748,9 +2748,6 @@ int rtapi_app_main(void)
 			MSG_ERR("%s: error: Missing mbccb file path for instance %d in 'mbccbs' argument\n", inst->name, i);
 			retval = -EINVAL;
 			goto errout;
-		}
-		if('/' != mbccbs[i][0]) {
-			MSG_ERR("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mbccbs[i], i);
 		}
 
 		if((retval = load_mbccb(inst, mbccbs[i])) < 0) {
