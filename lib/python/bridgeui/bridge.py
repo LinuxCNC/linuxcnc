@@ -90,6 +90,9 @@ class Bridge(object):
 
     # callback from ZMQ read socket
     def readMsg(self):
+        # no ZMQ library. return so HALUI works otherwise
+        if not ZMQ: return
+
         if self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
             while self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
                 # get raw message
