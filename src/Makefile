@@ -176,8 +176,10 @@ GUI_SUBDIRS := emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
 endif
 
 SUBDIRS := \
+    libposemath \
+    \
     libnml/linklist libnml/cms libnml/rcs libnml/os_intf \
-    libnml/nml libnml/buffer libnml/posemath libnml \
+    libnml/nml libnml/buffer libnml \
     \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
@@ -407,10 +409,10 @@ SRCHEADERS := \
     emc/nml_intf/emcpos.h \
     emc/nml_intf/emcpose.h \
     emc/nml_intf/motion_types.h \
-    libnml/posemath/gomath.h \
-    libnml/posemath/gotypes.h \
-    libnml/posemath/posemath.h \
-    libnml/posemath/sincos.h \
+    libposemath/gomath.h \
+    libposemath/gotypes.h \
+    libposemath/posemath.h \
+    libposemath/sincos.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_atomic.h \
@@ -1153,13 +1155,13 @@ lineardeltakins-objs := emc/kinematics/lineardeltakins.o
 
 obj-m += pentakins.o
 pentakins-objs := emc/kinematics/pentakins.o
-pentakins-objs += libnml/posemath/_posemath.o
-pentakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+pentakins-objs += libposemath/_posemath.o
+pentakins-objs += libposemath/sincos.o $(MATHSTUB)
 
 obj-m += rotarydeltakins.o
 rotarydeltakins-objs := emc/kinematics/rotarydeltakins.o
-rotarydeltakins-objs += libnml/posemath/_posemath.o
-rotarydeltakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+rotarydeltakins-objs += libposemath/_posemath.o
+rotarydeltakins-objs += libposemath/sincos.o $(MATHSTUB)
 
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
@@ -1185,8 +1187,8 @@ endif
 # SWITCHKINS
 obj-m += genhexkins.o
 genhexkins-objs := emc/kinematics/genhexkins.o
-genhexkins-objs += libnml/posemath/_posemath.o
-genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+genhexkins-objs += libposemath/_posemath.o
+genhexkins-objs += libposemath/sincos.o $(MATHSTUB)
 genhexkins-objs += emc/kinematics/kins_util.o
 genhexkins-objs += emc/kinematics/switchkins.o
 genhexkins-objs += $(USERKFUNCS)
@@ -1194,8 +1196,8 @@ genhexkins-objs += $(USERKFUNCS)
 obj-m += genserkins.o
 genserkins-objs := emc/kinematics/genserkins.o
 genserkins-objs += emc/kinematics/genserfuncs.o
-genserkins-objs += libnml/posemath/gomath.o
-genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+genserkins-objs += libposemath/gomath.o
+genserkins-objs += libposemath/sincos.o $(MATHSTUB)
 genserkins-objs += emc/kinematics/kins_util.o
 genserkins-objs += emc/kinematics/switchkins.o
 genserkins-objs += $(USERKFUNCS)
@@ -1216,32 +1218,32 @@ xyzbc-trt-kins-objs += $(USERKFUNCS)
 
 obj-m += scarakins.o
 scarakins-objs := emc/kinematics/scarakins.o
-scarakins-objs += libnml/posemath/_posemath.o
-scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+scarakins-objs += libposemath/_posemath.o
+scarakins-objs += libposemath/sincos.o $(MATHSTUB)
 scarakins-objs += emc/kinematics/kins_util.o
 scarakins-objs += emc/kinematics/switchkins.o
 scarakins-objs += $(USERKFUNCS)
 
 obj-m += pumakins.o
 pumakins-objs := emc/kinematics/pumakins.o
-pumakins-objs += libnml/posemath/_posemath.o
-pumakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+pumakins-objs += libposemath/_posemath.o
+pumakins-objs += libposemath/sincos.o $(MATHSTUB)
 pumakins-objs += emc/kinematics/kins_util.o
 pumakins-objs += emc/kinematics/switchkins.o
 pumakins-objs += $(USERKFUNCS)
 
 obj-m += three21kins.o
 three21kins-objs := emc/kinematics/three21kins.o
-three21kins-objs += libnml/posemath/_posemath.o
-three21kins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+three21kins-objs += libposemath/_posemath.o
+three21kins-objs += libposemath/sincos.o $(MATHSTUB)
 three21kins-objs += emc/kinematics/kins_util.o
 three21kins-objs += emc/kinematics/switchkins.o
 three21kins-objs += $(USERKFUNCS)
 
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
-5axiskins-objs += libnml/posemath/_posemath.o
-5axiskins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+5axiskins-objs += libposemath/_posemath.o
+5axiskins-objs += libposemath/sincos.o $(MATHSTUB)
 5axiskins-objs += emc/kinematics/kins_util.o
 5axiskins-objs += emc/kinematics/switchkins.o
 5axiskins-objs += $(USERKFUNCS)
@@ -1291,7 +1293,7 @@ tpmod-objs += emc/tp/tp.o
 tpmod-objs += emc/tp/spherical_arc.o
 tpmod-objs += emc/tp/blendmath.o
 tpmod-objs += emc/nml_intf/emcpose.o
-tpmod-objs += libnml/posemath/_posemath.o
+tpmod-objs += libposemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += emc/tp/ruckig_wrapper.o
 tpmod-objs += emc/tp/cruckig/block.o
@@ -1313,7 +1315,7 @@ tpmod-objs += emc/tp/cruckig/velocity_second_step1.o
 tpmod-objs += emc/tp/cruckig/velocity_second_step2.o
 tpmod-objs += emc/tp/cruckig/velocity_third_step1.o
 tpmod-objs += emc/tp/cruckig/velocity_third_step2.o
-tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
+tpmod-objs += libposemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),uspace)
