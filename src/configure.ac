@@ -1567,6 +1567,16 @@ if test "x$HAVE_LIBFMT" = "xno"; then
     AC_MSG_ERROR([libfmt header not found. Install with 'sudo apt-get install libfmt-dev'])
 fi
 
+AC_LANG_PUSH([C++])
+CPPFLAGS_SAVED="$CPPFLAGS"
+CPPFLAGS="$PYTHON_CPPFLAGS $CPPFLAGS"
+AC_CHECK_HEADERS([pybind11/pybind11.h],[HAVE_PYBIND11=yes],[HAVE_PYBIND11=no])
+CPPFLAGS="$CPPFLAGS_SAVED"
+AC_LANG_POP([C++])
+if test "x$HAVE_PYBIND11" = "xno"; then
+    AC_MSG_ERROR([pybind11 header not found. Install with 'sudo apt-get install python3-pybind11'])
+fi
+
 AC_CHECK_HEADERS([sys/capability.h], [], [
     AC_MSG_ERROR([libcap header not found. Please install libcap-dev])
 ])

@@ -26,6 +26,8 @@
 #include <rtapi.h>
 #include <rtapi_mutex.h>
 #include <hal.h>
+
+#include "halqrec.hh"
 #include "utils/setps_util.h"
 
 #define EXCEPTION_IF_NOT_LIVE(retval) do { \
@@ -1383,7 +1385,11 @@ PyObject *get_p(PyObject * /*self*/, PyObject *args)
     int rv = hal_get_p(&q, NULL, NULL);
     if(0 == rv)
         return halref_to_object(q.pp.type, &q.pp.value);
-    // Get here: most likely no pin/param with that name
+    if(-ENOENT == rv) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    // Get here: most likely a serious error
     PyErr_Format(PyExc_RuntimeError, "get_p: %s: %s", q.name, hal_strerror(rv));
     return NULL;
 }
@@ -1400,7 +1406,11 @@ PyObject *get_s(PyObject * /*self*/, PyObject *args)
     int rv = hal_get_s(&q, NULL, NULL);
     if(0 == rv)
         return halref_to_object(q.sig.type, &q.sig.value);
-    // Get here: most likely no signal with that name
+    if(-ENOENT == rv) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    // Get here: most likely a serious error
     PyErr_Format(PyExc_RuntimeError, "get_s: %s: %s", q.name, hal_strerror(rv));
     return NULL;
 }
@@ -1432,9 +1442,8 @@ PyObject *get_value(PyObject * /*self*/, PyObject *args)
 
 /*######################################*/
 /* Get a dict of pin info for all pins in system */
-static int pinparaminfo_cb(hal_query_t *q, void *arg)
+static int pinparaminfo_add(const hal_query_t *q, PyObject *lst)
 {
-    PyObject *lst = static_cast<PyObject *>(arg);
     PyObject *obj;
     static const char str_n[] = "NAME";
     static const char str_v[] = "VALUE";
@@ -1490,14 +1499,18 @@ static int pinparaminfo_cb(hal_query_t *q, void *arg)
 
 PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/)
 {
-    PyObject* python_list = PyList_New(0);
+    HalQRec qrec(1024); // We normally have many pins
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN; // Only handle pins
-    int rv = hal_list_p(&q, pinparaminfo_cb, python_list);
+    int rv = hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
     if(0 != rv) {
-        Py_DECREF(python_list);
         PyErr_Format(PyExc_RuntimeError, "hal_list_p: returned '%s' (%d)", hal_strerror(rv), rv);
         return NULL;
+    }
+
+    PyObject* python_list = PyList_New(0);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        pinparaminfo_add(qrec.rec(i), python_list);
     }
     return python_list;
 }
@@ -1515,9 +1528,8 @@ static int siginfo_writer_cb(hal_query_t *q, void *arg)
     return 0;
 }
 
-static int siginfo_cb(hal_query_t *q, void *arg)
+static int siginfo_add(const hal_query_t *q, PyObject *lst)
 {
-    PyObject *lst = static_cast<PyObject *>(arg);
     PyObject *obj;
     static const char str_n[] = "NAME";
     static const char str_v[] = "VALUE";
@@ -1581,13 +1593,17 @@ static int siginfo_cb(hal_query_t *q, void *arg)
 
 PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/)
 {
-    PyObject* python_list = PyList_New(0);
+    HalQRec qrec(256); // We normally have many signals
     hal_query_t q = {};
-    int rv = hal_list_s(&q, siginfo_cb, python_list);
+    int rv = hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
     if(0 != rv) {
-        Py_DECREF(python_list);
         PyErr_Format(PyExc_RuntimeError, "hal_list_s: returned '%s' (%d)", hal_strerror(rv), rv);
         return NULL;
+    }
+
+    PyObject* python_list = PyList_New(0);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        siginfo_add(qrec.rec(i), python_list);
     }
     return python_list;
 }
@@ -1596,21 +1612,38 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/)
 /* Get a dict of parameter info for all parameters in system */
 PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/)
 {
-    PyObject* python_list = PyList_New(0);
+    HalQRec qrec(512); // We normally have many parameters
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PARAM; // Only handle parameters
-    int rv = hal_list_p(&q, pinparaminfo_cb, python_list);
+    int rv = hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
     if(0 != rv) {
-        Py_DECREF(python_list);
         PyErr_Format(PyExc_RuntimeError, "hal_list_p: returned '%s' (%d)", hal_strerror(rv), rv);
         return NULL;
+    }
+
+    PyObject* python_list = PyList_New(0);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        pinparaminfo_add(qrec.rec(i), python_list);
     }
     return python_list;
 }
 
 static PyObject *pyhal_get_realtime_type(PyObject * /*self*/, PyObject * /*o*/) {
     int res = hal_get_realtime_type();
-    return PyLong_FromLong(res);
+
+    // Get an IntEnum _hal.RTType.X instance from the result.
+    // This may be slower than a cached module/IntEnum ref, but this is
+    // normally only called once.
+    PyObject *m = PyImport_ImportModule("_hal");
+    if(!m)
+        return NULL;
+    PyObject *cls = PyObject_GetAttrString(m, "RTType");
+    Py_DECREF(m);
+    if(!cls)
+        return NULL;
+    PyObject *e = PyObject_CallFunction(cls, "l", (long)res);
+    Py_DECREF(cls);
+    return e;
 }
 
 static PyObject *pyhal_is_initialized(PyObject * /*self*/, PyObject * /*o*/) {
@@ -1630,6 +1663,8 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
     shmobject *self = reinterpret_cast<shmobject *>(_self);
     self->comp = NULL;
     self->shm_id = -1;
+
+    rtapi_print_msg(RTAPI_MSG_ERR, "halmodule: hal.shm has been deprecated.\n");
 
     if(!PyArg_ParseTuple(args, "O!ik", &halobject_type, &self->comp, &self->key, &self->size))
         return -1;
@@ -2143,6 +2178,112 @@ static struct PyModuleDef hal_moduledef = {
     NULL,                   /* m_free */
 };
 
+// Member order matters: interactive tools pick the first spelling when
+// several members share a value, so the table lists the preferred
+// spelling of each value first (bool, real, sint, uint, port, s32, u32)
+// and the alternatives (s64, u64, and the HAL_* spellings) after. The
+// enum module preserves dict order, so the first occurrence of each
+// value is the canonical member.
+struct halenum_member_t {
+    const char *name;
+    long value;
+};
+
+static const halenum_member_t halenum_type_members[] = {
+    {"BOOL", HAL_BOOL},
+    {"REAL", HAL_REAL},
+    {"SINT", HAL_SINT},
+    {"UINT", HAL_UINT},
+    {"PORT", HAL_PORT},
+    {"S32",  HAL_S32},
+    {"U32",  HAL_U32},
+    {"HAL_BOOL",  HAL_BOOL},
+    {"HAL_REAL",  HAL_REAL},
+    {"HAL_SINT",  HAL_SINT},
+    {"HAL_UINT",  HAL_UINT},
+    {"HAL_PORT",  HAL_PORT},
+    {"HAL_S32",   HAL_S32},
+    {"HAL_U32",   HAL_U32},
+    {}
+};
+
+static const halenum_member_t halenum_dir_members[] = {
+    {"IN",  HAL_IN},
+    {"OUT", HAL_OUT},
+    {"IO",  HAL_IO},
+    {"RO",  HAL_RO},
+    {"RW",  HAL_RW},
+    {"HAL_IN",  HAL_IN},
+    {"HAL_OUT", HAL_OUT},
+    {"HAL_IO",  HAL_IO},
+    {"HAL_RO",  HAL_RO},
+    {"HAL_RW",  HAL_RW},
+    {}
+};
+
+// Not previously registered, no need to have compat names.
+static const halenum_member_t halenum_comp_members[] = {
+    {"UNKNOWN",  HAL_COMP_TYPE_UNKNOWN},
+    {"USER",     HAL_COMP_TYPE_USER},
+    {"REALTIME", HAL_COMP_TYPE_REALTIME},
+    {"OTHER",    HAL_COMP_TYPE_OTHER},
+    {}
+};
+
+// Previously registered, but it is new so we don't do compat names.
+static const halenum_member_t halenum_rt_members[] = {
+    {"UNINITIALIZED",   REALTIME_TYPE_UNINITIALIZED},
+    {"NONE",            REALTIME_TYPE_NONE},
+    {"UNKNOWN",         REALTIME_TYPE_UNKNOWN},
+    {"PREEMPT_DYNAMIC", REALTIME_TYPE_PREEMPT_DYNAMIC},
+    {"PREEMPT_RT",      REALTIME_TYPE_PREEMPT_RT},
+    {"RTAI",            REALTIME_TYPE_RTAI},
+    {"LXRT",            REALTIME_TYPE_LXRT},
+    {"XENOMAI",         REALTIME_TYPE_XENOMAI},
+    {"XENOMAI_EVL",     REALTIME_TYPE_XENOMAI_EVL},
+};
+
+// Build an enum.IntEnum subclass from a member table. The class claims
+// __module__ "hal", its public home, so repr() and pickle look right.
+// Returns a new reference, or NULL with an exception set.
+static PyObject *halenum_build(const char *clsname, const halenum_member_t *members)
+{
+    PyObject *enummod = PyImport_ImportModule("enum");
+    if(!enummod)
+        return NULL;
+    PyObject *intenum = PyObject_GetAttrString(enummod, "IntEnum");
+    Py_DECREF(enummod);
+    if(!intenum)
+        return NULL;
+
+    PyObject *names = PyDict_New();
+    if(!names) {
+        Py_DECREF(intenum);
+        return NULL;
+    }
+    for(size_t i = 0; members[i].name; i++) {
+        PyObject *v = PyLong_FromLong(members[i].value);
+        if(!v || PyDict_SetItemString(names, members[i].name, v)) {
+            Py_XDECREF(v);
+            Py_DECREF(names);
+            Py_DECREF(intenum);
+            return NULL;
+        }
+        Py_DECREF(v);
+    }
+
+    PyObject *args = Py_BuildValue("(sO)", clsname, names);
+    PyObject *kwargs = Py_BuildValue("{ss}", "module", "hal");
+    PyObject *cls = (args && kwargs) ? PyObject_Call(intenum, args, kwargs) : NULL;
+    Py_XDECREF(args);
+    Py_XDECREF(kwargs);
+    Py_DECREF(names);
+    Py_DECREF(intenum);
+    return cls;
+}
+
+int halquery_add_submodule(PyObject *); // Not gonna make a header for this
+
 PyMODINIT_FUNC PyInit__hal(void);
 PyMODINIT_FUNC PyInit__hal(void)
 {
@@ -2196,6 +2337,34 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
+    // IntEnum tagging classes for type and direction, built from the
+    // hal.h constants (see halenum.hh). Registered here so that every
+    // consumer, Python or C++, shares the same two classes.
+    PyObject *eobj = halenum_build("Type", halenum_type_members);
+    if(!eobj || PyModule_AddObject(m, "Type", eobj)) {
+        Py_XDECREF(eobj);
+        Py_DECREF(m);
+        return NULL;
+    }
+    eobj = halenum_build("Dir", halenum_dir_members);
+    if(!eobj || PyModule_AddObject(m, "Dir", eobj)) {
+        Py_XDECREF(eobj);
+        Py_DECREF(m);
+        return NULL;
+    }
+    eobj = halenum_build("CompType", halenum_comp_members);
+    if(!eobj || PyModule_AddObject(m, "CompType", eobj)) {
+        Py_XDECREF(eobj);
+        Py_DECREF(m);
+        return NULL;
+    }
+    eobj = halenum_build("RTType", halenum_rt_members);
+    if(!eobj || PyModule_AddObject(m, "RTType", eobj)) {
+        Py_XDECREF(eobj);
+        Py_DECREF(m);
+        return NULL;
+    }
+
     PyModule_AddIntConstant(m, "REALTIME_TYPE_UNINITIALIZED", REALTIME_TYPE_UNINITIALIZED);
     PyModule_AddIntConstant(m, "REALTIME_TYPE_NONE", REALTIME_TYPE_NONE);
     PyModule_AddIntConstant(m, "REALTIME_TYPE_UNKNOWN", REALTIME_TYPE_UNKNOWN);
@@ -2217,6 +2386,12 @@ PyMODINIT_FUNC PyInit__hal(void)
 #else
     PyModule_AddStringConstant(m, "kernel_version", "Not Available");
 #endif
+
+    // Now that we have everything registered, add the halquery sub-module
+    if(halquery_add_submodule(m) < 0) {
+        Py_DECREF(m);
+        return NULL;
+    }
 
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"
