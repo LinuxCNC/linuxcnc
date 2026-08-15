@@ -228,7 +228,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         return axis, r[jnum]
 
     def selectJoint(self):
-        print(self.objectName(),f'select: j{self._joint} a{self._axis} ck{self.isChecked()}')
+        #print(self.objectName(),f'select: j{self._joint} a{self._axis} ck{self.isChecked()}')
         if self._block_signal or self._joint == -1 or self._axis == '': return
         if self.isChecked() == True:
             if STATUS.is_joint_mode():
