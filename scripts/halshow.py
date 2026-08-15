@@ -2055,6 +2055,7 @@ class GraphWidget(QWidget):
         self.view.setSceneRect(-50, -50, 8000, 4000)
         self.view.setFocusPolicy(Qt.StrongFocus)
         self.view.installEventFilter(self)
+        self.view.viewport().installEventFilter(self)
 
         layout.addWidget(self.view, 1)
 
@@ -2064,7 +2065,7 @@ class GraphWidget(QWidget):
             QTimer.singleShot(0, self._build_graph)
 
     def eventFilter(self, obj, event):
-        if obj is self.view:
+        if obj is self.view or obj is self.view.viewport():
             if event.type() == QEvent.KeyPress:
                 k = event.key()
                 if k in (Qt.Key_Plus, Qt.Key_Equal):  # +/= on US keyboard
@@ -2083,7 +2084,7 @@ class GraphWidget(QWidget):
         factor = 1.15 if event.angleDelta().y() > 0 else 1 / 1.15
         # Scene point under cursor before zoom
         mouse_pos = self.view.mapFromGlobal(
-            event.globalPosition()
+            event.globalPosition().toPoint()
             if hasattr(event, "globalPosition")
             else event.globalPos()
         )
