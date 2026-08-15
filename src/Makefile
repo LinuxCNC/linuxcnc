@@ -409,12 +409,9 @@ SRCHEADERS := \
     emc/nml_intf/emcpos.h \
     emc/nml_intf/motion_types.h \
     libposemath/emcpose.h \
-    libposemath/gomath.h \
-    libposemath/gotypes.h \
     libposemath/posemath.h \
     libposemath/posemath.hh \
     libposemath/posemath_types.h \
-    libposemath/sincos.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_atomic.h \

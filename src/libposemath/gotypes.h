@@ -20,7 +20,7 @@
 #ifndef __LINUXCNC_GO_TYPES_H
 #define __LINUXCNC_GO_TYPES_H
 
-#include <float.h>		/* DBL_MAX, FLOAT_MAX */
+#include <rtapi_math.h>		/* DBL_MAX, FLT_MAX */
 
 /*!
   GO_RESULT symbols run through a small range of values, on the

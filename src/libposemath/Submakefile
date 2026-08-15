@@ -11,11 +11,8 @@ TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
 
 POSEMATHINCS = \
     ./libposemath/emcpose.h \
-    ./libposemath/gomath.h \
-    ./libposemath/gotypes.h \
     ./libposemath/posemath.h \
-    ./libposemath/posemath_types.h \
-    ./libposemath/sincos.h
+    ./libposemath/posemath_types.h
 
 POSEMATHCXXINCS = \
     ./libposemath/posemath.hh
