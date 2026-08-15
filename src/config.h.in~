@@ -50,6 +50,9 @@
 /* Directory for tcl scripts */
 #undef EMC2_TCL_DIR
 
+/* Temporary files directory */
+#undef EMC2_TMP_DIR
+
 /* define if the Boost library is available */
 #undef HAVE_BOOST
 
@@ -59,8 +62,8 @@
 /* Define to 1 if clock_nanosleep is available (in -lc or -lrt) */
 #undef HAVE_CLOCK_NANOSLEEP
 
-/* define if the compiler supports basic C++17 syntax */
-#undef HAVE_CXX17
+/* define if the compiler supports basic C++20 syntax */
+#undef HAVE_CXX20
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -86,9 +89,6 @@
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
-
 /* Define to 1 if getopt has the BSD 'optreset' extension */
 #undef HAVE_OPTRESET
 
@@ -113,6 +113,9 @@
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
@@ -193,7 +196,9 @@
 /* Directory of the installed realtime system */
 #undef RTDIR
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
 /* Define if uspace realtime should optionally support RTAI LXRT */
