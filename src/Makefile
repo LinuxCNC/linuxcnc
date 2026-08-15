@@ -407,8 +407,8 @@ SRCHEADERS := \
     emc/ini/inifile.hh \
     emc/ini/inifile.h \
     emc/nml_intf/emcpos.h \
-    emc/nml_intf/emcpose.h \
     emc/nml_intf/motion_types.h \
+    libposemath/emcpose.h \
     libposemath/gomath.h \
     libposemath/gotypes.h \
     libposemath/posemath.h \
@@ -1294,7 +1294,7 @@ tpmod-objs += emc/tp/tcq.o
 tpmod-objs += emc/tp/tp.o
 tpmod-objs += emc/tp/spherical_arc.o
 tpmod-objs += emc/tp/blendmath.o
-tpmod-objs += emc/nml_intf/emcpose.o
+tpmod-objs += libposemath/emcpose.o
 tpmod-objs += libposemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += emc/tp/ruckig_wrapper.o

@@ -13,7 +13,7 @@
 ********************************************************************/
 
 #include "emcpose.h"
-#include <posemath.h>
+#include "posemath.h"
 #include <rtapi_math.h>
 
 //#define EMCPOSE_PEDANTIC

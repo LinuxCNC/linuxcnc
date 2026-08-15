@@ -3,7 +3,6 @@ LIBEMCSRCS := \
     emc/nml_intf/emcglb.c \
     emc/nml_intf/modal_state.cc \
     emc/nml_intf/emc.cc \
-    emc/nml_intf/emcpose.c \
     emc/nml_intf/emcargs.cc \
     emc/nml_intf/emcops.cc \
     emc/nml_intf/canon_position.cc \
@@ -28,7 +27,6 @@ TARGETS += ../lib/liblinuxcnc.a
 EMCNMLINTFINCS = \
 	./emc/nml_intf/emcmotcfg.h \
 	./emc/nml_intf/emcpos.h \
-	./emc/nml_intf/emcpose.h \
 	./emc/nml_intf/motion_types.h
 
 $(patsubst ./emc/nml_intf/%,../include/%,$(EMCNMLINTFINCS)): ../include/%.h: ./emc/nml_intf/%.h
