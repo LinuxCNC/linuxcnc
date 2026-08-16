@@ -116,9 +116,6 @@ extern "C" {
 
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
-	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
-					   world cartesian coordinates, not
-					   in joint space like EMCMOT_JOG_* */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
@@ -152,8 +149,6 @@ extern "C" {
         EMCMOT_SETUP_ARC_BLENDS,
 
 	EMCMOT_SET_PROBE_ERR_INHIBIT,
-	EMCMOT_ENABLE_WATCHDOG,         /* enable watchdog sound, parport */
-	EMCMOT_DISABLE_WATCHDOG,        /* enable watchdog sound, parport */
 	EMCMOT_JOG_CONT,	/* continuous jog */
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */

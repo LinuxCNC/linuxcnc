@@ -353,14 +353,6 @@ int main(int argc, char* argv[]) {
                 update_motion_state();
                 break;
 
-            case EMCMOT_ENABLE_WATCHDOG:
-                log_print("ENABLE_WATCHDOG\n");
-                break;
-
-            case EMCMOT_DISABLE_WATCHDOG:
-                log_print("DISABLE_WATCHDOG\n");
-                break;
-
             case EMCMOT_JOINT_ACTIVATE:
                 log_print("JOINT_ACTIVATE joint=%d\n", c->joint);
                 break;
@@ -489,10 +481,6 @@ int main(int argc, char* argv[]) {
                     c->vel, c->ini_maxvel,
                     c->acc, c->turn
                 );
-                break;
-
-            case EMCMOT_SET_TELEOP_VECTOR:
-                log_print("SET_TELEOP_VECTOR\n");
                 break;
 
             case EMCMOT_CLEAR_PROBE_FLAGS:
