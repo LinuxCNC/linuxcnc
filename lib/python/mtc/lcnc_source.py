@@ -32,11 +32,28 @@ from .kinematics import LINEAR_LETTERS
 
 UNAVAILABLE = "UNAVAILABLE"
 
-# linuxcnc task_state / task_mode / interp_state enum values.  Hardcoded so
-# this module stays importable without the extension; they are stable ABI.
-_STATE_ESTOP = 1
-_MODE_MANUAL, _MODE_AUTO, _MODE_MDI = 1, 2, 3
-_INTERP_IDLE, _INTERP_READING, _INTERP_PAUSED, _INTERP_WAITING = 1, 2, 3, 4
+# linuxcnc task_state / task_mode / interp_state enum values.  Read from the
+# linuxcnc module so they track the running build rather than a hardcoded ABI
+# assumption; the literals are only a fallback that keeps this module importable
+# without the extension (offline tooling and tests).
+try:
+    import linuxcnc as _lc
+except Exception:
+    _lc = None
+
+
+def _enum(name, fallback):
+    return getattr(_lc, name, fallback) if _lc is not None else fallback
+
+
+_STATE_ESTOP = _enum("STATE_ESTOP", 1)
+_MODE_MANUAL = _enum("MODE_MANUAL", 1)
+_MODE_AUTO = _enum("MODE_AUTO", 2)
+_MODE_MDI = _enum("MODE_MDI", 3)
+_INTERP_IDLE = _enum("INTERP_IDLE", 1)
+_INTERP_READING = _enum("INTERP_READING", 2)
+_INTERP_PAUSED = _enum("INTERP_PAUSED", 3)
+_INTERP_WAITING = _enum("INTERP_WAITING", 4)
 
 
 @dataclass

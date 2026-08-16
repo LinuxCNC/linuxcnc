@@ -103,7 +103,7 @@ def build_models(ini, model, config=None):
     # they are scaled to millimetres by lin_scale.
     lin_scale = getattr(config, "linear_scale", 1.0) if config else 1.0
     mm = MachineModels(units="MILLIMETER")
-    auto = _truthy(ini.find("MTCONNECT", "MODEL_AUTO", "0"))
+    auto = ini.find_bool("MTCONNECT", "MODEL_AUTO", False)
     env = _envelope(model)
 
     def register(key):
@@ -191,10 +191,6 @@ def _chain_letters(ini, model):
             seen.add(letter)
             out.append(letter)
     return out
-
-
-def _truthy(v):
-    return str(v).strip().lower() in ("1", "true", "yes", "on")
 
 
 # ---- auto-generated placeholder geometry ----------------------------------

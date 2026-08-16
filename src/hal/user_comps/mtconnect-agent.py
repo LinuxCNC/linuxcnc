@@ -55,9 +55,6 @@ def read_options(ini):
         tok = (str(v).strip().split() or [default])[0]
         return tok.split(";")[0].split("#")[0]
 
-    def truthy(v):
-        return first_token(v, "0").lower() in ("1", "true", "yes", "on")
-
     def transports(v):
         # Comma- (or space-) separated list: http, mqtt, shdr.  Legacy "both"
         # expands to http+mqtt.  Tolerates inline comments per token.
@@ -71,7 +68,7 @@ def read_options(ini):
                 out.append(tok)
         return out or ["http"]
     return {
-        "enable": truthy(ini.find("MTCONNECT", "ENABLE", "1")),
+        "enable": ini.find_bool("MTCONNECT", "ENABLE", True),
         "http_port": ini.find_int("MTCONNECT", "HTTP_PORT", 5000),
         "http_bind": first_token(ini.find("MTCONNECT", "HTTP_BIND", "127.0.0.1"),
                                  "127.0.0.1"),

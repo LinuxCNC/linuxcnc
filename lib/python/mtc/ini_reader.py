@@ -41,15 +41,15 @@ class IniReader:
         return bool(self._ini.hassection(section))
 
     # -- typed helpers -------------------------------------------------------
+    #
+    # Delegate to linuxcnc.ini's own typed getters so value parsing (int/float/
+    # bool) is identical to the running machine; we never re-implement it here.
 
     def find_float(self, section, key, default=None):
-        try:
-            return float(self.find(section, key))
-        except (TypeError, ValueError):
-            return default
+        return self._ini.getfloat(section, key, fallback=default)
 
     def find_int(self, section, key, default=None):
-        try:
-            return int(float(self.find(section, key)))
-        except (TypeError, ValueError):
-            return default
+        return self._ini.getint(section, key, fallback=default)
+
+    def find_bool(self, section, key, default=None):
+        return self._ini.getbool(section, key, fallback=default)
