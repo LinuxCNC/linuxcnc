@@ -696,7 +696,13 @@ AC_ARG_WITH([tcl-dir],
     [EMC2_TCL_DIR="$withval"],
     [TCL_GET_DIR=$(echo [['set d [lindex [lsearch -all -inline -glob $tcl_pkgPath /usr/share/*] 0]; if {$d eq ""} {set d [lindex [lsearch -all -inline -glob $tcl_pkgPath /usr/lib*] 0]}; puts $d']] | tclsh 2>/dev/null)
      AS_IF([test -z "$TCL_GET_DIR"],
-           [AC_MSG_ERROR([could not determine Tcl package dir from tcl_pkgPath])])
+           [
+            if test "$BUILD_GUI" = "yes"; then
+                AC_MSG_ERROR([could not determine Tcl package dir from tcl_pkgPath])
+            else
+                TCL_GET_DIR="${libdir}/tcltk"
+            fi
+           ])
      EMC2_TCL_DIR="$TCL_GET_DIR/linuxcnc"])
 
 fe () {
@@ -810,6 +816,12 @@ else
 fi
 
 
+AC_ARG_ENABLE(gui,
+    AS_HELP_STRING([--disable-gui], [Disable building graphical user interfaces (Tk, Tcl, X11, Xinerama, GTK)]),
+    [BUILD_GUI=$enableval],
+    [BUILD_GUI=yes])
+AC_SUBST([BUILD_GUI])
+
 AC_ARG_ENABLE(gtk,
     AS_HELP_STRING(
         [--disable-gtk],
@@ -823,7 +835,7 @@ AC_ARG_ENABLE(gtk,
 	    BUILD_GTK=no ;;
 	esac
     ],
-    [BUILD_GTK=yes])
+    [BUILD_GTK=$BUILD_GUI])
 
 if test "$BUILD_GTK" = "yes"; then
   AC_MSG_CHECKING([for GTK 3.22.4 or above])
@@ -937,7 +949,7 @@ AC_SUBST(YAPPS)
 AC_PATH_PROG(MANDB, mandb, "")
 
 AC_PATH_PROG(INTLTOOL_EXTRACT, intltool-extract, "none", $SPATH)
-if test $INTLTOOL_EXTRACT = "none"
+if test "$INTLTOOL_EXTRACT" = "none"
 then
     AC_MSG_ERROR([intltool-extract not found])
 fi
@@ -1075,12 +1087,22 @@ AC_ARG_ENABLE(build-documentation,
 # --enable-build-documentation=html).  =html itself warn-and-disables
 # only the missing PDF tools; users who want PDF best-effort can pass
 # =html and rebuild after installing the missing tools.
+AC_ARG_ENABLE(manpages,
+    AS_HELP_STRING([--disable-manpages], [Disable building man pages]),
+    [BUILD_MANPAGES=$enableval],
+    [BUILD_MANPAGES=yes])
+AC_SUBST([BUILD_MANPAGES])
+
 # halcompile manpages need asciidoctor regardless of BUILD_DOCS.
 AC_PATH_PROG(ASCIIDOCTOR,asciidoctor,"none")
 if ( test "none" = "$ASCIIDOCTOR" ) ; then
-    AC_MSG_ERROR([no asciidoctor, manpages cannot be built
+    if ( test "x$BUILD_MANPAGES" = "xyes" ) ; then
+        AC_MSG_ERROR([no asciidoctor, manpages cannot be built
 install with "sudo apt-get install asciidoctor" on Debian / Ubuntu,
 "sudo dnf install rubygem-asciidoctor" on Fedora, or "gem install asciidoctor"])
+    else
+        AC_MSG_NOTICE([asciidoctor not found, bypassing manpage build...])
+    fi
 fi
 
 if ( test "$BUILD_DOCS" = "yes" ) ; then
@@ -1362,6 +1384,8 @@ AH_BOTTOM(#endif
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
 # if the search fails the traditional check is done                          #
 ##############################################################################
+if test "$BUILD_GUI" = "yes"; then
+
 AC_MSG_CHECKING([for tcl])
 
 AC_ARG_WITH(tclConfig,
@@ -1518,6 +1542,11 @@ install with "sudo apt-get install python3-gi"])
     fi
 fi
 
+else
+    TCLSH=tclsh
+    WISH=wish
+fi
+
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
 AC_SUBST([TCL_CFLAGS])
@@ -1553,7 +1582,9 @@ AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
 	    [HAVE_XINERAMA=no])
 
 if test "x$HAVE_XINERAMA" = "xno"; then
-    AC_MSG_ERROR([Xinerama library or headers not found])
+    if test "$BUILD_GUI" = "yes"; then
+        AC_MSG_ERROR([Xinerama library or headers not found])
+    fi
 fi
 
 #clean out LIBS
@@ -1657,6 +1688,7 @@ then
 fi
 AC_MSG_RESULT(OK)
 
+if test "$BUILD_GUI" = "yes"; then
 AC_MSG_CHECKING([match between tk and Tkinter versions])
 if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
 then
@@ -1681,11 +1713,13 @@ if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
     AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tkConfig if necessary"])
 fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
+fi
 
 AC_MSG_CHECKING(for site-package location)
 SITEPY=`$PYTHON -c "import sysconfig; s=sysconfig.get_scheme_names(); print(sysconfig.get_path('platlib', 'deb_system' if 'deb_system' in s else 'rpm_prefix' if 'rpm_prefix' in s else sysconfig.get_default_scheme()))"`
 AC_MSG_RESULT($SITEPY)
 
+if test "$BUILD_GUI" = "yes"; then
 AC_MSG_CHECKING(for working GLU quadrics)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <GL/gl.h>
@@ -1697,6 +1731,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 
 AC_MSG_CHECKING(for Xmu headers)
 AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+fi
 
 AC_SUBST([LIBPYTHON])
 AC_SUBST([SITEPY])
