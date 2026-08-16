@@ -5,6 +5,8 @@
 
 = Mesa Modbus =
 
+WARNING: The Mesa Modbus framework (modcompile and mesa_modbus) is deprecated and will be removed in a future release. New configurations should use the link:../man/man9/hm2_modbus.9.html[hm2_modbus] driver with link:../man/man1/mesambccc.1.html[mesambccc]-compiled MBCCB files instead.
+
 A framework to create custom, realtime, modbus drivers using the Mesa
 PktUART component.
 
