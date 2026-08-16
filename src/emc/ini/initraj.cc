@@ -157,7 +157,9 @@ static int loadTraj(const IniFile &ini)
     int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 1);
     // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
     if (planner_type == 1 && jerk < 1.0) {
-        // FIXME: Should write a warning message to the user
+        rcs_print_error("[TRAJ]PLANNER_TYPE = 1 (S-curve) requires "
+                        "[TRAJ]MAX_LINEAR_JERK >= 1.0 (got %g); "
+                        "using trapezoidal planner\n", jerk);
         planner_type = 0;
     }
     if (0 != emcTrajPlannerType(planner_type)) {
