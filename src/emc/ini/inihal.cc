@@ -245,6 +245,18 @@ static void copy_hal_data(const ptr_inihal_data &i, value_inihal_data &j)
 #undef ARRAY
 } // copy_hal_data()
 
+// S-curve planner requires max jerk >= 1.0; when a HAL pin change forces
+// the planner back to trapezoidal, warn once instead of on every change.
+static void warn_planner_fallback_once(void)
+{
+    static bool warned = false;
+    if (!warned) {
+        rcs_print_error("S-curve planner (planner type 1) requires max jerk >= 1.0; "
+                        "using trapezoidal planner\n");
+        warned = true;
+    }
+}
+
 int check_ini_hal_items(int numjoints)
 {
     value_inihal_data new_inihal_data_mutable = {};
@@ -302,6 +314,9 @@ int check_ini_hal_items(int numjoints)
         }
         // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
         if (NEW(traj_max_jerk) < 1.0) {
+            if (old_inihal_data.traj_planner_type == 1) {
+                warn_planner_fallback_once();
+            }
             if (0 != emcTrajPlannerType(0)) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
@@ -320,6 +335,7 @@ int check_ini_hal_items(int numjoints)
             planner_type = 0;
         }
         if (planner_type == 1 && NEW(traj_max_jerk) < 1.0) {
+            warn_planner_fallback_once();
             planner_type = 0;
         }
         if (0 != emcTrajPlannerType(planner_type)) {
