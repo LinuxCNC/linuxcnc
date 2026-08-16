@@ -169,6 +169,28 @@ The agent then serves each mesh at `GET /models/<name>`, emits a device-level
 `<Configuration>`, and emits `<CoordinateSystems>` (WORLD → MACHINE) plus a
 `<Motion>` chain (`parentIdRef`) so the twin nests transforms correctly.
 
+### Viewing the twin
+
+The agent serves the geometry but **bundles no viewer** — rendering is left to a
+standard MTConnect client, so no third-party JavaScript lives in LinuxCNC. Two
+paths:
+
+- **A standard MTConnect twin viewer (recommended).** Point one at the agent and
+  it renders the machine from `/probe` + `/models/` with zero extra setup: the
+  demo viewer at <https://demo.mtconnect.org>, TrakHound, or cppagent's demo
+  twin. Expose the agent first with `[MTCONNECT]HTTP_BIND = 0.0.0.0` (it defaults
+  to loopback only) and give the viewer `http://<machine>:5000`.
+
+- **Self-host a small viewer.** An earlier revision of this config shipped a
+  ~12 KB three.js viewer (`twin.html`) that was removed from the tree to keep
+  third-party JS out of core. It still works against this agent — it fetches
+  `/probe` and `/current` and loads the `/models/` meshes. To run it yourself,
+  recover it from git history
+  (`git show <commit>:share/linuxcnc/mtconnect/twin.html`), repoint its three.js
+  import map at a CDN or a local `libjs-three`, and serve it same-origin as the
+  agent (e.g. behind a small reverse proxy, since the relative `fetch` calls
+  assume one origin).
+
 ## Using the official cppagent instead of the embedded agent
 
 Put `shdr` in `TRANSPORT` and the agent acts as an SHDR adapter (default port
