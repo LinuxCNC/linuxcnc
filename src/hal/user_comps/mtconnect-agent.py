@@ -92,16 +92,16 @@ def make_hal_pins():
     except ImportError:
         return None
     comp = hal.component("mtconnect-agent")
-    comp.newpin("enable", hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin("enable", hal.Type.BOOL, hal.Dir.IN)
     comp["enable"] = True
-    comp.newpin("sample-hz", hal.HAL_U32, hal.HAL_IN)
-    comp.newpin("heartbeat", hal.HAL_U32, hal.HAL_OUT)
+    comp.newpin("sample-hz", hal.Type.U32, hal.Dir.IN)
+    comp.newpin("heartbeat", hal.Type.U32, hal.Dir.OUT)
     # Status outputs (linkable in the HAL file):
     #   active    - agent is polling and serving
     #   connected - MQTT broker link is up (stays low without MQTT; HTTP/SHDR
     #               are stateless request/response and don't drive it)
-    comp.newpin("active", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("connected", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("active", hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin("connected", hal.Type.BOOL, hal.Dir.OUT)
     comp.ready()
     return comp
 

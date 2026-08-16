@@ -58,9 +58,9 @@ def make_hal_pins():
     except ImportError:
         return None
     comp = hal.component("mtconnect-ha-bridge")
-    comp.newpin("enable", hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin("enable", hal.Type.BOOL, hal.Dir.IN)
     comp["enable"] = True
-    comp.newpin("connected", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("connected", hal.Type.BOOL, hal.Dir.OUT)
     comp.ready()
     return comp
 
