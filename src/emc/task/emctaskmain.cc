@@ -1862,6 +1862,27 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	emcTrajSetTermCondMsg = reinterpret_cast<EMC_TRAJ_SET_TERM_COND *>(cmd);
 	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond, emcTrajSetTermCondMsg->tolerance);
+	/* G64_R_PLANNER: a G64 R word piggybacks the planner request here so it
+	 * is applied in program order. Sentinels (<0) mean "leave unchanged".
+	 * The message carries INTENT only: 0 = trapezoidal, >=1 = "the smooth
+	 * (jerk-limited) planner". Which smooth planner that is comes from
+	 * [TRAJ]SMOOTH_PLANNER, so part programs never name an implementation
+	 * and stay valid when the machine's planner changes. The motion side
+	 * applies the switch via the defer-until-idle guard. */
+	if (retval == 0 && emcTrajSetTermCondMsg->planner_type >= 0) {
+	    if (emcTrajSetTermCondMsg->planner_type == 0) {
+	        emcTrajPlannerType(0);
+	    } else {
+	        int smooth = emcTrajGetSmoothPlanner();
+	        if (smooth < 1) {
+	            emcOperatorError(_("G64 R>0: no smooth planner available on this machine - set [TRAJ]MAX_LINEAR_JERK / [TRAJ]SMOOTH_PLANNER"));
+	        } else {
+	            emcTrajPlannerType(smooth);
+	        }
+	    }
+	}
+	if (retval == 0 && emcTrajSetTermCondMsg->scurve_peak_scale >= 0.0)
+	    emcTrajSetScurvePeakScale(emcTrajSetTermCondMsg->scurve_peak_scale);
 	break;
 
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
