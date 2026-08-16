@@ -1,0 +1,2 @@
+;R word is ambiguous on a line with both G64 and M19 - use separate lines
+g64 m19 r90 s0
