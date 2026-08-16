@@ -13,7 +13,13 @@ POSEMATHINCS = \
     ./libposemath/gomath.h \
     ./libposemath/gotypes.h \
     ./libposemath/posemath.h \
+    ./libposemath/posemath_types.h \
     ./libposemath/sincos.h
 
+POSEMATHCXXINCS = \
+    ./libposemath/posemath.hh
+
 $(patsubst ./libposemath/%,../include/%,$(POSEMATHINCS)): ../include/%.h: ./libposemath/%.h
+	cp $^ $@
+$(patsubst ./libposemath/%,../include/%,$(POSEMATHCXXINCS)): ../include/%.hh: ./libposemath/%.hh
 	cp $^ $@
