@@ -408,13 +408,13 @@ void STOP_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void START_SPEED_FEED_SYNCH() {}
 void START_SPEED_FEED_SYNCH(int spindle, double sync, bool vel) {}
 void STOP_SPEED_FEED_SYNCH() {}
-void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_at_speed) {}
-void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_at_speed) {}
-void SET_SPINDLE_MODE(int spindle, double) {}
-void STOP_SPINDLE_TURNING(int spindle) {}
-void SET_SPINDLE_SPEED(int spindle, double rpm) {}
-void ORIENT_SPINDLE(int spindle, double d, int i) {}
-void WAIT_SPINDLE_ORIENT_COMPLETE(int s, double timeout) {}
+void START_SPINDLE_COUNTERCLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}
+void START_SPINDLE_CLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}
+void SET_SPINDLE_MODE(int /*spindle*/, double) {}
+void STOP_SPINDLE_TURNING(int /*spindle*/, int /*wait_for_at_speed*/) {}
+void SET_SPINDLE_SPEED(int /*spindle*/, double /*rpm*/) {}
+void ORIENT_SPINDLE(int /*spindle*/, double /*d*/, int /*i*/) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(int /*s*/, double /*timeout*/) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
