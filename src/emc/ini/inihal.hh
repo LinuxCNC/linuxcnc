@@ -62,6 +62,7 @@ typedef hal_uint_t hal_ui32_t;
     FIELD(real,traj_max_acceleration) \
     FIELD(real,traj_max_jerk) \
     FIELD(si32,traj_planner_type) \
+    FIELD(real,traj_scurve_peak_scale) \
 \
     FIELD(bool,traj_arc_blend_enable) \
     FIELD(bool,traj_arc_blend_fallback_enable) \

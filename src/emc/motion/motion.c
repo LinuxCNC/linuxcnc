@@ -17,6 +17,7 @@
 #include <hal.h>		/* decls for HAL implementation */
 
 #include "../tp/tp.h"
+#include "../tp/sp_scurve.h"	/* sp_scurve_cleanup() at module exit */
 #include "motion.h"
 #include "motion_struct.h"
 #include "mot_priv.h"
@@ -470,6 +471,8 @@ void rtapi_app_exit(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    _("MOTION: hal_stop_threads() failed, returned %d\n"), retval);
     }
+    /* free the S-curve planner + Ruckig pool (threads are stopped, safe) */
+    sp_scurve_cleanup();
     /* free shared memory */
     retval = rtapi_shmem_delete(emc_shmem_id, mot_comp_id);
     if (retval < 0) {
