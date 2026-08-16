@@ -1,0 +1,3 @@
+loadusr -w ./smoke.py
+loadusr -Wn halpp_stream_writer ./stream_writer.py
+loadusr -Wn halpp_stream_reader ./stream_reader.py

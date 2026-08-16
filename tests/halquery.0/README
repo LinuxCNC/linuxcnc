@@ -1,0 +1,3 @@
+check that the query submodule of the _hal extension module is reachable as
+hal.query: by attribute, by 'from hal import query', by 'import hal.query',
+and directly as _hal.query. All four must yield the same module object.

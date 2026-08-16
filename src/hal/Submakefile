@@ -3,6 +3,10 @@
 ../include/hal.h: ./hal/hal.h
 	cp $^ $@
 
+# hal.hh is the C++ interface on top of the public C API
+../include/hal.hh: ./hal/hal.hh
+	cp $^ $@
+
 HALLIBSRCS := hal/hal_lib.c hal/hal_lib_query.c hal/hal_lib_extra.c $(ULAPISRCS)
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC $(ULAPI_CFLAGS)
 USERSRCS += $(HALLIBSRCS)
@@ -27,6 +31,28 @@ HALMODULE := ../lib/python/_hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+
+# pybind11 C++ bindings (hal.hh based)
+# setps_util.c only exists in the tree with the HAL query API
+# pybind11 headers: python3-pybind11 (system include) or pip user site.
+# Without them the bindings are skipped, not failed: they are optional
+# until the build dependency is made mandatory.
+PYBIND11INCLUDES := $(shell $(PYTHON) -m pybind11 --includes 2>/dev/null)
+ifneq ($(PYBIND11INCLUDES),)
+HALPPSRCS := hal/halpybind.cc $(wildcard hal/utils/setps_util.c)
+PYSRCS += $(HALPPSRCS)
+
+$(call TOOBJS, $(HALPPSRCS)): EXTRAFLAGS += $(PYBIND11INCLUDES)
+
+HALPP := ../lib/python/halpp.so
+$(HALPP): $(call TOOBJS, $(HALPPSRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+
+PYTARGETS += $(HALPP)
+else
+$(info NOTE: pybind11 headers not found, skipping the halpp bindings (install python3-pybind11))
+endif
 
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
 PYTARGETS += $(HALMODULE)

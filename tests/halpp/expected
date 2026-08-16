@@ -1,0 +1,81 @@
+ok - component created
+ok - halpp.Type is the shared hal.Type class
+ok - halpp.Dir is the shared hal.Dir class
+ok - newpin accepts the enums directly
+ok - port pin creation raises until API break
+ok - param set/get roundtrip
+ok - bit pin set/get
+ok - s32 pin set/get (negative)
+ok - comp __setitem__/__getitem__ float
+ok - comp __contains__
+ok - param visible via __getitem__
+ok - setprefix affects new pins: halpp-renamed.later
+ok - signal_new
+ok - link
+ok - component_exists
+ok - component_is_ready
+ok - component_exists negative
+ok - set_signal/get_value
+ok - connected pin reads signal value
+ok - set_value/get_value param
+ok - pin_has_writer: no writer yet
+ok - get_value of missing pin raises
+ok - S32 overflow raises
+ok - stream with an invalid typestring raises
+ok - element_types: b'bfsu'
+ok - element_count
+ok - element_type
+ok - element_type returns the enum member
+ok - maxdepth is the depth the stream was created with
+ok - creator flag
+ok - key
+ok - 9 samples written
+ok - not writable when full
+ok - depth when full
+ok - no overruns yet
+ok - write to a full stream raises
+ok - overrun counted
+ok - wrong element count raises
+ok - out-of-range element raises
+ok - 9 samples read back in order
+ok - no underruns while data remains
+ok - read of an empty stream returns None
+ok - underrun counted
+ok - stream closed
+ok - access after close raises
+ok - exit removes component
+
+ALL TESTS PASSED
+stream pass
+ok - typed pin<double> set/get
+ok - typed pin<bool> set/get
+ok - typed pin<uint64_t> 64-bit value
+ok - param default value
+ok - setitem/getitem int32
+ok - getitem param double
+ok - contains()
+ok - signal_new
+ok - link
+ok - component_exists
+ok - component_is_ready
+ok - set_signal/get_value
+ok - handle reads linked signal value
+ok - pin_has_writer false
+ok - set_value/get_value param
+ok - get_value missing name throws
+ok - set_value on RO param throws
+ok - set_value range check throws (no mutex wedge)
+ok - HAL session alive after exception
+ok - stream element_count
+ok - stream typestring
+ok - stream element_type
+ok - stream maxdepth
+ok - 3 samples written
+ok - stream full
+ok - wrong element count throws
+ok - out-of-range element throws
+ok - 3 samples read back
+ok - read of an empty stream is empty
+ok - underrun counted
+ok - exit removes component
+ALL C++ TESTS PASSED

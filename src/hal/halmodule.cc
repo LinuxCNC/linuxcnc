@@ -27,6 +27,7 @@
 #include <rtapi_mutex.h>
 #include <hal.h>
 #include "utils/setps_util.h"
+#include "halenum.hh"
 
 #define EXCEPTION_IF_NOT_LIVE(retval) do { \
         if(self->hal_id <= 0) { \
@@ -2191,10 +2192,25 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_PORT", HAL_PORT);
 
     PyModule_AddIntConstant(m, "HAL_RO", HAL_RO);
+    PyModule_AddIntConstant(m, "HAL_WO", HAL_WO);
     PyModule_AddIntConstant(m, "HAL_RW", HAL_RW);
     PyModule_AddIntConstant(m, "HAL_IN", HAL_IN);
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
+
+    // IntEnum tagging classes for type and direction, built from the
+    // hal.h constants (see halenum.hh). Registered here so that every
+    // consumer, Python or C++, shares the same two classes.
+    PyObject *haltype = halenum_make_type();
+    PyObject *haldir = halenum_make_dir();
+    if(!haltype || !haldir
+            || PyModule_AddObject(m, "Type", haltype)
+            || PyModule_AddObject(m, "Dir", haldir)) {
+        Py_XDECREF(haltype);
+        Py_XDECREF(haldir);
+        Py_DECREF(m);
+        return NULL;
+    }
 
     PyModule_AddIntConstant(m, "REALTIME_TYPE_UNINITIALIZED", REALTIME_TYPE_UNINITIALIZED);
     PyModule_AddIntConstant(m, "REALTIME_TYPE_NONE", REALTIME_TYPE_NONE);
@@ -2211,6 +2227,18 @@ PyMODINIT_FUNC PyInit__hal(void)
 
     PyModule_AddIntConstant(m, "streamer_base", 0x48535430);
     PyModule_AddIntConstant(m, "sampler_base", 0x48534130);
+
+    // The HAL query API is exposed as a submodule of _hal, which hal.py
+    // registers under the name hal.query. This is a placeholder that
+    // carries no bindings yet; it establishes where they will live.
+    PyObject *query = PyModule_New("_hal.query");
+    if(!query) {
+        Py_DECREF(m);
+        return NULL;
+    }
+    PyModule_AddStringConstant(query, "__doc__",
+            "Interface to the HAL query API. No bindings yet.");
+    PyModule_AddObject(m, "query", query);
 
 #ifdef RTAPI_KERNEL_VERSION
     PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
