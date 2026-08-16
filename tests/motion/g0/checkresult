@@ -40,8 +40,10 @@ max_acceleration_ips2 = float(Popen(
 ).communicate()[0])
 
 # max acceleration in inches per second per servo-thread cycle
-# the factor of half at the end is because emc2 reserves half the acceleration for blending
-max_acceleration_ipspc = (max_acceleration_ips2 / cycles_per_second) * 0.5
+# A move that never blends (like this lone G0) runs at the full machine
+# acceleration; the 1/2 parabolic-blend reservation only applies during an
+# actual blend overlap.
+max_acceleration_ipspc = (max_acceleration_ips2 / cycles_per_second)
 
 # max velocity in inches per second
 max_velocity_ips = float(Popen(
