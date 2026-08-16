@@ -567,7 +567,31 @@ int main (int argc, char ** argv)
   tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
 #else //}{
   const int random_toolchanger = 0;
+  // sai gets its OWN mmap. tool_mmap_creator() opens the file O_TRUNC, and it
+  // runs before getopt() below, so every rs274 invocation -- including --help,
+  // and including one given -t -- emptied $HOME/.tool.mmap. That file is the
+  // live tool table, shared MAP_SHARED with io/milltask/halui, so an offline
+  // parse silently replaced the tool table of a running machine.
+  //
+  // mkstemp(), not a name built from the pid: TMPDIR is world-writable and a
+  // pid is guessable, so a predictable name can be pre-created as a symlink
+  // and the victim's rs274 then truncates the attacker's chosen file.
+  // mkstemp() creates it atomically with O_EXCL and mode 0600.
+  char sai_mmap_fname[LINELEN];
+  const char *tmpdir = getenv("TMPDIR");
+  if (!tmpdir || !*tmpdir) tmpdir = "/tmp";
+  snprintf(sai_mmap_fname,sizeof(sai_mmap_fname),
+           "%s/rs274.tool.mmap.XXXXXX",tmpdir);
+  int sai_fd = mkstemp(sai_mmap_fname);
+  if (sai_fd < 0) {
+      perror("rs274: mkstemp for the tool mmap failed");
+      exit(EXIT_FAILURE);
+  }
+  close(sai_fd);   // tool_mmap_creator() opens it by name; O_NOFOLLOW guards
+                   // the gap, and the file already exists and is ours
+  tool_mmap_set_fname(sai_mmap_fname);
   tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
+  atexit(tool_mmap_close);  // tool_mmap_close() unlinks the file
   /* Notes:
   **   1) sai does not use toolInSpindle,pocketPrepped
   **   2) sai does not distinguish changer type
