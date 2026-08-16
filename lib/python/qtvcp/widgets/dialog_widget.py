@@ -334,7 +334,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self._message = None
         # just return result
         else:
-            LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
+            return result
 
     def setGeometry(self,*args):
         #print(args,len(args))
