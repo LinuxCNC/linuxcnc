@@ -71,6 +71,13 @@ typedef struct {
 **       DEFAULT_EMC_IO_CYCLE_TIME   0.100
 */
 
+void tool_mmap_set_fname(const char* fname) {
+    // Let a standalone user of the tooldata mmap (sai/rs274) choose a private
+    // file. Without this every process uses $HOME/.tool.mmap, so an offline
+    // parse truncates the tool table of a session that is already running.
+    snprintf(filename,sizeof(filename),"%s",fname);
+}
+
 static char* tool_mmap_fname(void) {
     if (*filename) {return filename;}
     char* hdir = secure_getenv("HOME");

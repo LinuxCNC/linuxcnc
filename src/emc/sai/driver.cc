@@ -567,7 +567,17 @@ int main (int argc, char ** argv)
   tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
 #else //}{
   const int random_toolchanger = 0;
+  // sai gets its OWN mmap. tool_mmap_creator() opens the file O_TRUNC, and it
+  // runs before getopt() below, so every rs274 invocation -- including --help,
+  // and including one given -t -- emptied $HOME/.tool.mmap. That file is the
+  // live tool table, shared MAP_SHARED with io/milltask/halui, so an offline
+  // parse silently replaced the tool table of a running machine.
+  char sai_mmap_fname[LINELEN];
+  snprintf(sai_mmap_fname,sizeof(sai_mmap_fname),
+           "/tmp/rs274.%d.tool.mmap",(int)getpid());
+  tool_mmap_set_fname(sai_mmap_fname);
   tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
+  atexit(tool_mmap_close);  // tool_mmap_close() unlinks the file
   /* Notes:
   **   1) sai does not use toolInSpindle,pocketPrepped
   **   2) sai does not distinguish changer type
