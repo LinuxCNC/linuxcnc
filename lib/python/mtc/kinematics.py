@@ -26,6 +26,12 @@
 # letter; for identity/trivial kinematics this mirrors [TRAJ]COORDINATES.  The
 # joint->axis mapping here follows map_coordinates_to_jnumbers() in
 # src/emc/kinematics/kins_util.c.
+#
+# The axis set, limits, home data and kins module name are reported for every
+# machine.  The joint<->axis map and per-axis direction vectors are only trusted
+# for serial, orthogonal-axis kinematics (SERIAL_ORTHOGONAL_KINS); for parallel,
+# articulated or non-orthogonal machines that geometry is not INI-derivable and
+# is omitted rather than guessed (see is_serial).
 
 from dataclasses import dataclass, field
 
@@ -49,6 +55,17 @@ KINEMATICS_TYPE_NAMES = {
     3: "INVERSE_ONLY",
     4: "BOTH",
 }
+
+# Kins modules whose joints map 1:1 to orthogonal Cartesian axes.  For these the
+# joint<->axis map and the canonical AXIS_VECTORS are correct.  For anything else
+# -- CoreXY, parallel (hexapod/delta/tripod/penta), articulated (scara/puma/
+# genser), non-orthogonal or runtime-switched kinematics -- the true geometry
+# lives in the compiled kins module, not the INI, so it is omitted rather than
+# guessed (the module name still travels in x:Kinematics for consumers to branch
+# on).
+SERIAL_ORTHOGONAL_KINS = frozenset({
+    "trivkins", "5axiskins", "xyzac-trt-kins", "xyzbc-trt-kins",
+})
 
 
 @dataclass
@@ -80,6 +97,12 @@ class KinematicModel:
     axes: list = field(default_factory=list)
     joints: list = field(default_factory=list)
     kinematics_type: str = None  # IDENTITY/BOTH/... filled from stat when live
+
+    @property
+    def is_serial(self):
+        """True when joints map 1:1 to orthogonal Cartesian axes, so the
+        joint<->axis map and the canonical axis vectors are trustworthy."""
+        return self.kins_module in SERIAL_ORTHOGONAL_KINS
 
     def joint_axis_map(self):
         """Return {joint_number: axis_letter} for mapped joints."""

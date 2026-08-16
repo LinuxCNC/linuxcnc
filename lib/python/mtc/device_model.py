@@ -197,11 +197,12 @@ def _build_axes(parent, model, config, containers, models=None):
     axes = ET.SubElement(parent, _t("Axes"), {"id": "axes", "name": "axes"})
     comps = ET.SubElement(axes, _t("Components"))
     for axis in model.axes:
-        _build_motion_axis(comps, axis, containers, models, config)
+        _build_motion_axis(comps, axis, containers, models, config, model.is_serial)
     _build_spindle(comps, containers, models, config)
 
 
-def _build_motion_axis(parent, axis, containers, models=None, config=None):
+def _build_motion_axis(parent, axis, containers, models=None, config=None,
+                       serial=True):
     is_linear = axis.kind == "LINEAR"
     aid = axis.letter.lower()
     comp = ET.SubElement(parent, _t("Linear" if is_linear else "Rotary"),
@@ -218,10 +219,14 @@ def _build_motion_axis(parent, axis, containers, models=None, config=None):
         parent_id = models.parent_of("axis_%s" % aid)
         if parent_id and parent_id.startswith("axis_"):
             motion.set("parentIdRef", "motion_%s" % parent_id.split("_", 1)[1])
-    vec = axis.vector
-    if models and axis.letter in models.invert:
-        vec = tuple(-c for c in vec)   # work-carrying axis moves opposite
-    ET.SubElement(motion, _t("Axis")).text = _fmt_vec(vec)
+    # The direction vector is only meaningful when the axis is an orthogonal
+    # Cartesian DOF; for non-serial kinematics it is not INI-derivable, so the
+    # Motion element carries type/actuation but no (misleading) direction.
+    if serial:
+        vec = axis.vector
+        if models and axis.letter in models.invert:
+            vec = tuple(-c for c in vec)   # work-carrying axis moves opposite
+        ET.SubElement(motion, _t("Axis")).text = _fmt_vec(vec)
     if models and axis.letter in models.axis:
         _solid_model(cfg, "model_%s" % aid, models.axis[axis.letter], models)
     # Mirror the travel limits as a standard Specification so non-LinuxCNC
@@ -344,7 +349,7 @@ def _build_kinematics_extension(parent, model, config):
     for joint in model.joints:
         js = lin if joint.kind == "LINEAR" else 1.0
         attrs = {"number": str(joint.number), "kind": joint.kind}
-        if joint.axis:
+        if joint.axis and model.is_serial:
             attrs["axis"] = joint.axis
         _set_num(attrs, "min", joint.min_limit, js)
         _set_num(attrs, "max", joint.max_limit, js)
@@ -354,7 +359,9 @@ def _build_kinematics_extension(parent, model, config):
 
     for axis in model.axes:
         axs = lin if axis.kind == "LINEAR" else 1.0
-        attrs = {"name": axis.letter, "kind": axis.kind, "vector": _fmt_vec(axis.vector)}
+        attrs = {"name": axis.letter, "kind": axis.kind}
+        if model.is_serial:
+            attrs["vector"] = _fmt_vec(axis.vector)
         _set_num(attrs, "min", axis.min_limit, axs)
         _set_num(attrs, "max", axis.max_limit, axs)
         ET.SubElement(k, _x("Axis"), attrs)
