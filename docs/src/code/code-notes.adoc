@@ -241,12 +241,6 @@ More on that function later.
 There are approximately 44 commands - this list is still under
 construction.
 
-[NOTE]
-The cmd_code_t enumeration, in motion.h, contains 73 commands, but the switch
-statement in command.c contemplates only 70 commands (as of 6/5/2020).
-ENABLE_WATCHDOG / DISABLE_WATCHDOG commands are in motion-logger.c. Maybe they are obsolete.
-The SET_TELEOP_VECTOR command only appears in motion-logger.c, with no effect other than its own log.
-
 === ABORT
 
 The ABORT command simply stops all motion. It can be issued at any
@@ -468,38 +462,6 @@ Calculations for the specified joint are enabled. The amp enable pin
 is not changed, and subsequent ENABLE or DISABLE commands will not
 modify the joint's amp enable pin.
 
-=== ENABLE_WATCHDOG
-
-The ENABLE_WATCHDOG command enables a hardware based watchdog (if
-present).
-
-==== Requirements
-
-None. The command can be issued at any time, and will always be
-accepted.
-
-==== Results
-
-Currently nothing. The old watchdog was a strange thing that used a
-specific sound card. A new watchdog interface may be designed in the
-future.
-
-=== DISABLE_WATCHDOG
-
-The DISABLE_WATCHDOG command disables a hardware based watchdog (if
-present).
-
-==== Requirements
-
-None. The command can be issued at any time, and will always be
-accepted.
-
-==== Results
-
-Currently nothing. The old watchdog was a strange thing that used a
-specific sound card. A new watchdog interface may be designed in the
-future.
-
 === PAUSE
 
 The PAUSE command stops the trajectory planner. It has no effect in
@@ -704,13 +666,6 @@ queue.
 
 The SET_CIRCLE command adds a circular move to the trajectory planner
 queue.
-
-(More later)
-
-=== SET_TELEOP_VECTOR
-
-The SET_TELEOP_VECTOR command instructs the motion controller to move
-along a specific vector in Cartesian space.
 
 (More later)
 
