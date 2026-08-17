@@ -4,11 +4,11 @@
 # Author: David mueller
 # email: mueller_david@hotmail.com
 
-from twp_vismach import *
 import hal
 import math
 import sys
 import os
+from vismach import *
 
 # getting the name of the directory
 # where the this file is present.
@@ -21,7 +21,6 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 # now we can import the module in the parent
 # directory.
-from twp_vismach import *
 
 # Machine zero as measured from center surface of the rotary c table
 machine_zero_x = -1000
@@ -208,9 +207,9 @@ class CoordSystem(Collection):
 class Point(Collection):
     # creates a visual object for a point
     def __init__(self, comp, r=1, l=20, color=[1,1,1,1]):
-        self.parts = [Color(color,[CylinderX(-l,r,l,r)],1),
-                      Color(color,[CylinderY(-l,r,l,r)],1),
-                      Color(color,[CylinderZ(-l,r,l,r)],1)
+        self.parts = [Color(color,[CylinderX(-l,r,l,r)]),
+                      Color(color,[CylinderY(-l,r,l,r)]),
+                      Color(color,[CylinderZ(-l,r,l,r)])
                      ]
 
 # used to rotate parts around the nutation axis
@@ -555,6 +554,7 @@ myhud.add_pin("Zy: {:8.3f}","xyzbca-trsrn-gui.twp_zy",[1,2,3])
 myhud.add_pin("Zz: {:8.3f}","xyzbca-trsrn-gui.twp_zz",[1,2,3])
 myhud.add_txt("",[1,2,3])
 myhud.show_tags_in_pin("xyzbca-trsrn-gui.twp_status")
+
 #/hud
 
 main(model, tooltip, work, size=4000, hud=myhud, lat=-60, lon=25)
