@@ -24,7 +24,7 @@
 .\"
 .TH modcompile "1"  "2023-07-13" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
-modcompile \- Utility for compiling Modbus drivers
+modcompile \- Utility for compiling Modbus drivers (SUPERSEDED)
 
 .SH SYNOPSIS
 
@@ -35,6 +35,11 @@ modcompile \- Utility for compiling Modbus drivers
 \fBmodcompile* [\fB-k\fR] [\fB-n\fR] [\fB-v\fR] module.mod ...
 
 .SH DESCRIPTION
+\fBmodcompile\fR and the mesa_modbus framework are superseded by the
+\fBhm2_modbus\fR driver and \fBmesambccc\fR-compiled MBCCB files. They remain
+available throughout the 2.9 series, but new configurations are encouraged to
+migrate.
+
 The \fBmodcompile\fR utility is used to compile modbus drivers that use the PktUART
 interface of Mesa cards.
 
