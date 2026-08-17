@@ -77,6 +77,7 @@ Both of these commands have the following effects:
 * The spindle is stopped (like 'M5').
 * The current motion mode is set to feed (like 'G1').
 * Coolant is turned off (like 'M9').
+* Rotary modulo path control is set to shortest path (like 'M26').
 
 [NOTE]
 Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
@@ -270,8 +271,9 @@ INI Settings in the [RS274NGC] section:
 
 * 'M26' - on rotary axes flagged with `[AXIS_<L>] ROTARY_MODULO = 1`, absolute
   moves take the shortest path: a programmed value is reached by moving at most
-  180 degrees in the shorter direction. This is the default when `ROTARY_MODULO`
-  is enabled.
+  180 degrees in the shorter direction. A move of exactly 180 degrees is taken
+  in the negative direction. This is the default when `ROTARY_MODULO` is
+  enabled.
 
 * 'M27' - on the same axes, absolute moves take the modulo-with-sign-direction
   path: the programmed value is reduced mod 360, and the sign of the input
@@ -279,14 +281,17 @@ INI Settings in the [RS274NGC] section:
   forward direction; a negative value approaches in the reverse direction. The
   resulting move is always less than one full turn. Programmed values outside
   +/-360 are accepted and wrapped, so `A720` is treated as `A0`, `A-540` as
-  `A-180`. Use this when sign convention must select rotation direction
-  explicitly, similar to a wrapped rotary axis or to Heidenhain M127 / Siemens
-  ACP/ACN behavior on a modulo axis.
+  `A-180`. An axis already standing on the programmed angle does not move,
+  whatever the sign. Use this when sign convention must select rotation
+  direction explicitly, similar to a wrapped rotary axis or to Heidenhain M127
+  / Siemens ACP/ACN behavior on a modulo axis.
 
 M26 and M27 are modal (modal group 3) and persist until the other code is
 programmed or the program ends. They have no effect on rotary axes that are not
 flagged `ROTARY_MODULO`, on incremental moves (`G91`), or on parameter readout
-(`#5423`/`#5424`/`#5425` continue to report the wrapped value).
+(`#5423`/`#5424`/`#5425` continue to report the wrapped value). Moves to a
+stored position that carries no programmed sign (`G28`, `G30`, the tool change
+position) always take the shortest path, M27 or not.
 
 Typical usage:
 
@@ -295,7 +300,7 @@ Typical usage:
 (at this point absolute A moves take the shortest path)
 M27         (enter sign-direction mode for the section that follows)
 G1 A45      (forward to 45 degrees within the current turn)
-G1 A-45     (backward to 45 degrees, taking the long way)
+G1 A-90     (backward to 90 degrees, taking the long way round)
 M26         (restore shortest path for the rest of the program)
 G0 A0       (now resolves to the nearest equivalent angle)
 ----

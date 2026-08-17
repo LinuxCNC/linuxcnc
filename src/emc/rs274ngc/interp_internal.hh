@@ -52,6 +52,9 @@ inline double wrap_rotary_to_360(double v) {
     return m;
 }
 
+// travel below this makes a ROTARY_MODULO axis bounded, warned about at startup
+#define ROTARY_MODULO_MIN_RANGE 1.0e6
+
 template<class T>
 inline int round_to_int(T x) {
     return (int)std::nearbyint(x);

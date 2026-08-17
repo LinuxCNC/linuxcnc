@@ -5290,6 +5290,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*3*/
     settings->distance_mode = DISTANCE_MODE::ABSOLUTE;
+    settings->rotary_modulo_literal = 0;   // M27 reverts to M26 at program end
 
 /*4*/ settings->feed_mode = FEED_MODE::UNITS_PER_MINUTE;
     SET_FEED_MODE(0, 0);

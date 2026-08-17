@@ -909,14 +909,18 @@ int Interp::init()
                       *a.modulo = 0;
                   }
                   if (*a.modulo) {
-                      double lo = inifile.findRealV("MIN_LIMIT", a.name, 0.0);
-                      double hi = inifile.findRealV("MAX_LIMIT", a.name, 0.0);
-                      double range = hi - lo;
-                      if (range > 0.0 && fabs(range - 360.0) > 0.01) {
+                      // the commanded position accumulates, so motion is refused
+                      // once it leaves MIN/MAX_LIMIT: a bounded range is the one
+                      // that stops working after a few turns
+                      std::optional<double> lo = inifile.findReal("MIN_LIMIT", a.name);
+                      std::optional<double> hi = inifile.findReal("MAX_LIMIT", a.name);
+                      if (lo && hi && (*hi - *lo) < ROTARY_MODULO_MIN_RANGE) {
                           fprintf(stderr,
-                              "%s: ROTARY_MODULO=1 but MIN/MAX_LIMIT range is %.2f deg "
-                              "(expected ~360); typical for limited-range rotaries (tilt) "
-                              "where modulo is unusual\n", a.name, range);
+                              "%s: ROTARY_MODULO=1 with a bounded travel of %.2f deg. "
+                              "The commanded position accumulates instead of wrapping, "
+                              "so motion is refused once it leaves MIN_LIMIT/MAX_LIMIT. "
+                              "Leave both limits unset for a continuously rotating axis.\n",
+                              a.name, *hi - *lo);
                       }
                   }
               }
