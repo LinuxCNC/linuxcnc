@@ -1,0 +1,188 @@
+:lang: en
+[[cha:mtconnect]]
+= MTConnect
+
+// Copyright (C) 2026 LinuxCNC contributors. GNU GPL v2 or later; NO WARRANTY.
+
+== What is MTConnect?
+
+MTConnect is an open, read-only standard for getting data out of manufacturing
+equipment.  A machine (or an *agent* in front of it) publishes a structured,
+XML-based description of itself and a live stream of its state, which any
+compliant software can read: shop dashboards, machine monitoring and OEE tools,
+digital twins, and CAD/CAM systems.  It is read-only by design - nothing can
+command the machine through it - which makes it safe to expose.
+
+An MTConnect agent answers a few standard requests:
+
+* *probe* - the device model: the machine's components, axes, kinematics and the
+  list of data items it reports.
+* *current* - the latest value of every data item.
+* *sample* - a history of values by sequence number.
+* *assets* - richer objects such as cutting tools.
+
+LinuxCNC provides a native agent, `mtconnect-agent`(1), so no third-party
+software is required.
+
+== Enabling the agent
+
+Add a `[MTCONNECT]` section to the INI (see
+<<sub:ini:sec:mtconnect,[MTCONNECT] Section>> for all keys) and load the agent
+from a HAL file:
+
+.INI file
+----
+[MTCONNECT]
+ENABLE      = 1
+DEVICE_NAME = my_mill
+TRANSPORT   = http
+HTTP_PORT   = 5000
+----
+
+.HAL file
+----
+loadusr -W mtconnect-agent
+----
+
+`-W` waits until the component is ready before HAL processing continues.  The INI
+is taken from the `INI_FILE_NAME` environment variable, so no argument is needed.
+The MTConnect device model - including the kinematic description - is generated
+automatically from `[TRAJ]`, `[KINS]`, `[AXIS_<letter>]` and `[JOINT_<num>]`.
+
+By default the HTTP server listens on `127.0.0.1` (loopback) only.  To let other
+machines on the network read it, set `HTTP_BIND = 0.0.0.0`.
+
+Once running:
+
+----
+curl http://localhost:5000/probe
+curl http://localhost:5000/current
+curl http://localhost:5000/assets
+----
+
+== HAL pins
+
+Loaded from a HAL file, the component exposes pins you can link:
+
+* `mtconnect-agent.enable` (bit, in) - gate polling and publishing.
+* `mtconnect-agent.active` (bit, out) - TRUE while polling and serving.
+* `mtconnect-agent.connected` (bit, out) - TRUE while the MQTT broker link is up.
+* `mtconnect-agent.heartbeat` (u32, out) - increments each poll.
+
+== Exposing custom HAL pins
+
+A lot of useful machine data lives in HAL pins that are not part of
+`linuxcnc.stat()` - spindle load, drive or board temperatures, air pressure,
+vacuum, custom sensors.  Any HAL pin, signal or parameter can be published as an
+MTConnect data item with a `HAL_ITEM` line; the agent reads it each poll with
+`hal.get_value` (no HAL-file wiring needed) and it then appears in `/probe`,
+`/current`, `/sample` and over MQTT and SHDR like any other item.
+
+----
+[MTCONNECT]
+HAL_ITEM = pin=spindle.0.load, id=spindle_load, type=LOAD, units=PERCENT, component=spindle
+HAL_ITEM = pin=hm2_5i25.temp,  id=board_temp,   type=TEMPERATURE, units=CELSIUS
+----
+
+Fields: `pin=` (the HAL name), `id=` (the data item id, also its MQTT/SHDR key),
+`type=` (a standard MTConnect SAMPLE type), and optionally `units=`, `name=`,
+`subType=`, and `component=`.  `component=` chooses the host: the default
+`sensors` (a generic Sensor component), or an existing one - `spindle`,
+`controller`, `path`, or an axis letter.
+
+Only standard MTConnect SAMPLE types are accepted (for example `LOAD`,
+`TEMPERATURE`, `PRESSURE`, `VOLTAGE`, `AMPERAGE`, `WATTAGE`, `FREQUENCY`,
+`ANGLE`, `VELOCITY`, `ACCELERATION`, `TORQUE`, `FILL_LEVEL`, `FLOW`).  A custom
+type would need the LinuxCNC extension schema and cannot be represented in the
+base MTConnectStreams schema, so it is rejected with a warning listing the
+supported types; the agent still starts.
+
+== The kinematic description
+
+Standard MTConnect models each axis as a `Linear` or `Rotary` component with a
+`Motion` element (`PRISMATIC`/`REVOLUTE` plus a direction vector), and describes
+frames with `CoordinateSystems`.  Travel limits are published as `Specifications`.
+
+LinuxCNC specifics that have no standard representation - the kinematics module
+name, the `coordinates=` string, and the joint-to-axis map - are carried in a
+compact extension block, `x:Kinematics`, in the LinuxCNC extension namespace
+`urn:linuxcnc:mtconnect:1`.  This is the primary contract for a consumer (for
+example a FreeCAD machine-configuration plugin) that wants to reconstruct the
+machine automatically.
+
+== Solid models (geometry)
+
+The device model can carry 3D geometry so a standard MTConnect twin viewer (for
+example the one at demo.mtconnect.org, or TrakHound) can render the machine.
+Geometry is *referenced, never streamed*: the `/probe` document points to mesh
+files with `SolidModel` elements, and the agent serves each mesh at
+`/models/<name>`.  A viewer fetches each mesh once and animates it from
+`/current` using the `CoordinateSystems` and `Motion` chain in `/probe`.  This is
+standard MTConnect - LinuxCNC bundles no viewer and no JavaScript.
+
+With `MODEL_AUTO = 1` the agent generates simple placeholder box geometry from the
+travel limits, so any machine gets usable geometry with no mesh files.  Supply
+STL/OBJ/glTF meshes (authored in millimetres) with `MODEL_BASE`, `MODEL_X`, etc.
+for higher fidelity.  Because a trivial-kinematics INI does not describe the
+mechanical assembly, `MODEL_CHAIN`, `MODEL_PARENT_<axis>` and `MODEL_INVERT`
+describe the nesting, branching (e.g. a quill that carries the tool) and which
+links physically move opposite the reported tool-relative coordinate.
+
+== MQTT
+
+With `mqtt` in the `TRANSPORT` list and the `python3-paho-mqtt` package installed,
+the agent also publishes to the standard MTConnect MQTT topics
+(`<prefix>/Probe/<uuid>` retained, plus `Current`, `Sample` and `Asset`).  A
+consumer discovers the whole device from the retained Probe topic.
+
+=== Home Assistant (optional)
+
+Home Assistant's MQTT Discovery is an HA-specific convention, not an open
+standard, so it is deliberately not part of the core agent.  An optional bridge,
+`mtconnect-ha-bridge` (in the MTConnect example config's `contrib/` directory),
+reuses the agent's device model to publish Home Assistant discovery so HA
+auto-creates a device with one sensor per value - no YAML required.  It is
+configured entirely with command-line arguments, so no Home Assistant setting is
+placed in the machine INI:
+
+----
+loadusr -W mtconnect-ha-bridge \
+  --broker=[HA]BROKER --username=[HA]USER --password=[HA]PASSWORD
+----
+
+== Using an external MTConnect agent (SHDR)
+
+Instead of (or in addition to) the embedded agent, LinuxCNC can act as an *SHDR
+adapter* and feed a standard external MTConnect agent such as the reference
+cppagent.  SHDR is the MTConnect adapter protocol: a line-oriented TCP stream the
+agent connects to and reads.  Add `shdr` to the `TRANSPORT` list; the adapter
+listens on `SHDR_PORT` (default 7878):
+
+----
+[MTCONNECT]
+TRANSPORT = http, shdr
+SHDR_PORT = 7878
+----
+
+The device *model* is not sent over SHDR - only data values, as
+`<timestamp>|<dataItemId>|<value>` lines.  Configure the external agent with a
+`Devices.xml`, which the generated probe document doubles as:
+
+----
+mtconnect-agent --dump-probe my_machine.ini > Devices.xml
+----
+
+The `dataItemId` values in the SHDR stream match the ids in that `Devices.xml`.
+(The SHDR port is reachable from other hosts by design, since an external agent
+usually runs elsewhere.)
+
+== The LinuxCNC extension schema
+
+A few data items have no standard MTConnect type: coolant flood/mist state and
+the active XY work-coordinate rotation (`G10 L2 R`).  These are published in the
+`urn:linuxcnc:mtconnect:1` namespace and defined by the extension schema
+`mtconnect-linuxcnc-1.xsd`, installed under `share/linuxcnc/mtconnect` and served
+by the agent at `/mtconnect-linuxcnc-1.xsd`.  The streaming documents validate
+against the official MTConnect schemas together with this extension schema.
+
+// vim: set syntax=asciidoc:
