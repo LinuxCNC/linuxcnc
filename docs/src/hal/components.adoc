@@ -157,7 +157,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/latency-plot.1.html[latency-plot] |Another way to view latency numbers ||
 | link:../man/man1/latency-test.1.html[latency-test] |Tests the realtime system latency ||
 | link:../man/man1/linuxcncmkdesktop.1.html[linuxcncmkdesktop] |Create a desktop icon for LinuxCNC ||
-| link:../man/man1/modcompile.1.html[modcompile] |Utility for compiling Modbus drivers||
+| link:../man/man1/modcompile.1.html[modcompile] |Utility for compiling Modbus drivers. Deprecated: use hm2_modbus with mesambccc instead.||
 | link:../man/man1/motion-logger.1.html[motion-logger] |Log motion commands sent from LinuxCNC ||
 | link:../man/man1/pncconf.1.html[pncconf] |Configuration wizard for Mesa cards ||
 | link:../man/man1/sim_pin.1.html[sim_pin] |GUI for displaying and setting one or more HAL inputs ||
