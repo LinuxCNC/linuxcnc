@@ -62,6 +62,10 @@ this text-based interface than to a graphical one.
   who can read packets on the network between the server and the client.
   Defaults to EMC if omitted.
 
+*-4*,*--ipv4*::
+  Listen only for connections using IPv4.
+  Default is to accept connection on both IPv6 and IPv4.
+
 In addition to the options listed above, *linuxcncrsh* accepts an optional
 special LINUXCNC_OPTION at the end:
 
