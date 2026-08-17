@@ -420,4 +420,55 @@ kinstypes must not create the same pin twice.  When all setup
 routines finish, rtapi_app_main() issues hal_ready() for the
 component to complete creation of the module.
 
+=== Outline
+
+The two routes in one switchkinsSetup(), with the kinematics itself
+left out.  Types 0 to 2 are filled in through the pointer arguments as
+they always were, and a fourth is registered:
+
+[source,c]
+----
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    kp->kinsname             = "mykins"; // must agree with the filename
+    kp->halprefix            = "mykins"; // hal pin names
+    kp->required_coordinates = "xyzab";
+    kp->max_joints           = strlen(kp->required_coordinates);
+    // remaining kparms fields
+
+    *kset0 = identityKinematicsSetup;    // kinstype 0 is the startup default
+    *kfwd0 = identityKinematicsForward;
+    *kinv0 = identityKinematicsInverse;
+
+    *kset1 = myKinematicsSetup;
+    *kfwd1 = myKinematicsForward;
+    *kinv1 = myKinematicsInverse;
+
+    *kset2 = userkKinematicsSetup;
+    *kfwd2 = userkKinematicsForward;
+    *kinv2 = userkKinematicsInverse;
+
+    // any further kinstype comes from switchkinsRegister(), and the
+    // numbering carries on from the three above with no gaps
+    if (switchkinsRegister(3, myOtherKinematicsSetup,
+                              myOtherKinematicsForward,
+                              myOtherKinematicsInverse)) { return -1; }
+
+    return 0;
+} // switchkinsSetup()
+----
+
+A module wanting fewer than three kinstypes leaves the unused pointer
+arguments alone and starts registering at the first free number.
+
+For the surrounding shape, the in-tree switchkinsSetup() routines are
+in src/emc/kinematics: 5axiskins.c, xyzac-trt-kins.c, genserkins.c,
+scarakins.c and the others listed at the top of this document.  None of
+them registers a fourth kinstype yet, so the call above has no in-tree
+example to copy.
+
 // vim: set syntax=asciidoc:
