@@ -320,6 +320,12 @@ def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout):
 
     cmd.program_open(ngc_path)
     cmd.wait_complete()
+    # Let the GUI's GSTAT poll (~100 ms cycle) see the new file while
+    # the interp is still IDLE. Without the pause the 'file-loaded' emit
+    # is deferred until the interp returns to IDLE at program end, and
+    # gmoccapy loads the file with program.length still 0, showing a
+    # bogus progress percentage in the confirm shot.
+    time.sleep(0.4)
     # No wait_complete after auto(AUTO_RUN, 0): wait_complete blocks
     # until the operation finishes, which for AUTO_RUN means the whole
     # program completes. That would race wait_program_started; by the
