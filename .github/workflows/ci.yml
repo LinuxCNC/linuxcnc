@@ -48,6 +48,11 @@ jobs:
     - name: Verify no untracked or modified files after build
       run: |
         .github/scripts/verify-clean-repo.sh
+    - name: Arm core dumps
+      run: |
+        set -x
+        mkdir -p /tmp/linuxcnc-ui-smoke-cores
+        sudo sysctl -w kernel.core_pattern=/tmp/linuxcnc-ui-smoke-cores/core.%e.%p
     - name: Test
       run: |
         set -x
@@ -175,6 +180,11 @@ jobs:
     - name: Verify no untracked or modified files after build
       run: |
         .github/scripts/verify-clean-repo.sh
+    - name: Arm core dumps
+      run: |
+        set -x
+        mkdir -p /tmp/linuxcnc-ui-smoke-cores
+        sudo sysctl -w kernel.core_pattern=/tmp/linuxcnc-ui-smoke-cores/core.%e.%p
     - name: Test
       run: |
         set -x

@@ -1,44 +1,40 @@
 #!/bin/bash
 # Native crash capture for the UI smoke launchers. A GUI segfault lands in
 # C/C++ (Qt, dbus, GL); PYTHONFAULTHANDLER (set in launch-env.sh) prints a
-# Python traceback to linuxcnc.err naming the frame that called in, which
-# is the reliable, environment-independent crash signal and is surfaced in
-# every failure log. This helper adds a best-effort native backtrace on
-# top, but only when runtests is given -d (ENABLE_CRASHDUMPS=1): arm a core
-# dump before launch, and after the run, if a readable core from this run is
-# present, gdb-print its backtrace. The core only materialises when we can
-# point kernel.core_pattern at a writable dir, which needs root, so we do it
-# via sudo (CI has passwordless sudo; the suite never runs as root since
-# linuxcnc refuses to). It is opt-in because that sudo changes a global
-# system setting (runtests rejects -d together with -u). Without -d the
-# native backtrace is off and only the Python traceback remains. Source with
-# LIB_DIR set; runs only on the failure path, so green runs pay nothing.
+# Python traceback to linuxcnc.err naming the frame that called in, which is
+# the reliable, environment-independent crash signal and is surfaced in every
+# failure log. This helper adds a best-effort native backtrace on top when
+# runtests is given -d (ENABLE_CRASHDUMPS=1): raise the core size limit
+# before launch, and after the run, if a readable core from this run is
+# found, gdb-print its backtrace. Cores are collected from wherever the
+# system puts them: systemd-coredump via coredumpctl, or a plain-file
+# kernel.core_pattern (the CI workflow points it at CORE_DIR with a job-level
+# sudo sysctl on the disposable runner; local runs often just get ./core).
+# No sudo and no global system changes here. Source with LIB_DIR set; the
+# report runs only on the failure path, so green runs pay nothing.
 
 crashdump_arm() {
-    # Off unless runtests was given -d: arming changes a global system
-    # setting (kernel.core_pattern) via sudo, so it is opt-in. The Python
-    # faulthandler traceback does not depend on this and is always present.
+    # Off unless runtests was given -d. The Python faulthandler traceback
+    # does not depend on this and is always present.
     [ "${ENABLE_CRASHDUMPS:-0}" = "1" ] || return 0
-    CORE_DIR="$(mktemp -d -t ui-smoke-cores.XXXXXX)"
+    # CORE_DIR is where the CI workflow's core_pattern writes; it also
+    # receives a core extracted via coredumpctl.
+    CORE_DIR="${UI_SMOKE_CORE_DIR:-/tmp/linuxcnc-ui-smoke-cores}"
+    mkdir -p "$CORE_DIR" 2>/dev/null || true
     export CORE_DIR
     ulimit -c unlimited 2>/dev/null || true
-    # Point the global core_pattern at our writable dir so the kernel writes
-    # a core we can read. -d implies sudo is allowed (runtests rejects -d with
-    # -u), and tests never run as root, so no id check; if sudo still fails the
-    # core lands wherever the system pattern says and we fall back to the
-    # Python traceback.
-    sudo sysctl -w "kernel.core_pattern=$CORE_DIR/core.%e.%p" >/dev/null 2>&1 || true
+    crashdump_arm_time=$(date +%s)
 }
 
 crashdump_report() {
     [ "${ENABLE_CRASHDUMPS:-0}" = "1" ] || return 0
     [ -n "${CORE_DIR:-}" ] || return 0
     local c core=""
-    # Only trust a core we know is from this run and can actually read:
-    # one the kernel wrote into our fresh CORE_DIR (root path, where we set
-    # core_pattern), or a relative "core" in the cwd that postdates arming.
-    # A broad /tmp glob would pick up a stale or foreign core (often root-
-    # owned), and gdb would just print "Permission denied".
+    # Only trust a core we know is from this run and can actually read: one
+    # in CORE_DIR, a relative "core" in the cwd that postdates arming, or
+    # one systemd-coredump logged since arming (coredumpctl needs no root
+    # for our own processes). A broad /tmp glob would pick up a stale or
+    # foreign core, and gdb would just print "Permission denied".
     for c in "$CORE_DIR"/core*; do
         [ -e "$c" ] && [ -r "$c" ] && { core="$c"; break; }
     done
@@ -46,6 +42,12 @@ crashdump_report() {
         for c in ./core*; do
             [ -e "$c" ] && [ -r "$c" ] && [ "$c" -nt "$CORE_DIR" ] && { core="$c"; break; }
         done
+    fi
+    if [ -z "$core" ] && command -v coredumpctl >/dev/null 2>&1; then
+        if coredumpctl list --no-legend --since "@$crashdump_arm_time" python3 2>/dev/null | grep -q .; then
+            coredumpctl dump python3 --output="$CORE_DIR/core.coredumpctl" >/dev/null 2>&1 || true
+            [ -s "$CORE_DIR/core.coredumpctl" ] && core="$CORE_DIR/core.coredumpctl"
+        fi
     fi
     if [ -n "$core" ] && command -v gdb >/dev/null 2>&1; then
         echo "=== crash: native backtrace ($core) ==="
@@ -57,9 +59,9 @@ crashdump_report() {
             -ex "thread apply all bt" \
             "$(command -v python3)" "$core" 2>&1 | head -400
     else
-        # No readable core (the common non-root case). The Python
-        # faulthandler traceback in linuxcnc.err already names the crash
-        # site; the native backtrace is only a best-effort extra.
+        # No readable core. The Python faulthandler traceback in
+        # linuxcnc.err already names the crash site; the native backtrace
+        # is only a best-effort extra.
         echo "=== crash: no readable core dump; see the Python traceback in linuxcnc.err above ==="
     fi
     rm -rf "$CORE_DIR"
