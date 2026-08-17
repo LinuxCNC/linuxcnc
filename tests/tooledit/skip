@@ -1,0 +1,27 @@
+#!/bin/bash
+# tooledit is a Tk/BWidget application; headless builds (--disable-gui)
+# do not build or run any of the Tk tooling.  Skip when the required
+# Tcl environment is unavailable.  BWidget pulls in Tk on load, which
+# needs a display, so probe under xvfb-run; the explicit exit is needed
+# because 'package require' errors do not reliably set tclsh's exit
+# code when reading commands from stdin.  Probe on server number 95:
+# xvfb-run's default is 99, and test.sh's plain xvfb-run would race a
+# lingering Xvfb on the same display.
+set -u
+
+if ! command -v xvfb-run >/dev/null 2>&1; then
+    echo "skip: xvfb-run not installed" >&2
+    exit 1
+fi
+
+if ! command -v tclsh >/dev/null 2>&1; then
+    echo "skip: tclsh not installed" >&2
+    exit 1
+fi
+
+if ! xvfb-run -a --server-num=95 tclsh <<< 'exit [catch {package require BWidget}]'; then
+    echo "skip: Tk/BWidget not available (headless build)" >&2
+    exit 1
+fi
+
+exit 0

@@ -1,0 +1,16 @@
+#!/bin/bash
+# pyvcp is only built in GUI builds (BUILD_GUI); skip in headless builds.
+# Also skip without xvfb-run (minimal local environments), like ui-smoke.
+set -u
+
+if ! command -v pyvcp >/dev/null 2>&1; then
+    echo "skip: pyvcp not built (headless build)" >&2
+    exit 1
+fi
+
+if ! command -v xvfb-run >/dev/null 2>&1; then
+    echo "skip: xvfb-run not installed" >&2
+    exit 1
+fi
+
+exit 0

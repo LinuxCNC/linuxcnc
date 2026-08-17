@@ -1,0 +1,19 @@
+#!/bin/bash
+# This test exercises the Tcl HAL extensions (tcl/hal.so,
+# tcl/linuxcnc.so), which are only built in GUI builds (BUILD_GUI);
+# skip in headless builds.  The tcl dir is taken from TCLLIBPATH
+# (exported by rip-environment).
+set -u
+
+if ! command -v tclsh >/dev/null 2>&1; then
+    echo "skip: tclsh not installed" >&2
+    exit 1
+fi
+
+read -r tcldir _ <<< "${TCLLIBPATH:-}"
+if ! [ -f "${tcldir:-/nonexistent}/linuxcnc.so" ]; then
+    echo "skip: Tcl HAL extensions not built (headless build)" >&2
+    exit 1
+fi
+
+exit 0
