@@ -2927,6 +2927,43 @@ static int emcTaskExecute(void)
 
 	    homingWaiting = false;
 	    emcTaskEager = 1;
+
+	    // Is it legal to hand the machine back to the coordinated mode it
+	    // was in before the FREE dip? Motion refuses to (re-)enter TELEOP
+	    // or COORD on non-identity kinematics unless *every* joint is
+	    // homed -- switch_to_teleop_mode() (motion.c) and the EMCMOT_COORD
+	    // case (command.c) both gate on
+	    // "kinType != KINEMATICS_IDENTITY && !get_allhomed()".
+	    //
+	    // A per-joint G28.2 Pn / G28.3 Pn can succeed for its own joint
+	    // while leaving the machine as a whole unreferenced, so restoring
+	    // unconditionally means motion rejects the request, task still
+	    // reports DONE, and the machine is stranded in FREE with the GUI's
+	    // mode controls greyed out -- recoverable only by cycling the
+	    // controller (PR #4172: Sigma1912's "g28.3 p0" on a gantry gave
+	    // "all joints must be homed before going into coordinated mode",
+	    // then needed F2). Mirror motion's own condition here and abort
+	    // cleanly instead of wedging.
+	    //
+	    // Mirroring the condition rather than issuing the restore and
+	    // checking whether it took is deliberate: the COORD/TELEOP
+	    // transition is deferred to the controller cycle (see
+	    // "defer transition to controller cycle" in command.c), so an
+	    // immediate read-back would race exactly the way the old
+	    // .homing-based completion test did.
+	    //
+	    // Read the kinematics type from status, not from this file's
+	    // static emcmotConfig: that copy is filled in once just before
+	    // the main loop and never refreshed, so it goes stale the moment
+	    // switchkins changes kinematics at runtime (G43.4/G43.5).
+	    // taskintf.cc re-reads the motion config whenever config_num
+	    // changes and republishes it as traj.kinematics_type, so the
+	    // status field is the one that tracks a switchkins change.
+	    const bool restore_ok = (homingPriorMode == EMC_TRAJ_MODE::FREE)
+				 || (emcStatus->motion.traj.kinematics_type
+					 == KINEMATICS_IDENTITY)
+				 || all_homed();
+
 	    if (success && homingIsUnhome && !all_homed() && !no_force_homing) {
 		// Close the hole a per-move check would be expensive to plug:
 		// [TRAJ]NO_FORCE_HOMING=0 (the default) already refuses to
@@ -2943,6 +2980,17 @@ static int emcTaskExecute(void)
 		// Same reasoning as the failure path below: leave it in FREE,
 		// don't snap back to a mode an unhomed machine can't legally
 		// run coordinated motion in.
+	    } else if (success && !restore_ok) {
+		// The command itself did what was asked, but it left the
+		// machine partially referenced and motion will not take
+		// TELEOP/COORD back in that state. Stay in FREE and fail the
+		// program rather than report DONE and strand the operator.
+		emcOperatorError(_("%s succeeded but left the machine not fully "
+				    "homed -- staying in joint mode, as non-identity "
+				    "kinematics cannot re-enter coordinated motion "
+				    "until every joint is homed"),
+				  homingIsUnhome ? "G28.3 unhome" : "G28.2 home");
+		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    } else if (success) {
 		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
