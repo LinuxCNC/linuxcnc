@@ -1,2 +1,2 @@
 #!/bin/bash
-exec "$(dirname "$0")/../_lib/skip-if-missing.sh"
+exec "$(dirname "$0")/../_lib/skip-if-missing.sh" axis
