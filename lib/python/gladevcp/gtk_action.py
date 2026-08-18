@@ -220,7 +220,6 @@ class _Lcnc_Action(object):
     # when command stops - we try to continue the generator.
     # if generator is done - return to recorded mode.
     def return_mode_after_finish(self):
-        print('ini command end')
         self.RESTORE_RECORDED_MODE()
         STATUS.handler_disconnect(self._a)
 
@@ -627,7 +626,6 @@ class _Lcnc_Action(object):
         response = dialog.ask_dialog()
         dialog.destroy()
         if response == gtk.ResponseType.YES:
-
             if shutil.which('gnome-session-quit'):
                 subprocess.run(["gnome-session-quit", "--power-off"])
             elif shutil.which('xfce4-session-logout'):
@@ -635,6 +633,7 @@ class _Lcnc_Action(object):
             else:
                 # force a shutdown - no prompt
                 subprocess.call('systemctl poweroff', shell=True)
+
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
