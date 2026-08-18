@@ -330,6 +330,7 @@ class _GStat(GObject.GObject):
         self._status_active = False
         self.old = {}
         self.old['tool-prep-number'] = 0
+        self._file_load_pending = False
         self.previous_mode = self.MANUAL
         try:
             self.stat.poll()
@@ -677,6 +678,17 @@ class _GStat(GObject.GObject):
             # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE and file_new != "":
                 self.emit('file-loaded', file_new)
+            elif file_new != "":
+                # also defer a legit program that was opened and started
+                # before this poll saw it, or the GUI never shows it
+                self._file_load_pending = True
+            else:
+                self._file_load_pending = False
+        if self._file_load_pending and \
+                self.stat.interp_state == linuxcnc.INTERP_IDLE and \
+                self.old['file']:
+            self._file_load_pending = False
+            self.emit('file-loaded', self.old['file'])
 
         #ToDo : Find a way to avoid signal when the line changed due to
         #       a remap procedure, because the signal do highlight a wrong
