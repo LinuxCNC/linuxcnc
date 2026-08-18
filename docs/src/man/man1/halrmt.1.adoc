@@ -42,6 +42,10 @@ halrmt - remote-control interface for LinuxCNC/HAL
 -q,--quiet::
   Don't print informational messages to the console.
 
+-4,--ipv4::
+  Listen only for connections using IPv4.
+  Default is to accept connection on both IPv6 and IPv4.
+
 == DESCRIPTION
 
 The application *halrmt* supports six primary commands to manipulate the HAL of a remote LinuxCNC instance.
