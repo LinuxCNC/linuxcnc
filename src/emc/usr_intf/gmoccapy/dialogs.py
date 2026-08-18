@@ -81,6 +81,7 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    self._caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.connect("delete-event", self.on_delete_event)
         dialog.set_modal(True)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
@@ -102,7 +103,6 @@ class Dialogs(GObject.GObject):
     def show_system_dialog(self):
         dialog = self.sys_dialog
         dialog._calc.set_value("")
-        dialog.set_deletable(False)
         dialog.show_all()
         self.emit("play_sound", "alert")
 
@@ -135,6 +135,7 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog('',
                    self._caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.connect("delete-event", self.on_delete_event)
         dialog.label = Gtk.Label('')
         dialog.label.modify_font(Pango.FontDescription("sans 20"))
         dialog.label.set_margin_top(15)
@@ -163,7 +164,6 @@ class Dialogs(GObject.GObject):
             dialog.calc.num_pad_only(True)
         dialog.label.set_text(label)
         dialog.set_title(header)
-        dialog.set_deletable(False)
         dialog.show_all()
 
         # wait but don't block event loop
@@ -200,6 +200,7 @@ class Dialogs(GObject.GObject):
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO,
                                    Gtk.ButtonsType.NONE)
+        dialog.connect("delete-event", self.on_delete_event)
         ok_button = Gtk.Button.new_with_mnemonic("_Ok")
         ok_button.set_size_request(-1, 56)
         ok_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.OK))
@@ -229,7 +230,6 @@ class Dialogs(GObject.GObject):
         dialog = self.warn_dialog
         dialog.set_title(title)
         dialog.set_markup('<b>'+message+'</b>')
-        dialog.set_deletable(False)
         dialog.confirm_pin = confirm_pin
         dialog.active_pin = active_pin
 
@@ -254,11 +254,17 @@ class Dialogs(GObject.GObject):
     def on_warning_response(self, dialog, rtn):
         dialog.RESPONSE = rtn
 
+    def on_delete_event(self, dialog, event):
+        dialog.RESPONSE = Gtk.ResponseType.CANCEL
+        #widget.hide()
+        return True
+
     def yesno_dialog(self):
         dialog = Gtk.MessageDialog(self._caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.QUESTION,
                                    Gtk.ButtonsType.NONE)
+        dialog.connect("delete-event", self.on_delete_event)
         yes_button = Gtk.Button.new_with_mnemonic(_("_Yes"))
         no_button = Gtk.Button.new_with_mnemonic(_("_No"))
         yes_button.set_size_request(-1, 56)
@@ -280,7 +286,6 @@ class Dialogs(GObject.GObject):
         dialog.set_markup(message)
         if title:
             dialog.set_title(str(title))
-        dialog.set_deletable(False)
         dialog.show_all()
         self.emit("play_sound", "alert")
 
@@ -307,6 +312,7 @@ class Dialogs(GObject.GObject):
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO,
                                    Gtk.ButtonsType.NONE)
+        dialog.connect("delete-event", self.on_delete_event)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)
@@ -317,7 +323,6 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
-        dialog.set_deletable(False)
         dialog.show_all()
         self.emit("play_sound", "alert")
         response = dialog.run()
