@@ -2196,6 +2196,7 @@ static void update_status(void)
     }
 
     emcmotStatus->jogging_active = hal_get_bool(emcmot_hal_data->jog_is_active);
+    emcmotStatus->homing_active = get_homing_is_active();
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I

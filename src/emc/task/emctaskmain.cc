@@ -415,6 +415,16 @@ static double homingIssueTime = 0.0;     // etime() when issued, for the start-t
 // vary widely in duration, same as a GUI just watching .homing/.homed).
 static const double HOMING_START_TIMEOUT = 2.0;
 static EMC_TRAJ_MODE homingPriorMode = EMC_TRAJ_MODE::FREE; // mode to restore on success
+// True only while emcTaskExecute() is issuing a command taken off the
+// interp_list. emcTaskIssueCommand() serves both that queued path and the
+// immediate commands emcTaskPlan() sends straight through (the GUI's Home and
+// Unhome buttons, halui, linuxcncrsh), and only the queued path is followed by
+// emcTaskCheckPostconditions() -- so only the queued path can ever reach
+// EMC_TASK_EXEC::WAITING_FOR_HOMING to undo the FREE-mode dip and restore the
+// previous trajectory mode. Dipping on an immediate command would therefore
+// strand the machine in FREE for good. Gate the sequencing on this flag so
+// immediate home/unhome keeps its original pass-through behaviour.
+static bool issuingQueuedCommand = false;
 
 static EMC_SPINDLE_SPEED *spindle_speed_msg;
 static EMC_SPINDLE_ORIENT *spindle_orient_msg;
@@ -1714,6 +1724,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		}
 		target_joint = -1;
 	    }
+	    if (!issuingQueuedCommand) {
+	    	// Immediate command (the GUI Home button, halui, linuxcncrsh):
+	    	// pass it straight through, exactly as before this sequencing
+	    	// existed. Nothing calls emcTaskCheckPostconditions() for an
+	    	// immediate command, so a mode dip taken here would never be
+	    	// undone. See issuingQueuedCommand.
+	    	retval = emcJointHome(target_joint);
+	    	break;
+	    }
 	    // do_homing() (control.c) only advances while motion is in FREE
 	    // mode, so a queued home while running in TELEOP/COORD would
 	    // otherwise silently stall. Dip into FREE for the duration and
@@ -1748,6 +1767,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_JOINT_UNHOME_TYPE:
 	unhome_msg = reinterpret_cast<EMC_JOINT_UNHOME *>(cmd);
+	if (!issuingQueuedCommand) {
+	    // Immediate command -- see the matching guard in
+	    // EMC_JOINT_HOME_TYPE above.
+	    retval = emcJointUnhome(unhome_msg->joint);
+	    break;
+	}
 	homingPriorMode = emcStatus->motion.traj.mode;
 	if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
 	    emcTrajSetMode(EMC_TRAJ_MODE::FREE);
@@ -2754,7 +2779,13 @@ static int emcTaskExecute(void)
 		}
 	    } else {
 		// have an outstanding command
-		if (0 != emcTaskIssueCommand(emcTaskCommand.get())) {
+		// This is the one emcTaskIssueCommand() call site followed by
+		// emcTaskCheckPostconditions(), i.e. the only one whose commands
+		// can reach a WAITING_FOR_* state. See issuingQueuedCommand.
+		issuingQueuedCommand = true;
+		const int issue_retval = emcTaskIssueCommand(emcTaskCommand.get());
+		issuingQueuedCommand = false;
+		if (0 != issue_retval) {
 		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 		    retval = -1;
 		} else {
@@ -2891,14 +2922,55 @@ static int emcTaskExecute(void)
 	    bool success;
 	    if (homingIsUnhome) {
 		// Synchronous: whatever it did, it already did by now.
-		success = !any_target_homed;
+		if (homingWaitJoint == -2) {
+		    // A volatile unhome (joint == -2, see the EMCMOT_JOINT_UNHOME
+		    // case in command.c) deliberately clears only the joints
+		    // configured VOLATILE_HOME and leaves every other joint homed,
+		    // so "no joint in range is still homed" would score a correct
+		    // volatile unhome as a failure on any machine that also has
+		    // non-volatile joints. Task cannot narrow the check to just the
+		    // volatile joints either: volatile_home lives in motion's
+		    // private homing state (H[jno].volatile_home, homing.c) and is
+		    // not published in joint status -- the volatile_home in
+		    // emc_nml.hh belongs to EMC_JOINT_SET_HOMING_PARAMS, a command
+		    // message, not to EMC_JOINT_STAT. The unhome is synchronous, so
+		    // there is nothing left to wait for: accept it and let the
+		    // restore_ok gate below decide about the trajectory mode.
+		    //
+		    // Defensive: G28.3 only ever emits Pn >= 0 or -1, and since the
+		    // sequencing is now scoped to the queued path an immediate
+		    // unhome(-2) never reaches this code either. This guard exists
+		    // so that a future queued command carrying -2 cannot silently
+		    // be scored as a failure.
+		    success = true;
+		} else {
+		    success = !any_target_homed;
+		}
 	    } else {
-		if (any_homing) {
+		// "Is homing still running?" must come from motion's aggregate
+		// homing_active, not from OR-ing the per-joint .homing flags. On a
+		// machine that homes in several HOME_SEQUENCE groups the sequence
+		// machine finishes one group and can spend a cycle or more before
+		// the next group raises .homing, so there is a window in which
+		// every joint reads .homing == false while the machine is still
+		// homing. Task samples far coarser than the servo cycle, so it can
+		// land in that window, conclude homing stopped, and score a
+		// perfectly good home-all as "did not complete". motion/homing.c
+		// documents the same deassertion lag in its own words ("The homing
+		// status variable turns false before homing_active state turns
+		// false") and guards against it internally for the same reason.
+		//
+		// Single-joint Pn and single-sequence machines never hit the gap,
+		// which is why this only shows up on a multi-sequence home-all.
+		// The per-joint OR is kept as a belt-and-braces term: it can only
+		// extend the "still running" window, never shorten it.
+		const bool homing_running = emcStatus->motion.homing_active || any_homing;
+		if (homing_running) {
 		    homingStarted = true;
 		    break; // still running; no timeout once started (see HOMING_START_TIMEOUT comment)
 		}
 		if (!homingStarted) {
-		    // Never observed .homing go true: motion silently rejected
+		    // Never observed homing go active: motion silently rejected
 		    // it (a guard like "must be in joint mode", or
 		    // motion.homing-inhibit, reports an operator error but does
 		    // not fail the NML command -- see emcJointHome's caller),
