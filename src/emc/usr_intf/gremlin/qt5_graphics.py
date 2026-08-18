@@ -18,7 +18,6 @@ import numpy as np
 LIB_GOOD = True
 try:
     from OpenGL import GL
-    from OpenGL.GL import glColor4f
     from OpenGL import GLU
 except ImportError:
     LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
@@ -934,7 +933,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         c2 = self.gradient_color2
 
         def v(x, y, c):
-            return (x, y, 0.0, c[0], c[1], c[2], 1.0, 0.0, 0.0)
+            return (x, y, 0.0, c[0], c[1], c[2], 1.0, 0.0)
         verts = np.array([v(-1, -1, c1), v(1, -1, c1), v(1, 1, c2),
                           v(-1, -1, c1), v(1, 1, c2), v(-1, 1, c2)],
                          dtype=np.float32)
