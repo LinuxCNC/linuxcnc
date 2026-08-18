@@ -626,8 +626,7 @@ class _Lcnc_Action(object):
         dialog.format_secondary_text('Unsaved data will be lost')
         response = dialog.ask_dialog()
         dialog.destroy()
-        if response == gtk.ResponseType.YES:
-
+        if response == True:
             if shutil.which('gnome-session-quit'):
                 subprocess.run(["gnome-session-quit", "--power-off"])
             elif shutil.which('xfce4-session-logout'):
@@ -635,6 +634,7 @@ class _Lcnc_Action(object):
             else:
                 # force a shutdown - no prompt
                 subprocess.call('systemctl poweroff', shell=True)
+
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
