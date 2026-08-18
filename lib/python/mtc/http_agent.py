@@ -96,6 +96,14 @@ def make_handler(agent):
                     else:
                         data, content_type = result
                         self._send(data, content_type=content_type)
+                elif route.startswith(f"/html/"):
+                    result = agent.user_page(route[len("/html/"):])
+                    if result is None:
+                        self._send(_error_document("NOT_FOUND",
+                                   "no such file: %s" % route), status=404)
+                    else:
+                        data, content_type = result
+                        self._send(data, content_type=content_type)
                 else:
                     self._send(_error_document("UNSUPPORTED",
                                "unsupported request: %s" % route), status=404)

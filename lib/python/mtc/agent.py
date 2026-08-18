@@ -68,6 +68,10 @@ class AgentState:
         self._last_in_spindle = None
         self._last_values = {}
         self._lock = threading.Lock()
+        self.user_pages = self.ini.find("MTCONNECT", "USER_PAGES", "")
+        if self.user_pages and self.user_pages[0] != "/":
+            # use relativ path
+            self.user_pages = os.path.join(os.path.dirname(ini_path), self.user_pages)
 
     # -- data collection -----------------------------------------------------
 
@@ -111,6 +115,16 @@ class AgentState:
             return None
         with open(path, "rb") as fh:
             return fh.read(), "application/xml"
+
+    def user_page(self, name):
+        """Return (bytes, content_type) for a served user file, or None."""
+        if not self.user_pages:
+            return None
+        path = os.path.realpath(os.path.join(self.user_pages, name))
+        if path.startswith(self.user_pages) and os.path.isfile(path):
+            with open(path, "r") as fh:
+                return fh.read(), "text/html"
+        return None
 
     def model_file(self, name):
         """Return (bytes, content_type) for a served mesh, or None."""
