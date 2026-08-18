@@ -11,7 +11,6 @@ VISMACH_PY :=  \
 	maho600gui.py \
 	hbmgui.py \
 	rotarydelta.py \
-	melfagui.py \
 	millturngui.py \
 	xyzac-trt-gui.py \
 	xyzbc-trt-gui.py \

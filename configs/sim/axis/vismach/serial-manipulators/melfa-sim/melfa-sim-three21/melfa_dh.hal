@@ -1,0 +1,13 @@
+# modified DH-parameters for RV-6SDL
+
+setp three21kins.A1 85
+setp three21kins.A2 380
+setp three21kins.A3 100
+setp three21kins.D1 350
+setp three21kins.D2 0
+setp three21kins.D3 0
+setp three21kins.D4 425
+#setp three21kins.D6 85 # distance to the flange
+setp three21kins.D6 235
+
+

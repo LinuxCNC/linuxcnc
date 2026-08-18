@@ -42,19 +42,19 @@ finger1 = Rotate([finger1],180,1,0,0)
 
 try: # Expect files in working directory
     # create toolholder from file
-    link7 = AsciiSTL(filename="link7.stl")
+    link7 = AsciiSTL(filename="../melfa_stl/link7.stl")
     # create wrist from file
-    link6 = AsciiSTL(filename="link6.stl")
+    link6 = AsciiSTL(filename="../melfa_stl/link6.stl")
     # create forearm from file
-    link5 = AsciiSTL(filename="link5.stl")
+    link5 = AsciiSTL(filename="../melfa_stl/link5.stl")
     # create ellbow trom file
-    link4 = AsciiSTL(filename="link4.stl")
+    link4 = AsciiSTL(filename="../melfa_stl/link4.stl")
     # create upper arm from file
-    link3 = AsciiSTL(filename="link3.stl")
+    link3 = AsciiSTL(filename="../melfa_stl/link3.stl")
     # create shoulder from file
-    link2 = AsciiSTL(filename="link2.stl")
+    link2 = AsciiSTL(filename="../melfa_stl/link2.stl")
     # create base (waist) from file
-    link1 = AsciiSTL(filename="link1.stl")
+    link1 = AsciiSTL(filename="../melfa_stl/link1.stl")
 except Exception as detail:
     print(detail)
     raise SystemExit("melfagui requires files link[1-7].stl in working directory")

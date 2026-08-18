@@ -67,7 +67,6 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/lineardelta.1.html[lineardelta]     |Vismach Virtual Machine GUI               ||
 | link:../man/man1/maho600gui.1.html[maho600gui]       |hexagui - Vismach Virtual Machine GUI     ||
 | link:../man/man1/max5gui.1.html[max5gui]             |hexagui - Vismach Virtual Machine GUI     ||
-| link:../man/man1/melfagui.1.html[melfagui]           |Vismach Virtual Machine GUI               ||
 | link:../man/man1/puma560gui.1.html[puma560gui]       |puma560agui - Vismach Virtual Machine GUI ||
 | link:../man/man1/pumagui.1.html[pumagui]             |Vismach Virtual Machine GUI               ||
 | link:../man/man1/rotarydelta.1.html[rotarydelta]     |Vismach Virtual Machine GUI               ||
