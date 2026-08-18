@@ -1712,26 +1712,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	home_msg = reinterpret_cast<EMC_JOINT_HOME *>(cmd);
 	homingWaiting = false; // default; set true below only if we actually issue a home
 	{
-	    int target_joint = home_msg->joint;
-	    if (target_joint == EMC_HOME_ALL_IF_UNHOMED) {
-		// GCODE_HOMING plain G28: reference the machine only if it is
-		// not already fully homed; otherwise drop the home so the
-		// queued G28 return alone runs (pure legacy G28) -- no mode
-		// dip needed since nothing is actually commanded.
-		if (all_homed()) {
-		    retval = 0;
-		    break;
-		}
-		target_joint = -1;
-	    }
+	    const int target_joint = home_msg->joint;
 	    if (!issuingQueuedCommand) {
-	    	// Immediate command (the GUI Home button, halui, linuxcncrsh):
-	    	// pass it straight through, exactly as before this sequencing
-	    	// existed. Nothing calls emcTaskCheckPostconditions() for an
-	    	// immediate command, so a mode dip taken here would never be
-	    	// undone. See issuingQueuedCommand.
-	    	retval = emcJointHome(target_joint);
-	    	break;
+		// Immediate command (the GUI Home button, halui, linuxcncrsh):
+		// pass it straight through, exactly as before this sequencing
+		// existed. Nothing calls emcTaskCheckPostconditions() for an
+		// immediate command, so a mode dip taken here would never be
+		// undone. See issuingQueuedCommand.
+		retval = emcJointHome(target_joint);
+		break;
 	    }
 	    // do_homing() (control.c) only advances while motion is in FREE
 	    // mode, so a queued home while running in TELEOP/COORD would
@@ -2644,9 +2633,9 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 
     case EMC_JOINT_HOME_TYPE:
     case EMC_JOINT_UNHOME_TYPE:
-	// homingWaiting is false when EMC_JOINT_HOME_TYPE resolved to a no-op
-	// (GCODE_HOMING dropped because all_homed() was already true) --
-	// nothing was issued, so there's nothing to wait for.
+	// homingWaiting is false when the command was passed straight through
+	// as an immediate command (see issuingQueuedCommand) -- the sequencing
+	// did not run, so there is nothing to wait for.
 	return homingWaiting ? EMC_TASK_EXEC::WAITING_FOR_HOMING : EMC_TASK_EXEC::DONE;
 	break;
 

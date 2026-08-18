@@ -998,15 +998,6 @@ It is an error if :
 
 * Cutter Compensation is turned on
 
-[NOTE]
-When `<<sub:ini:sec:rs274ngc,[RS274NGC]GCODE_HOMING>>` is set to 1, a plain
-`G28` (no axis words) first references the machine -- it runs the homing
-cycle on all joints when the machine is not already fully homed -- and then
-performs the normal return move. On an already-homed machine the homing step
-is skipped, so `G28` behaves exactly as described above. The flag has no
-effect on `G28 axes`, `G28.1`, `G30`, `G30.1`, `G28.2` or `G28.3`, and it is
-off by default (stock behavior). See also `G28.2` below.
-
 [[gcode:g28.2-g28.3]]
 == G28.2, G28.3 Home, Unhome from G-code(((G28.2 Home from G-code)))(((G28.3 Unhome from G-code)))
 
@@ -1049,7 +1040,7 @@ otherwise be used to bypass the homed-before-running requirement.
 
 [NOTE]
 `G28.2` and `G28.3` are LinuxCNC extensions; there is no standard Fanuc
-equivalent. They are available regardless of the `GCODE_HOMING` INI setting.
+equivalent.
 
 It is an error if :
 

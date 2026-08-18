@@ -2,7 +2,7 @@
 
 """
 Regression test for the flush_segments() ordering fix in HOME_CYCLE()/
-HOME_CYCLE_JOINT()/UNHOME_AXES()/UNHOME_JOINT()/HOME_CYCLE_IF_UNHOMED()
+HOME_CYCLE_JOINT()/UNHOME_AXES()/UNHOME_JOINT()
 (emccanon.cc).
 
 STRAIGHT_FEED/STRAIGHT_TRAVERSE buffer points into chained_points for
