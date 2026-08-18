@@ -10,7 +10,7 @@ net sx  axis.x.jog-enable
 net sy  axis.y.jog-enable
 net sz  axis.z.jog-enable
 net sc  axis.c.jog-enable
-net sgui  halui.gui.mpg-select.0  panel.select-gui0
+net sgui  halui.gui.mpg-aux.0  panel.select-gui0
 
 net jog-p   halui.axis.selected.plus    panel.jog-pos
 net jog-m   halui.axis.selected.minus   panel.jog-neg
