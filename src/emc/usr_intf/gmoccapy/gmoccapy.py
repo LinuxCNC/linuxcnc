@@ -2593,7 +2593,7 @@ class gmoccapy(object):
 
             if offset == "ERROR":
                 LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                self.dialogs.show_warning_dialog(_("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
             elif offset == "CANCEL":
                 pass
@@ -2882,7 +2882,7 @@ class gmoccapy(object):
 
     def on_gremlin_gcode_error(self, widget, errortext):
         self.gcodeerror = errortext
-        self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
+        self.dialogs.show_warning_dialog(_("Important Warning"), errortext)
 
 
 # =========================================================
@@ -3263,7 +3263,7 @@ class gmoccapy(object):
 
         if value == "ERROR":
             LOG.debug("conversion error")
-            self.dialogs.warning_dialog(self, _("Conversion error !"),
+            self.dialogs.show_warning_dialog(_("Conversion error !"),
                                         ("Please enter only numerical values\nValues have not been applied"))
         elif value == "CANCEL":
             return
@@ -3471,7 +3471,7 @@ class gmoccapy(object):
 
             if parameter == "ERROR":
                 LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                self.dialogs.show_warning_dialog(_("Conversion error !"),
                                             ("Please enter only numerical values\nValues have not been applied"))
                 return
             elif parameter == "CANCEL":
