@@ -88,6 +88,11 @@ def main():
     if len(args) < 1:
         raise SystemExit("No modules found (*.mod files) to compile.");
 
+    print("NOTE: modcompile and the mesa_modbus framework are superseded by the"
+          " hm2_modbus driver and mesambccc-compiled .mbccb files. They remain"
+          " available throughout the 2.9 series, but new configurations are"
+          " encouraged to migrate.", file=sys.stderr)
+
     # Create a temporary directory and copy the C template into it
     tempdir = tempfile.mkdtemp(prefix="modcompile")
     BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))

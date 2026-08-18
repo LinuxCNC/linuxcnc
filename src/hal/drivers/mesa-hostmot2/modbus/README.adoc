@@ -1,3 +1,8 @@
+NOTE: The mesa_modbus framework (this directory and modcompile) is
+superseded by the hm2_modbus driver and mesambccc-compiled .mbccb
+files. It remains available throughout the 2.9 series, but new
+configurations are encouraged to migrate.
+
 Do not edit mesa_modbus.c (Unless you are sure that you want to, of
 course).
 Create a new xxxxx.mod file that describes your particular modbus device
