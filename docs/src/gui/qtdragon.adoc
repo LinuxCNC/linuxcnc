@@ -465,6 +465,7 @@ POSTGUI_HALCMD = loadusr halmeter
 ----
 === HALUI
 HALUI will create halui.gui pins that interface with QtDragon.
+This could be used to connect a control panel that interacts better with QtDragon.
 
 - There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller.  +
  This allows custom behaviour, such as spindle lift to work with external buttons.
@@ -475,54 +476,143 @@ setting preferences on the settings page.
 - shutdown the screen
 - ok/cancel of dialogs and notify (error) messages
 - softkeys 0 - 11 control the main tab keys: +
-'MAIN','FILE','OFFSETS','TOOL','STATUS','PROBE','GCODES','SETUP','SETTINGS','UTILITIES','USER','CAMERA'
-
-also:
-
-- enabling halui.gui.mpg-select.0, will allow zooming/scrolling of the gcode plot or text display with an MPG.
+- enabling halui.gui.mpg-aux.0, will allow panning/scrolling of the gcode plot or text display with an MPG.
 - HALUI selected axis will be reported to QtDragon. +
 - HALUI selected jog rates/increments will be reported to QtDragon. +
 In either case the last changed rate/axis (either HALUI or QtDragon) will be used for screen button jogging or HALUI pin jogging.
 
-.Typical HAL pins avaialble:
+=== Typical HAL pins avaialble:
 ----
 Component Pins:
 Owner   Type  Dir                 Value  Name
-    25  bit   IN                  FALSE  halui.gui.cancel
-    25  bit   IN                  FALSE  halui.gui.cycle.pause
-    25  bit   IN                  FALSE  halui.gui.cycle.start
-    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO0
-    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO1
-    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO2
-    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO3
-    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO4
-    25  bit   IN                  FALSE  halui.gui.mdi-command-MACRO5
-    25  bit   IN                  FALSE  halui.gui.mpg-select.0
-    25  bit   IN                  FALSE  halui.gui.ok
-    25  bit   IN                  FALSE  halui.gui.reload-display
+    25  bit   IN                  FALSE  halui.gui.cycle-pause
+    25  bit   IN                  FALSE  halui.gui.cycle-start
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO0
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO1
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO2
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO3
+    25  bit   IN                  FALSE  halui.gui.mdi-command.0
+    25  bit   IN                  FALSE  halui.gui.mdi-command.1
+    25  bit   IN                  FALSE  halui.gui.mpg-aux.0
+    25  bit   IN                  FALSE  halui.gui.reload-preview
+    25  bit   IN                  FALSE  halui.gui.response.cancel
+    25  bit   IN                  FALSE  halui.gui.response.ok
     25  bit   IN                  FALSE  halui.gui.shutdown
-    25  bit   IN                  FALSE  halui.gui.softkey-00
-    25  bit   IN                  FALSE  halui.gui.softkey-01
-    25  bit   IN                  FALSE  halui.gui.softkey-02
-    25  bit   IN                  FALSE  halui.gui.softkey-03
-    25  bit   IN                  FALSE  halui.gui.softkey-04
-    25  bit   IN                  FALSE  halui.gui.softkey-05
-    25  bit   IN                  FALSE  halui.gui.softkey-06
-    25  bit   IN                  FALSE  halui.gui.softkey-07
-    25  bit   IN                  FALSE  halui.gui.softkey-08
-    25  bit   IN                  FALSE  halui.gui.softkey-09
-    25  bit   IN                  FALSE  halui.gui.softkey-10
-    25  bit   IN                  FALSE  halui.gui.softkey-11
-    25  bit   IN                  FALSE  halui.gui.softkey-12
-    25  bit   IN                  FALSE  halui.gui.softkey-13
-    25  bit   IN                  FALSE  halui.gui.softkey-14
-    25  bit   IN                  FALSE  halui.gui.softkey-15
-    25  bit   IN                  FALSE  halui.gui.softkey-16
-    25  bit   IN                  FALSE  halui.gui.softkey-17
-    25  bit   IN                  FALSE  halui.gui.softkey-18
-    25  bit   IN                  FALSE  halui.gui.softkey-19
+    25  bit   IN                  FALSE  halui.gui.softkey.00
+    25  bit   IN                  FALSE  halui.gui.softkey.01
+    25  bit   IN                  FALSE  halui.gui.softkey.02
+    25  bit   IN                  FALSE  halui.gui.softkey.03
+    25  bit   IN                  FALSE  halui.gui.softkey.04
+    25  bit   IN                  FALSE  halui.gui.softkey.05
+    25  bit   IN                  FALSE  halui.gui.softkey.06
+    25  bit   IN                  FALSE  halui.gui.softkey.07
+    25  bit   IN                  FALSE  halui.gui.softkey.08
+    25  bit   IN                  FALSE  halui.gui.softkey.09
+    25  bit   IN                  FALSE  halui.gui.softkey.10
+    25  bit   IN                  FALSE  halui.gui.softkey.11
+    25  bit   IN                  FALSE  halui.gui.softkey.12
+    25  bit   IN                  FALSE  halui.gui.softkey.13
+    25  bit   IN                  FALSE  halui.gui.softkey.14
+    25  bit   IN                  FALSE  halui.gui.softkey.15
+    25  bit   IN                  FALSE  halui.gui.softkey.16
+    25  bit   IN                  FALSE  halui.gui.softkey.17
+    25  bit   IN                  FALSE  halui.gui.softkey.18
+    25  bit   IN                  FALSE  halui.gui.softkey.19
 
 ----
+=== HALUI GUI Cycle Start
+The halui.gui.cycle-start pin will request QtDragon to start a cycle. +
+QtDragon will decide what will happen by what mode it's in. +
+In Auto mode and idle, a loaded gcode program will run. +
+If In Auto mode, idle, and a line besides 0 is selected, start program at line. + 
+If in Auto mode and paused, a loaded gcode program will resume. +
+In MDI mode, the command in QtDragon's MDI line will run. +
+
+=== HALUI GUI Macros
+One can initiate GMOCCAPY styled Macros from HALUI pins. +
+These would be the macros found in the INI under the heading [MACROS] +
+These call Oword subroutines of the same name. +
+These Oword subroutines can require variables supplied at runtime by the user. + 
+Here is an example entry:
+
+[source,ini]
+----
+[MACROS]
+MACRO = i_am_lost
+MACRO = halo_world
+MACRO = increment xinc yinc
+----
+
+And here are what the pin names would be:
+
+For 'i_am_lost':  halui.gui.mdi-command.0 +
+For 'halo_world': halui.gui.mdi-command.1 +
+For 'increment':  halui.gui.mdi-command.2 +
+
+The above example 'increment', will prompt the user for two values 'xinc' and 'yinc' when run. +
+
+[NOTE]
+All defined Oword files must be located on the system as defined in the
+[DISPLAY]PROGRAM_PREFIX or [RS274NGC]SUBROUTINE_PATH INI entries.
+
+=== HALUI INI MDI Commands
+One can initiate MDI Command Macros from HALUI pins. +
+MDI commands are defined under the heading [MDI_COMMAND_LIST] as +
+MDI_COMMAND_MACRO0 = gcode +
+These could also call OWord routines if desired. +
+Commands separated by the ';' are run one after another. +
+Usually best for short convenience positioning as at runtime user entry is not available.
+
+[source,ini]
+----
+[MDI_COMMAND_LIST]
+MDI_COMMAND_MACRO0 = G53 G0 Z0;G0 X0 Y0;Z0
+MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0
+----
+
+And here are what the pin names would be:
+
+For 'MACRO0':  halui.gui.mdi-command.MACRO0 +
+For 'MACRO1':  halui.gui.mdi-command.MACRO1 +
+
+In this example: +
+'MACRO0' is used to move to the current user system origin (zero point).
+
+The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
+Then move to X0 and Y0 in the current user system, and finally move the Z axis to 0 in the current user system.
+
+'MACRO1' is used to move to the machine system origin. +
+The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
+Then move to X0 and Y0 in the G53 mode.
+
+=== Soft Keys
+Softkeys 0 - 11 control QtDragon's main tab keys: +
+
+halui.gui.softkey.00 = 'MAIN' +
+halui.gui.softkey.01 = 'FILE' +
+halui.gui.softkey.02 = 'OFFSETS' +
+halui.gui.softkey.03 = 'TOOL' +
+halui.gui.softkey.04 = 'STATUS' +
+halui.gui.softkey.05 = 'PROBE' +
+halui.gui.softkey.06 = 'GCODES' +
+halui.gui.softkey.07 = 'SETUP' +
+halui.gui.softkey.08 = 'SETTINGS' +
+halui.gui.softkey.09 = 'UTILITIES' +
+halui.gui.softkey.10 = 'USER' +
+halui.gui.softkey.11 = 'CAMERA' +
+
+=== MPG-Aux
+Enabling halui.gui.mpg-aux.0, will allow adjustment/scrolling of the selected widgets with the qtdragon.mpg-in pin, typically connected to an MPG encoder count pin. +
+Defaults to panning of the gcode plot.
+
+=== Shutdown
+If halui.gui.shutdown is set true, the normal confirmation dialog will display. +
+If 'Shutdown' is selected, the whole linux system will shutdown. +
+If the system supports a builtin shutdown option dialog, it will show, otherwise the system will immediately shutdown. +
+If 'Yes' is selected just linuxcnc will shutdown. +
+'No' will close the dialog and return you back to QtDragon. +
+A timer can be set to automatically shut down linuxcnc after a set timeout.
+
 [[sec:bridge]]
 === HAL Bridge
 Hal Bridge is similar to HALUI - it has HAL pins that communicate with QtDragon. +
