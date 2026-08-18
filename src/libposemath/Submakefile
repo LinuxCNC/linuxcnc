@@ -1,4 +1,4 @@
-POSEMATHSRCS := $(addprefix libnml/posemath/, _posemath.c posemath.cc gomath.c sincos.c)
+POSEMATHSRCS := $(addprefix libposemath/, _posemath.c posemath.cc gomath.c sincos.c)
 $(call TOOBJSDEPS, $(POSEMATHSRCS)) : EXTRAFLAGS=-fPIC
 USERSRCS += $(POSEMATHSRCS) 
 TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
@@ -10,10 +10,10 @@ TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
 	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 POSEMATHINCS = \
-    ./libnml/posemath/gomath.h \
-    ./libnml/posemath/gotypes.h \
-    ./libnml/posemath/posemath.h \
-    ./libnml/posemath/sincos.h
+    ./libposemath/gomath.h \
+    ./libposemath/gotypes.h \
+    ./libposemath/posemath.h \
+    ./libposemath/sincos.h
 
-$(patsubst ./libnml/posemath/%,../include/%,$(POSEMATHINCS)): ../include/%.h: ./libnml/posemath/%.h
+$(patsubst ./libposemath/%,../include/%,$(POSEMATHINCS)): ../include/%.h: ./libposemath/%.h
 	cp $^ $@

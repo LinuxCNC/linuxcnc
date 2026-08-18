@@ -73,40 +73,6 @@
 
 #ifdef __cplusplus
 
-#define USE_CONST
-#define USE_CCONST
-#define USE_REF
-
-#ifdef USE_CCONST
-#define PM_CCONST const
-#else
-#define PM_CCONST
-#endif
-
-#ifdef USE_CONST
-#define PM_CONST const
-#else
-#define PM_CONST
-#endif
-
-#ifdef USE_REF
-#define PM_REF  &
-#else
-#define PM_REF
-#endif
-
-#if __cplusplus < 201103L
-/*
- * Not required in C++11 and beyond. It will generate a warning:
- *    "implicitly-declared 'constexpr ...' is deprecated [-Wdeprecated-copy]"
- * If, somehow, somewhere, it is required, then you probably must implement
- * both copy-constructor, destructor and operator= override (rule of three).
- * Otherwise, if you do not have anything special in the members, then the
- * compiler will do a good job at doing the right thing for you.
- */
-#define INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-#endif
-
 /* forward declarations-- conversion ctors will need these */
 
 /* translation types */
@@ -133,13 +99,9 @@ struct PM_CARTESIAN {
     PM_CARTESIAN() {
     };
     PM_CARTESIAN(double _x, double _y, double _z);
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_CARTESIAN(PM_CCONST PM_CARTESIAN & cart);	// added 7-May-1997
-    // by WPS
-#endif
 
-    PM_CARTESIAN(PM_CONST PM_CYLINDRICAL PM_REF c);	/* conversion */
-    PM_CARTESIAN(PM_CONST PM_SPHERICAL PM_REF s);	/* conversion */
+    PM_CARTESIAN(const PM_CYLINDRICAL & c);	/* conversion */
+    PM_CARTESIAN(const PM_SPHERICAL & s);	/* conversion */
 
     /* operators */
     double &operator[] (int n);	/* this[n] */
@@ -160,12 +122,9 @@ struct PM_SPHERICAL {
     /* ctors/dtors */
     PM_SPHERICAL() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_SPHERICAL(PM_CCONST PM_SPHERICAL & s);
-#endif
     PM_SPHERICAL(double _theta, double _phi, double _r);
-    PM_SPHERICAL(PM_CONST PM_CYLINDRICAL PM_REF v);	/* conversion */
-    PM_SPHERICAL(PM_CONST PM_CARTESIAN PM_REF v);	/* conversion */
+    PM_SPHERICAL(const PM_CYLINDRICAL & v);	/* conversion */
+    PM_SPHERICAL(const PM_CARTESIAN & v);	/* conversion */
 
     /* operators */
     double &operator[] (int n);	/* this[n] */
@@ -180,12 +139,9 @@ struct PM_CYLINDRICAL {
     /* ctors/dtors */
     PM_CYLINDRICAL() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_CYLINDRICAL(PM_CCONST PM_CYLINDRICAL & c);
-#endif
     PM_CYLINDRICAL(double _theta, double _r, double _z);
-    PM_CYLINDRICAL(PM_CONST PM_CARTESIAN PM_REF v);	/* conversion */
-    PM_CYLINDRICAL(PM_CONST PM_SPHERICAL PM_REF v);	/* conversion */
+    PM_CYLINDRICAL(const PM_CARTESIAN & v);	/* conversion */
+    PM_CYLINDRICAL(const PM_SPHERICAL & v);	/* conversion */
 
     /* operators */
     double &operator[] (int n);	/* this[n] */
@@ -200,11 +156,8 @@ struct PM_ROTATION_VECTOR {
     /* ctors/dtors */
     PM_ROTATION_VECTOR() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_ROTATION_VECTOR(PM_CCONST PM_ROTATION_VECTOR & r);
-#endif
     PM_ROTATION_VECTOR(double _r, double _x, double _y, double _z);
-    PM_ROTATION_VECTOR(PM_CONST PM_QUATERNION PM_REF q);	/* conversion 
+    PM_ROTATION_VECTOR(const PM_QUATERNION & q);	/* conversion
 								 */
 
     /* operators */
@@ -220,23 +173,18 @@ struct PM_ROTATION_MATRIX {
     /* ctors/dtors */
     PM_ROTATION_MATRIX() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_ROTATION_MATRIX(PM_CCONST PM_ROTATION_MATRIX & mat);	/* added
-								   7-May-1997 
-								   by WPS */
-#endif
     PM_ROTATION_MATRIX(double xx, double xy, double xz,
 	double yx, double yy, double yz, double zx, double zy, double zz);
     PM_ROTATION_MATRIX(const PM_CARTESIAN& _x, const PM_CARTESIAN& _y, const PM_CARTESIAN& _z);
-    PM_ROTATION_MATRIX(PM_CONST PM_ROTATION_VECTOR PM_REF v);	/* conversion 
+    PM_ROTATION_MATRIX(const PM_ROTATION_VECTOR & v);	/* conversion
 								 */
-    PM_ROTATION_MATRIX(PM_CONST PM_QUATERNION PM_REF q);	/* conversion 
+    PM_ROTATION_MATRIX(const PM_QUATERNION & q);	/* conversion
 								 */
-    PM_ROTATION_MATRIX(PM_CONST PM_EULER_ZYZ PM_REF zyz);	/* conversion 
+    PM_ROTATION_MATRIX(const PM_EULER_ZYZ & zyz);	/* conversion
 								 */
-    PM_ROTATION_MATRIX(PM_CONST PM_EULER_ZYX PM_REF zyx);	/* conversion 
+    PM_ROTATION_MATRIX(const PM_EULER_ZYX & zyx);	/* conversion
 								 */
-    PM_ROTATION_MATRIX(PM_CONST PM_RPY PM_REF rpy);	/* conversion */
+    PM_ROTATION_MATRIX(const PM_RPY & rpy);	/* conversion */
 
     /* operators */
     PM_CARTESIAN & operator[](int n);	/* this[n] */
@@ -253,18 +201,14 @@ struct PM_QUATERNION {
     /* ctors/dtors */
     PM_QUATERNION() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_QUATERNION(PM_CCONST PM_QUATERNION & quat);	/* added 7-May-1997
-							   by WPS */
-#endif
     PM_QUATERNION(double _s, double _x, double _y, double _z);
-    PM_QUATERNION(PM_CONST PM_ROTATION_VECTOR PM_REF v);	/* conversion 
+    PM_QUATERNION(const PM_ROTATION_VECTOR & v);	/* conversion
 								 */
-    PM_QUATERNION(PM_CONST PM_ROTATION_MATRIX PM_REF m);	/* conversion 
+    PM_QUATERNION(const PM_ROTATION_MATRIX & m);	/* conversion
 								 */
-    PM_QUATERNION(PM_CONST PM_EULER_ZYZ PM_REF zyz);	/* conversion */
-    PM_QUATERNION(PM_CONST PM_EULER_ZYX PM_REF zyx);	/* conversion */
-    PM_QUATERNION(PM_CONST PM_RPY PM_REF rpy);	/* conversion */
+    PM_QUATERNION(const PM_EULER_ZYZ & zyz);	/* conversion */
+    PM_QUATERNION(const PM_EULER_ZYX & zyx);	/* conversion */
+    PM_QUATERNION(const PM_RPY & rpy);	/* conversion */
     PM_QUATERNION(PM_AXIS axis, double angle);	/* conversion */
 
     /* operators */
@@ -283,12 +227,9 @@ struct PM_EULER_ZYZ {
     /* ctors/dtors */
     PM_EULER_ZYZ() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_EULER_ZYZ(PM_CCONST PM_EULER_ZYZ & zyz);
-#endif
     PM_EULER_ZYZ(double _z, double _y, double _zp);
-    PM_EULER_ZYZ(PM_CONST PM_QUATERNION PM_REF q);	/* conversion */
-    PM_EULER_ZYZ(PM_CONST PM_ROTATION_MATRIX PM_REF m);	/* conversion */
+    PM_EULER_ZYZ(const PM_QUATERNION & q);	/* conversion */
+    PM_EULER_ZYZ(const PM_ROTATION_MATRIX & m);	/* conversion */
 
     /* operators */
     double &operator[] (int n);
@@ -303,12 +244,9 @@ struct PM_EULER_ZYX {
     /* ctors/dtors */
     PM_EULER_ZYX() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_EULER_ZYX(PM_CCONST PM_EULER_ZYX & zyx);
-#endif
     PM_EULER_ZYX(double _z, double _y, double _x);
-    PM_EULER_ZYX(PM_CONST PM_QUATERNION PM_REF q);	/* conversion */
-    PM_EULER_ZYX(PM_CONST PM_ROTATION_MATRIX PM_REF m);	/* conversion */
+    PM_EULER_ZYX(const PM_QUATERNION & q);	/* conversion */
+    PM_EULER_ZYX(const PM_ROTATION_MATRIX & m);	/* conversion */
 
     /* operators */
     double &operator[] (int n);
@@ -323,12 +261,9 @@ struct PM_RPY {
     /* ctors/dtors */
     PM_RPY() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_RPY(PM_CCONST PM_RPY PM_REF rpy);	/* added 7-May-1997 by WPS */
-#endif
     PM_RPY(double _r, double _p, double _y);
-    PM_RPY(PM_CONST PM_QUATERNION PM_REF q);	/* conversion */
-    PM_RPY(PM_CONST PM_ROTATION_MATRIX PM_REF m);	/* conversion */
+    PM_RPY(const PM_QUATERNION & q);	/* conversion */
+    PM_RPY(const PM_ROTATION_MATRIX & m);	/* conversion */
 
     /* operators */
     double &operator[] (int n);
@@ -343,13 +278,10 @@ struct PM_POSE {
     /* ctors/dtors */
     PM_POSE() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_POSE(PM_CCONST PM_POSE & p);
-#endif
     PM_POSE(const PM_CARTESIAN& v, const PM_QUATERNION& q);
     PM_POSE(double x, double y, double z,
 	double s, double sx, double sy, double sz);
-    PM_POSE(PM_CONST PM_HOMOGENEOUS PM_REF h);	/* conversion */
+    PM_POSE(const PM_HOMOGENEOUS & h);	/* conversion */
 
     /* operators */
     double &operator[] (int n);	/* this[n] */
@@ -365,11 +297,8 @@ struct PM_HOMOGENEOUS {
     /* ctors/dtors */
     PM_HOMOGENEOUS() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_HOMOGENEOUS(PM_CCONST PM_HOMOGENEOUS & h);
-#endif
     PM_HOMOGENEOUS(const PM_CARTESIAN& v, const PM_ROTATION_MATRIX& m);
-    PM_HOMOGENEOUS(PM_CONST PM_POSE PM_REF p);	/* conversion */
+    PM_HOMOGENEOUS(const PM_POSE & p);	/* conversion */
 
     /* operators */
     PM_CARTESIAN & operator[](int n);	/* column vector */
@@ -385,9 +314,6 @@ struct PM_LINE {
     /* ctors/dtors */
     PM_LINE() {
     };
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_LINE(PM_CCONST PM_LINE &);
-#endif
 
     /* functions */
     int init(const PM_POSE& start, const PM_POSE& end);
@@ -408,9 +334,6 @@ struct PM_CIRCLE {
         angle(0.0),
         spiral(0.0)
     {};
-#ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-    PM_CIRCLE(PM_CCONST PM_CIRCLE &);
-#endif
 
     /* functions */
     int init(const PM_POSE& start, const PM_POSE& end,
@@ -435,14 +358,6 @@ extern double dot(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2);
 
 /* cross */
 extern PM_CARTESIAN cross(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2);
-
-#if 0
-/* norm */
-extern PM_CARTESIAN norm(PM_CARTESIAN v);
-extern PM_QUATERNION norm(PM_QUATERNION q);
-extern PM_ROTATION_VECTOR norm(PM_ROTATION_VECTOR r);
-extern PM_ROTATION_MATRIX norm(PM_ROTATION_MATRIX m);
-#endif
 
 /* unit */
 extern PM_CARTESIAN unit(const PM_CARTESIAN &v);
@@ -659,39 +574,12 @@ extern "C" {
 
     } PmCircle;
 
-/*
-   shorthand types for normal use-- don't define PM_LOOSE_NAMESPACE if these
-   names are used by other headers you need to include and you don't want
-   these shorthand versions
-*/
-
 /* some nice constants */
 
 #define PM_PI      3.14159265358979323846
 #define PM_PI_2    1.57079632679489661923
 #define PM_PI_4    0.78539816339744830962
 #define PM_2_PI    6.28318530717958647692
-
-#ifdef PM_LOOSE_NAMESPACE
-
-    typedef PmCartesian VECTOR;
-    typedef PmSpherical SPHERICAL;
-    typedef PmCylindrical CYLINDRICAL;
-    typedef PmQuaternion QUATERNION;
-    typedef PmRotationMatrix MATRIX;
-    typedef PmEulerZyz ZYZ;
-    typedef PmEulerZyx ZYX;
-    typedef PmRpy RPY;
-    typedef PmPose POSE;
-    typedef PmHomogeneous HX;
-    typedef PmCircle CIRCLE;
-    typedef PmLine LINE;
-
-#define PI                PM_PI
-#define PI_2              PM_PI_2
-#define PI_4              PM_PI_4
-#define TWO_PI            PM_2_PI	/* 2_PI invalid macro name */
-#endif
 
 /* quicky macros */
 
@@ -886,13 +774,8 @@ __attribute__((always_inline)) static inline double pmSq(double x) { return x*x;
     extern int pmCartScalDivEq(PmCartesian * const, double);
     extern int pmCartUnitEq(PmCartesian * const);
     extern int pmCartNegEq(PmCartesian * const);
-/*! \todo Another #if 0 */
-#if 0
-    extern int pmCartNorm(PmCartesian const * const v, PmCartesian * const vout);
-#else
 // Hopefully guaranteed to cause a compile error when used.
 #define pmCartNorm(a,b,c,d,e)  bad{a.b.c.d.e}
-#endif
 
     extern int pmCartIsNorm(PmCartesian const * const v);
     extern int pmCartInv(PmCartesian const * const, PmCartesian * const);
