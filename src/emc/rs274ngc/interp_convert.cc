@@ -3191,9 +3191,10 @@ On a synchronized (negative HOME_SEQUENCE) joint pair, Pn on either joint
 homes both (motion's existing gantry-homing behavior); on a positive shared
 sequence Pn homes only the named joint -- use the bare form to home both.
 
-Motion still enforces its own safety (idle / not on limits) and does the
-final range check of the joint number against the machine's actual joint
-count.
+Motion still enforces its own safety (idle / not on limits). The joint
+number is range-checked against the machine's configured joint count in
+task (emcJointHome()/emcJointUnhome(), taskintf.cc), which is where that
+count is known -- the interpreter has no joint count in its state.
 */
 int Interp::convert_home_cycle(int move,
                                block_pointer block,
