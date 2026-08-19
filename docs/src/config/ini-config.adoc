@@ -946,7 +946,8 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
   The value shown equals 300 units per minute.
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
 * `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
-  S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+  S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK` is 1.0
+  or above; a smaller value falls back to trapezoidal, with an operator message.
   The planner can be changed at runtime via the `ini.traj-planner-type` HAL pin or the
   <<gcode:g64,G64 R word>>; a switch requested while the machine is moving is deferred
   and applied when motion next becomes idle (never aborts), with an operator message.

@@ -97,7 +97,7 @@ addf mux4.0 servo-thread
 
 (((HAL initf,initf)))
 The `initf` command registers a function to run once in realtime context, on a dedicated init cycle of the thread before the cyclic function list runs.
-It is the realtime-thread analogue of `addf`, intended for one-shot setup that must execute in the realtime task (for example EtherCAT master activation via `lcec.0.activate`).
+It is the realtime-thread analogue of `addf`, intended for one-shot setup that must execute in the realtime task (for example EtherCAT master activation via `lcec.activate`).
 
 `initf` adds function _functname_ to the init list of thread _threadname_.
 The init list runs once on the first cycle after `start`, then is drained.
@@ -109,7 +109,7 @@ Once the init cycle has run, further `initf` calls on that thread are rejected.
 [source,{hal}]
 ----
 initf <function> <thread>
-initf lcec.0.activate servo-thread
+initf lcec.activate servo-thread
 ----
 
 [[sub:hal-loadusr]]
