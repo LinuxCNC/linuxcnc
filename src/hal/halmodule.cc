@@ -28,7 +28,7 @@
 #include <hal.h>
 
 #include "halqrec.hh"
-#include "utils/setps_util.h"
+#include "setps_util.h"
 
 #define EXCEPTION_IF_NOT_LIVE(retval) do { \
         if(self->hal_id <= 0) { \
