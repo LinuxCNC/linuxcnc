@@ -243,15 +243,12 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 
 extern void SET_XY_ROTATION(double t);
 
-/* G28.2 / G28.3: trigger the machine homing cycle / unhome from G-code
- * (bare form = all joints). Maps to EMC_JOINT_HOME/UNHOME(-1). */
+/* G28.2: trigger the machine homing cycle from G-code (bare form = all
+ * joints, in HOME_SEQUENCE order). Maps to EMC_JOINT_HOME(-1). */
 extern void HOME_CYCLE(void);
-extern void UNHOME_AXES(void);
-/* G28.2 Pn / G28.3 Pn: home/unhome a single joint by its 0-based joint
- * number (matching [JOINT_n] INI section numbering). Maps to
- * EMC_JOINT_HOME/UNHOME(joint). */
+/* G28.2 Pn: home a single joint by its 0-based joint number (matching
+ * [JOINT_n] INI section numbering). Maps to EMC_JOINT_HOME(joint). */
 extern void HOME_CYCLE_JOINT(int joint);
-extern void UNHOME_JOINT(int joint);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 

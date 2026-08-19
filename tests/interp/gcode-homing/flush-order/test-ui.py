@@ -2,14 +2,14 @@
 
 """
 Regression test for the flush_segments() ordering fix in HOME_CYCLE()/
-HOME_CYCLE_JOINT()/UNHOME_AXES()/UNHOME_JOINT()
+HOME_CYCLE()/HOME_CYCLE_JOINT()
 (emccanon.cc).
 
 STRAIGHT_FEED/STRAIGHT_TRAVERSE buffer points into chained_points for
 arc-blend lookahead and only reach interp_list on a flush (see
 see_segment()/flush_segments()). Without an explicit flush_segments() call
-at the start of the home/unhome canon functions, a queued move immediately
-before a G28.2/G28.3 could silently get reordered to run *after* the home
+at the start of the home canon functions, a queued move immediately
+before a G28.2 could silently get reordered to run *after* the home
 instead of before it.
 
 test.ngc queues "G1 X2" (a multi-cycle move, slow enough to poll mid-flight)

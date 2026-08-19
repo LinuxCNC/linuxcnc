@@ -708,9 +708,7 @@ void SELECT_PLANE(CANON_PLANE pl) {
 }
 
 void HOME_CYCLE(void) {}
-void UNHOME_AXES(void) {}
 void HOME_CYCLE_JOINT(int) {}
-void UNHOME_JOINT(int) {}
 
 void SET_TRAVERSE_RATE(double rate) {
     maybe_new_line();   

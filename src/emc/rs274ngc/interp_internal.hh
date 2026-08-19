@@ -221,8 +221,7 @@ enum GCodes
     G_21 = 210,
     G_28 = 280,
     G_28_1 = 281,
-    G_28_2 = 282,   /* G-code homing cycle (home worded/all joints) */
-    G_28_3 = 283,   /* G-code unhome */
+    G_28_2 = 282,   /* G-code homing cycle (home one/all joints) */
     G_30 = 300,
     G_30_1 = 301,
     G_33 = 330,

@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
 """
-Regression test: an immediate (GUI-path) home/unhome must not disturb the
+Regression test: an immediate (GUI-path) home or unhome must not disturb the
 trajectory mode, and must not quietly gain permissions it never had.
 
-The G28.2/G28.3 sequencing dips motion into FREE for the duration of a queued
-home/unhome (do_homing() only advances there) and restores the previous mode
-afterwards, from the EMC_TASK_EXEC::WAITING_FOR_HOMING poll.
+The G28.2 sequencing dips motion into FREE for the duration of a queued home
+(do_homing() only advances there) and restores the previous mode afterwards,
+from the EMC_TASK_EXEC::WAITING_FOR_HOMING poll.
 
 That poll is only ever reached through emcTaskCheckPostconditions(), which
 task calls only for commands taken off the interp_list. The GUI's Home and
 Unhome buttons, halui and linuxcncrsh all send *immediate* commands: those
 reach emcTaskIssueCommand() but are never followed by
-emcTaskCheckPostconditions(). Applying the dip to them therefore had two
-effects, both regressions against the pre-G28 behaviour:
+emcTaskCheckPostconditions(). An earlier revision of this branch dipped for
+those too, which had two effects, both regressions against the pre-G28
+behaviour:
 
  1. the mode was dipped to FREE and never restored, silently stranding the
     machine in joint mode; and
@@ -22,10 +23,11 @@ effects, both regressions against the pre-G28 behaviour:
     ("must be in joint mode or disabled to unhome", the EMCMOT_JOINT_UNHOME
     case in command.c).
 
-Motion does not change the trajectory mode by itself for a single-joint
-home/unhome, so any mode change observed here comes from task.
-
-The fix scopes the sequencing to the queued path, restoring both behaviours.
+The sequencing is now scoped to the queued path, and with G28.3 dropped from
+this PR an unhome has no queued path at all. Both are checked here, because
+neither the scoping nor the drop is visible from the outside: motion does not
+change the trajectory mode by itself for a single-joint home or unhome, so
+any mode change observed here comes from task.
 """
 
 import linuxcnc

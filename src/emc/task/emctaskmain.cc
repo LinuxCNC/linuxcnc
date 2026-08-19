@@ -392,18 +392,17 @@ static EMC_TRAJ_SET_SPINDLESYNC *emcTrajSetSpindlesyncMsg;
 //static EMC_MOTION_SET_AOUT *emcMotionSetAoutMsg;
 //static EMC_MOTION_SET_DOUT *emcMotionSetDoutMsg;
 
-// G28.2/G28.3 sequencing state (see EMC_TASK_EXEC::WAITING_FOR_HOMING):
+// G28.2 sequencing state (see EMC_TASK_EXEC::WAITING_FOR_HOMING):
 // homing only actually runs while motion is in FREE mode (control.c only
-// calls do_homing() there), so a queued home/unhome triggered from a
-// program or MDI while running in TELEOP/COORD would otherwise silently
-// stall. We dip motion into FREE for the duration and restore whatever
-// mode it was in before, invisibly to the task-level MDI/AUTO/MANUAL state
+// calls do_homing() there), so a queued home triggered from a program or
+// MDI while running in TELEOP/COORD would otherwise silently stall. We dip
+// motion into FREE for the duration and restore whatever mode it was in
+// before, invisibly to the task-level MDI/AUTO/MANUAL state
 // (mdiOrAuto is untouched) -- same principle as multichannel-DESIGN.txt's
 // "channel sessions do NOT flip the global teleop mode" for the analogous
 // per-channel-homing problem.
 static int homingWaitJoint = -1;         // joint (-1 = all) we're waiting on
 static bool homingWaiting = false;       // true while EMC_TASK_EXEC::WAITING_FOR_HOMING is active
-static bool homingIsUnhome = false;      // which completion criterion to check
 static bool homingStarted = false;       // true once we've observed .homing go true at least once
 static double homingIssueTime = 0.0;     // etime() when issued, for the start-timeout below
 // Some motion-side guards (e.g. "must be in joint mode to home",
@@ -417,13 +416,13 @@ static const double HOMING_START_TIMEOUT = 2.0;
 static EMC_TRAJ_MODE homingPriorMode = EMC_TRAJ_MODE::FREE; // mode to restore on success
 // True only while emcTaskExecute() is issuing a command taken off the
 // interp_list. emcTaskIssueCommand() serves both that queued path and the
-// immediate commands emcTaskPlan() sends straight through (the GUI's Home and
-// Unhome buttons, halui, linuxcncrsh), and only the queued path is followed by
+// immediate commands emcTaskPlan() sends straight through (the GUI's Home
+// button, halui, linuxcncrsh), and only the queued path is followed by
 // emcTaskCheckPostconditions() -- so only the queued path can ever reach
 // EMC_TASK_EXEC::WAITING_FOR_HOMING to undo the FREE-mode dip and restore the
 // previous trajectory mode. Dipping on an immediate command would therefore
 // strand the machine in FREE for good. Gate the sequencing on this flag so
-// immediate home/unhome keeps its original pass-through behaviour.
+// an immediate home keeps its original pass-through behaviour.
 static bool issuingQueuedCommand = false;
 
 static EMC_SPINDLE_SPEED *spindle_speed_msg;
@@ -1640,10 +1639,9 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_JOINT_HOME_TYPE:        // G28.2: program-order homing
-    case EMC_JOINT_UNHOME_TYPE:      // G28.3: program-order unhome
-	// drain prior motion before (un)homing; without these cases a
-	// queued home/unhome hit default -> EMC_TASK_EXEC::ERROR and was
-	// silently dropped (never reached motion).
+	// drain prior motion before homing; without this case a queued home
+	// hit default -> EMC_TASK_EXEC::ERROR and was silently dropped
+	// (never reached motion).
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 
     default:
@@ -1733,7 +1731,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		emcTrajSetMode(EMC_TRAJ_MODE::FREE);
 	    }
 	    homingWaitJoint = target_joint;
-	    homingIsUnhome = false;
 	    homingStarted = false;
 	    homingIssueTime = etime();
 	    homingWaiting = true;
@@ -1755,30 +1752,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_JOINT_UNHOME_TYPE:
+	// No sequencing here: with G28.3 dropped from this PR an unhome can
+	// only arrive as an immediate command (the GUI, halui, linuxcncrsh),
+	// never from the interpreter, so there is no queued path whose
+	// trajectory mode would need dipping and restoring.
 	unhome_msg = reinterpret_cast<EMC_JOINT_UNHOME *>(cmd);
-	if (!issuingQueuedCommand) {
-	    // Immediate command -- see the matching guard in
-	    // EMC_JOINT_HOME_TYPE above.
-	    retval = emcJointUnhome(unhome_msg->joint);
-	    break;
-	}
-	homingPriorMode = emcStatus->motion.traj.mode;
-	if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
-	    emcTrajSetMode(EMC_TRAJ_MODE::FREE);
-	}
-	homingWaitJoint = unhome_msg->joint;
-	homingIsUnhome = true;
-	homingStarted = false;
-	homingIssueTime = etime();
-	homingWaiting = true;
 	retval = emcJointUnhome(unhome_msg->joint);
-	if (retval != 0) {
-	    // See the matching comment in EMC_JOINT_HOME_TYPE above.
-	    homingWaiting = false;
-	    if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
-		emcTrajSetMode(homingPriorMode);
-	    }
-	}
 	break;
 
     case EMC_JOG_CONT_TYPE:
@@ -2632,7 +2611,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	break;
 
     case EMC_JOINT_HOME_TYPE:
-    case EMC_JOINT_UNHOME_TYPE:
 	// homingWaiting is false when the command was passed straight through
 	// as an immediate command (see issuingQueuedCommand) -- the sequencing
 	// did not run, so there is nothing to wait for.
@@ -2877,114 +2855,75 @@ static int emcTaskExecute(void)
 	break;
 
     case EMC_TASK_EXEC::WAITING_FOR_HOMING:
-	// G28.2/G28.3 sequencing: wait for the joint home/unhome issued in
+	// G28.2 sequencing: wait for the joint home issued in
 	// emcTaskIssueCommand to actually run to completion (do_homing() only
 	// advances while motion is in FREE, which is why we dipped into it
 	// there), then restore the prior trajectory mode. See the
 	// homingWaiting block of static state near the top of this file.
-	//
-	// HOME and UNHOME are NOT symmetric at the motion level: EMCMOT_JOINT_HOME
-	// (control.c/do_home_joint) is a genuine state machine -- .homing goes
-	// true while it runs, false (with .homed set) when it finishes -- but
-	// EMCMOT_JOINT_UNHOME (command.c) is synchronous: set_unhomed() just
-	// clears .homed immediately in the same cycle it's issued, and .homing
-	// is never touched. So UNHOME must be checked directly, with no "wait
-	// for .homing to start" phase -- that phase would never end for it.
 	STEPPING_CHECK();
 	{
 	    bool any_homing = false;
-	    bool all_target_homed = true;    // success criterion for HOME
-	    bool any_target_homed = false;   // success criterion for UNHOME (want none)
+	    bool all_target_homed = true;    // success criterion
 	    int lo = (homingWaitJoint < 0) ? 0 : homingWaitJoint;
 	    int hi = (homingWaitJoint < 0) ? (emcStatus->motion.traj.joints - 1) : homingWaitJoint;
 	    for (int j = lo; j <= hi; j++) {
 		if (emcStatus->motion.joint[j].homing) {
 		    any_homing = true;
 		}
-		if (emcStatus->motion.joint[j].homed) {
-		    any_target_homed = true;
-		} else {
+		if (!emcStatus->motion.joint[j].homed) {
 		    all_target_homed = false;
 		}
 	    }
 
 	    bool success;
-	    if (homingIsUnhome) {
-		// Synchronous: whatever it did, it already did by now.
-		if (homingWaitJoint == -2) {
-		    // A volatile unhome (joint == -2, see the EMCMOT_JOINT_UNHOME
-		    // case in command.c) deliberately clears only the joints
-		    // configured VOLATILE_HOME and leaves every other joint homed,
-		    // so "no joint in range is still homed" would score a correct
-		    // volatile unhome as a failure on any machine that also has
-		    // non-volatile joints. Task cannot narrow the check to just the
-		    // volatile joints either: volatile_home lives in motion's
-		    // private homing state (H[jno].volatile_home, homing.c) and is
-		    // not published in joint status -- the volatile_home in
-		    // emc_nml.hh belongs to EMC_JOINT_SET_HOMING_PARAMS, a command
-		    // message, not to EMC_JOINT_STAT. The unhome is synchronous, so
-		    // there is nothing left to wait for: accept it and let the
-		    // restore_ok gate below decide about the trajectory mode.
-		    //
-		    // Defensive: G28.3 only ever emits Pn >= 0 or -1, and since the
-		    // sequencing is now scoped to the queued path an immediate
-		    // unhome(-2) never reaches this code either. This guard exists
-		    // so that a future queued command carrying -2 cannot silently
-		    // be scored as a failure.
-		    success = true;
-		} else {
-		    success = !any_target_homed;
-		}
-	    } else {
-		// "Is homing still running?" must come from motion's aggregate
-		// homing_active, not from OR-ing the per-joint .homing flags. On a
-		// machine that homes in several HOME_SEQUENCE groups the sequence
-		// machine finishes one group and can spend a cycle or more before
-		// the next group raises .homing, so there is a window in which
-		// every joint reads .homing == false while the machine is still
-		// homing. Task samples far coarser than the servo cycle, so it can
-		// land in that window, conclude homing stopped, and score a
-		// perfectly good home-all as "did not complete". motion/homing.c
-		// documents the same deassertion lag in its own words ("The homing
-		// status variable turns false before homing_active state turns
-		// false") and guards against it internally for the same reason.
-		//
-		// Single-joint Pn and single-sequence machines never hit the gap,
-		// which is why this only shows up on a multi-sequence home-all.
-		// The per-joint OR is kept as a belt-and-braces term: it can only
-		// extend the "still running" window, never shorten it.
-		const bool homing_running = emcStatus->motion.homing_active || any_homing;
-		if (homing_running) {
-		    homingStarted = true;
-		    break; // still running; no timeout once started (see HOMING_START_TIMEOUT comment)
-		}
-		if (!homingStarted) {
-		    // Never observed homing go active: motion silently rejected
-		    // it (a guard like "must be in joint mode", or
-		    // motion.homing-inhibit, reports an operator error but does
-		    // not fail the NML command -- see emcJointHome's caller),
-		    // or this is the same task cycle it was issued in. Give it
-		    // HOMING_START_TIMEOUT before concluding it was rejected.
-		    if (etime() - homingIssueTime < HOMING_START_TIMEOUT) {
-			break;
-		    }
-		    emcOperatorError("G28.2 home did not start -- check machine mode, "
-				      "motion.homing-inhibit, and whether a homing "
-				      "cycle is already in progress");
-		    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
-		    emcTaskEager = 1;
-		    homingWaiting = false;
-		    // Nothing physically moved, so it's safe to restore the
-		    // mode immediately instead of leaving the machine parked
-		    // in FREE.
-		    if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
-			emcTrajSetMode(homingPriorMode);
-		    }
+	    // "Is homing still running?" must come from motion's aggregate
+	    // homing_active, not from OR-ing the per-joint .homing flags. On a
+	    // machine that homes in several HOME_SEQUENCE groups the sequence
+	    // machine finishes one group and can spend a cycle or more before
+	    // the next group raises .homing, so there is a window in which
+	    // every joint reads .homing == false while the machine is still
+	    // homing. Task samples far coarser than the servo cycle, so it can
+	    // land in that window, conclude homing stopped, and score a
+	    // perfectly good home-all as "did not complete". motion/homing.c
+	    // documents the same deassertion lag in its own words ("The homing
+	    // status variable turns false before homing_active state turns
+	    // false") and guards against it internally for the same reason.
+	    //
+	    // Single-joint Pn and single-sequence machines never hit the gap,
+	    // which is why this only shows up on a multi-sequence home-all.
+	    // The per-joint OR is kept as a belt-and-braces term: it can only
+	    // extend the "still running" window, never shorten it.
+	    const bool homing_running = emcStatus->motion.homing_active || any_homing;
+	    if (homing_running) {
+		homingStarted = true;
+		break; // still running; no timeout once started (see HOMING_START_TIMEOUT comment)
+	    }
+	    if (!homingStarted) {
+		// Never observed homing go active: motion silently rejected
+		// it (a guard like "must be in joint mode", or
+		// motion.homing-inhibit, reports an operator error but does
+		// not fail the NML command -- see emcJointHome's caller),
+		// or this is the same task cycle it was issued in. Give it
+		// HOMING_START_TIMEOUT before concluding it was rejected.
+		if (etime() - homingIssueTime < HOMING_START_TIMEOUT) {
 		    break;
 		}
-		// It ran and has now stopped; did it reach the expected end state?
-		success = all_target_homed;
+		emcOperatorError("G28.2 home did not start -- check machine mode, "
+				  "motion.homing-inhibit, and whether a homing "
+				  "cycle is already in progress");
+		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+		emcTaskEager = 1;
+		homingWaiting = false;
+		// Nothing physically moved, so it's safe to restore the
+		// mode immediately instead of leaving the machine parked
+		// in FREE.
+		if (homingPriorMode != EMC_TRAJ_MODE::FREE) {
+		    emcTrajSetMode(homingPriorMode);
+		}
+		break;
 	    }
+	    // It ran and has now stopped; did it reach the expected end state?
+	    success = all_target_homed;
 
 	    homingWaiting = false;
 	    emcTaskEager = 1;
@@ -2996,15 +2935,22 @@ static int emcTaskExecute(void)
 	    // case (command.c) both gate on
 	    // "kinType != KINEMATICS_IDENTITY && !get_allhomed()".
 	    //
-	    // A per-joint G28.2 Pn / G28.3 Pn can succeed for its own joint
-	    // while leaving the machine as a whole unreferenced, so restoring
-	    // unconditionally means motion rejects the request, task still
-	    // reports DONE, and the machine is stranded in FREE with the GUI's
-	    // mode controls greyed out -- recoverable only by cycling the
+	    // Restoring unconditionally means motion rejects the request, task
+	    // still reports DONE, and the machine is stranded in FREE with the
+	    // GUI's mode controls greyed out -- recoverable only by cycling the
 	    // controller (PR #4172: Sigma1912's "g28.3 p0" on a gantry gave
 	    // "all joints must be homed before going into coordinated mode",
 	    // then needed F2). Mirror motion's own condition here and abort
 	    // cleanly instead of wedging.
+	    //
+	    // With G28.3 gone from this PR the only command that reaches here
+	    // is a home, which ends with its joints referenced, so on
+	    // non-identity kinematics -- where a coordinated prior mode already
+	    // implies the machine was fully homed -- this gate now guards a
+	    // state no G-code can produce. It is kept because the alternative
+	    // failure is silent: motion defers the COORD/TELEOP transition to
+	    // its controller cycle, so a refused restore leaves no trace task
+	    // could notice, and the operator gets a dead UI with no message.
 	    //
 	    // Mirroring the condition rather than issuing the restore and
 	    // checking whether it took is deliberate: the COORD/TELEOP
@@ -3028,32 +2974,15 @@ static int emcTaskExecute(void)
 					 == KINEMATICS_IDENTITY)
 				 || all_homed();
 
-	    if (success && homingIsUnhome && !all_homed() && !no_force_homing) {
-		// Close the hole a per-move check would be expensive to plug:
-		// [TRAJ]NO_FORCE_HOMING=0 (the default) already refuses to
-		// *start* MDI/AUTO on an unhomed machine, but that check only
-		// fires at program/MDI start, not per line -- so a mid-program
-		// G28.3 with no matching re-home before further motion would
-		// otherwise slip through unreferenced (see PR #4172, Sigma's
-		// "G28.3 then G1 x2" example). Re-apply the exact same policy
-		// here, at the sync point this command already forces, with
-		// no cost added to the motion path itself.
-		emcOperatorError(_("Can't continue unhomed after G28.3 "
-				    "(NO_FORCE_HOMING=0) -- re-home before the next move"));
-		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
-		// Same reasoning as the failure path below: leave it in FREE,
-		// don't snap back to a mode an unhomed machine can't legally
-		// run coordinated motion in.
-	    } else if (success && !restore_ok) {
+	    if (success && !restore_ok) {
 		// The command itself did what was asked, but it left the
 		// machine partially referenced and motion will not take
 		// TELEOP/COORD back in that state. Stay in FREE and fail the
 		// program rather than report DONE and strand the operator.
-		emcOperatorError(_("%s succeeded but left the machine not fully "
-				    "homed -- staying in joint mode, as non-identity "
-				    "kinematics cannot re-enter coordinated motion "
-				    "until every joint is homed"),
-				  homingIsUnhome ? "G28.3 unhome" : "G28.2 home");
+		emcOperatorError(_("G28.2 home succeeded but left the machine not "
+				    "fully homed -- staying in joint mode, as "
+				    "non-identity kinematics cannot re-enter "
+				    "coordinated motion until every joint is homed"));
 		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    } else if (success) {
 		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
@@ -3061,15 +2990,13 @@ static int emcTaskExecute(void)
 		    emcTrajSetMode(homingPriorMode);
 		}
 	    } else {
-		// Homing/unhoming stopped without reaching the target state
-		// (aborted, faulted, ESTOP mid-cycle, a mode guard rejected an
-		// unhome, ...) -- abort the program rather than let it
-		// continue unreferenced. Deliberately NOT restored to
+		// Homing stopped without reaching the target state (aborted,
+		// faulted, ESTOP mid-cycle, ...) -- abort the program rather
+		// than let it continue unreferenced. Deliberately NOT restored to
 		// homingPriorMode here: an unhomed/partially-homed machine may
 		// not legally re-enter TELEOP/COORD, and FREE is the safe
 		// state to leave it in for an operator to intervene from.
-		emcOperatorError("%s did not complete for joint %s",
-				  homingIsUnhome ? "G28.3 unhome" : "G28.2 home",
+		emcOperatorError("G28.2 home did not complete for joint %s",
 				  homingWaitJoint < 0 ? "ALL" : "requested");
 		emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	    }

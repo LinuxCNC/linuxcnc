@@ -492,29 +492,13 @@ void HOME_CYCLE(void)
     interp_list.append(std::move(msg));
 }
 
-void UNHOME_AXES(void)
-{
-    flush_segments();
-    auto msg = std::make_unique<EMC_JOINT_UNHOME>();
-    msg->joint = -1;
-    interp_list.append(std::move(msg));
-}
-
-/* G28.2 Pn / G28.3 Pn -- home/unhome a single joint. joint is the interp's
- * already-validated (non-negative) P value; motion does the final
- * range check against the machine's actual joint count. */
+/* G28.2 Pn -- home a single joint. joint is the interp's already-validated
+ * (non-negative) P value; task range-checks it against the machine's
+ * configured joint count in emcJointHome() (taskintf.cc). */
 void HOME_CYCLE_JOINT(int joint)
 {
     flush_segments(); // see HOME_CYCLE
     auto msg = std::make_unique<EMC_JOINT_HOME>();
-    msg->joint = joint;
-    interp_list.append(std::move(msg));
-}
-
-void UNHOME_JOINT(int joint)
-{
-    flush_segments(); // see HOME_CYCLE
-    auto msg = std::make_unique<EMC_JOINT_UNHOME>();
     msg->joint = joint;
     interp_list.append(std::move(msg));
 }

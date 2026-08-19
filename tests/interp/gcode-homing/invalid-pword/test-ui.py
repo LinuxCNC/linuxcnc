@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Regression test: G28.2 Pn / G28.3 Pn with a joint number the machine does not
-have must be rejected immediately, with an error that names the bad joint, and
-must not disturb the trajectory mode.
+Regression test: a home or unhome for a joint number the machine does not have
+must be rejected immediately, with an error that names the bad joint, and must
+not disturb the trajectory mode.
 
 Reported on real hardware (Mesa 7I95T gantry) in PR #4172: "g28.2 p5" on a
 5-joint machine gave the generic
@@ -19,7 +19,10 @@ configured joint count, so the command went to motion, which silently ignored
 it; and the FREE-mode dip taken for homing sequencing then sat there for the
 whole start timeout.
 
-This config has JOINTS = 3, so P3 and up are unconfigured.
+This config has JOINTS = 3, so joint 3 and up are unconfigured. The unhome
+half is checked through the immediate NML path (what the GUI's Unhome button
+sends) rather than through G-code: G28.3 was dropped from this PR, so the
+interpreter can no longer issue an unhome at all.
 """
 
 import linuxcnc
@@ -106,7 +109,7 @@ poll()
 prior_mode = s.motion_mode
 print("setup: coordinated motion works, motion_mode={}".format(mode_name(prior_mode)))
 
-for cmd in ("G28.2 P3", "G28.3 P7"):
+for cmd in ("G28.2 P3",):
     drain_errors()
     t0 = time.time()
     c.mdi(cmd)
@@ -140,6 +143,30 @@ for cmd in ("G28.2 P3", "G28.3 P7"):
              "homing sequencing was not undone, so the GUI is stuck jogging in "
              "joint mode".format(cmd, mode_name(s.motion_mode), mode_name(prior_mode)))
     print("PASS: {} left the trajectory mode untouched ({})".format(cmd, mode_name(s.motion_mode)))
+
+# The same bound applies to an unhome, which since G28.3 was dropped can only
+# arrive as an immediate command -- the GUI's Unhome button, halui,
+# linuxcncrsh, or c.unhome() here. Motion has its own check on this path, but
+# as "jno > all_joints", so joint 3 on a 3-joint machine slips past it into an
+# unrelated complaint about extra joints.
+drain_errors()
+c.mode(linuxcnc.MODE_MANUAL)
+time.sleep(0.2)
+c.unhome(3)
+time.sleep(0.5)
+poll()
+msgs = drain_errors()
+if not msgs:
+    fail("an immediate unhome of unconfigured joint 3 reported no error at all")
+if "extrajoint" in " ".join(msgs):
+    fail("unhome of joint 3 fell through the off-by-one into the extra-joint "
+         "branch: {!r}".format(msgs[0][:120]))
+if list(s.homed[:3]) != [1, 1, 1]:
+    fail("an immediate unhome of unconfigured joint 3 disturbed a real joint: {}".format(list(s.homed[:3])))
+print("PASS: immediate unhome of an unconfigured joint reported {!r}".format(msgs[0][:90]))
+
+c.mode(linuxcnc.MODE_MDI)
+time.sleep(0.2)
 
 # The rejection must not have cost anything: ordinary work continues.
 c.mode(linuxcnc.MODE_MDI)

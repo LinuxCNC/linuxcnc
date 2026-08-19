@@ -114,9 +114,7 @@ void SET_XY_ROTATION(double t) {
 }
 
 void HOME_CYCLE(void) { ECHO_WITH_ARGS(""); }
-void UNHOME_AXES(void) { ECHO_WITH_ARGS(""); }
 void HOME_CYCLE_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
-void UNHOME_JOINT(int joint) { ECHO_WITH_ARGS("%d", joint); }
 
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,

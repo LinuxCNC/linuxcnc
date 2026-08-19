@@ -323,7 +323,7 @@ public:
                         setup_pointer settings);
  int convert_savehome(int move, block_pointer block,
                         setup_pointer settings);
- int convert_home_cycle(int move, block_pointer block,    // G28.2/G28.3
+ int convert_home_cycle(block_pointer block,              // G28.2
                         setup_pointer settings);
  int convert_length_units(int g_code, setup_pointer settings);
     int convert_m(block_pointer block, setup_pointer settings);
