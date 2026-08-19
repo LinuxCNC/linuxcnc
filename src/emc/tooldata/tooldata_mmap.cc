@@ -197,7 +197,7 @@ int tool_mmap_user()
         ** So print message and return fail indicator.
         */
         fprintf(stderr,"tool_mmap_user(): tool mmap not available\n");
-        tool_mmap_base = (char*)0;
+        tool_mmap_base = nullptr;
         return(-1);
     }
     tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
@@ -238,7 +238,7 @@ void tool_mmap_close()
     }
     // Idempotent from here: a second call, or an atexit after an explicit
     // close, returns at the tool_mmap_base guard above.
-    tool_mmap_base = (char*)0;
+    tool_mmap_base = nullptr;
     mmap_is_creator = false;
 } //tool_mmap_close()
 
