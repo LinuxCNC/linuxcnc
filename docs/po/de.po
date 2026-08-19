@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-13 23:51+0000\n"
+"PO-Revision-Date: 2026-08-19 01:51+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -238516,7 +238516,7 @@ msgid ""
 "the <<plasma:parameters-tab,PARAMETERS Tab>>."
 msgstr ""
 "Die Einrichtung der Sondierung erfolgt im Rahmen PROBING des Abschnitts "
-"CONFIGURATION der <<plasma:parameters-Tab,Registerkarte PARAMETER>>."
+"CONFIGURATION der <<plasma:parameters-tab,Registerkarte PARAMETER>>."
 
 #. type: NOTE
 #: src/plasma/qtplasmac.adoc:1927
@@ -243607,7 +243607,7 @@ msgid ""
 msgstr ""
 "Die QtPlasmaC-GUI bietet Benutzerschaltflächen, die durch Hinzufügen von "
 "Befehlen im Abschnitt <<plasma:button_entries,USER BUTTON ENTRIES>> der "
-"Registerkarte <<plasma:settings-Tab,EINSTELLUNGEN>> in der Datei "
+"Registerkarte <<plasma:settings-tab,EINSTELLUNGEN>> in der Datei "
 "_<Machinenname>_.prefs angepasst werden können."
 
 #. type: NOTE
