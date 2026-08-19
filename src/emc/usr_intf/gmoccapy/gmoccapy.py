@@ -2188,7 +2188,7 @@ class gmoccapy(object):
 
         if value == "ERROR":
             LOG.debug("conversion error")
-            self.dialogs.warning_dialog(_("Conversion error !"),
+            self.dialogs.show_warning_dialog(_("Conversion error !"),
                                        ("Please enter only numerical values\nValues have not been applied"))
         elif value == "CANCEL":
             pass
@@ -2586,7 +2586,7 @@ class gmoccapy(object):
         row = store_path
         if self.widgets.offsetpage1.btn_edit_offsets.get_active() or \
                 self.touch_button_dic["edit_offsets"].get_active():
-            value = self.dialogs.show_entry_dialog(data=offsetpage.store[row][col],
+            offset = self.dialogs.show_entry_dialog(data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
                                         label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
