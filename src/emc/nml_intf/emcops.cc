@@ -112,6 +112,7 @@ EMC_MOTION_STAT::EMC_MOTION_STAT()
     eoffset_pose{},
     numExtraJoints(0),
     jogging_active(0),
+    homing_active(false),
     heartbeat(0)
 {
 }
