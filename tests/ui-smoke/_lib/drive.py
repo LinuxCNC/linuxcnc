@@ -145,28 +145,45 @@ def wait_until(stat, predicate, timeout, label):
     return False
 
 
+# gmoccapy issues its own ESTOP during startup; on a slow runner it can
+# land after the state checks passed, rejecting or aborting homing.
+HOME_RETRY_BUDGET = 3
+# The sims home in a second or two; cap the per-attempt wait so a
+# reverted attempt does not sit out the full caller timeout.
+HOME_ATTEMPT_TIMEOUT_S = 15.0
+
+
 def home_all(cmd, stat, timeout):
-    """Home every joint. Uses c.home(-1) which respects HOME_SEQUENCE
-    if configured. Caller must have already ensured task_state is ON
-    via ensure_state; otherwise the home command is rejected with
-    'cannot be executed until the machine is out of E-stop and turned
-    on'. Mode change uses ensure_mode so a GUI that reverts mode mid-
-    sequence (gmoccapy) is detected and retried."""
-    if not ensure_mode(cmd, stat, linuxcnc.MODE_MANUAL, "MODE_MANUAL"):
-        return False
-    cmd.teleop_enable(0)
-    cmd.wait_complete()
-    stat.poll()
-    njoints = stat.joints
-    cmd.home(-1)
-    if not wait_until(
-            stat,
-            lambda s: all(s.homed[i] for i in range(njoints)),
-            timeout, "all joints homed"):
-        return False
-    cmd.teleop_enable(1)
-    cmd.wait_complete()
-    return True
+    """Home every joint via c.home(-1) (respects HOME_SEQUENCE).
+    Ensures ESTOP_RESET + ON + MANUAL and retries the whole sequence
+    (see HOME_RETRY_BUDGET)."""
+    attempt_timeout = min(timeout, HOME_ATTEMPT_TIMEOUT_S)
+    for attempt in range(1, HOME_RETRY_BUDGET + 1):
+        if not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
+                            "STATE_ESTOP_RESET"):
+            return False
+        if not ensure_state(cmd, stat, linuxcnc.STATE_ON, "STATE_ON"):
+            return False
+        if not ensure_mode(cmd, stat, linuxcnc.MODE_MANUAL, "MODE_MANUAL"):
+            return False
+        cmd.teleop_enable(0)
+        cmd.wait_complete()
+        stat.poll()
+        njoints = stat.joints
+        cmd.home(-1)
+        if wait_until_quiet(
+                stat,
+                lambda s: all(s.homed[i] for i in range(njoints)),
+                attempt_timeout):
+            cmd.teleop_enable(1)
+            cmd.wait_complete()
+            return True
+        sys.stderr.write(
+            f"WARN: homing did not complete on attempt {attempt}, retrying\n")
+    sys.stderr.write(
+        f"UI_SMOKE_FAIL: homing did not complete across "
+        f"{HOME_RETRY_BUDGET} attempts\n")
+    return False
 
 
 def wait_state(stat, target_state, timeout, label):
@@ -292,15 +309,8 @@ def wait_program_idle(stat, timeout):
 
 
 def run_program(cmd, stat, ngc_path, expect_delta_mm, tol, run_timeout):
-    """Estop reset, machine on, home, snapshot position, load + run ngc,
-    verify (final - start) delta matches expect_delta_mm converted to
-    machine units."""
-    if not ensure_state(cmd, stat, linuxcnc.STATE_ESTOP_RESET,
-                        "STATE_ESTOP_RESET"):
-        return False
-    if not ensure_state(cmd, stat, linuxcnc.STATE_ON, "STATE_ON"):
-        return False
-
+    """Home, snapshot position, load + run ngc, verify (final - start)
+    delta matches expect_delta_mm converted to machine units."""
     if not home_all(cmd, stat, timeout=60.0):
         return False
 
