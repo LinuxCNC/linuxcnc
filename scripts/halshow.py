@@ -213,10 +213,70 @@ class HalApi:
             return None
 
     @classmethod
+    def _try_query(cls, query_method):
+        """Try to call _hal.query.<method>(); return normalized list or None.
+
+        The new master _hal.so exposes a 'query' submodule with pins(), params(),
+        signals(), comps(), functs(), threads() that return dicts keyed by name.
+        These are converted to the old-style list-of-dicts format for compatibility.
+        """
+        try:
+            qmod = getattr(_hal, "query", None)
+            if qmod is None:
+                return None
+            data = getattr(qmod, query_method)()
+            if not data:
+                return []
+            # query API returns dict keyed by name; normalize to list of dicts.
+            # Keys are lowercase (name, type, dir, value, signal, comp, etc.)
+            # while old get_info_* returned uppercase keys (NAME, TYPE, DIRECTION).
+            normalized = []
+            for k, v in data.items():
+                entry = dict(v)
+                entry["NAME"] = entry.get("name", k)
+                if "type" in entry and "TYPE" not in entry:
+                    t = entry["type"]
+                    entry["TYPE"] = int(t) if hasattr(t, "value") else t
+                if "dir" in entry and "DIRECTION" not in entry:
+                    d = entry["dir"]
+                    entry["DIRECTION"] = int(d) if hasattr(d, "value") else d
+                if "signal" in entry and "SIGNAL" not in entry:
+                    entry["SIGNAL"] = entry["signal"]
+                if "writers" in entry and "WRITERS" not in entry:
+                    w = entry["writers"]
+                    entry["WRITERS"] = int(w) if hasattr(w, "value") else (w or 0)
+                if "readers" in entry and "READERS" not in entry:
+                    r = entry["readers"]
+                    entry["READERS"] = int(r) if hasattr(r, "value") else (r or 0)
+                # Components: id, pid, ready → ID, PID, READY
+                if "id" in entry and "ID" not in entry:
+                    entry["ID"] = entry["id"]
+                if "pid" in entry and "PID" not in entry:
+                    entry["PID"] = entry["pid"]
+                if "ready" in entry and "READY" not in entry:
+                    entry["READY"] = entry["ready"]
+                # Functions/threads: comp → OWNER, users → USERS, period → PERIOD, priority → PRIORITY
+                if "comp" in entry and "OWNER" not in entry:
+                    entry["OWNER"] = entry["comp"]
+                if "users" in entry and "USERS" not in entry:
+                    entry["USERS"] = entry["users"]
+                if "period" in entry and "PERIOD" not in entry:
+                    entry["PERIOD"] = entry["period"]
+                if "priority" in entry and "PRIORITY" not in entry:
+                    entry["PRIORITY"] = entry["priority"]
+                normalized.append(entry)
+            return normalized
+        except Exception:
+            return None
+
+    @classmethod
     def _cache_pins(cls):
         """Cache pin info as a dict keyed by name. Falls back to halcmd."""
         if "pins" not in cls._cache:
             raw = cls._try_shm_info("get_info_pins")
+            # Try new query API first (master _hal.so)
+            if raw is None:
+                raw = cls._try_query("pins")
             if raw is not None:
                 indexed = {}
                 for entry in raw:
@@ -241,6 +301,9 @@ class HalApi:
         """Cache param info as a dict keyed by name. Falls back to halcmd."""
         if "params" not in cls._cache:
             raw = cls._try_shm_info("get_info_params")
+            # Try new query API first (master _hal.so)
+            if raw is None:
+                raw = cls._try_query("params")
             if raw is not None:
                 indexed = {}
                 for entry in raw:
@@ -265,6 +328,9 @@ class HalApi:
         """Cache signal info as a dict keyed by name. Falls back to halcmd."""
         if "signals" not in cls._cache:
             raw = cls._try_shm_info("get_info_signals")
+            # Try new query API first (master _hal.so)
+            if raw is None:
+                raw = cls._try_query("signals")
             if raw is not None:
                 indexed = {}
                 for entry in raw:
@@ -336,7 +402,7 @@ class HalApi:
     @classmethod
     def list_components(cls):
         """List components — try SHM first, fall back to halcmd subprocess."""
-        return cls._list_from_info("get_info_components", "comp")
+        return cls._list_from_info("get_info_components", "comps", "comp")
 
     @classmethod
     def list(cls, type_):
@@ -348,18 +414,21 @@ class HalApi:
         elif type_ == "sig":
             return cls.list_signals()
         elif type_ == "comp":
-            return cls._list_from_info("get_info_components", "comp")
+            return cls._list_from_info("get_info_components", "comps", "comp")
         elif type_ == "funct":
-            return cls._list_from_info("get_info_functions", "funct")
+            return cls._list_from_info("get_info_functions", "functs", "funct")
         elif type_ == "thread":
-            return cls._list_from_info("get_info_threads", "thread")
+            return cls._list_from_info("get_info_threads", "threads", "thread")
         else:
             return ""
 
     @classmethod
-    def _list_from_info(cls, method_name, halcmd_type):
+    def _list_from_info(cls, method_name, query_method, halcmd_type):
         """Call an SHM info getter; fall back to halcmd subprocess on older _hal."""
         raw = cls._try_shm_info(method_name)
+        # Try new query API (master _hal.so removed get_info_components/functs/threads)
+        if raw is None:
+            raw = cls._try_query(query_method)
         if raw is not None:
             result = "\n".join(item["NAME"] for item in raw if "NAME" in item)
             return result + "\n" if result else ""
@@ -568,6 +637,8 @@ class HalApi:
                 return "\n".join(lines)
             elif type_ == "comp":
                 items = cls._try_shm_info("get_info_components")
+                if items is None:
+                    items = cls._try_query("comps")
                 entry = next((c for c in (items or []) if c["NAME"] == name), None)
                 if entry is None:
                     raise KeyError(f"Component '{name}' not found")
@@ -578,6 +649,8 @@ class HalApi:
                 )
             elif type_ == "funct":
                 items = cls._try_shm_info("get_info_functions")
+                if items is None:
+                    items = cls._try_query("functs")
                 entry = next((f for f in (items or []) if f["NAME"] == name), None)
                 if entry is None:
                     raise KeyError(f"Function '{name}' not found")
@@ -588,6 +661,8 @@ class HalApi:
                 )
             elif type_ == "thread":
                 items = cls._try_shm_info("get_info_threads")
+                if items is None:
+                    items = cls._try_query("threads")
                 entry = next((t for t in (items or []) if t["NAME"] == name), None)
                 if entry is None:
                     raise KeyError(f"Thread '{name}' not found")
