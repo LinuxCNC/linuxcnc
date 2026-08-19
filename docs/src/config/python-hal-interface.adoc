@@ -157,9 +157,9 @@ System information:
 * `hal.kernel_version` - A string specifying the real-time kernel version if `hal.is_kernelspace` is one.
   Otherwise it specifies `"Not Available"`.
 * `hal.is_rt` - One (1) if the system runs in real-time, otherwise zero (0) *DEPRECATED*:
-  Use xref:python-lcnc_realtime.adoc[`lcnc_realtime.verify()`]
+  Use <<cha:python-lcnc_realtime,`lcnc_realtime.verify()`>>
 * `hal.is_sim` - Inverted `hal.is_rt` *DEPRECATED*:
-  Use xref:python-lcnc_realtime.adoc[`lcnc_realtime.verify()`]
+  Use <<cha:python-lcnc_realtime,`lcnc_realtime.verify()`>>
 
 
 === hal methods
@@ -180,7 +180,7 @@ hal.get_realtime_type() -> hal.RTType::
 Returns the type of the running realtime system.
 Might return `hal.RTType.UNINITIALIZED` if `rtapi_app` is not running.
 See xref:halconstantsrt[realtime type constants].
-See also xref:python-lcnc_realtime.adoc[LinuxCNC Realtime check].
+See also <<cha:python-lcnc_realtime,LinuxCNC Realtime check>>.
 
 hal.component_exists(_name_:string) -> bool::
 Returns a boolean to indicate whether or not the specified component exist at this time.
