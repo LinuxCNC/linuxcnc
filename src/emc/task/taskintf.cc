@@ -813,8 +813,16 @@ int emcJointHome(int joint)
     // Reported with emcOperatorError(), not rcs_print(): an operator typing
     // "G28.2 P5" needs to see it, and only the error channel reaches the GUI.
     if (joint < -1 || joint >= TrajConfig.Joints) {
-	emcOperatorError("Cannot home invalid joint %d (valid: 0..%d, "
-			 "or -1 for all)", joint, TrajConfig.Joints - 1);
+	// Report only what the person reading it can act on: the joints this
+	// machine actually has. The negative sentinels (-1 all, -2 volatile)
+	// are an internal NML convention used by the GUI buttons, halui and
+	// linuxcncrsh; no operator types them, and G-code cannot express them
+	// at all -- convert_home_cycle() refuses a negative P word. Naming
+	// "-1 for all" here told a G28.2 user to try something the
+	// interpreter then rejected (PR #4172, Sigma1912).
+	emcOperatorError("Cannot home invalid joint %d (this machine has "
+			 "joints 0..%d; omit the joint to home them all)",
+			 joint, TrajConfig.Joints - 1);
 	return EMCMOT_COMM_ERROR_COMMAND;
     }
 
@@ -834,8 +842,10 @@ int emcJointUnhome(int joint)
 	// synchronous "no joint in range is still homed" test would then score
 	// that refusal as a *successful* unhome.
 	if (joint < -2 || joint >= TrajConfig.Joints) {
-		emcOperatorError("Cannot unhome invalid joint %d (valid: 0..%d, "
-				 "-1 for all, -2 for volatile)",
+		// See the note in emcJointHome() above on why the internal
+		// sentinels are not offered to the operator here.
+		emcOperatorError("Cannot unhome invalid joint %d (this machine "
+				 "has joints 0..%d)",
 				 joint, TrajConfig.Joints - 1);
 		return EMCMOT_COMM_ERROR_COMMAND;
 	}

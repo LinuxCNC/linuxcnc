@@ -3212,7 +3212,8 @@ int Interp::convert_home_cycle(block_pointer block,
     if (block->p_flag) {
         CHKS(((block->p_number < 0.0) ||
               (block->p_number != round_to_int(block->p_number))),
-             "P value for G28.2 must be a non-negative whole joint number");
+             "P value for G28.2 must be a non-negative whole joint number"
+             " (omit P to home every joint)");
         joint = round_to_int(block->p_number);
     }
 

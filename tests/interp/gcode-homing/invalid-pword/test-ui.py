@@ -130,6 +130,15 @@ for cmd in ("G28.2 P3",):
         fail("{} error does not mention the joint number: {!r}".format(cmd, msgs[0][:120]))
     print("PASS: {} reported {!r}".format(cmd, msgs[0][:90]))
 
+    # The message must not advertise a value the interpreter then refuses.
+    # -1/-2 are the internal NML sentinels (all / volatile) used by the GUI,
+    # halui and linuxcncrsh; a G28.2 P word cannot carry them, so naming them
+    # here sends the operator to a second error (PR #4172, Sigma1912).
+    if "-1" in joined or "-2" in joined:
+        fail("{} error offers a negative sentinel a P word cannot express: "
+             "{!r}".format(cmd, msgs[0][:120]))
+    print("PASS: {} error offers no sentinel the P word cannot express".format(cmd))
+
     if elapsed > 1.5:
         fail("{} took {:.1f}s to be rejected -- it went to motion and sat out "
              "the homing start timeout".format(cmd, elapsed))
@@ -143,6 +152,25 @@ for cmd in ("G28.2 P3",):
              "homing sequencing was not undone, so the GUI is stuck jogging in "
              "joint mode".format(cmd, mode_name(s.motion_mode), mode_name(prior_mode)))
     print("PASS: {} left the trajectory mode untouched ({})".format(cmd, mode_name(s.motion_mode)))
+
+# A negative P word is refused by the interpreter, and the message has to point
+# at the spelling that does what the operator wanted rather than just say no.
+drain_errors()
+c.mdi("G28.2 P-1")
+wait_idle()
+time.sleep(0.3)
+poll()
+msgs = drain_errors()
+joined = " ".join(msgs)
+if not msgs:
+    fail("G28.2 P-1 was accepted silently")
+if "non-negative" not in joined:
+    fail("G28.2 P-1 gave an unexpected error: {!r}".format(msgs[0][:120]))
+if "omit" not in joined.lower():
+    fail("G28.2 P-1 error does not point at the bare form: {!r}".format(msgs[0][:120]))
+print("PASS: G28.2 P-1 refused, and the error names the bare form")
+if list(s.homed[:3]) != [1, 1, 1]:
+    fail("G28.2 P-1 changed the homed state: {}".format(list(s.homed[:3])))
 
 # The same bound applies to an unhome, which since G28.3 was dropped can only
 # arrive as an immediate command -- the GUI's Unhome button, halui,
