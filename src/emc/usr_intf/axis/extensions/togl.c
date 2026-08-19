@@ -14,7 +14,6 @@
 #define X11
 #endif
 
-#include "config.h"
 
 /*** Windows headers ***/
 #if defined(WIN32) && !defined(X11) && !defined(macintosh)

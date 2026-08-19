@@ -26,7 +26,6 @@
 
 #include "pythonplugin/python_plugin.hh"
 #include "taskclass.hh"
-#include <rtapi_string.h>
 
 using namespace linuxcnc;
 

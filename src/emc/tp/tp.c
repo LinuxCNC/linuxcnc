@@ -17,7 +17,6 @@
 #include <motion_types.h>
 #include "../motion/motion.h"
 #include "../motion/mot_priv.h"
-#include "../motion/axis.h"
 #include "tp.h"
 #include "tc.h"
 #include "spherical_arc.h"

@@ -40,7 +40,6 @@ function _;
 
 ;;
 
-#include <rtapi_math.h>
 
 static bool error_msg = 0;
 

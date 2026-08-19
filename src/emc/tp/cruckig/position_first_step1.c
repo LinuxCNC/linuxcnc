@@ -7,7 +7,6 @@
  */
 
 #include "position.h"
-#include "block.h"
 #include "profile.h"
 
 void cruckig_pos1_step1_init(CRuckigPositionFirstOrderStep1 *s,

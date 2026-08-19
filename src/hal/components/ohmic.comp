@@ -65,7 +65,6 @@ option period no;
 function _;
 license "GPL";
 ;;
-#include <rtapi_math.h>
 
 FUNCTION(_) {
     rtapi_real thcad_vel_scale = 1/((thcad_max_volt_freq - thcad_0_volt_freq)/thcad_fullscale/thcad_divide);

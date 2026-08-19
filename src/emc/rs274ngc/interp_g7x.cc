@@ -915,10 +915,8 @@ void g7x::add_distance(double distance) {
 #include <cstring>
 #include <string>
 #include "rs274ngc.hh"
-#include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
-#include "units.h"
 
 class motion_machine:public motion_base {
     Interp *interp;

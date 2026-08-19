@@ -22,7 +22,6 @@
 #include <string.h>
 #include "rtapi.h"
 #include <unistd.h>
-#include <rtapi_errno.h>
 #include "rtapi/uspace_common.h"
 
 

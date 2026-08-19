@@ -49,8 +49,6 @@
 #include "rs274ngc_interp.hh"
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
-#include "config.h"		// LINELEN
-#include "units.h"
 
 int _task = 0; // control preview behaviour when remapping
 

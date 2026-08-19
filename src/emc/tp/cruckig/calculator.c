@@ -8,7 +8,6 @@
 #include "calculator.h"
 #include "position.h"
 #include "velocity.h"
-#include "utils.h"
 
 
 static const double eps = DBL_EPSILON;

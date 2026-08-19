@@ -13,7 +13,6 @@
 * Last change:
 ********************************************************************/
 
-#include "config.h"
 #include <unistd.h>
 #include <stddef.h>
 #include <stdio.h>

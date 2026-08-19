@@ -22,7 +22,6 @@
 #include "tp_debug.h"
 #include "../motion/motion.h"
 #include "../motion/mot_priv.h"
-#include "sp_scurve.h"
 
 /** @section utilityfuncs Utility functions */
 

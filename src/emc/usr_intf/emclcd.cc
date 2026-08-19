@@ -44,7 +44,6 @@
 #include <string.h>
 
 #include <rtapi_string.h>
-#include <linuxcnc.h>
 #include <posemath.h>		// PM_POSE, TO_RAD
 #include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"		// EMC NML

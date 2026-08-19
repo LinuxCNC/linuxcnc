@@ -44,7 +44,6 @@
 #include <hal.h>		/* HAL public API decls */
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
 #define BUFLEN 80		/* length for sprintf buffers */

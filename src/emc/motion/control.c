@@ -31,7 +31,6 @@
 #include "simple_tp.h"
 #include "motion.h"
 #include "mot_priv.h"
-#include "config.h"
 #include "homing.h"
 #include "axis.h"
 #include "../nml_intf/state_tag.h"

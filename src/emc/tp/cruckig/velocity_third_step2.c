@@ -7,7 +7,6 @@
  */
 
 #include "velocity.h"
-#include "block.h"
 #include "profile.h"
 
 /* ---- Internal helper functions ---- */

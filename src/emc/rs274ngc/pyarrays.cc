@@ -31,7 +31,6 @@ namespace bp = boost::python;
 #include "array1.hh"
 
 namespace pp = pyplusplus::containers::static_sized;
-#include "interp_array_types.hh"
 
 
 void export_Arrays()
