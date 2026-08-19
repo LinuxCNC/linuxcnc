@@ -2807,13 +2807,16 @@ class HalshowMain(QMainWindow):
             self._info_label.setText(
                 _('"--noprefs" option set. Settings will not be saved!')
             )
-        bottom_row.addWidget(self._info_label, 1)
+        bottom_row.addWidget(self._info_label)
 
         apply_btn = QPushButton(_("Apply"))
         apply_btn.clicked.connect(self._apply_settings)
         bottom_row.addWidget(apply_btn)
 
         layout.addLayout(bottom_row)
+
+        # Stretch pushes settings to top; empty space goes below
+        layout.addStretch(1)
 
         return f
 
