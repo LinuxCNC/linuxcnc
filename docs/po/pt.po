@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-13 23:52+0000\n"
+"PO-Revision-Date: 2026-08-19 01:52+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
 "Language-Team: none\n"
 "Language: pt\n"
@@ -25621,7 +25621,7 @@ msgstr "Predefinições e Opções"
 #. type: Plain text
 #: src/config/pncconf.adoc:260
 msgid "Require homing before MDI / Running"
-msgstr ""
+msgstr "Requer posicionamento inicial antes de MDI / Correr"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:261
@@ -25629,6 +25629,8 @@ msgid ""
 "If you want to be able to move the machine before homing uncheck this "
 "checkbox."
 msgstr ""
+"Se deseja ser capaz de mover a máquina antes do posicionamento inicial não "
+"selecione esta caixa de verificação."
 
 #. type: Plain text
 #: src/config/pncconf.adoc:262
@@ -25645,7 +25647,7 @@ msgstr ""
 #. type: Plain text
 #: src/config/pncconf.adoc:264
 msgid "Leave spindle on during tool change:"
-msgstr ""
+msgstr "Deixa o fuso ligado durante mudança de ferramenta:"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:265
@@ -25655,17 +25657,17 @@ msgstr "Usado para tornos"
 #. type: Plain text
 #: src/config/pncconf.adoc:266
 msgid "Force individual manual homing"
-msgstr ""
+msgstr "Força posicionamento inicial manual e individual"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:267
 msgid "Move spindle up before tool change"
-msgstr ""
+msgstr "Move o fuso para cima antes da mudança de ferramenta"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:268
 msgid "Restore joint position after shutdown"
-msgstr ""
+msgstr "Restaura posição de articulação após encerramento"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:269
@@ -25675,7 +25677,7 @@ msgstr ""
 #. type: Plain text
 #: src/config/pncconf.adoc:270
 msgid "Random position tool changers"
-msgstr ""
+msgstr "Mudanças de ferramenta em posição aleatória"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:271
@@ -25683,6 +25685,9 @@ msgid ""
 "Used for tool changers that do not return the tool to the same pocket. You "
 "will need to add custom HAL code to support tool changers."
 msgstr ""
+"Usado para trocadores de ferramenta que não retornam a ferramenta ao mesmo "
+"bolso, Você vai precisar adicionar código HAL personalizado para suportar "
+"trocadores de ferramenta."
 
 #. type: Title ==
 #: src/config/pncconf.adoc:272
@@ -25702,13 +25707,13 @@ msgstr ""
 #: src/config/pncconf.adoc:277 src/config/pncconf.adoc:278
 #, no-wrap
 msgid "Mesa Board Configuration"
-msgstr ""
+msgstr "Configuração da Placa Mesa"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:278
 #, no-wrap
 msgid "images/pncconf-mesa-config.png"
-msgstr ""
+msgstr "images/pncconf-mesa-config.png"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:284
@@ -25723,7 +25728,7 @@ msgstr ""
 #. type: NOTE
 #: src/config/pncconf.adoc:287
 msgid "Many PCI cards do not support the EPP protocol properly."
-msgstr ""
+msgstr "Muitas placas PCI não suportam o protocolo EPP de modo apropriado."
 
 #. type: NOTE
 #: src/config/pncconf.adoc:290
@@ -25738,6 +25743,7 @@ msgstr ""
 msgid ""
 "It's important to follow these to avoid damage and get the best performance."
 msgstr ""
+"É importante seguir estes para evitar danos e obter o melhor desempenho."
 
 #. type: delimited block .
 #: src/config/pncconf.adoc:300
@@ -25749,12 +25755,17 @@ msgid ""
 "The 7i40 requires PWM and a PWM base frequency of 50 kHz\n"
 "The 7i48 requires UDM and a PWM base frequency of 24 kHz\n"
 msgstr ""
+"O 7i33 requer PDM e uma frequência base PDM de 6 MHz\n"
+"O 7i29 requer PWM e uma frequência base PWM de 20 kHz\n"
+"O 7i30 requer PWM e uma frequência base PWM de 20 kHz\n"
+"O 7i40 requer PWM e uma frequência base PWM de 50 kHz\n"
+"O 7i48 requer UDM e uma frequência base PWM de 24 kHz\n"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:302
 #, no-wrap
 msgid "Watchdog time out"
-msgstr ""
+msgstr "Tempo limite do Watchdog"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:305
@@ -25808,7 +25819,7 @@ msgstr ""
 #: src/config/pncconf.adoc:321
 #, no-wrap
 msgid "Mesa I/O Setup"
-msgstr ""
+msgstr "Configuração I/O de Mesa"
 
 #. type: Plain text
 #: src/config/pncconf.adoc:325
@@ -25822,7 +25833,7 @@ msgstr ""
 #: src/config/pncconf.adoc:326 src/config/pncconf.adoc:327
 #, no-wrap
 msgid "Mesa I/O C2 Setup"
-msgstr ""
+msgstr "Configuração C2 de I/O de Mesa"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:327
@@ -25843,7 +25854,7 @@ msgstr ""
 #: src/config/pncconf.adoc:334 src/config/pncconf.adoc:335
 #, no-wrap
 msgid "Mesa I/O C3 Setup"
-msgstr ""
+msgstr "Configuração C3 de I/O de Mesa"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:335
@@ -25863,7 +25874,7 @@ msgstr ""
 #: src/config/pncconf.adoc:341 src/config/pncconf.adoc:342
 #, no-wrap
 msgid "Mesa I/O C4 Setup"
-msgstr ""
+msgstr "Configuração C4 de I/O de Mesa"
 
 #. type: Target for macro image
 #: src/config/pncconf.adoc:342
@@ -26176,27 +26187,27 @@ msgstr ""
 #: src/config/pncconf.adoc:463
 #, no-wrap
 msgid "On a typical knee or bed mill"
-msgstr ""
+msgstr "Numa máquina joelho ou fresa de cama típica"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:465
 msgid "when the TABLE moves out that is the positive Y direction"
-msgstr ""
+msgstr "quando a MESA se move para fora isso é a direção Y positiva"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:466
 msgid "when the TABLE moves left that is the positive X direction"
-msgstr ""
+msgstr "quando a MESA se move para a esquerda isso é a direção X positiva"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:467
 msgid "when the TABLE moves down that is the positive Z direction"
-msgstr ""
+msgstr "quando a MESA se move para baixo isso é a direção Z positiva"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:468
 msgid "when the HEAD moves up that is the positive Z direction"
-msgstr ""
+msgstr "quando a CABEÇA se move para cima isso é a direção Z positiva"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:469
@@ -26207,17 +26218,17 @@ msgstr "Num torno típico"
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:471
 msgid "when the TOOL moves right, away from the chuck"
-msgstr ""
+msgstr "quando a FERRAMENTA se move para a direita, afastando-se da bucha"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:472
 msgid "that is the positive Z direction"
-msgstr ""
+msgstr "isso é a direção Z positiva"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:473
 msgid "when the TOOL moves toward the operator"
-msgstr ""
+msgstr "quando a FERRAMENTA se move em direção ao operador"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:476
@@ -26265,7 +26276,7 @@ msgstr ""
 #: src/config/pncconf.adoc:504
 #, no-wrap
 msgid "Decide on the home switch location"
-msgstr ""
+msgstr "Decidir a localização do interruptor de posição inicial"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:516
@@ -26284,7 +26295,7 @@ msgstr ""
 #: src/config/pncconf.adoc:517
 #, no-wrap
 msgid "Decide on the MACHINE ORIGIN position"
-msgstr ""
+msgstr "Decidir a localização ORIGEM MÁQUINA"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:527
@@ -26301,7 +26312,7 @@ msgstr ""
 #: src/config/pncconf.adoc:528
 #, no-wrap
 msgid "Decide on the (final) HOME POSITION"
-msgstr ""
+msgstr "Decidir a POSIÇÃO INICIAL (final)"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:532
@@ -26309,12 +26320,14 @@ msgid ""
 "this just places the carriage at a consistent and convenient position after "
 "LinuxCNC figures out where the ORIGIN is."
 msgstr ""
+"isto apenas posiciona o carrinho numa posição consistente e conveniente após "
+"o LinuxCNC perceber onde a ORIGEM fica."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:533
 #, no-wrap
 msgid "Measure / calculate the positive / negative axis travel distances"
-msgstr ""
+msgstr "Mede / calcula as distâncias de viagem do eixo positivas / negativas"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:541
@@ -26432,6 +26445,8 @@ msgstr "Velocidade de Busca da Posição Inicial"
 #: src/config/pncconf.adoc:600
 msgid "Course home search velocity in units per minute."
 msgstr ""
+"Velocidade de busca do curso de posicionamento inicial em unidades por "
+"minuto."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:601
@@ -26456,6 +26471,7 @@ msgstr "Velocidade de Fecho da Posição Inicial"
 #: src/config/pncconf.adoc:608
 msgid "Fine Home search velocity in units per minute."
 msgstr ""
+"Velocidade de busca da Afinação da Posição inicial em unidades por minuto."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:609
@@ -26482,6 +26498,7 @@ msgid ""
 "Allows setting of the latch direction to the same or opposite of the search "
 "direction."
 msgstr ""
+"Permite definir a direção de fecho para a mesma ou oposta à direção de busca."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:617
@@ -26576,6 +26593,8 @@ msgid ""
 "Many of the option on this page will not show unless the proper option was "
 "selected on previous pages!"
 msgstr ""
+"Muitas das opções nesta página não vão aparecer a menos que a opção "
+"apropriada tenha sido selecionada em páginas anteriores!"
 
 #. type: Block title
 #: src/config/pncconf.adoc:654
@@ -26807,7 +26826,7 @@ msgstr ""
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:754
 msgid "Encoders will add < customname > +:"
-msgstr ""
+msgstr "Codificadores vão adicionar < customname > +:"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:756 src/man/man3/hal_add_funct_to_thread.3.adoc:23
@@ -26840,7 +26859,7 @@ msgstr "reiniciar"
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:762
 msgid "Steppers add:"
-msgstr ""
+msgstr "O Steppers adiciona:"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:764 src/config/pncconf.adoc:772
@@ -26855,22 +26874,22 @@ msgstr "contagens"
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:766
 msgid "position-cmd"
-msgstr ""
+msgstr "posição-comandada"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:767
 msgid "position-fb"
-msgstr ""
+msgstr "posição-feedback"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:768
 msgid "velocity-fb"
-msgstr ""
+msgstr "velocidade-feedback"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:770
 msgid "PWM add:"
-msgstr ""
+msgstr "O PWM adiciona:"
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:773 src/gui/gladevcp.adoc:833
@@ -26882,7 +26901,7 @@ msgstr "valor"
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:775
 msgid "GPIO pins will just have the entered signal name connected to it"
-msgstr ""
+msgstr "Os pinos GPIO vão apenas ter o nome do sinal inserido ligado a ele"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:778
@@ -26897,6 +26916,8 @@ msgid ""
 "The HAL Components page can be used to load components needed by a user for "
 "customization."
 msgstr ""
+"A página de Componentes HAL pode ser usada para carrega componentes "
+"necessários por um utilizador para personalização."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:784
@@ -26932,6 +26953,9 @@ msgid ""
 "Ask on the LinuxCNC mail-list or forum for info about converting custom "
 "firmware.  Not all firmware can be utilized with PnCconf."
 msgstr ""
+"Pergunte na lista de mail ou fórum do LinuxCNC por informação sobre "
+"converter firmware personalizado.  Nem todo o firmware pode ser utilizado "
+"com PnCconf."
 
 #. type: Labeled list
 #: src/config/pncconf.adoc:802
@@ -26943,6 +26967,8 @@ msgstr "Ficheiros HAL Personalizados"
 #: src/config/pncconf.adoc:805
 msgid "There are four custom files that you can use to add HAL commands to:"
 msgstr ""
+"Existem quatro ficheiros personalizados que pode usar para adicionar "
+"comandos HAL a:"
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:808
@@ -26950,6 +26976,8 @@ msgid ""
 "custom.hal is for HAL commands that don't have to be run after the GUI "
 "frontend loads. It is run after the configuration-named HAL file."
 msgstr ""
+"custom.hal é para comandos HAL que não têm de correr após o frontend GUI "
+"carregar. E corrido após o ficheiro HAL de nomeado-pela-configuração."
 
 #. type: IMPORTANT
 #: src/config/pncconf.adoc:810
@@ -27030,6 +27058,12 @@ msgid ""
 "The component itself is created by a call to the constructor `hal.component`. The arguments are the HAL component name and (optionally) the prefix used for pin and parameter names. If the prefix is not specified, the component name is used.\n"
 ".Example"
 msgstr ""
+"+\n"
+"O próprio componente é criado por uma chamada ao construtor `hal.component`. "
+"Os argumentos são o nome do componente HAL (opcional) o prefixo usado para "
+"pino e nomes de parâmetro. Se o prefixo não for especificado, é usado o nome "
+"do componente.\n"
+".Exemplo"
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:40 src/hal/halmodule.adoc:72
@@ -27052,6 +27086,12 @@ msgid ""
 "Arguments: pin name suffix, pin type, and pin direction. For parameters, the arguments are: parameter name suffix, parameter type, and parameter direction.\n"
 ".Example:"
 msgstr ""
+"+\n"
+"Cria um novo pino.\n"
+"Argumentos: sufixo do nome do pino, tipo de pino, e direção do pino. Para "
+"parâmetros, os argumentos são: sufixo de nome do parâmetro, tipo de "
+"parâmetro, e direção de parâmetro.\n"
+".Exemplo:"
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:51 src/hal/halmodule.adoc:81
@@ -27070,6 +27110,8 @@ msgstr "*ready* "
 msgid ""
 "Tells the HAL system the component is initialized. Locks out adding pins."
 msgstr ""
+"Diz ao sistema HAL que o componente está inicializado. Tranca a adição de "
+"pinos."
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:57
@@ -27083,6 +27125,8 @@ msgid ""
 "Allows a component to add pins after 'ready()' has been called.  One should "
 "call 'ready()' on the component after."
 msgstr ""
+"Permite a um componente adicionar pinos após 'ready()' ter sido chamado.  "
+"Deve-se chamar 'ready()' no componente após isto."
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:61
@@ -27093,7 +27137,7 @@ msgstr "*component_exists* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:63
 msgid "Does the specified component exist at this time."
-msgstr ""
+msgstr "Se o componente especificado existe neste momento."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:67
@@ -27110,13 +27154,13 @@ msgstr "*component_is_ready* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:71
 msgid "Is the specified component ready at this time."
-msgstr ""
+msgstr "Se está o componente especificado pronto neste momento."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:75
 #, no-wrap
 msgid "hal.component_is_ready(\"testpanel\")\n"
-msgstr ""
+msgstr "hal.component_is_ready(\"testpanel\")\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:77
@@ -27127,7 +27171,7 @@ msgstr "*get_msg_level* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:79
 msgid "Get the current Realtime msg level."
-msgstr ""
+msgstr "Obtém o nível msg de Tempo real atual."
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:80
@@ -27139,6 +27183,7 @@ msgstr "*set_msg_level* "
 #: src/config/python-hal-interface.adoc:83
 msgid "Set the current Realtime msg level.  used for debugging information."
 msgstr ""
+"Define o nível msg de Tempo real atual.  usado para informação de depuração."
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:84
@@ -27166,7 +27211,7 @@ msgstr "*disconnect* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:94
 msgid "Disconnect a pin from a signal."
-msgstr ""
+msgstr "Desliga um pino de um sinal."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:98
@@ -27183,13 +27228,13 @@ msgstr "*get_value* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:102
 msgid "Read a pin, param, or signal directly."
-msgstr ""
+msgstr "Ler um pino, parâmetro, ou sinal diretamente."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:107
 #, no-wrap
 msgid "value = hal.get_value(\"iocontrol.0.emc-enable-in\")\n"
-msgstr ""
+msgstr "value = hal.get_value(\"iocontrol.0.emc-enable-in\")\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:109
@@ -27200,7 +27245,7 @@ msgstr "*get_info_pins()* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:111
 msgid "Returns a list of dicts of all system pins."
-msgstr ""
+msgstr "Retorna uma lista de dicts de todos os pinos do sistema."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:119
@@ -27212,6 +27257,11 @@ msgid ""
 "pinType1 = listOfDicts[0].get('TYPE')\n"
 "pinDirection1 = listOfDicts[0].get('DIRECTION')\n"
 msgstr ""
+"listOfDicts = hal.get_info_pins()\n"
+"pinName1 = listOfDicts[0].get('NOME')\n"
+"pinValue1 = listOfDicts[0].get('VALOR')\n"
+"pinType1 = listOfDicts[0].get('TIPO')\n"
+"pinDirection1 = listOfDicts[0].get('DIREÇÃO')\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:121
@@ -27222,7 +27272,7 @@ msgstr "*get_info_signals()* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:123
 msgid "Returns a list of dicts of all system signals."
-msgstr ""
+msgstr "Retorna uma lista de dicts de todos os sinais do sistema."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:130
@@ -27233,6 +27283,10 @@ msgid ""
 "signalValue1 = listOfDicts[0].get('VALUE')\n"
 "driverPin1 = listOfDicts[0].get('DRIVER')\n"
 msgstr ""
+"listOfDicts = hal.get_info_signals()\n"
+"signalName1 = listOfDicts[0].get('NOME')\n"
+"signalValue1 = listOfDicts[0].get('VALOR')\n"
+"driverPin1 = listOfDicts[0].get('DRIVER')\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:132
@@ -27243,7 +27297,7 @@ msgstr "*get_info_params()* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:134
 msgid "Returns a list of dicts of all system parameters."
-msgstr ""
+msgstr "Retorna uma lista de dicts de todos os parâmetros do sistema."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:141
@@ -27254,6 +27308,10 @@ msgid ""
 "paramValue1 = listOfDicts[0].get('VALUE')\n"
 "paramDirection1 = listOfDicts[0].get('DIRECTION')\n"
 msgstr ""
+"listOfDicts = hal.get_info_params()\n"
+"paramName1 = listOfDicts[0].get('NOME')\n"
+"paramValue1 = listOfDicts[0].get('VALOR')\n"
+"paramDirection1 = listOfDicts[0].get('DIREÇÃO')\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:143
@@ -27264,13 +27322,13 @@ msgstr "*new_sig* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:145
 msgid "Create a new signal of the type specified."
-msgstr ""
+msgstr "Cria um novo sinal do tipo especificado."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:150
 #, no-wrap
 msgid "hal.new_sig(\"signalname\",hal.HAL_BIT)\n"
-msgstr ""
+msgstr "hal.new_sig(\"nome-sinal\",hal.HAL_BIT)\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:152
@@ -27285,6 +27343,8 @@ msgid ""
 "Does the specified pin have a driving pin connected.\n"
 "Returns True or False."
 msgstr ""
+"Se o pino especificado tem um pino de controlador ligado.\n"
+"Retorna True ou False."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:158
@@ -27305,6 +27365,8 @@ msgid ""
 "Get the HAL object name.\n"
 "Return a string."
 msgstr ""
+"Obtém o nome do objeto HAL.\n"
+"Retorna uma string."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:166
@@ -27325,6 +27387,8 @@ msgid ""
 "Get the HAL object's type.\n"
 "Returns an integer."
 msgstr ""
+"Obtém o tipo de objeto HAL.\n"
+"Retorna um inteiro."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:174
@@ -27345,6 +27409,8 @@ msgid ""
 "Get the HAL object direction type.\n"
 "Returns an integer."
 msgstr ""
+"Obtém o tipo de direção do objeto HAL.\n"
+"Retorna um inteiro."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:182
@@ -27361,7 +27427,7 @@ msgstr "*get* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:186
 msgid "Get the HAL object value."
-msgstr ""
+msgstr "Obtém o valor do objeto HAL."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:189
@@ -27399,6 +27465,8 @@ msgid ""
 "Is the object a pin or parameter?\n"
 "Returns True or False."
 msgstr ""
+"O objeto é um pino ou um parâmetro?\n"
+"Retorna True ou False."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:204
@@ -27419,7 +27487,7 @@ msgstr "*sampler_base* "
 #: src/config/python-hal-interface.adoc:214 src/gui/qtvcp-widgets.adoc:1951
 #, no-wrap
 msgid "TODO"
-msgstr ""
+msgstr "A FAZER"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:209
@@ -27442,13 +27510,13 @@ msgstr "*set_p* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:217
 msgid "Set a pin value of any pin in the HAL system."
-msgstr ""
+msgstr "Definir um valor de pino em qualquer pino no sistema HAL."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:221
 #, no-wrap
 msgid "hal.set_p(\"pinname\",\"10\")\n"
-msgstr ""
+msgstr "hal.set_p(\"pinname\",\"10\")\n"
 
 #. type: Labeled list
 #: src/config/python-hal-interface.adoc:223
@@ -27459,13 +27527,13 @@ msgstr "*set_s* "
 #. type: Plain text
 #: src/config/python-hal-interface.adoc:225
 msgid "Set the value of any unconnected signal in the HAL system."
-msgstr ""
+msgstr "Definir o valor de qualquer sinal desligado no sistema HAL."
 
 #. type: delimited block -
 #: src/config/python-hal-interface.adoc:229
 #, no-wrap
 msgid "hal.set_s(\"signalname\",\"10\")\n"
-msgstr ""
+msgstr "hal.set_s(\"signalname\",\"10\")\n"
 
 #. type: Title =
 #: src/config/python-interface.adoc:5
@@ -27479,6 +27547,8 @@ msgid ""
 "This documentation describes the `linuxcnc` python module, which provides a "
 "Python API for talking to LinuxCNC."
 msgstr ""
+"Esta documentação descreve o módulo python do `linuxcnc`, que fornece uma "
+"API Python para falar com o LinuxCNC."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:21
@@ -27487,6 +27557,10 @@ msgid ""
 "LinuxCNC task controller, and monitor results by observing the LinuxCNC "
 "status structure, as well as the error reporting channel."
 msgstr ""
+"As interfaces de utilizador controlam a atividade do LinuxCNC ao enviar "
+"mensagens NML para o controlador de tarefa do LinuxCNC, e monitorizam os "
+"resultados ao observar a estrutura de estado do LinuxCNC, assim como o canal "
+"de reporte de erros."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:25
@@ -27495,6 +27569,9 @@ msgid ""
 "parts of the NML interface to LinuxCNC are also available to Python programs "
 "through the `linuxcnc` module."
 msgstr ""
+"O acesso programático ao NML é feito através duma API de C++; no entanto, as "
+"partes mais importantes da interface NML para LinuxCNC estão também "
+"disponíveis a programas Python através do módulo `linuxcnc`."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:27
@@ -27502,11 +27579,13 @@ msgid ""
 "Beyond the NML interface to the command, status and error channels, the "
 "`linuxcnc` module also contains:"
 msgstr ""
+"Para além da interface NML para o comando, canais de estado e erro, o módulo "
+"`linuxcnc` também contém:"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:29
 msgid "support for reading values from INI files"
-msgstr ""
+msgstr "suporte para leitura de valores a partir de ficheiros INI"
 
 #. FIXME
 #. - support for position logging  (???)
@@ -27514,12 +27593,12 @@ msgstr ""
 #: src/config/python-interface.adoc:35
 #, no-wrap
 msgid "Usage Patterns for the LinuxCNC NML interface"
-msgstr ""
+msgstr "Padrões de Utilização para a interface NML do LinuxCNC"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:38
 msgid "The general pattern for `linuxcnc` usage is roughly like this:"
-msgstr ""
+msgstr "O padrão geral para utilização do `linuxcnc` é esboçado como isto:"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:40
@@ -27532,11 +27611,12 @@ msgid ""
 "Establish connections to the command, status and error NML channels as "
 "needed."
 msgstr ""
+"Estabelece ligações ao comando, canais NML de estado e erro como necessário."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:42 src/config/python-interface.adoc:49
 msgid "Poll the status channel, either periodically or as needed."
-msgstr ""
+msgstr "Faz poll ao canal de estado, seja periodicamente ou quando necessário."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:44
@@ -27545,12 +27625,16 @@ msgid ""
 "do so (for instance, there is no point in sending a 'Run' command if task is "
 "in the ESTOP state, or the interpreter is not idle)."
 msgstr ""
+"Antes de enviar um comando, determina a partir do estado se é de facto OK de "
+"o fazer (por exemplo, não tem sentido enviar um comando de \"Correr\" se a "
+"tarefa estiver no estado ESTOP, ou se o interpretador não estiver preparado)."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:45
 msgid ""
 "Send the command by using one of the `linuxcnc` command channel methods."
 msgstr ""
+"Envia o comando ao usar um dos métodos de canal de comando do `linuxcnc`."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:47
@@ -27558,6 +27642,8 @@ msgid ""
 "To retrieve messages from the error channel, poll the error channel "
 "periodically, and process any messages retrieved."
 msgstr ""
+"Para recuperar mensagens do canal de erro, faz poll ao canal de erros "
+"periodicamente, e processa quaisquer mensagens recuperadas."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:50
@@ -27570,12 +27656,14 @@ msgid ""
 "The module `linuxcnc` also defines the `error` Python exception type to "
 "support error reporting."
 msgstr ""
+"O módulo `linuxcnc` também define o tipo de exceção Python `error` para "
+"suportar reporte de erros."
 
 #. type: Title ==
 #: src/config/python-interface.adoc:53
 #, no-wrap
 msgid "Reading LinuxCNC status with the linuxcnc Python module"
-msgstr ""
+msgstr "Ler o estado do LinuxCNC com o módulo Python do linuxcnc"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:57
@@ -27584,6 +27672,9 @@ msgid ""
 "object which contains some 80+ values (run while LinuxCNC is running for "
 "typical values):"
 msgstr ""
+"Aqui está um fragmento Python para explorar o conteúdo do objeto "
+"`linuxcnc.stat` que contem alguns 80+ valores (corre enquanto o LinuxCNC "
+"está a correr para valores típicos):"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:73
@@ -27603,6 +27694,19 @@ msgid ""
 "    if not x.startswith(\"_\"):\n"
 "        print(x, getattr(s,x))\n"
 msgstr ""
+"#!/usr/bin/env python3\n"
+"# -*- coding: utf-8 -*-\n"
+"import sys\n"
+"import linuxcnc\n"
+"try:\n"
+"    s = linuxcnc.stat() # cria uma ligação ao canal de estado\n"
+"    s.poll() # obtém valores atuais\n"
+"except linuxcnc.error, detail:\n"
+"    print(\"error\", detail)\n"
+"    sys.exit(1)\n"
+"for x in dir(s):\n"
+"    if not x.startswith(\"_\"):\n"
+"        print(x, getattr(s,x))\n"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:77
@@ -27611,6 +27715,9 @@ msgid ""
 "configuration file unless overridden, see <<python:reading-ini-"
 "values,ReadingINI file values>> for an example."
 msgstr ""
+"O módulo linuxcnc usa o caminho compilado predefinido para o ficheiro de "
+"configuração NML a menos que seja sobreposto, veja <<python:reading-ini-"
+"values,Ler valores do ficheiro INI>> para um exemplo."
 
 #. type: Title ===
 #: src/config/python-interface.adoc:78
@@ -27642,7 +27749,7 @@ msgstr "*active_queue*"
 #. type: Plain text
 #: src/config/python-interface.adoc:85
 msgid "'(returns integer)' - number of motions blending."
-msgstr ""
+msgstr "'(retorna inteiro)' - número de movimentos misturados."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:86
@@ -27656,6 +27763,8 @@ msgid ""
 "'(returns tuple of floats)' - current trajectory position, (x y z a b c u v "
 "w) in machine units."
 msgstr ""
+"'(retorna tuple de floats)' - posição de trajetória atual, (x y z a b c u v "
+"w) em unidades máquina."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:89
@@ -27667,6 +27776,8 @@ msgstr "*adaptive_feed_enabled*"
 #: src/config/python-interface.adoc:91
 msgid "'(returns boolean)' - status of adaptive feedrate override (0/1)."
 msgstr ""
+"'(retorna booleano)' - estado da sobreposição de taxa de alimentação "
+"adaptativa (0/1)."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:92
@@ -27749,6 +27860,9 @@ msgid ""
 "`[TRAJ]COORDINATES` in the INI file.  Returns the sum of the axes X=1, Y=2, "
 "Z=4, A=8, B=16, C=32, U=64, V=128, W=256."
 msgstr ""
+"'(retorna inteiro)' - máscara de eixos disponíveis como definido por "
+"`[TRAJ]COORDINATES` no ficheiro INI.  Retorna o somatório dos eixos X=1, "
+"Y=2, Z=4, A=8, B=16, C=32, U=64, V=128, W=256."
 
 #. type: Block title
 #: src/config/python-interface.adoc:111 src/gui/panelui.adoc:319
@@ -27773,6 +27887,8 @@ msgid ""
 "'(returns integer)'` - current subroutine depth. - 0 if not in a subroutine, "
 "depth if not otherwise specified."
 msgstr ""
+"'(retorna inteiro)'` - profundidade de sub-rotina atual. - 0 se não for uma "
+"sub-rotina, profundidade se não especificada caso contrário."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:117
@@ -27806,6 +27922,7 @@ msgstr "*current_vel*"
 #: src/config/python-interface.adoc:125
 msgid "'(returns float)' - current velocity in user units per second."
 msgstr ""
+"'(retorna float)' - velocidade atual em unidades de utilizador por segundo."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:126
@@ -27839,6 +27956,7 @@ msgstr "*delay_left*"
 #: src/config/python-interface.adoc:134
 msgid "'(returns float)' - remaining time on dwell (G4) command, seconds."
 msgstr ""
+"'(retorna float)' - tempo restante no comando G4 de permanência, segundos."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:135
@@ -27865,6 +27983,8 @@ msgid ""
 "'(returns float)' - remaining distance of current move, as reported by "
 "trajectory planner."
 msgstr ""
+"'(retorna float)' - distância restante do movimento atual, como reportado "
+"pelo planeador de trajetória."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:141
@@ -27876,7 +27996,7 @@ msgstr "*dout*"
 #: src/config/python-interface.adoc:143
 msgid ""
 "'(returns tuple of integers)' - current value of the digital output pins."
-msgstr ""
+msgstr "'(retorna tuple de inteiros)' - valor atual dos pinos de saída digital."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:144
@@ -28587,7 +28707,7 @@ msgstr "*rotation_xy*"
 #. type: Plain text
 #: src/config/python-interface.adoc:323
 msgid "'(returns float)' - current XY rotation angle around Z axis."
-msgstr ""
+msgstr "'(retorna float)' - ângulo de rotação XY atual em redor do eixo Z."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:324
@@ -28606,6 +28726,12 @@ msgid ""
 "settings[3] = `G64 P` blend tolerance,\n"
 "settings[4] = `G64 Q` naive CAM tolerance."
 msgstr ""
+"'(retorna tuple de floats)' - definições atuais do interpretador:\n"
+"settings[0] = número de sequência,\n"
+"settings[1] = taxa de alimentação,\n"
+"settings[2] = velocidade,\n"
+"settings[3] = `G64 P` tolerância de mistura,\n"
+"settings[4] = `G64 Q` tolerância CAM ingénua."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:332
@@ -28619,6 +28745,8 @@ msgid ""
 "' (returns tuple of dicts) ' - returns the current spindle status, see "
 "<<sec:the-spindle-dictionary, The spindle dictionary>>."
 msgstr ""
+"' (retorna tuple de dicts) ' - retorna o estado atual do fuso, veja "
+"<<sec:the-spindle-dictionary, O dicionário do fuso>>."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:336
@@ -28632,6 +28760,7 @@ msgid ""
 "'(returns integer)' - number of spindles. Reflects `[TRAJ]SPINDLES` INI "
 "value."
 msgstr ""
+"'(retorna inteiro)' - número de fusos. Reflete o valor INI `[TRAJ]SPINDLES`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:339
@@ -28645,6 +28774,8 @@ msgid ""
 "'(returns integer)' - current command execution status. One of `RCS_DONE`, "
 "`RCS_EXEC`, `RCS_ERROR`."
 msgstr ""
+"'(retorna inteiro)' - estado de execução do comando atual. Um de `RCS_DONE`, "
+"`RCS_EXEC`, `RCS_ERROR`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:342
@@ -28658,6 +28789,8 @@ msgid ""
 "'(returns integer)' - current task mode. One of `MODE_MDI`, `MODE_AUTO`, "
 "`MODE_MANUAL`."
 msgstr ""
+"'(retorna inteiro)' - modo de tarefa atual. Um de `MODE_MDI`, `MODE_AUTO`, "
+"`MODE_MANUAL`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:345
@@ -28682,6 +28815,8 @@ msgid ""
 "'(returns integer)' - current task state. One of `STATE_ESTOP`, "
 "`STATE_ESTOP_RESET`, `STATE_ON`, `STATE_OFF`."
 msgstr ""
+"'(retorna inteiro)' - estado de tarefa atual. Um de `STATE_ESTOP`, "
+"`STATE_ESTOP_RESET`, `STATE_ON`, `STATE_OFF`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:351
@@ -28692,7 +28827,7 @@ msgstr "*tool_in_spindle*"
 #. type: Plain text
 #: src/config/python-interface.adoc:353
 msgid "'(returns integer)' - current tool number."
-msgstr ""
+msgstr "'(retorna inteiro)' - número de ferramenta atual."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:354
@@ -28706,6 +28841,8 @@ msgid ""
 "'(returns integer)' - pocket number for the currently loaded tool (0 if no "
 "tool loaded)."
 msgstr ""
+"'(retorna inteiro)' - número de bolso para a ferramenta carregada atual (0 "
+"se nenhuma ferramenta carregada)."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:357 src/man/man1/linuxcncrsh.1.adoc:279
@@ -28716,7 +28853,7 @@ msgstr "*tool_offset*"
 #. type: Plain text
 #: src/config/python-interface.adoc:359
 msgid "'(returns tuple of floats)' - offset values of the current tool."
-msgstr ""
+msgstr "'(retorna tuple de floats)' - valores de desvio da ferramenta atual."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:360
@@ -28733,6 +28870,11 @@ msgid ""
 "backangle, orientation. The id and orientation are integers and the rest are "
 "floats."
 msgstr ""
+"'(retornas tuple de resultados_de_ferramenta)' - lista de entradas de "
+"ferramenta. Cada entrada é uma sequência dos seguintes campos: id, xoffset, "
+"yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset, woffset, "
+"diameter, frontangle, backangle, orientation. o id e orientation são "
+"inteiros e o restantes são floats."
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:377
@@ -28774,6 +28916,13 @@ msgid ""
 "'(returns dict of tooldata for toolno)' - An initial stat.poll() is required to initialize. _toolno_ must be greater than zero and less than or equal to the highest tool number in use. Dictionary items include all tooldata items: 'toolno', 'pocketno', 'diameter','frontangle','backangle','orientation', 'xoffset','yoffset', ...  'woffset', 'comment'.\n"
 "As an example, the following script"
 msgstr ""
+"'(retorna dict de dados de ferramenta para toolno)' - Um stat.poll() inicial "
+"é requerido para inicializar.  _toolno_ tem de ser maior que zero e menor ou "
+"igual ao número de ferramenta mais alto em uso. Os items de dicionário "
+"incluem todos os items de dados de ferramenta: 'toolno', 'pocketno', "
+"'diameter','frontangle','backangle','orientation', 'xoffset','yoffset', ...  "
+"'woffset', 'comment'.\n"
+"Como um exemplo, o seguinte script"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:395
@@ -28799,7 +28948,7 @@ msgstr ""
 #: src/config/python-interface.adoc:397
 #, no-wrap
 msgid "  produces the output:\n"
-msgstr ""
+msgstr "  produz o resultado:\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:399
@@ -28823,6 +28972,8 @@ msgid ""
 "'(returns float)' - This property is defined, but it does not have a useful "
 "interpretation."
 msgstr ""
+"'(retorna float)' - Esta propriedade está definida, mas não tem uma "
+"interpretação útil."
 
 #. type: Title ===
 #: src/config/python-interface.adoc:406
@@ -28840,6 +28991,12 @@ msgid ""
 "kinematics machines these items (such as backlash) are not the properties of "
 "an axis."
 msgstr ""
+"Esta configuração de eixo e valores de estados estão disponíveis através "
+"duma lista de dicionários por eixo.  Aqui está um exemplo de como aceder a "
+"um atributo de um eixo particular: Note que muitas propriedades que estavam "
+"antes no dicionário `axis` de eixo estão agora no dicionário `joint` de "
+"articulação, porque em máquinas de cinemática não trivial, estes item (como "
+"a reação adversa) não são propriedades do eixo."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:414 src/config/python-interface.adoc:476
@@ -28853,6 +29010,9 @@ msgid ""
 "'(returns float)' - maximum limit (soft limit) for axis motion, in machine "
 "units.configuration parameter, reflects `[JOINT___n__]MAX_LIMIT`."
 msgstr ""
+"'(retorna float)' - limite máximo (limite de software) para movimento de "
+"eixo, em unidades máquina. parâmetro de configuração, reflete "
+"`[JOINT___n__]MAX_LIMIT`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:418 src/config/python-interface.adoc:489
@@ -28866,6 +29026,9 @@ msgid ""
 "'(returns float)' - minimum limit (soft limit) for axis motion, in machine "
 "units.configuration parameter, reflects `[JOINT___n__]MIN_LIMIT`."
 msgstr ""
+"'(retorna float)' - limite mínimo (limite de software) para movimento de "
+"eixo, em unidades máquina. parâmetro de configuração, reflete "
+"`[JOINT___n__]MIN_LIMIT`."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:423 src/config/python-interface.adoc:509
@@ -28920,7 +29083,7 @@ msgstr ""
 #. type: Plain text
 #: src/config/python-interface.adoc:444
 msgid "'(returns integer)' - non-zero means enabled."
-msgstr ""
+msgstr "'(retorna inteiro)' - não-zero significa ativado."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:445
@@ -28931,7 +29094,7 @@ msgstr "*fault*"
 #. type: Plain text
 #: src/config/python-interface.adoc:447
 msgid "'(returns integer)' - non-zero means axis amp fault."
-msgstr ""
+msgstr "'(retorna inteiro)' - não-zero significa falha do amplificador do eixo."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:448
@@ -28942,7 +29105,7 @@ msgstr "*ferror_current*"
 #. type: Plain text
 #: src/config/python-interface.adoc:450
 msgid "'(returns float)' - current following error."
-msgstr ""
+msgstr "'(retorna float)' - erro de seguimento atual."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:451
@@ -28953,12 +29116,13 @@ msgstr "*ferror_highmark*"
 #. type: Plain text
 #: src/config/python-interface.adoc:453
 msgid "'(returns float)' - magnitude of max following error."
-msgstr ""
+msgstr "'(retorna float)' - magnitude do erro de seguimento máximo."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:456
 msgid "'(returns integer)' - non-zero means has been homed."
 msgstr ""
+"'(retorna inteiro)' - não-zero significa que foi levado a posição inicial."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:457
@@ -29001,6 +29165,9 @@ msgid ""
 "`[JOINT___n__]TYPE` with `LINEAR=1`, `ANGULAR=2`.  See <<sub:ini:sec:axis-"
 "letter, Joint INI configuration>> for details."
 msgstr ""
+"'(retorna inteiro)' - tipo de parâmetro de configuração de eixo, reflete "
+"`[JOINT___n__]TYPE` com `LINEAR=1`, `ANGULAR=2`.  Veja <<sub:ini:sec:axis-"
+"letter, Configuração INI de articulação>> para detalhes."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:470
@@ -29014,6 +29181,8 @@ msgid ""
 "'(returns float)' - maximum following error. configuration parameter, "
 "reflects `[JOINT___n__]FERROR`."
 msgstr ""
+"'(retorna float)' - erro de seguimento máximo. parâmetro de configuração, "
+"reflete `[JOINT___n__]FERROR`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:473
@@ -29025,6 +29194,7 @@ msgstr "*max_hard_limit*"
 #: src/config/python-interface.adoc:475
 msgid "'(returns integer)' - non-zero means max hard limit exceeded."
 msgstr ""
+"'(retorna inteiro)' - não-zero significa limite mecânico máximo excedido."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:479
@@ -29032,6 +29202,9 @@ msgid ""
 "'(returns float)' - maximum limit (soft limit) for joint motion, in machine "
 "units. configuration parameter, reflects `[JOINT___n__]MAX_LIMIT`."
 msgstr ""
+"'(retorna float)' - limite máximo (limite de software) para movimento de "
+"articulação, em unidades máquina. parâmetro de configuração, reflete "
+"`[JOINT___n__]MAX_LIMIT`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:480
@@ -29042,7 +29215,7 @@ msgstr "*max_soft_limit*"
 #. type: Plain text
 #: src/config/python-interface.adoc:482
 msgid "non-zero means `max_position_limit` was exceeded, int"
-msgstr ""
+msgstr "não-zero significa que `max_position_limit` foi excedido, inteiro"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:483
@@ -29056,6 +29229,8 @@ msgid ""
 "'(returns float)' - configuration parameter, reflects "
 "`[JOINT___n__]MIN_FERROR`."
 msgstr ""
+"'(retorna float)' - parâmetro de configuração, reflete "
+"`[JOINT___n__]MIN_FERROR`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:486
@@ -29067,6 +29242,7 @@ msgstr "*min_hard_limit*"
 #: src/config/python-interface.adoc:488
 msgid "'(returns integer)' - non-zero means min hard limit exceeded."
 msgstr ""
+"'(retorna inteiro)' - não-zero significa limite mecânico mínimo excedido."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:492
@@ -29074,6 +29250,9 @@ msgid ""
 "'(returns float)' - minimum limit (soft limit) for joint motion, in machine "
 "units. configuration parameter, reflects `[JOINT___n__]MIN_LIMIT`."
 msgstr ""
+"'(retorna float)' - limite mínimo (limite de software) para movimento de "
+"articulação, em unidades máquina. parâmetro de configuração, reflete "
+"`[JOINT___n__]MIN_LIMIT`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:493
@@ -29085,6 +29264,7 @@ msgstr "*min_soft_limit*"
 #: src/config/python-interface.adoc:495
 msgid "'(returns integer)' - non-zero means `min_position_limit` was exceeded."
 msgstr ""
+"'(retorna inteiro)' - não-zero significa limite de posição mínimo excedido."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:496
@@ -29106,7 +29286,7 @@ msgstr "*override_limits*"
 #. type: Plain text
 #: src/config/python-interface.adoc:501
 msgid "'(returns integer)' - non-zero means limits are overridden."
-msgstr ""
+msgstr "'(retorna inteiro)' - não-zero significa que limites estão sobrepostos."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:502
@@ -29121,6 +29301,10 @@ msgid ""
 "'(returns float)' - joint units per mm, or per degree for angular joints.\n"
 "(joint units are the same as machine units, unless set otherwise by the configuration parameter `[JOINT___n__]UNITS`)"
 msgstr ""
+"'(retorna float)' - unidades de articulação por mm, ou por graus para "
+"articulações angulares.\n"
+"(unidades de articulação são o mesmo que unidades máquina, a menos que "
+"definidas em contrário pelo parâmetro de configuração `[JOINT___n__]UNITS`)"
 
 #. type: Title ===
 #: src/config/python-interface.adoc:511
@@ -29151,11 +29335,13 @@ msgid ""
 "'(returns integer)' - rotational direction of the spindle with forward=1, "
 "reverse=-1."
 msgstr ""
+"'(retorna inteiro)' - direção rotativa do fuso sendo em frente=1, em "
+"reverso=-1."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:521
 msgid "'(returns integer)' - value of the spindle enabled flag."
-msgstr ""
+msgstr "'(retorna inteiro)' - valor da bandeira de fuso ativado."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:523
@@ -29775,6 +29961,9 @@ msgid ""
 "the known coordinate letters XYZABCUVW\n"
 "(x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)\n"
 msgstr ""
+"índice baseado em zero da coordenada de eixo com respeito às\n"
+"letras de coordenadas conhecidas XYZABCUVW\n"
+"(x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)\n"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:690
@@ -29807,7 +29996,7 @@ msgstr "`mdi(string)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:698
 msgid "send an MDI command. Maximum 254 chars."
-msgstr ""
+msgstr "envia um comando MDI. 254 caracteres máximo."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:699
@@ -29818,7 +30007,7 @@ msgstr "`mist(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:700
 msgid "turn on/off mist. +"
-msgstr ""
+msgstr "liga/desliga a névoa. +"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:704
@@ -29839,6 +30028,8 @@ msgid ""
 "MIST_ON +\n"
 "MIST_OFF\n"
 msgstr ""
+"MIST_ON +\n"
+"MIST_OFF\n"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:708
@@ -29849,7 +30040,7 @@ msgstr "`mode(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:710
 msgid "set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO)."
-msgstr ""
+msgstr "define o modo (MODE_MDI, MODE_MANUAL, MODE_AUTO)."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:711
@@ -29860,7 +30051,7 @@ msgstr "`override_limits()`"
 #. type: Plain text
 #: src/config/python-interface.adoc:713
 msgid "set the override axis limits flag."
-msgstr ""
+msgstr "define a bandeira de sobreposição de limites de eixo."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:714
@@ -29871,7 +30062,7 @@ msgstr "`program_open(string)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:716
 msgid "open an NGC file."
-msgstr ""
+msgstr "abre um ficheiro NGC."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:717
@@ -29882,7 +30073,7 @@ msgstr "`rapidrate()`"
 #. type: Plain text
 #: src/config/python-interface.adoc:719
 msgid "set rapid override factor"
-msgstr ""
+msgstr "define o factor de sobreposição rápida"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:720
@@ -29893,7 +30084,7 @@ msgstr "`reset_interpreter()`"
 #. type: Plain text
 #: src/config/python-interface.adoc:722
 msgid "reset the RS274NGC interpreter"
-msgstr ""
+msgstr "reinicia o interpretador RS274NGC"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:723
@@ -29904,7 +30095,7 @@ msgstr "`set_adaptive_feed(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:725
 msgid "set adaptive feed flag"
-msgstr ""
+msgstr "define a bandeira de alimentação adaptativa"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:726
@@ -29915,7 +30106,7 @@ msgstr "`set_analog_output(inteiro, float)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:728
 msgid "set analog output pin to value"
-msgstr ""
+msgstr "define pino de saída analógico para valor"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:729
@@ -29937,7 +30128,7 @@ msgstr "`set_digital_output(inteiro, inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:734
 msgid "set digital output pin to value"
-msgstr ""
+msgstr "define pino de saída digital para valor"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:735
@@ -29948,7 +30139,7 @@ msgstr "`set_feed_hold(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:737
 msgid "set feed hold on/off"
-msgstr ""
+msgstr "define retenção de alimentação ligada/desligada"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:738
@@ -29959,7 +30150,7 @@ msgstr "`set_feed_override(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:740
 msgid "set feed override on/off"
-msgstr ""
+msgstr "define sobreposição de alimentação ligada/desligada"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:741
@@ -29970,7 +30161,7 @@ msgstr "`set_max_limit(inteiro, float)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:743
 msgid "set max position limit for a given axis"
-msgstr ""
+msgstr "define limite de posição máximo para um dado eixo"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:744
@@ -29981,7 +30172,7 @@ msgstr "`set_min_limit()`"
 #. type: Plain text
 #: src/config/python-interface.adoc:746
 msgid "set min position limit for a given axis"
-msgstr ""
+msgstr "define limite de posição mínimo para um dado eixo"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:747
@@ -29992,7 +30183,7 @@ msgstr "`set_optional_stop(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:749
 msgid "set optional stop on/off"
-msgstr ""
+msgstr "define paragem opcional ligada/desligada"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:750
@@ -30003,7 +30194,7 @@ msgstr "`set_spindle_override(inteiro [, inteiro])`"
 #. type: Plain text
 #: src/config/python-interface.adoc:752
 msgid "set spindle override enabled. Defaults to spindle 0."
-msgstr ""
+msgstr "define sobreposição de fuso ativada. Predefinido para fuso 0."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:753
@@ -30019,16 +30210,18 @@ msgid ""
 "Direction: [`SPINDLE_FORWARD`, `SPINDLE_REVERSE`, `SPINDLE_OFF`, "
 "`SPINDLE_INCREASE`, `SPINDLE_DECREASE`, or `SPINDLE_CONSTANT`]"
 msgstr ""
+"Direção: [`SPINDLE_FORWARD`, `SPINDLE_REVERSE`, `SPINDLE_OFF`, "
+"`SPINDLE_INCREASE`, `SPINDLE_DECREASE`, ou `SPINDLE_CONSTANT`]"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:756
 msgid "Speed: Speed in RPM, defaults to 0."
-msgstr ""
+msgstr "Speed: Velocidade em RPM, predefinido para 0."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:757
 msgid "Spindle: Spindle number to command defaults to 0."
-msgstr ""
+msgstr "Spindle: Número de fuso a comandar predefinido para 0."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:758
@@ -30036,6 +30229,8 @@ msgid ""
 "Wait_for_speed: if 1 motion will wait for speed before continuing, defaults "
 "to not."
 msgstr ""
+"Wait_for_speed: se em movimento 1 vai esperar pela velocidade antes de "
+"continuar, predefinido para não o fazer."
 
 #. type: WARNING
 #: src/config/python-interface.adoc:761
@@ -30043,6 +30238,7 @@ msgid ""
 "MDI commands will ignore this. \"S1000\" after this will turn the spindle "
 "off."
 msgstr ""
+"Os comandos MDI vão ignorar isto. \"S1000\" após isto vai desligar o fuso."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:762
@@ -30054,6 +30250,7 @@ msgstr "`text_msg(string)`"
 #: src/config/python-interface.adoc:764
 msgid "sends a operator text message to the screen (max 254 characters)."
 msgstr ""
+"envia uma mensagem de texto de operador para o ecrã (máximo 254 caracteres)."
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:770
@@ -30074,6 +30271,9 @@ msgid ""
 "# Increase speed of spindle 0 by 100rpm. Spindle must be on first.\n"
 "c.spindle(linuxcnc.INCREASE)\n"
 msgstr ""
+"# Aumenta a velocidade do fuso 0 em 100rpm. O fuso tem de estar ligado "
+"primeiro.\n"
+"c.spindle(linuxcnc.INCREASE)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:776
@@ -30082,6 +30282,9 @@ msgid ""
 "# Increase speed of spindle 2 by 100rpm. Spindle must be on first.\n"
 "c.spindle(linuxcnc.SPINDLE_INCREASE, 2)\n"
 msgstr ""
+"# Aumenta a velocidade do fuso 2 em 100rpm. O fuso tem de estar ligado "
+"primeiro.\n"
+"c.spindle(linuxcnc.SPINDLE_INCREASE, 2)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:779
@@ -30090,6 +30293,8 @@ msgid ""
 "# Set speed of spindle 0 to 1024 rpm.\n"
 "c.spindle.(linuxcnc.SPINDLE_FORWARD, 1024)\n"
 msgstr ""
+"# Define velocidade do fuso 0 para 1024 rpm.\n"
+"c.spindle.(linuxcnc.SPINDLE_FORWARD, 1024)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:782
@@ -30098,6 +30303,8 @@ msgid ""
 "# Set speed of spindle 1 to -666 rpm.\n"
 "c.spindle.(linuxcnc.SPINDLE_REVERSE, 666, 1)\n"
 msgstr ""
+"# Define velocidade do fuso 1 para -666 rpm.\n"
+"c.spindle.(linuxcnc.SPINDLE_REVERSE, 666, 1)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:785
@@ -30106,6 +30313,8 @@ msgid ""
 "# Stop spindle 0.\n"
 "c.spindle.(linuxcnc.SPINDLE_OFF)\n"
 msgstr ""
+"# Parar fuso 0.\n"
+"c.spindle.(linuxcnc.SPINDLE_OFF)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:788
@@ -30114,6 +30323,8 @@ msgid ""
 "# Stop spindle 0 explicitly.\n"
 "c.spindle.(linuxcnc.SPINDLE_OFF, 0)\n"
 msgstr ""
+"# Parar fuso 0 explicitamente.\n"
+"c.spindle.(linuxcnc.SPINDLE_OFF, 0)\n"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:790
@@ -30124,7 +30335,7 @@ msgstr "`spindleoverride(float [, inteiro])`"
 #. type: Plain text
 #: src/config/python-interface.adoc:792
 msgid "Set spindle override factor. Defaults to spindle 0."
-msgstr ""
+msgstr "Define factor de sobreposição de eixo. Predefinido para eixo 0."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:793
@@ -30138,6 +30349,8 @@ msgid ""
 "Set the machine state. Machine state should be `STATE_ESTOP`, "
 "`STATE_ESTOP_RESET`, `STATE_ON`, or `STATE_OFF`."
 msgstr ""
+"Define o estado da máquina. O estado da máquina deve ser `STATE_ESTOP`, "
+"`STATE_ESTOP_RESET`, `STATE_ON`, ou `STATE_OFF`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:796
@@ -30151,6 +30364,8 @@ msgid ""
 "On completion of this call, the VAR file on disk is updated with live values "
 "from the interpreter."
 msgstr ""
+"Na conclusão desta chamada, o ficheiro VAR no disco é atualizado com valores "
+"vivos a partir do interpretador."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:799
@@ -30162,6 +30377,7 @@ msgstr "`teleop_enable(inteiro)`"
 #: src/config/python-interface.adoc:801
 msgid "Enable/disable teleop mode (disable for joint jogging)."
 msgstr ""
+"Ativa/desativa o modo teleop (desativar para deslocações de articulações)."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:802
@@ -30172,7 +30388,7 @@ msgstr "`tool_offset(inteiro, float, float, float, float, float, inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:804
 msgid "Set the tool offset. See usage example above."
-msgstr ""
+msgstr "Define o desvio da ferramenta. Veja exemplo de utilização em cima."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:805
@@ -30186,6 +30402,8 @@ msgid ""
 "Set trajectory mode. Mode is one of `MODE_FREE`, `MODE_COORD`, or "
 "`MODE_TELEOP`."
 msgstr ""
+"Define o modo de trajetória. Mod é um de `MODE_FREE`, `MODE_COORD`, ou "
+"`MODE_TELEOP`."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:808
@@ -30196,7 +30414,7 @@ msgstr "`unhome(inteiro)`"
 #. type: Plain text
 #: src/config/python-interface.adoc:810
 msgid "Unhome a given joint."
-msgstr ""
+msgstr "desfaz o posicionamento inicial de uma articulação determinada."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:811
@@ -30214,6 +30432,13 @@ msgid ""
 "Returns `RCS_DONE` or `RCS_ERROR` according to command execution status.\n"
 "Note that python execution will be blocked until this function returns."
 msgstr ""
+"Espera pela conclusão do último comando. Recebe um valor de tempo limite "
+"opcional em segundos.\n"
+"O tempo limite é predefinido para 5 segundos, se omitido.\n"
+"Retorna -1 se atingiu tempo limite.\n"
+"Retorna `RCS_DONE` ou `RCS_ERROR` de acordo com o estado de execução do "
+"programa.\n"
+"Note que a execução python vai ficar bloqueada até que esta função retorne."
 
 #. type: Title ==
 #: src/config/python-interface.adoc:819
@@ -30227,6 +30452,8 @@ msgid ""
 "To handle error messages, connect to the error channel and periodically "
 "poll() it."
 msgstr ""
+"Para lidar com mensagens de erro ligue o canal de erro e periodicamente faça "
+"poll() nele."
 
 #. type: Plain text
 #: src/config/python-interface.adoc:827
@@ -30291,6 +30518,8 @@ msgid ""
 "Here's an example for reading values from an INI file through the "
 "`linuxcnc.ini` object:"
 msgstr ""
+"Aqui está um exemplo de ler valores de um ficheiro INI através do objeto "
+"`linuxcnc.ini`:"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:857
@@ -30329,6 +30558,8 @@ msgid ""
 "# inifile.find() returns None if the key wasn't found - the\n"
 "# following idiom is useful for setting a default value:\n"
 msgstr ""
+"# inifile.find() retorna None se a chave não for encontrada - o\n"
+"# seguinte idioma é útil para definir um valor predefinido:\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:868
@@ -30337,6 +30568,8 @@ msgid ""
 "machine_name = inifile.find(\"EMC\", \"MACHINE\") or \"unknown\"\n"
 "print(\"machine name: \", machine_name)\n"
 msgstr ""
+"machine_name = inifile.find(\"EMC\", \"MACHINE\") ou \"unknown\"\n"
+"print(\"machine name: \", machine_name)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:871
@@ -30345,6 +30578,8 @@ msgid ""
 "# inifile.findall() returns a list of matches, or an empty list\n"
 "# if the key wasn't found:\n"
 msgstr ""
+"# inifile.findall() retorna uma lista de correspondências, ou uma lista\n"
+"# vazia se a chave não for encontrada:\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:874
@@ -30353,6 +30588,8 @@ msgid ""
 "extensions = inifile.findall(\"FILTER\", \"PROGRAM_EXTENSION\")\n"
 "print(\"extensions: \", extensions)\n"
 msgstr ""
+"extensions = inifile.findall(\"FILTRO\", \"EXTENSÃO-DE-PROGRAMA\")\n"
+"print(\"extensions: \", extensions)\n"
 
 #. type: delimited block -
 #: src/config/python-interface.adoc:879
@@ -30363,6 +30600,10 @@ msgid ""
 "if nmlfile:\n"
 "    linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)\n"
 msgstr ""
+"# sobrepõe o ficheiro NML predefinido pelo parâmetro INI se fornecido\n"
+"nmlfile = inifile.find(\"EMC\", \"NML_FILE\")\n"
+"if nmlfile:\n"
+"    linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)\n"
 
 #. type: Plain text
 #: src/config/python-interface.adoc:882
@@ -30422,6 +30663,8 @@ msgstr "O tipo `linuxcnc.positionlogger`"
 msgid ""
 "Some usage hints can be gleaned from `src/emc/usr_intf/gremlin/gremlin.py`."
 msgstr ""
+"Algumas dicas de utilização pode ser obtidas de `src/emc/usr_intf/gremlin/"
+"gremlin.py`."
 
 #. type: Title ===
 #: src/config/python-interface.adoc:905
@@ -30477,7 +30720,7 @@ msgstr "`stop()`"
 #. type: Plain text
 #: src/config/python-interface.adoc:920
 msgid "stop the position logger"
-msgstr "pára o registador de posição"
+msgstr "parar o registador de posição"
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:921
@@ -30488,7 +30731,7 @@ msgstr "`call()`"
 #. type: Plain text
 #: src/config/python-interface.adoc:923
 msgid "Plot the backplot now."
-msgstr ""
+msgstr "Traçar o traço de fundo agora."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:924
@@ -30499,7 +30742,7 @@ msgstr "`last([inteiro])`"
 #. type: Plain text
 #: src/config/python-interface.adoc:926
 msgid "Return the most recent point on the plot or None"
-msgstr ""
+msgstr "Retorna o ponto mais recente do traço ou Nenhum"
 
 #. type: Index entry
 #: src/config/stepconf.adoc:5 src/config/stepconf.adoc:12
@@ -30513,6 +30756,8 @@ msgid ""
 "LinuxCNC is capable of controlling a wide range of machinery using many "
 "different hardware interfaces."
 msgstr ""
+"O LinuxCNC é capaz de controlar uma vasta gama de maquinaria usando muitas "
+"interfaces de hardware diferentes."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:17
@@ -30565,12 +30810,12 @@ msgstr "images/stepconf-start_en.png"
 #. type: Plain text
 #: src/config/stepconf.adoc:34
 msgid "The three first radio buttons are self-explanatory:"
-msgstr ""
+msgstr "Os três primeiros botões radio são auto-explicativos:"
 
 #. type: Plain text
 #: src/config/stepconf.adoc:36
 msgid "'Create New' - Creates a fresh configuration."
-msgstr ""
+msgstr "'Criar Nova' - Cria uma configuração fresca."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:41
@@ -30598,6 +30843,8 @@ msgid ""
 "These next options will be recorded in a preference file for the next run of "
 "StepConf."
 msgstr ""
+"Esta próximas opções vão ser guardadas num ficheiro de preferências para a "
+"próxima execução do StepConf."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:48
@@ -30657,6 +30904,8 @@ msgstr ""
 msgid ""
 "'Axis Configuration' - Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe)."
 msgstr ""
+"'Configuração do Axis' - Escolha XYZ (Fresa), XYZA (Fresa de 4 eixos) ou XZ "
+"(Torno)."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:70
@@ -30711,6 +30960,8 @@ msgid ""
 "The LinuxCNC Configuration Selector has configs for Sherline already "
 "configured."
 msgstr ""
+"O Seletor de Configuração do LinuxCNC tem configurações para Sherline já "
+"configuradas."
 
 #. type: Plain text
 #: src/config/stepconf.adoc:89
@@ -30747,11 +30998,13 @@ msgstr ""
 msgid ""
 "'One / Two Parport' - Select how many parallel port are to be configured."
 msgstr ""
+"Um / Dois Portos Paralelos' - Selecione quantos portos paralelos vão ser "
+"configurados."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:102
 msgid "Base Period Maximum Jitter"
-msgstr ""
+msgstr "Flutuação Máxima do Período Base"
 
 #. type: Plain text
 #: src/config/stepconf.adoc:102
@@ -30760,6 +31013,10 @@ msgid ""
 "To run a latency test press the 'Test Base Period Jitter' button. See the "
 "<<sec:latency-test,Latency Test>> section for more details."
 msgstr ""
+"'Flutuação Máxima do Período Base' - Insira o resultado do Teste de Latência "
+"aqui.  Para correr um teste de latência pressione o botão 'Testar Flutuação "
+"do Período Base'. Veja a secção <<sec:latency-test,Teste de Latência>> para "
+"mais detalhes."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:103 src/config/stepconf.adoc:104
@@ -31112,7 +31369,7 @@ msgstr ""
 #. type: Index entry
 #: src/config/stepconf.adoc:185
 msgid "Home Latch Direction"
-msgstr ""
+msgstr "Direção de Fecho da Posição Inicial"
 
 #. type: Plain text
 #: src/config/stepconf.adoc:185
@@ -31352,6 +31609,8 @@ msgid ""
 "This page only appears when 'Spindle PWM' is chosen in the 'Parallel Port "
 "Pinout' page for one of the outputs."
 msgstr ""
+"Esta página apenas aparece quando 'Fuso PWM' é escolhido na página 'Pinagem "
+"do Porto Paralelo' para uma das saídas."
 
 #. type: Index entry
 #: src/config/stepconf.adoc:275 src/config/stepconf.adoc:279
@@ -31365,6 +31624,7 @@ msgid ""
 "If 'Spindle PWM' appears on the pinout, the following information should be "
 "entered:"
 msgstr ""
+"Se 'Fuso PWM' aparecer na pinagem, a seguinte informação deve ser inserida:"
 
 #. type: IMPORTANT
 #: src/config/stepconf.adoc:283
@@ -31401,7 +31661,7 @@ msgstr ""
 #: src/config/stepconf.adoc:296
 msgid ""
 "'Spindle Index' - Is a pulse that occurs once per revolution of the spindle."
-msgstr ""
+msgstr "'Índice de Fuso' - É um impulso que ocorre uma vez por rotação do fuso."
 
 #. type: IMPORTANT
 #: src/config/stepconf.adoc:298
@@ -31409,6 +31669,8 @@ msgid ""
 "'Spindle Phase A' - This is a pulse that occurs in multiple equally-spaced "
 "locations as the spindle turns."
 msgstr ""
+"'Fase A de Fuso' - Isto é um impulso que ocorre múltiplas localizações de "
+"espaço-equalizado conforme o fuso roda."
 
 #. type: IMPORTANT
 #: src/config/stepconf.adoc:301
@@ -31746,7 +32008,7 @@ msgstr ""
 #: src/config/stepconf.adoc:417 src/config/stepconf.adoc:429
 #, no-wrap
 msgid "Operating without Home Switches"
-msgstr ""
+msgstr "Operar sem Interruptores de Posição Inicial"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:429
@@ -31764,7 +32026,7 @@ msgstr ""
 #: src/config/stepconf.adoc:430
 #, no-wrap
 msgid "Home and Limit Switch wiring options"
-msgstr ""
+msgstr "Opções de ligação dos Interruptores de Posição Inicial e Limite"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:437
@@ -31795,66 +32057,74 @@ msgstr ""
 #, no-wrap
 msgid "Normally Closed Switches (N/C) wiring in series (simplified diagram)"
 msgstr ""
+"Ligação de Interruptores Normalmente Fechados (N/C) em série esquema "
+"simplificado)"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/stepconf.adoc:448
 #, no-wrap
 msgid "Normally Closed Switches"
-msgstr ""
+msgstr "Interruptores Normalmente Fechados"
 
 #. type: Target for macro image
 #: src/config/stepconf.adoc:448
 #, no-wrap
 msgid "images/switch-nc-series_en.svg"
-msgstr ""
+msgstr "images/switch-nc-series_en.svg"
 
 #. type: Block title
 #: src/config/stepconf.adoc:450
 #, no-wrap
 msgid "Normally Open Switches (N/O) wiring in parallel (simplified diagram)"
 msgstr ""
+"Ligação de Interruptores Normalmente Abertos (N/O) em paralelo esquema "
+"simplificado)"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/config/stepconf.adoc:451
 #, no-wrap
 msgid "Normally Open Switches"
-msgstr ""
+msgstr "Interruptores Normalmente Abertos"
 
 #. type: Target for macro image
 #: src/config/stepconf.adoc:451
 #, no-wrap
 msgid "images/switch-no-parallel_en.svg"
-msgstr ""
+msgstr "images/switch-no-parallel_en.svg"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:454
 msgid "The following combinations of switches are permitted in StepConf:"
-msgstr ""
+msgstr "As seguintes combinações de interruptores são permitidas no StepConf:"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:456
 msgid "Combine home switches for all axes"
-msgstr ""
+msgstr "Combinar interruptores de posição inicial para todos os eixos"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:457
 msgid "Combine limit switches for all axes"
-msgstr ""
+msgstr "Combinar interruptores de limite para todos os eixos"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:458
 msgid "Combine both limit switches for one axis"
-msgstr ""
+msgstr "Combinar ambos interruptores de limite para um eixo"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:459
 msgid "Combine both limit switches and the home switch for one axis"
 msgstr ""
+"Combinar ambos interruptores de limite e o interruptor de posição inicial "
+"para um eixo"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:460
 msgid "Combine one limit switch and the home switch for one axis"
 msgstr ""
+"Combinar um interruptor de limite e o interruptor de posição inicial para um "
+"eixo"
 
 #. type: WARNING
 #: src/config/stepconf.adoc:463
@@ -80544,6 +80814,9 @@ msgid ""
 "Measure the height of your block from the base where your tool switch is "
 "located, to the upper face of the block (including chuck etc.)."
 msgstr ""
+"Medir a altura do seu bloco a partir da base onde o seu interruptor de "
+"ferramenta está localizado, até à face superior do bloco (incluindo a bucha "
+"e etc.)."
 
 #. type: IMPORTANT
 #: src/gui/gmoccapy.adoc:963
@@ -96519,7 +96792,7 @@ msgstr ""
 #. type: NOTE
 #: src/gui/qtdragon.adoc:898
 msgid "There are three toggle buttons:"
-msgstr ""
+msgstr "Existem três botões comutadores:"
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:899
@@ -96533,6 +96806,8 @@ msgid ""
 "This selects if after probing the relevant axis is set to zero in the "
 "current user system."
 msgstr ""
+"Isto seleciona se após a sondagem o eixo relevante é posicionado a zero no "
+"sistema de utilizador atual."
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:900
@@ -96546,6 +96821,8 @@ msgid ""
 "This selects if after probing, the system will be rotated or just display "
 "the calculated rotation."
 msgstr ""
+"Isto seleciona se após a sondagem, o sistema vai ser rodado ou apenas mostra "
+"a rotação calculada."
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:901
@@ -96556,7 +96833,7 @@ msgstr "'Tool Measure'"
 #. type: NOTE
 #: src/gui/qtdragon.adoc:902
 msgid "This (if integrated) turns auto tool probing on and off."
-msgstr ""
+msgstr "Isto (se integrado) liga e desliga a prova de ferramenta automática."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:908
@@ -96566,6 +96843,12 @@ msgid ""
 "The 5 pins are used to be read from a remap G-code subroutine, so the code can react to different values.\n"
 "Currently the probe tool number is only editable in the preference file: +"
 msgstr ""
+"O Versaprobe oferece 5 pinos de saída para objetivo de medição de ferramenta "
+"e 1 que pode ser usado para inibir o fuso quando a prova está carregada.\n"
+"Os 5 pinos são usados para ler de uma sub-rotina de código G de "
+"remapeamento, para que o código possa reagir a valores diferentes.\n"
+"Atualmente o número de ferramenta de prova é apenas editável no ficheiro de "
+"preferências: +"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:912
@@ -96586,7 +96869,7 @@ msgstr "`qtversaprobe.enable` (HAL_BIT)"
 #. type: CAUTION
 #: src/gui/qtdragon.adoc:915 src/gui/qtdragon.adoc:1210
 msgid "Measurement enabled or not tool. Reflects screen button state."
-msgstr ""
+msgstr "Medição de ferramenta ativa ou não. Reflete estado do botão do ecrã."
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:915 src/gui/qtdragon.adoc:1210
@@ -96599,6 +96882,7 @@ msgstr "`qtversaprobe.blockheight` (HAL_FLOAT)"
 msgid ""
 "The measured height of the top face of the workpiece. Reflects screen entry."
 msgstr ""
+"A altura medida da face de topo da peça de trabalho. Reflete entrada do ecrã."
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:916 src/gui/qtdragon.adoc:1211
@@ -96610,6 +96894,8 @@ msgstr "`qtversaprobe.probeheight` (HAL_FLOAT)"
 #: src/gui/qtdragon.adoc:917 src/gui/qtdragon.adoc:1212
 msgid "The toolsetter probe switch height. Reflects screen entry."
 msgstr ""
+"A altura do interruptor de prova do definidor de ferramenta. Reflete entrada "
+"do ecrã."
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:917 src/gui/qtdragon.adoc:1212
@@ -96620,7 +96906,7 @@ msgstr "`qtversaprobe.searchvel` (HAL_FLOAT)"
 #. type: CAUTION
 #: src/gui/qtdragon.adoc:918 src/gui/qtdragon.adoc:1213
 msgid "The velocity to search for the tool probe switch"
-msgstr ""
+msgstr "A velocidade para procurar pelo interruptor de sonda da ferramenta"
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:918 src/gui/qtdragon.adoc:1213
@@ -96632,6 +96918,8 @@ msgstr "`qtversaprobe.probevel` (HAL_FLOAT)"
 #: src/gui/qtdragon.adoc:919 src/gui/qtdragon.adoc:1214
 msgid "The velocity to probe tool length. Reflects screen entry."
 msgstr ""
+"A velocidade para sondar o comprimento da ferramenta. Reflete entrada de "
+"ecrã."
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:919 src/gui/qtdragon.adoc:1214
@@ -96667,7 +96955,7 @@ msgstr "Prova básica"
 #: src/gui/qtdragon.adoc:924
 #, no-wrap
 msgid "QtDragon - Basic Probe Option"
-msgstr ""
+msgstr "QtDragon - Opção de Prova Básica"
 
 #. type: Target for macro image
 #: src/gui/qtdragon.adoc:925 src/gui/qtvcp-widgets.adoc:763
@@ -96911,23 +97199,25 @@ msgstr ""
 #. type: Plain text
 #: src/gui/qtdragon.adoc:962
 msgid "Confirm the parameters are reasonable."
-msgstr ""
+msgstr "Confirme que os parâmetros são razoáveis."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:963
 msgid "Press the desired probing button."
-msgstr ""
+msgstr "Pressione o botão de prova desejado."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:965
 msgid "The probing routine will start immediately."
-msgstr ""
+msgstr "A rotina de sondagem vai começar imediatamente."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:967
 msgid ""
 "Pressing the stop button or the keyboard escape key, will abort the probing."
 msgstr ""
+"Pressionar o botão de parar ou a tecla escape do teclado, vai abortar a "
+"sondagem."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:971
@@ -96971,7 +97261,7 @@ msgstr "Z CLEARANCE"
 #. type: Plain text
 #: src/gui/qtdragon.adoc:984
 msgid "Distance from probe to top of material,"
-msgstr ""
+msgstr "Distância desde sonda até topo do material,"
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:984
@@ -96982,7 +97272,7 @@ msgstr "EXTRA DEPTH"
 #. type: Plain text
 #: src/gui/qtdragon.adoc:985
 msgid "Distance to lower probe from top of material,"
-msgstr ""
+msgstr "Distância para sonda inferior desde topo do material,"
 
 #. type: Labeled list
 #: src/gui/qtdragon.adoc:985
@@ -97005,7 +97295,7 @@ msgstr ""
 #. type: NOTE
 #: src/gui/qtdragon.adoc:991
 msgid "Preset:"
-msgstr ""
+msgstr "Pré definir:"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:993
@@ -97053,23 +97343,25 @@ msgstr ""
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1002
 msgid "Move probe down by Z CLEARANCE + EXTRA DEPTH,"
-msgstr ""
+msgstr "Descer sonda por Z CLEARANCE + EXTRA DEPTH,"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1003
 msgid "probe wall twice (rough and fine),"
-msgstr ""
+msgstr "sondar parede duas vezes (grosso e fino),"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1004
 msgid ""
 "move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,"
 msgstr ""
+"move na diagonal para a outra parede como definido por EDGE WIDTH e XY "
+"CLEARANCE,"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1005
 msgid "probe wall twice,"
-msgstr ""
+msgstr "sondar parede duas vezes,"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1006
@@ -97093,12 +97385,12 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1009
 #, no-wrap
 msgid "Customizing Probe Screen Widget"
-msgstr ""
+msgstr "Personalizar Widget de Ecrã de Sonda"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1011
 msgid "It is possible to load a customized version of the probe widget. +"
-msgstr ""
+msgstr "É possível carregar uma versão personalizada da widget de sonda. +"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1018
@@ -97122,13 +97414,13 @@ msgstr "Placa de toque"
 #: src/gui/qtdragon.adoc:1023
 #, no-wrap
 msgid "QtDragon - Touch Plate"
-msgstr ""
+msgstr "Placa de Toque - QtDragon"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtdragon.adoc:1024
 #, no-wrap
 msgid "QtDragon Touch Plate"
-msgstr ""
+msgstr "Placa de Toque QtDragon"
 
 #. type: Target for macro image
 #: src/gui/qtdragon.adoc:1024
@@ -97173,11 +97465,13 @@ msgid ""
 "QtDragon can be setup to do integrated auto tool measurement using the Versa "
 "Probe widget and remap code."
 msgstr ""
+"O QtDragon pode ser configurado para fazer medição de ferramenta automática "
+"integrada na widget de Prova Versa e código de remapeamento."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1049
 msgid "This feature assumes the use of two probes in concert:"
-msgstr ""
+msgstr "Esta funcionalidade assume a utilização de duas sondas em conjunto:"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1051
@@ -97233,22 +97527,22 @@ msgstr ""
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1066
 msgid "Setup steps include:"
-msgstr ""
+msgstr "Passos de configuração incluem:"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1068
 msgid "Entering the probe velocities on the versa probe settings page."
-msgstr ""
+msgstr "Inserir as velocidades de prova na página de definições de prova versa."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1069
 msgid "Enabling \"Use Tool Measurement\" on the Versa Probe tab."
-msgstr ""
+msgstr "Ativar \"Usar Medição de Ferramenta\" no separador de Prova Versa."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1070
 msgid "Enabling \"Use Tool Sensor\" under Settings."
-msgstr ""
+msgstr "Ativar \"Usar Sensor de Ferramenta\" sob Definições."
 
 #. type: IMPORTANT
 #: src/gui/qtdragon.adoc:1075
@@ -97264,6 +97558,8 @@ msgid ""
 "Tool Measurement in QtDragon is organized into the following steps which "
 "will be explained in more detail in the following section:"
 msgstr ""
+"A Medição de Ferramenta no QtDragon é organizada nos passos seguintes que "
+"vão ser explicados com mais detalhe na seguinte secção:"
 
 #. type: IMPORTANT
 #: src/gui/qtdragon.adoc:1079
@@ -97271,6 +97567,8 @@ msgid ""
 "Zero the probe tool by measuring the tool setter with the spindle probe "
 "installed"
 msgstr ""
+"Por a zero a ferramenta de prova ao medir o ajustador de ferramenta com a "
+"sonda de fuso instalada"
 
 #. type: IMPORTANT
 #: src/gui/qtdragon.adoc:1081
@@ -97278,17 +97576,21 @@ msgid ""
 "Measure the height of your block from the base, where your tool switch is "
 "located, to the upper face of the block (including chuck etc.)."
 msgstr ""
+"Medir a altura do seu bloco a partir da base, onde o seu interruptor de "
+"ferramenta está localizado, até à face superior do bloco (incluindo a bucha "
+"e etc.)."
 
 #. type: IMPORTANT
 #: src/gui/qtdragon.adoc:1082
 msgid "In the Versa probe tab, enter the measured value for block height."
 msgstr ""
+"No separador de prova Versa, insira o valor medido para altura de bloco."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1084
 #, no-wrap
 msgid "Auto tool measurement"
-msgstr ""
+msgstr "Auto medição de ferramenta"
 
 #. type: IMPORTANT
 #: src/gui/qtdragon.adoc:1089
@@ -97297,6 +97599,10 @@ msgid ""
 "will be set automatically to fit the block height.  The advantage of this "
 "way is, that you do not need a reference tool."
 msgstr ""
+"Com a primeira mudança de ferramenta dada a ferramenta vai ser medida e o "
+"desvio vai ser definido automaticamente para corresponder à altura do "
+"bloco.  A vantagem deste modo é, não vai precisar duma ferramenta de "
+"referência."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1092
@@ -97306,22 +97612,30 @@ msgid ""
 "height has changed. There are several videos on you tube that demonstrate "
 "the technique using GMOCCAPY. The GMOCCAPY screen pioneered the technique."
 msgstr ""
+"O seu programa tem de conter uma mudança de ferramenta no inicio. A "
+"ferramenta vai ser medida, mesmo que já tenha sido usada antes, assim não há "
+"perigo se a altura do bloco mudar. Existem vários vídeos no you tube que "
+"demonstram a técnica usando o GMOCCAPY. O ecrã GMOCCAPY foi pioneiro desta "
+"técnica."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1094
 msgid ""
 "The sequence of events (using the default files in the default setting):"
 msgstr ""
+"A sequência de eventos (usando os ficheiro predefinidos na definição "
+"predefinida):"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1096
 msgid "Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z."
-msgstr ""
+msgstr "Movimento rápido em Z para posição definida em [TOOL_CHANGE] Z de INI."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1097
 msgid "Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y."
 msgstr ""
+"Movimento rápido em X e Y para número definido em [TOOL_CHANGE] X e Y de INI."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1098
@@ -97329,6 +97643,8 @@ msgid ""
 "Perform normal M6 tool change, i.e., stop spindle, send message to user to "
 "change the tool."
 msgstr ""
+"Efetua mudança de ferramenta M6 normal, isto é, pára o fuso, envia mensagem "
+"ao utilizador para trocar a ferramenta."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1099
@@ -97336,18 +97652,23 @@ msgid ""
 "Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X "
 "and Y."
 msgstr ""
+"Movimento rápido em X e Y para posição definida em [VERSA_TOOLSETTER] X e Y "
+"de INI."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1100
 msgid ""
 "Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z."
 msgstr ""
+"Movimento rápido para baixo em Z para posição definida em [VERSA_TOOLSETTER] "
+"Z de INI."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1101
 msgid ""
 "Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE."
 msgstr ""
+"Descer sonda em Z para máximo definido em [VERSA_TOOLSETTER] MAXPROBE de INI."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1102
@@ -97355,6 +97676,8 @@ msgid ""
 "Changes the offset of the current work coordinate system to match the "
 "difference between the previous tool and the currently measured tool."
 msgstr ""
+"Muda o desvio do sistema de coordenadas de trabalho atual para corresponder "
+"à diferença entre a ferramenta anterior e a ferramenta medida atualmente."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1103

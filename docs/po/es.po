@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-13 23:51+0000\n"
+"PO-Revision-Date: 2026-08-19 01:51+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -2810,7 +2810,7 @@ msgstr ""
 #: src/remap/remap.adoc:1965
 #, no-wrap
 msgid "G93"
-msgstr ""
+msgstr "G93"
 
 #. type: Table
 #: help/tklinuxcnc.adoc:332
@@ -46546,7 +46546,7 @@ msgstr ""
 #: src/drivers/vfs11.adoc:264
 #, no-wrap
 msgid "Configuring the VFS11 VFD for Modbus usage"
-msgstr ""
+msgstr "Configuración del VFD VFS11 para uso en Modbus"
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:274
@@ -46560,11 +46560,19 @@ msgid ""
 "git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/vfs11-"
 "rs232.pdf[circuit diagram])."
 msgstr ""
+"El VF-S11 tiene un conector RJ-45 para comunicación serie.  "
+"Desafortunadamente no tiene un conector estándar RS-232 y niveles lógicos.  "
+"La recomendación de Toshiba es: conectar la unidad de conversión USB-serie "
+"USB001Z al controlador y conectar el puerto USB a la PC.  Una alternativa "
+"más barata es con una interfaz casera ( https://git.mah.priv.at/gitweb/vfs11-"
+"vfd.git/blob_plain/refs/heads/f12-prod:/VFS11-RJ45_e.pdf[sugerencia del "
+"soporte de Toshiba], https://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/"
+"refs/heads/f12-prod:/vfs11-rs232.pdf[diagrama del circuito])."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:276
 msgid "Note: the 24V output from the VFD has no short-circuit protection."
-msgstr ""
+msgstr "Nota: la salida de 24V del VFD no tienen protección de cortocircuito."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:278
@@ -46572,6 +46580,9 @@ msgid ""
 "Serial port factory defaults are 9600/8/1/even, the protocol defaults to the "
 "proprietary \"Toshiba Inverter Protocol\"."
 msgstr ""
+"La configuración predeterminada de fábrica del puerto serie es 9600/8/1/"
+"even, el protocolo predeterminado es el propietario \"Toshiba Inverter "
+"Protocol\"."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:285
@@ -46584,6 +46595,13 @@ msgid ""
 "protocol - set from Toshiba Inverter Protocol to Modbus; thereafter, the "
 "Windows app is useless."
 msgstr ""
+"Varios parámetros necesitan configuración antes de que el VF-S11 platique "
+"con este módulo.  Esto se puede hacer manualmente con el panel de control, o "
+"sobre el enlace serie (Toshiba proporciona una aplicación Windows llamada "
+"'PCM001Z' que puede leer/escribir parámetros en el VFD).  Nota- PCM001Z solo "
+"habla el protocolo Toshiba Inverter.  Así que lo último que querrías, sería "
+"cambiar el parámetro de protocolo de Toshiba Inverter Protocol a Modbus, ya "
+"que después de eso la aplicación Windows queda inservible."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:288
@@ -46591,6 +46609,8 @@ msgid ""
 "To increase the upper frequency limit, the UL and FH parameters must be "
 "changed on the panel.  I increased them from 50 to 80."
 msgstr ""
+"Para incrementar al límite superior de frecuencia se deben modificar los "
+"parámetros UL y FH en el panel.  Yo los incremente de 50 a 80."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:292
@@ -46599,12 +46619,15 @@ msgid ""
 "my setup.  This file is for the https://git.mah.priv.at/gitweb/"
 "modio.git[modio Modbus interactive utility]."
 msgstr ""
+"Ver dump-params.mio para una descripción de los parámetros no estándar del "
+"VF-S11 de mi configuración.  Este archivo es para la https://git.mah.priv.at/"
+"gitweb/modio.git[utilería interactiva de Modbus modio]."
 
 #. type: Title ==
 #: src/drivers/vfs11.adoc:293
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Programming Note"
-msgstr "Programacion"
+msgstr "Nota de programación"
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:296
@@ -46612,6 +46635,9 @@ msgid ""
 "The vfs11_vfd driver uses the https://www.libmodbus.org[libmodbus version 3] "
 "library which is more recent than the version 2 code used in +gs2_vfd+."
 msgstr ""
+"El controlador vfs11_vfd usa la librería https://www.libmodbus.org[libmodbus "
+"versión 3], la cual es más reciente que el código de la versión 2 usada en "
+"+gs2_vfd+."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:300
@@ -46622,17 +46648,24 @@ msgid ""
 "using this library might generate a warning if RTS_MODE= is specified in the "
 "INI file."
 msgstr ""
+"Los paquetes de Ubuntu +libmodbus5+ y +libmodbus-dev+ solo están disponibles "
+"a partir de Ubuntu 12 ('Precise Pengolin').  Además, esos paquetes no son "
+"compatibles con las banderas MODBUS_RTS_MODE_*.  Por lo tanto, compilar "
+"vfs11_vfd con esta librería podría generar una advertencia si se especifica "
+"RTS_MODE= en el archivo INI."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:302
 msgid "To use the full functionality on lucid and precise:"
-msgstr ""
+msgstr "Para usar la funcionalidad completa en lucid y precise:"
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:304
 msgid ""
 "remove the libmodbus packages: `sudo apt-get remove libmodbus5 libmodbus-dev`"
 msgstr ""
+"eliminar los paquetes libmodbus: `sudo apt-get remove libmodbus5 libmodbus-"
+"dev`"
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:306
@@ -46640,6 +46673,9 @@ msgid ""
 "build and install libmodbus version 3 from source as outlined https://"
 "github.com/stephane/libmodbus/blob/master/README.rst[here]."
 msgstr ""
+"compilar e instalar la versión 3 de libmodbus a partir del código fuente "
+"como se indica https://github.com/stephane/libmodbus/blob/master/"
+"README.rst[aquí]."
 
 #. type: Plain text
 #: src/drivers/vfs11.adoc:308
@@ -46647,16 +46683,17 @@ msgid ""
 "Libmodbus does not build on Ubuntu Hardy, hence vfs11_vfd is not available "
 "on Hardy."
 msgstr ""
+"Libmodbus no compila en Ubuntu Hardy, por lo tanto vfs11_vfd no está "
+"disponible en Hardy."
 
 #. type: Title =
 #: src/examples/gcode.adoc:5
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G-Code Examples"
 msgstr "Ejemplos de código G"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:10
-#, fuzzy
 msgid ""
 "After you install LinuxCNC several sample files are placed in the /nc_files "
 "folder. Make sure the sample file is appropriate for your machine before "
@@ -46668,151 +46705,140 @@ msgstr ""
 
 #. type: Title ==
 #: src/examples/gcode.adoc:11
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Mill Examples"
 msgstr "Ejemplos de fresado"
 
 #. type: Title ===
 #: src/examples/gcode.adoc:13
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Helical Hole Milling"
 msgstr "Fresado helicoidal"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:16 src/examples/gcode.adoc:21
-#, fuzzy
 msgid "File Name: useful-subroutines.ngc"
 msgstr "Nombre de archivo: useful-subroutines.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:17
-#, fuzzy
 msgid "Description: Subroutine for milling a hole using parameters."
 msgstr "Descripción: Subrutina para fresar un agujero utilizando parámetros."
 
 #. type: Title ===
 #: src/examples/gcode.adoc:18
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Slotting"
 msgstr "Ranurado"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:22
-#, fuzzy
 msgid "Description: Subroutine for milling a slot using parameters."
 msgstr "Descripción: Subrutina para fresar una ranura usando parámetros."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/examples/gcode.adoc:23
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Useful subroutines"
-msgstr "usando parámetros"
+msgstr "Subrutinas útiles"
 
 #. type: Target for macro image
 #: src/examples/gcode.adoc:23
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "images/useful-subroutines-ngc.png"
 msgstr "images/useful-subroutines-ngc.png"
 
 #. type: Title ===
 #: src/examples/gcode.adoc:25
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Grid Probe"
 msgstr "Sondeo en cuadrícula"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:28
-#, fuzzy
 msgid "File Name: gridprobe.ngc"
 msgstr "Nombre de archivo: gridprobe.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:29 src/examples/gcode.adoc:40
-#, fuzzy
 msgid "Description: Rectangular Probing"
-msgstr "Descripción: sondeo rectangular"
+msgstr "Descripción: Sondeo rectangular"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:33
-#, fuzzy
 msgid ""
 "This program repeatedly probes in a regular XY grid and writes the probed "
 "location to the file 'probe-results.txt' in the same directory as the .ini "
 "file."
 msgstr ""
-"Este programa prueba repetidamente en una cuadrícula XY normal y escribe la "
+"Este programa sondea repetidamente en una cuadrícula XY normal y escribe la "
 "ubicación sondeada al archivo 'probe-results.txt' en el mismo directorio que "
 "el archivo .ini."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/examples/gcode.adoc:34
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Grill probe"
-msgstr "Grill probe"
+msgstr "Sondeo en rejilla"
 
 #. type: Target for macro image
 #: src/examples/gcode.adoc:34
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "images/gridprobe-ngc.png"
 msgstr "images/gridprobe-ngc.png"
 
 #. type: Title ===
 #: src/examples/gcode.adoc:36
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Smart Probe"
 msgstr "Sonda inteligente"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:39
-#, fuzzy
 msgid "File Name: smartprobe.ngc"
 msgstr "Nombre de archivo: smartprobe.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:44
-#, fuzzy
 msgid ""
 "This program repeatedly probes in a regular XY grid and writes the probed "
 "location to the file 'probe-results.txt' in the same directory as the .ini "
 "file. This is improved from the grid probe file."
 msgstr ""
-"Este programa prueba repetidamente en una cuadrícula XY normal y escribe la "
+"Este programa sondea repetidamente en una cuadrícula XY normal y escribe la "
 "ubicación sondeada al archivo 'probe-results.txt' en el mismo directorio que "
 "el archivo .ini. Es una mejora del archivo de sondeo de cuadrícula."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/examples/gcode.adoc:45
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "The finer probing grid"
-msgstr "The finer probing grid"
+msgstr "La cuadrícula de sondeo más fina"
 
 #. type: Target for macro image
 #: src/examples/gcode.adoc:45
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "images/smartprobe-ngc.png"
 msgstr "images/smartprobe-ngc.png"
 
 #. type: Title ===
 #: src/examples/gcode.adoc:47
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Tool Length Probe"
 msgstr "Sondeo de longitud de herramienta"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:50
-#, fuzzy
 msgid "File Name: tool-length-probe.ngc"
 msgstr "Nombre de archivo: tool-length-probe.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:51
-#, fuzzy
 msgid "Description: Tool Length Probing"
 msgstr "Descripción: Sondeo de longitud de herramienta"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:56
-#, fuzzy
 msgid ""
 "This program shows an example of how to measure tool lengths automatically "
 "using a switch hooked to the probe input. This is useful for machines "
@@ -46826,25 +46852,22 @@ msgstr ""
 
 #. type: Title ===
 #: src/examples/gcode.adoc:57
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Hole Probe"
 msgstr "Sonda de agujero"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:60
-#, fuzzy
 msgid "File Name: probe-hole.ngc"
 msgstr "Nombre de archivo: probe-hole.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:61
-#, fuzzy
 msgid "Description: Finding the Center and Diameter of a hole."
 msgstr "Descripción: Encontrar el centro y el diámetro de un agujero."
 
 #. type: Plain text
 #: src/examples/gcode.adoc:64
-#, fuzzy
 msgid ""
 "The program demonstrates how to find the center of a hole, measure the hole "
 "diameter and record the results."
@@ -46855,36 +46878,35 @@ msgstr ""
 #. type: Title ===
 #: src/examples/gcode.adoc:65 src/gcode/g-code.adoc:85 html/gcode.html:117
 #: src/plasma/qtplasmac.adoc:1886
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Cutter Compensation"
 msgstr "Compensación del cortador"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:68
-#, fuzzy
 msgid "File Name: comp-g1.ngc"
 msgstr "File Name: comp-g1.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:69
-#, fuzzy
 msgid "Description: Entry and exit movements with compensation of tool radius."
 msgstr ""
-"Description: Entry and exit movements with compensation of tool radius."
+"Descripción: Movimientos de entrada y salida con compensación de radio de "
+"herramienta."
 
 #. type: Plain text
 #: src/examples/gcode.adoc:73
-#, fuzzy
 msgid ""
 "This program demonstrates the peculiarity of the toolpath without and with "
 "tool radius compensation. The tool radius is taken from the tool table."
 msgstr ""
-"This program demonstrates the peculiarity of the toolpath without and with "
-"tool radius compensation. The tool radius is taken from the tool table."
+"Este programa demuestra la peculiaridad de la ruta de herramienta con y sin "
+"compensación de radio de herramienta. El radio de la herramienta se toma de "
+"la tabla de herramientas."
 
 #. type: Title ==
 #: src/examples/gcode.adoc:74
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Lathe Examples"
 msgstr "Ejemplos de torno"
 
@@ -46896,32 +46918,28 @@ msgstr "Roscado"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:79
-#, fuzzy
 msgid "File Name lathe-g76.ngc"
 msgstr "Nombre de archivo lathe-g76.ngc"
 
 #. type: Plain text
 #: src/examples/gcode.adoc:80
-#, fuzzy
 msgid "Description: Facing, threading and parting off."
 msgstr "Descripción: Refrentado, roscado y tronzado."
 
 #. type: Plain text
 #: src/examples/gcode.adoc:82
-#, fuzzy
 msgid "This file shows an example of threading on a lathe using parameters."
 msgstr ""
 "Este archivo muestra un ejemplo de roscado en un torno utilizando parámetros."
 
 #. type: Title =
 #: src/examples/gs2-example.adoc:5
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "GS2 Spindle"
 msgstr "Husillo con GS2"
 
 #. type: Plain text
 #: src/examples/gs2-example.adoc:17
-#, fuzzy
 msgid ""
 "This example shows the connections needed to use an Automation Direct GS2 "
 "VFD to drive a spindle.  The spindle speed and direction is controlled by "
@@ -46933,20 +46951,18 @@ msgstr ""
 
 #. type: Plain text
 #: src/examples/gs2-example.adoc:20
-#, fuzzy
 msgid ""
 "Using the GS2 component involves very little to set up.  We start with a "
 "StepConf Wizard generated config. Make sure the pins with \"Spindle CW\" and "
 "\"Spindle PWM\" are set to unused in the parallel port setup screen."
 msgstr ""
 "El uso del componente GS2 tiene muy poco que configurar. Empezamos con una "
-"configuración generada por el asistente Stepconf. Asegúrese de que los pines "
-"con \"Husillo CW\" y \"Husillo PWM\" están configurados como no utilizados "
-"en la configuración del puerto paralelo."
+"configuración generada por el asistente StepConf. Asegúrese de que los pines "
+"con \"Spindle CW\" y \"Spindle PWM\" están configurados como no utilizados "
+"en la pantalla de configuración del puerto paralelo."
 
 #. type: Plain text
 #: src/examples/gs2-example.adoc:22
-#, fuzzy
 msgid ""
 "In the custom.hal file we place the following to connect LinuxCNC to the GS2 "
 "and have LinuxCNC control the drive."
@@ -46956,13 +46972,13 @@ msgstr ""
 
 #. type: Block title
 #: src/examples/gs2-example.adoc:23
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "GS2 Example"
-msgstr "GS2 Ejemplo"
+msgstr "Ejemplo de GS2"
 
 #. type: delimited block -
 #: src/examples/gs2-example.adoc:28
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# load the non-realtime component for the Automation Direct GS2 VFDs\n"
 "loadusr -Wn spindle-vfd gs2_vfd -r 9600 -p none -s 2 -n spindle-vfd\n"
@@ -46972,47 +46988,46 @@ msgstr ""
 
 #. type: delimited block -
 #: src/examples/gs2-example.adoc:31
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the spindle direction pin to the GS2\n"
 "net gs2-fwd spindle-vfd.spindle-fwd <= spindle.N.forward\n"
 msgstr ""
-"# conecte el pin de dirección del husillo al GS2\n"
+"# conecta el pin de dirección del husillo al GS2\n"
 "net gs2-fwd spindle-vfd.spindle-fwd <= spindle.N.forward\n"
 
 #. type: delimited block -
 #: src/examples/gs2-example.adoc:34
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the spindle on pin to the GS2\n"
 "net gs2-run spindle-vfd.spindle-on <= spindle.N.on\n"
 msgstr ""
-"# conecte el pin de arranque del husillo al GS2\n"
+"# conecta el pin de arranque del husillo al GS2\n"
 "net gs2-run spindle-vfd.spindle-on <= spindle.N.on\n"
 
 #. type: delimited block -
 #: src/examples/gs2-example.adoc:37
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the GS2 at speed to the motion at speed\n"
 "net gs2-at-speed spindle.N.at-speed <= spindle-vfd.at-speed\n"
 msgstr ""
-"# conecte el GS2 a velocidad al movimiento a velocidad\n"
+"# conecta at-speed del GS2 con at-speed de motion\n"
 "net gs2-at-speed spindle.N.at-speed <= spindle-vfd.at-speed\n"
 
 #. type: delimited block -
 #: src/examples/gs2-example.adoc:40
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the spindle RPM to the GS2\n"
 "net gs2-RPM spindle-vfd.speed-command <= spindle.N.speed-out\n"
 msgstr ""
-"# conecte RPM de husillo al GS2\n"
+"# conecta RPM del husillo al GS2\n"
 "net gs2-RPM spindle-vfd.speed-command <= spindle.N.speed-out\n"
 
 #. type: NOTE
 #: src/examples/gs2-example.adoc:46
-#, fuzzy
 msgid ""
 "The transmission speed might be able to be faster depending on the exact "
 "environment.  Both the drive and the command line options must match.  To "
@@ -47020,13 +47035,12 @@ msgid ""
 "a terminal."
 msgstr ""
 "La velocidad de transmisión puede ser más rápida dependiendo del entorno "
-"exacto. Tanto la unidad como las opciones de línea de comando deben "
-"coincidir. Para verificar errores de transmisión, agregue la opción '-v' a "
-"la línea de comando y ejecute desde un terminal."
+"exacto.  Las opciones tanto del controlador como de la línea de comandos "
+"deben coincidir.  Para verificar errores de transmisión agregue la opción '-"
+"v' a la línea de comandos y ejecute desde una terminal."
 
 #. type: NOTE
 #: src/examples/gs2-example.adoc:50
-#, fuzzy
 msgid ""
 "On the GS2 drive itself you need to set a couple of things before the modbus "
 "communications will work.  Other parameters might need to be set based on "
@@ -47034,11 +47048,11 @@ msgid ""
 "Refer to the GS2 manual that came with the drive for more information on the "
 "drive parameters."
 msgstr ""
-"Necesita configurar un par de cosas en el propio driver GS2 antes de que las "
-"comunicaciones modbus funcionen. Puede que sea necesario configurar otros "
-"parámetros basado en sus requisitos físicos, pero estos están más allá del "
-"alcance de este manual. Consulte el manual de GS2 que vino con la unidad "
-"para obtener más información sobre los parámetros del variador."
+"Necesita configurar un par de cosas en el propio controlador GS2 antes de "
+"que funcionen las comunicaciones modbus.  Puede que sea necesario configurar "
+"otros parámetros con base en sus requisitos físicos, pero estos están más "
+"allá del alcance de este manual.  Consulte el manual de GS2 que vino con la "
+"unidad para obtener más información sobre los parámetros del variador."
 
 #. type: NOTE
 #: src/examples/gs2-example.adoc:52
@@ -47086,9 +47100,8 @@ msgstr ""
 
 #. type: NOTE
 #: src/examples/gs2-example.adoc:59
-#, fuzzy
 msgid "A PyVCP panel based on this example is <<gs2-rpm-meter,here>>."
-msgstr "Un panel PyVCP basado en este ejemplo está aqui."
+msgstr "Un panel PyVCP basado en este ejemplo está <<gs2-rpm-meter,aqui>>."
 
 #. type: Title =
 #: src/examples/mpg.adoc:5
@@ -47434,13 +47447,12 @@ msgstr ""
 #. type: Table
 #: src/examples/spindle.adoc:5 html/gcode.html:90 html/gcode.html:91
 #: src/gcode/m-code.adoc:20
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Spindle Control"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "Control de husillo"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:18
-#, fuzzy
 msgid ""
 "LinuxCNC can control up to 8 spindles. The number is set in the INI file.  "
 "The examples below all refer to a single-spindle config with spindle control "
@@ -47451,30 +47463,29 @@ msgstr ""
 "LinuxCNC puede controlar hasta 8 husillos. El número se establece en el "
 "archivo INI.  Todos los ejemplos a continuación se refieren a una "
 "configuración de husillo único con pines de control del husillo con nombres "
-"como spindle.0...  En el caso de una máquina de husillos múltiples, todo lo "
-"que cambia es que existen pines adicionales con nombres como spindle.6..."
+"como 'spindle.0..'.  En el caso de una máquina de husillos múltiples, todo "
+"lo que cambia es que existen pines adicionales con nombres como "
+"'spindle.6..'."
 
 #. type: Title ==
 #: src/examples/spindle.adoc:19
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "0-10 Volt Spindle Speed"
-msgstr "'S' - velocidad de superficie"
+msgstr "Velocidad de husillo de 0-10 voltios"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:25
-#, fuzzy
 msgid "0-10 Volt Spindle Speed Example"
-msgstr "Velocidad del husillo 0-10v"
+msgstr "Ejemplo de velocidad de husillo de 0-10 voltios"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:25
-#, fuzzy
 msgid ""
 "If your spindle speed is controlled by an analog signal, (for example, by a "
 "VFD with a 0 V to 10 V signal) and you're using a DAC card like the m5i20 to "
 "output the control signal:"
 msgstr ""
-"Si la velocidad de su husillo está controlada por una señal analógica, (por "
+"Si la velocidad de tu husillo está controlada por una señal analógica, (por "
 "ejemplo, por un VFD con una señal de 0 a 10 voltios) y estás usando una "
 "tarjeta DAC como la m5i20 para emitir la señal de control:"
 
@@ -47503,8 +47514,8 @@ msgid ""
 "not do scaling."
 msgstr ""
 "Tenemos que agregar un componente de escala al archivo HAL para escalar "
-"spindle.N.speed-out de 0 a 10 que necesita el VFD si su DAC de la tarjeta no "
-"hace escalado."
+"_spindle.N.speed-out_ entre los 0 a 10 que necesita el VFD si el DAC de tu "
+"tarjeta no hace escalado."
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:42
@@ -47524,18 +47535,14 @@ msgstr ""
 
 #. type: Title ==
 #: src/examples/spindle.adoc:44
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "PWM Spindle Speed"
-msgstr "'S' - velocidad de superficie"
+msgstr "Velocidad de husillo por PWM"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:49
-#, fuzzy
-#| msgid "PWM Spindle Speed(((PWM Spindle Speed Example)))"
 msgid "PWM Spindle Speed Example"
-msgstr ""
-"Control de Velocidad (PWM - modulación del ancho de pulso) del husillo(((PWM "
-"Spindle Speed Example)))"
+msgstr "Ejemplo de velocidad de husillo por PWM"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:60
@@ -47561,7 +47568,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/examples/spindle.adoc:66
-#, fuzzy
 msgid ""
 "This assumes that the spindle controller's response to PWM is simple: 0% PWM "
 "gives 0 RPM, 10% PWM gives 180 RPM, etc. If there is a minimum PWM required "
@@ -47570,82 +47576,78 @@ msgid ""
 msgstr ""
 "Esto supone que la respuesta del controlador de husillo a PWM es simple: 0% "
 "PWM da 0 RPM, 10% PWM da 180 RPM, etc. Si hay un PWM mínimo requerido para "
-"hacer girar el husillo, siga el ejemplo en la configuración de muestra de "
-"torno nist para usar un componente de escala."
+"hacer girar el husillo, siga el ejemplo en la configuración de muestra nist-"
+"lathe para usar un componente de escala."
 
 #. type: Title ==
 #: src/examples/spindle.adoc:67
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Spindle Enable"
-msgstr "habilitar índice"
+msgstr "Activar husillo"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:75
-#, fuzzy
 msgid "Spindle Enable Example"
-msgstr "Un ejemplo simple"
+msgstr "Ejemplo de activación de husillo"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:75
-#, fuzzy
 msgid ""
 "If you need a spindle enable signal, link your output pin to "
 "_spindle.0.on_.  To link these pins to a parallel port pin put something "
 "like the following in your .hal file, making sure you pick the pin that is "
 "connected to your control device."
 msgstr ""
-"Si necesita una señal de habilitación de husillo, enlace su pin de salida a "
-"spindle.0.on.  Para vincular estos pines a un pin de puerto paralelo, "
-"coloque algo como lo siguiente en su archivo .hal, asegurándose de elegir el "
-"pin que está conectado a su dispositivo de control."
+"Si necesitas una señal de husillo activo, enlaza tu pin de salida a "
+"_spindle.0.on_.  Para vincular estos pines a un pin de puerto paralelo, "
+"coloca algo como lo siguiente en tu archivo .hal, asegurándote de elegir el "
+"pin que está conectado a tu dispositivo de control."
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:79
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "net spindle-enable spindle.0.on => parport.0.pin-14-out\n"
-msgstr "net spindle-enable spindle.N.on => parport.0.pin-14-out\n"
+msgstr "net spindle-enable spindle.0.on => parport.0.pin-14-out\n"
 
 #. type: Title ==
 #: src/examples/spindle.adoc:81
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Spindle Direction"
-msgstr "Dirección de señal"
+msgstr "Dirección del husillo"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:88
-#, fuzzy
 msgid "Spindle Direction Example"
-msgstr "Ejemplo de Indirección"
+msgstr "Ejemplo de dirección del husillo"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:88
-#, fuzzy
 msgid ""
 "If you have direction control of your spindle, then the HAL pins "
 "'spindle._N_.forward' and 'spindle._N_.reverse' are controlled by the G-"
 "codes M3 and M4. Spindle speed S__n__ must be set to a positive non-zero "
 "value for M3/M4 to turn on spindle motion."
 msgstr ""
-"Si tiene control de dirección de su husillo, los pines HAL spindle.N.forward "
-"y spindle.N.reverse están controlados por M3 y M4. La velocidad del husillo "
-"'Sn' debe establecerse en un valor positivo distinto de cero para que M3/M4 "
-"activen el movimiento del husillo."
+"Si tienes control de dirección de tu husillo, los pines HAL "
+"'spindle._N_.forward' y 'spindle._N_.reverse' están controlados por los "
+"códigos G M3 y M4. La velocidad del husillo S__n__ debe establecerse en un "
+"valor positivo distinto de cero para que M3/M4 activen el movimiento del "
+"husillo."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:92
-#, fuzzy
 msgid ""
 "To link these pins to a parallel port pin, put something like the following "
 "in your .hal file making sure you pick the pin that is connected to your "
 "control device."
 msgstr ""
-"Para vincular estos pines a un pin de puerto paralelo, coloque algo como lo "
-"siguiendo en su archivo .hal asegurándose de elegir el pin que está "
-"conectado a su dispositivo de control."
+"Para vincular estos pines a un pin de puerto paralelo, coloca algo como lo "
+"siguiente en tu archivo .hal asegurándote de elegir el pin que está "
+"conectado a tu dispositivo de control."
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:97
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "net spindle-fwd spindle.0.forward => parport.0.pin-16-out\n"
 "net spindle-rev spindle.0.reverse => parport.0.pin-17-out\n"
@@ -47655,19 +47657,17 @@ msgstr ""
 
 #. type: Title ==
 #: src/examples/spindle.adoc:99
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Spindle Soft Start"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "Arranque por software del husillo"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:109
-#, fuzzy
 msgid "Spindle Soft Start Example"
-msgstr "Ejemplo de arranque remoto"
+msgstr "Ejemplo de arranque por software del husillo"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:109
-#, fuzzy
 msgid ""
 "If you need to ramp your spindle speed command and your control does not "
 "have that feature it can be done in HAL. Basically you need to hijack the "
@@ -47676,140 +47676,136 @@ msgid ""
 "your device that receives the rpm.  The second part is to let LinuxCNC know "
 "when the spindle is at speed so motion can begin."
 msgstr ""
-"Si necesita rampa en el comando de velocidad del eje y su control no tiene "
-"esa característica, se puede hacer en HAL. Básicamente necesita secuestrar "
-"la salida de spindle.N.speed-out y llevarla a través de un componente limit2 "
-"con la escala establecida, por lo que las rpm subiran en rampa desde "
-"spindle.N.speed-out al dispositivo que recibe las rpm.  La segunda parte es "
-"informar a LinuxCNC cuando el husillo está a velocidad para que el "
-"movimiento pueda empezar."
+"Si necesitas rampa en tu comando de velocidad del husillo y tu control no "
+"tiene esa característica, se puede hacer en HAL. Básicamente necesitas "
+"secuestrar la salida de 'spindle._N_.speed-out' y llevarla a través de un "
+"componente 'limit2' con la escala establecida, por lo que las rpm subirán en "
+"rampa desde 'spindle._N_.speed-out' al tu dispositivo que recibe las rpm.  "
+"La segunda parte es informar a LinuxCNC cuando el husillo está a velocidad "
+"para que el movimiento pueda empezar."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:111
-#, fuzzy
 msgid "In the 0-10 Volt example the line"
 msgstr "En el ejemplo de 0-10 voltios, la línea"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:115
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "net spindle-speed-scale spindle.0.speed-out => scale.0.in\n"
 msgstr "net spindle-speed-scale spindle.0.speed-out => scale.0.in\n"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:118
-#, fuzzy
 msgid "is changed as shown in the following example:"
 msgstr "se cambia como se muestra en el siguiente ejemplo:"
 
 #. type: Block title
 #: src/examples/spindle.adoc:119
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Intro to HAL components limit2 and near"
-msgstr "Introducción a los componentes HAL2 limit2 y near"
+msgstr "Introducción a los componentes HAL limit2 y near"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:123
-#, fuzzy
 msgid ""
 "In case you have not run across them before, here's a quick introduction to "
 "the two HAL components used in the following example."
 msgstr ""
-"En caso de que no los haya visto antes, aquí damos una introducción rápida a "
-"los dos componentes HAL utilizados en el siguiente ejemplo."
+"En caso de que no los hayas visto antes, aquí damos una introducción rápida "
+"a los dos componentes HAL utilizados en el siguiente ejemplo."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:128
-#, fuzzy
 msgid ""
 "A 'limit2' is a HAL component (floating point) that accepts an input value "
 "and provides an output that has been limited to a max/min range, and also "
 "limited to not exceed a specified rate of change."
 msgstr ""
-"\"limit2\" es un componente HAL (coma flotante) que acepta un valor de "
+"'limit2' es un componente HAL (punto flotante) que acepta un valor de "
 "entrada y proporciona una salida que se ha limitado a un rango máximo/"
 "mínimo, y también limitado a no exceder una tasa de cambio especificada."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:130
-#, fuzzy
 msgid ""
 "A 'near' is a HAL component (floating point) with a binary output that says "
 "whether two inputs are approximately equal."
 msgstr ""
-"\"near\" es un componente HAL (coma flotante) con una salida binaria que "
-"dice si dos entradas son aproximadamente iguales."
+"'near' es un componente HAL (punto flotante) con una salida binaria que dice "
+"si dos entradas son aproximadamente iguales."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:133
-#, fuzzy
 msgid ""
 "More info is available in the documentation for HAL components, or from the "
 "man pages, just say 'man limit2' or 'man near' in a terminal."
 msgstr ""
 "Más información está disponible en la documentación de los componentes HAL, "
-"o desde las páginas del manual, simplemente escriba 'man limit2' o 'man "
+"o desde las páginas del manual, simplemente escribe 'man limit2' o 'man "
 "near' en una terminal."
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:139
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# load the real time modules limit2 and near with names so it is easier to follow their connections\n"
 "loadrt limit2 names=spindle-ramp\n"
 "loadrt near names=spindle-at-speed\n"
 msgstr ""
-"# carga en tiempo real un limit2 y un near con nombres para que sean más fáciles de seguir\n"
+"# carga los módulos en tiempo real limit2 y un near con nombres para que "
+"sean más fáciles de seguir sus conexiones\n"
 "loadrt limit2 names=spindle-ramp\n"
 "loadrt near names=spindle-at-speed\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:143
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# add the functions to a thread\n"
 "addf spindle-ramp servo-thread\n"
 "addf spindle-at-speed servo-thread\n"
 msgstr ""
-"# agregar las funciones a un hilo\n"
+"# agrega las funciones a un hilo\n"
 "addf spindle-ramp servo-thread\n"
 "addf spindle-at-speed servo-thread\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:147
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# set the parameter for max rate-of-change\n"
 "# (max spindle accel/decel in units per second)\n"
 "setp spindle-ramp.maxv 60\n"
 msgstr ""
 "# establece el parámetro para la tasa máxima de cambio\n"
-"# (aceleración / desaceleración máxima del husillo en unidades por segundo)\n"
+"# (aceleración/desaceleración máxima del husillo en unidades por segundo)\n"
 "setp spindle-ramp.maxv 60\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:150
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# hijack the spindle speed out and send it to spindle ramp in\n"
 "net spindle-cmd <= spindle.0.speed-out => spindle-ramp.in\n"
 msgstr ""
-"# secuestrar la velocidad del husillo y enviarla a spindle-ramp\n"
+"# secuestra la salida de velocidad del husillo y la envía a la entrada de "
+"rampa del husillo\n"
 "net spindle-cmd <= spindle.0.speed-out => spindle-ramp.in\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:153
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# the output of spindle ramp is sent to the scale in\n"
 "net spindle-ramped <= spindle-ramp.out => scale.0.in\n"
 msgstr ""
-"# la salida de spindle-ramp se envía a la escala\n"
+"# la salida de rampa del husillo se envía a la entrada de escala\n"
 "net spindle-ramped <= spindle-ramp.out => scale.0.in\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:160
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# to know when to start the motion we send the near component\n"
 "# (named spindle-at-speed) to the spindle commanded speed from\n"
@@ -47827,7 +47823,7 @@ msgstr ""
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:164
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# the output from spindle-at-speed is sent to spindle.0.at-speed\n"
 "# and when this is true motion will start\n"
@@ -47839,9 +47835,9 @@ msgstr ""
 
 #. type: Title ==
 #: src/examples/spindle.adoc:166
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Spindle Feedback"
-msgstr "Feedback del husillo"
+msgstr "Retroalimentación del husillo"
 
 #. type: Title ==
 #: src/examples/spindle.adoc:168 src/gcode/g-code.adoc:81 html/gcode.html:64
@@ -47852,13 +47848,11 @@ msgstr "Movimiento sincronizado del husillo"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:176
-#, fuzzy
 msgid "Spindle Synchronized Motion Example"
-msgstr "Movimiento sincronizado del husillo"
+msgstr "Ejemplo de movimiento sincronizado del husillo"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:176
-#, fuzzy
 msgid ""
 "Spindle feedback is needed by LinuxCNC to perform any spindle coordinated "
 "motions like threading and constant surface speed.  LinuxCNC can perform "
@@ -47869,26 +47863,24 @@ msgstr ""
 "LinuxCNC necesita retroalimentación del husillo para realizar cualquier "
 "movimiento coordinado con el husillo como roscado o velocidad de superficie "
 "constante (CSS).  LinuxCNC puede realizar movimientos sincronizados y CSS "
-"con cualquiera de hasta 8 husillos. Los husillos que se utilizan se "
+"con cualquiera cantidad hasta 8 husillos. Los husillos que se utilizan se "
 "controlan desde el código G. CSS es posible con varios husillos "
 "simultáneamente."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:180
-#, fuzzy
 msgid ""
 "The StepConf Wizard can perform the connections for a single-spindle "
 "configuration for you if you select Encoder Phase A and Encoder Index as "
 "inputs."
 msgstr ""
 "El asistente StepConf puede realizar las conexiones para configurar un solo "
-"husillo si selecciona Encoder Fase A e Encoder Indice como entradas."
+"husillo si selecciona como entradas Encoder Fase A y Encoder Indice."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:182
-#, fuzzy
 msgid "Hardware assumptions for this example:"
-msgstr "Suposiciones de hardware:"
+msgstr "Suposiciones de hardware del ejemplo:"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:185
@@ -47914,7 +47906,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/examples/spindle.adoc:199
-#, fuzzy
 msgid ""
 "Basic Steps to add the components and configure them: footnote:[In this "
 "example, we will assume that some encoders have already been issued to axes/"
@@ -47929,90 +47920,89 @@ msgstr ""
 "Pasos básicos para agregar los componentes y configurarlos: footnote:[En "
 "este ejemplo, asumiremos que algunos codificadores ya tienen asignaciones a "
 "ejes/articulaciones 0, 1 y 2. Por tanto, el próximo codificador disponible "
-"para nosotros sería el número 3. Su situación puede ser diferente.] footnote:"
-"[La habilitación del índice del codificador HAL es una excepción a la regla "
-"ya que se comporta como una entrada y una salida, vea la <<sec:encoder, "
-"sección del codificador>> para más detalles] footnote:[Ya que seleccionamos "
-"'conteo simple no en cuadratura ...', podemos salir con el conteo de "
-"'cuadratura' sin tener ninguna entrada B de cuadratura.]"
+"para nosotros sería el número 3. Tu situación puede ser diferente.] "
+"footnote:[La habilitación del índice del codificador HAL es una excepción a "
+"la regla ya que se comporta como una entrada y una salida, ver la "
+"<<sec:encoder,sección del codificador>> para más detalles] footnote:[Ya que "
+"seleccionamos 'conteo simple no en cuadratura ...', podemos salir con el "
+"conteo de 'cuadratura' sin tener ninguna entrada B de cuadratura.]"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:206
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# Add the encoder to HAL and attach it to threads.\n"
 "loadrt encoder num_chan=4\n"
 "addf encoder.update-counters base-thread\n"
 "addf encoder.capture-position servo-thread\n"
 msgstr ""
-"# agregar el codificador a HAL y conéctarlo a los hilos.\n"
-"loadrt encoder num_chan=1\n"
+"# Agrega el codificador a HAL y lo conecta a los hilos.\n"
+"loadrt encoder num_chan=4\n"
 "addf encoder.update-counters base-thread\n"
 "addf encoder.capture-position servo-thread\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:209
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# Set the HAL encoder to 100 pulses per revolution.\n"
 "setp encoder.3.position-scale 100\n"
 msgstr ""
-"# establecer el codificador HAL en 100 pulsos por revolución.\n"
+"# Establece el codificador HAL en 100 pulsos por revolución.\n"
 "setp encoder.3.position-scale 100\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:212
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# Set the HAL encoder to non-quadrature simple counting using A only.\n"
 "setp encoder.3.counter-mode true\n"
 msgstr ""
-"# establecer el codificador HAL en un recuento simple no en cuadratura usando solo A.\n"
+"# Establece el codificador HAL en conteo simple no en cuadratura usando solo "
+"A.\n"
 "setp encoder.3.counter-mode true\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:217
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# Connect the HAL encoder outputs to LinuxCNC.\n"
 "net spindle-position encoder.3.position => spindle.0.revs\n"
 "net spindle-velocity encoder.3.velocity => spindle.0.speed-in\n"
 "net spindle-index-enable encoder.3.index-enable <=> spindle.0.index-enable\n"
 msgstr ""
-"# conectar las salidas del codificador HAL a LinuxCNC.\n"
+"# Conecta las salidas del codificador HAL a LinuxCNC.\n"
 "net spindle-position encoder.3.position => spindle.0.revs\n"
 "net spindle-velocity encoder.3.velocity => spindle.0.speed-in\n"
-"net spindle-index-enable encoder.3.index-enable <=> spindle.N.index-enable\n"
+"net spindle-index-enable encoder.3.index-enable <=> spindle.0.index-enable\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:222
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# Connect the HAL encoder inputs to the real encoder.\n"
 "net spindle-phase-a encoder.3.phase-A <= parport.0.pin-10-in\n"
 "net spindle-phase-b encoder.3.phase-B\n"
 "net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in\n"
 msgstr ""
-"# conectar las entradas del codificador HAL al codificador real.\n"
+"# Conecta las entradas del codificador HAL al codificador real.\n"
 "net spindle-phase-a encoder.3.phase-A <= parport.0.pin-10-in\n"
-"net spindle-phase-b encoder.3.phase-B \n"
+"net spindle-phase-b encoder.3.phase-B\n"
 "net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in\n"
 
 #. type: Title ===
 #: src/examples/spindle.adoc:225
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Spindle At Speed"
-msgstr "'S' - velocidad de superficie"
+msgstr "Husillo a velocidad de régimen"
 
 #. type: Index entry
 #: src/examples/spindle.adoc:234
-#, fuzzy
 msgid "Spindle At Speed Example"
-msgstr "Husillo a velocidad(((Spindle At Speed Example)))"
+msgstr "Ejemplo de husillo a velocidad de régimen"
 
 #. type: Plain text
 #: src/examples/spindle.adoc:234
-#, fuzzy
 msgid ""
 "To enable LinuxCNC to wait for the spindle to be at speed before executing a "
 "series of moves, the spindle._N_.at-speed needs to turn true at the moment "
@@ -48021,17 +48011,16 @@ msgid ""
 "usually 'exactly' the same you should to use the 'near' component to "
 "determine that the two numbers are close enough."
 msgstr ""
-"Para permitir que LinuxCNC espere a que el eje esté a velocidad antes de "
-"ejecutar una serie de movimientos, debe establecer spindle.N.at-speed en "
-"true cuando el husillo está a la velocidad ordenada. Para hacer esto "
-"necesita retroalimentación de un codificador en el husillo. Puesto que la "
+"Para permitir que LinuxCNC espere a que el husillo esté a velocidad antes de "
+"ejecutar una serie de movimientos, debe establecer spindle._N_.at-speed en "
+"Verdadero cuando el husillo está a la velocidad ordenada. Para hacer esto "
+"necesitas retroalimentación de un codificador en el husillo. Puesto que la "
 "retroalimentación y la velocidad ordenada por lo general, no son "
-"\"exactamente\" iguales, debería usar un componente \"near\" para determinar "
-"que los dos números están lo suficientemente proximos."
+"'exactamente' iguales, deberías usar el componente 'near' para determinar "
+"que los dos números están lo suficientemente próximos."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:242
-#, fuzzy
 msgid ""
 "The connections needed are from the spindle velocity command signal to "
 "near.n.in1 and from the spindle velocity from the encoder to near.n.in2. "
@@ -48041,11 +48030,11 @@ msgid ""
 "with your hardware."
 msgstr ""
 "Las conexiones necesarias son desde la señal de comando de velocidad del "
-"husillo a near.n.in1 y desde el codificador hasta near.n.in2. near.n.out "
-"está conectado a spindle.N.at-speed. near.n.scale debe establecerse para "
-"decir cuanto de cerca deben estar los dos números antes de activar la "
-"salida. Dependiendo de su configuración, es posible que deba ajustar la "
-"escala para que funcione con su hardware."
+"husillo a near.n.in1 y desde la velocidad del husillo del codificador a "
+"near.n.in2. Luego near.n.out se conecta a spindle._N_.at-speed. Se debe "
+"configurar near.n.scale para decir cuán cerca deben estar los dos números "
+"antes de activar la salida. Dependiendo de tu configuración, es posible que "
+"debas ajustar la escala para que funcione con tu hardware."
 
 #. type: Plain text
 #: src/examples/spindle.adoc:247
@@ -48055,61 +48044,62 @@ msgid ""
 "the count and adjust code to suit. Check to make sure the signal names are "
 "the same in your HAL file."
 msgstr ""
-"Lo siguiente son las adiciones típicas necesarias para su archivo HAL para "
-"habilitar Spindle At Speed. Si ya tiene near en su archivo HAL, aumente "
-"count y ajuste el código para adaptarlo. Asegúrese de que los nombres de las "
-"señales sean los mismos en su archivo HAL."
+"Lo siguiente son las adiciones típicas necesarias para tu archivo HAL para "
+"habilitar Spindle At Speed. Si ya tienes near en tu archivo HAL, aumenta "
+"count y ajusta el código para adaptarlo. Asegúrate de que los nombres de las "
+"señales sean los mismos en tu archivo HAL."
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:253
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# load a near component and attach it to a thread\n"
 "loadrt near\n"
 "addf near.0 servo-thread\n"
 msgstr ""
-"# cargar un componente near y adjuntarlo a un hilo\n"
+"# carga un componente near y lo adjunta a un hilo\n"
 "loadrt near\n"
 "addf near.0 servo-thread\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:256
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect one input to the commanded spindle speed\n"
 "net spindle-cmd => near.0.in1\n"
 msgstr ""
-"# conectar una entrada a la velocidad de husillo ordenada\n"
+"# conecta una entrada a la velocidad de husillo ordenada\n"
 "net spindle-cmd => near.0.in1\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:259
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect one input to the encoder-measured spindle speed\n"
 "net spindle-velocity => near.0.in2\n"
 msgstr ""
-"# conectar una entrada a la velocidad del husillo medida por el codificador\n"
+"# conecta una entrada a la velocidad del husillo medida por el codificador\n"
 "net spindle-velocity => near.0.in2\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:262
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# connect the output to the spindle-at-speed input\n"
 "net spindle-at-speed spindle.0.at-speed <= near.0.out\n"
 msgstr ""
-"# conectar la salida a la entrada de spindle-at-speed\n"
+"# conecta la salida a la entrada de spindle-at-speed\n"
 "net spindle-at-speed spindle.0.at-speed <= near.0.out\n"
 
 #. type: delimited block -
 #: src/examples/spindle.adoc:265
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "# set the spindle speed inputs to agree if within 1%\n"
 "setp near.0.scale 1.01\n"
 msgstr ""
-"# configurar las entradas de velocidad del husillo para que estén de acuerdo si están dentro del 1%\n"
+"# configura las entradas de velocidad del husillo para que estén de acuerdo "
+"si están dentro del 1%\n"
 "setp near.0.scale 1.01\n"
 
 #. type: Title ==
@@ -49404,31 +49394,29 @@ msgstr "(Por escribirse)"
 
 #. type: Title =
 #: src/gcode/g-code.adoc:5
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G-Codes"
 msgstr "Códigos G"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:11
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Conventions"
 msgstr "Convenciones"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:14
-#, fuzzy
 msgid "Conventions used in this section"
 msgstr "Convenciones utilizadas en esta sección"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:17
-#, fuzzy
 msgid ""
 "In the G-code prototypes the hyphen ('-') stands for a real value and ('<>') "
 "denotes an optional item."
 msgstr ""
-"En los prototipos de código G, un guión ('-') representa un valor real y "
-"('<>') denota un elemento opcional."
+"En los prototipos de código G, un guión ('-') representa un valor real y ('<>"
+"') denota un elemento opcional."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:20 src/gcode/g-code.adoc:54
@@ -49436,68 +49424,59 @@ msgid ""
 "If 'L-' is written in a prototype the '-' will often be referred to as the "
 "'L number', and so on for any other letter."
 msgstr ""
-"Si está escrito en un prototipo 'L-', a menudo se hará referencia a '-' como "
+"Si en un prototipo está escrito 'L-', a menudo se hará referencia a '-' como "
 "el 'número L', y así sucesivamente para cualquier otra letra."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:23
-#, fuzzy
 msgid ""
 "In the G-code prototypes the word 'axes' stands for any axis as defined in "
 "your configuration."
 msgstr ""
 "En los prototipos de código G, la palabra 'ejes' representa cualquier eje "
-"como se definió en su configuración."
+"como se definió en tu configuración."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:25
-#, fuzzy
 msgid "An optional value will be written like this '<L- >'."
-msgstr "Un valor opcional se escribirá como esto '<L->'."
+msgstr "Un valor opcional se escribirá como esto '<L- >'."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:27
-#, fuzzy
 msgid "A real value may be:"
 msgstr "Un valor real puede ser:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:29
-#, fuzzy
 msgid "An explicit number, '4'"
 msgstr "Un número explícito, '4'"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:30
-#, fuzzy
 msgid "An expression, '[2+2]'"
-msgstr "Una expresión, '[2 + 2]'"
+msgstr "Una expresión, '[2+2]'"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:31
-#, fuzzy
 msgid "A parameter value, '#88'"
-msgstr "Un valor de parámetro, '# 88'"
+msgstr "Un valor de parámetro, '#88'"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:32
-#, fuzzy
 msgid "A unary function value, 'acos[0]'"
-msgstr "Un valor de función unaria, 'acos [0]'"
+msgstr "Un valor de función unaria, 'acos[0]'"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:36
-#, fuzzy
 msgid ""
 "In most cases, if 'axis' words are given (any or all of 'X Y Z A B C U V "
 "W'), they specify a destination point."
 msgstr ""
-"En la mayoría de los casos, si se dan palabras de 'eje' (cualquiera o todos "
+"En la mayoría de los casos, si se dan palabras de 'eje' (cualquiera o todas "
 "de 'X Y Z A B C U V W'), especificarán un punto de destino."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:40
-#, fuzzy
 msgid ""
 "Axis numbers are in the currently active coordinate system, unless "
 "explicitly described as being in the absolute coordinate system."
@@ -49508,7 +49487,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:43
-#, fuzzy
 msgid ""
 "Where axis words are optional, any omitted axes will retain their original "
 "value."
@@ -49518,7 +49496,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:46
-#, fuzzy
 msgid ""
 "Any items in the G-code prototypes not explicitly described as optional are "
 "required."
@@ -49542,51 +49519,50 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:56
-#, fuzzy
 msgid "G-Code Table"
 msgstr "Códigos G"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:56
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G-Code Quick Reference Table"
-msgstr "Tabla de referencia rápida de códigos M"
+msgstr "Referencia rápida de códigos G"
 
 #. type: Table
 #: src/gcode/g-code.adoc:61
 #, no-wrap
 msgid "<<gcode:g0,G0>>"
-msgstr ""
+msgstr "<<gcode:g0,G0>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:62
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinated Motion at Rapid Rate"
-msgstr "Movimiento lineal coordinado"
+msgstr "Movimiento coordinado rápido"
 
 #. type: Table
 #: src/gcode/g-code.adoc:62
 #, no-wrap
 msgid "<<gcode:g1,G1>>"
-msgstr ""
+msgstr "<<gcode:g1,G1>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:63
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinated Motion at Feed Rate"
-msgstr "Movimiento lineal coordinado"
+msgstr "Movimiento lineal coordinado a velocidad de alimentación"
 
 #. type: Table
 #: src/gcode/g-code.adoc:63
 #, no-wrap
 msgid "<<gcode:g2-g3,G2 G3>>"
-msgstr ""
+msgstr "<<gcode:g2-g3,G2 G3>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:64
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinated Helical Motion at Feed Rate"
-msgstr "Movimiento lineal coordinado"
+msgstr "Movimiento helicoidal coordinado a velocidad de alimentación"
 
 #. type: Table
 #: src/gcode/g-code.adoc:64
@@ -49605,199 +49581,199 @@ msgstr "Espera"
 #: src/gcode/g-code.adoc:65
 #, no-wrap
 msgid "<<gcode:g5,G5>>"
-msgstr ""
+msgstr "<<gcode:g5,G5>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:66 html/gcode.html:60
 #, no-wrap
 msgid "Cubic Spline"
-msgstr ""
+msgstr "Spline cúbico"
 
 #. type: Table
 #: src/gcode/g-code.adoc:66
 #, no-wrap
 msgid "<<gcode:g5.1,G5.1>>"
-msgstr ""
+msgstr "<<gcode:g5.1,G5.1>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:67
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Quadratic B-Spline"
-msgstr "G5.1 Muestra de spline cuadrática"
+msgstr "B-Spline cuadrática"
 
 #. type: Table
 #: src/gcode/g-code.adoc:67
 #, no-wrap
 msgid "<<gcode:g5.2-g5.3,G5.2,G5.3>>"
-msgstr ""
+msgstr "<<gcode:g5.2-g5.3,G5.2,G5.3>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:68
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "NURBS, add control point"
-msgstr "Punto de control"
+msgstr "NURBS, agregar punto de control"
 
 #. type: Table
 #: src/gcode/g-code.adoc:68
 #, no-wrap
 msgid "<<gcode:g7,G7>>"
-msgstr ""
+msgstr "<<gcode:g7,G7>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:69
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Diameter Mode (lathe)"
-msgstr "Modo de radio y diametro"
+msgstr "Modo diámetro (torno)"
 
 #. type: Table
 #: src/gcode/g-code.adoc:69
 #, no-wrap
 msgid "<<gcode:g8,G8>>"
-msgstr ""
+msgstr "<<gcode:g8,G8>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:70
 #, no-wrap
 msgid "Radius Mode (lathe)"
-msgstr ""
+msgstr "Modo radio (torno)"
 
 #. type: Table
 #: src/gcode/g-code.adoc:70
 #, no-wrap
 msgid "<<gcode:g10-l0,G10 L0>>"
-msgstr ""
+msgstr "<<gcode:g10-l0,G10 L0>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:71 html/gcode.html:160
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Reload Tool Table Data"
-msgstr "La tabla de herramientas"
+msgstr "Recargar tabla de herramientas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:71
 #, no-wrap
 msgid "<<gcode:g10-l1,G10 L1>>"
-msgstr ""
+msgstr "<<gcode:g10-l1,G10 L1>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:72
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Set Tool Table Entry"
-msgstr "La tabla de herramientas"
+msgstr "Establece entrada de tabla de herramientas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:72
 #, no-wrap
 msgid "<<gcode:g10-l10,G10 L10>>"
-msgstr ""
+msgstr "<<gcode:g10-l10,G10 L10>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:73
 #, no-wrap
 msgid "Set Tool Table, Calculated, Workpiece"
-msgstr ""
+msgstr "Establece tabla de herramientas, cálculo, pieza de trabajo"
 
 #. type: Table
 #: src/gcode/g-code.adoc:73
 #, no-wrap
 msgid "<<gcode:g10-l11,G10 L11>>"
-msgstr ""
+msgstr "<<gcode:g10-l11,G10 L11>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:74
 #, no-wrap
 msgid "Set Tool Table, Calculated, Fixture"
-msgstr ""
+msgstr "Establece tabla de herramientas, cálculo, fijación"
 
 #. type: Table
 #: src/gcode/g-code.adoc:74
 #, no-wrap
 msgid "<<gcode:g10-l2,G10 L2>>"
-msgstr ""
+msgstr "<<gcode:g10-l2,G10 L2>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:75
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinate System Origin Setting"
-msgstr "Desplazamientos del sistema de coordenadas"
+msgstr "Asignación del origen del sistema de coordenadas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:75
 #, no-wrap
 msgid "<<gcode:g10-l20,G10 L20>>"
-msgstr ""
+msgstr "<<gcode:g10-l20,G10 L20>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:76
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinate System Origin Setting Calculated"
-msgstr "Desplazamientos del sistema de coordenadas"
+msgstr "Asignación del cálculo del origen del sistema de coordenadas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:76
 #, no-wrap
 msgid "<<gcode:g17-g19.1,G17 - G19.1>>"
-msgstr ""
+msgstr "<<gcode:g17-g19.1,G17 - G19.1>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:77 html/gcode.html:113
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Plane Select"
-msgstr "Selección de columnas"
+msgstr "Selección de plano"
 
 #. type: Table
 #: src/gcode/g-code.adoc:77
 #, no-wrap
 msgid "<<gcode:g20-g21,G20 G21>>"
-msgstr ""
+msgstr "<<gcode:g20-g21,G20 G21>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:78
 #, no-wrap
 msgid "Set Units of Measure"
-msgstr ""
+msgstr "Establece unidades de medida"
 
 #. type: Table
 #: src/gcode/g-code.adoc:78
 #, no-wrap
 msgid "<<gcode:g28-g28.1,G28 - G28.1>>"
-msgstr ""
+msgstr "<<gcode:g28-g28.1,G28 - G28.1>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:79 src/gcode/g-code.adoc:80
 #, no-wrap
 msgid "Go to Predefined Position"
-msgstr ""
+msgstr "Ir a la posición predefinida"
 
 #. type: Table
 #: src/gcode/g-code.adoc:79
 #, no-wrap
 msgid "<<gcode:g30-g30.1,G30 - G30.1>>"
-msgstr ""
+msgstr "<<gcode:g30-g30.1,G30 - G30.1>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:80
 #, no-wrap
 msgid "<<gcode:g33,G33>>"
-msgstr ""
+msgstr "<<gcode:g33,G33>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:81
 #, no-wrap
 msgid "<<gcode:g33.1,G33.1>>"
-msgstr ""
+msgstr "<<gcode:g33.1,G33.1>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:82 html/gcode.html:65
 #, no-wrap
 msgid "Rigid Tapping"
-msgstr ""
+msgstr "Roscado interno rígido"
 
 #. type: Table
 #: src/gcode/g-code.adoc:82
 #, no-wrap
 msgid "<<gcode:g38,G38.2 - G38.5>>"
-msgstr ""
+msgstr "<<gcode:g38,G38.2 - G38.5>>"
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:83 src/gui/qtdragon.adoc:848
@@ -49810,13 +49786,13 @@ msgstr "Sondeo"
 #: src/gcode/g-code.adoc:83
 #, no-wrap
 msgid "<<gcode:g40,G40>>"
-msgstr ""
+msgstr "<<gcode:g40,G40>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:84
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Cancel Cutter Compensation"
-msgstr "Compensación del cortador"
+msgstr "Cancelación de compensación del cortador"
 
 #. type: Table
 #: src/gcode/g-code.adoc:84
@@ -49828,61 +49804,61 @@ msgstr "<<gcode:g41-g42,G41 G42>>"
 #: src/gcode/g-code.adoc:85
 #, no-wrap
 msgid "<<gcode:g41.1-g42.1,G41.1 G42.1>>"
-msgstr ""
+msgstr "<<gcode:g41.1-g42.1,G41.1 G42.1>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:86 html/gcode.html:118
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Dynamic Cutter Compensation"
-msgstr "Compensación del cortador"
+msgstr "Compensación del cortador dinámica"
 
 #. type: Table
 #: src/gcode/g-code.adoc:86
 #, no-wrap
 msgid "<<gcode:g43,G43>>"
-msgstr ""
+msgstr "<<gcode:g43,G43>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:87
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Use Tool Length Offset from Tool Table"
-msgstr "offsets de longitud de herramienta"
+msgstr "Usar offsets de longitud de herramienta de la tabla de herramientas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:87
 #, no-wrap
 msgid "<<gcode:g43.1,G43.1>>"
-msgstr ""
+msgstr "<<gcode:g43.1,G43.1>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:88 html/gcode.html:100
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Dynamic Tool Length Offset"
-msgstr "'Longitudes de herramientas dinámicas'"
+msgstr "Offset de longitud de herramienta dinámico"
 
 #. type: Table
 #: src/gcode/g-code.adoc:88
 #, no-wrap
 msgid "<<gcode:g43.2,G43.2>>"
-msgstr ""
+msgstr "<<gcode:g43.2,G43.2>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:89 html/gcode.html:101
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Apply additional Tool Length Offset"
-msgstr "offsets de longitud de herramienta"
+msgstr "Aplicar offset adicional de longitud de herramienta"
 
 #. type: Table
 #: src/gcode/g-code.adoc:89
 #, no-wrap
 msgid "<<gcode:g49,G49>>"
-msgstr ""
+msgstr "<<gcode:g49,G49>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:90
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Cancel Tool Length Offset"
-msgstr "offsets de longitud de herramienta"
+msgstr "Cancelar offset de longitud de herramienta"
 
 #. type: Table
 #: src/gcode/g-code.adoc:90
@@ -49892,355 +49868,357 @@ msgstr "<<gcode:g52,G52>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:91
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Local Coordinate System Offset"
-msgstr "Desplazamientos del sistema de coordenadas"
+msgstr "Desplazamiento del sistema de coordenadas local"
 
 #. type: Table
 #: src/gcode/g-code.adoc:91
 #, no-wrap
 msgid "<<gcode:g53,G53>>"
-msgstr ""
+msgstr "<<gcode:g53,G53>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:92 html/gcode.html:168
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Move in Machine Coordinates"
-msgstr "Coordenadas Maquina G53"
+msgstr "Mover en coordenadas de máquina"
 
 #. type: Table
 #: src/gcode/g-code.adoc:92
 #, no-wrap
 msgid "<<gcode:g54-g59.3,G54-G59.3>>"
-msgstr ""
+msgstr "<<gcode:g54-g59.3,G54-G59.3>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:93
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Select Coordinate System (1 - 9)"
-msgstr "Sistema de Coordenadas Predeterminado"
+msgstr "Seleccionar sistema de coordenadas (1 - 9)"
 
 #. type: Table
 #: src/gcode/g-code.adoc:93
 #, no-wrap
 msgid "<<gcode:g61,G61>>"
-msgstr ""
+msgstr "<<gcode:g61,G61>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:94 html/gcode.html:121
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Exact Path Mode"
-msgstr "* modo de ruta exacta"
+msgstr "Modo de ruta exacta"
 
 #. type: Table
 #: src/gcode/g-code.adoc:94
 #, no-wrap
 msgid "<<gcode:g61.1,G61.1>>"
-msgstr ""
+msgstr "<<gcode:g61.1,G61.1>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:95 html/gcode.html:122
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Exact Stop Mode"
-msgstr "* modo de parada exacta"
+msgstr "Modo de parada exacta"
 
 #. type: Table
 #: src/gcode/g-code.adoc:95
 #, no-wrap
 msgid "<<gcode:g64,G64>>"
-msgstr ""
+msgstr "<<gcode:g64,G64>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:96
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Path Control Mode with Optional Tolerance"
-msgstr "Modo de control de ruta(((modo de control de ruta)))"
+msgstr "Modo de control de ruta con tolerancia opcional"
 
 #. type: Table
 #: src/gcode/g-code.adoc:96
 #, no-wrap
 msgid "<<gcode:g70,G70>>"
-msgstr ""
+msgstr "<<gcode:g70,G70>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:97 html/gcode.html:69
 #, no-wrap
 msgid "Lathe finishing cycle"
-msgstr ""
+msgstr "Ciclo de acabado de torneado"
 
 #. type: Table
 #: src/gcode/g-code.adoc:97
 #, no-wrap
 msgid "<<gcode:g71-g72,G71-G72>>"
-msgstr ""
+msgstr "<<gcode:g71-g72,G71-G72>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:98 html/gcode.html:70
 #, no-wrap
 msgid "Lathe roughing cycle"
-msgstr ""
+msgstr "Ciclo de desbaste en torno"
 
 #. type: Table
 #: src/gcode/g-code.adoc:98
 #, no-wrap
 msgid "<<gcode:g73,G73>>"
-msgstr ""
+msgstr "<<gcode:g73,G73>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:99
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Drilling Cycle with Chip Breaking"
-msgstr "G73 Ciclo de taladrado con rotura de viruta(((G73 Drilling Cycle Chip Break)))"
+msgstr "Ciclo de taladrado con rotura de viruta"
 
 #. type: Table
 #: src/gcode/g-code.adoc:99
 #, no-wrap
 msgid "<<gcode:g74,G74>>"
-msgstr ""
+msgstr "<<gcode:g74,G74>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:100
 #, no-wrap
 msgid "Left-hand Tapping Cycle with Dwell"
-msgstr ""
+msgstr "Ciclo de roscado interior izquierdo con espera"
 
 #. type: Table
 #: src/gcode/g-code.adoc:100
 #, no-wrap
 msgid "<<gcode:g76,G76>>"
-msgstr ""
+msgstr "<<gcode:g76,G76>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:101
 #, no-wrap
 msgid "Multi-pass Threading Cycle (Lathe)"
-msgstr ""
+msgstr "Ciclo de roscado multipase (torno)"
 
 #. type: Table
 #: src/gcode/g-code.adoc:101
 #, no-wrap
 msgid "<<gcode:g80,G80>>"
-msgstr ""
+msgstr "<<gcode:g80,G80>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:102
 #, no-wrap
 msgid "Cancel Motion Modes"
-msgstr ""
+msgstr "Cancelar modos de movimiento"
 
 #. type: Table
 #: src/gcode/g-code.adoc:102
 #, no-wrap
 msgid "<<gcode:g81,G81>>"
-msgstr ""
+msgstr "<<gcode:g81,G81>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:103 html/gcode.html:74
 #, no-wrap
 msgid "Drilling Cycle"
-msgstr ""
+msgstr "Ciclo de taladrado"
 
 #. type: Table
 #: src/gcode/g-code.adoc:103
 #, no-wrap
 msgid "<<gcode:g82,G82>>"
-msgstr ""
+msgstr "<<gcode:g82,G82>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:104
 #, no-wrap
 msgid "Drilling Cycle with Dwell"
-msgstr ""
+msgstr "Ciclo de taladrado con espera"
 
 #. type: Table
 #: src/gcode/g-code.adoc:104
 #, no-wrap
 msgid "<<gcode:g83,G83>>"
-msgstr ""
+msgstr "<<gcode:g83,G83>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:105
 #, no-wrap
 msgid "Drilling Cycle with Peck"
-msgstr ""
+msgstr "Ciclo de taladrado con picoteo"
 
 #. type: Table
 #: src/gcode/g-code.adoc:105
 #, no-wrap
 msgid "<<gcode:g84,G84>>"
-msgstr ""
+msgstr "<<gcode:g84,G84>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:106
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Right-hand Tapping Cycle with Dwell"
-msgstr "G84 Ciclo de roscado a derecha, con Dwell(((G84 Right-hand Tapping Cycle Dwell)))"
+msgstr "Ciclo de roscado interno derecho con espera"
 
 #. type: Table
 #: src/gcode/g-code.adoc:106
 #, no-wrap
 msgid "<<gcode:g85,G85>>"
-msgstr ""
+msgstr "<<gcode:g85,G85>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:107
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Boring Cycle, No Dwell, Feed Out"
-msgstr "G89 Ciclo de mandrinado, con Dwell, salida a avance(((G89 Boring, Dwell, Feed Out)))"
+msgstr "Ciclo de mandrinado, sin espera, alimentación de salida"
 
 #. type: Table
 #: src/gcode/g-code.adoc:107
 #, no-wrap
 msgid "<<gcode:g86,G86>>"
-msgstr ""
+msgstr "<<gcode:g86,G86>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:108
 #, no-wrap
 msgid "Boring Cycle, Stop, Rapid Out"
-msgstr ""
+msgstr "Ciclo de mandrinado, paro, rápido de salida"
 
 #. type: Table
 #: src/gcode/g-code.adoc:108
 #, no-wrap
 msgid "<<gcode:g87,G87>>"
-msgstr ""
+msgstr "<<gcode:g87,G87>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:109
 #, no-wrap
 msgid "Back-boring Cycle _(not yet implemented)_"
-msgstr ""
+msgstr "Ciclo de mandrinado posterior _(aún no implementado)_"
 
 #. type: Table
 #: src/gcode/g-code.adoc:109
 #, no-wrap
 msgid "<<gcode:g88,G88>>"
-msgstr ""
+msgstr "<<gcode:g88,G88>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:110
 #, no-wrap
 msgid "Boring Cycle, Stop, Manual Out _(not yet implemented)_"
-msgstr ""
+msgstr "Ciclo de mandrinado, paro, salida manual _(aún no implementado)_"
 
 #. type: Table
 #: src/gcode/g-code.adoc:110
 #, no-wrap
 msgid "<<gcode:g89,G89>>"
-msgstr ""
+msgstr "<<gcode:g89,G89>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:111 html/gcode.html:79
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Boring Cycle, Dwell, Feed Out"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "Ciclo de mandrinado, espera, alimentación de salida"
 
 #. type: Table
 #: src/gcode/g-code.adoc:111
 #, no-wrap
 msgid "<<gcode:g90-g91,G90 G91>>"
-msgstr ""
+msgstr "<<gcode:g90-g91,G90 G91>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:112 html/gcode.html:81 html/gcode.html:82
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Distance Mode"
-msgstr "Modo de distancia de arco absoluta"
+msgstr "Modo de distancia"
 
 #. type: Table
 #: src/gcode/g-code.adoc:112
 #, no-wrap
 msgid "<<gcode:g90.1-g91.1,G90.1 G91.1>>"
-msgstr ""
+msgstr "<<gcode:g90.1-g91.1,G90.1 G91.1>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:113 src/gcode/g-code.adoc:2576 html/gcode.html:83
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Arc Distance Mode"
-msgstr "Modo de distancia de arco absoluta"
+msgstr "Modo de distancia de arco"
 
 #. type: Table
 #: src/gcode/g-code.adoc:113
 #, no-wrap
 msgid "<<gcode:g92,G92>>"
-msgstr ""
+msgstr "<<gcode:g92,G92>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:114 html/gcode.html:169
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinate System Offset"
-msgstr "Desplazamientos del sistema de coordenadas"
+msgstr "Desplazamiento de sistema de coordenadas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:114
 #, no-wrap
 msgid "<<gcode:g92.1-g92.2,G92.1 G92.2>>"
-msgstr ""
+msgstr "<<gcode:g92.1-g92.2,G92.1 G92.2>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:115
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Cancel G92 Offsets"
-msgstr "G92 Axes Offsets"
+msgstr "Cancela offsets G92"
 
 #. type: Table
 #: src/gcode/g-code.adoc:115
 #, no-wrap
 msgid "<<gcode:g92.3,G92.3>>"
-msgstr ""
+msgstr "<<gcode:g92.3,G92.3>>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: src/gcode/g-code.adoc:116 html/gcode.html:171
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Restore G92 Offsets"
-msgstr "G92 Axes Offsets"
+msgstr "Restablece offsets G92"
 
 #. type: Table
 #: src/gcode/g-code.adoc:116
 #, no-wrap
 msgid "<<gcode:g93-g94-g95,G93 G94 G95>>"
-msgstr ""
+msgstr "<<gcode:g93-g94-g95,G93 G94 G95>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:117
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Feed Modes"
-msgstr "Velocidad de Alimentacion"
+msgstr "Modos de alimentación"
 
 #. type: Table
 #: src/gcode/g-code.adoc:117
 #, no-wrap
 msgid "<<gcode:g96-g97,G96 G97>>"
-msgstr ""
+msgstr "<<gcode:g96-g97,G96 G97>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:118
 #, no-wrap
 msgid "Spindle Control Mode, Constant Surface vs Rotation Speed (IPM or m/min vs RPM)"
 msgstr ""
+"Modo de control de husillo, velocidad de superficie constante vs velocidad "
+"de rotación (IPM o m/min vs RPM)"
 
 #. type: Table
 #: src/gcode/g-code.adoc:118
 #, no-wrap
 msgid "<<gcode:g98-g99,G98 G99>>"
-msgstr ""
+msgstr "<<gcode:g98-g99,G98 G99>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:119
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Canned Cycle Z Retract Mode"
-msgstr "Modo de retracción"
+msgstr "Modo de retracción Z de ciclo enlatado"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:122
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G0 Rapid Move"
-msgstr "Movimientos rápidos"
+msgstr "G0 Movimientos rápidos"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:127
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G0 <axes>\n"
 msgstr "G0 <ejes>\n"
 
@@ -50252,7 +50230,7 @@ msgid ""
 "coordinated motion to the destination point at the maximum rapid rate (or "
 "slower). 'G0' is typically used as a positioning move."
 msgstr ""
-"Para movimiento rápido, programe 'G0 axes', donde todas las palabras de eje "
+"Para movimiento rápido, programe 'G0 ejes', donde todas las palabras de eje "
 "son opcionales. 'G0' es opcional si el modo de movimiento actual es 'G0'. "
 "Esto producirá movimiento coordinado hacia el punto de destino a la máxima "
 "velocidad rápida (o mas lenta). 'G0' se usa típicamente como un movimiento "
@@ -50260,7 +50238,7 @@ msgstr ""
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:134
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Rapid Velocity Rate"
 msgstr "Velocidad rápida"
 
