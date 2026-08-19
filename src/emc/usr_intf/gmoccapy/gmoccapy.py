@@ -1098,7 +1098,7 @@ class gmoccapy(object):
     def _check_toolmeasurement(self):
         # tool measurement probe settings
         xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
-        if not xpos or not ypos or not zpos or not maxprobe:
+        if xpos is None or ypos is None or zpos is None or maxprobe is None:
             self.widgets.lbl_tool_measurement.show()
             LOG.info(_("No valid probe config in INI file. Tool measurement disabled."))
             self.widgets.chk_use_tool_measurement.set_active(False)
