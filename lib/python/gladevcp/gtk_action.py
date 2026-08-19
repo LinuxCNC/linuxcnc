@@ -618,14 +618,17 @@ class _Lcnc_Action(object):
 
     #TODO without the gtk dialog, gnome-sessions
     # does not start reliably
-    def SHUT_SYSTEM_DOWN_PROMPT(self):
+    def SHUT_SYSTEM_DOWN_PROMPT(self, prompt=True):
         import shutil
         import time
-        dialog = YesNoDialog(title='System Shutdown')
-        dialog.set_keep_above(True)
-        dialog.format_secondary_text('Unsaved data will be lost')
-        response = dialog.ask_dialog()
-        dialog.destroy()
+        if prompt:
+            dialog = YesNoDialog(title='System Shutdown')
+            dialog.set_keep_above(True)
+            dialog.format_secondary_text('Unsaved data will be lost')
+            response = dialog.ask_dialog()
+            dialog.destroy()
+        else:
+            response = True
         if response == True:
             if shutil.which('gnome-session-quit'):
                 subprocess.run(["gnome-session-quit", "--power-off"])
