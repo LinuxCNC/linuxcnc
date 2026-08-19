@@ -194,7 +194,7 @@ SUBDIRS := \
     \
     $(GUI_SUBDIRS) \
     emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
+    emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
     emc \
@@ -403,7 +403,7 @@ SRCHEADERS := \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
-    emc/motion/emcmotcfg.h \
+    emc/nml_intf/emcmotcfg.h \
     emc/ini/inifile.hh \
     emc/ini/inifile.h \
     emc/nml_intf/emcpos.h \

@@ -1,6 +1,0 @@
-
-EMCMOTIONINCS = \
-	./emc/motion/emcmotcfg.h
-
-$(patsubst ./emc/motion/%,../include/%,$(EMCMOTIONINCS)): ../include/%.h: ./emc/motion/%.h
-	cp $^ $@

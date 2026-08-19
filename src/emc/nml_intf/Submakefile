@@ -26,6 +26,7 @@ TARGETS += ../lib/liblinuxcnc.a
 	@$(AR) $(ARFLAGS) $@ $^
 
 EMCNMLINTFINCS = \
+	./emc/nml_intf/emcmotcfg.h \
 	./emc/nml_intf/emcpos.h \
 	./emc/nml_intf/emcpose.h \
 	./emc/nml_intf/motion_types.h
