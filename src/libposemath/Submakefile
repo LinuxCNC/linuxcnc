@@ -1,4 +1,4 @@
-POSEMATHSRCS := $(addprefix libposemath/, _posemath.c posemath.cc gomath.c sincos.c emcpose.c)
+POSEMATHSRCS := $(addprefix libposemath/, _posemath.c posemath.cc gomath.c emcpose.c)
 $(call TOOBJSDEPS, $(POSEMATHSRCS)) : EXTRAFLAGS=-fPIC
 USERSRCS += $(POSEMATHSRCS) 
 TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
