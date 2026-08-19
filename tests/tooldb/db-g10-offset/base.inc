@@ -1,14 +1,12 @@
 [EMC]
 # The version string for this INI file.
 VERSION = 1.1
-
 DEBUG = 0x0
-
 
 [RS274NGC]
 PARAMETER_FILE = sim.var
-[EMCMOT]
 
+[EMCMOT]
 EMCMOT = motmod
 COMM_TIMEOUT = 4.0
 BASE_PERIOD = 0
@@ -19,14 +17,10 @@ TASK = milltask
 CYCLE_TIME = 0.001
 
 [HAL]
-HALUI = halui
-HALFILE = core_sim.hal
-
-[HALUI]
-#No Content
+# the library file provides the estop and toolchange loopbacks needed here
+HALFILE = LIB:core_sim.hal
 
 [TRAJ]
-
 NO_FORCE_HOMING=1
 COORDINATES = XYZ
 HOME =                  0 0 0
@@ -42,11 +36,8 @@ TOOL_CHANGE_QUILL_UP = 1
 RANDOM_TOOLCHANGER = 0
 DB_PROGRAM = ./db_test.py
 
-
-
 [KINS]
 KINEMATICS = trivkins coordinates=XYZ
-#This is a best-guess at the number of joints, it should be checked
 JOINTS = 3
 
 [AXIS_X]
