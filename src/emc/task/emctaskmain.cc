@@ -3015,11 +3015,14 @@ static int emcTaskExecute(void)
 	    //
 	    // Read the kinematics type from status, not from this file's
 	    // static emcmotConfig: that copy is filled in once just before
-	    // the main loop and never refreshed, so it goes stale the moment
-	    // switchkins changes kinematics at runtime (G43.4/G43.5).
-	    // taskintf.cc re-reads the motion config whenever config_num
-	    // changes and republishes it as traj.kinematics_type, so the
-	    // status field is the one that tracks a switchkins change.
+	    // the main loop and never refreshed, while taskintf.cc re-reads
+	    // the motion config whenever config_num changes and republishes
+	    // it as traj.kinematics_type. The two agree today -- kinType is
+	    // written exactly once, in init_comm_buffers() (motion.c), and a
+	    // runtime switchkins change does not alter it (switchkins answers
+	    // KINEMATICS_BOTH for every selectable type) -- so this is a
+	    // matter of reading the copy that is maintained, not of avoiding
+	    // a divergence that exists now.
 	    const bool restore_ok = (homingPriorMode == EMC_TRAJ_MODE::FREE)
 				 || (emcStatus->motion.traj.kinematics_type
 					 == KINEMATICS_IDENTITY)
