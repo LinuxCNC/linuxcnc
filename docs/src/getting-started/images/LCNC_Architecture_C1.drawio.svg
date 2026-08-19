@@ -202,16 +202,28 @@
            id="rect109-2" />
         <rect
            x="568.5"
-           y="227.5"
+           y="222.5"
            width="200"
-           height="80"
-           rx="12"
-           ry="12"
+           height="35"
+           rx="5.25"
+           ry="5.25"
            fill="#dae8fc"
            style="fill:#dae8fc;stroke:#6c8ebf"
            stroke="#6c8ebf"
            stroke-dasharray="3, 3"
            id="rect117-8" />
+        <rect
+           x="568.5"
+           y="269.5"
+           width="200"
+           height="38"
+           rx="5.7"
+           ry="5.7"
+           fill="#dae8fc"
+           style="fill:#dae8fc;stroke:#6c8ebf"
+           stroke="#6c8ebf"
+           stroke-dasharray="3, 3"
+           id="rect117-8-hal" />
         <rect
            x="88.5"
            y="128.5"
@@ -366,14 +378,14 @@
              transform="translate(0.5,0.5)"
              id="g123-8">
             <path
-               d="M 561.63,267 H 537 L 534.36,267.15"
+               d="M 561.63,240 H 537 L 534.36,240.15"
                id="path121-8" />
             <path
-               d="M 566.88,267 L 559.88,270.5 L 561.63,267 L 559.88,263.5 Z"
+               d="M 566.88,240 L 559.88,243.5 L 561.63,240 L 559.88,236.5 Z"
                id="path122-5"
                style="stroke-dasharray:none" />
             <path
-               d="M 529.12,267.44 L 535.91,263.56 L 534.36,267.15 L 536.3,270.54 Z"
+               d="M 529.12,240.44 L 535.91,236.56 L 534.36,240.15 L 536.3,243.54 Z"
                id="path123-0"
                style="stroke-dasharray:none" />
           </g>
@@ -384,7 +396,7 @@
              transform="translate(0.5,0.5)"
              id="g126-6">
             <path
-               d="M 408.4,113.37 L 408.42,157 H 668 V 220.63"
+               d="M 408.4,113.37 L 408.42,157 H 668 V 215.63"
                id="path124-3"
                style="fill:none" />
             <path
@@ -392,8 +404,46 @@
                id="path125-8"
                style="stroke-dasharray:none" />
             <path
-               d="M 668,225.88 L 664.5,218.88 L 668,220.63 L 671.5,218.88 Z"
+               d="M 668,220.88 L 664.5,213.88 L 668,215.63 L 671.5,213.88 Z"
                id="path126-5"
+               style="stroke-dasharray:none" />
+          </g>
+        </g>
+        <g
+           id="g124-0-hal">
+          <g
+             transform="translate(0.5,0.5)"
+             id="g123-8-hal">
+            <path
+               d="M 668,313.37 V 397 H 643.87"
+               id="path121-8-hal"
+               style="fill:none" />
+            <path
+               d="M 668,308.12 L 671.5,315.12 L 668,313.37 L 664.5,315.12 Z"
+               id="path122-5-hal"
+               style="stroke-dasharray:none" />
+            <path
+               d="M 638.62,397 L 645.62,393.5 L 643.87,397 L 645.62,400.5 Z"
+               id="path123-0-hal"
+               style="stroke-dasharray:none" />
+          </g>
+        </g>
+        <g
+           id="g127-9-hal">
+          <g
+             transform="translate(0.5,0.5)"
+             id="g126-6-hal">
+            <path
+               d="M 418.4,113.37 L 418.4,147 H 828.5 V 288.5 H 774.37"
+               id="path124-3-hal"
+               style="fill:none" />
+            <path
+               d="M 418.4,108.12 L 421.9,115.12 L 418.4,113.37 L 414.9,115.12 Z"
+               id="path125-8-hal"
+               style="stroke-dasharray:none" />
+            <path
+               d="M 769.12,288.5 L 776.12,285 L 774.37,288.5 L 776.12,292 Z"
+               id="path126-5-hal"
                style="stroke-dasharray:none" />
           </g>
         </g>
@@ -738,14 +788,24 @@
              id="tspan156">(machine builder)</tspan></text>
         <text
            x="667.9780273"
-           y="266.1189575"
+           y="238.6189575"
            id="text153-9-1"><tspan
              id="tspan153-6-5"
              x="667.9780273"
-             y="266.1189575">Terminal</tspan><tspan
+             y="238.6189575">Terminal</tspan><tspan
              x="667.9780273"
-             y="280.1310425"
-             id="tspan157">halcmd / halshow / linuxcncrsh</tspan></text>
+             y="252.6310425"
+             id="tspan157">linuxcncrsh</tspan></text>
+        <text
+           x="667.9780273"
+           y="287.1189575"
+           id="text153-9-1-hal"><tspan
+             id="tspan153-6-5-hal"
+             x="667.9780273"
+             y="287.1189575">Terminal</tspan><tspan
+             x="667.9780273"
+             y="301.1310425"
+             id="tspan157-hal">halcmd / halshow</tspan></text>
         <text
            x="147.7854919"
            y="264.6559753"
