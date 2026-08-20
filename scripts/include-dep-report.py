@@ -18,6 +18,7 @@ SRC = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else "src")
 SKIP_DIRS = {"objects", "autom4te.cache", "m4", "depends"}
 EXTS = (".c", ".cc", ".cpp", ".h", ".hh", ".hpp", ".comp", ".icomp")
 INC_RE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]+)[>"]')
+COMP_INC_RE = re.compile(r'^\s*include\s*([<"])([^>"]+)[>"]\s*;')
 OBJS_RE = re.compile(r'^\s*[A-Za-z0-9_.-]+-objs\s*[:+]?=(.*)$')
 
 # The -I list differs between the two compiles.  Userspace gets INCLUDE from
@@ -83,13 +84,19 @@ def rt_source_files(stems, relfiles):
 
 
 def include_lines(path):
-    """#include lines of a source file.  A .comp only becomes C after the ;; line,
-    so the declaration section above it is skipped."""
-    body = False if path.endswith((".comp", ".icomp")) else True
+    """Includes of a source file.  A .comp only becomes C below its ;; line, but
+    the declaration section above it has its own `include <foo.h>;` statement,
+    which halcompile copies into the generated C, so both are read."""
+    comp = path.endswith((".comp", ".icomp"))
+    body = not comp
     for lineno, line in enumerate(open(path, encoding="utf-8", errors="replace"), 1):
         if not body:
             if line.rstrip("\n") == ";;":
                 body = True
+                continue
+            m = COMP_INC_RE.match(line)
+            if m:
+                yield lineno, m.group(1), m.group(2)
             continue
         m = INC_RE.match(line)
         if m:
