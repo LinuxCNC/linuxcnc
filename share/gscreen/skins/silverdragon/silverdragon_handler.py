@@ -243,7 +243,7 @@ class HandlerClass:
         self.halcomp["search_vel"] = search_vel
         self.halcomp["sensor_height"] = sensor_height
         self.halcomp["maxprobe"] = maxprobe
-        if not xpos or not ypos or not zpos or not maxprobe:
+        if xpos is None or ypos is None or zpos is None or maxprobe is None:
             self.widgets.chk_use_auto_zref.set_active(False)
             self.widgets.chk_use_auto_zref.set_sensitive(False)
             self.widgets.btn_g30.set_sensitive(False)
@@ -271,7 +271,7 @@ class HandlerClass:
         # set up laser crosshair offsets
         xpos = self.gscreen.inifile.getreal("LASER", "X")
         ypos = self.gscreen.inifile.getreal("LASER", "Y")
-        if not xpos or not ypos:
+        if xpos is None or ypos is None:
             self.widgets.btn_laser_zero.set_sensitive(False)
             self.widgets.tbtn_laser.set_sensitive(False)
         else:
