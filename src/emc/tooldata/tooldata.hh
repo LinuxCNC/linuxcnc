@@ -79,6 +79,7 @@ int tooldata_save(const char *filename);
 
 //----------------------------------------------------------
 //mmap specific
+void tool_mmap_set_fname(const char* fname);
 int  tool_mmap_creator(EMC_TOOL_STAT const  *ptr,int random_toolchanger);
 int  tool_mmap_user(void);
 void tool_mmap_close(void);

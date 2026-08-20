@@ -1726,7 +1726,7 @@ AC_MSG_RESULT([$PYTHON_TK_VERSION])
 fi
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c "import sysconfig; s=sysconfig.get_scheme_names(); print(sysconfig.get_path('platlib', 'deb_system' if 'deb_system' in s else 'rpm_prefix' if 'rpm_prefix' in s else sysconfig.get_default_scheme()))"`
+SITEPY=`$PYTHON -c "import sysconfig; s=sysconfig.get_scheme_names(); print(next((sysconfig.get_path('platlib', m) for m in ('deb_system', 'rpm_prefix') if m in s), '/usr/lib/python3/dist-packages'))"`
 AC_MSG_RESULT($SITEPY)
 
 if test "$BUILD_GUI" = "yes"; then

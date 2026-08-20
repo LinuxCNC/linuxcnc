@@ -31,10 +31,19 @@
 
 #define TOOL_MMAP_FILENAME ".tool.mmap"
 #define TOOL_MMAP_MODE     0600
-#define TOOL_MMAP_CREATOR_OPEN_FLAGS  O_RDWR | O_CREAT | O_TRUNC
+// O_NOFOLLOW: refuse to follow a symlink at the mmap path. Without it a
+// pre-placed symlink is followed and the target truncated.
+#define TOOL_MMAP_CREATOR_OPEN_FLAGS  O_RDWR | O_CREAT | O_TRUNC | O_NOFOLLOW
 #define TOOL_MMAP_USER_OPEN_FLAGS     O_RDWR
 
 static int           creator_fd;
+// The descriptor actually backing the mapping, and whether THIS process
+// created the file. tool_mmap_user() previously dropped its fd on the
+// floor: it was neither closed nor recorded, so it leaked for the life of
+// the process and tool_mmap_close() had nothing to close but creator_fd --
+// which a user process never sets, so it is 0, i.e. stdin.
+static int           mmap_fd = -1;
+static bool          mmap_is_creator = false;
 static char          filename[LINELEN] = {};
 static char*         tool_mmap_base = NULL;
 static EMC_TOOL_STAT const *toolstat;
@@ -71,6 +80,13 @@ typedef struct {
 **       DEFAULT_EMC_TASK_CYCLE_TIME 0.100 (.001 common)
 **       DEFAULT_EMC_IO_CYCLE_TIME   0.100
 */
+
+void tool_mmap_set_fname(const char* fname) {
+    // Let a standalone user of the tooldata mmap (sai/rs274) choose a private
+    // file. Without this every process uses $HOME/.tool.mmap, so an offline
+    // parse truncates the tool table of a session that is already running.
+    snprintf(filename,sizeof(filename),"%s",fname);
+}
 
 static char* tool_mmap_fname(void) {
     if (*filename) {return filename;}
@@ -160,6 +176,8 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
     hptr->is_random_toolchanger = random_toolchanger;
     hptr->last_index = 0;
 
+    mmap_fd = creator_fd;
+    mmap_is_creator = true;
     inited = 1;
     tool_mmap_mutex_give(); return 0;
 } // tool_mmap_creator();
@@ -191,6 +209,7 @@ int tool_mmap_user()
         perror("tool_mmap_user(): mmap fail");
         exit(EXIT_FAILURE);
     }
+    mmap_fd = fd;
     return 0;
 } //tool_mmap_user()
 
@@ -202,14 +221,26 @@ void tool_mmap_close()
         perror("tool_mmap_close(): msync fail");
     }
     if (munmap(tool_mmap_base, TOOL_MMAP_SIZE) < 0) {
-        close(creator_fd);
-        perror("tool_mmap_close(): munmapfail");
-        exit(EXIT_FAILURE);
+        // NO exit() HERE. This function is usable as an atexit() handler,
+        // and calling exit() from within one is undefined behaviour.
+        // Report and FALL THROUGH: a failed munmap is exactly when the
+        // unlink and close below matter most, so returning here would leave
+        // the file on disk and the descriptor open.
+        perror("tool_mmap_close(): munmap fail");
     }
-    if( unlink(tool_mmap_fname() )) {
+    // Only the creator removes the file. A user process unlinking it would
+    // delete the running session's tool table out from under io.
+    if (mmap_is_creator && unlink(tool_mmap_fname())) {
         perror("tool_mmap_close(): unlink fail");
     }
-    close(creator_fd);
+    if (mmap_fd >= 0) {
+        close(mmap_fd);
+        mmap_fd = -1;
+    }
+    // Idempotent from here: a second call, or an atexit after an explicit
+    // close, returns at the tool_mmap_base guard above.
+    tool_mmap_base = nullptr;
+    mmap_is_creator = false;
 } //tool_mmap_close()
 
 void tooldata_last_index_set(int idx)  //force last_index
