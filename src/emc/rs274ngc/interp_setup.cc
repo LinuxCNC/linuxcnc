@@ -177,6 +177,10 @@ setup::setup() :
     b_axis_wrapped(0),
     c_axis_wrapped(0),
 
+    a_max_unwind_turns(0.0),
+    b_max_unwind_turns(0.0),
+    c_max_unwind_turns(0.0),
+
     a_indexer_jnum(0),
     b_indexer_jnum(0),
     c_indexer_jnum(0),

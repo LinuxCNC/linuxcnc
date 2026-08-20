@@ -811,6 +811,15 @@ struct setup
   int b_axis_wrapped;
   int c_axis_wrapped;
 
+  // Per-axis automatic G0 unwind threshold, in turns.
+  // 0 disables; >0 makes a G0 that would otherwise unwind more than the
+  // threshold fold the whole turns into the axis (G92) offset, so the motor
+  // stays put while the work frame still reaches the programmed target.
+  // Mutually exclusive with WRAPPED_ROTARY.
+  double a_max_unwind_turns;
+  double b_max_unwind_turns;
+  double c_max_unwind_turns;
+
   int a_indexer_jnum;
   int b_indexer_jnum;
   int c_indexer_jnum;
