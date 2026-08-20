@@ -1,0 +1,29 @@
+# modified DH-parameters for RV-6SDL
+
+setp three21kins.A1 85
+setp three21kins.A2 380
+setp three21kins.A3 100
+setp three21kins.D1 350
+setp three21kins.D2 0
+setp three21kins.D3 0
+setp three21kins.D4 425
+#setp three21kins.D6 85
+setp three21kins.D6 235
+
+#setp genserkins.ALPHA-0 0
+#setp genserkins.ALPHA-1 -1.570796326
+#setp genserkins.ALPHA-2 0
+#setp genserkins.ALPHA-3 -1.570796326
+#setp genserkins.ALPHA-4 1.570796326
+#setp genserkins.ALPHA-5 -1.570796326
+
+#setp genserkins.D-0 350
+#setp genserkins.D-1 0
+#setp genserkins.D-2 0
+#setp genserkins.D-3 425
+#setp genserkins.D-4 0
+## 85 for Handflange as in the tutorial
+##setp genserkins.D-5 85
+## 85 + 150 for toolholder and tool as in the vismach simulation
+#setp genserkins.D-5 235
+
