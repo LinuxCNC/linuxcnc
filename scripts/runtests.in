@@ -357,6 +357,11 @@ Usage:
 
     $P -v
         Show stdout and stderr (normally it's hidden).
+
+    $P -d
+        Enable crash dumps: on a crashing test, print a gdb backtrace of
+        the core, collected from wherever the system put it (coredumpctl
+        or a plain-file core_pattern).  Off by default; CI passes it.
 EOF
 }
 
@@ -365,7 +370,7 @@ NOCLEAN=0
 NOSUDO=false
 STOP=0
 PRINT=0
-while getopts cnuvsph opt; do
+while getopts cnuvsphd opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
@@ -373,6 +378,7 @@ while getopts cnuvsph opt; do
     v) VERBOSE=1 ;;
     s) STOP=1 ;;
     p) PRINT=1 ;;
+    d) export ENABLE_CRASHDUMPS=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
