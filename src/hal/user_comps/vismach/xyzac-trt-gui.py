@@ -1,4 +1,37 @@
 #!/usr/bin/env python3
+
+# DEPRECATION NOTICE
+# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
+# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
+# These sim configs are collected in the '/configs/sim' folder and should use local model files
+# All model files in this folder have been moved to the sim configs that use them.
+
+import tkinter as tk
+import os
+
+new_location = "/configs/sim/axis/vismach/5axis/table-rotary-tilting/xyzac-trt-gui.py"
+model_name = os.path.basename(__file__)
+
+message = (">Vismach: DEPRECATION NOTICE<" + 
+           "\n\n   The vismach model you are using will be removed in a future release." +
+           "\n   Your model has been moved to:" +
+           "\n\n     "+ new_location +
+           "\n\n   You should put a copy of the file into your config folder and change"+ 
+           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
+print(message)
+
+def popupmsg():
+    popup = tk.Tk()
+    popup.wm_title("Deprecation Notice")
+    popup.wm_attributes('-topmost', True)
+    popup.config(bd=10)
+    label = tk.Label(popup, text = message)
+    label.pack(pady=18)
+    close_button = tk.Button(popup, text="Close", command=popup.destroy)
+    close_button.pack()
+
+popupmsg()
+
 #**************************************************************************
 # Copyright 2016 Rudy du Preez <rudy@asmsa.co.za>
 #

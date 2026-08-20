@@ -12,7 +12,7 @@ loadrt wcomp count=4
 loadrt not count=4
 
 # load the vismach model
-loadusr -W hbmgui
+loadusr -W ./hbmgui.py
 
 # set a visible tool
 setp hbmgui.tool-length 2

@@ -71,7 +71,7 @@ net yflt joint.1.amp-fault-in
 net zflt joint.2.amp-fault-in
 net aflt joint.3.amp-fault-in
 
-loadusr -W scaragui
+loadusr -W ./scaragui.py
 
 net j0 joint.0.pos-fb scaragui.joint0
 net j1 joint.1.pos-fb scaragui.joint1

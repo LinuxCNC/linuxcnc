@@ -7,7 +7,7 @@ loadrt [KINS]KINEMATICS
 # motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
-loadusr -W lineardelta MIN_JOINT=-420
+loadusr -W ./lineardelta.py MIN_JOINT=-420
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
