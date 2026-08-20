@@ -15,7 +15,7 @@
 * Last change:
 ********************************************************************/
 
-#include <stdio.h>
+#include "libnml/rcs/rcs_print.hh"
 #include "emc.hh"
 #include "emc_nml.hh"
 #include "tooldata/tooldata.hh"
@@ -222,7 +222,7 @@ EMC_TOOL_STAT& EMC_TOOL_STAT::operator =(const EMC_TOOL_STAT& s)
 #else //}{
     struct CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,0) != IDX_OK) {
-        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+        rcs_print_error("UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
     }
     toolTableCurrent = tdata;
 #endif //}

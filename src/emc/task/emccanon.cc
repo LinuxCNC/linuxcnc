@@ -54,6 +54,7 @@
 #include <math.h>
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
+#include "libnml/rcs/rcs_print.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"
@@ -3703,7 +3704,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
         tdata.orientation = 0;
     } else {
         if (tooldata_get(&tdata,idx) != IDX_OK) {
-            fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+            rcs_print_error("UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
         }
     }
     return tdata;
