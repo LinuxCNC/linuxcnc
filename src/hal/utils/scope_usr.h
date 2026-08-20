@@ -37,6 +37,7 @@
 */
 
 /* import the shared declarations */
+#include <stdio.h>		// FILE
 #include "scope_shm.h"
 
 /***********************************************************************
