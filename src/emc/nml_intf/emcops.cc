@@ -15,6 +15,7 @@
 * Last change:
 ********************************************************************/
 
+#include <stdio.h>
 #include "emc.hh"
 #include "emc_nml.hh"
 #include "tooldata/tooldata.hh"

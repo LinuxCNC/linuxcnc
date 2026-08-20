@@ -18,6 +18,8 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #define PY_SSIZE_T_CLEAN
+#include <stdio.h>
+#include <stdlib.h>
 #include <Python.h>
 #include <structseq.h>
 #include <pthread.h>
@@ -26,6 +28,7 @@
 #include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"
 #include "nml_intf/emc_nml.hh"
+#include "nml_intf/debugflags.h"
 #include <kinematics.h>
 #include "config.h"
 #include <inifile.hh>

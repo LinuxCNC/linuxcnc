@@ -13,6 +13,7 @@
 * Last change:
 ********************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include <sys/stat.h>		// struct stat

@@ -18,7 +18,7 @@
 #include <emcmotcfg.h>
 
 #include "spherical_arc.h"
-#include "../motion/state_tag.h"
+#include "../nml_intf/state_tag.h"
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */

@@ -12,6 +12,7 @@
 *
 ********************************************************************/
 
+#include <stdio.h>
 #include <cmath>
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()

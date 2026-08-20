@@ -72,7 +72,7 @@ to another.
 #include <kinematics.h>
 
 #include "simple_tp.h"
-#include "state_tag.h"
+#include "../nml_intf/state_tag.h"
 #include "../tp/tp_types.h"
 
 // define a special value to denote an invalid motion ID

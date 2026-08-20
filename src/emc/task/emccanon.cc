@@ -61,7 +61,7 @@
 #include "nml_intf/interpl.hh"		// interp_list
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include <rtapi_string.h>
-#include "rs274ngc/modal_state.hh"
+#include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
 #include <algorithm>
 

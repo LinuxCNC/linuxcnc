@@ -14,6 +14,8 @@
 * Last change:
 ********************************************************************/
 
+#include <stdio.h>
+#include <unistd.h>
 #include <fmt/format.h>
 
 #include <rtapi_string.h>
