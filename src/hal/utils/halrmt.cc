@@ -68,6 +68,7 @@ using namespace linuxcnc;
 static std::string helloPwd   = "EMC";       // Connect password
 static std::string enablePwd  = "EMCTOO";    // Enable password
 static std::string serverName = "EMCNETSVR"; // Server name written in hello response
+static bool isipv4 = false;         // We try AF_INET6, but can fallback to AF_INET
 static int port = 5006;
 static std::string inifilename;
 static volatile int quitloop = 0;   //  Signal to main loop to exit
@@ -2881,24 +2882,66 @@ static int parseCommand(connectionRecType &ctx, std::string &line)
 *                            MAIN PROGRAM                              *
 ************************************************************************/
 
+static int getSocket4(struct sockaddr_in &addr, socklen_t &slen)
+{
+    int sockfd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+    if (sockfd < 0) {
+        xperror("IPv4 socket()");
+        return -1;
+    }
+    addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(port);
+    slen = sizeof(addr);
+    return sockfd;
+}
+
 static int initSocket()
 {
     int optval = 1;
     int err;
     int sockfd;
-    struct sockaddr_in6 address = {};
+    union {
+        struct sockaddr_in6 addr6;
+        struct sockaddr_in  addr4;
+    } addr;
+    socklen_t slen;
 
-    sockfd = socket(AF_INET6, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
-    if (sockfd < 0) {
-        xperror("socket()");
-        return -1;
+    if (isipv4) {
+        // Forced IPv4, set from command-line
+        if ((sockfd = getSocket4(addr.addr4, slen)) < 0)
+            return -1;
+    } else {
+        // Using AF_INET6 will also allow IPv4 to connect (v4-mapped-on-v6)
+        // We will try IPv6 first and hope it is available
+        sockfd = socket(AF_INET6, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+        if (sockfd < 0) {
+            if (EAFNOSUPPORT == errno) {
+                // Someone disabled IPv6 on the machine. Try IPv4 instead.
+                isipv4 = true;
+                if ((sockfd = getSocket4(addr.addr4, slen)) < 0)
+                    return -1;
+            } else {
+                xperror("IPv6 socket()");
+                return -1;
+            }
+        } else {
+            // Ensure that v4-mapped-on-v6 is enabled. In theory, it could fail if
+            // there is no IPv4 stack available, but we don't care in that case.
+            int zero = 0;
+            setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, &zero, sizeof(zero));
+
+            addr.addr6 = {};
+            addr.addr6.sin6_family = AF_INET6;
+            addr.addr6.sin6_addr = IN6ADDR_ANY_INIT;
+            addr.addr6.sin6_port = htons(port);
+            slen = sizeof(addr.addr6);
+        }
     }
+
     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-    // Using AF_INET6 will also allow IPv4 to connect (v4-mapped-on-v6)
-    address.sin6_family = AF_INET6;
-    address.sin6_addr = IN6ADDR_ANY_INIT;
-    address.sin6_port = htons(port);
-    err = bind(sockfd, reinterpret_cast<struct sockaddr *>(&address), sizeof(address));
+    err = bind(sockfd, reinterpret_cast<struct sockaddr *>(&addr), slen);
     if (err) {
         close(sockfd);
         xperror("bind()");
@@ -2985,8 +3028,11 @@ static int sockMain(int svrfd)
         } else if (pfds[0].revents & POLLIN) {
             // POLLIN on a listen socket means new connection available
             int cfd;
-            struct sockaddr_in6 csa;
-            socklen_t csal = sizeof(csa);
+            union {
+                struct sockaddr_in6 csa6;
+                struct sockaddr_in  csa4;
+            } csa;
+            socklen_t csal = sizeof(csa);   // Will be the largest of the two
             cfd = accept4(svrfd, reinterpret_cast<struct sockaddr *>(&csa), &csal, SOCK_CLOEXEC | SOCK_NONBLOCK);
             if (cfd < 0) {
                 switch (errno) {
@@ -3028,9 +3074,15 @@ static int sockMain(int svrfd)
                     cr.echo = true;
                     cr.inifilename = inifilename; // Inherit global default
                     clients.push_back(cr);
-                    char addr[INET6_ADDRSTRLEN] = {};
-                    inet_ntop(AF_INET6, &csa.sin6_addr, addr, sizeof(addr));
-                    info("New connection from %s:%d", addr, ntohs(csa.sin6_port));
+                    if(isipv4) {
+                        char addr[INET_ADDRSTRLEN] = {};
+                        inet_ntop(AF_INET, &csa.csa4.sin_addr, addr, sizeof(addr));
+                        info("New connection from %s:%d", addr, ntohs(csa.csa4.sin_port));
+                    } else {
+                        char addr[INET6_ADDRSTRLEN] = {};
+                        inet_ntop(AF_INET6, &csa.csa6.sin6_addr, addr, sizeof(addr));
+                        info("New connection from %s:%d", addr, ntohs(csa.csa6.sin6_port));
+                    }
                 } else {
                     close(cfd);
                 }
@@ -3173,6 +3225,7 @@ static void usage(void)
         "  -s,--sessions <num>   Restrict number of session to 'num' (default=%u) (0 for no limit)\n"
         "  -i,--ini <file>       Use 'file' as inifile (default=env[INI_FILE_NAME])\n"
         "  -q,--quiet            Don't print informational messages\n"
+        "  -4,--ipv4             Only use IPv4\n"
         "\n"
         "Session commands: Connect and use 'help', 'help get' and 'help set' for details.\n"
     ;
@@ -3197,6 +3250,7 @@ static struct option longopts[] = {
     {"sessions",  1, NULL, 's'},
     {"ini",       1, NULL, 'i'},
     {"quiet",     0, NULL, 'q'},
+    {"ipv4",      0, NULL, '4'},
     {}
 };
 
@@ -3210,8 +3264,11 @@ int main(int argc, char **argv)
     rtapi_set_msg_level(RTAPI_MSG_ERR);
     /* set default for other options */
     // process halrmt command line args
-    while(-1 != (optc = getopt_long(argc, argv, "e:hi:n:p:qs:w:", longopts, NULL))) {
+    while(-1 != (optc = getopt_long(argc, argv, "4e:hi:n:p:qs:w:", longopts, NULL))) {
         switch(optc) {
+        case '4':
+            isipv4 = true;
+            break;
         case 'h':
             usage();
             return EXIT_FAILURE;
