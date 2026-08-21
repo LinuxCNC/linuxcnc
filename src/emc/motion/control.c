@@ -1350,6 +1350,17 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 
 	    tpRunCycle(&emcmotInternal->coord_tp, period);
+
+            if (emcmotStatus->syncOverrunSpindle) {
+                tpAbort(&emcmotInternal->coord_tp);
+                reportError(_("spindle-synchronized move exceeds axis limits: "
+                              "spindle %d is outrunning the axis by %f per "
+                              "second, reduce the spindle speed or the pitch"),
+                            emcmotStatus->syncOverrunSpindle - 1,
+                            emcmotStatus->syncOverrunError);
+                emcmotStatus->syncOverrunSpindle = 0;
+                SET_MOTION_ERROR_FLAG(1);
+            }
             /* get new commanded traj pos */
             tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 
