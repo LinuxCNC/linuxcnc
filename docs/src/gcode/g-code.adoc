@@ -1071,6 +1071,12 @@ K follows the drive line described by 'X- Y- Z-'. K is not parallel to
 the Z axis if X or Y endpoints are used for example when cutting tapered
 threads.
 
+[NOTE]
+The spindle speed override has no effect during a G33 move, and the previous
+setting is restored when the move ends. A thread is cut in several passes over
+the same helix, so changing the spindle speed part way through would change the
+lead and spoil the thread.
+
 [[gcode:g33-tech-info]]
 .Technical Info
 At the beginning of each G33 pass, LinuxCNC uses the spindle speed and
@@ -1175,6 +1181,12 @@ M2 (end program)
 
 * See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>>
   sections for more information.
+
+[NOTE]
+Unlike G33, the spindle speed override stays active during a G33.1 move and the
+feed follows whatever the spindle actually does. A tap guides itself in its own
+hole, so there is no thread lead to spoil, and being able to slow the spindle
+while the tap is in the work is useful.
 
 It is an error if:
 
@@ -2042,6 +2054,10 @@ It is an error if:
 * 'E-' is greater than half the drive line length.
 * The pitch and the commanded spindle speed together ask an axis to move
   faster than its maximum velocity.
+
+[NOTE]
+The spindle speed override has no effect during the G76 cycle, for the same
+reason as G33, and the previous setting is restored when the cycle ends.
 
 .HAL Connections
 The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the

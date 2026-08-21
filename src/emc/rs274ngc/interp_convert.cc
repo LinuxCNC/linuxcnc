@@ -5115,6 +5115,23 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
     return INTERP_OK;
 }
 
+/* Thread cutting re-enters the same helix each pass, so moving the spindle
+   speed part way through shifts the lead.  G33.1 deliberately keeps the
+   override: a tap is self-guiding and slowing down is useful. */
+
+static void suspend_speed_override(setup_pointer settings)
+{
+    DISABLE_SPEED_OVERRIDE(settings->active_spindle);
+}
+
+static void restore_speed_override(setup_pointer settings)
+{
+    /* back to what the program asked for, so an M49 or M51 P0 still holds */
+    if (settings->speed_override[settings->active_spindle]) {
+        ENABLE_SPEED_OVERRIDE(settings->active_spindle);
+    }
+}
+
 /* Displacement of a move, ordered XYZABCUVW. */
 
 static void sync_move_delta(setup_pointer settings,
@@ -5550,9 +5567,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     sync_move_delta(settings, end_x, end_y, end_z, AA_end, BB_end, CC_end,
                     u_end, v_end, w_end, delta);
     CHP(check_spindle_sync_feed(settings, block->k_number, "G33", delta));
+    suspend_speed_override(settings);
     START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
+    restore_speed_override(settings);
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
@@ -5811,6 +5830,8 @@ int Interp::convert_threading_cycle(block_pointer block,
         CHP(check_spindle_sync_feed(settings, taper_pitch, "G76", taper_pass));
     }
 
+    suspend_speed_override(settings);
+
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     while (depth < end_depth) {
@@ -5829,6 +5850,7 @@ int Interp::convert_threading_cycle(block_pointer block,
 		       start_z, zoff, taper_dist, entry_taper, exit_taper,
 		       taper_pitch, pitch, full_threadheight, target_z);
     }
+    restore_speed_override(settings);
     STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
     settings->current_y = end_y;
