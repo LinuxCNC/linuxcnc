@@ -99,8 +99,7 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
 			hm2->pktuart.num_instances = hm2->config.num_pktuarts;
 		}
 
-		hm2->pktuart.instance = (hm2_pktuart_instance_t *)hal_malloc(hm2->pktuart.num_instances
-															* sizeof(hm2_pktuart_instance_t));
+		hm2->pktuart.instance = hal_malloc(hm2->pktuart.num_instances * sizeof(*hm2->pktuart.instance));
 		if(hm2->pktuart.instance == NULL) {
 			HM2_ERR("out of memory!\n");
 			r = -ENOMEM;
@@ -440,7 +439,7 @@ EXPORT_SYMBOL_GPL(hm2_pktuart_config);
 static void perform_reset(const char *name, int queue)
 {
 	hostmot2_t *hm2;
-	hm2_pktuart_instance_t *inst = 0;
+	hm2_pktuart_instance_t *inst = NULL;
 	rtapi_u32 buff = HM2_PKTUART_CLEAR;
 	int i = hm2_get_pktuart(&hm2, name);
 	if(i < 0) {
@@ -496,7 +495,7 @@ EXPORT_SYMBOL_GPL(hm2_pktuart_queue_reset);
 int hm2_pktuart_setup(const char *name, unsigned bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear)
 {
 	hostmot2_t *hm2;
-	hm2_pktuart_instance_t *inst = 0;
+	hm2_pktuart_instance_t *inst = NULL;
 	rtapi_u32 buff;
 	int i;
 	int r = 0;

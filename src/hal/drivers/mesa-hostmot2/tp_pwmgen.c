@@ -33,10 +33,10 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 	int deadtime;
 	int i;
 
-    if (hm2->tp_pwmgen.hal->param.pwm_frequency < 1) {
-        HM2_ERR("3pwmgen.pwm_frequency %d is too low, setting to 1\n",
-            hm2->tp_pwmgen.hal->param.pwm_frequency);
-        hm2->tp_pwmgen.hal->param.pwm_frequency = 1;
+    rtapi_u32 pwm_frequency = hal_get_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency);
+    if (pwm_frequency < 1) {
+        HM2_ERR("3pwmgen.pwm_frequency %d is too low, setting to 1\n", pwm_frequency);
+        pwm_frequency = hal_set_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency, 1);
     }
 
 
@@ -57,7 +57,7 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     //
 
     // check that the frequency is achievable
-    dds = ((double)hm2->tp_pwmgen.hal->param.pwm_frequency * 65536.0 * 2048.0)
+    dds = ((double)pwm_frequency * 65536.0 * 2048.0)
             / (double)hm2->tp_pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->tp_pwmgen.pwmgen_master_rate_dds_reg = dds;
@@ -65,11 +65,10 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 	// not possible so try the fastest we can
         //     PWMFreq = (ClockHigh * DDS) / (65536 * 2048)
 	dds = 65535;
-	hm2->tp_pwmgen.hal->param.pwm_frequency =
+	pwm_frequency = hal_set_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency,
             ((double)hm2->tp_pwmgen.clock_frequency * 65535.0)
-            / (65536.0 * 2048.0);
-	HM2_ERR("max PWM frequency is %d Hz\n",
-            hm2->tp_pwmgen.hal->param.pwm_frequency);
+            / (65536.0 * 2048.0));
+	HM2_ERR("max PWM frequency is %d Hz\n", pwm_frequency);
 	hm2->tp_pwmgen.pwmgen_master_rate_dds_reg = dds;
     }
 
@@ -78,37 +77,38 @@ void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     // = (2*65536*1e9 / ClockHigh*dds)nS
 
     for (i=0; i < hm2->tp_pwmgen.num_instances; i++) {
-        if (hm2->tp_pwmgen.instance[i].hal.param.sampletime > 1){
+        rtapi_real sampletime = hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.sampletime);
+        if (sampletime > 1){
                 HM2_ERR("Max sampletime is 1 (end of PWM cycle");
-                hm2->tp_pwmgen.instance[i].hal.param.sampletime = 1;
+                sampletime = hal_set_real(hm2->tp_pwmgen.instance[i].hal.param.sampletime, 1);
         }
-        else if (hm2->tp_pwmgen.instance[i].hal.param.sampletime < 0){
+        else if (sampletime < 0){
                 HM2_ERR("Min sampletime is 0 (beginning of PWM cycle");
-                hm2->tp_pwmgen.instance[i].hal.param.sampletime = 0;
+                sampletime = hal_set_real(hm2->tp_pwmgen.instance[i].hal.param.sampletime, 0);
         }
 
-        deadtime = (hm2->tp_pwmgen.instance[i].hal.param.deadzone
+        deadtime = (hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.deadzone)
             * hm2->tp_pwmgen.clock_frequency * dds) / (2 * 65536 * 1e9);
 
         if (deadtime > 511){
                 deadtime = 511;
-                hm2->tp_pwmgen.instance[i].hal.param.deadzone =
+                hal_set_real(hm2->tp_pwmgen.instance[i].hal.param.deadzone,
                     ((double)deadtime * 2.0 * 65536.0 * 1.0e9)
-                    /((double)hm2->tp_pwmgen.clock_frequency * dds);
+                    /((double)hm2->tp_pwmgen.clock_frequency * dds));
                 HM2_ERR("At this PWM frequency the maximum deadtime is %dnS\n",
-                    (int)hm2->tp_pwmgen.instance[i].hal.param.deadzone);
+                    (int)hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.deadzone));
         }
         else if (deadtime < 0) {
                 HM2_ERR("Deadtime must be positive");
                 deadtime = 0;
-                hm2->tp_pwmgen.instance[i].hal.param.deadzone = 0;
+                hal_set_real(hm2->tp_pwmgen.instance[i].hal.param.deadzone, 0);
         }
 
         // Now setup the control register
 
         hm2->tp_pwmgen.setup_reg[i] = (
-             ((int)(hm2->tp_pwmgen.instance[i].hal.param.sampletime*1023) << 16)
-             +((hm2->tp_pwmgen.instance[i].hal.param.faultpolarity != 0) << 15)
+             ((int)(sampletime*1023) << 16)
+             +(hal_get_bool(hm2->tp_pwmgen.instance[i].hal.param.faultpolarity) << 15)
              +(deadtime));
 	}
 }
@@ -125,7 +125,7 @@ void hm2_tp_pwmgen_force_write(hostmot2_t *hm2) {
 
     // update enable and setup registers
     for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
-        if (*hm2->tp_pwmgen.instance[i].hal.pin.enable)
+        if (hal_get_bool(hm2->tp_pwmgen.instance[i].hal.pin.enable))
                 hm2->tp_pwmgen.enable_reg[i] = 1;
         else
             hm2->tp_pwmgen.enable_reg[i] = 0;
@@ -136,15 +136,15 @@ void hm2_tp_pwmgen_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)));
     hm2->llio->write(hm2->llio, hm2->tp_pwmgen.pwmgen_master_rate_dds_addr, &hm2->tp_pwmgen.pwmgen_master_rate_dds_reg, sizeof(rtapi_u32));
 
-    if ((*hm2->llio->io_error) != 0) return;
+    if (hal_get_bool(*hm2->llio->io_error)) return;
 
     for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
-        hm2->tp_pwmgen.instance[i].written_faultpolarity = hm2->tp_pwmgen.instance[i].hal.param.faultpolarity;
-        hm2->tp_pwmgen.instance[i].written_deadzone = hm2->tp_pwmgen.instance[i].hal.param.deadzone;
-        hm2->tp_pwmgen.instance[i].written_sampletime = hm2->tp_pwmgen.instance[i].hal.param.sampletime;
+        hm2->tp_pwmgen.instance[i].written_faultpolarity = hal_get_bool(hm2->tp_pwmgen.instance[i].hal.param.faultpolarity);
+        hm2->tp_pwmgen.instance[i].written_deadzone = hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.deadzone);
+        hm2->tp_pwmgen.instance[i].written_sampletime = hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.sampletime);
     }
 
-    hm2->tp_pwmgen.written_pwm_frequency = hm2->tp_pwmgen.hal->param.pwm_frequency;
+    hm2->tp_pwmgen.written_pwm_frequency = hal_get_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency);
 }
 
 
@@ -158,13 +158,14 @@ void hm2_tp_pwmgen_write(hostmot2_t *hm2) {
     if (hm2->tp_pwmgen.num_instances == 0) return;
 
     // check pwm frequency
-    if (hm2->tp_pwmgen.hal->param.pwm_frequency != hm2->tp_pwmgen.written_pwm_frequency) goto force_write;
+    if (hal_get_ui32(hm2->tp_pwmgen.hal->param.pwm_frequency) != hm2->tp_pwmgen.written_pwm_frequency) goto force_write;
 
     // update enable register?
     for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
-        if ((hm2->tp_pwmgen.instance[i].hal.param.deadzone != hm2->tp_pwmgen.instance[i].written_deadzone)
-		 || (hm2->tp_pwmgen.instance[i].hal.param.sampletime != hm2->tp_pwmgen.instance[i].written_sampletime)
-		 || (hm2->tp_pwmgen.instance[i].hal.param.faultpolarity != hm2->tp_pwmgen.instance[i].written_faultpolarity))
+        hm2_tp_pwmgen_instance_t *inst = &hm2->tp_pwmgen.instance[i];
+        if ((hal_get_real(inst->hal.param.deadzone) != inst->written_deadzone)
+         || (hal_get_real(inst->hal.param.sampletime) != inst->written_sampletime)
+         || (hal_get_bool(inst->hal.param.faultpolarity) != inst->written_faultpolarity))
             goto force_write;
 
     // The enable register is a little odd. Writing a 1 to bit0 of the
@@ -174,7 +175,7 @@ void hm2_tp_pwmgen_write(hostmot2_t *hm2) {
     // enable if there is a mismatch between the hal-pin and the enable
     // bit.
 
-        if ((*hm2->tp_pwmgen.instance[i].hal.pin.enable != (hm2->tp_pwmgen.enable_reg[i] & 1)))
+        if ((hal_get_bool(inst->hal.pin.enable) != (hm2->tp_pwmgen.enable_reg[i] & 1)))
             goto force_write;
     }
 
@@ -194,8 +195,7 @@ void hm2_tp_pwmgen_queue_read(hostmot2_t *hm2) {
 void hm2_tp_pwmgen_process_read(hostmot2_t *hm2) {
     int i;
     for (i = 0 ; i < hm2->tp_pwmgen.num_instances ; i++) {
-        *hm2->tp_pwmgen.instance[i].hal.pin.fault
-            = (hm2->tp_pwmgen.enable_reg[i] & 2);
+        hal_set_bool(hm2->tp_pwmgen.instance[i].hal.pin.fault, (hm2->tp_pwmgen.enable_reg[i] & 2));
     }
 }
 
@@ -249,14 +249,14 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     // allocate the module-global HAL shared memory
 
-    hm2->tp_pwmgen.instance = (hm2_tp_pwmgen_instance_t *)hal_malloc(hm2->tp_pwmgen.num_instances * sizeof(hm2_tp_pwmgen_instance_t));
+    hm2->tp_pwmgen.instance = hal_malloc(hm2->tp_pwmgen.num_instances * sizeof(*hm2->tp_pwmgen.instance));
     if (hm2->tp_pwmgen.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    hm2->tp_pwmgen.hal = (hm2_tp_pwmgen_global_hal_t *)hal_malloc(sizeof(hm2_tp_pwmgen_global_hal_t));
+    hm2->tp_pwmgen.hal = hal_malloc(sizeof(*hm2->tp_pwmgen.hal));
     if (hm2->tp_pwmgen.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -294,17 +294,13 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // export to HAL
-    // FIXME: r hides the r in enclosing function, and it returns the wrong thing
     {
-        int i;
-        int r;
-        char name[HAL_NAME_LEN + 1];
-
         // this hal parameter affects all the 3-Phase pwmgen instances
-        r = hal_param_u32_newf(
+        r = hal_param_new_ui32(
+	    hm2->llio->comp_id,
 	    HAL_RW,
 	    &(hm2->tp_pwmgen.hal->param.pwm_frequency),
-	    hm2->llio->comp_id,
+	    20000,
 	    "%s.3pwmgen.frequency",
 	    hm2->llio->name
         );
@@ -313,88 +309,75 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             goto fail2;
         }
 
-        hm2->tp_pwmgen.hal->param.pwm_frequency = 20000;
         hm2->tp_pwmgen.written_pwm_frequency = 0; // force a write
 
 
-        for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
+        for (int i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.A-value", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Avalue), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Avalue),
+                                 0.0, "%s.3pwmgen.%02d.A-value", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.3pwmgen.%02d.A-value', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.B-value", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Bvalue), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Bvalue),
+                                 0.0, "%s.3pwmgen.%02d.B-value", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.3pwmgen.%02d.B-value', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.C-value", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Cvalue), hm2->llio->comp_id);
+            r = hal_pin_new_real(hm2->llio->comp_id, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Cvalue),
+                                 0.0, "%s.3pwmgen.%02d.C-value", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.3pwmgen.%02d.C-value', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.enable", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.enable),
+                                 0, "%s.3pwmgen.%02d.enable", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.3pwmgen.%02d.enable', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.fault", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->tp_pwmgen.instance[i].hal.pin.fault), hm2->llio->comp_id);
+            r = hal_pin_new_bool(hm2->llio->comp_id, HAL_OUT, &(hm2->tp_pwmgen.instance[i].hal.pin.fault),
+                                 0, "%s.3pwmgen.%02d.fault", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error %d adding pin '%s.3pwmgen.%02d.fault', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
             // parameters
 
-            rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.scale", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
+            r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.scale),
+                                   1.0, "%s.3pwmgen.%02d.scale", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.3pwmgen.%02d.scale', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.deadtime", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.deadzone), hm2->llio->comp_id);
+            r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.deadzone),
+                                   5000.0, "%s.3pwmgen.%02d.deadtime", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.3pwmgen.%02d.deadtime', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.fault-invert", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.faultpolarity), hm2->llio->comp_id);
+            r = hal_param_new_bool(hm2->llio->comp_id, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.faultpolarity),
+                                   0, "%s.3pwmgen.%02d.fault-invert", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.3pwmgen.%02d.fault-invert', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.sample-time", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.sampletime), hm2->llio->comp_id);
+            r = hal_param_new_real(hm2->llio->comp_id, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.sampletime),
+                                   0.5, "%s.3pwmgen.%02d.sample-time", hm2->llio->name, i);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error %d adding param '%s.3pwmgen.%02d.sample-time', aborting\n", r, hm2->llio->name, i);
                 goto fail2;
             }
-
-
-            // init hal objects
-            *(hm2->tp_pwmgen.instance[i].hal.pin.enable) = 0;
-            *(hm2->tp_pwmgen.instance[i].hal.pin.Avalue) = 0.0;
-	    *(hm2->tp_pwmgen.instance[i].hal.pin.Bvalue) = 0.0;
-	    *(hm2->tp_pwmgen.instance[i].hal.pin.Cvalue) = 0.0;
-
-            hm2->tp_pwmgen.instance[i].hal.param.scale = 1.0;
-            hm2->tp_pwmgen.instance[i].hal.param.sampletime = 0.5;
-	    hm2->tp_pwmgen.instance[i].hal.param.faultpolarity = 0.0; //active low
-	    hm2->tp_pwmgen.instance[i].hal.param.deadzone = 5000; // 5000nS conservative deadzone for safety
 
             hm2->tp_pwmgen.instance[i].written_sampletime = -666;       // force an update at the start
         }
@@ -448,14 +431,15 @@ void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
         // pwmgen)
 
         // Check for /0 problems
-        if (hm2->tp_pwmgen.instance[i].hal.param.scale ==0) {
-            hm2->tp_pwmgen.instance[i].hal.param.scale = 1;
-            HM2_ERR("3pwmgen scale must be greater than zero. Scale set to %i", (int)hm2->tp_pwmgen.instance[i].hal.param.scale);
+        rtapi_real scale = hal_get_real(hm2->tp_pwmgen.instance[i].hal.param.scale);
+        if (scale ==0) {
+            scale = hal_set_real(hm2->tp_pwmgen.instance[i].hal.param.scale, 1);
+            HM2_ERR("3pwmgen scale must be greater than zero. Scale set to %i", (int)scale);
         }
 
-        scaled_Avalue = (*hm2->tp_pwmgen.instance[i].hal.pin.Avalue / hm2->tp_pwmgen.instance[i].hal.param.scale);
-        scaled_Bvalue = (*hm2->tp_pwmgen.instance[i].hal.pin.Bvalue / hm2->tp_pwmgen.instance[i].hal.param.scale);
-        scaled_Cvalue = (*hm2->tp_pwmgen.instance[i].hal.pin.Cvalue / hm2->tp_pwmgen.instance[i].hal.param.scale);
+        scaled_Avalue = hal_get_real(hm2->tp_pwmgen.instance[i].hal.pin.Avalue) / scale;
+        scaled_Bvalue = hal_get_real(hm2->tp_pwmgen.instance[i].hal.pin.Bvalue) / scale;
+        scaled_Cvalue = hal_get_real(hm2->tp_pwmgen.instance[i].hal.pin.Cvalue) / scale;
 
         if (scaled_Avalue > 1.0) scaled_Avalue = 1.0;
         else if (scaled_Avalue < -1.0) scaled_Avalue = -1.0;
