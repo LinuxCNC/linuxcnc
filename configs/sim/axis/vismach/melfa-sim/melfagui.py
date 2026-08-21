@@ -1,37 +1,5 @@
 #!/usr/bin/env python3
 
-# DEPRECATION NOTICE
-# The folder 'src/hal/user_comps/vismach' and its contents are to be removed
-# The model files in 'src/hal/user_comps/vismach' are for simulation configurations
-# These sim configs are collected in the '/configs/sim' folder and should use local model files
-# All model files in this folder have been moved to the sim configs that use them.
-
-import tkinter as tk
-import os
-
-new_location = "/configs/sim/axis/vismach/melfa-sim/melfagui.py"
-model_name = os.path.basename(__file__)
-
-message = (">Vismach: DEPRECATION NOTICE<" + 
-           "\n\n   The vismach model you are using will be removed in a future release." +
-           "\n   Your model has been moved to:" +
-           "\n\n     "+ new_location +
-           "\n\n   You should put a copy of the file into your config folder and change"+ 
-           "\n\n     'loaduser -W " + model_name + " ' to 'loadusr -W ./" + model_name + ".py'")
-print(message)
-
-def popupmsg():
-    popup = tk.Tk()
-    popup.wm_title("Deprecation Notice")
-    popup.wm_attributes('-topmost', True)
-    popup.config(bd=10)
-    label = tk.Label(popup, text = message)
-    label.pack(pady=18)
-    close_button = tk.Button(popup, text="Close", command=popup.destroy)
-    close_button.pack()
-
-popupmsg()
-
 #--------------------------------------------------------------------------
 # Visualization model of the Mitsubishi RV6-SDL 6axis serial manipulator
 #--------------------------------------------------------------------------
@@ -74,19 +42,19 @@ finger1 = Rotate([finger1],180,1,0,0)
 
 try: # Expect files in working directory
     # create toolholder from file
-    link7 = AsciiSTL(filename="link7.stl")
+    link7 = AsciiSTL(filename="../melfa_stl/link7.stl")
     # create wrist from file
-    link6 = AsciiSTL(filename="link6.stl")
+    link6 = AsciiSTL(filename="../melfa_stl/link6.stl")
     # create forearm from file
-    link5 = AsciiSTL(filename="link5.stl")
+    link5 = AsciiSTL(filename="../melfa_stl/link5.stl")
     # create ellbow trom file
-    link4 = AsciiSTL(filename="link4.stl")
+    link4 = AsciiSTL(filename="../melfa_stl/link4.stl")
     # create upper arm from file
-    link3 = AsciiSTL(filename="link3.stl")
+    link3 = AsciiSTL(filename="../melfa_stl/link3.stl")
     # create shoulder from file
-    link2 = AsciiSTL(filename="link2.stl")
+    link2 = AsciiSTL(filename="../melfa_stl/link2.stl")
     # create base (waist) from file
-    link1 = AsciiSTL(filename="link1.stl")
+    link1 = AsciiSTL(filename="../melfa_stl/link1.stl")
 except Exception as detail:
     print(detail)
     raise SystemExit("melfagui requires files link[1-7].stl in working directory")

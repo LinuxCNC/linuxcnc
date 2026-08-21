@@ -10,12 +10,9 @@ histogram_demo.ini   hal-histogram examples
 historical_lathe.ini configured with 3 joints (XYZ with Y unused)
 ini_hal_demo.ini     ini hal pins demo
 lathe.ini            lathe demo
-ldelta.ini           linear delta robot
-ldelta_demo.ini      linear delta with jog guis
 minimal_xyz.ini      minimal set of config items
 profile_axis.ini     profiling
 random_tc.ini        random tool changer
-rdelta.ini           rotary delta robot
 
 Select one of these if you have no functional machine but want to edit some basic configuration stuff or play with one of the LinuxCNC displays.
 

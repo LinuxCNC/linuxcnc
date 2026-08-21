@@ -1,6 +1,6 @@
-loadusr -W 5axisgui
+loadusr -W ./5axisgui.py
 # to set different pivot_len, use:
-#   'loadusr -W 5axisgui pivot_len=value'
+#   'loadusr -W ./5axisgui.py pivot_len=value'
 
 net :jx  joint.0.pos-fb 5axisgui.jx
 net :jy  joint.1.pos-fb 5axisgui.jy
