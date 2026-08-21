@@ -27,7 +27,7 @@
 
 // Bring in C struct for a state tag from motion
 extern "C" {
-#include "motion/state_tag.h"
+#include "state_tag.h"
 }
 
 /**

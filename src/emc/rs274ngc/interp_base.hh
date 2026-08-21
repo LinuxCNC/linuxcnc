@@ -23,12 +23,8 @@
 #include <stdlib.h>
 #include <boost/noncopyable.hpp>
 #include <emcpos.h>
-#include "modal_state.hh"
-
-/* Size of certain arrays */
-#define ACTIVE_G_CODES 17
-#define ACTIVE_M_CODES 10
-#define ACTIVE_SETTINGS 5
+#include "../nml_intf/modal_state.hh"
+#include "../nml_intf/interp_codes.h"
 
 class InterpBase : boost::noncopyable {
 public:

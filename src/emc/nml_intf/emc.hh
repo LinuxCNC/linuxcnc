@@ -19,7 +19,7 @@
 #include "libnml/nml/nml_type.hh"
 #include "motion_types.h"
 #include <stdint.h>
-#include "rs274ngc/modal_state.hh"
+#include "modal_state.hh"
 
 // Forward class declarations
 class EMC_JOINT_STAT;

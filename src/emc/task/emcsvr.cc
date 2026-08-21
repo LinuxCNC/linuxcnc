@@ -13,6 +13,9 @@
 * Last change:
 ********************************************************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <signal.h>
 
 #include "libnml/rcs/rcs.hh"		// EMC NML

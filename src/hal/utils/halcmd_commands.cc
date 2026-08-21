@@ -59,7 +59,7 @@
 #include <vector>
 #include <fmt/format.h>
 
-#include "setps_util.h"
+#include "hal/setps_util.h"
 
 static int unloadrt_comp(const char *mod_name);
 static void print_comp_info(const char **patterns);

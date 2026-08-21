@@ -57,7 +57,6 @@
 #include <boost/lockfree/queue.hpp>
 
 #include "rtapi.h"
-#include <hal.h>
 #include "uspace_common.h"
 
 static RtapiApp &App();

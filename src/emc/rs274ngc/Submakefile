@@ -17,7 +17,6 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_write.cc \
 	interp_o_word.cc \
 	interp_g7x.cc \
-	modal_state.cc \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
 	interp_python.cc \
@@ -32,6 +31,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interpmodule.cc \
 	rs274ngc_pre.cc \
 	interp_inspection.cc)
+LIBRS274SRCS += emc/nml_intf/modal_state.cc
 USERSRCS += $(LIBRS274SRCS)
 
 $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS+=-fPIC $(BOOST_DEBUG_FLAGS)

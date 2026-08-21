@@ -56,7 +56,7 @@
 #include <hal.h>
 #include <inifile.hh>
 
-#include "setps_util.h"
+#include "hal/setps_util.h"
 
 using namespace linuxcnc;
 

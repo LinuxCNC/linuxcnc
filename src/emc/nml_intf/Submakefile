@@ -1,7 +1,7 @@
 
 LIBEMCSRCS := \
     emc/nml_intf/emcglb.c \
-    emc/rs274ngc/modal_state.cc \
+    emc/nml_intf/modal_state.cc \
     emc/nml_intf/emc.cc \
     emc/nml_intf/emcpose.c \
     emc/nml_intf/emcargs.cc \
@@ -26,6 +26,7 @@ TARGETS += ../lib/liblinuxcnc.a
 	@$(AR) $(ARFLAGS) $@ $^
 
 EMCNMLINTFINCS = \
+	./emc/nml_intf/emcmotcfg.h \
 	./emc/nml_intf/emcpos.h \
 	./emc/nml_intf/emcpose.h \
 	./emc/nml_intf/motion_types.h

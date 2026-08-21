@@ -34,7 +34,7 @@
 #include "config.h"
 #include "homing.h"
 #include "axis.h"
-#include "state_tag.h"
+#include "../nml_intf/state_tag.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)

@@ -20,9 +20,9 @@
 #include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
 #include "libnml/nml/stat_msg.hh"
-#include "rs274ngc/modal_state.hh"
+#include "modal_state.hh"
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
-#include "rs274ngc/rs274ngc.hh"		// ACTIVE_G_CODES, etc
+#include "interp_codes.h"		// ACTIVE_G_CODES, etc
 
 // ------------------
 // CLASS DECLARATIONS
