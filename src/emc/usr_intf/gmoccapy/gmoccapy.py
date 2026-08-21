@@ -2040,6 +2040,13 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
         # override 'tooledit_widget' method 'toolfile_stale' so we can also update toolinfo
         self.widgets.tooledit1.toolfile_stale = self.toolfile_stale
+        # override 'tooledit_widget's warning dialog
+        self.widgets.tooledit1.ext_dialog = self.tooltable_dialog
+
+    def tooltable_dialog(self, message, header=None):
+        if header is None:
+            header = _("Tool page error:")
+        self.dialogs.warning_dialog(self, header, message)
 
     def toolfile_stale(self):
         self._update_toolinfo(self.widgets.tooledit1.toolinfo_num)
@@ -2112,21 +2119,21 @@ class gmoccapy(object):
                                     header=_("Enter value"),
                                     label=_("Tool") + f" {model[treeiter][1]}, {captations[col]}:",
                                     integer=col in [1,2,15])
-        if value == "ERROR":
-            LOG.debug("conversion error")
-            self.dialogs.warning_dialog(self, _("Conversion error !"),
-                                        ("Please enter only numerical values\nValues have not been applied"))
-        elif value == "CANCEL":
+        if value == "CANCEL":
             pass
         else:
+            if isinstance(value, float):
+                cell_text = f"{value:11.4f}"
+            else:
+                cell_text = value
             path = model.get_path(treeiter)
             row = path.get_indices()[0]
             # Clicking on a cell emits 'editing-started' which leads to the evaluation of the text in edit mode.
             # To use the return value of the calculator, it must be pretended that there is no editable (=no edit mode).
             self.widgets.tooledit1.editable = None
-            self.widgets.tooledit1.validate_input(row, f"{value:11.4f}", col)
+            self.widgets.tooledit1.validate_input(row, cell_text, col, captations)
             self.widgets.tooledit1.edited = True
-        # this is needed to get offsetview out of editing mode
+        # this is needed to get out of editing mode
         GLib.timeout_add(50,
                      toolview.set_cursor,
                      toolpage.model.get_path(treeiter),
@@ -2495,6 +2502,13 @@ class gmoccapy(object):
             if col > 10:break
             temp = self.widgets.offsetpage1.wTree.get_object("cell_%s" % name)
             temp.connect('editing-started', self.on_offset_col_edit_started, col)
+        # override the 'offsetpage_widget' message dialog
+        self.widgets.offsetpage1.ext_dialog = self.offsetpage_dialog
+
+    def offsetpage_dialog(self, message, header=None):
+        if header is None:
+            header = _("Offset page error:")
+        self.dialogs.warning_dialog(self, header, message)
 
     def on_offsetpage_use_calc_toggled(self,widget):
         self.offsetpage_use_calc = widget.get_active()
@@ -2510,51 +2524,29 @@ class gmoccapy(object):
         (store_path,) = offsetpage.modelfilter.convert_path_to_child_path(path)
         row = store_path
         if self.widgets.offsetpage1.btn_edit_offsets.get_active():
-            offset = self.dialogs.entry_dialog(self,
+            value  = self.dialogs.entry_dialog(self,
                                         data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
                                         label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
-            if offset == "ERROR":
-                LOG.debug("conversion error")
-                self.dialogs.warning_dialog(self, _("Conversion error !"),
-                                            ("Please enter only numerical values\nValues have not been applied"))
-            elif offset == "CANCEL":
-                pass
+        if value == "CANCEL":
+            pass
+        else:
+            if isinstance(value, float):
+                cell_text = f"{value:11.4f}"
             else:
-                axisnum = col - 1
-                try:
-                    if self.stat.task_mode != linuxcnc.MODE_MDI:
-                        self.command.mode(linuxcnc.MODE_MDI)
-                        self.command.wait_complete()
-                    if row == 0:
-                        self.command.mdi("G43.1 %s %10.4f" % (AXISLIST[col], offset))
-                    elif row == 1:
-                        self.command.mdi("#%s = %10.4f" % (str(5161 + axisnum), offset))
-                    elif row == 2:
-                        self.command.mdi("#%s = %10.4f" % (str(5181 + axisnum), offset))
-                    elif row == 3:
-                        self.command.mdi("G92 %s %10.4f" % (AXISLIST[col], offset))
-                    else:
-                        pnum = row-3
-                        if not pnum == None:
-                            if col == 10:
-                                self.command.mdi("G10 L2 P%d R %10.4f" % (pnum, offset))
-                            else:
-                                self.command.mdi("G10 L2 P%d %s %10.4f"  % (pnum, AXISLIST[col], offset))
-                    self.command.mode(linuxcnc.MODE_MANUAL)
-                    self.command.wait_complete()
-                    self.command.mode(linuxcnc.MODE_MDI)
-                    self.command.wait_complete()
-                except:
-                    print(_("offsetpage widget error: MDI call error"))
-            offsetpage.reload_offsets()
-            # this is needed to get offsetview out of editing mode
-            GLib.timeout_add(50,
-                             offsetview.set_cursor,
-                             path,
-                             offsetview.get_columns()[0],
-                             True)
+                cell_text = value
+            path = model.get_path(treeiter)
+            row = path.get_indices()[0]
+            self.widgets.offsetpage1.validate_input(row, cell_text, col, AXISLIST)
+            self.widgets.offsetpage1.edited = True
+
+        GLib.timeout_add(50,
+                     offsetview.set_cursor,
+                     model.get_path(treeiter),
+                     offsetview.get_columns()[0],
+                     True)
+
 
     # Icon file selection stuff
     def _init_IconFileSelection(self):
@@ -6624,4 +6616,5 @@ if __name__ == "__main__":
 
     # start the event loop
     Gtk.main()
+
 

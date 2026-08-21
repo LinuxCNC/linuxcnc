@@ -69,6 +69,7 @@ class ToolEdit(Gtk.Box):
         self.editable = None
         self.edit_path = None
         self.edit_column = None
+        self.ext_dialog = None
         self.tooltable_error_msg = None
         # connect the signals from Glade
         dic = {
@@ -262,8 +263,7 @@ class ToolEdit(Gtk.Box):
         self.toolfile = filename
         self.reload(None)
 
-    def warning_dialog(self, line_number):
-        message = f"Error in tool table line {line_number} in column orientation.\nValid range is 0 ~ 9."
+    def warning_dialog(self, message):
         dialog = Gtk.MessageDialog(parent=self.wTree.get_object("window1"),
                                    destroy_with_parent = True,
                                    message_type=Gtk.MessageType.ERROR,
@@ -344,6 +344,8 @@ class ToolEdit(Gtk.Box):
                                 if value not in range(10):
                                     msg = _(f"Tool {current_tool} Orientation: <b>'{value}'</b>\nValid range is 0 ~ 9.")
                                     error_msg.append(msg)
+                            except:
+                                print(_("Tooledit widget float error"))
                                 rejected_lines.append(rawline)
                                 continue
                         else:
@@ -387,12 +389,19 @@ class ToolEdit(Gtk.Box):
         # pre check before saving the file
         # if not done before, the file will be saved only until the erroneous line and the rest will be lost
         line_number = 0
+        tool_nbrs = []
         for row in liststore:
             values = [ value for value in row ]
             line_number += 1
-            if values[15] > 9:
-                self.warning_dialog(line_number)
+            msg = None
+            if values[1] in tool_nbrs:
+                msg = f"\nError in tool table:\nDuplicate tool number '{values[1]}'"
+            elif values[15] not in range(10):
+                msg = f"\nError in tool table line {line_number} in column orientation.\nValid range is 0 ~ 9."
+            if msg is not None:
+                self.warning_dialog(msg)
                 return
+            tool_nbrs.append(values[1])
 
         if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
             raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
@@ -539,39 +548,53 @@ class ToolEdit(Gtk.Box):
 
         # depending what is edited add the right type of info integer,float or text
         # If it's a filtered display then we must convert the path 
-    def validate_input(self, path, new_text, col):
+    def validate_input(self, path, new_text, col, captations=None):
         if filter == 'wear':
             (store_path,) = self.wear_filter.convert_path_to_child_path(path)
             path = store_path
         elif filter == 'tool':
             (store_path,) = self.tool_filter.convert_path_to_child_path(path)
             path = store_path
-
+        msg = None
+        # validate positive integer for tool and pocket number
         if col in(1,2):
-            try:
-                self.model[path][col] = int(new_text)
+            try :
+                value = int(new_text)
+                if value < 0:
+                    raise TypeError
+                else:
+                    self.model[path][col] = value
             except:
-                pass
+                msg = (_(f"\nMust be a positive whole number"))
         # validate input for float columns
         elif col in range(3,15):
             try:
                 self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:
-                pass
+                msg = (_(f"\nMust be a decimal number"))
         # validate input for orientation: check if int and valid range
         elif col == 15:
-            try:
-                value = int(new_text)
-                if value in range(10):
-                    self.model[path][col] = value
+            try :
+                value = float(new_text)
+                if value != int(value) or value not in range(10):
+                    raise TypeError
+                else:
+                    self.model[path][col] = int(value)
             except:
-                pass
+                msg = (_(f"\nMust be one of (0,1,2,3,4,5,6,7,8,9)"))
         elif col == 16:
             try:
                 self.model[path][col] = (new_text)
             except:
                 pass
-        #print path,new_text, col
+        if msg is not None:
+            header = (_("Tool table, value error:" ))
+            if captations is not None:
+                    header = (_(f"{captations[col]} value error:" ))
+            if self.ext_dialog is not None:
+                self.ext_dialog(msg,header)
+            else:
+                self.warning_dialog(header + msg)
         if filter in('wear','tool'):
             self.save(None)
 
