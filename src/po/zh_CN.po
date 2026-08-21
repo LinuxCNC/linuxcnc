@@ -12,13 +12,14 @@
 # Atom <superatom@sohu.com>, 2025.
 # BeginsDuang <enious@outlook.com>, 2026.
 # BsAtHome <bertho@vagrearg.org>, 2026.
+# xiezhihai <xiezhihai7321@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-04-08 20:41+0000\n"
-"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
+"PO-Revision-Date: 2026-08-21 19:51+0000\n"
+"Last-Translator: xiezhihai <xiezhihai7321@outlook.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -26,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -3506,7 +3507,6 @@ msgid "Modbus communication setup"
 msgstr "Modbus通信设置"
 
 #: src/hal/classicladder/config_gtk.c:1086
-#, fuzzy
 msgid "Modbus I/O register setup"
 msgstr "Modbus I/O寄存器设置"
 
@@ -3858,9 +3858,8 @@ msgid "bottom"
 msgstr "底部"
 
 #: src/hal/classicladder/edit_sequential.c:842
-#, fuzzy
 msgid "Now select the transition."
-msgstr "请选择转换。"
+msgstr "现在请选择转换。"
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
@@ -3877,7 +3876,7 @@ msgstr "您尚未选择要链接的步骤或转换！！！"
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "点击次数=2!!! (位置=%s), 备份类型=%d, 当前类型=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
@@ -3898,12 +3897,12 @@ msgstr "这里没有足够的空间..."
 #: src/hal/classicladder/edit_sequential.c:923
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "执行多步骤: 点击次数=2!!!, 原类型=%d, 当前类型=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:929
 #, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "多次转换：点击次数=2!!!，备份类型=%d，当前类型=%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:240
 msgid "Properties"
@@ -3919,9 +3918,8 @@ msgid "Error blank symbol name"
 msgstr "错误空白符号名称"
 
 #: src/hal/classicladder/emc_mods.c:64
-#, fuzzy
 msgid "Error unknown symbol name"
-msgstr "错误空白符号名称"
+msgstr "错误未知的符号名称"
 
 #: src/hal/classicladder/emc_mods.c:75 src/hal/classicladder/emc_mods.c:81
 #: src/hal/classicladder/emc_mods.c:89 src/hal/classicladder/emc_mods.c:97
@@ -3966,7 +3964,7 @@ msgstr "没有表达式"
 #: src/hal/classicladder/emc_mods.c:196
 #, c-format
 msgid " %s (for %s)  Exprsn~ %s"
-msgstr ""
+msgstr "%s（用于 %s） 表达式~ %s"
 
 #: src/hal/classicladder/emc_mods.c:201
 msgid "first var. expression error"
@@ -4065,7 +4063,7 @@ msgstr "不支持部件文件版本...\n"
 msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
-msgstr ""
+msgstr "节 %d => 名称=%s，语言=%d，SR编号=%d，首梯级=%d，末梯级=%d，连续页=%d\n"
 
 #: src/hal/classicladder/files.c:1084
 #, c-format
@@ -4218,7 +4216,7 @@ msgstr "函数: %X  数据: "
 #: src/hal/classicladder/protocol_modbus_master.c:630
 #, c-format
 msgid " CRC: %X "
-msgstr ""
+msgstr "CRC校验：%X"
 
 #: src/hal/classicladder/protocol_modbus_master.c:622
 #, c-format
@@ -4305,13 +4303,13 @@ msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr "错误 CLASSICLADDER-   无法创建线程 I/O modbus主站...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"
-msgstr "信息 CLASSICLADDER---I/O modbus 主站数据 位 %i 停止位 %i 奇偶校验 %i\n"
+msgstr "信息 CLASSICLADDER---I/O Modbus 主站 数据位 %i 停止位 %i 奇偶校验 %i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
 msgstr "信息 CLASSICLADDER---I/O modbus 主站 (%s) 初始化成功 !\n"
 
@@ -4342,9 +4340,9 @@ msgid "Connecting I/O module...\n"
 msgstr "连接I/O模块...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:229
-#, fuzzy, c-format
+#, c-format
 msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
-msgstr "无法在modbus表中检索IP地址!!!\n"
+msgstr "在 Modbus 表中无法获取 IP 地址，是吗？！！！\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
@@ -4597,7 +4595,7 @@ msgstr "I/O 点"
 
 #: tcl/bin/emcdebug.tcl:191
 msgid "NML"
-msgstr ""
+msgstr "NML"
 
 #: tcl/bin/emcdebug.tcl:192
 msgid "Motion time"
@@ -5349,6 +5347,11 @@ msgid ""
 "\n"
 "GPL Version 2 (2012)"
 msgstr ""
+"TkLinuxcnc\n"
+"\n"
+"LinuxCNC 的 Tcl/Tk 图形界面\n"
+"\n"
+"GPL 版本 2（2012）"
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
@@ -5635,7 +5638,7 @@ msgstr "主轴倍率:"
 
 #: tcl/tklinuxcnc.tcl:1498
 msgid "MDI:"
-msgstr ""
+msgstr "MDI:"
 
 #: tcl/tklinuxcnc.tcl:1520
 msgid "Program: "
@@ -6548,7 +6551,7 @@ msgstr "意外:多个ngcgui启动"
 
 #: tcl/ngcgui_app.tcl:50
 msgid "LinuxCNC"
-msgstr ""
+msgstr "LinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51 tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
@@ -7944,11 +7947,11 @@ msgstr "版本号 *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:38
 msgid "NML *"
-msgstr ""
+msgstr "NML *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:39
 msgid "RCS *"
-msgstr ""
+msgstr "RCS *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:40
 msgid "Task Issue"
@@ -8101,43 +8104,43 @@ msgstr "坐标系清零"
 
 #: share/axis/tcl/axis.tcl:213
 msgid "P1  G5_4"
-msgstr ""
+msgstr "P1  G5_4"
 
 #: share/axis/tcl/axis.tcl:217
 msgid "P2  G5_5"
-msgstr ""
+msgstr "P2  G5_5"
 
 #: share/axis/tcl/axis.tcl:221
 msgid "P3  G5_6"
-msgstr ""
+msgstr "P3  G5_6"
 
 #: share/axis/tcl/axis.tcl:225
 msgid "P4  G5_7"
-msgstr ""
+msgstr "P4  G5_7"
 
 #: share/axis/tcl/axis.tcl:229
 msgid "P5  G5_8"
-msgstr ""
+msgstr "P5  G5_8"
 
 #: share/axis/tcl/axis.tcl:233
 msgid "P6  G5_9"
-msgstr ""
+msgstr "P6  G5_9"
 
 #: share/axis/tcl/axis.tcl:237
 msgid "P7  G59._1"
-msgstr ""
+msgstr "P7  G59._1"
 
 #: share/axis/tcl/axis.tcl:241
 msgid "P8  G59._2"
-msgstr ""
+msgstr "P8  G59._2"
 
 #: share/axis/tcl/axis.tcl:245
 msgid "P9  G59._3"
-msgstr ""
+msgstr "P9  G59._3"
 
 #: share/axis/tcl/axis.tcl:249
 msgid "_G92"
-msgstr ""
+msgstr "_G92"
 
 #: share/axis/tcl/axis.tcl:257
 msgid "Tool touch off to wor_kpiece"
@@ -8366,7 +8369,7 @@ msgstr "手动控制[F3]"
 
 #: share/axis/tcl/axis.tcl:821
 msgid "MDI [F5]"
-msgstr ""
+msgstr "MDI [F5]"
 
 #: share/axis/tcl/axis.tcl:835 share/axis/tcl/axis.tcl:1923
 #: share/axis/tcl/axis.tcl:2110
@@ -8397,7 +8400,7 @@ msgstr "主轴:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:3447
 #: src/emc/usr_intf/gscreen/gscreen.glade:74
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: share/axis/tcl/axis.tcl:1082 src/emc/usr_intf/stepconf/main_page.glade:26
 #: src/emc/usr_intf/pncconf/main_page.glade:38
@@ -8405,7 +8408,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:3474
 #: src/emc/usr_intf/gscreen/gscreen.glade:62
 msgid "+"
-msgstr ""
+msgstr "+"
 
 #: share/axis/tcl/axis.tcl:1087
 msgid "Brake"
@@ -8437,7 +8440,7 @@ msgstr "执行"
 
 #: share/axis/tcl/axis.tcl:1302
 msgid "DRO"
-msgstr ""
+msgstr "DRO"
 
 #: share/axis/tcl/axis.tcl:1385
 msgid "Active G-Codes:"
@@ -8509,7 +8512,7 @@ msgstr "主轴速率:"
 #: src/emc/usr_intf/pncconf/screen.glade:562
 #: src/emc/usr_intf/pncconf/screen.glade:4680
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: share/axis/tcl/axis.tcl:1529
 msgid "Rapid Override:"
@@ -8547,7 +8550,7 @@ msgstr "AXIS快速参考"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr ""
+msgstr "AXIS $::version on $::machine"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
@@ -8814,7 +8817,7 @@ msgstr "主轴正转"
 
 #: src/emc/usr_intf/touchy/touchy.glade:17
 msgid "LinuxCNC/Touchy"
-msgstr ""
+msgstr "LinuxCNC/Touchy"
 
 #: src/emc/usr_intf/touchy/touchy.glade:41
 msgid "xa"
