@@ -240,6 +240,15 @@ tilting head (B axis) and horizontal rotary mounted to the table (C axis).
 Provides UVW motion in the rotated coordinate system.
 The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
 
+*maxkins.pivot-length*::
+  Distance from the B rotation point to the tool holder gauge line.
+
+*maxkins.tool-length*::
+  Tool length, applied along the tool rather than along Z, so that the tip
+  stays on the programmed point as B tilts. Net it from *motion.tooloffset.z*.
+  Left unconnected, the tool length stays where canon put it, along machine
+  Z, which is only correct at B0.
+
 === pentakins - Pentapod Kinematics
 
 Gives five degrees of freedom in position and orientation (XYZAB).
