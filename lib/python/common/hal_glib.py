@@ -314,8 +314,8 @@ class _GStat(GObject.GObject):
 
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
-
         self.readAddress = "tcp://127.0.0.1:5691"
+        self.read_available = False
         self.writeAddress = "tcp://127.0.0.1:5690"
         self.write_available = False
         # if zmq is imported, create sockets
@@ -398,8 +398,10 @@ class _GStat(GObject.GObject):
         self.readSocket.setsockopt_string(zmq.SUBSCRIBE, 'STATUSREQUEST')
         try:
             self.readSocket.connect(self.readAddress)
+            self.read_available = True
             LOG.debug('hal_glib read socket available: {}'.format(self.readAddress))
         except Exception as e:
+            self.read_available = False
             LOG.debug('hal_glib read socket error: {}'.format(e))
             return
         GObject.io_add_watch(self.readSocket.getsockopt(zmq.FD),
@@ -408,9 +410,10 @@ class _GStat(GObject.GObject):
 
     # called directly to process any current message
     def readNextMsg(self):
-        event = self.readSocket.poll(timeout=0)
-        if event & zmq.POLLIN:
-            self.convertMsg()
+        if self.read_available:
+            event = self.readSocket.poll(timeout=0)
+            if event & zmq.POLLIN:
+                self.convertMsg()
 
     # called when GObject notices a change
     def onReadMsg(self, queue, condition, sock):
