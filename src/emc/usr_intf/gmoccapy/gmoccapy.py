@@ -2101,11 +2101,12 @@ class gmoccapy(object):
         toolpage = self.widgets.tooledit1
         toolview = toolpage.view1
         model, treeiter = toolview.get_selection().get_selected()
+        integer_cols = [1,2,15]
         value = self.dialogs.entry_dialog(self,
                                     data=model[treeiter][col],
                                     header=_("Enter value"),
                                     label=_("Tool") + f" {model[treeiter][1]}, {captations[col]}:",
-                                    integer=col in [1,2,15])
+                                    integer=col in integer_cols)
         if value == "ERROR":
             LOG.debug("conversion error")
             self.dialogs.warning_dialog(self, _("Conversion error !"),
@@ -2118,7 +2119,10 @@ class gmoccapy(object):
             # Clicking on a cell emits 'editing-started' which leads to the evaluation of the text in edit mode.
             # To use the return value of the calculator, it must be pretended that there is no editable (=no edit mode).
             self.widgets.tooledit1.editable = None
-            self.widgets.tooledit1.validate_input(row, f"{value:11.4f}", col)
+            if col in integer_cols:
+                self.widgets.tooledit1.validate_input(row, f"{value:11.0f}", col)
+            else:
+                self.widgets.tooledit1.validate_input(row, f"{value:11.4f}", col)
             self.widgets.tooledit1.edited = True
         # this is needed to get offsetview out of editing mode
         GLib.timeout_add(50,

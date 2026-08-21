@@ -512,7 +512,7 @@ class ToolEdit(Gtk.Box):
 
         if col in(1,2):
             try:
-                self.model[path][col] = int(new_text)
+                self.model[path][col] = abs(int(float(new_text.replace(',', '.'))))
             except:
                 pass
         # validate input for float columns
