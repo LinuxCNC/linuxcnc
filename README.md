@@ -1,4 +1,4 @@
-
+borrar estás licencias 
 [![Badge GPL2]][License]
 [![Badge LGPL]][License]
 
