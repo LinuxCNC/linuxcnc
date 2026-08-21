@@ -5114,6 +5114,26 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
 	}
     return INTERP_OK;
 }
+
+/* Displacement of a move, ordered XYZABCUVW. */
+
+static void sync_move_delta(setup_pointer settings,
+                            double end_x, double end_y, double end_z,
+                            double AA_end, double BB_end, double CC_end,
+                            double u_end, double v_end, double w_end,
+                            double delta[9])
+{
+    delta[0] = end_x - settings->current_x;
+    delta[1] = end_y - settings->current_y;
+    delta[2] = end_z - settings->current_z;
+    delta[3] = AA_end - settings->AA_current;
+    delta[4] = BB_end - settings->BB_current;
+    delta[5] = CC_end - settings->CC_current;
+    delta[6] = u_end - settings->u_current;
+    delta[7] = v_end - settings->v_current;
+    delta[8] = w_end - settings->w_current;
+}
+
 /****************************************************************************/
 
 /*! convert_stop
@@ -5526,6 +5546,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33"));
+    double delta[9];
+    sync_move_delta(settings, end_x, end_y, end_z, AA_end, BB_end, CC_end,
+                    u_end, v_end, w_end, delta);
+    CHP(check_spindle_sync_feed(settings, block->k_number, "G33", delta));
     START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
@@ -5541,7 +5565,6 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33.1"));
-    START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     double scale = 1;
     if(block->i_flag){
         scale = block->i_number;
@@ -5549,6 +5572,13 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
             scale = 1;
         }
     }
+    double delta[9];
+    sync_move_delta(settings, end_x, end_y, end_z, AA_end, BB_end, CC_end,
+                    u_end, v_end, w_end, delta);
+    // I multiplies the spindle speed for the retract
+    CHP(check_spindle_sync_feed(settings, block->k_number * scale, "G33.1",
+                                delta));
+    START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     RIGID_TAP(block->line_number, end_x, end_y, end_z, scale);
     STOP_SPEED_FEED_SYNCH();
     // after the RIGID_TAP cycle we'll be in the same spot
@@ -5770,6 +5800,16 @@ int Interp::convert_threading_cycle(block_pointer block,
     int pass = 1;
 
     double target_z = end_z + fabs(k_number) * tan(compound_angle);
+
+    // A taper also moves X by the thread height over the taper distance, at
+    // the correspondingly larger pitch.
+    double plain_pass[9] = {0.0, 0.0, target_z - start_z, 0, 0, 0, 0, 0, 0};
+    CHP(check_spindle_sync_feed(settings, pitch, "G76", plain_pass));
+    if (taper_dist != 0.0 && (entry_taper || exit_taper)) {
+        double taper_pass[9] = {full_threadheight, 0.0, taper_dist,
+                                0, 0, 0, 0, 0, 0};
+        CHP(check_spindle_sync_feed(settings, taper_pitch, "G76", taper_pass));
+    }
 
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
