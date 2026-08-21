@@ -173,6 +173,10 @@ class GlNavBase:
         self._totaly = 0.0
         self.modelview = identity_matrix()
 
+    def is_lathe(self):
+        # preview widgets that need it (gremlin, axis, qt5_graphics) override this
+        return False
+
     def basic_lighting(self):
         """\
         Reset the camera for the first expose.
