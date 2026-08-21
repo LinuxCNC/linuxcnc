@@ -392,6 +392,15 @@ Note: These kinematics may be used with the vismach 5axisgui providing
 that the joint-letter assignments agree with the default ordering
 expected by it (XYZBCW `->` joints 0..5)
 
+*5axiskins.pivot-length*::
+  Distance from the B rotation point to the tool holder gauge line.
+
+*5axiskins.tool-length*::
+  Tool length, applied along the tool rather than along Z, so that the tip
+  stays on the programmed point as B and C move. Net it from
+  *motion.tooloffset.z*. Left unconnected, the tool length stays where canon
+  put it, along machine Z, which is only correct at B0.
+
 == SEE ALSO
 
 For additional information, see following subsections of the section 'Advanced Topics' of the LinuxCNC documentation:

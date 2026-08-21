@@ -65,6 +65,7 @@
 
 static struct haldata {
     hal_real_t pivot_length;
+    hal_real_t tool_length;
 } *haldata;
 static int fiveaxis_max_joints;
 
@@ -104,14 +105,15 @@ static int fiveaxis_KinematicsForward(const double *joints,
     (void)fflags;
     (void)iflags;
     rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
-    PmCartesian r = s2r(pivot_length + joints[JW],
+    rtapi_real tool_length  = hal_get_real(haldata->tool_length);
+    PmCartesian r = s2r(pivot_length + joints[JW] + tool_length,
                         joints[JC],
                         180.0 - joints[JB]);
 
     // Note: 'principal' joints are used
     pos->tran.x = joints[JX] + r.x;
     pos->tran.y = joints[JY] + r.y;
-    pos->tran.z = joints[JZ] + pivot_length + r.z;
+    pos->tran.z = joints[JZ] + pivot_length + tool_length + r.z;
     pos->b      = joints[JB];
     pos->c      = joints[JC];
     pos->w      = joints[JW];
@@ -132,14 +134,15 @@ static int fiveaxis_KinematicsInverse(const EmcPose * pos,
     (void)iflags;
     (void)fflags;
     rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
-    PmCartesian r = s2r(pivot_length + pos->w,
+    rtapi_real tool_length  = hal_get_real(haldata->tool_length);
+    PmCartesian r = s2r(pivot_length + pos->w + tool_length,
                         pos->c,
                         180.0 - pos->b);
 
     EmcPose P;  // computed position
     P.tran.x = pos->tran.x - r.x;
     P.tran.y = pos->tran.y - r.y;
-    P.tran.z = pos->tran.z - pivot_length - r.z;
+    P.tran.z = pos->tran.z - pivot_length - tool_length - r.z;
 
     P.b = pos->b;
     P.c = pos->c;
@@ -217,6 +220,10 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
 
     result = hal_pin_new_real(comp_id, HAL_IN, &(haldata->pivot_length),
                               DEFAULT_PIVOT_LENGTH, "%s.pivot-length", kp->halprefix);
+    if(result < 0) goto error;
+
+    result = hal_pin_new_real(comp_id, HAL_IN, &(haldata->tool_length),
+                              0.0, "%s.tool-length", kp->halprefix);
     if(result < 0) goto error;
 
     rtapi_print("Kinematics Module %s\n",__FILE__);
