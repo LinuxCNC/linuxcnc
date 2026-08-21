@@ -181,10 +181,7 @@ class Dialogs(GObject.GObject):
         value = dialog.calc.get_value()
         if dialog.RESPONSE == Gtk.ResponseType.ACCEPT:
             if value != None:
-                if dialog.calc.integer_only:
-                    qv = int(value)
-                else:
-                    qv = float(value)
+                qv = value
             else:
                 qv = "ERROR"
         else:

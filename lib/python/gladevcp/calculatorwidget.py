@@ -164,13 +164,16 @@ class Calculator( Gtk.Box ):
     def get_value( self ):
         self.compute()
         try:
-            value = self.entry.get_text()
+            value = float(self.entry.get_text())
+            if self.integer_only:
+                if value != int(value):
+                    raise ValueError
+                value = int(value)
             if self.use_localization:
-                return locale.atof( value )
-            else:
-                return float(value)
+                value = locale.atof( value )
         except:
             return None
+        return value
 
     def get_preset_value( self ):
         return self.preset_value
@@ -178,6 +181,9 @@ class Calculator( Gtk.Box ):
     def compute( self ):
         qualified = ''
         temp = self.eval_string.strip( " " ).replace("Pi", "math.pi")
+        if self.integer_only and ( '.' in temp or ',' in temp):
+            self.entry.set_text( "Error" )
+            return
         if self.use_localization:
             pass
         else:
@@ -198,10 +204,7 @@ class Calculator( Gtk.Box ):
             else:
                 qualified = qualified + i
         try   :
-            if self.integer_only:
-                b = str( int( eval( qualified ) ) )
-            else:
-                b = str( eval( qualified ) )
+            b = str( eval( qualified ) )
         except:
             b = "Error"
             self.eval_string = ''
