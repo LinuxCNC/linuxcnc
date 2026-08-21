@@ -795,8 +795,35 @@ int emcJointOverrideLimits(int joint)
 
 int emcJointHome(int joint)
 {
-    if (joint < -1 || joint >= EMCMOT_MAX_JOINTS) {
-	return 0;
+    // Range-check against the machine's *configured* joint count, not against
+    // EMCMOT_MAX_JOINTS: joints[] is sized for the compile-time maximum, so a
+    // joint number between the configured count and that maximum passes a
+    // EMCMOT_MAX_JOINTS check, reaches motion, and is then silently dropped --
+    // do_home_joint() has no joint that could start homing, and says nothing.
+    // Task, waiting for a homing cycle that will never begin, sat out its
+    // start timeout with the machine parked in the FREE-mode dip and then
+    // reported the generic "home did not start" (PR #4172: Sigma1912's
+    // "g28.2 p5" on a 5-joint machine -- two seconds of the GUI jogging in
+    // joint mode, then a message naming nothing).
+    //
+    // Checked here rather than in the interpreter because the joint count is
+    // not part of interpreter state, and here it covers every caller (G28.2
+    // Pn, the GUI Home button, halui, linuxcncrsh) instead of just G-code.
+    //
+    // Reported with emcOperatorError(), not rcs_print(): an operator typing
+    // "G28.2 P5" needs to see it, and only the error channel reaches the GUI.
+    if (joint < -1 || joint >= TrajConfig.Joints) {
+	// Report only what the person reading it can act on: the joints this
+	// machine actually has. The negative sentinels (-1 all, -2 volatile)
+	// are an internal NML convention used by the GUI buttons, halui and
+	// linuxcncrsh; no operator types them, and G-code cannot express them
+	// at all -- convert_home_cycle() refuses a negative P word. Naming
+	// "-1 for all" here told a G28.2 user to try something the
+	// interpreter then rejected (PR #4172, Sigma1912).
+	emcOperatorError("Cannot home invalid joint %d (this machine has "
+			 "joints 0..%d; omit the joint to home them all)",
+			 joint, TrajConfig.Joints - 1);
+	return EMCMOT_COMM_ERROR_COMMAND;
     }
 
     emcmotCommand.command = EMCMOT_JOINT_HOME;
@@ -807,8 +834,20 @@ int emcJointHome(int joint)
 
 int emcJointUnhome(int joint)
 {
-	if (joint < -2 || joint >= EMCMOT_MAX_JOINTS) {
-		return 0;
+	// See emcJointHome: bound by the configured joint count, and report it
+	// where the operator can see it. Motion does range-check the unhome
+	// path, but as "jno > all_joints", so the first unconfigured joint
+	// number slips through to an unrelated complaint about extra joints --
+	// and because an unconfigured joint reads as not homed, task's
+	// synchronous "no joint in range is still homed" test would then score
+	// that refusal as a *successful* unhome.
+	if (joint < -2 || joint >= TrajConfig.Joints) {
+		// See the note in emcJointHome() above on why the internal
+		// sentinels are not offered to the operator here.
+		emcOperatorError("Cannot unhome invalid joint %d (this machine "
+				 "has joints 0..%d)",
+				 joint, TrajConfig.Joints - 1);
+		return EMCMOT_COMM_ERROR_COMMAND;
 	}
 
 	emcmotCommand.command = EMCMOT_JOINT_UNHOME;
@@ -2147,6 +2186,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
 
     stat->jogging_active = emcmotStatus.jogging_active;
+    stat->homing_active = emcmotStatus.homing_active;
     stat->numExtraJoints = emcmotStatus.numExtraJoints;
 
     // set the status flag

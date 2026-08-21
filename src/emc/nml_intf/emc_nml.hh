@@ -1166,6 +1166,12 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     EmcPose eoffset_pose;
     int numExtraJoints;
     bool jogging_active;
+    // Aggregate "the homing state machine is running", from
+    // get_homing_is_active() in motion. Unlike the per-joint EMC_JOINT_STAT
+    // .homing flags, this stays true across the gap between HOME_SEQUENCE
+    // groups, where every joint momentarily reads .homing == false while the
+    // machine is still homing (see the race note in motion/homing.c).
+    bool homing_active;
     uint64_t heartbeat;  // motion controller's heartbeat counter
 };
 
