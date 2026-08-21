@@ -69,7 +69,7 @@ option  extra_setup;
 #include USE_TOPDIR(src/emc/tp/tcq.c)
 #include USE_TOPDIR(src/emc/tp/spherical_arc.c)
 #include USE_TOPDIR(src/emc/tp/blendmath.c)
-#include USE_TOPDIR(src/emc/nml_intf/emcpose.c)
+#include USE_TOPDIR(src/libposemath/emcpose.c)
 #include USE_TOPDIR(src/libposemath/_posemath.c)
 #include USE_TOPDIR(src/libposemath/sincos.c)
 

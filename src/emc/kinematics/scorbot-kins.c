@@ -42,7 +42,6 @@
 #include <rtapi_app.h>
 #include <rtapi_math.h>
 #include <hal.h>
-#include <gotypes.h>
 #include <kinematics.h>
 
 

@@ -19,9 +19,7 @@
 #ifndef __LINUXCNC_GO_MATH_H
 #define __LINUXCNC_GO_MATH_H
 
-#include <stddef.h>		/* sizeof */
-#include "rtapi_math.h"		/* M_PI */
-#include <float.h>		/* FLT,DBL_MIN,MAX,EPSILON */
+#include <rtapi_math.h>		/* M_PI, NULL, FLT/DBL_MIN,MAX,EPSILON */
 #include "gotypes.h"		/* go_integer,real */
 
 /*! Returns the square of \a x. */

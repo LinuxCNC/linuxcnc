@@ -38,8 +38,8 @@
 #endif
 #include <rtapi_math.h>
 #include <hal.h>
-#include <gotypes.h>    /* go_result, go_integer */
-#include <gomath.h>     /* go_pose */
+#include "libposemath/gotypes.h"    /* go_result, go_integer */
+#include "libposemath/gomath.h"     /* go_pose */
 #include <kinematics.h>
 
 #include "genserkins.h" /* these decls */

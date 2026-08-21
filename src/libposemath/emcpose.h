@@ -1,19 +1,44 @@
 /********************************************************************
 * Description: emcpose.h
 *
+*   The EmcPose type and the operations on it.  EmcPose is a pose in the
+*   nine coordinates a machine can have, built out of the pose math types,
+*   and is not an NML message, which is where it used to live.
+*
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author: Robert W. Ellenberg
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
 #ifndef __LINUXCNC_EMCPOSE_H
 #define __LINUXCNC_EMCPOSE_H
 
-#include "emcpos.h"
+#include "posemath.h"		/* PmCartesian */
+
+typedef struct EmcPose {
+    PmCartesian tran;
+    double a, b, c;
+    double u, v, w;
+} EmcPose;
+
+#define ZERO_EMC_POSE(pos) do { \
+(pos).tran.x = 0.0;             \
+(pos).tran.y = 0.0;             \
+(pos).tran.z = 0.0;             \
+(pos).a = 0.0;                  \
+(pos).b = 0.0;                  \
+(pos).c = 0.0;                  \
+(pos).u = 0.0;                  \
+(pos).v = 0.0;                  \
+(pos).w = 0.0; } while(0)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
     EMCPOSE_ERR_OK = 0,
@@ -47,5 +72,9 @@ int emcPoseGetUVW(EmcPose const * const pose, PmCartesian * const uvw);
 int emcPoseMagnitude(EmcPose const * const pose, double * const out);
 
 int emcPoseValid(EmcPose const * const pose);
+
+#ifdef __cplusplus
+}				/* matches extern "C" for C++ */
+#endif
 
 #endif

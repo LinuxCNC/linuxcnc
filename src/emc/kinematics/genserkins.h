@@ -34,8 +34,8 @@
 #define GENSERKINS_H
 
 #include <hal.h>                /* HAL data types */
-#include <gotypes.h>                /* go_result, go_integer */
-#include <gomath.h>                /* go_pose */
+#include "libposemath/gotypes.h"    /* go_result, go_integer */
+#include "libposemath/gomath.h"    /* go_pose */
 #include <kinematics.h>
 
 /*!
