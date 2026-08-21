@@ -13,6 +13,11 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#ifndef CLASSICLADDER_EDIT_H
+#define CLASSICLADDER_EDIT_H
+
+#include "classicladder.h"
+
 #define MODE_MODIFY 0
 #define MODE_ADD 1
 #define MODE_INSERT 2
@@ -43,3 +48,5 @@ char * ConvVarNameToHalSigName (char *);
 char * FirstVariableInArithm(char *);
 int SetDefaultVariableType(int NumElement);
 
+
+#endif

@@ -14,6 +14,9 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#ifndef CLASSICLADDER_ARITHM_EVAL_H
+#define CLASSICLADDER_ARITHM_EVAL_H
+
 #define arithmtype int
 
 
@@ -26,3 +29,5 @@ char * VerifySyntaxForEvalCompare(char * StringToVerify);
 char * VerifySyntaxForMakeCalc(char * StringToVerify);
 
 
+
+#endif

@@ -19,6 +19,9 @@
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 
+#ifndef CLASSICLADDER_SEQUENTIAL_H
+#define CLASSICLADDER_SEQUENTIAL_H
+
 #define NBR_SEQUENTIAL_PAGES 5
 
 #define NBR_STEPS 128
@@ -117,3 +120,5 @@ typedef struct StrSequential
 }StrSequential;
 
 
+
+#endif
