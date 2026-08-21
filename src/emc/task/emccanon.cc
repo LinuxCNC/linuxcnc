@@ -3815,6 +3815,21 @@ double GET_EXTERNAL_FEED_RATE()
     return feed;
 }
 
+// maximum velocity of one axis, in program units per minute
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis)
+{
+    if (axis < 0 || axis > 8 || !axis_valid(axis)) {
+	return 0.0;
+    }
+
+    double vel = emcAxisGetMaxVelocity(axis);
+
+    if (axis >= 3 && axis <= 5) {
+	return TO_PROG_ANG(FROM_EXT_ANG(vel)) * 60.0;
+    }
+    return TO_PROG_LEN(FROM_EXT_LEN(vel)) * 60.0;
+}
+
 // traverse rate wanted is in program units per minute
 double GET_EXTERNAL_TRAVERSE_RATE()
 {

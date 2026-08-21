@@ -969,6 +969,12 @@ extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
 #endif //}
 }
 
+/* The standalone interpreter has no machine, so no axis limits */
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/)
+{
+  return 0.0;
+}
+
 /* Returns the system traverse rate */
 double GET_EXTERNAL_TRAVERSE_RATE()
 {

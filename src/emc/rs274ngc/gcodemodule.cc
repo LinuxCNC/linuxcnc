@@ -1066,6 +1066,7 @@ CANON_DIRECTION GET_EXTERNAL_SPINDLE(int) { return CANON_STOPPED; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 double GET_EXTERNAL_FEED_RATE() { return 1; }
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/) { return 0; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0; }
 int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
