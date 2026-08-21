@@ -3617,14 +3617,31 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
         tc_debug_print("tracking in pos_sync\n");
-        double errorvel;
         spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
         target_vel = spindle_vel * tc->uu_per_rev;
-        errorvel = pmSqrt(fabs(pos_error) * tcGetTangentialMaxAccel(tc));
-        if(pos_error<0) {
-            errorvel *= -1.0;
-        }
-        tc->target_vel = target_vel + errorvel;
+
+        /* Correct the position error without losing the spindle: rise above
+         * the tracking velocity v_0 and come back to it, so the area of the
+         * blip is the error.
+         *
+         * velocity
+         * |          v_p
+         * |         /\
+         * |        /..\         v_0
+         * |--------....-----------
+         * |        ....
+         * |        ....
+         * |_________________________
+         *         |----| t      time
+         *
+         * That gives v_p = sqrt(v_0^2 + x_err*a_max).  The
+         * old form added sqrt(x_err*a_max) to v_0, which is the same with v_0
+         * taken as zero, so it over-corrected and its gain diverged as the
+         * error went to zero, limit-cycling at the servo rate.
+         * From robEllenberg, PR #581. */
+        double a_max = tcGetTangentialMaxAccel(tc);
+        double v_sq = pmSq(target_vel) + pos_error * a_max;
+        tc->target_vel = pmSqrt(fmax(v_sq, 0.0));
     }
 
     //Finally, clip requested velocity at zero
