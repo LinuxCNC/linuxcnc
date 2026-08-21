@@ -15,7 +15,12 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+#ifndef CLASSICLADDER_SOCKET_SERVER_H
+#define CLASSICLADDER_SOCKET_SERVER_H
+
 void InitSocketServer( int UseUdpMode, int PortNbr );
 void SocketServerTcpMainLoop( void );
 void CloseSocketServer( void );
 
+
+#endif

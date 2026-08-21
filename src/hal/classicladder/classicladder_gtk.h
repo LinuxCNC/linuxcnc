@@ -14,8 +14,8 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#ifndef _CLASSICLADDER_GTK_H
-#define _CLASSICLADDER_GTK_H
+#ifndef CLASSICLADDER_CLASSICLADDER_GTK_H
+#define CLASSICLADDER_CLASSICLADDER_GTK_H
 
 //For i18n
 #define _(STRING) gettext(STRING)

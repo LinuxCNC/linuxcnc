@@ -14,8 +14,15 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#ifndef CLASSICLADDER_SPY_VARS_GTK_H
+#define CLASSICLADDER_SPY_VARS_GTK_H
+
+#include <gtk/gtk.h>
+
 void RefreshAllBoolsVars( );
 void OpenSpyBoolVarsWindow( GtkAction * ActionOpen, gboolean OpenIt );
 void DisplayFreeVarSpy( );
 void OpenSpyFreeVarsWindow( GtkAction * ActionOpen, gboolean OpenIt );
 void VarsWindowInitGtk( );
+
+#endif

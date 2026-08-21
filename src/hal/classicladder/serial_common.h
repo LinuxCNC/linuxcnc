@@ -14,6 +14,9 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#ifndef CLASSICLADDER_SERIAL_COMMON_H
+#define CLASSICLADDER_SERIAL_COMMON_H
+
 char SerialOpen( );
 void SerialClose( );
 char SerialPortIsOpened( void );
@@ -22,3 +25,5 @@ void SerialSetResponseSize( int Size, int TimeOutResp );
 int SerialReceive( char * Buff, int MaxBuffLength );
 void SerialPurge( void );
 
+
+#endif

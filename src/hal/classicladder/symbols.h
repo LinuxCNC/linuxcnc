@@ -14,7 +14,14 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#ifndef CLASSICLADDER_SYMBOLS_H
+#define CLASSICLADDER_SYMBOLS_H
+
+#include "classicladder.h"
+
 void InitSymbols( void );
 StrSymbol * ConvVarNameInSymbolPtr( char * tcVarNameVar );
 char * ConvVarNameToSymbol( char * VarNameParam );
 char * ConvSymbolToVarName( char * SymbolParam );
+
+#endif

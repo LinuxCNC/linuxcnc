@@ -13,6 +13,9 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#ifndef CLASSICLADDER_VARS_ACCESS_H
+#define CLASSICLADDER_VARS_ACCESS_H
+
 void InitVars(void);
 int ReadVar(int TypeVar,int Offset);
 void WriteVar(int TypeVar,int NumVar,int Value);
@@ -21,3 +24,5 @@ void WriteVar(int TypeVar,int NumVar,int Value);
 void DoneVars(void);
 void CycleStart(void);
 void CycleEnd(void);
+
+#endif

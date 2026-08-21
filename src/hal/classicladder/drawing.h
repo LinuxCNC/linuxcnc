@@ -13,6 +13,13 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#ifndef CLASSICLADDER_DRAWING_H
+#define CLASSICLADDER_DRAWING_H
+
+#include <stddef.h>
+#include <cairo.h>
+#include "classicladder.h"
+
 #define DRAW_NORMAL 0
 #define DRAW_FOR_TOOLBAR 1
 #define DRAW_FOR_PRINT 2
@@ -31,3 +38,5 @@ void DrawRung( cairo_t * cr, StrRung * Rung, int OffX, int PosiY, int BlockWidth
 void DrawRungs( cairo_t * cr );
 void DrawCurrentSection( cairo_t * cr );
 
+
+#endif
