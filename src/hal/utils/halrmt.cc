@@ -52,7 +52,6 @@
 #include <fmt/format.h>
 
 #include <rtapi.h>
-#include <rtapi_string.h>
 #include <hal.h>
 #include <inifile.hh>
 

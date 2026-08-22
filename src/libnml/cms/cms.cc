@@ -16,7 +16,6 @@
 * Last change:
 ********************************************************************/
 
-#include "libnml/rcs/rcsversion.h"
 
 #include <stdlib.h>		/* malloc(), free() */
 #include <stddef.h>		/* size_t */

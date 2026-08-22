@@ -15,7 +15,6 @@
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
-#include "libnml/rcs/rcsversion.h"
 
 #include <string.h>		// memcpy()
 #include <stdlib.h>		// atexit()

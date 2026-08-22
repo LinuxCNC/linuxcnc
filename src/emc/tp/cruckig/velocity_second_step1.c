@@ -6,7 +6,6 @@
  * License: MIT, see the LICENSE file in this directory.
  */
 #include "velocity.h"
-#include "block.h"
 #include "profile.h"
 
 void cruckig_vel2_step1_init(CRuckigVelocitySecondOrderStep1 *s,

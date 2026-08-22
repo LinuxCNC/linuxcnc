@@ -27,7 +27,6 @@
 #include <hal.h>
 
 #include "hostmot2.h"
-#include "bitfile.h"
 
 // Local definition of labs() because RTAI compile barfs on using labs(). It
 // could be optimized using compiler built-ins, but the single use in here is

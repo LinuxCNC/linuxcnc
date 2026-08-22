@@ -16,7 +16,6 @@
  */
 
 #include "config.h"
-#include <linuxcnc.h>
 
 #ifdef __linux__
 #include <sys/fsuid.h>

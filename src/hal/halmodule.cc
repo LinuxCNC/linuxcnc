@@ -24,11 +24,9 @@
 #include <vector>
 
 #include <rtapi.h>
-#include <rtapi_mutex.h>
 #include <hal.h>
 
 #include "halqrec.hh"
-#include "setps_util.h"
 
 #define EXCEPTION_IF_NOT_LIVE(retval) do { \
         if(self->hal_id <= 0) { \

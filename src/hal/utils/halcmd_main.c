@@ -39,7 +39,6 @@
 
 #include "config.h"
 #include <rtapi.h>
-#include <rtapi_mutex.h>
 #include <hal.h>
 #include <linuxcnc.h>
 #include "halcmd.h"

@@ -11,7 +11,6 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 
 using namespace interp_param_global;

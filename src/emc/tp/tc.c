@@ -18,7 +18,6 @@
 #include <rtapi_math.h>
 #include <posemath.h>
 #include <emcpose.h>
-#include <motion_types.h>
 
 #include "blendmath.h"
 #include "tc.h"

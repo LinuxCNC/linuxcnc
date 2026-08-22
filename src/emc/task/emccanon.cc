@@ -48,7 +48,6 @@
   The code from University of Palermo is modified to work on planes xy, yz and zx by Joachim Franek
   */
 
-#include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -61,7 +60,6 @@
 #include "nml_intf/canon_position.hh"		// data type for a machine position
 #include "nml_intf/interpl.hh"		// interp_list
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
-#include <rtapi_string.h>
 #include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
 #include <algorithm>

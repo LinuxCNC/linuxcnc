@@ -33,7 +33,6 @@
 #include <hal.h>
 #include "motion/motion.h"
 #include "motion/motion_struct.h"
-#include "motion_types.h"
 #include "motion/mot_priv.h"
 #include "motion/axis.h"
 

@@ -29,7 +29,6 @@ author "Stephen Wille Padnos";
 see_also " invert(9), div2(9) ";
 ;;
 
-#include <rtapi_math.h>
 
 FUNCTION(_) {
     rtapi_real tmp = in;

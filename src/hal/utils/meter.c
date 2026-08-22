@@ -59,7 +59,6 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <hal.h>		/* HAL public API decls */
-#include <rtapi_mutex.h>
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */

@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <rtapi_math.h>
 #include "inihal.hh"
 #include "iniaxis.hh"
-#include "inispindle.hh"
 
 static int debug=0;
 static int comp_id;

@@ -35,7 +35,6 @@
 #include <histedit.h>
 #include <glob.h>
 #include <wordexp.h>
-#include <rtapi_string.h>
 
 #include "saicanon.hh"
 #include "tooldata/tooldata.hh"

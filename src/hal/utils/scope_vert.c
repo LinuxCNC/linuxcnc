@@ -32,7 +32,6 @@
     information, go to https://linuxcnc.org.
 */
 
-#include "config.h"
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -45,7 +44,6 @@
 #include <string.h>
 
 #include <rtapi.h>		// RTAPI realtime OS API
-#include <rtapi_mutex.h>
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include <hal.h>		// HAL public API decls
 

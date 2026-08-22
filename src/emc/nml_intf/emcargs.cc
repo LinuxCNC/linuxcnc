@@ -17,7 +17,6 @@
 #include <stdio.h>		/* fgets() */
 #include "libnml/nml/nml.hh"               /* nmlSetHostAlias */
 #include "emcglb.h"		/* these decls */
-#include "emccfg.h"		/* their initial values */
 #include "libnml/rcs/rcs_print.hh"
 #include <rtapi_string.h>
 

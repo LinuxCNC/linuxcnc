@@ -55,7 +55,6 @@
 #include <limits.h>
 #include <algorithm>
 #include <linuxcnc.h>
-#include "config.h"
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
 #include "rs274ngc/interp_base.hh"

@@ -28,7 +28,6 @@
 #include <poll.h>
 
 #include <rtapi.h>
-#include <rtapi_string.h>
 
 #include "hostmot2-lowlevel.h"
 #include "hm2_eth_net_posix.h"
