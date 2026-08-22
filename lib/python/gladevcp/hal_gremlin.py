@@ -261,7 +261,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                 pos=0
                 for i in range(9):
                     if s.axis_mask & (1<<i): pos +=1
-                if self.is_lathe:
+                if self.is_lathe():
                     pos +=1
                 droposstrs.insert(pos, " " + format % ("Vel", spd))
 
