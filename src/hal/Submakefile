@@ -1,8 +1,4 @@
 
-# hal.h is need for halcompile/RT-components
-../include/hal.h: ./hal/hal.h
-	cp $^ $@
-
 HALLIBSRCS := hal/hal_lib.c hal/hal_lib_query.c hal/hal_lib_extra.c $(ULAPISRCS)
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC $(ULAPI_CFLAGS)
 USERSRCS += $(HALLIBSRCS)

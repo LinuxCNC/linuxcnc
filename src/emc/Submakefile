@@ -1,5 +1,1 @@
 INCLUDES += emc
-
-# linuxcnc.h has some generic defines for many interfaces
-../include/linuxcnc.h: ./emc/linuxcnc.h
-	cp $^ $@

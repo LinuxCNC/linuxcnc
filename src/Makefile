@@ -184,7 +184,7 @@ SUBDIRS := \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
-    hal/components hal/drivers hal/drivers/mesa-hostmot2 \
+    hal/components hal/drivers \
     hal/user_comps/devices hal/user_comps/mb2hal \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
@@ -437,9 +437,16 @@ SRCHEADERS := \
     rtapi/rtapi_string.h \
     rtapi/rtapi_vsnprintf.h
 
-# the "headers" target installs all the header files in ../include
+# the "headers" target installs all the header files in ../include.  One rule
+# does the copying for every entry in SRCHEADERS, so a directory that exports a
+# header does not carry a recipe of its own.  Two headers sharing a basename
+# would collide here, and make says so rather than letting one cp win.
 .PHONY: headers
-HEADERS := $(patsubst %,../include/%,$(foreach h,$(SRCHEADERS),$(notdir $h)))
+HEADERS := $(patsubst %,../include/%,$(notdir $(SRCHEADERS)))
+$(foreach h,$(SRCHEADERS),$(eval ../include/$(notdir $(h)): $(h)))
+$(HEADERS):
+	$(ECHO) Exporting $(notdir $@)
+	$(Q)cp $< $@
 headers: $(HEADERS)
 
 # install header files as part of the build
@@ -507,8 +514,10 @@ python: $(PYTARGETS)
 userspace: python
 inclean:
 	$(RM) $(INFILES)
+# Not just $(HEADERS): a header that has been dropped from SRCHEADERS still has
+# a copy sitting in ../include, and that copy is what an angled include finds.
 headersclean:
-	$(RM) $(HEADERS)
+	$(RM) ../include/*.h ../include/*.hh
 clean: docclean pythonclean cscopeclean headersclean
 distclean: clean inclean
 
@@ -601,14 +610,6 @@ ifeq ($(BUILD_SYS),uspace)
 else
 	@echo "setcap target is only supported for uspace builds" >&2; exit 1
 endif
-
-# These rules allows a header file from this directory to be installed into
-# ../include.  A pair of rules like these will exist in the Submakefile
-# of each file that contains headers.
-#$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
-#	$(Q)-cp $^ $@
-#$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
-#	$(Q)-cp $^ $@
 
 INSTALL=install -o root
 DIR=$(INSTALL) -d -m 0755

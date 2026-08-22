@@ -33,9 +33,3 @@ $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(RDELTAMODULE)
-
-EMCKINEMATICSINCS = \
-	./emc/kinematics/kinematics.h
-
-$(patsubst ./emc/kinematics/%,../include/%,$(EMCKINEMATICSINCS)): ../include/%.h: ./emc/kinematics/%.h
-	cp $^ $@
