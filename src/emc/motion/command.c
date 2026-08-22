@@ -2054,6 +2054,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             axis_set_locking_joint(emcmotCommand->axis, joint_num);
             break;
 
+	case EMCMOT_SELECT_KINS_TYPE:
+	    emcmotConfig->switchkins_type = emcmotCommand->switchkins_type;
+	    emcmotConfig->switchkins_seq++;
+	    break;
+
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError(_("unrecognized command %d"), emcmotCommand->command);

@@ -94,6 +94,9 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     feed_override_enabled(OFF),
     adaptive_feed_enabled(OFF),
     feed_hold_enabled(OFF),
+    switchkins_type(0),
+    switchkins_seq(0),
+    switchkins_changed(false),
     tag()
 {
 }

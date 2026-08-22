@@ -35,7 +35,21 @@ $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 PYTARGETS += $(RDELTAMODULE)
 
 EMCKINEMATICSINCS = \
-	./emc/kinematics/kinematics.h
+	./emc/kinematics/kinematics.h \
+	./emc/kinematics/switchkins.h
 
 $(patsubst ./emc/kinematics/%,../include/%,$(EMCKINEMATICSINCS)): ../include/%.h: ./emc/kinematics/%.h
 	cp $^ $@
+
+# The switchkins implementation is shipped as source, since a realtime module
+# cannot link a library, so a module built out of tree includes it the way the
+# in-tree ones link it.
+EMCKINEMATICSSRCS = \
+	../share/linuxcnc/switchkins.c \
+	../share/linuxcnc/kins_util.c
+
+$(EMCKINEMATICSSRCS): ../share/linuxcnc/%.c: ./emc/kinematics/%.c
+	$(ECHO) Copying switchkins source $(notdir $@)
+	$(Q)cp -f $< $@
+
+TARGETS += $(EMCKINEMATICSSRCS)

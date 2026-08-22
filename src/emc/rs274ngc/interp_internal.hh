@@ -211,6 +211,8 @@ enum GCodes
     G_7 = 70,
     G_8 = 80,
     G_10 = 100,
+    G_12_1 = 121,
+    G_13_1 = 131,
     G_17 = 170,
     G_17_1 = 171,
     G_18 = 180,
@@ -747,6 +749,8 @@ struct setup
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   bool probe_flag;            // flag indicating probing done
   bool input_flag;            // flag indicating waiting for input done
+  bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
+  int kins_type;              // kinematics selected by G12.1/G13.1
   bool toolchange_flag;       // flag indicating we just had a tool change
   int input_index;		// channel queried
   bool input_digital;		// input queried was digital (false=analog)

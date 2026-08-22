@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-COMPS := $(filter-out %/tpcomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp)))
+COMPS := $(filter-out %/tpcomp.comp %/switchkinscomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp)))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
@@ -32,8 +32,8 @@ CONVERTERS :=  \
     conv_u64_s32.comp \
     conv_u64_u32.comp \
     conv_u64_s64.comp
-COMPS := $(filter-out hal/components/tpcomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/build/man/man9/%.9, $(COMPS)) ../docs/build/man/man9/tpcomp.9
+COMPS := $(filter-out hal/components/tpcomp.comp hal/components/switchkinscomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/build/man/man9/%.9, $(COMPS)) ../docs/build/man/man9/tpcomp.9 ../docs/build/man/man9/switchkinscomp.9
 ifeq ($(BUILD_SYS),uspace)
 COMP_DRIVERS += hal/drivers/serport.comp
 COMP_DRIVERS += hal/drivers/mesa_7i65.comp
@@ -58,7 +58,7 @@ endif
 # wildcard that mixes hal/components and hal/drivers, so deriving the adoc
 # targets from it there yields hal/drivers/*.comp entries that fail the
 # hal/components/%.comp static pattern rule.
-COMP_MANPAGE_ADOCS := $(patsubst hal/components/%.comp, objects/man/man9/%.9.adoc, $(COMPS)) objects/man/man9/tpcomp.9.adoc
+COMP_MANPAGE_ADOCS := $(patsubst hal/components/%.comp, objects/man/man9/%.9.adoc, $(COMPS)) objects/man/man9/tpcomp.9.adoc objects/man/man9/switchkinscomp.9.adoc
 COMP_DRIVER_MANPAGE_ADOCS := $(patsubst hal/drivers/%.comp, objects/man/man9/%.9.adoc, $(COMP_DRIVERS))
 
 # Extract adoc from .comp via halcompile --adoc.  Only needs Python +
@@ -94,11 +94,20 @@ endif
 
 obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
 
+# A component that links objects besides its own names them here as
+# <component>-extra-objs.  The list is expanded when the .mak is written,
+# so it has to be defined in this file (which the .mak depends on).
+SWITCHKINS_OBJS := emc/kinematics/switchkins.o emc/kinematics/kins_util.o
+millturn-extra-objs       := $(SWITCHKINS_OBJS)
+xyzab_tdr_kins-extra-objs := $(SWITCHKINS_OBJS)
+xyzacb_trsrn-extra-objs   := $(SWITCHKINS_OBJS)
+xyzbca_trsrn-extra-objs   := $(SWITCHKINS_OBJS)
+
 objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
 	@mkdir -p $(dir $@)
-	$(Q)echo $(notdir $*)-objs := objects/$*.o > $@.tmp
-	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
+	$(Q)echo $(notdir $*)-objs := objects/$*.o $($(notdir $*)-extra-objs) > $@.tmp
+	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o $(addprefix objects/rt,$($(notdir $*)-extra-objs)) >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
 objects/%.c: %.comp ../bin/halcompile

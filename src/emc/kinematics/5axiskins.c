@@ -59,9 +59,8 @@
 #include <rtapi_ctype.h>
 #include <hal.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 static struct haldata {
     hal_real_t pivot_length;

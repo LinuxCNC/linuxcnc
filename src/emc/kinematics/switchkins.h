@@ -1,10 +1,10 @@
 /*
 ** License GPL Version 2
 */
-#ifndef SWITCHKINS_H // {
-#define SWITCHKINS_H
+#ifndef __LINUXCNC_SWITCHKINS_H
+#define __LINUXCNC_SWITCHKINS_H
 
-#include <kinematics.h>
+#include "kinematics.h"
 
 //max number of switchkins types (KS,KF,KI) a module may provide:
 #define SWITCHKINS_MAX_TYPES 9
@@ -28,13 +28,20 @@ typedef int (*KS)(const int   comp_id,     // halpins
                  );
 
 //*********************************************************************
-// supplied by the using module, provides types 0,1,2
+// supplied by a module using switchkins_main.c, provides types 0,1,2
 extern int switchkinsSetup(kparms* ksetup_parms,
                            KS* kset0, KS* kset1, KS* kset2,
                            KF* kfwd0, KF* kfwd1, KF* kfwd2,
                            KI* kinv0, KI* kinv1, KI* kinv2
                           );
 
-// called from switchkinsSetup(), once per type it does not provide itself
+// provide one switchkins-type, before switchkinsInit()
 extern int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
-#endif // }
+
+// create the hal pins and start on type 0; the caller owns the hal
+// component and does hal_init() before and hal_ready() after
+extern int switchkinsInit(const int   comp_id,
+                          kparms*     ksetup_parms,
+                          const char* coordinates
+                         );
+#endif
