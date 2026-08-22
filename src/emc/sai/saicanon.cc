@@ -974,6 +974,11 @@ double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/)
   return 0.0;
 }
 
+double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int /*spindle*/)
+{
+  return 0.0;
+}
+
 /* Returns the system traverse rate */
 double GET_EXTERNAL_TRAVERSE_RATE()
 {

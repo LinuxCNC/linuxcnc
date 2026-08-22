@@ -3828,6 +3828,22 @@ double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis)
     return TO_PROG_LEN(FROM_EXT_LEN(vel)) * 60.0;
 }
 
+double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int spindle)
+{
+    if (spindle < 0 || spindle >= emcStatus->motion.traj.spindles) {
+	return 0.0;
+    }
+
+    double rpm = emcSpindleGetMaxVelocity(spindle);
+
+    /* the ini default when MAX_FORWARD_VELOCITY is absent is a stand-in for
+       "no limit", not a speed anyone can reach */
+    if (rpm <= 0.0 || rpm >= 1e30) {
+	return 0.0;
+    }
+    return rpm;
+}
+
 // traverse rate wanted is in program units per minute
 double GET_EXTERNAL_TRAVERSE_RATE()
 {

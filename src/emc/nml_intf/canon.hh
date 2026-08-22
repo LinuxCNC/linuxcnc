@@ -878,6 +878,10 @@ extern double GET_EXTERNAL_ANGLE_UNIT_FACTOR();
 // program units per minute, or zero if that limit is not available
 extern double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis);
 
+// Returns the maximum forward speed of one spindle, in RPM, or zero if that
+// limit is not available
+extern double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int spindle);
+
 // Returns the system feed rate
 extern double GET_EXTERNAL_FEED_RATE();
 

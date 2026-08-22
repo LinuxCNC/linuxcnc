@@ -132,6 +132,7 @@ setup::setup() :
     active_spindle(0),
     speed {0.0},
     spindle_mode{SPINDLE_MODE::CONSTANT_RPM},
+    css_maximum{0.0},
     speed_feed_mode{CANON_INDEPENDENT},
     speed_override{false},
     spindle_turning{CANON_STOPPED},

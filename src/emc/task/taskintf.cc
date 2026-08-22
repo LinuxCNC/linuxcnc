@@ -1957,6 +1957,11 @@ int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_
 	return 0;
     }
 
+    SpindleConfig[spindle].max_pos_speed = max_pos;
+    SpindleConfig[spindle].max_neg_speed = max_neg;
+    SpindleConfig[spindle].min_pos_speed = min_pos;
+    SpindleConfig[spindle].min_neg_speed = min_neg;
+
     emcmotCommand.command = EMCMOT_SET_SPINDLE_PARAMS;
     emcmotCommand.spindle = spindle;
     emcmotCommand.maxLimit = max_pos;
@@ -1976,6 +1981,15 @@ int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_
           sequence, increment, retval);
     }
     return retval;
+}
+
+double emcSpindleGetMaxVelocity(int spindle)
+{
+    if (spindle < 0 || spindle >= EMCMOT_MAX_SPINDLES) {
+	return 0;
+    }
+
+    return SpindleConfig[spindle].max_pos_speed;
 }
 
 int emcSpindleAbort(int spindle)

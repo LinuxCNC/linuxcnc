@@ -419,24 +419,63 @@ move length, as the planner distributes it.  Rotary axes are ignored: a pitch
 is a linear distance per revolution.
 
 Using the commanded S word means the error names the offending line and does
-not depend on the spindle already running.  Skipped in constant surface speed
-mode, and for any axis whose limit is unavailable (the standalone interpreter
-reports zero).
+not depend on the spindle already running.  Skipped for any axis whose limit is
+unavailable (the standalone interpreter reports zero).
+
+In constant surface speed mode the S word is a surface speed, so the spindle
+speed depends on where the tool is.  The worst case over the move is the speed
+at its smallest radius, capped the same way motion caps it: by the G96 D word,
+and by [SPINDLE_n]MAX_FORWARD_VELOCITY.  If the move reaches the centre of
+rotation and neither cap is configured the speed is unbounded and the check is
+skipped.
 
 */
+
+/* Fastest the spindle will turn during the move, in RPM, or zero if that
+   cannot be bounded.  MIN_FORWARD_VELOCITY is not applied: motion raises a
+   speed below it, so ignoring it can only make this too low, and too low
+   passes a move the runtime overrun check still catches. */
+static double sync_worst_case_rpm(setup_pointer settings, int spindle,
+                                  double min_radius)
+{
+  double speed = settings->speed[spindle];
+  double rpm;
+
+  if (speed <= 0.0)
+    return 0.0;
+
+  if (settings->spindle_mode[spindle] == SPINDLE_MODE::CONSTANT_RPM) {
+    rpm = speed;
+  } else if (min_radius > 0.0) {
+    /* surface speed is metres or feet per minute against a radius in program
+       units, the css_factor motion works from (see SET_SPINDLE_SPEED) */
+    double per_unit = (settings->length_units == CANON_UNITS_INCHES) ? 12.0 : 1000.0;
+    rpm = per_unit / (2.0 * M_PI) * speed / min_radius;
+    if (settings->css_maximum[spindle] > 0.0)
+      rpm = fmin(rpm, settings->css_maximum[spindle]);   /* G96 D word */
+  } else {
+    /* the move reaches the centre of rotation, so only the caps bound it */
+    rpm = settings->css_maximum[spindle];
+  }
+
+  double ini_cap = GET_EXTERNAL_SPINDLE_MAX_VELOCITY(spindle);
+  if (ini_cap > 0.0 && (rpm <= 0.0 || rpm > ini_cap))
+    rpm = ini_cap;
+
+  return rpm;
+}
 
 int Interp::check_spindle_sync_feed(setup_pointer settings,  //!< pointer to machine settings
                                     double pitch,            //!< program units per revolution
                                     const char *code,        //!< G code name, for the message
-                                    const double delta[9])   //!< move, program units, XYZABCUVW
+                                    const double delta[9],   //!< move, program units, XYZABCUVW
+                                    double min_radius)       //!< smallest cutting radius of the move
 {
   static const char axis_name[] = "XYZABCUVW";
   int spindle = settings->active_spindle;
+  bool css = settings->spindle_mode[spindle] == SPINDLE_MODE::CONSTANT_SURFACE;
 
-  if (settings->spindle_mode[spindle] != SPINDLE_MODE::CONSTANT_RPM)
-    return INTERP_OK;
-
-  double speed = settings->speed[spindle];
+  double speed = sync_worst_case_rpm(settings, spindle, min_radius);
   if (speed <= 0.0 || pitch == 0.0)
     return INTERP_OK;
 
@@ -462,10 +501,18 @@ int Interp::check_spindle_sync_feed(setup_pointer settings,  //!< pointer to mac
     if (max_rate <= 0.0)
       continue;
     double axis_rate = required_rate * fabs(delta[ax]) / length;
-    CHKS((axis_rate > max_rate),
-         _("%s pitch %g at spindle speed %g needs %g per minute on the %c axis, "
-           "which exceeds its maximum velocity of %g"),
-         code, fabs(pitch), speed, axis_rate, axis_name[ax], max_rate);
+    if (css) {
+      CHKS((axis_rate > max_rate),
+           _("%s pitch %g reaches spindle speed %g in constant surface speed "
+             "mode and needs %g per minute on the %c axis, which exceeds its "
+             "maximum velocity of %g"),
+           code, fabs(pitch), speed, axis_rate, axis_name[ax], max_rate);
+    } else {
+      CHKS((axis_rate > max_rate),
+           _("%s pitch %g at spindle speed %g needs %g per minute on the %c axis, "
+             "which exceeds its maximum velocity of %g"),
+           code, fabs(pitch), speed, axis_rate, axis_name[ax], max_rate);
+    }
   }
 
   return INTERP_OK;

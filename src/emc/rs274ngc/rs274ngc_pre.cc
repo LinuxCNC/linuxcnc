@@ -2074,6 +2074,7 @@ int Interp::synch()
 	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
 	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
 	  _setup.spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
+	  _setup.css_maximum[s] = 0.0;
   }
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==

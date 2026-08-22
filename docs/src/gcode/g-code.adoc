@@ -1119,8 +1119,15 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
-* The pitch and the commanded spindle speed together ask an axis to move
-  faster than its maximum velocity.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity.
+
+[NOTE]
+In constant surface speed mode the spindle speed follows the radius, so the
+check uses the fastest speed the move can reach: the speed at its smallest
+cutting radius, limited by the G96 'D' word and by
+`[SPINDLE_n]MAX_FORWARD_VELOCITY`. If the move reaches the centre of rotation
+and neither limit is set the speed is unbounded and no check is made.
 
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
@@ -1195,8 +1202,9 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
-* The pitch and the commanded spindle speed together ask an axis to move
-  faster than its maximum velocity.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity. See <<gcode:g33,G33>> for how the speed is determined
+  in constant surface speed mode.
 
 [[gcode:g38]]
 == G38._n_ Straight Probe(((G38.n Probe)))
@@ -2052,8 +2060,9 @@ It is an error if:
 * All the required words are not specified.
 * 'P-', 'J-', 'K-' or 'H-' is negative.
 * 'E-' is greater than half the drive line length.
-* The pitch and the commanded spindle speed together ask an axis to move
-  faster than its maximum velocity.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity. See <<gcode:g33,G33>> for how the speed is determined
+  in constant surface speed mode.
 
 [NOTE]
 The spindle speed override has no effect during the G76 cycle, for the same

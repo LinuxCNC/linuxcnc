@@ -224,7 +224,8 @@ public:
  int check_m_codes(block_pointer block);
  int check_other_codes(block_pointer block);
  int check_spindle_sync_feed(setup_pointer settings, double pitch,
-                             const char *code, const double delta[9]);
+                             const char *code, const double delta[9],
+                             double min_radius);
  int close_and_downcase(char *line);
  void nurbs_reset_global_variables(void);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);

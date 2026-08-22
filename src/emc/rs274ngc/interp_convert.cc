@@ -5102,13 +5102,17 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
 		if (dollar_number == -1 || s == dollar_number){
 			  if(block->g_modes[GM_SPINDLE_MODE] == G_97) {
 				settings->spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
+			settings->css_maximum[s] = 0.0;
 			enqueue_SET_SPINDLE_MODE(s, 0);
 			} else { /* G_96 */
 				settings->spindle_mode[s] = SPINDLE_MODE::CONSTANT_SURFACE;
-			if(block->d_flag)
+			if(block->d_flag) {
+				settings->css_maximum[s] = fabs(block->d_number_float);
 				enqueue_SET_SPINDLE_MODE(s, fabs(block->d_number_float));
-			else
+			} else {
+				settings->css_maximum[s] = 0.0;
 				enqueue_SET_SPINDLE_MODE(s, 1e30);
+			}
 			}
 		}
 	}
@@ -5566,7 +5570,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     double delta[9];
     sync_move_delta(settings, end_x, end_y, end_z, AA_end, BB_end, CC_end,
                     u_end, v_end, w_end, delta);
-    CHP(check_spindle_sync_feed(settings, block->k_number, "G33", delta));
+    CHP(check_spindle_sync_feed(settings, block->k_number, "G33", delta,
+                                min_abs_over_range(settings->current_x, end_x)));
     suspend_speed_override(settings);
     START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -5596,7 +5601,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                     u_end, v_end, w_end, delta);
     // I multiplies the spindle speed for the retract
     CHP(check_spindle_sync_feed(settings, block->k_number * scale, "G33.1",
-                                delta));
+                                delta, fabs(settings->current_x)));
     START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
     RIGID_TAP(block->line_number, end_x, end_y, end_z, scale);
     STOP_SPEED_FEED_SYNCH();
@@ -5823,11 +5828,18 @@ int Interp::convert_threading_cycle(block_pointer block,
     // A taper also moves X by the thread height over the taper distance, at
     // the correspondingly larger pitch.
     double plain_pass[9] = {0.0, 0.0, target_z - start_z, 0, 0, 0, 0, 0, 0};
-    CHP(check_spindle_sync_feed(settings, pitch, "G76", plain_pass));
+    /* the passes run between the first and last cut depth, so the tightest
+       radius is the last cut outside, the first cut boring */
+    double thread_min_x = boring
+        ? min_abs_over_range(safe_x + start_depth, safe_x + end_depth)
+        : min_abs_over_range(safe_x - end_depth, safe_x - start_depth);
+    CHP(check_spindle_sync_feed(settings, pitch, "G76", plain_pass,
+                                thread_min_x));
     if (taper_dist != 0.0 && (entry_taper || exit_taper)) {
         double taper_pass[9] = {full_threadheight, 0.0, taper_dist,
                                 0, 0, 0, 0, 0, 0};
-        CHP(check_spindle_sync_feed(settings, taper_pitch, "G76", taper_pass));
+        CHP(check_spindle_sync_feed(settings, taper_pitch, "G76", taper_pass,
+                                    thread_min_x));
     }
 
     suspend_speed_override(settings);
