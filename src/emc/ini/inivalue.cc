@@ -22,7 +22,7 @@
 #include <getopt.h>
 #include <locale.h>
 
-#include "inifile.hh"
+#include <inifile.hh>
 
 using namespace linuxcnc;
 
