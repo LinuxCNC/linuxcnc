@@ -15,10 +15,8 @@
 * Last change:
 ********************************************************************/
 
-#include "libnml/rcs/rcs_print.hh"
 #include "emc.hh"
 #include "emc_nml.hh"
-#include "tooldata/tooldata.hh"
 
 EMC_AXIS_STAT::EMC_AXIS_STAT()
   : EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT)),
@@ -159,13 +157,14 @@ EMC_TOOL_STAT::EMC_TOOL_STAT()
     toolInSpindle(0), // toolno
     toolFromPocket(0) // tool_from_pocket
 #ifndef TOOL_NML // {
-    , toolTableCurrent(tooldata_entry_init())
+    , toolTableCurrent CANON_TOOL_TABLE_INIT
 #endif
 {
 #ifdef TOOL_NML //{
+    const struct CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT;
     int idx;
     for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
-        toolTable[idx] = tooldata_entry_init();
+        toolTable[idx] = tdata;
     }
 #endif //}
 }
@@ -199,35 +198,6 @@ EMC_COOLANT_STAT::EMC_COOLANT_STAT()
     mist(0),
     flood(0)
 {
-}
-
-// overload = , since class has array elements
-EMC_TOOL_STAT& EMC_TOOL_STAT::operator =(const EMC_TOOL_STAT& s)
-{
-    pocketPrepped = s.pocketPrepped; // idx
-    toolInSpindle = s.toolInSpindle; // toolno
-    toolFromPocket = s.toolFromPocket; // tool_from_pocket
-
-#ifdef TOOL_NML //{
-    int idx;
-    for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
-        toolTable[idx].toolno = s.toolTable[idx].toolno;
-        toolTable[idx].pocketno = s.toolTable[idx].pocketno;
-        toolTable[idx].offset = s.toolTable[idx].offset;
-        toolTable[idx].diameter = s.toolTable[idx].diameter;
-        toolTable[idx].frontangle = s.toolTable[idx].frontangle;
-        toolTable[idx].backangle = s.toolTable[idx].backangle;
-        toolTable[idx].orientation = s.toolTable[idx].orientation;
-    }
-#else //}{
-    struct CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,0) != IDX_OK) {
-        rcs_print_error("UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
-    }
-    toolTableCurrent = tdata;
-#endif //}
-
-    return *this;
 }
 
 EMC_STAT::EMC_STAT()
