@@ -70,6 +70,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g10-l11,G10 L11>>         |Set Tool Table, Calculated, Fixture
 |<<gcode:g10-l2,G10 L2>>           |Coordinate System Origin Setting
 |<<gcode:g10-l20,G10 L20>>         |Coordinate System Origin Setting Calculated
+|<<gcode:g12.1-g13.1,G12.1 G13.1>> |Select Kinematics
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
@@ -933,6 +934,71 @@ It is an error if:
 
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
+
+[[gcode:g12.1-g13.1]]
+== G12.1, G13.1 Select Kinematics(((G12.1, G13.1 Select Kinematics)))
+
+----
+G12.1 P-
+G13.1
+----
+
+'G12.1' selects one of the kinematics provided by a switchable kinematics
+module, and 'G13.1' cancels back to kinematics 0. The 'P' word is the
+kinematics number, so 'G13.1' and `G12.1 P0` do the same thing.
+
+[WARNING]
+Deprecation notice: selecting the kinematics by writing the
+`motion.switchkins-type` HAL pin is deprecated. It takes the same
+numbering and still works, but it does not tell the interpreter that
+anything changed, so a program is read, its limits checked and its path
+looked ahead in whatever kinematics the interpreter last knew about,
+which need not be the one that runs it. Use 'G12.1' and 'G13.1'.
+
+Both codes are queue synchronisation points. The interpreter waits for
+queued motion to finish before the kinematics changes, so no move is ever
+planned in one kinematics and executed in another. Because of that, both
+codes stop any blending that was in progress, in the same way 'G4' does.
+
+The kinematics module decides what each number means. See the
+`switchkins` section of the kins(9) man page for the modules that support
+switching and the order in which they list their kinematics. A machine
+whose kinematics module is not switchable rejects the change.
+
+Selecting a kinematics does not move the machine. It changes how joint
+positions and coordinate positions map onto each other, so the position
+readout can change even though nothing has moved.
+
+The active kinematics is available to the program as the read-only
+parameter '#<_kins_type>', which lets a subroutine put back whatever was
+selected before it ran:
+
+[source,ngc]
+----
+#<saved> = #<_kins_type>
+G12.1 P2      (work in kinematics 2)
+( ... )
+G12.1 P#<saved> (put back whatever the caller was using)
+----
+
+Nothing cancels the selection on its own. It survives the end of the
+program and an abort, so that the kinematics keeps matching what the
+position readout shows. End a program with 'G13.1' if it should leave the
+machine in kinematics 0.
+
+.G12.1, G13.1 Example
+[source,ngc]
+----
+G12.1 P1  (switch to kinematics 1)
+G0 X0 Y0
+G13.1     (back to kinematics 0)
+----
+
+It is an error if:
+
+* 'G12.1' is used without a 'P' word.
+* The 'P' word is negative.
+* A 'P' word is used with 'G13.1'.
 
 [[gcode:g17-g19.1]]
 == G17 - G19.1 Plane Select(((G17 - G19.1 Plane Select)))
