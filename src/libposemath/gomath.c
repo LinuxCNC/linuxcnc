@@ -23,7 +23,6 @@ extern int printf(const char * fmt, ...);
 #include <rtapi_string.h>	/* memset */
 #include <rtapi_math.h>
 
-#include "sincos.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -71,8 +70,10 @@ int go_sph_cart_convert(const go_sph * s, go_cart * v)
 {
   go_real sth, cth, sph, cph;
 
-  pm_sincos(s->theta, &sth, &cth);
-  pm_sincos(s->phi, &sph, &cph);
+  sth = sin(s->theta);
+  cth = cos(s->theta);
+  sph = sin(s->phi);
+  cph = cos(s->phi);
 
   v->x = s->r * cth * sph;
   v->y = s->r * sth * sph;
@@ -85,7 +86,8 @@ int go_sph_cyl_convert(const go_sph * s, go_cyl * c)
 {
   go_real sph, cph;
 
-  pm_sincos(s->phi, &sph, &cph);
+  sph = sin(s->phi);
+  cph = cos(s->phi);
 
   c->theta = s->theta;
   c->r = s->r * sph;
@@ -138,7 +140,8 @@ int go_rvec_quat_convert(const go_rvec * r, go_quat * q)
 
   (void) go_cart_mag(&vec, &mag);
 
-  pm_sincos(0.5 * mag, &sh, &(q->s));
+  sh = sin(0.5 * mag);
+  q->s = cos(0.5 * mag);
 
   if (q->s >= 0) {
     q->x = uvec.x * sh;
@@ -175,7 +178,8 @@ int go_rvec_mat_convert(const go_rvec * r, go_mat * m)
 
   (void) go_cart_mag(&vec, &mag);
 
-  pm_sincos(mag, &s, &c);
+  s = sin(mag);
+  c = cos(mag);
   omc = 1 - c;
 
   m->x.x = c + go_sq(uvec.x) * omc;
@@ -3631,8 +3635,10 @@ int go_dh_pose_convert(const go_dh * dh, go_pose * p)
   go_real sth, cth;		/* sin, cos theta[i] */
   go_real sal, cal;		/* sin, cos alpha[i-1] */
 
-  pm_sincos(dh->theta, &sth, &cth);
-  pm_sincos(dh->alpha, &sal, &cal);
+  sth = sin(dh->theta);
+  cth = cos(dh->theta);
+  sal = sin(dh->alpha);
+  cal = cos(dh->alpha);
 
   h.rot.x.x = cth, h.rot.y.x = -sth, h.rot.z.x = 0.0;
   h.rot.x.y = sth*cal, h.rot.y.y = cth*cal, h.rot.z.y = -sal;

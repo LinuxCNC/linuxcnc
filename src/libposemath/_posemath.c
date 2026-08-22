@@ -32,7 +32,6 @@
 #include <rtapi_math.h>
 #include <float.h>
 
-#include "sincos.h"
 
 /* global error number */
 int pmErrno = PM_OK;
@@ -185,7 +184,8 @@ int pmAxisAngleQuatConvert(PmAxis axis, double a, PmQuaternion * const q)
     double sh;
 
     a *= 0.5;
-    pm_sincos(a, &sh, &(q->s));
+    sh = sin(a);
+    q->s = cos(a);
 
     switch (axis) {
     case PM_X:
@@ -247,7 +247,8 @@ int pmRotQuatConvert(PmRotationVector const * const r, PmQuaternion * const q)
 	return pmErrno = PM_OK;
     }
 
-    pm_sincos(r->s / 2.0, &sh, &(q->s));
+    sh = sin(r->s / 2.0);
+    q->s = cos(r->s / 2.0);
 
     if (q->s >= 0.0) {
 	q->x = r->x * sh;
@@ -276,7 +277,8 @@ int pmRotMatConvert(PmRotationVector const * const r, PmRotationMatrix * const m
     }
 #endif
 
-    pm_sincos(r->s, &s, &c);
+    s = sin(r->s);
+    c = cos(r->s);
 
     /* from space book */
     m->x.x = c + pmSq(r->x) * (omc = 1 - c);	/* omc = One Minus Cos */
@@ -1122,7 +1124,8 @@ int pmQuatAxisAngleMult(PmQuaternion const * const q, PmAxis axis, double angle,
 #endif
 
     angle *= 0.5;
-    pm_sincos(angle, &sh, &ch);
+    sh = sin(angle);
+    ch = cos(angle);
 
     switch (axis) {
     case PM_X:
