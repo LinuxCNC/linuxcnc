@@ -37,4 +37,8 @@ struct CANON_TOOL_TABLE {
     char comment[CANON_TOOL_COMMENT_SIZE];
 };
 
+/* default state of an entry: no tool, no pocket, zero geometry */
+#define CANON_TOOL_TABLE_INIT \
+    { -1, -1, { { 0, 0, 0 }, 0, 0, 0, 0, 0, 0 }, 0, 0, 0, 0, { 0 } }
+
 #endif

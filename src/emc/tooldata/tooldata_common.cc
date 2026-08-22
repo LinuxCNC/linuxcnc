@@ -40,16 +40,7 @@ void tooldata_init(bool random_toolchanger)
 
 struct CANON_TOOL_TABLE tooldata_entry_init()
 {
-    struct CANON_TOOL_TABLE tdata;
-    tdata.toolno      = -1;
-    tdata.pocketno    = -1;
-    tdata.diameter    =  0;
-    tdata.frontangle  =  0;
-    tdata.backangle   =  0;
-    tdata.orientation =  0;
-    ZERO_EMC_POSE(tdata.offset);
-    tdata.comment[0]  =  0;
-
+    struct CANON_TOOL_TABLE tdata = CANON_TOOL_TABLE_INIT;
     return tdata;
 } // tooldata_entry_init()
 
