@@ -2120,7 +2120,7 @@ class gmoccapy(object):
             # To use the return value of the calculator, it must be pretended that there is no editable (=no edit mode).
             self.widgets.tooledit1.editable = None
             if col in integer_cols:
-                self.widgets.tooledit1.validate_input(row, f"{value:11.0f}", col)
+                self.widgets.tooledit1.validate_input(row, f"{value:11d}", col)
             else:
                 self.widgets.tooledit1.validate_input(row, f"{value:11.4f}", col)
             self.widgets.tooledit1.edited = True
