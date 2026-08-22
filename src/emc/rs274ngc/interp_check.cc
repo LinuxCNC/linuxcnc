@@ -393,3 +393,80 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   return INTERP_OK;
 }
+
+/****************************************************************************/
+
+/*! check_spindle_sync_feed
+
+Returned Value: int
+   Returns an error if any axis of the move would have to run faster than its
+   maximum velocity to hold the commanded pitch at the commanded spindle speed.
+   Otherwise returns INTERP_OK.
+
+Side effects: none
+
+Called by:
+   Interp::convert_straight (G33, G33.1)
+   Interp::convert_threading_cycle (G76)
+
+Nothing downstream rejects a feed the machine cannot deliver: the planner
+clamps the velocity, the axis falls behind, and the thread is cut wrong.
+
+The bound is the per-axis maximum, not the traj maximum, because the max
+velocity slider is deliberately not applied to position-synchronized moves (see
+tpGetMaxTargetVel).  The feed is projected onto each axis by its share of the
+move length, as the planner distributes it.  Rotary axes are ignored: a pitch
+is a linear distance per revolution.
+
+Using the commanded S word means the error names the offending line and does
+not depend on the spindle already running.  Skipped in constant surface speed
+mode, and for any axis whose limit is unavailable (the standalone interpreter
+reports zero).
+
+*/
+
+int Interp::check_spindle_sync_feed(setup_pointer settings,  //!< pointer to machine settings
+                                    double pitch,            //!< program units per revolution
+                                    const char *code,        //!< G code name, for the message
+                                    const double delta[9])   //!< move, program units, XYZABCUVW
+{
+  static const char axis_name[] = "XYZABCUVW";
+  int spindle = settings->active_spindle;
+
+  if (settings->spindle_mode[spindle] != SPINDLE_MODE::CONSTANT_RPM)
+    return INTERP_OK;
+
+  double speed = settings->speed[spindle];
+  if (speed <= 0.0 || pitch == 0.0)
+    return INTERP_OK;
+
+  double length = 0.0;
+  for (int ax = 0; ax < 9; ax++) {
+    if (ax >= 3 && ax <= 5)
+      continue;                 /* rotary */
+    length += delta[ax] * delta[ax];
+  }
+  length = sqrt(length);
+  if (length <= 0.0)
+    return INTERP_OK;
+
+  /* program units per minute along the path */
+  double required_rate = fabs(pitch) * speed;
+
+  for (int ax = 0; ax < 9; ax++) {
+    if (ax >= 3 && ax <= 5)
+      continue;
+    if (delta[ax] == 0.0)
+      continue;
+    double max_rate = GET_EXTERNAL_AXIS_MAX_VELOCITY(ax);
+    if (max_rate <= 0.0)
+      continue;
+    double axis_rate = required_rate * fabs(delta[ax]) / length;
+    CHKS((axis_rate > max_rate),
+         _("%s pitch %g at spindle speed %g needs %g per minute on the %c axis, "
+           "which exceeds its maximum velocity of %g"),
+         code, fabs(pitch), speed, axis_rate, axis_name[ax], max_rate);
+  }
+
+  return INTERP_OK;
+}
