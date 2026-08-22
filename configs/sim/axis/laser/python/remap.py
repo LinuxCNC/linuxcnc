@@ -1,4 +1,3 @@
-from pyhal import *
 from raster import *
 from interpreter import INTERP_EXECUTE_FINISH, INTERP_OK
 
@@ -8,8 +7,8 @@ def init(self):
     global rasterProgrammer
     rasterProgrammer = RasterProgrammer("raster-programmer")
     print("raster initialized")
-       
-        
+
+
 def rasterBegin(self, **words):
     global rasterProgrammer
     #machine must be in position before begin issued
@@ -44,5 +43,4 @@ def rasterStop(self, **words):
     yield INTERP_EXECUTE_FINISH
     if rasterProgrammer:
         rasterProgrammer.stop()
-    
 
