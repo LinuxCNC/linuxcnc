@@ -18,6 +18,7 @@
 # source, and produces the four MTConnect documents.  Transport-agnostic so it
 # can be driven by the embedded HTTP server (http_agent) or an MQTT publisher.
 
+import mimetypes
 import os
 import threading
 from datetime import datetime, timezone
@@ -68,6 +69,13 @@ class AgentState:
         self._last_in_spindle = None
         self._last_values = {}
         self._lock = threading.Lock()
+        self.user_pages = self.ini.find("MTCONNECT", "USER_PAGES", "")
+        if self.user_pages and self.user_pages[0] != "/":
+            # relative to the ini file's directory
+            self.user_pages = os.path.join(os.path.dirname(ini_path), self.user_pages)
+        if self.user_pages:
+            # canonical form, so containment checks in user_page() compare like with like
+            self.user_pages = os.path.realpath(self.user_pages)
 
     # -- data collection -----------------------------------------------------
 
@@ -111,6 +119,21 @@ class AgentState:
             return None
         with open(path, "rb") as fh:
             return fh.read(), "application/xml"
+
+    def user_page(self, name):
+        """Return (bytes, content_type) for a served user file, or None."""
+        if not self.user_pages:
+            return None
+        path = os.path.realpath(os.path.join(self.user_pages, name))
+        # a plain startswith() prefix check is bypassable via a sibling
+        # directory whose name shares the prefix ("pages" vs "pages_evil")
+        if os.path.commonpath((self.user_pages, path)) != self.user_pages:
+            return None
+        if os.path.isfile(path):
+            ctype = mimetypes.guess_type(path)[0] or "application/octet-stream"
+            with open(path, "rb") as fh:
+                return fh.read(), ctype
+        return None
 
     def model_file(self, name):
         """Return (bytes, content_type) for a served mesh, or None."""
