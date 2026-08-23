@@ -38,6 +38,20 @@ int kinematicsInverse(const EmcPose * pos,
     return identityKinematicsInverse(pos, joints, iflags, fflags);
 }
 
+int kinematicsToolFrame(const double *joints,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    return identityKinematicsToolFrame(joints, rot, fflags);
+}
+
+int kinematicsWorkFrame(const double *joints,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    return identityKinematicsWorkFrame(joints, rot, fflags);
+}
+
 static KINEMATICS_TYPE ktype = -1;
 
 KINEMATICS_TYPE kinematicsType()
@@ -56,6 +70,8 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsToolFrame);
+EXPORT_SYMBOL(kinematicsWorkFrame);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
