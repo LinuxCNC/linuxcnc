@@ -247,7 +247,7 @@ class _GStat(GObject.GObject):
         'cancel-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,GObject.TYPE_PYOBJECT)),
         'softkey-pressed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         }
 
@@ -432,17 +432,17 @@ class _GStat(GObject.GObject):
         function = y.get('FUNCTION')
         data = y.get('ARGS')
         LOG.debug('REQUESTED:{}'.format(y))
-        if data == '':
-            try:
-                self[function]()
-            except Exception as e:
-                LOG.debug('not a valid request\n {}'.format(e))
-        else:
-            try:
-                self[function](data)
-            except Exception as e:
-                LOG.debug('not a valid request\n {}'.format(e))
-        #self. action(y.get('MESSAGE'),y.get('ARGS'))
+
+        # wrap in a list if not already
+        if not isinstance(data, list):
+            data = [data]
+
+        # call function with arbitrary arguments
+        try:
+            self[function](*data)
+            return
+        except TypeError as e:
+            LOG.debug(e)
 
     def merge(self):
         self.old['command-state'] = self.stat.state
@@ -1499,8 +1499,8 @@ class _GStat(GObject.GObject):
     def request_cycle_pause(self, data):
         self.emit('cycle-pause-request', data)
 
-    def request_macro_call(self, data):
-        self.emit('macro-call-request', data)
+    def request_macro_call(self, data, key=''):
+        self.emit('macro-call-request', data, key)
 
     def request_reload_display(self, data):
         self.emit('reload-display')
