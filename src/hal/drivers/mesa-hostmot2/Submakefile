@@ -1,4 +1,0 @@
-
-# hostmot2-serial.h is need for some external hostmot2 RT-components
-../include/hostmot2-serial.h: ./hal/drivers/mesa-hostmot2/hostmot2-serial.h
-	cp $^ $@

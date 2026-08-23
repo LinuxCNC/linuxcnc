@@ -23,11 +23,3 @@ TARGETS += ../lib/liblinuxcnc.a
 	@mkdir -p ../lib
 	@rm -f $@
 	@$(AR) $(ARFLAGS) $@ $^
-
-EMCNMLINTFINCS = \
-	./emc/nml_intf/emcmotcfg.h \
-	./emc/nml_intf/emcpos.h \
-	./emc/nml_intf/motion_types.h
-
-$(patsubst ./emc/nml_intf/%,../include/%,$(EMCNMLINTFINCS)): ../include/%.h: ./emc/nml_intf/%.h
-	cp $^ $@

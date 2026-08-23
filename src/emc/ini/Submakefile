@@ -5,17 +5,6 @@ $(call TOOBJSDEPS, $(LIBLCNCINISRCS)) : EXTRAFLAGS=-fPIC
 USERSRCS += $(LIBLCNCINISRCS)
 TARGETS += ../lib/liblinuxcncini.so ../lib/liblinuxcncini.so.1
 
-LIBLCNCINICCINCS = \
-    ./emc/ini/inifile.h
-LIBLCNCINICXINCS = \
-    ./emc/ini/inifile.hh
-
-# The ini-file headers are needed to build against the liblinuxcncini.so
-$(patsubst ./emc/ini/%,../include/%,$(LIBLCNCINICCINCS)): ../include/%.h: ./emc/ini/%.h
-	cp $^ $@
-$(patsubst ./emc/ini/%,../include/%,$(LIBLCNCINICXINCS)): ../include/%.hh: ./emc/ini/%.hh
-	cp $^ $@
-
 ../lib/liblinuxcncini.so.1: $(call TOOBJS,$(LIBLCNCINISRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
