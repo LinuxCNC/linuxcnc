@@ -283,6 +283,14 @@ extern int xyzacKinematicsInverse(const EmcPose * pos,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
 
+extern int xyzacKinematicsToolFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int xyzacKinematicsWorkFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
+
 
 extern int xyzbcKinematicsForward(const double *joints,
                                   EmcPose * pos,
@@ -293,5 +301,13 @@ extern int xyzbcKinematicsInverse(const EmcPose * pos,
                                   double *joints,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
+
+extern int xyzbcKinematicsToolFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int xyzbcKinematicsWorkFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
 
 //*********************************************************************
