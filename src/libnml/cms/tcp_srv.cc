@@ -30,8 +30,6 @@
 #include <errno.h>		/* errno */
 #include <signal.h>		// SIGPIPE, signal()
 
-#include <rtapi_string.h>	// rtapi_strlcpy
-
 #include <sys/types.h>
 #include <sys/wait.h>		// waitpid
 
@@ -955,7 +953,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    if (NULL != namereply) {
 		putbe32(temp_buffer, _client_tcp_port->serial_number);
 		putbe32(temp_buffer + 4, namereply->status);
-		rtapi_strlcpy(temp_buffer + 8, namereply->name, 31);
+		size_t l = strlen(namereply->name);
+		memcpy(temp_buffer + 8, namereply->name, l > 31 ? 31 : l);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 40, 0,
 			dtimeout) < 0) {

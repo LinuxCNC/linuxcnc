@@ -26,7 +26,6 @@
 #include <math.h>
 
 #include "physmem.hh"           /* PHYSMEM_HANDLE */
-#include <rtapi_string.h>	/* rtapi_strlcpy */
 #include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #include "libnml/cms/cms.hh"		/* class CMS */
 #include "shmem.hh"		/* class SHMEM */
@@ -314,7 +313,10 @@ int SHMEM::open()
 		rcs_print_error
 		    ("Shared memory buffers %s and %s may conflict. (key=%d(0x%X))\n",
 		    BufferName, cptr, key, key);
-		rtapi_strlcpy(cptr, BufferName, 32);
+		size_t l = strlen(BufferName);
+		if(l > 31) l = 31;
+		memcpy(cptr, BufferName, l);
+		cptr[l] = 0;
 	    }
 	}
 	if (master) {
@@ -326,7 +328,10 @@ int SHMEM::open()
 		memset(autokey_table_end, 0, size - 32 - autokey_table_size);
 	    }
 #endif
-	    rtapi_strlcpy((char *) shm->addr, BufferName, 32);
+	    size_t l = strlen(BufferName);
+	    if(l > 31) l = 31;
+	    memcpy(shm->addr, BufferName, l);
+	    ((char *)shm->addr)[l] = 0;
 	}
 /*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?

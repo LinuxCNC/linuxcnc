@@ -22,7 +22,6 @@
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 
-#include <rtapi_string.h>
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/linklist/linklist.hh"
 #ifndef _TIMER_H
@@ -164,7 +163,7 @@ void convert_print_list_to_lines()
 	    if (NULL == next_line) {
 		if (NULL == temp_buf) {
 		    temp_buf = (char *) malloc(strlen(string_from_list) + 1);
-		    rtapi_strlcpy(temp_buf, string_from_list, strlen(string_from_list) + 1);
+		    nml_strlcpy(temp_buf, string_from_list, strlen(string_from_list) + 1);
 		} else {
 		    char *ra = (char *) realloc(temp_buf, strlen(temp_buf) + strlen(string_from_list) + 1);
 		    if(ra) {
@@ -231,7 +230,7 @@ char *strip_control_characters(char *_dest, char *_src)
     if (NULL == _dest) {
 	destination = line_buffer;
 	if (strlen(_src) < 255) {
-	    rtapi_strxcpy(line_buffer, _src);
+	    nml_strxcpy(line_buffer, _src);
 	} else {
 	    if (NULL == strpbrk(_src, "\n\r\t\b")) {
 		return (_src);
@@ -271,7 +270,7 @@ int separate_words(char **_dest, int _max, char *_src)
     if (strlen(_src) > 255) {
 	return -1;
     }
-    rtapi_strxcpy(word_buffer, _src);
+    nml_strxcpy(word_buffer, _src);
     char* saveptr;
     _dest[0] = strtok_r(word_buffer, " \n\r\t", &saveptr);
     for (i = 0; i < _max - 1 && NULL != _dest[i]; i++) {
@@ -303,7 +302,7 @@ int rcs_vprint(const char *_fmt, va_list _args, int save_string)
     if (save_string) {
         last_error_buf_filled++;
         last_error_buf_filled %= 4;
-        rtapi_strlcpy(last_error_bufs[last_error_buf_filled], tmpstr.data(), error_buf_size-1);
+        nml_strlcpy(last_error_bufs[last_error_buf_filled], tmpstr.data(), error_buf_size-1);
     }
     return rcs_fputs(tmpstr.data());
 }
@@ -407,10 +406,10 @@ int set_rcs_print_file(char *_file_name)
     if (_file_name == NULL) {
 	return -1;
     }
-    if (strlen(_file_name) > 80) {
+    if (strlen(_file_name) >= sizeof(rcs_print_file_name)) {
 	return -1;
     }
-    rtapi_strxcpy(rcs_print_file_name, _file_name);
+    nml_strxcpy(rcs_print_file_name, _file_name);
     if (NULL != rcs_print_file_stream) {
 	fclose(rcs_print_file_stream);
     }

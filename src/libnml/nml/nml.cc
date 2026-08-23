@@ -22,7 +22,6 @@
 #include <netdb.h>
 #include <arpa/inet.h>		// inet_ntoa
 
-#include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"		// class NML
 #include "nmlmsg.hh"		// class NMLmsg
 #include "libnml/cms/cms.hh"		// class CMS
@@ -177,10 +176,10 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     snprintf(bufname, 40, "%s", buf);
     snprintf(procname, 40, "%s", proc);
     if (NULL == file) {
-	rtapi_strlcpy(cfgfilename, default_nml_config_file, 160);
+	nml_strlcpy(cfgfilename, default_nml_config_file, 160);
     }
     else {
-	rtapi_strlcpy(cfgfilename, file, 160);
+	nml_strlcpy(cfgfilename, file, 160);
     }
 
     if (rcs_errors_printed >= max_rcs_errors_to_print

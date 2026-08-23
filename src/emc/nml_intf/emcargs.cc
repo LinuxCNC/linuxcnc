@@ -18,7 +18,6 @@
 #include "libnml/nml/nml.hh"               /* nmlSetHostAlias */
 #include "emcglb.h"		/* these decls */
 #include "libnml/rcs/rcs_print.hh"
-#include <rtapi_string.h>
 
 int emcGetArgs(int argc, char *argv[])
 {
@@ -35,7 +34,7 @@ int emcGetArgs(int argc, char *argv[])
                     fprintf(stderr, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		rtapi_strxcpy(emc_inifile, argv[t + 1]);
+		nml_strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;

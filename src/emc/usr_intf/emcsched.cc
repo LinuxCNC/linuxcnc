@@ -35,7 +35,6 @@
 #include "libnml/os_intf/timer.hh"             // esleep
 #include "shcom.hh"             // Common NML communications functions
 #include "emcsched.hh"          // Common scheduling functions
-#include <rtapi_string.h>
 
 #define MAX_PRIORITY 0x80000000
 #define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
@@ -298,8 +297,8 @@ void updateQueue() {
             queueStatus = qsError;
             }
           sendAuto();
-          rtapi_strxcpy(fileStr, defaultPath.c_str());
-          rtapi_strxcat(fileStr, q.front().getFileName().c_str());
+          nml_strxcpy(fileStr, defaultPath.c_str());
+          nml_strxcat(fileStr, q.front().getFileName().c_str());
           if (sendProgramOpen(fileStr) != 0) {
             queueStatus = qsError;
             return;
@@ -371,7 +370,7 @@ int getProgramById(int id, qRecType *qRec) {
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
   qRec->zone = i->getZone();
-  rtapi_strxcpy(qRec->fileName,  i->getFileName().c_str());
+  nml_strxcpy(qRec->fileName,  i->getFileName().c_str());
   qRec->feedOverride = i->getFeedOverride();
   qRec->spindleOverride = i->getSpindleOverride();
   qRec->tool = i->getTool();
@@ -390,7 +389,7 @@ int getProgramByIndex(int idx, qRecType *qRec) {
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
   qRec->zone = i->getZone();
-  rtapi_strxcpy(qRec->fileName,  i->getFileName().c_str());
+  nml_strxcpy(qRec->fileName,  i->getFileName().c_str());
   qRec->feedOverride = i->getFeedOverride();
   qRec->spindleOverride = i->getSpindleOverride();
   qRec->tool = i->getTool();
