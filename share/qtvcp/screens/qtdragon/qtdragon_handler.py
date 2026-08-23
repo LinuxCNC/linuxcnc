@@ -155,7 +155,7 @@ class HandlerClass:
         STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
         STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
         STATUS.connect('cycle-pause-request', lambda w, state: self.ext_pause_toggled(state))
-        STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
+        STATUS.connect('macro-call-request', lambda w, name, key: self.request_macro_call(name, key))
         STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
         STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
         STATUS.connect('axis-selection-changed', lambda w,data: self.mpg_selection_changed(data))
@@ -923,14 +923,16 @@ class HandlerClass:
             self.add_status(_translate("HandlerClass",'last running line before stoppage: {}'.format(line)))
 
     # called from hal_glib to run macros from external event
-    def request_macro_call(self, data):
+    def request_macro_call(self, data, key):
         #print(f'macro call data: {data}')
         if not self.w.chk_auto_mode_ext_macro.isChecked() and not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), WARNING)
             return
+
+
         cmd = INFO.get_ini_mdi_command(data)
         #print(f'MDI command:{cmd}   data:{data}')
-        if INFO.get_ini_mdi_command(data) is None:
+        if cmd is None:
             data = data.replace('ini-macro-cmd-','')
             try:
                 temp = INFO.MACRO_COMMAND_DICT.get(data).get('cmd')
