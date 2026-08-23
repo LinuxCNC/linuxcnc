@@ -29,7 +29,7 @@ net mpg-count     axis.c.jog-counts
 
 net m0  halui.gui.mdi-command.MACRO0    panel.mdi-0
 net m1  halui.gui.mdi-command.MACRO1    panel.mdi-1
-net m2  halui.gui.mdi-command.MACRO2    panel.mdi-2
+net m2  halui.gui.mdi-command.1         panel.mdi-2
 
 net man panel.manual-mode   halui.mode.manual
 net mdi panel.mdi-mode      halui.mode.mdi
