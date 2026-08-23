@@ -142,7 +142,7 @@ def kins_calc_primary(log, z_vector_req, x_vector_req, theta_2_list=[]):
             # since we are using asin() we really have two solutions theta_1 and pi-theta_2
             for theta in [theta_1, transform_to_pipi(pi - theta_1)]:
                 log.debug(f'    Checking possible primary angle {degrees(theta):.4f}° for limit violations.')
-                if degrees(theta) > secondary_min_limit and degrees(theta) < secondary_max_limit:
+                if degrees(theta) > primary_min_limit and degrees(theta) < primary_max_limit:
                     theta_1_list.append(theta)
     return theta_1_list # returns radians
 
