@@ -45,6 +45,7 @@
 
 #include <rtapi.h>
 #include <rtapi_string.h>
+#include <rtapi_math.h>
 #include <emcmotcfg.h>
 #include <emcpos.h>
 #include <kinematics.h>
@@ -364,3 +365,138 @@ int identityKinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // identityKinematicsInverse()
+
+const PmRotationMatrix TOOL_FRAME_SPINDLE = {
+    { 1, 0, 0},   // tool x
+    { 0, 1, 0},   // tool y
+    { 0, 0, 1}    // tool axis
+};
+
+// half turn about tool x: reverses the tool axis and tool y, keeps tool x,
+// and keeps the frame right-handed.  Negating the tool axis on its own would
+// leave a reflection, which is not a frame any machine can hold.
+const PmRotationMatrix TOOL_FRAME_FLANGE = {
+    { 1,  0,  0},
+    { 0, -1,  0},
+    { 0,  0, -1}
+};
+
+int toolFrameIsProper(const PmRotationMatrix *m)
+{
+    const double c[3][3] = {
+        { m->x.x, m->y.x, m->z.x },
+        { m->x.y, m->y.y, m->z.y },
+        { m->x.z, m->y.z, m->z.z }
+    };
+    double det;
+    int a, b, k;
+
+    for (a = 0; a < 3; a++) {
+        for (b = a; b < 3; b++) {
+            double dot = 0;
+            for (k = 0; k < 3; k++) { dot += c[k][a] * c[k][b]; }
+            if (fabs(dot - (a == b ? 1.0 : 0.0)) > 1e-9) { return 0; }
+        }
+    }
+
+    det = c[0][0] * (c[1][1]*c[2][2] - c[1][2]*c[2][1])
+        - c[0][1] * (c[1][0]*c[2][2] - c[1][2]*c[2][0])
+        + c[0][2] * (c[1][0]*c[2][1] - c[1][1]*c[2][0]);
+
+    return fabs(det - 1.0) <= 1e-9;
+} // toolFrameIsProper()
+
+int toolFrameApplyNative(PmRotationMatrix *rot,
+                         const PmRotationMatrix *native)
+{
+    // rot holds the module's own frame, native the rotation relating it to
+    // the convention, so the answer is rot * native: the declared rotation is
+    // expressed in the module's frame, not in machine coordinates.
+    const double r[3][3] = {
+        { rot->x.x, rot->y.x, rot->z.x },
+        { rot->x.y, rot->y.y, rot->z.y },
+        { rot->x.z, rot->y.z, rot->z.z }
+    };
+    const double n[3][3] = {
+        { native->x.x, native->y.x, native->z.x },
+        { native->x.y, native->y.y, native->z.y },
+        { native->x.z, native->y.z, native->z.z }
+    };
+    double m[3][3];
+    int a, b, k;
+
+    if (!toolFrameIsProper(native)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "toolFrameApplyNative: declared rotation is not a proper rotation\n");
+        return -1;
+    }
+
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            m[a][b] = 0;
+            for (k = 0; k < 3; k++) { m[a][b] += r[a][k] * n[k][b]; }
+        }
+    }
+
+    rot->x.x = m[0][0]; rot->y.x = m[0][1]; rot->z.x = m[0][2];
+    rot->x.y = m[1][0]; rot->y.y = m[1][1]; rot->z.y = m[1][2];
+    rot->x.z = m[2][0]; rot->y.z = m[2][1]; rot->z.z = m[2][2];
+
+    return 0;
+} // toolFrameApplyNative()
+
+int toolFrameInWork(const PmRotationMatrix *work,
+                    const PmRotationMatrix *tool,
+                    PmRotationMatrix *out)
+{
+    // transpose(work) * tool: both are given against the machine, and
+    // transposing the work frame turns "machine to work" out of "work to
+    // machine" without a general inverse, because a rotation is orthonormal
+    const double w[3][3] = {
+        { work->x.x, work->y.x, work->z.x },
+        { work->x.y, work->y.y, work->z.y },
+        { work->x.z, work->y.z, work->z.z }
+    };
+    const double t[3][3] = {
+        { tool->x.x, tool->y.x, tool->z.x },
+        { tool->x.y, tool->y.y, tool->z.y },
+        { tool->x.z, tool->y.z, tool->z.z }
+    };
+    double m[3][3];
+    int a, b, k;
+
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            m[a][b] = 0;
+            for (k = 0; k < 3; k++) { m[a][b] += w[k][a] * t[k][b]; }
+        }
+    }
+
+    out->x.x = m[0][0]; out->y.x = m[0][1]; out->z.x = m[0][2];
+    out->x.y = m[1][0]; out->y.y = m[1][1]; out->z.y = m[1][2];
+    out->x.z = m[2][0]; out->y.z = m[2][1]; out->z.z = m[2][2];
+
+    return 0;
+} // toolFrameInWork()
+
+int identityKinematicsWorkFrame(const double *joints,
+                                PmRotationMatrix *rot,
+                                const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)joints;
+    (void)fflags;
+    // nothing carries the work, so it stays square with the machine
+    *rot = TOOL_FRAME_SPINDLE;
+    return 0;
+} // identityKinematicsWorkFrame()
+
+int identityKinematicsToolFrame(const double *joints,
+                                PmRotationMatrix *rot,
+                                const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)joints;
+    (void)fflags;
+    // joints are axes, so the tool stays square with the machine
+    *rot = TOOL_FRAME_SPINDLE;
+    return 0;
+} // identityKinematicsToolFrame()
