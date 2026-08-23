@@ -434,7 +434,7 @@ class gmoccapy(object):
         self.GSTAT = Status()
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
-        self.GSTAT.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
+        self.GSTAT.connect('macro-call-request', lambda w, key, name: self.request_macro_call(key, name))
         self.GSTAT.connect('cycle-start-request', lambda w, state :self.request_start(state))
         self.GSTAT.connect('cycle-pause-request', lambda w, state: self.request_pause(state))
         self.GSTAT.connect('ok-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.ACCEPT))
@@ -1354,41 +1354,44 @@ class gmoccapy(object):
             self.command.auto(linuxcnc.AUTO_PAUSE)
 
     # call INI macro (from hal_glib message)
-    def request_macro_call(self, data):
-        # if MDI command change to MDI and run
-        cmd = self.INFO.get_ini_mdi_command(data)
-        print(f'MDI command:{cmd}   data:{data}')
-        if not cmd is None:
-            LOG.debug("INI MDI COMMAND #: {} = {}".format(data, cmd))
-            self.ACTION.CALL_INI_MDI(data,mode_return = True)
-            return
+    def request_macro_call(self, data, key):
+        #print(f'key:{key} data"{data}"')
+        if key == 'MDI':
+            # if MDI command change to MDI and run
+            cmd = self.INFO.get_ini_mdi_command(data)
+            if not cmd is None:
+                LOG.debug("INI MDI COMMAND #: {} = {}".format(data, cmd))
+                self.ACTION.CALL_INI_MDI(data,mode_return = True)
+                return
 
-        # run Macros
-        # some error checking
-        if not self.GSTAT.is_mdi_mode():
-            message = _("You must be in MDI mode to run macros")
-            self.dialogs.show_warning_dialog( _("Important Warning!"),
-                     message)
-            return
-
-        # look thru the INI macros
-        macros = self.get_ini_info.get_macros()
-        num_macros = len(macros)
-        if num_macros > 14:
-            num_macros = 14
-        for pos in range(0, num_macros):
-            # extract just the macro name
-            name = macros[pos].split()[0]
-            if data == name:
-                # get the button instance and click it
-                button = self["button_macro_{0}".format(pos)]
-                button.emit("clicked")
-                break
         else:
-            # didn't match a name - give a hint
-            message = _("Macro {} not found ".format(data))
-            self.dialogs.show_warning_dialog( _("Important Warning!"),
-                     message)
+            # run Macros
+            # some error checking
+            if not self.GSTAT.is_mdi_mode():
+                message = _("You must be in MDI mode to run macros")
+                self.dialogs.show_warning_dialog( _("Important Warning!"),
+                         message)
+                return
+
+            # look thru the INI macros
+            macros = self.get_ini_info.get_macros()
+            macro_name = macros[int(data)]
+            num_macros = len(macros)
+            if num_macros > 14:
+                num_macros = 14
+            for pos in range(0, num_macros):
+                # extract just the macro name
+                name = macros[pos].split()[0]
+                if macro_name == name:
+                    # get the button instance and click it
+                    button = self["button_macro_{0}".format(pos)]
+                    button.emit("clicked")
+                    break
+            else:
+                # didn't match a name - give a hint
+                message = _("Macro {} not found ".format(data))
+                self.dialogs.show_warning_dialog( _("Important Warning!"),
+                         message)
 
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
