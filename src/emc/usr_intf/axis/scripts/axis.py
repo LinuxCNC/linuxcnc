@@ -139,7 +139,7 @@ GSTAT.connect('cycle-start-request', lambda w, state : cycle_start_request(state
 GSTAT.connect('cycle-pause-request', lambda w, state: pause_request(state))
 GSTAT.connect('ok-request', lambda w, state: dialog_ext_control(w,1,1))
 GSTAT.connect('cancel-request', lambda w, state: dialog_ext_control(w,1,0))
-GSTAT.connect('macro-call-request', lambda w, name: request_macro_call(name))
+GSTAT.connect('macro-call-request', lambda w, key, name: request_macro_call(key, name))
 GSTAT.connect('softkey-pressed', lambda w,data: softkey_pressed(data))
 GSTAT.connect('shutdown-request', lambda w : General_Halt())
 GSTAT.connect('reload-display', lambda w : commands.clear_live_plot())
@@ -4179,7 +4179,7 @@ def dialog_ext_control(widget,t,state):
         if state == 0:
             notifications.clear_one()
 
-def request_macro_call(name):
+def request_macro_call(name, key):
     #print('request macro:',name)
     cmd = INFO.get_ini_mdi_command(name)
     #print(f'MDI command:{cmd}   name:{name}')
