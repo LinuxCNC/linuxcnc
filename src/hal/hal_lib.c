@@ -69,6 +69,7 @@
 
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
+#define __HAL_LIBRARY_INTERNAL_ONLY 1
 #include "hal_priv.h"		/* HAL private decls */
 
 #include <rtapi_string.h>

@@ -58,6 +58,10 @@
     information, go to www.linuxcnc.org.
 */
 
+#if defined(HAL_PRIV_H) || defined(__HAL_LIBRARY_INTERNAL_ONLY)
+#error "Including hal.h after hal_priv.h"
+#endif
+
 /***********************************************************************
 *                   GENERAL NOTES AND DOCUMENTATION                    *
 ************************************************************************/
