@@ -21,6 +21,12 @@ typedef int (*KI)(const struct EmcPose * world,
                   const KINEMATICS_INVERSE_FLAGS * iflags,
                   KINEMATICS_FORWARD_FLAGS * fflags);
 
+// KinematicsWORKFRAME and KinematicsTOOLFRAME functions
+// (optional, see kinematics.h)
+typedef int (*KT)(const double *joint,
+                  PmRotationMatrix *rot,
+                  const KINEMATICS_FORWARD_FLAGS *fflags);
+
 // KinematicsSETUP functions
 typedef int (*KS)(const int   comp_id,     // halpins
                   const char* coordinates, // module parameter
@@ -43,4 +49,13 @@ extern int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 // never calls it leaves its types numeric-only: G12.1 P<n> still works,
 // G13.1 refuses to guess which type is identity.
 extern int switchkinsDeclare(int ktype, int flags);
+
+// called from switchkinsSetup() for each type that reports its frames; a type
+// that does not simply omits the call.  Both are given, since a machine has a
+// work frame whether or not anything turns it.  native is the rotation
+// relating the type's own tool frame to the convention, TOOL_FRAME_SPINDLE
+// for maths already in it; it is checked once at load and applied by the
+// dispatch.
+extern int switchkinsRegisterFrames(int ktype, KT kwork, KT ktool,
+                                    const PmRotationMatrix *native);
 #endif // }
