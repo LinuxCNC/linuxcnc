@@ -1073,9 +1073,13 @@ threads.
 
 [NOTE]
 The spindle speed override has no effect during a G33 move, and the previous
-setting is restored when the move ends. A thread is cut in several passes over
-the same helix, so changing the spindle speed part way through would change the
-lead and spoil the thread.
+setting is restored when the move ends. The commanded position follows the
+spindle, but the axis lags it by an amount proportional to speed, so changing
+the speed part way through shifts the tool along the helix it is already
+cutting. A <<gcode:g76,G76>> cycle holds the override at the value the cycle
+started with rather than dropping it, because the whole cycle is one block; a
+G33 thread is one pass per line with the retract in between, so there is no
+span to hold.
 
 [[gcode:g33-tech-info]]
 .Technical Info
@@ -2065,8 +2069,12 @@ It is an error if:
   in constant surface speed mode.
 
 [NOTE]
-The spindle speed override has no effect during the G76 cycle, for the same
-reason as G33, and the previous setting is restored when the cycle ends.
+The spindle speed override is held for the whole G76 cycle at the value in
+effect when the cycle starts, capped at 100% because the pitch is checked
+against the programmed speed. Moving it while the cycle runs has no effect, so
+every pass cuts at one speed and they stay on the same helix. The previous
+setting is restored when the cycle ends. To thread at 80% of the programmed
+speed, set the override before the cycle starts.
 
 .HAL Connections
 The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the

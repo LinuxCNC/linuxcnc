@@ -925,6 +925,7 @@ void ENABLE_FEED_HOLD() {}
 void DISABLE_SPEED_OVERRIDE(int /*spindle*/) {}
 void ENABLE_FEED_OVERRIDE() {}
 void ENABLE_SPEED_OVERRIDE(int /*spindle*/) {}
+void LOCK_SPEED_OVERRIDE(int /*spindle*/) {}
 void MIST_OFF() {}
 void FLOOD_OFF() {}
 void MIST_ON() {}

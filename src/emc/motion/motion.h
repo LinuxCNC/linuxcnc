@@ -425,6 +425,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define FS_ENABLED 0x02
 #define AF_ENABLED 0x04
 #define FH_ENABLED 0x08
+#define SS_LOCKED  0x10
 
 /* This structure contains all of the data associated with
    a single joint.  Note that this structure does not need

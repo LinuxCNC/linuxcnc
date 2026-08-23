@@ -5130,10 +5130,21 @@ static void suspend_speed_override(setup_pointer settings)
 
 static void restore_speed_override(setup_pointer settings)
 {
-    /* back to what the program asked for, so an M49 or M51 P0 still holds */
+    /* back to what the program asked for, so an M49 or M51 P0 still holds.
+       Sent either way, since it also clears a lock */
     if (settings->speed_override[settings->active_spindle]) {
         ENABLE_SPEED_OVERRIDE(settings->active_spindle);
+    } else {
+        DISABLE_SPEED_OVERRIDE(settings->active_spindle);
     }
+}
+
+/* A G76 cycle is one block, so the override can be held for it.  A G33 thread
+   is one pass per line with the retract in between, so it keeps the suspend. */
+
+static void lock_speed_override(setup_pointer settings)
+{
+    LOCK_SPEED_OVERRIDE(settings->active_spindle);
 }
 
 /* Displacement of a move, ordered XYZABCUVW. */
@@ -5842,7 +5853,7 @@ int Interp::convert_threading_cycle(block_pointer block,
                                     thread_min_x));
     }
 
-    suspend_speed_override(settings);
+    lock_speed_override(settings);
 
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);

@@ -623,6 +623,9 @@ void ENABLE_FEED_OVERRIDE()
 void ENABLE_SPEED_OVERRIDE(int spindle)
 {PRINT("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
 
+void LOCK_SPEED_OVERRIDE(int spindle)
+{PRINT("LOCK_SPEED_OVERRIDE(%i)\n", spindle); }
+
 void FLOOD_OFF()
 {
   PRINT("FLOOD_OFF()\n");

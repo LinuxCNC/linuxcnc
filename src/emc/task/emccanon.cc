@@ -3390,12 +3390,17 @@ void SPEED_OVERRIDE_(int spindle, int mode)
 //refers to spindle speed
 void DISABLE_SPEED_OVERRIDE(int spindle)
 {
-    SPEED_OVERRIDE_(spindle, 0);
+    SPEED_OVERRIDE_(spindle, EMC_SO_OVERRIDE_OFF);
 }
 
 void ENABLE_SPEED_OVERRIDE(int spindle)
 {
-    SPEED_OVERRIDE_(spindle, 1);
+    SPEED_OVERRIDE_(spindle, EMC_SO_OVERRIDE_ON);
+}
+
+void LOCK_SPEED_OVERRIDE(int spindle)
+{
+    SPEED_OVERRIDE_(spindle, EMC_SO_OVERRIDE_LOCK);
 }
 
 void FEED_HOLD_(int mode)

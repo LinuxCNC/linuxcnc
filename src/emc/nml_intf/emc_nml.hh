@@ -657,7 +657,7 @@ class EMC_TRAJ_SET_SO_ENABLE:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     int spindle;
-    unsigned char mode; //mode=0, override off (will work with 100% SO), mode != 0, override on, user can change SO
+    unsigned char mode; //EMC_SO_OVERRIDE_OFF, _ON or _LOCK
 };
 
 class EMC_TRAJ_SET_FH_ENABLE:public EMC_TRAJ_CMD_MSG {

@@ -734,6 +734,8 @@ extern void ENABLE_FEED_OVERRIDE();
 /* used to deactivate user control of spindle speed override */
 extern void DISABLE_SPEED_OVERRIDE(int spindle);
 extern void ENABLE_SPEED_OVERRIDE(int spindle);
+/* hold the override at whatever is in effect when the next move starts */
+extern void LOCK_SPEED_OVERRIDE(int spindle);
 
 /* used to deactivate user control of feed hold */
 extern void DISABLE_FEED_HOLD();

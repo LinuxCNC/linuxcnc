@@ -31,7 +31,7 @@
  N..... COMMENT("h = number of spring passes")
  N..... COMMENT("e = distance along drive line used for tapered start/end")
  N..... COMMENT("l = which ends get the taper: 0 = neither, 1 = begin, 2 = end, 3 = both")
- N..... DISABLE_SPEED_OVERRIDE(0)
+ N..... LOCK_SPEED_OVERRIDE(0)
  N..... STRAIGHT_TRAVERSE(0.2370, 0.0000, 0.1955, 0.0000, 0.0000, 0.0000)
  N..... STRAIGHT_TRAVERSE(0.1170, 0.0000, 0.1955, 0.0000, 0.0000, 0.0000)
  N..... DISABLE_FEED_OVERRIDE()
