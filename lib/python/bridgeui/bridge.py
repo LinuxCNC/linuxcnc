@@ -134,11 +134,11 @@ class Bridge(object):
             #print ('axis state', self.axesSelected,self.currentSelectedAxis)
 
     # send msg to hal_glib
-    def writeMsg(self, msg, data=''):
+    def writeMsg(self, msg, data1=()):
         #print('Write Msg called')
         if ZMQ:
             topic = self.writeTopic
-            message = json.dumps({'FUNCTION':msg,'ARGS':data})
+            message = json.dumps({'FUNCTION':msg,'ARGS':data1})
             LOG.debug('Sending ZMQ Message:{} {}'.format(topic, message))
             self.writeSocket.send_multipart(
                         [bytes(topic.encode('utf-8')),
@@ -175,6 +175,7 @@ class Bridge(object):
     # if the number is bigger then MDI command list
     # then look for MACRO commands
     def getMdiName(self, num):
+        # macro if num beyound length of MDIs
         if num >len(self.INFO.MDI_COMMAND_DICT)-1:
             offset = len(self.INFO.MDI_COMMAND_DICT)
             return self.getMacroName(num-offset)
@@ -191,11 +192,12 @@ class Bridge(object):
         return temp
 
     def runIndexedMacro(self, num):
-        # check for any MDI commands first:
-        name = self.getMdiName(num)
-        LOG.debug('Macro name:{} ,index: {}'.format(name, num))
-        if name != 'None':
-            self.writeMsg('request_macro_call', name)
+        if num <= len(self.INFO.MDI_COMMAND_DICT)-1:
+            # check for any MDI commands first:
+            name = self.getMdiName(num)
+            LOG.debug('Macro name:{} ,index: {}'.format(name, num))
+            if name != 'None':
+                self.writeMsg('request_macro_call', (name, 'MDI'))
 
         # else look for any MACRO commands:
         else:
@@ -203,11 +205,11 @@ class Bridge(object):
             name = self.getMacroName(num-offset)
             LOG.debug('Macro name:{} ,index: {}'.format(name, num))
             if name != 'None':
-                self.writeMsg('request_macro_call', name)
+                self.writeMsg('request_macro_call',(name, 'MACRO'))
 
-        # cound of MDI and MACRO commands
+        # count of MDI and MACRO commands
     def getMdiCount(self):
-        #print('->',len(self.INFO.MDI_COMMAND_DICT),len(self.INFO.MACRO_COMMAND_DICT))
+        #print('->',len(self.INFO.MDI_COMMAND_DICT) + len(self.INFO.MACRO_COMMAND_DICT))
         return len(self.INFO.MDI_COMMAND_DICT) + len(self.INFO.MACRO_COMMAND_DICT)
 
     def getJogRate(self):
