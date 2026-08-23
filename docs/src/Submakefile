@@ -251,6 +251,7 @@ DOC_SRCS_EN := \
 	ladder/ladder-intro.adoc \
 	lathe/lathe-user.adoc \
 	motion/kinematics.adoc \
+	motion/kinematics-conventions.adoc \
 	motion/dh-parameters.adoc \
 	motion/pid-theory.adoc \
 	motion/dual-pid-example.adoc \
