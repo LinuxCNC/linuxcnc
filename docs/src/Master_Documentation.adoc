@@ -189,6 +189,8 @@ include::ladder/ladder-examples.adoc[]
 :leveloffset: 2
 include::motion/kinematics.adoc[]
 
+include::motion/kinematics-conventions.adoc[]
+
 include::motion/dh-parameters.adoc[]
 
 include::motion/5-axis-kinematics.adoc[]
