@@ -40,11 +40,17 @@ int switchkinsSetup(kparms* kp,
         *kinv1 = xyzbcKinematicsInverse;
         switchkinsDeclare(0, KINSTYPE_IDENTITY);
         switchkinsDeclare(1, KINSTYPE_PRIMARY);
+        switchkinsRegisterFrames(1, xyzbcKinematicsWorkFrame,
+                                 xyzbcKinematicsToolFrame,
+                                 &TOOL_FRAME_SPINDLE);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
         *kset0 = trtKinematicsSetup; // trt: xyzac,xyzbc
         *kfwd0 = xyzbcKinematicsForward;
         *kinv0 = xyzbcKinematicsInverse;
+        switchkinsRegisterFrames(0, xyzbcKinematicsWorkFrame,
+                                 xyzbcKinematicsToolFrame,
+                                 &TOOL_FRAME_SPINDLE);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;
