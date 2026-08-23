@@ -178,8 +178,7 @@ endif
 SUBDIRS := \
     libposemath \
     \
-    libnml/linklist libnml/cms libnml/rcs libnml/os_intf \
-    libnml/nml libnml/buffer libnml \
+    libnml \
     \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
@@ -193,7 +192,7 @@ SUBDIRS := \
 	hal/user_comps/xhc-whb04b-6 \
     \
     $(GUI_SUBDIRS) \
-    emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
+    emc/usr_intf/axis emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/canterp \
     emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
