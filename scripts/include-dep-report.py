@@ -108,18 +108,15 @@ def folded_dirs():
 
     A directory whose sources are listed by its parent's Submakefile compiles and
     links as part of the parent, so an include crossing that boundary crosses
-    nothing.  libnml is the case in the tree: SUBDIRS names its six
-    subdirectories and each has an empty Submakefile purely to satisfy
-    SUBMAKEFILES, while libnml/Submakefile lists every source and links them into
-    one libnml.so.  Reporting those as separate nodes invents a cycle out of a
-    directory layout.  Subdirectories the top-level Makefile builds on their own,
-    emc/tp into tpmod for one, are not folded.
+    nothing.  libnml is the case in the tree: libnml/Submakefile lists every
+    source under its six subdirectories and links them into one libnml.so.
+    Reporting those as separate nodes invents a cycle out of a directory layout.
+    Subdirectories the top-level Makefile builds on their own, emc/tp into tpmod
+    for one, are not folded.
     """
     fold = {}
-    for cur, dirs, files in os.walk(SRC):
+    for cur, dirs, unused_files in os.walk(SRC):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
-        if "Submakefile" not in files:
-            continue
         rel = os.path.relpath(cur, SRC)
         if rel == ".":
             continue
