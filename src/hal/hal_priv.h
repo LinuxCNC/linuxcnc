@@ -57,6 +57,12 @@
 
 */
 
+#if !defined(__HAL_LIBRARY_INTERNAL_ONLY) || !defined(__LINUXCNC_HAL_H)
+// This also warns when you include the private header
+// before the normal header.
+#warning "You should not be including HAL's private hal_priv.h. Please use the HAL query API."
+#endif
+
 /***********************************************************************
 *                       GENERAL INFORMATION                            *
 ************************************************************************/
