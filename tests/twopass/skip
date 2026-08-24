@@ -1,7 +1,8 @@
 #!/bin/bash
-# haltcl needs the Tcl HAL extension (tcl/hal.so), which is only built
-# in GUI builds (BUILD_GUI); skip in headless builds.  The tcl dir is
-# taken from TCLLIBPATH (exported by rip-environment).
+# haltcl needs the Tcl HAL extension, only built in GUI builds.  Ask
+# tclsh to load it like the test does; works for run-in-place
+# (TCLLIBPATH) and installed packages (auto_path).  catch is needed
+# because tclsh reads stdin interactively and exits 0 even on error.
 set -u
 
 if ! command -v tclsh >/dev/null 2>&1; then
@@ -9,8 +10,7 @@ if ! command -v tclsh >/dev/null 2>&1; then
     exit 1
 fi
 
-read -r tcldir _ <<< "${TCLLIBPATH:-}"
-if ! [ -f "${tcldir:-/nonexistent}/hal.so" ]; then
+if ! echo 'exit [catch {package require Hal}]' | tclsh >/dev/null 2>&1; then
     echo "skip: Tcl HAL extension not built (headless build)" >&2
     exit 1
 fi
