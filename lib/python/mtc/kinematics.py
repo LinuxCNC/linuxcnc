@@ -48,7 +48,7 @@ AXIS_VECTORS = {
 }
 
 # Human-readable name for LinuxCNC's KINEMATICS_TYPE enum
-# (src/emc/kinematics/kinematics.h).
+# (include/kinematics.h).
 KINEMATICS_TYPE_NAMES = {
     1: "IDENTITY",
     2: "FORWARD_ONLY",
