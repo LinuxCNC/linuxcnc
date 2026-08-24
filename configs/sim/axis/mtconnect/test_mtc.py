@@ -8,6 +8,7 @@ import os
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -327,6 +328,48 @@ def test_http_endpoints():
         http.stop()
 
 
+def test_user_pages():
+    state = AgentState(CONFIGS["3axis"])
+    root = tempfile.mkdtemp()
+    pages = os.path.join(root, "pages")
+    evil = os.path.join(root, "pages_evil")  # sibling sharing the name prefix
+    os.mkdir(pages)
+    os.mkdir(evil)
+    with open(os.path.join(pages, "twin.html"), "w") as fh:
+        fh.write("<html><body>twin</body></html>")
+    with open(os.path.join(pages, "app.js"), "w") as fh:
+        fh.write("console.log(1)")
+    with open(os.path.join(evil, "e.html"), "w") as fh:
+        fh.write("outside")
+    state.user_pages = os.path.realpath(pages)
+
+    http = HttpAgent(state, host="127.0.0.1", port=0)
+    http.start()
+    try:
+        base = "http://127.0.0.1:%d" % http.port
+
+        def get(path):
+            with urllib.request.urlopen(base + path, timeout=5) as r:
+                return r.status, r.read(), r.headers.get("Content-Type")
+
+        st, body, ctype = get("/html/twin.html")
+        assert st == 200 and b"twin" in body and "text/html" in ctype, (st, ctype)
+        st, body, ctype = get("/html/app.js")
+        assert st == 200 and "javascript" in ctype, ctype
+
+        # Missing file, and escapes outside USER_PAGES: a ".." traversal and
+        # the sibling-prefix bypass (pages vs pages_evil) must both 404.
+        for path in ("/html/nope.html", "/html/../pages_evil/e.html"):
+            try:
+                get(path)
+                assert False, "expected 404 for " + path
+            except urllib.error.HTTPError as e:
+                assert e.code == 404, (path, e.code)
+        print("ok  user pages (serve + content type + traversal rejected)")
+    finally:
+        http.stop()
+
+
 def _is_iso_ts(field):
     # e.g. 2026-07-28T12:00:00.000Z -- cheap structural check (no regex import).
     return (len(field) >= 20 and field[4] == "-" and field[7] == "-"
@@ -625,6 +668,7 @@ def main():
     test_schema_validation()
     test_source_offline()
     test_http_endpoints()
+    test_user_pages()
     test_shdr()
     test_hal_items()
     test_solid_models()

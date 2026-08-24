@@ -64,6 +64,9 @@ All configuration is read from the *[MTCONNECT]* section:
 *TRANSPORT*::    Comma-separated list of *http*, *mqtt*, *shdr* (default *http*).
 *HTTP_PORT*::    Embedded HTTP agent port (default 5000).
 *HTTP_BIND*::    Interface to bind (default 127.0.0.1; use 0.0.0.0 for the LAN).
+*USER_PAGES*::   Path to a directory with optional user pages / html files.
+  A relative path is resolved against the ini file's directory.  Files are
+  served under */html/<name>*; only files inside this directory are reachable.
 *SHDR_PORT*::    Port for the SHDR adapter when *shdr* is in *TRANSPORT* (default
   7878).  SHDR feeds an external MTConnect agent (e.g. cppagent) `<ts>|id|value`
   lines; configure that agent with a Devices.xml from *--dump-probe*.
