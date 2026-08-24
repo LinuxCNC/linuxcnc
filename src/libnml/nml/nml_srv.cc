@@ -20,7 +20,6 @@
 #include <sys/wait.h>		// waitpid()
 #include <stdlib.h>		// atexit()
 
-#include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"
 #include "nmlmsg.hh"
 #include "libnml/cms/cms.hh"
@@ -314,8 +313,8 @@ set_diag_info(REMOTE_SET_DIAG_INFO_REQUEST * _req)
 	orig_info = new CMS_DIAG_PROC_INFO();
 	*orig_info = *dpi;
     }
-    rtapi_strlcpy(dpi->name, _req->process_name, 16);
-    rtapi_strlcpy(dpi->host_sysinfo, _req->host_sysinfo, 32);
+    nml_stracpy(dpi->name, _req->process_name);
+    nml_stracpy(dpi->host_sysinfo, _req->host_sysinfo);
     if (cms->total_connections > _req->c_num && _req->c_num >= 0) {
 	cms->connection_number = _req->c_num;
     }

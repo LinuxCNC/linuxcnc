@@ -195,4 +195,54 @@ enum { error_buf_size = 256 };
 extern char last_error_bufs[4][error_buf_size];
 extern int last_error_buf_filled;
 
+#ifdef __cplusplus
+#include <type_traits>
+#include <cstdio>
+#include <cstring>
+
+//
+// nml_stracpy(dst,src) - Copy 'src' char buffer array to 'dst' char buffer array
+// nml_strxcpy(dst,src) - Copy 'src' char pointer to 'dst' char buffer array
+// nml_strxcat(dst,src) - Append 'src' char pointer to 'dst' char buffer array
+// nml_strlcpy(dst,src,size) - Print-copy 'src' char pointer to 'dst' char pointer
+// nml_strlcat(dst,src,size) - Print-append 'src' char pointer to 'dst' char pointer
+//
+static inline int nml_strlcpy(char *dst, const char *src, size_t dstsize) {
+    return std::snprintf(dst, dstsize, "%s", src);
+}
+
+static inline int nml_strlcat(char *dst, const char *src, size_t dstsize) {
+    size_t l = std::strlen(dst);
+    if(l >= dstsize)
+        return 0;
+    return std::snprintf(dst + l, dstsize - l, "%s", src);
+}
+
+#define nml_strxcpy(dst,src) do { \
+        static_assert(std::is_array<decltype(dst)>::value, "dst must be non-const array"); \
+        static_assert(sizeof((dst)[0]) == 1, "dst must be char array"); \
+        static_assert(sizeof((src)[0]) == 1, "dst must be char array"); \
+        nml_strlcpy((dst), (src), sizeof(dst)); \
+    } while(0)
+
+#define nml_stracpy(dst,src) do { \
+        static_assert(std::is_array<decltype(dst)>::value, "dst must be non-const array"); \
+        static_assert(std::is_array<decltype(src)>::value, "dst must be array"); \
+        static_assert(sizeof((dst)[0]) == 1, "dst must be char array"); \
+        static_assert(sizeof((src)[0]) == 1, "src must be char array"); \
+        size_t l = std::strlen(src); \
+	if(l >= sizeof(dst)) { \
+            std::memcpy((dst), (src), sizeof(dst)); \
+            (dst)[sizeof(dst) - 1] = 0; \
+        } else { \
+            std::memcpy((dst), (src), l + 1); \
+        } \
+    } while(0)
+
+#define nml_strxcat(dst,src) do { \
+        static_assert(std::is_array<decltype(dst)>::value, "dst must be non-const array"); \
+        nml_strlcat((dst), (src), sizeof(dst)); \
+    } while(0)
+#endif
+
 #endif

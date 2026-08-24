@@ -27,7 +27,6 @@ extern int verbose_nml_error_messages;
 #include <netinet/in.h>		/* sockaddr_in */
 #include <stdlib.h>
 
-#include <rtapi_string.h>
 #include "cms.hh"		/* class CMS */
 #include "cms_cfg.hh"
 
@@ -115,7 +114,7 @@ int load_nml_config_file(const char *file)
 	delete info;
         return -1;
     }
-    rtapi_strlcpy(info->file_name, file, 80);
+    nml_strlcpy(info->file_name, file, 80);
     FILE *fp;
     fp = fopen(file, "r");
     if (fp == NULL) {
@@ -369,13 +368,13 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	    strncpy(buf, search.proc_line, LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		rtapi_strxcpy(buf2, default_ptr + 7);
+		nml_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		rtapi_strlcpy(search.proc_line, buf, LINELEN);
+		nml_strlcpy(search.proc_line, buf, LINELEN);
 	    }
-	    rtapi_strxcat(search.proc_line, " defaultbuf");
+	    nml_strxcat(search.proc_line, " defaultbuf");
 	}
     }
     if (NO_PROCESS_LINE == search.error_type) {
@@ -386,20 +385,20 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	    strncpy(buf, search.proc_line, LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		rtapi_strxcpy(buf2, default_ptr + 7);
+		nml_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, procname);
 		default_ptr += strlen(procname);
 		strcpy(default_ptr, buf2);
 		default_ptr = strstr(buf, "default");
 	    }
 	    if (default_ptr) {
-		rtapi_strxcpy(buf2, default_ptr + 7);
+		nml_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		rtapi_strlcpy(search.proc_line, buf, LINELEN);
+		nml_strlcpy(search.proc_line, buf, LINELEN);
 	    }
-	    rtapi_strxcat(search.proc_line, " defaultproc defaultbuf");
+	    nml_strxcat(search.proc_line, " defaultproc defaultbuf");
 	}
     }
     if (CONFIG_SEARCH_OK == search.error_type) {
@@ -626,19 +625,19 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 			return;
 		    }
 		    if (hostname_matches_bufferline(s->buffer_line)) {
-			rtapi_strxcpy(s->proc_type, "LOCAL");
+			nml_strxcpy(s->proc_type, "LOCAL");
 		    } else {
-			rtapi_strxcpy(s->proc_type, "REMOTE");
+			nml_strxcpy(s->proc_type, "REMOTE");
 		    }
 		}
 		break;
 
 	    case CMS_FORCE_LOCAL_CONNECTION_MODE:
-		rtapi_strxcpy(s->proc_type, "LOCAL");
+		nml_strxcpy(s->proc_type, "LOCAL");
 		break;
 
 	    case CMS_FORCE_REMOTE_CONNECTION_MODE:
-		rtapi_strxcpy(s->proc_type, "REMOTE");
+		nml_strxcpy(s->proc_type, "REMOTE");
 		break;
 	    }
 	    s->procline_found = 1;

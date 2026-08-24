@@ -22,18 +22,10 @@
 #include "libnml/cms/cms.hh"		// class CMS
 #include "libnml/linklist/linklist.hh"		// class LinkedList
 #include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
-#include <rtapi_string.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdlib.h>		// malloc()
 #include <string.h>		// strcpy(), strcmp()
 
-#ifdef __cplusplus
-}
-#endif
 LinkedList *LOCMEM::buffers_list = (LinkedList *) NULL;
 
 LOCMEM::LOCMEM(const char *bufline, const char *procline, int set_to_server,
@@ -66,7 +58,7 @@ LOCMEM::LOCMEM(const char *bufline, const char *procline, int set_to_server,
 	    return;
 	}
 	my_node->size = size;
-	rtapi_strxcpy(my_node->name, BufferName);
+	nml_stracpy(my_node->name, BufferName);
 	memset(my_node->addr, 0, size);
 	buffer_id = buffers_list->store_at_tail(my_node, sizeof(my_node), 0);
 	return;

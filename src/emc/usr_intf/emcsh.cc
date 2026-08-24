@@ -22,7 +22,6 @@
 #include <tcl.h>
 #include <tk.h>
 
-#include <rtapi_string.h>
 #include <linuxcnc.h>
 #include <posemath.h>		// PM_POSE, TO_RAD
 #include "libnml/rcs/rcs.hh"
@@ -692,7 +691,7 @@ static int emc_ini_load(ClientData /*clientdata*/,
 	// call or any internals previously set to change. We only want to be
 	// able to query the new ini-file.
         // Set the global filename
-        rtapi_strxcpy(emc_inifile, fname);
+        nml_strxcpy(emc_inifile, fname);
         // Update Tcl's filename variable
         Tcl_SetVar(interp, "EMC_INIFILE", emc_inifile, TCL_GLOBAL_ONLY);
         Tcl_SetObjResult(interp, Tcl_NewBooleanObj(1));
@@ -1942,10 +1941,10 @@ static int emc_mdi(ClientData /*clientdata*/,
 	return TCL_ERROR;
     }
     // bug-- check for string overflow
-    rtapi_strxcpy(string, Tcl_GetStringFromObj(objv[1], NULL));
+    nml_strxcpy(string, Tcl_GetStringFromObj(objv[1], NULL));
     for (t = 2; t < objc; t++) {
-	rtapi_strxcat(string, " ");
-	rtapi_strxcat(string, Tcl_GetStringFromObj(objv[t], NULL));
+	nml_strxcat(string, " ");
+	nml_strxcat(string, Tcl_GetStringFromObj(objv[t], NULL));
     }
 
     if (0 != sendMdiCmd(string)) {
@@ -2482,7 +2481,7 @@ static int emc_program_codes(ClientData /*clientdata*/,
 	} else {
 	    snprintf(string, sizeof(string), "G%d ", code / 10);
 	}
-	rtapi_strxcat(codes_string, string);
+	nml_strxcat(codes_string, string);
     }
 
     // fill in the active M codes, settings too
@@ -2492,14 +2491,14 @@ static int emc_program_codes(ClientData /*clientdata*/,
 	    continue;
 	}
 	snprintf(string, sizeof(string), "M%d ", code);
-	rtapi_strxcat(codes_string, string);
+	nml_strxcat(codes_string, string);
     }
 
     // fill in F and S codes also
     snprintf(string, sizeof(string), "F%.0f ", emcStatus->task.activeSettings[1]);
-    rtapi_strxcat(codes_string, string);
+    nml_strxcat(codes_string, string);
     snprintf(string, sizeof(string), "S%.0f", fabs(emcStatus->task.activeSettings[2]));
-    rtapi_strxcat(codes_string, string);
+    nml_strxcat(codes_string, string);
 
     setresult(interp,codes_string);
     return TCL_OK;
@@ -3257,7 +3256,7 @@ static int emc_joint_load_comp(ClientData /*clientdata*/,
 	return TCL_ERROR;
     }
     // copy objv[1] to file arg, to make sure it's not modified
-    rtapi_strxcpy(file, Tcl_GetStringFromObj(objv[2], NULL));
+    nml_strxcpy(file, Tcl_GetStringFromObj(objv[2], NULL));
 
     if (0 != Tcl_GetIntFromObj(NULL, objv[3], &type)) {
 	setresult(interp,"emc_joint_load_comp: <type> must be an int");
@@ -3532,10 +3531,10 @@ static int localint(ClientData /*clientdata*/,
 
     if (0 != Tcl_GetDoubleFromObj(NULL, objv[1], &val)) {
 	resstring[0] = 0;
-	rtapi_strxcat(resstring, "expected number but got \"");
+	nml_strxcat(resstring, "expected number but got \"");
 	strncat(resstring, Tcl_GetStringFromObj(objv[1], NULL),
 		sizeof(resstring) - strlen(resstring) - 2);
-	rtapi_strxcat(resstring, "\"");
+	nml_strxcat(resstring, "\"");
 	setresult(interp, resstring);
 	return TCL_ERROR;
     }
@@ -3567,10 +3566,10 @@ static int localround(ClientData /*clientdata*/,
 
     if (0 != Tcl_GetDoubleFromObj(NULL, objv[1], &val)) {
 	resstring[0] = 0;
-	rtapi_strxcat(resstring, "expected number but got \"");
+	nml_strxcat(resstring, "expected number but got \"");
 	strncat(resstring, Tcl_GetStringFromObj(objv[1], NULL),
 		sizeof(resstring) - strlen(resstring) - 2);
-	rtapi_strxcat(resstring, "\"");
+	nml_strxcat(resstring, "\"");
 	setresult(interp,resstring);
 	return TCL_ERROR;
     }
