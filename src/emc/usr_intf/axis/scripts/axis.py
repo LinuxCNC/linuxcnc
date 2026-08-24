@@ -67,6 +67,7 @@ import nf
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
+import subprocess
 import linuxcnc
 from hal_glib import GStat
 from common.iniinfo import _IStat as IStatParent
@@ -141,7 +142,7 @@ GSTAT.connect('ok-request', lambda w, state: dialog_ext_control(w,1,1))
 GSTAT.connect('cancel-request', lambda w, state: dialog_ext_control(w,1,0))
 GSTAT.connect('macro-call-request', lambda w, key, name: request_macro_call(key, name))
 GSTAT.connect('softkey-pressed', lambda w,data: softkey_pressed(data))
-GSTAT.connect('shutdown-request', lambda w : General_Halt())
+GSTAT.connect('shutdown-request', lambda w : request_shutdown())
 GSTAT.connect('reload-display', lambda w : commands.clear_live_plot())
 
 global last_mpg
@@ -1180,7 +1181,6 @@ class AxisCanon(GLCanon, StatMixin):
 
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
-    import subprocess
     outfile = open(outfilename, "w")
     infilename_q = infilename.replace("'", "'\\''")
     env = dict(os.environ)
@@ -4059,12 +4059,11 @@ def load_gladevcp_panel():
             del gladecmd[gladecmd.index('-c')]
         else:
             gladename = 'gladevcp'
-        from subprocess import Popen
         xid = gladevcp_frame.winfo_id()
         cmd = "halcmd loadusr -Wn {0} gladevcp -c {0}".format(gladename).split()
         cmd += ['-d', '-x', str(xid)] + gladecmd
         print(cmd)
-        child = Popen(cmd)
+        child = subprocess.Popen(cmd)
         _dynamic_childs['{}'.format(gladename)] = (child, cmd, True)
 
 notifications = Notification(root_window)
@@ -4194,6 +4193,17 @@ def request_macro_call(name, key):
         except Exception as e:
             print(e)
 
+def request_shutdown():
+        if shutil.which('gnome-session-quit'):
+            time.sleep(.05)
+            subprocess.run(["gnome-session-quit", "--power-off"], check=True)
+        elif shutil.which('xfce4-session-logout'):
+            subprocess.call('xfce4-session-logout', shell=True)
+        else:
+            # force a shutdown - no prompt
+            subprocess.call('systemctl poweroff', shell=True)
+
+
 def run_mdi(data):
     #print(f'run mdi command:{data}')
     mdi_list = data.split(';')
@@ -4244,7 +4254,6 @@ def _dynamic_tab(name, text):
     return tab
 
 def _dynamic_tabs(inifile):
-    from subprocess import Popen
     tab_names = inifile.findall("DISPLAY", "EMBED_TAB_NAME")
     tab_cmd   = inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
     if len(tab_names) != len(tab_cmd):
@@ -4278,7 +4287,7 @@ def _dynamic_tabs(inifile):
             f.pack(fill="both", expand=1)
             xid = f.winfo_id()
             cmd = c.replace('{XID}', str(xid)).split()
-            child = Popen(cmd)
+            child = subprocess.Popen(cmd)
             wait = cmd[:2] == ['halcmd', 'loadusr']
 
             _dynamic_childs[str(w)] = (child, cmd, wait)
