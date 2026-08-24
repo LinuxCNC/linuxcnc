@@ -4,8 +4,24 @@ import time
 import os
 from raster import *
 
+BEATTIMEOUT = 10.0
+
 theta = 0.005
 timeout = 0.25
+
+# RT to non-RT synchronized wait to prevent race condition
+# Especially important in CI where RT is not running realtime
+# The minimum wait should normally be >= 2 because you can catch the threadbeat
+# variable's increment event, which in itself does not run the cycle. When you
+# see an increment by 2, then you can be sure that the cycle ran at least once.
+def waitThreadBeat(n):
+    assert n > 0, "Number of threadbeat wait cycles must be >= 1"
+    beat = hal.get_p('fast.threadbeat')
+    starttime = time.time()
+    while hal.get_p('fast.threadbeat') - beat < n:
+        time.sleep(0.001)
+        if time.time() - starttime > BEATTIMEOUT:
+            raise RuntimeError("waitThreadBeat: Timeout after {} seconds".format(BEATTIMEOUT))
 
 def fleq(a, b):
     return abs(a - b) < theta
@@ -159,7 +175,7 @@ def testProgram(prog, pin, pos, offset, bpp, dpu, program, data):
     prog.start()
     for (pos, pwr) in data:
         pin['position'].value = pos
-        time.sleep(0.001)
+        waitThreadBeat(2)
         assert (pin['output'].value - pwr) < theta, \
             "output at position {0} should be {1}. Got {2}".format(pos, pwr, pin['output'].value)
         #once position is exceeded the program should be finished and raster should reset
