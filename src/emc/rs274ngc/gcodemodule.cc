@@ -890,13 +890,7 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
-void SELECT_KINS_TYPE(int switchkins_type)
-{
-    (void)switchkins_type;
-    printf("gcodemodule: SELECT_KINS_TYPE\n");
-
-    return;
-}
+void SELECT_KINS_TYPE(int /*switchkins_type*/) {}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
