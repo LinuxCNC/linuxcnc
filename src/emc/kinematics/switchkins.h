@@ -52,4 +52,18 @@ extern int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 // dispatch.
 extern int switchkinsRegisterFrames(int ktype, KT kwork, KT ktool,
                                     const PmRotationMatrix *native);
+
+// KinematicsTOOLFRAMEINVERSE function (optional, see kinematics.h)
+typedef int (*KTI)(const PmCartesian *axis_in_work,
+                   const PmCartesian *x_in_work,
+                   const double *seed,
+                   double *solutions,
+                   int max_solutions,
+                   int *free_directions,
+                   double *tool_spin);
+
+// called from switchkinsSetup() only by a type that has a closed form for the
+// tool orientation inverse.  A type that does not gets the generic search,
+// which needs nothing beyond the frames it already registered.
+extern int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv);
 #endif // }

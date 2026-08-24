@@ -44,6 +44,7 @@ static KF kfwds[SWITCHKINS_MAX_TYPES]   = {NULL};
 static KI kinvs[SWITCHKINS_MAX_TYPES]   = {NULL};
 static KT ktools[SWITCHKINS_MAX_TYPES]  = {NULL};
 static KT kworks[SWITCHKINS_MAX_TYPES]  = {NULL};
+static KTI ktinvs[SWITCHKINS_MAX_TYPES] = {NULL};
 static PmRotationMatrix knative[SWITCHKINS_MAX_TYPES];
 
 // types provided, counted in rtapi_app_main() once they are all in
@@ -248,6 +249,38 @@ int kinematicsWorkFrame(const double *joint,
     return kworks[switchkins_type](joint, rot, fflags);
 } // kinematicsWorkFrame()
 
+int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
+                               const PmCartesian *x_in_work,
+                               const double *seed,
+                               double *solutions,
+                               int max_solutions,
+                               int *free_directions,
+                               double *tool_spin)
+{
+    if (   switchkins_type < 0
+        || switchkins_type >= kins_count
+        || !ktools[switchkins_type]
+        || !kworks[switchkins_type]) {
+        return -1; // this type does not report its frames, so it cannot answer
+    }
+
+    // a type that derived the answer by hand knows its own degenerate poses
+    // and is faster than a search, so it wins where it exists
+    if (ktinvs[switchkins_type]) {
+        return ktinvs[switchkins_type](axis_in_work, x_in_work, seed,
+                                       solutions, max_solutions,
+                                       free_directions, tool_spin);
+    }
+
+    // the dispatch itself is what the search calls, so the native rotation
+    // and the per-type lookup are already accounted for
+    return toolFrameSolve(kinematicsWorkFrame, kinematicsToolFrame,
+                          kp.max_joints,
+                          axis_in_work, x_in_work, seed,
+                          solutions, max_solutions, free_directions,
+                          tool_spin);
+} // kinematicsToolFrameInverse()
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
@@ -302,6 +335,20 @@ int switchkinsRegisterFrames(int ktype, KT kwork, KT ktool,
     return 0;
 } // switchkinsRegisterFrames()
 
+int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterToolFrameInverse: BAD"
+                        " switchkins_type <%d> (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    ktinvs[ktype] = kinv;
+    return 0;
+} // switchkinsRegisterToolFrameInverse()
+
 //*********************************************************************
 static char *coordinates;
 RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
@@ -315,8 +362,10 @@ EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
+EXPORT_SYMBOL(kinematicsToolFrameInverse);
 EXPORT_SYMBOL(switchkinsRegister);
 EXPORT_SYMBOL(switchkinsRegisterFrames);
+EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
 MODULE_LICENSE("GPL");
 
 static int    comp_id;
