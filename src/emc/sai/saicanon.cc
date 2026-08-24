@@ -1199,8 +1199,5 @@ void UPDATE_TAG(const StateTag& /*tag*/){
 
 void SELECT_KINS_TYPE(int switchkins_type)
 {
-    (void)switchkins_type;
-    printf("saicanon: SELECT_KINS_TYPE\n");
-
-    return;
+    ECHO_WITH_ARGS("%d", switchkins_type);
 }
