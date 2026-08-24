@@ -60,11 +60,11 @@ net no-inverter classicladder.0.out-23 inverterfail.trigger
 
 When any pin goes active, the corresponding message will be displayed.""";
  
-pin in bit trigger =FALSE "signal that triggers the message";
-pin in bit force =FALSE """A FALSE->TRUE transition forces the message to be
+pin in bool trigger =FALSE "signal that triggers the message";
+pin in bool force =FALSE """A FALSE->TRUE transition forces the message to be
 displayed again if the trigger is active""";
  
-param rw bit edge =TRUE """Selects the desired edge: FALSE means falling, TRUE
+param rw bool edge =TRUE """Selects the desired edge: FALSE means falling, TRUE
 means rising""";
 
 modparam dummy messages """The messages to display. These should be listed,
@@ -75,9 +75,9 @@ ignored. If there are fewer messages than "count" or "names" then an error will
 be raised and the component will not load.""";
  
 variable int myidx;
-variable hal_bit_t prev_trigger = FALSE;
-variable hal_bit_t prev_force = TRUE;
-variable hal_bit_t prev_edge = TRUE;
+variable rtapi_bool prev_trigger = FALSE;
+variable rtapi_bool prev_force = TRUE;
+variable rtapi_bool prev_edge = TRUE;
  
 option extra_setup yes;
  
@@ -91,7 +91,7 @@ char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 RTAPI_MP_ARRAY_STRING(messages, 16, "Displayed strings");
  
 FUNCTION(_){
-    hal_bit_t show = false;    
+    rtapi_bool show = false;
     if(!!prev_edge != !!edge) /* edge type has changed */
     {
         prev_edge = edge;
