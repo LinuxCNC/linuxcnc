@@ -21,6 +21,29 @@ from math import sin,cos,tan,asin,acos,atan,atan2,sqrt,pi,degrees,radians,fabs
 import hal
 
 
+# asin() and acos() take a value that the trigonometry guarantees is within
+# [-1, 1] and that floating point does not.  The tool vector reaching here is
+# a column of a product of rotation matrices, so it is a unit vector only to
+# within rounding, and one ulp of slack in it is enough to put the argument
+# outside the domain.  A nutation angle of 90 degrees makes that certain
+# rather than unlucky: Cv is zero, so t vanishes, and the ratio below reduces
+# to Kzy/Ss with nothing left to absorb the slop.
+#
+# Anything within a rounding error of the limit is pulled back to it.  Beyond
+# that the request really is out of range and is left to raise, because that
+# is a machine that cannot reach the orientation and not an arithmetic
+# artefact.
+UNIT_EPSILON = 1e-9
+
+def clamp_unit(value):
+    if -1.0 - UNIT_EPSILON <= value <= -1.0:
+        return -1.0
+    if 1.0 <= value <= 1.0 + UNIT_EPSILON:
+        return 1.0
+    return value
+
+
+
 # set up parsing of the inifile
 import os
 import linuxcnc
@@ -138,7 +161,7 @@ def kins_calc_primary(log, z_vector_req, x_vector_req, theta_2_list=[]):
             Cs  = cos(theta_2)
             t = Sv*Cv*(1-Cs)
             p = Sv * Ss
-            theta_1 = asin((p*Kzy - t*Kzx)/(t*t + p*p))
+            theta_1 = asin(clamp_unit((p*Kzy - t*Kzx)/(t*t + p*p)))
             # since we are using asin() we really have two solutions theta_1 and pi-theta_2
             for theta in [theta_1, transform_to_pipi(pi - theta_1)]:
                 log.debug(f'    Checking possible primary angle {degrees(theta):.4f}° for limit violations.')
@@ -168,7 +191,7 @@ def kins_calc_secondary(log, z_vector_req, x_vector_req):
         log.error('remap_funcs: Requested orientation not reachable with the current nutation angle.')
         return None
     else:
-        theta_2 = acos((Kzz - Cv*Cv)/(1 - Cv*Cv))
+        theta_2 = acos(clamp_unit((Kzz - Cv*Cv)/(1 - Cv*Cv)))
     for theta in [theta_2, -theta_2]:
         log.debug(f'    Checking possible secondary angle {degrees(theta):.4f}° for limit violations.')
         if degrees(theta) > secondary_min_limit and degrees(theta) < secondary_max_limit:
@@ -182,12 +205,17 @@ def kins_calc_possible_joint_angles(log, z_vector_req, x_vector_req):
         theta_2_calcd = kins_calc_secondary(log, z_vector_req, x_vector_req)
     except Exception as error:
         log.error('kins_calc_jnt_angles, kins_calc_secondary, %s', error)
+        # an orientation this machine cannot reach is 'no solution', which the
+        # caller already handles.  Falling through would raise a second and
+        # less informative error over the top of this one.
+        return (None, None)
     if theta_2_calcd == None:
         return (None, None)
     try:
         theta_1_calcd = kins_calc_primary(log, z_vector_req, x_vector_req, theta_2_calcd)
     except Exception as error:
         log.error('kins_calc_jnt_angles, kins_calc_primary, %s', error)
+        return (None, None)
     return (theta_1_calcd, theta_2_calcd) # returns radians
 
 
