@@ -239,6 +239,82 @@ extern int toolFrameInWork(const PmRotationMatrix *work,
    actually hold.  Used to check a declared rotation once, at load. */
 extern int toolFrameIsProper(const PmRotationMatrix *m);
 
+/* The inverse of kinematicsToolFrame(): which joint values point the tool
+   along a requested direction.  This is the question a tilted work plane asks
+   when it has to orient the machine, and the one vector format G-code asks
+   for every block.
+
+   axis_in_work is the wanted tool axis and x_in_work the wanted tool x, both
+   in workpiece coordinates, both in the sense of transpose(work) * tool.
+   x_in_work may be NULL, which leaves the spin about the tool free.  Where it
+   is given, the two have to be at right angles, being two axes of one frame.
+
+   Asking for tool x does not require a joint that can reach it.  A five axis
+   machine spends both rotaries on the tool axis, and the turn about that axis
+   is not a joint at all: it is the virtual rotation, the pre-rot pin on the
+   in-tree components.  So where the joints can place tool x, on a machine with
+   a third orientation joint, they do and tool_spin comes back zero; where they
+   cannot, the joints reach the axis and tool_spin carries the turn about it
+   that finishes the job, in radians, in the sense of the virtual rotation.
+   Either way the caller writes one path, and which kind of machine it has is a
+   number that happens to be zero rather than a branch.  tool_spin may be NULL,
+   but then a request for tool x that the joints cannot reach has nowhere to
+   put its answer and reports no solutions.
+
+   seed is a full set of joint values, normally where the machine is now.  The
+   joints that do not affect the tool orientation are copied from it, and it
+   breaks the tie where a machine has more orientation joints than the request
+   constrains.
+
+   solutions receives max_solutions complete sets of joint values, one after
+   another, each num_joints long.  free_directions, if not NULL, receives one
+   entry per solution: 0 where the joints are pinned down, and n where the
+   solution is one point of an n dimensional family, which happens at a
+   singular pose and on a machine with a spare orientation joint.  In that case
+   one representative is reported, the one nearest the seed, because the answer
+   is a continuum and a list of samples from it would be arbitrary.
+
+   Joint limits are not applied and no solution is preferred over another: the
+   module answers what the geometry permits, and the caller picks by whatever
+   rule it works to, shortest move or positive rotation only or whatever else.
+
+   Returns the number of solutions, 0 if the orientation cannot be reached, or
+   -1 if the module cannot answer.
+
+   This is not a realtime routine.  It searches, and how long it takes depends
+   on the machine and the request. */
+#define TOOL_FRAME_MAX_SOLUTIONS 8
+#define TOOL_FRAME_MAX_FREE      4
+
+extern int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
+                                      const PmCartesian *x_in_work,
+                                      const double *seed,
+                                      double *solutions,
+                                      int max_solutions,
+                                      int *free_directions,
+                                      double *tool_spin);
+
+/* The generic implementation of the above, driven by a module's own frame
+   functions, so that a module gets it for free once it supplies them.  A
+   module with a closed form registers that instead: it is faster, and it
+   knows its own degenerate poses without having to find them.
+
+   num_joints is the length of seed and of each row of solutions. */
+typedef int (*kinsFrameFunc)(const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int toolFrameSolve(kinsFrameFunc work,
+                          kinsFrameFunc tool,
+                          int num_joints,
+                          const PmCartesian *axis_in_work,
+                          const PmCartesian *x_in_work,
+                          const double *seed,
+                          double *solutions,
+                          int max_solutions,
+                          int *free_directions,
+                          double *tool_spin);
+
 extern int kinematicsSwitchable(void);
 extern int kinematicsSwitch(int switchkins_type);
 //NOTE: switchable kinematics may require Interp::Synch

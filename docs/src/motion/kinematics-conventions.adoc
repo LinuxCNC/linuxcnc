@@ -264,6 +264,11 @@ are tilted work plane handling, tool length compensation along a tilted axis,
 previews and simulation models, and probing routines that have to say which way
 the stylus faces.
 
+The joint values that reach a requested orientation, through
+`kinematicsToolFrameInverse()`, which is the inverse of the pair above and the
+question a tilted work plane asks when it has to orient the machine.
+<<sec:orientation-inverse,The Orientation Inverse>> says what it answers.
+
 The Jacobian, relating commanded velocity to joint velocity at a given pose, so
 that a feed can be checked against the joint velocity, acceleration and limit
 values it will actually demand, and so that proximity to a singularity is a
@@ -275,6 +280,76 @@ All of these are functions of the joint values and the module's own geometry.
 None needs state carried between calls, and none needs the module to be running
 in a realtime thread to be useful: the interesting callers, a limit check
 before a move and a preview before a program runs, are not in the servo loop.
+
+[[sec:orientation-inverse]]
+== The Orientation Inverse
+
+Pointing the tool somewhere is the question a tilted work plane asks on every
+orienting move, and the question a program written as tool vectors asks on
+every block. It is the inverse of the tool frame: not where the tool points
+for these joints, but which joints point it there.
+
+It has more than one answer. A five-axis machine reaches a given tool axis two
+ways, one with the secondary rotary positive and one with it negative, and
+which of the two is wanted depends on the joint limits and on what the operator
+asked for, shortest move or one direction of rotation only. So the module
+reports every set of joint values that reaches the orientation and stops there.
+It does not apply the joint limits and it does not rank the answers, because
+neither is geometry: a module that picked for the caller would be picking with
+less to go on than the caller has.
+
+The request is a tool axis, and optionally a tool x as well. The two have to be
+at right angles, being two axes of one frame.
+
+Asking for tool x does not require a joint that can reach it. A five-axis
+machine spends both rotaries on the tool axis, and the turn about that axis is
+not a joint at all: it is the virtual rotation of <<sec:tool-frame,The Tool
+Frame>>. So the answer comes back in two parts. Where the joints can place tool
+x, on a machine with a third orientation joint, they do, and the reported turn
+is zero. Where they cannot, the joints reach the axis and the reported turn
+finishes the job. The caller writes one path either way, and which kind of
+machine it has is a number that happens to be zero rather than a branch.
+
+This is what the controls do. A Heidenhain `PLANE VECTOR` block carries the
+normal and the base vector together, the normal reached by the rotaries and the
+base vector applied as a rotation of the coordinate system; `SEQ` then picks
+between the rotary solutions. A Fanuc `G68.2` defines the plane including where
+its X points, and `G53.1` moves the rotaries to align the tool axis. Siemens
+draws the same line from the other side: the turn of the tool about itself is
+`THETA`, and it exists only where a third rotary axis does. None of them
+refuses a program for naming both directions on a five-axis machine, and
+neither should this.
+
+Some requests still do not pin the machine down. A five-axis machine asked to
+point the tool along the axis its primary rotary turns about can hold any
+primary angle; a machine with three orientation joints asked only for a tool
+axis has a whole curve of solutions. In both cases the answer is a continuum,
+so one point of it is reported, the one nearest where the machine already is,
+along with the number of directions left free. A caller that hands back a list
+of samples from a curve as though they were alternatives is telling the
+operator something false.
+
+=== What a module has to supply
+
+Nothing, if it already reports its frames. The shared code answers the question
+by searching: it finds which joints move `transpose(work) * tool`, and solves
+for them. That is the whole reason the frames are worth reporting. A module
+that supplies them gets the inverse without deriving anything.
+
+A module with a closed form registers it and that is used instead. It is faster
+than a search and it knows its own degenerate poses without having to discover
+them. The nutating heads are the case in point: for those,
+
+  cos(secondary) = (Kzz - Cv^2) / (1 - Cv^2)
+
+with `Cv = cos(v)` for a nutation angle `v` and `Kzz` the z component of the
+requested tool axis, and the primary follows from the other two components.
+Both roots of the arc cosine are solutions, which is where the pair of answers
+comes from.
+
+The search is not a realtime routine. How long it takes depends on the machine
+and on the request, and the callers that want it, orienting a tilted work plane
+and previewing a program, are not in the servo loop.
 
 [[sec:writing-a-module]]
 == Writing a Module
@@ -299,6 +374,11 @@ Tool X::
   The default virtual rotation puts tool X parallel to the machine XY plane.
   Derive the value from the module's own rotation matrices, and write those
   matrices down in the module.
+
+Orientation inverse::
+  A module that reports its frames gets it from the shared search and needs to
+  do nothing. Register a closed form only where one exists, and where it does,
+  say which poses it treats as degenerate.
 
 Geometry stays in the module::
   Whatever a consumer needs to know about the machine's shape is answered by
