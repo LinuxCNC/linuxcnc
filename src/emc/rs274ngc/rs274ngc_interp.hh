@@ -477,7 +477,8 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int gen_settings(
      int *int_current, int *int_saved,
      double *float_current, double *float_saved,
-     std::string &cmd);
+     std::string &cmd,
+     bool include_spindle_speed);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
     int gen_restore_cmd(int *current_g,
 			int *current_m,

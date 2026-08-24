@@ -3452,7 +3452,8 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 int Interp::gen_settings(
     int *int_current, int *int_saved,            // G-codes
     double * /*float_current*/, double *float_saved,  // S, F, other
-    std::string &cmd)                            // command buffer
+    std::string &cmd,                            // command buffer
+    bool include_spindle_speed)
 {
     FORCE_LC_NUMERIC_C;
     int i, val;
@@ -3473,8 +3474,11 @@ int Interp::gen_settings(
                 cmd += buf;
 		break;
 	    case GM_FIELD_FLOAT_SPEED:
-		snprintf(buf,sizeof(buf)," S%.0f", float_saved[i]);
-                cmd += buf;
+		// No S word on abort restore: the spindle was just stopped
+		if (include_spindle_speed) {
+		    snprintf(buf,sizeof(buf)," S%.0f", float_saved[i]);
+		    cmd += buf;
+		}
 		break;
 	    case GM_FIELD_FLOAT_PATH_TOLERANCE:
 	    case GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE:
@@ -3663,13 +3667,13 @@ int Interp::gen_restore_cmd(int *current_g,
 	     cmd.c_str());
     }
 
+    // M codes and spindle speed should not be restored during an abort
     if ((res = gen_settings(
-	     current_g, saved_g, current_settings, saved_settings, cmd))) {
+	     current_g, saved_g, current_settings, saved_settings, cmd, false))) {
 	logStateTags("gen_restore_cmd():  error restoring settings (%d)",
 		     res);
         return INTERP_ERROR;
     }
-    // M codes should not be restored during an abort with gen_m_codes()
 
     return INTERP_OK;
 }
@@ -3737,7 +3741,7 @@ int Interp::restore_settings(setup_pointer settings,
 	(int *)settings->sub_context[from_level].saved_g_codes,
 	(double *)settings->active_settings,
 	(double *)settings->sub_context[from_level].saved_settings,
-	cmd);
+	cmd, true);
     gen_m_codes(
 	(int *) settings->active_m_codes,
 	(int *)settings->sub_context[from_level].saved_m_codes,
