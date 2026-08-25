@@ -4517,14 +4517,6 @@ static bool hal_port_compute_copy(unsigned read,
 }
 
 
-// hal_port_alloc() is DEPRECATED
-// Access to port allocation is done by hal_set_s() on the signal that has the
-// port pins connected.
-int hal_port_alloc(unsigned size, hal_port_t *port)
-{
-    return halpr_port_alloc(size, port);
-}
-
 int halpr_port_alloc(unsigned size, hal_port_t *port) {
     if(!port || size < 1 || size > HAL_PORT_SIZE_MAX)
         return -EINVAL;
@@ -5245,25 +5237,9 @@ EXPORT_SYMBOL(hal_del_funct_from_thread);
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
 
-EXPORT_SYMBOL(hal_shmem_base);
-EXPORT_SYMBOL(halpr_find_comp_by_name);
-EXPORT_SYMBOL(halpr_find_pin_by_name);
-EXPORT_SYMBOL(halpr_find_sig_by_name);
-EXPORT_SYMBOL(halpr_find_param_by_name);
-EXPORT_SYMBOL(halpr_find_thread_by_name);
-EXPORT_SYMBOL(halpr_find_funct_by_name);
-EXPORT_SYMBOL(halpr_find_comp_by_id);
-
-EXPORT_SYMBOL(halpr_find_pin_by_owner);
-EXPORT_SYMBOL(halpr_find_param_by_owner);
-EXPORT_SYMBOL(halpr_find_funct_by_owner);
-
-EXPORT_SYMBOL(halpr_find_pin_by_sig);
-
 EXPORT_SYMBOL(hal_pin_alias);
 EXPORT_SYMBOL(hal_param_alias);
 
-EXPORT_SYMBOL(hal_port_alloc);
 EXPORT_SYMBOL(hal_port_read);
 EXPORT_SYMBOL(hal_port_peek);
 EXPORT_SYMBOL(hal_port_peek_commit);
