@@ -241,15 +241,15 @@ jobs:
       run: scripts/manpage-name-check.py --enforce docs/build/man
     - name: Check for derived-id section references
       run: scripts/docs-anchor-check.py --enforce
-    - name: Verify no untracked or modified files after build
-      run: |
-        #*.po and documentation.pot are modifyed by build. Ignore them for now.
-        .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: HTML checks
       run: |
         set -x
-        #-w sets warn only, remove to generate a CI failure on error
-        scripts/htmlcheck.sh -w
+        #-w sets warn only, change to scripts/htmlcheck.sh -w if to many errors occur
+        scripts/htmlcheck.sh
+    - name: Verify no untracked or modified files after build
+      run: |
+        #*.po and documentation.pot are modified by build. Ignore them for now.
+        .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: Tar linuxcnc-doc
       run: |
         set -x
@@ -410,7 +410,7 @@ jobs:
         .github/scripts/build-package-indep.sh
     - name: Verify no untracked or modified files after build
       run: |
-        #*.po and documentation.pot are modifyed by build. Ignore them for now.
+        #*.po and documentation.pot are modified by build. Ignore them for now.
         .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog' ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: Install debian packages
       run: |
