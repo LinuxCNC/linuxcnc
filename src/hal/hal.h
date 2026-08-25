@@ -373,6 +373,7 @@ typedef enum {
 typedef hal_pdir_t hal_pin_dir_t;
 typedef hal_pdir_t hal_param_dir_t;
 
+#define __HAL_DEPRECATED(msg)  __attribute__((deprecated(msg)))
 #define __HAL_ALWAYS_INLINE __attribute__((always_inline))
 
 //
@@ -400,20 +401,22 @@ static inline __HAL_ALWAYS_INLINE bool hal_pdir_is_neither(hal_pdir_t v) {
 // compiler.
 // ==> Remove when we get rid of old hal_*_t typedefs. <==
 typedef rtapi_real real_t;
-typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
+typedef rtapi_u64 ireal_t __attribute__((aligned(8))) __attribute__((deprecated)); // integral type as wide as real_t / hal_float_t
 
-typedef volatile bool hal_bit_t;
-typedef volatile rtapi_u32 hal_u32_t;
-typedef volatile rtapi_s32 hal_s32_t;
-typedef volatile rtapi_u64 hal_u64_t;
-typedef volatile rtapi_s64 hal_s64_t;
-typedef volatile real_t hal_float_t;
+typedef volatile bool hal_bit_t __HAL_DEPRECATED("Use getter/setter API");
+typedef volatile rtapi_u32 hal_u32_t __HAL_DEPRECATED("Use getter/setter API");
+typedef volatile rtapi_s32 hal_s32_t __HAL_DEPRECATED("Use getter/setter API");
+typedef volatile rtapi_u64 hal_u64_t __HAL_DEPRECATED("Use getter/setter API");
+typedef volatile rtapi_s64 hal_s64_t __HAL_DEPRECATED("Use getter/setter API");
+typedef volatile rtapi_real hal_float_t __HAL_DEPRECATED("Use getter/setter API");
 typedef volatile int hal_port_t;
        
 /** HAL "data union" structure
  ** This structure may hold any type of hal data
 */
 typedef union {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     hal_bit_t b;
     hal_s32_t s;
     hal_u32_t u;
@@ -421,7 +424,8 @@ typedef union {
     hal_port_t p;
     hal_s64_t ls;
     hal_u64_t lu;
-} hal_data_u;
+#pragma GCC diagnostic pop
+} hal_data_u __HAL_DEPRECATED("Use getter/setter API");
 
 // Fake forward declarations so we can make opaque pointers
 struct __hal_stype_bool_t;
@@ -659,18 +663,20 @@ extern unsigned char hal_get_lock(void);
     If successful, the hal_pin_xxx_new() functions return 0.
     On failure they return a negative error code.
 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 extern int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id);
+    hal_bit_t ** data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_bool()");
 extern int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id);
+    hal_float_t ** data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_real()");
 extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id);
+    hal_u32_t ** data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_ui32()");
 extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id);
+    hal_s32_t ** data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_si32()");
 extern int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id);
+    hal_u64_t ** data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_uint()");
 extern int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id);
+    hal_s64_t ** data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_sint()");
 extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
     hal_port_t ** data_ptr_addr, int comp_id);
 
@@ -683,25 +689,26 @@ extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
 */
 extern int hal_pin_bit_newf(hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_pin_new_bool()");
 extern int hal_pin_float_newf(hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_pin_new_real()");
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_pin_new_ui32()");
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_pin_new_si32()");
 extern int hal_pin_u64_newf(hal_pin_dir_t dir,
     hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_pin_new_uint()");
 extern int hal_pin_s64_newf(hal_pin_dir_t dir,
     hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_pin_new_sint()");
 extern int hal_pin_port_newf(hal_pin_dir_t dir,
     hal_port_t** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
+#pragma GCC diagnostic pop
 
 
 /** 'hal_pin_new()' creates a new 'pin' object.  It is a generic
@@ -720,7 +727,7 @@ extern int hal_pin_port_newf(hal_pin_dir_t dir,
     it returns a negative error code.
 */
 extern int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
-    void **data_ptr_addr, int comp_id);
+    void **data_ptr_addr, int comp_id) __HAL_DEPRECATED("Use hal_pin_new_XXXX()");
 
 /** There is no 'hal_pin_delete()' function.  Once a component has
     created a pin, that pin remains as long as the component exists.
@@ -823,38 +830,41 @@ extern int hal_unlink(const char *pin_name);
     If successful, the hal_param_xxx_new() functions return 0.
     On failure they return a negative error code.
 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 extern int hal_param_bit_new(const char *name, hal_param_dir_t dir,
-    hal_bit_t * data_addr, int comp_id);
+    hal_bit_t * data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_bool()");
 extern int hal_param_float_new(const char *name, hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id);
+    hal_float_t * data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_real()");
 extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id);
+    hal_u32_t * data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_ui32()");
 extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id);
+    hal_s32_t * data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_si32()");
 extern int hal_param_u64_new(const char *name, hal_param_dir_t dir,
-    hal_u64_t * data_addr, int comp_id);
+    hal_u64_t * data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_uint()");
 extern int hal_param_s64_new(const char *name, hal_param_dir_t dir,
-    hal_s64_t * data_addr, int comp_id);
+    hal_s64_t * data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_sint()");
 
 /** printf_style-style versions of hal_param_XXX_new */
 extern int hal_param_bit_newf(hal_param_dir_t dir, 
     hal_bit_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_param_new_bool()");
 extern int hal_param_float_newf(hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_param_new_real()");
 extern int hal_param_u32_newf(hal_param_dir_t dir,
     hal_u32_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_param_new_ui32()");
 extern int hal_param_s32_newf(hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_param_new_si32()");
 extern int hal_param_u64_newf(hal_param_dir_t dir,
     hal_u64_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_param_new_uint()");
 extern int hal_param_s64_newf(hal_param_dir_t dir,
     hal_s64_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+	__attribute__((format(printf,4,5))) __HAL_DEPRECATED("Use hal_param_new_sint()");
+#pragma GCC diagnostic pop
 
 
 /** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
@@ -877,7 +887,7 @@ extern int hal_param_s64_newf(hal_param_dir_t dir,
     it returns a negative error code.
 */
 extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
-    void *data_addr, int comp_id);
+    void *data_addr, int comp_id) __HAL_DEPRECATED("Use hal_param_new_XXXX()");
 
 /** There is no 'hal_param_delete()' function.  Once a component has
     created a parameter, that parameter remains as long as the
@@ -893,12 +903,12 @@ extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
     On success, the hal_param_xxx_set() functions return 0,
     and on failure they return a negative error code.
 */
-extern int hal_param_bit_set(const char *name, int value);
-extern int hal_param_float_set(const char *name, double value);
-extern int hal_param_u32_set(const char *name, unsigned long value);
-extern int hal_param_s32_set(const char *name, signed long value);
-extern int hal_param_u64_set(const char *name, unsigned long value);
-extern int hal_param_s64_set(const char *name, signed long value);
+int hal_param_bit_set(const char *name, int value) __HAL_DEPRECATED("Use hal_set_p()");
+int hal_param_float_set(const char *name, double value) __HAL_DEPRECATED("Use hal_set_p()");
+int hal_param_u32_set(const char *name, unsigned long value) __HAL_DEPRECATED("Use hal_set_p()");
+int hal_param_s32_set(const char *name, signed long value) __HAL_DEPRECATED("Use hal_set_p()");
+int hal_param_u64_set(const char *name, unsigned long value) __HAL_DEPRECATED("Use hal_set_p()");
+int hal_param_s64_set(const char *name, signed long value) __HAL_DEPRECATED("Use hal_set_p()");
 
 /** 'hal_param_alias()' assigns an alternate name, aka an alias, to
     a parameter.  Once assigned, the parameter can be referred to by
@@ -922,7 +932,7 @@ extern int hal_param_alias(const char *pin_name, const char *alias);
     If successful, hal_param_set() returns 0.  On failure
     it returns a negative error code.
 */
-extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
+int hal_param_set(const char *name, hal_type_t type, void *value_addr) __HAL_DEPRECATED("Use hal_set_p()");
 
 /***********************************************************************
 *                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
@@ -936,8 +946,12 @@ extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
  * value will be true if a signal is connected.
  */
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 extern int hal_get_pin_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data, bool *connected);
+    const char *name, hal_type_t *type, hal_data_u **data, bool *connected) __HAL_DEPRECATED("Use hal_get_p()");
 
 /** 'hal_get_signal_value_by_name()' returns the value of any arbitrary HAL
  * signal by signal name.
@@ -948,7 +962,7 @@ extern int hal_get_pin_value_by_name(
  */
 
 extern int hal_get_signal_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data, bool *has_writers);
+    const char *name, hal_type_t *type, hal_data_u **data, bool *has_writers) __HAL_DEPRECATED("Use hal_get_s()");
 
 /** 'hal_get_param_value_by_name()' returns the value of any arbitrary HAL
  * parameter by parameter name.
@@ -958,7 +972,8 @@ extern int hal_get_signal_value_by_name(
  */
 
 extern int hal_get_param_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data);
+    const char *name, hal_type_t *type, hal_data_u **data) __HAL_DEPRECATED("Use hal_get_p()");
+#pragma GCC diagnostic pop
 
 
 /***********************************************************************
