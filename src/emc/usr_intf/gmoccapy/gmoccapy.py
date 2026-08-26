@@ -517,6 +517,7 @@ class gmoccapy(object):
         self.progress = 0
 
         self._startup_message()
+        self._tooltable_message()
 
         # This allows sourcing an user defined file
         rcfile = "~/.gmoccapyrc"
@@ -573,6 +574,11 @@ class gmoccapy(object):
             self.notification.add_message(message, INFO_ICON, show_checkbox=True)
             self.num = len(messages)
 
+    def _tooltable_message(self):
+        if self.widgets.tooledit1.tooltable_error_msg  is not None:
+            title = _("<b>Error in tool table</b>\n")
+            for msg in self.widgets.tooledit1.tooltable_error_msg:
+                self.notification.add_message(title + msg, ALERT_ICON, show_checkbox=False)
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
