@@ -203,9 +203,51 @@ except TclError:
     raise
 
 def General_Halt():
+    # Create a non-modal (modeless) dialog window
+    dialog = Tkinter.Toplevel(root_window)
+    # 2. Keep it always on top
+    dialog.attributes("-topmost", True)
+
+    dialog.title(_("Confirm Close"))
+    parent = root_window
+    # Force Tkinter to calculate window sizes before rendering
+    #dialog.update_idletasks()
+
+    # Calculate centering coordinates relative to root window
+    root_w = parent.winfo_width()
+    root_h = parent.winfo_height()
+    root_x = parent.winfo_x()
+    root_y = parent.winfo_y()
+   
+    win_w = dialog.winfo_width()
+    win_h = dialog.winfo_height()
+   
+    # Center formula: root position + (half of root size) - (half of child size)
+    x = root_x + (root_w // 2) - (win_w // 2)
+    y = root_y + (root_h // 2) - (win_h // 2)
+   
+    # Apply the calculated geometry
+    dialog.geometry(f"+{x}+{y}")
+    # Add message label
     text = _("Do you really want to close LinuxCNC?")
-    if not root_window.tk.call("nf_dialog", ".error", _("Confirm Close"), text, "warning", 1, _("Yes"), _("No")):
+    label = Tkinter.Label(dialog, text=text)
+    label.pack(padx=20, pady=20)
+    
+    # Yes button destroys the main window
+    def on_yes():
+        dialog.destroy()
         root_window.destroy()
+        
+    # No button just closes the dialog box
+    def on_no():
+        dialog.destroy()
+        
+    # Add buttons
+    btn_yes = Tkinter.Button(dialog, text=_("Yes"), width=10, command=on_yes)
+    btn_yes.pack(side=Tkinter.LEFT, padx=20, pady=10)
+    
+    btn_no = Tkinter.Button(dialog, text=_("No"), width=10, command=on_no)
+    btn_no.pack(side=Tkinter.RIGHT, padx=20, pady=10)
 
 root_window.protocol("WM_DELETE_WINDOW", General_Halt)
 
@@ -4145,6 +4187,20 @@ def pause_request(state):
     commands.task_pauseresume(None)
 
 def dialog_ext_control(widget,t,state):
+
+    def process(widget,state):
+        txt = widget.cget("text")
+        #print(txt)
+        if txt.lower() in ('ok','yes') and state:
+            #print('Ok')
+            widget.invoke()
+            return True
+        elif txt.lower() in('no','cancel') and not state:
+            #print('Cancel')
+            widget.invoke()
+            return True
+        return False
+
     flag = False
     for child in root_window.winfo_children():
         #print(child)
@@ -4158,18 +4214,14 @@ def dialog_ext_control(widget,t,state):
                         for child3 in child2.winfo_children():
                             #print(child3)
                             if isinstance(child3, Tkinter.Button):
-                                #print(dir(child3))
-                                txt = child3.cget("text")
-                                if txt.lower() == 'ok' and state:
-                                    #print('Ok')
-                                    child3.invoke()
+                                if process(child3,state):
                                     flag = True
                                     break
-                                elif txt.lower() == 'cancel' and not state:
-                                    #print('Cancel')
-                                    child3.invoke()
-                                    flag = True
-                                    break
+                    if isinstance(child2, Tkinter.Button):
+                        if process(child2,state):
+                            flag = True
+                            break
+
                     if flag: break
             if flag: break
     else:
@@ -4194,14 +4246,14 @@ def request_macro_call(name, key):
             print(e)
 
 def request_shutdown():
-        if shutil.which('gnome-session-quit'):
-            time.sleep(.05)
-            subprocess.run(["gnome-session-quit", "--power-off"], check=True)
-        elif shutil.which('xfce4-session-logout'):
-            subprocess.call('xfce4-session-logout', shell=True)
-        else:
-            # force a shutdown - no prompt
-            subprocess.call('systemctl poweroff', shell=True)
+    if shutil.which('gnome-session-quit'):
+        time.sleep(.05)
+        subprocess.run(["gnome-session-quit", "--power-off"], check=True)
+    elif shutil.which('xfce4-session-logout'):
+        subprocess.call('xfce4-session-logout', shell=True)
+    else:
+        # force a shutdown - no prompt
+        subprocess.call('systemctl poweroff', shell=True)
 
 
 def run_mdi(data):
