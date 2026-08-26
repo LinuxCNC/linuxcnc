@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-19 01:51+0000\n"
+"PO-Revision-Date: 2026-08-26 22:07+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -49822,7 +49822,8 @@ msgstr "<<gcode:g43,G43>>"
 #: src/gcode/g-code.adoc:87
 #, no-wrap
 msgid "Use Tool Length Offset from Tool Table"
-msgstr "Usar offsets de longitud de herramienta de la tabla de herramientas"
+msgstr ""
+"Usar compensación de longitud de herramienta de la tabla de herramientas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:87
@@ -49834,7 +49835,7 @@ msgstr "<<gcode:g43.1,G43.1>>"
 #: src/gcode/g-code.adoc:88 html/gcode.html:100
 #, no-wrap
 msgid "Dynamic Tool Length Offset"
-msgstr "Offset de longitud de herramienta dinámico"
+msgstr "Compensación dinámica de longitud de herramienta"
 
 #. type: Table
 #: src/gcode/g-code.adoc:88
@@ -50244,7 +50245,6 @@ msgstr "Velocidad rápida"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:142
-#, fuzzy
 msgid ""
 "The MAX_VELOCITY setting in the INI file [TRAJ] section defines the "
 "maximumrapid traverse rate. The maximum rapid traverse rate can be higher "
@@ -50253,22 +50253,22 @@ msgid ""
 "the [TRAJ] section if an axis MAX_VELOCITY or trajectory constraints limit "
 "it."
 msgstr ""
-"La configuración MAX_VELOCITY en la sección del archivo ini [TRAJ] define la "
-"máxima velocidad de offset rápido. La velocidad máxima de offset rápido "
-"puede ser mayor que la configuración de MAX_VELOCITY de ejes individuales "
-"durante un movimiento coordinado. La maxima velocidad de offset rápido puede "
-"ser más lenta que la configuración MAX_VELOCITY en [TRAJ] si MAX_VELOCITY de "
-"un eje o restricciones de trayectoria la limitan."
+"La configuración MAX_VELOCITY en la sección [TRAJ] del archivo INI define la "
+"velocidad máxima de cruce rápido, que puede ser mayor que la configuración "
+"de MAX_VELOCITY de ejes individuales durante un movimiento coordinado. La "
+"velocidad máxima de cruce rápido puede ser más lenta que la configuración "
+"MAX_VELOCITY en la sección [TRAJ] si la limitan MAX_VELOCITY de un eje o "
+"restricciones de trayectoria."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:143 src/gcode/g-code.adoc:2193
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G0 Example"
 msgstr "Ejemplo G0"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:149
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute distance mode)\n"
 "G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)\n"
@@ -50280,18 +50280,16 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:153
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<mcode:m2-m30,M2>> sections for more "
 "information."
 msgstr ""
-"Consulte las secciones <<gcode:g90-g91, G90>> y <<mcode:m2-m30, M2>> para "
+"Consulte las secciones <<gcode:g90-g91,G90>> y <<mcode:m2-m30,M2>> para "
 "obtener más información."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:157 src/gcode/g-code.adoc:207
 #: src/gcode/g-code.adoc:268
-#, fuzzy
 msgid ""
 "If cutter compensation is active, the motion will differ from the above; see "
 "the <<sec:cutter-radius-compensation,Cutter Compensation>> section."
@@ -50307,12 +50305,11 @@ msgid ""
 "the <<gcode:g53,G53>> section for more information."
 msgstr ""
 "Si 'G53' está programado en la misma línea, el movimiento también será "
-"diferente; Consulte la sección <<gcode:g53, G53>> para obtener más "
+"diferente; consulte la sección <<gcode:g53,G53>> para obtener más "
 "información."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:164
-#, fuzzy
 msgid ""
 "The path of a G0 rapid motion can be rounded at direction changes and "
 "depends on the <<sec:trajectory-control,trajectory control>> settings and "
@@ -50343,13 +50340,11 @@ msgstr ""
 #: src/gcode/m-code.adoc:351 src/gcode/other-code.adoc:37
 #: src/gcode/other-code.adoc:72 src/gcode/overview.adoc:932
 #: src/hal/basic-hal.adoc:218 src/remap/remap.adoc:1597
-#, fuzzy
 msgid "It is an error if:"
 msgstr "Es un error si:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:175 src/gcode/g-code.adoc:215
-#, fuzzy
 msgid "An axis letter is without a real value."
 msgstr "Una letra de eje no tiene un valor real."
 
@@ -50360,19 +50355,18 @@ msgstr "Se utiliza una letra de eje que no está configurada."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:178
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G1 Linear Move"
-msgstr "Ejes lineales"
+msgstr "G1 Movimiento lineal"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:183
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G1 axes\n"
 msgstr "G1 ejes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:190
-#, fuzzy
 msgid ""
 "For linear (straight line) motion at programmed <<sec:set-feed-rate,feed "
 "rate>> (for cutting or not), program 'G1 'axes'', where all the axis words "
@@ -50388,13 +50382,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:191
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G1 Example"
-msgstr "Ejemplo G1"
+msgstr "Ejemplo de G1"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:199
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute distance mode)\n"
 "G1 X1.2 Y-3 F10 (linear move at a feed rate of 10 from current position to X1.2 Y-3)\n"
@@ -50403,14 +50397,16 @@ msgid ""
 "M2 (end program)\n"
 msgstr ""
 "G90 (establecer modo de distancia absoluta)\n"
-"G1 X1.2 Y-3 F10 (movimiento lineal a velocidad de alimentación de 10 desde la posición actual a X1.2 Y-3)\n"
-"Z-2.3 (movimiento lineal a la misma velocidad de avance desde la posición actual a Z-2.3)\n"
-"Z1 F25 (movimiento lineal a una velocidad de avance de 25 desde la posición actual a Z1)\n"
+"G1 X1.2 Y-3 F10 (movimiento lineal a velocidad de alimentación de 10 desde "
+"la posición actual a X1.2 Y-3)\n"
+"Z-2.3 (movimiento lineal a la misma velocidad de avance desde la posición "
+"actual a Z-2.3)\n"
+"Z1 F25 (movimiento lineal a una velocidad de avance de 25 desde la posición "
+"actual a Z1)\n"
 "M2 (final del programa)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:203
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<sec:set-feed-rate,F>> & <<mcode:m2-m30,M2>> "
 "sections for more information."
@@ -50420,13 +50416,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:214 src/gcode/g-code.adoc:278
-#, fuzzy
 msgid "No feed rate has been set."
 msgstr "No se ha establecido la velocidad de alimentación."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:216
-#, fuzzy
 msgid "An axis letter is used that is not configured"
 msgstr "Se utiliza una letra de eje que no está configurada"
 
@@ -50434,23 +50428,22 @@ msgstr "Se utiliza una letra de eje que no está configurada"
 #: src/gcode/g-code.adoc:218 src/gcode/overview.adoc:479
 #, no-wrap
 msgid "G2"
-msgstr ""
+msgstr "G2"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:218
-#, fuzzy
 msgid "G3 Arc Move"
-msgstr "Movimiento de entrada"
+msgstr "G3 Movimiento en arco"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:218
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2, G3 Arc Move"
-msgstr "Movimiento de entrada"
+msgstr "G2, G3 Movimiento en arco"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:225
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G2 or G3 axes offsets (center format)\n"
 "G2 or G3 axes R- (radius format)\n"
@@ -50462,7 +50455,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:231
-#, fuzzy
 msgid ""
 "A circular or helical arc is specified using either 'G2' (clockwise arc) or "
 "'G3' (counterclockwise arc) at the current <<sec:set-feed-rate,feed rate>>. "
@@ -50471,12 +50463,11 @@ msgid ""
 msgstr ""
 "Un arco circular o helicoidal se especifica utilizando 'G2' (arco en sentido "
 "horario) o 'G3' (arco en sentido antihorario) a la <<sec:set-feed-"
-"rate,velocidad de avance>> actual. La dirección (CW, CCW) se ve desde "
-"extremo positivo del eje sobre el cual ocurre el movimiento circular."
+"rate,velocidad de avance>> actual. La dirección (horario, antihorario) se ve "
+"desde extremo positivo del eje sobre el cual ocurre el movimiento circular."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:240
-#, fuzzy
 msgid ""
 "The axis of the circle or helix must be parallel to the X, Y, or Z axis of "
 "the machine coordinate system.  The axis (or, equivalently, the plane "
@@ -50486,15 +50477,14 @@ msgid ""
 "plane parallel to the selected plane."
 msgstr ""
 "El eje del círculo o hélice debe ser paralelo al eje X, Y o Z del sistema de "
-"coordenadas de máquina.  El eje (o, equivalentemente, el plano perpendicular "
-"al eje)  se selecciona con 'G17' (eje Z, plano XY), 'G18' (eje Y, plano XZ) "
-"o 'G19' (eje X, plano YZ).  Los planos '17.1 ', '18.1' y '19.1 'no son "
+"coordenadas de máquina.  El eje (o equivalentemente, el plano perpendicular "
+"al eje) se selecciona con 'G17' (eje Z, plano XY), 'G18' (eje Y, plano XZ) o "
+"'G19' (eje X, plano YZ).  Los planos '17.1 ', '18.1' y '19.1' no son "
 "compatibles actualmente.  Si el arco es circular, se encuentra en un plano "
 "paralelo al plano seleccionado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:245
-#, fuzzy
 msgid ""
 "To program a helix, include the axis word perpendicular to the arc plane, "
 "for example, if in the 'G17' plane, include a 'Z' word. This will cause the "
@@ -50507,7 +50497,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:254
-#, fuzzy
 msgid ""
 "To program an arc that gives more than one full turn, use the 'P' word "
 "specifying the number of full turns plus the programmed arc. The 'P' word "
@@ -50530,19 +50519,18 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:259
-#, fuzzy
 msgid ""
 "If the pitch of the helix is very small (less than the <<sub:programming-the-"
 "planner,naive CAM tolerance>>) then the helix might be converted into a "
 "straight line.  https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]"
 msgstr ""
-"If the pitch of the helix is very small (less than the <<sub:programming-the-"
-"planner,naive CAM tolerance>>) then the helix might be converted into a "
-"straight line.  https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]"
+"Si el paso de la hélice es muy pequeño (menor a la <<sub:programming-the-"
+"planner,tolerancia CAM ingenua>>) entonces la hélice podría ser convertida "
+"en una línea recta.  https://github.com/LinuxCNC/linuxcnc/issues/222[Bug "
+"#222]"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:264
-#, fuzzy
 msgid ""
 "If a line of code makes an arc and includes rotary axis motion, the rotary "
 "axes turn at a constant rate so that the rotary motion starts and finishes "
@@ -50556,7 +50544,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:271
-#, fuzzy
 msgid ""
 "The arc center is absolute or relative as set by <<gcode:g90.1-g91.1,G90.1 "
 "or G91.1>> respectively."
@@ -50566,7 +50553,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:274
-#, fuzzy
 msgid ""
 "Two formats are allowed for specifying an arc: Center Format and Radius "
 "Format."
@@ -50576,19 +50562,17 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:279
-#, fuzzy
 msgid "The P word is not an integer."
 msgstr "La palabra P no es un número entero."
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:280
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Center Format Arcs"
 msgstr "Arcos de formato centro"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:284
-#, fuzzy
 msgid ""
 "Center format arcs are more accurate than radius format arcs and are the "
 "preferred format to use."
@@ -50598,7 +50582,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:289
-#, fuzzy
 msgid ""
 "The end point of the arc along with the offset to the center of the arc from "
 "the current location are used to program arcs that are less than a full "
@@ -50612,7 +50595,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:292
-#, fuzzy
 msgid ""
 "The offset to the center of the arc from the current location and optionally "
 "the number of turns are used to program full circles."
@@ -50622,7 +50604,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:296
-#, fuzzy
 msgid ""
 "When programming arcs an error due to rounding can result from using a "
 "precision of less than 4 decimal places (0.0000) for inch and less than 3 "
@@ -50634,13 +50615,12 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:297
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Incremental Arc Distance Mode"
 msgstr "Modo de distancia de arco incremental"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:301
-#, fuzzy
 msgid ""
 "Arc center offsets are a relative distance from the start location of the "
 "arc.  Incremental Arc Distance Mode is default."
@@ -50651,7 +50631,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:304
-#, fuzzy
 msgid ""
 "One or more axis words and one or more offsets must be programmed for an arc "
 "that is less than 360 degrees."
@@ -50661,17 +50640,15 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:307
-#, fuzzy
 msgid ""
 "No axis words and one or more offsets must be programmed for full circles.  "
 "The 'P' word defaults to 1 and is optional."
 msgstr ""
-"No se deben programar palabras de eje y uno o más offsets para círculos "
+"No se deben programar palabras de eje ni uno o más offsets para círculos "
 "completos.  La palabra 'P' está por defecto en 1 y es opcional."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:310
-#, fuzzy
 msgid ""
 "For more information on 'Incremental Arc Distance Mode see the <<gcode:g90.1-"
 "g91.1,G91.1>> section."
@@ -50681,13 +50658,12 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:311
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Absolute Arc Distance Mode"
 msgstr "Modo de distancia de arco absoluta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:314
-#, fuzzy
 msgid ""
 "Arc center offsets are the absolute distance from the current 0 position of "
 "the axis."
@@ -50701,125 +50677,113 @@ msgid ""
 "One or more axis words and 'both' offsets must be programmed for arcs less "
 "than 360 degrees."
 msgstr ""
-"Una o mas palabras de eje y 'ambos' offsets deben programarse para arcos de "
+"Una o más palabras de eje y 'ambos' offsets deben programarse para arcos de "
 "menos de 360 grados."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:320
-#, fuzzy
 msgid ""
 "No axis words and both offsets must be programmed for full circles.  The 'P' "
 "word defaults to 1 and is optional."
 msgstr ""
-"No se deben programar palabras de eje y ambos offsets para círculos "
-"completos.  La palabra 'P' está por defecto en 1 y es opcional."
+"No se deben programar palabras de eje ni ambos offsets para círculos "
+"completos.  La palabra 'P' está predeterminada a 1 y es opcional."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:323
-#, fuzzy
 msgid ""
 "For more information on 'Absolute Arc Distance Mode see the <<gcode:g90.1-"
 "g91.1,G90.1>> section."
 msgstr ""
-"Para obtener más información sobre el 'Modo de distancia absoluta del arco, "
+"Para obtener más información sobre el 'Modo de distancia absoluta del arco "
 "consulte la sección <<gcode:g90.1-g91.1,G90.1>>."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:324
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "XY-plane (G17)"
 msgstr "Plano XY (G17)"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:328
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 or G3 <X- Y- Z- I- J- P->\n"
 msgstr "G2 o G3 <X- Y- Z- I- J- P->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:331
-#, fuzzy
 msgid "'Z' - helix"
 msgstr "'Z' - hélice"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:332 src/gcode/g-code.adoc:343
-#, fuzzy
 msgid "'I' - X offset"
 msgstr "'I' - offset X"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:333 src/gcode/g-code.adoc:354
-#, fuzzy
 msgid "'J' - Y offset"
 msgstr "'J' - offset Y"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:334 src/gcode/g-code.adoc:345
 #: src/gcode/g-code.adoc:356
-#, fuzzy
 msgid "'P' - number of turns"
 msgstr "'P' - número de vueltas"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:335
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "XZ-plane (G18)"
 msgstr "Plano XZ (G18)"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:339
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 or G3 <X- Z- Y- I- K- P->\n"
 msgstr "G2 o G3 <X- Z- Y- I- K- P->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:342
-#, fuzzy
 msgid "'Y' - helix"
 msgstr "'Y' - hélice"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:344 src/gcode/g-code.adoc:355
-#, fuzzy
 msgid "'K' - Z offset"
 msgstr "'K' - offset Z"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:346
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "YZ-plane (G19)"
 msgstr "Plano YZ (G19)"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:350
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 or G3 <Y- Z- X- J- K- P->\n"
 msgstr "G2 o G3 <Y- Z- X- J- K- P->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:353
-#, fuzzy
 msgid "'X' - helix"
 msgstr "'X' - hélice"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:360
-#, fuzzy
 msgid "No feed rate is set with the <<sec:set-feed-rate,F>> word."
 msgstr ""
-"No se establece la velocidad de avance con la palabra <<sec:set-feed-"
-"rate,F>>."
+"No se establece la velocidad de avance con la palabra <<sec:set-feed-rate,F>>"
+"."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:361
-#, fuzzy
 msgid "No offsets are programmed."
 msgstr "No hay offsets programados."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:365
-#, fuzzy
 msgid ""
 "When the arc is projected on the selected plane, the distance from the "
 "current point to the center differs from the distance from the end point to "
@@ -50833,7 +50797,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:368
-#, fuzzy
 msgid ""
 "Deciphering the Error message 'Radius to end of arc differs from radius to "
 "start:'"
@@ -50843,43 +50806,37 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:370
-#, fuzzy
 msgid "'start' - the current position"
 msgstr "'inicio' - la posición actual"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:371
-#, fuzzy
 msgid "'center' - the center position as calculated using the i, j, or k words"
 msgstr "'centro' - la posición central calculada con las palabras i, j o k"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:372
-#, fuzzy
 msgid "'end' - the programmed end point"
 msgstr "'fin' - el punto final programado"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:373
-#, fuzzy
 msgid "'r1' - radius from the start position to the center"
 msgstr "'r1' - radio desde la posición inicial hasta el centro"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:374
-#, fuzzy
 msgid "'r2' - radius from the end position to the center"
 msgstr "'r2' - radio desde la posición final hasta el centro"
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:375
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Center Format Examples"
 msgstr "Ejemplos de formato centro"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:384
-#, fuzzy
 msgid ""
 "Calculating arcs by hand can be difficult at times. One option is to draw "
 "the arc with a CAD program to get the coordinates and offsets.  Keep in mind "
@@ -50890,9 +50847,9 @@ msgid ""
 "and the arc center."
 msgstr ""
 "Calcular arcos a mano puede ser difícil a veces. Una opción es dibujar el "
-"arco con un programa cad para obtener las coordenadas y los offsets.  Tenga "
+"arco con un programa CAD para obtener las coordenadas y los offsets.  Tenga "
 "en cuenta la tolerancia mencionada anteriormente; puede que tenga que "
-"cambiar la precisión de su programa cad para obtener los resultados "
+"cambiar la precisión de su programa CAD para obtener los resultados "
 "deseados. Otra opción es calcular las coordenadas y el offset utilizando "
 "fórmulas. Como puede ver en las siguientes figuras, se puede formar un "
 "triángulo a partir de la posición actual, la posición final y el centro del "
@@ -50913,13 +50870,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:390 src/gcode/g-code.adoc:499
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 Example Line"
 msgstr "G2 Ejemplo de línea"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:395
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 X0 Y0\n"
 "G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)\n"
@@ -50929,7 +50886,7 @@ msgstr ""
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:397 src/gcode/g-code.adoc:398
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 Example"
 msgstr "Ejemplo G2"
 
@@ -50941,7 +50898,6 @@ msgstr "images/g2_es.svg"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:405
-#, fuzzy
 msgid ""
 "In the next example we see the difference between the offsets for Y if we "
 "are doing a G2 or a G3 move. For the G2 move the start position is X0 Y0, "
@@ -50956,13 +50912,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:406
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2-G3 Example Line"
-msgstr "Lineas de ejemplo G2-G3"
+msgstr "Líneas de ejemplo G2-G3"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:412
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 X0 Y0\n"
 "G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)\n"
@@ -50974,7 +50930,7 @@ msgstr ""
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:414 src/gcode/g-code.adoc:415
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2-G3 Example"
 msgstr "Ejemplo G2-G3"
 
@@ -50986,7 +50942,6 @@ msgstr "images/g2-3_en.svg"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:419
-#, fuzzy
 msgid ""
 "In the next example we show how the arc can make a helix in the Z axis by "
 "adding the Z word."
@@ -50996,13 +50951,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:420
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 Example Helix"
-msgstr "Ejemplo Helice G2"
+msgstr "Ejemplo de hélice G2"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:425
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 X0 Y0 Z0\n"
 "G17 G2 X10 Y16 I3 J4 Z-1 (helix arc with Z added)\n"
@@ -51012,7 +50967,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:429
-#, fuzzy
 msgid ""
 "In the next example we show how to make more than one turn using the P word."
 msgstr ""
@@ -51021,13 +50975,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:430
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "P word Example"
 msgstr "Ejemplo de palabra P"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:435
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 X0 Y0 Z0\n"
 "G2 X0 Y1 Z-1 I1 J0.5 P2 F25\n"
@@ -51037,7 +50991,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:440
-#, fuzzy
 msgid ""
 "In the center format, the radius of the arc is not specified, but it may be "
 "found easily as the distance from the center of the circle to either the "
@@ -51062,25 +51015,23 @@ msgstr ""
 #. * I offset is used while working in YZ plane
 #. type: Title ===
 #: src/gcode/g-code.adoc:463
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Radius Format Arcs"
 msgstr "Arcos de formato radio"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:468
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G2 or G3 axes R- <P->\n"
 msgstr "G2 o G3 ejes R- <P->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:471
-#, fuzzy
 msgid "'R' - radius from current position"
 msgstr "'R' - radio desde la posición actual"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:482
-#, fuzzy
 msgid ""
 "It is not good practice to program radius format arcs that are nearly full "
 "circles or nearly semicircles because a small change in the location of the "
@@ -51097,10 +51048,10 @@ msgstr ""
 "en la ubicación del punto final producirá un cambio mucho mayor en la "
 "ubicación del centro del círculo (y, por lo tanto, el centro del arco). El "
 "efecto de aumento es lo suficientemente grande como para que el error de "
-"redondeo en un número puede producir cortes fuera de tolerancia. Por "
+"redondeo en un número pueda producir cortes fuera de tolerancia. Por "
 "ejemplo, un desplazamiento del 1% del punto final de un arco de 180 grados "
-"produce un 7% de desplazamiento de un punto a 90 grados a lo largo del arco. "
-"Los círculos casi completos son aún peores. Otros arcos de tamaño (en el "
+"produce un 7% de desplazamiento del punto a 90 grados a lo largo del arco. "
+"Los círculos casi completos son aún peores. Otros tamaños de arcos (en el "
 "rango de hasta 165 grados o entre 195 a 345 grados) están bien."
 
 #. type: Plain text
@@ -51117,36 +51068,33 @@ msgid ""
 "parallel to the axis of the helix is also specified."
 msgstr ""
 "En el formato radio, las coordenadas del punto final del arco en el plano "
-"seleccionado se especifica junto con el radio del arco. Programe los ejes "
-"'G2' 'ejes' ' R-'(o use 'G3' en lugar de 'G2'). R es el radio. Las palabras "
-"de eje son todas opcionales, excepto que debe ser usada al menos una de las "
-"dos palabras para los ejes del plano seleccionado. El número R es el radio. "
-"Un radio positivo indica que el arco gira menos de 180 grados, mientras que "
-"un radio negativo indica un giro de más de 180 grados. Si el arco es "
+"seleccionado se especifica junto con el radio del arco.  Programa 'G2' "
+"'ejes' 'R-' (o use 'G3' en lugar de 'G2'). R es el radio. Las palabras de "
+"eje son todas opcionales, excepto que debe ser usada al menos una de las dos "
+"palabras para los ejes del plano seleccionado. El número R es el radio. Un "
+"radio positivo indica que el arco gira menos de 180 grados, mientras que un "
+"radio negativo indica un giro de más de 180 grados. Si el arco es "
 "helicoidal, también se especifica el valor del punto final del arco en el "
 "eje de coordenadas paralelo al eje de la hélice."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:497
-#, fuzzy
 msgid "both of the axis words for the axes of the selected plane are omitted"
 msgstr "se omiten las dos palabras de eje para los ejes del plano seleccionado"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:498
-#, fuzzy
 msgid "the end point of the arc is the same as the current point."
 msgstr "el punto final del arco es el mismo que el punto actual."
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:503
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G17 G2 X10 Y15 R20 Z5 (radius format with arc)\n"
 msgstr "G17 G2 X10 Y15 R20 Z5 (formato de radio con arco)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:510
-#, fuzzy
 msgid ""
 "The above example makes a clockwise (as viewed from the positive Z-axis)  "
 "circular or helical arc whose axis is parallel to the Z-axis, ending where "
@@ -51156,9 +51104,9 @@ msgid ""
 msgstr ""
 "El ejemplo anterior hace un arco circular o helicoidal en sentido horario "
 "(visto desde el eje Z positivo)  cuyo eje es paralelo al eje Z, terminando "
-"en X = 10, Y = 15 y Z = 5, con un radio de 20. Si el valor inicial de Z es "
-"5, este es un arco de un círculo paralelo al plano XY; de lo contrario es un "
-"arco helicoidal."
+"en X=10, Y=15 y Z=5, con un radio de 20. Si el valor inicial de Z es 5, este "
+"es un arco de un círculo paralelo al plano XY; de lo contrario es un arco "
+"helicoidal."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:512
@@ -51168,68 +51116,63 @@ msgstr "G4 Espera"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:517
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G4 P-\n"
 msgstr "G4 P-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:520
-#, fuzzy
 msgid "'P' - seconds to dwell (floating point)"
 msgstr "'P' - segundos en parada (punto flotante)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:525
-#, fuzzy
 msgid ""
 "The P number is the time in seconds that all axes will remain unmoving.  The "
 "P number is a floating point number so fractions of a second may be used.  "
 "G4 does not affect spindle, coolant and any I/O."
 msgstr ""
 "El número P es el tiempo en segundos que todos los ejes permanecerán "
-"inmóviles.  El número P es un número de coma flotante, por lo que se pueden "
-"usar fracciones de segundo.  G4 no afecta al husillo, al refrigerante, ni a "
+"inmóviles.  El número P es un número de punto flotante, por lo que se pueden "
+"usar fracciones de segundo.  G4 no afecta al husillo, al refrigerante ni a "
 "ninguna E/S."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:526
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G4 Example Line"
-msgstr "Ejemplo de líneas G4"
+msgstr "Línea de ejemplo de G4"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:530
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G4 P0.5 (wait for 0.5 seconds before proceeding)\n"
 msgstr "G4 P0.5 (espera de 0.5 segundos antes de continuar)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:535
-#, fuzzy
 msgid "the P number is negative or not specified."
 msgstr "el número P es negativo o no está especificado."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:537
-#, fuzzy
 msgid "G5 Cubic spline"
-msgstr "G5 Muestra spline cúbica inicial"
+msgstr "G5 Spline cúbica"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:537
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5 Cubic Spline"
-msgstr "G5.1 Muestra de spline cuadrática"
+msgstr "G5 Spline cúbica"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:542
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5 X- Y- <I- J-> P- Q-\n"
 msgstr "G5 X- Y- <I- J-> P- Q-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:545
-#, fuzzy
 msgid "'I' - X incremental offset from start point to first control point"
 msgstr ""
 "'I' - offset incremental X desde el punto de inicio hasta el primer punto de "
@@ -51237,7 +51180,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:546
-#, fuzzy
 msgid "'J' - Y incremental offset from start point to first control point"
 msgstr ""
 "'J' - offset incremental Y desde el punto de inicio hasta el primer punto de "
@@ -51245,7 +51187,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:547
-#, fuzzy
 msgid "'P' - X incremental offset from end point to second control point"
 msgstr ""
 "'P' - offset incremental X desde el punto final hasta el segundo punto de "
@@ -51253,7 +51194,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:548
-#, fuzzy
 msgid "'Q' - Y incremental offset from end point to second control point"
 msgstr ""
 "'Q' - offset incremental Y desde el punto final hasta el segundo punto de "
@@ -51261,12 +51201,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:551
-#, fuzzy
 msgid ""
 "G5 creates a cubic B-spline in the XY plane with the X and Y axes only.  P "
 "and Q must both be specified for every G5 command."
 msgstr ""
-"G5 crea una B-spline cúbica en el plano XY con los ejes X e Y únicamente.  P "
+"G5 crea una spline B cúbica en el plano XY con los ejes X e Y únicamente.  P "
 "y Q deben especificarse para cada comando G5."
 
 #. type: Plain text
@@ -51279,26 +51218,26 @@ msgid ""
 "cubic (as if I and J are the negation of the previous P and Q)."
 msgstr ""
 "Para el primer comando G5 en una serie de comandos G5, I y J deben "
-"especificarse.  Para los comandos G5 posteriores, tanto I como J deben "
-"especificarse ambos o ninguno.  Si I y J no están especificados, la "
-"dirección inicial de este cubico coincidirá automáticamente con la dirección "
-"final del anterior (como si I y J fueran la negación de P y Q del anterior)."
+"especificarse.  Para los comandos G5 posteriores, deben especificarse ya sea "
+"tanto I como J o bien, ninguno.  Si I y J no están especificados, la "
+"dirección inicial de esta cúbica coincidirá automáticamente con la dirección "
+"final de la cúbica anterior (como si I y J fueran la negación de P y Q de la "
+"anterior)."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:560
-#, fuzzy
 msgid "For example, to program a curvy N shape:"
 msgstr "Por ejemplo, para programar una forma de N con curvas:"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:561
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5 Sample initial cubic spline"
-msgstr "G5 Muestra spline cúbica inicial"
+msgstr "Ejemplo de G5 de spline cúbica inicial"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:567
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 G17\n"
 "G0 X0 Y0\n"
@@ -51310,23 +51249,22 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:571
-#, fuzzy
 msgid ""
 "A second curvy N that attaches smoothly to this one can now be made without "
 "specifying I and J:"
 msgstr ""
-"Ahora se puede hacer un segundo N curvilíneo que se adhiera suavemente a "
-"este sin especificar I y J:"
+"Ahora se puede hacer una segunda N curva que se junte suavemente a esta sin "
+"especificar I y J:"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:572
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5 Sample subsequent cubic spline"
-msgstr "G5 Muestra de spline cúbica posterior"
+msgstr "Ejemplo de G5 de spline cúbica subsecuente"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:576
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5 P0 Q-3 X2 Y2\n"
 msgstr "G5 P0 Q-3 X2 Y2\n"
 
@@ -51358,49 +51296,44 @@ msgstr "El plano activo no es G17."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:587
-#, fuzzy
 msgid "G5.1 Quadratic spline"
-msgstr "G5.1 Muestra de spline cuadrática"
+msgstr "G5.1 Spline cuadrática"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:587
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5.1 Quadratic Spline"
-msgstr "G5.1 Muestra de spline cuadrática"
+msgstr "G5.1 Spline cuadrática"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:592
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5.1 X- Y- I- J-\n"
 msgstr "G5.1 X- Y- I- J-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:595
-#, fuzzy
 msgid "'I' - X incremental offset from start point to control point"
 msgstr "'I' - offset incremental X desde el punto inicial al punto de control"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:596
-#, fuzzy
 msgid "'J' - Y incremental offset from start point to control point"
 msgstr "'J' - offset incremental Y desde el punto inicial al punto de control"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:600
-#, fuzzy
 msgid ""
 "G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis "
 "only.  Not specifying I or J gives zero offset for the unspecified axis, so "
 "one or both must be given."
 msgstr ""
-"G5.1 crea una B-spline cuadrática en el plano XY con los ejes X e Y "
-"solamente. No especificar I o J da un offset cero para el eje no "
-"especificado; por tanto, uno o ambos deben ser dados."
+"G5.1 crea una spline B cuadrática en el plano XY con los ejes X e Y "
+"solamente.  No especificar I o J da un offset cero para el eje no "
+"especificado, por tanto, uno o ambos deben ser dados."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:603
-#, fuzzy
 msgid ""
 "For example, to program a parabola, through the origin, from X-2 Y4 to X2 Y4:"
 msgstr ""
@@ -51409,13 +51342,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:604
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5.1 Sample quadratic spline"
-msgstr "G5.1 Muestra de spline cuadrática"
+msgstr "G5.1 Ejemplo de spline cuadrática"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:610
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 G17\n"
 "G0 X-2 Y4\n"
@@ -51427,31 +51360,28 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:615
-#, fuzzy
 msgid "both I and J offset are unspecified or zero"
 msgstr "Tanto el offset I como J no están especificados o son cero"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:616
-#, fuzzy
 msgid "An axis other than X or Y is specified"
 msgstr "Se especifica un eje distinto de X o Y"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:617
-#, fuzzy
 msgid "The active plane is not G17"
 msgstr "El plano activo no es G17"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:619
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5.2 G5.3 NURBS Block"
-msgstr "G5.2 G5.3 Bloque NURBS(((G5.2 G5.3 NURBS Block)))"
+msgstr "G5.2 G5.3 Bloque NURBS"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:627
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G5.2 <P-> <X- Y-> <L->\n"
 "X- Y- <P->\n"
@@ -51465,13 +51395,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:630
-#, fuzzy
 msgid "G5.2, G5.3 is experimental and not fully tested."
 msgstr "G5.2, G5.3 es experimental y no está completamente probado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:635
-#, fuzzy
 msgid ""
 "G5.2 is for opening the data block defining a NURBS and G5.3 for closing the "
 "data block. In the lines between these two codes the curve control points "
@@ -51485,33 +51413,33 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:639
-#, fuzzy
 msgid ""
 "The current coordinate, before the first G5.2 command, is always taken as "
 "the first NURBS control point.  To set the weight for this first control "
 "point, first program G5.2 P- without giving any X Y."
 msgstr ""
 "La coordenada actual, antes del primer comando G5.2, siempre se toma como el "
-"primer punto de control NURBS. Para establecer el peso para este primer "
-"punto de control, programe G5.2 P- sin dar ninguna X Y."
+"primer punto de control NURBS.  Para establecer el peso para este primer "
+"punto de control, programe primero G5.2 P- sin dar ninguna X Y."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:642
-#, fuzzy
 msgid ""
 "The default weight if P is unspecified is 1.  The default order if L is "
 "unspecified is 3."
-msgstr "El peso predeterminado es 1. El orden predeterminado es 3."
+msgstr ""
+"Si no se especifica P, el peso predeterminado es 1. Si no se especifica L, "
+"el orden predeterminado es 3."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:643
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G5.2 Example"
 msgstr "G5.2 Ejemplo"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:660
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 X0 Y0 (rapid move)\n"
 "F10 (set feed rate)\n"
@@ -51529,7 +51457,7 @@ msgid ""
 "M2\n"
 msgstr ""
 "G0 X0 Y0 (movimiento rápido)\n"
-"F10 (velocidad de avance establecida)\n"
+"F10 (establece velocidad de avance)\n"
 "G5.2 P1 L3\n"
 "     X0 Y1 P1\n"
 "     X2 Y2 P1\n"
@@ -51545,25 +51473,23 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:662
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Sample NURBS Output"
-msgstr "Ejemplo de salida NURBS"
+msgstr "Ejemplo de salida de NURBS"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:664
-#, fuzzy
 msgid "image:images/nurbs01.png[\"Sample NURBS Output\",align=\"center\"]"
-msgstr "image:images/nurbs01.png[\"Ejemplo de salida NURBS\",align=\"center\"]"
+msgstr ""
+"image:images/nurbs01.png[\"Ejemplo de salida de NURBS\",align=\"center\"]"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:666
-#, fuzzy
 msgid "More information on NURBS can be found here:"
 msgstr "Puede encontrar más información sobre NURBS aquí:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:668
-#, fuzzy
 msgid ""
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[https://wiki.linuxcnc.org/"
 "cgi-bin/wiki.pl?NURBS]"
@@ -51573,19 +51499,18 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:670
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G7 Lathe Diameter Mode"
-msgstr "modo de radio/diámetro de torno (G7, G8)"
+msgstr "G7 Modo de diámetro de torno"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:675
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G7\n"
 msgstr "G7\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:681
-#, fuzzy
 msgid ""
 "Program G7 to enter the diameter mode for axis X on a lathe. When in the "
 "diameter mode the X axis moves on a lathe will be 1/2 the distance to the "
@@ -51593,128 +51518,120 @@ msgid ""
 "the center of the lathe thus giving a 1\" diameter part."
 msgstr ""
 "Programe G7 para ingresar el modo de diámetro para el eje X en un torno. En "
-"el modo de diámetro el eje X se mueve 1/2 de la distancia al centro del "
-"torno. Por ejemplo, X1 movería el cortador a 0.500\" desde el centro del "
-"torno dando una parte de 1\" de diámetro."
+"el modo de diámetro, los movimientos del eje X serán 1/2 de la distancia al "
+"centro del torno. Por ejemplo, X1 movería el cortador a 0.500\" desde el "
+"centro del torno, resultando una pieza de 1\" de diámetro."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:683
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G8 Lathe Radius Mode"
-msgstr "Modo Torno"
+msgstr "G8 Modo radio de torno"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:688
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G8\n"
 msgstr "G8\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:694
-#, fuzzy
 msgid ""
 "Program G8 to enter the radius mode for axis X on a lathe. When in Radius "
 "mode the X axis moves on a lathe will be the distance from the center. Thus "
 "a cut at X1 would result in a part that is 2\" in diameter.  G8 is default "
 "at power up."
 msgstr ""
-"Programe G8 para modo radio en el eje X de un torno. Cuando el eje X se "
-"mueva en modo radio en un torno será la distancia desde el centro. Por lo "
-"tanto, un corte en X1 daría como resultado una pieza de 2\" de diámetro.  G8 "
-"es el predeterminado al arranque."
+"Programe G8 para modo radio en el eje X de un torno. Cuando se esta en modo "
+"radio, los movimientos en el eje X de un torno serán la distancia desde el "
+"centro. Por lo tanto, un corte en X1 resultaría en una pieza de 2\" de "
+"diámetro.  G8 es el predeterminado al encender."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:696
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L0 Reload Tool Table Data"
-msgstr "La tabla de herramientas"
+msgstr "G10 L0 Recargar datos de la tabla de herramientas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:701
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L0\n"
 msgstr "G10 L0\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:705
-#, fuzzy
 msgid ""
 "G10 L0 reload all tool table data.  Requires that there is no current tool "
 "loaded in spindle."
 msgstr ""
-"G10 L0 reload all tool table data.  Requires that there is no current tool "
-"loaded in spindle."
+"G10 L0 recargar datos de la tabla de herramientas.  Requiere que no haya "
+"herramienta cargada en el husillo."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:713
-#, fuzzy
 msgid ""
 "When using G10 L0, tool parameters (#5401-#5413) will be updated immediately "
 "and any altered tool diameters will be used for subsequent G41,42 cutter "
 "radius compensation commands. Existing G43 tool length compensation values "
 "will remain in effect until updated by new G43 commands."
 msgstr ""
-"When using G10 L0, tool parameters (#5401-#5413) will be updated immediately "
-"and any altered tool diameters will be used for subsequent G41,42 cutter "
-"radius compensation commands. Existing G43 tool length compensation values "
-"will remain in effect until updated by new G43 commands."
+"Cuando se usa G10 L0, los parámetros de herramienta (#5401-#5413) serán "
+"actualizados inmediatamente y se usará cualquier diámetro de herramienta "
+"alterado para los comandos subsecuentes de compensación de radio de cortador "
+"G41,42. Los valores de compensación de longitud de herramienta G43 "
+"existentes continuarán en efecto hasta ser actualizados por nuevos comandos "
+"G43."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:715
-#, fuzzy
 msgid "G10 L1 Tool Table"
-msgstr "Tabla de herramientas"
+msgstr "G10 L1 Tabla de herramientas"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:715
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L1 Set Tool Table"
-msgstr "La tabla de herramientas"
+msgstr "G10 L1 Configurar tabla de herramientas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:720
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L1 P- axes <R- I- J- Q->\n"
 msgstr "G10 L1 P- ejes <R- I- J- Q->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:723 src/gcode/g-code.adoc:848
 #: src/gcode/g-code.adoc:888
-#, fuzzy
 msgid "'P' - tool number"
 msgstr "'P' - número de herramienta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:724 src/gcode/g-code.adoc:849
 #: src/gcode/g-code.adoc:889
-#, fuzzy
 msgid "'R' - radius of tool"
 msgstr "'R' - radio de herramienta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:725 src/gcode/g-code.adoc:850
 #: src/gcode/g-code.adoc:890
-#, fuzzy
 msgid "'I' - front angle (lathe)"
 msgstr "'I' - ángulo frontal (torno)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:726 src/gcode/g-code.adoc:851
 #: src/gcode/g-code.adoc:891
-#, fuzzy
 msgid "'J' - back angle (lathe)"
 msgstr "'J' - ángulo trasero (torno)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:727 src/gcode/g-code.adoc:852
 #: src/gcode/g-code.adoc:892
-#, fuzzy
 msgid "'Q' - orientation (lathe)"
 msgstr "'Q' - orientación (torno)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:730
-#, fuzzy
 msgid ""
 "G10 L1 sets the tool table for the 'P' tool number to the values of the "
 "words."
@@ -51724,45 +51641,45 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:733
-#, fuzzy
 msgid ""
 "A valid G10 L1 rewrites and reloads the tool table for the specified tool."
-msgstr "Un G10 L1 válido reescribe y vuelve a cargar la tabla de herramientas."
+msgstr ""
+"Un G10 L1 válido reescribe y vuelve a cargar la tabla de herramientas para "
+"la herramienta especificada."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:734
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L1 Example Line"
-msgstr "Ejemplo de línea G10 L1"
+msgstr "Línea de ejemplo de G10 L1"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:739
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G10 L1 P1 Z1.5 (set tool 1 Z offset from the machine origin to 1.5)\n"
 "G10 L1 P2 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)\n"
 msgstr ""
-"G10 L1 P1 Z1.5 (ajustar la herramienta 1 con offset Z desde el origen de la máquina de 1.5)\n"
-"G10 L1 P2 R0.015 Q3 (configuración de ejemplo de herramienta 2 de torno radio 0.015 y orientación 3)\n"
+"G10 L1 P1 Z1.5 (ajustar la herramienta 1 con offset Z desde el origen de la "
+"máquina de 1.5)\n"
+"G10 L1 P2 R0.015 Q3 (configuración de ejemplo de herramienta 2 de torno "
+"radio 0.015 y orientación 3)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:744 src/gcode/g-code.adoc:875
 #: src/gcode/g-code.adoc:911
-#, fuzzy
 msgid "Cutter Compensation is on"
 msgstr "La compensación de cortador está activada"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:745 src/gcode/g-code.adoc:876
 #: src/gcode/g-code.adoc:912
-#, fuzzy
 msgid "The P number is unspecified"
 msgstr "El número P no está especificado"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:746 src/gcode/g-code.adoc:877
 #: src/gcode/g-code.adoc:913
-#, fuzzy
 msgid "The P number is not a valid tool number from the tool table"
 msgstr ""
 "El número P no es un número de herramienta válido de la tabla de herramientas"
@@ -51770,54 +51687,48 @@ msgstr ""
 #. type: Plain text
 #: src/gcode/g-code.adoc:747 src/gcode/g-code.adoc:878
 #: src/gcode/g-code.adoc:914
-#, fuzzy
 msgid "The P number is 0"
 msgstr "El número P es 0"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:750
-#, fuzzy
 msgid ""
 "For more information on cutter orientation used by the 'Q' word, see the "
 "<<sec:lathe-tool-orientation,Lathe Tool Orientation>> diagram."
 msgstr ""
 "Para obtener más información sobre la orientación del cortador utilizada por "
-"la palabra 'Q', vea el diagrama <<lathe-tool-orientation,Orientación "
-"Herramienta Torno>>."
+"la palabra 'Q', vea el diagrama <<lathe-tool-orientation,Orientación de "
+"herramienta de torno>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:752
-#, fuzzy
 msgid "G10 L2 Coordinate System"
-msgstr "Sistema coordinado"
+msgstr "G10 L2 Sistema de coordenadas"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:752
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L2 Set Coordinate System"
-msgstr "Sistema coordinado"
+msgstr "G10 L2 Configurar sistema de coordenadas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:757
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L2 P- <axes R->\n"
 msgstr "G10 L2 P- <ejes R->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:760 src/gcode/g-code.adoc:924
-#, fuzzy
 msgid "'P' - coordinate system (0-9)"
 msgstr "'P' - sistema de coordenadas (0-9)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:761
-#, fuzzy
 msgid "'R' - rotation about the Z axis"
 msgstr "'R' - rotación sobre el eje Z"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:767
-#, fuzzy
 msgid ""
 "G10 L2 offsets the origin of the axes in the coordinate system specified to "
 "the value of the axis word. The offset is from the machine origin "
@@ -51826,62 +51737,58 @@ msgid ""
 "be changed."
 msgstr ""
 "G10 L2 desplaza el origen de los ejes en el sistema de coordenadas "
-"especificado el valor de cada palabra de eje. El offset es desde el origen "
+"especificado al valor de cada palabra de eje. El offset es desde el origen "
 "de la máquina establecido durante el recorrido de homing. El valor de offset "
 "reemplazará cualquier offset actual vigente para el sistema de coordenadas "
 "especificado. Las palabras de eje no utilizadas no se cambiarán."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:769
-#, fuzzy
 msgid "Program P0 to P9 to specify which coordinate system to change."
 msgstr "Programe P0 a P9 para especificar qué sistema de coordenadas cambiar."
 
 #. type: Table
 #: src/gcode/g-code.adoc:770 src/gcode/g-code.adoc:773
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinate System"
-msgstr "Sistema coordinado"
+msgstr "Sistema de coordenadas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:773
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "P Value"
-msgstr "valor"
+msgstr "Valor de P"
 
 #. type: Table
 #: src/gcode/g-code.adoc:774
 #, no-wrap
 msgid "Active"
-msgstr ""
+msgstr "Activo"
 
 #. type: Table
 #: src/gcode/g-code.adoc:775
 #, no-wrap
 msgid "n/a"
-msgstr ""
+msgstr "n/a"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:790
-#, fuzzy
 msgid ""
 "Optionally program R to indicate the rotation of the XY axis around the Z "
 "axis.  The direction of rotation is CCW as viewed from the positive end of "
 "the Z axis."
 msgstr ""
 "Opcionalmente, programe R para indicar la rotación del eje XY alrededor del "
-"eje Z.  La dirección de rotación es CCW vista desde el extremo positivo del "
-"eje Z."
+"eje Z.  La dirección de rotación es antihorario, vista desde el extremo "
+"positivo del eje Z."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:792
-#, fuzzy
 msgid "All axis words are optional."
 msgstr "Todas las palabras de eje son opcionales."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:795
-#, fuzzy
 msgid ""
 "Being in incremental distance mode (<<gcode:g90-g91,'G91'>>) has no effect "
 "on 'G10 L2'."
@@ -51896,27 +51803,24 @@ msgstr "Conceptos importantes:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:801
-#, fuzzy
 msgid ""
 "`G10 L2 Pn` does not change from the current coordinate system to the one "
 "specified by P, you have to use G54-59.3 to select a coordinate system."
 msgstr ""
-"G10 L2 Pn no cambia del sistema de coordenadas actual al especificado por P; "
-"tiene que usar G54-59.3 para seleccionar un sistema de coordenadas."
+"`G10 L2 Pn` no cambia del sistema de coordenadas actual al especificado por "
+"P; tienes que usar G54-59.3 para seleccionar un sistema de coordenadas."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:803
-#, fuzzy
 msgid ""
 "When a rotation is in effect jogging an axis will only move that axis in a "
 "positive or negative direction and not along the rotated axis."
 msgstr ""
-"Cuando una rotación está activa, un eje solo permitirá jogging en una "
+"Cuando una rotación está activa, trotar un eje solo moverá ese eje en una "
 "dirección positiva o negativa y no a lo largo del eje girado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:805
-#, fuzzy
 msgid ""
 "If a 'G52' local offset or 'G92' origin offset was in effect before 'G10 "
 "L2', it will continue to be in effect afterwards."
@@ -51926,7 +51830,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:807
-#, fuzzy
 msgid ""
 "When programming a coordinate system with R, any 'G52' or 'G92' will be "
 "applied *after* the rotation."
@@ -51936,7 +51839,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:810
-#, fuzzy
 msgid ""
 "The coordinate system whose origin is set by a 'G10' command may be active "
 "or inactive at the time the 'G10' is executed.  If it is currently active, "
@@ -51948,31 +51850,28 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:814 src/gcode/g-code.adoc:938
-#, fuzzy
 msgid "The P number does not evaluate to an integer in the range 0 to 9."
 msgstr "El número P no se evalúa como un entero en el rango de 0 a 9."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:815 src/gcode/g-code.adoc:939
-#, fuzzy
 msgid "An axis is programmed that is not defined in the configuration."
 msgstr "Se programa un eje que no está definido en la configuración."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:816 src/gcode/g-code.adoc:827
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L2 Example Line"
 msgstr "Ejemplo de línea G10 L2"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:820
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L2 P1 X3.5 Y17.2\n"
 msgstr "G10 L2 P1 X3.5 Y17.2\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:826
-#, fuzzy
 msgid ""
 "In the above example the origin of the first coordinate system (the one "
 "selected by 'G54') is set to be X=3.5 and Y=17.2.  Because only X and Y are "
@@ -51980,19 +51879,20 @@ msgid ""
 "are not changed."
 msgstr ""
 "En el ejemplo anterior, el origen del primer sistema de coordenadas (el "
-"seleccionado por 'G54') se configura para ser X = 3.5 e Y = 17.2.  Como solo "
-"se especifican X e Y, el punto de origen solo se mueve en X e Y; las otras "
+"seleccionado por 'G54') se configura para ser X=3.5 e Y=17.2.  Como solo se "
+"especifican X e Y, el punto de origen solo se mueve en X e Y; las otras "
 "coordenadas no cambian."
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:831
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)\n"
-msgstr "G10 L2 P1 X0 Y0 Z0 (limpiar offsets para los ejes X, Y y Z en el sistema de coordenadas 1)\n"
+msgstr ""
+"G10 L2 P1 X0 Y0 Z0 (limpiar offsets para los ejes X, Y y Z en el sistema de "
+"coordenadas 1)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:835
-#, fuzzy
 msgid ""
 "The above example sets the XYZ coordinates of the coordinate system 1 to the "
 "machine origin."
@@ -52002,7 +51902,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:838
-#, fuzzy
 msgid ""
 "The coordinate system is described in the <<cha:coordinate-system,Coordinate "
 "System>> section."
@@ -52012,19 +51911,18 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:840
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L10 Set Tool Table"
-msgstr "La tabla de herramientas"
+msgstr "G10 L10 Configurar tabla de herramientas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:845
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L10 P- axes <R- I- J- Q->\n"
-msgstr "G10 L10 ejes P <R- I- J- Q->\n"
+msgstr "G10 L10 P- ejes <R- I- J- Q->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:859
-#, fuzzy
 msgid ""
 "G10 L10 changes the tool table entry for tool P so that if the tool offset "
 "is reloaded, with the machine in its current position and with the current "
@@ -52043,13 +51941,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:860
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L10 Example"
-msgstr "Ejemplo G10 L10"
+msgstr "Ejemplo de G10 L10"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:867
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "T1 M6 G43 (load tool 1 and tool length offsets)\n"
 "G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)\n"
@@ -52058,12 +51956,12 @@ msgid ""
 msgstr ""
 "T1 M6 G43 (carga de herramienta 1 y compensaciones de longitud)\n"
 "G10 L10 P1 Z1.5 (establecer la posición actual para Z en 1.5)\n"
-"G43 (vuelve a cargar las compensaciones de longitud de herramienta de la tabla de herramientas modificada)\n"
+"G43 (vuelve a cargar las compensaciones de longitud de herramienta de la "
+"tabla de herramientas modificada)\n"
 "M2 (final del programa)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:871
-#, fuzzy
 msgid ""
 "See <<sec:select-tool,T>> & <<mcode:m6,M6>>, and <<gcode:g43,G43>>/"
 "<<gcode:g43.1,G43.1>> sections for more information."
@@ -52073,19 +51971,18 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:880
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L11 Set Tool Table"
-msgstr "La tabla de herramientas"
+msgstr "G10 L11 Configurar tabla de herramientas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:885
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L11 P- axes <R- I- J- Q->\n"
 msgstr "G10 L11 P- ejes <R- I- J- Q->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:898
-#, fuzzy
 msgid ""
 "G10 L11 is just like G10 L10 except that instead of setting the entry "
 "according to the current offsets, it is set so that the current coordinates "
@@ -52101,7 +51998,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:902
-#, fuzzy
 msgid ""
 "This allows the user to set the G59.3 coordinate system according to a fixed "
 "point on the machine, and then use that fixture to measure tools without "
@@ -52113,19 +52009,18 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:916
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L20 Set Coordinate System"
-msgstr "Sistema coordinado"
+msgstr "G10 L20 Sistema de coordenadas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:921
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L20 P- axes\n"
 msgstr "G10 L20 P- ejes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:928
-#, fuzzy
 msgid ""
 "G10 L20 is similar to G10 L2 except that instead of setting the offset/entry "
 "to the given value, it is set to a calculated value that makes the current "
@@ -52137,73 +52032,66 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:929
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L20 Example Line"
-msgstr "Línea de ejemplo G10 L20"
+msgstr "Línea de ejemplo de G10 L20"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:933
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G10 L20 P1 X1.5 (set the X axis current location in coordinate system 1 to 1.5)\n"
-msgstr "G10 L20 P1 X1.5 (establece la ubicación actual del eje X en el sistema de coordenadas 1 a 1.5)\n"
+msgstr ""
+"G10 L20 P1 X1.5 (establece la ubicación actual del eje X en 1.5 en el "
+"sistema de coordenadas 1)\n"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:941
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G17 - G19.1 Plane Select"
-msgstr "Selección de columnas"
+msgstr "G17 - G19.1 Selección de plano"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:944
-#, fuzzy
 msgid "These codes set the current plane as follows:"
 msgstr "Estos códigos establecen el plano actual de la siguiente manera:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:946
-#, fuzzy
 msgid "'G17' - XY (default)"
 msgstr "'G17' - XY (predeterminado)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:947
-#, fuzzy
 msgid "'G18' - ZX"
 msgstr "'G18' - ZX"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:948
-#, fuzzy
 msgid "'G19' - YZ"
 msgstr "'G19' - YZ"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:949
-#, fuzzy
 msgid "'G17.1' - UV"
 msgstr "'G17.1' - UV"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:950
-#, fuzzy
 msgid "'G18.1' - WU"
 msgstr "'G18.1' - WU"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:951
-#, fuzzy
 msgid "'G19.1' - VW"
 msgstr "'G19.1' - VW"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:953
-#, fuzzy
 msgid "The UV, WU and VW planes do not support arcs."
 msgstr "Los planos UV, WU y VW no admiten arcos."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:956
-#, fuzzy
 msgid ""
 "It is a good idea to include a plane selection in the preamble of each G-"
 "code file."
@@ -52218,35 +52106,31 @@ msgid ""
 "g3,G2 G3 Arcs>> and section <<gcode:g80-g89,G81 G89>>."
 msgstr ""
 "Los efectos de tener un plano seleccionado se discuten en las secciones "
-"<<gcode:g2-g3,Arcos G2 G3>> y <<gcode:g80-g89,G81 G89>>."
+"<<gcode:g2-g3,G2 G3 Arcos>> y <<gcode:g80-g89,G81 G89>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:961
-#, fuzzy
 msgid "G20 Units"
-msgstr "Unidades mm"
+msgstr "G20 Unidades"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:961
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G20, G21 Units"
-msgstr "Unidades G20, G21(((G20 Units)))"
+msgstr "G20, G21 Unidades"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:964
-#, fuzzy
 msgid "'G20' - to use inches for length units."
 msgstr "'G20' - usar pulgadas para unidades de longitud."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:965
-#, fuzzy
 msgid "'G21' - to use millimeters for length units."
 msgstr "'G21' - usar milímetros para unidades de longitud."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:968
-#, fuzzy
 msgid "It is a good idea to include units in the preamble of each G-code file."
 msgstr ""
 "Es una buena práctica incluir selección de unidades en el preámbulo de cada "
@@ -52255,17 +52139,16 @@ msgstr ""
 #. type: Index entry
 #: src/gcode/g-code.adoc:970
 msgid "G28 Go/Set Predefined Position"
-msgstr ""
+msgstr "G28 Ir/establecer posición predefinida"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:970
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G28, G28.1 Go/Set Predefined Position"
-msgstr "G28, G28.1 Ir/Establecer posición predefinida(((G28 Go/Set Predefined Position)))"
+msgstr "G28, G28.1 Ir/Establecer posición predefinida"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:975
-#, fuzzy
 msgid ""
 "Only use G28 when your machine is homed to a repeatable position and the "
 "desired G28 position has been stored with G28.1."
@@ -52293,17 +52176,15 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:986
-#, fuzzy
 msgid ""
 "'G28' - makes a <<gcode:g0,rapid move>> from the current position to the "
 "'absolute' position of the values in parameters 5161-5166."
 msgstr ""
-"'G28' - hace un <<gcode:g0,movimiento rápido>> desde ls actual posición a la "
+"'G28' - hace un <<gcode:g0,movimiento rápido>> desde la posición actual a la "
 "posición 'absoluta' de los valores en los parámetros 5161-5166."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:990
-#, fuzzy
 msgid ""
 "'G28 axes' - makes a rapid move to the position specified by 'axes' "
 "including any offsets, then will make a rapid move to the 'absolute' "
@@ -52313,11 +52194,10 @@ msgstr ""
 "'G28 ejes' - hace un movimiento rápido a la posición especificada por 'ejes' "
 "incluyendo cualquier offset, luego hará un movimiento rápido hacia la "
 "posición 'absoluta' de los valores en los parámetros 5161-5166 para todos "
-"los 'ejes' especificados. Ningun 'eje' no especificado no se moverá."
+"los 'ejes' especificados. Cualquier 'eje' no especificado no se moverá."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:992
-#, fuzzy
 msgid ""
 "'G28.1' - stores the current 'absolute' position into parameters 5161-5166."
 msgstr ""
@@ -52325,42 +52205,40 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:993
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G28 Example Line"
-msgstr "Linea de ejemplo G28"
+msgstr "Línea de ejemplo de G28"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:997
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)\n"
-msgstr "G28 Z2.5 (rápido a Z2.5 y luego a la ubicación Z especificada en #5163)\n"
+msgstr ""
+"G28 Z2.5 (rápido a Z2.5 y luego a la ubicación Z especificada en #5163)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1000 src/gcode/g-code.adoc:1039
-#, fuzzy
 msgid "It is an error if :"
-msgstr "Es un error si:"
+msgstr "Es un error si :"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1002 src/gcode/g-code.adoc:1041
-#, fuzzy
 msgid "Cutter Compensation is turned on"
 msgstr "La compensación del cortador está activada"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1004
 msgid "G30 Go/Set Predefined Position"
-msgstr ""
+msgstr "G30 Ir/Establecer posición predefinida"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1004
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G30, G30.1 Go/Set Predefined Position"
-msgstr "G30, G30.1 Ir/Establecer posición predefinida(((G30 Go/Set Predefined Position)))"
+msgstr "G30, G30.1 Ir/Establecer posición predefinida"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1009
-#, fuzzy
 msgid ""
 "Only use G30 when your machine is homed to a repeatable position and the "
 "desired G30 position has been stored with G30.1."
@@ -52370,7 +52248,6 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1017
-#, fuzzy
 msgid ""
 "G30 functions the same as G28 but uses the values stored in <<sub:numbered-"
 "parameters,parameters>> 5181-5189 as the X Y Z A B C U V W final point to "
@@ -52384,47 +52261,43 @@ msgstr ""
 "<<sub:numbered-parameters,parámetros>> 5181-5189 como punto final X Y Z A B "
 "C U V W a donde moverse. Los valores de los parámetros son coordenadas "
 "máquina 'absolutas' en las 'unidades' de máquina nativas especificadas en el "
-"archivo ini.  Todos los ejes definidos en el archivo ini se moverán cuando "
+"archivo ini.  Todos los ejes definidos en el archivo INI se moverán cuando "
 "se emita un G30. Si no se almacenan las posiciones con G30.1, todos los ejes "
-"irán al <<sec:machine-coordinate-system,origen máquina>>."
+"irán al <<sec:machine-coordinate-system,origen de máquina>>."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1021
-#, fuzzy
 msgid ""
 "G30 parameters will be used to move the tool when a M6 is programmed if "
 "TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file."
 msgstr ""
 "Los parámetros G30 se usarán para mover la herramienta cuando se programe un "
-"M6 si TOOL_CHANGE_AT_G30 = 1 está en la sección [EMCIO] del archivo ini."
+"M6 si TOOL_CHANGE_AT_G30=1 está en la sección [EMCIO] del archivo INI."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1025
-#, fuzzy
 msgid ""
 "'G30' - makes a <<gcode:g0,rapid move>> from the current position to the "
 "'absolute' position of the values in parameters 5181-5189."
 msgstr ""
 "'G30' - hace un <<gcode:g0,movimiento rápido>> desde la posición actual a la "
-"posición \"absoluta\" de los valores en los parámetros 5181-5189."
+"posición 'absoluta' de los valores en los parámetros 5181-5189."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1029
-#, fuzzy
 msgid ""
 "'G30 axes' - makes a rapid move to the position specified by 'axes' "
 "including any offsets, then will make a rapid move to the 'absolute' "
 "position of the values in parameters 5181-5189 for all 'axes' specified. Any "
 "'axis' not specified will not move."
 msgstr ""
-"'G30 ejes':realiza un movimiento rápido a la posición especificada por "
+"'G30 ejes' - realiza un movimiento rápido a la posición especificada por "
 "'ejes' incluyendo cualquier offset, luego hará un movimiento rápido a la "
 "posición 'absoluta' de los valores en los parámetros 5181-5189 para todos "
 "los 'ejes' especificados. Cualquier 'eje' no especificado no se moverá."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1031
-#, fuzzy
 msgid ""
 "'G30.1' - stores the current absolute position into parameters 5181-5186."
 msgstr ""
@@ -52432,37 +52305,36 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1032
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G30 Example Line"
-msgstr "G30 Ejemplo de línea"
+msgstr "Ejemplo de línea de G30"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1036
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)\n"
-msgstr "G30 Z2.5 (rápido a Z2.5 y luego a la ubicación Z especificada en #5183)\n"
+msgstr ""
+"G30 Z2.5 (rápido a Z2.5 y luego a la ubicación Z especificada en #5183)\n"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1043
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G33 Spindle Synchronized Motion"
-msgstr "Movimiento sincronizado del husillo"
+msgstr "G33 Movimiento sincronizado del husillo"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1048
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G33 X- Y- Z- K- $-\n"
 msgstr "G33 X- Y- Z- K- $ -\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1051 src/gcode/g-code.adoc:1128
-#, fuzzy
 msgid "'K' - distance per revolution"
 msgstr "'K' - distancia por revolución"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1060
-#, fuzzy
 msgid ""
 "For spindle-synchronized motion in one direction, code 'G33 X- Y- Z- K-' "
 "where K gives the distance moved in XYZ for each revolution of the spindle.  "
@@ -52474,15 +52346,14 @@ msgid ""
 msgstr ""
 "Para movimiento sincronizado con husillo en una dirección, codifique 'G33 X- "
 "Y- Z- K-' donde K es la distancia movida en XYZ para cada revolución del "
-"husillo.  Por ejemplo, si comienza en 'Z = 0', 'G33 Z-1 K.0625' produce un "
+"husillo.  Por ejemplo, si comienza en 'Z=0', 'G33 Z-1 K.0625' produce un "
 "movimiento de 1 pulgada en Z cada 16 revoluciones del husillo.  Este comando "
 "podría ser parte de un programa para producir una rosca 16TPI.  Otro ejemplo "
 "en métrica, 'G33 Z-15 K1.5' produce un movimiento de 15 mm mientras el "
-"husillo gira 10 veces para una rosca de 1,5 mm."
+"husillo gira 10 veces para una rosca de 1.5 mm."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1064
-#, fuzzy
 msgid ""
 "The (optional) $ argument sets which spindle the motion is synchronised to "
 "(default is zero). For example G33 Z10 K1 $1 will move the spindle in "
@@ -52494,7 +52365,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1069
-#, fuzzy
 msgid ""
 "Spindle-synchronized motion waits for the spindle index and spindle at speed "
 "pins, so multiple passes line up. 'G33' moves end at the programmed "
@@ -52513,17 +52383,16 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1076
-#, fuzzy
 msgid ""
 "K follows the drive line described by 'X- Y- Z-'. K is not parallel to the Z "
 "axis if X or Y endpoints are used for example when cutting tapered threads."
 msgstr ""
-"K sigue la línea descrita por 'X- Y- Z-'. K no es paralelo a el eje Z si se "
+"K sigue la línea descrita por 'X- Y- Z-'. K no es paralelo al eje Z si se "
 "utilizan puntos finales X o Y, por ejemplo, al cortar roscas cónicas."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1078 src/gcode/g-code.adoc:1975
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Technical Info"
 msgstr "Información técnica"
 
@@ -52539,24 +52408,24 @@ msgid ""
 "accelerating to the proper speed, and can immediately begin cutting a good "
 "thread."
 msgstr ""
-"Al comienzo de cada pasada G33, LinuxCNC usa la velocidad del eje y los "
+"Al comienzo de cada pasada G33, LinuxCNC usa la velocidad del husillo y los "
 "límites de aceleración de la máquina para calcular cuánto tiempo llevará "
-"acelerar Z después del pulso índice y determina cuántos grados rotará el "
+"acelerar Z después del pulso índice, y determina cuántos grados rotará el "
 "husillo durante ese tiempo. Luego agrega ese ángulo a la posición index y "
 "calcula la posición Z utilizando el ángulo de husillo corregido. Eso "
 "significa que Z alcanzará la posición correcta justo al terminar de acelerar "
-"a la velocidad adecuada y puede comenzar de inmediato cortando un buen hilo."
+"a la velocidad adecuada y puede comenzar de inmediato a cortar una buena "
+"rosca."
 
 #. type: Title ===
 #: src/gcode/g-code.adoc:1088 src/gcode/g-code.adoc:1969
 #: src/motion/switchkins.adoc:137
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "HAL Connections"
 msgstr "Conexiones HAL"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1093
-#, fuzzy
 msgid ""
 "The pin 'spindle.N.at-speed' must be set or driven true for the motion to "
 "start. Additionally spindle.N.revs must increase by 1 for each revolution of "
@@ -52565,13 +52434,12 @@ msgid ""
 msgstr ""
 "El pin 'spindle.N.at-speed' debe estar configurado o accionado como true "
 "para que el movimiento comience. Además spindle.N.revs debe aumentar en 1 "
-"por cada revolución del husillo y elpin spindle.N.index-enable debe estar "
-"conectado a un contador de codificador (o resolver) que restablece la "
-"habilitación de índice una vez por rev."
+"por cada revolución del husillo y el pin spindle.N.index-enable debe estar "
+"conectado a un contador de codificador (o resolver) que restablece index-"
+"enable una vez por rev."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1096
-#, fuzzy
 msgid ""
 "See the Integrators Manual for more information on spindle synchronized "
 "motion."
@@ -52581,13 +52449,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1097
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G33 Example"
 msgstr "Ejemplo G33"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1107
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (absolute distance mode)\n"
 "G0 X1 Z0.1 (rapid to position)\n"
@@ -52600,19 +52468,19 @@ msgstr ""
 "G90 (modo de distancia absoluta)\n"
 "G0 X1 Z0.1 (rápido a la posición)\n"
 "S100 M3 (comenzar a girar el husillo)\n"
-"G33 Z-2 K0.125 (mover el eje Z a -2 a una velocidad igual a 0.125 por revolución)\n"
+"G33 Z-2 K0.125 (mover el eje Z a -2 a una velocidad igual a 0.125 por "
+"revolución)\n"
 "G0 X1.25 (movimiento rápido herramienta fuera del trabajo)\n"
 "Z0.1 (movimiento rápido a la posición Z inicial)\n"
 "M2 (final del programa)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1111 src/gcode/g-code.adoc:1177
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections "
 "for more information."
 msgstr ""
-"Consulte las secciones <<gcode:g90-g91,G90>> , <<gcode:g0,G0>> y <<mcode:m2-"
+"Consulte las secciones <<gcode:g90-g91,G90>>, <<gcode:g0,G0>> y <<mcode:m2-"
 "m30,M2>> para obtener más información."
 
 #. type: Plain text
@@ -52636,19 +52504,18 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1120
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G33.1 Rigid Tapping"
-msgstr "G33.1 Roscado rígido(((G33.1 Rigid Tapping)))"
+msgstr "G33.1 Roscado rígido"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1125
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G33.1 X- Y- Z- K- I- $-\n"
 msgstr "G33.1 X- Y- Z- K- I- $ -\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1129
-#, fuzzy
 msgid "'I' - optional spindle speed multiplier for faster return move"
 msgstr ""
 "'I' - multiplicador de velocidad del husillo opcional para un movimiento de "
@@ -52656,13 +52523,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1130
-#, fuzzy
 msgid "'$' - optional spindle selector"
 msgstr "'$' - selector de husillo opcional"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1137
-#, fuzzy
 msgid ""
 "For Z only tapping preposition the XY location prior to calling G33.1 and "
 "only use a Z word in the G33.1. If the coordinates specified are not the "
@@ -52678,7 +52543,6 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1141
-#, fuzzy
 msgid ""
 "For rigid tapping (spindle synchronized motion with return), code 'G33.1 X- "
 "Y- Z- K-' where 'K-' gives the distance moved for each revolution of the "
@@ -52690,13 +52554,11 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1143
-#, fuzzy
 msgid "A rigid tapping move consists of the following sequence:"
 msgstr "Un movimiento de roscado rígido consiste en la siguiente secuencia:"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1147
-#, fuzzy
 msgid ""
 "A move from the current coordinate to the specified coordinate, synchronized "
 "with the selected spindle at the given ratio and starting from the current "
@@ -52708,17 +52570,15 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1150
-#, fuzzy
 msgid ""
 "When reaching the endpoint, a command to reverse the spindle, and speed up "
 "by a factor set by the multiplier (e.g., from clockwise to counterclockwise)."
 msgstr ""
-"Al llegar al punto final, comanda la inversion del eje y acelera por un "
-"factor establecido por el multiplicador (p. ej., de derecha a izquierda)."
+"Al llegar al punto final, ordena reversar el husillo y acelera por un factor "
+"establecido por el multiplicador (p. ej., de sentido horario a antihorario)."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1152
-#, fuzzy
 msgid ""
 "Continued synchronized motion beyond the specified end coordinate until the "
 "spindle actually stops and reverses."
@@ -52728,23 +52588,20 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1153
-#, fuzzy
 msgid "Continued synchronized motion back to the original coordinate."
 msgstr "Movimiento sincronizado continuo de vuelta a la coordenada original."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1156
-#, fuzzy
 msgid ""
 "When reaching the original coordinate, a command to reverse the spindle a "
 "second time (e.g., from counterclockwise to clockwise)."
 msgstr ""
-"Al alcanzar la coordenada original, comanda para invertir el eje por segunda "
-"vez (por ejemplo, de izquierda a derecha)."
+"Al alcanzar la coordenada original, ordena por segunda vez invertir el "
+"husillo (p. ej. de sentido antihorario a horario)."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1158
-#, fuzzy
 msgid ""
 "Continued synchronized motion beyond the original coordinate until the "
 "spindle actually stops and reverses."
@@ -52754,14 +52611,11 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1159
-#, fuzzy
 msgid "An *unsynchronized* move back to the original coordinate."
-msgstr ""
-"Un movimiento *no sincronizado* retrocediendo a la coordenada original."
+msgstr "Un movimiento *no sincronizado* retrocediendo a la coordenada original."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1162
-#, fuzzy
 msgid ""
 "Spindle-synchronized motions wait for spindle index, so multiple passes line "
 "up.'G33.1' moves end at the original coordinate."
@@ -52772,13 +52626,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1165
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G33.1 Example"
 msgstr "Ejemplo G33.1"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1173
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute mode)\n"
 "G0 X1.000 Y1.000 Z0.100 (rapid move to starting position)\n"
@@ -52794,7 +52648,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1182
-#, fuzzy
 msgid "The spindle is not turning when this command is executed"
 msgstr "El husillo no gira cuando se ejecuta este comando"
 
@@ -52809,40 +52662,36 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1186
-#, fuzzy
 msgid "G38.n Probe"
-msgstr "Sondeo en cuadrícula"
+msgstr "G38.n Sondeo"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1186
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38._n_ Straight Probe"
-msgstr "Sonda inteligente"
+msgstr "G38._n_ Sondeo directo"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1191
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38.n axes\n"
-msgstr "Ejes G38.n\n"
+msgstr "G38.n ejes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1195
-#, fuzzy
 msgid ""
 "'G38.2' - probe toward workpiece, stop on contact, signal error if failure"
 msgstr ""
-"'G38.2' - sonda hacia la pieza de trabajo, parada en contacto, señal de "
+"'G38.2' - sondeo hacia la pieza de trabajo, parada al contacto, señal de "
 "error si falla"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1196
-#, fuzzy
 msgid "'G38.3' - probe toward workpiece, stop on contact"
-msgstr "'G38.3' - sonda hacia la pieza de trabajo, parada en contacto"
+msgstr "'G38.3' - sondeo hacia la pieza de trabajo, parada al contacto"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1198
-#, fuzzy
 msgid ""
 "'G38.4' - probe away from workpiece, stop on loss of contact, signal error "
 "if failure"
@@ -52852,15 +52701,12 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1199
-#, fuzzy
 msgid "'G38.5' - probe away from workpiece, stop on loss of contact"
 msgstr ""
-"'G38.5' - alejar la sonda de la pieza de trabajo, parada en caso de pérdida "
-"de contacto"
+"'G38.5' - alejar la sonda de la pieza de trabajo, parada al perder contacto"
 
 #. type: IMPORTANT
 #: src/gcode/g-code.adoc:1208
-#, fuzzy
 msgid ""
 "You will not be able to use a probe move until your machine has been set up "
 "to provide a probe input signal.  The probe input signal must be connected "
@@ -52868,16 +52714,15 @@ msgid ""
 "determine when the probe has made (or lost) contact.  TRUE for probe contact "
 "closed (touching), FALSE for probe contact open."
 msgstr ""
-"No podrá utilizar un movimiento de sonda hasta que su máquina se ha "
-"configurado para proporcionar una señal de entrada de sonda.  La señal de "
+"No podrás utilizar un movimiento de sonda hasta que tu máquina haya sido "
+"configurada para proporcionar una señal de entrada de sonda.  La señal de "
 "entrada de la sonda debe estar conectada a 'motion.probe-input' en un "
-"archivo .hal.  G38.n usa motion.probe-input para determinar cuándo la sonda "
-"ha hecho (o perdido) el contacto.  True para el contacto de la sonda cerrado "
-"(en contacto), false para el contacto de la sonda abierto."
+"archivo .hal.  G38._n_ usa motion.probe-input para determinar cuándo la "
+"sonda ha hecho (o perdido) el contacto.  True para el contacto de la sonda "
+"cerrado (en contacto), False para el contacto de la sonda abierto."
 
 #. type: IMPORTANT
 #: src/gcode/g-code.adoc:1216
-#, fuzzy
 msgid ""
 "Program 'G38._n_ axes' to perform a straight probe operation.  The axis "
 "words are optional, except that at least one of them must be used.  The axis "
@@ -52885,23 +52730,21 @@ msgid ""
 "towards, starting from the current location.  If the probe is not tripped "
 "before the destination is reached G38.2 and G38.4 will signal an error."
 msgstr ""
-"Programe 'G38.n ejes' para realizar una operación de sonda recta.  Las "
+"Programe 'G38._n_ ejes' para realizar una operación de sondeo recto.  Las "
 "palabras de eje son opcionales, pero se debe utilizar al menos una de "
 "ellas.  Las palabras del eje juntas definen el punto de destino hacia el "
 "cual se moverá la sonda, a partir de la ubicación actual. Si la sonda no se "
-"dispara antes alcanzar el destino con G38.2 y G38.4, se indicará un error."
+"dispara antes alcanzar el destino con G38.2 y G38.4, se señalará un error."
 
 #. type: IMPORTANT
 #: src/gcode/g-code.adoc:1218
-#, fuzzy
 msgid "The tool in the spindle must be a probe or contact a probe switch."
 msgstr ""
-"La herramienta en el eje debe ser una sonda o contactar un interruptor de "
-"sonda."
+"La herramienta en el husillo debe ser una sonda o contactar un interruptor "
+"de sonda."
 
 #. type: IMPORTANT
 #: src/gcode/g-code.adoc:1228
-#, fuzzy
 msgid ""
 "In response to this command, the machine moves the controlled point (which "
 "should be at the center of the probe ball) in a straight line at the current "
@@ -52913,92 +52756,90 @@ msgid ""
 "occurs first."
 msgstr ""
 "En respuesta a este comando, la máquina mueve el punto controlado (que debe "
-"estar en el centro de la bola de la sonda) en línea recta al <<sec:set-feed-"
-"rate,avance>> actual hacia el punto programado.  En el modo de alimentación "
-"de tiempo inverso, la velocidad de alimentación será tal que todo el "
-"movimiento desde el punto actual hasta el punto programado tomara el tiempo "
-"especificado.  El movimiento se detiene (dentro de los límites de "
-"aceleración de la máquina)  cuando se alcanza el punto programado, o cuando "
-"se produce el cambio solicitado en la entrada de la sonda, lo que ocurra "
-"primero."
+"estar en el centro de la bola de la sonda) en línea recta a la <<sec:set-"
+"feed-rate,velocidad de avance>> actual hacia el punto programado.  En el "
+"modo de alimentación de tiempo inverso, la velocidad de alimentación será "
+"tal que todo el movimiento desde el punto actual hasta el punto programado "
+"tomara el tiempo especificado.  El movimiento se detiene (dentro de los "
+"límites de aceleración de la máquina) cuando se alcanza el punto programado, "
+"o cuando se produce el cambio solicitado en la entrada de la sonda, lo que "
+"ocurra primero."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1230
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Probing G-Codes"
-msgstr "Probing G-Codes"
+msgstr "Códigos G de sondeo"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1233
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Target State"
-msgstr "Pallet Shuttle"
+msgstr "Estado objetivo"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1233
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Move orientation"
-msgstr "Más información"
+msgstr "Orientación del movimiento"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1234
-#, fuzzy, no-wrap
-#| msgid "Signal"
+#, no-wrap
 msgid "Error Signal"
-msgstr "Señal"
+msgstr "Señal de error"
 
 #. type: Labeled list
 #: src/gcode/g-code.adoc:1234 src/gcode/overview.adoc:482
 #: src/gcode/rs274ngc.adoc:69
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38.2"
 msgstr "G38.2"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1234 src/gcode/g-code.adoc:1235
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Touched"
-msgstr "Touchy"
+msgstr "Tocado"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1234 src/gcode/g-code.adoc:1235
 #, no-wrap
 msgid "Toward piece"
-msgstr ""
+msgstr "Hacia la pieza"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1235 src/gcode/overview.adoc:483
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38.3"
-msgstr "G38.2"
+msgstr "G38.3"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1236 src/gcode/overview.adoc:484
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38.4"
-msgstr "G38.2"
+msgstr "G38.4"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1236 src/gcode/g-code.adoc:1237
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Untouched"
-msgstr "touchy"
+msgstr "Sin tocar"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1236 src/gcode/g-code.adoc:1237
 #, no-wrap
 msgid "From piece"
-msgstr ""
+msgstr "Desde la pieza"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1237 src/gcode/overview.adoc:485
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38.5"
-msgstr "G38.2"
+msgstr "G38.5"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1251
-#, fuzzy
 msgid ""
 "After successful probing, parameters #5061 to #5069 will be set to the X, Y, "
 "Z, A, B, C, U, V, W coordinates of the location of the controlled point at "
@@ -53009,14 +52850,14 @@ msgid ""
 "signal an error by posting an message on screen if the selected GUI supports "
 "that.  And by halting program execution."
 msgstr ""
-"Después de una prueba exitosa, los parámetros #5061 a #5069 se establecerán "
+"Después de un sondeo exitoso, los parámetros #5061 a #5069 se establecerán "
 "en las coordenadas X, Y, Z, A, B, C, U, V, W de la ubicación del punto "
 "controlado en el momento en que la sonda cambió de estado (en el sistema de "
 "coordenadas de trabajo actual).  Después de un sondeo fallido, se establecen "
 "en las coordenadas del punto programado.  El parámetro #5070 se establece en "
 "1 si la sonda tuvo éxito y 0 si la sonda falló.  Si la operación de sondeo "
-"falla, G38.2 y G38.4 señalarán un error mostrando un mensaje en pantalla si "
-"la GUI seleccionada lo admite, y al detener la ejecución del programa."
+"falla, G38.2 y G38.4 señalarán un error enviando un mensaje a pantalla si la "
+"GUI seleccionada lo admite, y deteniendo la ejecución del programa."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1259
@@ -53028,12 +52869,20 @@ msgid ""
 "is loaded from the tool table.  The start position must be high enough above "
 "the tool height probe to compensate for the use of G49."
 msgstr ""
+"Aquí hay una fórmula de ejemplo para sondear la altura de la herramienta con "
+"conversión de un offset Z del sistema de coordenadas local a coordenadas de "
+"máquina, la cual está almacenada en la tabla de herramientas.  Primero se "
+"cancela con G49 la compensación existente de altura de herramienta para "
+"evitar incluirla en el cálculo de la altura, y la nueva altura es cargada "
+"desde la tabla de herramientas.  La posición inicial debe ser lo "
+"suficientemente alta por encima de la sonda de altura de herramienta para "
+"compensar el uso de G49."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1260
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G38.2 Example"
-msgstr "G43.2 Ejemplo"
+msgstr "Ejemplo de G38.2"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1268
@@ -53045,24 +52894,27 @@ msgid ""
 "G10 L1 P#5400 Z#<zworkoffset> (set new tool offset)\n"
 "G43\n"
 msgstr ""
+"G49\n"
+"G38.2 Z-100 F100\n"
+"#<zworkoffset> = [#[5203 + #5220 * 20] + #5213 * #5210]\n"
+"G10 L1 P#5400 Z#<zworkoffset> (establece nuevo offset de herramienta)\n"
+"G43\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1275
-#, fuzzy
 msgid ""
 "A comment of the form '(PROBEOPEN filename.txt)' will open 'filename.txt' "
 "and store the 9-number coordinate consisting of XYZABCUVW of each successful "
 "straight probe in it.  The file must be closed with '(PROBECLOSE)'. For more "
 "information see the <<gcode:comments,Comments>> section."
 msgstr ""
-"Un comentario de la forma '(PROBEOPEN filename.txt)' abrirá 'filename.txt' y "
-"almacenará las coordenadas XYZABCUVW de cada sonda recta exitosa en ella.  "
-"El archivo debe cerrarse con '(PROBECLOSE)'. Para más información vea la "
-"sección <<gcode:comments,comentarios>>."
+"Un comentario de la forma '(PROBEOPEN archivo.txt)' abrirá 'archivo.txt' y "
+"almacenará en él los 9 números consistentes de coordenada XYZABCUVW de cada "
+"sondeo recto exitoso.  El archivo debe cerrarse con '(PROBECLOSE)'. Para más "
+"información vea la sección <<gcode:comments,comentarios>>."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1281
-#, fuzzy
 msgid ""
 "An example file 'smartprobe.ngc' is included (in the examples directory)  to "
 "demonstrate using probe moves to log to a file the coordinates of a part.  "
@@ -53076,82 +52928,75 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1285
-#, fuzzy
 msgid "the current point is the same as the programmed point."
 msgstr "el punto actual es el mismo que el punto programado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1286
-#, fuzzy
 msgid "no axis word is used"
 msgstr "no se usa palabra de eje"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1287
-#, fuzzy
 msgid "cutter compensation is enabled"
 msgstr "la compensación del cortador está habilitada"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1288
-#, fuzzy
 msgid "the feed rate is zero"
 msgstr "la velocidad de alimentación es cero"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1289
-#, fuzzy
 msgid "the probe is already in the target state"
 msgstr "la sonda ya está en el estado objetivo"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1291
-#, fuzzy
 msgid "G40 Cutter Compensation Off"
-msgstr "Compensación del cortador"
+msgstr "G40 Apagar compensación del cortador"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1291
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G40 Compensation Off"
-msgstr "Compensacion de Herramientas"
+msgstr "G40 Apagar compensación"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1296
-#, fuzzy
 msgid ""
 "'G40' - turn cutter compensation off. If tool compensation was on the next "
 "move must be a linear move and longer than the tool diameter.  It is OK to "
 "turn compensation off when it is already off."
 msgstr ""
 "'G40' - apaga la compensación del cortador. Si la compensación de "
-"herramienta está ON, el siguiente movimiento debe ser lineal y más largo que "
-"el diámetro de la herramienta.  Se puede desactivar la compensación cuando "
-"ya está desactivada."
+"herramienta está encendida, el siguiente movimiento debe ser lineal y más "
+"largo que el diámetro de la herramienta.  Se puede apagar la compensación "
+"cuando ya está desactivada."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1297
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G40 Example"
-msgstr "Ejemplo G40"
+msgstr "Ejemplo de G40"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1304
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "; current location is X1 after finishing cutter compensated move\n"
 "G40 (turn compensation off)\n"
 "G0 X1.6 (linear move longer than current cutter diameter)\n"
 "M2 (end program)\n"
 msgstr ""
-"; La ubicación es X1 después de terminar el movimiento compensado del cortador\n"
-"G40 (desactivar compensación)\n"
+"; La ubicación actual es X1 después de terminar el movimiento compensado del "
+"cortador\n"
+"G40 (apagar compensación)\n"
 "G0 X1.6 (movimiento lineal más largo que el diámetro actual de la fresa)\n"
 "M2 (final del programa)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1307
-#, fuzzy
 msgid ""
 "See <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more information."
 msgstr ""
@@ -53160,13 +53005,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1311
-#, fuzzy
 msgid "A G2/G3 arc move is programmed next after a G40."
-msgstr "Un movimiento de arco G2/G3 se programa después de un G40."
+msgstr "Se programa un movimiento de arco G2/G3 después de un G40."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1313
-#, fuzzy
 msgid ""
 "The linear move after turning compensation off is less than the tool "
 "diameter."
@@ -53176,19 +53019,18 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1315
-#, fuzzy
 msgid "G41 G42 Cutter Compensation"
-msgstr "Compensación del cortador"
+msgstr "G41 G42 Compensación del cortador"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1315
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G41, G42 Cutter Compensation"
-msgstr "Compensación del cortador"
+msgstr "G41, G42 Compensación del cortador"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1321
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G41 <D-> (left of programmed path)\n"
 "G42 <D-> (right of programmed path)\n"
@@ -53198,25 +53040,22 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1324
-#, fuzzy
 msgid "'D' - tool number"
 msgstr "'D' - número de herramienta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1328
-#, fuzzy
 msgid ""
 "The D word is optional; if there is no D word the radius of the currently "
 "loaded tool will be used (if no tool is loaded and no D word is given, a "
 "radius of 0 will be used)."
 msgstr ""
 "La palabra D es opcional; si no hay una palabra D, se utilizará el radio de "
-"la herramienta cargada actual (si no se carga ninguna herramienta y no se "
+"la herramienta cargada actual (si no hay herramienta cargada y no se "
 "proporciona una palabra D, se usará un radio de 0)."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1332
-#, fuzzy
 msgid ""
 "If supplied, the D word is the tool number to use.  This would normally be "
 "the number of the tool in the spindle (in which case the D word is redundant "
@@ -53229,7 +53068,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1342
-#, fuzzy
 msgid ""
 "'G41/G42 D0' is a little special.  Its behavior is different on random tool "
 "changer machines and nonrandom tool changer machines (see the "
@@ -53239,18 +53077,17 @@ msgid ""
 "'G41/G42 D0' applies the TLO of the tool T0 defined in the tool table file "
 "(or causes an error if T0 is not defined in the tool table)."
 msgstr ""
-"'G41/G42 D0' es un poco especial. Su comportamiento es diferente en máquinas "
-"de cambio de herramientas aleatorio y no aleatorio (vea la sección "
-"<<mcode:m6,Cambio de herramienta>>). En no aleatorio, 'G41/G42 D0' aplica el "
-"TLO de la herramienta actualmente en el husillo, o un TLO de 0 si no hay "
-"herramienta en el husillo.  En máquinas de cambio de herramienta aleatorio, "
-"'G41/G42 D0' aplica el TLO de la herramienta T0 definida en el archivo de "
-"tabla de herramientas (o causa un error si T0 no está definido en la tabla "
-"de herramientas)."
+"'G41/G42 D0' es un poco especial.  Su comportamiento es diferente en "
+"máquinas de cambio de herramientas aleatorio y no aleatorio (vea la sección "
+"<<mcode:m6,Cambio de herramienta>>).  En no aleatorio, 'G41/G42 D0' aplica "
+"el Offset de longitud de herramienta (TLO) de la herramienta actualmente en "
+"el husillo, o un TLO de 0 si no hay herramienta en el husillo. En máquinas "
+"de cambio de herramienta aleatorio, 'G41/G42 D0' aplica el TLO de la "
+"herramienta T0 definida en el archivo de tabla de herramientas (o causa un "
+"error si T0 no está definido en la tabla de herramientas)."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1346
-#, fuzzy
 msgid ""
 "To start cutter compensation to the left of the part profile, use G41.  G41 "
 "starts cutter compensation to the left of the programmed line as viewed from "
@@ -53263,7 +53100,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1350
-#, fuzzy
 msgid ""
 "To start cutter compensation to the right of the part profile, use G42.  G42 "
 "starts cutter compensation to the right of the programmed line as viewed "
@@ -53276,7 +53112,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1353
-#, fuzzy
 msgid ""
 "The lead in move must be at least as long as the tool radius.  The lead in "
 "move can be a rapid move."
@@ -53286,7 +53121,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1356
-#, fuzzy
 msgid ""
 "Cutter compensation may be performed if the XY-plane or XZ-plane is active."
 msgstr ""
@@ -53295,7 +53129,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1358
-#, fuzzy
 msgid "User M100-M199 commands are allowed when Cutter Compensation is on."
 msgstr ""
 "Los comandos de usuario M100-M199 están permitidos cuando la compensación de "
@@ -53303,7 +53136,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1362
-#, fuzzy
 msgid ""
 "The behavior of the machining center when cutter compensation is on is "
 "described in the <<sec:cutter-radius-compensation,Cutter Compensation>> "
@@ -53315,38 +53147,34 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1366
-#, fuzzy
 msgid "The D number is not a valid tool number or 0."
 msgstr "El número D no es un número de herramienta válido o 0."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1367 src/gcode/g-code.adoc:1388
-#, fuzzy
 msgid "The YZ plane is active."
 msgstr "El plano YZ está activo."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1368 src/gcode/g-code.adoc:1391
-#, fuzzy
 msgid "Cutter compensation is commanded to turn on when it is already on."
 msgstr ""
 "Se ordena que la compensación del cortador se active cuando ya está activada."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1370
-#, fuzzy
 msgid "G41.1 G42.1 Dynamic Compensation"
-msgstr "Compensación del cortador"
+msgstr "G41.1 G42.1 Compensación dinámica"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1370
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G41.1, G42.1 Dynamic Cutter Compensation"
-msgstr "Compensación del cortador"
+msgstr "G41.1, G42.1 Compensación dinámica del cortador"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1376
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G41.1 D- <L-> (left of programmed path)\n"
 "G42.1 D- <L-> (right of programmed path)\n"
@@ -53356,90 +53184,82 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1379
-#, fuzzy
 msgid "'D' - cutter diameter"
 msgstr "'D' - diámetro del cortador"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1380
-#, fuzzy
 msgid ""
 "'L' - tool orientation (see <<sec:lathe-tool-orientation,lathe tool "
 "orientation>>)"
 msgstr ""
-"'L' - orientación de herramienta (ver <<lathe-tool-orientation, orientación "
-"de herramienta de torno>>)"
+"'L' - orientación de herramienta (ver <<sec:lathe-tool-orientation, "
+"orientación de herramienta de torno>>)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1384
-#, fuzzy
 msgid ""
 "G41.1 & G42.1 function the same as G41 & G42 with the added scope of being "
 "able to program the tool diameter. The L word defaults to 0 if unspecified."
 msgstr ""
 "G41.1 y G42.1 funcionan igual que G41 y G42 con la capacidad adicional de "
-"poder programar el diámetro de la herramienta. La palabra L por defecto es 0 "
-"si no se especifica."
+"poder programar el diámetro de la herramienta. La palabra L es "
+"predeterminada a 0 si no se especifica."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1389
-#, fuzzy
 msgid "The L number is not in the range from 0 to 9 inclusive."
 msgstr "El número L no está en el rango de 0 a 9 inclusive."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1390
-#, fuzzy
 msgid "The L number is used when the XZ plane is not active."
 msgstr "El número L se usa cuando el plano XZ no está activo."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1393
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43 Tool Length Offset"
-msgstr "offsets de longitud de herramienta"
+msgstr "G43 Offset de longitud de herramienta"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1398
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43 <H->\n"
 msgstr "G43 <H->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1401
-#, fuzzy
 msgid "'H' - tool number (optional)"
 msgstr "'H' - número de herramienta (opcional)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1407
-#, fuzzy
 msgid ""
 "'G43' - enables tool length compensation.  G43 changes subsequent motions by "
 "offsetting the axis coordinates by the length of the offset. G43 does not "
 "cause any motion. The next time a compensated axis is moved, that axis's "
 "endpoint is the compensated location."
 msgstr ""
-"G43 permite la compensación de la longitud de la herramienta. G43 cambia los "
-"movimientos posteriores compensando las coordenadas de eje con la longitud "
-"del offset. G43 no causa ningún movimiento. La próxima vez que se mueva un "
-"eje compensado, el punto final de ese eje será la ubicación compensada."
+"'G43' - permite la compensación de la longitud de la herramienta.  G43 "
+"cambia los movimientos subsecuentes compensando las coordenadas de eje con "
+"la longitud del offset. G43 no causa ningún movimiento. La próxima vez que "
+"se mueva un eje compensado, el punto final de ese eje será la ubicación "
+"compensada."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1409
-#, fuzzy
 msgid ""
 "'G43' without an H word uses the currently loaded tool from the last 'T__n__ "
 "M6'."
 msgstr ""
-"'G43' sin una palabra H usa la herramienta cargada actualmente del último "
-"'Tn M6'."
+"'G43' sin una palabra H usa la herramienta cargada actualmente desde el "
+"último 'T__n__ M6'."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1411
-#, fuzzy
 msgid "'G43 H__n__' uses the offset for tool _n_."
-msgstr "'G43 Hn' usa el offset de la herramienta n."
+msgstr "'G43 H__n__' usa el offset de la herramienta _n_."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1414
@@ -53447,10 +53267,11 @@ msgid ""
 "The active tool length compensation values are stored in the numbered "
 "parameters '5401-5409'."
 msgstr ""
+"Los valores de compensación de longitud de la herramienta activa están "
+"almacenados en los parámetros numerados '5401-5409'."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1424
-#, fuzzy
 msgid ""
 "'G43 H0' is a little special.  Its behavior is different on random tool "
 "changer machines and nonrandom tool changer machines (see the <<sub:tool-"
@@ -53471,31 +53292,30 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1425
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43 H- Example Line"
 msgstr "Línea de ejemplo G43 H-"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1429
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43 H1 (set tool offsets using the values from tool 1 in the tool table)\n"
-msgstr "G43 H1 (establecer compensaciones de herramienta utilizando los valores de la herramienta 1 en la tabla de herramientas)\n"
+msgstr ""
+"G43 H1 (establecer compensaciones de herramienta utilizando los valores de "
+"la herramienta 1 en la tabla de herramientas)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1434
-#, fuzzy
 msgid "the H number is not an integer, or"
 msgstr "el número H no es un entero, o"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1435
-#, fuzzy
 msgid "the H number is negative, or"
 msgstr "el número H es negativo, o"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1438
-#, fuzzy
 msgid ""
 "the H number is not a valid tool number (though note that 0 is a valid tool "
 "number on nonrandom tool changer machines, it means \"the tool currently in "
@@ -53507,113 +53327,114 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1440
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.1 Dynamic Tool Length Offset"
-msgstr "'Longitudes de herramientas dinámicas'"
+msgstr "G43.1 Compensación dinámica de longitud de herramienta"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1445
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.1 axes\n"
 msgstr "G43.1 ejes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1450
-#, fuzzy
 msgid ""
 "'G43.1 axes' - change subsequent motions by replacing the current offset(s) "
 "of axes.  G43.1 does not cause any motion. The next time a compensated axis "
 "is moved, that axis's endpoint is the compensated location."
 msgstr ""
-"'G43.1 ejes' - cambia los movimientos siguientes reemplazando los offsets "
-"actuales de ejes. G43.1 no causa ningún movimiento. La próxima vez un eje "
+"'G43.1 ejes' - modifica los movimientos siguientes reemplazando los offsets "
+"actuales de ejes.  G43.1 no causa ningún movimiento. La próxima vez un eje "
 "compensado se mueva, el punto final de ese eje será la ubicación compensada."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1451
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.1 Example"
-msgstr "Ejemplo G43.1"
+msgstr "Ejemplo de G43.1"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1458
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute mode)\n"
 "T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows Z1.500)\n"
 "G43.1 Z0.250 (replace current tool offset with 0.250, DRO now shows Z0.250)\n"
 "M2 (end program)\n"
 msgstr ""
-"G90 (establecer modo absoluto)\n"
-"T1 M6 G43 (carga herramienta 1 y offset de longitud de herramienta, Z está en 0 máquina y DRO muestra Z1.500)\n"
-"G43.1 Z0.250 (offset actual de la herramienta en 0.250, DRO ahora muestra Z1.250)\n"
+"G90 (establece modo absoluto)\n"
+"T1 M6 G43 (carga herramienta 1 y compensaciones de longitud de herramienta, "
+"Z está en 0 máquina y DRO muestra Z1.500)\n"
+"G43.1 Z0.250 (reemplaza la compensación de la herramienta actual con 0.250, "
+"DRO ahora muestra Z1.250)\n"
 "M2 (final del programa)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1461
-#, fuzzy
 msgid ""
 "See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>> sections "
 "for more information."
 msgstr ""
-"Consulte las secciones <<gcode:g90-g91, G90>> , <<sec:select-tool,T>> y "
+"Consulte las secciones <<gcode:g90-g91,G90>>, <<sec:select-tool,T>> y "
 "<<mcode:m6,M6>> para más información."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1465
-#, fuzzy
 msgid "motion is commanded on the same line as 'G43.1'"
 msgstr "el movimiento se ordena en la misma línea que 'G43.1'"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1468
-#, fuzzy
 msgid "G43.1 does not write to the tool table."
 msgstr "G43.1 no escribe en la tabla de herramientas."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1470
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.2 Apply additional Tool Length Offset"
-msgstr "offsets de longitud de herramienta"
+msgstr "G43.2 Aplicar compensación adicional de longitud de herramienta"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1475
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.2 H- or axes-\n"
-msgstr "G43.2 H- ejes-\n"
+msgstr "G43.2 H- o ejes-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1478
-#, fuzzy
 msgid "'H' - tool number"
 msgstr "'H' - número de herramienta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1480
-#, fuzzy
 msgid ""
 "'G43.2 H__n__' - applies an additional simultaneous tool offset to "
 "subsequent motions by adding the offset(s) of tool _n_."
-msgstr "G43.2 aplica una compensación de herramienta adicional."
+msgstr ""
+"'G43.2 H__n__' - aplica una compensación de herramienta adicional simultánea "
+"a los movimientos subsecuentes agregando la(s) compensación(es) a la "
+"herramienta _n_."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1482
-#, fuzzy
 msgid ""
 "'G43.2 axes' - applies an additional simultaneous tool offset to subsequent "
 "motions by adding the value(s) of any axis words."
-msgstr "G43.2 aplica una compensación de herramienta adicional."
+msgstr ""
+"'G43.2 ejes' - aplica una compensación de herramienta adicional simultánea a "
+"los movimientos subsecuentes agregando el(los) valor(es) a cualquier palabra "
+"de eje."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1483
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.2 H__n__ Example"
-msgstr "G43.2 Ejemplo"
+msgstr "Ejemplo de G43.2 H__n__"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1491
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute mode)\n"
 "T1 M6 (load tool 1)\n"
@@ -53621,21 +53442,22 @@ msgid ""
 "G43.2 H10 (also add in T10's tool offset)\n"
 "M2 (end program)\n"
 msgstr ""
-"G90 (establecer modo absoluto)\n"
-"T1 M6 (herramienta de carga 1)\n"
-"G43 (o G43 H1:reemplaza todas las compensaciones de herramienta con el offset de T1)\n"
-"G43.2 H10 (también agregue en el offset de herramienta de T10)\n"
+"G90 (establece modo absoluto)\n"
+"T1 M6 (carga herramienta 1)\n"
+"G43 (o G43 H1 - reemplaza todas las compensaciones de herramienta con el "
+"offset de T1)\n"
+"G43.2 H10 (también agrega en el offset de herramienta de T10)\n"
 "M2 (final del programa)\n"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1493
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G43.2 axes Example"
-msgstr "G43.2 Ejemplo"
+msgstr "Ejemplo de G43.2 ejes"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1501
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute mode)\n"
 "T1 M6 (load tool 1)\n"
@@ -53643,36 +53465,36 @@ msgid ""
 "G43.2 X0.01 Z0.02 (also add 0.01 to the x tool offset and 0.02 to the z tool offset)\n"
 "M2 (end program)\n"
 msgstr ""
-"G90 (establecer modo absoluto)\n"
-"T1 M6 (herramienta de carga 1)\n"
-"G43 (o G43 H1:reemplaza todas las compensaciones de herramienta con el offset de T1)\n"
-"G43.2 H10 (también agregue en el offset de herramienta de T10)\n"
+"G90 (establece modo absoluto)\n"
+"T1 M6 (carga herramienta 1)\n"
+"G43 (o G43 H1 - reemplaza todas las compensaciones de herramienta con el "
+"offset de T1)\n"
+"G43.2 X0.01 Z0.02 (también agrega 0.01 en el offset x y 0.02 en el offset z)"
+"\n"
 "M2 (final del programa)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1507
-#, fuzzy
 msgid ""
 "You can sum together an arbitrary number of offsets by calling G43.2 more "
 "times.  There are no built-in assumptions about which numbers are geometry "
 "offsets and which are wear offsets, or that you should have only one of each."
 msgstr ""
-"Puede sumar un número arbitrario de compensaciones llamando a G43.2 mas "
-"veces. No hay suposiciones integradas sobre qué números son compensaciones "
-"de geometría y cuales son compensaciones de desgaste, o que solo deba tener "
+"Puedes sumar un número arbitrario de compensaciones llamando a G43.2 más "
+"veces.  No hay suposiciones integradas sobre qué números son compensaciones "
+"de geometría y cuales son compensaciones de desgaste, o que solo debas tener "
 "una de cada una."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1510
-#, fuzzy
 msgid ""
 "Like the other G43 commands, G43.2 does not cause any motion. The next time "
 "a compensated axis is moved, that axis's endpoint is the compensated "
 "location."
 msgstr ""
 "Al igual que los otros comandos G43, G43.2 no causa ningún movimiento. La "
-"próxima vez que un el eje compensado se mueva, el punto final de ese eje "
-"será la ubicación compensada."
+"próxima vez que un eje compensado se mueva, el punto final de ese eje será "
+"la ubicación compensada."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1514
@@ -53694,25 +53516,22 @@ msgstr "Se especifica 'H' y también se especifican los ejes."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1518
-#, fuzzy
 msgid "G43.2 does not write to the tool table."
 msgstr "G43.2 no escribe en la tabla de herramientas."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1520
-#, fuzzy
 msgid "G49 Cancel Tool Length Offset"
-msgstr "offsets de longitud de herramienta"
+msgstr "G49 Cancelar compensación de longitud de herramienta"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1520
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G49 Cancel Tool Length Compensation"
-msgstr "Offsets de longitud de la herramienta"
+msgstr "G49 Cancelar compensación de longitud de herramienta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1523
-#, fuzzy
 msgid "'G49' - cancels tool length compensation"
 msgstr "'G49' - cancela la compensación de longitud de herramienta"
 
