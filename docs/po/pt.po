@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-19 01:52+0000\n"
+"PO-Revision-Date: 2026-08-24 23:51+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
 "Language-Team: none\n"
 "Language: pt\n"
@@ -97479,6 +97479,8 @@ msgid ""
 "A tool switch sensor, fixed somewhere on the machine (sometimes called a "
 "tool-setter), and"
 msgstr ""
+"Um sensor de interruptor de ferramenta, fixado algures na máquina (por vezes "
+"chamado um definidor-de-ferramenta), e"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1052
@@ -97486,6 +97488,8 @@ msgid ""
 "a spindle probe that is installed temporarily at the beginning of the job "
 "(sometimes called an xyz probe or a Renishaw probe)."
 msgstr ""
+"uma sonda de fuso que é instalada temporariamente no princípio do trabalho "
+"(por vezes chamada sonda-xyz ou sonda Renishaw)."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1056
@@ -97523,6 +97527,7 @@ msgstr "Visão Geral do Fluxo de Trabalho"
 #: src/gui/qtdragon.adoc:1064
 msgid "A detailed workflow walkthrough follows this overview."
 msgstr ""
+"Um guia passo a passo detalhado de fluxo de trabalho segue esta visão geral."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1066
@@ -97685,16 +97690,20 @@ msgid ""
 "Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] "
 "Z_MAX_CLEAR."
 msgstr ""
+"Subida rápida em Z para posição definida em [VERSA_TOOLSETTER] Z_MAX_CLEAR "
+"de INI."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1104
 msgid "Rapid move to the X Y position when the tool change was called."
 msgstr ""
+"Movimento rápido para a posição X Y quando é chamada a mudança de ferramenta."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1105
 msgid "Rapid move down to the Z position when the tool change was called."
 msgstr ""
+"Descida rápida para a posição Z quando é chamada a mudança de ferramenta."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1110
@@ -97704,6 +97713,12 @@ msgid ""
 "  +\n"
 "MAXPROBE distance needs to be high enough for the tool to touch the probe.\n"
 msgstr ""
+"A posição [TOOL_CHANGE] Z deve ser suficientemente alta para que a "
+"ferramenta não bata na sonda de ferramenta quando se move para a posição "
+"[VERSA_TOOLSETTER] X e Y. +\n"
+"  +\n"
+"A distância MAXPROBE precisa ser suficientemente alta para que a ferramenta "
+"toque na sonda.\n"
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1111
@@ -97715,13 +97730,15 @@ msgstr "Exemplo de Fluxo de Trabalho Detalhado"
 #: src/gui/qtdragon.adoc:1113
 #, no-wrap
 msgid "One Time Setup"
-msgstr ""
+msgstr "Configuração de Uma Vez"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1116
 msgid ""
 "The following setups need only be done once as long as they remain in effect:"
 msgstr ""
+"As seguintes configurações precisam ser feitas apenas uma vez desde que "
+"permaneçam em efeito:"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1118
@@ -97730,6 +97747,9 @@ msgid ""
 "\"Search,\" these are the speeds at which the probing will be performed and "
 "are in machine units per minute. +"
 msgstr ""
+"Sob Ecrãs de Teste de Ferramenta: Assegure valores razoáveis para \"Rápido\" "
+"e \"Busca\", estes são as velocidades na qual a sondagem vai ser efetuada e "
+"estão em unidades máquina por minuto. +"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1119
@@ -97737,6 +97757,8 @@ msgid ""
 "Under Probe Tool Screens: Ensure that \"Tool Measure\" is enabled (this is a "
 "button that must be highlighted)"
 msgstr ""
+"Sob Ecrãs de Teste de Ferramenta: Assegure que \"Medição de Ferramenta\" "
+"está ativo (este é um botão que tem de estar iluminado)"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1120
@@ -97744,6 +97766,8 @@ msgid ""
 "Under Settings: Ensure that \"Use Tool Sensor\" is enabled (this is a tick-"
 "box that must be checked)"
 msgstr ""
+"Sob Definições: Assegure que \"Usar Sensor de Ferramenta\" está ativo (isto "
+"é uma caixa de seleção que tem de ter o visto)"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1121
@@ -97751,6 +97775,8 @@ msgid ""
 "In the Tool Table: Set up a tool for the spindle probe and ensure that its Z "
 "offset is set to zero."
 msgstr ""
+"Na Tabela de Ferramenta: Configure uma ferramenta para o teste de fuso e "
+"assegure que o seu desvio Z está definido para zero."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1126
@@ -97759,12 +97785,15 @@ msgid ""
 "requires extra steps and is easy to make mistakes.  The following procedure "
 "assumes a zero tool probe length."
 msgstr ""
+"É possível usar um comprimento de ferramenta não-zero para a sonda de "
+"ferramenta, mas isto requer passos extra e é ais fácil cometer erros.  O "
+"seguinte procedimento assume um comprimento de sonda de ferramenta zero."
 
 #. type: Title ====
 #: src/gui/qtdragon.adoc:1127
 #, no-wrap
 msgid "Procedure before starting a program"
-msgstr ""
+msgstr "Procedimento antes de arrancar um programa"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1130
@@ -97772,11 +97801,13 @@ msgid ""
 "The following setup is done before beginning a program that has M6 tool "
 "change commands inside it."
 msgstr ""
+"A seguinte configuração é feita antes de se começar um programa que tem "
+"comandos de mudança de ferramenta M6 dentro dele."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1132
 msgid "Physically load the spindle probe into the spindle."
-msgstr ""
+msgstr "Carrega fisicamente a sonda do fuso no fuso."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1133
@@ -97862,7 +97893,7 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1148
 #, no-wrap
 msgid "Work Piece Height Probing in QtDragon_hd"
-msgstr ""
+msgstr "Teste de Altura da Peça de Trabalho no QtDragon_hd"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1152
@@ -97876,25 +97907,25 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1153
 #, no-wrap
 msgid "Work Piece Height Probing"
-msgstr ""
+msgstr "Teste de Altura da Peça de Trabalho"
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1155
 #, no-wrap
 msgid "QtDragon_hd - Work piece Height probing"
-msgstr ""
+msgstr "QtDragon_hd - Sonda de Altura de peça de Trabalho"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtdragon.adoc:1156
 #, no-wrap
 msgid "QtDragon_hd height probing"
-msgstr ""
+msgstr "sonda de altura QtDragon_hd"
 
 #. type: Target for macro image
 #: src/gui/qtdragon.adoc:1156
 #, no-wrap
 msgid "images/qtdragon_hd_workpiece_probe.png"
-msgstr ""
+msgstr "images/qtdragon_hd_workpiece_probe.png"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1159
@@ -97902,17 +97933,19 @@ msgid ""
 "This program probes 2 user specified locations in the Z axis and calculates "
 "the difference in heights."
 msgstr ""
+"Este programa sonda 2 posições especificadas pelo utilizador no eixo Z e "
+"calcula a diferença de alturas."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1163
 #, no-wrap
 msgid "Enable Probe Position Set Buttons"
-msgstr ""
+msgstr "Ativar Botões de Definir Posição de Sonda"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1165
 msgid "When checked, the SET buttons are enabled."
-msgstr ""
+msgstr "Quando selecionado, os botões de DEFINIR estão ativados."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1166
@@ -97920,12 +97953,14 @@ msgid ""
 "This allows the user to automatically fill in the X, Y and Z parameters with "
 "the current position as displayed on the DROs."
 msgstr ""
+"Isto permite ao utilizador preencher automaticamente os parâmetros X, Y e Z "
+"com a posição atual como mostrada nos DROs."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1167
 #, no-wrap
 msgid "Autofill Workpiece Height on Main Screen"
-msgstr ""
+msgstr "Auto preencher Altura de Peça de trabalho no Ecrã Principal"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1169
@@ -97933,17 +97968,19 @@ msgid ""
 "When checked, the calculated height is automatically transferred to the "
 "Workpiece Height field in the main screen."
 msgstr ""
+"Quando selecionado, a altura calculada é transferida automaticamente para o "
+"campo Altura da Peça de Trabalho no ecrã principal."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1170
 msgid "Otherwise, the main screen is not affected."
-msgstr ""
+msgstr "Caso contrário, o ecrã principal não é afetado."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1171
 #, no-wrap
 msgid "Workpiece Probe At"
-msgstr ""
+msgstr "Sondar Peça de Trabalho Em"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1173
@@ -97951,12 +97988,14 @@ msgid ""
 "the X, Y and Z coordinates specify where the first probing routine should "
 "start, in current WCS"
 msgstr ""
+"as coordenadas X, Y e Z especificam onde a primeira rotina de sonda deve "
+"começar, em WCS atual"
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1174
 #, no-wrap
 msgid "Machine Probe At"
-msgstr ""
+msgstr "Sondar Máquina Em"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1176
@@ -97964,12 +98003,14 @@ msgid ""
 "the X, Y and Z coordinates specify where the second probing routine should "
 "start, in current WCS"
 msgstr ""
+"as coordenadas X, Y e Z especificam onde a segunda rotina de sonda deve "
+"começar, em WCS atual"
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1177
 #, no-wrap
 msgid "Z Safe Travel Height"
-msgstr ""
+msgstr "Altura de Viagem Segura de Z"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1179
@@ -97977,17 +98018,21 @@ msgid ""
 "The machine is raised to the Z safe travel height before jogging to the X "
 "and Y coordinates."
 msgstr ""
+"A máquina é elevada até à altura de viagem segura antes de se deslocar para "
+"as coordenadas X e Y."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1180
 msgid "The spindle then lowers to the specified Z coordinate."
-msgstr ""
+msgstr "O fuso depois baixa para a coordenada Z especificada."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1181
 msgid ""
 "It should be selected so that the tool clears all obstructions while jogging."
 msgstr ""
+"Deve ser selecionado de maneira que a ferramenta limpe todas as obstruções "
+"durante a deslocação."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1182
@@ -97999,17 +98044,22 @@ msgstr "Botão ARRANCAR"
 #: src/gui/qtdragon.adoc:1184
 msgid "The machine will jog to the first location and then probe down."
 msgstr ""
+"A máquina vai deslocar para a primeira localização e depois desce a sonda."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1185
 msgid "The machine then jogs to the second location and probes down again."
 msgstr ""
+"A máquina depois desloca-se para a segunda localização e desce a sonda outra "
+"vez."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1186
 msgid ""
 "The difference in probed values is reported as Calculated Workpiece Height."
 msgstr ""
+"A diferença nos valores sondados é reportada como Altura da Peça de Trabalho "
+"Calculada."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1187
@@ -98017,6 +98067,9 @@ msgid ""
 "The parameters for search velocity, probe velocity, maximum probe distance "
 "and return distance are read from the main GUI Settings page."
 msgstr ""
+"Os parâmetros para velocidade de busca, velocidade de sondagem, distância de "
+"sondagem máxima e distância de retorno são lidos a partir da página de "
+"Definições da GUI principal."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1188
@@ -98027,7 +98080,7 @@ msgstr "Botão ABORTAR"
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1190
 msgid "causes all jog and probe routines currently executing to stop."
-msgstr ""
+msgstr "faz todo o movimento e rotinas de sondagem em execução atual pararem."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1191
@@ -98044,6 +98097,8 @@ msgstr "mostra este ficheiro de ajuda."
 #: src/gui/qtdragon.adoc:1196
 msgid "Any 2 points within the machine operating volume can be specified."
 msgstr ""
+"Quaisquer 2 pontos dentro do volume de operação da máquina podem ser "
+"especificados."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1197
@@ -98051,6 +98106,8 @@ msgid ""
 "If the first point is higher than the second, the calculated height will be "
 "a positive number."
 msgstr ""
+"Se o primeiro ponto for mais alto que o segundo, a altura calculada vai ser "
+"um número positivo."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1198
@@ -98058,6 +98115,8 @@ msgid ""
 "If the first point is lower than the second, the calculated height will be a "
 "negative number."
 msgstr ""
+"Se o primeiro ponto for mais baixo que o segundo, a altura calculada vai ser "
+"um número negativo."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1199
@@ -98065,6 +98124,8 @@ msgid ""
 "Units are irrelevant in this program. The probed values are not saved and "
 "only the difference is reported."
 msgstr ""
+"As unidades são irrelevantes neste programa. Os valores sondados não são "
+"guardados e apenas a diferença é reportada."
 
 #. type: CAUTION
 #: src/gui/qtdragon.adoc:1203
@@ -98072,12 +98133,15 @@ msgid ""
 "Setting incorrect values can lead to crashes into fixtures on the machine "
 "work surface.  Initial testing with no tool and safe heights is recommended."
 msgstr ""
+"Definir valores incorretos pode levar a choques contra acessórios na "
+"superfície de trabalho da máquina.  São recomendados testes iniciais sem "
+"nenhuma ferramenta e alturas de segurança."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1204
 #, no-wrap
 msgid "Tool Measurement Pins"
-msgstr ""
+msgstr "Pinos de Medição de Ferramenta"
 
 #. type: CAUTION
 #: src/gui/qtdragon.adoc:1208
@@ -98086,23 +98150,26 @@ msgid ""
 "used to be read from a remap G-code subroutine, so the code can react to "
 "different values."
 msgstr ""
+"Versaprobe oferece 5 pinos de saída para o objetivo de medição de "
+"ferramenta.  Os pinos são usados para ler a partir de uma sub-rotina de "
+"código G de remapeamento, assim o código pode reagir a valores diferentes."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1216
 #, no-wrap
 msgid "Tool Measurement INI File Modifications"
-msgstr ""
+msgstr "Modificações no Ficheiro INI de Medição e Ferramenta"
 
 #. type: CAUTION
 #: src/gui/qtdragon.adoc:1219
 msgid "Modify your INI file to include the following:"
-msgstr ""
+msgstr "Modifique o seu ficheiro INI para incluir o seguinte:"
 
 #. type: Title ====
 #: src/gui/qtdragon.adoc:1220
 #, no-wrap
 msgid "The PROBE section"
-msgstr "A secção PROVA"
+msgstr "A secção PROBE"
 
 #. type: CAUTION
 #: src/gui/qtdragon.adoc:1224
@@ -98110,6 +98177,9 @@ msgid ""
 "QtDragon allows you to select one of two styles of touch probe routines.  "
 "Versa probe works with a M6 remap to add auto tool probing."
 msgstr ""
+"QtDragon permite-lhe selecionar um de dois estilos de rotinas de sondagem de "
+"toque. A sonda Versa funciona com um remapeamento M6 para adicionar sondagem "
+"automática de ferramenta."
 
 #. type: Title ====
 #: src/gui/qtdragon.adoc:1232
@@ -98137,6 +98207,10 @@ msgid ""
 "please check that paths are valid. Custom entries pointing to modified file "
 "are possible."
 msgstr ""
+"Estas entradas predefinidas devem funcionar bem na maioria das situações. "
+"Alguns sistemas podem precisar de usar 'linuxcnc/nc_files/examples/' em vez "
+"de 'linuxcnc/nc_files/'. Por favor verifique que os caminhos são válidos. "
+"São possíveis entradas personalizadas a apontar para ficheiros modificados."
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1244 src/lathe/lathe-user.adoc:39
@@ -98153,6 +98227,12 @@ msgid ""
 "SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:\\\n"
 "~/linuxcnc/nc_files/remap_lib\n"
 msgstr ""
+"# Ajuste estes caminhos para apontar para pastas com stdglue.py, "
+"qt_auto_tool_probe.ngc e on_abort.ngc\n"
+"# ou ficheiros de remapeamento personalizados codificados de modo "
+"semelhante.\n"
+"SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:\\\n"
+"~/linuxcnc/nc_files/remap_lib\n"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1252
@@ -98161,6 +98241,9 @@ msgid ""
 "# is the sub, with is called when a error during tool change happens.\n"
 "ON_ABORT_COMMAND=O <on_abort> call\n"
 msgstr ""
+"# é a sub, que é chamada quando acontece um erro durante a mudança de "
+"ferramenta.\n"
+"ON_ABORT_COMMAND=O <on_abort> call\n"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1255
@@ -98169,6 +98252,10 @@ msgid ""
 "# The remap code for QtVCP's versaprobe's automatic tool probe of Z\n"
 "REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change_epilog\n"
 msgstr ""
+"# O código de remapeamento para sonda de Z de ferramenta automática de "
+"versaprobe de QtVCP\n"
+"REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool "
+"epilog=change_epilog\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1263
@@ -98195,36 +98282,38 @@ msgid ""
 "rapid move to the INI's [CHANGE_POSITION] Z position (this is a relative "
 "move, it adds this Z value to the current Z coordinate)"
 msgstr ""
+"movimento rápido para a posição [CHANGE_POSITION] Z de INI (este é um "
+"movimento relativo, adiciona este valor Z à coordenada Z atual)"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1268
 msgid "rapid move to the INI's [CHANGE_POSITION] X & Y position."
-msgstr ""
+msgstr "movimento rápido para a posição [CHANGE_POSITION] X e Y de INI."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1269
 msgid "wait for manual tool change acknowledgement"
-msgstr ""
+msgstr "espera pelo reconhecimento de mudança de ferramenta manual"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1270
 msgid "rapid move to the INI's [VERSA_TOOLSETTER] X & Y position"
-msgstr ""
+msgstr "movimento rápido para a posição [VERSA_TOOLSETTER] X e Y de INI"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1271 src/gui/qtdragon.adoc:1274
 msgid "rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position"
-msgstr ""
+msgstr "movimento rápido para a posição [VERSA_TOOLSETTER] Z_MAX_CLEAR Z de INI"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1272
 msgid "fast probe"
-msgstr "prova rápida"
+msgstr "sonda rápida"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1273
 msgid "slow probe"
-msgstr "prova lenta"
+msgstr "sonda lenta"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1277
@@ -98237,17 +98326,17 @@ msgstr ""
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1279
 msgid "rapid move to [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position"
-msgstr ""
+msgstr "movimento rápido para a posição [VERSA_TOOLSETTER] Z_MAX_CLEAR Z"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1280
 msgid "rapid move to [VERSA_TOOLSETTER] XY position"
-msgstr ""
+msgstr "movimento rápido para a posição [VERSA_TOOLSETTER] XY"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1281
 msgid "rapid move to [VERSA_TOOLSETTER] Z position."
-msgstr ""
+msgstr "movimento rápido para a posição [VERSA_TOOLSETTER] Z."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1283
@@ -98280,6 +98369,11 @@ msgid ""
 "before giving the change tool command.  All values are in absolute "
 "coordinates.  All values are in machine native units."
 msgstr ""
+"Isto não é chamado TOOL_CHANGE_POSITION de propósito - *a canon usa esse "
+"nome e caso contrário iria interferir*.  A posição para onde mover a máquina "
+"antes de dar o comando de mudança de ferramenta.  Todos os valores estão em "
+"coordenadas absolutas.  Todos os valores estão em unidades nativas de "
+"máquina."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1313
@@ -98300,12 +98394,17 @@ msgid ""
 "# path to the tremap's 'toplevel file\n"
 "TOPLEVEL = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python/toplevel.py\n"
 msgstr ""
+"# O caminho de ponto de partida para todas as buscas de remapeamento, isto "
+"é, sys.path.append() de Python.\n"
+"PATH_APPEND = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python\n"
+"# caminho para o ficheiro de nível de topo do remapeamento\n"
+"TOPLEVEL = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python/toplevel.py\n"
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1322
 #, no-wrap
 msgid "Required HAL Connections"
-msgstr ""
+msgstr "Ligações HAL Requeridas"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1326
@@ -98339,7 +98438,7 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1345
 #, no-wrap
 msgid "Laser buttons"
-msgstr ""
+msgstr "Botões de Laser"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1350
@@ -98381,21 +98480,25 @@ msgid ""
 "This tab displays the graphical representation of the current program.  The "
 "side buttons will control the display."
 msgstr ""
+"Este separador mostra a representação gráfica do programa atual.  Os botões "
+"laterais vão controlar o ecrã."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1365
 msgid "'User View': Select/restore a user set view of the current program."
 msgstr ""
+"'Vista de Utilizador': Seleciona/restaura uma vista definida de utilizador "
+"do programa atual."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1366
 msgid "'P','X','Y','Z': Set standard views."
-msgstr ""
+msgstr "'P','X','Y','Z': Define vistas standard."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1367
 msgid "'D': Toggle display of dimensions."
-msgstr ""
+msgstr "'D': Comuta o mostrar de dimensões."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1368
@@ -98405,7 +98508,7 @@ msgstr "'+', '-': Controles de Zoom."
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1369
 msgid "'C': Clear graphics of tool movement lines."
-msgstr ""
+msgstr "'C': Limpa os gráficos das linhas de movimento da ferramenta."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1372
@@ -98413,6 +98516,8 @@ msgid ""
 "In `qtdragon_hd` there are also macro buttons available on the right side.  "
 "Up to tens buttons can be defined in the INI."
 msgstr ""
+"No `qtdragon_hd` há também botões de macro disponíveis no lado direito.  "
+"Podem ser definidos até 10 botões no INI."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1373
@@ -98427,6 +98532,9 @@ msgid ""
 "programs can be selected from this tab.  With `qtdragon_hd`, this is where "
 "you can load the 'G-code Ripper'."
 msgstr ""
+"Pode usar este separador para carregar ou transferir programas.  A edição de "
+"programas de código G pode ser selecionada a partir deste separador.  Com "
+"`qtdragon_hd`, é aqui que pode carregar o 'Ripper de código G'."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1379
@@ -98440,6 +98548,9 @@ msgid ""
 "You can monitor/modify system offsets from this tab.  There are convenience "
 "buttons for zeroing the rotation.G92 and current G5x user offset."
 msgstr ""
+"Pode monitorizar/modificar desvios de sistema a partir deste separador.  "
+"Existem botões convenientes para pôr a zero o rotation.G92 e o desvio de "
+"utilizador G5x atual."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1384
@@ -98558,6 +98669,8 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1436
 msgid "The preference file can only be edited when QtDragon is not running."
 msgstr ""
+"O ficheiro de preferências só pode ser editado quando o QtDragon não está a "
+"correr."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1437
@@ -98571,6 +98684,8 @@ msgid ""
 "This tab will display a list of LinuxCNC's G-code.  if you click on a line, "
 "a description of the code will be displayed."
 msgstr ""
+"Este separador vai mostrar uma lista de código G do LinuxCNC.  Se clicar "
+"numa linha, vai ser mostrada uma descrição do código."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1442
@@ -98594,11 +98709,14 @@ msgid ""
 "'HTML' - any loaded HTML pages are displayed here. The navigation buttons "
 "work on this page."
 msgstr ""
+"'HTML' - quaisquer páginas HTML carregadas são mostradas aqui. Os botões de "
+"navegação funcionam nesta página."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1452
 msgid "'PDF' - any loaded PDF setup pages are displayed here."
 msgstr ""
+"'PDF' - quaisquer páginas de configuração PDF carregadas são mostradas aqui."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1453
@@ -98606,26 +98724,28 @@ msgid ""
 "'PROPERTIES' - when a program is loaded its G-code properties are displayed "
 "here."
 msgstr ""
+"'PROPERTIES' - quando um programa é carregado as suas propriedades de código "
+"G são mostradas aqui."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1455
 msgid "There are navigation buttons for HTML page:"
-msgstr ""
+msgstr "Existem botões de navegação para a página HTML:"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1457
 msgid "The up arrow returns you to the default HTML page."
-msgstr ""
+msgstr "A seta para cima retorna-o à página HTML predefinida."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1458
 msgid "The left arrow moves backward one HTML page."
-msgstr ""
+msgstr "A seta para esquerda recua uma página HTML."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1459
 msgid "The right arrow moves forward one HTML page."
-msgstr ""
+msgstr "A seta para direita avança uma página HTML."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1462
@@ -98634,18 +98754,22 @@ msgid ""
 "If you wish to include a custom default HTML page, name it 'default_setup.html' and place it in your configuration folder.\n"
 "Custom QtVCP panels can be displayed in this tab by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'."
 msgstr ""
+"Se deseja incluir uma página HTML predefinida personalizada, de-lhe o nome "
+"'default_setup.html' e coloque-a na sua pasta de configuração.\n"
+"Os painéis QtVCP personalizados podem ser mostrados neste separador ao "
+"definir a opção EMBED_TAB_LOCATION para 'tabWidget_setup'."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1463
 #, no-wrap
 msgid "QtDragon - Setup Tab Sample"
-msgstr ""
+msgstr "QtDragon - Exemplo de Configuração de Separadores"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtdragon.adoc:1464
 #, no-wrap
 msgid "QtDragon Setup Tab"
-msgstr "Separador de Configuração do QtDragon"
+msgstr "Configuração de Separador do QtDragon"
 
 #. type: Target for macro image
 #: src/gui/qtdragon.adoc:1464
@@ -98665,6 +98789,9 @@ msgid ""
 "The settings tab is used to set running options, probing/touchplate/laser/"
 "camera offsets and load debugging external programs."
 msgstr ""
+"O separador de definições é usado para definir opções de execução, desvios "
+"sondagem/placa de toque/laser/camera e carregar programas externos de "
+"depuração."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1470
@@ -98678,6 +98805,8 @@ msgid ""
 "This tab will display another tab selection of G-code utility programs (and "
 "any embedded panels):"
 msgstr ""
+"Este separador vai mostrar outra seleção de separador de programas "
+"utilitários de código G (e quaisquer painéis embebidos):"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1475
@@ -98685,6 +98814,8 @@ msgid ""
 "'Facing': allows quick face milling of a definable area at angles of 0,45 "
 "and 90 degrees."
 msgstr ""
+"'Facear': permite fresagem rápida de face de uma área definida em ângulos de "
+"0,45 e 90 graus."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1476
@@ -98692,6 +98823,8 @@ msgid ""
 "'Hole Circle': allows quick setting of a program to drill a bolt circle of "
 "definable diameter and number of holes."
 msgstr ""
+"'Furo Circular': permite definição rápida de um programa para furar um "
+"círculo de diâmetro definível e um número de furos."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1477
@@ -98699,11 +98832,14 @@ msgid ""
 "'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/"
 "selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>."
 msgstr ""
+"'NGCGUI': é uma versão QtVCP do popular compilador/seletor se sub-rotinas de "
+"código G, veja <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1478
 msgid "'Hole Enlarge': allows milling a preexisting hole larger."
 msgstr ""
+"'Alargamento de Furo': permite fresar um furo pré existente para o alargar."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1483
@@ -98749,7 +98885,7 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1496
 #, no-wrap
 msgid "QtDragon - Two Style Examples"
-msgstr ""
+msgstr "QtDragon - Dois Exemplos de Estilos"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtdragon.adoc:1497
@@ -98767,7 +98903,7 @@ msgstr "images/style-comparison.png"
 #: src/gui/qtdragon.adoc:1499 src/plasma/qtplasmac.adoc:4218
 #, no-wrap
 msgid "Internationalisation"
-msgstr ""
+msgstr "Internacionalização"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1502
@@ -98775,6 +98911,8 @@ msgid ""
 "It is possible to create translation files for QtDragon to display in the "
 "language of the current locale."
 msgstr ""
+"É possível criar ficheiros de tradução para o QtDragon mostrar na linguagem "
+"da localização atual."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1504 src/plasma/qtplasmac.adoc:4223
@@ -98782,17 +98920,19 @@ msgid ""
 "To create and or edit a translation file requires that LinuxCNC has been "
 "installed as run in place."
 msgstr ""
+"Para criar e ou editar um ficheiro de tradução é preciso que o LinuxCNC "
+"tenha sido instalado como para correr no local."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1506 src/plasma/qtplasmac.adoc:4225
 msgid ""
 "The following assumes that the LinuxCNC git directory is ~/linuxcnc-dev."
-msgstr ""
+msgstr "O seguinte assume que o diretório git do LinuxCNC é ~/linuxcnc-dev."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1509
 msgid "If using QtDragon_hd substitute 'qtdragon_hd' for 'qtdragon'"
-msgstr ""
+msgstr "Se usar o QtDragon_hd substitua 'qtdragon' por 'qtdragon_hd'"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1511
@@ -98800,6 +98940,8 @@ msgid ""
 "All language files are kept in ~/linuxcnc-dev/share/screens/qtdragon/"
 "languages."
 msgstr ""
+"Todos os ficheiros de idiomas são mantidos em ~/linuxcnc-dev/share/screens/"
+"qtdragon/languages."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1513
@@ -98807,6 +98949,8 @@ msgid ""
 "The qtdragon.py file is a Python version of the GUI file used for "
 "translation purposes."
 msgstr ""
+"O ficheiro qtdragon.py é ma versão Python do ficheiro de GUI usado para "
+"objetivos de tradução."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1516 src/plasma/qtplasmac.adoc:4232
@@ -98814,11 +98958,14 @@ msgid ""
 "The .ts files are the translation source files for the translations.  These "
 "are the files that require creating/editing for each language."
 msgstr ""
+"Os ficheiros .ts são os ficheiros fonte de tradução para as traduções.  "
+"Estes são os ficheiros que requerem criação/edição para cada idioma."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1518
 msgid "The .qm files are the compiled translation files used by pyqt."
 msgstr ""
+"Os ficheiros .qm são os ficheiros de tradução compilados usados pelo pyqt."
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1522
@@ -98836,6 +98983,9 @@ msgid ""
 "The default locale for QtDragon is `_en` which means that any translation "
 "files created as `qtdragon_en.*` will not be used for translations."
 msgstr ""
+"O locale predefinido para o QtDragon é `_en` o que significa que quaisquer "
+"ficheiros de tradução criados como `qtdragon_en.*` não serão usados para "
+"traduções."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1526 src/plasma/qtplasmac.adoc:4244
@@ -98843,6 +98993,9 @@ msgid ""
 "If any of the required utilities (pyuic5, pylupdate5, linguist) are not "
 "installed then the user will need to install the required development tools:"
 msgstr ""
+"Se algum dos utilitários requeridos (pyuic5, pylupdate5, linguist) não "
+"estiver instalado, então o utilizador vai precisar de instalar as "
+"ferramentas de desenvolvimento necessárias:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1528 src/plasma/qtplasmac.adoc:4246
@@ -98853,7 +99006,7 @@ msgstr "sudo apt install qttools5-dev-tools pyqt5-dev-tools\n"
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1531 src/plasma/qtplasmac.adoc:4249
 msgid "Change to the languages directory:"
-msgstr ""
+msgstr "Mudar para o diretório de linguagens:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1533
@@ -98867,6 +99020,8 @@ msgid ""
 "If any text changes have been made to the GUI then run the following to "
 "update the GUI Python file:"
 msgstr ""
+"Se forem feitas quaisquer mudanças de texto para a GUI então corra o "
+"seguinte para atualizar o ficheiro Python da GUI:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1538
@@ -98887,7 +99042,7 @@ msgstr ""
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1545 src/plasma/qtplasmac.adoc:4263
 msgid "Create or edit a .ts file:"
-msgstr ""
+msgstr "Criar ou editar um ficheiro .ts:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1547 src/plasma/qtplasmac.adoc:4265
@@ -98901,11 +99056,13 @@ msgid ""
 "this command is a script which runs the following: $ pylupdate5 *.py ../"
 "*.py ../../../../../lib/python/qtvcp/lib/qtdragon/*.py -ts qtdragon_xx.ts"
 msgstr ""
+"este comando é um script que corre o seguinte: $ pylupdate5 *.py ../*.py ../"
+"../../../../lib/python/qtvcp/lib/qtdragon/*.py -ts qtdragon_xx.ts"
 
 #. type: NOTE
 #: src/gui/qtdragon.adoc:1553 src/plasma/qtplasmac.adoc:4271
 msgid "The editing of the translation is done with the linguist application:"
-msgstr ""
+msgstr "A edição da tradução é feita com a aplicação linguist:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1555 src/plasma/qtplasmac.adoc:4273
@@ -98916,7 +99073,7 @@ msgstr "linguist\n"
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1558 src/plasma/qtplasmac.adoc:4276
 msgid "Open the TS file and translate the strings"
-msgstr ""
+msgstr "Abra o ficheiro TS e traduza as mensagens"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1561
@@ -98935,6 +99092,8 @@ msgid ""
 "When editing is complete save the file:\n"
 "`File -> Save`"
 msgstr ""
+"Quando a edição estiver completa salve o ficheiro:\n"
+"`Ficheiro -> Salvar`"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1567 src/plasma/qtplasmac.adoc:4285
@@ -98943,6 +99102,8 @@ msgid ""
 "Then create the .qm file:\n"
 "`File -> Release`"
 msgstr ""
+"Depois crie o ficheiro .qm:\n"
+"`Ficheiro -> Lançamento`"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1569
@@ -98950,6 +99111,8 @@ msgid ""
 "QtDragon will be translated to the language of the current locale on the "
 "next start so long as a .qm file exists in that language."
 msgstr ""
+"O QtDragon vai estar traduzido na linguagem do locale atual no próximo "
+"arranque desde que exista um ficheiro .qm nessa linguagem."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1573
@@ -98973,12 +99136,14 @@ msgid ""
 "A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock "
 "Screens>>."
 msgstr ""
+"Uma visão geral de <<cha:qtvcp:modifying-screens,Persnalizar Ecrãs de Stock>>"
+"."
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1578
 #, no-wrap
 msgid "Stylesheets"
-msgstr ""
+msgstr "Folhas de estilo"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1585
@@ -98994,7 +99159,7 @@ msgstr ""
 #: src/gui/qtdragon.adoc:1586
 #, no-wrap
 msgid "QtDragon stylesheet editor"
-msgstr ""
+msgstr "Editor de filha de estilo do QtDragon"
 
 #. type: Target for macro image
 #: src/gui/qtdragon.adoc:1586
@@ -99008,6 +99173,8 @@ msgid ""
 "Sometimes these lines will be present and you can change them, otherwise you "
 "will need to add them. +"
 msgstr ""
+"Por vezes estas linhas vão estar presentes e pode modifica-las, caso "
+"contrário, vai precisar de adiciona-las. +"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1591
@@ -99015,6 +99182,8 @@ msgid ""
 "For instance, to change the DRO font (look for this entry and change the "
 "font name):"
 msgstr ""
+"Por exemplo, para mudar o tipo de letra do DRO (procure esta entrada e mude "
+"o nome do tipo de letra):"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1600
@@ -99037,7 +99206,7 @@ msgstr ""
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1603
 msgid "To change the DRO display font and display format:"
-msgstr ""
+msgstr "Para mudar o tipo de letra e formato do mostrador DRO:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1611
@@ -99049,6 +99218,11 @@ msgid ""
 "    qproperty-metric_template: '%10.4f';\n"
 "    qproperty-angular_template: '%11.2f';\n"
 msgstr ""
+"DROLabel {\n"
+"    font: 25pt \"Lato Heavy\";\n"
+"    qproperty-imperial_template: '%9.5f';\n"
+"    qproperty-metric_template: '%10.4f';\n"
+"    qproperty-angular_template: '%11.2f';\n"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1620
@@ -99063,11 +99237,19 @@ msgid ""
 "    qproperty-dialogName: CALCULATOR;\n"
 "}\n"
 msgstr ""
+"    /*Ajustar as opções do menu */\n"
+"    qproperty-showLast: true;\n"
+"    qproperty-showDivide : false;\n"
+"    qproperty-showGotoOrigin: false;\n"
+"    qproperty-showZeroOrigin: false;\n"
+"    qproperty-showSetOrigin: true;\n"
+"    qproperty-dialogName: CALCULATOR;\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1623
 msgid "Change the axis select button's click menu items:"
-msgstr ""
+msgstr "Mudar os items do menu de clique do botão de seleção de eixo:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1635
@@ -99083,11 +99265,20 @@ msgid ""
 "    qproperty-dialog_code_string: CALCULATOR;\n"
 "}\n"
 msgstr ""
+"AxisToolButton {\n"
+"    /* Ajustar todas as opções de menu */\n"
+"    qproperty-showLast: false;\n"
+"    qproperty-showDivide : true;\n"
+"    qproperty-showGotoOrigin: true;\n"
+"    qproperty-showZeroOrigin: true;\n"
+"    qproperty-showSetOrigin: false;\n"
+"    qproperty-dialog_code_string: CALCULATOR;\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1638
 msgid "To change the text of the mist button to 'air' (add these lines)"
-msgstr ""
+msgstr "Para mudar o texto do botão de névoa para 'air' (adicione estas linhas)"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1645
@@ -99098,11 +99289,17 @@ msgid ""
 "    qproperty-false_state_string: \"Air\\\\nOff\";\n"
 "}\n"
 msgstr ""
+"#action_mist{\n"
+"    qproperty-true_state_string: \"Air\\\\n"
+"On\";\n"
+"    qproperty-false_state_string: \"Air\\\\n"
+"Off\";\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1648
 msgid "To change the Offsets display font and format:"
-msgstr ""
+msgstr "Para mudar o tipo de letra e formato do mostrador de Desvios:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1655
@@ -99113,12 +99310,16 @@ msgid ""
 "    qproperty-imperial_template: '%9.1f';\n"
 "    qproperty-metric_template: '%10.1f';\n"
 msgstr ""
+"ToolOffsetView {\n"
+"    font: 20pt \"Lato Heavy\";\n"
+"    qproperty-imperial_template: '%9.1f';\n"
+"    qproperty-metric_template: '%10.1f';\n"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1657 src/gui/qtvcp-libraries.adoc:974
 #, no-wrap
 msgid "}\n"
-msgstr ""
+msgstr "}\n"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1663
@@ -99130,11 +99331,16 @@ msgid ""
 "    qproperty-metric_template: '%10.1f';\n"
 "}\n"
 msgstr ""
+"OriginOffsetView {\n"
+"    font: 12pt \"Lato Heavy\";\n"
+"    qproperty-imperial_template: '%9.1f';\n"
+"    qproperty-metric_template: '%10.1f';\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1666
 msgid "To stop the blur effect with dialogs:"
-msgstr ""
+msgstr "Para parar o efeito de desfocar com diálogos:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1672
@@ -99144,11 +99350,14 @@ msgid ""
 "    qproperty-focusBlur_option: false;\n"
 "}\n"
 msgstr ""
+"#screen_options {\n"
+"    qproperty-focusBlur_option: false;\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1675
 msgid "To change status highlight/selection colors:"
-msgstr ""
+msgstr "Para mudar as cores do estado iluminado/seleção:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1684
@@ -99162,11 +99371,18 @@ msgid ""
 "    qproperty-user5Color: #ff0000;   /*  Cycle Start select */\n"
 "}\n"
 msgstr ""
+"#screen_options {\n"
+"    qproperty-user1Color: white;     /*  default status     */\n"
+"    qproperty-user2Color: #ff9000;   /*  warning status     */\n"
+"    qproperty-user3Color: #ff8a96;   /*  critical status    */\n"
+"    qproperty-user4Color: #ffaa00;   /*  MPG select         */\n"
+"    qproperty-user5Color: #ff0000;   /*  Cycle Start select */\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1687
 msgid "Change the G-code text display colors/fonts:"
-msgstr ""
+msgstr "Mudar as cores/tipos de letra do mostrador de texto de código G:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1713
@@ -99196,6 +99412,29 @@ msgid ""
 "qproperty-styleFont7: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
 "}\n"
 msgstr ""
+"EditorBase{\n"
+"background:black;\n"
+"qproperty-styleColorCursor:white;\n"
+"qproperty-styleColorBackground:grey;\n"
+"qproperty-styleColor0: black;\n"
+"qproperty-styleColor1: darkblue;\n"
+"qproperty-styleColor2: blue;\n"
+"qproperty-styleColor3: red;\n"
+"qproperty-styleColor4: lightblue;\n"
+"qproperty-styleColor5: white;\n"
+"qproperty-styleColor6: lightGreen;\n"
+"qproperty-styleColor7: yellow ;\n"
+"qproperty-styleColorSelectionText: white;\n"
+"qproperty-styleColorSelectionBackground: blue;\n"
+"qproperty-styleFont0: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"qproperty-styleFont1: \"Times,15,-1,5,90,1,0,1,0,0\";\n"
+"qproperty-styleFont2: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"qproperty-styleFont3: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"qproperty-styleFont4: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"qproperty-styleFont5: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"qproperty-styleFont6: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"qproperty-styleFont7: \"Times,15,-1,5,90,0,0,1,1,0\";\n"
+"}\n"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1716
@@ -99203,6 +99442,8 @@ msgid ""
 "To have the manual spindle buttons also incrementally increase/decrease "
 "speed:"
 msgstr ""
+"Para ter os botões de fuso manual a também aumentar/diminuir "
+"incrementalmente a velocidade:"
 
 #. type: delimited block -
 #: src/gui/qtdragon.adoc:1725
@@ -99215,12 +99456,18 @@ msgid ""
 "    qproperty-spindle_down_action: true;\n"
 "}\n"
 msgstr ""
+"#action_spindle_fwd{\n"
+"    qproperty-spindle_up_action: true;\n"
+"}\n"
+"#action_spindle_rev{\n"
+"    qproperty-spindle_down_action: true;\n"
+"}\n"
 
 #. type: Title ===
 #: src/gui/qtdragon.adoc:1728
 #, no-wrap
 msgid "Qt Designer and Python code"
-msgstr ""
+msgstr "Qt Designer e código Python"
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1737
@@ -99241,29 +99488,33 @@ msgid ""
 "See <<cha:qtvcp:modifying-screens,Modifying Screens>> for more information "
 "about customization."
 msgstr ""
+"Veja <<cha:qtvcp:modifying-screens,Modificar Ecrãs>> para mais informação "
+"sobre personalização."
 
 #. type: Plain text
 #: src/gui/qtdragon.adoc:1741
 msgid "Some widget customization is available for basic probe and versa probe."
 msgstr ""
+"Alguma personalização de widget está disponível para sondagem básica e "
+"sondagem versa."
 
 #. type: Block title
 #: src/gui/qtdragon.adoc:1742
 #, no-wrap
 msgid "QtDragon - Customized QtDragon"
-msgstr ""
+msgstr "QtDragon - QtDragon Personalizado"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtdragon.adoc:1743
 #, no-wrap
 msgid "QtDragon customized"
-msgstr ""
+msgstr "QtDragon personalizado"
 
 #. type: Target for macro image
 #: src/gui/qtdragon.adoc:1743
 #, no-wrap
 msgid "images/silverdragon_custom.png"
-msgstr ""
+msgstr "images/silverdragon_custom.png"
 
 #. type: Labeled list
 #: src/gui/qtvcp.adoc:5 src/user/user-intro.adoc:187
@@ -99277,6 +99528,8 @@ msgid ""
 "QtVCP is an *infrastructure to build custom CNC screens or control panels "
 "for LinuxCNC*."
 msgstr ""
+"QtVCP é uma *infraestrutura para construir ecrãs CNC personalizados ou "
+"painéis de controle para o LinuxCNC*."
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:18
@@ -99297,103 +99550,104 @@ msgstr ""
 #: src/gui/qtvcp.adoc:22
 #, no-wrap
 msgid "Showcase"
-msgstr ""
+msgstr "Montra"
 
 #. type: Plain text
 #: src/gui/qtvcp.adoc:25
 msgid "Few examples of QtVCP built screens and virtual control panels:"
 msgstr ""
+"Alguns exemplos de ecrãs de construção QtVCP e painéis de controle virtuais:"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:26
 #, no-wrap
 msgid "QtDragon - 3/4-Axis Sample"
-msgstr ""
+msgstr "QtDragon - Exemplo de 3/4-Eixos"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:29
 #, no-wrap
 msgid "QtDefault - 3-Axis Sample"
-msgstr ""
+msgstr "QtDefault - Exemplo de 3-Eixos"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtvcp.adoc:30
 #, no-wrap
 msgid "Qtscreen Mill"
-msgstr ""
+msgstr "Fresa Qtscreen"
 
 #. type: Target for macro image
 #: src/gui/qtvcp.adoc:30
 #, no-wrap
 msgid "images/qt_cnc.png"
-msgstr ""
+msgstr "images/qt_cnc.png"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:32
 #, no-wrap
 msgid "QtAxis - Self Adjusting Axis Sample"
-msgstr ""
+msgstr "QtAxis - Exemplo de Eixo Auto Ajustável"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtvcp.adoc:33
 #, no-wrap
 msgid "Qtscreen QtAxis"
-msgstr ""
+msgstr "QtAxis de Qtscreen"
 
 #. type: Target for macro image
 #: src/gui/qtvcp.adoc:33
 #, no-wrap
 msgid "images/qtaxis.png"
-msgstr ""
+msgstr "images/qtaxis.png"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:35
 #, no-wrap
 msgid "Blender - 4-Axis Sample"
-msgstr ""
+msgstr "Blender - Exemplo de 4-Eixos"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtvcp.adoc:36
 #, no-wrap
 msgid "Qtscreen Blender"
-msgstr ""
+msgstr "Blender de Qtscreen"
 
 #. type: Target for macro image
 #: src/gui/qtvcp.adoc:36
 #, no-wrap
 msgid "images/blender.png"
-msgstr ""
+msgstr "images/blender.png"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:38
 #, no-wrap
 msgid "X1mill - 4-Axis Sample"
-msgstr ""
+msgstr "X1mill - Exemplo de 4-Eixos"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gui/qtvcp.adoc:39 src/gui/qtvcp.adoc:42 src/gui/qtvcp.adoc:435
 #, no-wrap
 msgid "Qtscreen x1mill"
-msgstr ""
+msgstr "x1mill de Qtscreen"
 
 #. type: Target for macro image
 #: src/gui/qtvcp.adoc:39
 #, no-wrap
 msgid "images/x1mill.png"
-msgstr ""
+msgstr "images/x1mill.png"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:41 src/gui/qtvcp.adoc:434
 #, no-wrap
 msgid "cam_align - Camera Alignment VCP"
-msgstr ""
+msgstr "cam_align - Alinhamento de Camera VCP"
 
 #. type: Target for macro image
 #: src/gui/qtvcp.adoc:42 src/gui/qtvcp.adoc:435
 #: src/gui/qtvcp-vcp-panels.adoc:190
 #, no-wrap
 msgid "images/qtvcp-cam-align.png"
-msgstr ""
+msgstr "images/qtvcp-cam-align.png"
 
 #. type: Block title
 #: src/gui/qtvcp.adoc:44
