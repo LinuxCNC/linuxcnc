@@ -7,6 +7,7 @@ FIXME
 """;
 pin out si32 dummy=0 "dummy pin to satisfy halcompile";
 option period no;
+option extra_setup;
 
 license "GPL";
 author "David Mueller";
@@ -43,13 +44,14 @@ static struct haldata {
 } *haldata;
 
 
-static int xyzacb_trsrn_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "xyzacb_trsrn_kins"
     int res=0;
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
@@ -76,7 +78,6 @@ static int xyzacb_trsrn_setup(void) {
     res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_2, 0, "kinstype.is-2");
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -136,8 +137,6 @@ int kinematicsSwitch(int new_switchkins_type)
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup)  xyzacb_trsrn_setup();
     return KINEMATICS_BOTH; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display
