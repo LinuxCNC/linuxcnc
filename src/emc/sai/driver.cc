@@ -564,7 +564,7 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
 #ifdef TOOL_NML //{
-  tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
+  tool_nml_register(& _sai._tools);
 #else //}{
   const int random_toolchanger = 0;
   // sai gets its OWN mmap. tool_mmap_creator() opens the file O_TRUNC, and it

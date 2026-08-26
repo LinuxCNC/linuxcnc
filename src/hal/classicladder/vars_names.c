@@ -42,7 +42,7 @@
 //===OLD CODE NO MORE USED===
 //with names directly in it...
 //to be deleted, but some precise errors codes aren't present in the new function...
-#ifdef AAAAAAAAA
+#if 0
 
 char * CreateVarName(int Type, int Offset)
 {
