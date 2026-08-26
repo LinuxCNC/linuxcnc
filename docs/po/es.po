@@ -15,8 +15,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-26 22:07+0000\n"
-"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
+"PO-Revision-Date: 2026-08-26 22:34+0000\n"
+"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -53537,68 +53537,64 @@ msgstr "'G49' - cancela la compensación de longitud de herramienta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1527
-#, fuzzy
 msgid ""
 "It is OK to program using the same offset already in use. It is also OK to "
 "program using no tool length offset if none is currently being used."
 msgstr ""
-"Está bien programar usando el mismo offset que ya está en uso. Tambien es "
-"correcto programar sin offset de longitud de herramienta si no se está "
-"utilizando ninguno."
+"Está bien programar usando el mismo offset que ya está en uso. También es "
+"correcto programar sin compensación de longitud de herramienta si no se está "
+"utilizando ninguna."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1529
-#, fuzzy
 msgid "Local Offsets"
-msgstr "Pines de offsets de herramientas"
+msgstr "Desplazamientos locales"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1529
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G52 Local Coordinate System Offset"
-msgstr "Desplazamientos del sistema de coordenadas"
+msgstr "G52 Desplazamientos del sistema de coordenadas local"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1534
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G52 axes\n"
 msgstr "G52 ejes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1538
-#, fuzzy
 msgid ""
 "G52 is used in a part program as a temporary \"local coordinate system "
 "offset\" within the workpiece coordinate system.  For more information about "
 "`G92` and `G52` and how they interact see <<sec:g52-and-g92-offsets,Local "
 "and Global Offsets>>."
 msgstr ""
-"G52 se utiliza en un programa de pieza como un \"offset del sistema de "
-"coordenadas local\" temporal dentro del sistema de coordenadas de la pieza "
-"de trabajo. Más información sobre G52 en la sección <<sec:g52,offsets "
-"locales y globales>> ."
+"G52 se utiliza en un programa de pieza como un \"desplazamiento del sistema "
+"de coordenadas local\" temporal dentro del sistema de coordenadas de la "
+"pieza de trabajo.  Para más información sobre `G92`y `G52`y cómo interactúan "
+"consultar la sección <<sec:g52-and-g92-offsets,Desplazamientos locales y "
+"globales>> ."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1540
-#, fuzzy
 msgid "G53 Machine Coordinates"
-msgstr "Coordenadas Maquina G53"
+msgstr "G53 Coordenadas de máquina"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1540
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G53 Move in Machine Coordinates"
-msgstr "Coordenadas Maquina G53"
+msgstr "G53 Movimiento en coordenadas de máquina"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1545
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G53 axes\n"
 msgstr "G53 ejes\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1551
-#, fuzzy
 msgid ""
 "To move in the <<sec:machine-coordinate-system,machine coordinate system>>, "
 "program 'G53' on the same line as a linear move. 'G53' is not modal and must "
@@ -53607,29 +53603,28 @@ msgid ""
 msgstr ""
 "Para moverse en el <<sec:machine-coordinate-system,sistema de coordenadas de "
 "máquina>>, programe 'G53' en la misma línea que un movimiento lineal. 'G53' "
-"no es modal y debe ser programado en cada línea. 'G0' o 'G1' no tiene que "
-"ser programado en la misma línea si están actualmente activos."
+"no es modal y debe ser programado en cada línea. 'G0' o 'G1' no tienen que "
+"ser programados en la misma línea si uno está actualmente activo."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1554
-#, fuzzy
 msgid ""
 "For example 'G53 G0 X0 Y0 Z0' will move the axes to the home position even "
 "if the currently selected coordinate system has offsets in effect."
 msgstr ""
-"Por ejemplo, 'G53 G0 X0 Y0 Z0' moverá los ejes a la posición inicial incluso "
-"si el sistema de coordenadas actualmente seleccionado tiene compensaciones "
-"en efecto."
+"Por ejemplo, 'G53 G0 X0 Y0 Z0' moverá los ejes a la posición casa incluso si "
+"el sistema de coordenadas actualmente seleccionado tiene desplazamientos en "
+"efecto."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1555
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G53 Example"
-msgstr "Ejemplo G53"
+msgstr "Ejemplo de G53"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1560
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G53 G0 X0 Y0 Z0 (rapid linear move to the machine origin)\n"
 "G53 X2 (rapid linear move to absolute coordinate X2)\n"
@@ -53639,32 +53634,29 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1563 src/gcode/g-code.adoc:2574
-#, fuzzy
 msgid "See <<gcode:g0,G0>> section for more information."
 msgstr "Consulte la sección <<gcode:g0,G0>> para obtener más información."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1567
-#, fuzzy
 msgid "G53 is used without G0 or G1 being active,"
 msgstr "G53 se usa sin que G0 o G1 estén activos,"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1568
-#, fuzzy
 msgid "or G53 is used while cutter compensation is on."
-msgstr "G53 se usa mientras la compensación del cortador está activada."
+msgstr "o G53 se usa mientras la compensación del cortador está activada."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1570
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G54-G59.3 Select Coordinate System"
-msgstr "Sistema de Coordenadas Predeterminado"
+msgstr "G54-G59.3 Seleccionar sistema de coordenadas"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1573
 msgid "'G54' - select coordinate system 1"
-msgstr "'G54' - seleccione el sistema de coordenadas 1"
+msgstr "'G54' - selecciona el sistema de coordenadas 1"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1574
@@ -53708,7 +53700,6 @@ msgstr "'G59.3' - selecciona el sistema de coordenadas 9"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1584
-#, fuzzy
 msgid ""
 "The coordinate systems store the axis values and the XY rotation angle "
 "around the Z axis in the parameters shown in the following table."
@@ -53719,21 +53710,21 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1585
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coordinate System Parameters"
 msgstr "Parámetros del sistema de coordenadas"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1588
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Select"
-msgstr "select8"
+msgstr "Selección"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1588
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "CS"
-msgstr "CMS"
+msgstr "SC"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589 src/gcode/overview.adoc:142 src/gui/axis.adoc:650
@@ -53745,313 +53736,313 @@ msgstr "R"
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5221"
-msgstr ""
+msgstr "5221"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5222"
-msgstr ""
+msgstr "5222"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5223"
-msgstr ""
+msgstr "5223"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5224"
-msgstr ""
+msgstr "5224"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5225"
-msgstr ""
+msgstr "5225"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5226"
-msgstr ""
+msgstr "5226"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5227"
-msgstr ""
+msgstr "5227"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5228"
-msgstr ""
+msgstr "5228"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1589
 #, no-wrap
 msgid "5229"
-msgstr ""
+msgstr "5229"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1590
 #, no-wrap
 msgid "5230"
-msgstr ""
+msgstr "5230"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5250"
-msgstr ""
+msgstr "5250"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5261"
-msgstr ""
+msgstr "5261"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5262"
-msgstr ""
+msgstr "5262"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5263"
-msgstr ""
+msgstr "5263"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5264"
-msgstr ""
+msgstr "5264"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5265"
-msgstr ""
+msgstr "5265"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5266"
-msgstr ""
+msgstr "5266"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5267"
-msgstr ""
+msgstr "5267"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5268"
-msgstr ""
+msgstr "5268"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1591
 #, no-wrap
 msgid "5269"
-msgstr ""
+msgstr "5269"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5270"
-msgstr ""
+msgstr "5270"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5281"
-msgstr ""
+msgstr "5281"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5282"
-msgstr ""
+msgstr "5282"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5283"
-msgstr ""
+msgstr "5283"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5284"
-msgstr ""
+msgstr "5284"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5285"
-msgstr ""
+msgstr "5285"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5286"
-msgstr ""
+msgstr "5286"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5287"
-msgstr ""
+msgstr "5287"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5288"
-msgstr ""
+msgstr "5288"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1592
 #, no-wrap
 msgid "5289"
-msgstr ""
+msgstr "5289"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5290"
-msgstr ""
+msgstr "5290"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5301"
-msgstr ""
+msgstr "5301"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5302"
-msgstr ""
+msgstr "5302"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5303"
-msgstr ""
+msgstr "5303"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5304"
-msgstr ""
+msgstr "5304"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5305"
-msgstr ""
+msgstr "5305"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5306"
-msgstr ""
+msgstr "5306"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5307"
-msgstr ""
+msgstr "5307"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5308"
-msgstr ""
+msgstr "5308"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1593
 #, no-wrap
 msgid "5309"
-msgstr ""
+msgstr "5309"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5310"
-msgstr ""
+msgstr "5310"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5321"
-msgstr ""
+msgstr "5321"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5322"
-msgstr ""
+msgstr "5322"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5323"
-msgstr ""
+msgstr "5323"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5324"
-msgstr ""
+msgstr "5324"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5325"
-msgstr ""
+msgstr "5325"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5326"
-msgstr ""
+msgstr "5326"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5327"
-msgstr ""
+msgstr "5327"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5328"
-msgstr ""
+msgstr "5328"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1594
 #, no-wrap
 msgid "5329"
-msgstr ""
+msgstr "5329"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5330"
-msgstr ""
+msgstr "5330"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5341"
-msgstr ""
+msgstr "5341"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
