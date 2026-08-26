@@ -69,7 +69,7 @@ class ToolEdit(Gtk.Box):
         self.editable = None
         self.edit_path = None
         self.edit_column = None
-
+        self.tooltable_error_msg = None
         # connect the signals from Glade
         dic = {
             "on_delete_clicked" : self.delete,
@@ -286,7 +286,15 @@ class ToolEdit(Gtk.Box):
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
         line_number = 0
+        tool_nbrs = []
+        rejected_lines = []
+        error_msg = []
         for rawline in logfile:
+            if rawline.isspace():
+                continue
+            elif rawline[0] != ';' and rawline[0] != 'T':
+                rejected_lines.append(rawline)
+                continue
             # strip the comments from line and add directly to array
             # if index = -1 the delimiter ; is missing - clear comments
             index = rawline.find(";")
@@ -314,33 +322,62 @@ class ToolEdit(Gtk.Box):
                     if word.startswith(';'): break
                     if word.startswith(i):
                         if offset == 1:
+                            try:
+                                current_tool = int(word.lstrip(i))
+                                tool_nbrs.append(current_tool)
+                            except:
+                                rejected_lines.append(rawline)
+                                continue
                             if int(word.lstrip(i)) == self.toolinfo_num:
                                 toolinfo_flag = True
                         if offset in(1,2):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                print(_("Tooledit widget int error"))
+                                rejected_lines.append(rawline)
+                                continue
                         elif offset == 15:
                             try:
                                 # Accept also float for 'orientation' for backward compatibility
                                 value = int(float(word.lstrip(i)))
                                 array[offset] = value
                                 if value not in range(10):
-                                    self.warning_dialog(line_number)
-                                    break
-                            except:
-                                print(_("Tooledit widget float error"))
+                                    msg = _(f"Tool {current_tool} Orientation: <b>'{value}'</b>\nValid range is 0 ~ 9.")
+                                    error_msg.append(msg)
+                                rejected_lines.append(rawline)
+                                continue
                         else:
                             try:
                                 array[offset]= f"{float(word.lstrip(i)):10.4f}"
                             except:
-                                print(_("Tooledit widget float error"))
+                                rejected_lines.append(rawline)
+                                continue
                         break
             if toolinfo_flag:
                 self.toolinfo = array
             # add array line to liststore
             self.add(None,array)
+        # check for duplicate toolnumbers
+        s = []
+        dup_tool = []
+        for n in tool_nbrs:
+            if n in s:
+                dup_tool.append(n)
+            else:
+                s.append(n)
+        # compose user message about duplicate tool nummbers
+        if len(dup_tool) > 0:
+            msg = _("Duplicate tool number(s):   <b>") +  str(dup_tool)[1:-1] +"</b>"
+            error_msg.append(msg)
+        # write malformed lines to a file and compose user message
+        if len(rejected_lines) > 0:
+            file_name = "tooltable_rejected.txt"
+            self.rejected_lines = rejected_lines
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.writelines(rejected_lines)
+            msg = (_(f"<b>{len(rejected_lines)}</b> malformed line(s) have been rejected and copied to <b>'{file_name}'</b>"))
+            error_msg.append(msg)
+        self.tooltable_error_msg = error_msg
 
     def save(self,widget):
         if self.toolfile == None: return
