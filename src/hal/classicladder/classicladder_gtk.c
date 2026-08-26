@@ -1059,7 +1059,7 @@ void MainSectionWindowInitGtk()
 
 
 //no more used since menu/toolbar added...
-#ifdef AAAAAAAAAAAAAAAAAAAAAA
+#if 0
 	hboxbottom = gtk_hbox_new (FALSE,0);
 	gtk_container_add (GTK_CONTAINER (vbox), hboxbottom);
 	gtk_widget_show(hboxbottom);
