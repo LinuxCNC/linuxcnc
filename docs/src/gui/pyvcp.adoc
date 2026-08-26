@@ -794,6 +794,7 @@ up or down as the wheel is turned, either by dragging in a circular
 motion, or by rolling the mouse-wheel.
 
 Optional tags:
+
 * '<text>"My Text"</text>' displays text
 * '<bgcolor>"grey"</bgcolor> <fillcolor>"green"</fillcolor>' background & active colors
 * '<scale_pin>1</scale_pin>' creates scale text and a `FLOAT.scale` pin to display jog scale
