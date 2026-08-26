@@ -163,8 +163,20 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.notify = 0
         self.notify_message = ""
         self.highlight_line = None
+        # Stock outlines declared by (WORKPIECE,...) comments, in the order
+        # declared - they are additive, one entry per comment, because a
+        # fixture may hold several pieces. A canon is built per file load, so
+        # nothing else ever clears this.
+        self.workpieces = []
 
     def comment(self, arg):
+        if arg.startswith("WORKPIECE,"):
+            # Recorded even while (AXIS,hide) is in force: hide suppresses
+            # moves, and the stock is not a move.
+            workpiece = glcanon_scene.Workpiece.from_comment(arg, self)
+            if workpiece is not None:
+                self.workpieces.append(workpiece)
+            return
         if arg.startswith("AXIS,") or arg.startswith("PREVIEW,"):
             parts = arg.split(",")
             command = parts[1]
@@ -655,6 +667,8 @@ class GlCanonDraw:
         'axis_y': (1.00, 0.20, 0.20),
         'grid': (0.15, 0.15, 0.15),
         'limits': (1.0, 0.0, 0.0),
+        'workpiece': glcanon_scene.WORKPIECE_COLOR,
+        'workpiece_alpha': glcanon_scene.WORKPIECE_ALPHA,
     }
     def __init__(self, s=None, lp=None, g=None):
         self.stat = s
@@ -1117,6 +1131,27 @@ class GlCanonDraw:
         if self.canon and self.canon.grid: return self.canon.grid
         return 5./25.4
 
+    def get_show_workpiece(self):
+        """Whether (WORKPIECE,...) stock outlines are drawn.
+
+        Defaulted here rather than required of every host: the other show_*
+        getters predate this widget and each of the hosting GUIs defines its
+        own, so a host that has never heard of the flag keeps drawing stock,
+        and any host can toggle it by setting self.show_workpiece."""
+        return getattr(self, 'show_workpiece', True)
+
+    def get_workpieces(self):
+        """The stock the loaded program declared, as rs274.glcanon_scene
+        .Workpiece records - the declared params, the outline in machine
+        coordinates, and the outline as drawn. Empty until a program is
+        loaded.
+
+        The supported way for a hosting GUI to read them: self.canon is None
+        before the first load and is replaced by every one, so a handler that
+        took it once would go stale silently.
+        """
+        return getattr(self.canon, 'workpieces', []) if self.canon else []
+
     def draw_grid(self):
         """Draw the ground grid. Override point: plasmac2 replaces this method
         on the instance and calls back into draw_grid_permuted."""
@@ -1243,6 +1278,7 @@ class GlCanonDraw:
             show_relative=self.get_show_relative(),
             show_metric=self.get_show_metric(),
             show_small_origin=self.show_small_origin,
+            show_workpiece=self.get_show_workpiece(),
             program_alpha=self.get_program_alpha(),
             grid_size=self.get_grid_size(),
             highlight_line=self.get_highlight_line(),
