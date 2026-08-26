@@ -183,9 +183,12 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        .github/scripts/use-main-ubuntu-mirror.sh
-        sudo apt-get -q update
+        .github/scripts/install-deps.sh
         sudo apt-get --yes install cppcheck
+    - name: Build headers
+      run: |
+        set -x
+        .github/scripts/build-headers.sh --with-realtime=uspace
     - name: Cppcheck
       run: |
         set -x
