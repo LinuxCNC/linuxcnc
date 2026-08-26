@@ -252,10 +252,17 @@ class ToolEdit(Gtk.Box):
         except:
             print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
-    def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]):
+    def add(self, widget, data=None):
+        liststore = self.model
+        if data is None: # an empty line is being added
+            data = [1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]
+            tool_nbrs = [0]
+            for row in liststore:
+                values = [ value for value in row ]
+                tool_nbrs.append(values[1])
+            data[1] = max(tool_nbrs)+1
         self.model.append(data)
         self.num_of_col +=1
-        liststore = self.model
         self.wTree.get_object("treeview1").scroll_to_cell(len(liststore)-1)
 
         # this is for adding a filename path after the tooleditor is already loaded.
