@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-26 22:34+0000\n"
+"PO-Revision-Date: 2026-08-27 15:25+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -54048,179 +54048,178 @@ msgstr "5341"
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5342"
-msgstr ""
+msgstr "5342"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5343"
-msgstr ""
+msgstr "5343"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5344"
-msgstr ""
+msgstr "5344"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5345"
-msgstr ""
+msgstr "5345"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5346"
-msgstr ""
+msgstr "5346"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5347"
-msgstr ""
+msgstr "5347"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5348"
-msgstr ""
+msgstr "5348"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1595
 #, no-wrap
 msgid "5349"
-msgstr ""
+msgstr "5349"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5350"
-msgstr ""
+msgstr "5350"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5361"
-msgstr ""
+msgstr "5361"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5362"
-msgstr ""
+msgstr "5362"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5363"
-msgstr ""
+msgstr "5363"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5364"
-msgstr ""
+msgstr "5364"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5365"
-msgstr ""
+msgstr "5365"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5366"
-msgstr ""
+msgstr "5366"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5367"
-msgstr ""
+msgstr "5367"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5368"
-msgstr ""
+msgstr "5368"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1596
 #, no-wrap
 msgid "5369"
-msgstr ""
+msgstr "5369"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5370"
-msgstr ""
+msgstr "5370"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5381"
-msgstr ""
+msgstr "5381"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5382"
-msgstr ""
+msgstr "5382"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5383"
-msgstr ""
+msgstr "5383"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5384"
-msgstr ""
+msgstr "5384"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5385"
-msgstr ""
+msgstr "5385"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5386"
-msgstr ""
+msgstr "5386"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5387"
-msgstr ""
+msgstr "5387"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5388"
-msgstr ""
+msgstr "5388"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1597
 #, no-wrap
 msgid "5389"
-msgstr ""
+msgstr "5389"
 
 #. type: Table
 #: src/gcode/g-code.adoc:1598
 #, no-wrap
 msgid "5390"
-msgstr ""
+msgstr "5390"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1603
-#, fuzzy
 msgid "selecting a coordinate system is used while cutter compensation is on."
 msgstr ""
 "La selección de un sistema de coordenadas se utiliza mientras la "
@@ -54237,9 +54236,9 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1608
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G61 Exact Path Mode"
-msgstr "* modo de ruta exacta"
+msgstr "G61 Modo de ruta exacta"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1608 src/gcode/g-code.adoc:1615
@@ -54251,7 +54250,6 @@ msgstr "Control de trayectoria"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1613
-#, fuzzy
 msgid ""
 "'G61' - Exact path mode, movement exactly as programmed.  Moves will slow or "
 "stop as needed to reach every programmed point. If two sequential moves are "
@@ -54264,13 +54262,12 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1615
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G61.1 Exact Stop Mode"
-msgstr "* modo de parada exacta"
+msgstr "G61.1 Modo de parada exacta"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1619
-#, fuzzy
 msgid ""
 "'G61.1' - Exact stop mode, movement will stop at the end of each programmed "
 "segment."
@@ -54280,39 +54277,36 @@ msgstr ""
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1621
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 Path Blending"
-msgstr "G76 Roscado"
+msgstr "G64 Mezcla de rutas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1626
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 <P- <Q->>\n"
 msgstr "G64 <P- <Q->>\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1629
-#, fuzzy
 msgid "'P' - motion blending tolerance"
 msgstr "'P' - tolerancia de mezcla de movimiento"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1630
-#, fuzzy
 msgid "'Q' - naive cam tolerance"
 msgstr "'Q' - tolerancia naive cam"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1632
-#, fuzzy
 msgid ""
 "'G64' - best possible speed. Without P (Or a default value in "
 "<<sub:ini:sec:rs274ngc,RS274NGC>>) means to keep the best speed possible, no "
 "matter how far away from the programmed point you end up."
 msgstr ""
-"'G64' - la mejor velocidad posible. sin P significa mantener la mejor "
-"velocidad posible, sin importar cómo de lejos del punto programado se "
-"termina."
+"'G64' - la mejor velocidad posible. Sin P (o un valor predeterminado en "
+"<<sub:ini:sec:rs274ngc,RS274NGC>>) significa mantener la mejor velocidad "
+"posible, sin importar qué tan lejos del punto programado termines."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1633
@@ -54321,7 +54315,6 @@ msgstr "'G64 P-' - Mezcla entre la mejor velocidad y tolerancia de desviación"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1656
-#, fuzzy
 msgid ""
 "'G64 P- <Q- >' blending with tolerance.  It is a way to fine tune your "
 "system for best compromise between speed and accuracy.  The P- tolerance "
@@ -54342,28 +54335,29 @@ msgid ""
 "If Q is not specified then it will have the same behavior as before and use "
 "the value of P-.  Set Q to zero to disable the 'Naive CAM Detector'."
 msgstr ""
-"'G64 P- Q-' - es una forma de ajustar su sistema para obtener el mejor "
-"compromiso entre velocidad y precisión. La tolerancia P significa que la "
-"ruta real no se apartará más de P- del punto final programado. La velocidad "
-"se reducirá si es necesario para mantener el camino. Además, cuando se "
-"active G64 P- Q- , se enciende 'naive cam'; cuando hay una serie de "
-"alimentación lineal XYZ se mueve al mismo <<sec:set-feed-rate,feed rate>> "
-"que están a menos de Q- lejos de ser colineales, se colapsan en un "
-"movimiento lineal único. En G2/G3 se mueve en el plano G17 (XY) cuando el "
-"máximo La desviación de un arco de una línea recta es menor que el G64 P- "
-"tolerancia el arco se divide en dos líneas (desde el inicio del arco hasta "
-"punto medio, y desde el punto medio hasta el final). esas líneas están "
-"sujetas a El ingenuo algoritmo de leva para líneas. Por lo tanto, line-arc, "
-"arc-arc y los casos de línea de arco y la línea de línea se benefician de la "
-"'cámara ingenua detector'. Esto mejora el rendimiento de contorneado al "
-"simplificar el camino. Está bien programar para el modo que ya está activo. "
-"Ver también la sección <<sec:trajectory-control,control de trayectoria>> "
-"para más información sobre estos modos.  Si Q no se especifica, tendrá el "
-"mismo comportamiento que antes y use el valor de P-."
+"'G64 P- <Q- >' - mezcla con tolerancia.  Es una forma de ajustar tu sistema "
+"para obtener el mejor compromiso entre velocidad y precisión.  La tolerancia "
+"P- significa que la ruta real no se apartará más de P- del punto final "
+"programado. La velocidad se reducirá si es necesario para mantener la ruta.  "
+"Si asignas a Q un valor distinto de cero se enciende el detector 'Naive "
+"CAM': cuando hay una serie de movimientos de alimentación lineal XYZ a la "
+"misma <<sec:set-feed-rate,velocidad de alimentación>> que están a menos de "
+"Q- lejos de ser colineales, se colapsan en un movimiento lineal único.  En "
+"movimientos G2/G3 en el plano G17 (XY) cuando la desviación máxima de un "
+"arco desde una línea recta es menor que la tolerancia G64 P-, el arco se "
+"divide en dos líneas (desde el inicio del arco hasta punto medio, y desde el "
+"punto medio hasta el final). Esas líneas están sujetas al algoritmo naive "
+"cam para líneas. Por lo tanto, los casos de línea-arco, arco-arco y arco-"
+"línea, así como el de línea-línea se benefician del detector 'Naive CAM'. "
+"Esto mejora el rendimiento de contorneado al simplificar la ruta. Está bien "
+"programar para el modo que ya está activo. Ver también la sección "
+"<<sec:trajectory-control,Control de trayectoria>> para más información sobre "
+"estos modos.  Si Q no se especifica, tendrá el mismo comportamiento que "
+"antes y usará el valor de P-.  Establecer Q en cero desactivará el detector "
+"'Naive CAM'."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1658
-#, fuzzy
 msgid ""
 "It is a good idea to include a path control specification in the preamble of "
 "each G-code file."
@@ -54373,15 +54367,17 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1659
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 P- Q- Example Line"
-msgstr "G64 P- Línea de ejemplo"
+msgstr "Línea de ejemplo de G64 P-"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1663
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 P0.015 Q0.015 (set path following to be within 0.015 of the actual path)\n"
-msgstr "G64 P0.015 (configure la siguiente ruta para estar dentro de 0.015 de la ruta real)\n"
+msgstr ""
+"G64 P0.015 Q0.015 (establece la ruta siguiendo estar dentro de 0.015 de la "
+"ruta real)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1666
