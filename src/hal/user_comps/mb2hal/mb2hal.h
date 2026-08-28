@@ -7,9 +7,6 @@
 #include <pthread.h>
 
 #include <rtapi.h>
-#ifdef RTAPI
-#include <rtapi_app.h>
-#endif
 #include <rtapi_string.h>
 #include <rtapi_errno.h>
 #include <hal.h>
@@ -31,12 +28,6 @@
 #define MB2HAL_MAX_FNCT06_ELEMENTS 1
 #define MB2HAL_MAX_FNCT15_ELEMENTS 100
 #define MB2HAL_MAX_FNCT16_ELEMENTS 100
-
-#ifdef MODULE_VERBOSE
-MODULE_VERBOSE(emc2, "component:mb2hal:Userspace HAL component to communicate with one or more Modbus devices");
-MODULE_VERBOSE(emc2, "license:LGPL");
-MODULE_LICENSE("LGPL");
-#endif
 
 typedef enum { linkRTU,
                linkTCP
