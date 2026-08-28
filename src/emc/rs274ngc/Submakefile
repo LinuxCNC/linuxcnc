@@ -35,6 +35,13 @@ LIBRS274SRCS += emc/nml_intf/modal_state.cc
 USERSRCS += $(LIBRS274SRCS)
 
 $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS+=-fPIC $(BOOST_DEBUG_FLAGS)
+
+# interp_g7x.cc takes discrete threshold branches on iterated floating-point
+# values; FMA contraction (GCC default -ffp-contract=fast when targeting
+# x86-64-v3, as on the ubuntu-26.04 CI runners) changes rounding enough to
+# flip branches and diverge the G71 toolpath. Disable contraction for this
+# file so codegen is independent of the compiler default arch.
+$(call TOOBJS, emc/rs274ngc/interp_g7x.cc): EXTRAFLAGS += -ffp-contract=off
 $(call TOOBJSDEPS, emc/rs274ngc/pyinterp1.cc emc/rs274ngc/pyparamclass.cc emc/rs274ngc/pyinterp1.cc emc/rs274ngc/pyblock.cc emc/rs274ngc/pyarrays.cc emc/rs274ngc/interpmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
