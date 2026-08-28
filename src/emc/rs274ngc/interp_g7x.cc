@@ -858,7 +858,7 @@ void g7x::add_distance(double distance) {
     auto of(std::move(front()));
     pop_front();
     double current_distance=0;
-    while(current_distance!=distance) {
+    while(std::abs(distance-current_distance)>1e-9) {
 	double max_distance=1e9;
 	for(auto &p : *this)
 	    max_distance=std::min(max_distance,p->radius()/2);
