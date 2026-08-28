@@ -45,10 +45,10 @@ The following kinematics modules support switchable kinematics:
 . *scarakins*      (type0:scarakins      type1:identity)
 . *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
 
-The xyz[ab]c-trt-kins modules by default use type0==xyz[ab]c-trt-kins
-for backwards compatibility.  The provided sim configs alter the
-type0/type1 convention by forcing type0==identity kinematics using the
-module string parameter 'sparm' with an INI file setting like:
+Every module listed above uses its own kinematics for type0 and
+identity kinematics for type1.  Each accepts the module string
+parameter 'sparm' to swap the two, so that the machine starts in
+identity kinematics and the module kinematics are selected on demand:
 
 [source,ini]
 ----
@@ -56,6 +56,20 @@ module string parameter 'sparm' with an INI file setting like:
 KINEMATICS = xyzac-trt-kins sparm=identityfirst
 # ...
 ----
+
+Starting in identity kinematics leaves a way out of poses the module
+kinematics cannot solve.  A module kinematics failure (near a
+singularity, for instance) reports an error and disables the machine;
+type0 is then reached without running the failing kinematics again.
+
+[NOTE]
+The 'sparm' setting exchanges type0 and type1, so any G-code or HAL
+logic that selects a kinematics type by number must match.
+
+Kinematics that solve the forward direction iteratively, genhexkins
+among them, need a pose to start from.  While another type is running
+they take the estimate the caller supplies, which motion seeds from
+the '[TRAJ]HOME' world home, so they are ready to be switched to.
 
 === Identity letter assignments
 

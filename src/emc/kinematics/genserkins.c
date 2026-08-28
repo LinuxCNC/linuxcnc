@@ -63,13 +63,25 @@ int switchkinsSetup(kparms* kp,
     kp->max_joints  = strlen(kp->required_coordinates);
     kp->allow_duplicates  = 0;
 
-    *kset0 = genserKinematicsSetup;
-    *kfwd0 = genserKinematicsForward;
-    *kinv0 = genserKinematicsInverse;
+    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
+        *kset0 = identityKinematicsSetup;
+        *kfwd0 = identityKinematicsForward;
+        *kinv0 = identityKinematicsInverse;
 
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
+        *kset1 = genserKinematicsSetup;
+        *kfwd1 = genserKinematicsForward;
+        *kinv1 = genserKinematicsInverse;
+    } else {
+        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        *kset0 = genserKinematicsSetup;
+        *kfwd0 = genserKinematicsForward;
+        *kinv0 = genserKinematicsInverse;
+
+        *kset1 = identityKinematicsSetup;
+        *kfwd1 = identityKinematicsForward;
+        *kinv1 = identityKinematicsInverse;
+    }
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;
