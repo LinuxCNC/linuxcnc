@@ -1373,23 +1373,15 @@ class gmoccapy(object):
                          message)
                 return
 
-            # look thru the INI macros
+            # get the INI macros
             macros = self.get_ini_info.get_macros()
-            macro_name = macros[int(data)]
-            num_macros = len(macros)
-            if num_macros > 14:
-                num_macros = 14
-            for pos in range(0, num_macros):
-                # extract just the macro name
-                name = macros[pos].split()[0]
-                if macro_name == name:
-                    # get the button instance and click it
-                    button = self["button_macro_{0}".format(pos)]
-                    button.emit("clicked")
-                    break
-            else:
+            try:
+                # get the button instance and click it
+                button = self["button_macro_{0}".format(int(data))]
+                button.emit("clicked")
+            except:
                 # didn't match a name - give a hint
-                message = _("Macro {} not found ".format(data))
+                message = _("[MACROS] macro {} not found ".format(data))
                 self.dialogs.show_warning_dialog( _("Important Warning!"),
                          message)
 
