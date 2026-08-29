@@ -137,4 +137,61 @@ if [ "$(grep -c "is written in EXTRA_SETUP" setup-warnings.txt)" != "2" ]; then
     exit 1
 fi
 
+# legacy hal_*_t types: in bodies the volatile qualifier is preserved
+# (semantics-identical); in 'variable' declarations it cannot be
+# expressed, so the declaration is left unchanged with a warning.
+cat > voltest.comp <<'EOF'
+component voltest;
+pin out float out0;
+variable hal_bit_t vflag;
+variable float bias;
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+    hal_bit_t local = 0;
+    hal_float_t acc = bias;
+    out0 = acc;
+}
+EOF
+halcompupdate -i --no-backup voltest.comp 2>vol-warnings.txt
+if ! grep -q "volatile rtapi_bool local" voltest.comp; then
+    echo "body hal_bit_t did not keep its volatile qualifier"
+    exit 1
+fi
+if ! grep -q "volatile rtapi_real acc" voltest.comp; then
+    echo "body hal_float_t did not keep its volatile qualifier"
+    exit 1
+fi
+if ! grep -q "variable rtapi_real bias" voltest.comp; then
+    echo "plain float variable was not converted"
+    exit 1
+fi
+if ! grep -q "variable hal_bit_t vflag" voltest.comp; then
+    echo "variable hal_bit_t was modified; it must be left for manual review"
+    exit 1
+fi
+if ! grep -q "variable 'vflag' uses legacy HAL type 'hal_bit_t'" vol-warnings.txt; then
+    echo "expected warning missing for variable hal_bit_t"
+    exit 1
+fi
+for pat in "'hal_bit_t' converted to 'volatile rtapi_bool'" \
+           "'hal_float_t' converted to 'volatile rtapi_real'"; do
+    if ! grep -q "$pat" vol-warnings.txt; then
+        echo "expected volatile-kept warning missing: $pat"
+        exit 1
+    fi
+done
+if ! grep -q "construct(s) left for manual review" vol-warnings.txt; then
+    echo "closing summary missing"
+    exit 1
+fi
+# fix the reported variable by hand, then the component must compile
+sed -i 's/variable hal_bit_t vflag/variable rtapi_bool vflag/' voltest.comp
+if ! halcompile --compile voltest.comp >vol-compile.log 2>&1; then
+    echo "volatile-converted component does not compile"
+    cat vol-compile.log
+    exit 1
+fi
+
 exit 0
