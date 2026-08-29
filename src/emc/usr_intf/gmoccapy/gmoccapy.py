@@ -2939,8 +2939,9 @@ class gmoccapy(object):
         self.widgets.window1.destroy()
 
     def system_shutdown(self, widget):
+        msg = _('Unsaved Data Will Be Lost.\n Are You Sure ?')
         response = self.dialogs.show_yesno_dialog(self,
-                _('Unsaved data could be lost'), _('System Shutdown'))
+               msg , _('Warning: System Shutdown'),'WARNING')
         if response:        
             self.ACTION.SHUT_SYSTEM_DOWN_PROMPT(False)
 
