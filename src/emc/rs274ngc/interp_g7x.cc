@@ -1,3 +1,4 @@
+#include <cmath>
 #include <list>
 #include <tuple>
 #include <fstream>
@@ -74,6 +75,11 @@ public:
 	end=-end*I;
     }
     virtual void move(std::complex<double> d) { start+=d; end+=d; }
+    virtual void scale(double k) { start*=k; end*=k; finish*=k; }
+    virtual double extent() {
+	return std::max(std::max(std::abs(real(start)),std::abs(imag(start))),
+	    std::max(std::abs(real(end)),std::abs(imag(end))));
+    }
     friend class round_segment;
 
 protected:
@@ -156,7 +162,8 @@ bool straight_segment::climb(std::complex<double> &location,
 void straight_segment::climb_only(std::complex<double> &location,
     motion_base *output
 ) {
-    if(end.imag()<start.imag())
+    // Same flatness test as climb(), the two must not disagree
+    if(end.imag()+tolerance<start.imag())
 	return; // not climbing
     intersections_t is;
     intersection_z(location.imag(),is);
@@ -252,6 +259,11 @@ public:
 	    return entry<=1e-3 && exit<=1e-3 && dz<=-1e-3;
     }
     void move(std::complex<double> d) override { start+=d; center+=d; end+=d; }
+    void scale(double k) override { start*=k; end*=k; center*=k; finish*=k; }
+    double extent() override {
+	return std::max(segment::extent(),
+	    std::max(std::abs(real(center)),std::abs(imag(center))));
+    }
 private:
     bool on_segment(std::complex<double> p);
     friend class straight_segment;
@@ -260,20 +272,25 @@ private:
 
 inline bool round_segment::on_segment(std::complex<double> p)
 {
+    // The cross products scale with the radius, so the tolerance must too
+    double eps=tolerance*std::abs(start-center);
     if(ccw)
-	return imag(conj(start-center)*(p-center))>=-tolerance
-	    && imag(conj(end-center)*(p-center))<=tolerance;
+	return imag(conj(start-center)*(p-center))>=-eps
+	    && imag(conj(end-center)*(p-center))<=eps;
     else
-	return imag(conj(start-center)*(p-center))<=tolerance
-	    && imag(conj(end-center)*(p-center))>=-tolerance;
+	return imag(conj(start-center)*(p-center))<=eps
+	    && imag(conj(end-center)*(p-center))>=-eps;
 }
 
 void round_segment::intersection_z(double x, intersections_t &is)
 {
-    std::complex<double> r=start-center;
-    double s=-(x-std::abs(r)-center.imag())*(x+std::abs(r)-center.imag());
-    if(s<-tolerance)
+    // Decide on the distance from the centre, not on its square: an area
+    // against a linear tolerance made a tangent scan line miss the arc
+    double radius=std::abs(start-center);
+    double dx=x-center.imag();
+    if(std::abs(dx)>radius+tolerance)
 	return;
+    double s=(radius-dx)*(radius+dx);
     if(s<0)
 	s=0;
     s=sqrt(s);
@@ -288,15 +305,19 @@ void round_segment::intersection_z(double x, intersections_t &is)
 bool round_segment::climb(std::complex<double> &location,
     motion_base *output
 ) {
+    /* An arc often starts at its own apex, so location and centre share a Z
+       up to rounding.  Without the tolerance the last bit decides between
+       climbing and a pocket wall, and pocket() can alternate forever.
+    */
     if(!ccw) { // G2
-	if(location.real()>center.real())
+	if(location.real()>center.real()+tolerance)
 	    return 1;
 	if(std::abs(location-end)>1e-3)
 	    output->circular_move(ccw,center,end);
 	location=end;
 	return 0;
     } else {
-	if(location.real()<center.real())
+	if(location.real()<center.real()-tolerance)
 	    return 1;
 	std::complex<double> ep=end;
 	if(end.real()<center.real()) {
@@ -336,7 +357,8 @@ bool round_segment::dive(std::complex<double> &location,
 	    return 0;
 	}
     } else {
-	if(location.real()<=center.real())
+	// Apex, see climb()
+	if(location.real()<=center.real()+tolerance)
 	    return 1; // we're already climbing
 	if(is.empty()) {
 	    // Curve not hit, move to the end
@@ -365,8 +387,9 @@ void round_segment::climb_only(std::complex<double> &location,
     intersection_z(location.imag(),is);
     if(is.empty())
 	return;
+    // Apex, see climb()
     if(!ccw) { // G2
-	if(is.back()>center.real())
+	if(is.back()>center.real()+tolerance)
 	    return;
 	location.real(is.back());
 	output->straight_move(location);
@@ -375,7 +398,7 @@ void round_segment::climb_only(std::complex<double> &location,
 	location=end;
 	return;
     } else {
-	if(is.front()<center.real())
+	if(is.front()<center.real()-tolerance)
 	    return;
 	location.real(is.front());
 	output->straight_move(location);
@@ -477,12 +500,12 @@ void round_segment::intersect_end(round_segment *p)
     auto c=std::abs(center-p->center);
     auto cosB=(c*c+a*a-b*b)/2.0/a/c;
     if(std::abs(cosB)>1) {
-        // circles do not intersect: trim to the closest points on the
-        // line of centers so each end stays on its own circle
-        auto u=(p->center-center)/c;
-        p->end=p->center-b*u;
-        start=center+a*u;
-        return;
+	// circles do not intersect: trim to the closest points on the
+	// line of centers so each end stays on its own circle
+	auto u=(p->center-center)/c;
+	p->end=p->center-b*u;
+	start=center+a*u;
+	return;
     }
     double cosB2=cosB*cosB;
     std::complex<double> rot(cosB,sqrt(1-cosB2));
@@ -519,6 +542,32 @@ public:
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class scaled_motion:public motion_base {
+    motion_base *orig;
+    double k;
+    std::complex<double> location;
+    bool located{false};
+public:
+    scaled_motion(motion_base *motion,double scale):orig(motion),k(scale) {}
+    void straight_move(std::complex<double> end) override {
+	orig->straight_move(k*end);
+	location=end; located=true;
+    }
+    void straight_rapid(std::complex<double> end) override {
+	orig->straight_rapid(k*end);
+	location=end; located=true;
+    }
+    void circular_move(bool ccw,std::complex<double> center,
+	std::complex<double> end) override
+    {
+	// Drop an arc going nowhere, judged on the normalised profile
+	if(located && std::abs(end-location)<tolerance)
+	    return;
+	orig->circular_move(ccw,k*center,k*end);
+	location=end; located=true;
+    }
+};
 
 template <int swap>
 class swapped_motion:public motion_base {
@@ -571,6 +620,8 @@ class g7x:public  std::list<std::unique_ptr<segment>> {
     double delta{0.5};
     std::complex<double> escape{0.3, 0.3};
     int flip_state{};
+    double unit{1};
+    std::unique_ptr<motion_base> unscaled;
     std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
@@ -600,7 +651,28 @@ private:
 	}
     }
 
+    /* The thresholds here are plain numbers, so the profile needs a known
+       size for them to mean anything.  Scale it into a canonical range, by a
+       power of two so the scaling itself is exact, and undo that on output.
+    */
+    void normalise() {
+	double size=0;
+	for(auto &p : *this)
+	    size=std::max(size,p->extent());
+	if(!(size>0) || !std::isfinite(size))
+	    return;
+	int exponent;
+	std::frexp(size,&exponent);
+	unit=std::ldexp(1.0,6-exponent);	// scaled size lands in [32,64)
+	if(unit==1)
+	    return;
+	for(auto &p : *this)
+	    p->scale(unit);
+    }
+
     std::unique_ptr<motion_base> motion(motion_base *out) {
+	unscaled=std::make_unique<scaled_motion>(out,1/unit);
+	out=unscaled.get();
 	switch(flip_state) {
 	case 0: return std::make_unique<swapped_motion<0>>(out);
 	case 1: return std::make_unique<swapped_motion<1>>(out);
@@ -629,11 +701,11 @@ private:
 	    auto p(h); --p;
 	    (*h)->do_finish((*p).get(),(*(++h)).get());
 	}
-        for(auto p=begin(); p!=end();)
+	for(auto p=begin(); p!=end();)
 	    if((*p)->radius()<1e-3)
-                p=erase(p);
-            else
-                ++p;
+		p=erase(p);
+	    else
+		++p;
     }
 
     bool should_rotate_paths() {
@@ -653,7 +725,8 @@ public:
           : std::list<std::unique_ptr<segment>>(),
             delta(other.delta),
             escape(other.escape),
-            flip_state(other.flip_state) {
+            flip_state(other.flip_state),
+            unit(other.unit) {
 	for(const auto &p : other)
 	    emplace_back(p->dup());
     }
@@ -670,6 +743,9 @@ public:
     )
     {
 	front()->sp()=std::complex<double>(z,x);
+	normalise();
+	d*=unit;
+	e*=unit;
 
 	if(should_rotate_paths())
 	    rotate();
@@ -708,6 +784,12 @@ public:
 	double d, double i, double r, bool do_rotate=false
     ) {
 	front()->sp()=std::complex<double>(z,x);
+	normalise();
+	u*=unit;
+	w*=unit;
+	d*=unit;
+	i*=unit;
+	r*=unit;
 	if(do_rotate)
 	    rotate();
 	swap();
@@ -723,7 +805,8 @@ public:
 	escape=r*std::complex<double>{1,1};
 
 	swapped_out->straight_rapid(front()->sp());
-	if(imag(back()->ep())<imag(front()->sp())) {
+	// Close the profile only if it really is open, not a few ulp short
+	if(imag(back()->ep())+tolerance<imag(front()->sp())) {
 	    auto ep=back()->ep();
 	    ep.imag(imag(front()->sp()));
 	    emplace_back(std::make_unique<straight_segment>(
@@ -746,7 +829,10 @@ public:
 void g7x::pocket(int cycle, std::complex<double> location, iterator p,
     motion_base *out
 ) {
-    double x=imag(pocket_starts.back());
+    // Count the pass levels off the start, so they do not accumulate rounding
+    double top=imag(pocket_starts.back());
+    int steps=0;
+    double x=top;
 
     if(cycle==2) {
 	// This skips the initial roughing pass
@@ -759,7 +845,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 
     while(p!=end()) {
 	while(x-tolerance>imag(location))
-	    x-=delta;
+	    x=top-(++steps)*delta;
 	if((*p)->dive(location,x,out,p==begin())) {
 	    if(cycle==1) {
 		/* After the initial roughing pass, move along the final
@@ -774,7 +860,8 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		for(; p!=end(); ++p) {
 		    if((*p)->climb(location,out)) {
 			if(cycle==3) {
-			    if(imag(location)>imag(pocket_starts.back())
+			    // Equal X levels must not turn on rounding
+			    if(imag(location)>imag(pocket_starts.back())+tolerance
 				&& pocket_starts.size()>1
 			    ) {
 				pocket_starts.pop_back();
@@ -825,7 +912,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		    break;
 		} else {
 		    // Just a zero length segment, consider it done
-		    x-=delta;
+		    x=top-(++steps)*delta;
 		    break;
 		}
 	    }
@@ -843,7 +930,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		out->straight_rapid(location);
 	    else
 		out->straight_move(location);
-	    x-=delta;
+	    x=top-(++steps)*delta;
 	    break;
 	}
     }
@@ -857,22 +944,31 @@ void g7x::add_distance(double distance) {
 	distance=-distance;
     auto of(std::move(front()));
     pop_front();
-    double current_distance=0;
-    while(current_distance!=distance) {
-	double max_distance=1e9;
+    /* Offset in steps of at most half the shortest segment.  Track what is
+       left, not what has been added, so the last step lands exactly instead
+       of leaving a residue worth another pass.  A step that no longer
+       shortens the remainder ends the loop rather than spinning.
+    */
+    double remaining=std::abs(distance);
+    double sign=distance<0? -1.0:1.0;
+    while(remaining>tolerance) {
+	double step=1e9;
 	for(auto &p : *this)
-	    max_distance=std::min(max_distance,p->radius()/2);
-	max_distance=std::min(max_distance,std::abs(distance-current_distance));
-	if(distance<0)
-	    max_distance=-max_distance;
+	    step=std::min(step,p->radius()/2);
+	if(!(step>0))
+	    break;
+	if(step>=remaining-tolerance)
+	    step=remaining;
+	remaining-=step;
+	double max_distance=sign*step;
 
-        for(auto p=begin(); p!=end();) {
-            (*p)->offset(max_distance);
-            if((*p)->radius()<1e-3)
-                p=erase(p);
-            else
-                ++p;
-        }
+	for(auto p=begin(); p!=end();) {
+	    (*p)->offset(max_distance);
+	    if((*p)->radius()<1e-3)
+		p=erase(p);
+	    else
+		++p;
+	}
 
 	for(auto p=begin(); p!=--end(); ++p) {
 	    auto n=p; ++n;
@@ -906,17 +1002,13 @@ void g7x::add_distance(double distance) {
 	    } else
 		(*p)->intersect(n->get());
 	}
-        double previous_distance=current_distance;
-        current_distance+=max_distance;
-        if(current_distance==previous_distance)
-            break;  // remaining step below FP resolution; avoid endless loop
     }
     for(auto p=begin(); p!=--end(); ++p) {
 	auto n=p; ++n;
-        auto gap=std::abs((*p)->ep()-(*n)->sp());
-        if(gap>1e-3)
-            throw(std::string("Profile junction gap too large: ")
-                +to_string((*p)->ep()));
+	auto gap=std::abs((*p)->ep()-(*n)->sp());
+	if(gap>1e-3)
+	    throw(std::string("Profile junction gap too large: ")
+		+to_string((*p)->ep()));
 	auto mid=((*p)->ep()+(*n)->sp())/2.0;
 	(*p)->ep()=(*n)->sp()=mid;
     }
@@ -974,13 +1066,10 @@ public:
 	block->k_flag=1;
 	block->k_number=real(center);
 
-	if(!equal(settings->current_z,block->z_number)
-	    || !equal(settings->current_x,block->x_number)
-	) {
-	    int r=interp->convert_arc(ccw? G_3:G_2, block, settings);
-	    if(r!=INTERP_OK)
-		throw(r);
-	}
+	// scaled_motion has already dropped the empty ones
+	int r=interp->convert_arc(ccw? G_3:G_2, block, settings);
+	if(r!=INTERP_OK)
+	    throw(r);
     }
 };
 
