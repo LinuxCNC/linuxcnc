@@ -281,8 +281,13 @@ class Dialogs(GObject.GObject):
         dialog.connect("response", self.on_yn_response)
         return dialog
 
-    def show_yesno_dialog(self, _caller,message, title = _("Operator Message")):
+    def show_yesno_dialog(self, _caller, message,
+                        title = _("Operator Message"),icon='QUESTION'):
         dialog = self.yn_dialog
+        if icon == 'ERROR': i = Gtk.MessageType.ERROR
+        elif icon == 'WARNING': i = Gtk.MessageType.WARNING
+        else: i = Gtk.MessageType.QUESTION
+        dialog.set_property("message-type", i)
         dialog.set_markup(message)
         if title:
             dialog.set_title(str(title))
