@@ -837,6 +837,10 @@ unsigned char hal_get_lock() {
 
 /* wrapper functs for typed pins - these call the generic funct below */
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id)
 {
@@ -961,6 +965,7 @@ int hal_pin_s64_newf(hal_pin_dir_t dir,
     va_end(ap);
     return ret;
 }
+#pragma GCC diagnostic pop
 
 int hal_pin_port_newf(hal_pin_dir_t dir,
     hal_port_t **data_ptr_addr, int comp_id, const char *fmt, ...)
@@ -1132,8 +1137,9 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
         // Overlapping pin/parameter name
         // This is a problem because setp does not distinguish and
         // cannot set pin or param when the names collide.
+        halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin '%s' also is the name of a parameter\n", name);
-        // We continue, as was done before...
+        return -EEXIST;
     }
     /* validate passed in pointer - must point to HAL shmem */
     if (! SHMCHK(data_ptr_addr)) {
@@ -1164,7 +1170,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     new->type = type;
     new->dir = dir;
     new->signal = 0;
-    memset(&new->dummysig, 0, sizeof(hal_data_u));
+    memset(&new->dummysig, 0, sizeof(new->dummysig));
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* make 'data_ptr' point to dummy signal */
     *data_ptr_addr = (char *)comp->shmem_base + SHMOFF(&(new->dummysig));
@@ -1336,7 +1342,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     rtapi_intptr_t *prev, next;
     int cmp;
     hal_sig_t *new, *ptr;
-    void *data_addr;
+    halpr_data_u *data_addr;
 
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1379,9 +1385,9 @@ int hal_signal_new(const char *name, hal_type_t type)
     case HAL_UINT:
     case HAL_REAL:
     case HAL_PORT:
-        data_addr = shmalloc_up(sizeof(hal_data_u));
+        data_addr = shmalloc_up(sizeof(*data_addr));
         // Initialize the signal value
-        memset(data_addr, 0, sizeof(hal_data_u));
+        memset(data_addr, 0, sizeof(*data_addr));
         break;
     default:
 	halpr_mutex_release();
@@ -1481,7 +1487,6 @@ int hal_link(const char *pin_name, const char *sig_name)
     hal_pin_t *pin;
     hal_sig_t *sig;
     hal_comp_t *comp;
-    void **data_ptr_addr, *data_addr;
 
     if (hal_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1583,9 +1588,9 @@ int hal_link(const char *pin_name, const char *sig_name)
     }
     
     /* everything is OK, make the new link */
-    data_ptr_addr = SHMPTR(pin->data_ptr_addr);
     comp = SHMPTR(pin->owner_ptr);
-    data_addr = (char *)comp->shmem_base + sig->data_ptr;
+    halpr_data_u **data_ptr_addr = SHMPTR(pin->data_ptr_addr);
+    halpr_data_u *data_addr = (halpr_data_u *)((char *)comp->shmem_base + sig->data_ptr);
     *data_ptr_addr = data_addr;
 
     /* if the pin is a HAL_PORT the buffer belongs to the signal, port pins not linked
@@ -1595,38 +1600,23 @@ int hal_link(const char *pin_name, const char *sig_name)
             && ( sig->writers == 0 ) && ( sig->bidirs == 0 );
     if (drive_pin_default_value_onto_signal) {
 	/* this is the first pin for this signal, copy value from pin's "dummy" field */
-	data_addr = hal_shmem_base + sig->data_ptr;
-
-        // assure proper typing on assignment, assigning a hal_data_u is
-        // a surefire cause for memory corrupion as hal_data_u is larger
-        // than hal_bit_t, hal_s32_t, and hal_u32_t - this works only for 
-        // hal_float_t (!)
-        // my old, buggy code:
-        //*((hal_data_u *)data_addr) = pin->dummysig;
+	data_addr = SHMPTR(sig->data_ptr);
 
         switch (pin->type) {
         case HAL_BOOL:
-            *((hal_bit_t *) data_addr) = pin->dummysig.b;
-            break;
         case HAL_S32:
-            *((hal_s32_t *) data_addr) = pin->dummysig.s;
-            break;
         case HAL_U32:
-            *((hal_u32_t *) data_addr) = pin->dummysig.u;
-            break;
         case HAL_SINT:
-            *((hal_s64_t *) data_addr) = pin->dummysig.ls;
-            break;
         case HAL_UINT:
-            *((hal_u64_t *) data_addr) = pin->dummysig.lu;
-            break;
         case HAL_REAL:
-            *((hal_float_t *) data_addr) = pin->dummysig.f;
+            // The target *data_addr must always be the same size as the
+            // dummysig. This is guaranteed by allocation.
+            *data_addr = pin->dummysig;
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR,
-                          "HAL: BUG: pin '%s' has invalid type %d !!\n",
-                          pin->name, pin->type);
+                "HAL: BUG: pin '%s' has invalid type %d !!\n",
+                pin->name, pin->type);
             return -EINVAL;
         }
     }
@@ -1693,6 +1683,10 @@ int hal_unlink(const char *pin_name)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 int hal_param_bit_new(const char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id)
 {
@@ -1807,6 +1801,7 @@ int hal_param_s64_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
     va_end(ap);
     return ret;
 }
+#pragma GCC diagnostic pop
 
 /* this is a generic function that does the majority of the work. */
 
@@ -1828,10 +1823,18 @@ static int hal_param_new_anyapi(const char *name, hal_type_t type, hal_pdir_t di
 	return -EFAULT;
     }
 
-    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_S64 && type != HAL_U64) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, Hal_S64 or HAL_U64\n");
-	return -EINVAL;
+    switch(type) {
+    case HAL_BOOL:
+    case HAL_REAL:
+    case HAL_SINT:
+    case HAL_UINT:
+    case HAL_S32:
+    case HAL_U32:
+        break;
+    default:
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: pin type not one of HAL_BOOL, HAL_REAL, HAL_SINT or HAL_UINT\n");
+        return -EINVAL;
     }
 
     if(dir != HAL_RO && dir != HAL_RW) {
@@ -1874,8 +1877,9 @@ static int hal_param_new_anyapi(const char *name, hal_type_t type, hal_pdir_t di
         // Overlapping pin/parameter name
         // This is a problem because setp does not distinguish and
         // cannot set pin or param when the names collide.
+        halpr_mutex_release();
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: parameter '%s' also is the name of a pin\n", name);
-        // We continue, as was done before...
+        return -EEXIST;
     }
     /* validate passed in pointer - must point to HAL shmem */
     if (! SHMCHK(data_addr)) {
@@ -2052,7 +2056,7 @@ int hal_param_new_fake(int compid, hal_refs_u *ref)
     (void)compid;
     if(!ref)
         return -EINVAL;
-    __hal_private_vals_u *ptr = hal_malloc(sizeof(*ptr));
+    halpr_data_u *ptr = hal_malloc(sizeof(*ptr));
     if(!ptr)
         return -ENOMEM;
     memset(ptr, 0, sizeof(*ptr));
@@ -2062,6 +2066,10 @@ int hal_param_new_fake(int compid, hal_refs_u *ref)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 int hal_param_bit_set(const char *name, int value)
 {
     return hal_param_set(name, HAL_BIT, &value);
@@ -2173,6 +2181,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
     halpr_mutex_release();
     return 0;
 }
+#pragma GCC diagnostic pop
 
 int hal_param_alias(const char *param_name, const char *alias)
 {
@@ -2302,6 +2311,10 @@ int hal_param_alias(const char *param_name, const char *alias)
 *                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
 ************************************************************************/
 
+// We don't want our library to emit the deprecation warning.
+// We already know it and need to provide them until removed.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 int hal_get_pin_value_by_name(
     const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected)
 {
@@ -2347,6 +2360,7 @@ int hal_get_param_value_by_name(
     *data = (hal_data_u *) SHMPTR(param->data_ptr);
     return 0;
 }
+#pragma GCC diagnostic pop
 
 
 /***********************************************************************
@@ -3879,7 +3893,7 @@ static hal_pin_t *alloc_pin_struct(void)
 	p->type = 0;
 	p->dir = 0;
 	p->signal = 0;
-	memset(&p->dummysig, 0, sizeof(hal_data_u));
+	memset(&p->dummysig, 0, sizeof(p->dummysig));
 	p->name[0] = '\0';
     }
     return p;
@@ -4127,47 +4141,34 @@ static void free_comp_struct(hal_comp_t * comp)
 
 static void unlink_pin(hal_pin_t * pin)
 {
-    hal_sig_t *sig;
-    hal_comp_t *comp;
-    void **data_ptr_addr;
-    hal_data_u *dummy_addr, *sig_data_addr;
+    // is this pin linked to a signal?
+    if (0 == pin->signal)
+        return;  // No, nothing to do
 
-    /* is this pin linked to a signal? */
-    if (pin->signal != 0) {
-    /* yes, need to unlink it */
-    sig = SHMPTR(pin->signal);
+    // Yes, need to unlink it
+    hal_sig_t *sig = SHMPTR(pin->signal);
     /* make pin's 'data_ptr' point to its dummy signal */
-    data_ptr_addr = SHMPTR(pin->data_ptr_addr);
-    comp = SHMPTR(pin->owner_ptr);
-    dummy_addr = (void *)((char *)comp->shmem_base + SHMOFF(&(pin->dummysig)));
+    halpr_data_u **data_ptr_addr = SHMPTR(pin->data_ptr_addr);
+    hal_comp_t *comp = SHMPTR(pin->owner_ptr);
+    halpr_data_u *dummy_addr = (halpr_data_u *)((char *)comp->shmem_base + SHMOFF(&(pin->dummysig)));
     *data_ptr_addr = dummy_addr;
 
     /* copy current signal value to dummy */
-    sig_data_addr = (hal_data_u *)(hal_shmem_base + sig->data_ptr);
-    dummy_addr = (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
+    halpr_data_u *sig_data_addr = (halpr_data_u *)SHMPTR(sig->data_ptr);
+    dummy_addr = (halpr_data_u *)SHMPTR(SHMOFF(&(pin->dummysig)));
 
     switch (pin->type) {
     case HAL_BOOL:
-        dummy_addr->b = sig_data_addr->b;
-        break;
     case HAL_S32:
-        dummy_addr->s = sig_data_addr->s;
-        break;
     case HAL_U32:
-        dummy_addr->u = sig_data_addr->u;
-        break;
     case HAL_SINT:
-        dummy_addr->s = sig_data_addr->s;
-        break;
     case HAL_UINT:
-        dummy_addr->u = sig_data_addr->u;
-        break;
     case HAL_REAL:
-        dummy_addr->f = sig_data_addr->f;
+        *dummy_addr = *sig_data_addr;
         break;
     case HAL_PORT:
-	/*once a pin is unlinked from its signal, it gets set to the empty_port*/
-        dummy_addr->p = 0;
+        /*once a pin is unlinked from its signal, it gets set to the empty_port*/
+        memset(dummy_addr, 0, sizeof(*dummy_addr));
         break;
     default:
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -4187,7 +4188,6 @@ static void unlink_pin(hal_pin_t * pin)
     }
     /* mark pin as unlinked */
     pin->signal = 0;
-    }
 }
 
 static void free_pin_struct(hal_pin_t * pin)
@@ -4203,7 +4203,7 @@ static void free_pin_struct(hal_pin_t * pin)
     pin->type = 0;
     pin->dir = 0;
     pin->signal = 0;
-    memset(&pin->dummysig, 0, sizeof(hal_data_u));
+    memset(&pin->dummysig, 0, sizeof(pin->dummysig));
     pin->name[0] = '\0';
     /* add it to free list */
     pin->next_ptr = hal_data->pin_free_ptr;

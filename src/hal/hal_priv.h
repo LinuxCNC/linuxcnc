@@ -217,7 +217,7 @@ typedef union {
     rtapi_sint _s;
     rtapi_uint _u;
     rtapi_real _r;
-} __hal_private_vals_u;
+} halpr_data_u;
 
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
@@ -341,7 +341,7 @@ struct hal_pin_t {
     SHMFIELD(void*) data_ptr_addr;		/* address of pin data pointer */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this pin */
     SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
-    hal_data_u dummysig;	/* if unlinked, data_ptr points here */
+    halpr_data_u dummysig;	/* if unlinked, data_ptr points here */
     SHMFIELD(hal_sig_t) signal;			/* signal to which pin is linked */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
@@ -371,7 +371,7 @@ struct hal_param_t {
     SHMFIELD(void*) data_ptr;		/* offset of parameter value */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this signal */
     SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
-    hal_data_u data;		/* new API parameter storage is here, data_ptr points here too */
+    halpr_data_u data;		/* new API parameter storage is here, data_ptr points here too */
     SHMFIELD(void*) reserved;	/* reserved to match hal_pin_t layout */
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */

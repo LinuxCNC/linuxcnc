@@ -49,12 +49,15 @@ static int set_common(hal_type_t type, const hal_query_value_u *v, hal_refs_u u,
     // FIXME: This code must be retired when we do the API break.
     if(isparam) {
         switch(type) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         case HAL_BOOL: ((hal_data_u *)u.b)->b  = v->b; break;
         case HAL_S32:  ((hal_data_u *)u.s)->s  = v->s; break;
         case HAL_U32:  ((hal_data_u *)u.u)->u  = v->u; break;
         case HAL_SINT: ((hal_data_u *)u.s)->ls = v->s; break;
         case HAL_UINT: ((hal_data_u *)u.u)->lu = v->u; break;
         case HAL_REAL: ((hal_data_u *)u.r)->f  = v->r; break;
+#pragma GCC diagnostic pop
         default:
         case HAL_PORT: return -EBADF;
         }
