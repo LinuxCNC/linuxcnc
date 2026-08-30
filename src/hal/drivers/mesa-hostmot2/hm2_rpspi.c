@@ -333,7 +333,7 @@ static int hm2_rpspi_write_spi1(hm2_lowlevel_io_t *llio, uint32_t addr, const vo
 	if(size == 0)
 		return 0;
 	if((size % 4) || size / 4 >= RPSPI_MAX_MSG)
-		return -EINVAL;
+		return 0; // -EINVAL
 
 	gpio_debug_pin(false);
 
@@ -398,7 +398,7 @@ static int hm2_rpspi_read_spi1(hm2_lowlevel_io_t *llio, uint32_t addr, void *buf
 	if(size == 0)
 		return 0;
 	if((size % 4) || size / 4 >= RPSPI_MAX_MSG)
-		return -EINVAL;
+		return 0; // -EINVAL
 
 	gpio_debug_pin(false);
 
@@ -519,7 +519,7 @@ static int hm2_rpspi_write_spi0(hm2_lowlevel_io_t *llio, uint32_t addr, const vo
 	if(size == 0)
 		return 0;
 	if((size % 4) || size / 4 >= RPSPI_MAX_MSG)
-		return -EINVAL;
+		return 0; // -EINVAL
 
 	gpio_debug_pin(false);
 
@@ -586,7 +586,7 @@ static int hm2_rpspi_read_spi0(hm2_lowlevel_io_t *llio, uint32_t addr, void *buf
 	if(size == 0)
 		return 0;
 	if((size % 4) || size / 4 >= RPSPI_MAX_MSG)
-		return -EINVAL;
+		return 0; // -EINVAL
 
 	gpio_debug_pin(false);
 
@@ -825,7 +825,7 @@ static int probe_board(hm2_rpspi_t *board) {
 
 	// Read the IDROM from the board. The IDROM address offset was returned in
 	// the cookie check.
-	if(board->llio.read(&board->llio, (uint32_t)ret, &idrom, sizeof(hm2_idrom_t)) <= 0) {
+	if(!board->llio.read(&board->llio, (uint32_t)ret, &idrom, sizeof(hm2_idrom_t))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: SPI%d/CE%d Board ident read failed\n", board->spidevid, board->spiceid);
 		return -EIO;	// Cookie could be read, so this is a comms error
 	}
