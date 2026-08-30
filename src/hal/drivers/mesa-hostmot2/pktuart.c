@@ -871,7 +871,7 @@ int hm2_pktuart_queue_get_frame_sizes(const char *name, rtapi_u32 fsizes[])
 			HM2_ERR("Unable to queue Rx FIFO count read %d of %d (error %d))\n", j, nfs, r);
 		}
 	}
-	return j - 1;
+	return j;
 }
 EXPORT_SYMBOL_GPL(hm2_pktuart_queue_get_frame_sizes);
 
@@ -915,7 +915,7 @@ int hm2_pktuart_queue_read_data(const char *name, rtapi_u32 data[], int bytes)
 			HM2_ERR("Unable to queue Rx FIFO read %d of %d (error %d)\n", i, nrx, r);
 		}
 	}
-	return i - 1;
+	return i;
 }
 EXPORT_SYMBOL_GPL(hm2_pktuart_queue_read_data);
 
