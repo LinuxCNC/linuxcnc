@@ -414,6 +414,7 @@ is written.
 === Subroutine Parameters
 
 (((Subroutine Parameters)))
+
 * '1-30' Subroutine local parameters of call arguments. These parameters are
   local to the subroutine. Volatile. See also the chapter on
   <<cha:o-codes,O-Codes>>.
@@ -572,6 +573,7 @@ can be added easily without changes to the source code.
 === System Parameters
 
 (((System Parameters)))
+
 * '#<_spindle_rpm_mode>' - Return 1 if spindle rpm mode (G97) is on, else 0.
 * '#<_spindle_css_mode>' - Return 1 if constant surface speed mode (G96) is on, else 0.
 * '#<_ijk_absolute_mode>' - Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
@@ -1067,6 +1069,7 @@ NOTE: Inline comments on O-words should not be used see the O-code
 == Messages
 
 (((Messages)))
+
 * '(MSG,)' - displays message if 'MSG' appears after the left parenthesis
   and before any other printing characters. Variants of 'MSG' which include
   white space and lower case characters are allowed. The rest of the
@@ -1083,6 +1086,7 @@ NOTE: Inline comments on O-words should not be used see the O-code
 == Probe Logging
 
 (((Probe Logging)))
+
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
@@ -1093,6 +1097,7 @@ For more information on probing see the <<gcode:g38,G38>> section.
 == Logging
 
 (((Logging)))
+
 * '(LOGOPEN,filename.txt)' - opens the named log file. If the file already
   exists, it is truncated.
 * '(LOGAPPEND,filename)' - opens the named log file. If the file already
@@ -1108,6 +1113,7 @@ Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 == Debug Messages
 
 (((Debug Messages)))
+
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of special
   handling for comment parameters as described below.
 
@@ -1115,6 +1121,7 @@ Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 == Print Messages
 
 (((Print Messages)))
+
 * '(PRINT,)' - messages are output to 'stderr' with special handling for
   comment parameters as described below.
 

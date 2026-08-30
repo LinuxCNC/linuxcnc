@@ -223,6 +223,7 @@ Do _not_ use a file extension of '.ini' for included files.
 === [EMC] Section
 
 (((INI File, Sections, [EMC] Section)))
+
 * `VERSION = 1.1` - The version number for the configuration.
   Any value other than 1.1 will cause the configuration checker to run and try to update the configuration to the new style joint axes type of configuration.
 * `MACHINE = My Controller` - This is the name of the controller, which is printed out at the top of most graphical interfaces.
@@ -500,6 +501,7 @@ if __name__ == "__main__":
 === [RS274NGC] Section
 
 (((INI File, Sections, [RS274NGC] Section)))
+
 * `PARAMETER_FILE = myfile.var` - (((PARAMETER FILE)))
   The file located in the same directory as the INI file which contains the parameters used by the interpreter (saved between runs).
 * `ORIENT_OFFSET = 0` - (((ORIENT OFFSET)))
@@ -606,6 +608,7 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 === [TASK] Section
 
 (((INI File, Sections, [TASK] Section)))
+
 * `TASK = milltask` -
   Specifies the name of the 'task' executable.
   The 'task' executable does various things, such as
@@ -622,6 +625,7 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
 === [HAL] section
 
 (((INI File, Sections, [HAL] Section)))
+
 * `HALFILE = example.hal` - Execute the file 'example.hal' at start up.
 +
 --
@@ -698,6 +702,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 === [HALUI] section
 
 (((INI File, Sections, [HALUI] Section)))
+
 * `MDI_COMMAND = G53 G0 X0 Y0 Z0` -
   An MDI command can be executed by using `halui.mdi-command-00`. Increment the number for each command listed in the [HALUI] section.
 
@@ -800,6 +805,7 @@ If you want to travel along a path at 1 IPS = 60 IPM, and your servo period 
 If you set Naive CAM tolerance to around this min length, overly short segments will be combined together to eliminate this bottleneck.
 Of course, setting the tolerance too high means big path deviations, so you have to play with it a bit to find a good value.
 I'd start at 1/2 of the min_length, then work up as needed.
+
 * `ARC_BLEND_GAP_CYCLES = 4` How short the previous segment must be before the trajectory planner 'consumes' it.
 +
 Often, a circular arc blend will leave short line segments in between the blends.
@@ -808,6 +814,7 @@ Since the trajectory planner has to touch each segment at least once, it means t
 My fix to this way to "consume" the short segment by making it a part of the blend arc.
 Since the line+blend is one segment, we don't have to slow down to hit the very short segment.
 Likely, you won't need to touch this setting.
+
 * `ARC_BLEND_RAMP_FREQ = 20` - This is a 'cutoff' frequency for using ramped velocity.
 +
 'Ramped velocity' in this case just means constant acceleration over the whole segment.
@@ -893,6 +900,7 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
 === [KINS] Section
 
 (((INI File, Sections, KINS Section)))
+
 * `JOINTS = 3` - Specifies the number of joints (motors) in the system.
   For example, a trivkins XYZ machine with a single motor for each axis has 3 joints.
   A gantry machine with one motor on each of two of the axes, and two motors on the third axis, has 4 joints.
@@ -1366,6 +1374,7 @@ Control screens can limit these settings further.
 === [EMCIO] Section
 
 (((INI File, Sections, [EMCIO] Section)))
+
 * `EMCIO = io` - Name of IO controller program.
 * `CYCLE_TIME = 0.100` - The period, in seconds, at which EMCIO will run.
   Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
