@@ -1,7 +1,7 @@
 component rand;
 option userspace;
 
-pin out float out;
+pin out real out;
 license "GPL";
 ;;
 #include <unistd.h>
@@ -9,7 +9,7 @@ license "GPL";
 void user_mainloop(void) {
     while(1) {
         usleep(1000);
-        FOR_ALL_INSTS() out = drand48();
+        FOR_ALL_INSTS() out_set(drand48());
     }
 }
 

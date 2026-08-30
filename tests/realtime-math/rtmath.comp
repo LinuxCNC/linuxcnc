@@ -1,60 +1,61 @@
 component rtmath "Test realtime math functions";
 
-pin in float sin-in;
-pin out float sin-out;
+pin in  real sin-in;
+pin out real sin-out;
 
-pin in float cos-in;
-pin out float cos-out;
+pin in  real cos-in;
+pin out real cos-out;
 
-pin in float tan-in;
-pin out float tan-out;
+pin in  real tan-in;
+pin out real tan-out;
 
-pin in float sqrt-in;
-pin out float sqrt-out;
+pin in  real sqrt-in;
+pin out real sqrt-out;
 
-pin in float fabs-in;
-pin out float fabs-out;
+pin in  real fabs-in;
+pin out real fabs-out;
 
-pin in float atan-in;
-pin out float atan-out;
+pin in  real atan-in;
+pin out real atan-out;
 
-pin in float atan2-in1;
-pin in float atan2-in2;
-pin out float atan2-out;
+pin in  real atan2-in1;
+pin in  real atan2-in2;
+pin out real atan2-out;
 
-pin in float asin-in;
-pin out float asin-out;
+pin in  real asin-in;
+pin out real asin-out;
 
-pin in float acos-in;
-pin out float acos-out;
+pin in  real acos-in;
+pin out real acos-out;
 
-pin in float pow-base;
-pin in float pow-exponent;
-pin out float pow-out;
+pin in  real pow-base;
+pin in  real pow-exponent;
+pin out real pow-out;
 
-pin in float round-in;
-pin out float round-out;
+pin in  real round-in;
+pin out real round-out;
 
-pin in float ceil-in;
-pin out float ceil-out;
+pin in  real ceil-in;
+pin out real ceil-out;
 
-pin in float floor-in;
-pin out float floor-out;
+pin in  real floor-in;
+pin out real floor-out;
 
-pin in float isnan-in;
-pin out bit isnan-out;
+pin in  real isnan-in;
+pin out bool isnan-out;
 
-pin in float isinf-in;
-pin out bit isinf-out;
+pin in  real isinf-in;
+pin out bool isinf-out;
 
-pin in float exp-in;
-pin out float exp-out;
+pin in  real exp-in;
+pin out real exp-out;
 
-pin in float fmod-in;
-pin out float fmod-out;
+pin in  real fmod-in;
+pin out real fmod-out;
 
-pin out float nan-out;
+pin out real nan-out;
 
+option period no;
 function _;
 
 license "GPL";
@@ -64,23 +65,23 @@ license "GPL";
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-    sin_out = sin(sin_in);
-    cos_out = cos(cos_in);
-    tan_out = tan(tan_in);
-    sqrt_out = sqrt(sqrt_in);
-    fabs_out = fabs(fabs_in);
-    atan_out = atan(atan_in);
-    atan2_out = atan2(atan2_in1, atan2_in2);
-    asin_out = asin(asin_in);
-    acos_out = acos(acos_in);
-    pow_out = pow(pow_base, pow_exponent);
-    round_out = round(round_in);
-    ceil_out = ceil(ceil_in);
-    floor_out = floor(floor_in);
-    isnan_out = isnan(isnan_in);
-    isinf_out = isinf(isinf_in);
-    exp_out = exp(exp_in);
-    fmod_out = fmod(fmod_in,fmod_in);
-    nan_out = nan("");
+    sin_out_set(sin(sin_in));
+    cos_out_set(cos(cos_in));
+    tan_out_set(tan(tan_in));
+    sqrt_out_set(sqrt(sqrt_in));
+    fabs_out_set(fabs(fabs_in));
+    atan_out_set(atan(atan_in));
+    atan2_out_set(atan2(atan2_in1, atan2_in2));
+    asin_out_set(asin(asin_in));
+    acos_out_set(acos(acos_in));
+    pow_out_set(pow(pow_base, pow_exponent));
+    round_out_set(round(round_in));
+    ceil_out_set(ceil(ceil_in));
+    floor_out_set(floor(floor_in));
+    isnan_out_set(isnan(isnan_in));
+    isinf_out_set(isinf(isinf_in));
+    exp_out_set(exp(exp_in));
+    fmod_out_set(fmod(fmod_in,fmod_in));
+    nan_out_set(nan(""));
 }
 
