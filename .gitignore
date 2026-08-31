@@ -63,3 +63,6 @@ docs/help/vi/*
 docs/help/zh_CN/*
 configs/**/*.tbl.bak
 configs/**/halshow.preferences
+/tests/hm2-modbus/modbus-Params/*.mbccb
+/tests/hm2-modbus/modbus-Params/halrun-stderr
+/tests/hm2-modbus/modbus-Params/halrun-stdout
