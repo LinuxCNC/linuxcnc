@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
 "PO-Revision-Date: 2026-09-01 15:51+0000\n"
-"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -48899,10 +48899,10 @@ msgid ""
 "workpiece is known but current tool location may not be known."
 msgstr ""
 "Se desaconseja el uso de 'G92' para programar con sistemas de coordenadas "
-"locales en un programa de pieza. En su lugar, vea <<sec:g52,'G52'>>, un "
-"offset local del sistema de coordenadas es más intuitivo cuando se conoce el "
-"offset deseado relativo a la pieza de trabajo, pero es posible que no se "
-"conozca la ubicación actual de la herramienta."
+"locales en un programa de pieza. En su lugar, vea <<sec:g52-and-g92-"
+"offsets,'G52'>>, un offset local del sistema de coordenadas es más intuitivo "
+"cuando se conoce el offset deseado relativo a la pieza de trabajo, pero es "
+"posible que no se conozca la ubicación actual de la herramienta."
 
 #. type: NOTE
 #: src/gcode/coordinates.adoc:295
@@ -98671,12 +98671,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/mdro.adoc:41
-#, fuzzy
 msgid ""
 "When MDRO starts, a window like the one in the figure <<fig:mdro-window>> "
 "above opens."
 msgstr ""
-"When AXIS starts, a window like the one in the figure <<fig:axis-window>> "
+"When AXIS starts, a window like the one in the figure <<fig:mdro-window>> "
 "above opens."
 
 #. type: Title ===
@@ -105832,9 +105831,8 @@ msgstr "G53 G0 X0 Y0 Z0\n"
 
 #. type: delimited block =
 #: src/gui/pyvcp-examples.adoc:513
-#, fuzzy
 msgid "Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes."
-msgstr "Ver las secciones <<gcode:g61>>,G61/G61.1>> y <<gcode:g64,G64>>."
+msgstr "Ver las secciones <<gcode:g53>>,G53>> y <<gcode:g0,G0>>."
 
 #. type: Plain text
 #: src/gui/pyvcp-examples.adoc:517
@@ -138101,8 +138099,8 @@ msgid ""
 "For further components see <<sec:hal-components,HAL Components List>> or the "
 "man pages."
 msgstr ""
-"For further components see <<sec:realtime-components,Realtime Components "
-"List>> or the man pages."
+"For further components see <<sec:hal-components,Realtime Components List>> "
+"or the man pages."
 
 #. type: Index entry
 #: src/hal/basic-hal.adoc:381 src/hal/basic-hal.adoc:386
@@ -146210,7 +146208,7 @@ msgstr ""
 "Este ejemplo usa 'ddt', 'mult2' y 'abs' para calcular la velocidad de un "
 "solo eje. Para obtener más información sobre los componentes en tiempo real, "
 "consulte las páginas de manual o la sección Componentes en tiempo real "
-"(<<sec:realtime-components>>)."
+"(<<sec:hal-components>>)."
 
 #. type: Plain text
 #: src/hal/hal-examples.adoc:118
@@ -147606,7 +147604,7 @@ msgid ""
 msgstr ""
 "Al hacer clic en el nombre de un nodo, \"Components\" por ejemplo, mostrara "
 "(en la pestaña \"SHOW\") todos los contenidos HAL sobre ese nodo. La Figura "
-"<<cap:halshow-layout>> muestra una lista exactamente como la veria si hace "
+"<<fig:halshow-show-tab>> muestra una lista exactamente como la veria si hace "
 "clic en el nombre de \"Components\" mientras ejecuta, por ejemplo, una "
 "tarjeta servo Mesa m5i20 estándar. La información en pantalla es exactamente "
 "como la que se muestran en las herramientas tradicionales de análisis de HAL "

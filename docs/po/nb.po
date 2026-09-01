@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-08 22:51+0000\n"
+"PO-Revision-Date: 2026-09-01 15:51+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: nb\n"
@@ -40984,10 +40984,9 @@ msgstr ""
 
 #. type: Table
 #: src/gcode/g-code.adoc:90
-#, fuzzy, no-wrap
-#| msgid "<<gcode:g53,G53>>"
+#, no-wrap
 msgid "<<gcode:g52,G52>>"
-msgstr "<<gcode:g53,G53>>"
+msgstr "<<gcode:g52,G52>>"
 
 #. type: Table
 #: src/gcode/g-code.adoc:91
