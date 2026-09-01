@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-19 01:51+0000\n"
+"PO-Revision-Date: 2026-09-01 15:51+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -54167,8 +54167,8 @@ msgstr ""
 "G52 wird in einem Werkstück-Programm als temporärer \"lokaler "
 "Koordinatensystem-Offset\" innerhalb des Werkstückkoordinatensystems "
 "verwendet. Für weitere Informationen zu `G92` und `G52` und wie diese "
-"interagieren siehe Abschnitt << g52sec:g52-and-g92-offsets,Lokale und "
-"globale Offsets>>."
+"interagieren siehe Abschnitt <<sec:g52-and-g92-offsets,Lokale und globale "
+"Offsets>>."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1540
@@ -64115,7 +64115,7 @@ msgid ""
 "<<sec:overview-parameters,Parameters Section>> below."
 msgstr ""
 "Parameter werden mit einem \"#\"-Symbol vor ihnen identifiziert. Siehe den "
-"<<sec:Übersicht-Parameter,Abschnitt zu Parametern>>."
+"<<sec:overview-parameters,Abschnitt zu Parametern>>."
 
 #. type: Index entry
 #: src/gcode/overview.adoc:158 src/gcode/overview.adoc:162
@@ -239755,7 +239755,7 @@ msgstr ""
 msgid "*Pierce Only* is one of two different <<plasma:cut-types,cut types>>"
 msgstr ""
 "*Pierce Only* (engl. für \"nur durchstechen\") ist eine von zwei "
-"verschiedenen <<Plasma:Cut-Typen,Cut-Typen>>"
+"verschiedenen <<plasma:cut-types,Cut-Typen>>"
 
 #. type: Block title
 #: src/plasma/qtplasmac.adoc:2253
@@ -239828,7 +239828,7 @@ msgid ""
 msgstr ""
 "Der *Mesh Mode* deaktiviert die THC und ignoriert auch ein verlorenes Arc OK-"
 "Signal während eines Schnitts.  Er kann durch Aktivieren der Schaltfläche "
-"*Mesh Mode* im Abschnitt CONTROL auf der Registerkarte <<Plasma:main-"
+"*Mesh Mode* im Abschnitt CONTROL auf der Registerkarte <<plasma:main-"
 "tab,MAIN>> ausgewählt werden."
 
 #. type: NOTE

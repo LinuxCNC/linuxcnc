@@ -15,8 +15,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-08-27 15:25+0000\n"
-"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
+"PO-Revision-Date: 2026-09-01 15:51+0000\n"
+"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -48899,10 +48899,10 @@ msgid ""
 "workpiece is known but current tool location may not be known."
 msgstr ""
 "Se desaconseja el uso de 'G92' para programar con sistemas de coordenadas "
-"locales en un programa de pieza. En su lugar, vea <<sec:g52,'G52'>>, un "
-"offset local del sistema de coordenadas es más intuitivo cuando se conoce el "
-"offset deseado relativo a la pieza de trabajo, pero es posible que no se "
-"conozca la ubicación actual de la herramienta."
+"locales en un programa de pieza. En su lugar, vea <<sec:g52-and-g92-"
+"offsets,'G52'>>, un offset local del sistema de coordenadas es más intuitivo "
+"cuando se conoce el offset deseado relativo a la pieza de trabajo, pero es "
+"posible que no se conozca la ubicación actual de la herramienta."
 
 #. type: NOTE
 #: src/gcode/coordinates.adoc:295
@@ -54386,136 +54386,133 @@ msgid ""
 "accuracy or the accuracy of commonly manufactured parts. Below are examples "
 "with extreme P- and Q- values ​​to understand the G64 function."
 msgstr ""
+"Los valores de P- y Q- se eligen pequeños. Normalmente más pequeños que la "
+"precisión de la máquina o la precisión de piezas fabricadas comúnmente. "
+"Abajo hay ejemplos con valores extremos de P- y Q- para entender la función "
+"de G64."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1667
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 Without values"
-msgstr "Set value"
+msgstr "G64 sin valores"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1671
 #, no-wrap
 msgid "G64 (set without P- and Q- values)\n"
-msgstr ""
+msgstr "G64 (sin valores P- y Q-)\n"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:1673 src/gcode/g-code.adoc:1674
 #, no-wrap
 msgid "G64 Rectangle"
-msgstr ""
+msgstr "Rectángulo G64"
 
 #. type: Target for macro image
 #: src/gcode/g-code.adoc:1674
 #, fuzzy, no-wrap
 msgid "images/G64_Rectangle.png"
-msgstr "images/holes.png"
+msgstr "images/G64_Rectangle.png"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1676
 #, no-wrap
 msgid "G64 With big Q- value"
-msgstr ""
+msgstr "G64 con valor grande de Q-"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1680
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 P0.015 Q6\n"
-msgstr "G4 P0.1\n"
+msgstr "G64 P0.015 Q6\n"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:1682 src/gcode/g-code.adoc:1683
 #, no-wrap
 msgid "G64 Rectangle with radius before milling"
-msgstr ""
+msgstr "Rectángulo G64 con radio antes de fresado"
 
 #. type: Target for macro image
 #: src/gcode/g-code.adoc:1683
 #, fuzzy, no-wrap
 msgid "images/G64_Rectangle_with_radius.png"
-msgstr "images/strange_numbers.png"
+msgstr "images/G64_Rectangle_with_radius.png"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:1685 src/gcode/g-code.adoc:1686
 #, no-wrap
 msgid "G64 Rectangle with radius after milling"
-msgstr ""
+msgstr "Rectángulo G64 con radio después de fresado"
 
 #. type: Target for macro image
 #: src/gcode/g-code.adoc:1686
-#, no-wrap
+#, fuzzy, no-wrap
 msgid "images/G64_Rectangle_with_radius_q6.png"
-msgstr ""
+msgstr "images/G64_Rectangle_with_radius_q6.png"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1691
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G64 P0.015 Q2\n"
-msgstr "G4 P0.1\n"
+msgstr "G64 P0.015 Q2\n"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:1693 src/gcode/g-code.adoc:1694
 #, no-wrap
 msgid "G64 Heart"
-msgstr ""
+msgstr "Corazón G64"
 
 #. type: Target for macro image
 #: src/gcode/g-code.adoc:1694
 #, fuzzy, no-wrap
 msgid "images/G64_Heart_Q2.png"
-msgstr "images/polar02.png"
+msgstr "images/G64_Heart_Q2.png"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1697
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G70 Lathe finishing cycle"
-msgstr "Ciclo de acabado del torno G70(((Ciclo de acabado del torno G70)))"
+msgstr "G70 Ciclo de acabado en torno"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1702
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G70 Q- <X-> <Z-> <D-> <E-> <P->\n"
 msgstr "G70 Q- <X-> <Z-> <D-> <E-> <P->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1705 src/gcode/g-code.adoc:1758
-#, fuzzy
 msgid "'Q' - The subroutine number."
-msgstr "'Q':el número de subrutina."
+msgstr "'Q' - El número de subrutina."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1706 src/gcode/g-code.adoc:1759
-#, fuzzy
 msgid "'X' - The starting X position, defaults to the initial position."
-msgstr "'X' - La posición X inicial, por defecto es la posición inicial."
+msgstr "'X' - La posición X inicial, predeterminada a la posición inicial."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1707 src/gcode/g-code.adoc:1760
-#, fuzzy
 msgid "'Z' - The starting Z position, defaults to the initial position."
-msgstr "'Z' - La posición Z inicial, por defecto es la posición inicial."
+msgstr "'Z' - La posición Z inicial, predeterminada a la posición inicial."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1708
-#, fuzzy
 msgid "'D' - The starting distance of the profile, defaults to 0."
-msgstr "'D' - La distancia inicial del perfil, por defecto es 0."
+msgstr "'D' - La distancia inicial del perfil, predeterminada a 0."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1709
-#, fuzzy
 msgid "'E' - The ending distance of the profile, defaults to 0."
-msgstr "'E':la distancia final del perfil, por defecto es 0."
+msgstr "'E' - La distancia final del perfil, predeterminada a 0."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1710
-#, fuzzy
 msgid "'P' - The number of passes to use, defaults to 1."
-msgstr "'P' - El número de pases para usar, por defecto es 1."
+msgstr "'P' - El número de pases a usar, predeterminado a 1."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1713
-#, fuzzy
 msgid ""
 "The 'G70' cycle is intended to be used after the shape of the profile given "
 "in the subroutine with number Q has been cut with G71 or G72."
@@ -54531,44 +54528,39 @@ msgstr "Movimiento preliminar."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1717
-#, fuzzy
 msgid ""
 "If Z or X are used a <<gcode:g0,rapid move>> to that position is done. This "
 "position is also used between each finishing pass."
 msgstr ""
-"Si se usan Z o X, <<gcode:g0,movimiento rápido>> a esa posición está hecho. "
-"Esta posición también se usa entre cada pasada de acabado."
+"Si se usan Z o X, se ha hecho un <<gcode:g0,movimiento rápido>> a esa "
+"posición. Esta posición también se usa entre cada pasada de acabado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1719
-#, fuzzy
 msgid "Then a <<gcode:g0,rapid move>> to the start of the profile is executed."
 msgstr ""
 "Entonces un <<gcode:g0,movimiento rápido>> al inicio del perfil es ejecutado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1721
-#, fuzzy
 msgid ""
 "The path given in Q- is followed using the <<gcode:g1,G1>> and <<gcode:g2-"
 "g3>> commands."
 msgstr ""
-"La ruta dada en Q- se sigue usando <<gcode:g1,G1>> y <<gcode:g2-g3>> "
-"comandos."
+"La ruta dada en Q- se sigue usando los comandos <<gcode:g1,G1>> y <<gcode:g2-"
+"g3>>."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1723
-#, fuzzy
 msgid ""
 "If a next pass is required there is another rapid to the intermediate "
 "location, before a rapid is done to the start of the profile."
 msgstr ""
-"Si se requiere un próximo pase, hay otro rápido al intermedio ubicación, "
-"antes de que se realice un rápido al inicio del perfil."
+"Si se requiere un próximo pase, hay otro rápido a la ubicación intermedia, "
+"antes de realizar un rápido al inicio del perfil."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1725
-#, fuzzy
 msgid ""
 "After the final pass, the tool is left at the end of the profile including "
 "E-."
@@ -54578,19 +54570,16 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1728
-#, fuzzy
 msgid ""
 "Multiple passes.  The distance between the pass and the final profile is "
 "(pass-1)*(D-E)/P+E.  Where pass the pass number and D,E and P are the D/E/P "
 "numbers."
 msgstr ""
-"Pases múltiples La distancia entre el pase y el perfil final es (pase-1) * "
-"(D-E) / P + E.  Donde pasar el número de pase y D, E y P son los números D / "
-"E / P."
+"Pases múltiples.  La distancia entre el pase y el perfil final es (pase-1)*"
+"(D-E)/P+E.  Donde pase es el número de pase y D, E y P son los números D/E/P."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1730
-#, fuzzy
 msgid ""
 "The distance is computed using the starting position of the cycle, with a "
 "positive distance towards this point."
@@ -54600,7 +54589,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1733
-#, fuzzy
 msgid ""
 "Fillet and chamfers in the profile.  It is possible to add fillets or "
 "chamfers in the profile, see <<gcode:g71-g72>> for more details."
@@ -54610,27 +54598,24 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1737 src/gcode/g-code.adoc:1805
-#, fuzzy
 msgid "There is no subroutine defined with the number given in Q."
 msgstr "No hay una subrutina definida con el número dado en Q."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1738 src/gcode/g-code.adoc:1806
-#, fuzzy
 msgid "The path given in the profile is not monotonic in Z or X."
-msgstr "La ruta dada en el perfil no es monotónica en Z o X."
+msgstr "La ruta dada en el perfil no es monótona en Z o X."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1739 src/gcode/g-code.adoc:1807
-#, fuzzy
 msgid "<<gcode:g17-g19.1>> has not been used to select the ZX plane."
 msgstr "<<gcode:g17-g19.1>> no se ha utilizado para seleccionar el plano ZX."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1741
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G71 G72 Lathe roughing cycles"
-msgstr "G71 G72 Ciclo de desbaste en Torno(((Ciclo de desbaste del torno G71 G72)))"
+msgstr "G71 G72 Ciclo de desbaste en torno"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1746
@@ -54643,7 +54628,7 @@ msgstr ""
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1755
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G71   Q- <X-> <Z-> <D-> <I-> <R->\n"
 "G71.1 Q- <X-> <Z-> <D-> <I-> <R->\n"
@@ -54652,34 +54637,30 @@ msgid ""
 "G72.1 Q- <X-> <Z-> <D-> <I-> <R->\n"
 "G72.2 Q- <X-> <Z-> <D-> <I-> <R->\n"
 msgstr ""
-"G71 Q- <X-> <Z-> <D-> <I-> <R->\n"
+"G71   Q- <X-> <Z-> <D-> <I-> <R->\n"
 "G71.1 Q- <X-> <Z-> <D-> <I-> <R->\n"
 "G71.2 Q- <X-> <Z-> <D-> <I-> <R->\n"
-"G72 Q- <X-> <Z-> <D-> <I-> <R->\n"
+"G72   Q- <X-> <Z-> <D-> <I-> <R->\n"
 "G72.1 Q- <X-> <Z-> <D-> <I-> <R->\n"
 "G72.2 Q- <X-> <Z-> <D-> <I-> <R->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1761
-#, fuzzy
 msgid "'D' - The remaining distance to the profile, defaults to 0."
-msgstr "'D' - La distancia restante al perfil, por defecto es 0."
+msgstr "'D' - La distancia restante al perfil, predeterminado a 0."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1762
-#, fuzzy
 msgid "'I' - The cutting increment, defaults to 1."
-msgstr "'I':el incremento de corte, por defecto es 1."
+msgstr "'I' - El incremento de corte, predeterminado a 1."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1763
-#, fuzzy
 msgid "'R' - The retracting distance, defaults to 0.5."
-msgstr "'R' - La distancia de retracción, por defecto es 0.5."
+msgstr "'R' - La distancia de retracción, predeterminado a 0.5."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1770
-#, fuzzy
 msgid ""
 "The G71/G72 cycle is intended to rough cut a profile on a lathe. The G71 "
 "cycles remove layers of the material while traversing in the Z direction.  "
@@ -54688,16 +54669,15 @@ msgid ""
 "the subroutine. For the G71 cycle the Z coordinate must be monotonically "
 "changing, for the G72 this is required for the X axis."
 msgstr ""
-"El ciclo G71 / G72 está diseñado para cortar un perfil en un torno. El G71 "
-"Los ciclos eliminan las capas del material mientras atraviesan en la "
-"dirección Z.  Los ciclos G72 eliminan material mientras atraviesan el eje X, "
-"el llamado ciclo de enfrentamiento. La dirección de viaje es la misma que en "
-"el camino dado en La subrutina. Para el ciclo G71, la coordenada Z debe ser "
-"monotónicamente cambiando, para el G72 esto es necesario para el eje X."
+"El ciclo G71/G72 está diseñado para cortar en bruto un perfil en un torno. "
+"Los ciclos G71 remueven capas del material mientras atraviesan en la "
+"dirección Z.  Los ciclos G72 remueven material mientras atraviesan el eje X, "
+"el llamado ciclo de refrentado. La dirección de viaje es la misma que en el "
+"camino dado en la subrutina. Para el ciclo G71, la coordenada Z debe cambiar "
+"monótonamente, para el G72 esto es necesario para el eje X."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1782
-#, fuzzy
 msgid ""
 "The profile is given in a subroutine with number Q-. This subroutine may "
 "contain G0, G1, G2 and G3 motion commands. All other commands are ignored, "
@@ -54710,31 +54690,29 @@ msgid ""
 "inserted. This chamfer has the same endpoints as a fillet of the same "
 "dimension would have but a straight line is inserted instead of an arc."
 msgstr ""
-"El perfil se da en una subrutina con el número Q-. Esta subrutina puede "
+"El perfil se da en una subrutina con número Q-. Esta subrutina puede "
 "contener comandos de movimiento G0, G1, G2 y G3. Todos los otros comandos "
-"son ignorado, incluidos los ajustes de alimentación y velocidad. Los "
-"comandos <<gcode:g0>> son interpretado como <<gcode:g1,G1>> comandos. Cada "
-"comando de movimiento también puede incluir un número A o C opcional. Si se "
-"agrega el número A- un filete con el radio dado por A se insertará en el "
+"son ignorados, incluyendo los ajustes de alimentación y velocidad. Los "
+"comandos <<gcode:g0>> son interpretados como comandos <<gcode:g1,G1>>. Cada "
+"comando de movimiento también puede incluir un número A- o C- opcional.  Si "
+"se agrega el número A- un filete con el radio dado por A se insertará en el "
 "punto final de ese movimiento, si este radio es demasiado grande, el "
-"algoritmo fallará con una ruta no monotónica error. También es posible usar "
-"el número C, que permite un chaflán para ser insertado Este chaflán tiene "
-"los mismos puntos finales que un filete del mismo tendría una dimensión pero "
-"se inserta una línea recta en lugar de un arco."
+"algoritmo fallará con un error de ruta no-monótona. También es posible usar "
+"el número C-, que permite un insertar un chaflán. Este chaflán tiene los "
+"mismos puntos finales que tendría un filete de la misma dimensión, pero se "
+"inserta una línea recta en lugar de un arco."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1785
-#, fuzzy
 msgid ""
 "When in absolute mode the U (for X) and W (for Z) can be used as incremental "
 "displacements."
 msgstr ""
 "Cuando está en modo absoluto, U (para X) y W (para Z) pueden usarse como "
-"offsets incrementales."
+"desplazamientos incrementales."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1791
-#, fuzzy
 msgid ""
 "The G7x.1 cycles do not cut pockets. The G7x.2 cycles only cut after the "
 "first pocket and continue where G7x.1 stopped. It is advisible to leave some "
@@ -54742,28 +54720,26 @@ msgid ""
 "the G7x.2 can use D0.5 and 0.5mm will be removed while moving from one "
 "pocket to the next."
 msgstr ""
-"Los ciclos G7x.1 no cortan los bolsillos. Los ciclos G7x.2 solo se cortan "
-"después de primer bolsillo y continuar donde se detuvo G7x.1. Es "
-"recomendable salir algo de material adicional para cortar antes del ciclo "
-"G7x.2, por lo que si se usa G7x.1 a D1.0, el G7x.2 puede usar D0.5 y se "
-"eliminarán 0.5 mm mientras se mueve de un bolsillo al siguiente."
+"Los ciclos G7x.1 no cortan cavidades. Los ciclos G7x.2 solo cortan después "
+"de la primer cavidad y continúan donde se detuvo G7x.1. Es recomendable "
+"dejar algo de material adicional para cortar antes del ciclo G7x.2, por lo "
+"que si G7x.1 usó un D1.0, el G7x.2 puede usar D0.5 y se removerán 0.5mm "
+"mientras se mueve de una cavidad a la siguiente."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1793
-#, fuzzy
 msgid "The normal G7x cycles cut the entire profile in one cycle."
 msgstr "Los ciclos G7x normales cortan todo el perfil en un ciclo."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1797
-#, fuzzy
 msgid "If Z or X are used a <<gcode:g0,rapid move>> to that position is done."
 msgstr ""
-"Si se usan Z o X, <<gcode:g0,movimiento rápido>> a esa posición está hecho."
+"Si se usan Z o X, se realiza un <<gcode:g0,movimiento rápido>> a esa "
+"posición."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1799
-#, fuzzy
 msgid ""
 "After the profile has been cut, the tool stops at the end of the profile, "
 "including the distance specified in D."
@@ -54773,72 +54749,63 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1801
-#, fuzzy
 msgid ""
 "The D number is used to keep a distance from the final profile, to allow "
 "material to remain for finishing."
 msgstr ""
-"El número D se usa para mantener una distancia del perfil final, para "
+"El número D se usa para mantener una distancia desde el perfil final, para "
 "permitir que quede material para el acabado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1808
-#, fuzzy
 msgid "<<gcode:g41-g42>> is active."
 msgstr "<<gcode:g41-g42>> está activo."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:1810
-#, fuzzy
 msgid "G73 Drilling Cycle with Chip Break"
-msgstr ""
-"G73 Ciclo de taladrado con rotura de viruta(((G73 Drilling Cycle Chip "
-"Break)))"
+msgstr "G73 Ciclo de taladrado con rotura de viruta"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1810
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G73 Drilling Cycle with Chip Breaking"
-msgstr "G73 Ciclo de taladrado con rotura de viruta(((G73 Drilling Cycle Chip Break)))"
+msgstr "G73 Ciclo de taladrado con rotura de viruta"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1815
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G73 X- Y- Z- R- Q- D- <L->\n"
-msgstr "G73 X- Y- Z- R- Q- <L->\n"
+msgstr "G73 X- Y- Z- R- Q- D- <L->\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1818
-#, fuzzy
 msgid "'R' - retract position along the Z axis."
-msgstr "'R' - posición de retraccion a lo largo del eje Z."
+msgstr "'R' - posición de retracción a lo largo del eje Z."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1819
-#, fuzzy
 msgid "'Q' - delta increment along the Z axis."
 msgstr "'Q' - incremento delta a lo largo del eje Z."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1820
-#, fuzzy
 msgid "'L' - repeat"
 msgstr "'L' - repetir"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1824
-#, fuzzy
 msgid ""
 "The 'G73' cycle is drilling or milling with chip breaking.  This cycle takes "
 "a Q number which represents a 'delta' increment along the Z axis. Peck "
 "clearance can be specified by optional D number."
 msgstr ""
 "El ciclo 'G73' es taladrar o fresar con rotura de viruta.  Este ciclo toma "
-"un número Q que representa un incremento 'delta' a lo largo del eje Z."
+"un número Q que representa un incremento 'delta' a lo largo del eje Z. Se "
+"puede especificar holgura de picoteo con el número opcional D."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1828
-#, fuzzy
 msgid ""
 "If the current Z position is below the R position, The Z axis does a "
 "<<gcode:g0,rapid move>> to the R position."
@@ -54848,19 +54815,18 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1829
-#, fuzzy
 msgid "Move to the X Y coordinates"
 msgstr "Moverse a las coordenadas X Y"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1831
-#, fuzzy
 msgid ""
 "Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> downward "
 "by delta or to the Z position, whichever is less deep."
 msgstr ""
-"Mueve el eje Z solo a <<sec:set-feed-rate,avance>> actual hacia abajo la "
-"cantidad delta o hacia la posición Z, lo que sea menos profundo."
+"Mueve solo el eje Z a la <<sec:set-feed-rate,velocidad de alimentación>> "
+"actual hacia abajo la cantidad delta o hacia la posición Z, lo que sea menos "
+"profundo."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1833
@@ -54868,90 +54834,81 @@ msgid ""
 "Rapid up either the D value, the G73_PECK_CLEARANCE specified in the INI "
 "file or the default of .010\" / 0.254 mm."
 msgstr ""
+"Rápido arriba ya sea el valor D, la G73_PECK_CLEARANCE especificada en el "
+"archivo INI o el predeterminado de .010\" / 0.254 mm."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1834
-#, fuzzy
 msgid "Repeat steps 2 and 3 until the Z position is reached at step 2."
 msgstr "Repite los pasos 2 y 3 hasta alcanzar la posición Z en el paso 2."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1835
-#, fuzzy
 msgid "The Z axis does a rapid move to the R position."
-msgstr "rapido del eje Z a la posición R."
+msgstr "El eje Z hace un movimiento rápido a la posición R."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1839 src/gcode/g-code.adoc:2438
-#, fuzzy
 msgid "the Q number is negative or zero."
 msgstr "el número Q es negativo o cero."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1840
-#, fuzzy
 msgid "the R number is not specified"
 msgstr "el número R no está especificado"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1842
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G74 Left-hand Tapping Cycle with Dwell"
-msgstr "G84 Ciclo de roscado a derecha, con Dwell(((G84 Right-hand Tapping Cycle Dwell)))"
+msgstr "G74 Ciclo de roscado interno izquierdo con espera"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1847
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G74 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-\n"
-msgstr "G74 (X- Y- Z-) o (U- V- W-) R- L- P- $ -\n"
+msgstr "G74 (X- Y- Z-) o (U- V- W-) R- L- P- $- F-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1850 src/gcode/g-code.adoc:2448
-#, fuzzy
 msgid "'R-' - Retract position along the Z axis."
-msgstr "'R-' - Retract position along the Z axis."
+msgstr "'R-' - Posición de retracción a lo largo del eje Z."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1852 src/gcode/g-code.adoc:2450
-#, fuzzy
 msgid ""
 "'L-' - Used in incremental mode; number of times to repeat the cycle.  See "
 "<<gcode:g81,G81>> for examples."
 msgstr ""
-"'L-' - Used in incremental mode; number of times to repeat the cycle. See "
-"<<gcode:g81,G81>> for examples."
+"'L-' - Usado en modo incremental; número de veces a repetir el ciclo.  Ver "
+"<<gcode:g81,G81>> para ejemplos."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1853 src/gcode/g-code.adoc:2451
-#, fuzzy
 msgid "'P-' - Dwell time (seconds)."
-msgstr "'P-' - Dwell time (seconds)."
+msgstr "'P-' - Tiempo de espera (segundos)."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1854 src/gcode/g-code.adoc:2452
-#, fuzzy
 msgid "'$-' - Selected spindle."
-msgstr "'$-' - Selected spindle."
+msgstr "'$-' - Husillo seleccionado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1856 src/gcode/g-code.adoc:2454
-#, fuzzy
 msgid ""
 "'F-' - Feed rate (spindle speed multiplied by distance traveled per "
 "revolution (thread pitch))."
 msgstr ""
-"'F-' - Feed rate (spindle speed multiplied by distance traveled per "
-"revolution (thread pitch))."
+"'F-' - Velocidad de alimentación (velocidad del husillo multiplicada por la "
+"distancia recorrida por revolución (paso de rosca))."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1858
-#, fuzzy
 msgid "G74 does not use synchronized motion."
-msgstr "G74 does not use synchronized motion."
+msgstr "G74 no usa movimiento sincronizado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1861
-#, fuzzy
 msgid ""
 "The 'G74' cycle is intended for tapping with floating chuck and dwell at the "
 "bottom of the hole."
@@ -54983,13 +54940,11 @@ msgstr "Mueve el eje Z a la velocidad de avance actual a la posición Z."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1867 src/gcode/g-code.adoc:2465
-#, fuzzy
 msgid "Stop the selected spindle (chosen by the $ parameter)"
 msgstr "Detiene el husillo seleccionado (elegido por el parámetro $)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1868
-#, fuzzy
 msgid "Start spindle rotation clockwise."
 msgstr "Inicia la rotación del husillo en sentido horario."
 
@@ -55002,7 +54957,6 @@ msgstr "Espera P segundos."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1870 src/gcode/g-code.adoc:2468
-#, fuzzy
 msgid "Move the Z-axis at the current feed rate to clear Z"
 msgstr "Mueve el eje Z a la velocidad de avance actual para despejar Z"
 
@@ -55013,7 +54967,6 @@ msgstr "Restaurar ajustes de alimentación y velocidad al estado anterior"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1876
-#, fuzzy
 msgid ""
 "The length of the dwell is specified by a 'P-' word in the G74 block.  The "
 "feed rate 'F-' is spindle speed multiplied by distance per revolution "
@@ -55021,24 +54974,25 @@ msgid ""
 "gives a feed of F125."
 msgstr ""
 "La longitud de la pausa se especifica mediante una palabra 'P-' en el bloque "
-"G74. El pitch del hilo es F dividido por S.  En el ejemplo, el S100 F125 "
-"ofrece un paso de 1,25 mm por revolución."
+"G74.  La velocidad de alimentación 'F-' es velocidad del husillo "
+"multiplicada por distancia por revolución (paso de rosca).  En el ejemplo, "
+"el S100 con un paso de 1.25MM por revolución da un avance de F125."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:1878
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G76 Threading Cycle"
-msgstr "Roscado"
+msgstr "G76 Ciclo de roscado"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1883
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G76 P- Z- I- J- R- K- Q- H- E- L- $-\n"
 msgstr "G76 P- Z- I- J- R- K- Q- H- E- L- $-\n"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:1885 src/gcode/g-code.adoc:1886
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G76 Threading"
 msgstr "G76 Roscado"
 
@@ -55050,16 +55004,14 @@ msgstr "images/g76-threads_en.svg"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1889
-#, fuzzy
 msgid "'Drive Line' - A line through the initial X position parallel to the Z."
 msgstr ""
-"'Línea guia' - una línea a través de la posición X inicial paralela a Z."
+"'Línea guía' - Una línea a través de la posición X inicial paralela a Z."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1890
-#, fuzzy
 msgid "'P-' - The 'thread pitch' in distance per revolution."
-msgstr "'P-' - 'paso de hilo' en distancia por revolución."
+msgstr "'P-' - El 'paso de rosca' en distancia por revolución."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1891
@@ -55072,7 +55024,6 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1895
-#, fuzzy
 msgid ""
 "When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K' "
 "are diameter measurements.  When G8 'Lathe Radius Mode' is in force the "
@@ -55084,42 +55035,38 @@ msgstr ""
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1899
-#, fuzzy
 msgid ""
 "'I-' - The 'thread peak' offset from the 'drive line'.  Negative 'I' values "
 "are external threads, and positive 'I' values are internal threads.  "
 "Generally the material has been turned to this size before the 'G76' cycle."
 msgstr ""
-"'I-' - offset de la 'cresta de hilo' desde la 'línea guia'. Valores "
+"'I-' - Offset de la 'cresta de hilo' desde la 'línea guía'.  Valores "
 "negativos de 'I' son hilos externos, y valores positivos de 'I' son hilos "
 "internos.  Generalmente, el material se ha convertido a este tamaño antes "
 "del ciclo 'G76'."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1901
-#, fuzzy
 msgid ""
 "'J-' - A positive value specifying the 'initial cut depth'.  The first "
 "threading cut will be 'J' beyond the 'thread peak' position."
 msgstr ""
-"'J-' - un valor positivo que especifica la 'profundidad de corte inicial'. "
+"'J-' - Un valor positivo que especifica la 'profundidad de corte inicial'.  "
 "El primer corte de roscado será 'J' más allá de la posición de 'cresta de "
 "hilo'."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1903
-#, fuzzy
 msgid ""
 "'K-' - A positive value specifying the 'full thread depth'.  The final "
 "threading cut will be 'K' beyond the 'thread peak' position."
 msgstr ""
-"'K-' - un valor positivo que especifica la 'profundidad del hilo completo'. "
-"El final del corte de roscado será 'K' más allá de la posición de 'cresta de "
+"'K-' - Un valor positivo que especifica la 'profundidad total del hilo'.  El "
+"corte de final de roscado será 'K' más allá de la posición de 'cresta de "
 "hilo'."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:1905
-#, fuzzy
 msgid "Optional settings"
 msgstr "Configuraciones opcionales"
 
@@ -55155,17 +55102,15 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1916
-#, fuzzy
 msgid ""
 "Unnecessarily high degression values will produce an unnecessarily high "
 "number of passes. (degressing = dive in stages)"
 msgstr ""
-"Unnecessarily high degression values will produce an unnecessarily high "
-"number of passes. (degressing = dive in stages)"
+"Valores de degresión innecesariamente altos producirán un número "
+"innecesariamente alto de pases. (degresión = un descenso por etapas)"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1920
-#, fuzzy
 msgid ""
 "'Q-' - The 'compound slide angle' is the angle (in degrees) describing to "
 "what extent successive passes should be offset along the drive line.  This "
@@ -55173,32 +55118,30 @@ msgid ""
 "other.  A positive 'Q' value causes the leading edge of the tool to cut more "
 "heavily.  Typical values are 29, 29.5 or 30."
 msgstr ""
-"'Q-' - 'ángulo de deslizamiento compuesto' es el ángulo (en grados) que "
+"'Q-' - El 'ángulo de deslizamiento compuesto' es el ángulo (en grados) que "
 "describe en qué medida los pases sucesivos deben compensarse a lo largo de "
-"la línea guia.  Esto se usa para hacer que un lado de la herramienta elimine "
-"más material que el otro. Un valor positivo 'Q' hace que el borde de ataque "
-"de la herramienta corte más fuerte. Los valores típicos son 29, 29.5 o 30."
+"la línea guía.  Esto se usa para hacer que un lado de la herramienta elimine "
+"más material que el otro.  Un valor positivo 'Q' hace que el borde de ataque "
+"de la herramienta corte más fuerte.  Los valores típicos son 29, 29.5 o 30."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1923
-#, fuzzy
 msgid ""
 "'H-' - The number of 'spring passes'.  Spring passes are additional passes "
 "at full thread depth.  If no additional passes are desired, program 'H0'."
 msgstr ""
-"'H-' - El número de 'pases elasticos'. Los pases elasticos son pases "
-"adicionales a la profundidad total del hilo. Si no se desean pases "
-"adicionales, programe 'H0'."
+"'H-' - El número de 'pases elásticos'.  Los pases elásticos son pases "
+"adicionales a la profundidad total del hilo.  Si no se desean pases "
+"adicionales programe 'H0'."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1925
-#, fuzzy
 msgid ""
 "Thread entries and exits can be programmed tapered with the 'E' and 'L' "
 "values."
 msgstr ""
-"Thread entries and exits can be programmed tapered with the 'E' and 'L' "
-"values."
+"Entradas y salidas de rosca pueden programarse cónicas con los valores de "
+"'E' y 'L'."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1930
@@ -55213,11 +55156,10 @@ msgstr ""
 "conicidad de la entrada.  El ángulo del cono será de modo que el último pase "
 "se estrecha hacia la cresta del hilo sobre la distancia especificada con E.  "
 "'E0.2' dará un cono para las primeras/últimas 0.2 unidades de longitud a lo "
-"largo del hilo.  Para un programa de conicidad de 45 grados, E igual que K."
+"largo del hilo.  Para un cono de 45 grados programe E igual que K."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1937
-#, fuzzy
 msgid ""
 "'L-' - Specifies which ends of the thread get the taper.  Program 'L0' for "
 "no taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3' "
@@ -55226,42 +55168,39 @@ msgid ""
 "rate,feed rate>> in to the beginning of the taper. No entry taper and the "
 "tool will rapid to the cut depth then synchronize and begin the cut."
 msgstr ""
-"'L-' - Especifica qué extremos del hilo tendran conicidad. Programar 'L0' "
+"'L-' - Especifica qué extremos del hilo tendran conicidad.  Programar 'L0' "
 "para no cono (predeterminado), 'L1' para el cono de entrada, 'L2' para el "
-"cono de salida o 'L3' tanto para entradas y salidas cónicas. Las entradas "
+"cono de salida o 'L3' tanto para entradas y salidas cónicas.  Las entradas "
 "cónicas se detendrán en la línea guia para sincronizar con el pulso de "
-"índice y luego moverse a <<sec:set-feed-rate,avance>> en el comienzo del "
-"cono. Sin entrada cónica, la herramienta hará un rapido a la profundidad de "
-"corte, luego sincronizara y comenzara el corte."
+"índice y luego moverse a <<sec:set-feed-rate,velocidad de alimentación>> en "
+"el comienzo del cono. Sin entrada cónica y la herramienta hará un rápido a "
+"la profundidad de corte, luego sincronizará y comenzará el corte."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1941
-#, fuzzy
 msgid ""
 "The tool is moved to the initial X and Z positions prior to issuing the G76. "
 "The X position is the 'drive line' and the Z position is the start of the "
 "threads."
 msgstr ""
-"La herramienta se movera a las posiciones X y Z iniciales antes de emitir "
-"G76. La posición X es la 'línea guia' y la posición Z es el inicio de los "
+"La herramienta se moverá a las posiciones X y Z iniciales antes de emitir el "
+"G76. La posición X es la 'línea guía' y la posición Z es el inicio de los "
 "hilos."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1946
-#, fuzzy
 msgid ""
 "The tool will pause briefly for synchronization before each threading pass, "
 "so a relief groove will be required at the entry unless the beginning of the "
 "thread is past the end of the material or an entry taper is used."
 msgstr ""
 "La herramienta se detendrá brevemente para la sincronización antes de cada "
-"subproceso de pase, por lo que se requerirá una ranura de alivio en la "
-"entrada a menos que el comienzo del hilo pase el final del material o se usa "
-"una conicidad de entrada."
+"pase de roscado, por lo que se requerirá una ranura de alivio en la entrada "
+"a menos que el comienzo del hilo pase el final del material o se use una "
+"conicidad de entrada."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1955
-#, fuzzy
 msgid ""
 "Unless using an exit taper, the exit move is not synchronized to the spindle "
 "speed and will be a <<gcode:g0,rapid move>>. With a slow spindle, the exit "
@@ -55275,21 +55214,20 @@ msgstr ""
 "sincronizado con la velocidad del husillo y será un <<gcode:g0,movimiento "
 "rápido>>. Con un husillo lento, el movimiento de salida puede tomar solo una "
 "pequeña fracción de una revolución. Si la velocidad del husillo aumenta "
-"después de completar varios pases, los movimientos de salida posteriores "
+"después de completar varios pases, los movimientos de salida subsecuentes "
 "requerirán una porción mayor de una revolución, lo que resultará en un corte "
 "muy pesado durante el movimiento de salida. Esto se puede evitar "
-"proporcionando un surco de alivio en la salida, o no cambiar la velocidad "
-"del husillo mientras se rosca."
+"proporcionando un surco de alivio en la salida, o no cambiando la velocidad "
+"del husillo durante el roscado."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1959
-#, fuzzy
 msgid ""
 "The final position of the tool will be at the end of the 'drive line'.  A "
 "safe Z move will be needed with an internal thread to remove the tool from "
 "the hole."
 msgstr ""
-"La posición final de la herramienta estará al final de la 'línea guia'.  Se "
+"La posición final de la herramienta estará al final de la 'línea guía'.  Se "
 "necesitará un movimiento Z seguro en un hilo interno para sacar la "
 "herramienta del agujero."
 
@@ -55305,7 +55243,6 @@ msgstr "Se especifican otras palabras de eje, como X- o Y-."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1965
-#, fuzzy
 msgid "The 'R-' degression value is less than 1.0."
 msgstr "El valor de degresión 'R-' es menor que 1.0."
 
@@ -55322,33 +55259,31 @@ msgstr "'P-', 'J-', 'K-' o 'H-' son negativos."
 #. type: WARNING
 #: src/gcode/g-code.adoc:1968
 msgid "'E-' is greater than half the drive line length."
-msgstr "'E-' es mayor que la mitad de la longitud de la línea guia."
+msgstr "'E-' es mayor que la mitad de la longitud de la línea guía."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1974
-#, fuzzy
 msgid ""
 "The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the spindle "
 "must be connected in your HAL file before G76 will work.  See the "
 "<<sec:motion-pins,spindle>> pins in the Motion section for more information."
 msgstr ""
-"Los pines 'spindle.N.at-speed' y 'encoder.n.phase-Z' para el husillo debe "
-"estar conectados en su archivo HAL antes de que G76 funcione.  Vea los pines "
+"Los pines 'spindle.N.at-speed' y 'encoder._n_.phase-Z' para el husillo debe "
+"estar conectados en tu archivo HAL antes de que G76 funcione.  Vea los pines "
 "de <<sec:motion-pins,husillo>> en la sección Motion para más información."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1978
-#, fuzzy
 msgid ""
 "The G76 canned cycle is based on the G33 Spindle Synchronized Motion.  For "
 "more information see the G33 <<gcode:g33-tech-info,Technical Info>>."
 msgstr ""
-"El ciclo fijo G76 se basa en el movimiento sincronizado del husillo G33. "
-"Para más información ver G33 <<gcode:g33-tech-info,Información técnica>>."
+"El ciclo fijo G76 se basa en el movimiento sincronizado del husillo G33.  "
+"Para más información ver la <<gcode:g33-tech-info,Información técnica>> de "
+"G33."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:1982
-#, fuzzy
 msgid ""
 "The sample program 'g76.ngc' shows the use of the G76 canned cycle, and can "
 "be previewed and executed on any machine using the 'sim/lathe.ini' "
@@ -55360,13 +55295,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:1983
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G76 Example Code"
-msgstr "G76 Ejemplo"
+msgstr "Código de ejemplo de G76"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:1988
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 Z-0.5 X0.2\n"
 "G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045\n"
@@ -55376,27 +55311,26 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:1994
-#, fuzzy
 msgid ""
 "In the figure the tool is in the final position after the G76 cycle is "
 "completed. You can see the entry path on the right from the Q29.5 and the "
 "exit path on the left from the L2 E0.045. The white lines are the cutting "
 "moves."
 msgstr ""
-"En la figura, la herramienta está en la posición final después del ciclo G76 "
-"que está completado. Puede ver la ruta de entrada a la derecha desde Q29.5 y "
-"la ruta de salida a la izquierda desde la L2 E0.045. Las lineas blancas son "
-"los movimientos de corte."
+"En la figura, la herramienta está en la posición final después de completar "
+"el ciclo G76. Puedes ver la ruta de entrada a la derecha desde Q29.5 y la "
+"ruta de salida a la izquierda desde la L2 E0.045. Las líneas blancas son los "
+"movimientos de corte."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
 #: src/gcode/g-code.adoc:1995 src/gcode/g-code.adoc:1996
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G76 Example"
-msgstr "Ejemplo G76"
+msgstr "Ejemplo de G76"
 
 #. type: Target for macro image
 #: src/gcode/g-code.adoc:1996
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "images/g76-01.png"
 msgstr "images/g76-01.png"
 
@@ -98737,12 +98671,11 @@ msgstr ""
 
 #. type: Plain text
 #: src/gui/mdro.adoc:41
-#, fuzzy
 msgid ""
 "When MDRO starts, a window like the one in the figure <<fig:mdro-window>> "
 "above opens."
 msgstr ""
-"When AXIS starts, a window like the one in the figure <<fig:axis-window>> "
+"When AXIS starts, a window like the one in the figure <<fig:mdro-window>> "
 "above opens."
 
 #. type: Title ===
@@ -105898,9 +105831,8 @@ msgstr "G53 G0 X0 Y0 Z0\n"
 
 #. type: delimited block =
 #: src/gui/pyvcp-examples.adoc:513
-#, fuzzy
 msgid "Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes."
-msgstr "Ver las secciones <<gcode:g61>>,G61/G61.1>> y <<gcode:g64,G64>>."
+msgstr "Ver las secciones <<gcode:g53>>,G53>> y <<gcode:g0,G0>>."
 
 #. type: Plain text
 #: src/gui/pyvcp-examples.adoc:517
@@ -138167,8 +138099,8 @@ msgid ""
 "For further components see <<sec:hal-components,HAL Components List>> or the "
 "man pages."
 msgstr ""
-"For further components see <<sec:realtime-components,Realtime Components "
-"List>> or the man pages."
+"For further components see <<sec:hal-components,Realtime Components List>> "
+"or the man pages."
 
 #. type: Index entry
 #: src/hal/basic-hal.adoc:381 src/hal/basic-hal.adoc:386
@@ -146276,7 +146208,7 @@ msgstr ""
 "Este ejemplo usa 'ddt', 'mult2' y 'abs' para calcular la velocidad de un "
 "solo eje. Para obtener más información sobre los componentes en tiempo real, "
 "consulte las páginas de manual o la sección Componentes en tiempo real "
-"(<<sec:realtime-components>>)."
+"(<<sec:hal-components>>)."
 
 #. type: Plain text
 #: src/hal/hal-examples.adoc:118
@@ -147672,7 +147604,7 @@ msgid ""
 msgstr ""
 "Al hacer clic en el nombre de un nodo, \"Components\" por ejemplo, mostrara "
 "(en la pestaña \"SHOW\") todos los contenidos HAL sobre ese nodo. La Figura "
-"<<cap:halshow-layout>> muestra una lista exactamente como la veria si hace "
+"<<fig:halshow-show-tab>> muestra una lista exactamente como la veria si hace "
 "clic en el nombre de \"Components\" mientras ejecuta, por ejemplo, una "
 "tarjeta servo Mesa m5i20 estándar. La información en pantalla es exactamente "
 "como la que se muestran en las herramientas tradicionales de análisis de HAL "
