@@ -94,11 +94,10 @@ struct hm2_eth_t {
     } *hal;
 };
 
-bool use_firewall();
-int install_firewall_board(int sockfd);
-int install_firewall_perinterface(const char *ifbuf);
-void clear_firewall();
-char* fetch_ifname(int sockfd, char *buf, size_t n);
-int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
+bool hm2_eth_use_firewall();
+int hm2_eth_install_firewall_board(int sockfd);
+void hm2_eth_clear_firewall();
+char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n);
+int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
 
 #endif

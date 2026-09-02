@@ -72,7 +72,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     }
 
     strncpy(board->ip, board_ip, sizeof(board->ip)-1);
-    char *ifptr = fetch_ifname(board->sockfd, board->ifname, sizeof(board->ifname));
+    char *ifptr = hm2_eth_fetch_ifname(board->sockfd, board->ifname, sizeof(board->ifname));
     if(!ifptr) {
         LL_PRINT("failed to retrieve interface name for board\n");
         return 0;
@@ -82,7 +82,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
         LL_PRINT("ERROR: can't SO_BINDTODEVICE socket: %s\n", strerror(errno));
     }
 
-    if (!use_firewall()) {
+    if (!hm2_eth_use_firewall()) {
         LL_PRINT(\
 "WARNING: Unable to restrict other access to the hm2-eth device.\n"
 "This means that other software using the same network interface can violate\n"
@@ -115,7 +115,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
 
     board->req.arp_ha.sa_family = AF_LOCAL;
     board->req.arp_flags = ATF_PERM | ATF_COM;
-    ret = fetch_hwaddr( board, (void*)&board->req.arp_ha.sa_data );
+    ret = hm2_eth_fetch_hwaddr( board, (void*)&board->req.arp_ha.sa_data );
     if (ret < 0) {
         LL_PRINT("ERROR: Could not retrieve hardware address (MAC) of %s: %s\n", board_ip, strerror(-ret));
         return ret;
@@ -124,7 +124,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     // install_firewall_board() is a no-op when no firewall backend is
     // available (rootless install without CAP_NET_ADMIN, or
     // firewall=none), so it is safe to call unconditionally.
-    ret = install_firewall_board(board->sockfd);
+    ret = hm2_eth_install_firewall_board(board->sockfd);
     if (ret < 0) return ret;
 
     board->write_packet_ptr = board->write_packet;
@@ -225,7 +225,7 @@ int hm2_evl_close_board(hm2_eth_t *board) {
 
     board->llio.reset(&board->llio);
 
-    clear_firewall();
+    hm2_eth_clear_firewall();
 
     ret = close(board->sockfd);
     if (ret == -1)

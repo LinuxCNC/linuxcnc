@@ -52,12 +52,11 @@
 #include "hm2_eth.h"
 #include "hm2_eth_net_posix.h"
 
-EXPORT_SYMBOL(use_firewall);
-EXPORT_SYMBOL(install_firewall_board);
-EXPORT_SYMBOL(install_firewall_perinterface);
-EXPORT_SYMBOL(clear_firewall);
-EXPORT_SYMBOL(fetch_ifname);
-EXPORT_SYMBOL(fetch_hwaddr);
+EXPORT_SYMBOL(hm2_eth_use_firewall);
+EXPORT_SYMBOL(hm2_eth_install_firewall_board);
+EXPORT_SYMBOL(hm2_eth_clear_firewall);
+EXPORT_SYMBOL(hm2_eth_fetch_ifname);
+EXPORT_SYMBOL(hm2_eth_fetch_hwaddr);
 
 #define RECV_TIMEOUT_NON_RT_NS (200 * 1000 * 1000) //200ms for initialisation / non-realtime part
 
@@ -596,7 +595,7 @@ static fw_state_t fw_state = FW_UNRESOLVED;
 // Resolve and bring up the firewall backend on first call, caching the
 // result.  Returns true when a backend is ready, false when isolation
 // is unavailable or disabled.
-bool use_firewall() {
+bool hm2_eth_use_firewall() {
     if(fw_state != FW_UNRESOLVED)
         return fw_state == FW_READY;
 
@@ -643,8 +642,8 @@ bool use_firewall() {
 
 // Drop all rules from our chain/table but keep the chain in place, so a
 // fresh set can be installed on (re-)init.
-void clear_firewall() {
-    if(!use_firewall()) return;
+void hm2_eth_clear_firewall() {
+    if(!hm2_eth_use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
         IPT(1, "-F", CHAIN);
@@ -660,7 +659,7 @@ void clear_firewall() {
 
 // Remove everything we installed: chain, OUTPUT jump, and (nft) table.
 static void cleanup_firewall() {
-    if(!use_firewall()) return;
+    if(!hm2_eth_use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
         IPT(1, "-F", CHAIN);
@@ -684,7 +683,7 @@ static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
     return buf;
 }
 
-char* fetch_ifname(int sockfd, char *buf, size_t n) {
+char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n) {
     struct sockaddr_in srcaddr;
     struct ifaddrs *ifa, *it;
 
@@ -711,12 +710,12 @@ char* fetch_ifname(int sockfd, char *buf, size_t n) {
     return NULL;
 }
 
-int install_firewall_board(int sockfd) {
+int hm2_eth_install_firewall_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
     char dport_s[8], sport_s[8];
 
-    if(!use_firewall()) return 0;
+    if(!hm2_eth_use_firewall()) return 0;
 
     socklen_t addrlen = sizeof(srcaddr);
     int res = getsockname(sockfd, &srcaddr, &addrlen);
@@ -756,7 +755,7 @@ int install_firewall_board(int sockfd) {
     return 0;
 }
 
-int install_firewall_perinterface(const char *ifbuf) {
+static int install_firewall_perinterface(const char *ifbuf) {
     // Without these rules, 'ping' spews a lot of "Packet filtered"
     // messages.  With them, ping prints 'ping: sendmsg: Operation not
     // permitted' once per second.
@@ -767,7 +766,7 @@ int install_firewall_perinterface(const char *ifbuf) {
     // grant it to rtapi_app.  Users who want full IPv6 quiescence (no
     // router solicitations etc.) can additionally set
     // 'net.ipv6.conf.<iface>.disable_ipv6=1' in /etc/sysctl.conf.
-    if(!use_firewall()) return 0;
+    if(!hm2_eth_use_firewall()) return 0;
 
     switch(fw_backend) {
     case FW_IPTABLES:
@@ -800,7 +799,7 @@ int install_firewall_perinterface(const char *ifbuf) {
     return 0;
 }
 
-int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
+int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
@@ -1718,7 +1717,7 @@ int rtapi_app_main(void) {
         return ret;
     comp_id = ret;
 
-    clear_firewall();
+    hm2_eth_clear_firewall();
 
     for(i = 0, ret = 0; ret == 0 && i<MAX_ETH_BOARDS && board_ip[i] && *board_ip[i]; i++) {
         ret = init_board(&boards[i], board_ip[i], board_rtnet[i]);
