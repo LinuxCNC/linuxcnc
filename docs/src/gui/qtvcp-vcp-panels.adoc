@@ -30,7 +30,10 @@ qtvcp copy
 .QtVCP `copy` Dialog - Screen, VCP Panel or QtVismach Code Copy Panel
 image::images/qtvcp_copy_dialog.png["QtVCP copy Dialog - Screen, Panel or Vismach Code Copy Panel",align="center"]
 
+[[sub:qtvcp:panels:center]]
 === `center`
+
+image::images/qtvcp_3pcenter_finder.png["QtVCP Center Finder Panel VCP",align="center"]
 
 Used for *finding center of three points*.
 
