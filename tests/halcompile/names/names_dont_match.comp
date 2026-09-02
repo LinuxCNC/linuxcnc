@@ -1,6 +1,7 @@
 component wrong_name;
 license "GPL";
-pin out bit out;
+pin out bool out;
+option period no;
 function _;
 ;;
-FUNCTION(_) {}
+FUNCTION(_) { out_set(0); }
