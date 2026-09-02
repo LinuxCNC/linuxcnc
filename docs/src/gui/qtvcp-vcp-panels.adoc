@@ -32,8 +32,6 @@ image::images/qtvcp_copy_dialog.png["QtVCP copy Dialog - Screen, Panel or Vismac
 
 === `center`
 
-image::images/qtvcp_center_finder.png["QtVCP Center Finder Panel VCP",align="center"]
-
 Used for *finding center of three points*.
 
 In a terminal run:
