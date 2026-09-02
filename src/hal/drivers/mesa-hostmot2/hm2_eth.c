@@ -45,7 +45,7 @@
 
 #include <hal.h>
 
-#include "config.h" //For USPACE_XENOMAI_EVL defines
+#include "config.h" //For USPACE_XENOMAI_EVL / USPACE_XENOMAI defines
 
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
@@ -834,6 +834,21 @@ static bool load_eth_net_evl(void) {
 }
 #endif
 
+#ifdef USPACE_XENOMAI_EVL
+static void *eth_net_xenomai_lib = NULL;
+static bool load_eth_net_xenomai(void) {
+    if (eth_net_xenomai_lib != NULL) {
+        return true; // Already checked
+    }
+    eth_net_xenomai_lib = dlopen("liblinuxcnc-hm2_eth_net_xenomai.so", RTLD_LOCAL | RTLD_NOW);
+    if (!eth_net_xenomai_lib) {
+        LL_PRINT("ERROR: XENOMAI support loading library failed: %s\n", dlerror());
+        return false;
+    }
+    return true;
+}
+#endif
+
 static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_rtnet){
     //Default (NULL) is posix
     if (board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0) {
@@ -842,6 +857,44 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         board->close_board = &hm2_posix_close_board;
         board->eth_socket_send = &hm2_posix_eth_socket_send;
         board->eth_socket_recv = &hm2_posix_eth_socket_recv;
+    } else if (strcmp(board_rtnet, "xenomai") == 0) {
+#ifdef USPACE_XENOMAI
+        if (hal_get_realtime_type() != REALTIME_TYPE_XENOMAI) {
+            LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC not running with Xenomai realtime\n", board_rtnet)
+            return -1;
+        }
+        if (!load_eth_net_xenomai()) {
+            return -1;
+        }
+        board->init_board = dlsym(eth_net_xenomai_lib, "hm2_xenomai_init_board");
+        if (board->init_board == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym hm2_xenomai_init_board failed: %s\n", dlerror());
+            return -1;
+        }
+        board->init_board_realtime = dlsym(eth_net_xenomai_lib, "hm2_xenomai_init_board_realtime");
+        if (board->init_board_realtime == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym init_board_realtime failed: %s\n", dlerror());
+            return -1;
+        }
+        board->close_board = dlsym(eth_net_xenomai_lib, "hm2_xenomai_close_board");
+        if (board->close_board == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym hm2_xenomai_init_close_boardboard failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_send = dlsym(eth_net_xenomai_lib, "hm2_xenomai_eth_socket_send");
+        if (board->eth_socket_send == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym eth_socket_send failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_recv = dlsym(eth_net_xenomai_lib, "hm2_xenomai_eth_socket_recv");
+        if (board->eth_socket_recv == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym eth_socket_recv failed: %s\n", dlerror());
+            return -1;
+        }
+#else
+        LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC was built without Xenomai support\n", board_rtnet);
+        return -1;
+#endif
     } else if (strcmp(board_rtnet, "evl") == 0) {
 #ifdef USPACE_XENOMAI_EVL
         if (hal_get_realtime_type() != REALTIME_TYPE_XENOMAI_EVL) {
@@ -1746,12 +1799,16 @@ int rtapi_app_main(void) {
     for(i = 0; i<num_boards; i++) {
         boards[i].read_cnt = boards[i].write_cnt = 0;
         boards[i].has_written_cnt = 0;
-        int *added = kvlist_lookup(&ifnames, boards[i].ifname);
-        if(!added)
-            goto error;
-        if(*added) continue;
-        install_firewall_perinterface(boards[i].ifname);
-        *added = 1;
+        //Xenomai boards have an empty string for ifname due to the
+        //interface name can not be resolved and a firewall is not needed
+        if(strnlen(boards[i].ifname, sizeof(boards[i].ifname)) > 0){
+            int *added = kvlist_lookup(&ifnames, boards[i].ifname);
+            if(!added)
+                goto error;
+            if(*added) continue;
+            install_firewall_perinterface(boards[i].ifname);
+            *added = 1;
+        }
     }
 
     hal_export_functf(init_board_realtime_all, 0, 0, 0, comp_id, "%s.realtime-init", HM2_LLIO_NAME);
