@@ -1,0 +1,35 @@
+IndicatedPushButton{
+font: 14pt "Lato Heavy";
+}
+
+QLabel{
+font: 14pt "Lato Heavy";
+background: rgba(200, 200, 200, 180);
+}
+
+
+#label_10{
+font: 14pt "Lato Heavy";
+background: rgba(0, 0, 0, 0);
+}
+
+
+QPushButton{
+font: 14pt "Lato Heavy";
+background: rgba(250, 250, 30, 120);
+}
+
+
+
+#pushButton_5,
+#pushButton_4 {
+font: 14pt "Lato Heavy";
+background: rgba(250, 30, 30, 120);
+}
+
+
+#dro_axis_x,
+#dro_axis_y{
+font: 22pt "Lato Heavy";
+background: rgba(0, 0, 0, 240);
+}

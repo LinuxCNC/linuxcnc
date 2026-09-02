@@ -30,6 +30,38 @@ qtvcp copy
 .QtVCP `copy` Dialog - Screen, VCP Panel or QtVismach Code Copy Panel
 image::images/qtvcp_copy_dialog.png["QtVCP copy Dialog - Screen, Panel or Vismach Code Copy Panel",align="center"]
 
+=== `center`
+
+image::images/qtvcp_center_finder.png["QtVCP Center Finder Panel VCP",align="center"]
+
+Used for *finding center of three points*.
+
+In a terminal run:
+
+[source,hal]
+----
+qtvcp center
+----
+
+==== Qt Embedding Commands
+Add these lines to the [DISPLAY] section in your .ini file +
+The example tab_location is for the QtDragon screen.
+
+----
+EMBED_TAB_NAME=Center Finder
+EMBED_TAB_COMMAND=qtvcp center
+EMBED_TAB_LOCATION=tabWidget_utilities
+----
+
+==== AXIS Embedding Commands
+Add these lines to the [DISPLAY] section in your .ini file +
+
+----
+# Embed in tabs
+EMBED_TAB_NAME= Center Finder
+EMBED_TAB_COMMAND= halcmd loadusr -Wn qt_embed qtvcp -d -c qt_embed  -x {XID} center
+----
+
 [[sub:qtvcp:panels:spindle-belts]]
 === spindle_belts
 
