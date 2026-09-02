@@ -9,8 +9,8 @@ def float_fmt(f):
 
 class Canon:
     # Stay on the per-event canon protocol; the catch-all __getattr__ below
-    # would otherwise answer gcode.parse's move-batch probe with a callable.
-    use_move_batches = False
+    # would otherwise answer gcode.parse's renderer probe with a callable.
+    use_gcode_renderer = False
 
     def __getattr__(self, attr):
         """Assume that any unknown attribute is a canon call; just print

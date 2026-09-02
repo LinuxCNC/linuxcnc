@@ -15,11 +15,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rs274 import Translated, ArcsToSegmentsMixin
+from rs274 import Translated
 from rs274 import glcanon_gl, glcanon_bake, glcanon_scene
-# Bound locally: the canon tags every move with one of these, so the lookup is
-# on the parse hot path.
-from rs274.glcanon_bake import CAT_TRAVERSE, CAT_FEED, CAT_ARC
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -43,12 +40,6 @@ from rs274.glcanon_scene import (X, Y, Z, A, B, C, U, V, W, R,   # noqa: F401
                                  allhomedicon, somelimiticon, homeicon,
                                  limiticon)
 
-# Moves the canon lets pile up before filling them into the program record.
-# Checked once per source line, not once per move, so it costs nothing on the
-# move path; it bounds the fill's peak working set rather than the batch size
-# exactly, which is all it is for.
-FILL_BATCH = 4096
-
 
 def _removed_attribute(name, replacement):
     """A read-only property that raises, naming what replaced it.
@@ -67,8 +58,63 @@ def _removed_attribute(name, replacement):
     return property(getter)
 
 
-class GLCanon(Translated, ArcsToSegmentsMixin):
+class GLCanon(Translated):
+    """The preview canon: it does not draw the program, it receives it.
+
+    ``gcode.parse`` builds the whole preview in C++ (``GCodeRenderer`` in
+    ``src/emc/rs274ngc/gcode_renderer.{hh,cc}``) - the g92/rotation/g5x transform,
+    the chain point, the arcs, the rigid-tap pair, the ``first_move`` drop,
+    suppression, the vertices, the extents, the path lengths and the dwell and
+    tool-change records - and hands the finished program over once, at the end
+    of the parse, through :meth:`adopt_geometry`. Setting
+    ``use_gcode_renderer`` is what asks for that, and it is not optional:
+    there is no second implementation to fall back to.
+
+    What is still Python's, and why:
+
+      * ``comment`` - for the part of the ``(AXIS,...)`` vocabulary that is
+        this canon's: ``stop``, which aborts the parse by raising and so has
+        to be raised from Python; ``notify``; and the foam Z levels, which
+        feed the draw side. The ``hide``/``show`` depth is not among them:
+        the renderer counts it off the same text after this returns;
+      * ``change_tool`` - not for the record, which C++ writes, but because
+        the interpreter reads the canon's tool table for a G43 after it, and a
+        GUI's override is what moves the simulated spindle slot;
+      * the dwell colours, attached in :meth:`adopt_geometry` from the table
+        below, which is the one thing C does not carry.
+
+    The offsets, the rotation, the plane and the feed rate are still
+    *delivered* - every one of them, in order, so a canon that watches them
+    still sees them - but they are pure observations now. The renderer takes
+    its transform from the same calls and never reads what Python did with
+    them, so what :class:`rs274.interpret.Translated` records here steers
+    nothing.
+
+    An aborted or failed parse still hands over what it rendered, so a partial
+    preview is what it always was.
+
+    Note that the per-move *callback* protocol is untouched by any of this: a
+    canon that does not set the flag still receives ``straight_feed``,
+    ``arc_feed``, ``next_line`` and the rest, exactly as it always has. That
+    is what ``rs274.interpret``'s ``PrintCanon``, the interpreter tests and
+    out-of-tree users of ``gcode.parse`` are built on. This class is simply
+    not one of them any more.
+    """
+
     lineno = -1
+
+    #: What the C side reads to choose the protocol, once, at parse start.
+    #: Must be the bool; the C side ignores any other value, and a canon that
+    #: sets it without a callable ``adopt_geometry`` is a TypeError rather
+    #: than a silent fall back to per-move callbacks.
+    use_gcode_renderer = True
+
+    #: ``CANON_PLANE``, as ``set_plane`` last reported it. The renderer reads
+    #: it to segment an arc, and a dwell record takes its plane from it.
+    plane = 1
+    #: Segments per half-turn of arc. A GUI sets it from [DISPLAY]ARCDIVISION;
+    #: the renderer reads it once, at parse start.
+    arcdivision = 64
 
     # See _removed_attribute: these were the per-move category lists,
     # emission-order list and un-rotated preview copy. The program record
@@ -86,34 +132,27 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     preview_zero_rxy = _removed_attribute(
         "preview_zero_rxy",
         "read program_geometry.extents_zero_rxy / extents_notool_zero_rxy, "
-        "accumulated during the fill")
+        "accumulated during the parse")
 
     def __init__(self, colors, geometry, is_foam=0, foam_w=1.5, foam_z=0.0):
         # dwell list - [line number, color, pos x, pos y, pos z, plane]
         self.dwells = []
+        # The tools the program changed to, in order. Empty until the parse
+        # ends: adopt_geometry rebuilds it from the record.
         self.tool_list = []
         # The program record. Constructed here rather than lazily so that
         # "the canon always has one" is true of a canon nothing ever parsed
         # into, and readable the moment gcode.parse returns - which is when
         # load_preview wants the extents, long before any GL context exists.
         # Named program_geometry, not geometry: that name is already this
-        # class's GEOMETRY *string*, which the fill reads.
-        self._program_geometry = glcanon_bake.ProgramGeometry(
+        # class's GEOMETRY *string*, which the renderer reads.
+        self.program_geometry = glcanon_bake.ProgramGeometry(
             geometry=geometry, is_foam=bool(is_foam))
-        # Moves recorded since the last flush: a reusable float64 chunk
-        # (lineno, p1, p2, feedrate, offset per row - see STAGING_ROW_WIDTH)
-        # that rotate_and_translate's result is written straight into, plus a
-        # parallel byte per move naming its category. Neither is retained
-        # once flushed. Cost is bounded by FILL_BATCH, never by program
-        # length - and normally by one allocation for the file, since the
-        # array is reused in place and only grows if a single source line
-        # emits more moves than fit before the next flush check.
-        self._staging = np.empty(
-            (FILL_BATCH, glcanon_bake.STAGING_ROW_WIDTH), dtype=np.float64)
-        self._staged = 0
-        self._pending_kinds = bytearray()
         self.choice = None
         self.feedrate = 1
+        # The chain point and the leading-traverse flag. The renderer takes
+        # them over for the parse and gives them back at the end of it, so a
+        # reader afterwards sees what it always saw.
         self.lo = (0,) * 9
         self.first_move = True
         self.geometry = geometry
@@ -134,10 +173,10 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.colors = colors
         # Set if the parse was aborted, so the extents above are only partial.
         self.preview_incomplete = False
-        self.in_arc = 0
+        # The tool length offset. The renderer owns it during the parse and
+        # writes it back at the end.
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
-        self.suppress = 0
         self.g92_offset_x = 0.0
         self.g92_offset_y = 0.0
         self.g92_offset_z = 0.0
@@ -165,12 +204,18 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.highlight_line = None
 
     def comment(self, arg):
+        """The canon's half of the ``(AXIS,...)`` vocabulary.
+
+        ``hide``/``show`` are not here: the renderer counts that depth itself,
+        off the same comment text, right after this returns. What is left is
+        the part that is genuinely the canon's - ``stop``, which aborts the
+        parse by raising and so must be raised from Python, ``notify``, and
+        the foam Z levels, which feed the draw side rather than the fill.
+        """
         if arg.startswith("AXIS,") or arg.startswith("PREVIEW,"):
             parts = arg.split(",")
             command = parts[1]
             if command == "stop": raise KeyboardInterrupt
-            if command == "hide": self.suppress += 1
-            if command == "show": self.suppress -= 1
             if command == "XY_Z_POS":
                 if len(parts) > 2 :
                     try:
@@ -200,25 +245,39 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def next_line(self, st):
         self.state = st
         self.lineno = self.state.sequence_number
-        if self._staged >= FILL_BATCH:
-            self._flush_moves()
+
+    # -- the renderer protocol ---------------------------------------------
+
+    def renderer_progress(self, lineno):
+        """Called with the last line rendered, at most once per delivery.
+
+        The hook a GUI overrides to drive a progress bar; it replaces the
+        per-line ``next_line`` a GUI used to count, which a rendered move no
+        longer delivers.
+        """
+
+    def adopt_geometry(self, pg):
+        """Called once, at the end of the parse, with the finished program."""
+        self.program_geometry.adopt(pg, self.colors)
+        # The canon's own dwell list keeps raw machine coordinates and its own
+        # column order, as it always has.
+        dwell = self.colors["dwell"]
+        m1xx = self.colors["m1xx"]
+        self.dwells = [(lineno, m1xx if is_m1xx else dwell,
+                        raw[0], raw[1], raw[2], plane)
+                       for lineno, plane, is_m1xx, raw, _points in pg.dwells()]
+        self.dwell_time = pg.dwell_time
+        # The tool numbers in emission order, T0 and repeats included, which
+        # is what appending one per change_tool produced. Rebuilt in one pass
+        # here rather than maintained per event; a parse that aborted still
+        # hands over, so a partial load yields the partial list it always did.
+        self.tool_list = [tool for _lineno, tool, _points
+                          in self.program_geometry.toolchanges]
 
     # -- the program record ------------------------------------------------
 
-    @property
-    def program_geometry(self):
-        """The program record, with every move reported so far filled in.
-
-        A property rather than a plain attribute so that reading it is always
-        reading a complete record: moves accumulate between flushes, and a
-        reader that took the object during the parse would otherwise see a
-        prefix of the program and no way to know it.
-        """
-        self._flush_moves()
-        return self._program_geometry
-
     def configure_program_geometry(self, geometry, ro, is_foam):
-        """Choose the transform the fill will apply, and clear what it filled.
+        """Choose the transform the renderer will apply, and clear the record.
 
         Called by the widget when the canon is set, i.e. just before the
         parse. The points are converted once, on the way in, so this is not
@@ -231,92 +290,19 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         constructed it, and gremlin's does not set ``is_foam`` at all while
         its widget may report foam - so adopting the widget's answer here
         would quietly change which programs get the foam Z override in
-        calc_extents. The drawn planes follow the widget, exactly as the
-        pre-change bake did; the extents rule follows the canon, exactly as
-        it did.
+        calc_extents. The drawn planes follow the widget; the extents rule
+        follows the canon.
         """
-        self._staged = 0
-        self._pending_kinds = bytearray()
-        self._program_geometry.configure(geometry=geometry, ro=ro,
-                                         is_foam=is_foam)
-
-    def _reserve_staging(self, extra):
-        """Grow the staging chunk to hold ``extra`` more rows, by doubling.
-
-        Normally a no-op: the chunk is reused across flushes at its initial
-        ``FILL_BATCH`` capacity. It only grows for the rare source line that
-        emits more moves than that in one callback - a large arc's segments,
-        say - since the flush check in ``next_line`` runs once per source
-        line, not once per move.
-        """
-        need = self._staged + extra
-        cap = len(self._staging)
-        if need <= cap:
-            return
-        new_cap = max(FILL_BATCH, cap * 2)
-        while new_cap < need:
-            new_cap *= 2
-        grown = np.empty((new_cap, glcanon_bake.STAGING_ROW_WIDTH),
-                        dtype=np.float64)
-        grown[:self._staged] = self._staging[:self._staged]
-        self._staging = grown
-
-    def _stage_move(self, lineno, p1, p2, feedrate, offset, kind):
-        """Write one move straight into the staging chunk. No tuple, no list
-        append beyond the one-byte kind."""
-        self._reserve_staging(1)
-        row = self._staging[self._staged]
-        row[glcanon_bake.STAGE_LINE] = lineno
-        row[glcanon_bake.STAGE_P1] = p1
-        row[glcanon_bake.STAGE_P2] = p2
-        row[glcanon_bake.STAGE_FEEDRATE] = feedrate
-        row[glcanon_bake.STAGE_OFFSET] = offset
-        self._pending_kinds.append(kind)
-        self._staged += 1
-
-    def _flush_moves(self):
-        """Fill everything recorded since the last flush.
-
-        The rotation and g5x origin are passed per batch because they are per
-        batch: they are what the rotation-removed extents are accumulated
-        with, and a program that rotates mid-file gets each move's own. That
-        is why set_xy_rotation and set_g5x_offset flush before changing them.
-        """
-        n = self._staged
-        if n == 0:
-            return
-        chunk = self._staging[:n]
-        kinds = self._pending_kinds
-        # Cleared before the call, not after: add_moves_raw is where a
-        # malformed move would raise, and a non-empty pending count would
-        # re-fill the same rows into the array on the next flush. The chunk
-        # itself is not reallocated - add_moves_raw reads it before this
-        # method returns, and self._staged = 0 alone is what lets the next
-        # _stage_move start overwriting it.
-        self._staged = 0
-        self._pending_kinds = bytearray()
-        self._program_geometry.add_moves_raw(
-            chunk, kinds, self.rotation_xy,
-            (self.g5x_offset_x, self.g5x_offset_y))
-
-    def set_xy_rotation(self, theta):
-        self._flush_moves()
-        Translated.set_xy_rotation(self, theta)
-
-    def set_g5x_offset(self, *args, **kw):
-        self._flush_moves()
-        Translated.set_g5x_offset(self, *args, **kw)
+        self.program_geometry.configure(geometry=geometry, ro=ro,
+                                        is_foam=is_foam)
 
     def calc_extents(self):
-        # A delegation onto the values accumulated during the fill, plus the
-        # two rules that have always lived here and are not properties of the
-        # move data at all: the blank-program case and the foam Z override.
+        # A delegation onto the values the renderer accumulated, plus the two
+        # rules that have always lived here and are not properties of the move
+        # data at all: the blank-program case and the foam Z override.
         #
         # gcode.calc_extents (C) stays in emcmodule.cc as public module API,
-        # but nothing here calls it any more - see
-        # tests/gcode-bake/test_extents_oracle.py, which now pins the
-        # accumulated values against fixtures recorded from that oracle
-        # rather than calling it live.
+        # but nothing here calls it any more.
         geometry = self.program_geometry
         # In the event of a "blank" gcode file (M2 only for example) this sets each of the extents to [0,0,0]
         # to prevent passing the very large [9e99,9e99,9e99] values and populating the gcode properties with
@@ -357,7 +343,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     @property
     def g0_length(self):
-        """Total rapid (traverse) path length, accumulated during the fill.
+        """Total rapid (traverse) path length, accumulated during the parse.
 
         Replaces ``sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)``,
         read by the gremlin/AXIS/qt5_graphics properties dialogs.
@@ -366,7 +352,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     @property
     def g1_length(self):
-        """Total cutting (feed + arc) path length, accumulated during the fill.
+        """Total cutting (feed + arc) path length, accumulated during the parse.
 
         Replaces the equivalent summation over ``canon.feed``/``canon.arcfeed``.
         """
@@ -387,125 +373,26 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                + geometry.rapid_length / max_feed_rate
                + self.dwell_time)
 
-    def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
-        self.first_move = True
-        x, y, z, a, b, c, u, v, w = self.lo
-        self.lo = (x - xo + self.xo, y - yo + self.yo, z - zo + self.zo, a - ao + self.ao, b - bo + self.bo, c - co + self.co,
-          u - uo + self.uo, v - vo + self.vo, w - wo + self.wo)
-        self.xo = xo
-        self.yo = yo
-        self.zo = zo
-        self.ao = ao
-        self.bo = bo
-        self.co = co
-        self.uo = uo
-        self.vo = vo
-        self.wo = wo
+    # -- the callbacks still forwarded during a rendered parse --------------
 
     def set_spindle_rate(self, arg): pass
     def set_feed_rate(self, arg): self.feedrate = arg / 60.
     def select_plane(self, arg): pass
 
+    def set_plane(self, plane):
+        self.plane = plane
+
     def change_tool(self, arg):
-        self.first_move = True
-        try:
-            self.tool_list.append(arg)
-        except Exception:
-            log.exception("could not record tool change to %r", arg)
-        # Flush first: the record vertex has to land between the move before
-        # the change and the move after it, and the moves before it are still
-        # sitting in the pending buffer. The jump that follows is not recorded
-        # here - first_move means the next move starts wherever the tool
-        # ended up, so the fill sees the discontinuity itself.
-        self._flush_moves()
-        self._program_geometry.mark_toolchange(self.lineno, self.lo, arg)
+        """Told, not asked: the tool change is already in the record.
 
-    def straight_traverse(self, x,y,z, a,b,c, u,v,w):
-        if self.suppress > 0: return
-        l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        if not self.first_move:
-                self._stage_move(self.lineno, self.lo, l, 0.0,
-                                 (self.xo, self.yo, self.zo), CAT_TRAVERSE)
-        self.lo = l
-
-    def rigid_tap(self, x, y, z):
-        if self.suppress > 0: return
-        self.first_move = False
-        l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
-        l += (self.lo[3], self.lo[4], self.lo[5],
-               self.lo[6], self.lo[7], self.lo[8])
-        offset = (self.xo, self.yo, self.zo)
-        # self.dwells.append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
-        self._reserve_staging(2)
-        self._stage_move(self.lineno, self.lo, l, self.feedrate, offset, CAT_FEED)
-        self._stage_move(self.lineno, l, self.lo, self.feedrate, offset, CAT_FEED)
-
-    def arc_feed(self, *args):
-        if self.suppress > 0: return
-        self.first_move = False
-        self.in_arc = True
-        try:
-            ArcsToSegmentsMixin.arc_feed(self, *args)
-        finally:
-            self.in_arc = False
-
-    def straight_arcsegments(self, segs):
-        self.first_move = False
-        lo = self.lo
-        lineno = self.lineno
-        feedrate = self.feedrate
-        to = (self.xo, self.yo, self.zo)
-        # Reserved once for the whole arc, not once per segment: an arc can
-        # subdivide into tens of segments in one call, all before next_line
-        # next checks the flush threshold.
-        self._reserve_staging(len(segs))
-        for l in segs:
-            self._stage_move(lineno, lo, l, feedrate, to, CAT_ARC)
-            lo = l
-        self.lo = lo
-
-    def straight_feed(self, x,y,z, a,b,c, u,v,w):
-        if self.suppress > 0: return
-        self.first_move = False
-        l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self._stage_move(self.lineno, self.lo, l, self.feedrate,
-                         (self.xo, self.yo, self.zo), CAT_FEED)
-        self.lo = l
-
-    def straight_probe(self, x,y,z, a,b,c, u,v,w):
-        if self.suppress > 0: return
-        self.first_move = False
-        l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self._stage_move(self.lineno, self.lo, l, self.feedrate,
-                         (self.xo, self.yo, self.zo), CAT_FEED)
-        self.lo = l
-
-    def user_defined_function(self, i, p, q):
-        if self.suppress > 0: return
-        color = self.colors['m1xx']
-        self._record_dwell(color)
-
-    def dwell(self, arg):
-        if self.suppress > 0: return
-        self.dwell_time += arg
-        color = self.colors['dwell']
-        self._record_dwell(color)
-
-    def _record_dwell(self, color):
-        """Append a dwell to ``self.dwells`` and to the program record.
-
-        ``self.dwells`` keeps raw machine coordinates, because that is what it
-        has always held; it is bounded by event count, not move count, so it
-        is kept (unlike the per-move category lists). The record takes the
-        9-DOF point and transforms it, which is the marker position fix: the
-        pre-change marker bake was handed the GEOMETRY string and the
-        rotation offsets and applied neither.
+        Forwarded because the interpreter reads this canon's tool table for a
+        G43 after an M6, and a GUI's override of this method is what moves the
+        simulated spindle slot that table is read from. It keeps no list of
+        its own: :attr:`tool_list` is rebuilt from the record in
+        :meth:`adopt_geometry`, so it appears at the end of the parse rather
+        than growing during it. Nothing in the tree reads it before then - the
+        readers are all the properties dialog, after the load.
         """
-        plane = int(self.state.plane/10-17)
-        self.dwells.append((self.lineno, color, self.lo[0], self.lo[1],
-                            self.lo[2], plane))
-        self._flush_moves()
-        self._program_geometry.mark_dwell(self.lineno, self.lo, color, plane)
 
     def highlight(self, lineno, geometry):
         # Return the centroid of the highlighted line's segments; the view
@@ -839,7 +726,7 @@ class GlCanonDraw:
         # Configure the canon's program record with the two things only the
         # widget knows, and do it here because load_preview calls set_canon
         # immediately before gcode.parse - the last moment at which the
-        # transform the fill will apply can still be chosen.
+        # transform the renderer will apply can still be chosen.
         #
         # Deliberate consequence: a later change to the g5x/g92 offsets that
         # rotation_offsets() reads no longer re-transforms the preview. It

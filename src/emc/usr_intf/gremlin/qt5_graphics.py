@@ -167,6 +167,19 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
     def next_line(self, st):
         glcanon.GLCanon.next_line(self, st)
         self.progress.update(self.lineno)
+        self.show_notification()
+
+    def renderer_progress(self, lineno):
+        # Rendered moves deliver no next_line, so this is what moves the bar
+        # through the body of a program.
+        self.progress.update(lineno)
+        self.show_notification()
+
+    def show_notification(self):
+        # A (PREVIEW,notify) comment sets these; the comment callback itself is
+        # forwarded, but the next_line that used to carry the message out is
+        # not delivered for rendered moves, so the loader calls this once more
+        # when the parse is over.
         if self.notify:
             self.output_notify_message(self.notify_message)
             self.notify = 0
@@ -484,6 +497,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             canon.parameter_file = temp_parameter
             initcodes = preview_helpers.create_unitcode_and_initcode(s, self.inifile)
             result, seq = self.load_preview(filename, canon, *initcodes)
+            canon.show_notification()
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.logger.set_depth(self.from_internal_linear_unit(self.get_foam_z()),

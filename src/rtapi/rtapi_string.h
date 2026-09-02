@@ -48,7 +48,13 @@ RTAPI_END_DECLS
 #endif
 RTAPI_BEGIN_DECLS
 static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size) {
-    return rtapi_snprintf(dst, size, "%s", src);
+    size_t len = strlen(src);
+    if (size) {
+        size_t n = (len < size - 1) ? len : size - 1;
+        memcpy(dst, src, n);
+        dst[n] = '\0';
+    }
+    return len;
 }
 #define rtapi_strxcpy(dst, src) ({ \
     rtapi_static_assert(rtapi_is_array(dst), "dst must be non-const array"); \
@@ -56,8 +62,10 @@ static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size) {
 })
 
 static inline size_t rtapi_strlcat(char *dst, const char *src, size_t size) {
-    size_t l = strlen(dst);
-    return rtapi_snprintf(dst+l, size-l, "%s", src);
+    size_t l = strnlen(dst, size);
+    if (l == size)
+        return l + strlen(src);
+    return l + rtapi_strlcpy(dst+l, src, size-l);
 }
 
 #define rtapi_strxcat(dst, src) ({ \

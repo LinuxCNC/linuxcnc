@@ -47,7 +47,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	@rm -f $@
 	$(CXX) -g $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
 
-GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
+GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc emc/rs274ngc/gcode_renderer.cc
 PYSRCS += $(GCODEMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
