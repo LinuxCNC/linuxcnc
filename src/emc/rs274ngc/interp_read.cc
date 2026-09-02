@@ -22,7 +22,8 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sstream>
+#include <charconv>
+#include <string>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
@@ -738,7 +739,9 @@ int Interp::read_integer_unsigned(char *line,    //!< string: line of RS274 code
       break;
   }
   CHKS((n == *counter), NCE_BAD_FORMAT_UNSIGNED_INTEGER);
-  if (sscanf(line + *counter, "%d", integer_ptr) == 0)
+  // the digits are already delimited above, so from_chars needs no sscanf
+  std::from_chars_result r = std::from_chars(line + *counter, line + n, *integer_ptr);
+  if (r.ec != std::errc())
     ERS(NCE_SSCANF_FAILED);
   *counter = n;
   return INTERP_OK;
@@ -2747,14 +2750,25 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
 
   start = line + *counter;
 
-  after = strspn(start, "+-");
-  after = strspn(start+after, "0123456789.") + after;
+  size_t signs = strspn(start, "+-");
+  after = strspn(start+signs, "0123456789.") + signs;
 
-  std::string st(start, start+after);
-  std::stringstream s(st);
-  double val;
-  if(!(s >> val)) ERS(_("bad number format (conversion failed) parsing '%s'"), st.c_str());
-  if(s.get() != std::char_traits<char>::eof()) ERS(_("bad number format (trailing characters) parsing '%s'"), st.c_str());
+  const char *first = start + ((signs == 1 && *start == '+') ? 1 : 0);
+  const char *last = start + after;
+  double val = 0;
+  std::from_chars_result r{first, std::errc::invalid_argument};
+  if (signs <= 1) r = std::from_chars(first, last, val);
+
+  if (r.ec != std::errc()) {
+    // No number there, or a magnitude that does not fit a double; the stream
+    // conversion set failbit for the former and for an overflow.
+    std::string st(start, after);
+    ERS(_("bad number format (conversion failed) parsing '%s'"), st.c_str());
+  }
+  if (r.ptr != last) {
+    std::string st(start, after);
+    ERS(_("bad number format (trailing characters) parsing '%s'"), st.c_str());
+  }
 
   *double_ptr = val;
   *counter = start + after - line;
