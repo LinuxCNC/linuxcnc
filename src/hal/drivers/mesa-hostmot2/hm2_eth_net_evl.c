@@ -82,13 +82,6 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
         LL_PRINT("ERROR: can't SO_BINDTODEVICE socket: %s\n", strerror(errno));
     }
 
-    if (!hm2_eth_use_firewall()) {
-        LL_PRINT(\
-"WARNING: Unable to restrict other access to the hm2-eth device.\n"
-"This means that other software using the same network interface can violate\n"
-"realtime guarantees.  See hm2_eth(9) for more information.\n");
-    }
-
     struct timeval timeout;
     timeout.tv_sec = 0;
     timeout.tv_usec = RECV_TIMEOUT_US;
@@ -121,14 +114,9 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
         return ret;
     }
 
-    // install_firewall_board() is a no-op when no firewall backend is
-    // available (rootless install without CAP_NET_ADMIN, or
-    // firewall=none), so it is safe to call unconditionally.
-    ret = hm2_eth_install_firewall_board(board->sockfd);
-    if (ret < 0) return ret;
-
     board->write_packet_ptr = board->write_packet;
     board->read_packet_ptr = board->read_packet;
+    board->needs_firewall = true;
 
     return 0;
 }
@@ -224,8 +212,6 @@ int hm2_evl_close_board(hm2_eth_t *board) {
     oob_disable_port(board);
 
     board->llio.reset(&board->llio);
-
-    hm2_eth_clear_firewall();
 
     ret = close(board->sockfd);
     if (ret == -1)

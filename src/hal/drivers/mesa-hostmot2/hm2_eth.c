@@ -52,9 +52,6 @@
 #include "hm2_eth.h"
 #include "hm2_eth_net_posix.h"
 
-EXPORT_SYMBOL(hm2_eth_use_firewall);
-EXPORT_SYMBOL(hm2_eth_install_firewall_board);
-EXPORT_SYMBOL(hm2_eth_clear_firewall);
 EXPORT_SYMBOL(hm2_eth_fetch_ifname);
 EXPORT_SYMBOL(hm2_eth_fetch_hwaddr);
 
@@ -595,7 +592,7 @@ static fw_state_t fw_state = FW_UNRESOLVED;
 // Resolve and bring up the firewall backend on first call, caching the
 // result.  Returns true when a backend is ready, false when isolation
 // is unavailable or disabled.
-bool hm2_eth_use_firewall() {
+static bool use_firewall() {
     if(fw_state != FW_UNRESOLVED)
         return fw_state == FW_READY;
 
@@ -642,8 +639,8 @@ bool hm2_eth_use_firewall() {
 
 // Drop all rules from our chain/table but keep the chain in place, so a
 // fresh set can be installed on (re-)init.
-void hm2_eth_clear_firewall() {
-    if(!hm2_eth_use_firewall()) return;
+static void clear_firewall() {
+    if(!use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
         IPT(1, "-F", CHAIN);
@@ -659,7 +656,7 @@ void hm2_eth_clear_firewall() {
 
 // Remove everything we installed: chain, OUTPUT jump, and (nft) table.
 static void cleanup_firewall() {
-    if(!hm2_eth_use_firewall()) return;
+    if(!use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
         IPT(1, "-F", CHAIN);
@@ -710,12 +707,12 @@ char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n) {
     return NULL;
 }
 
-int hm2_eth_install_firewall_board(int sockfd) {
+static int install_firewall_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
     char dport_s[8], sport_s[8];
 
-    if(!hm2_eth_use_firewall()) return 0;
+    if(!use_firewall()) return 0;
 
     socklen_t addrlen = sizeof(srcaddr);
     int res = getsockname(sockfd, &srcaddr, &addrlen);
@@ -766,7 +763,7 @@ static int install_firewall_perinterface(const char *ifbuf) {
     // grant it to rtapi_app.  Users who want full IPv6 quiescence (no
     // router solicitations etc.) can additionally set
     // 'net.ipv6.conf.<iface>.disable_ipv6=1' in /etc/sysctl.conf.
-    if(!hm2_eth_use_firewall()) return 0;
+    if(!use_firewall()) return 0;
 
     switch(fw_backend) {
     case FW_IPTABLES:
@@ -938,7 +935,25 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         return -1;
     }
 
-    return board->init_board(board, board_ip);
+    int ret;
+    ret = board->init_board(board, board_ip);
+    if (ret < 0) return ret;
+
+    if(board->needs_firewall){
+        if(!use_firewall()) {
+            LL_PRINT(\
+                "WARNING: Unable to restrict other access to the hm2-eth device.\n"
+                "This means that other software using the same network interface can violate\n"
+                "realtime guarantees.  See hm2_eth(9) for more information.\n");
+        }
+        // install_firewall_board() is a no-op when no firewall backend is
+        // available (rootless install without CAP_NET_ADMIN, or
+        // firewall=none), so it is safe to call unconditionally.
+        ret = install_firewall_board(board->sockfd);
+        if(ret < 0) return ret;
+    }
+
+    return 0;
 }
 
 /// ethernet io functions mapping
@@ -1770,7 +1785,7 @@ int rtapi_app_main(void) {
         return ret;
     comp_id = ret;
 
-    hm2_eth_clear_firewall();
+    clear_firewall();
 
     for(i = 0, ret = 0; ret == 0 && i<MAX_ETH_BOARDS && board_ip[i] && *board_ip[i]; i++) {
         ret = init_board(&boards[i], board_ip[i], board_rtnet[i]);
@@ -1820,6 +1835,7 @@ int rtapi_app_main(void) {
 error:
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
+    clear_firewall();
     // Full teardown: rtapi_app_exit() is not called when rtapi_app_main()
     // fails, so this is the only chance to remove the chain and jump.
     cleanup_firewall();
@@ -1835,6 +1851,7 @@ void rtapi_app_exit(void) {
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
 
+    clear_firewall();
     cleanup_firewall();
 
     kvlist_free(&board_num);

@@ -94,7 +94,8 @@ int hm2_xenomai_init_board(hm2_eth_t *board, const char *board_ip) {
 
     board->write_packet_ptr = board->write_packet;
     board->read_packet_ptr = board->read_packet;
-
+    board->needs_firewall = false;
+    
     return 0;
 }
 

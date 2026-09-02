@@ -54,8 +54,8 @@ struct hm2_eth_t {
     int (*eth_socket_send)(hm2_eth_t *board, const void *buffer, int len);
     int (*eth_socket_recv)(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns);
 
-    //Only for evl implementation
-    bool is_evl_oob_active;
+    bool needs_firewall;    //Not all rt implementations need firewall
+    bool is_evl_oob_active; //For evl implementation: oob network active
 
     rtapi_u8 read_packet[1400];
     rtapi_u8 *read_packet_ptr;
@@ -94,9 +94,6 @@ struct hm2_eth_t {
     } *hal;
 };
 
-bool hm2_eth_use_firewall();
-int hm2_eth_install_firewall_board(int sockfd);
-void hm2_eth_clear_firewall();
 char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n);
 int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
 
