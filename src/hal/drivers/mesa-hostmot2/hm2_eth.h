@@ -49,7 +49,6 @@ struct hm2_eth_t {
 
     //RT network specific functions
     int (*init_board)(hm2_eth_t *board, const char *board_ip);
-    int (*init_board_realtime)(hm2_eth_t *board);
     int (*close_board)(hm2_eth_t *board);
     int (*eth_socket_send)(hm2_eth_t *board, const void *buffer, int len);
     int (*eth_socket_recv)(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns);

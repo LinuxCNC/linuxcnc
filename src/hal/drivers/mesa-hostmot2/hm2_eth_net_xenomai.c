@@ -99,11 +99,6 @@ int hm2_xenomai_init_board(hm2_eth_t *board, const char *board_ip) {
     return 0;
 }
 
-int hm2_xenomai_init_board_realtime(hm2_eth_t *board){
-    (void)board;
-    return 0; //Nothing todo
-}
-
 int hm2_xenomai_close_board(hm2_eth_t *board) {
     int ret;
     board->llio.reset(&board->llio);

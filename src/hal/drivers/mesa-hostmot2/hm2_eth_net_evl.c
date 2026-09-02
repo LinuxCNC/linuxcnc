@@ -133,11 +133,6 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     return 0;
 }
 
-int hm2_evl_init_board_realtime(hm2_eth_t *board) {
-    (void)board;
-    return 0; //Nothing todo
-}
-
 static int oob_enable_port(hm2_eth_t *board) {
     //long long t1, t2;
     int devfd, ret;
