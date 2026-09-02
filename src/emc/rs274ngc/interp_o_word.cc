@@ -34,7 +34,6 @@
 #include "rs274ngc_interp.hh"
 #include "pythonplugin/python_plugin.hh"
 #include "interp_python.hh"
-#include <rtapi_string.h>	// rtapi_strlcpy()
 
 namespace bp = boost::python;
 
@@ -60,7 +59,7 @@ int Interp::findFile( // ARGUMENTS
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
     file = fopen(targetPath, "r");
     if (file) {
-        rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
+        rs274ngc_strlcpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
         return INTERP_OK;
     }
@@ -456,7 +455,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    if (previous_frame->position == -1) {
 		if (settings->file_pointer) fclose(settings->file_pointer);
 		settings->file_pointer = NULL;
-		rtapi_strxcpy(settings->filename, "");
+		rs274ngc_strxcpy(settings->filename, "");
 	    } else {
 		if(settings->file_pointer == NULL) {
 		    ERS(NCE_FILE_NOT_OPEN);
@@ -470,7 +469,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			    previous_frame->filename,
 			    strerror(errno));
 		    }
-		    rtapi_strxcpy(settings->filename, previous_frame->filename);
+		    rs274ngc_strxcpy(settings->filename, previous_frame->filename);
 		}
 		fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
 		settings->sequence_number = previous_frame->sequence_number;

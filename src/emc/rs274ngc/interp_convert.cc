@@ -28,14 +28,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string>
-#include <rtapi_math.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
 #include "interp_queue.hh"
 #include "interp_parameter_def.hh"
-#include <rtapi_string.h>
 
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==CUTTER_COMP::LEFT&&(turn)>0)||((side)==CUTTER_COMP::RIGHT&&(turn)<0))
@@ -2018,12 +2016,12 @@ int Interp::convert_param_comment(char *comment, char *expanded, int /*len*/)
                 int n = snprintf(valbuf, VAL_LEN, format, pvalue);
                 bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
-                    rtapi_strxcpy(valbuf, "######");
+                    rs274ngc_strxcpy(valbuf, "######");
 
             }
             else
             {
-                rtapi_strxcpy(valbuf, "######");
+                rs274ngc_strxcpy(valbuf, "######");
             }
             logDebug("found:%d value:|%s|", found, valbuf);
 
@@ -3757,7 +3755,7 @@ int Interp::restore_settings(setup_pointer settings,
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
 		char currentError[LINELEN+1];
-		rtapi_strxcpy(currentError,getSavedError());
+		rs274ngc_strxcpy(currentError,getSavedError());
 		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
 	    }
 	    s = strtok_r(NULL, "\n", &stateptr);
