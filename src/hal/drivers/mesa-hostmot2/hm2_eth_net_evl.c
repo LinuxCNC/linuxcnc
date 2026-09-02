@@ -38,7 +38,6 @@
 
 #include "hostmot2-lowlevel.h"
 #include "hm2_eth_net_evl.h"
-#include "hm2_eth_net_posix.h"
 
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
@@ -51,7 +50,12 @@ static int oob_disable_port(hm2_eth_t *board);
 int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
     LL_PRINT("%s: INFO: init board (Xenomai EVL)\n", board_ip);
-    board->is_evl_oob_active = false;
+
+    if (evl_get_self() < 0) {
+        LL_PRINT("ERROR: hm2_eth evl mode: Process not attached to EVL core\n");
+        return -1;
+    }
+
     board->sockfd = socket(PF_INET, SOCK_DGRAM | SOCK_OOB, IPPROTO_IP);
     if (board->sockfd < 0) {
         LL_PRINT("ERROR: can't open socket: %s\n", strerror(errno));
@@ -80,6 +84,14 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
 
     if (setsockopt(board->sockfd, SOL_SOCKET, SO_BINDTODEVICE, board->ifname, strlen(board->ifname))) {
         LL_PRINT("ERROR: can't SO_BINDTODEVICE socket: %s\n", strerror(errno));
+    }
+
+    //oob_enable_port needs: sockfd / server_addr / ip / ifname
+    //However, it must be called before the first ethernet
+    //communication in hm2_eth_fetch_hwaddr.
+    ret = oob_enable_port(board);
+    if (ret < 0) {
+        return ret;
     }
 
     struct timeval timeout;
@@ -122,17 +134,8 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
 }
 
 int hm2_evl_init_board_realtime(hm2_eth_t *board) {
-    static bool error_shown = false;
-    if (board->is_evl_oob_active ) {
-        if (!error_shown) {
-            LL_PRINT("ERROR: realtime-init called while realtime is allready initialized\n"
-                     "    You might be you using \"addf hm2_eth.realtime-init servo-thread\"\n"
-                     "    instead of \"initf hm2_eth.realtime-init servo-thread\"\n");
-            error_shown = true;
-        }
-        return 0; //No failure in this case
-    }
-    return oob_enable_port(board);
+    (void)board;
+    return 0; //Nothing todo
 }
 
 static int oob_enable_port(hm2_eth_t *board) {
@@ -172,8 +175,6 @@ static int oob_enable_port(hm2_eth_t *board) {
     /*t2 = rtapi_get_time();
     LL_PRINT("Enable dur = %lli\n", t2-t1);*/
 
-    board->is_evl_oob_active=true;
-
     return 0;
 }
 
@@ -202,16 +203,17 @@ static int oob_disable_port(hm2_eth_t *board) {
 
     setfsuid(previous);
 
-    board->is_evl_oob_active=false;
-
     return 0;
 }
 
 int hm2_evl_close_board(hm2_eth_t *board) {
     int ret;
-    oob_disable_port(board);
 
     board->llio.reset(&board->llio);
+
+    //oob_disable_port must be called after the last
+    //ethernet communication
+    oob_disable_port(board);
 
     ret = close(board->sockfd);
     if (ret == -1)
@@ -231,99 +233,64 @@ static void print_addr(char* desc, struct sockaddr_in *addr){
 }
 */
 
-static int check_evl(hm2_eth_t *board) {
-    static bool error_shown = false;
-    if (!board->is_evl_oob_active && evl_get_self() >= 0) {
-        if (!error_shown) {
-            LL_PRINT("ERROR: hm2_eth evl mode: OOB not active in realtime thread\n"
-                     "    Please add: \"initf hm2_eth.realtime-init servo-thread\"\n"
-                     "    to your hal file\n");
-            error_shown = true;
-        }
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
 int hm2_evl_eth_socket_send(hm2_eth_t *board, const void *buffer, int len) {
     ssize_t ret = 0;
-    ret = check_evl(board);
-    if (ret < 0) {
-        return ret;
+    struct iovec iov;
+    struct oob_msghdr msghdr;
+    struct timespec ts_timeout;
+
+    evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
+    ts_timeout.tv_nsec += 1000*SEND_TIMEOUT_US;
+    while (ts_timeout.tv_nsec >= 1e9) {
+        ts_timeout.tv_nsec -= 1e9;
+        ts_timeout.tv_sec ++;
     }
-    if (board->is_evl_oob_active) {
-        struct iovec iov;
-        struct oob_msghdr msghdr;
-        struct timespec ts_timeout;
 
-        evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
-        ts_timeout.tv_nsec += 1000*SEND_TIMEOUT_US;
-        while (ts_timeout.tv_nsec >= 1e9) {
-            ts_timeout.tv_nsec -= 1e9;
-            ts_timeout.tv_sec ++;
-        }
-
-        /* OUTPUT */
-        iov.iov_base = (void *)buffer;
-        iov.iov_len = len;
-        msghdr.msg_iov = &iov;
-        msghdr.msg_iovlen = 1;
-        msghdr.msg_control = NULL;
-        msghdr.msg_controllen = 0;
-        msghdr.msg_name = &board->server_addr;
-        msghdr.msg_namelen = sizeof(board->server_addr);
-        /*msghdr.msg_name = NULL;
-        msghdr.msg_namelen = 0;*/
-        msghdr.msg_flags = 0;
-        ret = oob_sendmsg(board->sockfd, &msghdr, &ts_timeout, 0);
-        if (ret == -1) {
-            LL_PRINT("ERROR: oob_sendmsg %m %i %li\n", errno, ret);
-        }
-    } else {
-        //While initialisation, use posix mode due
-        //to we are not in an evl thread
-        ret = hm2_posix_eth_socket_send(board, buffer, len);
+    /* OUTPUT */
+    iov.iov_base = (void *)buffer;
+    iov.iov_len = len;
+    msghdr.msg_iov = &iov;
+    msghdr.msg_iovlen = 1;
+    msghdr.msg_control = NULL;
+    msghdr.msg_controllen = 0;
+    msghdr.msg_name = &board->server_addr;
+    msghdr.msg_namelen = sizeof(board->server_addr);
+    /*msghdr.msg_name = NULL;
+    msghdr.msg_namelen = 0;*/
+    msghdr.msg_flags = 0;
+    ret = oob_sendmsg(board->sockfd, &msghdr, &ts_timeout, 0);
+    if (ret == -1) {
+        LL_PRINT("ERROR: oob_sendmsg %m %i %li\n", errno, ret);
     }
     return ret;
 }
 
 int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns) {
     ssize_t ret = 0;
-    ret = check_evl(board);
-    if (ret < 0) {
-        return ret;
-    }
-    if (board->is_evl_oob_active) {
-        struct oob_msghdr msghdr;
-        struct iovec iov;
-        struct timespec ts_timeout;
+    struct oob_msghdr msghdr;
+    struct iovec iov;
+    struct timespec ts_timeout;
 
-        evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
-        ts_timeout.tv_nsec += recv_timeout_ns;
-        while (ts_timeout.tv_nsec >= 1e9) {
-            ts_timeout.tv_nsec -= 1e9;
-            ts_timeout.tv_sec ++;
-        }
-
-        /* INPUT */
-        iov.iov_base = buffer;
-        iov.iov_len = len;
-        msghdr.msg_iov = &iov;
-        msghdr.msg_iovlen = 1;
-        msghdr.msg_control = NULL;
-        msghdr.msg_controllen = 0;
-        msghdr.msg_name = &board->local_addr;
-        msghdr.msg_namelen = sizeof(board->local_addr);
-        /*msghdr.msg_name = NULL;
-        msghdr.msg_namelen = 0;*/
-        msghdr.msg_flags = 0;
-        ret = oob_recvmsg(board->sockfd, &msghdr, &ts_timeout, 0);
-    } else {
-        //While initialisation, use posix mode due
-        //to we are not in an evl thread
-        ret = hm2_posix_eth_socket_recv(board, buffer, len, recv_timeout_ns);
+    evl_read_clock(EVL_CLOCK_MONOTONIC, &ts_timeout);
+    ts_timeout.tv_nsec += recv_timeout_ns;
+    while (ts_timeout.tv_nsec >= 1e9) {
+        ts_timeout.tv_nsec -= 1e9;
+        ts_timeout.tv_sec ++;
     }
+
+    /* INPUT */
+    iov.iov_base = buffer;
+    iov.iov_len = len;
+    msghdr.msg_iov = &iov;
+    msghdr.msg_iovlen = 1;
+    msghdr.msg_control = NULL;
+    msghdr.msg_controllen = 0;
+    msghdr.msg_name = &board->local_addr;
+    msghdr.msg_namelen = sizeof(board->local_addr);
+    /*msghdr.msg_name = NULL;
+    msghdr.msg_namelen = 0;*/
+    msghdr.msg_flags = 0;
+    ret = oob_recvmsg(board->sockfd, &msghdr, &ts_timeout, 0);
     return ret;
 }
 

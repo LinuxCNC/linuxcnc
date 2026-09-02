@@ -55,7 +55,6 @@ struct hm2_eth_t {
     int (*eth_socket_recv)(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns);
 
     bool needs_firewall;    //Not all rt implementations need firewall
-    bool is_evl_oob_active; //For evl implementation: oob network active
 
     rtapi_u8 read_packet[1400];
     rtapi_u8 *read_packet_ptr;
