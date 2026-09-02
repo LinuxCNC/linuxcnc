@@ -35,6 +35,9 @@
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
 
+EXPORT_SYMBOL(hm2_posix_eth_socket_send);
+EXPORT_SYMBOL(hm2_posix_eth_socket_recv);
+
 /// ethernet io functions
 
 int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {

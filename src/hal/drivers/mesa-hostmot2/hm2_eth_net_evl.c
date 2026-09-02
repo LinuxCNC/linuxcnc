@@ -340,3 +340,4 @@ int hm2_evl_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_ti
     }
     return ret;
 }
+
