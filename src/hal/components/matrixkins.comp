@@ -229,6 +229,7 @@ error:
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
 
 KINEMATICS_TYPE kinematicsType()
@@ -319,5 +320,32 @@ int kinematicsInverse(const EmcPose * pos,
     if (EMCMOT_MAX_JOINTS > 7) j[7] = pos->v;
     if (EMCMOT_MAX_JOINTS > 8) j[8] = pos->w;
 
+    return 0;
+}
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    int r, c;
+    (void)j;
+    (void)pos;
+    (void)iflags;
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
+        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    }
+    // the inverse is the calibration matrix itself, so its derivative is
+    // that matrix, and the pass-through axes are ones
+    jac[0][0] = hal_get_real(haldata->C_xx);
+    jac[0][1] = hal_get_real(haldata->C_xy);
+    jac[0][2] = hal_get_real(haldata->C_xz);
+    jac[1][0] = hal_get_real(haldata->C_yx);
+    jac[1][1] = hal_get_real(haldata->C_yy);
+    jac[1][2] = hal_get_real(haldata->C_yz);
+    jac[2][0] = hal_get_real(haldata->C_zx);
+    jac[2][1] = hal_get_real(haldata->C_zy);
+    jac[2][2] = hal_get_real(haldata->C_zz);
+    for (r = 3; r < 9; r++) { jac[r][r] = 1; }
     return 0;
 }
