@@ -58,12 +58,18 @@ You will get a similar screen to the following (the design may vary depending on
 
 image:images/gmoccapy_3_axis_mid.png[align="left",link="images/gmoccapy_3_axis.png"]
 
+[[gmoccapy:basic_configuration]]
 == Basic Configuration
 
 GMOCCAPY 3 supports the following command line options:
 
  * '-user_mode': If set, the setup button will be disabled, so normal machine operators are not able to edit the settings of the machine.
  * '-logo <path to logo file>': If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware buttons for jogging and increment selection.
+ * '-smoketest=nowhatsnew': Disable the "Important changes" notification.
+* '-d': Set log level to DEBUG
+* '-i': Set log level to INFO
+* '-v': Set log level to VERBOSE
+* '-q': Set log level to ERROR
 
 There is really not to much to configure just to run GMOCCAPY,
 but there are some points you should take care off if you want to use all the features of the GUI.
@@ -113,7 +119,7 @@ PROGRAM_PREFIX = ../../nc_files/
 ----
 
 
-- _DISPLAY = gmoccapy_ - This tells LinuxCNC to use GMOCCAPY.
+- _DISPLAY = gmoccapy_ - This tells LinuxCNC to use GMOCCAPY. Command line options are added here (see <<gmoccapy:basic_configuration,Basic Configuration>>).
 
 - _PREFERENCE_FILE_PATH_ - Gives the location and name of the preferences file to be used.
   In most cases this line will not be needed, it is used by GMOCCAPY to store your settings of the GUI,
