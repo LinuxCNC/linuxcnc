@@ -48,6 +48,32 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
     return kinematics_inverse(pos, joints);
 }
 
+int kinematicsJacobian(const double *joints,
+                       const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags) {
+    double x = pos->tran.x, y = pos->tran.y, z = pos->tran.z;
+    int i, j, a;
+    (void)iflags;
+    set_geometry(hal_get_real(haldata->r), hal_get_real(haldata->l));
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+    // each carriage is the platform height plus the rise of its rod, and
+    // the rise changes with the horizontal offset from the tower
+    for (i = 0; i < 3; i++) {
+        double tx = (i == 0) ? Ax : (i == 1) ? Bx : Cx;
+        double ty = (i == 0) ? Ay : (i == 1) ? By : Cy;
+        double rise = joints[i] - z;
+        if (rise <= 0) { return -1; }
+        jac[i][0] = (tx - x)/rise;
+        jac[i][1] = (ty - y)/rise;
+        jac[i][2] = 1;
+    }
+    for (j = 3; j < 9; j++) { jac[j][j] = 1; }
+    return 0;
+}
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
@@ -85,4 +111,5 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
