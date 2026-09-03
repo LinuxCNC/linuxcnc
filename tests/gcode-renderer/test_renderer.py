@@ -817,5 +817,118 @@ class ParseIsDeterministic(unittest.TestCase, RecordComparison):
                          record(parse(programs.three_moves())))
 
 
+# -- the linecode type ------------------------------------------------------
+
+#: Every value a linecode exposes, in one comparable tuple.
+LINECODE_FIELDS = ("sequence_number", "feed_rate", "speed", "motion_mode",
+                   "block", "plane", "cutter_side", "units", "distance_mode",
+                   "feed_mode", "origin", "tool_length_offset",
+                   "retract_mode", "path_mode", "stopping", "spindle",
+                   "toolchange", "mist", "flood", "overrides", "gcodes",
+                   "mcodes")
+
+
+def linecode_fields(lc):
+    return tuple(getattr(lc, name) for name in LINECODE_FIELDS)
+
+
+class LineCodeConstruction(unittest.TestCase):
+    """``gcode.linecode()`` snapshots the interpreter, or refuses.
+
+    A linecode carries one source line's modal state, and a delivery builds a
+    fresh one per line. Every member is read-only, so an object not populated
+    at construction can never become valid - which is why constructing one
+    takes the same snapshot a delivery takes, and why outside a parse, with
+    no interpreter to read, it raises instead of answering with zeros.
+    """
+
+    #: Modal state a linecode can be read off directly: inches (G20 -> 200),
+    #: XY plane (G17 -> 170), absolute (G90 -> 900), feed (G1 -> 10).
+    PROGRAM = "G20 G17 G90\nG0 X0 Y0 Z0.1\nG1 F600 X1\nM2\n"
+
+    def test_outside_a_parse_it_raises(self):
+        """And keeps raising after a parse, whose interpreter outlives it."""
+        with self.assertRaises(ValueError):
+            gcode.linecode()
+        parse(self.PROGRAM, cls=CountingCanon)
+        with self.assertRaises(ValueError):
+            gcode.linecode()
+
+    def test_it_matches_the_line_being_delivered(self):
+        """Built inside ``next_line``, it equals the one handed in.
+
+        Both read the same interpreter at the same point, so every field
+        agrees - which is the whole claim: a constructed linecode carries the
+        values a delivered one carries.
+        """
+        pairs = []
+
+        class Capturing(CallbackCanon):
+            def next_line(self, st):
+                pairs.append((linecode_fields(st),
+                              linecode_fields(gcode.linecode())))
+
+        parse(self.PROGRAM, cls=Capturing)
+        self.assertTrue(pairs, "the callback canon saw no next_line at all")
+        for delivered, built in pairs:
+            self.assertEqual(delivered, built)
+
+    def test_it_carries_the_modal_state(self):
+        """The codes the program actually set.
+
+        Read on the ``M2`` line, so every mode the program opened with is in
+        force and the feed rate is the one the G1 above set.
+        """
+        built = []
+
+        class Watching(CallbackCanon):
+            def next_line(self, st):
+                built.append(gcode.linecode())
+
+        parse(self.PROGRAM, cls=Watching)
+        last = built[-1]
+        self.assertEqual(last.units, 200)
+        self.assertEqual(last.plane, 170)
+        self.assertEqual(last.distance_mode, 900)
+        self.assertEqual(last.feed_rate, 600.0)
+        self.assertGreater(last.sequence_number, 0)
+        self.assertEqual(last.gcodes[0], last.sequence_number)
+        self.assertGreater(len({lc.sequence_number for lc in built}), 1,
+                           "the snapshot must track the parse, not repeat")
+
+    def test_a_renderer_canon_reaches_it_too(self):
+        """From a forwarded event, which is the only call it gets.
+
+        A rendered parse forwards nothing per move, so a renderer canon can
+        ask only on the lines that forwarded something - here the comment on
+        line 3 - and gets that line's state, not zeros.
+        """
+        seen = []
+
+        class Commenting(CountingCanon):
+            def comment(self, text):
+                CountingCanon.comment(self, text)
+                seen.append(gcode.linecode())
+
+        parse("G20 G17 G90\nG0 X0 Y0 Z0.1\n(a comment)\nG1 F600 X1\nM2\n",
+              cls=Commenting)
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(seen[0].sequence_number, 3)
+        self.assertEqual(seen[0].units, 200)
+        self.assertEqual(seen[0].plane, 170)
+
+    def test_the_sequence_number_is_the_line_it_was_built_on(self):
+        seen = []
+
+        class Watching(CallbackCanon):
+            def next_line(self, st):
+                seen.append((st.sequence_number,
+                             gcode.linecode().sequence_number))
+
+        parse(self.PROGRAM, cls=Watching)
+        for delivered, built in seen:
+            self.assertEqual(delivered, built)
+
+
 if __name__ == "__main__":
     unittest.main()

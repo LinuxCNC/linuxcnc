@@ -74,7 +74,15 @@ namespace py = pybind11;
 // What `next_line` hands the canon: the interpreter's active settings and its
 // active G and M codes for one source line. Plain data - the read-only
 // properties below are its whole Python surface, and `sequence_number`
-// overlays gcodes[0] exactly as the old PyMemberDef offsets did.
+// overlays gcodes[0].
+//
+// A canon can also build one itself, and both protocols reach the
+// constructor - but only from inside a call the parse makes into the canon,
+// and so only on the lines that make one. A canon on the per-move callbacks
+// is called on every line and can ask on any of them. A renderer canon is
+// called only for the events a rendered parse still forwards, moves not
+// among them, so the lines it can ask on are the lines that forwarded
+// something. Neither can ask outside a parse; the constructor raises there.
 struct LineCode {
     double settings[ACTIVE_SETTINGS];
     int gcodes[ACTIVE_G_CODES];
@@ -87,8 +95,33 @@ static py::tuple int_array(const int *arr, int sz) {
     return res;
 }
 
+// The interpreter's active settings and codes as of now, tagged with the
+// source line they belong to. The one place a LineCode is ever filled in:
+// both a delivery and a canon building its own go through here, so the two
+// cannot drift.
+static std::unique_ptr<LineCode> snapshot_line(int sequence_number) {
+    auto line = std::make_unique<LineCode>();
+    parse_state.pinterp->active_settings(line->settings);
+    parse_state.pinterp->active_g_codes(line->gcodes);
+    parse_state.pinterp->active_m_codes(line->mcodes);
+    line->gcodes[0] = sequence_number;
+    return line;
+}
+
 static void linecode_register(py::module_ &m) {
     py::class_<LineCode> c(m, "linecode");
+    // The interpreter as of now, for a canon wanting the modal state at a
+    // point no delivery covers. It has to be filled in here: a delivery
+    // builds its own object and every member is read-only, so a linecode
+    // that starts empty stays empty for its whole life. Outside a parse
+    // there is nothing to read and this raises rather than answer zeros.
+    // The guard is `in_parse`, not `pinterp`: `pinterp` stays set after a
+    // parse ends and would answer with a finished parse's modal state.
+    c.def(py::init([] {
+        if(!parse_state.in_parse || !parse_state.pinterp)
+            throw py::value_error("linecode: no parse in progress");
+        return snapshot_line(parse_state.current_line());
+    }));
 #define LC(name, slot) \
     c.def_property_readonly(name, [](const LineCode &l) { return l.slot; })
     LC("sequence_number", gcodes[0]);
@@ -135,11 +168,7 @@ static void deliver_new_line(int sequence_number) {
     if(parse_state.interp_error) return;
     if(sequence_number == parse_state.last_delivered_sequence_number)
         return;
-    auto line = std::make_unique<LineCode>();
-    parse_state.pinterp->active_settings(line->settings);
-    parse_state.pinterp->active_g_codes(line->gcodes);
-    parse_state.pinterp->active_m_codes(line->mcodes);
-    line->gcodes[0] = sequence_number;
+    auto line = snapshot_line(sequence_number);
     parse_state.last_sequence_number = sequence_number;
     parse_state.last_delivered_sequence_number = sequence_number;
     // The cast is inside the guard too: it is the one step here that can raise.
