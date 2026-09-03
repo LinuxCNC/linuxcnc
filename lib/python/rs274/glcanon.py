@@ -15,7 +15,6 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rs274 import Translated
 from rs274 import glcanon_gl, glcanon_bake, glcanon_scene
 
 from OpenGL.GL import *
@@ -58,7 +57,7 @@ def _removed_attribute(name, replacement):
     return property(getter)
 
 
-class GLCanon(Translated, gcode.RendererCanon):
+class GLCanon(gcode.RendererCanon):
     """The preview canon: it does not draw the program, it receives it.
 
     ``gcode.parse`` builds the whole preview in C++ (``GCodeRenderer`` in
@@ -85,10 +84,10 @@ class GLCanon(Translated, gcode.RendererCanon):
 
     The offsets, the rotation, the plane and the feed rate are not delivered:
     the renderer keeps its own copy of each and forwards none of them (an F
-    word is reported per move, changed or not). So the ``g5x_offset_*``,
-    ``g92_offset_*``, ``rotation_cos``/``rotation_sin``, :attr:`plane` and
-    ``feedrate`` bookkeeping of :class:`rs274.interpret.Translated` is not
-    current during a parse and must not be read.
+    word is reported per move, changed or not). This class therefore no longer
+    mixes in :class:`rs274.interpret.Translated` and keeps no ``g5x_offset_*``
+    or ``g92_offset_*`` of its own; :attr:`plane` and ``feedrate`` remain but
+    do not move during a parse.
 
     An aborted or failed parse still hands over what it rendered, so a partial
     preview is what it always was.
@@ -173,25 +172,6 @@ class GLCanon(Translated, gcode.RendererCanon):
         # writes it back at the end.
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
-        self.g92_offset_x = 0.0
-        self.g92_offset_y = 0.0
-        self.g92_offset_z = 0.0
-        self.g92_offset_a = 0.0
-        self.g92_offset_b = 0.0
-        self.g92_offset_c = 0.0
-        self.g92_offset_u = 0.0
-        self.g92_offset_v = 0.0
-        self.g92_offset_w = 0.0
-        self.g5x_index = 1
-        self.g5x_offset_x = 0.0
-        self.g5x_offset_y = 0.0
-        self.g5x_offset_z = 0.0
-        self.g5x_offset_a = 0.0
-        self.g5x_offset_b = 0.0
-        self.g5x_offset_c = 0.0
-        self.g5x_offset_u = 0.0
-        self.g5x_offset_v = 0.0
-        self.g5x_offset_w = 0.0
         self.is_foam = is_foam
         self.foam_z = foam_z
         self.foam_w = foam_w

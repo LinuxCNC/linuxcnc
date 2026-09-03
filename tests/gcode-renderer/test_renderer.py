@@ -222,10 +222,10 @@ class TransformOwnership(unittest.TestCase, RecordComparison):
     They used to be read back off the canon's ``g5x_offset_*`` /
     ``g92_offset_*`` / ``rotation_xy`` attributes once per change, which made
     a canon able to steer the fill by writing to them. The renderer takes its
-    own copy out of the same canon call instead, so what the canon holds
-    cannot move a single vertex - and, since nothing in the tree reads that
-    copy on a rendered parse, the three callbacks are no longer delivered at
-    all. The per-move callback protocol still receives every one.
+    own copy out of the same canon call instead, so the three callbacks are no
+    longer delivered and ``GLCanon`` keeps no such attributes; the canon below
+    invents them to show that writing them moves nothing. The per-move
+    callback protocol still receives every one.
     """
 
     PROGRAM = programs.moving_transform()
@@ -251,7 +251,6 @@ class TransformOwnership(unittest.TestCase, RecordComparison):
         self.assertEqual(wrecked.g5x_offset_x, 1e6)
         self.assertEqual(wrecked.g92_offset_x, -1e6)
         self.assertEqual(wrecked.rotation_xy, 137.0)
-        self.assertNotEqual(clean.g5x_offset_x, wrecked.g5x_offset_x)
         self.assertRecordsEqual(clean, wrecked)
 
     def test_the_three_callbacks_are_not_forwarded_at_all(self):
