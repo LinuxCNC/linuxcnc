@@ -3568,6 +3568,29 @@ STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
 
 
 /**
+ * Warn when the segment is too short to absorb the lead-in lag.
+ * The tracking loop below closes an error e with v = v_spindle + sqrt(e * a),
+ * which takes 2 * sqrt(e / a) seconds.
+ */
+STATIC void tpCheckSyncLeadIn(TC_STRUCT const * const tc, double pos_error)
+{
+    double accel = tcGetTangentialMaxAccel(tc);
+    if (accel <= 0.0) {
+        return;
+    }
+    double err = fabs(pos_error);
+    double catchup = tc->currentvel * 2.0 * pmSqrt(err / accel) + err;
+    double remaining = tc->target - tc->progress;
+    if (catchup > remaining) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "spindle-synchronized move %d: lead-in too short to reach sync, "
+                "need %f more travel\n",
+                tc->id, catchup - remaining);
+    }
+}
+
+
+/**
  * Run position mode synchronization.
  * Updates requested velocity for a trajectory segment to track the spindle's position.
  */
@@ -3603,10 +3626,13 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         target_vel = spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= target_vel) {
             tc_debug_print("Hit accel target in pos sync\n");
-            // move target so as to drive pos_error to 0 next cycle
-            tp->spindle.offset = tp->spindle.revs - tc->progress / tc->uu_per_rev;
+            // Leave the sync origin on the spindle index. The lag built up
+            // while ramping to sync speed is a real position error, so hand it
+            // to the tracking loop below; folding it into the origin instead
+            // shifts the thread by an amount that grows with spindle speed.
             tc->sync_accel = 0;
             tc->target_vel = target_vel;
+            tpCheckSyncLeadIn(tc, pos_error);
         } else {
             tc_debug_print("accelerating in pos_sync\n");
             // beginning of move and we are behind: accel as fast as we can
