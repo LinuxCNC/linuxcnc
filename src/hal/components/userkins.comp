@@ -128,6 +128,7 @@ KINS_NOT_SWITCHABLE
 
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
 
 KINEMATICS_TYPE kinematicsType()
@@ -194,3 +195,24 @@ int kinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // kinematicsInverse()
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    int r, c;
+    (void)j;
+    (void)pos;
+    (void)iflags;
+    // How each joint responds to each pose coordinate, the derivative of
+    // kinematicsInverse(): for this template joint 0 follows x, joint 1
+    // follows y and joint 2 follows z, each one for one.  See kinematics.h.
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
+        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    }
+    jac[0][0] = 1;
+    jac[1][1] = 1;
+    jac[2][2] = 1;
+    return 0;
+} // kinematicsJacobian()

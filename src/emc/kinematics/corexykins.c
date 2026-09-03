@@ -49,6 +49,25 @@ int kinematicsInverse(const EmcPose *pos
     return 0;
 }
 
+int kinematicsJacobian(const double *joints,
+                       const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    int j, a;
+    (void)joints;
+    (void)pos;
+    (void)iflags;
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+    // the two belt motors each carry x and y, in opposite senses for y
+    jac[0][0] = 1; jac[0][1] =  1;
+    jac[1][0] = 1; jac[1][1] = -1;
+    for (j = 2; j < 9; j++) { jac[j][j] = 1; }
+    return 0;
+}
+
 int kinematicsHome(EmcPose *world
                   ,double *joint
                   ,KINEMATICS_FORWARD_FLAGS *fflags
@@ -65,6 +84,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 static int comp_id;

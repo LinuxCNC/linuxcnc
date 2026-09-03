@@ -99,6 +99,7 @@ EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
 
 static rtapi_u32 switchkins_type;
@@ -214,3 +215,34 @@ int kinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // kinematicsInverse()
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    int r, c;
+    (void)j;
+    (void)pos;
+    (void)iflags;
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
+        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    }
+    // the derivative of kinematicsInverse() for each type: which joint
+    // follows which pose coordinate, and in which sense
+    switch (switchkins_type) {
+        case 0:
+            jac[0][0] = 1;
+            jac[1][1] = 1;
+            jac[2][2] = 1;
+            jac[3][3] = 1;
+            break;
+        case 1:
+            jac[2][0] = 1;
+            jac[1][1] = -1;
+            jac[0][2] = 1;
+            jac[3][3] = 1;
+            break;
+    }
+    return 0;
+} // kinematicsJacobian()
