@@ -18,6 +18,7 @@
 
 #include <rtapi.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 #include <rtapi_app.h>
 #include <hal.h>
 #include <kinematics.h>
@@ -26,6 +27,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 #ifndef hypot
@@ -109,6 +111,26 @@ int kinematicsInverse(const EmcPose * pos,
     joints[8] = 0;
 
     oldquad = nowquad;
+    return 0;
+}
+
+int kinematicsJacobian(const double *joints,
+                       const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double x = pos->tran.x, y = pos->tran.y;
+    double r2 = x*x + y*y;
+    double r = sqrt(r2);
+    (void)joints;
+    (void)iflags;
+    // on the axis the angle is undefined and its rate unbounded
+    if (r2 <= 0) { return -1; }
+    memset(jac, 0, EMCMOT_MAX_JOINTS * EMCMOT_MAX_AXIS * sizeof(jac[0][0]));
+    jac[0][0] = x/r;  jac[0][1] = y/r;
+    jac[1][2] = 1;
+    jac[2][0] = -y/r2 * TO_DEG;
+    jac[2][1] =  x/r2 * TO_DEG;
     return 0;
 }
 
