@@ -96,8 +96,9 @@ int scaraKinematicsForward(const double * joint,
     z = D1 + D3 - joint[2] - D5;
     c = a3;
 
+    // the elbow flag: which sign the inverse gives the acos of joint 1
     *iflags = 0;
-    if (joint[1] < 90)
+    if (joint[1] < 0)
         *iflags = 1;
 
     world->tran.x = x;
