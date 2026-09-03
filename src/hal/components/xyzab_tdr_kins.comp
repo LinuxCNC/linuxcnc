@@ -94,6 +94,7 @@ EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
 
 static rtapi_u32 switchkins_type;
@@ -255,3 +256,64 @@ int kinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // kinematicsInverse()
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)j;
+    (void)iflags;
+    double x_rot_point = hal_get_real(haldata->x_rot_point);
+    double y_rot_point = hal_get_real(haldata->y_rot_point);
+    double z_rot_point = hal_get_real(haldata->z_rot_point);
+    double dx = hal_get_real(haldata->x_offset);
+    double dz = hal_get_real(haldata->z_offset);
+    double dt = hal_get_real(haldata->tool_offset_z);
+    double       sa = sin(pos->a*TO_RAD);
+    double       ca = cos(pos->a*TO_RAD);
+    double       sb = sin(pos->b*TO_RAD);
+    double       cb = cos(pos->b*TO_RAD);
+    double       qx = pos->tran.x - x_rot_point - dx;
+    double       qy = pos->tran.y - y_rot_point;
+    double       qz = pos->tran.z - z_rot_point - dz - dt;
+    int r, c;
+
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
+        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    }
+
+    switch (switchkins_type) {
+        case 0: // ====================== IDENTITY kinematics JACOBIAN ====================
+            jac[0][0] = 1;
+            jac[1][1] = 1;
+            jac[2][2] = 1;
+            jac[3][3] = 1;
+            jac[4][4] = 1;
+            break;
+        case 1: // ========================= TCP kinematics JACOBIAN ======================
+            // the TCP inverse above differentiated: its coefficients of
+            // qx, qy and qz for the linear columns, and the same terms
+            // with a or b advanced a quarter turn for the rotary columns
+            jac[0][0] =  cb;
+            jac[0][1] =  sa*sb;
+            jac[0][2] = -ca*sb;
+            jac[0][3] = ( ca*sb*qy + sa*sb*qz) * TO_RAD;
+            jac[0][4] = (-sb*qx + sa*cb*qy - ca*cb*qz - sb*dx - cb*dz) * TO_RAD;
+
+            jac[1][1] =  ca;
+            jac[1][2] =  sa;
+            jac[1][3] = (-sa*qy + ca*qz) * TO_RAD;
+
+            jac[2][0] =  sb;
+            jac[2][1] = -sa*cb;
+            jac[2][2] =  ca*cb;
+            jac[2][3] = (-ca*cb*qy - sa*cb*qz) * TO_RAD;
+            jac[2][4] = ( cb*qx + sa*sb*qy - ca*sb*qz + cb*dx - sb*dz) * TO_RAD;
+
+            jac[3][3] = 1;
+            jac[4][4] = 1;
+            break;
+    }
+    return 0;
+} // kinematicsJacobian()

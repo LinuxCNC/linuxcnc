@@ -92,6 +92,7 @@ EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
@@ -550,3 +551,138 @@ int kinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // kinematicsInverse()
+
+int kinematicsJacobian(const double *j,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)j;
+    (void)iflags;
+
+    // the same geometry as kinematicsInverse(), read the same way
+    double       Lx = hal_get_real(haldata->x_pivot);
+    double       Lz = hal_get_real(haldata->z_pivot);
+    double       Dx = hal_get_real(haldata->x_offset);
+    double       Dy = hal_get_real(haldata->y_offset);
+    double     Drax = hal_get_real(haldata->x_rot_axis) - Lx - Dx;
+    double     Draz = hal_get_real(haldata->z_rot_axis) - Lz;
+    double       tc = hal_get_real(haldata->pre_rot);
+    double       nu = hal_get_real(haldata->nut_angle); // degrees
+    double  theta_1 = hal_get_real(haldata->prim_angle); // degrees
+    double  theta_2 = hal_get_real(haldata->sec_angle); // degrees
+    double       Dt = hal_get_real(haldata->tool_offset_z);
+
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+    double      Stc = sin(tc);
+    double      Ctc = cos(tc);
+
+    // The TCP inverse reads the rotary angles from its joint argument,
+    // where the machine is, and its own pose words for the same angles
+    // are the same numbers once the move is done.  Its derivative is taken
+    // against the pose, which is what a consumer multiplies by.
+    double       Sw = sin(pos->b*TO_RAD);
+    double       Cw = cos(pos->b*TO_RAD);
+    double       Ss = 0, Cs = 0, Sp = 0, Cp = 0;
+    double     CvSs = 0, SvSs = 0, r = 0, s = 0, t = 0;
+    // derivatives of the above over the secondary angle (Ss, r, s, t, CvSs,
+    // SvSs) and the primary angle (Sp, Cp), per degree
+    double      dSs = 0, dr = 0, ds = 0, dt_ = 0, dCvSs = 0, dSvSs = 0;
+    double      dSp = 0, dCp = 0;
+
+    double       Qx = pos->tran.x;
+    double       Qz = pos->tran.z;
+    double       Ax, Az;   // the two lever arms the table turns about
+    int          R, C;
+
+    for (R = 0; R < EMCMOT_MAX_JOINTS; R++) {
+        for (C = 0; C < EMCMOT_MAX_AXIS; C++) { jac[R][C] = 0; }
+    }
+
+    switch (switchkins_type) {
+
+        case 0: // ========================= IDENTITY kinematics JACOBIAN ====================
+            for (R = 0; R < 6; R++) { jac[R][R] = 1; }
+            break;
+
+        case 1: // ========================= TCP kinematics JACOBIAN
+              Ss = sin(pos->a*TO_RAD);
+              Cs = cos(pos->a*TO_RAD);
+              Sp = sin(pos->c*TO_RAD);
+              Cp = cos(pos->c*TO_RAD);
+            CvSs = Cv*Ss;
+            SvSs = Sv*Ss;
+               r = Cs + Sv*Sv*(1-Cs);
+               s = Cs + Cv*Cv*(1-Cs);
+               t = Sv*Cv*(1-Cs);
+
+             dSs =  Cs*TO_RAD;
+              dr = -Ss*Cv*Cv*TO_RAD;
+              ds = -Ss*Sv*Sv*TO_RAD;
+             dt_ =  Sv*Cv*Ss*TO_RAD;
+           dCvSs =  Cv*dSs;
+           dSvSs =  Sv*dSs;
+             dSp =  Cp*TO_RAD;
+             dCp = -Sp*TO_RAD;
+
+            Ax = Drax + Dx + Lx - Qx;
+            Az = Draz + Dt + Lz - Qz;
+
+            // j[0]: -Cw*Ax + Az*Sw plus head terms
+            jac[0][0] =  Cw;
+            jac[0][2] = -Sw;
+            jac[0][3] = (Sp*dSvSs + Cp*dt_)*(Dt + Lz) - (dCvSs*Sp - Cp*dr)*Lx;
+            jac[0][4] = ( Sw*Ax + Az*Cw)*TO_RAD;
+            jac[0][5] = dCp*Dx - Dy*dSp + (dSp*SvSs + dCp*t)*(Dt + Lz)
+                      - (CvSs*dSp - dCp*r)*Lx;
+
+            // j[1]: Qy plus head terms
+            jac[1][1] = 1;
+            jac[1][3] = -(Cp*dSvSs - Sp*dt_)*(Dt + Lz) + (Cp*dCvSs + Sp*dr)*Lx;
+            jac[1][5] = -(dCp*SvSs - dSp*t)*(Dt + Lz) + dCp*Dy
+                      + (dCp*CvSs + dSp*r)*Lx + Dx*dSp;
+
+            // j[2]: -Cw*Az - Ax*Sw plus head terms
+            jac[2][0] =  Sw;
+            jac[2][2] =  Cw;
+            jac[2][3] = (Dt + Lz)*ds + Lx*dt_;
+            jac[2][4] = ( Sw*Az - Ax*Cw)*TO_RAD;
+
+            jac[3][3] = 1;
+            jac[4][4] = 1;
+            jac[5][5] = 1;
+            break;
+
+        case 2: // ========================= TOOL kinematics JACOBIAN
+            // the head angles come from pins, so the inverse is linear in
+            // the pose and the rows are its coefficients
+              Ss = sin(theta_2*TO_RAD);
+              Cs = cos(theta_2*TO_RAD);
+              Sp = sin(theta_1*TO_RAD);
+              Cp = cos(theta_1*TO_RAD);
+            CvSs = Cv*Ss;
+            SvSs = Sv*Ss;
+               r = Cs + Sv*Sv*(1-Cs);
+               s = Cs + Cv*Cv*(1-Cs);
+               t = Sv*Cv*(1-Cs);
+
+            jac[0][0] = -((CvSs*Sp - Cp*r)*Ctc + (Cp*CvSs + Cs*Sp)*Stc);
+            jac[0][1] = -((Cp*CvSs + Cs*Sp)*Ctc - (CvSs*Sp - Cp*r)*Stc);
+            jac[0][2] =  (Sp*SvSs + Cp*t);
+
+            jac[1][0] =  ((Cp*CvSs + Sp*r)*Ctc + (Cp*Cs - CvSs*Sp)*Stc);
+            jac[1][1] =  ((Cp*Cs - CvSs*Sp)*Ctc - (Cp*CvSs + Sp*r)*Stc);
+            jac[1][2] = -(Cp*SvSs - Sp*t);
+
+            jac[2][0] =  (Stc*SvSs + Ctc*t);
+            jac[2][1] =  (Ctc*SvSs - Stc*t);
+            jac[2][2] =  s;
+
+            jac[3][3] = 1;
+            jac[4][4] = 1;
+            jac[5][5] = 1;
+            break;
+    }
+    return 0;
+} // kinematicsJacobian()
