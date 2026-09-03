@@ -51,6 +51,58 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
     return kinematics_inverse(pos, joints);
 }
 
+int kinematicsJacobian(const double *joints,
+                       const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags) {
+    int i, j, a;
+    (void)iflags;
+    set_geometry(hal_get_real(haldata->pfr), hal_get_real(haldata->tl), hal_get_real(haldata->sl), hal_get_real(haldata->fr));
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+    // The foot stays a shin length from each knee, so along a leg the
+    // motion of the foot and the motion of the knee agree:
+    //     (P - K) . dP = (P - K) . dK/dq dq
+    // K is the knee less the foot offset, written as kinematics_forward()
+    // writes it, and q the hip angle that swings it.
+    for (i = 0; i < 3; i++) {
+        double q = D2R(joints[i]);
+        double reach = platformradius - footradius + thighlength * cos(q);
+        double kx, ky, kz, dkx, dky, dkz, px, py, pz, denom;
+        switch (i) {
+        case 0:
+            kx = 0;               ky = -reach;
+            dkx = 0;              dky = thighlength * sin(q);
+            break;
+        case 1:
+            kx = reach * 0.5 * sqrt(3);  ky = reach * 0.5;
+            dkx = -thighlength * sin(q) * 0.5 * sqrt(3);
+            dky = -thighlength * sin(q) * 0.5;
+            break;
+        default:
+            kx = -reach * 0.5 * sqrt(3); ky = reach * 0.5;
+            dkx = thighlength * sin(q) * 0.5 * sqrt(3);
+            dky = -thighlength * sin(q) * 0.5;
+            break;
+        }
+        kz = -thighlength * sin(q);
+        dkz = -thighlength * cos(q);
+        px = pos->tran.x - kx;
+        py = pos->tran.y - ky;
+        pz = pos->tran.z - kz;
+        denom = (px*dkx + py*dky + pz*dkz) * (M_PI/180.);
+        // the shin at right angles to the thigh's swing: the knee cannot
+        // move the foot, so no finite hip rate follows the foot
+        if (fabs(denom) < 1e-12) { return -1; }
+        jac[i][0] = px/denom;
+        jac[i][1] = py/denom;
+        jac[i][2] = pz/denom;
+    }
+    for (j = 3; j < 9; j++) { jac[j][j] = 1; }
+    return 0;
+}
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
@@ -92,4 +144,5 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
