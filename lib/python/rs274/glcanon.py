@@ -83,12 +83,12 @@ class GLCanon(Translated):
       * the dwell colours, attached in :meth:`adopt_geometry` from the table
         below, which is the one thing C does not carry.
 
-    The offsets, the rotation, the plane and the feed rate are still
-    *delivered* - every one of them, in order, so a canon that watches them
-    still sees them - but they are pure observations now. The renderer takes
-    its transform from the same calls and never reads what Python did with
-    them, so what :class:`rs274.interpret.Translated` records here steers
-    nothing.
+    The offsets, the rotation, the plane and the feed rate are not delivered:
+    the renderer keeps its own copy of each and forwards none of them (an F
+    word is reported per move, changed or not). So the ``g5x_offset_*``,
+    ``g92_offset_*``, ``rotation_cos``/``rotation_sin``, :attr:`plane` and
+    ``feedrate`` bookkeeping of :class:`rs274.interpret.Translated` is not
+    current during a parse and must not be read.
 
     An aborted or failed parse still hands over what it rendered, so a partial
     preview is what it always was.
@@ -109,8 +109,10 @@ class GLCanon(Translated):
     #: than a silent fall back to per-move callbacks.
     use_gcode_renderer = True
 
-    #: ``CANON_PLANE``, as ``set_plane`` last reported it. The renderer reads
-    #: it to segment an arc, and a dwell record takes its plane from it.
+    #: ``CANON_PLANE``. Never moves - :meth:`set_plane` is not forwarded, and
+    #: the renderer segments arcs from its own copy. Kept because
+    #: ``gcode.arc_to_segments`` reads ``canon.plane`` off the canon it is
+    #: handed.
     plane = 1
     #: Segments per half-turn of arc. A GUI sets it from [DISPLAY]ARCDIVISION;
     #: the renderer reads it once, at parse start.
@@ -373,8 +375,10 @@ class GLCanon(Translated):
                + geometry.rapid_length / max_feed_rate
                + self.dwell_time)
 
-    # -- the callbacks still forwarded during a rendered parse --------------
+    # -- the canon protocol, of which a rendered parse calls two ------------
 
+    # Not called during a rendered parse; kept as the protocol's shape. What
+    # they write is never current - see the class docstring.
     def set_spindle_rate(self, arg): pass
     def set_feed_rate(self, arg): self.feedrate = arg / 60.
     def select_plane(self, arg): pass
