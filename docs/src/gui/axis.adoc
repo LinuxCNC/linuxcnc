@@ -1076,6 +1076,140 @@ Type  Dir    Name
 bit   IN     axisui.resume-inhibit
 ----
 
+== AXIS with HALUI
+
+HALUI will create halui.gui pins that interface with AXIS.
+This could be used to connect a control panel that interacts better with AXIS.
+
+- There is a cycle start and cycle pause pin - these call the code in AXIS rather then the motion controller. +
+- If there are macros/mdi commands defined in the INI there will be (up to 64) pins available to initiate them. +
+- clear/reload the display
+- shutdown the system
+- cancel of notify (error) messages
+- softkeys 0 - 4 control tab keys: +
+- enabling halui.gui.mpg-aux.0, will allow scrolling of the gcode text with the axis.mpg-in pin.
+- HALUI selected axis will be reported to AXIS. +
+- HALUI selected jog rate will be reported to AXIS. +
+In either case the last changed rate/axis (either HALUI or AXIS) will be used for screen button jogging or HALUI pin jogging.
+
+=== Typical HAL pins available:
+----
+Component Pins:
+Owner   Type  Dir                 Value  Name
+    25  bit   IN                  FALSE  halui.gui.cycle-pause
+    25  bit   IN                  FALSE  halui.gui.cycle-start
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO0
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO1
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO2
+    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO3
+    25  bit   IN                  FALSE  halui.gui.mdi-command.0
+    25  bit   IN                  FALSE  halui.gui.mdi-command.1
+    25  bit   IN                  FALSE  halui.gui.mpg-aux.0
+    25  bit   IN                  FALSE  halui.gui.reload-preview
+    25  bit   IN                  FALSE  halui.gui.response.cancel
+    25  bit   IN                  FALSE  halui.gui.response.ok
+    25  bit   IN                  FALSE  halui.gui.shutdown
+    25  bit   IN                  FALSE  halui.gui.softkey.00
+    25  bit   IN                  FALSE  halui.gui.softkey.01
+    25  bit   IN                  FALSE  halui.gui.softkey.02
+    25  bit   IN                  FALSE  halui.gui.softkey.03
+    25  bit   IN                  FALSE  halui.gui.softkey.04
+    25  bit   IN                  FALSE  halui.gui.softkey.05
+    25  bit   IN                  FALSE  halui.gui.softkey.06
+    25  bit   IN                  FALSE  halui.gui.softkey.07
+    25  bit   IN                  FALSE  halui.gui.softkey.08
+    25  bit   IN                  FALSE  halui.gui.softkey.09
+    25  bit   IN                  FALSE  halui.gui.softkey.10
+    25  bit   IN                  FALSE  halui.gui.softkey.11
+    25  bit   IN                  FALSE  halui.gui.softkey.12
+    25  bit   IN                  FALSE  halui.gui.softkey.13
+    25  bit   IN                  FALSE  halui.gui.softkey.14
+    25  bit   IN                  FALSE  halui.gui.softkey.15
+    25  bit   IN                  FALSE  halui.gui.softkey.16
+    25  bit   IN                  FALSE  halui.gui.softkey.17
+    25  bit   IN                  FALSE  halui.gui.softkey.18
+    25  bit   IN                  FALSE  halui.gui.softkey.19
+
+----
+
+=== HALUI GUI Cycle Start
+The halui.gui.cycle-start pin will request AXIS to start a cycle. +
+AXIS will decide what will happen by what mode it's in. +
+In Auto mode, a loaded gcode program will run. +
+In MDI mode, the command in AXIS's MDI line will run.  
+
+=== HALUI GUI Macros
+One can initiate GMoccapy styled Macros from HALUI pins. +
+These would be the macros found in the INI under the heading [MACROS] +
+These call Oword subroutines of the same name. +
+These Oword subroutines can require variables supplied at runtime by the user. + 
+Here is an example entry:
+
+[source,ini]
+----
+[MACROS]
+MACRO_COMMAND_MACRO0 = i_am_lost
+MACRO_COMMAND_MACRO1 = halo_world
+MACRO_COMMAND_MACRO2 = increment xinc yinc
+----
+
+And here are what the pin names would be:
+
+For 'i_am_lost':  halui.gui.mdi-command.MACRO0 +
+For 'halo_world': halui.gui.mdi-command.MACRO1 +
+For 'increment':  halui.gui.mdi-command.MACRO2 +
+
+The above example 'increment', will prompt the user for two values 'xinc' and 'yinc' when run. +
+
+[NOTE]
+All defined Oword files must be located on the system as defined in the
+[DISPLAY]PROGRAM_PREFIX or [RS274NGC]SUBROUTINE_PATH INI entries.
+
+=== HALUI INI MDI Commands
+One can initiate MDI Command Macros from HALUI pins. +
+MDI commands are defined under the heading [MDI_COMMAND_LIST] as +
+MDI_COMMAND_MACRO0 = gcode +
+These could also call OWord routines if desired. +
+Commands separated by the ';' are run one after another. +
+Usually best for short convenience positioning as at runtime user entry is not available.
+
+[source,ini]
+----
+[MDI_COMMAND_LIST]
+MDI_COMMAND_MACRO3 = G53 G0 Z0;G0 X0 Y0;Z0
+MDI_COMMAND_MACRO4 = G53 G0 Z0;G53 G0 X0 Y0
+----
+
+And here are what the pin names would be:
+
+For 'MACRO3':  halui.gui.mdi-command.MACRO3 +
+For 'MACRO4':  halui.gui.mdi-command.MACRO4 +
+
+In this example: +
+'MACRO3' is used to move to the current user system origin (zero point).
+
+The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
+Then move to X0 and Y0 in the current user system, and finally move the Z axis to 0 in the current user system.
+
+'MACRO4' is used to move to the machine system origin. +
+The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
+Then move to X0 and Y0 in the G53 mode.
+
+=== Soft Keys
+Softkeys 0 - 4 control AXIS tab keys: +
+halui.gui.softkey.00 = Manual tab. +
+halui.gui.softkey.01 = MDI tab. +
+halui.gui.softkey.02 = preview tab. +
+halui.gui.softkey.03 = DRO tab. +
+halui.gui.softkey.04 = User tab, if available +
+
+=== MPG-Aux
+Enabling halui.gui.mpg-aux.0, will allow scrolling of the gcode text with the axis.mpg-in pin, typically connected to an MPG encoder count pin.
+
+=== Shutdown
+If halui.gui.shutdown is set true, the whole linux system will shutdown. +
+If the system supports a builtin shutdown option dialog, it will show, otherwise the system will immediately shutdown. 
+
 == AXIS Customization Hints
 
 AXIS is a fairly large and difficult-to-penetrate code base, this is helpful
