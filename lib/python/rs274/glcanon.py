@@ -57,29 +57,7 @@ def _removed_attribute(name, replacement):
     return property(getter)
 
 
-# The whole renderer-canon contract, for a canon that is not this one:
-#
-#     class Minimal(gcode.RendererCanon):
-#         # Segments per half-turn of arc. The base defaults to 64. A class or
-#         # an instance may override it; it is read once, at parse start, so
-#         # moving it mid-parse changes nothing.
-#         arcdivision = 8
-#
-#         def __init__(self):
-#             # planes (the GEOMETRY strings to draw) and ro (the rotation
-#             # offsets) are what the renderer reads off it, before the parse.
-#             self.program_geometry = glcanon_bake.ProgramGeometry(geometry="XYZ")
-#
-#         def adopt_geometry(self, program):
-#             self.program = program      # the finished gcode.PreviewGeometry
-#
-# A parse reads nothing else off the canon, and starts each one at zero with
-# nothing drawn: where the machine stands is the caller's to send as initcode,
-# a `G53 G0` per axis that the leading-traverse drop repositions on rather
-# than draws.
-# Everything else such a canon needs is the ordinary canon protocol, which is
-# not this protocol's business: next_line, comment, message, change_tool,
-# check_abort, the get_* queries and parameter_file.
+# The contract this class implements is `help(gcode.RendererCanon)`.
 
 
 class GLCanon(gcode.RendererCanon):

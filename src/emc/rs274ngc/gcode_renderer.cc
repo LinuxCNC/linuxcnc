@@ -339,13 +339,27 @@ void renderer_canon_register(py::module_ &m) {
     ns["__module__"] = "gcode";
     ns["__doc__"] =
             "Base class of a canon that wants the finished program.\n\n"
-            "Subclass it and define adopt_geometry(program); gcode.parse then\n"
-            "builds the whole preview in C++ and hands it over once, instead\n"
-            "of calling the per-move canon methods.\n\n"
-            "A subclass must also carry a program_geometry, whose `planes` are\n"
-            "the GEOMETRY strings to draw and whose `ro` holds the rotation\n"
-            "offsets. `arcdivision` is the only other thing a parse reads, and\n"
-            "it defaults below.";
+            "gcode.parse builds the whole preview in C++ and hands it over\n"
+            "once, instead of calling the per-move canon methods. The whole\n"
+            "contract:\n\n"
+            "    class Minimal(gcode.RendererCanon):\n"
+            "        # Segments per half-turn of arc. Defaults to 64. A class\n"
+            "        # or an instance may override it; it is read once, at\n"
+            "        # parse start, so moving it mid-parse changes nothing.\n"
+            "        arcdivision = 8\n\n"
+            "        def __init__(self):\n"
+            "            # planes (the GEOMETRY strings to draw) and ro (the\n"
+            "            # rotation offsets) are what a parse reads off it.\n"
+            "            self.program_geometry = ProgramGeometry(geometry='XYZ')\n\n"
+            "        def adopt_geometry(self, program):\n"
+            "            self.program = program   # a gcode.PreviewGeometry\n\n"
+            "A parse reads nothing else off the canon, and starts each one at\n"
+            "zero with nothing drawn: where the machine stands is the caller's\n"
+            "to send as initcode, a `G53 G0` per axis that the leading-traverse\n"
+            "drop repositions on rather than draws. Everything else such a\n"
+            "canon needs is the ordinary canon protocol, which is not this\n"
+            "protocol's business: next_line, comment, message, change_tool,\n"
+            "check_abort, the get_* queries and parameter_file.";
     ns["arcdivision"] = py::int_(64);
     py::object cls = py::reinterpret_borrow<py::object>((PyObject *)&PyType_Type)(
             "RendererCanon", py::tuple(), ns);
