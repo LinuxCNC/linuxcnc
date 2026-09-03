@@ -29,6 +29,16 @@ struct haldata {
     hal_real_t a2, a3, d3, d4, d6;
 } *haldata = NULL;
 
+/* the difference of two angles, brought into (-pi, pi] so that a joint a
+   whole turn from the formula still matches it */
+static double angleDiff(double a, double b)
+{
+   double d = a - b;
+   while (d > PM_PI) { d -= 2*PM_PI; }
+   while (d <= -PM_PI) { d += 2*PM_PI; }
+   return d;
+}
+
 /* The flange orientation for a joint set: the ISO 9787 mechanical interface
    frame, whose z points out of the interface towards the work.  Shared by the
    forward kinematics and the tool frame so the two cannot drift apart. */
@@ -152,16 +162,16 @@ static int pumaKinematicsForward(const double * joint,
    *iflags = 0;
 
    /* Set shoulder-up flag if necessary */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(PUMA_D3, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
+       atan2(PUMA_D3, -sqrt(sumSq)))) < FLAG_FUZZ)
    {
      *iflags |= PUMA_SHOULDER_RIGHT;
    }
 
    /* Set elbow down flag if necessary */
-   if (fabs(joint[2]*PM_PI/180 - atan2(PUMA_A3, PUMA_D4) +
+   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(PUMA_A3, PUMA_D4) -
        atan2(k, -sqrt(PUMA_A3 * PUMA_A3 +
-       PUMA_D4 * PUMA_D4 - k * k))) < FLAG_FUZZ)
+       PUMA_D4 * PUMA_D4 - k * k)))) < FLAG_FUZZ)
    {
       *iflags |= PUMA_ELBOW_DOWN;
    }
@@ -177,7 +187,7 @@ static int pumaKinematicsForward(const double * joint,
 
    /* if not singular set wrist flip flag if necessary */
    else{
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
      {
        *iflags |= PUMA_WRIST_FLIP;
      }
