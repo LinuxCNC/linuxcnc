@@ -66,6 +66,7 @@ int switchkinsSetup(kparms* kp,
     *kset0 = genserKinematicsSetup;
     *kfwd0 = genserKinematicsForward;
     *kinv0 = genserKinematicsInverse;
+    switchkinsRegisterJacobian(0, genserKinematicsJacobian);
 
     *kset1 = identityKinematicsSetup;
     *kfwd1 = identityKinematicsForward;
