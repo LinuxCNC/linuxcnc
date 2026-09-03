@@ -1,0 +1,6 @@
+component halname_mangled;
+license "GPL";
+pin in bit my_pin;
+function _;
+;;
+FUNCTION(_) {}
