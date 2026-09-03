@@ -530,6 +530,11 @@ halcompupdate -i mycomponent.comp       # rewrite the file in place (keeps a .ba
 The tool converts the declaration types and rewrites writes to pins and parameters
 (including compound assignments and dereferences of 'name_ptr') to the '_set' form.
 It deliberately does not rename pins or parameters, because their names are part of the HAL configuration interface.
+It does point out names that still spell a legacy type, though: a pin, parameter, component or
+function name that contains 'float', 'bit', 's32', 'u32', 's64' or 'u64' as a name segment (for
+example 'out_s32', 'input_bit' or 'conv_s32_float') is noted together with the new-style spelling
+(for example 'out_si32' or 'conv_si32_real'); the rename is optional and left to the author, who
+decides whether the word really meant the type (a pin named 'sel-bit' counts bits of a value).
 Components that use the legacy 'hal_pin_*_new'/'hal_param_*_new' creation functions or that pass
 the address of a pin ('&name') to helper functions cannot be converted automatically;
 'halcompupdate' prints a warning for those cases so they can be converted by hand.
