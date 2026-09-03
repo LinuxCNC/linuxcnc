@@ -642,8 +642,6 @@ class WholeRecord(unittest.TestCase):
         self.assertEqual(geometry._cut_length_by_feed, {10 / 60.: 3.0})
         self.assertEqual([list(v) for v in geometry.extents],
                          [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
-        self.assertEqual(canon.lo[:3], (1.0, 1.0, 1.0))
-        self.assertFalse(canon.first_move)
 
     def test_a_square_with_a_dwell_at_every_corner(self):
         canon = parse("G20 G17 G90\nG0 X0 Y0 Z0\nG1 F10 X1 Y0\nG4 P0.1\n"
@@ -799,10 +797,9 @@ class ParseIsDeterministic(unittest.TestCase, RecordComparison):
         """A re-entered parse hands over its own program, not both.
 
         A long program then a three-move one: what the canon is left holding
-        is the three-move one. (One vertex longer than a fresh parse of it,
-        because the canon still knows where the first program left the tool,
-        so the leading traverse is drawn rather than dropped - which is a
-        property of the canon's state, not of the record being appended to.)
+        is the three-move one, vertex for vertex identical to a fresh parse of
+        it. A parse carries nothing over from the last one - it starts at zero
+        with nothing drawn, whatever the canon has been through.
         """
         big = programs.write(programs.bench_feed(200))
         small = programs.write(programs.three_moves())
@@ -816,7 +813,8 @@ class ParseIsDeterministic(unittest.TestCase, RecordComparison):
             gcode.parse(small, canon, "", "")
         self.assertGreater(first, 100, "the first program must be the big one")
         self.assertEqual(canon.adopted, 2)
-        self.assertLessEqual(len(canon.program_geometry), 5)
+        self.assertEqual(record(canon),
+                         record(parse(programs.three_moves())))
 
 
 if __name__ == "__main__":

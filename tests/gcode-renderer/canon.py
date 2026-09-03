@@ -292,9 +292,6 @@ class RecordComparison:
                          "tool numbers")
         self.assertEqual(want.tool_list, got.tool_list, "tool list")
         self.assertEqual(want.dwell_time, got.dwell_time, "dwell time")
-        self.assertEqual(bool(want.first_move), bool(got.first_move),
-                         "first_move")
-        self.assertPointsEqual(want.lo, got.lo, "the final chain point")
 
         self.assertEqual(len(a.toolchanges), len(b.toolchanges),
                          "tool change count")

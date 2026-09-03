@@ -341,7 +341,12 @@ void renderer_canon_register(py::module_ &m) {
             "Base class of a canon that wants the finished program.\n\n"
             "Subclass it and define adopt_geometry(program); gcode.parse then\n"
             "builds the whole preview in C++ and hands it over once, instead\n"
-            "of calling the per-move canon methods.";
+            "of calling the per-move canon methods.\n\n"
+            "A subclass must also carry a program_geometry, whose `planes` are\n"
+            "the GEOMETRY strings to draw and whose `ro` holds the rotation\n"
+            "offsets. `arcdivision` is the only other thing a parse reads, and\n"
+            "it defaults below.";
+    ns["arcdivision"] = py::int_(64);
     py::object cls = py::reinterpret_borrow<py::object>((PyObject *)&PyType_Type)(
             "RendererCanon", py::tuple(), ns);
     m.attr("RendererCanon") = cls;
@@ -388,29 +393,17 @@ std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
     r->progress_ = py::getattr(canon, "renderer_progress", py::none());
     if(!PyCallable_Check(r->progress_.ptr())) r->progress_ = py::object();
 
-    // The chain point and the leading-traverse flag are the canon's own, not
-    // assumed: a canon may be handed to a second parse mid-program. The
-    // transform is not read: it starts at zero, and the interpreter re-issues
-    // the offsets and the rotation from the parameter file during init(),
-    // which runs after this.
-    r->sync_in();
+    // No starting state is read off the canon: a parse begins at zero with
+    // nothing drawn yet. Where the machine stands reaches the preview as the
+    // caller's initcode - `G53 G0` to the current position, which the
+    // first_move drop swallows - and the interpreter re-issues the offsets
+    // and the rotation from the parameter file during init().
     py::object div = py::getattr(canon, "arcdivision", py::none());
     if(!div.is_none()) {
         long n = PyLong_AsLong(div.ptr());
         if(n > 0) r->arcdivision_ = (int)n;
     }
     PyErr_Clear();                      // a canon without one keeps the default
-    char name[4];
-    for(int i = 0; i < P9_COUNT; i++) {         // xo, yo, zo, ao .. wo
-        snprintf(name, sizeof name, "%co", AXES[i]);
-        try {
-            r->tool_[i] = canon.attr(name).cast<double>();
-        } catch(py::error_already_set &e) {
-            e.restore();
-            break;
-        }
-    }
-    if(PyErr_Occurred()) return nullptr;
     return r;
 }
 
@@ -434,31 +427,8 @@ void GCodeRenderer::comment(const char *text) {
     else if(!strncmp(rest, "show", 4)) suppress_ --;
 }
 
-void GCodeRenderer::sync_out(bool with_line) {
-    canon_guard([&]{
-        py::tuple lo(static_cast<size_t>(P9_COUNT));
-        for(int i = 0; i < P9_COUNT; i++) lo[i] = lo_[i];
-        canon_.attr("lo") = lo;
-        canon_.attr("first_move") = py::bool_(first_move_);
-        if(with_line) canon_.attr("lineno") = last_line_;
-    });
-}
-
-void GCodeRenderer::sync_in() {
-    canon_guard([&]{
-        py::object lo = canon_.attr("lo");
-        if(!PySequence_Check(lo.ptr())) {
-            PyErr_SetString(PyExc_TypeError, "canon.lo is not a sequence");
-            throw py::error_already_set();
-        }
-        py::sequence nine = lo.cast<py::sequence>();
-        if(py::len(nine) != P9_COUNT) {
-            PyErr_SetString(PyExc_ValueError, "canon.lo is not nine numbers");
-            throw py::error_already_set();
-        }
-        for(int i = 0; i < P9_COUNT; i++) lo_[i] = nine[i].cast<double>();
-        first_move_ = PyObject_IsTrue(canon_.attr("first_move").ptr());
-    });
+void GCodeRenderer::publish_line() {
+    canon_guard([&]{ canon_.attr("lineno") = last_line_; });
 }
 
 void GCodeRenderer::transform(const Point9 &in, Point9 &out) const {
@@ -622,7 +592,8 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
         return;
     }
     if(first_move_) {
-        // A leading traverse moves the tool without drawing.
+        // What swallows the `G53 G0 <current position>` AXIS and gmoccapy's
+        // gremlin send as initcode: it repositions the tool, it is not a line.
         if(kind == Traverse) { lo_ = p; return; }
         first_move_ = false;
     }
@@ -687,7 +658,7 @@ void GCodeRenderer::event(Kind kind, int line_number,
         data_->toolchanges.push_back(rec);
         first_move_ = true;
 
-        sync_out(true);
+        publish_line();
         canon_guard([&]{ canon_.attr("change_tool")(tool); });
 
         return;
@@ -717,12 +688,6 @@ void GCodeRenderer::hand_over() {
     PyErr_Fetch(&type, &value, &tb);
     int errors = parse_state.interp_error;
     parse_state.interp_error = 0;
-    sync_out(false);
-    char name[4];
-    for(int i = 0; i < P9_COUNT; i++) {
-        snprintf(name, sizeof name, "%co", AXES[i]);
-        canon_guard([&]{ canon_.attr(name) = tool_[i]; });
-    }
     data_->shrink();
     PreviewData *program = data_;
     data_ = nullptr;                    // the holder owns it from here, even

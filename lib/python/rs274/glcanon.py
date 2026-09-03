@@ -57,6 +57,31 @@ def _removed_attribute(name, replacement):
     return property(getter)
 
 
+# The whole renderer-canon contract, for a canon that is not this one:
+#
+#     class Minimal(gcode.RendererCanon):
+#         # Segments per half-turn of arc. The base defaults to 64. A class or
+#         # an instance may override it; it is read once, at parse start, so
+#         # moving it mid-parse changes nothing.
+#         arcdivision = 8
+#
+#         def __init__(self):
+#             # planes (the GEOMETRY strings to draw) and ro (the rotation
+#             # offsets) are what the renderer reads off it, before the parse.
+#             self.program_geometry = glcanon_bake.ProgramGeometry(geometry="XYZ")
+#
+#         def adopt_geometry(self, program):
+#             self.program = program      # the finished gcode.PreviewGeometry
+#
+# A parse reads nothing else off the canon, and starts each one at zero with
+# nothing drawn: where the machine stands is the caller's to send as initcode,
+# a `G53 G0` per axis that the leading-traverse drop repositions on rather
+# than draws.
+# Everything else such a canon needs is the ordinary canon protocol, which is
+# not this protocol's business: next_line, comment, message, change_tool,
+# check_abort, the get_* queries and parameter_file.
+
+
 class GLCanon(gcode.RendererCanon):
     """The preview canon: it does not draw the program, it receives it.
 
@@ -138,11 +163,6 @@ class GLCanon(gcode.RendererCanon):
         self.program_geometry = glcanon_bake.ProgramGeometry(
             geometry=geometry, is_foam=bool(is_foam))
         self.choice = None
-        # The chain point and the leading-traverse flag. The renderer takes
-        # them over for the parse and gives them back at the end of it, so a
-        # reader afterwards sees what it always saw.
-        self.lo = (0,) * 9
-        self.first_move = True
         self.geometry = geometry
         # min and max extents - the largest bounding box around the currently displayed preview
         # bounding box is parallel to the machine axes
@@ -161,9 +181,6 @@ class GLCanon(gcode.RendererCanon):
         self.colors = colors
         # Set if the parse was aborted, so the extents above are only partial.
         self.preview_incomplete = False
-        # The tool length offset. The renderer owns it during the parse and
-        # writes it back at the end.
-        self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
         self.is_foam = is_foam
         self.foam_z = foam_z

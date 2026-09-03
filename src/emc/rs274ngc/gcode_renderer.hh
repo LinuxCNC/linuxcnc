@@ -188,6 +188,11 @@ int arc_segments(const Point9 &lo, int plane,
 // flipped mid-parse would leave the program half in each protocol. A subclass
 // without the method is a TypeError, not a quiet fall back.
 //
+// Besides that, a parse reads `program_geometry` - the GEOMETRY strings and
+// the rotation offsets - and `arcdivision`, which the base defaults. It reads
+// no starting state: every parse begins at zero with nothing drawn, and where
+// the machine stands arrives as the caller's initcode.
+//
 // In renderer mode the canon methods listed on `Canon` above do not call
 // Python at all. Instead the renderer runs the whole preview pipeline - the
 // g92 -> XY rotation -> g5x transform, the chain point, arc segmentation, the
@@ -399,8 +404,7 @@ private:
                     double u, double v, double w, double rate);
     void report_progress();
     void hand_over();
-    void sync_out(bool with_line);
-    void sync_in();
+    void publish_line();
     // One move into the geometry: extents, length, then its vertices.
     void fill(int line_number, const Point9 &p1, const Point9 &p2,
               double feedrate, unsigned char cat);
