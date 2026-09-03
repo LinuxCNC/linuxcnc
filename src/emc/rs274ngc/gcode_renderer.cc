@@ -746,6 +746,10 @@ void GCodeRenderer::hand_over() {
         if(!errors) errors = 1;
     }
     parse_state.interp_error = errors;
+    // A bound method, so it holds the canon and through it the program. The
+    // renderer outlives the parse - it sits in parse_state until the next one
+    // replaces it - so hold nothing past the handover.
+    progress_ = py::object();
 }
 
 void GCodeRenderer::render_arc(int line_number, double first_end, double second_end,

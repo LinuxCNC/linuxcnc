@@ -30,11 +30,13 @@ comparison between two builds, and belongs to whatever rig builds both.
 
 Needs the built ``gcode`` extension.
 """
+import gc
 import math
 import os
 import sys
 import tempfile
 import unittest
+import weakref
 
 import numpy as np
 
@@ -79,6 +81,15 @@ class Protocol(unittest.TestCase):
         with self.assertRaises(TypeError) as caught:
             parse("G1 X1\nM2\n", cls=NoConsumer)
         self.assertIn("adopt_geometry", str(caught.exception))
+
+    def test_the_parse_keeps_no_reference_to_the_canon(self):
+        """The renderer outlives the parse - it sits in the module until the
+        next one - so holding the canon would hold the whole program."""
+        canon = parse("G0 X0\nG1 F10 X1\nM2\n")
+        ref = weakref.ref(canon)
+        del canon
+        gc.collect()
+        self.assertIsNone(ref(), "the finished parse still holds the canon")
 
     def test_a_consumer_that_raises_fails_the_parse(self):
         class Raising(CountingCanon):
