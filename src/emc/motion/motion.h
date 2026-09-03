@@ -667,6 +667,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+    bool homing_active;	/* homing state machine is running (get_homing_is_active()).
+			   Aggregate: stays true across the gap between
+			   HOME_SEQUENCE groups, when every joint's per-joint
+			   .homing flag is momentarily false. */
     } emcmot_status_t;
 
 /*********************************
