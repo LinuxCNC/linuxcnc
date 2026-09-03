@@ -544,6 +544,75 @@ static int genhexKinematicsInverse(const EmcPose * pos,
   return 0;
 } //genhexKinematicsInverse()
 
+/************************ genhexKinematicsJacobian() ***********************/
+/* A strut length changes by the component of its platform end's motion
+   along the strut.  That end moves with the platform, dP + w x (R a), so
+   the row for strut i is [u_i, (R a_i x u_i) . E] with u_i the unit strut
+   vector and E the matrix taking the rates of the roll, pitch and yaw
+   words to the angular velocity w for R = Rz(c) Ry(b) Rx(a).  The forward
+   kinematics builds the same rows for its Newton step, in radians. */
+
+static int genhexKinematicsJacobian(const double * joints,
+                                    const EmcPose * pos,
+                                    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                    const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+  PmCartesian aw, RMatrix_a, strut, u, moment;
+  PmRotationMatrix RMatrix;
+  PmRpy rpy;
+  PmCartesian E[3];
+  double sb, cb, sc, cc;
+  int i, j, col, m;
+
+  genhex_read_hal_pins();
+
+  /* the screw lead correction is a function of the pose too, and this
+     does not differentiate it; difference the inverse instead */
+  if (hal_get_real(haldata->screw_lead) != 0.0) {
+    return kinsJacobianFromInverse(genhexKinematicsInverse, NUM_STRUTS,
+                                   joints, pos, iflags, jac);
+  }
+
+  for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+    for (col = 0; col < EMCMOT_MAX_AXIS; col++) { jac[j][col] = 0; }
+  }
+
+  rpy.r = pos->a * PM_PI / 180.0;
+  rpy.p = pos->b * PM_PI / 180.0;
+  rpy.y = pos->c * PM_PI / 180.0;
+  pmRpyMatConvert(&rpy, &RMatrix);
+
+  /* w = E [da db dc]: the roll axis carried by pitch and yaw, the pitch
+     axis carried by yaw, and the yaw axis fixed */
+  sb = sin(rpy.p); cb = cos(rpy.p);
+  sc = sin(rpy.y); cc = cos(rpy.y);
+  E[0].x = cb*cc; E[0].y = cb*sc; E[0].z = -sb;
+  E[1].x = -sc;   E[1].y = cc;    E[1].z = 0;
+  E[2].x = 0;     E[2].y = 0;     E[2].z = 1;
+
+  for (i = 0; i < NUM_STRUTS; i++) {
+    double len;
+
+    pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
+    pmCartCartAdd(&pos->tran, &RMatrix_a, &aw);
+    pmCartCartSub(&aw, &b[i], &strut);
+    pmCartMag(&strut, &len);
+    if (len <= 0) { return -1; }
+    pmCartScalMult(&strut, 1.0/len, &u);
+    pmCartCartCross(&RMatrix_a, &u, &moment);
+
+    jac[i][0] = u.x;
+    jac[i][1] = u.y;
+    jac[i][2] = u.z;
+    for (m = 0; m < 3; m++) {
+      double dot;
+      pmCartCartDot(&moment, &E[m], &dot);
+      jac[i][3+m] = dot * PM_PI / 180.0;
+    }
+  }
+  return 0;
+} // genhexKinematicsJacobian()
+
 // HAL pin initializaion values. In small arrays so we can easily
 // address them in the pin creation loop.
 static const rtapi_real init_basex[NUM_STRUTS] = {
@@ -701,6 +770,7 @@ int switchkinsSetup(kparms* kp,
     *kset0 = genhexKinematicsSetup;
     *kfwd0 = genhexKinematicsForward;
     *kinv0 = genhexKinematicsInverse;
+    switchkinsRegisterJacobian(0, genhexKinematicsJacobian);
 
     *kset1 = identityKinematicsSetup;
     *kfwd1 = identityKinematicsForward;

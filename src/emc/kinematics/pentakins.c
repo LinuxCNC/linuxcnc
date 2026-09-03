@@ -399,6 +399,80 @@ int kinematicsInverse(const EmcPose * pos,
   return 0;
 }
 
+int kinematicsJacobian(const double * joints,
+                       const EmcPose * pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+  PmRotationMatrix R;
+  PmRpy rpy;
+  PmCartesian P, d, xyz, wa, wb, dxyz[5];
+  int i, j, a, col;
+
+  (void)joints;
+  (void)iflags;
+  pentakins_read_hal_pins();
+  for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+  }
+
+  /* InvKins() differentiated.  The effector end of each strut is found in
+     effector coordinates as xyz = R^T (b - P) with R = Ry(b) Rx(a), so a
+     pose translation moves it by -R^T and a pose rotation about w moves
+     it by -R^T (w x (b - P)); the strut length is then the distance from
+     that point to the strut's pivot circle of radius ra at height za. */
+  P = pos->tran;
+  rpy.r = pos->a * PM_PI / 180.0;
+  rpy.p = pos->b * PM_PI / 180.0;
+  rpy.y = 0;
+  pmRpyMatConvert(&rpy, &R);
+
+  /* rotation axes for a and b, in world coordinates */
+  wa.x = cos(rpy.p); wa.y = 0; wa.z = -sin(rpy.p);
+  wb.x = 0;          wb.y = 1; wb.z = 0;
+
+  for (i = 0; i < NUM_STRUTS; i++) {
+    double rho, A, B, len;
+
+    pmCartCartSub(&b[i], &P, &d);
+    /* R^T d, written out since pmMatCartMult applies R */
+    xyz.x = R.x.x*d.x + R.x.y*d.y + R.x.z*d.z;
+    xyz.y = R.y.x*d.x + R.y.y*d.y + R.y.z*d.z;
+    xyz.z = R.z.x*d.x + R.z.y*d.y + R.z.z*d.z;
+
+    /* d xyz / d pose, one PmCartesian per pose column x y z a b */
+    for (col = 0; col < 3; col++) {
+      /* -R^T e_col, which is minus row col of R^T, i.e. minus column
+         col of R read as a row of R^T */
+      PmCartesian e = {0, 0, 0}, w;
+      if (col == 0) e.x = 1; else if (col == 1) e.y = 1; else e.z = 1;
+      w.x = -(R.x.x*e.x + R.x.y*e.y + R.x.z*e.z);
+      w.y = -(R.y.x*e.x + R.y.y*e.y + R.y.z*e.z);
+      w.z = -(R.z.x*e.x + R.z.y*e.y + R.z.z*e.z);
+      dxyz[col] = w;
+    }
+    for (col = 3; col < 5; col++) {
+      PmCartesian cr, w;
+      pmCartCartCross(col == 3 ? &wa : &wb, &d, &cr);
+      w.x = -(R.x.x*cr.x + R.x.y*cr.y + R.x.z*cr.z) * (PM_PI/180.0);
+      w.y = -(R.y.x*cr.x + R.y.y*cr.y + R.y.z*cr.z) * (PM_PI/180.0);
+      w.z = -(R.z.x*cr.x + R.z.y*cr.y + R.z.z*cr.z) * (PM_PI/180.0);
+      dxyz[col] = w;
+    }
+
+    rho = sqrt(sqr(xyz.x) + sqr(xyz.y));
+    A = xyz.z - za[i];
+    B = rho - ra[i];
+    len = sqrt(sqr(A) + sqr(B));
+    if (len <= 0 || rho <= 0) { return -1; }
+    for (col = 0; col < 5; col++) {
+      jac[i][col] = (A*dxyz[col].z
+                     + B*(xyz.x*dxyz[col].x + xyz.y*dxyz[col].y)/rho) / len;
+    }
+  }
+  return 0;
+}
+
 KINEMATICS_TYPE kinematicsType()
 {
   return KINEMATICS_BOTH;
@@ -408,6 +482,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 
 MODULE_LICENSE("GPL");
 
