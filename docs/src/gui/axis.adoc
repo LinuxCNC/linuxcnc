@@ -967,7 +967,7 @@ AXIS can display a custom virtual control panel in either the right
 side column or the bottom row.
 Additionally one or more panels may be displayed as embedded tabs.
 You can program buttons, indicators, data displays and more.
-For more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
+For more information, see the <<cha:pyvcp,PyVCP>>, the <<cha:glade-vcp,GladeVCP>> chapters and <<cha:qtvcp:panels, QtVCP panels>>.
 
 [[axis:preview-control]]
 === Preview Control

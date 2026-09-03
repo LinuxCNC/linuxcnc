@@ -274,7 +274,8 @@ image:images/gmoccapy_getting_macro_info_mid.png[align="left",link="images/gmocc
 You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and Gscreen.
 All is done by GMOCCAPY automatically if you include a few lines in your INI file in the DISPLAY section.
 
-If you have never used a Glade panel, I recommend to read the excellent documentation on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
+If you have never used a Glade panel, I recommend to read the excellent documentation on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP]. +
+You can embed QtVCP panels too: <<cha:qtvcp:panels, QtVCP panels>>
 
 .Embedded Tab Example
 
