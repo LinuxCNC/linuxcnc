@@ -1480,19 +1480,39 @@ def set_first_line(lineno):
         t.tag_add("ignored", "0.0", "%d.end" % (lineno-1))
 
 def parse_increment(jogincr):
-    if jogincr.endswith("mm"):
+    jogincr = jogincr.strip()
+    low = jogincr.lower()
+    scale = 1
+    # angular units first: the jog increment of an angular joint/axis is
+    # commanded in degrees ("grad" before "rad" - suffix containment)
+    if low.endswith("grad"):
+        scale = 0.9
+        jogincr = jogincr[:-4]
+    elif low.endswith("rad"):
+        scale = 180.0 / pi
+        jogincr = jogincr[:-3]
+    elif low.endswith("deg"):
+        scale = 1.
+        jogincr = jogincr[:-3]
+    elif low.endswith("mm"):
         scale = from_internal_linear_unit(1/25.4)
-    elif jogincr.endswith("cm"):
+        jogincr = jogincr[:-2]
+    elif low.endswith("cm"):
         scale = from_internal_linear_unit(10/25.4)
-    elif jogincr.endswith("um"):
+        jogincr = jogincr[:-2]
+    elif low.endswith("um"):
         scale = from_internal_linear_unit(.001/25.4)
-    elif jogincr.endswith("in") or jogincr.endswith("inch"):
+        jogincr = jogincr[:-2]
+    elif low.endswith("inch"):
         scale = from_internal_linear_unit(1.)
-    elif jogincr.endswith("mil"):
+        jogincr = jogincr[:-4]
+    elif low.endswith("in"):
+        scale = from_internal_linear_unit(1.)
+        jogincr = jogincr[:-2]
+    elif low.endswith("mil"):
         scale = from_internal_linear_unit(.001)
-    else:
-        scale = 1
-    jogincr = jogincr.rstrip(" inchmuil")
+        jogincr = jogincr[:-3]
+    jogincr = jogincr.strip()
     if "/" in jogincr:
         p, q = jogincr.split("/")
         jogincr = float(p) / float(q)
@@ -3758,10 +3778,89 @@ if increments:
         increments = [i.strip() for i in increments.split(",")]
     else:
         increments = increments.split()
-    root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
-    root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments)
+else:
+    # the tcl default list (unitless numbers, valid for mm and deg alike)
+    increments = ["0.1000", "0.0100", "0.0010", "0.0001"]
+
+_LINEAR_SUFFIXES = ("um", "mm", "cm", "mil", "inch", "in")
+_ANGULAR_SUFFIXES = ("deg", "grad", "rad")
+
+def _incr_split_suffix(entry):
+    t = entry.strip()
+    low = t.lower()
+    for s in _ANGULAR_SUFFIXES + _LINEAR_SUFFIXES:
+        if low.endswith(s):
+            return t[:-len(s)].strip(), s
+    return t, ""
+
+# jog increments are per axis TYPE: a linear-united entry makes no sense
+# on an angular axis (historically "10mm" silently jogged C by its bare
+# number - 10 degrees on metric, 0.39 "degrees" on inch configs). Classify
+# the ini entries; unitless entries serve both kinds; if the ini lists
+# only one kind, derive the other from the numeric parts (10mm -> 10 deg)
+# so angular axes always get sensible, honestly-labelled degree steps.
+jogincr_lists = {"linear": [], "angular": []}
+for _e in increments:
+    _num, _suf = _incr_split_suffix(_e)
+    if _suf in _ANGULAR_SUFFIXES:
+        jogincr_lists["angular"].append(_e.strip())
+    elif _suf in _LINEAR_SUFFIXES:
+        jogincr_lists["linear"].append(_e.strip())
+    else:
+        jogincr_lists["linear"].append(_e.strip())
+        jogincr_lists["angular"].append(_e.strip())
+if not jogincr_lists["angular"]:
+    jogincr_lists["angular"] = [
+        _incr_split_suffix(_e)[0] + " deg" for _e in jogincr_lists["linear"]]
+if not jogincr_lists["linear"]:
+    jogincr_lists["linear"] = [
+        _incr_split_suffix(_e)[0] for _e in jogincr_lists["angular"]]
+jogincr_kind_shown = "linear"
+
+root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
+root_window.call(widgets.jogincr._w, "list", "insert", "end",
+                 *jogincr_lists["linear"])
 widgets.jogincr.configure(command= jogspeed_listbox_change)
 root_window.call(widgets.jogincr._w, "select", 0)
+
+def selected_ja_is_angular():
+    ja = vars.ja_rbutton.get()
+    try:
+        return joint_type[int(ja)] == "ANGULAR"
+    except ValueError:
+        try:
+            return axis_type["xyzabcuvw".index(ja.lower())] == "ANGULAR"
+        except (ValueError, IndexError):
+            return False
+
+def update_jogincr_for_selection(*_args):
+    global jogincr_kind_shown
+    kind = "angular" if selected_ja_is_angular() else "linear"
+    if kind == jogincr_kind_shown:
+        return
+    # keep the selected SLOT across the swap (Continuous stays index 0)
+    cur = widgets.jogincr.get()
+    old = [_("Continuous")] + jogincr_lists[jogincr_kind_shown]
+    try:
+        idx = old.index(cur)
+    except ValueError:
+        idx = 0
+    root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
+    root_window.call(widgets.jogincr._w, "list", "insert", "end",
+                     *jogincr_lists[kind])
+    idx = min(idx, len(jogincr_lists[kind]))
+    root_window.call(widgets.jogincr._w, "select", idx)
+    jogincr_kind_shown = kind
+    set_hal_jogincrement()
+
+# vars.* are nf.makevar instances (not plain tkinter Vars) and lack the
+# _root that Variable.trace_add() needs - register through nf.makecommand,
+# which carries the proper master, and trace at the tcl level.
+_jogincr_trace_cmd = nf.makecommand(
+    root_window, "update_jogincr_for_selection", update_jogincr_for_selection)
+root_window.tk.call("trace", "add", "variable",
+                    vars.ja_rbutton._name, "write", _jogincr_trace_cmd)
+update_jogincr_for_selection()   # in case the initial selection is angular
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 
