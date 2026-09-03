@@ -49,7 +49,21 @@ Reading pins and params is unchanged: the bare name (or *name(idx)* for
 arrays) evaluates to the value in both APIs.
 
 Pin and parameter names are never changed, because they are part of the
-HAL configuration interface used by .hal files.
+HAL configuration interface used by .hal files.  A name that spells out
+a legacy type, however, is pointed out: *halcompupdate* notes every
+name - of a pin, a parameter, the component or a function - that
+contains a segment naming a type that will be removed at the API break
+(*float*, *bit*, *s32*, *u32*, *s64*, *u64*) and suggests the
+new-style spelling, for example *out_s32* -> *out_si32* or
+*conv_s32_float* -> *conv_si32_real*.  The component name is the
+loadrt/loadusr argument and the module name, and functions are exported
+as
+*comp.N.function*, so a renamed component or function name affects
+existing configurations as well.  The note is optional, does not modify
+the file, and does not affect the *--check* exit status; the author
+decides whether the word in the name really meant the type (a pin named
+*sel-bit* counts bits of a value, a pin named *float_switch* is a
+hardware float switch).
 
 Components that use the legacy *hal_pin_*_new*/*hal_param_*_new* creation
 functions directly, or that pass the address of a pin (*&name*) to helper
@@ -57,8 +71,10 @@ functions, cannot be converted automatically.  *halcompupdate* prints a
 warning for those cases so they can be converted by hand.
 
 After each file a summary line reports how many mechanical changes were
-applied and how many constructs were left for manual review.  Always
-review the diff and test the converted component before use.
+applied, how many constructs were left for manual review, and how many
+names mention a legacy type (optional rename); if nothing needed to be
+converted, it reports the name notes only.  Always review the diff and
+test the converted component before use.
 
 == OPTIONS
 
@@ -82,7 +98,7 @@ Only convert pin/param declarations and accesses; do not modernize
 C types in the component body.
 
 *-q*, *--quiet*::
-Suppress warnings on stderr.
+Suppress warnings and notes on stderr.
 
 == EXAMPLES
 

@@ -32,6 +32,11 @@
 #
 # This tool rewrites a .comp file accordingly.  By default it prints a
 # unified diff; use --in-place to rewrite the file.
+#
+# It never renames (names are part of the HAL configuration interface),
+# but it notes pin, param, component and function names that spell a
+# legacy type (e.g. 'out_s32', 'conv_s32_float') and suggests the
+# new-style spelling, leaving the rename to the author.
 
 import argparse
 import difflib
@@ -50,6 +55,18 @@ OLD2NEW = {
     'signed': 'si32',
     'unsigned': 'ui32',
 }
+
+# Legacy declaration types that may be spelled out as a segment of a
+# pin/param/component/function name ('out_s32', 'input_bit',
+# 'conv_s32_float').  Such a word is stale once the type is removed at
+# the API break, so it is noted for an optional rename.  'signed' and
+# 'unsigned' are not included: there is no sensible word to replace
+# them with in a name, and no in-tree name uses them.  The suggestion
+# is mechanical (OLD2NEW); the author decides whether the word really
+# meant the type (a pin named 'sel-bit' counts bits of a value,
+# plasmac's 'float_switch' is a hardware float switch) - a dismissable
+# note, like all of these.
+NAME_LEGACY_TYPES = ('float', 'bit', 's32', 'u32', 's64', 'u64')
 
 # Plain C types carry no volatile qualifier, modernizing them is always
 # safe.  Plain C 'float' is not part of the HAL API and stays valid C
@@ -110,11 +127,19 @@ class Reporter:
         self.quiet = quiet
         self.warnings = 0       # constructs left for manual review
         self.edits = 0          # mechanical changes applied
+        self.notes = 0          # gentle suggestions (legacy type in name)
 
     def warn(self, msg, lineno=0):
         self.warnings += 1
         if not self.quiet:
             print("%s:%d: Warning: %s" % (self.filename, lineno or 0, msg),
+                  file=sys.stderr)
+
+    def note(self, msg, lineno=0):
+        """A gentle suggestion; not counted as manual review work."""
+        self.notes += 1
+        if not self.quiet:
+            print("%s:%d: Note: %s" % (self.filename, lineno or 0, msg),
                   file=sys.stderr)
 
     def error(self, msg):
@@ -199,15 +224,28 @@ VAR_RE = re.compile(
     r'([#A-Za-z_][-#A-Za-z0-9_.]*)',              # variable name
     re.S)
 
+COMPONENT_RE = re.compile(
+    r'^(\s*(?:(?://[^\n]*|/\*.*?\*/)\s*)*)'      # leading whitespace/comments
+    r'component\s+'
+    r'([A-Za-z_][A-Za-z0-9_]*)',                 # component name
+    re.S)
+
+FUNCTION_RE = re.compile(
+    r'^(\s*(?:(?://[^\n]*|/\*.*?\*/)\s*)*)'      # leading whitespace/comments
+    r'function\s+'
+    r'([A-Za-z_][A-Za-z0-9_]*)',                 # function name
+    re.S)
+
 
 class Decl:
-    def __init__(self, kind, direction, type_, name, is_array):
+    def __init__(self, kind, direction, type_, name, is_array, lineno=0):
         self.kind = kind            # 'pin' or 'param'
         self.direction = direction
         self.type = type_
         self.name = name            # HAL name
         self.cname = to_c(name)
         self.is_array = is_array
+        self.lineno = lineno        # line of the declaration statement
 
     @property
     def writable(self):
@@ -217,28 +255,64 @@ class Decl:
 
 
 def parse_declarations(header):
-    """Find pin/param declarations, return (list of Decl, set of options)."""
+    """Find named items in the header.  Returns (list of Decl, set of
+    options, list of (kind, name, lineno)) where the list covers pins,
+    params, the component and the functions, in file order."""
     decls = []
     options = set()
+    named = []
     for start, end in split_statements(header):
         stmt = header[start:end]
         m = DECL_RE.match(stmt)
         if m:
             _, kind, direction, type_, name, array = m.groups()
-            decls.append(Decl(kind, direction, type_, name, bool(array)))
+            d = Decl(kind, direction, type_, name, bool(array),
+                     lineno_of(header, start + m.start(2)))
+            decls.append(d)
+            named.append((kind, name, d.lineno))
+            continue
+        mc = COMPONENT_RE.match(stmt)
+        if mc:
+            named.append(('component', mc.group(2),
+                          lineno_of(header, start + mc.start(2))))
+            continue
+        mf = FUNCTION_RE.match(stmt)
+        if mf:
+            named.append(('function', mf.group(2),
+                          lineno_of(header, start + mf.start(2))))
             continue
         mo = re.match(r'\s*option\s+([A-Za-z_][A-Za-z0-9_]*)', stmt)
         if mo:
             options.add(mo.group(1))
-    return decls, options
+    return decls, options, named
+
+
+def name_rename_suggestion(name):
+    """If a segment of the name spells a legacy declaration type,
+    return (newname, [types]) with those segments replaced by their
+    new-style spelling; otherwise None.  Separators are preserved and
+    duplicated types are listed once."""
+    found = []
+    parts = []
+    for p in re.findall(r'[A-Za-z0-9]+|[^A-Za-z0-9]', name):
+        t = p.lower()
+        if t in NAME_LEGACY_TYPES:
+            if t not in found:
+                found.append(t)
+            parts.append(OLD2NEW[t])
+        else:
+            parts.append(p)
+    if not found:
+        return None
+    return ''.join(parts), found
 
 
 def convert_header(header, rep, c_types=True, legacy_api=False):
     """Replace old HAL types by new ones in pin/param declarations and
     modernize C types in 'variable' declarations.  Only the type token
     itself is replaced, all other text (spacing, docs) is preserved.
-    Returns (new_header, changed, decls, options)."""
-    decls, options = parse_declarations(header)
+    Returns (new_header, changed, decls, options, named)."""
+    decls, options, named = parse_declarations(header)
     if 'no_convenience_defines' in options:
         rep.error("component uses 'option no_convenience_defines'; "
                   "automatic body conversion is not possible")
@@ -266,11 +340,11 @@ def convert_header(header, rep, c_types=True, legacy_api=False):
                                  "and cannot be preserved here - left "
                                  "unchanged, convert to '%s' by hand"
                                  % (vname, vtype, CTYPE_HAL_MAP[vtype]),
-                                 lineno_of(header, start))
+                                 lineno_of(header, start + mv.end(1)))
                     # legacy_api: addresses of these are passed to legacy
                     # API calls; the legacy API warning already covers it
     if not edits:
-        return header, False, decls, options
+        return header, False, decls, options, named
     rep.edits += len(edits)
     out = []
     prev = 0
@@ -279,7 +353,7 @@ def convert_header(header, rep, c_types=True, legacy_api=False):
         out.append(repl)
         prev = e0
     out.append(header[prev:])
-    return ''.join(out), True, decls, options
+    return ''.join(out), True, decls, options, named
 
 
 # ---------------------------------------------------------------------------
@@ -1002,18 +1076,53 @@ def convert(text, filename, quiet=False, c_types=True):
                  "directly; the calls and the data they export must be "
                  "converted to hal_pin_new_<type>/hal_param_new_<type> "
                  "manually")
-    newheader, hchanged, decls, _ = convert_header(header, rep, c_types,
-                                                   legacy_api)
+    newheader, hchanged, decls, _, named = convert_header(header, rep,
+                                                          c_types, legacy_api)
+    # Why a rename would matter, per kind of named item
+    rename_reason = {
+        'pin': "the name is part of the HAL interface, so existing "
+               ".hal files would need updating",
+        'param': "the name is part of the HAL interface, so existing "
+                 ".hal files would need updating",
+        'component': "the name is the loadrt/loadusr argument and the "
+                     "module name, so existing configs would need updating",
+        'function': "the name is exported as <comp>.<N>.<name>, so "
+                    "existing .hal files would need updating",
+    }
+    for kind, name, lineno in named:
+        sug = name_rename_suggestion(name)
+        if sug:
+            newname, types = sug
+            if len(types) == 1:
+                what = "'%s'" % types[0]
+            else:
+                what = ', '.join("'%s'" % t for t in types)
+            rep.note("%s name '%s' mentions legacy HAL type%s %s, which "
+                     "will be removed at the HAL API break; consider "
+                     "renaming to '%s' - %s"
+                     % (kind, name, '' if len(types) == 1 else 's',
+                        what, newname, rename_reason[kind]), lineno)
     body_line = lineno_of(text, len(header) + len("\n;;\n")) - 1
     rewriter = BodyRewriter(body, decls, rep, c_types, legacy_api,
                             line_offset=body_line)
     newbody = rewriter.run()
     changed = hchanged or rewriter.changed
-    if not quiet and (changed or rep.warnings):
-        print("halcompupdate: %s: %d mechanical change(s), %d construct(s) "
-              "left for manual review - review the diff and test the "
-              "component before use"
-              % (filename, rep.edits, rep.warnings), file=sys.stderr)
+    if not quiet and (changed or rep.warnings or rep.notes):
+        if changed or rep.warnings:
+            summary = ("halcompupdate: %s: %d mechanical change(s), "
+                       "%d construct(s) left for manual review"
+                       % (filename, rep.edits, rep.warnings))
+            if rep.notes:
+                summary += (", %d name(s) mention a legacy HAL type "
+                            "(rename is optional)" % rep.notes)
+            summary += (" - review the diff and test the component "
+                        "before use")
+        else:
+            # nothing to convert; report the optional renames only
+            summary = ("halcompupdate: %s: %d name(s) mention a legacy "
+                       "HAL type (rename is optional)"
+                       % (filename, rep.notes))
+        print(summary, file=sys.stderr)
     return newheader + "\n;;\n" + newbody, changed
 
 
@@ -1074,7 +1183,7 @@ def main(argv=None):
                         "not modernize C types (double -> rtapi_real, "
                         "hal_float_t -> volatile rtapi_real, ...)")
     p.add_argument('--quiet', '-q', action='store_true',
-                   help="suppress warnings on stderr")
+                   help="suppress warnings and notes on stderr")
     p.add_argument('files', nargs='+', metavar='file.comp')
     args = p.parse_args(argv)
 
