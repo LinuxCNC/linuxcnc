@@ -299,6 +299,59 @@ int xyzacKinematicsToolFrame(const double *joints,
     return 0;
 } // xyzacKinematicsToolFrame()
 
+int xyzacKinematicsJacobian(const double *joints,
+                            const EmcPose *pos,
+                            double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                            const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)joints;
+    (void)iflags;
+    const double x_rot_point = hal_get_real(haldata->x_rot_point);
+    const double y_rot_point = hal_get_real(haldata->y_rot_point);
+    const double z_rot_point = hal_get_real(haldata->z_rot_point);
+    const double         dy  = hal_get_real(haldata->y_offset);
+    const double         dt  = hal_get_real(haldata->tool_offset);
+    const double         dz  = hal_get_real(haldata->z_offset) + dt;
+    const double          sa = sin(pos->a*TO_RAD), ca = cos(pos->a*TO_RAD);
+    const double          sc = sin(pos->c*TO_RAD), cc = cos(pos->c*TO_RAD);
+    const double          X = pos->tran.x - x_rot_point;
+    const double          Y = pos->tran.y - y_rot_point;
+    const double          Z = pos->tran.z - z_rot_point;
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a, b;
+
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) { dP[a][b] = 0; }
+    }
+
+    // the computed position P of xyzacKinematicsInverse(), differentiated:
+    // its coefficients for x, y and z, and the same expressions with the
+    // rotation taken a quarter turn on for a and for c
+    dP[0][0] =       cc;
+    dP[0][1] = con * sc;
+    dP[0][5] = (-sc*X + con*cc*Y) * TO_RAD;
+
+    dP[1][0] = - con * sc * ca;
+    dP[1][1] =         cc * ca;
+    dP[1][2] =   con *      sa;
+    dP[1][3] = (con*sc*sa*X - cc*sa*Y + con*ca*Z + sa*dy - con*ca*dz) * TO_RAD;
+    dP[1][5] = (-con*cc*ca*X - sc*ca*Y) * TO_RAD;
+
+    dP[2][0] =         sc * sa;
+    dP[2][1] = - con * cc * sa;
+    dP[2][2] =              ca;
+    dP[2][3] = (sc*ca*X - con*cc*ca*Y - sa*Z + con*ca*dy + sa*dz) * TO_RAD;
+    dP[2][5] = (cc*sa*X + con*sc*sa*Y) * TO_RAD;
+
+    for (a = 3; a < EMCMOT_MAX_AXIS; a++) { dP[a][a] = 1; }
+
+    return kinsJacobianFromMappedAxes(trtfuncs_max_joints,
+                                      (const double (*)[EMCMOT_MAX_AXIS])dP,
+                                      jac);
+} // xyzacKinematicsJacobian()
+
 int xyzbcKinematicsForward(const double *joints,
                            EmcPose * pos,
                            const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -443,3 +496,55 @@ int xyzbcKinematicsToolFrame(const double *joints,
     *rot = TOOL_FRAME_SPINDLE;
     return 0;
 } // xyzbcKinematicsToolFrame()
+
+int xyzbcKinematicsJacobian(const double *joints,
+                            const EmcPose *pos,
+                            double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                            const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)joints;
+    (void)iflags;
+    const double x_rot_point = hal_get_real(haldata->x_rot_point);
+    const double y_rot_point = hal_get_real(haldata->y_rot_point);
+    const double z_rot_point = hal_get_real(haldata->z_rot_point);
+    const double          dx = hal_get_real(haldata->x_offset);
+    const double          dt = hal_get_real(haldata->tool_offset);
+    const double          dz = hal_get_real(haldata->z_offset) + dt;
+    const double          sb = sin(pos->b*TO_RAD), cb = cos(pos->b*TO_RAD);
+    const double          sc = sin(pos->c*TO_RAD), cc = cos(pos->c*TO_RAD);
+    const double          X = pos->tran.x - x_rot_point;
+    const double          Y = pos->tran.y - y_rot_point;
+    const double          Z = pos->tran.z - z_rot_point;
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a, b;
+
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) { dP[a][b] = 0; }
+    }
+
+    // see the comment in xyzacKinematicsJacobian(); dpx and dpz of the
+    // inverse depend on b as well
+    dP[0][0] =       cc * cb;
+    dP[0][1] = con * sc * cb;
+    dP[0][2] = - con *    sb;
+    dP[0][4] = (-cc*sb*X - con*sc*sb*Y - con*cb*Z + sb*dx + con*cb*dz) * TO_RAD;
+    dP[0][5] = (-sc*cb*X + con*cc*cb*Y) * TO_RAD;
+
+    dP[1][0] = - con * sc;
+    dP[1][1] =         cc;
+    dP[1][5] = (-con*cc*X - sc*Y) * TO_RAD;
+
+    dP[2][0] = con * cc * sb;
+    dP[2][1] =       sc * sb;
+    dP[2][2] =            cb;
+    dP[2][4] = (con*cc*cb*X + sc*cb*Y - sb*Z - con*cb*dx + sb*dz) * TO_RAD;
+    dP[2][5] = (-con*sc*sb*X + cc*sb*Y) * TO_RAD;
+
+    for (a = 3; a < EMCMOT_MAX_AXIS; a++) { dP[a][a] = 1; }
+
+    return kinsJacobianFromMappedAxes(trtfuncs_max_joints,
+                                      (const double (*)[EMCMOT_MAX_AXIS])dP,
+                                      jac);
+} // xyzbcKinematicsJacobian()
