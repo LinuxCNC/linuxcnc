@@ -27,9 +27,10 @@ chapter (docs/src/motion/switchkins.txt)
 
 """;
 // The fpin pin is not accessible in kinematics functions.
-// Use the *_setup() function for pins and params used by kinematics.
+// Use EXTRA_SETUP() for pins and params used by kinematics.
 pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
+option extra_setup;
 function fdemo;
 license "GPL";
 author "David Mueller";
@@ -59,14 +60,15 @@ FUNCTION(fdemo) {
    fpin_set(fpin + 1);
 }
 
-static int millturn_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "millturn"
     int res=0;
 
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
@@ -85,7 +87,6 @@ static int millturn_setup(void) {
     res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_1, 0, "kinstype.is-1");
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -132,8 +133,6 @@ int kinematicsSwitch(int new_switchkins_type)
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup) millturn_setup();
     return KINEMATICS_BOTH; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display

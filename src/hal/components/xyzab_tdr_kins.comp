@@ -31,6 +31,7 @@ chapter (docs/src/motion/switchkins.txt)
 """;
 
 pin out si32 dummy=0"one pin needed to satisfy halcompile requirement";
+option extra_setup;
 
 license "GPL";
 author "David Mueller";
@@ -54,13 +55,14 @@ static struct haldata {
   hal_bool_t kinstype_is_1;
 } *haldata;
 
-static int xyzab_tdr_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "xyzab_tdr_kins"
     int res=0;
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
@@ -80,7 +82,6 @@ static int xyzab_tdr_setup(void) {
     res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_1, 0, "kinstype.is-1");
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -127,8 +128,6 @@ int kinematicsSwitch(int new_switchkins_type)
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup)  xyzab_tdr_setup();
     return KINEMATICS_BOTH; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display
