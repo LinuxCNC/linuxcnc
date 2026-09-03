@@ -179,6 +179,58 @@ static int scaraKinematicsInverse(const EmcPose * world,
     return (0);
 } // scaraKinematicsInverse()
 
+static int scaraKinematicsJacobian(const double * joint,
+                                   const EmcPose * world,
+                                   double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                   const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)iflags;
+    rtapi_real D2 = hal_get_real(haldata->d2);
+    rtapi_real D4 = hal_get_real(haldata->d4);
+    rtapi_real D6 = hal_get_real(haldata->d6);
+    const double a3 = world->c * (PM_PI / 180);
+    const double q1 = joint[1] * (PM_PI / 180);
+    const double xt = world->tran.x - D6*cos(a3);
+    const double yt = world->tran.y - D6*sin(a3);
+    const double rsq = xt*xt + yt*yt;
+    /* gradients over (x, y, c) of the quantities the inverse builds */
+    double d_xt[3] = { 1, 0,  D6*sin(a3) * (PM_PI/180) };
+    double d_yt[3] = { 0, 1, -D6*cos(a3) * (PM_PI/180) };
+    double d_q1[3], d_q0[3], dphi_dq1;
+    int i, j, a;
+
+    if (rsq <= 0 || fabs(sin(q1)) < 1e-12) {
+        /* the arm folded or straight out: the elbow rate is unbounded */
+        return -1;
+    }
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+
+    /* rsq = D2^2 + D4^2 + 2 D2 D4 cos(q1), so q1 follows rsq; q0 is the
+       bearing of the end effector less the angle the outer arm subtends,
+       whose rate over q1 is (D2 D4 cos(q1) + D4^2) / rsq */
+    dphi_dq1 = (D2*D4*cos(q1) + D4*D4) / rsq;
+    for (i = 0; i < 3; i++) {
+        double d_rsq = 2*xt*d_xt[i] + 2*yt*d_yt[i];
+        d_q1[i] = -d_rsq / (2*D2*D4*sin(q1));
+        d_q0[i] = (xt*d_yt[i] - yt*d_xt[i]) / rsq - dphi_dq1 * d_q1[i];
+    }
+
+    /* columns x, y, c; the rest of the pose does not reach these joints */
+    for (i = 0; i < 3; i++) {
+        int col = (i == 2) ? 5 : i;
+        jac[0][col] = d_q0[i] * (180 / PM_PI);
+        jac[1][col] = d_q1[i] * (180 / PM_PI);
+        jac[3][col] = -(jac[0][col] + jac[1][col]);
+    }
+    jac[3][5] += 1;
+    jac[2][2] = -1;
+    jac[4][3] = 1;
+    jac[5][4] = 1;
+    return 0;
+} // scaraKinematicsJacobian()
+
 #define DEFAULT_D1 490
 #define DEFAULT_D2 340
 #define DEFAULT_D3  50
@@ -226,6 +278,7 @@ int switchkinsSetup(kparms* kp,
     *kset0 = scaraKinematicsSetup;
     *kfwd0 = scaraKinematicsForward;
     *kinv0 = scaraKinematicsInverse;
+    switchkinsRegisterJacobian(0, scaraKinematicsJacobian);
 
     *kset1 = identityKinematicsSetup;
     *kfwd1 = identityKinematicsForward;
