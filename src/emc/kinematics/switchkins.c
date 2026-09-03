@@ -45,6 +45,7 @@ static KI kinvs[SWITCHKINS_MAX_TYPES]   = {NULL};
 static KT ktools[SWITCHKINS_MAX_TYPES]  = {NULL};
 static KT kworks[SWITCHKINS_MAX_TYPES]  = {NULL};
 static KTI ktinvs[SWITCHKINS_MAX_TYPES] = {NULL};
+static KJ kjacs[SWITCHKINS_MAX_TYPES]   = {NULL};
 static PmRotationMatrix knative[SWITCHKINS_MAX_TYPES];
 
 // types provided, counted in rtapi_app_main() once they are all in
@@ -282,6 +283,25 @@ int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
                           tool_spin);
 } // kinematicsToolFrameInverse()
 
+int kinematicsJacobian(const double *joint,
+                       const EmcPose *world,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    if (switchkins_type < 0 || switchkins_type >= kins_count) {
+        return -1;
+    }
+    // a closed form is exact and knows its own singular poses
+    if (kjacs[switchkins_type]) {
+        return kjacs[switchkins_type](joint, world, jac, iflags);
+    }
+    // otherwise the type's own inverse, differenced.  The type function
+    // rather than the dispatch, so this cannot recurse through a switch.
+    if (!kinvs[switchkins_type]) { return -1; }
+    return kinsJacobianFromInverse(kinvs[switchkins_type], kp.max_joints,
+                                   joint, world, iflags, jac);
+} // kinematicsJacobian()
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
@@ -336,6 +356,20 @@ int switchkinsRegisterFrames(int ktype, KT kwork, KT ktool,
     return 0;
 } // switchkinsRegisterFrames()
 
+int switchkinsRegisterJacobian(int ktype, KJ kjac)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterJacobian: BAD switchkins_type"
+                        " <%d> (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    kjacs[ktype] = kjac;
+    return 0;
+} // switchkinsRegisterJacobian()
+
 int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv)
 {
     if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
@@ -364,9 +398,11 @@ EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
 EXPORT_SYMBOL(kinematicsToolFrameInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(switchkinsRegister);
 EXPORT_SYMBOL(switchkinsRegisterFrames);
 EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
+EXPORT_SYMBOL(switchkinsRegisterJacobian);
 MODULE_LICENSE("GPL");
 
 static int    comp_id;
@@ -402,6 +438,10 @@ int rtapi_app_main(void)
             kworks[i]  = identityKinematicsWorkFrame;
             ktools[i]  = identityKinematicsToolFrame;
             knative[i] = TOOL_FRAME_SPINDLE;
+        }
+        // and its Jacobian is exact, so do not difference for it
+        if (!kjacs[i] && kfwds[i] == identityKinematicsForward) {
+            kjacs[i] = identityKinematicsJacobian;
         }
     }
 

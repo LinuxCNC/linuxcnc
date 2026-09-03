@@ -16,6 +16,7 @@
 #define __LINUXCNC_KINEMATICS_H
 
 #include "emcpos.h" /* EmcPose */
+#include "emcmotcfg.h" /* EMCMOT_MAX_JOINTS, EMCMOT_MAX_AXIS */
 #include "rtapi_bool.h"
 
 /*
@@ -340,6 +341,90 @@ extern int toolFrameSolve(kinsFrameFunc work,
                           int *free_directions,
                           double *tool_spin);
 
+/* How each joint responds to a unit rate of each pose coordinate:
+
+       jac[j][a] = d joint[j] / d pose[a]
+
+   Rows are joints, columns are pose coordinates in EmcPose order, x y z a b
+   c u v w.  This is the derivative of kinematicsInverse(): multiply it by a
+   pose velocity and the result is the joint velocity that motion will
+   command, which is what a feed limit checks against the joint limits.  A
+   row that grows without bound is a pose approaching a singularity, where
+   the joints cannot keep up with any world speed at all.
+
+   Each entry is in joint units per pose unit, whatever units the module's
+   own forward and inverse already use.  Nothing is converted here: a caller
+   that feeds pose rates in EmcPose units gets joint rates in the units
+   motion already commands, and never has to know which unit a rotary joint
+   is in.  On every module in the tree both are degrees, so a table rotary's
+   own row is a plain 1 in its own column.
+
+   The columns are pose coordinates, so the answer lives in the work frame,
+   where kinematicsForward() reports positions.  The a, b and c columns are
+   rates of the pose words, the wrapped linear axes the planner already
+   treats as coordinates, and not an angular velocity vector.  That makes
+   this a different object from the frames above, which are orientations
+   and are given against the machine; see the Kinematics Conventions
+   chapter.
+
+   joint and world are one pose in both descriptions: world is what
+   kinematicsForward() reports for joint under these flags.  Both are given
+   because a closed form differentiates at the joints while the generic
+   default perturbs the pose, and iflags keeps every inverse the default
+   calls on the same solution branch.  Rows past the module's joint count
+   are zero.
+
+   Optional, like the frames.  Modules built on switchkins.c export it
+   always and answer for every type, since it can always be obtained from
+   the inverse where a frame cannot; other modules need not export it, and
+   a caller that resolves it dynamically and finds nothing can call
+   kinsJacobianFromInverse() itself with the module's inverse.
+
+   Returns 0, or -1 if the module cannot answer at this pose. */
+extern int kinematicsJacobian(const double *joint,
+                              const EmcPose *world,
+                              double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                              const KINEMATICS_INVERSE_FLAGS *iflags);
+
+typedef int (*kinsInverseFunc)(const EmcPose *world,
+                               double *joint,
+                               const KINEMATICS_INVERSE_FLAGS *iflags,
+                               KINEMATICS_FORWARD_FLAGS *fflags);
+
+/* The generic Jacobian, by central differences of an inverse about world:
+   two inverse calls per pose coordinate, eighteen in all, on the solution
+   branch iflags selects.  The joint array handed to every call starts from
+   joint, so a module that reads its joint argument sees the machine where
+   it is.
+
+   The answer is as good as the inverse: a closed form gives it to rounding,
+   an inverse that iterates to a tolerance gives it to that tolerance over
+   the step, and should supply its own.  num_joints is the module's joint
+   count.  Returns 0, or -1 if any inverse fails. */
+#define KINS_JACOBIAN_STEP      1e-3    /* pose units, either kind */
+
+extern int kinsJacobianFromInverse(kinsInverseFunc inverse,
+                                   int num_joints,
+                                   const double *joint,
+                                   const EmcPose *world,
+                                   const KINEMATICS_INVERSE_FLAGS *iflags,
+                                   double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS]);
+
+/* For a module whose inverse computes a position P and then hands it to
+   position_to_mapped_joints(): given dP[axis][pose], how each coordinate of
+   P responds to each pose coordinate, fill in jac so that every joint gets
+   the row of the letter it is mapped to.  Duplicate letters get duplicate
+   rows, which is the gantry case. */
+extern int kinsJacobianFromMappedAxes(int max_joints,
+                                      const double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS],
+                                      double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS]);
+
+/* joints are axes: a 1 per joint in the column of its letter */
+extern int identityKinematicsJacobian(const double *joint,
+                                      const EmcPose *world,
+                                      double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                      const KINEMATICS_INVERSE_FLAGS *iflags);
+
 extern int kinematicsSwitchable(void);
 extern int kinematicsSwitch(int switchkins_type);
 //NOTE: switchable kinematics may require Interp::Synch
@@ -392,6 +477,11 @@ extern int xyzacKinematicsWorkFrame(const double *joints,
                                    PmRotationMatrix *rot,
                                    const KINEMATICS_FORWARD_FLAGS *fflags);
 
+extern int xyzacKinematicsJacobian(const double *joints,
+                                   const EmcPose *pos,
+                                   double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                   const KINEMATICS_INVERSE_FLAGS *iflags);
+
 
 extern int xyzbcKinematicsForward(const double *joints,
                                   EmcPose * pos,
@@ -410,5 +500,10 @@ extern int xyzbcKinematicsToolFrame(const double *joints,
 extern int xyzbcKinematicsWorkFrame(const double *joints,
                                    PmRotationMatrix *rot,
                                    const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int xyzbcKinematicsJacobian(const double *joints,
+                                   const EmcPose *pos,
+                                   double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                   const KINEMATICS_INVERSE_FLAGS *iflags);
 
 //*********************************************************************

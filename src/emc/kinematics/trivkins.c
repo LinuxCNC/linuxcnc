@@ -52,6 +52,14 @@ int kinematicsWorkFrame(const double *joints,
     return identityKinematicsWorkFrame(joints, rot, fflags);
 }
 
+int kinematicsJacobian(const double *joints,
+                       const EmcPose *pos,
+                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                       const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    return identityKinematicsJacobian(joints, pos, jac, iflags);
+}
+
 static KINEMATICS_TYPE ktype = -1;
 
 KINEMATICS_TYPE kinematicsType()
@@ -72,6 +80,7 @@ EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 static int comp_id;

@@ -279,12 +279,11 @@ The joint values that reach a requested orientation, through
 question a tilted work plane asks when it has to orient the machine.
 <<sec:orientation-inverse,The Orientation Inverse>> says what it answers.
 
-The Jacobian, relating commanded velocity to joint velocity at a given pose, so
-that a feed can be checked against the joint velocity, acceleration and limit
-values it will actually demand, and so that proximity to a singularity is a
-number rather than a surprise. A module with a closed form can supply it
-directly. Otherwise it can be obtained by differencing `kinematicsInverse()`
-about the pose, which needs no change to the module at all.
+How joint motion follows world motion, through `kinematicsJacobian()`, so
+that a feed can be checked against the joint velocity and acceleration it will
+actually demand, and so that proximity to a singularity is a number rather
+than a surprise. <<sec:jacobian,The Jacobian>> says what it answers and in
+which units.
 
 All of these are functions of the joint values and the module's own geometry.
 None needs state carried between calls, and none needs the module to be running
@@ -379,6 +378,88 @@ The search is not a realtime routine. How long it takes depends on the machine
 and on the request, and the callers that want it, orienting a tilted work plane
 and previewing a program, are not in the servo loop.
 
+[[sec:jacobian]]
+== The Jacobian
+
+A feed is a speed in the work frame. What the machine has to deliver is a
+speed at each joint, and on any kinematics that is not the identity the two
+are related by where the machine is. The Jacobian is that relation at one
+pose: how each joint responds to a unit rate of each pose coordinate.
+
+  jac[j][a] = d joint[j] / d pose[a]
+
+Rows are joints. Columns are the pose coordinates in `EmcPose` order, X Y Z A
+B C U V W. It is the derivative of `kinematicsInverse()`: multiplied by a pose
+velocity it gives the joint velocity motion will command, which is what a feed
+limit compares with the joint limits. Joint `j` binds when
+
+  |jac[j] . tangent| * F
+
+exceeds that joint's velocity limit, `tangent` being the direction of the move
+in pose coordinates and `F` the feed along it. The acceleration limit follows
+from a second Jacobian taken further along the path, with no more from the
+module. A row that grows without bound is a pose approaching a singularity,
+where no world speed is slow enough for the joints to follow.
+
+=== Units
+
+Each entry is in joint units per pose unit, whatever units the module's own
+forward and inverse already use. Nothing is converted: a caller that feeds
+pose rates in `EmcPose` units gets joint rates in the units motion already
+commands, and never has to know which unit a rotary joint is in. On every
+module in the tree both are degrees, so a table rotary's own row is a 1 in its
+own column, and a robot's rotary rows carry degrees per millimetre against the
+linear columns.
+
+This is why the Jacobian, unlike the orientation inverse, does not need the
+interface to name the rotary joint unit. Every number in it is a ratio of
+quantities that already pass through `kinematicsForward()` and
+`kinematicsInverse()`, and the caller never combines it with anything measured
+in another unit.
+
+=== Frame
+
+The columns are pose coordinates, so the answer lives in the work frame, where
+`kinematicsForward()` reports positions. The A, B and C columns are rates of
+the pose words, the wrapped linear axes the planner already treats as
+coordinates, and not an angular velocity vector: on a machine that carries the
+work the forward writes the rotary joint into the pose word, and that column
+says exactly that, a 1 for its own joint.
+
+That makes this a different object from the frames of
+<<sec:frames,Frames>>, and the two rules are kept apart deliberately. A frame
+is an orientation, and a renderer placing two bodies needs each against
+something fixed, so frames are reported against the machine. A Jacobian is a
+derivative of the pose, and everything that uses it multiplies it by a pose
+rate, so it is reported where the pose is. A module whose maths produces a
+twist in the machine frame, which is what the Denavit-Hartenberg modules
+produce, turns it into pose word rates through the matrix of the axes each
+pose word turns about, once, inside the module. `genserkins` does this, and
+having it written once there is worth more than the closed form itself, since
+every consumer would otherwise guess it.
+
+=== What a module has to supply
+
+Nothing. The shared code takes central differences of the module's inverse
+about the pose, eighteen inverse calls on the solution branch the inverse
+flags select. That costs a few microseconds on a closed form inverse and
+milliseconds on one that iterates, and it answers to the inverse's own
+precision, which for an iterating inverse is its convergence tolerance divided
+by the step. Modules built on `switchkins.c` answer this way for every type
+that registers nothing; an identity type answers exactly.
+
+A module with a closed form registers it with `switchkinsRegisterJacobian()`.
+It is exact, it costs what the inverse costs, and it knows its own singular
+poses rather than discovering them as an inverse that fails a step away from
+the pose. Every module in the tree whose inverse is written out supplies one.
+The two arms whose inverse is a chain of arc tangents, `pumakins` and
+`three21kins`, answer through the differences.
+
+A module reading its rotary angles from the joint argument of the inverse
+rather than from the pose, which the nutating heads do, has an inverse whose
+derivative about the pose is not the coupling the machine has. Such a module
+supplies the closed form, taken against the pose.
+
 [[sec:writing-a-module]]
 == Writing a Module
 
@@ -407,6 +488,12 @@ Orientation inverse::
   A module that reports its frames gets it from the shared search and needs to
   do nothing. Register a closed form only where one exists, and where it does,
   say which poses it treats as degenerate.
+
+Jacobian::
+  Rows are joints, columns are pose coordinates, entries in the units the
+  forward and inverse already use, reported where the pose is. A module with
+  a closed form inverse differentiates it and registers the result; one
+  without lets the shared code difference the inverse.
 
 Geometry stays in the module::
   Whatever a consumer needs to know about the machine's shape is answered by

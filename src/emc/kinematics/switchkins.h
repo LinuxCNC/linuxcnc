@@ -67,4 +67,15 @@ typedef int (*KTI)(const PmCartesian *axis_in_work,
 // tool orientation inverse.  A type that does not gets the generic search,
 // which needs nothing beyond the frames it already registered.
 extern int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv);
+
+// KinematicsJACOBIAN function (optional, see kinematics.h)
+typedef int (*KJ)(const double *joint,
+                  const EmcPose *world,
+                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                  const KINEMATICS_INVERSE_FLAGS *iflags);
+
+// called from switchkinsSetup() only by a type with a closed form.  A type
+// that does not gets the exact answer if it is an identity type, and
+// otherwise the generic differences of its own inverse.
+extern int switchkinsRegisterJacobian(int ktype, KJ kjac);
 #endif // }
