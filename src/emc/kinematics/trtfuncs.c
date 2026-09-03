@@ -362,10 +362,13 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
     const double          dz = hal_get_real(haldata->z_offset) + dt;
     const double       b_rad = pos->b*TO_RAD;
     const double       c_rad = pos->c*TO_RAD;
-    const double         dpx = -cos(b_rad)*dx + sin(b_rad)*dz + dx;
-    const double         dpz = -sin(b_rad)*dx - cos(b_rad)*dz + dz;
 
     rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+
+    // the offsets seen from the tilted table: the same rotation the
+    // forward applies to them, in the same sense
+    const double         dpx = -cos(b_rad)*dx + con * sin(b_rad)*dz + dx;
+    const double         dpz = -con * sin(b_rad)*dx - cos(b_rad)*dz + dz;
 
     EmcPose P; // computed position
 
