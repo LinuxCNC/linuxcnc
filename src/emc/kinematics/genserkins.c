@@ -74,11 +74,13 @@ int switchkinsSetup(kparms* kp,
         *kinv1 = genserKinematicsInverse;
         switchkinsDeclare(0, KINSTYPE_IDENTITY);
         switchkinsDeclare(1, KINSTYPE_PRIMARY);
+        switchkinsRegisterJacobian(1, genserKinematicsJacobian);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
         *kset0 = genserKinematicsSetup;
         *kfwd0 = genserKinematicsForward;
         *kinv0 = genserKinematicsInverse;
+        switchkinsRegisterJacobian(0, genserKinematicsJacobian);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;
