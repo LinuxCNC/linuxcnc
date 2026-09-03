@@ -329,33 +329,43 @@ bool GCodeRenderer::read_planes() {
     return true;
 }
 
+// `gcode.RendererCanon`, borrowed from the module that owns it.
+static PyTypeObject *renderer_canon_type;
+
+void renderer_canon_register(py::module_ &m) {
+    // Plain Python class, not a py::class_: a pybind11 base would oblige
+    // every subclass __init__ to call it.
+    py::dict ns;
+    ns["__module__"] = "gcode";
+    ns["__doc__"] =
+            "Base class of a canon that wants the finished program.\n\n"
+            "Subclass it and define adopt_geometry(program); gcode.parse then\n"
+            "builds the whole preview in C++ and hands it over once, instead\n"
+            "of calling the per-move canon methods.";
+    py::object cls = py::reinterpret_borrow<py::object>((PyObject *)&PyType_Type)(
+            "RendererCanon", py::tuple(), ns);
+    m.attr("RendererCanon") = cls;
+    renderer_canon_type = (PyTypeObject *)cls.ptr();     // the module owns it
+}
+
 std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
     py::handle canon(canon_ptr);
-    py::object flag;
-    try {
-        flag = canon.attr("use_gcode_renderer");
-    } catch(py::error_already_set &e) {
-        if(!e.matches(PyExc_AttributeError)) { e.restore(); return nullptr; }
-        return nullptr;                 // no attribute: the callback protocol
-    }
-    // Anything that is not a bool is not an opt-in - see the note on
-    // catch-all `__getattr__` in the header. Callback protocol, no complaint:
-    // a canon that never mentions the flag must not be made to fail.
-    if(!PyBool_Check(flag.ptr()) || flag.ptr() != Py_True) return nullptr;
 
-    // Fail fast rather than fall back: a canon that asked for a preview and
-    // silently got per-move callbacks would look like it worked and quietly
-    // build nothing at all.
+    // Subclassing is the opt-in; a catch-all `__getattr__` cannot fake it.
+    if(!renderer_canon_type || !PyObject_TypeCheck(canon_ptr, renderer_canon_type))
+        return nullptr;                 // callback protocol, no complaint
+
+    // Fail fast: a canon that asked for a preview and got callbacks instead
+    // would build nothing and look like it worked.
     bool usable = false;
     try {
         usable = PyCallable_Check(canon.attr("adopt_geometry").ptr());
-    } catch(py::error_already_set &) {
-        // Absent counts as unusable; the message below is the whole report.
+    } catch(py::error_already_set &) {  // absent, or a descriptor that raises
     }
     if(!usable) {
         PyErr_Clear();
         PyErr_SetString(PyExc_TypeError,
-                "parse: canon sets use_gcode_renderer but has no callable "
+                "parse: a gcode.RendererCanon must define a callable "
                 "adopt_geometry");
         return nullptr;
     }

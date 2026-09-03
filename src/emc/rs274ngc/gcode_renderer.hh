@@ -163,6 +163,9 @@ pybind11::object preview_geometry_new(PreviewData *data);
 // Register PreviewGeometry and its array views on the module.
 void preview_geometry_register(pybind11::module_ &m);
 
+// Defines `gcode.RendererCanon`, the empty base a canon opts in by subclassing.
+void renderer_canon_register(pybind11::module_ &m);
+
 // One arc as up to `max_segments`-ish 9-DOF points, transformed the way a move
 // is. Shared by gcode.arc_to_segments and the renderer.
 int arc_segments(const Point9 &lo, int plane,
@@ -180,12 +183,10 @@ int arc_segments(const Point9 &lo, int plane,
 //
 // An *opt-in* alternative to the per-event callback protocol, for a canon that
 // wants a finished preview rather than a million Python calls. A canon opts in
-// by setting `use_gcode_renderer = True` and providing a callable
-// `adopt_geometry`; both are read once, in parse_file, before any
-// interpretation - a mode that could flip mid-parse would leave the canon's
-// program half in each protocol.
-//
-// The flag must be a *bool* true
+// by subclassing `gcode.RendererCanon` and defining a callable
+// `adopt_geometry`, checked once before any interpretation - a mode that
+// flipped mid-parse would leave the program half in each protocol. A subclass
+// without the method is a TypeError, not a quiet fall back.
 //
 // In renderer mode the canon methods listed on `Canon` above do not call
 // Python at all. Instead the renderer runs the whole preview pipeline - the

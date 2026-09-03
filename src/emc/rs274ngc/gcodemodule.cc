@@ -1099,6 +1099,7 @@ PYBIND11_MODULE(gcode, m) {
 
     linecode_register(m);
     preview_geometry_register(m);
+    renderer_canon_register(m);
 
     // Registration order is the dispatch order: the list form is tried first,
     // exactly as the pair of PyArg_ParseTuple attempts did.

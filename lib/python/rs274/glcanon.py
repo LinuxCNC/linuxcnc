@@ -58,7 +58,7 @@ def _removed_attribute(name, replacement):
     return property(getter)
 
 
-class GLCanon(Translated):
+class GLCanon(Translated, gcode.RendererCanon):
     """The preview canon: it does not draw the program, it receives it.
 
     ``gcode.parse`` builds the whole preview in C++ (``GCodeRenderer`` in
@@ -66,9 +66,9 @@ class GLCanon(Translated):
     the chain point, the arcs, the rigid-tap pair, the ``first_move`` drop,
     suppression, the vertices, the extents, the path lengths and the dwell and
     tool-change records - and hands the finished program over once, at the end
-    of the parse, through :meth:`adopt_geometry`. Setting
-    ``use_gcode_renderer`` is what asks for that, and it is not optional:
-    there is no second implementation to fall back to.
+    of the parse, through :meth:`adopt_geometry`. Subclassing
+    ``gcode.RendererCanon`` is what asks for it, and this class has no second
+    implementation to fall back to.
 
     What is still Python's, and why:
 
@@ -94,20 +94,14 @@ class GLCanon(Translated):
     preview is what it always was.
 
     Note that the per-move *callback* protocol is untouched by any of this: a
-    canon that does not set the flag still receives ``straight_feed``,
-    ``arc_feed``, ``next_line`` and the rest, exactly as it always has. That
-    is what ``rs274.interpret``'s ``PrintCanon``, the interpreter tests and
-    out-of-tree users of ``gcode.parse`` are built on. This class is simply
-    not one of them any more.
+    canon that is not a ``gcode.RendererCanon`` still receives
+    ``straight_feed``, ``arc_feed``, ``next_line`` and the rest, exactly as it
+    always has. That is what ``rs274.interpret``'s ``PrintCanon``, the
+    interpreter tests and out-of-tree users of ``gcode.parse`` are built on.
+    This class is simply not one of them any more.
     """
 
     lineno = -1
-
-    #: What the C side reads to choose the protocol, once, at parse start.
-    #: Must be the bool; the C side ignores any other value, and a canon that
-    #: sets it without a callable ``adopt_geometry`` is a TypeError rather
-    #: than a silent fall back to per-move callbacks.
-    use_gcode_renderer = True
 
     #: ``CANON_PLANE``. Never moves - :meth:`set_plane` is not forwarded, and
     #: the renderer segments arcs from its own copy. Kept because

@@ -71,30 +71,14 @@ class Protocol(unittest.TestCase):
         self.assertEqual(sorted(canon.progress_lines), canon.progress_lines,
                          "progress line numbers must not go backwards")
 
-    def test_the_flag_without_a_consumer_is_rejected(self):
+    def test_a_subclass_without_a_callable_consumer_is_rejected(self):
+        """Asking for a preview and not implementing one is a mistake."""
         class NoConsumer(HeadlessCanon):
-            use_gcode_renderer = True
             adopt_geometry = None
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(TypeError) as caught:
             parse("G1 X1\nM2\n", cls=NoConsumer)
-
-    def test_only_the_bool_opts_in(self):
-        """A merely truthy flag is not an opt-in.
-
-        The rule exists for the partial canons that answer every unknown
-        attribute with a stub - ``def __getattr__(self, name): return lambda
-        *a: None`` - which would otherwise hand back a callable for both the
-        flag and the consumer and be opted in without ever asking. Here it
-        shows up as the parse falling through to the per-move callbacks, which
-        this canon does not implement: loudly, rather than as an empty
-        preview.
-        """
-        class Truthy(HeadlessCanon):
-            use_gcode_renderer = 1
-
-        with self.assertRaises(Exception):
-            parse("G0 X0\nG1 F10 X1\nM2\n", cls=Truthy)
+        self.assertIn("adopt_geometry", str(caught.exception))
 
     def test_a_consumer_that_raises_fails_the_parse(self):
         class Raising(CountingCanon):
@@ -504,12 +488,9 @@ class CallbackCanon:
 
     Not a preview: it is the shape ``rs274.interpret``'s ``PrintCanon``, the
     interpreter tests and out-of-tree users of ``gcode.parse`` have - a
-    catch-all that answers every canon call with a no-op. The explicit
-    ``use_gcode_renderer = False`` is what that catch-all makes necessary: it
-    would otherwise answer the opt-in probe with a callable.
+    catch-all that answers every canon call with a no-op. It is not a
+    ``gcode.RendererCanon``, so it stays on the callbacks saying nothing.
     """
-
-    use_gcode_renderer = False
 
     def __init__(self, *args, **kw):
         self.rates = []
