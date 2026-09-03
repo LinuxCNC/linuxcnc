@@ -85,9 +85,8 @@ class GLCanon(gcode.RendererCanon):
     The offsets, the rotation, the plane and the feed rate are not delivered:
     the renderer keeps its own copy of each and forwards none of them (an F
     word is reported per move, changed or not). This class therefore no longer
-    mixes in :class:`rs274.interpret.Translated` and keeps no ``g5x_offset_*``
-    or ``g92_offset_*`` of its own; :attr:`plane` and ``feedrate`` remain but
-    do not move during a parse.
+    mixes in :class:`rs274.interpret.Translated` and keeps none of it: no
+    ``g5x_offset_*``, no ``g92_offset_*``, no ``plane`` and no ``feedrate``.
 
     An aborted or failed parse still hands over what it rendered, so a partial
     preview is what it always was.
@@ -102,11 +101,6 @@ class GLCanon(gcode.RendererCanon):
 
     lineno = -1
 
-    #: ``CANON_PLANE``. Never moves - :meth:`set_plane` is not forwarded, and
-    #: the renderer segments arcs from its own copy. Kept because
-    #: ``gcode.arc_to_segments`` reads ``canon.plane`` off the canon it is
-    #: handed.
-    plane = 1
     #: Segments per half-turn of arc. A GUI sets it from [DISPLAY]ARCDIVISION;
     #: the renderer reads it once, at parse start.
     arcdivision = 64
@@ -144,7 +138,6 @@ class GLCanon(gcode.RendererCanon):
         self.program_geometry = glcanon_bake.ProgramGeometry(
             geometry=geometry, is_foam=bool(is_foam))
         self.choice = None
-        self.feedrate = 1
         # The chain point and the leading-traverse flag. The renderer takes
         # them over for the parse and gives them back at the end of it, so a
         # reader afterwards sees what it always saw.
@@ -350,15 +343,6 @@ class GLCanon(gcode.RendererCanon):
                + self.dwell_time)
 
     # -- the canon protocol, of which a rendered parse calls two ------------
-
-    # Not called during a rendered parse; kept as the protocol's shape. What
-    # they write is never current - see the class docstring.
-    def set_spindle_rate(self, arg): pass
-    def set_feed_rate(self, arg): self.feedrate = arg / 60.
-    def select_plane(self, arg): pass
-
-    def set_plane(self, plane):
-        self.plane = plane
 
     def change_tool(self, arg):
         """Told, not asked: the tool change is already in the record.

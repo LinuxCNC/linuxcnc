@@ -531,12 +531,14 @@ class FeedRateForwarding(unittest.TestCase):
     @staticmethod
     def rates(cls, text):
         seen = []
-        real = cls.set_feed_rate
+        # A renderer canon has no set_feed_rate at all - nothing calls it.
+        real = getattr(cls, "set_feed_rate", None)
 
         class Counting(cls):
             def set_feed_rate(self, arg):
                 seen.append(arg)
-                return real(self, arg)
+                if real is not None:
+                    return real(self, arg)
 
         return parse(text, cls=Counting), seen
 
@@ -553,8 +555,8 @@ class FeedRateForwarding(unittest.TestCase):
         """Not even at 60.0, which is what the C-side tracker starts at.
 
         The rate still has to *reach the record* from the first move on, which
-        is what the length table below checks; what a canon holds in
-        ``self.feedrate`` is not read on a rendered parse.
+        is what the length table below checks. A renderer canon keeps no rate
+        of its own.
         """
         canon, rates = self.rates(CountingCanon,
                                   "G20 G17 G90\nG1 F60 X1\nM2\n")
