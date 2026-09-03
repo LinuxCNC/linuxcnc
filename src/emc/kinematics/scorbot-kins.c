@@ -294,6 +294,76 @@ int kinematicsInverse(
 }
 
 
+int kinematicsJacobian(
+    const double *joints,
+    const EmcPose *pose,
+    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+    const KINEMATICS_INVERSE_FLAGS *iflags
+) {
+    // kinematicsInverse() above, differentiated step by step in the same
+    // order, each quantity carried as its gradient over (x, y, z)
+    const double x = pose->tran.x, y = pose->tran.y;
+    const double rho2 = x*x + y*y;
+    const double rho = sqrt(rho2);
+    double r_cp, z_cp, dist, angle_to_cp, j1_angle, j1, z_j2, u;
+    double d_r_cp[3], d_z_cp[3], d_dist[3], d_angle[3], d_j1a[3], d_j1[3], d_j2[3];
+    double q;
+    int i, j, a;
+
+    (void)joints;
+    (void)iflags;
+    if (rho2 <= 0) { return -1; }
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+
+    // j0 = atan2(y, x)
+    jac[0][0] = -y/rho2 * TO_DEG;
+    jac[0][1] =  x/rho2 * TO_DEG;
+
+    r_cp = rho - L0_HORIZONTAL_DISTANCE;
+    z_cp = pose->tran.z - L0_VERTICAL_DISTANCE;
+    d_r_cp[0] = x/rho; d_r_cp[1] = y/rho; d_r_cp[2] = 0;
+    d_z_cp[0] = 0;     d_z_cp[1] = 0;     d_z_cp[2] = 1;
+
+    dist = sqrt(r_cp*r_cp + z_cp*z_cp);
+    if (dist <= 0 || dist >= 2*L1_LENGTH) { return -1; }
+    for (i = 0; i < 3; i++) {
+        d_dist[i] = (r_cp*d_r_cp[i] + z_cp*d_z_cp[i]) / dist;
+    }
+
+    // the signed acos in the inverse is atan2(z_cp, r_cp)
+    angle_to_cp = TO_DEG * atan2(z_cp, r_cp);
+    for (i = 0; i < 3; i++) {
+        d_angle[i] = TO_DEG * (r_cp*d_z_cp[i] - z_cp*d_r_cp[i]) / (dist*dist);
+    }
+
+    q = dist / (2*L1_LENGTH);
+    j1_angle = TO_DEG * acos(q);
+    for (i = 0; i < 3; i++) {
+        d_j1a[i] = -TO_DEG / sqrt(1 - q*q) * d_dist[i] / (2*L1_LENGTH);
+    }
+
+    j1 = angle_to_cp + j1_angle;
+    for (i = 0; i < 3; i++) {
+        d_j1[i] = d_angle[i] + d_j1a[i];
+        jac[1][i] = d_j1[i];
+    }
+
+    z_j2 = L1_LENGTH * sin(TO_RAD * j1);
+    u = (z_j2 - z_cp) / L2_LENGTH;
+    if (fabs(u) >= 1) { return -1; }
+    for (i = 0; i < 3; i++) {
+        double d_z_j2 = L1_LENGTH * cos(TO_RAD * j1) * TO_RAD * d_j1[i];
+        d_j2[i] = -TO_DEG / sqrt(1 - u*u) * (d_z_j2 - d_z_cp[i]) / L2_LENGTH;
+        jac[2][i] = d_j2[i];
+    }
+
+    jac[3][3] = 1;
+    jac[4][4] = 1;
+    return 0;
+}
+
 KINEMATICS_TYPE kinematicsType(void) {
     return KINEMATICS_BOTH;
 }
@@ -302,6 +372,7 @@ KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
