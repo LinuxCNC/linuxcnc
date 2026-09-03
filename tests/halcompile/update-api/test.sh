@@ -61,6 +61,17 @@ if ! halcompupdate --check test_update_api.comp 2>/dev/null; then
     exit 1
 fi
 
+# the names in the converted component contain no legacy type segments,
+# so a re-run must not emit any rename note
+if ! halcompupdate test_update_api.comp >/dev/null 2>rename-notes.txt; then
+    echo "halcompupdate re-run failed"
+    exit 1
+fi
+if grep -q "mentions legacy HAL type" rename-notes.txt; then
+    echo "spurious rename note for names without type segments"
+    exit 1
+fi
+
 # constructs that cannot be converted safely must be left unchanged and
 # produce a warning
 cat > tricky.comp <<'EOF'
@@ -68,6 +79,9 @@ component tricky;
 pin out float out0;
 pin io s32 count;
 pin out s32 result-##[8];
+pin out s32 out_s32;
+pin out bit input_bit;
+pin out float floating;
 param rw float gain;
 function _;
 license "GPL";
@@ -94,6 +108,121 @@ for pat in "postfix ++" "index with side effects" "parenthesized dereference" "a
         exit 1
     fi
 done
+
+# a name spelling a legacy type (any of them, bit and float included)
+# gets a gentle rename note with the new-style spelling suggested.  The
+# note is not counted as manual-review work and does not change the
+# file; the author decides whether the word really meant the type.  A
+# word merely containing a type (floating) is not a segment and must
+# not be noted.  The note must point at the line of the declaration,
+# not of the statement before it.
+if ! grep -q "tricky.comp:5: Note: pin name 'out_s32' mentions legacy HAL type 's32'" warnings.txt; then
+    echo "expected rename note missing for out_s32 (or wrong line number)"
+    exit 1
+fi
+if ! grep -q "consider renaming to 'out_si32'" warnings.txt; then
+    echo "expected rename suggestion missing for out_s32"
+    exit 1
+fi
+if ! grep -q "pin name 'input_bit' mentions legacy HAL type 'bit'" warnings.txt; then
+    echo "expected rename note missing for input_bit"
+    exit 1
+fi
+if ! grep -q "consider renaming to 'input_bool'" warnings.txt; then
+    echo "expected rename suggestion missing for input_bit"
+    exit 1
+fi
+if grep -q "name 'floating'" warnings.txt; then
+    echo "spurious rename note for a word containing 'float'"
+    exit 1
+fi
+if ! grep -q "2 name(s) mention a legacy HAL type (rename is optional)" warnings.txt; then
+    echo "rename note count missing from the summary"
+    exit 1
+fi
+# the note itself must not rename: the types are converted, the names stay
+for pat in "pin out si32 out_s32;" "pin out bool input_bit;" "pin out real floating;"; do
+    if ! grep -q "$pat" tricky.comp; then
+        echo "rename note must not modify the name: $pat"
+        exit 1
+    fi
+done
+
+# component and function names are HAL-visible too: the component name
+# is the loadrt argument and the module name, functions are exported as
+# comp.N.name.  They are noted the same way, and duplicated type
+# segments are mentioned once.
+cat > naming.comp <<'EOF'
+component conv_s32_float;
+pin out float value_s32;
+function conv_s32_s32;
+license "GPL";
+;;
+FUNCTION(conv_s32_s32) {
+    value_s32 = 1.0;
+}
+EOF
+halcompupdate -i --no-backup naming.comp 2>name-notes.txt
+if ! grep -q "naming.comp:1: Note: component name 'conv_s32_float'" name-notes.txt; then
+    echo "expected component name note missing (or wrong line number)"
+    exit 1
+fi
+if ! grep -q "consider renaming to 'conv_si32_real'" name-notes.txt; then
+    echo "expected component rename suggestion missing"
+    exit 1
+fi
+if ! grep -q "naming.comp:2: Note: pin name 'value_s32'" name-notes.txt; then
+    echo "expected pin name note missing (or wrong line number)"
+    exit 1
+fi
+if ! grep -q "naming.comp:3: Note: function name 'conv_s32_s32' mentions legacy HAL type 's32'" name-notes.txt; then
+    echo "expected function name note missing (or duplicate segments not deduped)"
+    exit 1
+fi
+if grep -q "'s32', 's32'" name-notes.txt; then
+    echo "duplicate type segments were not deduped in the note"
+    exit 1
+fi
+if ! grep -q "3 name(s) mention a legacy HAL type (rename is optional)" name-notes.txt; then
+    echo "rename note count missing from the naming.comp summary"
+    exit 1
+fi
+for pat in "component conv_s32_float;" "pin out real value_s32;" "function conv_s32_s32;"; do
+    if ! grep -q "$pat" naming.comp; then
+        echo "rename note must not modify the name: $pat"
+        exit 1
+    fi
+done
+
+# a fully converted component with stale names reports the note count
+# only: no mechanical-change summary and no diff-review advice
+cat > stale.comp <<'EOF'
+component stale;
+pin out real out_s32;
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+    out_s32_set(1.0);
+}
+EOF
+halcompupdate stale.comp >/dev/null 2>stale-notes.txt
+if grep -q "mechanical change" stale-notes.txt; then
+    echo "already-converted component must not report mechanical changes"
+    exit 1
+fi
+if grep -q "review the diff" stale-notes.txt; then
+    echo "already-converted component must not get diff-review advice"
+    exit 1
+fi
+if ! grep -q "stale.comp: 1 name(s) mention a legacy HAL type (rename is optional)" stale-notes.txt; then
+    echo "notes-only summary line missing"
+    exit 1
+fi
+if ! grep -q "^stale.comp:2: Note: pin name 'out_s32'" stale-notes.txt; then
+    echo "expected note with correct line number"
+    exit 1
+fi
 
 # writes to pins/params in EXTRA_SETUP become setters on references that
 # halcompile initializes only after extra_setup() runs, so the converted
