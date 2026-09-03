@@ -53,14 +53,16 @@ change all instances of `userkins` to `mykins`.
 * The *fpin* pin is included to satisfy the requirements of the halcompile
   utility but it is not accessible to kinematics functions.
 * HAL pins and parameters needed in kinematics functions (kinematicsForward(),
-  kinematicsInverse()) must be setup in a function (*userkins_setup()*) invoked
-  by the initial motion module call to kinematicsType().
+  kinematicsInverse()) must be setup in the *EXTRA_SETUP()* function, which
+  halcompile runs once when the module is loaded, before the component is
+  made ready.
 
 """;
 // The fpin pin is not accessible in kinematics functions.
-// Use the *_setup() function for pins and params used by kinematics.
+// Use EXTRA_SETUP() for pins and params used by kinematics.
 pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
+option extra_setup;
 function fdemo;
 license "GPL";
 author "Dewey Garrett";
@@ -91,14 +93,15 @@ FUNCTION(fdemo) {
    fpin_set(fpin + 1);
 }
 
-static int userkins_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "userkins"
     int res=0;
 
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
@@ -112,7 +115,6 @@ static int userkins_setup(void) {
     res += hal_param_new_real(comp_id, HAL_RO, &haldata->param_ro, 0.0, "%s.param-ro", HAL_PREFIX);
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -130,8 +132,6 @@ EXPORT_SYMBOL(kinematicsForward);
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup) userkins_setup();
     return KINEMATICS_IDENTITY; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display
