@@ -8,9 +8,11 @@ LIBKINSLIMITS_CXXSRCS := $(addprefix emc/motion_planning/, \
 	joint_limits.cc \
 	)
 
+# kins_util.c is the shared kinematics code the modules link; the loader
+# needs the same block helpers and ops dispatch on this side of dlopen.
 LIBKINSLIMITS_CSRCS := $(addprefix emc/kinematics_userspace/, \
 	kinematics_user.c \
-	)
+	) emc/kinematics/kins_util.c
 
 USERSRCS += $(LIBKINSLIMITS_CXXSRCS) $(LIBKINSLIMITS_CSRCS)
 
