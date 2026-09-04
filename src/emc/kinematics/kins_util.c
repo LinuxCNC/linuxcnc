@@ -1709,6 +1709,43 @@ void kinsParamsPinsWrite(const kins_pin_ref *pins,
     }
 } // kinsParamsPinsWrite()
 
+void kinsToolSourceSet(kins_tool_source *src, const EmcPose *tool)
+{
+    if (!src || !tool) { return; }
+    src->tool = *tool;
+    src->have = 1;
+} // kinsToolSourceSet()
+
+void kinsToolSourceApply(kins_tool_source *src, const char *prefix,
+                         const kins_param_desc *params, int nparams,
+                         kins_params *p)
+{
+    int i;
+    if (!src || !p || !src->have) { return; }
+    for (i = 0; i < nparams && i < KINS_MAX_PARAMS; i++) {
+        const kins_param_desc *d = &params[i];
+        double diff;
+        if (!d->tool || d->dir == KINS_OUT) { continue; }
+        /* a pin nobody set reads zero, which is not a disagreement */
+        diff = p->geometry[i] - src->tool.tran.z;
+        if (p->geometry[i] != 0.0 && (diff > 1e-9 || diff < -1e-9)) {
+            if (src->disagreeing < 1000) {
+                src->disagreeing++;
+            } else if (!src->warned) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "%s.%s disagrees with the tool offset motion applies;"
+                    " motion's is used, the pin is not needed\n",
+                    prefix ? prefix : "kins", d->name);
+                src->warned = 1;
+            }
+        } else {
+            src->disagreeing = 0;
+        }
+        p->geometry[i] = src->tool.tran.z;
+    }
+    p->tool = src->tool;
+} // kinsToolSourceApply()
+
 #ifdef RTAPI
 EXPORT_SYMBOL(map_coordinates_to_jnumbers);
 EXPORT_SYMBOL(mapped_joints_to_position);
@@ -1747,4 +1784,6 @@ EXPORT_SYMBOL(kinsOpsJacobian);
 EXPORT_SYMBOL(kinsParamsPinsCreate);
 EXPORT_SYMBOL(kinsParamsPinsRead);
 EXPORT_SYMBOL(kinsParamsPinsWrite);
+EXPORT_SYMBOL(kinsToolSourceSet);
+EXPORT_SYMBOL(kinsToolSourceApply);
 #endif
