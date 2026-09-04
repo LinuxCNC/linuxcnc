@@ -337,7 +337,7 @@ int main(void)
            down, and there are two ways to get there */
         want = in_work(xyzacWork, identityFrame, truth);
         axis = want.z;
-        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 2, "xyzac reports both ways to reach a tool axis");
         for (i = 0; i < n; i++) {
@@ -358,7 +358,7 @@ int main(void)
         /* the singular pose: the tool axis is the axis the primary turns
            about, so the primary is free and the answer is a family */
         axis.x = 0; axis.y = 0; axis.z = 1;
-        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 1, "a singular pose reports one representative, not a sample");
         check(free_dirs[0] == 1, "and says one direction is free");
@@ -371,13 +371,13 @@ int main(void)
            becomes the family rather than a scatter of points that differ by
            more than the tool can tell apart */
         axis.x = sin(0.01*DEG); axis.y = 0; axis.z = cos(0.01*DEG);
-        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 2 && free_dirs[0] == 0 && free_dirs[1] == 0,
               "a hundredth of a degree off the pole still has two solutions");
 
         axis.x = sin(0.001*DEG); axis.y = 0; axis.z = cos(0.001*DEG);
-        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 1 && free_dirs[0] == 1,
               "a thousandth of a degree off it, the spin is free in practice");
@@ -385,7 +385,7 @@ int main(void)
         /* xyzac turns the work through a full sphere, so straight down is a
            pose and not a refusal: A at half a turn */
         axis.x = 0; axis.y = 0; axis.z = -1;
-        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(xyzacWork, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 1 && free_dirs[0] == 1,
               "the other pole is reachable, and free about the tool as well");
@@ -394,12 +394,12 @@ int main(void)
         /* a machine where nothing turns the tool answers for the one pose it
            has, and refuses anything else */
         axis.x = 0; axis.y = 0; axis.z = 1;
-        n = toolFrameSolve(identityFrame, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(identityFrame, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 1 && free_dirs[0] == 0,
               "a machine with no orientation joints reports its one pose");
         axis.x = 0; axis.y = 1; axis.z = 0;
-        n = toolFrameSolve(identityFrame, identityFrame, 5, &axis, NULL, seed,
+        n = toolFrameSolve(identityFrame, identityFrame, 5, &axis, NULL, seed, 0,
                            sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
         check(n == 0, "and cannot reach any other");
 
@@ -410,7 +410,7 @@ int main(void)
 
             axis.x = 0; axis.y = 0; axis.z = -1;
             n = toolFrameSolve(identityFrame, headTool, 5, &axis, NULL,
-                               head_seed, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
                                free_dirs, spin);
             check(n == 0, "an unreachable axis reports no solutions");
         }
@@ -429,7 +429,7 @@ int main(void)
             closed = acos((axis.z - cv*cv)/(1 - cv*cv))/DEG;
 
             n = toolFrameSolve(identityFrame, headTool, 5, &axis, NULL,
-                               head_seed, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
                                free_dirs, spin);
             check(n == 2, "the nutating head reports both secondary roots");
             for (i = 0; i < n; i++) {
@@ -446,7 +446,7 @@ int main(void)
                discovered, so the answer is the same shape */
             head_seed[3] = 10*DEG; head_seed[4] = 5*DEG;
             n = toolFrameSolve(identityFrame, radTool, 5, &axis, NULL,
-                               head_seed, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
                                free_dirs, spin);
             check(n == 2, "a module taking radians is solved too");
             for (i = 0; i < n; i++) {
@@ -465,7 +465,7 @@ int main(void)
             axis = want.z;
             xdir = want.x;
 
-            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, NULL, mix_seed,
+            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, NULL, mix_seed, 0,
                                sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
             check(n == 1, "a spare orientation joint gives a family, not a list");
             check(free_dirs[0] == 1, "and one free direction is reported");
@@ -473,7 +473,7 @@ int main(void)
                   "the representative reaches the requested axis");
 
             for (i = 0; i < TOOL_FRAME_MAX_SOLUTIONS; i++) { spin[i] = 99; }
-            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, &xdir, mix_seed,
+            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, &xdir, mix_seed, 0,
                                sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
             check(n == 2, "asking for tool x as well pins it down");
             for (i = 0; i < n; i++) {
@@ -492,6 +492,47 @@ int main(void)
                 check(holds(sols, n, 6, which, value, 3),
                       "the pose the request was built from is one of them");
             }
+
+            /* the same machine with the table held, which is what a tilted
+               work plane that leaves the table alone asks: the head alone
+               reaches the axis two ways, and tool x is then a turn about the
+               tool rather than a table move */
+            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, NULL, mix_seed,
+                               1u << 3, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               free_dirs, spin);
+            check(n == 2, "holding the table leaves the two head solutions");
+            for (i = 0; i < n; i++) {
+                check(free_dirs[i] == 0, "with nothing left free");
+                check(sols[i*6 + 3] == mix_seed[3], "and the table where it was");
+                check(axis_matches(mixedWork, mixedTool, sols + i*6, &axis),
+                      "every held-table solution reaches the requested axis");
+            }
+
+            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, &xdir, mix_seed,
+                               1u << 3, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               free_dirs, spin);
+            check(n == 2, "tool x with the table held is still reached both ways");
+            for (i = 0; i < n; i++) {
+                PmRotationMatrix got = in_work(mixedWork, mixedTool, sols + i*6);
+                double c_s = cos(spin[i]), s_s = sin(spin[i]);
+                check(sols[i*6 + 3] == mix_seed[3], "the table is still where it was");
+                check(spin[i] != 0.0, "so the turn about the tool is not zero");
+                check(fabs(c_s*got.x.x + s_s*got.y.x - xdir.x) < 1e-9
+                      && fabs(c_s*got.x.y + s_s*got.y.y - xdir.y) < 1e-9
+                      && fabs(c_s*got.x.z + s_s*got.y.z - xdir.z) < 1e-9,
+                      "and it places tool x");
+            }
+
+            /* holding every orientation joint leaves the one pose */
+            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, NULL, mix_truth,
+                               (1u << 3) | (1u << 4) | (1u << 5), sols,
+                               TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+            check(n == 1 && free_dirs[0] == 0,
+                  "with everything held, the seed answers if it reaches the axis");
+            n = toolFrameSolve(mixedWork, mixedTool, 6, &axis, NULL, mix_seed,
+                               (1u << 3) | (1u << 4) | (1u << 5), sols,
+                               TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+            check(n == 0, "and refuses if it does not");
         }
 
 
@@ -518,7 +559,7 @@ int main(void)
             want_x.z = c_s*want_frame.x.z + s_s*want_frame.y.z;
 
             n = toolFrameSolve(identityFrame, headTool, 5, &axis, &want_x,
-                               head_seed, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
                                free_dirs, spin);
             check(n == 2, "the axis is still reached both ways");
             for (i = 0; i < n; i++) {
@@ -537,7 +578,7 @@ int main(void)
             /* with nowhere to report the turn, the request cannot be answered
                rather than being answered wrongly */
             n = toolFrameSolve(identityFrame, headTool, 5, &axis, &want_x,
-                               head_seed, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                               head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
                                free_dirs, NULL);
             check(n == 0, "and without somewhere to put it, no solutions");
 
@@ -545,20 +586,20 @@ int main(void)
             dot = 0.5;
             want_x.x = axis.x + dot; want_x.y = axis.y; want_x.z = axis.z;
             check(toolFrameSolve(identityFrame, headTool, 5, &axis, &want_x,
-                                 head_seed, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                                 head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
                                  free_dirs, spin) == -1,
                   "a tool x not at right angles to the axis is refused");
         }
 
         /* the arguments are checked rather than trusted */
         axis.x = 0; axis.y = 0; axis.z = 1;
-        check(toolFrameSolve(NULL, identityFrame, 5, &axis, NULL, seed, sols,
+        check(toolFrameSolve(NULL, identityFrame, 5, &axis, NULL, seed, 0, sols,
                              TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin) == -1,
               "a missing frame function is refused");
-        check(toolFrameSolve(xyzacWork, identityFrame, 0, &axis, NULL, seed,
+        check(toolFrameSolve(xyzacWork, identityFrame, 0, &axis, NULL, seed, 0,
                              sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin) == -1,
               "a bogus joint count is refused");
-        check(toolFrameSolve(xyzacWork, identityFrame, 5, NULL, NULL, seed,
+        check(toolFrameSolve(xyzacWork, identityFrame, 5, NULL, NULL, seed, 0,
                              sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin) == -1,
               "a missing target is refused");
     }

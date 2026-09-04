@@ -546,6 +546,7 @@ typedef struct {
     kinsFrameFunc tool;
     int    num_joints;
     const  double *seed;
+    unsigned int held;                  // bit per joint the caller keeps still
     int    nfree;
     int    free[TOOL_FRAME_MAX_FREE];
     double scale[TOOL_FRAME_MAX_FREE];  // joint units per internal radian
@@ -779,6 +780,9 @@ static int tfs_survey(tfs_ctx *c)
         double moved = 0;
         int p;
 
+        // a held joint stays at its seed value whatever it could do
+        if (c->held & (1u << i)) { continue; }
+
         for (k = 0; k < c->num_joints; k++) { c->joint[k] = c->seed[k]; }
         c->joint[i] = c->seed[i] + 1e-4;
         if (tfs_frame(c, c->joint, axis, xdir)) { return -1; }
@@ -947,6 +951,7 @@ int toolFrameSolve(kinsFrameFunc work,
                    const PmCartesian *axis_in_work,
                    const PmCartesian *x_in_work,
                    const double *seed,
+                   unsigned int held,
                    double *solutions,
                    int max_solutions,
                    int *free_directions,
@@ -968,6 +973,7 @@ int toolFrameSolve(kinsFrameFunc work,
     c.tool = tool;
     c.num_joints = num_joints;
     c.seed = seed;
+    c.held = held;
     c.nres = x_in_work ? 6 : 3;
     c.want[0] = axis_in_work->x;
     c.want[1] = axis_in_work->y;
