@@ -7,6 +7,7 @@ FIXME
 """;
 pin out si32 dummy=0 "dummy pin to satisfy halcompile";
 option period no;
+option extra_setup;
 
 license "GPL";
 author "David Mueller";
@@ -43,13 +44,14 @@ static struct haldata {
 } *haldata;
 
 
-static int xyzacb_trsrn_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
 #define HAL_PREFIX "xyzacb_trsrn_kins"
     int res=0;
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
@@ -76,7 +78,6 @@ static int xyzacb_trsrn_setup(void) {
     res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_2, 0, "kinstype.is-2");
 
     if (res) goto error;
-    hal_ready(comp_id);
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -90,6 +91,8 @@ EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsToolFrame);
+EXPORT_SYMBOL(kinematicsWorkFrame);
 
 static rtapi_u32 switchkins_type;
 
@@ -134,8 +137,6 @@ int kinematicsSwitch(int new_switchkins_type)
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup)  xyzacb_trsrn_setup();
     return KINEMATICS_BOTH; // set as required
            // Note: If kinematics are identity, using KINEMATICS_BOTH
            //       may be used in order to allow a gui to display
@@ -303,6 +304,88 @@ int kinematicsForward(const double *j,
 
     return 0;
 } // kinematicsForward()
+
+// These modules do not link kins_util.c, so they cannot reach the shared
+// TOOL_FRAME_SPINDLE: a kernel module has to resolve its own symbols.
+static void frame_square_with_machine(PmRotationMatrix *rot)
+{
+    rot->x.x = 1; rot->y.x = 0; rot->z.x = 0;
+    rot->x.y = 0; rot->y.y = 1; rot->z.y = 0;
+    rot->x.z = 0; rot->y.z = 0; rot->z.z = 1;
+}
+
+int kinematicsToolFrame(const double *j,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    double       nu = hal_get_real(haldata->nut_angle); // degrees
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+    double       Ss = sin(j[4]*TO_RAD);
+    double       Cs = cos(j[4]*TO_RAD);
+    double       Sp = sin(j[5]*TO_RAD);
+    double       Cp = cos(j[5]*TO_RAD);
+    double        r = Cs + Sv*Sv*(1-Cs);
+    double        s = Cs + Cv*Cv*(1-Cs);
+    double        t = Sv*Cv*(1-Cs);
+    int a, b, k;
+
+    // identity kinematics, and tool kinematics where the world axes are the
+    // tool axes by construction, both leave the tool square with the machine
+    if (switchkins_type != 1) {
+        frame_square_with_machine(rot);
+        return 0;
+    }
+
+    // the primary joint turns the head about z
+    const double Rp[3][3] = {{Cp, -Sp, 0}, {Sp, Cp, 0}, {0, 0, 1}};
+
+    // the nutating secondary joint
+    const double Rs[3][3] = {{Cs, -Cv*Ss, Sv*Ss},
+                             {Cv*Ss, r, t},
+                             {-Sv*Ss, t, s}};
+
+    double M[3][3];
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            M[a][b] = 0;
+            for (k = 0; k < 3; k++) { M[a][b] += Rp[a][k] * Rs[k][b]; }
+        }
+    }
+
+    rot->x.x = M[0][0]; rot->y.x = M[0][1]; rot->z.x = M[0][2];
+    rot->x.y = M[1][0]; rot->y.y = M[1][1]; rot->z.y = M[1][2];
+    rot->x.z = M[2][0]; rot->y.z = M[2][1]; rot->z.z = M[2][2];
+
+    return 0;
+} // kinematicsToolFrame()
+
+int kinematicsWorkFrame(const double *j,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    double       Sw = sin(j[3]*TO_RAD);
+    double       Cw = cos(j[3]*TO_RAD);
+
+    // in tool kinematics the world axes are the tool axes, so the work is not
+    // being reported against the machine and there is nothing to turn
+    if (switchkins_type != 1) {
+        frame_square_with_machine(rot);
+        return 0;
+    }
+
+    // the A joint carries the work: its frame in machine coordinates
+    // is a rotation about x by the joint value
+    const double W[3][3] = {{1, 0, 0}, {0, Cw, Sw}, {0, -Sw, Cw}};
+
+    rot->x.x = W[0][0]; rot->y.x = W[0][1]; rot->z.x = W[0][2];
+    rot->x.y = W[1][0]; rot->y.y = W[1][1]; rot->z.y = W[1][2];
+    rot->x.z = W[2][0]; rot->y.z = W[2][1]; rot->z.z = W[2][2];
+
+    return 0;
+} // kinematicsWorkFrame()
 
 int kinematicsInverse(const EmcPose * pos,
                       double *j,

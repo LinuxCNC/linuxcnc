@@ -1,0 +1,441 @@
+:lang: en
+:toc:
+
+[[cha:kinematics-conventions]]
+= Kinematics Conventions
+
+== Introduction
+
+A kinematics module answers two questions: where the controlled point is for a
+given set of joint positions, and which joint positions put it at a requested
+place. `kinematicsForward()` and `kinematicsInverse()` are those two answers.
+
+Everything else about a machine's geometry is currently rebuilt outside the
+module. A tilted work plane needs the direction the tool points in, a
+simulation model needs the whole chain of frames, a limit check needs the rate
+joints move per unit of commanded motion. For the `xyzacb-trsrn` machine that
+geometry is written three times: as closed-form expressions in
+`src/hal/components/xyzacb_trsrn.comp`, as homogeneous matrices in the config's
+`remap_funcs_twp.py`, and as a chain of `HalRotate` calls with hand-chosen
+signs in `vismach/xyzacb-trsrn-gui.py`. The three copies share no vocabulary
+and no sign convention, so "the same as" can be checked only by a person
+reading all three.
+
+This chapter fixes the vocabulary and states the rules, so that two modules
+written from the same drawing give the same answers and a consumer can say what
+it needs without naming a machine. <<sec:writing-a-module,Writing a Module>>
+collects the rules in one place.
+
+[[sec:frames]]
+== Frames
+
+Four frames, all right-handed.
+
+Joint space::
+  One coordinate per joint, in that joint's own units. This is what the motion
+  controller commands and what `kinematicsForward()` is given.
+
+Machine frame::
+  Fixed to the machine bed, with the X, Y and Z of
+  <<cha:cnc-machine-overview,CNC Machine Overview>>. Nothing rotates it.
+
+Work frame::
+  Fixed to the workpiece. `kinematicsForward()` reports in it, and
+  `kinematicsInverse()` is given it. Where no rotary carries the work it
+  coincides with the machine frame. Where one does, it turns with the table and
+  the module undoes that rotation, so that a G-code position keeps naming the
+  same feature of the part however the table is set.
+
+Tool frame::
+  Fixed to the tool. Its origin is the controlled point of
+  <<sec:controlled-point,Controlled Point>>, the tool tip when a tool length
+  offset is in effect and the tip of the spindle otherwise. Its third axis is
+  the tool axis, <<sec:tool-frame,The Tool Frame>>.
+
+The interface calls the work frame "world": the forward and inverse take a
+`struct EmcPose *world`, and the motion controller speaks of world mode. That
+name is historical and stays in the code. This chapter says work frame, because
+the frame is attached to the workpiece and not to the room.
+
+A pose is always a pair of frames, the moving one and the one it is measured
+against, and the two halves of this chapter use different pairs deliberately.
+
+Positions are measured in the work frame, which is what makes a program
+independent of how the table is set.
+
+Orientations are measured against the machine frame, and there are two of them.
+A module reports the tool frame and the work frame separately, each in machine
+coordinates. A consumer that wants the tool in workpiece coordinates composes
+them:
+
+  tool_in_work = transpose(work) * tool
+
+A frame written as a matrix is the rotation whose columns are its axes in the
+coordinates it is measured against, so the tool axis in workpiece coordinates,
+the vector a tilted work plane asks the machine to reach and the one existing
+TWP code reads out of `matrix[0,2]`, `matrix[1,2]` and `matrix[2,2]`, is the
+third column of that product.
+
+The pair is reported rather than the product because the product cannot be
+taken apart again, and a consumer that has to place both bodies needs each one
+against something that does not move. A simulation model draws the workpiece in
+one place and the tool in another; given only the product it can recover
+neither. Where only the tool turns, the work frame is the identity; where only
+the work turns, the tool frame is. A machine that turns both returns a real
+pair.
+
+[[sec:rotation-sense]]
+== Rotation Sense
+
+LinuxCNC states its rotation convention in
+<<sec:rotational-axes,Rotational Axes>>:
+
+[quote]
+The rotational axes are measured in degrees as wrapped linear axes in which the
+direction of positive rotation is counterclockwise when viewed from the
+positive end of the corresponding X, Y, or Z-axis. [...] Clockwise or
+counterclockwise is from the point of view of the workpiece.
+
+The second sentence is the one that matters here. The rotation described is
+that of the tool relative to the workpiece. Where the rotary carries the tool
+that is also the direction the physical axis turns; where it carries the work
+the table turns the other way, and the module converts between the two. This is
+the convention of ISO 841, which describes all motion as motion of the tool
+relative to the workpiece and primes the axes of a machine that moves the work:
+a table turning about Z is `+C'` when it produces the tool motion called `+C`.
+
+So: given a pose whose C value increases, the tool moves counterclockwise about
+work Z seen from the workpiece, whichever member physically turns.
+
+=== conventional-directions
+
+`trtfuncs.c` and `maxkins.c` carry a `conventional-directions` HAL pin that
+selects the sign of the rotary terms, and default it to false, which is the
+opposite sense. Existing configurations keep working; new configurations set it
+true.
+
+Leaving it false costs two things. The direction a program runs in depends on a
+HAL pin rather than on the G-code. And the rotary values the module reports are
+the raw joint values,
+
+[source,c]
+----
+pos->a = joints[JA];
+pos->c = joints[JC];
+----
+
+while the translations in the same call were computed with the opposite sign,
+so the returned pose does not describe its own orientation. A caller cannot
+rebuild the tool frame from `pos->a`, `pos->b` and `pos->c` without separately
+knowing how the pin is set. That is the immediate reason the tool frame has to
+be an answer from the module rather than something a caller derives from the
+pose.
+
+[[sec:tool-frame]]
+== The Tool Frame
+
+=== The tool axis
+
+The tool axis is the third axis of the tool frame. It points from the tip
+towards the holder, away from the material.
+
+It is a direction, not a distance, and is unrelated to the tool length: the
+length is the scalar the `tool-length` pin carries, and the tool axis is the
+direction that length is applied along.
+
+Where it points for a given joint set is whatever the machine's geometry makes
+it. A plain vertical mill has `[0, 0, 1]` in machine coordinates at all times,
+and a machine whose spindle is parallel to Z with its rotaries at zero has it
+there too, but that is a property of those machines and not a rule. `pumakins`
+with its supplied parameters has `[0, 0, -1]` with every joint at zero, and
+`genserkins` takes its Denavit-Hartenberg parameters from HAL pins, so for that
+module the question has no fixed answer at all.
+
+[[sec:approach-vector]]
+=== Native frames that point the other way
+
+Robot kinematics name the same line in the opposite sense. ISO 9787 clause 5.3
+places the mechanical interface coordinate system at the centre of the flange,
+where the "+Zm axis points perpendicularly away from the mechanical interface",
+which runs holder towards tip. The Denavit-Hartenberg approach vector is the
+same sense. `pumakins` builds that frame and uses it, reaching the tip by
+adding the tool length along the third column:
+
+[source,c]
+----
+hom.tran.x = hom.tran.x + hom.rot.z.x*PUMA_D6;
+----
+
+Both senses come from a standard for a class of machine, and the tree contains
+both. What a module reports is the machine tool sense, tip towards holder,
+because that is the direction a tilted work plane commands and what machine Z
+already means to a mill operator.
+
+Turning one sense into the other is not a change of sign. Negating the third
+column leaves a matrix of determinant -1, a reflection, which is not a frame
+any machine can hold. Reversing the tool axis and staying right-handed takes a
+half turn about one of the two transverse axes, and which one is chosen decides
+where tool X lands.
+
+Because it is a rotation in its own right, a module declares it rather than
+applying it by hand, as the last argument of `switchkinsRegisterFrames()`.
+Shared code applies it and checks once, at load, that it is orthonormal with
+determinant +1. `TOOL_FRAME_SPINDLE` is the identity, for a module whose maths
+is already in the convention; `TOOL_FRAME_FLANGE` is the half turn a
+Denavit-Hartenberg module needs. Keeping it in one place makes it greppable and
+stops the next such module quietly choosing the other half turn, which would be
+right about the tool axis and wrong about tool X.
+
+The declaration is fixed when the module is written and nothing changes it at
+runtime. A machine whose native frame moved while running would be a machine
+whose geometry moves underneath the program.
+
+=== Tool X
+
+A tilted work plane commands only where the tool points. Reaching that
+direction uses both rotaries of a five-axis machine, and the rotation of the
+tool about its own axis is then whatever the chain leaves rather than anything
+the program chose. For cutting that does not matter, the cutter being a solid
+of revolution. It matters as soon as the tool frame is used as a coordinate
+system for programming, which is what `G68.2` does: the operator writes X and Y
+moves in the tilted plane and has to know where its X points.
+
+So the software places it, through a virtual rotation about the tool axis
+applied after the physical joints. It is the `pre-rot` pin on the in-tree
+kinematics components and `virtual_rot` in the TWP code, one quantity under two
+names. A machine with no such pin has no say in the matter: its tool X is
+whatever the chain produces, and a consumer that needs a defined one applies
+the rotation itself.
+
+The frame a module reports is the joints' alone and does not carry the virtual
+rotation. The rotation is a rotation of the coordinate system, not of the
+machine, and that is where the other controls keep it: Heidenhain's
+`COORD ROT` rotates the working plane, Fanuc's `G68.2` feature coordinate
+system carries its own X, Siemens' swivel puts the residual turn in the frame.
+Reporting the joints alone also keeps the orientation inverse honest: the turn
+it reports about the tool axis is then the value to apply, not a difference
+from whatever is applied already. A consumer that wants tool X as programmed,
+a preview or a model, multiplies the frame by the rotation on the pin.
+
+[IMPORTANT]
+By default, tool X lies parallel to the machine XY plane. Where the tool axis
+is vertical and that leaves tool X free, tool X is machine X. `G68.3 R` rotates
+the frame from there.
+
+This fixes tool X only up to a half turn, two opposite directions both being
+horizontal. Where a module has to choose, it takes the one that keeps the frame
+continuous with the previous pose.
+
+=== Deriving the default rotation
+
+The convention is stated rather than a formula because the formula differs from
+machine to machine and follows from the convention. Write the tool orientation
+as the product of the primary, secondary and virtual rotations:
+
+  M = Rp(theta_1) * Rs(theta_2) * Rz(tc)
+
+Tool X is the first column of `M`, so "tool X is horizontal" is the statement
+that `M[2][0]` is zero. Solving that for `tc` gives the default.
+
+For a nutating head of nutation angle `v`, writing `Sv = sin(v)`,
+`Cv = cos(v)`, `Ss = sin(theta_2)`, `Cs = cos(theta_2)`,
+`s = Cs + Cv*Cv*(1 - Cs)` and `t = Sv*Cv*(1 - Cs)`, the two nutating machines
+in the tree have different secondary rotations, and so different bottom rows:
+
+[cols="1,2,2",options="header"]
+|===
+| machine | bottom row of `Rs` | resulting default
+
+| `xyzacb-trsrn`
+| `[-Sv*Ss, t, s]`
+| `tc = atan2(Sv*Ss, t)`
+
+| `xyzbca-trsrn`
+| `[t, Sv*Ss, s]`
+| `tc = atan2(-t, Sv*Ss)`
+|===
+
+The two formulas look unrelated and are the same rule. Apply either to the
+other machine and the result is a frame whose tool *Y* is horizontal, a quarter
+turn from what was wanted, and no test in the tree notices: the tool still
+points where it was told to point, and only the meaning of X and Y in the
+tilted plane has changed. A module that documents its `Rs` and cites this rule
+can be checked. One that documents only its `tc` formula cannot.
+
+[[sec:consumer-needs]]
+== What a Module Reports
+
+Position, through `kinematicsForward()` and `kinematicsInverse()`, in the work
+frame.
+
+Orientation, through `kinematicsWorkFrame()` and `kinematicsToolFrame()`, each
+against the machine frame, as <<sec:frames,Frames>> describes. The consumers
+are tilted work plane handling, tool length compensation along a tilted axis,
+previews and simulation models, and probing routines that have to say which way
+the stylus faces.
+
+The joint values that reach a requested orientation, through
+`kinematicsToolFrameInverse()`, which is the inverse of the pair above and the
+question a tilted work plane asks when it has to orient the machine.
+<<sec:orientation-inverse,The Orientation Inverse>> says what it answers.
+
+The Jacobian, relating commanded velocity to joint velocity at a given pose, so
+that a feed can be checked against the joint velocity, acceleration and limit
+values it will actually demand, and so that proximity to a singularity is a
+number rather than a surprise. A module with a closed form can supply it
+directly. Otherwise it can be obtained by differencing `kinematicsInverse()`
+about the pose, which needs no change to the module at all.
+
+All of these are functions of the joint values and the module's own geometry.
+None needs state carried between calls, and none needs the module to be running
+in a realtime thread to be useful: the interesting callers, a limit check
+before a move and a preview before a program runs, are not in the servo loop.
+
+[[sec:orientation-inverse]]
+== The Orientation Inverse
+
+Pointing the tool somewhere is the question a tilted work plane asks on every
+orienting move, and the question a program written as tool vectors asks on
+every block. It is the inverse of the tool frame: not where the tool points
+for these joints, but which joints point it there.
+
+It has more than one answer. A five-axis machine reaches a given tool axis two
+ways, one with the secondary rotary positive and one with it negative, and
+which of the two is wanted depends on the joint limits and on what the operator
+asked for, shortest move or one direction of rotation only. So the module
+reports every set of joint values that reaches the orientation and stops there.
+It does not apply the joint limits and it does not rank the answers, because
+neither is geometry: a module that picked for the caller would be picking with
+less to go on than the caller has.
+
+The request is a tool axis, and optionally a tool x as well. The two have to be
+at right angles, being two axes of one frame.
+
+Asking for tool x does not require a joint that can reach it. A five-axis
+machine spends both rotaries on the tool axis, and the turn about that axis is
+not a joint at all: it is the virtual rotation of <<sec:tool-frame,The Tool
+Frame>>. So the answer comes back in two parts. Where the joints can place tool
+x, on a machine with a third orientation joint, they do, and the reported turn
+is zero. Where they cannot, the joints reach the axis and the reported turn
+finishes the job. The caller writes one path either way, and which kind of
+machine it has is a number that happens to be zero rather than a branch.
+
+This is what the controls do. A Heidenhain `PLANE VECTOR` block carries the
+normal and the base vector together, the normal reached by the rotaries and the
+base vector applied as a rotation of the coordinate system; `SEQ` then picks
+between the rotary solutions. A Fanuc `G68.2` defines the plane including where
+its X points, and `G53.1` moves the rotaries to align the tool axis. Siemens
+draws the same line from the other side: the turn of the tool about itself is
+`THETA`, and it exists only where a third rotary axis does. None of them
+refuses a program for naming both directions on a five-axis machine, and
+neither should this.
+
+Some requests still do not pin the machine down. A five-axis machine asked to
+point the tool along the axis its primary rotary turns about can hold any
+primary angle; a machine with three orientation joints asked only for a tool
+axis has a whole curve of solutions. In both cases the answer is a continuum,
+so one point of it is reported, the one nearest where the machine already is,
+along with the number of directions left free. A caller that hands back a list
+of samples from a curve as though they were alternatives is telling the
+operator something false.
+
+Which joints may take part is the caller's decision, not the module's. A
+rotary table turns the tool against the work as surely as a head rotary does,
+so a machine with a table and a two-axis head has three orientation joints and
+a bare tool axis leaves one of them free. Whether the table is used for that
+is a machining choice: Heidenhain names the axes a tilt may use with `M138`,
+and its `PLANE` lets the operator pick `TABLE ROT`, turn the table to place
+tool X, or `COORD ROT`, leave the table and rotate the coordinate system. So
+the request names the joints to hold. Holding the table gives the two head
+solutions and the turn about the tool that finishes the frame, which is what
+the TWP remap computes; holding nothing lets the table place tool X and the
+turn comes back zero.
+
+The request is taken as a program carries it. A direction written to a few
+digits is a unit vector only to within its rounding, and a tool X written the
+same way is at right angles to the axis only to within it, so both are
+normalised on the way in and only a vector that is not a direction at all is
+refused.
+
+=== What a module has to supply
+
+Nothing, if it already reports its frames. The shared code answers the question
+by searching: it finds which joints move `transpose(work) * tool`, and solves
+for them. That is the whole reason the frames are worth reporting. A module
+that supplies them gets the inverse without deriving anything.
+
+A module with a closed form registers it and that is used instead. It is faster
+than a search and it knows its own degenerate poses without having to discover
+them. The nutating heads are the case in point: for those,
+
+  cos(secondary) = (Kzz - Cv^2) / (1 - Cv^2)
+
+with `Cv = cos(v)` for a nutation angle `v` and `Kzz` the z component of the
+requested tool axis, and the primary follows from the other two components.
+Both roots of the arc cosine are solutions, which is where the pair of answers
+comes from.
+
+The search is not a realtime routine. How long it takes depends on the machine
+and on the request, and the callers that want it, orienting a tilted work plane
+and previewing a program, are not in the servo loop.
+
+[[sec:writing-a-module]]
+== Writing a Module
+
+Frames::
+  Report positions in the work frame, so a rotary that carries the work is
+  undone in `kinematicsForward()`. Report the work frame and the tool frame
+  separately, each against the machine frame, so that a consumer placing both
+  bodies can.
+
+Signs::
+  Positive A, B and C are counterclockwise about work X, Y and Z viewed from
+  the positive end, describing the motion of the tool relative to the
+  workpiece. A new module does not offer a pin that reverses this.
+
+Tool axis::
+  Tip towards holder. A module whose maths is written with the
+  Denavit-Hartenberg approach vector declares the half turn that relates the
+  two, rather than applying it by hand.
+
+Tool X::
+  The default virtual rotation puts tool X parallel to the machine XY plane.
+  Derive the value from the module's own rotation matrices, and write those
+  matrices down in the module.
+
+Orientation inverse::
+  A module that reports its frames gets it from the shared search and needs to
+  do nothing. Register a closed form only where one exists, and where it does,
+  say which poses it treats as degenerate.
+
+Geometry stays in the module::
+  Whatever a consumer needs to know about the machine's shape is answered by
+  the module. A consumer that restates it has taken a copy that nothing keeps
+  in step, which is the situation this chapter exists to end.
+
+Mount orientation is not this::
+  A tool or holder mount orientation is a different quantity: a right-angle
+  head, a tool held at an angle, an end effector clocked on its flange. Those
+  vary from setup to setup and belong with the rest of the tool data, addressed
+  from the program where the interpreter can see them, and not in HAL alone
+  where lookahead and preview cannot see them and where they can move
+  underneath a running program. The tool table and `G43.1` already carry
+  per-tool A, B and C words, which is the right addressing route, but they
+  shift the rotary axis reading and configurations depend on that, so a mount
+  orientation is a new field rather than a reinterpretation of that one. It
+  wants to be stated as a frame, which can be checked for orthonormality and
+  determinant, rather than as three angles whose ordering convention is written
+  down nowhere.
+
+== References
+
+* <<cha:cnc-machine-overview,CNC Machine Overview>>, for the axis nomenclature
+  and the rotation convention this chapter builds on.
+* <<cha:5-axis-kinematics,5-Axis Kinematics>>, for worked transformations of
+  the table-rotary and tilting-table configurations.
+* <<cha:switchable-kinematics,Switchable Kinematics>>, for how a machine
+  presents more than one of these models at once.
+* ISO 841, Industrial automation systems and integration, Numerical control of
+  machines, Coordinate system and motion nomenclature.
+* ISO 9787, Robots and robotic devices, Coordinate systems and motion
+  nomenclatures, clause 5.3, for the flange frame the robot modules follow.
