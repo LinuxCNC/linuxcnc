@@ -365,6 +365,17 @@ public:
                     const double origin[3], const double rotation[3][3]);
  int work_plane_cancel(setup_pointer settings, bool tell_canon_anyway = false);
  int work_plane_check_sequence(block_pointer block, setup_pointer settings);
+ int convert_work_plane_from_tool(block_pointer block, setup_pointer settings);
+ int convert_orient_tool(int code, block_pointer block, setup_pointer settings);
+ int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
+ int ptp_seconds(block_pointer block, setup_pointer settings,
+                 double x, double y, double z, double a, double b, double c,
+                 double u, double v, double w, double *seconds);
+ int kins_context(setup_pointer settings, void **ctx);
+ void kins_release(setup_pointer settings);
+ void current_machine_pose(setup_pointer settings, EmcPose *pose);
+ void machine_pose_to_program(setup_pointer settings, const EmcPose *pose, double prog[9]);
+ int current_joints(setup_pointer settings, void *ctx, double *joints);
  void g68_apply(setup_pointer settings, double *x, double *y, double *z);
  void g68_remove(setup_pointer settings, double *x, double *y, double *z);
  void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);

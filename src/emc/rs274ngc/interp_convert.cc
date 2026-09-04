@@ -4368,7 +4368,11 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
     CHP(convert_nurbs(code, block, settings));
-  } else if ((code == G_4) || (code == G_53));  // handled elsewhere
+  } else if ((code == G_4) || (code == G_53) || (code == G_53_4) || (code == G_53_5)
+             || (code == G_53_7));  // handled elsewhere
+  else if ((code == G_53_1) || (code == G_53_3) || (code == G_53_6)) {
+    CHP(convert_orient_tool(code, block, settings));
+  }
   else if ((code == G_12_1) || (code == G_13_1)) {
     // The flag makes the interpreter wait for motion to drain, so that no
     // motion is planned across a change of kinematics.  Reading runs far
@@ -5503,6 +5507,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
+  if (block->g_modes[GM_MODAL_0] == G_53_5 || block->g_modes[GM_MODAL_0] == G_53_7) {
+    // the words name joints, by letter or by number: nothing below applies
+    CHP(convert_ptp_joints(block->g_modes[GM_MODAL_0], move, block, settings));
+    return INTERP_OK;
+  }
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
 
@@ -5516,7 +5525,28 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   // Create a state tag and dump it to canon
   write_canon_state_tag(block, settings);
 
-  if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
+  if (block->g_modes[GM_MODAL_0] == G_53_4) {
+    // point-to-point: the endpoint is this Cartesian point, the path to it
+    // is whatever the joints make of it
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use G53.4 with cutter radius compensation on"));
+    tag_straight(block,end_x, end_y);
+    if (move == G_0) {
+      JOINT_TRAVERSE(block->line_number, NULL, 0, end_x, end_y, end_z,
+                     AA_end, BB_end, CC_end,
+                     u_end, v_end, w_end);
+    } else {
+      double seconds;
+      CHP(ptp_seconds(block, settings, end_x, end_y, end_z,
+                      AA_end, BB_end, CC_end, u_end, v_end, w_end, &seconds));
+      JOINT_FEED(block->line_number, NULL, 0, end_x, end_y, end_z,
+                 AA_end, BB_end, CC_end,
+                 u_end, v_end, w_end, seconds);
+    }
+    settings->current_x = end_x;
+    settings->current_y = end_y;
+    settings->current_z = end_z;
+  } else if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
     CHKS((block->g_modes[GM_MODAL_0] == G_53),

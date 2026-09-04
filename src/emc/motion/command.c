@@ -120,6 +120,26 @@ void emcmotApplyPendingPlannerType(void)
 }
 /* ===== END PLANNER_SWITCH_DEFER ==================================================== */
 
+/* the inverse once, for an endpoint, run to a fixed point: some modules
+   read the joints they are handed (a nutating head takes its rotary angles
+   from them), so one pass from a stale seed answers for the wrong angles,
+   and running again from its own answer settles it */
+static int inverse_settled(EmcPose *pos, double *joints,
+                           KINEMATICS_INVERSE_FLAGS *iflags,
+                           KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    int pass, j;
+
+    for (pass = 0; pass < 8; pass++) {
+	double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
+	for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { prev[j] = joints[j]; }
+	if (kinematicsInverse(pos, joints, iflags, fflags) != 0) { return -1; }
+	for (j = 0; j < NO_OF_KINS_JOINTS; j++) { worst = fmax(worst, fabs(joints[j] - prev[j])); }
+	if (worst < 1e-9) { break; }
+    }
+    return 0;
+}
+
 /* limits_ok() returns 1 if none of the hard limits are set,
    0 if any are set. Called on a linear and circular move. */
 STATIC int limits_ok(void)
@@ -1174,7 +1194,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
 		    start[joint_num] = (joint_num < ALL_JOINTS) ? joints[joint_num].pos_cmd : 0.0;
 		}
-		if (kinematicsInverse(&goal, start, &iflags, &fflags) != 0) {
+		if (inverse_settled(&goal, start, &iflags, &fflags) != 0) {
 		    reportError(_("joint interpolated move on line %d: the queue end fails kinematicsInverse"),
 				emcmotCommand->id);
 		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
@@ -1205,7 +1225,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		    SET_MOTION_ERROR_FLAG(1);
 		    break;
 		}
-		if (kinematicsInverse(&end, target, &iflags, &fflags) != 0) {
+		if (inverse_settled(&end, target, &iflags, &fflags) != 0) {
 		    reportError(_("joint interpolated move on line %d fails kinematicsInverse"),
 				emcmotCommand->id);
 		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
