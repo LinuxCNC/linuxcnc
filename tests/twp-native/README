@@ -1,0 +1,13 @@
+The tilted work plane on the xyzacb nutating-head sim, natively.
+
+G12.1 P1 selects the TCP kinematics, G68.2 defines a plane, and the
+orientation moves are checked against the python maths in
+tests/kins-twp/xyzacb: G53.1 lands the head on one of the oracle's
+angle pairs and leaves the linear joints where they were all through the
+move; G53.6 leaves the tool tip where it was; G53.3 ends at the point
+asked for in the plane; a move along plane X goes along plane X in the
+world; G68.3 reads the plane back off the oriented tool; G69 cancels.
+Q1 lets the table take part.  The point-to-point moves are checked too:
+G53.4 G0 to a program point, G53.5 and G53.7 G0 to a slide position with
+the head tilted, G53.4 G1 taking the time the straight move would in G94 and
+in G93, and what they refuse.
