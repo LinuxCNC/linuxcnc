@@ -2,14 +2,17 @@
  * Description: kinematics_user.c
  *   Non-RT loader for kinematics modules
  *
- * Loads a kinematics .so with dlopen and calls the nonrt_attach() it
- * exports, so this process evaluates the kinematics the machine is
- * running, at whatever poses it likes.  See nonrt_kins.h.
+ * Loads a kinematics .so with dlopen, asks it to describe itself through
+ * kinsDescribe(), and evaluates its kinematics through the parameter
+ * block (see kinematics.h).  The block is filled from HAL: one input pin
+ * of the caller's component per table entry, connected to the signal the
+ * RT instance's pin reads, so the values are the live ones; and the tool
+ * from motion's own tooloffset pins where motion is loaded, so that the
+ * tool the module sees is the one motion has, whether or not the config
+ * netted it to the module's pin.
  *
- * Identity kinematics needs no module code: the module says so through
- * nonrt_ops_t and this file maps joints to axes directly.  A module
- * exporting no nonrt_attach() is not an error either; the context comes
- * back flagged rt_only.
+ * A module exporting no kinsDescribe() is not an error; the context comes
+ * back flagged rt_only and answers nothing.
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -19,31 +22,30 @@
  ********************************************************************/
 
 #include "kinematics_user.h"
-#include <nonrt_kins.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <math.h>
 
 #include "config.h"  /* EMC2_HOME */
 
-typedef int (*nonrt_attach_fn)(const char *coordinates, nonrt_ops_t *ops,
-                               nonrt_resolve_fn resolve, void *arg);
+typedef int (*kins_describe_fn)(const char *coordinates, const char *sparm,
+                                kins_module_info *info);
 
-/* One per value a kinematics module reads is a generous bound. */
-#define MAX_MADE_SIGNALS 16
-#define MAX_BOUND_PINS   16
+#define MAX_BOUND_PINS   (KINS_MAX_PARAMS + AXIS_COUNT)
+#define MAX_MADE_SIGNALS MAX_BOUND_PINS
 
 struct KinematicsUserContext {
     int initialized;
-    int rt_only;               /* 1 if the module exports no nonrt_attach() */
-    int is_identity;           /* 1 for identity kinematics: no module code needed */
+    int rt_only;               /* 1 if the module exports no kinsDescribe() */
     KINEMATICS_TYPE kins_type;
     void *rt_handle;           /* dlopen handle */
-    nonrt_ops_t ops;
+    kins_module_info info;
+    kins_params params;
+    kins_scratch scratch;
+    int ktype;                 /* kinematics type being evaluated */
     int num_joints;
-    int joint_to_axis[KINEMATICS_USER_MAX_JOINTS]; /* identity path only */
     char module_name[64];
     int comp_id;               /* the caller's component, owns the pins made here */
     const char *prefix;        /* its name, which those pin names start with */
@@ -51,6 +53,10 @@ struct KinematicsUserContext {
     int num_made_signals;
     hal_refs_u *cell;          /* HAL storage those pins are made against */
     int num_cells;
+    int cell_of_param[KINS_MAX_PARAMS];  /* -1 if not bound */
+    int cell_of_tool[AXIS_COUNT];        /* motion.tooloffset.*, -1 if absent */
+    int tool_param;                      /* the table's tool entry, -1 if none */
+    int warned_tool;
 };
 
 /* ========================================================================
@@ -58,16 +64,16 @@ struct KinematicsUserContext {
  * ======================================================================== */
 
 /*
- * Give a kinematics module a reference to a value it asked for.
+ * Give the block a reference to a value it needs.
  *
  * The reference is to a pin of ours rather than into the RT instance's,
- * so that its lifetime is ours: see nonrt_kins.h.  Ours is connected to
- * the signal the RT pin reads, or, when the RT pin has no signal, to one
- * made here and removed again in kinematicsUserFree().
+ * so that its lifetime is ours.  Ours is connected to the signal the RT
+ * pin reads, or, when the RT pin has no signal, to one made here and
+ * removed again in kinematicsUserFree().
  *
  * The reference has to live in HAL shared memory, since that is where
  * HAL rewrites it on connect and disconnect, so the pins are made
- * against hal_malloc() cells and the module gets what a cell holds once
+ * against hal_malloc() cells and the block reads what a cell holds once
  * the connection is in place.
  */
 static int make_signal(KinematicsUserContext *ctx, const char *pin_name,
@@ -100,23 +106,30 @@ static int new_pin(int comp_id, hal_type_t type, hal_refs_u *out,
         case HAL_FLOAT: return hal_pin_new_real(comp_id, HAL_IN, &out->r, 0.0, "%s", name);
         case HAL_S32:   return hal_pin_new_si32(comp_id, HAL_IN, &out->s, 0, "%s", name);
         case HAL_U32:   return hal_pin_new_ui32(comp_id, HAL_IN, &out->u, 0, "%s", name);
-        case HAL_S64:   return hal_pin_new_sint(comp_id, HAL_IN, &out->s, 0, "%s", name);
-        case HAL_U64:   return hal_pin_new_uint(comp_id, HAL_IN, &out->u, 0, "%s", name);
         default: break;
     }
     return -1;
 }
 
-static int bind_pin(const char *pin_name, hal_type_t type,
-                    hal_refs_u *out, void *arg)
+/* Does a pin of this name exist?  Silent: absence is an answer, not an error. */
+static int pin_exists(const char *pin_name)
 {
-    KinematicsUserContext *ctx = (KinematicsUserContext *)arg;
+    hal_query_t q;
+    memset(&q, 0, sizeof(q));
+    q.name  = pin_name;
+    q.qtype = HAL_QTYPE_PIN;
+    return hal_getref_p(&q) == 0;
+}
+
+/* Bind pin_name; returns the cell index, or -1. */
+static int bind_pin(KinematicsUserContext *ctx, const char *pin_name,
+                    hal_type_t type)
+{
     char signal[HAL_NAME_LEN + 1];
     char mine[HAL_NAME_LEN + 1];
     hal_refs_u *cell;
     hal_query_t q;
-
-    if (!ctx || !pin_name || !out) return -1;
+    int idx;
 
     memset(&q, 0, sizeof(q));
     q.name  = pin_name;
@@ -149,7 +162,8 @@ static int bind_pin(const char *pin_name, hal_type_t type,
         fprintf(stderr, "kinematicsUserInit: too many pins to bind\n");
         return -1;
     }
-    cell = &ctx->cell[ctx->num_cells++];
+    idx  = ctx->num_cells;
+    cell = &ctx->cell[idx];
 
     if (new_pin(ctx->comp_id, type, cell, mine) != 0) {
         fprintf(stderr, "kinematicsUserInit: cannot create pin '%s'\n", mine);
@@ -160,30 +174,103 @@ static int bind_pin(const char *pin_name, hal_type_t type,
                 mine, signal);
         return -1;
     }
+    ctx->num_cells++;
+    return idx;
+}
 
-    *out = *cell;
+static hal_type_t hal_type_of(kins_param_type t)
+{
+    switch (t) {
+        case KINS_PARAM_BIT: return HAL_BIT;
+        case KINS_PARAM_S32: return HAL_S32;
+        case KINS_PARAM_U32: return HAL_U32;
+        default:             return HAL_FLOAT;
+    }
+}
+
+static double cell_value(const hal_refs_u *cell, kins_param_type t)
+{
+    switch (t) {
+        case KINS_PARAM_BIT: return hal_get_bool(cell->b) ? 1.0 : 0.0;
+        case KINS_PARAM_S32: return hal_get_si32(cell->s);
+        case KINS_PARAM_U32: return hal_get_ui32(cell->u);
+        default:             return hal_get_real(cell->r);
+    }
+}
+
+/* Bind every input of the table, and motion's tool where motion is there. */
+static int bind_all(KinematicsUserContext *ctx)
+{
+    static const char letter[AXIS_COUNT] = { 'x','y','z','a','b','c','u','v','w' };
+    char name[HAL_NAME_LEN + 1];
+    int i;
+
+    for (i = 0; i < KINS_MAX_PARAMS; i++) ctx->cell_of_param[i] = -1;
+    for (i = 0; i < AXIS_COUNT; i++) ctx->cell_of_tool[i] = -1;
+    ctx->tool_param = -1;
+
+    for (i = 0; i < ctx->info.nparams; i++) {
+        const kins_param_desc *d = &ctx->info.params[i];
+        if (d->dir == KINS_OUT) continue;
+        if (d->tool) ctx->tool_param = i;
+        snprintf(name, sizeof(name), "%s.%s", ctx->info.halprefix, d->name);
+        ctx->cell_of_param[i] = bind_pin(ctx, name, hal_type_of(d->type));
+        if (ctx->cell_of_param[i] < 0) return -1;
+    }
+
+    /* motion publishes the tool it applies; take it from there when it is
+       loaded, so the module sees the tool whether or not the config netted
+       it through.  Under halrun with the module alone there is no motion,
+       and the module's own tool entry is all there is. */
+    for (i = 0; i < AXIS_COUNT; i++) {
+        snprintf(name, sizeof(name), "motion.tooloffset.%c", letter[i]);
+        if (!pin_exists(name)) continue;
+        ctx->cell_of_tool[i] = bind_pin(ctx, name, HAL_FLOAT);
+        if (ctx->cell_of_tool[i] < 0) return -1;
+    }
     return 0;
 }
 
-/* ========================================================================
- * Identity joint mapping
- * ======================================================================== */
-
-static void fill_identity_joint_map(KinematicsUserContext *ctx, const char *coords)
+/* The block sees the pins as they are now. */
+static void refresh(KinematicsUserContext *ctx)
 {
-    int i, j = 0;
-    for (i = 0; i < KINEMATICS_USER_MAX_JOINTS; i++) ctx->joint_to_axis[i] = -1;
-    if (!coords) return;
-    for (; *coords && j < ctx->num_joints; coords++) {
-        int axis;
-        switch (tolower((unsigned char)*coords)) {
-            case 'x': axis = 0; break; case 'y': axis = 1; break;
-            case 'z': axis = 2; break; case 'a': axis = 3; break;
-            case 'b': axis = 4; break; case 'c': axis = 5; break;
-            case 'u': axis = 6; break; case 'v': axis = 7; break;
-            case 'w': axis = 8; break; default:  continue;
-        }
-        ctx->joint_to_axis[j++] = axis;
+    int i;
+    double tool[AXIS_COUNT];
+    int have_motion_tool = 0;
+
+    for (i = 0; i < ctx->info.nparams; i++) {
+        int c = ctx->cell_of_param[i];
+        if (c < 0) continue;
+        ctx->params.geometry[i] = cell_value(&ctx->cell[c], ctx->info.params[i].type);
+    }
+    if (ctx->tool_param >= 0) {
+        ctx->params.tool.tran.z = ctx->params.geometry[ctx->tool_param];
+    }
+
+    for (i = 0; i < AXIS_COUNT; i++) {
+        int c = ctx->cell_of_tool[i];
+        tool[i] = 0.0;
+        if (c < 0) continue;
+        tool[i] = hal_get_real(ctx->cell[c].r);
+        have_motion_tool = 1;
+    }
+    if (!have_motion_tool) return;
+
+    /* the module's pin and motion disagree: the config lost the tool
+       somewhere between them.  Say so once; motion's value is the one
+       being cut with. */
+    if (ctx->tool_param >= 0 && !ctx->warned_tool
+        && fabs(tool[AXIS_Z] - ctx->params.geometry[ctx->tool_param]) > 1e-9) {
+        fprintf(stderr,
+                "kinematics_user: %s.%s is %.6g but motion.tooloffset.z is %.6g;"
+                " using motion's value\n",
+                ctx->info.halprefix, ctx->info.params[ctx->tool_param].name,
+                ctx->params.geometry[ctx->tool_param], tool[AXIS_Z]);
+        ctx->warned_tool = 1;
+    }
+    for (i = 0; i < AXIS_COUNT; i++) emcPoseSetAxis(&ctx->params.tool, i, tool[i]);
+    if (ctx->tool_param >= 0) {
+        ctx->params.geometry[ctx->tool_param] = tool[AXIS_Z];
     }
 }
 
@@ -193,11 +280,12 @@ static void fill_identity_joint_map(KinematicsUserContext *ctx, const char *coor
 
 static int load_module(KinematicsUserContext *ctx,
                        const char *module_name,
-                       const char *coordinates)
+                       const char *coordinates,
+                       const char *sparm)
 {
     char module_path[512];
     void *handle;
-    nonrt_attach_fn attach;
+    kins_describe_fn describe;
 
     snprintf(module_path, sizeof(module_path),
              "%s/rtlib/%s.so", EMC2_HOME, module_name);
@@ -210,9 +298,18 @@ static int load_module(KinematicsUserContext *ctx,
     }
     ctx->rt_handle = handle;
 
-    attach = (nonrt_attach_fn)dlsym(handle, "nonrt_attach");
-    if (!attach) {
-        fprintf(stderr, "kinematicsUserInit: '%s' exports no nonrt_attach\n",
+    describe = (kins_describe_fn)dlsym(handle, "kinsDescribe");
+    if (!describe) {
+        fprintf(stderr, "kinematicsUserInit: '%s' exports no kinsDescribe;"
+                " it cannot be evaluated outside RT\n", module_name);
+        dlclose(handle);
+        ctx->rt_handle = NULL;
+        ctx->rt_only = 1;
+        return -1;
+    }
+
+    if (describe(coordinates, sparm, &ctx->info) != 0) {
+        fprintf(stderr, "kinematicsUserInit: kinsDescribe failed for '%s'\n",
                 module_name);
         dlclose(handle);
         ctx->rt_handle = NULL;
@@ -220,30 +317,28 @@ static int load_module(KinematicsUserContext *ctx,
         return -1;
     }
 
-    if (attach(coordinates, &ctx->ops, bind_pin, ctx) != 0) {
-        fprintf(stderr, "kinematicsUserInit: nonrt_attach failed for '%s'\n",
-                module_name);
+    if (ctx->info.ntypes < 1 || !ctx->info.ops[0]) {
+        fprintf(stderr, "kinematicsUserInit: '%s' has no type 0 in the"
+                " parameter block form\n", module_name);
         dlclose(handle);
         ctx->rt_handle = NULL;
         ctx->rt_only = 1;
         return -1;
     }
 
-    if (ctx->ops.is_identity) {
-        ctx->is_identity = 1;
-        ctx->kins_type = KINEMATICS_IDENTITY;
-        return 0;
-    }
-
-    if (!ctx->ops.forward || !ctx->ops.inverse) {
-        fprintf(stderr, "kinematicsUserInit: '%s' set no fwd/inv\n", module_name);
+    if (kinsParamsInit(&ctx->params, &ctx->info, coordinates) != 0) {
+        fprintf(stderr, "kinematicsUserInit: '%s' refuses coordinates '%s'\n",
+                module_name, coordinates ? coordinates : "(default)");
         dlclose(handle);
         ctx->rt_handle = NULL;
         ctx->rt_only = 1;
         return -1;
     }
+    kinsScratchInit(&ctx->scratch);
 
-    ctx->kins_type = KINEMATICS_BOTH;
+    ctx->ktype = 0;
+    ctx->kins_type = ctx->info.ops[0]->identity ? KINEMATICS_IDENTITY
+                                                : KINEMATICS_BOTH;
     return 0;
 }
 
@@ -251,11 +346,12 @@ static int load_module(KinematicsUserContext *ctx,
  * Public API
  * ======================================================================== */
 
-KinematicsUserContext* kinematicsUserInit(const char* kins_type,
-                                          int num_joints,
-                                          const char* coordinates,
-                                          int comp_id,
-                                          const char* prefix)
+KinematicsUserContext* kinematicsUserInitSparm(const char* kins_type,
+                                               int num_joints,
+                                               const char* coordinates,
+                                               const char* sparm,
+                                               int comp_id,
+                                               const char* prefix)
 {
     KinematicsUserContext *ctx;
 
@@ -280,59 +376,124 @@ KinematicsUserContext* kinematicsUserInit(const char* kins_type,
     }
     strncpy(ctx->module_name, kins_type, sizeof(ctx->module_name) - 1);
 
-    load_module(ctx, kins_type, coordinates);
-
-    if (ctx->is_identity) {
-        fill_identity_joint_map(ctx, coordinates);
+    if (load_module(ctx, kins_type, coordinates, sparm) == 0) {
+        if (bind_all(ctx) != 0) {
+            fprintf(stderr, "kinematicsUserInit: cannot bind the pins of '%s'\n",
+                    kins_type);
+            ctx->rt_only = 1;
+        }
     }
 
     ctx->initialized = 1;
     return ctx;
 }
 
+KinematicsUserContext* kinematicsUserInit(const char* kins_type,
+                                          int num_joints,
+                                          const char* coordinates,
+                                          int comp_id,
+                                          const char* prefix)
+{
+    return kinematicsUserInitSparm(kins_type, num_joints, coordinates, NULL,
+                                   comp_id, prefix);
+}
+
+int kinematicsUserSetType(KinematicsUserContext* ctx, int ktype)
+{
+    if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    if (ktype < 0 || ktype >= ctx->info.ntypes || !ctx->info.ops[ktype]) {
+        return -1;
+    }
+    ctx->ktype = ktype;
+    ctx->params.ktype = ktype;
+    kinsScratchInit(&ctx->scratch);
+    ctx->kins_type = ctx->info.ops[ktype]->identity ? KINEMATICS_IDENTITY
+                                                    : KINEMATICS_BOTH;
+    return 0;
+}
+
+int kinematicsUserGetNumTypes(KinematicsUserContext* ctx)
+{
+    if (!ctx || !ctx->initialized || ctx->rt_only) return 0;
+    return ctx->info.ntypes;
+}
+
 int kinematicsUserInverse(KinematicsUserContext* ctx,
                           const EmcPose* world,
                           double* joints)
 {
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    double j[EMCMOT_MAX_JOINTS];
+    int i;
+
     if (!ctx || !ctx->initialized || !world || !joints) return -1;
-
-    if (ctx->is_identity) {
-        int i;
-        for (i = 0; i < ctx->num_joints; i++) {
-            int ax = ctx->joint_to_axis[i];
-            joints[i] = (ax >= 0) ? emcPoseGetAxis(world, ax) : 0.0;
-        }
-        return 0;
-    }
-
     if (ctx->rt_only) return -1;
-    return ctx->ops.inverse(world, joints, NULL, NULL);
+
+    refresh(ctx);
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) j[i] = 0.0;
+    if (kinsOpsInverse(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
+                       world, j, &iflags, &fflags) != 0) {
+        return -1;
+    }
+    for (i = 0; i < ctx->num_joints; i++) joints[i] = j[i];
+    return 0;
 }
 
 int kinematicsUserForward(KinematicsUserContext* ctx,
                           const double* joints,
                           EmcPose* world)
 {
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    double j[EMCMOT_MAX_JOINTS];
+    int i;
+
     if (!ctx || !ctx->initialized || !joints || !world) return -1;
-
-    if (ctx->is_identity) {
-        int i;
-        memset(world, 0, sizeof(*world));
-        for (i = 0; i < ctx->num_joints; i++) {
-            int ax = ctx->joint_to_axis[i];
-            if (ax >= 0) emcPoseSetAxis(world, ax, joints[i]);
-        }
-        return 0;
-    }
-
     if (ctx->rt_only) return -1;
-    return ctx->ops.forward(joints, world, NULL, NULL);
+
+    refresh(ctx);
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        j[i] = (i < ctx->num_joints) ? joints[i] : 0.0;
+    }
+    memset(world, 0, sizeof(*world));
+    return kinsOpsForward(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
+                          j, world, &fflags, &iflags);
+}
+
+int kinematicsUserJacobian(KinematicsUserContext* ctx,
+                           const EmcPose* world,
+                           double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT])
+{
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
+    double j[EMCMOT_MAX_JOINTS];
+    int r, a;
+
+    if (!ctx || !ctx->initialized || !world || !J) return -1;
+    if (ctx->rt_only) return -1;
+
+    refresh(ctx);
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) j[r] = 0.0;
+    if (kinsOpsInverse(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
+                       world, j, &iflags, &fflags) != 0) {
+        return -1;
+    }
+    if (kinsOpsJacobian(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
+                        j, world, jac, &iflags) != 0) {
+        return -1;
+    }
+    for (r = 0; r < KINEMATICS_USER_MAX_JOINTS; r++) {
+        for (a = 0; a < AXIS_COUNT; a++) J[r][a] = jac[r][a];
+    }
+    return 0;
 }
 
 int kinematicsUserIsIdentity(KinematicsUserContext* ctx)
 {
-    if (!ctx || !ctx->initialized) return 0;
-    return ctx->is_identity;
+    if (!ctx || !ctx->initialized || ctx->rt_only) return 0;
+    return ctx->info.ops[ctx->ktype]->identity;
 }
 
 int kinematicsUserGetNumJoints(KinematicsUserContext* ctx)
@@ -355,8 +516,16 @@ const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx)
 
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx)
 {
-    (void)ctx;
-    return 0; /* nothing to refresh: the bound pins are the live values */
+    if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    refresh(ctx);
+    return 0;
+}
+
+const kins_params* kinematicsUserParams(KinematicsUserContext* ctx)
+{
+    if (!ctx || !ctx->initialized || ctx->rt_only) return NULL;
+    refresh(ctx);
+    return &ctx->params;
 }
 
 int kinematicsUserIsRtOnly(KinematicsUserContext* ctx)

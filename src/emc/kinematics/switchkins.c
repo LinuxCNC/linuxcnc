@@ -27,10 +27,12 @@
 *  Using modules must supply function: switchkinsSetup()
 */
 #include <rtapi.h>
+#include <rtapi_string.h>
 #include <hal.h>
 #include <emcmotcfg.h>
 
 #include "switchkins.h"
+#include <kins_rt.h>
 
 //*********************************************************************
 // kinematic functions (default=0 for err detection):
@@ -45,6 +47,15 @@ static KT kworks[SWITCHKINS_MAX_TYPES]  = {NULL};
 static KTI ktinvs[SWITCHKINS_MAX_TYPES] = {NULL};
 static KJ kjacs[SWITCHKINS_MAX_TYPES]   = {NULL};
 static PmRotationMatrix knative[SWITCHKINS_MAX_TYPES];
+
+// types written as pure functions (see kinematics.h): the maths of each,
+// the one RT parameter block they all read, a scratch per type, and the
+// pins made from the module's table
+static const kins_ops *kops[SWITCHKINS_MAX_TYPES] = {NULL};
+static kins_params   rt_params;
+static kins_scratch  rt_scratch[SWITCHKINS_MAX_TYPES];
+static kins_pin_ref *pins;
+static int           inited;
 
 // types provided, counted in rtapi_app_main() once they are all in
 static int kins_count;
@@ -97,6 +108,35 @@ static void get_lastpose(int ktype, EmcPose* pos)
     pos->w      = lastpose[ktype].w;
 } // get_lastpose()
 
+// the block sees the pins as they are now, and the type asked for
+static void read_block(int ktype)
+{
+    rt_params.ktype = ktype;
+    kinsParamsPinsRead(pins, kp.params, kp.nparams, &rt_params);
+}
+
+static void write_block(int ktype)
+{
+    kinsParamsPinsWrite(pins, kp.params, kp.nparams, &rt_scratch[ktype]);
+}
+
+// the forward of one type, whichever way it was provided
+static int call_forward(int ktype, const double *joint, EmcPose *pos,
+                        const KINEMATICS_FORWARD_FLAGS *fflags,
+                        KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    int r;
+    if (kops[ktype]) {
+        read_block(ktype);
+        r = kinsOpsForward(kops[ktype], &rt_params, &rt_scratch[ktype],
+                           joint, pos, fflags, iflags);
+        write_block(ktype);
+        return r;
+    }
+    if (!kfwds[ktype]) { return -1; }
+    return kfwds[ktype](joint, pos, fflags, iflags);
+}
+
 static int gui_forward_kins(const double *joints)
 {
     // the hexapod vismach gui uses these hal pins to
@@ -108,14 +148,14 @@ static int gui_forward_kins(const double *joints)
     KINEMATICS_INVERSE_FLAGS  iflags;
     if (   kp.gui_kinstype < 0
         || kp.gui_kinstype >= kins_count
-        || !kfwds[kp.gui_kinstype]) {
+        || (!kfwds[kp.gui_kinstype] && !kops[kp.gui_kinstype])) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "gui_forward_kins BAD gui_kinstype <%d>\n",
                         kp.gui_kinstype);
         return -1;
     }
-    res = kfwds[kp.gui_kinstype](joints, &lastpose[kp.gui_kinstype],
-                                 &fflags, &iflags);
+    res = call_forward(kp.gui_kinstype, joints, &lastpose[kp.gui_kinstype],
+                       &fflags, &iflags);
     hal_set_real(swdata->gui_x, lastpose[kp.gui_kinstype].tran.x);
     hal_set_real(swdata->gui_y, lastpose[kp.gui_kinstype].tran.y);
     hal_set_real(swdata->gui_z, lastpose[kp.gui_kinstype].tran.z);
@@ -153,6 +193,10 @@ int kinematicsSwitch(int new_switchkins_type)
     if (fwd_iterates[switchkins_type]) {
         use_lastpose[switchkins_type] = 1; // restarting a kins types
     }
+    // a pure type keeps the same restart pose in its own scratch
+    if (kops[switchkins_type] && kops[switchkins_type]->fwd_iterates) {
+        rt_scratch[switchkins_type].have_pose_seed = 1;
+    }
     return 0; // 0==> no error
 } // kinematicsSwitch()
 
@@ -163,22 +207,26 @@ int kinematicsForward(const double *joint,
 {
     int r;
 
-    if (fwd_iterates[switchkins_type] && use_lastpose[switchkins_type]) {
-        // initialize iterative forward kins (ok for identity too)
-        get_lastpose(switchkins_type,pos);
-        use_lastpose[switchkins_type] = 0;
-    }
-
     if (   switchkins_type < 0
         || switchkins_type >= kins_count
-        || !kfwds[switchkins_type]) {
+        || (!kfwds[switchkins_type] && !kops[switchkins_type])) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkins: Forward BAD switchkins_type </%d>\n",
                         switchkins_type);
         return -1;
     }
-    r = kfwds[switchkins_type](joint, pos, fflags, iflags);
-    if (fwd_iterates[switchkins_type]) {save_lastpose(switchkins_type,pos);}
+
+    if (kops[switchkins_type]) {
+        r = call_forward(switchkins_type, joint, pos, fflags, iflags);
+    } else {
+        if (fwd_iterates[switchkins_type] && use_lastpose[switchkins_type]) {
+            // initialize iterative forward kins (ok for identity too)
+            get_lastpose(switchkins_type,pos);
+            use_lastpose[switchkins_type] = 0;
+        }
+        r = kfwds[switchkins_type](joint, pos, fflags, iflags);
+        if (fwd_iterates[switchkins_type]) {save_lastpose(switchkins_type,pos);}
+    }
     if (r) return r;
 
     // gui.* pins created only if gui_kinstype>=0
@@ -205,11 +253,19 @@ int kinematicsInverse(const EmcPose * pos,
 
     if (   switchkins_type < 0
         || switchkins_type >= kins_count
-        || !kinvs[switchkins_type]) {
+        || (!kinvs[switchkins_type] && !kops[switchkins_type])) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkins: Inverse BAD switchkins_type </%d>\n",
                         switchkins_type);
         return -1;
+    }
+    if (kops[switchkins_type]) {
+        read_block(switchkins_type);
+        r = kinsOpsInverse(kops[switchkins_type], &rt_params,
+                           &rt_scratch[switchkins_type],
+                           pos, joint, iflags, fflags);
+        write_block(switchkins_type);
+        return r;
     }
     r = kinvs[switchkins_type](pos, joint, iflags, fflags);
     return r;
@@ -221,9 +277,13 @@ int kinematicsToolFrame(const double *joint,
 {
     int r;
 
-    if (   switchkins_type < 0
-        || switchkins_type >= kins_count
-        || !ktools[switchkins_type]) {
+    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
+    if (kops[switchkins_type]) {
+        read_block(switchkins_type);
+        return kinsOpsToolFrame(kops[switchkins_type], &rt_params,
+                                joint, rot, fflags);
+    }
+    if (!ktools[switchkins_type]) {
         return -1; // this type does not supply one; not an error
     }
     r = ktools[switchkins_type](joint, rot, fflags);
@@ -238,9 +298,13 @@ int kinematicsWorkFrame(const double *joint,
                         PmRotationMatrix *rot,
                         const KINEMATICS_FORWARD_FLAGS *fflags)
 {
-    if (   switchkins_type < 0
-        || switchkins_type >= kins_count
-        || !kworks[switchkins_type]) {
+    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
+    if (kops[switchkins_type]) {
+        read_block(switchkins_type);
+        return kinsOpsWorkFrame(kops[switchkins_type], &rt_params,
+                                joint, rot, fflags);
+    }
+    if (!kworks[switchkins_type]) {
         return -1; // this type does not supply one; not an error
     }
     // no native rotation here: the work frame has no tool axis to point the
@@ -257,10 +321,12 @@ int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
                                int *free_directions,
                                double *tool_spin)
 {
-    if (   switchkins_type < 0
-        || switchkins_type >= kins_count
-        || !ktools[switchkins_type]
-        || !kworks[switchkins_type]) {
+    if (switchkins_type < 0 || switchkins_type >= kins_count) { return -1; }
+    if (kops[switchkins_type]) {
+        if (!kops[switchkins_type]->tool || !kops[switchkins_type]->work) {
+            return -1; // this type does not report its frames, so it cannot answer
+        }
+    } else if (!ktools[switchkins_type] || !kworks[switchkins_type]) {
         return -1; // this type does not report its frames, so it cannot answer
     }
 
@@ -289,6 +355,12 @@ int kinematicsJacobian(const double *joint,
     if (switchkins_type < 0 || switchkins_type >= kins_count) {
         return -1;
     }
+    if (kops[switchkins_type]) {
+        read_block(switchkins_type);
+        return kinsOpsJacobian(kops[switchkins_type], &rt_params,
+                               &rt_scratch[switchkins_type],
+                               joint, world, jac, iflags);
+    }
     // a closed form is exact and knows its own singular poses
     if (kjacs[switchkins_type]) {
         return kjacs[switchkins_type](joint, world, jac, iflags);
@@ -315,7 +387,7 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv)
         register_error = 1;
         return -1;
     }
-    if (ksetups[ktype] || kfwds[ktype] || kinvs[ktype]) {
+    if (ksetups[ktype] || kfwds[ktype] || kinvs[ktype] || kops[ktype]) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkinsRegister: switchkins-type %d"
                         " already provided\n", ktype);
@@ -327,6 +399,42 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv)
     kinvs[ktype]   = kinv;
     return 0;
 } // switchkinsRegister()
+
+int switchkinsRegisterOps(int ktype, const kins_ops *ops)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterOps: BAD switchkins_type <%d>"
+                        " (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    if (ksetups[ktype] || kfwds[ktype] || kinvs[ktype] || kops[ktype]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterOps: switchkins-type %d"
+                        " already provided\n", ktype);
+        register_error = 1;
+        return -1;
+    }
+    if (!ops || !ops->forward || !ops->inverse) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterOps: switchkins-type %d"
+                        " has no forward or inverse\n", ktype);
+        register_error = 1;
+        return -1;
+    }
+    if (ops->tool && ops->native && !toolFrameIsProper(ops->native)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterOps: switchkins-type %d"
+                        " declared a rotation that is not orthonormal with"
+                        " determinant +1\n", ktype);
+        register_error = 1;
+        return -1;
+    }
+    kops[ktype] = ops;
+    return 0;
+} // switchkinsRegisterOps()
 
 int switchkinsRegisterFrames(int ktype, KT kwork, KT ktool,
                              const PmRotationMatrix *native)
@@ -395,7 +503,46 @@ EXPORT_SYMBOL(switchkinsRegister);
 EXPORT_SYMBOL(switchkinsRegisterFrames);
 EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
 EXPORT_SYMBOL(switchkinsRegisterJacobian);
+EXPORT_SYMBOL(switchkinsRegisterOps);
 EXPORT_SYMBOL(switchkinsInit);
+EXPORT_SYMBOL(switchkinsDescribe);
+EXPORT_SYMBOL(switchkinsDescribeSetup);
+
+//*********************************************************************
+// the module as registered so far, described for a caller outside RT
+int switchkinsDescribeSetup(const kparms *k, kins_module_info *info)
+{
+    int i, n = 0;
+
+    if (!k || !info) { return -1; }
+    if (k->nparams < 0 || k->nparams > KINS_MAX_PARAMS
+        || (k->nparams > 0 && !k->params)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkins: %s declares a bad parameter table\n",
+                        k->kinsname ? k->kinsname : "?");
+        return -1;
+    }
+    memset(info, 0, sizeof(*info));
+    info->name                 = k->kinsname;
+    info->halprefix            = k->halprefix ? k->halprefix : k->kinsname;
+    info->params               = k->params;
+    info->nparams              = k->nparams;
+    info->required_coordinates = k->required_coordinates;
+    info->max_joints           = k->max_joints;
+    info->allow_duplicates     = k->allow_duplicates;
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
+        info->ops[i] = kops[i];
+        if (ksetups[i] || kfwds[i] || kinvs[i] || kops[i]) { n = i + 1; }
+    }
+    info->ntypes = n;
+    return 0;
+} // switchkinsDescribeSetup()
+
+int switchkinsDescribe(kins_module_info *info)
+{
+    if (!inited) { return -1; }
+    return switchkinsDescribeSetup(&kp, info);
+} // switchkinsDescribe()
 
 //*********************************************************************
 // The caller owns the hal component: it does hal_init() before this and
@@ -429,7 +576,7 @@ int switchkinsInit(const int   comp_id,
 
     // the highest type registered sets the count
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
-        if (ksetups[i] || kfwds[i] || kinvs[i]) { kins_count = i + 1; }
+        if (ksetups[i] || kfwds[i] || kinvs[i] || kops[i]) { kins_count = i + 1; }
     }
     if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
 
@@ -456,6 +603,7 @@ int switchkinsInit(const int   comp_id,
 
     // a type left out below the highest one provided is a gap, not a count
     for (i=0; i < kins_count; i++) {
+        if (kops[i]) { continue; }
         if (ksetups[i] && kfwds[i] && kinvs[i]) { continue; }
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "switchkins: switchkins-type %d incomplete:%s%s%s\n",
@@ -489,10 +637,36 @@ int switchkinsInit(const int   comp_id,
 
     if (!coordinates) {coordinates = kp.required_coordinates;}
 
+    // the pure types share one block and one set of pins from the table
+    if (kp.params || kp.nparams) {
+        kins_module_info mi;
+        if (switchkinsDescribeSetup(&kp, &mi)) { emsg = "bad table"; goto error; }
+        if (kinsParamsInit(&rt_params, &mi, coordinates)) {
+            emsg = "coordinates"; goto error;
+        }
+        if (kinsParamsPinsCreate(comp_id, kp.halprefix, kp.params, kp.nparams,
+                                 &pins)) {
+            emsg = "table pin create fail"; goto error;
+        }
+    } else {
+        for (i=0; i < kins_count; i++) {
+            if (kops[i]) {
+                kins_module_info mi;
+                if (switchkinsDescribeSetup(&kp, &mi)) { emsg = "bad table"; goto error; }
+                if (kinsParamsInit(&rt_params, &mi, coordinates)) {
+                    emsg = "coordinates"; goto error;
+                }
+                break;
+            }
+        }
+    }
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) { kinsScratchInit(&rt_scratch[i]); }
+
     for (i=0; i < kins_count; i++) {
-        ksetups[i](comp_id,coordinates,&kp);
+        if (ksetups[i]) { ksetups[i](comp_id,coordinates,&kp); }
     }
 
+    inited = 1;
     return 0;
 
 error:

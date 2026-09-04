@@ -6,8 +6,8 @@
 
 #include "kinematics.h"
 
-//max number of switchkins types (KS,KF,KI) a module may provide:
-#define SWITCHKINS_MAX_TYPES 9
+//max number of switchkins types a module may provide:
+#define SWITCHKINS_MAX_TYPES KINS_MAX_TYPES
 
 // KinematicsFORWARD functions
 typedef int (*KF)(const double *joint,
@@ -79,10 +79,32 @@ typedef int (*KJ)(const double *joint,
 // otherwise the generic differences of its own inverse.
 extern int switchkinsRegisterJacobian(int ktype, KJ kjac);
 
+// provide one switchkins-type written as pure functions (see kinematics.h),
+// before switchkinsInit().  Its pins come from the table in kparms, shared
+// by every type of the module, so it has no setup function.  A type may be
+// provided this way or through switchkinsRegister(), not both.
+extern int switchkinsRegisterOps(int ktype, const kins_ops *ops);
+
 // create the hal pins and start on type 0; the caller owns the hal
 // component and does hal_init() before and hal_ready() after
 extern int switchkinsInit(const int   comp_id,
                           kparms*     ksetup_parms,
                           const char* coordinates
                          );
+
+// Fill kp with the defaults, run the module's switchkinsSetup() and
+// register the three types it may return, so that every type goes in by
+// one route.  In switchkins_setup.c, which a module links only if it
+// defines switchkinsSetup(); a halcompile component that registers its
+// types itself does not.  Returns 0 or -1.
+extern int switchkinsRunSetup(kparms* kp, const char* sparm);
+
+// The module as the core knows it after switchkinsInit(): its table and
+// the ops of every type, NULL for one provided the old way.  Behind
+// kinsDescribe() for the RT instance; a copy outside RT that has not been
+// initialised is described by switchkins_setup.c after a replay of setup.
+// Returns 0, or -1 before switchkinsInit().
+extern int switchkinsDescribe(kins_module_info *info);
+extern int switchkinsDescribeSetup(const kparms *kp, kins_module_info *info);
+
 #endif

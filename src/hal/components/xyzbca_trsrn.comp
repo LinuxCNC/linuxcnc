@@ -598,7 +598,7 @@ static int toolKinematicsJacobian(const double *j,
 // halcompile has done hal_init() and does hal_ready() after this returns,
 // which is what switchkinsInit() expects
 EXTRA_SETUP() {
-    kparms kp;
+    kparms kp = {0};
     (void)__comp_inst; (void)prefix; (void)extra_arg;
 
     kp.kinsname    = "xyzbca_trsrn";

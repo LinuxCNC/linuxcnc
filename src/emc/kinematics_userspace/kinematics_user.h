@@ -6,10 +6,11 @@
  * the RT kinematics interface. Used by the 9D planner to compute joint
  * positions from world coordinates without requiring RT kernel calls.
  *
- * The kinematics module is loaded into this process and given input pins
- * belonging to the caller's HAL component, connected to the same signals
- * the running RT instance reads. Its own forward and inverse then work on
- * live values, unmodified.
+ * The kinematics module is loaded into this process and evaluated through
+ * its parameter block form (see kinematics.h).  The block is filled from
+ * input pins belonging to the caller's HAL component, connected to the
+ * same signals the running RT instance reads, and from motion's tool
+ * offset pins where motion is loaded, so the maths runs on live values.
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -63,6 +64,30 @@ KinematicsUserContext* kinematicsUserInit(const char* kins_type,
                                           const char* prefix);
 
 /**
+ * As kinematicsUserInit(), with the module's sparm= parameter as well, for
+ * a module whose kinematics types depend on it (5axiskins identityfirst).
+ */
+KinematicsUserContext* kinematicsUserInitSparm(const char* kins_type,
+                                               int num_joints,
+                                               const char* coordinates,
+                                               const char* sparm,
+                                               int comp_id,
+                                               const char* prefix);
+
+/**
+ * Select which kinematics type of a switchable module to evaluate.
+ * Type 0 is selected after init.
+ *
+ * @return 0, or -1 if the module has no such type in the block form
+ */
+int kinematicsUserSetType(KinematicsUserContext* ctx, int ktype);
+
+/**
+ * How many kinematics types the module has (1 for one that does not switch).
+ */
+int kinematicsUserGetNumTypes(KinematicsUserContext* ctx);
+
+/**
  * Perform inverse kinematics (world coords -> joint positions)
  *
  * @param ctx     Kinematics context from kinematicsUserInit
@@ -85,6 +110,24 @@ int kinematicsUserInverse(KinematicsUserContext* ctx,
 int kinematicsUserForward(KinematicsUserContext* ctx,
                           const double* joints,
                           EmcPose* world);
+
+/**
+ * The Jacobian at a pose, J[joint][axis] = d joint / d axis, from the
+ * module's closed form where it has one and by differencing its inverse
+ * where it does not.  The inverse is run at the pose first, so the
+ * derivative is taken on the solution branch the module picks there.
+ *
+ * @return 0 on success, -1 on failure
+ */
+int kinematicsUserJacobian(KinematicsUserContext* ctx,
+                           const EmcPose* world,
+                           double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT]);
+
+/**
+ * The parameter block as it stands, refreshed from HAL first.  For
+ * reporting; the block belongs to the context.
+ */
+const kins_params* kinematicsUserParams(KinematicsUserContext* ctx);
 
 /**
  * Check if kinematics type is identity (world coords = joint coords)
@@ -119,20 +162,18 @@ KINEMATICS_TYPE kinematicsUserGetType(KinematicsUserContext* ctx);
 const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx);
 
 /**
- * Refresh kinematics parameters (no-op)
- *
- * The bound pins read the live values, so there is nothing to fetch.
- * This function is kept for API compatibility but does nothing.
+ * Copy the bound pins into the block now.  Every evaluation does this
+ * itself; call it only to observe the values.
  *
  * @param ctx  Kinematics context
- * @return 0 always
+ * @return 0, or -1 for an RT-only context
  */
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx);
 
 /**
  * Check if this context is RT-only
  *
- * An RT-only module exports no nonrt_attach() and so cannot be evaluated
+ * An RT-only module exports no kinsDescribe() and so cannot be evaluated
  * outside RT.  Planner 2 is unavailable for such modules.
  *
  * @param ctx  Kinematics context

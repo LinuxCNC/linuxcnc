@@ -173,6 +173,8 @@ typedef struct kinematics_parms {
                            // bitmask: 0x4 bit2: switchkins_type==2
   int   gui_kinstype; // may be reqd for parallel kins with vismach
                       // to select switchkins_type for gui pins
+  const struct kins_param_desc_tag *params; // geometry table, see below
+  int   nparams;
 } kparms;
 
 /* map letters in a coordinates string to joint numbers
@@ -425,6 +427,216 @@ extern int identityKinematicsJacobian(const double *joint,
                                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
                                       const KINEMATICS_INVERSE_FLAGS *iflags);
 
+/* ------------------------------------------------------------------------
+   Kinematics as pure functions of what the caller passes in.
+
+   Everything above reads its geometry from HAL pins the module created and
+   keeps its mode and scratch in statics, so it can only answer for the
+   machine as it is now, from inside the module.  The forms below take the
+   same questions with the machine described by the caller: a parameter
+   block naming the kinematics type, the joint map, the tool and the
+   geometry, and a scratch block for what an iterative method carries
+   between calls.  Nothing is read from HAL and nothing is kept, so one copy
+   of the maths serves motion, a planner evaluating poses the machine has
+   not reached, task checking a program at load, and a tool asking what if.
+
+   A module declares its geometry as a table of named entries.  In RT the
+   shared code makes one HAL pin per entry, with the names configs already
+   use, and copies the pins into the block before every call; outside RT the
+   caller fills the block from wherever it likes.  The maths reads
+   p->geometry[i] where it read a pin.
+
+   The existing entry points stay and are supplied once, by kins_single.c
+   for a module with one kinematics type and by switchkins.c for one with
+   several, so nothing that calls kinematicsForward() changes.  A module
+   that does not provide these forms keeps working as it did; it just cannot
+   be evaluated outside RT.
+   ------------------------------------------------------------------------ */
+
+#define KINS_MAX_PARAMS 96      /* genhexkins declares 84 */
+#define KINS_MAX_TYPES   9      /* kinematics types a module may provide */
+
+typedef enum {
+    KINS_PARAM_FLOAT = 0,
+    KINS_PARAM_BIT,
+    KINS_PARAM_S32,
+    KINS_PARAM_U32
+} kins_param_type;
+
+typedef enum {
+    KINS_IN = 0,    /* read into the block before a call */
+    KINS_OUT,       /* a result, written from kins_scratch.out[] after it */
+    KINS_IO         /* read like an input; the pin is HAL_IO so it can be poked */
+} kins_param_dir;
+
+/* One entry of a module's geometry table.  name follows the module's HAL
+   prefix.  An entry with tool set is the tool length along the tool axis:
+   the shared code puts its value in kins_params.tool.tran.z as well, which
+   is what the maths should read, so that a caller outside RT can supply
+   the tool from the tool table without there being a pin. */
+typedef struct kins_param_desc_tag {
+    const char      *name;
+    kins_param_type  type;
+    kins_param_dir   dir;
+    int              tool;
+    double           dflt;
+} kins_param_desc;
+
+/* The machine, as far as the kinematics is concerned.  One copy may be
+   shared by any number of callers: nothing writes it during a call. */
+typedef struct kins_params {
+    int      size;                            /* sizeof(kins_params) */
+    int      ktype;                           /* kinematics type, 0 if one */
+    int      max_joints;                      /* joints the map covers */
+    int      joint_of_axis[EMCMOT_MAX_AXIS];  /* principal joint per letter */
+    int      joints_of_axis[EMCMOT_MAX_AXIS]; /* bit per joint, duplicates */
+    EmcPose  tool;                            /* tool offset, tool.tran.z along the tool axis */
+    double   geometry[KINS_MAX_PARAMS];       /* the table, in its order */
+} kins_params;
+
+/* What one caller carries between its own calls: the last pose an
+   iterative forward found, which seeds the next, and what a module reports
+   about its last call.  Never shared between callers. */
+typedef struct kins_scratch {
+    EmcPose  pose_seed;                       /* start an iterative forward here */
+    int      have_pose_seed;
+    double   joint_seed[EMCMOT_MAX_JOINTS];   /* start an iterative inverse here */
+    int      have_joint_seed;
+    int      iterations;
+    int      failed;
+    double   out[KINS_MAX_PARAMS];            /* the table's KINS_OUT entries */
+} kins_scratch;
+
+typedef int (*kins_forward_fn)(const kins_params *p, kins_scratch *s,
+                               const double *joint, EmcPose *pos,
+                               const KINEMATICS_FORWARD_FLAGS *fflags,
+                               KINEMATICS_INVERSE_FLAGS *iflags);
+
+typedef int (*kins_inverse_fn)(const kins_params *p, kins_scratch *s,
+                               const EmcPose *pos, double *joint,
+                               const KINEMATICS_INVERSE_FLAGS *iflags,
+                               KINEMATICS_FORWARD_FLAGS *fflags);
+
+typedef int (*kins_frame_fn)(const kins_params *p, const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags);
+
+typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
+                                const EmcPose *pos,
+                                double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                const KINEMATICS_INVERSE_FLAGS *iflags);
+
+/* The maths of one kinematics type.  forward and inverse are required; the
+   frames, the native rotation and the Jacobian are optional as before, and
+   a missing Jacobian is differenced from the inverse.  fwd_iterates says the
+   forward starts from the pose it is handed, so the shared code seeds it
+   with the last answer after a switch.  identity says joints are axes, which
+   a consumer may use to skip the maths altogether. */
+typedef struct kins_ops {
+    kins_forward_fn         forward;
+    kins_inverse_fn         inverse;
+    kins_frame_fn           work;
+    kins_frame_fn           tool;
+    const PmRotationMatrix *native;     /* NULL means TOOL_FRAME_SPINDLE */
+    kins_jacobian_fn        jacobian;
+    int                     fwd_iterates;
+    int                     identity;           /* joints are axes */
+} kins_ops;
+
+/* A module described for a caller outside RT: its table, its joint
+   conventions and the maths of each type.  ops[t] is NULL for a type the
+   module still implements the old way. */
+typedef struct kins_module_info {
+    const char            *name;
+    const char            *halprefix;
+    const kins_param_desc *params;
+    int                    nparams;
+    const char            *required_coordinates;
+    int                    max_joints;          /* the most the module allows */
+    int                    allow_duplicates;
+    int                    ntypes;
+    const kins_ops        *ops[KINS_MAX_TYPES];
+} kins_module_info;
+
+/* Exported by every module that provides the forms above.  coordinates and
+   sparm are the module parameters the RT instance was loaded with; a module
+   whose types depend on them replays that choice here.  Meant for a copy of
+   the module loaded outside RT; the RT instance answers from its own state
+   without redoing its setup.  Returns 0, or -1 with info untouched. */
+extern int kinsDescribe(const char *coordinates, const char *sparm,
+                        kins_module_info *info);
+
+/* Fill a block for a module: size, the joint map from coordinates (checked
+   against required_coordinates, the joint limit and the duplicate rule),
+   ktype 0, no tool, and every geometry entry at its table default.  A
+   caller then overwrites what it knows better.  Returns 0 or -1. */
+extern int kinsParamsInit(kins_params *p,
+                          const kins_module_info *info,
+                          const char *coordinates);
+
+/* The joint map alone, into a block, with no other field touched. */
+extern int kinsParamsMapCoordinates(kins_params *p,
+                                    const char *coordinates,
+                                    int max_joints,
+                                    int allow_duplicates,
+                                    const char *required_coordinates);
+
+/* Reset a scratch to "no seed, nothing reported". */
+extern void kinsScratchInit(kins_scratch *s);
+
+/* The map helpers above, reading the map from the block instead of from
+   the statics that map_coordinates_to_jnumbers() fills. */
+extern int kinsMappedJointsToPose(const kins_params *p,
+                                  const double *joints, EmcPose *pos);
+extern int kinsPoseToMappedJoints(const kins_params *p,
+                                  const EmcPose *pos, double *joints);
+extern int kinsJacobianFromMappedAxesP(const kins_params *p,
+                                       const double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS],
+                                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS]);
+
+/* Identity as pure functions: joints are axes through the block's map. */
+extern int kinsIdentityForward(const kins_params *p, kins_scratch *s,
+                               const double *joint, EmcPose *pos,
+                               const KINEMATICS_FORWARD_FLAGS *fflags,
+                               KINEMATICS_INVERSE_FLAGS *iflags);
+extern int kinsIdentityInverse(const kins_params *p, kins_scratch *s,
+                               const EmcPose *pos, double *joint,
+                               const KINEMATICS_INVERSE_FLAGS *iflags,
+                               KINEMATICS_FORWARD_FLAGS *fflags);
+extern int kinsIdentityFrame(const kins_params *p, const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags);
+extern int kinsIdentityJacobian(const kins_params *p, const double *joint,
+                                const EmcPose *pos,
+                                double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                const KINEMATICS_INVERSE_FLAGS *iflags);
+extern const kins_ops KINS_IDENTITY_OPS;
+
+/* The five questions asked of an ops table, with the defaults applied:
+   identity for a missing frame, the native rotation applied to the tool
+   frame, and the Jacobian differenced from the inverse when there is no
+   closed form.  These are what the RT wrappers and a caller outside RT
+   both go through, so both get the same answers. */
+extern int kinsOpsForward(const kins_ops *ops, const kins_params *p,
+                          kins_scratch *s, const double *joint, EmcPose *pos,
+                          const KINEMATICS_FORWARD_FLAGS *fflags,
+                          KINEMATICS_INVERSE_FLAGS *iflags);
+extern int kinsOpsInverse(const kins_ops *ops, const kins_params *p,
+                          kins_scratch *s, const EmcPose *pos, double *joint,
+                          const KINEMATICS_INVERSE_FLAGS *iflags,
+                          KINEMATICS_FORWARD_FLAGS *fflags);
+extern int kinsOpsWorkFrame(const kins_ops *ops, const kins_params *p,
+                            const double *joint, PmRotationMatrix *rot,
+                            const KINEMATICS_FORWARD_FLAGS *fflags);
+extern int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
+                            const double *joint, PmRotationMatrix *rot,
+                            const KINEMATICS_FORWARD_FLAGS *fflags);
+extern int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
+                           kins_scratch *s, const double *joint,
+                           const EmcPose *pos,
+                           double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                           const KINEMATICS_INVERSE_FLAGS *iflags);
+
 extern int kinematicsSwitchable(void);
 extern int kinematicsSwitch(int switchkins_type);
 //NOTE: switchable kinematics may require Interp::Synch
@@ -439,6 +651,8 @@ EXPORT_SYMBOL(kinematicsSwitch);
 
 
 // support for template for user-defined switchkins_type==2
+extern const kins_ops USERK_OPS;
+
 extern int userkKinematicsSetup(const int   comp_id,
                                 const char* coordinates,
                                 kparms*     ksetup_parms);
