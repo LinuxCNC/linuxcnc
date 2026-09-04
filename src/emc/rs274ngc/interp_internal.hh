@@ -255,6 +255,12 @@ enum GCodes
     G_51 = 510,
     G_52 = 520,
     G_53 = 530,
+    G_53_1 = 531,
+    G_53_3 = 533,
+    G_53_4 = 534,
+    G_53_5 = 535,
+    G_53_6 = 536,
+    G_53_7 = 537,
     G_54 = 540,
     G_55 = 550,
     G_56 = 560,
@@ -265,6 +271,7 @@ enum GCodes
     G_59_2 = 592,
     G_59_3 = 593,
     G_68_2 = 682,
+    G_68_3 = 683,
     G_68_4 = 684,
     G_69 = 690,
     G_61 = 610,
@@ -502,6 +509,9 @@ struct block_struct
   bool z_flag{};
 
   bool dollar_flag{};
+
+  bool joint_flag[EMCMOT_MAX_JOINTS]{};    // J<n>=<value> words, for G53.5
+  double joint_value[EMCMOT_MAX_JOINTS]{};
 
   double radius{};
   double theta{};
@@ -763,6 +773,14 @@ struct setup
   int g68_seq_p;
   unsigned g68_seq_have;        // bit per Q received
   double g68_seq_word[4][7];    // per Q: x y z i j k r
+  // the kinematics, for G68.3 and the orientation moves: loaded on first
+  // use through the non-realtime loader, on a HAL component of our own
+  void *kins_ctx;               // KinematicsUserContext
+  int kins_comp_id;
+  char kins_module[LINELEN];    // [KINS] KINEMATICS, as loadrt gets it
+  int kins_joints;              // [KINS] JOINTS
+  int kins_angular_joints;      // bit per joint, [JOINT_n] TYPE = ANGULAR
+  double kins_seed[EMCMOT_MAX_JOINTS];  // the last inverse, seeding the next
   double parameters[interp_param_global::RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
   int parameter_numbers[MAX_NAMED_PARAMETERS];    // parameter number buffer
@@ -1070,4 +1088,8 @@ struct scoped_locale {
 };
 
 #define FORCE_LC_NUMERIC_C scoped_locale force_lc_numeric_c(LC_NUMERIC, "C")
+
+// the kinematics type carrying a KINSTYPE_ flag, or -1 when the module
+// declares none (interp_convert.cc)
+int flagged_kins_type(int flag);
 #endif // INTERP_INTERNAL_HH

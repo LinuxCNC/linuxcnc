@@ -1,0 +1,11 @@
+(a plane, then a long move to be stopped in the middle)
+(the cancel at the end is one the read ahead reaches long before the machine does)
+G21 G90 G94
+G12.1 P1
+G0 X0 Y0 Z0 A0 B0 C0
+G68.2 P1 Q123 I30 J20 K0
+G53.1
+G1 F300 Z-40
+G1 Z0
+G69
+M2
