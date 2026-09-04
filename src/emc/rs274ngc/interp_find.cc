@@ -172,31 +172,14 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 #endif
         CHKS((block->radius_flag || block->theta_flag), _("Cannot use polar coordinates with G53"));
 
-        double cx = s->current_x + s->axis_offset_x;
-        double cy = s->current_y + s->axis_offset_y;
-        rotate(&cx, &cy, s->rotation_xy);
-
-        if(block->x_flag) {
-            *px = block->x_number - s->origin_offset_x - s->tool_offset.tran.x;
-        } else {
-            *px = cx;
-        }
-
-        if(block->y_flag) {
-            *py = block->y_number - s->origin_offset_y - s->tool_offset.tran.y;
-        } else {
-            *py = cy;
-        }
-
-        rotate(px, py, -s->rotation_xy);
-        *px -= s->axis_offset_x;
-        *py -= s->axis_offset_y;
-
-        if(block->z_flag) {
-            *pz = block->z_number - s->origin_offset_z - s->axis_offset_z - s->tool_offset.tran.z;
-        } else {
-            *pz = s->current_z;
-        }
+        // the words are absolute; the current point supplies the rest,
+        // taken to the absolute frame and back with them
+        double wx, wy, wz;
+        program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &wx, &wy, &wz);
+        if(block->x_flag) { wx = block->x_number; }
+        if(block->y_flag) { wy = block->y_number; }
+        if(block->z_flag) { wz = block->z_number; }
+        world_to_program_xyz(s, wx, wy, wz, px, py, pz);
 
         if(block->a_flag) {
             if(s->a_axis_wrapped) {
@@ -424,12 +407,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
                           double *w_2,
                           setup_pointer settings)        //!< pointer to machine settings
 {
-  *x2 = x1 - settings->origin_offset_x -  settings->tool_offset.tran.x;
-  *y2 = y1 - settings->origin_offset_y -  settings->tool_offset.tran.y;
-  rotate(x2, y2, -settings->rotation_xy);
-  *x2 -= settings->axis_offset_x;
-  *y2 -= settings->axis_offset_y;
-  *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_offset.tran.z;
+  world_to_program_xyz(settings, x1, y1, z1, x2, y2, z2);
 
   if(settings->a_axis_wrapped) {
       CHP(unwrap_rotary(AA_2, AA_1,

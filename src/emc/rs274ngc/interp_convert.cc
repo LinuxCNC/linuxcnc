@@ -1641,6 +1641,8 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
+  CHKS((settings->g68_active),
+      _("Cannot change G92 offsets while a tilted work plane (G68.2) is active"));
   CHKS((block->a_flag && settings->a_axis_wrapped &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
@@ -2364,6 +2366,12 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change coordinate systems with cutter radius compensation on")));
+  {
+    // the plane sits on the active system; reselecting that one is harmless
+    int target = (g_code < G_59_1) ? (g_code - G_54) / 10 + 1 : g_code - G_59_1 + 7;
+    CHKS((settings->g68_active && target != settings->origin_index),
+         _("Cannot change coordinate systems while a tilted work plane (G68.2) is active"));
+  }
   parameters = settings->parameters;
   switch (g_code) {
   case G_54:
@@ -2960,6 +2968,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
 {
     int status;
 
+    CHP(work_plane_check_sequence(block, settings));
     if ((block->g_modes[GM_MODAL_0] == G_4) && ONCE(STEP_DWELL)) {
       status = convert_dwell(settings, block->p_number);
       CHP(status);
@@ -2986,6 +2995,10 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     }
     if ((block->g_modes[GM_COORD_SYSTEM] != -1) && ONCE(STEP_COORD_SYSTEM)){
 	status = convert_coordinate_system(block->g_modes[GM_COORD_SYSTEM], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_WORK_PLANE] != -1) && ONCE(STEP_WORK_PLANE)){
+	status = convert_work_plane(block->g_modes[GM_WORK_PLANE], block, settings);
 	CHP(status);
     }
     if ((block->g_modes[GM_CONTROL_MODE] != -1) && ONCE(STEP_CONTROL_MODE)) {
@@ -3040,12 +3053,8 @@ offsetless machine coordinate.
 
 void Interp::get_abs_position(setup_pointer s, double abs_pos[9])
 {
-    double x = s->current_x + s->axis_offset_x;
-    double y = s->current_y + s->axis_offset_y;
-    rotate(&x, &y, s->rotation_xy);
-    abs_pos[0] = x + s->origin_offset_x + s->tool_offset.tran.x;
-    abs_pos[1] = y + s->origin_offset_y + s->tool_offset.tran.y;
-    abs_pos[2] = s->current_z + s->axis_offset_z + s->origin_offset_z + s->tool_offset.tran.z;
+    program_to_world_xyz(s, s->current_x, s->current_y, s->current_z,
+                         &abs_pos[0], &abs_pos[1], &abs_pos[2]);
     abs_pos[3] = s->AA_current + s->AA_axis_offset + s->AA_origin_offset + s->tool_offset.a;
     abs_pos[4] = s->BB_current + s->BB_axis_offset + s->BB_origin_offset + s->tool_offset.b;
     abs_pos[5] = s->CC_current + s->CC_axis_offset + s->CC_origin_offset + s->tool_offset.c;
@@ -3077,12 +3086,11 @@ int Interp::convert_savehome(int code, block_pointer /*block*/, setup_pointer s)
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
-    double x = s->current_x + s->axis_offset_x;
-    double y = s->current_y + s->axis_offset_y;
-    rotate(&x, &y, s->rotation_xy);
-    x = PROGRAM_TO_USER_LEN(x + s->tool_offset.tran.x + s->origin_offset_x);
-    y = PROGRAM_TO_USER_LEN(y + s->tool_offset.tran.y + s->origin_offset_y);
-    double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_offset.tran.z + s->origin_offset_z + s->axis_offset_z);
+    double x, y, z;
+    program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &x, &y, &z);
+    x = PROGRAM_TO_USER_LEN(x);
+    y = PROGRAM_TO_USER_LEN(y);
+    z = PROGRAM_TO_USER_LEN(z);
     double a = PROGRAM_TO_USER_ANG(s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
     double b = PROGRAM_TO_USER_ANG(s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
     double c = PROGRAM_TO_USER_ANG(s->CC_current + s->tool_offset.c + s->CC_origin_offset + s->CC_axis_offset);
@@ -3368,6 +3376,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * INCH_PER_MM);
       settings->origin_offset_y = (settings->origin_offset_y * INCH_PER_MM);
       settings->origin_offset_z = (settings->origin_offset_z * INCH_PER_MM);
+      settings->g68_offset[0] = (settings->g68_offset[0] * INCH_PER_MM);
+      settings->g68_offset[1] = (settings->g68_offset[1] * INCH_PER_MM);
+      settings->g68_offset[2] = (settings->g68_offset[2] * INCH_PER_MM);
 
       settings->u_current = (settings->u_current * INCH_PER_MM);
       settings->v_current = (settings->v_current * INCH_PER_MM);
@@ -3411,6 +3422,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * MM_PER_INCH);
       settings->origin_offset_y = (settings->origin_offset_y * MM_PER_INCH);
       settings->origin_offset_z = (settings->origin_offset_z * MM_PER_INCH);
+      settings->g68_offset[0] = (settings->g68_offset[0] * MM_PER_INCH);
+      settings->g68_offset[1] = (settings->g68_offset[1] * MM_PER_INCH);
+      settings->g68_offset[2] = (settings->g68_offset[2] * MM_PER_INCH);
 
       settings->u_current = (settings->u_current * MM_PER_INCH);
       settings->v_current = (settings->v_current * MM_PER_INCH);
@@ -4606,6 +4620,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
     int direct = block->l_number == 1;
 
+    CHKS((settings->g68_active && !direct),
+         _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
     is_near_int(&toolno, block->p_number);
 
     CHP((find_tool_index(settings, toolno, &idx)));
@@ -4845,6 +4861,9 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double c;
   double u, v, w;
   double r;
+
+  CHKS((settings->g68_active),
+       _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
   double *parameters;
   int p_int;
 
@@ -5251,6 +5270,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
             ) {   /* reset stuff here */
 
 /*1*/
+    // a tilted work plane does not survive the end of the program
+    CHP(work_plane_cancel(settings));
 
     if (!settings->disable_auto_g54) {
         rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
@@ -6430,16 +6451,21 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-  double dx, dy;
+  double dx, dy, dz;
 
+  // the tool does not move, so its program coordinates change by the
+  // offset difference seen from the program: the XY rotation and the
+  // tilted work plane taken off it
   dx = settings->tool_offset.tran.x - tool_offset.tran.x;
   dy = settings->tool_offset.tran.y - tool_offset.tran.y;
+  dz = settings->tool_offset.tran.z - tool_offset.tran.z;
 
   rotate(&dx, &dy, -settings->rotation_xy);
+  g68_unrotate(settings, &dx, &dy, &dz);
 
   settings->current_x += dx;
   settings->current_y += dy;
-  settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;
+  settings->current_z += dz;
   settings->AA_current += settings->tool_offset.a - tool_offset.a;
   settings->BB_current += settings->tool_offset.b - tool_offset.b;
   settings->CC_current += settings->tool_offset.c - tool_offset.c;

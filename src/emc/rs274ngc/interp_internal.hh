@@ -252,6 +252,9 @@ enum GCodes
     G_59_1 = 591,
     G_59_2 = 592,
     G_59_3 = 593,
+    G_68_2 = 682,
+    G_68_4 = 684,
+    G_69 = 690,
     G_61 = 610,
     G_61_1 = 611,
     G_64 = 640,
@@ -355,6 +358,7 @@ enum phases  {
     STEP_CUTTER_COMP,
     STEP_TOOL_LENGTH_OFFSET,
     STEP_COORD_SYSTEM,
+    STEP_WORK_PLANE,
     STEP_CONTROL_MODE,
     STEP_DISTANCE_MODE,
     STEP_IJK_DISTANCE_MODE,
@@ -369,7 +373,7 @@ enum phases  {
 
 // Modal groups
 // also indices into g_modes
-// unused: 9,11
+// unused: 11
 enum ModalGroups
 {
     GM_MODAL_0 = 0,
@@ -381,7 +385,7 @@ enum ModalGroups
     GM_LENGTH_UNITS = 6,
     GM_CUTTER_COMP = 7,
     GM_TOOL_LENGTH_OFFSET = 8,
-    // 9 unused
+    GM_WORK_PLANE = 9,
     GM_RETRACT_MODE = 10,
     // 11 unused
     GM_COORD_SYSTEM = 12,
@@ -737,6 +741,16 @@ struct setup
   double origin_offset_y;       // g5x offset y
   double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
+  // the tilted work plane (G68.2): a frame inside G92, program units,
+  // in the coordinate system that was active when it was defined
+  bool g68_active;
+  int g68_code;                 // the code that defined it, for the modal display
+  double g68_offset[3];
+  double g68_rotation[3][3];    // row major, columns are the plane's axes
+  int g68_seq_code;             // a three-point or two-vector definition in progress
+  int g68_seq_p;
+  unsigned g68_seq_have;        // bit per Q received
+  double g68_seq_word[4][7];    // per Q: x y z i j k r
   double parameters[interp_param_global::RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
   int parameter_numbers[MAX_NAMED_PARAMETERS];    // parameter number buffer

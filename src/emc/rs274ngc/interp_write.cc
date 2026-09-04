@@ -117,7 +117,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   settings->active_g_codes[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
-  settings->active_g_codes[12] = -1;
+  settings->active_g_codes[12] = settings->g68_active ? settings->g68_code : -1;
   settings->active_g_codes[13] = //I don't even know how to display the mode of an arbitrary number of spindles (andypugh 17/6/16)
     (settings->spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM) ? G_97 : G_96;
   settings->active_g_codes[14] = (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) ? G_90_1 : G_91_1;

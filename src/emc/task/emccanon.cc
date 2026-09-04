@@ -181,13 +181,46 @@ static void rotate(double &x, double &y, double theta) {
 }
 
 
+// The tilted work plane, the innermost stage of the chain: what a program
+// calls X Y Z is R * xyz + O in the coordinate system that was active when
+// the plane was defined.  Rotary and UVW words do not pass through it.
+static void g68_apply(double &x, double &y, double &z) {
+    if (!canon.g68Active) { return; }
+    const double *r = canon.g68Rotation;
+    double px = x, py = y, pz = z;
+    x = r[0]*px + r[1]*py + r[2]*pz + canon.g68Offset[0];
+    y = r[3]*px + r[4]*py + r[5]*pz + canon.g68Offset[1];
+    z = r[6]*px + r[7]*py + r[8]*pz + canon.g68Offset[2];
+}
+
+static void g68_remove(double &x, double &y, double &z) {
+    if (!canon.g68Active) { return; }
+    const double *r = canon.g68Rotation;
+    double px = x - canon.g68Offset[0];
+    double py = y - canon.g68Offset[1];
+    double pz = z - canon.g68Offset[2];
+    x = r[0]*px + r[3]*py + r[6]*pz;
+    y = r[1]*px + r[4]*py + r[7]*pz;
+    z = r[2]*px + r[5]*py + r[8]*pz;
+}
+
+// a direction: the rotation of the plane without its origin
+static void g68_rotate(double &x, double &y, double &z) {
+    if (!canon.g68Active) { return; }
+    const double *r = canon.g68Rotation;
+    double px = x, py = y, pz = z;
+    x = r[0]*px + r[1]*py + r[2]*pz;
+    y = r[3]*px + r[4]*py + r[5]*pz;
+    z = r[6]*px + r[7]*py + r[8]*pz;
+}
+
 /**
- * Implementation of planar rotation for a 3D vector.
- * This is basically a shortcut for "rotate" when the values are stored in a
- * cartesian vector.
+ * Rotation of a direction vector into the world frame: the tilted work
+ * plane first, then the planar rotation about Z.
  * The use of static "xy_rotation" is ugly here, but is at least consistent.
  */
 static void to_rotated(PM_CARTESIAN &vec) {
+    g68_rotate(vec.x, vec.y, vec.z);
     rotate(vec.x,vec.y,canon.xy_rotation);
 }
 #if 0
@@ -196,6 +229,8 @@ static void from_rotated(PM_CARTESIAN &vec) {
 }
 #endif
 static void rotate_and_offset(CANON_POSITION & pos) {
+
+    g68_apply(pos.x, pos.y, pos.z);
 
     pos += canon.g92Offset;
 
@@ -207,6 +242,8 @@ static void rotate_and_offset(CANON_POSITION & pos) {
 }
 
 static void rotate_and_offset_xyz(PM_CARTESIAN & xyz) {
+
+    g68_apply(xyz.x, xyz.y, xyz.z);
 
     xyz += canon.g92Offset.xyz();
 
@@ -232,10 +269,14 @@ static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION& pos) {
 
     res -= canon.g92Offset;
 
+    g68_remove(res.x, res.y, res.z);
+
     return res;
 }
 
 static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    g68_apply(x, y, z);
+
     x += canon.g92Offset.x;
     y += canon.g92Offset.y;
     z += canon.g92Offset.z;
@@ -476,6 +517,26 @@ void SET_XY_ROTATION(double t) {
     interp_list.append(std::move(sr));
 
     canon.xy_rotation = t;
+}
+
+void SET_G68_FRAME(double x, double y, double z,
+                   const double rotation[9], int active)
+{
+    flush_segments();
+
+    canon.g68Offset[0] = FROM_PROG_LEN(x);
+    canon.g68Offset[1] = FROM_PROG_LEN(y);
+    canon.g68Offset[2] = FROM_PROG_LEN(z);
+    for (int i = 0; i < 9; i++) { canon.g68Rotation[i] = rotation[i]; }
+    canon.g68Active = active;
+
+    auto msg = std::make_unique<EMC_TRAJ_SET_G68>();
+    msg->origin.tran.x = TO_EXT_LEN(canon.g68Offset[0]);
+    msg->origin.tran.y = TO_EXT_LEN(canon.g68Offset[1]);
+    msg->origin.tran.z = TO_EXT_LEN(canon.g68Offset[2]);
+    for (int i = 0; i < 9; i++) { msg->rotation[i] = rotation[i]; }
+    msg->active = active;
+    interp_list.append(std::move(msg));
 }
 
 void SET_G5X_OFFSET(int index,
@@ -2599,7 +2660,9 @@ void ARC_FEED(int line_number,
 	canon_debug("line = %d\n", line_number);
 	canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
 
-    if( canon.activePlane == CANON_PLANE::XY && canon.motionMode == CANON_CONTINUOUS) {
+    // the naive cam detector works on the world XY projection of the arc,
+    // which a tilted work plane takes out of the XY plane
+    if( canon.activePlane == CANON_PLANE::XY && canon.motionMode == CANON_CONTINUOUS && !canon.g68Active) {
 		double mx, my;
 		double lx, ly, lz;
 		double unused = 0;
@@ -2838,7 +2901,7 @@ void ARC_FEED(int line_number,
     double j2 = FROM_EXT_LEN(emcAxisGetMaxJerk(axis2));
     double j_min = MIN(j1, j2);
 
-    if(canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) {
+    if((canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) || canon.g68Active) {
         // also consider the third plane's constraint, which may get
         // involved since we're rotated.
 
@@ -3613,6 +3676,9 @@ void INIT_CANON()
 
     // initialize locals to original values
     canon.xy_rotation = 0.0;
+    canon.g68Offset[0] = canon.g68Offset[1] = canon.g68Offset[2] = 0.0;
+    for (int i = 0; i < 9; i++) { canon.g68Rotation[i] = (i % 4 == 0) ? 1.0 : 0.0; }
+    canon.g68Active = 0;
     canon.rotary_unlock_for_traverse = -1;
     canon.feed_mode = 0;
     canon.g5xOffset.x = 0.0;

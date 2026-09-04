@@ -1583,6 +1583,7 @@ class DummyCanon:
     def set_g5x_offset(*args): pass
     def set_g92_offset(*args): pass
     def set_xy_rotation(*args): pass
+    def set_g68_frame(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
     def set_plane(*args): pass

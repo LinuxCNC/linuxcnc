@@ -694,6 +694,20 @@ void SET_XY_ROTATION(double t) {
     Py_XDECREF(result);
 };
 
+void SET_G68_FRAME(double x, double y, double z,
+                   const double rotation[9], int active) {
+    maybe_new_line();
+    if(interp_error) return;
+    PyObject *result =
+        callmethod(callback, "set_g68_frame", "ffffffffffffi",
+                   x, y, z,
+                   rotation[0], rotation[1], rotation[2],
+                   rotation[3], rotation[4], rotation[5],
+                   rotation[6], rotation[7], rotation[8], active);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+};
+
 void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
 
 void SELECT_PLANE(CANON_PLANE pl) {
@@ -1448,7 +1462,8 @@ static PyObject *rs274_arc_to_segments(PyObject * /*self*/, PyObject *args) {
     PyObject *canon;
     double x1, y1, cx, cy, z1, a, b, c, u, v, w;
     double o[9], n[9], g5xoffset[9], g92offset[9];
-    int rot, plane;
+    double g68o[3], g68r[9];
+    int rot, plane, g68active;
     int X, Y, Z;
     double rotation_cos, rotation_sin;
     int max_segments = 128;
@@ -1479,6 +1494,32 @@ static PyObject *rs274_arc_to_segments(PyObject * /*self*/, PyObject *args) {
     if(!get_attr(canon, "g92_offset_u", &g92offset[6])) return NULL;
     if(!get_attr(canon, "g92_offset_v", &g92offset[7])) return NULL;
     if(!get_attr(canon, "g92_offset_w", &g92offset[8])) return NULL;
+    if(!get_attr(canon, "g68_active", &g68active)) return NULL;
+    if(g68active) {
+        if(!get_attr(canon, "g68_offset", "ddd:arcs_to_segments g68_offset",
+                     &g68o[0], &g68o[1], &g68o[2]))
+            return NULL;
+        if(!get_attr(canon, "g68_rotation", "ddddddddd:arcs_to_segments g68_rotation",
+                     &g68r[0], &g68r[1], &g68r[2], &g68r[3], &g68r[4],
+                     &g68r[5], &g68r[6], &g68r[7], &g68r[8]))
+            return NULL;
+    }
+    // the tilted work plane sits inside G92: take it off the last point on
+    // the way in and put it back on every point on the way out
+    auto g68_remove = [&](double *p) {
+        if(!g68active) return;
+        double x = p[0] - g68o[0], y = p[1] - g68o[1], z = p[2] - g68o[2];
+        p[0] = g68r[0]*x + g68r[3]*y + g68r[6]*z;
+        p[1] = g68r[1]*x + g68r[4]*y + g68r[7]*z;
+        p[2] = g68r[2]*x + g68r[5]*y + g68r[8]*z;
+    };
+    auto g68_apply = [&](double *p) {
+        if(!g68active) return;
+        double x = p[0], y = p[1], z = p[2];
+        p[0] = g68r[0]*x + g68r[1]*y + g68r[2]*z + g68o[0];
+        p[1] = g68r[3]*x + g68r[4]*y + g68r[5]*z + g68o[1];
+        p[2] = g68r[6]*x + g68r[7]*y + g68r[8]*z + g68o[2];
+    };
 
     if(plane == 1) {
         X=0; Y=1; Z=2;
@@ -1499,6 +1540,7 @@ static PyObject *rs274_arc_to_segments(PyObject * /*self*/, PyObject *args) {
     for(int ax=0; ax<9; ax++) o[ax] -= g5xoffset[ax];
     unrotate(o[0], o[1], rotation_cos, rotation_sin);
     for(int ax=0; ax<9; ax++) o[ax] -= g92offset[ax];
+    g68_remove(o);
 
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
@@ -1541,12 +1583,14 @@ static PyObject *rs274_arc_to_segments(PyObject * /*self*/, PyObject *args) {
         p[6] = o[6] + d[6] * f;
         p[7] = o[7] + d[7] * f;
         p[8] = o[8] + d[8] * f;
+        g68_apply(p);
         for(int ax=0; ax<9; ax++) p[ax] += g92offset[ax];
         rotate(p[0], p[1], rotation_cos, rotation_sin);
         for(int ax=0; ax<9; ax++) p[ax] += g5xoffset[ax];
         PyList_SET_ITEM(segs, i,
             Py_BuildValue("ddddddddd", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]));
     }
+    g68_apply(n);
     for(int ax=0; ax<9; ax++) n[ax] += g92offset[ax];
     rotate(n[0], n[1], rotation_cos, rotation_sin);
     for(int ax=0; ax<9; ax++) n[ax] += g5xoffset[ax];

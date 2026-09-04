@@ -889,6 +889,26 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
     double rotation;
 };
 
+// the tilted work plane frame (G68.2, G68.3, G68.4, G69): origin in user
+// units and a rotation matrix, both in the coordinate system that was active
+// when the plane was defined
+class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_G68()
+      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_G68_TYPE, sizeof(EMC_TRAJ_SET_G68)),
+        origin{}, rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}, active(0)
+    {};
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+
+    EmcPose origin;
+    double rotation[9];         // row major
+    int active;
+};
+
 class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG()
@@ -1493,6 +1513,9 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
     double rotation_xy;
+    EmcPose g68_offset;		// tilted work plane origin, in user units
+    double g68_rotation[9];	// tilted work plane rotation, row major
+    int g68_active;		// a tilted work plane is in effect
     EmcPose toolOffset;		// tool offset, in general pose form
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];

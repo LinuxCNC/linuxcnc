@@ -358,6 +358,20 @@ public:
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
  int convert_kins_switch(int code, block_pointer block, setup_pointer settings);
+ int convert_work_plane(int g_code, block_pointer block, setup_pointer settings);
+ int work_plane_build(block_pointer block, setup_pointer settings,
+                      double origin[3], double rotation[3][3], int *complete);
+ int work_plane_set(setup_pointer settings, int code,
+                    const double origin[3], const double rotation[3][3]);
+ int work_plane_cancel(setup_pointer settings, bool tell_canon_anyway = false);
+ int work_plane_check_sequence(block_pointer block, setup_pointer settings);
+ void g68_apply(setup_pointer settings, double *x, double *y, double *z);
+ void g68_remove(setup_pointer settings, double *x, double *y, double *z);
+ void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);
+ void program_to_world_xyz(setup_pointer settings, double px, double py, double pz,
+                           double *wx, double *wy, double *wz);
+ void world_to_program_xyz(setup_pointer settings, double wx, double wy, double wz,
+                           double *px, double *py, double *pz);
  int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);

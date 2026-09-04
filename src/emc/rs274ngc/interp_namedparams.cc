@@ -759,26 +759,27 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_ABS_X:  // abs position
         {
-            double x = _setup.current_x + _setup.axis_offset_x;
-            double y = _setup.current_y + _setup.axis_offset_y;
-            rotate(&x, &y, _setup.rotation_xy);
-	    *value = x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+            double abs_pos[9];
+            get_abs_position(&_setup, abs_pos);
+            *value = abs_pos[0];
         }
 	break;
 
     case NP_ABS_Y:  // abs position
         {
-            double x = _setup.current_x + _setup.axis_offset_x;
-            double y = _setup.current_y + _setup.axis_offset_y;
-            rotate(&x, &y, _setup.rotation_xy);
-	    *value = y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+            double abs_pos[9];
+            get_abs_position(&_setup, abs_pos);
+            *value = abs_pos[1];
         }
 	break;
 
 
     case NP_ABS_Z:  // abs position
-	*value = _setup.current_z + _setup.axis_offset_z +
-                 _setup.origin_offset_z + _setup.tool_offset.tran.z;
+        {
+            double abs_pos[9];
+            get_abs_position(&_setup, abs_pos);
+            *value = abs_pos[2];
+        }
 	break;
 
     case NP_ABS_A:  // abs position
