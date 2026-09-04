@@ -22,6 +22,7 @@ share/desktop-directories/linuxcnc-ref.directory
 share/desktop-directories/linuxcnc-doc.directory
 share/linuxcnc/mesa_modbus.c.tmpl
 share/linuxcnc/switchkins.c
+share/linuxcnc/switchkins_setup.c
 share/linuxcnc/kins_util.c
 share/linuxcnc/kins_single.c
 src/modules.order

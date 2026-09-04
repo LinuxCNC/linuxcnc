@@ -17,6 +17,12 @@ replace with the kinematics wanted.  The switchkins implementation is
 installed as source alongside the headers, so nothing needs a path to
 a LinuxCNC source tree.
 
+The kinematics are written as functions of a parameter block, see
+kinematics.h and the Kinematics Conventions chapter: the geometry is
+declared once in a table, one HAL pin is made per entry, and the maths
+reads the block where it would have read a pin.  The same maths can
+then be evaluated outside realtime.
+
 To avoid updates that overwrite switchkinscomp.comp, best practice is
 to rename the file and its component name (example:
 *user_switchkins.comp* creates module: *user_switchkins*).
@@ -53,11 +59,15 @@ option  extra_setup;
 // switchkins.c provides kinematicsForward(), kinematicsInverse(),
 // kinematicsSwitch() and the rest of the kinematics interface, and
 // dispatches each call to the currently selected switchkins-type.
-// kins_util.c provides the identity kinematics and the coordinates
-// letters-to-joints mapping they use.  Both are installed with the
-// headers, so halcompile finds them with no path of your own.
+// switchkins_setup.c runs the switchkinsSetup() below and provides
+// kinsDescribe() for a copy of the module loaded outside realtime.
+// kins_util.c provides the identity kinematics, the parameter block
+// helpers and the coordinates letters-to-joints mapping.  All are
+// installed with the headers, so halcompile finds them with no path of
+// your own.
 
 #include <switchkins.c>
+#include <switchkins_setup.c>
 #include <kins_util.c>
 //=====================================================================
 
@@ -66,36 +76,31 @@ static char *coordinates;
 RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 
 //---------------------------------------------------------------------
-// Example switchkins-type.  A setup routine creating whatever hal pins
-// the kinematics need, plus a forward and an inverse routine.  Replace
-// the arithmetic with the real kinematics.
+// The geometry: one HAL pin per entry, named <halprefix>.<name>, read
+// into the block before every call.  Add whatever the real kinematics
+// need; an entry flagged as the tool arrives in p->tool.tran.z as well.
 
-static struct {
-    hal_real_t x_offset;
-} *mydata;
+static const kins_param_desc my_params[] = {
+    { "x-offset", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+};
+enum { P_X_OFFSET };
 
-static int myKinematicsSetup(const int   comp_id,
-                             const char* coords,
-                             kparms*     kp)
+//---------------------------------------------------------------------
+// Example switchkins-type: a forward and an inverse over the block.
+// Replace the arithmetic with the real kinematics.  The frames and the
+// Jacobian are optional, see kinematics.h.
+
+static int myForward(const kins_params *p, kins_scratch *s,
+                     const double *j,
+                     EmcPose * pos,
+                     const KINEMATICS_FORWARD_FLAGS * fflags,
+                     KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)coords; // this type does not use the coordinates mapping
-
-    mydata = hal_malloc(sizeof(*mydata));
-    if (!mydata) return -1;
-
-    return hal_pin_new_real(comp_id, HAL_IN, &mydata->x_offset, 0.0,
-                            "%s.x-offset", kp->halprefix);
-} // myKinematicsSetup()
-
-static int myKinematicsForward(const double *j,
-                               EmcPose * pos,
-                               const KINEMATICS_FORWARD_FLAGS * fflags,
-                               KINEMATICS_INVERSE_FLAGS * iflags)
-{
+    (void)s;
     (void)fflags;
     (void)iflags;
 
-    pos->tran.x = j[0] + hal_get_real(mydata->x_offset);
+    pos->tran.x = j[0] + p->geometry[P_X_OFFSET];
     pos->tran.y = j[1];
     pos->tran.z = j[2];
 
@@ -104,50 +109,71 @@ static int myKinematicsForward(const double *j,
     pos->u = pos->v = pos->w = 0;
 
     return 0;
-} // myKinematicsForward()
+} // myForward()
 
-static int myKinematicsInverse(const EmcPose * pos,
-                               double *j,
-                               const KINEMATICS_INVERSE_FLAGS * iflags,
-                               KINEMATICS_FORWARD_FLAGS * fflags)
+static int myInverse(const kins_params *p, kins_scratch *s,
+                     const EmcPose * pos,
+                     double *j,
+                     const KINEMATICS_INVERSE_FLAGS * iflags,
+                     KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)s;
     (void)iflags;
     (void)fflags;
 
-    j[0] = pos->tran.x - hal_get_real(mydata->x_offset);
+    j[0] = pos->tran.x - p->geometry[P_X_OFFSET];
     j[1] = pos->tran.y;
     j[2] = pos->tran.z;
 
     return 0;
-} // myKinematicsInverse()
+} // myInverse()
+
+static const kins_ops my_ops = {
+    .forward = myForward,
+    .inverse = myInverse,
+};
+
+//---------------------------------------------------------------------
+// The module's configuration and its switchkins-types.  Type 0 is the
+// startup default.  Types run from 0 to SWITCHKINS_MAX_TYPES-1 with no
+// gaps.
+
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    // the pointer arguments are the older way of providing types 0 to 2
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
+
+    kp->kinsname    = "switchkinscomp"; // must agree with the module name
+    kp->halprefix   = "switchkinscomp"; // hal pin names
+    kp->required_coordinates = "xyz";
+    kp->allow_duplicates     = 0;
+    kp->fwd_iterates_mask    = 0;       // set bit N if type N iterates
+    kp->gui_kinstype         = -1;      // negative means: not used
+    kp->max_joints           = strlen(kp->required_coordinates);
+    kp->params               = my_params;
+    kp->nparams              = sizeof(my_params)/sizeof(my_params[0]);
+
+    if (switchkinsRegisterOps(0, &KINS_IDENTITY_OPS)) { return -1; }
+    if (switchkinsRegisterOps(1, &my_ops))            { return -1; }
+    return 0;
+} // switchkinsSetup()
 
 //---------------------------------------------------------------------
 // rtapi_app_main() is supplied by halcompile, which calls hal_init()
 // before EXTRA_SETUP() and hal_ready() after it.  That is what
-// switchkinsInit() expects, so the switchkins-types are registered and
-// the implementation started from here.
+// switchkinsInit() expects, so setup is run and the implementation
+// started from here.
 
 EXTRA_SETUP() {
     kparms kp;
     (void)__comp_inst; (void)prefix; (void)extra_arg;
 
-    kp.kinsname    = "switchkinscomp"; // must agree with the module name
-    kp.halprefix   = "switchkinscomp"; // hal pin names
-    kp.required_coordinates = "xyz";
-    kp.allow_duplicates     = 0;
-    kp.fwd_iterates_mask    = 0;       // set bit N if type N iterates
-    kp.gui_kinstype         = -1;      // negative means: not used
-    kp.sparm                = NULL;
-    kp.max_joints           = strlen(kp.required_coordinates);
-
-    // switchkins-type 0 is the startup default.  Types run from 0 to
-    // SWITCHKINS_MAX_TYPES-1 with no gaps.
-    if (switchkinsRegister(0, identityKinematicsSetup,
-                              identityKinematicsForward,
-                              identityKinematicsInverse)) { return -1; }
-    if (switchkinsRegister(1, myKinematicsSetup,
-                              myKinematicsForward,
-                              myKinematicsInverse))       { return -1; }
-
+    if (switchkinsRunSetup(&kp, NULL)) { return -1; }
     return switchkinsInit(comp_id, &kp, coordinates);
 } // EXTRA_SETUP()
