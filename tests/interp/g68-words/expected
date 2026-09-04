@@ -1,0 +1,16 @@
+p2-ijk: G68.2 P2 takes no I, J or K: its points are X, Y and Z
+p2-r-q1: ok
+p2-r-q3: ok
+p2-r-twice: G68.2 P2 takes R once; Q0 already gave it
+p2-r-q0: ok
+p2-no-q0: ok
+p2-q0-late: G68.2 P2 expects Q2 here
+p3-q2-xyz: G68.2 P3 Q2 takes no X, Y or Z: the origin is on the Q1 block
+p3-q2-r: G68.2 P3 takes R on the Q1 block only
+p3-q1-r: ok
+p3-4deg: ok
+p3-6deg: G68.2 P3: the X and Z directions are 5 degrees or more off square
+p3-zero: G68.2 P3: the X direction is a zero vector
+p1-a: G68.2 takes no A, B, C, U, V or W: the plane is placed by X, Y and Z
+g684-b: G68.2 takes no A, B, C, U, V or W: the plane is placed by X, Y and Z
+g684-none: G68.4 needs an active tilted work plane to build on

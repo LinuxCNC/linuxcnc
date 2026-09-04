@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="799" height="586" viewBox="-398 -371 799 586" font-family="sans-serif">
+<g stroke="#4d4d4d" stroke-width="1.5" stroke-linejoin="round">
+<polygon points="0.0,0.0 245.7,-86.0 245.7,-145.0 0.0,-58.9" fill="#d4d4d4"/>
+<polygon points="0.0,0.0 -172.1,-122.9 -172.1,-252.8 -81.4,-188.0 0.0,-58.9" fill="#e1e1e1"/>
+<polygon points="-81.4,-188.0 164.3,-274.1 73.7,-338.8 -172.1,-252.8" fill="#f2f2f2"/>
+<polygon points="0.0,-58.9 245.7,-145.0 164.3,-274.1 -81.4,-188.0" fill="#cfe2f3"/>
+</g>
+<line x1="-287.5" y1="160.3" x2="-222.3" y2="137.5" stroke="#000000" stroke-width="2"/>
+<path d="M -213.8,134.5 L -221.1,140.9 L -223.5,134.1 z" fill="#000000"/>
+<text x="-191.7" y="126.7" fill="#000000" font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="central">X</text>
+<line x1="-287.5" y1="160.3" x2="-331.8" y2="128.7" stroke="#000000" stroke-width="2"/>
+<path d="M -339.1,123.4 L -329.7,125.7 L -333.9,131.6 z" fill="#000000"/>
+<text x="-354.6" y="112.4" fill="#000000" font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="central">Y</text>
+<line x1="-287.5" y1="160.3" x2="-287.5" y2="91.4" stroke="#000000" stroke-width="2"/>
+<path d="M -287.5,82.4 L -283.9,91.4 L -291.1,91.4 z" fill="#000000"/>
+<text x="-287.5" y="59.0" fill="#000000" font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="central">Z</text>
+<rect x="-291.5" y="156.3" width="8" height="8" fill="#000000" transform="rotate(45 -287.5 160.3)"/>
+<text x="-297.5" y="180.3" fill="#000000" font-size="20" text-anchor="end" font-weight="bold">G53</text>
+<line x1="-287.5" y1="160.3" x2="0.0" y2="0.0" stroke="#000000" stroke-width="1.5" stroke-dasharray="2,4" stroke-linecap="round"/>
+<line x1="0.0" y1="0.0" x2="322.3" y2="-112.8" stroke="#333333" stroke-width="2.5"/>
+<path d="M 331.8,-116.1 L 323.6,-109.1 L 321.0,-116.6 z" fill="#333333"/>
+<text x="358.3" y="-125.4" fill="#333333" font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="central">X</text>
+<line x1="0.0" y1="0.0" x2="-224.2" y2="-160.1" stroke="#333333" stroke-width="2.5"/>
+<path d="M -232.3,-165.9 L -221.8,-163.3 L -226.5,-156.8 z" fill="#333333"/>
+<text x="-250.9" y="-179.1" fill="#333333" font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="central">Y</text>
+<line x1="0.0" y1="0.0" x2="0.0" y2="-151.1" stroke="#333333" stroke-width="2.5"/>
+<path d="M 0.0,-161.1 L 4.0,-151.1 L -4.0,-151.1 z" fill="#333333"/>
+<text x="0.0" y="-174.0" fill="#333333" font-size="19" font-weight="bold" text-anchor="middle" dominant-baseline="central">Z</text>
+<circle cx="0.0" cy="0.0" r="4.5" fill="#333333"/>
+<text x="-22.0" y="8.0" fill="#333333" font-size="20" text-anchor="end" font-weight="bold">G54</text>
+<line x1="0.0" y1="0.0" x2="71.3" y2="-183.8" stroke="#000000" stroke-width="1.5" stroke-dasharray="2,4" stroke-linecap="round"/>
+<line x1="71.3" y1="-183.8" x2="71.3" y2="-292.9" stroke="#4d4d4d" stroke-width="1.2" stroke-dasharray="5,4"/>
+<polyline points="71.3,-261.7 72.4,-260.9 73.5,-260.1 74.6,-259.2 75.8,-258.2 76.9,-257.3 78.0,-256.3 79.1,-255.2 80.2,-254.2 81.3,-253.1 82.4,-251.9 83.5,-250.8 84.6,-249.5 85.7,-248.3 86.8,-247.1 87.8,-245.8 88.9,-244.4 90.0,-243.1 91.0,-241.7 92.0,-240.3 93.1,-238.9 94.1,-237.4 95.1,-235.9" fill="none" stroke="#000000" stroke-width="1.5"/>
+<path d="M 97.1,-232.9 L 89.1,-238.4 L 95.1,-242.4 z" fill="#000000"/>
+<text x="50.6" y="-247.5" fill="#000000" font-size="18" text-anchor="middle" dominant-baseline="central" font-style="italic">J30</text>
+<line x1="71.3" y1="-183.8" x2="203.4" y2="-230.1" stroke="#d40000" stroke-width="3"/>
+<path d="M 213.8,-233.7 L 204.9,-225.9 L 201.9,-234.2 z" fill="#d40000"/>
+<text x="236.6" y="-241.7" fill="#d40000" font-size="21" font-weight="bold" text-anchor="middle" dominant-baseline="central">X</text>
+<line x1="71.3" y1="-183.8" x2="-0.4" y2="-297.4" stroke="#008000" stroke-width="3"/>
+<path d="M -6.2,-306.7 L 3.3,-299.7 L -4.1,-295.0 z" fill="#008000"/>
+<text x="-18.6" y="-326.3" fill="#008000" font-size="21" font-weight="bold" text-anchor="middle" dominant-baseline="central">Y</text>
+<line x1="71.3" y1="-183.8" x2="110.9" y2="-259.1" stroke="#0044d4" stroke-width="3"/>
+<path d="M 116.0,-268.9 L 114.8,-257.1 L 107.0,-261.2 z" fill="#0044d4"/>
+<text x="123.1" y="-282.5" fill="#0044d4" font-size="21" font-weight="bold" text-anchor="middle" dominant-baseline="central">Z</text>
+<text x="81.3" y="-157.8" fill="#000000" font-size="20" text-anchor="start" font-weight="bold" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" paint-order="stroke">G68.2</text>
+<circle cx="71.3" cy="-183.8" r="4" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+</svg>
