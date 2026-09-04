@@ -19,9 +19,10 @@
 /* switchkins_main.c provides rtapi_app_main() for kinematics modules
 *  built around switchkins.c.  A module that gets its rtapi_app_main()
 *  from somewhere else (a halcompile component, for instance) links
-*  switchkins.c alone and calls switchkinsInit() itself.
+*  switchkins.c without this file and calls switchkinsInit() itself.
 *
-*  Using modules must supply function: switchkinsSetup()
+*  Using modules must supply function: switchkinsSetup(), which
+*  switchkinsRunSetup() in switchkins_setup.c runs.
 */
 #include <rtapi.h>
 #include <rtapi_app.h>
@@ -41,43 +42,8 @@ static int comp_id = -1;
 int rtapi_app_main(void)
 {
     kparms kp;
-    KS ksetup[3] = {NULL};
-    KF kfwd[3]   = {NULL};
-    KI kinv[3]   = {NULL};
-    int i;
 
-    // defaults prior to switchkinsSetup() call
-    kp.kinsname   = NULL;
-    kp.halprefix  = NULL;
-    kp.required_coordinates = "";
-    kp.max_joints        =  0; // Setup must supply
-    kp.allow_duplicates  =  0;
-    kp.fwd_iterates_mask =  0;
-    kp.gui_kinstype      = -1; // negative means: not used
-
-    kp.sparm = sparm; // module parm passed to kins
-
-    // switchkinsSetup() provides types 0,1,2 and may also call
-    // switchkinsRegister() for any others
-    if (switchkinsSetup(&kp,
-                        &ksetup[0], &ksetup[1], &ksetup[2],
-                        &kfwd[0],   &kfwd[1],   &kfwd[2],
-                        &kinv[0],   &kinv[1],   &kinv[2])) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"\nSwitchkins FAIL:<setup>\n");
-        return -1;
-    }
-
-    // the types switchkinsSetup() supplied go in by the same route as
-    // any other, so that providing one twice is caught
-    for (i=0; i < 3; i++) {
-        if (!ksetup[i] && !kfwd[i] && !kinv[i]) { continue; }
-        if (switchkinsRegister(i, ksetup[i], kfwd[i], kinv[i])) { return -1; }
-    }
-
-    if (!kp.kinsname) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"\nSwitchkins FAIL:<Missing kinsname>\n");
-        return -1;
-    }
+    if (switchkinsRunSetup(&kp, sparm)) { return -1; }
 
     comp_id = hal_init(kp.kinsname);
     if (comp_id < 0) return comp_id;
