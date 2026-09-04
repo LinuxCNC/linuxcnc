@@ -2,6 +2,7 @@
 
 GENSERKINSSRCS := emc/kinematics/ugenserkins.c
 GENSERKINSSRCS += emc/kinematics/genserfuncs.c
+GENSERKINSSRCS += emc/kinematics/kins_util.c
 USERSRCS += $(GENSERKINSSRCS)
 
 DELTAMODULESRCS := emc/kinematics/lineardeltakins.cc

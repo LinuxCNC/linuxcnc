@@ -16,17 +16,17 @@
   machines referred to as "Stewart Platforms".
 
   The functions are general enough to be configured for any platform
-  configuration.  In the functions "genhexKinematicsForward" and
-  "genhexKinematicsInverse" are arrays "a[i]" and "b[i]".  The values stored
-  in these arrays correspond to the positions of the ends of the i'th
-  strut. The value stored in a[i] is the position of the end of the i'th
-  strut attached to the platform, in platform coordinates. The value
-  stored in b[i] is the position of the end of the i'th strut attached
-  to the base, in base (world) coordinates.
+  configuration.  In the functions "genhex_forward" and "genhex_inverse"
+  are arrays "a[i]" and "b[i]".  The values stored in these arrays
+  correspond to the positions of the ends of the i'th strut. The value
+  stored in a[i] is the position of the end of the i'th strut attached
+  to the platform, in platform coordinates. The value stored in b[i] is
+  the position of the end of the i'th strut attached to the base, in
+  base (world) coordinates.
 
   The default values for base and platform joints positions are defined
   in the header file genhexkins.h.  The actual values for a particular
-  machine can be adjusted by hal parameters:
+  machine can be adjusted by hal pins:
 
   genhexkins.base.N.x
   genhexkins.base.N.y
@@ -67,18 +67,18 @@
   genhexkins.correction.N - pins showing current values of strut length
                             correction.
 
-  The genhexKinematicsInverse function solves the inverse kinematics using
+  The genhex_inverse function solves the inverse kinematics using
   a closed form algorithm.  The inverse kinematics problem is given
   the pose of the platform and returns the strut lengths. For this
   problem there is only one solution that is always returned correctly.
 
-  The genhexKinematicsForward function solves the forward kinematics using
+  The genhex_forward function solves the forward kinematics using
   an iterative algorithm.  Due to the iterative nature of this algorithm
-  the genhexKinematicsForward function requires an initial value to begin the
+  the genhex_forward function requires an initial value to begin the
   iterative routine and then converges to the "nearest" solution. The
   forward kinematics problem is given the strut lengths and returns the
   pose of the platform.  For this problem there arein multiple
-  solutions.  The genhexKinematicsForward function will return only one of
+  solutions.  The genhex_forward function will return only one of
   these solutions which will be the solution nearest to the initial
   value given.  It is possible that there are no solutions "near" the
   given initial value and the iteration will not converge and no
@@ -103,6 +103,10 @@
   genhexkins.max-iterations - maximum number of iterations spent for
                     a converged solution during current session.
 
+  The maths is written as pure functions of the parameter block (see
+  kinematics.h): the pins above are the table below, read into the block
+  before every call and written from the scratch after it.
+
  ----------------------------------------------------------------------------*/
 
 #include <rtapi.h>
@@ -114,49 +118,98 @@
 #include "genhexkins.h"
 #include <switchkins.h>
 
-static struct haldata {
-    hal_real_t basex[NUM_STRUTS];
-    hal_real_t basey[NUM_STRUTS];
-    hal_real_t basez[NUM_STRUTS];
-    hal_real_t platformx[NUM_STRUTS];
-    hal_real_t platformy[NUM_STRUTS];
-    hal_real_t platformz[NUM_STRUTS];
-    hal_real_t basenx[NUM_STRUTS];
-    hal_real_t baseny[NUM_STRUTS];
-    hal_real_t basenz[NUM_STRUTS];
-    hal_real_t platformnx[NUM_STRUTS];
-    hal_real_t platformny[NUM_STRUTS];
-    hal_real_t platformnz[NUM_STRUTS];
-    hal_real_t correction[NUM_STRUTS];
-    hal_real_t screw_lead;
-    hal_uint_t last_iter;
-    hal_uint_t max_iter;
-    hal_uint_t iter_limit;
-    hal_real_t max_error;
-    hal_real_t conv_criterion;
-    hal_real_t tool_offset;
-    hal_real_t spindle_offset;
-    hal_bool_t fwd_kins_fail;
+// the table: thirteen entries per strut, then the iteration controls,
+// the offsets and the reports.  The macros index it.
+#define STRUT_ENTRIES 13
+#define P_BASE_X(i)   (STRUT_ENTRIES*(i) + 0)
+#define P_BASE_Y(i)   (STRUT_ENTRIES*(i) + 1)
+#define P_BASE_Z(i)   (STRUT_ENTRIES*(i) + 2)
+#define P_PLAT_X(i)   (STRUT_ENTRIES*(i) + 3)
+#define P_PLAT_Y(i)   (STRUT_ENTRIES*(i) + 4)
+#define P_PLAT_Z(i)   (STRUT_ENTRIES*(i) + 5)
+#define P_BASE_NX(i)  (STRUT_ENTRIES*(i) + 6)
+#define P_BASE_NY(i)  (STRUT_ENTRIES*(i) + 7)
+#define P_BASE_NZ(i)  (STRUT_ENTRIES*(i) + 8)
+#define P_PLAT_NX(i)  (STRUT_ENTRIES*(i) + 9)
+#define P_PLAT_NY(i)  (STRUT_ENTRIES*(i) + 10)
+#define P_PLAT_NZ(i)  (STRUT_ENTRIES*(i) + 11)
+#define P_CORR(i)     (STRUT_ENTRIES*(i) + 12)
+enum {
+    P_LAST_ITER = STRUT_ENTRIES*NUM_STRUTS,
+    P_MAX_ITER,
+    P_MAX_ERROR,
+    P_CONV_CRITERION,
+    P_ITER_LIMIT,
+    P_TOOL_OFFSET,
+    P_SPINDLE_OFFSET,
+    P_SCREW_LEAD,
+    P_GUI_X, P_GUI_Y, P_GUI_Z, P_GUI_A, P_GUI_B, P_GUI_C,
+    P_FWD_FAIL,
+    P_COUNT
+};
 
-    hal_real_t gui_x;
-    hal_real_t gui_y;
-    hal_real_t gui_z;
-    hal_real_t gui_a;
-    hal_real_t gui_b;
-    hal_real_t gui_c;
+#define STRUT_ROWS(i, bx, by, bz, px, py, pz, bnx, bny, bnz, pnx, pny, pnz) \
+    { "base." #i ".x",       KINS_PARAM_FLOAT, KINS_IN,  0, bx }, \
+    { "base." #i ".y",       KINS_PARAM_FLOAT, KINS_IN,  0, by }, \
+    { "base." #i ".z",       KINS_PARAM_FLOAT, KINS_IN,  0, bz }, \
+    { "platform." #i ".x",   KINS_PARAM_FLOAT, KINS_IN,  0, px }, \
+    { "platform." #i ".y",   KINS_PARAM_FLOAT, KINS_IN,  0, py }, \
+    { "platform." #i ".z",   KINS_PARAM_FLOAT, KINS_IN,  0, pz }, \
+    { "base-n." #i ".x",     KINS_PARAM_FLOAT, KINS_IN,  0, bnx }, \
+    { "base-n." #i ".y",     KINS_PARAM_FLOAT, KINS_IN,  0, bny }, \
+    { "base-n." #i ".z",     KINS_PARAM_FLOAT, KINS_IN,  0, bnz }, \
+    { "platform-n." #i ".x", KINS_PARAM_FLOAT, KINS_IN,  0, pnx }, \
+    { "platform-n." #i ".y", KINS_PARAM_FLOAT, KINS_IN,  0, pny }, \
+    { "platform-n." #i ".z", KINS_PARAM_FLOAT, KINS_IN,  0, pnz }, \
+    { "correction." #i,      KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 }
 
-} *haldata;
+static const kins_param_desc genhex_params[P_COUNT] = {
+    STRUT_ROWS(0, DEFAULT_BASE_0_X, DEFAULT_BASE_0_Y, DEFAULT_BASE_0_Z,
+                  DEFAULT_PLATFORM_0_X, DEFAULT_PLATFORM_0_Y, DEFAULT_PLATFORM_0_Z,
+                  DEFAULT_BASE_0_NX, DEFAULT_BASE_0_NY, DEFAULT_BASE_0_NZ,
+                  DEFAULT_PLATFORM_0_NX, DEFAULT_PLATFORM_0_NY, DEFAULT_PLATFORM_0_NZ),
+    STRUT_ROWS(1, DEFAULT_BASE_1_X, DEFAULT_BASE_1_Y, DEFAULT_BASE_1_Z,
+                  DEFAULT_PLATFORM_1_X, DEFAULT_PLATFORM_1_Y, DEFAULT_PLATFORM_1_Z,
+                  DEFAULT_BASE_1_NX, DEFAULT_BASE_1_NY, DEFAULT_BASE_1_NZ,
+                  DEFAULT_PLATFORM_1_NX, DEFAULT_PLATFORM_1_NY, DEFAULT_PLATFORM_1_NZ),
+    STRUT_ROWS(2, DEFAULT_BASE_2_X, DEFAULT_BASE_2_Y, DEFAULT_BASE_2_Z,
+                  DEFAULT_PLATFORM_2_X, DEFAULT_PLATFORM_2_Y, DEFAULT_PLATFORM_2_Z,
+                  DEFAULT_BASE_2_NX, DEFAULT_BASE_2_NY, DEFAULT_BASE_2_NZ,
+                  DEFAULT_PLATFORM_2_NX, DEFAULT_PLATFORM_2_NY, DEFAULT_PLATFORM_2_NZ),
+    STRUT_ROWS(3, DEFAULT_BASE_3_X, DEFAULT_BASE_3_Y, DEFAULT_BASE_3_Z,
+                  DEFAULT_PLATFORM_3_X, DEFAULT_PLATFORM_3_Y, DEFAULT_PLATFORM_3_Z,
+                  DEFAULT_BASE_3_NX, DEFAULT_BASE_3_NY, DEFAULT_BASE_3_NZ,
+                  DEFAULT_PLATFORM_3_NX, DEFAULT_PLATFORM_3_NY, DEFAULT_PLATFORM_3_NZ),
+    STRUT_ROWS(4, DEFAULT_BASE_4_X, DEFAULT_BASE_4_Y, DEFAULT_BASE_4_Z,
+                  DEFAULT_PLATFORM_4_X, DEFAULT_PLATFORM_4_Y, DEFAULT_PLATFORM_4_Z,
+                  DEFAULT_BASE_4_NX, DEFAULT_BASE_4_NY, DEFAULT_BASE_4_NZ,
+                  DEFAULT_PLATFORM_4_NX, DEFAULT_PLATFORM_4_NY, DEFAULT_PLATFORM_4_NZ),
+    STRUT_ROWS(5, DEFAULT_BASE_5_X, DEFAULT_BASE_5_Y, DEFAULT_BASE_5_Z,
+                  DEFAULT_PLATFORM_5_X, DEFAULT_PLATFORM_5_Y, DEFAULT_PLATFORM_5_Z,
+                  DEFAULT_BASE_5_NX, DEFAULT_BASE_5_NY, DEFAULT_BASE_5_NZ,
+                  DEFAULT_PLATFORM_5_NX, DEFAULT_PLATFORM_5_NY, DEFAULT_PLATFORM_5_NZ),
+    [P_LAST_ITER]      = { "last-iterations",       KINS_PARAM_U32,   KINS_OUT, 0, 0 },
+    [P_MAX_ITER]       = { "max-iterations",        KINS_PARAM_U32,   KINS_OUT, 0, 0 },
+    [P_MAX_ERROR]      = { "max-error",             KINS_PARAM_FLOAT, KINS_IN,  0, 500.0 },
+    [P_CONV_CRITERION] = { "convergence-criterion", KINS_PARAM_FLOAT, KINS_IN,  0, 1e-9 },
+    [P_ITER_LIMIT]     = { "limit-iterations",      KINS_PARAM_U32,   KINS_IN,  0, 120 },
+    [P_TOOL_OFFSET]    = { "tool-offset",           KINS_PARAM_FLOAT, KINS_IN,  1, 0.0 },
+    [P_SPINDLE_OFFSET] = { "spindle-offset",        KINS_PARAM_FLOAT, KINS_IN,  0, 0.0 },
+    [P_SCREW_LEAD]     = { "screw-lead",            KINS_PARAM_FLOAT, KINS_IN,  0, DEFAULT_SCREW_LEAD },
+    // the pose the forward found, for a vismach gui; switchkins provides
+    // the skgui.* pins for the same purpose
+    [P_GUI_X]          = { "x",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    [P_GUI_Y]          = { "y",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    [P_GUI_Z]          = { "z",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    [P_GUI_A]          = { "a",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    [P_GUI_B]          = { "b",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    [P_GUI_C]          = { "c",                     KINS_PARAM_FLOAT, KINS_OUT, 0, 0.0 },
+    [P_FWD_FAIL]       = { "fwd-kins-fail",         KINS_PARAM_BIT,   KINS_OUT, 0, 0 },
+};
 
-static int genhex_gui_forward_kins(EmcPose *pos)
-{
-    hal_set_real(haldata->gui_x, pos->tran.x);
-    hal_set_real(haldata->gui_y, pos->tran.y);
-    hal_set_real(haldata->gui_z, pos->tran.z);
-    hal_set_real(haldata->gui_a, pos->a);
-    hal_set_real(haldata->gui_b, pos->b);
-    hal_set_real(haldata->gui_c, pos->c);
-    return 0;
-} // genhex_gui_forward_kins
+// the most iterations a converged solution has taken this session, kept
+// in the caller's scratch so each caller reports its own
+#define MAX_ITER_SEEN(s) ((s)->aux[0])
 
 /******************************* MatInvert() ***************************/
 
@@ -259,45 +312,45 @@ static void MatMult(double J[][6], const double x[], double Ans[])
   }
 } // MatMult()
 
-/* declare arrays for base and platform coordinates */
-static PmCartesian b[NUM_STRUTS];
-static PmCartesian a[NUM_STRUTS];
+/* the geometry of one call, taken from the block: base and platform
+   coordinates, the joint axes vectors and the screw lead */
+typedef struct {
+    PmCartesian b[NUM_STRUTS];
+    PmCartesian a[NUM_STRUTS];
+    PmCartesian nb1[NUM_STRUTS];
+    PmCartesian na0[NUM_STRUTS];
+    double screw_lead;
+} genhex_geometry;
 
-/* declare base and platform joint axes vectors */
-
-static PmCartesian nb1[NUM_STRUTS];
-static PmCartesian na0[NUM_STRUTS];
-
-/************************genhex_read_hal_pins**************************/
-
-static int genhex_read_hal_pins(void) {
+static void geometry_of(const kins_params *p, genhex_geometry *g) {
     int t;
 
-  /* set the base and platform coordinates from hal pin values */
-    rtapi_real spindle_offset = hal_get_real(haldata->spindle_offset);
-    rtapi_real tool_offset = hal_get_real(haldata->tool_offset);
+  /* set the base and platform coordinates from the block */
+    const double spindle_offset = p->geometry[P_SPINDLE_OFFSET];
+    const double tool_offset = p->tool.tran.z;
     for (t = 0; t < NUM_STRUTS; t++) {
-        b[t].x   = hal_get_real(haldata->basex[t]);
-        b[t].y   = hal_get_real(haldata->basey[t]);
-        b[t].z   = hal_get_real(haldata->basez[t]) + spindle_offset + tool_offset;
-        a[t].x   = hal_get_real(haldata->platformx[t]);
-        a[t].y   = hal_get_real(haldata->platformy[t]);
-        a[t].z   = hal_get_real(haldata->platformz[t]) + spindle_offset + tool_offset;
+        g->b[t].x   = p->geometry[P_BASE_X(t)];
+        g->b[t].y   = p->geometry[P_BASE_Y(t)];
+        g->b[t].z   = p->geometry[P_BASE_Z(t)] + spindle_offset + tool_offset;
+        g->a[t].x   = p->geometry[P_PLAT_X(t)];
+        g->a[t].y   = p->geometry[P_PLAT_Y(t)];
+        g->a[t].z   = p->geometry[P_PLAT_Z(t)] + spindle_offset + tool_offset;
 
-        nb1[t].x = hal_get_real(haldata->basenx[t]);
-        nb1[t].y = hal_get_real(haldata->baseny[t]);
-        nb1[t].z = hal_get_real(haldata->basenz[t]);
-        na0[t].x = hal_get_real(haldata->platformnx[t]);
-        na0[t].y = hal_get_real(haldata->platformny[t]);
-        na0[t].z = hal_get_real(haldata->platformnz[t]);
+        g->nb1[t].x = p->geometry[P_BASE_NX(t)];
+        g->nb1[t].y = p->geometry[P_BASE_NY(t)];
+        g->nb1[t].z = p->geometry[P_BASE_NZ(t)];
+        g->na0[t].x = p->geometry[P_PLAT_NX(t)];
+        g->na0[t].y = p->geometry[P_PLAT_NY(t)];
+        g->na0[t].z = p->geometry[P_PLAT_NZ(t)];
 
     }
-    return 0;
-} // genhex_read_hal_pins()
+    g->screw_lead = p->geometry[P_SCREW_LEAD];
+} // geometry_of()
 
 /***************************StrutLengthCorrection***************************/
 
-static int StrutLengthCorrection(const PmCartesian * StrutVectUnit,
+static int StrutLengthCorrection(const genhex_geometry *g,
+                                 const PmCartesian * StrutVectUnit,
                                  const PmRotationMatrix * RMatrix,
                                  const int strut_number,
                                  double * correction)
@@ -306,32 +359,34 @@ static int StrutLengthCorrection(const PmCartesian * StrutVectUnit,
   double dotprod;
 
   /* define base joints axis vectors */
-  pmCartCartCross(&nb1[strut_number], StrutVectUnit, &nb2);
+  pmCartCartCross(&g->nb1[strut_number], StrutVectUnit, &nb2);
   pmCartCartCross(StrutVectUnit, &nb2, &nb3);
   pmCartUnitEq(&nb3);
 
   /* define platform joints axis vectors */
-  pmMatCartMult(RMatrix, &na0[strut_number], &na1);
+  pmMatCartMult(RMatrix, &g->na0[strut_number], &na1);
   pmCartCartCross(&na1, StrutVectUnit, &na2);
   pmCartUnitEq(&na2);
 
   /* define dot product */
   pmCartCartDot(&nb3, &na2, &dotprod);
 
-  *correction = hal_get_real(haldata->screw_lead) * asin(dotprod) / PM_2_PI;
+  *correction = g->screw_lead * asin(dotprod) / PM_2_PI;
 
   return 0;
 } // StrutLengthCorrection()
 
 
-/**************** genhexKinematicsForward() *****************/
-static int genhexKinematicsForward(const double * joints,
-                                   EmcPose * pos,
-                                   const KINEMATICS_FORWARD_FLAGS * fflags,
-                                   KINEMATICS_INVERSE_FLAGS * iflags)
+/**************** genhex_forward() *****************/
+static int genhex_forward(const kins_params *p, kins_scratch *s,
+                          const double * joints,
+                          EmcPose * pos,
+                          const KINEMATICS_FORWARD_FLAGS * fflags,
+                          KINEMATICS_INVERSE_FLAGS * iflags)
 {
   (void)fflags;
   (void)iflags;
+  genhex_geometry g;
   PmCartesian aw;
   PmCartesian InvKinStrutVect,InvKinStrutVectUnit;
   PmCartesian q_trans, RMatrix_a, RMatrix_a_cross_Strut;
@@ -350,7 +405,7 @@ static int genhexKinematicsForward(const double * joints,
   int i;
   unsigned iteration = 0;
 
-  genhex_read_hal_pins();
+  geometry_of(p, &g);
 
   /* abort on obvious problems, like joints <= 0 */
   /* FIXME-- should check against triangle inequality, so that joints
@@ -375,13 +430,16 @@ static int genhexKinematicsForward(const double * joints,
   q_trans.z = pos->tran.z;
 
   /* Enter Newton-Raphson iterative method   */
-  rtapi_real max_error = hal_get_real(haldata->max_error);
+  const double max_error = p->geometry[P_MAX_ERROR];
+  const unsigned iter_limit = (unsigned)p->geometry[P_ITER_LIMIT];
+  const double conv_criterion = p->geometry[P_CONV_CRITERION];
   while (iterate) {
     /* check for large error and return error flag if no convergence */
     if ((conv_err > +max_error) ||
         (conv_err < -max_error)) {
       /* we can't converge */
-      hal_set_bool(haldata->fwd_kins_fail, 1);
+      s->failed = 1;
+      s->out[P_FWD_FAIL] = 1;
       return -2;
     };
 
@@ -389,9 +447,10 @@ static int genhexKinematicsForward(const double * joints,
 
     /* check iteration to see if the kinematics can reach the
        convergence criterion and return error flag if it can't */
-    if (iteration > hal_get_ui32(haldata->iter_limit)) {
+    if (iteration > iter_limit) {
       /* we can't converge */
-      hal_set_bool(haldata->fwd_kins_fail, 1);
+      s->failed = 1;
+      s->out[P_FWD_FAIL] = 1;
       return -5;
     }
 
@@ -402,18 +461,19 @@ static int genhexKinematicsForward(const double * joints,
      estimate to get joint estimate, subtract joints to get joint deltas,
      and compute inv J while we're at it */
     for (i = 0; i < NUM_STRUTS; i++) {
-      pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
+      pmMatCartMult(&RMatrix, &g.a[i], &RMatrix_a);
       pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
-      pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
+      pmCartCartSub(&aw, &g.b[i], &InvKinStrutVect);
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-        hal_set_bool(haldata->fwd_kins_fail, 1);
+        s->failed = 1;
+        s->out[P_FWD_FAIL] = 1;
         return -1;
       }
       pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
 
-      if (hal_get_real(haldata->screw_lead) != 0.0) {
+      if (g.screw_lead != 0.0) {
         /* enable strut length correction */
-        StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
+        StrutLengthCorrection(&g, &InvKinStrutVectUnit, &RMatrix, i, &corr);
         /* define corrected joint lengths */
         InvKinStrutLength += corr;
       }
@@ -454,7 +514,6 @@ static int genhexKinematicsForward(const double * joints,
 
     /* enter loop to determine if a strut needs another iteration */
     iterate = 0;            /*assume iteration is done */
-    rtapi_real conv_criterion = hal_get_real(haldata->conv_criterion);
     for (i = 0; i < NUM_STRUTS; i++) {
       if (fabs(StrutLengthDiff[i]) > conv_criterion) {
     iterate = 1;
@@ -472,33 +531,42 @@ static int genhexKinematicsForward(const double * joints,
   pos->tran.y = q_trans.y;
   pos->tran.z = q_trans.z;
 
-  hal_set_ui32(haldata->last_iter, iteration);
-
-  if (iteration > hal_get_ui32(haldata->max_iter)){
-    hal_set_ui32(haldata->max_iter, iteration);
+  s->iterations = iteration;
+  s->failed = 0;
+  s->out[P_LAST_ITER] = iteration;
+  if (iteration > MAX_ITER_SEEN(s)) {
+    MAX_ITER_SEEN(s) = iteration;
   }
-  hal_set_bool(haldata->fwd_kins_fail, 0);
+  s->out[P_MAX_ITER] = MAX_ITER_SEEN(s);
+  s->out[P_FWD_FAIL] = 0;
 
-  genhex_gui_forward_kins(pos);
+  s->out[P_GUI_X] = pos->tran.x;
+  s->out[P_GUI_Y] = pos->tran.y;
+  s->out[P_GUI_Z] = pos->tran.z;
+  s->out[P_GUI_A] = pos->a;
+  s->out[P_GUI_B] = pos->b;
+  s->out[P_GUI_C] = pos->c;
 
   return 0;
-} // genhexKinematicsForward()
+} // genhex_forward()
 
 
-/************************ genhexKinematicsInverse() ************************/
+/************************ genhex_inverse() ************************/
 /* the inverse kinematics take world coordinates and determine joint values,
    given the inverse kinematics flags to resolve any ambiguities. The forward
    flags are set to indicate their value appropriate to the world coordinates
    passed in. */
 
-static int genhexKinematicsInverse(const EmcPose * pos,
-                                   double * joints,
-                                   const KINEMATICS_INVERSE_FLAGS * iflags,
-                                   KINEMATICS_FORWARD_FLAGS * fflags)
+static int genhex_inverse(const kins_params *p, kins_scratch *s,
+                          const EmcPose * pos,
+                          double * joints,
+                          const KINEMATICS_INVERSE_FLAGS * iflags,
+                          KINEMATICS_FORWARD_FLAGS * fflags)
 {
   (void)iflags;
   (void)fflags;
 
+  genhex_geometry g;
   PmCartesian aw, temp;
   PmCartesian InvKinStrutVect, InvKinStrutVectUnit;
   PmRotationMatrix RMatrix;
@@ -506,7 +574,7 @@ static int genhexKinematicsInverse(const EmcPose * pos,
   int i;
   double InvKinStrutLength, corr;
 
-  genhex_read_hal_pins();
+  geometry_of(p, &g);
 
   /* define Rotation Matrix */
   rpy.r = pos->a * PM_PI / 180.0;
@@ -518,22 +586,22 @@ static int genhexKinematicsInverse(const EmcPose * pos,
   for (i = 0; i < NUM_STRUTS; i++) {
     /* convert location of platform strut end from platform
        to world coordinates */
-    pmMatCartMult(&RMatrix, &a[i], &temp);
+    pmMatCartMult(&RMatrix, &g.a[i], &temp);
     pmCartCartAdd(&pos->tran, &temp, &aw);
 
     /* define strut lengths */
-    pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
+    pmCartCartSub(&aw, &g.b[i], &InvKinStrutVect);
     pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
 
-    if (hal_get_real(haldata->screw_lead) != 0.0) {
+    if (g.screw_lead != 0.0) {
       /* enable strut length correction */
       /* define unit strut vector */
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
           return -1;
       }
       /* define correction value and corrected joint lengths */
-      StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
-      hal_set_real(haldata->correction[i], corr);
+      StrutLengthCorrection(&g, &InvKinStrutVectUnit, &RMatrix, i, &corr);
+      s->out[P_CORR(i)] = corr;
       InvKinStrutLength += corr;
     }
 
@@ -541,9 +609,9 @@ static int genhexKinematicsInverse(const EmcPose * pos,
   }
 
   return 0;
-} //genhexKinematicsInverse()
+} //genhex_inverse()
 
-/************************ genhexKinematicsJacobian() ***********************/
+/************************ genhex_jacobian() ***********************/
 /* A strut length changes by the component of its platform end's motion
    along the strut.  That end moves with the platform, dP + w x (R a), so
    the row for strut i is [u_i, (R a_i x u_i) . E] with u_i the unit strut
@@ -551,11 +619,18 @@ static int genhexKinematicsInverse(const EmcPose * pos,
    words to the angular velocity w for R = Rz(c) Ry(b) Rx(a).  The forward
    kinematics builds the same rows for its Newton step, in radians. */
 
-static int genhexKinematicsJacobian(const double * joints,
-                                    const EmcPose * pos,
-                                    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                                    const KINEMATICS_INVERSE_FLAGS * iflags)
+// the inverse alone, for differencing where the closed form does not apply
+static const kins_ops genhex_diff_ops = {
+    .forward = genhex_forward,
+    .inverse = genhex_inverse,
+};
+
+static int genhex_jacobian(const kins_params *p, const double * joints,
+                           const EmcPose * pos,
+                           double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                           const KINEMATICS_INVERSE_FLAGS * iflags)
 {
+  genhex_geometry g;
   PmCartesian aw, RMatrix_a, strut, u, moment;
   PmRotationMatrix RMatrix;
   PmRpy rpy;
@@ -563,13 +638,14 @@ static int genhexKinematicsJacobian(const double * joints,
   double sb, cb, sc, cc;
   int i, j, col, m;
 
-  genhex_read_hal_pins();
+  geometry_of(p, &g);
 
   /* the screw lead correction is a function of the pose too, and this
      does not differentiate it; difference the inverse instead */
-  if (hal_get_real(haldata->screw_lead) != 0.0) {
-    return kinsJacobianFromInverse(genhexKinematicsInverse, NUM_STRUTS,
-                                   joints, pos, iflags, jac);
+  if (g.screw_lead != 0.0) {
+    kins_scratch scratch;
+    kinsScratchInit(&scratch);
+    return kinsOpsJacobian(&genhex_diff_ops, p, &scratch, joints, pos, jac, iflags);
   }
 
   for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
@@ -592,9 +668,9 @@ static int genhexKinematicsJacobian(const double * joints,
   for (i = 0; i < NUM_STRUTS; i++) {
     double len;
 
-    pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
+    pmMatCartMult(&RMatrix, &g.a[i], &RMatrix_a);
     pmCartCartAdd(&pos->tran, &RMatrix_a, &aw);
-    pmCartCartSub(&aw, &b[i], &strut);
+    pmCartCartSub(&aw, &g.b[i], &strut);
     pmCartMag(&strut, &len);
     if (len <= 0) { return -1; }
     pmCartScalMult(&strut, 1.0/len, &u);
@@ -610,145 +686,16 @@ static int genhexKinematicsJacobian(const double * joints,
     }
   }
   return 0;
-} // genhexKinematicsJacobian()
+} // genhex_jacobian()
 
-// HAL pin initializaion values. In small arrays so we can easily
-// address them in the pin creation loop.
-static const rtapi_real init_basex[NUM_STRUTS] = {
-    DEFAULT_BASE_0_X, DEFAULT_BASE_1_X, DEFAULT_BASE_2_X,
-    DEFAULT_BASE_3_X, DEFAULT_BASE_4_X, DEFAULT_BASE_5_X,
+// the forward iterates from the pose it is handed, so it is seeded with
+// the last answer after a switch
+static const kins_ops genhex_ops = {
+    .forward      = genhex_forward,
+    .inverse      = genhex_inverse,
+    .jacobian     = genhex_jacobian,
+    .fwd_iterates = 1,
 };
-static const rtapi_real init_basey[NUM_STRUTS] = {
-    DEFAULT_BASE_0_Y, DEFAULT_BASE_1_Y, DEFAULT_BASE_2_Y,
-    DEFAULT_BASE_3_Y, DEFAULT_BASE_4_Y, DEFAULT_BASE_5_Y,
-};
-static const rtapi_real init_basez[NUM_STRUTS] = {
-    DEFAULT_BASE_0_Z, DEFAULT_BASE_1_Z, DEFAULT_BASE_2_Z,
-    DEFAULT_BASE_3_Z, DEFAULT_BASE_4_Z, DEFAULT_BASE_5_Z,
-};
-static const rtapi_real init_platformx[NUM_STRUTS] = {
-    DEFAULT_PLATFORM_0_X, DEFAULT_PLATFORM_1_X, DEFAULT_PLATFORM_2_X,
-    DEFAULT_PLATFORM_3_X, DEFAULT_PLATFORM_4_X, DEFAULT_PLATFORM_5_X,
-};
-static const rtapi_real init_platformy[NUM_STRUTS] = {
-    DEFAULT_PLATFORM_0_Y, DEFAULT_PLATFORM_1_Y, DEFAULT_PLATFORM_2_Y,
-    DEFAULT_PLATFORM_3_Y, DEFAULT_PLATFORM_4_Y, DEFAULT_PLATFORM_5_Y,
-};
-static const rtapi_real init_platformz[NUM_STRUTS] = {
-    DEFAULT_PLATFORM_0_Z, DEFAULT_PLATFORM_1_Z, DEFAULT_PLATFORM_2_Z,
-    DEFAULT_PLATFORM_3_Z, DEFAULT_PLATFORM_4_Z, DEFAULT_PLATFORM_5_Z,
-};
-static const rtapi_real init_basenx[NUM_STRUTS] = {
-    DEFAULT_BASE_0_NX, DEFAULT_BASE_1_NX, DEFAULT_BASE_2_NX,
-    DEFAULT_BASE_3_NX, DEFAULT_BASE_4_NX, DEFAULT_BASE_5_NX,
-};
-static const rtapi_real init_baseny[NUM_STRUTS] = {
-    DEFAULT_BASE_0_NY, DEFAULT_BASE_1_NY, DEFAULT_BASE_2_NY,
-    DEFAULT_BASE_3_NY, DEFAULT_BASE_4_NY, DEFAULT_BASE_5_NY,
-};
-static const rtapi_real init_basenz[NUM_STRUTS] = {
-    DEFAULT_BASE_0_NZ, DEFAULT_BASE_1_NZ, DEFAULT_BASE_2_NZ,
-    DEFAULT_BASE_3_NZ, DEFAULT_BASE_4_NZ, DEFAULT_BASE_5_NZ,
-};
-static const rtapi_real init_platformnx[NUM_STRUTS] = {
-    DEFAULT_PLATFORM_0_NX, DEFAULT_PLATFORM_1_NX, DEFAULT_PLATFORM_2_NX,
-    DEFAULT_PLATFORM_3_NX, DEFAULT_PLATFORM_4_NX, DEFAULT_PLATFORM_5_NX,
-};
-static const rtapi_real init_platformny[NUM_STRUTS] = {
-    DEFAULT_PLATFORM_0_NY, DEFAULT_PLATFORM_1_NY, DEFAULT_PLATFORM_2_NY,
-    DEFAULT_PLATFORM_3_NY, DEFAULT_PLATFORM_4_NY, DEFAULT_PLATFORM_5_NY,
-};
-static const rtapi_real init_platformnz[NUM_STRUTS] = {
-    DEFAULT_PLATFORM_0_NZ, DEFAULT_PLATFORM_1_NZ, DEFAULT_PLATFORM_2_NZ,
-    DEFAULT_PLATFORM_3_NZ, DEFAULT_PLATFORM_4_NZ, DEFAULT_PLATFORM_5_NZ,
-};
-
-static
-int genhexKinematicsSetup(const  int   comp_id,
-                          const  char* coordinates,
-                          kparms*      kp)
-{
-    (void)coordinates;
-    int i,res=0;
-
-    if (kp->max_joints < 0 || kp->max_joints > NUM_STRUTS) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "genhexKinematicsSetup: max_joints %d less than 0 or larger NUM_STRUTS %d\n",
-                        kp->max_joints, NUM_STRUTS);
-        return -1;
-    }
-
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"genhexKinematicsSetup: hal_malloc fail\n");
-        return -1;
-    }
-
-    for (i = 0; i < kp->max_joints; i++) {
-        res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->basex[i]),
-                                init_basex[i], "%s.base.%d.x", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basey[i],
-                                init_basey[i], "%s.base.%d.y", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basez[i],
-                                init_basez[i], "%s.base.%d.z", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformx[i],
-                                init_platformx[i], "%s.platform.%d.x", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformy[i],
-                                init_platformy[i], "%s.platform.%d.y", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformz[i],
-                                init_platformz[i], "%s.platform.%d.z", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basenx[i],
-                                init_basenx[i], "%s.base-n.%d.x", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->baseny[i],
-                                init_baseny[i], "%s.base-n.%d.y", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->basenz[i],
-                                init_basenz[i], "%s.base-n.%d.z", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformnx[i],
-                                init_platformnx[i], "%s.platform-n.%d.x", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformny[i],
-                                init_platformny[i], "%s.platform-n.%d.y", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_IN, &haldata->platformnz[i],
-                                init_platformnz[i], "%s.platform-n.%d.z", kp->halprefix, i);
-        res += hal_pin_new_real(comp_id, HAL_OUT, &haldata->correction[i],
-                                0.0, "%s.correction.%d", kp->halprefix, i);
-        if (res) {goto error;}
-    }
-
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->last_iter,
-                            0, "genhexkins.last-iterations");
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &haldata->max_iter,
-                            0, "genhexkins.max-iterations");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->max_error,
-                            500.0, "genhexkins.max-error");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->conv_criterion,
-                            1e-9, "genhexkins.convergence-criterion");
-    res += hal_pin_new_ui32(comp_id, HAL_IN, &haldata->iter_limit,
-                            120, "genhexkins.limit-iterations");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->tool_offset,
-                            0.0, "genhexkins.tool-offset");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->spindle_offset,
-                            0.0, "genhexkins.spindle-offset");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->screw_lead,
-                            DEFAULT_SCREW_LEAD, "genhexkins.screw-lead");
-
-    if (res) {goto error;}
-
-    //note: switchkins does not uses these as it provides gui.x, gui.y, etc.
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_x, 0.0, "genhexkins.x");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_y, 0.0, "genhexkins.y");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_z, 0.0, "genhexkins.z");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_a, 0.0, "genhexkins.a");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_b, 0.0, "genhexkins.b");
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->gui_c, 0.0, "genhexkins.c");
-
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->fwd_kins_fail,
-                            0, "genhexkins.fwd-kins-fail");
-
-    if (res) goto error;
-    return 0;
-
-error:
-    return res;
-} // genhexKinematicsSetup()
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
@@ -756,6 +703,9 @@ int switchkinsSetup(kparms* kp,
                     KI* kinv0, KI* kinv1, KI* kinv2
                    )
 {
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
     kp->kinsname    = "genhexkins"; // !!! must agree with filename
     kp->halprefix   = "genhexkins"; // hal pin names
     kp->required_coordinates = "xyzabc";
@@ -763,21 +713,14 @@ int switchkinsSetup(kparms* kp,
     kp->allow_duplicates  = 0;
     kp->fwd_iterates_mask = 0x1; //genhexkins switchkins_type==0
     kp->gui_kinstype      = 0;   //vismach gui for switchkins_type==0
+    kp->params            = genhex_params;
+    kp->nparams           = P_COUNT;
 
     // switchkins_type==0 is startup default
     // kins with iterative forward algorithm should be switchkins_type==0
-    *kset0 = genhexKinematicsSetup;
-    *kfwd0 = genhexKinematicsForward;
-    *kinv0 = genhexKinematicsInverse;
-    switchkinsRegisterJacobian(0, genhexKinematicsJacobian);
-
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
-
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
+    switchkinsRegisterOps(0, &genhex_ops);
+    switchkinsRegisterOps(1, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(2, &USERK_OPS);
 
     return 0;
 } //switchkinsSetup()

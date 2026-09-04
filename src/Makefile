@@ -1173,6 +1173,8 @@ lineardeltakins-objs += emc/kinematics/kins_single.o
 
 obj-m += pentakins.o
 pentakins-objs := emc/kinematics/pentakins.o
+pentakins-objs += emc/kinematics/kins_util.o
+pentakins-objs += emc/kinematics/kins_single.o
 pentakins-objs += libposemath/_posemath.o
 pentakins-objs += $(MATHSTUB)
 
