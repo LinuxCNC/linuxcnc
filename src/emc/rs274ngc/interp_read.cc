@@ -888,11 +888,15 @@ Returned Value: int
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A j_coordinate has already been inserted in the block.
       NCE_MULTIPLE_J_WORDS_ON_ONE_LINE
+   3. The value is followed by '=' and is not a joint number, or that joint
+      already has a value in the block.
 
 Side effects:
    counter is reset.
    The j_flag in the block is turned on.
    A j_coordinate setting is inserted in the block.
+   For the J<n>=<value> form, joint_flag[n] is turned on and joint_value[n]
+   is set instead; j_flag is left alone.
 
 Called by: read_one_item
 
@@ -918,8 +922,20 @@ int Interp::read_j(char *line,   //!< string: line of RS274 code being processed
 
   CHKS((line[*counter] != 'j'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHKS((block->j_flag), NCE_MULTIPLE_J_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
+  if (line[*counter] == '=') {
+    // J<n>=<value>: a joint value for G53.5, n is the joint number
+    int n = (int)value;
+    CHKS((value != (double)n || n < 0 || n >= EMCMOT_MAX_JOINTS),
+         _("The joint number in a J= word must be a whole number from 0 to %d"), EMCMOT_MAX_JOINTS - 1);
+    CHKS((block->joint_flag[n]), _("Multiple J%d= words on one line"), n);
+    *counter = (*counter + 1);
+    CHP(read_real_value(line, counter, &value, parameters));
+    block->joint_flag[n] = true;
+    block->joint_value[n] = value;
+    return INTERP_OK;
+  }
+  CHKS((block->j_flag), NCE_MULTIPLE_J_WORDS_ON_ONE_LINE);
   block->j_flag = true;
   block->j_number = value;
   return INTERP_OK;

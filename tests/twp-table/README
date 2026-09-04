@@ -1,0 +1,7 @@
+G53.1 on a table-table machine, xyzac-trt-kins: both rotaries carry the
+work, so the pose is named by the sign of the one that carries the other,
+A here, as Heidenhain's SEQ names its master axis.  For each plane, from
+several starting poses: G53.1 with no P takes the nearer of the two poses,
+P1 always the one with A positive and P2 the one with A negative, the same
+pose from every start; each leaves the tool along the plane's normal; a
+move in the plane after the turn ends where the plane puts it.
