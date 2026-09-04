@@ -1,0 +1,9 @@
+The C kinematics against the tilted work plane maths.
+
+The two nutating-head configs carry their orientation maths in python,
+remap_funcs_twp.py, written independently of the kinematics modules.
+This test loads each module in realtime and puts its tool frame next to
+the python transformation matrix over a grid of head angles, and its
+tool frame inverse next to the python candidate joint angles and virtual
+rotation for a set of requested tool axes.  Where they disagree, one of
+the two has the sign or the order of a rotation wrong.
