@@ -13,6 +13,7 @@
 
 
 #include <stdio.h>    /* ulapi */
+#include <string.h>
 #include <sys/time.h> /* struct timeval */
 #include "genserkins.h"
 
@@ -43,14 +44,25 @@ int main(int argc, char *argv[])
     int retval = 0;
     double start, end;
     int comp_id;
-    kparms kp;
-    kp.max_joints = GENSER_MAX_JOINTS;
-    kp.allow_duplicates = 0;
+    kins_module_info info;
+    kins_params params;
+    kins_scratch scratch;
+
+    /* the module described the way kinsDescribe() would, then a block at
+       the table defaults; setp has no say here */
+    memset(&info, 0, sizeof(info));
+    info.name = "genserkins";
+    info.halprefix = "genserkins";
+    info.params = GENSER_PARAMS;
+    info.nparams = GENSER_NPARAMS;
+    info.required_coordinates = "XYZABC";
+    info.max_joints = GENSER_MAX_JOINTS;
+    info.ntypes = 1;
+    info.ops[0] = &GENSER_OPS;
 
     comp_id = hal_init("usergenserkins");
-    if (genserKinematicsSetup(comp_id,"XYZABC",&kp)) printf("unexpected\n");
-
-    genser_kin_init();
+    if (kinsParamsInit(&params, &info, "XYZABC")) printf("unexpected\n");
+    kinsScratchInit(&scratch);
 
     /* syntax is a.out {i|f # # # # # #} */
     if (argc == 8) {
@@ -123,14 +135,14 @@ fprintf(stderr,"gki0:P %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
 pos.tran.x,pos.tran.y,pos.tran.z,pos.a,pos.b,pos.c);
 fprintf(stderr,"gki1:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
 joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
-            retval = genserKinematicsInverse(&pos, joints, &iflags, &fflags);
+            retval = GENSER_OPS.inverse(&params, &scratch, &pos, joints, &iflags, &fflags);
 fprintf(stderr,"gki2:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
 joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
             if (0 != retval) {
                 printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
             }
         } else {
-            retval = genserKinematicsForward(joints, &pos, &fflags, &iflags);
+            retval = GENSER_OPS.forward(&params, &scratch, joints, &pos, &fflags, &iflags);
             if (0 != retval) {
                 printf("fwd kins error %d\n", retval);
             }
@@ -220,14 +232,14 @@ joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
                 } else {
 fprintf(stderr,"gki1:\n");
                     retval =
-                        genserKinematicsInverse(&pos, joints, &iflags, &fflags);
+                        GENSER_OPS.inverse(&params, &scratch, &pos, joints, &iflags, &fflags);
                     printf("%f %f %f %f %f %f\n", joints[0], joints[1],
                         joints[2], joints[3], joints[4], joints[5]);
                     if (0 != retval) {
                         printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
                     } else {
                         retval =
-                            genserKinematicsForward(joints, &pos, &fflags, &iflags);
+                            GENSER_OPS.forward(&params, &scratch, joints, &pos, &fflags, &iflags);
                         printf("%f %f %f %f %f %f\n", pos.tran.x, pos.tran.y,
                             pos.tran.z, pos.a, pos.b, pos.c);
                         if (0 != retval) {
@@ -271,13 +283,13 @@ fprintf(stderr,"gki1:\n");
                         &joints[0], &joints[1], &joints[2], &joints[3], &joints[4], &joints[5])) {
                     printf("?\n");
                 } else {
-                    retval = genserKinematicsForward(joints, &pos, &fflags, &iflags);
+                    retval = GENSER_OPS.forward(&params, &scratch, joints, &pos, &fflags, &iflags);
                     printf("xyzabc: %f %f %f %f %f %f\n",
                           pos.tran.x, pos.tran.y, pos.tran.z, pos.a, pos.b, pos.c);
                     if (0 != retval) {
                         printf("fwd kins error %d\n", retval);
                     } else {
-                        retval = genserKinematicsInverse(&pos, joints, &iflags, &fflags);
+                        retval = GENSER_OPS.inverse(&params, &scratch, &pos, joints, &iflags, &fflags);
                         printf("j0--j5: %f %f %f %f %f %f\n",
                               joints[0], joints[1], joints[2], joints[3], joints[4], joints[5]);
                         if (0 != retval) {
