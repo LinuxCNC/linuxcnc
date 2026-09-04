@@ -323,7 +323,9 @@ bool GCodeRenderer::read_planes() {
     return true;
 }
 
-// `gcode.RendererCanon`, borrowed from the module that owns it.
+// `gcode.RendererCanon`. This holds a reference of its own: the module
+// attribute is deletable, and a type freed under us would leave every
+// later PyObject_TypeCheck reading freed memory.
 static PyTypeObject *renderer_canon_type;
 
 void renderer_canon_register(py::module_ &m) {
@@ -358,7 +360,7 @@ void renderer_canon_register(py::module_ &m) {
     py::object cls = py::reinterpret_borrow<py::object>((PyObject *)&PyType_Type)(
             "RendererCanon", py::tuple(), ns);
     m.attr("RendererCanon") = cls;
-    renderer_canon_type = (PyTypeObject *)cls.ptr();     // the module owns it
+    renderer_canon_type = (PyTypeObject *)cls.release().ptr();
 }
 
 std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
