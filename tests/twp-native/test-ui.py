@@ -182,8 +182,15 @@ if not pairs or abs(wrap(after[SECONDARY] - want[0])) > 1e-3 or abs(wrap(after[P
           % (after[SECONDARY], after[PRIMARY], want[0], want[1]))
 if abs(after[TABLE] - start[TABLE]) > 1e-9:
     error("G53.1 moved the table with Q0")
-worst = max(abs(smp[0][i] - start[i]) for smp in samples for i in range(3))
-print("linear joints moved at most %.9f through G53.1" % worst)
+worst = 0.0
+for n, smp in enumerate(samples):
+    for i in range(3):
+        d = abs(smp[0][i] - start[i])
+        if d > worst:
+            worst = d
+            where = (n, i, smp[0][i], len(samples))
+print("linear joints moved at most %.9f through G53.1 (sample %d of %d, joint %d at %.9f); ended at %s"
+      % ((worst,) + (where[0], where[3], where[1], where[2]) + (" ".join("%.9f" % v for v in after[:3]),)))
 if worst > 1e-6:
     error("G53.1 moved a linear joint")
 if not close(tool_axis(after), list(R[:, 2]), 1e-6):

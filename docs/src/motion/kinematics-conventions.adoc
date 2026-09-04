@@ -63,6 +63,16 @@ against, and the two halves of this chapter use different pairs deliberately.
 Positions are measured in the work frame, which is what makes a program
 independent of how the table is set.
 
+With every rotary joint at zero, the work frame position is what the linear
+joints read. The shipped head and table modules fold the pivot lengths and
+the offsets in, so that the tool tip and the slides agree at the zero pose
+and the pivot shows only as the compensation, `L(1 - cos B)` on a head,
+once a rotary leaves zero. A module with a switchable identity type keeps
+this of necessity, since the identity and the geometric type must agree at
+the zero pose or a switch would jump the reported position; a module without
+one keeps it too, so that `G53.5` slide positions and `G53` positions coincide
+with the rotaries at zero.
+
 Orientations are measured against the machine frame, and there are two of them.
 A module reports the tool frame and the work frame separately, each in machine
 coordinates. A consumer that wants the tool in workpiece coordinates composes
@@ -329,6 +339,13 @@ its X points, and `G53.1` moves the rotaries to align the tool axis. Neither
 refuses a program for naming both directions on a five-axis machine, and
 neither should this.
 
+In tree the G-code side of that is `G68.2`, which defines the plane, and
+`G53.1`, `G53.3` and `G53.6`, which ask this inverse where the rotaries go,
+with the plane's normal and its X as the request. Their `Q` word is the
+`held` mask: `Q0` holds the joints the work frame survey finds and takes the
+reported turn as the coordinate rotation it is, `Q1` holds nothing. See the
+G-code chapter.
+
 Some requests still do not pin the machine down. A five-axis machine asked to
 point the tool along the axis its primary rotary turns about can hold any
 primary angle; a machine with three orientation joints asked only for a tool
@@ -560,6 +577,11 @@ Frames::
   undone in `kinematicsForward()`. Report the work frame and the tool frame
   separately, each against the machine frame, so that a consumer placing both
   bodies can.
+
+Zero pose::
+  With every rotary joint at zero the work frame position equals the linear
+  joints. Pivots and offsets live in the module and show only as compensation
+  once a rotary moves.
 
 Signs::
   Positive A, B and C are counterclockwise about work X, Y and Z viewed from
