@@ -68,7 +68,8 @@ def excepthook(exc_type, exc_obj, exc_tb):
         return
     try:
         w = app.widgets.window1
-    except NameError:
+    except Exception:
+        # app not built (or partially built): parentless dialog
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
     message ="Found an error!\nThe following information may be useful in troubleshooting:\n\n" + "".join(lines)
@@ -81,8 +82,10 @@ def excepthook(exc_type, exc_obj, exc_tb):
                           buttons = Gtk.ButtonsType.OK,)
 
     m.show()
-    m.run()
-    m.destroy()
+    try:
+        m.run()
+    finally:
+        m.destroy()
 
 
 sys.excepthook = excepthook
@@ -6605,12 +6608,21 @@ if __name__ == "__main__":
 
 
     # Exit on SIGTERM/SIGINT whether or not a main loop is running.
-    # Gtk.main_quit() does nothing outside a running loop, so quit the
-    # loop if one is active, otherwise exit the process.
+    # A modal dialog's gtk_dialog_run() loop is invisible to
+    # Gtk.main_quit(): destroy all other toplevels so run() returns and
+    # the unwind reaches Gtk.main(); force exit as a last resort.
+    def _force_exit():
+        LOG.warning("clean shutdown did not finish, forcing exit")
+        os._exit(0)
+
     def _terminate(signum, frame):
         LOG.info("gmoccapy received signal {}, shutting down".format(signum))
         if Gtk.main_level() > 0:
             Gtk.main_quit()
+            for w in Gtk.Window.list_toplevels():
+                if w is not app.widgets.window1:
+                    w.destroy()
+            GLib.timeout_add(2000, _force_exit)
         else:
             sys.exit(0)
     signal.signal(signal.SIGTERM, _terminate)
