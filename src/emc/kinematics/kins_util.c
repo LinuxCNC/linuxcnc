@@ -48,7 +48,9 @@
 #include <rtapi_math.h>
 #include <emcmotcfg.h>
 #include <emcpos.h>
+#include <hal.h>
 #include <kinematics.h>
+#include <kins_rt.h>
 
 // principal joint numbers based on module 'coordinates' parameter
 static int JX = -1;
@@ -76,38 +78,23 @@ static int map_initialized = 0;
 #define MAX_COORDINATES_CHARS 32
 static char used_coordinates[MAX_COORDINATES_CHARS+1];
 
-int map_coordinates_to_jnumbers(const char *coordinates,
-                                const int  max_joints,
-                                const int  allow_duplicates,
-                                int   axis_idx_for_jno[] ) //result
+// Letters to joint numbers, in order, with the checks every caller wants:
+// a valid letter set, at most max_joints of them, duplicates only where
+// allowed.  Fills axis_idx_for_jno (-1 past the last letter) and touches
+// nothing else, so the block form and the static form share it.
+static int kins_scan_coordinates(const char *coordinates,
+                                 int max_joints,
+                                 int allow_duplicates,
+                                 int axis_idx_for_jno[],
+                                 const char *errtag)
 {
-    char* errtag="map_coordinates_to_jnumbers: ERROR:\n  ";
-    int   jno=0;
-    bool  found=0;
+    int   jno = 0;
+    bool  found = 0;
     int   dups[EMCMOT_MAX_AXIS];
     const char *coords = coordinates;
     char  coord_letter[] = {'X','Y','Z','A','B','C','U','V','W'};
     int   i;
 
-    if (strlen(coordinates) > MAX_COORDINATES_CHARS) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "%s: map_coordinates_to_jnumbers too many chars:%s\n"
-             ,__FILE__,coordinates);
-        return -1;
-
-    }
-    // Note: may be called multiple times for different switchkins
-    // types but coordinates must agree
-    if (used_coordinates[0] == 0) {
-        strcpy(used_coordinates,coordinates);
-    } else {
-        if (strcasecmp(coordinates,used_coordinates)) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                 "%s: map_coordinates_to_jnumbers altered:%s %s\n"
-                 ,__FILE__,used_coordinates,coordinates);
-            return -1;
-        }
-    }
     for (i=0; i<EMCMOT_MAX_AXIS; i++) {dups[i] = 0;}
 
     if ( (max_joints <= 0) || (max_joints > EMCMOT_MAX_JOINTS) ) {
@@ -167,6 +154,40 @@ int map_coordinates_to_jnumbers(const char *coordinates,
                 return -1;
             }
         }
+    }
+    return 0;
+} // kins_scan_coordinates()
+
+int map_coordinates_to_jnumbers(const char *coordinates,
+                                const int  max_joints,
+                                const int  allow_duplicates,
+                                int   axis_idx_for_jno[] ) //result
+{
+    char* errtag="map_coordinates_to_jnumbers: ERROR:\n  ";
+    int   jno=0;
+
+    if (strlen(coordinates) > MAX_COORDINATES_CHARS) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             "%s: map_coordinates_to_jnumbers too many chars:%s\n"
+             ,__FILE__,coordinates);
+        return -1;
+
+    }
+    // Note: may be called multiple times for different switchkins
+    // types but coordinates must agree
+    if (used_coordinates[0] == 0) {
+        strcpy(used_coordinates,coordinates);
+    } else {
+        if (strcasecmp(coordinates,used_coordinates)) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "%s: map_coordinates_to_jnumbers altered:%s %s\n"
+                 ,__FILE__,used_coordinates,coordinates);
+            return -1;
+        }
+    }
+    if (kins_scan_coordinates(coordinates, max_joints, allow_duplicates,
+                              axis_idx_for_jno, errtag)) {
+        return -1;
     }
 
     for (jno=0; jno < max_joints; jno++) {
@@ -319,9 +340,13 @@ int identityKinematicsSetup(const int   comp_id,
             rtapi_print("   Joint %d ==> Axis %c\n",
                        jno,*(p+axis_idx_for_jno[jno]));
         }
+#ifndef ULAPI
+        // the module's own report of its type; this file is also built
+        // outside RT, where there is no module around it
         if (kinematicsType() != KINEMATICS_BOTH) {
             rtapi_print("identityKinematicsSetup: Recommend: kinstype=both\n");
         }
+#endif
         rtapi_print("\n");
     }
 
@@ -1166,3 +1191,399 @@ int identityKinematicsJacobian(const double *joint,
                                       (const double (*)[EMCMOT_MAX_AXIS])dP,
                                       jac);
 } // identityKinematicsJacobian()
+
+//----------------------------------------------------------------------
+// The parameter block.  See kinematics.h for what it is for.
+//----------------------------------------------------------------------
+
+int kinsParamsMapCoordinates(kins_params *p,
+                             const char *coordinates,
+                             int max_joints,
+                             int allow_duplicates,
+                             const char *required_coordinates)
+{
+    int axis_idx_for_jno[EMCMOT_MAX_JOINTS];
+    int jno, a;
+
+    if (!p) { return -1; }
+    if (!coordinates) { coordinates = "XYZABCUVW"; }
+
+    if (kins_scan_coordinates(coordinates, max_joints, allow_duplicates,
+                              axis_idx_for_jno,
+                              "kinsParamsMapCoordinates: ERROR:\n  ")) {
+        return -1;
+    }
+
+    // every letter the module cannot do without has to be there
+    for (a = 0; required_coordinates && required_coordinates[a]; a++) {
+        char want = required_coordinates[a];
+        const char *c;
+        int seen = 0;
+        for (c = coordinates; *c; c++) {
+            if (*c == want || *c == want + ('a' - 'A') || *c == want - ('a' - 'A')) {
+                seen = 1; break;
+            }
+        }
+        if (!seen) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "kinsParamsMapCoordinates: ERROR:\n  required coordinates:%s\n"
+                "  specified coordinates:%s\n",
+                required_coordinates, coordinates);
+            return -1;
+        }
+    }
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        p->joint_of_axis[a]  = -1;
+        p->joints_of_axis[a] = 0;
+    }
+    p->max_joints = 0;
+    for (jno = 0; jno < EMCMOT_MAX_JOINTS; jno++) {
+        a = axis_idx_for_jno[jno];
+        if (a < 0) { break; }
+        if (p->joint_of_axis[a] < 0) { p->joint_of_axis[a] = jno; }
+        p->joints_of_axis[a] |= 1 << jno;
+        p->max_joints = jno + 1;
+    }
+    return 0;
+} // kinsParamsMapCoordinates()
+
+int kinsParamsInit(kins_params *p,
+                   const kins_module_info *info,
+                   const char *coordinates)
+{
+    int i;
+
+    if (!p || !info) { return -1; }
+    if (info->nparams < 0 || info->nparams > KINS_MAX_PARAMS) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "kinsParamsInit: %s declares %d parameters, at most %d allowed\n",
+            info->name ? info->name : "?", info->nparams, KINS_MAX_PARAMS);
+        return -1;
+    }
+
+    memset(p, 0, sizeof(*p));
+    p->size  = sizeof(*p);
+    p->ktype = 0;
+    if (!coordinates) { coordinates = info->required_coordinates; }
+    if (kinsParamsMapCoordinates(p, coordinates, info->max_joints,
+                                 info->allow_duplicates,
+                                 info->required_coordinates)) {
+        return -1;
+    }
+    for (i = 0; i < info->nparams; i++) {
+        p->geometry[i] = info->params[i].dflt;
+        if (info->params[i].tool) { p->tool.tran.z = info->params[i].dflt; }
+    }
+    return 0;
+} // kinsParamsInit()
+
+void kinsScratchInit(kins_scratch *s)
+{
+    if (s) { memset(s, 0, sizeof(*s)); }
+}
+
+int kinsMappedJointsToPose(const kins_params *p,
+                           const double *joints, EmcPose *pos)
+{
+    int a;
+    if (!p || !joints || !pos) { return -1; }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        int j = p->joint_of_axis[a];
+        if (j < 0) { continue; }
+        switch (a) {
+        case 0: pos->tran.x = joints[j]; break;
+        case 1: pos->tran.y = joints[j]; break;
+        case 2: pos->tran.z = joints[j]; break;
+        case 3: pos->a = joints[j]; break;
+        case 4: pos->b = joints[j]; break;
+        case 5: pos->c = joints[j]; break;
+        case 6: pos->u = joints[j]; break;
+        case 7: pos->v = joints[j]; break;
+        default: pos->w = joints[j]; break;
+        }
+    }
+    return 0;
+} // kinsMappedJointsToPose()
+
+static double kins_pose_coord(const EmcPose *pos, int a)
+{
+    switch (a) {
+    case 0: return pos->tran.x;
+    case 1: return pos->tran.y;
+    case 2: return pos->tran.z;
+    case 3: return pos->a;
+    case 4: return pos->b;
+    case 5: return pos->c;
+    case 6: return pos->u;
+    case 7: return pos->v;
+    default: return pos->w;
+    }
+}
+
+int kinsPoseToMappedJoints(const kins_params *p,
+                           const EmcPose *pos, double *joints)
+{
+    int a, jno;
+    if (!p || !pos || !joints) { return -1; }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        int bits = p->joints_of_axis[a];
+        if (!bits) { continue; }
+        for (jno = 0; jno < p->max_joints; jno++) {
+            if (bits & (1 << jno)) { joints[jno] = kins_pose_coord(pos, a); }
+        }
+    }
+    return 0;
+} // kinsPoseToMappedJoints()
+
+int kinsJacobianFromMappedAxesP(const kins_params *p,
+                                const double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS],
+                                double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS])
+{
+    int a, jno, col;
+    if (!p || !dP || !jac) { return -1; }
+    kj_zero(jac);
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        int bits = p->joints_of_axis[a];
+        if (!bits) { continue; }
+        for (jno = 0; jno < p->max_joints; jno++) {
+            if (!(bits & (1 << jno))) { continue; }
+            for (col = 0; col < EMCMOT_MAX_AXIS; col++) { jac[jno][col] = dP[a][col]; }
+        }
+    }
+    return 0;
+} // kinsJacobianFromMappedAxesP()
+
+//----------------------------------------------------------------------
+// identity through the block
+//----------------------------------------------------------------------
+
+int kinsIdentityForward(const kins_params *p, kins_scratch *s,
+                        const double *joint, EmcPose *pos,
+                        const KINEMATICS_FORWARD_FLAGS *fflags,
+                        KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)s; (void)fflags; (void)iflags;
+    return kinsMappedJointsToPose(p, joint, pos);
+}
+
+int kinsIdentityInverse(const kins_params *p, kins_scratch *s,
+                        const EmcPose *pos, double *joint,
+                        const KINEMATICS_INVERSE_FLAGS *iflags,
+                        KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)s; (void)iflags; (void)fflags;
+    return kinsPoseToMappedJoints(p, pos, joint);
+}
+
+int kinsIdentityFrame(const kins_params *p, const double *joint,
+                      PmRotationMatrix *rot,
+                      const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)p; (void)joint; (void)fflags;
+    *rot = TOOL_FRAME_SPINDLE;
+    return 0;
+}
+
+int kinsIdentityJacobian(const kins_params *p, const double *joint,
+                         const EmcPose *pos,
+                         double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                         const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a, b;
+    (void)joint; (void)pos; (void)iflags;
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) { dP[a][b] = (a == b) ? 1.0 : 0.0; }
+    }
+    return kinsJacobianFromMappedAxesP(p, (const double (*)[EMCMOT_MAX_AXIS])dP, jac);
+}
+
+const kins_ops KINS_IDENTITY_OPS = {
+    .forward      = kinsIdentityForward,
+    .inverse      = kinsIdentityInverse,
+    .work         = kinsIdentityFrame,
+    .tool         = kinsIdentityFrame,
+    .native       = &TOOL_FRAME_SPINDLE,
+    .jacobian     = kinsIdentityJacobian,
+    .fwd_iterates = 0,
+    .identity     = 1,
+};
+
+//----------------------------------------------------------------------
+// asking an ops table, defaults applied
+//----------------------------------------------------------------------
+
+int kinsOpsForward(const kins_ops *ops, const kins_params *p,
+                   kins_scratch *s, const double *joint, EmcPose *pos,
+                   const KINEMATICS_FORWARD_FLAGS *fflags,
+                   KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    int r;
+    if (!ops || !ops->forward || !p || !s) { return -1; }
+    if (ops->fwd_iterates && s->have_pose_seed) {
+        *pos = s->pose_seed;
+        s->have_pose_seed = 0;
+    }
+    r = ops->forward(p, s, joint, pos, fflags, iflags);
+    if (ops->fwd_iterates) { s->pose_seed = *pos; }
+    return r;
+}
+
+int kinsOpsInverse(const kins_ops *ops, const kins_params *p,
+                   kins_scratch *s, const EmcPose *pos, double *joint,
+                   const KINEMATICS_INVERSE_FLAGS *iflags,
+                   KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (!ops || !ops->inverse || !p || !s) { return -1; }
+    return ops->inverse(p, s, pos, joint, iflags, fflags);
+}
+
+int kinsOpsWorkFrame(const kins_ops *ops, const kins_params *p,
+                     const double *joint, PmRotationMatrix *rot,
+                     const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (!ops || !p || !rot) { return -1; }
+    if (!ops->work) { return -1; } // not supplied; not an error
+    return ops->work(p, joint, rot, fflags);
+}
+
+int kinsOpsToolFrame(const kins_ops *ops, const kins_params *p,
+                     const double *joint, PmRotationMatrix *rot,
+                     const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    int r;
+    if (!ops || !p || !rot) { return -1; }
+    if (!ops->tool) { return -1; } // not supplied; not an error
+    r = ops->tool(p, joint, rot, fflags);
+    if (r) { return r; }
+    return toolFrameApplyNative(rot, ops->native ? ops->native
+                                                 : &TOOL_FRAME_SPINDLE);
+}
+
+int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
+                    kins_scratch *s, const double *joint,
+                    const EmcPose *pos,
+                    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                    const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double qp[EMCMOT_MAX_JOINTS], qm[EMCMOT_MAX_JOINTS];
+    KINEMATICS_INVERSE_FLAGS ifl = iflags ? *iflags : 0;
+    KINEMATICS_FORWARD_FLAGS ffl = 0;
+    EmcPose q;
+    int j, a;
+
+    if (!ops || !p || !s || !joint || !pos || !jac) { return -1; }
+    if (ops->jacobian) { return ops->jacobian(p, joint, pos, jac, iflags); }
+    if (!ops->inverse) { return -1; }
+
+    // the same differences as kinsJacobianFromInverse(), on the block form
+    kj_zero(jac);
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        q = *pos;
+        for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { qp[j] = qm[j] = joint[j]; }
+
+        *kj_coord(&q, a) += KINS_JACOBIAN_STEP;
+        if (ops->inverse(p, s, &q, qp, &ifl, &ffl)) { return -1; }
+
+        *kj_coord(&q, a) -= 2 * KINS_JACOBIAN_STEP;
+        if (ops->inverse(p, s, &q, qm, &ifl, &ffl)) { return -1; }
+
+        for (j = 0; j < p->max_joints && j < EMCMOT_MAX_JOINTS; j++) {
+            jac[j][a] = (qp[j] - qm[j]) / (2 * KINS_JACOBIAN_STEP);
+        }
+    }
+    return 0;
+} // kinsOpsJacobian()
+
+//----------------------------------------------------------------------
+// the RT side of the table: one HAL pin per entry, copied into the block
+// before a call and out of the scratch after it
+//----------------------------------------------------------------------
+
+int kinsParamsPinsCreate(int comp_id, const char *prefix,
+                         const kins_param_desc *params, int nparams,
+                         kins_pin_ref **out)
+{
+    kins_pin_ref *pins;
+    int i, res = 0;
+
+    if (!out) { return -1; }
+    *out = NULL;
+    if (nparams < 0 || nparams > KINS_MAX_PARAMS) { return -1; }
+    if (nparams == 0) { return 0; }
+    if (!params || !prefix) { return -1; }
+
+    pins = hal_malloc(nparams * sizeof(*pins));
+    if (!pins) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "kinsParamsPinsCreate: hal_malloc failed\n");
+        return -1;
+    }
+    for (i = 0; i < nparams; i++) {
+        const kins_param_desc *d = &params[i];
+        hal_pdir_t dir = d->dir == KINS_OUT ? HAL_OUT : d->dir == KINS_IO ? HAL_IO : HAL_IN;
+        switch (d->type) {
+        case KINS_PARAM_FLOAT:
+            res += hal_pin_new_real(comp_id, dir, &pins[i].r, d->dflt, "%s.%s", prefix, d->name);
+            break;
+        case KINS_PARAM_BIT:
+            res += hal_pin_new_bool(comp_id, dir, &pins[i].b, d->dflt != 0, "%s.%s", prefix, d->name);
+            break;
+        case KINS_PARAM_S32:
+            res += hal_pin_new_si32(comp_id, dir, &pins[i].s, (rtapi_s32)d->dflt, "%s.%s", prefix, d->name);
+            break;
+        case KINS_PARAM_U32:
+            res += hal_pin_new_ui32(comp_id, dir, &pins[i].u, (rtapi_u32)d->dflt, "%s.%s", prefix, d->name);
+            break;
+        default:
+            res = -1;
+        }
+    }
+    if (res) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "kinsParamsPinsCreate: pin create failed for %s\n", prefix);
+        return -1;
+    }
+    *out = pins;
+    return 0;
+} // kinsParamsPinsCreate()
+
+void kinsParamsPinsRead(const kins_pin_ref *pins,
+                        const kins_param_desc *params, int nparams,
+                        kins_params *p)
+{
+    int i;
+    if (!pins || !params || !p) { return; }
+    for (i = 0; i < nparams && i < KINS_MAX_PARAMS; i++) {
+        const kins_param_desc *d = &params[i];
+        double v;
+        if (d->dir == KINS_OUT) { continue; }
+        switch (d->type) {
+        case KINS_PARAM_FLOAT: v = hal_get_real(pins[i].r); break;
+        case KINS_PARAM_BIT:   v = hal_get_bool(pins[i].b) ? 1.0 : 0.0; break;
+        case KINS_PARAM_S32:   v = hal_get_si32(pins[i].s); break;
+        case KINS_PARAM_U32:   v = hal_get_ui32(pins[i].u); break;
+        default: v = 0;
+        }
+        p->geometry[i] = v;
+        if (d->tool) { p->tool.tran.z = v; }
+    }
+} // kinsParamsPinsRead()
+
+void kinsParamsPinsWrite(const kins_pin_ref *pins,
+                         const kins_param_desc *params, int nparams,
+                         const kins_scratch *s)
+{
+    int i;
+    if (!pins || !params || !s) { return; }
+    for (i = 0; i < nparams && i < KINS_MAX_PARAMS; i++) {
+        const kins_param_desc *d = &params[i];
+        if (d->dir != KINS_OUT) { continue; }
+        switch (d->type) {
+        case KINS_PARAM_FLOAT: hal_set_real(pins[i].r, s->out[i]); break;
+        case KINS_PARAM_BIT:   hal_set_bool(pins[i].b, s->out[i] != 0); break;
+        case KINS_PARAM_S32:   hal_set_si32(pins[i].s, (rtapi_s32)s->out[i]); break;
+        case KINS_PARAM_U32:   hal_set_ui32(pins[i].u, (rtapi_u32)s->out[i]); break;
+        default: break;
+        }
+    }
+} // kinsParamsPinsWrite()

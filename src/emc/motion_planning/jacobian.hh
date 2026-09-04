@@ -3,7 +3,8 @@
  *   Jacobian calculation for userspace kinematics trajectory planning
  *
  * Computes the Jacobian matrix relating world velocities to joint
- * velocities. For trivkins this is the identity matrix.
+ * velocities, from the module's own closed form through the non-RT
+ * kinematics loader.
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -30,8 +31,8 @@ namespace motion_planning {
  * Computes the Jacobian matrix J where:
  *   joint_velocities = J × world_velocities
  *
- * For trivkins, J is the identity matrix (with appropriate axis mapping).
- * For non-trivial kinematics, J is computed via numerical differentiation.
+ * The module answers: a closed form where it has one, its inverse
+ * differenced where it does not.  See kinematicsUserJacobian().
  */
 class JacobianCalculator {
 public:
@@ -77,26 +78,9 @@ public:
     bool isIdentity() const { return is_identity_; }
 
 private:
-    /**
-     * Compute Jacobian for trivkins (identity with axis mapping)
-     */
-    void computeTrivkins(double J[9][9]);
-
-    /**
-     * Compute Jacobian via numerical differentiation
-     * Uses central differences: J[j][a] = (f(x+h) - f(x-h)) / (2h)
-     */
-    bool computeNumerical(const EmcPose& pose, double J[9][9]);
-
     KinematicsUserContext* kins_ctx_;
     bool is_identity_;
     int num_joints_;
-
-    // Perturbation size for numerical differentiation (mm or degrees)
-    // Must be large enough for kinematics to produce stable results
-    // but small enough for accurate derivatives
-    static constexpr double DELTA_LINEAR = 0.1;    // 0.1 mm
-    static constexpr double DELTA_ROTARY = 0.1;    // 0.1 degrees
 };
 
 } // namespace motion_planning
