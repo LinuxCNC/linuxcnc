@@ -112,6 +112,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 #define EMC_TRAJ_SET_G68_TYPE                        ((NMLTYPE) 239)
+#define EMC_TRAJ_JOINT_MOVE_TYPE                     ((NMLTYPE) 240)
 
 #define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
@@ -374,6 +375,7 @@ extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
+extern int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
 extern int emcTrajSetTermCond(int cond, double tolerance);

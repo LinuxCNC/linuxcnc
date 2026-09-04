@@ -1388,10 +1388,41 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 
 	    tpRunCycle(&emcmotInternal->coord_tp, period);
+
+	    if (tpGetJointPos(&emcmotInternal->coord_tp, positions) > 0) {
+		/* a joint interpolated segment: the planner hands out the
+		   joints and the forward kinematics says where the tool is,
+		   for status and for the display; nothing is inverted, and
+		   the planner's own position is the chord between the ends.
+		   The joints are commanded either way; a forward that fails,
+		   as an iterating one can at a singularity, leaves the last
+		   solved position reported rather than an unsolved one */
+		EmcPose pose = emcmotStatus->carte_pos_cmd;
+		if (kinematicsForward(positions, &pose, &fflags, &iflags) == 0) {
+		    emcmotStatus->carte_pos_cmd = pose;
+		    emcmotStatus->carte_pos_cmd_ok = 1;
+		} else {
+		    emcmotStatus->carte_pos_cmd_ok = 0;
+		}
+		result = 0;
+	    } else {
+	    /* a joint interpolated segment that ended this cycle is gone
+	       from the queue: its end joints seed the inverse, since the
+	       modules that read their rotary angles from the seed would
+	       otherwise get last cycle's */
+	    tpTakeJointEnd(&emcmotInternal->coord_tp, positions);
             /* get new commanded traj pos */
             tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 
-            if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
+            if (tpJointSegmentsQueued(&emcmotInternal->coord_tp)) {
+                /* an external offset cannot ride on a joint interpolated
+                   segment: its joints were solved without one, and the
+                   queue refused the segment while one was applied.  A
+                   request that arrives while one is queued waits here,
+                   unplanned, and ramps in at its own limits once the last
+                   joint segment is done, instead of landing as a step at
+                   the segment's ends */
+            } else if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
                 ext_offset_coord_limit = 1;
             } else {
                 ext_offset_coord_limit = 0;
@@ -1400,6 +1431,7 @@ static void get_pos_cmds(long period)
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    result = kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
+	    }
 	    if(result == 0)
 	    {
 		/* copy to joint structures and spline them up */

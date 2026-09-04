@@ -1128,6 +1128,164 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    }
 	    break;
 
+	case EMCMOT_SET_JOINT_LINE: {
+	    /* a move interpolated in joint space to a Cartesian endpoint: the
+	       inverse runs once here, at the endpoint, and the planner takes
+	       the joints from there; or the endpoint is given as joints and
+	       the forward says where that is */
+	    double start[EMCMOT_MAX_JOINTS], target[EMCMOT_MAX_JOINTS];
+	    EmcPose end = emcmotCommand->pos;
+	    double length = 0.0, vmax = 0.0, amax = 0.0, jmax = 0.0;
+	    int moving = 0, jerk_limited = 0, bad = 0, axis_num;
+
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_LINE");
+	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
+		reportError(_("need to be enabled, in coord mode for joint interpolated move"));
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+	    if (!limits_ok()) {
+		reportError(_("can't do joint interpolated move with limits exceeded"));
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+	    /* an external offset is applied to the world position on the way
+	       to the inverse every cycle, which a joint interpolated segment
+	       does not go through */
+	    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+		if (axis_get_ext_offset_curr_pos(axis_num) != 0.0) { bad = 1; }
+	    }
+	    if (bad) {
+		reportError(_("can't do joint interpolated move on line %d with an external offset applied"),
+			    emcmotCommand->id);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+
+	    /* where the queue ends in joint space */
+	    if (!tpGetQueueEndJoints(&emcmotInternal->coord_tp, start)) {
+		EmcPose goal;
+		tpGetGoalPos(&emcmotInternal->coord_tp, &goal);
+		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+		    start[joint_num] = (joint_num < ALL_JOINTS) ? joints[joint_num].pos_cmd : 0.0;
+		}
+		if (kinematicsInverse(&goal, start, &iflags, &fflags) != 0) {
+		    reportError(_("joint interpolated move on line %d: the queue end fails kinematicsInverse"),
+				emcmotCommand->id);
+		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		    tpAbort(&emcmotInternal->coord_tp);
+		    SET_MOTION_ERROR_FLAG(1);
+		    break;
+		}
+	    }
+
+	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) { target[joint_num] = start[joint_num]; }
+	    if (emcmotCommand->have_joint_target) {
+		for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+		    target[joint_num] = emcmotCommand->joint_target[joint_num];
+		}
+		if (kinematicsForward(target, &end, &fflags, &iflags) != 0) {
+		    reportError(_("joint interpolated move on line %d fails kinematicsForward"),
+				emcmotCommand->id);
+		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		    tpAbort(&emcmotInternal->coord_tp);
+		    SET_MOTION_ERROR_FLAG(1);
+		    break;
+		}
+	    } else {
+		if (!inRange(end, emcmotCommand->id, "Joint interpolated")) {
+		    reportError(_("invalid params in joint interpolated move"));
+		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		    tpAbort(&emcmotInternal->coord_tp);
+		    SET_MOTION_ERROR_FLAG(1);
+		    break;
+		}
+		if (kinematicsInverse(&end, target, &iflags, &fflags) != 0) {
+		    reportError(_("joint interpolated move on line %d fails kinematicsInverse"),
+				emcmotCommand->id);
+		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		    tpAbort(&emcmotInternal->coord_tp);
+		    SET_MOTION_ERROR_FLAG(1);
+		    break;
+		}
+	    }
+
+	    /* the endpoint must be inside the joint limits, and every joint
+	       that moves needs limits to move within; the segment length is
+	       the joint space distance and each joint's limits are scaled
+	       onto it so that the slowest joint sets the pace */
+	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+		double d = target[joint_num] - start[joint_num];
+		joint = &joints[joint_num];
+		if (!GET_JOINT_ACTIVE_FLAG(joint)) { continue; }
+		if (!isfinite(target[joint_num])) {
+		    reportError(_("joint interpolated move on line %d gave non-finite joint location on joint %d"),
+				emcmotCommand->id, joint_num);
+		    bad = 1;
+		} else if (target[joint_num] > joint->max_pos_limit || target[joint_num] < joint->min_pos_limit) {
+		    reportError(_("joint interpolated move on line %d would exceed joint %d's limit"),
+				emcmotCommand->id, joint_num);
+		    bad = 1;
+		}
+		length += d * d;
+	    }
+	    length = sqrt(length);
+	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS && !bad; joint_num++) {
+		double d = fabs(target[joint_num] - start[joint_num]);
+		joint = &joints[joint_num];
+		if (!GET_JOINT_ACTIVE_FLAG(joint) || d < TP_POS_EPSILON) { continue; }
+		if (joint->vel_limit <= 0.0 || joint->acc_limit <= 0.0) {
+		    reportError(_("joint interpolated move on line %d: joint %d has no velocity or acceleration limit"),
+				emcmotCommand->id, joint_num);
+		    bad = 1;
+		    break;
+		}
+		if (!moving || joint->vel_limit * length / d < vmax) { vmax = joint->vel_limit * length / d; }
+		if (!moving || joint->acc_limit * length / d < amax) { amax = joint->acc_limit * length / d; }
+		if (joint->jerk_limit > 0.0) {
+		    if (!jerk_limited || joint->jerk_limit * length / d < jmax) { jmax = joint->jerk_limit * length / d; }
+		    jerk_limited = 1;
+		}
+		moving = 1;
+	    }
+	    if (bad) {
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    }
+
+	    /* a feed asks for a time; the joint limits still cap it */
+	    double vreq = vmax;
+	    if (emcmotCommand->joint_seconds > 0.0 && length / emcmotCommand->joint_seconds < vmax) {
+		vreq = length / emcmotCommand->joint_seconds;
+	    }
+	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
+	    int res_addjoint = tpAddJointLine(&emcmotInternal->coord_tp,
+					      start, target, NO_OF_KINS_JOINTS, end,
+					      emcmotCommand->motion_type,
+					      vreq, vmax, amax, jmax,
+					      emcmotStatus->enables_new,
+					      emcmotCommand->tag);
+	    if (res_addjoint < 0) {
+		reportError(_("can't add joint interpolated move at line %d, error code %d"),
+			    emcmotCommand->id, res_addjoint);
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
+		tpAbort(&emcmotInternal->coord_tp);
+		SET_MOTION_ERROR_FLAG(1);
+		break;
+	    } else if (res_addjoint == 0) {
+		SET_MOTION_ERROR_FLAG(0);
+		rehomeAll = 1;
+	    }
+	    break;
+	}
+
 	case EMCMOT_SET_CIRCLE:
 	    /* emcmotInternal->coord_tp up a circular move */
 	    /* requires coordinated mode, enable on, not on limits */

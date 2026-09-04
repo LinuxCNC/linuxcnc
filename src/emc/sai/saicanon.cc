@@ -219,6 +219,49 @@ void SET_TRAVERSE_RATE(double rate)
   _sai._traverse_rate = rate;
 }
 
+void JOINT_TRAVERSE(int /*line_number*/, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double /*u*/, double /*v*/, double /*w*/)
+{
+  if (have_joints && joints) {
+    ECHO_WITH_ARGS("[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], "
+                   "%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                   joints[0], joints[1], joints[2], joints[3], joints[4],
+                   joints[5], joints[6], joints[7], joints[8], x, y, z, a, b, c);
+  } else {
+    ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f", x, y, z, a, b, c);
+  }
+  _sai._program_position_x = x;
+  _sai._program_position_y = y;
+  _sai._program_position_z = z;
+  _sai._program_position_a = a;
+  _sai._program_position_b = b;
+  _sai._program_position_c = c;
+}
+
+void JOINT_FEED(int /*line_number*/, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double /*u*/, double /*v*/, double /*w*/,
+                double seconds)
+{
+  if (have_joints && joints) {
+    ECHO_WITH_ARGS("[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], "
+                   "%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                   joints[0], joints[1], joints[2], joints[3], joints[4],
+                   joints[5], joints[6], joints[7], joints[8], x, y, z, a, b, c, seconds);
+  } else {
+    ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f", x, y, z, a, b, c, seconds);
+  }
+  _sai._program_position_x = x;
+  _sai._program_position_y = y;
+  _sai._program_position_z = z;
+  _sai._program_position_a = a;
+  _sai._program_position_b = b;
+  _sai._program_position_c = c;
+}
+
 void STRAIGHT_TRAVERSE( int /*line_number*/,
  double x, double y, double z
  , double a /*AA*/

@@ -311,6 +311,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_SET_G68_TYPE:
 	((EMC_TRAJ_SET_G68 *) buffer)->update(cms);
 	break;
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
+	((EMC_TRAJ_JOINT_MOVE *) buffer)->update(cms);
+	break;
     case EMC_TRAJ_SET_SCALE_TYPE:
 	((EMC_TRAJ_SET_SCALE *) buffer)->update(cms);
 	break;
@@ -536,6 +539,8 @@ const char *emc_symbol_lookup(uint32_t type)
 	return "EMC_TRAJ_SET_ROTATION";
     case EMC_TRAJ_SET_G68_TYPE:
 	return "EMC_TRAJ_SET_G68";
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
+	return "EMC_TRAJ_JOINT_MOVE";
     case EMC_TRAJ_SET_SCALE_TYPE:
 	return "EMC_TRAJ_SET_SCALE";
     case EMC_TRAJ_SET_RAPID_SCALE_TYPE:
@@ -1697,6 +1702,16 @@ void EMC_TRAJ_SET_G68::update(CMS * cms)
     EmcPose_update(cms, &origin);
     cms->update(rotation, 9);
     cms->update(active);
+}
+
+// cppcheck-suppress duplInheritedMember
+void EMC_TRAJ_JOINT_MOVE::update(CMS * cms)
+{
+    EMC_TRAJ_CMD_MSG::update(cms);
+    EmcPose_update(cms, &end);
+    cms->update(joints, EMCMOT_MAX_JOINTS);
+    cms->update(have_joints);
+    cms->update(seconds);
 }
 
 /*

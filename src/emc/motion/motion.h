@@ -116,6 +116,7 @@ extern "C" {
 
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
+	EMCMOT_SET_JOINT_LINE,	/* queue up a joint interpolated move */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
@@ -273,6 +274,13 @@ extern "C" {
     struct state_tag_t tag;
 
     int switchkins_type;        /* switchkins type requested by G12.1 */
+
+    /* a joint interpolated move: either pos is the endpoint and the joints
+       come from the inverse, or these are the joints and pos comes from
+       the forward */
+    double joint_target[EMCMOT_MAX_JOINTS];
+    int have_joint_target;
+    double joint_seconds;       /* 0 for a rapid, else the time the move is to take */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars

@@ -96,6 +96,17 @@ typedef struct {
 
     EmcPose currentPos;
     EmcPose goalPos;
+    /* where the queue ends in joint space, known when the last segment
+       queued was a joint interpolated one; a world segment after it makes
+       the answer the inverse of goalPos again */
+    double queue_end_joints[EMCMOT_MAX_JOINTS];
+    int queue_end_joints_valid;
+    /* the end joints of a joint interpolated segment that completed this
+       cycle, for the servo thread to seed its inverse with: the segment is
+       gone from the queue by the time it asks */
+    double joint_end[EMCMOT_MAX_JOINTS];
+    int joint_end_valid;
+    int joint_segments_queued;       /* joint interpolated segments in the queue */
 
     int queueSize;
     double cycleTime;

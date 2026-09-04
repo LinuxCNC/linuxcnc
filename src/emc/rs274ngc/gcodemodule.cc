@@ -636,6 +636,28 @@ void STRAIGHT_FEED(int line_number,
     Py_XDECREF(result);
 }
 
+// the preview draws a joint interpolated move as the traverse between its
+// ends: the path between them depends on the kinematics, which the
+// preview does not have
+void JOINT_TRAVERSE(int line_number, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    (void)joints;
+    (void)have_joints;
+    STRAIGHT_TRAVERSE(line_number, x, y, z, a, b, c, u, v, w);
+}
+
+void JOINT_FEED(int line_number, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double u, double v, double w, double seconds) {
+    (void)joints;
+    (void)have_joints;
+    (void)seconds;
+    STRAIGHT_FEED(line_number, x, y, z, a, b, c, u, v, w);
+}
+
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
                        double a, double b, double c,

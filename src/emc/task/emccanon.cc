@@ -1319,6 +1319,47 @@ void generate_fast_move(double x, double y, double z,
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
+static void joint_move(int line_number, const double *joints, int have_joints,
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w,
+                       double seconds)
+{
+    auto msg = std::make_unique<EMC_TRAJ_JOINT_MOVE>();
+
+    flush_segments();
+    from_prog(x,y,z,a,b,c,u,v,w);
+    rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
+
+    msg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+    msg->have_joints = have_joints ? 1 : 0;
+    for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        msg->joints[i] = (have_joints && joints) ? joints[i] : 0.0;
+    }
+    msg->seconds = seconds;
+    interp_list.set_line_number(line_number);
+    tag_and_send(std::move(msg), _tag);
+
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+}
+
+void JOINT_TRAVERSE(int line_number, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w)
+{
+    joint_move(line_number, joints, have_joints, x, y, z, a, b, c, u, v, w, 0.0);
+}
+
+void JOINT_FEED(int line_number, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double u, double v, double w,
+                double seconds)
+{
+    joint_move(line_number, joints, have_joints, x, y, z, a, b, c, u, v, w, seconds);
+}
+
 void generate_move(double vel,double x, double y, double z,
                               double a, double b, double c,
                               double u, double v, double w)
