@@ -48,6 +48,28 @@ typically refer to the usual Cartesian coordinates. The A B C axes refer to
 rotational coordinates about the X Y Z axes respectively.  The U V W axes refer to
 additional coordinates that are commonly made colinear to the X Y Z axes respectively.
 
+[[sec:joint-space]]
+=== Joint Space
+
+The joints the motion controller works with are the ones the kinematics
+module defines: the numbers `kinematicsInverse()` produces and
+`kinematicsForward()` reads, numbered as the `[JOINT_n]` sections of the INI
+file and the `joint.N` HAL pins. Their zero is where homing put it and their
+limits are the `[JOINT_n]` limits. _Joint space_ is the set of these
+positions taken together, one coordinate per joint, as opposed to the
+Cartesian coordinates of the axes.
+
+What sits behind a joint is a HAL matter. On most machines
+`joint.N.motor-pos-cmd` drives one motor, so a joint and an actuator are the
+same thing, but a joint can also drive two motors, or one motor through a
+ratio, or feed a linkage computed in HAL, and the motion controller does not
+know the difference. A point-to-point move, <<gcode:g53.4,G53.4>>, runs each
+of the controller's joints on a straight line from its start to its end
+position at a rate within that joint's limits; the actuators behind them
+follow through whatever HAL puts in between. With switchable kinematics the
+joints do not change when the kinematics type does, only the mapping between
+them and the axes.
+
 == Trivial Kinematics
 
 The simplest machines are those in which which each joint is placed

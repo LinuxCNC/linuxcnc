@@ -178,6 +178,7 @@ InterpBase *makeInterp()
 }
 
 Interp::~Interp() {
+    kins_release(&_setup);
     if(log_file) {
         if(log_file != stderr)
             fclose(log_file);
@@ -888,6 +889,22 @@ int Interp::init()
           _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
+
+          // the kinematics, for the codes that ask it something
+          if (auto kins = inifile.findString("KINEMATICS", "KINS")) {
+              snprintf(_setup.kins_module, sizeof(_setup.kins_module), "%s", kins->c_str());
+          }
+          _setup.kins_joints = inifile.findIntV("JOINTS", "KINS", 0);
+          // which joints turn rather than slide, so that an axis letter is
+          // refused where it would name a joint of the other kind
+          _setup.kins_angular_joints = 0;
+          for (int jno = 0; jno < _setup.kins_joints && jno < EMCMOT_MAX_JOINTS; jno++) {
+              char section[16];
+              snprintf(section, sizeof(section), "JOINT_%d", jno);
+              if (auto type = inifile.findString("TYPE", section)) {
+                  if (*type == "ANGULAR") { _setup.kins_angular_joints |= 1 << jno; }
+              }
+          }
 
           _setup.tolerance_default = inifile.findRealV("G64_DEFAULT_TOLERANCE", "RS274NGC", 0.0);
           _setup.naivecam_tolerance_default = inifile.findRealV("G64_DEFAULT_NAIVETOLERANCE", "RS274NGC", 0.0);
