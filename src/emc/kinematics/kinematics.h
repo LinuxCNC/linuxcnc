@@ -121,8 +121,14 @@ extern KINEMATICS_TYPE kinematicsType(void);
    confused with the tool length, which is the distance applied along it.  It
    runs from the tool tip towards the holder.  The origin of the tool frame is
    the controlled point that kinematicsForward() reports for the same joints.
-   Where a module applies a virtual rotation about the tool axis, the frame
-   returned includes it.
+
+   The frame is what the joints do.  The virtual rotation about the tool axis
+   that a tilted work plane applies, the pre-rot pin on the in-tree
+   components, is not part of it: it is a rotation of the coordinate system,
+   applied by whoever programs in the frame, which is where Heidenhain's
+   COORD ROT, Fanuc's feature coordinate system and Siemens' swivel frame keep
+   it as well.  A consumer that wants tool x as programmed multiplies the
+   frame by that rotation itself; it has the pin.
 
    A module whose own maths is in the other sense, which is every module built
    on the ISO 9787 flange frame or on Denavit-Hartenberg parameters, does not
