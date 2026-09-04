@@ -7,7 +7,7 @@
 * Author: Chris Radek
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
@@ -17,12 +17,16 @@
 #include <rtapi_math.h>
 #include <hal.h>
 #include <kinematics.h>		/* these decls */
+#include <kins_rt.h>
 
-int kinematicsForward(const double *joints,
-		      EmcPose * pos,
-		      const KINEMATICS_FORWARD_FLAGS * fflags,
-		      KINEMATICS_INVERSE_FLAGS * iflags)
+static int rotate_forward(const kins_params *p, kins_scratch *s,
+                          const double *joints,
+                          EmcPose * pos,
+                          const KINEMATICS_FORWARD_FLAGS * fflags,
+                          KINEMATICS_INVERSE_FLAGS * iflags)
 {
+    (void)p;
+    (void)s;
     (void)fflags;
     (void)iflags;
     double c_rad = -joints[5]*M_PI/180;
@@ -39,11 +43,14 @@ int kinematicsForward(const double *joints,
     return 0;
 }
 
-int kinematicsInverse(const EmcPose * pos,
-		      double *joints,
-		      const KINEMATICS_INVERSE_FLAGS * iflags,
-		      KINEMATICS_FORWARD_FLAGS * fflags)
+static int rotate_inverse(const kins_params *p, kins_scratch *s,
+                          const EmcPose * pos,
+                          double *joints,
+                          const KINEMATICS_INVERSE_FLAGS * iflags,
+                          KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)p;
+    (void)s;
     (void)iflags;
     (void)fflags;
     double c_rad = pos->c*M_PI/180;
@@ -60,14 +67,15 @@ int kinematicsInverse(const EmcPose * pos,
     return 0;
 }
 
-int kinematicsJacobian(const double *joints,
-                       const EmcPose *pos,
-                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                       const KINEMATICS_INVERSE_FLAGS *iflags)
+static int rotate_jacobian(const kins_params *p, const double *joints,
+                           const EmcPose *pos,
+                           double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                           const KINEMATICS_INVERSE_FLAGS *iflags)
 {
     double c_rad = pos->c*M_PI/180;
     double cc = cos(c_rad), sc = sin(c_rad);
     int j, a;
+    (void)p;
     (void)joints;
     (void)iflags;
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
@@ -83,38 +91,40 @@ int kinematicsJacobian(const double *joints,
     return 0;
 }
 
-/* implemented for these kinematics as giving joints preference */
-int kinematicsHome(EmcPose * world,
-		   double *joint,
-		   KINEMATICS_FORWARD_FLAGS * fflags,
-		   KINEMATICS_INVERSE_FLAGS * iflags)
-{
-    *fflags = 0;
-    *iflags = 0;
+static const kins_ops rotate_ops = {
+    .forward  = rotate_forward,
+    .inverse  = rotate_inverse,
+    .jacobian = rotate_jacobian,
+};
 
-    return kinematicsForward(joint, world, fflags, iflags);
-}
+// no geometry; joints 0..8 are the nine letters in order, and the entry
+// points come from kins_single.c
+const kins_module_info kins_module = {
+    .name                 = "rotatekins",
+    .halprefix            = "rotatekins",
+    .params               = NULL,
+    .nparams              = 0,
+    .required_coordinates = "XYZABCUVW",
+    .max_joints           = 9,
+    .allow_duplicates     = 0,
+    .ntypes               = 1,
+    .ops                  = { &rotate_ops },
+};
 
-KINEMATICS_TYPE kinematicsType()
-{
-    return KINEMATICS_BOTH;
-}
-
-KINS_NOT_SWITCHABLE
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
 
 int comp_id;
 int rtapi_app_main(void) {
     comp_id = hal_init("rotatekins");
-    if(comp_id > 0) {
-	hal_ready(comp_id);
-	return 0;
+    if(comp_id < 0) return comp_id;
+
+    if (kinsSingleInit(comp_id, "XYZABCUVW", KINEMATICS_BOTH)) {
+        hal_exit(comp_id);
+        return -1;
     }
-    return comp_id;
+
+    hal_ready(comp_id);
+    return 0;
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }

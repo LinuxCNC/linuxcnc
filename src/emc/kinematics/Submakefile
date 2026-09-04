@@ -39,7 +39,8 @@ PYTARGETS += $(RDELTAMODULE)
 # in-tree ones link it.
 EMCKINEMATICSSRCS = \
 	../share/linuxcnc/switchkins.c \
-	../share/linuxcnc/kins_util.c
+	../share/linuxcnc/kins_util.c \
+	../share/linuxcnc/kins_single.c
 
 $(EMCKINEMATICSSRCS): ../share/linuxcnc/%.c: ./emc/kinematics/%.c
 	$(ECHO) Copying switchkins source $(notdir $@)
