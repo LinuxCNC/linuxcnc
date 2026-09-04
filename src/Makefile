@@ -777,7 +777,7 @@ ifeq ($(BUILD_GUI),yes)
 endif
 
 	$(FILE) ../src/hal/drivers/mesa-hostmot2/modbus/*.tmpl  $(DESTDIR)$(prefix)/share/linuxcnc/
-	$(FILE) ../src/emc/kinematics/switchkins.c ../src/emc/kinematics/kins_util.c ../src/emc/kinematics/kins_single.c $(DESTDIR)$(prefix)/share/linuxcnc/
+	$(FILE) ../src/emc/kinematics/switchkins.c ../src/emc/kinematics/switchkins_setup.c ../src/emc/kinematics/kins_util.c ../src/emc/kinematics/kins_single.c $(DESTDIR)$(prefix)/share/linuxcnc/
 
 install-kernel-indep: install-python
 install-python: install-dirs
