@@ -202,6 +202,60 @@ int kinematicsUserRefreshParams(KinematicsUserContext* ctx);
 int kinematicsUserIsRtOnly(KinematicsUserContext* ctx);
 
 /**
+ * The frames, as the module reports them: the work frame and the tool
+ * frame at a joint set, each against the machine (see kinematics.h).
+ *
+ * @return 0, or -1 if the module supplies no frame for the selected type
+ */
+int kinematicsUserWorkFrame(KinematicsUserContext* ctx, const double* joints,
+                            PmRotationMatrix* rot);
+int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
+                            PmRotationMatrix* rot);
+
+/**
+ * The tool frame inverse of kinematics.h, on the loaded module and the
+ * selected type: the joint sets that point the tool axis, and where given
+ * the tool x, along the directions asked for, in work coordinates.  Same
+ * arguments and answers as kinematicsToolFrameInverse().
+ */
+int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
+                                   const PmCartesian* axis_in_work,
+                                   const PmCartesian* x_in_work,
+                                   const double* seed,
+                                   unsigned int held,
+                                   double* solutions,
+                                   int max_solutions,
+                                   int* free_directions,
+                                   double* tool_spin);
+
+/**
+ * Which joints turn the work at the seed, a bit per joint; what a caller
+ * passes as held to keep the table still.  See toolFrameWorkJoints().
+ */
+int kinematicsUserWorkJoints(KinematicsUserContext* ctx, const double* seed,
+                             unsigned int* mask);
+
+/**
+ * The two rotaries that orient the tool, primary and secondary, told apart
+ * by which one carries the other's axis.  The sign of the secondary names
+ * the pose a five axis machine reaches a tool direction in.  Returns 0, or
+ * -1 where the machine has any number of orienting rotaries but two.
+ * See toolFrameOrientJoints().
+ */
+int kinematicsUserOrientJoints(KinematicsUserContext* ctx, const double* seed,
+                               int* primary, int* secondary);
+
+/**
+ * kinematicsUserInitSparm() from the value of [KINS] KINEMATICS as the
+ * HAL file hands it to loadrt: the module name first, then any of
+ * coordinates=, sparm= and kinstype=, in any order.
+ */
+KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
+                                                int num_joints,
+                                                int comp_id,
+                                                const char* prefix);
+
+/**
  * Free kinematics context
  *
  * @param ctx  Context to free

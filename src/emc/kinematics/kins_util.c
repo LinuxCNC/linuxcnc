@@ -562,6 +562,9 @@ int identityKinematicsToolFrame(const double *joints,
 #define TFS_ITERS      60
 #define TFS_FD_STEP     1e-6    // internal radians
 #define TFS_MOVED_TOL   1e-9    // frame difference that counts as movement
+#define TFS_PROBE_STEP  0.05    // joint units, to read a joint's own axis
+#define TFS_CARRY_STEP  40.0    // joint units, far enough to swing a carried axis
+#define TFS_CARRY_TOL   1e-6    // axes closer than this counted as the same
 #define TFS_RANK_TOL    1e-4    // a direction worth less than this is free
 #define TFS_SOLVED      1e-18   // sum of squared residuals
 #define TFS_STEP_LIMIT  0.4     // internal radians per iteration
@@ -967,6 +970,117 @@ static int tfs_spin(tfs_ctx *c, const double *joint,
     along_y = m.y.x*x_in_work->x + m.y.y*x_in_work->y + m.y.z*x_in_work->z;
 
     *spin = atan2(along_y, along_x);
+    return 0;
+}
+
+int toolFrameWorkJoints(kinsFrameFunc work, int num_joints,
+                        const double *seed, unsigned int *mask)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    PmRotationMatrix base, moved;
+    double joint[EMCMOT_MAX_JOINTS];
+    int i, j;
+
+    if (!work || !seed || !mask || num_joints <= 0 || num_joints > EMCMOT_MAX_JOINTS) {
+        return -1;
+    }
+    *mask = 0;
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joint[i] = (i < num_joints) ? seed[i] : 0; }
+    if (work(joint, &base, &fflags)) { return -1; }
+
+    // a step of one joint unit: a degree on every module in the tree, and
+    // a linear joint never turns a frame whatever its unit
+    for (j = 0; j < num_joints; j++) {
+        double diff = 0;
+        const double *a = &base.x.x, *b = &moved.x.x;
+
+        joint[j] = seed[j] + 1.0;
+        if (work(joint, &moved, &fflags)) { return -1; }
+        joint[j] = seed[j];
+        for (i = 0; i < 9; i++) { diff += fabs(a[i] - b[i]); }
+        if (diff > TFS_MOVED_TOL) { *mask |= 1u << j; }
+    }
+    return 0;
+}
+
+// The axis a joint turns the tool frame about, in machine coordinates: move
+// the joint a little and read the rotation that took the frame there.
+// Returns 0 and a unit axis where the joint turns the tool, 1 where it does
+// not, which is every linear joint and every joint the module ignores.
+static int tfs_joint_axis(kinsFrameFunc tool, const double *joint,
+                          int j, double step, double axis[3])
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    PmRotationMatrix r1, r2;
+    double moved[EMCMOT_MAX_JOINTS];
+    const double *a, *b;
+    double len;
+    int i;
+
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { moved[i] = joint[i]; }
+    moved[j] += step;
+    if (tool(joint, &r1, &fflags)) { return -1; }
+    if (tool(moved, &r2, &fflags)) { return -1; }
+
+    // The rotation from one frame to the other is r2 * transpose(r1), and
+    // the axis of a small rotation is the skew part of it.  Both matrices
+    // are columns of axes, so element (row, col) is (&r.x.x)[3*col + row].
+    a = &r1.x.x;
+    b = &r2.x.x;
+    axis[0] = axis[1] = axis[2] = 0;
+    for (i = 0; i < 3; i++) {
+        // m[2][1] - m[1][2], m[0][2] - m[2][0], m[1][0] - m[0][1]
+        axis[0] += b[3*i + 2] * a[3*i + 1] - b[3*i + 1] * a[3*i + 2];
+        axis[1] += b[3*i + 0] * a[3*i + 2] - b[3*i + 2] * a[3*i + 0];
+        axis[2] += b[3*i + 1] * a[3*i + 0] - b[3*i + 0] * a[3*i + 1];
+    }
+    len = sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2]);
+    if (len < 1e-9) { return 1; }
+    for (i = 0; i < 3; i++) { axis[i] /= len; }
+    return 0;
+}
+
+int toolFrameOrientJoints(kinsFrameFunc tool, int num_joints,
+                          const double *seed, int *primary, int *secondary)
+{
+    double joint[EMCMOT_MAX_JOINTS], elsewhere[EMCMOT_MAX_JOINTS];
+    double axis[3], turned[3];
+    int turns[2], count = 0, carried = -1;
+    int i, j, k, r;
+
+    if (!tool || !seed || !primary || !secondary
+        || num_joints <= 0 || num_joints > EMCMOT_MAX_JOINTS) {
+        return -1;
+    }
+    *primary = *secondary = -1;
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joint[i] = (i < num_joints) ? seed[i] : 0; }
+
+    for (j = 0; j < num_joints; j++) {
+        r = tfs_joint_axis(tool, joint, j, TFS_PROBE_STEP, axis);
+        if (r < 0) { return -1; }
+        if (r > 0) { continue; }
+        if (count >= 2) { return -1; }   // a wrist, not a head
+        turns[count++] = j;
+    }
+    if (count != 2) { return -1; }
+
+    // whichever axis swings when the other joint moves is the carried one
+    for (i = 0; i < 2; i++) {
+        j = turns[i];
+        k = turns[1 - i];
+        if (tfs_joint_axis(tool, joint, j, TFS_PROBE_STEP, axis) != 0) { return -1; }
+        for (r = 0; r < EMCMOT_MAX_JOINTS; r++) { elsewhere[r] = joint[r]; }
+        elsewhere[k] += TFS_CARRY_STEP;
+        if (tfs_joint_axis(tool, elsewhere, j, TFS_PROBE_STEP, turned) != 0) { return -1; }
+        if (fabs(axis[0]*turned[0] + axis[1]*turned[1] + axis[2]*turned[2] - 1.0)
+            > TFS_CARRY_TOL) {
+            if (carried >= 0) { return -1; }  // both carried: not a head
+            carried = j;
+        }
+    }
+    if (carried < 0) { return -1; }
+    *secondary = carried;
+    *primary = (turns[0] == carried) ? turns[1] : turns[0];
     return 0;
 }
 
