@@ -1,0 +1,3 @@
+#!/bin/sh
+[ "$(grep -c 'kins-twp: .* agrees' "$1")" = 2 ] \
+    && ! grep -q "FAIL" "$1"
