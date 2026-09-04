@@ -2041,28 +2041,45 @@ static void modify_hal_pins()
 	hal_set_bool(halui_data->joint_has_fault[joint], emcStatus->motion.joint[joint].fault);
     }
 
+    // the relative position: the offset chain taken off in reverse, the
+    // tool offset, G5x, the XY rotation, G92 and the tilted work plane
+    double rx = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+    double ry = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+    double rz = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.toolOffset.tran.z;
+    {
+      double t = -emcStatus->task.rotation_xy * TO_RAD;
+      double x = rx * cos(t) - ry * sin(t);
+      double y = ry * cos(t) + rx * sin(t);
+      rx = x - emcStatus->task.g92_offset.tran.x;
+      ry = y - emcStatus->task.g92_offset.tran.y;
+      rz -= emcStatus->task.g92_offset.tran.z;
+    }
+    if (emcStatus->task.g68_active) {
+      const double *r = emcStatus->task.g68_rotation;
+      double x = rx - emcStatus->task.g68_offset.tran.x;
+      double y = ry - emcStatus->task.g68_offset.tran.y;
+      double z = rz - emcStatus->task.g68_offset.tran.z;
+      rx = r[0]*x + r[3]*y + r[6]*z;
+      ry = r[1]*x + r[4]*y + r[7]*z;
+      rz = r[2]*x + r[5]*y + r[8]*z;
+    }
+
     if (axis_mask & 0x0001) {
       hal_set_real(halui_data->axis_pos_commanded[0], emcStatus->motion.traj.position.tran.x);
       hal_set_real(halui_data->axis_pos_feedback[0], emcStatus->motion.traj.actualPosition.tran.x);
-      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
-      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
-      x = x * cos(-emcStatus->task.rotation_xy * TO_RAD) - y * sin(-emcStatus->task.rotation_xy * TO_RAD);
-      hal_set_real(halui_data->axis_pos_relative[0], x - emcStatus->task.g92_offset.tran.x);
+      hal_set_real(halui_data->axis_pos_relative[0], rx);
     }
 
     if (axis_mask & 0x0002) {
       hal_set_real(halui_data->axis_pos_commanded[1], emcStatus->motion.traj.position.tran.y);
       hal_set_real(halui_data->axis_pos_feedback[1], emcStatus->motion.traj.actualPosition.tran.y);
-      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
-      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
-      y = y * cos(-emcStatus->task.rotation_xy * TO_RAD) + x * sin(-emcStatus->task.rotation_xy * TO_RAD);
-      hal_set_real(halui_data->axis_pos_relative[1], y - emcStatus->task.g92_offset.tran.y);
+      hal_set_real(halui_data->axis_pos_relative[1], ry);
     }
 
     if (axis_mask & 0x0004) {
       hal_set_real(halui_data->axis_pos_commanded[2], emcStatus->motion.traj.position.tran.z);
       hal_set_real(halui_data->axis_pos_feedback[2], emcStatus->motion.traj.actualPosition.tran.z);
-      hal_set_real(halui_data->axis_pos_relative[2], emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z - emcStatus->task.toolOffset.tran.z);
+      hal_set_real(halui_data->axis_pos_relative[2], rz);
     }
 
     if (axis_mask & 0x0008) {

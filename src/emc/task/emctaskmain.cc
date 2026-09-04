@@ -1538,6 +1538,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
@@ -1906,6 +1907,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
         retval = 0;
         break;
+
+    case EMC_TRAJ_SET_G68_TYPE: {
+        EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
+        emcStatus->task.g68_offset = g68->origin;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
+        emcStatus->task.g68_active = g68->active;
+        retval = 0;
+        break;
+    }
 
     case EMC_TRAJ_SET_G5X_TYPE:
 	// struct-copy program origin
@@ -2497,6 +2507,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:

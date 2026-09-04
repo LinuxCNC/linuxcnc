@@ -112,6 +112,16 @@ void SET_XY_ROTATION(double t) {
   ECHO_WITH_ARGS("%.4f", t);
 }
 
+void SET_G68_FRAME(double x, double y, double z,
+                   const double rotation[9], int active) {
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, "
+                 "[%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f], %d",
+                 x, y, z,
+                 rotation[0], rotation[1], rotation[2],
+                 rotation[3], rotation[4], rotation[5],
+                 rotation[6], rotation[7], rotation[8], active);
+}
+
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
