@@ -20,11 +20,19 @@
 #include <boost/python.hpp>
 using namespace boost::python;
 
+// the python module keeps one geometry, set from python
+static rotarydelta_geometry geometry;
+
+static void set_geometry(double pfr, double tl, double sl, double fr)
+{
+    rotarydelta_set_geometry(&geometry, pfr, tl, sl, fr);
+}
+
 static object forward(double j0, double j1, double j2)
 {
     double joints[9] = {j0, j1, j2};
     EmcPose pos;
-    int result = kinematics_forward(joints, &pos);
+    int result = rotarydelta_forward(&geometry, joints, &pos);
     if(result == 0)
         return make_tuple(pos.tran.x, pos.tran.y, pos.tran.z);
     return object();
@@ -34,7 +42,7 @@ static object inverse(double x, double y, double z)
 {
     double joints[9];
     EmcPose pos = {{x,y,z}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    int result = kinematics_inverse(&pos, joints);
+    int result = rotarydelta_inverse(&geometry, &pos, joints);
     if(result == 0)
         return make_tuple(joints[0], joints[1], joints[2]);
     return object();
@@ -42,7 +50,8 @@ static object inverse(double x, double y, double z)
 
 static object get_geometry()
 {
-    return make_tuple(platformradius, thighlength, shinlength, footradius);
+    return make_tuple(geometry.platformradius, geometry.thighlength,
+                      geometry.shinlength, geometry.footradius);
 }
 
 #pragma GCC diagnostic push
