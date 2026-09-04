@@ -9,8 +9,9 @@
  * The kinematics module is loaded into this process and evaluated through
  * its parameter block form (see kinematics.h).  The block is filled from
  * input pins belonging to the caller's HAL component, connected to the
- * same signals the running RT instance reads, and from motion's tool
- * offset pins where motion is loaded, so the maths runs on live values.
+ * same signals the running RT instance reads, so the maths runs on live
+ * values; the tool is the caller's where it gives one, and motion's
+ * otherwise, from motion's tool offset pins where motion is loaded.
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -86,6 +87,16 @@ int kinematicsUserSetType(KinematicsUserContext* ctx, int ktype);
  * How many kinematics types the module has (1 for one that does not switch).
  */
 int kinematicsUserGetNumTypes(KinematicsUserContext* ctx);
+
+/**
+ * The tool offset to evaluate with: what the caller knows the segment
+ * runs under, from canon or the tool table, rather than the offset the
+ * machine happens to have now.  It stands until replaced, or until NULL
+ * puts the context back to taking the tool from motion.
+ *
+ * @return 0, or -1 for an RT-only context
+ */
+int kinematicsUserSetTool(KinematicsUserContext* ctx, const EmcPose* tool);
 
 /**
  * Perform inverse kinematics (world coords -> joint positions)
