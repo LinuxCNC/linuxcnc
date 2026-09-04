@@ -120,7 +120,8 @@ static void write_block(int ktype)
     kinsParamsPinsWrite(pins, kp.params, kp.nparams, &rt_scratch[ktype]);
 }
 
-// the forward of one type, whichever way it was provided
+// the forward of one type, whichever way it was provided, from the pose
+// it is handed: no seeding, which is the caller's business
 static int call_forward(int ktype, const double *joint, EmcPose *pos,
                         const KINEMATICS_FORWARD_FLAGS *fflags,
                         KINEMATICS_INVERSE_FLAGS *iflags)
@@ -128,8 +129,8 @@ static int call_forward(int ktype, const double *joint, EmcPose *pos,
     int r;
     if (kops[ktype]) {
         read_block(ktype);
-        r = kinsOpsForward(kops[ktype], &rt_params, &rt_scratch[ktype],
-                           joint, pos, fflags, iflags);
+        r = kops[ktype]->forward(&rt_params, &rt_scratch[ktype],
+                                 joint, pos, fflags, iflags);
         write_block(ktype);
         return r;
     }
@@ -217,7 +218,14 @@ int kinematicsForward(const double *joint,
     }
 
     if (kops[switchkins_type]) {
-        r = call_forward(switchkins_type, joint, pos, fflags, iflags);
+        read_block(switchkins_type);
+        r = kinsOpsForward(kops[switchkins_type], &rt_params,
+                           &rt_scratch[switchkins_type],
+                           joint, pos, fflags, iflags);
+        write_block(switchkins_type);
+        // the gui forward below starts from here, as it did for the
+        // older form
+        if (kops[switchkins_type]->fwd_iterates) {save_lastpose(switchkins_type,pos);}
     } else {
         if (fwd_iterates[switchkins_type] && use_lastpose[switchkins_type]) {
             // initialize iterative forward kins (ok for identity too)
