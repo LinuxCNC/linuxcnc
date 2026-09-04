@@ -252,6 +252,7 @@ int kinematicsWorkFrame(const double *joint,
 int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
                                const PmCartesian *x_in_work,
                                const double *seed,
+                               unsigned int held,
                                double *solutions,
                                int max_solutions,
                                int *free_directions,
@@ -267,7 +268,7 @@ int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
     // a type that derived the answer by hand knows its own degenerate poses
     // and is faster than a search, so it wins where it exists
     if (ktinvs[switchkins_type]) {
-        return ktinvs[switchkins_type](axis_in_work, x_in_work, seed,
+        return ktinvs[switchkins_type](axis_in_work, x_in_work, seed, held,
                                        solutions, max_solutions,
                                        free_directions, tool_spin);
     }
@@ -276,7 +277,7 @@ int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
     // and the per-type lookup are already accounted for
     return toolFrameSolve(kinematicsWorkFrame, kinematicsToolFrame,
                           kp.max_joints,
-                          axis_in_work, x_in_work, seed,
+                          axis_in_work, x_in_work, seed, held,
                           solutions, max_solutions, free_directions,
                           tool_spin);
 } // kinematicsToolFrameInverse()
