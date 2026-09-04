@@ -26,7 +26,6 @@ chapter (docs/src/motion/switchkins.txt)
 
 """;
 // The fpin pin is not accessible in kinematics functions.
-// Use the *_setup() function for pins and params used by kinematics.
 pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
 option extra_setup;
@@ -49,22 +48,16 @@ FUNCTION(fdemo) {
    fpin_set(fpin + 1);
 }
 
-// the turn kinematics need no hal pins of their own
-static int turnKinematicsSetup(const int   comp_id,
-                               const char* coords,
-                               kparms*     kp)
+// the turn kinematics: no geometry, written as pure functions of the
+// parameter block (see kinematics.h)
+static int turn_forward(const kins_params *p, kins_scratch *s,
+                        const double *j,
+                        EmcPose * pos,
+                        const KINEMATICS_FORWARD_FLAGS * fflags,
+                        KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)comp_id;
-    (void)coords;
-    (void)kp;
-    return 0;
-} // turnKinematicsSetup()
-
-static int turnKinematicsForward(const double *j,
-                                 EmcPose * pos,
-                                 const KINEMATICS_FORWARD_FLAGS * fflags,
-                                 KINEMATICS_INVERSE_FLAGS * iflags)
-{
+    (void)p;
+    (void)s;
     (void)fflags;
     (void)iflags;
 
@@ -81,13 +74,16 @@ static int turnKinematicsForward(const double *j,
     pos->w = 0;
 
     return 0;
-} // turnKinematicsForward()
+} // turn_forward()
 
-static int turnKinematicsInverse(const EmcPose * pos,
-                                 double *j,
-                                 const KINEMATICS_INVERSE_FLAGS * iflags,
-                                 KINEMATICS_FORWARD_FLAGS * fflags)
+static int turn_inverse(const kins_params *p, kins_scratch *s,
+                        const EmcPose * pos,
+                        double *j,
+                        const KINEMATICS_INVERSE_FLAGS * iflags,
+                        KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)p;
+    (void)s;
     (void)iflags;
     (void)fflags;
 
@@ -97,51 +93,62 @@ static int turnKinematicsInverse(const EmcPose * pos,
     j[3] =  pos->a;
 
     return 0;
-} // turnKinematicsInverse()
+} // turn_inverse()
 
-static int turnKinematicsJacobian(const double *j,
-                                  const EmcPose * pos,
-                                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                                  const KINEMATICS_INVERSE_FLAGS * iflags)
+static int turn_jacobian(const kins_params *p, const double *j,
+                         const EmcPose * pos,
+                         double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                         const KINEMATICS_INVERSE_FLAGS * iflags)
 {
     int R, C;
+    (void)p;
     (void)j;
     (void)pos;
     (void)iflags;
     for (R = 0; R < EMCMOT_MAX_JOINTS; R++) {
         for (C = 0; C < EMCMOT_MAX_AXIS; C++) { jac[R][C] = 0; }
     }
-    // the derivative of turnKinematicsInverse(): which joint follows which
-    // pose coordinate, and in which sense
+    // the derivative of turn_inverse(): which joint follows which pose
+    // coordinate, and in which sense
     jac[2][0] =  1;
     jac[1][1] = -1;
     jac[0][2] =  1;
     jac[3][3] =  1;
     return 0;
-} // turnKinematicsJacobian()
+} // turn_jacobian()
+
+static const kins_ops turn_ops = {
+    .forward  = turn_forward,
+    .inverse  = turn_inverse,
+    .jacobian = turn_jacobian,
+};
+
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
+    kp->kinsname    = "millturn";
+    kp->halprefix   = "millturn";
+    kp->required_coordinates = "xyza";
+    kp->allow_duplicates     = 0;
+    kp->max_joints           = strlen(kp->required_coordinates);
+
+    switchkinsRegisterOps(0, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(1, &turn_ops);
+    return 0;
+} // switchkinsSetup()
 
 // halcompile has done hal_init() and does hal_ready() after this returns,
 // which is what switchkinsInit() expects
 EXTRA_SETUP() {
-    kparms kp = {0};
+    kparms kp;
     (void)__comp_inst; (void)prefix; (void)extra_arg;
 
-    kp.kinsname    = "millturn";
-    kp.halprefix   = "millturn";
-    kp.required_coordinates = "xyza";
-    kp.allow_duplicates     = 0;
-    kp.fwd_iterates_mask    = 0;
-    kp.gui_kinstype         = -1;
-    kp.sparm                = NULL;
-    kp.max_joints           = strlen(kp.required_coordinates);
-
-    if (switchkinsRegister(0, identityKinematicsSetup,
-                              identityKinematicsForward,
-                              identityKinematicsInverse)) { return -1; }
-    if (switchkinsRegister(1, turnKinematicsSetup,
-                              turnKinematicsForward,
-                              turnKinematicsInverse))     { return -1; }
-    if (switchkinsRegisterJacobian(1, turnKinematicsJacobian)) { return -1; }
-
+    if (switchkinsRunSetup(&kp, NULL)) { return -1; }
     return switchkinsInit(comp_id, &kp, coordinates);
 } // EXTRA_SETUP()
