@@ -199,6 +199,7 @@ void renderer_canon_register(pybind11::module_ &m);
 int arc_segments(const Point9 &lo, int plane,
                  double rotation_cos, double rotation_sin,
                  const Point9 &g5xoffset, const Point9 &g92offset,
+                 const WorkFrame &frame,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
@@ -359,6 +360,10 @@ public:
         g92_ = offsets;
     }
     void set_xy_rotation(double degrees) override;
+    void set_g68_frame(const WorkFrame &frame) override {
+        if(parse_state.interp_error) return;
+        frame_ = frame;
+    }
     // The plane reaches the record and the arc segmenter from here; nothing
     // on a rendered parse reads the canon's own copy.
     void set_plane(int plane) override { plane_ = plane; }
@@ -457,7 +462,7 @@ private:
     // positions to go with them.
     bool read_axes();
     void unrotate_xy(const Point9 &p, Point3 &out) const;
-    // g92 -> XY rotation -> g5x, the operations and the order
+    // work plane -> g92 -> XY rotation -> g5x, the operations and the order
     // `rs274.interpret.Translated.rotate_and_translate` applies - which is
     // where this came from, though that method no longer runs on a rendered
     // parse. Not bit-identical to it by construction: the compiler is free to
@@ -478,6 +483,7 @@ private:
     double rotation_sin_ = 0.0;
     double unrot_cos_ = 1.0;            // the same rotation, negated, for the
     double unrot_sin_ = 0.0;            // rotation-removed extents
+    WorkFrame frame_;                   // the tilted work plane, inside g92
 
     Point9 lo_ = {};                    // chain point
     Point9 tool_ = {};                  // xo..wo

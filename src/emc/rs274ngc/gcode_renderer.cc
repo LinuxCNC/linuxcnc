@@ -622,7 +622,9 @@ void GCodeRenderer::publish_line() {
 }
 
 void GCodeRenderer::transform(const Point9 &in, Point9 &out) const {
-    out = in + g92_;
+    out = in;
+    frame_.apply(out);
+    out += g92_;
     if(rotation_xy_ != 0.0) {
         double rotx = out[P9_X] * rotation_cos_ - out[P9_Y] * rotation_sin_;
         out[P9_Y] = out[P9_X] * rotation_sin_ + out[P9_Y] * rotation_cos_;
@@ -948,7 +950,7 @@ void GCodeRenderer::render_arc(int line_number, double first_end, double second_
     consumed_ = true;
     if(suppress_ > 0) return;
     arc_segments(lo_, plane_, rotation_cos_, rotation_sin_,
-                 g5x_, g92_, first_end, second_end,
+                 g5x_, g92_, frame_, first_end, second_end,
                  first_axis, second_axis, rotation,
                  axis_end_point, a, b, c, u, v, w,
                  arcdivision_, segs_);
@@ -984,6 +986,7 @@ static void rotate(double &x, double &y, double c, double s) {
 int arc_segments(const Point9 &lo, int plane,
                  double rotation_cos, double rotation_sin,
                  const Point9 &g5xoffset, const Point9 &g92offset,
+                 const WorkFrame &frame,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
@@ -1010,6 +1013,9 @@ int arc_segments(const Point9 &lo, int plane,
     o -= g5xoffset;
     unrotate(o[P9_X], o[P9_Y], rotation_cos, rotation_sin);
     o -= g92offset;
+    // the tilted work plane sits inside G92: off the last point on the way
+    // in, back on every point on the way out
+    frame.remove(o);
 
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
@@ -1048,10 +1054,12 @@ int arc_segments(const Point9 &lo, int plane,
         p[Y] = ty + cy;
         p[Z] = o[Z] + d[Z] * f;
         for(int j = P9_A; j < P9_COUNT; j++) p[j] = o[j] + d[j] * f;
+        frame.apply(p);
         p += g92offset;
         rotate(p[P9_X], p[P9_Y], rotation_cos, rotation_sin);
         p += g5xoffset;
     }
+    frame.apply(n);
     n += g92offset;
     rotate(n[P9_X], n[P9_Y], rotation_cos, rotation_sin);
     n += g5xoffset;

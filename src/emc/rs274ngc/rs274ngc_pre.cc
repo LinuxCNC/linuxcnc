@@ -1196,6 +1196,9 @@ int Interp::init()
   _setup.home_flag = false;
   _setup.input_flag = false;
   _setup.kinsSwitch_flag = false;
+  // the tilted work plane does not survive an abort or a program start;
+  // canon hears about it only if there was one
+  work_plane_cancel(&_setup);
   _setup.input_index = -1;
   _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
@@ -2698,6 +2701,12 @@ int Interp::on_abort(int reason, const char *message)
 
     reset();
     _setup.mdi_interrupt = false;
+
+    // the tilted work plane goes before the abort routine runs, so that
+    // routine can change coordinate systems as it likes.  Canon is told
+    // even when the read ahead had already cancelled it, since the message
+    // that would have said so died with the queue.
+    work_plane_cancel(&_setup, true);
 
     /* A thread's queued override restore is lost when abort clears the
        interpreter list, so re-assert the modal state here. */

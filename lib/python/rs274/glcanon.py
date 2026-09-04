@@ -1213,6 +1213,15 @@ class GlCanonDraw:
                 positions[X] = _x * math.cos(t) - _y * math.sin(t)
                 positions[Y] = _x * math.sin(t) + _y * math.cos(t)
                 positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
+                if s.g68_active:
+                    # the tilted work plane sits inside G92
+                    r = s.g68_rotation
+                    _x = positions[X] - s.g68_offset[X]
+                    _y = positions[Y] - s.g68_offset[Y]
+                    _z = positions[Z] - s.g68_offset[Z]
+                    positions[X] = r[0]*_x + r[3]*_y + r[6]*_z
+                    positions[Y] = r[1]*_x + r[4]*_y + r[7]*_z
+                    positions[Z] = r[2]*_x + r[5]*_y + r[8]*_z
             else:
                 positions = list(positions)
 
