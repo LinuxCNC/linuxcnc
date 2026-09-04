@@ -1141,15 +1141,27 @@ maxkins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += rotatekins.o
 rotatekins-objs := emc/kinematics/rotatekins.o
+rotatekins-objs += emc/kinematics/kins_util.o
+rotatekins-objs += emc/kinematics/kins_single.o
+rotatekins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += tripodkins.o
 tripodkins-objs := emc/kinematics/tripodkins.o
+tripodkins-objs += emc/kinematics/kins_util.o
+tripodkins-objs += emc/kinematics/kins_single.o
+tripodkins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += corexykins.o
 corexykins-objs := emc/kinematics/corexykins.o
+corexykins-objs += emc/kinematics/kins_util.o
+corexykins-objs += emc/kinematics/kins_single.o
+corexykins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += lineardeltakins.o
 lineardeltakins-objs := emc/kinematics/lineardeltakins.o
+lineardeltakins-objs += emc/kinematics/kins_util.o
+lineardeltakins-objs += emc/kinematics/kins_single.o
+lineardeltakins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += pentakins.o
 pentakins-objs := emc/kinematics/pentakins.o
@@ -1158,14 +1170,23 @@ pentakins-objs += $(MATHSTUB)
 
 obj-m += rotarydeltakins.o
 rotarydeltakins-objs := emc/kinematics/rotarydeltakins.o
+rotarydeltakins-objs += emc/kinematics/kins_util.o
+rotarydeltakins-objs += emc/kinematics/kins_single.o
+rotarydeltakins-objs += emc/kinematics/kins_single_module.o
 rotarydeltakins-objs += libposemath/_posemath.o
 rotarydeltakins-objs += $(MATHSTUB)
 
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
+rosekins-objs += emc/kinematics/kins_util.o
+rosekins-objs += emc/kinematics/kins_single.o
+rosekins-objs += emc/kinematics/kins_single_module.o
 
 obj-m += scorbot-kins.o
 scorbot-kins-objs := emc/kinematics/scorbot-kins.o
+scorbot-kins-objs += emc/kinematics/kins_util.o
+scorbot-kins-objs += emc/kinematics/kins_single.o
+scorbot-kins-objs += emc/kinematics/kins_single_module.o
 
 ifeq ($(origin userkfuncs), undefined)
   # use template:
@@ -1251,6 +1272,12 @@ three21kins-objs += emc/kinematics/switchkins.o
 three21kins-objs += emc/kinematics/switchkins_main.o
 three21kins-objs += emc/kinematics/switchkins_setup.o
 three21kins-objs += $(USERKFUNCS)
+
+obj-m += kins_single_core.o
+kins_single_core-objs := emc/kinematics/kins_single_core.o
+kins_single_core-objs += emc/kinematics/kins_single.o
+kins_single_core-objs += emc/kinematics/kins_util.o
+kins_single_core-objs += $(MATHSTUB)
 
 obj-m += switchkins_core.o
 switchkins_core-objs := emc/kinematics/switchkins_core.o
@@ -1432,6 +1459,7 @@ endif
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
 ../rtlib/switchkins_core$(MODULE_EXT): $(addprefix objects/rt,$(switchkins_core-objs))
+../rtlib/kins_single_core$(MODULE_EXT): $(addprefix objects/rt,$(kins_single_core-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
