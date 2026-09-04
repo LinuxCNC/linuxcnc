@@ -18,52 +18,67 @@
 #include <rtapi_app.h>
 #include <hal.h>
 #include <kinematics.h>
+#include <kins_rt.h>
 
 #include "lineardeltakins-common.h"
 
-static struct haldata
-{
-    hal_real_t r;
-    hal_real_t l;
-} *haldata;
+// the two lengths, one pin each
+static const kins_param_desc ld_params[] = {
+    { "R", KINS_PARAM_FLOAT, KINS_IN, 0, DELTA_RADIUS },
+    { "L", KINS_PARAM_FLOAT, KINS_IN, 0, DELTA_DIAGONAL_ROD },
+};
+enum { P_R, P_L };
 
 static int comp_id;
 
-int kinematicsForward(const double * joints,
+// the tower positions follow from the block's two lengths
+static void geometry_of(const kins_params *p, lineardelta_geometry *g)
+{
+    lineardelta_set_geometry(g, p->geometry[P_R], p->geometry[P_L]);
+}
+
+static int ld_forward(const kins_params *p, kins_scratch *s,
+                      const double * joints,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
+    lineardelta_geometry g;
+    (void)s;
     (void)fflags;
     (void)iflags;
-    set_geometry(hal_get_real(haldata->r), hal_get_real(haldata->l));
-    return kinematics_forward(joints, pos);
+    geometry_of(p, &g);
+    return lineardelta_forward(&g, joints, pos);
 }
 
-int kinematicsInverse(const EmcPose *pos, double *joints,
-        const KINEMATICS_INVERSE_FLAGS *iflags,
-        KINEMATICS_FORWARD_FLAGS *fflags) {
+static int ld_inverse(const kins_params *p, kins_scratch *s,
+                      const EmcPose *pos, double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags) {
+    lineardelta_geometry g;
+    (void)s;
     (void)iflags;
     (void)fflags;
-    set_geometry(hal_get_real(haldata->r), hal_get_real(haldata->l));
-    return kinematics_inverse(pos, joints);
+    geometry_of(p, &g);
+    return lineardelta_inverse(&g, pos, joints);
 }
 
-int kinematicsJacobian(const double *joints,
+static int ld_jacobian(const kins_params *p, const double *joints,
                        const EmcPose *pos,
                        double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
                        const KINEMATICS_INVERSE_FLAGS *iflags) {
+    lineardelta_geometry g;
     double x = pos->tran.x, y = pos->tran.y, z = pos->tran.z;
     int i, j, a;
     (void)iflags;
-    set_geometry(hal_get_real(haldata->r), hal_get_real(haldata->l));
+    geometry_of(p, &g);
     for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
         for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
     }
     // each carriage is the platform height plus the rise of its rod, and
     // the rise changes with the horizontal offset from the tower
     for (i = 0; i < 3; i++) {
-        double tx = (i == 0) ? Ax : (i == 1) ? Bx : Cx;
-        double ty = (i == 0) ? Ay : (i == 1) ? By : Cy;
+        double tx = (i == 0) ? g.Ax : (i == 1) ? g.Bx : g.Cx;
+        double ty = (i == 0) ? g.Ay : (i == 1) ? g.By : g.Cy;
         double rise = joints[i] - z;
         if (rise <= 0) { return -1; }
         jac[i][0] = (tx - x)/rise;
@@ -74,32 +89,38 @@ int kinematicsJacobian(const double *joints,
     return 0;
 }
 
-KINEMATICS_TYPE kinematicsType()
-{
-    return KINEMATICS_BOTH;
-}
+static const kins_ops ld_ops = {
+    .forward  = ld_forward,
+    .inverse  = ld_inverse,
+    .jacobian = ld_jacobian,
+};
+
+// three towers for the three linear coordinates, the rest passed
+// through; the entry points come from kins_single.c
+const kins_module_info kins_module = {
+    .name                 = "lineardeltakins",
+    .halprefix            = "lineardeltakins",
+    .params               = ld_params,
+    .nparams              = sizeof(ld_params)/sizeof(ld_params[0]),
+    .required_coordinates = "XYZABCUVW",
+    .max_joints           = 9,
+    .allow_duplicates     = 0,
+    .ntypes               = 1,
+    .ops                  = { &ld_ops },
+};
 
 int rtapi_app_main(void)
 {
-    int retval;
-
     comp_id = hal_init("lineardeltakins");
     if(comp_id < 0) return comp_id;
 
-    haldata = hal_malloc(sizeof(*haldata));
-    if(!haldata) { retval = -ENOMEM; goto error; }
-
-    if((retval = hal_pin_new_real(comp_id, HAL_IN, &haldata->r, DELTA_RADIUS, "lineardeltakins.R")) < 0)
-        goto error;
-    if((retval = hal_pin_new_real(comp_id, HAL_IN, &haldata->l, DELTA_DIAGONAL_ROD, "lineardeltakins.L")) < 0)
-        goto error;
+    if (kinsSingleInit(comp_id, "XYZABCUVW", KINEMATICS_BOTH)) {
+        hal_exit(comp_id);
+        return -1;
+    }
 
     hal_ready(comp_id);
     return 0;
-
-error:
-    hal_exit(comp_id);
-    return retval;
 }
 
 void rtapi_app_exit(void)
@@ -107,9 +128,4 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-KINS_NOT_SWITCHABLE
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsJacobian);
 MODULE_LICENSE("GPL");
