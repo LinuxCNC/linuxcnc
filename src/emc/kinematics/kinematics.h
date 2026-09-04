@@ -504,6 +504,7 @@ typedef struct kins_scratch {
     int      have_joint_seed;
     int      iterations;
     int      failed;
+    double   aux[8];                          /* whatever else a module carries between calls */
     double   out[KINS_MAX_PARAMS];            /* the table's KINS_OUT entries */
 } kins_scratch;
 
@@ -668,56 +669,10 @@ extern int userkKinematicsInverse(const struct EmcPose * world,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
 #endif
 //*********************************************************************
-// xyzac,xyzbc;
-extern int trtKinematicsSetup(const int   comp_id,
-                              const char* coordinates,
-                              kparms*     ksetup_parms);
-
-extern int xyzacKinematicsForward(const double *joints,
-                                  EmcPose * pos,
-                                  const KINEMATICS_FORWARD_FLAGS * fflags,
-                                  KINEMATICS_INVERSE_FLAGS * iflags);
-
-extern int xyzacKinematicsInverse(const EmcPose * pos,
-                                  double *joints,
-                                  const KINEMATICS_INVERSE_FLAGS * iflags,
-                                  KINEMATICS_FORWARD_FLAGS * fflags);
-
-extern int xyzacKinematicsToolFrame(const double *joints,
-                                   PmRotationMatrix *rot,
-                                   const KINEMATICS_FORWARD_FLAGS *fflags);
-
-extern int xyzacKinematicsWorkFrame(const double *joints,
-                                   PmRotationMatrix *rot,
-                                   const KINEMATICS_FORWARD_FLAGS *fflags);
-
-extern int xyzacKinematicsJacobian(const double *joints,
-                                   const EmcPose *pos,
-                                   double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                                   const KINEMATICS_INVERSE_FLAGS *iflags);
-
-
-extern int xyzbcKinematicsForward(const double *joints,
-                                  EmcPose * pos,
-                                  const KINEMATICS_FORWARD_FLAGS * fflags,
-                                  KINEMATICS_INVERSE_FLAGS * iflags);
-
-extern int xyzbcKinematicsInverse(const EmcPose * pos,
-                                  double *joints,
-                                  const KINEMATICS_INVERSE_FLAGS * iflags,
-                                  KINEMATICS_FORWARD_FLAGS * fflags);
-
-extern int xyzbcKinematicsToolFrame(const double *joints,
-                                   PmRotationMatrix *rot,
-                                   const KINEMATICS_FORWARD_FLAGS *fflags);
-
-extern int xyzbcKinematicsWorkFrame(const double *joints,
-                                   PmRotationMatrix *rot,
-                                   const KINEMATICS_FORWARD_FLAGS *fflags);
-
-extern int xyzbcKinematicsJacobian(const double *joints,
-                                   const EmcPose *pos,
-                                   double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
-                                   const KINEMATICS_INVERSE_FLAGS *iflags);
+// xyzac,xyzbc (trtfuncs.c): one geometry table, the maths of each machine
+extern const kins_param_desc TRT_PARAMS[];
+extern const int TRT_NPARAMS;
+extern const kins_ops XYZAC_OPS;
+extern const kins_ops XYZBC_OPS;
 
 //*********************************************************************
