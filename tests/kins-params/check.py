@@ -128,6 +128,35 @@ if r_jac == 0 and rc_jac == 0:
         for a, n in enumerate("xyzabcuvw"):
             compare("jacobian [%d][%s]" % (j, n), J[j][a], hal.get_value("paritycheck.jac-%d-%s" % (j, n)))
 
+# the caller's tool wins over the module's pin: for a module with a tool
+# entry, a length of the caller's must move the inverse, and handing the
+# tool back to HAL must return it to what realtime found
+kins.kinematicsUserSetTool.argtypes = [ctypes.c_void_p, ctypes.POINTER(EmcPose)]
+tool_pin = None
+for name in ("tool-offset", "tool-offset-z"):
+    try:
+        hal.get_value("%s.%s" % (module, name))
+        tool_pin = name
+    except RuntimeError:
+        pass
+if r_inv == 0 and rc_inv == 0 and tool_pin:
+    P = pose_of(pose_in) if frompose else F
+    T = pose_of([0.0] * AXES)
+    T.z = hal.get_value("%s.%s" % (module, tool_pin)) + 10.0
+    kins.kinematicsUserSetTool(ctx, ctypes.byref(T))
+    qt = Joints(*jnt_in)
+    if kins.kinematicsUserInverse(ctx, ctypes.byref(P), qt) != 0:
+        fail("inverse with the caller's tool")
+    elif all(close(qt[j], qi[j]) for j in range(joints)):
+        fail("the caller's tool did not move the inverse")
+    kins.kinematicsUserSetTool(ctx, None)
+    qt = Joints(*jnt_in)
+    if kins.kinematicsUserInverse(ctx, ctypes.byref(P), qt) != 0:
+        fail("inverse with the tool handed back")
+    else:
+        for j in range(joints):
+            compare("inverse joint %d after the tool is handed back" % j, qt[j], qi[j])
+
 kins.kinematicsUserFree(ctx)
 halc.hal_exit(comp_id)
 
