@@ -42,6 +42,9 @@ jnt_in = [float(v) for v in sys.argv[7].split(",")]
 if coords == "-":
     coords = ""
 sparm = sys.argv[8].encode() if len(sys.argv) > 8 and sys.argv[8] not in ("", "-") else None
+# the orientation joints this machine is known to have, "primary,secondary";
+# "-" where it has no such pair, "no-frame" where it reports no tool frame
+orient_in = sys.argv[9] if len(sys.argv) > 9 else "no-frame"
 pose_in += [0.0] * (AXES - len(pose_in))
 jnt_in += [0.0] * (MAX_JOINTS - len(jnt_in))
 
@@ -156,6 +159,29 @@ if r_inv == 0 and rc_inv == 0 and tool_pin:
     else:
         for j in range(joints):
             compare("inverse joint %d after the tool is handed back" % j, qt[j], qi[j])
+
+# the two rotaries that orient the tool, told apart by which carries the
+# other.  The sign of the secondary is what G53.1 P names, so a module that
+# gets this wrong sends the machine to the other pose without saying so.
+kins.kinematicsUserOrientJoints.argtypes = [ctypes.c_void_p, Joints,
+                                            ctypes.POINTER(ctypes.c_int),
+                                            ctypes.POINTER(ctypes.c_int)]
+primary, secondary = ctypes.c_int(-1), ctypes.c_int(-1)
+r_orient = kins.kinematicsUserOrientJoints(ctx, Joints(*jnt_in),
+                                           ctypes.byref(primary), ctypes.byref(secondary))
+class Rot(ctypes.Structure):
+    _fields_ = [(n, ctypes.c_double * 3) for n in "xyz"]
+kins.kinematicsUserToolFrame.argtypes = [ctypes.c_void_p, Joints, ctypes.POINTER(Rot)]
+frame = Rot()
+has_frame = kins.kinematicsUserToolFrame(ctx, Joints(*jnt_in), ctypes.byref(frame)) == 0
+if r_orient == 0:
+    got = "%d,%d" % (primary.value, secondary.value)
+else:
+    got = "-" if has_frame else "no-frame"
+if got != orient_in:
+    fail("orientation joints are %s, expected %s" % (got, orient_in))
+else:
+    print("kins-params: %s type %d orientation joints %s" % (module, ktype, got))
 
 kins.kinematicsUserFree(ctx)
 halc.hal_exit(comp_id)
