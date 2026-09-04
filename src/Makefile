@@ -787,7 +787,7 @@ ifeq ($(BUILD_GUI),yes)
 	$(FILE) ../share/gtksourceview-4/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-4/language-specs/
 endif
 
-	$(FILE) ../src/emc/kinematics/switchkins.c ../src/emc/kinematics/kins_util.c ../src/emc/kinematics/kins_single.c $(DESTDIR)$(prefix)/share/linuxcnc/
+	$(FILE) ../src/emc/kinematics/switchkins.c ../src/emc/kinematics/switchkins_setup.c ../src/emc/kinematics/kins_util.c ../src/emc/kinematics/kins_single.c $(DESTDIR)$(prefix)/share/linuxcnc/
 
 install-kernel-indep: install-python
 install-python: install-dirs
