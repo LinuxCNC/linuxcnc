@@ -351,6 +351,30 @@ typedef int (*kinsFrameFunc)(const double *joint,
                              PmRotationMatrix *rot,
                              const KINEMATICS_FORWARD_FLAGS *fflags);
 
+/* Which joints turn the work: a bit per joint whose motion changes the
+   work frame at the seed.  This is what a caller needs to hold the table
+   still while the head orients the tool (Heidenhain COORD ROT), or to let
+   it take part (TABLE ROT), without a config entry naming it.  Returns 0
+   or -1 if the frame cannot be evaluated. */
+extern int toolFrameWorkJoints(kinsFrameFunc work, int num_joints,
+                               const double *seed, unsigned int *mask);
+
+/* The two rotaries that orient the tool, told apart.  One has its axis
+   fixed in the machine frame, the primary, and the other has its axis
+   carried by the first, the secondary.  The two poses that reach one tool
+   direction differ in the sign of the secondary, which is what a caller
+   needs to name a pose rather than count them, Heidenhain's SEQ+ and SEQ-.
+
+   Both are found from the module's own tool frame, by turning each joint a
+   little and reading the axis of the rotation that results, so a module
+   declares nothing and a switchkins type that turns nothing answers -1.
+   Returns 0 with both joints set, or -1 where the machine has any number
+   of orienting rotaries but two, a robot wrist among them, or where the
+   frame cannot be evaluated. */
+extern int toolFrameOrientJoints(kinsFrameFunc tool, int num_joints,
+                                 const double *seed,
+                                 int *primary, int *secondary);
+
 extern int toolFrameSolve(kinsFrameFunc work,
                           kinsFrameFunc tool,
                           int num_joints,

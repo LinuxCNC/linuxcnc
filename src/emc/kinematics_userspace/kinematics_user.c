@@ -575,6 +575,149 @@ int kinematicsUserIsRtOnly(KinematicsUserContext* ctx)
     return ctx->rt_only;
 }
 
+/* ========================================================================
+ * Frames and the tool frame inverse
+ *
+ * toolFrameSolve() drives a pair of frame functions that take joints alone,
+ * the shape the RT modules export; the block form takes the parameters as
+ * well.  The context the solver is running for is parked in a file static
+ * for the duration of the call, which is fine for the single threaded
+ * callers this has (the interpreter, a planner), and would not be for two
+ * threads solving at once.
+ * ======================================================================== */
+
+static KinematicsUserContext *frame_ctx;
+
+static int frame_work(const double *joint, PmRotationMatrix *rot,
+                      const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    KinematicsUserContext *ctx = frame_ctx;
+    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, joint, rot, fflags);
+}
+
+static int frame_tool(const double *joint, PmRotationMatrix *rot,
+                      const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    KinematicsUserContext *ctx = frame_ctx;
+    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, joint, rot, fflags);
+}
+
+static void pad_joints(KinematicsUserContext *ctx, const double *in, double *out)
+{
+    int i;
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        out[i] = (i < ctx->num_joints) ? in[i] : 0.0;
+    }
+}
+
+int kinematicsUserWorkFrame(KinematicsUserContext* ctx, const double* joints,
+                            PmRotationMatrix* rot)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    double j[EMCMOT_MAX_JOINTS];
+
+    if (!ctx || !ctx->initialized || ctx->rt_only || !joints || !rot) return -1;
+    refresh(ctx);
+    pad_joints(ctx, joints, j);
+    return kinsOpsWorkFrame(ctx->info.ops[ctx->ktype], &ctx->params, j, rot, &fflags);
+}
+
+int kinematicsUserToolFrame(KinematicsUserContext* ctx, const double* joints,
+                            PmRotationMatrix* rot)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    double j[EMCMOT_MAX_JOINTS];
+
+    if (!ctx || !ctx->initialized || ctx->rt_only || !joints || !rot) return -1;
+    refresh(ctx);
+    pad_joints(ctx, joints, j);
+    return kinsOpsToolFrame(ctx->info.ops[ctx->ktype], &ctx->params, j, rot, &fflags);
+}
+
+int kinematicsUserToolFrameInverse(KinematicsUserContext* ctx,
+                                   const PmCartesian* axis_in_work,
+                                   const PmCartesian* x_in_work,
+                                   const double* seed,
+                                   unsigned int held,
+                                   double* solutions,
+                                   int max_solutions,
+                                   int* free_directions,
+                                   double* tool_spin)
+{
+    double j[EMCMOT_MAX_JOINTS];
+    int found;
+
+    if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
+    if (!ctx->info.ops[ctx->ktype]->work || !ctx->info.ops[ctx->ktype]->tool) return -1;
+    refresh(ctx);
+    pad_joints(ctx, seed, j);
+    frame_ctx = ctx;
+    found = toolFrameSolve(frame_work, frame_tool, ctx->num_joints,
+                           axis_in_work, x_in_work, j, held,
+                           solutions, max_solutions, free_directions, tool_spin);
+    frame_ctx = NULL;
+    return found;
+}
+
+int kinematicsUserWorkJoints(KinematicsUserContext* ctx, const double* seed,
+                             unsigned int* mask)
+{
+    double j[EMCMOT_MAX_JOINTS];
+    int r;
+
+    if (!ctx || !ctx->initialized || ctx->rt_only || !seed || !mask) return -1;
+    if (!ctx->info.ops[ctx->ktype]->work) return -1;
+    refresh(ctx);
+    pad_joints(ctx, seed, j);
+    frame_ctx = ctx;
+    r = toolFrameWorkJoints(frame_work, ctx->num_joints, j, mask);
+    frame_ctx = NULL;
+    return r;
+}
+
+int kinematicsUserOrientJoints(KinematicsUserContext* ctx, const double* seed,
+                               int* primary, int* secondary)
+{
+    double j[EMCMOT_MAX_JOINTS];
+    int r;
+
+    if (!ctx || !ctx->initialized || ctx->rt_only || !seed || !primary || !secondary) return -1;
+    if (!ctx->info.ops[ctx->ktype]->tool) return -1;
+    refresh(ctx);
+    pad_joints(ctx, seed, j);
+    frame_ctx = ctx;
+    r = toolFrameOrientJoints(frame_tool, ctx->num_joints, j, primary, secondary);
+    frame_ctx = NULL;
+    return r;
+}
+
+KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
+                                                int num_joints,
+                                                int comp_id,
+                                                const char* prefix)
+{
+    char buf[256], *tok, *save = NULL;
+    char module[64] = "", coords[64] = "", sparm[64] = "";
+
+    if (!kinematics) return NULL;
+    snprintf(buf, sizeof(buf), "%s", kinematics);
+    for (tok = strtok_r(buf, " \t", &save); tok; tok = strtok_r(NULL, " \t", &save)) {
+        if (!module[0]) {
+            snprintf(module, sizeof(module), "%s", tok);
+        } else if (!strncmp(tok, "coordinates=", 12)) {
+            snprintf(coords, sizeof(coords), "%s", tok + 12);
+        } else if (!strncmp(tok, "sparm=", 6)) {
+            snprintf(sparm, sizeof(sparm), "%s", tok + 6);
+        }
+        /* kinstype= and anything else is the RT loader's business */
+    }
+    if (!module[0]) return NULL;
+    return kinematicsUserInitSparm(module, num_joints,
+                                   coords[0] ? coords : NULL,
+                                   sparm[0] ? sparm : NULL,
+                                   comp_id, prefix);
+}
+
 void kinematicsUserFree(KinematicsUserContext* ctx)
 {
     int i;
