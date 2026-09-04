@@ -283,6 +283,12 @@ extern int toolFrameIsProper(const PmRotationMatrix *m);
    and gets the two head solutions and the spin about the tool that finishes
    the frame.
 
+   The request is normalised on the way in: axis_in_work is scaled to unit
+   length and x_in_work has its component along the axis removed, so the
+   rounded numbers a program carries do not make an orientation unreachable.
+   A zero vector, or a tool x within a millionth of a radian of lying along
+   the axis, is still refused, since neither describes a frame.
+
    solutions receives max_solutions complete sets of joint values, one after
    another, each num_joints long.  free_directions, if not NULL, receives one
    entry per solution: 0 where the joints are pinned down, and n where the
