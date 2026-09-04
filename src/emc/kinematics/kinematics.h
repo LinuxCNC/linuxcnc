@@ -272,6 +272,17 @@ extern int toolFrameIsProper(const PmRotationMatrix *m);
    breaks the tie where a machine has more orientation joints than the request
    constrains.
 
+   held is a bit per joint, bit n for joint n, naming the joints the caller
+   does not want moved; they keep their seed value and the request is solved
+   with the rest.  Zero lets every joint that turns the tool take part.  This
+   is the caller's policy and not the module's: a table rotary turns the tool
+   against the work as surely as a head rotary does, so with nothing held a
+   machine with a table and a two axis head has a spare orientation joint, and
+   a bare tool axis leaves a family.  A tilted work plane that keeps the table
+   where it is, as the TWP remap does and as Heidenhain's M138 says, holds it
+   and gets the two head solutions and the spin about the tool that finishes
+   the frame.
+
    solutions receives max_solutions complete sets of joint values, one after
    another, each num_joints long.  free_directions, if not NULL, receives one
    entry per solution: 0 where the joints are pinned down, and n where the
@@ -295,6 +306,7 @@ extern int toolFrameIsProper(const PmRotationMatrix *m);
 extern int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
                                       const PmCartesian *x_in_work,
                                       const double *seed,
+                                      unsigned int held,
                                       double *solutions,
                                       int max_solutions,
                                       int *free_directions,
@@ -316,6 +328,7 @@ extern int toolFrameSolve(kinsFrameFunc work,
                           const PmCartesian *axis_in_work,
                           const PmCartesian *x_in_work,
                           const double *seed,
+                          unsigned int held,
                           double *solutions,
                           int max_solutions,
                           int *free_directions,
