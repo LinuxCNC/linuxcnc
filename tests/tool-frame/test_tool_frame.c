@@ -535,6 +535,52 @@ int main(void)
             check(n == 0, "and refuses if it does not");
         }
 
+        /* the request as a program writes it: a direction to six digits is
+           not a unit vector, and must not be unreachable for that */
+        {
+            PmCartesian rounded, unit;
+            double len;
+
+            want = in_work(xyzacWork, identityFrame, truth);
+            rounded.x = floor(want.z.x*1e6 + 0.5)/1e6;
+            rounded.y = floor(want.z.y*1e6 + 0.5)/1e6;
+            rounded.z = floor(want.z.z*1e6 + 0.5)/1e6;
+            len = sqrt(rounded.x*rounded.x + rounded.y*rounded.y + rounded.z*rounded.z);
+            unit.x = rounded.x/len; unit.y = rounded.y/len; unit.z = rounded.z/len;
+            check(fabs(len - 1.0) > 1e-9, "the rounded request is off unit length");
+
+            n = toolFrameSolve(xyzacWork, identityFrame, 5, &rounded, NULL, seed,
+                               0, sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+            check(n == 2, "a rounded axis is solved");
+            for (i = 0; i < n; i++) {
+                check(axis_matches(xyzacWork, identityFrame, sols + i*5, &unit),
+                      "to the direction it names");
+            }
+
+            /* a tool x off right angles by rounding is taken, a zero axis is not */
+            {
+                double head_seed[5] = {0, 0, 0, 10, 5};
+                PmRotationMatrix f = in_work(identityFrame, headTool, truth);
+                PmCartesian x_off;
+                const double c_s = cos(30*DEG), s_s = sin(30*DEG);
+                /* an x the head cannot make, turned 30 degrees about the
+                   axis, then nudged off right angles by rounding */
+                x_off.x = c_s*f.x.x + s_s*f.y.x + 1e-8*f.z.x;
+                x_off.y = c_s*f.x.y + s_s*f.y.y + 1e-8*f.z.y;
+                x_off.z = c_s*f.x.z + s_s*f.y.z + 1e-8*f.z.z;
+                axis = f.z;
+                n = toolFrameSolve(identityFrame, headTool, 5, &axis, &x_off,
+                                   head_seed, 0, sols, TOOL_FRAME_MAX_SOLUTIONS,
+                                   free_dirs, spin);
+                check(n == 2, "a tool x off right angles by rounding is taken");
+                check(n == 2 && spin[0] != 0.0, "and answered with a turn about the tool");
+            }
+            rounded.x = 0; rounded.y = 0; rounded.z = 0;
+            check(toolFrameSolve(xyzacWork, identityFrame, 5, &rounded, NULL, seed,
+                                 0, sols, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin) == -1,
+                  "a zero vector is refused");
+        }
+
 
         /* Asking a five axis machine for tool x as well.  Its two rotaries are
            spent on the tool axis and the turn about that axis is not a joint,
