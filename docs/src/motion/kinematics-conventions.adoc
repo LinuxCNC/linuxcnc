@@ -207,6 +207,16 @@ names. A machine with no such pin has no say in the matter: its tool X is
 whatever the chain produces, and a consumer that needs a defined one applies
 the rotation itself.
 
+The frame a module reports is the joints' alone and does not carry the virtual
+rotation. The rotation is a rotation of the coordinate system, not of the
+machine, and that is where the other controls keep it: Heidenhain's
+`COORD ROT` rotates the working plane, Fanuc's `G68.2` feature coordinate
+system carries its own X, Siemens' swivel puts the residual turn in the frame.
+Reporting the joints alone also keeps the orientation inverse honest: the turn
+it reports about the tool axis is then the value to apply, not a difference
+from whatever is applied already. A consumer that wants tool X as programmed,
+a preview or a model, multiplies the frame by the rotation on the pin.
+
 [IMPORTANT]
 By default, tool X lies parallel to the machine XY plane. Where the tool axis
 is vertical and that leaves tool X free, tool X is machine X. `G68.3 R` rotates
