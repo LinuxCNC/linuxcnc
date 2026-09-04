@@ -580,8 +580,9 @@ int switchkinsDeclare(int ktype, int flags);
 ----
 
 G-code reads these declarations: 'G13.1' and 'G49' cancel to the
-kinstype declared KINSTYPE_MACHINE, and 'G43.4' switches to the kinstype
-declared KINSTYPE_PRIMARY, whatever their numbers, so a module whose
+kinstype declared KINSTYPE_MACHINE, 'G53.5' moves in its world, and
+'G43.4' switches to the kinstype declared KINSTYPE_PRIMARY, whatever
+their numbers, so a module whose
 kinematics are not in the conventional order still gets working
 spellings.  The machine frame type is the machine with the orientation
 left out, XYZ the pivot in machine coordinates and the rotary letters
