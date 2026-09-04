@@ -217,9 +217,28 @@ static int holds(const double *sols, int count, int njoints,
     return 0;
 }
 
+/* the joints that turn the work, read off the work frame rather than
+   declared, so that a caller can hold the table without naming it */
+static void test_work_joints(void)
+{
+    const double seed[6] = {0, 0, 0, 10, 20, 30};
+    unsigned int mask = 99;
+
+    check(toolFrameWorkJoints(xyzacWork, 5, seed, &mask) == 0 && mask == ((1u << 3) | (1u << 4)),
+          "xyzac: both rotaries carry the work");
+    check(toolFrameWorkJoints(identityFrame, 5, seed, &mask) == 0 && mask == 0,
+          "a head machine: nothing turns the work");
+    check(toolFrameWorkJoints(mixedWork, 6, seed, &mask) == 0 && mask == (1u << 3),
+          "table and head: the table joint alone");
+    check(toolFrameWorkJoints(NULL, 5, seed, &mask) == -1,
+          "no frame function is refused");
+}
+
 int main(void)
 {
     PmRotationMatrix m, r;
+
+    test_work_joints();
 
     /* the supplied constants are usable as declarations */
     check(toolFrameIsProper(&TOOL_FRAME_SPINDLE), "TOOL_FRAME_SPINDLE is proper");
