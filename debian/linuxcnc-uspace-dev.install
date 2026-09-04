@@ -5,3 +5,4 @@ usr/lib/*.so
 usr/share/linuxcnc/Makefile.modinc
 usr/share/linuxcnc/switchkins.c
 usr/share/linuxcnc/kins_util.c
+usr/share/linuxcnc/kins_single.c
