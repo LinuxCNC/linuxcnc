@@ -958,6 +958,7 @@ int toolFrameSolve(kinsFrameFunc work,
                    double *tool_spin)
 {
     tfs_ctx c;
+    double axis[3], xdir[3], len;
     int found, i;
 
     if (!work || !tool || !seed || !solutions || !axis_in_work
@@ -969,28 +970,44 @@ int toolFrameSolve(kinsFrameFunc work,
         max_solutions = TOOL_FRAME_MAX_SOLUTIONS;
     }
 
+    // The request as a program carries it, a few digits of each component,
+    // is a unit vector only to within its rounding, and the search solves
+    // to well below that.  Normalise on the way in, and refuse only what is
+    // not a direction at all.
+    axis[0] = axis_in_work->x;
+    axis[1] = axis_in_work->y;
+    axis[2] = axis_in_work->z;
+    len = sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2]);
+    if (len < 1e-12) { return -1; }
+    for (i = 0; i < 3; i++) { axis[i] /= len; }
+
     c.work = work;
     c.tool = tool;
     c.num_joints = num_joints;
     c.seed = seed;
     c.held = held;
     c.nres = x_in_work ? 6 : 3;
-    c.want[0] = axis_in_work->x;
-    c.want[1] = axis_in_work->y;
-    c.want[2] = axis_in_work->z;
+    for (i = 0; i < 3; i++) { c.want[i] = axis[i]; }
     if (x_in_work) {
-        double square = axis_in_work->x * x_in_work->x
-                      + axis_in_work->y * x_in_work->y
-                      + axis_in_work->z * x_in_work->z;
+        double along;
+
+        xdir[0] = x_in_work->x;
+        xdir[1] = x_in_work->y;
+        xdir[2] = x_in_work->z;
+        len = sqrt(xdir[0]*xdir[0] + xdir[1]*xdir[1] + xdir[2]*xdir[2]);
+        if (len < 1e-12) { return -1; }
+        for (i = 0; i < 3; i++) { xdir[i] /= len; }
 
         // the two vectors are two axes of one frame, so a request where they
         // are not at right angles is not a frame and cannot be reached by
-        // anything
-        if (fabs(square) > 1e-6) { return -1; }
-
-        c.want[3] = x_in_work->x;
-        c.want[4] = x_in_work->y;
-        c.want[5] = x_in_work->z;
+        // anything; within rounding of right angles, the component along
+        // the axis is rounding and comes off
+        along = axis[0]*xdir[0] + axis[1]*xdir[1] + axis[2]*xdir[2];
+        if (fabs(along) > 1e-6) { return -1; }
+        for (i = 0; i < 3; i++) { xdir[i] -= along*axis[i]; }
+        len = sqrt(xdir[0]*xdir[0] + xdir[1]*xdir[1] + xdir[2]*xdir[2]);
+        if (len < 1e-12) { return -1; }
+        for (i = 0; i < 3; i++) { c.want[3+i] = xdir[i]/len; }
     }
 
     if (tfs_survey(&c) < 0) { return -1; }

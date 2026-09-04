@@ -339,6 +339,24 @@ along with the number of directions left free. A caller that hands back a list
 of samples from a curve as though they were alternatives is telling the
 operator something false.
 
+Which joints may take part is the caller's decision, not the module's. A
+rotary table turns the tool against the work as surely as a head rotary does,
+so a machine with a table and a two-axis head has three orientation joints and
+a bare tool axis leaves one of them free. Whether the table is used for that
+is a machining choice: Heidenhain names the axes a tilt may use with `M138`,
+and its `PLANE` lets the operator pick `TABLE ROT`, turn the table to place
+tool X, or `COORD ROT`, leave the table and rotate the coordinate system. So
+the request names the joints to hold. Holding the table gives the two head
+solutions and the turn about the tool that finishes the frame, which is what
+the TWP remap computes; holding nothing lets the table place tool X and the
+turn comes back zero.
+
+The request is taken as a program carries it. A direction written to a few
+digits is a unit vector only to within its rounding, and a tool X written the
+same way is at right angles to the axis only to within it, so both are
+normalised on the way in and only a vector that is not a direction at all is
+refused.
+
 === What a module has to supply
 
 Nothing, if it already reports its frames. The shared code answers the question
