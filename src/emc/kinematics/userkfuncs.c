@@ -2,6 +2,12 @@
 **               switchable kinematics functions.
 ** License GPL Version 2
 **
+** Two forms are here.  USERK_OPS is the current one: identity through
+** the parameter block, with no state of its own, registered by a module
+** with switchkinsRegisterOps(2, &USERK_OPS).  The functions below it are
+** the older form, kept for the modules that still register their types
+** through switchkinsSetup()'s out parameters.
+**
 ** Example Usage (for customizing the genser-switchkins module):
 ** (works with rtpreempt only rtai --> Makefile needs work)
 **
@@ -24,6 +30,34 @@
 // #include "genserkins.h" //includes gomath,hal
 
 //**********************************************************************
+// the current form: pure functions of the block
+
+static int userk_forward(const kins_params *p, kins_scratch *s,
+                         const double *joint, EmcPose *world,
+                         const KINEMATICS_FORWARD_FLAGS *fflags,
+                         KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    // replace with the machine's own forward; the block carries the
+    // geometry (p->geometry[]), the joint map and the tool
+    return kinsIdentityForward(p, s, joint, world, fflags, iflags);
+}
+
+static int userk_inverse(const kins_params *p, kins_scratch *s,
+                         const EmcPose *world, double *joint,
+                         const KINEMATICS_INVERSE_FLAGS *iflags,
+                         KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    return kinsIdentityInverse(p, s, world, joint, iflags, fflags);
+}
+
+const kins_ops USERK_OPS = {
+    .forward = userk_forward,
+    .inverse = userk_inverse,
+    // .work, .tool, .native and .jacobian are optional, see kinematics.h
+};
+
+//**********************************************************************
+// the older form
 // static local variables and functions go here
 
 static int userk_inited = 0;
