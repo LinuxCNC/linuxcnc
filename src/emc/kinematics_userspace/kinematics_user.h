@@ -90,9 +90,14 @@ int kinematicsUserGetNumTypes(KinematicsUserContext* ctx);
 /**
  * Perform inverse kinematics (world coords -> joint positions)
  *
+ * The joint array goes in as well as out: motion hands a module the
+ * joints the machine is at, and a module may read them (a nutating
+ * head takes its rotary angles from there, an iterating inverse starts
+ * there), so pass the current joints, not zeros.
+ *
  * @param ctx     Kinematics context from kinematicsUserInit
  * @param world   World coordinates (X, Y, Z, A, B, C, U, V, W)
- * @param joints  Output array of joint positions [KINEMATICS_USER_MAX_JOINTS]
+ * @param joints  Joint positions in and out [KINEMATICS_USER_MAX_JOINTS]
  * @return 0 on success, -1 on failure
  */
 int kinematicsUserInverse(KinematicsUserContext* ctx,
@@ -102,9 +107,12 @@ int kinematicsUserInverse(KinematicsUserContext* ctx,
 /**
  * Perform forward kinematics (joint positions -> world coords)
  *
+ * A module whose forward iterates (the hexapod, the pentapod) starts
+ * from the pose in *world, so hand it one near the answer.
+ *
  * @param ctx     Kinematics context from kinematicsUserInit
  * @param joints  Array of joint positions [KINEMATICS_USER_MAX_JOINTS]
- * @param world   Output world coordinates
+ * @param world   Output world coordinates, and the seed on input
  * @return 0 on success, -1 on failure
  */
 int kinematicsUserForward(KinematicsUserContext* ctx,
@@ -114,8 +122,9 @@ int kinematicsUserForward(KinematicsUserContext* ctx,
 /**
  * The Jacobian at a pose, J[joint][axis] = d joint / d axis, from the
  * module's closed form where it has one and by differencing its inverse
- * where it does not.  The inverse is run at the pose first, so the
- * derivative is taken on the solution branch the module picks there.
+ * where it does not.  The inverse is run at the pose first, seeded with
+ * what the last kinematicsUserInverse() found, so the derivative is
+ * taken on the solution branch the caller is on.
  *
  * @return 0 on success, -1 on failure
  */
