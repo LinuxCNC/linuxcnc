@@ -359,6 +359,13 @@ public:
         maybe_new_line();
         forward("set_xy_rotation", degrees);
     }
+    void set_g68_frame(const WorkFrame &f) override {
+        maybe_new_line();
+        const std::array<double, 9> &r = f.rotation;
+        forward("set_g68_frame", f.origin[P9_X], f.origin[P9_Y], f.origin[P9_Z],
+                r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8],
+                (int)f.active);
+    }
     void set_plane(int plane) override {
         maybe_new_line();
         forward("set_plane", plane);
@@ -536,6 +543,15 @@ void SET_G92_OFFSET(double x, double y, double z,
 
 void SET_XY_ROTATION(double t) {
     parse_state.canon->set_xy_rotation(t);
+};
+
+void SET_G68_FRAME(double x, double y, double z,
+                   const double rotation[9], int active) {
+    WorkFrame frame;
+    frame.active = active != 0;
+    frame.origin = ensure_inch({x, y, z});
+    std::copy(rotation, rotation + 9, frame.rotation.begin());
+    parse_state.canon->set_g68_frame(frame);
 };
 
 void USE_LENGTH_UNITS(CANON_UNITS u) { parse_state.metric = u == CANON_UNITS_MM; }
@@ -1194,10 +1210,23 @@ static py::list rs274_arc_to_segments(py::handle canon,
         g5xoffset[i] = attr_double(canon, G5X[i]);
         g92offset[i] = attr_double(canon, G92[i]);
     }
+    // The tilted work plane, from a canon that keeps one (rs274.interpret
+    // .Translated does); one without the attributes has no plane.
+    WorkFrame frame;
+    if(py::hasattr(canon, "g68_active") && attr_int(canon, "g68_active")) {
+        frame.active = true;
+        py::sequence origin = canon.attr("g68_offset").cast<py::sequence>();
+        py::sequence rotation = canon.attr("g68_rotation").cast<py::sequence>();
+        if(py::len(origin) != 3 || py::len(rotation) != 9)
+            throw py::value_error("arc_to_segments: canon.g68_offset is three "
+                                  "numbers and canon.g68_rotation nine");
+        for(size_t i=0; i<3; i++) frame.origin[i] = origin[i].cast<double>();
+        for(size_t i=0; i<9; i++) frame.rotation[i] = rotation[i].cast<double>();
+    }
 
     std::vector<Point9> pts;
     int steps = arc_segments(o, plane, rotation_cos, rotation_sin,
-                             g5xoffset, g92offset,
+                             g5xoffset, g92offset, frame,
                              x1, y1, cx, cy, rot, z1, a, b, c, u, v, w,
                              max_segments, pts);
     py::list segs(steps);
