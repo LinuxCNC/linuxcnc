@@ -11,7 +11,7 @@ ${SUDO} halcompile --install paritycheck.c >/dev/null
 # ONLY=<module> in the environment runs the entries for that module alone
 run() {
     local loadrt="$1" setp="$2" parms="$3" ktype="$4"
-    local module coords sparm joints frompose pose jnt hal tok
+    local module coords sparm joints frompose pose jnt orient rtparms hal tok
     case "$loadrt" in "${ONLY:-}"*) ;; *) return 0 ;; esac
     module=${loadrt%% *}
     coords=""; sparm=""
@@ -22,21 +22,28 @@ run() {
         esac
     done
     joints=3; frompose=0; pose="0,0,0,0,0,0,0,0,0"; jnt="10,20,30,40,50,60,70,80,90"
+    # the two rotaries that orient the tool, "primary,secondary", or "-"
+    # where the machine has no such pair and "no-frame" where the module
+    # reports no tool frame at all, which most of the tree still does
+    orient="no-frame"
     for tok in $parms; do
         case "$tok" in
             joints=*) joints=${tok#joints=} ;;
             frompose=*) frompose=${tok#frompose=} ;;
             pose=*) pose=${tok#pose=} ;;
             jnt=*) jnt=${tok#jnt=} ;;
+            orient=*) orient=${tok#orient=} ;;
         esac
     done
+    # what the module under test is loaded with: everything but our own word
+    rtparms=$(printf ' %s ' "$parms" | sed 's/ orient=[^ ]*//g')
     hal=$(mktemp --suffix=.hal)
     { printf 'loadrt %s\n' "$loadrt"
       printf '%s\n' "$setp"
-      printf 'loadrt paritycheck %s ktype=%s\n' "$parms" "${ktype:-0}"
+      printf 'loadrt paritycheck %s ktype=%s\n' "$rtparms" "${ktype:-0}"
       # halcmd keeps quotes, so an absent value travels as a dash
-      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s\n' \
-             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}"
+      printf 'loadusr -w python3 check.py %s %s %s %s %s %s %s %s %s\n' \
+             "$module" "$joints" "${coords:--}" "${ktype:-0}" "$frompose" "$pose" "$jnt" "${sparm:--}" "$orient"
     } > "$hal"
     echo "=== $loadrt type ${ktype:-0}"
     halrun -f "$hal"
@@ -44,11 +51,11 @@ run() {
 }
 
 # identity, a gantry included
-run "trivkins coordinates=XYZ" "" "joints=3 jnt=10,20,30"
-run "trivkins coordinates=XYZY kinstype=BOTH" "" "joints=4 jnt=10,20,30,20"
-run "trivkins coordinates=XYZABCUVW" "" "joints=9"
+run "trivkins coordinates=XYZ" "" "joints=3 jnt=10,20,30 orient=-"
+run "trivkins coordinates=XYZY kinstype=BOTH" "" "joints=4 jnt=10,20,30,20 orient=-"
+run "trivkins coordinates=XYZABCUVW" "" "joints=9 orient=-"
 run "userkins" "" "joints=3 jnt=10,20,30"
-run "millturn" "" "joints=4 jnt=10,20,30,40"
+run "millturn" "" "joints=4 jnt=10,20,30,40 orient=-"
 run "millturn" "" "joints=4 jnt=10,20,30,40" 1
 
 # linear maps and one rotation
@@ -69,8 +76,8 @@ run "maxkins" \
     "setp maxkins.pivot-length 100" \
     "joints=9 jnt=10,20,30,0,15,25,7,0,3"
 
-run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5"
-run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5" 1
+run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3"
+run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3" 1
 
 run "xyzac-trt-kins coordinates=XYZAC" \
     "setp xyzac-trt-kins.y-offset 3
@@ -79,7 +86,7 @@ setp xyzac-trt-kins.tool-offset 7
 setp xyzac-trt-kins.x-rot-point 1
 setp xyzac-trt-kins.y-rot-point 2
 setp xyzac-trt-kins.z-rot-point 5" \
-    "joints=5 jnt=10,20,30,15,25"
+    "joints=5 jnt=10,20,30,15,25 orient=-"
 
 run "xyzbc-trt-kins coordinates=XYZBC" \
     "setp xyzbc-trt-kins.conventional-directions 1
@@ -89,7 +96,7 @@ setp xyzbc-trt-kins.tool-offset 7
 setp xyzbc-trt-kins.x-rot-point 1
 setp xyzbc-trt-kins.y-rot-point 2
 setp xyzbc-trt-kins.z-rot-point 5" \
-    "joints=5 jnt=10,20,30,15,25"
+    "joints=5 jnt=10,20,30,15,25 orient=-"
 
 run "xyzab_tdr_kins" \
     "setp xyzab_tdr_kins.x-offset 3
@@ -112,7 +119,7 @@ setp xyzacb_trsrn_kins.tool-offset-z 50
 setp xyzacb_trsrn_kins.pre-rot 0.3
 setp xyzacb_trsrn_kins.primary-angle 20
 setp xyzacb_trsrn_kins.secondary-angle 35" \
-    "joints=6 jnt=10,20,30,15,25,35" 1
+    "joints=6 jnt=10,20,30,15,25,35 orient=5,4" 1
 
 run "xyzacb_trsrn" \
     "setp xyzacb_trsrn_kins.nut-angle 45
@@ -121,7 +128,7 @@ setp xyzacb_trsrn_kins.z-pivot 200
 setp xyzacb_trsrn_kins.pre-rot 0.3
 setp xyzacb_trsrn_kins.primary-angle 20
 setp xyzacb_trsrn_kins.secondary-angle 35" \
-    "joints=6 jnt=10,20,30,15,25,35" 2
+    "joints=6 jnt=10,20,30,15,25,35 orient=-" 2
 
 run "xyzbca_trsrn" \
     "setp xyzbca_trsrn_kins.nut-angle 45
@@ -135,7 +142,7 @@ setp xyzbca_trsrn_kins.tool-offset-z 50
 setp xyzbca_trsrn_kins.pre-rot 0.3
 setp xyzbca_trsrn_kins.primary-angle 20
 setp xyzbca_trsrn_kins.secondary-angle 35" \
-    "joints=6 jnt=10,20,30,15,25,35" 1
+    "joints=6 jnt=10,20,30,15,25,35 orient=5,3" 1
 
 # polar
 run "rosekins" "" "joints=3 jnt=10,5,30"
@@ -143,7 +150,7 @@ run "rosekins" "" "joints=3 jnt=10,5,30"
 # arms
 run "scarakins" "" "joints=6 jnt=30,40,20,10,0,0"
 run "scorbot-kins" "" "joints=5 jnt=40,60,-20,0,0"
-run "pumakins" "setp pumakins.D6 50" "joints=6 jnt=15,20,-35,10,70,20"
+run "pumakins" "setp pumakins.D6 50" "joints=6 jnt=15,20,-35,10,70,20 orient=-"
 run "three21kins" "" "joints=6 jnt=15,20,-35,10,70,20"
 run "genserkins" "" "joints=9 jnt=15,20,-35,10,70,20,0,0,0"
 run "genserkins" "setp genserkins.unrotate-3 1" "joints=9 jnt=15,20,-35,10,70,20,0,0,0"
