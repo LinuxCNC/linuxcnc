@@ -6,5 +6,6 @@ usr/lib/*.so
 usr/share/linuxcnc/Makefile.modinc
 usr/share/linuxcnc/mesa_modbus.c.tmpl
 usr/share/linuxcnc/switchkins.c
+usr/share/linuxcnc/switchkins_setup.c
 usr/share/linuxcnc/kins_util.c
 usr/share/linuxcnc/kins_single.c
