@@ -28,7 +28,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "config.h"  /* EMC2_HOME */
+#include "config.h"  /* EMC2_RTLIB_DIR, MODULE_EXT */
 
 typedef int (*kins_describe_fn)(const char *coordinates, const char *sparm,
                                 kins_module_info *info);
@@ -57,6 +57,7 @@ struct KinematicsUserContext {
     int cell_of_tool[AXIS_COUNT];        /* motion.tooloffset.*, -1 if absent */
     int tool_param;                      /* the table's tool entry, -1 if none */
     int warned_tool;
+    double last_joints[EMCMOT_MAX_JOINTS]; /* what the last inverse found */
 };
 
 /* ========================================================================
@@ -284,13 +285,29 @@ static int load_module(KinematicsUserContext *ctx,
                        const char *sparm)
 {
     char module_path[512];
-    void *handle;
+    void *handle, *hal_lib;
     kins_describe_fn describe;
 
     snprintf(module_path, sizeof(module_path),
-             "%s/rtlib/%s.so", EMC2_HOME, module_name);
+             "%s/%s%s", EMC2_RTLIB_DIR, module_name, MODULE_EXT);
 
-    handle = dlopen(module_path, RTLD_NOW | RTLD_LOCAL);
+    /* A module calls rtapi_print() and the rest of the HAL library, and a
+       program holding that library under a shared object of its own (a GUI
+       holds it under the interpreter it loaded) keeps those symbols out of
+       the scope a module resolves against: the module loads and then dies
+       at the first call it cannot bind.  Failing here is not itself an
+       error, since a program that links the library has them in reach. */
+    hal_lib = dlopen("liblinuxcnchal.so.0", RTLD_LAZY | RTLD_GLOBAL);
+    if (!hal_lib) {
+        fprintf(stderr, "kinematicsUserInit: dlopen 'liblinuxcnchal.so.0':"
+                " %s\n", dlerror());
+    }
+
+    /* lazily: a halcompile component references hal_export_funct() and
+       the rest of what its rtapi_app_main() needs, which only the realtime
+       HAL library provides, and nothing here calls that main.  What is
+       called, kinsDescribe() and the ops, resolves when it is called. */
+    handle = dlopen(module_path, RTLD_LAZY | RTLD_LOCAL);
     if (!handle) {
         fprintf(stderr, "kinematicsUserInit: dlopen '%s': %s\n",
                 module_path, dlerror());
@@ -431,12 +448,18 @@ int kinematicsUserInverse(KinematicsUserContext* ctx,
     if (ctx->rt_only) return -1;
 
     refresh(ctx);
-    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) j[i] = 0.0;
+    /* the joints go in as well as out: motion hands a module where the
+       machine is, and some read that (a nutating head takes its rotary
+       angles from it), so the caller's array is the seed */
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        j[i] = (i < ctx->num_joints) ? joints[i] : 0.0;
+    }
     if (kinsOpsInverse(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
                        world, j, &iflags, &fflags) != 0) {
         return -1;
     }
     for (i = 0; i < ctx->num_joints; i++) joints[i] = j[i];
+    memcpy(ctx->last_joints, j, sizeof(ctx->last_joints));
     return 0;
 }
 
@@ -456,7 +479,11 @@ int kinematicsUserForward(KinematicsUserContext* ctx,
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         j[i] = (i < ctx->num_joints) ? joints[i] : 0.0;
     }
-    memset(world, 0, sizeof(*world));
+    /* a forward that iterates starts from the pose it is handed, so the
+       caller's world is the seed; any other gets a clean one */
+    if (!ctx->info.ops[ctx->ktype]->fwd_iterates) {
+        memset(world, 0, sizeof(*world));
+    }
     return kinsOpsForward(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
                           j, world, &fflags, &iflags);
 }
@@ -475,7 +502,8 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
     if (ctx->rt_only) return -1;
 
     refresh(ctx);
-    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) j[r] = 0.0;
+    /* the joints at this pose, on the branch the last inverse was on */
+    memcpy(j, ctx->last_joints, sizeof(j));
     if (kinsOpsInverse(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
                        world, j, &iflags, &fflags) != 0) {
         return -1;
