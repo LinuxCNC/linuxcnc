@@ -1145,6 +1145,8 @@ trivkins-objs += emc/kinematics/kins_single.o
 
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
+maxkins-objs += emc/kinematics/kins_util.o
+maxkins-objs += emc/kinematics/kins_single.o
 
 obj-m += rotatekins.o
 rotatekins-objs := emc/kinematics/rotatekins.o
