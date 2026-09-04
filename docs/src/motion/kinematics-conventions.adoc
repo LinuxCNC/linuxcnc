@@ -520,15 +520,26 @@ module with one type describes itself in a `kins_module` and links
 In realtime it makes one HAL pin per table entry, copies the pins into the
 block before every call and the outputs back after it, and supplies the classic
 entry points, `kinematicsForward()` and the rest, so that motion sees no
-difference. Outside realtime a module exports `kinsDescribe()`, which hands a
-caller its table and the ops of each type; the caller fills a block from
-wherever it likes and asks the same functions through `kinsOpsForward()`,
-`kinsOpsInverse()`, `kinsOpsJacobian()` and the frame calls, with the same
-defaults applied, so both sides get the same answers. The non-realtime loader
-in `kinematics_userspace/` binds the pins of the running module by the table's
-names and takes the tool from motion's own offset pins, and says once when the
-module's tool pin disagrees with them, which is a config that lost the tool on
-the way. `kinslimits` is built on it.
+difference. It also exports `kinematicsSetTool()`, through which motion hands
+the module the tool offset in effect whenever that changes, so the tool comes
+from the tool table and not from a net the config had to remember. A table
+entry flagged as the tool is read from its pin only until motion has sent
+anything; after that the pin is overwritten with motion's value, and the shared
+code says once if the pin is left disagreeing with it, which is a config
+setting a tool length where the tool table should. Motion references the call
+weakly, so a module written before it still loads and keeps its pin.
+
+Outside realtime a module exports `kinsDescribe()`, which hands a caller its
+table and the ops of each type; the caller fills a block from wherever it likes
+and asks the same functions through `kinsOpsForward()`, `kinsOpsInverse()`,
+`kinsOpsJacobian()` and the frame calls, with the same defaults applied, so
+both sides get the same answers. The non-realtime loader in
+`kinematics_userspace/` binds the pins of the running module by the table's
+names. Its tool is the caller's where the caller gives one through
+`kinematicsUserSetTool()`, since a planner knows what a segment runs under
+better than the machine does; otherwise it is motion's, from motion's own
+offset pins, and the loader says once when the module's tool pin disagrees with
+them. `kinslimits` is built on it.
 
 A module that does not provide the form keeps working as it did. It just cannot
 be evaluated outside realtime, which the loader reports.
@@ -537,8 +548,9 @@ be evaluated outside realtime, which the loader reports.
 
 The kinematics type is in the block, so a caller evaluating a program that
 switches type puts the type each block will run under in its own block, and
-nothing is switched globally. The tool is in the block, from motion. The joint
-map is in the block, from `coordinates=`. Nothing else the maths needs exists,
+nothing is switched globally. The tool is in the block, from motion in realtime
+and from the caller outside it. The joint map is in the block, from
+`coordinates=`. Nothing else the maths needs exists,
 and a module that finds it needs something else has found a parameter it should
 declare.
 

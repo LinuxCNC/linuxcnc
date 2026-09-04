@@ -551,7 +551,13 @@ hal_ready() after it.
 
 A module built this way also exports kinsDescribe(), through which a
 copy of it loaded outside realtime learns its table and the maths of
-each kinstype; the non-realtime loader and kinslimits use it.
+each kinstype; the non-realtime loader and kinslimits use it.  It
+exports kinematicsSetTool() as well, through which motion hands it
+the tool offset in effect whenever that changes.  A table entry
+flagged as the tool is overwritten with it, and the entry's pin only
+matters until motion has sent anything, so a config need not net
+motion.tooloffset.z to the module.  A kinstype registered the older
+way reads its own pins and is not affected.
 
 === Module main program
 

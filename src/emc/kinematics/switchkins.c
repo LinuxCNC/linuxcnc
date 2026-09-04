@@ -55,6 +55,7 @@ static const kins_ops *kops[SWITCHKINS_MAX_TYPES] = {NULL};
 static kins_params   rt_params;
 static kins_scratch  rt_scratch[SWITCHKINS_MAX_TYPES];
 static kins_pin_ref *pins;
+static kins_tool_source tool_source;
 static int           inited;
 
 // types provided, counted in rtapi_app_main() once they are all in
@@ -108,12 +109,24 @@ static void get_lastpose(int ktype, EmcPose* pos)
     pos->w      = lastpose[ktype].w;
 } // get_lastpose()
 
-// the block sees the pins as they are now, and the type asked for
+// the block sees the pins as they are now, the tool motion sent, and
+// the type asked for
 static void read_block(int ktype)
 {
     rt_params.ktype = ktype;
     kinsParamsPinsRead(pins, kp.params, kp.nparams, &rt_params);
+    kinsToolSourceApply(&tool_source, kp.halprefix, kp.params, kp.nparams,
+                        &rt_params);
 }
+
+// the tool from motion, for the types written on the block; a type
+// provided the older way reads its own pins and does not see it
+int kinematicsSetTool(const EmcPose *tool)
+{
+    if (!tool) { return -1; }
+    kinsToolSourceSet(&tool_source, tool);
+    return 0;
+} // kinematicsSetTool()
 
 static void write_block(int ktype)
 {
@@ -507,6 +520,7 @@ EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsWorkFrame);
 EXPORT_SYMBOL(kinematicsToolFrameInverse);
 EXPORT_SYMBOL(kinematicsJacobian);
+EXPORT_SYMBOL(kinematicsSetTool);
 EXPORT_SYMBOL(switchkinsRegister);
 EXPORT_SYMBOL(switchkinsRegisterFrames);
 EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);

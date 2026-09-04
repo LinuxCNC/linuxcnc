@@ -640,6 +640,15 @@ extern int kinsOpsJacobian(const kins_ops *ops, const kins_params *p,
 
 extern int kinematicsSwitchable(void);
 extern int kinematicsSwitch(int switchkins_type);
+
+/* The tool offset motion applies, handed to the module.  Motion calls this
+   whenever the offset changes (G43, G49) and references it weakly, so a
+   module that does not export it still loads and keeps reading whatever
+   tool pin it has.  kins_single.c and switchkins.c export it for every
+   module written on the parameter block: the tool then comes from the tool
+   table through motion, and the module's tool pin, where it has one, is
+   read only until motion has spoken. */
+extern int kinematicsSetTool(const EmcPose *tool);
 //NOTE: switchable kinematics may require Interp::Synch
 //      before/after invoking kinematicsSwitch()
 //      A convenient command to synch is: M66 E0 L0
