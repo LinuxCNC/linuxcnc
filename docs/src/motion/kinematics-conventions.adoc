@@ -178,7 +178,7 @@ half turn about one of the two transverse axes, and which one is chosen decides
 where tool X lands.
 
 Because it is a rotation in its own right, a module declares it rather than
-applying it by hand, as the last argument of `switchkinsRegisterFrames()`.
+applying it by hand, in the `native` field of its ops table.
 Shared code applies it and checks once, at load, that it is orthonormal with
 determinant +1. `TOOL_FRAME_SPINDLE` is the identity, for a module whose maths
 is already in the convention; `TOOL_FRAME_FLANGE` is the half turn a
@@ -289,6 +289,8 @@ All of these are functions of the joint values and the module's own geometry.
 None needs state carried between calls, and none needs the module to be running
 in a realtime thread to be useful: the interesting callers, a limit check
 before a move and a preview before a program runs, are not in the servo loop.
+<<sec:parameters,The Parameter Block>> is how a module is written so that they
+can call it.
 
 [[sec:orientation-inverse]]
 == The Orientation Inverse
@@ -438,28 +440,28 @@ every consumer would otherwise guess it.
 
 === What a module has to supply
 
-Nothing. If a module registers no Jacobian, the shared code computes one by
+Nothing. If a module supplies no Jacobian, the shared code computes one by
 central differences: it calls the module's inverse eighteen times, stepping
 each pose coordinate a small amount to either side on the solution branch
 the inverse flags select, and differences the results. The answer is as
 precise as the inverse itself; behind an inverse that iterates, that is the
-iteration's convergence tolerance divided by the step. Modules built on `switchkins.c` answer this way for every type that
-registers nothing; an identity type answers exactly.
+iteration's convergence tolerance divided by the step. Modules built on `switchkins.c` answer this way for every type
+whose ops table has no Jacobian; an identity type answers exactly.
 
 This cost matters because `kinematicsJacobian()` is meant to run in the
 servo thread, where checking a feed limit calls it once per cycle: each call
 then costs eighteen inverses. On the closed-form inverses in the tree that
 is under two microseconds. `genserkins`, the one module whose inverse
 iterates, would cost near eighty microseconds per call this way, against
-under two for the geometric Jacobian it registers instead.
+under two for the geometric Jacobian it supplies instead.
 
-So a module whose inverse iterates should register a closed-form Jacobian,
-as below. Nothing enforces this. A module that registers nothing still gets
+So a module whose inverse iterates should supply a closed-form Jacobian,
+as below. Nothing enforces this. A module that supplies none still gets
 a correct Jacobian, just one that costs eighteen inverses and carries the
 iteration's precision, which behind an iterating inverse is too slow for the
 servo thread.
 
-A module with a closed form registers it with `switchkinsRegisterJacobian()`.
+A module with a closed form puts it in the `jacobian` field of its ops table.
 It is exact, it costs what the inverse costs, and it knows its own singular
 poses rather than discovering them as an inverse that fails a step away from
 the pose. Every module in the tree supplies one. The two arms whose inverse is
@@ -475,6 +477,88 @@ A module reading its rotary angles from the joint argument of the inverse
 rather than from the pose, which the nutating heads do, has an inverse whose
 derivative about the pose is not the coupling the machine has. Such a module
 supplies the closed form, taken against the pose.
+
+[[sec:parameters]]
+== The Parameter Block
+
+Everything above is a function of the joint values, the tool and the machine's
+geometry. A module written the old way reads its geometry from HAL pins it
+created, keeps its kinematics type and its iteration scratch in statics, and so
+can only answer for the machine as it is now, from inside the realtime thread.
+Anything else that needs the same maths, a planner evaluating poses the machine
+has not reached, task checking a program at load, a tool asking what if, had to
+carry a second copy of it, and the two copies drift.
+
+A module is written instead as functions of two blocks the caller supplies.
+`kins_params` describes the machine: the kinematics type, the joint map from
+`coordinates=`, the tool offset, and the geometry as an array of doubles. One
+copy may be shared by any number of callers, since nothing writes it during a
+call. `kins_scratch` is what one caller carries between its own calls: the pose
+an iterating forward last found, which seeds the next, and what the module
+reports about the call it just made. It is never shared between callers, so
+motion and a planner evaluating the same module cannot disturb each other.
+
+=== The table
+
+A module declares its geometry as a table of named entries, one per value it
+reads. The name is the pin name the config already uses, less the module
+prefix, so nothing in a config changes.
+
+[source,c]
+----
+static const kins_param_desc fiveaxis_params[] = {
+    { "pivot-length", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PIVOT_LENGTH },
+};
+enum { P_PIVOT_LENGTH };
+----
+
+An entry is an input, an output, or an input that can be poked (`KINS_IO`, a
+`HAL_IO` pin). The maths reads `p->geometry[P_PIVOT_LENGTH]` where it read a
+pin, and writes an output into `s->out[]` at the same index. An entry flagged
+as the tool is the tool length along the tool axis; the shared code puts its
+value in `p->tool.tran.z` as well, which is what the maths reads, so that a
+caller outside realtime can supply the tool from the tool table without there
+being a pin.
+
+=== The ops table
+
+The maths of one kinematics type is a `kins_ops` table: the forward and inverse,
+the optional work and tool frames with the native rotation that relates the
+tool frame to the convention, and the optional Jacobian. A type whose forward
+iterates from the pose it is handed says so, and the shared code seeds it with
+the last answer after a switch. A type also says what it IS: `identity` marks
+the no-transform type `G13.1` cancels to, `primary` the working transform
+`G43.4` switches to (see the Switchable Kinematics chapter). A module with
+several types has one geometry table and one ops table per type, registered
+with `switchkinsRegisterOps()`; a module with one type describes itself in a
+`kins_module` and links `kins_single.c`.
+
+=== What the shared code does
+
+In realtime it makes one HAL pin per table entry, copies the pins into the
+block before every call and the outputs back after it, and supplies the classic
+entry points, `kinematicsForward()` and the rest, so that motion sees no
+difference. Outside realtime a module exports `kinsDescribe()`, which hands a
+caller its table and the ops of each type; the caller fills a block from
+wherever it likes and asks the same functions through `kinsOpsForward()`,
+`kinsOpsInverse()`, `kinsOpsJacobian()` and the frame calls, with the same
+defaults applied, so both sides get the same answers. The non-realtime loader
+in `kinematics_userspace/` binds the pins of the running module by the table's
+names and takes the tool from motion's own offset pins, and says once when the
+module's tool pin disagrees with them, which is a config that lost the tool on
+the way. `kinslimits` is built on it.
+
+A module that does not provide the form keeps working as it did. It just cannot
+be evaluated outside realtime, which the loader reports.
+
+=== What stays outside the block
+
+The kinematics type is in the block, so a caller evaluating a program that
+switches type puts the type each block will run under in its own block, and
+nothing is switched globally. The tool is in the block, from motion. The joint
+map is in the block, from `coordinates=`. Nothing else the maths needs exists,
+and a module that finds it needs something else has found a parameter it should
+declare.
 
 [[sec:writing-a-module]]
 == Writing a Module
@@ -515,6 +599,13 @@ Geometry stays in the module::
   Whatever a consumer needs to know about the machine's shape is answered by
   the module. A consumer that restates it has taken a copy that nothing keeps
   in step, which is the situation this chapter exists to end.
+
+No state::
+  Write the maths as functions of the parameter block and the scratch, as
+  <<sec:parameters,The Parameter Block>> describes: geometry in the table,
+  the kinematics type and the tool from the block, and anything carried
+  between calls in the scratch. A static in a module is a second machine
+  that only the realtime thread can see.
 
 Mount orientation is not this::
   A tool or holder mount orientation is a different quantity: a right-angle
