@@ -98,6 +98,7 @@ obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %
 # <component>-extra-objs.  The list is expanded when the .mak is written,
 # so it has to be defined in this file (which the .mak depends on).
 SWITCHKINS_OBJS := emc/kinematics/switchkins.o emc/kinematics/kins_util.o
+matrixkins-extra-objs     := emc/kinematics/kins_util.o emc/kinematics/kins_single.o
 millturn-extra-objs       := $(SWITCHKINS_OBJS)
 xyzab_tdr_kins-extra-objs := $(SWITCHKINS_OBJS)
 xyzacb_trsrn-extra-objs   := $(SWITCHKINS_OBJS)

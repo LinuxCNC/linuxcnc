@@ -777,7 +777,7 @@ ifeq ($(BUILD_GUI),yes)
 endif
 
 	$(FILE) ../src/hal/drivers/mesa-hostmot2/modbus/*.tmpl  $(DESTDIR)$(prefix)/share/linuxcnc/
-	$(FILE) ../src/emc/kinematics/switchkins.c ../src/emc/kinematics/kins_util.c  $(DESTDIR)$(prefix)/share/linuxcnc/
+	$(FILE) ../src/emc/kinematics/switchkins.c ../src/emc/kinematics/kins_util.c ../src/emc/kinematics/kins_single.c $(DESTDIR)$(prefix)/share/linuxcnc/
 
 install-kernel-indep: install-python
 install-python: install-dirs
@@ -907,6 +907,9 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
+# A component built in tree includes the shared kinematics sources by the
+# bare names the out-of-tree build resolves in share/linuxcnc
+RTFLAGS += -I$(BASEPWD)/emc/kinematics
 EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ \
 	-I$(BASEPWD)/../include -I$(BASEPWD) \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
@@ -1150,15 +1153,23 @@ maxkins-objs += emc/kinematics/kins_single.o
 
 obj-m += rotatekins.o
 rotatekins-objs := emc/kinematics/rotatekins.o
+rotatekins-objs += emc/kinematics/kins_util.o
+rotatekins-objs += emc/kinematics/kins_single.o
 
 obj-m += tripodkins.o
 tripodkins-objs := emc/kinematics/tripodkins.o
+tripodkins-objs += emc/kinematics/kins_util.o
+tripodkins-objs += emc/kinematics/kins_single.o
 
 obj-m += corexykins.o
 corexykins-objs := emc/kinematics/corexykins.o
+corexykins-objs += emc/kinematics/kins_util.o
+corexykins-objs += emc/kinematics/kins_single.o
 
 obj-m += lineardeltakins.o
 lineardeltakins-objs := emc/kinematics/lineardeltakins.o
+lineardeltakins-objs += emc/kinematics/kins_util.o
+lineardeltakins-objs += emc/kinematics/kins_single.o
 
 obj-m += pentakins.o
 pentakins-objs := emc/kinematics/pentakins.o
@@ -1167,14 +1178,20 @@ pentakins-objs += $(MATHSTUB)
 
 obj-m += rotarydeltakins.o
 rotarydeltakins-objs := emc/kinematics/rotarydeltakins.o
+rotarydeltakins-objs += emc/kinematics/kins_util.o
+rotarydeltakins-objs += emc/kinematics/kins_single.o
 rotarydeltakins-objs += libposemath/_posemath.o
 rotarydeltakins-objs += $(MATHSTUB)
 
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
+rosekins-objs += emc/kinematics/kins_util.o
+rosekins-objs += emc/kinematics/kins_single.o
 
 obj-m += scorbot-kins.o
 scorbot-kins-objs := emc/kinematics/scorbot-kins.o
+scorbot-kins-objs += emc/kinematics/kins_util.o
+scorbot-kins-objs += emc/kinematics/kins_single.o
 
 ifeq ($(origin userkfuncs), undefined)
   # use template:
