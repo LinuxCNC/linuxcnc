@@ -6,7 +6,9 @@
  * kinsDescribe(), and evaluates its kinematics through the parameter
  * block (see kinematics.h).  The block is filled from HAL: one input pin
  * of the caller's component per table entry, connected to the signal the
- * RT instance's pin reads, so the values are the live ones; and the tool
+ * RT instance's pin reads, so the values are the live ones.  The tool is
+ * the caller's where it has given one, since a planner knows what a
+ * segment runs under better than the machine does; otherwise it comes
  * from motion's own tooloffset pins where motion is loaded, so that the
  * tool the module sees is the one motion has, whether or not the config
  * netted it to the module's pin.
@@ -57,6 +59,8 @@ struct KinematicsUserContext {
     int cell_of_tool[AXIS_COUNT];        /* motion.tooloffset.*, -1 if absent */
     int tool_param;                      /* the table's tool entry, -1 if none */
     int warned_tool;
+    EmcPose caller_tool;                 /* from kinematicsUserSetTool() */
+    int have_caller_tool;
     double last_joints[EMCMOT_MAX_JOINTS]; /* what the last inverse found */
 };
 
@@ -232,7 +236,8 @@ static int bind_all(KinematicsUserContext *ctx)
     return 0;
 }
 
-/* The block sees the pins as they are now. */
+/* The block sees the pins as they are now, and the tool of whoever
+   knows it best: the caller, then motion, then the module's own pin. */
 static void refresh(KinematicsUserContext *ctx)
 {
     int i;
@@ -248,6 +253,14 @@ static void refresh(KinematicsUserContext *ctx)
         ctx->params.tool.tran.z = ctx->params.geometry[ctx->tool_param];
     }
 
+    if (ctx->have_caller_tool) {
+        ctx->params.tool = ctx->caller_tool;
+        if (ctx->tool_param >= 0) {
+            ctx->params.geometry[ctx->tool_param] = ctx->caller_tool.tran.z;
+        }
+        return;
+    }
+
     for (i = 0; i < AXIS_COUNT; i++) {
         int c = ctx->cell_of_tool[i];
         tool[i] = 0.0;
@@ -259,8 +272,10 @@ static void refresh(KinematicsUserContext *ctx)
 
     /* the module's pin and motion disagree: the config lost the tool
        somewhere between them.  Say so once; motion's value is the one
-       being cut with. */
+       being cut with.  A pin nobody set reads zero, which is not a
+       disagreement. */
     if (ctx->tool_param >= 0 && !ctx->warned_tool
+        && ctx->params.geometry[ctx->tool_param] != 0.0
         && fabs(tool[AXIS_Z] - ctx->params.geometry[ctx->tool_param]) > 1e-9) {
         fprintf(stderr,
                 "kinematics_user: %s.%s is %.6g but motion.tooloffset.z is %.6g;"
@@ -433,6 +448,18 @@ int kinematicsUserGetNumTypes(KinematicsUserContext* ctx)
 {
     if (!ctx || !ctx->initialized || ctx->rt_only) return 0;
     return ctx->info.ntypes;
+}
+
+int kinematicsUserSetTool(KinematicsUserContext* ctx, const EmcPose* tool)
+{
+    if (!ctx || !ctx->initialized || ctx->rt_only) return -1;
+    if (tool) {
+        ctx->caller_tool = *tool;
+        ctx->have_caller_tool = 1;
+    } else {
+        ctx->have_caller_tool = 0;
+    }
+    return 0;
 }
 
 int kinematicsUserInverse(KinematicsUserContext* ctx,
