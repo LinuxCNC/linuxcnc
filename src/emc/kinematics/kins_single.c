@@ -20,6 +20,7 @@
 static kins_params   rt_params;
 static kins_scratch  rt_scratch;
 static kins_pin_ref *pins;
+static kins_tool_source tool_source;
 static int           inited;
 static KINEMATICS_TYPE reported_type = KINEMATICS_BOTH;
 
@@ -28,11 +29,13 @@ static const kins_ops *ops(void)
     return inited ? kins_module.ops[0] : NULL;
 }
 
-// the block sees the pins as they are now
+// the block sees the pins as they are now, and the tool motion sent
 static void read_pins(void)
 {
     kinsParamsPinsRead(pins, kins_module.params, kins_module.nparams,
                        &rt_params);
+    kinsToolSourceApply(&tool_source, kins_module.halprefix,
+                        kins_module.params, kins_module.nparams, &rt_params);
 }
 
 static void write_pins(void)
@@ -117,6 +120,13 @@ int kinematicsJacobian(const double *joint,
     return kinsOpsJacobian(ops(), &rt_params, &rt_scratch, joint, pos, jac, iflags);
 }
 
+int kinematicsSetTool(const EmcPose *tool)
+{
+    if (!tool) { return -1; }
+    kinsToolSourceSet(&tool_source, tool);
+    return 0;
+}
+
 KINEMATICS_TYPE kinematicsType(void)
 {
     return reported_type;
@@ -150,6 +160,7 @@ EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsWorkFrame);
 EXPORT_SYMBOL(kinematicsToolFrame);
 EXPORT_SYMBOL(kinematicsJacobian);
+EXPORT_SYMBOL(kinematicsSetTool);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinsDescribe);

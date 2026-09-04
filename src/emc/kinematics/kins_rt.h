@@ -42,6 +42,26 @@ extern void kinsParamsPinsWrite(const kins_pin_ref *pins,
                                 const kins_param_desc *params, int nparams,
                                 const kins_scratch *s);
 
+/* Where the RT block's tool comes from.  kinematicsSetTool() records what
+   motion sends in one of these; kinsToolSourceApply() writes it into a
+   block after the pins have been read, over the tool entry, once motion
+   has sent anything.  Until then the tool entry's pin is all there is, as
+   under halrun with the module alone.  A config that still nets the tool
+   to the module's pin loses nothing; one that sets that pin to something
+   else is told, once, after the two have disagreed for a thousand calls,
+   since the pin lags the send by a cycle. */
+typedef struct {
+    EmcPose tool;
+    int     have;            /* motion has sent a tool */
+    int     disagreeing;     /* consecutive calls with the pin elsewhere */
+    int     warned;
+} kins_tool_source;
+
+extern void kinsToolSourceSet(kins_tool_source *src, const EmcPose *tool);
+extern void kinsToolSourceApply(kins_tool_source *src, const char *prefix,
+                                const kins_param_desc *params, int nparams,
+                                kins_params *p);
+
 /* A module with one kinematics type defines this, describing itself, and
    links kins_single.c, which supplies kinematicsForward() and the rest
    from it.  ops[0] is the maths; the other entries are ignored. */
