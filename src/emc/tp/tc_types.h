@@ -33,7 +33,8 @@ typedef enum {
     TC_LINEAR = 1,
     TC_CIRCULAR = 2,
     TC_RIGIDTAP = 3,
-    TC_SPHERICAL = 4
+    TC_SPHERICAL = 4,
+    TC_JOINT = 5
 } tc_motion_type_t;
 
 typedef enum {
@@ -117,6 +118,19 @@ typedef struct {
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
+/* A segment interpolated in joint space: every joint runs from start to
+ * end together, the longest one setting the pace.  The world poses at the
+ * two ends are what the segments around it see; the position along the way
+ * is not a line in world space and the servo thread reports it from the
+ * forward kinematics. */
+typedef struct {
+    double start[EMCMOT_MAX_JOINTS];
+    double end[EMCMOT_MAX_JOINTS];
+    int num_joints;
+    EmcPose world_start;
+    EmcPose world_end;
+} PmJointLine;
+
 typedef struct {
     double cycle_time;
     //Position stuff
@@ -160,11 +174,13 @@ typedef struct {
         PmCircle9 circle;
         PmRigidTap rigidtap;
         Arc9 arc;
+        PmJointLine joint;
     } coords;
 
     int motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or
-                            // TC_RIGIDTAP (coords.rigidtap)
+                            // TC_RIGIDTAP (coords.rigidtap) or
+                            // TC_JOINT (coords.joint)
     int active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
     int term_cond;          // gcode requests continuous feed at the end of

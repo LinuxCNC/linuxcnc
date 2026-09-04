@@ -203,10 +203,29 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
             tcCircleStartAccelUnitVector(tc,out);
             break;
         case TC_SPHERICAL:
+        case TC_JOINT:
             return -1;
         default:
             return -1;
     }
+    return 0;
+}
+
+/**
+ * The world direction of a joint interpolated segment, end minus start,
+ * for the status fields that want a direction.  The path between them is
+ * not straight, so this is the chord, and there is none when only the
+ * rotaries move.
+ */
+static int tcJointChordUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
+{
+    PmCartesian d;
+    double mag;
+
+    pmCartCartSub(&tc->coords.joint.world_end.tran, &tc->coords.joint.world_start.tran, &d);
+    pmCartMag(&d, &mag);
+    if (mag < TP_POS_EPSILON) { return -1; }
+    pmCartScalMult(&d, 1.0 / mag, out);
     return 0;
 }
 
@@ -328,6 +347,8 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
         case TC_CIRCULAR:
             pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
+        case TC_JOINT:
+            return tcJointChordUnitVector(tc, out);
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
             return -1;
@@ -351,6 +372,8 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
             pmCircleTangentVector(&tc->coords.circle.xyz,
                     tc->coords.circle.xyz.angle, out);
             break;
+        case TC_JOINT:
+            return tcJointChordUnitVector(tc, out);
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
             return -1;
@@ -406,6 +429,8 @@ int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * cons
                 arcTangent(arc, out, at_end);
             }
             break;
+        case TC_JOINT:
+            return tcJointChordUnitVector(tc, out);
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetCurrentTangentUnitVector!\n", tc->motion_type);
             return -1;
@@ -529,6 +554,30 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             abc = tc->coords.arc.abc;
             uvw = tc->coords.arc.uvw;
             break;
+        case TC_JOINT: {
+            // the ends are exact; between them this is the chord, a proxy
+            // for the status fields, and the servo thread reports the
+            // real position from the forward kinematics
+            const PmJointLine *jl = &tc->coords.joint;
+            double f = (tc->target > 0.0) ? progress / tc->target : 0.0;
+            EmcPose d;
+
+            emcPoseSub(&jl->world_end, &jl->world_start, &d);
+            pos->tran.x = jl->world_start.tran.x + f * d.tran.x;
+            pos->tran.y = jl->world_start.tran.y + f * d.tran.y;
+            pos->tran.z = jl->world_start.tran.z + f * d.tran.z;
+            pos->a = jl->world_start.a + f * d.a;
+            pos->b = jl->world_start.b + f * d.b;
+            pos->c = jl->world_start.c + f * d.c;
+            pos->u = jl->world_start.u + f * d.u;
+            pos->v = jl->world_start.v + f * d.v;
+            pos->w = jl->world_start.w + f * d.w;
+            if (of_point == TC_GET_ENDPOINT) { *pos = jl->world_end; }
+            return TP_ERR_OK;
+        }
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetPosReal!\n", tc->motion_type);
+            return TP_ERR_FAIL;
     }
 
     if (res_fit == TP_ERR_OK) {
@@ -538,6 +587,26 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
     return res_fit;
 }
 
+
+/**
+ * The joints of a joint interpolated segment at its progress.
+ * Returns the joint count, or 0 for any other segment.
+ */
+int tcGetJointPos(TC_STRUCT const * const tc, double * const joints)
+{
+    const PmJointLine *jl;
+    double f;
+    int i;
+
+    if (!tc || tc->motion_type != TC_JOINT) { return 0; }
+    jl = &tc->coords.joint;
+    f = (tc->target > 0.0) ? tc->progress / tc->target : 1.0;
+    if (f > 1.0) { f = 1.0; }
+    for (i = 0; i < jl->num_joints; i++) {
+        joints[i] = jl->start[i] + f * (jl->end[i] - jl->start[i]);
+    }
+    return jl->num_joints;
+}
 
 /**
  * Set the terminal condition of a segment.
@@ -624,7 +693,7 @@ int tcIsBlending(TC_STRUCT * const tc) {
     //FIXME Disabling blends for rigid tap cycle until changes can be verified.
     int is_blending_next = (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
         tc->on_final_decel && (tc->currentvel < tc->blend_vel) &&
-        tc->motion_type != TC_RIGIDTAP;
+        tc->motion_type != TC_RIGIDTAP && tc->motion_type != TC_JOINT;
 
     //Latch up the blending_next status here, so that even if the prev conditions
     //aren't necessarily true we still blend to completion once the blend
@@ -1071,6 +1140,9 @@ double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
 /** Returns true if segment has ONLY rotary motion, false otherwise. */
 int tcPureRotaryCheck(TC_STRUCT const * const tc)
 {
+    // a joint interpolated segment measures its velocity in joint units,
+    // so the cartesian limit does not apply to it either
+    if (tc->motion_type == TC_JOINT) { return 1; }
     return (tc->motion_type == TC_LINEAR) &&
         (tc->coords.line.xyz.tmag_zero) &&
         (tc->coords.line.uvw.tmag_zero);

@@ -291,6 +291,24 @@ extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
                               double a, double b, double c,
                               double u, double v, double w);
+
+/* A traverse interpolated in joint space.  The endpoint x..w is in program
+   coordinates like STRAIGHT_TRAVERSE's; motion runs the inverse once there
+   and interpolates the joints to it.  With have_joints the joints given
+   (machine units, one per joint) are the endpoint instead and x..w say
+   where the interpreter believes that is.  Nothing blends into or out of
+   it. */
+extern void JOINT_TRAVERSE(int lineno, const double *joints, int have_joints,
+                           double x, double y, double z,
+                           double a, double b, double c,
+                           double u, double v, double w);
+/* The same move at feed: it is to take 'seconds' seconds at the programmed
+   feed, the feed override applies, and the joint limits still cap it. */
+extern void JOINT_FEED(int lineno, const double *joints, int have_joints,
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w,
+                       double seconds);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
