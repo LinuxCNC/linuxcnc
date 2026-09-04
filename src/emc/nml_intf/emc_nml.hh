@@ -960,6 +960,27 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     unsigned char probe_type;
 };
 
+// a move interpolated in joint space: to the world endpoint, whose joints
+// motion finds with the inverse; or to the joints given, whose world
+// position motion finds with the forward
+class EMC_TRAJ_JOINT_MOVE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_JOINT_MOVE()
+      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_JOINT_MOVE_TYPE, sizeof(EMC_TRAJ_JOINT_MOVE)),
+        end{}, joints{}, have_joints(0), seconds(0.0)
+    {};
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+
+    EmcPose end;
+    double joints[EMCMOT_MAX_JOINTS];
+    int have_joints;
+    double seconds;             /* 0 for a rapid, else the time it is to take */
+};
+
 class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_RIGID_TAP()
