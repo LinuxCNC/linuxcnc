@@ -416,7 +416,8 @@ Custom kinematics can be coded and tested on Run-In-Place ('RIP')
 builds.  A template file src/emc/kinematics/userkfuncs.c is provided
 in the distribution.  This file can be copied/renamed to a user
 directory and edited to supply custom kinematics with
-kinstype==2.
+kinstype==2: the in-tree modules register its USERK_OPS as that
+kinstype, so the forward and inverse in the copy are what runs.
 
 The user custom kinematics file can be compiled from out-of-tree
 source locations for rt-preempt implementations or by replacing
@@ -445,18 +446,20 @@ is included:
 [source,c]
 ----
 #include <switchkins.c>
+#include <switchkins_setup.c>
 #include <kins_util.c>
 ----
 
 A realtime module cannot link a library, so the implementation arrives
-as source: switchkins.c and kins_util.c are installed beside the
-headers, in share/linuxcnc, and halcompile already looks there.  With
+as source: switchkins.c, switchkins_setup.c and kins_util.c are
+installed beside the headers, in share/linuxcnc, and halcompile already
+looks there.  With
 a deb install they come from the linuxcnc-dev package.
 
-The module registers each of its kinstypes and calls switchkinsInit()
-from EXTRA_SETUP(), which halcompile runs after hal_init() and before
-hal_ready().  See <<sec:switchkins-code-notes,Code Notes>> for both
-calls.
+The module supplies switchkinsSetup() and calls switchkinsRunSetup()
+and switchkinsInit() from EXTRA_SETUP(), which halcompile runs after
+hal_init() and before hal_ready().  See <<sec:switchkins-code-notes,Code
+Notes>> for the calls.
 
 ----
 $ halcompile --install user_switchkins.comp
@@ -508,17 +511,28 @@ kinstype currently selected, and it creates the HAL pins common to
 all switchkins modules.  It does not provide the module 'main'
 program, so a module can get that from wherever suits it.
 
-A kinstype is supplied by calling switchkinsRegister(), once per
-kinstype:
+A kinstype is supplied by calling switchkinsRegisterOps(), once per
+kinstype, with the maths of that type written as functions of the
+parameter block (see the Kinematics Conventions chapter):
+
+----
+int switchkinsRegisterOps(int ktype, const kins_ops *ops);
+----
+
+The geometry of the whole module is one table, named in the kparms
+fields 'params' and 'nparams'; every kinstype reads it from the block.
+The older form, switchkinsRegister() with a setup, forward and inverse
+routine per kinstype that read pins of their own, is still accepted:
 
 ----
 int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 ----
 
 'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
-switchkins.h).  Registering a kinstype twice is an error, and so is
-leaving a gap below the highest kinstype provided.  Either mistake
-fails the module load and says which kinstype is at fault.
+switchkins.h).  Registering a kinstype twice, by either route, is an
+error, and so is leaving a gap below the highest kinstype provided.
+Either mistake fails the module load and says which kinstype is at
+fault.
 
 Each kinstype gets its own 'kinstype.is-N' pin, so a module
 providing the usual three keeps the pin names it always had.
@@ -529,15 +543,15 @@ When every kinstype is registered, the module calls:
 int switchkinsInit(const int comp_id, kparms* kp, const char* coordinates);
 ----
 
-which checks the supplied parameters, creates the HAL pins, selects
-kinstype 0, and then invokes the setup routine registered for each
-kinstype.  The caller owns the HAL component: it does hal_init()
-before switchkinsInit() and hal_ready() after it.
+which checks the supplied parameters, creates the HAL pins, the
+table's among them, selects kinstype 0, and then invokes the setup
+routine of each kinstype registered the older way.  The caller owns
+the HAL component: it does hal_init() before switchkinsInit() and
+hal_ready() after it.
 
-Each kinstype setup routine can (optionally) create HAL
-pins and set them to default values.  A setup routine is called
-once per kinstype it is registered for, so a routine used for two
-kinstypes must not create the same pin twice.
+A module built this way also exports kinsDescribe(), through which a
+copy of it loaded outside realtime learns its table and the maths of
+each kinstype; the non-realtime loader and kinslimits use it.
 
 === Module main program
 
@@ -554,31 +568,59 @@ int switchkinsSetup(kparms* kp,
                     KI* kinv0, KI* kinv1, KI* kinv2);
 ----
 
-which identifies the setup, forward and inverse routines for
-kinstypes 0,1,2 and sets a number of configuration settings.  Those
-three are registered for the module, so it can supply further
-kinstypes by calling switchkinsRegister() itself, and registering
-one that switchkinsSetup() has already filled in is the same error
-as any other duplicate.
+which sets the configuration settings, names the geometry table and
+registers the kinstypes with switchkinsRegisterOps().  The pointer
+arguments are the older route for kinstypes 0,1,2; a module using
+them leaves the rest alone.  switchkinsRunSetup() in
+switchkins_setup.c is what runs switchkinsSetup() and registers what
+it returned, for the 'main' program and for kinsDescribe() alike.
 
 A module written as a halcompile component gets rtapi_app_main()
-from halcompile instead.  It registers its kinstypes and calls
-switchkinsInit() from its EXTRA_SETUP() routine, which halcompile
-runs after hal_init() and before hal_ready().  The component names
-the objects it needs in hal/components/Submakefile:
+from halcompile instead.  It supplies the same switchkinsSetup(), and
+from its EXTRA_SETUP() routine, which halcompile runs after
+hal_init() and before hal_ready(), calls switchkinsRunSetup() and
+then switchkinsInit().  The component names the objects it needs in
+hal/components/Submakefile:
 
 ----
-millturn-extra-objs := emc/kinematics/switchkins.o emc/kinematics/kins_util.o
+millturn-extra-objs := emc/kinematics/switchkins.o emc/kinematics/switchkins_setup.o emc/kinematics/kins_util.o
 ----
 
 === Outline
 
-The two routes in one switchkinsSetup(), with the kinematics itself
-left out.  Types 0 to 2 are filled in through the pointer arguments as
-they always were, and a fourth is registered:
+A switchkinsSetup() with the kinematics itself left out: the table,
+the ops table of the machine's own kinstype, and the shared identity
+and userk ops for the other two:
 
 [source,c]
 ----
+static const kins_param_desc my_params[] = {
+    { "pivot-length", KINS_PARAM_FLOAT, KINS_IN, 0, 100.0 },
+    { "tool-offset",  KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },   // the tool length
+};
+enum { P_PIVOT_LENGTH, P_TOOL_OFFSET };
+
+static int my_forward(const kins_params *p, kins_scratch *s,
+                      const double *joint, EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double pivot = p->geometry[P_PIVOT_LENGTH];   // where a pin was read
+    double tool  = p->tool.tran.z;                // the tool, from wherever the caller has it
+    // ...
+}
+
+static int my_inverse(const kins_params *p, kins_scratch *s,
+                      const EmcPose *pos, double *joint,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags);
+
+static const kins_ops my_ops = {
+    .forward = my_forward,
+    .inverse = my_inverse,
+    // .work, .tool, .native and .jacobian are optional, see kinematics.h
+};
+
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
                     KF* kfwd0, KF* kfwd1, KF* kfwd2,
@@ -589,37 +631,24 @@ int switchkinsSetup(kparms* kp,
     kp->halprefix            = "mykins"; // hal pin names
     kp->required_coordinates = "xyzab";
     kp->max_joints           = strlen(kp->required_coordinates);
+    kp->params               = my_params;
+    kp->nparams              = sizeof(my_params)/sizeof(my_params[0]);
     // remaining kparms fields
 
-    *kset0 = identityKinematicsSetup;    // kinstype 0 is the startup default
-    *kfwd0 = identityKinematicsForward;
-    *kinv0 = identityKinematicsInverse;
+    switchkinsRegisterOps(0, &my_ops);              // kinstype 0 is the startup default
+    switchkinsRegisterOps(1, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(2, &USERK_OPS);
 
-    *kset1 = myKinematicsSetup;
-    *kfwd1 = myKinematicsForward;
-    *kinv1 = myKinematicsInverse;
-
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
-
-    // any further kinstype comes from switchkinsRegister(), and the
-    // numbering carries on from the three above with no gaps
-    if (switchkinsRegister(3, myOtherKinematicsSetup,
-                              myOtherKinematicsForward,
-                              myOtherKinematicsInverse)) { return -1; }
-
+    // any further kinstype is registered the same way, and the
+    // numbering carries on with no gaps
     return 0;
 } // switchkinsSetup()
 ----
 
-A module wanting fewer than three kinstypes leaves the unused pointer
-arguments alone and starts registering at the first free number.
-
 For the surrounding shape, the in-tree switchkinsSetup() routines are
 in src/emc/kinematics: 5axiskins.c, xyzac-trt-kins.c, genserkins.c,
 scarakins.c and the others listed at the top of this document.  None of
-them registers a fourth kinstype yet, so the call above has no in-tree
+them registers a fourth kinstype yet, so a call for one has no in-tree
 example to copy.
 
 // vim: set syntax=asciidoc:
