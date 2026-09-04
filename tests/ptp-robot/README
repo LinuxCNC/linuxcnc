@@ -1,0 +1,6 @@
+The point-to-point moves on a serial robot.
+
+pumakins maps X, Y and Z to its first three joints, which turn rather
+than slide, so G53.5 refuses the machine and says which joint gives it
+away.  G53.7 names joints by number and works, and G53.4 still takes a
+Cartesian destination.

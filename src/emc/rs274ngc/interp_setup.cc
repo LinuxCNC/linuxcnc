@@ -114,6 +114,12 @@ setup::setup() :
     g68_seq_have(0),
     g68_seq_r_q(-1),
     g68_seq_word{},
+    kins_ctx(nullptr),
+    kins_comp_id(0),
+    kins_module{},
+    kins_joints(0),
+    kins_angular_joints(0),
+    kins_seed{},
 
     parameters{0},
     parameter_occurrence(0),
