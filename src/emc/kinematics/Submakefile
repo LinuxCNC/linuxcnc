@@ -40,6 +40,7 @@ PYTARGETS += $(RDELTAMODULE)
 # in-tree ones link it.
 EMCKINEMATICSSRCS = \
 	../share/linuxcnc/switchkins.c \
+	../share/linuxcnc/switchkins_setup.c \
 	../share/linuxcnc/kins_util.c \
 	../share/linuxcnc/kins_single.c
 
