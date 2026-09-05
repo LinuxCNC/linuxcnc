@@ -14,7 +14,7 @@
 * Last change: 
 ********************************************************************/
 
-#include "posemath.h"
+#include <posemath.h>
 
 #ifdef PM_PRINT_ERROR
 #define PM_DEBUG		// need debug with printing

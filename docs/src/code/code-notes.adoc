@@ -127,7 +127,7 @@ of the HAL, and uses terms like HAL pins, HAL signals, etc, without
 explaining them. For more information about the HAL, see the
 HAL Manual. Another chapter of this document will
 eventually go into the internals of the HAL itself, but in this
-chapter, we only use the HAL API as defined in src/hal/hal.h.
+chapter, we only use the HAL API as defined in include/hal.h.
 
 === Motion Controller Modules
 

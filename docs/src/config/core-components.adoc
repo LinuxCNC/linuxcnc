@@ -119,7 +119,7 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
   This will be delayed during spindle synch moves till the end of the move.
 * 'motion.in-position' - (bit, out) TRUE if the machine is in position.
 * 'motion.motion-enabled' - (bit, out) TRUE when in 'machine on' state.
-* 'motion.motion-type' - (s32, out) These values are from src/emc/nml_intf/motion_types.h
+* 'motion.motion-type' - (s32, out) These values are from include/motion_types.h
   - 0: Idle (no motion)
   - 1: Traverse
   - 2: Linear feed
