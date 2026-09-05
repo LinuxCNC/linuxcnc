@@ -200,6 +200,7 @@ SPINDLE_OFF
 # turns on Motion and all the amps.
 #
 
+SS_ENABLE
 ENABLE
 
 #

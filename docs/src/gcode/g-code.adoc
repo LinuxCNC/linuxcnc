@@ -1071,6 +1071,16 @@ K follows the drive line described by 'X- Y- Z-'. K is not parallel to
 the Z axis if X or Y endpoints are used for example when cutting tapered
 threads.
 
+[NOTE]
+The spindle speed override has no effect during a G33 move, and the previous
+setting is restored when the move ends. The commanded position follows the
+spindle, but the axis lags it by an amount proportional to speed, so changing
+the speed part way through shifts the tool along the helix it is already
+cutting. A <<gcode:g76,G76>> cycle holds the override at the value the cycle
+started with rather than dropping it, because the whole cycle is one block; a
+G33 thread is one pass per line with the retract in between, so there is no
+span to hold.
+
 [[gcode:g33-tech-info]]
 .Technical Info
 At the beginning of each G33 pass, LinuxCNC uses the spindle speed and
@@ -1113,11 +1123,15 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity.
 
 [NOTE]
-The pitch and the spindle speed together set the axis feed. If they ask for
-more than the machine can deliver, the program is not rejected: there is no
-interpreter check and no error message for that case.
+In constant surface speed mode the spindle speed follows the radius, so the
+check uses the fastest speed the move can reach: the speed at its smallest
+cutting radius, limited by the G96 'D' word and by
+`[SPINDLE_n]MAX_FORWARD_VELOCITY`. If the move reaches the centre of rotation
+and neither limit is set the speed is unbounded and no check is made.
 
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
@@ -1179,6 +1193,12 @@ M2 (end program)
 * See <<gcode:g90-g91,G90>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>>
   sections for more information.
 
+[NOTE]
+Unlike G33, the spindle speed override stays active during a G33.1 move and the
+feed follows whatever the spindle actually does. A tap guides itself in its own
+hole, so there is no thread lead to spoil, and being able to slow the spindle
+while the tap is in the work is useful.
+
 It is an error if:
 
 * All axis words are omitted.
@@ -1186,11 +1206,9 @@ It is an error if:
 * An F word is given (the feed follows from K and the spindle speed).
 * The selected spindle is not commanded to turn (M3 or M4 active) when
   this command is executed.
-
-[NOTE]
-The pitch and the spindle speed together set the axis feed. If they ask for
-more than the machine can deliver, the program is not rejected: there is no
-interpreter check and no error message for that case.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity. See <<gcode:g33,G33>> for how the speed is determined
+  in constant surface speed mode.
 
 [[gcode:g38]]
 == G38._n_ Straight Probe(((G38.n Probe)))
@@ -2046,6 +2064,17 @@ It is an error if:
 * All the required words are not specified.
 * 'P-', 'J-', 'K-' or 'H-' is negative.
 * 'E-' is greater than half the drive line length.
+* The pitch and the spindle speed together ask an axis to move faster than
+  its maximum velocity. See <<gcode:g33,G33>> for how the speed is determined
+  in constant surface speed mode.
+
+[NOTE]
+The spindle speed override is held for the whole G76 cycle at the value in
+effect when the cycle starts, capped at 100% because the pitch is checked
+against the programmed speed. Moving it while the cycle runs has no effect, so
+every pass cuts at one speed and they stay on the same helix. The previous
+setting is restored when the cycle ends. To thread at 80% of the programmed
+speed, set the override before the cycle starts.
 
 .HAL Connections
 The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the

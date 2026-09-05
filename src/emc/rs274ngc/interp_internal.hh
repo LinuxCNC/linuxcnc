@@ -93,6 +93,15 @@ static inline bool equal(double a, double b)
     return (fabs(a - b) < TOLERANCE_EQUAL);
 }
 
+/* Smallest distance from zero over the closed interval [a, b], which is zero
+   if the interval spans it. */
+static inline double min_abs_over_range(double a, double b)
+{
+    if ((a <= 0.0 && b >= 0.0) || (b <= 0.0 && a >= 0.0))
+	return 0.0;
+    return fmin(fabs(a), fabs(b));
+}
+
 #define TINY 1e-12              /* for arc_data_r */
 
 // max number of m codes on one line
@@ -762,6 +771,7 @@ struct setup
   int active_spindle;			// the spindle currently used for CSS, FPR etc.
   double speed[EMCMOT_MAX_SPINDLES];// array of spindle speeds
   SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// SPINDLE_MODE::CONSTANT_RPM or SPINDLE_MODE::CONSTANT_SURFACE
+  double css_maximum[EMCMOT_MAX_SPINDLES];// G96 D word, RPM ceiling in CSS mode, 0 if not given
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
   CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning

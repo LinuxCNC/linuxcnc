@@ -425,6 +425,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define FS_ENABLED 0x02
 #define AF_ENABLED 0x04
 #define FH_ENABLED 0x08
+#define SS_LOCKED  0x10
 
 /* This structure contains all of the data associated with
    a single joint.  Note that this structure does not need
@@ -600,6 +601,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
     emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
     int spindleSync;    /* spindle used for synchronised moves. -1 = none */
+    int syncOverrunSpindle; /* spindle that outran the axis in a synced move,
+                               plus one; 0 = none.  Set by the planner, raised
+                               by the motion controller. */
+    double syncOverrunError; /* by how much per second */
     spindle_status_t spindle_status[EMCMOT_MAX_SPINDLES]; /* all spindle data */
 
 

@@ -307,6 +307,11 @@ no influence, and the spindle speed will have the
 exact program specified value of the S-word
 (described in the <<sec:set-spindle-speed,Spindle Speed>> section).
 
+The override is also suspended for the duration of a <<gcode:g33,G33>> move,
+and held at the value the cycle started with for the duration of a
+<<gcode:g76,G76>> cycle, whatever M48, M49 or M51 last selected. That selection
+is restored afterwards.
+
 [[mcode:m52]]
 == M52 Adaptive Feed Control
 

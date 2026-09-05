@@ -623,6 +623,9 @@ void ENABLE_FEED_OVERRIDE()
 void ENABLE_SPEED_OVERRIDE(int spindle)
 {PRINT("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
 
+void LOCK_SPEED_OVERRIDE(int spindle)
+{PRINT("LOCK_SPEED_OVERRIDE(%i)\n", spindle); }
+
 void FLOOD_OFF()
 {
   PRINT("FLOOD_OFF()\n");
@@ -966,6 +969,17 @@ extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
     }
   return tdata;
 #endif //}
+}
+
+/* The standalone interpreter has no machine, so no axis limits */
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/)
+{
+  return 0.0;
+}
+
+double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int /*spindle*/)
+{
+  return 0.0;
 }
 
 /* Returns the system traverse rate */

@@ -498,6 +498,9 @@ int tpInit(TP_STRUCT * const tp)
 
     tp->spindle.offset = 0.0;
     tp->spindle.revs = 0.0;
+    tp->spindle.overrun_cycles = 0;
+    tp->spindle.overrun_revs = 0.0;
+    tp->spindle.overrun_reported = 0;
     tp->spindle.waiting_for_index = MOTION_INVALID_ID;
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
 
@@ -3568,6 +3571,23 @@ STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
 
 
 /**
+ * Record a spindle-synchronized overrun for the motion controller to raise.
+ * The planner is a separate module and can neither report to the operator nor
+ * abort re-entrantly from inside its own cycle.
+ */
+STATIC void tpSyncOverrun(TP_STRUCT * const tp, double amount)
+{
+    if (tp->spindle.overrun_reported) {
+        return;         /* one per move; it keeps slipping while it stops */
+    }
+    emcmotStatus->syncOverrunSpindle = tp->spindle.spindle_num + 1;
+    emcmotStatus->syncOverrunError = amount;
+    tp->spindle.overrun_reported = 1;
+    tp->spindle.overrun_cycles = 0;
+}
+
+
+/**
  * Run position mode synchronization.
  * Updates requested velocity for a trajectory segment to track the spindle's position.
  */
@@ -3611,19 +3631,76 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
             tc_debug_print("accelerating in pos_sync\n");
             // beginning of move and we are behind: accel as fast as we can
             tc->target_vel = tc->maxvel;
+
+            /* If the pitch at this speed needs more than the segment can
+             * deliver, the handoff above never happens and the whole move runs
+             * here clamped.  spindle_vel is revs averaged over the move, so it
+             * is smooth enough to compare once settled. */
+            if (tc->sync_accel * dt > TP_SYNC_OVERRUN_WINDOW &&
+                    target_vel > tc->maxvel * TP_SYNC_OVERRUN_MARGIN) {
+                tpSyncOverrun(tp, target_vel - tc->maxvel);
+            }
         }
     } else {
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
         tc_debug_print("tracking in pos_sync\n");
-        double errorvel;
         spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
         target_vel = spindle_vel * tc->uu_per_rev;
-        errorvel = pmSqrt(fabs(pos_error) * tcGetTangentialMaxAccel(tc));
-        if(pos_error<0) {
-            errorvel *= -1.0;
+        /* Correct the position error without losing the spindle: rise above
+         * the tracking velocity v_0 and come back to it, so the area of the
+         * blip is the error.
+         *
+         * velocity
+         * |          v_p
+         * |         /\
+         * |        /..\         v_0
+         * |--------....-----------
+         * |        ....
+         * |        ....
+         * |_________________________
+         *         |----| t      time
+         *
+         * That gives v_p = sqrt(v_0^2 + x_err*a_max).  The
+         * old form added sqrt(x_err*a_max) to v_0, which is the same with v_0
+         * taken as zero, so it over-corrected and its gain diverged as the
+         * error went to zero, limit-cycling at the servo rate.
+         * From robEllenberg, PR #581. */
+        double dt = fmax(tp->cycleTime, TP_TIME_EPSILON);
+        double a_max = tcGetTangentialMaxAccel(tc);
+        double v_sq = pmSq(target_vel) + pos_error * a_max;
+        tc->target_vel = pmSqrt(fmax(v_sq, 0.0));
+
+        /* Rigid tap reversals move the target by design, so watch only the
+         * tapping pass. */
+        bool tap_reversing = (tc->motion_type == TC_RIGIDTAP) &&
+            (tc->coords.rigidtap.state != TAPPING);
+
+        /* Only an axis pinned at its ceiling can be outrun.  Below it the
+         * error grows for reasons a correct G33 has anyway: the spindle turns
+         * while the axis ramps up, and again while it stops on the endpoint. */
+        bool saturated = tc->currentvel >= tc->maxvel * TP_SYNC_OVERRUN_CEILING;
+        int window_cycles = (int)(TP_SYNC_OVERRUN_WINDOW / dt);
+        if (window_cycles < 1) {
+            window_cycles = 1;
         }
-        tc->target_vel = target_vel + errorvel;
+
+        if (!tap_reversing && saturated) {
+            if (tp->spindle.overrun_cycles == 0) {
+                tp->spindle.overrun_revs = tp->spindle.revs;
+            }
+            if (++tp->spindle.overrun_cycles >= window_cycles) {
+                double window = window_cycles * dt;
+                double demand = fabs(tp->spindle.revs - tp->spindle.overrun_revs)
+                                * fabs(tc->uu_per_rev) / window;
+                if (demand > tc->maxvel * TP_SYNC_OVERRUN_MARGIN) {
+                    tpSyncOverrun(tp, demand - tc->maxvel);
+                }
+                tp->spindle.overrun_cycles = 0;
+            }
+        } else {
+            tp->spindle.overrun_cycles = 0;
+        }
     }
 
     //Finally, clip requested velocity at zero
@@ -4206,6 +4283,9 @@ int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int mode) {
         }
         tp->uu_per_rev = sync;
         tp->spindle.spindle_num = spindle;
+        /* each synced move may report again */
+        tp->spindle.overrun_reported = 0;
+        tp->spindle.overrun_cycles = 0;
     } else
         tp->synchronized = 0;
 

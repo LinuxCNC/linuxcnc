@@ -925,6 +925,7 @@ void ENABLE_FEED_HOLD() {}
 void DISABLE_SPEED_OVERRIDE(int /*spindle*/) {}
 void ENABLE_FEED_OVERRIDE() {}
 void ENABLE_SPEED_OVERRIDE(int /*spindle*/) {}
+void LOCK_SPEED_OVERRIDE(int /*spindle*/) {}
 void MIST_OFF() {}
 void FLOOD_OFF() {}
 void MIST_ON() {}
@@ -1064,6 +1065,8 @@ CANON_DIRECTION GET_EXTERNAL_SPINDLE(int) { return CANON_STOPPED; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 double GET_EXTERNAL_FEED_RATE() { return 1; }
+double GET_EXTERNAL_AXIS_MAX_VELOCITY(int /*axis*/) { return 0; }
+double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int /*spindle*/) { return 0; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0; }
 int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }

@@ -68,6 +68,10 @@ extern struct emcmot_status_t *emcmotStatus;
 //  etc.
 static double *pcmd_p[EMCMOT_MAX_AXIS];
 
+/* spindle override held while SS_LOCKED, see process_inputs */
+static double locked_spindle_scale[EMCMOT_MAX_SPINDLES];
+static unsigned char prev_enables = 0;
+
 /***********************************************************************
 *                      LOCAL FUNCTION PROTOTYPES                       *
 ************************************************************************/
@@ -371,6 +375,16 @@ static void process_inputs(void)
 	/* use the enables that are in effect right now */
 	enables = emcmotStatus->enables_new;
     }
+    /* Latch as the first locked move starts, so every pass of a G76 cycle
+       cuts at one speed.  Capped at 1.0: the pitch check used the programmed
+       speed. */
+    if ( (enables & SS_LOCKED) && !(prev_enables & SS_LOCKED) ) {
+	for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++) {
+	    double s = emcmotStatus->spindle_status[spindle_num].scale;
+	    locked_spindle_scale[spindle_num] = s < 1.0 ? s : 1.0;
+	}
+    }
+    prev_enables = enables;
     /* feed scaling first:  feed_scale, adaptive_feed, and feed_hold */
     scale = 1.0;
     if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
@@ -427,7 +441,9 @@ static void process_inputs(void)
     for (spindle_num=0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		scale = 1.0;
 		if ( enables & SS_ENABLED ) {
-			scale *= emcmotStatus->spindle_status[spindle_num].scale;
+			scale *= (enables & SS_LOCKED)
+				? locked_spindle_scale[spindle_num]
+				: emcmotStatus->spindle_status[spindle_num].scale;
 		}
 		/*non maskable (except during spindle synch move) spindle inhibit pin */
 		if ( enables & hal_get_bool(emcmot_hal_data->spindle[spindle_num].spindle_inhibit) ) {
@@ -1349,6 +1365,17 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 
 	    tpRunCycle(&emcmotInternal->coord_tp, period);
+
+            if (emcmotStatus->syncOverrunSpindle) {
+                tpAbort(&emcmotInternal->coord_tp);
+                reportError(_("spindle-synchronized move exceeds axis limits: "
+                              "spindle %d is outrunning the axis by %f per "
+                              "second, reduce the spindle speed or the pitch"),
+                            emcmotStatus->syncOverrunSpindle - 1,
+                            emcmotStatus->syncOverrunError);
+                emcmotStatus->syncOverrunSpindle = 0;
+                SET_MOTION_ERROR_FLAG(1);
+            }
             /* get new commanded traj pos */
             tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 
