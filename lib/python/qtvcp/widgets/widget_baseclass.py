@@ -120,8 +120,8 @@ class _HalToggleBase(_HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_OUT)
-        self.hal_pin_not = self.HAL_GCOMP_.newpin(pname + "-not", hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.OUT)
+        self.hal_pin_not = self.HAL_GCOMP_.newpin(pname + "-not", hal.Type.BOOL, hal.Dir.OUT)
         self.toggled.connect(lambda data: self._pin_update(data))
 
     def _pin_update(self, state):
@@ -142,8 +142,8 @@ class _HalScaleBase(_HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname + "-f", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(pname + "-s", hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname + "-f", hal.Type.REAL, hal.Dir.OUT)
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(pname + "-s", hal.Type.SINT, hal.Dir.OUT)
         self.valueChanged.connect(lambda data: self._pin_update(data))
         # default scale
         self.input = 1
@@ -169,7 +169,7 @@ class _HalSensitiveBase(_HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.IN)
         self.hal_pin.value_changed.connect(lambda s: self.setEnabled(s))
 
     def set_pin_name(self, value):

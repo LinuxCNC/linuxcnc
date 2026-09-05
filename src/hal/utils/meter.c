@@ -543,16 +543,6 @@ static const char *data_value(hal_type_t type, hal_refs_u ref)
 	snprintf(buf, sizeof(buf), "%.7g", (double)hal_get_real(ref.r));
 	value_str = buf;
 	break;
-    case HAL_S32:
-	snprintf(buf, sizeof(buf), "%10ld", (long)hal_get_si32(ref.s));
-	value_str = buf;
-	break;
-    case HAL_U32: {
-        unsigned long v = hal_get_ui32(ref.u);
-	snprintf(buf, sizeof(buf), "%10lu (0x%08lX)", v, v);
-	value_str = buf;
-        }
-	break;
     case HAL_SINT:
 	snprintf(buf, sizeof(buf), "%10lld", (long long)hal_get_sint(ref.s));
 	value_str = buf;

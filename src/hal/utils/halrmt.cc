@@ -366,8 +366,6 @@ static const char *data_type(hal_type_t type)
     switch (type) {
     case HAL_BOOL: return "bool ";
     case HAL_REAL: return "real ";
-    case HAL_S32:  return "s32  ";
-    case HAL_U32:  return "u32  ";
     case HAL_SINT: return "sint ";
     case HAL_UINT: return "uint ";
     case HAL_PORT: return "port ";
@@ -424,9 +422,7 @@ static std::string data_value(hal_type_t type, hal_query_value_u val)
     case HAL_BOOL: return val.b ? "        TRUE" : "       FALSE";
     case HAL_REAL: return fmt::format("{:12.7g}", val.r);
     case HAL_PORT: // FIXME
-    case HAL_S32:
     case HAL_SINT: return fmt::format("  {:10d}", val.s);
-    case HAL_U32:
     case HAL_UINT: return fmt::format("    {:08X}", val.u);
     default:       return "   undef    ";
     }
@@ -438,9 +434,7 @@ static std::string data_value2(hal_type_t type, hal_query_value_u val)
     case HAL_BOOL: return val.b ? "TRUE" : "FALSE";
     case HAL_REAL: return fmt::format("{:.7g}", val.r);
     case HAL_PORT: // FIXME
-    case HAL_S32:
     case HAL_SINT: return fmt::format("{}", val.s);
-    case HAL_U32:
     case HAL_UINT: return fmt::format("{}", val.u);
     default:       return "unknown_type";
     }
@@ -2101,10 +2095,10 @@ static hal_type_t haltype_from_str(const std::string &str)
         { "bool",  HAL_BOOL },
         { "float", HAL_REAL },
         { "real",  HAL_REAL },
-        { "s32",   HAL_S32  },
+        { "s32",   HAL_SINT },
         { "s64",   HAL_SINT },
         { "sint",  HAL_SINT },
-        { "u32",   HAL_U32  },
+        { "u32",   HAL_UINT },
         { "u64",   HAL_UINT },
         { "uint",  HAL_UINT },
     };

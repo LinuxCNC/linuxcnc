@@ -19,7 +19,7 @@ class HandlerClass:
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
         self.change_text = builder.get_object("change-text")
-        self.halcomp.newpin("number", hal.HAL_FLOAT, hal.HAL_IN)
+        self.halcomp.newpin("number", hal.Type.REAL, hal.Dir.IN)
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]

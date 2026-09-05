@@ -23,7 +23,7 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
 retval = 0
 
 h = hal.component("python-ui")
-h.newpin("ext-estop-button", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("ext-estop-button", hal.Type.BOOL, hal.Dir.OUT)
 h.ready() # mark the component as 'ready'
 
 hal.connect('python-ui.ext-estop-button', 'ext-estop')

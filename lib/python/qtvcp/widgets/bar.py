@@ -408,8 +408,8 @@ class Bar(QtWidgets.QWidget):
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
+    SINT = hal.Type.SINT
+    REAL = hal.Type.REAL
 
 
 class  HalBar(Bar, _HalWidgetBase):
@@ -418,12 +418,12 @@ class  HalBar(Bar, _HalWidgetBase):
 
     # older version of pyqt5 need this as well as QEnum
     NONE = 0
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
+    S32 = hal.Type.SINT
+    FLOAT = hal.Type.REAL
 
     def __init__(self, *args, **kwargs):
         super(). __init__( *args, **kwargs)
-        self._pin_type = HALPinType.S32
+        self._pin_type = HALPinType.SINT
         self._pin_name = ''
         self._invert_negative = False
         self._superOpposite = self._opposite
@@ -436,11 +436,11 @@ class  HalBar(Bar, _HalWidgetBase):
 
         self._superOpposite = self._opposite
 
-        if self._pin_type == HALPinType.FLOAT:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_IN)
+        if self._pin_type == HALPinType.REAL:
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
-        elif self._pin_type == HALPinType.S32:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_S32, hal.HAL_IN)
+        elif self._pin_type == HALPinType.SINT:
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.SINT, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
 
     def updateDisplay(self, data):
@@ -456,7 +456,7 @@ class  HalBar(Bar, _HalWidgetBase):
     def get_pin_type(self):
         return self._pin_type
     def reset_pin_type(self):
-        self._pin_type = HALPinType.S32
+        self._pin_type = HALPinType.SINT
 
     def set_pin_name(self, value):
         self._pin_name = value

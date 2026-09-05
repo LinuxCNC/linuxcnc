@@ -116,10 +116,10 @@ class IndicatedMixIn( _HalWidgetBase):
                 pname = self.HAL_NAME_
             else:
                 pname = self._pin_name_
-            self.hal_pin_led = self.HAL_GCOMP_.newpin(pname + '-led', hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin_led = self.HAL_GCOMP_.newpin(pname + '-led', hal.Type.BOOL, hal.Dir.IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
             if self._doubleIndicator:
-                self.hal_pin_led2 = self.HAL_GCOMP_.newpin(pname + '-led2', hal.HAL_BIT, hal.HAL_IN)
+                self.hal_pin_led2 = self.HAL_GCOMP_.newpin(pname + '-led2', hal.Type.BOOL, hal.Dir.IN)
                 self.hal_pin_led2.value_changed.connect(lambda data: self.indicator2_update(data))
 
         elif self._ind_status:

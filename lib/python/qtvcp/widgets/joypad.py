@@ -539,9 +539,9 @@ class JoyPad(QtWidgets.QWidget):
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT = hal.HAL_BIT
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
+    BOOL = hal.Type.BOOL
+    SINT = hal.Type.SINT
+    REAL = hal.Type.REAL
 
 class HALPad(JoyPad, _HalWidgetBase):
     HALPinType = HALPinType
@@ -549,14 +549,14 @@ class HALPad(JoyPad, _HalWidgetBase):
 
     # older version of pyqt5 need this as well as QEnum
     NONE = 0
-    BIT = hal.HAL_BIT
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
+    BIT = hal.Type.BOOL
+    S32 = hal.Type.SINT
+    FLOAT = hal.Type.REAL
 
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)
         self._pin_name = ''
-        self._pin_type = HALPinType.BIT
+        self._pin_type = HALPinType.BOOL
 
         self._trueOutputR = 1.0
         self._trueOutputL = 1.0
@@ -579,24 +579,24 @@ class HALPad(JoyPad, _HalWidgetBase):
             pname = self._pin_name
         if not self._pin_type == HALPinType.NONE:
             ptype = self._pin_type
-            self.halPinR = self.HAL_GCOMP_.newpin(pname + '.right', ptype, hal.HAL_OUT)
-            self.halPinL = self.HAL_GCOMP_.newpin(pname + '.left', ptype, hal.HAL_OUT)
-            self.halPinT = self.HAL_GCOMP_.newpin(pname + '.top', ptype, hal.HAL_OUT)
-            self.halPinB = self.HAL_GCOMP_.newpin(pname + '.bottom', ptype, hal.HAL_OUT)
-            self.halPinC = self.HAL_GCOMP_.newpin(pname + '.center', ptype, hal.HAL_OUT)
+            self.halPinR = self.HAL_GCOMP_.newpin(pname + '.right', ptype, hal.Dir.OUT)
+            self.halPinL = self.HAL_GCOMP_.newpin(pname + '.left', ptype, hal.Dir.OUT)
+            self.halPinT = self.HAL_GCOMP_.newpin(pname + '.top', ptype, hal.Dir.OUT)
+            self.halPinB = self.HAL_GCOMP_.newpin(pname + '.bottom', ptype, hal.Dir.OUT)
+            self.halPinC = self.HAL_GCOMP_.newpin(pname + '.center', ptype, hal.Dir.OUT)
         if not self._highlightPosition == IndicatorPosition.NONE:
-            self.halPinLightCenter = self.HAL_GCOMP_.newpin(pname + '.light.center', hal.HAL_BIT, hal.HAL_IN)
+            self.halPinLightCenter = self.HAL_GCOMP_.newpin(pname + '.light.center', hal.Type.BOOL, hal.Dir.IN)
             self.halPinLightCenter.value_changed.connect(lambda data: self.setLight(data))
 
     def _pressedOutput(self, btncode):
         self.joy_btn_pressed.emit(btncode)
         self['joy_{}_pressed'.format(btncode.lower())].emit(True)
 
-        if self._pin_type == HALPinType.BIT:
+        if self._pin_type == HALPinType.BOOL:
             data = True
-        elif self._pin_type == HALPinType.FLOAT:
+        elif self._pin_type == HALPinType.REAL:
             data = float(self['_trueOutput{}'.format(btncode)])
-        elif self._pin_type == HALPinType.S32:
+        elif self._pin_type == HALPinType.SINT:
             data = int(self['_trueOutput{}'.format(btncode)])
         else:
             return
@@ -609,11 +609,11 @@ class HALPad(JoyPad, _HalWidgetBase):
         self.joy_btn_released.emit(btncode)
         self['joy_{}_released'.format(btncode.lower())].emit(False)
 
-        if self._pin_type == HALPinType.BIT:
+        if self._pin_type == HALPinType.BOOL:
             data = False
-        elif self._pin_type == HALPinType.FLOAT:
+        elif self._pin_type == HALPinType.REAL:
             data = float(self._falseOutput)
-        elif self._pin_type == HALPinType.S32:
+        elif self._pin_type == HALPinType.SINT:
             data = int(self._falseOutput)
         else:
             return
@@ -645,7 +645,7 @@ class HALPad(JoyPad, _HalWidgetBase):
     def get_pin_type(self):
         return self._pin_type
     def reset_pin_type(self):
-        self._pin_type = HALPinType.BIT
+        self._pin_type = HALPinType.BOOL
 
     # designer will show these properties in this order:
     pin_type = QtCore.Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)

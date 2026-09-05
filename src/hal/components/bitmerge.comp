@@ -3,7 +3,7 @@ description """This component creates a compound unsigned-32 from individual
 bit-inputs for each bit of an unsigned-32 output. The number of bits can be
 limited by the "personality" modparam.
 The inverse process can be performed by the bitslice HAL component.""";
-pin out ui32 out "The output value";
+pin out uint out "The output value";
 pin in  bool in-##[32:personality];
 author "Andy Pugh";
 license "GPL2+";
@@ -11,7 +11,7 @@ function _;
 option personality yes;
 option period no;
 ;;
-rtapi_u32 v = 0;
+rtapi_uint v = 0;
 for (int i = personality; i > 0;) {
 	v <<= 1;
 	if (in(--i))

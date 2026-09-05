@@ -3338,8 +3338,8 @@ from qtvcp.widgets.hal_selectionbox import HALSelectionBox
         # combo box for HAL pin selection
         combobox = HALSelectionBox()
         combobox.setShowTypes([combobox.PINS,combobox.SIGNALS])
-        combobox.setPinTypes([combobox.HAL_BIT], direction = [combobox.HAL_IN])
-        combobox.setSignalTypes([combobox.HAL_BIT], driven = [False,True])
+        combobox.setPinTypes([combobox.HAL_BOOL], direction = [combobox.HAL_IN])
+        combobox.setSignalTypes([combobox.HAL_BOOL], driven = [False,True])
         combobox.hal_init()
         combobox.selectionUpdated.connect(lambda w: self.signalSelected(w))
 
@@ -3355,13 +3355,13 @@ There are function calls
 # set the list of types to show from: PINS SIGNALS
 combobox.setShowTypes([combobox.PINS])
 
-# set the pin types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the pin types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of directions: HAL_IN HAL_OUT
-combobox.setPinTypes(types=[combobox.HAL_BIT], direction = [HAL_IN])
+combobox.setPinTypes(types=[combobox.HAL_BOOL], direction = [HAL_IN])
 
-# set the signal types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the signal types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of driven/undriven (by a connected pin) to show
-combobox.setSignalTypes( types=[combobox.HAL_BIT], driven = [True,True])
+combobox.setSignalTypes( types=[combobox.HAL_BOOL], driven = [True,True])
 ----
 
 // vim: set syntax=asciidoc:

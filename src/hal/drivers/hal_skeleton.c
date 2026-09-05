@@ -172,7 +172,7 @@ int rtapi_app_main(void)
     }
 
     /* STEP 4: export write function */
-    retval = hal_export_functf(write_port, &(port_data_array[n]), 0, 0,
+    retval = hal_export_functf(write_port, &(port_data_array[n]), 0,
 	comp_id, "skeleton.%d.write", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

@@ -778,10 +778,10 @@ const char *hal_strerror(int err)
     }
 }
 
-char *hal_comp_name(int comp_id)
+const char *hal_comp_name(int comp_id)
 {
     hal_comp_t *comp;
-    char *result = NULL;
+    const char *result = NULL;
     halpr_mutex_acquire();
     comp = halpr_find_comp_by_id(comp_id);
     if(comp) result = comp->name;
@@ -835,240 +835,9 @@ unsigned char hal_get_lock() {
 *                        "PIN" FUNCTIONS                               *
 ************************************************************************/
 
-/* wrapper functs for typed pins - these call the generic funct below */
-
-// We don't want our library to emit the deprecation warning.
-// We already know it and need to provide them until removed.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
-	comp_id);
-}
-
-int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_U64, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_S64, dir, (void **) data_ptr_addr, comp_id);
-}
-
-int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
-    hal_port_t ** data_ptr_addr, int comp_id)
-{
-    return hal_pin_new(name, HAL_PORT, dir, (void **)data_ptr_addr, comp_id);
-}
-
-
-static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
-    void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
-{
-    char name[HAL_NAME_LEN + 1];
-    int sz;
-    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
-    if(sz == -1 || sz > HAL_NAME_LEN) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
-	    sz, name);
-        return -ENOMEM;
-    }
-    return hal_pin_new(name, type, dir, data_ptr_addr, comp_id);
-}
-
-int hal_pin_bit_newf(hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_BIT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_pin_float_newf(hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_FLOAT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_pin_u32_newf(hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_U32, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_pin_s32_newf(hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_S32, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_pin_u64_newf(hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_U64, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_pin_s64_newf(hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_S64, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-#pragma GCC diagnostic pop
-
-int hal_pin_port_newf(hal_pin_dir_t dir,
-    hal_port_t **data_ptr_addr, int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_pin_newfv(HAL_PORT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-// *** New interface ***
-
-int hal_pin_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool def, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_BIT, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    if(ret)
-        return ret;
-    hal_set_bool(*ref, def);
-    return 0;
-}
-
-int hal_pin_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32 def, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_S32, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    if(ret)
-        return ret;
-    hal_set_si32(*ref, def);
-    return 0;
-}
-
-int hal_pin_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 def, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_U32, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    if(ret)
-        return ret;
-    hal_set_ui32(*ref, def);
-    return 0;
-}
-
-int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_S64, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    if(ret)
-        return ret;
-    hal_set_sint(*ref, def);
-    return 0;
-}
-
-int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_U64, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    if(ret)
-        return ret;
-    hal_set_uint(*ref, def);
-    return 0;
-}
-
-int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_FLOAT, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    if(ret)
-        return ret;
-    hal_set_real(*ref, def);
-    return 0;
-}
-
-// Note: port has no initial default as it is an 'internal' reference
-//int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fmt, ...)
-// FIXME: This needs to change into hal_port_t argument when we break the API
-// It is here so we may add halmodule without too  much trouble until then.
-int hal_pin_new_port(int compid, hal_pdir_t dir, hal_sint_t *ref, const char *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    int ret = hal_pin_newfv(HAL_PORT, dir, (void**)ref, compid, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
 /* this is a generic function that does the majority of the work. */
 
-int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
-    void **data_ptr_addr, int comp_id)
+static int halpr_pin_new(const char *name, hal_type_t type, hal_pdir_t dir, void **data_ptr_addr, int comp_id)
 {
     rtapi_intptr_t *prev, next;
     int cmp;
@@ -1081,18 +850,25 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	return -EFAULT;
     }
 
-    if(*data_ptr_addr) 
+    if(*data_ptr_addr)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
             name);
     }
-    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_S64 && type != HAL_U64 && type != HAL_PORT) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, HAL_S64, HAL_U64 or HAL_PORT\n");
-	return -EINVAL;
+    switch(type) {
+    case HAL_BOOL:
+    case HAL_REAL:
+    case HAL_SINT:
+    case HAL_UINT:
+    case HAL_PORT:
+        break;
+    default:
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: pin type not one of HAL_BOOL, HAL_REAL, HAL_SINT, HAL_UINT or HAL_PORT\n");
+        return -EINVAL;
     }
-    
+
     if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
@@ -1206,6 +982,110 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	prev = &(ptr->next_ptr);
 	next = *prev;
     }
+}
+
+/* wrapper functs for typed pins - these call the generic funct below */
+
+static int hal_pin_newfv(hal_type_t type, hal_pdir_t dir,
+    void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    if(sz == -1 || sz > HAL_NAME_LEN) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
+	    sz, name);
+        return -ENOMEM;
+    }
+    return halpr_pin_new(name, type, dir, data_ptr_addr, comp_id);
+}
+
+// *** New interface ***
+
+int hal_pin_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_BOOL, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_bool(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_SINT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_si32(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_UINT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_ui32(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_SINT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_sint(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_UINT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_uint(*ref, def);
+    return 0;
+}
+
+int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_REAL, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_real(*ref, def);
+    return 0;
+}
+
+// Note: port has no initial default as it is an 'internal' reference
+int hal_pin_new_port(int compid, hal_pdir_t dir, hal_port_t *ref, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = hal_pin_newfv(HAL_PORT, dir, (void**)ref, compid, fmt, ap);
+    va_end(ap);
+    if(ret)
+        return ret;
+    hal_set_port(*ref, 0); // By definition, a port starts unallocated
+    return 0;
 }
 
 int hal_pin_alias(const char *pin_name, const char *alias)
@@ -1379,15 +1259,14 @@ int hal_signal_new(const char *name, hal_type_t type)
      */
     switch (type) {
     case HAL_BOOL:
-    case HAL_S32:
-    case HAL_U32:
     case HAL_SINT:
     case HAL_UINT:
     case HAL_REAL:
     case HAL_PORT:
         data_addr = shmalloc_up(sizeof(*data_addr));
         // Initialize the signal value
-        memset(data_addr, 0, sizeof(*data_addr));
+        if(NULL != data_addr)
+            memset(data_addr, 0, sizeof(*data_addr));
         break;
     default:
 	halpr_mutex_release();
@@ -1604,8 +1483,6 @@ int hal_link(const char *pin_name, const char *sig_name)
 
         switch (pin->type) {
         case HAL_BOOL:
-        case HAL_S32:
-        case HAL_U32:
         case HAL_SINT:
         case HAL_UINT:
         case HAL_REAL:
@@ -1683,126 +1560,6 @@ int hal_unlink(const char *pin_name)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
-// We don't want our library to emit the deprecation warning.
-// We already know it and need to provide them until removed.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-int hal_param_bit_new(const char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_float_new(const char *name, hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u32_new(const char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_u64_new(const char *name, hal_param_dir_t dir, hal_u64_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_U64, dir, (void *) data_addr, comp_id);
-}
-int hal_param_s64_new(const char *name, hal_param_dir_t dir, hal_s64_t * data_addr,
-    int comp_id)
-{
-    return hal_param_new(name, HAL_S64, dir, (void *) data_addr, comp_id);
-}
-
-static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
-	void *data_addr, int comp_id, const char *fmt, va_list ap) {
-    char name[HAL_NAME_LEN + 1];
-    int sz;
-    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
-    if(sz == -1 || sz > HAL_NAME_LEN) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-	    "hal_param_newfv: length %d too long for name starting '%s'\n",
-	    sz, name);
-	return -ENOMEM;
-    }
-    return hal_param_new(name, type, dir, (void *) data_addr, comp_id);
-}
-
-int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_BIT, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_FLOAT, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_U32, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_S32, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_u64_newf(hal_param_dir_t dir, hal_u64_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_U64, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-
-int hal_param_s64_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
-    int comp_id, const char *fmt, ...)
-{
-    va_list ap;
-    int ret;
-    va_start(ap, fmt);
-    ret = hal_param_newfv(HAL_S64, dir, (void*)data_addr, comp_id, fmt, ap);
-    va_end(ap);
-    return ret;
-}
-#pragma GCC diagnostic pop
-
 /* this is a generic function that does the majority of the work. */
 
 // The old API parameter style uses the 'data_addr' as the actual data storage
@@ -1828,8 +1585,6 @@ static int hal_param_new_anyapi(const char *name, hal_type_t type, hal_pdir_t di
     case HAL_REAL:
     case HAL_SINT:
     case HAL_UINT:
-    case HAL_S32:
-    case HAL_U32:
         break;
     default:
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1951,13 +1706,6 @@ static int hal_param_new_anyapi(const char *name, hal_type_t type, hal_pdir_t di
     }
 }
 
-// Old API interface
-int hal_param_new(const char *name, hal_type_t type, hal_pdir_t dir, void *data_addr,
-    int comp_id)
-{
-    return hal_param_new_anyapi(name, type, dir, data_addr, comp_id, 0);
-}
-
 // New API interface only used locally
 static int hal_param_new_newapi(hal_type_t type, hal_pdir_t dir, void *data_addr,
     int comp_id, const char *fmt, va_list ap)
@@ -1979,7 +1727,7 @@ int hal_param_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_BIT, dir, ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_BOOL, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -1991,7 +1739,7 @@ int hal_param_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32 de
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_S32, dir, ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_SINT, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -2003,7 +1751,7 @@ int hal_param_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32 de
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_U32, dir, ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_UINT, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -2015,7 +1763,7 @@ int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_S64, dir, ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_SINT, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -2027,7 +1775,7 @@ int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_U64, dir, ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_UINT, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -2039,7 +1787,7 @@ int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real d
 {
     va_list ap;
     va_start(ap, fmt);
-    int ret = hal_param_new_newapi(HAL_FLOAT, dir, ref, compid, fmt, ap);
+    int ret = hal_param_new_newapi(HAL_REAL, dir, ref, compid, fmt, ap);
     va_end(ap);
     if(ret)
         return ret;
@@ -2063,125 +1811,6 @@ int hal_param_new_fake(int compid, hal_refs_u *ref)
     *(void **)ref = ptr;
     return 0;
 }
-
-/* wrapper functs for typed params - these call the generic funct below */
-
-// We don't want our library to emit the deprecation warning.
-// We already know it and need to provide them until removed.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-int hal_param_bit_set(const char *name, int value)
-{
-    return hal_param_set(name, HAL_BIT, &value);
-}
-
-int hal_param_float_set(const char *name, double value)
-{
-    return hal_param_set(name, HAL_FLOAT, &value);
-}
-
-int hal_param_u32_set(const char *name, unsigned long value)
-{
-    return hal_param_set(name, HAL_U32, &value);
-}
-
-int hal_param_s32_set(const char *name, signed long value)
-{
-    return hal_param_set(name, HAL_S32, &value);
-}
-
-int hal_param_u64_set(const char *name, unsigned long value)
-{
-    return hal_param_set(name, HAL_U64, &value);
-}
-
-int hal_param_s64_set(const char *name, signed long value)
-{
-    return hal_param_set(name, HAL_S64, &value);
-}
-
-/* this is a generic function that does the majority of the work */
-
-int hal_param_set(const char *name, hal_type_t type, void *value_addr)
-{
-    hal_param_t *param;
-    void *d_ptr;
-
-    if (hal_data == NULL) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_set called before init\n");
-	return -EFAULT;
-    }
-    
-    if (hal_data->lock & HAL_LOCK_PARAMS)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param_set called while HAL locked\n");
-	return -EPERM;
-    }
-    
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
-    /* get mutex before accessing shared data */
-    halpr_mutex_acquire();
-
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param == NULL) {
-	/* parameter not found */
-	halpr_mutex_release();
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: parameter '%s' not found\n", name);
-	return -EINVAL;
-    }
-    /* found it, is type compatible? */
-    if (param->type != type) {
-	halpr_mutex_release();
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: type mismatch setting param '%s'\n", name);
-	return -EINVAL;
-    }
-    /* is it read only? */
-    if (param->dir == HAL_RO) {
-	halpr_mutex_release();
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param '%s' is not writable\n", name);
-	return -EINVAL;
-    }
-    /* everything is OK, set the value */
-    d_ptr = SHMPTR(param->data_ptr);
-    switch (param->type) {
-    case HAL_BIT:
-	if (*((int *) value_addr) == 0) {
-	    *(hal_bit_t *) (d_ptr) = 0;
-	} else {
-	    *(hal_bit_t *) (d_ptr) = 1;
-	}
-	break;
-    case HAL_FLOAT:
-	*((hal_float_t *) (d_ptr)) = *((double *) (value_addr));
-	break;
-    case HAL_S32:
-	*((hal_s32_t *) (d_ptr)) = *((signed long *) (value_addr));
-	break;
-    case HAL_U32:
-	*((hal_u32_t *) (d_ptr)) = *((unsigned long *) (value_addr));
-	break;
-    case HAL_S64:
-	*((hal_s64_t *) (d_ptr)) = *((signed long *) (value_addr));
-	break;
-    case HAL_U64:
-	*((hal_u64_t *) (d_ptr)) = *((unsigned long *) (value_addr));
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	halpr_mutex_release();
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: bad type %d setting param\n", param->type);
-	return -EINVAL;
-    }
-    halpr_mutex_release();
-    return 0;
-}
-#pragma GCC diagnostic pop
 
 int hal_param_alias(const char *param_name, const char *alias)
 {
@@ -2308,69 +1937,13 @@ int hal_param_alias(const char *param_name, const char *alias)
 }
 
 /***********************************************************************
-*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
-************************************************************************/
-
-// We don't want our library to emit the deprecation warning.
-// We already know it and need to provide them until removed.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-int hal_get_pin_value_by_name(
-    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected)
-{
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    if ((pin = halpr_find_pin_by_name(hal_name)) == NULL)
-        return -1;
-
-    if (connected != NULL)
-        *connected = pin && pin->signal;
-    *type = pin->type;
-    if (pin->signal != 0) {
-        sig = (hal_sig_t *) SHMPTR(pin->signal);
-        *data = (hal_data_u *) SHMPTR(sig->data_ptr);
-    } else {
-        *data = (hal_data_u *) &(pin->dummysig);
-    }
-    return 0;
-}
-
-int hal_get_signal_value_by_name(
-    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers)
-{
-    hal_sig_t *sig;
-    if ((sig = halpr_find_sig_by_name(hal_name)) == NULL)
-        return -1;
-
-    if (has_writers != NULL)
-        *has_writers = !!sig->writers;
-    *type = sig->type;
-    *data = (hal_data_u *) SHMPTR(sig->data_ptr);
-    return 0;
-}
-
-int hal_get_param_value_by_name(
-    const char *hal_name, hal_type_t *type, hal_data_u **data)
-{
-    hal_param_t *param;
-    if ((param = halpr_find_param_by_name(hal_name)) == NULL)
-        return -1;
-
-    *type = param->type;
-    *data = (hal_data_u *) SHMPTR(param->data_ptr);
-    return 0;
-}
-#pragma GCC diagnostic pop
-
-
-/***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
 
 #ifdef RTAPI
 
 static int hal_export_functfv(void (*funct) (void *, long),
-    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, va_list ap)
+    void *arg, int reentrant, int comp_id, const char *fmt, va_list ap)
 {
     char name[HAL_NAME_LEN + 1];
     int sz;
@@ -2381,24 +1954,23 @@ static int hal_export_functfv(void (*funct) (void *, long),
 	    sz, name);
         return -ENOMEM;
     }
-    return hal_export_funct(name, funct, arg, uses_fp, reentrant, comp_id);
+    return hal_export_funct(name, funct, arg, reentrant, comp_id);
 }
 
 int hal_export_functf(void (*funct) (void *, long),
-    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...)
+    void *arg, int reentrant, int comp_id, const char *fmt, ...)
 {
     va_list ap;
     int ret;
     va_start(ap, fmt);
-    ret = hal_export_functfv(funct, arg, uses_fp, reentrant, comp_id, fmt, ap);
+    ret = hal_export_functfv(funct, arg, reentrant, comp_id, fmt, ap);
     va_end(ap);
     return ret;
 }
 
 int hal_export_funct(const char *name, void (*funct) (void *, long),
-    void *arg, int uses_fp, int reentrant, int comp_id)
+    void *arg, int reentrant, int comp_id)
 {
-    (void)uses_fp;
     rtapi_intptr_t *prev, next;
     int cmp;
     hal_funct_t *new, *fptr;
@@ -2455,9 +2027,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: insufficient memory for function '%s'\n", name);
 	return -ENOMEM;
     }
-    /* initialize the structure.
-       uses_fp is deprecated and ignored; always report as FP-capable. */
-    new->uses_fp = 1;
+    /* initialize the structure. */
     new->owner_ptr = SHMOFF(comp);
     new->reentrant = reentrant;
     new->users = 0;
@@ -2523,9 +2093,8 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     return 0;
 }
 
-int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
+int hal_create_thread(const char *name, unsigned long period_nsec)
 {
-    (void)uses_fp;
     int next, cmp, prev_priority;
     int retval, n;
     hal_thread_t *new, *tptr;
@@ -2582,9 +2151,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	    "HAL: ERROR: insufficient memory to create thread\n");
 	return -ENOMEM;
     }
-    /* initialize the structure.
-       uses_fp is deprecated and ignored; always enable FPU save/restore. */
-    new->uses_fp = 1;
+    /* initialize the structure. */
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* have to create and start a task to run the thread */
     if (hal_data->thread_list_ptr == 0) {
@@ -2832,9 +2399,6 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	    "HAL: ERROR: thread '%s' not found\n", thread_name);
 	return -EINVAL;
     }
-    /* uses_fp is deprecated and ignored; all threads are FP-capable.
-       The FP compatibility check has been removed since all threads
-       and functions now effectively have uses_fp=1. */
     /* find insertion point */
     list_root = &(thread->funct_list);
     list_entry = list_root;
@@ -3995,7 +3559,6 @@ static hal_funct_t *alloc_funct_struct(void)
     if (p) {
 	/* make sure it's empty */
 	p->next_ptr = 0;
-	p->uses_fp = 0;
 	p->owner_ptr = 0;
 	p->reentrant = 0;
 	p->users = 0;
@@ -4053,7 +3616,6 @@ static hal_thread_t *alloc_thread_struct(void)
     if (p) {
 	/* make sure it's empty */
 	p->next_ptr = 0;
-	p->uses_fp = 0;
 	p->period = 0;
 	p->priority = 0;
 	p->task_id = 0;
@@ -4159,8 +3721,6 @@ static void unlink_pin(hal_pin_t * pin)
 
     switch (pin->type) {
     case HAL_BOOL:
-    case HAL_S32:
-    case HAL_U32:
     case HAL_SINT:
     case HAL_UINT:
     case HAL_REAL:
@@ -4319,7 +3879,6 @@ static void free_funct_struct(hal_funct_t * funct)
 	}
     }
     /* clear contents of struct */
-    funct->uses_fp = 0;
     funct->owner_ptr = 0;
     funct->reentrant = 0;
     funct->users = 0;
@@ -4368,7 +3927,6 @@ static void free_thread_struct(hal_thread_t * thread)
     rtapi_task_pause(thread->task_id);
     rtapi_task_delete(thread->task_id);
     /* clear contents of struct */
-    thread->uses_fp = 0;
     thread->period = 0;
     thread->priority = 0;
     thread->task_id = 0;
@@ -4517,7 +4075,7 @@ static bool hal_port_compute_copy(unsigned read,
 }
 
 
-int halpr_port_alloc(unsigned size, hal_port_t *port) {
+int halpr_port_alloc(unsigned size, hal_port_t port) {
     if(!port || size < 1 || size > HAL_PORT_SIZE_MAX)
         return -EINVAL;
 
@@ -4531,32 +4089,33 @@ int halpr_port_alloc(unsigned size, hal_port_t *port) {
     new_port->write = 0;
     new_port->size  = size;
 
-    *port = SHMOFF(new_port);
+    hal_set_port(port, SHMOFF(new_port));
     return 0;
 }
 
-static inline hal_port_shm_t *hal_port_to_shm(const hal_port_t *port)
+static inline hal_port_shm_t *hal_port_to_shm(const hal_port_t port)
 {
+    HAL_STATIC_ASSERT(sizeof(rtapi_port) <= sizeof(rtapi_sint), "rtapi_port size larger than rtapi_sint");
     hal_port_shm_t *shm;
     if(!port)
         return NULL;
-    long ofs = *port;
+    rtapi_port ofs = hal_get_port(port);
     // The offset must be positive non-zero
     // The offset must be modulo the magic field size (4 bytes)
     // The offset must not point beyond shared memory for the control structure
-    if(ofs <= 0 || 0 != (ofs & (long)(sizeof(shm->magic)-1)) || ofs > (long)(HAL_SIZE - sizeof(hal_port_shm_t)))
+    if(ofs <= 0 || 0 != (ofs & (rtapi_port)(sizeof(shm->magic)-1)) || ofs > (rtapi_port)(HAL_SIZE - sizeof(hal_port_shm_t)))
         return NULL;
     shm = SHMPTR(ofs);
     // The magic number must match and size be valid
     if (shm->magic != HAL_PORT_MAGIC_NUM || shm->size > HAL_PORT_SIZE_MAX)
         return NULL;
     // The ofset must not point beyond shared memory considering the size
-    if (ofs > (long)(HAL_SIZE - (sizeof(hal_port_shm_t) + shm->size)))
+    if (ofs > (rtapi_port)(HAL_SIZE - (sizeof(hal_port_shm_t) + shm->size)))
         return NULL;
     return shm;
 }
 
-bool hal_port_read(const hal_port_t *port, char* dest, unsigned count) {
+bool hal_port_read(const hal_port_t port, char* dest, unsigned count) {
     unsigned read,
              write,
              end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
@@ -4592,7 +4151,7 @@ bool hal_port_read(const hal_port_t *port, char* dest, unsigned count) {
 }   
 
 
-bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count) {
+bool hal_port_peek(const hal_port_t port, char* dest, unsigned count) {
     unsigned read,
              write,
              end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
@@ -4627,7 +4186,7 @@ bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count) {
 }
 
 
-bool hal_port_peek_commit(const hal_port_t *port, unsigned count) {
+bool hal_port_peek_commit(const hal_port_t port, unsigned count) {
     unsigned read,
              write,
              end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
@@ -4661,7 +4220,7 @@ bool hal_port_peek_commit(const hal_port_t *port, unsigned count) {
 }
 
 
-bool hal_port_write(const hal_port_t *port, const char* src, unsigned count) {
+bool hal_port_write(const hal_port_t port, const char* src, unsigned count) {
     unsigned read,
              write,
              bytes_avail,
@@ -4717,7 +4276,7 @@ bool hal_port_write(const hal_port_t *port, const char* src, unsigned count) {
 }
 
 
-unsigned hal_port_readable(const hal_port_t *port) {
+unsigned hal_port_readable(const hal_port_t port) {
     hal_port_shm_t* port_shm = hal_port_to_shm(port);
     if(!port_shm) {
         rtapi_print_msg(RTAPI_MSG_ERR, "hal_port_readable: invalid port %p\n", port);
@@ -4727,7 +4286,7 @@ unsigned hal_port_readable(const hal_port_t *port) {
 }
 
 
-unsigned hal_port_writable(const hal_port_t *port) {
+unsigned hal_port_writable(const hal_port_t port) {
     hal_port_shm_t* port_shm = hal_port_to_shm(port);
     if(!port_shm) {
         rtapi_print_msg(RTAPI_MSG_ERR, "hal_port_writable: invalid port %p\n", port);
@@ -4737,7 +4296,7 @@ unsigned hal_port_writable(const hal_port_t *port) {
 }
 
 
-unsigned hal_port_buffer_size(const hal_port_t *port) {
+unsigned hal_port_buffer_size(const hal_port_t port) {
     hal_port_shm_t* port_shm = hal_port_to_shm(port);
     if(!port_shm) {
         rtapi_print_msg(RTAPI_MSG_ERR, "hal_port_buffer_size: invalid port %p\n", port);
@@ -4747,7 +4306,7 @@ unsigned hal_port_buffer_size(const hal_port_t *port) {
 }
 
 
-void hal_port_clear(const hal_port_t *port) {
+void hal_port_clear(const hal_port_t port) {
     unsigned read,write;
     hal_port_shm_t* port_shm = hal_port_to_shm(port);
     if(!port_shm) {
@@ -4760,15 +4319,15 @@ void hal_port_clear(const hal_port_t *port) {
 
 
 #ifdef ULAPI
-void hal_port_wait_readable(hal_port_t** port, unsigned count, sig_atomic_t* stop) {
-    while((hal_port_readable(*port) < count) && (!stop || !*stop)) {
+void hal_port_wait_readable(const hal_port_t port, unsigned count, sig_atomic_t *stop) {
+    while((hal_port_readable(port) < count) && (!stop || !*stop)) {
         rtapi_delay(10000000);
     }
 }
 
 
-void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* stop) {
-    while((hal_port_writable(*port) < count) && (!stop || !*stop)) {
+void hal_port_wait_writable(const hal_port_t port, unsigned count, sig_atomic_t *stop) {
+    while((hal_port_writable(port) < count) && (!stop || !*stop)) {
         rtapi_delay(10000000);
     }
 }
@@ -4802,13 +4361,11 @@ static char *hal_stream_type_string(int type, char *buf, size_t nbuf)
 {
     const char *cptr;
     switch(type) {
-    case HAL_BIT:   cptr = "bit";   break;
-    case HAL_FLOAT: cptr = "float"; break;
-    case HAL_S32:   cptr = "s32";   break;
-    case HAL_U32:   cptr = "u32";   break;
-    case HAL_S64:   cptr = "s64";   break;
-    case HAL_U64:   cptr = "u64";   break;
-    case HAL_PORT:  cptr = "port";  break;
+    case HAL_BOOL: cptr = "bool"; break;
+    case HAL_REAL: cptr = "real"; break;
+    case HAL_SINT: cptr = "sint"; break;
+    case HAL_UINT: cptr = "uint"; break;
+    case HAL_PORT: cptr = "port"; break;
     default:
         rtapi_snprintf(buf, nbuf, "UNK#%d", type);
         return buf;
@@ -4829,12 +4386,12 @@ static int hal_stream_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const ch
     for(n = 0; n < HAL_STREAM_MAX_PINS && *cfg != '\0'; n++) {
         switch (*cfg) {
         case 'r': case 'R':
-        case 'f': case 'F': type[n] = HAL_FLOAT; break;
-        case 'b': case 'B': type[n] = HAL_BIT; break;
-        case 'u': case 'U': type[n] = HAL_U32; break;
-        case 's': case 'S': type[n] = HAL_S32; break;
-        case 'l': case 'L': type[n] = HAL_S64; break;
-        case 'k': case 'K': type[n] = HAL_U64; break;
+        case 'f': case 'F': type[n] = HAL_REAL; break;
+        case 'b': case 'B': type[n] = HAL_BOOL; break;
+        case 's': case 'S':
+        case 'l': case 'L': type[n] = HAL_SINT; break;
+        case 'u': case 'U':
+        case 'k': case 'K': type[n] = HAL_UINT; break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "stream: ERROR: unknown type '%c', must be R (F), B, U, S, L or K\n", *cfg);
             return 0;
@@ -5168,43 +4725,10 @@ EXPORT_SYMBOL(hal_pin_new_uint);
 EXPORT_SYMBOL(hal_pin_new_real);
 EXPORT_SYMBOL(hal_pin_new_port);
 
-EXPORT_SYMBOL(hal_pin_bit_new);
-EXPORT_SYMBOL(hal_pin_float_new);
-EXPORT_SYMBOL(hal_pin_u32_new);
-EXPORT_SYMBOL(hal_pin_s32_new);
-EXPORT_SYMBOL(hal_pin_u64_new);
-EXPORT_SYMBOL(hal_pin_s64_new);
-EXPORT_SYMBOL(hal_pin_port_new);
-EXPORT_SYMBOL(hal_pin_new);
-
-EXPORT_SYMBOL(hal_pin_bit_newf);
-EXPORT_SYMBOL(hal_pin_float_newf);
-EXPORT_SYMBOL(hal_pin_u32_newf);
-EXPORT_SYMBOL(hal_pin_s32_newf);
-EXPORT_SYMBOL(hal_pin_u64_newf);
-EXPORT_SYMBOL(hal_pin_s64_newf);
-EXPORT_SYMBOL(hal_pin_port_newf);
-
-
 EXPORT_SYMBOL(hal_signal_new);
 EXPORT_SYMBOL(hal_signal_delete);
 EXPORT_SYMBOL(hal_link);
 EXPORT_SYMBOL(hal_unlink);
-
-EXPORT_SYMBOL(hal_param_bit_new);
-EXPORT_SYMBOL(hal_param_float_new);
-EXPORT_SYMBOL(hal_param_u32_new);
-EXPORT_SYMBOL(hal_param_s32_new);
-EXPORT_SYMBOL(hal_param_u64_new);
-EXPORT_SYMBOL(hal_param_s64_new);
-EXPORT_SYMBOL(hal_param_new);
-
-EXPORT_SYMBOL(hal_param_bit_newf);
-EXPORT_SYMBOL(hal_param_float_newf);
-EXPORT_SYMBOL(hal_param_u32_newf);
-EXPORT_SYMBOL(hal_param_s32_newf);
-EXPORT_SYMBOL(hal_param_u64_newf);
-EXPORT_SYMBOL(hal_param_s64_newf);
 
 EXPORT_SYMBOL(hal_param_new_bool);
 EXPORT_SYMBOL(hal_param_new_si32);
@@ -5213,14 +4737,6 @@ EXPORT_SYMBOL(hal_param_new_sint);
 EXPORT_SYMBOL(hal_param_new_uint);
 EXPORT_SYMBOL(hal_param_new_real);
 EXPORT_SYMBOL(hal_param_new_fake);
-
-EXPORT_SYMBOL(hal_param_bit_set);
-EXPORT_SYMBOL(hal_param_float_set);
-EXPORT_SYMBOL(hal_param_u32_set);
-EXPORT_SYMBOL(hal_param_s32_set);
-EXPORT_SYMBOL(hal_param_u64_set);
-EXPORT_SYMBOL(hal_param_s64_set);
-EXPORT_SYMBOL(hal_param_set);
 
 EXPORT_SYMBOL(hal_set_constructor);
 EXPORT_SYMBOL(hal_comp_invoke_make);

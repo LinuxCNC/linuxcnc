@@ -553,7 +553,7 @@ genclean:
 	-rm -f ../lib/*.so.[0-9]*
 	-rm -f $(GENERATED_MANPAGES)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
-	-rm -f hal/components/conv_*.comp
+	-rm -f $(patsubst %,hal/components/%,$(notdir $(CONVERTERS)))
 
 pycheck-python-files:
 	@echo 'Checking *.py files for python3 compatibility...'

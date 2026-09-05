@@ -7,17 +7,17 @@ pin in bool run      "starts the raster";
 pin out bool enabled = 0    "When a valid raster program is running.";
 pin out real output = -1    "current output level command";
 pin out bool fault = 0      "If error has occurred";
-pin out si32 fault_code = 0 "Code of fault";
-pin out si32 state = 0      "current state";
+pin out sint fault_code = 0 "Code of fault";
+pin out sint state = 0      "current state";
 pin out real program_position = 0.0 "base position of program at run start";
 pin out real program_offset = 0.0   "offset to start of pixel data";
-pin out si32 bpp = 0         "bits per pixel.";
+pin out sint bpp = 0         "bits per pixel.";
 pin out real ppu = 0.0       "pixels per unit";
-pin out si32 count = 0       "pixel count";
+pin out sint count = 0       "pixel count";
 pin out real bitmap_position = 0.0       "calculated position in bitmap";
 pin out real current_pixel_value = -1.0  "current loaded pixel value";
 pin out real previous_pixel_value = -1.0 "previously loaded pixel value";
-pin out si32 current_pixel_index = -1    "currently loaded pixel index";
+pin out sint current_pixel_index = -1    "currently loaded pixel index";
 pin out real fraction = 0.0;
 
 description """
@@ -95,7 +95,7 @@ static bool float_eq(rtapi_real a, rtapi_real b) {
     return fabs(a-b) < epsilon;
 }
 
-static bool read_float(const hal_port_t *port, hal_real_t value) {
+static bool read_float(const hal_port_t port, hal_real_t value) {
     char data[32];
     int available = hal_port_readable(port);
     char* pos;
@@ -119,7 +119,7 @@ static bool read_float(const hal_port_t *port, hal_real_t value) {
     return true;
 }
 
-static bool read_int(const hal_port_t *port, hal_sint_t value) {
+static bool read_int(const hal_port_t port, hal_sint_t value) {
     char data[10];
     long val;
     int available = hal_port_readable(port);
@@ -143,7 +143,7 @@ static bool read_int(const hal_port_t *port, hal_sint_t value) {
         return false;
     }
 
-    hal_set_si32(value, val);
+    hal_set_sint(value, val);
 
     hal_port_peek_commit(port, pos - data + 1);
 
@@ -157,7 +157,7 @@ static bool read_int(const hal_port_t *port, hal_sint_t value) {
     pixels bpp must be defined in increments of 4.
     a pixel value with all 1 bits is a special value considered "off" for the raster and no power will be output
 */
-static bool read_pixel_data(const hal_port_t *port, int bits_per_pixel, hal_real_t power) {
+static bool read_pixel_data(const hal_port_t port, int bits_per_pixel, hal_real_t power) {
     char data[8];
     long value = 0;
     unsigned int off = 0xFFFFFFFF >> (32 - bits_per_pixel);
@@ -241,7 +241,7 @@ FUNCTION(_) {
             enabled_set(1);
 
             //consume pixel data as needed from programming port
-            while((current_pixel_index < (((int)count)-1)) && ((rtapi_real)current_pixel_index < bitmap_position)) {
+            while((current_pixel_index < (((rtapi_sint)count)-1)) && ((rtapi_real)current_pixel_index < bitmap_position)) {
                 current_pixel_index_set(current_pixel_index+1);
                 previous_pixel_value_set(current_pixel_value);
 

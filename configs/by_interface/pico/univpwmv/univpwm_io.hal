@@ -4,9 +4,9 @@
 #
 
 # connect limit/home switch outputs to motion controller
-newsig Xminlim bit
-newsig Xmaxlim  bit
-newsig Xhome bit
+newsig Xminlim bool
+newsig Xmaxlim bool
+newsig Xhome bool
 linksp Xminlim <= ppmc.0.din.01.in
 linksp Xminlim => joint.0.neg-lim-sw-in
 linksp Xmaxlim <= ppmc.0.din.02.in
@@ -14,9 +14,9 @@ linksp Xmaxlim => joint.0.pos-lim-sw-in
 linksp Xhome <= ppmc.0.din.00.in
 linksp Xhome => joint.0.home-sw-in
 
-newsig Yminlim bit
-newsig Ymaxlim  bit
-newsig Yhome bit
+newsig Yminlim bool
+newsig Ymaxlim bool
+newsig Yhome bool
 #linksp Yminlim <= ppmc.0.din.05.in
 #linksp Yminlim => joint.1.neg-lim-sw-in
 #linksp Ymaxlim <= ppmc.0.din.06.in
@@ -24,9 +24,9 @@ newsig Yhome bit
 #linksp Yhome <= ppmc.0.din.04.in
 #linksp Yhome => joint.1.home-sw-in
 
-newsig Zminlim bit
-newsig Zmaxlim  bit
-newsig Zhome bit
+newsig Zminlim bool
+newsig Zmaxlim bool
+newsig Zhome bool
 #linksp Zminlim <= ppmc.0.din.09.in
 #linksp Zminlim => joint.2.neg-lim-sw-in
 #linksp Zmaxlim <= ppmc.0.din.10.in
@@ -34,9 +34,9 @@ newsig Zhome bit
 #linksp Zhome <= ppmc.0.din.08.in
 #linksp Zhome => joint.2.home-sw-in
 
-newsig Aminlim bit
-newsig Amaxlim  bit
-newsig Ahome bit
+newsig Aminlim bool
+newsig Amaxlim bool
+newsig Ahome bool
 linksp Aminlim <= ppmc.0.din.12.in
 linksp Aminlim => joint.3.neg-lim-sw-in
 linksp Amaxlim <= ppmc.0.din.13.in
@@ -47,9 +47,9 @@ linksp Ahome => joint.3.home-sw-in
 
 # connect index pulses to motion controller
 # do these when index pulsing is figured out
-newsig Xindex bit
-newsig Yindex  bit
-newsig Zindex bit
+newsig Xindex bool
+newsig Yindex bool
+newsig Zindex bool
 linksp Xindex <= ppmc.0.encoder.00.index-enable
 linksp Xindex => joint.0.index-enable
 linksp Yindex <= ppmc.0.encoder.01.index-enable
@@ -64,48 +64,48 @@ linksp Zindex => joint.2.index-enable
 # connect e-stop write/sense to I/O controller
 # and univpwm's fault with estop's output, so  estop FF is reset, but
 #      prevent continued estop signal from univpwm from holding FF cleared
-newsig ppmcEstop bit
+newsig ppmcEstop bool
 linksp ppmcEstop ppmc.0.din.15.in-not
 linksp ppmcEstop and2.0.in0
-newsig EstopOkIn bit
+newsig EstopOkIn bool
 linksp EstopOkIn estop-latch.0.fault-in
 linksp EstopOkIn and2.0.out
-newsig EstopOkOut bit
+newsig EstopOkOut bool
 linksp EstopOkOut <= ppmc.0.dout.07.out
 linksp EstopOkOut iocontrol.0.emc-enable-in
 linksp EstopOkOut estop-latch.0.ok-out
 linksp EstopOkOut and2.0.in1
-newsig emc-estop-out bit
+newsig emc-estop-out bool
 linksp emc-estop-out iocontrol.0.user-enable-out
 linksp emc-estop-out estop-latch.0.ok-in
-newsig emc-estop-reset bit
+newsig emc-estop-reset bool
 linksp emc-estop-reset iocontrol.0.user-request-enable
 linksp emc-estop-reset estop-latch.0.reset
 
 # connect spindle fwd/rev to I/O controller
-newsig SpindleFwd bit
-newsig SpindleRev bit
+newsig SpindleFwd bool
+newsig SpindleRev bool
 linksp SpindleFwd <= ppmc.0.dout.00.out
 linksp SpindleFwd => spindle.0.forward
 linksp SpindleRev <= ppmc.0.dout.01.out
 linksp SpindleRev => spindle.0.reverse
 
 # connect spindle speed up/down to I/O controller
-newsig SpindleUp bit
-newsig SpindleDown bit
+newsig SpindleUp bool
+newsig SpindleDown bool
 #linksp SpindleUp <= ppmc.0.dout.06.out
 #linksp SpindleUp => motion.spindle-incr-speed
 #linksp SpindleDown <= ppmc.0.dout.05.out
 #linksp SpindleDown => motion.spindle-decr-speed
 
 # connect spindle brake to I/O controller
-newsig SpindleBrakeOn bit
+newsig SpindleBrakeOn bool
 linksp SpindleBrakeOn <= ppmc.0.dout.02.out
 linksp SpindleBrakeOn => spindle.0.brake
 
 # connect mist/flood coolant to I/O controller
-newsig MistOn bit
-newsig FloodOn bit
+newsig MistOn bool
+newsig FloodOn bool
 linksp MistOn <= ppmc.0.dout.03.out
 linksp MistOn => iocontrol.0.coolant-mist
 linksp FloodOn <= ppmc.0.dout.04.out

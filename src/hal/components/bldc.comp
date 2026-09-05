@@ -91,28 +91,28 @@ pin out bool out-dir
 pin out real out-abs
 "Absolute value of the input value";
 
-param r si32 in_type = -1 "state machine output, will probably hide after debug";
-param r si32 out_type = -1 "state machine output, will probably hide after debug";
+param r sint in_type = -1 "state machine output, will probably hide after debug";
+param r sint out_type = -1 "state machine output, will probably hide after debug";
 
-param rw si32 scale = 512 if personality & 0x06
+param rw sint scale = 512 if personality & 0x06
 "The number of encoder counts per rotor revolution.";
-param rw si32 poles = 4 if personality & 0x06
+param rw sint poles = 4 if personality & 0x06
 """The number of motor poles. The encoder scale will be divided by this value
 to determine the number of encoder counts per electrical revolution.""";
-param rw si32 encoder-offset = 0 if personality & 0x0A
+param rw sint encoder-offset = 0 if personality & 0x0A
 """The offset, in encoder counts, between the motor electrical zero and the
 encoder zero modulo the number of counts per electrical revolution""";
-param r si32 offset_measured = 0 if personality & 0x04
+param r sint offset_measured = 0 if personality & 0x04
 """The encoder offset measured by the homing sequence (in certain modes)""";
 param rw real drive-offset = 0 """The angle, in degrees, applied to the commanded angle by the drive in degrees.
 This value is only used during the homing sequence of drives with incremental encoder feedback.
 It is used to back-calculate from commanded angle to actual phase angle.
 It is only relevant to drives which expect rotor-angle input rather than phase-angle demand. Should be 0 for most drives.""";
 
-param rw ui32 output-pattern=25 if personality & 0x400
+param rw uint output-pattern=25 if personality & 0x400
 """Commutation pattern to be output in Hall Signal translation mode. See the description of *pattern* for details.""";
 
-param rw ui32 pattern=25 if personality & 0x01
+param rw uint pattern=25 if personality & 0x01
 """Commutation pattern to use, from 0 to 47. Default is type 25.
 Every plausible combination is included.
 The table below shows the excitation pattern along the top, and the pattern code on the left hand side.
@@ -289,7 +289,7 @@ option count_function yes;
 
 variable int old_init = 0;
 variable char old_ph = 000;
-variable int old_pattern = -1;
+variable rtapi_sint old_pattern = -1;
 variable double counter = 0;
 variable rtapi_s64 long_rawcounts = 0;
 variable rtapi_s64 old_long_rawcounts = 0;
@@ -431,7 +431,7 @@ FUNCTION(_) {
             if (pattern > 47){
                 rtapi_print_msg(RTAPI_MSG_ERR,
                                 "Only `Hall patterns 0-47 are allowed, you have"
-                                " requested pattern %i\n", pattern);
+                                " requested pattern %ld\n", pattern);
                 pattern_set(0);
                 return;
             }
@@ -455,7 +455,7 @@ FUNCTION(_) {
             phase_angle_set(phase_angle - floor(phase_angle));
             
             if (! (ph & old_ph)){ hall_error_set(1);}
-            if (pattern != (unsigned)old_pattern){hall_error_set(0);}
+            if (pattern != (rtapi_uint)old_pattern){hall_error_set(0);}
 
             if (force_trap) break;
 
@@ -624,7 +624,7 @@ FUNCTION(_) {
             in_type_set(0x02);
             return;
         default:
-        rtapi_print_msg(RTAPI_MSG_ERR, "Unknown input type pattern (%X) in "
+        rtapi_print_msg(RTAPI_MSG_ERR, "Unknown input type pattern (%lX) in "
                         "bldc\n", in_type);
             in_type_set(-2);
         return;
@@ -781,7 +781,7 @@ FUNCTION(_) {
             out_type_set(0x400);
             return;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Unsupported output type (%X) in bldc"
+            rtapi_print_msg(RTAPI_MSG_ERR, "Unsupported output type (%lX) in bldc"
                             , out_type);
             in_type_set(-2);
             return;

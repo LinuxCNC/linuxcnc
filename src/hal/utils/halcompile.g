@@ -41,6 +41,7 @@ parser Hal:
     rule Declaration:
         "pin" PINDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptSAssign, OptPersonality) }}
       | "param" PARAMDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptSAssign, OptPersonality) }}
+      | "alias" HALNAME OptArray {{ ppname = HALNAME; pparr = OptArray }} HALNAME OptArray ";" {{ alias(ppname, pparr, HALNAME, OptArray) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "variable" NAME STARREDNAME OptSimpleArray OptAssign ";" {{ variable(NAME, STARREDNAME, OptSimpleArray, OptAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
@@ -150,17 +151,27 @@ def parse(filename):
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
-typemap = {'signed': 's32', 'unsigned': 'u32'}
-deprmap = {'s32': 'signed', 'u32': 'unsigned'}
-deprecated = ['s32', 'u32']
+# Using any in the typemap will result in a warning
+typemap = {
+    "bit":      "bool",
+    "float":    "real",
+    "s32":      "si32",
+    "signed":   "si32",
+    "u32":      "ui32",
+    "unsigned": "ui32",
+    "s64":      "sint",
+    "u64":      "uint" }
 newtypes = ['bool', 'sint', 'uint', 'si32', 'ui32', 'real']
+
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
     global modparams, includes
+    global aliases
 
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
+    aliases = {}
     comp_name = None
 
     names = {}
@@ -169,11 +180,15 @@ def Warn(msg, *args):
     if args:
         msg = msg % args
     print("%s:%d: Warning: %s" % (S.filename, S.line, msg), file=sys.stderr)
+    if warn_is_error:
+        sys.exit(1)
 
 def Error(msg, *args):
     if args:
         msg = msg % args
-    raise runtime.SyntaxError(S.get_pos(), msg, None)
+    print("%s:%d: Error: %s" % (S.filename, S.line, msg), file=sys.stderr)
+    sys.exit(1)
+    #raise runtime.SyntaxError(S.get_pos(), msg, None)
 
 def optfp_warn(state):
     s = "nofp" if 0 == state else "fp"
@@ -208,8 +223,10 @@ def notes(doc):
     docs.append(('notes', doc));
 
 def type2type(type_):
-    # When we start warning about s32/u32 this is where the warning goes
-    return typemap.get(type_, type_)
+    if type_ in typemap:
+        Warn(f"Old type '{type_}' has been replaced by '{typemap[type_]}'")
+        return typemap[type_]
+    return type_
 
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
@@ -230,21 +247,39 @@ def pin(name, type_, array, dir_, doc, value, personality):
     type_ = type2type(type_)
     check_name_ok(name)
     docs.append(('pin', name, type_, array, dir_, doc, value, personality))
-    names[name] = None
+    names[name] = 'pin'
     pins.append((name, type_, array, dir_, value, personality))
 
 def param(name, type_, array, dir_, doc, value, personality):
+    if 'port' == type_:
+        Error("Parameters cannot be of type 'port'")
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
     docs.append(('param', name, type_, array, dir_, doc, value, personality))
-    names[name] = None
+    names[name] = 'param'
     params.append((name, type_, array, dir_, value, personality))
+
+def alias(name, namearr, aliasname, aliasarr):
+    if namearr != aliasarr:
+        Error(f"Alias arrays for pin '{namearr}' != '{aliasarr}'")
+    checkarray(name, namearr)
+    checkarray(aliasname, aliasarr)
+    if aliasname in names:
+        Error(f"Alias name '{aliasname}' already in use")
+    if name not in names:
+        Error(f"Pin/param name '{name}' not found, cannot alias")
+    if name in aliases:
+        Error(f"Alias for pin/param '{name}' already exists as '{aliases[name][2]}'")
+    if names[name] not in ('pin', 'param'):
+        Error(f"Expected '{name}' to be pin or param, but got '{names[name]}'");
+    aliases[name] = (name, namearr, aliasname, aliasarr, names[name])
+    names[aliasname] = 'alias'  # Must register to prevent collision
 
 def function(name, fp, doc):
     check_name_ok(name)
     docs.append(('funct', name, fp, doc))
-    names[name] = None
+    names[name] = 'function'
     functions.append((name, fp))
 
 def option(name, value):
@@ -254,12 +289,12 @@ def option(name, value):
 
 def variable(type_, name, array, default):
     check_name_ok(name)
-    names[name] = None
+    names[name] = 'variable'
     variables.append((type_, name, array, default))
 
 def modparam(type_, name, default, doc):
     check_name_ok(name)
-    names[name] = None
+    names[name] = 'modparam'
     modparams.append((type_, name, default, doc))
 
 def include(value):
@@ -350,7 +385,7 @@ static int comp_id;
         print("    int _personality;", file=f)
 
     for name, type_, array, dir_, value, personality in pins:
-        star = '' if type_ in newtypes else '*'
+        star = '' if type_ in newtypes or 'port' == type_ else '*'
         if array:
             if isinstance(array, tuple): array = array[0]
             print("    hal_%s_t %s%s_p[%s];" % (to_t(type_), star, to_c(name), array), file=f)
@@ -457,6 +492,9 @@ static int comp_id;
                 dflt = "%s" % value if value is not None else "0"
                 print("        r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p[j]), %s," % (
                     type_, dirmap[dir_], to_c(name), dflt), file=f)
+            elif 'port' == type_:
+                print("        r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p[j])," % (
+                    type_, dirmap[dir_], to_c(name)), file=f)
             else:
                 print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
                     type_, dirmap[dir_], to_c(name)), file=f)
@@ -470,6 +508,10 @@ static int comp_id;
                 dflt = "%s" % value if value is not None else "0"
                 print("    r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p), %s," % (
                     type_, dirmap[dir_], to_c(name), dflt), file=f)
+            elif 'port' == type_:
+                dflt = "%s" % value if value is not None else "0"
+                print("    r = hal_pin_new_%s(comp_id, %s, &(inst->%s_p)," % (
+                    type_, dirmap[dir_], to_c(name)), file=f)
             else:
                 print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
                     type_, dirmap[dir_], to_c(name)), file=f)
@@ -522,6 +564,35 @@ static int comp_id;
         if personality:
             print("}", file=f)
 
+    if len(aliases) > 0:
+        print("    {", file=f)
+        print("        char pinname[HAL_NAME_LEN+1], alsname[HAL_NAME_LEN+1];", file=f)
+        for k, v in aliases.items():
+            name, namearr, aliasname, aliasarr, nametype = v
+            if isinstance(array, tuple):
+                lim, cnt = array
+                print("        if((%s) > (%s)) {" % (cnt, lim), file=f)
+                print('            rtapi_print_msg(RTAPI_MSG_ERR,' \
+                                    '"Alias %s: Requested size %%d exceeds max size %%d\\n",'
+                                    '(int)(%s), (int)(%s));' % (name, cnt, lim), file=f)
+                print("            return -ENOSPC;", file=f)
+                print("        }", file=f)
+            else:
+                cnt = array
+            if namearr:
+                print( "        for(j = 0; j < (%s); j++) {" % cnt, file=f)
+                print(f"            rtapi_snprintf(pinname, sizeof(pinname), \"%s.{to_hal(name)}\", prefix, j);", file=f)
+                print(f"            rtapi_snprintf(alsname, sizeof(alsname), \"%s.{to_hal(aliasname)}\", prefix, j);", file=f)
+                print(f"            r = {nametype}(pinname, alsname);", file=f)
+                print( "            if(r != 0) return r;", file=f)
+                print( "        }" % cnt, file=f)
+            else:
+                print(f"        rtapi_snprintf(pinname, sizeof(pinname), \"%s.{to_hal(name)}\", prefix);", file=f)
+                print(f"        rtapi_snprintf(alsname, sizeof(alsname), \"%s.{to_hal(aliasname)}\", prefix);", file=f)
+                print(f"        r = hal_{nametype}_alias(pinname, alsname);", file=f)
+                print( "        if(r != 0) return r;", file=f)
+        print("    }", file=f)
+
     for type_, name, array, value in variables:
         if value is None: continue
         if array:
@@ -534,8 +605,8 @@ static int comp_id;
     for name, fp in functions:
         print("    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
             % to_hal("." + name), file=f)
-        print("    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
-            to_c(name), int(fp)), file=f)
+        print("    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, 0, comp_id);" % (
+            to_c(name)), file=f)
         print("    if(r != 0) return r;", file=f)
     print("    if(__comp_last_inst) __comp_last_inst->_next = inst;", file=f)
     print("    __comp_last_inst = inst;", file=f)
@@ -1333,6 +1404,8 @@ def main():
     require_license = True
     global require_unix_line_endings
     require_unix_line_endings = False
+    global warn_is_error
+    warn_is_error = False
     mode = PREPROCESS
     adoc = False
     keepadoc = None
@@ -1341,12 +1414,12 @@ def main():
     global options
     options = {}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "UluijJcpdak:o:h?P:",
+        opts, args = getopt.getopt(sys.argv[1:], "UluijJcpdak:o:h?P:w",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'adoc', 'keep-adoc=', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc',
                             'personalities=', "extra-compile-args=",
-                            'extra-link-args='])
+                            'extra-link-args=', 'werror'])
     except getopt.GetoptError:
         usage(1)
     for k, v in opts:
@@ -1393,6 +1466,8 @@ def main():
             option("extra_link_args", v)
         if k in ("-?", "-h", "--help"):
             usage(0)
+        if k in ("-w", "--werror"):
+            warn_is_error = True
 
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
         raise SystemExit("Can only specify -o when preprocessing or documenting")

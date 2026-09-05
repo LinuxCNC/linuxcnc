@@ -40,45 +40,20 @@
 //
 //=====================================================
 
-static int set_common(hal_type_t type, const hal_query_value_u *v, hal_refs_u u, bool setport, bool isparam)
+static int set_common(hal_type_t type, const hal_query_value_u *v, hal_refs_u u, bool setport)
 {
-    // This is a special case because compatibility requires us to write to the
-    // smaller field when addressing parameters. An old-style param has a
-    // user-defined storage that may not be large enough for our new types and
-    // would overwrite other memory.
-    // FIXME: This code must be retired when we do the API break.
-    if(isparam) {
-        switch(type) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        case HAL_BOOL: ((hal_data_u *)u.b)->b  = v->b; break;
-        case HAL_S32:  ((hal_data_u *)u.s)->s  = v->s; break;
-        case HAL_U32:  ((hal_data_u *)u.u)->u  = v->u; break;
-        case HAL_SINT: ((hal_data_u *)u.s)->ls = v->s; break;
-        case HAL_UINT: ((hal_data_u *)u.u)->lu = v->u; break;
-        case HAL_REAL: ((hal_data_u *)u.r)->f  = v->r; break;
-#pragma GCC diagnostic pop
-        default:
-        case HAL_PORT: return -EBADF;
-        }
-        return 0;
-    }
     switch(type) {
     case HAL_BOOL: hal_set_bool(u.b, v->b); break;
-    case HAL_S32:  hal_set_si32(u.s, v->s); break;
-    case HAL_U32:  hal_set_ui32(u.u, v->u); break;
     case HAL_SINT: hal_set_sint(u.s, v->s); break;
     case HAL_UINT: hal_set_uint(u.u, v->u); break;
     case HAL_REAL: hal_set_real(u.r, v->r); break;
     case HAL_PORT: {
         if(!setport)
             return -EBADF;
-        // FIXME: This needs to be changed when the old API is removed
-        rtapi_port port = hal_get_sint(u.s);
-        if(0 != port && hal_port_buffer_size((hal_port_t *)u.s) > 0) {
+        if(hal_port_buffer_size(u.p) > 0) {
             return -EISCONN;
         }
-        int rv = halpr_port_alloc(v->u, (hal_port_t *)u.s);
+        int rv = halpr_port_alloc(v->u, u.p);
         if(rv)
             return rv;
         } break;
@@ -157,7 +132,7 @@ int hal_set_s(hal_query_t *q, hal_query_cb cb, void *arg)
     if(!rv) {
         // Success, data to write must be in the value union
         hal_refs_u u = (hal_refs_u)(hal_sint_t)SHMPTR(sig->data_ptr);
-        if((rv = set_common(sig->type, &q->sig.value, u, 1, 0)) < 0) {
+        if((rv = set_common(sig->type, &q->sig.value, u, 1)) < 0) {
             halpr_mutex_release();
             if(-EBADF == rv)
                 rtapi_print_msg(RTAPI_MSG_ERR, "hal_set_s: Signal '%s' has bad type %d\n", q->name, sig->type);
@@ -204,7 +179,6 @@ int hal_set_p(hal_query_t *q, hal_query_cb cb, void *arg)
     hal_type_t t;
     hal_pin_t *pin = NULL;
     hal_refs_u u;
-    bool isparam;
     // If only parameters requested, don't look for pins
     if(HAL_QTYPE_PARAM != q->qtype)
         pin = halpr_find_pin_by_name(q->name);
@@ -251,7 +225,6 @@ int hal_set_p(hal_query_t *q, hal_query_cb cb, void *arg)
         }
         // FIXME: This can be targeted to param's data when the old API is retired
         u = (hal_refs_u)(hal_sint_t)SHMPTR(param->data_ptr);
-        isparam = 1;
     } else {
         // We have a pin, copy the data, but we still can fail
         q->qtype     = HAL_QTYPE_PIN;
@@ -281,7 +254,6 @@ int hal_set_p(hal_query_t *q, hal_query_cb cb, void *arg)
             return -EACCES;
         }
         u = (hal_refs_u)(hal_sint_t)&pin->dummysig;
-        isparam = 0;
     }
 
     // Note: the callback is called while holding the mutex
@@ -289,7 +261,7 @@ int hal_set_p(hal_query_t *q, hal_query_cb cb, void *arg)
 
     if(!rv) {
         // Success, data to write must be in the value union
-        if((rv = set_common(t, &q->pp.value, u, 0, isparam)) < 0) {
+        if((rv = set_common(t, &q->pp.value, u, 0)) < 0) {
             halpr_mutex_release();
             if(-EBADF == rv)
                 rtapi_print_msg(RTAPI_MSG_ERR, "hal_set_p: %s '%s' has bad type %d\n", pin ? "Pin" : "Param", q->name, t);
@@ -305,8 +277,6 @@ static int get_common(hal_type_t type, hal_query_value_u *v, hal_refs_u u, bool 
 {
     switch(type) {
     case HAL_BOOL: v->b = hal_get_bool(u.b); break;
-    case HAL_S32:  v->s = hal_get_si32(u.s); break;
-    case HAL_U32:  v->u = hal_get_ui32(u.u); break;
     case HAL_SINT: v->s = hal_get_sint(u.s); break;
     case HAL_UINT: v->u = hal_get_uint(u.u); break;
     case HAL_REAL: v->r = hal_get_real(u.r); break;
@@ -314,8 +284,7 @@ static int get_common(hal_type_t type, hal_query_value_u *v, hal_refs_u u, bool 
         if(!getport) {
             v->u = 0;
         } else {
-            // FIXME: This needs to be changed when the old API is removed
-            v->u = hal_port_buffer_size((hal_port_t *)u.s);
+            v->u = hal_port_buffer_size(u.p);
         }
         break;
     default:

@@ -26,12 +26,12 @@ MAX_JOINT = 0
 for setting in sys.argv[1:]: exec(setting)
 
 c = hal.component("lineardelta")
-c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("R", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("L", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint2", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint3", hal.Type.REAL, hal.Dir.IN)
+c.newpin("R", hal.Type.REAL, hal.Dir.IN)
+c.newpin("L", hal.Type.REAL, hal.Dir.IN)
 c['R'], c['L'] = lineardeltakins.get_geometry()
 c.ready()
 

@@ -168,8 +168,6 @@ static void sample(void *arg, long period)
     for (int n = 0; n < num_pins; n++) {
         switch (hal_stream_element_type(&samp->fifo, n)) {
         case HAL_REAL: data[n].f = hal_get_real(samp->pins[n].r); break;
-        case HAL_S32:  data[n].s = hal_get_si32(samp->pins[n].s); break;
-        case HAL_U32:  data[n].u = hal_get_ui32(samp->pins[n].u); break;
         case HAL_SINT: data[n].l = hal_get_sint(samp->pins[n].s); break;
         case HAL_UINT: data[n].k = hal_get_uint(samp->pins[n].u); break;
         case HAL_BOOL: data[n].b = hal_get_bool(samp->pins[n].b); break;
@@ -231,8 +229,6 @@ static int init_sampler(int num, sampler_t *str)
         int type;
         switch(type = hal_stream_element_type(&str->fifo, n)) {
         case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_IN, &str->pins[n].r, 0.0, pstr, num, n); break;
-        case HAL_S32:  retval = hal_pin_new_si32(comp_id, HAL_IN, &str->pins[n].s, 0,   pstr, num, n); break;
-        case HAL_U32:  retval = hal_pin_new_ui32(comp_id, HAL_IN, &str->pins[n].u, 0,   pstr, num, n); break;
         case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_IN, &str->pins[n].s, 0,   pstr, num, n); break;
         case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_IN, &str->pins[n].u, 0,   pstr, num, n); break;
         case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_IN, &str->pins[n].b, 0,   pstr, num, n); break;
@@ -246,7 +242,7 @@ static int init_sampler(int num, sampler_t *str)
         }
     }
     /* export update function */
-    retval = hal_export_functf(sample, str, 1, 0, comp_id, "%s%d", strbase, num);
+    retval = hal_export_functf(sample, str, 0, comp_id, "%s%d", strbase, num);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: function export failed\n");
         return retval;

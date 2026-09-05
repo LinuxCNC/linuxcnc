@@ -259,7 +259,7 @@ int rtapi_app_main(void){
         p = 0; // HAL pin index, not aligned to channel index
         for (c = 0; c < inst->num_chans; c++){
             hm2_modbus_channel_t *ch = &(inst->chans[c]);
-            hal_pin_dir_t dir;
+            hal_pdir_t dir;
             rtapi_print_msg(RTAPI_MSG_INFO, "ch %i is at %p\n", c, ch);
             ch->type = channels[c].type;
             ch->func = channels[c].func;
@@ -324,7 +324,7 @@ int rtapi_app_main(void){
                 case 4: // read input registers
                     for (j = 0; j < ch->count; j++){
                         switch (ch->type){
-                        case HAL_U32:
+                        case HAL_UINT:
                             if (ch->count > 1) {
                                 retval = hal_pin_new_ui32(comp_id, dir,
                                     &(inst->hal->pins[p].u),
@@ -338,7 +338,7 @@ int rtapi_app_main(void){
                             }
                             p++;
                             break;
-                        case HAL_S32:
+                        case HAL_SINT:
                             if (ch->count > 1) {
                                 retval = hal_pin_new_si32(comp_id, dir,
                                     &(inst->hal->pins[p].s),
@@ -369,7 +369,7 @@ int rtapi_app_main(void){
                             inst->hal->buff[p] = 0;
                             p++;
                             break;
-                        case HAL_FLOAT:
+                        case HAL_REAL:
                             if (ch->count > 1) {
                                 retval = hal_pin_new_real(comp_id, dir,
                                     &(inst->hal->pins[p].r),
@@ -681,13 +681,13 @@ static int build_data_frame(hm2_modbus_inst_t *inst){
         case 6: //Write single register
             r += ch_append16(ch, ch->addr);
             switch (ch->type){
-            case HAL_U32:
+            case HAL_UINT:
                 r += ch_append16(ch, (rtapi_u16)hal_get_ui32(hal->pins[p].u));
                 break;
-            case HAL_S32:
+            case HAL_SINT:
                 r += ch_append16(ch, (rtapi_s16)hal_get_si32(hal->pins[p].s));
                 break;
-            case HAL_FLOAT:
+            case HAL_REAL:
                 rtapi_print_msg(RTAPI_MSG_INFO, "671 %f %f %f \n", hal_get_real(hal->pins[p].r), hal_get_real(hal->pin2[p].r), hal_get_real(hal->scale[p]));
                 if (hal_get_real(hal->scale[p]) <= -EPSILON || hal_get_real(hal->scale[p]) >= +EPSILON){
                     r+= ch_append16(ch, (rtapi_u16)((hal_get_real(hal->pins[p].r) - hal_get_real(hal->pin2[p].r)) / hal_get_real(hal->scale[p]))) ;
@@ -716,13 +716,13 @@ static int build_data_frame(hm2_modbus_inst_t *inst){
             r += ch_append8(ch, ch->count * 2);
             for (i = 0; i < ch->count; i++){
                 switch (ch->type){
-                case HAL_U32:
+                case HAL_UINT:
                     r += ch_append16(ch, (rtapi_u16)hal_get_ui32(hal->pins[p].u));
                     break;
-                case HAL_S32:
+                case HAL_SINT:
                     r += ch_append16(ch, (rtapi_s16)hal_get_si32(hal->pins[p].s));
                     break;
-                case HAL_FLOAT:
+                case HAL_REAL:
                     if (hal_get_real(hal->scale[p]) <= -EPSILON  || hal_get_real(hal->scale[p]) >= +EPSILON){
                         r+= ch_append16(ch, (rtapi_u16)((hal_get_real(hal->pins[p].r) - hal_get_real(hal->pin2[p].r)) / hal_get_real(hal->scale[p]))) ;
                     } else {
@@ -793,12 +793,12 @@ static int parse_data_frame(hm2_modbus_inst_t *inst){
             w = 3;
             for (i = 0; i < bytes[2] / 2; i++){
                 switch (ch->type){
-                case HAL_U32:
+                case HAL_UINT:
                     hal_set_ui32(hal->pins[p].u, 256 * bytes[w] + bytes[w + 1]);
                     w += 2;
                     p++;
                     break;
-                case HAL_S32: // wrap the result into the (s32) offset too
+                case HAL_SINT: // wrap the result into the (s32) offset too
                     tmp = hal_get_si32(hal->pins[p].s);
                     hal_set_si32(hal->pins[p].s, bytes[w] * 256 + bytes[w + 1]);
                     w += 2;
@@ -809,7 +809,7 @@ static int parse_data_frame(hm2_modbus_inst_t *inst){
                     hal_set_real(hal->pin2[p].r, hal->buff[p] * hal_get_real(hal->scale[p]));
                     p++;
                     break;
-                case HAL_FLOAT:
+                case HAL_REAL:
                     hal_set_real(hal->pins[p].r, (256 * bytes[w] + bytes[w + 1])
                                     * hal_get_real(hal->scale[p]) + hal_get_real(hal->pin2[p].r));
                     w += 2;

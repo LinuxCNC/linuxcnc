@@ -46,13 +46,13 @@ Maintainers note: hardcoded for MAXBINNUMBER==200
 """;
 // "} make vim syntax highligting happy
 
-pin in  ui32 pintype      "Select the input pin (0:input 1:input-s32 2:input-u32 3:input-bit).";
+pin in  uint pintype      "Select the input pin (0:input 1:input-s32 2:input-u32 3:input-bit).";
 pin in  real input        "Floating point input value (pintype 0).";
-pin in  si32 input_s32    "Signed input value (pintype 1).";
-pin in  ui32 input_u32    "Unsigned input value (pintype 2).";
+pin in  sint input_s32    "Signed input value (pintype 1).";
+pin in  uint input_u32    "Unsigned input value (pintype 2).";
 pin in  bool input_bit    "Bit input value (pintype 3).";
 
-pin in  ui32 nbins    = 20 "Number of active bins N (0 ... N-1).";
+pin in  uint nbins    = 20 "Number of active bins N (0 ... N-1).";
 pin in  real binsize  = 1  "Width of one bin in input units.";
 pin in  real minvalue = 0  "Lower edge of bin 0.";
 
@@ -65,13 +65,13 @@ pin out bool input_error  "Set when input rules are violated; updates are invali
 
 pin out real input_min    "Minimum input value seen (latched on stream rising edge).";
 pin out real input_max    "Maximum input value seen (latched on stream rising edge).";
-pin out ui32 nsamples     "Number of samples accumulated (latched on stream rising edge).";
+pin out uint nsamples     "Number of samples accumulated (latched on stream rising edge).";
 pin out real variance     "Variance of the input (latched on stream rising edge).";
 pin out real mean         "Mean of the input (latched on stream rising edge).";
 pin out sint stream_time  "The time it took for the stream data to be pushed out in nanoseconds (ns).";
 
 // user may interrogate availablebins to determine this compiled-in limit
-pin out si32 availablebins = 200; //MAXBINNUMBER
+pin out sint availablebins = 200; //MAXBINNUMBER
 
 option period no;
 function _;
@@ -82,7 +82,7 @@ include <rtapi_bool.h>;
 include <rtapi_stdint.h>;
 
 variable int first = 1;
-variable unsigned  last_nbins    = 0;
+variable rtapi_uint last_nbins    = 0;
 variable rtapi_real last_binsize  = 0;
 variable rtapi_real last_minvalue = 0;
 variable rtapi_real maxvalue = 0;
@@ -91,7 +91,7 @@ variable hal_stream_data_u bins[200]; // MAXBINNUMBER
 variable hal_stream_data_u ptail;     // count of inputs >= upper edge
 variable hal_stream_data_u ntail;     // count of inputs <  minvalue
 
-variable rtapi_u64 run_nsamples = 0;
+variable rtapi_uint run_nsamples = 0;
 variable rtapi_real run_min =  1e99;
 variable rtapi_real run_max = -1e99;
 variable rtapi_real run_mean = 0;
@@ -134,7 +134,7 @@ FUNCTION(_) {
     rtapi_s64 now = rtapi_get_time();
 
     // Cache some pins
-    rtapi_u32 c_nbins= nbins;
+    rtapi_uint c_nbins = nbins;
     rtapi_real c_binsize = binsize;
     rtapi_real c_minvalue = minvalue;
 
@@ -150,7 +150,7 @@ FUNCTION(_) {
 
     // Validate the requested bin geometry. binsize must be > 0 to avoid a
     // divide by zero and to keep the bin index monotonic.
-    if (c_nbins < 1 || c_nbins > (unsigned)availablebins || c_binsize <= 0.0) {
+    if (c_nbins < 1 || c_nbins > (rtapi_uint)availablebins || c_binsize <= 0.0) {
         input_error_set(1);
         last_stream = stream; // do not act on a stream edge while in error
         return;

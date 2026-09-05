@@ -30,7 +30,7 @@
 
 /* module information */
 MODULE_AUTHOR("Andy Pugh");
-MODULE_DESCRIPTION("convert enumerated types to HAL_BIT pins");
+MODULE_DESCRIPTION("convert enumerated types to HAL_BOOL pins");
 MODULE_LICENSE("GPL");
 
 #define MAX_CHAN 256
@@ -162,9 +162,9 @@ int rtapi_app_main(void){
             }
         }
         if (inst->dir == HAL_OUT){
-            hal_export_funct(this, decode, inst, 0, 0, comp_id);
+            hal_export_funct(this, decode, inst, 0, comp_id);
         } else {
-            hal_export_funct(this, encode, inst, 0, 0, comp_id);
+            hal_export_funct(this, encode, inst, 0, comp_id);
         }
         if (retval < 0){
             rtapi_print_msg(RTAPI_MSG_ERR, "Failed to export functions\n");

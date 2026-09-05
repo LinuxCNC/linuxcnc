@@ -345,14 +345,14 @@ int rtapi_app_main(void) {
 
 
     // export functions
-    retval = hal_export_funct("bb_gpio.write", write_port, port_data, 0, 0, comp_id);
+    retval = hal_export_funct("bb_gpio.write", write_port, port_data, 0, comp_id);
     if(retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: port %d write funct export failed\n", modname, n);
         hal_exit(comp_id);
         return -1;
     }
 
-    retval = hal_export_funct("bb_gpio.read", read_port, port_data, 0, 0, comp_id);
+    retval = hal_export_funct("bb_gpio.read", read_port, port_data, 0, comp_id);
     if(retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: port %d read funct export failed\n", modname, n);
         hal_exit(comp_id);

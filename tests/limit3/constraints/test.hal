@@ -25,13 +25,13 @@ net triangle <= siggen.0.triangle
 
 loadrt mux_generic config=ff8
 
-net sine => mux-gen.00.in-float-00
-net cosine => mux-gen.00.in-float-01
-net square => mux-gen.00.in-float-02
-net sawtooth => mux-gen.00.in-float-03
-net triangle => mux-gen.00.in-float-04
+net sine => mux-gen.00.in-real-00
+net cosine => mux-gen.00.in-real-01
+net square => mux-gen.00.in-real-02
+net sawtooth => mux-gen.00.in-real-03
+net triangle => mux-gen.00.in-real-04
 
-net input <= mux-gen.00.out-float
+net input <= mux-gen.00.out-real
 
 
 #
@@ -49,7 +49,7 @@ setp limit3.0.maxa 15800
 
 net input => limit3.0.in
 net output <= limit3.0.out
-net output => mux-gen.00.in-float-05
+net output => mux-gen.00.in-real-05
 
 
 #
@@ -88,10 +88,10 @@ encoder.0.position-scale = 500
 net heartbeat => encoder.0.phase-A
 net encoder-position <= encoder.0.position
 
-loadrt conv_float_u32
-net encoder-position => conv-float-u32.0.in
+loadrt conv_real_uint
+net encoder-position => conv-real-uint.0.in
 
-net mux-select <= conv-float-u32.0.out
+net mux-select <= conv-real-uint.0.out
 net mux-select => mux-gen.00.sel-int
 
 
@@ -113,7 +113,7 @@ loadrt threads name1=t period1=1000000
 addf charge-pump              t
 addf encoder.update-counters  t
 addf encoder.capture-position t
-addf conv-float-u32.0         t
+addf conv-real-uint.0         t
 
 addf siggen.0.update          t
 addf mux-gen.00               t

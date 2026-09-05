@@ -19,18 +19,18 @@ import sys
 # add joints. Mill has 3.
 c = hal.component("millturngui")
 # follow ZYX directly
-#c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
-#c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
-#c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointA", hal.HAL_FLOAT, hal.HAL_IN)
+#c.newpin("jointX", hal.Type.REAL, hal.Dir.IN)
+#c.newpin("jointY", hal.Type.REAL, hal.Dir.IN)
+#c.newpin("jointZ", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jointA", hal.Type.REAL, hal.Dir.IN)
 
 # kinematics pins
-c.newpin("millkins", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("millkins", hal.Type.BOOL, hal.Dir.IN)
 
 # tool length and diameter pins?
-c.newpin("toollength", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tooldiameter", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-x-offset", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("toollength", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tooldiameter", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-x-offset", hal.Type.REAL, hal.Dir.IN)
 # tells loadusr pins is ready
 c.ready()
 

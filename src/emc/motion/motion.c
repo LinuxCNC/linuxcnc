@@ -1014,7 +1014,7 @@ static int init_threads(void)
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp);
+	retval = hal_create_thread("base-thread", base_period_nsec);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: failed to create %ld nsec base thread\n",
@@ -1022,7 +1022,7 @@ static int init_threads(void)
 	    return -1;
 	}
     }
-    retval = hal_create_thread("servo-thread", servo_period_nsec, 1);
+    retval = hal_create_thread("servo-thread", servo_period_nsec);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to create %ld nsec servo thread\n",
@@ -1031,14 +1031,14 @@ static int init_threads(void)
     }
     /* export realtime functions that do the real work */
     retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+	 */ , 0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");
 	return -1;
     }
     retval = hal_export_funct("motion-command-handler", emcmotCommandHandler, 0	/* arg
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+	 */ , 0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export command handler function\n");

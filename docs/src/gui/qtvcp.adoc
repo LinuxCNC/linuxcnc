@@ -267,10 +267,10 @@ class UserHandlerClass(HandlerClass):
         super().init_pins()
 
         # add jog pins X axis
-        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(lambda s: self.kb_jog(s, 0, 1, fast = False, linear = True))
 
-        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BOOL, QHAL.HAL_IN)
         pin.value_changed.connect(lambda s: self.kb_jog(s, 0, -1, fast = False, linear = True))
 ----
 
@@ -379,7 +379,7 @@ def new_pin_changed(data):
 # Here we used the function to add a bit input pin with a callback.
 def after_override__(self):
     try:
-        pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BIT, hdlr.QHAL.HAL_IN)
+        pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BOOL, hdlr.QHAL.HAL_IN)
         pin.value_changed.connect(new_pin_changed)
     except Exception as e:
         print(e)

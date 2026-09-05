@@ -246,28 +246,28 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-amps", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-volts", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("spindle-fault", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-fault", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
-        QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("spindle-inhibit", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         # external offset control pins
-        QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        QHAL.newpin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
 
-        self.pin_mpg_in = self.h.newpin('mpg-in',hal.HAL_S32, hal.HAL_IN)
+        self.pin_mpg_in = self.h.newpin('mpg-in',hal.Type.SINT, hal.Dir.IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
-        self.wheel_x = self.h.newpin('jog.wheel.x',hal.HAL_BIT, hal.HAL_OUT)
-        self.wheel_y = self.h.newpin('jog.wheel.y',hal.HAL_BIT, hal.HAL_OUT)
-        self.wheel_z = self.h.newpin('jog.wheel.z',hal.HAL_BIT, hal.HAL_OUT)
-        self.wheel_a = self.h.newpin('jog.wheel.a',hal.HAL_BIT, hal.HAL_OUT)
-        self.jog_increment = self.h.newpin('jog.wheel.increment',hal.HAL_FLOAT, hal.HAL_OUT)
+        self.wheel_x = self.h.newpin('jog.wheel.x',hal.Type.BOOL, hal.Dir.OUT)
+        self.wheel_y = self.h.newpin('jog.wheel.y',hal.Type.BOOL, hal.Dir.OUT)
+        self.wheel_z = self.h.newpin('jog.wheel.z',hal.Type.BOOL, hal.Dir.OUT)
+        self.wheel_a = self.h.newpin('jog.wheel.a',hal.Type.BOOL, hal.Dir.OUT)
+        self.jog_increment = self.h.newpin('jog.wheel.increment',hal.Type.REAL, hal.Dir.OUT)
 
     def init_preferences(self):
         if not self.w.PREFS_:
