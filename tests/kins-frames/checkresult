@@ -1,0 +1,3 @@
+#!/bin/sh
+[ "$(grep -c 'frames agree' "$1")" = 5 ] \
+    && ! grep -q "FAIL" "$1"

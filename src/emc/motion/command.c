@@ -70,6 +70,11 @@
 #include "homing.h"
 #include "axis.h"
 
+// the kinematics module takes the tool offset from here when it can; a
+// module written before the call exports no such symbol, and the weak
+// reference leaves it NULL rather than refusing to load motion
+#pragma weak kinematicsSetTool
+
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
 
@@ -1991,6 +1996,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         case EMCMOT_SET_OFFSET:
             rtapi_print_msg(RTAPI_MSG_DBG, "SET_OFFSET");
             emcmotStatus->tool_offset = emcmotCommand->tool_offset;
+            if (kinematicsSetTool) {
+                kinematicsSetTool(&emcmotStatus->tool_offset);
+            }
             break;
 
 	case EMCMOT_SET_AXIS_POSITION_LIMITS:
@@ -2053,6 +2061,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             }
             axis_set_locking_joint(emcmotCommand->axis, joint_num);
             break;
+
+	case EMCMOT_SELECT_KINS_TYPE:
+	    emcmotConfig->switchkins_type = emcmotCommand->switchkins_type;
+	    emcmotConfig->switchkins_seq++;
+	    break;
 
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");

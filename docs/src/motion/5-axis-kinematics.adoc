@@ -317,23 +317,17 @@ See the simulation INI files for details of the HAL connections used for the vis
 
 === Tool-Length Compensation
 
-In order to use tools from a tool table sequentially with tool-length compensation applied automatically, a further Z-offset is required. For a tool that is longer than the "master" tool, which typically has a tool length of zero, LinuxCNC has a variable called "motion.tooloffset.z". If this variable is passed on to the kinematic component (and vismach python script), then the necessary additional Z-offset for a new tool can be accounted for by adding the component statement, for example:
+In order to use tools from a tool table sequentially with tool-length compensation applied automatically, a further Z-offset is required. For a tool that is longer than the "master" tool, which typically has a tool length of zero, the kinematics accounts for the tool length in effect, for example:
 
 image::5-axis-figures/equation__38.png[align="center"]
 
-The required HAL connection (for xyzac-trt) is:
+Motion hands the tool offset in effect (G43, G49) to the kinematics module directly, so the module sees the tool from the tool table with no HAL connection. The module's tool-offset pin (xyzac-trt-kins.tool-offset) remains for a configuration that connects it, and is read only until motion has sent an offset; a value set on it that disagrees with the tool table is reported once and not used.
+
+Motion also publishes the offset on the HAL pin "motion.tooloffset.z", which is what a vismach python script reads to draw the tool:
 
 [source,hal]
 ----
-net :tool-offset motion.tooloffset.z xyzac-trt-kins.tool-offset
-----
-
-where:
-
-----
-:tool-offset ---------------- signal name
-motion.tooloffset.z --------- output HAL pin from LinuxCNC motion module
-xyzac-trt-kins.tool-offset -- input  HAL pin to xyzac-trt-kins
+net :tool-offset motion.tooloffset.z xyzac-trt-gui.tool-offset
 ----
 
 == Custom Kinematics Components
@@ -383,16 +377,17 @@ KINEMATICS = kinsname
 
 where "kinsname" is the name of your kins program.
 Additional HAL pins may be created by the module for variable configuration items
-such as the D~x~, D~y~, D~z~, tool-offset used in the xyzac-trt kinematics module.
+such as the D~x~, D~y~, D~z~ used in the xyzac-trt kinematics module.
 These pins can be connected to a signal for dynamic control or set once with HAL connections like:
 
 [source,hal]
 ----
 # set offset parameters
-net :tool-offset motion.tooloffset.z xyzac-trt-kins.tool-offset
 setp xyzac-trt-kins.y-offset 0
 setp xyzac-trt-kins.z-offset 20
 ----
+
+The tool length is not among them: motion hands it to the module from the tool table.
 
 == Figures
 

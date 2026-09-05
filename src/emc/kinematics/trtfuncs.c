@@ -25,150 +25,67 @@
 *     This mill has a tilting table (B axis) and horizontal rotary
 *     mounted to the table (C axis).
 *
-* Note: The directions of the rotational axes are the opposite of the 
-* conventional axis directions. See 
+* Note: The directions of the rotational axes are the opposite of the
+* conventional axis directions. See
 * https://linuxcnc.org/docs/html/gcode/machining-center.html
-
+*
+* Written as pure functions of the parameter block (see kinematics.h):
+* the geometry is the table below, the joint map comes from the block,
+* and the tool length is p->tool.tran.z.
 ********************************************************************/
 
 #include <rtapi_math.h>
-#include <rtapi_string.h>
-#include <rtapi_ctype.h>
-#include <hal.h>
 #include <emcmotcfg.h>
 #include <kinematics.h>
 
-static int trtfuncs_max_joints;
+// the geometry both machines share, one pin each
+const kins_param_desc TRT_PARAMS[] = {
+    { "x-rot-point",             KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "y-rot-point",             KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "z-rot-point",             KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "x-offset",                KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "y-offset",                KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "z-offset",                KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "tool-offset",             KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
+    { "conventional-directions", KINS_PARAM_BIT,   KINS_IN, 0, 0.0 }, // default: false
+};
+const int TRT_NPARAMS = sizeof(TRT_PARAMS)/sizeof(TRT_PARAMS[0]);
 
-// joint number assignments (-1 ==> not assigned)
-static int JX = -1;
-static int JY = -1;
-static int JZ = -1;
+enum { TRT_XR, TRT_YR, TRT_ZR, TRT_XO, TRT_YO, TRT_ZO, TRT_TOOL, TRT_CON };
 
-static int JA = -1;
-static int JB = -1;
-static int JC = -1;
+// joint number assignments from the block (-1 ==> not assigned)
+#define JX (p->joint_of_axis[0])
+#define JY (p->joint_of_axis[1])
+#define JZ (p->joint_of_axis[2])
+#define JA (p->joint_of_axis[3])
+#define JB (p->joint_of_axis[4])
+#define JC (p->joint_of_axis[5])
+#define JU (p->joint_of_axis[6])
+#define JV (p->joint_of_axis[7])
+#define JW (p->joint_of_axis[8])
 
-static int JU = -1;
-static int JV = -1;
-static int JW = -1;
+// the direction sign the conventional-directions pin selects
+#define CON(p) ((p)->geometry[TRT_CON] != 0 ? 1.0 : -1.0)
 
-struct haldata {
-    hal_real_t x_rot_point;
-    hal_real_t y_rot_point;
-    hal_real_t z_rot_point;
-    hal_real_t x_offset;
-    hal_real_t y_offset;
-    hal_real_t z_offset;
-    hal_real_t tool_offset;
-    hal_bool_t conventional_directions; // default: false
-} *haldata;
-
-
-int trtKinematicsSetup(const int   comp_id,
-                       const char* coordinates,
-                       kparms*     kp)
+static int xyzac_forward(const kins_params *p, kins_scratch *s,
+                         const double *joints,
+                         EmcPose * pos,
+                         const KINEMATICS_FORWARD_FLAGS * fflags,
+                         KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    int i,jno,res=0;
-    int axis_idx_for_jno[EMCMOT_MAX_JOINTS];
-    int rqdjoints = strlen(kp->required_coordinates);
-
-    if (rqdjoints > kp->max_joints) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "ERROR %s: supports %d joints, <%s> requires %d\n",
-             kp->kinsname,
-             kp->max_joints,
-             coordinates,
-             rqdjoints);
-        goto error;
-    }
-    trtfuncs_max_joints = kp->max_joints;
-
-    if (map_coordinates_to_jnumbers(coordinates,
-                                    kp->max_joints,
-                                    kp->allow_duplicates,
-                                    axis_idx_for_jno)) {
-       goto error;
-    }
-    // require all chars in reqd_coords (order doesn't matter)
-    for (i=0; i < rqdjoints; i++) {
-        char  reqd_char;
-        reqd_char = *(kp->required_coordinates + i);
-        if (   !strchr(coordinates,toupper(reqd_char))
-            && !strchr(coordinates,tolower(reqd_char)) ) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                 "ERROR %s:\nrequired  coordinates:%s\n"
-                           "specified coordinates:%s\n",
-                 kp->kinsname, kp->required_coordinates, coordinates);
-            goto error;
-        }
-    }
-
-    // assign principal joint numbers (first found in coordinates map)
-    // duplicates are handled by position_to_mapped_joints()
-    for (jno=0; jno < EMCMOT_MAX_JOINTS; jno++) {
-       if (axis_idx_for_jno[jno] == 0 && JX==-1) {JX = jno;}
-       if (axis_idx_for_jno[jno] == 1 && JY==-1) {JY = jno;}
-       if (axis_idx_for_jno[jno] == 2 && JZ==-1) {JZ = jno;}
-       if (axis_idx_for_jno[jno] == 3 && JA==-1) {JA = jno;}
-       if (axis_idx_for_jno[jno] == 4 && JB==-1) {JB = jno;}
-       if (axis_idx_for_jno[jno] == 5 && JC==-1) {JC = jno;}
-       if (axis_idx_for_jno[jno] == 6 && JU==-1) {JU = jno;}
-       if (axis_idx_for_jno[jno] == 7 && JV==-1) {JV = jno;}
-       if (axis_idx_for_jno[jno] == 8 && JW==-1) {JW = jno;}
-    }
-
-    rtapi_print("%s coordinates=%s assigns:\n", kp->kinsname,coordinates);
-    for (jno=0; jno<EMCMOT_MAX_JOINTS; jno++) {
-        if (axis_idx_for_jno[jno] == -1) break; //fini
-        rtapi_print("   Joint %d ==> Axis %c\n",
-                   jno,"XYZABCUVW"[axis_idx_for_jno[jno]]);
-    }
-
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata) {goto error;}
-
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->x_rot_point),
-                            0.0, "%s.x-rot-point",kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->y_rot_point),
-                            0.0, "%s.y-rot-point",kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->z_rot_point),
-                            0.0, "%s.z-rot-point",kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->x_offset),
-                            0.0, "%s.x-offset",kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->y_offset),
-                            0.0, "%s.y-offset",kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->z_offset),
-                            0.0, "%s.z-offset",kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->tool_offset),
-                            0.0, "%s.tool-offset",kp->halprefix);
-    res += hal_pin_new_bool(comp_id, HAL_IN, &(haldata->conventional_directions),
-                            0, "%s.conventional-directions", kp->halprefix);
-    if (res) {goto error;}
-    return 0;
-
-error:
-    rtapi_print_msg(RTAPI_MSG_ERR,"trtKinematicsSetup() FAIL\n");
-    return -1;
-} // trtKinematicsSetup()
-
-int xyzacKinematicsForward(const double *joints,
-                           EmcPose * pos,
-                           const KINEMATICS_FORWARD_FLAGS * fflags,
-                           KINEMATICS_INVERSE_FLAGS * iflags)
-{
+    (void)s;
     (void)fflags;
     (void)iflags;
-    const double x_rot_point = hal_get_real(haldata->x_rot_point);
-    const double y_rot_point = hal_get_real(haldata->y_rot_point);
-    const double z_rot_point = hal_get_real(haldata->z_rot_point);
-    const double          dt = hal_get_real(haldata->tool_offset);
-    const double          dy = hal_get_real(haldata->y_offset);
-    const double          dz = hal_get_real(haldata->z_offset) + dt;
+    const double x_rot_point = p->geometry[TRT_XR];
+    const double y_rot_point = p->geometry[TRT_YR];
+    const double z_rot_point = p->geometry[TRT_ZR];
+    const double          dt = p->tool.tran.z;
+    const double          dy = p->geometry[TRT_YO];
+    const double          dz = p->geometry[TRT_ZO] + dt;
     const double       a_rad = joints[JA]*TO_RAD;
     const double       c_rad = joints[JC]*TO_RAD;
 
-    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    const double con = CON(p);
 
     pos->tran.x = +       cos(c_rad)              * (joints[JX]      - x_rot_point)
                   - con * sin(c_rad) * cos(a_rad) * (joints[JY] - dy - y_rot_point)
@@ -198,25 +115,27 @@ int xyzacKinematicsForward(const double *joints,
     pos->w = (JW != -1)? joints[JW] : 0;
 
     return 0;
-} // xyzacKinematicsForward()
+} // xyzac_forward()
 
-int xyzacKinematicsInverse(const EmcPose * pos,
-                           double *joints,
-                           const KINEMATICS_INVERSE_FLAGS * iflags,
-                           KINEMATICS_FORWARD_FLAGS * fflags)
+static int xyzac_inverse(const kins_params *p, kins_scratch *s,
+                         const EmcPose * pos,
+                         double *joints,
+                         const KINEMATICS_INVERSE_FLAGS * iflags,
+                         KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)s;
     (void)iflags;
     (void)fflags;
-    const double x_rot_point = hal_get_real(haldata->x_rot_point);
-    const double y_rot_point = hal_get_real(haldata->y_rot_point);
-    const double z_rot_point = hal_get_real(haldata->z_rot_point);
-    const double         dy  = hal_get_real(haldata->y_offset);
-    const double         dt  = hal_get_real(haldata->tool_offset);
-    const double         dz  = hal_get_real(haldata->z_offset) + dt;
+    const double x_rot_point = p->geometry[TRT_XR];
+    const double y_rot_point = p->geometry[TRT_YR];
+    const double z_rot_point = p->geometry[TRT_ZR];
+    const double         dy  = p->geometry[TRT_YO];
+    const double         dt  = p->tool.tran.z;
+    const double         dz  = p->geometry[TRT_ZO] + dt;
     const double      a_rad  = pos->a*TO_RAD;
     const double      c_rad  = pos->c*TO_RAD;
 
-    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    const double con = CON(p);
 
     EmcPose P; // computed position
 
@@ -253,31 +172,120 @@ int xyzacKinematicsInverse(const EmcPose * pos,
     // update joints with support for
     // multiple-joints per-coordinate letter:
     // based on computed position
-    position_to_mapped_joints(trtfuncs_max_joints,
-                              &P,
-                              joints);
+    return kinsPoseToMappedJoints(p, &P, joints);
+} // xyzac_inverse()
+
+static int xyzac_work_frame(const kins_params *p, const double *joints,
+                            PmRotationMatrix *rot,
+                            const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    // the forward transform's coefficients for a displacement of the X, Y and
+    // Z joints are the rotation from machine into work, so the work frame in
+    // machine coordinates is their transpose, written out directly here
+    const double a_rad = joints[JA]*TO_RAD;
+    const double c_rad = joints[JC]*TO_RAD;
+
+    const double con = CON(p);
+
+    rot->x.x =       cos(c_rad);
+    rot->y.x = con * sin(c_rad);
+    rot->z.x = 0;
+
+    rot->x.y = - con * sin(c_rad) * cos(a_rad);
+    rot->y.y =         cos(c_rad) * cos(a_rad);
+    rot->z.y =   con *              sin(a_rad);
+
+    rot->x.z =         sin(c_rad) * sin(a_rad);
+    rot->y.z = - con * cos(c_rad) * sin(a_rad);
+    rot->z.z =                      cos(a_rad);
 
     return 0;
-} // xyzacKinematicsInverse()
+} // xyzac_work_frame()
 
-int xyzbcKinematicsForward(const double *joints,
-                           EmcPose * pos,
-                           const KINEMATICS_FORWARD_FLAGS * fflags,
-                           KINEMATICS_INVERSE_FLAGS * iflags)
+static int xyzac_jacobian(const kins_params *p, const double *joints,
+                          const EmcPose *pos,
+                          double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                          const KINEMATICS_INVERSE_FLAGS *iflags)
 {
+    (void)joints;
+    (void)iflags;
+    const double x_rot_point = p->geometry[TRT_XR];
+    const double y_rot_point = p->geometry[TRT_YR];
+    const double z_rot_point = p->geometry[TRT_ZR];
+    const double         dy  = p->geometry[TRT_YO];
+    const double         dt  = p->tool.tran.z;
+    const double         dz  = p->geometry[TRT_ZO] + dt;
+    const double          sa = sin(pos->a*TO_RAD), ca = cos(pos->a*TO_RAD);
+    const double          sc = sin(pos->c*TO_RAD), cc = cos(pos->c*TO_RAD);
+    const double          X = pos->tran.x - x_rot_point;
+    const double          Y = pos->tran.y - y_rot_point;
+    const double          Z = pos->tran.z - z_rot_point;
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a, b;
+
+    const double con = CON(p);
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) { dP[a][b] = 0; }
+    }
+
+    // the computed position P of xyzac_inverse(), differentiated: its
+    // coefficients for x, y and z, and the same expressions with the
+    // rotation taken a quarter turn on for a and for c
+    dP[0][0] =       cc;
+    dP[0][1] = con * sc;
+    dP[0][5] = (-sc*X + con*cc*Y) * TO_RAD;
+
+    dP[1][0] = - con * sc * ca;
+    dP[1][1] =         cc * ca;
+    dP[1][2] =   con *      sa;
+    dP[1][3] = (con*sc*sa*X - cc*sa*Y + con*ca*Z + sa*dy - con*ca*dz) * TO_RAD;
+    dP[1][5] = (-con*cc*ca*X - sc*ca*Y) * TO_RAD;
+
+    dP[2][0] =         sc * sa;
+    dP[2][1] = - con * cc * sa;
+    dP[2][2] =              ca;
+    dP[2][3] = (sc*ca*X - con*cc*ca*Y - sa*Z + con*ca*dy + sa*dz) * TO_RAD;
+    dP[2][5] = (cc*sa*X + con*sc*sa*Y) * TO_RAD;
+
+    for (a = 3; a < EMCMOT_MAX_AXIS; a++) { dP[a][a] = 1; }
+
+    return kinsJacobianFromMappedAxesP(p, (const double (*)[EMCMOT_MAX_AXIS])dP,
+                                       jac);
+} // xyzac_jacobian()
+
+// both rotaries carry the work, so the tool never turns in the machine:
+// the tool frame is the shared identity one
+const kins_ops XYZAC_OPS = {
+    .forward  = xyzac_forward,
+    .inverse  = xyzac_inverse,
+    .work     = xyzac_work_frame,
+    .tool     = kinsIdentityFrame,
+    .native   = &TOOL_FRAME_SPINDLE,
+    .jacobian = xyzac_jacobian,
+};
+
+static int xyzbc_forward(const kins_params *p, kins_scratch *s,
+                         const double *joints,
+                         EmcPose * pos,
+                         const KINEMATICS_FORWARD_FLAGS * fflags,
+                         KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)s;
     (void)fflags;
     (void)iflags;
     // Note: 'principal' joints are used
-    const double x_rot_point = hal_get_real(haldata->x_rot_point);
-    const double y_rot_point = hal_get_real(haldata->y_rot_point);
-    const double z_rot_point = hal_get_real(haldata->z_rot_point);
-    const double          dx = hal_get_real(haldata->x_offset);
-    const double          dt = hal_get_real(haldata->tool_offset);
-    const double          dz = hal_get_real(haldata->z_offset) + dt;
+    const double x_rot_point = p->geometry[TRT_XR];
+    const double y_rot_point = p->geometry[TRT_YR];
+    const double z_rot_point = p->geometry[TRT_ZR];
+    const double          dx = p->geometry[TRT_XO];
+    const double          dt = p->tool.tran.z;
+    const double          dz = p->geometry[TRT_ZO] + dt;
     const double       b_rad = joints[JB]*TO_RAD;
     const double       c_rad = joints[JC]*TO_RAD;
 
-    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    const double con = CON(p);
 
     pos->tran.x =         cos(c_rad) * cos(b_rad) * (joints[JX] - dx - x_rot_point)
                   - con * sin(c_rad) *              (joints[JY]      - y_rot_point)
@@ -306,27 +314,32 @@ int xyzbcKinematicsForward(const double *joints,
     pos->w = (JW != -1)? joints[JW] : 0;
 
     return 0;
-} // xyzbcKinematicsForward()
+} // xyzbc_forward()
 
-int xyzbcKinematicsInverse(const EmcPose * pos,
-                           double *joints,
-                           const KINEMATICS_INVERSE_FLAGS * iflags,
-                           KINEMATICS_FORWARD_FLAGS * fflags)
+static int xyzbc_inverse(const kins_params *p, kins_scratch *s,
+                         const EmcPose * pos,
+                         double *joints,
+                         const KINEMATICS_INVERSE_FLAGS * iflags,
+                         KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)s;
     (void)iflags;
     (void)fflags;
-    const double x_rot_point = hal_get_real(haldata->x_rot_point);
-    const double y_rot_point = hal_get_real(haldata->y_rot_point);
-    const double z_rot_point = hal_get_real(haldata->z_rot_point);
-    const double          dx = hal_get_real(haldata->x_offset);
-    const double          dt = hal_get_real(haldata->tool_offset);
-    const double          dz = hal_get_real(haldata->z_offset) + dt;
+    const double x_rot_point = p->geometry[TRT_XR];
+    const double y_rot_point = p->geometry[TRT_YR];
+    const double z_rot_point = p->geometry[TRT_ZR];
+    const double          dx = p->geometry[TRT_XO];
+    const double          dt = p->tool.tran.z;
+    const double          dz = p->geometry[TRT_ZO] + dt;
     const double       b_rad = pos->b*TO_RAD;
     const double       c_rad = pos->c*TO_RAD;
-    const double         dpx = -cos(b_rad)*dx + sin(b_rad)*dz + dx;
-    const double         dpz = -sin(b_rad)*dx - cos(b_rad)*dz + dz;
 
-    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+    const double con = CON(p);
+
+    // the offsets seen from the tilted table: the same rotation the
+    // forward applies to them, in the same sense
+    const double         dpx = -cos(b_rad)*dx + con * sin(b_rad)*dz + dx;
+    const double         dpz = -con * sin(b_rad)*dx - cos(b_rad)*dz + dz;
 
     EmcPose P; // computed position
 
@@ -358,9 +371,91 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
     // update joints with support for
     // multiple-joints per-coordinate letter:
     // based on computed position
-    position_to_mapped_joints(trtfuncs_max_joints,
-                              &P,
-                              joints);
+    return kinsPoseToMappedJoints(p, &P, joints);
+} // xyzbc_inverse()
+
+static int xyzbc_work_frame(const kins_params *p, const double *joints,
+                            PmRotationMatrix *rot,
+                            const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    // see the comment in xyzac_work_frame()
+    const double b_rad = joints[JB]*TO_RAD;
+    const double c_rad = joints[JC]*TO_RAD;
+
+    const double con = CON(p);
+
+    rot->x.x =         cos(c_rad) * cos(b_rad);
+    rot->y.x =   con * sin(c_rad) * cos(b_rad);
+    rot->z.x = - con *              sin(b_rad);
+
+    rot->x.y = - con * sin(c_rad);
+    rot->y.y =         cos(c_rad);
+    rot->z.y = 0;
+
+    rot->x.z =   con * cos(c_rad) * sin(b_rad);
+    rot->y.z =         sin(c_rad) * sin(b_rad);
+    rot->z.z =                      cos(b_rad);
 
     return 0;
-} // xyzbcKinematicsInverse()
+} // xyzbc_work_frame()
+
+static int xyzbc_jacobian(const kins_params *p, const double *joints,
+                          const EmcPose *pos,
+                          double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                          const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)joints;
+    (void)iflags;
+    const double x_rot_point = p->geometry[TRT_XR];
+    const double y_rot_point = p->geometry[TRT_YR];
+    const double z_rot_point = p->geometry[TRT_ZR];
+    const double          dx = p->geometry[TRT_XO];
+    const double          dt = p->tool.tran.z;
+    const double          dz = p->geometry[TRT_ZO] + dt;
+    const double          sb = sin(pos->b*TO_RAD), cb = cos(pos->b*TO_RAD);
+    const double          sc = sin(pos->c*TO_RAD), cc = cos(pos->c*TO_RAD);
+    const double          X = pos->tran.x - x_rot_point;
+    const double          Y = pos->tran.y - y_rot_point;
+    const double          Z = pos->tran.z - z_rot_point;
+    double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS];
+    int a, b;
+
+    const double con = CON(p);
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        for (b = 0; b < EMCMOT_MAX_AXIS; b++) { dP[a][b] = 0; }
+    }
+
+    // see the comment in xyzac_jacobian(); dpx and dpz of the inverse
+    // depend on b as well
+    dP[0][0] =       cc * cb;
+    dP[0][1] = con * sc * cb;
+    dP[0][2] = - con *    sb;
+    dP[0][4] = (-cc*sb*X - con*sc*sb*Y - con*cb*Z + sb*dx + con*cb*dz) * TO_RAD;
+    dP[0][5] = (-sc*cb*X + con*cc*cb*Y) * TO_RAD;
+
+    dP[1][0] = - con * sc;
+    dP[1][1] =         cc;
+    dP[1][5] = (-con*cc*X - sc*Y) * TO_RAD;
+
+    dP[2][0] = con * cc * sb;
+    dP[2][1] =       sc * sb;
+    dP[2][2] =            cb;
+    dP[2][4] = (con*cc*cb*X + sc*cb*Y - sb*Z - con*cb*dx + sb*dz) * TO_RAD;
+    dP[2][5] = (-con*sc*sb*X + cc*sb*Y) * TO_RAD;
+
+    for (a = 3; a < EMCMOT_MAX_AXIS; a++) { dP[a][a] = 1; }
+
+    return kinsJacobianFromMappedAxesP(p, (const double (*)[EMCMOT_MAX_AXIS])dP,
+                                       jac);
+} // xyzbc_jacobian()
+
+const kins_ops XYZBC_OPS = {
+    .forward  = xyzbc_forward,
+    .inverse  = xyzbc_inverse,
+    .work     = xyzbc_work_frame,
+    .tool     = kinsIdentityFrame,
+    .native   = &TOOL_FRAME_SPINDLE,
+    .jacobian = xyzbc_jacobian,
+};

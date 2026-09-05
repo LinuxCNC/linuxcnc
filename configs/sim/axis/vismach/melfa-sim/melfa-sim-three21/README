@@ -11,10 +11,10 @@ with 6 revolute joints.
 2) pyvcp buttons are provided to switch
 between 'three21' and 'identity'
 kinematics.  The buttons issue remapped
-commands M428,M429.  These commands 
- a) set the motion.switchkins-type pin and
- b) force a synchronization using a
-motion input read command.
+commands M428,M429.  These commands
+select the kinematics with G12.1, which
+synchronizes interpreter and motion
+itself.
 
 3) when set for 'identity' kins, default
 assignments are:

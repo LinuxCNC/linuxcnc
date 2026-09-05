@@ -4,169 +4,67 @@ description
 """
 FIXME
 
+The kinematics-type switching, the *kinstype.is-N* pins and the
+joints-to-coordinates mapping are provided by switchkins.c, so the
+*coordinates=* module parameter and the kinematics switching described in
+the switchkins document chapter apply here too.
+
 """;
 pin out si32 dummy=0 "dummy pin to satisfy halcompile";
 option period no;
+option extra_setup;
 
 license "GPL";
 author "David Mueller";
 ;;
 
 #include <rtapi_math.h>
-#include <kinematics.h>
 
+#include <switchkins.h>
 
-static struct haldata {
-  // these should be parameters really but we want to be able to
-  // change them for demonstration purposes
-  hal_real_t y_pivot;
-  hal_real_t z_pivot;
-  hal_real_t x_offset;
-  hal_real_t y_offset;
-  hal_real_t y_rot_axis;
-  hal_real_t z_rot_axis;
-  hal_real_t pre_rot;
-  hal_real_t nut_angle;
-  hal_real_t prim_angle;
-  hal_real_t sec_angle;
+static char *coordinates;
+RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 
-  // Parameters used for xyzacb_trsrn kinematics:
+// The geometry of the universal spindle head, one pin each, shared by the
+// TCP and TOOL kinematics; the maths reads it from the block (see
+// kinematics.h) and the tool length from p->tool.tran.z.  The two angle
+// pins are what the TOOL kinematics uses in place of the head joints:
+// the remap writes them.
+static const kins_param_desc trsrn_params[] = {
+    { "tool-offset-z",   KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
+    { "y-pivot",         KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "z-pivot",         KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "x-offset",        KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "y-offset",        KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "y-rot-axis",      KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "z-rot-axis",      KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "pre-rot",         KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "nut-angle",       KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "primary-angle",   KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "secondary-angle", KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+};
+enum { P_TOOL, P_PIVOT, P_ZPIVOT, P_XO, P_YO, P_ROT_AXIS, P_ZROT_AXIS,
+       P_PRE_ROT, P_NUT, P_PRIM, P_SEC };
 
-  // Declare hal pin pointers used for xyzacb_trsrn kinematics:
+// geometric offsets of the universal spindle head as defined in the ini file
+#define GEOMETRY(p) \
+    const double       Ly = (p)->geometry[P_PIVOT]; \
+    const double       Lz = (p)->geometry[P_ZPIVOT]; \
+    const double       Dx = (p)->geometry[P_XO]; \
+    const double       Dy = (p)->geometry[P_YO]; \
+    const double     Dray = (p)->geometry[P_ROT_AXIS] - (Dy + Ly); \
+    const double     Draz = (p)->geometry[P_ZROT_AXIS] - Lz; \
+    const double       tc = (p)->geometry[P_PRE_ROT]; \
+    const double       nu = (p)->geometry[P_NUT]; /* degrees */ \
+    const double  theta_1 = (p)->geometry[P_PRIM]; /* degrees */ \
+    const double  theta_2 = (p)->geometry[P_SEC]; /* degrees */ \
+    const double       Dt = (p)->tool.tran.z /* tool-length offset if G43 is used */
 
-  hal_real_t tool_offset_z;
-
-  //Declare hal pin pointers used for switchable kinematics
-  hal_bool_t kinstype_is_0;
-  hal_bool_t kinstype_is_1;
-  hal_bool_t kinstype_is_2;
-} *haldata;
-
-
-static int xyzacb_trsrn_setup(void) {
-#define HAL_PREFIX "xyzacb_trsrn_kins"
-    int res=0;
-    // inherit comp_id from rtapi_main()
-    if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
-
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata) goto error;
-
-    // hal pins required for xyzacb_trsrn kinematics:
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->tool_offset_z, 0.0, "%s.tool-offset-z" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->y_pivot,    0.0, "%s.y-pivot" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->z_pivot,    0.0, "%s.z-pivot" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->x_offset,   0.0, "%s.x-offset" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->y_offset,   0.0, "%s.y-offset" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->y_rot_axis, 0.0, "%s.y-rot-axis" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->z_rot_axis, 0.0, "%s.z-rot-axis" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->pre_rot,    0.0, "%s.pre-rot" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->nut_angle,  0.0, "%s.nut-angle" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->prim_angle, 0.0, "%s.primary-angle" ,HAL_PREFIX);
-    res += hal_pin_new_real(comp_id, HAL_IN, &haldata->sec_angle,  0.0, "%s.secondary-angle" ,HAL_PREFIX);
-
-    // hal pins required for switchable kinematics:
-    //default at startup -> identity kinematics
-    //-> xyzabc TCP
-    //-> xyzabc TOOL
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_0, 1, "kinstype.is-0");
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_1, 0, "kinstype.is-1");
-    res += hal_pin_new_bool(comp_id, HAL_OUT, &haldata->kinstype_is_2, 0, "kinstype.is-2");
-
-    if (res) goto error;
-    hal_ready(comp_id);
-    rtapi_print("*** %s setup ok\n",__FILE__);
-    return 0;
-error:
-    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
-    return -1;
-#undef HAL_PREFIX
-}
-
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsSwitchable);
-EXPORT_SYMBOL(kinematicsSwitch);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsForward);
-
-static rtapi_u32 switchkins_type;
-
-int kinematicsSwitchable() {return 1;}
-
-
-
-int kinematicsSwitch(int new_switchkins_type)
+// tool_kins==0: TCP kinematics, using the current spindle joint positions
+// tool_kins==1: TOOL kinematics, using the angles calculated in remap.py
+static int trsrnForward(const kins_params *p, const double *j, EmcPose * pos, int tool_kins)
 {
-    switchkins_type = new_switchkins_type;
-    rtapi_print("kinematicsSwitch(): type=%d\n",switchkins_type);
-    // create case structure for switchable kinematics
-    switch (switchkins_type) {
-        case 0: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE0\n");
-                hal_set_bool(haldata->kinstype_is_0, 1);
-                hal_set_bool(haldata->kinstype_is_1, 0);
-                hal_set_bool(haldata->kinstype_is_2, 0);
-                break;
-        case 1: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE1\n");
-                hal_set_bool(haldata->kinstype_is_0, 0);
-                hal_set_bool(haldata->kinstype_is_1, 1);
-                hal_set_bool(haldata->kinstype_is_2, 0);
-                break;
-        case 2: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE1\n");
-                hal_set_bool(haldata->kinstype_is_0, 0);
-                hal_set_bool(haldata->kinstype_is_1, 0);
-                hal_set_bool(haldata->kinstype_is_2, 1);
-                break;
-      default: rtapi_print_msg(RTAPI_MSG_ERR,
-                "kinematicsSwitch:BAD VALUE <%d>\n",
-                switchkins_type);
-                hal_set_bool(haldata->kinstype_is_1, 0);
-                hal_set_bool(haldata->kinstype_is_0, 0);
-                hal_set_bool(haldata->kinstype_is_2, 0);
-                return -1; // FAIL
-    }
-    return 0; // ok
-}
-
-KINEMATICS_TYPE kinematicsType()
-{
-static bool is_setup=0;
-    if (!is_setup)  xyzacb_trsrn_setup();
-    return KINEMATICS_BOTH; // set as required
-           // Note: If kinematics are identity, using KINEMATICS_BOTH
-           //       may be used in order to allow a gui to display
-           //       joint values in preview prior to homing
-} // kinematicsType()
-
-
-int kinematicsForward(const double *j,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
-{
-    (void)fflags;
-    (void)iflags;
-
-    // START of custom variable declaration for Forward kinematics
-
-    // geometric offsets of the universal spindle head as defined in the ini file
-    double       Ly = hal_get_real(haldata->y_pivot);
-    double       Lz = hal_get_real(haldata->z_pivot);
-    double       Dx = hal_get_real(haldata->x_offset);
-    double       Dy = hal_get_real(haldata->y_offset);
-    double     Dray = hal_get_real(haldata->y_rot_axis) - (Dy + Ly);
-    double     Draz = hal_get_real(haldata->z_rot_axis) - Lz;
-    double       tc = hal_get_real(haldata->pre_rot);
-    double       nu = hal_get_real(haldata->nut_angle); // degrees
-    double  theta_1 = hal_get_real(haldata->prim_angle); // degrees
-    double  theta_2 = hal_get_real(haldata->sec_angle); // degrees
-
-    // tool-length offset if G43 is used (offset as defined in the tool editor)
-    double       Dt = hal_get_real(haldata->tool_offset_z);
+    GEOMETRY(p);
 
     // variables used in both, TCP and TOOL kinematics
     double       Sw = sin(j[3]*TO_RAD);
@@ -193,22 +91,7 @@ int kinematicsForward(const double *j,
     double       Py = j[1];
     double       Pz = j[2];
 
-    // END of custom variable declaration for Forward kinematics
-
-    // define forward kinematic models using case structure for
-    // for switchable kinematics
-    switch (switchkins_type) {
-        case 0: // ========================= IDENTITY kinematics FORWARD ======================
-            pos->tran.x = j[0];
-            pos->tran.y = j[1];
-            pos->tran.z = j[2];
-            pos->a      = j[3];
-            pos->b      = j[4];
-            pos->c      = j[5];
-
-            break;
-
-        case 1: // ========================= TCP kinematics FORWARD 
+    if (!tool_kins) { // ========================= TCP kinematics FORWARD
             // in TCP we use the current positions of the spindle joints
               Ss = sin(j[4]*TO_RAD);
               Cs = cos(j[4]*TO_RAD);
@@ -220,40 +103,38 @@ int kinematicsForward(const double *j,
                s = Cs + Cv*Cv*(1-Cs);
                t = Sv*Cv*(1-Cs);
 
-            pos->tran.x = - (Cp*SvSs - Sp*t)*(Dt + Lz) 
-                          - Cp*Dx 
-                          + (Cp*CvSs + Sp*r)*Ly 
-                          + Dy*Sp 
-                          + Dx 
+            pos->tran.x = - (Cp*SvSs - Sp*t)*(Dt + Lz)
+                          - Cp*Dx
+                          + (Cp*CvSs + Sp*r)*Ly
+                          + Dy*Sp
+                          + Dx
                           + Px;
 
-            pos->tran.y = - Cp*Cw*Dy 
-                          - Cw*Dx*Sp 
-                          - Cw*(Dray - Py) 
-                          - (Cw*Sp*SvSs + Cp*Cw*t - Sw*s)*(Dt + Lz) 
-                          + (CvSs*Cw*Sp - Cp*Cw*r + Sw*t)*Ly 
-                          + (Draz - Pz)*Sw 
-                          + Dray 
-                          + Dy 
+            pos->tran.y = - Cp*Cw*Dy
+                          - Cw*Dx*Sp
+                          - Cw*(Dray - Py)
+                          - (Cw*Sp*SvSs + Cp*Cw*t - Sw*s)*(Dt + Lz)
+                          + (CvSs*Cw*Sp - Cp*Cw*r + Sw*t)*Ly
+                          + (Draz - Pz)*Sw
+                          + Dray
+                          + Dy
                           + Ly;
 
-            pos->tran.z = - Cp*Dy*Sw 
-                          - Dx*Sp*Sw 
-                          - Cw*(Draz - Pz) 
-                          - (Sp*SvSs*Sw + Cp*Sw*t + Cw*s)*(Dt + Lz) 
-                          + (CvSs*Sp*Sw - Cp*Sw*r - Cw*t)*Ly 
-                          - (Dray - Py)*Sw 
-                          + Draz 
-                          + Dt 
-                          + Lz; 
+            pos->tran.z = - Cp*Dy*Sw
+                          - Dx*Sp*Sw
+                          - Cw*(Draz - Pz)
+                          - (Sp*SvSs*Sw + Cp*Sw*t + Cw*s)*(Dt + Lz)
+                          + (CvSs*Sp*Sw - Cp*Sw*r - Cw*t)*Ly
+                          - (Dray - Py)*Sw
+                          + Draz
+                          + Dt
+                          + Lz;
 
             pos->a      = j[3];
             pos->b      = j[4];
             pos->c      = j[5];
 
-            break;
-
-      case 2: // ========================= TOOL kinematics FORWARD 
+    } else { // ========================= TOOL kinematics FORWARD
             // in TOOL kinematics we use the articulated joint positions from the TWP
               Ss = sin(theta_2*TO_RAD);
               Cs = cos(theta_2*TO_RAD);
@@ -265,36 +146,32 @@ int kinematicsForward(const double *j,
                s = Cs + Cv*Cv*(1-Cs);
                t = Sv*Cv*(1-Cs);
 
-            pos->tran.x =   ((Cs*Ctc - CvSs*Stc)*Cp - (Ctc*CvSs + Stc*r)*Sp)*(Dx + Px) 
-                          - (Cs*Ctc - CvSs*Stc)*Dx 
-                          + ((Ctc*CvSs + Stc*r)*Cp 
-                          + (Cs*Ctc - CvSs*Stc)*Sp)*(Dy + Ly + Py) 
-                          - (Ctc*CvSs + Stc*r)*Dy 
-                          - (Ctc*SvSs - Stc*t)*(Lz + Pz) 
+            pos->tran.x =   ((Cs*Ctc - CvSs*Stc)*Cp - (Ctc*CvSs + Stc*r)*Sp)*(Dx + Px)
+                          - (Cs*Ctc - CvSs*Stc)*Dx
+                          + ((Ctc*CvSs + Stc*r)*Cp
+                          + (Cs*Ctc - CvSs*Stc)*Sp)*(Dy + Ly + Py)
+                          - (Ctc*CvSs + Stc*r)*Dy
+                          - (Ctc*SvSs - Stc*t)*(Lz + Pz)
                           - Ly*Stc;
 
-            pos->tran.y = - ((Ctc*CvSs + Cs*Stc)*Cp - (CvSs*Stc - Ctc*r)*Sp)*(Dx + Px) 
-                          + (Ctc*CvSs + Cs*Stc)*Dx 
-                          - ((CvSs*Stc - Ctc*r)*Cp 
-                          + (Ctc*CvSs + Cs*Stc)*Sp)*(Dy + Ly + Py) 
-                          + (CvSs*Stc - Ctc*r)*Dy 
-                          - Ctc*Ly 
+            pos->tran.y = - ((Ctc*CvSs + Cs*Stc)*Cp - (CvSs*Stc - Ctc*r)*Sp)*(Dx + Px)
+                          + (Ctc*CvSs + Cs*Stc)*Dx
+                          - ((CvSs*Stc - Ctc*r)*Cp
+                          + (Ctc*CvSs + Cs*Stc)*Sp)*(Dy + Ly + Py)
+                          + (CvSs*Stc - Ctc*r)*Dy
+                          - Ctc*Ly
                           + (Stc*SvSs + Ctc*t)*(Lz + Pz);
 
-            pos->tran.z =   (Cp*SvSs - Sp*t)*(Dx + Px) 
-                          + (Sp*SvSs + Cp*t)*(Dy + Ly + Py) 
-                          - Dx*SvSs 
-                          + (Lz + Pz)*s 
-                          - Dy*t 
+            pos->tran.z =   (Cp*SvSs - Sp*t)*(Dx + Px)
+                          + (Sp*SvSs + Cp*t)*(Dy + Ly + Py)
+                          - Dx*SvSs
+                          + (Lz + Pz)*s
+                          - Dy*t
                           - Lz;
 
             pos->a      = j[3];
             pos->b      = j[4];
             pos->c      = j[5];
-
-            break;
-
-
     }
     // unused coordinates:
     pos->u = 0;
@@ -302,35 +179,37 @@ int kinematicsForward(const double *j,
     pos->w = 0;
 
     return 0;
-} // kinematicsForward()
+} // trsrnForward()
 
-int kinematicsInverse(const EmcPose * pos,
-                      double *j,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int tcpKinematicsForward(const kins_params *p, kins_scratch *s,
+                                const double *j,
+                                EmcPose * pos,
+                                const KINEMATICS_FORWARD_FLAGS * fflags,
+                                KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)iflags;
+    (void)s;
     (void)fflags;
+    (void)iflags;
+    return trsrnForward(p, j, pos, 0);
+} // tcpKinematicsForward()
 
-    // START of custom variable declaration for Forward kinematics
+static int toolKinematicsForward(const kins_params *p, kins_scratch *s,
+                                 const double *j,
+                                 EmcPose * pos,
+                                 const KINEMATICS_FORWARD_FLAGS * fflags,
+                                 KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)s;
+    (void)fflags;
+    (void)iflags;
+    return trsrnForward(p, j, pos, 1);
+} // toolKinematicsForward()
 
-    // geometric offsets of the universal spindle head as defined in the ini file
-    double       Ly = hal_get_real(haldata->y_pivot);
-    double       Lz = hal_get_real(haldata->z_pivot);
-    double       Dx = hal_get_real(haldata->x_offset);
-    double       Dy = hal_get_real(haldata->y_offset);
-    double     Dray = hal_get_real(haldata->y_rot_axis) - (Dy + Ly);
-    double     Draz = hal_get_real(haldata->z_rot_axis) - Lz;
-    double       tc = hal_get_real(haldata->pre_rot);
-    double       nu = hal_get_real(haldata->nut_angle); // degrees
-    double  theta_1 = hal_get_real(haldata->prim_angle); // degrees
-    double  theta_2 = hal_get_real(haldata->sec_angle); // degrees
-
-    // tool-length offset if G43 is used (offset as defined in the tool editor)
-    double       Dt = hal_get_real(haldata->tool_offset_z);
-
-    // substitutions as used in mathematical documentation
-    // including degree -> radians angle conversion
+// The inverses read the rotary angles from the joint argument, where the
+// machine is, as they always have.
+static int trsrnInverse(const kins_params *p, const EmcPose * pos, double *j, int tool_kins)
+{
+    GEOMETRY(p);
 
     // variables used in both, TCP and TOOL kinematics
     double       Sw = sin(j[3]*TO_RAD);
@@ -339,7 +218,7 @@ int kinematicsInverse(const EmcPose * pos,
     double       Cv = cos(nu*TO_RAD);
     double      Stc = sin(tc);
     double      Ctc = cos(tc);
- 
+
     // in TCP we use the current positions of the spindle joints
     // in TOOL we will use the angle values calculated in remap.py
     double       Ss = 0;
@@ -354,28 +233,10 @@ int kinematicsInverse(const EmcPose * pos,
 
     // onLy used to be consistent with math in documentation
     double       Qx = pos->tran.x;
-    double       Qy = pos->tran.y; 
-    double       Qz = pos->tran.z;   
+    double       Qy = pos->tran.y;
+    double       Qz = pos->tran.z;
 
-    // END of custom variable declaration for Forward kinematics
-
-    // Update the kinematic joints specified by the
-    // [KINS]JOINTS setting (4 required for this template).
-    // define forward kinematic models using case structure for
-    // for switchable kinematics
-    switch (switchkins_type) {
-
-        case 0: // ========================= IDENTITY kinematics INVERSE ======================
-            j[0] = pos->tran.x;
-            j[1] = pos->tran.y;
-            j[2] = pos->tran.z;
-            j[3] = pos->a;
-            j[4] = pos->b;
-            j[5] = pos->c;
-
-            break;
-
-        case 1: // ========================= TCP kinematics INVERSE 
+    if (!tool_kins) { // ========================= TCP kinematics INVERSE
             // in TCP we use the current positions of the spindle joints
               Ss = sin(j[4]*TO_RAD);
               Cs = cos(j[4]*TO_RAD);
@@ -387,78 +248,341 @@ int kinematicsInverse(const EmcPose * pos,
                s = Cs + Cv*Cv*(1-Cs);
                t = Sv*Cv*(1-Cs);
 
-            j[0] =   (Cp*SvSs - Sp*t)*(Dt + Lz) 
-                   + Cp*Dx 
-                   - (Cp*CvSs + Sp*r)*Ly 
-                   - Dy*Sp 
-                   - Dx 
+            j[0] =   (Cp*SvSs - Sp*t)*(Dt + Lz)
+                   + Cp*Dx
+                   - (Cp*CvSs + Sp*r)*Ly
+                   - Dy*Sp
+                   - Dx
                    + Qx;
 
-            j[1] =   Cp*Dy 
-                   + Dx*Sp 
-                   - Cw*(Dray + Dy + Ly - Qy) 
-                   + (Sp*SvSs + Cp*t)*(Dt + Lz) 
-                   - (CvSs*Sp - Cp*r)*Ly 
-                   - (Draz + Dt + Lz - Qz)*Sw 
+            j[1] =   Cp*Dy
+                   + Dx*Sp
+                   - Cw*(Dray + Dy + Ly - Qy)
+                   + (Sp*SvSs + Cp*t)*(Dt + Lz)
+                   - (CvSs*Sp - Cp*r)*Ly
+                   - (Draz + Dt + Lz - Qz)*Sw
                    + Dray;
 
-            j[2] =   (Dt + Lz)*s 
-                   + Ly*t 
-                   - Cw*(Draz + Dt + Lz - Qz) 
-                   + (Dray + Dy + Ly - Qy)*Sw 
+            j[2] =   (Dt + Lz)*s
+                   + Ly*t
+                   - Cw*(Draz + Dt + Lz - Qz)
+                   + (Dray + Dy + Ly - Qy)*Sw
                    + Draz;
 
             j[3] = pos->a;
             j[4] = pos->b;
             j[5] = pos->c;
 
-            break;
+    } else { // ========================= TOOL  kinematics INVERSE
+            // in TOOL kinematics we use the articulated joint positions from the TWP
+              Ss = sin(theta_2*TO_RAD);
+              Cs = cos(theta_2*TO_RAD);
+              Sp = sin(theta_1*TO_RAD);
+              Cp = cos(theta_1*TO_RAD);
+            CvSs = Cv*Ss;
+            SvSs = Sv*Ss;
+               r = Cs + Sv*Sv*(1-Cs);
+               s = Cs + Cv*Cv*(1-Cs);
+               t = Sv*Cv*(1-Cs);
 
-        case 2: // ========================= TOOL  kinematics INVERSE
-                // in TOOL kinematics we use the articulated joint positions from the TWP
-                  Ss = sin(theta_2*TO_RAD);
-                  Cs = cos(theta_2*TO_RAD);
-                  Sp = sin(theta_1*TO_RAD);
-                  Cp = cos(theta_1*TO_RAD);
-                CvSs = Cv*Ss;
-                SvSs = Sv*Ss;
-                   r = Cs + Sv*Sv*(1-Cs);
-                   s = Cs + Cv*Cv*(1-Cs);
-                   t = Sv*Cv*(1-Cs);
+            j[0] =    Cp*Dx
+                    - (Cp*CvSs + Sp*r)*Ly
+                    + (Cp*SvSs - Sp*t)*Lz
+                    + ((Cp*Cs - CvSs*Sp)*Ctc
+                    - (Cp*CvSs + Sp*r)*Stc)*Qx
+                    - ((Cp*CvSs + Sp*r)*Ctc + (Cp*Cs - CvSs*Sp)*Stc)*Qy
+                    + (Cp*SvSs - Sp*t)*Qz
+                    - Dy*Sp
+                    - Dx;
 
-                j[0] =    Cp*Dx 
-                        - (Cp*CvSs + Sp*r)*Ly 
-                        + (Cp*SvSs - Sp*t)*Lz 
-                        + ((Cp*Cs - CvSs*Sp)*Ctc 
-                        - (Cp*CvSs + Sp*r)*Stc)*Qx 
-                        - ((Cp*CvSs + Sp*r)*Ctc + (Cp*Cs - CvSs*Sp)*Stc)*Qy 
-                        + (Cp*SvSs - Sp*t)*Qz 
-                        - Dy*Sp 
-                        - Dx;
+            j[1] =    Cp*Dy
+                    - (CvSs*Sp - Cp*r)*Ly
+                    + (Sp*SvSs + Cp*t)*Lz
+                    + ((Cp*CvSs + Cs*Sp)*Ctc - (CvSs*Sp - Cp*r)*Stc)*Qx
+                    - ((CvSs*Sp - Cp*r)*Ctc + (Cp*CvSs + Cs*Sp)*Stc)*Qy
+                    + (Sp*SvSs + Cp*t)*Qz
+                    + Dx*Sp
+                    - Dy
+                    - Ly;
 
-                j[1] =    Cp*Dy 
-                        - (CvSs*Sp - Cp*r)*Ly 
-                        + (Sp*SvSs + Cp*t)*Lz 
-                        + ((Cp*CvSs + Cs*Sp)*Ctc - (CvSs*Sp - Cp*r)*Stc)*Qx 
-                        - ((CvSs*Sp - Cp*r)*Ctc + (Cp*CvSs + Cs*Sp)*Stc)*Qy 
-                        + (Sp*SvSs + Cp*t)*Qz 
-                        + Dx*Sp 
-                        - Dy 
-                        - Ly;
+            j[2] =  - (Ctc*SvSs - Stc*t)*Qx
+                    + (Stc*SvSs + Ctc*t)*Qy
+                    + Lz*s
+                    + Qz*s
+                    + Ly*t
+                    - Lz;
 
-                j[2] =  - (Ctc*SvSs - Stc*t)*Qx 
-                        + (Stc*SvSs + Ctc*t)*Qy 
-                        + Lz*s 
-                        + Qz*s 
-                        + Ly*t 
-                        - Lz;
-
-                j[3] = pos->a;
-                j[4] = pos->b;
-                j[5] = pos->c;
-
-                break;
+            j[3] = pos->a;
+            j[4] = pos->b;
+            j[5] = pos->c;
     }
 
     return 0;
-} // kinematicsInverse()
+} // trsrnInverse()
+
+static int tcpKinematicsInverse(const kins_params *p, kins_scratch *s,
+                                const EmcPose * pos,
+                                double *j,
+                                const KINEMATICS_INVERSE_FLAGS * iflags,
+                                KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    (void)s;
+    (void)iflags;
+    (void)fflags;
+    return trsrnInverse(p, pos, j, 0);
+} // tcpKinematicsInverse()
+
+static int toolKinematicsInverse(const kins_params *p, kins_scratch *s,
+                                 const EmcPose * pos,
+                                 double *j,
+                                 const KINEMATICS_INVERSE_FLAGS * iflags,
+                                 KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    (void)s;
+    (void)iflags;
+    (void)fflags;
+    return trsrnInverse(p, pos, j, 1);
+} // toolKinematicsInverse()
+
+// The head answers in the convention already, so the native rotation
+// declared with these frames is TOOL_FRAME_SPINDLE.
+static int tcpKinematicsToolFrame(const kins_params *p, const double *j,
+                                  PmRotationMatrix *rot,
+                                  const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    double       nu = p->geometry[P_NUT]; // degrees
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+    double       Ss = sin(j[4]*TO_RAD);
+    double       Cs = cos(j[4]*TO_RAD);
+    double       Sp = sin(j[5]*TO_RAD);
+    double       Cp = cos(j[5]*TO_RAD);
+    double        r = Cs + Sv*Sv*(1-Cs);
+    double        s = Cs + Cv*Cv*(1-Cs);
+    double        t = Sv*Cv*(1-Cs);
+    int a, b, k;
+
+    // the primary joint turns the head about z
+    const double Rp[3][3] = {{Cp, -Sp, 0}, {Sp, Cp, 0}, {0, 0, 1}};
+
+    // the nutating secondary joint
+    const double Rs[3][3] = {{Cs, -Cv*Ss, Sv*Ss},
+                             {Cv*Ss, r, t},
+                             {-Sv*Ss, t, s}};
+
+    double M[3][3];
+    for (a = 0; a < 3; a++) {
+        for (b = 0; b < 3; b++) {
+            M[a][b] = 0;
+            for (k = 0; k < 3; k++) { M[a][b] += Rp[a][k] * Rs[k][b]; }
+        }
+    }
+
+    rot->x.x = M[0][0]; rot->y.x = M[0][1]; rot->z.x = M[0][2];
+    rot->x.y = M[1][0]; rot->y.y = M[1][1]; rot->z.y = M[1][2];
+    rot->x.z = M[2][0]; rot->y.z = M[2][1]; rot->z.z = M[2][2];
+
+    return 0;
+} // tcpKinematicsToolFrame()
+
+static int tcpKinematicsWorkFrame(const kins_params *p, const double *j,
+                                  PmRotationMatrix *rot,
+                                  const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)p;
+    (void)fflags;
+    double       Sw = sin(j[3]*TO_RAD);
+    double       Cw = cos(j[3]*TO_RAD);
+
+    // the A joint carries the work: its frame in machine coordinates
+    // is a rotation about x by the joint value
+    const double W[3][3] = {{1, 0, 0}, {0, Cw, Sw}, {0, -Sw, Cw}};
+
+    rot->x.x = W[0][0]; rot->y.x = W[0][1]; rot->z.x = W[0][2];
+    rot->x.y = W[1][0]; rot->y.y = W[1][1]; rot->z.y = W[1][2];
+    rot->x.z = W[2][0]; rot->y.z = W[2][1]; rot->z.z = W[2][2];
+
+    return 0;
+} // tcpKinematicsWorkFrame()
+
+static int tcpKinematicsJacobian(const kins_params *p, const double *j,
+                                 const EmcPose * pos,
+                                 double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                 const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)j;
+    (void)iflags;
+    GEOMETRY(p);
+    (void)tc; (void)theta_1; (void)theta_2;
+
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+
+    // The TCP inverse reads the rotary angles from its joint argument,
+    // where the machine is, and its own pose words for the same angles
+    // are the same numbers once the move is done.  Its derivative is taken
+    // against the pose, which is what a consumer multiplies by.
+    double       Sw = sin(pos->a*TO_RAD);
+    double       Cw = cos(pos->a*TO_RAD);
+    double       Ss = sin(pos->b*TO_RAD);
+    double       Cs = cos(pos->b*TO_RAD);
+    double       Sp = sin(pos->c*TO_RAD);
+    double       Cp = cos(pos->c*TO_RAD);
+    double     CvSs = Cv*Ss;
+    double     SvSs = Sv*Ss;
+    double        r = Cs + Sv*Sv*(1-Cs);
+    double        t = Sv*Cv*(1-Cs);
+    // derivatives of the above over the secondary angle (Ss, r, s, t, CvSs,
+    // SvSs) and the primary angle (Sp, Cp), per degree
+    double      dSs =  Cs*TO_RAD;
+    double       dr = -Ss*Cv*Cv*TO_RAD;
+    double       ds = -Ss*Sv*Sv*TO_RAD;
+    double      dt_ =  Sv*Cv*Ss*TO_RAD;
+    double    dCvSs =  Cv*dSs;
+    double    dSvSs =  Sv*dSs;
+    double      dSp =  Cp*TO_RAD;
+    double      dCp = -Sp*TO_RAD;
+
+    double       Qy = pos->tran.y;
+    double       Qz = pos->tran.z;
+    // the two lever arms the table turns about
+    double       Ay = Dray + Dy + Ly - Qy;
+    double       Az = Draz + Dt + Lz - Qz;
+    int          R, C;
+
+    for (R = 0; R < EMCMOT_MAX_JOINTS; R++) {
+        for (C = 0; C < EMCMOT_MAX_AXIS; C++) { jac[R][C] = 0; }
+    }
+
+    // j[0]: Qx plus terms in the head angles only
+    jac[0][0] = 1;
+    jac[0][4] = (Cp*dSvSs - Sp*dt_)*(Dt + Lz) - (Cp*dCvSs + Sp*dr)*Ly;
+    jac[0][5] = (dCp*SvSs - dSp*t)*(Dt + Lz) + dCp*Dx
+              - (dCp*CvSs + dSp*r)*Ly - Dy*dSp;
+
+    // j[1]: -Cw*Ay - Az*Sw plus head terms
+    jac[1][1] =  Cw;
+    jac[1][2] =  Sw;
+    jac[1][3] = ( Sw*Ay - Az*Cw)*TO_RAD;
+    jac[1][4] = (Sp*dSvSs + Cp*dt_)*(Dt + Lz) - (dCvSs*Sp - Cp*dr)*Ly;
+    jac[1][5] = dCp*Dy + Dx*dSp + (dSp*SvSs + dCp*t)*(Dt + Lz)
+              - (CvSs*dSp - dCp*r)*Ly;
+
+    // j[2]: -Cw*Az + Ay*Sw plus head terms
+    jac[2][1] = -Sw;
+    jac[2][2] =  Cw;
+    jac[2][3] = ( Sw*Az + Ay*Cw)*TO_RAD;
+    jac[2][4] = (Dt + Lz)*ds + Ly*dt_;
+
+    jac[3][3] = 1;
+    jac[4][4] = 1;
+    jac[5][5] = 1;
+    return 0;
+} // tcpKinematicsJacobian()
+
+static int toolKinematicsJacobian(const kins_params *p, const double *j,
+                                  const EmcPose * pos,
+                                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                  const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)j;
+    (void)pos;
+    (void)iflags;
+
+    // the head angles come from pins, so the inverse is linear in the pose
+    // and the rows are its coefficients
+    double       tc = p->geometry[P_PRE_ROT];
+    double       nu = p->geometry[P_NUT]; // degrees
+    double  theta_1 = p->geometry[P_PRIM]; // degrees
+    double  theta_2 = p->geometry[P_SEC]; // degrees
+
+    double       Sv = sin(nu*TO_RAD);
+    double       Cv = cos(nu*TO_RAD);
+    double      Stc = sin(tc);
+    double      Ctc = cos(tc);
+    double       Ss = sin(theta_2*TO_RAD);
+    double       Cs = cos(theta_2*TO_RAD);
+    double       Sp = sin(theta_1*TO_RAD);
+    double       Cp = cos(theta_1*TO_RAD);
+    double     CvSs = Cv*Ss;
+    double     SvSs = Sv*Ss;
+    double        r = Cs + Sv*Sv*(1-Cs);
+    double        s = Cs + Cv*Cv*(1-Cs);
+    double        t = Sv*Cv*(1-Cs);
+    int          R, C;
+
+    for (R = 0; R < EMCMOT_MAX_JOINTS; R++) {
+        for (C = 0; C < EMCMOT_MAX_AXIS; C++) { jac[R][C] = 0; }
+    }
+
+    jac[0][0] =  ((Cp*Cs - CvSs*Sp)*Ctc - (Cp*CvSs + Sp*r)*Stc);
+    jac[0][1] = -((Cp*CvSs + Sp*r)*Ctc + (Cp*Cs - CvSs*Sp)*Stc);
+    jac[0][2] =  (Cp*SvSs - Sp*t);
+
+    jac[1][0] =  ((Cp*CvSs + Cs*Sp)*Ctc - (CvSs*Sp - Cp*r)*Stc);
+    jac[1][1] = -((CvSs*Sp - Cp*r)*Ctc + (Cp*CvSs + Cs*Sp)*Stc);
+    jac[1][2] =  (Sp*SvSs + Cp*t);
+
+    jac[2][0] = -(Ctc*SvSs - Stc*t);
+    jac[2][1] =  (Stc*SvSs + Ctc*t);
+    jac[2][2] =  s;
+
+    jac[3][3] = 1;
+    jac[4][4] = 1;
+    jac[5][5] = 1;
+    return 0;
+} // toolKinematicsJacobian()
+
+static const kins_ops tcp_ops = {
+    .forward  = tcpKinematicsForward,
+    .inverse  = tcpKinematicsInverse,
+    .work     = tcpKinematicsWorkFrame,
+    .tool     = tcpKinematicsToolFrame,
+    .native   = &TOOL_FRAME_SPINDLE,
+    .jacobian = tcpKinematicsJacobian,
+};
+
+// the tool kinematics report in tool axes, so the tool is square with the
+// world by construction and nothing turns the work against it
+static const kins_ops tool_ops = {
+    .forward  = toolKinematicsForward,
+    .inverse  = toolKinematicsInverse,
+    .work     = kinsIdentityFrame,
+    .tool     = kinsIdentityFrame,
+    .native   = &TOOL_FRAME_SPINDLE,
+    .jacobian = toolKinematicsJacobian,
+};
+
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2
+                   )
+{
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
+    kp->kinsname    = "xyzacb_trsrn";
+    kp->halprefix   = "xyzacb_trsrn_kins";
+    kp->required_coordinates = "xyzabc";
+    kp->allow_duplicates     = 0;
+    kp->max_joints           = strlen(kp->required_coordinates);
+    kp->params               = trsrn_params;
+    kp->nparams              = sizeof(trsrn_params)/sizeof(trsrn_params[0]);
+
+    switchkinsRegisterOps(0, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(1, &tcp_ops);
+    switchkinsRegisterOps(2, &tool_ops);
+    return 0;
+} // switchkinsSetup()
+
+// halcompile has done hal_init() and does hal_ready() after this returns,
+// which is what switchkinsInit() expects
+EXTRA_SETUP() {
+    kparms kp;
+    (void)__comp_inst; (void)prefix; (void)extra_arg;
+
+    if (switchkinsRunSetup(&kp, NULL)) { return -1; }
+    return switchkinsInit(comp_id, &kp, coordinates);
+} // EXTRA_SETUP()

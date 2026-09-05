@@ -2,9 +2,8 @@
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
-#include <kinematics.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 /* default values for ar2 robot */
 #define DEFAULT_THREE21_A1 64.2
@@ -28,24 +27,45 @@
 /* flags for forward kinematics */
 #define THREE21_REACH          0x01
 
-struct haldata {
-    hal_real_t a1, a2, a3, d1, d2, d3, d4, d6;
-} *haldata = NULL;
+// the eight dimensions, one pin each; the maths reads them from the block
+static const kins_param_desc three21_params[] = {
+    { "A1", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_A1 },
+    { "A2", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_A2 },
+    { "A3", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_A3 },
+    { "D1", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_D1 },
+    { "D2", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_D2 },
+    { "D3", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_D3 },
+    { "D4", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_D4 },
+    { "D6", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_THREE21_D6 },
+};
+enum { P_A1, P_A2, P_A3, P_D1, P_D2, P_D3, P_D4, P_D6 };
 
-static int three21KinematicsForward(const double * joint,
-                                    EmcPose * world,
-                                    const KINEMATICS_FORWARD_FLAGS * fflags,
-                                    KINEMATICS_INVERSE_FLAGS * iflags)
+/* the difference of two angles, brought into (-pi, pi] so that a joint a
+   whole turn from the formula still matches it */
+static double angleDiff(double a, double b)
 {
+   double d = a - b;
+   while (d > PM_PI) { d -= 2*PM_PI; }
+   while (d <= -PM_PI) { d += 2*PM_PI; }
+   return d;
+}
+
+static int three21_forward(const kins_params *p, kins_scratch *s,
+                           const double * joint,
+                           EmcPose * world,
+                           const KINEMATICS_FORWARD_FLAGS * fflags,
+                           KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)s;
    (void)fflags;
-   double a1 = hal_get_real(haldata->a1);
-   double a2 = hal_get_real(haldata->a2);
-   double a3 = hal_get_real(haldata->a3);
-   double d1 = hal_get_real(haldata->d1);
-   double d2 = hal_get_real(haldata->d2);
-   double d3 = hal_get_real(haldata->d3);
-   double d4 = hal_get_real(haldata->d4);
-   double d6 = hal_get_real(haldata->d6);
+   double a1 = p->geometry[P_A1];
+   double a2 = p->geometry[P_A2];
+   double a3 = p->geometry[P_A3];
+   double d1 = p->geometry[P_D1];
+   double d2 = p->geometry[P_D2];
+   double d3 = p->geometry[P_D3];
+   double d4 = p->geometry[P_D4];
+   double d6 = p->geometry[P_D6];
 
    double s1, s2, s3, s4, s5, s6;
    double c1, c2, c3, c4, c5, c6;
@@ -132,8 +152,8 @@ static int three21KinematicsForward(const double * joint,
    *iflags = 0;
 
    /* set shoulder flag */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(d23, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
+       atan2(d23, -sqrt(sumSq)))) < FLAG_FUZZ)
    {
      *iflags |= THREE21_SHOULDER_RIGHT;
    }
@@ -143,8 +163,8 @@ static int three21KinematicsForward(const double * joint,
    if (discr < 0.0) {
        discr = 0.0;
    }
-   if (fabs(joint[2]*PM_PI/180 - atan2(a3, d4) +
-       atan2(k, -sqrt(discr))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(a3, d4) -
+       atan2(k, -sqrt(discr)))) < FLAG_FUZZ)
    {
       *iflags |= THREE21_ELBOW_DOWN;
    }
@@ -158,7 +178,7 @@ static int three21KinematicsForward(const double * joint,
    }
    else
    {
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
      {
        *iflags |= THREE21_WRIST_FLIP;
      }
@@ -180,23 +200,25 @@ static int three21KinematicsForward(const double * joint,
    return 0;
 }
 
-static int three21KinematicsInverse(const EmcPose * world,
-                                    double * joint,
-                                    const KINEMATICS_INVERSE_FLAGS * iflags,
-                                    KINEMATICS_FORWARD_FLAGS * fflags)
+static int three21_inverse(const kins_params *p, kins_scratch *s,
+                           const EmcPose * world,
+                           double * joint,
+                           const KINEMATICS_INVERSE_FLAGS * iflags,
+                           KINEMATICS_FORWARD_FLAGS * fflags)
 {
+   (void)s;
    PmHomogeneous hom;
    PmPose worldPose;
    PmRpy rpy;
 
-   double a1 = hal_get_real(haldata->a1);
-   double a2 = hal_get_real(haldata->a2);
-   double a3 = hal_get_real(haldata->a3);
-   double d1 = hal_get_real(haldata->d1);
-   double d2 = hal_get_real(haldata->d2);
-   double d3 = hal_get_real(haldata->d3);
-   double d4 = hal_get_real(haldata->d4);
-   double d6 = hal_get_real(haldata->d6);
+   double a1 = p->geometry[P_A1];
+   double a2 = p->geometry[P_A2];
+   double a3 = p->geometry[P_A3];
+   double d1 = p->geometry[P_D1];
+   double d2 = p->geometry[P_D2];
+   double d3 = p->geometry[P_D3];
+   double d4 = p->geometry[P_D4];
+   double d6 = p->geometry[P_D6];
 
    double t1, t2, t3;
    double k;
@@ -339,31 +361,12 @@ static int three21KinematicsInverse(const EmcPose * world,
    return 0;
 }
 
-int three21KinematicsSetup(const  int   comp_id,
-                           const  char* coordinates,
-                           kparms*      kp)
-{
-    (void)coordinates;
-    int res=0;
-
-    haldata = hal_malloc(sizeof(*haldata));
-    if (!haldata) goto error;
-
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a1), DEFAULT_THREE21_A1, "%s.A1", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a2), DEFAULT_THREE21_A2, "%s.A2", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->a3), DEFAULT_THREE21_A3, "%s.A3", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d1), DEFAULT_THREE21_D1, "%s.D1", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d2), DEFAULT_THREE21_D2, "%s.D2", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d3), DEFAULT_THREE21_D3, "%s.D3", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d4), DEFAULT_THREE21_D4, "%s.D4", kp->halprefix);
-    res += hal_pin_new_real(comp_id, HAL_IN, &(haldata->d6), DEFAULT_THREE21_D6, "%s.D6", kp->halprefix);
-    if (res) { goto error; }
-
-    return 0;
-
-error:
-    return -1;
-}
+// no frames reported and no closed form Jacobian: the shared code
+// differences the inverse
+static const kins_ops three21_ops = {
+    .forward = three21_forward,
+    .inverse = three21_inverse,
+};
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
@@ -371,23 +374,20 @@ int switchkinsSetup(kparms* kp,
                     KI* kinv0, KI* kinv1, KI* kinv2
                    )
 {
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
     kp->kinsname    = "three21kins";
     kp->halprefix   = "three21kins";
     kp->required_coordinates = "xyzabc";
     kp->allow_duplicates     = 0;
     kp->max_joints = strlen(kp->required_coordinates);
+    kp->params     = three21_params;
+    kp->nparams    = sizeof(three21_params)/sizeof(three21_params[0]);
 
-    *kset0 = three21KinematicsSetup;
-    *kfwd0 = three21KinematicsForward;
-    *kinv0 = three21KinematicsInverse;
-
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
-
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
+    switchkinsRegisterOps(0, &three21_ops);
+    switchkinsRegisterOps(1, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(2, &USERK_OPS);
 
     return 0;
 }

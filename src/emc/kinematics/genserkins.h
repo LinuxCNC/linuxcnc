@@ -81,8 +81,6 @@ typedef struct {
 
 extern int genser_kin_size(void);
 
-extern int genser_kin_init(void);
-
 extern const char * genser_kin_get_name(void);
 
 extern int genser_kin_num_joints(void * kins);
@@ -125,15 +123,6 @@ extern int genser_kin_fwd_interations(genser_struct * genser);
   inverse kinematics functions */
 extern int genser_kin_inv_iterations(genser_struct * genser);
 
-/*! Sets the maximum number of iterations to use in future calls to
-  the inverse kinematics functions, after which an error will be
-  reported */
-extern int genser_kin_inv_set_max_iterations(int i);
-
-/*! Returns the maximum number of iterations that will be used to
- compute inverse kinematics functions */
-extern int genser_kin_inv_get_max_iterations(void);
-
 extern int compute_jfwd(go_link * link_params,
                         int link_number,
                         go_matrix * Jfwd,
@@ -142,18 +131,14 @@ extern int compute_jfwd(go_link * link_params,
 extern int compute_jinv(go_matrix * Jfwd,
                         go_matrix * Jinv);
 
-extern int genserKinematicsForward(const double *joint,
-                                   EmcPose * world,
-                                   const KINEMATICS_FORWARD_FLAGS * fflags,
-                                   KINEMATICS_INVERSE_FLAGS * iflags);
+/* The kinematics as functions of the parameter block (see kinematics.h):
+   the DH parameters and the unrotate couplings are the table, the maths
+   is the ops.  genser_links_of() fills a link description from a block,
+   for a caller that wants the go_ routines directly. */
+extern const kins_param_desc GENSER_PARAMS[];
+extern const int GENSER_NPARAMS;
+extern const kins_ops GENSER_OPS;
 
-extern int genserKinematicsInverse(const EmcPose * world,
-                                   double *joints,
-                                   const KINEMATICS_INVERSE_FLAGS * iflags,
-                                   KINEMATICS_FORWARD_FLAGS * fflags);
-
-extern int genserKinematicsSetup(const  int   comp_id,
-                                 const  char* coordinates,
-                                 kparms*      ksetup_parms);
+extern void genser_links_of(const kins_params *p, genser_struct *genser);
 
 #endif
