@@ -4353,7 +4353,20 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
     CHP(convert_nurbs(code, block, settings));
-  } else if ((code == G_4) || (code == G_53));  // handled elsewhere 
+  } else if ((code == G_4) || (code == G_53));  // handled elsewhere
+  else if ((code == G_12_1) || (code == G_13_1)) {
+    // The flag makes the interpreter wait for motion to drain, so that no
+    // motion is ever planned across a change of kinematics.  With nothing
+    // queued there is nothing to wait for, and asking to wait is actively
+    // harmful: an ON_ABORT_COMMAND routine is run by a single execute()
+    // call that cannot service INTERP_EXECUTE_FINISH, so the rest of the
+    // routine would be silently dropped.  The queue is empty there because
+    // the abort has just flushed it.
+    if (!GET_EXTERNAL_QUEUE_EMPTY()) {
+      settings->kinsSwitch_flag = true;
+    }
+    CHP(convert_kins_switch(code, block, settings));
+  }
   else
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
@@ -6489,6 +6502,38 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
   SELECT_TOOL(block->t_number);
   settings->selected_pocket = idx;
   settings->selected_tool = block->t_number;
+  return INTERP_OK;
+}
+
+/*! convert_kins_switch
+
+Returned Value: int (INTERP_OK)
+
+Side effects:
+   The selected kinematics is sent to the motion controller and recorded
+   in the interpreter so that #<_kins_type> reports it.
+
+Called by: convert_modal_0
+
+G12.1 P- selects a kinematics; G13.1 cancels back to kinematics 0, which
+is the same thing as G12.1 P0 and exists so that the pair reads the way
+it does on other controls.  Both are queue synchronisation points: the
+caller sets kinsSwitch_flag, which makes the interpreter wait for motion
+to drain before the switch takes effect, so no motion is ever planned
+across a change of kinematics.
+
+*/
+
+int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
+                                block_pointer block,     //!< pointer to a block of RS274 instructions
+                                setup_pointer settings)  //!< pointer to machine settings
+{
+  int kins_type = (code == G_13_1) ? 0 : round_to_int(block->p_number);
+
+  CHKS((kins_type < 0), _("G12.1 requires a non-negative P word"));
+
+  SELECT_KINS_TYPE(kins_type);
+  settings->kins_type = kins_type;
   return INTERP_OK;
 }
 

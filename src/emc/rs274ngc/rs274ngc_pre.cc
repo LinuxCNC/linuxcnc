@@ -1194,6 +1194,7 @@ int Interp::init()
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
   _setup.input_flag = false;
+  _setup.kinsSwitch_flag = false;
   _setup.input_index = -1;
   _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
@@ -1475,6 +1476,13 @@ int Interp::read_inputs(setup_pointer settings)
 	}
 	settings->input_flag = false;
     }
+
+    if( settings->kinsSwitch_flag ){
+      CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0), NCE_QUEUE_IS_NOT_EMPTY_AFTER_KINS_SWITCH);
+
+      settings->kinsSwitch_flag = false;
+    }
+
     return INTERP_OK;
 }
 
@@ -2063,6 +2071,7 @@ int Interp::synch()
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
+  _setup.kins_type = GET_EXTERNAL_KINS_TYPE();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
@@ -2675,6 +2684,7 @@ int Interp::on_abort(int reason, const char *message)
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.input_flag = false;
+    _setup.kinsSwitch_flag = false;
 
     if (_setup.on_abort_command == NULL) {
 	return -1;

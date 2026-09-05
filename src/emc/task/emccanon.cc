@@ -1205,6 +1205,17 @@ void ON_RESET() {
     drop_segments();
 }
 
+void SELECT_KINS_TYPE(int switchkins_type)
+{
+    flush_segments();
+
+    auto selectKinsMsg = std::make_unique<EMC_TRAJ_SELECT_KINS>();
+
+    selectKinsMsg->switchkins_type = switchkins_type;
+
+    interp_list.append(std::move(selectKinsMsg));
+}
+
 
 CanonConfig_t& get_canon(){
     return canon;
@@ -4038,6 +4049,15 @@ double GET_EXTERNAL_PROBE_POSITION_W(void)
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 {
     return canon.motionMode;
+}
+
+int GET_EXTERNAL_KINS_TYPE()
+{
+    // motion publishes the kinematics it is actually running, which is
+    // not necessarily the one G-code last asked for: an abort can drop a
+    // queued switch, and the motion.switchkins-type pin can select one
+    // without the interpreter seeing it
+    return emcStatus->motion.traj.switchkins_type;
 }
 
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()

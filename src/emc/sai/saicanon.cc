@@ -777,6 +777,11 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
   return _sai._motion_mode;
 }
 
+extern int GET_EXTERNAL_KINS_TYPE()
+{
+  return 0;
+}
+
 extern void SET_PARAMETER_FILE_NAME(const char *name)
 {
   strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);
@@ -1190,4 +1195,12 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
 }
 void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
+}
+
+void SELECT_KINS_TYPE(int switchkins_type)
+{
+    (void)switchkins_type;
+    printf("saicanon: SELECT_KINS_TYPE\n");
+
+    return;
 }
