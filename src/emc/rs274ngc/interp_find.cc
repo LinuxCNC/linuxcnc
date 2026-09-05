@@ -204,7 +204,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                   block->a_number - s->AA_origin_offset - s->AA_axis_offset - s->tool_offset.a,
                                   s->AA_current, 'A'));
             } else {
-                *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+                *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset - s->tool_offset.a;
             }
         } else {
             *AA_p = s->AA_current;
@@ -216,7 +216,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                   block->b_number - s->BB_origin_offset - s->BB_axis_offset - s->tool_offset.b,
                                   s->BB_current, 'B'));
             } else {
-                *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+                *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset - s->tool_offset.b;
             }
         } else {
             *BB_p = s->BB_current;
@@ -228,7 +228,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                   block->c_number - s->CC_origin_offset - s->CC_axis_offset - s->tool_offset.c,
                                   s->CC_current, 'C'));
             } else {
-                *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+                *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset - s->tool_offset.c;
             }
         } else {
             *CC_p = s->CC_current;
@@ -436,7 +436,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
                         AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a,
                         settings->AA_current, 'A'));
   } else {
-      *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
+      *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a;
   }
 
   if(settings->b_axis_wrapped) {
@@ -444,7 +444,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
                         BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b,
                         settings->BB_current, 'B'));
   } else {
-      *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
+      *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b;
   }
 
   if(settings->c_axis_wrapped) {
@@ -452,7 +452,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
                         CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c,
                         settings->CC_current, 'C'));
   } else {
-      *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+      *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c;
   }
 
   *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset - settings->tool_offset.u;
