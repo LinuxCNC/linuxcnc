@@ -39,3 +39,25 @@ modules:                                                         \
     hal/drivers/pluto_step_rbf.h
 endif
 
+
+ifeq ($(CONFIG_USPACE_XENOMAI_EVL),y)
+NET_EVL_SRCS := hal/drivers/mesa-hostmot2/hm2_eth_net_evl.c
+USERSRCS += $(NET_EVL_SRCS)
+$(call TOOBJSDEPS, $(NET_EVL_SRCS)): EXTRAFLAGS += -fPIC $(XENOMAI_EVL_CFLAGS)
+../lib/liblinuxcnc-hm2_eth_net_evl.so.0: $(call TOOBJS, $(NET_EVL_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $^ $(XENOMAI_EVL_LDFLAGS) -Wl,-soname,$(notdir $@)
+TARGETS += ../lib/liblinuxcnc-hm2_eth_net_evl.so.0
+TARGETS += ../lib/liblinuxcnc-hm2_eth_net_evl.so
+endif
+
+ifeq ($(CONFIG_USPACE_XENOMAI),y)
+NET_XENOMAI_SRCS := hal/drivers/mesa-hostmot2/hm2_eth_net_xenomai.c
+USERSRCS += $(NET_XENOMAI_SRCS)
+$(call TOOBJSDEPS, $(NET_XENOMAI_SRCS)): EXTRAFLAGS += -fPIC $(XENOMAI_CFLAGS)
+../lib/liblinuxcnc-hm2_eth_net_xenomai.so.0: $(call TOOBJS, $(NET_XENOMAI_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $^ $(XENOMAI_LDFLAGS_NOINIT) -Wl,-soname,$(notdir $@)
+TARGETS += ../lib/liblinuxcnc-hm2_eth_net_xenomai.so.0
+TARGETS += ../lib/liblinuxcnc-hm2_eth_net_xenomai.so
+endif

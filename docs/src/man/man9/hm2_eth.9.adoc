@@ -156,16 +156,6 @@ hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (s32, rw)::
 Setting this value too low can cause spurious read errors.
 Setting it too high can cause realtime delay errors.
 
-== FUNCTIONS
-
-hm2_eth.realtime-init::
-  Realtime initialization function. This function initializes the realtime
-  ethernet for *evl*. With *posix*, this function is not needed.
-  It needs to be called once at startup using:
-....
-initf hm2_eth.realtime-init servo-thread
-....
-
 == NOTES
 
 hm2_eth installs firewall rules to control the network interface while

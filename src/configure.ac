@@ -242,17 +242,21 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     CONFIG_USPACE_XENOMAI=n
     XENOMAI_CFLAGS=
     XENOMAI_LDFLAGS=
+    XENOMAI_LDFLAGS_NOINIT=
   else
     USPACE_XENOMAI=+xenomai
     CONFIG_USPACE_XENOMAI=y
     XENOMAI_CFLAGS=`$XENOMAI_CONFIG --skin posix --cflags`
     XENOMAI_LDFLAGS=`$XENOMAI_CONFIG --skin posix --ldflags`
+    #Libs need --no-auto-init, otherwhise, each module initialises xenomai at load
+    XENOMAI_LDFLAGS_NOINIT=`$XENOMAI_CONFIG --skin posix --ldflags --no-auto-init`
     AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
   fi
 
   AC_SUBST([CONFIG_USPACE_XENOMAI])
   AC_SUBST([XENOMAI_CFLAGS])
   AC_SUBST([XENOMAI_LDFLAGS])
+  AC_SUBST([XENOMAI_LDFLAGS_NOINIT])
 
   if test "$HAS_EVL" = "n" ; then
     USPACE_XENOMAI_EVL=

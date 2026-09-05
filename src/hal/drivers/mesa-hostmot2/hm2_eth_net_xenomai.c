@@ -2,6 +2,9 @@
  *    Copyright 2013,2014 Michael Geszkiewicz <micges@wp.pl>,
  *    Jeff Epler <jepler@unpythonic.net>
  *
+ *    Xenomai Port:
+ *    Copyright 2026 Hannes Diethelm <hannes.diethelm@gmail.com>
+ *
  *    This program is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -28,22 +31,35 @@
 #include <poll.h>
 
 #include <rtapi.h>
+#include <rtapi_string.h>
 
 #include "hostmot2-lowlevel.h"
-#include "hm2_eth_net_posix.h"
+#include "hm2_eth_net_xenomai.h"
 
 #define SEND_TIMEOUT_US 10
 #define RECV_TIMEOUT_US 10
 
 /// ethernet io functions
 
-int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
+int hm2_xenomai_init_board(hm2_eth_t *board, const char *board_ip) {
     int ret;
-    LL_PRINT("%s: INFO: init board (POSIX)\n", board_ip);
+    LL_PRINT("%s: INFO: init board (XENOMAI)\n", board_ip);
     board->sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (board->sockfd < 0) {
         LL_PRINT("ERROR: can't open socket: %s\n", strerror(errno));
         return -errno;
+    }
+
+    //Check if socket is rtnet: F_GETFD will
+    //fail due to this is only supported on normal
+    //sockets. Nicer alternatives are welcome but
+    //it looks to be the only option.
+    //See: kernel/cobalt/rtdm/fd.c
+    if( fcntl(board->sockfd, F_GETFD) >= 0 ){
+        LL_PRINT("ERROR: Socket is not realtime\n"
+        "    Read hm2_eth man page how to enable realtime\n"
+        "    ethernet for Xenomai\n");
+        return -1;
     }
 
     board->server_addr.sin_family = AF_INET;
@@ -60,28 +76,6 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     }
 
     strncpy(board->ip, board_ip, sizeof(board->ip)-1);
-    char *ifptr = hm2_eth_fetch_ifname(board->sockfd, board->ifname, sizeof(board->ifname));
-    if(!ifptr) {
-        LL_PRINT("failed to retrieve interface name for board\n");
-        return 0;
-    }
-
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = RECV_TIMEOUT_US;
-    ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
-    if (ret < 0) {
-        LL_PRINT("ERROR: can't set receive timeout socket option: %s\n", strerror(errno));
-        return -errno;
-    }
-
-    timeout.tv_sec = 0;
-    timeout.tv_usec = SEND_TIMEOUT_US;
-    ret = setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
-    if (ret < 0) {
-        LL_PRINT("ERROR: can't set send timeout socket option: %s\n", strerror(errno));
-        return -errno;
-    }
 
     memset(&board->req, 0, sizeof(board->req));
     struct sockaddr_in *sin;
@@ -98,68 +92,42 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
         return ret;
     }
 
-    // Pinning the ARP entry needs CAP_NET_ADMIN; rootless without setcap
-    // fails with EPERM.  Best-effort, not fatal: fall back to dynamic ARP
-    // so the board still loads.  Clear ATF_PERM so the SIOCDARP teardown
-    // in close_board() does not try to remove an entry we never set.
-    ret = ioctl(board->sockfd, SIOCSARP, &board->req);
-    if(ret < 0) {
-        LL_PRINT("WARNING: ioctl SIOCSARP failed: %s; continuing with "
-                 "dynamic ARP.  Install file capabilities (sudo make "
-                 "setcap) or run setuid to pin the board's ARP entry and "
-                 "avoid occasional transmit latency.\n", strerror(errno));
-        board->req.arp_flags &= ~ATF_PERM;
-    }
-
     board->write_packet_ptr = board->write_packet;
     board->read_packet_ptr = board->read_packet;
-    board->needs_firewall = true;
-
+    board->needs_firewall = false;
+    
     return 0;
 }
 
-int hm2_posix_close_board(hm2_eth_t *board) {
+int hm2_xenomai_close_board(hm2_eth_t *board) {
     int ret;
     board->llio.reset(&board->llio);
 
-    if(board->req.arp_flags & ATF_PERM) {
-        ret = ioctl(board->sockfd, SIOCDARP, &board->req);
-        if(ret < 0) perror("ioctl SIOCDARP");
-    }
-    ret = shutdown(board->sockfd, SHUT_RDWR);
-    if (ret == -1)
-        LL_PRINT("ERROR: can't shutdown socket: %s\n", strerror(errno));
-    
     ret = close(board->sockfd);
     if (ret == -1)
         LL_PRINT("ERROR: can't close socket: %s\n", strerror(errno));
-    
+
     return ret < 0 ? -errno : 0;
 }
 
-int hm2_posix_eth_socket_send(hm2_eth_t *board, const void *buffer, int len) {
+int hm2_xenomai_eth_socket_send(hm2_eth_t *board, const void *buffer, int len) {
     return send(board->sockfd, buffer, len, 0);
 }
 
-int hm2_posix_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns) {
-    struct pollfd pfd;
-    struct timespec ts;
+int hm2_xenomai_eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int recv_timeout_ns) {
+    fd_set rfds;
+    struct timeval tv;
     int ret;
 
-    //SO_RCVTIMEO only delivers a timeout down to ~10ms
-    //while ppoll() works down to 100us
-    pfd.fd=board->sockfd;
-    pfd.events = POLLIN;
-    ts.tv_sec = 0;
-    ts.tv_nsec = recv_timeout_ns;
-    while (ts.tv_nsec >= 1e9) {
-        ts.tv_nsec -= 1e9;
-        ts.tv_sec ++;
-    }
-    ret = ppoll(&pfd, 1, &ts, NULL);
+    //ppoll is not suported by xenomai, use select
+    FD_ZERO(&rfds);
+    FD_SET(board->sockfd, &rfds);
+    tv.tv_sec = 0;
+    tv.tv_usec = recv_timeout_ns;
+    ret = select(board->sockfd+1, &rfds, NULL, NULL, &tv);
 
     if (ret < 0) {
-        LL_PRINT("ERROR: ppoll() failed: %m\n");
+        LL_PRINT("ERROR: select() failed: %m\n");
     } else if(ret) {
         ret = recv(board->sockfd, buffer, len, 0);
     } else {

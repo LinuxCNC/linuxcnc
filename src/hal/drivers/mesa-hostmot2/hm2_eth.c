@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <dlfcn.h>
 
 #include <rtapi_slab.h>
 #include <rtapi_ctype.h>
@@ -44,15 +45,15 @@
 
 #include <hal.h>
 
-#include "config.h" //For USPACE_XENOMAI_EVL
+#include "config.h" //For USPACE_XENOMAI_EVL / USPACE_XENOMAI defines
 
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
 #include "hm2_eth_net_posix.h"
-#ifdef USPACE_XENOMAI_EVL
-#include "hm2_eth_net_evl.h"
-#endif
+
+EXPORT_SYMBOL(hm2_eth_fetch_ifname);
+EXPORT_SYMBOL(hm2_eth_fetch_hwaddr);
 
 #define RECV_TIMEOUT_NON_RT_NS (200 * 1000 * 1000) //200ms for initialisation / non-realtime part
 
@@ -591,7 +592,7 @@ static fw_state_t fw_state = FW_UNRESOLVED;
 // Resolve and bring up the firewall backend on first call, caching the
 // result.  Returns true when a backend is ready, false when isolation
 // is unavailable or disabled.
-bool use_firewall() {
+static bool use_firewall() {
     if(fw_state != FW_UNRESOLVED)
         return fw_state == FW_READY;
 
@@ -638,7 +639,7 @@ bool use_firewall() {
 
 // Drop all rules from our chain/table but keep the chain in place, so a
 // fresh set can be installed on (re-)init.
-void clear_firewall() {
+static void clear_firewall() {
     if(!use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
@@ -679,7 +680,7 @@ static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
     return buf;
 }
 
-char* fetch_ifname(int sockfd, char *buf, size_t n) {
+char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n) {
     struct sockaddr_in srcaddr;
     struct ifaddrs *ifa, *it;
 
@@ -706,7 +707,7 @@ char* fetch_ifname(int sockfd, char *buf, size_t n) {
     return NULL;
 }
 
-int install_firewall_board(int sockfd) {
+static int install_firewall_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
     char dport_s[8], sport_s[8];
@@ -751,7 +752,7 @@ int install_firewall_board(int sockfd) {
     return 0;
 }
 
-int install_firewall_perinterface(const char *ifbuf) {
+static int install_firewall_perinterface(const char *ifbuf) {
     // Without these rules, 'ping' spews a lot of "Packet filtered"
     // messages.  With them, ping prints 'ping: sendmsg: Operation not
     // permitted' once per second.
@@ -795,7 +796,7 @@ int install_firewall_perinterface(const char *ifbuf) {
     return 0;
 }
 
-int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
+int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
@@ -815,25 +816,105 @@ int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     return 0;
 }
 
+#ifdef USPACE_XENOMAI_EVL
+static void *eth_net_evl_lib = NULL;
+static bool load_eth_net_evl(void) {
+    if (eth_net_evl_lib != NULL) {
+        return true; // Already checked
+    }
+    eth_net_evl_lib = dlopen("liblinuxcnc-hm2_eth_net_evl.so", RTLD_LOCAL | RTLD_NOW);
+    if (!eth_net_evl_lib) {
+        LL_PRINT("ERROR: EVL support loading library failed: %s\n", dlerror());
+        return false;
+    }
+    return true;
+}
+#endif
+
+#ifdef USPACE_XENOMAI_EVL
+static void *eth_net_xenomai_lib = NULL;
+static bool load_eth_net_xenomai(void) {
+    if (eth_net_xenomai_lib != NULL) {
+        return true; // Already checked
+    }
+    eth_net_xenomai_lib = dlopen("liblinuxcnc-hm2_eth_net_xenomai.so", RTLD_LOCAL | RTLD_NOW);
+    if (!eth_net_xenomai_lib) {
+        LL_PRINT("ERROR: XENOMAI support loading library failed: %s\n", dlerror());
+        return false;
+    }
+    return true;
+}
+#endif
+
 static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_rtnet){
     //Default (NULL) is posix
     if (board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0) {
         board->init_board = &hm2_posix_init_board;
-        board->init_board_realtime = &hm2_posix_init_board_realtime;
         board->close_board = &hm2_posix_close_board;
         board->eth_socket_send = &hm2_posix_eth_socket_send;
         board->eth_socket_recv = &hm2_posix_eth_socket_recv;
+    } else if (strcmp(board_rtnet, "xenomai") == 0) {
+#ifdef USPACE_XENOMAI
+        if (hal_get_realtime_type() != REALTIME_TYPE_XENOMAI) {
+            LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC not running with Xenomai realtime\n", board_rtnet)
+            return -1;
+        }
+        if (!load_eth_net_xenomai()) {
+            return -1;
+        }
+        board->init_board = dlsym(eth_net_xenomai_lib, "hm2_xenomai_init_board");
+        if (board->init_board == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym hm2_xenomai_init_board failed: %s\n", dlerror());
+            return -1;
+        }
+        board->close_board = dlsym(eth_net_xenomai_lib, "hm2_xenomai_close_board");
+        if (board->close_board == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym hm2_xenomai_init_close_boardboard failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_send = dlsym(eth_net_xenomai_lib, "hm2_xenomai_eth_socket_send");
+        if (board->eth_socket_send == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym eth_socket_send failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_recv = dlsym(eth_net_xenomai_lib, "hm2_xenomai_eth_socket_recv");
+        if (board->eth_socket_recv == NULL) {
+            LL_PRINT("ERROR: XENOMAI support dlsym eth_socket_recv failed: %s\n", dlerror());
+            return -1;
+        }
+#else
+        LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC was built without Xenomai support\n", board_rtnet);
+        return -1;
+#endif
     } else if (strcmp(board_rtnet, "evl") == 0) {
 #ifdef USPACE_XENOMAI_EVL
         if (hal_get_realtime_type() != REALTIME_TYPE_XENOMAI_EVL) {
             LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC not running with Xenomai4 EVL realtime\n", board_rtnet)
             return -1;
         }
-        board->init_board = &hm2_evl_init_board;
-        board->init_board_realtime = &hm2_evl_init_board_realtime;
-        board->close_board = &hm2_evl_close_board;
-        board->eth_socket_send = &hm2_evl_eth_socket_send;
-        board->eth_socket_recv = &hm2_evl_eth_socket_recv;
+        if (!load_eth_net_evl()) {
+            return -1;
+        }
+        board->init_board = dlsym(eth_net_evl_lib, "hm2_evl_init_board");
+        if (board->init_board == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym hm2_evl_init_board failed: %s\n", dlerror());
+            return -1;
+        }
+        board->close_board = dlsym(eth_net_evl_lib, "hm2_evl_close_board");
+        if (board->close_board == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym hm2_evl_init_close_boardboard failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_send = dlsym(eth_net_evl_lib, "hm2_evl_eth_socket_send");
+        if (board->eth_socket_send == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym eth_socket_send failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_recv = dlsym(eth_net_evl_lib, "hm2_evl_eth_socket_recv");
+        if (board->eth_socket_recv == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym eth_socket_recv failed: %s\n", dlerror());
+            return -1;
+        }
 #else
         LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC was built without Xenomai EVL support\n", board_rtnet);
         return -1;
@@ -843,14 +924,28 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         return -1;
     }
 
-    return board->init_board(board, board_ip);
+    int ret;
+    ret = board->init_board(board, board_ip);
+    if (ret < 0) return ret;
+
+    if(board->needs_firewall){
+        if(!use_firewall()) {
+            LL_PRINT(\
+                "WARNING: Unable to restrict other access to the hm2-eth device.\n"
+                "This means that other software using the same network interface can violate\n"
+                "realtime guarantees.  See hm2_eth(9) for more information.\n");
+        }
+        // install_firewall_board() is a no-op when no firewall backend is
+        // available (rootless install without CAP_NET_ADMIN, or
+        // firewall=none), so it is safe to call unconditionally.
+        ret = install_firewall_board(board->sockfd);
+        if(ret < 0) return ret;
+    }
+
+    return 0;
 }
 
 /// ethernet io functions mapping
-
-static inline int init_board_realtime(hm2_eth_t *board){
-    return board->init_board_realtime(board);
-}
 
 static inline int close_board(hm2_eth_t *board){
     return board->close_board(board);
@@ -1656,10 +1751,7 @@ static int hm2_eth_items(hm2_eth_t *board) {
 void init_board_realtime_all(void *arg, long period){
     (void)arg;
     (void)period;
-    int i;
-    for(i = 0; i < boards_count; i++) {
-        init_board_realtime(&boards[i]);
-    }
+    LL_PRINT("DEPRECATED: \"initf hm2_eth.realtime-init\" is not needed and will be removed\n");
 }
 
 int rtapi_app_main(void) {
@@ -1704,12 +1796,16 @@ int rtapi_app_main(void) {
     for(i = 0; i<num_boards; i++) {
         boards[i].read_cnt = boards[i].write_cnt = 0;
         boards[i].has_written_cnt = 0;
-        int *added = kvlist_lookup(&ifnames, boards[i].ifname);
-        if(!added)
-            goto error;
-        if(*added) continue;
-        install_firewall_perinterface(boards[i].ifname);
-        *added = 1;
+        //Xenomai boards have an empty string for ifname due to the
+        //interface name can not be resolved and a firewall is not needed
+        if(strnlen(boards[i].ifname, sizeof(boards[i].ifname)) > 0){
+            int *added = kvlist_lookup(&ifnames, boards[i].ifname);
+            if(!added)
+                goto error;
+            if(*added) continue;
+            install_firewall_perinterface(boards[i].ifname);
+            *added = 1;
+        }
     }
 
     hal_export_functf(init_board_realtime_all, 0, 0, 0, comp_id, "%s.realtime-init", HM2_LLIO_NAME);
@@ -1721,6 +1817,7 @@ int rtapi_app_main(void) {
 error:
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
+    clear_firewall();
     // Full teardown: rtapi_app_exit() is not called when rtapi_app_main()
     // fails, so this is the only chance to remove the chain and jump.
     cleanup_firewall();
@@ -1736,6 +1833,7 @@ void rtapi_app_exit(void) {
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
 
+    clear_firewall();
     cleanup_firewall();
 
     kvlist_free(&board_num);
