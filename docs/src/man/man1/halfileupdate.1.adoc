@@ -1,0 +1,95 @@
+= halfileupdate(1)
+
+== NAME
+
+halfileupdate - Update HAL configuration files after component, pin and parameter renames
+
+== SYNOPSIS
+
+*halfileupdate* [--in-place] [--no-backup] [--quiet] _file.hal_|_file.ini_...
+
+== DESCRIPTION
+
+Removing the 32-bit HAL types renames the components, pins and
+parameters whose name spells a type that no longer exists, for example
+*conv_s32_float* becomes *conv_sint_real* and *mux-gen.00.in-s32-00*
+becomes *mux-gen.00.in-sint-00*.  A configuration using the old names
+fails to start.  *halfileupdate* rewrites those names in HAL files,
+both *.hal* and haltcl *.tcl*.
+
+Run it on the INI file of the configuration:
+
+----
+halfileupdate mymachine.ini
+----
+
+This prints a diff of what would change and writes nothing.  Every HAL
+file the INI names is read, in the order LinuxCNC runs them, which is
+what makes the names resolvable: a *loadrt* in one file and the pins it
+creates in another is normal in a configuration, and the INI file is
+what ties the two together.  Files named by a key of a user interface's
+own, such as *CUSTOM_HALFILE*, and keys outside the *[HAL]* section are
+picked up as well.  Add *--in-place* to make the changes,
+keeping a *.bak* of every file it touches:
+
+----
+halfileupdate -i mymachine.ini
+----
+
+A single HAL file can be converted on its own, but then only the
+components that file loads itself can be converted; anything else is
+reported, with a message saying to run the INI file instead.
+
+Signal names are never changed: they are yours, and no rename applies
+to them, though the type word on a *newsig* line is converted, since the
+type names changed with everything else.  A *net* line keeps its signal and gets new pin names.
+Instance names you chose with *names=* are kept as well; only the
+component name on the *loadrt* line changes.
+
+== WHAT YOU HAVE TO DO BY HAND
+
+*halfileupdate* converts the names it can resolve and reports the rest
+with the file and the line, so what is left is on screen when it
+finishes.  It does not touch:
+
+* Names that are not spelled out in the file, such as a haltcl name
+  built in a loop or a procedure (*abs-s32.$i.gain*), or a name built
+  from an INI variable.
+* Comments.  A comment that still names something that changed is
+  reported.
+* Pin names outside HAL files: the Python *hal* module, custom user
+  interfaces, pyvcp and qtvcp panels, and halui bindings in other
+  sections of the INI file.
+
+HAL files that come with LinuxCNC, whether written *LIB:name.tcl* or
+found in the HAL library, are updated with LinuxCNC and are left alone.
+
+Review the diff and test the configuration before running a machine
+with it.
+
+== OPTIONS
+
+_file.hal_|_file.ini_...::
+The files to convert.  An INI file pulls in the HAL files it names,
+including those behind a *HALCMD* line; a HAL file is converted on its
+own.  In a haltcl file the Tcl form *hal setp name value* is understood
+as well as the plain *setp name value*.
+
+*-i*, *--in-place*::
+Rewrite the files in place.  A backup with the suffix *.bak* is kept
+unless *--no-backup* is given.
+
+*--no-backup*::
+With *--in-place*, do not keep a *.bak* backup.
+
+*-q*, *--quiet*::
+Suppress warnings and notes on stderr.
+
+== EXIT STATUS
+
+0 on success, 2 when a file given on the command line could not be
+read.  Names left for you to convert do not change the exit status.
+
+== SEE ALSO
+
+*halcmd*(1), *halcompile*(1), *halcompupdate*(1), *haltcl*(1)
