@@ -18,31 +18,21 @@
 #    any later version.
 #
 #
-#    The parsed program, as arrays: the record and the fill that builds it.
+#    The parsed program, as arrays: the record, and what reads it.
 #
 #    ``ProgramGeometry`` is the authoritative form of a loaded G-code program -
 #    every drawn point with its source line, kind and tool, the events between
-#    the moves, the dwell and tool-change tables, and the extents. The canon
-#    owns one and fills it during ``gcode.parse``, through two entry points
-#    that share one array-only core (``_fill_arrays``): ``add_moves``, which
-#    still accepts a sequence of the canon's move tuples (what the synthetic
-#    test streams in tests/gcode-bake/ use), and ``add_moves_raw``, which
-#    reads a fixed-width float64 staging chunk instead - the shape
-#    ``GLCanon`` writes ``rotate_and_translate``'s result into directly, with
-#    no per-move tuple, and the shape a C-delivered batch would arrive in.
-#    Adopting a C source there is therefore a swap of what feeds
-#    ``add_moves_raw``, not a new code path. The scene adopts the finished
-#    geometry and uploads it; the vertex layout the GPU reads is stated here
-#    too, so the two modules share one statement of it rather than two
-#    comments asking each other to agree.
+#    the moves, the dwell and tool-change tables, and the extents. It is built
+#    in C++ during ``gcode.parse`` (``GCodeRenderer``, src/emc/rs274ngc/
+#    gcode_renderer.{hh,cc}) and handed over whole at the end of it, which is what
+#    :meth:`ProgramGeometry.adopt` takes: the arrays are wrapped rather than
+#    copied, since the layouts stated below are the ones C writes. The scene
+#    adopts the finished geometry and uploads it; the vertex layout the GPU
+#    reads is stated here too, so the two modules share one statement of it
+#    rather than two comments asking each other to agree.
 #
-#    The fill reimplements the C `vertex9` GEOMETRY-string transform and the
-#    `line9` rotary subdivision (see
-#    src/emc/usr_intf/axis/extensions/emcmodule.cc), vectorised over a batch.
-#    It contains NO OpenGL calls so it can be unit-tested headless; correctness
-#    is pinned against the C extension, against an independent reference, and
-#    against a frozen snapshot of the expansion it replaced, in
-#    tests/gcode-bake/.
+#    This module contains NO OpenGL calls, so everything in it can be
+#    unit-tested headless (tests/gcode-renderer/).
 #
 
 from __future__ import annotations
@@ -60,11 +50,6 @@ log = logging.getLogger(__name__)
 AXIS_MASK_A = 0x08
 AXIS_MASK_B = 0x10
 AXIS_MASK_C = 0x20
-
-# Geometry the bake does its own maths in: (M, 3) float64 points, in the
-# machine frame, before any GPU layout is chosen. Everything above the
-# float64 -> float32 boundary in this module speaks this type.
-Float64Points = npt.NDArray[np.float64]
 
 # Interleaved layout: position(3) rgba(4) lineno(1) -> 8 float32.
 # ``WideVerts`` is the type saying so; rs274.glcanon_gl names the same layout
@@ -114,15 +99,11 @@ KIND_DWELL = 4
 #: A tool change, at the position it occurred.
 KIND_TOOLCHANGE = 5
 
-# The three drawn kinds under the older name the canon still tags moves with.
-CAT_TRAVERSE = KIND_TRAVERSE
-CAT_FEED = KIND_FEED
-CAT_ARC = KIND_ARC
-
 # Entries the shader's palette uniform holds. Three cover the program; the
 # live backplot needs six, and the dwell markers one per distinct colour.
-# ``PaletteRGBA`` is the type the uniform is uploaded as, and
-# rs274.glcanon_gl names it through this alias rather than restating the size.
+# ``PaletteRGBA`` is the type the uniform is uploaded as. rs274.glcanon_gl
+# imports both rather than restating either, so the count and the type it
+# uploads are one statement, here.
 PALETTE_SIZE = 8
 PaletteRGBA = npt.NDArray[np.float32]            # (PALETTE_SIZE, 4)
 
@@ -146,7 +127,6 @@ MODE_LINES = "lines"
 # is a different transform of the same moves, so each holds its own.
 PLANE_DTYPE = np.dtype([('pos', '<f4', (3,))])
 ATTR_DTYPE = np.dtype([('line', '<u4'), ('kindtool', '<u4')])
-VERTEX_STRIDE = PLANE_DTYPE.itemsize + ATTR_DTYPE.itemsize     # 20
 
 # The kind/tool word: kind in the low 8 bits, tool ordinal in the next 16.
 # The top 8 are spare and are asserted zero rather than left unspecified -
@@ -155,34 +135,16 @@ VERTEX_STRIDE = PLANE_DTYPE.itemsize + ATTR_DTYPE.itemsize     # 20
 KIND_MASK = 0xFF
 TOOL_SHIFT = 8
 TOOL_MASK = 0xFFFF
-MAX_TOOL_ORDINAL = TOOL_MASK
 SPARE_MASK = 0xFF000000
 
 # Where a source line's vertices live in a buffer: ``{lineno: [(first, n)]}``.
 # The wide-format parts still carry one; the program array replaced it with
 # parallel arrays searched by ``np.searchsorted`` (see
-# :meth:`ProgramGeometry.spans_for_line`).
+# :attr:`ProgramGeometry.index`).
 LineRanges = dict[int, list[tuple[int, int]]]
 
 # A resolved colour: r, g, b, a in 0..1.
 RGBA = tuple[float, float, float, float]
-
-# ---------------------------------------------------------------------------
-# The staging chunk :meth:`ProgramGeometry.add_moves_raw` reads: one row per
-# move, ``float64``, columns [lineno, p1 (9), p2 (9), feedrate, offset (3)] -
-# 23 floats. This is what ``GLCanon`` writes ``rotate_and_translate``'s result
-# into directly, in place of a move tuple, and it is also the shape a
-# C-delivered batch would arrive in (see add-move-batch-protocol): the
-# traverse/feed arity difference the tuple form carries (feed has a rate,
-# traverse does not) is flattened here into one fixed width, with an unused
-# feedrate slot on a traverse row - the same choice a fixed-width C struct
-# would make.
-STAGE_LINE = 0
-STAGE_P1 = slice(1, 10)
-STAGE_P2 = slice(10, 19)
-STAGE_FEEDRATE = 19
-STAGE_OFFSET = slice(20, 23)
-STAGING_ROW_WIDTH = 23
 
 # What a part hands the renderer: ``dict(name, kind, ...)``. Deliberately not
 # a TypedDict - the key set varies by ``kind`` and the renderer reads it with
@@ -217,184 +179,34 @@ class RotationOffsets:
 DEFAULT_OFFSETS = RotationOffsets()
 
 
-def _rotate_axis(p: Float64Points, comp_a: int, comp_b: int,
-                 angles_deg: npt.NDArray[np.float64], off_a: float,
-                 off_b: float, respect: bool) -> None:
-    """Rotate columns (comp_a, comp_b) of point array ``p`` by per-row angles.
-
-    Vectorised form of the C rotate_x/y/z: each of the M points is rotated by its
-    own angle. Matches the C sign convention exactly (subtract offsets in the
-    respect-offsets branch and do not add them back).
-    """
-    theta = np.radians(angles_deg)
-    c = np.cos(theta)
-    s = np.sin(theta)
-    a = p[:, comp_a]
-    b = p[:, comp_b]
-    if respect:
-        a = a - off_a
-        b = b - off_b
-    p[:, comp_a] = a * c - b * s
-    p[:, comp_b] = a * s + b * c
-
-
-def transform_points(pts9: Any, geometry: str,
-                     ro: RotationOffsets = DEFAULT_OFFSETS) -> Float64Points:
-    """Map an ``(M, 9)`` array of 9-DOF points to ``(M, 3)`` preview points.
-
-    Vectorised equivalent of the C ``vertex9`` over M points sharing one
-    geometry string. Columns of ``pts9`` are ``[X Y Z A B C U V W]``.
-    """
-    pts9 = np.asarray(pts9, dtype=np.float64)
-    if pts9.ndim == 1:
-        pts9 = pts9[np.newaxis, :]
-    m = pts9.shape[0]
-    p = np.zeros((m, 3), dtype=np.float64)
-    sign = 1.0
-    for ch in geometry:
-        if ch == "-":
-            sign = -1.0
-        elif ch == "X":
-            p[:, 0] += pts9[:, 0] * sign; sign = 1.0
-        elif ch == "Y":
-            p[:, 1] += pts9[:, 1] * sign; sign = 1.0
-        elif ch == "Z":
-            p[:, 2] += pts9[:, 2] * sign; sign = 1.0
-        elif ch == "U":
-            p[:, 0] += pts9[:, 6] * sign; sign = 1.0
-        elif ch == "V":
-            p[:, 1] += pts9[:, 7] * sign; sign = 1.0
-        elif ch == "W":
-            p[:, 2] += pts9[:, 8] * sign; sign = 1.0
-        elif ch == "A":
-            if ro.axis_mask & AXIS_MASK_A:
-                _rotate_axis(p, 1, 2, pts9[:, 3] * sign, ro.y, ro.z,
-                             ro.respect_offsets)
-            sign = 1.0
-        elif ch == "B":
-            if ro.axis_mask & AXIS_MASK_B:
-                # rotate_y couples (x, z); the C form is (x' , z') with x first.
-                _rotate_axis(p, 0, 2, pts9[:, 4] * sign, ro.x, ro.z,
-                             ro.respect_offsets)
-            sign = 1.0
-        elif ch == "C":
-            if ro.axis_mask & AXIS_MASK_C:
-                _rotate_axis(p, 0, 1, pts9[:, 5] * sign, ro.x, ro.y,
-                             ro.respect_offsets)
-            sign = 1.0
-        # other chars ('!', ';', ...) are no-ops, sign preserved (C default)
-    return p
-
-
-def _unrotate_xy(pts: Float64Points, rotation_xy: float,
-                 g5x_xy: Sequence[float]) -> Float64Points:
-    """``pts`` with the g5x XY rotation taken back out, about the g5x origin.
-
-    The vectorised form of what ``GLCanon.unrotate_preview`` does per move.
-    Z is left alone, exactly as there.
-    """
-    if not rotation_xy:
-        return pts
-    angle = math.radians(-rotation_xy)
-    cos_a = math.cos(angle)
-    sin_a = math.sin(angle)
-    tx = pts[:, 0] - g5x_xy[0]
-    ty = pts[:, 1] - g5x_xy[1]
-    out = pts.copy()
-    out[:, 0] = tx * cos_a - ty * sin_a + g5x_xy[0]
-    out[:, 1] = tx * sin_a + ty * cos_a + g5x_xy[1]
-    return out
-
-
-def _box_of(*point_arrays: Float64Points
-            ) -> tuple[Float64Points, Float64Points]:
-    """``(min, max)`` over the first three columns, taken one column at a time.
-
-    numpy's ``axis=0`` reduction vectorises the three-wide row, not the k-long
-    column: 258 us against 22 us at k=16384. Same answer, either way - which
-    is why this exists as one named helper rather than four open-coded loops.
-    Several arrays reduce into one box without concatenating them, since the
-    copy costs more than the reduction it saves.
-
-    Every caller has at least one row; an empty batch never reaches the fill.
-    """
-    lo = np.empty(3, dtype=np.float64)
-    hi = np.empty(3, dtype=np.float64)
-    for j in range(3):
-        col = point_arrays[0][:, j]
-        col_lo = col.min()
-        col_hi = col.max()
-        for arr in point_arrays[1:]:
-            col = arr[:, j]
-            col_lo = min(col_lo, col.min())
-            col_hi = max(col_hi, col.max())
-        lo[j] = col_lo
-        hi[j] = col_hi
-    return lo, hi
-
-
-def _seg_lengths(p1: Float64Points, p2: Float64Points) -> Float64Points:
-    """Each move's XYZ segment length, over the three columns it reads.
-
-    Bit-identical to ``np.linalg.norm((p2 - p1)[:, :3], axis=1)``, which
-    subtracted all nine columns to use three and then took a row-wise
-    reduction over a three-wide array. ``norm`` reduces the three squares in
-    this same order, so the sum - and therefore the root - is the same float.
-    """
-    dx = p2[:, 0] - p1[:, 0]
-    dy = p2[:, 1] - p1[:, 1]
-    dz = p2[:, 2] - p1[:, 2]
-    return np.sqrt(dx * dx + dy * dy + dz * dz)
-
-
-#: Runs of one commanded feed rate that :meth:`ProgramGeometry.
-#: _accumulate_lengths` will find by walking rate changes rather than by
-#: sorting the batch. Past it the run form's ``unique`` + ``repeat`` costs more
-#: than the sort it replaces, so the sort runs instead. A **cost** switch, not
-#: a correctness one: both branches feed the same ``bincount`` the same bins
-#: and produce the same table bit for bit, so a wrong value here costs time and
-#: nothing else.
-_RATE_RUN_LIMIT = 64
-
-
 class ProgramGeometry:
     """The parsed program, as arrays. The authoritative record of what it is.
     It is the program record and the ready-to-go GPU's source data at once.
 
-    Owned by :class:`rs274.glcanon.GLCanon` and filled during the parse, so a
-    canon driven with no GL context still holds the complete program: every
-    drawn point with its source line, kind and tool, the events between the
-    moves, the dwell and tool-change tables, and the extents. The scene adopts
-    this object and builds GPU buffers from it; it never builds one of its own,
-    and nothing here knows that OpenGL exists.
+    Owned by :class:`rs274.glcanon.GLCanon`, and :meth:`adopt`-ed from the C
+    renderer at the end of ``gcode.parse``, so a canon driven with no GL
+    context still holds the complete program: every drawn point with its
+    source line, kind and tool, the events between the moves, the dwell and
+    tool-change tables, and the extents. The scene adopts this object and
+    builds GPU buffers from it; it never builds one of its own, and nothing
+    here knows that OpenGL exists.
 
     **Storage.** Two arrays, per the layout stated at the top of this module:
     one :data:`PLANE_DTYPE` array per drawn plane (the transformed position,
     which is plane-specific because the transform is) and one shared
     :data:`ATTR_DTYPE` array (source line, and the packed kind/tool word). Both
-    grow by doubling; the move count is not known in advance and a counting
-    pass would mean holding or re-walking the source.
-
-    **The fill is batched.** :meth:`add_moves` is the only way moves get in,
-    and it takes any number of them. Nothing on that path costs a numpy call
-    per move: the batch is converted to arrays once, subdivided once, and
-    transformed once per drawn plane. A program delivered as one call and the
-    same program delivered as a thousand produce identical arrays.
+    are wrapped, not copied: they are the buffers C wrote, kept alive by the
+    ``gcode.PreviewGeometry`` that owns them, and read-only, because a
+    complete record is not something to append to.
 
     **Events are vertices.** A coordinate jump, a dwell and a tool change each
-    write a vertex carrying a record-only kind, which the drawing and picking
-    shaders discard. That is what replaces the chain table: the whole program
-    is one ``GL_LINE_STRIP`` over a contiguous range, and the discontinuities
-    live in the data instead of in a list of ranges beside it. A jump is
-    recorded at its *destination* - see :data:`KIND_NOOP` for why that costs
-    exactly the one vertex a chain break already cost.
+    carry a record-only kind, which the drawing and picking shaders discard.
+    That is what replaces the chain table: the whole program is one
+    ``GL_LINE_STRIP`` over a contiguous range, and the discontinuities live in
+    the data instead of in a list of ranges beside it. A jump is recorded at
+    its *destination* - see :data:`KIND_NOOP` for why that costs exactly the
+    one vertex a chain break already cost.
     """
-
-    #: The initial ordinal, held by every vertex before the program's first
-    #: tool change. ``tool_numbers[0]`` is ``None`` rather than a tool number
-    #: because the canon is not told what is in the spindle at load - and a
-    #: value that means "not stated" must not be confusable with T0.
-    INITIAL_TOOL_ORDINAL = 0
 
     def __init__(self, geometry: str = "XYZ",
                  ro: RotationOffsets = DEFAULT_OFFSETS,
@@ -409,13 +221,14 @@ class ProgramGeometry:
     def configure(self, geometry: Optional[str] = None,
                   ro: Optional[RotationOffsets] = None,
                   is_foam: Optional[bool] = None) -> None:
-        """Set the transform the fill will use, and clear whatever was filled.
+        """Set the transform the renderer will use, and drop what was adopted.
 
         Called by the scene when a canon is set, i.e. immediately before the
         parse - which is the only moment the GEOMETRY string and the rotation
-        offsets can be adopted, since the points are converted once, on the way
-        in. Changing any of them afterwards would leave the array stale, so
-        this discards it rather than pretending otherwise.
+        offsets can be chosen, since the C renderer compiles them once, at
+        parse start, and converts every point on the way in. Changing any of
+        them afterwards would leave the array stale, so this discards it
+        rather than pretending otherwise.
         """
         if geometry is not None:
             self.geometry = geometry.upper()
@@ -434,13 +247,10 @@ class ProgramGeometry:
         self.clear()
 
     def clear(self) -> None:
-        """Drop everything filled so far, keeping the configuration."""
+        """Drop everything adopted so far, keeping the configuration."""
         self._n = 0
         self._planes = [np.empty(0, dtype=PLANE_DTYPE) for _ in self.planes]
         self._attrs = np.empty(0, dtype=ATTR_DTYPE)
-        #: The 9-DOF point the trajectory is currently at, or ``None`` before
-        #: the first move. A move starting anywhere else is a jump.
-        self._cur9: Optional[npt.NDArray[np.float64]] = None
         #: (4, 2, 3): the four machine-frame pairs, each ``[min, max]``.
         self._extents = np.empty((4, 2, 3), dtype=np.float64)
         self._extents[:, 0, :] = 9e99
@@ -454,9 +264,12 @@ class ProgramGeometry:
         #: (2, 3): the bounding box of the transformed points in the array.
         self._drawn = np.array([[9e99] * 3, [-9e99] * 3], dtype=np.float64)
         self._moves = 0
-        #: Ordinal -> T number. Entry 0 is the state before any tool change.
+        #: Ordinal -> T number, indexed by the ordinal the kind/tool word
+        #: carries. Entry 0 is the state before any tool change, and is
+        #: ``None`` rather than a tool number because the canon is not told
+        #: what is in the spindle at load - a value that means "not stated"
+        #: must not be confusable with T0.
         self.tool_numbers: list[Optional[int]] = [None]
-        self._tool = self.INITIAL_TOOL_ORDINAL
         #: ``(lineno, rgba, plane_code, points)`` per dwell, where ``points``
         #: holds one transformed position per drawn plane.
         self.dwells: list[tuple[int, RGBA, int, tuple[Any, ...]]] = []
@@ -464,40 +277,15 @@ class ProgramGeometry:
         self.toolchanges: list[tuple[int, Any, tuple[Any, ...]]] = []
         self._index: Optional[tuple[Any, Any, Any]] = None
 
-    # -- what was filled ---------------------------------------------------
+    # -- what was adopted ---------------------------------------------------
 
     def __len__(self) -> int:
         return self._n
 
     @property
-    def n_vertices(self) -> int:
-        return self._n
-
-    @property
     def n_moves(self) -> int:
-        """Moves reported, as opposed to vertices written."""
+        """Moves the program made, as opposed to vertices written for them."""
         return self._moves
-
-    @property
-    def capacity(self) -> int:
-        """Vertices the arrays can hold before the next :meth:`_reserve`.
-
-        Reported rather than inferred because the doubling growth means it is
-        anywhere between :attr:`n_vertices` and twice it. Note that the
-        difference is address space and not resident memory: :meth:`_reserve`
-        allocates with ``np.empty`` and only the written prefix is ever
-        touched, so the unused tail is never faulted in.
-        """
-        return len(self._attrs)
-
-    @property
-    def nbytes(self) -> int:
-        """Bytes the position and attribute arrays span, slack included.
-
-        Address span, not resident memory - see :attr:`capacity`. Reading this
-        as RAM overstates a grown array by up to a factor of two.
-        """
-        return int(sum(a.nbytes for a in self._planes) + self._attrs.nbytes)
 
     def plane_array(self, plane: int = 0) -> npt.NDArray[Any]:
         """The ``(N,)`` :data:`PLANE_DTYPE` array for one drawn plane."""
@@ -526,10 +314,6 @@ class ProgramGeometry:
     @property
     def tools(self) -> npt.NDArray[np.uint32]:
         return (self.kindtool >> TOOL_SHIFT) & TOOL_MASK
-
-    def tool_number(self, ordinal: int) -> Optional[int]:
-        """The T word an ordinal stands for; ``None`` for the initial state."""
-        return self.tool_numbers[int(ordinal)]
 
     # -- extents -----------------------------------------------------------
 
@@ -576,361 +360,42 @@ class ProgramGeometry:
 
     @property
     def is_empty(self) -> bool:
-        """No move was ever reported, so the extents are still sentinels."""
+        """The program made no move, so the extents are still sentinels."""
         return self._moves == 0
 
-    # -- the fill ----------------------------------------------------------
+    # -- adopting a C-filled program --------------------------------------
 
-    def add_moves(self, moves: Sequence[Any], kinds: Any,
-                  rotation_xy: float = 0.0,
-                  g5x_xy: Sequence[float] = (0.0, 0.0)) -> None:
-        """Fill ``moves`` into the array. The only way points get in.
+    def adopt(self, pg: Any, colors: dict[str, Any]) -> None:
+        """Take over a program the C renderer filled.
 
-        ``moves`` is a sequence of the canon's move tuples - ``(lineno, p1_9,
-        p2_9, ..., (xo, yo, zo))``, the tool-length offset always last, which
-        is the one thing the traverse and feed arities agree on - and ``kinds``
-        the parallel kind codes. ``rotation_xy`` and ``g5x_xy`` are the values
-        in effect *for these moves*: they are what the rotation-removed extents
-        are accumulated with, and the caller re-batches when they change, which
-        is why they are per call rather than per object.
+        ``pg`` is a ``gcode.PreviewGeometry``. Its arrays are wrapped, not
+        copied - the layouts here are what it writes - so the object stays
+        alive as long as this one holds them, and they are read-only: this
+        record is complete, and appending to it is what a *fill* does.
 
-        Any number of moves per call, including zero. The batch size changes
-        nothing about the result.
+        Colours are the one thing C does not carry. A dwell record names which
+        of the two the marker takes; the table lives in the canon.
         """
-        k = len(moves)
-        if k == 0:
-            return
-        # One conversion per batch, not per move. Everything below is whole-
-        # array work over these.
-        lines = np.fromiter((m[0] for m in moves), dtype=np.int64, count=k)
-        p1 = np.array([m[1] for m in moves], dtype=np.float64)
-        p2 = np.array([m[2] for m in moves], dtype=np.float64)
-        offsets = np.array([m[-1] for m in moves], dtype=np.float64)
-        # A feed/arc tuple carries a feed rate at index 3 and a traverse tuple
-        # does not - the one arity difference between them (see the docstring
-        # above) - so tuple length, not kind_in, says which moves have one. A
-        # caller that hands over a feed-rate-less tuple (as some synthetic
-        # test streams do) simply contributes no cutting time.
-        feedrates = np.array(
-            [(m[3] if len(m) >= 5 else 0.0) for m in moves], dtype=np.float64)
-        kind_in = self._as_kind_array(kinds, k)
-        self._fill_arrays(lines, p1, p2, offsets, feedrates, kind_in,
-                          rotation_xy, g5x_xy)
-
-    def add_moves_raw(self, chunk: Any, kinds: Any,
-                      rotation_xy: float = 0.0,
-                      g5x_xy: Sequence[float] = (0.0, 0.0)) -> None:
-        """Fill from a raw staging chunk instead of a sequence of move tuples.
-
-        ``chunk`` is a ``(k, STAGING_ROW_WIDTH)`` float64 array, one row per
-        move: lineno, p1 (9), p2 (9), feedrate, offset (3) - see
-        :data:`STAGING_ROW_WIDTH` and the column slices beside it. This is the
-        shape ``GLCanon`` stages moves into directly (no per-move tuple), and
-        the shape a C-delivered batch would arrive in - so a C source there
-        becomes a source swap onto this method, not a new code path. Behaves
-        identically to :meth:`add_moves` in every other respect, including
-        accepting zero rows.
-        """
-        k = len(chunk)
-        if k == 0:
-            return
-        lines = chunk[:, STAGE_LINE].astype(np.int64)
-        p1 = chunk[:, STAGE_P1]
-        p2 = chunk[:, STAGE_P2]
-        feedrates = chunk[:, STAGE_FEEDRATE]
-        offsets = chunk[:, STAGE_OFFSET]
-        kind_in = self._as_kind_array(kinds, k)
-        self._fill_arrays(lines, p1, p2, offsets, feedrates, kind_in,
-                          rotation_xy, g5x_xy)
-
-    @staticmethod
-    def _as_kind_array(kinds: Any, k: int) -> npt.NDArray[np.uint8]:
-        # ``bytes`` reaches np.asarray as a scalar string, not a buffer, so a
-        # caller handing over an immutable copy of the canon's pending kinds
-        # would otherwise fail on a value error about base 10.
-        if isinstance(kinds, (bytes, bytearray, memoryview)):
-            kind_in = np.frombuffer(kinds, dtype=np.uint8)
-        else:
-            kind_in = np.asarray(kinds, dtype=np.uint8)
-        if len(kind_in) != k:
-            raise ValueError("kinds has %d entries for %d moves"
-                             % (len(kind_in), k))
-        return kind_in
-
-    def _fill_arrays(self, lines: npt.NDArray[np.int64], p1: Float64Points,
-                     p2: Float64Points, offsets: Float64Points,
-                     feedrates: npt.NDArray[np.float64],
-                     kind_in: npt.NDArray[np.uint8], rotation_xy: float,
-                     g5x_xy: Sequence[float]) -> None:
-        """The whole-array fill, shared by :meth:`add_moves` and
-        :meth:`add_moves_raw` once each has produced these six arrays from
-        whatever it was handed.
-        """
-        k = len(lines)
-        self._moves += k
-
-        # 1. Extents, from the raw endpoints, before any subdivision. The
-        #    interpolated rotary points do not exist yet and must not: the
-        #    box is of the moves, not of the polyline drawn for them.
-        self._accumulate_extents(p1, p2, offsets, rotation_xy, g5x_xy)
-
-        # 1b. Path lengths, from the same raw endpoints.
-        self._accumulate_lengths(p1, p2, kind_in, feedrates)
-
-        # 2. How many points each move contributes, and whether it needs a
-        #    record vertex at its start because the trajectory jumped to get
-        #    there.
-        turning = _any_rotary_change(p1, p2)
-        steps = _rotary_steps_batch(p1, p2) if turning else None
-        # Nothing has been drawn yet: the first move's start point is a jump
-        # by definition, which is also what starts the strip.
-        first_jump = (True if self._cur9 is None
-                      else bool(np.any(p1[0] != self._cur9)))
-        # p2[:-1] is the previous move's end point, so this is the whole
-        # continuity test; the per-move flags are built only when it fails.
-        continuous = not first_jump and bool(np.array_equal(p1[1:], p2[:-1]))
-
-        # 3. Expand. ``t == 0`` reproduces p1 exactly, which is what makes the
-        #    jump record fall out of the same expression as the interpolation
-        #    rather than needing a branch.
-        #
-        # 4. Columns. The record vertex at a jump carries the kind that says
-        #    "discard the segment into me" and the line number of the move it
-        #    starts, which is what the pre-change chain head carried.
-        if not turning and continuous:
-            # Nothing turning, nothing jumping: the vertices are the moves' end
-            # points, and every index array below would be the identity.
-            pts9 = p2
-            line_col = lines.astype(np.uint32)
-            kind_col = kind_in
-        else:
-            if continuous:
-                jump = np.zeros(k, dtype=bool)
-            else:
-                jump = np.empty(k, dtype=bool)
-                jump[1:] = np.any(p1[1:] != p2[:-1], axis=1)
-                jump[0] = first_jump
-            if steps is None:
-                steps = np.ones(k, dtype=np.int64)
-            counts = steps + jump
-            total = int(counts.sum())
-            ends = np.cumsum(counts)
-            move_idx = np.repeat(np.arange(k), counts)
-            within = np.arange(total) - (ends - counts)[move_idx]
-            sub = within - jump[move_idx] + 1
-            if steps.max() == 1 and not jump.any():
-                pts9 = p2                   # the common case: no copy at all
-            else:
-                t = (sub / steps[move_idx])[:, np.newaxis]
-                pts9 = t * p2[move_idx] + (1.0 - t) * p1[move_idx]
-            line_col = lines[move_idx].astype(np.uint32)
-            kind_col = kind_in[move_idx].copy()
-            kind_col[sub == 0] = KIND_NOOP
-
-        # 5. One transform per plane per batch, never one per move.
-        points = [transform_points(pts9, geom, self.ro)
-                  for geom in self.planes]
-        self._write(points, line_col, kind_col)
-        self._cur9 = p2[-1].copy()
-
-    def mark_dwell(self, lineno: int, point9: Sequence[float],
-                   rgba: Sequence[float], plane: int = 0) -> None:
-        """Record a dwell (or an M1xx) at the current position.
-
-        Writes one vertex - the tool does not move, so its incoming segment is
-        degenerate whatever kind it carries - and one row in :attr:`dwells`
-        holding the *transformed* position on each drawn plane. The marker is
-        drawn from that table, by the scene, into its own buffer; the array
-        records only that the dwell happened, where, on which line and under
-        which tool.
-        """
-        points = self._mark(lineno, point9, KIND_DWELL)
-        self.dwells.append((int(lineno), tuple(float(c) for c in rgba),
-                            int(plane), points))
-
-    def mark_toolchange(self, lineno: int, point9: Sequence[float],
-                        tool_number: Any) -> None:
-        """Record a tool change at the current position and start a new tool.
-
-        The record vertex carries the *new* ordinal: it marks where the new
-        tool's work begins. The jump that follows is not written here - the
-        canon sets ``first_move`` on a tool change, so the next move's start
-        point differs from this position and :meth:`add_moves` records the
-        jump itself. That keeps the two facts - "the tool changed" and "the
-        position jumped" - as the two vertices they are, without the caller
-        having to remember to say both.
-        """
-        if len(self.tool_numbers) > MAX_TOOL_ORDINAL:
-            # 65535 tool changes in one program. Reuse the last ordinal rather
-            # than wrap onto another tool's entry, which would silently
-            # mis-attribute the rest of the program.
-            self._tool = MAX_TOOL_ORDINAL
-        else:
-            self._tool = len(self.tool_numbers)
-            self.tool_numbers.append(
-                None if tool_number is None else int(tool_number))
-        points = self._mark(lineno, point9, KIND_TOOLCHANGE)
-        self.toolchanges.append((int(lineno), self.tool_numbers[self._tool],
-                                 points))
-
-    def mark_jump(self, lineno: int, point9: Sequence[float]) -> None:
-        """Record that the trajectory moved without drawing.
-
-        Rarely needed explicitly: :meth:`add_moves` already records a jump for
-        any move that does not start where the previous one ended, which is
-        every jump a canon can produce. It exists for a caller that knows the
-        position moved before it has the move that follows - and it is
-        idempotent with the automatic record, because it leaves the current
-        position at ``point9``, so the following move no longer looks like a
-        jump.
-        """
-        self._mark(lineno, point9, KIND_NOOP)
-        self._cur9 = np.asarray(point9, dtype=np.float64).copy()
-
-    def _mark(self, lineno: int, point9: Sequence[float],
-              kind: int) -> tuple[Any, ...]:
-        """Write one record vertex, and return its position on each plane."""
-        pts9 = np.asarray(point9, dtype=np.float64)[np.newaxis, :]
-        points = [transform_points(pts9, geom, self.ro) for geom in self.planes]
-        self._write(points,
-                    np.array([lineno], dtype=np.uint32),
-                    np.array([kind], dtype=np.uint8))
-        return tuple(tuple(float(c) for c in p[0]) for p in points)
-
-    # -- writing -----------------------------------------------------------
-
-    def _write(self, points: Sequence[Float64Points],
-               line_col: npt.NDArray[np.uint32],
-               kind_col: npt.NDArray[np.uint8]) -> None:
-        """Append one batch of already-transformed points and their columns."""
-        m = len(line_col)
-        if m == 0:
-            return
-        self._reserve(m)
-        n = self._n
-        for i, arr in enumerate(self._planes):
-            pos = points[i]
-            arr['pos'][n:n + m] = pos
-            lo, hi = _box_of(pos)
-            np.minimum(self._drawn[0], lo, out=self._drawn[0])
-            np.maximum(self._drawn[1], hi, out=self._drawn[1])
-        self._attrs['line'][n:n + m] = line_col
-        # Into the array's own field, tool ordinal or-ed on there: no
-        # batch-sized temporaries. Must not mutate kind_col - the unsubdivided
-        # path hands over the canon's pending kinds themselves, which can be a
-        # read-only ``frombuffer`` view.
-        field = self._attrs['kindtool'][n:n + m]
-        np.copyto(field, kind_col)
-        field |= np.uint32(self._tool) << np.uint32(TOOL_SHIFT)
-        self._n = n + m
+        if pg.n_planes != len(self.planes):
+            raise ValueError("adopt: %d planes for a %d-plane geometry"
+                             % (pg.n_planes, len(self.planes)))
+        self._n = pg.n_vertices
+        self._planes = [np.frombuffer(pg.positions(i), dtype=PLANE_DTYPE)
+                        for i in range(pg.n_planes)]
+        self._attrs = np.frombuffer(pg.attrs(), dtype=ATTR_DTYPE)
+        self._extents = np.array(pg.extents(), dtype=np.float64)
+        self._drawn = np.array(pg.drawn_extents(), dtype=np.float64)
+        self._rapid_length = pg.rapid_length
+        self._cut_length_by_feed = pg.cut_lengths()
+        self._moves = pg.n_moves
+        self.tool_numbers = pg.tool_numbers()
+        dwell = tuple(float(c) for c in colors["dwell"])
+        m1xx = tuple(float(c) for c in colors["m1xx"])
+        self.dwells = [(lineno, m1xx if is_m1xx else dwell, plane, points)
+                       for lineno, plane, is_m1xx, _raw, points in pg.dwells()]
+        self.toolchanges = [(lineno, tool, points)
+                            for lineno, tool, points in pg.toolchanges()]
         self._index = None
-
-    def _reserve(self, extra: int) -> None:
-        """Grow to hold ``extra`` more vertices, by doubling."""
-        need = self._n + extra
-        cap = len(self._attrs)
-        if need <= cap:
-            return
-        new_cap = max(1024, cap * 2)
-        while new_cap < need:
-            new_cap *= 2
-        for i, arr in enumerate(self._planes):
-            grown = np.empty(new_cap, dtype=PLANE_DTYPE)
-            grown[:self._n] = arr[:self._n]
-            self._planes[i] = grown
-        grown_attrs = np.empty(new_cap, dtype=ATTR_DTYPE)
-        grown_attrs[:self._n] = self._attrs[:self._n]
-        self._attrs = grown_attrs
-
-    # -- extents accumulation ---------------------------------------------
-
-    def _accumulate_extents(self, p1: Float64Points, p2: Float64Points,
-                            offsets: Float64Points, rotation_xy: float,
-                            g5x_xy: Sequence[float]) -> None:
-        """The four machine-frame pairs, from this batch's raw endpoints.
-
-        Both endpoints of every move, which is a shade more than the C
-        ``gcode.calc_extents`` sees: it accumulates every move's start but
-        only the end of the last move of each list it is handed, so a move
-        whose end is no later move's start - the last move before a suppressed
-        region, say - is invisible to it. The two agree on every fixture in
-        the corpus; where they could differ this is the larger box and the
-        right one.
-
-        Of the four pairs, only the first is always reduced. The other three
-        are derived from it where the batch permits, and reduced in full where
-        it does not - each derivation has its general form as the else branch
-        beside it, so a batch containing a tool change, or filled under a g5x
-        rotation, is answered exactly as it was before this shortcut existed.
-        """
-        raw = _box_of(p1, p2)
-        one_offset = bool((offsets == offsets[0]).all())
-        if one_offset:
-            # One offset for the whole batch - i.e. no tool change in it - so
-            # the corrected box is the raw box shifted. Adding a constant is
-            # monotonic, so this is the same box, not an approximation of it.
-            shift = offsets[0]
-            notool = (raw[0] + shift, raw[1] + shift)
-        else:
-            notool = _box_of(p1[:, :3] + offsets, p2[:, :3] + offsets)
-        if not rotation_xy:
-            # No rotation to remove: these two pairs are the two above.
-            rot, rot_notool = raw, notool
-        else:
-            r1 = _unrotate_xy(p1[:, :3], rotation_xy, g5x_xy)
-            r2 = _unrotate_xy(p2[:, :3], rotation_xy, g5x_xy)
-            rot = _box_of(r1, r2)
-            if one_offset:
-                rot_notool = (rot[0] + shift, rot[1] + shift)
-            else:
-                rot_notool = _box_of(r1 + offsets, r2 + offsets)
-        for i, (lo, hi) in enumerate((raw, notool, rot, rot_notool)):
-            np.minimum(self._extents[i, 0], lo, out=self._extents[i, 0])
-            np.maximum(self._extents[i, 1], hi, out=self._extents[i, 1])
-
-    def _accumulate_lengths(self, p1: Float64Points, p2: Float64Points,
-                            kind_in: npt.NDArray[np.uint8],
-                            feedrates: npt.NDArray[np.float64]) -> None:
-        """Rapid length and the cutting-length-by-feed-rate table.
-
-        Same raw XYZ endpoints as :meth:`_accumulate_extents`, so this must be
-        called before subdivision too. The per-rate reduction is vectorised
-        (``np.bincount`` over the distinct rates) rather than looped per move;
-        only the result - one Python dict update per *distinct rate in this
-        batch* - is a Python-level loop, which is what keeps the table bounded
-        by feed-rate changes rather than move count.
-        """
-        seglen = _seg_lengths(p1, p2)
-        is_traverse = kind_in == CAT_TRAVERSE
-        n_traverse = int(is_traverse.sum())
-        if n_traverse == len(kind_in):
-            # Nothing cutting: no selection copy, and no table to update.
-            self._rapid_length += float(seglen.sum())
-            return
-        if n_traverse == 0:
-            # Nothing traversing: the batch *is* its own cutting selection, so
-            # neither boolean index copy is made.
-            cut_rates, cut_lengths = feedrates, seglen
-        else:
-            self._rapid_length += float(seglen[is_traverse].sum())
-            cutting = ~is_traverse
-            cut_rates = feedrates[cutting]
-            cut_lengths = seglen[cutting]
-        # A commanded rate holds for a run of moves, so sort the runs, not the
-        # batch. Same bincount over the same bins, so the table is unchanged
-        # bit for bit. Past the limit the run form costs more than the sort.
-        starts = np.concatenate(
-            ([0], np.flatnonzero(cut_rates[1:] != cut_rates[:-1]) + 1))
-        if len(starts) <= _RATE_RUN_LIMIT:
-            uniq, run_bins = np.unique(cut_rates[starts], return_inverse=True)
-            inverse = np.repeat(
-                run_bins, np.diff(np.append(starts, len(cut_rates))))
-        else:
-            uniq, inverse = np.unique(cut_rates, return_inverse=True)
-        sums = np.bincount(inverse, weights=cut_lengths, minlength=len(uniq))
-        for rate, length in zip(uniq.tolist(), sums.tolist()):
-            self._cut_length_by_feed[rate] = (
-                self._cut_length_by_feed.get(rate, 0.0) + length)
 
     @property
     def rapid_length(self) -> float:
@@ -945,10 +410,13 @@ class ProgramGeometry:
     def cutting_time(self, max_feed_rate: float) -> float:
         """Cutting time at ``max_feed_rate``: ``sum(length / min(mf, rate))``.
 
-        Grouped by the distinct commanded rates the fill retained - see
-        :meth:`_accumulate_lengths` - so this answers for any ``max_feed_rate``
-        without re-visiting a single move. Does not include rapid time or
-        dwell time; callers add those (see ``GLCanon.run_time``).
+        The renderer groups each cutting move's length under the rate it was
+        commanded at and hands over the totals (``PreviewGeometry.cut_lengths``,
+        src/emc/rs274ngc/gcode_renderer.cc), so the dict is bounded by the
+        number of distinct rates the program uses rather than by its move
+        count - and this answers for any ``max_feed_rate`` without re-visiting
+        a single move. Does not include rapid time or dwell time; callers add
+        those (see ``GLCanon.run_time``).
         """
         return sum(length / min(max_feed_rate, rate)
                   for rate, length in self._cut_length_by_feed.items())
@@ -958,23 +426,19 @@ class ProgramGeometry:
     def _build_index(self) -> tuple[Any, Any, Any]:
         """Parallel ``(line, first, count)`` arrays, sorted by line number.
 
-        One vectorised pass over the finished line column, replacing the
-        per-segment dictionary the bake accumulated - which cost one dict
-        entry and one list object per source line, tens of megabytes on a
-        large program - with three int32 arrays and a ``searchsorted``.
+        One vectorised pass over the finished line column. Three int32 arrays
+        and a ``searchsorted`` answer the highlight, rather than a dict keyed
+        by source line holding a list per entry - which on a large program is
+        one dict entry and one list object per line, tens of megabytes.
 
         A span is a maximal run of consecutive segments sharing a source line,
         expressed as the vertices needed to draw it: ``n`` segments need
-        ``n + 1`` vertices, starting one before the run's first segment. That
-        is the same span the pre-change ``_strip_ranges`` produced.
+        ``n + 1`` vertices, starting one before the run's first segment.
 
         A segment ending on a record vertex belongs to no line - it is the one
         the shader discards - so it takes a key of its own and is dropped.
-        That is what the pre-change code achieved by starting each chain's
-        segment list one vertex in (``linenos[1:]`` per chain); here the chain
-        head is the record vertex itself. Runs left adjacent by the drop are
-        then merged, exactly as ``_coalesce_ranges`` merged the spans either
-        side of a chain boundary.
+        Runs left adjacent by that drop are then merged, which is what keeps a
+        line whose segments straddle a jump to a single span.
         """
         n = self._n
         if n < 2:
@@ -998,22 +462,10 @@ class ProgramGeometry:
 
     @property
     def index(self) -> tuple[Any, Any, Any]:
-        """``(line, first, count)``, built on first use after a fill."""
+        """``(line, first, count)``, built on first use after an adopt."""
         if self._index is None:
             self._index = self._build_index()
         return self._index
-
-    def spans_for_line(self, lineno: Optional[int]) -> list[tuple[int, int]]:
-        """The ``(first_vertex, vertex_count)`` spans a source line drew.
-
-        Empty for a line that produced no geometry, and for ``None``.
-        """
-        if lineno is None or self._n == 0:
-            return []
-        keys, firsts, counts = self.index
-        lo = int(np.searchsorted(keys, lineno, side="left"))
-        hi = int(np.searchsorted(keys, lineno, side="right"))
-        return [(int(firsts[i]), int(counts[i])) for i in range(lo, hi)]
 
 
 #: Half-extent of a dwell marker's cross arms, in machine units. The legacy
@@ -1161,14 +613,14 @@ def program_parts(geometry: "ProgramGeometry", colors: dict[str, Any],
     off one shared attribute array - and the dwell markers.
 
     The planes' Z offsets are *reported* here rather than applied, and neither
-    the fill nor this stores them in a position. ``foam_z``/``foam_w`` say
+    the renderer nor this stores them in a position. ``foam_z``/``foam_w`` say
     where a plane is drawn, not what the program is: they can still move while
     the program is being parsed (an ``(AXIS,XY_Z_POS)`` comment sets them), and
     they are a rigid translation, so they belong in the draw's matrix. The
     buffer applies them once for every pass it can be drawn in.
 
     That is also what makes this function free of copies. Every array here is
-    the one the fill wrote, handed to ``glBufferData`` as a view, so the
+    the one the renderer wrote, handed to ``glBufferData`` as a view, so the
     process is not holding a second copy of the program at the moment the
     driver allocates the first - which on a Pi is the same pool of memory.
     """
@@ -1204,8 +656,8 @@ def _coalesce_spans(keys: npt.NDArray[np.int64], firsts: npt.NDArray[np.int64],
     """Merge spans of the same line that meet end to start.
 
     ``keys``/``firsts``/``counts`` must already be sorted by ``(key, first)``.
-    The vectorised form of ``_coalesce_ranges``: a run of spans where each
-    starts exactly where the last ended becomes one span.
+    A run of spans where each starts exactly where the last ended becomes one
+    span.
     """
     if len(keys) == 0:
         return (keys, firsts.astype(np.int32), counts.astype(np.int32))
@@ -1216,36 +668,6 @@ def _coalesce_spans(keys: npt.NDArray[np.int64], firsts: npt.NDArray[np.int64],
     return (keys[heads],
             firsts[heads].astype(np.int32),
             (firsts[tails] + counts[tails] - firsts[heads]).astype(np.int32))
-
-
-def _any_rotary_change(p1: Float64Points, p2: Float64Points) -> bool:
-    """Whether any move turns A, B or C.
-
-    Short-circuits per column, so a 3-axis batch answers no in three
-    comparisons and never builds the per-move subdivision count at all. The
-    equality it tests is the same one :func:`_rotary_steps_batch` reduces, so
-    the two cannot disagree about whether a batch turns.
-    """
-    for col in (3, 4, 5):
-        if not np.array_equal(p1[:, col], p2[:, col]):
-            return True
-    return False
-
-
-def _rotary_steps_batch(p1: Float64Points,
-                        p2: Float64Points) -> npt.NDArray[np.int64]:
-    """Points each move contributes: 1, or the rotary subdivision count.
-
-    The vectorised :func:`_rotary_steps`, with the "no rotary change" answer
-    folded in as 1 rather than 0 - here the count is what the move emits, and
-    a move with no rotary change emits its end point.
-    """
-    a1 = p1[:, 3:6]
-    a2 = p2[:, 3:6]
-    changed = np.any(a1 != a2, axis=1)
-    dc = np.abs(a2 - a1).max(axis=1)
-    steps = np.ceil(np.maximum(10.0, dc / 10.0)).astype(np.int64)
-    return np.where(changed, steps, 1)
 
 
 def resolve_rgba(colors: dict[str, Any], name: str) -> RGBA:
