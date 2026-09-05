@@ -123,7 +123,7 @@ int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 *
     }
     if (chan < 0 || chan > 15) {
         HM2_ERR("BSPI %s: channel number %i is out of range\n", name, chan);
-        return -EINVAL;
+        return -1;
     }
     if (hm2->bspi.instance[i].conf_flag[chan] != true){
         HM2_ERR("The selected write channel (%i) on bspi instance %s.\n" 
@@ -211,7 +211,7 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
     }
     if (chan < 0 || chan > 15) {
         HM2_ERR("BSPI %s: channel number %i is out of range\n", name, chan);
-        return -EINVAL;
+        return -1;
     }
     if (hm2->bspi.instance[i].conf_flag[chan] != true){
         HM2_ERR("The selected write channel (%i) on bspi instance %s.\n" 
@@ -257,7 +257,7 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
     }
     if (mhz <= 0) {
         HM2_ERR("BSPI %s: clock frequency must be greater than zero\n", name);
-        return -EINVAL;
+        return -1;
     }
     if (delay < 0 || delay > 1e6){
         HM2_ERR("The requested frame delay on channel %i of %inS seems "
