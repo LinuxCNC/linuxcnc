@@ -819,7 +819,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
     //Default (NULL) is posix
     if (board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0) {
         board->init_board = &hm2_posix_init_board;
-        board->init_board_realtime = &hm2_posix_init_board_realtime;
         board->close_board = &hm2_posix_close_board;
         board->eth_socket_send = &hm2_posix_eth_socket_send;
         board->eth_socket_recv = &hm2_posix_eth_socket_recv;
@@ -830,7 +829,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
             return -1;
         }
         board->init_board = &hm2_evl_init_board;
-        board->init_board_realtime = &hm2_evl_init_board_realtime;
         board->close_board = &hm2_evl_close_board;
         board->eth_socket_send = &hm2_evl_eth_socket_send;
         board->eth_socket_recv = &hm2_evl_eth_socket_recv;
@@ -847,10 +845,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
 }
 
 /// ethernet io functions mapping
-
-static inline int init_board_realtime(hm2_eth_t *board){
-    return board->init_board_realtime(board);
-}
 
 static inline int close_board(hm2_eth_t *board){
     return board->close_board(board);
@@ -1656,10 +1650,7 @@ static int hm2_eth_items(hm2_eth_t *board) {
 void init_board_realtime_all(void *arg, long period){
     (void)arg;
     (void)period;
-    int i;
-    for(i = 0; i < boards_count; i++) {
-        init_board_realtime(&boards[i]);
-    }
+    LL_PRINT("DEPRECATED: \"initf hm2_eth.realtime-init\" is not needed and will be removed\n");
 }
 
 int rtapi_app_main(void) {
