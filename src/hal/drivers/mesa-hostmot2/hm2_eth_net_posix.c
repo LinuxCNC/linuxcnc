@@ -119,7 +119,6 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
 
 int hm2_posix_close_board(hm2_eth_t *board) {
     int ret;
-    board->llio.reset(&board->llio);
 
     if(board->req.arp_flags & ATF_PERM) {
         ret = ioctl(board->sockfd, SIOCDARP, &board->req);

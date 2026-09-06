@@ -203,10 +203,6 @@ static int oob_disable_port(hm2_eth_t *board) {
 int hm2_evl_close_board(hm2_eth_t *board) {
     int ret;
 
-    board->llio.reset(&board->llio);
-
-    //oob_disable_port must be called after the last
-    //ethernet communication
     oob_disable_port(board);
 
     ret = close(board->sockfd);
