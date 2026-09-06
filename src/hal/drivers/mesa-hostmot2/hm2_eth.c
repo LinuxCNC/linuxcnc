@@ -591,7 +591,7 @@ static fw_state_t fw_state = FW_UNRESOLVED;
 // Resolve and bring up the firewall backend on first call, caching the
 // result.  Returns true when a backend is ready, false when isolation
 // is unavailable or disabled.
-bool use_firewall() {
+static bool use_firewall() {
     if(fw_state != FW_UNRESOLVED)
         return fw_state == FW_READY;
 
@@ -638,7 +638,7 @@ bool use_firewall() {
 
 // Drop all rules from our chain/table but keep the chain in place, so a
 // fresh set can be installed on (re-)init.
-void clear_firewall() {
+static void clear_firewall() {
     if(!use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
@@ -706,7 +706,7 @@ char* fetch_ifname(int sockfd, char *buf, size_t n) {
     return NULL;
 }
 
-int install_firewall_board(int sockfd) {
+static int install_firewall_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
     char dport_s[8], sport_s[8];
@@ -751,7 +751,7 @@ int install_firewall_board(int sockfd) {
     return 0;
 }
 
-int install_firewall_perinterface(const char *ifbuf) {
+static int install_firewall_perinterface(const char *ifbuf) {
     // Without these rules, 'ping' spews a lot of "Packet filtered"
     // messages.  With them, ping prints 'ping: sendmsg: Operation not
     // permitted' once per second.
@@ -841,7 +841,24 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         return -1;
     }
 
-    return board->init_board(board, board_ip);
+    int ret;
+    ret = board->init_board(board, board_ip);
+    if (ret < 0) return ret;
+
+    if (!use_firewall()) {
+        LL_PRINT(\
+            "WARNING: Unable to restrict other access to the hm2-eth device.\n"
+            "This means that other software using the same network interface can violate\n"
+            "realtime guarantees.  See hm2_eth(9) for more information.\n");
+    }
+
+    // install_firewall_board() is a no-op when no firewall backend is
+    // available (rootless install without CAP_NET_ADMIN, or
+    // firewall=none), so it is safe to call unconditionally.
+    ret = install_firewall_board(board->sockfd);
+    if (ret < 0) return ret;
+
+    return 0;
 }
 
 /// ethernet io functions mapping
@@ -1714,6 +1731,7 @@ error:
         close_board(&boards[i]);
     // Full teardown: rtapi_app_exit() is not called when rtapi_app_main()
     // fails, so this is the only chance to remove the chain and jump.
+    clear_firewall();
     cleanup_firewall();
     kvlist_free(&board_num);
     kvlist_free(&ifnames);
@@ -1727,6 +1745,7 @@ void rtapi_app_exit(void) {
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
 
+    clear_firewall();
     cleanup_firewall();
 
     kvlist_free(&board_num);
