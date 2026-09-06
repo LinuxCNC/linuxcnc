@@ -1070,9 +1070,8 @@ do_recv_packet:
 }
 
 static int hm2_eth_reset(hm2_lowlevel_io_t *this) {
-    LL_PRINT("in hm2_eth_reset\n");
-
     hm2_eth_t *board = this->private;
+    LL_PRINT("%s: INFO: reset\n", board->ip);
 
     // Make the watchdog timer bite in 1ns from now
     lbp16_cmd_addr_data32 bite_packet;
@@ -1670,6 +1669,26 @@ void init_board_realtime_all(void *arg, long period){
     LL_PRINT("DEPRECATED: \"initf hm2_eth.realtime-init\" is not needed and will be removed\n");
 }
 
+static void cleanup(void){
+    int i;
+    comm_active = 0;
+    //Reset all boards
+    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
+        boards[i].llio.reset(&boards[i].llio);
+    //Cloase all boards
+    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
+        close_board(&boards[i]);
+
+    clear_firewall();
+    cleanup_firewall();
+
+    kvlist_free(&board_num);
+    kvlist_free(&ifnames);
+
+    hal_exit(comp_id);
+    LL_PRINT("HostMot2 ethernet driver unloaded\n");
+}
+
 int rtapi_app_main(void) {
     RTAPI_INIT_LIST_HEAD(&ifnames);
     RTAPI_INIT_LIST_HEAD(&board_num);
@@ -1727,30 +1746,12 @@ int rtapi_app_main(void) {
     return 0;
 
 error:
-    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
-        close_board(&boards[i]);
     // Full teardown: rtapi_app_exit() is not called when rtapi_app_main()
-    // fails, so this is the only chance to remove the chain and jump.
-    clear_firewall();
-    cleanup_firewall();
-    kvlist_free(&board_num);
-    kvlist_free(&ifnames);
-    hal_exit(comp_id);
+    // fails, so this is the only chance to cleanup the firewall and everything else.
+    cleanup();
     return ret;
 }
 
 void rtapi_app_exit(void) {
-    int i;
-    comm_active = 0;
-    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
-        close_board(&boards[i]);
-
-    clear_firewall();
-    cleanup_firewall();
-
-    kvlist_free(&board_num);
-    kvlist_free(&ifnames);
-
-    hal_exit(comp_id);
-    LL_PRINT("HostMot2 ethernet driver unloaded\n");
+    cleanup();
 }
