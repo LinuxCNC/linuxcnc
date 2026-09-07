@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <dlfcn.h>
 
 #include <rtapi_slab.h>
 #include <rtapi_ctype.h>
@@ -50,9 +51,9 @@
 #include "hostmot2.h"
 #include "hm2_eth.h"
 #include "hm2_eth_net_posix.h"
-#ifdef USPACE_XENOMAI_EVL
-#include "hm2_eth_net_evl.h"
-#endif
+
+EXPORT_SYMBOL(hm2_eth_fetch_ifname);
+EXPORT_SYMBOL(hm2_eth_fetch_hwaddr);
 
 #define RECV_TIMEOUT_NON_RT_NS (200 * 1000 * 1000) //200ms for initialisation / non-realtime part
 
@@ -679,7 +680,7 @@ static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
     return buf;
 }
 
-char* fetch_ifname(int sockfd, char *buf, size_t n) {
+char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n) {
     struct sockaddr_in srcaddr;
     struct ifaddrs *ifa, *it;
 
@@ -795,7 +796,7 @@ static int install_firewall_perinterface(const char *ifbuf) {
     return 0;
 }
 
-int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
+int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
@@ -815,6 +816,21 @@ int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     return 0;
 }
 
+#ifdef USPACE_XENOMAI_EVL
+static void *eth_net_evl_lib = NULL;
+static bool load_eth_net_evl(void) {
+    if (eth_net_evl_lib != NULL) {
+        return true; // Already checked
+    }
+    eth_net_evl_lib = dlopen("liblinuxcnc-hm2_eth_net_evl.so", RTLD_LOCAL | RTLD_NOW);
+    if (!eth_net_evl_lib) {
+        LL_PRINT("ERROR: EVL support loading library failed: %s\n", dlerror());
+        return false;
+    }
+    return true;
+}
+#endif
+
 static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_rtnet){
     //Default (NULL) is posix
     if (board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0) {
@@ -829,11 +845,34 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
             LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC not running with Xenomai4 EVL realtime\n", board_rtnet)
             return -1;
         }
-        board->init_board = &hm2_evl_init_board;
-        board->init_board_realtime = &hm2_evl_init_board_realtime;
-        board->close_board = &hm2_evl_close_board;
-        board->eth_socket_send = &hm2_evl_eth_socket_send;
-        board->eth_socket_recv = &hm2_evl_eth_socket_recv;
+        if (!load_eth_net_evl()) {
+            return -1;
+        }
+        board->init_board = dlsym(eth_net_evl_lib, "hm2_evl_init_board");
+        if (board->init_board == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym hm2_evl_init_board failed: %s\n", dlerror());
+            return -1;
+        }
+        board->init_board_realtime = dlsym(eth_net_evl_lib, "hm2_evl_init_board_realtime");
+        if (board->init_board_realtime == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym hm2_evl_init_board_realtime failed: %s\n", dlerror());
+            return -1;
+        }
+        board->close_board = dlsym(eth_net_evl_lib, "hm2_evl_close_board");
+        if (board->close_board == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym hm2_evl_init_close_boardboard failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_send = dlsym(eth_net_evl_lib, "hm2_evl_eth_socket_send");
+        if (board->eth_socket_send == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym eth_socket_send failed: %s\n", dlerror());
+            return -1;
+        }
+        board->eth_socket_recv = dlsym(eth_net_evl_lib, "hm2_evl_eth_socket_recv");
+        if (board->eth_socket_recv == NULL) {
+            LL_PRINT("ERROR: EVL support dlsym eth_socket_recv failed: %s\n", dlerror());
+            return -1;
+        }
 #else
         LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC was built without Xenomai EVL support\n", board_rtnet);
         return -1;
