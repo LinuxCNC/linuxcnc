@@ -62,8 +62,8 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     strncpy(board->ip, board_ip, sizeof(board->ip)-1);
     char *ifptr = fetch_ifname(board->sockfd, board->ifname, sizeof(board->ifname));
     if(!ifptr) {
-        LL_PRINT("failed to retrieve interface name for board\n");
-        return 0;
+        //Interface name is only needed for firewall, we can continue
+        LL_PRINT("WARNING: failed to retrieve interface name for board\n");
     }
 
     struct timeval timeout;
