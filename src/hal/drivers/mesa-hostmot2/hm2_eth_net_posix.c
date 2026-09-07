@@ -55,8 +55,10 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
 
     ret = connect(board->sockfd, (struct sockaddr *) &board->server_addr, sizeof(struct sockaddr_in));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't connect: %s\n", strerror(errno));
-        return -errno;
+        hm2_posix_close_board(board);
+        return ret;
     }
 
     strncpy(board->ip, board_ip, sizeof(board->ip)-1);
@@ -71,16 +73,20 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     timeout.tv_usec = RECV_TIMEOUT_US;
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't set receive timeout socket option: %s\n", strerror(errno));
-        return -errno;
+        hm2_posix_close_board(board);
+        return ret;
     }
 
     timeout.tv_sec = 0;
     timeout.tv_usec = SEND_TIMEOUT_US;
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't set send timeout socket option: %s\n", strerror(errno));
-        return -errno;
+        hm2_posix_close_board(board);
+        return ret;
     }
 
     memset(&board->req, 0, sizeof(board->req));
@@ -95,6 +101,8 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     ret = fetch_hwaddr( board, (void*)&board->req.arp_ha.sa_data );
     if(ret < 0) {
         LL_PRINT("ERROR: Could not retrieve hardware address (MAC) of %s: %s\n", board_ip, strerror(-ret));
+        board->req.arp_flags &= ~ATF_PERM;
+        hm2_posix_close_board(board);
         return ret;
     }
 

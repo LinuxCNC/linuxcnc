@@ -71,8 +71,10 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
 
     ret = connect(board->sockfd, (struct sockaddr *) &board->server_addr, sizeof(struct sockaddr_in));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't connect: %s\n", strerror(errno));
-        return -errno;
+        hm2_evl_close_board(board);
+        return ret;
     }
 
     strncpy(board->ip, board_ip, sizeof(board->ip)-1);
@@ -80,6 +82,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     if(!ifptr) {
         //Interface name is mandatory for EVL
         LL_PRINT("ERROR: failed to retrieve interface name for board\n");
+        hm2_evl_close_board(board);
         return -1;
     }
 
@@ -92,6 +95,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     //communication in fetch_hwaddr.
     ret = oob_enable_port(board);
     if (ret < 0) {
+        hm2_evl_close_board(board);
         return ret;
     }
 
@@ -100,16 +104,20 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     timeout.tv_usec = RECV_TIMEOUT_US;
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't set receive timeout socket option: %s\n", strerror(errno));
-        return -errno;
+        hm2_evl_close_board(board);
+        return ret;
     }
 
     timeout.tv_sec = 0;
     timeout.tv_usec = SEND_TIMEOUT_US;
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't set send timeout socket option: %s\n", strerror(errno));
-        return -errno;
+        hm2_evl_close_board(board);
+        return ret;
     }
 
     memset(&board->req, 0, sizeof(board->req));
@@ -124,6 +132,7 @@ int hm2_evl_init_board(hm2_eth_t *board, const char *board_ip) {
     ret = fetch_hwaddr( board, (void*)&board->req.arp_ha.sa_data );
     if (ret < 0) {
         LL_PRINT("ERROR: Could not retrieve hardware address (MAC) of %s: %s\n", board_ip, strerror(-ret));
+        hm2_evl_close_board(board);
         return ret;
     }
 
@@ -161,7 +170,7 @@ static int oob_enable_port(hm2_eth_t *board) {
     
     ret = evl_net_solicit(board->sockfd, (struct sockaddr*)&board->server_addr, EVL_NEIGH_PERMANENT);
     if (ret) {
-        LL_PRINT("solicit did not respond\n");
+        LL_PRINT("ERROR: solicit did not respond\n");
         return -1;
     }
 
@@ -204,7 +213,11 @@ static int oob_disable_port(hm2_eth_t *board) {
 int hm2_evl_close_board(hm2_eth_t *board) {
     int ret;
 
-    oob_disable_port(board);
+    //If ifname is not set, the board was never initialized fully
+    //No need to disable oob
+    if (strnlen(board->ifname, sizeof(board->ifname)) > 0) {
+        oob_disable_port(board);
+    }
 
     ret = close(board->sockfd);
     if (ret == -1)
