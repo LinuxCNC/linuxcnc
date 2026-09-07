@@ -675,6 +675,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+    bool homing_active;	/* homing state machine is running (get_homing_is_active()).
+			   Aggregate: stays true across the gap between
+			   HOME_SEQUENCE groups, when every joint's per-joint
+			   .homing flag is momentarily false. */
 
 	int    switchkins_seq;  /* echoes the config counter once acted on */
 	int    switchkins_type; /* switchkins type now in force */
