@@ -164,6 +164,66 @@ STATIC int tcRotaryMotionCheck(TC_STRUCT const * const tc) {
     }
 }
 
+/**
+ * Check for spherical motion (TC_SPHERICAL is internal 3D blend-arc geometry,
+ * not eligible for further tangent-blend consideration -- distinct from UVW
+ * and ABC rotary motion, both of which the tangent blend can handle, see
+ * tpSetupTangent).
+ */
+STATIC int tcSphericalMotionCheck(TC_STRUCT const * const tc) {
+    return tc->motion_type == TC_SPHERICAL;
+}
+
+/**
+ * Get the ABC rotary tangent unit vector for a segment, and (via out_tmag)
+ * the total ABC displacement magnitude for that segment. The magnitude is
+ * needed to detect segments that are direction-collinear but require very
+ * different ABC rates (e.g. differing local curvature) -- direction alone
+ * is not enough to guarantee a safe tangent blend (see tpSetupTangent).
+ * Returns 1 and fills out and out_tmag if the segment has ABC motion, 0 otherwise.
+ */
+STATIC int tcGetABCTangent(TC_STRUCT const * const tc, PmCartesian * const out, double * const out_tmag) {
+    out->x = out->y = out->z = 0.0;
+    if (out_tmag) { *out_tmag = 0.0; }
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            if (tc->coords.line.abc.tmag_zero) return 0;
+            *out = tc->coords.line.abc.uVec;
+            if (out_tmag) { *out_tmag = tc->coords.line.abc.tmag; }
+            return 1;
+        case TC_CIRCULAR:
+            if (tc->coords.circle.abc.tmag_zero) return 0;
+            *out = tc->coords.circle.abc.uVec;
+            if (out_tmag) { *out_tmag = tc->coords.circle.abc.tmag; }
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+/**
+ * Same as tcGetABCTangent, but for the U/V/W secondary linear axes.
+ * Returns 1 and fills out and out_tmag if the segment has UVW motion, 0 otherwise.
+ */
+STATIC int tcGetUVWTangent(TC_STRUCT const * const tc, PmCartesian * const out, double * const out_tmag) {
+    out->x = out->y = out->z = 0.0;
+    if (out_tmag) { *out_tmag = 0.0; }
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            if (tc->coords.line.uvw.tmag_zero) return 0;
+            *out = tc->coords.line.uvw.uVec;
+            if (out_tmag) { *out_tmag = tc->coords.line.uvw.tmag; }
+            return 1;
+        case TC_CIRCULAR:
+            if (tc->coords.circle.uvw.tmag_zero) return 0;
+            *out = tc->coords.circle.uvw.uVec;
+            if (out_tmag) { *out_tmag = tc->coords.circle.uvw.tmag; }
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 
 /**
  * @section tpgetset Internal Get/Set functions
@@ -192,6 +252,37 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
     acc_bound->x = _axis_get_acc_limit(0); //0==>x
     acc_bound->y = _axis_get_acc_limit(1); //1==>y
     acc_bound->z = _axis_get_acc_limit(2); //2==>z
+    return TP_ERR_OK;
+}
+
+/**
+ * Same as tpGetMachineAccelBounds, but for the A/B/C rotary axes (axis
+ * indices 3,4,5), reusing PmCartesian as a generic 3-tuple the same way
+ * TC_STRUCT's coords.line.abc already does.
+ */
+STATIC int tpGetABCAccelBounds(PmCartesian * const acc_bound) {
+    if (!acc_bound) {
+        return TP_ERR_FAIL;
+    }
+
+    acc_bound->x = _axis_get_acc_limit(3); //3==>a
+    acc_bound->y = _axis_get_acc_limit(4); //4==>b
+    acc_bound->z = _axis_get_acc_limit(5); //5==>c
+    return TP_ERR_OK;
+}
+
+/**
+ * Same as tpGetABCAccelBounds, but for the U/V/W secondary linear axes
+ * (axis indices 6,7,8).
+ */
+STATIC int tpGetUVWAccelBounds(PmCartesian * const acc_bound) {
+    if (!acc_bound) {
+        return TP_ERR_FAIL;
+    }
+
+    acc_bound->x = _axis_get_acc_limit(6); //6==>u
+    acc_bound->y = _axis_get_acc_limit(7); //7==>v
+    acc_bound->z = _axis_get_acc_limit(8); //8==>w
     return TP_ERR_OK;
 }
 
@@ -1900,6 +1991,93 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 
 
 /**
+ * Shared gate for a non-Cartesian axis group (ABC rotary or UVW secondary
+ * linear) at a tangent-blend candidate junction. Allows the tangent blend to
+ * proceed only when the group's motion is near-collinear across the junction
+ * AND the resulting velocity jump stays within that group's own machine
+ * accel limits (direction alone is not sufficient: two segments can share
+ * the exact same direction yet require very different rates, e.g. differing
+ * local curvature between otherwise-collinear segments, which would
+ * otherwise let a large instantaneous velocity jump through as if it were
+ * free). Any larger direction change, any velocity jump beyond the accel
+ * budget, or motion that starts/stops at the junction, forces the safe exact
+ * stop. This is a conservative gate, NOT a speed dial: outside the window we
+ * stop, never blend faster.
+ *
+ * Returns TP_ERR_NO_ACTION if this axis group raises no objection (caller
+ * should continue evaluating other conditions), or TP_ERR_FAIL (with
+ * prev_tc's term_cond already forced to STOP) if it must reject the blend.
+ */
+STATIC int tpCheckGroupTangent(
+        TP_STRUCT const * const tp,
+        TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
+        double v_max1, double v_max2, double kink_ratio,
+        int (*get_tangent)(TC_STRUCT const * const, PmCartesian * const, double * const),
+        int (*get_accel_bounds)(PmCartesian * const),
+        const char *label) {
+    (void)label; // only referenced by tp_debug_print, a no-op in non-debug builds
+    PmCartesian prev_vec, this_vec;
+    double prev_tmag = 0.0, this_tmag = 0.0;
+    int prev_has = get_tangent(prev_tc, &prev_vec, &prev_tmag);
+    int this_has = get_tangent(tc, &this_vec, &this_tmag);
+
+    if (prev_has && this_has) {
+        double dot;
+        pmCartCartDot(&prev_vec, &this_vec, &dot);
+        const double TANGENT_COLLINEAR_DEG = 1.0;
+        const double dot_min = cos(TANGENT_COLLINEAR_DEG * PM_PI / 180.0);
+        if (saturate(dot, 1.0) < dot_min) {
+            tp_debug_print("%s direction change too large for tangent blend\n", label);
+            tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
+            return TP_ERR_FAIL;
+        }
+
+        // Direction is compatible. Now bound the actual velocity jump: convert
+        // each side's tangent + displacement into a real velocity vector at
+        // that segment's own target speed (chain rule: dGroup/dt =
+        // (dGroup/ds) * (ds/dt), where ds/dt is the segment's path-parameter
+        // speed and dGroup/ds = group_tmag/target), then check the velocity
+        // difference against the machine's accel bound for this axis group
+        // over one servo cycle -- the same "instantaneous" worst case
+        // philosophy the pre-existing XYZ kink check uses.
+        PmCartesian prev_vel, this_vel, vel_diff, accel_needed;
+        double prev_ratio = (prev_tc->target > 0.0) ? (prev_tmag / prev_tc->target) : 0.0;
+        double this_ratio = (tc->target > 0.0) ? (this_tmag / tc->target) : 0.0;
+        // Path speed is continuous across a tangent junction: both sides
+        // actually execute at the slower segment's cap, not at their own
+        // independent v_max (same reasoning as the shared v_max the
+        // pre-existing XYZ kink check below uses). Evaluating each side at
+        // its own v_max reports a phantom jump for matched-rate segments
+        // that simply have different feed caps.
+        double v_j = fmin(v_max1, v_max2);
+        pmCartScalMult(&prev_vec, prev_ratio * v_j, &prev_vel);
+        pmCartScalMult(&this_vec, this_ratio * v_j, &this_vel);
+        pmCartCartSub(&this_vel, &prev_vel, &vel_diff);
+        pmCartScalMult(&vel_diff, 1.0 / tp->cycleTime, &accel_needed);
+
+        PmCartesian accel_bound;
+        get_accel_bounds(&accel_bound);
+
+        PmCartesian accel_scale;
+        findAccelScale(&accel_needed, &accel_bound, &accel_scale);
+        double accel_scale_max = pmCartAbsMax(&accel_scale);
+
+        if (accel_scale_max >= kink_ratio) {
+            tp_debug_print("%s velocity jump too large for tangent blend (accel scale %f)\n",
+                    label, accel_scale_max);
+            tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
+            return TP_ERR_FAIL;
+        }
+    } else if (prev_has != this_has) {
+        // Motion in this axis group starts or stops at the junction -> discontinuous.
+        tp_debug_print("%s motion starts/stops at junction, no tangent blend\n", label);
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
+        return TP_ERR_FAIL;
+    }
+    return TP_ERR_NO_ACTION;
+}
+
+/**
  * Check for tangency between the current segment and previous segment.
  * If the current and previous segment are tangent, then flag the previous
  * segment as tangent, and limit the current segment's velocity by the sampling
@@ -1911,10 +2089,39 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         tp_debug_print("missing tc or prev tc in tangent check\n");
         return TP_ERR_FAIL;
     }
-    //If we have ABCUVW movement, then don't check for tangency
-    if (tcRotaryMotionCheck(tc) || tcRotaryMotionCheck(prev_tc)) {
-        tp_debug_print("found rotary axis motion\n");
+    // Spherical motion (internal 3D blend-arc geometry) is never eligible for
+    // further tangent-blend consideration -> keep the conservative exact stop.
+    if (tcSphericalMotionCheck(tc) || tcSphericalMotionCheck(prev_tc)) {
+        tp_debug_print("found spherical motion, no tangent blend\n");
         return TP_ERR_FAIL;
+    }
+
+    // v_max1/v_max2 are needed both by the ABC/UVW magnitude checks below and
+    // by the pre-existing XYZ kink-acceleration check further down.
+    double v_max1 = tcGetMaxTargetVel(prev_tc, getMaxFeedScale(prev_tc));
+    double v_max2 = tcGetMaxTargetVel(tc, getMaxFeedScale(tc));
+    // Note that this is a minimum since the velocity at the intersection must
+    // be the slower of the two segments not to violate constraints.
+    double v_max = fmin(v_max1, v_max2);
+    const double kink_ratio = tpGetTangentKinkRatio();
+
+    // ABC rotary and UVW secondary-linear motion ARE allowed through the
+    // tangent blend, gated by tpCheckGroupTangent -- see its docstring for
+    // the near-collinear + accel-budget rationale.
+    // NOTE: this CHANGES TP0 corner behaviour for 5-axis/9-axis programs
+    // (corners with near-collinear, matched-rate ABC/UVW now blend instead
+    // of stopping) and must be validated on a real config.
+    {
+        int res_abc = tpCheckGroupTangent(tp, prev_tc, tc, v_max1, v_max2, kink_ratio,
+                tcGetABCTangent, tpGetABCAccelBounds, "ABC");
+        if (res_abc != TP_ERR_NO_ACTION) {
+            return res_abc;
+        }
+        int res_uvw = tpCheckGroupTangent(tp, prev_tc, tc, v_max1, v_max2, kink_ratio,
+                tcGetUVWTangent, tpGetUVWAccelBounds, "UVW");
+        if (res_uvw != TP_ERR_NO_ACTION) {
+            return res_uvw;
+        }
     }
 
     if (emcmotConfig->arcBlendOptDepth < 2) {
@@ -1952,11 +2159,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     // Calculate instantaneous acceleration required for change in direction
     // from v1 to v2, assuming constant speed
-    double v_max1 = tcGetMaxTargetVel(prev_tc, getMaxFeedScale(prev_tc));
-    double v_max2 = tcGetMaxTargetVel(tc, getMaxFeedScale(tc));
-    // Note that this is a minimum since the velocity at the intersection must
-    // be the slower of the two segments not to violate constraints.
-    double v_max = fmin(v_max1, v_max2);
+    // (v_max1/v_max2/v_max already computed above, shared with the ABC check)
     tp_debug_print("tangent v_max = %f\n",v_max);
 
     // Account for acceleration past final velocity during a split cycle
@@ -1995,7 +2198,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     // Controls the tradeoff between reduction of final velocity, and reduction of allowed segment acceleration
     // TODO: this should ideally depend on some function of segment length and acceleration for better optimization
-    const double kink_ratio = tpGetTangentKinkRatio();
+    // (kink_ratio already computed above, shared with the ABC check)
 
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, using tangent blend\n", kink_ratio);
