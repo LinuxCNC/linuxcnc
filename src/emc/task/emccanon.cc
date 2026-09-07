@@ -477,6 +477,31 @@ void SET_XY_ROTATION(double t) {
     canon.xy_rotation = t;
 }
 
+
+void HOME_CYCLE(void)
+{
+    // STRAIGHT_FEED/STRAIGHT_TRAVERSE buffer points into chained_points for
+    // arc-blend lookahead and only append to interp_list on flush (see
+    // see_segment()/flush_segments()). Without flushing here first, any
+    // motion queued just before this G28.2 would get silently reordered to
+    // execute AFTER the home instead of before it.
+    flush_segments();
+    auto msg = std::make_unique<EMC_JOINT_HOME>();
+    msg->joint = -1;   // -1 = all joints (HOME_SEQUENCE order)
+    interp_list.append(std::move(msg));
+}
+
+/* G28.2 Pn -- home a single joint. joint is the interp's already-validated
+ * (non-negative) P value; task range-checks it against the machine's
+ * configured joint count in emcJointHome() (taskintf.cc). */
+void HOME_CYCLE_JOINT(int joint)
+{
+    flush_segments(); // see HOME_CYCLE
+    auto msg = std::make_unique<EMC_JOINT_HOME>();
+    msg->joint = joint;
+    interp_list.append(std::move(msg));
+}
+
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
