@@ -94,7 +94,7 @@ struct hm2_eth_t {
     } *hal;
 };
 
-char* fetch_ifname(int sockfd, char *buf, size_t n);
-int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
+char* hm2_eth_fetch_ifname(int sockfd, char *buf, size_t n);
+int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
 
 #endif
