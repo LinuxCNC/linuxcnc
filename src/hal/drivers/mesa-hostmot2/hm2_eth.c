@@ -1731,12 +1731,16 @@ int rtapi_app_main(void) {
     for(i = 0; i<num_boards; i++) {
         boards[i].read_cnt = boards[i].write_cnt = 0;
         boards[i].has_written_cnt = 0;
-        int *added = kvlist_lookup(&ifnames, boards[i].ifname);
-        if(!added)
-            goto error;
-        if(*added) continue;
-        install_firewall_perinterface(boards[i].ifname);
-        *added = 1;
+        if (strnlen(boards[i].ifname, sizeof(boards[i].ifname)) > 0) {
+            int *added = kvlist_lookup(&ifnames, boards[i].ifname);
+            if(!added)
+                goto error;
+            if(*added) continue;
+            install_firewall_perinterface(boards[i].ifname);
+            *added = 1;
+        } else {
+            LL_PRINT("WARNING: interface name for board unknown, skipping per interface firewall\n");
+        }
     }
 
     hal_export_functf(init_board_realtime_all, 0, 0, 0, comp_id, "%s.realtime-init", HM2_LLIO_NAME);
