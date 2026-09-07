@@ -1739,7 +1739,8 @@ int rtapi_app_main(void) {
             install_firewall_perinterface(boards[i].ifname);
             *added = 1;
         } else {
-            LL_PRINT("WARNING: interface name for board unknown, skipping per interface firewall\n");
+            LL_PRINT("%s: WARNING: interface name for board unknown, skipping per interface firewall\n",
+                boards[i].ip);
         }
     }
 
