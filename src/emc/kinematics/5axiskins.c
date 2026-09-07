@@ -202,9 +202,30 @@ static int fiveaxis_jacobian(const kins_params *p,
                                        jac);
 } // fiveaxis_jacobian()
 
+// The head carries the tool and nothing turns the work: the work frame is the
+// machine frame and the tool frame Rz(C) Ry(-B), the tilt left handed about y
+// (note 10), its third column the tool axis from the tip towards the holder.
+static int fiveaxis_tool_frame(const kins_params *p, const double *joints,
+                               PmRotationMatrix *rot,
+                               const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    const double sb = sin(joints[JB]*TO_RAD), cb = cos(joints[JB]*TO_RAD);
+    const double sc = sin(joints[JC]*TO_RAD), cc = cos(joints[JC]*TO_RAD);
+
+    rot->x.x =  cb * cc;   rot->y.x = -sc;   rot->z.x = -sb * cc;
+    rot->x.y =  cb * sc;   rot->y.y =  cc;   rot->z.y = -sb * sc;
+    rot->x.z =  sb;        rot->y.z =  0;    rot->z.z =  cb;
+
+    return 0;
+} // fiveaxis_tool_frame()
+
 static const kins_ops fiveaxis_ops = {
     .forward  = fiveaxis_forward,
     .inverse  = fiveaxis_inverse,
+    .work     = kinsIdentityFrame,
+    .tool     = fiveaxis_tool_frame,
+    .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = fiveaxis_jacobian,
     .primary  = 1,
 };
