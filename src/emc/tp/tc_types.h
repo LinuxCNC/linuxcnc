@@ -210,6 +210,16 @@ typedef struct {
     int ruckig_last_use_velocity_control;  // control mode used in last planning (1=velocity, 0=position)
     double ruckig_last_req_pos;        // last req_pos value from Ruckig (for velocity control incremental calc)
     double ruckig_last_feed_override;  // feed override value at last planning (for debug and change detection)
+    // One flag per Ruckig plan-failure site in tpCalculateSCurveAccel. Set
+    // once a failure of that kind has been logged for this segment, so a
+    // segment Ruckig can never solve logs ONCE per failure site instead of
+    // every servo cycle (1kHz) -> avoids a multi-GB log flood on long soak
+    // runs. Cleared by tcInit on every new segment.
+    int ruckig_fail_logged_pool;        // pool acquire returned NULL
+    int ruckig_fail_logged_vel_replan;  // velocity control, replan failed
+    int ruckig_fail_logged_vel_first;   // velocity control, first attempt failed
+    int ruckig_fail_logged_pos_replan;  // position control, replan failed
+    int ruckig_fail_logged_pos_first;   // position control, first attempt failed
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */
