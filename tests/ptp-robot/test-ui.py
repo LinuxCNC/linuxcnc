@@ -74,6 +74,22 @@ for j in (0, 2, 3, 5):
     if abs(after[j] - before[j]) > 1e-6:
         error("G53.7 moved joint %d from %.9f to %.9f" % (j, before[j], after[j]))
 
+# a wrist reaches the same point with the forearm turned half a revolution
+# and the wrist joints reversed, so a joint driven through zero must not
+# come back as the other set: the joints not named stay where they are
+mdi("G53.7 G0 J0=0 J1=0 J2=0 J3=0 J4=0 J5=0")
+held = mdi("G53.7 G0 J4=90")
+for value in (-10, 90, -45):
+    now = mdi("G53.7 G0 J4=%d" % value)
+    print("G53.7 G0 J4=%-4d %s" % (value, " ".join("%.4f" % v for v in now)))
+    drain()
+    if abs(now[4] - value) > 1e-6:
+        error("G53.7 J4=%d left joint 4 at %.6f" % (value, now[4]))
+    for j in (0, 1, 2, 3, 5):
+        if abs(now[j] - held[j]) > 1e-6:
+            error("G53.7 J4=%d moved joint %d from %.6f to %.6f"
+                  % (value, j, held[j], now[j]))
+
 # the letter form is refused whichever letter is used, because X names the
 # first rotary joint here; the message says so and points at G53.7
 refused("G53.5 G0 X10", "joint 0")
