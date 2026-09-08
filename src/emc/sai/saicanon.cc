@@ -883,6 +883,11 @@ CANON_POSITION GET_EXTERNAL_POSITION()
   return pos;
 }
 
+int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/)
+{
+    return 0;
+}
+
 /* returns the position at the last probe trip. This is only valid
    once the probe command has executed to completion. */
 CANON_POSITION GET_EXTERNAL_PROBE_POSITION()

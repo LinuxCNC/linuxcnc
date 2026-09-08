@@ -925,6 +925,12 @@ extern CANON_PLANE GET_EXTERNAL_PLANE();
 // and the current work coordinate system
 extern CANON_POSITION GET_EXTERNAL_POSITION();
 
+// Copies up to max of the joint positions the machine stands in and
+// returns how many were written.  A point does not name one joint set, so
+// an iterative inverse needs somewhere to start.  Zero when the caller
+// has no machine to ask.
+extern int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max);
+
 
 // Returns the position of all axes at the last probe trip,
 // in the current work coordinate system.

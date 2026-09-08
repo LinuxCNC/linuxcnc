@@ -3816,6 +3816,17 @@ std::string GET_EXTERNAL_PARAMETER_FILE_NAME()
     return _parameter_file_name;
 }
 
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max)
+{
+    int n = emcStatus->motion.traj.joints;
+
+    if (n > max) { n = max; }
+    for (int i = 0; i < n; i++) {
+        joints[i] = emcStatus->motion.joint[i].output;
+    }
+    return n;
+}
+
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 {
     return canon.motionMode;

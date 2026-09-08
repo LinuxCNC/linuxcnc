@@ -771,6 +771,7 @@ CANON_POSITION GET_EXTERNAL_POSITION() {
     return pos;
 }
 CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return GET_EXTERNAL_POSITION(); }
+int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/) { return 0; }
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(std::string_view /*name*/) {}
