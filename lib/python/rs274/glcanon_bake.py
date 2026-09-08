@@ -735,7 +735,7 @@ def cone_mesh(base_radius: float = 0.1, height: float = 0.25,
               c0 * cos_a, s0 * cos_a, -sin_a)
         b1 = (base_radius * c1, base_radius * s1, height,
               c1 * cos_a, s1 * cos_a, -sin_a)
-        verts.extend((apex, b0, b1))
+        verts.extend((apex, b1, b0))
 
     # Cap disk at z = height, facing +z. Wound CCW as seen from +z (center ->
     # d0 -> d1 with increasing angle) so it is the front face under GL_CULL_FACE.
@@ -773,8 +773,8 @@ def cylinder_mesh(radius: float, height: float,
         b1 = (radius * c1, radius * s1, 0.0, c1, s1, 0.0)
         t0 = (radius * c0, radius * s0, height, c0, s0, 0.0)
         t1 = (radius * c1, radius * s1, height, c1, s1, 0.0)
-        verts.extend((b0, t0, t1))
-        verts.extend((b0, t1, b1))
+        verts.extend((b0, t1, t0))
+        verts.extend((b0, b1, t1))
 
     # Bottom cap at z = 0, facing -z (CCW as seen from below).
     for i in range(slices):
