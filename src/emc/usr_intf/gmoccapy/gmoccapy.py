@@ -26,6 +26,19 @@
 
 """
 
+import os                  # needed to get the paths and directories
+import signal              # clean shutdown on SIGTERM/SIGINT
+import sys                 # handle system calls
+
+# Arm a minimal SIGTERM handler before the slow imports and app
+# construction: a shutdown SIGTERM landing there would otherwise kill
+# the process mid-startup with no cleanup. Exit through SystemExit so
+# atexit handlers run. The full handler below replaces this one.
+def _early_sigterm(signum, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, _early_sigterm)
+
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
@@ -38,9 +51,6 @@ from gi.repository import Pango
 import traceback            # needed to launch traceback errors
 import hal                  # base hal class to react to hal signals
 from common import hal_glib # needed to make our own hal pins
-import sys                 # handle system calls
-import os                  # needed to get the paths and directories
-import signal              # clean shutdown on SIGTERM/SIGINT
 import atexit              # needed to register child's to be closed on closing the GUI
 import subprocess          # to launch onboard and other processes
 import tempfile            # needed only if the user click new in edit mode to open a new empty file
