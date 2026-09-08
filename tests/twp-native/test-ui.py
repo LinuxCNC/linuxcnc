@@ -183,6 +183,7 @@ if not pairs or abs(wrap(after[SECONDARY] - want[0])) > 1e-3 or abs(wrap(after[P
 if abs(after[TABLE] - start[TABLE]) > 1e-9:
     error("G53.1 moved the table with Q0")
 worst = 0.0
+where = (0, 0, start[0], len(samples))
 for n, smp in enumerate(samples):
     for i in range(3):
         d = abs(smp[0][i] - start[i])
