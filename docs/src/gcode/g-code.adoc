@@ -1706,19 +1706,23 @@ machines, two on a five-axis one, and often a choice of which joints to use.
 'P' picks which of them. Without 'P', or with 'P0', the machine takes the
 one nearest where its rotaries are standing, which is the shortest move and
 depends on where that is. 'P1' and 'P2' name the pose instead, so a program
-reaches the same one wherever it starts from: on a five axis machine the two
-poses lean the head or the table opposite ways, and they differ in the sign
-of the secondary rotary, the one whose axis the other carries. 'P1' is the
-pose with that rotary positive and 'P2' the pose with it negative. The
-interpreter works out which rotary that is by asking the kinematics module,
-so nothing is configured for it. This is the choice Heidenhain writes as
-`SEQ+` and `SEQ-`.
+reaches the same one wherever it starts from: the two poses lean the head
+opposite ways, and they differ in the sign of the secondary rotary, the one
+whose axis the other carries. 'P1' is the pose with that rotary positive and
+'P2' the pose with it negative. The interpreter works out which rotary that
+is by asking the kinematics module, so nothing is configured for it. This is
+the choice Heidenhain writes as `SEQ+` and `SEQ-`, with one difference: a
+control offering `SEQ` falls back to the nearer pose when both lie the same
+side of home, where 'P1' and 'P2' refuse and say so.
 
 The two poses become one where the tool direction asked for lies along the
 primary rotary's axis, straight up on a vertical mill, and there every form
-gives the same answer. A machine that is not of this shape, a robot among
-them, has no such sign to name, and there only the nearest form is
-available.
+gives the same answer.
+
+'P' names a pose only where a rotary turns the tool. On a machine whose
+rotaries all carry the work, the tilting-table configurations among them,
+there is no such rotary and only the nearest form is available; the same
+goes for a machine that is not of this shape at all, a robot among them.
 
 'Q' says whether the joints that carry the work, the table, take part.
 
@@ -2114,6 +2118,11 @@ is. Words left out are zero.
   part of it along the normal is dropped.
 
 'R' turns the plane about its own Z after everything else, in degrees.
+
+The forms are numbered as Fanuc numbers them, and the two angle forms are the
+conventions Heidenhain writes as `PLANE EULER` and `PLANE SPATIAL`. Fanuc has
+a fifth form, projection angles, that is not implemented. See the
+<<cha:kinematics-conventions,Kinematics Conventions>> chapter.
 
 The blocks of a 'P2' or 'P3' definition have to follow one another; any
 other block in between is an error. A definition with a plane already active

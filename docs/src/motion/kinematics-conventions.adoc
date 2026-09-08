@@ -635,6 +635,34 @@ Mount orientation is not this::
   determinant, rather than as three angles whose ordering convention is written
   down nowhere.
 
+== Relation to Other Controls
+
+The tilted work plane borrows its shape from the controls that had one first,
+so a program or a post moving either way reads the same.
+
+The two angle forms are the two those controls define. `G68.2 P0`, three
+angles each about an axis of the plane as rotated so far, is what Heidenhain
+calls `PLANE EULER`: a precession about Z, a nutation about the X the
+precession has already turned, and a rotation about the tilted Z. `G68.2 P1`,
+three angles about the axes of the system underneath, is `PLANE SPATIAL`,
+whose three angles are each about a non-tilted axis. The numbering of the
+forms follows Fanuc's `G68.2`, where P0 is Euler angles, P1 roll, pitch and
+yaw, P2 three points and P3 two vectors. Fanuc has a fifth form, projection
+angles, that is not implemented.
+
+Selecting one of the two poses that reach a plane, `P1` and `P2` on
+<<gcode:g53.1,G53.1>>, is Heidenhain's `SEQ+` and `SEQ-`, and takes the same
+reference: the sign of the rotary measured from its home position. Two
+differences are worth knowing. A control offering `SEQ` falls back to the
+nearer pose when both lie the same side of home, where these refuse and say
+so. And `SEQ` is offered on a machine whose rotaries all carry the work,
+keyed to the tilting one, where `P` here names a pose only when a rotary
+turns the tool, so on a table-table machine only the nearest form is
+available.
+
+Whether the joints carrying the work take part, `Q0` and `Q1`, is
+Heidenhain's `COORD ROT` and `TABLE ROT`.
+
 == References
 
 * <<cha:cnc-machine-overview,CNC Machine Overview>>, for the axis nomenclature
