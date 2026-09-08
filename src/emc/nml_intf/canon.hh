@@ -1001,6 +1001,12 @@ extern double GET_EXTERNAL_POSITION_V();
 // returns the current w-axis position
 extern double GET_EXTERNAL_POSITION_W();
 
+// Copies up to max of the joint positions the machine stands in and
+// returns how many were written.  A point does not name one joint set, so
+// an iterative inverse needs somewhere to start.  Zero when the caller
+// has no machine to ask.
+extern int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max);
+
 
 // Returns the position of the specified axis at the last probe trip,
 // in the current work coordinate system.

@@ -4091,6 +4091,17 @@ double GET_EXTERNAL_POSITION_W(void)
     return position.w;
 }
 
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max)
+{
+    int n = emcStatus->motion.traj.joints;
+
+    if (n > max) { n = max; }
+    for (int i = 0; i < n; i++) {
+        joints[i] = emcStatus->motion.joint[i].output;
+    }
+    return n;
+}
+
 double GET_EXTERNAL_PROBE_POSITION_X(void)
 {
     CANON_POSITION position;

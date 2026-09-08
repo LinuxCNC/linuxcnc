@@ -555,22 +555,31 @@ static bool same_pose(const EmcPose *a, const EmcPose *b)
 
 // the joints the machine is at, as far as the interpreter can know ahead
 // of motion.  A point does not name one joint set: a robot wrist reaches
-// it again with the forearm turned half a revolution, so keep the seed
-// while it still explains where the machine is.  The inverse runs again
-// from its own answer, since a module that reads the joints it is handed
-// (a nutating head takes its angles from them) answers for the wrong
-// angles on a first pass from a stale seed.
+// it again with the forearm turned half a revolution.  Keep the seed while
+// it still explains where the machine is, else take the joints the machine
+// stands in.  The inverse runs again from its own answer, for the modules
+// that read their angles from the seed.
 int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
 {
     KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    double standing[EMCMOT_MAX_JOINTS];
     EmcPose pose, seeded;
-    int pass, i;
+    int pass, i, n;
 
     current_machine_pose(s, &pose);
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
     seeded = pose;
     if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
         return INTERP_OK;
+    }
+    n = GET_EXTERNAL_JOINT_POSITIONS(standing, EMCMOT_MAX_JOINTS);
+    for (i = 0; i < n; i++) { joints[i] = standing[i]; }
+    if (n > 0) {
+        seeded = pose;
+        if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+            return INTERP_OK;
+        }
     }
     for (pass = 0; pass < 8; pass++) {
         double prev[EMCMOT_MAX_JOINTS], worst = 0.0;

@@ -1041,6 +1041,7 @@ double GET_EXTERNAL_POSITION_C() { return _pos_c; }
 double GET_EXTERNAL_POSITION_U() { return _pos_u; }
 double GET_EXTERNAL_POSITION_V() { return _pos_v; }
 double GET_EXTERNAL_POSITION_W() { return _pos_w; }
+int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/) { return 0; }
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(const char *name)

@@ -920,6 +920,11 @@ double GET_EXTERNAL_POSITION_W()
     return 0.;
 }
 
+int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/)
+{
+    return 0;
+}
+
 double GET_EXTERNAL_PROBE_POSITION_U()
 {
     return 0.;
