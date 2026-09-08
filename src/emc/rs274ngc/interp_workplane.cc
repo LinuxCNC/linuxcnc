@@ -553,14 +553,24 @@ static bool same_pose(const EmcPose *a, const EmcPose *b)
 int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
 {
     KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    double standing[EMCMOT_MAX_JOINTS];
     EmcPose pose, seeded;
-    int pass, i;
+    int pass, i, n;
 
     current_machine_pose(s, &pose);
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
     seeded = pose;
     if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
         return INTERP_OK;
+    }
+    n = GET_EXTERNAL_JOINT_POSITIONS(standing, EMCMOT_MAX_JOINTS);
+    for (i = 0; i < n; i++) { joints[i] = standing[i]; }
+    if (n > 0) {
+        seeded = pose;
+        if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+            for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+            return INTERP_OK;
+        }
     }
     for (pass = 0; pass < 8; pass++) {
         double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
