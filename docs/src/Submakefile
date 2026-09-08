@@ -495,9 +495,12 @@ docs: manpages
 clean: clean-manpages clean-translated
 	-rm -f $(DOC_DIR)/html
 clean-manpages:
-	-rm -f $(GENERATED_MANPAGES)
-	# Remove generated alias man pages too.
-	$(RM) $$(grep -lr '^\.so ' $(DOC_MAN)/man*)
+	# Everything under $(DOC_MAN) is generated (halcompile output,
+	# asciidoctor output from docs/src/man, alias pages, translations).
+	# GENERATED_MANPAGES depends on BUILD_SYS, so removing by list leaves
+	# stale files behind (e.g. kbuild-only driver manpages on a uspace
+	# tree), which later confuse gen_complist.py.  Wipe the whole tree.
+	-$(RM) -r $(DOC_MAN)
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
 
