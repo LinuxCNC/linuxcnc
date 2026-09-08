@@ -10,6 +10,12 @@ opto_ac5 - Realtime driver for opto22 PCI-AC5 cards
 
 == DESCRIPTION
 
+WARNING: This driver is deprecated and will be removed in a future
+release. It is only built for RTAI kernels; it is not available in the
+standard preempt-rt (uspace) builds. If you still use this hardware,
+let us know on the LinuxCNC forum or the emc-developers mailing list,
+see https://github.com/LinuxCNC/linuxcnc/issues/4505.
+
 These pins and parameters are created by the realtime *opto_ac5* module.
 The portconfig0 and portconfig1 variables are used to configure the two
 ports of each card. The first 24 bits of a 32 bit number represent the

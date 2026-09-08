@@ -116,6 +116,13 @@ To search in the man pages, use the UNIX tool `apropos`.
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller ||
 | link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for BeagleBone GPIO pins ||
 | link:../man/man9/hal_parport.9.html[hal_parport] |Realtime HAL component to communicate with one or more PC parallel ports ||
+| hal_ax5214h |Axiom AX5214H <<cha:ax5214-driver,driver>> for the 48 channel ISA digital I/O board (deprecated, RTAI kernel builds only) ||
+| hal_evoreg |Driver for the Siemens EVOREG motion control board (deprecated, RTAI kernel builds only) ||
+| hal_motenc |Vital Systems <<cha:motenc,driver>> for the Motenc-100 and Motenc-LITE servo boards (deprecated, RTAI kernel builds only) ||
+| hal_stg |Servo-To-Go <<cha:servo-to-go,driver>> for the ISA motion control card (deprecated, RTAI kernel builds only) ||
+| hal_vti |Driver for the Vigilant VTI card (deprecated, RTAI kernel builds only) ||
+| pci_8255 |Driver for PCI cards based on the 8255 digital I/O chip (deprecated, RTAI kernel builds only) ||
+| pcl720 |Driver for the Advantech PCL720 ISA digital I/O card (deprecated, RTAI kernel builds only) ||
 | link:../man/man9/hm2_7i43.9.html[hm2_7i43] |Mesa Electronics driver for the 7I43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
 | link:../man/man9/hm2_7i90.9.html[hm2_7i90] |LinuxCNC HAL driver for the Mesa Electronics 7I90 EPP Anything IO board with HostMot2 firmware ||
 | link:../man/man9/hm2_eth.9.html[hm2_eth] |LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO boards, with HostMot2 firmware ||
@@ -127,9 +134,9 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man9/mesa_7i65.9.html[mesa_7i65] |Mesa Electronics driver for the 7I65 eight-axis servo card. (See the man page for more information) ||
 | link:../man/man9/mesa_pktgyro_test.9.html[mesa_pktgyro_test] |PktUART simple test with Microstrain 3DM-GX3-15 gyro ||
 | link:../man/man9/mesa_uart.9.html[mesa_uart] |An example component demonstrating how to access the Hostmot2 UART ||
-| link:../man/man9/opto_ac5.9.html[opto_ac5] |Realtime driver for opto22 PCI-AC5 cards ||
-| pluto_servo |Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos ||
-| pluto_step |Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers ||
+| link:../man/man9/opto_ac5.9.html[opto_ac5] |Realtime <<cha:opto22,driver>> for opto22 PCI-AC5 cards (deprecated, RTAI kernel builds only) ||
+| pluto_servo |Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos (deprecated, RTAI kernel builds only) ||
+| pluto_step |Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers (deprecated, RTAI kernel builds only) ||
 | link:../man/man9/serport.9.html[serport] |Hardware driver for the digital I/O bits of the 8250 and 16550 serial port ||
 | link:../man/man9/setsserial.9.html[setsserial] |An utility for setting Smart Serial NVRAM parameters ||
 | link:../man/man9/sserial.9.html[sserial] |hostmot2 - Smart Serial LinuxCNC HAL driver for the Mesa Electronics HostMot2 Smart-Serial remote cards ||

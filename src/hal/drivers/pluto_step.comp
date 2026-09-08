@@ -62,6 +62,8 @@ may give improved step regularity at low step speeds.
 .RE""";
 
 description """
+.SH DEPRECATED
+This driver is deprecated and will be removed in a future release. It is only built for RTAI kernels; it is not available in the standard preempt-rt (uspace) builds.
 Pluto_step is a LinuxCNC software driver and associated firmware that allow the Pluto-P board to be used to control a stepper-based CNC machine.
 
 The driver has 4 step+direction channels, 14 dedicated digital outputs, and 16

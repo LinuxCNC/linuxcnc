@@ -4,6 +4,12 @@
 [[cha:ax5214-driver]]
 = AX5214H Driver
 
+WARNING: This driver is deprecated and will be removed in a future
+release. It is only built for RTAI kernels; it is not available in the
+standard preempt-rt (uspace) builds. If you still use this hardware,
+let us know on the LinuxCNC forum or the emc-developers mailing list,
+see https://github.com/LinuxCNC/linuxcnc/issues/4505.
+
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O
 board. It plugs into an ISA bus, and resembles a pair of 8255 chips. In
 fact it may be a pair of 8255 chips, but I'm not sure. If/when someone
