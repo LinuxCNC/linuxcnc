@@ -138,6 +138,22 @@ struct PreviewData {
     uint32_t *attrs = nullptr;          // line, kind|tool per vertex
     size_t n = 0, cap = 0;
 
+    // The machine's axes, from [TRAJ]COORDINATES via GET_EXTERNAL_AXIS_MASK.
+    // Read on every parse: the letters are the machine's rather than the
+    // program's, they cost one call, and a caller may want them before
+    // deciding whether it wants the positions.
+    std::string axes;                   // letters, P9 order, e.g. "XZBW"
+    int n_axes = 0;                     // == axes.size()
+    std::array<int8_t, P9_COUNT> axis_cols = {};  // column -> P9Axis
+    // The 9-DOF positions themselves are the one thing the renderer builds on
+    // request: `n_axes` floats per vertex, vertex i at i * n_axes, so the row
+    // layout is `pos[]`'s with a different element count and the same growth.
+    // Null until the first reserve, and null for the whole parse when unasked
+    // - which is what write_vertex branches on, since `n_axes` is not evidence
+    // of a request.
+    bool want_axis_positions = false;
+    float *axis_pos = nullptr;
+
     std::array<Box3, EXTENT_KINDS> extents = {};
     Box3 drawn = {};
     // Summed a move at a time, so a running total drifts with move count -
@@ -188,10 +204,18 @@ int arc_segments(const Point9 &lo, int plane,
 // flipped mid-parse would leave the program half in each protocol. A subclass
 // without the method is a TypeError, not a quiet fall back.
 //
-// Besides that, a parse reads `program_geometry` - the GEOMETRY strings and
-// the rotation offsets - and `arcdivision`, which the base defaults. It reads
-// no starting state: every parse begins at zero with nothing drawn, and where
-// the machine stands arrives as the caller's initcode.
+// Besides that, a parse reads `program_geometry` - the GEOMETRY strings, the
+// rotation offsets and `want_axis_positions` - and `arcdivision`, which the
+// base defaults. It reads no starting state: every parse begins at zero with
+// nothing drawn, and where the machine stands arrives as the caller's
+// initcode.
+//
+// The machine's axis letters come back from every parse, asked for or not:
+// they are the machine's, they cost one GET_EXTERNAL_AXIS_MASK call, and a
+// caller may need them before it can decide whether it wants the 9-DOF
+// positions to go with them. Those positions - `n_axes` floats per vertex,
+// the only per-vertex array with a per-parse cost - are what
+// `want_axis_positions` turns on.
 //
 // In renderer mode the canon methods listed on `Canon` above do not call
 // Python at all. Instead the renderer runs the whole preview pipeline - the
@@ -415,6 +439,9 @@ private:
                       PlanePoints *points);
     void accumulate_extents(const Point9 &p1, const Point9 &p2);
     bool read_planes();
+    // The machine's axis letters, and whether the canon asked for the 9-DOF
+    // positions to go with them.
+    bool read_axes();
     void unrotate_xy(const Point9 &p, Point3 &out) const;
     // g92 -> XY rotation -> g5x, the operations and the order
     // `rs274.interpret.Translated.rotate_and_translate` applies - which is

@@ -846,6 +846,22 @@ def unit_square(z=0.0, feed=10.0):
             "G1 X0 Y1\nG1 X0 Y0\nM2\n" % (z, feed))
 
 
+def xzbw_machine(feed=10.0):
+    """A program for a machine whose ``[TRAJ]COORDINATES`` is ``XZBW``.
+
+    Uses X, Z, B and W and nothing else, because the interpreter nulls the
+    reader for every letter the axis mask leaves out: a Y word here would be
+    an error rather than a test. Line 3 moves X only, line 4 B only (so its
+    drawn xyz cannot change under a ``GEOMETRY`` string with no B in it, while
+    the B column must), line 5 W only, line 6 all four.
+
+    B changes make the renderer subdivide, so this is deliberately not a
+    one-vertex-per-line program.
+    """
+    return ("G20 G90 G94\nG0 X0 Z0\nG1 F%g X1\nG1 B90\nG1 W0.5\n"
+            "G1 X2 Z1 B45 W1\nM2\n" % feed)
+
+
 def three_moves(feed=10.0):
     """A rapid and three one-inch cuts along the axes, from the origin.
 

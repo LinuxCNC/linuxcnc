@@ -22,7 +22,9 @@
 #
 #    ``ProgramGeometry`` is the authoritative form of a loaded G-code program -
 #    every drawn point with its source line, kind and tool, the events between
-#    the moves, the dwell and tool-change tables, and the extents. It is built
+#    the moves, the dwell and tool-change tables, the extents, and - on request
+#    - each vertex as the machine's own axes, in the same row order as the
+#    drawn points. It is built
 #    in C++ during ``gcode.parse`` (``GCodeRenderer``, src/emc/rs274ngc/
 #    gcode_renderer.{hh,cc}) and handed over whole at the end of it, which is what
 #    :meth:`ProgramGeometry.adopt` takes: the arrays are wrapped rather than
@@ -199,6 +201,13 @@ class ProgramGeometry:
     ``gcode.PreviewGeometry`` that owns them, and read-only, because a
     complete record is not something to append to.
 
+    A third array joins them on request: :attr:`axis_positions`, each vertex as
+    the machine's own axes, ``(N, len(axis_letters))`` float32 sharing that row
+    layout exactly. It is the only per-vertex array a parse builds
+    conditionally, because it is the only one whose columns a caller can
+    reasonably not want. The letters themselves - :attr:`axis_letters`, from
+    ``[TRAJ]COORDINATES`` - come back from every parse regardless.
+
     **Events are vertices.** A coordinate jump, a dwell and a tool change each
     carry a record-only kind, which the drawing and picking shaders discard.
     That is what replaces the chain table: the whole program is one
@@ -210,17 +219,21 @@ class ProgramGeometry:
 
     def __init__(self, geometry: str = "XYZ",
                  ro: RotationOffsets = DEFAULT_OFFSETS,
-                 is_foam: bool = False) -> None:
+                 is_foam: bool = False,
+                 want_axis_positions: bool = False) -> None:
         self.geometry = "XYZ"
         self.ro = DEFAULT_OFFSETS
         self.is_foam = False
-        self.configure(geometry=geometry, ro=ro, is_foam=is_foam)
+        self.want_axis_positions = False
+        self.configure(geometry=geometry, ro=ro, is_foam=is_foam,
+                       want_axis_positions=want_axis_positions)
 
     # -- configuration -----------------------------------------------------
 
     def configure(self, geometry: Optional[str] = None,
                   ro: Optional[RotationOffsets] = None,
-                  is_foam: Optional[bool] = None) -> None:
+                  is_foam: Optional[bool] = None,
+                  want_axis_positions: Optional[bool] = None) -> None:
         """Set the transform the renderer will use, and drop what was adopted.
 
         Called by the scene when a canon is set, i.e. immediately before the
@@ -236,6 +249,11 @@ class ProgramGeometry:
             self.ro = ro
         if is_foam is not None:
             self.is_foam = bool(is_foam)
+        if want_axis_positions is not None:
+            #: Ask the renderer for :attr:`axis_positions`. Named for what it
+            #: turns on: :attr:`axis_letters` is not optional, so a bare
+            #: ``want_axes`` would promise the wrong thing.
+            self.want_axis_positions = bool(want_axis_positions)
         #: The GEOMETRY string of each drawn plane. Foam draws the program
         #: twice, once through the XY columns and once through the UV ones.
         #: The planes' Z offsets (``foam_z``/``foam_w``) are deliberately NOT
@@ -251,6 +269,12 @@ class ProgramGeometry:
         self._n = 0
         self._planes = [np.empty(0, dtype=PLANE_DTYPE) for _ in self.planes]
         self._attrs = np.empty(0, dtype=ATTR_DTYPE)
+        #: The machine's axis letters, and the 9-DOF positions through them.
+        #: Cleared together with the rest: the letters belong to the parse
+        #: that produced them, and a stale axis_letters beside an emptied
+        #: record would be worse than an empty one.
+        self._axes = ""
+        self._axis_pos = np.empty((0, 0), dtype=np.float32)
         #: (4, 2, 3): the four machine-frame pairs, each ``[min, max]``.
         self._extents = np.empty((4, 2, 3), dtype=np.float64)
         self._extents[:, 0, :] = 9e99
@@ -314,6 +338,51 @@ class ProgramGeometry:
     @property
     def tools(self) -> npt.NDArray[np.uint32]:
         return (self.kindtool >> TOOL_SHIFT) & TOOL_MASK
+
+    # -- the machine's own axes --------------------------------------------
+
+    @property
+    def axis_letters(self) -> str:
+        """The machine's axes, from ``[TRAJ]COORDINATES``, in P9 order.
+
+        Present after any parse, whether or not :attr:`want_axis_positions`
+        asked for the positions - the letters are the machine's, not the
+        request's. Not to be confused with :attr:`geometry`, which is a
+        display transform and says nothing about which axes exist.
+        """
+        return self._axes
+
+    @property
+    def axis_positions(self) -> npt.NDArray[np.float32]:
+        """``(N, len(axis_letters))``: each vertex as the machine's own axes.
+
+        Row ``i`` is the same vertex as ``positions(plane)[i]``, ``lines[i]``
+        and ``kindtool[i]`` - event vertices included, since axes are dropped
+        as columns and never as rows. The coordinates are machine-frame, after
+        g92 -> XY rotation -> g5x, which is the point the drawn planes are
+        built from; they are not the numbers as written in the program, and an
+        arc has already been segmented by the time it reaches here.
+
+        ``(N, 0)`` unless the parse was configured with
+        ``want_axis_positions``.
+        """
+        return self._axis_pos[:self._n]
+
+    def axis_position(self, letter: str) -> npt.NDArray[np.float32]:
+        """One axis's travel, as the column ``[:, k]`` - a view, not a copy.
+
+        The two ways this fails have opposite fixes, so they raise differently:
+        a letter the machine does not have is a ``KeyError``, and a letter it
+        does have whose positions were not recorded is a ``ValueError``.
+        """
+        k = self._axes.find(letter.upper())
+        if k < 0:
+            raise KeyError("no %s axis; this machine has %s"
+                           % (letter, self._axes or "no axes"))
+        if self._axis_pos.shape[1] == 0:
+            raise ValueError("%s is not recorded: parse with "
+                             "want_axis_positions" % letter)
+        return self._axis_pos[:self._n, k]
 
     # -- extents -----------------------------------------------------------
 
@@ -383,6 +452,16 @@ class ProgramGeometry:
         self._planes = [np.frombuffer(pg.positions(i), dtype=PLANE_DTYPE)
                         for i in range(pg.n_planes)]
         self._attrs = np.frombuffer(pg.attrs(), dtype=ATTR_DTYPE)
+        # np.asarray, not np.frombuffer: the latter is 1-D only and would drop
+        # the shape the buffer states.
+        self._axes = pg.axes
+        self._axis_pos = np.asarray(pg.axis_positions())
+        # The caller's own request is the expectation, so an array arriving
+        # unasked is caught as readily as one going missing.
+        want = len(self._axes) if self.want_axis_positions else 0
+        if self._axis_pos.shape != (self._n, want):
+            raise ValueError("adopt: %r axis columns for %d vertices over %d "
+                             "axes" % (self._axis_pos.shape, self._n, want))
         self._extents = np.array(pg.extents(), dtype=np.float64)
         self._drawn = np.array(pg.drawn_extents(), dtype=np.float64)
         self._rapid_length = pg.rapid_length

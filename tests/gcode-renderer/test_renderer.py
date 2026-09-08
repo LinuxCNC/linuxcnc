@@ -930,5 +930,104 @@ class LineCodeConstruction(unittest.TestCase):
             self.assertEqual(delivered, built)
 
 
+class MachineAxes(unittest.TestCase):
+    """The machine's axis letters, and the 9-DOF positions through them.
+
+    Two things with two different rules, and the split is what most of this
+    class is about: the letters come back from every parse because they are
+    the machine's - one ``get_axis_mask`` call, at most nine bytes - while the
+    positions are ``n_axes`` floats per vertex and are built only when
+    ``program_geometry.want_axis_positions`` asks.
+
+    The axis mask stands in for ``[TRAJ]COORDINATES``. It is not cosmetic: the
+    interpreter nulls the word reader for every letter the mask leaves out, so
+    each program here uses only the letters its own mask allows.
+    """
+
+    XYZ = 0b111
+    XZBW = 1 | 4 | 16 | 256                             # X, Z, B, W
+
+    def test_the_letters_come_back_without_the_columns(self):
+        """``(N, 0)``, not ``(N, 3)`` quietly built and then hidden."""
+        pg = parse(programs.three_moves(), axis_mask=self.XYZ).program_geometry
+        self.assertEqual(pg.axis_letters, "XYZ")
+        self.assertEqual(pg.axis_positions.shape, (len(pg), 0))
+        self.assertGreater(len(pg), 0)
+
+    def test_the_letters_are_the_machines_not_the_geometry_strings(self):
+        """GEOMETRY is a display transform and says nothing about the axes.
+
+        A machine may draw fewer axes than it has, or name letters in an order
+        of its own; neither moves a letter into or out of this string.
+        """
+        for geometry in ("XYZ", "XY", "-XZ", "ZYX"):
+            with self.subTest(geometry=geometry):
+                pg = parse(programs.three_moves(), geometry,
+                           axis_mask=self.XYZ).program_geometry
+                self.assertEqual(pg.axis_letters, "XYZ")
+
+    def test_the_letters_are_in_p9_order(self):
+        """Not the order the mask's bits were written, which has none."""
+        pg = parse(programs.three_moves(),
+                   axis_mask=self.XZBW | 2).program_geometry
+        self.assertEqual(pg.axis_letters, "XYZBW")
+
+    def test_the_rotary_value_survives_a_transform_that_drops_it(self):
+        """Why the array exists at all.
+
+        ``GEOMETRY=XYZ`` folds no B into the drawn point, so the whole of line
+        4 - a B-only move - draws at one place. The B column is what says the
+        machine turned, and it cannot be recovered from the drawn points.
+        """
+        pg = parse(programs.xzbw_machine(), "XYZ", axis_mask=self.XZBW,
+                   want_axis_positions=True).program_geometry
+        on_line_4 = pg.lines == 4
+        self.assertGreater(int(on_line_4.sum()), 1)     # B subdivides
+        drawn = pg.positions()[on_line_4]
+        np.testing.assert_array_equal(drawn, np.repeat(drawn[:1], len(drawn), 0))
+        b = pg.axis_position("B")[on_line_4]
+        self.assertAlmostEqual(float(b.max()), 90.0, places=4)
+        self.assertGreater(float(b.max() - b.min()), 1.0)
+
+    def test_a_compacted_machines_column_is_the_axis_it_is_named_for(self):
+        """Four letters, four columns, and X moves to 2 while W moves to 1."""
+        pg = parse(programs.xzbw_machine(), axis_mask=self.XZBW,
+                   want_axis_positions=True).program_geometry
+        self.assertEqual(pg.axis_letters, "XZBW")
+        self.assertEqual(pg.axis_positions.shape, (len(pg), 4))
+        self.assertAlmostEqual(float(pg.axis_position("X").max()), 2.0, places=5)
+        self.assertAlmostEqual(float(pg.axis_position("Z").max()), 1.0, places=5)
+        self.assertAlmostEqual(float(pg.axis_position("W").max()), 1.0, places=5)
+
+    def test_a_program_crossing_several_doublings_keeps_every_column(self):
+        """The growth test: the block reallocs, the row stride must not move.
+
+        Long enough to pass 1024 and 2048 vertices, so every column is checked
+        end to end across at least two reallocations. A ``reserve`` that grew
+        the block by the wrong element count fails here and nowhere else.
+        ``GEOMETRY=XYZ`` on an XYZ machine is the identity, so the columns and
+        the drawn plane must hold the same numbers in the same order.
+        """
+        pg = parse(programs.bench_feed(3000), axis_mask=self.XYZ,
+                   want_axis_positions=True).program_geometry
+        self.assertGreater(len(pg), 2048)
+        np.testing.assert_array_equal(pg.axis_positions, pg.positions())
+
+    def test_a_canon_whose_mask_is_unreadable_fails_the_parse(self):
+        """Newly reachable from make(), so newly worth a test.
+
+        ``Interp::init`` has always called ``get_axis_mask`` unconditionally,
+        so such a canon could never parse; it now fails a few lines earlier,
+        and must still fail loudly, naming the read, rather than default to
+        XYZ.
+        """
+        class NotAnInt(HeadlessCanon):
+            def get_axis_mask(self):
+                return "XYZ"
+
+        with self.assertRaisesRegex(ValueError, "get_axis_mask"):
+            parse(programs.three_moves(), cls=NotAnInt)
+
+
 if __name__ == "__main__":
     unittest.main()

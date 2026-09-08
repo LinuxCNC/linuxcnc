@@ -89,6 +89,7 @@ double GCodeRenderer::external_angle_units() {
 PreviewData::~PreviewData() {
     for(int i = 0; i < MAX_PLANES; i++) free(pos[i]);
     free(attrs);
+    free(axis_pos);
 }
 
 bool PreviewData::reserve(size_t extra) {
@@ -114,8 +115,21 @@ bool PreviewData::reserve(size_t extra) {
         for(int i = 0; i < nplanes; i++) pos[i] = grown[i];
         return false;
     }
+    // The 9-DOF block, when it was asked for. Its row stride is `n_axes`,
+    // fixed before the first vertex, so growth appends and moves nothing -
+    // the same three lines as the arrays above rather than a re-stride.
+    float *grown_axes = axis_pos;
+    if(want_axis_positions && n_axes) {
+        grown_axes = (float*)realloc(axis_pos, want * (size_t)n_axes * sizeof(float));
+        if(!grown_axes) {
+            for(int i = 0; i < nplanes; i++) pos[i] = grown[i];
+            attrs = grown_attrs;
+            return false;
+        }
+    }
     for(int i = 0; i < nplanes; i++) pos[i] = grown[i];
     attrs = grown_attrs;
+    axis_pos = grown_axes;
     cap = want;
     return true;
 }
@@ -131,6 +145,11 @@ void PreviewData::shrink() {
     }
     uint32_t *fit = (uint32_t*)realloc(attrs, want * ATTRS_PER_VERTEX * sizeof(uint32_t));
     if(fit) attrs = fit;
+    if(axis_pos) {
+        float *fit_axes =
+            (float*)realloc(axis_pos, want * (size_t)n_axes * sizeof(float));
+        if(fit_axes) axis_pos = fit_axes;
+    }
     cap = want;
 }
 
@@ -139,13 +158,26 @@ void PreviewData::shrink() {
 struct __attribute__((visibility("hidden"))) ArrayView {
     py::object owner;                   // the PreviewGeometry the memory is in
     void *ptr;
-    Py_ssize_t nitems, itemsize;
+    int ndim;
+    Py_ssize_t shape[2], strides[2];
+    Py_ssize_t itemsize;
     const char *format;
 };
 
 static py::object array_view(py::object owner, void *ptr, Py_ssize_t nitems,
                              Py_ssize_t itemsize, const char *format) {
-    return py::cast(ArrayView{std::move(owner), ptr, nitems, itemsize, format});
+    return py::cast(ArrayView{std::move(owner), ptr, 1,
+                              {nitems, 0}, {itemsize, 0}, itemsize, format});
+}
+
+// The same, two-dimensional: what the (n_vertices, n_axes) block needs, since
+// numpy takes its shape from the buffer rather than from a dtype here.
+static py::object array_view_2d(py::object owner, void *ptr,
+                                Py_ssize_t rows, Py_ssize_t cols,
+                                Py_ssize_t row_stride, Py_ssize_t itemsize,
+                                const char *format) {
+    return py::cast(ArrayView{std::move(owner), ptr, 2, {rows, cols},
+                              {row_stride, itemsize}, itemsize, format});
 }
 
 static py::tuple triple(const Point3 &v) {
@@ -167,8 +199,10 @@ void preview_geometry_register(py::module_ &m) {
     py::class_<ArrayView>(m, "arrayview", py::buffer_protocol(),
             "Read-only view of a PreviewGeometry array")
         .def_buffer([](ArrayView &v) {
-            return py::buffer_info(v.ptr, v.itemsize, v.format, 1,
-                                   {v.nitems}, {v.itemsize}, /*readonly=*/true);
+            std::vector<Py_ssize_t> shape(v.shape, v.shape + v.ndim);
+            std::vector<Py_ssize_t> strides(v.strides, v.strides + v.ndim);
+            return py::buffer_info(v.ptr, v.itemsize, v.format, v.ndim,
+                                   shape, strides, /*readonly=*/true);
         });
 
     py::class_<PreviewData>(m, "PreviewGeometry",
@@ -230,6 +264,23 @@ void preview_geometry_register(py::module_ &m) {
                             points_tuple(r.pts, d.nplanes)));
                 return out;
             }, "(lineno, tool number, points per plane) per tool change")
+        .def("axis_positions", [](py::object self) {
+                PreviewData &d = py::cast<PreviewData&>(self);
+                // Not requested: no block to point at, so an (n, 0) view over
+                // a non-null dummy - the buffer protocol dislikes a null
+                // pointer even with a zero extent.
+                static float nothing = 0.0f;
+                Py_ssize_t f = sizeof(float);
+                Py_ssize_t cols = d.axis_pos ? d.n_axes : 0;
+                return array_view_2d(std::move(self),
+                                     d.axis_pos ? (void*)d.axis_pos : (void*)&nothing,
+                                     (Py_ssize_t)d.n, cols, cols * f, f, "f");
+            }, "Read-only float32 (n_vertices, n_axes) view of the machine "
+               "axes' positions; (n_vertices, 0) unless the canon's "
+               "program_geometry asked with want_axis_positions")
+        .def_property_readonly("axes", [](const PreviewData &d) { return d.axes; },
+            "Machine axis letters from [TRAJ]COORDINATES, in P9 order, one "
+            "per axis_positions column. Always present.")
         .def_property_readonly("n_vertices", [](const PreviewData &d) { return d.n; })
         .def_property_readonly("n_moves", [](const PreviewData &d) { return d.moves; })
         .def_property_readonly("n_planes", [](const PreviewData &d) { return d.nplanes; })
@@ -344,11 +395,18 @@ void renderer_canon_register(py::module_ &m) {
             "        # parse start, so moving it mid-parse changes nothing.\n"
             "        arcdivision = 8\n\n"
             "        def __init__(self):\n"
-            "            # planes (the GEOMETRY strings to draw) and ro (the\n"
-            "            # rotation offsets) are what a parse reads off it.\n"
+            "            # planes (the GEOMETRY strings to draw), ro (the\n"
+            "            # rotation offsets) and want_axis_positions are what\n"
+            "            # a parse reads off it.\n"
             "            self.program_geometry = ProgramGeometry(geometry='XYZ')\n\n"
             "        def adopt_geometry(self, program):\n"
             "            self.program = program   # a gcode.PreviewGeometry\n\n"
+            "The program comes back knowing the machine's axis letters either\n"
+            "way: `program.axes` is read from [TRAJ]COORDINATES on every parse.\n"
+            "The 9-DOF positions to go with them - `program.axis_positions()`,\n"
+            "n_axes floats per vertex - are built only when program_geometry\n"
+            "sets want_axis_positions, since that is the one per-vertex array\n"
+            "with a cost worth asking about.\n\n"
             "A parse reads nothing else off the canon, and starts each one at\n"
             "zero with nothing drawn: where the machine stands is the caller's\n"
             "to send as initcode, a `G53 G0` per axis that the leading-traverse\n"
@@ -361,6 +419,41 @@ void renderer_canon_register(py::module_ &m) {
             "RendererCanon", py::tuple(), ns);
     m.attr("RendererCanon") = cls;
     renderer_canon_type = (PyTypeObject *)cls.release().ptr();
+}
+
+// The machine's axis letters, and whether the canon wants the 9-DOF positions
+// to go with them. The letters are read unconditionally: they are a property
+// of the machine, not of the request, and this is the same value the
+// interpreter is about to gate its own readers on, so the preview cannot
+// disagree with the parse about which axes exist.
+bool GCodeRenderer::read_axes() {
+    long mask = GET_EXTERNAL_AXIS_MASK();
+    // This is the parse's first such call - make() runs before Interp::init(),
+    // which calls it too - so a canon whose get_axis_mask raises fails here
+    // rather than a few lines later. It could never have parsed either way.
+    if(parse_state.interp_error) {
+        if(!PyErr_Occurred())
+            PyErr_SetString(PyExc_ValueError,
+                    "parse: the canon's get_axis_mask did not return an int");
+        return false;
+    }
+    static const char letters[] = "XYZABCUVW";
+    for(int i = 0; i < P9_COUNT; i++)
+        if(mask & (1L << i)) {
+            data_->axis_cols[data_->n_axes++] = (int8_t)i;
+            data_->axes.push_back(letters[i]);
+        }
+
+    // The array, only if asked. A canon that has no opinion has no attribute.
+    try {
+        py::object pg = canon_.attr("program_geometry");
+        data_->want_axis_positions = PyObject_IsTrue(
+                py::getattr(pg, "want_axis_positions", py::bool_(false)).ptr());
+    } catch(py::error_already_set &e) {
+        e.restore();
+        return false;
+    }
+    return true;
 }
 
 std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
@@ -398,6 +491,9 @@ std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
     }
     r->data_->tool_numbers.push_back(0);         // ordinal 0 is None
     if(!r->read_planes()) return nullptr;
+    // Before any vertex: n_axes is the row stride of every one of them, and
+    // want_axis_positions decides whether the block exists at all.
+    if(!r->read_axes()) return nullptr;
     // getattr-with-default swallows whatever the read raised, which is what a
     // canon that simply has no progress hook needs.
     r->progress_ = py::getattr(canon, "renderer_progress", py::none());
@@ -477,6 +573,13 @@ void GCodeRenderer::write_vertex(const Point9 &pts9, int line_number,
             if(points) (*points)[i][j] = p[j];
         }
     }
+    // The 9-DOF point as the machine's own axes, at the same index: the
+    // branch is on the block rather than on n_axes, since the letters are
+    // read whether or not the positions were asked for.
+    if(data_->axis_pos)
+        for(int k = 0; k < data_->n_axes; k++)
+            data_->axis_pos[at * (size_t)data_->n_axes + k] =
+                    (float)pts9[data_->axis_cols[k]];
     data_->attrs[at * ATTRS_PER_VERTEX] = (uint32_t)line_number;
     data_->attrs[at * ATTRS_PER_VERTEX + 1] =
             (uint32_t)kind | (data_->tool << 8);

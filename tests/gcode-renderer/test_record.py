@@ -394,5 +394,49 @@ class EmptyCanon(unittest.TestCase):
         self.assertEqual(list(canon.max_extents), [0, 0, 0])
 
 
+class AxisRowsAreTheProgramsRows(unittest.TestCase):
+    """One 9-DOF row per vertex, event vertices included.
+
+    The invariant the whole array rests on: index ``i`` of
+    ``axis_positions`` is index ``i`` of ``positions()``, ``lines`` and
+    ``kindtool``. Axes are dropped as *columns*; no row is ever dropped,
+    filtered or compacted, because the moment one is the array stops being
+    readable beside the rest of the record.
+
+    It holds structurally - ``write_vertex`` fills all three arrays at one
+    index under one ``reserve`` - so what this class is really guarding is a
+    future event vertex written some other way.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        # One vertex of every kind: moves, arcs, a coordinate jump, dwells
+        # and tool changes.
+        cls.canon = parse(programs.mixed(), want_axis_positions=True)
+        cls.geometry = cls.canon.program_geometry
+
+    def test_every_array_has_the_same_number_of_rows(self):
+        g = self.geometry
+        self.assertEqual(g.axis_positions.shape[0], len(g))
+        self.assertEqual(g.axis_positions.shape[0], len(g.lines))
+        self.assertEqual(g.axis_positions.shape[0], len(g.positions()))
+
+    def test_a_dwells_row_is_the_dwell_position(self):
+        """An event vertex, found by index and checked against the table the
+        parse wrote apart - so a row filtered or shifted at an event shows up
+        here rather than as a silently misread column.
+
+        The GEOMETRY here is ``XYZ`` and the machine is all nine axes, so the
+        drawn point is the first three columns; anything else means the row
+        belongs to a different vertex.
+        """
+        g = self.geometry
+        at = np.flatnonzero(g.kinds == bake.KIND_DWELL)
+        self.assertTrue(len(at))
+        for i, (_l, _c, _p, points) in zip(at, g.dwells):
+            np.testing.assert_allclose(g.axis_positions[i][:3], points[0],
+                                       atol=5e-6)
+
+
 if __name__ == "__main__":
     unittest.main()

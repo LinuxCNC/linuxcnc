@@ -240,7 +240,8 @@ class GLCanon(gcode.RendererCanon):
 
     # -- the program record ------------------------------------------------
 
-    def configure_program_geometry(self, geometry, ro, is_foam):
+    def configure_program_geometry(self, geometry, ro, is_foam,
+                                   want_axis_positions=False):
         """Choose the transform the renderer will apply, and clear the record.
 
         Called by the widget when the canon is set, i.e. just before the
@@ -256,9 +257,16 @@ class GLCanon(gcode.RendererCanon):
         would quietly change which programs get the foam Z override in
         calc_extents. The drawn planes follow the widget; the extents rule
         follows the canon.
+
+        ``want_axis_positions`` asks the renderer to record each vertex as the
+        machine's own axes as well as as a drawn point. It follows the caller,
+        since only the caller knows whether anything will read the result, and
+        it is off by default because it is a per-vertex array. The machine's
+        axis letters come back either way.
         """
-        self.program_geometry.configure(geometry=geometry, ro=ro,
-                                        is_foam=is_foam)
+        self.program_geometry.configure(
+            geometry=geometry, ro=ro, is_foam=is_foam,
+            want_axis_positions=want_axis_positions)
 
     def calc_extents(self):
         # A delegation onto the values the renderer accumulated, plus the two

@@ -92,9 +92,14 @@ class HeadlessCanon(_GLCanon):
     #: the end of one that is not there.
     TOOLS: dict = {}
 
+    #: What ``get_axis_mask`` answers, i.e. what ``[TRAJ]COORDINATES`` would
+    #: have said. All nine by default so a program may use U/V/W and A/B/C
+    #: without a second harness; a test wanting a real machine's axes sets it.
+    AXIS_MASK = 0x1ff
+
     def get_external_length_units(self): return 1.0
     def get_external_angular_units(self): return 1.0
-    def get_axis_mask(self): return 0x1ff
+    def get_axis_mask(self): return self.AXIS_MASK
     def get_block_delete(self): return False
     def get_tool(self, pocket):
         return self.TOOLS.get(int(pocket), (-1,) + (0.0,) * 12 + (0,))
@@ -120,7 +125,8 @@ class CountingCanon(HeadlessCanon):
         HeadlessCanon.adopt_geometry(self, pg)
 
 
-def parse(text, geometry="XYZ", ro=None, cls=None, **kw):
+def parse(text, geometry="XYZ", ro=None, cls=None, axis_mask=None,
+          want_axis_positions=False, **kw):
     """Parse a generated program into a canon, raising on an interpreter error.
 
     The G-code lives in a tempfile for exactly the length of the parse and is
@@ -131,14 +137,23 @@ def parse(text, geometry="XYZ", ro=None, cls=None, **kw):
     *before* the parse, because the C side compiles them once, at parse start,
     and converts every point on the way in.
 
+    ``axis_mask`` stands in for ``[TRAJ]COORDINATES``, and
+    ``want_axis_positions`` for the caller asking the renderer to record each
+    vertex as the machine's own axes. Both are read at parse start, like the
+    geometry, so both are set here rather than after.
+
     Note that AXIS and gremlin both reverse the ini's GEOMETRY string before
     using it (``"!CXYZ"`` becomes ``"ZYXC!"``), so a program standing in for a
     real config should be given the reversed form.
     """
     from programs import write
     canon = (cls or HeadlessCanon)(geometry, **kw)
-    if ro is not None:
-        canon.configure_program_geometry(geometry, ro, bool(kw.get("is_foam")))
+    if axis_mask is not None:
+        canon.AXIS_MASK = axis_mask
+    if ro is not None or want_axis_positions:
+        canon.configure_program_geometry(
+            geometry, ro if ro is not None else canon.program_geometry.ro,
+            bool(kw.get("is_foam")), want_axis_positions=want_axis_positions)
     path = write(text)
     try:
         with tempfile.NamedTemporaryFile(suffix=".var") as var:
@@ -181,7 +196,8 @@ class FakePreview:
 
     def __init__(self, planes, lines, kinds, tools=None, moves=None,
                  rapid_length=0.0, cut_lengths=None, tool_numbers=None,
-                 dwells=(), toolchanges=(), dwell_time=0.0, extents=None):
+                 dwells=(), toolchanges=(), dwell_time=0.0, extents=None,
+                 axes="", axis_positions=None):
         self._planes = [np.ascontiguousarray(p, dtype=np.float32)
                         for p in planes]
         lines = np.asarray(lines, dtype=np.uint32)
@@ -200,6 +216,13 @@ class FakePreview:
         self._tool_numbers = list(tool_numbers or [None])
         self._dwells = list(dwells)
         self._toolchanges = list(toolchanges)
+        #: The machine's letters come back from every parse; the positions are
+        #: (N, 0) unless asked for, which is what C hands over.
+        self.axes = axes
+        self._axis_pos = (
+            np.empty((len(lines), 0), dtype=np.float32)
+            if axis_positions is None
+            else np.ascontiguousarray(axis_positions, dtype=np.float32))
         if extents is None:
             box = self._box()
             extents = [box] * 4
@@ -215,6 +238,9 @@ class FakePreview:
 
     def attrs(self):
         return self._attrs
+
+    def axis_positions(self):
+        return self._axis_pos
 
     def extents(self):
         return self._extents

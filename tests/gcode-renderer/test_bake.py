@@ -351,5 +351,60 @@ class ProgramParts(unittest.TestCase):
         self.assertEqual(tuple(far[0]["plane_offsets"]), (0.0, 9.0))
 
 
+class AxisColumnsAtTheSeam(unittest.TestCase):
+    """What ``adopt`` accepts, and what it refuses.
+
+    GL-free, and handover-shaped rather than parse-shaped: these are the cases
+    where C and Python could disagree about how many columns a program has,
+    which a parse cannot produce on purpose.
+    """
+
+    AXES = "XZBW"
+
+    def adopted(self, want, axes=AXES, positions=None):
+        g = bake.ProgramGeometry(geometry="XYZ", want_axis_positions=want)
+        g.adopt(FakePreview([np.array(PATH, dtype=np.float32)], LINES, KINDS,
+                            moves=3, axes=axes, axis_positions=positions),
+                COLORS)
+        return g
+
+    def columns(self, n):
+        """``len(PATH)`` rows of ``n`` distinguishable columns."""
+        return np.arange(len(PATH) * n, dtype=np.float32).reshape(len(PATH), n)
+
+    def test_an_asked_record_holds_one_column_per_letter(self):
+        g = self.adopted(True, positions=self.columns(4))
+        self.assertEqual(g.axis_letters, self.AXES)
+        self.assertEqual(g.axis_positions.shape, (len(PATH), 4))
+        np.testing.assert_array_equal(g.axis_position("B"),
+                                      g.axis_positions[:, 2])
+
+    def test_a_block_that_does_not_match_the_request_is_refused(self):
+        """The request is the rule: an array arriving unasked is caught as
+        readily as one going missing, and a column count that disagrees with
+        the letters is caught too."""
+        for case in ("unasked", "missing", "wrong width"):
+            with self.subTest(case=case):
+                want = case != "unasked"
+                cols = {"unasked": self.columns(4), "missing": None,
+                        "wrong width": self.columns(3)}[case]
+                with self.assertRaises(ValueError):
+                    self.adopted(want, positions=cols)
+
+    def test_the_letters_and_columns_belong_to_the_parse(self):
+        """Both ``clear`` and a reconfigure drop them; the *request* survives a
+        reconfigure, because ``configure`` leaves what it was not asked to
+        change alone."""
+        g = self.adopted(True, positions=self.columns(4))
+        g.clear()
+        self.assertEqual(g.axis_letters, "")
+        self.assertEqual(g.axis_positions.shape, (0, 0))
+
+        g = self.adopted(True, positions=self.columns(4))
+        g.configure(geometry="XY")
+        self.assertEqual(g.axis_letters, "")
+        self.assertTrue(g.want_axis_positions)
+
+
 if __name__ == "__main__":
     unittest.main()
