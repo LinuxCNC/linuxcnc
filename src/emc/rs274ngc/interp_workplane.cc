@@ -542,19 +542,36 @@ void Interp::machine_pose_to_program(setup_pointer s, const EmcPose *pose, doubl
     prog[8] = USER_TO_PROGRAM_LEN(pose->w) - s->tool_offset.w - s->w_origin_offset - s->w_axis_offset;
 }
 
+// whether two machine points are the same, to a hair either way
+static bool same_pose(const EmcPose *a, const EmcPose *b)
+{
+    const double tol = 1e-9;
+
+    return fabs(a->tran.x - b->tran.x) < tol && fabs(a->tran.y - b->tran.y) < tol
+        && fabs(a->tran.z - b->tran.z) < tol
+        && fabs(a->a - b->a) < tol && fabs(a->b - b->b) < tol && fabs(a->c - b->c) < tol
+        && fabs(a->u - b->u) < tol && fabs(a->v - b->v) < tol && fabs(a->w - b->w) < tol;
+}
+
 // the joints the machine is at, as far as the interpreter can know ahead
-// of motion: the inverse of its current point, seeded with the last answer.
-// Some modules read the joints they are handed (a nutating head takes its
-// rotary angles from them), so one pass from a stale seed answers for the
-// wrong angles; running again from its own answer settles it.
+// of motion.  A point does not name one joint set: a robot wrist reaches
+// it again with the forearm turned half a revolution, so keep the seed
+// while it still explains where the machine is.  The inverse runs again
+// from its own answer, since a module that reads the joints it is handed
+// (a nutating head takes its angles from them) answers for the wrong
+// angles on a first pass from a stale seed.
 int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
 {
     KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
-    EmcPose pose;
+    EmcPose pose, seeded;
     int pass, i;
 
     current_machine_pose(s, &pose);
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = s->kins_seed[i]; }
+    seeded = pose;
+    if (kinematicsUserForward(ctx, joints, &seeded) == 0 && same_pose(&pose, &seeded)) {
+        return INTERP_OK;
+    }
     for (pass = 0; pass < 8; pass++) {
         double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { prev[i] = joints[i]; }
