@@ -45,6 +45,8 @@
 #define GENSER_MAX_JOINTS 6
 
 #define GENSER_DEFAULT_MAX_ITERATIONS 100
+/* the most a rotary joint moves in one pass of the inverse, in radians */
+#define GENSER_MAX_ANGLE_STEP 0.2
 
 #define PI_2 GO_PI_2
 
