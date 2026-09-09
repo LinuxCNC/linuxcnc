@@ -1,0 +1,9 @@
+The point-to-point moves on a kinematics module that answers the inverse
+by iterating, and the preview of them.
+
+genserkins takes the Jacobian at the joints it is handed, so the seed
+decides whether there is an answer at all: this machine homes to a pose
+that is nowhere near all zeros, and all zeros is the singular pose the
+inverse cannot start from.  The interpreter reads the joints the machine
+stands in, and the preview reads them from the status buffer the way a GUI
+does, so the same program previews and runs to the same place.
