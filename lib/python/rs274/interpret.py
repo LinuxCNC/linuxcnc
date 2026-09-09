@@ -193,5 +193,8 @@ class StatMixin:
     def get_block_delete(self):
         return self.s.block_delete
 
+    def get_external_joint_positions(self):
+        return tuple(self.s.joint_actual_position[:self.s.joints])
+
 
 # vim:ts=8:sts=4:et:
