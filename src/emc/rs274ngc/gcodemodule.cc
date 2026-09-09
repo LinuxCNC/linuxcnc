@@ -771,7 +771,30 @@ CANON_POSITION GET_EXTERNAL_POSITION() {
     return pos;
 }
 CANON_POSITION GET_EXTERNAL_PROBE_POSITION() { return GET_EXTERNAL_POSITION(); }
-int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/) { return 0; }
+
+// Where the machine's joints stand. A point does not name one joint set, so
+// an iterative inverse has to start somewhere: a canon that watches the
+// status buffer says where. One that cannot, or that answers something that
+// is not a sequence of numbers, answers nothing, and the interpreter works
+// from the point alone.
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max) {
+    int n = 0;
+    if(parse_state.interp_error) return 0;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_external_joint_positions")) return 0;
+    try {
+        py::sequence seq = canon.attr("get_external_joint_positions")().cast<py::sequence>();
+        for(py::handle value : seq) {
+            if(n == max) break;
+            joints[n++] = value.cast<double>();
+        }
+    } catch(py::error_already_set &) {
+        return 0;                       // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return 0;
+    }
+    return n;
+}
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(std::string_view /*name*/) {}
