@@ -111,7 +111,15 @@ usr/bin/xyzab-tdr-gui
 usr/bin/xyzac-trt-gui
 usr/bin/xyzbc-trt-gui
 
-usr/lib/lib*.so.*
+usr/lib/liblinuxcnchal.so.0
+usr/lib/liblinuxcnc-uspace-posix.so.0
+usr/lib/libpyplugin.so.0
+usr/lib/libnml.so.0
+usr/lib/librs274.so.0
+usr/lib/liblinuxcncini.so.1
+usr/lib/libposemath.so.0
+usr/lib/libtooldata.so.0
+
 usr/lib/linuxcnc
 usr/lib/python3
 usr/share/tcltk
