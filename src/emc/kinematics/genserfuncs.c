@@ -632,6 +632,27 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
         /* push the Cartesian velocity vector through the inverse Jacobian */
         go_matrix_vector_mult(&Jinv, dvw, dj);
 
+        /* The Jacobian holds only near the estimate, and a far pose asks
+           for a step of many radians: the arm lands somewhere unrelated
+           and converges by way of whole turns its limits refuse.  Cap the
+           step, keeping its direction, and let the iteration walk there. */
+        {
+            double worst = 0.0;
+
+            for (link = 0; link < genser->link_num; link++) {
+                if (GO_QUANTITY_ANGLE == linkout[link].quantity
+                    && fabs(dj[link]) > worst) {
+                    worst = fabs(dj[link]);
+                }
+            }
+            if (worst > GENSER_MAX_ANGLE_STEP) {
+                double scale = GENSER_MAX_ANGLE_STEP / worst;
+                for (link = 0; link < genser->link_num; link++) {
+                    dj[link] *= scale;
+                }
+            }
+        }
+
         //pass through 678 as uvw
         if (p->max_joints > 6) joints[6] = world->u;
         if (p->max_joints > 7) joints[7] = world->v;
