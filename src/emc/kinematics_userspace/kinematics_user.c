@@ -298,11 +298,23 @@ static int load_module(KinematicsUserContext *ctx,
                        const char *sparm)
 {
     char module_path[512];
-    void *handle;
+    void *handle, *hal_lib;
     kins_describe_fn describe;
 
     snprintf(module_path, sizeof(module_path),
              "%s/rtlib/%s.so", EMC2_HOME, module_name);
+
+    /* A module calls rtapi_print() and the rest of the HAL library, and a
+       program holding that library under a shared object of its own (a GUI
+       holds it under the interpreter it loaded) keeps those symbols out of
+       the scope a module resolves against: the module loads and then dies
+       at the first call it cannot bind.  Failing here is not itself an
+       error, since a program that links the library has them in reach. */
+    hal_lib = dlopen("liblinuxcnchal.so.0", RTLD_LAZY | RTLD_GLOBAL);
+    if (!hal_lib) {
+        fprintf(stderr, "kinematicsUserInit: dlopen 'liblinuxcnchal.so.0':"
+                " %s\n", dlerror());
+    }
 
     /* lazily: a halcompile component references hal_export_funct() and
        the rest of what its rtapi_app_main() needs, which only the realtime
