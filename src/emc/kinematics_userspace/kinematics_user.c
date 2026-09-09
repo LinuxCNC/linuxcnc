@@ -30,7 +30,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "config.h"  /* EMC2_HOME */
+#include "config.h"  /* EMC2_RTLIB_DIR, MODULE_EXT */
 
 typedef int (*kins_describe_fn)(const char *coordinates, const char *sparm,
                                 kins_module_info *info);
@@ -302,7 +302,7 @@ static int load_module(KinematicsUserContext *ctx,
     kins_describe_fn describe;
 
     snprintf(module_path, sizeof(module_path),
-             "%s/rtlib/%s.so", EMC2_HOME, module_name);
+             "%s/%s%s", EMC2_RTLIB_DIR, module_name, MODULE_EXT);
 
     /* A module calls rtapi_print() and the rest of the HAL library, and a
        program holding that library under a shared object of its own (a GUI
