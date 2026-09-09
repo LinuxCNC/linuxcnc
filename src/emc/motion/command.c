@@ -140,6 +140,30 @@ static int inverse_settled(EmcPose *pos, double *joints,
     return 0;
 }
 
+/* Where the queue leaves the joints, which is the seed an iterative
+   inverse wants: the reading runs ahead of the machine, so the joints to
+   hand it are not the ones the machine is standing in.  A joint
+   interpolated segment knows its own end; the rest take the answer the
+   last endpoint checked came out with.  Returns 0, and the joints the
+   machine stands in, when there is nothing queued to ask. */
+static double planned_joints[EMCMOT_MAX_JOINTS];
+static int planned_joints_ok = 0;
+
+static int queue_end_joints(double *joints_out)
+{
+    int j;
+
+    if (tpGetQueueEndJoints(&emcmotInternal->coord_tp, joints_out)) { return 1; }
+    if (planned_joints_ok && tpQueueDepth(&emcmotInternal->coord_tp) > 0) {
+        for (j = 0; j < EMCMOT_MAX_JOINTS; j++) { joints_out[j] = planned_joints[j]; }
+        return 1;
+    }
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        joints_out[j] = (j < ALL_JOINTS) ? joints[j].pos_cmd : 0.0;
+    }
+    return 0;
+}
+
 /* limits_ok() returns 1 if none of the hard limits are set,
    0 if any are set. Called on a linear and circular move. */
 STATIC int limits_ok(void)
@@ -288,17 +312,15 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 
     /* Now, check that the endpoint puts the joints within their limits too */
 
-    /* fill in all joints with 0 */
-    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
-        joint = &joints[joint_num];
-        joint_pos[joint_num] = joint->pos_cmd;
-    }
+    /* start the inverse from where the queue leaves the joints */
+    queue_end_joints(joint_pos);
 
     /* now fill in with real values, for joints that are used */
-    if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) != 0)
+    if (inverse_settled(&pos, joint_pos, &iflags, &fflags) != 0)
     {
 	reportError(_("%s move on line %d fails kinematicsInverse"),
 		    move_type, id);
+	planned_joints_ok = 0;
 	return 0;
     }
 
@@ -328,6 +350,15 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 	    reportError(_("%s move on line %d would exceed joint %d's negative limit min:[%f]"),
 			move_type, id, joint_num, joint->min_pos_limit);
 	}
+    }
+
+    /* an endpoint on its way to the queue is where the next one starts
+       from; a refused one leaves the queue as it was */
+    if (in_range) {
+	for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+	    planned_joints[joint_num] = joint_pos[joint_num];
+	}
+	planned_joints_ok = 1;
     }
     return in_range;
 }
@@ -1188,12 +1219,9 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    }
 
 	    /* where the queue ends in joint space */
-	    if (!tpGetQueueEndJoints(&emcmotInternal->coord_tp, start)) {
+	    if (!queue_end_joints(start)) {
 		EmcPose goal;
 		tpGetGoalPos(&emcmotInternal->coord_tp, &goal);
-		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
-		    start[joint_num] = (joint_num < ALL_JOINTS) ? joints[joint_num].pos_cmd : 0.0;
-		}
 		if (inverse_settled(&goal, start, &iflags, &fflags) != 0) {
 		    reportError(_("joint interpolated move on line %d: the queue end fails kinematicsInverse"),
 				emcmotCommand->id);
