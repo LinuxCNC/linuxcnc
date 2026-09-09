@@ -1029,5 +1029,37 @@ class MachineAxes(unittest.TestCase):
             parse(programs.three_moves(), cls=NotAnInt)
 
 
+class ToolOffsetRecords(unittest.TestCase):
+    """What a G43/G43.1/G49 leaves behind: nothing drawn, so the record is the
+    only way back to the offset, and rows locate it - a line in a loop sets it
+    once per pass."""
+
+    def test_an_offset_is_found_by_row_and_not_by_line(self):
+        pg = parse(programs.offsets_in_a_loop(), axis_mask=0b111,
+                   want_axis_positions=True).program_geometry
+        records = pg.tool_offsets
+        self.assertEqual(len(records), 2)
+        (line_a, first_a, last_a, off_a), (line_b, first_b, last_b, off_b) = \
+                records
+        self.assertEqual(line_a, line_b)                # one line, two passes
+        self.assertAlmostEqual(off_a[2], 0.5, places=6)
+        self.assertAlmostEqual(off_b[2], 0.75, places=6)
+
+        # The spans are the program's rows, in order and without a hole: each
+        # offset governs until the next arrives, and the last to the end.
+        self.assertLessEqual(first_a, last_a)
+        self.assertEqual(first_b, last_a + 1)
+        self.assertEqual(last_b, len(pg) - 1)
+
+        # Every row resolves to the offset its own pass was cut under, and the
+        # tip comes back by adding it to the axes.
+        self.assertEqual(pg.tool_offset_at(first_a), off_a)
+        self.assertEqual(pg.tool_offset_at(last_a), off_a)
+        self.assertEqual(pg.tool_offset_at(first_b), off_b)
+        z = pg.axis_position("Z")
+        self.assertAlmostEqual(float(z[last_a]) + off_a[2], 0.0, places=6)
+        self.assertAlmostEqual(float(z[-1]) + off_b[2], 0.0, places=6)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -134,6 +134,15 @@ bool PreviewData::reserve(size_t extra) {
     return true;
 }
 
+// Every row written since it arrived is the open offset's. None of them and
+// it is dropped, which is what keeps the spans non-empty.
+void PreviewData::close_tool_offset() {
+    if(tool_offsets.empty()) return;
+    ToolOffsetRecord &rec = tool_offsets.back();
+    if(rec.first >= n) tool_offsets.pop_back();
+    else rec.last = n - 1;
+}
+
 // Give back the doubling slack once the program is complete - up to half the
 // array, and this is the copy every reader keeps.
 void PreviewData::shrink() {
@@ -182,6 +191,12 @@ static py::object array_view_2d(py::object owner, void *ptr,
 
 static py::tuple triple(const Point3 &v) {
     return py::make_tuple(v[P3_X], v[P3_Y], v[P3_Z]);
+}
+
+static py::tuple nine(const Point9 &v) {
+    py::tuple out((size_t)P9_COUNT);
+    for(int i = 0; i < P9_COUNT; i++) out[i] = v[i];
+    return out;
 }
 
 static py::tuple points_tuple(const PlanePoints &pts, int nplanes) {
@@ -264,6 +279,15 @@ void preview_geometry_register(py::module_ &m) {
                             points_tuple(r.pts, d.nplanes)));
                 return out;
             }, "(lineno, tool number, points per plane) per tool change")
+        .def("tool_offsets", [](const PreviewData &d) {
+                py::list out;
+                for(const ToolOffsetRecord &r : d.tool_offsets)
+                    out.append(py::make_tuple(r.lineno, r.first, r.last,
+                                              nine(r.offsets)));
+                return out;
+            }, "(lineno, first row, last row, nine offsets) per tool offset; "
+               "spans sorted, disjoint and non-empty, and rows before the "
+               "first are under no offset")
         .def("axis_positions", [](py::object self) {
                 PreviewData &d = py::cast<PreviewData&>(self);
                 // Not requested: no block to point at, so an (n, 0) view over
@@ -728,13 +752,23 @@ static int plane_code(int plane) {
 void GCodeRenderer::event(Kind kind, int line_number,
                          const Point9 &axes) {
     switch(kind) {
-    case ToolOffset:
+    case ToolOffset: {
         // Not forwarded: it moved only the chain point and the offset triple,
-        // and both live here now.
+        // and both live here now. The record is kept because nothing else
+        // carries the offset out - the positions have it folded in already.
+        // The offset in hand ends where this one begins.
+        data_->close_tool_offset();
+        ToolOffsetRecord rec = {};
+        rec.lineno = line_number;
+        rec.first = data_->n;
+        rec.last = data_->n;            // closed when the next one arrives
+        rec.offsets = axes;
+        data_->tool_offsets.push_back(rec);
         first_move_ = true;
         lo_ = lo_ - axes + tool_;
         tool_ = axes;
         return;
+    }
     case Dwell:
     case M1xx: {
         // Both are markers at the current position; a hidden one is dropped,
@@ -801,6 +835,7 @@ void GCodeRenderer::hand_over() {
     PyErr_Fetch(&type, &value, &tb);
     int errors = parse_state.interp_error;
     parse_state.interp_error = 0;
+    data_->close_tool_offset();
     data_->shrink();
     PreviewData *program = data_;
     data_ = nullptr;                    // the holder owns it from here, even

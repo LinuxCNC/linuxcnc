@@ -406,5 +406,33 @@ class AxisColumnsAtTheSeam(unittest.TestCase):
         self.assertTrue(g.want_axis_positions)
 
 
+class ToolOffsetLookup(unittest.TestCase):
+    """``tool_offset_at`` over records built by hand, boundaries included."""
+
+    def geometry(self, *records):
+        g = bake.ProgramGeometry(geometry="XYZ")
+        g.adopt(FakePreview([np.array(PATH, dtype=np.float32)], LINES, KINDS,
+                            moves=3, tool_offsets=records), COLORS)
+        return g
+
+    def test_rows_before_the_first_span_have_no_offset(self):
+        """A program that never sets one still answers, and answers zero."""
+        self.assertEqual(self.geometry().tool_offset_at(0), (0.0,) * 9)
+        g = self.geometry((7, 2, 3, (0.0, 0.0, 0.5) + (0.0,) * 6))
+        self.assertEqual(g.tool_offset_at(1), (0.0,) * 9)
+
+    def test_a_span_holds_its_own_rows_whatever_order_they_are_read(self):
+        """Both ends are inclusive, and the span answered from last time is
+        an optimisation: it must not become the answer for a row outside it."""
+        first = (0.0, 0.0, 0.5) + (0.0,) * 6
+        second = (0.0, 0.0, 0.75) + (0.0,) * 6
+        g = self.geometry((7, 1, 2, first), (9, 3, 3, second))
+        want = [(0.0,) * 9, first, first, second]
+        self.assertEqual([g.tool_offset_at(i) for i in range(4)], want)
+        self.assertEqual([g.tool_offset_at(i) for i in reversed(range(4))],
+                         want[::-1])
+        self.assertEqual(g.tool_offset_at(-1), second)
+
+
 if __name__ == "__main__":
     unittest.main()

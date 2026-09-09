@@ -862,6 +862,14 @@ def xzbw_machine(feed=10.0):
             "G1 X2 Z1 B45 W1\nM2\n" % feed)
 
 
+def offsets_in_a_loop(feed=10.0):
+    """Two G43.1 offsets from one line, in a repeat: 0.5 then 0.75, each with
+    a cut after it, so line number cannot tell the two apart."""
+    return ("G20 G90 G94\nG0 X0 Y0 Z0\n#<off> = 0.5\no100 repeat [2]\n"
+            "G43.1 Z#<off>\nG1 F%g X[#<off> * 4]\n"
+            "#<off> = [#<off> + 0.25]\no100 endrepeat\nM2\n" % feed)
+
+
 def three_moves(feed=10.0):
     """A rapid and three one-inch cuts along the axes, from the origin.
 

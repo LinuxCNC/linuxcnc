@@ -125,6 +125,15 @@ struct ToolChangeRecord {
     PlanePoints pts;
 };
 
+// A tool offset. It draws nothing, so it carries the rows it governs rather
+// than a vertex of its own; a line number cannot say that, as a loop writes
+// one line many times. Spans are sorted, disjoint and non-empty.
+struct ToolOffsetRecord {
+    int lineno;
+    size_t first, last;                 // the rows written under it
+    Point9 offsets;                     // xo..wo, as the canon was given them
+};
+
 struct PreviewData {
     ~PreviewData();
     // False when the arrays could not grow: the caller must stop writing, as
@@ -169,6 +178,9 @@ struct PreviewData {
     double dwell_time = 0.0;
     std::vector<DwellRecord> dwells;
     std::vector<ToolChangeRecord> toolchanges;
+    std::vector<ToolOffsetRecord> tool_offsets;
+    // Ends the open tool offset's span, dropping it if it governs no row.
+    void close_tool_offset();
 
     Point9 cur9 = {};                   // where the trajectory is
     bool has_cur = false;

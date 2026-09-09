@@ -299,6 +299,13 @@ class ProgramGeometry:
         self.dwells: list[tuple[int, RGBA, int, tuple[Any, ...]]] = []
         #: ``(lineno, tool_number, points)`` per tool change, same shape.
         self.toolchanges: list[tuple[int, Any, tuple[Any, ...]]] = []
+        #: ``(lineno, first, last, offsets)`` per tool offset, where the two
+        #: rows are inclusive and ``offsets`` is the nine, xo..wo. Spans are
+        #: sorted, disjoint and non-empty; rows before the first are under no
+        #: offset. See :meth:`tool_offset_at`.
+        self.tool_offsets: list[tuple[int, int, int, tuple[float, ...]]] = []
+        #: The span answered from last: memoisation, never the answer itself.
+        self._tool_offset_k = 0
         self._index: Optional[tuple[Any, Any, Any]] = None
 
     # -- what was adopted ---------------------------------------------------
@@ -383,6 +390,36 @@ class ProgramGeometry:
             raise ValueError("%s is not recorded: parse with "
                              "want_axis_positions" % letter)
         return self._axis_pos[:self._n, k]
+
+    def tool_offset_at(self, index: int) -> tuple[float, ...]:
+        """The nine offsets in force at vertex ``index``, xo..wo.
+
+        The positions have the offset folded in, so the tip at row ``i`` is
+        ``axis_positions[i] + tool_offset_at(i)`` over the columns the two
+        share. Zero until the program sets one.
+
+        The last span answered from is checked first, which settles a read in
+        row order whichever way it runs; anything else scans, stopping at the
+        first span past the row.
+        """
+        if index < 0:
+            index += self._n
+        if not 0 <= index < self._n:
+            raise IndexError("no vertex %d in a %d-vertex record"
+                             % (index, self._n))
+        records = self.tool_offsets
+        if records:
+            _l, first, last, offsets = records[self._tool_offset_k]
+            if first <= index <= last:
+                return offsets
+        for k, (_l, first, last, offsets) in enumerate(records):
+            if index > last:
+                continue
+            self._tool_offset_k = k
+            # Sorted, so this span is the row's own unless the row is ahead
+            # of it - which only rows before the first offset can be.
+            return offsets if first <= index else (0.0,) * 9
+        return (0.0,) * 9
 
     # -- extents -----------------------------------------------------------
 
@@ -474,6 +511,9 @@ class ProgramGeometry:
                        for lineno, plane, is_m1xx, _raw, points in pg.dwells()]
         self.toolchanges = [(lineno, tool, points)
                             for lineno, tool, points in pg.toolchanges()]
+        self.tool_offsets = [(lineno, first, last, offsets) for
+                             lineno, first, last, offsets in pg.tool_offsets()]
+        self._tool_offset_k = 0
         self._index = None
 
     @property
