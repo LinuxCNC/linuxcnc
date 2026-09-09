@@ -1,4 +1,0 @@
-#!/bin/sh
-# Builds a realtime component with halcompile, which needs the build
-# tools present.  Skip when testing installed packages.
-[ -z "$SYSTEM_BUILD" ]
