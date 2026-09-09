@@ -1041,7 +1041,31 @@ double GET_EXTERNAL_POSITION_C() { return _pos_c; }
 double GET_EXTERNAL_POSITION_U() { return _pos_u; }
 double GET_EXTERNAL_POSITION_V() { return _pos_v; }
 double GET_EXTERNAL_POSITION_W() { return _pos_w; }
-int GET_EXTERNAL_JOINT_POSITIONS(double * /*joints*/, int /*max*/) { return 0; }
+
+// Where the machine's joints stand.  A point does not name one joint set,
+// so an iterative inverse has to start somewhere: a canon that watches the
+// status buffer says where.  One that cannot answers nothing, and the
+// interpreter works from the point alone.
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max) {
+    PyObject *result, *seq;
+    Py_ssize_t n, i;
+
+    if(interp_error) return 0;
+    if(!PyObject_HasAttrString(callback, "get_external_joint_positions")) return 0;
+    result = callmethod(callback, "get_external_joint_positions", "");
+    if(result == NULL) { PyErr_Clear(); return 0; }
+    seq = PySequence_Fast(result, "joint positions");
+    if(seq == NULL) { PyErr_Clear(); Py_DECREF(result); return 0; }
+    n = PySequence_Fast_GET_SIZE(seq);
+    if(n > max) n = max;
+    for(i = 0; i < n; i++) {
+        joints[i] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(seq, i));
+        if(PyErr_Occurred()) { PyErr_Clear(); n = 0; break; }
+    }
+    Py_DECREF(seq);
+    Py_DECREF(result);
+    return (int)n;
+}
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(const char *name)
