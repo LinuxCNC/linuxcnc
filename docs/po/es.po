@@ -16,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
 "PO-Revision-Date: 2026-09-09 16:01+0000\n"
-"Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
+"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -56264,47 +56264,44 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2378
-#, fuzzy
 msgid "G82 Drilling Cycle Dwell"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "G82 Ciclo de taladrado con espera"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2378
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G82 Drilling Cycle, Dwell"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "G82 Ciclo de taladrado con espera"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2383
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G82 (X- Y- Z-) or (U- V- W-) R- L- P-\n"
 msgstr "G82 (X- Y- Z-) o (U- V- W-) R- L- P-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2387
-#, fuzzy
 msgid ""
 "The 'G82' cycle is intended for drilling with a dwell at the bottom of the "
 "hole."
 msgstr ""
-"El ciclo 'G82' está diseñado para perforar con una pausa en la parte "
-"inferior de el agujero."
+"El ciclo 'G82' está diseñado para perforar con una pausa en el fondo del "
+"agujero."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2398
-#, fuzzy
 msgid ""
 "The motion of a G82 canned cycle looks just like G81 with the addition of a "
 "dwell at the bottom of the Z move. The length of the dwell is specified by a "
 "'P-' word in the G82 block."
 msgstr ""
-"El movimiento de un ciclo fijo G82 se parece a G81 con una pausa en la parte "
-"inferior del movimiento Z. El tiempo de pausa se especifica mediante una "
-"palabra 'P-' en el bloque G82."
+"El movimiento de un ciclo fijo G82 se parece a G81 con la adición de una "
+"pausa en el fondo del movimiento Z. El tiempo de pausa se especifica "
+"mediante una palabra 'P-' en el bloque G82."
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2402
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G90 G82 G98 X4 Y5 Z1.5 R2.8 P2\n"
 msgstr "G90 G82 G98 X4 Y5 Z1.5 R2.8 P2\n"
 
@@ -56320,33 +56317,22 @@ msgstr ""
 #. type: Index entry
 #: src/gcode/g-code.adoc:2408
 msgid "G83 Peck Drilling"
-msgstr ""
+msgstr "G83 Perforación con picoteo"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2408
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G83 Peck Drilling Cycle"
-msgstr "G83 Ciclo de perforación con picado(((G83 Peck Drilling)))"
+msgstr "G83 Ciclo de perforación con picoteo"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2413
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G83 (X- Y- Z-) or (U- V- W-) R- L- Q- D-\n"
-msgstr "G83 (X- Y- Z-) o (U- V- W-) R- L- Q-\n"
+msgstr "G83 (X- Y- Z-) o (U- V- W-) R- L- Q- D-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2424
-#, fuzzy
-#| msgid ""
-#| "The 'G83' cycle (often called peck drilling) is intended for deep "
-#| "drilling ormilling with chip breaking. The retracts in this cycle clear "
-#| "the hole of chips and cut off any long stringers (which are common when "
-#| "drilling in aluminum). This cycle takes a Q number which represents a "
-#| "'delta' increment along the Z-axis. The retract before final depth will "
-#| "always be to the 'retract' plane even if G98 is in effect. The final "
-#| "retract will honor the G98/99 in effect. G83 functions the same as G81 "
-#| "with the addition of retracts during the drilling operation. Peck "
-#| "clearance can be specified by optional P number."
 msgid ""
 "The 'G83' cycle (often called peck drilling) is intended for deep drilling "
 "or milling with chip breaking. The retracts in this cycle clear the hole of "
@@ -56363,15 +56349,14 @@ msgstr ""
 "este ciclo despejan el agujero de esquirlas y cortar las virutas largas (que "
 "son comunes cuando se perfora aluminio). Este ciclo toma un número Q que "
 "representa un incremento 'delta' a lo largo del eje Z. La retracción antes "
-"de la profundidad final siempre esta en el plano de 'retracción' incluso si "
+"de la profundidad final siempre será en el plano de 'retracción' incluso si "
 "G98 está en efecto. La retracción final obedecerá al G98/99 en efecto. G83 "
 "funciona igual que G81 con la adición de retracciones durante la operación "
 "de perforación. La holgura de picoteo puede especificarse con el número "
-"opcional P."
+"opcional D."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2429
-#, fuzzy
 msgid ""
 "Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> downward by "
 "delta or to the Z position, whichever is less deep."
@@ -56381,7 +56366,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2430
-#, fuzzy
 msgid "Rapid move back out to the retract plane specified by the R word."
 msgstr ""
 "Movimiento rápido de regreso al plano de retracción especificado por la "
@@ -56393,10 +56377,12 @@ msgid ""
 "Rapid up either the D value, the G83_PECK_CLEARANCE specified in the INI "
 "file or the default of .010\" / 0.254 mm."
 msgstr ""
+"Movimiento rápido hacia arriba ya sea el valor D, lo especificado en "
+"G83_PECK_CLEARANCE en el archivo INI o el predeterminado de .010\" / 0.254 "
+"mm."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2433
-#, fuzzy
 msgid "Repeat steps 2, 3, and 4 until the Z position is reached at step 2."
 msgstr "Repite los pasos 2, 3 y 4 hasta alcanzar la posición Z en el paso 2."
 
