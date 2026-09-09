@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-09-07 00:51+0000\n"
+"PO-Revision-Date: 2026-09-09 16:02+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: none\n"
 "Language: de\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.9.1.dev0\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -29969,7 +29969,7 @@ msgid ""
 "<<sec:the-spindle-dictionary, The spindle dictionary>>."
 msgstr ""
 "' (gibt Tupel von Dicts zurück) ' - gibt den aktuellen Spindelstatus zurück, "
-"siehe das <sec:the-spindle-dictionary,Spindel-Wörterbuch>>."
+"siehe das <<sec:the-spindle-dictionary,Spindel-Wörterbuch>>."
 
 #. type: Labeled list
 #: src/config/python-interface.adoc:336
@@ -60018,7 +60018,7 @@ msgstr "<<mcode:m68,M68>>"
 #: src/gcode/m-code.adoc:33
 #, no-wrap
 msgid "<<mcode:m70,M70>>"
-msgstr "<<mcode:m70,M70>"
+msgstr "<<mcode:m70,M70>>"
 
 #. type: Table
 #: src/gcode/m-code.adoc:34
@@ -63839,7 +63839,7 @@ msgid ""
 "Practices>>."
 msgstr ""
 "Zeilennummern werden nicht empfohlen. Siehe <<gcode:best-practices,Best "
-"Practices>."
+"Practices>>."
 
 #. type: Title ===
 #: src/gcode/overview.adoc:110
@@ -64303,7 +64303,7 @@ msgstr ""
 "folgenden Abschnitten beschrieben werden. Der einzige Wertetyp, der von "
 "Parametern unterstützt wird, ist die Fließkommazahl; es gibt in G-Code keine "
 "String-, Boolean- oder Integer-Typen wie in anderen Programmiersprachen. "
-"Logische Ausdrücke können jedoch mit gcode formuliert werden: gcode:binary-"
+"Logische Ausdrücke können jedoch mit gcode formuliert werden: <<gcode:binary-"
 "operators,Boolesche Operatoren>> ( 'AND', 'OR', 'XOR', und die "
 "Vergleichsoperatoren 'EQ','NE','GT','GE','LT','LE'), sowie die 'MOD', "
 "'ROUND', 'FUP' und 'FIX' <<gcode:functions,Operatoren>> unterstützen "

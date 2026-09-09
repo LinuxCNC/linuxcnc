@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-09-07 00:51+0000\n"
+"PO-Revision-Date: 2026-09-09 16:01+0000\n"
 "Last-Translator: Luca Toniolo <toniolo.luca@outlook.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: fr\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.9.1.dev0\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -53084,7 +53084,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2119
-#, fuzzy
 msgid ""
 "The G81 <<gcode:g81-example,Example 1>> demonstrates how a canned cycle "
 "could be used to produce 8 holes with ten lines of G-code within the canned "
@@ -53093,13 +53092,13 @@ msgid ""
 "nor does it drill in the same order as the earlier example. But the program "
 "writing economy of a good canned cycle should be obvious."
 msgstr ""
-"L'exemple avec G81 démontre comment les cycles de perçage peuvent être "
-"utilisés pour produire 8 trous avec dix lignes de code.  Le programme ci-"
-"dessous permet de produire le même jeu de 8 trous en utilisant cinq lignes "
-"pour le cycle de perçage. Il ne suit pas exactement le même parcours et ne "
-"perce pas dans le même ordre que l'exemple précédent, mais le programme a "
-"été écrit de manière économique, une bonne pratique qui devrait être "
-"courante avec les cycles de perçage."
+"L'exemple G81 <<gcode:g81-example,Exemple 1>> démontre comment les cycles de "
+"perçage peuvent être utilisés pour produire 8 trous avec dix lignes de "
+"code.  Le programme ci-dessous permet de produire le même jeu de 8 trous en "
+"utilisant cinq lignes pour le cycle de perçage. Il ne suit pas exactement le "
+"même parcours et ne perce pas dans le même ordre que l'exemple précédent, "
+"mais le programme a été écrit de manière économique, une bonne pratique qui "
+"devrait être courante avec les cycles de perçage."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2122
