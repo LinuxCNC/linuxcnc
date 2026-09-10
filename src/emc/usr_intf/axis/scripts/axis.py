@@ -4042,21 +4042,25 @@ else:
     initialfile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
     addrecent = False
 
-if os.path.exists(initialfile):
-    open_file_guts(initialfile, False, addrecent)
+# read once the HAL is whole: the interpreter reads pins to preview a
+# program, the kinematics parameters of a machine whose geometry lives in
+# HAL among them, and a postgui file connects them after the panels exist
+def open_initial_file():
+    if os.path.exists(initialfile):
+        open_file_guts(initialfile, False, addrecent)
 
-if lathe:
-    if lathe_backtool:
-        commands.set_view_y2()
+    if lathe:
+        if lathe_backtool:
+            commands.set_view_y2()
+        else:
+            commands.set_view_y()
     else:
-        commands.set_view_y()
-else:
-    commands.set_view_p()
-if o.canon:
-    x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
-    y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
-    z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
-    o.set_centerpoint(x, y, z)
+        commands.set_view_p()
+    if o.canon:
+        x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+        y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+        z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
+        o.set_centerpoint(x, y, z)
 
 def destroy_splash():
     try:
@@ -4142,6 +4146,7 @@ def check_dynamic_tabs():
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
+        open_initial_file()
         root_window.deiconify()
         destroy_splash()
         return
@@ -4285,6 +4290,7 @@ if hal_present == 1:
     load_gladevcp_panel()
     check_dynamic_tabs()
 else:
+    open_initial_file()
     root_window.deiconify()
     destroy_splash()
 
