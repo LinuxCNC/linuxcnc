@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-09-07 00:52+0000\n"
+"PO-Revision-Date: 2026-09-10 23:07+0000\n"
 "Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
 "Language-Team: none\n"
 "Language: pt\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.9.1.dev0\n"
+"X-Generator: Weblate 2026.9.1\n"
 
 #.  vim: set syntax=asciidoc:
 #. type: Attribute :lang:
@@ -182,7 +182,7 @@ msgstr "Exemplos de Hardware"
 #: src/Master_Documentation.adoc:170
 #, no-wrap
 msgid "ClassicLadder"
-msgstr "Ladder Classico"
+msgstr "Ladder Clássico"
 
 #. type: Title =
 #: src/Master_Documentation.adoc:181
@@ -216,7 +216,7 @@ msgstr "Interfaces de Utilizador"
 #: src/Master_Documentation.adoc:232
 #, no-wrap
 msgid "G-code Programming"
-msgstr "Programação G-Code"
+msgstr "Programação de código G"
 
 #. type: Title ==
 #: src/Master_Documentation.adoc:259 src/user/user-intro.adoc:164
@@ -165078,6 +165078,16 @@ msgid ""
 "the specified command.  Help will respond regardless of whether a \"Hello\" "
 "has been successfully negotiated."
 msgstr ""
+"O comando quit desliga a ligação de socket associada.  ==> Shutdown <==:: O "
+"comando shutdown diz ao EMC para encerrar antes de desistir da ligação.  "
+"Este comando só pode ser emitido se o Hello foi negociado com sucesso e a "
+"ligação tiver controlo do CNC (veja ativar sub-comandos em baixo).  Este "
+"comando não tem parâmetros. ==> Help <== O comando help vai retornar "
+"informação de ajuda em formato de texto sobre a ligação telnet.  Se nenhum "
+"parâmetro for especificado, vai enumerar os comandos disponíveis.  Se for "
+"especificado um comando, vai fornecer informação de utilização para o "
+"comando especificado.  O help vai responder independentemente de se um "
+"\"Hello\" ter sido negociando com sucesso."
 
 #. type: Plain text
 #: src/man/man1/schedrmt.1.adoc:51
@@ -165124,6 +165134,11 @@ msgid ""
 "current connection is enabled for control functions.  `OFF` may not be used "
 "as a password and disables control functions for this connection."
 msgstr ""
+"Com get vai retornar Ligado ou Desligado para indicar se a ligação atual "
+"está ativada a efetuar funções de controle.  Com set e uma palavra passe "
+"válida, a ligação atual é ativada para funções de controle.  `OFF` não pode "
+"ser usado como palavra passe e desativa as funções de controle para esta "
+"ligação."
 
 #. type: Labeled list
 #: src/man/man1/schedrmt.1.adoc:65
@@ -165166,6 +165181,10 @@ msgid ""
 "lower than or equal to the highest version number supported by the server "
 "implementation."
 msgstr ""
+"Com get, retorna a versão de protocolo atual usada pelo servidor.  Com set, "
+"define que o servidor deve usar a versão de protocolo especificada, desde "
+"que seja inferior ou igual ao número de versão mais alto suportado pela "
+"implementação do servidor."
 
 #. type: Labeled list
 #: src/man/man1/schedrmt.1.adoc:77
@@ -165220,6 +165239,14 @@ msgid ""
 "the same value.  This will make the two values the same, since they really "
 "ought to be the same."
 msgstr ""
+"Com get, retorna o valor inteiro de EMC_DEBUG, no EMC.  Note que pode não "
+"ser verdadeiro que a variável local EMC_DEBUG aqui (no emcsh e nas GUIs que "
+"a usam) seja a mesma do valor EMC_DEBUG no EMC.  Isto pode acontecer se o "
+"EMC for arrancado a partir de um ficheiro INI, e a GUI for arrancada com "
+"outro que use um valor diferente para DEBUG.  Com set, envia um comando para "
+"o EMC para definir o novo nível de depuração, e define o EMC_DEBUG global "
+"aqui para o mesmo valor.  Isto vai tornar os dois valores iguais, pois é "
+"suposto eles realmente serem iguais."
 
 #. type: Labeled list
 #: src/man/man1/schedrmt.1.adoc:89
@@ -165235,12 +165262,17 @@ msgid ""
 "\"pause\" or \"error\". Otherwise, sends a command to set the current mode "
 "to \"stop\", \"run\" or \"pause\"."
 msgstr ""
+"Sem nenhum argumento, retorna o estado da fila do programa como \"stop\", "
+"\"run\", \"pause\" ou \"error\". Caso contrário, envia um comando para "
+"definir o modo atual para \"stop\", \"run\" ou \"pause\"."
 
 #. type: Labeled list
 #: src/man/man1/schedrmt.1.adoc:94
 #, no-wrap
 msgid "QStatus _<Queue Size>_ _<First Tag Id>_ _<Last Tag Id>_ _<Queue CRC>_ (Get only)"
 msgstr ""
+"QStatus _<Tamanho Fila>_ _<Id Primeira Etiqueta>_ _<Id Última Etiqueta>_ "
+"_<CRC Fila>_ (apenas Get)"
 
 #. type: Plain text
 #: src/man/man1/schedrmt.1.adoc:101
@@ -165272,6 +165304,8 @@ msgstr ""
 #, no-wrap
 msgid "PgmAdd _<priority>_ _<tag id>_ _<x>_ _<y>_ _<z>_ _<zone>_ _<file name>_ _<feed override>_ _<spindle override>_ _<tool>_"
 msgstr ""
+"PgmAdd _<prioridade>_ _<id etiqueta>_ _<x>_ _<y>_ _<z>_ _<zona>_ _<nome "
+"ficheiro>_ _<sobreposição alimentação>_ _<sobreposição fuso>_ _<ferramenta>_"
 
 #. type: Plain text
 #: src/man/man1/schedrmt.1.adoc:114
@@ -165415,7 +165449,7 @@ msgstr ""
 #: src/man/man1/scorbot-er-3.1.adoc:11
 #, no-wrap
 msgid "Joint 0"
-msgstr ""
+msgstr "articulação 0"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:12
@@ -165426,7 +165460,7 @@ msgstr "rotação em redor da base"
 #: src/man/man1/scorbot-er-3.1.adoc:12
 #, no-wrap
 msgid "Joint 1"
-msgstr ""
+msgstr "articulação 1"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:13
@@ -165437,7 +165471,7 @@ msgstr "ombro"
 #: src/man/man1/scorbot-er-3.1.adoc:13
 #, no-wrap
 msgid "Joint 2"
-msgstr ""
+msgstr "articulação 2"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:14
@@ -165448,29 +165482,29 @@ msgstr "cotovelo"
 #: src/man/man1/scorbot-er-3.1.adoc:14
 #, no-wrap
 msgid "Joint 3"
-msgstr ""
+msgstr "articulação 3"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:15
 msgid "wrist (+ is wrist up & rotate hand)"
-msgstr ""
+msgstr "pulso (+ é pulso para cima & rodar a mão)"
 
 #. type: Labeled list
 #: src/man/man1/scorbot-er-3.1.adoc:15
 #, no-wrap
 msgid "Joint 4"
-msgstr ""
+msgstr "articulação 4"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:16
 msgid "wrist (+ is wrist down & rotate hand)"
-msgstr ""
+msgstr "pulso (+ é pulso para baixo & rodar a mão)"
 
 #. type: Labeled list
 #: src/man/man1/scorbot-er-3.1.adoc:16
 #, no-wrap
 msgid "Joint 5"
-msgstr ""
+msgstr "articulação 5"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:17 src/man/man1/scorbot-er-3.1.adoc:18
@@ -165481,18 +165515,18 @@ msgstr "não usado"
 #: src/man/man1/scorbot-er-3.1.adoc:17
 #, no-wrap
 msgid "Joint 6"
-msgstr ""
+msgstr "articulação 6"
 
 #. type: Labeled list
 #: src/man/man1/scorbot-er-3.1.adoc:18
 #, no-wrap
 msgid "Joint 7"
-msgstr ""
+msgstr "articulação 7"
 
 #. type: Plain text
 #: src/man/man1/scorbot-er-3.1.adoc:19
 msgid "hand open/close (+ is close)"
-msgstr ""
+msgstr "mão aberta/fechada (+ é fechada)"
 
 #. type: Title =
 #: src/man/man1/sendkeys.1.adoc:1
@@ -165504,6 +165538,8 @@ msgstr "sendkeys(1)"
 #: src/man/man1/sendkeys.1.adoc:6
 msgid "sendkeys - send input events based on pins or scancodes from HAL"
 msgstr ""
+"sendkeys - envia eventos de entrada baseados em pinos ou códigos de sondagem "
+"a partir do HAL"
 
 #. type: Plain text
 #: src/man/man1/sendkeys.1.adoc:10
