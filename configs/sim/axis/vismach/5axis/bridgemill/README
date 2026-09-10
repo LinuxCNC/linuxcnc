@@ -1,6 +1,46 @@
-This is a simulation of an XYZBCWY 5 axis bridge mill.
+This is a simulation of an XYZBCWY 5 axis bridge mill with a
+tilting head (B, C) and a W axis.
 
-Example demo:
+W is not a physical axis of the machine and never was: no motor is
+connected to its joint.  The kinematics folds a W word into the
+XYZ joints, so the head slides along the tool axis and the
+rigidly mounted tool goes with it: that is the whole trick, and it
+is what vismach shows.  There is no quill to draw because there is
+no quill.
+
+The quirk: the controller keeps W as a separate world coordinate,
+so a W word leaves the programmed XYZ point untouched and the
+preview cannot show the stroke; the W DRO tracks it.  It also
+means the planner does not see the tool-axis motion, so for
+drilling the controller can check and preview, use the tilted work
+plane family.
+
+Because the W joint is virtual, a point-to-point move on it
+(g53.5/g53.7 j5=) moves no motor on a real machine while the
+controller believes the world moved, the opposite of a W word.
+Do not drill that way.
+
+Demo programs:
+
+ g532-fused-orient-move.ngc -- drill a sphere pattern with tilted work
+                             planes (g68.2), using g53.2 to solve each
+                             orientation without moving (STAY), then
+                             one fused g0 that turns the head and
+                             travels to the hole at the same time
+                             (TCP motion)
+ g536-orient-then-move.ngc -- the same pattern with g53.6 (Heidenhain
+                             MOVE style): reorient about the fixed
+                             tip, then travel in the tilted plane
+ 5axisgui.ngc --------------- the historical demo program, unchanged:
+                             it drills the same pattern with W words,
+                             the slides doing the stroke while the
+                             preview stays blind to it
+
+The tool table provides tool 100 (length 100).  Load it with
+t100m6g43 so the vismach tool and the kinematics pivot length
+(pivotsum: 250 + tool length) match.
+
+Example MDI:
 
  1) $ linuxcnc 5axis.ini
  2) F1 ---------- Estop off
@@ -8,12 +48,12 @@ Example demo:
     CTRL-HOME --- home all
     F5 ---------- MDI tab
  3) orient vismach gui as required
- 4) g0w10   ; retract w
+ 4) g0w10   ; head slides up the tool axis, tip with it
  5) g43h100 ; tool offset (100)
  6) g0b45   ; tilt 45 deg wrt z
  7) g0c30   ; rotate 30 deg in xy
- 8) g0w-10  ; simulate drill
- 9) g0w10   ; retract drill
+ 8) g0w-10  ; head slides back, tip plunges 10 along the tool axis
+ 9) g0w10   ; and back
 10) etc
 
 Note: Motion for the W coordinate is incorporated
