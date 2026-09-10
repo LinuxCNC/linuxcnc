@@ -4370,7 +4370,7 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_nurbs(code, block, settings));
   } else if ((code == G_4) || (code == G_53) || (code == G_53_4) || (code == G_53_5)
              || (code == G_53_7));  // handled elsewhere
-  else if ((code == G_53_1) || (code == G_53_3) || (code == G_53_6)) {
+  else if ((code == G_53_1) || (code == G_53_2) || (code == G_53_3) || (code == G_53_6)) {
     CHP(convert_orient_tool(code, block, settings));
   }
   else if ((code == G_12_1) || (code == G_13_1)) {

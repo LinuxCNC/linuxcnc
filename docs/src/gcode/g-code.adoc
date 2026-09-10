@@ -87,7 +87,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g49,G49>>                 |Cancel Tool Length Offset
 |<<gcode:g52,G52>>                 |Local Coordinate System Offset
 |<<gcode:g53,G53>>                 |Move in Machine Coordinates
-|<<gcode:g53.1,G53.1 G53.3 G53.6>> |Orient the Tool to the Tilted Work Plane
+|<<gcode:g53.1,G53.1 G53.2 G53.3 G53.6>> |Orient the Tool to the Tilted Work Plane
 |<<gcode:g53.4,G53.4 G53.5 G53.7>>  |Point-to-Point Move
 |<<gcode:g54-g59.3,G54-G59.3>>     |Select Coordinate System (1 - 9)
 |<<gcode:g61,G61>>                 |Exact Path Mode
@@ -1677,18 +1677,19 @@ It is an error if:
 * or G53 is used while cutter compensation is on.
 
 [[gcode:g53.1]]
-== G53.1, G53.3, G53.6 Orient the Tool to the Work Plane(((G53.1 Orient the Tool)))
+== G53.1, G53.2, G53.3, G53.6 Orient the Tool to the Work Plane(((G53.1 Orient the Tool)))
 
 [source,ngc]
 ----
 G53.1 <P-> <Q->
+G53.2 <P-> <Q->
 G53.3 <P-> <Q-> X- Y- Z-
 G53.6 <P-> <Q->
 ----
 
-Each of these moves the rotary joints so that the tool axis is normal to the
-active <<gcode:g68.2,tilted work plane>>, the plane's Z. They differ in what
-happens to the tool tip on the way:
+All four solve where the rotary joints have to go so that the tool axis is
+normal to the active <<gcode:g68.2,tilted work plane>>, the plane's Z. They
+differ in what happens then:
 
 * 'G53.1' moves the rotaries alone. The linear joints stay where they are,
   and the tool tip swings to wherever that carries it. It is a
@@ -1697,6 +1698,16 @@ happens to the tool tip on the way:
   the rotary words, so the kinematics compensates the linear joints all along.
 * 'G53.3' moves the rotaries and takes the tool to 'X Y Z', given in the
   plane, in one point-to-point move. A word left out keeps the present value.
+* 'G53.2' moves nothing. It only publishes the solved pose on the named
+  parameters '#<_orient_x>', '#<_orient_y>', '#<_orient_z>', '#<_orient_a>',
+  '#<_orient_b>' and '#<_orient_c>', and on the numbered parameters
+  '#5071' to '#5079' ('X Y Z A B C U V W'), in program units in the plane,
+  and sets '#<_orient_valid>' and '#5080' to 1. The program can then reach
+  the pose with a move of its own making, for instance a single 'G0' that
+  names 'X Y Z' and the rotary words together, so the turn and the travel
+  are one Cartesian move under the TCP kinematics. This is what Heidenhain
+  calls `STAY`. Reading '#<_orient_x>' and kin before the first 'G53.2' is
+  an error; '#<_orient_valid>' and '#5080' say whether they hold a pose.
 
 The kinematics module answers where the rotaries have to go, with its tool
 frame inverse (see the kinematics conventions chapter), so no configuration
@@ -1767,8 +1778,8 @@ It is an error if:
   the way 'P' asks for, or the machine has no pair of poses a tilting joint
   tells apart.
 * 'Q' is anything but 0 or 1.
-* Axis words are used with 'G53.1' or 'G53.6', or words other than 'X', 'Y'
-  and 'Z' with 'G53.3'.
+* Axis words are used with 'G53.1', 'G53.2' or 'G53.6', or words other than
+  'X', 'Y' and 'Z' with 'G53.3'.
 * Cutter compensation is on.
 
 [[gcode:g53.4]]

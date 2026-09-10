@@ -162,6 +162,13 @@ def rot_y(d):
     return np.array([[math.cos(r), 0, math.sin(r)], [0, 1, 0], [-math.sin(r), 0, math.cos(r)]])
 
 # --- the plane, and G53.1 with the table held ---------------------------
+# no G53.2 has run yet, so the pose parameters must refuse to be read
+c.mdi("G0 X#<_orient_x>")
+c.wait_complete(30)
+m = e.poll()
+if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+    error("reading #<_orient_x> before the first G53.2 was accepted")
+drain()
 start = mdi("G12.1 P1", "G0 X0 Y0 Z0 A0 B0 C0")
 show("start", start)
 R = rot_y(20).dot(rot_x(30))
@@ -270,6 +277,48 @@ if worst > 1e-3:
     error("G53.6 moved the tool tip")
 if not close(tool_axis(after), list(R2[:, 2]), 1e-6):
     error("the tool axis after G53.6 is not the plane normal")
+
+# --- G53.2 solves without moving, the pose lands on the parameters ----
+# same plane as G53.6 above, but from a pose that is not the answer:
+# G53.2 must not move, and the pose it publishes must put the tool on the
+# plane normal, which is where G53.6 already stands, so the nearest
+# solution is the present rotary position
+stay = after
+after2, samples = sampled("G53.2")
+drain()
+if not close(after2, stay, 1e-9):
+    error("G53.2 moved the machine: %s became %s" % (stay, after2))
+# read the pose back through the parameters: a move to the published
+# rotary words is a move to the present B and C, with the table held
+before3 = mdi("G0 B0 C0")
+after3, samples = sampled("G0 B#<_orient_b> C#<_orient_c>")
+show("G0 to #<_orient_b/c>", after3)
+drain()
+if abs(wrap(after3[SECONDARY] - stay[SECONDARY])) > 1e-3 or abs(wrap(after3[PRIMARY] - stay[PRIMARY])) > 1e-3:
+    error("#<_orient_b> #<_orient_c> held (%.4f, %.4f), G53.6 had reached (%.4f, %.4f)"
+          % (after3[SECONDARY], after3[PRIMARY], stay[SECONDARY], stay[PRIMARY]))
+if not close(tool_axis(after3), list(R2[:, 2]), 1e-6):
+    error("the tool axis at the pose G53.2 published is not the plane normal")
+# the numbered parameters carry the same pose
+before4 = mdi("G0 B0 C0")
+after4, samples = sampled("G0 B#5075 C#5076")
+show("G0 to #5075/#5076", after4)
+drain()
+if abs(wrap(after4[SECONDARY] - stay[SECONDARY])) > 1e-3 or abs(wrap(after4[PRIMARY] - stay[PRIMARY])) > 1e-3:
+    error("#5075 #5076 held (%.4f, %.4f), G53.6 had reached (%.4f, %.4f)"
+          % (after4[SECONDARY], after4[PRIMARY], stay[SECONDARY], stay[PRIMARY]))
+c.mdi("#5075 = 0")
+c.wait_complete(30)
+m = e.poll()
+if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+    error("writing #5075 was accepted; the G53.2 pose is not read-only")
+drain()
+c.mdi("G0 A#<_orient_a>")
+c.wait_complete(30)
+m = e.poll()
+if m and m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+    error("#<_orient_a> after G53.2: %s" % m[1])
+drain()
 
 # --- G53.3 goes to a point in the plane with the tool oriented ----------
 before = mdi("G69")

@@ -694,7 +694,7 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
     return work_plane_set(s, G_68_3, origin, rotation);
 }
 
-// G53.1, G53.3 and G53.6: the rotaries to the plane's normal.
+// G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.
 //
 // P picks the solution, nearest to the present rotary position first; Q
 // says whether the joints that carry the work may take part: Q0 holds
@@ -706,7 +706,9 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
 // G53.1 moves the rotaries alone, the linear joints stay where they are,
 // interpolated in joint space.  G53.6 keeps the tool centre point where
 // it is, a Cartesian move.  G53.3 goes to X Y Z in the plane with the
-// tool oriented, interpolated in joint space.
+// tool oriented, interpolated in joint space.  G53.2 moves nothing: it
+// only publishes the solved pose on #<_orient_x> and kin, so the program
+// can reach it with a move of its own (Heidenhain STAY).
 int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
 {
     void *vctx;
@@ -722,7 +724,7 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     unsigned int held = 0;
     int p, q, n, i, j, chosen, njoints;
     const double *sol;
-    const char *name = (code == G_53_1) ? "G53.1" : (code == G_53_3) ? "G53.3" : "G53.6";
+    const char *name = (code == G_53_1) ? "G53.1" : (code == G_53_2) ? "G53.2" : (code == G_53_3) ? "G53.3" : "G53.6";
 
     CHKS((!s->g68_active), _("%s needs a tilted work plane; define one with G68.2 first"), name);
     CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
@@ -756,6 +758,18 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     }
     CHKS((n < 0), _("%s: the kinematics cannot answer the orientation"), name);
     CHKS((n == 0), _("%s: the plane's normal cannot be reached by the rotary joints"), name);
+
+    // the solver reports each answer in (-180, 180], but the machine stands
+    // somewhere in turn space: unwrap every angular joint onto the turn
+    // nearest the present position, or the nearest pose is not the nearest
+    // move and a free rotary swings the long way round
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < njoints; j++) {
+            double *v = &solutions[i*njoints + j];
+            if (!(s->kins_angular_joints & (1 << j))) { continue; }
+            *v += 360.0 * floor((now[j] - *v) / 360.0 + 0.5);
+        }
+    }
 
     // nearest first, by rotary travel in joint units
     for (i = 0; i < n; i++) {
@@ -801,6 +815,19 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
         for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = full[i]; }
     }
     machine_pose_to_program(s, &end_pose, end_prog);
+
+    if (code == G_53_2) {
+        // STAY: solve only, nothing moves.  The pose goes to the named
+        // parameters #<_orient_x> and kin and to #5071-#5080, for the
+        // program to use in a move of its own making, the way
+        // Heidenhain's STAY fills Q120-122.  The machine state does not
+        // change.
+        for (i = 0; i < 6; i++) { s->orient_pose[i] = end_prog[i]; }
+        s->orient_valid = true;
+        for (i = 0; i < 9; i++) { s->parameters[5071 + i] = end_prog[i]; }
+        s->parameters[5080] = 1.0;
+        return INTERP_OK;
+    }
 
     write_canon_state_tag(block, s);
     if (code == G_53_1) {

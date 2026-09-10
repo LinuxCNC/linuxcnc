@@ -244,6 +244,7 @@ enum GCodes
     G_52 = 520,
     G_53 = 530,
     G_53_1 = 531,
+    G_53_2 = 532,
     G_53_3 = 533,
     G_53_4 = 534,
     G_53_5 = 535,
@@ -761,6 +762,9 @@ struct setup
   int g68_seq_p;
   unsigned g68_seq_have;        // bit per Q received
   double g68_seq_word[4][7];    // per Q: x y z i j k r
+  // the pose G53.2 last solved, in program words, for #<_orient_a> and kin
+  bool orient_valid;
+  double orient_pose[6];          // x y z a b c
   // the kinematics, for G68.3 and the orientation moves: loaded on first
   // use through the non-realtime loader, on a HAL component of our own
   void *kins_ctx;               // KinematicsUserContext
