@@ -718,6 +718,7 @@ void SET_XY_ROTATION(double t) {
 
 void SET_G68_FRAME(double x, double y, double z,
                    const double rotation[9], int active) {
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =

@@ -112,6 +112,8 @@ setup::setup() :
     g68_seq_p(0),
     g68_seq_have(0),
     g68_seq_word{},
+    orient_valid(false),
+    orient_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     kins_ctx(nullptr),
     kins_comp_id(0),
     kins_module{},
