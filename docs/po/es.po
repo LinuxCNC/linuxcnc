@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-29 16:34+0000\n"
-"PO-Revision-Date: 2026-09-09 16:01+0000\n"
+"PO-Revision-Date: 2026-09-10 23:07+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: es\n"
@@ -56388,33 +56388,28 @@ msgstr "Repite los pasos 2, 3 y 4 hasta alcanzar la posición Z en el paso 2."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2440
-#, fuzzy
 msgid "G84 Right-hand Tapping Cycle Dwell"
-msgstr ""
-"G84 Ciclo de roscado a derecha, con Dwell(((G84 Right-hand Tapping Cycle "
-"Dwell)))"
+msgstr "G84 Ciclo de roscado interno derecho con espera"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2440
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G84 Right-hand Tapping Cycle, Dwell"
-msgstr "G84 Ciclo de roscado a derecha, con Dwell(((G84 Right-hand Tapping Cycle Dwell)))"
+msgstr "G84 Ciclo de roscado interno derecho, con espera"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2445
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G84 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-\n"
-msgstr "G84 (X- Y- Z-) o (U- V- W-) R- L- P- $ -\n"
+msgstr "G84 (X- Y- Z-) o (U- V- W-) R- L- P- $- F-\n"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2457
-#, fuzzy
 msgid "G84 does not use synchronized motion."
-msgstr "G84 does not use synchronized motion."
+msgstr "G84 no usa movimiento sincronizado."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2460
-#, fuzzy
 msgid ""
 "The 'G84' cycle is intended for tapping with floating chuck and dwell at the "
 "bottom of the hole."
@@ -56424,13 +56419,11 @@ msgstr ""
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2466
-#, fuzzy
 msgid "Start spindle rotation counterclockwise."
 msgstr "Inicia la rotación del husillo en sentido antihorario."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2475
-#, fuzzy
 msgid ""
 "The length of the dwell is specified by a 'P-' word in the G84 block.  The "
 "feed rate 'F-' is spindle speed multiplied by distance per revolution "
@@ -56438,35 +56431,34 @@ msgid ""
 "gives a feed of F125."
 msgstr ""
 "La longitud de la pausa se especifica mediante una palabra 'P-' en el bloque "
-"G84. El pitch de la rosca es F dividido por S.  En el ejemplo, S100 F125 "
-"ofrece un paso de 1,25 mm por revolución."
+"G84.  La velocidad de avance 'F-' es la velocidad del husillo multiplicada "
+"por la distancia por revolución (el paso de la rosca).  En el ejemplo, S100 "
+"con un paso de rosca de 1.25mm por revolución da un avance F125."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2477
 msgid "G85 Boring"
-msgstr ""
+msgstr "G85 Mandrinado"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2477 src/gcode/g-code.adoc:2532
-#, fuzzy
 msgid "Feed Out"
-msgstr "Velocidad de Alimentacion"
+msgstr "Salida a avance"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2477
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G85 Boring Cycle, Feed Out"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "G85 Ciclo mandrinado, salida a avance"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2482
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G85 (X- Y- Z-) or (U- V- W-) R- L-\n"
 msgstr "G85 (X- Y- Z-) o (U- V- W-) R- L-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2486
-#, fuzzy
 msgid ""
 "The 'G85' cycle is intended for boring or reaming, but could be used for "
 "drilling or milling."
@@ -56486,7 +56478,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2493
-#, fuzzy
 msgid ""
 "Retract the Z-axis at the current feed rate to the R plane if it is lower "
 "than the initial Z."
@@ -56496,42 +56487,39 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2494
-#, fuzzy
 msgid "Retract at the traverse rate to clear Z."
 msgstr "Retrae a la velocidad transversal para despejar Z."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2496
 msgid "G86 Boring"
-msgstr ""
+msgstr "G86 Mandrinar"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2496 src/gcode/g-code.adoc:2526
-#, fuzzy
 msgid "Spindle Stop"
-msgstr "'S' - velocidad de superficie"
+msgstr "Parada de husillo"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2496
-#, fuzzy
 msgid "Rapid Move Out"
-msgstr "Movimientos rápidos"
+msgstr "Movimiento rápido de salida"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2496
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G86 Boring Cycle, Spindle Stop, Rapid Move Out"
-msgstr "G86 Ciclo de taladrado, parada del husillo, salida a rápido.(((G86 Boring, Spindle Stop, Rapid Move Out)))"
+msgstr ""
+"G86 Ciclo de mandrinado, parada del husillo, movimiento rápido de salida"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2501
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G86 (X- Y- Z-) or (U- V- W-) R- L- P- $-\n"
 msgstr "G86 (X- Y- Z-) o (U- V- W-) R- L- P- $-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2505
-#, fuzzy
 msgid ""
 "The 'G86' cycle is intended for boring. This cycle uses a P number for the "
 "number of seconds to dwell."
@@ -56546,21 +56534,19 @@ msgstr "Detiene el giro del husillo seleccionado. (Elegido por el parámetro $)"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2514
-#, fuzzy
 msgid "Restart the spindle in the direction it was going."
 msgstr "Reinicia el husillo en la dirección en la que iba."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2518
-#, fuzzy
 msgid "the spindle is not turning before this cycle is executed."
 msgstr "el husillo no gira antes de ejecutar este ciclo."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2520
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G87 Back Boring Cycle"
-msgstr "G87 Ciclo de mandrinado posterior(((G87 Ciclo de mandrinado posterior)))"
+msgstr "G87 Ciclo de mandrinado posterior"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2524 src/gcode/g-code.adoc:2530
@@ -56573,66 +56559,61 @@ msgstr ""
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2526
-#, fuzzy
 msgid "G88 Boring Cycle"
-msgstr "Roscado"
+msgstr "G88 Ciclo de mandrinado"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2526
-#, fuzzy
 msgid "Manual Out"
-msgstr "Control manual"
+msgstr "Salida manual"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2526
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G88 Boring Cycle, Spindle Stop, Manual Out"
-msgstr "Ciclo de taladrado G88, parada del husillo, salida manual"
+msgstr "G88 Ciclo de mandrinado, parada del husillo, salida manual"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2532
 msgid "G89 Boring"
-msgstr ""
+msgstr "G89 Mandrinado"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2532
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G89 Boring Cycle, Dwell, Feed Out"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "G89 Ciclo de mandrinado, espera, salida a avance"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2537
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G89 (X- Y- Z-) or (U- V- W-) R- L- P-\n"
 msgstr "G89 (X- Y- Z-) o (U- V- W-) R- L- P-\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2541
-#, fuzzy
 msgid ""
 "The 'G89' cycle is intended for boring. This cycle uses a P number, where P "
 "specifies the number of seconds to dwell."
 msgstr ""
 "El ciclo 'G89' está destinado a mandrinado. Este ciclo usa un número P que "
-"especifica el número de segundos de parada (Dwell)."
+"especifica el número de segundos de parada."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2548
-#, fuzzy
 msgid "Retract the Z-axis at the current feed rate to clear Z."
-msgstr "Retraer el eje Z a velocidad de avance actual para despejar Z."
+msgstr "Retrae el eje Z a velocidad de avance actual para despejar Z."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2550
-#, fuzzy
 msgid "G91 Distance Mode"
-msgstr "Modo de distancia de arco absoluta"
+msgstr "G91 Modo de distancia"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2550
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G90, G91 Distance Mode"
-msgstr "Modo de distancia de arco absoluta"
+msgstr "G90, G91 Modo de distancia"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2556
@@ -56649,7 +56630,6 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2558
-#, fuzzy
 msgid ""
 "'G91' - incremental distance mode In incremental distance mode, axis numbers "
 "usually represent increments from the current coordinate."
@@ -56659,45 +56639,46 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:2559
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G90 Example"
-msgstr "Ejemplo G90"
+msgstr "Ejemplo de G90"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2564
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G90 (set absolute distance mode)\n"
 "G0 X2.5 (rapid move to coordinate X2.5 including any offsets in effect)\n"
 msgstr ""
-"G90 (establecer modo de distancia absoluta)\n"
-"G0 X2.5 (movimiento rápido a coordenada X2.5 incluyendo cualquier compensación en efecto)\n"
+"G90 (establece modo de distancia absoluta)\n"
+"G0 X2.5 (movimiento rápido a coordenada X2.5 incluyendo cualquier "
+"compensación en efecto)\n"
 
 #. type: Block title
 #: src/gcode/g-code.adoc:2566
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G91 Example"
-msgstr "Ejemplo G91"
+msgstr "Ejemplo de G91"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2571
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G91 (set incremental distance mode)\n"
 "G0 X2.5 (rapid move 2.5 from current position along the X axis)\n"
 msgstr ""
-"G91 (establecer modo de distancia incremental)\n"
-"G0 X2.5 (movimiento rápido de 2.5 udes. desde la posición actual a lo largo del eje X)\n"
+"G91 (establece modo de distancia incremental)\n"
+"G0 X2.5 (movimiento rápido de 2.5 desde la posición actual a lo largo del "
+"eje X)\n"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2576
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G90.1, G91.1 Arc Distance Mode"
-msgstr "Modo de distancia de arco absoluta"
+msgstr "G90.1, G91.1 Modo de distancia de arco"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2581
-#, fuzzy
 msgid ""
 "'G90.1' - absolute distance mode for I, J & K offsets.  When G90.1 is in "
 "effect I and J both must be specified with G2/3 for the XY plane or J and K "
@@ -56709,49 +56690,46 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2583
-#, fuzzy
 msgid ""
 "'G91.1' - incremental distance mode for I, J & K offsets.  `G91.1` Returns "
 "I, J & K to their default behavior."
 msgstr ""
-"'G91.1' - modo de distancia incremental para offsets I, J y K. G91.1 "
+"'G91.1' - modo de distancia incremental para offsets I, J y K.  `G91.1` "
 "devuelve I, J y K a su comportamiento predeterminado."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2585
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G92 Coordinate System Offset"
-msgstr "Desplazamientos del sistema de coordenadas"
+msgstr "G92 Desplazamientos del sistema de coordenadas"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2590
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G92 axes\n"
 msgstr "G92 ejes\n"
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2594
-#, fuzzy
 msgid ""
 "Only use 'G92' after your machine has been positioned to the desired point."
 msgstr ""
-"Solo use 'G92' después de que su máquina se haya posicionado en el punto "
+"Solo usa 'G92' después de que tu máquina esté posicionada en el punto "
 "deseado."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2599
-#, fuzzy
 msgid ""
 "'G92' makes the current point have the coordinates you want (without "
 "motion), where the axis words contain the axis numbers you want.  All axis "
 "words are optional, except that at least one must be used.  If an axis word "
 "is not used for a given axis, the offset for that axis will be zero."
 msgstr ""
-"'G92' hace que el punto actual tenga las coordenadas que desea (sin "
+"'G92' hace que el punto actual tenga las coordenadas que deseas (sin "
 "movimiento), donde las palabras de eje contienen los números de eje que "
-"desea.  Todas las palabras de eje son opcionales, pero se debe utilizar al "
-"menos una.  Si no se usa una palabra de eje para un eje dado, el offset para "
-"ese eje será cero."
+"deseas.  Todas las palabras de eje son opcionales, pero se debe utilizar al "
+"menos una.  Si no se usa una palabra de eje para un eje dado, el "
+"desplazamiento para ese eje será cero."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2605
@@ -56780,78 +56758,72 @@ msgid ""
 "that axis' offset will be zero."
 msgstr ""
 "'G92' utiliza los valores almacenados en los <<sub:numbered-"
-"parameters,parámetros>> 5211-5219 como los valores de offset X Y Z A B C U V "
-"W para cada eje.  Los valores de los parámetros son coordenadas de máquina "
-"'absolutas' en las 'unidades' nativas de máquina como se especificó en el "
-"archivo INI.  Todos los ejes definidos en el archivo INI se compensarán "
-"cuando G92 esté activo.  Si no se ingresó un eje después del G92, el offset "
-"de ese eje será cero."
+"parameters,parámetros>> 5211-5219 como los valores de desplazamiento X Y Z A "
+"B C U V W para cada eje.  Los valores de los parámetros son coordenadas de "
+"máquina 'absolutas' en las 'unidades' nativas de máquina como se especificó "
+"en el archivo INI.  Todos los ejes definidos en el archivo INI serán "
+"desplazados cuando G92 esté activo.  Si no se ingresó un eje después del "
+"G92, el offset de ese eje será cero."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2616
-#, fuzzy
 msgid ""
 "For example, suppose the current point is at X=4 and there is currently no "
 "'G92' offset active. Then 'G92 X7' is programmed.  This moves all origins -3 "
 "in X, which causes the current point to become X=7.  This -3 is saved in "
 "parameter 5211."
 msgstr ""
-"Por ejemplo, suponga que el punto actual está en X = 4 y no hay ningún "
-"offset 'G92' activo. Entonces se programa 'G92 X7'. Esto mueve todos los "
-"orígenes -3 en X, lo que hace que el punto actual se convierta en X = 7. "
+"Por ejemplo, suponiendo que el punto actual está en X=4 y no hay ningún "
+"desplazamiento 'G92' activo. Luego se programa 'G92 X7'.  Esto mueve todos "
+"los orígenes -3 en X, lo que hace que el punto actual se convierta en X=7.  "
 "Este -3 se guarda en el parámetro 5211."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2619
-#, fuzzy
 msgid ""
 "Being in incremental distance mode (G91 instead of G90) has no effect on the "
 "action of `G92`."
 msgstr ""
 "Estar en modo de distancia incremental (G91 en lugar de G90) no tiene ningún "
-"efecto sobre la acción de 'G92'."
+"efecto sobre la acción de `G92`."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2623
-#, fuzzy
 msgid ""
 "'G92' offsets may be already be in effect when the `G92` is called.  If this "
 "is the case, the offset is replaced with a new offset that makes the current "
 "point become the specified value."
 msgstr ""
-"Las compensaciones 'G92' pueden estar vigentes cuando se llama a 'G92'.  Si "
-"este es el caso, el offset se reemplaza con un nuevo offset que hace que el "
-"punto actual se convierta al valor especificado."
+"Las compensaciones 'G92' pueden estar vigentes cuando se llama a `G92`.  Si "
+"este es el caso, el desplazamiento se reemplaza con uno nuevo que hace que "
+"el punto actual se convierta al valor especificado."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2625
-#, fuzzy
 msgid "It is an error if all axis words are omitted."
-msgstr "Es un error si se omiten todas las palabras del eje."
+msgstr "Es un error si se omiten todas las palabras de eje."
 
 #. type: WARNING
 #: src/gcode/g-code.adoc:2629
-#, fuzzy
 msgid ""
 "LinuxCNC stores the G92 offsets and reuses them on the next run of a "
 "program. To prevent this, one can program a `G92.1` (to erase them), or "
 "program a `G92.2` (to remove them - they are still stored)."
 msgstr ""
-"LinuxCNC almacena las compensaciones G92 y las reutiliza en la próxima "
-"ejecución de un programa. Para evitar esto, puede programar un G92.1 (para "
-"borrarlos), o un G92.2 (para quitarlos, pero quedan almacenados)."
+"LinuxCNC almacena los desplazamientos G92 y los reutiliza en la próxima "
+"ejecución de un programa. Para evitar esto, uno puede programar un `G92.1` "
+"(para borrarlos), o un `G92.2` (para quitarlos, pero quedan almacenados)."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2633
-#, fuzzy
 msgid ""
 "The 'G52' command can also be used to change this offset; see the <<sec:g52-"
 "and-g92-offsets,Local and Global Offsets>> section for more details about "
 "`G92` and `G52` and how they interact."
 msgstr ""
-"El comando 'G52' también se puede usar para cambiar este offset; ver la "
-"sección <<sec:g52-and-g92-offsets,Offsets>> para más detalles sobre 'G92' y "
-"'G52' y cómo interactúan."
+"El comando 'G52' también se puede usar para cambiar este desplazamiento; ver "
+"la sección <<sec:g52-and-g92-offsets,Offsets locales y globales>> para más "
+"detalles sobre `G92` y `G52` y cómo interactúan."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2637 src/gcode/machining-center.adoc:407
@@ -56864,69 +56836,63 @@ msgstr ""
 #: src/gcode/g-code.adoc:2639 src/remap/remap.adoc:1964
 #, no-wrap
 msgid "G92.1"
-msgstr ""
+msgstr "G92.1"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2639
-#, fuzzy
 msgid "G92.2 Reset G92 Offsets"
-msgstr "G92 Axes Offsets"
+msgstr "G92.2 Restablecer desplazamientos G92"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2639
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G92.1, G92.2 Reset G92 Offsets"
-msgstr "G92 Axes Offsets"
+msgstr "G92.1, G92.2 Restablecer desplazamientos G92"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2642
-#, fuzzy
 msgid ""
 "'G92.1' - turn off G92 offsets and reset <<sub:numbered-"
 "parameters,parameters>> 5211 - 5219 to zero."
 msgstr ""
-"'G92.1' - apaga las compensaciones G92 y restablece <<sub:numbered-"
-"parameters, parámetros>> 5211 - 5219 a cero."
+"'G92.1' - apaga los desplazamientos G92 y restablece <<sub:numbered-"
+"parameters,parámetros>> 5211 - 5219 a cero."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2643
-#, fuzzy
 msgid ""
 "'G92.2' - turn off G92 offsets but keep <<sub:numbered-"
 "parameters,parameters>> 5211 - 5219 available."
 msgstr ""
-"'G92.2' - apaga las compensaciones de G92 pero mantén <<sub:numbered-"
-"parameters, parámetros>> 5211 - 5219 disponibles."
+"'G92.2' - apaga los desplazamientos G92 pero mantiene <<sub:numbered-"
+"parameters,parámetros>> 5211 - 5219 disponibles."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2646
-#, fuzzy
 msgid ""
 "G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets "
 "in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>."
 msgstr ""
-"G92.1 solo borra las compensaciones G92, para cambiar las compensaciones del "
-"sistema de coordenadas G53-G59.3 en el código G use <<gcode:g10-l2, G10 L2>> "
-"o <<gcode:g10-l20, G10 L20>>."
+"G92.1 solo borra los desplazamientos G92, para cambiar los desplazamientos "
+"del sistema de coordenadas G53-G59.3 en código G use <<gcode:g10-l2,G10 L2>> "
+"o <<gcode:g10-l20,G10 L20>>."
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2648
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G92.3 Restore G92 Offsets"
-msgstr "G92 Axes Offsets"
+msgstr "G92.3 Restablecer desplazamientos G92"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2651
-#, fuzzy
 msgid ""
 "'G92.3' - set the `G92` offset to the values saved in parameters 5211 to 5219"
 msgstr ""
-"'G92.3' - establece el offset de G92 a los valores guardados en los "
+"'G92.3' - establece el desplazamiento `G92` a los valores guardados en los "
 "parámetros 5211 a 5219"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2659
-#, fuzzy
 msgid ""
 "You can set axis offsets in one program and use the same offsets in another "
 "program.  Program `G92` in the first program.  This will set parameters 5211 "
@@ -56935,38 +56901,36 @@ msgid ""
 "when the second one starts up.  Use `G92.3` near the beginning of the second "
 "program.  That will restore the offsets saved in the first program."
 msgstr ""
-"Puede establecer offsets de eje en un programa y utilizar los mismos offsets "
-"en otro programa Programa 'G92' en el primer programa. Esto establecerá "
-"parámetros 5211 a 5219. No utilice 'G92.1' en el resto del primer programa "
-"Los valores de los parámetros se guardarán cuando el primer el programa sale "
-"y se restaura cuando se inicia el segundo.  Use 'G92.3' cerca del comienzo "
-"del segundo programa. Eso restaurará las compensaciones guardadas en el "
-"primer programa."
+"Puedes establecer desplazamientos de eje en un programa y utilizar los "
+"mismos desplazamientos en otro programa.  Programa `G92` en el primer "
+"programa.  Esto establecerá parámetros 5211 a 5219.  No utilices `G92.1` en "
+"el resto del primer programa.  Los valores de los parámetros se guardarán "
+"cuando termine el primer el programa y se restauran cuando inicia el "
+"segundo.  Usa `G92.3` cerca del comienzo del segundo programa.  Eso "
+"restaurará los desplazamientos guardados en el primer programa."
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2661
-#, fuzzy
 msgid "G95 Feed Rate Mode"
-msgstr "Velocidad de Alimentacion"
+msgstr "G95 Modo de velocidad de alimentación"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2661
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G93, G94, G95 Feed Rate Mode"
-msgstr "Velocidad de Alimentacion"
+msgstr "G93, G94, G95 Modo de velocidad de alimentación"
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2668
-#, fuzzy
 msgid ""
 "'G93' - is Inverse Time Mode.  In inverse time feed rate mode, an F word "
 "means the move should be completed in [one divided by the F number] "
 "minutes.  For example, if the F number is 2.0, the move should be completed "
 "in half a minute."
 msgstr ""
-"'G93' - Modo de Tiempo Inverso. En modo de velocidad de avance de tiempo "
+"'G93' - Modo de tiempo inverso.  En modo de velocidad de avance de tiempo "
 "inverso, la palabra F significa que el movimiento debe completarse en [uno "
-"dividido por el número F] minutos. Por ejemplo, si el número F es 2.0, el "
+"dividido entre el número F] minutos.  Por ejemplo, si el número F es 2.0, el "
 "movimiento debería ser completado en medio minuto."
 
 #. type: NOTE
@@ -56978,13 +56942,13 @@ msgid ""
 "feed rate mode does not affect `G0` (<<gcode:g0,rapid move>>) motions."
 msgstr ""
 "Cuando el modo de velocidad de avance de tiempo inverso está activo, debe "
-"aparecer una palabra F en cada línea que tiene un movimiento `G1`, `G2` o "
-"`G3`. Si la linea no tiene `G1`, `G2` o `G3`, F se ignora. Estar en modo de "
-"velocidad de tiempo inverso no afecta a <<gcode:g0,movimentos rápidos>> `G0`."
+"aparecer una palabra F en cada línea que tenga un movimiento `G1`, `G2` o "
+"`G3`. Si la línea no tiene `G1`, `G2` o `G3` se ignora. Estar en modo de "
+"velocidad de avance de tiempo inverso no afecta a <<gcode:g0,movimentos "
+"rápidos>> `G0`."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2679
-#, fuzzy
 msgid ""
 "'G94' - is Units per Minute Mode.  In units per minute feed mode, an F word "
 "is interpreted to mean the controlled point should move at a certain number "
@@ -56992,7 +56956,7 @@ msgid ""
 "depending upon what length units are being used and which axis or axes are "
 "moving."
 msgstr ""
-"'G94' - Modo Unidades por Minuto.  En el modo de alimentación de unidades "
+"'G94' - Modo unidades por minuto.  En el modo de alimentación de unidades "
 "por minuto, una palabra F significa que el punto controlado debe moverse a "
 "un cierto número de pulgadas por minuto, milímetros por minuto o grados por "
 "minuto, dependiendo de qué unidades de longitud se utilizan y qué eje o ejes "
@@ -57009,77 +56973,71 @@ msgid ""
 "that `spindle.N.speed-in` to be connected.  The actual spindle to which the "
 "feed is synchronised is chosen by the `$` parameter."
 msgstr ""
-"'G95' - Modo Unidades por Revolución.  En modo de unidades por revolución, "
+"'G95' - Modo unidades por revolución.  En modo de unidades por revolución, "
 "una palabra F se interpreta como que el punto controlado debe moverse un "
 "cierto número de pulgadas por revolución del husillo, dependiendo de qué "
-"unidades de longitud se estén utilizando y cuáles eje o ejes se mueven.  "
+"unidades de longitud se estén utilizando y cuál(es) eje(s) se mueve(n).  "
 "`G95` no es adecuado para roscar, use `G33` o `G76`.  `G95` requiere que se "
 "conecte `spindle.N.speed-in`.  El husillo real con el que se sincroniza la "
 "alimentacion se elige con el parámetro `$`."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2691
-#, fuzzy
 msgid ""
 "Inverse time feed mode is active and a line with `G1`, `G2`, or `G3` "
 "(explicitly or implicitly) does not have an F-word."
 msgstr ""
-"El modo de alimentación de tiempo inverso está activo y una línea con G1, G2 "
-"o G3 (explícita o implícitamente) no tiene una palabra F."
+"El modo de alimentación de tiempo inverso está activo y una línea con `G1`, "
+"`G2` o `G3` (explícita o implícitamente) no tiene una palabra F."
 
 #. type: NOTE
 #: src/gcode/g-code.adoc:2692
-#, fuzzy
 msgid "A new feed rate is not specified after switching to `G94` or `G95`"
 msgstr ""
 "No se especifica una nueva velocidad de alimentación después de cambiar a "
-"G94 o G95"
+"`G94` o `G95`"
 
 #. type: Table
 #: src/gcode/g-code.adoc:2694 src/remap/remap.adoc:1968
 #, no-wrap
 msgid "G96"
-msgstr ""
+msgstr "G96"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2694
-#, fuzzy
 msgid "G97 Spindle Control Mode"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "G97 Modo de control de husillo"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2694
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G96, G97 Spindle Control Mode"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "G96, G97 Modo de control de husillo"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2700
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G96 <D-> S- <$-> (Constant Surface Speed Mode)\n"
 "G97 S- <$-> (RPM Mode)\n"
 msgstr ""
-"G96 <D-> S- <$ -> (Modo de velocidad de superficie constante)\n"
-"G97 S- <$ -> (Modo RPM)\n"
+"G96 <D-> S- <$-> (Modo de velocidad de superficie constante)\n"
+"G97 S- <$-> (Modo RPM)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2703
-#, fuzzy
 msgid "'D' - maximum rotation speed (RPM), optional"
-msgstr "'D' - RPM máximas del husillo"
+msgstr "'D' - velocidad de rotación máxima (RPM), opcional"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2704
-#, fuzzy
 msgid "'S' - spindle speed"
-msgstr "'S' - velocidad de superficie"
+msgstr "'S' - velocidad del husillo"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2705
-#, fuzzy
 msgid "'$' - the spindle of which the speed will be varied, optional."
-msgstr "'$ \"- el husillo del cual se variará la velocidad."
+msgstr "'$' - el husillo cuya velocidad se variará, opcional."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2707
@@ -57088,33 +57046,29 @@ msgstr "'G96 S- <D->' - selecciona la velocidad superficial constante de 'S':"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2708
-#, fuzzy
 msgid "In feet per minute if `G20` is in effect,"
-msgstr "(si G20 está en vigor) o metros por minuto"
+msgstr "En pies por minuto si `G20` está en vigor,"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2709
-#, fuzzy
 msgid "or meters per minute if `G21` is in effect."
-msgstr "(si G21 está en vigor). D- es opcional."
+msgstr "o metros por minuto si `G21` está en vigor."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2714
-#, fuzzy
 msgid ""
 "When using G96, ensure that X0 in the current coordinate system (including "
 "offsets and tool lengths) is the center of rotation or LinuxCNC will not "
 "give the desired surface speed.  G96 is not affected by radius or diameter "
 "mode."
 msgstr ""
-"Cuando use G96, asegúrese de que X0 en el sistema de coordenadas actual "
-"(incluidos los offsets y las longitudes de herramienta) es el centro de "
+"Al usar G96, asegurarse de que X0 en el sistema de coordenadas actual "
+"(incluidos desplazamientos y longitudes de herramienta) es el centro de "
 "rotación o LinuxCNC no proporcionará la velocidad de superficie deseada.  "
 "G96 no se ve afectado por el modo de radio o diámetro."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2717
-#, fuzzy
 msgid ""
 "To achieve CSS mode on selected spindles programme successive G96 commands "
 "for each spindle prior to issuing M3."
@@ -57124,35 +57078,34 @@ msgstr ""
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2719
-#, fuzzy
 msgid "'G97' selects RPM mode."
 msgstr "'G97' selecciona el modo RPM."
 
 #. type: Block title
 #: src/gcode/g-code.adoc:2720
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G96 Example Line"
-msgstr "Línea de ejemplo G96"
+msgstr "Línea de ejemplo de G96"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2724
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G96 D2500 S250 (set CSS with a max rpm of 2500 and a surface speed of 250)\n"
-msgstr "G96 D2500 S250 (establece CSS con rpm máximo de 2500 y una velocidad de superficie de 250)\n"
+msgstr ""
+"G96 D2500 S250 (establece VSC con rpm máximo de 2500 y una velocidad de "
+"superficie de 250)\n"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2729
-#, fuzzy
 msgid "S is not specified with G96"
 msgstr "S no se especifica con G96"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2730
-#, fuzzy
 msgid "A feed move is specified in G96 mode while the spindle is not turning"
 msgstr ""
-"Se especifica un movimiento de avance en el modo G96 mientras el husillo no "
-"gira"
+"Se especifica un movimiento de avance en el modo G96 cuando el husillo no "
+"está girando"
 
 #. type: Table
 #: src/gcode/g-code.adoc:2732 src/remap/remap.adoc:1970
@@ -57162,39 +57115,35 @@ msgstr "G98"
 
 #. type: Index entry
 #: src/gcode/g-code.adoc:2732
-#, fuzzy
 msgid "G99 Canned Cycle Return"
-msgstr "Modo de retracción"
+msgstr "G99 Retracción de ciclo fijo"
 
 #. type: Title ==
 #: src/gcode/g-code.adoc:2732
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G98, G99 Canned Cycle Return Level"
-msgstr "Modo de retracción"
+msgstr "G98, G99 Nivel de retracción de ciclo fijo"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2736
-#, fuzzy
 msgid ""
 "When spindle retracts during canned cycles, there are two options to choose "
 "from for the way it does it:"
 msgstr ""
-"When spindle retracts during canned cycles, there are two options to choose "
-"from for the way it does it:"
+"Cuando el husillo es retraído durante ciclos fijos, hay dos opciones a "
+"elegir para la manera de hacerlo:"
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2739
-#, fuzzy
 msgid ""
 "'G98' - retract to the position that axis was in just before this series of "
 "one or more contiguous canned cycles was started."
 msgstr ""
-"'G98' - se retrocede a la posición en la que se encontraba el eje justo "
-"antes de una serie de uno o más ciclos contiguos."
+"'G98' - retrocede a la posición en la que se encontraba el eje justo antes "
+"de iniciar una serie de uno o más ciclos fijo contiguos."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2741
-#, fuzzy
 msgid ""
 "'G99' - retract to the position specified by the R word of the canned cycle."
 msgstr ""
@@ -57217,13 +57166,13 @@ msgstr ""
 
 #. type: Block title
 #: src/gcode/g-code.adoc:2748
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "G98 Retract to Origin"
-msgstr "G98 Retraer al origen"
+msgstr "G98 Retracción al origen"
 
 #. type: delimited block -
 #: src/gcode/g-code.adoc:2753
-#, fuzzy, no-wrap
+#, no-wrap
 msgid ""
 "G0 X1 Y2 Z3\n"
 "G90 G98 G81 X4 Y5 Z-0.6 R1.8 F10\n"
@@ -57238,11 +57187,10 @@ msgid ""
 "value of Z in the first line since it is higher that the R value specified."
 msgstr ""
 "G98 en la segunda línea significa que el movimiento de retorno será al valor "
-"de Z en la primera línea, ya que es más alto que el valor R especificado."
+"de Z en la primera línea, porque es mayor que el valor R especificado."
 
 #. type: Plain text
 #: src/gcode/g-code.adoc:2764
-#, fuzzy
 msgid ""
 "The 'initial' (G98) plane is reset any time cycle motion mode is abandoned, "
 "whether explicitly (G80) or implicitly (any motion code that is not a "
@@ -57250,65 +57198,61 @@ msgid ""
 "'initial' plane. It is possible to switch between G98 and G99 during a "
 "series of cycles."
 msgstr ""
-"El plano 'inicial' (G98) se restablece cada vez que el modo de movimiento "
-"del ciclo es abandonado, ya sea explícitamente (G80) o implícitamente "
-"(cualquier código de movimiento que no sea un ciclo). Cambiar entre modos de "
-"ciclo (por ejemplo, G81 a G83) NO restablece el plano 'inicial'. Es posible "
-"cambiar entre G98 y G99 durante una serie de ciclos."
+"El plano 'inicial' (G98) se restablece cada vez que se abandona el modo de "
+"movimiento de ciclo, ya sea explícitamente (G80) o implícitamente (cualquier "
+"código de movimiento que no sea un ciclo). Cambiar entre modos de ciclo (por "
+"ejemplo, G81 a G83) NO restablece el plano 'inicial'. Es posible cambiar "
+"entre G98 y G99 durante una serie de ciclos."
 
 #. type: Content of: <html><body><table><caption>
 #: html/gcode.html:22 html/gcode.html:48
-#, fuzzy
 msgid "LinuxCNC \"G-code\" Quick Reference"
-msgstr "Tabla de referencia rápida de códigos M"
+msgstr "Referencia rápida de \"código G\" de LinuxCNC"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:55
 msgid "(X Y Z A B C U V W apply to all motions)"
-msgstr ""
+msgstr "(X Y Z A B C U V W aplica a todos los movimientos)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:56
 msgid "<a href=\"gcode/g-code.html#gcode:g0\">G0</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g0\">G0</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:56
-#, fuzzy
 msgid "Rapid Move"
-msgstr "Movimientos rápidos"
+msgstr "Movimiento rápido"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:57
 msgid "<a href=\"gcode/g-code.html#gcode:g1\">G1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g1\">G1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:57
-#, fuzzy
 msgid "Linear Move"
-msgstr "Ejes lineales"
+msgstr "Movimiento lineal"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:58
 msgid "<a href=\"gcode/g-code.html#gcode:g2-g3\">G2, G3</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g2-g3\">G2, G3</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:58
 msgid "I J K or R P"
-msgstr ""
+msgstr "I J K o R P"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:58
-#, fuzzy
 msgid "Arc Move"
-msgstr "Movimiento de entrada"
+msgstr "Movimiento de arco"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:59
 msgid "<a href=\"gcode/g-code.html#gcode:g4\">G4</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g4\">G4</a>"
 
 #. type: Table
 #: html/gcode.html:59 html/gcode.html:152 html/gcode.html:162
@@ -57323,33 +57267,32 @@ msgstr "P"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:60
 msgid "<a href=\"gcode/g-code.html#gcode:g5\">G5</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g5\">G5</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:60
 msgid "I J P Q"
-msgstr ""
+msgstr "I J P Q"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:61
 msgid "<a href=\"gcode/g-code.html#gcode:g5.1\">G5.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g5.1\">G5.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:61
 msgid "I J"
-msgstr ""
+msgstr "I J"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:61
-#, fuzzy
 msgid "Quadratic Spline"
-msgstr "G5.1 Muestra de spline cuadrática"
+msgstr "Spline cuadrática"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:62
 msgid "<a href=\"gcode/g-code.html#gcode:g5.2-g5.3\">G5.2</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g5.2-g5.3\">G5.2</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:62
@@ -57359,54 +57302,52 @@ msgstr "P L"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:62
 msgid "NURBS"
-msgstr ""
+msgstr "NURBS"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:63
 msgid "<a href=\"gcode/g-code.html#gcode:g38\">G38.2 - G38.5</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g38\">G38.2 - G38.5</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:63
-#, fuzzy
 msgid "Straight Probe"
-msgstr "Sonda inteligente"
+msgstr "Sondeo recto"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:64
 msgid "<a href=\"gcode/g-code.html#gcode:g33\">G33</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g33\">G33</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:64 html/gcode.html:65
 msgid "K ($)"
-msgstr ""
+msgstr "K ($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:65
 msgid "<a href=\"gcode/g-code.html#gcode:g33.1\">G33.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g33.1\">G33.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:66
 msgid "<a href=\"gcode/g-code.html#gcode:g80\">G80</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g80\">G80</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:66
 msgid "Cancel Canned Cycle"
-msgstr "Cancelar Ciclo Fijo"
+msgstr "Cancelar ciclo fijo"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:68
-#, fuzzy
 msgid "Canned cycles"
-msgstr "Creando nuevos ciclos de codigo G"
+msgstr "Ciclos fijos"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:68
 msgid "(X Y Z or U V W apply to canned cycles, depending on active plane)"
-msgstr ""
+msgstr "(X Y Z o U V W aplica a ciclos fijos, dependiendo del plano activo)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:69
@@ -57416,7 +57357,7 @@ msgstr "<a href=\"gcode/g-code.html#gcode:g70\">G70</a>"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:69 html/gcode.html:70
 msgid "Q (X) (Z) (D) (E) (P)"
-msgstr ""
+msgstr "Q (X) (Z) (D) (E) (P)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:70
@@ -57426,202 +57367,183 @@ msgstr "<a href=\"gcode/g-code.html#gcode:g71-g72\">G71 G72</a>"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:71
 msgid "<a href=\"gcode/g-code.html#gcode:g73\">G73</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g73\">G73</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:71 html/gcode.html:76
 msgid "R L Q"
-msgstr ""
+msgstr "R L Q"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:71
-#, fuzzy
 msgid "Drilling Cycle, Chip Breaking"
-msgstr ""
-"G73 Ciclo de taladrado con rotura de viruta(((G73 Drilling Cycle Chip "
-"Break)))"
+msgstr "Ciclo de taladrado con rotura de viruta"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:72
 msgid "<a href=\"gcode/g-code.html#gcode:g74\">G74</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g74\">G74</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:72 html/gcode.html:77
 msgid "R L (P) ($)"
-msgstr ""
+msgstr "R L (P) ($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:72
-#, fuzzy
 msgid "Left-hand Tapping Cycle, Dwell"
-msgstr ""
-"G84 Ciclo de roscado a derecha, con Dwell(((G84 Right-hand Tapping Cycle "
-"Dwell)))"
+msgstr "Ciclo de roscado interno izquierdo, con espera"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:73
 msgid "<a href=\"gcode/g-code.html#gcode:g76\">G76</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g76\">G76</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:73
 msgid "P Z I J R K Q H L E ($)"
-msgstr ""
+msgstr "P Z I J R K Q H L E ($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:73
-#, fuzzy
 msgid "Threading Cycle"
-msgstr "Roscado"
+msgstr "Ciclo de roscado"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:74
 msgid "<a href=\"gcode/g-code.html#gcode:g81\">G81</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g81\">G81</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:74 html/gcode.html:75 html/gcode.html:78 html/gcode.html:79
 msgid "R L (P)"
-msgstr ""
+msgstr "R L (P)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:75
 msgid "<a href=\"gcode/g-code.html#gcode:g82\">G82</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g82\">G82</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:75
-#, fuzzy
 msgid "Drilling Cycle, Dwell"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "Ciclo de taladrado, con espera"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:76
 msgid "<a href=\"gcode/g-code.html#gcode:g83\">G83</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g83\">G83</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:76
-#, fuzzy
 msgid "Drilling Cycle, Peck"
-msgstr ""
-"G73 Ciclo de taladrado con rotura de viruta(((G73 Drilling Cycle Chip "
-"Break)))"
+msgstr "Ciclo de taladrado con picoteo"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:77
 msgid "<a href=\"gcode/g-code.html#gcode:g84\">G84</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g84\">G84</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:77
-#, fuzzy
 msgid "Right-hand Tapping Cycle, Dwell"
-msgstr ""
-"G84 Ciclo de roscado a derecha, con Dwell(((G84 Right-hand Tapping Cycle "
-"Dwell)))"
+msgstr "Ciclo de roscado interno derecho, con espera"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:78
 msgid "<a href=\"gcode/g-code.html#gcode:g85\">G85</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g85\">G85</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:78
-#, fuzzy
 msgid "Boring Cycle, Feed Out"
-msgstr "G85 Ciclo mandrinado, salida a avance(((G85 Boring, Feed Out)))"
+msgstr "Ciclo de mandrinado, alimentación de salida"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:79
 msgid "<a href=\"gcode/g-code.html#gcode:g89\">G89</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g89\">G89</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:82
 msgid "<a href=\"gcode/g-code.html#gcode:g90-g91\">G90, G91</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g90-g91\">G90, G91</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:83
 msgid "<a href=\"gcode/g-code.html#gcode:g90.1-g91.1\">G90.1, G91.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g90.1-g91.1\">G90.1, G91.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:84
 msgid "<a href=\"gcode/g-code.html#gcode:g7\">G7</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g7\">G7</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:84
-#, fuzzy
 msgid "Lathe Diameter Mode"
-msgstr "modo de radio/diámetro de torno (G7, G8)"
+msgstr "Modo de diámetro de torno"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:85
 msgid "<a href=\"gcode/g-code.html#gcode:g8\">G8</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g8\">G8</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:85
-#, fuzzy
 msgid "Lathe Radius Mode"
-msgstr "Modo Torno"
+msgstr "Modo de radio de torno"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:87 html/gcode.html:88
-#, fuzzy
 msgid "Feed Rate Mode"
-msgstr "Velocidad de Alimentacion"
+msgstr "Modo de velocidad de alimentación"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:88
 msgid "<a href=\"gcode/g-code.html#gcode:g93-g94-g95\">G93, G94, G95</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g93-g94-g95\">G93, G94, G95</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:88 html/gcode.html:91
 msgid "S ($)"
-msgstr ""
+msgstr "S ($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:91
 msgid "<a href=\"gcode/m-code.html#mcode:m3-m4-m5\">M3, M4, M5</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m3-m4-m5\">M3, M4, M5</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:92
 msgid "<a href=\"gcode/m-code.html#mcode:m19\">M19</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m19\">M19</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:92
 msgid "R Q (P) ($)"
-msgstr ""
+msgstr "R Q (P) ($)"
 
 #. type: Table
 #: html/gcode.html:92 src/gcode/m-code.adoc:23
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Orient Spindle"
-msgstr "Husillo"
+msgstr "Orientación del husillo"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:93
 msgid "<a href=\"gcode/g-code.html#gcode:g96-g97\">G96, G97</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g96-g97\">G96, G97</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:93
 msgid "S D ($)"
-msgstr ""
+msgstr "S D ($)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:93
-#, fuzzy
 msgid "Spindle Control Mode"
-msgstr "Control de husillo(((0-10v Spindle Speed Example)))"
+msgstr "Modo de control del husillo"
 
 #. type: Index entry
 #: html/gcode.html:95 src/gcode/machining-center.adoc:80
@@ -57633,116 +57555,112 @@ msgstr "Refrigerante"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:96
 msgid "<a href=\"gcode/m-code.html#mcode:m7-m8-m9\">M7, M8, M9</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m7-m8-m9\">M7, M8, M9</a>"
 
 #. type: Table
 #: html/gcode.html:96 src/gcode/m-code.adoc:22
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Coolant Control"
-msgstr "Control manual"
+msgstr "Control de refrigerante"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:98 html/gcode.html:99
-#, fuzzy
 msgid "Tool Length Offset"
-msgstr "offsets de longitud de herramienta"
+msgstr "Compensación de longitud de herramienta"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:99
 msgid "<a href=\"gcode/g-code.html#gcode:g43\">G43</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g43\">G43</a>"
 
 #. type: Table
 #: html/gcode.html:99 html/gcode.html:101 src/gcode/overview.adoc:130
 #, no-wrap
 msgid "H"
-msgstr ""
+msgstr "H"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:100
 msgid "<a href=\"gcode/g-code.html#gcode:g43.1\">G43.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g43.1\">G43.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:101
 msgid "<a href=\"gcode/g-code.html#gcode:g43.2\">G43.2</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g43.2\">G43.2</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:102
 msgid "<a href=\"gcode/g-code.html#gcode:g49\">G49</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g49\">G49</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:102
-#, fuzzy
 msgid "Cancel Tool Length Compensation"
-msgstr "Offsets de longitud de la herramienta"
+msgstr "Cancelación de compensación de longitud de herramienta"
 
 #. type: Plain text
 #: html/gcode.html:104 man/man9/eoffset_per_angle.9:202
 msgid "Stopping"
-msgstr ""
+msgstr "Parada"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:105
 msgid "<a href=\"gcode/m-code.html#mcode:m0-m1\">M0, M1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m0-m1\">M0, M1</a>"
 
 #. type: Table
 #: html/gcode.html:105 src/gcode/m-code.adoc:17
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Program Pause"
-msgstr "Dimensiones (fisicas necesarias) del programa"
+msgstr "Pausa de programa"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:106
 msgid "<a href=\"gcode/m-code.html#mcode:m2-m30\">M2, M30</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m2-m30\">M2, M30</a>"
 
 #. type: Table
 #: html/gcode.html:106 src/gcode/m-code.adoc:18
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Program End"
-msgstr "Dimensiones (fisicas necesarias) del programa"
+msgstr "Fin del programa"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:107
 msgid "<a href=\"gcode/m-code.html#mcode:m60\">M60</a>"
-msgstr ""
+msgstr "<a href=\"gcode/m-code.html#mcode:m60\">M60</a>"
 
 #. type: Table
 #: html/gcode.html:107 src/gcode/m-code.adoc:19
-#, fuzzy, no-wrap
+#, no-wrap
 msgid "Pallet Change Pause"
-msgstr "Pin de cambio de herramienta"
+msgstr "Pausa de cambio de pallet"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:110
 msgid "<a href=\"gcode/g-code.html#gcode:g20-g21\">G20, G21</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g20-g21\">G20, G21</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:110
-#, fuzzy
 msgid "Units (inch, mm)"
-msgstr "Unidades Pulgadas"
+msgstr "Unidades (pulgadas, mm)"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:112
-#, fuzzy
 msgid "Plane Selection"
-msgstr "Selección de columnas"
+msgstr "Selección de plano"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:112
 msgid "(affects G2, G3, G81…G89, G40…G42)"
-msgstr ""
+msgstr "(afecta G2, G3, G81…G89, G40…G42)"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:113
 msgid "<a href=\"gcode/g-code.html#gcode:g17-g19.1\">G17 - G19.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g17-g19.1\">G17 - G19.1</a>"
 
 #. type: Index entry
 #: html/gcode.html:115 src/gcode/tool-compensation.adoc:277
@@ -57754,35 +57672,34 @@ msgstr "Compensación de radio de cortador"
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:116
 msgid "<a href=\"gcode/g-code.html#gcode:g40\">G40</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g40\">G40</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:116
-#, fuzzy
 msgid "Compensation Off"
-msgstr "Compensacion de Herramientas"
+msgstr "Apagar compensación"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:117
 msgid "<a href=\"gcode/g-code.html#gcode:g41-g42\">G41,G42</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g41-g42\">G41,G42</a>"
 
 #. type: Table
 #: html/gcode.html:117 src/gcode/overview.adoc:127
 #: src/motion/pid-theory.adoc:159 src/motion/pid-theory.adoc:182
 #, no-wrap
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:118
 msgid "<a href=\"gcode/g-code.html#gcode:g41.1-g42.1\">G41.1, G42.1</a>"
-msgstr ""
+msgstr "<a href=\"gcode/g-code.html#gcode:g41.1-g42.1\">G41.1, G42.1</a>"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:118
 msgid "D L"
-msgstr ""
+msgstr "D L"
 
 #. type: Index entry
 #: html/gcode.html:120 src/gcode/machining-center.adoc:265
@@ -57828,15 +57745,13 @@ msgstr ""
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:126
-#, fuzzy
 msgid "Canned Cycle Return Level"
-msgstr "Modo de retracción"
+msgstr "Nivel de retracción de ciclo fijo"
 
 #. type: Content of: <html><body><table><tbody><tr><th>
 #: html/gcode.html:128
-#, fuzzy
 msgid "Other Modal Codes"
-msgstr "Otros Pines Hal Motion"
+msgstr "Otros códigos modales"
 
 #. type: Content of: <html><body><table><tbody><tr><td>
 #: html/gcode.html:129
