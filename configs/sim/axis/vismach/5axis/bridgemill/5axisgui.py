@@ -50,6 +50,7 @@ c.newpin("jy", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jz", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jb", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jw", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool_diam", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("pivot_len", hal.HAL_FLOAT, hal.HAL_OUT)
@@ -57,8 +58,15 @@ c["pivot_len"] = pivot_len
 c.ready()
 
 tooltip = Capture()
-tool = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),
-                   HalToolCylinder(c),
+# the quill carries the tool and slides along the tool axis with the W
+# joint: positive W pushes the tool tip further out of the head
+quill = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),
+                    HalToolCylinder(c),
+                    Color([0.8,0.8,0.3,1],[CylinderZ(-40, 35, 120, 35)])
+                    ])
+quill = HalTranslate([quill], c, "jw", 0,0,-1)
+
+tool = Collection([quill,
                    CylinderZ(pivot_len-(zb+za), 100, 0.0, 50),
                    Box(-100,-100,pivot_len-(zb+za),
                         100, 100,pivot_len-zb),

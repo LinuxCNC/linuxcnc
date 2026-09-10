@@ -1,0 +1,50 @@
+; g536-orient-then-move.ngc - same sphere as g532-fused-orient-move.ngc, but with g53.6
+; (Heidenhain MOVE style): reorient about the fixed tip, a TCP move,
+; then travel to the next hole in the tilted plane with a separate g0.
+; g532-fused-orient-move.ngc fuses the turn and the travel into one move instead.
+
+        #<r>  =   60 ; sphere radius
+  #<rdelta>   =    5 ; safe distance
+#<drilldepth> =   -5
+   #<zsafe>   =   20 ; clearance above the ball for start and stop
+    #<bctmax> =    8
+    #<cctmax> =   16
+    #<toolno> =  100
+    #<frate>  = 1000
+
+#<bct>    = 0
+#<cct>    = 0
+#<cdelta> = [360/#<cctmax>]
+#<bdelta> = [90/#<bctmax>]
+
+g49
+g13.1 ; kinematics 0 (TCP), in case a previous run left a switch active
+m65 p0 ; quill unlocked, in case a previous run locked it
+t#<toolno>m6g43
+
+g53 g0 x0 y0 z0 b0 c0
+g10 l20 p0 x0 y0 z[#<r>+#<rdelta>+#<zsafe>] b0 c0 ; ball center at program origin, we park above it
+f#<frate>
+o100 while [#<bct> lt #<bctmax>]
+       #<b> = [[#<bctmax>-1-#<bct>]*#<bdelta>] ; top ring first, the way in stays outside the ball
+       #<cct> = 0
+o200   while [#<cct> lt #<cctmax>]
+o210      if [[#<bct> mod 2] eq 0]
+              #<c> = [#<cct> * #<cdelta>]
+o210      else
+              #<c> = [360 - [1+ #<cct>] * #<cdelta>]
+o210      endif
+          g68.2 p1 j[90-#<b>] k#<c>  ; plane Z is the sphere radius at b, c
+          g53.6                      ; reorient about the tip, a TCP move
+          g0 x0 y0 z[#<r>+#<rdelta>]
+          g1 z[#<r>+#<drilldepth>]
+          g0 z[#<r>+#<rdelta>]
+          #<cct> = [#<cct>+1]
+o200   endwhile
+       #<bct> = [#<bct>+1]
+o100 endwhile
+
+g69
+g53 g0 z0         ; up, clear of the ball
+g53 g0 x0 y0 b0 c0
+m2

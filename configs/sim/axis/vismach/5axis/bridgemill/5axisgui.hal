@@ -10,6 +10,22 @@ net :jc  joint.4.pos-fb 5axisgui.jc
 net :jw  joint.5.pos-fb
 net :jy2 joint.6.pos-fb
 
+# m64 p0 locks the quill drawing: vismach shows the quill at home while
+# the head does the W compensation motion, so the drawn tool tip
+# travels along the tool axis and a W- stroke looks like drilling,
+# m65 p0 unlocks it; unlocked by default.  Purely a vismach thing:
+# joint 5 follows the W word everywhere else (feedback, DRO, motion).
+# This is also how the original demo's "drilling" worked: the quill
+# simply was not drawn, so nothing contradicted the illusion.
+loadrt mux_generic config=ff2
+addf mux-gen.00 servo-thread
+net :quill-lock <= motion.digital-out-00
+net :quill-lock => mux-gen.00.sel-bit-00
+setp mux-gen.00.in-float-01 0
+net :jw => mux-gen.00.in-float-00
+net :jw-draw <= mux-gen.00.out-float
+net :jw-draw => 5axisgui.jw
+
 # Note: no joint or motor connections are used
 # for the w coordinate
 

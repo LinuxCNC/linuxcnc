@@ -1,0 +1,58 @@
+; g121-switch-kins.ngc - same sphere again, quill stroke done by
+; switching kinematics around an ordinary W move: g12.1 p1 (identity
+; kinematics, every word names its joint directly), g1 w10 drills with
+; the quill alone, g13.1 switches back.  This is the least recommended
+; of the quill demos, kept as a demonstration of G12.1/G13.1:
+; g535-quill.ngc does the same stroke with g53.5 and never
+; switches kinematics at all.
+;
+; Geometry as in g535-quill.ngc.
+
+        #<r>  =   60 ; sphere radius
+  #<rdelta>   =    5 ; safe distance
+#<drilldepth> =   -5
+   #<zsafe>   =   20 ; clearance above the ball for start and stop
+    #<zstart> =    0
+    #<bctmax> =    8
+    #<cctmax> =   16
+    #<toolno> =  100
+    #<frate>  = 1000
+
+#<bct>    = 0
+#<cct>    = 0
+#<cdelta> = [360/#<cctmax>]
+#<bdelta> = [90/#<bctmax>]
+
+g49
+g13.1 ; kinematics 0 (TCP), in case a previous run left a switch active
+m65 p0 ; quill unlocked, in case a previous run locked it
+t#<toolno>m6g43
+
+g53 g0 x0y0z#<zstart>b0c0 w0
+g10l20 p0 x0 y0 z[#<r>+#<rdelta>+#<zsafe>] b0 c0 w0 ; ball center at program origin, we park above it
+f#<frate>
+o100 while [#<bct> lt #<bctmax>]
+       #<b> = [[#<bct>+1]*#<bdelta>] ; top ring first, the way in stays outside the ball, no pole hole
+       #<cct> = 0
+o200   while [#<cct> lt #<cctmax>]
+o210      if [[#<bct> mod 2] eq 0]
+              #<c> = [#<cct> * #<cdelta>]
+o210      else
+              #<c> = [360 - [1+ #<cct>] * #<cdelta>]
+o210      endif
+          #<x> = [[#<r>+#<rdelta>]*[sin[#<b>]]*[cos[#<c>]]]
+          #<y> = [[#<r>+#<rdelta>]*[sin[#<b>]]*[sin[#<c>]]]
+          #<z> = [[#<r>+#<rdelta>]*[cos[#<b>]]]
+          g0 x#<x> y#<y> z#<z> b[-#<b>] c#<c>
+          g12.1 p1 ; identity kins, w is the quill joint
+          g1 w[#<rdelta> - #<drilldepth>] ; quill alone drills
+          g0 w0 ; quill back, head never moved
+          g13.1 ; back to TCP kins
+          #<cct> = [#<cct>+1]
+o200   endwhile
+       #<bct> = [#<bct>+1]
+o100 endwhile
+
+g0x0y0z[#<r>+#<rdelta>]b0c0w0
+g53 g0 x0y0z0
+m2
