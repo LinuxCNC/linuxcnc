@@ -699,15 +699,6 @@ extern int kinematicsSetTool(const EmcPose *tool);
 //      before/after invoking kinematicsSwitch()
 //      A convenient command to synch is: M66 E0 L0
 
-#define KINS_NOT_SWITCHABLE \
-extern int kinematicsSwitchable() {return 0;} \
-extern int kinematicsSwitch(int switchkins_type) { (void)switchkins_type; return 0;} \
-extern int kinematicsTypeFlags(int ktype) { (void)ktype; return -1;} \
-EXPORT_SYMBOL(kinematicsSwitchable); \
-EXPORT_SYMBOL(kinematicsSwitch); \
-EXPORT_SYMBOL(kinematicsTypeFlags);
-
-
 // support for template for user-defined switchkins_type==2
 extern const kins_ops USERK_OPS;
 

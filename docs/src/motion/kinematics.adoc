@@ -332,7 +332,6 @@ between joint numbers and axis letters when in joint mode
 ----
 int kinematicsSwitchable(void)
 int kinematicsSwitch(int switchkins_type)
-KINS_NOT_SWITCHABLE
 ----
 
 The function kinematicsSwitchable() returns 1 if multiple
@@ -342,9 +341,9 @@ See <<cha:switchable-kinematics,Switchable Kinematitcs>>.
 
 [NOTE]
 The majority of provided kinematics modules support a single
-kinematics type and use the directive "*KINS_NOT_SWITCHABLE*" to
-supply defaults for the required kinematicsSwitchable() and
-kinematicsSwitch() functions.
+kinematics type; they are written on the parameter block and link
+'kins_single.c', which supplies these entry points and answers "not
+switchable" for them.
 
 ----
 int kinematicsHome(EmcPose *world, double *joint,
