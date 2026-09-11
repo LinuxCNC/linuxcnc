@@ -126,6 +126,19 @@ if reported != want_reported:
 else:
     print("#<_kins_type> reported %s" % " ".join(reported))
 
+# G43.4 switches to the primary kinematics (0) and applies the offset,
+# G49 cancels both, and a plain G43 touches the offset only
+g434 = [m[1].strip() for m in said if m[1].strip().startswith("G434")]
+want_g434 = ["G434 KINSTYPE=0.000000 TLOZ=12.500000",
+             "G434 KINSTYPE=1.000000 TLOZ=0.000000",
+             "G434 KINSTYPE=1.000000 TLOZ=12.500000",
+             "G434 KINSTYPE=0.000000 TLOZ=12.500000",
+             "G434 KINSTYPE=1.000000 TLOZ=0.000000"]
+if g434 != want_g434:
+    error("G43.4/G49 reported %s" % (g434,))
+else:
+    print("G43.4 switched to primary with the offset, G49 cancelled both")
+
 # ---- a negative kinematics number is refused -----------------------------
 
 c.mode(linuxcnc.MODE_MDI)
