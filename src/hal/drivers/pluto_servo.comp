@@ -17,8 +17,8 @@
 component pluto_servo """Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use with servo machines.""";
 
 description """
-.SH DEPRECATED
-This driver is deprecated and will be removed in a future release. It is only built for RTAI kernels; it is not available in the standard preempt-rt (uspace) builds.
+DEPRECATED: This driver is deprecated and will be removed in a future release. It is only built for RTAI kernels; it is not available in the standard preempt-rt (uspace) builds.
+
 Pluto_servo is a LinuxCNC software driver and associated firmware that allow the Pluto-P board to be used to control a servo-based CNC machine.
 
 The driver has 4 PWM channels, 4 quadrature channels with index pulse, 18
