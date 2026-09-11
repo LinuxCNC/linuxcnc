@@ -544,6 +544,7 @@ typedef struct kins_params {
 typedef struct kins_scratch {
     EmcPose  pose_seed;                       /* start an iterative forward here */
     int      have_pose_seed;
+    int      pose_seed_ok;                    /* pose_seed came from a solve that succeeded */
     double   joint_seed[EMCMOT_MAX_JOINTS];   /* start an iterative inverse here */
     int      have_joint_seed;
     int      iterations;

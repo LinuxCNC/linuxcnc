@@ -1536,11 +1536,17 @@ int kinsOpsForward(const kins_ops *ops, const kins_params *p,
     int r;
     if (!ops || !ops->forward || !p || !s) { return -1; }
     if (ops->fwd_iterates && s->have_pose_seed) {
-        *pos = s->pose_seed;
+        /* no pose of our own yet: start from the caller's estimate,
+           which stays in *pos, rather than from a never-solved seed */
+        if (s->pose_seed_ok) { *pos = s->pose_seed; }
         s->have_pose_seed = 0;
     }
     r = ops->forward(p, s, joint, pos, fflags, iflags);
-    if (ops->fwd_iterates) { s->pose_seed = *pos; }
+    if (ops->fwd_iterates && r == 0) {
+        /* keep the result only when the solve succeeds */
+        s->pose_seed = *pos;
+        s->pose_seed_ok = 1;
+    }
     return r;
 }
 
