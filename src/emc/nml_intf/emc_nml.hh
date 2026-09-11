@@ -16,7 +16,10 @@
 #define EMC_NML_HH
 #include <linuxcnc.h>
 #include <emcpos.h>
+// kinematics.h has no linkage guards of its own (its definitions are C)
+extern "C" {
 #include <kinematics.h>	// SWITCHKINS_MAX_TYPES
+}
 #include "emc.hh"
 #include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
