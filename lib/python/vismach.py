@@ -220,7 +220,7 @@ class Track(Collection):
         self.target = target
         self.position = position
         self.world2view = world
-        
+
     def angle_to(self,x,y,z):
         '''returns polar coordinates in degrees to a point from the origin
         a rotates around the x-axis; b rotates around the y axis; r is the distance'''
@@ -228,26 +228,20 @@ class Track(Collection):
         elevation = atan2(z, sqrt(x**2 + y**2))*180/pi
         radius = sqrt(x**2+y**2+z**2)
         return((azimuth, elevation, radius))
-        
+
     def map_coords(self,tx,ty,tz,transform):
         # now we have to transform them to the world frame
         wx = tx*transform[0][0]+ty*transform[1][0]+tz*transform[2][0]+transform[3][0]
         wy = tx*transform[0][1]+ty*transform[1][1]+tz*transform[2][1]+transform[3][1]
         wz = tx*transform[0][2]+ty*transform[1][2]+tz*transform[2][2]+transform[3][2]
-
         return([wx,wy,wz])
-        
-        
+
     def apply(self):
-        #make sure we have something to work with first
-        if (self.world2view.t == []):
-                #something's borkled - give up
-                print("vismach.py: Track: why am i here? world is not in the scene yet")
-                glPushMatrix()
-                return
-        
+        # make sure we have something to work with first
+        if len(self.world2view.t) < 4:
+            glPushMatrix()
+            return
         view2world = invert(self.world2view.t)
-        
         px, py, pz = self.position.t[3][:3]
         px, py, pz = self.map_coords(px,py,pz,view2world)
         tx, ty, tz = self.target.t[3][:3]
@@ -264,10 +258,8 @@ class Track(Collection):
         glRotatef(az-90,0,0,1)
         glRotatef(el-90,1,0,0)
 
-
     def unapply(self):
                 glPopMatrix()
-
 
 # scales an object by the value of a halpin
 class HalScale(Collection):
