@@ -208,8 +208,12 @@ A module that declares no identity kinstype refuses 'G13.1' with an
 error and can still be driven by number with 'G12.1'; see Code Notes
 for how a module declares its types.
 
-See the G-code documentation for 'G12.1' and 'G13.1' for the full
-description.
+For tool length work there are spellings that name the kinematics by
+what it is rather than by number: 'G43.4' applies the tool length
+offset and switches to the kinstype the module declares its working
+transform, and 'G49' clears the offset and switches back to identity.
+See the G-code documentation for 'G43.4' and 'G49', and for 'G12.1'
+and 'G13.1', for the full description.
 
 === M-code commands
 
@@ -543,26 +547,31 @@ which kinstype is at fault.
 Each kinstype gets its own 'kinstype.is-N' pin, so a module
 providing the usual three keeps the pin names it always had.
 
-A module should also declare what each kinstype IS, again from within
+A module also declares what each kinstype IS, with flags from
+kinematics.h:
+
+. *KINSTYPE_IDENTITY*  no transform: the joints are the world
+. *KINSTYPE_PRIMARY*   the module's working transform
+
+A kinstype registered with switchkinsRegisterOps() carries its flag in
+the ops table itself, as the 'identity' or 'primary' field; a kinstype
+registered the older way gets it from a call, again from within
 switchkinsSetup():
 
 ----
 int switchkinsDeclare(int ktype, int flags);
 ----
 
-with flags from kinematics.h:
-
-. *KINSTYPE_IDENTITY*  no transform: the joints are the world
-. *KINSTYPE_PRIMARY*   the module's working transform
-
 G-code reads these declarations: 'G13.1' cancels to the kinstype
-declared KINSTYPE_IDENTITY, whatever its number, so a module whose
-identity kinematics is not kinstype 0 still gets a working 'G13.1'.
-At most one kinstype may be declared identity, and declaring a
-kinstype the module does not provide fails the module load.  A module
-that declares nothing keeps working exactly as before for 'G12.1 P-',
-but 'G13.1' is an error, since the number of the identity kinematics
-is then a guess.
+declared KINSTYPE_IDENTITY, and 'G43.4' switches to the kinstype
+declared KINSTYPE_PRIMARY, whatever their numbers, so a module whose
+kinematics are not in the conventional order still gets working
+spellings.  At most one kinstype may be declared identity and at most
+one primary, and declaring a kinstype the module does not provide
+fails the module load.  A module that declares nothing keeps working
+exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
+are an error, since the numbers of the identity and primary kinematics
+are then a guess.
 
 When every kinstype is registered, the module calls:
 

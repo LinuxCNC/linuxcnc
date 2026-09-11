@@ -84,6 +84,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43,G43>>                 |Use Tool Length Offset from Tool Table
 |<<gcode:g43.1,G43.1>>             |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>             |Apply additional Tool Length Offset
+|<<gcode:g43.4,G43.4>>             |Tool Length Offset on Primary Kinematics
 |<<gcode:g49,G49>>                 |Cancel Tool Length Offset
 |<<gcode:g52,G52>>                 |Local Coordinate System Offset
 |<<gcode:g53,G53>>                 |Move in Machine Coordinates
@@ -1626,10 +1627,53 @@ It is an error if:
 
 NOTE: G43.2 does not write to the tool table.
 
+[[gcode:g43.4]]
+== G43.4 Tool Length Offset on Primary Kinematics(((G43.4 Tool Length Offset on Primary Kinematics)))
+
+[source,ngc]
+----
+G43.4 <H->
+----
+
+* 'H' - tool number (optional)
+
+'G43.4' is 'G43' together with a switch to the kinematics the module
+declares its working transform, so the program runs with tool length
+compensation in the module's working kinematics. The switch happens
+first and the offset applies after it, as if the two had been written
+on consecutive lines. 'G49' is the matching cancel: it clears the
+offset and switches back to identity kinematics.
+
+The H word, the offset itself and the parameters it lands in are
+'G43''s. Which kinematics is the working one is declared by the module
+(KINSTYPE_PRIMARY, see the <<cha:switchable-kinematics,Switchable
+Kinematics>> chapter), the number is not the answer; a module that
+declares none rejects 'G43.4' at read time.
+
+The switch is a queue synchronisation point like
+'<<gcode:g12.1-g13.1,G12.1>>': when 'G43.4' or 'G49' changes the
+kinematics, the interpreter waits for queued motion to finish first, so
+both stop any blending in progress. Already on the target kinematics
+they do not switch and blend normally, and a plain 'G43', 'G43.1' or
+'G43.2' never switches, whatever kinematics is selected.
+
+On a machine without switchable kinematics there is nothing to switch:
+'G43.4' is a plain 'G43' and 'G49' a plain cancel.
+
+It is an error if:
+
+* the kinematics module is switchable but declares no primary
+  kinematics, or
+* any of the 'G43' error conditions holds.
+
 [[gcode:g49]]
 == G49 Cancel Tool Length Compensation(((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
+
+'G49' also switches a switchable kinematics module back to its identity
+kinematics, the cancel for the switch 'G43.4' makes. A module that
+declares no identity kinematics gets the plain cancel.
 
 It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being

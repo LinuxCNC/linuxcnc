@@ -525,10 +525,12 @@ The maths of one kinematics type is a `kins_ops` table: the forward and inverse,
 the optional work and tool frames with the native rotation that relates the
 tool frame to the convention, and the optional Jacobian. A type whose forward
 iterates from the pose it is handed says so, and the shared code seeds it with
-the last answer after a switch. A module with several types has one geometry
-table and one ops table per type, registered with `switchkinsRegisterOps()`; a
-module with one type describes itself in a `kins_module` and links
-`kins_single.c`.
+the last answer after a switch. A type also says what it IS: `identity` marks
+the no-transform type `G13.1` cancels to, `primary` the working transform
+`G43.4` switches to (see the Switchable Kinematics chapter). A module with
+several types has one geometry table and one ops table per type, registered
+with `switchkinsRegisterOps()`; a module with one type describes itself in a
+`kins_module` and links `kins_single.c`.
 
 === What the shared code does
 
