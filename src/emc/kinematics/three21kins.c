@@ -366,6 +366,7 @@ static int three21_inverse(const kins_params *p, kins_scratch *s,
 static const kins_ops three21_ops = {
     .forward = three21_forward,
     .inverse = three21_inverse,
+    .primary = 1,
 };
 
 int switchkinsSetup(kparms* kp,

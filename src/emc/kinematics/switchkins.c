@@ -61,8 +61,8 @@ static int           inited;
 static int kins_count;
 static int register_error;
 
-// what each type IS (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY), declared by
-// the module with switchkinsDeclare(); 0==the module said nothing
+// what each type IS (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY, KINSTYPE_MACHINE),
+// declared by the module with switchkinsDeclare(); 0==the module said nothing
 static int ktype_flags[SWITCHKINS_MAX_TYPES] = {0};
 
 static int switchkins_type;
@@ -482,6 +482,8 @@ int switchkinsRegisterOps(int ktype, const kins_ops *ops)
     }
     kops[ktype] = ops;
     if (ops->identity) { ktype_flags[ktype] |= KINSTYPE_IDENTITY; }
+    if (ops->primary)  { ktype_flags[ktype] |= KINSTYPE_PRIMARY;  }
+    if (ops->machine)  { ktype_flags[ktype] |= KINSTYPE_MACHINE;  }
     return 0;
 } // switchkinsRegisterOps()
 
@@ -604,7 +606,7 @@ int switchkinsInit(const int   comp_id,
                    const char* coordinates)
 {
     int i;
-    int identities;
+    int identities, primaries, machines;
     int res = 0;
     char* emsg = "other";
 
@@ -632,9 +634,17 @@ int switchkinsInit(const int   comp_id,
     }
     if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
 
-    // declarations must name provided types, and identity is unique:
-    // G13.1 resolves it from the flags, so two answers is a load error
+    // declarations must name provided types, and each flag is unique:
+    // G13.1 and G49 resolve the machine frame type from the flags and
+    // G43.4 the primary, so two answers is a load error.  A module that
+    // names no machine frame type has its identity type stand in, which
+    // is the truth on every machine whose slides line up with its frame.
     identities = 0;
+    primaries  = 0;
+    machines   = 0;
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
+        if (ktype_flags[i] & KINSTYPE_MACHINE) { machines++; }
+    }
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
         if (!ktype_flags[i]) { continue; }
         if (i >= kins_count) {
@@ -643,13 +653,24 @@ int switchkinsInit(const int   comp_id,
                             " not provided\n", i);
             emsg = "declared switchkins-type not provided"; goto error;
         }
-        if (ktype_flags[i] & KINSTYPE_IDENTITY) { identities++; }
-        rtapi_print("switchkins-type %d declared:%s%s\n", i,
+        if (ktype_flags[i] & KINSTYPE_IDENTITY) {
+            identities++;
+            if (!machines) { ktype_flags[i] |= KINSTYPE_MACHINE; }
+        }
+        if (ktype_flags[i] & KINSTYPE_PRIMARY)  { primaries++;  }
+        rtapi_print("switchkins-type %d declared:%s%s%s\n", i,
                     (ktype_flags[i] & KINSTYPE_IDENTITY) ? " identity" : "",
-                    (ktype_flags[i] & KINSTYPE_PRIMARY)  ? " primary"  : "");
+                    (ktype_flags[i] & KINSTYPE_PRIMARY)  ? " primary"  : "",
+                    (ktype_flags[i] & KINSTYPE_MACHINE)  ? " machine"  : "");
     }
     if (identities > 1) {
         emsg = "more than one identity switchkins-type declared"; goto error;
+    }
+    if (primaries > 1) {
+        emsg = "more than one primary switchkins-type declared"; goto error;
+    }
+    if (machines > 1) {
+        emsg = "more than one machine frame switchkins-type declared"; goto error;
     }
 
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {

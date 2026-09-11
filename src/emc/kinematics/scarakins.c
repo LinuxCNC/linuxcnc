@@ -251,6 +251,7 @@ static const kins_ops scara_ops = {
     .forward  = scara_forward,
     .inverse  = scara_inverse,
     .jacobian = scara_jacobian,
+    .primary  = 1,
 };
 
 int switchkinsSetup(kparms* kp,

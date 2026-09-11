@@ -116,12 +116,25 @@ extern KINEMATICS_TYPE kinematicsType(void);
 
 /* What a kinematics type IS, declared by the module with
 ** switchkinsDeclare() and read back with kinematicsTypeFlags().
-** G13.1 resolves "identity" from these flags instead of assuming a
-** number; a module that declares nothing leaves its types numeric-only
-** and G13.1 refuses to guess.
+** G13.1 resolves the machine frame type from these flags instead of
+** assuming a number; a module that declares nothing leaves its types
+** numeric-only and G13.1 refuses to guess.
+**
+** The machine frame type is the one whose world is the machine frame
+** with the orientation left out: XYZ is the pivot, the point the rotary
+** joints do not move, in machine coordinates, and the rotary letters are
+** the rotary joints as they are.  On a machine whose slides line up with
+** its frame that is the identity type, and where a module declares no
+** machine frame type its identity type stands in.  A module whose
+** carriage does not line up, a slanted slide or an offset pivot, declares
+** its machine frame type separately and keeps identity for a type whose
+** joints really are the axes, since a consumer skips the maths on that
+** flag alone.
 */
 #define KINSTYPE_IDENTITY 0x1 /* no transform: the joints are the world */
 #define KINSTYPE_PRIMARY  0x2 /* the module's working transform */
+#define KINSTYPE_MACHINE  0x4 /* the machine frame: the pivot in machine
+                                 coordinates, the rotaries as joints */
 
 /* flags of a kinematics type, or -1 for a type the module does not
 ** provide (and for every type on a machine with plain kinematics) */
@@ -557,7 +570,11 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    a missing Jacobian is differenced from the inverse.  fwd_iterates says the
    forward starts from the pose it is handed, so the shared code seeds it
    with the last answer after a switch.  identity says joints are axes, which
-   a consumer may use to skip the maths altogether. */
+   a consumer may use to skip the maths altogether.  primary says this is
+   the module's working transform, the type G43.4 switches to.  machine says
+   this is the machine frame type, the pivot in machine coordinates with the
+   rotaries as joints, which G13.1 and G49 select and G53.5 moves in; a module
+   that leaves it unset on every type has its identity type stand in. */
 typedef struct kins_ops {
     kins_forward_fn         forward;
     kins_inverse_fn         inverse;
@@ -567,6 +584,8 @@ typedef struct kins_ops {
     kins_jacobian_fn        jacobian;
     int                     fwd_iterates;
     int                     identity;           /* joints are axes */
+    int                     primary;            /* the working transform */
+    int                     machine;            /* the machine frame */
 } kins_ops;
 
 /* A module described for a caller outside RT: its table, its joint

@@ -538,6 +538,7 @@ static const kins_ops tcp_ops = {
     .tool     = tcpKinematicsToolFrame,
     .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = tcpKinematicsJacobian,
+    .primary  = 1,
 };
 
 // the tool kinematics report in tool axes, so the tool is square with the
