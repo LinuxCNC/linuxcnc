@@ -6371,13 +6371,16 @@ static int kins_type_info_available()
   return 0;
 }
 
-// the type carrying a KINSTYPE_ flag, or -1 when the module declares none
+// the type carrying a KINSTYPE_ flag, or -1 when the module declares none;
+// -1 for a type is "no information", and it matches every flag, so it must
+// be excluded before the bit test
 static int flagged_kins_type(int flag)
 {
-  int k;
+  int k, f;
 
   for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
-    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) & flag) { return k; }
+    f = GET_EXTERNAL_KINS_TYPE_FLAGS(k);
+    if (f >= 0 && (f & flag)) { return k; }
   }
   return -1;
 }

@@ -72,8 +72,10 @@ group 16 - array[15] g7,g8 - lathe diameter mode
 */
 
 int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-                         setup_pointer settings)        //!< pointer to machine settings                 
+                         setup_pointer settings)        //!< pointer to machine settings
 {
+  int kf;
+
   settings->active_g_codes[0] = settings->sequence_number;
   settings->active_g_codes[1] = settings->motion_mode;
   settings->active_g_codes[2] = ((block == NULL) ? -1 : block->g_modes[GM_MODAL_0]);
@@ -110,13 +112,15 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
                                                    settings->origin_index);
   // the kins type, not the label, is the authority: a G43 given on the
   // module's primary type shows as G43.4, and the label follows the type
-  // motion reports after a resync
+  // motion reports after a resync.  -1 is "no information" and matches
+  // every flag, so it is excluded before the bit test.
+  kf = GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type);
   settings->active_g_codes[9] =
     (settings->g43_with_zero_offset ||
      settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
 	 settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
 	 settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ?
-    ((GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type) & KINSTYPE_PRIMARY) ? G_43_4 : G_43) : G_49;
+    ((kf >= 0 && (kf & KINSTYPE_PRIMARY)) ? G_43_4 : G_43) : G_49;
   settings->active_g_codes[10] = (settings->retract_mode == RETRACT_MODE::OLD_Z) ? G_98 : G_99;
   // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   settings->active_g_codes[11] =
