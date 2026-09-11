@@ -114,10 +114,11 @@ else:
 
 # the abort routine's G13.1 fires at estop reset, so the machine may stand
 # in identity (1) already when the program starts; either way the program
-# itself walks 0, 1, 0, 1
+# itself walks 0, 1, 0, 1 through the selection codes, and the same
+# again through G43.4, G49 and the codes between
 want = [0, 1, 0, 1]
-if seen[-4:] != want:
-    error("motion.kins-type went %s, not ...%s" % (seen, want))
+if seen[-8:] != want + want:
+    error("motion.kins-type went %s, not ...%s" % (seen, want + want))
 
 reported = [m[1].strip() for m in said if m[1].strip().startswith("KINSTYPE=")]
 want_reported = ["KINSTYPE=%d.000000" % k for k in want]
@@ -125,6 +126,23 @@ if reported != want_reported:
     error("#<_kins_type> reported %s" % (reported,))
 else:
     print("#<_kins_type> reported %s" % " ".join(reported))
+
+# G43.4 switches to the primary kinematics (0) and applies the offset,
+# G49 cancels both, and a plain G43 touches the offset only; a G49 that
+# cancels a plain G43, or comes after the program selected a kinematics
+# itself, leaves the selection alone
+g434 = [m[1].strip() for m in said if m[1].strip().startswith("G434")]
+want_g434 = ["G434 KINSTYPE=0.000000 TLOZ=12.500000",
+             "G434 KINSTYPE=1.000000 TLOZ=0.000000",
+             "G434 KINSTYPE=1.000000 TLOZ=12.500000",
+             "G434 KINSTYPE=0.000000 TLOZ=0.000000",
+             "G434 KINSTYPE=0.000000 TLOZ=0.000000",
+             "G434 KINSTYPE=0.000000 TLOZ=12.500000",
+             "G434 KINSTYPE=1.000000 TLOZ=0.000000"]
+if g434 != want_g434:
+    error("G43.4/G49 reported %s" % (g434,))
+else:
+    print("G43.4 switched to primary with the offset, G49 cancelled both")
 
 # ---- a negative kinematics number is refused -----------------------------
 
