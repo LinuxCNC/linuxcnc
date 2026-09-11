@@ -576,7 +576,8 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    a missing Jacobian is differenced from the inverse.  fwd_iterates says the
    forward starts from the pose it is handed, so the shared code seeds it
    with the last answer after a switch.  identity says joints are axes, which
-   a consumer may use to skip the maths altogether. */
+   a consumer may use to skip the maths altogether.  primary says this is
+   the module's working transform, the type G43.4 switches to. */
 typedef struct kins_ops {
     kins_forward_fn         forward;
     kins_inverse_fn         inverse;
@@ -586,6 +587,7 @@ typedef struct kins_ops {
     kins_jacobian_fn        jacobian;
     int                     fwd_iterates;
     int                     identity;           /* joints are axes */
+    int                     primary;            /* the working transform */
 } kins_ops;
 
 /* A module described for a caller outside RT: its table, its joint

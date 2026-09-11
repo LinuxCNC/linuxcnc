@@ -695,6 +695,7 @@ static const kins_ops genhex_ops = {
     .inverse      = genhex_inverse,
     .jacobian     = genhex_jacobian,
     .fwd_iterates = 1,
+    .primary      = 1,
 };
 
 int switchkinsSetup(kparms* kp,

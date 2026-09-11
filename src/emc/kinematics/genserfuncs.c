@@ -694,6 +694,7 @@ const kins_ops GENSER_OPS = {
     .forward  = genser_forward,
     .inverse  = genser_inverse,
     .jacobian = genser_jacobian,
+    .primary  = 1,
 };
 
 /*

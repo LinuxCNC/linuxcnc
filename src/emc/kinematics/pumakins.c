@@ -400,6 +400,7 @@ static const kins_ops puma_ops = {
     .work    = kinsIdentityFrame,
     .tool    = puma_tool_frame,
     .native  = &TOOL_FRAME_FLANGE,
+    .primary = 1,
 };
 
 int switchkinsSetup(kparms* kp,

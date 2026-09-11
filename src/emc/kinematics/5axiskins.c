@@ -228,6 +228,7 @@ static const kins_ops fiveaxis_ops = {
     .tool     = fiveaxis_tool_frame,
     .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = fiveaxis_jacobian,
+    .primary  = 1,
 };
 
 int switchkinsSetup(kparms* kp,
