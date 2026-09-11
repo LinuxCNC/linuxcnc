@@ -140,6 +140,13 @@ int kinematicsSwitch(int switchkins_type)
     return 0;
 }
 
+// one type and nothing declared about it: -1, no information
+int kinematicsTypeFlags(int ktype)
+{
+    (void)ktype;
+    return -1;
+}
+
 // The module's description, for a copy of it loaded outside RT.  A module
 // with one type does not depend on its parameters for its shape, so this
 // is the table as declared.
@@ -163,4 +170,5 @@ EXPORT_SYMBOL(kinematicsJacobian);
 EXPORT_SYMBOL(kinematicsSetTool);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
+EXPORT_SYMBOL(kinematicsTypeFlags);
 EXPORT_SYMBOL(kinsDescribe);
