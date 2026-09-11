@@ -66,7 +66,7 @@ public:
     // true while the startup code runs at task init, when the motion
     // queue cannot drain yet: a kinematics switch there queues without
     // the drain-and-assert wait, which could never complete
-    virtual void set_in_startup_code(bool state) {};
+    virtual void set_in_startup_code(bool) {};
     virtual FILE* get_stdout() { return stdout; };
 };
 
