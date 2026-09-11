@@ -309,8 +309,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->h_flag) {
-    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
-      _("H word with no G43 or G76 to use it"));
+    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_4),
+      _("H word with no G43, G43.4 or G76 to use it"));
   }
 
   if (block->i_flag) {    /* could still be useless if yz_plane arc */

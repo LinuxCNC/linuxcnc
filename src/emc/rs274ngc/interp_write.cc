@@ -22,6 +22,7 @@
 #include "nml_intf/interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include <kinematics.h>          // KINSTYPE_PRIMARY
 
 /****************************************************************************/
 /*! write_g_codes
@@ -107,11 +108,15 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
                                                    settings->origin_index);
+  // the kins type, not the label, is the authority: a G43 given on the
+  // module's primary type shows as G43.4, and the label follows the type
+  // motion reports after a resync
   settings->active_g_codes[9] =
     (settings->g43_with_zero_offset ||
      settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
 	 settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
-	 settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
+	 settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ?
+    ((GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type) & KINSTYPE_PRIMARY) ? G_43_4 : G_43) : G_49;
   settings->active_g_codes[10] = (settings->retract_mode == RETRACT_MODE::OLD_Z) ? G_98 : G_99;
   // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   settings->active_g_codes[11] =

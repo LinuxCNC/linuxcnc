@@ -238,6 +238,7 @@ enum GCodes
     G_43 = 430,
     G_43_1 = 431,
     G_43_2 = 432,
+    G_43_4 = 434,
     G_49 = 490,
     G_50 = 500,
     G_51 = 510,
@@ -887,6 +888,7 @@ struct setup
     boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     bool in_abort_command;      // running the ON_ABORT_COMMAND routine
+    bool in_startup_code;       // running the startup code at task init
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
 #define INIT_FUNC  "__init__"

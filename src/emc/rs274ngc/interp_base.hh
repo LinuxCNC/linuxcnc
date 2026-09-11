@@ -63,6 +63,10 @@ public:
     virtual void print_state_tag(StateTag const &tag) = 0;
     virtual void set_loglevel(int level) = 0;
     virtual void set_loop_on_main_m99(bool state) = 0;
+    // true while the startup code runs at task init, when the motion
+    // queue cannot drain yet: a kinematics switch there queues without
+    // the drain-and-assert wait, which could never complete
+    virtual void set_in_startup_code(bool state) {};
     virtual FILE* get_stdout() { return stdout; };
 };
 

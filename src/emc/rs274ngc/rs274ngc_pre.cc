@@ -1326,6 +1326,11 @@ void Interp::set_loop_on_main_m99(bool state) {
     _setup.loop_on_main_m99 = state;
 }
 
+void Interp::set_in_startup_code(bool state) {
+    // the startup code runs before the motion queue can drain
+    _setup.in_startup_code = state;
+}
+
 
 /***********************************************************************/
 

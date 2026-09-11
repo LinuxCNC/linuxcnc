@@ -4063,12 +4063,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (FEATURE(RETAIN_G43)) {
 
-      if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
+      if (((settings->active_g_codes[9] == G_43) ||
+           (settings->active_g_codes[9] == G_43_4)) && ONCE(STEP_RETAIN_G43)) {
         if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
-            block->g_modes[gees[G_43]] = G_43;
-            CHP(convert_tool_length_offset(G_43, &g43, settings));
+            block->g_modes[gees[settings->active_g_codes[9]]] = settings->active_g_codes[9];
+            CHP(convert_tool_length_offset(settings->active_g_codes[9], &g43, settings));
         } else {
             struct block_struct g49;
             init_block(&g49);
@@ -4380,8 +4381,10 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     // will be queued: ask every time.  The exception is an
     // ON_ABORT_COMMAND routine, run by one execute() call that cannot
     // service INTERP_EXECUTE_FINISH and would drop the rest of the
-    // routine; the abort has just flushed the queue anyway.
-    if (!settings->in_abort_command) {
+    // routine; the abort has just flushed the queue anyway.  The startup
+    // code is the other exception: it runs before the main loop can
+    // service the wait, and no motion exists yet to protect.
+    if (!settings->in_abort_command && !settings->in_startup_code) {
       settings->kinsSwitch_flag = true;
     }
     CHP(convert_kins_switch(code, block, settings));
@@ -6355,6 +6358,47 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 /****************************************************************************/
 
+// the kinematics module declares what each type is (KINSTYPE_* flags);
+// where the flags say nothing at all there is no kinematics attached
+// (sai, preview) and the codes fall back to type 0, as before
+static int kins_type_info_available()
+{
+  int k;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
+  }
+  return 0;
+}
+
+// the type carrying a KINSTYPE_ flag, or -1 when the module declares none
+static int flagged_kins_type(int flag)
+{
+  int k;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) & flag) { return k; }
+  }
+  return -1;
+}
+
+// a kinematics switch like G12.1/G13.1 do: the flag makes the interpreter
+// wait for motion to drain, so that no motion is planned across the switch,
+// except inside an ON_ABORT_COMMAND routine, run by one execute() call that
+// cannot service INTERP_EXECUTE_FINISH; the abort has just flushed the
+// queue anyway, and except in the startup code, which runs before the main
+// loop can service the wait, when no motion exists yet to protect.
+// Already on the type, there is nothing to do.
+static void switch_kins_type(int kins_type, setup_pointer settings)
+{
+  if (settings->kins_type == kins_type) { return; }
+  if (!settings->in_abort_command && !settings->in_startup_code) {
+    settings->kinsSwitch_flag = true;
+  }
+  SELECT_KINS_TYPE(kins_type);
+  settings->kins_type = kins_type;
+}
+
 /*! convert_tool_length_offset
 
 Returned Value: int
@@ -6395,9 +6439,17 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
+  if (g_code == G_43_4) {
+    int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+    // G43.4 is G43 on the module's working transform: switch first, then
+    // apply the offset, as if the switch line had run and drained.  With
+    // no kinematics attached there is nothing to switch to.
+    CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
+    if (primary >= 0) { switch_kins_type(primary, settings); }
+  }
   if (g_code == G_49) {
     idx = 0;
-  } else if (g_code == G_43) {
+  } else if (g_code == G_43 || g_code == G_43_4) {
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
     if(block->h_flag) {
@@ -6477,7 +6529,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         if(block->w_flag) tool_offset.w += block->w_number;
     }
   } else {
-    ERS("BUG: Code not G43, G43.1, G43.2, or G49");
+    ERS("BUG: Code not G43, G43.1, G43.2, G43.4, or G49");
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
@@ -6522,6 +6574,14 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->parameters[5087] = PROGRAM_TO_USER_LEN(tool_offset.u);
   settings->parameters[5088] = PROGRAM_TO_USER_LEN(tool_offset.v);
   settings->parameters[5089] = PROGRAM_TO_USER_LEN(tool_offset.w);
+
+  if (g_code == G_49) {
+    // G49 also drops the machine to identity kinematics, after the
+    // cancel, as if G13.1 had run on the next line.  A module that
+    // declares no identity type keeps the legacy plain cancel.
+    int identity = flagged_kins_type(KINSTYPE_IDENTITY);
+    if (identity >= 0) { switch_kins_type(identity, settings); }
+  }
 
   return INTERP_OK;
 }
@@ -6580,19 +6640,6 @@ so no motion is ever planned across a change of kinematics.
 
 */
 
-// the kinematics module declares what each type is (KINSTYPE_* flags);
-// where the flags say nothing at all there is no kinematics attached
-// (sai, preview) and the codes fall back to type 0, as before
-static int kins_type_info_available()
-{
-  int k;
-
-  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
-    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
-  }
-  return 0;
-}
-
 int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
                                 block_pointer block,     //!< pointer to a block of RS274 instructions
                                 setup_pointer settings)  //!< pointer to machine settings
@@ -6600,16 +6647,9 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
   int kins_type;
 
   if (code == G_13_1) {
-    int k;
-
     // G13.1 cancels to identity kinematics; which type that is, the
     // module declares, the number is not the answer
-    for (k = 0, kins_type = -1; k < SWITCHKINS_MAX_TYPES; k++) {
-      if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) & KINSTYPE_IDENTITY) {
-        kins_type = k;
-        break;
-      }
-    }
+    kins_type = flagged_kins_type(KINSTYPE_IDENTITY);
     if (kins_type < 0) {
       CHKS(kins_type_info_available(), NCE_NO_IDENTITY_KINEMATICS_TYPE);
       kins_type = 0; // no kinematics attached: standalone interpreter

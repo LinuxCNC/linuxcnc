@@ -216,6 +216,7 @@ setup::setup() :
     pythis(),
     on_abort_command(NULL),
     in_abort_command(false),
+    in_startup_code(false),
     init_once(CANON_STOPPED)
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
