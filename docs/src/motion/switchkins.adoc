@@ -181,8 +181,9 @@ meant to be removed in the future.
 === G-code commands
 
 'G12.1 P-' selects a kinstype and 'G13.1' cancels back to identity
-kinematics.  Which kinstype is identity is declared by the module (see
-Code Notes), not fixed to a number:
+kinematics.  Which kinstype that is, the module declares (see Code
+Notes), not fixed to a number; on a module whose slides do not line up
+with its frame it is the machine frame type the module declares instead:
 
 [source,ngc]
 ----
@@ -218,9 +219,9 @@ Selection is not cancelled by the end of a program or by an abort, so
 that the kinstype continues to match the position readout. A program
 that should leave the machine in identity kinematics ends with 'G13.1'.
 
-A module that declares no identity kinstype refuses 'G13.1' with an
-error and can still be driven by number with 'G12.1'; see Code Notes
-for how a module declares its types.
+A module that declares no identity or machine frame kinstype refuses
+'G13.1' with an error and can still be driven by number with 'G12.1';
+see Code Notes for how a module declares its types.
 
 For tool length work there are spellings that name the kinematics by
 what it is rather than by number: 'G43.4' applies the tool length
@@ -554,26 +555,37 @@ kinematics.h:
 
 . *KINSTYPE_IDENTITY*  no transform: the joints are the world
 . *KINSTYPE_PRIMARY*   the module's working transform
+. *KINSTYPE_MACHINE*   the machine frame: the pivot in machine coordinates,
+                       the rotaries as joints
 
 A kinstype registered with switchkinsRegisterOps() carries its flag in
-the ops table itself, as the 'identity' or 'primary' field; a kinstype
-registered the older way gets it from a call, again from within
+the ops table itself, as the 'identity', 'primary' or 'machine' field; a
+kinstype registered the older way gets it from a call, again from within
 switchkinsSetup():
 
 ----
 int switchkinsDeclare(int ktype, int flags);
 ----
 
-G-code reads these declarations: 'G13.1' cancels to the kinstype
-declared KINSTYPE_IDENTITY, and 'G43.4' switches to the kinstype
+G-code reads these declarations: 'G13.1' and 'G49' cancel to the
+kinstype declared KINSTYPE_MACHINE, and 'G43.4' switches to the kinstype
 declared KINSTYPE_PRIMARY, whatever their numbers, so a module whose
 kinematics are not in the conventional order still gets working
-spellings.  At most one kinstype may be declared identity and at most
-one primary, and declaring a kinstype the module does not provide
-fails the module load.  A module that declares nothing keeps working
-exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
-are an error, since the numbers of the identity and primary kinematics
-are then a guess.
+spellings.  The machine frame type is the machine with the orientation
+left out, XYZ the pivot in machine coordinates and the rotary letters
+the rotary joints; on a machine whose slides line up with its frame that
+is the identity type, so a module that declares no machine frame
+kinstype has its identity kinstype stand in, and every shipped module is
+of that kind.  A module whose carriage does not line up, a slanted slide
+or a composite Y on a mill-turn, declares its machine frame kinstype
+separately and keeps KINSTYPE_IDENTITY for a kinstype whose joints
+really are the axes, since motion and the planner skip the maths on that
+flag alone.  At most one kinstype may be declared identity, at most one
+primary and at most one machine frame, and declaring a kinstype the
+module does not provide fails the module load.  A module that declares
+nothing keeps working exactly as before for 'G12.1 P-' and 'G49', but
+'G13.1' and 'G43.4' are an error, since the numbers of the identity and
+primary kinematics are then a guess.
 
 When every kinstype is registered, the module calls:
 

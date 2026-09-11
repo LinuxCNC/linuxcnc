@@ -6762,10 +6762,11 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 
   if (g_code == G_49 && settings->kins_by_g43_4) {
     // G49 undoes what G43.4 did: after the cancel it drops the machine
-    // to identity kinematics, as if G13.1 had run on the next line.  A
-    // kinematics the program selected itself is left alone, and a
-    // module that declares no identity type keeps the plain cancel.
-    int identity = flagged_kins_type(KINSTYPE_IDENTITY);
+    // to the machine frame type, identity kinematics on a machine whose
+    // slides line up, as if G13.1 had run on the next line.  A kinematics
+    // the program selected itself is left alone, and a module that
+    // declares no such type keeps the plain cancel.
+    int identity = flagged_kins_type(KINSTYPE_MACHINE);
     if (identity >= 0) { switch_kins_type(identity, settings); }
     settings->kins_by_g43_4 = false;
   }
@@ -6834,9 +6835,10 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
   int kins_type;
 
   if (code == G_13_1) {
-    // G13.1 cancels to identity kinematics; which type that is, the
-    // module declares, the number is not the answer
-    kins_type = flagged_kins_type(KINSTYPE_IDENTITY);
+    // G13.1 cancels to the machine frame type, identity kinematics on a
+    // machine whose slides line up; which type that is, the module
+    // declares, the number is not the answer
+    kins_type = flagged_kins_type(KINSTYPE_MACHINE);
     if (kins_type < 0) {
       CHKS(kins_type_info_available(), NCE_NO_IDENTITY_KINEMATICS_TYPE);
       kins_type = 0; // no kinematics attached: standalone interpreter

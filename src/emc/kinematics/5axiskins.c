@@ -204,6 +204,7 @@ static const kins_ops fiveaxis_ops = {
     .forward  = fiveaxis_forward,
     .inverse  = fiveaxis_inverse,
     .jacobian = fiveaxis_jacobian,
+    .primary  = 1,
 };
 
 int switchkinsSetup(kparms* kp,

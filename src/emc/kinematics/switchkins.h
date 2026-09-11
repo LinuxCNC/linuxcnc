@@ -72,9 +72,9 @@ typedef int (*KTI)(const PmCartesian *axis_in_work,
 extern int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv);
 
 // optionally called from switchkinsSetup() to declare what a type IS
-// (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY, kinematics.h).  A module that
-// never calls it leaves its types numeric-only: G12.1 P<n> still works,
-// G13.1 refuses to guess which type is identity.
+// (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY, KINSTYPE_MACHINE, kinematics.h).
+// A module that never calls it leaves its types numeric-only: G12.1 P<n>
+// still works, G13.1 refuses to guess which type is the machine frame.
 extern int switchkinsDeclare(int ktype, int flags);
 
 // KinematicsJACOBIAN function (optional, see kinematics.h)

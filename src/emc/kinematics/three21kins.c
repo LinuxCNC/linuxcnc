@@ -386,6 +386,7 @@ static const kins_ops three21_ops = {
     .forward  = three21_forward,
     .inverse  = three21_inverse,
     .jacobian = three21_jacobian,
+    .primary  = 1,
 };
 
 int switchkinsSetup(kparms* kp,

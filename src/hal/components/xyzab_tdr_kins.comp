@@ -203,6 +203,7 @@ static const kins_ops tdr_ops = {
     .forward  = tdr_forward,
     .inverse  = tdr_inverse,
     .jacobian = tdr_jacobian,
+    .primary  = 1,
 };
 
 int switchkinsSetup(kparms* kp,

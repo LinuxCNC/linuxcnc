@@ -263,6 +263,7 @@ const kins_ops XYZAC_OPS = {
     .tool     = kinsIdentityFrame,
     .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = xyzac_jacobian,
+    .primary  = 1,
 };
 
 static int xyzbc_forward(const kins_params *p, kins_scratch *s,
@@ -455,4 +456,5 @@ const kins_ops XYZBC_OPS = {
     .tool     = kinsIdentityFrame,
     .native   = &TOOL_FRAME_SPINDLE,
     .jacobian = xyzbc_jacobian,
+    .primary  = 1,
 };
