@@ -121,6 +121,7 @@ static const kins_ops turn_ops = {
     .forward  = turn_forward,
     .inverse  = turn_inverse,
     .jacobian = turn_jacobian,
+    .primary  = 1,
 };
 
 int switchkinsSetup(kparms* kp,
