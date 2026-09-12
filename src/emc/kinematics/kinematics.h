@@ -102,6 +102,26 @@ extern int kinematicsHome(struct EmcPose * world,
 
 extern KINEMATICS_TYPE kinematicsType(void);
 
+/* Switchable kinematics: a module provides several kinematics, numbered
+** 0..SWITCHKINS_MAX_TYPES-1, and motion runs one of them at a time.
+** The count is here, not in switchkins.h, because motion and the NML
+** status channel need it.
+*/
+#define SWITCHKINS_MAX_TYPES 9
+
+/* What a kinematics type IS, declared by the module with
+** switchkinsDeclare() and read back with kinematicsTypeFlags().
+** G13.1 resolves "identity" from these flags instead of assuming a
+** number; a module that declares nothing leaves its types numeric-only
+** and G13.1 refuses to guess.
+*/
+#define KINSTYPE_IDENTITY 0x1 /* no transform: the joints are the world */
+#define KINSTYPE_PRIMARY  0x2 /* the module's working transform */
+
+/* flags of a kinematics type, or -1 for a type the module does not
+** provide (and for every type on a machine with plain kinematics) */
+extern int kinematicsTypeFlags(int ktype);
+
 /* parameters for use with switchkins.c */
 typedef struct kinematics_parms {
   char* sparm;     // module string parameter passed to kins
@@ -166,8 +186,10 @@ extern int kinematicsSwitch(int switchkins_type);
 #define KINS_NOT_SWITCHABLE \
 extern int kinematicsSwitchable() {return 0;} \
 extern int kinematicsSwitch(int switchkins_type) { (void)switchkins_type; return 0;} \
+extern int kinematicsTypeFlags(int ktype) { (void)ktype; return -1;} \
 EXPORT_SYMBOL(kinematicsSwitchable); \
-EXPORT_SYMBOL(kinematicsSwitch);
+EXPORT_SYMBOL(kinematicsSwitch); \
+EXPORT_SYMBOL(kinematicsTypeFlags);
 
 
 // support for template for user-defined switchkins_type==2

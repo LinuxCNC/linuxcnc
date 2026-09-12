@@ -96,6 +96,9 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     feed_hold_enabled(OFF),
     tag()
 {
+    // -1 = nothing known yet; a zero here would read as "types exist
+    // but declare nothing" before motion's first status lands
+    for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) switchkins_flags[i] = -1;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT()

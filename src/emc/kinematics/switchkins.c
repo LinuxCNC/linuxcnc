@@ -47,6 +47,10 @@ static KI kinvs[SWITCHKINS_MAX_TYPES]   = {NULL};
 static int kins_count;
 static int register_error;
 
+// what each type IS (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY), declared by
+// the module with switchkinsDeclare(); 0==the module said nothing
+static int ktype_flags[SWITCHKINS_MAX_TYPES] = {0};
+
 static int switchkins_type;
 static struct swdata {
     hal_bool_t kinstype_is[SWITCHKINS_MAX_TYPES];
@@ -240,6 +244,26 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv)
     return 0;
 } // switchkinsRegister()
 
+int switchkinsDeclare(int ktype, int flags)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsDeclare: BAD switchkins_type <%d>"
+                        " (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    ktype_flags[ktype] = flags;
+    return 0;
+} // switchkinsDeclare()
+
+int kinematicsTypeFlags(int ktype)
+{
+    if (ktype < 0 || ktype >= kins_count || !kfwds[ktype]) { return -1; }
+    return ktype_flags[ktype];
+} // kinematicsTypeFlags()
+
 //*********************************************************************
 static char *coordinates;
 RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
@@ -252,13 +276,15 @@ EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(switchkinsRegister);
+EXPORT_SYMBOL(switchkinsDeclare);
+EXPORT_SYMBOL(kinematicsTypeFlags);
 MODULE_LICENSE("GPL");
 
 static int    comp_id;
 //*********************************************************************
 int rtapi_app_main(void)
 {
-    int i,res;
+    int i,res,identities;
     char* emsg="other";
 
     // defaults prior to switchkinsSetup() call
@@ -285,6 +311,26 @@ int rtapi_app_main(void)
         if (ksetups[i] || kfwds[i] || kinvs[i]) { kins_count = i + 1; }
     }
     if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
+
+    // declarations must name provided types, and identity is unique:
+    // G13.1 resolves it from the flags, so two answers is a load error
+    identities = 0;
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
+        if (!ktype_flags[i]) { continue; }
+        if (i >= kins_count) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "switchkins: switchkins-type %d declared but"
+                            " not provided\n", i);
+            emsg = "declared switchkins-type not provided"; goto error;
+        }
+        if (ktype_flags[i] & KINSTYPE_IDENTITY) { identities++; }
+        rtapi_print("switchkins-type %d declared:%s%s\n", i,
+                    (ktype_flags[i] & KINSTYPE_IDENTITY) ? " identity" : "",
+                    (ktype_flags[i] & KINSTYPE_PRIMARY)  ? " primary"  : "");
+    }
+    if (identities > 1) {
+        emsg = "more than one identity switchkins-type declared"; goto error;
+    }
 
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
        if (kp.fwd_iterates_mask & (1<<i)) {

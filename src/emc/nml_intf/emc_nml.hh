@@ -16,6 +16,7 @@
 #define EMC_NML_HH
 #include <linuxcnc.h>
 #include <emcpos.h>
+#include <kinematics.h>	// SWITCHKINS_MAX_TYPES
 #include "emc.hh"
 #include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
@@ -1025,6 +1026,9 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     //bool spindle_override_enabled; moved to SPINDLE_STAT
     bool adaptive_feed_enabled;
     bool feed_hold_enabled;
+    int switchkins_flags[SWITCHKINS_MAX_TYPES]; // what each type is
+                             // (KINSTYPE_*), as the module declares it;
+                             // -1 for a type the module does not provide
     StateTag tag;
 };
 

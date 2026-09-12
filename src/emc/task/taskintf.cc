@@ -2126,6 +2126,10 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
+    }
+    for (int k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+        stat->traj.switchkins_flags[k] = emcmotStatus.switchkins_flags[k];
+    }
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;

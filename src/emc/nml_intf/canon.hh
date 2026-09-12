@@ -897,6 +897,10 @@ extern int GET_EXTERNAL_MIST();
 // Returns the current motion control mode
 extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 
+/* what the kinematics module says a type is (KINSTYPE_* flags,
+   kinematics.h); -1 where it says nothing: no such type, plain
+   kinematics, or no motion controller attached (sai, preview) */
+extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
