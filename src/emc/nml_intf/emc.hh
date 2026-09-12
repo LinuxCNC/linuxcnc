@@ -111,7 +111,10 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_SO_ENABLE_TYPE                  ((NMLTYPE) 235)
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
+#define EMC_TRAJ_SET_G68_TYPE                        ((NMLTYPE) 239)
+#define EMC_TRAJ_JOINT_MOVE_TYPE                     ((NMLTYPE) 240)
 
+#define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
 // EMC_MOTION aggregate class type declaration
@@ -214,7 +217,8 @@ enum class EMC_TASK_EXEC {
     WAITING_FOR_MOTION_AND_IO = 7,
     WAITING_FOR_DELAY = 8,
     WAITING_FOR_SYSTEM_CMD = 9,
-    WAITING_FOR_SPINDLE_ORIENTED = 10
+    WAITING_FOR_SPINDLE_ORIENTED = 10,
+    WAITING_FOR_KINS_SWITCH = 11
 };
 
 // types for EMC_TASK interpState
@@ -371,6 +375,7 @@ extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
+extern int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
 extern int emcTrajSetTermCond(int cond, double tolerance);
@@ -460,6 +465,7 @@ int emcSetupArcBlends(int arcBlendEnable,
 int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
 int emcGetExternalOffsetApplied(void);
 EmcPose emcGetExternalOffsets(void);
+extern int emcSelectKinsType(int switchkins_type);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

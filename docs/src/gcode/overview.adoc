@@ -121,7 +121,7 @@ The table includes N and O for completeness, even though, as defined above, line
 |G | General function (See table  <<cap:modal-groups,G-code Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
-|J | Y offset for arcs and G87 canned cycles
+|J | Y offset for arcs and G87 canned cycles; as J<n>=<value>, the position of joint n for <<gcode:g53.4,G53.7>>
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
@@ -304,6 +304,11 @@ example '##2'  means the value of the parameter whose index is the
   which the G38 took place.  Volatile.
 * '5070' - <<gcode:g38,G38>> probe result: 1 if success, 0 if probe
   failed to close.  Used with G38.3 and G38.5. Volatile.
+* '5071-5079' - Pose last solved by <<gcode:g53.1,G53.2>> for X, Y, Z, A,
+  B, C, U, V & W, in program units in the tilted work plane. Same values
+  as `#<_orient_x>` and kin. Read-only, volatile.
+* '5080' - 'G53.2' result: 1 once a 'G53.2' has solved a pose, 0 before.
+  Same as `#<_orient_valid>`. Read-only, volatile.
 * '5081-5089' - Tool length offset currently applied to motion for X, Y,
   Z, A, B, C, U, V & W, in the current program units.  Set by
   `G43`/`G43.1`/`G43.2`, and 0 when `G49` is in effect.  These report the
@@ -502,6 +507,17 @@ can be added easily without changes to the source code.
 |      G88   | 880
 |      G89   | 890
 |===
+
+* '#<_kins_type>' - Kinematics selected by 'G12.1' or 'G13.1'. Returns the
+  'P' number of the last 'G12.1', or 0 after 'G13.1' or when no kinematics
+  has been selected. See <<gcode:g12.1-g13.1,G12.1, G13.1>>.
+
+* '#<_orient_valid>', '#<_orient_x>', '#<_orient_y>', '#<_orient_z>',
+  '#<_orient_a>', '#<_orient_b>', '#<_orient_c>' - The pose 'G53.2' last
+  solved, in program units in the tilted work plane. '#<_orient_valid>' is
+  1 once a 'G53.2' has run; reading the others before that is an error. The
+  same values are on the numbered parameters '#5071' to '#5080'. See
+  <<gcode:g53.1,G53.1, G53.2, G53.3, G53.6>>.
 
 * '#<_plane>' - returns the value designating the current plane:
 
@@ -960,7 +976,7 @@ The modal groups are shown in the following Table.
 [width="80%",cols="4,6",options="header"]
 |===
 |Modal Group Meaning                    | Member Words
-|Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
+|Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G53.1, G53.2, G53.3, G53.4, G53.5, G53.6, G53.7, G92, G92.1, G92.2, G92.3,
 |Motion (Group 1)                       | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
                                           G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
@@ -969,7 +985,8 @@ The modal groups are shown in the following Table.
 |Feed Rate Mode (Group 5)               | G93, G94, G95
 |Units (Group 6)                        | G20, G21
 |Cutter Diameter Compensation (Group 7) | G40, G41, G42, G41.1, G42.1
-|Tool Length Offset (Group 8)           | G43, G43.1, G49
+|Tool Length Offset (Group 8)           | G43, G43.1, G43.2, G43.4, G49
+|Tilted Work Plane (Group 9)            | G68.2, G68.3, G68.4, G69
 |Canned Cycles Return Mode (Group 10)   | G98, G99
 |Coordinate System (Group 12)           | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
 |Control Mode (Group 13)                | G61, G61.1, G64

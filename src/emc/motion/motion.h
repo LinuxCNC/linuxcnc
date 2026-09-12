@@ -116,6 +116,7 @@ extern "C" {
 
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
+	EMCMOT_SET_JOINT_LINE,	/* queue up a joint interpolated move */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
 				   trip pos */
@@ -174,8 +175,9 @@ extern "C" {
         EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
-	    EMCMOT_SET_AXIS_JERK_LIMIT,         /* set the max axis jerk */
+	EMCMOT_SET_AXIS_JERK_LIMIT,     /* set the max axis jerk */
 
+	EMCMOT_SELECT_KINS_TYPE,        /* select the switchkins type (G12.1) */
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
     } cmd_code_t;
@@ -270,6 +272,15 @@ extern "C" {
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
     struct state_tag_t tag;
+
+    int switchkins_type;        /* switchkins type requested by G12.1 */
+
+    /* a joint interpolated move: either pos is the endpoint and the joints
+       come from the inverse, or these are the joints and pos comes from
+       the forward */
+    double joint_target[EMCMOT_MAX_JOINTS];
+    int have_joint_target;
+    double joint_seconds;       /* 0 for a rapid, else the time the move is to take */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -667,6 +678,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+
+	int    switchkins_seq;  /* echoes the config counter once acted on */
+	int    switchkins_type; /* switchkins type now in force */
+	int    switchkins_flags[SWITCHKINS_MAX_TYPES]; /* what each type is
+	                        (KINSTYPE_*), from the kinematics module;
+	                        -1 where the module provides no such type */
     } emcmot_status_t;
 
 /*********************************
@@ -738,6 +755,10 @@ Suggestion: Split this in to an Error and a Status flag register..
         double maxFeedScale;
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
+
+        int switchkins_type;    /* switchkins type requested by G12.1 */
+        int switchkins_seq;     /* bumped per request, so a repeat of
+                                   the same type is still seen */
     } emcmot_config_t;
 
 /* error structure - lockfree MPSC ring buffer. See emcmotutil.c. */

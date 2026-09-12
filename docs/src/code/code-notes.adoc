@@ -1312,8 +1312,7 @@ settings.tool_offset::
 +
 * Used to compute position in various places.
 * Sent to Motion via the +EMCMOT_SET_OFFSET+ message.
-  All motion does with the offsets is export them to the HAL pins +motion.0.tooloffset.[xyzabcuvw]+.
-  FIXME: export these from someplace closer to the tool table (io or interp, probably) and remove the EMCMOT_SET_OFFSET message.
+  Motion exports the offsets to the HAL pins +motion.0.tooloffset.[xyzabcuvw]+ and hands them to the kinematics module through +kinematicsSetTool()+, for a module whose maths needs the tool length.
 
 settings.pockets_max::
   Used interchangeably with +CANON_POCKETS_MAX+ (a #defined constant, set to 1000 as of April 2020).

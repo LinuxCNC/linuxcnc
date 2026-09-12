@@ -34,6 +34,7 @@
 #include "interp_internal.hh"
 #include "interp_queue.hh"
 #include "interp_parameter_def.hh"
+#include "kinematics.h"          // KINSTYPE_IDENTITY, SWITCHKINS_MAX_TYPES
 
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==CUTTER_COMP::LEFT&&(turn)>0)||((side)==CUTTER_COMP::RIGHT&&(turn)<0))
@@ -1640,6 +1641,8 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
+  CHKS((settings->g68_active),
+      _("Cannot change G92 offsets while a tilted work plane (G68.2) is active"));
   CHKS((block->a_flag && settings->a_axis_wrapped &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
@@ -2363,6 +2366,12 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change coordinate systems with cutter radius compensation on")));
+  {
+    // the plane sits on the active system; reselecting that one is harmless
+    int target = (g_code < G_59_1) ? (g_code - G_54) / 10 + 1 : g_code - G_59_1 + 7;
+    CHKS((settings->g68_active && target != settings->origin_index),
+         _("Cannot change coordinate systems while a tilted work plane (G68.2) is active"));
+  }
   parameters = settings->parameters;
   switch (g_code) {
   case G_54:
@@ -2959,6 +2968,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
 {
     int status;
 
+    CHP(work_plane_check_sequence(block, settings));
     if ((block->g_modes[GM_MODAL_0] == G_4) && ONCE(STEP_DWELL)) {
       status = convert_dwell(settings, block->p_number);
       CHP(status);
@@ -2985,6 +2995,10 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     }
     if ((block->g_modes[GM_COORD_SYSTEM] != -1) && ONCE(STEP_COORD_SYSTEM)){
 	status = convert_coordinate_system(block->g_modes[GM_COORD_SYSTEM], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_WORK_PLANE] != -1) && ONCE(STEP_WORK_PLANE)){
+	status = convert_work_plane(block->g_modes[GM_WORK_PLANE], block, settings);
 	CHP(status);
     }
     if ((block->g_modes[GM_CONTROL_MODE] != -1) && ONCE(STEP_CONTROL_MODE)) {
@@ -3039,12 +3053,8 @@ offsetless machine coordinate.
 
 void Interp::get_abs_position(setup_pointer s, double abs_pos[9])
 {
-    double x = s->current_x + s->axis_offset_x;
-    double y = s->current_y + s->axis_offset_y;
-    rotate(&x, &y, s->rotation_xy);
-    abs_pos[0] = x + s->origin_offset_x + s->tool_offset.tran.x;
-    abs_pos[1] = y + s->origin_offset_y + s->tool_offset.tran.y;
-    abs_pos[2] = s->current_z + s->axis_offset_z + s->origin_offset_z + s->tool_offset.tran.z;
+    program_to_world_xyz(s, s->current_x, s->current_y, s->current_z,
+                         &abs_pos[0], &abs_pos[1], &abs_pos[2]);
     abs_pos[3] = s->AA_current + s->AA_axis_offset + s->AA_origin_offset + s->tool_offset.a;
     abs_pos[4] = s->BB_current + s->BB_axis_offset + s->BB_origin_offset + s->tool_offset.b;
     abs_pos[5] = s->CC_current + s->CC_axis_offset + s->CC_origin_offset + s->tool_offset.c;
@@ -3076,12 +3086,11 @@ int Interp::convert_savehome(int code, block_pointer /*block*/, setup_pointer s)
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
-    double x = s->current_x + s->axis_offset_x;
-    double y = s->current_y + s->axis_offset_y;
-    rotate(&x, &y, s->rotation_xy);
-    x = PROGRAM_TO_USER_LEN(x + s->tool_offset.tran.x + s->origin_offset_x);
-    y = PROGRAM_TO_USER_LEN(y + s->tool_offset.tran.y + s->origin_offset_y);
-    double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_offset.tran.z + s->origin_offset_z + s->axis_offset_z);
+    double x, y, z;
+    program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &x, &y, &z);
+    x = PROGRAM_TO_USER_LEN(x);
+    y = PROGRAM_TO_USER_LEN(y);
+    z = PROGRAM_TO_USER_LEN(z);
     double a = PROGRAM_TO_USER_ANG(s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
     double b = PROGRAM_TO_USER_ANG(s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
     double c = PROGRAM_TO_USER_ANG(s->CC_current + s->tool_offset.c + s->CC_origin_offset + s->CC_axis_offset);
@@ -3367,6 +3376,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * INCH_PER_MM);
       settings->origin_offset_y = (settings->origin_offset_y * INCH_PER_MM);
       settings->origin_offset_z = (settings->origin_offset_z * INCH_PER_MM);
+      settings->g68_offset[0] = (settings->g68_offset[0] * INCH_PER_MM);
+      settings->g68_offset[1] = (settings->g68_offset[1] * INCH_PER_MM);
+      settings->g68_offset[2] = (settings->g68_offset[2] * INCH_PER_MM);
 
       settings->u_current = (settings->u_current * INCH_PER_MM);
       settings->v_current = (settings->v_current * INCH_PER_MM);
@@ -3410,6 +3422,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * MM_PER_INCH);
       settings->origin_offset_y = (settings->origin_offset_y * MM_PER_INCH);
       settings->origin_offset_z = (settings->origin_offset_z * MM_PER_INCH);
+      settings->g68_offset[0] = (settings->g68_offset[0] * MM_PER_INCH);
+      settings->g68_offset[1] = (settings->g68_offset[1] * MM_PER_INCH);
+      settings->g68_offset[2] = (settings->g68_offset[2] * MM_PER_INCH);
 
       settings->u_current = (settings->u_current * MM_PER_INCH);
       settings->v_current = (settings->v_current * MM_PER_INCH);
@@ -4048,12 +4063,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (FEATURE(RETAIN_G43)) {
 
-      if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
+      if (((settings->active_g_codes[9] == G_43) ||
+           (settings->active_g_codes[9] == G_43_4)) && ONCE(STEP_RETAIN_G43)) {
         if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
-            block->g_modes[gees[G_43]] = G_43;
-            CHP(convert_tool_length_offset(G_43, &g43, settings));
+            block->g_modes[gees[settings->active_g_codes[9]]] = settings->active_g_codes[9];
+            CHP(convert_tool_length_offset(settings->active_g_codes[9], &g43, settings));
         } else {
             struct block_struct g49;
             init_block(&g49);
@@ -4353,7 +4369,26 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
     CHP(convert_nurbs(code, block, settings));
-  } else if ((code == G_4) || (code == G_53));  // handled elsewhere 
+  } else if ((code == G_4) || (code == G_53) || (code == G_53_4) || (code == G_53_5)
+             || (code == G_53_7));  // handled elsewhere
+  else if ((code == G_53_1) || (code == G_53_2) || (code == G_53_3) || (code == G_53_6)) {
+    CHP(convert_orient_tool(code, block, settings));
+  }
+  else if ((code == G_12_1) || (code == G_13_1)) {
+    // The flag makes the interpreter wait for motion to drain, so that no
+    // motion is planned across a change of kinematics.  Reading runs far
+    // ahead of the machine, so an empty queue now says nothing about what
+    // will be queued: ask every time.  The exception is an
+    // ON_ABORT_COMMAND routine, run by one execute() call that cannot
+    // service INTERP_EXECUTE_FINISH and would drop the rest of the
+    // routine; the abort has just flushed the queue anyway.  The startup
+    // code is the other exception: it runs before the main loop can
+    // service the wait, and no motion exists yet to protect.
+    if (!settings->in_abort_command && !settings->in_startup_code) {
+      settings->kinsSwitch_flag = true;
+    }
+    CHP(convert_kins_switch(code, block, settings));
+  }
   else
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
@@ -4592,6 +4627,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
     int direct = block->l_number == 1;
 
+    CHKS((settings->g68_active && !direct),
+         _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
     is_near_int(&toolno, block->p_number);
 
     CHP((find_tool_index(settings, toolno, &idx)));
@@ -4831,6 +4868,9 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double c;
   double u, v, w;
   double r;
+
+  CHKS((settings->g68_active),
+       _("Cannot use G10 L%d while a tilted work plane (G68.2) is active"), block->l_number);
   double *parameters;
   int p_int;
 
@@ -5237,6 +5277,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
             ) {   /* reset stuff here */
 
 /*1*/
+    // a tilted work plane does not survive the end of the program
+    CHP(work_plane_cancel(settings));
 
     if (!settings->disable_auto_g54) {
         rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
@@ -5468,6 +5510,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
+  if (block->g_modes[GM_MODAL_0] == G_53_5 || block->g_modes[GM_MODAL_0] == G_53_7) {
+    // the words name joints, by letter or by number: nothing below applies
+    CHP(convert_ptp_joints(block->g_modes[GM_MODAL_0], move, block, settings));
+    return INTERP_OK;
+  }
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
 
@@ -5481,7 +5528,28 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   // Create a state tag and dump it to canon
   write_canon_state_tag(block, settings);
 
-  if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
+  if (block->g_modes[GM_MODAL_0] == G_53_4) {
+    // point-to-point: the endpoint is this Cartesian point, the path to it
+    // is whatever the joints make of it
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use G53.4 with cutter radius compensation on"));
+    tag_straight(block,end_x, end_y);
+    if (move == G_0) {
+      JOINT_TRAVERSE(block->line_number, NULL, 0, end_x, end_y, end_z,
+                     AA_end, BB_end, CC_end,
+                     u_end, v_end, w_end);
+    } else {
+      double seconds;
+      CHP(ptp_seconds(block, settings, end_x, end_y, end_z,
+                      AA_end, BB_end, CC_end, u_end, v_end, w_end, &seconds));
+      JOINT_FEED(block->line_number, NULL, 0, end_x, end_y, end_z,
+                 AA_end, BB_end, CC_end,
+                 u_end, v_end, w_end, seconds);
+    }
+    settings->current_x = end_x;
+    settings->current_y = end_y;
+    settings->current_z = end_z;
+  } else if ((settings->cutter_comp_side != CUTTER_COMP::OFF) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
     CHKS((block->g_modes[GM_MODAL_0] == G_53),
@@ -6290,6 +6358,50 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 /****************************************************************************/
 
+// the kinematics module declares what each type is (KINSTYPE_* flags);
+// where the flags say nothing at all there is no kinematics attached
+// (sai, preview) and the codes fall back to type 0, as before
+static int kins_type_info_available()
+{
+  int k;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
+  }
+  return 0;
+}
+
+// the type carrying a KINSTYPE_ flag, or -1 when the module declares none;
+// -1 for a type is "no information", and it matches every flag, so it must
+// be excluded before the bit test
+static int flagged_kins_type(int flag)
+{
+  int k, f;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    f = GET_EXTERNAL_KINS_TYPE_FLAGS(k);
+    if (f >= 0 && (f & flag)) { return k; }
+  }
+  return -1;
+}
+
+// a kinematics switch like G12.1/G13.1 do: the flag makes the interpreter
+// wait for motion to drain, so that no motion is planned across the switch,
+// except inside an ON_ABORT_COMMAND routine, run by one execute() call that
+// cannot service INTERP_EXECUTE_FINISH; the abort has just flushed the
+// queue anyway, and except in the startup code, which runs before the main
+// loop can service the wait, when no motion exists yet to protect.
+// Already on the type, there is nothing to do.
+static void switch_kins_type(int kins_type, setup_pointer settings)
+{
+  if (settings->kins_type == kins_type) { return; }
+  if (!settings->in_abort_command && !settings->in_startup_code) {
+    settings->kinsSwitch_flag = true;
+  }
+  SELECT_KINS_TYPE(kins_type);
+  settings->kins_type = kins_type;
+}
+
 /*! convert_tool_length_offset
 
 Returned Value: int
@@ -6330,9 +6442,17 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
+  if (g_code == G_43_4) {
+    int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+    // G43.4 is G43 on the module's working transform: switch first, then
+    // apply the offset, as if the switch line had run and drained.  With
+    // no kinematics attached there is nothing to switch to.
+    CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
+    if (primary >= 0) { switch_kins_type(primary, settings); }
+  }
   if (g_code == G_49) {
     idx = 0;
-  } else if (g_code == G_43) {
+  } else if (g_code == G_43 || g_code == G_43_4) {
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
     if(block->h_flag) {
@@ -6412,20 +6532,25 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         if(block->w_flag) tool_offset.w += block->w_number;
     }
   } else {
-    ERS("BUG: Code not G43, G43.1, G43.2, or G49");
+    ERS("BUG: Code not G43, G43.1, G43.2, G43.4, or G49");
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-  double dx, dy;
+  double dx, dy, dz;
 
+  // the tool does not move, so its program coordinates change by the
+  // offset difference seen from the program: the XY rotation and the
+  // tilted work plane taken off it
   dx = settings->tool_offset.tran.x - tool_offset.tran.x;
   dy = settings->tool_offset.tran.y - tool_offset.tran.y;
+  dz = settings->tool_offset.tran.z - tool_offset.tran.z;
 
   rotate(&dx, &dy, -settings->rotation_xy);
+  g68_unrotate(settings, &dx, &dy, &dz);
 
   settings->current_x += dx;
   settings->current_y += dy;
-  settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;
+  settings->current_z += dz;
   settings->AA_current += settings->tool_offset.a - tool_offset.a;
   settings->BB_current += settings->tool_offset.b - tool_offset.b;
   settings->CC_current += settings->tool_offset.c - tool_offset.c;
@@ -6452,6 +6577,14 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->parameters[5087] = PROGRAM_TO_USER_LEN(tool_offset.u);
   settings->parameters[5088] = PROGRAM_TO_USER_LEN(tool_offset.v);
   settings->parameters[5089] = PROGRAM_TO_USER_LEN(tool_offset.w);
+
+  if (g_code == G_49) {
+    // G49 also drops the machine to identity kinematics, after the
+    // cancel, as if G13.1 had run on the next line.  A module that
+    // declares no identity type keeps the legacy plain cancel.
+    int identity = flagged_kins_type(KINSTYPE_IDENTITY);
+    if (identity >= 0) { switch_kins_type(identity, settings); }
+  }
 
   return INTERP_OK;
 }
@@ -6489,6 +6622,53 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
   SELECT_TOOL(block->t_number);
   settings->selected_pocket = idx;
   settings->selected_tool = block->t_number;
+  return INTERP_OK;
+}
+
+/*! convert_kins_switch
+
+Returned Value: int (INTERP_OK)
+
+Side effects:
+   The selected kinematics is sent to the motion controller and recorded
+   in the interpreter so that #<_kins_type> reports it.
+
+Called by: convert_modal_0
+
+G12.1 P- selects a kinematics; G13.1 cancels back to identity kinematics,
+which the module declares with a flag rather than by number.  Both are
+queue synchronisation points: the caller sets kinsSwitch_flag, which makes
+the interpreter wait for motion to drain before the switch takes effect,
+so no motion is ever planned across a change of kinematics.
+
+*/
+
+int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
+                                block_pointer block,     //!< pointer to a block of RS274 instructions
+                                setup_pointer settings)  //!< pointer to machine settings
+{
+  int kins_type;
+
+  if (code == G_13_1) {
+    // G13.1 cancels to identity kinematics; which type that is, the
+    // module declares, the number is not the answer
+    kins_type = flagged_kins_type(KINSTYPE_IDENTITY);
+    if (kins_type < 0) {
+      CHKS(kins_type_info_available(), NCE_NO_IDENTITY_KINEMATICS_TYPE);
+      kins_type = 0; // no kinematics attached: standalone interpreter
+    }
+  } else {
+    kins_type = round_to_int(block->p_number);
+
+    CHKS((kins_type < 0), _("G12.1 requires a non-negative P word"));
+    // say so at read time rather than aborting mid-program in motion
+    CHKS((kins_type_info_available()
+          && GET_EXTERNAL_KINS_TYPE_FLAGS(kins_type) < 0),
+         NCE_KINS_TYPE_NOT_PROVIDED);
+  }
+
+  SELECT_KINS_TYPE(kins_type);
+  settings->kins_type = kins_type;
   return INTERP_OK;
 }
 

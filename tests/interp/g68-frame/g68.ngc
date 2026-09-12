@@ -1,0 +1,46 @@
+%
+(the tilted work plane through the stand alone canon)
+g21 g90
+g10 l2 p2 x100 y200 z300 r0
+g55
+(one plane, four ways.  Three distinct angles, none of them right, so that)
+(the order the rotations compose in shows in the answer)
+(P0 turns about the frame as it goes, ZXZ by default)
+g68.2 x10 y20 z30 i25 j40 k-15
+g0 x1 y2 z3
+(the same plane about the fixed axes of the system it sits in, XYZ)
+g68.2 p1 q123 x10 y20 z30 i39.025043525 j9.576578516 k13.400523974
+g0 x1 y2 z3
+(the same plane by three points: the first two give +X, the third the +Y side)
+g68.2 p2 q0 x10 y20 z30
+g68.2 p2 q1 x0 y0 z0
+g68.2 p2 q2 x4.796086535 y1.142635331 z-0.831828377
+g68.2 p2 q3 x-0.234429999 y2.339990858 z1.862655459
+g0 x1 y2 z3
+(the same plane by two vectors, X nudged off square)
+g68.2 p3 q1 x10 y20 z30 i0.959217579 j0.228526484 k-0.166364909
+g68.2 p3 q2 i0.271653782 j-0.582563416 k0.766044443
+g0 x1 y2 z3
+(R turns the plane about its own Z)
+g68.2 x10 y20 z30 i25 j40 k-15 r37.5
+g0 x1 y2 z3
+(an arc in the plane)
+g1 f100 x0 y0 z0
+g2 x2 y0 i1 j0
+(G53 inside the plane goes to absolute coordinates)
+g53 g0 x100 y200 z300
+(and #5021 reports them)
+(debug, abs #5021 #5022 #5023 prog #5420 #5421 #5422)
+(a probe result comes back in plane coordinates: nothing to run here)
+(a tool length change moves the program coordinates along the plane axis that is world Z)
+g43.1 z7
+(debug, prog #5420 #5421 #5422)
+g49
+(G68.4 composes onto the plane, in its own axes)
+g68.4 p1 q123 i35 j-20 k10
+g0 x1 y2 z3
+(G69 cancels)
+g69
+g0 x1 y2 z3
+m2
+%

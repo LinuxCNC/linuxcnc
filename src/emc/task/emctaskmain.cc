@@ -418,6 +418,8 @@ static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
 static int emcAuxInputWaitIndex = -1;
 
+static EMC_TRAJ_SELECT_KINS *kSwitch_msg;
+
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
 //static EMC_TASK_PLAN_INIT taskPlanInitCmd;
@@ -471,6 +473,9 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
 
 	//FIXME: there was limit checking tests below, see if they were needed
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
+	    break;
+
+	case EMC_TRAJ_JOINT_MOVE_TYPE:
 	    break;
 
 	case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
@@ -1519,6 +1524,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
@@ -1536,6 +1542,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
@@ -1603,6 +1610,10 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 
     case EMC_MOTION_ADAPTIVE_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
+	break;
+
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
     default:
@@ -1827,6 +1838,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE: {
+	EMC_TRAJ_JOINT_MOVE *jm = reinterpret_cast<EMC_TRAJ_JOINT_MOVE *>(cmd);
+	emcTrajUpdateTag(jm->tag);
+	retval = emcTrajJointMove(jm->end, jm->joints, jm->have_joints, jm->seconds);
+	break;
+    }
+
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	emcTrajUpdateTag((reinterpret_cast<EMC_TRAJ_LINEAR_MOVE *>(cmd))->tag);
 	emcTrajCircularMoveMsg = reinterpret_cast<EMC_TRAJ_CIRCULAR_MOVE *>(cmd);
@@ -1900,6 +1918,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;
         retval = 0;
         break;
+
+    case EMC_TRAJ_SET_G68_TYPE: {
+        EMC_TRAJ_SET_G68 *g68 = reinterpret_cast<EMC_TRAJ_SET_G68 *>(cmd);
+        emcStatus->task.g68_offset = g68->origin;
+        for (int i = 0; i < 9; i++) { emcStatus->task.g68_rotation[i] = g68->rotation[i]; }
+        emcStatus->task.g68_active = g68->active;
+        retval = 0;
+        break;
+    }
 
     case EMC_TRAJ_SET_G5X_TYPE:
 	// struct-copy program origin
@@ -2427,6 +2454,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	kSwitch_msg = (EMC_TRAJ_SELECT_KINS *) cmd;
+	retval =  emcSelectKinsType(kSwitch_msg->switchkins_type);
+	break;
+
      default:
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
@@ -2476,6 +2508,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD;
 	break;
 
+    case EMC_TRAJ_JOINT_MOVE_TYPE:
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
@@ -2486,6 +2519,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
+    case EMC_TRAJ_SET_G68_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -2536,6 +2570,10 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
 	return EMC_TASK_EXEC::DONE;
+	break;
+
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	return EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH;
 	break;
 
     default:
@@ -2757,6 +2795,17 @@ static int emcTaskExecute(void)
 		}
 	}
 	break;
+
+    case EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH:
+	{
+		if(emcStatus->motion.traj.switchkins_changed)
+		{
+			emcStatus->motion.traj.switchkins_changed = false;
+			emcTaskPlanSynch();
+			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		}
+		break;
+	}
 
     case EMC_TASK_EXEC::WAITING_FOR_DELAY:
 	STEPPING_CHECK();

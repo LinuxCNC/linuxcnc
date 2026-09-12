@@ -155,6 +155,9 @@ typedef struct CanonConfig_t {
           rotary_unlock_for_traverse(-1),
           g5xOffset{},
           g92Offset{},
+          g68Offset{},
+          g68Rotation{1, 0, 0, 0, 1, 0, 0, 0, 1},
+          g68Active(0),
           endPoint{},
           lengthUnits(CANON_UNITS_INCHES),
           activePlane(CANON_PLANE::XY),
@@ -178,6 +181,11 @@ typedef struct CanonConfig_t {
 
     CANON_POSITION g5xOffset;
     CANON_POSITION g92Offset;
+/* The tilted work plane (G68.2): a frame inside the G92 stage of the chain,
+   in mm.  Program X Y Z go through R * xyz + O before anything else. */
+    double g68Offset[3];
+    double g68Rotation[9];      // row major
+    int g68Active;
 /*
   canonEndPoint is the last programmed end point, stored in case it's
   needed for subsequent calculations. It's in absolute frame, mm units.
@@ -243,6 +251,12 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 
 extern void SET_XY_ROTATION(double t);
 
+/* The tilted work plane.  Origin in program units and a row major rotation
+   matrix, both in the coordinate system active when the plane was defined;
+   active 0 cancels it. */
+extern void SET_G68_FRAME(double x, double y, double z,
+                          const double rotation[9], int active);
+
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
 numbers. The units are whatever length units are being used at the time 
@@ -277,6 +291,24 @@ extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
                               double a, double b, double c,
                               double u, double v, double w);
+
+/* A traverse interpolated in joint space.  The endpoint x..w is in program
+   coordinates like STRAIGHT_TRAVERSE's; motion runs the inverse once there
+   and interpolates the joints to it.  With have_joints the joints given
+   (machine units, one per joint) are the endpoint instead and x..w say
+   where the interpreter believes that is.  Nothing blends into or out of
+   it. */
+extern void JOINT_TRAVERSE(int lineno, const double *joints, int have_joints,
+                           double x, double y, double z,
+                           double a, double b, double c,
+                           double u, double v, double w);
+/* The same move at feed: it is to take 'seconds' seconds at the programmed
+   feed, the feed override applies, and the joint limits still cap it. */
+extern void JOINT_FEED(int lineno, const double *joints, int have_joints,
+                       double x, double y, double z,
+                       double a, double b, double c,
+                       double u, double v, double w,
+                       double seconds);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -897,6 +929,13 @@ extern int GET_EXTERNAL_MIST();
 // Returns the current motion control mode
 extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 
+// Returns the kinematics type motion is running (G12.1, G13.1)
+extern int GET_EXTERNAL_KINS_TYPE();
+/* what the kinematics module says a type is (KINSTYPE_* flags,
+   kinematics.h); -1 where it says nothing: no such type, plain
+   kinematics, or no motion controller attached (sai, preview) */
+extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
+
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
@@ -961,6 +1000,12 @@ extern double GET_EXTERNAL_POSITION_V();
 
 // returns the current w-axis position
 extern double GET_EXTERNAL_POSITION_W();
+
+// Copies up to max of the joint positions the machine stands in and
+// returns how many were written.  A point does not name one joint set, so
+// an iterative inverse needs somewhere to start.  Zero when the caller
+// has no machine to ask.
+extern int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max);
 
 
 // Returns the position of the specified axis at the last probe trip,
@@ -1069,5 +1114,8 @@ extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2))
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(const StateTag& tag);
+
+// adjust kins offset (G12.1 kinematics switch)
+extern void SELECT_KINS_TYPE(int switchkins_type);
 
 #endif				/* ifndef CANON_HH */

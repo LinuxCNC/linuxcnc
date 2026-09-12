@@ -303,6 +303,10 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self._flush_moves()
         Translated.set_xy_rotation(self, theta)
 
+    def set_g68_frame(self, *args):
+        self._flush_moves()
+        Translated.set_g68_frame(self, *args)
+
     def set_g5x_offset(self, *args, **kw):
         self._flush_moves()
         Translated.set_g5x_offset(self, *args, **kw)
@@ -1327,6 +1331,15 @@ class GlCanonDraw:
                 positions[X] = _x * math.cos(t) - _y * math.sin(t)
                 positions[Y] = _x * math.sin(t) + _y * math.cos(t)
                 positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
+                if s.g68_active:
+                    # the tilted work plane sits inside G92
+                    r = s.g68_rotation
+                    _x = positions[X] - s.g68_offset[X]
+                    _y = positions[Y] - s.g68_offset[Y]
+                    _z = positions[Z] - s.g68_offset[Z]
+                    positions[X] = r[0]*_x + r[3]*_y + r[6]*_z
+                    positions[Y] = r[1]*_x + r[4]*_y + r[7]*_z
+                    positions[Z] = r[2]*_x + r[5]*_y + r[8]*_z
             else:
                 positions = list(positions)
 

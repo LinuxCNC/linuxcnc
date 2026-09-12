@@ -4,18 +4,19 @@
 *
 * NOTEs:
 *  1) specify all kparms items
-*  2) specify 3 KS,KF,KI functions for switchkins_type=0,1,2
-*  3) the 0th switchkins_type is the startup default
-*  4) sparm is a module string parameter for configuration
-*  5) The directions of the rotational axes are the opposite of the 
+*  2) the 0th switchkins_type is the startup default
+*  3) sparm is a module string parameter for configuration
+*  4) The directions of the rotational axes are the opposite of the
 *     conventional axis directions.
+*  5) the maths and the geometry table are in trtfuncs.c, written as
+*     pure functions of the parameter block (see kinematics.h)
 */
 
 #include <rtapi.h>
 #include <rtapi_string.h>
 #include <emcmotcfg.h>
 
-#include "switchkins.h"
+#include <switchkins.h>
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
@@ -23,35 +24,28 @@ int switchkinsSetup(kparms* kp,
                     KI* kinv0, KI* kinv1, KI* kinv2
                    )
 {
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
     kp->kinsname    = "xyzbc-trt-kins"; // !!! must agree with filename
     kp->halprefix   = "xyzbc-trt-kins"; // hal pin names
     kp->required_coordinates = "xyzbc";
     kp->allow_duplicates     = 1;
     kp->max_joints           = EMCMOT_MAX_JOINTS;
+    kp->params               = TRT_PARAMS;
+    kp->nparams              = TRT_NPARAMS;
 
     if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
         rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
-        *kset0 = identityKinematicsSetup;
-        *kfwd0 = identityKinematicsForward;
-        *kinv0 = identityKinematicsInverse;
-
-        *kset1 = trtKinematicsSetup; // trt: xyzac,xyzbc
-        *kfwd1 = xyzbcKinematicsForward;
-        *kinv1 = xyzbcKinematicsInverse;
+        switchkinsRegisterOps(0, &KINS_IDENTITY_OPS);
+        switchkinsRegisterOps(1, &XYZBC_OPS);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
-        *kset0 = trtKinematicsSetup; // trt: xyzac,xyzbc
-        *kfwd0 = xyzbcKinematicsForward;
-        *kinv0 = xyzbcKinematicsInverse;
-
-        *kset1 = identityKinematicsSetup;
-        *kfwd1 = identityKinematicsForward;
-        *kinv1 = identityKinematicsInverse;
+        switchkinsRegisterOps(0, &XYZBC_OPS);
+        switchkinsRegisterOps(1, &KINS_IDENTITY_OPS);
     }
 
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
+    switchkinsRegisterOps(2, &USERK_OPS);
 
     return 0;
 }

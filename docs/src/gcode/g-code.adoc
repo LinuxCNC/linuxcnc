@@ -70,6 +70,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g10-l11,G10 L11>>         |Set Tool Table, Calculated, Fixture
 |<<gcode:g10-l2,G10 L2>>           |Coordinate System Origin Setting
 |<<gcode:g10-l20,G10 L20>>         |Coordinate System Origin Setting Calculated
+|<<gcode:g12.1-g13.1,G12.1 G13.1>> |Select Kinematics
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
@@ -83,13 +84,17 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43,G43>>                 |Use Tool Length Offset from Tool Table
 |<<gcode:g43.1,G43.1>>             |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>             |Apply additional Tool Length Offset
+|<<gcode:g43.4,G43.4>>             |Tool Length Offset on Primary Kinematics
 |<<gcode:g49,G49>>                 |Cancel Tool Length Offset
 |<<gcode:g52,G52>>                 |Local Coordinate System Offset
 |<<gcode:g53,G53>>                 |Move in Machine Coordinates
+|<<gcode:g53.1,G53.1 G53.2 G53.3 G53.6>> |Orient the Tool to the Tilted Work Plane
+|<<gcode:g53.4,G53.4 G53.5 G53.7>>  |Point-to-Point Move
 |<<gcode:g54-g59.3,G54-G59.3>>     |Select Coordinate System (1 - 9)
 |<<gcode:g61,G61>>                 |Exact Path Mode
 |<<gcode:g61.1,G61.1>>             |Exact Stop Mode
 |<<gcode:g64,G64>>                 |Path Control Mode with Optional Tolerance
+|<<gcode:g68.2,G68.2 G68.3 G68.4 G69>> |Tilted Work Plane
 |<<gcode:g70,G70>>                 |Lathe finishing cycle
 |<<gcode:g71-g72,G71-G72>>         |Lathe roughing cycle
 |<<gcode:g73,G73>>                 |Drilling Cycle with Chip Breaking
@@ -934,6 +939,78 @@ It is an error if:
 * The P number does not evaluate to an integer in the range 0 to 9.
 * An axis is programmed that is not defined in the configuration.
 
+[[gcode:g12.1-g13.1]]
+== G12.1, G13.1 Select Kinematics(((G12.1, G13.1 Select Kinematics)))
+
+----
+G12.1 P-
+G13.1
+----
+
+'G12.1' selects one of the kinematics provided by a switchable kinematics
+module; the 'P' word is the kinematics number. 'G13.1' cancels back to
+identity kinematics, where joints and coordinates are the same thing.
+Which number that is is declared by the module itself, so 'G13.1' means
+the same kinematics whatever order a module lists its types in.
+
+[WARNING]
+Deprecation notice: selecting the kinematics by writing the
+`motion.switchkins-type` HAL pin is deprecated. It takes the same
+numbering and still works, but it does not tell the interpreter that
+anything changed, so a program is read, its limits checked and its path
+looked ahead in whatever kinematics the interpreter last knew about,
+which need not be the one that runs it. Use 'G12.1' and 'G13.1'.
+
+Both codes are queue synchronisation points. The interpreter waits for
+queued motion to finish before the kinematics changes, so no move is ever
+planned in one kinematics and executed in another. Because of that, both
+codes stop any blending that was in progress, in the same way 'G4' does.
+
+The kinematics module decides what each number means, and declares
+which one is identity. See the `switchkins` section of the kins(9) man
+page for the modules that support switching and the order in which they
+list their kinematics. A machine whose kinematics module is not
+switchable rejects the change, and 'G13.1' is an error on a switchable
+module that declares no identity kinematics; such a module can still be
+driven by number with 'G12.1'.
+
+Selecting a kinematics does not move the machine. It changes how joint
+positions and coordinate positions map onto each other, so the position
+readout can change even though nothing has moved.
+
+The active kinematics is available to the program as the read-only
+parameter '#<_kins_type>', which lets a subroutine put back whatever was
+selected before it ran:
+
+[source,ngc]
+----
+#<saved> = #<_kins_type>
+G12.1 P2      (work in kinematics 2)
+( ... )
+G12.1 P#<saved> (put back whatever the caller was using)
+----
+
+Nothing cancels the selection on its own. It survives the end of the
+program and an abort, so that the kinematics keeps matching what the
+position readout shows. End a program with 'G13.1' if it should leave the
+machine in identity kinematics.
+
+.G12.1, G13.1 Example
+[source,ngc]
+----
+G12.1 P1  (switch to kinematics 1)
+G0 X0 Y0
+G13.1     (back to identity kinematics)
+----
+
+It is an error if:
+
+* 'G12.1' is used without a 'P' word.
+* The 'P' word is negative.
+* The 'P' word names a kinematics the module does not provide.
+* A 'P' word is used with 'G13.1'.
+* 'G13.1' is used and the module declares no identity kinematics.
+
 [[gcode:g17-g19.1]]
 == G17 - G19.1 Plane Select(((G17 - G19.1 Plane Select)))
 
@@ -1550,10 +1627,53 @@ It is an error if:
 
 NOTE: G43.2 does not write to the tool table.
 
+[[gcode:g43.4]]
+== G43.4 Tool Length Offset on Primary Kinematics(((G43.4 Tool Length Offset on Primary Kinematics)))
+
+[source,ngc]
+----
+G43.4 <H->
+----
+
+* 'H' - tool number (optional)
+
+'G43.4' is 'G43' together with a switch to the kinematics the module
+declares its working transform, so the program runs with tool length
+compensation in the module's working kinematics. The switch happens
+first and the offset applies after it, as if the two had been written
+on consecutive lines. 'G49' is the matching cancel: it clears the
+offset and switches back to identity kinematics.
+
+The H word, the offset itself and the parameters it lands in are
+'G43''s. Which kinematics is the working one is declared by the module
+(KINSTYPE_PRIMARY, see the <<cha:switchable-kinematics,Switchable
+Kinematics>> chapter), the number is not the answer; a module that
+declares none rejects 'G43.4' at read time.
+
+The switch is a queue synchronisation point like
+'<<gcode:g12.1-g13.1,G12.1>>': when 'G43.4' or 'G49' changes the
+kinematics, the interpreter waits for queued motion to finish first, so
+both stop any blending in progress. Already on the target kinematics
+they do not switch and blend normally, and a plain 'G43', 'G43.1' or
+'G43.2' never switches, whatever kinematics is selected.
+
+On a machine without switchable kinematics there is nothing to switch:
+'G43.4' is a plain 'G43' and 'G49' a plain cancel.
+
+It is an error if:
+
+* the kinematics module is switchable but declares no primary
+  kinematics, or
+* any of the 'G43' error conditions holds.
+
 [[gcode:g49]]
 == G49 Cancel Tool Length Compensation(((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
+
+'G49' also switches a switchable kinematics module back to its identity
+kinematics, the cancel for the switch 'G43.4' makes. A module that
+declares no identity kinematics gets the plain cancel.
 
 It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
@@ -1599,6 +1719,229 @@ It is an error if:
 
 * G53 is used without G0 or G1 being active,
 * or G53 is used while cutter compensation is on.
+
+[[gcode:g53.1]]
+== G53.1, G53.2, G53.3, G53.6 Orient the Tool to the Work Plane(((G53.1 Orient the Tool)))
+
+[source,ngc]
+----
+G53.1 <P-> <Q->
+G53.2 <P-> <Q->
+G53.3 <P-> <Q-> X- Y- Z-
+G53.6 <P-> <Q->
+----
+
+All four solve where the rotary joints have to go so that the tool axis is
+normal to the active <<gcode:g68.2,tilted work plane>>, the plane's Z. They
+differ in what happens then:
+
+* 'G53.1' moves the rotaries alone. The linear joints stay where they are,
+  and the tool tip swings to wherever that carries it. It is a
+  point-to-point move, like <<gcode:g53.4,G53.4>>.
+* 'G53.6' keeps the tool centre point where it is. It is a Cartesian move of
+  the rotary words, so the kinematics compensates the linear joints all along.
+* 'G53.3' moves the rotaries and takes the tool to 'X Y Z', given in the
+  plane, in one point-to-point move. A word left out keeps the present value.
+* 'G53.2' moves nothing. It only publishes the solved pose on the named
+  parameters '#<_orient_x>', '#<_orient_y>', '#<_orient_z>', '#<_orient_a>',
+  '#<_orient_b>' and '#<_orient_c>', and on the numbered parameters
+  '#5071' to '#5079' ('X Y Z A B C U V W'), in program units in the plane,
+  and sets '#<_orient_valid>' and '#5080' to 1. The program can then reach
+  the pose with a move of its own making, for instance a single 'G0' that
+  names 'X Y Z' and the rotary words together, so the turn and the travel
+  are one Cartesian move under the TCP kinematics. This is what Heidenhain
+  calls `STAY`. Reading '#<_orient_x>' and kin before the first 'G53.2' is
+  an error; '#<_orient_valid>' and '#5080' say whether they hold a pose.
+
+The kinematics module answers where the rotaries have to go, with its tool
+frame inverse (see the kinematics conventions chapter), so no configuration
+carries the formula. That answer has more than one solution on most
+machines, two on a five-axis one, and often a choice of which joints to use.
+
+'P' picks which of them. Without 'P', or with 'P0', the machine takes the
+one nearest where its rotaries are standing, which is the shortest move and
+depends on where that is. 'P1' and 'P2' name the pose instead, so a program
+reaches the same one wherever it starts from: the two poses lean the head
+opposite ways, and they differ in the sign of the secondary rotary, the one
+whose axis the other carries. 'P1' is the pose with that rotary positive and
+'P2' the pose with it negative. The interpreter works out which rotary that
+is by asking the kinematics module, so nothing is configured for it. This is
+the choice Heidenhain writes as `SEQ+` and `SEQ-`, with one difference: a
+control offering `SEQ` falls back to the nearer pose when both lie the same
+side of home, where 'P1' and 'P2' refuse and say so.
+
+The two poses become one where the tool direction asked for lies along the
+primary rotary's axis, straight up on a vertical mill, and there every form
+gives the same answer.
+
+'P' names a pose only where a rotary turns the tool. On a machine whose
+rotaries all carry the work, the tilting-table configurations among them,
+there is no such rotary and only the nearest form is available; the same
+goes for a machine that is not of this shape at all, a robot among them.
+
+'Q' says whether the joints that carry the work, the table, take part.
+
+* 'Q0', the default, holds them and lets the head do the work. On a machine
+  whose head has only two rotaries the plane's X is then not something the
+  joints can place, and it is left to the coordinate system, which the plane
+  already carries; nothing else is done with it. This is what Heidenhain
+  calls `COORD ROT`. If nothing is reachable with the table held, the move
+  is tried again with every joint free.
+* 'Q1' frees the table from the start. With the plane's X asked for as well,
+  a machine with the joints for it turns the table so that the plane's X is
+  reached by the machine, Heidenhain's `TABLE ROT`.
+
+Which joints carry the work is read off the kinematics module's work frame,
+so 'Q' means the same thing on every module and needs no INI entry.
+
+The orientation is evaluated by the interpreter, ahead of the moves before
+it, on the kinematics type the program is in. It needs a kinematics type
+whose frames describe the machine: on a switchable module that is its TCP
+kinematics, selected with <<gcode:g12.1-g13.1,G12.1>>, and not the identity
+kinematics the module starts in.
+
+.G53.1 Example
+[source,ngc]
+----
+G12.1 P1                      (the TCP kinematics)
+G68.2 X50 Y50 Z0 I30 J20 K0   (a plane)
+G53.1                         (rotaries to its normal, the head does it)
+G0 X0 Y0 Z10                  (rapid to a point in the plane, above its origin)
+G1 Z-2 F200                   (down, along the plane's normal)
+G69
+----
+
+It is an error if:
+
+* No tilted work plane is active.
+* The kinematics type in force is the identity kinematics, the module cannot
+  be evaluated by the interpreter, or it reports no frames, so it cannot say
+  where its joints point the tool.
+* The plane's normal cannot be reached by the rotary joints.
+* 'P' is anything but 0, 1 or 2, no reachable pose has the secondary rotary
+  the way 'P' asks for, or the machine has no pair of poses a tilting joint
+  tells apart.
+* 'Q' is anything but 0 or 1.
+* Axis words are used with 'G53.1', 'G53.2' or 'G53.6', or words other than
+  'X', 'Y' and 'Z' with 'G53.3'.
+* Cutter compensation is on.
+
+[[gcode:g53.4]]
+== G53.4, G53.5, G53.7 Point-to-Point Move(((G53.4 Point-to-Point Move)))
+
+[source,ngc]
+----
+G53.4 G0 <axes>
+G53.4 G1 F- <axes>
+G53.5 G0 <axes>
+G53.5 G1 F- <axes>
+G53.7 G0 J<n>=<value> ...
+G53.7 G1 F- J<n>=<value> ...
+----
+
+A point-to-point move defines its two ends and leaves the path between them
+to the joints. The inverse kinematics runs once, at the destination, and every
+joint then travels from where it is to where it must be, all together, the
+slowest setting the pace. The tool does not follow a straight line; on a
+machine with rotary joints it swings. The joints are the motion controller's,
+<<sec:joint-space,joint space>>, the ones the kinematics module maps the axes
+to; what HAL connects behind each of them is not part of the interpolation.
+
+All three are non-modal, like 'G53': they apply to the one block they are
+written in, which must have 'G0' or 'G1' in force or on the line. Each strips
+one more layer of interpretation from the destination than the one before:
+
+* 'G53.4' takes a destination in program coordinates, through the offsets and
+  the tilted work plane like any other move. This is the move a program uses
+  to cross a kinematic singularity, or to turn a rotary head right round,
+  without leaving its coordinate system and without the trajectory planner
+  trying to hold the tool tip on a line the joints cannot follow at speed.
+* 'G53.5' takes the same axis letters and sends the slides there. The words
+  are read as though the kinematics were the identity: each letter names the
+  joints the module's identity mapping gives it, which the `coordinates=`
+  parameter and the `[TRAJ]COORDINATES` line describe, and the two joints of
+  a gantry take one value together. Values are in program units, so 'G20'
+  scales them like any other axis word. No offset, tool length, rotation or
+  work plane applies. On a mill whose joint 2 carries the Z slide, 'G53.5 G0
+  Z0' puts that slide at zero whatever the head is doing, where 'G53 G0 Z0'
+  puts the tool tip at machine Z zero. This is the move for parking, tool
+  change and home positions, where the slides matter and the part does not.
+  It is not a joint jog: the machine stays in world mode and the position on
+  the screen stays true through the move.
++
+An axis letter carries a unit class and a joint does not, so 'G53.5' is
+refused on a machine whose letters name joints of the other kind. A serial
+robot answers X with its first rotary joint, which turns in degrees, and
+there the whole code is refused rather than that one letter. Which joints
+turn is what `[JOINT_n] TYPE` declares.
+
+* 'G53.7' takes joint values, one word per joint, and works on every machine:
+  'J2=-5' sends joint 2 to -5. The number after 'J' is the joint number, the
+  `[JOINT_n]` section and the `joint.n` HAL pins, and the value after '=' is
+  the joint's own position, what `joint.n.pos-cmd` shows, in the joint's own
+  units. Nothing is converted, not even 'G20' and 'G21'. A joint left out
+  keeps its position, and the two joints of a gantry pair must both be given,
+  with one value. This is the form for a robot, and for any machine where the
+  letters do not name the joints they look like.
+
+With 'G0' the speed comes from the joint limits in the INI file,
+`[JOINT_n] MAX_VELOCITY` and `MAX_ACCELERATION`, scaled so that no joint
+exceeds its own; the rapid override applies. With 'G1' the move takes the time
+the straight move to the same destination would take at the programmed feed:
+under G94 the F word applies to the distance between the two ends by the same
+rule as a straight move, XYZ if any of them move, else UVW, else the rotary
+words; under G93 the move takes 1/F minutes exactly, which is the form to use
+when the ends coincide or only the joints move. The feed override applies, and
+the joint limits still cap it. Nothing blends into or out of a point-to-point
+move: the move before it comes to a stop and so does the move itself.
+
+'G53.4' is also the move <<gcode:g53.1,G53.1>> and <<gcode:g53.1,G53.3>> make.
+
+.G53.4 Example
+[source,ngc]
+----
+G0 X0 Y0 Z100 A0 C0
+G53.4 G0 A90 C180 (swing the rotaries round, the tip goes where the joints take it)
+G0 X0 Y0 Z100 (and back on a straight line)
+----
+
+.G53.5 Example
+[source,ngc]
+----
+G53.5 G0 Z0 (the Z slide to its zero, whatever the head's tilt)
+G53.5 G0 X0 Y0 B0 C0 (park X, Y and both head joints; the Z slide stays)
+G93 G53.5 G1 F0.5 C180 (turn the C joint to 180 in two minutes)
+G94
+----
+
+.G53.7 Example
+[source,ngc]
+----
+G53.7 G0 J2=0 (the Z slide, joint 2, to its zero)
+G53.7 G0 J0=0 J1=0 J4=0 J5=0 (park those four joints; joint 2 stays)
+G93 G53.7 G1 F0.5 J5=180 (turn joint 5 to 180 in two minutes)
+G94
+----
+
+It is an error if:
+
+* Neither 'G0' nor 'G1' is in force.
+* An axis letter is without a real value, or one is used that is not
+  configured.
+* With 'G53.5', no axis word is given, a letter is used that is not a joint of
+  the kinematics, or the machine's letters name joints of the other kind.
+* With 'G53.7', an axis word or a plain 'J' word is used, no joint word is
+  given, a joint number is not a whole number from 0 to 15 or is beyond the
+  joints of the kinematics, or one joint of a gantry pair is given without the
+  other or with a different value.
+* With 'G53.5' or 'G53.7', polar coordinates are used, incremental distance
+  mode is in force, or the kinematics module cannot be evaluated by the
+  interpreter.
+* A joint word, 'J<n>=<value>', is used without 'G53.7'.
+* With 'G1', the feed is zero, or under G94 the two ends coincide, or feed per
+  revolution (G95) is in force.
+* Cutter compensation is on.
+* An external offset is applied when the move reaches motion.
 
 [[gcode:g54-g59.3]]
 == G54-G59.3 Select Coordinate System(((G54-G59.3 Select Coordinate System)))
@@ -1773,6 +2116,130 @@ G64 P0.015 Q2
 
 .G64 Heart
 image::images/G64_Heart_Q2.png["G64 Heart",align="center"]
+
+[[gcode:g68.2]]
+== G68.2, G68.3, G68.4, G69 Tilted Work Plane(((G68.2 Tilted Work Plane)))
+
+[source,ngc]
+----
+G68.2 <P0> <Q-> X- Y- Z- I- J- K- <R->   (three angles, Euler)
+G68.2 P1 <Q-> X- Y- Z- I- J- K- <R->     (three angles about fixed axes)
+G68.2 P2 Q0 X- Y- Z- <R->                (three points: the origin, then)
+G68.2 P2 Q1 X- Y- Z-                     (a first point,)
+G68.2 P2 Q2 X- Y- Z-                     (a second point on the plane's +X,)
+G68.2 P2 Q3 X- Y- Z-                     (a third point on its +Y side)
+G68.2 P3 Q1 X- Y- Z- I- J- K- <R->       (two vectors: the origin and +X, then)
+G68.2 P3 Q2 I- J- K-                     (+Z, the normal)
+G68.3 X- Y- Z- <R->                      (the plane from the tool direction)
+G68.4 ...                                (any G68.2 form, on the active plane)
+G69                                      (cancel)
+----
+
+A tilted work plane is a coordinate system composed on top of the active one:
+the blocks between the definition and 'G69' are programmed in the plane, with
+X and Y in it and Z along its normal, while the work offset underneath, 'G54'
+say, is untouched. Positions on the display, probe results and
+<<gcode:g53,G53>> all take the plane into account. It is the same offset
+chain as always with one more stage, applied first:
+
+----
+absolute = tool offset + G5x + XY rotation applied to (G92 + origin + rotation applied to program)
+----
+
+'X', 'Y' and 'Z' are the plane's origin and the plane's rotation is built
+from the rest of the words, both in the coordinate system that is active when
+the plane is defined: the work offset with 'G92' and the XY rotation in
+place, which is what the position display shows at that moment. A rotary
+word does not pass through the plane, since on a TCP kinematics the rotary
+coordinates are the rotary joints and a plane does not change what a joint
+is. Words left out are zero.
+
+'P' selects how the rotation is given:
+
+* 'P0', or no 'P': three angles 'I', 'J', 'K' applied one after another,
+  each about an axis of the plane as rotated so far (Euler angles). 'Q'
+  names the axes with three digits, 1 for X, 2 for Y and 3 for Z, no two
+  adjacent alike; the default is 'Q313', Z then X then Z.
+* 'P1': three angles 'I', 'J', 'K', each about an axis of the coordinate
+  system the plane is defined in, in the order 'Q' gives; the default is
+  'Q123', X then Y then Z.
+* 'P2': three points, over up to four blocks with 'Q0' to 'Q3'. The
+  direction from the first point to the second is the plane's +X, the third
+  point lies on the +Y side. The 'Q0' block gives the origin and 'R'; without
+  it the origin is the first point.
+* 'P3': two vectors, over two blocks. 'Q1' gives the origin and the +X
+  direction in 'I', 'J', 'K'; 'Q2' gives +Z, the normal, in 'I', 'J', 'K'.
+  The X direction need not be exactly at right angles to the normal; the
+  part of it along the normal is dropped.
+
+'R' turns the plane about its own Z after everything else, in degrees.
+
+The forms are numbered as Fanuc numbers them, and the two angle forms are the
+conventions Heidenhain writes as `PLANE EULER` and `PLANE SPATIAL`. Fanuc has
+a fifth form, projection angles, that is not implemented. See the
+<<cha:kinematics-conventions,Kinematics Conventions>> chapter.
+
+The blocks of a 'P2' or 'P3' definition have to follow one another; any
+other block in between is an error. A definition with a plane already active
+replaces it, with the words in the coordinate system underneath, not in the
+old plane.
+
+'G68.3' takes the plane from the tool: Z is the tool axis as the rotary
+joints have it at that moment, X is the default tool X of the kinematics
+conventions, tool X turned about the tool axis by the smaller angle that
+makes it parallel to the machine XY plane, and machine X when the tool is
+vertical; 'R' turns the plane from there. It asks the kinematics module for
+the tool direction, so it needs a kinematics type whose frames describe the
+machine, as <<gcode:g53.1,G53.1>> does.
+
+'G68.4' takes any 'G68.2' form and composes it onto the active plane: the
+words are in the plane, and the result is a new plane relative to the old
+one. It needs a plane to build on.
+
+'G69' cancels the plane. So does the end of the program, 'M2' or 'M30', and
+an abort: the plane is not persistent and nothing about it is written to the
+parameter file.
+
+Defining the plane does not move anything. To bring the tool normal to it
+use <<gcode:g53.1,G53.1, G53.3 or G53.6>>.
+
+While a plane is active the codes that define the coordinate system the
+plane sits on are refused: 'G92', 'G92.1', 'G92.2', 'G92.3', 'G52', 'G10 L2',
+'G10 L20', 'G10 L10', 'G10 L11', and a change of coordinate system
+('G54' to 'G59.3'). Cancel the plane first.
+
+The active plane is reported in the modal G-code display as the code that
+defined it. Status carries it as `g68_offset`, `g68_rotation` and
+`g68_active`, next to the other offsets, for displays that want to show
+plane coordinates or draw the plane.
+
+.G68.2 Example
+[source,ngc]
+----
+G54
+G68.2 X50 Y50 Z0 I30 J20 K0     (Euler: 30 about Z, 20 about the new X)
+G53.1                            (tool normal to it)
+G0 X0 Y0 Z5                      (5 above the plane's origin, along its normal)
+G1 Z-3 F150                      (a hole 3 deep, straight into the plane)
+G0 Z5
+G68.4 X20 P1 I0 J0 K90           (a plane 20 along X in the old one, turned 90 about Z)
+G0 X0 Y0 Z5
+G69                              (back to G54 as it was)
+----
+
+It is an error if:
+
+* 'P' is not 0, 1, 2 or 3, or 'Q' with 'P0' or 'P1' is not three axis digits
+  with no two adjacent alike.
+* A 'P2' or 'P3' definition is interrupted, or its 'Q' words come out of
+  order.
+* The points of a 'P2' definition coincide or lie on one line, or a vector of
+  a 'P3' definition is zero or the X direction lies along the normal.
+* 'G68.4' is used with no plane active.
+* 'G68.3' is used where the kinematics cannot be evaluated, is the identity
+  kinematics, or reports no frames.
+* Cutter compensation is on.
+* Polar coordinates or a motion code are used on the same line.
 
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))

@@ -178,6 +178,7 @@ InterpBase *makeInterp()
 }
 
 Interp::~Interp() {
+    kins_release(&_setup);
     if(log_file) {
         if(log_file != stderr)
             fclose(log_file);
@@ -889,6 +890,22 @@ int Interp::init()
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
+          // the kinematics, for the codes that ask it something
+          if (auto kins = inifile.findString("KINEMATICS", "KINS")) {
+              snprintf(_setup.kins_module, sizeof(_setup.kins_module), "%s", kins->c_str());
+          }
+          _setup.kins_joints = inifile.findIntV("JOINTS", "KINS", 0);
+          // which joints turn rather than slide, so that an axis letter is
+          // refused where it would name a joint of the other kind
+          _setup.kins_angular_joints = 0;
+          for (int jno = 0; jno < _setup.kins_joints && jno < EMCMOT_MAX_JOINTS; jno++) {
+              char section[16];
+              snprintf(section, sizeof(section), "JOINT_%d", jno);
+              if (auto type = inifile.findString("TYPE", section)) {
+                  if (*type == "ANGULAR") { _setup.kins_angular_joints |= 1 << jno; }
+              }
+          }
+
           _setup.tolerance_default = inifile.findRealV("G64_DEFAULT_TOLERANCE", "RS274NGC", 0.0);
           _setup.naivecam_tolerance_default = inifile.findRealV("G64_DEFAULT_NAIVETOLERANCE", "RS274NGC", 0.0);
 
@@ -1194,6 +1211,10 @@ int Interp::init()
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
   _setup.input_flag = false;
+  _setup.kinsSwitch_flag = false;
+  // the tilted work plane does not survive an abort or a program start;
+  // canon hears about it only if there was one
+  work_plane_cancel(&_setup);
   _setup.input_index = -1;
   _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
@@ -1303,6 +1324,11 @@ int Interp::init()
 void Interp::set_loop_on_main_m99(bool state) {
     // Enable/disable M99 main program endless looping
     _setup.loop_on_main_m99 = state;
+}
+
+void Interp::set_in_startup_code(bool state) {
+    // the startup code runs before the motion queue can drain
+    _setup.in_startup_code = state;
 }
 
 
@@ -1475,6 +1501,13 @@ int Interp::read_inputs(setup_pointer settings)
 	}
 	settings->input_flag = false;
     }
+
+    if( settings->kinsSwitch_flag ){
+      CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0), NCE_QUEUE_IS_NOT_EMPTY_AFTER_KINS_SWITCH);
+
+      settings->kinsSwitch_flag = false;
+    }
+
     return INTERP_OK;
 }
 
@@ -2063,6 +2096,7 @@ int Interp::synch()
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
+  _setup.kins_type = GET_EXTERNAL_KINS_TYPE();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
@@ -2670,11 +2704,18 @@ int Interp::on_abort(int reason, const char *message)
     reset();
     _setup.mdi_interrupt = false;
 
+    // the tilted work plane goes before the abort routine runs, so that
+    // routine can change coordinate systems as it likes.  Canon is told
+    // even when the read ahead had already cancelled it, since the message
+    // that would have said so died with the queue.
+    work_plane_cancel(&_setup, true);
+
     // clear in case set by an interrupted remapped procedure
     // if set, may cause a "Queue is not empty after tool change" error
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.input_flag = false;
+    _setup.kinsSwitch_flag = false;
 
     if (_setup.on_abort_command == NULL) {
 	return -1;
@@ -2683,7 +2724,9 @@ int Interp::on_abort(int reason, const char *message)
     char cmd[LINELEN];
 
     snprintf(cmd,sizeof(cmd), "%s [%d]",_setup.on_abort_command, reason);
+    _setup.in_abort_command = true;
     int status = execute(cmd);
+    _setup.in_abort_command = false;
 
     ERP(status);
     return status;

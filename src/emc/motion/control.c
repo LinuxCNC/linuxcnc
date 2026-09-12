@@ -300,12 +300,42 @@ static bool joint_jog_is_active(void) {
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
+    static int prev_hal_switchkins_type = 0;
+    static int said_hal_is_deprecated = 0;
+    int requested_type;
 
     if (!kinematicsSwitchable()) return;
-    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
-    if (switchkins_type == hal_switchkins_type) return;
 
-    switchkins_type = hal_switchkins_type;
+    /* Two things can ask for a kinematics: G12.1/G13.1, and the
+       motion.switchkins-type pin.  Both are taken on their edge, so that
+       whichever asked most recently wins.  Writing the pin here instead
+       would not work: configs source it from an analog output, which
+       would put its own value back on the next servo cycle. */
+    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
+    requested_type      = switchkins_type;
+
+    if (emcmotStatus->switchkins_seq != emcmotConfig->switchkins_seq) {
+        requested_type         = emcmotConfig->switchkins_type;
+        emcmotStatus->switchkins_seq = emcmotConfig->switchkins_seq;
+    } else if (hal_switchkins_type != prev_hal_switchkins_type) {
+        requested_type = hal_switchkins_type;
+        /* Once per session.  The pin cannot become the general way to
+           switch: the interpreter does not see it, so a program is read,
+           its limits checked and its path looked ahead in whatever
+           kinematics the interpreter last knew about. */
+        if (!said_hal_is_deprecated) {
+            said_hal_is_deprecated = 1;
+            reportError(_("motion.switchkins-type is deprecated, use G12.1 and"
+                          " G13.1.  Switching kinematics from HAL is invisible"
+                          " to the interpreter, so limits and look ahead go on"
+                          " using the kinematics it last knew about."));
+        }
+    }
+    prev_hal_switchkins_type = hal_switchkins_type;
+
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
+    if (switchkins_type == requested_type) return;
 
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
@@ -317,12 +347,21 @@ static void handle_kinematicsSwitch(void) {
         joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
     }
 
-    if (kinematicsSwitch(switchkins_type)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
-                        hal_get_real(emcmot_hal_data->switchkins_type));
+    /* a module refuses a type it does not provide and goes on running the
+       one it has, so nothing is recorded until the switch has happened */
+    if (kinematicsSwitch(requested_type)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%d>\n",
+                        requested_type);
+        reportError(_("kinematics type %d is not provided by this module,"
+                      " type %d is still in force"),
+                    requested_type, switchkins_type);
         SET_MOTION_ERROR_FLAG(1);  // abort
-        return; // no updates for abort
+        return; // the kinematics in force is unchanged
     }
+
+    switchkins_type = requested_type;
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
 
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
     KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
@@ -862,6 +901,25 @@ static void check_for_faults(void)
     }
 }
 
+/* The joints a joint interpolated segment ended on, held while the
+   planner stays at that point: a module's inverse answers with its own
+   joint set, which a robot wrist reaches with the forearm turned half a
+   revolution from the one asked for.  The hold ends when the point moves. */
+static int joint_hold_valid = 0;
+static double joint_hold[EMCMOT_MAX_JOINTS];
+static EmcPose joint_hold_pose;
+
+/* whether two machine points are the same, to a hair either way */
+static int same_carte_pos(const EmcPose *a, const EmcPose *b)
+{
+    const double tol = 1e-9;
+
+    return fabs(a->tran.x - b->tran.x) < tol && fabs(a->tran.y - b->tran.y) < tol
+	&& fabs(a->tran.z - b->tran.z) < tol
+	&& fabs(a->a - b->a) < tol && fabs(a->b - b->b) < tol && fabs(a->c - b->c) < tol
+	&& fabs(a->u - b->u) < tol && fabs(a->v - b->v) < tol && fabs(a->w - b->w) < tol;
+}
+
 static void set_operating_mode(void)
 {
     int joint_num;
@@ -1349,18 +1407,73 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 
 	    tpRunCycle(&emcmotInternal->coord_tp, period);
+
+	    if (tpGetJointPos(&emcmotInternal->coord_tp, positions) > 0) {
+		/* a joint interpolated segment: the planner hands out the
+		   joints and the forward kinematics says where the tool is,
+		   for status and for the display; nothing is inverted, and
+		   the planner's own position is the chord between the ends.
+		   The joints are commanded either way; a forward that fails,
+		   as an iterating one can at a singularity, leaves the last
+		   solved position reported rather than an unsolved one */
+		EmcPose pose = emcmotStatus->carte_pos_cmd;
+		if (kinematicsForward(positions, &pose, &fflags, &iflags) == 0) {
+		    emcmotStatus->carte_pos_cmd = pose;
+		    emcmotStatus->carte_pos_cmd_ok = 1;
+		} else {
+		    emcmotStatus->carte_pos_cmd_ok = 0;
+		}
+		result = 0;
+	    } else {
+	    /* a joint interpolated segment that ended this cycle is gone
+	       from the queue: its end joints seed the inverse, since the
+	       modules that read their rotary angles from the seed would
+	       otherwise get last cycle's */
+	    int joint_end_fresh = tpTakeJointEnd(&emcmotInternal->coord_tp, positions);
             /* get new commanded traj pos */
             tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 
-            if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
+            if (tpJointSegmentsQueued(&emcmotInternal->coord_tp)) {
+                /* an external offset cannot ride on a joint interpolated
+                   segment: its joints were solved without one, and the
+                   queue refused the segment while one was applied.  A
+                   request that arrives while one is queued waits here,
+                   unplanned, and ramps in at its own limits once the last
+                   joint segment is done, instead of landing as a step at
+                   the segment's ends */
+            } else if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
                 ext_offset_coord_limit = 1;
             } else {
                 ext_offset_coord_limit = 0;
             }
 
-	    /* OUTPUT KINEMATICS - convert to joints in local array */
-	    result = kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
-		&iflags, &fflags);
+	    /* OUTPUT KINEMATICS - convert to joints in local array, or
+	       hold the joints a joint interpolated segment ended on while
+	       the planner stays at the point they put the machine on */
+	    if (joint_end_fresh) {
+		EmcPose at = emcmotStatus->carte_pos_cmd;
+		joint_hold_valid = 0;
+		if (kinematicsForward(positions, &at, &fflags, &iflags) == 0
+		    && same_carte_pos(&at, &emcmotStatus->carte_pos_cmd)) {
+		    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+			joint_hold[joint_num] = positions[joint_num];
+		    }
+		    joint_hold_pose = emcmotStatus->carte_pos_cmd;
+		    joint_hold_valid = 1;
+		}
+	    }
+	    if (joint_hold_valid
+		&& same_carte_pos(&joint_hold_pose, &emcmotStatus->carte_pos_cmd)) {
+		for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+		    positions[joint_num] = joint_hold[joint_num];
+		}
+		result = 0;
+	    } else {
+		joint_hold_valid = 0;
+		result = kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
+		    &iflags, &fflags);
+	    }
+	    }
 	    if(result == 0)
 	    {
 		/* copy to joint structures and spline them up */

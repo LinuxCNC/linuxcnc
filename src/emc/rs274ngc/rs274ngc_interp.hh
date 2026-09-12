@@ -46,6 +46,7 @@ public:
 // get ready to run
  int init() override;
  void set_loop_on_main_m99(bool state) override;
+ void set_in_startup_code(bool state) override;
 
 // load a tool table
  int load_tool_table();
@@ -357,6 +358,32 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int convert_kins_switch(int code, block_pointer block, setup_pointer settings);
+ int convert_work_plane(int g_code, block_pointer block, setup_pointer settings);
+ int work_plane_build(block_pointer block, setup_pointer settings,
+                      double origin[3], double rotation[3][3], int *complete);
+ int work_plane_set(setup_pointer settings, int code,
+                    const double origin[3], const double rotation[3][3]);
+ int work_plane_cancel(setup_pointer settings, bool tell_canon_anyway = false);
+ int work_plane_check_sequence(block_pointer block, setup_pointer settings);
+ int convert_work_plane_from_tool(block_pointer block, setup_pointer settings);
+ int convert_orient_tool(int code, block_pointer block, setup_pointer settings);
+ int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
+ int ptp_seconds(block_pointer block, setup_pointer settings,
+                 double x, double y, double z, double a, double b, double c,
+                 double u, double v, double w, double *seconds);
+ int kins_context(setup_pointer settings, void **ctx);
+ void kins_release(setup_pointer settings);
+ void current_machine_pose(setup_pointer settings, EmcPose *pose);
+ void machine_pose_to_program(setup_pointer settings, const EmcPose *pose, double prog[9]);
+ int current_joints(setup_pointer settings, void *ctx, double *joints);
+ void g68_apply(setup_pointer settings, double *x, double *y, double *z);
+ void g68_remove(setup_pointer settings, double *x, double *y, double *z);
+ void g68_unrotate(setup_pointer settings, double *x, double *y, double *z);
+ void program_to_world_xyz(setup_pointer settings, double px, double py, double pz,
+                           double *wx, double *wy, double *wz);
+ void world_to_program_xyz(setup_pointer settings, double wx, double wy, double wz,
+                           double *px, double *py, double *pz);
  int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);

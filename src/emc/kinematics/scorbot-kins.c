@@ -43,6 +43,7 @@
 #include <rtapi_math.h>
 #include <hal.h>
 #include <kinematics.h>
+#include <kins_rt.h>
 
 
 //
@@ -75,12 +76,15 @@ static void compute_j1_cartesian_location(double j0, EmcPose *j1_cart) {
 
 // Forward kinematics takes the joint positions and computes the cartesian
 // coordinates of the controlled point.
-int kinematicsForward(
+static int scorbot_forward(
+    const kins_params *p, kins_scratch *s,
     const double *joints,
     EmcPose *pose,
     const KINEMATICS_FORWARD_FLAGS *fflags,
     KINEMATICS_INVERSE_FLAGS *iflags
 ) {
+    (void)p;
+    (void)s;
     (void)fflags;
     (void)iflags;
     EmcPose j1_vector;  // the vector from j0 ("base") to joint 1 ("shoulder", end of link 0)
@@ -89,16 +93,13 @@ int kinematicsForward(
 
     double r;
 
-    // rtapi_print("fwd: j0=%f, j1=%f, j2=%f\n", joints[0], joints[1], joints[2]);
     compute_j1_cartesian_location(joints[0], &j1_vector);
-    // rtapi_print("fwd: j1=(%f, %f, %f)\n", j1_vector.tran.x, j1_vector.tran.y, j1_vector.tran.z);
 
     // Link 1 connects j1 (shoulder) to j2 (elbow).
     r = L1_LENGTH * cos(TO_RAD * joints[1]);
     j2_vector.tran.x = r * cos(TO_RAD * joints[0]);
     j2_vector.tran.y =  r * sin(TO_RAD * joints[0]);
     j2_vector.tran.z = L1_LENGTH * sin(TO_RAD * joints[1]);
-    // rtapi_print("fwd: j2=(%f, %f, %f)\n", j2_vector.tran.x, j2_vector.tran.y, j2_vector.tran.z);
 
     // Link 2 connects j2 (elbow) to j3 (wrist).
     // J3 is the controlled point.
@@ -106,13 +107,11 @@ int kinematicsForward(
     j3_vector.tran.x = r * cos(TO_RAD * joints[0]);
     j3_vector.tran.y =  r * sin(TO_RAD * joints[0]);
     j3_vector.tran.z = L2_LENGTH * sin(TO_RAD * joints[2]);
-    // rtapi_print("fwd: j3=(%f, %f, %f)\n", j3_vector.tran.x, j3_vector.tran.y, j3_vector.tran.z);
 
     // The end-effector location is the sum of the linkage vectors.
     pose->tran.x = j1_vector.tran.x + j2_vector.tran.x + j3_vector.tran.x;
     pose->tran.y = j1_vector.tran.y + j2_vector.tran.y + j3_vector.tran.y;
     pose->tran.z = j1_vector.tran.z + j2_vector.tran.z + j3_vector.tran.z;
-    // rtapi_print("fwd: pose=(%f, %f, %f)\n", pose->tran.x, pose->tran.y, pose->tran.z);
 
     // A and B are wrist roll and pitch, handled in hal by external kinematics
     pose->a = joints[3];
@@ -134,15 +133,17 @@ int kinematicsForward(
 // is the horizontal distance (ie, in the XY plane) of the controlled
 // point from J0.
 //
-int kinematicsInverse(
+static int scorbot_inverse(
+    const kins_params *p, kins_scratch *s,
     const EmcPose *pose,
     double *joints,
     const KINEMATICS_INVERSE_FLAGS *iflags,
     KINEMATICS_FORWARD_FLAGS *fflags
 ) {
+    (void)p;
+    (void)s;
     (void)iflags;
     (void)fflags;
-    // EmcPose j1_cart;
     double distance_to_cp, distance_to_center;
     double r_j1, z_j1;   // (r_j1, z_j1) is the location of J1 in the RZ plane
     double r_cp, z_cp;   // (r_cp, z_cp) is the location of the controlled point in the RZ plane
@@ -152,16 +153,10 @@ int kinematicsInverse(
     // the location of J2, this is what we're trying to find
     double z_j2;
 
-    // rtapi_print("inv: x=%f, y=%f, z=%f\n", pose->tran.x, pose->tran.y, pose->tran.z);
-
     // J0 is easy.  Project the (X, Y, Z) of the pose onto the Z=0 plane.
     // J0 points at the projected (X, Y) point.  tan(J0) = Y/X
     // J0 then defines the plane that the rest of the arm operates in.
     joints[0] = TO_DEG * atan2(pose->tran.y, pose->tran.x);
-    // rtapi_print("inv: j0=%f\n", joints[0]);
-
-    // compute_j1_cartesian_location(joints[0], &j1_cart);
-    // rtapi_print("inv: j1=(X=%f, Y=%f, Z=%f)\n", j1_cart.tran.x, j1_cart.tran.y, j1_cart.tran.z);
 
     // FIXME: Until i figure the wrist differential out, the controlled
     //     point will be the location of the wrist joint, J3/J4.
@@ -175,19 +170,16 @@ int kinematicsInverse(
     // of J0.  This is just a known, static vector.
     r_j1 = L0_HORIZONTAL_DISTANCE;
     z_j1 = L0_VERTICAL_DISTANCE;
-    // rtapi_print("inv: r_j1=%f, z_j1=%f\n", r_j1, z_j1);
 
     // (r_cp, z_cp) is the location of J3 (the controlled point), again in
     // the plane defined by the angle of J0, with the origin of the
     // machine.
     r_cp = sqrt(pow(pose->tran.x, 2) +  pow(pose->tran.y, 2));
     z_cp = pose->tran.z;
-    // rtapi_print("inv: r_cp=%f, z_cp=%f (controlled point)\n", r_cp, z_cp);
 
     // translate so (r_j1, z_j1) is the origin of the coordinate system
     r_cp -= r_j1;
     z_cp -= z_j1;
-    // rtapi_print("inv: r_cp=%f, z_cp=%f (translated controlled point)\n", r_cp, z_cp);
 
     //
     // Now the origin (aka J1), J2, and CP define a triangle in the RZ plane.
@@ -206,85 +198,22 @@ int kinematicsInverse(
 
     distance_to_cp = sqrt(pow(r_cp, 2) + pow(z_cp, 2));
     distance_to_center = distance_to_cp / 2;
-    // rtapi_print("inv: distance to cp: %f\n", distance_to_cp);
 
     // find the angle of the vector from the origin to the CP
     angle_to_cp = TO_DEG * acos(r_cp / distance_to_cp);
     if (z_cp < 0) {
         angle_to_cp *= -1;
     }
-    // rtapi_print("inv: angle to cp: %f\n", angle_to_cp);
 
     // find the angle (Center, J1, J2)
     j1_angle = TO_DEG * acos(distance_to_center / L1_LENGTH);
-    // rtapi_print("inv: j1 angle: %f\n", j1_angle);
 
     joints[1] = angle_to_cp + j1_angle;
-    // rtapi_print("inv: j1: %f\n", joints[1]);
 
     // now we can compute the location of J2
     z_j2 = L1_LENGTH * sin(TO_RAD * joints[1]);
-    // rtapi_print("inv: r_j2=%f, z_j2=%f (translated j2)\n", r_j2, z_j2);
 
     joints[2] = -1.0 * TO_DEG * asin((z_j2 - z_cp) / L2_LENGTH);
-
-
-#if 0
-    // Distance between controlled point and the location of j1.  These two
-    // points are separated by link 1, joint 1, and link 2.
-    distance_between_centers = sqrt(pow((r2 - r1), 2) + pow((z2 - z1), 2));
-
-    if (distance_between_centers > (L1_LENGTH + L2_LENGTH)) {
-        // trying to reach too far
-        return GO_RESULT_RANGE_ERROR;
-    }
-
-    if (distance_between_centers < fabs(L1_LENGTH - L2_LENGTH)) {
-        // trying to reach too far into armpit
-        return GO_RESULT_RANGE_ERROR;
-    }
-
-    delta = (1.0 / 4.0) * sqrt((distance_between_centers + L1_LENGTH + L2_LENGTH) * (distance_between_centers + L1_LENGTH - L2_LENGTH) * (distance_between_centers - L1_LENGTH + L2_LENGTH) * (L1_LENGTH + L2_LENGTH - distance_between_centers));
-
-    ir1 = ((r1 + r2) / 2) + (((r2 - r1) * (pow(L1_LENGTH, 2) - pow(L2_LENGTH, 2)))/(2 * pow(distance_between_centers, 2))) + ((2 * (z1 - z2) * delta) / pow(distance_between_centers, 2));
-    ir2 = ((r1 + r2) / 2) + (((r2 - r1) * (pow(L1_LENGTH, 2) - pow(L2_LENGTH, 2)))/(2 * pow(distance_between_centers, 2))) - ((2 * (z1 - z2) * delta) / pow(distance_between_centers, 2));
-
-    iz1 = ((z1 + z2) / 2) + (((z2 - z1) * (pow(L1_LENGTH, 2) - pow(L2_LENGTH, 2)))/(2 * pow(distance_between_centers, 2))) - ((2 * (r1 - r2) * delta) / pow(distance_between_centers, 2));
-    iz2 = ((z1 + z2) / 2) + (((z2 - z1) * (pow(L1_LENGTH, 2) - pow(L2_LENGTH, 2)))/(2 * pow(distance_between_centers, 2))) + ((2 * (r1 - r2) * delta) / pow(distance_between_centers, 2));
-
-
-    // (ir1, iz1) is one intersection point, (ir2, iz2) is the other.
-    // These are the possible locations of the J2 joint.
-    // FIXME: For now we arbitrarily pick the one with the bigger Z.
-
-    if (iz1 > iz2) {
-        j2_r = ir1;
-        j2_z = iz1;
-    } else {
-        j2_r = ir2;
-        j2_z = iz2;
-    }
-    // rtapi_print("inv: j2_r=%f, j2_z=%f (J2, intersection point)\n", j2_r, j2_z);
-
-    // Make J1 point at J2 (j2_r, j2_z).
-    {
-        double l1_r = j2_r - r1;
-        joints[1] = TO_DEG * acos(l1_r / L1_LENGTH);
-        // rtapi_print("inv: l1_r=%f, j1=%f\n", l1_r, joints[1]);
-    }
-
-    // Make J2 point at the controlled point.
-    {
-        double l2_r = r2 - j2_r;
-        double j2;
-        j2 = TO_DEG * acos(l2_r / L2_LENGTH);
-        if (j2_z > pose->tran.z) {
-            j2 *= -1;
-        }
-        joints[2] = j2;
-        // rtapi_print("inv: l2_r=%f, j2=%f\n", l2_r, joints[2]);
-    }
-#endif
 
     // A and B are wrist roll and pitch, handled in hal by external kinematics
     joints[3] = pose->a;
@@ -294,14 +223,98 @@ int kinematicsInverse(
 }
 
 
-KINEMATICS_TYPE kinematicsType(void) {
-    return KINEMATICS_BOTH;
+static int scorbot_jacobian(
+    const kins_params *p,
+    const double *joints,
+    const EmcPose *pose,
+    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+    const KINEMATICS_INVERSE_FLAGS *iflags
+) {
+    // scorbot_inverse() above, differentiated step by step in the same
+    // order, each quantity carried as its gradient over (x, y, z)
+    const double x = pose->tran.x, y = pose->tran.y;
+    const double rho2 = x*x + y*y;
+    const double rho = sqrt(rho2);
+    double r_cp, z_cp, dist, angle_to_cp, j1_angle, j1, z_j2, u;
+    double d_r_cp[3], d_z_cp[3], d_dist[3], d_angle[3], d_j1a[3], d_j1[3], d_j2[3];
+    double q;
+    int i, j, a;
+
+    (void)p;
+    (void)joints;
+    (void)iflags;
+    if (rho2 <= 0) { return -1; }
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+
+    // j0 = atan2(y, x)
+    jac[0][0] = -y/rho2 * TO_DEG;
+    jac[0][1] =  x/rho2 * TO_DEG;
+
+    r_cp = rho - L0_HORIZONTAL_DISTANCE;
+    z_cp = pose->tran.z - L0_VERTICAL_DISTANCE;
+    d_r_cp[0] = x/rho; d_r_cp[1] = y/rho; d_r_cp[2] = 0;
+    d_z_cp[0] = 0;     d_z_cp[1] = 0;     d_z_cp[2] = 1;
+
+    dist = sqrt(r_cp*r_cp + z_cp*z_cp);
+    if (dist <= 0 || dist >= 2*L1_LENGTH) { return -1; }
+    for (i = 0; i < 3; i++) {
+        d_dist[i] = (r_cp*d_r_cp[i] + z_cp*d_z_cp[i]) / dist;
+    }
+
+    // the signed acos in the inverse is atan2(z_cp, r_cp)
+    angle_to_cp = TO_DEG * atan2(z_cp, r_cp);
+    for (i = 0; i < 3; i++) {
+        d_angle[i] = TO_DEG * (r_cp*d_z_cp[i] - z_cp*d_r_cp[i]) / (dist*dist);
+    }
+
+    q = dist / (2*L1_LENGTH);
+    j1_angle = TO_DEG * acos(q);
+    for (i = 0; i < 3; i++) {
+        d_j1a[i] = -TO_DEG / sqrt(1 - q*q) * d_dist[i] / (2*L1_LENGTH);
+    }
+
+    j1 = angle_to_cp + j1_angle;
+    for (i = 0; i < 3; i++) {
+        d_j1[i] = d_angle[i] + d_j1a[i];
+        jac[1][i] = d_j1[i];
+    }
+
+    z_j2 = L1_LENGTH * sin(TO_RAD * j1);
+    u = (z_j2 - z_cp) / L2_LENGTH;
+    if (fabs(u) >= 1) { return -1; }
+    for (i = 0; i < 3; i++) {
+        double d_z_j2 = L1_LENGTH * cos(TO_RAD * j1) * TO_RAD * d_j1[i];
+        d_j2[i] = -TO_DEG / sqrt(1 - u*u) * (d_z_j2 - d_z_cp[i]) / L2_LENGTH;
+        jac[2][i] = d_j2[i];
+    }
+
+    jac[3][3] = 1;
+    jac[4][4] = 1;
+    return 0;
 }
 
-KINS_NOT_SWITCHABLE
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsForward);
-EXPORT_SYMBOL(kinematicsInverse);
+static const kins_ops scorbot_ops = {
+    .forward  = scorbot_forward,
+    .inverse  = scorbot_inverse,
+    .jacobian = scorbot_jacobian,
+};
+
+// the arm's dimensions are the constants above; no geometry pins.  The
+// entry points come from kins_single.c
+const kins_module_info kins_module = {
+    .name                 = "scorbot-kins",
+    .halprefix            = "scorbot-kins",
+    .params               = NULL,
+    .nparams              = 0,
+    .required_coordinates = "XYZAB",
+    .max_joints           = 5,
+    .allow_duplicates     = 0,
+    .ntypes               = 1,
+    .ops                  = { &scorbot_ops },
+};
+
 MODULE_LICENSE("GPL");
 
 static int comp_id;
@@ -311,6 +324,10 @@ int rtapi_app_main(void) {
     if (comp_id < 0) {
         return comp_id;
     }
+    if (kinsSingleInit(comp_id, "XYZAB", KINEMATICS_BOTH)) {
+        hal_exit(comp_id);
+        return -1;
+    }
     hal_ready(comp_id);
     return 0;
 }
@@ -318,4 +335,3 @@ int rtapi_app_main(void) {
 void rtapi_app_exit(void) {
     hal_exit(comp_id);
 }
-

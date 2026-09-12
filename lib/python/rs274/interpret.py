@@ -24,8 +24,18 @@ class Translated:
     g5x_offset_a = g5x_offset_b = g5x_offset_c = 0
     g5x_offset_u = g5x_offset_v = g5x_offset_w = 0
     rotation_xy = 0
+    g68_active = 0
+    g68_offset = (0.0, 0.0, 0.0)
+    g68_rotation = (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)
 
     def rotate_and_translate(self, x,y,z,a,b,c,u,v,w):
+        if self.g68_active:
+            r = self.g68_rotation
+            o = self.g68_offset
+            x, y, z = (r[0]*x + r[1]*y + r[2]*z + o[0],
+                       r[3]*x + r[4]*y + r[5]*z + o[1],
+                       r[6]*x + r[7]*y + r[8]*z + o[2])
+
         x += self.g92_offset_x
         y += self.g92_offset_y
         z += self.g92_offset_z
@@ -83,6 +93,10 @@ class Translated:
         t = math.radians(theta)
         self.rotation_sin = math.sin(t)
         self.rotation_cos = math.cos(t)
+    def set_g68_frame(self, x, y, z, r0, r1, r2, r3, r4, r5, r6, r7, r8, active):
+        self.g68_active = active
+        self.g68_offset = (x, y, z)
+        self.g68_rotation = (r0, r1, r2, r3, r4, r5, r6, r7, r8)
 
 class ArcsToSegmentsMixin:
     plane = 1
@@ -178,6 +192,9 @@ class StatMixin:
 
     def get_block_delete(self):
         return self.s.block_delete
+
+    def get_external_joint_positions(self):
+        return tuple(self.s.joint_actual_position[:self.s.joints])
 
 
 # vim:ts=8:sts=4:et:

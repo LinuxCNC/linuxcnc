@@ -1,3 +1,17 @@
+; 5axisgui.ngc - the historical demo program, unchanged.
+; It drills a sphere pattern with W words.  W was never a physical
+; quill: no motor is connected to its joint, the kinematics folds
+; the word into the XYZ slides, and the head sliding along the tool
+; axis is what plunges the rigidly mounted tool.  Watch the slides
+; in vismach do the stroke.
+;
+; The quirk, then and now: the controller keeps W as a separate
+; world coordinate, so the programmed XYZ point does not move and
+; the preview shows nothing of the stroke; only the W DRO tracks it.
+; Drilling the controller can see, check and preview is what the
+; tilted work plane family is for (g532-fused-orient-move.ngc,
+; g536-orient-then-move.ngc).
+
         #<r>  =   60 ; sphere radius
   #<rdelta>   =    5 ; safe distance
 #<drilldepth> =   -5
@@ -13,6 +27,7 @@
 #<bdelta> = [90/#<bctmax>]
 
 g49
+g13.1 ; kinematics 0 (TCP), in case a previous run left a switch active
 t#<toolno>m6g43
 
 g53 g0 x0y0z#<zstart>b0c0 w0

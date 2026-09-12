@@ -1498,6 +1498,23 @@ double emcTrajGetAngularUnits()
     return TrajConfig.AngularUnits;
 }
 
+int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds)
+{
+    int i;
+
+    emcmotCommand.command = EMCMOT_SET_JOINT_LINE;
+    emcmotCommand.pos = end;
+    emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
+    emcmotCommand.motion_type = seconds > 0.0 ? EMC_MOTION_TYPE_FEED : EMC_MOTION_TYPE_TRAVERSE;
+    emcmotCommand.joint_seconds = seconds;
+    emcmotCommand.have_joint_target = have_joints;
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        emcmotCommand.joint_target[i] = (have_joints && joints) ? joints[i] : 0.0;
+    }
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajSetOffset(const EmcPose& tool_offset)
 {
     emcmotCommand.command = EMCMOT_SET_OFFSET;
@@ -2126,6 +2143,16 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
+    if(stat->traj.switchkins_seq != emcmotStatus.switchkins_seq)
+    {
+        stat->traj.switchkins_seq = emcmotStatus.switchkins_seq;
+        stat->traj.switchkins_changed = true;
+    }
+    // the kinematics motion is running, whoever selected it
+    stat->traj.switchkins_type = emcmotStatus.switchkins_type;
+    for (int k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+        stat->traj.switchkins_flags[k] = emcmotStatus.switchkins_flags[k];
+    }
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
@@ -2217,4 +2244,12 @@ int emcGetExternalOffsetApplied(void) {
 
 EmcPose emcGetExternalOffsets(void) {
     return emcmotStatus.eoffset_pose;
+}
+
+int emcSelectKinsType(int switchkins_type)
+{
+    emcmotCommand.command = EMCMOT_SELECT_KINS_TYPE;
+    emcmotCommand.switchkins_type = switchkins_type;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

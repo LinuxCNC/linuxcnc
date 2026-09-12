@@ -198,6 +198,7 @@ typedef struct {
     hal_real_t feed_mm_per_second; /* feed mm per second*/
 
     hal_real_t switchkins_type;
+    hal_real_t kins_type;
     /* Interp State Pins */
     hal_sint_t interp_line_number;
     hal_sint_t interp_motion_type;

@@ -1,27 +1,20 @@
 This is a simulation configuration for a 6 axis machine with one table rotary and two spindle rotary joints
 
-This simulation also includes a python remap of Gcodes for tilted workplane (TWP) functionality.
-Both the kinematic and the twp remap support nutation of the secondary rotary joints (ie A or B ) form 0 to 90°.
-Hence this also works for the 'usual' orthogonal spindle rotary-tilt type machines by setting the nutation angle to 90°.
+This simulation uses the interpreter's tilted work plane codes, documented in the G-code section of the manual:
 
-Implemented TWP functionality:
-G68.2 : defines twp using euler-angles, pitch-roll-yaw, 2-vectors, 3 points, optionally with offset in XYZ and rotation in XY
-G68.3 : defines twp from current tool orientation, optionally with offset in XYZ and rotation in XY
-G68.4 : same as G68.2 but as an incremental definition from an active TWP plane
-G69 : cancels the current twp (resets all parameters, moves to G54 and sets Identity kinematics)
-G53.1 (P) : spindle orientation without tcp, switches to G59 and activates tool kinematics
-G53.3 (P XYZ) : same as G53.1 but with simultaneous move the the XYZ coords on the twp plane
-G53.6 (P) : same as G53.1 but spindle orientation with tcp
+G68.2 : defines the plane by three angles, three points or two vectors, with an origin in XYZ and a turn R about the plane's Z
+G68.3 : defines the plane from the current tool direction, with an origin in XYZ and a turn R
+G68.4 : any G68.2 form, composed onto the active plane
+G69 : cancels the plane
+G53.1 (P Q) : orients the tool to the plane, rotaries only, the linear joints stay where they are
+G53.3 (P Q XYZ) : orients the tool and moves to XYZ in the plane, interpolated in joint space
+G53.6 (P Q) : orients the tool with the tool centre point held
 
-- Spindle is C primary, A secondary or B secondary as defined in the [TWP] section of the ini file
-- All G53.x commands will respect axis limits as set in the ini file for the respective primary and secondary spindle joints.
-- The P word sets the orientation strategy: 0(default)=shortest distance,
-                                            1=positive rotation only,
-                                            2=negative rotation only
-                                            (this applies to the primary rotary, the secondary moves the shortest distance)
+The orientation codes need the TCP kinematics (G12.1 P1). P picks the solution, nearest to the present rotary position first. Q0 holds the table and lets the head do it, Q1 lets the table take part as well.
+
+The kinematic supports nutation of the secondary rotary joint (A or B) from 0 to 90 degrees, so this also covers the usual orthogonal spindle rotary-tilt machines by setting the nutation angle to 90 degrees.
+
+The python maths this configuration used to carry as a remap lives on in tests/kins-twp, where the kinematics module is checked against it.
 
 For more:
 https://forum.linuxcnc.org/show-your-stuff/49103-kinematic-model-for-a-5axis-mill-with-universal-nutating-head?start=0#271334
-
-Full Documentation can be found at:
-https://github.com/Sigma1912/LinuxCNC_Demo_Configs/tree/main/table-rotary_spindle-rotary-nutating/Documentation
