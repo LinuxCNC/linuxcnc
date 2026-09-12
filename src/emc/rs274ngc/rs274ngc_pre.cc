@@ -1219,6 +1219,7 @@ int Interp::init()
 
   // initialization stuff for subroutines and control structures
   _setup.call_level = 0;
+  _setup.call_stack_id = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = NULL;
   _setup.offset_map.clear();
@@ -1737,6 +1738,10 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	_setup.sub_name = NULL;
     }
     _setup.remap_level = 0; // reset remapping stack
+    // back at the main program; nodes already in the ring stay resolvable for
+    // moves still queued or executing
+    _setup.call_stack_id = 0;
+
     _setup.defining_sub = 0;
     _setup.skipping_o = NULL;
     _setup.skipping_to_sub = NULL;

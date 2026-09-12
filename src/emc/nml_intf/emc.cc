@@ -1381,6 +1381,11 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update((int *) &execState, 1);
     cms->update((int *) &interpState, 1);
     cms->update(callLevel);
+    for (int i = 0; i < EMC_MAX_CALL_STACK; i++) {
+        cms->update(callStack[i].filename, sizeof(callStack[i].filename));
+        cms->update(callStack[i].subname, sizeof(callStack[i].subname));
+        cms->update(callStack[i].line);
+    }
     cms->update(motionLine);
     cms->update(currentLine);
     cms->update(readLine);

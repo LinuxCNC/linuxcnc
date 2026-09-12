@@ -220,6 +220,10 @@ int Interp::write_state_tag(block_pointer block,
 {
 
     state.fields[GM_FIELD_LINE_NUMBER] = settings->sequence_number;
+    // Carried through segment merging and TP blending, so task can report the
+    // call stack of the move actually being executed rather than the one the
+    // interpreter has since read ahead to.
+    state.fields[GM_FIELD_CALL_STACK_ID] = settings->call_stack_id;
     //FIXME refactor these into setup methods, and maybe put this
     //whole method in setup struct
     bool in_remap = (settings->remap_level > 0);

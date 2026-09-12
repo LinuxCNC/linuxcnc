@@ -709,6 +709,46 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
     char buf[LINELEN];
     rtapi_strxcpy(stat->file, interp.file(buf, LINELEN));
+
+    // Report the subroutine call stack of the move motion is executing, not the
+    // one the interpreter has read ahead to -- those are decoupled by up to
+    // [TASK]INTERP_MAX_LEN queued canon commands.  The executing move's StateTag
+    // carries a call-stack node id that the interpreter can still resolve, so
+    // depth and frames always describe the same point in the program.
+    {
+        // The tag keeps the last executed move's value after the queue drains,
+        // the same way motionLine does, which avoids flicker between moves.  But
+        // once the interpreter is idle the program is over (or was aborted) and
+        // there is no longer a move to report a stack for.
+        int node_id = (stat->interpState == EMC_TASK_INTERP::IDLE)
+            ? 0
+            : emcStatus->motion.traj.tag.fields[GM_FIELD_CALL_STACK_ID];
+        int lvl = interp.resolve_call_stack_depth(node_id);
+        if (lvl < 0) lvl = 0;
+        if (lvl > EMC_MAX_CALL_STACK) lvl = EMC_MAX_CALL_STACK;
+
+        for (int i = 0; i < lvl; i++) {
+            const char *filename = "";
+            const char *subname = "";
+            int line = 0;
+            if (interp.resolve_call_stack_frame(node_id, i, &filename, &subname,
+                                                &line) != 0) {
+                // id aged out of the ring mid-walk: report no stack at all
+                // rather than a partial one against a full depth
+                lvl = 0;
+                break;
+            }
+            rtapi_strxcpy(stat->callStack[i].filename, filename);
+            rtapi_strxcpy(stat->callStack[i].subname, subname);
+            stat->callStack[i].line = line;
+        }
+
+        stat->callLevel = lvl;
+        // clear the tail so stale frames are not left visible to consumers that
+        // read the struct directly rather than slicing to callLevel
+        for (int i = lvl; i < EMC_MAX_CALL_STACK; i++)
+            stat->callStack[i] = EmcCallFrame{};
+    }
     // command set in main
 
     // update active G and M codes

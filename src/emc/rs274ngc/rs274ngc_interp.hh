@@ -126,6 +126,9 @@ public:
 
  int line() override { return sequence_number(); }
  int call_level() override;
+ int resolve_call_stack_depth(int node_id) override;
+ int resolve_call_stack_frame(int node_id, int level, const char **filename,
+                              const char **subname, int *line) override;
 
  char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
 
@@ -573,6 +576,12 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int enter_context(setup_pointer settings, block_pointer block);
  // leave current subroutine context
  int leave_context(setup_pointer settings, bool restore = true);
+
+ // call-stack node bookkeeping, backing resolve_call_stack_*()
+ int push_call_stack_node(setup_pointer settings, const char *filename,
+                          const char *subName, int sequence_number);
+ call_stack_node *find_call_stack_node(int node_id);
+ int walk_call_stack(int node_id, call_stack_node **frames, int max_frames);
 
     //int call_fsm(setup_pointer settings, int event);
     //int execute_pycall(setup_pointer settings, const char *name, int call_phase);

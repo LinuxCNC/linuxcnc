@@ -1515,6 +1515,33 @@ static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
     return res;
 }
 
+static PyObject *Stat_call_stack(pyStatChannel *s, void *) {
+    int lvl = s->status.task.callLevel;
+    if (lvl < 0) lvl = 0;
+    if (lvl > EMC_MAX_CALL_STACK) lvl = EMC_MAX_CALL_STACK;
+    // A tuple of callLevel dicts, empty while in the main program.
+    // frame[i] = "at line L of filename F we called subroutine S", with i == 0
+    // being the call made from the main program.
+    PyObject *res = PyTuple_New(lvl);
+    if (res == NULL) return NULL;
+    for (int i = 0; i < lvl; i++) {
+        const EmcCallFrame &f = s->status.task.callStack[i];
+        // Py_BuildValue owns the refcounting; PyDict_SetItemString does not
+        // steal references, so building the dict by hand leaks one object per
+        // key on every poll.
+        PyObject *d = Py_BuildValue("{s:s, s:s, s:i}",
+                                    "filename", f.filename,
+                                    "subname", f.subname,
+                                    "line", f.line);
+        if (d == NULL) {
+            Py_DECREF(res);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(res, i, d);
+    }
+    return res;
+}
+
 static PyObject *Stat_heartbeat(pyStatChannel *s, void *) {
 #if PY_VERSION_HEX >= 0x030e00f0  // 3.14
     return PyLong_FromUInt64(s->status.motion.heartbeat);
@@ -1563,6 +1590,14 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"tool_table", (getter)Stat_tool_table, (setter)NULL,
         (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
         "tool id (tool number), diameter, offsets, etc.", NULL
+    },
+    {(char*)"call_stack", (getter)Stat_call_stack, NULL,
+        (char*)"Subroutine call stack of the move motion is currently executing, as a\n"
+               "tuple of call_level dicts (empty while in the main program).  Index 0 is\n"
+               "the call made from the main program, the last entry is the innermost\n"
+               "subroutine.  Each dict has 'filename', 'subname' and 'line' keys, giving\n"
+               "the call site and the name of the subroutine called there.\n"
+               "Like motion_line, this lags the interpreter, which reads ahead.", NULL
     },
     {(char*)"heartbeat", (getter)Stat_heartbeat, NULL,
         (char*)"Motion controller heartbeat counter. Increments every servo cycle.", NULL

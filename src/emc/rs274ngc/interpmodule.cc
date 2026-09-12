@@ -628,6 +628,10 @@ static inline int get_call_level (Interp &interp)  {
     return interp._setup.call_level;
 }
 static inline void set_call_level(Interp &interp, int value)  {
+    // sub_context[] is indexed by call_level, so an out-of-range value here
+    // becomes an out-of-bounds access in leave_context()/unwind_call()
+    if (value < 0 || value >= INTERP_SUB_ROUTINE_LEVELS)
+	throw std::out_of_range("call_level out of range");
     interp._setup.call_level = value;
 }
 static inline int get_current_pocket (Interp &interp)  {
