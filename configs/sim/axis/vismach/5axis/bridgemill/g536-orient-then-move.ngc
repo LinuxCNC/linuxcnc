@@ -19,7 +19,6 @@
 
 g49
 g13.1 ; kinematics 0 (TCP), in case a previous run left a switch active
-m65 p0 ; quill unlocked, in case a previous run locked it
 t#<toolno>m6g43
 
 g53 g0 x0 y0 z0 b0 c0

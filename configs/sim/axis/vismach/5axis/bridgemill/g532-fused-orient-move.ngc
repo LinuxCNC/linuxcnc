@@ -2,7 +2,7 @@
 ; g68.2 tilts the plane onto each hole normal, g53.2 solves the head
 ; orientation without moving (STAY), and one fused g0 turns the head
 ; and travels to the hole at the same time (TCP motion).  See README
-; for the quill and the other demos.
+; for the other demos.
 
         #<r>  =   60 ; sphere radius
   #<rdelta>   =    5 ; safe distance
@@ -20,7 +20,6 @@
 
 g49
 g13.1 ; kinematics 0 (TCP), in case a previous run left a switch active
-m65 p0 ; quill unlocked, in case a previous run locked it
 t#<toolno>m6g43
 
 g53 g0 x0 y0 z0 b0 c0

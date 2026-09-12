@@ -1,15 +1,24 @@
 This is a simulation of an XYZBCWY 5 axis bridge mill with a
-tilting head (B, C) and a quill (W).
+tilting head (B, C) and a W axis.
 
-The vismach model draws the quill: positive W slides it out of the
-head along the tool axis, negative W retracts it.  With the default
-TCP kinematics a W word does not move the tool tip in world
-coordinates, the kinematics folds the quill motion into the XYZ
-joints so the tip stays put, the same way a B or C word reorients
-the head around a fixed tip.  To actually drill with the quill,
-use a point-to-point move (g53.5 or g53.7).  The demo programs
-below show the various ways to skin this cat, including the
-historical one and why it is a hack.
+W is not a physical axis of the machine and never was: no motor is
+connected to its joint.  The kinematics folds a W word into the
+XYZ joints, so the head slides along the tool axis and the
+rigidly mounted tool goes with it: that is the whole trick, and it
+is what vismach shows.  There is no quill to draw because there is
+no quill.
+
+The quirk: the controller keeps W as a separate world coordinate,
+so a W word leaves the programmed XYZ point untouched and the
+preview cannot show the stroke; the W DRO tracks it.  It also
+means the planner does not see the tool-axis motion, so for
+drilling the controller can check and preview, use the tilted work
+plane family.
+
+Because the W joint is virtual, a point-to-point move on it
+(g53.5/g53.7 j5=) moves no motor on a real machine while the
+controller believes the world moved, the opposite of a W word.
+Do not drill that way.
 
 Demo programs:
 
@@ -22,31 +31,10 @@ Demo programs:
  g536-orient-then-move.ngc -- the same pattern with g53.6 (Heidenhain
                              MOVE style): reorient about the fixed
                              tip, then travel in the tilted plane
- g535-quill.ngc ------------- the same pattern drilled with the quill
-                             itself: B and C words aim the head, no
-                             tilted work planes, and each hole is
-                             drilled by the quill alone with a
-                             point-to-point move (g53.5 reads its
-                             axis words as joints, so only the quill
-                             extends; g53.7 j5=.. names the joint by
-                             number and does the same)
- g121-switch-kins.ngc ------- the same pattern with the quill stroke
-                             done by a g12.1 p1 / g13.1 kinematics
-                             switch; the least recommended of the
-                             quill demos, kept to demonstrate
-                             G12.1/G13.1
- w-historical.ngc ----------- the historical demo program, unchanged:
-                             it "drills" with W words, using W as a
-                             tool length substitute, a LinuxCNC-local
-                             hack that never was a widely known
-                             convention and only looked right because
-                             the quill was not drawn.  It runs with
-                             the quill drawing locked (m64 p0), which
-                             reveals the hack: the head does the same
-                             motion it always did, the drawn tool tip
-                             plunges, the real tip stays put.  Kept
-                             to show why the old trick worked; for
-                             real drilling use the methods above
+ 5axisgui.ngc --------------- the historical demo program, unchanged:
+                             it drills the same pattern with W words,
+                             the slides doing the stroke while the
+                             preview stays blind to it
 
 The tool table provides tool 100 (length 100).  Load it with
 t100m6g43 so the vismach tool and the kinematics pivot length
@@ -60,12 +48,12 @@ Example MDI:
     CTRL-HOME --- home all
     F5 ---------- MDI tab
  3) orient vismach gui as required
- 4) g0w10   ; extend quill
+ 4) g0w10   ; head slides up the tool axis, tip with it
  5) g43h100 ; tool offset (100)
  6) g0b45   ; tilt 45 deg wrt z
  7) g0c30   ; rotate 30 deg in xy
- 8) g0w-10  ; retract quill, head compensates, tip stays
- 9) g0w10   ; extend quill again
+ 8) g0w-10  ; head slides back, tip plunges 10 along the tool axis
+ 9) g0w10   ; and back
 10) etc
 
 Note: Motion for the W coordinate is incorporated
