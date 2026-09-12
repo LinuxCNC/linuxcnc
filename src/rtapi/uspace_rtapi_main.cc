@@ -94,13 +94,13 @@ static bool detect_preempt_dynamic() {
 }
 #endif
 
-#if defined(USPACE_RTAI) || defined(USPACE_XENOMAI) || defined(USPACE_XENOMAI_EVL)
+#ifdef __linux__
 static bool has_setuid_root() {
     return geteuid() == 0;
 }
 #endif
 
-#if defined(USPACE_XENOMAI) || defined(USPACE_XENOMAI_EVL)
+#ifdef __linux__
 static bool is_current_user_in_gid(gid_t target_gid) {
     int ngroups = getgroups(0, NULL);
     if (ngroups < 0) {
@@ -134,7 +134,7 @@ static bool is_current_user_in_gid(gid_t target_gid) {
 }
 #endif
 
-#ifdef USPACE_RTAI
+#ifdef __linux__
 // FIXME: detect_rtai_lxrt relays on setuid root
 static bool detect_rtai_lxrt() {
     if(!has_setuid_root()) return false;
@@ -147,7 +147,7 @@ static bool detect_rtai_lxrt() {
     return false;
 }
 #endif
-#ifdef USPACE_XENOMAI
+#ifdef __linux__
 static bool detect_xenomai() {
     //Running xenomai has /proc/xenomai
     struct stat sb;
@@ -206,7 +206,7 @@ static bool detect_xenomai() {
     return false;
 }
 #endif
-#ifdef USPACE_XENOMAI_EVL
+#ifdef __linux__
 static bool detect_xenomai_evl() {
     //Running xenomai evl has /dev/evl but no /proc/xenomai
     struct stat sb;

@@ -45,8 +45,6 @@
 
 #include <hal.h>
 
-#include "config.h" //For USPACE_XENOMAI_EVL
-
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
@@ -816,7 +814,6 @@ int hm2_eth_fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     return 0;
 }
 
-#ifdef USPACE_XENOMAI_EVL
 static void *eth_net_evl_lib = NULL;
 static bool load_eth_net_evl(void) {
     if (eth_net_evl_lib != NULL) {
@@ -829,7 +826,6 @@ static bool load_eth_net_evl(void) {
     }
     return true;
 }
-#endif
 
 static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_rtnet){
     //Default (NULL) is posix
@@ -840,7 +836,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         board->eth_socket_send = &hm2_posix_eth_socket_send;
         board->eth_socket_recv = &hm2_posix_eth_socket_recv;
     } else if (strcmp(board_rtnet, "evl") == 0) {
-#ifdef USPACE_XENOMAI_EVL
         if (hal_get_realtime_type() != REALTIME_TYPE_XENOMAI_EVL) {
             LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC not running with Xenomai4 EVL realtime\n", board_rtnet)
             return -1;
@@ -873,10 +868,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
             LL_PRINT("ERROR: EVL support dlsym eth_socket_recv failed: %s\n", dlerror());
             return -1;
         }
-#else
-        LL_PRINT("ERROR: board_rtnet = %s not available, LinuxCNC was built without Xenomai EVL support\n", board_rtnet);
-        return -1;
-#endif
     } else {
         LL_PRINT("ERROR: board_rtnet = %s undefined\n", board_rtnet)
         return -1;
