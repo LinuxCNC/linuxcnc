@@ -780,6 +780,8 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 extern int GET_EXTERNAL_KINS_TYPE()
 {
   return 0;
+}
+
 extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
 {
   (void)ktype;
@@ -1201,10 +1203,10 @@ void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
 }
 
-void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+void SELECT_KINS_TYPE(int switchkins_type)
 {
-    (void)adjustKinsVar0;
-    printf("saicanon: ADJUST_KINS_OFFSET\n");
+    (void)switchkins_type;
+    printf("saicanon: SELECT_KINS_TYPE\n");
 
     return;
 }

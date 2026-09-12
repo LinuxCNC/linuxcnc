@@ -301,6 +301,7 @@ static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
     static int prev_hal_switchkins_type = 0;
+    static int said_hal_is_deprecated = 0;
     int requested_type;
 
     if (!kinematicsSwitchable()) return;
@@ -313,16 +314,27 @@ static void handle_kinematicsSwitch(void) {
     hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
     requested_type      = switchkins_type;
 
-    if (emcmotStatus->kinsType != emcmotConfig->kinsType) {
-        requested_type         = (int)emcmotConfig->adjustKinsVar0;
-        emcmotStatus->kinsType = emcmotConfig->kinsType;
+    if (emcmotStatus->switchkins_seq != emcmotConfig->switchkins_seq) {
+        requested_type         = emcmotConfig->switchkins_type;
+        emcmotStatus->switchkins_seq = emcmotConfig->switchkins_seq;
     } else if (hal_switchkins_type != prev_hal_switchkins_type) {
         requested_type = hal_switchkins_type;
+        /* Once per session.  The pin cannot become the general way to
+           switch: the interpreter does not see it, so a program is read,
+           its limits checked and its path looked ahead in whatever
+           kinematics the interpreter last knew about. */
+        if (!said_hal_is_deprecated) {
+            said_hal_is_deprecated = 1;
+            reportError(_("motion.switchkins-type is deprecated, use G12.1 and"
+                          " G13.1.  Switching kinematics from HAL is invisible"
+                          " to the interpreter, so limits and look ahead go on"
+                          " using the kinematics it last knew about."));
+        }
     }
     prev_hal_switchkins_type = hal_switchkins_type;
 
     hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
-    emcmotStatus->adjustKinsVar0 = switchkins_type;
+    emcmotStatus->switchkins_type = switchkins_type;
     if (switchkins_type == requested_type) return;
 
     emcmot_joint_t *jointKinsSwitch;
@@ -349,7 +361,7 @@ static void handle_kinematicsSwitch(void) {
 
     switchkins_type = requested_type;
     hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
-    emcmotStatus->adjustKinsVar0 = switchkins_type;
+    emcmotStatus->switchkins_type = switchkins_type;
 
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
     KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
