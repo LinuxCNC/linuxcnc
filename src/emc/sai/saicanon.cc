@@ -737,8 +737,15 @@ int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int /*spindle*/) {return so_enable;}
-void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool vel)
-{PRINT("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
+void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool vel, double angle_degrees)
+{
+    // only print the angle when one was asked for, so that the expected output
+    // of tests predating the D word stays valid
+    if (angle_degrees != 0.0)
+        PRINT("START_SPEED_FEED_SYNC(%f,%d,%f)\n", sync, vel, angle_degrees);
+    else
+        PRINT("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);
+}
 CANON_MOTION_MODE motion_mode;
 
 int GET_EXTERNAL_DIGITAL_INPUT(int /*index*/, int def) { return def; }

@@ -432,7 +432,7 @@ extern void STOP_CUTTER_RADIUS_COMPENSATION();
 translation commands. */
 
 /* used for threading */
-extern void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode);
+extern void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode, double angle_degrees = 0.0);
 extern void STOP_SPEED_FEED_SYNCH();
 
 

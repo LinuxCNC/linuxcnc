@@ -67,7 +67,7 @@ int tpIsDone(TP_STRUCT * const tp);
 int tpQueueDepth(TP_STRUCT * const tp);
 int tpActiveDepth(TP_STRUCT * const tp);
 int tpGetMotionType(TP_STRUCT * const tp);
-int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int wait);
+int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int wait, double angular_offset_degrees);
 
 int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end);
 int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue

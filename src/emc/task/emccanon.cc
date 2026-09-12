@@ -1503,13 +1503,14 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 
 
-void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode)
+void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode, double angle_degrees)
 {
     flush_segments();
     auto spindleSyncMsg = std::make_unique<EMC_TRAJ_SET_SPINDLESYNC>();
     spindleSyncMsg->spindle = spindle;
     spindleSyncMsg->feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
     spindleSyncMsg->velocity_mode = velocity_mode;
+    spindleSyncMsg->angular_offset_degrees = angle_degrees;
     interp_list.append(std::move(spindleSyncMsg));
     canon.spindle[spindle].synched = 1;
 }

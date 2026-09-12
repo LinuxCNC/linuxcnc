@@ -869,7 +869,7 @@ void SET_CUTTER_RADIUS_COMPENSATION(double /*radius*/) {}
 void START_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
 void STOP_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
 void START_SPEED_FEED_SYNCH() {}
-void START_SPEED_FEED_SYNCH(int /*spindle*/, double /*sync*/, bool /*vel*/) {}
+void START_SPEED_FEED_SYNCH(int /*spindle*/, double /*sync*/, bool /*vel*/, double /*angle*/) {}
 void STOP_SPEED_FEED_SYNCH() {}
 void START_SPINDLE_COUNTERCLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}
 void START_SPINDLE_CLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}

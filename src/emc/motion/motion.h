@@ -219,6 +219,7 @@ extern "C" {
                                    constraints (the INI file) */
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
         double spindlesync;     /* user units per spindle revolution, 0 = no sync */
+        double angular_offset_degrees; /* spindle angle offset for threading start (D word) */
 	double acc;		/* max acceleration */
 	double jerk;			/* jerk for traj */
     double ini_maxjerk;

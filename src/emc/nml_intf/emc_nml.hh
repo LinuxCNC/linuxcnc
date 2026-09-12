@@ -815,7 +815,8 @@ class EMC_TRAJ_SET_SPINDLESYNC:public EMC_TRAJ_CMD_MSG {
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_SPINDLESYNC_TYPE, sizeof(EMC_TRAJ_SET_SPINDLESYNC)),
         spindle(0),
         feed_per_revolution(0.0),
-        velocity_mode(false)
+        velocity_mode(false),
+        angular_offset_degrees(0.0)
     {};
 
     // Sub-class update() calls base-class update()
@@ -825,6 +826,7 @@ class EMC_TRAJ_SET_SPINDLESYNC:public EMC_TRAJ_CMD_MSG {
     int spindle;
     double feed_per_revolution;
     bool velocity_mode;
+    double angular_offset_degrees; // spindle angle offset for threading start (D word, degrees)
 };
 
 class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {

@@ -792,6 +792,7 @@ int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp)
     tc->tolerance = tp->tolerance;
     tc->synchronized = tp->synchronized;
     tc->uu_per_rev = tp->uu_per_rev;
+    tc->angle_offset = tp->spindle.pending_offset;
     return TP_ERR_OK;
 }
 

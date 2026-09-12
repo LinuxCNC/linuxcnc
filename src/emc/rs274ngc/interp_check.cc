@@ -257,8 +257,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
         (motion != G_70) && (motion != G_71) && (motion != G_71_1) &&
         (motion != G_71_2) && (motion != G_72) && (motion != G_72_1) &&
         (motion != G_72_2) && (motion != G_73) && (motion != G_83) &&
-        (block->g_modes[14] != G_96)),
-        _("D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83 or G96 to use it"));
+        (block->g_modes[14] != G_96) &&
+        (motion != G_33) && (motion != G_76)),
+        _("D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83, G96, G33 or G76 to use it"));
   }
 
   if (block->dollar_flag) {
