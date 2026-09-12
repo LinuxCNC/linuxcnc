@@ -1694,21 +1694,21 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     {
         if(hm2->llio->split_read) {
-            r = hal_export_functf(hm2_read_request, hm2, 1, 0, hm2->llio->comp_id, "%s.read-request", hm2->llio->name);
+            r = hal_export_functf(hm2_read_request, hm2, 0, hm2->llio->comp_id, "%s.read-request", hm2->llio->name);
             if (r != 0) {
                 HM2_ERR("error %d exporting read function %s.read-request\n", r, hm2->llio->name);
                 r = -EINVAL;
                 goto fail1;
             }
         }
-        r = hal_export_functf(hm2_read, hm2, 1, 0, hm2->llio->comp_id, "%s.read", hm2->llio->name);
+        r = hal_export_functf(hm2_read, hm2, 0, hm2->llio->comp_id, "%s.read", hm2->llio->name);
         if (r != 0) {
             HM2_ERR("error %d exporting read function %s.read\n", r, hm2->llio->name);
             r = -EINVAL;
             goto fail1;
         }
 
-        r = hal_export_functf(hm2_write, hm2, 1, 0, hm2->llio->comp_id, "%s.write", hm2->llio->name);
+        r = hal_export_functf(hm2_write, hm2, 0, hm2->llio->comp_id, "%s.write", hm2->llio->name);
         if (r != 0) {
             HM2_ERR("error %d exporting write function %s.write\n", r, hm2->llio->name);
             r = -EINVAL;
@@ -1722,14 +1722,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if (hm2->llio->threadsafe) {
-        r = hal_export_functf(hm2_read_gpio, hm2, 1, 0, hm2->llio->comp_id, "%s.read_gpio", hm2->llio->name);
+        r = hal_export_functf(hm2_read_gpio, hm2, 0, hm2->llio->comp_id, "%s.read_gpio", hm2->llio->name);
         if (r != 0) {
             HM2_ERR("error %d exporting gpio_read function %s.read_gpio\n", r, hm2->llio->name);
             r = -EINVAL;
             goto fail1;
         }
 
-        r = hal_export_functf(hm2_write_gpio, hm2, 1, 0, hm2->llio->comp_id, "%s.write_gpio", hm2->llio->name);
+        r = hal_export_functf(hm2_write_gpio, hm2, 0, hm2->llio->comp_id, "%s.write_gpio", hm2->llio->name);
         if (r != 0) {
             HM2_ERR("error %d exporting gpio_write function %s.write_gpio\n", r, hm2->llio->name);
             r = -EINVAL;

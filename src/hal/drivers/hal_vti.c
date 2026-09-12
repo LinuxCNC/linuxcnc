@@ -338,7 +338,7 @@ int rtapi_app_main(void)
 
     /* export functions */
     retval = hal_export_funct("vti.capture-position", vti_counter_capture,
-	vti_driver, 1, 0, comp_id);
+	vti_driver, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.counter-capture funct export failed\n");
@@ -349,7 +349,7 @@ int rtapi_app_main(void)
 	"VTI: installed %d encoder counters\n", num_chan);
 
     retval = hal_export_funct("vti.write-dacs", vti_dacs_write,
-	vti_driver, 1, 0, comp_id);
+	vti_driver, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.write-dacs funct export failed\n");
@@ -359,7 +359,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO, "VTI: installed %d dacs\n", num_chan);
 
     retval = hal_export_funct("vti.read-adcs", vti_adcs_read,
-	vti_driver, 1, 0, comp_id);
+	vti_driver, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.read-adcs funct export failed\n");
@@ -369,7 +369,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO, "VTI: installed %d adcs\n", 0);
 
     retval = hal_export_funct("vti.di-read", vti_di_read,
-	vti_driver, 0, 0, comp_id);
+	vti_driver, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.di-read funct export failed\n");
@@ -381,7 +381,7 @@ int rtapi_app_main(void)
 	"VTI: installed %d digital inputs\n", inputpinnum);
 
     retval = hal_export_funct("vti.do-write", vti_do_write,
-	vti_driver, 0, 0, comp_id);
+	vti_driver, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.do-write funct export failed\n");

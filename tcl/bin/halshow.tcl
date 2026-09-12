@@ -957,7 +957,7 @@ proc watchHAL {which} {
     $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
             -anchor w -tag $label -fill $labelcolor
     set canvaswidth [winfo width $::cisp]
-    if {$type == "bit"} {
+    if {$type == "bit" || $type == "bool"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill lightgray -tag oval$i
         if {$writable == 1} {
@@ -1279,7 +1279,9 @@ proc refreshItem {cnum vartype varname} {
     } else {
         switch $varnumtype {
             u32 - s32  {set varnumtype int}
+            uint - sint {set varnumtype int}
             float      {set varnumtype float}
+            real       {set varnumtype float}
         }
         if [catch { set value [expr $ret] } ] {
             set value $ret ;# allow display of a nan

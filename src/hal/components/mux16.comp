@@ -18,10 +18,10 @@ pin in bool sel#[4] """\
 Together, these determine which **in**__N__ value is copied to *out*.
 """;
 pin out real out_f;
-pin out si32 out_s """\
+pin out sint out_s """\
 Follows the value of one of the **in**__N__ values according to the four *sel* values
 and whether use-graycode is active.
-The s32 value will be trunuated and limited to the max and min values of signed values. 
+The integer value will be trunuated and limited to the max and min values of signed values.
 
 [cols="^1,^1,^1,^1,1"]
 |===
@@ -51,7 +51,7 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 
 """;
 param r real elapsed "Current value of the internal debounce timer for debugging.";
-param r si32 selected "Current value of the internal selection variable after conversion for debugging";
+param r sint selected "Current value of the internal selection variable after conversion for debugging";
 pin in real in##[16] "array of selectable outputs";
 variable rtapi_real delaytime;
 variable int lastnum;

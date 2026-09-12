@@ -30,19 +30,19 @@ class _WidgetBase:
 
         # convert and set pintype and states based on metadata types
         if self.metadata['OUTPUT'] == 'S32':
-            self.pintype=hal.HAL_S32
+            self.pintype=hal.Type.SINT
             self.true_state = int(self.metadata['TRUE_STATE'])
             self.false_state = int(self.metadata['FALSE_STATE'])
         elif self.metadata['OUTPUT'] == 'U32':
-            self.pintype=hal.HAL_U32
+            self.pintype=hal.Type.UINT
             self.true_state = int(self.metadata['TRUE_STATE'])
             self.false_state = int(self.metadata['FALSE_STATE'])
         elif self.metadata['OUTPUT'] == 'FLOAT':
-            self.pintype=hal.HAL_FLOAT
+            self.pintype=hal.Type.REAL
             self.true_state = float(self.metadata['TRUE_STATE'])
             self.false_state = float(self.metadata['FALSE_STATE'])
         elif self.metadata['OUTPUT'] == 'BIT':
-            self.pintype=hal.HAL_BIT
+            self.pintype=hal.Type.BOOL
             self.true_state = True#self.metadata['TRUE_STATE']
             self.false_state = False#self.metadata['FALSE_STATE']
         elif self.metadata['OUTPUT'] == 'COMMAND':
@@ -104,12 +104,12 @@ class _ToggleBase(_WidgetBase):
             pass
         # If not a command output requested make the pins
         if pintype not in(None,'COMMAND','ZMQ'):
-            self.hal_pin = self.hal.newpin(self.hal_name, pintype, hal.HAL_OUT)
-            self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", pintype, hal.HAL_OUT)
+            self.hal_pin = self.hal.newpin(self.hal_name, pintype, hal.Dir.OUT)
+            self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", pintype, hal.Dir.OUT)
         # If there is a status requested make there pins
         if self.status_pin:
-            self.hal_status_pin = self.hal.newpin(self.hal_name+ "-state", hal.HAL_BIT, hal.HAL_OUT)
-            self.hal_status_pin_not = self.hal.newpin(self.hal_name+ "-state-not", hal.HAL_BIT, hal.HAL_OUT)
+            self.hal_status_pin = self.hal.newpin(self.hal_name+ "-state", hal.Type.BOOL, hal.Dir.OUT)
+            self.hal_status_pin_not = self.hal.newpin(self.hal_name+ "-state-not", hal.Type.BOOL, hal.Dir.OUT)
         # Update the pin to the proper state, but don't print debug for this
         if pintype not in ('COMMAND','ZMQ'):
             DBG_suppress = True

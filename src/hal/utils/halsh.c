@@ -111,13 +111,11 @@ static int halsh_format_one(Tcl_Interp *interp,
                             hal_stream_data_u v) {
     char buf[64];
     switch(hal_stream_element_type(s, idx)) {
-        case HAL_BIT:   snprintf(buf, sizeof(buf), "%d", v.b ? 1 : 0); break;
-        case HAL_FLOAT: snprintf(buf, sizeof(buf), "%g", v.f); break;
-        case HAL_S32:   snprintf(buf, sizeof(buf), "%lld", (long long)v.s); break;
-        case HAL_U32:   snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.u); break;
-        case HAL_S64:   snprintf(buf, sizeof(buf), "%lld", (long long)v.l); break;
-        case HAL_U64:   snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.k); break;
-        default:        snprintf(buf, sizeof(buf), "0"); break;
+        case HAL_BOOL: snprintf(buf, sizeof(buf), "%d", v.b ? 1 : 0); break;
+        case HAL_REAL: snprintf(buf, sizeof(buf), "%g", v.f); break;
+        case HAL_SINT: snprintf(buf, sizeof(buf), "%lld", (long long)v.l); break;
+        case HAL_UINT: snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.k); break;
+        default:       snprintf(buf, sizeof(buf), "0"); break;
     }
     Tcl_AppendElement(interp, buf);
     return TCL_OK;

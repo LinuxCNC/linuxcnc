@@ -30,7 +30,7 @@ pin in  real    arc_lost_delay              "arc lost delay during a cut (second
 pin in  real    arc_ok_high                 "maximum voltage level for Arc OK signal [mode 0] (volts)";
 pin in  bool    arc_ok_in                   "external arc ok input signal [mode 1 & mode 2]";
 pin in  real    arc_ok_low                  "minimum voltage level for Arc OK signal [mode 0] (volts)";
-pin in  si32    arc_max_starts              "maximum attempts at starting the arc";
+pin in  sint    arc_max_starts              "maximum attempts at starting the arc";
 pin in  real    arc_voltage_in              "arc voltage input [mode 0 & mode 1] see Notes above";
 pin in  real    arc_voltage_offset          "offset to set arc voltage to 0 at 0 volts";
 pin in  real    arc_voltage_scale           "scale to convert arc_voltage input to actual volts";
@@ -69,7 +69,7 @@ pin in  bool    ignore_arc_ok_0             "Do not require arc ok for start or 
 pin in  bool    ignore_arc_ok_1             "Do not require arc ok for start or cutting.";
 pin in  real    kerf_width                  "placeholder for better G-code portability between GUIs";
 pin in  bool    laser_mode                  "laser mode for fiber lasers";
-pin in  si32    laser_recovery_start        "start laser offset for cut recovery";
+pin in  sint    laser_recovery_start        "start laser offset for cut recovery";
 pin in  si32    laser_x_offset              "alignment laser x axis offset (scaled units)";
 pin in  si32    laser_y_offset              "alignment laser y axis offset (scaled units)";
 pin in  real    lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
@@ -78,8 +78,8 @@ pin in  real    material_thickness          "material thickness (machine units)"
 pin in  si32    max_offset = 5              "maximum height offset (mm)";
 pin in  bool    mesh_arc_ok = FALSE         "Do not require arc ok for mesh mode.";
 pin in  bool    mesh_enable                 "enable mesh cutting mode";
-pin in  si32    mode                        "operating mode";
-pin in  si32    motion_type                 "motion type, connect to motion.motion-type";
+pin in  sint    mode                        "operating mode";
+pin in  sint    motion_type                 "motion type, connect to motion.motion-type";
 pin in  bool    move_down                   "external thc down switch [mode 2]";
 pin in  bool    move_up                     "external thc up switch [mode 2]";
 pin in  bool    multi_tool = 1              "allows the use of multiple tools";
@@ -91,7 +91,7 @@ pin in  bool    offset_set_probe            "deploy probe for setting offsets";
 pin in  bool    offset_set_scribe           "deploy scribe for setting offsets";
 pin in  bool    offsets_active              "offsets are active, connect to motion.eoffset-active";
 pin in  bool    offsets_limited             "offsets are limited, connect to motion.eoffset-limited";
-pin in  si32    ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
+pin in  sint    ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
 pin in  bool    ohmic_probe                 "ohmic probe input, from ohmic-sense-out or external component/pin";
 pin in  bool    ohmic_probe_enable          "enable ohmic probe";
 pin in  real    ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
@@ -183,7 +183,7 @@ pin out real    cut_time                    "cut time of current job";
 pin out bool    cutting_stop                "stop manual cut, connect to halui.spindle.0.stop";
 pin out bool    feed_hold                   "feed hold, connect to motion.feed-hold";
 pin out bool    jog_inhibit                 "jog inhibit, connect to motion.jog-inhibit";
-pin out si32    laser_recovery_state        "laser recovery status";
+pin out sint    laser_recovery_state        "laser recovery status";
 pin out bool    led_down                    "thc move down indicator";
 pin out bool    led_up                      "thc move up indicator";
 pin out real    offset_scale                "offset scale, connect to axis.<x y z>.eoffset-scale";
@@ -191,7 +191,7 @@ pin out bool    ohmic_enable                "on only while probing";
 pin out bool    ohmic_sense_out             "ohmic sense output state";
 pin out bool    paused_motion               "paused motion flag, true when paused motion is active";
 pin out real    paused_time                 "paused time during current job";
-pin out si32    pierce_count                "number of pierce attempts (torch starts)";
+pin out sint    pierce_count                "number of pierce attempts (torch starts)";
 pin out bool    probe_out                   "probe for tube cutting, connect to motion.probe-input";
 pin out bool    probe_test_error            "minimum limit reached while probe testing";
 pin out real    probe_time                  "probe time of current job";
@@ -206,8 +206,8 @@ pin out bool    safe_height_is_limited      "safe height is limited indicator";
 pin out bool    sensor_active               "one of float, ohmic, or breakaway is detected";
 pin out bool    scribe_arm                  "arm the scribe";
 pin out bool    scribe_on                   "turn scribe on";
-pin out si32    state_out                   "current state";
-pin out si32    stop_type_out               "current stop type";
+pin out sint    state_out                   "current state";
+pin out sint    stop_type_out               "current stop type";
 pin out bool    thc_active                  "thc status output";
 pin out bool    thc_enabled                 "thc is enabled";
 pin out bool    torch_on                    "turn torch on, connect to your torch on input";
@@ -1503,13 +1503,13 @@ FUNCTION(_) {
                         cutting_stop_set(1);
                         state = MAX_HEIGHT;
                         if (!error_message){
-                            rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %d start attempts\nmanual cut is stopped.\n", arc_max_starts);
+                            rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %ld start attempts\nmanual cut is stopped.\n", arc_max_starts);
                             error_message = 1;
                         }
                     }else{
                         program_pause_set(TRUE);
                         if (!error_message){
-                            rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %d start attempts\nprogram is paused.\n", arc_max_starts);
+                            rtapi_print_msg(RTAPI_MSG_ERR,"no arc detected after %ld start attempts\nprogram is paused.\n", arc_max_starts);
                             error_message = 1;
                         }
                     }

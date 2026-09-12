@@ -244,7 +244,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("encoder-ratio.sample", sample,
-	encoder_pair_array, 0, 0, comp_id);
+	encoder_pair_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER_RATIO: ERROR: sample funct export failed\n");
@@ -252,7 +252,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("encoder-ratio.update", update,
-	encoder_pair_array, 1, 0, comp_id);
+	encoder_pair_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER_RATIO: ERROR: update funct export failed\n");

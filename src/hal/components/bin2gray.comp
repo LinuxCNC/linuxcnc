@@ -1,11 +1,11 @@
 component bin2gray "convert a number to the gray-code representation";
 description """Converts a number into gray-code""";
-pin in ui32 in "binary code in";
-pin out ui32 out "gray code out";
+pin in uint in "binary code in";
+pin out uint out "gray code out";
 license "GPL";
 author "Andy Pugh";
 option period no;
 function _;
 ;;
-rtapi_u32 i = in;
+rtapi_uint i = in;
 out_set((i >> 1) ^ i);

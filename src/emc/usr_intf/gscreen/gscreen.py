@@ -1652,49 +1652,49 @@ class Gscreen:
     def init_spindle_pins(self):
         """creates a HAL float in pin for control the spindle readout meter
         """
-        self.halcomp.newpin("spindle-readout-in", hal.HAL_FLOAT, hal.HAL_IN)
+        self.halcomp.newpin("spindle-readout-in", hal.Type.REAL, hal.Dir.IN)
 
     def init_coolant_pins(self):
-        """create HAL BIT out pins to control coolant
+        """create HAL BOOL out pins to control coolant
         """
-        self.halcomp.newpin("aux-coolant-m7-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("aux-coolant-m8-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("mist-coolant-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("flood-coolant-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("aux-coolant-m7-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("aux-coolant-m8-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("mist-coolant-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("flood-coolant-out", hal.Type.BOOL, hal.Dir.OUT)
 
     def init_jog_pins(self):
-        """create HAL BIT out pins for all axis jog enable
-           create HAL BIT out for jog mode enabled
-           create HAL FLOAT out pin for current jog increment
+        """create HAL BOOL out pins for all axis jog enable
+           create HAL BOOL out for jog mode enabled
+           create HAL REAL out pin for current jog increment
            These could be used for MPG selecting
         """
         for axis in self.data.axis_list:
-            self.halcomp.newpin("jog-enable-%s-out"% (axis), hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("jog-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("jog-increment-out", hal.HAL_FLOAT, hal.HAL_OUT)
-        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.HAL_S32, hal.HAL_IN))
+            self.halcomp.newpin("jog-enable-%s-out"% (axis), hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("jog-enable-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("jog-increment-out", hal.Type.REAL, hal.Dir.OUT)
+        #self.data['jog-increment-in'] = hal_glib.GPin(self.halcomp.newpin('jog-increment-in', hal.Type.SINT, hal.Dir.IN))
         #self.data['jog-increment-in'].connect('value-changed', self.on_hal_jog_increments_changed)
-        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.HAL_S32, hal.HAL_IN))
+        #self.data['jog-rate-in'] = hal_glib.GPin(self.halcomp.newpin('jog-rate-in', hal.Type.SINT, hal.Dir.IN))
         #self.data['jog-rate-in'].connect('value-changed', self.on_hal_jog_rate_changed)
 
     # pins used for selecting an encoder to adjust overrides
     def init_override_pins(self):
-        """creates HAL BIT pins for spindle,feed and Max velocity overrides.
+        """creates HAL BOOL pins for spindle,feed and Max velocity overrides.
            used as selection pins for an encoder to set values
         """
-        self.halcomp.newpin("s-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("f-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        self.halcomp.newpin("mv-override-enable-out", hal.HAL_BIT, hal.HAL_OUT)
+        self.halcomp.newpin("s-override-enable-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("f-override-enable-out", hal.Type.BOOL, hal.Dir.OUT)
+        self.halcomp.newpin("mv-override-enable-out", hal.Type.BOOL, hal.Dir.OUT)
 
     def init_control_pins(self):
         """Creates and registers function calls for start,abort and feed_hold pins
             calls self.on_cycle_start_changed, self.on_abort_changed, self.on_feed_hold_changed
         """
-        self.data['cycle_start'] = hal_glib.GPin(self.halcomp.newpin('cycle-start', hal.HAL_BIT, hal.HAL_IN))
+        self.data['cycle_start'] = hal_glib.GPin(self.halcomp.newpin('cycle-start', hal.Type.BOOL, hal.Dir.IN))
         self.data['cycle_start'].connect('value-changed', self.on_cycle_start_changed)
-        self.data['abort'] = hal_glib.GPin(self.halcomp.newpin('abort', hal.HAL_BIT, hal.HAL_IN))
+        self.data['abort'] = hal_glib.GPin(self.halcomp.newpin('abort', hal.Type.BOOL, hal.Dir.IN))
         self.data['abort'].connect('value-changed', self.on_abort_changed)
-        self.data['feed_hold'] = hal_glib.GPin(self.halcomp.newpin('feed-hold', hal.HAL_BIT, hal.HAL_IN))
+        self.data['feed_hold'] = hal_glib.GPin(self.halcomp.newpin('feed-hold', hal.Type.BOOL, hal.Dir.IN))
         self.data['feed_hold'].connect('value-changed', self.on_feed_hold_changed)
 
     def initialize_manual_toolchange(self):
@@ -1706,9 +1706,9 @@ class Gscreen:
         or the default function
         """
         # for manual tool change dialog
-        self.halcomp.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
-        self.halcomp.newpin("tool-changed", hal.HAL_BIT, hal.HAL_OUT)
-        self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.HAL_BIT, hal.HAL_IN))
+        self.halcomp.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
+        self.halcomp.newpin("tool-changed", hal.Type.BOOL, hal.Dir.OUT)
+        self.data['change-tool'] = hal_glib.GPin(self.halcomp.newpin('change-tool', hal.Type.BOOL, hal.Dir.IN))
         # you can override manual tool change
         if "on_tool_change" in dir(self.handler_instance):
             self.data['change-tool'].connect('value-changed', self.handler_instance.on_tool_change)
@@ -3808,12 +3808,12 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.Type.BOOL, hal.Dir.IN))
                 self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
-                    self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                    self.halcomp.newpin(name+"-waiting", hal.Type.BOOL, hal.Dir.OUT)
                     if not ("ok" in c):
-                        self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
+                        self.halcomp.newpin(name+"-response", hal.Type.BOOL, hal.Dir.OUT)
 
     # display dialog
     def warning_dialog(self,message, displaytype, secondary=None,pinname=None):

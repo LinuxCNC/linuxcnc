@@ -148,14 +148,14 @@ typedef struct {
     hal_real_t requested_vel;   /* RPI: requested velocity magnitude in machine units */
     hal_real_t distance_to_go;	/* RPI: distance to go in current move*/
 
-    hal_bool_t debug_bit_0;	/* RPA: generic param, for debugging */
-    hal_bool_t debug_bit_1;	/* RPA: generic param, for debugging */
-    hal_real_t debug_float_0;	/* RPA: generic param, for debugging */
-    hal_real_t debug_float_1;	/* RPA: generic param, for debugging */
-    hal_real_t debug_float_2;	/* RPA: generic param, for debugging */
-    hal_real_t debug_float_3;	/* RPA: generic param, for debugging */
-    hal_sint_t debug_s32_0;	/* RPA: generic param, for debugging */
-    hal_sint_t debug_s32_1;	/* RPA: generic param, for debugging */
+    hal_bool_t debug_bool_0;	/* RPA: generic param, for debugging */
+    hal_bool_t debug_bool_1;	/* RPA: generic param, for debugging */
+    hal_real_t debug_real_0;	/* RPA: generic param, for debugging */
+    hal_real_t debug_real_1;	/* RPA: generic param, for debugging */
+    hal_real_t debug_real_2;	/* RPA: generic param, for debugging */
+    hal_real_t debug_real_3;	/* RPA: generic param, for debugging */
+    hal_sint_t debug_sint_0;	/* RPA: generic param, for debugging */
+    hal_sint_t debug_sint_1;	/* RPA: generic param, for debugging */
 
     hal_bool_t synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
     hal_bool_t synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */

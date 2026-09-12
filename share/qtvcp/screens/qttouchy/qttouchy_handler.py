@@ -57,20 +57,20 @@ class HandlerClass:
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 
-        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
 
-        self.pin_cycle_start_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.pin_cycle_start_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
 
-        self.pin_abort = QHAL.newpin('abort',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.pin_abort = QHAL.newpin('abort',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.pin_abort.value_changed.connect(lambda s: self.abort(s))
 
-        self.wheel_x = QHAL.newpin('jogwheel.x-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
-        self.wheel_y = QHAL.newpin('jogwheel.y-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
-        self.wheel_z = QHAL.newpin('jogwheel.z-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.wheel_x = QHAL.newpin('jogwheel.x-enable',QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        self.wheel_y = QHAL.newpin('jogwheel.y-enable',QHAL.HAL_BOOL, QHAL.HAL_OUT)
+        self.wheel_z = QHAL.newpin('jogwheel.z-enable',QHAL.HAL_BOOL, QHAL.HAL_OUT)
 
-        self.jog_increment = QHAL.newpin('jogwheel.increment',QHAL.HAL_FLOAT, QHAL.HAL_OUT)
+        self.jog_increment = QHAL.newpin('jogwheel.increment',QHAL.HAL_REAL, QHAL.HAL_OUT)
 
         STATUS.connect('feed-override-changed', lambda w, data: self.w.pushbutton_fo.setText('FO {0:.0f}%'.format(data)))
         STATUS.connect('rapid-override-changed', lambda w, data: self.w.pushbutton_ro.setText('RO {0:.0f}%'.format(data)))

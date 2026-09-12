@@ -59,7 +59,7 @@ import time
 
 class pyvcp_dial(Canvas):
     # Dial widget by tomp
-    """ A dial that outputs a HAL_FLOAT 
+    """ A dial that outputs a HAL_REAL
         reacts to both mouse-wheel and mouse dragging
         <dial>
             [ <size>376</size> ]
@@ -202,11 +202,11 @@ class pyvcp_dial(Canvas):
         if halparam == None:
             halparam = "dial." + str(pyvcp_dial.n) + ".param_pin"
         self.halparam=halparam        
-        pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
+        pycomp.newpin(halparam, Type.REAL, Dir.IN)
 
         pyvcp_dial.n += 1
         self.pycomp=pycomp
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+        pycomp.newpin(halpin, Type.REAL, Dir.OUT)
 
         pycomp[self.halparam] = self.origValue
         self.oldValue = self.origValue
@@ -402,7 +402,7 @@ class pyvcp_meter(Canvas):
         if halpin == None:
             self.halpin = "meter."+str(pyvcp_meter.n)+".value"
             pyvcp_meter.n += 1
-        pycomp.newpin(self.halpin, HAL_FLOAT, HAL_IN)
+        pycomp.newpin(self.halpin, Type.REAL, Dir.IN)
         self.value = pycomp[self.halpin]
     
     def rad2deg(self, rad): return rad*180/math.pi
@@ -464,7 +464,7 @@ class pyvcp_meter(Canvas):
 # -------------------------------------------
 
 class pyvcp_jogwheel(Canvas):
-    """" A jogwheel that outputs a HAL_FLOAT count
+    """" A jogwheel that outputs a HAL_REAL count
         reacts to both mouse-wheel and mouse dragging
         <jogwheel>
             [ <cpr>33</cpr> ]                       (counts per revolution)
@@ -550,7 +550,7 @@ class pyvcp_jogwheel(Canvas):
             halpin = "jogwheel."+str(pyvcp_jogwheel.n) + name
             pyvcp_jogwheel.n += 1
         self.halpin=halpin
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+        pycomp.newpin(halpin, Type.REAL, Dir.OUT)
         pycomp[self.halpin] = self.count
         self.pycomp=pycomp
 
@@ -561,13 +561,13 @@ class pyvcp_jogwheel(Canvas):
             name = ".reset"
             clear_pin = halpin + name
             self.clear_pin = clear_pin
-            pycomp.newpin(clear_pin, HAL_BIT, HAL_IN)
+            pycomp.newpin(clear_pin, Type.BOOL, Dir.IN)
 
         if scale_pin!=0:
             name = ".scale"
             scale_pin = halpin + name
             self.scale_pin = scale_pin
-            pycomp.newpin(scale_pin, HAL_FLOAT, HAL_IN)
+            pycomp.newpin(scale_pin, Type.REAL, Dir.IN)
 
     def update_jogscale(self):
         if self.scale_pin:
@@ -694,7 +694,7 @@ class pyvcp_radiobutton(Frame):
             if n==initval: 
                 b.select()
             c_halpin=halpin+"."+str(c)
-            pycomp.newpin(c_halpin, HAL_BIT, HAL_OUT)
+            pycomp.newpin(c_halpin, Type.BOOL, Dir.OUT)
             self.halpins.append(c_halpin)
             n+=1
 
@@ -743,7 +743,7 @@ class pyvcp_label(Label):
                 pyvcp_label.n += 1
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
-            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
+            pycomp.newpin(halpin_disable, Type.BOOL, Dir.IN)
         
     def update(self,pycomp):
         if self.disable_pin: 
@@ -760,7 +760,7 @@ class pyvcp_label(Label):
 
 class pyvcp_multilabel(Label):
     """ Selectable text label, can display up to 6 label legends
-        when associated bit pin is activated
+        when associated bool pin is activated
         <multilabel>
             <legends>["Label1" "Label2" "Label3" "Label4" "Label5" "Label6"]</legends>
             <font>("Helvetica", 20)</font>
@@ -783,7 +783,7 @@ class pyvcp_multilabel(Label):
         n=0
         for c in legends:
             c_halpin=halpin+".legend"+str(n)
-            pycomp.newpin(c_halpin, HAL_BIT, HAL_IN)
+            pycomp.newpin(c_halpin, Type.BOOL, Dir.IN)
             self.halpins.append(c_halpin)
             n+=1
             #limit to 6 legends
@@ -795,7 +795,7 @@ class pyvcp_multilabel(Label):
         if disable_pin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
-            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)
+            pycomp.newpin(halpin_disable, Type.BOOL, Dir.IN)
 
         # test for out of range initval number
         if initval >= 0 and initval <= self.num_pins :
@@ -950,7 +950,7 @@ class pyvcp_tabs(bwidget.NoteBook):
 # -------------------------------------------
 
 class pyvcp_spinbox(Spinbox):
-    """ (control) controls a float, also shown as text 
+    """ (control) controls a real, also shown as text
         reacts to the mouse wheel 
         <spinbox>
             [ <halpin>"my-spinbox"</halpin> ]
@@ -983,7 +983,7 @@ class pyvcp_spinbox(Spinbox):
             if halparam == None:
                 halparam = "spinbox." + str(pyvcp_spinbox.n) + ".param_pin"
             self.halparam=halparam
-            pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
+            pycomp.newpin(halparam, Type.REAL, Dir.IN)
 
         pyvcp_spinbox.n += 1
         
@@ -1005,7 +1005,7 @@ class pyvcp_spinbox(Spinbox):
         self.min_=min_
         self.resolution=resolution
         self.v.set( str( self.format  % {'b':self.value} ) )
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
+        pycomp.newpin(halpin, Type.REAL, Dir.OUT)
         
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
@@ -1051,7 +1051,7 @@ class pyvcp_spinbox(Spinbox):
 # -------------------------------------------
 
 class pyvcp_number(Label):
-    """ (indicator) shows a float as text """
+    """ (indicator) shows a real as text """
     n=0
     def __init__(self,master,pycomp,halpin=None,format="2.1f",**kw):
         self.v = StringVar()
@@ -1064,7 +1064,7 @@ class pyvcp_number(Label):
         self.value=0.0
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
+        pycomp.newpin(halpin, Type.REAL, Dir.IN)
 
     def update(self,pycomp):    
         newvalue = pycomp[self.halpin]
@@ -1074,8 +1074,8 @@ class pyvcp_number(Label):
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
 
-class pyvcp_u32(Label):
-    """ (indicator) shows a u32 as text """
+class pyvcp_uint(Label):
+    """ (indicator) shows a uint as text """
     n=0
     def __init__(self,master,pycomp,halpin=None,format="d",**kw):
         self.v = StringVar()
@@ -1088,7 +1088,7 @@ class pyvcp_u32(Label):
         self.value=int(0.0)
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
-        pycomp.newpin(halpin, HAL_U32, HAL_IN)
+        pycomp.newpin(halpin, Type.UINT, Dir.IN)
 
     def update(self,pycomp):    
         newvalue = pycomp[self.halpin]
@@ -1097,9 +1097,13 @@ class pyvcp_u32(Label):
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
- 
-class pyvcp_s32(Label):
-    """ (indicator) shows a s32 as text """
+class pyvcp_u32(pyvcp_uint):
+    """ (indicator) shows a uint as text """
+    # This is just a proxy so that <u32> tags still work.
+    # We changed the actual pin type to UINT.
+
+class pyvcp_sint(Label):
+    """ (indicator) shows a sint as text """
     n=0
     def __init__(self,master,pycomp,halpin=None,format="d",**kw):
         self.v = StringVar()
@@ -1112,7 +1116,7 @@ class pyvcp_s32(Label):
         self.value=int(0.0)
         dummy = "%(b)"+self.format
         self.v.set( str( dummy  % {'b':self.value} ) )
-        pycomp.newpin(halpin, HAL_S32, HAL_IN)
+        pycomp.newpin(halpin, Type.SINT, Dir.IN)
 
     def update(self,pycomp):    
         newvalue = pycomp[self.halpin]
@@ -1120,6 +1124,11 @@ class pyvcp_s32(Label):
             self.value=newvalue
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
+
+class pyvcp_s32(pyvcp_sint):
+    """ (indicator) shows a sint as text """
+    # This is just a proxy so that <s32> tags still work.
+    # We changed the actual pin type to SINT.
 
 class pyvcp_timer(Label):
     """ (indicator) shows elapsed time as HH:MM:SS
@@ -1137,10 +1146,10 @@ class pyvcp_timer(Label):
             pyvcp_timer.n += 1
         self.halpins=[]
         c_halpin=halpin+".reset"
-        pycomp.newpin(c_halpin, HAL_BIT, HAL_IN)
+        pycomp.newpin(c_halpin, Type.BOOL, Dir.IN)
         self.halpins.append(c_halpin)
         c_halpin=halpin+".run"
-        pycomp.newpin(c_halpin, HAL_BIT, HAL_IN)
+        pycomp.newpin(c_halpin, Type.BOOL, Dir.IN)
         self.halpins.append(c_halpin)
 
         self.resetvalue=0
@@ -1187,7 +1196,7 @@ class pyvcp_bar(Canvas):
 ## reworked by ArcEye 10022014
 ## allow value ranges in different colours
 
-    """ (indicator) a bar-indicator for a float
+    """ (indicator) a bar-indicator for a real
     <bar>
         <halpin>"my-bar"</halpin>
         <min_>0</min_>
@@ -1231,7 +1240,7 @@ class pyvcp_bar(Canvas):
         self.startval=min_
         self.format = "%" + format
 
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
+        pycomp.newpin(halpin, Type.REAL, Dir.IN)
         
         self.value=0.0 # some dummy value to start with  
              
@@ -1346,11 +1355,11 @@ class pyvcp_led(Canvas):
             halpin = "led."+str(pyvcp_led.n) 
             pyvcp_led.n+=1
         self.halpin=halpin
-        pycomp.newpin(halpin, HAL_BIT, HAL_IN)
+        pycomp.newpin(halpin, Type.BOOL, Dir.IN)
         if disable_pin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
-            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)       
+            pycomp.newpin(halpin_disable, Type.BOOL, Dir.IN)
         
 
     def update(self,pycomp):
@@ -1396,11 +1405,11 @@ class pyvcp_rectled(Canvas):
             halpin = "led."+str(pyvcp_led.n)  
             pyvcp_led.n+=1     
         self.halpin=halpin
-        pycomp.newpin(halpin, HAL_BIT, HAL_IN)
+        pycomp.newpin(halpin, Type.BOOL, Dir.IN)
         if disable_pin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
-            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
+            pycomp.newpin(halpin_disable, Type.BOOL, Dir.IN)
         
 
     def update(self,pycomp):
@@ -1441,10 +1450,10 @@ class pyvcp_checkbutton(Checkbutton):
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
         self.halpin=halpin
-        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        pycomp.newpin(halpin, Type.BOOL, Dir.OUT)
         changepin = halpin + ".changepin"
         self.changepin=changepin
-        pycomp.newpin(changepin, HAL_BIT, HAL_IN)
+        pycomp.newpin(changepin, Type.BOOL, Dir.IN)
         pycomp[self.changepin] = 0
 
         pyvcp_checkbutton.n += 1
@@ -1493,11 +1502,11 @@ class pyvcp_button(Button):
             halpin = "button."+str(pyvcp_button.n)
             pyvcp_button.n += 1  
         self.halpin=halpin
-        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        pycomp.newpin(halpin, Type.BOOL, Dir.OUT)
         self.disable_pin = disable_pin
         if not disable_pin == False:
             halpin_disable = halpin + ".disable" 
-            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)
+            pycomp.newpin(halpin_disable, Type.BOOL, Dir.IN)
             self.halpin_disable=halpin_disable      
         self.state=0;
         self.bind("<ButtonPress>", self.pressed)
@@ -1532,7 +1541,7 @@ class pyvcp_button(Button):
 class pyvcp_scale(Scale):
     """ (control) a slider 
         halpin-i is integer output 
-        halpin-f is float output
+        halpin-f is real output
 
         <scale>
             [ <halpin>"my-scale"</halpin> ]
@@ -1564,12 +1573,12 @@ class pyvcp_scale(Scale):
             if halparam == None:
                 halparam = "scale."+str(pyvcp_scale.n)+".param_pin"
             self.halparam=halparam        
-            pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
+            pycomp.newpin(halparam, Type.REAL, Dir.IN)
 
         pyvcp_scale.n += 1       
         
-        pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
-        pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
+        pycomp.newpin(halpin+"-i", Type.SINT, Dir.OUT)
+        pycomp.newpin(halpin+"-f", Type.REAL, Dir.OUT)
         
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
@@ -1764,7 +1773,7 @@ class _pyvcp_image(Label):
         self.halpin = halpin
         self.value = 0
         self.last = None
-        pycomp.newpin(halpin, self.pintype, HAL_IN)
+        pycomp.newpin(halpin, self.pintype, Dir.IN)
 
     def update(self, pycomp):
         l = pycomp[self.halpin]
@@ -1775,10 +1784,15 @@ class _pyvcp_image(Label):
                 print("Unknown image #%d on %s" % (l, self.halpin), file=sys.stderr)
         self.last = l
 
+class pyvcp_image_bool(_pyvcp_image):
+    pintype = Type.BOOL
+class pyvcp_image_uint(_pyvcp_image):
+    pintype = Type.UINT
+# Keep the old names for compatibility
 class pyvcp_image_bit(_pyvcp_image):
-    pintype = HAL_BIT
+    pintype = Type.BOOL
 class pyvcp_image_u32(_pyvcp_image):
-    pintype = HAL_U32
+    pintype = Type.UINT
 
 # This must come after all the pyvcp_xxx classes
 elements = []

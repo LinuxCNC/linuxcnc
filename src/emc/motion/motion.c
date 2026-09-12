@@ -594,7 +594,7 @@ static int init_hal_io(void)
     /* export machine wide hal pins */
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->motion_enabled), 0, "motion.motion-enabled"));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->in_position), 0, "motion.in-position"));
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_OUT, &(emcmot_hal_data->motion_type), 0, "motion.motion-type"));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->motion_type), 0, "motion.motion-type"));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->coord_mode), 0, "motion.coord-mode"));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->teleop_mode), 0, "motion.teleop-mode"));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->coord_error), 0, "motion.coord-error"));
@@ -602,12 +602,12 @@ static int init_hal_io(void)
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(emcmot_hal_data->current_vel), 0.0, "motion.current-vel"));
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(emcmot_hal_data->requested_vel), 0.0, "motion.requested-vel"));
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(emcmot_hal_data->distance_to_go), 0.0, "motion.distance-to-go"));
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_OUT, &(emcmot_hal_data->program_line), 0, "motion.program-line"));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->program_line), 0, "motion.program-line"));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(emcmot_hal_data->jog_is_active), 0, "motion.jog-is-active"));
 
     /* Standard Interp State Pins */
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_OUT, &(emcmot_hal_data->interp_line_number), 0, "motion.interp.line-number"));
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_OUT, &(emcmot_hal_data->interp_motion_type), 0, "motion.interp.motion-type"));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->interp_line_number), 0, "motion.interp.line-number"));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->interp_motion_type), 0, "motion.interp.motion-type"));
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(emcmot_hal_data->interp_feedrate), 0.0, "motion.interp.feedrate"));
 
     /* New Geometric Metadata Pins */
@@ -622,21 +622,21 @@ static int init_hal_io(void)
     /* export debug parameters */
     /* these can be used to view any internal variable, simply change a line
        in control.c:output_to_hal() and recompile */
-    CALL_CHECK(hal_param_new_bool(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_bit_0), 0, "motion.debug-bit-0"));
-    CALL_CHECK(hal_param_new_bool(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_bit_1), 0, "motion.debug-bit-1"));
-    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_float_0), 0.0, "motion.debug-float-0"));
-    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_float_1), 0.0, "motion.debug-float-1"));
-    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_float_2), 0.0, "motion.debug-float-2"));
-    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_float_3), 0.0, "motion.debug-float-3"));
-    CALL_CHECK(hal_param_new_si32(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_s32_0), 0, "motion.debug-s32-0"));
-    CALL_CHECK(hal_param_new_si32(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_s32_1), 0, "motion.debug-s32-1"));
+    CALL_CHECK(hal_param_new_bool(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_bool_0), 0, "motion.debug-bool-0"));
+    CALL_CHECK(hal_param_new_bool(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_bool_1), 0, "motion.debug-bool-1"));
+    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_real_0), 0.0, "motion.debug-real-0"));
+    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_real_1), 0.0, "motion.debug-real-1"));
+    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_real_2), 0.0, "motion.debug-real-2"));
+    CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_real_3), 0.0, "motion.debug-real-3"));
+    CALL_CHECK(hal_param_new_sint(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_sint_0), 0, "motion.debug-sint-0"));
+    CALL_CHECK(hal_param_new_sint(mot_comp_id, HAL_RO, &(emcmot_hal_data->debug_sint_1), 0, "motion.debug-sint-1"));
 
     // FIXME - debug only, remove later
     // export HAL parameters for some trajectory planner internal variables
     // so they can be scoped
     CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->traj_pos_out), 0.0, "traj.pos_out"));
     CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->traj_vel_out), 0.0, "traj.vel_out"));
-    CALL_CHECK(hal_param_new_ui32(mot_comp_id, HAL_RO, &(emcmot_hal_data->traj_active_tc), 0, "traj.active_tc"));
+    CALL_CHECK(hal_param_new_uint(mot_comp_id, HAL_RO, &(emcmot_hal_data->traj_active_tc), 0, "traj.active_tc"));
 
     for (n = 0; n < 4; n++) {
         CALL_CHECK(hal_param_new_real(mot_comp_id, HAL_RO, &(emcmot_hal_data->tc_pos[n]), 0.0, "tc.%d.pos", n));
@@ -646,7 +646,7 @@ static int init_hal_io(void)
     // end of exporting trajectory planner internals
 
     // export timing related HAL pins so they can be scoped and/or connected
-    CALL_CHECK(hal_pin_new_ui32(mot_comp_id, HAL_OUT, &(emcmot_hal_data->last_period), 0, "motion.servo.last-period"));
+    CALL_CHECK(hal_pin_new_uint(mot_comp_id, HAL_OUT, &(emcmot_hal_data->last_period), 0, "motion.servo.last-period"));
 
     // export timing related HAL pins so they can be scoped
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(emcmot_hal_data->tooloffset_x), 0.0, "motion.tooloffset.x"));
@@ -724,11 +724,11 @@ static int export_spindle(int num, spindle_hal_t * addr){
 
     // spindle orient pins
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &(addr->spindle_orient_angle), 0.0, "spindle.%d.orient-angle", num));
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_OUT, &(addr->spindle_orient_mode), 0, "spindle.%d.orient-mode", num));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_OUT, &(addr->spindle_orient_mode), 0, "spindle.%d.orient-mode", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(addr->spindle_orient), 0, "spindle.%d.orient", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(addr->spindle_locked), 0, "spindle.%d.locked", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &(addr->spindle_is_oriented), 0, "spindle.%d.is-oriented", num));
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_IN, &(addr->spindle_orient_fault), 0, "spindle.%d.orient-fault", num));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_IN, &(addr->spindle_orient_fault), 0, "spindle.%d.orient-fault", num));
 
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &(addr->spindle_revs), 0.0, "spindle.%d.revs", num));
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &(addr->spindle_speed_in), 0.0, "spindle.%d.speed-in", num));
@@ -760,7 +760,7 @@ static int export_joint(int num, joint_hal_t * addr)
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &(addr->neg_lim_sw), 0, "joint.%d.neg-lim-sw-in", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &(addr->amp_enable), 0, "joint.%d.amp-enable-out", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &(addr->amp_fault), 0, "joint.%d.amp-fault-in", num));
-    CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_IN, &(addr->jjog_counts), 0, "joint.%d.jog-counts", num));
+    CALL_CHECK(hal_pin_new_sint(mot_comp_id, HAL_IN, &(addr->jjog_counts), 0, "joint.%d.jog-counts", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN,   &(addr->jjog_enable), 0, "joint.%d.jog-enable", num));
     CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &(addr->jjog_scale), 0.0, "joint.%d.jog-scale", num));
     CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN,   &(addr->jjog_vel_mode), 0, "joint.%d.jog-vel-mode", num));
@@ -1014,7 +1014,7 @@ static int init_threads(void)
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp);
+	retval = hal_create_thread("base-thread", base_period_nsec);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: failed to create %ld nsec base thread\n",
@@ -1022,7 +1022,7 @@ static int init_threads(void)
 	    return -1;
 	}
     }
-    retval = hal_create_thread("servo-thread", servo_period_nsec, 1);
+    retval = hal_create_thread("servo-thread", servo_period_nsec);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to create %ld nsec servo thread\n",
@@ -1031,14 +1031,14 @@ static int init_threads(void)
     }
     /* export realtime functions that do the real work */
     retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+	 */ , 0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");
 	return -1;
     }
     retval = hal_export_funct("motion-command-handler", emcmotCommandHandler, 0	/* arg
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+	 */ , 0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export command handler function\n");

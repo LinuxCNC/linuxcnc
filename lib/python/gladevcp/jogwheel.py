@@ -96,7 +96,7 @@ class JogWheel(Gtk.DrawingArea, _HalJogWheelBase):
     # init the hal pin management
     def _hal_init(self):
         _HalJogWheelBase._hal_init(self)
-        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.Type.REAL, hal.Dir.IN)
         self.hal_pin_scale.set(1.0)
 
     # This function is called from hal_widgets.py

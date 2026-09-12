@@ -66,50 +66,50 @@ class Bridge(object):
         self.comp = h = hal.component("bridge")
         QHAL = Qhal(comp=self.comp, hal=hal)
 
-        self.jogRate = QHAL.newpin("jog-rate", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogRateIn = QHAL.newpin("jog-rate-in", hal.HAL_FLOAT, hal.HAL_IN)
+        self.jogRate = QHAL.newpin("jog-rate", hal.Type.REAL, hal.Dir.OUT)
+        self.jogRateIn = QHAL.newpin("jog-rate-in", hal.Type.REAL, hal.Dir.IN)
         self.jogRateIn.pinValueChanged.connect(self.pinChanged)
 
-        self.jogRateAngular = QHAL.newpin("jog-rate-angular", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogRateAngularIn = QHAL.newpin("jog-rate-angular-in", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jogRateAngular = QHAL.newpin("jog-rate-angular", hal.Type.REAL, hal.Dir.OUT)
+        self.jogRateAngularIn = QHAL.newpin("jog-rate-angular-in", hal.Type.REAL, hal.Dir.OUT)
         self.jogRateAngularIn.pinValueChanged.connect(self.pinChanged)
 
-        self.jogIncrement = QHAL.newpin("jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogIncrementAngular = QHAL.newpin("jog-increment-angular", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.activeJoint = QHAL.newpin('joint-selected', hal.HAL_S32, hal.HAL_OUT)
+        self.jogIncrement = QHAL.newpin("jog-increment", hal.Type.REAL, hal.Dir.OUT)
+        self.jogIncrementAngular = QHAL.newpin("jog-increment-angular", hal.Type.REAL, hal.Dir.OUT)
+        self.activeJoint = QHAL.newpin('joint-selected', hal.Type.SINT, hal.Dir.OUT)
 
         for i in (self.INFO.AVAILABLE_AXES):
             let = i.lower()
             # input
-            self['axis{}Select'.format(let)] = QHAL.newpin('axis-%s-select'%let, hal.HAL_BIT, hal.HAL_IN)
+            self['axis{}Select'.format(let)] = QHAL.newpin('axis-%s-select'%let, hal.Type.BOOL, hal.Dir.IN)
             self['axis{}Select'.format(let)].pinValueChanged.connect(self.pinChanged)
             # output
-            self['Axis{}IsSelected'.format(let)] = QHAL.newpin('axis-%s-is-selected'%let, hal.HAL_BIT, hal.HAL_OUT)
+            self['Axis{}IsSelected'.format(let)] = QHAL.newpin('axis-%s-is-selected'%let, hal.Type.BOOL, hal.Dir.OUT)
 
-        self.cycle_start = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.cycle_start = QHAL.newpin('cycle-start-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.cycle_start.pinValueChanged.connect(self.pinChanged)
-        self.cycle_pause = QHAL.newpin('cycle-pause-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.cycle_pause = QHAL.newpin('cycle-pause-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.cycle_pause.pinValueChanged.connect(self.pinChanged)
-        self.reload_display = QHAL.newpin('reload-display-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.reload_display = QHAL.newpin('reload-display-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.reload_display.pinValueChanged.connect(self.pinChanged)
-        self.shutdown = QHAL.newpin('shutdown-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.shutdown = QHAL.newpin('shutdown-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.shutdown.pinValueChanged.connect(self.pinChanged)
-        self.ok = QHAL.newpin('ok-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.ok = QHAL.newpin('ok-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.ok.pinValueChanged.connect(self.pinChanged)
-        self.cancel = QHAL.newpin('cancel-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.cancel = QHAL.newpin('cancel-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
         self.cancel.pinValueChanged.connect(self.pinChanged)
 
         if not self.INFO.MDI_COMMAND_DICT is None:
             for i in self.INFO.MDI_COMMAND_DICT:
                 LOG.debug('{} {}'.format(i,self.INFO.MDI_COMMAND_DICT.get(i)))
-                self[i] = QHAL.newpin('ini-mdi-cmd-{}'.format(i),QHAL.HAL_BIT, QHAL.HAL_IN)
+                self[i] = QHAL.newpin('ini-mdi-cmd-{}'.format(i),QHAL.HAL_BOOL, QHAL.HAL_IN)
                 self[i].pinValueChanged.connect(self.runMacroChanged)
 
         if not self.INFO.MACRO_COMMAND_DICT is None:
             for name in self.INFO.MACRO_COMMAND_DICT:
                 LOG.debug('{} {}'.format(name,self.INFO.MDI_COMMAND_DICT.get(name)))
                 name = str(name)
-                self[name] = QHAL.newpin('ini-macro-cmd-{}'.format(name),QHAL.HAL_BIT, QHAL.HAL_IN)
+                self[name] = QHAL.newpin('ini-macro-cmd-{}'.format(name),QHAL.HAL_BOOL, QHAL.HAL_IN)
                 self[name].pinValueChanged.connect(self.runMacroChanged)
 
         QHAL.setUpdateRate(100)

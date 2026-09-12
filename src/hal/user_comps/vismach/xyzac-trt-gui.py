@@ -63,19 +63,19 @@ import sys
 
 c = hal.component("xyzac-trt-gui")
 # table-x
-c.newpin("table-x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("table-x", hal.Type.REAL, hal.Dir.IN)
 # saddle-y
-c.newpin("saddle-y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("saddle-y", hal.Type.REAL, hal.Dir.IN)
 # head vertical slide
-c.newpin("spindle-z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("spindle-z", hal.Type.REAL, hal.Dir.IN)
 # table-x tilt-b
-c.newpin("tilt-a", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("tilt-a", hal.Type.REAL, hal.Dir.IN)
 # rotary table-x
-c.newpin("rotate-c", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("rotate-c", hal.Type.REAL, hal.Dir.IN)
 # offsets
-c.newpin("y-offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z-offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-offset", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("y-offset", hal.Type.REAL, hal.Dir.IN)
+c.newpin("z-offset", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tool-offset", hal.Type.REAL, hal.Dir.IN)
 c.ready()
 
 for setting in sys.argv[1:]: exec(setting)

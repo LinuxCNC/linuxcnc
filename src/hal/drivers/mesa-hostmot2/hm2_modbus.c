@@ -1459,34 +1459,11 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 		case HAL_BOOL:
 			CHK_RV(map_u(cc, hal_get_bool(hal->pins[p].pin.b) ? 1 : 0, 0));
 			break;
-		case HAL_U32:
-			switch(mtypetype(cc->typeptr[0].mtype)) {
-			case MBT_U: CHK_RV(map_u(cc, hal_get_ui32(hal->pins[p].pin.u), 0)); break;
-			case MBT_S: CHK_RV(map_s(cc, map_us(hal_get_ui32(hal->pins[p].pin.u)), 0)); break;
-			case MBT_F: CHK_RV(map_f(cc, map_uf(hal_get_ui32(hal->pins[p].pin.u)), 0)); break;
-			}
-			break;
 		case HAL_UINT:
 			switch(mtypetype(cc->typeptr[0].mtype)) {
 			case MBT_U: CHK_RV(map_u(cc, hal_get_uint(hal->pins[p].pin.u), 0)); break;
 			case MBT_S: CHK_RV(map_s(cc, map_us(hal_get_uint(hal->pins[p].pin.u)), 0)); break;
 			case MBT_F: CHK_RV(map_f(cc, map_uf(hal_get_uint(hal->pins[p].pin.u)), 0)); break;
-			}
-			break;
-		case HAL_S32:
-			if(!haspinscale(&cc->typeptr[0])) {
-				switch(mtypetype(cc->typeptr[0].mtype)) {
-				case MBT_U: CHK_RV(map_u(cc, map_su(hal_get_si32(hal->pins[p].pin.s)), 0)); break;
-				case MBT_S: CHK_RV(map_s(cc, hal_get_si32(hal->pins[p].pin.s), 0)); break;
-				case MBT_F: CHK_RV(map_f(cc, map_sf(hal_get_si32(hal->pins[p].pin.s)), 0)); break;
-				}
-			} else {
-				val64.f = (rtapi_real)((rtapi_s64)hal_get_si32(hal->pins[p].pin.s) - hal_get_si32(hal->pins[p].offset.s)) * hal_get_real(hal->pins[p].scale);
-				switch(mtypetype(cc->typeptr[0].mtype)) {
-				case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), 0)); break;
-				case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), 0)); break;
-				case MBT_F: CHK_RV(map_f(cc, val64.f, 0)); break;
-				}
 			}
 			break;
 		case HAL_SINT:
@@ -1555,34 +1532,11 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 			case HAL_BOOL:
 				CHK_RV(map_u(cc, hal_get_bool(hal->pins[p].pin.b) ? 1 : 0, i));
 				break;
-			case HAL_U32:
-				switch(mtypetype(cc->typeptr[i].mtype)) {
-				case MBT_U: CHK_RV(map_u(cc, hal_get_ui32(hal->pins[p].pin.u), i)); break;
-				case MBT_S: CHK_RV(map_s(cc, map_us(hal_get_ui32(hal->pins[p].pin.u)), i)); break;
-				case MBT_F: CHK_RV(map_f(cc, map_uf(hal_get_ui32(hal->pins[p].pin.u)), i)); break;
-				}
-				break;
 			case HAL_UINT:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
 				case MBT_U: CHK_RV(map_u(cc, hal_get_uint(hal->pins[p].pin.u), i)); break;
 				case MBT_S: CHK_RV(map_s(cc, map_us(hal_get_uint(hal->pins[p].pin.u)), i)); break;
 				case MBT_F: CHK_RV(map_f(cc, map_uf(hal_get_uint(hal->pins[p].pin.u)), i)); break;
-				}
-				break;
-			case HAL_S32:
-				if(!haspinscale(&cc->typeptr[i])) {
-					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U: CHK_RV(map_u(cc, map_su(hal_get_si32(hal->pins[p].pin.s)), i)); break;
-					case MBT_S: CHK_RV(map_s(cc, hal_get_si32(hal->pins[p].pin.s), i)); break;
-					case MBT_F: CHK_RV(map_f(cc, map_sf(hal_get_si32(hal->pins[p].pin.s)), i)); break;
-					}
-				} else {
-					val64.f = (rtapi_real)((rtapi_s64)hal_get_si32(hal->pins[p].pin.s) - hal_get_si32(hal->pins[p].offset.s)) * hal_get_real(hal->pins[p].scale);
-					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), i)); break;
-					case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), i)); break;
-					case MBT_F: CHK_RV(map_f(cc, val64.f, i)); break;
-					}
 				}
 				break;
 			case HAL_SINT:
@@ -1698,56 +1652,6 @@ static inline rtapi_u64 mask_mbtsize(unsigned mtype, rtapi_u64 v)
 	default:
 		return v;
 	}
-}
-
-static inline rtapi_u32 unmap32_uu(const hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT32_MAX)
-		return RTAPI_UINT32_MAX;
-	return (rtapi_u32)v;
-}
-
-static inline rtapi_u32 unmap32_us(const hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
-		if(v < 0) return 0;
-	}
-	return (rtapi_u32)v;
-}
-
-static inline rtapi_u32 unmap32_uf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (double)RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
-		if(v < 0.0) return 0;
-	}
-	return (rtapi_u32)v;
-}
-
-static inline rtapi_s32 unmap32_su(const hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx]) && v > (rtapi_u64)RTAPI_INT32_MAX)
-		return RTAPI_INT32_MAX;
-	return (rtapi_s32)v;
-}
-
-static inline rtapi_s32 unmap32_ss(const hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (rtapi_s64)RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
-		if(v < (rtapi_s64)RTAPI_INT32_MIN) return RTAPI_INT32_MIN;
-	}
-	return (rtapi_s32)v;
-}
-
-static inline rtapi_s32 unmap32_sf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (double)RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
-		if(v < (double)RTAPI_INT32_MIN) return RTAPI_INT32_MIN;
-	}
-	return (rtapi_s32)v;
 }
 
 static inline rtapi_u64 unmap64_us(const hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
@@ -1972,27 +1876,6 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 			switch(cc->typeptr[i].htype) {
 			case HAL_BOOL:
 				hal_set_bool(hal->pins[p].pin.b, 0 != val64.u);	// Zero maps to false, anything else to true
-				break;
-			case HAL_U32:
-				switch(mtypetype(cc->typeptr[i].mtype)) {
-				case MBT_U:	hal_set_ui32(hal->pins[p].pin.u, unmap32_uu(cc, val64.u, i)); break;
-				case MBT_S:	hal_set_ui32(hal->pins[p].pin.u, unmap32_us(cc, val64.s, i)); break;
-				case MBT_F:	hal_set_ui32(hal->pins[p].pin.u, unmap32_uf(cc, val64.f, i)); break;
-				}
-				break;
-			case HAL_S32:
-				switch(mtypetype(cc->typeptr[i].mtype)) {
-				case MBT_U:	hal_set_si32(hal->pins[p].pin.s, unmap32_su(cc, val64.u, i)); break;
-				case MBT_S:	hal_set_si32(hal->pins[p].pin.s, unmap32_ss(cc, val64.s, i)); break;
-				case MBT_F:	hal_set_si32(hal->pins[p].pin.s, unmap32_sf(cc, val64.f, i)); break;
-				}
-				if(haspinscale(&cc->typeptr[i])) {
-					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U:	hal_set_real(hal->pins[p].scaled, (rtapi_real)(rtapi_s64)(val64.u - hal_get_uint(hal->pins[p].offset.u)) * hal_get_real(hal->pins[p].scale)); break;
-					case MBT_S:	hal_set_real(hal->pins[p].scaled, (rtapi_real)(val64.s - hal_get_sint(hal->pins[p].offset.s)) * hal_get_real(hal->pins[p].scale)); break;
-					case MBT_F:	hal_set_real(hal->pins[p].scaled, (val64.f - hal_get_real(hal->pins[p].offset.r)) * hal_get_real(hal->pins[p].scale)); break;
-					}
-				}
 				break;
 			case HAL_UINT:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
@@ -2260,8 +2143,6 @@ static int check_htype(unsigned type)
 {
 	switch(type) {
 	case HAL_BOOL:	// not valid in register read/write
-	case HAL_U32:
-	case HAL_S32:
 	case HAL_UINT:
 	case HAL_SINT:
 	case HAL_REAL:
@@ -2289,13 +2170,13 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 	}
 
 	// Done reading, now test format
-	static const rtapi_u8 signature[8] = {'M','e','s','a','M','B','0','1'};
+	static const rtapi_u8 signature[8] = {'M','e','s','a','M','B','0','2'};
 	if(memcmp(signature, mbccb->sig, sizeof(signature))) {
 		char buf[sizeof(mbccb->sig)+1];
 		for(unsigned i = 0; i < sizeof(mbccb->sig); i++)
 			buf[i] = isprint(mbccb->sig[i]) ? mbccb->sig[i] : '?';
 		buf[sizeof(mbccb->sig)] = 0;
-		MSG_ERR("%s: error: Invalid signature in mbccb file: '%s' (expected 'MesaMB01')\n", inst->name, buf);
+		MSG_ERR("%s: error: Invalid signature in mbccb file: '%s' (expected 'MesaMB02')\n", inst->name, buf);
 		MSG_ERR("%s: error: Have you compiled the mbccs source into a binary mbccb file using mesambccc?\n", inst->name);
 		goto errout;
 	}
@@ -2805,7 +2686,7 @@ int rtapi_app_main(void)
 		inst->cmds = inst->ninit ? inst->_init : inst->_cmds;
 
 		// Export the HAL process function
-		if((retval = hal_export_functf(process, inst, 1, 0, comp_id, COMP_NAME".%d.process", i)) < 0) {
+		if((retval = hal_export_functf(process, inst, 0, comp_id, COMP_NAME".%d.process", i)) < 0) {
 			MSG_ERR("%s: error: Function export failed\n", inst->name);
 			goto errout;
 		}
@@ -2997,46 +2878,11 @@ int rtapi_app_main(void)
 								0, "%s.%s", inst->name, CPTR(dptr)));
 						break;
 
-					case HAL_U32:
-						CHECK(hal_pin_new_ui32(comp_id, dir, &(inst->hal->pins[p++].pin.u),
-								0, "%s.%s", inst->name, CPTR(dptr)));
-						break;
-
 					case HAL_UINT:
 						CHECK(hal_pin_new_uint(comp_id, dir, &(inst->hal->pins[p++].pin.u),
 								0, "%s.%s", inst->name, CPTR(dptr)));
 						break;
 
-					case HAL_S32:
-						CHECK(hal_pin_new_si32(comp_id, dir, &(inst->hal->pins[p].pin.s),
-								0, "%s.%s", inst->name, CPTR(dptr)));
-						if(haspinscale(&cc->typeptr[j])) {
-							CHECK(hal_pin_new_real(comp_id, HAL_IN, &(inst->hal->pins[p].scale),
-									1.0, "%s.%s.scale", inst->name, CPTR(dptr)));
-							if(HAL_OUT == dir) {
-								CHECK(hal_pin_new_real(comp_id, HAL_OUT, &(inst->hal->pins[p].scaled),
-										0.0, "%s.%s.scaled", inst->name, CPTR(dptr)));
-								switch(mtypetype(cc->typeptr[j].mtype)) {
-								case MBT_U:
-									CHECK(hal_pin_new_uint(comp_id, HAL_IN, &(inst->hal->pins[p].offset.u),
-											0, "%s.%s.offset", inst->name, CPTR(dptr)));
-									break;
-								case MBT_S:
-									CHECK(hal_pin_new_sint(comp_id, HAL_IN, &(inst->hal->pins[p].offset.s),
-											0, "%s.%s.offset", inst->name, CPTR(dptr)));
-									break;
-								case MBT_F:
-									CHECK(hal_pin_new_real(comp_id, HAL_IN, &(inst->hal->pins[p].offset.r),
-											0.0, "%s.%s.offset", inst->name, CPTR(dptr)));
-									break;
-								}
-							} else {
-								CHECK(hal_pin_new_si32(comp_id, HAL_IN, &(inst->hal->pins[p].offset.s),
-										0, "%s.%s.offset", inst->name, CPTR(dptr)));
-							}
-						}
-						p++;
-						break;
 					case HAL_SINT:
 						CHECK(hal_pin_new_sint(comp_id, dir, &(inst->hal->pins[p].pin.s),
 								0, "%s.%s", inst->name, CPTR(dptr)));

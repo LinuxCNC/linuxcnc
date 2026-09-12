@@ -65,18 +65,18 @@ class Message:
 
                     # this is how we make a pin that can be connected to a callback
                     if ("none" in details):
-                        D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_BIT, hal.HAL_IN)
+                        D._halpin = self.HAL_GCOMP_.newpin(name, hal.Type.BOOL, hal.Dir.IN)
                     else:
-                        D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_BIT, hal.HAL_IO)
+                        D._halpin = self.HAL_GCOMP_.newpin(name, hal.Type.BOOL, hal.Dir.IO)
 
                     D._halpin.value_changed.connect(self.messageCallback(self['dialog-{}'.format(name)],
                                                 D._halpin, name, boldtext, text, pinname, details, icon))
 
                     if ("dialog" in details) and not ("nonedialog" in details):
-                        self.HAL_GCOMP_.newpin(name + "-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                        self.HAL_GCOMP_.newpin(name + "-waiting", hal.Type.BOOL, hal.Dir.OUT)
                         if not ("ok" in details):
-                            self.HAL_GCOMP_.newpin(name + "-response", hal.HAL_BIT, hal.HAL_OUT)
-                            self.HAL_GCOMP_.newpin(name + "-response-s32", hal.HAL_S32, hal.HAL_OUT)
+                            self.HAL_GCOMP_.newpin(name + "-response", hal.Type.BOOL, hal.Dir.OUT)
+                            self.HAL_GCOMP_.newpin(name + "-response-s32", hal.Type.SINT, hal.Dir.OUT)
                             self.HAL_GCOMP_[name + "-response-s32"] = -1 # undetermined
 
         if not INFO.USRMULTIMESS_ID is None:
@@ -88,13 +88,13 @@ class Message:
                     D.hal_init(HAL_NAME=name)
                     D.pinname = name
 
-                    D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_S32, hal.HAL_IN)
+                    D._halpin = self.HAL_GCOMP_.newpin(name, hal.Type.SINT, hal.Dir.IN)
 
                     D._halpin.value_changed.connect(self.multiMessageCallback(D,
                                                 D._halpin, name, mess, ))
 
                     if ("dialog" in details) and not ("nonedialog" in details):
-                        self.HAL_GCOMP_.newpin(name + "-waiting", hal.HAL_BIT, hal.HAL_OUT)
+                        self.HAL_GCOMP_.newpin(name + "-waiting", hal.Type.BOOL, hal.Dir.OUT)
 
     # This weird code is so we can get access to proper variables.
     # using clicked.connect( self.on_printmessage(pin,name,bt,t,c) ) apparently doesn't easily

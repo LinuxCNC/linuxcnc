@@ -83,7 +83,7 @@ class StateLED(LED):
                 pname = self.HAL_NAME_
             else:
                 pname = self._halpin_name
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_OUT)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.BOOL, hal.Dir.OUT)
         if self.is_estopped:
             STATUS.connect('state-estop', lambda w: self._flip_state(True))
             STATUS.connect('state-estop-reset', lambda w: self._flip_state(False))

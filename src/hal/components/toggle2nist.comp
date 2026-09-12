@@ -30,12 +30,12 @@ is-on: └─────────────────┘       �
 
 pin in bool in  "toggle button in";
 pin in bool is_on "current state of device";
-pin in ui32 debounce = 2 "debounce delay for 'in'-pin in cycles";
-pin in ui32 max_pulse_length = 100 "max output pulse length";
+pin in uint debounce = 2 "debounce delay for 'in'-pin in cycles";
+pin in uint max_pulse_length = 100 "max output pulse length";
 pin out bool on "turn device on";
 pin out bool off "turn device off";
-variable unsigned debounce_cntr;
-variable unsigned pulse_length;
+variable rtapi_uint debounce_cntr;
+variable rtapi_uint pulse_length;
 variable bool state;
 
 option period no;

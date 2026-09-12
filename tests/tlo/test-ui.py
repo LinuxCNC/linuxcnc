@@ -114,7 +114,7 @@ def verify_tool(tool, x, y, z, a, b, c, u, v, w, diameter, front_angle, back_ang
 
 h = hal.component("python-ui")
 
-h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-number", hal.Type.SINT, hal.Dir.IN)
 
 h.ready() # mark the component as 'ready'
 

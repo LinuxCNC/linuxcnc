@@ -106,7 +106,7 @@ int rtapi_app_main(void)
 
     /* create the shmem task */
     shmem_task = rtapi_task_new(shmem_code, 0 /* arg */ , shmem_prio, module,
-	SHMEM_STACKSIZE, RTAPI_NO_FP);
+	SHMEM_STACKSIZE);
     if (shmem_task < 0) {
 	rtapi_print("shmemtask init: rtapi_task_new returned %d\n",
 	    shmem_task);

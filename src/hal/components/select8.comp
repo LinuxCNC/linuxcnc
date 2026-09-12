@@ -1,6 +1,6 @@
 component select8 "8-bit binary match detector";
 pin in bool enable = TRUE "Set enable to FALSE to cause all outputs to be set FALSE.";
-pin in si32 sel "The number of the output to set TRUE.  All other outputs well be set FALSE.";
+pin in sint sel "The number of the output to set TRUE.  All other outputs well be set FALSE.";
 pin out bool out#[8] "Output bits.  If enable is set and the sel input is between 0 and 7, then the corresponding output bit will be set true.";
 option period no;
 function _;
@@ -9,7 +9,7 @@ license "GPL";
 author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) {
-	rtapi_s32 temp_sel = sel;
+	rtapi_sint temp_sel = sel;
 	rtapi_bool temp_enable = enable;
 	for (int i=0;i<8;i++) {
 		if (!temp_enable || temp_sel!=i)

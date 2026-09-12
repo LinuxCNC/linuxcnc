@@ -68,7 +68,7 @@ int rtapi_app_main(void)
 
     /* create the slave task */
     slave_task = rtapi_task_new(slave_code, 0 /* arg */ , slave_prio, module,
-	SLAVE_STACKSIZE, RTAPI_NO_FP);
+	SLAVE_STACKSIZE);
     if (slave_task < 0) {
 	rtapi_print("sem slave init: rtapi_task_new returned %d\n",
 	    slave_task);

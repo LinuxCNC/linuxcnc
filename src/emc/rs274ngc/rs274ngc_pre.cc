@@ -2264,7 +2264,7 @@ void Interp::print_state_tag(StateTag const &tag)
 {
     // Extract as-is field values directly into appropriate array
     // position
-    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %d, MOTION_MODE %d "
+    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %ld, MOTION_MODE %ld "
 		 "ORIGIN G%0.1f; flags UNITS %s, DISTANCE_MODE %s, "
 		 "SPINDLE_ON %s",
 		 tag.is_valid() ? "valid" : "invalid",

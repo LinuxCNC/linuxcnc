@@ -14,7 +14,7 @@ class HandlerClass:
 
         # hal pin with change callback.
         # When the pin's value changes the callback is executed.
-        self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
+        self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.Type.REAL, hal.Dir.IN))
         self.max_value.connect('value-changed', self._on_max_value_change)
 
         inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))

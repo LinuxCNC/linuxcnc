@@ -263,7 +263,7 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 
     // Export functions.
     if(!halError){
-	halError = hal_export_functf(Device_DigitalInRead, this, 0, 0, comp_id, "opto-ac5.%d.digital-read", boardId);
+	halError = hal_export_functf(Device_DigitalInRead, this, 0, comp_id, "opto-ac5.%d.digital-read", boardId);
     }
 
     if(halError){
@@ -323,7 +323,7 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 		}
     // Export functions.
     if(!halError){
-	halError = hal_export_functf(Device_DigitalOutWrite, this, 0, 0, comp_id, "opto-ac5.%d.digital-write", boardId);
+	halError = hal_export_functf(Device_DigitalOutWrite, this, 0, comp_id, "opto-ac5.%d.digital-write", boardId);
     }
 
     if(halError){

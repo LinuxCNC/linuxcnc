@@ -12,7 +12,7 @@ import glob
 import re
 
 comp = hal.component("test-ui")
-comp.newpin("reopen-log", hal.HAL_BIT, hal.HAL_IO)
+comp.newpin("reopen-log", hal.Type.BOOL, hal.Dir.IO)
 comp.ready()
 
 os.system("halcmd net reopen-log test-ui.reopen-log motion-logger.reopen-log")

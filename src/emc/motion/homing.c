@@ -249,7 +249,7 @@ static int base_make_joint_home_pins(int id,int njoints)
                                    0, "joint.%d.homing", jno);
         retval += hal_pin_new_bool(id, HAL_OUT, &(addr->homed),
                                    0, "joint.%d.homed", jno);
-        retval += hal_pin_new_si32(id, HAL_OUT, &(addr->home_state),
+        retval += hal_pin_new_sint(id, HAL_OUT, &(addr->home_state),
                                    0, "joint.%d.home-state", jno);
         retval += hal_pin_new_bool(id, HAL_IO, &(addr->index_enable),
                                    0, "joint.%d.index-enable", jno);
@@ -558,7 +558,7 @@ static void base_write_homing_out_pins(int njoints)
             hal_set_bool(addr->homing, H[jno].homing);
         }
         hal_set_bool(addr->homed,      H[jno].homed);      // OUT
-        hal_set_si32(addr->home_state, H[jno].home_state); // OUT
+        hal_set_sint(addr->home_state, H[jno].home_state); // OUT
         // index_enable is a HAL_IO pin: the encoder driver also writes it
         // (clears it on the index pulse). We do not own it, so we must not
         // clamp it every cycle; drive it only on our own edges and otherwise

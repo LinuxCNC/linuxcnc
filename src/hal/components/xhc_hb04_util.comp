@@ -17,14 +17,14 @@ pin out bool resume;
 pin out bool run;
 
 // integer low pass filters (see ilowpass.comp)
-pin in si32 in0;
-pin in si32 in1;
-pin in si32 in2;
-pin in si32 in3;
-pin out si32 out0;
-pin out si32 out1;
-pin out si32 out2;
-pin out si32 out3;
+pin in sint in0;
+pin in sint in1;
+pin in sint in2;
+pin in sint in3;
+pin out sint out0;
+pin out sint out1;
+pin out sint out2;
+pin out sint out3;
 pin in real scale0 = 1.0;
 pin in real scale1 = 1.0;
 pin in real scale2 = 1.0;

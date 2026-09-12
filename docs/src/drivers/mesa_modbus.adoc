@@ -103,10 +103,10 @@ from HAL and pass them to the Modbus device.
 Modbus *read* commands will read data from the device and pass that to
 HAL *output* pins for use by other components.
 
-HAL_BIT, HAL_U32 and HAL_S32 pins will present the (16 bit) Modbus
+HAL_BOOL, HAL_UINT and HAL_SINT pins will present the (16 bit) Modbus
 registers exactly as the bits are delivered from the device and will
 send them to the device as 16 bit values according to standard C type
-conversion standards. HAL_FLOAT values are treated differently. When a
+conversion standards. HAL_REAL values are treated differently. When a
 float pin is specified then two extra HAL pins are created with the
 same name but suffixed with -scale and offset. The value from the
 modbus register will be interpreted as a sighed-16 bit number. It will
@@ -118,7 +118,7 @@ The reverse transformation is performed when writing to the device.
 
 All Modbus registers are 16 bits. It is possible that in some applications
 this might be used to represent encoder counts or some other number that
-will wrap-around. To circumvent this problem in the case of the HAL_S32
+will wrap-around. To circumvent this problem in the case of the HAL_SINT
 pin type the registers will be promoted to signed 64-bit internally then
 multiplied by the "scale" pin value and presented as a floating point
 value on a HAL pin with the suffix "scaled".
@@ -193,7 +193,7 @@ The format of the channel descriptors is:
 
 {TYPE, FUNC, ADDR, COUNT, pin_name}
 
-TYPE is one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32
+TYPE is one of HAL_BOOL, HAL_REAL, HAL_SINT, HAL_UINT
 FUNC = 1, 2, 3, 4, 5, 6, 15, 16 - Modbus commands
 COUNT = number of coils/registers to read
 */
@@ -203,21 +203,21 @@ COUNT = number of coils/registers to read
 static const hm2_modbus_chan_descriptor_t channels[] = {
 /*  {TYPE,     FUNC, ADDR,   COUNT, pin_name} */
 // Create 8 HAL bit pins coil-00 .. -07 supplying the values of coils at 0x0000
-    {HAL_BIT,   1,   0x0000, 8,     "coil"},
+    {HAL_BOOL,   1,   0x0000, 8,     "coil"},
 // Create 8 HAL bit pins input-00 .. -07 supplying the values of inputs at 0x0000
-    {HAL_BIT,   2,   0x0000, 8,     "input"},
+    {HAL_BOOL,   2,   0x0000, 8,     "input"},
 // Create a HAL pin to set the coil at address 0x0010
-    {HAL_BIT,   5,   0x0010, 1,     "coil-0"},
+    {HAL_BOOL,   5,   0x0010, 1,     "coil-0"},
 // Create 8 HAL pins to set the coils at 0x0020
-    {HAL_BIT,   15,  0x0020, 8,     "more_coils"},
+    {HAL_BOOL,   15,  0x0020, 8,     "more_coils"},
 // Create a scaled floating point pin calculated from input register 0x0100
-    {HAL_FLOAT, 4,   0x0100, 1,     "float"},
+    {HAL_REAL, 4,   0x0100, 1,     "float"},
 // Create 4 unsigned integer HAL pins from the holding registers at 0x0200-0x203
-    {HAL_S32,   3,   0x0003, 4,     "holding"},
+    {HAL_SINT,   3,   0x0003, 4,     "holding"},
 // Create a single signed int HAL pin to control the register at 0x0300
-    {HAL_S32,   6,   0x0300, 1,     "relay-3"},
+    {HAL_SINT,   6,   0x0300, 1,     "relay-3"},
 // Create 7 scaled FP HAL pins to control holfing registers at 0x400-0x406
-    {HAL_FLOAT, 16,  0x0300, 1,     "more_floats"},
+    {HAL_REAL, 16,  0x0300, 1,     "more_floats"},
 };
 ----
 
@@ -252,12 +252,12 @@ would suffice
 ----
 static const hm2_modbus_chan_descriptor_t channels[] = {
 /*  {TYPE,    FUNC, ADDR,   COUNT, pin_name} */
-    {HAL_FLOAT, 3,  0x0000, 1,     "volts"},
+    {HAL_REAL, 3,  0x0000, 1,     "volts"},
 };
 ----
 
-The valid HAL pin types supported are HAL_BIT, HAL_FLOAT, HAL_U32 and
-HAL_S32.
+The valid HAL pin types supported are HAL_BOOL, HAL_REAL, HAL_UINT and
+HAL_SINT.
 
 The supported Modbus command types are:
 

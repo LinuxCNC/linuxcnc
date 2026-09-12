@@ -4,10 +4,10 @@ import os
 
 h = hal.component("x")
 try:
-    ps = h.newpin("s", hal.HAL_S32, hal.HAL_OUT)
-    pu = h.newpin("u", hal.HAL_U32, hal.HAL_OUT)
-    pf = h.newpin("f", hal.HAL_FLOAT, hal.HAL_OUT)
-    param = h.newparam("param", hal.HAL_BIT, hal.HAL_RW)
+    ps = h.newpin("s", hal.Type.SINT, hal.Dir.OUT)
+    pu = h.newpin("u", hal.Type.UINT, hal.Dir.OUT)
+    pf = h.newpin("f", hal.Type.REAL, hal.Dir.OUT)
+    param = h.newparam("param", hal.Type.BOOL, hal.Dir.RW)
     h.ready()
 
     def try_set(p, v):
@@ -64,27 +64,27 @@ try:
         print("pincheck {} {} {} {}".format(
             i.get_name(), i.is_pin(), i.get_type() == t, i.get_dir() == d))
 
-    pin_validate(ps, hal.HAL_S32, hal.HAL_OUT)
-    pin_validate(pu, hal.HAL_U32, hal.HAL_OUT)
-    pin_validate(pf, hal.HAL_FLOAT, hal.HAL_OUT)
+    pin_validate(ps, hal.Type.SINT, hal.Dir.OUT)
+    pin_validate(pu, hal.Type.UINT, hal.Dir.OUT)
+    pin_validate(pf, hal.Type.REAL, hal.Dir.OUT)
 
     pin = h.getitem("s")
 
-    pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
+    pin_validate(pin, hal.Type.SINT, hal.Dir.OUT)
     try:
         pin = h.getitem("not-found")
         print("{} {} {}".format("getitem", "not-found", "ok"))
     except:
         print("{} {} {}".format("getitem", "not-found", "fail"))
 
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+    pin_validate(param, hal.Type.BOOL, hal.Dir.RW)
     param = h.getitem("param")
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+    pin_validate(param, hal.Type.BOOL, hal.Dir.RW)
 
     pin = h.getpin("s")
-    pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
+    pin_validate(pin, hal.Type.SINT, hal.Dir.OUT)
     param = h.getparam("param")
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+    pin_validate(param, hal.Type.BOOL, hal.Dir.RW)
 
     try_set_pin(pu, 0)
     try_set_pin(pu, -1)

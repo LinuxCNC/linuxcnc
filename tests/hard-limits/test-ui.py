@@ -48,7 +48,7 @@ def assert_wait_complete(command):
 #
 
 comp = hal.component("test-ui")
-comp.newpin("x-neg-lim-sw", hal.HAL_BIT, hal.HAL_OUT)
+comp.newpin("x-neg-lim-sw", hal.Type.BOOL, hal.Dir.OUT)
 comp.ready()
 
 hal.connect('test-ui.x-neg-lim-sw', 'x-neg-lim-sw')

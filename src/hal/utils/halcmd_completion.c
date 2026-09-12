@@ -87,7 +87,7 @@ static const char *status_table[] = {
 };
 
 static const char *pintype_table[] = {
-    "bit", "float", "u32", "s32", 
+    "bool", "real", "uint", "sint",
     NULL
 };
 
@@ -120,14 +120,14 @@ static char **completion_matches_table(const char *text, const char **table, hal
 
 static hal_type_t match_type = -1;
 static int match_writers = -1;
-static hal_pin_dir_t match_direction = HAL_DIR_UNSPECIFIED;
+static hal_pdir_t match_direction = HAL_DIR_UNSPECIFIED;
 
-static int direction_match(hal_pin_dir_t dir1, hal_pin_dir_t dir2) {
+static int direction_match(hal_pdir_t dir1, hal_pdir_t dir2) {
     if(dir1 == HAL_DIR_UNSPECIFIED || dir2 == -1) return 1;
     return (dir1 | dir2) == HAL_IO;
 }
 
-static int writer_match(hal_pin_dir_t dir, int writers) {
+static int writer_match(hal_pdir_t dir, int writers) {
     if(writers == -1 || dir == -1) return 1;
     if(dir & HAL_IN || writers == 0) return 1;
     return 0;

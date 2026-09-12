@@ -3503,17 +3503,17 @@ def ext_hal_create():
     global extHalPins
     for pin in ['abort', 'power', 'run', 'pause', 'run-pause', 'touchoff',
                 'probe','pulse', 'frame-job']:
-        comp.newpin(f"ext.{pin}", hal.HAL_BIT, hal.HAL_IN)
+        comp.newpin(f"ext.{pin}", hal.Type.BOOL, hal.Dir.IN)
         extHalPins[pin] = {'state': False, 'last': False}
     # external pins for user button toggle and pulse
     for pin in range(3):
-        comp.newpin(f"ext.out_{pin}", hal.HAL_BIT, hal.HAL_OUT)
+        comp.newpin(f"ext.out_{pin}", hal.Type.BOOL, hal.Dir.OUT)
     # pins for pierce only offsets
     for pin in 'xy':
-        comp.newpin(f"{pin}-pierce-offset", hal.HAL_FLOAT, hal.HAL_OUT)
+        comp.newpin(f"{pin}-pierce-offset", hal.Type.REAL, hal.Dir.OUT)
     # pins for pierce coordinate extents
     for pin in ['x_min', 'y_min', 'x_max', 'y_max']:
-        comp.newpin(f"{pin}_pierce_extent", hal.HAL_FLOAT, hal.HAL_IN)
+        comp.newpin(f"{pin}_pierce_extent", hal.Type.REAL, hal.Dir.IN)
 
 # called every cycle by user_live_update
 def ext_hal_watch():
@@ -5674,33 +5674,33 @@ def user_hal_pins():
     if firstRun == 'invalid':
         return
     # create new hal pins
-    comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)
-    comp.newpin('led-arc-ok', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-torch', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-thc-enabled', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-ohmic', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-float', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-breakaway', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-thc-active', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-up', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-down', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-corner-locked', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('led-void-locked', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('refresh', hal.HAL_S32, hal.HAL_IN)
-    comp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN)
-    comp.newpin('material-change', hal.HAL_S32, hal.HAL_IN)
-    comp.newpin('material-change-timeout', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('material-reload', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('material-temp', hal.HAL_S32, hal.HAL_IN)
-    comp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN)
-    comp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('laser-on', hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin('preview-tab', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('development', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('conv-block-loaded', hal.HAL_BIT, hal.HAL_IN)
-    comp.newpin('offset-set-probe', hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin('offset-set-scribe', hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin('arc-voltage', hal.Type.REAL, hal.Dir.IN)
+    comp.newpin('led-arc-ok', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-torch', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-thc-enabled', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-ohmic', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-float', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-breakaway', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-thc-active', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-up', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-down', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-corner-locked', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('led-void-locked', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('refresh', hal.Type.SINT, hal.Dir.IN)
+    comp.newpin('material-change-number', hal.Type.SINT, hal.Dir.IN)
+    comp.newpin('material-change', hal.Type.SINT, hal.Dir.IN)
+    comp.newpin('material-change-timeout', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('material-reload', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('material-temp', hal.Type.SINT, hal.Dir.IN)
+    comp.newpin('cut-type', hal.Type.SINT, hal.Dir.IN)
+    comp.newpin('thc-enable-out', hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin('program-is-idle', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('laser-on', hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin('preview-tab', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('development', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('conv-block-loaded', hal.Type.BOOL, hal.Dir.IN)
+    comp.newpin('offset-set-probe', hal.Type.BOOL, hal.Dir.OUT)
+    comp.newpin('offset-set-scribe', hal.Type.BOOL, hal.Dir.OUT)
     ext_hal_create()
     # create some new signals and connect pins
     hal_data = [[0,'plasmac:arc-voltage-out','plasmac.arc-voltage-out','axisui.arc-voltage'],\
@@ -5722,9 +5722,9 @@ def user_hal_pins():
                 ]
     for line in hal_data:
         if line[0] < 7:
-            hal.new_sig(line[1],hal.HAL_FLOAT)
+            hal.new_sig(line[1],hal.Type.REAL)
         else:
-            hal.new_sig(line[1],hal.HAL_BIT)
+            hal.new_sig(line[1],hal.Type.BOOL)
         hal.connect(line[2],line[1])
         hal.connect(line[3],line[1])
     # connect pins to some existing signals
