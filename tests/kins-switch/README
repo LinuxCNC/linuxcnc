@@ -1,0 +1,11 @@
+Selecting a kinematics from G-code with G12.1 and G13.1.
+
+The machine stands in a pose where the two kinematics disagree about
+where it is, which is the only place the codes can be tested: a switch
+that changes nothing proves nothing.  From there the test checks that the
+block after the switch is planned in the kinematics that runs it, that
+the selection reaches the motion controller and the interpreter, that a
+negative P word and a kinematics the module does not provide are refused,
+that G13.1 cancels to the identity kinematics the module declares (type 1
+here, not 0), and that G13.1 in an ON_ABORT_COMMAND routine does not
+swallow the rest of the routine.
