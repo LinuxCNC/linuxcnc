@@ -70,6 +70,8 @@ int switchkinsSetup(kparms* kp,
     *kset1 = identityKinematicsSetup;
     *kfwd1 = identityKinematicsForward;
     *kinv1 = identityKinematicsInverse;
+    switchkinsDeclare(0, KINSTYPE_PRIMARY);
+    switchkinsDeclare(1, KINSTYPE_IDENTITY);
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;

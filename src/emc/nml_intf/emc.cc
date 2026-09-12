@@ -1726,6 +1726,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(feed_override_enabled);
     cms->update(adaptive_feed_enabled);
     cms->update(feed_hold_enabled);
+    cms->update(switchkins_flags, SWITCHKINS_MAX_TYPES);
 }
 
 /*

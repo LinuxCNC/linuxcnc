@@ -908,6 +908,12 @@ static int init_comm_buffers(void)
     SET_MOTION_ENABLE_FLAG(0);
     /* record the kinematics type of the machine */
     emcmotConfig->kinType = kinematicsType();
+
+    /* and what each switchable kinematics type is, as the module
+       declares it, for the interpreter to resolve G13.1 against */
+    for (n = 0; n < SWITCHKINS_MAX_TYPES; n++) {
+        emcmotStatus->switchkins_flags[n] = kinematicsTypeFlags(n);
+    }
     emcmot_config_change();
 
     for (spindle_num = 0; spindle_num < EMCMOT_MAX_SPINDLES; spindle_num++){

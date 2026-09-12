@@ -667,6 +667,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numExtraJoints;
     int stepping;
     bool jogging_active;
+	int    switchkins_flags[SWITCHKINS_MAX_TYPES]; /* what each type is
     } emcmot_status_t;
 
 /*********************************
