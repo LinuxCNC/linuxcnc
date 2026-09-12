@@ -897,6 +897,9 @@ extern int GET_EXTERNAL_MIST();
 // Returns the current motion control mode
 extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 
+// Returns the kinematics type motion is running (G12.1, G13.1)
+extern int GET_EXTERNAL_KINS_TYPE();
+
 /* what the kinematics module says a type is (KINSTYPE_* flags,
    kinematics.h); -1 where it says nothing: no such type, plain
    kinematics, or no motion controller attached (sai, preview) */
@@ -1073,5 +1076,8 @@ extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2))
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(const StateTag& tag);
+
+// adjust kins offset (G12.1 kinematics switch)
+extern void ADJUST_KINS_OFFSET(double adjustKinsVar0);
 
 #endif				/* ifndef CANON_HH */

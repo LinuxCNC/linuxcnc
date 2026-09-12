@@ -58,6 +58,7 @@ using namespace linuxcnc;
 enum predefined_named_parameters {
     NP_LINE,
     NP_MOTION_MODE,
+    NP_KINS_TYPE,
     NP_PLANE,
     NP_CCOMP,
     NP_METRIC,
@@ -541,6 +542,10 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.motion_mode;
 	break;
 
+    case NP_KINS_TYPE: // _kins_type
+	*value = _setup.kins_type;
+	break;
+
     case NP_PLANE: // _plane
 	switch(_setup.plane) {
 	case CANON_PLANE::XY:
@@ -889,6 +894,9 @@ int Interp::init_named_parameters()
   // value is number after 'G' multiplied by 10 (10,20,30,52..)
 
   init_readonly_param("_motion_mode", NP_MOTION_MODE, PA_USE_LOOKUP);
+
+  // kinematics selected by G12.1 P- / G13.1, 0 when none has been selected
+  init_readonly_param("_kins_type", NP_KINS_TYPE, PA_USE_LOOKUP);
 
   // G17/18/19/17.1/18.1/19.1 -> return 170/180/190/171/181/191
   init_readonly_param("_plane", NP_PLANE, PA_USE_LOOKUP);

@@ -1206,6 +1206,17 @@ void ON_RESET() {
     drop_segments();
 }
 
+void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+{
+    flush_segments();
+
+    auto adjustKinsOffsetMsg = std::make_unique<EMC_ADJUST_KINS_OFFSET_DATA>();
+
+    adjustKinsOffsetMsg->adjustKinsVar0 = adjustKinsVar0;
+
+    interp_list.append(std::move(adjustKinsOffsetMsg));
+}
+
 
 CanonConfig_t& get_canon(){
     return canon;
@@ -4041,6 +4052,13 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
     return canon.motionMode;
 }
 
+int GET_EXTERNAL_KINS_TYPE()
+{
+    // motion publishes the kinematics it is actually running, which is
+    // not necessarily the one G-code last asked for: an abort can drop a
+    // queued switch, and the motion.switchkins-type pin can select one
+    // without the interpreter seeing it
+    return (int)emcStatus->motion.adjustKinsVar0;
 int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
 {
     // as the kinematics module declares it, through motion's status;

@@ -109,6 +109,11 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
         NCE_CANNOT_USE_G53_INCREMENTAL);
   } else if (mode0 == G_92) {
+  } else if (mode0 == G_12_1){
+    // kins-switch
+    CHKS((!block->p_flag), NCE_P_WORD_MISSING_WITH_G121);
+  } else if (mode0 == G_13_1){
+    // kins-switch cancel: no words, the kinematics goes back to 0
   } else
     ERS(NCE_BUG_BAD_G_CODE_MODAL_GROUP_0);
   return INTERP_OK;
@@ -319,7 +324,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->p_flag) {
-      CHKS(((block->g_modes[GM_MODAL_0] != G_10) && (block->g_modes[GM_MODAL_0] != G_4) && (block->g_modes[GM_CONTROL_MODE] != G_64) &&
+      CHKS(((block->g_modes[GM_MODAL_0] != G_10) && (block->g_modes[GM_MODAL_0] != G_4) && (block->g_modes[GM_CONTROL_MODE] != G_64 && (block->g_modes[GM_MODAL_0] != G_12_1)) &&
           (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) &&
           (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
           (motion != G_70) &&
@@ -331,7 +336,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
           (block->m_modes[7] != 19) && (block->user_m != 1) &&
           (block->o_type != M_98)),
-          _("P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89"
+          _("P word with no G2 G3 G4 G10 G12.1 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89"
             " or M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 "
             "or user M code to use it"));
       int p_value = round_to_int(block->p_number);

@@ -256,6 +256,12 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   select the machine kinematics functions. Extra G-code commands may be
   required to synchronize task and motion before and after changes to
   the pin value.
+  The G-code words *G12.1 P-* and *G13.1* write this pin and synchronize
+  task and motion themselves, so a program that uses them needs no such
+  extra commands.
+*motion.kins-type* OUT float::
+  The kinematics currently selected, echoing the value that was last
+  applied from *motion.switchkins-type*.
 *motion.teleop-mode* OUT BIT::
   Motion mode is teleop (axis coordinate jogging available).
 *motion.tooloffset.L* OUT FLOAT::
