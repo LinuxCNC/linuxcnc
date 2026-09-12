@@ -357,10 +357,10 @@ halcmd: unloadrt encoder
 
 === Parameters
 
-* `encoder._<chan>_.capture-position.time` (s32, RO)
-* `encoder._<chan>_.capture-position.tmax` (s32, RW)
-* `encoder._<chan>_.update-counters.time` (s32, RO)
-* `encoder._<chan>_.update-counter.tmax` (s32, RW)
+* `encoder._<chan>_.capture-position.time` (float, RO) runtime in seconds
+* `encoder._<chan>_.capture-position.tmax` (float, RW) max runtime in seconds
+* `encoder._<chan>_.update-counters.time` (float, RO) runtime in seconds
+* `encoder._<chan>_.update-counter.tmax` (float, RW) max runtime in seconds
 
 === Functions
 

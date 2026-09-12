@@ -3,9 +3,9 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkAdjustment" id="adj_read_tmax">
-    <property name="upper">1000000000000</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
+    <property name="upper">1000</property>
+    <property name="step-increment">0.000001</property>
+    <property name="page-increment">0.00001</property>
   </object>
   <object class="GtkAdjustment" id="adj_servo_thread_period">
     <property name="upper">1000000000000</property>
@@ -18,14 +18,14 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_servo_thread_tmax">
-    <property name="upper">1000000000000</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
+    <property name="upper">1000</property>
+    <property name="step-increment">0.000001</property>
+    <property name="page-increment">0.00001</property>
   </object>
   <object class="GtkAdjustment" id="adj_write_tmax">
-    <property name="upper">1000000000000</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
+    <property name="upper">1000</property>
+    <property name="step-increment">0.000001</property>
+    <property name="page-increment">0.00001</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="can-focus">False</property>
@@ -85,6 +85,7 @@
                                 <property name="width-chars">10</property>
                                 <property name="xalign">1</property>
                                 <property name="adjustment">adj_servo_thread_tmax</property>
+                                <property name="digits">9</property>
                               </object>
                               <packing>
                                 <property name="left-attach">1</property>
@@ -452,6 +453,7 @@ try increasing the thread period.</property>
                             <property name="width-chars">10</property>
                             <property name="xalign">1</property>
                             <property name="adjustment">adj_read_tmax</property>
+                                <property name="digits">9</property>
                           </object>
                           <packing>
                             <property name="left-attach">1</property>
@@ -468,6 +470,7 @@ try increasing the thread period.</property>
                             <property name="width-chars">10</property>
                             <property name="xalign">1</property>
                             <property name="adjustment">adj_write_tmax</property>
+                                <property name="digits">9</property>
                           </object>
                           <packing>
                             <property name="left-attach">1</property>
