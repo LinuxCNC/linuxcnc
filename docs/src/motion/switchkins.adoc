@@ -21,17 +21,18 @@ switched to identity kinematics for control of individual joints
 after homing.
 
 The kinematics type is selected with 'G12.1 P-' and 'G13.1', from a
-G-code program or by interactive MDI commands. It can also be selected
-by a motion module HAL pin, which allows the halui provisions for
-activating MDI commands to be used so that buttons select the
-kinematics type from hardware controls or a virtual panel (PyVCP,
-GladeVCP, etc.).
+G-code program or by interactive MDI commands. Buttons on a virtual
+panel (PyVCP, GladeVCP, etc.) or on hardware controls select a
+kinematics type through the halui provisions for activating MDI
+commands.
 
 Changing the kinematics type requires the interpreter and motion parts
-of LinuxCNC to be *synchronized*. 'G12.1' and 'G13.1' do this
-themselves. When the HAL pin is written instead, the G-code must force
-synchronization, typically with a HAL pin 'read' command (M66 E0 L0)
-immediately after altering the pin.
+of LinuxCNC to be *synchronized*, which 'G12.1' and 'G13.1' do
+themselves.
+
+A deprecated HAL pin, 'motion.switchkins-type', selects a kinematics
+type as well. It is described under Usage below, because existing
+configurations use it.
 
 == Switchable Kinematic Modules
 
@@ -161,7 +162,9 @@ meant to be removed in the future.
 
 === G-code commands
 
-'G12.1 P-' selects a kinstype and 'G13.1' cancels back to kinstype 0:
+'G12.1 P-' selects a kinstype and 'G13.1' cancels back to identity
+kinematics.  Which kinstype is identity is declared by the module (see
+Code Notes), not fixed to a number:
 
 [source,ngc]
 ----
@@ -170,7 +173,7 @@ G12.1 P1  ;select kinstype 1
 ...
 ...       ;user G-code
 ...
-G13.1     ;back to kinstype 0
+G13.1     ;back to identity kinematics
 ...
 ----
 
@@ -178,8 +181,9 @@ These codes ask motion for the kinstype directly and synchronize task and
 motion themselves, so no HAL connection and no separate sync command are
 needed. The G-code words and the *motion.switchkins-type* pin are both
 acted on when they change, so whichever asked most recently is the one in
-force, and a config can use either or both. *motion.kins-type* reports
-what is currently selected.
+force. *motion.kins-type* reports what is currently selected.
+
+The pin is deprecated, see the warning under HAL Connections.
 
 The kinstype in force is readable in G-code as '#<_kins_type>', which lets
 a subroutine restore whatever its caller had selected:
@@ -194,7 +198,11 @@ G12.1 P#<saved>
 
 Selection is not cancelled by the end of a program or by an abort, so
 that the kinstype continues to match the position readout. A program
-that should leave the machine in kinstype 0 ends with 'G13.1'.
+that should leave the machine in identity kinematics ends with 'G13.1'.
+
+A module that declares no identity kinstype refuses 'G13.1' with an
+error and can still be driven by number with 'G12.1'; see Code Notes
+for how a module declares its types.
 
 See the G-code documentation for 'G12.1' and 'G13.1' for the full
 description.
@@ -460,7 +468,7 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 ----
 
 'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
-switchkins.h).  A kinstype has to come from one route or the
+kinematics.h).  A kinstype has to come from one route or the
 other, so registering one that switchkinsSetup() has already
 filled in is an error, and so is leaving a gap below the highest
 kinstype provided.  Either mistake fails the module load and says
@@ -468,6 +476,27 @@ which kinstype is at fault.
 
 Each kinstype gets its own 'kinstype.is-N' pin, so a module
 providing the usual three keeps the pin names it always had.
+
+A module should also declare what each kinstype IS, again from within
+switchkinsSetup():
+
+----
+int switchkinsDeclare(int ktype, int flags);
+----
+
+with flags from kinematics.h:
+
+. *KINSTYPE_IDENTITY*  no transform: the joints are the world
+. *KINSTYPE_PRIMARY*   the module's working transform
+
+G-code reads these declarations: 'G13.1' cancels to the kinstype
+declared KINSTYPE_IDENTITY, whatever its number, so a module whose
+identity kinematics is not kinstype 0 still gets a working 'G13.1'.
+At most one kinstype may be declared identity, and declaring a
+kinstype the module does not provide fails the module load.  A module
+that declares nothing keeps working exactly as before for 'G12.1 P-',
+but 'G13.1' is an error, since the number of the identity kinematics
+is then a guess.
 
 After calling switchkinsSetup(), rtapi_app_main() checks the
 supplied parameters, creates a HAL component, and then invokes
