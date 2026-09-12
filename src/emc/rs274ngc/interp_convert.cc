@@ -6568,7 +6568,7 @@ int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
          NCE_KINS_TYPE_NOT_PROVIDED);
   }
 
-  ADJUST_KINS_OFFSET((double)kins_type);
+  SELECT_KINS_TYPE(kins_type);
   settings->kins_type = kins_type;
   return INTERP_OK;
 }

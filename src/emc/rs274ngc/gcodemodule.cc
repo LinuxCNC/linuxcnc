@@ -890,10 +890,10 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
-void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+void SELECT_KINS_TYPE(int switchkins_type)
 {
-    (void)adjustKinsVar0;
-    printf("gcodemodule: ADJUST_KINS_OFFSET\n");
+    (void)switchkins_type;
+    printf("gcodemodule: SELECT_KINS_TYPE\n");
 
     return;
 }

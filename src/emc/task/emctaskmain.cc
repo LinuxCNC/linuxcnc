@@ -418,7 +418,7 @@ static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
 static int emcAuxInputWaitIndex = -1;
 
-static EMC_ADJUST_KINS_OFFSET_DATA *kSwitch_msg;
+static EMC_TRAJ_SELECT_KINS *kSwitch_msg;
 
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
@@ -1607,7 +1607,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION;
 	break;
 
-    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+    case EMC_TRAJ_SELECT_KINS_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO;
 	break;
 
@@ -2433,9 +2433,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
-    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
-	kSwitch_msg = (EMC_ADJUST_KINS_OFFSET_DATA *) cmd;
-	retval =  emcAdjustKinsOffset(kSwitch_msg->adjustKinsVar0);
+    case EMC_TRAJ_SELECT_KINS_TYPE:
+	kSwitch_msg = (EMC_TRAJ_SELECT_KINS *) cmd;
+	retval =  emcSelectKinsType(kSwitch_msg->switchkins_type);
 	break;
 
      default:
@@ -2549,7 +2549,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
 	break;
 
-    case EMC_ADJUST_KINS_OFFSET_DATA_TYPE:
+    case EMC_TRAJ_SELECT_KINS_TYPE:
 	return EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH;
 	break;
 
@@ -2775,9 +2775,9 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC::WAITING_FOR_KINS_SWITCH:
 	{
-		if(emcStatus->motion.trajKinsTypeModified)
+		if(emcStatus->motion.traj.switchkins_changed)
 		{
-			emcStatus->motion.trajKinsTypeModified = false;
+			emcStatus->motion.traj.switchkins_changed = false;
 			emcTaskPlanSynch();
 			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		}
