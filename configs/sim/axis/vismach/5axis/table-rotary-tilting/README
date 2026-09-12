@@ -17,9 +17,6 @@ Demonstrations:
 ***********************************************
 Note: IMPORTANT ini file requirements:
 
-[HAL]
-HALCMD = net :kinstype-select <= motion.analog-out-0N => motion.switchkins-type
-
 [RS274NGC]
 SUBROUTINE_PATH = ./remap_subs
           REMAP = M428  modalgroup=10  ngc=428remap

@@ -7,9 +7,8 @@ For additional information see the README in the millturn folder.
 2) pyvcp buttons are provided to switch between mill and turn kinematics. The buttons issue remapped commands M428,M429.
 
 These commands
-a) set the motion.switchkins-type pin and
-b) force a synchronization using a motion input read command.
-c) set softlimits according to values set in millturn.ini [AXIS_X] and [AXIS_Z] section.
+a) select the kinematics with G12.1, which synchronizes interpreter and motion itself.
+b) set softlimits according to values set in millturn.ini [AXIS_X] and [AXIS_Z] section.
 
 3) when set for mill, default assignments are:
 

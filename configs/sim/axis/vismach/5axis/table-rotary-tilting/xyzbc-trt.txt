@@ -6,11 +6,9 @@ Uses remapped user m codes for kins switch:
   M428: XYZBC (TCP)
   M430: userk Kinematics
 
-A hal net is required to connect the
-analog out pin N, Example (for N=3):
-
-  net :kinstype-select <= motion.analog-out-03
-  net :kinstype-select => motion.switchkins-type
+The kinematics type is selected with
+G12.1 and G13.1, no hal connection is
+required.
 
 Hal Input pins:
   xyzbc-trt-kins.x-offset
