@@ -1,0 +1,16 @@
+loadrt conv_s32_float count=2
+loadrt conv_s32_float names=mycvt
+loadrt mux_generic config=ss2
+loadrt conv_s32_s64
+addf conv-s32-float.0 servo-thread
+addf mux-gen.00 servo-thread
+net a-sig conv-s32-float.0.in
+net s32-raw <= conv-s32-float.1.out => mycvt.in
+net c-sig mux-gen.00.sel-bit-00
+setp mux-gen.00.in-s32-00 5
+setp mux-gen.01.in-s32-01 6
+setp conv-s32-s64.0.in 3
+alias pin mux-gen.00.out-s32 nice-name
+newsig type-sig s32
+linkpp mux-gen.00.out-s32 conv-s32-float.0.in
+source extra.hal
