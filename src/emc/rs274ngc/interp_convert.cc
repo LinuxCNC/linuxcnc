@@ -5528,7 +5528,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33"));
-    START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0);
+    // the offset is a direction-less angle past the index pulse, so a negative
+    // D is taken as its magnitude rather than rejected
+    double g33_angle = block->d_flag ? fabs(block->d_number_float) : 0.0;
+    START_SPEED_FEED_SYNCH(settings->active_spindle, block->k_number, 0, g33_angle);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
@@ -5660,26 +5663,27 @@ threading_pass(setup_pointer settings, block_pointer block,
 	       int boring, double safe_x, double depth, double end_depth,
 	       double start_y, double start_z, double zoff, double taper_dist,
 	       int entry_taper, int exit_taper, double taper_pitch,
-	       double pitch, double full_threadheight, double target_z) {
+	       double pitch, double full_threadheight, double target_z,
+	       double angle_offset) {
     STRAIGHT_TRAVERSE(block->line_number, boring?
 		      safe_x + depth - end_depth:
 		      safe_x - depth + end_depth,
 		      start_y, start_z - zoff, AABBCC); //back
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(settings->active_spindle, taper_pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, taper_pitch, 0, angle_offset);
 	STRAIGHT_FEED(block->line_number, boring?
 		      safe_x + depth - full_threadheight:
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
 	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
-	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0, angle_offset);
     } else {
 	STRAIGHT_TRAVERSE(block->line_number, boring? safe_x + depth: safe_x - depth,
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
-	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0);
+	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0, angle_offset);
     }
 
     if(taper_dist && exit_taper) {
@@ -5768,6 +5772,9 @@ int Interp::convert_threading_cycle(block_pointer block,
     int entry_taper = taper_flags & 1;
     int exit_taper = taper_flags & 2;
 
+    // as in G33: a negative D is taken as its magnitude
+    double angle_offset = block->d_flag ? fabs(block->d_number_float) : 0.0;
+
     double depth, zoff;
     int pass = 1;
 
@@ -5778,7 +5785,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     while (depth < end_depth) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y,
 		       start_z, zoff, taper_dist, entry_taper, exit_taper,
-		       taper_pitch, pitch, full_threadheight, target_z);
+		       taper_pitch, pitch, full_threadheight, target_z, angle_offset);
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
         zoff = (depth - full_dia_depth) * tan(compound_angle);
     }
@@ -5789,7 +5796,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     for(int i = 0; i<spring_cuts+1; i++) {
 	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y,
 		       start_z, zoff, taper_dist, entry_taper, exit_taper,
-		       taper_pitch, pitch, full_threadheight, target_z);
+		       taper_pitch, pitch, full_threadheight, target_z, angle_offset);
     }
     STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;

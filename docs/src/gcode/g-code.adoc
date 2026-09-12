@@ -1041,10 +1041,11 @@ It is an error if :
 
 [source,ngc]
 ----
-G33 X- Y- Z- K- $-
+G33 X- Y- Z- K- $- D-
 ----
 
 * 'K' - distance per revolution
+* 'D' - (optional) start angle offset from the spindle index pulse, in degrees
 
 For spindle-synchronized motion in one direction, code 'G33 X- Y- Z- K-'
 where K gives the distance moved in XYZ for each revolution of the
@@ -1064,6 +1065,20 @@ speed pins, so multiple passes line up. 'G33' moves end at the programmed
 endpoint.
 G33 could be used to cut tapered threads or a fusee.
 
+The (optional) 'D' argument delays the start of the motion until the spindle
+has turned 'D' degrees past the index pulse, instead of starting at the index
+pulse itself. If 'D' is omitted the default is zero, which starts at the index
+pulse as before. This is how successive starts of a multi-start thread are cut:
+the same thread program is run once per start, each with a different 'D'.
+For example, a two-start thread is cut with 'D0' and then 'D180'; a three-start
+thread with 'D0', 'D120' and 'D240'.
+
+[NOTE]
+'D' is an angle past the index pulse and so is only meaningful as a positive
+number. A negative value is not an error: its magnitude is used, so 'D-90'
+behaves exactly as 'D90'. Values of 360 or more are not reduced, so 'D450'
+waits a full turn longer than 'D90'.
+
 All the axis words are optional, except that at least one must be used.
 
 [NOTE]
@@ -1081,6 +1096,10 @@ index position and computes the Z position using the corrected spindle
 angle. That means that Z will reach the correct position just as it
 finishes accelerating to the proper speed, and can immediately begin
 cutting a good thread.
+
+When a 'D' offset is programmed the axis is instead held at rest until the
+spindle reaches the requested angle, and tracking begins from there. Allow
+enough clearance before the thread for the axis to accelerate from that point.
 
 .HAL Connections
 The pin 'spindle.N.at-speed' must be set or driven true for the motion to
@@ -1960,7 +1979,7 @@ In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [source,ngc]
 ----
-G76 P- Z- I- J- R- K- Q- H- E- L- $-
+G76 P- Z- I- J- R- K- Q- H- E- L- $- D-
 ----
 
 .G76 Threading
@@ -2001,6 +2020,20 @@ Unnecessarily high degression values will produce an unnecessarily high number o
 * 'H-' - The number of 'spring passes'.
   Spring passes are additional passes at full thread depth.
   If no additional passes are desired, program 'H0'.
+* 'D-' - The 'start angle offset' in degrees from the spindle index pulse.
+  Every pass of the cycle begins once the spindle has turned 'D' degrees past
+  the index pulse, instead of at the index pulse itself.
+  If 'D' is omitted the default is zero, which starts every pass at the index
+  pulse as before.
+  This cuts one start of a multi-start thread: run the same 'G76' cycle once per
+  start, each with a different 'D'. A two-start thread is cut with 'D0' and then
+  'D180', a three-start thread with 'D0', 'D120' and 'D240'.
+
+[NOTE]
+'D' is an angle past the index pulse and so is only meaningful as a positive
+number. A negative value is not an error: its magnitude is used, so 'D-90'
+behaves exactly as 'D90'. Values of 360 or more are not reduced, so 'D450'
+waits a full turn longer than 'D90'.
 
 Thread entries and exits can be programmed tapered with the 'E' and 'L' values.
 

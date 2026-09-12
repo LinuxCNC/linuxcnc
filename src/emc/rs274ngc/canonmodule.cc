@@ -18,6 +18,7 @@
  */
 #define BOOST_PYTHON_MAX_ARITY 13
 #include <boost/python/def.hpp>
+#include <boost/python/args.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/scope.hpp>
 #include <boost/python/enum.hpp>
@@ -226,7 +227,12 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("SPINDLE_RETRACT",&SPINDLE_RETRACT);
     def("SPINDLE_RETRACT_TRAVERSE",&SPINDLE_RETRACT_TRAVERSE);
     def("START_CUTTER_RADIUS_COMPENSATION",&START_CUTTER_RADIUS_COMPENSATION);
-    def("START_SPEED_FEED_SYNCH",&START_SPEED_FEED_SYNCH);
+    // spell the arguments out so the C++ default for angle_degrees survives into
+    // Python: a bare function pointer would make the new argument mandatory and
+    // break every existing three-argument caller
+    def("START_SPEED_FEED_SYNCH",&START_SPEED_FEED_SYNCH,
+	(arg("spindle"), arg("feed_per_revolution"), arg("velocity_mode"),
+	 arg("angle_degrees")=0.0));
     def("START_SPINDLE_CLOCKWISE",&START_SPINDLE_CLOCKWISE);
     def("START_SPINDLE_COUNTERCLOCKWISE",&START_SPINDLE_COUNTERCLOCKWISE);
     def("STOP_CUTTER_RADIUS_COMPENSATION",&STOP_CUTTER_RADIUS_COMPENSATION);

@@ -83,6 +83,14 @@ typedef struct {
      double revs;
      int waiting_for_index;
      int waiting_for_atspeed;
+     double pending_offset; // requested angle offset in revolutions (set by tpSetSpindleSync, applied at index)
+     int angle_hold_pending; // an angle offset is still to be waited out for the
+                             // current index sync; armed when the index wait is
+                             // armed, cleared once the angle has been reached.
+                             // Scopes the hold to the first segment after the
+                             // index, so later segments of the same pass keep
+                             // the spindle offset accumulated by
+                             // tpCompleteSegment() instead of resetting it.
 } tp_spindle_t;
 
 /**

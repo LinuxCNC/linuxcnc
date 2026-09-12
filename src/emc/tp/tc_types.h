@@ -176,6 +176,7 @@ typedef struct {
                             // stay within this distance from the path.
     int synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
+    double angle_offset;    // spindle angle offset from index (revolutions) for D word
     double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
