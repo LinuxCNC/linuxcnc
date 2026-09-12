@@ -546,7 +546,7 @@ Many of the parameters serve as debugging aids, and are subject to change or rem
 *motion-command-handler.tmax* RW S32::
   Show information about the execution time of these HAL functions in ns.
 
-*motion-command-handler.tmax-increased* RO S32::
+*motion-command-handler.tmax-increased* RO BIT::
 
 *motion-controller.tmax* RW S32::
   Show information about the execution time of these HAL functions in ns.
