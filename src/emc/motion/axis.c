@@ -23,7 +23,7 @@ typedef struct {
 
     double ext_offset_vel_limit;    /* upper limit of axis speed for ext offset */
     double ext_offset_acc_limit;    /* upper limit of axis accel for ext offset */
-    int old_eoffset_counts;
+    double old_eoffset_counts;
     simple_tp_t ext_offset_tp;      /* planner for external coordinate offsets*/
 } emcmot_axis_t;
 
@@ -44,7 +44,7 @@ typedef struct {
 
     hal_bool_t eoffset_enable;
     hal_bool_t eoffset_clear;
-    hal_sint_t eoffset_counts;
+    hal_real_t eoffset_counts;
     hal_real_t eoffset_scale;
     hal_real_t external_offset;
     hal_real_t external_offset_requested;
@@ -135,7 +135,7 @@ int axis_init_hal_io(int mot_comp_id)
         CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_OUT, &axis_data->teleop_tp_enable, 0, "axis.%c.teleop-tp-enable",c));
         CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &axis_data->eoffset_enable, 0, "axis.%c.eoffset-enable", c));
         CALL_CHECK(hal_pin_new_bool(mot_comp_id, HAL_IN, &axis_data->eoffset_clear, 0, "axis.%c.eoffset-clear", c));
-        CALL_CHECK(hal_pin_new_si32(mot_comp_id, HAL_IN, &axis_data->eoffset_counts, 0, "axis.%c.eoffset-counts", c));
+        CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &axis_data->eoffset_counts, 0.0, "axis.%c.eoffset-counts", c));
         CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_IN, &axis_data->eoffset_scale, 0.0, "axis.%c.eoffset-scale", c));
         CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->external_offset, 0.0, "axis.%c.eoffset", c));
         CALL_CHECK(hal_pin_new_real(mot_comp_id, HAL_OUT, &axis_data->external_offset_requested,
@@ -486,7 +486,7 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
     int n;
     emcmot_axis_t *axis;
     axis_hal_t *axis_data;
-    int new_eoffset_counts, delta;
+    double new_eoffset_counts, delta, increment;
     static int last_eoffset_enable[EMCMOT_MAX_AXIS];
     double ext_offset_epsilon;
     bool eoffset_active = 0;
@@ -499,7 +499,14 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
 
         axis_data = &hal_data->axis[n];
 
-        new_eoffset_counts       = hal_get_si32(axis_data->eoffset_counts);
+        new_eoffset_counts       = hal_get_real(axis_data->eoffset_counts);
+        /* eoffset-counts is a float pin, so a HAL writer can hand us a
+           non-finite value.  Latching it would make every subsequent delta
+           NaN as well, so keep the previous value and let delta come out
+           zero instead. */
+        if (!isfinite(new_eoffset_counts)) {
+            new_eoffset_counts = axis->old_eoffset_counts;
+        }
         delta                    = new_eoffset_counts - axis->old_eoffset_counts;
         axis->old_eoffset_counts = new_eoffset_counts;
 
@@ -548,7 +555,10 @@ bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bo
         if (!all_homed)           { continue; }
         if (!motion_enable_flag)  { continue; }
 
-        axis->ext_offset_tp.pos_cmd   += delta *  hal_get_real(axis_data->eoffset_scale);
+        increment = delta * hal_get_real(axis_data->eoffset_scale);
+        if (!isfinite(increment)) { continue; }
+
+        axis->ext_offset_tp.pos_cmd   += increment;
         hal_set_real(axis_data->external_offset_requested, axis->ext_offset_tp.pos_cmd);
     } // for n
     first_pass = 0;

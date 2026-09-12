@@ -317,13 +317,14 @@ These pins represent the *commanded geometric intent* from the interpreter and a
   Current external offset.
 **axis.**_L_**.eoffset-clear** IN BIT::
   Clear external offset request
-**axis.**_L_**.eoffset-counts** IN S32::
+**axis.**_L_**.eoffset-counts** IN FLOAT::
   Counts input for external offset. The eoffset-counts are transferred
   to an internal register. The applied external offset is the product of
   the register counts and the eoffset-scale value. The register is
   *reset to zero at each machine startup*. If the machine is turned off
   with an external offset active, the eoffset-counts pin should be set
-  to zero before restarting.
+  to zero before restarting. Non-finite values (NaN, infinity) are
+  ignored.
 **axis.**_L_**.eoffset-enable** IN BIT::
   Enable for external offset (also requires INI file setting for [AXIS_L]OFFSET_AV_RATIO)
 **axis.**_L_**.eoffset-request** OUT FLOAT::

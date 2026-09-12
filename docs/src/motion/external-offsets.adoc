@@ -48,7 +48,7 @@ For each  axis letter (*_L_* in xyzabcuvw)
 
 . *axis._L_.eoffset-enable*  Input(bit): enable
 . *axis._L_.eoffset-scale*   Input(float): scale factor
-. *axis._L_.eoffset-counts*  Input(s32): input to counts register
+. *axis._L_.eoffset-counts*  Input(float): input to counts register
 . *axis._L_.eoffset-clear*   Input(bit): clear requested offset
 . *axis._L_.eoffset*         Output(float): current external offset
 . *axis._L_.eoffset-request* Output(float): requested external offset
@@ -68,7 +68,9 @@ pins used for wheel jogging.
 At each servo period, the 'axis._L_.eoffset-counts' pin is compared to
 its value in the prior period. The increase or decrease (positive
 or negative delta) of the 'axis._L_.eoffset-counts' pin is multiplied
-by the current 'axis._L_.eoffset-scale' pin value.  This product is
+by the current 'axis._L_.eoffset-scale' pin value. The pin is a float,
+so the counts need not be whole numbers; a non-finite value (NaN or
+infinity) is ignored and leaves the register unchanged.  This product is
 accumulated in an internal register and exported to the
 'axis._L_.eoffset-request' HAL pin. The accumulation register is reset
 to zero at each machine-on.
