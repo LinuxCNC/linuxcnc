@@ -2054,6 +2054,16 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             axis_set_locking_joint(emcmotCommand->axis, joint_num);
             break;
 
+	case EMCMOT_ADJUST_KINS_OFFSET_DATA:
+	    emcmotConfig->adjustKinsVar0 = emcmotCommand->adjustKinsVar0;
+	    if(emcmotConfig->kinsType == 'r'){
+		emcmotConfig->kinsType = 's';
+	    }
+	    else{
+		emcmotConfig->kinsType = 'r';
+	    }
+	    break;
+
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError(_("unrecognized command %d"), emcmotCommand->command);

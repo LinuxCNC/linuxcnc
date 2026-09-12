@@ -2126,7 +2126,13 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
     r3 = emcTrajUpdate(&stat->traj);
+    if(stat->trajKinsType != emcmotStatus.kinsType)
+    {
+        stat->trajKinsType = emcmotStatus.kinsType;
+        stat->trajKinsTypeModified = true;
     }
+    // the kinematics motion is running, whoever selected it
+    stat->adjustKinsVar0 = emcmotStatus.adjustKinsVar0;
     for (int k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
         stat->traj.switchkins_flags[k] = emcmotStatus.switchkins_flags[k];
     }
@@ -2221,4 +2227,12 @@ int emcGetExternalOffsetApplied(void) {
 
 EmcPose emcGetExternalOffsets(void) {
     return emcmotStatus.eoffset_pose;
+}
+
+int emcAdjustKinsOffset(double adjustKinsVar0)
+{
+    emcmotCommand.command = EMCMOT_ADJUST_KINS_OFFSET_DATA;
+    emcmotCommand.adjustKinsVar0 = adjustKinsVar0;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

@@ -890,6 +890,13 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
+void ADJUST_KINS_OFFSET(double adjustKinsVar0)
+{
+    (void)adjustKinsVar0;
+    printf("gcodemodule: ADJUST_KINS_OFFSET\n");
+
+    return;
+}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
@@ -1196,6 +1203,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double /*tolerance*/, int /
 void SET_MOTION_CONTROL_MODE(double /*tolerance*/) { }
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
+int GET_EXTERNAL_KINS_TYPE() { return 0; }
 int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) { (void)ktype; return -1; }
 void SET_NAIVECAM_TOLERANCE(double /*tolerance*/) { }
 

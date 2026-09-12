@@ -116,6 +116,8 @@ setup::setup() :
     plane(CANON_PLANE::XY),
     probe_flag(0),
     input_flag(0),
+    kinsSwitch_flag(0),
+    kins_type(0),
     toolchange_flag(0),
     input_index(0),
     input_digital(0),
@@ -197,6 +199,7 @@ setup::setup() :
     iscircle(false),
     pythis(),
     on_abort_command(NULL),
+    in_abort_command(false),
     init_once(CANON_STOPPED)
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
