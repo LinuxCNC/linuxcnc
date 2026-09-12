@@ -6,7 +6,7 @@ o100 if [EXISTS [#<P>]]
 o100 else
     #<P> = 0                                                ;if no P word has been passed we use the default (0)
 o100 endif
-M68 E3 Q0                                                   ;switch to identity kinematic
+G13.1                                                       ;back to identity kinematic
 M66 L0 E0
 M530 P#<P>                                                  ;orient the spindle with P word
 M66 L0 E0
