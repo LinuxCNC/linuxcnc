@@ -213,11 +213,11 @@ pin out bool    thc_enabled                 "thc is enabled";
 pin out bool    torch_on                    "turn torch on, connect to your torch on input";
 pin out real    torch_time                  "torch on time of current job";
 pin out bool    voidlock_is_locked          "voidlock is locked indicator [mode 0 & mode 1]";
-pin out sint    x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
+pin out real    x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
 pin out bool    xy_offset_enable            "enable x and y offsets, connect to axis.<x & y>.eoffset-enable";
-pin out sint    y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
+pin out real    y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
 pin out real    z_height                    "current z axis height relative to the probed zero height";
-pin out sint    z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
+pin out real    z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
 pin out bool    z_offset_enable             "enable z offsets, connect to axis.z.eoffset-enable";
 pin out real    z_relative                  "distance of Z from last probed height";
 
@@ -322,10 +322,13 @@ variable double voidlock_change;            /* voltage change this cycle */
 variable rtapi_sint voidlock_off_count;     /* current count of voidlock deactivate cycles */
 variable rtapi_sint voidlock_on_count;      /* current count of voidlock activate cycles */
 variable double voidlock_threshold;         /* voidlock threshold voltage per cycle */
+variable rtapi_sint x_offset_int;           /* integer x offset counts, published on x_offset_counts */
 variable rtapi_sint x_velocity;             /* velocity for x motion for consumable change */
+variable rtapi_sint y_offset_int;           /* integer y offset counts, published on y_offset_counts */
 variable rtapi_sint y_velocity;             /* velocity for y motion for consumable change */
 variable rtapi_sint z_max;                  /* max height for testing against pierce height*/
 variable rtapi_sint z_pierce;               /* pierce height for testing against max height*/
+variable rtapi_sint z_offset_int;           /* integer z offset counts, published on z_offset_counts */
 variable rtapi_sint zero_target;            /* zero height target offset */
 // Pierce type user control variables
 variable double creep_speed_dist_travelled; /* Sum of distance traveled during creep stage */
@@ -357,6 +360,22 @@ option singleton yes;
 ;;
 
 #include <rtapi_math.h>
+
+/* the offset calculations are done in integer counts, while the
+   axis.L.eoffset-counts pins they drive are real. keep the integer value
+   in a variable for all reads and copy it to the real pin on every write */
+#undef  x_offset_counts
+#define x_offset_counts x_offset_int
+#undef  x_offset_counts_set
+#define x_offset_counts_set(v) (x_offset_int = (v), hal_set_real(x_offset_counts_ptr, x_offset_int))
+#undef  y_offset_counts
+#define y_offset_counts y_offset_int
+#undef  y_offset_counts_set
+#define y_offset_counts_set(v) (y_offset_int = (v), hal_set_real(y_offset_counts_ptr, y_offset_int))
+#undef  z_offset_counts
+#define z_offset_counts z_offset_int
+#undef  z_offset_counts_set
+#define z_offset_counts_set(v) (z_offset_int = (v), hal_set_real(z_offset_counts_ptr, z_offset_int))
 
 typedef enum{IDLE,
              PROBE_HEIGHT,
