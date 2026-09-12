@@ -1,0 +1,22 @@
+; never assume the startup kinematics: the abort routine's G13.1 leaves
+; the machine in identity
+g12.1 p0
+; a pose the two kinematics disagree about: the tilt folds the pivot into
+; the joints that carry X, Y and Z, so the joints are not the axis values
+g0 x10 y10 z-5 b-22.5 c45
+(debug, KINSTYPE=#<_kins_type>)
+g12.1 p1
+(debug, KINSTYPE=#<_kins_type>)
+; identity kinematics: W is joint 5 alone, so nothing else may move
+g1 w10 f1000
+; the dwell ends the stroke on its endpoint instead of blending past it
+g4 p0.1
+g0 w0
+; numeric selection puts back the kinematics the program started in
+g12.1 p0
+(debug, KINSTYPE=#<_kins_type>)
+; and G13.1 cancels to identity, which on this module is kinematics 1:
+; it is the flag that decides, not the number
+g13.1
+(debug, KINSTYPE=#<_kins_type>)
+m2
