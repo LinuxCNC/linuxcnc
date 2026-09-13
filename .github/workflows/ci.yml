@@ -188,10 +188,8 @@ jobs:
     strategy:
       matrix:
         runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
-        image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
+        image: ["debian:bookworm", "debian:trixie", "debian:sid"]
         include:
-          - allow_fail: False
-            image: debian:bullseye
           - allow_fail: False
             image: debian:bookworm
           - allow_fail: False
@@ -283,10 +281,8 @@ jobs:
     timeout-minutes: 75
     strategy:
       matrix:
-        image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
+        image: ["debian:bookworm", "debian:trixie", "debian:sid"]
         include:
-        - allow_fail: False
-          image: debian:bullseye
         - allow_fail: False
           image: debian:bookworm
         - allow_fail: False
