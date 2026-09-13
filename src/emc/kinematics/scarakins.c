@@ -221,14 +221,25 @@ int switchkinsSetup(kparms* kp,
     kp->allow_duplicates     = 0;
     kp->max_joints = strlen(kp->required_coordinates);
 
-    rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
-    *kset0 = scaraKinematicsSetup;
-    *kfwd0 = scaraKinematicsForward;
-    *kinv0 = scaraKinematicsInverse;
+    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
+        *kset0 = identityKinematicsSetup;
+        *kfwd0 = identityKinematicsForward;
+        *kinv0 = identityKinematicsInverse;
 
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
+        *kset1 = scaraKinematicsSetup;
+        *kfwd1 = scaraKinematicsForward;
+        *kinv1 = scaraKinematicsInverse;
+    } else {
+        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        *kset0 = scaraKinematicsSetup;
+        *kfwd0 = scaraKinematicsForward;
+        *kinv0 = scaraKinematicsInverse;
+
+        *kset1 = identityKinematicsSetup;
+        *kfwd1 = identityKinematicsForward;
+        *kinv1 = identityKinematicsInverse;
+    }
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;

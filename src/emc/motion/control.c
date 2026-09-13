@@ -333,9 +333,15 @@ static void handle_kinematicsSwitch(void) {
         beforePose[anum] = *pcmd_p[anum];
     }
 #endif
-    kinematicsForward(joint_posKinsSwitch,
-                      &emcmotStatus->carte_pos_cmd,
-                      &tmpFFlags, &tmpIFlags);
+    EmcPose poseKinsSwitch = emcmotStatus->carte_pos_cmd;
+    if (kinematicsForward(joint_posKinsSwitch, &poseKinsSwitch,
+                          &tmpFFlags, &tmpIFlags)) {
+        reportError(_("kinematicsForward failed for kinematics type %d"),
+                    switchkins_type);
+        SET_MOTION_ERROR_FLAG(1);  // abort
+        return; // keep the position we know rather than an unsolved one
+    }
+    emcmotStatus->carte_pos_cmd = poseKinsSwitch;
 #ifdef SWITCHKINS_DEBUG
     fprintf(stderr,"kswitch type=%d (%s:%d)\n",switchkins_type,__FUNCTION__,__LINE__);
     for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {

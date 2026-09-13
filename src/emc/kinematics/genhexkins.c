@@ -693,18 +693,31 @@ int switchkinsSetup(kparms* kp,
     kp->required_coordinates = "xyzabc";
     kp->max_joints  = strlen(kp->required_coordinates);
     kp->allow_duplicates  = 0;
-    kp->fwd_iterates_mask = 0x1; //genhexkins switchkins_type==0
-    kp->gui_kinstype      = 0;   //vismach gui for switchkins_type==0
+    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
+        kp->fwd_iterates_mask = 0x2; //genhexkins switchkins_type==1
+        kp->gui_kinstype      = 1;   //vismach gui for switchkins_type==1
 
-    // switchkins_type==0 is startup default
-    // kins with iterative forward algorithm should be switchkins_type==0
-    *kset0 = genhexKinematicsSetup;
-    *kfwd0 = genhexKinematicsForward;
-    *kinv0 = genhexKinematicsInverse;
+        *kset0 = identityKinematicsSetup;
+        *kfwd0 = identityKinematicsForward;
+        *kinv0 = identityKinematicsInverse;
 
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
+        *kset1 = genhexKinematicsSetup;
+        *kfwd1 = genhexKinematicsForward;
+        *kinv1 = genhexKinematicsInverse;
+    } else {
+        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        kp->fwd_iterates_mask = 0x1; //genhexkins switchkins_type==0
+        kp->gui_kinstype      = 0;   //vismach gui for switchkins_type==0
+
+        *kset0 = genhexKinematicsSetup;
+        *kfwd0 = genhexKinematicsForward;
+        *kinv0 = genhexKinematicsInverse;
+
+        *kset1 = identityKinematicsSetup;
+        *kfwd1 = identityKinematicsForward;
+        *kinv1 = identityKinematicsInverse;
+    }
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;

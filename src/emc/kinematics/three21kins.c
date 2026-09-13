@@ -377,13 +377,25 @@ int switchkinsSetup(kparms* kp,
     kp->allow_duplicates     = 0;
     kp->max_joints = strlen(kp->required_coordinates);
 
-    *kset0 = three21KinematicsSetup;
-    *kfwd0 = three21KinematicsForward;
-    *kinv0 = three21KinematicsInverse;
+    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
+        *kset0 = identityKinematicsSetup;
+        *kfwd0 = identityKinematicsForward;
+        *kinv0 = identityKinematicsInverse;
 
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
+        *kset1 = three21KinematicsSetup;
+        *kfwd1 = three21KinematicsForward;
+        *kinv1 = three21KinematicsInverse;
+    } else {
+        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        *kset0 = three21KinematicsSetup;
+        *kfwd0 = three21KinematicsForward;
+        *kinv0 = three21KinematicsInverse;
+
+        *kset1 = identityKinematicsSetup;
+        *kfwd1 = identityKinematicsForward;
+        *kinv1 = identityKinematicsInverse;
+    }
 
     *kset2 = userkKinematicsSetup;
     *kfwd2 = userkKinematicsForward;
