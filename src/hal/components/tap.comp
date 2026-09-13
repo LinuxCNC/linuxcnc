@@ -1,0 +1,79 @@
+//   This is a component for LinuxCNC HAL
+//   Copyright 2026 Luca Toniolo
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+component tap "Tap into a HAL boolean signal to override it from a UI";
+
+pin in bool in "signal from HAL logic, e.g. driven by M64/M65";
+pin io bool io "override pin, typically connected to a UI control";
+pin out bool out "output to the hardware pin";
+
+function _ "Update the output on edges of in or io";
+option period no;
+license "GPL";
+author "Luca Toniolo";
+
+description """
+The *tap* component sits between a HAL boolean signal (typically driven
+by HAL logic or by G-code digital outputs such as *M64*/*M65*) and the
+output it controls, giving the operator a way to see and force the state
+from a UI without issuing MDI commands.
+
+The *in* pin is driven by the HAL logic as usual. On any edge of *in*,
+the *out* pin follows *in* and *io* is updated to match, so the UI
+always shows the current state.
+
+The *io* pin is an I/O pin intended to be read and written by a UI
+(for example a PyVCP or GladeVCP button/LED). On any edge of *io*,
+the *out* pin follows *io*, letting the operator force the output on or
+off even while the HAL logic holds *in* at a different state. The next
+edge of *in* makes the HAL logic take control again.
+
+The *tap* component reacts to changes only. It does not enforce a state
+continuously, so the *io* pin must not be linked to a signal that is
+written every cycle (such as a streamer output); it is meant for
+event-driven writers like UI buttons, *halcmd setp*, or *halcmd sets*
+on an unlinked pin.
+""";
+
+examples """
+loadrt tap
+addf tap.0 servo-thread
+net coolant-flood iocontrol.0.coolant-flood => tap.0.in
+net coolant-flood-out tap.0.out => parport.0.pin-14-out
+# UI button/LED connected to tap.0.io shows and can force the state
+""";
+
+variable rtapi_bool prev_in = false;
+variable rtapi_bool prev_io = false;
+;;
+
+FUNCTION(_) {
+    rtapi_bool inpin = in;
+    rtapi_bool iopin = io;
+
+    if (iopin != prev_io) {
+        // UI override; consumes a simultaneous in edge, io wins the tie
+        out_set(iopin);
+        prev_io = iopin;
+        prev_in = inpin;
+    } else if (inpin != prev_in) {
+        // HAL logic change; mirror it to the UI via io
+        out_set(inpin);
+        io_set(inpin);
+        prev_in = inpin;
+        prev_io = inpin;
+    }
+}
