@@ -31,6 +31,7 @@
 
 static struct haldata {
     hal_real_t pivot_length;
+    hal_real_t tool_length;
     hal_bool_t conventional_directions; //default is false
 } *haldata;
 
@@ -44,10 +45,11 @@ int kinematicsForward(const double *joints,
 
     rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
     rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
+    rtapi_real tool_length = hal_get_real(haldata->tool_length);
 
     // B correction
-    const double zb = (pivot_length + joints[8]) * cos(d2r(joints[4]));
-    const double xb = (pivot_length + joints[8]) * sin(d2r(joints[4]));
+    const double zb = (pivot_length + joints[8] + tool_length) * cos(d2r(joints[4]));
+    const double xb = (pivot_length + joints[8] + tool_length) * sin(d2r(joints[4]));
         
     // C correction
     const double xyr = hypot(joints[0], joints[1]);
@@ -61,7 +63,7 @@ int kinematicsForward(const double *joints,
 
     pos->tran.x = xyr * cos(xytheta) - (con * xb) - xv;
     pos->tran.y = xyr * sin(xytheta) - joints[7];
-    pos->tran.z = joints[2] - zb - (con * zv) + pivot_length;
+    pos->tran.z = joints[2] - zb - (con * zv) + pivot_length + tool_length;
 
     pos->a = joints[3];
     pos->b = joints[4];
@@ -83,10 +85,11 @@ int kinematicsInverse(const EmcPose * pos,
 
     rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
     rtapi_real pivot_length = hal_get_real(haldata->pivot_length);
+    rtapi_real tool_length = hal_get_real(haldata->tool_length);
 
     // B correction
-    const double zb = (pivot_length + pos->w) * cos(d2r(pos->b));
-    const double xb = (pivot_length + pos->w) * sin(d2r(pos->b));
+    const double zb = (pivot_length + pos->w + tool_length) * cos(d2r(pos->b));
+    const double xb = (pivot_length + pos->w + tool_length) * sin(d2r(pos->b));
         
     // C correction
     const double xyr = hypot(pos->tran.x, pos->tran.y);
@@ -100,7 +103,7 @@ int kinematicsInverse(const EmcPose * pos,
 
     joints[0] = xyr * cos(xytheta) + (con * xb) + xv;
     joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb - (con * zv) - pivot_length;
+    joints[2] = pos->tran.z + zb - (con * zv) - pivot_length - tool_length;
 
     joints[3] = pos->a;
     joints[4] = pos->b;
@@ -133,6 +136,7 @@ int rtapi_app_main(void) {
     if(!haldata) { result = -ENOMEM; goto error; }
 
     result  = hal_pin_new_real(comp_id, HAL_IO, &(haldata->pivot_length), 0.666, "maxkins.pivot-length");
+    result += hal_pin_new_real(comp_id, HAL_IN, &(haldata->tool_length), 0.0, "maxkins.tool-length");
     // default is unconventional
     result += hal_pin_new_bool(comp_id, HAL_IN, &(haldata->conventional_directions), 0, "maxkins.conventional-directions");
 
