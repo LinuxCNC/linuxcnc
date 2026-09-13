@@ -334,6 +334,7 @@ extern int emcJointSetMaxJerk(int joint, double jerk);
 
 extern int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_neg,
             double min_neg, double search_vel, double home_angle, int sequence, double increment);
+extern double emcSpindleGetMaxVelocity(int spindle);
 
 // implementation functions for EMC_TRAJ types
 

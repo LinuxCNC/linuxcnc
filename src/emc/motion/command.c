@@ -534,6 +534,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       does yet), and if in free mode, it disables the free mode traj
 	       planners which stops joint motion */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
+	    /* the override release is queued behind the cycle, drop it here */
+	    emcmotStatus->enables_new &= ~SS_LOCKED;
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
                 axis_jog_abort_all(0);
@@ -1409,14 +1411,23 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_SS_ENABLE:
-	    /* enable/disable overriding spindle speed */
+	    /* enable/disable/lock overriding spindle speed */
 	    /* can happen at any time */
-	    if ( emcmotCommand->mode != 0 ) {
+	    switch ( emcmotCommand->mode ) {
+	    case EMC_SO_OVERRIDE_LOCK:
+		/* hold whatever is in effect when the first locked move starts */
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: LOCK");
+		emcmotStatus->enables_new |= SS_LOCKED;
+		break;
+	    case EMC_SO_OVERRIDE_OFF:
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: OFF");
+		emcmotStatus->enables_new &= ~(SS_ENABLED | SS_LOCKED);
+		break;
+	    default:
 		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: ON");
 		emcmotStatus->enables_new |= SS_ENABLED;
-            } else {
-		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE SCALE: OFF");
-		emcmotStatus->enables_new &= ~SS_ENABLED;
+		emcmotStatus->enables_new &= ~SS_LOCKED;
+		break;
 	    }
 	    break;
 

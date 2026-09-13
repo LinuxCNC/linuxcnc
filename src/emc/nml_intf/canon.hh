@@ -734,6 +734,8 @@ extern void ENABLE_FEED_OVERRIDE();
 /* used to deactivate user control of spindle speed override */
 extern void DISABLE_SPEED_OVERRIDE(int spindle);
 extern void ENABLE_SPEED_OVERRIDE(int spindle);
+/* hold the override at whatever is in effect when the next move starts */
+extern void LOCK_SPEED_OVERRIDE(int spindle);
 
 /* used to deactivate user control of feed hold */
 extern void DISABLE_FEED_HOLD();
@@ -873,6 +875,14 @@ below.
 // Returns the system angular unit factor, in units / degree
 extern double GET_EXTERNAL_ANGLE_UNIT_FACTOR();
 */
+
+// Returns the maximum velocity of one axis, indexed 0-8 as XYZABCUVW, in
+// program units per minute, or zero if that limit is not available
+extern double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis);
+
+// Returns the maximum forward speed of one spindle, in RPM, or zero if that
+// limit is not available
+extern double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int spindle);
 
 // Returns the system feed rate
 extern double GET_EXTERNAL_FEED_RATE();

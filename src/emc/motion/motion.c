@@ -890,6 +890,8 @@ static int init_comm_buffers(void)
     ZERO_EMC_POSE(emcmotStatus->carte_pos_cmd);
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
     emcmotStatus->vel = 0.0;
+    emcmotStatus->syncOverrunSpindle = 0;
+    emcmotStatus->syncOverrunError = 0.0;
     emcmotConfig->limitVel = 0.0;
     emcmotStatus->acc = 0.0;
     emcmotStatus->feed_scale = 1.0;
