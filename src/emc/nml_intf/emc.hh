@@ -17,7 +17,7 @@
 
 #include <emcmotcfg.h>		// EMC_JOINT_MAX, EMC_AXIS_MAX
 #include "libnml/nml/nml_type.hh"
-#include "motion_types.h"
+#include <motion_types.h>
 #include <stdint.h>
 #include "modal_state.hh"
 

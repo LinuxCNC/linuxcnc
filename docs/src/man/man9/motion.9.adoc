@@ -216,7 +216,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 *motion.motion-enabled* OUT BIT::
   +
 *motion.motion-type* OUT S32::
-  These values are from src/emc/nml_intf/motion_types.h:
+  These values are from include/motion_types.h:
 
   0: Idle (no motion)
 

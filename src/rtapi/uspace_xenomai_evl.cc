@@ -18,7 +18,7 @@
  */
 
 #include "config.h"
-#include "rtapi.h"
+#include <rtapi.h>
 #include "uspace_rtapi_app.hh"
 
 #include <sched.h>

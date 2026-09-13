@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "hal.h"
+#include <hal.h>
 #define __HAL_LIBRARY_INTERNAL_ONLY 1
 #include "hal_priv.h"
 

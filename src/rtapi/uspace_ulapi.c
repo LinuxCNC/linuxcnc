@@ -20,7 +20,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
-#include "rtapi.h"
+#include <rtapi.h>
 #include <unistd.h>
 #include "rtapi/uspace_common.h"
 

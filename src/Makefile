@@ -135,7 +135,7 @@ cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-build-software: headers userspace modules
+build-software: userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `id -u` = 0 -a -O ../bin/linuxcnc_module_helper -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -379,77 +379,12 @@ INFILES = \
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-build-software: headers $(INFILES)
+build-software: $(INFILES)
 
-# For each file to be copied to ../include, its location in the source tree
-# is listed here.
-# Note that due to $(INCLUDE), defined above, the include files in the source
-# tree are normally the ones used or not found at all when building linuxcnc if
-# you are not aware of the differences between "" and <> includes.
-#
-# All sources should #include <> (like in #include <rtapi.h>) for these special
-# headers in the ../include directory to ensure they are used.
-# The *only* exception is those sources that use the include and reside in the
-# /same/ source directory as the include. That means that the local version
-# should have precedence over the global one.
-#
-# If you add to these headers, then you must make absolutely sure that they are
-# required for out-of-tree components and that the proper #include type is
-# used.
-#
-SRCHEADERS := \
-    hal/hal.h \
-    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
-    emc/linuxcnc.h \
-    emc/kinematics/kinematics.h \
-    emc/nml_intf/emcmotcfg.h \
-    emc/ini/inifile.hh \
-    emc/ini/inifile.h \
-    emc/nml_intf/emcpos.h \
-    emc/nml_intf/motion_types.h \
-    libposemath/emcpose.h \
-    libposemath/posemath.h \
-    libposemath/posemath.hh \
-    libposemath/posemath_types.h \
-    rtapi/rtapi.h \
-    rtapi/rtapi_app.h \
-    rtapi/rtapi_atomic.h \
-    rtapi/rtapi_bitops.h \
-    rtapi/rtapi_bool.h \
-    rtapi/rtapi_byteorder.h \
-    rtapi/rtapi_ctype.h \
-    rtapi/rtapi_device.h \
-    rtapi/rtapi_errno.h \
-    rtapi/rtapi_firmware.h \
-    rtapi/rtapi_gfp.h \
-    rtapi/rtapi_io.h \
-    rtapi/rtapi_limits.h \
-    rtapi/rtapi_list.h \
-    rtapi/rtapi_math.h \
-    rtapi/rtapi_math_i386.h \
-    rtapi/rtapi_math64.h \
-    rtapi/rtapi_mutex.h \
-    rtapi/rtapi_parport.h \
-    rtapi/rtapi_pci.h \
-    rtapi/rtapi_slab.h \
-    rtapi/rtapi_stdint.h \
-    rtapi/rtapi_string.h \
-    rtapi/rtapi_vsnprintf.h
-
-# the "headers" target installs all the header files in ../include.  One rule
-# does the copying for every entry in SRCHEADERS, so a directory that exports a
-# header does not carry a recipe of its own.  Two headers sharing a basename
-# would collide here, and make says so rather than letting one cp win.
-.PHONY: headers
-HEADERS := $(patsubst %,../include/%,$(notdir $(SRCHEADERS)))
-$(foreach h,$(SRCHEADERS),$(eval ../include/$(notdir $(h)): $(h)))
-$(HEADERS):
-	$(ECHO) Exporting $(notdir $@)
-	$(Q)cp $< $@
-headers: $(HEADERS)
-
-# install header files as part of the build
-TARGETS += headers
+# ../include holds the headers an out-of-tree component may use and nothing
+# else, so the whole directory is what gets installed. They are sources kept
+# where they are used from, not copies, which is why no rule builds them.
+HEADERS := $(wildcard ../include/*.h ../include/*.hh)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -513,11 +448,7 @@ python: $(PYTARGETS)
 userspace: python
 inclean:
 	$(RM) $(INFILES)
-# Not just $(HEADERS): a header that has been dropped from SRCHEADERS still has
-# a copy sitting in ../include, and that copy is what an angled include finds.
-headersclean:
-	$(RM) ../include/*.h ../include/*.hh
-clean: docclean pythonclean cscopeclean headersclean
+clean: docclean pythonclean cscopeclean
 distclean: clean inclean
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system

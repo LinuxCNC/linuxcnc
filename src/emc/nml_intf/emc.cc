@@ -24,7 +24,7 @@
 #include "canon.hh"
 #include "emc.hh"
 #include "emc_nml.hh"
-#include "emcpos.h"
+#include <emcpos.h>
 #include "libnml/cms/cms.hh"
 
 //
