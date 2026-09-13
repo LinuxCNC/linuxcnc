@@ -3,6 +3,7 @@ pin in bool countup "Increment count when this pin goes from 0 to 1";
 pin in bool countdown "Decrement count when this pin goes from 0 to 1";
 pin in bool reset "Reset count when this pin goes from 0 to 1";
 pin out si32 count "The current count";
+pin out real count_f "The current count, as a float";
 param rw bool clamp_ "If TRUE, then clamp the output to the min and max parameters.";
 param rw bool wrap "If TRUE, then wrap around when the count goes above or below the min and max parameters.  Note that wrap implies (and overrides) clamp.";
 param rw si32 max_ = 0x7FFFFFFF "If clamp or wrap is set, count will never exceed this number";
@@ -45,6 +46,7 @@ FUNCTION(_) {
 			temp_count = min_;
 	}
 	count_set(temp_count);
+	count_f_set((double)temp_count);
 	oldup = countup;
 	olddown = countdown;
 }

@@ -928,7 +928,7 @@ class HandlerClass:
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
-        self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_FLOAT, hal.HAL_IN)
         self.xMinPierceExtentPin = self.h.newpin('x_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
         self.xMaxPierceExtentPin = self.h.newpin('x_max_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
         self.yMinPierceExtentPin = self.h.newpin('y_min_pierce_extent', hal.HAL_FLOAT, hal.HAL_IN)
