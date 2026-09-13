@@ -199,8 +199,8 @@ Returned Value: int
      convert_speed
      convert_stop
      convert_tool_select
-   Otherwise, if the probe_flag in the settings is true, 
-   or the input_flag is set to true this returns
+   Otherwise, if the probe_flag, input_flag, toolchange_flag or home_flag
+   in the settings is true, this returns
       INTERP_EXECUTE_FINISH.
    Otherwise, it returns INTERP_OK.
 
@@ -322,6 +322,9 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
       return (INTERP_EXECUTE_FINISH);
 
   if (settings->toolchange_flag)
+      return (INTERP_EXECUTE_FINISH);
+
+  if (settings->home_flag)
       return (INTERP_EXECUTE_FINISH);
 
   // All changes to settings are complete

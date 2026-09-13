@@ -1,0 +1,3 @@
+(bare G28.2 from a program -- home every joint, in HOME_SEQUENCE order)
+G28.2
+M2

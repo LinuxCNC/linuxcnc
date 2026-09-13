@@ -1848,6 +1848,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
     EmcPose_update(cms, &eoffset_pose);
     cms->update(numExtraJoints);
     cms->update(jogging_active);
+    cms->update(homing_active);
     cms->update(heartbeat);
 }
 

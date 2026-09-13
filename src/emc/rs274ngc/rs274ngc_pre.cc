@@ -1193,6 +1193,7 @@ int Interp::init()
 //_setup.plane set in Interp::synch
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
+  _setup.home_flag = false;
   _setup.input_flag = false;
   _setup.input_index = -1;
   _setup.input_digital = false;
@@ -1457,6 +1458,19 @@ int Interp::read_inputs(setup_pointer settings)
 	refresh_actual_position(&_setup);
 	load_tool_table();
 	settings->toolchange_flag = false;
+    }
+    if (settings->home_flag) {
+	// A G28.2 homing cycle re-establishes machine zero and, for an
+	// immediate (index/switchless) home, rewrites the joint coordinate
+	// even when nothing physically moved. Pull the interpreter's model
+	// of the current position back in line with the machine so a
+	// following G91 move or an I/J/K arc centre is computed from where
+	// the tool actually is, not from the pre-home point. Same mechanism
+	// as the tool-change resync above, without the tool-table reload.
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     _("Queue is not empty after homing"));
+	refresh_actual_position(&_setup);
+	settings->home_flag = false;
     }
     // always track toolchanger-fault and toolchanger-reason codes
     settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
@@ -2674,6 +2688,7 @@ int Interp::on_abort(int reason, const char *message)
     // if set, may cause a "Queue is not empty after tool change" error
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
+    _setup.home_flag = false;
     _setup.input_flag = false;
 
     if (_setup.on_abort_command == NULL) {

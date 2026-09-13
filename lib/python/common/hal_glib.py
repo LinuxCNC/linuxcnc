@@ -287,7 +287,7 @@ class _GStat(GObject.GObject):
     STATE_ON = linuxcnc.STATE_ON
     STATE_OFF = linuxcnc.STATE_OFF
 
-    group0 = ('G4', 'G10','G28', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
+    group0 = ('G4', 'G10','G28', 'G28.2', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
     group1 = ('G0', 'G1', 'G2', 'G3', 'G33', 'G38.n', 'G73', 'G76', 'G80', 'G81',\
              'G82', 'G83', 'G84', 'G85', 'G86', 'G87', 'G88', 'G89')
     group2 = ('G17', 'G18', 'G19', 'G17.1', 'G18.1', 'G19.1')

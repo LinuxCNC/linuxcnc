@@ -1494,8 +1494,23 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 
-	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-		/* can't home unless in free mode */
+	    /* Normally homing requires free (joint) mode. The queued G28.2 path
+	     * (emctaskmain EMC_TASK_EXEC::WAITING_FOR_HOMING) dips motion into
+	     * FREE before issuing this command; while that transition is still
+	     * settling motion_state can read non-FREE for a cycle. Accept the
+	     * command in exactly that window -- in position, nothing queued, and
+	     * a FREE transition already pending (teleop and coord both cleared)
+	     * -- so a G-code-triggered home from MDI / a program is honored.
+	     *
+	     * Do NOT accept it merely because motion is idle: an immediate home
+	     * (halui, linuxcncrsh, c.home(n)) on an already-homed machine sitting
+	     * in TELEOP is idle too, and do_homing() only advances in FREE
+	     * (control.c), so accepting it there would silently drop the
+	     * request (found in review of PR #4172). */
+	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE
+		&& !(GET_MOTION_INPOS_FLAG() && emcmotStatus->depth == 0
+		     && !emcmotInternal->teleoperating
+		     && !emcmotInternal->coordinating)) {
 		reportError(_("must be in joint mode to home"));
 		return;
 	    }
