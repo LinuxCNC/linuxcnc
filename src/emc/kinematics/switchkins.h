@@ -6,8 +6,8 @@
 
 #include <kinematics.h>
 
-//max number of switchkins types (KS,KF,KI) a module may provide:
-#define SWITCHKINS_MAX_TYPES 9
+//SWITCHKINS_MAX_TYPES (max number of types a module may provide)
+//is in kinematics.h: motion and the NML status channel need it too
 
 // KinematicsFORWARD functions
 typedef int (*KF)(const double *joint,
@@ -67,4 +67,10 @@ typedef int (*KTI)(const PmCartesian *axis_in_work,
 // tool orientation inverse.  A type that does not gets the generic search,
 // which needs nothing beyond the frames it already registered.
 extern int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv);
+
+// optionally called from switchkinsSetup() to declare what a type IS
+// (KINSTYPE_IDENTITY, KINSTYPE_PRIMARY, kinematics.h).  A module that
+// never calls it leaves its types numeric-only: G12.1 P<n> still works,
+// G13.1 refuses to guess which type is identity.
+extern int switchkinsDeclare(int ktype, int flags);
 #endif // }

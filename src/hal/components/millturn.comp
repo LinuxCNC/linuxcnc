@@ -96,6 +96,7 @@ error:
 
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsSwitchable);
+EXPORT_SYMBOL(kinematicsTypeFlags);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
@@ -103,6 +104,15 @@ EXPORT_SYMBOL(kinematicsForward);
 static rtapi_u32 switchkins_type;
 
 int kinematicsSwitchable() {return 1;}
+
+int kinematicsTypeFlags(int ktype)
+{
+    switch (ktype) {
+        case 0: return KINSTYPE_IDENTITY;
+        case 1: return 0; // the turn mapping, no flag to declare
+        default: return -1;
+    }
+}
 
 int kinematicsSwitch(int new_switchkins_type)
 {
