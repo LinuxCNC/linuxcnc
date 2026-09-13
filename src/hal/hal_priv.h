@@ -405,8 +405,8 @@ struct hal_funct_t {
     // IMPORTANT: The pins and params are valid as seen from the context that
     // created them. For uspace that is rtapi_app and in the kernel it is the
     // kernel's module context.
-    hal_sint_t runtime;	/* (pin) duration of last run, in CPU cycles */
-    hal_sint_t maxtime;	/* (param) duration of longest run, in CPU cycles */
+    hal_real_t runtime;	/* (pin) duration of last run, in seconds */
+    hal_real_t maxtime;	/* (param) duration of longest run, in seconds */
     hal_bool_t maxtime_increased;	/* (param) on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 };
@@ -429,8 +429,8 @@ struct hal_thread_t {
     // IMPORTANT: The pins and params are valid as seen from the context that
     // created them. For uspace that is rtapi_app and in the kernel it is the
     // kernel's module context.
-    hal_sint_t runtime;	/* (pin) duration of last run, in ns */
-    hal_sint_t maxtime;	/* (param) duration of longest run, in ns */
+    hal_real_t runtime;	/* (pin) duration of last run, in seconds */
+    hal_real_t maxtime;	/* (param) duration of longest run, in seconds */
     hal_sint_t threadbeat; /* (pin) visible monotonic loop beat counter */
     rtapi_sint beatcnt;    /* Thread monotonic increasing loop beat counter (so we don't need to read/write volatile) */
     hal_list_t funct_list;	/* list of functions to run */

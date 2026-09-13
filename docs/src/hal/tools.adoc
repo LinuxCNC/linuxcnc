@@ -229,7 +229,7 @@ or
 |===
 |Option     |Value    |Description
 |--minvalue |minvalue |minimum bin, default: 0
-|--binsize  |binsize  |binsize, default: 100
+|--binsize  |binsize  |binsize, default: 1e-07 (suits the default pin, a runtime in seconds)
 |--nbins    |nbins    |number of bins, default: 50
 | | |
 |--logscale |0/1      |y axis log scale, default: 1

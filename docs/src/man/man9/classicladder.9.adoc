@@ -51,10 +51,10 @@ the outputs.
 
 == PARAMETERS
 
-*classicladder.0.refresh.time* RO s32::
-  Tells you how long the last refresh took.
-*classicladder.0.refresh.tmax* RW s32::
-  Tells you how long the longest refresh took.
+*classicladder.0.refresh.time* RO float::
+  Tells you how long the last refresh took, in seconds.
+*classicladder.0.refresh.tmax* RW float::
+  Tells you how long the longest refresh took, in seconds.
 *classicladder.0.ladder-state* RO s32::
   Tells you if the program is running or not
 
