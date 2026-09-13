@@ -1,0 +1,10 @@
+Verify that tool offsets set with G10 L1/L10/L11 are persisted when an
+[EMCIO]DB_PROGRAM is configured.
+
+In db mode with a nonrandom toolchanger no tool table file is written, so the
+db program must be notified of the new offsets ('p' command).  Without that
+notification the offsets only live in memory and are lost on the next start.
+
+test.ini applies the offsets (one tool per G10 variant, and one of them while
+the tool is in the spindle), then verify.ini restarts LinuxCNC and checks that
+the tool data handed back by the db program still carries them.
