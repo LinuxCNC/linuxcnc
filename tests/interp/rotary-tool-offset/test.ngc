@@ -1,0 +1,30 @@
+; Verify that G53 and G28 reach the commanded machine coordinate on the
+; rotary axes when the loaded tool carries a rotary offset. Canon adds the
+; A, B and C components of the tool offset on the way out, so the
+; interpreter has to back them out on the way in, exactly as it does for
+; the tool length on Z. #5024-#5026 report the machine position, so they
+; must repeat whatever G53 asked for.
+
+g21
+g53 g0 x0 y0 z0 a0 b0 c0
+g43.1 z5 a7 b11 c13
+
+; G53 reaches the commanded machine coordinate on every axis
+g53 g0 x1 y2 z3 a20 b30 c40
+(debug,#5021 #5022 #5023)
+(debug,#5024 #5025 #5026)
+
+; machine zero included
+g53 g0 x0 y0 z0 a0 b0 c0
+(debug,#5021 #5022 #5023)
+(debug,#5024 #5025 #5026)
+
+; G28 returns to the stored machine position
+#5164=20
+#5165=30
+#5166=40
+g28
+(debug,#5024 #5025 #5026)
+
+g49
+m2
