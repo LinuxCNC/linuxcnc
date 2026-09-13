@@ -43,6 +43,10 @@ from gi.repository import GdkX11
 from gi.repository import GObject
 from gi.repository import GLib
 
+# Fix for Wayland environments
+import os
+os.environ.setdefault('PYOPENGL_PLATFORM', 'x11')
+
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -150,7 +154,6 @@ import time
 import re
 import tempfile
 import shutil
-import os
 
 import _thread
 
