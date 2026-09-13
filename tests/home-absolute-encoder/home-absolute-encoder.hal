@@ -1,0 +1,12 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+# Simulated absolute encoder: the feedback is not connected to
+# motor-pos-cmd, test-ui.py sets it directly.
+setp joint.0.motor-pos-fb 10
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
