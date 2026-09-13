@@ -66,10 +66,6 @@ interfaces like:
 * mesa
 * parport
 * pico
-* pluto
-* servotogo
-* vigilant
-* vitalsystems
 
 Related hardware may be required to use these configurations as
 starting points for a system.

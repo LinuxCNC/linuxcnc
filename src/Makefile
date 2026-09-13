@@ -987,24 +987,6 @@ ifeq ($(X86ARCH),true)
 obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
 endif
-ifneq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_PCI_8255) += pci_8255.o
-pci_8255-objs := hal/drivers/pci_8255.o
-obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
-hal_tiro-objs := hal/drivers/hal_tiro.o $(MATHSTUB)
-obj-$(CONFIG_HAL_STG) += hal_stg.o
-hal_stg-objs := hal/drivers/hal_stg.o $(MATHSTUB)
-obj-$(CONFIG_HAL_VTI) += hal_vti.o
-hal_vti-objs := hal/drivers/hal_vti.o $(MATHSTUB)
-obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
-hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
-obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
-hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
-obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
-hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
-obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
-opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
-endif
 obj-$(CONFIG_HAL_GM) += hal_gm.o
 hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
@@ -1397,17 +1379,6 @@ endif
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 #../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
-ifneq ($(BUILD_SYS),uspace)
-../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
-../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
-../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
-../rtlib/hal_vti$(MODULE_EXT): $(addprefix objects/rt,$(hal_vti-objs))
-../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
-../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
-../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
-../rtlib/hal_skeleton$(MODULE_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
-../rtlib/opto_ac5$(MODULE_EXT): $(addprefix objects/rt,$(opto_ac5-objs))
-endif
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ifeq ($(X86ARCH),true)
 ../rtlib/hal_speaker$(MODULE_EXT): $(addprefix objects/rt,$(hal_speaker-objs))

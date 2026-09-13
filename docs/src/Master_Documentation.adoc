@@ -123,7 +123,6 @@ include::hal/canonical-devices.adoc[]
 :leveloffset: 2
 include::hal/parallel-port.adoc[]
 
-include::drivers/ax5214h.adoc[]
 
 include::drivers/gm.adoc[]
 
@@ -141,17 +140,13 @@ include::drivers/mesa_modbus.adoc[]
 
 include::drivers/mitsub-vfd.adoc[]
 
-include::drivers/motenc.adoc[]
 
-include::drivers/opto22.adoc[]
 
 include::drivers/pico-ppmc.adoc[]
 
-include::drivers/pluto-p.adoc[]
 
 include::drivers/pmx485.adoc[]
 
-include::drivers/servo-to-go.adoc[]
 
 include::drivers/shuttle.adoc[]
 
