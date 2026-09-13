@@ -6,6 +6,14 @@ linuxcnc (1:2.10.0~pre1) UNRELEASED; urgency=medium
   [ andypugh ]
   * Add a finite-jerk trajectory planner
 
+  [ Luca Toniolo ]
+  * Remove the RTAI-kernel-only hardware drivers (hal_stg, hal_motenc,
+    hal_vti, hal_evoreg, hal_tiro, hal_ax5214h, opto_ac5, pci_8255,
+    pcl720, pluto_servo, pluto_step) and hal_skeleton. They were never
+    built for uspace, a user poll found no remaining users, and no
+    testers are available. Sample configs for these cards are removed
+    as well.
+
  -- andypugh <andy@bodgesoc.org>  Wed, 07 Jan 2026 22:15:18 +0000
 
 linuxcnc (1:2.9.8) UNRELEASED; urgency=medium

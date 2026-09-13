@@ -53,14 +53,9 @@
 <doc name="hal_hal-examples" title="HAL Examples"/>
 <doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
 <doc name="hal_halmodule" title="Creating Userspace Python Components with the 'hal' module"/>
-<doc name="drivers_ax5214h" title="AX5214H Driver"/>
 <doc name="drivers_gs2" title="GS2 Driver"/>
 <doc name="drivers_hostmot2" title="HostMot2 Driver"/>
-<doc name="drivers_motenc" title="Motenc Driver"/>
-<doc name="drivers_opto22" title="Opto22 Driver"/>
 <doc name="drivers_pico-ppmc" title="Pico PPMC Driver"/>
-<doc name="drivers_pluto-p" title="Pluto-P Driver"/>
-<doc name="drivers_servo-to-go" title="Servo-To-Go Driver"/>
 <doc name="drivers_gm" title="General Mechatronics GM6-PCI Driver"/>
 <doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
 

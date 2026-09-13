@@ -160,7 +160,6 @@ DOC_SRCS_EN := \
 	config/stepper-diagnostics.adoc \
 	config/stepper.adoc \
 	config/stepper-quickstart.adoc \
-	drivers/ax5214h.adoc \
 	drivers/vfs11.adoc \
 	drivers/mitsub-vfd.adoc \
 	drivers/gm.adoc \
@@ -170,12 +169,8 @@ DOC_SRCS_EN := \
 	drivers/hostmot2.adoc \
 	drivers/mb2hal.adoc \
 	drivers/mesa_modbus.adoc \
-	drivers/motenc.adoc \
-	drivers/opto22.adoc \
 	drivers/pico-ppmc.adoc \
-	drivers/pluto-p.adoc \
 	drivers/pmx485.adoc \
-	drivers/servo-to-go.adoc \
 	drivers/shuttle.adoc \
 	examples/gcode.adoc \
 	examples/gs2-example.adoc \
@@ -496,9 +491,12 @@ docs: manpages
 clean: clean-manpages clean-translated
 	-rm -f $(DOC_DIR)/html
 clean-manpages:
-	-rm -f $(GENERATED_MANPAGES)
-	# Remove generated alias man pages too.
-	$(RM) $$(grep -lr '^\.so ' $(DOC_MAN)/man*)
+	# Everything under $(DOC_MAN) is generated (halcompile output,
+	# asciidoctor output from docs/src/man, alias pages, translations).
+	# GENERATED_MANPAGES depends on BUILD_SYS, so removing by list leaves
+	# stale files behind (e.g. kbuild-only driver manpages on a uspace
+	# tree), which later confuse gen_complist.py.  Wipe the whole tree.
+	-$(RM) -r $(DOC_MAN)
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
 
