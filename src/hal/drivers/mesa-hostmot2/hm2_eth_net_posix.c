@@ -55,22 +55,17 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
 
     ret = connect(board->sockfd, (struct sockaddr *) &board->server_addr, sizeof(struct sockaddr_in));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't connect: %s\n", strerror(errno));
-        return -errno;
+        hm2_posix_close_board(board);
+        return ret;
     }
 
     strncpy(board->ip, board_ip, sizeof(board->ip)-1);
     char *ifptr = fetch_ifname(board->sockfd, board->ifname, sizeof(board->ifname));
     if(!ifptr) {
-        LL_PRINT("failed to retrieve interface name for board\n");
-        return 0;
-    }
-
-    if(!use_firewall()) {
-        LL_PRINT(\
-"WARNING: Unable to restrict other access to the hm2-eth device.\n"
-"This means that other software using the same network interface can violate\n"
-"realtime guarantees.  See hm2_eth(9) for more information.\n");
+        //Interface name is only needed for firewall, we can continue
+        LL_PRINT("WARNING: failed to retrieve interface name for board\n");
     }
 
     struct timeval timeout;
@@ -78,16 +73,20 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     timeout.tv_usec = RECV_TIMEOUT_US;
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't set receive timeout socket option: %s\n", strerror(errno));
-        return -errno;
+        hm2_posix_close_board(board);
+        return ret;
     }
 
     timeout.tv_sec = 0;
     timeout.tv_usec = SEND_TIMEOUT_US;
     ret = setsockopt(board->sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
     if (ret < 0) {
+        ret = -errno;
         LL_PRINT("ERROR: can't set send timeout socket option: %s\n", strerror(errno));
-        return -errno;
+        hm2_posix_close_board(board);
+        return ret;
     }
 
     memset(&board->req, 0, sizeof(board->req));
@@ -102,6 +101,8 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
     ret = fetch_hwaddr( board, (void*)&board->req.arp_ha.sa_data );
     if(ret < 0) {
         LL_PRINT("ERROR: Could not retrieve hardware address (MAC) of %s: %s\n", board_ip, strerror(-ret));
+        board->req.arp_flags &= ~ATF_PERM;
+        hm2_posix_close_board(board);
         return ret;
     }
 
@@ -118,28 +119,14 @@ int hm2_posix_init_board(hm2_eth_t *board, const char *board_ip) {
         board->req.arp_flags &= ~ATF_PERM;
     }
 
-    // install_firewall_board() is a no-op when no firewall backend is
-    // available (rootless install without CAP_NET_ADMIN, or
-    // firewall=none), so it is safe to call unconditionally.
-    ret = install_firewall_board(board->sockfd);
-    if(ret < 0) return ret;
-
     board->write_packet_ptr = board->write_packet;
     board->read_packet_ptr = board->read_packet;
 
     return 0;
 }
 
-int hm2_posix_init_board_realtime(hm2_eth_t *board){
-    (void)board;
-    return 0; //Nothing todo
-}
-
 int hm2_posix_close_board(hm2_eth_t *board) {
     int ret;
-    board->llio.reset(&board->llio);
-
-    clear_firewall();
 
     if(board->req.arp_flags & ATF_PERM) {
         ret = ioctl(board->sockfd, SIOCDARP, &board->req);

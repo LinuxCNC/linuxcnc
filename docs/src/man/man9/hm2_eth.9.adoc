@@ -159,12 +159,7 @@ Setting it too high can cause realtime delay errors.
 == FUNCTIONS
 
 hm2_eth.realtime-init::
-  Realtime initialization function. This function initializes the realtime
-  ethernet for *evl*. With *posix*, this function is not needed.
-  It needs to be called once at startup using:
-....
-initf hm2_eth.realtime-init servo-thread
-....
+  Deprecated, this function has no effect.
 
 == NOTES
 

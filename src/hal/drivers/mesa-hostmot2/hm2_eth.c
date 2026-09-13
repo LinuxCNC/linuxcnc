@@ -591,7 +591,7 @@ static fw_state_t fw_state = FW_UNRESOLVED;
 // Resolve and bring up the firewall backend on first call, caching the
 // result.  Returns true when a backend is ready, false when isolation
 // is unavailable or disabled.
-bool use_firewall() {
+static bool use_firewall() {
     if(fw_state != FW_UNRESOLVED)
         return fw_state == FW_READY;
 
@@ -638,7 +638,7 @@ bool use_firewall() {
 
 // Drop all rules from our chain/table but keep the chain in place, so a
 // fresh set can be installed on (re-)init.
-void clear_firewall() {
+static void clear_firewall() {
     if(!use_firewall()) return;
     switch(fw_backend) {
     case FW_IPTABLES:
@@ -706,7 +706,7 @@ char* fetch_ifname(int sockfd, char *buf, size_t n) {
     return NULL;
 }
 
-int install_firewall_board(int sockfd) {
+static int install_firewall_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
     char dport_s[8], sport_s[8];
@@ -751,7 +751,7 @@ int install_firewall_board(int sockfd) {
     return 0;
 }
 
-int install_firewall_perinterface(const char *ifbuf) {
+static int install_firewall_perinterface(const char *ifbuf) {
     // Without these rules, 'ping' spews a lot of "Packet filtered"
     // messages.  With them, ping prints 'ping: sendmsg: Operation not
     // permitted' once per second.
@@ -819,7 +819,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
     //Default (NULL) is posix
     if (board_rtnet == NULL || strcmp(board_rtnet, "posix") == 0) {
         board->init_board = &hm2_posix_init_board;
-        board->init_board_realtime = &hm2_posix_init_board_realtime;
         board->close_board = &hm2_posix_close_board;
         board->eth_socket_send = &hm2_posix_eth_socket_send;
         board->eth_socket_recv = &hm2_posix_eth_socket_recv;
@@ -830,7 +829,6 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
             return -1;
         }
         board->init_board = &hm2_evl_init_board;
-        board->init_board_realtime = &hm2_evl_init_board_realtime;
         board->close_board = &hm2_evl_close_board;
         board->eth_socket_send = &hm2_evl_eth_socket_send;
         board->eth_socket_recv = &hm2_evl_eth_socket_recv;
@@ -843,14 +841,27 @@ static int init_board(hm2_eth_t *board, const char *board_ip, const char *board_
         return -1;
     }
 
-    return board->init_board(board, board_ip);
+    int ret;
+    ret = board->init_board(board, board_ip);
+    if (ret < 0) return ret;
+
+    if (!use_firewall()) {
+        LL_PRINT(\
+            "WARNING: Unable to restrict other access to the hm2-eth device.\n"
+            "This means that other software using the same network interface can violate\n"
+            "realtime guarantees.  See hm2_eth(9) for more information.\n");
+    }
+
+    // install_firewall_board() is a no-op when no firewall backend is
+    // available (rootless install without CAP_NET_ADMIN, or
+    // firewall=none), so it is safe to call unconditionally.
+    ret = install_firewall_board(board->sockfd);
+    if (ret < 0) return ret;
+
+    return 0;
 }
 
 /// ethernet io functions mapping
-
-static inline int init_board_realtime(hm2_eth_t *board){
-    return board->init_board_realtime(board);
-}
 
 static inline int close_board(hm2_eth_t *board){
     return board->close_board(board);
@@ -1059,9 +1070,8 @@ do_recv_packet:
 }
 
 static int hm2_eth_reset(hm2_lowlevel_io_t *this) {
-    LL_PRINT("in hm2_eth_reset\n");
-
     hm2_eth_t *board = this->private;
+    LL_PRINT("%s: INFO: reset\n", board->ip);
 
     // Make the watchdog timer bite in 1ns from now
     lbp16_cmd_addr_data32 bite_packet;
@@ -1656,10 +1666,27 @@ static int hm2_eth_items(hm2_eth_t *board) {
 void init_board_realtime_all(void *arg, long period){
     (void)arg;
     (void)period;
+    LL_PRINT("DEPRECATED: \"initf hm2_eth.realtime-init\" is not needed and will be removed\n");
+}
+
+static void cleanup(void){
     int i;
-    for(i = 0; i < boards_count; i++) {
-        init_board_realtime(&boards[i]);
-    }
+    comm_active = 0;
+    //Reset all boards
+    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
+        boards[i].llio.reset(&boards[i].llio);
+    //Cloase all boards
+    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
+        close_board(&boards[i]);
+
+    clear_firewall();
+    cleanup_firewall();
+
+    kvlist_free(&board_num);
+    kvlist_free(&ifnames);
+
+    hal_exit(comp_id);
+    LL_PRINT("HostMot2 ethernet driver unloaded\n");
 }
 
 int rtapi_app_main(void) {
@@ -1704,12 +1731,17 @@ int rtapi_app_main(void) {
     for(i = 0; i<num_boards; i++) {
         boards[i].read_cnt = boards[i].write_cnt = 0;
         boards[i].has_written_cnt = 0;
-        int *added = kvlist_lookup(&ifnames, boards[i].ifname);
-        if(!added)
-            goto error;
-        if(*added) continue;
-        install_firewall_perinterface(boards[i].ifname);
-        *added = 1;
+        if (strnlen(boards[i].ifname, sizeof(boards[i].ifname)) > 0) {
+            int *added = kvlist_lookup(&ifnames, boards[i].ifname);
+            if(!added)
+                goto error;
+            if(*added) continue;
+            install_firewall_perinterface(boards[i].ifname);
+            *added = 1;
+        } else {
+            LL_PRINT("%s: WARNING: interface name for board unknown, skipping per interface firewall\n",
+                boards[i].ip);
+        }
     }
 
     hal_export_functf(init_board_realtime_all, 0, 0, 0, comp_id, "%s.realtime-init", HM2_LLIO_NAME);
@@ -1719,28 +1751,12 @@ int rtapi_app_main(void) {
     return 0;
 
 error:
-    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
-        close_board(&boards[i]);
     // Full teardown: rtapi_app_exit() is not called when rtapi_app_main()
-    // fails, so this is the only chance to remove the chain and jump.
-    cleanup_firewall();
-    kvlist_free(&board_num);
-    kvlist_free(&ifnames);
-    hal_exit(comp_id);
+    // fails, so this is the only chance to cleanup the firewall and everything else.
+    cleanup();
     return ret;
 }
 
 void rtapi_app_exit(void) {
-    int i;
-    comm_active = 0;
-    for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
-        close_board(&boards[i]);
-
-    cleanup_firewall();
-
-    kvlist_free(&board_num);
-    kvlist_free(&ifnames);
-
-    hal_exit(comp_id);
-    LL_PRINT("HostMot2 ethernet driver unloaded\n");
+    cleanup();
 }
