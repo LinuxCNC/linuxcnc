@@ -338,8 +338,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
       CHKS(((motion == G_2 || motion == G_3 || (block->m_modes[7] == 19)) &&
 	    fabs(p_value - block->p_number) > 0.001),
 	   _("P value not an integer with M19 G2 or G3"));
-      CHKS((block->m_modes[7] == 19) && ((p_value > 2) || p_value < 0),
-	   _("P value must be 0,1,or 2 with M19"));
+      CHKS((block->m_modes[7] == 19) && ((p_value > 5) || p_value < 0),
+	   _("P value must be 0,1,2,3,4 or 5 with M19"));
       CHKS(((motion == G_2 || motion == G_3) && round_to_int(block->p_number) < 1),
           _("P value should be 1 or greater with G2 or G3"));
   }

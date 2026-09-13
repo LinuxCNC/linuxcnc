@@ -229,14 +229,19 @@ M19 R- Q- [P-] [$-]
   ** '0' rotate for smallest angular movement (default)
   ** '1' always rotate clockwise (same as M3 direction)
   ** '2' always rotate counterclockwise (same as M4 direction)
-* '$' The spindle to orient (actually only determines which HAL pins
+  ** '3' same as '0' but with preceding rotation to an index signal
+  ** '4' same as '1' but with preceding rotation to an index signal
+  ** '5' same as '2' but with preceding rotation to an index signal
+  * '$' The spindle to orient (actually only determines which HAL pins
   carry the spindle position commands)
 
 M19 is a command of modal group 7, like M3, M4 and M5.
 M19 is cleared by any of M3,M4,M5.
 
-Spindle orientation requires a quadrature encoder to sense the
+Spindle orientation with modes 0,1,2 requires a quadrature encoder to sense the
 spindle shaft position and direction of rotation.
+Spindle orientation with modes 3,4,5 requires an additional index signal for
+referencing the spindle before orientation.
 
 INI Settings in the [RS274NGC] section:
 
