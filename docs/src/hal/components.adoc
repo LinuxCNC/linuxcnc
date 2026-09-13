@@ -127,9 +127,9 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man9/mesa_7i65.9.html[mesa_7i65] |Mesa Electronics driver for the 7I65 eight-axis servo card. (See the man page for more information) ||
 | link:../man/man9/mesa_pktgyro_test.9.html[mesa_pktgyro_test] |PktUART simple test with Microstrain 3DM-GX3-15 gyro ||
 | link:../man/man9/mesa_uart.9.html[mesa_uart] |An example component demonstrating how to access the Hostmot2 UART ||
-| link:../man/man9/opto_ac5.9.html[opto_ac5] |Realtime driver for opto22 PCI-AC5 cards ||
-| pluto_servo |Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos ||
-| pluto_step |Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers ||
+| link:../man/man9/opto_ac5.9.html[opto_ac5] |Realtime <<cha:opto22,driver>> for opto22 PCI-AC5 cards (deprecated, RTAI kernel builds only) ||
+| pluto_servo |Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos (deprecated, RTAI kernel builds only) ||
+| pluto_step |Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers (deprecated, RTAI kernel builds only) ||
 | link:../man/man9/serport.9.html[serport] |Hardware driver for the digital I/O bits of the 8250 and 16550 serial port ||
 | link:../man/man9/setsserial.9.html[setsserial] |An utility for setting Smart Serial NVRAM parameters ||
 | link:../man/man9/sserial.9.html[sserial] |hostmot2 - Smart Serial LinuxCNC HAL driver for the Mesa Electronics HostMot2 Smart-Serial remote cards ||

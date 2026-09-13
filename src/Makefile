@@ -551,7 +551,7 @@ genclean:
 	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -f ../lib/*.so.[0-9]*
-	-rm -f $(GENERATED_MANPAGES)
+	-rm -rf ../docs/build/man
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
 
@@ -1002,8 +1002,6 @@ obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
 obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
-obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
-hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 endif

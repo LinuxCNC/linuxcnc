@@ -1,5 +1,8 @@
 component pcl720 """Driver for the Advantech PCL 720 card.""";
-description """This driver supports the Advantech PCL720 ISA card. It might
+description """
+DEPRECATED: This driver is deprecated and will be removed in a future release. It is only built for RTAI kernels; it is not available in the standard preempt-rt (uspace) builds.
+
+This driver supports the Advantech PCL720 ISA card. It might
 work with the PCI version too, but this is untested. 
  It creates hal pins corresponding to the digital inputs and outputs, but does
 not support the the counters/timers.""";

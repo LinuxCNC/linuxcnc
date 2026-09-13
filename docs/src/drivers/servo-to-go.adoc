@@ -4,6 +4,17 @@
 [[cha:servo-to-go]]
 = Servo To Go Driver
 
+[WARNING]
+.Deprecation warning
+====
+This driver is deprecated and will be removed in a future release.
+It is only built for RTAI kernels; it is not available in the standard
+preempt-rt (uspace) builds.
+If you still use this hardware, let us know on the LinuxCNC forum or
+the emc-developers mailing list,
+see https://github.com/LinuxCNC/linuxcnc/issues/4505.
+====
+
 The Servo-To-Go (STG) is one of the first PC motion control cards supported
 by LinuxCNC. It is an ISA card and it exists in different flavors (all
 supported by this driver). The board includes up to 8 channels of
