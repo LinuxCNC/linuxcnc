@@ -264,11 +264,12 @@ and the `get_*`/`is_*` callback contract). Move any custom drawing onto those
 supported entry points, or draw with your own modern-OpenGL code.
 ====
 
-The immediate-mode drawing helpers used by the old renderer remain available for
-compatibility (`linuxcnc.draw_lines`, `linuxcnc.line9`, `linuxcnc.draw_dwells`,
-`linuxcnc.positionlogger.call()`); they are unused by the in-tree GUIs, which
-bake geometry to VBOs and upload the backplot from `positionlogger.points()`,
-but still work for out-of-tree tools under a legacy/compatibility context.
+The immediate-mode drawing helpers of the old renderer (`linuxcnc.draw_lines`,
+`linuxcnc.line9`, `linuxcnc.draw_dwells`, `linuxcnc.positionlogger.call()`) are
+retired. They keep their names, signatures and argument checking so that
+out-of-tree callers still import and run, but they draw nothing and raise a
+`DeprecationWarning` on first use. The in-tree GUIs bake geometry to VBOs and
+upload the backplot from `positionlogger.points()`.
 
 === Notes for integrators and driver authors
 
@@ -297,6 +298,74 @@ but still work for out-of-tree tools under a legacy/compatibility context.
 * *vismach* is unaffected: it keeps its legacy Togl context and immediate-mode
   drawing; only its camera consumes the (now GL-free) explicit matrices from
   `glnav`.
+
+=== The program is built in C++ during the parse
+
+`gcode.parse` no longer drives the preview through per-move Python callbacks.
+For a canon that subclasses `gcode.RendererCanon` - `rs274.glcanon.GLCanon` is
+one, so every in-tree preview is - the whole program is built in C++
+(`GCodeRenderer`, `src/emc/rs274ngc/gcode_renderer.{hh,cc}`): the
+g92/rotation/g5x transform, arc segmentation, rigid taps, `(AXIS,hide)`
+suppression, the vertices per drawn plane, the extents, the path lengths and
+the dwell and tool-change records. The finished program is handed over once,
+at the end of the parse, as a `gcode.PreviewGeometry` through the canon's
+`adopt_geometry()`. A parse reads two more things off such a canon:
+`program_geometry` (the GEOMETRY strings and the rotation offsets) and
+`arcdivision`, which defaults to 64 and is read once at parse start. Every
+parse starts from a zero transform with nothing drawn; where the machine stands
+arrives as the caller's initcode (a `G53 G0` per axis), which the
+leading-traverse drop repositions on rather than draws. A `RendererCanon`
+subclass without a callable `adopt_geometry` is a `TypeError` from
+`gcode.parse`, not a silent fall back to callbacks.
+
+The per-event canon protocol is unchanged for every other canon:
+`rs274.interpret.PrintCanon`, the interpreter tests and out-of-tree users of
+`gcode.parse` still receive `straight_feed`, `arc_feed`, `next_line` and the
+rest exactly as before, and `rs274.interpret.Translated` /
+`ArcsToSegmentsMixin` remain for them. The `gcode` module itself was rewritten
+on pybind11; its functions keep their names and signatures. One behaviour
+change: `gcode.linecode()` snapshots the running parse, and raises
+`ValueError` when no parse is in progress.
+
+[WARNING]
+.BREAKING: out-of-tree canons that subclass `rs274.glcanon.GLCanon`
+====
+On a rendered parse the interpreter forwards only `next_line` (on the handful
+of lines that still forward, not once per line), `comment`, `message`,
+`change_tool`, `check_abort`, the `get_*` queries and `parameter_file`.
+Consequently:
+
+* *Overrides of the per-move methods are never called.* `straight_traverse`,
+  `straight_feed`, `straight_probe`, `arc_feed`, `straight_arcsegments`,
+  `rigid_tap`, `dwell`, `user_defined_function`, `set_g5x_offset`,
+  `set_g92_offset`, `set_xy_rotation`, `tool_offset`, `set_plane`,
+  `select_plane`, `set_feed_rate` and `set_spindle_rate` no longer exist on
+  `GLCanon`, and a subclass that defines them is not called back. Read the
+  finished program from `canon.program_geometry` instead.
+* *`next_line` is not a per-line tick.* A progress bar overrides
+  `renderer_progress(lineno)`, which fires on the parser's 100 ms tick and
+  before each forwarded callback. AXIS and QtVCP show `(AXIS,notify)` /
+  `(PREVIEW,notify)` messages by checking once more after `load_preview`
+  returns, since no `next_line` follows the comment.
+* *Parse-state attributes are gone.* `lo`, `first_move`, `xo`..`wo`,
+  `suppress`, `in_arc`, `plane`, `feedrate`, `g5x_index`, `g5x_offset_*`,
+  `g92_offset_*`, `rotation_xy`, `rotation_sin`, `rotation_cos` and
+  `rotate_and_translate()`. `GLCanon` no longer mixes in `Translated` or
+  `ArcsToSegmentsMixin`; the renderer keeps its own copy of the offsets, the
+  rotation, the plane and the feed rate and forwards none of them. Nothing in
+  the tree reads them - the DROs read the status channel.
+* *The per-move lists are gone.* `traverse`, `feed`, `arcfeed`, `moves`,
+  `move_cats` and `preview_zero_rxy` raise `AttributeError` on read, naming
+  the replacement: the program record's `positions()`/`lines`/`kinds`,
+  `g0_length`/`g1_length`/`run_time()` and `extents_zero_rxy`.
+* *`tool_list` and `dwells` fill at the end of the parse* (in
+  `adopt_geometry`) rather than growing during it. `dwells` keeps its column
+  order and raw machine coordinates.
+* *Still honoured:* `arcdivision` (set from `[DISPLAY]ARCDIVISION`), the
+  `comment` vocabulary (`stop`, `notify`, the foam Z levels; `hide`/`show` are
+  counted in C++ from the same text), and `change_tool`, which the interpreter
+  still needs for a G43 after an M6.
+====
 
 === How the preview is put together
 
@@ -337,8 +406,7 @@ the offset frame the offsets progressively build.
 Parts read a `FrameContext` - an explicit, enumerated list of machine, view and
 renderer state, built once per frame by `GlCanonDraw` - rather than the widget
 itself. That is what lets them be tested without a window: build a context by
-hand, call `part.draw(ctx)`, and assert on the vertices it emitted. See
-`tests/glcanon-scene/`.
+hand, call `part.draw(ctx)`, and assert on the vertices it emitted.
 
 Click-to-select is not a part - it draws nothing to the screen. `Picker` renders
 the *same* program geometry into an offscreen framebuffer with line numbers
@@ -346,9 +414,10 @@ encoded as colour and resolves the nearest hit; `GlCanonDraw.select(x, y)`
 delegates to it. It shares one `ProgramGeometry` with the drawing part, so the
 pickable geometry and the drawn geometry cannot drift apart.
 
-Setting `GLCANON_SCENE_DEBUG=1` logs which parts the scene drew and which it
-skipped whenever that split changes, and reports depth/blend state a part left
-behind.
+Setting `GLCANON_DEBUG=1`, the preview's one verbosity switch, raises the
+`rs274` logger to DEBUG, checks `glGetError` after each pass, logs which parts
+the scene drew and which it skipped whenever that split changes, and reports
+depth/blend state a part left behind.
 
 
 == New HAL components

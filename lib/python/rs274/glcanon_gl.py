@@ -51,9 +51,10 @@ import numpy as np
 import numpy.typing as npt
 
 from rs274.glcanon_bake import (ATTR_DTYPE, FLOATS_PER_VERTEX, KIND_MASK,
-                                LineRanges, MeshVerts, PLANE_DTYPE,
-                                PaletteRGBA, TRAJ_FLOATS_PER_VERTEX,
-                                TrajectoryVerts, WideVerts)
+                                LineRanges, MeshVerts, PALETTE_SIZE,
+                                PLANE_DTYPE, PaletteRGBA,
+                                TRAJ_FLOATS_PER_VERTEX, TrajectoryVerts,
+                                WideVerts)
 
 # PyOpenGL's enum constants are int subclasses, so this is honest rather than
 # decorative: it says "one of the GL_* names" where a bare ``int`` would say
@@ -226,12 +227,11 @@ def primitive_mode(name: str | None,
     except KeyError:
         raise ValueError("unknown primitive mode %r" % (name,))
 
-# Palette slots. Four cover the program's categories; the live backplot needs
-# six (one per motion type the position logger distinguishes), so the array is
-# eight - the next size that costs nothing to reason about and leaves room. A
-# vec4[8] uniform array is 128 bytes. ``PaletteRGBA``, imported above, is the
-# array as a type.
-PALETTE_SIZE = 8
+# Palette slots. ``PALETTE_SIZE``, imported above, is the count: four cover the
+# program's categories and the live backplot needs six (one per motion type the
+# position logger distinguishes), so the array is eight - the next size that
+# costs nothing to reason about and leaves room. A vec4[8] uniform array is 128
+# bytes. ``PaletteRGBA``, also imported, is the array as a type.
 
 
 _GL_ERROR_NAMES = {
@@ -1695,7 +1695,7 @@ class ProgramBuffers:
         self.buffers: dict[str, Any] = {}
 
     def upload(self, parts: Sequence[dict[str, Any]]) -> None:
-        """Upload the baked program (from glcanon_bake.bake_program).
+        """Upload the baked program (from glcanon_bake.program_parts).
 
         Each part gets its own buffer, keyed by name. A part with no chain
         table - the dwell markers - draws as one ``glDrawArrays`` in its own

@@ -10,11 +10,6 @@ import os
 
 class PreviewCanon(PrintCanon, StatMixin):
 
-    # Stay on the per-event canon protocol. Named explicitly because the
-    # catch-all __getattr__ below would otherwise answer gcode.parse's probe
-    # with a callable and opt this canon into the move-batch protocol.
-    use_move_batches = False
-
     def __init__(self, stat, randomtc, parameter):
         StatMixin.__init__(self, stat, randomtc)
         self.parameter_file = parameter

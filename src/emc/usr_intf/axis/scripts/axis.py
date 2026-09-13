@@ -1122,8 +1122,21 @@ class AxisCanon(GLCanon, StatMixin):
     def next_line(self, st):
         GLCanon.next_line(self, st)
         self.progress.update(self.lineno)
+        self.show_notification()
+
+    def renderer_progress(self, lineno):
+        # Rendered moves deliver no next_line, so this is what moves the bar
+        # through the body of a program.
+        self.progress.update(lineno)
+        self.show_notification()
+
+    def show_notification(self):
+        # An (AXIS,notify) comment sets these; the comment callback itself is
+        # forwarded, but the next_line that used to carry the message out is
+        # not delivered for rendered moves, so the loader calls this once more
+        # when the parse is over.
         if self.notify:
-            notifications.add("info",self.notify_message)
+            notifications.add("info", self.notify_message)
             self.notify = 0
 
 
@@ -1309,6 +1322,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
             result, seq = o.load_preview(f, canon, initcodes, interpname)
         except KeyboardInterrupt:
             result, seq = 0, 0
+        canon.show_notification()
         # According to the documentation, MIN_ERROR is the largest value that is
         # not an error.  Crazy though that sounds...
         if result > gcode.MIN_ERROR:
