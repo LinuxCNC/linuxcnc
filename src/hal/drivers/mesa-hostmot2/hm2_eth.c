@@ -71,7 +71,7 @@ static int *kvlist_lookup(struct rtapi_list_head *head, const char *name) {
         struct kvlist *ent = rtapi_list_entry(ptr, struct kvlist, list);
         if(strncmp(name, ent->key, sizeof(ent->key)) == 0) return &ent->value;
     }
-    struct kvlist *ent = rtapi_kzalloc(sizeof(struct kvlist), RTAPI_GPF_KERNEL);
+    struct kvlist *ent = rtapi_kzalloc(sizeof(struct kvlist), RTAPI_GFP_KERNEL);
     if(!ent)
         return NULL;
     strncpy(ent->key, name, sizeof(ent->key)-1);
@@ -680,7 +680,7 @@ static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
 }
 
 char* fetch_ifname(int sockfd, char *buf, size_t n) {
-    struct sockaddr_in srcaddr;
+    struct sockaddr_in srcaddr = {0};
     struct ifaddrs *ifa, *it;
 
     socklen_t addrlen = sizeof(srcaddr);
@@ -707,7 +707,7 @@ char* fetch_ifname(int sockfd, char *buf, size_t n) {
 }
 
 int install_firewall_board(int sockfd) {
-    struct sockaddr_in srcaddr, dstaddr;
+    struct sockaddr_in srcaddr = {0}, dstaddr = {0};
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
     char dport_s[8], sport_s[8];
 
@@ -800,11 +800,11 @@ int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]) {
     unsigned char response[6];
     LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
     int res = eth_socket_send(board, &packet, sizeof(packet));
-    if(res < 0) return -errno;
+    if(res != (int)sizeof(packet)) return res < 0 ? -errno : -EIO;
 
     int i=0;
     res = eth_socket_recv(board, &response, sizeof(response), RECV_TIMEOUT_NON_RT_NS);
-    if(res < 0) return -errno;
+    if(res != (int)sizeof(response)) return res < 0 ? -errno : -EIO;
 
     // eeprom order is backwards from arp AF_LOCAL order
     for(i=0; i<6; i++) buf[i] = response[5-i];
@@ -866,14 +866,24 @@ static inline int eth_socket_recv(hm2_eth_t *board, void *buffer, int len, int r
 
 /// hm2_eth io functions
 
+static bool hm2_eth_valid_transfer_size(int size) {
+    return size > 0
+        && (size % sizeof(rtapi_u32)) == 0
+        && size / (int)sizeof(rtapi_u32) <= LBP16_MAX_PACKET_DATA_SIZE;
+}
+
 static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_eth_t *board = this->private;
     int send, recv;
-    rtapi_u8 tmp_buffer[size + 4];
+    rtapi_u8 tmp_buffer[LBP16_MAX_PACKET_DATA_SIZE * sizeof(rtapi_u32)];
     long long t1, t2;
 
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    if (!hm2_eth_valid_transfer_size(size)) {
+        THIS_ERR("hm2_eth_read: invalid transfer size %d\n", size);
+        return 0;
+    }
     board->read_cnt++;
 
     if(rtapi_task_self() >= 0) {
@@ -890,8 +900,12 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     LBP16_INIT_PACKET4(read_packet, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
     send = eth_socket_send(board, (void*) &read_packet, sizeof(read_packet));
-    if(send < 0)
-        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+    if(send != (int)sizeof(read_packet)) {
+        LL_PRINT("ERROR: sending read packet%s%s\n",
+                 send < 0 ? ": " : "",
+                 send < 0 ? strerror(errno) : "");
+        return 0;
+    }
     LL_PRINT_IF(debug, "read(%d) : PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", board->read_cnt, read_packet.cmd_hi, read_packet.cmd_lo,
       read_packet.addr_lo, read_packet.addr_hi, size);
 
@@ -904,7 +918,7 @@ static int hm2_eth_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     } else {
         LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TIME: %llu]\n", board->read_cnt, recv, t2 - t1);
     }
-    if (recv < 0)
+    if (recv != size)
         return 0;
     memcpy(buffer, tmp_buffer, size);
     return 1;  // success
@@ -962,9 +976,13 @@ static int hm2_eth_send_queued_reads(hm2_lowlevel_io_t *this) {
     board->queue_reads_count++;
     board->queue_buff_size += sizeof(board->confirm_rw_cnt);
 
-    send = eth_socket_send(board, (void*) &board->read_packet, board->read_packet_ptr - board->read_packet);
-    if(send < 0) {
-        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+    size_t packet_size = board->read_packet_ptr - board->read_packet;
+    send = eth_socket_send(board, (void*) &board->read_packet, packet_size);
+    if(send != (int)packet_size) {
+        LL_PRINT("ERROR: sending queued-read packet%s%s\n",
+                 send < 0 ? ": " : "",
+                 send < 0 ? strerror(errno) : "");
+        hm2_eth_reset_queued_reads(board);
         return 0;
     }
     return 1;
@@ -1067,26 +1085,41 @@ static int hm2_eth_reset(hm2_lowlevel_io_t *this) {
     lbp16_cmd_addr_data32 bite_packet;
     LBP16_INIT_PACKET8(bite_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(1), HM2_ADDR_WATCHDOG, 0x0001);
     int ret = eth_socket_send(board, (void*) &bite_packet, sizeof(bite_packet));
-    if(ret < 0) perror("eth_socket_send(bite_packet)");
-    return ret < 0 ? -errno : 0;
+    if(ret != (int)sizeof(bite_packet)) {
+        if (ret < 0) perror("eth_socket_send(bite_packet)");
+        return ret < 0 ? -errno : -EIO;
+    }
+    return 0;
 }
 
 static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    
-    //Check size we are going to write
+    if (!hm2_eth_valid_transfer_size(size)) {
+        THIS_ERR("hm2_eth_enqueue_read: invalid transfer size %d\n", size);
+        return 0;
+    }
+    // hm2_eth_send_queued_reads() appends two internal confirmation reads.
+    if (board->queue_reads_count >= MAX_ETH_READS - 2) {
+        THIS_ERR("hm2_eth_enqueue_read: read queue full (%d)\n", board->queue_reads_count);
+        return 0;
+    }
     size_t read_packet_size = board->read_packet_ptr - board->read_packet;
-    if (read_packet_size + sizeof(lbp16_cmd_addr) > sizeof(board->read_packet)) {
-        LL_PRINT("ERROR: enqueue_read: buffer full\n");
+    size_t read_packet_trailer_size =
+        3 * sizeof(lbp16_cmd_addr) + sizeof(board->read_cnt);
+    if (read_packet_size + sizeof(lbp16_cmd_addr)
+            + read_packet_trailer_size > sizeof(board->read_packet)) {
+        THIS_ERR("hm2_eth_enqueue_read: read packet buffer size exceeded\n");
         return 0;
     }
-    if (board->queue_reads_count + 1 > MAX_ETH_READS) {
-        LL_PRINT("ERROR: enqueue_read: queue_reads full\n");
+    size_t response_trailer_size =
+        sizeof(board->rxudpcount) + sizeof(board->confirm_rw_cnt);
+    if ((size_t)board->queue_buff_size + size + response_trailer_size
+            > HM2_ETH_PACKET_SIZE) {
+        THIS_ERR("hm2_eth_enqueue_read: response packet size exceeded\n");
         return 0;
     }
-
     LBP16_INIT_PACKET4(*(lbp16_cmd_addr*)board->read_packet_ptr, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr);
     board->read_packet_ptr += sizeof(lbp16_cmd_addr);
     board->queue_reads[board->queue_reads_count].buffer = buffer;
@@ -1111,6 +1144,10 @@ static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *bu
 
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    if (!hm2_eth_valid_transfer_size(size)) {
+        THIS_ERR("hm2_eth_write: invalid transfer size %d\n", size);
+        return 0;
+    }
     hm2_eth_t *board = this->private;
     board->write_cnt++;
 
@@ -1118,8 +1155,12 @@ static int hm2_eth_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *bu
     LBP16_INIT_PACKET4(packet.wr_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
     send = eth_socket_send(board, (void*) &packet, sizeof(lbp16_cmd_addr) + size);
-    if(send < 0)
-        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+    if(send != (int)(sizeof(lbp16_cmd_addr) + size)) {
+        LL_PRINT("ERROR: sending write packet%s%s\n",
+                 send < 0 ? ": " : "",
+                 send < 0 ? strerror(errno) : "");
+        return 0;
+    }
     LL_PRINT_IF(debug, "write(%d): PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", board->write_cnt, packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo,
       packet.wr_packet.addr_lo, packet.wr_packet.addr_hi, size);
 
@@ -1149,28 +1190,36 @@ static int hm2_eth_send_queued_writes(hm2_lowlevel_io_t *this) {
     board->has_written_cnt = 1;
     
     t0 = rtapi_get_time();
-    send = eth_socket_send(board, (void*) &board->write_packet, board->write_packet_ptr - board->write_packet);
-    if(send < 0) {
-        LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
+    size_t packet_size = board->write_packet_ptr - board->write_packet;
+    send = eth_socket_send(board, (void*) &board->write_packet, packet_size);
+    if(send != (int)packet_size) {
+        LL_PRINT("ERROR: sending queued-write packet%s%s\n",
+                 send < 0 ? ": " : "",
+                 send < 0 ? strerror(errno) : "");
     }
     t1 = rtapi_get_time();
     LL_PRINT_IF(debug, "enqueue_write(%d) : PACKET SEND [SIZE: %d | TIME: %llu]\n", board->write_cnt, send, t1 - t0);
     board->write_packet_ptr = board->write_packet;
-    return send < 0 ? 0 : 1;
+    return send == (int)packet_size;
 }
 
 static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     hm2_eth_t *board = this->private;
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
-    lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
-
-    //Check size we are going to write
-    size_t write_packet_size = board->write_packet_ptr - board->write_packet;
-    if (write_packet_size + sizeof(*packet) + size > sizeof(board->write_packet)) {
-        LL_PRINT("ERROR: enqueue_write: buffer full\n");
+    if (!hm2_eth_valid_transfer_size(size)) {
+        THIS_ERR("hm2_eth_enqueue_write: invalid transfer size %d\n", size);
         return 0;
     }
+    size_t write_packet_size = board->write_packet_ptr - board->write_packet;
+    size_t write_packet_trailer_size =
+        sizeof(lbp16_cmd_addr) + sizeof(board->write_cnt);
+    if (write_packet_size + sizeof(lbp16_cmd_addr) + size
+            + write_packet_trailer_size > sizeof(board->write_packet)) {
+        THIS_ERR("hm2_eth_enqueue_write: write packet buffer size exceeded\n");
+        return 0;
+    }
+    lbp16_cmd_addr *packet = (lbp16_cmd_addr *) board->write_packet_ptr;
 
     LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
     board->write_packet_ptr += sizeof(*packet);
@@ -1200,19 +1249,19 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     lbp16_cmd_addr read_packet;
 
     int ret, send, recv;
-    char board_name[16] = {};
-    char llio_name[16] = {};
+    char board_name[16] = {0};
+    char llio_name[16] = {0};
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_BOARD_INFO_ADDR16_INCR(16/2), 0);
     send = eth_socket_send(board, (void*) &read_packet, sizeof(read_packet));
-    if(send < 0) {
+    if(send != (int)sizeof(read_packet)) {
         LL_PRINT("ERROR: sending packet: %s\n", strerror(errno));
-        return -errno;
+        return send < 0 ? -errno : -EIO;
     }
     recv = eth_socket_recv(board, (void*) &board_name, 16, RECV_TIMEOUT_NON_RT_NS);
-    if(recv < 0) {
+    if(recv != (int)sizeof(board_name)) {
         LL_PRINT("ERROR: receiving packet: %s\n", strerror(errno));
-        return -errno;
+        return recv < 0 ? -errno : -EIO;
     }
 
     board = &boards[boards_count];
@@ -1369,23 +1418,8 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // DB25, 17 pins used, IO 34 to IO 50
         board->llio.ioport_connector_name[0] = "P1";
 
-        // terminal block, 10 pins used, enc 0-2
+        // terminal block
         board->llio.ioport_connector_name[1] = "TB1";
-  
-        // terminal block, 10 pins used, enc 3-5
-        board->llio.ioport_connector_name[2] = "TB2";
-
-        // terminal block, 8 pins used, Step & Dir 0-3
-        board->llio.ioport_connector_name[3] = "TB3";
- 
-        // terminal block, 10 pins used, Step & Dir 4,5, serial Rx/Tx/Txen 0,1
-        board->llio.ioport_connector_name[2] = "TB4";
-
-        // terminal block, 8 inputs, 6 SSR outputs
-        board->llio.ioport_connector_name[3] = "TB5";
-
-        // terminal block, 16 inputs
-        board->llio.ioport_connector_name[2] = "TB6";
 
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
@@ -1399,23 +1433,8 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // DB25, 17 pins used, IO 34 to IO 50
         board->llio.ioport_connector_name[0] = "P1";
 
-        // terminal block, 10 pins used, enc 0-2
+        // terminal block
         board->llio.ioport_connector_name[1] = "TB1";
-  
-        // terminal block, 10 pins used, enc 3-5
-        board->llio.ioport_connector_name[2] = "TB2";
-
-        // terminal block, 8 pins used, Step & Dir 0-3
-        board->llio.ioport_connector_name[3] = "TB3";
- 
-        // terminal block, 10 pins used, Step & Dir 4,5, serial Rx/Tx/Txen 0,1
-        board->llio.ioport_connector_name[2] = "TB4";
-
-        // terminal block, 8 inputs, 6 SSR outputs
-        board->llio.ioport_connector_name[3] = "TB5";
-
-        // terminal block, 16 inputs
-        board->llio.ioport_connector_name[2] = "TB6";
 
         board->llio.fpga_part_number = "T20F256";
         board->llio.num_leds = 4;
@@ -1561,12 +1580,15 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // (such as 0 or -1) could be passed here and the layer which can
         // legitimately read idroms would read the values and store them, but
         // that wasn't trivial to do.
-        rtapi_u32 read_data;
-        hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET, &read_data, 4);
+        rtapi_u32 read_data = 0;
+        if (!hm2_eth_read(&board->llio, HM2_ADDR_IDROM_OFFSET,
+                          &read_data, sizeof(read_data)))
+            return -EIO;
         unsigned int idrom_address = read_data & 0xffff;
         hm2_idrom_t idrom;
         memset(&idrom, 0, sizeof(idrom));
-        hm2_eth_read(&board->llio, idrom_address, &idrom, sizeof(idrom));
+        if (!hm2_eth_read(&board->llio, idrom_address, &idrom, sizeof(idrom)))
+            return -EIO;
 
         board->llio.num_ioport_connectors = idrom.io_ports;
         board->llio.pins_per_connector = idrom.port_width;

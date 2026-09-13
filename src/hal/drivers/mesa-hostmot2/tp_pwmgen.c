@@ -443,9 +443,9 @@ void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
         if (scaled_Avalue > 1.0) scaled_Avalue = 1.0;
         else if (scaled_Avalue < -1.0) scaled_Avalue = -1.0;
         if (scaled_Bvalue > 1.0) scaled_Bvalue = 1.0;
-        else if (scaled_Avalue < -1.0) scaled_Avalue = -1.0;
+        else if (scaled_Bvalue < -1.0) scaled_Bvalue = -1.0;
         if (scaled_Cvalue > 1.0) scaled_Cvalue = 1.0;
-        else if (scaled_Avalue < -1.0) scaled_Avalue = -1.0;
+        else if (scaled_Cvalue < -1.0) scaled_Cvalue = -1.0;
 
         // duty_cycle goes from 0.0 to 1.0, and needs to be puffed out to 10 bits
 

@@ -283,6 +283,12 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
     for (i = 0; i < hm2->resolver.num_resolvers; i ++) {
         
         res = &hm2->resolver.instance[i];
+        rtapi_u32 index_div = hal_get_ui32(res->hal.param.index_div);
+
+        if (index_div == 0) {
+            HM2_ERR("resolver.%02d.index-div == 0, bogus, setting to 1\n", i);
+            index_div = hal_set_ui32(res->hal.param.index_div, 1);
+        }
         
         scale = hal_get_real(res->hal.param.scale);
         
@@ -326,7 +332,6 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         if ((res->old_reg > hm2->resolver.position_reg[i]) && (res->old_reg - hm2->resolver.position_reg[i] > 0x80000000)){
             res->index_cnts++;
             if (hal_get_bool(res->hal.pin.index_enable)){
-                rtapi_u32 index_div = hal_get_ui32(res->hal.param.index_div);
                 int r = (res->index_cnts % index_div);
                 if ((index_div  > 1 && r == 1) 
                  || (index_div == 1 && r == 0)){
@@ -337,7 +342,8 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         }
         else if ((res->old_reg < hm2->resolver.position_reg[i]) && (hm2->resolver.position_reg[i] - res->old_reg > 0x80000000)){
             res->index_cnts--;
-            if (hal_get_bool(res->hal.pin.index_enable) && (res->index_cnts % hal_get_ui32(res->hal.param.index_div) == 0)){
+            if (hal_get_bool(res->hal.pin.index_enable)
+                    && (res->index_cnts % index_div == 0)){
                 res->offset = (res->accum - hm2->resolver.position_reg[i] + 0x100000000LL);
                 hal_set_bool(res->hal.pin.index_enable, 0);
             }
@@ -463,4 +469,3 @@ void hm2_resolver_print_module(hostmot2_t *hm2) {
                   (hm2->resolver.velocity_reg[i]));
     }
 }
-

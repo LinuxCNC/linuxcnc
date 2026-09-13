@@ -189,25 +189,28 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
     static int err_flag = 0;
     
     inst = hm2_get_uart(&hm2, name);
-    if (inst < 0 && !err_flag){
-        HM2_ERR_NO_LL("Can not find UART instance %s.\n", name);
+    if (inst < 0){
+        if (!err_flag)
+            HM2_ERR_NO_LL("Can not find UART instance %s.\n", name);
         err_flag = 1;
-        return -1;
+        return -ENODEV;
     }
-    if (hm2->uart.instance[inst].bitrate == 0 && !err_flag){
-        HM2_ERR("The selected UART instance %s.\n" 
-                "Has not been configured.\n", name);
+    if (hm2->uart.instance[inst].bitrate == 0){
+        if (!err_flag)
+            HM2_ERR("The selected UART instance %s.\n"
+                    "Has not been configured.\n", name);
         err_flag = 1; // don't fill dmesg with junk. 
-        return -1;
+        return -EINVAL;
     }
+    if (count < 0) return -EINVAL;
     
     c = 0;
     err_flag = 0;
     while (c < count - 3){
-        buff = (data[c] + 
-                (data[c+1] << 8) +
-                (data[c+2] << 16) +
-                (data[c+3] << 24));
+        buff = ((rtapi_u32)data[c]
+                | ((rtapi_u32)data[c+1] << 8)
+                | ((rtapi_u32)data[c+2] << 16)
+                | ((rtapi_u32)data[c+3] << 24));
         r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx4_addr,
                              &buff, sizeof(rtapi_u32));
         if (r < 0) {
@@ -230,8 +233,8 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 return c + 1;
             }
         case 2:
-            buff = (data[c] + 
-                    (data[c+1] << 8));
+            buff = ((rtapi_u32)data[c]
+                    | ((rtapi_u32)data[c+1] << 8));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx2_addr,
                                  &buff, sizeof(rtapi_u32));
             if (r < 0){
@@ -241,9 +244,9 @@ int hm2_uart_send(char *name,  unsigned char data[], int count)
                 return c + 2;
             }
         case 3:
-            buff = (data[c] + 
-                    (data[c+1] << 8) +
-                    (data[c+2] << 16));
+            buff = ((rtapi_u32)data[c]
+                    | ((rtapi_u32)data[c+1] << 8)
+                    | ((rtapi_u32)data[c+2] << 16));
             r = hm2->llio->write(hm2->llio, hm2->uart.instance[inst].tx3_addr,
                                  &buff, sizeof(rtapi_u32));
             if (r < 0){
@@ -286,7 +289,6 @@ int hm2_uart_read(char *name, unsigned char data[])
     
     r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx_fifo_count_addr,
                         &buff, sizeof(rtapi_u32));
-    
     count = buff & 0x1F; 
     c = 0;
     while (c < count - 3 && c < 16){
@@ -370,4 +372,3 @@ void hm2_uart_write(hostmot2_t *hm2)
 {
     (void)hm2;
 }
-

@@ -176,7 +176,7 @@ int sslbp_read_cookie(void){
     return res;
 }
 
-rtapi_u8 sslbp_read_byte(rtapi_u32 addr){
+int sslbp_read_byte(rtapi_u32 addr){
     rtapi_u32 buff = READ_REM_BYTE_CMD + addr;
     rtapi_u32 res;
     HM2WRITE(remote->reg_cs_addr, buff);
@@ -303,6 +303,7 @@ int sslbp_flash(char *fname){
     struct rtapi_device dev;
     int r;
     unsigned write_sz, erase_sz;
+    int write_exp, erase_exp;
     
     if (strstr("8i20", remote->name)){
         if (hm2->sserial.version < 37){
@@ -348,8 +349,17 @@ int sslbp_flash(char *fname){
     
     if (setup_start() < 0) goto fail0;
     flash_start();
-    write_sz = 1u << sslbp_read_byte(LBPFLASHWRITESIZELOC);
-    erase_sz = 1u << sslbp_read_byte(LBPFLASHERASESIZELOC);
+    write_exp = sslbp_read_byte(LBPFLASHWRITESIZELOC);
+    erase_exp = sslbp_read_byte(LBPFLASHERASESIZELOC);
+    if (write_exp < 3 || write_exp >= (int)(sizeof(write_sz) * 8)
+            || erase_exp < 0 || erase_exp < write_exp
+            || erase_exp >= (int)(sizeof(erase_sz) * 8)) {
+        HM2_ERR("Invalid flash geometry exponents write=%d erase=%d\n",
+                write_exp, erase_exp);
+        goto fail0;
+    }
+    write_sz = 1u << write_exp;
+    erase_sz = 1u << erase_exp;
     HM2_PRINT("Write Size = %x, Erase Size = %x\n", write_sz, erase_sz);
     flash_stop();
     
@@ -412,6 +422,7 @@ int sslbp_flash(char *fname){
     
 fail0:
     flash_stop();
+    rtapi_release_firmware(fw);
     return -1;
 }
 
@@ -494,7 +505,5 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
-
-
 
 

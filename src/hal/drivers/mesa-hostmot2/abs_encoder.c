@@ -262,13 +262,20 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                         "not get the pins you expected\n");
             }
             else if (strchr("bBuUsSeEfFpPgGhHlLmM", *format)){
+                hm2_sserial_data_t *confs;
                 hm2_sserial_data_t *conf;
-                chan->num_confs++;
-                chan->confs = (hm2_sserial_data_t *)rtapi_krealloc(chan->confs,
-                        chan->num_confs * sizeof(hm2_sserial_data_t),
-                        RTAPI_GFP_KERNEL);
 
-                conf = &(chan->confs[chan->num_confs - 1]);
+                if (q > RTAPI_UINT8_MAX) {
+                    HM2_ERR_NO_LL("Field length %d exceeds the supported maximum\n", q);
+                    return -EINVAL;
+                }
+                confs = rtapi_krealloc(chan->confs,
+                        (chan->num_confs + 1) * sizeof(*confs),
+                        RTAPI_GFP_KERNEL);
+                if (confs == NULL) return -ENOMEM;
+                chan->confs = confs;
+
+                conf = &(chan->confs[chan->num_confs++]);
                 conf->DataDir = LBP_IN;
                 conf->DataLength = q;
                 rtapi_strxcpy(conf->NameString, name);
@@ -357,6 +364,10 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
         else
         {
             // Not a % format, append name
+            if (nameptr == &name[sizeof(name) - 1]) {
+                HM2_ERR_NO_LL("Absolute encoder field name is too long\n");
+                return -EINVAL;
+            }
             *nameptr++ = *format++;
             *nameptr = 0;
         }
@@ -400,12 +411,6 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (hm2->absenc.num_chans == 0) { // first time though
         hm2->absenc.clock_frequency = md->clock_freq;
-        hm2->absenc.ssi_busy_flags = rtapi_kmalloc(sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
-        *hm2->absenc.ssi_busy_flags = 0;
-        hm2->absenc.biss_busy_flags = rtapi_kmalloc(sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
-        *hm2->absenc.biss_busy_flags = 0;
-        hm2->absenc.fabs_busy_flags = rtapi_kmalloc(sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
-        *hm2->absenc.fabs_busy_flags = 0;
     }
     
     for (index = 0 ; index < md->instances ; index ++){
@@ -422,12 +427,18 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
             if (index == def->index && md->gtag == def->gtag){
+                hm2_sserial_remote_t *chans;
+
                 has_format = true;
-                hm2->absenc.num_chans += 1;
-                hm2->absenc.chans = rtapi_krealloc(hm2->absenc.chans,
-                        hm2->absenc.num_chans * sizeof(hm2_sserial_remote_t),
+                chans = rtapi_krealloc(hm2->absenc.chans,
+                        (hm2->absenc.num_chans + 1) * sizeof(*chans),
                         RTAPI_GFP_KERNEL);
-                chan = &hm2->absenc.chans[hm2->absenc.num_chans - 1];
+                if (chans == NULL) {
+                    HM2_ERR("out of memory allocating absolute encoder channel\n");
+                    goto fail1;
+                }
+                hm2->absenc.chans = chans;
+                chan = &hm2->absenc.chans[hm2->absenc.num_chans++];
                 memset(chan, 0, sizeof(hm2_sserial_remote_t));
                 chan->index = index;
                 chan->myinst = md->gtag;
@@ -517,6 +528,8 @@ void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
                 err_tag[i] = 1;
             }    
         } 
+        // These pointers are supplied by hm2_absenc_register_tram() whenever
+        // the corresponding global-start address enables this dereference.
         if (((chan->myinst == HM2_GTAG_SSI)
                 && (*hm2->absenc.ssi_busy_flags & (1 << chan->index)))
                 || ((chan->myinst == HM2_GTAG_BISS)
