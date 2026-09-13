@@ -247,7 +247,8 @@ class _GStat(GObject.GObject):
         'cancel-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
-        'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,GObject.TYPE_PYOBJECT)),
+        'softkey-pressed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -313,8 +314,8 @@ class _GStat(GObject.GObject):
 
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
-
         self.readAddress = "tcp://127.0.0.1:5691"
+        self.read_available = False
         self.writeAddress = "tcp://127.0.0.1:5690"
         self.write_available = False
         # if zmq is imported, create sockets
@@ -354,6 +355,11 @@ class _GStat(GObject.GObject):
     def set_timer(self):
         GLib.timeout_add(CYCLE_TIME, self.update)
 
+    # used to run the Gobject mainloop once
+    # allows a GUI that is not GLib based to update the mainloop
+    def run_iteration(self):
+        GLib.MainContext.default().iteration (True)
+
     # open a zmq socket for writing out data
     def init_write_socket(self):
         context = zmq.Context()
@@ -364,6 +370,7 @@ class _GStat(GObject.GObject):
             self.write_available = True
         except Exception as e:
             LOG.debug('hal_glib write socket not available: {}'.format(e))
+            LOG.debug('hal_glib write socket not available\n {}'.format(e))
             self.write_available = False
 
     # convert and actually send out the message
@@ -391,37 +398,51 @@ class _GStat(GObject.GObject):
         self.readSocket.setsockopt_string(zmq.SUBSCRIBE, 'STATUSREQUEST')
         try:
             self.readSocket.connect(self.readAddress)
+            self.read_available = True
             LOG.debug('hal_glib read socket available: {}'.format(self.readAddress))
         except Exception as e:
+            self.read_available = False
             LOG.debug('hal_glib read socket error: {}'.format(e))
             return
         GObject.io_add_watch(self.readSocket.getsockopt(zmq.FD),
                          GObject.IO_IN|GObject.IO_ERR|GObject.IO_HUP,
                          self.onReadMsg, self.readSocket)
 
-    # convert message to a function name and data
-    # then call that function
+    # called directly to process any current message
+    def readNextMsg(self):
+        if self.read_available:
+            event = self.readSocket.poll(timeout=0)
+            if event & zmq.POLLIN:
+                self.convertMsg()
+
+    # called when GObject notices a change
     def onReadMsg(self, queue, condition, sock):
         while self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
-            # get raw message
-            topic, data = self.readSocket.recv_multipart()
-            # convert from json object to python object
-            y = json.loads(data)
-            function = y.get('FUNCTION')
-            data = y.get('ARGS')
-            LOG.debug('REQUESTED:{}'.format(y))
-            if data == '':
-                try:
-                    self[function]()
-                except Exception as e:
-                    LOG.debug('not a valid request\n {}'.format(e))
-            else:
-                try:
-                    self[function](data)
-                except Exception as e:
-                    LOG.debug('not a valid request\n {}'.format(e))
-            #self. action(y.get('MESSAGE'),y.get('ARGS'))
+            self.convertMsg()
         return True
+
+    # convert message to a function name and data
+    # then call that function
+    def convertMsg(self):
+        # get raw message
+        topic, data = self.readSocket.recv_multipart()
+        LOG.debug(f'RAW REQUESTED:{topic},{data}')
+        # convert from json object to python object
+        y = json.loads(data)
+        function = y.get('FUNCTION')
+        data = y.get('ARGS')
+        LOG.debug('REQUESTED:{}'.format(y))
+
+        # wrap in a list if not already
+        if not isinstance(data, list):
+            data = [data]
+
+        # call function with arbitrary arguments
+        try:
+            self[function](*data)
+            return
+        except TypeError as e:
+            LOG.debug(e)
 
     def merge(self):
         self.old['command-state'] = self.stat.state
@@ -1478,8 +1499,8 @@ class _GStat(GObject.GObject):
     def request_cycle_pause(self, data):
         self.emit('cycle-pause-request', data)
 
-    def request_macro_call(self, data):
-        self.emit('macro-call-request', data)
+    def request_macro_call(self, data, key=''):
+        self.emit('macro-call-request', data, key)
 
     def request_reload_display(self, data):
         self.emit('reload-display')
@@ -1492,6 +1513,9 @@ class _GStat(GObject.GObject):
 
     def request_cancel(self, data):
         self.emit('cancel-request', data)
+
+    def request_softkey(self, index):
+        self.emit('softkey-pressed', index)
 
     #############################################
 
