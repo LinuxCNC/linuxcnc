@@ -56,6 +56,7 @@
 #include "libnml/rcs/rcs_print.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
+#include <kinematics.h>		// SWITCHKINS_MAX_TYPES
 #include "nml_intf/canon.hh"
 #include "nml_intf/canon_position.hh"		// data type for a machine position
 #include "nml_intf/interpl.hh"		// interp_list
@@ -1203,6 +1204,17 @@ void FINISH() {
 
 void ON_RESET() {
     drop_segments();
+}
+
+void SELECT_KINS_TYPE(int switchkins_type)
+{
+    flush_segments();
+
+    auto selectKinsMsg = std::make_unique<EMC_TRAJ_SELECT_KINS>();
+
+    selectKinsMsg->switchkins_type = switchkins_type;
+
+    interp_list.append(std::move(selectKinsMsg));
 }
 
 
@@ -4038,6 +4050,23 @@ double GET_EXTERNAL_PROBE_POSITION_W(void)
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 {
     return canon.motionMode;
+}
+
+int GET_EXTERNAL_KINS_TYPE()
+{
+    // motion publishes the kinematics it is actually running, which is
+    // not necessarily the one G-code last asked for: an abort can drop a
+    // queued switch, and the motion.switchkins-type pin can select one
+    // without the interpreter seeing it
+    return emcStatus->motion.traj.switchkins_type;
+}
+
+int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
+{
+    // as the kinematics module declares it, through motion's status;
+    // -1 for a type it does not provide
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) return -1;
+    return emcStatus->motion.traj.switchkins_flags[ktype];
 }
 
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()

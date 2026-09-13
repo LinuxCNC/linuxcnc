@@ -34,6 +34,7 @@
 #include "interp_internal.hh"
 #include "interp_queue.hh"
 #include "interp_parameter_def.hh"
+#include "kinematics.h"          // KINSTYPE_IDENTITY, SWITCHKINS_MAX_TYPES
 
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==CUTTER_COMP::LEFT&&(turn)>0)||((side)==CUTTER_COMP::RIGHT&&(turn)<0))
@@ -4353,7 +4354,20 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
     CHP(convert_nurbs(code, block, settings));
-  } else if ((code == G_4) || (code == G_53));  // handled elsewhere 
+  } else if ((code == G_4) || (code == G_53));  // handled elsewhere
+  else if ((code == G_12_1) || (code == G_13_1)) {
+    // The flag makes the interpreter wait for motion to drain, so that no
+    // motion is planned across a change of kinematics.  Reading runs far
+    // ahead of the machine, so an empty queue now says nothing about what
+    // will be queued: ask every time.  The exception is an
+    // ON_ABORT_COMMAND routine, run by one execute() call that cannot
+    // service INTERP_EXECUTE_FINISH and would drop the rest of the
+    // routine; the abort has just flushed the queue anyway.
+    if (!settings->in_abort_command) {
+      settings->kinsSwitch_flag = true;
+    }
+    CHP(convert_kins_switch(code, block, settings));
+  }
   else
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
@@ -6489,6 +6503,73 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
   SELECT_TOOL(block->t_number);
   settings->selected_pocket = idx;
   settings->selected_tool = block->t_number;
+  return INTERP_OK;
+}
+
+/*! convert_kins_switch
+
+Returned Value: int (INTERP_OK)
+
+Side effects:
+   The selected kinematics is sent to the motion controller and recorded
+   in the interpreter so that #<_kins_type> reports it.
+
+Called by: convert_modal_0
+
+G12.1 P- selects a kinematics; G13.1 cancels back to identity kinematics,
+which the module declares with a flag rather than by number.  Both are
+queue synchronisation points: the caller sets kinsSwitch_flag, which makes
+the interpreter wait for motion to drain before the switch takes effect,
+so no motion is ever planned across a change of kinematics.
+
+*/
+
+// the kinematics module declares what each type is (KINSTYPE_* flags);
+// where the flags say nothing at all there is no kinematics attached
+// (sai, preview) and the codes fall back to type 0, as before
+static int kins_type_info_available()
+{
+  int k;
+
+  for (k = 0; k < SWITCHKINS_MAX_TYPES; k++) {
+    if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) >= 0) return 1;
+  }
+  return 0;
+}
+
+int Interp::convert_kins_switch(int code,                //!< G_12_1 or G_13_1
+                                block_pointer block,     //!< pointer to a block of RS274 instructions
+                                setup_pointer settings)  //!< pointer to machine settings
+{
+  int kins_type;
+
+  if (code == G_13_1) {
+    int k;
+
+    // G13.1 cancels to identity kinematics; which type that is, the
+    // module declares, the number is not the answer
+    for (k = 0, kins_type = -1; k < SWITCHKINS_MAX_TYPES; k++) {
+      if (GET_EXTERNAL_KINS_TYPE_FLAGS(k) & KINSTYPE_IDENTITY) {
+        kins_type = k;
+        break;
+      }
+    }
+    if (kins_type < 0) {
+      CHKS(kins_type_info_available(), NCE_NO_IDENTITY_KINEMATICS_TYPE);
+      kins_type = 0; // no kinematics attached: standalone interpreter
+    }
+  } else {
+    kins_type = round_to_int(block->p_number);
+
+    CHKS((kins_type < 0), _("G12.1 requires a non-negative P word"));
+    // say so at read time rather than aborting mid-program in motion
+    CHKS((kins_type_info_available()
+          && GET_EXTERNAL_KINS_TYPE_FLAGS(kins_type) < 0),
+         NCE_KINS_TYPE_NOT_PROVIDED);
+  }
+
+  SELECT_KINS_TYPE(kins_type);
+  settings->kins_type = kins_type;
   return INTERP_OK;
 }
 

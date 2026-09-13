@@ -112,6 +112,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_FH_ENABLE_TYPE                  ((NMLTYPE) 236)
 #define EMC_TRAJ_RIGID_TAP_TYPE                      ((NMLTYPE) 237)
 
+#define EMC_TRAJ_SELECT_KINS_TYPE             ((NMLTYPE) 289)
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
 // EMC_MOTION aggregate class type declaration
@@ -214,7 +215,8 @@ enum class EMC_TASK_EXEC {
     WAITING_FOR_MOTION_AND_IO = 7,
     WAITING_FOR_DELAY = 8,
     WAITING_FOR_SYSTEM_CMD = 9,
-    WAITING_FOR_SPINDLE_ORIENTED = 10
+    WAITING_FOR_SPINDLE_ORIENTED = 10,
+    WAITING_FOR_KINS_SWITCH = 11
 };
 
 // types for EMC_TASK interpState
@@ -460,6 +462,7 @@ int emcSetupArcBlends(int arcBlendEnable,
 int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
 int emcGetExternalOffsetApplied(void);
 EmcPose emcGetExternalOffsets(void);
+extern int emcSelectKinsType(int switchkins_type);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

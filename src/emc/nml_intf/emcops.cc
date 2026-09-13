@@ -94,8 +94,14 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     feed_override_enabled(OFF),
     adaptive_feed_enabled(OFF),
     feed_hold_enabled(OFF),
+    switchkins_type(0),
+    switchkins_seq(0),
+    switchkins_changed(false),
     tag()
 {
+    // -1 = nothing known yet; a zero here would read as "types exist
+    // but declare nothing" before motion's first status lands
+    for (int i = 0; i < SWITCHKINS_MAX_TYPES; i++) switchkins_flags[i] = -1;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT()

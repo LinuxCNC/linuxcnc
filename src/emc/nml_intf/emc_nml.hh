@@ -16,6 +16,7 @@
 #define EMC_NML_HH
 #include <linuxcnc.h>
 #include <emcpos.h>
+#include <kinematics.h>	// SWITCHKINS_MAX_TYPES
 #include "emc.hh"
 #include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
@@ -960,13 +961,27 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
     double vel, ini_maxvel, acc, scale, ini_maxjerk;
 };
 
+class EMC_TRAJ_SELECT_KINS:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SELECT_KINS():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SELECT_KINS_TYPE,
+                        sizeof(EMC_TRAJ_SELECT_KINS)),
+        switchkins_type(0)
+    {};
+
+    int switchkins_type;
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+};
+
 // EMC_TRAJ status base class
 class EMC_TRAJ_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_TRAJ_STAT_MSG(NMLTYPE t, size_t s)
       : RCS_STAT_MSG(t, s)
     {};
-
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
@@ -1025,6 +1040,14 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     //bool spindle_override_enabled; moved to SPINDLE_STAT
     bool adaptive_feed_enabled;
     bool feed_hold_enabled;
+
+    int switchkins_type;     // switchkins type now in force
+    int switchkins_seq;      // motion's request counter, echoed once seen
+    bool switchkins_changed; // a switch landed, task has yet to synch
+    int switchkins_flags[SWITCHKINS_MAX_TYPES]; // what each type is
+                             // (KINSTYPE_*), as the module declares it;
+                             // -1 for a type the module does not provide
+
     StateTag tag;
 };
 
@@ -1167,6 +1190,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int numExtraJoints;
     bool jogging_active;
     uint64_t heartbeat;  // motion controller's heartbeat counter
+
 };
 
 // declarations for EMC_TASK classes

@@ -300,12 +300,42 @@ static bool joint_jog_is_active(void) {
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
+    static int prev_hal_switchkins_type = 0;
+    static int said_hal_is_deprecated = 0;
+    int requested_type;
 
     if (!kinematicsSwitchable()) return;
-    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
-    if (switchkins_type == hal_switchkins_type) return;
 
-    switchkins_type = hal_switchkins_type;
+    /* Two things can ask for a kinematics: G12.1/G13.1, and the
+       motion.switchkins-type pin.  Both are taken on their edge, so that
+       whichever asked most recently wins.  Writing the pin here instead
+       would not work: configs source it from an analog output, which
+       would put its own value back on the next servo cycle. */
+    hal_switchkins_type = (int)hal_get_real(emcmot_hal_data->switchkins_type);
+    requested_type      = switchkins_type;
+
+    if (emcmotStatus->switchkins_seq != emcmotConfig->switchkins_seq) {
+        requested_type         = emcmotConfig->switchkins_type;
+        emcmotStatus->switchkins_seq = emcmotConfig->switchkins_seq;
+    } else if (hal_switchkins_type != prev_hal_switchkins_type) {
+        requested_type = hal_switchkins_type;
+        /* Once per session.  The pin cannot become the general way to
+           switch: the interpreter does not see it, so a program is read,
+           its limits checked and its path looked ahead in whatever
+           kinematics the interpreter last knew about. */
+        if (!said_hal_is_deprecated) {
+            said_hal_is_deprecated = 1;
+            reportError(_("motion.switchkins-type is deprecated, use G12.1 and"
+                          " G13.1.  Switching kinematics from HAL is invisible"
+                          " to the interpreter, so limits and look ahead go on"
+                          " using the kinematics it last knew about."));
+        }
+    }
+    prev_hal_switchkins_type = hal_switchkins_type;
+
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
+    if (switchkins_type == requested_type) return;
 
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
@@ -317,12 +347,21 @@ static void handle_kinematicsSwitch(void) {
         joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
     }
 
-    if (kinematicsSwitch(switchkins_type)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
-                        hal_get_real(emcmot_hal_data->switchkins_type));
+    /* a module refuses a type it does not provide and goes on running the
+       one it has, so nothing is recorded until the switch has happened */
+    if (kinematicsSwitch(requested_type)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%d>\n",
+                        requested_type);
+        reportError(_("kinematics type %d is not provided by this module,"
+                      " type %d is still in force"),
+                    requested_type, switchkins_type);
         SET_MOTION_ERROR_FLAG(1);  // abort
-        return; // no updates for abort
+        return; // the kinematics in force is unchanged
     }
+
+    switchkins_type = requested_type;
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
 
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
     KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
