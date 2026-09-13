@@ -436,7 +436,7 @@ static void print_help_general(int showR)
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
 
-#ifdef HAVE_READLINE
+#if defined(HAVE_READLINE) || defined(HAVE_EDITLINE_READLINE_H)
 #include "halcmd_completion.h"
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
