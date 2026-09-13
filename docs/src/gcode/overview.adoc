@@ -1161,6 +1161,68 @@ The formatting string does not need to be right beside the parameter.
 If the formatting string is created with the wrong pattern it will be
 printed as characters.
 
+[[gcode:workpiece]]
+== Workpiece
+
+(((Workpiece)))
+A '(WORKPIECE,...)' comment declares the stock the program is cut from. The
+G-code preview draws it as a wireframe outline around the toolpath; it has no
+effect on machine behaviour, on the program extents, or on zoom-to-fit.
+
+Three shapes are understood:
+
+[source,ngc]
+----
+(WORKPIECE,BOX,XMIN=0,YMIN=0,ZMIN=-40,XMAX=100,YMAX=100,ZMAX=0)
+(WORKPIECE,CYLINDER,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,DIAMETER=80)
+(WORKPIECE,TUBE,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,DIAMETER=80,INNER_DIAMETER=40)
+----
+
+Keys may appear in any order and are case-insensitive, as are the shape names.
+
+.Keys
+[width="90%",options="header",cols="2,1,4"]
+|===
+|Key |Shapes |Meaning
+|'XMIN' 'YMIN' 'ZMIN' 'XMAX' 'YMAX' 'ZMAX' |BOX |The two opposite corners. All
+ six are required, and no 'MIN' may exceed its 'MAX'.
+|'AXIS' |CYLINDER, TUBE |The axis of revolution, 'X', 'Y' or 'Z'. Optional,
+ default 'Z'.
+|'<axis>MIN' '<axis>MAX' |CYLINDER, TUBE |The extent along 'AXIS' - so
+ 'ZMIN'/'ZMAX' for 'AXIS=Z'. Both required.
+|the other two axis letters |CYLINDER, TUBE |Where the axis sits in the other
+ two directions - 'X' and 'Y' for 'AXIS=Z'. Optional, default 0.
+|'DIAMETER' |CYLINDER, TUBE |The outside diameter; required, and always a
+ diameter, never a radius, regardless of lathe diameter mode (G7).
+|'INNER_DIAMETER' |TUBE |The bore diameter; required, and must be greater than
+ zero and less than 'DIAMETER'.
+|'UNITS' |all |'MM' or 'INCH'. Optional; without it the values are read in the
+ units modal at the comment (G20/G21).
+|===
+
+Several '(WORKPIECE,...)' comments are additive: each one adds a piece of
+stock, so a fixture holding several parts can be described with one comment
+per piece.
+
+The coordinates are read in the coordinate system active where the comment
+appears - the G92 offset, the G5x XY rotation and the G5x offset in force at
+that line, exactly as for a move endpoint on the same line. There is no key to
+name a coordinate system; a post processor must therefore emit the comment
+'after' the work offset it belongs to:
+
+[source,ngc]
+----
+G54
+(WORKPIECE,BOX,XMIN=0,YMIN=0,ZMIN=-40,XMAX=100,YMAX=100,ZMAX=0)
+----
+
+Unknown keys are ignored, so a comment written for a later version of LinuxCNC
+still draws what this one understands. Anything else malformed - a missing
+required key, a value that is not a number, an unrecognised shape - is ignored
+with a warning, and the rest of the file is interpreted normally. A workpiece
+declared between '(AXIS,hide)' and '(AXIS,show)' is still drawn: those comments
+suppress moves, and the stock is not a move.
+
 [[gcode:file-requirements]]
 == File Requirements
 

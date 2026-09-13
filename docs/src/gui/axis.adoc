@@ -992,6 +992,9 @@ preview on certain parts that are already working OK).
 
 This display can be useful in the AXIS preview when (debug,message) comments are not displayed.
 
+The preview can also draw the stock the program is cut from; see the
+<<gcode:workpiece,Workpiece>> section.
+
 [[axis:touchoff-actual]]
 === Touch Off using Actual Position
 The Touch Off feature can optionally incorporate the actual axis position value into the calculation for the offset.  This is primarily used in cases where a non-motorized axis such as the quill in a milling machine provides feedback to LinuxCNC via an encoder, but there is no motor to control movement.  This allows AXIS to provide a DRO display for such an axis with working touch off capability.

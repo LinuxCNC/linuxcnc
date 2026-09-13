@@ -441,6 +441,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         return self.show_offsets
     _offsets = Property(bool, getShowOffsets, setShowOffsets)
 
+    # show workpiece
+    def setShowWorkpiece(self, state):
+        self.show_workpiece = state
+        self.update()
+    def getShowWorkpiece(self):
+        return self.show_workpiece
+    _workpiece = Property(bool, getShowWorkpiece, setShowWorkpiece)
+
     # show small origin
     def setShowSmallOrigin(self, state):
         self.show_small_origin = state
