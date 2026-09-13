@@ -260,6 +260,45 @@ int xyzacKinematicsInverse(const EmcPose * pos,
     return 0;
 } // xyzacKinematicsInverse()
 
+int xyzacKinematicsWorkFrame(const double *joints,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    // the forward transform's coefficients for a displacement of the X, Y and
+    // Z joints are the rotation from machine into work, so the work frame in
+    // machine coordinates is their transpose, written out directly here
+    const double a_rad = joints[JA]*TO_RAD;
+    const double c_rad = joints[JC]*TO_RAD;
+
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+
+    rot->x.x =       cos(c_rad);
+    rot->y.x = con * sin(c_rad);
+    rot->z.x = 0;
+
+    rot->x.y = - con * sin(c_rad) * cos(a_rad);
+    rot->y.y =         cos(c_rad) * cos(a_rad);
+    rot->z.y =   con *              sin(a_rad);
+
+    rot->x.z =         sin(c_rad) * sin(a_rad);
+    rot->y.z = - con * cos(c_rad) * sin(a_rad);
+    rot->z.z =                      cos(a_rad);
+
+    return 0;
+} // xyzacKinematicsWorkFrame()
+
+int xyzacKinematicsToolFrame(const double *joints,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)joints;
+    (void)fflags;
+    // both rotaries carry the work, so the tool never turns in the machine
+    *rot = TOOL_FRAME_SPINDLE;
+    return 0;
+} // xyzacKinematicsToolFrame()
+
 int xyzbcKinematicsForward(const double *joints,
                            EmcPose * pos,
                            const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -364,3 +403,40 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
 
     return 0;
 } // xyzbcKinematicsInverse()
+
+int xyzbcKinematicsWorkFrame(const double *joints,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)fflags;
+    // see the comment in xyzacKinematicsWorkFrame()
+    const double b_rad = joints[JB]*TO_RAD;
+    const double c_rad = joints[JC]*TO_RAD;
+
+    rtapi_real con = hal_get_bool(haldata->conventional_directions) ? 1.0 : -1.0;
+
+    rot->x.x =         cos(c_rad) * cos(b_rad);
+    rot->y.x =   con * sin(c_rad) * cos(b_rad);
+    rot->z.x = - con *              sin(b_rad);
+
+    rot->x.y = - con * sin(c_rad);
+    rot->y.y =         cos(c_rad);
+    rot->z.y = 0;
+
+    rot->x.z =   con * cos(c_rad) * sin(b_rad);
+    rot->y.z =         sin(c_rad) * sin(b_rad);
+    rot->z.z =                      cos(b_rad);
+
+    return 0;
+} // xyzbcKinematicsWorkFrame()
+
+int xyzbcKinematicsToolFrame(const double *joints,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)joints;
+    (void)fflags;
+    // both rotaries carry the work, so the tool never turns in the machine
+    *rot = TOOL_FRAME_SPINDLE;
+    return 0;
+} // xyzbcKinematicsToolFrame()

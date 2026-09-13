@@ -102,6 +102,60 @@ extern int kinematicsHome(struct EmcPose * world,
 
 extern KINEMATICS_TYPE kinematicsType(void);
 
+/* These two give the orientation of the tool and of the workpiece for a set
+   of joint values.  Each returns a rotation whose columns are that frame's
+   axes expressed in MACHINE coordinates, the frame fixed to the bed that
+   nothing rotates.  Note that this is not the frame kinematicsForward()
+   reports positions in, which is attached to the workpiece; see the
+   Kinematics Conventions chapter.
+
+   They are reported separately, and not as the single work-to-tool rotation,
+   because the product cannot be taken apart again.  A consumer that has to
+   place both bodies, a simulation model or a preview, needs each one against
+   the machine.  A consumer that wants the tool in workpiece coordinates,
+   which is what a tilted work plane asks for, composes them itself:
+
+       tool_in_work = transpose(work) * tool
+
+   The third column of the tool frame is the tool axis: a direction, not to be
+   confused with the tool length, which is the distance applied along it.  It
+   runs from the tool tip towards the holder.  The origin of the tool frame is
+   the controlled point that kinematicsForward() reports for the same joints.
+
+   The frame is what the joints do.  The virtual rotation about the tool axis
+   that a tilted work plane applies, the pre-rot pin on the in-tree
+   components, is not part of it: it is a rotation of the coordinate system,
+   applied by whoever programs in the frame, which is where Heidenhain's
+   COORD ROT, Fanuc's feature coordinate system and Siemens' swivel frame keep
+   it as well.  A consumer that wants tool x as programmed multiplies the
+   frame by that rotation itself; it has the pin.
+
+   A module whose own maths is in the other sense, which is every module built
+   on the ISO 9787 flange frame or on Denavit-Hartenberg parameters, does not
+   fix that up by hand: it declares the rotation relating its frame to the
+   convention and the shared code applies it.  Reversing the tool axis is a
+   rotation, not a sign.  Negating the third column alone gives determinant -1,
+   a reflection, and which half turn is used decides where tool x ends up.
+
+   A machine that turns only the tool returns the identity for the work frame,
+   and one that turns only the work returns the identity for the tool frame.
+   Machines that do both, which is every table-rotary head-rotary mill, return
+   a non-trivial pair and are the reason for reporting them apart.
+
+   Both are optional.  Modules built on switchkins.c export them always and
+   return -1 for a switchkins type that has not supplied one; other modules
+   need not export them at all, so a caller resolving them dynamically has to
+   cope with their absence.
+
+   Return 0 on success, -1 if the frame is not available. */
+extern int kinematicsToolFrame(const double *joint,
+                               PmRotationMatrix *rot,
+                               const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int kinematicsWorkFrame(const double *joint,
+                               PmRotationMatrix *rot,
+                               const KINEMATICS_FORWARD_FLAGS *fflags);
+
 /* parameters for use with switchkins.c */
 typedef struct kinematics_parms {
   char* sparm;     // module string parameter passed to kins
@@ -157,6 +211,135 @@ extern int identityKinematicsInverse(const struct EmcPose * world,
                                      const KINEMATICS_INVERSE_FLAGS * iflags,
                                      KINEMATICS_FORWARD_FLAGS * fflags);
 
+/* joints are axes, so neither frame ever turns */
+extern int identityKinematicsToolFrame(const double *joint,
+                                       PmRotationMatrix *rot,
+                                       const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int identityKinematicsWorkFrame(const double *joint,
+                                       PmRotationMatrix *rot,
+                                       const KINEMATICS_FORWARD_FLAGS *fflags);
+
+/* Rotations relating a module's own frame to the tool frame convention.
+   TOOL_FRAME_SPINDLE is the identity, for maths already in the convention.
+   TOOL_FRAME_FLANGE is the half turn about tool x that turns an ISO 9787
+   flange frame, whose z points out of the mechanical interface towards the
+   work, into the convention. */
+extern const PmRotationMatrix TOOL_FRAME_SPINDLE;
+extern const PmRotationMatrix TOOL_FRAME_FLANGE;
+
+/* Post-multiply a module's native frame by the rotation it declared, in
+   place.  Modules built on switchkins.c never call this, the dispatch does it
+   for them; a standalone module calls it before returning.
+   Returns 0, or -1 if native is not a proper rotation. */
+extern int toolFrameApplyNative(PmRotationMatrix *rot,
+                                const PmRotationMatrix *native);
+
+/* out = transpose(work) * tool, the tool frame in workpiece coordinates.
+   out may alias neither input. */
+extern int toolFrameInWork(const PmRotationMatrix *work,
+                           const PmRotationMatrix *tool,
+                           PmRotationMatrix *out);
+
+/* True if m is orthonormal with determinant +1, so a frame a machine can
+   actually hold.  Used to check a declared rotation once, at load. */
+extern int toolFrameIsProper(const PmRotationMatrix *m);
+
+/* The inverse of kinematicsToolFrame(): which joint values point the tool
+   along a requested direction.  This is the question a tilted work plane asks
+   when it has to orient the machine, and the one vector format G-code asks
+   for every block.
+
+   axis_in_work is the wanted tool axis and x_in_work the wanted tool x, both
+   in workpiece coordinates, both in the sense of transpose(work) * tool.
+   x_in_work may be NULL, which leaves the spin about the tool free.  Where it
+   is given, the two have to be at right angles, being two axes of one frame.
+
+   Asking for tool x does not require a joint that can reach it.  A five axis
+   machine spends both rotaries on the tool axis, and the turn about that axis
+   is not a joint at all: it is the virtual rotation, the pre-rot pin on the
+   in-tree components.  So where the joints can place tool x, on a machine with
+   a third orientation joint, they do and tool_spin comes back zero; where they
+   cannot, the joints reach the axis and tool_spin carries the turn about it
+   that finishes the job, in radians, in the sense of the virtual rotation.
+   Either way the caller writes one path, and which kind of machine it has is a
+   number that happens to be zero rather than a branch.  tool_spin may be NULL,
+   but then a request for tool x that the joints cannot reach has nowhere to
+   put its answer and reports no solutions.
+
+   seed is a full set of joint values, normally where the machine is now.  The
+   joints that do not affect the tool orientation are copied from it, and it
+   breaks the tie where a machine has more orientation joints than the request
+   constrains.
+
+   held is a bit per joint, bit n for joint n, naming the joints the caller
+   does not want moved; they keep their seed value and the request is solved
+   with the rest.  Zero lets every joint that turns the tool take part.  This
+   is the caller's policy and not the module's: a table rotary turns the tool
+   against the work as surely as a head rotary does, so with nothing held a
+   machine with a table and a two axis head has a spare orientation joint, and
+   a bare tool axis leaves a family.  A tilted work plane that keeps the table
+   where it is, as the TWP remap does and as Heidenhain's M138 says, holds it
+   and gets the two head solutions and the spin about the tool that finishes
+   the frame.
+
+   The request is normalised on the way in: axis_in_work is scaled to unit
+   length and x_in_work has its component along the axis removed, so the
+   rounded numbers a program carries do not make an orientation unreachable.
+   A zero vector, or a tool x within a millionth of a radian of lying along
+   the axis, is still refused, since neither describes a frame.
+
+   solutions receives max_solutions complete sets of joint values, one after
+   another, each num_joints long.  free_directions, if not NULL, receives one
+   entry per solution: 0 where the joints are pinned down, and n where the
+   solution is one point of an n dimensional family, which happens at a
+   singular pose and on a machine with a spare orientation joint.  In that case
+   one representative is reported, the one nearest the seed, because the answer
+   is a continuum and a list of samples from it would be arbitrary.
+
+   Joint limits are not applied and no solution is preferred over another: the
+   module answers what the geometry permits, and the caller picks by whatever
+   rule it works to, shortest move or positive rotation only or whatever else.
+
+   Returns the number of solutions, 0 if the orientation cannot be reached, or
+   -1 if the module cannot answer.
+
+   This is not a realtime routine.  It searches, and how long it takes depends
+   on the machine and the request. */
+#define TOOL_FRAME_MAX_SOLUTIONS 8
+#define TOOL_FRAME_MAX_FREE      4
+
+extern int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
+                                      const PmCartesian *x_in_work,
+                                      const double *seed,
+                                      unsigned int held,
+                                      double *solutions,
+                                      int max_solutions,
+                                      int *free_directions,
+                                      double *tool_spin);
+
+/* The generic implementation of the above, driven by a module's own frame
+   functions, so that a module gets it for free once it supplies them.  A
+   module with a closed form registers that instead: it is faster, and it
+   knows its own degenerate poses without having to find them.
+
+   num_joints is the length of seed and of each row of solutions. */
+typedef int (*kinsFrameFunc)(const double *joint,
+                             PmRotationMatrix *rot,
+                             const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int toolFrameSolve(kinsFrameFunc work,
+                          kinsFrameFunc tool,
+                          int num_joints,
+                          const PmCartesian *axis_in_work,
+                          const PmCartesian *x_in_work,
+                          const double *seed,
+                          unsigned int held,
+                          double *solutions,
+                          int max_solutions,
+                          int *free_directions,
+                          double *tool_spin);
+
 extern int kinematicsSwitchable(void);
 extern int kinematicsSwitch(int switchkins_type);
 //NOTE: switchable kinematics may require Interp::Synch
@@ -201,6 +384,14 @@ extern int xyzacKinematicsInverse(const EmcPose * pos,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
 
+extern int xyzacKinematicsToolFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int xyzacKinematicsWorkFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
+
 
 extern int xyzbcKinematicsForward(const double *joints,
                                   EmcPose * pos,
@@ -211,5 +402,13 @@ extern int xyzbcKinematicsInverse(const EmcPose * pos,
                                   double *joints,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
+
+extern int xyzbcKinematicsToolFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
+
+extern int xyzbcKinematicsWorkFrame(const double *joints,
+                                   PmRotationMatrix *rot,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags);
 
 //*********************************************************************

@@ -108,6 +108,7 @@ The U, V and W axes also form a standard right-handed coordinate
 system. X and U are parallel, Y and V are parallel, and Z and W are
 parallel (when A, B, and C are rotated to zero).
 
+[[sec:rotational-axes]]
 === Rotational Axes
 
 The rotational axes are measured in degrees as wrapped linear axes in

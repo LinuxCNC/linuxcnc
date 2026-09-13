@@ -42,6 +42,10 @@ static kparms kp; // kinematics parms (common all types)
 static KS ksetups[SWITCHKINS_MAX_TYPES] = {NULL};
 static KF kfwds[SWITCHKINS_MAX_TYPES]   = {NULL};
 static KI kinvs[SWITCHKINS_MAX_TYPES]   = {NULL};
+static KT ktools[SWITCHKINS_MAX_TYPES]  = {NULL};
+static KT kworks[SWITCHKINS_MAX_TYPES]  = {NULL};
+static KTI ktinvs[SWITCHKINS_MAX_TYPES] = {NULL};
+static PmRotationMatrix knative[SWITCHKINS_MAX_TYPES];
 
 // types provided, counted in rtapi_app_main() once they are all in
 static int kins_count;
@@ -212,6 +216,72 @@ int kinematicsInverse(const EmcPose * pos,
     return r;
 } // kinematicsInverse()
 
+int kinematicsToolFrame(const double *joint,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    int r;
+
+    if (   switchkins_type < 0
+        || switchkins_type >= kins_count
+        || !ktools[switchkins_type]) {
+        return -1; // this type does not supply one; not an error
+    }
+    r = ktools[switchkins_type](joint, rot, fflags);
+    if (r) { return r; }
+
+    // the type answers in its own frame; put it in the convention here so
+    // no module has to get the half turn right for itself
+    return toolFrameApplyNative(rot, &knative[switchkins_type]);
+} // kinematicsToolFrame()
+
+int kinematicsWorkFrame(const double *joint,
+                        PmRotationMatrix *rot,
+                        const KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    if (   switchkins_type < 0
+        || switchkins_type >= kins_count
+        || !kworks[switchkins_type]) {
+        return -1; // this type does not supply one; not an error
+    }
+    // no native rotation here: the work frame has no tool axis to point the
+    // wrong way, so there are not two conventions for it to be caught between
+    return kworks[switchkins_type](joint, rot, fflags);
+} // kinematicsWorkFrame()
+
+int kinematicsToolFrameInverse(const PmCartesian *axis_in_work,
+                               const PmCartesian *x_in_work,
+                               const double *seed,
+                               unsigned int held,
+                               double *solutions,
+                               int max_solutions,
+                               int *free_directions,
+                               double *tool_spin)
+{
+    if (   switchkins_type < 0
+        || switchkins_type >= kins_count
+        || !ktools[switchkins_type]
+        || !kworks[switchkins_type]) {
+        return -1; // this type does not report its frames, so it cannot answer
+    }
+
+    // a type that derived the answer by hand knows its own degenerate poses
+    // and is faster than a search, so it wins where it exists
+    if (ktinvs[switchkins_type]) {
+        return ktinvs[switchkins_type](axis_in_work, x_in_work, seed, held,
+                                       solutions, max_solutions,
+                                       free_directions, tool_spin);
+    }
+
+    // the dispatch itself is what the search calls, so the native rotation
+    // and the per-type lookup are already accounted for
+    return toolFrameSolve(kinematicsWorkFrame, kinematicsToolFrame,
+                          kp.max_joints,
+                          axis_in_work, x_in_work, seed, held,
+                          solutions, max_solutions, free_directions,
+                          tool_spin);
+} // kinematicsToolFrameInverse()
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
@@ -240,6 +310,46 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv)
     return 0;
 } // switchkinsRegister()
 
+int switchkinsRegisterFrames(int ktype, KT kwork, KT ktool,
+                             const PmRotationMatrix *native)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterFrames: BAD switchkins_type <%d>"
+                        " (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    // check the declared rotation once here rather than on every call
+    if (!native || !toolFrameIsProper(native)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterFrames: switchkins-type %d"
+                        " declared a rotation that is not orthonormal with"
+                        " determinant +1\n", ktype);
+        register_error = 1;
+        return -1;
+    }
+    kworks[ktype]  = kwork;
+    ktools[ktype]  = ktool;
+    knative[ktype] = *native;
+    return 0;
+} // switchkinsRegisterFrames()
+
+int switchkinsRegisterToolFrameInverse(int ktype, KTI kinv)
+{
+    if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "switchkinsRegisterToolFrameInverse: BAD"
+                        " switchkins_type <%d> (must be 0..%d)\n",
+                        ktype, SWITCHKINS_MAX_TYPES - 1);
+        register_error = 1;
+        return -1;
+    }
+    ktinvs[ktype] = kinv;
+    return 0;
+} // switchkinsRegisterToolFrameInverse()
+
 //*********************************************************************
 static char *coordinates;
 RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
@@ -251,7 +361,12 @@ EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsToolFrame);
+EXPORT_SYMBOL(kinematicsWorkFrame);
+EXPORT_SYMBOL(kinematicsToolFrameInverse);
 EXPORT_SYMBOL(switchkinsRegister);
+EXPORT_SYMBOL(switchkinsRegisterFrames);
+EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
 MODULE_LICENSE("GPL");
 
 static int    comp_id;
@@ -279,6 +394,16 @@ int rtapi_app_main(void)
                           &kinvs[0],   &kinvs[1],   &kinvs[2]);
     if (res) {emsg="switchkinsSetp FAIL"; goto error;}
     if (register_error) {emsg="switchkinsRegister FAIL"; goto error;}
+
+    // an identity type answers the tool frame the same way whichever module
+    // asked for it, so supply it here rather than in every switchkinsSetup()
+    for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
+        if (!ktools[i] && kfwds[i] == identityKinematicsForward) {
+            kworks[i]  = identityKinematicsWorkFrame;
+            ktools[i]  = identityKinematicsToolFrame;
+            knative[i] = TOOL_FRAME_SPINDLE;
+        }
+    }
 
     // the highest type provided by either route sets the count
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
