@@ -374,7 +374,7 @@ public:
         // have still been handed over once, and re-delivering them from a later
         // flush would duplicate them in the consumer's program.
         count_ = 0;
-        PyObject *view = PyMemoryView_FromMemory((char*)buf_,
+        PyObject *view = PyMemoryView_FromMemory(reinterpret_cast<char*>(buf_),
                 (Py_ssize_t)n * ROW * sizeof(double), PyBUF_READ);
         if(!view) { interp_error ++; return; }
         PyObject *result = callmethod(callback, "move_batch", "O", view);

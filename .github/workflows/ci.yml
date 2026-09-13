@@ -23,7 +23,7 @@ env:
 jobs:
 
   rip-and-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
     - name: Dump GitHub context
@@ -74,7 +74,7 @@ jobs:
         .github/scripts/verify-clean-repo.sh
 
   rip-headless:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
     - name: Dump GitHub context
@@ -126,7 +126,7 @@ jobs:
         .github/scripts/verify-clean-repo.sh
 
   rip-rtai:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
     - name: Dump GitHub context
@@ -155,7 +155,7 @@ jobs:
         .github/scripts/verify-clean-repo.sh
 
   rip-and-test-clang:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
     - name: Dump GitHub context
@@ -206,7 +206,7 @@ jobs:
         .github/scripts/verify-clean-repo.sh
 
   cppcheck:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
     - name: Checkout repository
@@ -217,16 +217,19 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        .github/scripts/use-main-ubuntu-mirror.sh
-        sudo apt-get -q update
+        .github/scripts/install-deps.sh
         sudo apt-get --yes install cppcheck
+    - name: Build headers
+      run: |
+        set -x
+        .github/scripts/build-headers.sh --with-realtime=uspace
     - name: Cppcheck
       run: |
         set -x
         scripts/cppcheck.sh
 
   shellcheck:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 45
     steps:
     - name: Checkout repository
@@ -249,7 +252,7 @@ jobs:
         scripts/shellcheck.sh
 
   htmldocs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     steps:
     - name: Dump GitHub context
@@ -275,15 +278,15 @@ jobs:
       run: scripts/manpage-name-check.py --enforce docs/build/man
     - name: Check for derived-id section references
       run: scripts/docs-anchor-check.py --enforce
-    - name: Verify no untracked or modified files after build
-      run: |
-        #*.po and documentation.pot are modifyed by build. Ignore them for now.
-        .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: HTML checks
       run: |
         set -x
         #-w sets warn only, remove to generate a CI failure on error
         scripts/htmlcheck.sh -w
+    - name: Verify no untracked or modified files after build
+      run: |
+        #*.po and documentation.pot are modified by build. Ignore them for now.
+        .github/scripts/verify-clean-repo.sh ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: Tar linuxcnc-doc
       run: |
         set -x
@@ -301,7 +304,7 @@ jobs:
     timeout-minutes: 75
     strategy:
       matrix:
-        runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
+        runner: ["ubuntu-26.04", "ubuntu-26.04-arm"]
         image: ["debian:bookworm", "debian:trixie", "debian:sid"]
         include:
           - allow_fail: False
@@ -391,7 +394,7 @@ jobs:
         if-no-files-found: error
 
   package-indep:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 75
     strategy:
       matrix:
@@ -444,7 +447,7 @@ jobs:
         .github/scripts/build-package-indep.sh
     - name: Verify no untracked or modified files after build
       run: |
-        #*.po and documentation.pot are modifyed by build. Ignore them for now.
+        #*.po and documentation.pot are modified by build. Ignore them for now.
         .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog' ':(exclude)docs/po/*.po' ':(exclude)docs/po/documentation.pot'
     - name: Install debian packages
       run: |
@@ -481,7 +484,7 @@ jobs:
     if: (github.event_name == 'release' && github.event.action == 'published') || startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
     - name: Download artifacts
       uses: actions/download-artifact@v8
