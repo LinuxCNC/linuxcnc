@@ -3238,7 +3238,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double 
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
+static void use_tool_length_offset(const EmcPose& offset, const EmcPose *point)
 {
     auto set_offset_msg = std::make_unique<EMC_TRAJ_SET_OFFSET>();
 
@@ -3267,12 +3267,29 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
     set_offset_msg->offset.v = TO_EXT_LEN(canon.toolOffset.v);
     set_offset_msg->offset.w = TO_EXT_LEN(canon.toolOffset.w);
 
+    set_offset_msg->have_point = (point != nullptr);
+    if (point) {
+        CANON_POSITION at(*point);
+        from_prog(at);
+        set_offset_msg->point = to_ext_pose(at);
+    }
+
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
             SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
         }
     }
     interp_list.append(std::move(set_offset_msg));
+}
+
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
+{
+    use_tool_length_offset(offset, nullptr);
+}
+
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& point)
+{
+    use_tool_length_offset(offset, &point);
 }
 
 /* CHANGE_TOOL results from M6 */
@@ -4246,6 +4263,11 @@ int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
     // -1 for a type it does not provide
     if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) return -1;
     return emcStatus->motion.traj.switchkins_flags[ktype];
+}
+
+bool GET_EXTERNAL_KINEMATICS_IDENTITY()
+{
+    return emcStatus->motion.traj.kinematics_type == KINEMATICS_IDENTITY;
 }
 
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()

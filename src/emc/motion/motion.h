@@ -281,6 +281,10 @@ extern "C" {
     double joint_target[EMCMOT_MAX_JOINTS];
     int have_joint_target;
     double joint_seconds;       /* 0 for a rapid, else the time the move is to take */
+
+    /* SET_OFFSET: pos is where the interpreter expects the point to be
+       once the offset is on, for motion to check its own answer against */
+    int have_point;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
