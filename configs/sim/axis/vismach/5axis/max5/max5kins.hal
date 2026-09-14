@@ -16,9 +16,7 @@ loadusr -W ./max5gui.py
 
 # set a visible tool
 setp max5gui.tool-radius 3
-# the tool length is applied along the tool, not along Z, so the tip stays
-# on the programmed point as B tilts
-net tool-len motion.tooloffset.z max5gui.tool-length maxkins.tool-length
+net tool-len motion.tooloffset.z max5gui.tool-length
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread

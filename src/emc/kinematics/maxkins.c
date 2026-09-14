@@ -35,7 +35,7 @@
 static const kins_param_desc max_params[] = {
     { "pivot-length",            KINS_PARAM_FLOAT, KINS_IO, 0, 0.666 },
     { "conventional-directions", KINS_PARAM_BIT,   KINS_IN, 0, 0 }, // default is unconventional
-    { "tool-length",             KINS_PARAM_FLOAT, KINS_IN, 0, 0 },
+    { "tool-length",             KINS_PARAM_FLOAT, KINS_IN, 1, 0 },
 };
 enum { P_PIVOT_LENGTH, P_CON, P_TOOL_LENGTH };
 
