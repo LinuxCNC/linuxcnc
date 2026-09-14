@@ -12,8 +12,8 @@
 *
 * Notes:
 *  1) pivot-length must agree with the mechanical design
-*     (including vismach simulation); the tool length comes
-*     in on the tool-length pin of its own
+*     (including vismach simulation); the tool length is
+*     the offset motion applies, handed over by motion
 *  2) C axis: spherical coordinates aziumthal angle (t or theta)
 *     projection of radius to xy plane
 *  3) B axis: spherical coordinates polar angle (p or phi)
@@ -63,7 +63,7 @@
 // the geometry, one pin each; the maths reads it from the block
 static const kins_param_desc fiveaxis_params[] = {
     { "pivot-length", KINS_PARAM_FLOAT, KINS_IN, 0, DEFAULT_PIVOT_LENGTH },
-    { "tool-length",  KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },
+    { "tool-length",  KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
 };
 enum { P_PIVOT_LENGTH, P_TOOL_LENGTH };
 
