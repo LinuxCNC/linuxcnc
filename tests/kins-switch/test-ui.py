@@ -154,37 +154,75 @@ if g434 != want_g434:
 else:
     print("G43.4 switched to primary with the offset, G49 cancelled both")
 
-# ---- the tool length reaches the kinematics with nothing netted ----------
+# ---- a tool length under a tilt keeps the joints ------------------------
 #
-# Motion hands the module the offset G43 puts in effect.  The head is
-# tilted, so the offset moves the joints, by the tilt term of the length:
-# the same length along the tool axis instead of along Z.
+# Motion hands the module the offset G43 puts in effect, with nothing
+# netted.  The head is tilted, so the length lies along the tool axis
+# instead of along Z: the point the joints stand on moves by the tilt
+# term of the length, and the joints stay where they are.  The
+# interpreter works out the same point ahead of motion, so a move to
+# where it thinks the machine is goes nowhere.
 
 import math
 c.mode(linuxcnc.MODE_MDI)
 c.wait_complete(30)
 drain()
+
+def pose():
+    s.poll()
+    return list(s.position[:3])
+
+def tool_length_check(what, before_joints, before_pose, after_joints, after_pose, want):
+    if max(abs(after_joints[j] - before_joints[j]) for j in range(JOINTS)) > 1e-6:
+        error("%s moved the joints by %s" % (what,
+              " ".join("%.4f" % (after_joints[j] - before_joints[j]) for j in range(JOINTS))))
+    got = [after_pose[j] - before_pose[j] for j in (0, 1, 2)]
+    if max(abs(g - w) for g, w in zip(got, want)) > 1e-3:
+        error("%s moved the point by %s, not %s" % (what,
+              " ".join("%.4f" % v for v in got), " ".join("%.4f" % v for v in want)))
+    said = [m[1].strip() for m in drain() if m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR)]
+    if said:
+        error("%s raised %s" % (what, said))
+    # the interpreter's point: a move of nothing from it goes nowhere
+    mdi("G91")
+    stayed = mdi("G0 X0 Y0 Z0")
+    mdi("G90")
+    if max(abs(stayed[j] - after_joints[j]) for j in range(JOINTS)) > 1e-6:
+        error("after %s the interpreter has the point elsewhere: a move of nothing moved the joints by %s"
+              % (what, " ".join("%.4f" % (stayed[j] - after_joints[j]) for j in range(JOINTS))))
+
 mdi("G12.1 P0")
 mdi("G0 X10 Y10 Z-5 B-22.5 C45")
 mdi("G49")
+errors_before = errors
 before = mdi("G0 X10 Y10 Z-5")
+before_pose = pose()
 after = mdi("G43.4 H1")
+pose_after = pose()
 L = 12.5                                # tool 1 in tool.tbl
 b, cc = math.radians(-22.5), math.radians(45)
-want = [-L * math.sin(math.pi - b) * math.cos(cc),
-        -L * math.sin(math.pi - b) * math.sin(cc),
-        -L * (1 + math.cos(math.pi - b))]
-got = [after[j] - before[j] for j in (0, 1, 2)]
-if max(abs(g - w) for g, w in zip(got, want)) > 1e-3:
-    error("G43.4 in the tilted pose moved the joints by %s, not %s"
-          % (" ".join("%.4f" % v for v in got), " ".join("%.4f" % v for v in want)))
-else:
-    print("G43.4 moved the joints by the tilt term of the tool length")
+# the length along the tool axis, less the length along Z the offset stands for
+want = [L * math.sin(math.pi - b) * math.cos(cc),
+        L * math.sin(math.pi - b) * math.sin(cc),
+        L * (1 + math.cos(math.pi - b))]
+tool_length_check("G43.4 in the tilted pose", before, before_pose, after, pose_after, want)
 # G49 would drop to identity and hold the joints where they are; a zero
 # offset without a switch takes the length back out
 back = mdi("G43.1 Z0")
-if max(abs(back[j] - before[j]) for j in (0, 1, 2)) > 1e-3:
-    error("a zero tool length did not take the length back out of the joints")
+tool_length_check("a zero tool length", after, pose_after, back, pose(), [-w for w in want])
+if errors == errors_before:
+    print("a tool length under a tilt moved the point, not the joints")
+
+# a point-to-point move ends on joints motion holds while the point
+# stays; a tool length moves the point, and the joints are held on
+errors_before = errors
+p2p = mdi("G53.4 G0 X10 Y10 Z-5 B-22.5 C45")
+p2p_pose = pose()
+after = mdi("G43.1 Z%g" % L)
+tool_length_check("a tool length after a point-to-point move", p2p, p2p_pose, after, pose(), want)
+if errors == errors_before:
+    print("a tool length after a point-to-point move keeps the joints too")
+mdi("G43.1 Z0")
 mdi("G49")
 
 # ---- a negative kinematics number is refused -----------------------------

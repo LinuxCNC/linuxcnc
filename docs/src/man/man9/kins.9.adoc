@@ -207,7 +207,9 @@ documentation for more info)
 
 *genhexkins.tool-offset*::
   TCP offset from platform origin along Z to implement RTCP function.
-  To avoid joints jump change tool offset only when the platform is not tilted.
+  Motion hands the module the offset in effect (G43, G49), so the pin needs
+  no connection. A tool offset change with the platform tilted moves the
+  programmed point, not the joints.
 
 === genserkins - generalized serial kinematics
 
@@ -254,8 +256,8 @@ replacing it. Put a given length in one column or the other, not both.
   Tool length, applied along the tool rather than along Z, so that the tip
   stays on the programmed point as B tilts. Motion hands the module the
   offset in effect (G43, G49), so the pin needs no connection; it is read
-  only until motion has sent anything. To avoid a joint jump, change the
-  tool offset only when B is 0.
+  only until motion has sent anything. A tool offset change with B tilted
+  moves the programmed point, not the joints.
 
 === pentakins - Pentapod Kinematics
 
@@ -291,7 +293,9 @@ The forward kinematics iteration is controlled by HAL pins.
 
 *pentakins.tool-offset*::
   TCP offset from effector origin along Z to implement RTCP function.
-  To avoid joints jump change tool offset only when the platform is not tilted.
+  Motion hands the module the offset in effect (G43, G49), so the pin needs
+  no connection. A tool offset change with the platform tilted moves the
+  programmed point, not the joints.
 
 === pumakins - kinematics for puma typed robots
 
@@ -416,8 +420,8 @@ expected by it (XYZBCW `->` joints 0..5)
   Tool length, applied along the tool rather than along Z, so that the tip
   stays on the programmed point as B and C move. Motion hands the module the
   offset in effect (G43, G49), so the pin needs no connection; it is read
-  only until motion has sent anything. To avoid a joint jump, change the
-  tool offset only when B is 0. A tool length in the W column of the tool
+  only until motion has sent anything. A tool offset change with B tilted
+  moves the programmed point, not the joints. A tool length in the W column of the tool
   table reaches the same place, once a block commands W, and adds to this
   one rather than replacing it. Put a given length in one column or the
   other, not both.

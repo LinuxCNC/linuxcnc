@@ -1568,6 +1568,8 @@ void EMC_TRAJ_SET_OFFSET::update(CMS * cms)
 {
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &offset);
+    EmcPose_update(cms, &point);
+    cms->update(have_point);
 }
 
 // cppcheck-suppress duplInheritedMember
