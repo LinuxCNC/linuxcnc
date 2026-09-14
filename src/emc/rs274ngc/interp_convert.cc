@@ -6645,6 +6645,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 {
   int idx;
   EmcPose tool_offset;
+  double standing[EMCMOT_MAX_JOINTS];
+  bool have_standing = false;
   ZERO_EMC_POSE(tool_offset);
   settings->g43_with_zero_offset = 0;
   
@@ -6656,7 +6658,18 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     // apply the offset, as if the switch line had run and drained.  With
     // no kinematics attached there is nothing to switch to.
     CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
-    if (primary >= 0) { switch_kins_type(primary, settings); }
+    if (primary >= 0 && primary != settings->kins_type) {
+      // the switch keeps the joints and moves the point, so the point
+      // the offset is read from is not the one the program is at: take
+      // the joints, while the kinematics they are known in is in force
+      void *vctx;
+      CHP(kins_here(settings, &vctx));
+      if (vctx) {
+        CHP(current_joints(settings, vctx, standing));
+        have_standing = true;
+      }
+      switch_kins_type(primary, settings);
+    }
     settings->kins_by_g43_4 = true;
   } else if (g_code != G_49) {
     // the offset in effect is no longer G43.4's, so G49 has no switch to undo
@@ -6746,31 +6759,65 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   } else {
     ERS("BUG: Code not G43, G43.1, G43.2, G43.4, or G49");
   }
-  USE_TOOL_LENGTH_OFFSET(tool_offset);
+  // The machine does not move, so the program coordinates of the point change.
+  // A kinematics that applies the offset itself moves the point by more than
+  // the offset difference, along the tilted tool axis: evaluate it here as
+  // motion will, and send the point along for motion to check against.
+  EmcPose point;
+  bool point_known = false;
+  CHP(tool_offset_point(settings, &tool_offset, have_standing ? standing : NULL,
+                        &point, &point_known));
+  if (point_known) {
+    double prog[9];
+    EmcPose in_program;
 
-  double dx, dy, dz;
+    settings->tool_offset = tool_offset;
+    machine_pose_to_program(settings, &point, prog);
+    settings->current_x = prog[0];
+    settings->current_y = prog[1];
+    settings->current_z = prog[2];
+    settings->AA_current = prog[3];
+    settings->BB_current = prog[4];
+    settings->CC_current = prog[5];
+    settings->u_current = prog[6];
+    settings->v_current = prog[7];
+    settings->w_current = prog[8];
+    in_program.tran.x = USER_TO_PROGRAM_LEN(point.tran.x);
+    in_program.tran.y = USER_TO_PROGRAM_LEN(point.tran.y);
+    in_program.tran.z = USER_TO_PROGRAM_LEN(point.tran.z);
+    in_program.a = USER_TO_PROGRAM_ANG(point.a);
+    in_program.b = USER_TO_PROGRAM_ANG(point.b);
+    in_program.c = USER_TO_PROGRAM_ANG(point.c);
+    in_program.u = USER_TO_PROGRAM_LEN(point.u);
+    in_program.v = USER_TO_PROGRAM_LEN(point.v);
+    in_program.w = USER_TO_PROGRAM_LEN(point.w);
+    USE_TOOL_LENGTH_OFFSET(tool_offset, in_program);
+  } else {
+    double dx, dy, dz;
 
-  // the tool does not move, so its program coordinates change by the
-  // offset difference seen from the program: the XY rotation and the
-  // tilted work plane taken off it
-  dx = settings->tool_offset.tran.x - tool_offset.tran.x;
-  dy = settings->tool_offset.tran.y - tool_offset.tran.y;
-  dz = settings->tool_offset.tran.z - tool_offset.tran.z;
+    USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-  rotate(&dx, &dy, -settings->rotation_xy);
-  g68_unrotate(settings, &dx, &dy, &dz);
+    // by the offset difference seen from the program: the XY rotation
+    // and the tilted work plane taken off it
+    dx = settings->tool_offset.tran.x - tool_offset.tran.x;
+    dy = settings->tool_offset.tran.y - tool_offset.tran.y;
+    dz = settings->tool_offset.tran.z - tool_offset.tran.z;
 
-  settings->current_x += dx;
-  settings->current_y += dy;
-  settings->current_z += dz;
-  settings->AA_current += settings->tool_offset.a - tool_offset.a;
-  settings->BB_current += settings->tool_offset.b - tool_offset.b;
-  settings->CC_current += settings->tool_offset.c - tool_offset.c;
-  settings->u_current += settings->tool_offset.u - tool_offset.u;
-  settings->v_current += settings->tool_offset.v - tool_offset.v;
-  settings->w_current += settings->tool_offset.w - tool_offset.w;
+    rotate(&dx, &dy, -settings->rotation_xy);
+    g68_unrotate(settings, &dx, &dy, &dz);
 
-  settings->tool_offset = tool_offset;
+    settings->current_x += dx;
+    settings->current_y += dy;
+    settings->current_z += dz;
+    settings->AA_current += settings->tool_offset.a - tool_offset.a;
+    settings->BB_current += settings->tool_offset.b - tool_offset.b;
+    settings->CC_current += settings->tool_offset.c - tool_offset.c;
+    settings->u_current += settings->tool_offset.u - tool_offset.u;
+    settings->v_current += settings->tool_offset.v - tool_offset.v;
+    settings->w_current += settings->tool_offset.w - tool_offset.w;
+
+    settings->tool_offset = tool_offset;
+  }
 
   // Update parameters #5081-#5089 to reflect the tool length offset
   // actually applied to motion (covers G43, G43Hn with n != loaded tool,

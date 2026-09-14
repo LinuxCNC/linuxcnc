@@ -441,11 +441,11 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
 }
 
 //----------------------------------------------------------------------
-// The kinematics.  G68.3 and the orientation moves need the frames and
-// the tool frame inverse of the module motion runs, evaluated here, ahead
-// of motion, through the loader in kinematics_userspace/.  The loader
-// binds its pins to a HAL component, so the interpreter makes one, named
-// by its process, the first time it is asked.
+// The kinematics.  G68.3, the orientation moves and a tool offset change
+// need the module motion runs, evaluated here, ahead of motion, through
+// the loader in kinematics_userspace/.  The loader reads the module's
+// pins through HAL, so the interpreter connects as a component, named by
+// its process, the first time it is asked.
 //----------------------------------------------------------------------
 
 #include <unistd.h>
@@ -456,12 +456,11 @@ int Interp::convert_work_plane(int g_code, block_pointer block, setup_pointer s)
 
 #define KINS_CTX(s) ((KinematicsUserContext *)(s)->kins_ctx)
 
-// the loaded module, on the kinematics type the program is in
-int Interp::kins_context(setup_pointer s, void **out)
+// the module loaded, once
+int Interp::kins_load(setup_pointer s)
 {
     KinematicsUserContext *ctx;
 
-    *out = NULL;
     if (!s->kins_ctx) {
         char name[HAL_NAME_LEN + 1];
         int comp;
@@ -481,13 +480,44 @@ int Interp::kins_context(setup_pointer s, void **out)
         s->kins_ctx = ctx;
         for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = 0.0; }
     }
+    return INTERP_OK;
+}
+
+// the loaded module, on the kinematics type the program is in
+int Interp::kins_context(setup_pointer s, void **out)
+{
+    KinematicsUserContext *ctx;
+
+    *out = NULL;
+    CHP(kins_load(s));
     ctx = KINS_CTX(s);
     CHKS((kinematicsUserIsRtOnly(ctx)),
          _("kinematics module %s cannot be evaluated outside realtime"), s->kins_module);
     CHKS((kinematicsUserSetType(ctx, s->kins_type) != 0),
          _("kinematics type %d is not available outside realtime"), s->kins_type);
+    // with the tool offset the program is under here, not the one motion
+    // has reached: the interpreter runs ahead of motion
+    kins_set_tool(ctx, &s->tool_offset);
     *out = ctx;
     return INTERP_OK;
+}
+
+// the offset the module evaluates with, given in program units like the
+// interpreter keeps it
+void Interp::kins_set_tool(void *vctx, const EmcPose *offset)
+{
+    EmcPose tool;
+
+    tool.tran.x = PROGRAM_TO_USER_LEN(offset->tran.x);
+    tool.tran.y = PROGRAM_TO_USER_LEN(offset->tran.y);
+    tool.tran.z = PROGRAM_TO_USER_LEN(offset->tran.z);
+    tool.a = PROGRAM_TO_USER_ANG(offset->a);
+    tool.b = PROGRAM_TO_USER_ANG(offset->b);
+    tool.c = PROGRAM_TO_USER_ANG(offset->c);
+    tool.u = PROGRAM_TO_USER_LEN(offset->u);
+    tool.v = PROGRAM_TO_USER_LEN(offset->v);
+    tool.w = PROGRAM_TO_USER_LEN(offset->w);
+    kinematicsUserSetTool((KinematicsUserContext *)vctx, &tool);
 }
 
 void Interp::kins_release(setup_pointer s)
@@ -581,6 +611,52 @@ int Interp::current_joints(setup_pointer s, void *vctx, double *joints)
         if (worst < 1e-9) { break; }
     }
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+    return INTERP_OK;
+}
+
+// The kinematics as far as it can be evaluated here: the context on the
+// type the program is in, or NULL where there is nothing to evaluate,
+// with no machine attached (sai, a preview without one) or a module that
+// runs only in realtime.
+int Interp::kins_here(setup_pointer s, void **out)
+{
+    *out = NULL;
+    if (GET_EXTERNAL_KINEMATICS_IDENTITY()) { return INTERP_OK; }
+    CHP(kins_load(s));
+    if (kinematicsUserIsRtOnly(KINS_CTX(s))) { return INTERP_OK; }
+    return kins_context(s, out);
+}
+
+// Where the point goes when the tool offset changes: the joints stay, so it is
+// read back from them under the new offset, as motion reads it.  known stays
+// false under the identity and where nothing can be evaluated; the caller
+// then shifts by the offset difference.
+int Interp::tool_offset_point(setup_pointer s, const EmcPose *offset, const double *standing,
+                              EmcPose *point, bool *known)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    double joints[EMCMOT_MAX_JOINTS];
+    int flags, i;
+
+    *known = false;
+    if (same_pose(offset, &s->tool_offset)) { return INTERP_OK; }
+    flags = GET_EXTERNAL_KINS_TYPE_FLAGS(s->kins_type);
+    if (flags >= 0 && (flags & KINSTYPE_IDENTITY)) { return INTERP_OK; }
+    CHP(kins_here(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    if (!ctx || kinematicsUserIsIdentity(ctx)) { return INTERP_OK; }
+    if (standing) {
+        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { joints[i] = standing[i]; }
+    } else {
+        CHP(current_joints(s, ctx, joints));
+    }
+    kins_set_tool(ctx, offset);
+    CHKS((kinematicsUserForward(ctx, joints, point) != 0),
+         _("the kinematics cannot place the tool from the joints after the tool offset change"));
+    // the machine stays on these joints
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = joints[i]; }
+    *known = true;
     return INTERP_OK;
 }
 

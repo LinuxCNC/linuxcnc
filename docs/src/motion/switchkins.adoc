@@ -619,8 +619,13 @@ exports kinematicsSetTool() as well, through which motion hands it
 the tool offset in effect whenever that changes.  A table entry
 flagged as the tool is overwritten with it, and the entry's pin only
 matters until motion has sent anything, so a config need not net
-motion.tooloffset.z to the module.  A kinstype registered the older
-way reads its own pins and is not affected.
+motion.tooloffset.z to the module.  When the offset changes, motion
+keeps the joints where they are and reads the point back from them
+under the new offset, so a tool length change with the tool axis
+tilted moves the programmed point rather than the machine; the
+interpreter reads the point the same way through the non-realtime
+loader, and motion stops the program if the two disagree.  A kinstype
+registered the older way reads its own pins and is not affected.
 
 === Module main program
 
