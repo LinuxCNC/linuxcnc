@@ -252,9 +252,10 @@ replacing it. Put a given length in one column or the other, not both.
 
 *maxkins.tool-length*::
   Tool length, applied along the tool rather than along Z, so that the tip
-  stays on the programmed point as B tilts. Net it from *motion.tooloffset.z*.
-  Left unconnected, the tool length stays where canon put it, along machine
-  Z, which is only correct at B0.
+  stays on the programmed point as B tilts. Motion hands the module the
+  offset in effect (G43, G49), so the pin needs no connection; it is read
+  only until motion has sent anything. To avoid a joint jump, change the
+  tool offset only when B is 0.
 
 === pentakins - Pentapod Kinematics
 
@@ -413,12 +414,13 @@ expected by it (XYZBCW `->` joints 0..5)
 
 *5axiskins.tool-length*::
   Tool length, applied along the tool rather than along Z, so that the tip
-  stays on the programmed point as B and C move. Net it from
-  *motion.tooloffset.z*. Left unconnected, the tool length stays where canon
-  put it, along machine Z, which is only correct at B0. A tool length in the
-  W column of the tool table reaches the same place, once a block commands W,
-  and adds to this pin rather than replacing it. Put a given length in one
-  column or the other, not both.
+  stays on the programmed point as B and C move. Motion hands the module the
+  offset in effect (G43, G49), so the pin needs no connection; it is read
+  only until motion has sent anything. To avoid a joint jump, change the
+  tool offset only when B is 0. A tool length in the W column of the tool
+  table reaches the same place, once a block commands W, and adds to this
+  one rather than replacing it. Put a given length in one column or the
+  other, not both.
 
 == SEE ALSO
 
