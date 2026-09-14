@@ -605,6 +605,11 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/)
+{
+    USE_TOOL_LENGTH_OFFSET(offset);
+}
+
 void CHANGE_TOOL()
 {
   PRINT("CHANGE_TOOL()\n");
@@ -845,6 +850,11 @@ extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype)
 {
   (void)ktype;
   return -1;
+}
+
+extern bool GET_EXTERNAL_KINEMATICS_IDENTITY()
+{
+  return true;
 }
 
 extern void SET_PARAMETER_FILE_NAME(const char *name)
