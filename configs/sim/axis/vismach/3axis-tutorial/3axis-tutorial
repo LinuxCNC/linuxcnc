@@ -24,13 +24,13 @@ s.poll()
 # in this file, and uncomment last line in HAL file.
 # add joints. Mill has 3.
 c = hal.component("3axis-tutorial")
-c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("jointX", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jointY", hal.Type.REAL, hal.Dir.IN)
+c.newpin("jointZ", hal.Type.REAL, hal.Dir.IN)
 
 # tool length and diameter pins?
-c.newpin("toollength", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tooldiameter", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("toollength", hal.Type.REAL, hal.Dir.IN)
+c.newpin("tooldiameter", hal.Type.REAL, hal.Dir.IN)
 
 # tells loadusr pins is ready
 c.ready()

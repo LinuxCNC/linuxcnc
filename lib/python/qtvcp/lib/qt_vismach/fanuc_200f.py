@@ -27,14 +27,14 @@ import hal
 BASEPATH = os.path.join(os.path.dirname(__file__), 'fanuc_200f_obj')
 
 c = hal.component("fanuc_200f")
-c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint5", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint6", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("grip", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("plotclear", hal.HAL_BIT, hal.HAL_IN)
+c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint2", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint3", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint4", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint5", hal.Type.REAL, hal.Dir.IN)
+c.newpin("joint6", hal.Type.REAL, hal.Dir.IN)
+c.newpin("grip", hal.Type.REAL, hal.Dir.IN)
+c.newpin("plotclear", hal.Type.BOOL, hal.Dir.IN)
 c.ready()
 
 

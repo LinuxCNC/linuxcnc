@@ -77,18 +77,18 @@ def wait_for_halui_mode(pin_name):
 
 h = hal.component("python-ui")
 
-h.newpin("mdi-0", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("mdi-1", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("mdi-2", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("mdi-3", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("mdi-0", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("mdi-1", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("mdi-2", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("mdi-3", hal.Type.BOOL, hal.Dir.OUT)
 
-h.newpin("joint-0-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-1-position", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("joint-2-position", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("joint-0-position", hal.Type.REAL, hal.Dir.IN)
+h.newpin("joint-1-position", hal.Type.REAL, hal.Dir.IN)
+h.newpin("joint-2-position", hal.Type.REAL, hal.Dir.IN)
 
-h.newpin("is-manual", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("is-auto", hal.HAL_BIT, hal.HAL_IN)
-h.newpin("is-mdi", hal.HAL_BIT, hal.HAL_IN)
+h.newpin("is-manual", hal.Type.BOOL, hal.Dir.IN)
+h.newpin("is-auto", hal.Type.BOOL, hal.Dir.IN)
+h.newpin("is-mdi", hal.Type.BOOL, hal.Dir.IN)
 
 h.ready() # mark the component as 'ready'
 

@@ -68,8 +68,8 @@ def mode_changed(obj, data):
 
 # Make a component and pins
 h = hal.component("metric_status")
-h.newpin("g20", hal.HAL_BIT, hal.HAL_OUT)
-h.newpin("g21", hal.HAL_BIT, hal.HAL_OUT)
+h.newpin("g20", hal.Type.BOOL, hal.Dir.OUT)
+h.newpin("g21", hal.Type.BOOL, hal.Dir.OUT)
 h.ready()
 
 # connect a GSTAT message to a callback function

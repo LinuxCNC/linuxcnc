@@ -37,9 +37,9 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if (self._halpin_option):
-            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "_value", hal.HAL_FLOAT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "_value", hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda value: self.update_value(value))
-            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "_setpoint", hal.HAL_FLOAT, hal.HAL_IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "_setpoint", hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda value: self.set_setpoint(value))
 
     def create_unit_array(self):

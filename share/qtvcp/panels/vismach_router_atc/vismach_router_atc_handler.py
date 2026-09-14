@@ -23,9 +23,9 @@ PATH = Path()
 #import hal
 
 #c = hal.component("router_atc")
-#c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
-#c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
-#c.newpin("joint2", hal.HAL_FLOAT, hal.HAL_IN)
+#c.newpin("joint0", hal.Type.REAL, hal.Dir.IN)
+#c.newpin("joint1", hal.Type.REAL, hal.Dir.IN)
+#c.newpin("joint2", hal.Type.REAL, hal.Dir.IN)
 
 #c.ready()
 
