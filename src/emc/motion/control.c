@@ -194,6 +194,7 @@ static void output_to_hal(void);
 static void update_status(void);
 
 static void handle_kinematicsSwitch(void);
+static int reanchor_pose(const double *joint_pos, EmcPose *at);
 
 /***********************************************************************
 *                        PUBLIC FUNCTION CODE                          *
@@ -363,8 +364,6 @@ static void handle_kinematicsSwitch(void) {
         return; // the kinematics in force is unchanged
     }
 
-    KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
-    KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
 #ifdef SWITCHKINS_DEBUG
     double beforePose[EMCMOT_MAX_AXIS];
     int anum;
@@ -376,9 +375,7 @@ static void handle_kinematicsSwitch(void) {
        solve them is one the machine cannot run in from here: put the old
        one back, or the inverse would run the joints to wherever the pose
        we know lands in the new one */
-    EmcPose poseKinsSwitch = emcmotStatus->carte_pos_cmd;
-    if (kinematicsForward(joint_posKinsSwitch, &poseKinsSwitch,
-                          &tmpFFlags, &tmpIFlags)) {
+    if (reanchor_pose(joint_posKinsSwitch, NULL) != 0) {
         kinematicsSwitch(switchkins_type);
         reportError(_("kinematicsForward failed for kinematics type %d,"
                       " type %d is still in force"),
@@ -386,7 +383,6 @@ static void handle_kinematicsSwitch(void) {
         SET_MOTION_ERROR_FLAG(1);  // abort
         return; // the kinematics in force and the position are unchanged
     }
-    emcmotStatus->carte_pos_cmd = poseKinsSwitch;
 
     switchkins_type = requested_type;
     hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
@@ -398,9 +394,29 @@ static void handle_kinematicsSwitch(void) {
                ,anum,beforePose[anum],*pcmd_p[anum],*pcmd_p[anum]-beforePose[anum]);
     }
 #endif
+} //handle_kinematicsSwitch()
+
+/* The point re-read from the joints, for when what the joints mean has
+   changed without the joints moving: a kinematics switch, or a tool
+   offset the module applies.  The pose they put the tool at is the new
+   commanded point, the external offsets taken off it, and the planner
+   is moved onto it.  A forward that fails leaves the point alone.
+   The pose with the external offsets still on it is returned in at. */
+static int reanchor_pose(const double *joint_pos, EmcPose *at)
+{
+    KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
+    KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
+    EmcPose pose = emcmotStatus->carte_pos_cmd;
+
+    if (kinematicsForward(joint_pos, &pose, &tmpFFlags, &tmpIFlags) != 0) {
+        return -1;
+    }
+    emcmotStatus->carte_pos_cmd = pose;
+    if (at) { *at = pose; }
     axis_apply_ext_offsets_to_carte_pos(-1, pcmd_p);
     tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
-} //handle_kinematicsSwitch()
+    return 0;
+}
 
 static void process_inputs(void)
 {
@@ -937,15 +953,72 @@ static int joint_hold_valid = 0;
 static double joint_hold[EMCMOT_MAX_JOINTS];
 static EmcPose joint_hold_pose;
 
-/* whether two machine points are the same, to a hair either way */
-static int same_carte_pos(const EmcPose *a, const EmcPose *b)
+/* whether two machine points are within tol of each other on every axis */
+static int carte_pos_within(const EmcPose *a, const EmcPose *b, double tol)
 {
-    const double tol = 1e-9;
-
     return fabs(a->tran.x - b->tran.x) < tol && fabs(a->tran.y - b->tran.y) < tol
 	&& fabs(a->tran.z - b->tran.z) < tol
 	&& fabs(a->a - b->a) < tol && fabs(a->b - b->b) < tol && fabs(a->c - b->c) < tol
 	&& fabs(a->u - b->u) < tol && fabs(a->v - b->v) < tol && fabs(a->w - b->w) < tol;
+}
+
+/* whether two machine points are the same, to a hair either way */
+static int same_carte_pos(const EmcPose *a, const EmcPose *b)
+{
+    return carte_pos_within(a, b, 1e-9);
+}
+
+/* A tool offset the module applies has changed under the point.  The
+   machine stays where it is: the point is re-read from the joints under
+   the new offset, and the joints are held there, since the inverse of the
+   re-read point may answer with another joint set.  The interpreter
+   works out the same point ahead of motion and sends it along when it
+   can evaluate the kinematics; where the two disagree, or where it could
+   not say and the point moved, the program is not let go on from a point
+   the interpreter does not have.  Nothing to do outside coordinated mode:
+   the point follows the joints there anyway. */
+void emcmotToolOffsetChanged(const EmcPose *from, const EmcPose *to,
+                             const EmcPose *expected, int have_expected)
+{
+    const double tol = 1e-4;
+    double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
+    EmcPose was = emcmotStatus->carte_pos_cmd;
+    EmcPose now;
+    int joint_num;
+
+    if (same_carte_pos(from, to) || !GET_MOTION_COORD_FLAG()) { return; }
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+        joint_pos[joint_num] = joints[joint_num].coarse_pos;
+    }
+    if (reanchor_pose(joint_pos, &now) != 0) {
+        reportError(_("the kinematics cannot place the tool from the joints"
+                      " after the tool offset change"));
+        SET_MOTION_ERROR_FLAG(1);
+        return;
+    }
+    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+        joint_hold[joint_num] = joint_pos[joint_num];
+    }
+    joint_hold_pose = now;
+    joint_hold_valid = 1;
+
+    if (have_expected) {
+        if (!carte_pos_within(&emcmotStatus->carte_pos_cmd, expected, tol)) {
+            reportError(_("the tool offset change put the point at"
+                          " %.4f %.4f %.4f, the interpreter expected"
+                          " %.4f %.4f %.4f"),
+                        emcmotStatus->carte_pos_cmd.tran.x,
+                        emcmotStatus->carte_pos_cmd.tran.y,
+                        emcmotStatus->carte_pos_cmd.tran.z,
+                        expected->tran.x, expected->tran.y, expected->tran.z);
+            SET_MOTION_ERROR_FLAG(1);
+        }
+    } else if (!carte_pos_within(&was, &now, tol)) {
+        reportError(_("the tool offset change moved the point under a"
+                      " kinematics the interpreter cannot evaluate;"
+                      " change the tool offset with the machine untilted"));
+        SET_MOTION_ERROR_FLAG(1);
+    }
 }
 
 static void set_operating_mode(void)
