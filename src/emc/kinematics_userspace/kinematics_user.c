@@ -4,9 +4,10 @@
  *
  * Loads a kinematics .so with dlopen, asks it to describe itself through
  * kinsDescribe(), and evaluates its kinematics through the parameter
- * block (see kinematics.h).  The block is filled from HAL: one input pin
- * of the caller's component per table entry, connected to the signal the
- * RT instance's pin reads, so the values are the live ones.  The tool is
+ * block (see kinematics.h).  The block is filled from HAL: the RT
+ * instance's own pins, read by name whenever the block is refreshed, so
+ * the values are the live ones and nothing is made in HAL to get at them.
+ * The tool is
  * the caller's where it has given one, since a planner knows what a
  * segment runs under better than the machine does; otherwise it comes
  * from motion's own tooloffset pins where motion is loaded, so that the
@@ -35,8 +36,7 @@
 typedef int (*kins_describe_fn)(const char *coordinates, const char *sparm,
                                 kins_module_info *info);
 
-#define MAX_BOUND_PINS   (KINS_MAX_PARAMS + AXIS_COUNT)
-#define MAX_MADE_SIGNALS MAX_BOUND_PINS
+#define MAX_PINS (KINS_MAX_PARAMS + AXIS_COUNT)
 
 struct KinematicsUserContext {
     int initialized;
@@ -49,14 +49,11 @@ struct KinematicsUserContext {
     int ktype;                 /* kinematics type being evaluated */
     int num_joints;
     char module_name[64];
-    int comp_id;               /* the caller's component, owns the pins made here */
-    const char *prefix;        /* its name, which those pin names start with */
-    char made_signal[MAX_MADE_SIGNALS][HAL_NAME_LEN + 1];
-    int num_made_signals;
-    hal_refs_u *cell;          /* HAL storage those pins are made against */
-    int num_cells;
-    int cell_of_param[KINS_MAX_PARAMS];  /* -1 if not bound */
-    int cell_of_tool[AXIS_COUNT];        /* motion.tooloffset.*, -1 if absent */
+    int comp_id;               /* the caller's component, which has HAL mapped */
+    char pin_name[MAX_PINS][HAL_NAME_LEN + 1]; /* the RT instance's pins read here */
+    int num_pins;
+    int pin_of_param[KINS_MAX_PARAMS];   /* -1 if not read */
+    int pin_of_tool[AXIS_COUNT];         /* motion.tooloffset.*, -1 if absent */
     int tool_param;                      /* the table's tool entry, -1 if none */
     int warned_tool;
     EmcPose caller_tool;                 /* from kinematicsUserSetTool() */
@@ -65,55 +62,28 @@ struct KinematicsUserContext {
 };
 
 /* ========================================================================
- * Pin binding
+ * Pin reading
  * ======================================================================== */
 
-/*
- * Give the block a reference to a value it needs.
- *
- * The reference is to a pin of ours rather than into the RT instance's,
- * so that its lifetime is ours.  Ours is connected to the signal the RT
- * pin reads, or, when the RT pin has no signal, to one made here and
- * removed again in kinematicsUserFree().
- *
- * The reference has to live in HAL shared memory, since that is where
- * HAL rewrites it on connect and disconnect, so the pins are made
- * against hal_malloc() cells and the block reads what a cell holds once
- * the connection is in place.
- */
-static int make_signal(KinematicsUserContext *ctx, const char *pin_name,
-                       hal_type_t type, char *out, size_t outlen)
+/* The block is read from the RT instance's own pins by name at every
+   refresh, so a pin netted later reads its signal; nothing is made in HAL
+   to get at them. */
+static int pin_value(const char *pin_name, hal_type_t type, double *out)
 {
-    if (ctx->num_made_signals >= MAX_MADE_SIGNALS) {
-        fprintf(stderr, "kinematicsUserInit: too many signals to create\n");
-        return -1;
-    }
-    if ((size_t)snprintf(out, outlen, "%s-nonrt", pin_name) >= outlen) {
-        fprintf(stderr, "kinematicsUserInit: signal name for '%s' too long\n",
-                pin_name);
-        return -1;
-    }
-    if (hal_signal_new(out, type) != 0) return -1;
-    if (hal_link(pin_name, out) != 0) {
-        hal_signal_delete(out);
-        return -1;
-    }
-    snprintf(ctx->made_signal[ctx->num_made_signals++],
-             sizeof(ctx->made_signal[0]), "%s", out);
-    return 0;
-}
+    hal_query_t q;
 
-static int new_pin(int comp_id, hal_type_t type, hal_refs_u *out,
-                   const char *name)
-{
+    memset(&q, 0, sizeof(q));
+    q.name    = pin_name;
+    q.qtype   = HAL_QTYPE_PIN;
+    q.pp.type = type;
+    if (hal_get_p(&q, NULL, NULL) != 0) return -1;
     switch (type) {
-        case HAL_BIT:   return hal_pin_new_bool(comp_id, HAL_IN, &out->b, 0, "%s", name);
-        case HAL_FLOAT: return hal_pin_new_real(comp_id, HAL_IN, &out->r, 0.0, "%s", name);
-        case HAL_S32:   return hal_pin_new_si32(comp_id, HAL_IN, &out->s, 0, "%s", name);
-        case HAL_U32:   return hal_pin_new_ui32(comp_id, HAL_IN, &out->u, 0, "%s", name);
-        default: break;
+        case HAL_BIT: *out = q.pp.value.b ? 1.0 : 0.0; break;
+        case HAL_S32: *out = q.pp.value.s; break;
+        case HAL_U32: *out = q.pp.value.u; break;
+        default:      *out = q.pp.value.r; break;
     }
-    return -1;
+    return 0;
 }
 
 /* Does a pin of this name exist?  Silent: absence is an answer, not an error. */
@@ -126,61 +96,24 @@ static int pin_exists(const char *pin_name)
     return hal_getref_p(&q) == 0;
 }
 
-/* Bind pin_name; returns the cell index, or -1. */
-static int bind_pin(KinematicsUserContext *ctx, const char *pin_name,
+/* Note pin_name for reading, once it has answered with the type; returns
+   its index, or -1. */
+static int note_pin(KinematicsUserContext *ctx, const char *pin_name,
                     hal_type_t type)
 {
-    char signal[HAL_NAME_LEN + 1];
-    char mine[HAL_NAME_LEN + 1];
-    hal_refs_u *cell;
-    hal_query_t q;
-    int idx;
+    double value;
 
-    memset(&q, 0, sizeof(q));
-    q.name  = pin_name;
-    q.qtype = HAL_QTYPE_PIN;
-
-    if (hal_getref_p(&q) != 0) {
-        fprintf(stderr, "kinematicsUserInit: no such pin '%s'\n", pin_name);
-        return -1;
-    }
-    if (q.pp.type != type) {
-        fprintf(stderr, "kinematicsUserInit: pin '%s' has the wrong type\n",
+    if (pin_value(pin_name, type, &value) != 0) {
+        fprintf(stderr, "kinematicsUserInit: no pin '%s' of the type expected\n",
                 pin_name);
         return -1;
     }
-
-    if (q.pp.signal) {
-        snprintf(signal, sizeof(signal), "%s", q.pp.signal);
-    } else if (make_signal(ctx, pin_name, type, signal, sizeof(signal))) {
-        fprintf(stderr, "kinematicsUserInit: cannot reach '%s'\n", pin_name);
+    if (ctx->num_pins >= MAX_PINS) {
+        fprintf(stderr, "kinematicsUserInit: too many pins to read\n");
         return -1;
     }
-
-    if ((size_t)snprintf(mine, sizeof(mine), "%s.%s", ctx->prefix, pin_name)
-            >= sizeof(mine)) {
-        fprintf(stderr, "kinematicsUserInit: pin name for '%s' too long\n",
-                pin_name);
-        return -1;
-    }
-    if (ctx->num_cells >= MAX_BOUND_PINS) {
-        fprintf(stderr, "kinematicsUserInit: too many pins to bind\n");
-        return -1;
-    }
-    idx  = ctx->num_cells;
-    cell = &ctx->cell[idx];
-
-    if (new_pin(ctx->comp_id, type, cell, mine) != 0) {
-        fprintf(stderr, "kinematicsUserInit: cannot create pin '%s'\n", mine);
-        return -1;
-    }
-    if (hal_link(mine, signal) != 0) {
-        fprintf(stderr, "kinematicsUserInit: cannot link '%s' to '%s'\n",
-                mine, signal);
-        return -1;
-    }
-    ctx->num_cells++;
-    return idx;
+    snprintf(ctx->pin_name[ctx->num_pins], sizeof(ctx->pin_name[0]), "%s", pin_name);
+    return ctx->num_pins++;
 }
 
 static hal_type_t hal_type_of(kins_param_type t)
@@ -193,25 +126,15 @@ static hal_type_t hal_type_of(kins_param_type t)
     }
 }
 
-static double cell_value(const hal_refs_u *cell, kins_param_type t)
-{
-    switch (t) {
-        case KINS_PARAM_BIT: return hal_get_bool(cell->b) ? 1.0 : 0.0;
-        case KINS_PARAM_S32: return hal_get_si32(cell->s);
-        case KINS_PARAM_U32: return hal_get_ui32(cell->u);
-        default:             return hal_get_real(cell->r);
-    }
-}
-
-/* Bind every input of the table, and motion's tool where motion is there. */
-static int bind_all(KinematicsUserContext *ctx)
+/* Note every input of the table, and motion's tool where motion is there. */
+static int note_all(KinematicsUserContext *ctx)
 {
     static const char letter[AXIS_COUNT] = { 'x','y','z','a','b','c','u','v','w' };
     char name[HAL_NAME_LEN + 1];
     int i;
 
-    for (i = 0; i < KINS_MAX_PARAMS; i++) ctx->cell_of_param[i] = -1;
-    for (i = 0; i < AXIS_COUNT; i++) ctx->cell_of_tool[i] = -1;
+    for (i = 0; i < KINS_MAX_PARAMS; i++) ctx->pin_of_param[i] = -1;
+    for (i = 0; i < AXIS_COUNT; i++) ctx->pin_of_tool[i] = -1;
     ctx->tool_param = -1;
 
     for (i = 0; i < ctx->info.nparams; i++) {
@@ -219,8 +142,8 @@ static int bind_all(KinematicsUserContext *ctx)
         if (d->dir == KINS_OUT) continue;
         if (d->tool) ctx->tool_param = i;
         snprintf(name, sizeof(name), "%s.%s", ctx->info.halprefix, d->name);
-        ctx->cell_of_param[i] = bind_pin(ctx, name, hal_type_of(d->type));
-        if (ctx->cell_of_param[i] < 0) return -1;
+        ctx->pin_of_param[i] = note_pin(ctx, name, hal_type_of(d->type));
+        if (ctx->pin_of_param[i] < 0) return -1;
     }
 
     /* motion publishes the tool it applies; take it from there when it is
@@ -230,8 +153,8 @@ static int bind_all(KinematicsUserContext *ctx)
     for (i = 0; i < AXIS_COUNT; i++) {
         snprintf(name, sizeof(name), "motion.tooloffset.%c", letter[i]);
         if (!pin_exists(name)) continue;
-        ctx->cell_of_tool[i] = bind_pin(ctx, name, HAL_FLOAT);
-        if (ctx->cell_of_tool[i] < 0) return -1;
+        ctx->pin_of_tool[i] = note_pin(ctx, name, HAL_FLOAT);
+        if (ctx->pin_of_tool[i] < 0) return -1;
     }
     return 0;
 }
@@ -244,10 +167,14 @@ static void refresh(KinematicsUserContext *ctx)
     double tool[AXIS_COUNT];
     int have_motion_tool = 0;
 
+    /* a pin that stops answering, its module unloaded, keeps its last value */
     for (i = 0; i < ctx->info.nparams; i++) {
-        int c = ctx->cell_of_param[i];
+        int c = ctx->pin_of_param[i];
+        double value;
         if (c < 0) continue;
-        ctx->params.geometry[i] = cell_value(&ctx->cell[c], ctx->info.params[i].type);
+        if (pin_value(ctx->pin_name[c], hal_type_of(ctx->info.params[i].type), &value) == 0) {
+            ctx->params.geometry[i] = value;
+        }
     }
     if (ctx->tool_param >= 0) {
         ctx->params.tool.tran.z = ctx->params.geometry[ctx->tool_param];
@@ -262,10 +189,10 @@ static void refresh(KinematicsUserContext *ctx)
     }
 
     for (i = 0; i < AXIS_COUNT; i++) {
-        int c = ctx->cell_of_tool[i];
+        int c = ctx->pin_of_tool[i];
         tool[i] = 0.0;
         if (c < 0) continue;
-        tool[i] = hal_get_real(ctx->cell[c].r);
+        if (pin_value(ctx->pin_name[c], HAL_FLOAT, &tool[i]) != 0) continue;
         have_motion_tool = 1;
     }
     if (!have_motion_tool) return;
@@ -398,19 +325,12 @@ KinematicsUserContext* kinematicsUserInitSparm(const char* kins_type,
 
     ctx->num_joints = num_joints;
     ctx->comp_id    = comp_id;
-    ctx->prefix     = prefix;
-
-    ctx->cell = (hal_refs_u *)hal_malloc(MAX_BOUND_PINS * sizeof(hal_refs_u));
-    if (!ctx->cell) {
-        fprintf(stderr, "kinematicsUserInit: out of HAL memory\n");
-        free(ctx);
-        return NULL;
-    }
+    (void)prefix;
     strncpy(ctx->module_name, kins_type, sizeof(ctx->module_name) - 1);
 
     if (load_module(ctx, kins_type, coordinates, sparm) == 0) {
-        if (bind_all(ctx) != 0) {
-            fprintf(stderr, "kinematicsUserInit: cannot bind the pins of '%s'\n",
+        if (note_all(ctx) != 0) {
+            fprintf(stderr, "kinematicsUserInit: cannot read the pins of '%s'\n",
                     kins_type);
             ctx->rt_only = 1;
         }
@@ -734,15 +654,8 @@ KinematicsUserContext* kinematicsUserInitString(const char* kinematics,
 
 void kinematicsUserFree(KinematicsUserContext* ctx)
 {
-    int i;
-
     if (!ctx) return;
 
-    /* Removing one hands its value back to the RT pin, leaving the
-       machine as it was found. */
-    for (i = 0; i < ctx->num_made_signals; i++) {
-        hal_signal_delete(ctx->made_signal[i]);
-    }
     if (ctx->rt_handle) dlclose(ctx->rt_handle);
     free(ctx);
 }
