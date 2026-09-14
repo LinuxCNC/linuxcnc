@@ -136,8 +136,6 @@ include::drivers/hostmot2.adoc[]
 
 include::drivers/mb2hal.adoc[]
 
-include::drivers/mesa_modbus.adoc[]
-
 include::drivers/mitsub-vfd.adoc[]
 
 

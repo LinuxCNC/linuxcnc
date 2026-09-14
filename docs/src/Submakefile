@@ -168,7 +168,6 @@ DOC_SRCS_EN := \
 	drivers/hal_pi_gpio.adoc \
 	drivers/hostmot2.adoc \
 	drivers/mb2hal.adoc \
-	drivers/mesa_modbus.adoc \
 	drivers/pico-ppmc.adoc \
 	drivers/pmx485.adoc \
 	drivers/shuttle.adoc \
@@ -354,8 +353,8 @@ postatus::
 # (rather than scanning $(L)/ with $(wildcard) or assuming every English
 # source has a translation) gives two properties at once: the list does
 # not depend on po4a having already produced the files (no "build twice"
-# fragility), and it does not include English-only sources like
-# drivers/mesa_modbus.adoc that are absent from the translation pipeline.
+# fragility), and it does not include English-only sources that are
+# absent from the translation pipeline.
 TRANSLATED_DOC_SRCS := $(shell sed -nE 's|^\[type: AsciiDoc_def\] src/([^ ]+).*|\1|p' \
 	$(DOC_DIR)/po4a.cfg)
 $(foreach L,$(LANGUAGES),\
