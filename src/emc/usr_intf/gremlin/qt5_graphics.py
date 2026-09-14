@@ -188,19 +188,18 @@ def preview_surface_format(desktop_core):
 
     **The core request is deliberately NOT forward-compatible.** The
     ``DeprecatedFunctions`` option name says the opposite of what it does here:
-    it does not reinstate deprecated functionality, it clears
-    ``GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB``, which QSurfaceFormat otherwise
-    sets for every 3.0+ request. The profile stays core and no fixed-function
-    returns.
+    it does not reinstate deprecated functionality, it clears the
+    forward-compatible bit, which QSurfaceFormat otherwise sets for every 3.0+
+    request. The profile stays core and no fixed-function returns.
 
     It matters because a forward-compatible context removes wide lines
     outright: ``glLineWidth(3.0)`` raises GL_INVALID_VALUE there even on a
     driver reporting ``GL_ALIASED_LINE_WIDTH_RANGE`` [1, 255]. The live backplot
     asks for width 3, so on Qt it was drawn one pixel wide where a stock master
     build draws three - measured in qtplasmac as trail runs of [1,1,1] against
-    master's [3,3,1]. The GLX shell never asked for forward-compatible
-    (``gremlin.py`` passes the core-profile bit alone), which is why the
-    divergence was confined to the Qt screens.
+    master's [3,3,1]. The GTK shell never asks for forward-compatible -
+    GdkGLContext has no knob for it - which is why the divergence was confined
+    to the Qt screens.
 
     A function rather than eight lines inside ``__init__`` so the request can be
     asserted without constructing a widget, a context or a QApplication - see
