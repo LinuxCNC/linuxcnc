@@ -832,7 +832,7 @@ class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_OFFSET()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_OFFSET_TYPE, sizeof(EMC_TRAJ_SET_OFFSET)),
-        offset{}
+        offset{}, point{}, have_point(0)
     {};
 
     // Sub-class update() calls base-class update()
@@ -841,6 +841,10 @@ class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EmcPose offset;
+    // where the interpreter expects the machine to stand once the offset
+    // is on, for motion to check its own answer against; only when set
+    EmcPose point;
+    int have_point;
 };
 
 class EMC_TRAJ_SET_G5X:public EMC_TRAJ_CMD_MSG {

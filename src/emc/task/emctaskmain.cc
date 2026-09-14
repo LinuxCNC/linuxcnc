@@ -1908,11 +1908,14 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindle, emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode);
         break;
 
-    case EMC_TRAJ_SET_OFFSET_TYPE:
+    case EMC_TRAJ_SET_OFFSET_TYPE: {
 	// update tool offset
-	emcStatus->task.toolOffset = (reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd))->offset;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset);
+	EMC_TRAJ_SET_OFFSET *msg = reinterpret_cast<EMC_TRAJ_SET_OFFSET *>(cmd);
+	emcStatus->task.toolOffset = msg->offset;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset,
+                                  msg->have_point ? &msg->point : nullptr);
 	break;
+    }
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
         emcStatus->task.rotation_xy = (reinterpret_cast<EMC_TRAJ_SET_ROTATION *>(cmd))->rotation;

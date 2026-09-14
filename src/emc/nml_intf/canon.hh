@@ -691,6 +691,11 @@ extern void USE_NO_SPINDLE_FORCE();
 extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset);
+/* The same, with the point the interpreter expects the machine to stand
+   on once the offset is applied, in program coordinates: where a
+   kinematics applies the offset itself, motion keeps the joints and
+   re-reads the point from them, and compares it with this one. */
+extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& point);
 
 extern void CHANGE_TOOL();
 
@@ -945,6 +950,10 @@ extern int GET_EXTERNAL_KINS_TYPE();
    kinematics.h); -1 where it says nothing: no such type, plain
    kinematics, or no motion controller attached (sai, preview) */
 extern int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype);
+/* whether the machine's kinematics is the identity, the joints being the
+   world, so that no tool offset is applied by the kinematics; true where
+   no motion controller is attached (sai, a preview without a machine) */
+extern bool GET_EXTERNAL_KINEMATICS_IDENTITY();
 
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();

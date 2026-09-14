@@ -375,7 +375,12 @@ public:
  int ptp_seconds(block_pointer block, setup_pointer settings,
                  double x, double y, double z, double a, double b, double c,
                  double u, double v, double w, double *seconds);
+ int kins_load(setup_pointer settings);
  int kins_context(setup_pointer settings, void **ctx);
+ int kins_here(setup_pointer settings, void **ctx);
+ int tool_offset_point(setup_pointer settings, const EmcPose *offset, const double *standing,
+                       EmcPose *point, bool *known);
+ void kins_set_tool(void *ctx, const EmcPose *offset);
  void kins_release(setup_pointer settings);
  void current_machine_pose(setup_pointer settings, EmcPose *pose);
  void machine_pose_to_program(setup_pointer settings, const EmcPose *pose, double prog[9]);

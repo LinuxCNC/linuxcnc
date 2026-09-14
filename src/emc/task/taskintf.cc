@@ -1515,10 +1515,14 @@ int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetOffset(const EmcPose& tool_offset)
+int emcTrajSetOffset(const EmcPose& tool_offset, const EmcPose *point)
 {
     emcmotCommand.command = EMCMOT_SET_OFFSET;
     emcmotCommand.tool_offset = tool_offset;
+    emcmotCommand.have_point = (point != nullptr);
+    if (point) {
+        emcmotCommand.pos = *point;
+    }
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

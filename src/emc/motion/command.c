@@ -2212,10 +2212,16 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
         case EMCMOT_SET_OFFSET:
             rtapi_print_msg(RTAPI_MSG_DBG, "SET_OFFSET");
-            emcmotStatus->tool_offset = emcmotCommand->tool_offset;
             if (kinematicsSetTool) {
-                kinematicsSetTool(&emcmotStatus->tool_offset);
+                /* the module applies the offset, so the point the joints
+                   stand on changes with it */
+                kinematicsSetTool(&emcmotCommand->tool_offset);
+                emcmotToolOffsetChanged(&emcmotStatus->tool_offset,
+                                        &emcmotCommand->tool_offset,
+                                        &emcmotCommand->pos,
+                                        emcmotCommand->have_point);
             }
+            emcmotStatus->tool_offset = emcmotCommand->tool_offset;
             break;
 
 	case EMCMOT_SET_AXIS_POSITION_LIMITS:
