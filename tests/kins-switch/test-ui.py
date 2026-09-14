@@ -72,6 +72,7 @@ c.auto(linuxcnc.AUTO_RUN, 0)
 said = []
 seen = [kins_type()]
 at_switch = None
+holding = False
 strayed = [0.0] * JOINTS
 w_reached = 0.0
 deadline = time.time() + 60
@@ -83,7 +84,13 @@ while time.time() < deadline:
         seen.append(k)
         if k == 1 and at_switch is None:
             at_switch = now
-    if k == 1 and at_switch is not None:
+            holding = True
+        else:
+            holding = False
+    # the joints are held over the first stretch in identity, the one the
+    # W stroke runs in; later on the program applies a tool length in the
+    # tilted pose, which moves the joints on purpose
+    if holding:
         for j in CARRIED:
             strayed[j] = max(strayed[j], abs(now[j] - at_switch[j]))
         w_reached = max(w_reached, now[5])
@@ -144,10 +151,41 @@ if g434 != want_g434:
 else:
     print("G43.4 switched to primary with the offset, G49 cancelled both")
 
-# ---- a negative kinematics number is refused -----------------------------
+# ---- the tool length reaches the kinematics with nothing netted ----------
+#
+# Motion hands the module the offset G43 puts in effect.  The head is
+# tilted, so the offset moves the joints, by the tilt term of the length:
+# the same length along the tool axis instead of along Z.
 
+import math
 c.mode(linuxcnc.MODE_MDI)
 c.wait_complete(30)
+drain()
+mdi("G12.1 P0")
+mdi("G0 X10 Y10 Z-5 B-22.5 C45")
+mdi("G49")
+before = mdi("G0 X10 Y10 Z-5")
+after = mdi("G43.4 H1")
+L = 12.5                                # tool 1 in tool.tbl
+b, cc = math.radians(-22.5), math.radians(45)
+want = [-L * math.sin(math.pi - b) * math.cos(cc),
+        -L * math.sin(math.pi - b) * math.sin(cc),
+        -L * (1 + math.cos(math.pi - b))]
+got = [after[j] - before[j] for j in (0, 1, 2)]
+if max(abs(g - w) for g, w in zip(got, want)) > 1e-3:
+    error("G43.4 in the tilted pose moved the joints by %s, not %s"
+          % (" ".join("%.4f" % v for v in got), " ".join("%.4f" % v for v in want)))
+else:
+    print("G43.4 moved the joints by the tilt term of the tool length")
+# G49 would drop to identity and hold the joints where they are; a zero
+# offset without a switch takes the length back out
+back = mdi("G43.1 Z0")
+if max(abs(back[j] - before[j]) for j in (0, 1, 2)) > 1e-3:
+    error("a zero tool length did not take the length back out of the joints")
+mdi("G49")
+
+# ---- a negative kinematics number is refused -----------------------------
+
 drain()
 c.mdi("G12.1 P-1")
 c.wait_complete(30)
