@@ -47,15 +47,14 @@ typedef struct KinematicsUserContext KinematicsUserContext;
 /**
  * Initialize userspace kinematics context
  *
- * The pins this creates belong to the caller's component, so call this
- * after hal_init() and before hal_ready(): HAL refuses new pins once a
- * component is ready.
+ * The module's pins are read through HAL, by name, so call this after
+ * hal_init().  Nothing is made in HAL: no pin, no signal.
  *
  * @param kins_type   Kinematics module name (e.g., "trivkins", "5axiskins", "maxkins")
  * @param num_joints  Number of joints in the machine
  * @param coordinates Coordinate string (e.g., "XYZABC", "XYZBCW")
  * @param comp_id     Caller's HAL component, from hal_init()
- * @param prefix      Its name, which the created pin names start with
+ * @param prefix      Its name
  * @return Allocated context, or NULL if kinematics type not supported
  */
 KinematicsUserContext* kinematicsUserInit(const char* kins_type,
