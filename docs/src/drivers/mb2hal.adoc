@@ -26,6 +26,31 @@ Consider using MB2HAL if:
 * You want a protocol to connect your Arduino to HAL.
   Look the included sample configuration file, sketch and library for Arduino Modbus.
 
+== Safety Considerations
+
+Modbus (RTU or TCP) is not suitable as the only run-enable path for a spindle or drive.
+A Modbus slave such as a VFD holds the last value written to its control registers indefinitely.
+If LinuxCNC exits, crashes, or the serial link drops while the spindle is running, no stop command is ever sent and the spindle keeps running.
+MB2HAL is a non-realtime userspace component and performs no cleanup on exit, so this applies even to a clean shutdown.
+Writing a stop command from `shutdown.hal` only covers the clean-exit case and is not a safety measure.
+
+The standard practice is to layer the control:
+
+. Wire the enable in hardware.
+  The VFD enable or STO (Safe Torque Off) inputs belong in the machine estop chain, independent of any communication bus.
+  This is the only layer that qualifies as safety.
+  Many VFDs offer dual redundant estop inputs for use with safety relays.
+  With this layer in place, run and stop over Modbus is accepted practice; the remaining layers decide what happens when the communication fails.
+. Arrange a stop on communication loss.
+  Most VFDs provide a Modbus timeout parameter with a fault or coast-to-stop action; set it to a few hundred milliseconds, so a crash or dropped link stops polling and the VFD stops the motor.
+  Alternatively detect the loss in HAL: the `mb2hal.__m__.num_errors` pin counts failed transactions (0 means the last transaction succeeded), and feeding it into a machine-off or estop chain stops the machine when the link dies.
+  HAL-side detection avoids VFD-specific parameterization and needs no rework when the VFD is replaced, but coverage of a PC crash then rests on the output hardware watchdog, for example the Mesa hostmot2 watchdog or a parallel-port charge pump.
+. Optionally split the command sources.
+  Configure run command from terminals and frequency reference from Modbus, drive the VFD run terminal from `motion.spindle-on` or `motion.machine-is-on` through a relay or digital output, and let Modbus carry only speed reference, direction and status.
+  This also avoids the read-modify-write problem when a single control register multiplexes run, stop and other commands.
+
+These considerations apply to every Modbus control path (MB2HAL, hm2_modbus, ClassicLadder or a custom driver), not only to MB2HAL.
+
 == Usage
 
 .. Create a config file from the example below
