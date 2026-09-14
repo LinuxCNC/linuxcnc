@@ -196,5 +196,8 @@ class StatMixin:
     def get_external_joint_positions(self):
         return tuple(self.s.joint_actual_position[:self.s.joints])
 
+    def get_kinematics_type(self):
+        return self.s.kinematics_type
+
 
 # vim:ts=8:sts=4:et:

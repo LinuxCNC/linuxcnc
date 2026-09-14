@@ -58,6 +58,7 @@
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
 #include <axis_kinds.hh>
+#include <kinematics.h>       // KINEMATICS_IDENTITY
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -660,6 +661,10 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {
             offset.u, offset.v, offset.w}));
 }
 
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/) {
+    USE_TOOL_LENGTH_OFFSET(offset);
+}
+
 void SET_FEED_REFERENCE(double /*reference*/) { }
 void SET_CUTTER_RADIUS_COMPENSATION(double /*radius*/) {}
 void START_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
@@ -962,6 +967,22 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 int GET_EXTERNAL_KINS_TYPE() { return 0; }
 int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) { (void)ktype; return -1; }
 int GET_EXTERNAL_G68_FRAME(double * /*origin*/, double * /*rotation*/) { return -1; }
+
+// the kind of transform the machine runs, from a canon that watches the
+// status buffer; one that cannot answer has no machine, and the joints
+// are the world
+bool GET_EXTERNAL_KINEMATICS_IDENTITY() {
+    if(parse_state.interp_error) return true;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_kinematics_type")) return true;
+    try {
+        return canon.attr("get_kinematics_type")().cast<long>() == KINEMATICS_IDENTITY;
+    } catch(py::error_already_set &) {
+        return true;                    // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return true;
+    }
+}
 void SET_NAIVECAM_TOLERANCE(double /*tolerance*/) { }
 
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
