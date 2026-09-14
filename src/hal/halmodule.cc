@@ -2391,8 +2391,12 @@ PyMODINIT_FUNC PyInit__hal(void)
         return NULL;
     }
 
+    // A halcmd unload arrives as SIGTERM; deliver it to a component as
+    // a KeyboardInterrupt. A program that has already set a handler of
+    // its own keeps it.
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"
+                 "s.getsignal(s.SIGTERM) is s.SIG_DFL and "
                  "s.signal(s.SIGTERM, s.default_int_handler))()");
     return m;
 }
