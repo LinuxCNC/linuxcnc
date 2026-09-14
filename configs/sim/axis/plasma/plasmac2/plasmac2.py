@@ -2498,7 +2498,7 @@ def user_button_setup():
         elif bCode.strip() == 'cut-type' and not 'cut-type' in buttonCodes:
             bName = bName.split(',')
             if len(bName) == 1:
-                text = _('Pierce\Only') if '\\' in bName[0] else _('Pierce Only')
+                text = _('Pierce\\Only') if '\\' in bName[0] else _('Pierce Only')
                 bName.append(text)
             outCode = {'code':'cut-type', 'text':bName}
         elif bCode.strip() == 'single-cut' and not 'single-cut' in buttonCodes:
