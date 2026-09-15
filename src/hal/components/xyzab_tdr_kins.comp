@@ -45,7 +45,7 @@ static char *coordinates;
 RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 
 // the geometry, one pin each; the maths reads it from the block (see
-// kinematics.h), and the tool length from p->tool.tran.z
+// kins_module.h), and the tool length from p->tool.tran.z
 static const kins_param_desc tdr_params[] = {
     { "tool-offset-z", KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },
     { "x-offset",      KINS_PARAM_FLOAT, KINS_IN, 0, 0.0 },

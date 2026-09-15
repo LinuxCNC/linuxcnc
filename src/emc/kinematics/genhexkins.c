@@ -104,7 +104,7 @@
                     a converged solution during current session.
 
   The maths is written as pure functions of the parameter block (see
-  kinematics.h): the pins above are the table below, read into the block
+  kins_module.h): the pins above are the table below, read into the block
   before every call and written from the scratch after it.
 
  ----------------------------------------------------------------------------*/
@@ -117,6 +117,7 @@
 
 #include "genhexkins.h"
 #include <switchkins.h>
+#include "userkfuncs.h"
 
 // the table: thirteen entries per strut, then the iteration controls,
 // the offsets and the reports.  The macros index it.

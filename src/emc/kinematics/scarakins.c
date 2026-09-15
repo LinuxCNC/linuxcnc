@@ -21,6 +21,7 @@
 #include <hal.h>
 
 #include <switchkins.h>
+#include "userkfuncs.h"
 
 /* key dimensions
 
