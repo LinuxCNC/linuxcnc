@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 
 import hal
+import re
 
 # There is a chance that component IDs are not always consistent. They
 # should be, but there are no guarantees. Therefore, we simply mask the
 # number and use 'ID' as replacement.
+def fix_enum_numbers(d):
+    return re.sub(r':\s*\d+>', '>', str(d))
+
 def fix_comp_id(d):
     if 'comp_id' in d:
         d['comp_id'] = "ID"
-    return d
+    return fix_enum_numbers(d)
 
 def fix_id(d):
     if 'id' in d:
         d['id'] = "ID"
-    return d
+    return fix_enum_numbers(d)
 
 # Call the listing query methods.
 print("# Pins")
@@ -26,7 +30,7 @@ for n,v in hal.query.params().items():
 
 print("# Signals")
 for n,v in hal.query.signals().items():
-    print(n, v)
+    print(n, fix_enum_numbers(v))
 
 print("# Components")
 for n,v in hal.query.comps().items():
@@ -67,7 +71,7 @@ if None is hal.query.signalpins('does-not-exist'):
 print("# Simple named queries")
 print("Pin:", fix_comp_id(hal.query.pin('or2.0.in1')))
 print("Param:", fix_comp_id(hal.query.param('testthread.tmax')))
-print("Signal:", hal.query.signal('net-output'))
+print("Signal:", fix_enum_numbers(hal.query.signal('net-output')))
 print("Component:", fix_id(hal.query.comp('and2')))
 print("Function:", fix_comp_id(hal.query.funct('xor2.0')))
 print("Thread:", fix_comp_id(hal.query.thread('testthread')))

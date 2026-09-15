@@ -11,8 +11,8 @@ Typical usage:
 import hal, time
 h = hal.component("component-name")
 # create pins and parameters with calls to h.newpin and h.newparam
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+h.newpin("in", hal.Type.REAL, hal.Dir.IN)
+h.newpin("out", hal.Type.REAL, hal.Dir.OUT)
 h.ready() # mark the component as 'ready'
 
 try:

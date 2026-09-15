@@ -82,18 +82,18 @@ class HalInputDevice:
             for key in self.device.get_bits('EV_KEY'):
                 key = tohalname(key)
                 self.codes.add(key)
-                comp.newpin("%s.%s" % (idx, key), HAL_BIT, HAL_OUT)
-                comp.newpin("%s.%s-not" % (idx, key), HAL_BIT, HAL_OUT)
+                comp.newpin("%s.%s" % (idx, key), Type.BOOL, Dir.OUT)
+                comp.newpin("%s.%s-not" % (idx, key), Type.BOOL, Dir.OUT)
                 self.set(key + "-not", 1)
 
         if 'R' in parts:
             for axis in self.device.get_bits('EV_REL'):
                 name = tohalname(axis)
                 self.codes.add(name)
-                comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
-                comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
-                comp.newpin("%s.%s-reset" % (idx, name), HAL_BIT, HAL_IN)
-                comp.newpin("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_IN)
+                comp.newpin("%s.%s-position" % (idx, name), Type.REAL, Dir.OUT)
+                comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, Dir.OUT)
+                comp.newpin("%s.%s-reset" % (idx, name), Type.BOOL, Dir.IN)
+                comp.newpin("%s.%s-scale" % (idx, name), Type.REAL, Dir.IN)
                 self.set(name + '-scale', 1.)
                 self.rel_items.append(name)
 
@@ -102,16 +102,16 @@ class HalInputDevice:
                 name = tohalname(axis)
                 self.codes.add(name)
                 absinfo = self.device.get_absinfo(axis)
-                comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
-                comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
-                comp.newpin("%s.%s-is-pos" % (idx, name), HAL_BIT, HAL_OUT)
-                comp.newpin("%s.%s-is-neg" % (idx, name), HAL_BIT, HAL_OUT)
-                comp.newpin("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_IN)
-                comp.newpin("%s.%s-offset" % (idx, name), HAL_FLOAT, HAL_IN)
-                comp.newpin("%s.%s-fuzz" % (idx, name), HAL_S32, HAL_IN)
-                comp.newpin("%s.%s-flat" % (idx, name), HAL_S32, HAL_IN)
-                comp.newparam("%s.%s-min" % (idx, name), HAL_S32, HAL_RO)
-                comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_RO)
+                comp.newpin("%s.%s-position" % (idx, name), Type.REAL, Dir.OUT)
+                comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, Dir.OUT)
+                comp.newpin("%s.%s-is-pos" % (idx, name), Type.BOOL, Dir.OUT)
+                comp.newpin("%s.%s-is-neg" % (idx, name), Type.BOOL, Dir.OUT)
+                comp.newpin("%s.%s-scale" % (idx, name), Type.REAL, Dir.IN)
+                comp.newpin("%s.%s-offset" % (idx, name), Type.REAL, Dir.IN)
+                comp.newpin("%s.%s-fuzz" % (idx, name), HAL_S32, Dir.IN)
+                comp.newpin("%s.%s-flat" % (idx, name), HAL_S32, Dir.IN)
+                comp.newparam("%s.%s-min" % (idx, name), HAL_S32, Dir.RO)
+                comp.newparam("%s.%s-max" % (idx, name), HAL_S32, Dir.RO)
                 center = (absinfo.minimum + absinfo.maximum)/2.
                 halfrange = (absinfo.maximum - absinfo.minimum)/2. or 1
                 self.set(name + "-counts", absinfo.value)
@@ -130,8 +130,8 @@ class HalInputDevice:
             for led in self.device.get_bits('EV_LED'):
                 name = tohalname(led)
                 self.ledmap[name] = led
-                comp.newpin("%s.%s" % (idx, name), HAL_BIT, HAL_IN)
-                comp.newpin("%s.%s-invert" % (idx, name), HAL_BIT, HAL_IN)
+                comp.newpin("%s.%s" % (idx, name), Type.BOOL, Dir.IN)
+                comp.newpin("%s.%s-invert" % (idx, name), Type.BOOL, Dir.IN)
                 self.last[name] = 0
                 self.device.write_event('EV_LED', led, 0)
 
@@ -203,7 +203,7 @@ class HalInputDevice:
             self.set(r + "-position", self.get(r + "-counts") / scale)
 
         for k, v in list(self.last.items()):
-            # Note: this is OK because the hal module always returns True or False for HAL_BIT values
+            # Note: this is OK because the hal module always returns True or False for BOOL values
             u = self.comp["%s.%s" % (
                 self.idx, k)] != self.comp["%s.%s-invert" % (self.idx, k)]
             if u != self.last[k]:
