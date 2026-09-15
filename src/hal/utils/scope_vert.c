@@ -1069,9 +1069,13 @@ void channel_changed(void)
         gtk_label_set_text_if(vert->chan_num_label, "--");
         gtk_label_set_text_if(vert->source_name_label, "------");
         gtk_label_set_text_if(vert->offset_label, _("Offset\n----"));
+        /* gray out the Vertical info box when no channel is selected */
+        gtk_widget_set_sensitive(ctrl_usr->vert_info_win, FALSE);
         request_display_refresh(1);
         return;
     }
+    /* enable the Vertical info box when a channel is selected */
+    gtk_widget_set_sensitive(ctrl_usr->vert_info_win, TRUE);
     chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* set position slider based on new channel */
     gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj),
