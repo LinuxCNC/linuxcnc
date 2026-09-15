@@ -46,6 +46,8 @@
 #include "gcodemodule.hh"
 #include "gcode_renderer.hh"
 
+#include <structmember.h>
+
 #include <chrono>
 #include <float.h>
 #include <memory>
@@ -73,9 +75,15 @@ struct _inittab builtin_modules[] = {
 namespace py = pybind11;
 
 // What `next_line` hands the canon: the interpreter's active settings and its
-// active G and M codes for one source line. Plain data - the read-only
-// properties below are its whole Python surface, and `sequence_number`
-// overlays gcodes[0].
+// active G and M codes for one source line. Plain data behind a hand-written
+// type - the read-only members below are its whole Python surface, and
+// `sequence_number` overlays gcodes[0].
+//
+// It is hand-written rather than a `py::class_` because it is the one object
+// this module builds per source line. A pybind11 instance costs a malloc for
+// the holder and an insert into pybind11's `registered_instances` hash on the
+// way in, an erase on the way out, and turns every member read into a call
+// into C++; none of that buys anything for plain read-only data.
 //
 // A canon can also build one itself, and both protocols reach the
 // constructor - but only from inside a call the parse makes into the canon,
@@ -85,10 +93,20 @@ namespace py = pybind11;
 // among them, so the lines it can ask on are the lines that forwarded
 // something. Neither can ask outside a parse; the constructor raises there.
 struct LineCode {
+    PyObject_HEAD
     double settings[ACTIVE_SETTINGS];
     int gcodes[ACTIVE_G_CODES];
     int mcodes[ACTIVE_M_CODES];
 };
+
+// Only the head is spelled here - PyType_Ready needs it before the type is a
+// type at all. Every other slot is zero and `linecode_register` fills in the
+// handful this type uses, which keeps the table off the version-conditional
+// tail of PyTypeObject.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+static PyTypeObject LineCodeType = { PyVarObject_HEAD_INIT(nullptr, 0) };
+#pragma GCC diagnostic pop
 
 static py::tuple int_array(const int *arr, int sz) {
     py::tuple res(sz);
@@ -99,9 +117,10 @@ static py::tuple int_array(const int *arr, int sz) {
 // The interpreter's active settings and codes as of now, tagged with the
 // source line they belong to. The one place a LineCode is ever filled in:
 // both a delivery and a canon building its own go through here, so the two
-// cannot drift.
-static std::unique_ptr<LineCode> snapshot_line(int sequence_number) {
-    auto line = std::make_unique<LineCode>();
+// cannot drift. Returns a new reference, or null with the error set.
+static LineCode *snapshot_line(int sequence_number) {
+    LineCode *line = PyObject_New(LineCode, &LineCodeType);
+    if(!line) return nullptr;
     parse_state.pinterp->active_settings(line->settings);
     parse_state.pinterp->active_g_codes(line->gcodes);
     parse_state.pinterp->active_m_codes(line->mcodes);
@@ -109,49 +128,96 @@ static std::unique_ptr<LineCode> snapshot_line(int sequence_number) {
     return line;
 }
 
-static void linecode_register(py::module_ &m) {
-    py::class_<LineCode> c(m, "linecode");
-    // The interpreter as of now, for a canon wanting the modal state at a
-    // point no delivery covers. It has to be filled in here: a delivery
-    // builds its own object and every member is read-only, so a linecode
-    // that starts empty stays empty for its whole life. Outside a parse
-    // there is nothing to read and this raises rather than answer zeros.
-    // The guard is `in_parse`, not `pinterp`: `pinterp` stays set after a
-    // parse ends and would answer with a finished parse's modal state.
-    c.def(py::init([] {
-        if(!parse_state.in_parse || !parse_state.pinterp)
-            throw py::value_error("linecode: no parse in progress");
-        return snapshot_line(parse_state.current_line());
-    }));
-#define LC(name, slot) \
-    c.def_property_readonly(name, [](const LineCode &l) { return l.slot; })
-    LC("sequence_number", gcodes[0]);
+// The interpreter as of now, for a canon wanting the modal state at a point
+// no delivery covers. It has to be filled in here: a delivery builds its own
+// object and every member is read-only, so a linecode that starts empty stays
+// empty for its whole life. Outside a parse there is nothing to read and this
+// raises rather than answer zeros. The guard is `in_parse`, not `pinterp`:
+// `pinterp` stays set after a parse ends and would answer with a finished
+// parse's modal state.
+static PyObject *linecode_new(PyTypeObject *, PyObject *args, PyObject *kw) {
+    if(PyTuple_GET_SIZE(args) || (kw && PyDict_Size(kw))) {
+        PyErr_SetString(PyExc_TypeError, "linecode() takes no arguments");
+        return nullptr;
+    }
+    if(!parse_state.in_parse || !parse_state.pinterp) {
+        PyErr_SetString(PyExc_ValueError, "linecode: no parse in progress");
+        return nullptr;
+    }
+    return (PyObject*)snapshot_line(parse_state.current_line());
+}
 
-    LC("feed_rate", settings[1]);
-    LC("speed", settings[2]);
-    LC("motion_mode", gcodes[1]);
-    LC("block", gcodes[2]);
-    LC("plane", gcodes[3]);
-    LC("cutter_side", gcodes[4]);
-    LC("units", gcodes[5]);
-    LC("distance_mode", gcodes[6]);
-    LC("feed_mode", gcodes[7]);
-    LC("origin", gcodes[8]);
-    LC("tool_length_offset", gcodes[9]);
-    LC("retract_mode", gcodes[10]);
-    LC("path_mode", gcodes[11]);
+// The two array members. Everything else is a struct offset read straight out
+// of the instance by PyMemberDef below; these two have to build a tuple, so
+// they are the only members that run code - and the only ones that can raise,
+// which a getter reached from C has to turn back into a set error.
+static PyObject *linecode_array(const int *arr, int sz) {
+    try {
+        return int_array(arr, sz).release().ptr();
+    } catch(py::error_already_set &e) {
+        e.restore();
+        return nullptr;
+    } catch(const std::exception &e) {
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+        return nullptr;
+    }
+}
 
-    LC("stopping", mcodes[1]);
-    LC("spindle", mcodes[2]);
-    LC("toolchange", mcodes[3]);
-    LC("mist", mcodes[4]);
-    LC("flood", mcodes[5]);
-    LC("overrides", mcodes[6]);
+static PyObject *linecode_gcodes(PyObject *self, void *) {
+    return linecode_array(((LineCode*)self)->gcodes, ACTIVE_G_CODES);
+}
+
+static PyObject *linecode_mcodes(PyObject *self, void *) {
+    return linecode_array(((LineCode*)self)->mcodes, ACTIVE_M_CODES);
+}
+
+static PyGetSetDef LineCodeGetSet[] = {
+    {(char*)"gcodes", linecode_gcodes, nullptr, nullptr, nullptr},
+    {(char*)"mcodes", linecode_mcodes, nullptr, nullptr, nullptr},
+    {},
+};
+
+// Read through a struct offset, which is what makes this type worth
+// hand-writing: a canon reads at least one of these per delivered line, and a
+// descriptor over an offset costs a fraction of a call into C++.
+#define LC(name, type, slot) \
+    {(char*)name, type, offsetof(LineCode, slot), READONLY, nullptr}
+static PyMemberDef LineCodeMembers[] = {
+    LC("sequence_number", T_INT, gcodes[0]),
+
+    LC("feed_rate", T_DOUBLE, settings[1]),
+    LC("speed", T_DOUBLE, settings[2]),
+    LC("motion_mode", T_INT, gcodes[1]),
+    LC("block", T_INT, gcodes[2]),
+    LC("plane", T_INT, gcodes[3]),
+    LC("cutter_side", T_INT, gcodes[4]),
+    LC("units", T_INT, gcodes[5]),
+    LC("distance_mode", T_INT, gcodes[6]),
+    LC("feed_mode", T_INT, gcodes[7]),
+    LC("origin", T_INT, gcodes[8]),
+    LC("tool_length_offset", T_INT, gcodes[9]),
+    LC("retract_mode", T_INT, gcodes[10]),
+    LC("path_mode", T_INT, gcodes[11]),
+
+    LC("stopping", T_INT, mcodes[1]),
+    LC("spindle", T_INT, mcodes[2]),
+    LC("toolchange", T_INT, mcodes[3]),
+    LC("mist", T_INT, mcodes[4]),
+    LC("flood", T_INT, mcodes[5]),
+    LC("overrides", T_INT, mcodes[6]),
+    {}
+};
 #undef LC
-    c.def_property_readonly("gcodes", [](const LineCode &l) {
-            return int_array(l.gcodes, ACTIVE_G_CODES); });
-    c.def_property_readonly("mcodes", [](const LineCode &l) {
-            return int_array(l.mcodes, ACTIVE_M_CODES); });
+
+static void linecode_register(py::module_ &m) {
+    LineCodeType.tp_name = "gcode.linecode";
+    LineCodeType.tp_basicsize = sizeof(LineCode);
+    LineCodeType.tp_flags = Py_TPFLAGS_DEFAULT;
+    LineCodeType.tp_members = LineCodeMembers;
+    LineCodeType.tp_getset = LineCodeGetSet;
+    LineCodeType.tp_new = linecode_new;
+    if(PyType_Ready(&LineCodeType) < 0) throw py::error_already_set();
+    m.add_object("linecode", py::handle((PyObject*)&LineCodeType));
 }
 
 ParseState parse_state;
@@ -169,12 +235,16 @@ static void deliver_new_line(int sequence_number) {
     if(parse_state.interp_error) return;
     if(sequence_number == parse_state.last_delivered_sequence_number)
         return;
-    auto line = snapshot_line(sequence_number);
     parse_state.last_sequence_number = sequence_number;
     parse_state.last_delivered_sequence_number = sequence_number;
-    // The cast is inside the guard too: it is the one step here that can raise.
+    // Building it is inside the guard too: it is the one step here besides the
+    // call that can fail, and it fails the way the call does - with the error
+    // set - so the guard is what turns either into interp_error.
     canon_guard([&]{
-        py::handle(parse_state.callback).attr("next_line")(py::cast(std::move(line)));
+        py::object line = py::reinterpret_steal<py::object>(
+                (PyObject*)snapshot_line(sequence_number));
+        if(!line) throw py::error_already_set();
+        py::handle(parse_state.callback).attr("next_line")(line);
     });
 }
 
