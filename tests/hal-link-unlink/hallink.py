@@ -7,8 +7,8 @@ def cmd(arg):
     subprocess.call(arg, shell=True)
 
 h = hal.component("linktest")
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("inout", hal.HAL_FLOAT, hal.HAL_IO)
+h.newpin("in", hal.Type.REAL, hal.Dir.IN)
+h.newpin("inout", hal.Type.REAL, hal.Dir.IO)
 h.ready()
 
 # set pin values before linking
