@@ -177,7 +177,7 @@ void refresh_trigger(void)
 	break;
     }
     if (chan->data_type == HAL_BOOL) {
-	snprintf(buf, BUFLEN, "  ----  ");
+	snprintf(buf, BUFLEN, "digital");
         gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 0);
     } else {
 	format_signal_value(buf, BUFLEN, fp_level);
