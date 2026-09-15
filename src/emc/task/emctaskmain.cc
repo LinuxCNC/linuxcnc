@@ -2434,7 +2434,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_SELECT_KINS_TYPE:
-	kSwitch_msg = (EMC_TRAJ_SELECT_KINS *) cmd;
+	kSwitch_msg = reinterpret_cast<EMC_TRAJ_SELECT_KINS *>(cmd);
 	retval =  emcSelectKinsType(kSwitch_msg->switchkins_type);
 	break;
 

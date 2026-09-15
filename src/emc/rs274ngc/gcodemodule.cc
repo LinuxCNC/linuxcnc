@@ -144,7 +144,7 @@ static PyObject *linecode_new(PyTypeObject *, PyObject *args, PyObject *kw) {
         PyErr_SetString(PyExc_ValueError, "linecode: no parse in progress");
         return nullptr;
     }
-    return (PyObject*)snapshot_line(parse_state.current_line());
+    return reinterpret_cast<PyObject*>(snapshot_line(parse_state.current_line()));
 }
 
 // The two array members. Everything else is a struct offset read straight out
@@ -164,11 +164,11 @@ static PyObject *linecode_array(const int *arr, int sz) {
 }
 
 static PyObject *linecode_gcodes(PyObject *self, void *) {
-    return linecode_array(((LineCode*)self)->gcodes, ACTIVE_G_CODES);
+    return linecode_array((reinterpret_cast<LineCode*>(self))->gcodes, ACTIVE_G_CODES);
 }
 
 static PyObject *linecode_mcodes(PyObject *self, void *) {
-    return linecode_array(((LineCode*)self)->mcodes, ACTIVE_M_CODES);
+    return linecode_array((reinterpret_cast<LineCode*>(self))->mcodes, ACTIVE_M_CODES);
 }
 
 static PyGetSetDef LineCodeGetSet[] = {
@@ -242,7 +242,7 @@ static void deliver_new_line(int sequence_number) {
     // set - so the guard is what turns either into interp_error.
     canon_guard([&]{
         py::object line = py::reinterpret_steal<py::object>(
-                (PyObject*)snapshot_line(sequence_number));
+                reinterpret_cast<PyObject*>(snapshot_line(sequence_number)));
         if(!line) throw py::error_already_set();
         py::handle(parse_state.callback).attr("next_line")(line);
     });
