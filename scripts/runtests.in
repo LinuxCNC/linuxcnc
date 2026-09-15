@@ -45,7 +45,6 @@ export RUNTESTS
 
 NUM=0
 FAIL=0; FAIL_NAMES=""
-XFAIL=0
 SHMERR=0
 SKIP=0
 VERBOSE=0
@@ -286,7 +285,7 @@ run_tests () {
 	    fi
 	fi
 	if [ "$exitcode" -ne 0 ]; then
-	    echo "*** $testdir: XFAIL: $reason"
+	    echo "*** $testdir: FAIL: $reason"
             if test $PRINT = 1; then
                 echo "************** result:"
                 tail -500 "$testdir/result" | sed 's/^/        /'
@@ -294,27 +293,15 @@ run_tests () {
                 tail -500 "$testdir/stderr" | sed 's/^/        /'
                 echo "**************"
             fi
-	    if [ -f "$testdir/xfail" ]; then
-		XFAIL=$((XFAIL + 1))
-		if [ $NOCLEAN -eq 0 ]; then
-		    rm -f "$testdir/stderr" "$testdir/result" \
-			"$testdir"/*.var "$testdir"/*.var.bak
-		fi
-	    else
-		FAIL=$((FAIL + 1))
-		FAIL_NAMES="$FAIL_NAMES"$'\n'"$testdir"
-	    fi
+	    FAIL=$((FAIL + 1))
+	    FAIL_NAMES="$FAIL_NAMES"$'\n'"$testdir"
             if test $STOP = 1; then
 	        break
 	    fi
 	else
-	    if [ -f "$testdir/xfail" ]; then
-		echo "*** $testdir: XPASS: Passed, but was expected to fail"
-	    else
-		if [ $NOCLEAN -eq 0 ]; then
-		    rm -f "$testdir/stderr" "$testdir/result" \
-			"$testdir"/*.var "$testdir"/*.var.bak
-		fi
+	    if [ $NOCLEAN -eq 0 ]; then
+		rm -f "$testdir/stderr" "$testdir/result" \
+		    "$testdir"/*.var "$testdir"/*.var.bak
 	    fi
 	fi
 
@@ -327,8 +314,8 @@ run_tests () {
         fi
     done < "$TMPDIR/alltests"
 
-    SUCC=$((NUM-FAIL-XFAIL))
-    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected, $SKIP skipped, $SHMERR shmem errors"
+    SUCC=$((NUM-FAIL))
+    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed, $SKIP skipped, $SHMERR shmem errors"
     if [ "$FAIL" -ne 0 ]; then
 	echo "Failed: $FAIL_NAMES"
 	exit 1;
