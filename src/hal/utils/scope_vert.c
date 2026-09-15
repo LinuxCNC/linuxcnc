@@ -593,7 +593,7 @@ static void init_vert_info_window(void)
 	0);
     /* box for the scale slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Scale"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
     vert->scale_slider = gtk_scale_new(
             GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->scale_adj));
@@ -628,6 +628,7 @@ static void init_vert_info_window(void)
     /* Offset control */
     vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
     vert->offset_label = gtk_bin_get_child(GTK_BIN(vert->offset_button));
+    gtk_label_set_justify(GTK_LABEL(vert->offset_label), GTK_JUSTIFY_CENTER);
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
     g_signal_connect(vert->offset_button, "clicked",
@@ -1067,9 +1068,14 @@ void channel_changed(void)
         gtk_label_set_text_if(vert->scale_label, "----");
         gtk_label_set_text_if(vert->chan_num_label, "--");
         gtk_label_set_text_if(vert->source_name_label, "------");
+        gtk_label_set_text_if(vert->offset_label, _("Offset\n----"));
+        /* gray out the Vertical info box when no channel is selected */
+        gtk_widget_set_sensitive(ctrl_usr->vert_info_win, FALSE);
         request_display_refresh(1);
         return;
     }
+    /* enable the Vertical info box when a channel is selected */
+    gtk_widget_set_sensitive(ctrl_usr->vert_info_win, TRUE);
     chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* set position slider based on new channel */
     gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj),

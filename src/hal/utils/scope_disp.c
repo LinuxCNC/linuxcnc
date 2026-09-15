@@ -301,22 +301,22 @@ int normal_colors[16][3] = {
 };
 
 int selected_colors[16][3] = {
-	{255, 204, 204},
-	{204, 255, 255},
-	{229, 255, 204},
-	{229, 204, 255},
-	{255, 242, 204},
-	{204, 255, 216},
-	{204, 216, 255},
-	{255, 204, 242},
-	{229, 186, 160},
-	{220, 229, 160},
-	{169, 229, 160},
-	{160, 229, 203},
-	{160, 203, 229},
-	{169, 160, 229},
-	{220, 160, 229},
-	{229, 160, 186},
+	{255, 128, 128},
+	{128, 255, 255},
+	{179, 255, 128},
+	{179, 128, 255},
+	{255, 204, 128},
+	{128, 255, 153},
+	{128, 153, 255},
+	{255, 128, 204},
+	{204, 153, 128},
+	{204, 255, 153},
+	{153, 255, 153},
+	{153, 255, 204},
+	{153, 204, 255},
+	{153, 128, 255},
+	{204, 128, 255},
+	{255, 128, 179},
 };
 
 
@@ -714,7 +714,7 @@ void draw_triggerline(int chan_num, int highlight) {
         chan->scale * ((chan->position - trig->level) * 10) +
 	chan->vert_offset;
 
-    const double dashes[2] = {2,4};
+    const double dashes[2] = {6,6};
     int ndash = sizeof(dashes) / sizeof(dashes[0]);
 
     int y1 = (fp_level-yfoffset) * yscale + ypoffset;
@@ -728,23 +728,26 @@ void draw_triggerline(int chan_num, int highlight) {
 
     if(ctrl_shm->trig_edge) dy = -dy;
 
-    if(highlight) {
-        gdk_cairo_set_source_rgba(disp->context, &disp->color_selected[chan_num - 1]);
-    } else {
-        gdk_cairo_set_source_rgba(disp->context, &disp->color_normal[chan_num - 1]);
-    }
-    cairo_set_dash(disp->context, dashes, ndash, 0.0);
-    line(chan_num | 0x200, 0, y1, disp->width, y1);
-    /* setting ndash = 0 to disable dashing */
-    cairo_set_dash(disp->context, dashes, 0, 0.0);
+    /* set color for trigger line and edge indicator */
     if(highlight) {
         gdk_cairo_set_source_rgba(disp->context, &disp->color_grid);
     } else {
         gdk_cairo_set_source_rgba(disp->context, &disp->color_baseline);
     }
+    cairo_set_dash(disp->context, dashes, ndash, 0.0);
+    line(chan_num | 0x200, 0, y1, disp->width, y1);
+    /* setting ndash = 0 to disable dashing */
+    cairo_set_dash(disp->context, dashes, 0, 0.0);
+    /* set color for trigger edge indicator */
+    if(highlight) {
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_selected[chan_num - 1]);
+    } else {
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_normal[chan_num - 1]);
+    }
+    /* draw trigger edge indicator */
     line(chan_num | 0x300, 2*dx, y1, 2*dx, y1 + 2*dy);
-    line(chan_num | 0x300, dx, y1+dy, 2*dx, y1 + 2*dy);
-    line(chan_num | 0x300, 3*dx, y1+dy, 2*dx, y1 + 2*dy);
+    line(chan_num | 0x300, (2-0.7)*dx, y1+1.2*dy, 2*dx, y1 + 2*dy);
+    line(chan_num | 0x300, (2+0.7)*dx, y1+1.2*dy, 2*dx, y1 + 2*dy);
 }
 
 
