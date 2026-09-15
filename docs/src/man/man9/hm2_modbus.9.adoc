@@ -205,6 +205,9 @@ Each mbccb file will generate a set of pins as defined in the mbccb file. See
 *mesambccc*(1),
 *mesaflash*(1).
 
+Safety considerations for Modbus-controlled spindles and drives:
+https://linuxcnc.org/docs/html/drivers/mb2hal.html#_safety_considerations
+
 == AUTHOR
 
 This man page written by B.Stultiens, as part of the LinuxCNC project.

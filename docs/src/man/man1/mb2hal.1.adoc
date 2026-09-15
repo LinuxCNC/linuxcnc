@@ -72,8 +72,8 @@ See https://linuxcnc.org/docs/html/drivers/mb2hal.html[] for more information.
 
 === Each transaction
 
-*mb2hal.m.num_errors* u32 in::
-  Error counter
+*mb2hal.m.num_errors* u32 out::
+  Error counter (0 means the last transaction succeeded)
 
 
 m = HAL_TX_NAME or transaction number if not set +
