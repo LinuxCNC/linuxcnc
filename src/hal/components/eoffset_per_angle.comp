@@ -6,9 +6,9 @@ description
 An offset is computed (from one of several functions) based on an input angle
 in degrees. The angle could be a rotary coordinate value or a spindle angle.
 
-The computed offset is represented as an s32 *kcounts* output pin that is a
+The computed offset is represented as a float *kcounts* output pin that is a
 compatible input to external offset pins like *axis.L.eoffset-counts* where *L*
-is the coordinate letter. Scaling of the s32 *kcounts* is controlled by the
+is the coordinate letter. Scaling of the *kcounts* value is controlled by the
 input (*k*) -- its reciprocal value is presented on an output pin *kreciprocal*
 for connection to *axis.L.eoffset-scale*. The default value for *k* should be
 suitable for most uses.
@@ -77,7 +77,7 @@ pin out bool is_off      "invert is_on (for convenience)";
 
 pin out bool enable_out  "To: axis.L.eoffset-enable";
 pin out bool clear       "To: axis.L.eoffset-clear";
-pin out si32 kcounts     "To: axis.L.eoffset-counts";
+pin out real kcounts     "To: axis.L.eoffset-counts";
 pin out real kreciprocal "To: axis.L.eoffset-scale (1/k)";
 
 pin out real eoffset_dbg "offset (debug pin--use kcounts & kreciprocal)";
@@ -137,7 +137,7 @@ static      ofunc func0,func1,func2,func3;
   #define LVL RTAPI_MSG_INFO
   #define dprint(msg,n) do { \
     rtapi_set_msg_level(LVL); \
-    rtapi_print_msg(LVL,"%20s %5d\n",msg,n); \
+    rtapi_print_msg(LVL,"%20s %9.3f\n",msg,(double)(n)); \
   } while (0)
 #else
   #define dprint(msg,n)

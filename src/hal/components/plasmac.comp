@@ -213,11 +213,11 @@ pin out bool    thc_enabled                 "thc is enabled";
 pin out bool    torch_on                    "turn torch on, connect to your torch on input";
 pin out real    torch_time                  "torch on time of current job";
 pin out bool    voidlock_is_locked          "voidlock is locked indicator [mode 0 & mode 1]";
-pin out si32    x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
+pin out real    x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
 pin out bool    xy_offset_enable            "enable x and y offsets, connect to axis.<x & y>.eoffset-enable";
-pin out si32    y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
+pin out real    y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
 pin out real    z_height                    "current z axis height relative to the probed zero height";
-pin out si32    z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
+pin out real    z_offset_counts             "z offset for height control, connect to axis.z.eoffset-counts";
 pin out bool    z_offset_enable             "enable z offsets, connect to axis.z.eoffset-enable";
 pin out real    z_relative                  "distance of Z from last probed height";
 
@@ -236,72 +236,72 @@ variable double axis_y_finish;              /* axis y position at end of cut */
 variable double axis_y_start;               /* axis y position at start of cut */
 variable int    cons_change_clear;          /* consumable change is clearing */
 variable int    count;                      /* for counting */
-variable int    cut_height_first;           /* cut height at start of cut */
-variable int    cut_height_last;            /* cut height at end of cut */
+variable double cut_height_first;           /* cut height at start of cut */
+variable double cut_height_last;            /* cut height at end of cut */
 variable double cut_offset;                 /* offset from last cut end to this cut start */
 variable bool   cut_started;                /* cut has started */
-variable int    cut_target;                 /* cut height target offset */
+variable double cut_target;                 /* cut height target offset */
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
-variable int    height_ovr_counts;          /* number of counts to change height via override */
+variable double height_ovr_counts;          /* number of counts to change height via override */
 variable double height_ovr_old;             /* old height override value */
 variable bool   initialized;                /* initialization flag */
-variable int    laser_x_target;             /* target count for laser recovery x offset */
-variable int    laser_y_target;             /* target count for laser recovery y offset */
+variable double laser_x_target;             /* target count for laser recovery x offset */
+variable double laser_y_target;             /* target count for laser recovery y offset */
 variable double last_arc_voltage;           /* last sensed arc voltage */
 variable bool   manual_cut;                 /* manual cut mode is active */
-variable int    offset_datum;               /* datum for safe height calcs */
+variable double offset_datum;               /* datum for safe height calcs */
 variable bool   offset_limit_error = false; /* has an offset error been reported (prevents repeat messages)*/
-variable int    offset_max;                 /* maximum allowed offset */
-variable int    offset_min;                 /* minimum allowed offset */
+variable double offset_max;                 /* maximum allowed offset */
+variable double offset_min;                 /* minimum allowed offset */
 variable double offset_probe_timer;         /* offset probe deployment delay time */
 variable bool   offset_probing;             /* offset probing is enabled */
 variable int    offset_res;                 /* resolution for comparing offset move to target*/
 variable bool   offset_set;                 /* probe or scribe is being offset*/
-variable int    offset_velocity;            /* velocity for probe offset moves */
+variable double offset_velocity;            /* velocity for probe offset moves */
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    ohmic_sense_counts;         /* ohmic sense debounce counter */
 variable int    ok_sampler_samples;         /* required number of arc ok samples [mode0] */
 variable int    old_resolution;             /* previous resolution value */
-variable int    op_x_start;                 /* x offset when offset probing started */
-variable int    op_x_target;                /* target offset for x probe offset */
-variable int    op_x_velocity;              /* velocity for x probe offset */
+variable double op_x_start;                 /* x offset when offset probing started */
+variable double op_x_target;                /* target offset for x probe offset */
+variable double op_x_velocity;              /* velocity for x probe offset */
 variable double op_xy_angle;                /* angle for x/y probe offset calcs in radians*/
-variable int    op_y_start;                 /* y offset when offset probing started */
-variable int    op_y_target;                /* target offset for y probe offset */
-variable int    op_y_velocity;              /* velocity for y probe offset */
+variable double op_y_start;                 /* y offset when offset probing started */
+variable double op_y_target;                /* target offset for y probe offset */
+variable double op_y_velocity;              /* velocity for y probe offset */
 variable double pause_at_end_timer;         /* pause at end of cut timer */
 variable double paused_motion_timer;        /* minimum run timer for paused motion */
 variable double pid_error_now;              /* current error for pid calcs */
 variable double pid_error_old;              /* old error for pid calcs */
 variable double pid_output;                 /* calculated pid output value */
-variable int    pierce_target;              /* pierce height target offset */
+variable double pierce_target;              /* pierce height target offset */
 variable double pierce_timer;               /* pierce delay timer */
 variable double probe_at_bottom;            /* probe is at bottom limit */
 variable bool   probe_inhibit;              /* inhibit probing */
-variable int    probe_offset;               /* offset for active probe */
+variable double probe_offset;               /* offset for active probe */
 variable bool   probe_required = 1;         /* a probe sequence is required */
 variable bool   probe_retry;                /* probe will retry after contact before probe height */
-variable int    probe_start_target;         /* probe start height target */
+variable double probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
-variable int    probe_velocity;             /* probe down velocity */
+variable double probe_velocity;             /* probe down velocity */
 variable int    puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
-variable int    puddle_jump_target;         /* puddle jump height target offset */
+variable double puddle_jump_target;         /* puddle jump height target offset */
 variable double puddle_jump_timer;          /* puddle jump delay timer */
 variable double recovery_velocity;          /* cut recovery step velocity */
 variable int    res;                        /* resolution of offset move*/
 variable double restart_timer;              /* time between torch on attempts*/
-variable int    safe_alarm;                 /* warn if safe_available falls below this value during a cut */
-variable int    safe_available;             /* available safe height */
-variable int    safe_min;                   /* minimum safe height allowed */
-variable int    safe_preferred;             /* preferred safe height offset */
-variable int    safe_target;                /* safe height target offset */
+variable double safe_alarm;                 /* warn if safe_available falls below this value during a cut */
+variable double safe_available;             /* available safe height */
+variable double safe_min;                   /* minimum safe height allowed */
+variable double safe_preferred;             /* preferred safe height offset */
+variable double safe_target;                /* safe height target offset */
 variable double scribe_arm_timer;           /* scribe timer from arm to on*/
 variable double scribe_on_timer;            /* scribe timer from on to motion*/
 variable bool   scribe_pause;               /* scribe pause flag */
-variable int    setup_velocity;             /* velocity for setup moves */
+variable double setup_velocity;             /* velocity for setup moves */
 variable bool   spotting;                   /* spotting flag */
 variable double spotting_timer;             /* spotting timer */
 variable int    state_old = -1;             /* old state */
@@ -315,7 +315,7 @@ variable bool   thc_activated;              /* thc was activated */
 variable double thc_activated_timer;        /* timer to reset thc_activated - end of cut is detected from userspace :( */
 variable double thc_delay_timer;            /* thc delay timer [non auto THC] */
 variable int    thc_sampler_samples;        /* required number of thc samples  [auto THC] */
-variable int    thc_velocity;               /* velocity for thc moves */
+variable double thc_velocity;               /* velocity for thc moves */
 variable double torch_off_timer;            /* arc off delay timer */
 variable double torch_pulse_timer;          /* torch pulse timer */
 variable double velocity_scale;             /* the velocity multiplier */
@@ -323,18 +323,18 @@ variable double voidlock_change;            /* voltage change this cycle */
 variable double voidlock_off_count;         /* current count of voidlock deactivate cycles */
 variable int    voidlock_on_count;          /* current count of voidlock activate cycles */
 variable double voidlock_threshold;         /* voidlock threshold voltage per cycle */
-variable int    x_velocity;                 /* velocity for x motion for consumable change */
-variable int    y_velocity;                 /* velocity for y motion for consumable change */
-variable int    z_max;                      /* max height for testing against pierce height*/
-variable int    z_pierce;                   /* pierce height for testing against max height*/
-variable int    zero_target;                /* zero height target offset */
+variable double x_velocity;                 /* velocity for x motion for consumable change */
+variable double y_velocity;                 /* velocity for y motion for consumable change */
+variable double z_max;                      /* max height for testing against pierce height*/
+variable double z_pierce;                   /* pierce height for testing against max height*/
+variable double zero_target;                /* zero height target offset */
 // Pierce type user control variables
 variable double creep_speed_dist_travelled; /* Sum of distance traveled during creep stage */
 variable double creep_speed_scale;          /* scale of creep speed in proportion to standard cut feed rate */
 variable double cut_height_delay_timer;     /* at the end of transition to end-perice-height how long to pause before transition to cut height*/
 variable double gouge_speed_dist_travelled; /* Sum of distance traveled during gouge stage */
 variable double gouge_speed_scale;          /* scale of gouge speed in proportion to standard cut feed rate */
-variable int    pierce_end_target;          /* Target pierce height at end of pierce motion. Usually less than the starting pierce height */
+variable double pierce_end_target;          /* Target pierce height at end of pierce motion. Usually less than the starting pierce height */
 variable double pierce_motion_delay_timer;  /* delay starting motion during pierce delay period. Only used when pierce-type is 2. Is calced from a % of Pierce Delay*/
 variable double pierce_old_x;               /* tracking the last x location during pierce */
 variable double pierce_old_y;               /* tracking the last y location during pierce */
@@ -468,8 +468,23 @@ float read_arc_voltage_buffer(int caller, int size, int index, float target, flo
     }
 }
 
+/* offsets are floating point counts: compare them with a tolerance instead
+   of for exact equality.  One thousandth of a count is far below the
+   resolution any offset is ever commanded at, so this only absorbs the
+   rounding of the arithmetic, never a real difference. */
+#define OFFSET_EPSILON 0.001
+static int offset_eq(double a, double b){
+    return fabs(a - b) < OFFSET_EPSILON;
+}
+
 /* set an axis eoffset position at a set velocity */
-int offset_move(int offset, int vel, int target){
+double offset_move(double offset, double vel, double target){
+    if(!isfinite(vel) || !isfinite(target) || vel <= 0){
+        /* a non-positive velocity never advanced the offset before this was
+           floating point either, so stay put rather than step by a bogus
+           amount */
+        return offset;
+    }
     if(offset - vel > target){
         offset -= vel;
     }else if(offset + vel < target){
@@ -1127,13 +1142,13 @@ FUNCTION(_) {
                                     y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
                                     laser_recovery_state_set(RESETTING);
                                 }else if(laser_recovery_state == RESETTING){
-                                    if(x_offset_counts == x_offset && y_offset_counts == y_offset){
+                                    if(offset_eq(x_offset_counts, x_offset) && offset_eq(y_offset_counts, y_offset)){
                                         laser_recovery_state_set(OFF);
                                     }else{
-                                        if(x_offset_counts != x_offset){
+                                        if(!offset_eq(x_offset_counts, x_offset)){
                                             x_offset_counts_set(offset_move(x_offset_counts, x_velocity, x_offset));
                                         }
-                                        if(y_offset_counts != y_offset){
+                                        if(!offset_eq(y_offset_counts, y_offset)){
                                             y_offset_counts_set(offset_move(y_offset_counts, y_velocity, y_offset));
                                         }
                                     }
@@ -1191,11 +1206,11 @@ FUNCTION(_) {
                 /* move probe to x/y offsets if required */
                 if(offset_probing){
                     xy_offset_enable_set(TRUE);
-                    if(x_offset_counts != op_x_target || y_offset_counts != op_y_target){
-                        if(x_offset_counts != op_x_target){
+                    if(!offset_eq(x_offset_counts, op_x_target) || !offset_eq(y_offset_counts, op_y_target)){
+                        if(!offset_eq(x_offset_counts, op_x_target)){
                             x_offset_counts_set(offset_move(x_offset_counts, op_x_velocity, op_x_target));
                         }
-                        if(y_offset_counts != op_y_target){
+                        if(!offset_eq(y_offset_counts, op_y_target)){
                             y_offset_counts_set(offset_move(y_offset_counts, op_y_velocity, op_y_target));
                         }
                     }
@@ -1227,7 +1242,7 @@ FUNCTION(_) {
                           }
                         }
                         break;
-                    }else if(ohmic_probe_enable && (x_offset_counts != op_x_target || y_offset_counts != op_y_target)){
+                    }else if(ohmic_probe_enable && (!offset_eq(x_offset_counts, op_x_target) || !offset_eq(y_offset_counts, op_y_target))){
                         stop_type = PAUSE;
                         program_pause_set(TRUE);
                         rtapi_print_msg(RTAPI_MSG_ERR,"probe contact detected before probe offset reached\n"
@@ -1238,7 +1253,7 @@ FUNCTION(_) {
                     probe_retry = TRUE;
                     state = PROBE_UP;
                 /* move to probe height at setup velocity */
-                }else if(z_offset_counts != probe_start_target){
+                }else if(!offset_eq(z_offset_counts, probe_start_target)){
                     z_offset_counts_set(offset_move(z_offset_counts, setup_velocity, probe_start_target));
                 }else{
                     if(float_detected){
@@ -1248,7 +1263,7 @@ FUNCTION(_) {
                     }else{
                         /* test if probing offset is reached */
                         if(offset_probing){
-                            if(x_offset_counts == op_x_target && y_offset_counts == op_y_target &&
+                            if(offset_eq(x_offset_counts, op_x_target) && offset_eq(y_offset_counts, op_y_target) &&
                                z_offset_current - probe_start_target * offset_scale < 0.001){
                                 state = PROBE_DOWN;
                             }
@@ -1444,10 +1459,10 @@ FUNCTION(_) {
                 /* clear x/y probe offsets if required */
                 if(offset_probing){
                     xy_offset_enable_set(TRUE);
-                    if(x_offset_counts != op_x_start){
+                    if(!offset_eq(x_offset_counts, op_x_start)){
                         x_offset_counts_set(offset_move(x_offset_counts, op_x_velocity, op_x_start));
                     }
-                    if(y_offset_counts != op_y_start){
+                    if(!offset_eq(y_offset_counts, op_y_start)){
                         y_offset_counts_set(offset_move(y_offset_counts, op_y_velocity, op_y_start));
                     }
                     if(ohmic_probe_enable && offset_probe_timer < offset_probe_delay){
@@ -1456,9 +1471,9 @@ FUNCTION(_) {
                 }
                 if(pierce_height && cut_height && (use_auto_volts || (!use_auto_volts && cut_volts))){
                     feed_hold_set(TRUE);
-                    if(z_offset_counts == pierce_target){
+                    if(offset_eq(z_offset_counts, pierce_target)){
                         if((int)(z_offset_current * offset_res) == (int)(pierce_target * offset_scale * offset_res) &&
-                           (((offset_probing && x_offset_counts == op_x_start && y_offset_counts == op_y_start)) || !offset_probing)){
+                           (((offset_probing && offset_eq(x_offset_counts, op_x_start) && offset_eq(y_offset_counts, op_y_start))) || !offset_probing)){
                             arc_starts = 0;
                             if(probe_testing){
                                 state = PROBE_TEST;
@@ -1641,7 +1656,7 @@ FUNCTION(_) {
                             // Sequence 1
                             rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq 1\n");
                             pierce_motion_delay_timer -= fperiod;
-                        }else if(z_offset_counts != pierce_end_target){
+                        }else if(!offset_eq(z_offset_counts, pierce_end_target)){
                             // Sequence 2
                             rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - Seq 2\n");
                             z_offset_enable_set(TRUE);
@@ -1681,7 +1696,7 @@ FUNCTION(_) {
             case PUDDLE_JUMP:
                 z_offset_enable_set(TRUE);
                 feed_hold_set(FALSE);
-                if(z_offset_counts == puddle_jump_target){
+                if(offset_eq(z_offset_counts, puddle_jump_target)){
                     if((int)(z_offset_current * offset_res) == (int)(puddle_jump_target * offset_scale * offset_res)){
                         count = 0;
                         if(puddle_jump_timer > 0){
@@ -1703,7 +1718,7 @@ FUNCTION(_) {
 //                if(!cut_recovering){
 //                    feed_hold = FALSE;
 //                }
-                if(z_offset_counts == cut_target){
+                if(offset_eq(z_offset_counts, cut_target)){
                     if((int)(z_offset_current * offset_res) == (int)(cut_target * offset_scale * offset_res)){
                         count = 0;
                         if(cut_recovering){
@@ -1792,7 +1807,7 @@ FUNCTION(_) {
                         height_ovr_counts -= (height_override - height_ovr_old) * height_per_volt / offset_scale;
                         height_ovr_old = height_override;
                     /* height override z motion */
-                    }else if(height_ovr_counts != 0){
+                    }else if(!offset_eq(height_ovr_counts, 0)){
                         if((setup_velocity) < height_ovr_counts){
                             z_offset_counts_set(z_offset_counts - setup_velocity);
                             height_ovr_counts -= setup_velocity;
@@ -2011,7 +2026,7 @@ FUNCTION(_) {
                 if(!torch_off_timer || !torch_on){
                     cornerlock_is_locked_set(FALSE);
                     if(!probe_test || probe_test_error){
-                        if(z_offset_counts == safe_target){
+                        if(offset_eq(z_offset_counts, safe_target)){
                             if((int)(z_offset_current * offset_res) == (int)(safe_target * offset_scale * offset_res)){
                                 if(stop_type == WAIT){
                                     feed_hold_set(FALSE);
@@ -2034,7 +2049,7 @@ FUNCTION(_) {
                 torch_on_set(FALSE);
                 cornerlock_is_locked_set(FALSE);
                 if(!probe_test || probe_test_error){
-                    if(z_offset_counts == 0){
+                    if(offset_eq(z_offset_counts, 0)){
                         if((int)(z_offset_current * offset_res) == 0){
                             if(stop_type == WAIT){
                                 feed_hold_set(FALSE);
@@ -2046,11 +2061,11 @@ FUNCTION(_) {
                             }else if(cut_recovery && stop_type != STOP){
                                 state = CUT_RECOVERY_ON;
                             /* clear x/y probe offsets if required */
-                            }else if((offset_probe_x || offset_probe_y) && (x_offset_counts || y_offset_counts)){
-                                if(x_offset_counts != 0){
+                            }else if((offset_probe_x || offset_probe_y) && (!offset_eq(x_offset_counts, 0) || !offset_eq(y_offset_counts, 0))){
+                                if(!offset_eq(x_offset_counts, 0)){
                                     x_offset_counts_set(offset_move(x_offset_counts, op_x_velocity, 0));
                                 }
-                                if(y_offset_counts != 0){
+                                if(!offset_eq(y_offset_counts, 0)){
                                     y_offset_counts_set(offset_move(y_offset_counts, op_y_velocity, 0));
                                 }
                             }else{
@@ -2089,7 +2104,7 @@ FUNCTION(_) {
                 cut_height_last = 0;
                 if(program_is_idle){
                     z_offset_enable_set(TRUE);
-                    if (z_offset_counts == 0){
+                    if (offset_eq(z_offset_counts, 0)){
                         if(!offsets_active){
                             first_cut_finished = FALSE;
                             stop_type = NONE;
@@ -2172,11 +2187,11 @@ FUNCTION(_) {
                 if(!probe_test){
                     /* clear z offset at setup velocity */
                     z_offset_counts_set(offset_move(z_offset_counts, setup_velocity, 0));
-                    if((offset_probe_x || offset_probe_y) && (x_offset_counts || y_offset_counts)){
+                    if((offset_probe_x || offset_probe_y) && (!offset_eq(x_offset_counts, 0) || !offset_eq(y_offset_counts, 0))){
                         x_offset_counts_set(offset_move(x_offset_counts, op_x_velocity, 0));
                         y_offset_counts_set(offset_move(y_offset_counts, op_y_velocity, 0));
                     }
-                    if(!x_offset_counts && !y_offset_counts && !z_offset_counts){
+                    if(offset_eq(x_offset_counts, 0) && offset_eq(y_offset_counts, 0) && offset_eq(z_offset_counts, 0)){
                         probe_inhibit = FALSE;
                         probe_testing = FALSE;
                         probe_required = TRUE;
@@ -2256,7 +2271,7 @@ FUNCTION(_) {
                       !consumable_change){
                         state = IDLE;
                     }else if(consumable_change){
-                        if(x_velocity && x_offset_counts != x_offset){
+                        if(x_velocity && !offset_eq(x_offset_counts, x_offset)){
                             if(x_offset > 0){
                                 if(x_offset_counts + x_velocity < x_offset){
                                     x_offset_counts_set(x_offset_counts + x_velocity);
@@ -2271,7 +2286,7 @@ FUNCTION(_) {
                                 }
                             }
                         }
-                        if(y_velocity && y_offset_counts != y_offset){
+                        if(y_velocity && !offset_eq(y_offset_counts, y_offset)){
                             if(y_offset > 0){
                                 if(y_offset_counts + y_velocity < y_offset){
                                     y_offset_counts_set(y_offset_counts + y_velocity);
@@ -2301,7 +2316,7 @@ FUNCTION(_) {
                     break;
                 }
                 error_message = FALSE;
-                if(x_offset_counts == 0 && y_offset_counts == 0){
+                if(offset_eq(x_offset_counts, 0) && offset_eq(y_offset_counts, 0)){
                     if((int)(x_offset_current * offset_res) == 0 && (int)(y_offset_current * offset_res) == 0){
                         consumable_changing_set(FALSE);
                         cons_change_clear = FALSE;
@@ -2309,7 +2324,7 @@ FUNCTION(_) {
                         state = IDLE;
                     }
                 }else{
-                    if(x_velocity && x_offset_counts != 0){
+                    if(x_velocity && !offset_eq(x_offset_counts, 0)){
                         if(x_offset_counts > 0){
                             if(x_offset_counts - x_velocity > 0){
                                 x_offset_counts_set(x_offset_counts - x_velocity);
@@ -2324,7 +2339,7 @@ FUNCTION(_) {
                             }
                         }
                     }
-                    if(y_velocity && y_offset_counts != 0){
+                    if(y_velocity && !offset_eq(y_offset_counts, 0)){
                         if(y_offset_counts > 0){
                             if(y_offset_counts - y_velocity > 0){
                                 y_offset_counts_set(y_offset_counts - y_velocity);
@@ -2372,24 +2387,24 @@ FUNCTION(_) {
                     laser_y_target = y_offset_counts + laser_y_offset;
                     laser_recovery_state_set(SETTING);
                 }else if(laser_recovery_state == SETTING){
-                    if(x_offset_counts == laser_x_target && y_offset_counts == laser_y_target){
+                    if(offset_eq(x_offset_counts, laser_x_target) && offset_eq(y_offset_counts, laser_y_target)){
                         laser_recovery_state_set(ON);
                     }else{
-                        if(x_offset_counts != laser_x_target){
+                        if(!offset_eq(x_offset_counts, laser_x_target)){
                             x_offset_counts_set(offset_move(x_offset_counts, x_velocity, laser_x_target));
                         }
-                        if(y_offset_counts != laser_y_target){
+                        if(!offset_eq(y_offset_counts, laser_y_target)){
                             y_offset_counts_set(offset_move(y_offset_counts, y_velocity, laser_y_target));
                         }
                     }
                 /* laser recovery offset is clear */
                 }else if(cut_recovery){
                     /* move x axis to recovery position at recovery velocity */
-                    if(x_offset_counts != x_offset + laser_x_offset * (laser_recovery_state > 1)){
+                    if(!offset_eq(x_offset_counts, x_offset + laser_x_offset * (laser_recovery_state > 1))){
                         x_offset_counts_set(offset_move(x_offset_counts, recovery_velocity, x_offset + laser_x_offset * (laser_recovery_state > 1)));
                     }
                     /* move y axis to recovery position at recovery velocity */
-                    if(y_offset_counts != y_offset + laser_y_offset * (laser_recovery_state > 1)){
+                    if(!offset_eq(y_offset_counts, y_offset + laser_y_offset * (laser_recovery_state > 1))){
                         y_offset_counts_set(offset_move(y_offset_counts, recovery_velocity, y_offset + laser_y_offset * (laser_recovery_state > 1)));
                     }
                 }else{
@@ -2409,7 +2424,7 @@ FUNCTION(_) {
                     x_velocity = fabs(recovery_velocity * cos(angle_x_y));
                     y_velocity = fabs(recovery_velocity * sin(angle_x_y));
                 }
-                if(x_offset_counts == 0 && y_offset_counts == 0){
+                if(offset_eq(x_offset_counts, 0) && offset_eq(y_offset_counts, 0)){
                     if((int)(x_offset_current * offset_res) == 0 && (int)(y_offset_current * offset_res) == 0){
                         laser_recovery_state_set(OFF);
                         if(cut_recovering){
@@ -2432,11 +2447,11 @@ FUNCTION(_) {
                     }
                 }else{
                     /* clear x axis offset at recovery velocity */
-                    if(x_offset_counts != 0){
+                    if(!offset_eq(x_offset_counts, 0)){
                         x_offset_counts_set(offset_move(x_offset_counts, x_velocity, 0));
                     }
                     /* clear y axis offset at recovery velocity */
-                    if(y_offset_counts != 0){
+                    if(!offset_eq(y_offset_counts, 0)){
                         y_offset_counts_set(offset_move(y_offset_counts, y_velocity, 0));
                     }
                 }

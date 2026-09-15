@@ -288,8 +288,8 @@ class HandlerClass:
         QHAL.newPin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newPin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = False
-        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        QHAL.newPin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_FLOAT, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-count", QHAL.HAL_FLOAT, QHAL.HAL_OUT)
         pin = QHAL.newPin("eoffset-is-active", QHAL.HAL_BIT, QHAL.HAL_IN)
 
 
@@ -297,7 +297,7 @@ class HandlerClass:
         pin = QHAL.newPin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.external_offset_state_changed(v))
 
-        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.comp_count_changed(v))
         QHAL.newPin("comp-on", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newPin("spindle-lift-on", QHAL.HAL_BIT, QHAL.HAL_OUT)

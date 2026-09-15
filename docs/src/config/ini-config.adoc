@@ -1058,7 +1058,7 @@ Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock-pins for joi
 [source,hal]
 ----
 axis.<letter>.eoffset-enable
-axis.<letter>.eoffset-count
+axis.<letter>.eoffset-counts
 axis.<letter>.eoffset-scale
 ----
 

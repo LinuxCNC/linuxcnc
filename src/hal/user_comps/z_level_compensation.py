@@ -99,11 +99,11 @@ method {} not recognised (outside 0-2). Defaulting to cubic(0).".format(self.h.m
         self.Xn = self.xpos - self.xMin
         self.Yn = self.ypos - self.yMin
         
-        # get the nearest compensation offset and convert to counts (s32) with a scale (float) 
+        # get the nearest compensation offset and convert to counts (float) with a scale (float)
         # Requested offset == counts * scale
         zo = self.zi[self.Xn, self.Yn]
         try:
-            compensation = int(zo / self.scale)
+            compensation = float(zo / self.scale)
         except:
             compensation = 0.0
         return compensation
@@ -112,7 +112,7 @@ method {} not recognised (outside 0-2). Defaulting to cubic(0).".format(self.h.m
         self.h = hal.component("z_level_compensation")
         self.h.newpin("enable-in", hal.HAL_BIT, hal.HAL_IN)
         self.h.newpin("scale", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.h.newpin("counts", hal.HAL_S32, hal.HAL_OUT)
+        self.h.newpin("counts", hal.HAL_FLOAT, hal.HAL_OUT)
         self.h.newpin("clear", hal.HAL_BIT, hal.HAL_IN)
         self.h.newpin("x-pos", hal.HAL_FLOAT, hal.HAL_IN)
         self.h.newpin("y-pos", hal.HAL_FLOAT, hal.HAL_IN)
