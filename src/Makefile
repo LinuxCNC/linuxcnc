@@ -403,6 +403,7 @@ SRCHEADERS := \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
+    emc/kinematics/kins_module.h \
     emc/kinematics/switchkins.h \
     emc/kinematics/kins_rt.h \
     emc/kinematics_userspace/kinematics_user.h \

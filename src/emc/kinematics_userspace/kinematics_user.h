@@ -7,7 +7,7 @@
  * positions from world coordinates without requiring RT kernel calls.
  *
  * The kinematics module is loaded into this process and evaluated through
- * its parameter block form (see kinematics.h).  The block is filled from
+ * its parameter block form (see kins_module.h).  The block is filled from
  * input pins belonging to the caller's HAL component, connected to the
  * same signals the running RT instance reads, so the maths runs on live
  * values; the tool is the caller's where it gives one, and motion's
@@ -23,7 +23,7 @@
 #define KINEMATICS_USER_H
 
 #include <emcpos.h>           /* EmcPose */
-#include <kinematics.h>       /* KINEMATICS_TYPE, flags */
+#include <kins_module.h>       /* KINEMATICS_TYPE, flags */
 #include <hal.h>              /* hal_type_t, HAL_NAME_LEN */
 
 #ifdef __cplusplus

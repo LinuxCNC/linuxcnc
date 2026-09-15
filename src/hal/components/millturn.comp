@@ -49,7 +49,7 @@ FUNCTION(fdemo) {
 }
 
 // the turn kinematics: no geometry, written as pure functions of the
-// parameter block (see kinematics.h)
+// parameter block (see kins_module.h)
 static int turn_forward(const kins_params *p, kins_scratch *s,
                         const double *j,
                         EmcPose * pos,

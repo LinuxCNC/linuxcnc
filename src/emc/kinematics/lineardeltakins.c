@@ -18,7 +18,7 @@
 #include <rtapi_app.h>
 #include <rtapi_string.h>
 #include <hal.h>
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 #include "lineardeltakins-common.h"

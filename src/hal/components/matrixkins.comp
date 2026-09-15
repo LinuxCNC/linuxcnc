@@ -180,7 +180,7 @@ option extra_setup;
 license "GPL";
 ;;
 
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 // the calibration matrix, one pin each; the maths reads it from the block

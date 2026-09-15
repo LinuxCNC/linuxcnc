@@ -50,7 +50,7 @@ change all instances of `userkins` to `mykins`.
 === NOTES
 
 * The kinematics are written as functions of a parameter block, see
-  kinematics.h: the geometry is declared once in the *userkins_params*
+  kins_module.h: the geometry is declared once in the *userkins_params*
   table, one HAL pin is made per entry, and the maths reads
   *p->geometry[]* where it would have read a pin.  The classic entry
   points (kinematicsForward() and the rest) are supplied by kins_single.c,
@@ -69,7 +69,7 @@ license "GPL";
 author "Dewey Garrett";
 ;;
 
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 // the shared code for a module with one kinematics type, compiled in so
@@ -159,7 +159,7 @@ static int userkins_jacobian(const kins_params *p, const double *j,
     (void)iflags;
     // How each joint responds to each pose coordinate, the derivative of
     // userkins_inverse(): for this template joint 0 follows x, joint 1
-    // follows y and joint 2 follows z, each one for one.  See kinematics.h.
+    // follows y and joint 2 follows z, each one for one.  See kins_module.h.
     // Leave .jacobian out of the ops below to have it differenced instead.
     for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
         for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
@@ -174,7 +174,7 @@ static const kins_ops userkins_ops = {
     .forward  = userkins_forward,
     .inverse  = userkins_inverse,
     .jacobian = userkins_jacobian,
-    // .work, .tool and .native report the frames, see kinematics.h
+    // .work, .tool and .native report the frames, see kins_module.h
 };
 
 const kins_module_info kins_module = {

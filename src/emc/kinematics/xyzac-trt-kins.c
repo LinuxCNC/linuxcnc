@@ -9,7 +9,7 @@
 *  4) The directions of the rotational axes are the opposite of the
 *     conventional axis directions.
 *  5) the maths and the geometry table are in trtfuncs.c, written as
-*     pure functions of the parameter block (see kinematics.h)
+*     pure functions of the parameter block (see kins_module.h)
 */
 
 #include <rtapi.h>
@@ -17,6 +17,8 @@
 #include <emcmotcfg.h>
 
 #include <switchkins.h>
+#include "userkfuncs.h"
+#include "trtfuncs.h"
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,

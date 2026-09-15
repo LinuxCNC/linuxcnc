@@ -554,7 +554,7 @@ int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 ----
 
 'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
-kinematics.h as KINS_MAX_TYPES).  Registering a kinstype twice, by
+kinematics.h).  Registering a kinstype twice, by
 either route, is an error, and so is leaving a gap below the highest
 kinstype provided.  Either mistake fails the module load and says
 which kinstype is at fault.
@@ -686,7 +686,7 @@ static int my_inverse(const kins_params *p, kins_scratch *s,
 static const kins_ops my_ops = {
     .forward = my_forward,
     .inverse = my_inverse,
-    // .work, .tool, .native and .jacobian are optional, see kinematics.h
+    // .work, .tool, .native and .jacobian are optional, see kins_module.h
 };
 
 int switchkinsSetup(kparms* kp,
