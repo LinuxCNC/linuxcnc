@@ -50,10 +50,6 @@ int kinematicsForward(const double *joints,
     // B correction
     const double zb = (pivot_length + joints[8] + tool_length) * cos(d2r(joints[4]));
     const double xb = (pivot_length + joints[8] + tool_length) * sin(d2r(joints[4]));
-        
-    // C correction
-    const double xyr = hypot(joints[0], joints[1]);
-    const double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
 
     // U correction
     const double zv = joints[6] * sin(d2r(joints[4]));
@@ -61,8 +57,18 @@ int kinematicsForward(const double *joints,
 
     // V correction is always in joint 1 only
 
-    pos->tran.x = xyr * cos(xytheta) - (con * xb) - xv;
-    pos->tran.y = xyr * sin(xytheta) - joints[7];
+    // B, U and V are all machine frame: the head hangs off the Z slide and
+    // does not turn with the C table, so they apply before the rotation into
+    // the workpiece frame rather than after it.
+    const double mx = joints[0] - (con * xb) - xv;
+    const double my = joints[1] - joints[7];
+
+    // C correction
+    const double xyr = hypot(mx, my);
+    const double xytheta = atan2(my, mx) + d2r(joints[5]);
+
+    pos->tran.x = xyr * cos(xytheta);
+    pos->tran.y = xyr * sin(xytheta);
     pos->tran.z = joints[2] - zb - (con * zv) + pivot_length + tool_length;
 
     pos->a = joints[3];
@@ -103,7 +109,7 @@ int kinematicsInverse(const EmcPose * pos,
 
     joints[0] = xyr * cos(xytheta) + (con * xb) + xv;
     joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb - (con * zv) - pivot_length - tool_length;
+    joints[2] = pos->tran.z + zb + (con * zv) - pivot_length - tool_length;
 
     joints[3] = pos->a;
     joints[4] = pos->b;
