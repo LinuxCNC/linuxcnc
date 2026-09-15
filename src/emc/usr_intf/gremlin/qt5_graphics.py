@@ -354,6 +354,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.show_lathe_radius = False
         self.show_dtg = True
         self.show_workpiece = True
+        self.workpiece_opacity = 0.0
         self.grid_size = 0.0
         self.lathe_option = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
 
@@ -665,6 +666,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_grid_size(self): return self.grid_size
     def get_show_offsets(self): return self.show_offsets
     def get_show_workpiece(self): return self.show_workpiece
+    def get_workpiece_opacity(self): return self.workpiece_opacity
     def getEnableDRO(self): return self.enable_dro
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}

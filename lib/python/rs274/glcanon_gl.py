@@ -1833,8 +1833,8 @@ class GlCanonRenderer:
         self._scratch: CategoryBuffers | None = None
         #: reusable buffer for flat triangle arrays
         self._flat: CategoryBuffers | None = None
-        #: MeshBuffers for the tool cone
-        self._cone_mesh: MeshBuffers | None = None
+        #: reusable MeshBuffers for the Lambert-shaded solids
+        self._mesh: MeshBuffers | None = None
         #: registered resources, released by delete(). Anything with a
         #: ``delete()`` - hence ``Any`` rather than a protocol the callers
         #: would have to import.
@@ -2001,18 +2001,30 @@ class GlCanonRenderer:
         line.begin(mvp, alpha)
         self._flat.draw()
 
-    # -- tool cone ---------------------------------------------------------
+    # -- Lambert-shaded solids ---------------------------------------------
+    def draw_mesh(self, mvp: Any, normal_matrix: Any,
+                  color: Sequence[float],
+                  mesh_verts: MeshVerts | None = None,
+                  **lighting: Any) -> None:
+        """Draw a position+normal triangle mesh through the Lambert shader.
+
+        One scratch buffer serves every caller: omitting ``mesh_verts``
+        redraws what was uploaded last. The caller owns the GL state.
+        """
+        program = self.cone_program()
+        if self._mesh is None:
+            self._mesh = MeshBuffers()
+        if mesh_verts is not None:
+            self._mesh.upload(mesh_verts)
+        program.begin(mvp, normal_matrix, color, **lighting)
+        self._mesh.draw()
+
     def draw_cone(self, mvp: Any, normal_matrix: Any,
                   color: Sequence[float],
                   mesh_verts: MeshVerts | None = None,
                   **lighting: Any) -> None:
-        cone = self.cone_program()
-        if self._cone_mesh is None:
-            self._cone_mesh = MeshBuffers()
-        if mesh_verts is not None:
-            self._cone_mesh.upload(mesh_verts)
-        cone.begin(mvp, normal_matrix, color, **lighting)
-        self._cone_mesh.draw()
+        """:meth:`draw_mesh` under the name external code calls it by."""
+        self.draw_mesh(mvp, normal_matrix, color, mesh_verts, **lighting)
 
     def delete(self) -> None:
         # The capability record describes the context, so it goes with it: a
@@ -2026,8 +2038,8 @@ class GlCanonRenderer:
             self._scratch.delete(); self._scratch = None
         if self._flat:
             self._flat.delete(); self._flat = None
-        if self._cone_mesh:
-            self._cone_mesh.delete(); self._cone_mesh = None
+        if self._mesh:
+            self._mesh.delete(); self._mesh = None
         if self._line:
             self._line.delete(); self._line = None
         if self._wide_line:

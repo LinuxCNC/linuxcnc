@@ -97,6 +97,29 @@ def segments(points):
 BOX = "WORKPIECE,BOX,XMIN=0,YMIN=0,ZMIN=-4,XMAX=10,YMAX=20,ZMAX=0"
 
 
+def triangles(mesh):
+    """The mesh as (corners, normals), both (T, 3, 3)."""
+    tris = np.asarray(mesh, dtype=np.float64).reshape(-1, 3, 6)
+    return tris[:, :, :3], tris[:, :, 3:]
+
+
+def assert_wound_to_its_normals(case, mesh):
+    """Every triangle is CCW seen from the side its normals point to, and
+    every normal is unit length. Together: what back-face culling keeps is
+    the face whose normal faces the eye."""
+    corners, normals = triangles(mesh)
+    np.testing.assert_allclose(np.linalg.norm(normals, axis=2), 1.0, atol=1e-6)
+    face = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    case.assertTrue(np.all((face * normals[:, 0]).sum(axis=1) > 0))
+
+
+def assert_normals_point_out(case, mesh, centre):
+    """No normal points back at ``centre`` - the material is around it."""
+    corners, normals = triangles(mesh)
+    away = corners[:, 0] - np.asarray(centre, dtype=np.float64)
+    case.assertTrue(np.all((away * normals[:, 0]).sum(axis=1) > 0))
+
+
 class WorkpieceParseTest(unittest.TestCase):
     def test_box_edges(self):
         wp, = parse(BOX)
@@ -211,6 +234,71 @@ class WorkpieceParseTest(unittest.TestCase):
                          ['BOX', 'CYLINDER'])
 
 
+class WorkpieceFaceTest(unittest.TestCase):
+    """The solid surface. Wound the wrong way it is culled away entirely, and
+    nothing downstream notices - so the winding is what these check."""
+
+    def test_cylinder_faces(self):
+        """Each of the three axes: AXIS=Y is the one whose local frame is
+        left-handed, and is where a winding built for the other two flips."""
+        for axis in (glcanon_scene.X, glcanon_scene.Y, glcanon_scene.Z):
+            i1, i2 = [i for i in (0, 1, 2) if i != axis]
+            mesh = glcanon_scene.Workpiece.cylinder_faces(
+                axis, 1.0, 2.0, 0.0, 10.0, 3.0)
+            self.assertEqual(mesh.shape, (432, 6))
+            assert_wound_to_its_normals(self, mesh)
+            centre = np.zeros(3)
+            centre[axis], centre[i1], centre[i2] = 5.0, 1.0, 2.0
+            assert_normals_point_out(self, mesh, centre)
+
+            # a wall vertex sits one radius from the axis, in the direction
+            # its own normal names; the caps are the rest, ends-on
+            wall = np.abs(mesh[:, 3 + axis]) < 1e-6
+            self.assertEqual(wall.sum(), 36 * 2 * 3)
+            offset = np.column_stack((mesh[wall, i1] - 1.0,
+                                      mesh[wall, i2] - 2.0))
+            np.testing.assert_allclose(np.linalg.norm(offset, axis=1), 3.0,
+                                       atol=1e-5)
+            np.testing.assert_allclose(offset / 3.0,
+                                       mesh[wall][:, [3 + i1, 3 + i2]],
+                                       atol=1e-5)
+            self.assertEqual(set(np.round(mesh[~wall][:, 3 + axis], 6)),
+                             {-1.0, 1.0})
+            self.assertEqual(set(np.round(mesh[~wall][:, axis], 6)),
+                             {0.0, 10.0})
+
+    def test_tube_faces(self):
+        mesh = glcanon_scene.Workpiece.tube_faces(
+            glcanon_scene.Z, 0.0, 0.0, 0.0, 10.0, 4.0, 2.0)
+        self.assertEqual(mesh.shape, (864, 6))
+        assert_wound_to_its_normals(self, mesh)
+        radius = np.hypot(mesh[:, 0], mesh[:, 1])
+        wall = np.abs(mesh[:, 5]) < 1e-6
+        # the bore's wall faces the axis; the outer wall faces away from it
+        inward = (mesh[wall, 0] * mesh[wall, 3]
+                  + mesh[wall, 1] * mesh[wall, 4]) < 0
+        np.testing.assert_allclose(radius[wall][inward], 2.0, atol=1e-5)
+        np.testing.assert_allclose(radius[wall][~inward], 4.0, atol=1e-5)
+        # the ends are annuli: axis-aligned normals, nothing inside the bore
+        self.assertEqual(set(np.round(mesh[~wall][:, 5], 6)), {-1.0, 1.0})
+        self.assertTrue(np.all(radius[~wall] >= 2.0 - 1e-5))
+        self.assertTrue(np.all(radius[~wall] <= 4.0 + 1e-5))
+
+    def test_a_mirrored_geometry_keeps_its_front_faces(self):
+        """A GEOMETRY that negates X flips CCW to CW. Unflipped, culling drops
+        every face that faces the eye and the solid is simply not there."""
+        offset = np.array([7.0, -3.0, 0.5])
+        canon = make_canon()
+        canon.transform = lambda points: (
+            np.asarray(points, dtype=np.float64) * (-1.0, 1.0, 1.0),
+            np.asarray(points, dtype=np.float64) * (-1.0, 1.0, 1.0) + offset)
+        canon.comment(BOX)
+        wp, = canon.workpieces
+        assert_wound_to_its_normals(self, wp.mesh)
+        assert_normals_point_out(self, wp.mesh,
+                                 np.array([-5.0, 10.0, -2.0]) + offset)
+
+
 class WorkpiecePlacingTest(unittest.TestCase):
     """Where the outline lands. The frame is the renderer's, so these parse."""
 
@@ -260,39 +348,60 @@ class CtxStub:
             self.calls = []
 
         def draw_lines(self, ctx, points, color, alpha=1.0):
-            self.calls.append((len(points), tuple(color), alpha))
+            self.calls.append(('lines', len(points), tuple(color), alpha))
 
-    def __init__(self, canon):
+        def draw_mesh(self, ctx, verts, color, alpha):
+            self.calls.append(('mesh', len(verts), tuple(color), alpha))
+
+    def __init__(self, canon, workpiece_opacity=0.0):
         self.canon = canon
         self.colors = glcanon.GlCanonDraw.colors
         self.prim = self.Prim()
+        self.workpiece_opacity = workpiece_opacity
 
 
 class WorkpiecePartTest(unittest.TestCase):
-    def test_draws_one_call_per_workpiece(self):
+    @staticmethod
+    def two_pieces():
         canon = make_canon()
         canon.comment(BOX)
         canon.comment("WORKPIECE,CYLINDER,ZMIN=0,ZMAX=1,DIAMETER=2")
-        ctx = CtxStub(canon)
+        return canon
+
+    def test_draws_one_call_per_workpiece(self):
+        ctx = CtxStub(self.two_pieces())
         glcanon_scene.WorkpiecePart().draw(ctx)
-        self.assertEqual([n for n, _c, _a in ctx.prim.calls], [24, 152])
-        self.assertEqual({(c, a) for _n, c, a in ctx.prim.calls},
+        self.assertEqual([(kind, n) for kind, n, _c, _a in ctx.prim.calls],
+                         [('lines', 24), ('lines', 152)])
+        self.assertEqual({(c, a) for _k, _n, c, a in ctx.prim.calls},
                          {(tuple(glcanon_scene.WORKPIECE_COLOR),
                            glcanon_scene.WORKPIECE_ALPHA)})
 
+    def test_opacity_adds_faces_under_every_edge(self):
+        ctx = CtxStub(self.two_pieces(), workpiece_opacity=0.25)
+        glcanon_scene.WorkpiecePart().draw(ctx)
+        # all the faces, then all the edges: an edge has to land over a
+        # neighbouring piece's faces too
+        self.assertEqual([(kind, n) for kind, n, _c, _a in ctx.prim.calls],
+                         [('mesh', 36), ('mesh', 432),
+                          ('lines', 24), ('lines', 152)])
+        self.assertEqual({a for kind, _n, _c, a in ctx.prim.calls
+                          if kind == 'mesh'}, {0.25})
+
     def test_draws_nothing_without_the_attribute(self):
         for canon in (None, object()):
-            ctx = CtxStub(canon)
+            ctx = CtxStub(canon, workpiece_opacity=0.25)
             glcanon_scene.WorkpiecePart().draw(ctx)
             self.assertEqual(ctx.prim.calls, [])
 
     def test_host_without_the_colour_entries_still_draws(self):
         canon = make_canon()
         canon.comment(BOX)
-        ctx = CtxStub(canon)
-        ctx.colors = {}
-        glcanon_scene.WorkpiecePart().draw(ctx)
-        self.assertEqual(len(ctx.prim.calls), 1)
+        for opacity, expected in ((0.0, 1), (0.5, 2)):
+            ctx = CtxStub(canon, workpiece_opacity=opacity)
+            ctx.colors = {}
+            glcanon_scene.WorkpiecePart().draw(ctx)
+            self.assertEqual(len(ctx.prim.calls), expected)
 
 
 if __name__ == '__main__':
