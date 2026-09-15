@@ -23,7 +23,7 @@
 #include <rtapi_string.h>
 #include <hal.h>
 #include <emcpos.h>
-#include <kinematics.h>
+#include <kins_module.h>
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("tool frame helper checker");

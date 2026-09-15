@@ -27,7 +27,7 @@
 #include <rtapi_app.h>
 #include <hal.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>
+#include <kins_module.h>
 
 MODULE_LICENSE("GPL");
 

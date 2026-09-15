@@ -46,7 +46,7 @@
                     changes the effector pivot point.
 
   The maths is written as pure functions of the parameter block (see
-  kinematics.h): the pins above are the table below, read into the block
+  kins_module.h): the pins above are the table below, read into the block
   before every call, and the entry points come from kins_single.c.
 
  ----------------------------------------------------------------------------*/
@@ -56,7 +56,7 @@
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
-#include <kinematics.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
+#include <kins_module.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include <kins_rt.h>
 
 #include "pentakins.h"

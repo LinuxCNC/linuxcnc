@@ -5,7 +5,7 @@
 * NOTEs:
 *  1) specify all kparms items
 *  2) the maths and the geometry table are in genserfuncs.c, written as
-*     pure functions of the parameter block (see kinematics.h)
+*     pure functions of the parameter block (see kins_module.h)
 */
 
 /********************************************************************
@@ -44,6 +44,7 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 
 #include "genserkins.h"
 #include <switchkins.h>
+#include "userkfuncs.h"
 
 //-7 is system defined -3 ok, -4 ok, -5 ok,-6 ok (mm system)
 #undef  GO_REAL_EPSILON
