@@ -224,6 +224,14 @@ Touchy: the Touchy MACRO entries should now be placed in a [MACROS]
 section of the INI rather than in the [TOUCHY] section. This is part of
 a process of commonising the INI setting between GUIs.
 
+The mesa_modbus framework (modcompile and the mesa_modbus.c.tmpl driver
+template) has been removed. Configurations using it must migrate to the
+hm2_modbus driver with mesambccc-compiled MBCCB files, see
+link:../man/man9/hm2_modbus.9.html[hm2_modbus(9)] and
+link:../man/man1/mesambccc.1.html[mesambccc(1)]. The 2.9 release retains
+the framework, so its documentation remains available in the
+http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html[2.9 docs].
+
 
 == Preview renderer now requires OpenGL 3.3 core
 
