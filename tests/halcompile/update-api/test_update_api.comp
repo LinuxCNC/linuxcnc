@@ -1,0 +1,32 @@
+component test_update_api "test component for halcompupdate";
+pin in float in0 "an input";
+pin out float out0 "an output";
+pin out bit flag "a flag";
+pin io s32 count "a counter";
+pin in u32 steps-##[8] "array input";
+pin out s32 result-##[8] "array output";
+param rw float gain = 1.0;
+param rw bit enable = 1;
+function _;
+license "GPL";
+;;
+#define CLAMP_IT(v)				\
+    do {					\
+	if ((v) > 100) flag = 1;		\
+    } while (0)
+
+FUNCTION(_) {
+    double tmp = in0 * gain;
+    int i;
+    if (enable) {
+        out0 = tmp;
+        flag = tmp > 1.0;
+        count = count + 1;
+        count += 1;
+        count++;
+        for (i = 0; i < 8; i++) {
+            result(i) = steps(i) * 2;
+        }
+        CLAMP_IT(tmp);
+    }
+}

@@ -151,9 +151,11 @@ def parse(filename):
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
 typemap = {'signed': 's32', 'unsigned': 'u32'}
-deprmap = {'s32': 'signed', 'u32': 'unsigned'}
-deprecated = ['s32', 'u32']
 newtypes = ['bool', 'sint', 'uint', 'si32', 'ui32', 'real']
+# Old HAL declaration types and their new-style replacements.  These types
+# will be removed when the HAL API break is performed.
+old2newtypes = {'float': 'real', 'bit': 'bool', 's32': 'si32', 'u32': 'ui32',
+                's64': 'sint', 'u64': 'uint', 'signed': 'si32', 'unsigned': 'ui32'}
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
@@ -162,6 +164,7 @@ def initialize():
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
     comp_name = None
+    deprecated_type_warnings.clear()
 
     names = {}
 
@@ -207,8 +210,14 @@ def see_also(doc):
 def notes(doc):
     docs.append(('notes', doc));
 
+deprecated_type_warnings = set()
+
 def type2type(type_):
-    # When we start warning about s32/u32 this is where the warning goes
+    if type_ in old2newtypes and type_ not in deprecated_type_warnings:
+        deprecated_type_warnings.add(type_)
+        Warn("HAL type '%s' is deprecated and will be removed at the HAL API "
+             "break; use '%s' instead. Run halcompupdate(1) to migrate "
+             "automatically." % (type_, old2newtypes[type_]))
     return typemap.get(type_, type_)
 
 def checkarray(name, array):
