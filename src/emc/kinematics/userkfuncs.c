@@ -24,7 +24,8 @@
 // typical includes:
 //#include <rtapi_math.h> // if reqd
 #include <hal.h>
-#include <kinematics.h>
+#include <kins_module.h>
+#include "userkfuncs.h"
 
 // Add for kins based on genserkins:
 // #include "genserkins.h" //includes gomath,hal
@@ -53,7 +54,7 @@ static int userk_inverse(const kins_params *p, kins_scratch *s,
 const kins_ops USERK_OPS = {
     .forward = userk_forward,
     .inverse = userk_inverse,
-    // .work, .tool, .native and .jacobian are optional, see kinematics.h
+    // .work, .tool, .native and .jacobian are optional, see kins_module.h
 };
 
 //**********************************************************************

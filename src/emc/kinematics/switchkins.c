@@ -48,7 +48,7 @@ static KTI ktinvs[SWITCHKINS_MAX_TYPES] = {NULL};
 static KJ kjacs[SWITCHKINS_MAX_TYPES]   = {NULL};
 static PmRotationMatrix knative[SWITCHKINS_MAX_TYPES];
 
-// types written as pure functions (see kinematics.h): the maths of each,
+// types written as pure functions (see kins_module.h): the maths of each,
 // the one RT parameter block they all read, a scratch per type, and the
 // pins made from the module's table
 static const kins_ops *kops[SWITCHKINS_MAX_TYPES] = {NULL};

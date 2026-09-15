@@ -21,7 +21,7 @@
 #include <rtapi_string.h>
 #include <rtapi_app.h>
 #include <hal.h>
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 MODULE_LICENSE("GPL");

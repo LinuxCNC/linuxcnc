@@ -29,7 +29,7 @@
   the kins support both ANGULAR and LINEAR axes.
 
   The maths is written as pure functions of the parameter block (see
-  kinematics.h): the pins are the table below, read into the block
+  kins_module.h): the pins are the table below, read into the block
   before every call, and the link description is built from the block
   on each call.
 
@@ -46,7 +46,7 @@
 #include <hal.h>
 #include "libposemath/gotypes.h"    /* go_result, go_integer */
 #include "libposemath/gomath.h"     /* go_pose */
-#include <kinematics.h>
+#include <kins_module.h>
 
 #include "genserkins.h" /* these decls */
 

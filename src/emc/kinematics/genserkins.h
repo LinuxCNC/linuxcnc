@@ -36,7 +36,7 @@
 #include <hal.h>                /* HAL data types */
 #include "libposemath/gotypes.h"    /* go_result, go_integer */
 #include "libposemath/gomath.h"    /* go_pose */
-#include <kinematics.h>
+#include <kins_module.h>
 
 /*!
   The maximum number of joints supported by the general serial
@@ -131,7 +131,7 @@ extern int compute_jfwd(go_link * link_params,
 extern int compute_jinv(go_matrix * Jfwd,
                         go_matrix * Jinv);
 
-/* The kinematics as functions of the parameter block (see kinematics.h):
+/* The kinematics as functions of the parameter block (see kins_module.h):
    the DH parameters and the unrotate couplings are the table, the maths
    is the ops.  genser_links_of() fills a link description from a block,
    for a caller that wants the go_ routines directly. */

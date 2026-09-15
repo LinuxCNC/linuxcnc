@@ -15,7 +15,7 @@
 #include <rtapi_string.h>
 #include <hal.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 // joints are axes, through whatever map coordinates= gives; the maths is
