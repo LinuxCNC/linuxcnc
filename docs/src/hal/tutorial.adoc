@@ -183,8 +183,8 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir        Value   Name
-     3  s32   RO             0   siggen.0.update.time
-     3  s32   RW             0   siggen.0.update.tmax
+     3  float RO             0   siggen.0.update.time
+     3  float RW             0   siggen.0.update.tmax
 ----
 
 The 'show param' command shows all the parameters in the HAL.
@@ -328,8 +328,8 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir         Value  Name
-     3  s32   RO           1754  siggen.0.update.time
-     3  s32   RW          16997  siggen.0.update.tmax
+     3  float RO     1.754e-06   siggen.0.update.time
+     3  float RW    1.6997e-05   siggen.0.update.tmax
 
 halcmd: show pin
 
@@ -369,7 +369,7 @@ loadrt siggen
 # signals
 # nets
 # parameter values
-setp siggen.0.update.tmax 14687
+setp siggen.0.update.tmax 1.4687e-05
 # realtime thread/function links
 addf siggen.0.update test-thread
 ----
@@ -495,8 +495,8 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir         Value  Name
-     4  s32   RO              0  siggen.0.update.time
-     4  s32   RW              0  siggen.0.update.tmax
+     4  float RO              0  siggen.0.update.time
+     4  float RW              0  siggen.0.update.tmax
      3  u32   RW     0x00000001  stepgen.0.dirhold
      3  u32   RW     0x00000001  stepgen.0.dirsetup
      3  float RO              0  stepgen.0.frequency
@@ -515,12 +515,12 @@ Owner   Type  Dir         Value  Name
      3  s32   RO              0  stepgen.1.rawcounts
      3  u32   RW     0x00000001  stepgen.1.steplen
      3  u32   RW     0x00000001  stepgen.1.stepspace
-     3  s32   RO              0  stepgen.capture-position.time
-     3  s32   RW              0  stepgen.capture-position.tmax
-     3  s32   RO              0  stepgen.make-pulses.time
-     3  s32   RW              0  stepgen.make-pulses.tmax
-     3  s32   RO              0  stepgen.update-freq.time
-     3  s32   RW              0  stepgen.update-freq.tmax
+     3  float RO              0  stepgen.capture-position.time
+     3  float RW              0  stepgen.capture-position.tmax
+     3  float RO              0  stepgen.make-pulses.time
+     3  float RW              0  stepgen.make-pulses.tmax
+     3  float RO              0  stepgen.update-freq.time
+     3  float RW              0  stepgen.update-freq.tmax
 ----
 
 === Connecting pins with signals

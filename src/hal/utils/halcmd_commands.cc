@@ -1761,12 +1761,13 @@ static int print_thread_info_cb(hal_query_t *q, void *arg)
         int rvm = hal_getref_p(&qm);
         if(!rvt && !rvm) {
             // note that the scriptmode format string has no \n
-            halcmd_output((!scriptmode ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %8ld %ld"),
+            // time/tmax are in seconds
+            halcmd_output((!scriptmode ? "%11ld  %-3s  %20s ( %12.9f, %12.9f )\n" : "%ld %s %s %.9f %.9f"),
                 q->thread.period,
                 "YES",  // Always uses FP
                 q->name,
-                (long)hal_get_si32(qt.pp.ref.s),
-                (long)hal_get_si32(qm.pp.ref.s));
+                hal_get_real(qt.pp.ref.r),
+                hal_get_real(qm.pp.ref.r));
         } else {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: cannot find time/tmax pin for %s thread\n", q->name);
         }
@@ -1793,7 +1794,7 @@ static void print_thread_info(const char **patterns)
 {
     if(!scriptmode) {
         halcmd_output("Realtime Threads:\n");
-        halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
+        halcmd_output("     Period  FP     Name               (     Time [s], Max-Time [s] )\n");
     }
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_THREAD_FUNCT; // Callback on both threads and functions attached

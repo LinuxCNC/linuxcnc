@@ -100,7 +100,9 @@ proc set_defaults {} {
   set ::HH(y,logscale)         1
   set ::HH(nbins)              50
   set ::HH(minvalue)           0
-  set ::HH(binsize)            100
+  # the default pin is a function runtime pin, which is a float in seconds,
+  # so the default binsize is 100ns expressed in seconds
+  set ::HH(binsize)            1e-07
   set ::HH(maxvalue)           0
   set ::HH(pinname) motion-command-handler.time
 

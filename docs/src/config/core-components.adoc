@@ -158,10 +158,10 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
 Many of these parameters serve as debugging aids, and are subject to
 change or removal at any time.
 
-* 'motion-command-handler.time' - (s32, RO)
-* 'motion-command-handler.tmax' - (s32, RW)
-* 'motion-controller.time' - (s32, RO)
-* 'motion-controller.tmax' - (s32, RW)
+* 'motion-command-handler.time' - (float, RO) runtime in seconds
+* 'motion-command-handler.tmax' - (float, RW) max runtime in seconds
+* 'motion-controller.time' - (float, RO) runtime in seconds
+* 'motion-controller.tmax' - (float, RW) max runtime in seconds
 * 'motion.debug-bit-0' - (bit, RO) This is used for debugging purposes.
 * 'motion.debug-bit-1' - (bit, RO) This is used for debugging purposes.
 * 'motion.debug-float-0' - (float, RO) This is used for debugging purposes.

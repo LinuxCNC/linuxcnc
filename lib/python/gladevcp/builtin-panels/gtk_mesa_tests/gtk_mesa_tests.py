@@ -194,7 +194,7 @@ class MesaTests:
             line = line.strip()
             if line.endswith("servo-thread.tmax"):
                 parts = line.split()
-                value = int(parts[3])  # 4. column is Value
+                value = float(parts[3])  # 4. column is Value, in seconds
                 break
 
         spin_thread_tmax = self.builder.get_object("sbtn_servo_thread_tmax")
@@ -253,8 +253,8 @@ class MesaTests:
             buffer.insert(buffer.get_end_iter(), "Servo Thread period must be greater than 0")
             return
 
-        # Calculation
-        result = t_max / period * 100
+        # Calculation; t_max is in seconds, period in ns
+        result = t_max / (period * 1e-9) * 100
         label_result.set_text(f'{result:.0f}%')
 
 
@@ -279,7 +279,7 @@ class MesaTests:
             line = line.strip()
             if "read.tmax" in line:
                 parts = line.split()
-                value = int(parts[3])  # 4. column is Value
+                value = float(parts[3])  # 4. column is Value, in seconds
                 break
 
         spin_thread_period = self.builder.get_object("sbtn_read_tmax")
@@ -306,7 +306,7 @@ class MesaTests:
             line = line.strip()
             if "write.tmax" in line:
                 parts = line.split()
-                value = int(parts[3])  # 4. column is Value
+                value = float(parts[3])  # 4. column is Value, in seconds
                 break
 
         spin_thread_period = self.builder.get_object("sbtn_write_tmax")
@@ -376,7 +376,8 @@ class MesaTests:
 
         # Calculation
         rw_tmax = read_tmax + write_tmax
-        result = rw_tmax / period * 100
+        # rw_tmax is in seconds, period in ns
+        result = rw_tmax / (period * 1e-9) * 100
         label_result.set_text(f'{result:.0f}%')
 
     def on_btn_packet_error_released(self, gtkbutton):
