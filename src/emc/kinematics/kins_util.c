@@ -49,7 +49,7 @@
 #include <emcmotcfg.h>
 #include <emcpos.h>
 #include <hal.h>
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 // principal joint numbers based on module 'coordinates' parameter

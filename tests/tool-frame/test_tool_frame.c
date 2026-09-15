@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "emcpos.h"
-#include "kinematics.h"
+#include "kins_module.h"
 
 #define DEG (M_PI/180.0)
 #define NUTATION 45.0

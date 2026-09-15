@@ -17,7 +17,7 @@
 #include <rtapi_math.h>
 #include <rtapi_string.h>
 #include <hal.h>
-#include <kinematics.h>		/* these decls */
+#include <kins_module.h>		/* these decls */
 #include <kins_rt.h>
 
 static int rotate_forward(const kins_params *p, kins_scratch *s,

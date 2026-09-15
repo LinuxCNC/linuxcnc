@@ -14,7 +14,7 @@
 #define __LINUXCNC_KINS_RT_H
 
 #include <hal.h>
-#include "kinematics.h"
+#include "kins_module.h"
 
 /* one HAL pin handle per table entry, of whichever type the entry has */
 typedef union {
