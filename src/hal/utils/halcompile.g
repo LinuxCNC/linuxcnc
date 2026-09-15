@@ -157,13 +157,15 @@ newtypes = ['bool', 'sint', 'uint', 'si32', 'ui32', 'real']
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
-    global modparams, includes
+    global modparams, includes, hal_pin_names, hal_funct_names
 
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
     comp_name = None
 
     names = {}
+    hal_pin_names = {}
+    hal_funct_names = {}
 
 def Warn(msg, *args):
     if args:
@@ -225,10 +227,25 @@ def check_name_ok(name):
     if name in names:
         Error("Duplicate item name %s" % name)
 
+def check_hal_name(seen, name):
+    """A declaration is a C identifier, but it is exported under a mangled HAL
+    identifier.  check_name_ok() only compares declared names, so two
+    declarations that mangle to one HAL name would compile cleanly and fail
+    later, at loadrt, with "HAL: ERROR: duplicate variable"."""
+    if name == "_": return              # the unnamed singleton function
+    hal_name = to_hal(name)
+    if hal_name in seen:
+        Error("'%s' and '%s' both export the HAL name '%s'; see HALNAME under "
+              "'Syntax' in the Halcompile HAL Component Generator "
+              "documentation, https://linuxcnc.org/docs/html/hal/comp.html"
+              % (seen[hal_name], name, hal_name))
+    seen[hal_name] = name
+
 def pin(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    check_hal_name(hal_pin_names, name)
     docs.append(('pin', name, type_, array, dir_, doc, value, personality))
     names[name] = None
     pins.append((name, type_, array, dir_, value, personality))
@@ -237,12 +254,15 @@ def param(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    check_hal_name(hal_pin_names, name) # hal_lib.c: setp cannot tell a pin
+                                        # and a param of one name apart
     docs.append(('param', name, type_, array, dir_, doc, value, personality))
     names[name] = None
     params.append((name, type_, array, dir_, value, personality))
 
 def function(name, fp, doc):
     check_name_ok(name)
+    check_hal_name(hal_funct_names, name)
     docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))
