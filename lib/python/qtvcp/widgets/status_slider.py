@@ -121,7 +121,7 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
                 pname = self.HAL_NAME_
             else:
                 pname = self._pin_name_
-            self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_FLOAT, hal.HAL_OUT)
+            self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.Type.REAL, hal.Dir.OUT)
 
         # connect a signal and callback function to the button
         self.doubleValueChanged.connect(self._action)

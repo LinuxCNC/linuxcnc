@@ -87,7 +87,7 @@ class HAL_Meter(Gtk.DrawingArea, _HalWidgetBase):
 
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.REAL, hal.Dir.IN)
         self.hal_pin.connect('value-changed', lambda p: self.set_value(p.value))
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 

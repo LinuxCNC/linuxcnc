@@ -375,16 +375,16 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
 
             self.set_active(False)
             if (self.button_halio_pin):
-                self.button_pin = self.hal.newpin(self.hal_name+'-button', hal.HAL_BIT, hal.HAL_IO)
+                self.button_pin = self.hal.newpin(self.hal_name+'-button', hal.Type.BOOL, hal.Dir.IO)
                 self.button_pin.connect('value-changed', self.button_pin_update)
             else:
-                self.button_pin = self.hal.newpin(self.hal_name+'-button', hal.HAL_BIT, hal.HAL_OUT)
-                self.button_pin_not = self.hal.newpin(self.hal_name+'-button-not', hal.HAL_BIT, hal.HAL_OUT)
+                self.button_pin = self.hal.newpin(self.hal_name+'-button', hal.Type.BOOL, hal.Dir.OUT)
+                self.button_pin_not = self.hal.newpin(self.hal_name+'-button-not', hal.Type.BOOL, hal.Dir.OUT)
             if (self.create_enable_pin):
-                self.enable_pin = self.hal.newpin(self.hal_name+'-enable', hal.HAL_BIT, hal.HAL_IN)
+                self.enable_pin = self.hal.newpin(self.hal_name+'-enable', hal.Type.BOOL, hal.Dir.IN)
                 self.enable_pin.connect('value-changed', self.enable_pin_update)
 
-            self.light_pin = self.hal.newpin(self.hal_name+'-light', hal.HAL_BIT, hal.HAL_IN)
+            self.light_pin = self.hal.newpin(self.hal_name+'-light', hal.Type.BOOL, hal.Dir.IN)
             self.light_pin.connect('value-changed', self.light_pin_update)
             
     def button_pin_update(self, hal_pin, data=None):
