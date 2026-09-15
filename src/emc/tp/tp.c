@@ -3910,6 +3910,33 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
 
 
 /**
+ * True when tc will blend parabolically into nexttc. Its final decel is the
+ * blend overlap, so the whole approach has to be planned at the half rate.
+ */
+STATIC inline int tcBlendsIntoNext(TC_STRUCT const * const tc, TC_STRUCT const * const nexttc)
+{
+    return nexttc != NULL && tc->term_cond == TC_TERM_COND_PARABOLIC;
+}
+
+/**
+ * A segment running alone plans its stop at the full rate. Once a half-rate
+ * stop no longer fits, a late successor can't be blended into it any more:
+ * end with an exact stop instead.
+ */
+STATIC void tpCommitLoneStop(TP_STRUCT const * const tp, TC_STRUCT * const tc)
+{
+    double a_half = tcGetCycleMaxAccel(tc, 1);
+    double dx = tcGetDistanceToGo(tc, tp->reverse_run);
+    // one cycle of margin for a successor queued before the next plan
+    double dx_stop = pmSq(tc->currentvel) / (2.0 * a_half) + tc->currentvel * tp->cycleTime;
+
+    if (dx < dx_stop) {
+        tp_debug_print("segment %d alone past half-rate stop point, exact stop\n", tc->id);
+        tcSetTermCond(tc, NULL, TC_TERM_COND_EXACT);
+    }
+}
+
+/**
  * Flag a segment as needing a split cycle.
  * In addition to flagging a segment as splitting, do any preparations to store
  * data for the next cycle.
@@ -4121,9 +4148,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     TC_STRUCT *next2tc = tcqItem(&tp->queue, queue_dir_step*2);
     
     int mode = 0;
-    // Tangent hand-off after a split cycle: no simultaneous parabolic blend, so
-    // the next segment runs at full acceleration.
-    tpUpdateCycle(tp, nexttc, next2tc, &mode, 0);
+    // successor still overlaps a parabolic tc this cycle
+    int next_in_overlap = tc->term_cond == TC_TERM_COND_PARABOLIC || tcBlendsIntoNext(nexttc, next2tc);
+    tpUpdateCycle(tp, nexttc, next2tc, &mode, next_in_overlap);
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
@@ -4152,11 +4179,11 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     tc->cycle_time = tp->cycleTime;
     
     int mode = 0;
-    // The 1/2 parabolic-blend accel reduction is only needed while this segment
-    // actually overlaps a neighbor in an active blend. blending_next latches once
-    // the blend into nexttc has begun; away from that (lone segment, accel from
-    // rest, decel to a final stop) the segment gets its full path acceleration.
-    int in_overlap = (nexttc != NULL) && tc->blending_next;
+    // half accel from the moment a parabolic successor is queued, full when alone
+    if (!nexttc && tc->term_cond == TC_TERM_COND_PARABOLIC && !tp->reverse_run) {
+        tpCommitLoneStop(tp, tc);
+    }
+    int in_overlap = tcBlendsIntoNext(tc, nexttc);
     tpUpdateCycle(tp, tc, nexttc, &mode, in_overlap);
 
     /* Parabolic blending */
