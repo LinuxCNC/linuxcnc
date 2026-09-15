@@ -310,15 +310,22 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->h_flag) {
-    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_4),
-      _("H word with no G43, G43.4 or G76 to use it"));
+    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_4 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_5),
+      _("H word with no G43, G43.4, G43.5 or G76 to use it"));
   }
 
   // G68.2 and G68.4 take I J K, P and Q; G68.3 only R, X Y Z; G69 nothing
   int plane_words = block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_4;
   int plane_r = plane_words || block->g_modes[GM_WORK_PLANE] == G_68_3;
 
-  if (block->i_flag) {    /* could still be useless if yz_plane arc */
+  // under G43.5 the I J K of a G0 or G1 line are the tool axis: on the
+  // line that puts G43.5 in effect, and on the lines after it that do
+  // not change the tool length mode
+  int tool_vector = (block->g_modes[GM_TOOL_LENGTH_OFFSET] == G_43_5
+                     || (_setup.tool_vector && block->g_modes[GM_TOOL_LENGTH_OFFSET] == -1))
+                    && (motion == G_0 || motion == G_1);
+
+  if (block->i_flag && !tool_vector) {    /* could still be useless if yz_plane arc */
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_5) && (motion != G_5_1) &&
 					(motion != G_6) && (motion != G_6_1) &&
           (motion != G_71) && (motion != G_71_1) && (motion != G_71_2) &&
@@ -328,7 +335,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
         _("I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G68.2, G68.4, G76, or G87 to use it"));
   }
 
-  if (block->j_flag) {    /* could still be useless if xz_plane arc */
+  if (block->j_flag && !tool_vector) {    /* could still be useless if xz_plane arc */
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_5) && (motion != G_5_1) &&
 					(motion != G_6) && (motion != G_6_1) &&
           (motion != G_76) && (motion != G_87) && (block->g_modes[GM_MODAL_0] != G_10) &&
@@ -343,7 +350,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
     }
   }
 
-  if (block->k_flag) {    /* could still be useless if xy_plane arc */
+  if (block->k_flag && !tool_vector) {    /* could still be useless if xy_plane arc */
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_6_2) && (motion != G_33) && (motion != G_33_1) && (motion != G_76) && (motion != G_87) &&
           !plane_words),
         _("K word with no G2, G3, G6.2, G33, G33.1, G68.2, G68.4, G76, or G87 to use it"));
