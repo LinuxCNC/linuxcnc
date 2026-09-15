@@ -1170,8 +1170,10 @@ printed as characters.
 
 (((Workpiece)))
 A '(WORKPIECE,...)' comment declares the stock the program is cut from. The
-G-code preview draws it as a wireframe outline around the toolpath; it has no
-effect on machine behaviour, on the program extents, or on zoom-to-fit.
+G-code preview draws it as a wireframe outline around the toolpath, and, where
+the GUI's workpiece opacity is set above zero, as a translucent solid with that
+outline over it. It has no effect on machine behaviour, on the program extents,
+or on zoom-to-fit.
 
 Three shapes are understood:
 
