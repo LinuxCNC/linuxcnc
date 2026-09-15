@@ -120,6 +120,18 @@ def parse_sample(sample):
 
     print("{:6d} {}".format(nsamples, sample))
 
+    # iscircle must agree with the motion type.  This is a direct regression
+    # guard on the StateTag flag bits: anything that reuses the bit belonging to
+    # GM_FLAG_IS_CIRCLE shows up here as iscircle set on a G0/G1, or clear on a
+    # G2/G3.  Exit rather than return False -- the test only compares "Completed
+    # successfully", so a non-zero exit is what actually fails the run.
+    if sample[1] in (0, 10, 20, 30):
+        expect_circle = sample[1] in (20, 30)
+        if bool(sample[9]) != expect_circle:
+            print("FAIL iscircle: motion-type {} reported iscircle={}, expected {}"
+                  .format(sample[1], sample[9], expect_circle))
+            sys.exit(1)
+
     if None == lastsample or sample[0] != lastsample[0]:
         return True
     if sample[1] not in (00,10,20,30):
