@@ -69,7 +69,8 @@ class ToolEdit(Gtk.Box):
         self.editable = None
         self.edit_path = None
         self.edit_column = None
-
+        self.ext_dialog = None
+        self.tooltable_error_msg = None
         # connect the signals from Glade
         dic = {
             "on_delete_clicked" : self.delete,
@@ -251,10 +252,17 @@ class ToolEdit(Gtk.Box):
         except:
             print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
-    def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]):
+    def add(self, widget, data=None):
+        liststore = self.model
+        if data is None: # an empty line is being added
+            data = [1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]
+            tool_nbrs = [0]
+            for row in liststore:
+                values = [ value for value in row ]
+                tool_nbrs.append(values[1])
+            data[1] = max(tool_nbrs)+1
         self.model.append(data)
         self.num_of_col +=1
-        liststore = self.model
         self.wTree.get_object("treeview1").scroll_to_cell(len(liststore)-1)
 
         # this is for adding a filename path after the tooleditor is already loaded.
@@ -262,8 +270,7 @@ class ToolEdit(Gtk.Box):
         self.toolfile = filename
         self.reload(None)
 
-    def warning_dialog(self, line_number):
-        message = f"Error in tool table line {line_number} in column orientation.\nValid range is 0 ~ 9."
+    def warning_dialog(self, message):
         dialog = Gtk.MessageDialog(parent=self.wTree.get_object("window1"),
                                    destroy_with_parent = True,
                                    message_type=Gtk.MessageType.ERROR,
@@ -286,7 +293,15 @@ class ToolEdit(Gtk.Box):
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
         line_number = 0
+        tool_nbrs = []
+        rejected_lines = []
+        error_msg = []
         for rawline in logfile:
+            if rawline.isspace():
+                continue
+            elif rawline[0] != ';' and rawline[0] != 'T':
+                rejected_lines.append(rawline)
+                continue
             # strip the comments from line and add directly to array
             # if index = -1 the delimiter ; is missing - clear comments
             index = rawline.find(";")
@@ -314,33 +329,64 @@ class ToolEdit(Gtk.Box):
                     if word.startswith(';'): break
                     if word.startswith(i):
                         if offset == 1:
+                            try:
+                                current_tool = int(word.lstrip(i))
+                                tool_nbrs.append(current_tool)
+                            except:
+                                rejected_lines.append(rawline)
+                                continue
                             if int(word.lstrip(i)) == self.toolinfo_num:
                                 toolinfo_flag = True
                         if offset in(1,2):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                print(_("Tooledit widget int error"))
+                                rejected_lines.append(rawline)
+                                continue
                         elif offset == 15:
                             try:
                                 # Accept also float for 'orientation' for backward compatibility
                                 value = int(float(word.lstrip(i)))
                                 array[offset] = value
                                 if value not in range(10):
-                                    self.warning_dialog(line_number)
-                                    break
+                                    msg = _(f"Tool {current_tool} Orientation: <b>'{value}'</b>\nValid range is 0 ~ 9.")
+                                    error_msg.append(msg)
                             except:
                                 print(_("Tooledit widget float error"))
+                                rejected_lines.append(rawline)
+                                continue
                         else:
                             try:
                                 array[offset]= f"{float(word.lstrip(i)):10.4f}"
                             except:
-                                print(_("Tooledit widget float error"))
+                                rejected_lines.append(rawline)
+                                continue
                         break
             if toolinfo_flag:
                 self.toolinfo = array
             # add array line to liststore
             self.add(None,array)
+        # check for duplicate toolnumbers
+        s = []
+        dup_tool = []
+        for n in tool_nbrs:
+            if n in s:
+                dup_tool.append(n)
+            else:
+                s.append(n)
+        # compose user message about duplicate tool nummbers
+        if len(dup_tool) > 0:
+            msg = _("Duplicate tool number(s):   <b>") +  str(dup_tool)[1:-1] +"</b>"
+            error_msg.append(msg)
+        # write malformed lines to a file and compose user message
+        if len(rejected_lines) > 0:
+            file_name = "tooltable_rejected.txt"
+            self.rejected_lines = rejected_lines
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.writelines(rejected_lines)
+            msg = (_(f"<b>{len(rejected_lines)}</b> malformed line(s) have been rejected and copied to <b>'{file_name}'</b>"))
+            error_msg.append(msg)
+        self.tooltable_error_msg = error_msg
 
     def save(self,widget):
         if self.toolfile == None: return
@@ -350,12 +396,19 @@ class ToolEdit(Gtk.Box):
         # pre check before saving the file
         # if not done before, the file will be saved only until the erroneous line and the rest will be lost
         line_number = 0
+        tool_nbrs = []
         for row in liststore:
             values = [ value for value in row ]
             line_number += 1
-            if values[15] > 9:
-                self.warning_dialog(line_number)
+            msg = None
+            if values[1] in tool_nbrs:
+                msg = f"\nError in tool table:\nDuplicate tool number '{values[1]}'"
+            elif values[15] not in range(10):
+                msg = f"\nError in tool table line {line_number} in column orientation.\nValid range is 0 ~ 9."
+            if msg is not None:
+                self.warning_dialog(msg)
                 return
+            tool_nbrs.append(values[1])
 
         if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
             raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
@@ -502,39 +555,53 @@ class ToolEdit(Gtk.Box):
 
         # depending what is edited add the right type of info integer,float or text
         # If it's a filtered display then we must convert the path 
-    def validate_input(self, path, new_text, col):
+    def validate_input(self, path, new_text, col, captations=None):
         if filter == 'wear':
             (store_path,) = self.wear_filter.convert_path_to_child_path(path)
             path = store_path
         elif filter == 'tool':
             (store_path,) = self.tool_filter.convert_path_to_child_path(path)
             path = store_path
-
+        msg = None
+        # validate positive integer for tool and pocket number
         if col in(1,2):
-            try:
-                self.model[path][col] = int(new_text)
+            try :
+                value = int(new_text)
+                if value < 0:
+                    raise TypeError
+                else:
+                    self.model[path][col] = value
             except:
-                pass
+                msg = (_(f"\nMust be a positive whole number"))
         # validate input for float columns
         elif col in range(3,15):
             try:
                 self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:
-                pass
+                msg = (_(f"\nMust be a decimal number"))
         # validate input for orientation: check if int and valid range
         elif col == 15:
-            try:
-                value = int(new_text)
-                if value in range(10):
-                    self.model[path][col] = value
+            try :
+                value = float(new_text)
+                if value != int(value) or value not in range(10):
+                    raise TypeError
+                else:
+                    self.model[path][col] = int(value)
             except:
-                pass
+                msg = (_(f"\nMust be one of (0,1,2,3,4,5,6,7,8,9)"))
         elif col == 16:
             try:
                 self.model[path][col] = (new_text)
             except:
                 pass
-        #print path,new_text, col
+        if msg is not None:
+            header = (_("Tool table, value error:" ))
+            if captations is not None:
+                    header = (_(f"{captations[col]} value error:" ))
+            if self.ext_dialog is not None:
+                self.ext_dialog(msg,header)
+            else:
+                self.warning_dialog(header + msg)
         if filter in('wear','tool'):
             self.save(None)
 
