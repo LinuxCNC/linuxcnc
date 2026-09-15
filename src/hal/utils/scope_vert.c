@@ -593,7 +593,7 @@ static void init_vert_info_window(void)
 	0);
     /* box for the scale slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Scale"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
     vert->scale_slider = gtk_scale_new(
             GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->scale_adj));
