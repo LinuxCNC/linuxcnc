@@ -107,13 +107,10 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
  * Per-cycle tangential acceleration limit.
  *
  * Same as tcGetTangentialMaxAccel, except the parabolic-blend 1/2 reduction is
- * only applied when the segment is actually overlapping a neighbor in an active
- * parabolic blend this cycle (in_overlap != 0). Away from that overlap (a lone
- * segment, the accel-from-rest of the first segment, or the decel-to-stop of the
- * last segment) the full path acceleration is used. The path acceleration is
- * derived to respect every joint's limit for the segment direction, so it is safe
- * whenever only one segment is moving; the 1/2 split is only needed while two
- * blended segments accelerate at once and their per-axis contributions add.
+ * only applied when the segment shares its acceleration with a parabolic
+ * neighbor (in_overlap != 0): as the secondary of an active blend, or from the
+ * moment a parabolic successor is queued (see tcBlendsIntoNext in tp.c). A
+ * segment moving alone gets the full path acceleration.
  */
 double tcGetCycleMaxAccel(TC_STRUCT const * const tc, int in_overlap)
 {
