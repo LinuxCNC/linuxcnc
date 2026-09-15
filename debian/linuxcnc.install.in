@@ -19,6 +19,7 @@ usr/bin/hal_bridge
 usr/bin/hal_manualtoolchange
 usr/bin/halcmd
 usr/bin/halcmd_twopass
+usr/bin/halfileupdate
 usr/bin/halmeter
 usr/bin/halreport
 usr/bin/halrmt
