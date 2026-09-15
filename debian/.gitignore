@@ -13,6 +13,8 @@ linuxcnc-doc-*/
 # generated from `.in` by debian/configure
 linuxcnc-uspace.install
 linuxcnc-uspace.manpages
+linuxcnc-uspace-xenomai-evl.install
+linuxcnc-uspace-xenomai.install
 
 *.debhelper
 shlibs.local

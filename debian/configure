@@ -74,6 +74,8 @@ EXTRA_BUILD=
 LIBREADLINE_DEV="libeditreadline-dev"
 
 ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
+BUILD_XENOMAI=false
+BUILD_XENOMAI_EVL=false
 
 # Specialize these based on DISTRIB_NAME as needed
 # These do not run-time depend on a specific package because
@@ -82,10 +84,24 @@ ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
 while test $# -ne 0; do
     case "$1" in
-    sim|uspace|noauto) echo "I: Argument $1 is accepted for compatibility, but ignored";;
-    help|-h|--help) usage; exit 0 ;;
-    no-docs|nodocs|nodoc|no-doc) unset ENABLE_BUILD_DOCUMENTATION ;;
-    *)  echo 1>&2 "Unknown option: $1"
+    sim|uspace|noauto)
+        echo "I: Argument $1 is accepted for compatibility, but ignored"
+        ;;
+    help|-h|--help)
+        usage;
+        exit 0
+        ;;
+    no-docs|nodocs|nodoc|no-doc)
+        unset ENABLE_BUILD_DOCUMENTATION
+        ;;
+    xenomai)
+        BUILD_XENOMAI=true;
+        ;;
+    xenomai-evl)
+        BUILD_XENOMAI_EVL=true;
+        ;;
+    *)  
+        echo 1>&2 "Unknown option: $1"
         echo 1>&2
         usage
         exit 99 ;;
@@ -205,6 +221,18 @@ else
 fi
 
 subst control.top.in > control
+
+if $BUILD_XENOMAI; then
+    echo >> control
+    subst control.uspace-xenomai.in >> control
+    subst linuxcnc-uspace-xenomai.install.in > linuxcnc-uspace-xenomai.install
+fi
+
+if $BUILD_XENOMAI_EVL; then
+    echo >> control
+    subst control.uspace-xenomai-evl.in >> control
+    subst linuxcnc-uspace-xenomai-evl.install.in > linuxcnc-uspace-xenomai-evl.install
+fi
 
 echo >> control
 subst control.main-pkg.in >> control
