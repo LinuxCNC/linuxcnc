@@ -174,7 +174,13 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   mode1 = block->g_modes[GM_MOTION];
   mode_zero_covets_axes =
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
-     || (mode0 == G_52) || (mode0 == G_92));
+     || (mode0 == G_52) || (mode0 == G_92) || (mode0 == G_53_3));
+  // a tilted work plane definition takes the axis words the same way
+  if (block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_3
+      || block->g_modes[GM_WORK_PLANE] == G_68_4) {
+    CHKS(polar_flag, _("Polar coordinates cannot define a tilted work plane"));
+    mode_zero_covets_axes = 1;
+  }
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
@@ -210,8 +216,11 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
        block->motion_to_be = settings->motion_mode;
     }
-  } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
-    // this is a block like simply "i1" which should be accepted if we're in arc mode
+  } else if (!axis_flag && !polar_flag && ijk_flag &&
+             (settings->motion_mode == G_2 || settings->motion_mode == G_3 ||
+              (settings->tool_vector && (settings->motion_mode == G_0 || settings->motion_mode == G_1)))) {
+    // this is a block like simply "i1" which should be accepted if we're in arc mode,
+    // or a tool vector alone under G43.5, which turns the tool where it stands
       block->motion_to_be = settings->motion_mode;
   }
   CHKS((polar_flag && block->motion_to_be == -1), _("Polar coordinates can only be used for motion"));
@@ -281,6 +290,10 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->h_number = -1;
   block->i_flag = false;
   block->j_flag = false;
+  for (n = 0; n < EMCMOT_MAX_JOINTS; n++) {
+    block->joint_flag[n] = false;
+    block->joint_value[n] = 0.0;
+  }
   block->k_flag = false;
   block->l_number = -1;
   block->l_flag = false;

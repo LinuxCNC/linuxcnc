@@ -463,10 +463,15 @@ int emcTaskPlanInit()
 	print_interp_error(retval);
     } else {
 	if (0 != rs274ngc_startup_code[0]) {
+	    // the startup code runs before the main loop can service a
+	    // drain-and-assert wait, so a kinematics switch there must not
+	    // ask for one
+	    interp.set_in_startup_code(true);
 	    retval = interp.execute(rs274ngc_startup_code);
 	    while (retval == INTERP_EXECUTE_FINISH) {
 		retval = interp.execute(NULL);
 	    }
+	    interp.set_in_startup_code(false);
 	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
 	    }

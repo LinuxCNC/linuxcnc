@@ -16,9 +16,8 @@ where '2.8' is the branch name (use 'master' for the master branch).
 For a RIP (run-in-place) build, the file is located in the git tree as:
   `src/hal/components/userkins.comp`.
 
-Edit the functions kinematicsForward() and kinematicsInverse() as required.
-
-If required, add HAL pins following examples in the template code.
+Edit the functions userkins_forward() and userkins_inverse() as required,
+and list the geometry the maths needs in the *userkins_params* table.
 
 Build and install the component using halcompile:
 
@@ -50,37 +49,43 @@ change all instances of `userkins` to `mykins`.
 
 === NOTES
 
+* The kinematics are written as functions of a parameter block, see
+  kinematics.h: the geometry is declared once in the *userkins_params*
+  table, one HAL pin is made per entry, and the maths reads
+  *p->geometry[]* where it would have read a pin.  The classic entry
+  points (kinematicsForward() and the rest) are supplied by kins_single.c,
+  included below, so nothing here touches HAL and the same maths can be
+  evaluated outside realtime.
 * The *fpin* pin is included to satisfy the requirements of the halcompile
   utility but it is not accessible to kinematics functions.
-* HAL pins and parameters needed in kinematics functions (kinematicsForward(),
-  kinematicsInverse()) must be setup in a function (*userkins_setup()*) invoked
-  by the initial motion module call to kinematicsType().
 
 """;
 // The fpin pin is not accessible in kinematics functions.
-// Use the *_setup() function for pins and params used by kinematics.
 pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
+option extra_setup;
 function fdemo;
 license "GPL";
 author "Dewey Garrett";
 ;;
 
 #include <kinematics.h>
+#include <kins_rt.h>
 
-static struct haldata {
-  // Example pin pointers
-  hal_uint_t in;
-  hal_uint_t out;
-  // Example parameters
-  hal_real_t param_rw;
-  hal_real_t param_ro;
-} *haldata;
-// hal pin/param types:
-// hal_bool_t boolean bit
-// hal_uint_t unsigned integer
-// hal_sint_t signed integer
-// hal_real_t floating point (double precision)
+// the shared code for a module with one kinematics type, compiled in so
+// that halcompile builds this file on its own
+#include <kins_util.c>
+#include <kins_single.c>
+
+// The geometry, one HAL pin per entry, named userkins.<name>.  An entry
+// is an input (read into p->geometry[] before every call), an output
+// (written from s->out[] after it), or an input that can be poked
+// (KINS_IO).  The example pair below echoes 'in' to 'out'.
+static const kins_param_desc userkins_params[] = {
+    { "in",  KINS_PARAM_U32, KINS_IN,  0, 0 },
+    { "out", KINS_PARAM_U32, KINS_OUT, 0, 0 },
+};
+enum { P_IN, P_OUT };
 
 FUNCTION(fdemo) {
    // This function can be added to a thread (addf) for
@@ -91,62 +96,16 @@ FUNCTION(fdemo) {
    fpin_set(fpin + 1);
 }
 
-static int userkins_setup(void) {
-#define HAL_PREFIX "userkins"
-    int res=0;
-
-    // inherit comp_id from rtapi_main()
-    if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
-
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata) goto error;
-
-    // hal pin examples:
-    res += hal_pin_new_ui32(comp_id, HAL_IN , &(haldata->in) , 0, "%s.in" , HAL_PREFIX);
-    res += hal_pin_new_ui32(comp_id, HAL_OUT, &(haldata->out), 0, "%s.out", HAL_PREFIX);
-
-    // hal parameter examples:
-    res += hal_param_new_real(comp_id, HAL_RW, &haldata->param_rw, 0.0, "%s.param-rw", HAL_PREFIX);
-    res += hal_param_new_real(comp_id, HAL_RO, &haldata->param_ro, 0.0, "%s.param-ro", HAL_PREFIX);
-
-    if (res) goto error;
-    hal_ready(comp_id);
-    rtapi_print("*** %s setup ok\n",__FILE__);
-    return 0;
-error:
-    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
-    return -1;
-#undef HAL_PREFIX
-}
-
-KINS_NOT_SWITCHABLE
-// see millturn.comp for example of switchable kinematics
-
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsForward);
-
-KINEMATICS_TYPE kinematicsType()
+static int userkins_forward(const kins_params *p, kins_scratch *s,
+                            const double *j,
+                            EmcPose * pos,
+                            const KINEMATICS_FORWARD_FLAGS * fflags,
+                            KINEMATICS_INVERSE_FLAGS * iflags)
 {
-static bool is_setup=0;
-    if (!is_setup) userkins_setup();
-    return KINEMATICS_IDENTITY; // set as required
-           // Note: If kinematics are identity, using KINEMATICS_BOTH
-           //       may be used in order to allow a gui to display
-           //       joint values in preview prior to homing
-} // kinematicsType()
-
-static bool is_ready=0;
-int kinematicsForward(const double *j,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
-{
+    (void)p;
+    (void)s;
     (void)fflags;
     (void)iflags;
-    static bool gave_msg;
     // [KINS]JOINTS=3
     pos->tran.x = j[0]; // X coordinate
     pos->tran.y = j[1]; // Y coordinate
@@ -159,23 +118,17 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (hal_get_ui32(haldata->in) && !is_ready && !gave_msg) {
-       rtapi_print_msg(RTAPI_MSG_ERR,
-                       "%s The 'in' pin not echoed until Inverse called\n",
-                      __FILE__);
-       gave_msg=1;
-    }
     return 0;
-} // kinematicsForward()
+} // userkins_forward()
 
-int kinematicsInverse(const EmcPose * pos,
-                      double *j,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int userkins_inverse(const kins_params *p, kins_scratch *s,
+                            const EmcPose * pos,
+                            double *j,
+                            const KINEMATICS_INVERSE_FLAGS * iflags,
+                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
     (void)iflags;
     (void)fflags;
-    is_ready = 1; // Inverse is not called until homed for KINEMATICS_BOTH
 
     // Update the kinematic joints specified by the
     // [KINS]JOINTS setting (3 required for this template).
@@ -188,9 +141,60 @@ int kinematicsInverse(const EmcPose * pos,
     j[1] = pos->tran.y; // joint 1
     j[2] = pos->tran.z; // joint 2
 
-    //example hal pin update (homing reqd before kinematicsInverse)
-    hal_set_ui32(haldata->out, hal_get_ui32(haldata->in)); //dereference
-    //read from param example: hal_set_ui32(haldata->out, hal_get_real(haldata->param_rw));
+    // example output: echo the 'in' pin to the 'out' pin
+    s->out[P_OUT] = p->geometry[P_IN];
 
     return 0;
-} // kinematicsInverse()
+} // userkins_inverse()
+
+static int userkins_jacobian(const kins_params *p, const double *j,
+                             const EmcPose * pos,
+                             double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                             const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    int r, c;
+    (void)p;
+    (void)j;
+    (void)pos;
+    (void)iflags;
+    // How each joint responds to each pose coordinate, the derivative of
+    // userkins_inverse(): for this template joint 0 follows x, joint 1
+    // follows y and joint 2 follows z, each one for one.  See kinematics.h.
+    // Leave .jacobian out of the ops below to have it differenced instead.
+    for (r = 0; r < EMCMOT_MAX_JOINTS; r++) {
+        for (c = 0; c < EMCMOT_MAX_AXIS; c++) { jac[r][c] = 0; }
+    }
+    jac[0][0] = 1;
+    jac[1][1] = 1;
+    jac[2][2] = 1;
+    return 0;
+} // userkins_jacobian()
+
+static const kins_ops userkins_ops = {
+    .forward  = userkins_forward,
+    .inverse  = userkins_inverse,
+    .jacobian = userkins_jacobian,
+    // .work, .tool and .native report the frames, see kinematics.h
+};
+
+const kins_module_info kins_module = {
+    .name                 = "userkins",
+    .halprefix            = "userkins",
+    .params               = userkins_params,
+    .nparams              = sizeof(userkins_params)/sizeof(userkins_params[0]),
+    .required_coordinates = "XYZ",
+    .max_joints           = 3,
+    .allow_duplicates     = 0,
+    .ntypes               = 1,
+    .ops                  = { &userkins_ops },
+};
+
+// halcompile has done hal_init() and does hal_ready() after this returns,
+// which is what kinsSingleInit() expects.  KINEMATICS_IDENTITY is what
+// kinematicsType() reports; use KINEMATICS_BOTH for a machine whose
+// joints are not the axes, or to let a gui display joint values in the
+// preview before homing.
+EXTRA_SETUP() {
+    (void)__comp_inst; (void)prefix; (void)extra_arg;
+    return kinsSingleInit(comp_id, "XYZ", KINEMATICS_IDENTITY);
+}

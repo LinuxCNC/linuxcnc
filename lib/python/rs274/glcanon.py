@@ -168,6 +168,10 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         # fixture may hold several pieces. A canon is built per file load, so
         # nothing else ever clears this.
         self.workpieces = []
+        # The tilted work planes the program defined, in order, and the one
+        # in effect, which the moves made under it extend.
+        self.workplanes = []
+        self._workplane = None
 
     def comment(self, arg):
         if arg.startswith("WORKPIECE,"):
@@ -315,6 +319,25 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self._flush_moves()
         Translated.set_xy_rotation(self, theta)
 
+    def set_g68_frame(self, *args):
+        self._flush_moves()
+        Translated.set_g68_frame(self, *args)
+        self._workplane = None
+        if not self.g68_active:
+            return
+        # where the plane sits on the machine: its origin and axes through
+        # the same offsets a move endpoint gets
+        origin = self.rotate_and_translate(0, 0, 0, 0, 0, 0, 0, 0, 0)[:3]
+        axes = []
+        for x, y, z in ((1, 0, 0), (0, 1, 0), (0, 0, 1)):
+            p = self.rotate_and_translate(x, y, z, 0, 0, 0, 0, 0, 0)[:3]
+            axes.append((p[0] - origin[0], p[1] - origin[1], p[2] - origin[2]))
+        if self.workplanes and self.workplanes[-1].same_as(origin, axes):
+            self._workplane = self.workplanes[-1]
+            return
+        self._workplane = glcanon_scene.WorkPlane(self.lineno, origin, axes)
+        self.workplanes.append(self._workplane)
+
     def set_g5x_offset(self, *args, **kw):
         self._flush_moves()
         Translated.set_g5x_offset(self, *args, **kw)
@@ -435,6 +458,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def straight_traverse(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
+        if self._workplane is not None: self._workplane.extend(l)
         if not self.first_move:
                 self._stage_move(self.lineno, self.lo, l, 0.0,
                                  (self.xo, self.yo, self.zo), CAT_TRAVERSE)
@@ -446,6 +470,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
         l += (self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8])
+        if self._workplane is not None: self._workplane.extend(l)
         offset = (self.xo, self.yo, self.zo)
         # self.dwells.append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self._reserve_staging(2)
@@ -475,11 +500,14 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self._stage_move(lineno, lo, l, feedrate, to, CAT_ARC)
             lo = l
         self.lo = lo
+        if self._workplane is not None and len(segs):
+            self._workplane.extend(lo)
 
     def straight_feed(self, x,y,z, a,b,c, u,v,w):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
+        if self._workplane is not None: self._workplane.extend(l)
         self._stage_move(self.lineno, self.lo, l, self.feedrate,
                          (self.xo, self.yo, self.zo), CAT_FEED)
         self.lo = l
@@ -488,6 +516,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
+        if self._workplane is not None: self._workplane.extend(l)
         self._stage_move(self.lineno, self.lo, l, self.feedrate,
                          (self.xo, self.yo, self.zo), CAT_FEED)
         self.lo = l
@@ -669,6 +698,10 @@ class GlCanonDraw:
         'limits': (1.0, 0.0, 0.0),
         'workpiece': glcanon_scene.WORKPIECE_COLOR,
         'workpiece_alpha': glcanon_scene.WORKPIECE_ALPHA,
+        'workplane': glcanon_scene.WORKPLANE_COLOR,
+        'workplane_alpha': glcanon_scene.WORKPLANE_ALPHA,
+        'workplane_active': glcanon_scene.WORKPLANE_ACTIVE_COLOR,
+        'workplane_active_alpha': glcanon_scene.WORKPLANE_ACTIVE_ALPHA,
     }
     def __init__(self, s=None, lp=None, g=None):
         self.stat = s
@@ -1140,6 +1173,12 @@ class GlCanonDraw:
         and any host can toggle it by setting self.show_workpiece."""
         return getattr(self, 'show_workpiece', True)
 
+    def get_show_workplane(self):
+        """Whether the tilted work planes the program defined are drawn.
+        Defaulted like get_show_workpiece, and toggled the same way, by
+        setting self.show_workplane."""
+        return getattr(self, 'show_workplane', True)
+
     def get_workpieces(self):
         """The stock the loaded program declared, as rs274.glcanon_scene
         .Workpiece records - the declared params, the outline in machine
@@ -1279,6 +1318,7 @@ class GlCanonDraw:
             show_metric=self.get_show_metric(),
             show_small_origin=self.show_small_origin,
             show_workpiece=self.get_show_workpiece(),
+            show_workplane=self.get_show_workplane(),
             program_alpha=self.get_program_alpha(),
             grid_size=self.get_grid_size(),
             highlight_line=self.get_highlight_line(),
@@ -1363,6 +1403,15 @@ class GlCanonDraw:
                 positions[X] = _x * math.cos(t) - _y * math.sin(t)
                 positions[Y] = _x * math.sin(t) + _y * math.cos(t)
                 positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
+                if s.g68_active:
+                    # the tilted work plane sits inside G92
+                    r = s.g68_rotation
+                    _x = positions[X] - s.g68_offset[X]
+                    _y = positions[Y] - s.g68_offset[Y]
+                    _z = positions[Z] - s.g68_offset[Z]
+                    positions[X] = r[0]*_x + r[3]*_y + r[6]*_z
+                    positions[Y] = r[1]*_x + r[4]*_y + r[7]*_z
+                    positions[Z] = r[2]*_x + r[5]*_y + r[8]*_z
             else:
                 positions = list(positions)
 
