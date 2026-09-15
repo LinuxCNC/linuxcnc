@@ -250,6 +250,7 @@ enum GCodes
     G_43_1 = 431,
     G_43_2 = 432,
     G_43_4 = 434,
+    G_43_5 = 435,
     G_49 = 490,
     G_50 = 500,
     G_51 = 510,
@@ -801,6 +802,7 @@ struct setup
   bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
   int kins_type;              // kinematics selected by G12.1/G13.1
   bool kins_by_g43_4;         // G43.4 selected the kinematics, for G49 to undo
+  bool tool_vector;           // G43.5: I J K on G0 and G1 give the tool axis
   bool toolchange_flag;       // flag indicating we just had a tool change
   bool home_flag;             // flag indicating a G28.2 homing cycle just ran
   int input_index;		// channel queried

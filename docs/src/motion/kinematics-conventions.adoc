@@ -557,8 +557,8 @@ tool frame to the convention, and the optional Jacobian. A type whose forward
 iterates from the pose it is handed says so, and the shared code seeds it with
 the last answer after a switch. A type also says what it IS: `identity` marks
 the no-transform type, joints are axes; `primary` the working transform
-`G43.4` switches to; `machine` the machine frame type `G13.1` and `G49`
-cancel to and `G53.5` moves in, which a module leaves unset when its
+`G43.4` and `G43.5` switch to; `machine` the machine frame type `G13.1` and
+`G49` cancel to and `G53.5` moves in, which a module leaves unset when its
 identity type is that frame (see the Switchable Kinematics chapter). A module with
 several types has one geometry table and one ops table per type, registered
 with `switchkinsRegisterOps()`; a module with one type describes itself in a

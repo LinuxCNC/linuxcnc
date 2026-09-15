@@ -660,18 +660,30 @@ int Interp::tool_offset_point(setup_pointer s, const EmcPose *offset, const doub
     return INTERP_OK;
 }
 
-// a direction of the plane in world coordinates: the plane's rotation
-// then the XY rotation of the coordinate system it sits on
-static void plane_axis_in_world(setup_pointer s, int column, double rotation_xy, PmCartesian *out)
+// a direction the program gives, in world coordinates: through the
+// tilted work plane's rotation where one is active, then the XY rotation
+// of the coordinate system it sits on
+static void direction_in_world(setup_pointer s, const double v[3], double rotation_xy, PmCartesian *out)
 {
-    double x = s->g68_rotation[0][column];
-    double y = s->g68_rotation[1][column];
-    double z = s->g68_rotation[2][column];
+    double x = v[0], y = v[1], z = v[2];
     double t = rotation_xy * M_PI / 180.0;
 
+    if (s->g68_active) {
+        x = s->g68_rotation[0][0] * v[0] + s->g68_rotation[0][1] * v[1] + s->g68_rotation[0][2] * v[2];
+        y = s->g68_rotation[1][0] * v[0] + s->g68_rotation[1][1] * v[1] + s->g68_rotation[1][2] * v[2];
+        z = s->g68_rotation[2][0] * v[0] + s->g68_rotation[2][1] * v[1] + s->g68_rotation[2][2] * v[2];
+    }
     out->x = x * cos(t) - y * sin(t);
     out->y = x * sin(t) + y * cos(t);
     out->z = z;
+}
+
+// a direction of the plane in world coordinates
+static void plane_axis_in_world(setup_pointer s, int column, double rotation_xy, PmCartesian *out)
+{
+    double v[3] = { column == 0 ? 1.0 : 0.0, column == 1 ? 1.0 : 0.0, column == 2 ? 1.0 : 0.0 };
+
+    direction_in_world(s, v, rotation_xy, out);
 }
 
 static void rotate_about(const PmCartesian *axis, double rad, PmCartesian *v)
@@ -758,65 +770,19 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
     return work_plane_set(s, G_68_3, origin, rotation);
 }
 
-// The solver reports each answer in (-180, 180], but the machine stands
-// somewhere in turn space: every angular joint of each pose goes onto the
-// turn nearest where it stands, or the nearest pose is not the nearest move
-// and a free rotary swings the long way round.  Of the turns, only those
-// inside the joint's [JOINT_n] travel count, so a rotary that would run out
-// of travel the short way goes the long way, and a pose no turn brings
-// inside is dropped.  Returns how many poses are left, packed at the front.
-static int orient_fit(setup_pointer s, double *solutions, int n, int njoints, const double *now)
-{
-    int i, j, kept = 0;
-
-    for (i = 0; i < n; i++) {
-        double *pose = &solutions[i*njoints];
-        bool inside = true;
-        for (j = 0; j < njoints; j++) {
-            if (!(s->kins_angular_joints & (1 << j))) { continue; }
-            double turns = floor((now[j] - pose[j]) / 360.0 + 0.5);
-            if (j < s->kins_joints) {
-                double first = ceil((s->kins_joint_min[j] - pose[j]) / 360.0 - 1e-9);
-                double last = floor((s->kins_joint_max[j] - pose[j]) / 360.0 + 1e-9);
-                if (first > last) {
-                    inside = false;
-                    break;
-                }
-                turns = fmin(fmax(turns, first), last);
-            }
-            pose[j] += 360.0 * turns;
-        }
-        if (!inside) { continue; }
-        if (kept != i) {
-            for (j = 0; j < njoints; j++) { solutions[kept*njoints + j] = pose[j]; }
-        }
-        kept++;
-    }
-    return kept;
-}
-
 // G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.  G53.1
 // turns the rotaries alone, in joint space; G53.6 keeps the tool centre point,
 // a Cartesian move; G53.3 goes to X Y Z in the plane; G53.2 only publishes the
-// pose on #<_orient_x> and kin (Heidenhain STAY).  P picks the pose, nearest
-// first or by the sign of the tilting joint; Q0 holds the joints that carry
-// the work (COORD ROT), Q1 frees them (TABLE ROT).
+// pose on #<_orient_x> and kin (Heidenhain STAY).  P and Q are orient_solve()'s.
 int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
 {
     void *vctx;
     KinematicsUserContext *ctx;
-    double now[EMCMOT_MAX_JOINTS];
-    double solutions[TOOL_FRAME_MAX_SOLUTIONS * EMCMOT_MAX_JOINTS];
-    double spin[TOOL_FRAME_MAX_SOLUTIONS];
-    double distance[TOOL_FRAME_MAX_SOLUTIONS];
-    int order[TOOL_FRAME_MAX_SOLUTIONS], free_dirs[TOOL_FRAME_MAX_SOLUTIONS];
+    double now[EMCMOT_MAX_JOINTS], sol[EMCMOT_MAX_JOINTS];
     PmCartesian axis, xdir;
     EmcPose end_pose;
     double end_prog[9];
-    unsigned int held = 0;
-    int p, q, n, i, j, chosen, njoints;
-    bool reached;
-    const double *sol;
+    int p, q, i;
     const char *name = (code == G_53_1) ? "G53.1" : (code == G_53_2) ? "G53.2" : (code == G_53_3) ? "G53.3" : "G53.6";
 
     CHKS((!s->g68_active), _("%s needs a tilted work plane; define one with G68.2 first"), name);
@@ -833,74 +799,18 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     ctx = (KinematicsUserContext *)vctx;
     CHKS((kinematicsUserIsIdentity(ctx)),
          _("%s needs a kinematics type that describes the machine; select it with G12.1 first"), name);
-    njoints = kinematicsUserGetNumJoints(ctx);
     CHP(current_joints(s, ctx, now));
 
     plane_axis_in_world(s, 2, s->rotation_xy, &axis);
     plane_axis_in_world(s, 0, s->rotation_xy, &xdir);
-    if (q == 0) {
-        if (kinematicsUserWorkJoints(ctx, now, &held) != 0) { held = 0; }
-    }
-    n = kinematicsUserToolFrameInverse(ctx, &axis, &xdir, now, held,
-                                       solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
-    reached = (n > 0);
-    if (n > 0) { n = orient_fit(s, solutions, n, njoints, now); }
-    if (n == 0 && held) {
-        // nothing reachable with the work held still: let it move
-        held = 0;
-        n = kinematicsUserToolFrameInverse(ctx, &axis, &xdir, now, held,
-                                           solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
-        reached = reached || (n > 0);
-        if (n > 0) { n = orient_fit(s, solutions, n, njoints, now); }
-    }
-    CHKS((n < 0), _("%s: the kinematics cannot answer the orientation"), name);
-    CHKS((n == 0 && reached),
-         _("%s: every pose that reaches the plane's normal puts a rotary joint outside its travel"), name);
-    CHKS((n == 0), _("%s: the plane's normal cannot be reached by the rotary joints"), name);
-
-    // nearest first, by rotary travel in joint units
-    for (i = 0; i < n; i++) {
-        distance[i] = 0.0;
-        for (j = 0; j < njoints; j++) { distance[i] += fabs(solutions[i*njoints + j] - now[j]); }
-        order[i] = i;
-    }
-    for (i = 1; i < n; i++) {
-        int k = order[i];
-        for (j = i; j > 0 && distance[order[j-1]] > distance[k]; j--) { order[j] = order[j-1]; }
-        order[j] = k;
-    }
-    if (p == 0) {
-        chosen = order[0];
-    } else {
-        // P names the pose rather than its rank, so that the same program
-        // reaches the same pose from wherever the machine is standing
-        int primary, secondary;
-        CHKS((kinematicsUserOrientJoints(ctx, now, &primary, &secondary) != 0),
-             _("%s P%d: the poses of this machine cannot be told apart by a tilting"
-               " joint, so leave P out and take the nearest"), name, p);
-        chosen = -1;
-        for (i = 0; i < n; i++) {
-            double value = solutions[order[i]*njoints + secondary];
-            if ((p == 1 && value > 1e-9) || (p == 2 && value < -1e-9)) {
-                chosen = order[i];
-                break;
-            }
-        }
-        CHKS((chosen < 0), _("%s P%d: no reachable pose has joint %d %s"),
-             name, p, secondary, (p == 1) ? "positive" : "negative");
-    }
-    sol = solutions + chosen * njoints;
+    CHP(orient_solve(s, ctx, &axis, &xdir, p, q, now, sol, name));
 
     // where that puts the machine, and what the program calls it
     end_pose = (EmcPose){};
     current_machine_pose(s, &end_pose);
-    {
-        double full[EMCMOT_MAX_JOINTS];
-        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { full[i] = (i < njoints) ? sol[i] : 0.0; }
-        CHKS((kinematicsUserForward(ctx, full, &end_pose) != 0),
-             _("%s: the kinematics cannot place the orientation it found"), name);
-        for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = full[i]; }
-    }
+    CHKS((kinematicsUserForward(ctx, sol, &end_pose) != 0),
+         _("%s: the kinematics cannot place the orientation it found"), name);
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
     machine_pose_to_program(s, &end_pose, end_prog);
 
     if (code == G_53_2) {
@@ -953,6 +863,165 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
         s->v_current = end_prog[7];
         s->w_current = end_prog[8];
     }
+    return INTERP_OK;
+}
+
+// The solver reports each answer in (-180, 180], but the machine stands
+// somewhere in turn space: every angular joint of each pose goes onto the
+// turn nearest where it stands, or the nearest pose is not the nearest move
+// and a free rotary swings the long way round.  Of the turns, only those
+// inside the joint's [JOINT_n] travel count, so a rotary that would run out
+// of travel the short way goes the long way, and a pose no turn brings
+// inside is dropped.  Returns how many poses are left, packed at the front.
+static int orient_fit(setup_pointer s, double *solutions, int n, int njoints, const double *now)
+{
+    int i, j, kept = 0;
+
+    for (i = 0; i < n; i++) {
+        double *pose = &solutions[i*njoints];
+        bool inside = true;
+        for (j = 0; j < njoints; j++) {
+            if (!(s->kins_angular_joints & (1 << j))) { continue; }
+            double turns = floor((now[j] - pose[j]) / 360.0 + 0.5);
+            if (j < s->kins_joints) {
+                double first = ceil((s->kins_joint_min[j] - pose[j]) / 360.0 - 1e-9);
+                double last = floor((s->kins_joint_max[j] - pose[j]) / 360.0 + 1e-9);
+                if (first > last) {
+                    inside = false;
+                    break;
+                }
+                turns = fmin(fmax(turns, first), last);
+            }
+            pose[j] += 360.0 * turns;
+        }
+        if (!inside) { continue; }
+        if (kept != i) {
+            for (j = 0; j < njoints; j++) { solutions[kept*njoints + j] = pose[j]; }
+        }
+        kept++;
+    }
+    return kept;
+}
+
+// The joints that point the tool along axis, and its x along xdir where given,
+// from the joints the machine is at: every pose the module reports, on the
+// nearest turn inside the travel, ranked by rotary travel.  P picks by rank or by
+// the sign of the tilting joint; Q0 holds the joints that carry the work
+// (Heidenhain COORD ROT), Q1 frees them (TABLE ROT).
+int Interp::orient_solve(setup_pointer s, void *vctx, const PmCartesian *axis, const PmCartesian *xdir,
+                         int p, int q, const double *now, double *joints, const char *name)
+{
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
+    double solutions[TOOL_FRAME_MAX_SOLUTIONS * EMCMOT_MAX_JOINTS];
+    double spin[TOOL_FRAME_MAX_SOLUTIONS];
+    double distance[TOOL_FRAME_MAX_SOLUTIONS];
+    int order[TOOL_FRAME_MAX_SOLUTIONS], free_dirs[TOOL_FRAME_MAX_SOLUTIONS];
+    unsigned int held = 0;
+    int n, i, j, chosen, njoints;
+    bool reached;
+
+    njoints = kinematicsUserGetNumJoints(ctx);
+    if (q == 0) {
+        if (kinematicsUserWorkJoints(ctx, now, &held) != 0) { held = 0; }
+    }
+    n = kinematicsUserToolFrameInverse(ctx, axis, xdir, now, held,
+                                       solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+    reached = (n > 0);
+    if (n > 0) { n = orient_fit(s, solutions, n, njoints, now); }
+    if (n == 0 && held) {
+        // nothing reachable with the work held still: let it move
+        held = 0;
+        n = kinematicsUserToolFrameInverse(ctx, axis, xdir, now, held,
+                                           solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+        reached = reached || (n > 0);
+        if (n > 0) { n = orient_fit(s, solutions, n, njoints, now); }
+    }
+    CHKS((n < 0), _("%s: the kinematics cannot answer the orientation"), name);
+    CHKS((n == 0 && reached),
+         _("%s: every pose that reaches the direction puts a rotary joint outside its travel"), name);
+    CHKS((n == 0), _("%s: the direction asked for cannot be reached by the rotary joints"), name);
+
+    // nearest first, by rotary travel in joint units
+    for (i = 0; i < n; i++) {
+        distance[i] = 0.0;
+        for (j = 0; j < njoints; j++) { distance[i] += fabs(solutions[i*njoints + j] - now[j]); }
+        order[i] = i;
+    }
+    for (i = 1; i < n; i++) {
+        int k = order[i];
+        for (j = i; j > 0 && distance[order[j-1]] > distance[k]; j--) { order[j] = order[j-1]; }
+        order[j] = k;
+    }
+    if (p == 0) {
+        chosen = order[0];
+    } else {
+        // P names the pose rather than its rank, so that the same program
+        // reaches the same pose from wherever the machine is standing
+        int primary, secondary;
+        CHKS((kinematicsUserOrientJoints(ctx, now, &primary, &secondary) != 0),
+             _("%s P%d: the poses of this machine cannot be told apart by a tilting"
+               " joint, so leave P out and take the nearest"), name, p);
+        chosen = -1;
+        for (i = 0; i < n; i++) {
+            double value = solutions[order[i]*njoints + secondary];
+            if ((p == 1 && value > 1e-9) || (p == 2 && value < -1e-9)) {
+                chosen = order[i];
+                break;
+            }
+        }
+        CHKS((chosen < 0), _("%s P%d: no reachable pose has joint %d %s"),
+             name, p, secondary, (p == 1) ? "positive" : "negative");
+    }
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        joints[i] = (i < njoints) ? solutions[chosen * njoints + i] : 0.0;
+    }
+    return INTERP_OK;
+}
+
+// G43.5: I J K on a G0 or G1 line are the tool axis, tip towards holder, in
+// the coordinate system the line's X Y Z are in.  The rotaries come from the
+// tool frame inverse, every orienting joint free, the nearest pose, as program
+// rotary coordinates so a rotary offset is right by construction.
+int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *a, double *b, double *c)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    double now[EMCMOT_MAX_JOINTS], sol[EMCMOT_MAX_JOINTS];
+    double v[3], prog[9];
+    PmCartesian axis;
+    EmcPose pose;
+    int i;
+
+    CHKS((block->a_flag || block->b_flag || block->c_flag),
+         _("G43.5: a tool vector and rotary words on one line give the orientation twice"));
+    v[0] = block->i_flag ? block->i_number : 0.0;
+    v[1] = block->j_flag ? block->j_number : 0.0;
+    v[2] = block->k_flag ? block->k_number : 0.0;
+    CHKS((vec_norm(v) < 1e-9), _("G43.5: the tool vector I J K is zero"));
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    CHKS((kinematicsUserIsIdentity(ctx)),
+         _("G43.5: a tool vector needs a kinematics type that describes the machine; select it with G12.1 first"));
+    CHP(current_joints(s, ctx, now));
+    if (block->g_modes[GM_MODAL_0] == G_53) {
+        axis.x = v[0];
+        axis.y = v[1];
+        axis.z = v[2];
+    } else {
+        direction_in_world(s, v, s->rotation_xy, &axis);
+    }
+    CHP(orient_solve(s, ctx, &axis, NULL, 0, 1, now, sol, "G43.5"));
+
+    // where that puts the rotaries, and what the program calls it
+    pose = (EmcPose){};
+    current_machine_pose(s, &pose);
+    CHKS((kinematicsUserForward(ctx, sol, &pose) != 0),
+         _("G43.5: the kinematics cannot place the orientation it found"));
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
+    machine_pose_to_program(s, &pose, prog);
+    *a = prog[3];
+    *b = prog[4];
+    *c = prog[5];
     return INTERP_OK;
 }
 

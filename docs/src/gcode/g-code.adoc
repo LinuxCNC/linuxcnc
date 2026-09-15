@@ -86,6 +86,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43.1,G43.1>>             |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>             |Apply additional Tool Length Offset
 |<<gcode:g43.4,G43.4>>             |Tool Length Offset on Primary Kinematics
+|<<gcode:g43.5,G43.5>>             |Tool Length Offset with the Tool Axis as a Vector
 |<<gcode:g49,G49>>                 |Cancel Tool Length Offset
 |<<gcode:g52,G52>>                 |Local Coordinate System Offset
 |<<gcode:g53,G53>>                 |Move in Machine Coordinates
@@ -1776,13 +1777,79 @@ It is an error if:
   kinematics, or
 * any of the 'G43' error conditions holds.
 
+[[gcode:g43.5]]
+== G43.5 Tool Length Offset with the Tool Axis as a Vector(((G43.5 Tool Length Offset with the Tool Axis as a Vector)))
+
+[source,ngc]
+----
+G43.5 <H->
+G0 X- Y- Z- I- J- K-
+G1 X- Y- Z- I- J- K- F-
+----
+
+* 'H' - tool number (optional)
+* 'I J K' - the direction the tool axis is to point along, on a 'G0' or
+  'G1' line while 'G43.5' is in effect
+
+'G43.5' is '<<gcode:g43.4,G43.4>>' with one thing more: while it is in
+effect, a 'G0' or 'G1' line may give the direction of the tool axis as
+a vector 'I J K' in place of rotary words, and the interpreter works
+out where the rotary joints have to go to point the tool that way.
+This is the form of a five-axis program written for the tool rather
+than for the machine, the one Fanuc calls tool center point control
+type 2, and it runs on any machine whose kinematics module supplies its
+tool frame (see the <<cha:kinematics-conventions,Kinematics
+Conventions>> chapter): the same program orients a tilting head, a
+tilting table and a robot.
+
+The vector points from the tool tip towards the holder, in the
+coordinate system the line's 'X Y Z' are in: the active coordinate
+system with its rotation, the <<gcode:g68.2,tilted work plane>> where
+one is active, and the machine's on a '<<gcode:g53,G53>>' line. Its
+length does not matter. A word left out is zero, so 'K1' alone is the
+tool vertical. The words describe a direction, so they are never
+incremental: 'G91' applies to the 'X Y Z' of the line, not to 'I J K',
+and 'G91.1' does not apply to them either. A line with 'I J K' and no
+axis word turns the tool where it stands.
+
+Where more than one pose of the rotaries points the tool along the
+vector, two on a five-axis machine, the interpreter takes the one
+nearest where the rotaries stand inside their travel, every orienting joint free to take
+part, so a path of vectors runs continuous from wherever it starts and
+a rotary swings the long way round only where the short way runs out of travel. On the pole of the primary
+rotary, the tool vertical on a mill, one joint no longer matters to the
+direction and it stays where it is.
+
+The pose the interpreter finds goes into the move as ordinary rotary
+words, in program coordinates, so the rotary offsets of the coordinate
+system apply, and the move interpolates like any other move with rotary
+words: the rotaries turn together with the linear axes between the
+poses of consecutive lines. The vector itself is not interpolated
+along the way; a program that needs the tool to sweep between two
+directions writes the lines in between.
+
+'G2' and 'G3' keep 'I J K' as the arc centre; the tool direction on an
+arc is given with rotary words. 'G43', 'G43.1', 'G43.2' and 'G49' end
+the vector form along with the offset they replace; 'G49' cancels the
+offset and undoes the kinematics switch, as after 'G43.4'.
+
+It is an error if:
+
+* 'I J K' are given together with a rotary word on the same line,
+* the vector is zero,
+* the kinematics selected is the identity one, or the module supplies
+  no tool frame or cannot be evaluated by the interpreter,
+* the direction cannot be reached by the rotary joints,
+* 'I J K' are given on a 'G53.5' or 'G53.7' line, or
+* any of the 'G43.4' error conditions holds.
+
 [[gcode:g49]]
 == G49 Cancel Tool Length Compensation(((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
 
 'G49' also switches a switchable kinematics module back to its identity
-kinematics when it cancels a 'G43.4', undoing the switch that made. It
+kinematics when it cancels a 'G43.4' or 'G43.5', undoing the switch that made. It
 leaves a kinematics selected by 'G12.1' or 'G13.1' alone, as it does
 after a plain 'G43', and a module that declares no identity kinematics
 gets the plain cancel.

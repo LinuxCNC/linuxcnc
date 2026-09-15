@@ -4193,7 +4193,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   if (FEATURE(RETAIN_G43)) {
 
       if (((settings->active_g_codes[9] == G_43) ||
-           (settings->active_g_codes[9] == G_43_4)) && ONCE(STEP_RETAIN_G43)) {
+           (settings->active_g_codes[9] == G_43_4) ||
+           (settings->active_g_codes[9] == G_43_5)) && ONCE(STEP_RETAIN_G43)) {
         if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
@@ -5697,13 +5698,22 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
+  // under G43.5 the I J K of a G0 or G1 line are the tool axis, which the
+  // rotaries are solved for once the line's other words are read
+  bool tool_vector = settings->tool_vector && (move == G_0 || move == G_1)
+                     && (block->i_flag || block->j_flag || block->k_flag);
   if (block->g_modes[GM_MODAL_0] == G_53_5 || block->g_modes[GM_MODAL_0] == G_53_7) {
     // the words name joints, by letter or by number: nothing below applies
+    CHKS(tool_vector, _("G43.5: a tool vector cannot go with %s, whose words name the joints"),
+         (block->g_modes[GM_MODAL_0] == G_53_5) ? "G53.5" : "G53.7");
     CHP(convert_ptp_joints(block->g_modes[GM_MODAL_0], move, block, settings));
     return INTERP_OK;
   }
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
+  if (tool_vector) {
+    CHP(tool_vector_ends(block, settings, &AA_end, &BB_end, &CC_end));
+  }
 
   if (move == G_1) {
       inverse_time_rate_straight(end_x, end_y, end_z,
@@ -6652,11 +6662,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
-  if (g_code == G_43_4) {
+  if (g_code == G_43_4 || g_code == G_43_5) {
     int primary = flagged_kins_type(KINSTYPE_PRIMARY);
     // G43.4 is G43 on the module's working transform: switch first, then
     // apply the offset, as if the switch line had run and drained.  With
-    // no kinematics attached there is nothing to switch to.
+    // no kinematics attached there is nothing to switch to.  G43.5 is
+    // the same, and the lines after it may give the tool axis as I J K.
     CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
     if (primary >= 0 && primary != settings->kins_type) {
       // the switch keeps the joints and moves the point, so the point
@@ -6675,9 +6686,10 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     // the offset in effect is no longer G43.4's, so G49 has no switch to undo
     settings->kins_by_g43_4 = false;
   }
+  settings->tool_vector = (g_code == G_43_5);
   if (g_code == G_49) {
     idx = 0;
-  } else if (g_code == G_43 || g_code == G_43_4) {
+  } else if (g_code == G_43 || g_code == G_43_4 || g_code == G_43_5) {
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
     if(block->h_flag) {
@@ -6757,7 +6769,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         if(block->w_flag) tool_offset.w += block->w_number;
     }
   } else {
-    ERS("BUG: Code not G43, G43.1, G43.2, G43.4, or G49");
+    ERS("BUG: Code not G43, G43.1, G43.2, G43.4, G43.5, or G49");
   }
   // The machine does not move, so the program coordinates of the point change.
   // A kinematics that applies the offset itself moves the point by more than
