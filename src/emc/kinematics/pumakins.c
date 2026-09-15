@@ -23,6 +23,7 @@
 
 #include "pumakins.h"
 #include <switchkins.h>
+#include "userkfuncs.h"
 
 // the five dimensions, one pin each; the maths reads them from the block
 static const kins_param_desc puma_params[] = {

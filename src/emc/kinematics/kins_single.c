@@ -14,7 +14,7 @@
 #include <hal.h>
 #include <emcmotcfg.h>
 
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 static kins_params   rt_params;
