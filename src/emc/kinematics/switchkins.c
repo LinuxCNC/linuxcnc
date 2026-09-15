@@ -74,6 +74,7 @@ static struct swdata {
 //       then save/use the lastpose
 static int     fwd_iterates[SWITCHKINS_MAX_TYPES] = {0};
 static bool    use_lastpose[SWITCHKINS_MAX_TYPES] = {0};
+static bool    lastpose_ok[SWITCHKINS_MAX_TYPES]  = {0};
 static EmcPose lastpose[SWITCHKINS_MAX_TYPES];
 
 static void save_lastpose(int ktype, EmcPose* pos)
@@ -102,7 +103,7 @@ static void get_lastpose(int ktype, EmcPose* pos)
     pos->w      = lastpose[ktype].w;
 } // get_lastpose()
 
-static int gui_forward_kins(const double *joints)
+static int gui_forward_kins(const double *joints, const EmcPose* estimate)
 {
     // the hexapod vismach gui uses these hal pins to
     // display platform position/orientation in both
@@ -119,8 +120,13 @@ static int gui_forward_kins(const double *joints)
                         kp.gui_kinstype);
         return -1;
     }
+    if (!lastpose_ok[kp.gui_kinstype]) {
+        // no pose of our own yet, start from the caller's
+        lastpose[kp.gui_kinstype] = *estimate;
+    }
     res = kfwds[kp.gui_kinstype](joints, &lastpose[kp.gui_kinstype],
                                  &fflags, &iflags);
+    lastpose_ok[kp.gui_kinstype] = (res == 0);
     hal_set_real(swdata->gui_x, lastpose[kp.gui_kinstype].tran.x);
     hal_set_real(swdata->gui_y, lastpose[kp.gui_kinstype].tran.y);
     hal_set_real(swdata->gui_z, lastpose[kp.gui_kinstype].tran.z);
@@ -155,7 +161,7 @@ int kinematicsSwitch(int new_switchkins_type)
         hal_set_bool(swdata->kinstype_is[k], k == switchkins_type);
     }
 
-    if (fwd_iterates[switchkins_type]) {
+    if (fwd_iterates[switchkins_type] && lastpose_ok[switchkins_type]) {
         use_lastpose[switchkins_type] = 1; // restarting a kins types
     }
     return 0; // 0==> no error
@@ -167,8 +173,11 @@ int kinematicsForward(const double *joint,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
     int r;
+    EmcPose estimate = *pos; // the caller's guess, the only one we get
 
-    if (fwd_iterates[switchkins_type] && use_lastpose[switchkins_type]) {
+    if (   fwd_iterates[switchkins_type]
+        && use_lastpose[switchkins_type]
+        && lastpose_ok[switchkins_type]) {
         // initialize iterative forward kins (ok for identity too)
         get_lastpose(switchkins_type,pos);
         use_lastpose[switchkins_type] = 0;
@@ -183,7 +192,10 @@ int kinematicsForward(const double *joint,
         return -1;
     }
     r = kfwds[switchkins_type](joint, pos, fflags, iflags);
-    if (fwd_iterates[switchkins_type]) {save_lastpose(switchkins_type,pos);}
+    if (fwd_iterates[switchkins_type]) {
+        save_lastpose(switchkins_type,pos);
+        lastpose_ok[switchkins_type] = (r == 0);
+    }
     if (r) return r;
 
     // gui.* pins created only if gui_kinstype>=0
@@ -195,10 +207,12 @@ int kinematicsForward(const double *joint,
         // currently the skgui pins are only needed for
         // the hexagui vismach program (as it needs
         // world coords for switchkin-types
-        r = gui_forward_kins(joint);
+        // display only: a gui type that cannot solve leaves its pins
+        // where they were and does not fail the running type
+        gui_forward_kins(joint, &estimate);
     }
 
-    return r;
+    return 0;
 } // kinematicsForward()
 
 int kinematicsInverse(const EmcPose * pos,
