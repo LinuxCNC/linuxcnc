@@ -628,6 +628,7 @@ static void init_vert_info_window(void)
     /* Offset control */
     vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
     vert->offset_label = gtk_bin_get_child(GTK_BIN(vert->offset_button));
+    gtk_label_set_justify(GTK_LABEL(vert->offset_label), GTK_JUSTIFY_CENTER);
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
 	vert->offset_button, FALSE, FALSE, 0);
     g_signal_connect(vert->offset_button, "clicked",
@@ -1067,6 +1068,7 @@ void channel_changed(void)
         gtk_label_set_text_if(vert->scale_label, "----");
         gtk_label_set_text_if(vert->chan_num_label, "--");
         gtk_label_set_text_if(vert->source_name_label, "------");
+        gtk_label_set_text_if(vert->offset_label, _("Offset\n----"));
         request_display_refresh(1);
         return;
     }
