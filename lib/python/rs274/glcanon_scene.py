@@ -2123,9 +2123,8 @@ class Workpiece:
         #: Source line the comment was on, or ``-1`` if the canon was driven
         #: without one (a unit test).
         self.lineno = lineno
-        #: ``(N, 3)`` GL_LINES endpoints in absolute **machine** coordinates -
-        #: the g92 offset, the g5x XY rotation and the g5x offset that were
-        #: active at the comment, applied in that order, exactly as a move
+        #: ``(N, 3)`` GL_LINES endpoints in absolute **machine** coordinates,
+        #: placed with the offsets active at the comment - exactly as a move
         #: endpoint on the same line gets them. No tool offset: stock is not
         #: tool-dependent. Internal units, as everything else on the canon.
         self.machine_points = machine_points
@@ -2204,9 +2203,15 @@ class Workpiece:
         if ignored:
             log.warning("workpiece comment: ignoring %s: (%s)",
                         ", ".join(ignored), arg)
-        machine_points = cls._to_machine(points, canon)
-        return cls(shape, params, getattr(canon, 'lineno', -1), machine_points,
-                   cls._to_display(machine_points, canon))
+        # Where the renderer is putting points right now, which is the frame
+        # this comment was written in. RendererCanon.transform runs the same
+        # chain a move endpoint on this line goes through, rotary axes and
+        # all, so there is no offset arithmetic on this side to drift out of
+        # step with it.
+        machine, display = canon.transform(points)
+        return cls(shape, params, getattr(canon, 'lineno', -1),
+                   np.asarray(machine, dtype=np.float64),
+                   np.asarray(display, dtype=np.float64))
 
     @staticmethod
     def _tokenize(arg: str) -> tuple[str, dict[str, str]]:
@@ -2395,47 +2400,6 @@ class Workpiece:
         edges[0::2] = ring
         edges[1::2] = np.roll(ring, -1, axis=0)
         return edges
-
-    # -- placement ---------------------------------------------------------
-
-    @staticmethod
-    def _to_machine(points: Float64Points, canon: Any) -> Float64Points:
-        """Program coordinates to absolute machine coordinates.
-
-        The offsets are applied in exactly the order ``_batch_run`` applies
-        them to a move endpoint - g92, then the XY rotation, then g5x - so a
-        workpiece corner and a move that touches it land on the same point,
-        bit for bit. There is no ``FRAME=`` key and there will not be one: the
-        frame is whatever was active at the comment, which is why a post
-        processor must emit it after its WCS statement.
-
-        Tool offsets are deliberately absent. They move the *tool tip path*,
-        and would place the stock somewhere it is not.
-        """
-        points = np.asarray(points, dtype=np.float64) + (
-            canon.g92_offset_x, canon.g92_offset_y, canon.g92_offset_z)
-        if canon.rotation_xy:
-            rotx = (points[:, 0] * canon.rotation_cos
-                    - points[:, 1] * canon.rotation_sin)
-            points[:, 1] = (points[:, 0] * canon.rotation_sin
-                            + points[:, 1] * canon.rotation_cos)
-            points[:, 0] = rotx
-        points += (canon.g5x_offset_x, canon.g5x_offset_y, canon.g5x_offset_z)
-        return points
-
-    @staticmethod
-    def _to_display(machine_points: Float64Points,
-                    canon: Any) -> Float64Points:
-        """Machine coordinates to display coordinates, per the GEOMETRY string.
-
-        Runs over 9-DOF points with the rotary columns zero, which leaves the
-        A/B/C branches identity, so any GEOMETRY string is safe here.
-        """
-        pts9 = np.zeros((len(machine_points), 9), dtype=np.float64)
-        pts9[:, 0:3] = machine_points
-        program = canon.program_geometry
-        return glcanon_bake.transform_points(pts9, program.geometry,
-                                             program.ro)
 
 
 class WorkpiecePart(Part):

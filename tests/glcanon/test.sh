@@ -10,11 +10,11 @@
 # to a whole directory.
 set -e
 
-python3 test_backplot_palette.py >&2
-python3 test_camera_matrices.py >&2
+./test_backplot_palette.py >&2
+./test_camera_matrices.py >&2
 
 if python3 -c 'import OpenGL' 2>/dev/null; then
-    python3 test_workpiece.py >&2
+    ./test_workpiece.py >&2
 else
     echo "skip: test_workpiece.py needs PyOpenGL (headless build)" >&2
 fi
