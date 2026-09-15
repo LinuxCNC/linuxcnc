@@ -29,6 +29,9 @@
 
 #define NOT_INITIALIZED -1
 
+// old modules export no kinematicsTypeFlags; keep it optional
+#pragma weak kinematicsTypeFlags
+
 /***********************************************************************
 *                    KERNEL MODULE PARAMETERS                          *
 ************************************************************************/
@@ -915,7 +918,8 @@ static int init_comm_buffers(void)
     /* and what each switchable kinematics type is, as the module
        declares it, for the interpreter to resolve G13.1 against */
     for (n = 0; n < SWITCHKINS_MAX_TYPES; n++) {
-        emcmotStatus->switchkins_flags[n] = kinematicsTypeFlags(n);
+        emcmotStatus->switchkins_flags[n] =
+            kinematicsTypeFlags ? kinematicsTypeFlags(n) : -1;
     }
     emcmot_config_change();
 
