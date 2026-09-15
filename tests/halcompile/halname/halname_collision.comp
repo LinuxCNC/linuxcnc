@@ -1,0 +1,7 @@
+component halname_collision;
+license "GPL";
+pin in bit x_y;
+pin out bit x_y_;
+function _;
+;;
+FUNCTION(_) {}

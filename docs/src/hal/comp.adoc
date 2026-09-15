@@ -229,6 +229,11 @@ A trailing "_" is retained, so that HAL identifiers which would otherwise collid
 |x.##    | x(MM)        | x.MM
 |===
 
+[NOTE]
+Two declarations that produce the same HAL identifier -- 'x_y_z' and 'x_y_z_' in
+the table above -- are rejected by `halcompile`; they would otherwise fail at
+`loadrt` with "HAL: ERROR: duplicate variable".
+
 * 'if CONDITION' - An expression involving the variable 'personality' which is nonzero when the pin or parameter should be created.
 
 * 'SIZE' - A number that gives the size of an array. The array items are numbered from 0 to 'SIZE'-1.

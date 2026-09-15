@@ -76,7 +76,13 @@ Install \fB.c\fR and \fB.py\fR files into the proper directory for HAL non-realt
 Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the proper system directory (the \fB\-\-install\fR flag), which may require \fIsudo\fR to write to system directories.
 .IP \(bu 4
 Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
-.SH "SEE ALSO"
+.SH NAMES
+A name declared in a \fB.comp\fR file is a C identifier, but it is exported under a mangled HAL identifier: underscores become dashes, and a trailing dash or period is removed.
+\fBpin in float my_input\fR is reached from HAL as \fBcomponent.N.my\-input\fR, and \fBloadrt my_comp\fR exports its pins under \fBmy\-comp.N.\fR
+Two declarations that mangle to the same HAL name are rejected.
+.PP
+See HALNAME under \fISyntax\fR in the \fIHalcompile HAL Component Generator\fR documentation for the full rules.
+.SH "SEE ALSO\"
 \fIHalcompile HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
 
 \fBpydoc, HAL\fR and \fICreating Non-realtime Python Components\fR in the LinuxCNC documentation for documentation on the Python interface to HAL components
