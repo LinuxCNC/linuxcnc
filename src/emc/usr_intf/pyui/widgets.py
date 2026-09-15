@@ -29,19 +29,19 @@ class _WidgetBase:
             self.metadata['FALSE_STATE'] = 0
 
         # convert and set pintype and states based on metadata types
-        if self.metadata['OUTPUT'] == 'S32':
-            self.pintype=hal.HAL_S32
+        if self.metadata['OUTPUT'] in ('SINT', 'S32'):
+            self.pintype=hal.Type.SINT
             self.true_state = int(self.metadata['TRUE_STATE'])
             self.false_state = int(self.metadata['FALSE_STATE'])
-        elif self.metadata['OUTPUT'] == 'U32':
-            self.pintype=hal.HAL_U32
+        elif self.metadata['OUTPUT'] in ('UINT', 'U32'):
+            self.pintype=hal.Type.UINT
             self.true_state = int(self.metadata['TRUE_STATE'])
             self.false_state = int(self.metadata['FALSE_STATE'])
-        elif self.metadata['OUTPUT'] == 'REAL' or self.metadata['OUTPUT'] == 'FLOAT':
+        elif self.metadata['OUTPUT'] in ('REAL', 'FLOAT'):
             self.pintype=hal.Type.REAL
             self.true_state = float(self.metadata['TRUE_STATE'])
             self.false_state = float(self.metadata['FALSE_STATE'])
-        elif self.metadata['OUTPUT'] == 'BOOL' or self.metadata['OUTPUT'] == 'BIT':
+        elif self.metadata['OUTPUT'] in ('BOOL', 'BIT'):
             self.pintype=hal.Type.BOOL
             self.true_state = True#self.metadata['TRUE_STATE']
             self.false_state = False#self.metadata['FALSE_STATE']

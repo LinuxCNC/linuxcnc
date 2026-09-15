@@ -451,15 +451,15 @@ They are intended to be used with the Glade user interface editor.
 With proper installation, the HAL Widgets should show up in Glade's 'HAL Python' widget group.
 Many HAL specific fields in the Glade 'General' section have an associated mouse-over tool tip.
 
-HAL signals come in two variants, bits and numbers.
-Bits are off/on signals. Numbers can be "float", "s32" or "u32".
+HAL signals come in two variants, booleans and numbers.
+BOOLs are off/on signals. Numbers can be "REAL", "SINT" or "UINT".
 For more information on HAL data types see the <<sec:hal-data,HAL manual>>.
 The GladeVCP widgets can either display the value of the signal with an indicator widget, or modify the signal value with a control widget.
 Thus there are four classes of GladeVCP widgets that you can connect to a HAL signal.
 Another class of helper widgets allow you to organize and label your panel.
 
-- Widgets for indicating "bit" signals: <<gladevcp:hal-led,HAL_LED>>
-- Widgets for controlling "bit" signals: <<gladevcp:hal-buttons,HAL_Button HAL_RadioButton HAL_CheckButton>>
+- Widgets for indicating "BOOL" signals: <<gladevcp:hal-led,HAL_LED>>
+- Widgets for controlling "BOOL" signals: <<gladevcp:hal-buttons,HAL_Button HAL_RadioButton HAL_CheckButton>>
 - Widgets for indicating "number" signals: <<gladevcp:hal-label,HAL_Label>>,
   <<gladevcp:hal-progressbar,HAL_ProgressBar>>,
   <<gladevcp:hal-bars,HAL_HBar and HAL_VBar>>, <<gladevcp:hal-meter,HAL_Meter>>
@@ -481,7 +481,7 @@ Most HAL widgets have a single associated HAL pin with the same HAL name as the 
 
 Exceptions to this rule currently are:
 
-- 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (float) and a +<widgetname>-s+ (s32) pin
+- 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (REAL) and a +<widgetname>-s+ (SINT) pin
 - 'HAL_ProgressBar', which has a +<widgetname>-value+ input pin, and a +<widgetname>-scale+ input pin.
 
 === Python attributes and methods of HAL Widgets
@@ -506,9 +506,9 @@ HAL Widgets also have a few HAL-specific Python attributes:
 hal_pin::
   The underlying HAL pin Python object in case the widget has a single pin type
 hal_pin_s, hal_pin_f::
-  The s32 and float pins of the 'HAL_Spinbutton' and 'HAL_ComboBox' widgets - note these widgets do not have a 'hal_pin' attribute!
+  The SINT and REAL pins of the 'HAL_Spinbutton' and 'HAL_ComboBox' widgets - note these widgets do not have a 'hal_pin' attribute!
 hal_pin_scale::
-  The float input pin of 'HAL_ProgressBar' widget representing the maximum absolute value of input.
+  The REAL input pin of 'HAL_ProgressBar' widget representing the maximum absolute value of input.
 
 The are several HAL-specific methods of HAL Widgets, but the only relevant method is:
 
@@ -547,7 +547,7 @@ The example in +configs/apps/gladevcp/complex+ shows how this is handled in Pyth
 === Buttons
 
 This group of widgets are derived from various Gtk buttons and consists of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton widgets.
-All of them have a single output BIT pin named identical to the widget.
+All of them have a single output BOOL pin named identical to the widget.
 Buttons have no additional properties compared to their base Gtk classes.
 
 - HAL_Button: instantaneous action, does not retain state. Important signal: `pressed`
@@ -582,9 +582,9 @@ See +configs/apps/gladevcp/by-widget/+ for a GladeVCP applications and UI file f
 HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale respectively.
 
 <widgetname>::
-  out FLOAT pin
+  out REAL pin
 <widgetname>-s::
-  out s32 pin
+  out SINT pin
 
 To make a scale useful in Glade, add an 'Adjustment' (General → Adjustment → New or existing adjustment) and edit the adjustment object.
 It defines the default/min/max/increment values. Also, set adjustment 'Page size' and 'Page increment' to zero to avoid warnings.
@@ -598,9 +598,9 @@ image::images/hscale.png[]
 HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
 <widgetname>-f::
-  out FLOAT pin
+  out REAL pin
 <widgetname>-s::
-  out s32 pin
+  out SINT pin
 
 To be useful, Spinbuttons need an adjustment value like scales, see above.
 
@@ -627,11 +627,11 @@ By double clicking the left or right button the scale factor can be increased or
 `hal_dial` exports its count value as HAL pins:
 
 <widgetname>::
-  out s32 pin
+  out SINT pin
 <widgetname>-scaled::
-  out FLOAT pin
+  out REAL pin
 <widgetname>-delta-scaled::
-  out FLOAT pin
+  out REAL pin
 
 ==== Properties
 
@@ -653,12 +653,12 @@ center_color::
 count_type_shown::
   There are three counts available 0) Raw CPR counts 1) Scaled counts 2) Delta scaled counts. +
   default = 1
-  * count is based on the CPR selected - it will count positive and negative. It is available as a s32 pin.
+  * count is based on the CPR selected - it will count positive and negative. It is available as a SINT pin.
   * Scaled-count is CPR count times the scale - it can be positive and negative. +
-    If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin.
+    If you change the scale the output will immediately reflect the change. It is available as a REAL pin.
   * Delta-scaled-count is cpr count CHANGE, times scale. +
     If you change the scale, only the counts after that change will be scaled and then added to the current value. +
-    It is available as a FLOAT pin.
+    It is available as a REAL pin.
 scale_adjustable::
   Set this to False if you want to disallow scale changes by double clicking the widget. +
   If this is false the scale factor will not show on the widget. +
@@ -686,7 +686,7 @@ Using goobject to set the above listed properties:
 There are Python methods:
 
 * `[widget name].get_value()` +
-  Will return the counts value as a s32 integer
+  Will return the counts value as an integer
 * `[widget name].get_scaled_value()` +
   Will return the counts value as a float
 * `[widget name].get_delta_scaled_value()` +
@@ -739,7 +739,7 @@ It is recommended to use the mouse wheel, and only for very rough movements the 
 `jogwheel` exports its count value as HAL pin:
 
 <widgetname>-s::
-   out s32 pin
+   out SINT pin
 
 ==== Properties
 
@@ -795,21 +795,21 @@ The value of each increment as well as the time between two changes can be set u
 `speedcontrol` offers some HAL pin:
 
 <widgetname>-value::
-  out float pin +
+  out REAL pin +
   The shown value of the widget.
 <widgetname>-scaled-value::
-  out float pin +
+  out REAL pin +
   The shown value divided by the scale value, this is very useful, if the velocity is shown in units / min, but LinuxCNC expects it to be in units / second.
 <widgetname>-scale::
-  in float pin +
+  in REAL pin +
   The scale to apply. +
   Default is 60.
 <widgetname>-increase::
-  in bit pin +
+  in BOOL pin +
   As long as the pin is true, the value will increase. +
   Very handy with connected momentary switch.
 <widgetname>-decrease::
-  in bit pin +
+  in BOOL pin +
   As long as the pin is true, the value will decrease. +
   Very handy with connected momentary switch.
 
@@ -910,11 +910,11 @@ image::images/SpeedControl.png[align="center"]
 `hal_label` is a simple widget based on GtkLabel which represents a HAL pin value in a user-defined format.
 
 label_pin_type::
-  The pin's HAL type  (0:s32, 1:float, 2:u32), see also the tooltip on 'General→HAL pin type' (note this is different from PyVCP which has three label widgets, one for each type).
+  The pin's HAL type  (0:SINT, 1:REAL, 2:UINT), see also the tooltip on 'General→HAL pin type' (note this is different from PyVCP which has three label widgets, one for each type).
 text_template::
   Determines the text displayed - a Python format string to convert the pin value to text.
   Defaults to +%s+ (values are converted by the str() function) but may contain any legit as an argument to Pythons format() method. +
-  Example: +Distance: %.03f+ will display the text and the pin value with 3 fractional digits padded with zeros for a FLOAT pin.
+  Example: +Distance: %.03f+ will display the text and the pin value with 3 fractional digits padded with zeros for a REAL pin.
 
 [[gladevcp:hal-table]]
 === Containers
@@ -927,19 +927,19 @@ text_template::
 These containers are meant to be used to insensitize (grey out) or hide their children. +
 Insensitized children will not respond to input.
 
-*HAL_HideTable*:: Has one HAL BIT input pin which controls if its child widgets are hidden or not.
+*HAL_HideTable*:: Has one HAL BOOL input pin which controls if its child widgets are hidden or not.
 +
 --
 *Pin:*::
-`<Panel_basename>.<widgetname>`:: in bit pin +
+`<Panel_basename>.<widgetname>`:: in BOOL pin +
 If the pin is low then child widgets are visible which is the default state.
 --
 *HAL_Table* and *HAL_Hbox*::
-Have one HAL BIT input pin which controls if their child widgets are sensitive or not.
+Have one HAL BOOL input pin which controls if their child widgets are sensitive or not.
 +
 --
 *Pin:*::
-`<Panel_basename>.<widgetname>`:: in bit pin +
+`<Panel_basename>.<widgetname>`:: in BOOL pin +
 If the pin is low then child widgets are inactive which is the default state.
 --
 *State_Sensitive_Table*::
@@ -962,7 +962,7 @@ If you find some part of your GladeVCP application is 'grayed out' (insensitive)
 === LED
 
 The `hal_led` simulates a real indicator LED. +
-It has a single input BIT pin which controls its state: ON or OFF.
+It has a single input BOOL pin which controls its state: ON or OFF.
 
 ==== Properties
 
@@ -1019,7 +1019,7 @@ Use the HAL_HBar and HAL_VBar widgets instead.
 
 ==== Pins
 
-The `HAL_ProgressBar` is derived from gtk.ProgressBar and has two float
+The `HAL_ProgressBar` is derived from gtk.ProgressBar and has two REAL
 HAL input pins:
 
 <widgetname>::
@@ -1058,9 +1058,9 @@ image::images/progressbar2.png[align="center"]
 `HAL_ComboBox` exports two HAL pins:
 
 <widgetname>-f::
-  Current value, type FLOAT
+  Current value, type REAL
 <widgetname>-s::
-  Current value, type s32
+  Current value, type SINT
 
 ==== Properties
 
@@ -1068,7 +1068,7 @@ image::images/progressbar2.png[align="center"]
 
 column::
   The column index. +
-  Type s32. +
+  Type SINT. +
   Valid range from -1..100. +
   Defaults value -1.
 
@@ -1076,7 +1076,7 @@ In default mode this widgets sets the pins to the index of the chosen list entry
 So if your widget has three labels, it may only assume values 0,1 and 2.
 
 In column mode (column > -1), the value reported is chosen from the ListStore array as defined in Glade.
-So typically your widget definition would have two columns in the ListStore, one with text displayed in the dropdown, and an int or float value to use for that choice.
+So typically your widget definition would have two columns in the ListStore, one with text displayed in the dropdown, and an integer or floating point value to use for that choice.
 
 There's an example in +configs/apps/by-widget/combobox.{py,ui}+ which uses column mode to pick a float value from the ListStore.
 
@@ -1085,11 +1085,11 @@ If you're confused like me about how to edit ComboBox ListStores and CellRendere
 [[gladevcp:hal-bars]]
 === Bars
 
-`HAL_Bar` and `HAL_VBar` widgets for horizontal and vertical bars representing float values.
+`HAL_Bar` and `HAL_VBar` widgets for horizontal and vertical bars representing floating point values.
 
 ==== Pins
 
-`HAL_Bar` and `HAL_VBar` each have one input FLOAT HAL pin.
+`HAL_Bar` and `HAL_VBar` each have one input REAL HAL pin.
 
 ==== Properties
 
@@ -1148,11 +1148,11 @@ image::images/vscale.png[align="center"]
 [[gladevcp:hal-meter]]
 === Meter
 
-`HAL_Meter` is a widget similar to PyVCP meter - it represents a float value.
+`HAL_Meter` is a widget similar to PyVCP meter - it represents a floating point value.
 
 ==== Pins
 
-`HAL_Meter` has one input FLOAT HAL pin.
+`HAL_Meter` has one input REAL HAL pin.
 
 ==== Properties
 
@@ -2136,7 +2136,7 @@ Parameters currently may be names of HAL pins in the GladeVCP component.
 This is how it works:
 
 - assume you have a 'HAL SpinBox' named +speed+, and you want to pass its current value as a parameter in an MDI command.
-- The HAL SpinBox will have a float-type HAL pin named speed-f (see HalWidgets description).
+- The HAL SpinBox will have a REAL-type HAL pin named speed-f (see HalWidgets description).
 - To substitute this value in the MDI command, insert the HAL pin name enclosed like so: `${pin-name}`
 - for the above HAL SpinBox, we could use `(MSG, "The speed is: ${speed-f}")` just to show what's happening.
 

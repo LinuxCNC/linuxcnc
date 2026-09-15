@@ -35,9 +35,9 @@ net Ahome => joint.3.home-sw-in
 
 # connect index pulses to motion controller
 # uncomment these lines only if you have a Rev 2 USC board
-#newsig Xindex bit
-#newsig Yindex  bit
-#newsig Zindex bit
+#newsig Xindex bool
+#newsig Yindex bool
+#newsig Zindex bool
 #linksp Xindex <= ppmc.0.encoder.00.index-enable
 #linksp Xindex => joint.0.index-enable
 #linksp Yindex <= ppmc.0.encoder.01.index-enable

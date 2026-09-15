@@ -24,8 +24,8 @@ assert h['in'] == 4712
 assert h['inout'] == 4713
 
 # create virgin signals
-cmd("halcmd newsig insig float")
-cmd("halcmd newsig inoutsig float")
+cmd("halcmd newsig insig real")
+cmd("halcmd newsig inoutsig real")
 
 # link to them
 cmd("halcmd net insig    linktest.in")

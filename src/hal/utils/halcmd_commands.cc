@@ -60,6 +60,7 @@
 #include <fmt/format.h>
 
 #include "hal/setps_util.h"
+#include "hal/halqrec.hh"
 
 static int unloadrt_comp(const char *mod_name);
 static void print_comp_info(const char **patterns);
@@ -619,25 +620,31 @@ static hal_type_t typestr_to_haltype(const char *type, bool anycase)
 {
     static const struct {
         const char *name;
+        const char *repl;
         hal_type_t type;
     } htypes[] = {
-        { "bool",  HAL_BOOL },
-        { "real",  HAL_REAL },
-        { "sint",  HAL_SINT },
-        { "uint",  HAL_UINT },
-        { "port",  HAL_PORT },
-        { "bit",   HAL_BOOL },
-        { "float", HAL_REAL },
-        { "u32",   HAL_U32 },
-        { "s32",   HAL_S32 },
-        { "u64",   HAL_UINT },
-        { "s64",   HAL_SINT },
-        { nullptr, HAL_TYPE_UNSPECIFIED }
+        { "bool",     nullptr, HAL_BOOL },
+        { "real",     nullptr, HAL_REAL },
+        { "sint",     nullptr, HAL_SINT },
+        { "uint",     nullptr, HAL_UINT },
+        { "port",     nullptr, HAL_PORT },
+        { "bit",      "bool",  HAL_BOOL },
+        { "float",    "real",  HAL_REAL },
+        { "u32",      "uint",  HAL_UINT },
+        { "s32",      "sint",  HAL_SINT },
+        { "u64",      "uint",  HAL_UINT },
+        { "s64",      "sint",  HAL_SINT },
+        { "signed",   "sint",  HAL_SINT },
+        { "unsigned", "uint",  HAL_SINT },
+        { nullptr,    nullptr, HAL_TYPE_UNSPECIFIED }
     };
 
     int (*cmpfunc)(const char *, const char *) = anycase ? strcasecmp : strcmp;
     for(int i = 0; htypes[i].name; i++) {
         if(!cmpfunc(type, htypes[i].name)) {
+            if(nullptr != htypes[i].repl) {
+                halcmd_warning("Old type '%s' has been replaced by '%s'\n", type, htypes[i].repl);
+            }
             return htypes[i].type;
         }
     }
@@ -707,11 +714,9 @@ static std::string querydata_valuestr(hal_type_t type, const hal_query_value_u *
         return v->b ? "TRUE" : "FALSE";
     case HAL_REAL:
         return fmt::format("{:.7g}", v->r);
-    case HAL_S32:
     case HAL_SINT:
     case HAL_PORT:
         return fmt::format("{}", v->s);
-    case HAL_U32:
     case HAL_UINT:
         return fmt::format("{}", v->u);
     default:
@@ -792,8 +797,6 @@ static int get_type(const char ***patterns) {
     hal_type_t htype = typestr_to_haltype(typestr, false);
     if(htype != HAL_TYPE_UNINITIALIZED)
         return htype;
-    if(strcmp(typestr, "signed") == 0) return HAL_S32;
-    if(strcmp(typestr, "unsigned") == 0) return HAL_U32;
     return -1;
 }
 
@@ -1011,13 +1014,6 @@ int do_loadrt_cmd(const char *mod_name, const char *args[])
     return 0;
 }
 
-static int delsig_cmd_cb(hal_query_t *q, void *arg)
-{
-    std::vector<std::string> *sigs = reinterpret_cast<std::vector<std::string> *>(arg);
-    sigs->push_back(q->name);
-    return 0;
-}
-
 int do_delsig_cmd(const char *signame)
 {
     if(strcmp(signame, "all")) {
@@ -1034,8 +1030,16 @@ int do_delsig_cmd(const char *signame)
 
     // Build a list of signals to delete
     std::vector<std::string> sigs;
+    HalQRec qrec(256);
     hal_query_t q = {};
-    hal_list_s(&q, delsig_cmd_cb, (void *)&sigs);
+    int rv = hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv) {
+        halcmd_error("Failed to get signal list error=%d (%s)\n", rv, hal_strerror(rv));
+        return -1;
+    }
+    for(size_t i = 0; i < qrec.size(); i++) {
+        sigs.push_back(qrec.rec(i)->name);
+    }
 
     if(0 == sigs.size()) {
         halcmd_error("no signals found to be deleted\n");
@@ -1078,15 +1082,6 @@ int do_unloadusr_cmd(const char *mod_name)
     return 0;
 }
 
-static int unloadrt_cmd_cb(hal_query_t *q, void *arg)
-{
-    std::vector<std::string> *comps = reinterpret_cast<std::vector<std::string> *>(arg);
-    if(HAL_COMP_TYPE_REALTIME == q->comp.type) {
-        comps->push_back(q->name);
-    }
-    return 0;
-}
-
 int do_unloadrt_cmd(const char *mod_name)
 {
     if(strcmp(mod_name, "all")) {
@@ -1115,8 +1110,18 @@ int do_unloadrt_cmd(const char *mod_name)
     // Need to unload all modules
     // Build a list of loaded modules
     std::vector<std::string> comps;
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_comp(&q, unloadrt_cmd_cb, (void *)&comps);
+    int rv = hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv) {
+        halcmd_error("Failed to list all components, error=%d (%s)\n", rv, hal_strerror(rv));
+        return rv;
+    }
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(HAL_COMP_TYPE_REALTIME == qrec.rec(i)->comp.type) {
+            comps.push_back(qrec.rec(i)->name);
+        }
+    }
 
     /* Unload newest first so dependent modules release their references
        before the ones they depend on are removed. This matters for
@@ -1233,17 +1238,14 @@ is not fixed or has regressed by debian jessie)
 
 #include <set>
 
-static int get_all_comp_names_cb(hal_query_t *q, void *arg)
-{
-    std::set<std::string> *comps = reinterpret_cast<std::set<std::string> *>(arg);
-    comps->insert(q->name);
-    return 0;
-}
-
 static std::set<std::string> get_all_comp_names() {
     std::set<std::string> result;
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_comp(&q, get_all_comp_names_cb, (void *)&result);
+    hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        result.insert(qrec.rec(i)->name);
+    }
     return result;
 }
 
@@ -1441,11 +1443,10 @@ int do_waitusr_cmd(const char *comp_name)
     return 0;
 }
 
-static int print_comp_info_cb(hal_query_t *q, void *arg)
+static void print_comp_info_print(const hal_query_t *q, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
     if(!match(patterns, q->name))
-        return 0;
+        return;
 
     switch(q->comp.type) {
     case HAL_COMP_TYPE_USER:
@@ -1476,7 +1477,6 @@ static int print_comp_info_cb(hal_query_t *q, void *arg)
         break;
     }
     halcmd_output("\n");
-    return 0;
 }
 
 static void print_comp_info(const char **patterns)
@@ -1485,16 +1485,18 @@ static void print_comp_info(const char **patterns)
 	halcmd_output("Loaded HAL Components:\n");
 	halcmd_output("ID      Type  %-*s PID   State\n", HAL_NAME_LEN, "Name");
     }
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_comp(&q, print_comp_info_cb, (void *)patterns);
+    hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_comp_info_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
-static int print_pin_info_cb(hal_query_t *q, void *arg)
+static void print_pin_info_print(const hal_query_t *q, int type, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
-    if(!tmatch(q->callerdata.sival, q->pp.type) || !match(patterns, q->name))
-        return 0;
+    if(!tmatch(type, q->pp.type) || !match(patterns, q->name))
+        return;
 
     if (scriptmode == 0) {
         halcmd_output(" %5d  %5s %-3s  %9s  %s",
@@ -1516,7 +1518,6 @@ static int print_pin_info_cb(hal_query_t *q, void *arg)
     } else {
 	halcmd_output(" %s %s\n", data_arrow1(q->pp.dir), q->pp.signal);
     }
-    return 0;
 }
 
 static void print_pin_info(int type, const char **patterns)
@@ -1525,27 +1526,27 @@ static void print_pin_info(int type, const char **patterns)
 	halcmd_output("Component Pins:\n");
 	halcmd_output("Owner   Type  Dir                 Value  Name\n");
     }
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
-    q.callerdata.sival = type;
-    hal_list_p(&q, print_pin_info_cb, (void *)patterns);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_pin_info_print(qrec.rec(i), type, patterns);
     halcmd_output("\n");
 }
 
-static int print_pin_aliases_cb(hal_query_t *q, void *arg)
+static void print_pin_aliases_print(const hal_query_t *q, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
     if(q->pp.alias) {
         /* name is an alias */
         if(!match(patterns, q->name) && !match(patterns, q->pp.alias))
-            return 0;
+            return;
         if(scriptmode == 0) {
             halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, q->name, q->pp.alias);
         } else {
             halcmd_output(" %s  %s\n", q->name, q->pp.alias);
         }
     }
-    return 0;
 }
 
 static void print_pin_aliases(const char **patterns)
@@ -1554,23 +1555,19 @@ static void print_pin_aliases(const char **patterns)
 	halcmd_output("Pin Aliases:\n");
 	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
-    hal_list_p(&q, print_pin_aliases_cb, (void *)patterns);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_pin_aliases_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
-static int print_sig_pin_info_cb(hal_query_t *q, void *)
+static void print_sig_info_print(const hal_query_t *q, int type, const char **patterns)
 {
-    halcmd_output("%32s %s %s\n", "", data_arrow2(q->pp.dir), q->name);
-    return 0;
-}
-
-static int print_sig_info_cb(hal_query_t *q, void *arg)
-{
-    const char **patterns = (const char **)arg;
-    if(!tmatch(q->callerdata.sival, q->sig.type) || !match(patterns, q->name))
-        return 0;
+    if(!tmatch(type, q->sig.type) || !match(patterns, q->name))
+        return;
 
     halcmd_output("%s  %s  %s\n",
         data_type(q->sig.type),
@@ -1578,10 +1575,13 @@ static int print_sig_info_cb(hal_query_t *q, void *arg)
         q->name);
 
     // List all pins connected to the signal
+    HalQRec qrec;
     hal_query_t qs = {};
     qs.name = q->name;
-    hal_list_p_s(&qs, print_sig_pin_info_cb, NULL);
-    return 0;
+    hal_list_p_s(&qs, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        halcmd_output("%32s %s %s\n", "", data_arrow2(qrec.rec(i)->pp.dir), qrec.rec(i)->name);
+    }
 }
 
 static void print_sig_info(int type, const char **patterns)
@@ -1593,49 +1593,48 @@ static void print_sig_info(int type, const char **patterns)
     halcmd_output("Signals:\n");
     halcmd_output("Type                  Value  Name     (linked to)\n");
 
+    HalQRec qrec(256);
     hal_query_t q = {};
-    q.callerdata.sival = type;
-    hal_list_s(&q, print_sig_info_cb, (void *)patterns);
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_sig_info_print(qrec.rec(i), type, patterns);
     halcmd_output("\n");
 }
 
-static int print_script_sig_pin_info_cb(hal_query_t *q, void *)
+static void print_script_sig_info_print(const hal_query_t *q, int type, const char **patterns)
 {
-    halcmd_output(" %s %s", data_arrow2(q->pp.dir), q->name);
-    return 0;
-}
-
-static int print_script_sig_info_cb(hal_query_t *q, void *arg)
-{
-    const char **patterns = (const char **)arg;
-    if(!tmatch(q->callerdata.sival, q->sig.type) || !match(patterns, q->name))
-        return 0;
+    if(!tmatch(type, q->sig.type) || !match(patterns, q->name))
+        return;
 
     halcmd_output("%s  %s  %s", data_type(q->sig.type), querydata_refstr(q->sig.type, q->sig.ref).c_str(), q->name);
 
     // List all pins connected to the signal
+    HalQRec qrec;
     hal_query_t qs = {};
     qs.name = q->name;
-    hal_list_p_s(&qs, print_script_sig_pin_info_cb, NULL);
+    hal_list_p_s(&qs, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        halcmd_output(" %s %s", data_arrow2(qrec.rec(i)->pp.dir), qrec.rec(i)->name);
+    }
     halcmd_output("\n");
-    return 0;
 }
 
 static void print_script_sig_info(int type, const char **patterns)
 {
     if(!scriptmode)
     	return;
+    HalQRec qrec(256);
     hal_query_t q = {};
-    q.callerdata.sival = type;
-    hal_list_s(&q, print_script_sig_info_cb, (void *)patterns);
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_script_sig_info_print(qrec.rec(i), type, patterns);
     halcmd_output("\n");
 }
 
-static int print_param_info_cb(hal_query_t *q, void *arg)
+static void print_param_info_print(const hal_query_t *q, int type, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
-    if(!tmatch(q->callerdata.sival, q->pp.type) || !match(patterns, q->name))
-        return 0;
+    if(!tmatch(type, q->pp.type) || !match(patterns, q->name))
+        return;
 
     if(!scriptmode) {
         halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
@@ -1652,7 +1651,6 @@ static int print_param_info_cb(hal_query_t *q, void *arg)
             querydata_refstr(q->pp.type, q->pp.ref).c_str(),
             q->name);
     }
-    return 0;
 }
 
 static void print_param_info(int type, const char **patterns)
@@ -1661,20 +1659,22 @@ static void print_param_info(int type, const char **patterns)
 	halcmd_output("Parameters:\n");
 	halcmd_output("Owner   Type  Dir                 Value  Name\n");
     }
+    HalQRec qrec(512);
     hal_query_t q = {};
     q.callerdata.sival = type;
     q.qtype = HAL_QTYPE_PARAM;
-    hal_list_p(&q, print_param_info_cb, (void *)patterns);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_param_info_print(qrec.rec(i), type, patterns);
     halcmd_output("\n");
 }
 
-static int print_param_aliases_cb(hal_query_t *q, void *arg)
+static void print_param_aliases_print(const hal_query_t *q, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
     if(NULL == q->pp.alias)
-        return 0;
+        return;
     if(!match(patterns, q->name) && !match(patterns, q->pp.alias))
-        return 0;
+        return;
 
     // name is an alias
     if(!scriptmode) {
@@ -1682,7 +1682,6 @@ static int print_param_aliases_cb(hal_query_t *q, void *arg)
     } else {
         halcmd_output(" %s  %s\n", q->name, q->pp.alias);
     }
-    return 0;
 }
 
 static void print_param_aliases(const char **patterns)
@@ -1691,17 +1690,19 @@ static void print_param_aliases(const char **patterns)
         halcmd_output("Parameter Aliases:\n");
         halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
+    HalQRec qrec(512);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PARAM;  // Only parameters
-    hal_list_p(&q, print_param_aliases_cb, (void *)patterns);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_param_aliases_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
-static int print_funct_info_cb(hal_query_t *q, void *arg)
+static void print_funct_info_print(const hal_query_t *q, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
     if(!match(patterns, q->name))
-        return 0;
+        return;
     if(!scriptmode) {
         halcmd_output(" %05d  %08llx  %08llx  %-3s  %5d   %s\n",
             q->funct.comp_id,
@@ -1719,7 +1720,6 @@ static int print_funct_info_cb(hal_query_t *q, void *arg)
             q->funct.users,
             q->name);
     }
-    return 0;
 }
 
 static void print_funct_info(const char **patterns)
@@ -1728,16 +1728,18 @@ static void print_funct_info(const char **patterns)
         halcmd_output("Exported Functions:\n");
         halcmd_output("Owner   CodeAddr      Arg           FP   Users   Name\n");
     }
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_funct(&q, print_funct_info_cb, (void *)patterns);
+    hal_list_funct(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_funct_info_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
-static int print_thread_info_cb(hal_query_t *q, void *arg)
+static void print_thread_info_print(const hal_query_t *q, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
     if(!match(patterns, q->name))
-        return 0;
+        return;
 
     // The first callback is on the pure thread data
     if(HAL_QTYPE_THREAD == q->qtype) {
@@ -1746,12 +1748,12 @@ static int print_thread_info_cb(hal_query_t *q, void *arg)
         size_t ret = snprintf(tname, sizeof(tname), "%s.time", q->name);
         if (ret >= sizeof(tname)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: time pin name too long for buffer %s\n", q->name);
-            return 0;
+            return;
         }
         ret = snprintf(mname, sizeof(mname), "%s.tmax", q->name);
         if (ret >= sizeof(mname)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "unexpected: tmax pin name too long for buffer %s\n", q->name);
-            return 0;
+            return;
         }
         hal_query_t qt = {};
         qt.name = tname;
@@ -1786,7 +1788,6 @@ static int print_thread_info_cb(hal_query_t *q, void *arg)
     if(scriptmode) {
         halcmd_output("\n");
     }
-    return 0;
 }
 
 static void print_thread_info(const char **patterns)
@@ -1795,63 +1796,82 @@ static void print_thread_info(const char **patterns)
         halcmd_output("Realtime Threads:\n");
         halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
     }
+    HalQRec qrec;
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_THREAD_FUNCT; // Callback on both threads and functions attached
-    hal_list_thread(&q, print_thread_info_cb, (void *)patterns);
+    hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_thread_info_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
-static int print_any_names_cb(hal_query_t *q, void *arg)
+static void print_any_names_print(const hal_query_t *q, const char **patterns)
 {
-    const char **patterns = (const char **)arg;
     if(!match(patterns, q->name))
-        return 0;
+        return;
     halcmd_output("%s ", q->name);
-    return 0;
 }
 
 static void print_comp_names(const char **patterns)
 {
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_comp(&q, print_any_names_cb, (void *)patterns);
+    hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_any_names_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
 static void print_pin_names(const char **patterns)
 {
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN; // Pins only
-    hal_list_p(&q, print_any_names_cb, (void *)patterns);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_any_names_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
 static void print_sig_names(const char **patterns)
 {
+    HalQRec qrec(256);
     hal_query_t q = {};
-    hal_list_s(&q, print_any_names_cb, (void *)patterns);
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_any_names_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
 static void print_param_names(const char **patterns)
 {
+    HalQRec qrec(512);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PARAM; // Parameters only
-    hal_list_p(&q, print_any_names_cb, (void *)patterns);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_any_names_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
 static void print_funct_names(const char **patterns)
 {
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_funct(&q, print_any_names_cb, (void *)patterns);
+    hal_list_funct(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_any_names_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
 static void print_thread_names(const char **patterns)
 {
+    HalQRec qrec;
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_THREAD;  // Only thread names
-    hal_list_thread(&q, print_any_names_cb, (void *)patterns);
+    hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        print_any_names_print(qrec.rec(i), patterns);
     halcmd_output("\n");
 }
 
@@ -1900,12 +1920,10 @@ static void print_mem_status()
 static const char *data_type(hal_type_t type)
 {
     switch (type) {
-    case HAL_BOOL: return "bit  ";
-    case HAL_REAL: return "float";
-    case HAL_S32:  return "s32  ";
-    case HAL_U32:  return "u32  ";
-    case HAL_SINT: return "s64  ";
-    case HAL_UINT: return "u64  ";
+    case HAL_BOOL: return "bool ";
+    case HAL_REAL: return "real ";
+    case HAL_SINT: return "sint ";
+    case HAL_UINT: return "uint ";
     case HAL_PORT: return "port ";
     default: return "undef"; /* Shouldn't get here, but just in case... */
     }
@@ -1914,12 +1932,10 @@ static const char *data_type(hal_type_t type)
 static const char *data_type2(hal_type_t type)
 {
     switch (type) {
-    case HAL_BOOL: return "bit";
-    case HAL_REAL: return "float";
-    case HAL_S32:  return "s32";
-    case HAL_U32:  return "u32";
-    case HAL_SINT: return "s64";
-    case HAL_UINT: return "u64";
+    case HAL_BOOL: return "bool";
+    case HAL_REAL: return "real";
+    case HAL_SINT: return "sint";
+    case HAL_UINT: return "uint";
     case HAL_PORT: return "port";
     default: return "undef"; /* Shouldn't get here, but just in case... */
     }
@@ -1978,15 +1994,12 @@ static std::string querydata_refstr_20(hal_type_t type, hal_refs_u u)
         return fmt::format("{:>20s}", hal_get_bool(u.b) ? "TRUE" : "FALSE");
     case HAL_REAL:
         return fmt::format("{:20.7g}", hal_get_real(u.r));
-    case HAL_S32:
-        return fmt::format("{:20d}", (long)hal_get_si32(u.s));
     case HAL_SINT:
+        return fmt::format("{:20d}", hal_get_sint(u.s));
     case HAL_PORT:
-        return fmt::format("{:20d}", (long long)hal_get_sint(u.s));
-    case HAL_U32:
-        return fmt::format("          0x{:08X}", (unsigned long)hal_get_ui32(u.u));
+        return fmt::format("{:20d}", hal_port_buffer_size(u.p));
     case HAL_UINT:
-        return fmt::format("  0x{:016X}", (unsigned long long)hal_get_uint(u.u));
+        return fmt::format("  0x{:016X}", hal_get_uint(u.u));
     default:
 	/* Shouldn't get here, but just in case... */
 	return "        undef       ";
@@ -2003,13 +2016,10 @@ static std::string querydata_refstr(hal_type_t type, hal_refs_u u)
         return hal_get_bool(u.b) ? "TRUE" : "FALSE";
     case HAL_REAL:
         return fmt::format("{:.7g}", hal_get_real(u.r));
-    case HAL_S32:
-        return fmt::format("{}", hal_get_si32(u.s));
     case HAL_SINT:
-    case HAL_PORT:
         return fmt::format("{}", hal_get_sint(u.s));
-    case HAL_U32:
-        return fmt::format("{}", hal_get_ui32(u.u));
+    case HAL_PORT:
+        return fmt::format("{}", hal_port_buffer_size(u.p));
     case HAL_UINT:
         return fmt::format("{}", hal_get_uint(u.u));
     default:
@@ -2097,19 +2107,16 @@ struct _comp_save_data_t {
     const char *insmod;
 };
 
-static int save_comp_cb(hal_query_t *q, void *arg)
-{
-    std::vector<_comp_save_data_t> *v = (std::vector<_comp_save_data_t> *)arg;
-    if(HAL_COMP_TYPE_REALTIME == q->comp.type)
-        v->push_back({q->name, q->comp.insmod});
-    return 0;
-}
-
 static void save_comps(FILE *dst)
 {
+    HalQRec qrec;
     hal_query_t q = {};
     std::vector<_comp_save_data_t> compdata;
-    hal_list_comp(&q, save_comp_cb, (void *)&compdata);
+    hal_list_comp(&q,HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(HAL_COMP_TYPE_REALTIME == qrec.rec(i)->comp.type)
+            compdata.push_back({qrec.rec(i)->name, qrec.rec(i)->comp.insmod});
+    }
 
     fprintf(dst, "# components\n");
     if(0 == compdata.size()) {
@@ -2126,63 +2133,55 @@ static void save_comps(FILE *dst)
     }
 }
 
-static int save_aliases_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
-    if(q->pp.alias) {
-        const char *s = q->qtype == HAL_QTYPE_PIN ? "pin" : "param";
-        fprintf(fp, "alias %s %s %s\n", s, q->pp.alias, q->name);
-    }
-    return 0;
-}
-
 static void save_aliases(FILE *dst)
 {
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
     fprintf(dst, "# pin aliases\n");
-    hal_list_p(&q, save_aliases_cb, (void *)dst);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(qrec.rec(i)->pp.alias)
+            fprintf(dst, "alias pin %s %s\n", qrec.rec(i)->pp.alias, qrec.rec(i)->name);
+    }
 
+    qrec.clear();
     q = {};
     q.qtype = HAL_QTYPE_PARAM;
     fprintf(dst, "# param aliases\n");
-    hal_list_p(&q, save_aliases_cb, (void *)dst);
-}
-
-static int save_signals_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
-    // FIXME: What about the bidirs?
-    if(!(q->callerdata.sival && (q->sig.writers || q->sig.readers)))
-        fprintf(fp, "newsig %s %s\n", q->name, data_type(q->sig.type));
-    return 0;
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(qrec.rec(i)->pp.alias)
+            fprintf(dst, "alias param %s %s\n", qrec.rec(i)->pp.alias, qrec.rec(i)->name);
+    }
 }
 
 static void save_signals(FILE *dst, int only_unlinked)
 {
+    HalQRec qrec(256);
     hal_query_t q = {};
-    q.callerdata.sival = only_unlinked;
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
     fprintf(dst, "# signals\n");
-    hal_list_s(&q, save_signals_cb, (void *)dst);
-}
-
-static int save_links_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
-    if(q->pp.signal) {
-        const char *arrow_str = q->callerdata.sival ? data_arrow1(q->pp.dir) : "";
-        fprintf(fp, "linkps %s %s %s\n", q->name, arrow_str, q->pp.signal);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        // FIXME: What about the bidirs?
+        if(!(only_unlinked && (qrec.rec(i)->sig.writers || qrec.rec(i)->sig.readers)))
+            fprintf(dst, "newsig %s %s\n", qrec.rec(i)->name, data_type(qrec.rec(i)->sig.type));
     }
-    return 0;
 }
 
 static void save_links(FILE *dst, int arrow)
 {
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
-    q.callerdata.sival = arrow;
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
     fprintf(dst, "# links\n");
-    hal_list_p(&q, save_links_cb, (void *)dst);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(qrec.rec(i)->pp.signal) {
+            const char *arrow_str = arrow ? data_arrow1(qrec.rec(i)->pp.dir) : "";
+            fprintf(dst, "linkps %s %s %s\n", qrec.rec(i)->name, arrow_str, qrec.rec(i)->pp.signal);
+        }
+    }
 }
 
 struct save_nets_state_t {
@@ -2190,20 +2189,17 @@ struct save_nets_state_t {
     int first;
 };
 
-static int save_nets_3_outpins_cb(hal_query_t *q, void *arg)
+static void save_nets_3_outpins_print(const hal_query_t *q, save_nets_state_t *st, FILE *fp)
 {
     if(HAL_OUT == q->pp.dir) {
-        fprintf((FILE *)arg, " %s", q->name);
-        reinterpret_cast<save_nets_state_t *>(q->callerdata.vpval)->state = 1;
+        fprintf(fp, " %s", q->name);
+        st->state = 1;
     }
-    return 0;
 }
 
-static int save_nets_3_iopins_cb(hal_query_t *q, void *arg)
+static void save_nets_3_iopins_print(const hal_query_t *q, save_nets_state_t *st, FILE *fp)
 {
     if(HAL_IO == q->pp.dir) {
-        FILE *fp = (FILE *)arg;
-        save_nets_state_t *st = reinterpret_cast<save_nets_state_t *>(q->callerdata.vpval);
         fprintf(fp, " ");
         if(st->state) {
             fprintf(fp, "=> ");
@@ -2214,14 +2210,11 @@ static int save_nets_3_iopins_cb(hal_query_t *q, void *arg)
         fprintf(fp, "%s", q->name);
         st->first = 0;
     }
-    return 0;
 }
 
-static int save_nets_3_inpins_cb(hal_query_t *q, void *arg)
+static void save_nets_3_inpins_print(const hal_query_t *q, save_nets_state_t *st, FILE *fp)
 {
     if(HAL_IN == q->pp.dir) {
-        FILE *fp = (FILE *)arg;
-        save_nets_state_t *st = reinterpret_cast<save_nets_state_t *>(q->callerdata.vpval);
         fprintf(fp, " ");
         if(st->state) {
             fprintf(fp, "=> ");
@@ -2229,103 +2222,98 @@ static int save_nets_3_inpins_cb(hal_query_t *q, void *arg)
         }
         fprintf(fp, "%s", q->name);
     }
-    return 0;
 }
 
-static int save_nets_3_cb(hal_query_t *q, void *arg)
+static void save_nets_3_print(const hal_query_t *q, FILE *fp)
 {
-    FILE *fp = (FILE *)arg;
     save_nets_state_t st = {.state = 0, .first = 1};
     hal_query_t qp;
 
     // If there are no pins connected to this signal, do nothing
     if(!q->sig.writers && !q->sig.readers && !q->sig.bidirs)
-        return 0;
+        return;
 
     fprintf(fp, "net %s", q->name);
 
-    /* Step 1: Output pin, if any */
+    // Step 0: Get the connections
+    HalQRec qrec;
     qp = {};
     qp.name = q->name;
-    qp.callerdata.vpval = &st; // Counts pins
-    hal_list_p_s(&qp, save_nets_3_outpins_cb, arg);
+    hal_list_p_s(&qp, HalQRec::get_qrec_cb, &qrec);
+
+    /* Step 1: Output pin, if any */
+    for(size_t i = 0; i < qrec.size(); i++)
+        save_nets_3_outpins_print(qrec.rec(i), &st, fp);
     
     /* Step 2: I/O pins, if any */
-    qp = {};
-    qp.name = q->name;
-    qp.callerdata.vpval = &st;
-    hal_list_p_s(&qp, save_nets_3_iopins_cb, arg);
+    for(size_t i = 0; i < qrec.size(); i++)
+        save_nets_3_iopins_print(qrec.rec(i), &st, fp);
 
     if(!st.first)
         st.state = 1;
 
     /* Step 3: Input pins, if any */
-    qp = {};
-    qp.name = q->name;
-    qp.callerdata.vpval = &st;
-    hal_list_p_s(&qp, save_nets_3_inpins_cb, arg);
+    for(size_t i = 0; i < qrec.size(); i++)
+        save_nets_3_inpins_print(qrec.rec(i), &st, fp);
 
     fprintf(fp, "\n");
-    return 0;
 }
 
 static void save_nets_3(FILE *dst)
 {
+    HalQRec qrec(256);
     hal_query_t q = {};
-    hal_list_s(&q, save_nets_3_cb, (void *)dst);
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        save_nets_3_print(qrec.rec(i), dst);
 }
 
-static int save_nets_2_pins_cb(hal_query_t *q, void *arg)
+static void save_nets_2_print(const hal_query_t *q, FILE *fp)
 {
-    fprintf((FILE *)arg, " %s", q->name);
-    return 0;
-}
-
-static int save_nets_2_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
-
     // If there are no pins connected to this signal, do nothing
     if(!q->sig.writers && !q->sig.readers && !q->sig.bidirs)
-        return 0;
+        return;
 
     fprintf(fp, "net %s", q->name);
+    HalQRec qrec;
     hal_query_t qp = {};
     qp.name = q->name;
-    hal_list_p_s(&qp, save_nets_2_pins_cb, arg);
+    hal_list_p_s(&qp, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        fprintf(fp, " %s", qrec.rec(i)->name);
+    }
     fprintf(fp, "\n");
-    return 0;
 }
 
 static void save_nets_2(FILE *dst)
 {
+    HalQRec qrec(256);
     hal_query_t q = {};
-    hal_list_s(&q, save_nets_2_cb, (void *)dst);
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        save_nets_2_print(qrec.rec(i), dst);
 }
 
-static int save_nets_01_pins_cb(hal_query_t *q, void *arg)
+static void save_nets_01_print(const hal_query_t *q, int arrow, FILE *fp)
 {
-    FILE *fp = (FILE *)arg;
-    const char *arrow_str = q->callerdata.sival ? data_arrow2(q->pp.dir) : "";
-    fprintf(fp, "linksp %s %s %s\n", q->pp.signal, arrow_str, q->name);
-    return 0;
-}
-
-static int save_nets_01_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
     fprintf(fp, "newsig %s %s\n", q->name, data_type(q->sig.type));
+    HalQRec qrec;
     hal_query_t qp = {};
-    qp.callerdata.sival = q->callerdata.sival; // Propagate arrow type
     qp.name = q->name;
-    return hal_list_p_s(&qp, save_nets_01_pins_cb, arg);
+    hal_list_p_s(&qp, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        const char *arrow_str = arrow ? data_arrow2(qrec.rec(i)->pp.dir) : "";
+        fprintf(fp, "linksp %s %s %s\n", qrec.rec(i)->pp.signal, arrow_str, qrec.rec(i)->name);
+    }
 }
 
 static void save_nets_01(FILE *dst, int arrow)
 {
+    HalQRec qrec(256);
     hal_query_t q = {};
-    q.callerdata.sival = arrow;
-    hal_list_s(&q, save_nets_01_cb, (void *)dst);
+    hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++)
+        save_nets_01_print(qrec.rec(i), arrow, dst);
 }
 
 static void save_nets(FILE *dst, int arrow)
@@ -2340,56 +2328,48 @@ static void save_nets(FILE *dst, int arrow)
     }
 }
 
-static int save_params_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
-    if(HAL_RO != q->pp.dir) {
-        // Writable parameter, save its value
-        fprintf(fp, "setp %s %s\n", q->name, querydata_refstr_20(q->pp.type, q->pp.ref).c_str());
-    }
-    return 0;
-}
-
 static void save_params(FILE *dst)
 {
+    HalQRec qrec(512);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PARAM;
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
     fprintf(dst, "# parameter values\n");
-    hal_list_p(&q, save_params_cb, (void *)dst);
-}
-
-static int save_threads_cb(hal_query_t *q, void *arg)
-{
-    if(HAL_QTYPE_THREAD_FUNCT == q->qtype) {
-        const char *f = q->thread.is_init ? "initf" : "addf";
-        fprintf((FILE *)arg, "%s %s %s\n", f, q->thread.funct, q->name);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(HAL_RO != qrec.rec(i)->pp.dir) {
+            // Writable parameter, save its value
+            fprintf(dst, "setp %s %s\n", qrec.rec(i)->name, querydata_refstr_20(qrec.rec(i)->pp.type, qrec.rec(i)->pp.ref).c_str());
+        }
     }
-    return 0;
 }
 
 static void save_threads(FILE *dst)
 {
+    HalQRec qrec;
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_THREAD_FUNCT;
     fprintf(dst, "# realtime thread/function links\n");
-    hal_list_thread(&q, save_threads_cb, (void *)dst);
-}
-
-static int save_unconnected_input_pin_values_cb(hal_query_t *q, void *arg)
-{
-    FILE *fp = (FILE *)arg;
-    if(!q->pp.signal && (HAL_IN == q->pp.dir || HAL_IO == q->pp.dir)) {
-        fprintf(fp, "setp %s %s\n", q->name, querydata_refstr_20(q->pp.type, q->pp.ref).c_str());
+    hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(HAL_QTYPE_THREAD_FUNCT == qrec.rec(i)->qtype) {
+            const char *f = qrec.rec(i)->thread.is_init ? "initf" : "addf";
+            fprintf(dst, "%s %s %s\n", f, qrec.rec(i)->thread.funct, qrec.rec(i)->name);
+        }
     }
-    return 0;
 }
 
 static void save_unconnected_input_pin_values(FILE *dst)
 {
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
     fprintf(dst, "# unconnected pin values\n");
-    hal_list_p(&q, save_unconnected_input_pin_values_cb, (void *)dst);
+    hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(!qrec.rec(i)->pp.signal && (HAL_IN == qrec.rec(i)->pp.dir || HAL_IO == qrec.rec(i)->pp.dir)) {
+            fprintf(dst, "setp %s %s\n", qrec.rec(i)->name, querydata_refstr_20(qrec.rec(i)->pp.type, qrec.rec(i)->pp.ref).c_str());
+        }
+    }
 }
 
 int do_setexact_cmd()
@@ -2477,7 +2457,7 @@ int do_help_cmd(const char *command)
     } else if (strcmp(command, "newsig") == 0) {
 	printf("newsig signame type\n");
 	printf("  Creates a new signal called 'signame'.  Type\n");
-	printf("  is 'bit', 'float', 'port', 'u32', or 's32'.\n");
+	printf("  is 'bool', 'real', 'port', 'uint', or 'sint'.\n");
     } else if (strcmp(command, "delsig") == 0) {
 	printf("delsig signame\n");
 	printf("  Deletes signal 'signame'.  If 'signame is 'all',\n");
