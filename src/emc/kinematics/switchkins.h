@@ -4,13 +4,10 @@
 #ifndef __LINUXCNC_SWITCHKINS_H
 #define __LINUXCNC_SWITCHKINS_H
 
-#include "kinematics.h"
+#include "kins_module.h"
 
-//SWITCHKINS_MAX_TYPES (max number of types a module may provide)
-//is in kinematics.h as KINS_MAX_TYPES: motion and the NML
-//status channel need it too
-//max number of switchkins types a module may provide:
-#define SWITCHKINS_MAX_TYPES KINS_MAX_TYPES
+// SWITCHKINS_MAX_TYPES, the most types a module may provide, is in
+// kinematics.h: motion and the NML status channel need it too
 
 // KinematicsFORWARD functions
 typedef int (*KF)(const double *joint,
@@ -88,7 +85,7 @@ typedef int (*KJ)(const double *joint,
 // otherwise the generic differences of its own inverse.
 extern int switchkinsRegisterJacobian(int ktype, KJ kjac);
 
-// provide one switchkins-type written as pure functions (see kinematics.h),
+// provide one switchkins-type written as pure functions (see kins_module.h),
 // before switchkinsInit().  Its pins come from the table in kparms, shared
 // by every type of the module, so it has no setup function.  A type may be
 // provided this way or through switchkinsRegister(), not both.

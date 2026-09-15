@@ -4,7 +4,7 @@
  *
  * Loads a kinematics .so with dlopen, asks it to describe itself through
  * kinsDescribe(), and evaluates its kinematics through the parameter
- * block (see kinematics.h).  The block is filled from HAL: the RT
+ * block (see kins_module.h).  The block is filled from HAL: the RT
  * instance's own pins, read by name whenever the block is refreshed, so
  * the values are the live ones and nothing is made in HAL to get at them.
  * The tool is

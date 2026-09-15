@@ -59,6 +59,7 @@
 #include <emcmotcfg.h>
 
 #include <switchkins.h>
+#include "userkfuncs.h"
 
 // the geometry, one pin each; the maths reads it from the block
 static const kins_param_desc fiveaxis_params[] = {

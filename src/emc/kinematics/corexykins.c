@@ -7,7 +7,7 @@
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <hal.h>
-#include <kinematics.h>
+#include <kins_module.h>
 #include <kins_rt.h>
 
 static int corexy_forward(const kins_params *p, kins_scratch *s,

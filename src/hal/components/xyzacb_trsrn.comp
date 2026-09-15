@@ -27,7 +27,7 @@ RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 
 // The geometry of the universal spindle head, one pin each, shared by the
 // TCP and TOOL kinematics; the maths reads it from the block (see
-// kinematics.h) and the tool length from p->tool.tran.z.  The two angle
+// kins_module.h) and the tool length from p->tool.tran.z.  The two angle
 // pins are what the TOOL kinematics uses in place of the head joints:
 // the remap writes them.
 static const kins_param_desc trsrn_params[] = {

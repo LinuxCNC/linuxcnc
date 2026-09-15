@@ -66,7 +66,7 @@
 #include <rtapi_app.h>		/* RTAPI realtime module decls */
 #include <rtapi_math.h>
 #include <hal.h>
-#include <kinematics.h>             /* these decls */
+#include <kins_module.h>             /* these decls */
 #include <kins_rt.h>
 
 // the base geometry, one pin each, poked from HAL as before

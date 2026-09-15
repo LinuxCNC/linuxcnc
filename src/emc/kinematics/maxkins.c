@@ -20,7 +20,7 @@
 #include <rtapi_app.h>
 #include <rtapi_math.h>
 #include <hal.h>
-#include <kinematics.h>		/* these decls */
+#include <kins_module.h>		/* these decls */
 #include <kins_rt.h>
 
 #define d2r(d) ((d)*PM_PI/180.0)

@@ -29,14 +29,15 @@
 * conventional axis directions. See
 * https://linuxcnc.org/docs/html/gcode/machining-center.html
 *
-* Written as pure functions of the parameter block (see kinematics.h):
+* Written as pure functions of the parameter block (see kins_module.h):
 * the geometry is the table below, the joint map comes from the block,
 * and the tool length is p->tool.tran.z.
 ********************************************************************/
 
 #include <rtapi_math.h>
 #include <emcmotcfg.h>
-#include <kinematics.h>
+#include <kins_module.h>
+#include "trtfuncs.h"
 
 // the geometry both machines share, one pin each
 const kins_param_desc TRT_PARAMS[] = {

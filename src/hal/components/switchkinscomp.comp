@@ -18,7 +18,7 @@ installed as source alongside the headers, so nothing needs a path to
 a LinuxCNC source tree.
 
 The kinematics are written as functions of a parameter block, see
-kinematics.h and the Kinematics Conventions chapter: the geometry is
+kins_module.h and the Kinematics Conventions chapter: the geometry is
 declared once in a table, one HAL pin is made per entry, and the maths
 reads the block where it would have read a pin.  The same maths can
 then be evaluated outside realtime.
@@ -88,7 +88,7 @@ enum { P_X_OFFSET };
 //---------------------------------------------------------------------
 // Example switchkins-type: a forward and an inverse over the block.
 // Replace the arithmetic with the real kinematics.  The frames and the
-// Jacobian are optional, see kinematics.h.
+// Jacobian are optional, see kins_module.h.
 
 static int myForward(const kins_params *p, kins_scratch *s,
                      const double *j,
