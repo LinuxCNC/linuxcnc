@@ -225,9 +225,10 @@ for how a module declares its types.
 For tool length work there are spellings that name the kinematics by
 what it is rather than by number: 'G43.4' applies the tool length
 offset and switches to the kinstype the module declares its working
-transform, and the 'G49' that cancels it switches back to identity.
-See the G-code documentation for 'G43.4' and 'G49', and for 'G12.1'
-and 'G13.1', for the full description.
+transform, 'G43.5' does the same and lets the lines after it give the
+tool axis as a vector, and the 'G49' that cancels either switches back
+to identity. See the G-code documentation for 'G43.4', 'G43.5' and
+'G49', and for 'G12.1' and 'G13.1', for the full description.
 
 === M-code commands
 

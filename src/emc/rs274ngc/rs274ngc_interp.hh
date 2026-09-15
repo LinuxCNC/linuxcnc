@@ -371,6 +371,9 @@ public:
  int work_plane_check_sequence(block_pointer block, setup_pointer settings);
  int convert_work_plane_from_tool(block_pointer block, setup_pointer settings);
  int convert_orient_tool(int code, block_pointer block, setup_pointer settings);
+ int orient_solve(setup_pointer settings, void *ctx, const PmCartesian *axis, const PmCartesian *xdir,
+                  int p, int q, const double *now, double *joints, const char *name);
+ int tool_vector_ends(block_pointer block, setup_pointer settings, double *a, double *b, double *c);
  int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
  int ptp_seconds(block_pointer block, setup_pointer settings,
                  double x, double y, double z, double a, double b, double c,

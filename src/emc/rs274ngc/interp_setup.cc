@@ -135,6 +135,7 @@ setup::setup() :
     kinsSwitch_flag(0),
     kins_type(0),
     kins_by_g43_4(false),
+    tool_vector(false),
     toolchange_flag(0),
     input_index(0),
     input_digital(0),

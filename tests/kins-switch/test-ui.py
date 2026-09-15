@@ -222,6 +222,78 @@ if errors == errors_before:
 mdi("G43.1 Z0")
 mdi("G49")
 
+# ---- G43.5: the tool axis as a vector ------------------------------------
+#
+# Under G43.5 a G0 or G1 line gives the direction of the tool axis as I J K
+# and the interpreter finds the rotaries.  The head's tool axis at B, C is
+# (-sin B cos C, -sin B sin C, cos B), so the vector for the tilted pose
+# above has to land on the joints and the point the rotary words reach.
+
+def refused(cmd, needle):
+    drain()
+    c.mdi(cmd)
+    c.wait_complete(30)
+    m = e.poll()
+    if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+        error("%s was accepted" % cmd)
+    elif needle not in m[1]:
+        error("%s said %r, nothing about %r" % (cmd, m[1].strip(), needle))
+    else:
+        print("refused as expected: %s" % m[1].strip())
+    drain()
+
+errors_before = errors
+mdi("G12.1 P0")
+mdi("G0 X0 Y0 Z0 B0 C0")
+mdi("G43.5 H1")
+s.poll()
+if 435 not in s.gcodes:
+    error("G43.5 is not among the active G-codes %s" % (s.gcodes,))
+by_words = mdi("G0 X10 Y10 Z-5 B-22.5 C45")
+by_words_pose = pose()
+mdi("G0 X0 Y0 Z0 B0 C0")
+vec = (-math.sin(b) * math.cos(cc), -math.sin(b) * math.sin(cc), math.cos(b))
+by_vector = mdi("G0 X10 Y10 Z-5 I%.9f J%.9f K%.9f" % vec)
+if max(abs(by_vector[j] - by_words[j]) for j in range(JOINTS)) > 1e-5:
+    error("the vector put the joints at %s, the rotary words at %s"
+          % (" ".join("%.4f" % v for v in by_vector), " ".join("%.4f" % v for v in by_words)))
+if max(abs(p - q) for p, q in zip(pose(), by_words_pose)) > 1e-5:
+    error("the vector put the point at %s, the rotary words at %s"
+          % (" ".join("%.4f" % v for v in pose()), " ".join("%.4f" % v for v in by_words_pose)))
+# a direction is not incremental
+mdi("G91")
+held = mdi("G1 X0 I%.9f J%.9f K%.9f F1000" % vec)
+mdi("G90")
+if max(abs(held[j] - by_vector[j]) for j in range(JOINTS)) > 1e-6:
+    error("the same vector under G91 moved the joints by %s"
+          % " ".join("%.4f" % (held[j] - by_vector[j]) for j in range(JOINTS)))
+# the pole: the tool vertical leaves C where it is, and the point stays
+pole = mdi("G0 K1")
+if abs(pole[3]) > 1e-6 or abs(pole[4] - 45) > 1e-3:
+    error("the tool vertical put B, C at %.4f, %.4f, not 0, 45" % (pole[3], pole[4]))
+if max(abs(p - q) for p, q in zip(pose()[:3], by_words_pose[:3])) > 1e-5:
+    error("the tool vertical moved the point to %s" % " ".join("%.4f" % v for v in pose()))
+# a rotary offset renames the angles, the direction is the same: the same
+# joints, called something else by the program
+mdi("G10 L2 P1 C30")
+mdi("G0 X0 Y0 Z0 B0 C0")
+offset = mdi("G0 X10 Y10 Z-5 I%.9f J%.9f K%.9f" % vec)
+mdi("G10 L2 P1 C0")
+if max(abs(offset[j] - by_words[j]) for j in range(JOINTS)) > 1e-5:
+    error("under a C offset the vector put the joints at %s, not %s"
+          % (" ".join("%.4f" % v for v in offset), " ".join("%.4f" % v for v in by_words)))
+if errors == errors_before:
+    print("G43.5 turned the tool along the vector, onto the joints the rotary words reach")
+refused("G0 X0 K1 B5", "twice")
+refused("G0 X0 I0 J0 K0", "zero")
+mdi("G13.1")
+refused("G0 X0 K1", "G12.1 first")
+mdi("G43.4 H1")
+refused("G0 X0 K1", "K word with no")
+mdi("G43.5 H1")
+mdi("G49")
+refused("G0 X0 K1", "K word with no")
+
 # ---- a negative kinematics number is refused -----------------------------
 
 drain()
