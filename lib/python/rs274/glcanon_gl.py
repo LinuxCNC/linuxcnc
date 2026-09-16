@@ -472,11 +472,11 @@ def _context_token() -> int:
     The width probe's answer belongs to the context it was made in, so the
     cache needs to notice when a different context becomes current. There is no
     portable "current context" call, so this asks the two window-system
-    bindings the preview is ever built on - EGL (Qt on most builds, and the
-    test corpus) and GLX (``gremlin.py``, ``togl.c``) - and takes whichever
-    answers. EGL first: where both libraries are present but GLX is what is in
-    use, ``eglGetCurrentContext`` returns EGL_NO_CONTEXT and the GLX call is
-    reached.
+    bindings the preview is ever built on - EGL (Qt on most builds, GTK under
+    Wayland, and the test corpus) and GLX (``togl.c``, and GTK under X11) - and
+    takes whichever answers. EGL first: where both libraries are present but
+    GLX is what is in use, ``eglGetCurrentContext`` returns EGL_NO_CONTEXT and
+    the GLX call is reached.
 
     0 means the question could not be asked - no library, no symbol, no current
     context. The caller then behaves as it did before this was here, caching
@@ -1543,6 +1543,11 @@ class PickTarget:
     def ensure(self, w: int, h: int) -> None:
         if self.fbo and (w, h) == (self.w, self.h):
             return
+        # Restored, not zeroed: the caller's framebuffer is not always the
+        # window - GtkGLArea and QOpenGLWidget both draw the visible frame into
+        # an FBO of their own. Read after the early return, since glGetIntegerv
+        # can stall the pipeline.
+        prev_fbo = int(glGetIntegerv(GL_FRAMEBUFFER_BINDING))
         self.delete()
         self.w, self.h = w, h
         self.fbo = glGenFramebuffers(1)
@@ -1564,7 +1569,7 @@ class PickTarget:
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
                                   GL_RENDERBUFFER, self.depth)
         status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, prev_fbo)
         if status != GL_FRAMEBUFFER_COMPLETE:
             self.delete()
             raise RuntimeError(
