@@ -45,12 +45,12 @@ LOG = logger.getLogger(__name__)
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    BIT  = 1 # Deprecated
+    S32  = 2 # Removed
+    FLOAT= 3 # Deprecated
+    BOOL = 4
+    SINT = 5
+    REAL = 6
 
 # reacts to HAL pin changes
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
@@ -362,12 +362,12 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
 
     # older version of pyqt5 need this as well as QEnum
     NONE = 0
-    BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.Type.SINT # Removed
-    FLOAT= hal.Type.REAL # Deprecated
-    BOOL = hal.Type.BOOL
-    SINT = hal.Type.SINT
-    REAL = hal.Type.REAL
+    BIT  = 1 # Deprecated
+    S32  = 2 # Removed
+    FLOAT= 3 # Deprecated
+    BOOL = 4
+    SINT = 5
+    REAL = 6
 
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
@@ -434,7 +434,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
                 if i is self:
                     # make pin based on type and name
                     if not self._pin_type == HALPinType.NONE:
-                        ptype = self._pin_type
+                        ptype = self.convertPtype(self._pin_type)
                         if self._groupPinName == '':
                             name = HALPinType(self._pin_type).name
                             pname = self.HAL_NAME_ + '.exclusive'+name
@@ -443,6 +443,14 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
                         self.halPinGroup = self.HAL_GCOMP_.newpin(pname , ptype, hal.Dir.OUT)
                     break
                 break
+
+    def convertPtype(self, ptype):
+        if ptype in (HALPinType.BOOL, self.BIT):
+            return hal.Type.BOOL
+        elif ptype in (HALPinType.REAL, self.FLOAT):
+            return hal.Type.REAL
+        elif ptype in (HALPinType.SINT,self.S32):
+            return hal.Type.SINT
 
     # find the driver widget and update it's group HAL pin
     def updateGroup(self):
@@ -458,11 +466,11 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
                     #print('value:',value)
                     break
 
-        if self._pin_type == HALPinType.BOOL:
+        if self._pin_type in (HALPinType.BOOL, self.BIT):
             data = bool(value)
-        elif self._pin_type == HALPinType.REAL:
+        elif self._pin_type in (HALPinType.REAL, self.FLOAT):
             data = float(value)
-        elif self._pin_type == HALPinType.SINT:
+        elif self._pin_type in (HALPinType.SINT, self.S32):
             data = int(value)
         else:
             return
