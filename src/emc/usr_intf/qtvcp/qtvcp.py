@@ -335,11 +335,10 @@ Pressing cancel will close linuxcnc.""" % target)
 
             # title
             if SCRN_INIPATH:
-                title ='QtVCP-Screen-%s'% opts.component
+                title ='QTvcp-Screen-%s'% opts.component
             else:
-                title = 'QtVCP-Panel-%s'% opts.component
-            if 'MainWindow' in window.windowTitle():
-                window.setWindowTitle(title)
+                title = 'QTvcp-Panel-%s'% opts.component
+            window.setWindowTitle(title)
 
         if opts.usermod and "pre_hal_init__" in dir(window.handler_instance):
             LOG.debug('''Calling the handler file's pre_hal_init__ function''')
