@@ -45,9 +45,9 @@ LOG = logger.getLogger(__name__)
 
 class HALPinType(enum.IntEnum):
     NONE = 0
-    BIT = hal.Type.BOOL # Deprecated
-    S32 = hal.HAL_S32
-    FLOAT = hal.Type.REAL # Deprecated
+    BIT  = hal.Type.BOOL # Deprecated
+    S32  = hal.HAL_S32
+    FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
@@ -362,9 +362,9 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
 
     # older version of pyqt5 need this as well as QEnum
     NONE = 0
-    BIT = hal.HAL_BIT # Deprecated
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT # Deprecated
+    BIT  = hal.Type.BOOL # Deprecated
+    S32  = hal.HAL_S32
+    FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
     REAL = hal.Type.REAL
