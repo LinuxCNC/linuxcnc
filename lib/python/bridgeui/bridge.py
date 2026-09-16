@@ -168,12 +168,8 @@ class Bridge(object):
     def shutdownController(self):
         self.writeMsg('request_shutdown')
 
-    def softkey(self, index):
-        print(f'Softkey index {index}')
-        self.writeMsg('request_softkey', index)
-
-    # if the number is bigger then MDI command list
-    # then look for MACRO commands
+        # if the number is bigger then MDI command list
+        # then look for MACRO commands
     def getMdiName(self, num):
         if num >len(self.INFO.MDI_COMMAND_DICT)-1:
             offset = len(self.INFO.MDI_COMMAND_DICT)
