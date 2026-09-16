@@ -940,64 +940,50 @@ So writing a program makes you responsible to include an G43 after each tool cha
 HALUI will create halui.gui pins that interface with GMOCCAPY. +
 This could be used to connect a control panel that interacts better with GMOCCAPY.
 
-- There is a cycle start and pause pin - these call the code in GMOCCAPY rather then the motion controller. +
-- If there are macros/mdi commands defined in the INI there will be (up to 64) pins available to initiate them. +
-- clear/reload the display
-- shutdown the linux system
-- ok/cancel of dialogs and notify (error) messages
 - HALUI selected axis will be reported to GMOCCAPY. +
 - HALUI selected jog rate will be reported to GMOCCAPY. +
 In either case the last changed rate/axis (either HALUI or GMOCCAPY) will be used for screen button jogging or HALUI pin jogging.
-- Zoom the gcode display with an MPG
 
-=== Typical HAL pins available:
-----
-Component Pins:
-Owner   Type  Dir                 Value  Name
-    25  bit   IN                  FALSE  halui.gui.cycle-pause
-    25  bit   IN                  FALSE  halui.gui.cycle-start
-    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO0
-    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO1
-    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO2
-    25  bit   IN                  FALSE  halui.gui.mdi-command.MACRO3
-    25  bit   IN                  FALSE  halui.gui.mdi-command.0
-    25  bit   IN                  FALSE  halui.gui.mdi-command.1
-    25  bit   IN                  FALSE  halui.gui.mpg-aux.0
-    25  bit   IN                  FALSE  halui.gui.reload-preview
-    25  bit   IN                  FALSE  halui.gui.response.cancel
-    25  bit   IN                  FALSE  halui.gui.response.ok
-    25  bit   IN                  FALSE  halui.gui.shutdown
-    25  bit   IN                  FALSE  halui.gui.softkey.00
-    25  bit   IN                  FALSE  halui.gui.softkey.01
-    25  bit   IN                  FALSE  halui.gui.softkey.02
-    25  bit   IN                  FALSE  halui.gui.softkey.03
-    25  bit   IN                  FALSE  halui.gui.softkey.04
-    25  bit   IN                  FALSE  halui.gui.softkey.05
-    25  bit   IN                  FALSE  halui.gui.softkey.06
-    25  bit   IN                  FALSE  halui.gui.softkey.07
-    25  bit   IN                  FALSE  halui.gui.softkey.08
-    25  bit   IN                  FALSE  halui.gui.softkey.09
-    25  bit   IN                  FALSE  halui.gui.softkey.10
-    25  bit   IN                  FALSE  halui.gui.softkey.11
-    25  bit   IN                  FALSE  halui.gui.softkey.12
-    25  bit   IN                  FALSE  halui.gui.softkey.13
-    25  bit   IN                  FALSE  halui.gui.softkey.14
-    25  bit   IN                  FALSE  halui.gui.softkey.15
-    25  bit   IN                  FALSE  halui.gui.softkey.16
-    25  bit   IN                  FALSE  halui.gui.softkey.17
-    25  bit   IN                  FALSE  halui.gui.softkey.18
-    25  bit   IN                  FALSE  halui.gui.softkey.19
+=== Pins
 
-----
+- *halui.gui.cycle-pause* _(bit IN)_ - This will pause a running MDI command or a running program.
+- *halui.gui.cycle-start* _(bit IN)_ - This will request GMOCCAPY to start a cycle. 
+GMOCCAPY will decide what will happen by what mode it's in. 
+In Auto mode, a loaded gcode program will run. In MDI mode, the command in GMOCCAPY's MDI line will run.  
+- *halui.gui.mdi-command.MACRO-_NN_* _(bit IN)_ - See <<gmocccapy-halui-mdi-commands,HALUI MDI Commands>>.
+- *halui.gui.mdi-command._NN_* _(bit IN)_ - See <<gmocccapy-halui-gui-macros,HALUI GUI Macros>>.
+- *halui.gui.mpg-aux.0* _(bit IN)_ - Enabling this pin will allow zooming of the gcode plot with the gmoccapy.mpg-in pin, typically connected to an MPG encoder count pin.
+- *halui.gui.reload-preview* _(bit IN)_ - Clear/reload the preview
+- *halui.gui.response.cancel* _(bit IN)_ - Close notification/message dialog
+- *halui.gui.response.ok* _(bit IN)_ - Confirm notification/message dialog
+- *halui.gui.shutdown* _(bit IN)_ - If true, a confirmation dialog will display.
+If the system supports a builtin shutdown option dialog, it will show, otherwise the system will immediately shutdown. 
+- *halui.gui.softkey.00* _(bit IN)_
+- *halui.gui.softkey.01* _(bit IN)_
+- *halui.gui.softkey.02* _(bit IN)_
+- *halui.gui.softkey.03* _(bit IN)_
+- *halui.gui.softkey.04* _(bit IN)_
+- *halui.gui.softkey.05* _(bit IN)_
+- *halui.gui.softkey.06* _(bit IN)_
+- *halui.gui.softkey.07* _(bit IN)_
+- *halui.gui.softkey.08* _(bit IN)_
+- *halui.gui.softkey.09* _(bit IN)_
+- *halui.gui.softkey.10* _(bit IN)_
+- *halui.gui.softkey.11* _(bit IN)_
+- *halui.gui.softkey.12* _(bit IN)_
+- *halui.gui.softkey.13* _(bit IN)_
+- *halui.gui.softkey.14* _(bit IN)_
+- *halui.gui.softkey.15* _(bit IN)_
+- *halui.gui.softkey.16* _(bit IN)_
+- *halui.gui.softkey.17* _(bit IN)_
+- *halui.gui.softkey.18* _(bit IN)_
+- *halui.gui.softkey.19* _(bit IN)_ - Softkeys 0 - 11 control GMOCCAPY's main tab keys: +
+halui.gui.softkey.00 - halui.gui.softkey.06 are the vertical keys. +
+halui.gui.softkey.10 - halui.gui.softkey.09 are the horizontal keys.
 
-=== HALUI GUI Cycle Start
-The halui.gui.cycle-start pin will request GMOCCAPY to start a cycle. +
-GMOCCAPY will decide what will happen by what mode it's in. +
-In Auto mode, a loaded gcode program will run. +
-In MDI mode, the command in GMOCCAPY's MDI line will run.  
-
+[[gmocccapy-halui-gui-macros]]
 === HALUI GUI Macros
-One can initiate GMOCCAPY styled Macros from HALUI pins. +
+One can initiate GMOCCAPY styled macros from HALUI pins. +
 These would be the macros found in the INI under the heading [MACROS] +
 These call Oword subroutines of the same name. +
 These Oword subroutines can require variables supplied at runtime by the user. + 
@@ -1023,7 +1009,8 @@ The above example 'increment', will prompt the user for two values 'xinc' and 'y
 All defined Oword files must be located on the system as defined in the
 [DISPLAY]PROGRAM_PREFIX or [RS274NGC]SUBROUTINE_PATH INI entries.
 
-=== HALUI INI MDI Commands
+[[gmocccapy-halui-mdi-commands]]
+=== HALUI MDI Commands
 One can initiate MDI Command Macros from HALUI pins. +
 MDI commands are defined under the heading [MDI_COMMAND_LIST] as +
 MDI_COMMAND_MACRO0 = gcode +
@@ -1053,18 +1040,7 @@ Then move to X0 and Y0 in the current user system, and finally move the Z axis t
 The sequence will run like this: move Z axis up first in G53 (machine coordinate system) mode. +
 Then move to X0 and Y0 in the G53 mode.
 
-=== Soft Keys
-Softkeys 0 - 11 control GMOCCAPY's main tab keys: +
-halui.gui.softkey.00 - halui.gui.softkey.06 are the vertical keys. +
-halui.gui.softkey.10 - halui.gui.softkey.09 are the horizontal keys.
 
-=== MPG-Aux
-Enabling halui.gui.mpg-aux.0, will allow zooming of the gcode plot with the gmoccapy.mpg-in pin, typically connected to an MPG encoder count pin.
-
-=== Shutdown
-If halui.gui.shutdown is set true, a confirmation dialog will display. +
-If confirmed, the whole linux system will shutdown. +
-If the system supports a builtin shutdown option dialog, it will show, otherwise the system will immediately shutdown. 
 
 
 [[gmoccapy:auto-tool-measurement]]
