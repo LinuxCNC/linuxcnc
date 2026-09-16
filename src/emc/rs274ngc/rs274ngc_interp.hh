@@ -46,6 +46,7 @@ public:
 // get ready to run
  int init() override;
  void set_loop_on_main_m99(bool state) override;
+ void set_in_startup_code(bool state) override;
 
 // load a tool table
  int load_tool_table();
