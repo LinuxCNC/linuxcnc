@@ -2206,8 +2206,8 @@ class Workpiece:
     # The grammar (all keys order-free, case-insensitive, values floats):
     #
     #   WORKPIECE,BOX,XMIN=,YMIN=,ZMIN=,XMAX=,YMAX=,ZMAX=[,UNITS=MM|INCH]
-    #   WORKPIECE,CYLINDER,AXIS=Z,X=,Y=,ZMIN=,ZMAX=,DIAMETER=[,UNITS=]
-    #   WORKPIECE,TUBE,<cylinder keys>,INNER_DIAMETER=[,UNITS=]
+    #   WORKPIECE,CYLINDER,AXIS=Z,X=,Y=,ZMIN=,ZMAX=,OD=[,UNITS=]
+    #   WORKPIECE,TUBE,<cylinder keys>,ID=[,UNITS=]
     #
     # Unknown keys are ignored rather than rejected, so a post processor may
     # emit a key a future LinuxCNC understands without this one refusing the
@@ -2374,21 +2374,20 @@ class Workpiece:
         # Always a diameter, never a radius - G7 lathe diameter mode does not
         # reach here, and a key that meant two different things by mode would
         # be unusable from a post processor.
-        diameter = cls._num(keys, 'DIAMETER', scale)
+        diameter = cls._num(keys, 'OD', scale)
         if diameter <= 0:
-            raise _BadWorkpiece("DIAMETER must be positive")
+            raise _BadWorkpiece("OD must be positive")
         params: dict[str, Any] = {
             'AXIS': word, word + 'MIN': amin, word + 'MAX': amax,
-            c_names[0]: c1, c_names[1]: c2, 'DIAMETER': diameter}
+            c_names[0]: c1, c_names[1]: c2, 'OD': diameter}
         radius = diameter / 2.0
         points = cls.cylinder_edges(axis, c1, c2, amin, amax, radius)
         mesh = cls.cylinder_faces(axis, c1, c2, amin, amax, radius)
         if tube:
-            inner = cls._num(keys, 'INNER_DIAMETER', scale)
+            inner = cls._num(keys, 'ID', scale)
             if not 0 < inner < diameter:
-                raise _BadWorkpiece("INNER_DIAMETER must be between 0 and "
-                                    "DIAMETER")
-            params['INNER_DIAMETER'] = inner
+                raise _BadWorkpiece("ID must be between 0 and OD")
+            params['ID'] = inner
             points = np.vstack((points,
                                 cls.tube_bore_edges(axis, c1, c2, amin, amax,
                                                     inner / 2.0)))

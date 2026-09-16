@@ -137,7 +137,7 @@ class WorkpieceParseTest(unittest.TestCase):
         self.assertEqual(segments(wp.points), expected)
 
     def test_cylinder_about_z_by_default(self):
-        wp, = parse("WORKPIECE,CYLINDER,X=5,Y=-5,ZMIN=-40,ZMAX=0,DIAMETER=80")
+        wp, = parse("WORKPIECE,CYLINDER,X=5,Y=-5,ZMIN=-40,ZMAX=0,OD=80")
         self.assertEqual(wp.shape, 'CYLINDER')
         # two end circles plus the four longitudinals
         self.assertEqual(len(wp.points), 2 * 72 + 8)
@@ -146,23 +146,20 @@ class WorkpieceParseTest(unittest.TestCase):
         self.assertEqual(set(np.round(wp.points[:, 2], 9)), {-40.0, 0.0})
 
     def test_cylinder_about_x(self):
-        wp, = parse("WORKPIECE,CYLINDER,AXIS=X,Y=0,Z=1,XMIN=0,XMAX=10,"
-                    "DIAMETER=4")
+        wp, = parse("WORKPIECE,CYLINDER,AXIS=X,Y=0,Z=1,XMIN=0,XMAX=10,OD=4")
         self.assertEqual(set(np.round(wp.points[:, 0], 9)), {0.0, 10.0})
         np.testing.assert_allclose(
             np.hypot(wp.points[:, 1], wp.points[:, 2] - 1.0), 2.0)
 
     def test_tube_adds_bore_circles(self):
-        wp, = parse("WORKPIECE,TUBE,ZMIN=-10,ZMAX=0,DIAMETER=80,"
-                    "INNER_DIAMETER=40")
+        wp, = parse("WORKPIECE,TUBE,ZMIN=-10,ZMAX=0,OD=80,ID=40")
         self.assertEqual(wp.shape, 'TUBE')
         # the cylinder, plus one bore circle per end
         self.assertEqual(len(wp.points), 2 * 72 + 8 + 2 * 72)
         radii = set(np.round(np.hypot(wp.points[:, 0], wp.points[:, 1]), 6))
         self.assertEqual(radii, {40.0, 20.0})
         # a bore that is not inside the outer wall is not a tube
-        self.assertEqual(parse("WORKPIECE,TUBE,ZMIN=-10,ZMAX=0,DIAMETER=40,"
-                               "INNER_DIAMETER=40"), [])
+        self.assertEqual(parse("WORKPIECE,TUBE,ZMIN=-10,ZMAX=0,OD=40,ID=40"), [])
 
     def test_units(self):
         """The canon counts in internal units - inches - on any machine, so
@@ -188,8 +185,8 @@ class WorkpieceParseTest(unittest.TestCase):
                     "ZMAX=twelve",
                     "WORKPIECE,BOX,XMIN=10,YMIN=0,ZMIN=-4,XMAX=0,YMAX=20,"
                     "ZMAX=0",
-                    "WORKPIECE,SPHERE,DIAMETER=10",
-                    "WORKPIECE,CYLINDER,AXIS=Q,ZMIN=0,ZMAX=1,DIAMETER=10",
+                    "WORKPIECE,SPHERE,OD=10",
+                    "WORKPIECE,CYLINDER,AXIS=Q,ZMIN=0,ZMAX=1,OD=10",
                     "WORKPIECE,BOX,NONSENSE"):
             canon.comment(bad)
         self.assertEqual(canon.workpieces, [])
@@ -213,13 +210,12 @@ class WorkpieceParseTest(unittest.TestCase):
 
         # optional keys are present at their default, and the unit conversion
         # has already been applied
-        wp, = parse("WORKPIECE,TUBE,ZMIN=-10,ZMAX=0,DIAMETER=80,"
-                    "INNER_DIAMETER=40,UNITS=MM")
+        wp, = parse("WORKPIECE,TUBE,ZMIN=-10,ZMAX=0,OD=80,ID=40,UNITS=MM")
         self.assertEqual(wp.params['AXIS'], 'Z')
         self.assertEqual(wp.params['X'], 0.0)
         self.assertEqual(wp.params['Y'], 0.0)
-        self.assertAlmostEqual(wp.params['DIAMETER'], 80.0 / 25.4)
-        self.assertAlmostEqual(wp.params['INNER_DIAMETER'], 40.0 / 25.4)
+        self.assertAlmostEqual(wp.params['OD'], 80.0 / 25.4)
+        self.assertAlmostEqual(wp.params['ID'], 40.0 / 25.4)
 
         # an unknown key stays out of params, so a reader cannot come to
         # depend on one this version ignored
@@ -229,7 +225,7 @@ class WorkpieceParseTest(unittest.TestCase):
     def test_comments_are_additive(self):
         canon = make_canon()
         canon.comment(BOX)
-        canon.comment("WORKPIECE,CYLINDER,ZMIN=0,ZMAX=1,DIAMETER=2")
+        canon.comment("WORKPIECE,CYLINDER,ZMIN=0,ZMAX=1,OD=2")
         self.assertEqual([wp.shape for wp in canon.workpieces],
                          ['BOX', 'CYLINDER'])
 
@@ -365,7 +361,7 @@ class WorkpiecePartTest(unittest.TestCase):
     def two_pieces():
         canon = make_canon()
         canon.comment(BOX)
-        canon.comment("WORKPIECE,CYLINDER,ZMIN=0,ZMAX=1,DIAMETER=2")
+        canon.comment("WORKPIECE,CYLINDER,ZMIN=0,ZMAX=1,OD=2")
         return canon
 
     def test_draws_one_call_per_workpiece(self):

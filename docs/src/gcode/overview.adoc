@@ -1180,8 +1180,8 @@ Three shapes are understood:
 [source,ngc]
 ----
 (WORKPIECE,BOX,XMIN=0,YMIN=0,ZMIN=-40,XMAX=100,YMAX=100,ZMAX=0)
-(WORKPIECE,CYLINDER,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,DIAMETER=80)
-(WORKPIECE,TUBE,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,DIAMETER=80,INNER_DIAMETER=40)
+(WORKPIECE,CYLINDER,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,OD=80)
+(WORKPIECE,TUBE,AXIS=Z,X=0,Y=0,ZMIN=-40,ZMAX=0,OD=80,ID=40)
 ----
 
 Keys may appear in any order and are case-insensitive, as are the shape names.
@@ -1198,10 +1198,10 @@ Keys may appear in any order and are case-insensitive, as are the shape names.
  'ZMIN'/'ZMAX' for 'AXIS=Z'. Both required.
 |the other two axis letters |CYLINDER, TUBE |Where the axis sits in the other
  two directions - 'X' and 'Y' for 'AXIS=Z'. Optional, default 0.
-|'DIAMETER' |CYLINDER, TUBE |The outside diameter; required, and always a
+|'OD' |CYLINDER, TUBE |The outside diameter; required, and always a
  diameter, never a radius, regardless of lathe diameter mode (G7).
-|'INNER_DIAMETER' |TUBE |The bore diameter; required, and must be greater than
- zero and less than 'DIAMETER'.
+|'ID' |TUBE |The bore diameter; required, and must be greater than zero and
+ less than 'OD'.
 |'UNITS' |all |'MM' or 'INCH'. Optional; without it the values are read in the
  units modal at the comment (G20/G21).
 |===
