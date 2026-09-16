@@ -23,7 +23,6 @@
 
 #include <array>
 #include <cmath>
-#include <map>
 #include <memory>
 #include <stdint.h>
 #include <string>
@@ -32,6 +31,8 @@
 // Point9, the Canon protocol and the state of the parse in flight: the
 // renderer is one implementation of that protocol, not its owner.
 #include "gcodemodule.hh"
+// MachineLimits, TimeEstimator, TimeSample.
+#include "time_estimate.hh"
 
 // ---------------------------------------------------------------------------
 // The program the renderer builds: the C++ side of rs274.glcanon_bake's
@@ -169,7 +170,7 @@ struct PreviewData {
     // path. The baked expectations allow for it; no reader of a path length
     // can see it.
     double rapid_length = 0.0;
-    std::map<double, double> cut_length; // commanded rate -> cutting length
+    double cut_length = 0.0;            // feed + arc path length
     size_t moves = 0;
 
     std::vector<int> tool_numbers;      // entry 0 is the None before any change
@@ -184,12 +185,15 @@ struct PreviewData {
 
     Point9 cur9 = {};                   // where the trajectory is
     bool has_cur = false;
+
 };
 
 // The finished program as `gcode.PreviewGeometry`; takes ownership of `data`.
 pybind11::object preview_geometry_new(PreviewData *data);
 // Register PreviewGeometry and its array views on the module.
 void preview_geometry_register(pybind11::module_ &m);
+// Register `gcode.TimeEstimate`, what a TimeEstimateCanon is handed.
+void time_estimate_register(pybind11::module_ &m);
 
 // Defines `gcode.RendererCanon`, the empty base a canon opts in by subclassing.
 void renderer_canon_register(pybind11::module_ &m);
@@ -202,7 +206,8 @@ int arc_segments(const Point9 &lo, int plane,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
-                 int max_segments, std::vector<Point9> &out);
+                 int max_segments, std::vector<Point9> &out,
+                 double *radius = nullptr);
 
 
 // ---------------------------------------------------------------------------
@@ -327,7 +332,9 @@ public:
     }
     // a..w zero, exactly the arguments the `rigid_tap` callback does not
     // have; the renderer joins x,y,z to the chain point's a..w.
-    void rigid_tap(int line_number, double x, double y, double z) override {
+    void rigid_tap(int line_number, double x, double y, double z,
+                   double retract_scale) override {
+        tap_scale_ = retract_scale;
         append(RigidTap, line_number, {x, y, z});
     }
     // Rendered like any other event, and not a progress report of its own: a
@@ -362,20 +369,27 @@ public:
     // The plane reaches the record and the arc segmenter from here; nothing
     // on a rendered parse reads the canon's own copy.
     void set_plane(int plane) override { plane_ = plane; }
-    // Record the rate the following moves are made at. One store: the rate
-    // reaches the program in every move's own length table, so there is
-    // nothing left for the canon to be told - and telling it was not cheap:
-    // the interpreter reports an F word whether or not it changed anything
+    // Record the rate the following moves are made at, for the time
+    // estimate - the geometry holds lengths, not times, so nothing else
+    // reads it. One store, because telling the canon is not cheap: the
+    // interpreter reports an F word whether or not it changed anything
     // (interp_execute.cc branches on `block->f_flag` alone), so CAM output
     // with adaptive feed lands here once per move.
     void set_feed_rate(double rate) override { rate_ = rate; }
-    // A traverse carries no rate into the record - rapid_length is a length,
-    // not a time - so a rendered parse has nothing to say about this.
+    // A traverse's speed is the machine's, not the program's: the estimator
+    // takes it from the axis limits, so there is nothing to store.
     void set_traverse_rate(double /*rate*/) override {}
-    // One store. Nothing reads it yet: the program record has no per-move
-    // spindle speed, and the G95 (units per revolution) feed mode is what
-    // will need one.
-    void set_spindle_speed(double rpm) override { speed_ = rpm; }
+    // One store, plus the constant surface speed factor it implies - what a
+    // G96 move's rpm is computed from.
+    void set_spindle_speed(double rpm) override;
+    void set_feed_mode(int per_rev) override { per_rev_ = per_rev != 0; }
+    void set_spindle_mode(double css_max) override { css_max_ = css_max; }
+    // Both ends of a synched move are stops, as emccanon's flush_segments
+    // around START/STOP_SPEED_FEED_SYNCH makes them.
+    void set_spindle_sync(double pitch) override {
+        sync_pitch_ = pitch;
+        if(timer_) timer_->stop();
+    }
     // A comment, after the canon has had it: the `(AXIS,hide)`/`(AXIS,show)`
     // depth is the renderer's own.
     void comment(const char *text) override;
@@ -445,7 +459,7 @@ private:
     void publish_line();
     // One move into the geometry: extents, length, then its vertices.
     void fill(int line_number, const Point9 &p1, const Point9 &p2,
-              double feedrate, unsigned char cat);
+              unsigned char cat);
     // One record vertex at `at`, writing its per-plane position to `points`.
     void mark(int line_number, const Point9 &at, unsigned char kind,
               PlanePoints *points);
@@ -453,6 +467,13 @@ private:
                       PlanePoints *points);
     void accumulate_extents(const Point9 &p1, const Point9 &p2);
     bool read_planes();
+    // program_geometry.machine_limits -> the estimator, or none.
+    bool read_limits();
+    // The move as the estimator sees it, off its own chain point.
+    void time_move(Kind kind, int line_number, const Point9 &in, double rate);
+    void time_segments(int line_number, const std::vector<Point9> &segs,
+                       double radius, double rate);
+    FeedState feed_state(double rate) const;
     // The machine's axis letters, and whether the canon asked for the 9-DOF
     // positions to go with them.
     bool read_axes();
@@ -463,6 +484,8 @@ private:
     // parse. Not bit-identical to it by construction: the compiler is free to
     // contract the rotation's multiply-add, so the tests allow a few ULPs.
     void transform(const Point9 &in, Point9 &out) const;
+    // The inverse, to recover an arc segment's program X.
+    void untransform(const Point9 &in, Point9 &out) const;
     void event(Kind kind, int line_number, const Point9 &axes);
 
     pybind11::handle canon_;            // borrowed, as parse_state.callback is
@@ -492,6 +515,23 @@ private:
 
     double rate_ = 60.0;                // the commanded feed, inches
     double speed_ = 0.0;                // spindle 0's rpm
+    bool per_rev_ = false;              // G95
+    double sync_pitch_ = 0.0;           // G33/G76, inches per revolution
+    double css_max_ = 0.0;              // G96's D word, 0 under G97
+    double css_factor_ = 0.0;           // rpm = css_factor_ / program radius
+    double tap_scale_ = 1.0;            // G33.1's I word
+    double tool_change_seconds_ = 0.0;
+
+    // The estimate, null when the canon supplied no limits. Its chain point
+    // is its own: a tool change re-baselines the renderer's, and the machine
+    // still has to travel from where it was.
+    std::unique_ptr<TimeEstimator> timer_;
+    // The estimate's own handover, made whenever the canon opted in - even
+    // with no usable limits, so a TimeEstimateCanon is always told once.
+    std::unique_ptr<TimeEstimateData> time_data_;
+    Point9 time_lo_ = {};
+    double time_lo_x_ = 0.0;            // its program X, the CSS radius
+    bool time_first_ = true;
 
     // The unit constants, read off the canon on first ask.
     double length_units_ = 0.0;

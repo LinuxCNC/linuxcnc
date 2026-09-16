@@ -60,6 +60,8 @@ sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon, GlCanonDraw
+from rs274.program_time import (MachineLimits, format_seconds,
+                                steady_seconds)
 from hershey import Hershey
 from propertywindow import properties
 import rs274.options
@@ -732,6 +734,10 @@ class LivePlotter:
         self.notifications_clear = False
         self.notifications_clear_info = False
         self.notifications_clear_error = False
+        # When the running program started, and the run time the readout is
+        # showing. Both None while no program is running.
+        self.run_started = None
+        self.shown_total = None
 
     def start(self):
         if self.running.get(): return
@@ -787,6 +793,39 @@ class LivePlotter:
             notifications.add(icon, text)
             error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
+
+    def update_program_time(self):
+        """The ``.info`` row's time readout: what the parse estimated.
+
+        The whole program's time, and while it runs the clock so far beside
+        the run it is heading for - the elapsed time plus what the estimate
+        says is left from the line motion is on, held still through
+        ``steady_seconds`` so the table's own sampling noise does not make it
+        flicker. Empty when the parse could not time the program, because a
+        made-up number is worse than none.
+        """
+        canon = o.canon
+        estimate = canon.program_time if canon is not None else None
+        running = (self.stat.task_mode == linuxcnc.MODE_AUTO
+                   and self.stat.interp_state != linuxcnc.INTERP_IDLE)
+        if not running:
+            self.run_started = None
+            self.shown_total = None
+        elif self.run_started is None:
+            self.run_started = time.time()
+        if estimate is None or estimate.total is None:
+            vupdate(vars.program_remaining, "")
+        elif running:
+            # The elapsed time only picks between the occurrences of a line
+            # that a subroutine or an O loop runs more than once.
+            elapsed = time.time() - self.run_started
+            left = estimate.remaining(self.stat.motion_line, elapsed)
+            self.shown_total = steady_seconds(elapsed + left, self.shown_total)
+            vupdate(vars.program_remaining, _("Run time: %s / %s") % (
+                format_seconds(elapsed), format_seconds(self.shown_total)))
+        else:
+            vupdate(vars.program_remaining,
+                    _("Run time: %s") % format_seconds(estimate.total))
 
     def update(self):
         if not self.running.get():
@@ -900,6 +939,7 @@ class LivePlotter:
                      root_window.tk.call("pause_image_override")
                  else:
                      root_window.tk.call("pause_image_normal")
+        self.update_program_time()
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -1256,6 +1296,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
         o.canon = canon = AxisCanon(o, widgets.text, i, progress, arcdivision)
+        # The machine's limits, so the parse can time the program.
+        canon.motion_limits = MachineLimits.from_ini(inifile)
         root_window.bind_class(".info.progress", "<Escape>", cancel_open)
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
@@ -2117,18 +2159,13 @@ class TclCommands(nf.TclCommands):
                 units = _("in")
                 fmt = "%.4f"
 
-            mf = vars.max_speed.get()
-
             g0 = o.canon.g0_length
             g1 = o.canon.g1_length
-            gt = o.canon.run_time(mf)
 
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
-            if gt > 120:
-                props['run'] = _("%.1f minutes") % (gt/60)
-            else:
-                props['run'] = _("%d seconds") % (int(gt))
+            props['run'] = format_seconds(o.canon.run_time(),
+                                          _("not available"))
 
             min_extents = from_internal_units(o.canon.min_extents, conv)
             max_extents = from_internal_units(o.canon.max_extents, conv)
@@ -3125,6 +3162,7 @@ vars = nf.Variables(root_window,
     ("on_any_limit", BooleanVar),
     ("queued_mdi_commands", IntVar),
     ("max_queued_mdi_commands", IntVar),
+    ("program_remaining", StringVar),
     ("trajcoordinates", StringVar),
 )
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))

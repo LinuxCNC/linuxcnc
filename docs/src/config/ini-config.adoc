@@ -368,6 +368,8 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   An under powered CPU may see improvement with a longer setting.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
+* `TOOL_CHANGE_SECONDS = 20` - (real) How long one M6 takes on this machine, for the program time estimate.
+  The estimate cannot know what a tool change costs - on a manual changer it is however long the operator takes - so it counts zero unless this says otherwise.
 * `HOMING_PROMPT = TRUE` - (bool) Will enable showing a prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
 * `FOAM_W = 1.5` sets the foam W height.
 * `FOAM_Z = 0` sets the foam Z height.

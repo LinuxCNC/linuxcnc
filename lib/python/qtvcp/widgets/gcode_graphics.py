@@ -243,6 +243,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._reload_filename = fname
         result = self.load(fname)
         STATUS.emit('graphics-gcode-properties',self.gcode_properties)
+        STATUS.emit('graphics-program-time',self.get_program_time())
         # reset the current view to standard calculated zoom and position
         self.set_current_view()
         return result
@@ -286,6 +287,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.load(self._reload_filename)
             self.clear_live_plotter()
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
+            STATUS.emit('graphics-program-time',self.get_program_time())
         except:
             print('error', self._reload_filename)
             pass

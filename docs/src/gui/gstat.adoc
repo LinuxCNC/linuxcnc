@@ -429,6 +429,17 @@ The dict contains the following keys:
 1. See the images image:images/gremlin_extents_non-rotated_link.png[align="left",link="images/gremlin_extents_non-rotated.png",alt="extends non-rotated"] and image:images/gremlin_extents_rotated_30_link.png[align="left",link="images/gremlin_extents_rotated_30.png",alt="extends rotated 30"] for a better understanding.
 ====
 
+*graphics-program-time* :: '(returns rs274.program_time.ProgramTime)' -
+Sent when G-code is loaded, right after *graphics-gcode-properties*. +
+The program's time estimate as numbers rather than as prose: `total` (seconds
+at 100% override, or `None` when the machine's INI states no velocity limits
+and the program could not be timed), the `rapid_time`/`feed_time`/`stop_time`
+shares of it, `flags` naming what could not be modelled, and the lookups
+`at_line(line)`, `fraction(line)` and `remaining(line)` over the parse's
+`[line, cumulative seconds]` table. Each takes an optional `elapsed_hint`,
+which picks between the occurrences of a line that a loop runs more than once.
+The same object is available from the graphics widget as `get_program_time()`.
+
 *graphics-view-changed* :: '(returns string, Python dict or None)' -
 intended to be sent when graphics view is changed. +
 This depends on the widget/libraries used.

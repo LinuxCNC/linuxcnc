@@ -28,6 +28,7 @@ import _thread
 import glnav
 from rs274 import glcanon
 from rs274 import interpret
+from rs274.program_time import MachineLimits, ProgramTime, format_seconds
 import linuxcnc
 import gcode
 import preview_helpers
@@ -491,6 +492,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 progress, arcdivision)
             # monkey patched function to call ours
             canon.output_notify_message = self.output_notify_message
+            # The machine's limits, so the parse can time the program.
+            canon.motion_limits = MachineLimits.from_ini(self.inifile)
             parameter = self.inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback="linuxcnc.var")
             temp_parameter = os.path.join(td, os.path.basename(parameter))
             if parameter:
@@ -544,15 +547,6 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         props = {}
         loaded_file = self._current_file
-        if self.inifile.hasvariable("DISPLAY","MAX_LINEAR_VELOCITY"):
-            max_speed = self.inifile.getreal("DISPLAY","MAX_LINEAR_VELOCITY", fallback=1.0)
-        elif self.inifile.hasvariable("TRAJ","MAX_LINEAR_VELOCITY"):
-            max_speed = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY", fallback=1.0)
-        elif self.inifile.hasvariable("AXIS_X","MAX_VELOCITY"):
-            max_speed = self.inifile.getreal("AXIS_X","MAX_VELOCITY", fallback=1.0)
-        else:
-            max_speed = 1.0
-
         if not loaded_file:
             props['name'] = "No file loaded"
         else:
@@ -580,18 +574,12 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 fmt = "%.3f"
                 conv = 1
 
-            mf = max_speed
-
             g0 = canon.g0_length
             g1 = canon.g1_length
-            gt = canon.run_time(mf)
 
             props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
-            if gt > 120:
-                props['run'] = "%.1f Minutes" % (gt/60)
-            else:
-                props['run'] = "%d Seconds" % (int(gt))
+            props['run'] = format_seconds(canon.run_time(), "not available")
 
             props['toollist'] = canon.tool_list
 
@@ -666,6 +654,20 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_show_offsets(self): return self.show_offsets
     def get_show_workpiece(self): return self.show_workpiece
     def getEnableDRO(self): return self.enable_dro
+    def get_program_time(self):
+        """The loaded program's time estimate, a
+        :class:`rs274.program_time.ProgramTime`.
+
+        The totals, the ``[line, cumulative seconds]`` table and the flags
+        naming what the parse could not model. Never None: before a program is
+        loaded, and after one the parse could not time, it is an empty record
+        whose ``total`` is None.
+        """
+        canon = getattr(self, 'canon', None)
+        if canon is None:
+            return ProgramTime()
+        return canon.program_time
+
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)

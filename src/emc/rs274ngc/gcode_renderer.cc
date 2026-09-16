@@ -48,6 +48,16 @@ void GCodeRenderer::set_xy_rotation(double degrees) {
     unrot_sin_ = -rotation_sin_; // sin(back);
 }
 
+// emccanon recomputes the CSS factor on every spindle-speed command, out of
+// the program units in force at that moment (emccanon.cc SPINDLE_SPEED_), so
+// this does too. S is surface feet per minute under G20 and metres per minute
+// under G21; the radius it divides is always inches here.
+void GCodeRenderer::set_spindle_speed(double rpm) {
+    speed_ = rpm;
+    css_factor_ = (parse_state.metric ? 1000.0 / 25.4 : 12.0)
+            / (2 * M_PI) * rpm;
+}
+
 void GCodeRenderer::arc_feed(int line_number, double first_end, double second_end,
                              double first_axis, double second_axis, int rotation,
                              double axis_end_point, double a, double b, double c,
@@ -255,12 +265,6 @@ void preview_geometry_register(py::module_ &m) {
                 return py::make_tuple(triple(d.drawn[BOX_MIN]),
                                       triple(d.drawn[BOX_MAX]));
             }, "(min, max) over the transformed points in the array")
-        .def("cut_lengths", [](const PreviewData &d) {
-                py::dict out;
-                for(const auto &entry : d.cut_length)
-                    out[py::float_(entry.first)] = entry.second;
-                return out;
-            }, "{commanded rate: cutting length at it}")
         .def("tool_numbers", [](const PreviewData &d) {
                 size_t n = d.tool_numbers.size();
                 py::list out(n);
@@ -313,7 +317,41 @@ void preview_geometry_register(py::module_ &m) {
         .def_property_readonly("n_moves", [](const PreviewData &d) { return d.moves; })
         .def_property_readonly("n_planes", [](const PreviewData &d) { return d.nplanes; })
         .def_property_readonly("rapid_length", [](const PreviewData &d) { return d.rapid_length; })
+        .def_property_readonly("cutting_length", [](const PreviewData &d) { return d.cut_length; })
         .def_property_readonly("dwell_time", [](const PreviewData &d) { return d.dwell_time; });
+}
+
+// `gcode.TimeEstimate`: one parse's time estimate, handed to a canon that
+// asked for one. Deliberately not a part of PreviewGeometry - nothing here is
+// about the drawn program, and a canon may want one without the other.
+void time_estimate_register(py::module_ &m) {
+    py::class_<TimeEstimateData>(m, "TimeEstimate",
+            "How long a parsed program takes: totals, the per-line table, and "
+            "what could not be modelled")
+        .def("time_table", [](py::object self) {
+                TimeEstimateData &d = py::cast<TimeEstimateData&>(self);
+                // The buffer protocol dislikes a null pointer even at zero
+                // extent, so an empty table points at a spare row.
+                static TimeSample nothing = {0.0, 0.0};
+                Py_ssize_t f = sizeof(double);
+                void *p = d.samples.empty() ? (void*)&nothing
+                                            : (void*)d.samples.data();
+                return array_view_2d(std::move(self), p,
+                                     (Py_ssize_t)d.samples.size(), 2,
+                                     2 * f, f, "d");
+            }, "Read-only float64 (n, 2) view of [line, cumulative seconds]; "
+               "(0, 2) when the program was not timed")
+        .def_property_readonly("total_time", [](const TimeEstimateData &d) {
+                return d.timed ? py::cast(d.total) : py::none();
+            }, "Nominal seconds to run at 100% override, or None when untimed")
+        .def_property_readonly("rapid_time", [](const TimeEstimateData &d) { return d.rapid; })
+        .def_property_readonly("feed_time", [](const TimeEstimateData &d) { return d.feed; })
+        .def_property_readonly("stop_time", [](const TimeEstimateData &d) { return d.stop; })
+        .def_property_readonly("estimate_flags", [](const TimeEstimateData &d) {
+                py::list out;
+                for(const std::string &f : d.flags) out.append(f);
+                return out;
+            }, "What the estimate could not model");
 }
 
 std::vector<GeomOp> GeomOp::compile(const std::string &geom, long axis_mask,
@@ -448,10 +486,11 @@ static py::tuple renderer_transform(py::handle self, py::handle points) {
     return py::make_tuple(point_rows(machine), point_rows(display));
 }
 
-// `gcode.RendererCanon`. This holds a reference of its own: the module
-// attribute is deletable, and a type freed under us would leave every
-// later PyObject_TypeCheck reading freed memory.
+// `gcode.RendererCanon` and its time-estimating subclass. These hold a
+// reference of their own: the module attribute is deletable, and a type freed
+// under us would leave every later PyObject_TypeCheck reading freed memory.
 static PyTypeObject *renderer_canon_type;
+static PyTypeObject *time_estimate_canon_type;
 
 void renderer_canon_register(py::module_ &m) {
     // Plain Python class, not a py::class_: a pybind11 base would oblige
@@ -502,6 +541,40 @@ void renderer_canon_register(py::module_ &m) {
             "Program points to (machine, display) coordinates, as the parse "
             "in flight has them at this moment.");
     m.attr("RendererCanon") = cls;
+
+    // The opt-in for the time estimate: a mixin, not a step further down the
+    // renderer's hierarchy, so a canon takes it or leaves it independently of
+    // how it draws.
+    py::dict tns;
+    tns["__module__"] = "gcode";
+    tns["__doc__"] =
+            "Mixin for a canon that wants the program's run time.\n\n"
+            "A second parent beside gcode.RendererCanon, with a contract of\n"
+            "its own: two methods, and neither is the geometry's. The\n"
+            "estimate is computed during a rendered parse, so both classes\n"
+            "are named, but nothing here reaches into the drawn program.\n\n"
+            "    class Timed(gcode.RendererCanon, gcode.TimeEstimateCanon):\n"
+            "        def machine_limits(self):\n"
+            "            # rs274.program_time.MachineLimits.from_ini(ini), or\n"
+            "            # anything with the same attributes: vmax and amax as\n"
+            "            # nine values each in P9 order, traj_vmax, traj_amax,\n"
+            "            # tool_change_seconds. Raw machine units per second.\n"
+            "            # None leaves the program untimed.\n"
+            "            return limits\n\n"
+            "        def adopt_time_estimate(self, estimate):\n"
+            "            self.time = estimate   # a gcode.TimeEstimate\n\n"
+            "machine_limits is called once, at parse start;\n"
+            "adopt_time_estimate once, at the end, before the geometry's own\n"
+            "handover and always exactly once - a parse with no usable limits\n"
+            "hands over an estimate whose total_time is None and whose flags\n"
+            "say `no-limits`, rather than nothing at all.\n\n"
+            "The estimate is nominal 100%: no overrides, no adaptive feed, no\n"
+            "M0/M1/M66 waits, and `(AXIS,hide)` spans are not timed any more\n"
+            "than they are drawn.";
+    py::object timed = py::reinterpret_borrow<py::object>((PyObject *)&PyType_Type)(
+            "TimeEstimateCanon", py::tuple(), tns);
+    m.attr("TimeEstimateCanon") = timed;
+    time_estimate_canon_type = (PyTypeObject *)timed.release().ptr();
     renderer_canon_type = (PyTypeObject *)cls.release().ptr();
 }
 
@@ -540,6 +613,73 @@ bool GCodeRenderer::read_axes() {
     return true;
 }
 
+// One nine-slot limit vector off the Python MachineLimits. `scale` converts
+// the machine's own linear units to inches; the rotary slots are degrees on
+// both sides.
+static void read_limit_axes(py::handle obj, const char *name, double scale,
+                            Point9 &out) {
+    py::sequence seq = py::getattr(obj, name).cast<py::sequence>();
+    if(py::len(seq) != (size_t)P9_COUNT)
+        throw py::value_error(std::string("machine_limits.") + name
+                              + ": expected nine values");
+    for(int i = 0; i < P9_COUNT; i++) {
+        double v = seq[i].cast<double>();
+        bool linear = i < P9_A || i >= P9_U;
+        out[i] = v > 0.0 ? (linear ? v / scale : v) : 0.0;
+    }
+}
+
+// The canon's `machine_limits()`, for a canon that opted into the estimate by
+// subclassing gcode.TimeEstimateCanon. Anything else is untimed, which is
+// what every canon written before this got.
+bool GCodeRenderer::read_limits() {
+    if(!time_estimate_canon_type
+       || !PyObject_TypeCheck(canon_.ptr(), time_estimate_canon_type))
+        return true;                    // did not ask; nothing is handed over
+    // From here the canon gets exactly one adopt_time_estimate, whatever the
+    // limits turn out to be.
+    time_data_.reset(new TimeEstimateData());
+    py::object ml;
+    try {
+        ml = canon_.attr("machine_limits")();
+    } catch(py::error_already_set &e) {
+        e.restore();
+        return false;
+    }
+    if(ml.is_none()) {
+        time_data_->flags.push_back("no-limits");
+        return true;
+    }
+    MachineLimits limits;
+    try {
+        // fact: machine_units = inches * 25.4 * external_length_units().
+        double scale = 25.4 * external_length_units();
+        if(parse_state.interp_error) return false;
+        if(!(scale > 0.0))
+            throw py::value_error("machine_limits: the canon's length units "
+                                  "are zero");
+        read_limit_axes(ml, "vmax", scale, limits.vmax);
+        read_limit_axes(ml, "amax", scale, limits.amax);
+        double tv = py::getattr(ml, "traj_vmax", py::float_(0.0)).cast<double>();
+        double ta = py::getattr(ml, "traj_amax", py::float_(0.0)).cast<double>();
+        limits.traj_vmax = tv > 0.0 ? tv / scale : 0.0;
+        limits.traj_amax = ta > 0.0 ? ta / scale : 0.0;
+        limits.tool_change_seconds = py::getattr(
+                ml, "tool_change_seconds", py::float_(0.0)).cast<double>();
+    } catch(py::error_already_set &e) {
+        e.restore();
+        return false;
+    }
+    if(!limits.usable()) {
+        time_data_->flags.push_back("no-limits");
+        return true;
+    }
+    timer_.reset(new TimeEstimator(limits));
+    tool_change_seconds_ = limits.tool_change_seconds;
+    time_data_->timed = true;
+    return true;
+}
+
 std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
     py::handle canon(canon_ptr);
 
@@ -562,6 +702,27 @@ std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
         return nullptr;
     }
 
+    // The estimate's own contract, checked the same way and for the same
+    // reason: a canon that asked for a time and silently got none would read
+    // as a program that takes no time.
+    if(time_estimate_canon_type
+       && PyObject_TypeCheck(canon_ptr, time_estimate_canon_type)) {
+        for(const char *name : {"machine_limits", "adopt_time_estimate"}) {
+            bool ok = false;
+            try {
+                ok = PyCallable_Check(canon.attr(name).ptr());
+            } catch(py::error_already_set &) {
+            }
+            if(!ok) {
+                PyErr_Clear();
+                PyErr_Format(PyExc_TypeError,
+                        "parse: a gcode.TimeEstimateCanon must define a "
+                        "callable %s", name);
+                return nullptr;
+            }
+        }
+    }
+
     std::unique_ptr<GCodeRenderer> r(new GCodeRenderer(canon));
     r->data_ = new PreviewData();
     for(int i = 0; i < EXTENT_KINDS; i++)
@@ -578,6 +739,7 @@ std::unique_ptr<GCodeRenderer> GCodeRenderer::make(PyObject *canon_ptr) {
     // Before any vertex: n_axes is the row stride of every one of them, and
     // want_axis_positions decides whether the block exists at all.
     if(!r->read_axes()) return nullptr;
+    if(!r->read_limits()) return nullptr;
     // getattr-with-default swallows whatever the read raised, which is what a
     // canon that simply has no progress hook needs.
     r->progress_ = py::getattr(canon, "renderer_progress", py::none());
@@ -629,6 +791,18 @@ void GCodeRenderer::transform(const Point9 &in, Point9 &out) const {
         out[P9_X] = rotx;
     }
     out += g5x_;
+}
+
+// transform() run backwards. Only the X it recovers is read - an arc segment
+// arrives transformed, and its CSS radius is its program X.
+void GCodeRenderer::untransform(const Point9 &in, Point9 &out) const {
+    out = in - g5x_;
+    if(rotation_xy_ != 0.0) {
+        double rotx = out[P9_X] * unrot_cos_ - out[P9_Y] * unrot_sin_;
+        out[P9_Y] = out[P9_X] * unrot_sin_ + out[P9_Y] * unrot_cos_;
+        out[P9_X] = rotx;
+    }
+    out -= g92_;
 }
 
 // The GEOMETRY-string transform (the C vertex9), for one point through one
@@ -746,7 +920,7 @@ void GCodeRenderer::unrotate_xy(const Point9 &p, Point3 &out) const {
 }
 
 void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
-                        double feedrate, unsigned char cat) {
+                        unsigned char cat) {
     data_->moves ++;
     accumulate_extents(p1, p2);
 
@@ -754,7 +928,7 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
            dz = p2[P9_Z] - p1[P9_Z];
     double len = sqrt(dx * dx + dy * dy + dz * dz);
     if(cat == CAT_TRAVERSE) data_->rapid_length += len;
-    else data_->cut_length[feedrate] += len;
+    else data_->cut_length += len;
 
     // A move that does not start where the last one ended gets a record vertex
     // at its start; the shaders discard the segment into it.
@@ -790,13 +964,65 @@ void GCodeRenderer::fill(int line_number, const Point9 &p1, const Point9 &p2,
     data_->has_cur = true;
 }
 
+FeedState GCodeRenderer::feed_state(double rate) const {
+    FeedState fs;
+    fs.rate = rate;
+    fs.per_rev = per_rev_;
+    fs.sync_pitch = sync_pitch_;
+    fs.rpm = speed_;
+    fs.css_max = css_max_;
+    fs.css_factor = css_factor_;
+    fs.metric = parse_state.metric;
+    return fs;
+}
+
+// The estimator's copy of one move. Its chain point is its own: a tool change
+// re-baselines the renderer's but not the machine's.
+void GCodeRenderer::time_move(Kind kind, int line_number, const Point9 &in,
+                              double rate) {
+    Point9 p;
+    transform(in, p);
+    FeedState fs = feed_state(rate);
+    if(kind == RigidTap) {
+        // Down and back up; the chain point does not move.
+        Point9 end = time_lo_;
+        end[P9_X] = p[P9_X]; end[P9_Y] = p[P9_Y]; end[P9_Z] = p[P9_Z];
+        timer_->rigid_tap(line_number, time_lo_, end, fs, tap_scale_);
+        return;
+    }
+    if(time_first_) {
+        // The caller's `G53 G0 <where the machine is>` initcode: it says where
+        // the program starts, it is not a move anyone waits through.
+        time_first_ = false;
+        if(kind == Traverse) {
+            time_lo_ = p;
+            time_lo_x_ = in[P9_X];
+            return;
+        }
+    }
+    if(kind == Traverse) {
+        timer_->traverse(line_number, time_lo_, p, fs);
+    } else if(kind == Probe) {
+        timer_->probe(line_number, time_lo_, p, fs,
+                      time_lo_x_, in[P9_X]);
+    } else {
+        timer_->feed(line_number, time_lo_, p, fs,
+                     time_lo_x_, in[P9_X], 0.0);
+    }
+    time_lo_ = p;
+    time_lo_x_ = in[P9_X];
+}
+
 void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
                          double rate) {
     last_line_ = line_number;
     consumed_ = true;
     if(kind >= Dwell) { event(kind, line_number, in); return; }
-    // A hidden move touches nothing at all, not even the chain point.
+    // A hidden move touches nothing at all, not even the chain point - and it
+    // is not timed either: `(AXIS,hide)` is what a program wraps the parts a
+    // preview should ignore in, and the estimate ignores them with it.
     if(suppress_ > 0) return;
+    if(timer_) time_move(kind, line_number, in, rate);
 
     Point9 p;
     transform(in, p);
@@ -806,8 +1032,8 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
         Point9 end = lo_;
         end[P9_X] = p[P9_X]; end[P9_Y] = p[P9_Y]; end[P9_Z] = p[P9_Z];
         first_move_ = false;
-        fill(line_number, lo_, end, rate / 60., CAT_FEED);
-        fill(line_number, end, lo_, rate / 60., CAT_FEED);
+        fill(line_number, lo_, end, CAT_FEED);
+        fill(line_number, end, lo_, CAT_FEED);
         return;
     }
     if(first_move_) {
@@ -816,8 +1042,8 @@ void GCodeRenderer::move(Kind kind, int line_number, const Point9 &in,
         if(kind == Traverse) { lo_ = p; return; }
         first_move_ = false;
     }
-    if(kind == Traverse) fill(line_number, lo_, p, 0.0, CAT_TRAVERSE);
-    else fill(line_number, lo_, p, rate / 60., CAT_FEED);
+    if(kind == Traverse) fill(line_number, lo_, p, CAT_TRAVERSE);
+    else fill(line_number, lo_, p, CAT_FEED);
     lo_ = p;
 }
 
@@ -833,6 +1059,26 @@ static int plane_code(int plane) {
 
 void GCodeRenderer::event(Kind kind, int line_number,
                          const Point9 &axes) {
+    if(timer_) {
+        switch(kind) {
+        case ToolOffset:
+            // No motion: the offset changes what the coordinates mean, so the
+            // chain point moves into the new frame without time passing.
+            time_lo_ = time_lo_ - axes + tool_;
+            break;
+        case Dwell:
+            if(suppress_ <= 0) timer_->fixed(line_number, axes[P9_X]);
+            break;
+        case M1xx:
+            if(suppress_ <= 0) timer_->stop();
+            break;
+        case ChangeTool:
+            timer_->fixed(line_number, tool_change_seconds_);
+            break;
+        default:
+            break;
+        }
+    }
     switch(kind) {
     case ToolOffset:
         // Not forwarded: it moved only the chain point and the offset triple,
@@ -912,10 +1158,26 @@ void GCodeRenderer::hand_over() {
     parse_state.interp_error = 0;
     data_->drop_trailing_tool_offset();
     data_->shrink();
+    if(timer_) {
+        timer_->finish();
+        time_data_->total = timer_->total();
+        time_data_->rapid = timer_->rapid_time();
+        time_data_->feed = timer_->feed_time();
+        time_data_->stop = timer_->stop_time();
+        for(const std::string &f : timer_->flags())
+            time_data_->flags.push_back(f);
+        time_data_->samples = timer_->take_table().samples();
+        timer_.reset();
+    }
     PreviewData *program = data_;
     data_ = nullptr;                    // the holder owns it from here, even
                                         // if the cast below throws
     try {
+        // The estimate first and on its own: it is a separate handover, so a
+        // canon that wants only the time never has to touch the geometry.
+        if(time_data_)
+            canon_.attr("adopt_time_estimate")(
+                    py::cast(std::move(time_data_)));
         canon_.attr("adopt_geometry")(preview_geometry_new(program));
     } catch(py::error_already_set &e) {
         e.restore();                    // read back off the indicator below
@@ -947,18 +1209,38 @@ void GCodeRenderer::render_arc(int line_number, double first_end, double second_
     last_line_ = line_number;
     consumed_ = true;
     if(suppress_ > 0) return;
+    double radius = 0.0;
     arc_segments(lo_, plane_, rotation_cos_, rotation_sin_,
                  g5x_, g92_, first_end, second_end,
                  first_axis, second_axis, rotation,
                  axis_end_point, a, b, c, u, v, w,
-                 arcdivision_, segs_);
+                 arcdivision_, segs_, &radius);
     // The segments arrive transformed, so no transform here - and an arc is
     // drawn whether or not it is the program's first move, as the per-move
     // canon draws it.
     first_move_ = false;
+    if(timer_) time_segments(line_number, segs_, radius, rate);
     for(const Point9 &p : segs_) {
-        fill(line_number, lo_, p, rate / 60., CAT_ARC);
+        fill(line_number, lo_, p, CAT_ARC);
         lo_ = p;
+    }
+}
+
+
+// Arc segments into the estimator. They arrive transformed, so each one's
+// program X - the CSS radius - comes back out of the inverse transform.
+void GCodeRenderer::time_segments(int line_number,
+                                  const std::vector<Point9> &segs,
+                                  double radius, double rate) {
+    if(time_first_) time_first_ = false;
+    FeedState fs = feed_state(rate);
+    for(const Point9 &p : segs) {
+        Point9 prog;
+        untransform(p, prog);
+        timer_->feed(line_number, time_lo_, p, fs, time_lo_x_, prog[P9_X],
+                     radius);
+        time_lo_ = p;
+        time_lo_x_ = prog[P9_X];
     }
 }
 
@@ -987,7 +1269,7 @@ int arc_segments(const Point9 &lo, int plane,
                  double x1, double y1, double cx, double cy, int rot,
                  double z1, double a, double b, double c,
                  double u, double v, double w,
-                 int max_segments, std::vector<Point9> &out) {
+                 int max_segments, std::vector<Point9> &out, double *radius) {
     Point9 o = lo, n;
     P9Axis X, Y, Z;
 
@@ -1040,6 +1322,7 @@ int arc_segments(const Point9 &lo, int plane,
     Point9 d = n - o;
 
     double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
+    if(radius) *radius = hypot(tx, ty);
     for(int i=0; i<steps-1; i++) {
         double f = (i+1) * rsteps;
         Point9 &p = out[(size_t)i];
