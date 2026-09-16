@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-#######################################
-# This program is used in HALUI as a 
-# bridge between ZMQ messages and 
-# HALUI's internal state. HALUI calls
-# these function from an embedded python
-# interpreter
-#######################################
 
 import os
 import sys
@@ -23,7 +16,7 @@ LOG = logger.initBaseLogger('HAL bridge', log_file=None,
              log_level=logger.WARNING, logToFile=False)
 
 # Force the log level for this module
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     import zmq
@@ -40,6 +33,9 @@ class Info(IStatParent):
         if not cls._instance:
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
+
+# Instantiate the library with global reference
+
 
 class Bridge(object):
     def __init__(self, readAddress = "tcp://127.0.0.1:5690",
@@ -116,7 +112,7 @@ class Bridge(object):
         elif msg == 'joint-selection-changed':
             self.activeJoint = int(data[0])
         elif msg == 'axis-selection-changed':
-            #print ('pre axis state', self.axesSelected,self.currentSelectedAxis)
+            print ('pre axis state', self.axesSelected,self.currentSelectedAxis)
             flag = 1
             if data[0] == 'MPG0':
                 self.currentSelectedAxis = data[0]
@@ -135,7 +131,7 @@ class Bridge(object):
 
             if flag:
                 self.currentSelectedAxis = 'None'
-            #print ('axis state', self.axesSelected,self.currentSelectedAxis)
+            print ('axis state', self.axesSelected,self.currentSelectedAxis)
 
     # send msg to hal_glib
     def writeMsg(self, msg, data=''):
@@ -173,7 +169,7 @@ class Bridge(object):
         self.writeMsg('request_shutdown')
 
     def softkey(self, index):
-        #print(f'Softkey index {index}')
+        print(f'Softkey index {index}')
         self.writeMsg('request_softkey', index)
 
     # if the number is bigger then MDI command list
