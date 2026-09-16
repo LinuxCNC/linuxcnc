@@ -17,7 +17,6 @@
 # the other subclasses are for simple HAL widget functionality
 
 import hal
-
 from qtpy.QtCore import Property
 from qtpy.QtWidgets import QDialog
 
