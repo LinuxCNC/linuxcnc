@@ -56,6 +56,7 @@
 #include <inifile.hh>
 
 #include "hal/setps_util.h"
+#include "hal/halqrec.hh"
 
 using namespace linuxcnc;
 
@@ -66,7 +67,7 @@ using namespace linuxcnc;
 
 static std::string helloPwd   = "EMC";       // Connect password
 static std::string enablePwd  = "EMCTOO";    // Enable password
-static std::string serverName = "EMCNETSVR"; // Server name written in hello response
+static std::string serverName = "HALNETSVR"; // Server name written in hello response
 static bool isipv4 = false;         // We try AF_INET6, but can fallback to AF_INET
 static int port = 5006;
 static std::string inifilename;
@@ -152,7 +153,7 @@ typedef enum { cmdUnknown, cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHe
 
 typedef enum {
     hcUnknown,
-    hcEcho, hcVerbose, hcEnable, hcExpand, hcHeader,
+    hcEcho, hcVerbose, hcEnable, hcDisable, hcExpand, hcHeader,
     hcTime, hcTimestamp,
     hcIni, hcIniFile,
     hcSave,
@@ -167,6 +168,8 @@ typedef enum {
     hcLock, hcUnlock,
     hcNewSig, hcDelSig,
     hcSetP, hcSetS,
+    hcGetP, hcGetS,
+    hcWait,
     hcAddF, hcDelF,
     hcStart, hcStop
 } subCmdType;
@@ -266,6 +269,13 @@ retry:
     }
 }
 
+static double mytime(void)
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double)tv.tv_sec + tv.tv_usec * 1e-6;
+}
+
 static double mytimeofday(void)
 {
     struct timeval tv;
@@ -339,6 +349,16 @@ static bool to_int(const std::string &s, int &i)
     }
 }
 
+static bool to_double(const std::string &s, double &d)
+{
+	try {
+		size_t pos;
+		d = std::stod(s, &pos);
+		return pos == s.size();
+	} catch (std::exception const &) {
+		return false;
+	}
+}
 
 static int compareNoCase(const std::string &a, const std::string &b)
 {
@@ -364,14 +384,14 @@ static int compareNoCase(const std::string &a, const std::string &b)
 static const char *data_type(hal_type_t type)
 {
     switch (type) {
-    case HAL_BOOL: return "bool ";
-    case HAL_REAL: return "real ";
-    case HAL_S32:  return "s32  ";
-    case HAL_U32:  return "u32  ";
-    case HAL_SINT: return "sint ";
-    case HAL_UINT: return "uint ";
-    case HAL_PORT: return "port ";
-    default:       return "undef";  // Shouldn't happen...
+    case HAL_BOOL: return "bool";
+    case HAL_REAL: return "real";
+    case HAL_S32:  return "s32 ";
+    case HAL_U32:  return "u32 ";
+    case HAL_SINT: return "sint";
+    case HAL_UINT: return "uint";
+    case HAL_PORT: return "port";
+    default:       return "????";  // Shouldn't happen...
     }
 }
 
@@ -695,15 +715,6 @@ static int halrmt_systemv(connectionRecType &ctx, const std::vector<const char *
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int unloadrt_cb(hal_query_t *q, void *arg)
-{
-    std::vector<std::string> *comps = reinterpret_cast<std::vector<std::string> *>(arg);
-    if(HAL_COMP_TYPE_REALTIME == q->comp.type) {
-        comps->push_back(q->name);
-    }
-    return 0;
-}
-
 static int unloadrt_comp(connectionRecType &ctx, const std::string &mod_name)
 {
     std::vector<const char *> argv;
@@ -757,17 +768,16 @@ static std::string guess_comp_name(const std::string &prog_name)
     return name;
 }
 
-static int get_all_comp_names_cb(hal_query_t *q, void *arg)
-{
-    std::set<std::string> *comps = reinterpret_cast<std::set<std::string> *>(arg);
-    comps->insert(q->name);
-    return 0;
-}
-
 static std::set<std::string> get_all_comp_names() {
     std::set<std::string> result;
-    hal_query_t q = {};
-    hal_list_comp(&q, get_all_comp_names_cb, &result);
+    HalQRec qrec;
+    hal_query_t q= {};
+    if(0 != hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec))
+        return result;
+
+    for(size_t i = 0; i < qrec.size(); i++) {
+        result.insert(qrec.rec(i)->name);
+    }
     return result;
 }
 
@@ -1054,9 +1064,10 @@ static int doLoadRt(connectionRecType &ctx, const std::vector<std::string> &args
     ctx.process.cascade = &processDoLoadRtWait;
 
     // Join the module arguments into a single string
-    ctx.process.insmod = mod_name;
+    ctx.process.insmod = "";
     for(unsigned i = 1; i < args.size(); i++) {
-        ctx.process.insmod += ' ';
+        if(i > 1)
+            ctx.process.insmod += ' ';
         ctx.process.insmod += args[i];
     }
 
@@ -1100,144 +1111,142 @@ static int doLoadRt(connectionRecType &ctx, const std::vector<std::string> &args
 #endif
 }
 
-static int getCompInfo_cb(hal_query_t *q, void *arg)
-{
-    connectionRecType *ctx = reinterpret_cast<connectionRecType *>(arg);
-    const std::string *pattern = reinterpret_cast<const std::string *>(q->callerdata.cpval);
-    if(pattern->empty() || !fnmatch(pattern->c_str(), q->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-        replynl(*ctx, fmt::format("COMP {:12s} {:3d} {}",
-                q->name, q->comp.comp_id, q->comp.type == HAL_COMP_TYPE_REALTIME ? "RT  " : "User"));
-    }
-    return 0;
-}
-
 static int getCompInfo(connectionRecType &ctx, const std::string &pattern)
 {
+    HalQRec qrec;
     hal_query_t q = {};
-    q.callerdata.cpval = &pattern;
+    int rv = hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv)
+        return rv;
+
     if(ctx.header) {
         replynl(ctx, fmt::format("COMP Name         Id  Type"));
     }
-    return hal_list_comp(&q, getCompInfo_cb, &ctx);
-}
-
-typedef struct {
-    connectionRecType *ctx;
-    const std::string *pattern;
-    int count;
-    bool valuesOnly;
-} getXinfo_t;
-
-static int getPinInfo_cb(hal_query_t *q, void *arg)
-{
-    getXinfo_t *gpi = reinterpret_cast<getXinfo_t *>(arg);
-    if(gpi->pattern->empty() || !fnmatch(gpi->pattern->c_str(), q->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-        gpi->count++;
-        if(gpi->valuesOnly) {
-            replynl(*gpi->ctx, fmt::format("PINVAL {:30s} {}",
-                    q->name, data_value2(q->pp.type, q->pp.value)));
-        } else {
-            replynl(*gpi->ctx, fmt::format("PIN {:30s} {:11s} {:12s}({:3d}) {} {}",
-                    q->name, data_value2(q->pp.type, q->pp.value),
-                    q->pp.comp, q->pp.comp_id, data_type(q->pp.type), pin_data_dir(q->pp.dir)));
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+            replynl(ctx, fmt::format("COMP {:12s} {:3d} {}",
+                    qrec.rec(i)->name, qrec.rec(i)->comp.comp_id,
+                    qrec.rec(i)->comp.type == HAL_COMP_TYPE_REALTIME ? "RT  " : "User"));
         }
     }
+
     return 0;
 }
 
 static std::pair<int,int> getPinInfo(connectionRecType &ctx, const std::string &pattern, bool valuesOnly)
 {
-    getXinfo_t gpi = { &ctx, &pattern, 0, valuesOnly };
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
+    int rv = hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv)
+        return {rv, 0};
+
     if(ctx.header) {
         if(valuesOnly)
             replynl(ctx, fmt::format("PINVAL Name                           Value"));
         else
             replynl(ctx, fmt::format("PIN Name                           Value       Component   ( id) Type  Dir"));
     }
-    return {hal_list_p(&q, getPinInfo_cb, &gpi), gpi.count};
-}
-
-static int getSigInfo_cb(hal_query_t *q, void *arg)
-{
-    getXinfo_t *gpi = reinterpret_cast<getXinfo_t *>(arg);
-    if(gpi->pattern->empty() || !fnmatch(gpi->pattern->c_str(), q->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-        gpi->count++;
-        if(gpi->valuesOnly) {
-            replynl(*gpi->ctx, fmt::format("SIGNALVAL {:30s} {}",
-                    q->name, data_value2(q->sig.type, q->sig.value)));
-        } else {
-            replynl(*gpi->ctx, fmt::format("SIGNAL {:30s} {:11s} {}",
-                    q->name, data_value2(q->sig.type, q->sig.value), data_type(q->sig.type)));
+    int count = 0;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+            count++;
+            if(valuesOnly) {
+                replynl(ctx, fmt::format("PINVAL {:30s} {}",
+                        qrec.rec(i)->name, data_value2(qrec.rec(i)->pp.type, qrec.rec(i)->pp.value)));
+            } else {
+                replynl(ctx, fmt::format("PIN {:30s} {:11s} {:12s}({:3d}) {} {}",
+                        qrec.rec(i)->name, data_value2(qrec.rec(i)->pp.type, qrec.rec(i)->pp.value),
+                        qrec.rec(i)->pp.comp, qrec.rec(i)->pp.comp_id,
+                        data_type(qrec.rec(i)->pp.type), pin_data_dir(qrec.rec(i)->pp.dir)));
+            }
         }
     }
-    return 0;
+    return {0, count};
 }
 
 static std::pair<int,int> getSigInfo(connectionRecType &ctx, const std::string &pattern, bool valuesOnly)
 {
-    getXinfo_t gpi = { &ctx, &pattern, 0, valuesOnly };
+    HalQRec qrec(256);
     hal_query_t q = {};
+    int rv = hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv)
+        return {rv, 0};
     if(ctx.header) {
         if(valuesOnly)
             replynl(ctx, fmt::format("SIGNALVAL Name                           Value"));
         else
             replynl(ctx, fmt::format("SIGNAL Name                           Value       Type"));
     }
-    return {hal_list_s(&q, getSigInfo_cb, &gpi), gpi.count};
-}
-
-static int getParamInfo_cb(hal_query_t *q, void *arg)
-{
-    getXinfo_t *gpi = reinterpret_cast<getXinfo_t *>(arg);
-    if(gpi->pattern->empty() || !fnmatch(gpi->pattern->c_str(), q->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-        gpi->count++;
-        if(gpi->valuesOnly) {
-            replynl(*gpi->ctx, fmt::format("PARAMVAL {:30s} {}",
-                    q->name, data_value2(q->pp.type, q->pp.value)));
-        } else {
-            replynl(*gpi->ctx, fmt::format("PARAM {:30s} {:11s} {:12s}({:3d}) {} {}",
-                    q->name, data_value2(q->pp.type, q->pp.value),
-                    q->pp.comp, q->pp.comp_id, data_type(q->pp.type), param_data_dir(q->pp.dir)));
+    int count = 0;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+            count++;
+            if(valuesOnly) {
+                replynl(ctx, fmt::format("SIGNALVAL {:30s} {}",
+                        qrec.rec(i)->name, data_value2(qrec.rec(i)->sig.type, qrec.rec(i)->sig.value)));
+            } else {
+                replynl(ctx, fmt::format("SIGNAL {:30s} {:11s} {}",
+                        qrec.rec(i)->name, data_value2(qrec.rec(i)->sig.type, qrec.rec(i)->sig.value),
+                        data_type(qrec.rec(i)->sig.type)));
+            }
         }
     }
-    return 0;
+    return {0, count};
 }
 
 static std::pair<int,int> getParamInfo(connectionRecType &ctx, const std::string &pattern, bool valuesOnly)
 {
-    getXinfo_t gpi = { &ctx, &pattern, 0, valuesOnly };
+    HalQRec qrec(512);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PARAM;
+    int rv = hal_list_p(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv)
+        return {rv, 0};
     if(ctx.header) {
         if(valuesOnly)
             replynl(ctx, fmt::format("PARAMVAL Name                           Value"));
         else
             replynl(ctx, fmt::format("PARAM Name                           Value       Component   ( id) Type  Dir"));
     }
-    return {hal_list_p(&q, getParamInfo_cb, &gpi), gpi.count};
-}
-
-static int getFunctInfo_cb(hal_query_t *q, void *arg)
-{
-    connectionRecType *ctx = reinterpret_cast<connectionRecType *>(arg);
-    const std::string *pattern = reinterpret_cast<const std::string *>(q->callerdata.cpval);
-    if(pattern->empty() || !fnmatch(pattern->c_str(), q->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-        replynl(*ctx, fmt::format("FUNCT {:16s} {:12s}({:3d}) {:3d}",
-                        q->name, q->funct.comp, q->funct.comp_id, q->funct.users));
+    int count = 0;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+            count++;
+            if(valuesOnly) {
+                replynl(ctx, fmt::format("PARAMVAL {:30s} {}",
+                        qrec.rec(i)->name, data_value2(qrec.rec(i)->pp.type, qrec.rec(i)->pp.value)));
+            } else {
+                replynl(ctx, fmt::format("PARAM {:30s} {:11s} {:12s}({:3d}) {} {}",
+                        qrec.rec(i)->name, data_value2(qrec.rec(i)->pp.type, qrec.rec(i)->pp.value),
+                        qrec.rec(i)->pp.comp, qrec.rec(i)->pp.comp_id, data_type(qrec.rec(i)->pp.type),
+                        param_data_dir(qrec.rec(i)->pp.dir)));
+            }
+        }
     }
-    return 0;
+    return {0, count};
 }
 
 static int getFunctInfo(connectionRecType &ctx, const std::string &pattern)
 {
+    HalQRec qrec;
     hal_query_t q = {};
-    q.callerdata.cpval = reinterpret_cast<const void *>(&pattern);
+    int rv = hal_list_funct(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv)
+        return rv;
+
     if(ctx.header) {
         replynl(ctx, "FUNCT Name             Component   ( id)   Users");
     }
-    return hal_list_funct(&q, getFunctInfo_cb, &ctx);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+            replynl(ctx, fmt::format("FUNCT {:16s} {:12s}({:3d}) {:3d}",
+                            qrec.rec(i)->name, qrec.rec(i)->funct.comp,
+                            qrec.rec(i)->funct.comp_id, qrec.rec(i)->funct.users));
+        }
+    }
+    return 0;
 }
 
 static rtapi_sint getpin_sint(connectionRecType &ctx, const std::string &name)
@@ -1251,48 +1260,30 @@ static rtapi_sint getpin_sint(connectionRecType &ctx, const std::string &name)
     }
     return q.pp.value.s;
 }
-static int getThreadInfo_cb(hal_query_t *q, void *arg)
-{
-    connectionRecType *ctx = reinterpret_cast<connectionRecType *>(arg);
-    const std::string *pattern = reinterpret_cast<const std::string *>(q->callerdata.cpval);
-    if(HAL_QTYPE_THREAD == q->qtype) {
-        // The thread reference
-        if(pattern->empty() || !fnmatch(pattern->c_str(), q->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
-            rtapi_sint tp = getpin_sint(*ctx, fmt::format("{}.time", q->name));
-            rtapi_sint tm = getpin_sint(*ctx, fmt::format("{}.tmax", q->name));
-            replynl(*ctx, fmt::format("THREAD {:12s} {:11d} {} {}", q->name, q->thread.period, tp, tm));
-        }
-    } else {
-        // The thread's function reference
-        replynl(*ctx, fmt::format("THREADFUNCT {:16s} {:2d}", q->thread.funct, q->thread.functidx + 1));
-    }
-    return 0;
-}
 
 static int getThreadInfo(connectionRecType &ctx, const std::string &pattern)
 {
+    HalQRec qrec;
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_THREAD_FUNCT;
-    q.callerdata.cpval = reinterpret_cast<const void *>(&pattern);
+    int rv = hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec);
+    if(0 != rv)
+        return rv;
+
     if(ctx.header) {
         replynl(ctx, "THREAD Name             Period  time  tmax");
     }
-    return hal_list_thread(&q, getThreadInfo_cb, &ctx);
-}
-
-static int save_comps_cb(hal_query_t *q, void *arg)
-{
-    std::string *str = reinterpret_cast<std::string *>(arg);
-    if(strstr(q->name, HAL_PSEUDO_COMP_PREFIX) == q->name) {
-        // Those starting with '__' are fake components
-        return 0;
-    }
-    if(HAL_COMP_TYPE_REALTIME == q->comp.type) {
-        // Realtime components only
-        if(!q->comp.insmod) {
-            *str += fmt::format("# loadrt {} (not loaded by loadrt, no args saved)\n", q->name);
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(HAL_QTYPE_THREAD == qrec.rec(i)->qtype) {
+            // The thread reference
+            if(pattern.empty() || !fnmatch(pattern.c_str(), qrec.rec(i)->name, FNM_NOESCAPE|FNM_CASEFOLD)) {
+                rtapi_sint tp = getpin_sint(ctx, fmt::format("{}.time", qrec.rec(i)->name));
+                rtapi_sint tm = getpin_sint(ctx, fmt::format("{}.tmax", qrec.rec(i)->name));
+                replynl(ctx, fmt::format("THREAD {:12s} {:11d} {} {}", qrec.rec(i)->name, qrec.rec(i)->thread.period, tp, tm));
+            }
         } else {
-            *str += fmt::format("loadrt {} {}\n", q->name, q->comp.insmod);
+            // The thread's function reference
+            replynl(ctx, fmt::format("THREADFUNCT {:16s} {:2d}", qrec.rec(i)->thread.funct, qrec.rec(i)->thread.functidx + 1));
         }
     }
     return 0;
@@ -1301,98 +1292,106 @@ static int save_comps_cb(hal_query_t *q, void *arg)
 static void save_comps(std::string &dst)
 {
     dst += "# components\n";
+    HalQRec qrec;
     hal_query_t q = {};
-    hal_list_comp(&q, save_comps_cb, &dst);
-}
-
-static int save_signals_cb(hal_query_t *q, void *arg)
-{
-    std::string *str = reinterpret_cast<std::string *>(arg);
-    *str += fmt::format("newsig {} {}\n", q->name, data_type(q->sig.type));
-    return 0;
+    if(0 != hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        size_t j = qrec.size() - i - 1; // Reverse order to show actual load order
+        if(strstr(qrec.rec(j)->name, HAL_PSEUDO_COMP_PREFIX) == qrec.rec(j)->name) {
+            // Those starting with '__' are fake components
+            continue;
+        }
+        if(HAL_COMP_TYPE_REALTIME == qrec.rec(j)->comp.type) {
+            // Realtime components only
+            if(!qrec.rec(j)->comp.insmod) {
+                dst += fmt::format("# loadrt {} (not loaded by loadrt, no args saved)\n", qrec.rec(j)->name);
+            } else {
+                dst += fmt::format("loadrt {} {}\n", qrec.rec(j)->name, qrec.rec(j)->comp.insmod);
+            }
+        }
+    }
 }
 
 static void save_signals(std::string &dst)
 {
     dst += "# signals\n";
+    HalQRec qrec(256);
     hal_query_t q = {};
-    hal_list_s(&q, save_signals_cb, &dst);
-}
-
-static int save_links_cb(hal_query_t *q, void *arg)
-{
-    if(q->pp.signal) {
-        std::string *str = reinterpret_cast<std::string *>(arg);
-        const char *arrow_str = q->callerdata.sival ? data_arrow1(q->pp.dir) : "";
-        *str += fmt::format("linkps {} {} {}\n", q->name, arrow_str, q->pp.signal);
+    if(0 != hal_list_s(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        dst += fmt::format("newsig {} {}\n", qrec.rec(i)->name, data_type(qrec.rec(i)->sig.type));
     }
-    return 0;
 }
 
 static void save_links(std::string &dst, int arrow)
 {
     dst += "# links\n";
+    HalQRec qrec(1024);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PIN;
-    q.callerdata.sival = arrow;
-    hal_list_p(&q, save_links_cb, &dst);
+    if(0 != hal_list_p(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(qrec.rec(i)->pp.signal) {
+            const char *arrow_str = arrow ? data_arrow1(qrec.rec(i)->pp.dir) : "";
+            dst += fmt::format("linkps {} {} {}\n", qrec.rec(i)->name, arrow_str, qrec.rec(i)->pp.signal);
+        }
+    }
 }
 
-static int save_nets_pins_cb(hal_query_t *q, void *arg)
+static void save_nets_linksp(std::string &dst, const char *sig, int arrow)
 {
-    std::string *str = reinterpret_cast<std::string *>(arg);
-    const char *arrow_str = q->callerdata.sival ? data_arrow2(q->pp.dir) : "";
-    *str += fmt::format("linksp {} {} {}\n", q->pp.signal, arrow_str, q->name);
-    return 0;
+    HalQRec qrec;
+    hal_query_t q = {};
+    q.name = sig;
+    if(0 != hal_list_p_s(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        const char *arrow_str = arrow ? data_arrow2(qrec.rec(i)->pp.dir) : "";
+        dst += fmt::format("linksp {} {} {}\n", qrec.rec(i)->pp.signal, arrow_str, qrec.rec(i)->name);
+    }
 }
 
-static int save_nets_cb(hal_query_t *q, void *arg)
-{
-    std::string *str = reinterpret_cast<std::string *>(arg);
-    *str += fmt::format("newsig {} {}\n", q->name, data_type(q->sig.type));
-    hal_query_t qp = {};
-    qp.name = q->name;
-    qp.callerdata.sival = q->callerdata.sival;
-    return hal_list_p_s(&qp, save_nets_pins_cb, arg);
-}
 static void save_nets(std::string &dst, int arrow)
 {
     dst += "# nets\n";
+    HalQRec qrec(256);
     hal_query_t q = {};
-    q.callerdata.sival = arrow;
-    hal_list_s(&q, save_nets_cb, &dst);
-}
-
-static int save_params_cb(hal_query_t *q, void *arg)
-{
-    std::string *str = reinterpret_cast<std::string *>(arg);
-    *str += fmt::format("setp {} {}\n", q->name, data_value(q->pp.type, q->pp.value).c_str());
-    return 0;
+    if(0 != hal_list_s(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        dst += fmt::format("newsig {} {}\n", qrec.rec(i)->name, data_type(qrec.rec(i)->sig.type));
+        save_nets_linksp(dst, qrec.rec(i)->name, arrow);
+    }
 }
 
 static void save_params(std::string &dst)
 {
     dst += "# parameter values\n";
+    HalQRec qrec(512);
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_PARAM;
-    hal_list_p(&q, save_params_cb, &dst);
-}
-
-static int save_threads_cb(hal_query_t *q, void *arg)
-{
-    if(HAL_QTYPE_THREAD_FUNCT == q->qtype) {
-        std::string *str = reinterpret_cast<std::string *>(arg);
-        *str += fmt::format("addf {} {}\n", q->thread.funct, q->name);
+    if(0 != hal_list_p(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        dst += fmt::format("setp {} {}\n", qrec.rec(i)->name, data_value(qrec.rec(i)->pp.type, qrec.rec(i)->pp.value));
     }
-    return 0;
 }
 
 static void save_threads(std::string &dst)
 {
     dst += "# realtime thread/function links\n";
+    HalQRec qrec;
     hal_query_t q = {};
     q.qtype = HAL_QTYPE_THREAD_FUNCT;
-    hal_list_thread(&q, save_threads_cb, &dst);
+    if(0 != hal_list_thread(&q, HalQRec::get_qrec_cb, &qrec))
+        return;
+    for(size_t i = 0; i < qrec.size(); i++) {
+        if(qrec.rec(i)->qtype == HAL_QTYPE_THREAD_FUNCT)
+            dst += fmt::format("addf {} {}\n", qrec.rec(i)->thread.funct, qrec.rec(i)->name);
+    }
 }
 
 // initiate session
@@ -1676,6 +1675,35 @@ static cmdResponseType getSigVal(connectionRecType &ctx)
     return 0 == rv.first ? rtOk : rtError;
 }
 
+static cmdResponseType getGets(connectionRecType &ctx)
+{
+    // GET GETS <signal>
+    hal_query_t q = {};
+    q.name = ctx.toks[2].c_str();
+    int rv = hal_get_s(&q, NULL, NULL);
+    if(0 != rv) {
+        errornl(ctx, fmt::format("GETS on '{}' failed: error={} ({})", ctx.toks[2], rv, hal_strerror(rv)));
+        return rtError;
+    }
+    replynl(ctx, fmt::format("GETS {} {} {}", data_type(q.sig.type), ctx.toks[2], data_value2(q.sig.type, q.sig.value)));
+    return rtOk;
+}
+
+static cmdResponseType getGetp(connectionRecType &ctx)
+{
+    // GET GETP <pin|param>
+    hal_query_t q = {};
+    q.name = ctx.toks[2].c_str();
+    int rv = hal_get_p(&q, NULL, NULL);
+    if(0 != rv) {
+        errornl(ctx, fmt::format("GETP on '{}' failed: error={} ({})", ctx.toks[2], rv, hal_strerror(rv)));
+        return rtError;
+    }
+    replynl(ctx, fmt::format("GETP {} {} {}", data_type(q.pp.type), ctx.toks[2], data_value2(q.pp.type, q.pp.value)));
+    return rtOk;
+}
+
+
 static cmdResponseType getParam(connectionRecType &ctx)
 {
     // GET PARAM <param>
@@ -1734,20 +1762,17 @@ static cmdResponseType getLock(connectionRecType &ctx)
     return rtOk;
 }
 
-static int getNet_cb(hal_query_t *q, void *arg)
-{
-    connectionRecType *ctx = reinterpret_cast<connectionRecType *>(arg);
-    replynl(*ctx, fmt::format("{} {} {}", q->pp.signal, data_arrow1(q->pp.dir), q->name));
-    return 0;
-}
-
 static cmdResponseType getNet(connectionRecType &ctx)
 {
     // GET NET <signal>
+    HalQRec qrec;
     hal_query_t q = {};
     q.name = ctx.toks[2].c_str();
-    int rv = hal_list_p_s(&q, getNet_cb, &ctx);
+    int rv = hal_list_p_s(&q, HalQRec::get_qrec_cb, &qrec);
     if(0 == rv) {
+        for(size_t i = 0; i < qrec.size(); i++) {
+            replynl(ctx, fmt::format("{} {} {}", qrec.rec(i)->pp.signal, data_arrow1(qrec.rec(i)->pp.dir), qrec.rec(i)->name));
+        }
         return rtOk;
     } else if(-ENOENT == rv) {
         errornl(ctx, fmt::format("Signal '{}' not found", ctx.toks[2]));
@@ -1794,6 +1819,55 @@ static cmdResponseType setVerbose(connectionRecType &ctx)
     return rtOk;
 }
 
+#define CYCLES_WAIT_MAX 10000
+#define CYCLES_WAIT_TIMEOUT_DEF 11.0
+#define CYCLES_WAIT_TIMEOUT_MIN 0.001
+#define CYCLES_WAIT_TIMEOUT_MAX 300.0
+static cmdResponseType setWait(connectionRecType &ctx)
+{
+    // SET WAIT <thread> [<cycles>|2 [timeout]]
+    int cycles = 2;
+    double timeout = CYCLES_WAIT_TIMEOUT_DEF;
+    if (ctx.toks.size() > 3 && !to_int(ctx.toks[3], cycles)) {
+        errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[3]));
+        return rtError;
+    }
+    if (ctx.toks.size() > 4 && !to_double(ctx.toks[4], timeout)) {
+        errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[4]));
+        return rtError;
+    }
+    if (cycles < 2 || cycles > CYCLES_WAIT_MAX) {
+        errornl(ctx, fmt::format("Invalid argument '{}', cycles must in range [2,{}]", ctx.toks[3], CYCLES_WAIT_MAX));
+        return rtError;
+    }
+    if (timeout < CYCLES_WAIT_TIMEOUT_MIN || timeout > CYCLES_WAIT_TIMEOUT_MAX) {
+        errornl(ctx, fmt::format("Invalid argument '{}', timeout must in range [{},{}]",
+                    ctx.toks[4], CYCLES_WAIT_TIMEOUT_MIN, CYCLES_WAIT_TIMEOUT_MAX));
+        return rtError;
+    }
+    std::string pin = ctx.toks[2] + ".threadbeat";
+    hal_query_t q = {};
+    q.name = pin.c_str();
+    int rv = hal_getref_p(&q);
+    if(0 != rv) {
+        errornl(ctx, fmt::format("Error {} getting reference for pin '{}': {}", rv, pin, hal_strerror(rv)));
+        return rtError;
+    }
+    rtapi_sint v1 = hal_get_sint(q.pp.ref.s);
+    double stime = mytime();
+    do {
+        mysleep(0.001);
+        rtapi_sint v2 = hal_get_sint(q.pp.ref.s);
+        if (v2 - v1 >= cycles)
+            break;
+        if (mytime() - stime > timeout) {
+            errornl(ctx, fmt::format("Timeout waiting for '{}' to advance {} cycles (got only {})", pin, cycles, v2 - v1));
+            return rtError;
+        }
+    } while(true);
+    return rtOk;
+}
+
 static cmdResponseType setHeader(connectionRecType &ctx)
 {
     // SET HEADER <ON|OFF>
@@ -1822,6 +1896,17 @@ static cmdResponseType setEnable(connectionRecType &ctx)
         return rtOk;
     }
     return rtError;
+}
+
+static cmdResponseType setDisable(connectionRecType &ctx)
+{
+    // SET DISABLE
+    if (!isEnabled(ctx)) {
+        warnnl(ctx, "Trying to set disable while not enabled");
+        return rtOk;
+    }
+    doDisable(ctx);
+    return rtOk;
 }
 
 static cmdResponseType setExpand(connectionRecType &ctx)
@@ -1874,12 +1959,18 @@ static cmdResponseType setUnload(connectionRecType &ctx)
     if("all" == ctx.toks[2]) {
         // Unload all components
         // Gather all RT components
+        HalQRec qrec;
         hal_query_t q = {};
-        int rv = hal_list_comp(&q, unloadrt_cb, &comps);
+        int rv = hal_list_comp(&q, HalQRec::get_qrec_cb, &qrec);
         if(0 != rv) {
             errornl(ctx, fmt::format("Failed to gather component list, error={} ({})",
                         ctx.toks[2], rv, hal_strerror(rv)));
             return rtError;
+        }
+        for(size_t i = 0; i < qrec.size(); i++) {
+            if(HAL_COMP_TYPE_REALTIME == qrec.rec(i)->comp.type) {
+                comps.push_back(qrec.rec(i)->name);
+            }
         }
     } else {
         // Unload one specific component
@@ -2131,23 +2222,20 @@ static cmdResponseType setNewSig(connectionRecType &ctx)
     return rtOk;
 }
 
-static int setDelSig_cb(hal_query_t *q, void *arg)
-{
-    std::vector<std::string> *sigs = reinterpret_cast<std::vector<std::string> *>(arg);
-    sigs->push_back(q->name);
-    return 0;
-}
-
 static cmdResponseType setDelSig(connectionRecType &ctx)
 {
     // SET DELSIG <signal>
     if(ctx.toks[2] == "all") {
         std::vector<std::string> sigs;
+        HalQRec qrec(256);
         hal_query_t q = {};
-        int rv = hal_list_s(&q, setDelSig_cb, &sigs);
+        int rv = hal_list_s(&q, HalQRec::get_qrec_cb, &qrec);
         if(0 != rv) {
             errornl(ctx, fmt::format("Failed to gather all signal names, error={}", rv));
             return rtError;
+        }
+        for(size_t i = 0; i < qrec.size(); i++) {
+            sigs.push_back(qrec.rec(i)->name);
         }
         bool fail = false;
         for(const auto &sig : sigs) {
@@ -2286,7 +2374,23 @@ static cmdResponseType setSave(connectionRecType &ctx)
         }
         close(fd);
     } else {
-        replynl(ctx, out);
+        // The network comms use '\r\n' while the normal text is '\n'
+        // Start with removing trailing newline(s)
+        while(out.size() > 0 && out[out.size()-1] == '\n') {
+            out.pop_back();
+        }
+        // Then print the output segmented
+        size_t spos = 0;
+        size_t epos = out.find_first_of('\n');
+        while(1) {
+            if(std::string::npos == epos) {
+                replynl(ctx, out.substr(spos, out.size() - spos));
+                break;
+            }
+            replynl(ctx, out.substr(spos, epos - spos));
+            spos = epos + 1;
+            epos = out.find_first_of('\n', spos);
+        }
     }
     return rtOk;
 }
@@ -2357,11 +2461,14 @@ static const getsetListType getsetList[] = {
     { hcComps,     "COMPS",     0, 0, getComps,     gsNotImpl,    alEnable, "[pattern]", "" },
     { hcDelF,      "DELF",      0, 2, gsNotImpl,    setDelF,      alEnable, "", "<funct> <thread>" },
     { hcDelSig,    "DELSIG",    0, 1, gsNotImpl,    setDelSig,    alEnable, "", "<signal>" },
+    { hcDisable,   "DISABLE",   0, 0, gsNotImpl,    setDisable,   alHello,  "", "" },
     { hcEcho,      "ECHO",      0, 1, getEcho,      setEcho,      alNone,   "", "{on|off}" },
     { hcEnable,    "ENABLE",    0, 1, getEnable,    setEnable,    alHello,  "", "<password>|{off}" },
     { hcExpand,    "EXPAND",    0, 1, getExpand,    setExpand,    alHello,  "", "{on|off}" },
     { hcFunct,     "FUNCT",     1, 0, getFunct,     gsNotImpl,    alEnable, "<funct>", "" },
     { hcFuncts,    "FUNCTS",    0, 0, getFuncts,    gsNotImpl,    alEnable, "[pattern]", "" },
+    { hcGetP,      "GETP",      1, 0, getGetp,      gsNotImpl,    alEnable, "<pin|param>", "" },
+    { hcGetS,      "GETS",      1, 0, getGets,      gsNotImpl,    alEnable, "<signal>", "" },
     { hcHeader,    "HEADER",    0, 1, getHeader,    setHeader,    alNone,   "", "{on|off}" },
     { hcIni,       "INI",       2, 0, getIni,       gsNotImpl,    alHello,  "<var> <section>", "" },
     { hcIniFile,   "INIFILE",   0, 1, getIniFile,   setIniFile,   alHello,  "", "<filename>" },
@@ -2398,6 +2505,7 @@ static const getsetListType getsetList[] = {
     { hcUnload,    "UNLOAD",    0, 1, gsNotImpl,    setUnload,    alEnable, "", "<module>|<program>" },
     { hcUnlock,    "UNLOCK",    0, 1, gsNotImpl,    setUnlock,    alEnable, "", "{all|load|config|params|run|tune|none}" },
     { hcVerbose,   "VERBOSE",   0, 1, getVerbose,   setVerbose,   alHello,  "", "{on|off}" },
+    { hcWait,      "WAIT",      0, 1, gsNotImpl,    setWait,      alEnable, "", "<thread> [<cycles>|2 [timeout]]"},
 };
 
 static int cmpGSList(const void *a, const void *b)

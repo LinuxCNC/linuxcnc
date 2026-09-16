@@ -1,0 +1,186 @@
+HELLO ACK HALNETSVR 1.1
+set verbose on
+SET VERBOSE ACK
+HELLO NAK
+HELLO ACK HALNETSVR 1.1
+set echo off
+SET ECHO ACK
+SET ENABLE ACK
+SET ECHO ACK
+set loadrt threads name1=testthread period1=1000000
+SET LOADRT ACK
+set loadrt and2 count=1
+SET LOADRT ACK
+set loadrt or2  count=1
+SET LOADRT ACK
+set loadrt xor2 count=1
+SET LOADRT ACK
+set addf and2.0 testthread
+SET ADDF ACK
+set addf or2.0  testthread
+SET ADDF ACK
+set addf xor2.0 testthread
+SET ADDF ACK
+set net net-input-a and2.0.in0 or2.0.in0
+SET NET ACK
+set net net-input-b and2.0.in1 or2.0.in1
+SET NET ACK
+set net net-xor-a   and2.0.out xor2.0.in0
+SET NET ACK
+set net net-xor-b   or2.0.out  xor2.0.in1
+SET NET ACK
+set net net-output  xor2.0.out
+SET NET ACK
+set start
+SET START ACK
+set wait testthread
+SET WAIT ACK
+get signal net-input-a
+SIGNAL net-input-a                    FALSE       bool
+GET SIGNAL ACK
+get signal net-input-b
+SIGNAL net-input-b                    FALSE       bool
+GET SIGNAL ACK
+get signal net-xor-a
+SIGNAL net-xor-a                      FALSE       bool
+GET SIGNAL ACK
+get signal net-xor-b
+SIGNAL net-xor-b                      FALSE       bool
+GET SIGNAL ACK
+get signal net-output
+SIGNAL net-output                     FALSE       bool
+GET SIGNAL ACK
+set sets net-input-a 1
+SET SETS ACK
+set sets net-input-b 0
+SET SETS ACK
+set wait testthread
+SET WAIT ACK
+get gets net-input-a
+GETS bool net-input-a TRUE
+GET GETS ACK
+get gets net-input-b
+GETS bool net-input-b FALSE
+GET GETS ACK
+get gets net-xor-a
+GETS bool net-xor-a FALSE
+GET GETS ACK
+get gets net-xor-b
+GETS bool net-xor-b TRUE
+GET GETS ACK
+get gets net-output
+GETS bool net-output TRUE
+GET GETS ACK
+get getp xor2.0.in0
+GETP bool xor2.0.in0 FALSE
+GET GETP ACK
+get getp xor2.0.in1
+GETP bool xor2.0.in1 TRUE
+GET GETP ACK
+set sets net-input-b 1
+SET SETS ACK
+set wait testthread
+SET WAIT ACK
+get getp xor2.0.in0
+GETP bool xor2.0.in0 TRUE
+GET GETP ACK
+get getp xor2.0.in1
+GETP bool xor2.0.in1 TRUE
+GET GETP ACK
+get getp xor2.0.out
+GETP bool xor2.0.out FALSE
+GET GETP ACK
+get getp this-pin-does-not-exist
+error: GETP on 'this-pin-does-not-exist' failed: error=-2 (not found)
+GET GETP NAK
+get gets this-signal-does-not-exist
+error: GETS on 'this-signal-does-not-exist' failed: error=-2 (not found)
+GET GETS NAK
+get signals
+SIGNAL net-input-a                    TRUE        bool
+SIGNAL net-input-b                    TRUE        bool
+SIGNAL net-output                     FALSE       bool
+SIGNAL net-xor-a                      TRUE        bool
+SIGNAL net-xor-b                      TRUE        bool
+GET SIGNALS ACK
+set save comp
+# components
+loadrt threads name1=testthread period1=1000000
+loadrt and2 count=1
+loadrt or2 count=1
+loadrt xor2 count=1
+SET SAVE ACK
+set save sig
+# signals
+newsig net-input-a bool
+newsig net-input-b bool
+newsig net-output bool
+newsig net-xor-a bool
+newsig net-xor-b bool
+SET SAVE ACK
+set save link
+# links
+linkps and2.0.in0  net-input-a
+linkps and2.0.in1  net-input-b
+linkps and2.0.out  net-xor-a
+linkps or2.0.in0  net-input-a
+linkps or2.0.in1  net-input-b
+linkps or2.0.out  net-xor-b
+linkps xor2.0.in0  net-xor-a
+linkps xor2.0.in1  net-xor-b
+linkps xor2.0.out  net-output
+SET SAVE ACK
+set save linka
+# links
+linkps and2.0.in0 <== net-input-a
+linkps and2.0.in1 <== net-input-b
+linkps and2.0.out ==> net-xor-a
+linkps or2.0.in0 <== net-input-a
+linkps or2.0.in1 <== net-input-b
+linkps or2.0.out ==> net-xor-b
+linkps xor2.0.in0 <== net-xor-a
+linkps xor2.0.in1 <== net-xor-b
+linkps xor2.0.out ==> net-output
+SET SAVE ACK
+set save net
+# nets
+newsig net-input-a bool
+linksp net-input-a  and2.0.in0
+linksp net-input-a  or2.0.in0
+newsig net-input-b bool
+linksp net-input-b  and2.0.in1
+linksp net-input-b  or2.0.in1
+newsig net-output bool
+linksp net-output  xor2.0.out
+newsig net-xor-a bool
+linksp net-xor-a  and2.0.out
+linksp net-xor-a  xor2.0.in0
+newsig net-xor-b bool
+linksp net-xor-b  or2.0.out
+linksp net-xor-b  xor2.0.in1
+SET SAVE ACK
+set save neta
+# nets
+newsig net-input-a bool
+linksp net-input-a ==> and2.0.in0
+linksp net-input-a ==> or2.0.in0
+newsig net-input-b bool
+linksp net-input-b ==> and2.0.in1
+linksp net-input-b ==> or2.0.in1
+newsig net-output bool
+linksp net-output <== xor2.0.out
+newsig net-xor-a bool
+linksp net-xor-a <== and2.0.out
+linksp net-xor-a ==> xor2.0.in0
+newsig net-xor-b bool
+linksp net-xor-b <== or2.0.out
+linksp net-xor-b ==> xor2.0.in1
+SET SAVE ACK
+set save thread
+# realtime thread/function links
+addf and2.0 testthread
+addf or2.0 testthread
+addf xor2.0 testthread
+SET SAVE ACK
+shutdown
+SHUTDOWN ACK
