@@ -923,24 +923,20 @@ class HandlerClass:
 
     # called from hal_glib to run macros from external event
     def request_macro_call(self, data):
-        #print(f'macro call data: {data}')
         if not self.w.chk_auto_mode_ext_macro.isChecked() and not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), WARNING)
             return
-        cmd = INFO.get_ini_mdi_command(data)
-        #print(f'MDI command:{cmd}   data:{data}')
-        if INFO.get_ini_mdi_command(data) is None:
+
+        if 'ini-macro-cmd' in data:
             data = data.replace('ini-macro-cmd-','')
             try:
                 temp = INFO.MACRO_COMMAND_DICT.get(data).get('cmd')
-                #print(temp)
                 self.run_macro(data=temp)
                 return
-            except Exception as e:
-                print(e)
-                self.add_status(_translate("HandlerClass",f'External requested INI macro data not recognized:{data}'), CRITICAL)
+            except:
+                self.add_status(_translate(f"HandlerClass",'External requested INI macro data not recognized:{data}'), CRITICAL)
 
-        elif INFO.get_ini_macro_command(data) is None:
+        elif 'ini-mdi-cmd' in data:
             for b in range(0,10):
                 button = self.w['macrobutton{}'.format(b)]
                 # prefer named INI MDI commands
@@ -963,9 +959,9 @@ class HandlerClass:
                         self.add_status(_translate("HandlerClass",'Error running macro: {} {}\n{}'.format(key, text, e)))
                     break
             else:
-                self.add_status(_translate("HandlerClass",f'External requested INI mdi {data} does not match button name/number'), CRITICAL)
+                self.add_status(_translate(f"HandlerClass",'External requested INI mdi {data} does not match button name/number'), CRITICAL)
         else:
-            self.add_status(_translate("HandlerClass",f'External requested INI macro data not recognized:{data}'), CRITICAL)
+            self.add_status(_translate(f"HandlerClass",'External requested INI macro data not recognized:{data}'), CRITICAL)
 
     #######################
     # CALLBACKS FROM FORM #
@@ -1000,20 +996,10 @@ class HandlerClass:
 
     # program frame
     def btn_start_clicked(self, obj):
-
         if not STATUS.is_all_homed():
            self.add_status(_translate("HandlerClass","Machine must be is homed"), CRITICAL)
            return
-        if STATUS.is_auto_paused():
-            self.command.auto(linuxcnc.AUTO_RESUME)
-            return
-        if STATUS.is_mdi_mode():
-            self.w.mdiline.submit()
-            return
-        if STATUS.is_man_mode():
-            self.add_status(_translate("HandlerClass","Can't start cycles or submit MDI commands in manual Mode"),WARNING)
-            return
-        if not os.path.exists(self.last_loaded_program):
+        if not  os.path.exists(self.last_loaded_program):
             self.add_status(_translate("HandlerClass","No program to execute"), WARNING)
             return
         if not STATUS.is_auto_mode() and not self.auto_mode_switch:
