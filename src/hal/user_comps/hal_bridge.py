@@ -118,10 +118,7 @@ class Bridge(object):
     def init_write(self):
         context = zmq.Context()
         self.writeSocket = context.socket(zmq.PUB)
-        try:
-            self.writeSocket.bind(self.writeAddress)
-        except zmq.error.ZMQError:
-            LOG.critical(f'Write address already in use? {self.writeAddress}')
+        self.writeSocket.bind(self.writeAddress)
 
     def init_read(self):
         # ZeroMQ Context
