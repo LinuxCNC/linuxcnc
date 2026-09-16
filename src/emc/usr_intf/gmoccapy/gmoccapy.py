@@ -1345,8 +1345,10 @@ class gmoccapy(object):
         cmd = self.INFO.get_ini_mdi_command(data)
         print('MDI command:',data,cmd)
         if not cmd is None:
+            self.ACTION.RECORD_CURRENT_MODE()
             LOG.debug("INI MDI COMMAND #: {} = {}".format(data, cmd))
-            self.ACTION.CALL_INI_MDI(data,mode_return = True)
+            self.ACTION.CALL_INI_MDI(data)
+            self.ACTION.RESTORE_RECORDED_MODE()
             return
 
         # run Macros
