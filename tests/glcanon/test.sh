@@ -15,8 +15,9 @@ set -e
 
 if python3 -c 'import OpenGL' 2>/dev/null; then
     ./test_workpiece.py >&2
+    ./test_workplane.py >&2
 else
-    echo "skip: test_workpiece.py needs PyOpenGL (headless build)" >&2
+    echo "skip: test_workpiece.py and test_workplane.py need PyOpenGL (headless build)" >&2
 fi
 
 echo ok

@@ -2056,6 +2056,26 @@ old plane.
 words are in the plane, and the result is a new plane relative to the old
 one. It needs a plane to build on.
 
+The G-code preview draws every plane a program defines, so a program can
+be checked for where its planes sit before it runs: a rectangle lying in
+the plane, over the moves made under it with a margin around them, the
+plane's own X, Y and Z at the centre of the rectangle in the colours of
+the machine axes, and a cross at the plane's origin, which need not lie
+in the rectangle: a program drilling a sphere puts every plane's origin
+at the centre and works out on the surface. The rectangle is drawn at the plane's Z where the program comes
+down to it, and otherwise at the end of the Z range the program worked
+in that is nearest to it, so a drilling cycle that stays above the
+origin shows its holes where they are cut; a plane nothing moved under
+is drawn as a square sized from the program. A plane restated with the
+same words is one plane, not one per restatement. The plane in effect
+on the machine, the one the last executed 'G68.2' set, is drawn over
+the others in its own colour, so as the program runs the plane it is
+in stands out from the ones it has been in and will be in; a plane set
+from MDI shows the same way, as a square with nothing under it. The plane
+in effect is drawn no smaller than the coordinate system axes, with its
+own axes as long as those, so its orientation can be checked against them
+before a program runs, however small the program.
+
 'G69' cancels the plane. So does the end of the program, 'M2' or 'M30', and
 an abort: the plane is not persistent and nothing about it is written to the
 parameter file.

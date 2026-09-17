@@ -133,6 +133,40 @@ struct ToolOffsetRecord {
     Point9 offsets;                     // xo..wo, as the canon was given them
 };
 
+// A tilted work plane the program defined, G68.2, G68.3 or G68.4: where it
+// sits on the machine, and what the program did in it. The origin and the
+// axes are in the machine frame, through the offsets in force at the
+// definition the way a move endpoint on the same line gets them; the
+// extents are in the plane's own coordinates, over every move made while
+// it was in effect, empty (min > max) while nothing moved. A definition
+// that names the plane in effect again is the same record, so a program
+// that restates its plane in a loop has one plane, not one per pass.
+struct WorkPlaneRecord {
+    int lineno;
+    Point3 origin;
+    std::array<Point3, 3> axes;         // the plane's X, Y and Z, unit
+    Box3 extents;
+
+    bool same_as(const Point3 &o, const std::array<Point3, 3> &a) const {
+        for(int i = 0; i < P3_COUNT; i++) {
+            if(fabs(origin[i] - o[i]) > 1e-9) return false;
+            for(int j = 0; j < P3_COUNT; j++)
+                if(fabs(axes[i][j] - a[i][j]) > 1e-9) return false;
+        }
+        return true;
+    }
+    // Take in a machine point the program reached under the plane.
+    void extend(const Point9 &p) {
+        Point3 d = {p[P9_X] - origin[P3_X], p[P9_Y] - origin[P3_Y],
+                    p[P9_Z] - origin[P3_Z]};
+        for(int i = 0; i < P3_COUNT; i++) {
+            double v = d[0] * axes[i][0] + d[1] * axes[i][1] + d[2] * axes[i][2];
+            if(v < extents[BOX_MIN][i]) extents[BOX_MIN][i] = v;
+            if(v > extents[BOX_MAX][i]) extents[BOX_MAX][i] = v;
+        }
+    }
+};
+
 struct PreviewData {
     ~PreviewData();
     // False when the arrays could not grow: the caller must stop writing, as
@@ -178,6 +212,7 @@ struct PreviewData {
     std::vector<DwellRecord> dwells;
     std::vector<ToolChangeRecord> toolchanges;
     std::vector<ToolOffsetRecord> tool_offsets;
+    std::vector<WorkPlaneRecord> workplanes;
     // Record an offset at the current row; drop records governing no row.
     void set_tool_offset(const Point9 &offsets);
     void drop_trailing_tool_offset();
@@ -360,10 +395,7 @@ public:
         g92_ = offsets;
     }
     void set_xy_rotation(double degrees) override;
-    void set_g68_frame(const WorkFrame &frame) override {
-        if(parse_state.interp_error) return;
-        frame_ = frame;
-    }
+    void set_g68_frame(const WorkFrame &frame) override;
     // The plane reaches the record and the arc segmenter from here; nothing
     // on a rendered parse reads the canon's own copy.
     void set_plane(int plane) override { plane_ = plane; }
@@ -451,6 +483,11 @@ private:
     // One move into the geometry: extents, length, then its vertices.
     void fill(int line_number, const Point9 &p1, const Point9 &p2,
               double feedrate, unsigned char cat);
+    // The plane in effect takes in the end of every move made under it.
+    void reach(const Point9 &p) {
+        if(workplane_ >= 0 && data_)
+            data_->workplanes[(size_t)workplane_].extend(p);
+    }
     // One record vertex at `at`, writing its per-plane position to `points`.
     void mark(int line_number, const Point9 &at, unsigned char kind,
               PlanePoints *points);
@@ -484,6 +521,7 @@ private:
     double unrot_cos_ = 1.0;            // the same rotation, negated, for the
     double unrot_sin_ = 0.0;            // rotation-removed extents
     WorkFrame frame_;                   // the tilted work plane, inside g92
+    long workplane_ = -1;               // its record, or none in effect
 
     Point9 lo_ = {};                    // chain point
     Point9 tool_ = {};                  // xo..wo
