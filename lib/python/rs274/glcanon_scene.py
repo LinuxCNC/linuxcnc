@@ -53,6 +53,7 @@ from OpenGL.GL import (GL_ALWAYS, GL_BLEND, GL_CONSTANT_ALPHA, GL_CULL_FACE,
                        glDepthFunc, glDepthMask, glDisable, glEnable,
                        glLineWidth, glUseProgram)
 
+import gcode
 import glnav
 import linuxcnc
 from rs274 import glcanon_bake, glcanon_gl
@@ -97,6 +98,26 @@ WORKPIECE_COLOR = (0.80, 0.55, 0.25)
 #: back far enough to sit behind the program without disappearing on the
 #: default black background.
 WORKPIECE_ALPHA = 0.4
+
+#: Colour of a tilted work plane the program defined with G68.2, drawn as a
+#: rectangle lying in the plane over what the program did there, with the
+#: plane's own axes at its origin in the machine-axis colours.
+WORKPLANE_COLOR = (0.35, 0.75, 1.00)
+
+#: The rectangle sits under the path it frames, like the stock outline.
+WORKPLANE_ALPHA = 0.5
+
+#: The plane in effect on the machine, the one the last executed G68.2 set,
+#: drawn over the others so the one the program is in can be told from the
+#: ones it has been in or will be in.
+WORKPLANE_ACTIVE_COLOR = (1.00, 0.80, 0.20)
+WORKPLANE_ACTIVE_ALPHA = 0.9
+
+#: The plane in effect is what an operator who set it from MDI looks at to
+#: check the orientation before running a program, so it is drawn no smaller
+#: than the coordinate system axes, an inch each way, with its own axes the
+#: same length as those.
+WORKPLANE_ACTIVE_SIZE = 1.0
 
 
 def minmax(*args: float) -> tuple[float, float]:
@@ -211,7 +232,7 @@ class FrameContext:
         'view', 'width', 'height', 'show_program', 'show_rapids',
         'show_extents', 'show_offsets', 'show_limits', 'show_tool',
         'show_live_plot', 'show_relative', 'show_metric', 'show_small_origin',
-        'show_workpiece',
+        'show_workpiece', 'show_workplane',
         'program_alpha', 'grid_size', 'highlight_line', 'enable_dro',
         'cone_basesize', 'disable_cone_scaling', 'view_tool_min_dia',
         # callables: overridable hooks and lazily-needed values
@@ -289,6 +310,7 @@ class FrameContext:
     show_metric: bool
     show_small_origin: bool
     show_workpiece: bool
+    show_workplane: bool
     program_alpha: bool
     #: Ground-grid spacing in internal units; ``0`` means "no grid", and is the
     #: grid part's visibility gate.
@@ -2402,6 +2424,224 @@ class Workpiece:
         return edges
 
 
+class WorkPlane:
+    """One tilted work plane the program defined, with G68.2, G68.3 or
+    G68.4: where it sits on the machine, and what the program did in it.
+
+    A record of the renderer's: it places the plane and accumulates the
+    moves under it while it parses, and hands the records over with the
+    rest of the program. :attr:`origin` and :attr:`axes` are in absolute
+    machine coordinates, in the canon's units, with the g92 offset, the g5x
+    XY rotation and the g5x offset that were active at the definition
+    applied the way a move endpoint on the same line gets them. The extents
+    are in the plane's own coordinates, the ones the program writes under
+    it, accumulated from every move made while it was in effect, so a
+    reader can tell a plane the program only oriented to from one it cut
+    in; they are empty (``min > max``) while nothing moved.
+
+    Read them off the widget's canon, as the workpieces::
+
+        for plane in gremlin_widget.canon.workplanes:
+            print(plane.lineno, plane.origin, plane.extents)
+    """
+
+    __slots__ = ('lineno', 'origin', 'axes', 'min_extents', 'max_extents')
+
+    def __init__(self, lineno: int, origin: Sequence[float],
+                 axes: Sequence[Sequence[float]],
+                 min_extents: Sequence[float] = (9e99, 9e99, 9e99),
+                 max_extents: Sequence[float] = (-9e99, -9e99, -9e99)) -> None:
+        #: Source line of the definition, or ``-1`` without one.
+        self.lineno = lineno
+        #: The plane's origin, machine coordinates.
+        self.origin = tuple(origin)
+        #: The plane's X, Y and Z as unit vectors in machine coordinates.
+        self.axes = tuple(tuple(a) for a in axes)
+        self.min_extents = tuple(min_extents)
+        self.max_extents = tuple(max_extents)
+
+    def __repr__(self) -> str:
+        return "<WorkPlane line %d at %r>" % (self.lineno, self.origin)
+
+    def same_as(self, origin: Sequence[float],
+                axes: Sequence[Sequence[float]], tol: float = 1e-9) -> bool:
+        """Whether a definition names this plane again."""
+        for a, b in zip(self.origin, origin):
+            if abs(a - b) > tol:
+                return False
+        for u, v in zip(self.axes, axes):
+            for a, b in zip(u, v):
+                if abs(a - b) > tol:
+                    return False
+        return True
+
+    @property
+    def has_moves(self) -> bool:
+        return self.max_extents[X] >= self.min_extents[X]
+
+    @property
+    def extents(self) -> tuple[tuple[float, ...], tuple[float, ...]]:
+        """``(min_xyz, max_xyz)`` of the moves made under the plane, in the
+        plane's coordinates."""
+        return self.min_extents, self.max_extents
+
+    def machine_point(self, x: float, y: float, z: float) -> tuple[float, float, float]:
+        """A point of the plane in machine coordinates."""
+        o, (ax, ay, az) = self.origin, self.axes
+        return (o[0] + x*ax[0] + y*ay[0] + z*az[0],
+                o[1] + x*ax[1] + y*ay[1] + z*az[1],
+                o[2] + x*ax[2] + y*ay[2] + z*az[2])
+
+
+def active_workplane(ctx: FrameContext) -> "WorkPlane | None":
+    """The plane in effect on the machine, as status reports it: the one the
+    last executed G68.2 set, whether from the program or from MDI.
+
+    Status carries it as the interpreter gave it, the origin in the
+    coordinate system the plane was defined in and in machine units, so it
+    goes through the g92 offset, the XY rotation and the g5x offset the way
+    the canon takes a definition, in the canon's units. Where it is one the
+    loaded program defined, that record is returned, extents and all; a
+    plane from MDI, or from a program no longer loaded, comes back as a
+    record of its own with nothing under it.
+    """
+    s = ctx.stat
+    if s is None or not getattr(s, 'g68_active', 0):
+        return None
+    try:
+        o = ctx.to_internal_units(s.g68_offset)
+        r = s.g68_rotation
+        g92 = ctx.to_internal_units(s.g92_offset)
+        g5x = ctx.to_internal_units(s.g5x_offset)
+        t = math.radians(s.rotation_xy)
+    except (AttributeError, TypeError):
+        return None
+    c, sn = math.cos(t), math.sin(t)
+
+    def through(x: float, y: float, z: float) -> tuple[float, float, float]:
+        x, y, z = (r[0]*x + r[1]*y + r[2]*z + o[X] + g92[X],
+                   r[3]*x + r[4]*y + r[5]*z + o[Y] + g92[Y],
+                   r[6]*x + r[7]*y + r[8]*z + o[Z] + g92[Z])
+        return (x*c - y*sn + g5x[X], x*sn + y*c + g5x[Y], z + g5x[Z])
+
+    origin = through(0, 0, 0)
+    axes = []
+    for unit in ((1, 0, 0), (0, 1, 0), (0, 0, 1)):
+        p = through(*unit)
+        axes.append((p[0] - origin[0], p[1] - origin[1], p[2] - origin[2]))
+    for plane in getattr(ctx.canon, 'workplanes', ()):
+        # status has been through machine units and back, so not to the bit
+        if plane.same_as(origin, axes, tol=1e-6):
+            return plane
+    return WorkPlane(-1, origin, axes)
+
+
+class WorkPlanePart(Part):
+    """The tilted work planes the program defined, one drawing each, and
+    the one in effect on the machine over them in its own colour.
+
+    A plane is drawn where the program worked in it: a rectangle lying in
+    the plane, over the moves made under it with a margin around them, at
+    the plane's own Z where the program reached that and otherwise at the
+    end of the Z range it worked in nearest to it, so a drilling cycle that
+    never comes down to the plane's origin still shows its holes; a plane
+    nothing moved under gets a square sized from the program. The plane's
+    axes stand at the centre of the rectangle in the machine-axis colours,
+    so the direction the program's X and Y took can be read where the work
+    is, and the plane's origin is marked with a cross, since the two need
+    not coincide: a program that drills a sphere puts every plane's origin
+    at the centre and works out on the surface.
+
+    The active plane is whatever status says the last executed G68.2 set,
+    so it walks through the program's planes as the program runs, and an
+    MDI plane shows too, as a square with nothing under it. It is drawn no
+    smaller than the coordinate system axes, whatever the program's size,
+    since a plane set from MDI is checked by eye against them.
+    """
+
+    #: Inner lines each way, to read as a surface rather than an outline.
+    SUBDIVISIONS = 4
+
+    def draw(self, ctx: FrameContext) -> None:
+        canon = ctx.canon
+        planes = list(getattr(canon, 'workplanes', ()))
+        active = active_workplane(ctx)
+        if not planes and active is None:
+            return
+        # the size a plane with nothing, or only a point, under it is drawn
+        # at: a tenth of the program, as the extents part spaces its labels
+        size = max(canon.max_extents[X] - canon.min_extents[X],
+                   canon.max_extents[Y] - canon.min_extents[Y],
+                   canon.max_extents[Z] - canon.min_extents[Z], 2) * .1
+        others = [p for p in planes if p is not active]
+        if others:
+            self.draw_planes(ctx, others, size,
+                             ctx.colors.get('workplane', WORKPLANE_COLOR),
+                             ctx.colors.get('workplane_alpha', WORKPLANE_ALPHA))
+        if active is not None:
+            self.draw_planes(ctx, [active], size,
+                             ctx.colors.get('workplane_active', WORKPLANE_ACTIVE_COLOR),
+                             ctx.colors.get('workplane_active_alpha', WORKPLANE_ACTIVE_ALPHA),
+                             least=WORKPLANE_ACTIVE_SIZE)
+
+    def draw_planes(self, ctx: FrameContext, planes: Sequence[WorkPlane],
+                    size: float, color: Color, alpha: float,
+                    least: float = 0.0) -> None:
+        """``size`` is the side of the square a plane with nothing under it
+        gets; ``least`` a floor under every plane's half-width and axis
+        length, in the canon's units."""
+        canon = ctx.canon
+        outline, inner, cross = [], [], []
+        axes = {'axis_x': [], 'axis_y': [], 'axis_z': []}
+        n = self.SUBDIVISIONS
+        for plane in planes:
+            if plane.has_moves:
+                lo, hi = plane.min_extents, plane.max_extents
+                cx, cy = (lo[X] + hi[X]) / 2, (lo[Y] + hi[Y]) / 2
+                hw = max((hi[X] - lo[X]) * .6, size / 2, least)
+                hh = max((hi[Y] - lo[Y]) * .6, size / 2, least)
+                z = min(max(lo[Z], 0.0), hi[Z])
+            else:
+                cx = cy = z = 0.0
+                hw = hh = max(size / 2, least)
+            x0, x1, y0, y1 = cx - hw, cx + hw, cy - hh, cy + hh
+            corner = [plane.machine_point(x0, y0, z), plane.machine_point(x1, y0, z),
+                      plane.machine_point(x1, y1, z), plane.machine_point(x0, y1, z)]
+            for i in range(4):
+                outline += [corner[i], corner[(i + 1) % 4]]
+            for i in range(1, n):
+                f = i / n
+                inner += [plane.machine_point(x0 + (x1 - x0) * f, y0, z),
+                          plane.machine_point(x0 + (x1 - x0) * f, y1, z),
+                          plane.machine_point(x0, y0 + (y1 - y0) * f, z),
+                          plane.machine_point(x1, y0 + (y1 - y0) * f, z)]
+            length = max(hw * .5, hh * .5, least)
+            centre = plane.machine_point(cx, cy, z)
+            axes['axis_x'] += [centre, plane.machine_point(cx + length, cy, z)]
+            axes['axis_y'] += [centre, plane.machine_point(cx, cy + length, z)]
+            axes['axis_z'] += [centre, plane.machine_point(cx, cy, z + length)]
+            arm = length * .4
+            cross += [plane.machine_point(-arm, 0, 0), plane.machine_point(arm, 0, 0),
+                      plane.machine_point(0, -arm, 0), plane.machine_point(0, arm, 0),
+                      plane.machine_point(0, 0, -arm), plane.machine_point(0, 0, arm)]
+        def to_display(points: list[tuple[float, float, float]]) -> Any:
+            # machine to drawn coordinates by the program's GEOMETRY, as the
+            # renderer places a move; nothing is parsing, so through the
+            # module function rather than the canon
+            return np.array(gcode.display_points(canon.program_geometry, points))
+        ctx.prim.draw_lines(ctx, to_display(outline), color, alpha)
+        ctx.prim.draw_lines(ctx, to_display(inner), color, alpha * .4)
+        ctx.prim.draw_lines(ctx, to_display(cross), color, alpha)
+        # the axes wide, as the backplot is: at one pixel in the axis colours
+        # they are lost against the rectangle and the program under it
+        set_line_width(3.0)
+        try:
+            for name, verts in axes.items():
+                ctx.prim.draw_lines(ctx, to_display(verts), ctx.colors[name], alpha)
+        finally:
+            set_line_width(1.0)
+
+
 class WorkpiecePart(Part):
     """Wireframe stock outlines declared by ``(WORKPIECE,...)`` comments.
 
@@ -2468,6 +2708,7 @@ class PreviewScene(Scene):
         self.limits_box = LimitsBoxPart()
         self.backplot = BackplotPart()
         self.workpiece = WorkpiecePart()
+        self.workplane = WorkPlanePart()
         self.tool = ToolPart()
         self.overlay = OverlayPart()
         super().__init__([
@@ -2483,6 +2724,8 @@ class PreviewScene(Scene):
             (self.limits_box, lambda ctx: ctx.show_limits),
             (self.backplot, lambda ctx: ctx.show_live_plot),
             (self.workpiece, lambda ctx: ctx.show_workpiece
+                                        and ctx.canon is not None),
+            (self.workplane, lambda ctx: ctx.show_workplane
                                         and ctx.canon is not None),
             (self.tool, lambda ctx: ctx.show_tool),
             (self.overlay, lambda ctx: ctx.enable_dro),
