@@ -1851,7 +1851,7 @@ All the listed G-codes are already defined in the current implementation of Linu
 |25 |    |      |      |      |      |      |      |      |      | 
 |26 |    |      |      |      |      |      |      |      |      | 
 |27 |    |      |      |      |      |      |      |      |      | 
-|28 |G28 |G28.1 |      |      |      |      |      |      |      | 
+|28 |G28 |G28.1 |G28.2 |      |      |      |      |      |      |
 |29 |    |      |      |      |      |      |      |      |      | 
 |===
 

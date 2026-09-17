@@ -119,6 +119,7 @@ setup::setup() :
     kinsSwitch_flag(0),
     kins_type(0),
     toolchange_flag(0),
+    home_flag(0),
     input_index(0),
     input_digital(0),
     cutter_comp_firstmove(0),

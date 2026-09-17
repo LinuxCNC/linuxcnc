@@ -544,6 +544,9 @@ void SELECT_PLANE(CANON_PLANE pl) {
     parse_state.canon->set_plane(static_cast<int>(pl));
 }
 
+void HOME_CYCLE(void) {}
+void HOME_CYCLE_JOINT(int) {}
+
 void SET_TRAVERSE_RATE(double rate) {
     parse_state.canon->set_traverse_rate(rate);
 }

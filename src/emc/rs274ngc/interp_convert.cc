@@ -3167,6 +3167,93 @@ Called by: convert_modal_0.
 
 */
 
+/*! convert_home_cycle
+
+Handles G28.2 (run the homing cycle) from a G-code line, so machines can
+reference themselves from MDI or a program instead of only from the GUI's
+*Home All* button.
+
+The P word is mandatory and says what to home: P-1 homes every joint in
+HOME_SEQUENCE order, and P0, P1, ... home a single joint by its 0-based
+joint number (matching [JOINT_n] INI section numbering, e.g. P1 ->
+JOINT_1). The single-joint form is the primitive raised in the PR #4172
+discussion for re-homing a joint that is switched between rotary-axis and
+spindle use mid-program
+(https://github.com/LinuxCNC/linuxcnc/pull/4172) -- it reuses the existing
+EMC_JOINT_HOME 'joint' field, so it needs no NML change and works
+identically on any kinematics.
+
+There is deliberately no bare form. G28.2 alone is refused, and homing
+every joint has to be asked for explicitly with P-1 (PR #4172, BsAtHome).
+Homing drives joints onto their switches at homing speed, ignoring soft
+limits, from wherever the machine happens to be; a G-code word that starts
+that on every joint of the machine should not be the one you get by
+mistyping or truncating a line, or by leaving a stale G28.2 in a file
+edited for a machine with different homing. A refusal, rather than doing
+nothing quietly: an operator whose G28.2 silently did nothing would have
+no way to tell it from a homing cycle that ran, and would go on to cut
+against a reference that was never re-established.
+
+The negative values the NML EMC_JOINT_HOME field can carry are not all
+G-code surface: -1 (all) is now spelled P-1, but -2 (volatile unhome) is
+refused here, as are all other negatives. Axis-letter forms (G28.2 X) are
+deliberately NOT supported either: resolving an axis letter to a joint
+needs the kinematics coordinate map and isn't trivial even on trivkins
+(duplicate letters on gantries), and homing is a joint concept, not an
+axis one.
+
+There is deliberately no G-code unhome. A G28.3 was part of the original
+proposal and was dropped during review of PR #4172: no use was found for it
+that a numbered parameter would not serve better under NO_FORCE_HOMING=1,
+and it was the one operation able to leave a running program on an
+unreferenced machine. The GUI, halui and linuxcncrsh keep their existing
+unhome.
+
+On a synchronized (negative HOME_SEQUENCE) joint pair, Pn on either joint
+homes both (motion's existing gantry-homing behavior); on a positive shared
+sequence Pn homes only the named joint -- use P-1 to home both.
+
+Motion still enforces its own safety (idle / not on limits). The joint
+number is range-checked against the machine's configured joint count in
+task (emcJointHome(), taskintf.cc), which is where that count is known --
+the interpreter has no joint count in its state.
+*/
+int Interp::convert_home_cycle(block_pointer block,
+                               setup_pointer settings)
+{
+    CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+         "Cannot home (G28.2) with cutter radius compensation on");
+
+    CHKS((!block->p_flag),
+         "G28.2 requires a P word: P-1 homes every joint, or P0, P1, ..."
+         " home one joint by its number");
+
+    CHKS((block->p_number != round_to_int(block->p_number)),
+         "P value for G28.2 must be a whole joint number, or P-1 to home"
+         " every joint");
+
+    int joint = round_to_int(block->p_number);
+
+    CHKS((joint < -1),
+         "P value for G28.2 must be P-1 (every joint) or a joint number of"
+         " 0 or more");
+
+    if (joint < 0) {
+        HOME_CYCLE();
+    } else {
+        HOME_CYCLE_JOINT(joint);
+    }
+
+    // Homing re-establishes machine zero and, for an immediate home,
+    // rewrites the joint coordinate with no physical motion. Stop reading
+    // ahead here (INTERP_EXECUTE_FINISH, via execute_block) and, once the
+    // cycle has run, resync current_* from the machine in read_inputs() so
+    // a following G91 move or I/J/K arc centre is right. Same pattern as
+    // probing and tool change.
+    settings->home_flag = true;
+    return INTERP_OK;
+}
+
 int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
                         block_pointer block,    //!< pointer to a block of RS274 instructions
                         setup_pointer settings) //!< pointer to machine settings
@@ -4350,6 +4437,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
+  } else if (code == G_28_2) {
+    CHP(convert_home_cycle(block, settings));
   } else if ((code == G_52) || (code == G_92)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
