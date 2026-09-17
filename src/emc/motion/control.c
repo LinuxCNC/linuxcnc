@@ -363,10 +363,6 @@ static void handle_kinematicsSwitch(void) {
         return; // the kinematics in force is unchanged
     }
 
-    switchkins_type = requested_type;
-    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
-    emcmotStatus->switchkins_type = switchkins_type;
-
     KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
     KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
 #ifdef SWITCHKINS_DEBUG
@@ -376,15 +372,25 @@ static void handle_kinematicsSwitch(void) {
         beforePose[anum] = *pcmd_p[anum];
     }
 #endif
+    /* the joints stay where they are, so a kinematics whose forward cannot
+       solve them is one the machine cannot run in from here: put the old
+       one back, or the inverse would run the joints to wherever the pose
+       we know lands in the new one */
     EmcPose poseKinsSwitch = emcmotStatus->carte_pos_cmd;
     if (kinematicsForward(joint_posKinsSwitch, &poseKinsSwitch,
                           &tmpFFlags, &tmpIFlags)) {
-        reportError(_("kinematicsForward failed for kinematics type %d"),
-                    switchkins_type);
+        kinematicsSwitch(switchkins_type);
+        reportError(_("kinematicsForward failed for kinematics type %d,"
+                      " type %d is still in force"),
+                    requested_type, switchkins_type);
         SET_MOTION_ERROR_FLAG(1);  // abort
-        return; // keep the position we know rather than an unsolved one
+        return; // the kinematics in force and the position are unchanged
     }
     emcmotStatus->carte_pos_cmd = poseKinsSwitch;
+
+    switchkins_type = requested_type;
+    hal_set_real(emcmot_hal_data->kins_type, (double)switchkins_type);
+    emcmotStatus->switchkins_type = switchkins_type;
 #ifdef SWITCHKINS_DEBUG
     fprintf(stderr,"kswitch type=%d (%s:%d)\n",switchkins_type,__FUNCTION__,__LINE__);
     for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {

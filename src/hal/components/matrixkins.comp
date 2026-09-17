@@ -176,6 +176,7 @@ the adjustment values should be added to the old values instead of replacing the
 """;
 see_also "kins(9)";
 pin out bool dummy=1; // halcompile requires at least one pin
+option extra_setup;
 license "GPL";
 ;;
 
@@ -191,14 +192,14 @@ static struct haldata {
     hal_real_t C_zz;
 } *haldata;
 
-static int matrixkins_setup(void) {
+EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
     int res=0;
 
     // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
-
-    res = hal_set_unready(comp_id);
-    if (res) goto error;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
@@ -213,9 +214,6 @@ static int matrixkins_setup(void) {
     res |= hal_param_new_real(comp_id, HAL_RW, &haldata->C_zy, 0.0, "matrixkins.C_zy");
     res |= hal_param_new_real(comp_id, HAL_RW, &haldata->C_zz, 1.0, "matrixkins.C_zz");
 
-    if (res) goto error;
-
-    res = hal_ready(comp_id);
     if (res) goto error;
 
     rtapi_print("*** %s setup ok\n",__FILE__);
@@ -235,8 +233,6 @@ EXPORT_SYMBOL(kinematicsForward);
 
 KINEMATICS_TYPE kinematicsType()
 {
-    static bool is_setup=0;
-    if (!is_setup) matrixkins_setup();
     return KINEMATICS_BOTH;
 }
 

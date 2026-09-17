@@ -32,6 +32,16 @@ struct haldata {
     hal_real_t a1, a2, a3, d1, d2, d3, d4, d6;
 } *haldata = NULL;
 
+/* the difference of two angles, brought into (-pi, pi] so that a joint a
+   whole turn from the formula still matches it */
+static double angleDiff(double a, double b)
+{
+   double d = a - b;
+   while (d > PM_PI) { d -= 2*PM_PI; }
+   while (d <= -PM_PI) { d += 2*PM_PI; }
+   return d;
+}
+
 static int three21KinematicsForward(const double * joint,
                                     EmcPose * world,
                                     const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -132,8 +142,8 @@ static int three21KinematicsForward(const double * joint,
    *iflags = 0;
 
    /* set shoulder flag */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(d23, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[0]*PM_PI/180, atan2(hom.tran.y, hom.tran.x) -
+       atan2(d23, -sqrt(sumSq)))) < FLAG_FUZZ)
    {
      *iflags |= THREE21_SHOULDER_RIGHT;
    }
@@ -143,8 +153,8 @@ static int three21KinematicsForward(const double * joint,
    if (discr < 0.0) {
        discr = 0.0;
    }
-   if (fabs(joint[2]*PM_PI/180 - atan2(a3, d4) +
-       atan2(k, -sqrt(discr))) < FLAG_FUZZ)
+   if (fabs(angleDiff(joint[2]*PM_PI/180, atan2(a3, d4) -
+       atan2(k, -sqrt(discr)))) < FLAG_FUZZ)
    {
       *iflags |= THREE21_ELBOW_DOWN;
    }
@@ -158,7 +168,7 @@ static int three21KinematicsForward(const double * joint,
    }
    else
    {
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(angleDiff(joint[3]*PM_PI/180, atan2(t1, t2))) < FLAG_FUZZ))
      {
        *iflags |= THREE21_WRIST_FLIP;
      }
