@@ -231,6 +231,7 @@ enum GCodes
     G_21 = 210,
     G_28 = 280,
     G_28_1 = 281,
+    G_28_2 = 282,   /* G-code homing cycle (home one/all joints) */
     G_30 = 300,
     G_30_1 = 301,
     G_33 = 330,
@@ -760,6 +761,7 @@ struct setup
   bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
   int kins_type;              // kinematics selected by G12.1/G13.1
   bool toolchange_flag;       // flag indicating we just had a tool change
+  bool home_flag;             // flag indicating a G28.2 homing cycle just ran
   int input_index;		// channel queried
   bool input_digital;		// input queried was digital (false=analog)
   bool cutter_comp_firstmove; // this is the first comp move
