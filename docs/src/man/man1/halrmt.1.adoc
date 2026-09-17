@@ -15,7 +15,7 @@ halrmt - remote-control interface for LinuxCNC/HAL
 
 -n,--name _server_name_::
   Sets the server name to specified name for in reply to `HELLO` command.
-  Default: EMCNETSVR.
+  Default: HALNETSVR.
 
 -p,--port _port_::
   Listen on TCP port _port_ for connection.
@@ -110,6 +110,10 @@ set delsig <signalname>|all::
   Deletes the signal specified by _signalname_.
   Specifying 'all' will remove all signals in the system.
 
+set disable::
+  Disables the connection from accepting control functions that require the connection to be 'enabled'.
+  You may use `SET ENABLE` to enable the connection again.
+
 get echo::
 set echo {on|off}::
   With get will return the current echo state.
@@ -144,6 +148,14 @@ get funct <name>::
 get functs [pattern]::
   Returns information about functions matching _pattern_.
   If no _pattern_ is specified then all functions are returned.
+
+get getp <pin|param>::
+  Get the value of a pin or parameter.
+  This will print in the form "GETP __type__ __name__ __value__".
+
+get gets <signal>::
+  Get the value of a signal.
+  This will print in the form "GETS __type__ __name__ __value__".
 
 get ini <var> <section>::
   Return the variable \[__section__]_var_ from the current INI-file.
@@ -286,6 +298,15 @@ set verbose on | off::
   When verbose mode is on, all `SET` commands return positive acknowledgement in the form `SET <sub-cmd> ACK`.
   In addition, text error messages will be issued when in verbose mode.
   The _verbose_ state is local to each connection.
+
+set wait <thread> [<cycles>|2 [timeout]]::
+  Wait for the number of _cycles_ to have passed in the named _thread_.
+  The command will use the pin '__thread__.threadbeat' for the cycle count.
+  The default number of _cycles_ to wait is two (2) when not specified.
+  The maximum number of _cycles_ to wait is set at 10000.
+  The _cycles_ value needs to be two to guarantee that the thread cycle has run at least once.
+  The _timeout_ can only be specified if you also specify the _cycles_.
+  The default _timeout_ is 11 seconds (10000 cycles of 0.001 seconds plus one second).
 
 == SEE ALSO
 
