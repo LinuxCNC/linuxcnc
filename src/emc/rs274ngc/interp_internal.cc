@@ -176,7 +176,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
      || (mode0 == G_52) || (mode0 == G_92) || (mode0 == G_53_3));
   // a tilted work plane definition takes the axis words the same way
-  if (block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_4) {
+  if (block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_3
+      || block->g_modes[GM_WORK_PLANE] == G_68_4) {
     CHKS(polar_flag, _("Polar coordinates cannot define a tilted work plane"));
     mode_zero_covets_axes = 1;
   }
