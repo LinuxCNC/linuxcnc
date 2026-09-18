@@ -3106,6 +3106,9 @@ int Interp::convert_savehome(int code, block_pointer /*block*/, setup_pointer s)
     if(s->cutter_comp_side != CUTTER_COMP::OFF) {
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
+    if(s->machine_moves_in_machine_frame && !kins_machine_frame(s)) {
+        return convert_savehome_slides(code, s);
+    }
 
     double x, y, z;
     program_to_world_xyz(s, s->current_x, s->current_y, s->current_z, &x, &y, &z);
@@ -4514,6 +4517,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
           CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {
     CHP(convert_home(code, block, settings));
+  } else if ((code == G_28_5) || (code == G_30_5)) {
+    CHP(convert_home_slides(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
   } else if (code == G_28_2) {

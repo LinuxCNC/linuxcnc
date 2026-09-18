@@ -639,6 +639,10 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   When set M2, M30 and an abort no longer cancel a <<gcode:g68.2,tilted work plane>>. A restart still does.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
+* `MACHINE_MOVES_IN_MACHINE_FRAME = 0` (bool, Default: 0) +
+  When set, 'G53', 'G28' and 'G30' run as 'G53.5', 'G28.5' and 'G30.5' whenever the kinematics in force is not the machine frame type, and 'G28.1' and 'G30.1' store the machine frame position those read back: the slides go to the words or to the stored position whatever the tool, the head and the table are doing. The machine frame type is the type the module flags as such, the identity kinematics on a machine whose slides line up with its frame, and neither the tool centre point nor a raw joint identity on one whose slides do not. On the machine frame type the codes are unchanged.
+  Unset, these codes work in the world of the kinematics in force, which on a table-side kinematics turns with the table, and under a tool centre point kinematics with the tool tilted puts the slides where the tool and the head angle take them.
+  See <<gcode:g53,G53>>.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
