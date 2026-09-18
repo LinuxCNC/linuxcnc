@@ -4,12 +4,28 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JO
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
+# every servo cycle of the joints and the world position, logged for the
+# test to read the path of a move, not a task-cycle snapshot of it
+loadrt sampler depth=4000 cfg=fffffffff
+addf sampler.0 servo-thread
+
 net J0 joint.0.motor-pos-cmd => joint.0.motor-pos-fb
 net J1 joint.1.motor-pos-cmd => joint.1.motor-pos-fb
 net J2 joint.2.motor-pos-cmd => joint.2.motor-pos-fb
 net J3 joint.3.motor-pos-cmd => joint.3.motor-pos-fb
 net J4 joint.4.motor-pos-cmd => joint.4.motor-pos-fb
 net J5 joint.5.motor-pos-cmd => joint.5.motor-pos-fb
+
+net J0 => sampler.0.pin.0
+net J1 => sampler.0.pin.1
+net J2 => sampler.0.pin.2
+net J3 => sampler.0.pin.3
+net J4 => sampler.0.pin.4
+net J5 => sampler.0.pin.5
+net Xcmd axis.x.pos-cmd => sampler.0.pin.6
+net Ycmd axis.y.pos-cmd => sampler.0.pin.7
+net Zcmd axis.z.pos-cmd => sampler.0.pin.8
+loadusr halsampler -t samples.log
 
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
