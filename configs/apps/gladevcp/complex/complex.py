@@ -124,7 +124,7 @@ class HandlerClass:
 
         # standard hal pins not associated with any widget
         self.halcomp.newpin("example-out", hal.Type.BOOL, hal.Dir.OUT)
-        self.halcomp.newpin("example-in", hal.HAL_S32, hal.Dir.IN)
+        self.halcomp.newpin("example-in", hal.Type.SINT, hal.Dir.IN)
 
         # hal pins with change callback. Also unrelated to any HAL widget.
         # When the pin's value changes the callback is executed.

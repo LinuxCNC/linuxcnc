@@ -55,7 +55,7 @@ class GeneralHALInput(QWidget, _HalWidgetBase):
             self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.pin_update(data))
         else:
-            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_S32, hal.Dir.IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.Type.SINT, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.pin_update(data))
 
     def pin_update(self, *a):

@@ -60,7 +60,7 @@ change all instances of `userkins` to `mykins`.
 """;
 // The fpin pin is not accessible in kinematics functions.
 // Use EXTRA_SETUP() for pins and params used by kinematics.
-pin out si32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+pin out sint fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
 option extra_setup;
 function fdemo;

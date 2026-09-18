@@ -5,9 +5,9 @@
 *   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
 *
 * This component is a "weighted summer".  It has a (user specified)
-* number of HAL_BIT input pins, and a HAL_S32 parameter corresponding
+* number of HAL_BOOL input pins, and a HAL_SINT parameter corresponding
 * to each bit input.
-* There is one HAL_S32 output.  The output value is the sum of the
+* There is one HAL_SINT output.  The output value is the sum of the
 * parameters for which the corresponding bit input is true.
 *
 * The default value for the parameters is 2^n, where n is the bit number.
@@ -144,7 +144,7 @@ int rtapi_app_main(void)
     }
 
     /* export update function */
-    retval = hal_export_funct("process_wsums", process_wsums, wsum_array, 1, 0, comp_id);
+    retval = hal_export_funct("process_wsums", process_wsums, wsum_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: process_wsums funct export failed\n");
@@ -172,24 +172,21 @@ void rtapi_app_exit(void)
 static void process_wsums(void *arg, long period)
 {
     (void)period;
-    wsum_t *wsums, *thissum;
-    int n, b, running_total;
-
     /* point to filter group */
-    wsums = (wsum_t *)arg;
+    wsum_t *wsums = (wsum_t *)arg;
 
-    for (n=0 ; n<num_summers ; n++) {
-        thissum = &(wsums[n]);
+    for (int n = 0; n < num_summers; n++) {
+        wsum_t *thissum = &(wsums[n]);
         if (hal_get_bool(thissum->hold)) continue;
         else {
-            running_total = hal_get_si32(thissum->offset);
-            for (b=0 ; b<thissum->num_bits ; b++) {
+            rtapi_sint running_total = hal_get_sint(thissum->offset);
+            for (int b = 0; b < thissum->num_bits; b++) {
                 if (hal_get_bool(thissum->bits[b].bit)) {
-                    running_total += hal_get_si32(thissum->bits[b].weight);
+                    running_total += hal_get_sint(thissum->bits[b].weight);
                 }
             }
+            hal_set_sint(thissum->sum, running_total);
         }
-        hal_set_si32(thissum->sum, running_total);
     }
 }
 
@@ -204,14 +201,14 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 
     /* export pin for offset (input) */
     rtapi_snprintf(base, sizeof(base), "wsum.%d", num);
-    retval = hal_pin_new_si32(comp_id, HAL_IO, &(addr->offset), 0, "%s.offset", base);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &(addr->offset), 0, "%s.offset", base);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.offset' param export failed\n", base);
         return retval;
     }
 
     /* export pin for output sum */
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &(addr->sum), 0, "%s.sum", base);
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &(addr->sum), 0, "%s.sum", base);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.sum' pin export failed\n", base);
         return retval;
@@ -234,7 +231,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
             rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.bit.%d.in' pin export failed\n", base, i);
             return retval;
         }
-        retval = hal_pin_new_si32(comp_id, HAL_IO, &(addr->bits[i].weight), w, "%s.bit.%d.weight", base, i);
+        retval = hal_pin_new_sint(comp_id, HAL_IO, &(addr->bits[i].weight), w, "%s.bit.%d.weight", base, i);
         if (retval != 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "WEIGHTED_SUM: ERROR: '%s.bit.%d.weight' param export failed\n", base, i);
             return retval;

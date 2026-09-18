@@ -197,7 +197,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("sim-encoder.make-pulses", make_pulses,
-	sim_enc_array, 0, 0, comp_id);
+	sim_enc_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIM_ENCODER: ERROR: makepulses funct export failed\n");
@@ -205,7 +205,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("sim-encoder.update-speed", update_speed,
-	sim_enc_array, 1, 0, comp_id);
+	sim_enc_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIM_ENCODER: ERROR: speed update funct export failed\n");

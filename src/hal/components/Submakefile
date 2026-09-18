@@ -3,35 +3,17 @@ COMPS := $(filter-out %/tpcomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASE
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
-    conv_bit_float.comp \
-    conv_bit_s32.comp \
-    conv_bit_u32.comp \
-    conv_bit_s64.comp \
-    conv_bit_u64.comp \
-    conv_float_s32.comp \
-    conv_float_u32.comp \
-    conv_float_s64.comp \
-    conv_float_u64.comp \
-    conv_s32_bit.comp \
-    conv_s32_float.comp \
-    conv_s32_u32.comp \
-    conv_s32_s64.comp \
-    conv_s32_u64.comp \
-    conv_s64_bit.comp \
-    conv_s64_float.comp \
-    conv_s64_s32.comp \
-    conv_s64_u32.comp \
-    conv_s64_u64.comp \
-    conv_u32_bit.comp \
-    conv_u32_float.comp \
-    conv_u32_s32.comp \
-    conv_u32_s64.comp \
-    conv_u32_u64.comp \
-    conv_u64_bit.comp \
-    conv_u64_float.comp \
-    conv_u64_s32.comp \
-    conv_u64_u32.comp \
-    conv_u64_s64.comp
+    conv_bool_real.comp \
+    conv_bool_sint.comp \
+    conv_bool_uint.comp \
+    conv_real_sint.comp \
+    conv_real_uint.comp \
+    conv_sint_bool.comp \
+    conv_sint_real.comp \
+    conv_sint_uint.comp \
+    conv_uint_bool.comp \
+    conv_uint_real.comp \
+    conv_uint_sint.comp
 COMPS := $(filter-out hal/components/tpcomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/build/man/man9/%.9, $(COMPS)) ../docs/build/man/man9/tpcomp.9
 ifeq ($(BUILD_SYS),uspace)
@@ -136,118 +118,46 @@ PYFLAGS := $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_E
 	$(Q)$(CC) -Wl,-z,relro -o $@ $^ $(PYFLAGS)
 TARGETS += ../bin/panelui
 
-hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_real_sint.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh float s32 < $< > $@
+	$(Q)sh hal/components/mkconv.sh real sint < $< > $@
 
-hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_real_uint.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh float u32 < $< > $@
+	$(Q)sh hal/components/mkconv.sh real uint < $< > $@
 
-hal/components/conv_float_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_bool_sint.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh float s64 < $< > $@
+	$(Q)sh hal/components/mkconv.sh bool sint < $< > $@
 
-hal/components/conv_float_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_bool_uint.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh float u64 < $< > $@
+	$(Q)sh hal/components/mkconv.sh bool uint < $< > $@
 
-hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_bool_real.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh bit s32 < $< > $@
+	$(Q)sh hal/components/mkconv.sh bool real < $< > $@
 
-hal/components/conv_bit_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_sint_real.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh bit u32 < $< > $@
+	$(Q)sh hal/components/mkconv.sh sint real < $< > $@
 
-hal/components/conv_bit_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_sint_bool.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh bit s64 < $< > $@
+	$(Q)sh hal/components/mkconv.sh sint bool < $< > $@
 
-hal/components/conv_bit_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_sint_uint.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh bit u64 < $< > $@
+	$(Q)sh hal/components/mkconv.sh sint uint < $< > $@
 
-hal/components/conv_bit_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_uint_real.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh bit float < $< > $@
+	$(Q)sh hal/components/mkconv.sh uint real < $< > $@
 
-hal/components/conv_s32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_uint_bool.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s32 float < $< > $@
+	$(Q)sh hal/components/mkconv.sh uint bool < $< > $@
 
-hal/components/conv_s32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+hal/components/conv_uint_sint.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s32 bit < $< > $@
-
-hal/components/conv_s32_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s32 u32 < $< > $@
-
-hal/components/conv_s32_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s32 u64 < $< > $@
-
-hal/components/conv_s32_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s32 s64 < $< > $@
-
-hal/components/conv_u32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u32 float < $< > $@
-
-hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u32 bit < $< > $@
-
-hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u32 s32 < $< > $@
-
-hal/components/conv_u32_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u32 u64 < $< > $@
-
-hal/components/conv_u32_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u32 s64 < $< > $@
-
-hal/components/conv_s64_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s64 float < $< > $@
-
-hal/components/conv_s64_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s64 bit < $< > $@
-
-hal/components/conv_s64_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s64 u32 < $< > $@
-
-hal/components/conv_s64_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s64 s32 < $< > $@
-
-hal/components/conv_s64_u64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh s64 u64 < $< > $@
-
-hal/components/conv_u64_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u64 float < $< > $@
-
-hal/components/conv_u64_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u64 bit < $< > $@
-
-hal/components/conv_u64_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u64 u32 < $< > $@
-
-hal/components/conv_u64_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u64 s32 < $< > $@
-
-hal/components/conv_u64_s64.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/components/mkconv.sh u64 s64 < $< > $@
+	$(Q)sh hal/components/mkconv.sh uint sint < $< > $@

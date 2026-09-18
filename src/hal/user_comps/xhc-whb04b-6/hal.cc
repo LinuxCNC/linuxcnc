@@ -232,7 +232,7 @@ int Hal::newSimulatedHalPin(char* /*pin_name*/, void** ptr, int s)
     return 0;
 }
 // ----------------------------------------------------------------------
-int Hal::newHalFloat(hal_pin_dir_t direction, hal_real_t *ptr, int componentId, const char *fmt, ...)
+int Hal::newHalFloat(hal_pdir_t direction, hal_real_t *ptr, int componentId, const char *fmt, ...)
 {
     char    pin_name[256];
     va_list args;
@@ -242,7 +242,7 @@ int Hal::newHalFloat(hal_pin_dir_t direction, hal_real_t *ptr, int componentId, 
 
     assert(strlen(pin_name) < HAL_NAME_LEN);
 
-    *mHalCout << "hal   float ";
+    *mHalCout << "hal   real  ";
     if (direction == HAL_OUT)
     {
         *mHalCout << "out ";
@@ -268,7 +268,7 @@ int Hal::newHalFloat(hal_pin_dir_t direction, hal_real_t *ptr, int componentId, 
     }
 }
 // ----------------------------------------------------------------------
-int Hal::newHalSigned32(hal_pin_dir_t direction, hal_sint_t *ptr, int componentId, const char *fmt, ...)
+int Hal::newHalSigned32(hal_pdir_t direction, hal_sint_t *ptr, int componentId, const char *fmt, ...)
 {
     char    pin_name[256];
     va_list args;
@@ -278,7 +278,7 @@ int Hal::newHalSigned32(hal_pin_dir_t direction, hal_sint_t *ptr, int componentI
 
     assert(strlen(pin_name) < HAL_NAME_LEN);
 
-    *mHalCout << "hal   s32   ";
+    *mHalCout << "hal   sint  ";
     if (direction == HAL_OUT)
     {
         *mHalCout << "out ";
@@ -304,7 +304,7 @@ int Hal::newHalSigned32(hal_pin_dir_t direction, hal_sint_t *ptr, int componentI
     }
 }
 // ----------------------------------------------------------------------
-int Hal::newHalUnsigned32(hal_pin_dir_t direction, hal_uint_t *ptr, int componentId, const char *fmt, ...)
+int Hal::newHalUnsigned32(hal_pdir_t direction, hal_uint_t *ptr, int componentId, const char *fmt, ...)
 {
     char    pin_name[256];
     va_list args;
@@ -314,7 +314,7 @@ int Hal::newHalUnsigned32(hal_pin_dir_t direction, hal_uint_t *ptr, int componen
 
     assert(strlen(pin_name) < HAL_NAME_LEN);
 
-    *mHalCout << "hal   u32   ";
+    *mHalCout << "hal   uint  ";
     if (direction == HAL_OUT)
     {
         *mHalCout << "out ";
@@ -340,7 +340,7 @@ int Hal::newHalUnsigned32(hal_pin_dir_t direction, hal_uint_t *ptr, int componen
     }
 }
 // ----------------------------------------------------------------------
-int Hal::newHalBit(hal_pin_dir_t direction, hal_bool_t *ptr, int componentId, const char *fmt, ...)
+int Hal::newHalBit(hal_pdir_t direction, hal_bool_t *ptr, int componentId, const char *fmt, ...)
 {
     char    pin_name[256];
     va_list args;
@@ -350,7 +350,7 @@ int Hal::newHalBit(hal_pin_dir_t direction, hal_bool_t *ptr, int componentId, co
 
     assert(strlen(pin_name) < HAL_NAME_LEN);
 
-    *mHalCout << "hal   bit   ";
+    *mHalCout << "hal   bool  ";
     if (direction == HAL_OUT)
     {
         *mHalCout << "out ";

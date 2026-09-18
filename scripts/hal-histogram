@@ -106,10 +106,10 @@ proc set_defaults {} {
 
   # defaults for items with no cmdline opts:
   set ::HH(color)                seagreen
-  set ::HH(signame,prefix,float) hhf
-  set ::HH(signame,prefix,s32)   hhs
-  set ::HH(signame,prefix,u32)   hhu
-  set ::HH(signame,prefix,bit)   hhb
+  set ::HH(signame,prefix,real)  hhf
+  set ::HH(signame,prefix,sint)  hhs
+  set ::HH(signame,prefix,uint)  hhu
+  set ::HH(signame,prefix,bool)  hhb
   set ::HH(max_histos)           5
   set ::HH(guess,ct)             100
   set ::HH(guess,factor)         10
@@ -212,10 +212,10 @@ proc config {} {
 
   set ::HH(pintype) [hal ptype $::HH(pinname)]
   switch -exact "$::HH(pintype)" {
-    float   {}
-    s32     {}
-    u32     {}
-    bit     {
+    real    {}
+    sint    {}
+    uint    {}
+    bool    {
              # ignore input args on startup:
              set ::HH(minvalue) 0
              set ::HH(binsize)  1
@@ -498,10 +498,10 @@ proc check_inputs {minvalue binsize nbins} {
 
   if { ![is_int $nbins]    } {return "nbins must be integer"}
   switch -exact "$::HH(pintype)" {
-    float  {}
-    s32 -
-    u32 -
-    bit    {
+    real   {}
+    sint -
+    uint -
+    bool   {
       if { ![is_int $minvalue]} {
         return "minvalue must be integer <$minvalue> for type $::HH(pintype)"
       }
@@ -597,16 +597,16 @@ proc setup_hal {} {
 
   if [catch {
     switch -exact "$::HH(pintype)" {
-      float   { set ::HH(inputpinname) $::HH(instance).input
+      real    { set ::HH(inputpinname) $::HH(instance).input
                 hal setp $::HH(instance).pintype 0
               }
-      s32     { set ::HH(inputpinname) $::HH(instance).input-s32
+      sint    { set ::HH(inputpinname) $::HH(instance).input-sint
                 hal setp $::HH(instance).pintype 1
               }
-      u32     { set ::HH(inputpinname) $::HH(instance).input-u32
+      uint    { set ::HH(inputpinname) $::HH(instance).input-uint
                 hal setp $::HH(instance).pintype 2
               }
-      bit     { set ::HH(inputpinname) $::HH(instance).input-bit
+      bool    { set ::HH(inputpinname) $::HH(instance).input-bool
                 hal setp $::HH(instance).pintype 3
               }
       default { puts notdoneyet; exit 77 }
@@ -968,7 +968,7 @@ proc usage { {errtxt ""} } {
   puts "  1) LinuxCNC (or another Hal application) must be running"
   puts "  2) If no pinname is specified, default is: $::HH(pinname)"
   puts "  3) This app may be opened for $::HH(max_histos) pins"
-  puts "  4) pintypes float, s32, u32, bit are supported"
+  puts "  4) pintypes real, sint, uint, bool are supported"
 
   if {"$errtxt" != ""} {
     puts ""
