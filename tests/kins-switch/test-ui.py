@@ -59,6 +59,10 @@ c.state(linuxcnc.STATE_ON)
 c.wait_complete(30)
 c.home(-1)
 c.wait_complete(60)
+# start in identity every run, the abort's G13.1 may or may not have run yet
+c.mode(linuxcnc.MODE_MDI)
+c.wait_complete(30)
+mdi("G13.1")
 c.mode(linuxcnc.MODE_AUTO)
 c.wait_complete(30)
 drain()
@@ -67,6 +71,7 @@ drain()
 
 c.program_open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "test.ngc"))
 c.wait_complete(30)
+last = kins_type()
 c.auto(linuxcnc.AUTO_RUN, 0)
 
 said = []
@@ -78,8 +83,11 @@ while time.time() < deadline:
     s.poll()
     now = joints()
     k = kins_type()
-    if k == 1 and at_switch is None:
-        at_switch = now
+    # the hold starts at the program's own switch to identity, at its pose
+    if k != last:
+        last = k
+        if k == 1 and at_switch is None:
+            at_switch = now
     if k == 1 and at_switch is not None:
         for j in CARRIED:
             strayed[j] = max(strayed[j], abs(now[j] - at_switch[j]))
