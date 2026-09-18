@@ -50,12 +50,12 @@ static ptr_inihal_data *the_inihal_data;
     fprintf(stderr,"Changed: "#NAME" %g-->%g\n",old_inihal_data.NAME, \
                                                 new_inihal_data.NAME);
 #define SHOW_CHANGE_INT(NAME) \
-    fprintf(stderr,"Changed: "#NAME" %d-->%d\n",old_inihal_data.NAME, \
+    fprintf(stderr,"Changed: "#NAME" %ld-->%ld\n",old_inihal_data.NAME, \
                                                 new_inihal_data.NAME);
 #define SHOW_CHANGE_ARC_BLEND() \
     fprintf(stderr,"Changed: blend_enable:          %d-->%d\n"\
                    "         blend_fallback_enable: %d-->%d\n"\
-                   "         optimization_depth:    %d-->%d\n"\
+                   "         optimization_depth:    %ld-->%ld\n"\
                    "         gap_cycles:            %f-->%f\n"\
                    "         ramp_freq:             %f-->%f\n"\
            ,old_inihal_data.traj_arc_blend_enable \
@@ -74,7 +74,7 @@ static ptr_inihal_data *the_inihal_data;
     fprintf(stderr,"Changed: "#NAME"[%d] %g-->%g\n",IDX,old_inihal_data.NAME[IDX], \
                                                         new_inihal_data.NAME[IDX]);
 #define SHOW_CHANGE_IDX_INT(NAME,IDX) \
-    fprintf(stderr,"Changed: "#NAME"[%d] %d-->%d\n",IDX,old_inihal_data.NAME[IDX], \
+    fprintf(stderr,"Changed: "#NAME"[%d] %ld-->%ld\n",IDX,old_inihal_data.NAME[IDX], \
                                                         new_inihal_data.NAME[IDX]);
 #define MAKE_BIT_PIN(NAME,DIR) \
 do { \
@@ -82,15 +82,15 @@ do { \
      if (retval < 0) return retval; \
    } while (0)
 
-#define MAKE_S32_PIN(NAME,DIR) \
+#define MAKE_SINT_PIN(NAME,DIR) \
 do { \
-     int retval = hal_pin_new_si32(comp_id, DIR, &(the_inihal_data->NAME), 0, PREFIX#NAME); \
+     int retval = hal_pin_new_sint(comp_id, DIR, &(the_inihal_data->NAME), 0, PREFIX#NAME); \
      if (retval < 0) return retval; \
    } while (0)
 
-#define MAKE_S32_PIN_IDX(NAME,HALPIN_NAME,DIR,IDX) \
+#define MAKE_SINT_PIN_IDX(NAME,HALPIN_NAME,DIR,IDX) \
 do { \
-     int retval = hal_pin_new_si32(comp_id, DIR, &(the_inihal_data->NAME[IDX]),\
+     int retval = hal_pin_new_sint(comp_id, DIR, &(the_inihal_data->NAME[IDX]),\
                                0, PREFIX"%d."#HALPIN_NAME, IDX); \
      if (retval < 0) return retval; \
    } while (0)
@@ -116,7 +116,7 @@ do {                        \
    } while (0)
 
 #define INIT_PIN_R(NAME) hal_set_real(the_inihal_data->NAME, old_inihal_data.NAME);
-#define INIT_PIN_S(NAME) hal_set_si32(the_inihal_data->NAME, old_inihal_data.NAME);
+#define INIT_PIN_S(NAME) hal_set_sint(the_inihal_data->NAME, old_inihal_data.NAME);
 #define INIT_PIN_B(NAME) hal_set_bool(the_inihal_data->NAME, old_inihal_data.NAME);
 
 int ini_hal_exit(void)
@@ -154,7 +154,7 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_IDX(joint_jerk,max_jerk,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home,home,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home_offset,home_offset,HAL_IN,idx);
-        MAKE_S32_PIN_IDX(  joint_home_sequence,home_sequence,HAL_IN,idx);
+        MAKE_SINT_PIN_IDX(  joint_home_sequence,home_sequence,HAL_IN,idx);
     }
     for (int idx = 0; idx < EMCMOT_MAX_AXIS; idx++) {
         char letter = "xyzabcuvw"[idx];
@@ -170,12 +170,12 @@ int ini_hal_init(int numjoints)
     MAKE_FLOAT_PIN(traj_default_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_jerk,HAL_IN);
-    MAKE_S32_PIN(traj_planner_type,HAL_IN);
+    MAKE_SINT_PIN(traj_planner_type,HAL_IN);
     MAKE_FLOAT_PIN(traj_scurve_peak_scale,HAL_IN);
 
     MAKE_BIT_PIN(traj_arc_blend_enable,HAL_IN);
     MAKE_BIT_PIN(traj_arc_blend_fallback_enable,HAL_IN);
-    MAKE_S32_PIN(traj_arc_blend_optimization_depth,HAL_IN);
+    MAKE_SINT_PIN(traj_arc_blend_optimization_depth,HAL_IN);
     MAKE_FLOAT_PIN(traj_arc_blend_gap_cycles,HAL_IN);
     MAKE_FLOAT_PIN(traj_arc_blend_ramp_freq,HAL_IN);
     MAKE_FLOAT_PIN(traj_arc_blend_tangent_kink_ratio,HAL_IN);

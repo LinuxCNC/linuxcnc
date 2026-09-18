@@ -76,7 +76,7 @@ class Bridge(object):
 
         self.jogIncrement = QHAL.newpin("jog-increment", hal.Type.REAL, hal.Dir.OUT)
         self.jogIncrementAngular = QHAL.newpin("jog-increment-angular", hal.Type.REAL, hal.Dir.OUT)
-        self.activeJoint = QHAL.newpin('joint-selected', hal.HAL_S32, hal.Dir.OUT)
+        self.activeJoint = QHAL.newpin('joint-selected', hal.Type.SINT, hal.Dir.OUT)
 
         for i in (self.INFO.AVAILABLE_AXES):
             let = i.lower()

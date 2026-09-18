@@ -46,7 +46,7 @@ LOG = logger.getLogger(__name__)
 class HALPinType(enum.IntEnum):
     NONE = 0
     BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.HAL_S32
+    S32  = hal.Type.SINT # Removed
     FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
@@ -73,7 +73,7 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateFloatDisplay(data))
         elif self._s32_pin_type:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_S32, hal.Dir.IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.SINT, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
 
     def updateDisplay(self, data):
@@ -180,7 +180,7 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.HAL_S32, hal.Dir.OUT)
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.Type.SINT, hal.Dir.OUT)
         self.hal_pin_f = self.HAL_GCOMP_.newpin(pname +'-f', hal.Type.REAL, hal.Dir.OUT)
         self.hal_pin_scale = self.HAL_GCOMP_.newpin(pname +'-scale', hal.Type.REAL, hal.Dir.IN)
         self.hal_pin_scale.set(1)
@@ -215,7 +215,7 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.HAL_S32, hal.Dir.OUT)
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.Type.SINT, hal.Dir.OUT)
         self.hal_pin_f = self.HAL_GCOMP_.newpin(pname +'-f', hal.Type.REAL, hal.Dir.OUT)
         self.hal_pin_d = self.HAL_GCOMP_.newpin(pname +'-d', hal.Type.REAL, hal.Dir.OUT)
         self.hal_pin_scale = self.HAL_GCOMP_.newpin(pname +'-scale', hal.Type.REAL, hal.Dir.IN)
@@ -363,7 +363,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     # older version of pyqt5 need this as well as QEnum
     NONE = 0
     BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.HAL_S32
+    S32  = hal.Type.SINT # Removed
     FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
@@ -372,7 +372,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
 
-        self._pin_type = HALPinType.S32
+        self._pin_type = HALPinType.SINT
         self._groupPinName = ''
         self._exclusiveValue = 0.0
         self.halPinGroup = None
@@ -462,7 +462,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
             data = bool(value)
         elif self._pin_type == HALPinType.REAL:
             data = float(value)
-        elif self._pin_type == HALPinType.S32:
+        elif self._pin_type == HALPinType.SINT:
             data = int(value)
         else:
             return
@@ -485,7 +485,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     def get_pin_type(self):
         return self._pin_type
     def reset_pin_type(self):
-        self._pin_type = HALPinType.S32
+        self._pin_type = HALPinType.SINT
 
     # designer will show these properties in this order:
     pin_type = QtCore.Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)

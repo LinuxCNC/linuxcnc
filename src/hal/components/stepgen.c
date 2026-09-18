@@ -331,9 +331,9 @@ RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
 
 typedef struct {
     /* stuff that is both read and written by makepulses */
-    unsigned int timer1;	/* times out when step pulse should end */
-    unsigned int timer2;	/* times out when safe to change dir */
-    unsigned int timer3;	/* times out when safe to step in new dir */
+    rtapi_uint timer1;	/* times out when step pulse should end */
+    rtapi_uint timer2;	/* times out when safe to change dir */
+    rtapi_uint timer3;	/* times out when safe to step in new dir */
     int hold_dds;		/* prevents accumulator from updating */
     long addval;		/* actual frequency generator add value */
     volatile long long accum;	/* frequency generator accumulator */
@@ -366,10 +366,10 @@ typedef struct {
     hal_real_t freq;		/* param: frequency command */
     hal_real_t maxvel;		/* param: max velocity, (pos units/sec) */
     hal_real_t maxaccel;	/* param: max accel (pos units/sec^2) */
-    rtapi_u32 old_step_len;	/* used to detect parameter changes */
-    rtapi_u32 old_step_space;
-    rtapi_u32 old_dir_hold_dly;
-    rtapi_u32 old_dir_setup;
+    rtapi_uint old_step_len;	/* used to detect parameter changes */
+    rtapi_uint old_step_space;
+    rtapi_uint old_dir_hold_dly;
+    rtapi_uint old_dir_setup;
     int printed_error;		/* flag to avoid repeated printing */
 } stepgen_t;
 
@@ -512,7 +512,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("stepgen.make-pulses", make_pulses,
-	stepgen_array, 0, 0, comp_id);
+	stepgen_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STEPGEN: ERROR: makepulses funct export failed\n");
@@ -520,7 +520,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("stepgen.update-freq", update_freq,
-	stepgen_array, 1, 0, comp_id);
+	stepgen_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STEPGEN: ERROR: freq update funct export failed\n");
@@ -528,7 +528,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("stepgen.capture-position", update_pos,
-	stepgen_array, 1, 0, comp_id);
+	stepgen_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	 "STEPGEN: ERROR: pos update funct export failed\n");
@@ -570,21 +570,21 @@ static void make_pulses(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	/* decrement "timing constraint" timers */
 	if ( stepgen->timer1 > 0 ) {
-	    if ( stepgen->timer1 > periodns ) {
+	    if ( stepgen->timer1 > (rtapi_uint)periodns ) {
 		stepgen->timer1 -= periodns;
 	    } else {
 		stepgen->timer1 = 0;
 	    }
 	}
 	if ( stepgen->timer2 > 0 ) {
-	    if ( stepgen->timer2 > periodns ) {
+	    if ( stepgen->timer2 > (rtapi_uint)periodns ) {
 		stepgen->timer2 -= periodns;
 	    } else {
 		stepgen->timer2 = 0;
 	    }
 	}
 	if ( stepgen->timer3 > 0 ) {
-	    if ( stepgen->timer3 > periodns ) {
+	    if ( stepgen->timer3 > (rtapi_uint)periodns ) {
 		stepgen->timer3 -= periodns;
 	    } else {
 		stepgen->timer3 = 0;
@@ -635,7 +635,7 @@ static void make_pulses(void *arg, long period)
 	    /* we only care about the pickoff bit */
 	    step_now &= (1L << PICKOFF);
 	    /* update rawcounts parameter */
-	    hal_set_si32(stepgen->rawcount, stepgen->accum >> PICKOFF);
+	    hal_set_sint(stepgen->rawcount, stepgen->accum >> PICKOFF);
 	} else {
 	    /* DDS is in hold, no steps */
 	    step_now = 0;
@@ -651,11 +651,11 @@ static void make_pulses(void *arg, long period)
 	if ( step_now ) {
 	    /* (re)start various timers */
 	    /* timer 1 = time till end of step pulse */
-	    stepgen->timer1 = hal_get_ui32(stepgen->step_len);
+	    stepgen->timer1 = hal_get_uint(stepgen->step_len);
 	    /* timer 2 = time till allowed to change dir pin */
-	    stepgen->timer2 = stepgen->timer1 + hal_get_ui32(stepgen->dir_hold_dly);
+	    stepgen->timer2 = stepgen->timer1 + hal_get_uint(stepgen->dir_hold_dly);
 	    /* timer 3 = time till allowed to step the other way */
-	    stepgen->timer3 = stepgen->timer2 + hal_get_ui32(stepgen->dir_setup);
+	    stepgen->timer3 = stepgen->timer2 + hal_get_uint(stepgen->dir_setup);
 	    if ( stepgen->step_type >= 2 ) {
 		/* update state */
 		stepgen->state += stepgen->curr_dir;
@@ -721,7 +721,7 @@ static void update_pos(void *arg, long period)
 	    accum_b = stepgen->accum;
 	} while ( accum_a != accum_b );
 	/* compute integer counts */
-	hal_set_si32(stepgen->count, accum_a >> PICKOFF);
+	hal_set_sint(stepgen->count, accum_a >> PICKOFF);
 	/* check for change in scale value */
 	rtapi_real pos_scale = hal_get_real(stepgen->pos_scale);
 	if (pos_scale != stepgen->old_scale) {
@@ -760,7 +760,7 @@ static void update_freq(void *arg, long period)
 {
     stepgen_t *stepgen;
     int n, newperiod;
-    long min_step_period;
+    rtapi_sint min_step_period;
     long long int accum_a, accum_b;
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
     double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
@@ -825,34 +825,34 @@ static void update_freq(void *arg, long period)
 	    stepgen->old_dir_setup = ~0;
 	}
 	/* process timing parameters */
-	if ( hal_get_ui32(stepgen->step_len) != stepgen->old_step_len ) {
+	if ( hal_get_uint(stepgen->step_len) != stepgen->old_step_len ) {
 	    /* must be non-zero */
-	    if ( hal_get_ui32(stepgen->step_len) == 0 ) {
-		hal_set_ui32(stepgen->step_len, 1);
+	    if ( hal_get_uint(stepgen->step_len) == 0 ) {
+		hal_set_uint(stepgen->step_len, 1);
 	    }
 	    /* make integer multiple of periodns */
-	    stepgen->old_step_len = ulceil(hal_get_ui32(stepgen->step_len), periodns);
-	    hal_set_ui32(stepgen->step_len, stepgen->old_step_len);
+	    stepgen->old_step_len = ulceil(hal_get_uint(stepgen->step_len), periodns);
+	    hal_set_uint(stepgen->step_len, stepgen->old_step_len);
 	}
-	if ( hal_get_ui32(stepgen->step_space) != stepgen->old_step_space ) {
+	if ( hal_get_uint(stepgen->step_space) != stepgen->old_step_space ) {
 	    /* make integer multiple of periodns */
-	    stepgen->old_step_space = ulceil(hal_get_ui32(stepgen->step_space), periodns);
-	    hal_set_ui32(stepgen->step_space, stepgen->old_step_space);
+	    stepgen->old_step_space = ulceil(hal_get_uint(stepgen->step_space), periodns);
+	    hal_set_uint(stepgen->step_space, stepgen->old_step_space);
 	}
-	if ( hal_get_ui32(stepgen->dir_setup) != stepgen->old_dir_setup ) {
+	if ( hal_get_uint(stepgen->dir_setup) != stepgen->old_dir_setup ) {
 	    /* make integer multiple of periodns */
-	    stepgen->old_dir_setup = ulceil(hal_get_ui32(stepgen->dir_setup), periodns);
-	    hal_set_ui32(stepgen->dir_setup, stepgen->old_dir_setup);
+	    stepgen->old_dir_setup = ulceil(hal_get_uint(stepgen->dir_setup), periodns);
+	    hal_set_uint(stepgen->dir_setup, stepgen->old_dir_setup);
 	}
-	if ( hal_get_ui32(stepgen->dir_hold_dly) != stepgen->old_dir_hold_dly ) {
-	    if ( (hal_get_ui32(stepgen->dir_hold_dly) + hal_get_ui32(stepgen->dir_setup)) == 0 ) {
+	if ( hal_get_uint(stepgen->dir_hold_dly) != stepgen->old_dir_hold_dly ) {
+	    if ( (hal_get_uint(stepgen->dir_hold_dly) + hal_get_uint(stepgen->dir_setup)) == 0 ) {
 		/* dirdelay must be non-zero step types 0 and 1 */
 		if ( stepgen->step_type < 2 ) {
-		    hal_set_ui32(stepgen->dir_hold_dly, 1);
+		    hal_set_uint(stepgen->dir_hold_dly, 1);
 		}
 	    }
-	    stepgen->old_dir_hold_dly = ulceil(hal_get_ui32(stepgen->dir_hold_dly), periodns);
-	    hal_set_ui32(stepgen->dir_hold_dly, stepgen->old_dir_hold_dly);
+	    stepgen->old_dir_hold_dly = ulceil(hal_get_uint(stepgen->dir_hold_dly), periodns);
+	    hal_set_uint(stepgen->dir_hold_dly, stepgen->old_dir_hold_dly);
 	}
 	/* test for disabled stepgen */
 	if (hal_get_bool(stepgen->enable) == 0) {
@@ -869,7 +869,7 @@ static void update_freq(void *arg, long period)
 	    continue;
 	}
 	/* calculate frequency limit */
-	min_step_period = hal_get_ui32(stepgen->step_len) + hal_get_ui32(stepgen->step_space);
+	min_step_period = hal_get_uint(stepgen->step_len) + hal_get_uint(stepgen->step_space);
 	max_freq = 1.0 / (min_step_period * 0.000000001);
 	/* check for user specified frequency limit parameter */
 	if (hal_get_real(stepgen->maxvel) <= 0.0) {
@@ -1036,11 +1036,11 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export param variable for raw counts */
-    retval = hal_param_new_si32(comp_id, HAL_RO, &(addr->rawcount), 0,
+    retval = hal_param_new_sint(comp_id, HAL_RO, &(addr->rawcount), 0,
 	"stepgen.%d.rawcounts", num);
     if (retval != 0) { return retval; }
     /* export pin for counts captured by update() */
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &(addr->count), 0,
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &(addr->count), 0,
 	"stepgen.%d.counts", num);
     if (retval != 0) { return retval; }
     /* export parameter for position scaling */
@@ -1077,12 +1077,12 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	"stepgen.%d.maxaccel", num);
     if (retval != 0) { return retval; }
     /* every step type uses steplen */
-    retval = hal_param_new_ui32(comp_id, HAL_RW, &(addr->step_len), 1,
+    retval = hal_param_new_uint(comp_id, HAL_RW, &(addr->step_len), 1,
 	"stepgen.%d.steplen", num);
     if (retval != 0) { return retval; }
     if (step_type < 2) {
 	/* step/dir and up/down use 'stepspace' */
-	retval = hal_param_new_ui32(comp_id, HAL_RW, &(addr->step_space),
+	retval = hal_param_new_uint(comp_id, HAL_RW, &(addr->step_space),
 	    1, "stepgen.%d.stepspace", num);
 	if (retval != 0) { return retval; }
     } else {
@@ -1092,10 +1092,10 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     }
     if ( step_type == 0 ) {
 	/* step/dir is the only one that uses dirsetup and dirhold */
-	retval = hal_param_new_ui32(comp_id, HAL_RW, &(addr->dir_setup),
+	retval = hal_param_new_uint(comp_id, HAL_RW, &(addr->dir_setup),
 	    1, "stepgen.%d.dirsetup", num);
 	if (retval != 0) { return retval; }
-	retval = hal_param_new_ui32(comp_id, HAL_RW, &(addr->dir_hold_dly),
+	retval = hal_param_new_uint(comp_id, HAL_RW, &(addr->dir_hold_dly),
 	    1, "stepgen.%d.dirhold", num);
 	if (retval != 0) { return retval; }
     } else {
@@ -1103,7 +1103,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 	retval = hal_param_new_fake(comp_id, (hal_refs_u *)&(addr->dir_setup));
 	if (retval != 0) { return retval; }
 	/* the others use dirdelay */
-	retval = hal_param_new_ui32(comp_id, HAL_RW, &(addr->dir_hold_dly),
+	retval = hal_param_new_uint(comp_id, HAL_RW, &(addr->dir_hold_dly),
 	    1, "stepgen.%d.dirdelay", num);
 	if (retval != 0) { return retval; }
     }

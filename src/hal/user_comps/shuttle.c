@@ -164,19 +164,19 @@ int read_update(struct shuttle *s) {
         int curr_count = packet[1];
 
         if (s->read_first_event == 0) {
-            hal_set_si32(s->hal->counts, 0);
+            hal_set_sint(s->hal->counts, 0);
             s->prev_count = curr_count;
             s->read_first_event = 1;
         } else {
             int diff_count = curr_count - s->prev_count;
             if (diff_count > 128) diff_count -= 256;
             if (diff_count < -128) diff_count += 256;
-            hal_set_si32(s->hal->counts, hal_get_si32(s->hal->counts) + diff_count);
+            hal_set_sint(s->hal->counts, hal_get_sint(s->hal->counts) + diff_count);
             s->prev_count = curr_count;
         }
     }
 
-    hal_set_si32(s->hal->spring_wheel_s32, packet[0]);
+    hal_set_sint(s->hal->spring_wheel_s32, packet[0]);
     hal_set_real(s->hal->spring_wheel_f, packet[0] / 7.0);
 
     return 0;
@@ -255,13 +255,13 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
         if (r != 0) goto fail1;
     }
 
-    r = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(s->hal->counts), 0, "%s.%d.counts", modname, num_devices);
+    r = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(s->hal->counts), 0, "%s.%d.counts", modname, num_devices);
     if (r != 0) goto fail1;
 
     r = hal_pin_new_real(hal_comp_id, HAL_OUT, &(s->hal->spring_wheel_f), 0.0, "%s.%d.spring-wheel-f", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_new_si32(hal_comp_id, HAL_OUT, &(s->hal->spring_wheel_s32), 0, "%s.%d.spring-wheel-s32", modname, num_devices);
+    r = hal_pin_new_sint(hal_comp_id, HAL_OUT, &(s->hal->spring_wheel_s32), 0, "%s.%d.spring-wheel-s32", modname, num_devices);
     if (r != 0) goto fail1;
 
     return s;

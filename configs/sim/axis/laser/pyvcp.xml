@@ -37,9 +37,9 @@
             </led>
         </labelframe>
         <labelframe text="Raster Program Size">
-            <s32>
+            <sint>
                 <halpin>"raster-program-size"</halpin>
-            </s32>
+            </sint>
         </labelframe>
         <labelframe text="Raster Fault">
             <led>
