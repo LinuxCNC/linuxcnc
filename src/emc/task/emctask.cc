@@ -38,6 +38,16 @@
 
 using namespace linuxcnc;
 
+// emcTaskUpdate() below writes one frame per subroutine call into
+// EMC_TASK_STAT::callStack, so that array must be at least as long as the
+// deepest nesting the interpreter allows.  The two constants live in different
+// headers and this file is the only one that includes both, so the check
+// belongs here.
+static_assert(EMC_MAX_CALL_STACK >= INTERP_SUB_ROUTINE_LEVELS,
+              "EMC_TASK_STAT::callStack cannot hold every frame the interpreter "
+              "can nest; raise EMC_MAX_CALL_STACK in nml_intf/emc_nml.hh to at "
+              "least INTERP_SUB_ROUTINE_LEVELS");
+
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
 //note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
@@ -744,8 +754,11 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
         }
 
         stat->callLevel = lvl;
-        // clear the tail so stale frames are not left visible to consumers that
-        // read the struct directly rather than slicing to callLevel
+        // Clear the entries above callLevel so this process does not go on
+        // holding the file names of subroutines that have already returned.
+        // Only this copy is cleared: those entries are never sent over NML
+        // (EMC_TASK_STAT::update() in emc.cc), so a GUI still has whatever it
+        // read last and must use only the first callLevel entries.
         for (int i = lvl; i < EMC_MAX_CALL_STACK; i++)
             stat->callStack[i] = EmcCallFrame{};
     }

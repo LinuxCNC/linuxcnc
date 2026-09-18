@@ -1381,7 +1381,19 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update((int *) &execState, 1);
     cms->update((int *) &interpState, 1);
     cms->update(callLevel);
-    for (int i = 0; i < EMC_MAX_CALL_STACK; i++) {
+    // Send only the frames that are in use.  With the program in the main file
+    // that is none, instead of EMC_MAX_CALL_STACK empty frames every cycle.
+    // The reader has just read callLevel on the line above, so it knows how
+    // many frames follow.  Entries past callLevel are never sent - see
+    // callStack[] in emc_nml.hh.
+    //
+    // When reading, callLevel came out of the message and could be any number,
+    // and the loop below uses it to index callStack[].  Limit it to the size of
+    // callStack[] first, or a bad message reads past the end of the array.
+    int frames = callLevel;
+    if (frames < 0) frames = 0;
+    if (frames > EMC_MAX_CALL_STACK) frames = EMC_MAX_CALL_STACK;
+    for (int i = 0; i < frames; i++) {
         cms->update(callStack[i].filename, sizeof(callStack[i].filename));
         cms->update(callStack[i].subname, sizeof(callStack[i].subname));
         cms->update(callStack[i].line);
