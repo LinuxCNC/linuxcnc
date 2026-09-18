@@ -93,18 +93,35 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  _("P value not an integer with G10"));
     CHKS((((block->l_number == 2 || block->l_number == 20) && ((p_int < 0) || (p_int > 9)))), _("P value out of range (0-9) with G10 L%d"), block->l_number);
     CHKS((((block->l_number == 1 || block->l_number == 10 || block->l_number == 11) && p_int < 1)), _("P value out of range with G10 L%d"), block->l_number);
-  } else if (mode0 == G_28) {
-  } else if (mode0 == G_30) {
+  } else if (mode0 == G_28 || mode0 == G_30) {
+    CHKS((settings->machine_moves_need_machine_frame && !kins_machine_frame(settings)),
+         _("%s moves in the world of the active kinematics, which is not the machine frame"
+           " (MACHINE_MOVES_NEED_MACHINE_FRAME): the machine frame is %s"),
+         (mode0 == G_28) ? "G28" : "G30", (mode0 == G_28) ? "G28.5" : "G30.5");
+  } else if (mode0 == G_28_5 || mode0 == G_30_5) {
+    CHKS((block->radius_flag || block->theta_flag),
+         _("Cannot use polar coordinates with G28.5 or G30.5"));
+    CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
+          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
+           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
+         _("Cannot use G28.5 or G30.5 in incremental distance mode"));
   } else if (mode0 == G_5_3) {
       CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
   } else if (mode1 == G_5_2){
   } else if (mode1 == G_6_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+    CHKS((settings->machine_moves_need_machine_frame && !kins_machine_frame(settings)),
+         _("%s stores a world position, and the active kinematics is not the machine frame"
+           " (MACHINE_MOVES_NEED_MACHINE_FRAME): store it on the machine frame kinematics"),
+         (mode0 == G_28_1) ? "G28.1" : "G30.1");
   } else if (mode0 == G_28_2) {   // G-code homing
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
         NCE_MUST_USE_G0_OR_G1_WITH_G53);
+    CHKS((settings->machine_moves_need_machine_frame && !kins_machine_frame(settings)),
+         _("G53 moves in the world of the active kinematics, which is not the machine frame"
+           " (MACHINE_MOVES_NEED_MACHINE_FRAME): the machine frame is G53.5"));
     CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),

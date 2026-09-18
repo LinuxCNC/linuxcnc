@@ -377,18 +377,22 @@ public:
                   int p, int q, const double *now, double *joints, const char *name);
  int tool_vector_ends(block_pointer block, setup_pointer settings, double *a, double *b, double *c);
  int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
+ int convert_home_slides(int code, block_pointer block, setup_pointer settings);
  int slide_joints(const char *name, setup_pointer settings, void *ctx, const struct kins_params *params,
                   int njoints, const int flags[9], const double words[9], double *joints);
  int slide_words(const char *name, setup_pointer settings, void *ctx, const struct kins_params *params,
                  int njoints, int undeclared, const int flags[9], const double words[9], double *joints);
  int machine_frame_joints(const char *name, setup_pointer settings, void *ctx,
                           const int flags[9], const double words[9], double *joints);
+ int ptp_joint_move(const char *name, int move, block_pointer block, setup_pointer settings,
+                    void *ctx, const double *joints);
  int ptp_seconds(block_pointer block, setup_pointer settings,
                  double x, double y, double z, double a, double b, double c,
                  double u, double v, double w, double *seconds);
  int kins_load(setup_pointer settings);
  int kins_context(setup_pointer settings, void **ctx);
  int kins_here(setup_pointer settings, void **ctx);
+ bool kins_machine_frame(setup_pointer settings);
  int tool_offset_point(setup_pointer settings, const EmcPose *offset, const double *standing,
                        EmcPose *point, bool *known);
  void kins_set_tool(void *ctx, const EmcPose *offset);

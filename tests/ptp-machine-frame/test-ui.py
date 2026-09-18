@@ -74,6 +74,17 @@ def carriage(x, y, z, b=0.0, cc=0.0):
     j1 = y / math.sin(SLANT)
     return [x - j1 * math.cos(SLANT), j1, z, b, cc]
 
+def refused(*cmds):
+    for cmd in cmds:
+        c.mdi(cmd)
+        c.wait_complete(30)
+        m = e.poll()
+        if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            error("%s was accepted" % cmd)
+        else:
+            print("refused as expected:", m[1])
+        c.mode(linuxcnc.MODE_MDI)
+
 def expect_type(what, want):
     k = kins_type()
     print("%-34s kins-type %d" % (what, k))
@@ -119,6 +130,27 @@ j = mdi("G53.5 G0 X20 Y10 Z-5")
 expect("G53.5 X20 Y10 Z-5 under the tip", j, carriage(20, 10, -5, 30))
 j = mdi("G53.5 G0 B0")
 expect("G53.5 B0 is the joint", j, carriage(20, 10, -5, 0))
+# and G53 under the tip is refused: the config wants machine moves on the
+# machine frame type, and the plain identity is not that type either
+refused("G53 G0 X0", "G28", "G30", "G28.1", "G30.1")
+mdi("G12.1 P2")
+refused("G53 G0 X0", "G28.1")
+mdi("G13.1")
+drain()
+
+# --- G28.5 goes to a machine frame position stored on the machine frame ----
+# with no words every letter goes, B to its stored zero included; with words
+# the machine passes through that machine frame point and only those
+# letters go on to the stored position.  Under G43.4 a program Z is the
+# tool length above the carriage, the offset the interpreter carries, so the
+# waypoint's Z is 10 + 50
+mdi("G49", "G53 G0 X20 Y10 Z0 B0 C0", "G28.1")
+mdi("G43.4 H1", "G0 B30", "G0 X0 Y0 Z10")
+j = mdi("G28.5")
+expect("G28.5 with the head tilted", j, carriage(20, 10, 0, 0))
+mdi("G0 X0 Y0 Z10")
+j = mdi("G28.5 X40")
+expect("G28.5 X40, through X then to X only", j, carriage(20, 0, 10 + TOOL, 0))
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
 drain()
 

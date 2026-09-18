@@ -67,29 +67,47 @@ def mdi(*cmds):
         c.wait_complete(60)
     return settled()
 
-# run one command and sample joints and positions on the way
-# status is a task-cycle snapshot with the feedback a servo cycle behind the
-# command, so two equal polls inside one task cycle do not mean the move is
-# over: the last sample is taken once the move has settled
+# the path of a move is read from the sampler log, every servo cycle of the
+# joint commands and the world position, which halsampler writes to
+# samples.log as it runs; status would give a snapshot per task cycle, which
+# misses the turn of a move that stops and comes back
+LOG = "samples.log"
+
+def log_samples():
+    with open(LOG) as f:
+        lines = f.read().split("\n")
+    out = []
+    for line in lines[:-1]:       # the last piece is a line still being written
+        v = line.split()
+        if len(v) != 1 + JOINTS + 3:
+            continue               # an "overrun" line, counted from the pin at the end
+        v = [float(x) for x in v[1:]]
+        out.append((v[:JOINTS], v[JOINTS:]))
+    return out
+
+# run one command and return the settled joints and the log of the way there:
+# the log is block buffered, so it is read until it has caught up with the
+# machine at rest
 def sampled(cmd):
+    n0 = len(log_samples())
     c.mdi(cmd)
-    samples = []
-    t0 = time.time()
-    while time.time() - t0 < 60:
-        s.poll()
-        samples.append(([s.joint_position[i] for i in range(JOINTS)], list(s.position)))
-        if s.inpos and not s.queue and len(samples) > 20 and samples[-1] == samples[-2]:
-            break
-        time.sleep(0.005)
     c.wait_complete(60)
     end = settled()
-    s.poll()
-    samples.append(([s.joint_position[i] for i in range(JOINTS)], list(s.position)))
-    return end, samples
+    deadline = time.time() + 10
+    while True:
+        samples = log_samples()
+        if len(samples) > n0 and close(samples[-1][0], end, 2e-6):
+            break
+        if time.time() > deadline:
+            error("%s: the sampler log did not catch up with the machine" % cmd)
+            break
+        time.sleep(0.02)
+    return end, samples[n0:]
 
 # a point-to-point move runs every joint on a straight line in joint space,
 # all together: the fraction of the way each moving joint has gone is the
-# same for all of them at every sample, never goes back, and reaches one
+# same for all of them at every sample, never goes back, and reaches one;
+# the log prints six decimals, which on a short move is 1e-5 of the way
 def joint_line(what, samples, start, end):
     moving = [i for i in range(JOINTS) if abs(end[i] - start[i]) > 1e-6]
     if not moving:
@@ -99,7 +117,7 @@ def joint_line(what, samples, start, end):
     for n, (j, p) in enumerate(samples):
         fs = [(j[i] - start[i]) / (end[i] - start[i]) for i in moving]
         f = sum(fs) / len(fs)
-        if max(abs(x - f) for x in fs) > 1e-3:
+        if max(abs(x - f) for x in fs) > 1e-5:
             error("%s: joints out of step at sample %d of %d: %s" % (what, n, len(samples), fs))
             return
         if f < last - 1e-6:
@@ -435,6 +453,44 @@ after = mdi("G53.5 G0 Z0 B0")
 if abs(after[2]) > 1e-6 or abs(after[SECONDARY]) > 1e-6:
     error("G53.5 Z0 B0 did not put joints 2 and 4 at zero")
 
+# --- G28.5 and G30.5 ------------------------------------------------------
+# the stored positions are saved on the identity kinematics, where the world
+# is the slides: G28.1 at X10 Y20 Z-5 with the head straight, G30.1 at the
+# same slides with the head at B10
+mdi("G12.1 P0", "G0 X10 Y20 Z-5 A0 B0 C0", "G28.1", "G0 B10", "G30.1",
+    "G0 X0 Y0 Z0 B0", "G12.1 P1")
+# with the head tilted under TCP, G28.5 alone takes every slide to the
+# stored position, on one joint-space move
+before = mdi("G0 X0 Y0 Z0 A0 B-30 C0")
+after, samples = sampled("G28.5")
+show("G28.5", after)
+drain()
+joint_line("G28.5", samples, before, after)
+if not close(after, [10, 20, -5, 0, 0, 0], 1e-6):
+    error("G28.5 put the joints at %s, not at the stored slides" % (after,))
+# an axis word is a slide to pass through first, and then only that letter
+# goes to its stored value: Z3 on the way, then Z-5, the rest untouched
+before = mdi("G0 X0 Y0 Z0 A0 B-30 C0")
+after, samples = sampled("G30.5 Z3")
+show("G30.5 Z3", after)
+drain()
+if abs(after[2] + 5) > 1e-6:
+    error("G30.5 Z3 left joint 2 at %.6f, not at the stored -5" % after[2])
+for j in (0, 1, 3, 4, 5):
+    if abs(after[j] - before[j]) > 1e-6:
+        error("G30.5 Z3 moved joint %d from %.9f to %.9f" % (j, before[j], after[j]))
+# the first move ends on Z3 and the second starts there inside the same
+# servo cycle, so the turn falls between two samples: joint 2 decelerates
+# into it at 700 mm/s^2, which over one 1 ms cycle is 3.5e-4 short of it,
+# and it never goes past it
+peak = max(j[2] for j, p in samples)
+if peak > 3 + 1e-6 or peak < 3 - 1e-3:
+    error("G30.5 Z3 did not pass through the Z3 slide (joint 2 peaked at %.6f)" % peak)
+after = mdi("G30.5")
+if not close(after, [10, 20, -5, 0, 10, 0], 1e-6):
+    error("G30.5 put the joints at %s, not at the stored slides with B10" % (after,))
+mdi("G0 X0 Y0 Z0 A0 B0 C0")
+
 # a point-to-point feed takes the time the straight move would: 10 mm at
 # F600 is one second, and F30 in G93 is two
 def timed(cmd):
@@ -468,10 +524,14 @@ if not 1.6 < took < 2.6:
     error("a point-to-point feed at G93 F30 took %.3f s, not about two" % took)
 drain()
 
-# what the point-to-point codes refuse
+# what the point-to-point codes refuse, and what MACHINE_MOVES_NEED_MACHINE_FRAME
+# refuses while the kinematics is not the identity: G53, G28, G30 and the
+# stores; the slide forms are the way to the machine's positions from here
 for cmd in ("G53.4 G2 X1 I1", "G91 G53.7 G0 J0=1", "G53.7 G0 J9=1", "G53.7 G0 X1",
             "G53.7 G0 J1", "G53.7 G0", "G0 J0=1", "G53.7 G0 J0.5=1", "G53.7 G0 J0=1 J0=2",
-            "G53.5 G0 J0=1", "G53.5 G0", "G91 G53.5 G0 X1", "G53.4 G1 F0 X1"):
+            "G53.5 G0 J0=1", "G53.5 G0", "G91 G53.5 G0 X1", "G53.4 G1 F0 X1",
+            "G91 G28.5 X1", "G30.5 G1 X1",
+            "G53 G0 X0", "G28", "G30 Z1", "G28.1", "G30.1"):
     c.mdi(cmd)
     c.wait_complete(30)
     m = e.poll()
@@ -481,6 +541,11 @@ for cmd in ("G53.4 G2 X1 I1", "G91 G53.7 G0 J0=1", "G53.7 G0 J9=1", "G53.7 G0 X1
         print("refused as expected:", m[1])
     c.mode(linuxcnc.MODE_MDI)
 mdi("G90 G94 G0 X0 Y0 Z0 A0 B0 C0")
+# and on the identity kinematics the same lines are accepted
+mdi("G12.1 P0", "G53 G0 X0", "G28", "G30 Z1", "G28.1", "G30.1", "G12.1 P1")
+m = e.poll()
+if m:
+    error("on the identity kinematics %s" % (m[1],))
 
 # --- a plane refuses what would move the ground under it ---------------
 # each refusal is an interpreter error, and the abort that follows cancels
@@ -542,5 +607,10 @@ for f in ("sim.var", "sim.var.bak"):
     except OSError:
         pass
 
+overruns = int(hal.get_value("sampler.0.overruns"))
+if overruns:
+    error("the sampler lost %d samples" % overruns)
+if not errors:
+    os.unlink(LOG)
 print("Exiting with %d errors" % errors)
 sys.exit(1 if errors else 0)

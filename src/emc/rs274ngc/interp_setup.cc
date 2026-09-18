@@ -136,6 +136,7 @@ setup::setup() :
     kins_type(0),
     kins_by_g43_4(false),
     tool_vector(false),
+    machine_moves_need_machine_frame(false),
     toolchange_flag(0),
     home_flag(0),
     input_index(0),

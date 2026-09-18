@@ -639,6 +639,10 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   When set M2 and M30 will no longer automatically reset the active WCS to 'G54'.
 * `DISABLE_FANUC_STYLE_SUB = 0` (Default: 0)
   If there is reason to disable Fanuc subroutines set it to 1.
+* `MACHINE_MOVES_NEED_MACHINE_FRAME = 0` (bool, Default: 0) +
+  When set, 'G53', 'G28', 'G30', 'G28.1' and 'G30.1' are refused whenever the kinematics in force is not the machine frame type: the type the module flags as such, the identity kinematics on a machine whose slides line up with its frame, and neither the tool centre point nor a raw joint identity on one whose slides do not.
+  These codes work in the world of the kinematics in force, which on a table-side kinematics turns with the table; the machine frame positions are 'G53.5', 'G28.5' and 'G30.5'.
+  See <<gcode:g53,G53>>.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
