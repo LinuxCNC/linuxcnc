@@ -440,7 +440,7 @@ class  HalBar(Bar, _HalWidgetBase):
 
         self._superOpposite = self._opposite
 
-        if self._pin_type == HALPinType.FLOAT:
+        if self._pin_type == HALPinType.REAL:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
         elif self._pin_type == HALPinType.S32:

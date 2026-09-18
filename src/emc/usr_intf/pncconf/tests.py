@@ -616,7 +616,7 @@ But there is not one in the machine-named folder.."""),True)
         # do I/O write commands
         for i in write:
             halrun.write('%s\n'%i)
-        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "newsig estop-out bool\n")
         halrun.write( "sets estop-out false\n")
         halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
         halrun.write("setp pid.0.Igain     %d\n"% ( w[axis+"I"].get_value() ))
@@ -973,11 +973,11 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write( "addf charge-pump servo-thread\n")
         for i in write:
             halrun.write('%s\n'%i)
-        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "newsig estop-out bool\n")
         halrun.write( "sets estop-out false\n")
-        halrun.write( "newsig enable-not bit\n")
-        halrun.write( "newsig dir-not bit\n")
-        halrun.write( "newsig dir bit\n")
+        halrun.write( "newsig enable-not bool\n")
+        halrun.write( "newsig dir-not bool\n")
+        halrun.write( "newsig dir bool\n")
         # search for pins with test signals that may be needed to enable amp
         self.hal_test_signals(axis)
 
