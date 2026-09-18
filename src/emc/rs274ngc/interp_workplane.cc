@@ -1226,6 +1226,31 @@ int Interp::ptp_seconds(block_pointer block, setup_pointer s,
     return INTERP_OK;
 }
 
+// Whether the kinematics in force is the machine frame type, the one G13.1
+// and G49 cancel to: the flags the module declares for the type the program
+// selected, else what the machine reports (a module that switches nothing,
+// or no machine attached).
+bool Interp::kins_machine_frame(setup_pointer s)
+{
+    int flags = GET_EXTERNAL_KINS_TYPE_FLAGS(s->kins_type);
+    if (flags >= 0) { return (flags & KINSTYPE_MACHINE) != 0; }
+    return GET_EXTERNAL_KINEMATICS_IDENTITY();
+}
+
+// [RS274NGC] MACHINE_MOVES_IN_MACHINE_FRAME: off the machine frame type G53,
+// G28 and G30 are G53.5, G28.5 and G30.5, the slides at the words whatever
+// the tool and the head are doing.  On the machine frame type the two read
+// the same point, and G53 keeps its straight line.
+void Interp::machine_frame_codes(block_pointer block, setup_pointer s)
+{
+    int *mode0 = &block->g_modes[GM_MODAL_0];
+
+    if (!s->machine_moves_in_machine_frame) { return; }
+    if (*mode0 != G_53 && *mode0 != G_28 && *mode0 != G_30) { return; }
+    if (kins_machine_frame(s)) { return; }
+    *mode0 = (*mode0 == G_53) ? G_53_5 : (*mode0 == G_28) ? G_28_5 : G_30_5;
+}
+
 // The axis letters read as machine frame coordinates, the words the module's
 // machine frame type answers to: the pivot in machine coordinates, the
 // rotaries as joints, in program units.  The joints are read in on the type
@@ -1257,6 +1282,32 @@ int Interp::slide_joints(const char *name, setup_pointer s, void *vctx, const st
     return status;
 }
 
+// Where the machine frame type is a plain identity, or the module declares
+// no types, the letters name joints: refused where a letter and its joint
+// are not of one unit class.
+int Interp::letters_name_joints(const char *name, setup_pointer s, const struct kins_params *p,
+                                int njoints)
+{
+    static const char letters[9] = { 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W' };
+    int a, j;
+
+    CHKS((!p), _("%s: the kinematics module gives no joint mapping"), name);
+    for (a = 0; a < 9; a++) {
+        const int angular = (a >= 3 && a <= 5);
+        for (j = 0; j < njoints; j++) {
+            int turns;
+            if (!(p->joints_of_axis[a] & (1 << j))) { continue; }
+            turns = (s->kins_angular_joints & (1 << j)) ? 1 : 0;
+            CHKS((turns != angular),
+                 _("%s: on this machine %c names joint %d, which the INI file"
+                   " declares %s, so the axis letters do not name the joints they"
+                   " look like; give joints by number with G53.7 J%d="),
+                 name, letters[a], j, turns ? "angular" : "linear", j);
+        }
+    }
+    return INTERP_OK;
+}
+
 // the words on the context as set: the module's machine frame type, or the
 // type in force with letters = joints where the module declares none
 int Interp::slide_words(const char *name, setup_pointer s, void *vctx, const struct kins_params *p,
@@ -1268,20 +1319,7 @@ int Interp::slide_words(const char *name, setup_pointer s, void *vctx, const str
     int a, j;
 
     if (undeclared || kinematicsUserIsIdentity(ctx)) {
-        CHKS((!p), _("%s: the kinematics module gives no joint mapping"), name);
-        for (a = 0; a < 9; a++) {
-            const int angular = (a >= 3 && a <= 5);
-            for (j = 0; j < njoints; j++) {
-                int turns;
-                if (!(p->joints_of_axis[a] & (1 << j))) { continue; }
-                turns = (s->kins_angular_joints & (1 << j)) ? 1 : 0;
-                CHKS((turns != angular),
-                     _("%s: on this machine %c names joint %d, which the INI file"
-                       " declares %s, so the axis letters do not name the joints they"
-                       " look like; give joints by number with G53.7 J%d="),
-                     name, letters[a], j, turns ? "angular" : "linear", j);
-            }
-        }
+        CHP(letters_name_joints(name, s, p, njoints));
     }
     if (!undeclared) {
         return machine_frame_joints(name, s, ctx, flags, words, joints);
@@ -1335,66 +1373,16 @@ int Interp::machine_frame_joints(const char *name, setup_pointer s, void *vctx,
     return INTERP_OK;
 }
 
-// The two point-to-point codes below G53.4: G53.5 by axis letter in the
-// machine frame, the module's machine frame type, refused where that type is
-// a plain identity whose letters name joints of the other unit class; G53.7
-// by J<n>=<value> in the joint's own units.  A letter or joint left out keeps
-// its position.
-int Interp::convert_ptp_joints(int code, int move, block_pointer block, setup_pointer s)
+// The move to a set of joints: where that puts the tool, and what the
+// program calls it, then the joint-space traverse or feed there.
+int Interp::ptp_joint_move(const char *name, int move, block_pointer block, setup_pointer s,
+                           void *vctx, const double *joints)
 {
-    void *vctx;
-    KinematicsUserContext *ctx;
-    const kins_params *p;
-    double joints[EMCMOT_MAX_JOINTS];
+    KinematicsUserContext *ctx = (KinematicsUserContext *)vctx;
     EmcPose pose;
     double prog[9];
-    const int flags[9] = { block->x_flag, block->y_flag, block->z_flag,
-                           block->a_flag, block->b_flag, block->c_flag,
-                           block->u_flag, block->v_flag, block->w_flag };
-    const double words[9] = { block->x_number, block->y_number, block->z_number,
-                              block->a_number, block->b_number, block->c_number,
-                              block->u_number, block->v_number, block->w_number };
-    const char *name = (code == G_53_5) ? "G53.5" : "G53.7";
-    int a, j, njoints, given = 0;
+    int j;
 
-    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
-         _("Cannot use %s with cutter radius compensation on"), name);
-    CHP(kins_context(s, &vctx));
-    ctx = (KinematicsUserContext *)vctx;
-    njoints = kinematicsUserGetNumJoints(ctx);
-    p = kinematicsUserParams(ctx);
-    CHP(current_joints(s, ctx, joints));
-
-    if (code == G_53_7) {
-        for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
-            if (!block->joint_flag[j]) { continue; }
-            CHKS((j >= njoints), _("G53.7: this kinematics has no joint %d"), j);
-            joints[j] = block->joint_value[j];
-            given++;
-        }
-        CHKS((given == 0), _("G53.7 needs at least one J<n>=<value> joint word"));
-    } else {
-        CHP(slide_joints(name, s, ctx, p, njoints, flags, words, joints));
-    }
-
-    // the joints of a gantry pair move together: both given, one value
-    if (code == G_53_7) {
-        for (a = 0; p && a < EMCMOT_MAX_AXIS; a++) {
-            int bits = p->joints_of_axis[a];
-            int first = -1;
-            if (!(bits & (bits - 1))) { continue; }
-            for (j = 0; j < njoints; j++) {
-                if (!(bits & (1 << j))) { continue; }
-                if (first < 0) { first = j; continue; }
-                CHKS((block->joint_flag[j] != block->joint_flag[first]),
-                     _("G53.7: joints %d and %d are a pair on this kinematics, give both"), first, j);
-                CHKS((block->joint_flag[j] && block->joint_value[j] != block->joint_value[first]),
-                     _("G53.7: joints %d and %d are a pair on this kinematics, give them one value"), first, j);
-            }
-        }
-    }
-
-    // where that puts the tool, and what the program calls it
     current_machine_pose(s, &pose);
     CHKS((kinematicsUserForward(ctx, joints, &pose) != 0),
          _("%s: the kinematics cannot place those joints"), name);
@@ -1423,5 +1411,166 @@ int Interp::convert_ptp_joints(int code, int move, block_pointer block, setup_po
     s->u_current = prog[6];
     s->v_current = prog[7];
     s->w_current = prog[8];
+    return INTERP_OK;
+}
+
+// The two point-to-point codes below G53.4: G53.5 by axis letter in the
+// machine frame, the module's machine frame type, refused where that type is
+// a plain identity whose letters name joints of the other unit class; G53.7
+// by J<n>=<value> in the joint's own units.  A letter or joint left out keeps
+// its position.
+int Interp::convert_ptp_joints(int code, int move, block_pointer block, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const kins_params *p;
+    double joints[EMCMOT_MAX_JOINTS];
+    const int flags[9] = { block->x_flag, block->y_flag, block->z_flag,
+                           block->a_flag, block->b_flag, block->c_flag,
+                           block->u_flag, block->v_flag, block->w_flag };
+    const double words[9] = { block->x_number, block->y_number, block->z_number,
+                              block->a_number, block->b_number, block->c_number,
+                              block->u_number, block->v_number, block->w_number };
+    const char *name = (code == G_53_5) ? "G53.5" : "G53.7";
+    int a, j, njoints, given = 0;
+
+    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use %s with cutter radius compensation on"), name);
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    njoints = kinematicsUserGetNumJoints(ctx);
+    p = kinematicsUserParams(ctx);
+    CHP(current_joints(s, ctx, joints));
+
+    if (code == G_53_7) {
+        for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+            if (!block->joint_flag[j]) { continue; }
+            CHKS((j >= njoints), _("G53.7: this kinematics has no joint %d"), j);
+            joints[j] = block->joint_value[j];
+            given++;
+        }
+        CHKS((given == 0), _("G53.7 needs at least one J<n>=<value> joint word"));
+
+        // the joints of a gantry pair move together: both given, one value
+        for (a = 0; p && a < EMCMOT_MAX_AXIS; a++) {
+            int bits = p->joints_of_axis[a];
+            int first = -1;
+            if (!(bits & (bits - 1))) { continue; }
+            for (j = 0; j < njoints; j++) {
+                if (!(bits & (1 << j))) { continue; }
+                if (first < 0) { first = j; continue; }
+                CHKS((block->joint_flag[j] != block->joint_flag[first]),
+                     _("G53.7: joints %d and %d are a pair on this kinematics, give both"), first, j);
+                CHKS((block->joint_flag[j] && block->joint_value[j] != block->joint_value[first]),
+                     _("G53.7: joints %d and %d are a pair on this kinematics, give them one value"), first, j);
+            }
+        }
+    } else {
+        CHP(slide_joints(name, s, ctx, p, njoints, flags, words, joints));
+    }
+
+    return ptp_joint_move(name, move, block, s, ctx, joints);
+}
+
+// G28.5 and G30.5: the machine frame forms of G28 and G30, as G53.5 is of
+// G53.  The stored position, parameters 5161 to 5169 or 5181 to 5189, is
+// read in the machine frame the way G53.5 reads its words: no offset, no
+// work plane, no orientation.  Axis words on the line are a machine frame
+// point to pass through first, and then only those letters go to the stored
+// position; with no words every letter the machine has goes.
+int Interp::convert_home_slides(int code, block_pointer block, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const kins_params *p;
+    const double *parameters = s->parameters;
+    double joints[EMCMOT_MAX_JOINTS];
+    double home[9];
+    int flags[9] = { block->x_flag, block->y_flag, block->z_flag,
+                     block->a_flag, block->b_flag, block->c_flag,
+                     block->u_flag, block->v_flag, block->w_flag };
+    const double words[9] = { block->x_number, block->y_number, block->z_number,
+                              block->a_number, block->b_number, block->c_number,
+                              block->u_number, block->v_number, block->w_number };
+    const char *name = (code == G_28_5) ? "G28.5" : "G30.5";
+    const int base = (code == G_28_5) ? 5161 : 5181;
+    int a, njoints, given = 0;
+
+    CHKS((s->cutter_comp_side != CUTTER_COMP::OFF),
+         _("Cannot use %s with cutter radius compensation on"), name);
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    njoints = kinematicsUserGetNumJoints(ctx);
+    p = kinematicsUserParams(ctx);
+    CHP(current_joints(s, ctx, joints));
+
+    for (a = 0; a < 9; a++) {
+        const int angular = (a >= 3 && a <= 5);
+        home[a] = angular ? USER_TO_PROGRAM_ANG(parameters[base + a])
+                          : USER_TO_PROGRAM_LEN(parameters[base + a]);
+        given += flags[a];
+    }
+
+    if (given) {
+        CHP(slide_joints(name, s, ctx, p, njoints, flags, words, joints));
+        CHP(ptp_joint_move(name, G_0, block, s, ctx, joints));
+    } else {
+        CHKS((!p), _("%s: the kinematics module gives no joint mapping"), name);
+        for (a = 0; a < 9; a++) { flags[a] = p->joints_of_axis[a] != 0; }
+    }
+    CHP(slide_joints(name, s, ctx, p, njoints, flags, home, joints));
+    return ptp_joint_move(name, G_0, block, s, ctx, joints);
+}
+
+// G28.1 and G30.1 where G28 and G30 run as G28.5 and G30.5: the position
+// stored is where the slides stand in the machine frame, the point those
+// read back, in the reverse of slide_joints().
+int Interp::convert_savehome_slides(int code, setup_pointer s)
+{
+    void *vctx;
+    KinematicsUserContext *ctx;
+    const kins_params *p;
+    double joints[EMCMOT_MAX_JOINTS];
+    const char *name = (code == G_28_1) ? "G28.1" : "G30.1";
+    const int base = (code == G_28_1) ? 5161 : 5181;
+    const int machine = flagged_kins_type(KINSTYPE_MACHINE);
+    int a, j, njoints;
+
+    CHP(kins_context(s, &vctx));
+    ctx = (KinematicsUserContext *)vctx;
+    njoints = kinematicsUserGetNumJoints(ctx);
+    p = kinematicsUserParams(ctx);
+    CHP(current_joints(s, ctx, joints));
+
+    if (machine >= 0) {
+        EmcPose pose;
+        int identity, placed;
+        CHKS((kinematicsUserSetType(ctx, machine) != 0),
+             _("%s: kinematics type %d is not available outside realtime"), name, machine);
+        identity = kinematicsUserIsIdentity(ctx);
+        current_machine_pose(s, &pose);
+        placed = (kinematicsUserForward(ctx, joints, &pose) == 0);
+        // back on the type in force: the caller's context
+        kinematicsUserSetType(ctx, s->kins_type);
+        if (identity) { CHP(letters_name_joints(name, s, p, njoints)); }
+        CHKS((!placed), _("%s: the machine frame kinematics cannot place the current joints"), name);
+        s->parameters[base + 0] = pose.tran.x;
+        s->parameters[base + 1] = pose.tran.y;
+        s->parameters[base + 2] = pose.tran.z;
+        s->parameters[base + 3] = pose.a;
+        s->parameters[base + 4] = pose.b;
+        s->parameters[base + 5] = pose.c;
+        s->parameters[base + 6] = pose.u;
+        s->parameters[base + 7] = pose.v;
+        s->parameters[base + 8] = pose.w;
+        return INTERP_OK;
+    }
+    CHP(letters_name_joints(name, s, p, njoints));
+    for (a = 0; a < 9; a++) {
+        for (j = 0; j < njoints; j++) {
+            if (p->joints_of_axis[a] & (1 << j)) { break; }
+        }
+        s->parameters[base + a] = (j < njoints) ? joints[j] : 0.0;
+    }
     return INTERP_OK;
 }
