@@ -1,0 +1,6 @@
+component separate_namespaces;
+license "GPL";
+pin in bit x_y;
+function x_y_;
+;;
+FUNCTION(x_y_) {}

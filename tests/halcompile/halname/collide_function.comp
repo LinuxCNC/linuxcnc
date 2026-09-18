@@ -1,0 +1,8 @@
+component collide_function;
+license "GPL";
+pin in bit enable;
+function a_b;
+function a_b_;
+;;
+FUNCTION(a_b) {}
+FUNCTION(a_b_) {}
