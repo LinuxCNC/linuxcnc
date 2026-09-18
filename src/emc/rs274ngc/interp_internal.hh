@@ -233,8 +233,10 @@ enum GCodes
     G_28 = 280,
     G_28_1 = 281,
     G_28_2 = 282,   /* G-code homing cycle (home one/all joints) */
+    G_28_5 = 285,
     G_30 = 300,
     G_30_1 = 301,
+    G_30_5 = 305,
     G_33 = 330,
     G_33_1 = 331,
     G_38_2 = 382,
@@ -803,6 +805,7 @@ struct setup
   int kins_type;              // kinematics selected by G12.1/G13.1
   bool kins_by_g43_4;         // G43.4 selected the kinematics, for G49 to undo
   bool tool_vector;           // G43.5: I J K on G0 and G1 give the tool axis
+  bool machine_moves_need_machine_frame; // [RS274NGC] MACHINE_MOVES_NEED_MACHINE_FRAME: G53, G28, G30 refused off the machine frame type
   bool toolchange_flag;       // flag indicating we just had a tool change
   bool home_flag;             // flag indicating a G28.2 homing cycle just ran
   int input_index;		// channel queried
@@ -1100,4 +1103,5 @@ struct scoped_locale {
 // the kinematics type carrying a KINSTYPE_ flag, or -1 when the module
 // declares none (interp_convert.cc)
 int flagged_kins_type(int flag);
+
 #endif // INTERP_INTERNAL_HH

@@ -4493,6 +4493,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
           CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {
     CHP(convert_home(code, block, settings));
+  } else if ((code == G_28_5) || (code == G_30_5)) {
+    CHP(convert_home_slides(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
   } else if (code == G_28_2) {

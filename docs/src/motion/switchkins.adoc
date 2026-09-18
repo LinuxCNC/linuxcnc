@@ -581,25 +581,25 @@ int switchkinsDeclare(int ktype, int flags);
 ----
 
 G-code reads these declarations: 'G13.1' and 'G49' cancel to the
-kinstype declared KINSTYPE_MACHINE, 'G53.5' moves in its world, and
-'G43.4' switches to the kinstype declared KINSTYPE_PRIMARY, whatever
-their numbers, so a module whose
-kinematics are not in the conventional order still gets working
-spellings.  The machine frame type is the machine with the orientation
-left out, XYZ the pivot in machine coordinates and the rotary letters
-the rotary joints; on a machine whose slides line up with its frame that
-is the identity type, so a module that declares no machine frame
-kinstype has its identity kinstype stand in, and every shipped module is
-of that kind.  A module whose carriage does not line up, a slanted slide
-or a composite Y on a mill-turn, declares its machine frame kinstype
-separately and keeps KINSTYPE_IDENTITY for a kinstype whose joints
-really are the axes, since motion and the planner skip the maths on that
-flag alone.  At most one kinstype may be declared identity, at most one
-primary and at most one machine frame, and declaring a kinstype the
-module does not provide fails the module load.  A module that declares
-nothing keeps working exactly as before for 'G12.1 P-' and 'G49', but
-'G13.1' and 'G43.4' are an error, since the numbers of the identity and
-primary kinematics are then a guess.
+kinstype declared KINSTYPE_MACHINE, 'G53.5', 'G28.5' and 'G30.5' move
+in its world, and 'G43.4' switches to the kinstype declared
+KINSTYPE_PRIMARY, whatever their numbers, so a module whose kinematics
+are not in the conventional order still gets working spellings.  The
+machine frame type is the machine with the orientation left out, XYZ the
+pivot in machine coordinates and the rotary letters the rotary joints;
+on a machine whose slides line up with its frame that is the identity
+type, so a module that declares no machine frame kinstype has its
+identity kinstype stand in, and every shipped module is of that kind.  A
+module whose carriage does not line up, a slanted slide or a composite Y
+on a mill-turn, declares its machine frame kinstype separately and keeps
+KINSTYPE_IDENTITY for a kinstype whose joints really are the axes, since
+motion and the planner skip the maths on that flag alone.  At most one
+kinstype may be declared identity, at most one primary and at most one
+machine frame, and declaring a kinstype the module does not provide
+fails the module load.  A module that declares nothing keeps working
+exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
+are an error, since the numbers of the identity and primary kinematics
+are then a guess.
 
 When every kinstype is registered, the module calls:
 

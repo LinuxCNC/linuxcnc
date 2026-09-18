@@ -1098,6 +1098,9 @@ int Interp::init()
           // INI file m98/m99 subprogram default setting
           _setup.disable_fanuc_style_sub = inifile.findBoolV("DISABLE_FANUC_STYLE_SUB", "RS274NGC", false);
           logDebug("init:  DISABLE_FANUC_STYLE_SUB = %d", _setup.disable_fanuc_style_sub);
+
+          // G53, G28, G30, G28.1 and G30.1 refused while the kinematics is not the identity
+          _setup.machine_moves_need_machine_frame = inifile.findBoolV("MACHINE_MOVES_NEED_MACHINE_FRAME", "RS274NGC", false);
       }
   }
 
