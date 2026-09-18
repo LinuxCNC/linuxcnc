@@ -70,7 +70,6 @@ c.wait_complete(30)
 c.auto(linuxcnc.AUTO_RUN, 0)
 
 said = []
-seen = [kins_type()]
 at_switch = None
 strayed = [0.0] * JOINTS
 w_reached = 0.0
@@ -79,10 +78,8 @@ while time.time() < deadline:
     s.poll()
     now = joints()
     k = kins_type()
-    if k != seen[-1]:
-        seen.append(k)
-        if k == 1 and at_switch is None:
-            at_switch = now
+    if k == 1 and at_switch is None:
+        at_switch = now
     if k == 1 and at_switch is not None:
         for j in CARRIED:
             strayed[j] = max(strayed[j], abs(now[j] - at_switch[j]))
@@ -112,19 +109,18 @@ else:
     print("W ran to %.4f, the other joints held to %.2e"
           % (w_reached, max(strayed[j] for j in CARRIED)))
 
-# the abort routine's G13.1 fires at estop reset, so the machine may stand
-# in identity (1) already when the program starts; either way the program
-# itself walks 0, 1, 0, 1
+# the program walks 0, 1, 0, 1 and the line after each selection reports
+# what the interpreter holds and what motion runs; the pin read there is
+# the check that the selection went through before the next line, which
+# no sampler on this side could make (a selection undone on the next
+# line holds for one servo period)
 want = [0, 1, 0, 1]
-if seen[-4:] != want:
-    error("motion.kins-type went %s, not ...%s" % (seen, want))
-
 reported = [m[1].strip() for m in said if m[1].strip().startswith("KINSTYPE=")]
-want_reported = ["KINSTYPE=%d.000000" % k for k in want]
+want_reported = ["KINSTYPE=%d.000000 PIN=%d.000000" % (k, k) for k in want]
 if reported != want_reported:
-    error("#<_kins_type> reported %s" % (reported,))
+    error("the lines after the selections reported %s" % (reported,))
 else:
-    print("#<_kins_type> reported %s" % " ".join(reported))
+    print("the lines after the selections reported %s" % " | ".join(reported))
 
 # ---- a negative kinematics number is refused -----------------------------
 

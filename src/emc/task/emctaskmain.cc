@@ -535,6 +535,7 @@ interpret_again:
 			    emcStatus->task.execState ==
 			    EMC_TASK_EXEC::DONE) {
 			    emcTaskPlanClearWait();
+			    goto interpret_again;
 			 }
 		    } else {
 			readRetval = emcTaskPlanRead();
@@ -2876,6 +2877,7 @@ static int emcTaskExecute(void)
 			emcStatus->motion.traj.switchkins_changed = false;
 			emcTaskPlanSynch();
 			emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+			emcTaskEager = 1;
 		}
 		break;
 	}
