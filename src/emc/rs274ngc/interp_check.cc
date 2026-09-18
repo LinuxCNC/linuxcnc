@@ -95,6 +95,13 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS((((block->l_number == 1 || block->l_number == 10 || block->l_number == 11) && p_int < 1)), _("P value out of range with G10 L%d"), block->l_number);
   } else if (mode0 == G_28) {
   } else if (mode0 == G_30) {
+  } else if (mode0 == G_28_5 || mode0 == G_30_5) {
+    CHKS((block->radius_flag || block->theta_flag),
+         _("Cannot use polar coordinates with G28.5 or G30.5"));
+    CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
+          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
+           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
+         _("Cannot use G28.5 or G30.5 in incremental distance mode"));
   } else if (mode0 == G_5_3) {
       CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
   } else if (mode1 == G_5_2){
