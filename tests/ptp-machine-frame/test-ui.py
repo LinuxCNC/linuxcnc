@@ -119,6 +119,46 @@ j = mdi("G53.5 G0 X20 Y10 Z-5")
 expect("G53.5 X20 Y10 Z-5 under the tip", j, carriage(20, 10, -5, 30))
 j = mdi("G53.5 G0 B0")
 expect("G53.5 B0 is the joint", j, carriage(20, 10, -5, 0))
+# and the config reads machine moves in the machine frame: under the tip G53
+# is G53.5, the carriage at the words whatever the tilt and the tool, where
+# the tip's G53 would take the tool length off along machine Z
+mdi("G0 B30")
+j = mdi("G53 G0 X0 Y0 Z0")
+expect("G53 X0 Y0 Z0 under the tip, tilted", j, carriage(0, 0, 0, 30))
+j = mdi("G53 G0 Y10")
+expect("G53 Y10 under the tip holds machine X", j, carriage(0, 10, 0, 30))
+# G28.1 stores where the carriage stands and G28 and G30 go back to it the
+# same way, after a plain move under the tip has taken the carriage along
+j = mdi("G53 G0 X20 Y10 Z-5", "G28.1", "G30.1", "G0 X0 Y0 Z10")
+j = mdi("G28")
+expect("G28 under the tip, tilted", j, carriage(20, 10, -5, 30))
+b = mdi("G0 X0 Y0 Z10")
+j = mdi("G30 Y0")
+expect("G30 Y0, Y alone back to the store", j,
+       carriage(b[0] + b[1] * math.cos(SLANT), 10, b[2], 30))
+# the plain identity is not the machine frame type either: its letters name
+# the joints, where the machine frame holds machine X as Y moves
+mdi("G49", "G0 B0", "G12.1 P2")
+j = mdi("G53 G0 X5 Y0 Z0 B0 C0")
+expect("G53 to (5, 0, 0) on the plain identity", j, carriage(5, 0, 0))
+j = mdi("G53 G0 Y10")
+expect("G53 Y10 on the plain identity holds X", j, carriage(5, 10, 0))
+mdi("G13.1")
+drain()
+
+# --- G28.5 goes to a machine frame position stored on the machine frame ----
+# with no words every letter goes, B to its stored zero included; with words
+# the machine passes through that machine frame point and only those
+# letters go on to the stored position.  Under G43.4 a program Z is the
+# tool length above the carriage, the offset the interpreter carries, so the
+# waypoint's Z is 10 + 50
+mdi("G49", "G53 G0 X20 Y10 Z0 B0 C0", "G28.1")
+mdi("G43.4 H1", "G0 B30", "G0 X0 Y0 Z10")
+j = mdi("G28.5")
+expect("G28.5 with the head tilted", j, carriage(20, 10, 0, 0))
+mdi("G0 X0 Y0 Z10")
+j = mdi("G28.5 X40")
+expect("G28.5 X40, through X then to X only", j, carriage(20, 0, 10 + TOOL, 0))
 mdi("G49", "G0 B0", "G53 G0 X0 Y0 Z0")
 drain()
 
