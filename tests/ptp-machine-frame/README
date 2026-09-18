@@ -12,5 +12,8 @@ The test checks that G13.1 and G49 select the machine frame type rather
 than the identity, that G53.5 puts the carriage at a machine frame point,
 the letters not given holding their machine coordinate and not their
 joint, from the machine frame type and from under the tilted tip
-kinematics alike, and that a plain move after a machine frame move starts
-from the right place.
+kinematics alike, that G28.5 goes to a position stored on the machine
+frame, through a waypoint when given one, that MACHINE_MOVES_IN_MACHINE_FRAME
+runs G53, G28 and G30 as G53.5, G28.5 and G30.5 under the tip and under the
+plain identity, G28.1 and G30.1 storing the carriage, and that a plain move
+after a machine frame move starts from the right place.
