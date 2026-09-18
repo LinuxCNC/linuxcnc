@@ -137,24 +137,6 @@ void refresh_trigger(void)
     case HAL_REAL:
 	ctrl_shm->trig_level.r = fp_level;
 	break;
-    case HAL_S32:
-	if (fp_level > (rtapi_real)RTAPI_INT32_MAX) {
-	    fp_level = (rtapi_real)RTAPI_INT32_MAX;
-	}
-	if (fp_level < (rtapi_real)RTAPI_INT32_MIN) {
-	    fp_level = (rtapi_real)RTAPI_INT32_MIN;
-	}
-	ctrl_shm->trig_level.s = fp_level;
-	break;
-    case HAL_U32:
-	if (fp_level > (rtapi_real)RTAPI_UINT32_MAX) {
-	    fp_level = (rtapi_real)RTAPI_UINT32_MAX;
-	}
-	if (fp_level < 0.0) {
-	    fp_level = 0.0;
-	}
-	ctrl_shm->trig_level.u = fp_level;
-	break;
     case HAL_SINT:
 	if (fp_level > (rtapi_real)RTAPI_SINT_MAX) {
 	    fp_level = (rtapi_real)RTAPI_SINT_MAX;

@@ -749,7 +749,7 @@ proc makeNetTune {} {
         foreach p [set list$pname] {
             set tmp [exHAL "show param $p"]
             set type [lindex $tmp 1]
-            if {$type == "bit"} {
+            if {$type == "bit" || $type == "bool"} {
                 append retbit$pname "$p "
             } else {
                 append retnotbit$pname "$p "
@@ -983,7 +983,7 @@ proc watchHAL {which} {
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
     set ret [exHAL "show $vartype $varname"]
-    if {[lsearch $ret "bit"] != -1 } {
+    if {[lsearch $ret "bit"] != -1 || [lsearch $ret "bool"] != -1} {
         $cisp create oval 20 [expr $i * 20 + 5] 35 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
         $cisp create text 80 [expr $i * 20 + 12] -text $label \

@@ -148,14 +148,14 @@ int rtapi_app_main(void)
     }
     
     /* export functions */
-    retval = hal_export_funct("watchdog.process", process, inputs, 0, 0, comp_id);
+    retval = hal_export_funct("watchdog.process", process, inputs, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WATCHDOG: ERROR: process funct export failed\n");
 	goto err;
     }
 
-    retval = hal_export_funct("watchdog.set-timeouts", set_timeouts, inputs, 1, 0, comp_id);
+    retval = hal_export_funct("watchdog.set-timeouts", set_timeouts, inputs, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WATCHDOG: ERROR: set_timeouts funct export failed\n");

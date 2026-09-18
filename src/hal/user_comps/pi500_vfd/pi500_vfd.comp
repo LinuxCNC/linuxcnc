@@ -1,5 +1,5 @@
 component pi500_vfd "Powtran PI500 Modbus driver";
-param rw ui32 mbslaveaddr  "Modbus slave address";
+param rw uint mbslaveaddr  "Modbus slave address";
 pin in  real commanded_frequency "Frequency of vfd";
 pin in  bool run           "run the vfd";
 pin in  bool enable        "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
@@ -134,7 +134,7 @@ bool pi500_getStatus(modbus_t* ctx, pi500_status* status)
 void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 {
 	fprintf(stderr, 
-		"Error: pi500_vfd slave(%u): %s - Modbus error (%d) -  %s\n",
+		"Error: pi500_vfd slave(%lu): %s - Modbus error (%d) -  %s\n",
 		mbslaveaddr,
 		msg,
 		errno,

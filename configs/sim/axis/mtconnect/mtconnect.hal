@@ -5,11 +5,11 @@
 # is taken from $INI_FILE_NAME (set by LinuxCNC), so no argument is needed.
 #
 # Once loaded the component exposes:
-#   in : mtconnect-agent.enable      (bit) gate polling/serving
-#        mtconnect-agent.sample-hz    (u32) override the INI SAMPLE_HZ
-#   out: mtconnect-agent.active       (bit) polling + serving
-#        mtconnect-agent.connected    (bit) MQTT broker link up
-#        mtconnect-agent.heartbeat     (u32) increments each poll
+#   in : mtconnect-agent.enable       (bool) gate polling/serving
+#        mtconnect-agent.sample-hz    (uint) override the INI SAMPLE_HZ
+#   out: mtconnect-agent.active       (bool) polling + serving
+#        mtconnect-agent.connected    (bool) MQTT broker link up
+#        mtconnect-agent.heartbeat    (uint) increments each poll
 loadusr -W mtconnect-agent
 
 # Example: drive a panel lamp from agent state (uncomment + wire to your HAL):

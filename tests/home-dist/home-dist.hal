@@ -1,7 +1,7 @@
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 loadrt comp names=comp_j0,comp_j1,comp_j2,backoff_j0
-loadrt conv_s32_float names=state_j0
+loadrt conv_sint_real names=state_j0
 loadrt and2 names=mask_j0
 loadrt flipflop names=dead_j0
 

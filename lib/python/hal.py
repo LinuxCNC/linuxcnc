@@ -48,6 +48,22 @@ def __getattr__(name):
         warnings.warn(f"{name} is deprecated, use lcnc_realtime.verify() instead", FutureWarning, stacklevel=2)
         return not lcnc_realtime.verify()
 
+    oldnames = {
+        'HAL_BIT'  : (_hal.Type.BOOL, 'BOOL'),
+        'HAL_FLOAT': (_hal.Type.REAL, 'REAL'),
+        'HAL_S32'  : (_hal.Type.SINT, 'SINT'),
+        'HAL_U32'  : (_hal.Type.UINT, 'UINT'),
+        'HAL_S64'  : (_hal.Type.SINT, 'SINT'),
+        'HAL_U64'  : (_hal.Type.UINT, 'UINT')
+    }
+    if name in oldnames:
+        nt, nn = oldnames[name]
+        if name in ('HAL_S32', 'HAL_U32'):
+            warnings.warn(f"{name} is no longer supported and replaced by hal.Type.{nn}", FutureWarning, stacklevel=2)
+        else:
+            warnings.warn(f"{name} has been deprecated. Please use the IntEnum type hal.Type.{nn}", FutureWarning, stacklevel=2)
+        return nt
+
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 class _ItemWrap(object):

@@ -75,9 +75,9 @@ class LinuxCNC2MQTT():
 
         self.hal.newpin('enable', hal.Type.BOOL, hal.Dir.IN)
         self.hal['enable'] = True
-        self.hal.newpin('period', hal.HAL_U32, hal.Dir.IN)
+        self.hal.newpin('period', hal.Type.UINT, hal.Dir.IN)
         self.hal['period'] = 10
-        self.hal.newpin('lastpublish', hal.HAL_U32, hal.Dir.OUT)
+        self.hal.newpin('lastpublish', hal.Type.UINT, hal.Dir.OUT)
         self.hal['lastpublish'] = 0
         self.hal.ready()
 

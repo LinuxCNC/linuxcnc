@@ -82,7 +82,7 @@ class hal_interface:
         self.abort = 0
         self.c.newpin("single-block", hal.Type.BOOL, hal.Dir.IN)
         self.singleblock = 0
-        self.c.newpin("wheel-counts", hal.HAL_S32, hal.Dir.IN)
+        self.c.newpin("wheel-counts", hal.Type.SINT, hal.Dir.IN)
         self.counts = 0
         self.jog_velocity = 1
         self.c.ready()

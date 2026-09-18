@@ -122,7 +122,7 @@ class Compensation():
         self.h.newpin("enable-in", hal.Type.BOOL, hal.Dir.IN)
         self.h.newpin("map-ready", hal.Type.BOOL, hal.Dir.OUT)
         self.h.newpin("scale", hal.Type.REAL, hal.Dir.OUT)
-        self.h.newpin("counts", hal.HAL_S32, hal.Dir.OUT)
+        self.h.newpin("counts", hal.Type.SINT, hal.Dir.OUT)
         self.h.newpin("clear", hal.Type.BOOL, hal.Dir.IN)
         self.h.newpin("x-pos", hal.Type.REAL, hal.Dir.IN)
         self.h.newpin("y-pos", hal.Type.REAL, hal.Dir.IN)

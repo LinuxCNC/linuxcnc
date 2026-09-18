@@ -404,7 +404,7 @@ class HandlerClass:
             self['jog_axis_{}_pin'.format(i)] = \
                     QHAL.newpin("axis-{}-selected".format(i.lower()), QHAL.HAL_BOOL, QHAL.HAL_OUT)
         # screen MPG controls
-        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
         self.pin_mpg_enabled = QHAL.newpin('mpg-enable',QHAL.HAL_BOOL, QHAL.HAL_IN)
 

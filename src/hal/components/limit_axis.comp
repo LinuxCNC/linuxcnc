@@ -46,7 +46,7 @@ pin out bool error-no-range "error pin indicating that no range matches the fb";
 pin out real min-output "Minimum limit output";
 pin out real max-output "Maximum limit output";
 pin in real fb "Feedback pin, the value of this pin determines which range is active";
-pin out ui32 current-range "Indicates which range is currently active";
+pin out uint current-range "Indicates which range is currently active";
 pin in real min-limit-## [10:personality] "The array of minimum limits to select from";
 pin in real max-limit-## [10:personality] "The array of macimum limits";
 pin in real min-range-## [10:personality] "Defines the range of values with which the fb is compared to set the range";
@@ -115,7 +115,7 @@ FUNCTION(_){
       min_output_set(min_limit(i));
       // Found our limits, stop looking
       error_no_range_set(0);
-      if (i != (int)current_range){
+      if ((rtapi_uint)i != current_range){
         rtapi_print_msg(RTAPI_MSG_INFO, "limit_axis: Switching to Range %d\n", i);
         current_range_set(i);
       }

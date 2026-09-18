@@ -16,39 +16,39 @@
        </label>
      </hbox>
      <hbox>
-       <s32>
+       <sint>
          <halpin>"tool-prep-index"</halpin>
          <format>"4d"</format>
          <width>"6"</width>
          <bg>"black"</bg>
          <fg>"cyan"</fg>
-       </s32>
+       </sint>
        <label>
          <text>"tool-prep-index"</text>
          <anchor>"w"</anchor>
        </label>
      </hbox>
      <hbox>
-       <s32>
+       <sint>
          <halpin>"tool-prep-number"</halpin>
          <format>"4d"</format>
          <width>"6"</width>
          <bg>"black"</bg>
          <fg>"cyan"</fg>
-       </s32>
+       </sint>
        <label>
          <text>"tool-prep-number"</text>
          <anchor>"w"</anchor>
        </label>
      </hbox>
      <hbox>
-       <s32>
+       <sint>
          <halpin>"tool-prep-pocket"</halpin>
          <format>"4d"</format>
          <width>"6"</width>
          <bg>"black"</bg>
          <fg>"cyan"</fg>
-       </s32>
+       </sint>
        <label>
          <text>"tool-prep-pocket"</text>
          <anchor>"w"</anchor>
@@ -89,13 +89,13 @@
      </hbox>
 
      <hbox>
-       <s32>
+       <sint>
          <halpin>"tool-number"</halpin>
          <format>"4d"</format>
          <width>"6"</width>
          <bg>"black"</bg>
          <fg>"cyan"</fg>
-       </s32>
+       </sint>
        <label>
          <text>"tool-number"</text>
          <anchor>"w"</anchor>
@@ -103,13 +103,13 @@
      </hbox>
 
      <hbox>
-       <s32>
+       <sint>
          <halpin>"tool-from-pocket"</halpin>
          <format>"4d"</format>
          <width>"6"</width>
          <bg>"black"</bg>
          <fg>"cyan"</fg>
-       </s32>
+       </sint>
        <label>
          <text>"tool-from-pocket"</text>
          <anchor>"w"</anchor>

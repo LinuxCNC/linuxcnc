@@ -128,7 +128,7 @@ int rtapi_app_main(void)
     init_rt_control_struct(shm_base);
 
     /* export scope data sampling function */
-    retval = hal_export_funct("scope.sample", sample, NULL, 0, 0, comp_id);
+    retval = hal_export_funct("scope.sample", sample, NULL, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE_RT: ERROR: sample funct export failed\n");
@@ -266,8 +266,6 @@ static void capture_sample(void)
             continue;
         switch(ctrl_rt->data_type[n]) {
         case HAL_BOOL: dest->b = hal_get_bool(ctrl_rt->data_addr[n].b); dest++; break;
-        case HAL_S32:  dest->s = hal_get_si32(ctrl_rt->data_addr[n].s); dest++; break;
-        case HAL_U32:  dest->u = hal_get_ui32(ctrl_rt->data_addr[n].u); dest++; break;
         case HAL_SINT: dest->s = hal_get_sint(ctrl_rt->data_addr[n].s); dest++; break;
         case HAL_UINT: dest->u = hal_get_uint(ctrl_rt->data_addr[n].u); dest++; break;
         case HAL_REAL: dest->r = hal_get_real(ctrl_rt->data_addr[n].r); dest++; break;
@@ -316,14 +314,8 @@ static int check_trigger(void)
     case HAL_BOOL:
         compare_result = hal_get_bool(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].b);
         break;
-    case HAL_S32:
-        compare_result = hal_get_si32(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].s) > level->s;
-        break;
     case HAL_SINT:
         compare_result = hal_get_sint(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].s) > level->s;
-        break;
-    case HAL_U32:
-        compare_result = hal_get_ui32(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].u) > level->u;
         break;
     case HAL_UINT:
         compare_result = hal_get_uint(ctrl_rt->data_addr[ctrl_shm->trig_chan - 1].u) > level->u;

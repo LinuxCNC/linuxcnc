@@ -526,7 +526,7 @@ static int hal_pin_simu(char *pin_name, void **ptr, int s)
 	return 0;
 }
 
-int _hal_pin_float_newf(hal_pin_dir_t dir, hal_real_t *data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_real_newf(hal_pdir_t dir, hal_real_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -542,7 +542,7 @@ int _hal_pin_float_newf(hal_pin_dir_t dir, hal_real_t *data_ptr_addr, int comp_i
     }
 }
 
-int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_sint_t *data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_sint_newf(hal_pdir_t dir, hal_sint_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -558,7 +558,7 @@ int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_sint_t *data_ptr_addr, int comp_id,
     }
 }
 
-int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bool_t *data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_bool_newf(hal_pdir_t dir, hal_bool_t *data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -597,76 +597,76 @@ static int hal_setup()
 
     r = 0;
 
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->x_mc), hal_comp_id, "%s.x.pos-absolute", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->y_mc), hal_comp_id, "%s.y.pos-absolute", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->z_mc), hal_comp_id, "%s.z.pos-absolute", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->a_mc), hal_comp_id, "%s.a.pos-absolute", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->x_mc), hal_comp_id, "%s.x.pos-absolute", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->y_mc), hal_comp_id, "%s.y.pos-absolute", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->z_mc), hal_comp_id, "%s.z.pos-absolute", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->a_mc), hal_comp_id, "%s.a.pos-absolute", modname);
 
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->x_wc), hal_comp_id, "%s.x.pos-relative", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->y_wc), hal_comp_id, "%s.y.pos-relative", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->z_wc), hal_comp_id, "%s.z.pos-relative", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->a_wc), hal_comp_id, "%s.a.pos-relative", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->x_wc), hal_comp_id, "%s.x.pos-relative", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->y_wc), hal_comp_id, "%s.y.pos-relative", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->z_wc), hal_comp_id, "%s.z.pos-relative", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->a_wc), hal_comp_id, "%s.a.pos-relative", modname);
 
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->feedrate), hal_comp_id, "%s.feed-value", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->feedrate_override), hal_comp_id, "%s.feed-override", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->spindle_rps), hal_comp_id, "%s.spindle-rps", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->spindle_override), hal_comp_id, "%s.spindle-override", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->feedrate), hal_comp_id, "%s.feed-value", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->feedrate_override), hal_comp_id, "%s.feed-override", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->spindle_rps), hal_comp_id, "%s.spindle-rps", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->spindle_override), hal_comp_id, "%s.spindle-override", modname);
 
     for (i=0; i<NB_MAX_BUTTONS; i++) {
         if (!xhc.buttons[i].pin_name[0]) continue;
-        r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
+        r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
         if (strcmp("button-zero", xhc.buttons[i].pin_name) == 0) {
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->zero_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->zero_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->zero_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->zero_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
         }
         if (strcmp("button-goto-zero", xhc.buttons[i].pin_name) == 0) {
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->gotozero_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->gotozero_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->gotozero_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->gotozero_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
         }
         if (strcmp("button-half", xhc.buttons[i].pin_name) == 0) {
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
-            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->half_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->half_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->half_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->half_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
         }
         if (strcmp("button-step", xhc.buttons[i].pin_name) == 0) xhc.button_step = xhc.buttons[i].code;
     }
 
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->sleeping), hal_comp_id, "%s.sleeping", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
-    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
-    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_down), hal_comp_id, "%s.stepsize-down", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->require_pendant), hal_comp_id, "%s.require_pendant", modname);
-    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->inch_icon), hal_comp_id, "%s.inch-icon", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->sleeping), hal_comp_id, "%s.sleeping", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
+    r |= _hal_pin_bool_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
+    r |= _hal_pin_bool_newf(HAL_IN,  &(xhc.hal->stepsize_down), hal_comp_id, "%s.stepsize-down", modname);
+    r |= _hal_pin_sint_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->require_pendant), hal_comp_id, "%s.require_pendant", modname);
+    r |= _hal_pin_bool_newf(HAL_IN,  &(xhc.hal->inch_icon), hal_comp_id, "%s.inch-icon", modname);
 
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_y), hal_comp_id, "%s.jog.enable-y", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_z), hal_comp_id, "%s.jog.enable-z", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_a), hal_comp_id, "%s.jog.enable-a", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_feedrate), hal_comp_id, "%s.jog.enable-feed-override", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_spindle), hal_comp_id, "%s.jog.enable-spindle-override", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_y), hal_comp_id, "%s.jog.enable-y", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_z), hal_comp_id, "%s.jog.enable-z", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_a), hal_comp_id, "%s.jog.enable-a", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_feedrate), hal_comp_id, "%s.jog.enable-feed-override", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_enable_spindle), hal_comp_id, "%s.jog.enable-spindle-override", modname);
 
-    r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_scale), hal_comp_id, "%s.jog.scale", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->jog_counts), hal_comp_id, "%s.jog.counts", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->jog_counts_neg), hal_comp_id, "%s.jog.counts-neg", modname);
+    r |= _hal_pin_real_newf(HAL_OUT, &(xhc.hal->jog_scale), hal_comp_id, "%s.jog.scale", modname);
+    r |= _hal_pin_sint_newf(HAL_OUT, &(xhc.hal->jog_counts), hal_comp_id, "%s.jog.counts", modname);
+    r |= _hal_pin_sint_newf(HAL_OUT, &(xhc.hal->jog_counts_neg), hal_comp_id, "%s.jog.counts-neg", modname);
 
-    r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_velocity), hal_comp_id, "%s.jog.velocity", modname);
-    r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->jog_max_velocity), hal_comp_id, "%s.jog.max-velocity", modname);
-    r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_increment), hal_comp_id, "%s.jog.increment", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_x), hal_comp_id, "%s.jog.plus-x", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_x), hal_comp_id, "%s.jog.minus-x", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_y), hal_comp_id, "%s.jog.plus-y", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_y), hal_comp_id, "%s.jog.minus-y", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_z), hal_comp_id, "%s.jog.plus-z", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_z), hal_comp_id, "%s.jog.minus-z", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_a), hal_comp_id, "%s.jog.plus-a", modname);
-    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_a), hal_comp_id, "%s.jog.minus-a", modname);
+    r |= _hal_pin_real_newf(HAL_OUT, &(xhc.hal->jog_velocity), hal_comp_id, "%s.jog.velocity", modname);
+    r |= _hal_pin_real_newf(HAL_IN, &(xhc.hal->jog_max_velocity), hal_comp_id, "%s.jog.max-velocity", modname);
+    r |= _hal_pin_real_newf(HAL_OUT, &(xhc.hal->jog_increment), hal_comp_id, "%s.jog.increment", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_plus_x), hal_comp_id, "%s.jog.plus-x", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_minus_x), hal_comp_id, "%s.jog.minus-x", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_plus_y), hal_comp_id, "%s.jog.plus-y", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_minus_y), hal_comp_id, "%s.jog.minus-y", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_plus_z), hal_comp_id, "%s.jog.plus-z", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_minus_z), hal_comp_id, "%s.jog.minus-z", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_plus_a), hal_comp_id, "%s.jog.plus-a", modname);
+    r |= _hal_pin_bool_newf(HAL_OUT, &(xhc.hal->jog_minus_a), hal_comp_id, "%s.jog.minus-a", modname);
 
 	return r;
 }

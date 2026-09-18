@@ -279,7 +279,7 @@ int rtapi_app_main(void)
     /* the second arg is an arbitrary int that is passed to the timer task on
        the first iteration */
     timer_task = rtapi_task_new(timer_code, 0 /* arg */ , timer_prio, module,
-	TIMER_STACKSIZE, RTAPI_NO_FP);
+	TIMER_STACKSIZE);
     if (timer_task < 0) {
 	/* See rtapi.h for the error codes returned */
 	rtapi_print("timertask init: rtapi_task_new returned %d\n",

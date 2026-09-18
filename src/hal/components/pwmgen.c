@@ -192,7 +192,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("pwmgen.make-pulses", make_pulses,
-	pwmgen_array, 0, 0, comp_id);
+	pwmgen_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PWMGEN: ERROR: makepulses funct export failed\n");
@@ -200,7 +200,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("pwmgen.update", update,
-	pwmgen_array, 1, 0, comp_id);
+	pwmgen_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PWMGEN: ERROR: update funct export failed\n");

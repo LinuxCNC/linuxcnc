@@ -196,7 +196,7 @@ static int export_mod_dir(int num)
     CHK(hal_pin_new_bool(comp_id, HAL_IO, &(moddir->wrap), 1, "%s.wrap", base), "wrap");
 
     /* export function */
-    retval = hal_export_funct(base, mod_dir_funct, moddir, 1, 0, comp_id);
+    retval = hal_export_funct(base, mod_dir_funct, moddir, 0, comp_id);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "MODMATH: ERROR: '%s' funct export failed\n", base);
         return -1;
