@@ -157,13 +157,15 @@ newtypes = ['bool', 'sint', 'uint', 'si32', 'ui32', 'real']
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
-    global modparams, includes
+    global modparams, includes, hal_pin_names, hal_funct_names
 
     functions = []; params = []; pins = []; options = {}; variables = []
     modparams = []; docs = []; includes = [];
     comp_name = None
 
     names = {}
+    hal_pin_names = {}
+    hal_funct_names = {}
 
 def Warn(msg, *args):
     if args:
@@ -225,10 +227,86 @@ def check_name_ok(name):
     if name in names:
         Error("Duplicate item name %s" % name)
 
+# A pin array claims one HAL name per element.  The bound keeps a nonsense
+# size from expanding into a MemoryError instead of a diagnostic; an array
+# larger than this cannot be loaded anyway, since every element is a separate
+# HAL object in shared memory.
+ARRAY_CLAIM_LIMIT = 4096
+
+def hal_names_of(name, array):
+    """Every HAL name one declaration can claim.
+
+    A declaration does not claim one name.  An array claims one per element,
+    and to_hal() turns the "#" block into a printf conversion, so what it
+    returns for an array is a format and never compares equal to the literal
+    name a scalar produces.  'x_#[4]' claims x-0..x-3, and 'x_0' claims x-0.
+
+    For the '[MAXSIZE : CONDSIZE]' form the element count varies with
+    personality but the loop that creates them is not guarded, so every
+    element up to MAXSIZE is claimed: any of them can exist.
+    """
+    hal_name = to_hal(name)
+    if not array:
+        return [hal_name]
+    size = array[0] if isinstance(array, tuple) else array
+    return [hal_name % j for j in range(min(size, ARRAY_CLAIM_LIMIT))]
+
+def condition_of(personality):
+    """The 'if' expression guarding a declaration, or None when it is always
+    created.
+
+    Matched to the code generator, which emits a guard only when personality
+    is truthy -- an empty 'if' is not a condition and creates the pin
+    unconditionally.  A constant expression is not a condition either: 'if 1'
+    is always taken.
+    """
+    personality = (personality or "").strip()
+    if not personality:
+        return None
+    if personality.isdigit():
+        return None if int(personality) else personality
+    return personality
+
+def describe(hal_name):
+    # to_hal() strips a trailing dash and period, so "_" mangles away to
+    # nothing and the declaration takes the component's own name.
+    return "'%s'" % hal_name if hal_name else "the component name itself"
+
+def claim(seen, what, hal_names, condition):
+    """Record the HAL names one declaration claims, and reject a name already
+    claimed by another.  check_name_ok() compares only declared names, so two
+    declarations that mangle to one HAL name compiled cleanly and failed later,
+    at loadrt, with "HAL: ERROR: duplicate pin".
+
+    Two declarations guarded by DIFFERENT 'if' conditions are left alone: they
+    need not ever exist together -- 'if personality == 0' against
+    'if personality == 1' is a component that has always loaded -- and the
+    expressions cannot be evaluated here.  The same condition on both sides is
+    a collision, since whatever makes one exist makes the other exist too.
+    """
+    for hal_name in hal_names:
+        if hal_name in seen:
+            first_what, first_condition = seen[hal_name]
+            if not (first_condition and condition
+                    and first_condition != condition):
+                Error("Name collision: %s and %s both become %s and are "
+                      "indistinguishable."
+                      % (first_what, what, describe(hal_name)))
+        else:
+            seen[hal_name] = (what, condition)
+
+def funct_derived(hal_name, suffix):
+    # hal_export_funct() creates <funct>.time, .tmax and .tmax-increased in the
+    # pin and param namespace (hal_lib.c).  A function called "_" exports under
+    # the bare component name, so its runtime pin is <comp>.time.
+    return hal_name + "." + suffix if hal_name else suffix
+
 def pin(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    claim(hal_pin_names, "pin '%s'" % name, hal_names_of(name, array),
+          condition_of(personality))
     docs.append(('pin', name, type_, array, dir_, doc, value, personality))
     names[name] = None
     pins.append((name, type_, array, dir_, value, personality))
@@ -237,12 +315,20 @@ def param(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
     type_ = type2type(type_)
     check_name_ok(name)
+    # one namespace with pins in hal_lib.c, so a pin and a param collide
+    claim(hal_pin_names, "param '%s'" % name, hal_names_of(name, array),
+          condition_of(personality))
     docs.append(('param', name, type_, array, dir_, doc, value, personality))
     names[name] = None
     params.append((name, type_, array, dir_, value, personality))
 
 def function(name, fp, doc):
     check_name_ok(name)
+    hal_name = to_hal(name)
+    claim(hal_funct_names, "function '%s'" % name, [hal_name], None)
+    for suffix in ("time", "tmax", "tmax-increased"):
+        claim(hal_pin_names, "the .%s of function '%s'" % (suffix, name),
+              [funct_derived(hal_name, suffix)], None)
     docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))

@@ -1,0 +1,7 @@
+component condition_exclusive;
+license "GPL";
+pin in  bit x_y  if personality == 1;
+pin out bit x_y_ if personality == 0;
+function _;
+;;
+FUNCTION(_) {}

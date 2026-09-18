@@ -217,6 +217,7 @@ When used to create a C identifier, the following changes are applied to the HAL
 
 A trailing "_" is retained, so that HAL identifiers which would otherwise collide with reserved names or keywords (e.g., 'min') can be used.
 
+[[sec:halname]]
 [width="90%",options="header"]
 |===
 |HALNAME | C Identifier | HAL Identifier
@@ -226,6 +227,17 @@ A trailing "_" is retained, so that HAL identifiers which would otherwise collid
 |x.##.y  | x_y(MM)      | x.MM.z
 |x.##    | x(MM)        | x.MM
 |===
+
+[NOTE]
+Two declarations that claim the same HAL identifier -- 'x_y_z' and 'x_y_z_' in
+the table above -- are rejected by `halcompile`; they would otherwise fail at
+`loadrt` with "HAL: ERROR: duplicate pin".
+An array claims one identifier per element, so 'x_#' with '[4]' and 'x_0'
+collide, and a function claims '<name>.time', '<name>.tmax' and
+'<name>.tmax-increased' as well, since `hal_export_funct` creates those.
+Declarations carrying DIFFERENT 'if' conditions are not compared, because they
+need not ever exist at the same time; the same condition on both sides is still
+a collision.
 
 * 'if CONDITION' - An expression involving the variable 'personality' which is nonzero when the pin or parameter should be created.
 
