@@ -1,0 +1,21 @@
+collide_pin_pin.comp:4:19: Name collision: pin 'x_y' and pin 'x_y_' both become 'x-y' and are indistinguishable.
+>  pin out bool x_y_;
+>                    ^
+collide_pin_param.comp:4:20: Name collision: pin 'x_y' and param 'x_y_' both become 'x-y' and are indistinguishable.
+>  param rw bool x_y_;
+>                     ^
+collide_function.comp:5:15: Name collision: function 'a_b' and function 'a_b_' both become 'a-b' and are indistinguishable.
+>  function a_b_;
+>                ^
+collide_array.comp:4:18: Name collision: pin 'x_#' and pin 'x_0' both become 'x-0' and are indistinguishable.
+>  pin out bool x_0;
+>                   ^
+collide_funct_time.comp:4:12: Name collision: pin 'f.time' and the .time of function 'f' both become 'f.time' and are indistinguishable.
+>  function f;
+>             ^
+collide_personality.comp:4:39: Name collision: pin 'x_y' and pin 'x_y_' both become 'x-y' and are indistinguishable.
+>  pin out bool x_y_ if personality == 0;
+>                                        ^
+array_limit.comp:3:22: Array size 257 exceeds the maximum of 256: 'x_#'
+>  pin in bool x_#[257];
+>                       ^

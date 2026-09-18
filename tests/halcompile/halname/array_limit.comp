@@ -1,0 +1,6 @@
+component array_limit;
+license "GPL";
+pin in bool x_#[257];
+function _;
+;;
+FUNCTION(_) {}
