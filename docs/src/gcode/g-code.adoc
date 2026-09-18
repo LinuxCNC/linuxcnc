@@ -74,6 +74,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
+|<<gcode:g28.5,G28.5 G30.5>>       |Go to Predefined Slide Position
 |<<gcode:g28.2,G28.2>>             |Home from G-code
 |<<gcode:g30-g30.1,G30 - G30.1>>   |Go to Predefined Position
 |<<gcode:g33,G33>>                 |Spindle Synchronized Motion
@@ -1072,9 +1073,17 @@ all axes will go to the <<sec:machine-coordinate-system,machine origin>>.
 G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)
 ----
 
+The 'absolute' position is the machine coordinate system of the kinematics in
+force, see <<gcode:g53,G53>>: on a kinematics that is not the identity it is
+that kinematics' world, not the slides, and the stored position is a world
+position too. <<gcode:g28.5,G28.5>> is the form that moves the slides.
+
 It is an error if :
 
 * Cutter Compensation is turned on
+* `MACHINE_MOVES_NEED_MACHINE_FRAME` is set in the `[RS274NGC]` section of the INI
+  file and the kinematics in force is not the machine frame kinematics, for
+  'G28' and for 'G28.1'.
 
 [[gcode:g28.2]]
 == G28.2 Home from G-code(((G28.2 Home from G-code)))
@@ -1186,9 +1195,61 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 ----
 
+The 'absolute' position is the machine coordinate system of the kinematics in
+force, see <<gcode:g53,G53>>; <<gcode:g28.5,G30.5>> is the form that moves
+the slides.
+
 It is an error if :
 
 * Cutter Compensation is turned on
+* `MACHINE_MOVES_NEED_MACHINE_FRAME` is set in the `[RS274NGC]` section of the INI
+  file and the kinematics in force is not the machine frame kinematics, for
+  'G30' and for 'G30.1'.
+
+[[gcode:g28.5]]
+== G28.5, G30.5 Go to Predefined Slide Position(((G28.5 Go to Predefined Slide Position)))
+
+[source,ngc]
+----
+G28.5 <axes>
+G30.5 <axes>
+----
+
+'G28.5' and 'G30.5' are to 'G28' and 'G30' what <<gcode:g53.4,G53.5>> is to
+'G53': the stored position, parameters 5161-5169 for 'G28.5' and 5181-5189
+for 'G30.5', is read in the machine frame with the orientation left out, the
+way 'G53.5' reads its words, the slides on a machine whose slides line up
+with its frame, and the move is a <<gcode:g53.4,point-to-point move>> there,
+rapid, with no offset, tool length, rotation or work plane applied. The
+values are in the machine units of the INI file, as for 'G28'. The stored
+position has to be a machine frame position: store it with 'G28.1' or 'G30.1'
+while the identity kinematics is in force, where the world is that frame.
+
+* 'G28.5' - moves every letter the machine has to the stored position.
+* 'G28.5 axes' - moves the letters named by 'axes' to the given machine
+  frame position first, then the same letters to their stored positions. A
+  letter not named holds its machine frame coordinate.
+
+On a mill whose head is tilted and a table-side kinematics in force, 'G28'
+takes the tool tip to the stored point, where the head's tilt puts the slides
+somewhere else; 'G28.5' takes the slides there, whatever the head is doing,
+which is what a park or a tool change position wants.
+
+.G28.5 Example Line
+[source,ngc]
+----
+G28.5 Z0 (the Z slide to zero, then to the Z stored in #5163)
+G30.5 (every slide to the position stored with G30.1)
+----
+
+It is an error if:
+
+* Cutter Compensation is turned on
+* Polar coordinates are used, or incremental distance mode is in force.
+* An axis letter is used that is not a joint of the kinematics, the
+  machine's letters name joints of the other kind, or the machine frame
+  kinematics cannot reach the point, see <<gcode:g53.4,G53.5>>.
+* The kinematics module cannot be evaluated by the interpreter.
 
 [[gcode:g33]]
 == G33 Spindle Synchronized Motion(((G33 Spindle Synchronized Motion)))
@@ -1885,6 +1946,23 @@ programmed on the same line if one is currently active.
 For example 'G53 G0 X0 Y0 Z0' will move the axes to the home position
 even if the currently selected coordinate system has offsets in effect.
 
+The machine coordinate system is the world of the kinematics in force with the
+offsets removed. With the identity kinematics, or a head-side kinematics with
+the rotaries at zero, that is the slides. With a table-side kinematics, such as
+'xyzac-trt-kins' in TCP or the tilted work plane types of the 'trsrn'
+modules, the world turns with the table, so 'G53 X0 Y0 Z0' takes the tool tip
+to the origin of that turned frame, which the slides reach at some other
+position. The move in the machine frame with the orientation left out, the
+slides on a machine whose slides line up with its frame, whatever the
+kinematics in force, is <<gcode:g53.4,G53.5>>. A configuration that wants
+'G53' to mean that frame and nothing else sets `MACHINE_MOVES_NEED_MACHINE_FRAME`
+in the `[RS274NGC]` section of the INI file, and 'G53', 'G28', 'G30' and
+their stores are then refused whenever the kinematics in force is not the
+machine frame type: the type the module flags as such (see the
+<<cha:switchable-kinematics,Switchable Kinematics>> chapter), the identity
+kinematics on a machine whose slides line up with its frame, and neither the
+tool centre point nor a raw joint identity on one whose slides do not.
+
 .G53 Example
 [source,ngc]
 ----
@@ -1897,7 +1975,9 @@ See <<gcode:g0,G0>> section for more information.
 It is an error if:
 
 * G53 is used without G0 or G1 being active,
-* or G53 is used while cutter compensation is on.
+* or G53 is used while cutter compensation is on,
+* or `MACHINE_MOVES_NEED_MACHINE_FRAME` is set and the kinematics in force is not
+  the machine frame kinematics.
 
 [[gcode:g53.1]]
 == G53.1, G53.2, G53.3, G53.6 Orient the Tool to the Work Plane(((G53.1 Orient the Tool)))
