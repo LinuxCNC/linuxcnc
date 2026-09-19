@@ -209,6 +209,46 @@ class TestManager(unittest.TestCase):
         self.assertEqual(self.io.own("changed"), 1)
         self.assertEqual(self.io.external.get("iocontrol.0.tool-changed"), 1)
 
+    def test_handshake_latches_changed(self):
+        """The task lowers tool-prepare right after reading tool-prepared;
+        tool-changed must stay latched until the task reads it."""
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.external["iocontrol.0.tool-prep-pocket"] = 2
+        self.io.external["iocontrol.0.tool-prepare"] = 1
+        self.io.external["iocontrol.0.tool-change"] = 1
+        self.assertTrue(run_until(m, machine, lambda mgr, mach: mgr._prepared_latch))
+        self.assertEqual(self.io.own("prepared"), 1)
+        self.assertEqual(self.io.own("changed"), 1)
+        # the task consumes branch 1 and lowers tool-prepare
+        self.io.external["iocontrol.0.tool-prepare"] = 0
+        for _ in range(5):
+            m._tick(machine.t)
+            machine.step()
+        self.assertEqual(self.io.own("prepared"), 0)
+        self.assertEqual(self.io.own("changed"), 1,
+                         "tool-changed debe quedar latched hasta que el task lo lea")
+        # the task consumes branch 2 and lowers tool-change
+        self.io.external["iocontrol.0.tool-change"] = 0
+        m._tick(machine.t)
+        machine.step()
+        self.assertEqual(self.io.own("changed"), 0)
+
+    def test_loopback_warning(self):
+        class BlockingIO(FakeIO):
+            def set(self, name, value):
+                if name == "iocontrol.0.tool-prepared":
+                    raise RuntimeError("pin already driven")
+                return FakeIO.set(self, name, value)
+        io = BlockingIO()
+        m = TurretManager(self.path, io=io)
+        io.external["iocontrol.0.tool-prep-pocket"] = 2
+        io.external["iocontrol.0.tool-prepare"] = 1
+        machine = SimMachine(io, start=2)
+        run_until(m, machine, lambda mgr, mach: mgr._prepared_latch)
+        texts = " ".join(str(e.get("text", "")) for e in m.history.to_list())
+        self.assertIn("tool-prepared", texts)
+
     def test_fault_reports_to_iocontrol(self):
         m = self.manager
         m.fsm.homed = True

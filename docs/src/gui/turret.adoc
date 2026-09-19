@@ -115,6 +115,22 @@ The tool change handshake with the interpreter is done through
 `<<sec:select-tool,[RS274NGC]LATHE_TXXXX>>` a single `T0101` performs
 the whole change.
 
+== Fanuc T tool change (`LATHE_TXXXX`)
+
+With `<<sec:select-tool,[RS274NGC]LATHE_TXXXX>>` a `T0101` performs the
+whole change: the interpreter selects tool 1 (iocontrol
+`tool-prepare` + `tool-prep-pocket`, the station coming from the `P`
+column of the tool table) and then requests the load (`tool-change`).
+The turret drives `tool-prepared` when it reaches the station and
+`tool-changed` after the load request; both are latched until the
+corresponding input goes low, so the task can consume them in order
+without a race.  No `M6` is needed (it is a no-op) and a tool already in
+the spindle is not re-changed.
+
+Remove any `tool-prep-loop`/`tool-change-loop` net from the HAL file:
+the turret drives those iocontrol inputs itself, and if they are already
+connected the controller reports a configuration alarm (E10).
+
 == Referencing and manual positioning
 
 Position 1 is detected by a strobe pulse while the position 1 sensor is

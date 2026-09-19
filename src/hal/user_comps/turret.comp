@@ -321,6 +321,10 @@ static int prev[64];
 static double strobe_time = -1.0;
 static int strobe_prev = 0;
 static int prev_faulted = 0;
+static int prepared_latch = 0;
+static int changed_latch = 0;
+static int latched_pocket = 0;
+static int writer_warned = 0;
 
 // counters / history
 static int maint_notified[MAX_MAINT];
@@ -400,6 +404,14 @@ static void write_pin(const char *name, int value) {
     q.name = name;
     q.qtype = HAL_QTYPE_PIN;
     (void)hal_set_p(&q, set_cb, (void *)(long)value);
+}
+
+static int hal_set_p_pin(const char *name, int value) {
+    if (name[0] == 0) return -1;
+    hal_query_t q = {0};
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    return hal_set_p(&q, set_cb, (void *)(long)value);
 }
 
 static void set_iocontrol(const char *name, int value) {
@@ -981,32 +993,47 @@ static void maint_mark_service(int code) {
 // ---------------------------------------------------------------------
 // iocontrol handshake
 // ---------------------------------------------------------------------
+static void warn_writer_once(const char *pin) {
+    if (writer_warned || !pin || !pin[0]) return;
+    writer_warned = 1;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "turret: no se puede escribir %s: quitalo de cualquier net "
+        "(por ejemplo tool-prep-loop/tool-change-loop)\n", pin);
+}
+
 static void handshake(void) {
-    static int prepared_prev = 0, changed_prev = 0;
     int prepare_v = pin_exists(pin_tool_prepare)
         ? read_int_pin(pin_tool_prepare, prepare) : prepare;
     int change_v = pin_exists(pin_tool_change)
         ? read_int_pin(pin_tool_change, change) : change;
     int pocket = pin_exists(pin_tool_pocket) ? read_int_pin(pin_tool_pocket, 0) : 0;
+    if (pocket < 1 || pocket > cfg_stations) pocket = latched_pocket;
 
-    if (prepare_v) {
-        int target = pocket >= 1 && pocket <= cfg_stations ? pocket : fsm.target;
-        if (target >= 1 && target <= cfg_stations &&
-            fsm.st == ST_IDLE && (!fsm.is_located || target != fsm.target))
-            req_select = target;
+    // prepared/changed are latched until the corresponding input goes
+    // low: the task lowers tool-prepare as soon as it reads
+    // tool-prepared, so a level-derived changed could be dropped before
+    // the task reads tool-changed.
+    if (!prepare_v) {
+        prepared_latch = 0;
+        latched_pocket = 0;
+    } else {
+        if (fsm.st == ST_IDLE && pocket >= 1 && pocket <= cfg_stations &&
+            (!prepared_latch || latched_pocket != pocket) &&
+            !(fsm.is_located && fsm.stn == pocket)) {
+            req_select = pocket;
+            latched_pocket = pocket;
+        }
+        if (fsm.is_located && fsm.stn == pocket) prepared_latch = 1;
     }
-    int prepared_v = (fsm.st == ST_IDLE && fsm.seq == 0 && fsm.is_located &&
-                      fsm.target >= 1 && fsm.stn == fsm.target && prepare_v) ? 1 : 0;
-    int changed_v = (prepared_v && change_v) ? 1 : 0;
+    if (!change_v) changed_latch = 0;
+    else if (prepared_latch) changed_latch = 1;
 
-    if (prepared_v != prepared_prev || changed_v != changed_prev) {
-        prepared_set(prepared_v);
-        changed_set(changed_v);
-        if (pin_tool_prepared[0]) set_iocontrol(pin_tool_prepared, prepared_v);
-        if (pin_tool_changed[0]) set_iocontrol(pin_tool_changed, changed_v);
-        prepared_prev = prepared_v;
-        changed_prev = changed_v;
-    }
+    prepared_set(prepared_latch);
+    changed_set(changed_latch);
+    if (pin_tool_prepared[0] && hal_set_p_pin(pin_tool_prepared, prepared_latch) != 0)
+        warn_writer_once(pin_tool_prepared);
+    if (pin_tool_changed[0] && hal_set_p_pin(pin_tool_changed, changed_latch) != 0)
+        warn_writer_once(pin_tool_changed);
 }
 
 static void publish_outputs(int motor_v, int unclamp_v) {
@@ -1156,8 +1183,12 @@ static void tick(double now) {
     station_24_changes_set(fsm.station_counts[23]);
 
     // fault reporting to iocontrol + history
-    if (pin_tc_fault[0]) set_iocontrol(pin_tc_fault, fsm.is_fault ? 1 : 0);
-    if (pin_tc_reason[0]) set_iocontrol(pin_tc_reason, fsm.is_fault ? fsm.alarm : 0);
+    if (pin_tc_fault[0] &&
+        hal_set_p_pin(pin_tc_fault, fsm.is_fault ? 1 : 0) != 0)
+        warn_writer_once(pin_tc_fault);
+    if (pin_tc_reason[0] &&
+        hal_set_p_pin(pin_tc_reason, fsm.is_fault ? fsm.alarm : 0) != 0)
+        warn_writer_once(pin_tc_reason);
     if (fsm.is_fault && fsm.alarm && prev_faulted != fsm.alarm)
         history_add(fsm.alarm, 0, fsm.stn);
     prev_faulted = fsm.is_fault ? fsm.alarm : 0;

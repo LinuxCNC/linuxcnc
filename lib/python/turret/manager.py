@@ -96,6 +96,10 @@ class TurretManager:
         self._config_error = False
         self._watchdog_state = False
         self._lead_param = None
+        self._prepared_latch = False
+        self._changed_latch = False
+        self._latched_pocket = None
+        self._writer_warned = set()
         self._target = None
         self._mtime = self._file_mtime()
         self._stop = False
@@ -247,69 +251,92 @@ class TurretManager:
         return bool(value) and not prev
 
     def _handshake(self, now):
-        """Fanuc/lathe tool change handshake with iocontrol."""
-        cfg = self.cfg.pins
-        prepare_pin = cfg.get("tool_prepare")
-        change_pin = cfg.get("tool_change")
-        prepared_pin = cfg.get("tool_prepared")
-        changed_pin = cfg.get("tool_changed")
-        pocket_pin = cfg.get("tool_prep_pocket")
+        """Fanuc/lathe tool change handshake with iocontrol.
 
-        prepare = False
-        change = False
-        pocket = self._target or self.fsm.station
-        if pocket_pin:
+        `prepared`/`changed` are latched until the corresponding input
+        goes low: the task lowers `tool-prepare` as soon as it reads
+        `tool-prepared`, so deriving `changed` from the current level
+        could drop it before the task reads `tool-changed`.
+        """
+        cfg = self.cfg.pins
+        prepare = bool(self.io.own("prepare"))
+        change = bool(self.io.own("change"))
+        pocket = 0
+        if cfg.get("tool_prepare"):
             try:
-                pocket = int(self.io.get(pocket_pin))
+                prepare = bool(self.io.get(cfg["tool_prepare"]))
             except Exception:
                 pass
-        if prepare_pin:
+        if cfg.get("tool_change"):
             try:
-                prepare = bool(self.io.get(prepare_pin))
+                change = bool(self.io.get(cfg["tool_change"]))
             except Exception:
-                prepare = bool(self.io.own("prepare"))
-        else:
-            prepare = bool(self.io.own("prepare"))
-        if change_pin:
+                pass
+        if cfg.get("tool_prep_pocket"):
             try:
-                change = bool(self.io.get(change_pin))
+                pocket = int(self.io.get(cfg["tool_prep_pocket"]))
             except Exception:
-                change = bool(self.io.own("change"))
-        else:
-            change = bool(self.io.own("change"))
+                pocket = 0
+        if pocket < 1 or pocket > self.cfg.stations:
+            pocket = self._target or self.fsm.station
 
-        if prepare and not self.fsm.busy and self.fsm.state == State.IDLE:
-            if pocket != self._target or not self.fsm.at_target:
+        if not prepare:
+            self._prepared_latch = False
+            self._latched_pocket = None
+            if self.fsm.state == State.IDLE:
+                self._target = None
+        else:
+            if (self.fsm.state == State.IDLE and not self.fsm.busy
+                    and (not self._prepared_latch
+                         or self._latched_pocket != pocket)
+                    and not (self.fsm.at_target
+                             and self.fsm.station == pocket)):
                 self._target = pocket
+                self._latched_pocket = pocket
                 self.fsm.request_select(pocket)
-        if not prepare and self.fsm.state == State.IDLE:
-            self._target = None
+            if self.fsm.at_target and self.fsm.station == pocket:
+                self._prepared_latch = True
 
-        prepared = bool(self.fsm.at_target and prepare)
-        changed = bool(prepared and change)
-        self.io.own_set("prepared", prepared)
-        self.io.own_set("changed", changed)
-        for pin, value in ((prepared_pin, prepared), (changed_pin, changed)):
-            if pin:
-                try:
-                    self.io.set(pin, 1 if value else 0)
-                except Exception:
-                    pass
-        return prepare, change
+        if not change:
+            self._changed_latch = False
+        elif self._prepared_latch:
+            self._changed_latch = True
+
+        prepared_v = 1 if self._prepared_latch else 0
+        changed_v = 1 if self._changed_latch else 0
+        self.io.own_set("prepared", prepared_v)
+        self.io.own_set("changed", changed_v)
+        for pin, value in ((cfg.get("tool_prepared"), prepared_v),
+                           (cfg.get("tool_changed"), changed_v)):
+            if not pin:
+                continue
+            try:
+                self.io.set(pin, value)
+            except Exception:
+                self._warn_writer_once(pin)
+
+    def _warn_writer_once(self, pin):
+        if pin in self._writer_warned:
+            return
+        self._writer_warned.add(pin)
+        self._log_alarm(
+            Alarm.E_CONFIG,
+            "no se puede escribir %s: quitalo de cualquier net "
+            "(por ejemplo tool-prep-loop/tool-change-loop)" % pin)
 
     # ------------------------------------------------------------------
     def _fault_pins(self):
         cfg = self.cfg.pins
         fault_pin = cfg.get("toolchanger_fault")
         reason_pin = cfg.get("toolchanger_reason")
-        value = 1 if self.fsm.fault else 0
         for pin in (fault_pin, reason_pin):
             if not pin:
                 continue
             try:
-                self.io.set(pin, value if pin == fault_pin else int(self.fsm.error))
+                self.io.set(pin, (1 if self.fsm.fault else 0)
+                            if pin == fault_pin else int(self.fsm.error))
             except Exception:
-                pass
+                self._warn_writer_once(pin)
 
     def _abort_program(self):
         try:
