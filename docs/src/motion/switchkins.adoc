@@ -300,9 +300,21 @@ MAX_VELOCITY =
 MIN_ACCELERATION =
 ----
 
-The INI file limits specified apply to the type 0 default
-kinematics type that is activated at startup.  These limits may
-*not* be applicable when switching to alternative kinematics.
+The position limits, `MIN_LIMIT` and `MAX_LIMIT`, are a box in the
+machine frame, the world of the kinstype the module declares
+KINSTYPE_MACHINE (its identity kinstype where it declares none):
+the carriage in machine coordinates, or a robot's flange in its base
+frame.  Every move is checked against that box where its joints put
+the machine frame, whichever kinstype is in force, so the box means
+the same thing after a switch as before it and needs no resetting.
+The travel is the `[JOINT_N]` limits, checked on every move as well;
+the box is a restriction inside it.  A module that declares no
+kinstype flags keeps the box on the world of the kinstype in force,
+as before.
+
+The velocity and acceleration limits specified apply to the type 0
+default kinematics type that is activated at startup.  These limits
+may *not* be applicable when switching to alternative kinematics.
 However, since an interpreter-motion synchronization is required
 when switching kinematics, INI-HAL pins can be used to setup
 limits for a pending kinematics type.
@@ -340,7 +352,7 @@ kinematics (trivkins).
 See the kins man page for more information ($ man kins).
 
 A user-provided M-code can alter any or all of the axis coordinate
-limits prior to changing the motion.switchkins-type pin and
+velocity and acceleration limits prior to changing the motion.switchkins-type pin and
 synchronizing the interpreter and motionparts of LinuxCNC.  As an
 example, a bash script invoking halcmd can be 'hardcoded' to set
 any number of HAL pins:
@@ -366,24 +378,25 @@ with a complex (non-identity) kinematics (type0) after homing.
 The system is configured so that it can be switched to identity
 kinematics (type1) in order to manipulate individual joints using
 the conventional letters from the set 'XYZABCUVW'.  The INI file
-settings ([AXIS_L]) are *not* applicable when operating with
-identity (type1) kinematics.  To address this use case, the user
-M-code scripts can be designed as follows:
+velocity and acceleration settings ([AXIS_L]) are *not* applicable
+when operating with identity (type1) kinematics.  To address this
+use case, the user M-code scripts can be designed as follows:
 
 *M129* (Switch to identity type1)
 
 . read and parse INI file
-. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
-  according to the 'identity-referenced' joint number INI file
-  setting ([JOINT_N])
+. HAL: setp the INI-HAL velocity and acceleration pins for each axis
+  letter ([AXIS_L]) according to the 'identity-referenced' joint
+  number INI file setting ([JOINT_N])
 . HAL: `setp motion.switchkins-type 1`
 . MDI: execute a syncing G-code (M66E0L0)
 
 *M128* (restore robot default kinematics type 0)
 
 . read and parse INI file
-. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
-  according to the appropriate INI file setting ([AXIS_L])
+. HAL: setp the INI-HAL velocity and acceleration pins for each axis
+  letter ([AXIS_L]) according to the appropriate INI file setting
+  ([AXIS_L])
 . HAL: `setp motion.switchkins-type 0`
 . MDI: execute a syncing G-code (M66E0L0)
 
