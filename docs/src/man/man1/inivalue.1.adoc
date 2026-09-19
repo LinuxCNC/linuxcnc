@@ -100,7 +100,8 @@ The INI-file format uses the common standard for INI-files with a few additions
 and exceptions.
 
 Section names and variable names may only consist of letters a-z, A-Z, digits
-0-9 and underscore (_). The first character in the name cannot be a digit.
+0-9, underscore (_) and dash (-). The first character in the name cannot be a
+digit or a dash.
 
 Comments are specified with the # or ; character and everything following
 either # or ; is ignored until the end of the line. Embedding a # or ; in a

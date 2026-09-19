@@ -15,7 +15,8 @@ xtest.ini:1: error: Invalid section. Missing ']'
 xtest.ini:1: error: Invalid section. No content between '[' and ']'
 xtest.ini:1: error: Invalid section. No content between '[' and ']'
 --- test invalid section, invalid identifier
-xtest.ini:1: error: Invalid section '0SECTION'. Cannot start with a digit
+xtest.ini:1: error: Invalid section '0SECTION'. Cannot start with a digit or '-'
+xtest.ini:1: error: Invalid section '-SECTION'. Cannot start with a digit or '-'
 xtest.ini:1: error: Invalid section 'xæøåz'. Identifier contains invalid character(s)
 --- test duplicate section merge warning
 xtest.ini:2: warning: Section 'SECTION' already exists. Merging...
@@ -30,7 +31,8 @@ xtest.ini:2: error: Invalid tag. Missing identifier before '='
 --- test invalid variable name missing '='
 xtest.ini:2: error: Invalid tag 'VAR x'. Expected '=' after tag identifier
 --- test invalid variable name identifier
-xtest.ini:2: error: Invalid tag '0VAR'. Tag identifiers cannot start with a digit
+xtest.ini:2: error: Invalid tag '0VAR'. Tag identifiers cannot start with a digit or '-'
+xtest.ini:2: error: Invalid tag '-VAR'. Tag identifiers cannot start with a digit or '-'
 xtest.ini:2: error: Invalid tag name 'VÅR'. Identifier contains invalid character(s)
 xtest.ini:2: error: Invalid tag name 'VAR x'. Identifier contains invalid character(s)
 --- test invalid variable outside section

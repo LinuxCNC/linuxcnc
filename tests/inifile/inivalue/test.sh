@@ -53,6 +53,8 @@ tst --var=VAR && t "Invalid section"
 r "--- test invalid section, invalid identifier"
 echo "[0SECTION]" > xtest.ini
 tst --var=VAR && t "Invalid section"
+echo "[-SECTION]" > xtest.ini
+tst --var=VAR && t "Invalid section"
 echo "[xæøåz]" > xtest.ini
 tst --var=VAR && t "Invalid section"
 
@@ -86,6 +88,9 @@ r "--- test invalid variable name identifier"
 ( echo "[SECTION]"
   echo "0VAR=val" ) > xtest.ini
 tst --var=0VAR && t "Invalid variable name"
+( echo "[SECTION]"
+  echo "-VAR=val" ) > xtest.ini
+tst --var=-VAR && t "Invalid variable name"
 ( echo "[SECTION]"
   echo "VÅR=val" ) > xtest.ini
 tst --var=VAR && t "Invalid variable name"
