@@ -313,6 +313,113 @@ int genser_kin_jac_fwd(void *kins,
     return GO_RESULT_OK;
 }
 
+/* The Jacobian in the terms of kinematics.h: joints in degrees per pose
+   word in EmcPose units, the derivative of genserKinematicsInverse().
+
+   compute_jinv() gives the geometric inverse Jacobian, radians of joint per
+   unit of base-frame twist.  A pose word rate is not a twist: the roll,
+   pitch and yaw rates reach the angular velocity through E, the matrix of
+   the axes each one turns about, for the RPY convention of go_rpy_mat_convert,
+   R = Rz(yaw) Ry(pitch) Rx(roll).  So
+
+       dq/dp = unrotate . deg . Jinv . blockdiag(I, E . rad)
+
+   with the unit conversions and the unrotate coupling applied in the order
+   the inverse applies them. */
+int genserKinematicsJacobian(const double *joint,
+                             const EmcPose *world,
+                             double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                             const KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)iflags;
+    genser_struct *genser = KINS_PTR;
+    GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
+    GO_MATRIX_DECLARE(Jinv, Jinv_stg, GENSER_MAX_JOINTS, 6);
+    go_pose T_L_0;
+    go_link linkout[GENSER_MAX_JOINTS] = {};
+    go_real jest[GENSER_MAX_JOINTS];
+    double E[3][3];
+    double sb, cb, sc, cc;
+    int link, i, j, a, m, retval;
+
+#ifndef ULAPI
+    genser_kin_init();
+    if (!genser_hal_inited) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             "genserKinematicsJacobian: not initialized\n");
+        return -1;
+    }
+#endif
+
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac[j][a] = 0; }
+    }
+
+    // the kinematic joint angles, in radians and with the unrotate
+    // coupling removed, exactly as the forward prepares them
+    for (link = 0; link < genser->link_num; link++) {
+        rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[link]);
+        jest[link] = joint[link] * (PM_PI / 180);
+        if (link && unrotate)
+            jest[link] -= unrotate * jest[link-1];
+    }
+
+    go_matrix_init(Jfwd, Jfwd_stg, 6, genser->link_num);
+    go_matrix_init(Jinv, Jinv_stg, genser->link_num, 6);
+
+    for (link = 0; link < genser->link_num; link++) {
+        retval = go_link_joint_set(&genser->links[link], jest[link], &linkout[link]);
+        if (GO_RESULT_OK != retval)
+            return -1;
+    }
+    retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
+    if (GO_RESULT_OK != retval)
+        return -1;
+    retval = compute_jinv(&Jfwd, &Jinv);
+    if (GO_RESULT_OK != retval)
+        return -1;   // singular: no finite joint rate follows the pose
+
+    // E columns: the roll axis carried by pitch and yaw, the pitch axis
+    // carried by yaw, and the yaw axis fixed
+    sb = sin(world->b * PM_PI / 180); cb = cos(world->b * PM_PI / 180);
+    sc = sin(world->c * PM_PI / 180); cc = cos(world->c * PM_PI / 180);
+    E[0][0] = cb*cc; E[1][0] = cb*sc; E[2][0] = -sb;
+    E[0][1] = -sc;   E[1][1] = cc;    E[2][1] = 0;
+    E[0][2] = 0;     E[1][2] = 0;     E[2][2] = 1;
+
+    for (i = 0; i < genser->link_num; i++) {
+        // linear pose words: the twist column is the pose column, and the
+        // joint comes out in radians
+        for (a = 0; a < 3; a++) {
+            jac[i][a] = Jinv.el[i][a] * (180 / PM_PI);
+        }
+        // angular pose words: through E, radians of pose word per degree
+        // of pose word and degrees of joint per radian of joint cancel
+        for (m = 0; m < 3; m++) {
+            double s = 0;
+            for (a = 0; a < 3; a++) { s += Jinv.el[i][3+a] * E[a][m]; }
+            jac[i][3+m] = s;
+        }
+    }
+
+    // the unrotate coupling, in link order as the inverse applies it
+    for (link = 1; link < genser->link_num; link++) {
+        rtapi_s32 unrotate = hal_get_si32(haldata->unrotate[link]);
+        if (unrotate) {
+            for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+                jac[link][a] += unrotate * jac[link-1][a];
+            }
+        }
+    }
+
+    // uvw pass through as joints 6, 7, 8
+    if (total_joints > 6) jac[6][6] = 1;
+    if (total_joints > 7) jac[7][7] = 1;
+    if (total_joints > 8) jac[8][8] = 1;
+
+    return 0;
+} // genserKinematicsJacobian()
+
 /* main function called by emc2 for forward Kins */
 int genserKinematicsForward(const double *joint,
                             EmcPose * world,
