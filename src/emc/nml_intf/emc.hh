@@ -316,6 +316,8 @@ extern int emcJointSetHomingParams(int joint, double home, double offset, double
 extern int emcJointUpdateHomingParams(int joint, double home, double offset, int sequence);
 extern int emcJointSetMaxVelocity(int joint, double vel);
 extern int emcJointSetMaxAcceleration(int joint, double acc);
+extern double emcJointGetMaxVelocity(int joint);
+extern double emcJointGetMaxAcceleration(int joint);
 
 extern int emcJointInit(int joint);
 extern int emcJointHalt(int joint);

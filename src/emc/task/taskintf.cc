@@ -585,6 +585,24 @@ int emcAxisSetLockingJoint(int axis, int joint)
     return retval;
 }
 
+double emcJointGetMaxVelocity(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        return 0;
+    }
+
+    return JointConfig[joint].MaxVel;
+}
+
+double emcJointGetMaxAcceleration(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        return 0;
+    }
+
+    return JointConfig[joint].MaxAccel;
+}
+
 double emcAxisGetMaxVelocity(int axis)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {

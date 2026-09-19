@@ -1037,6 +1037,10 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   The AXIS GUI shows the axis in the units of its type; other GUIs may not.
 * `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
++
+`MAX_VELOCITY` and `MAX_ACCELERATION` bound the letter in the world of the kinematics in force.
+The joints are bound on their own: every move is capped at what its joints can follow within their `[JOINT_N]` limits, read through the kinematics module's Jacobian along the move, so on a kinematics that is not the identity a move runs at the pace of its slowest joint whatever these say.
+See the <<cha:switchable-kinematics,Switchable Kinematics>> chapter, INI file limit settings.
 * `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
   Used when S-curve trajectory planning is enabled.
   When set to 0 (default), no per-axis jerk limiting is applied.

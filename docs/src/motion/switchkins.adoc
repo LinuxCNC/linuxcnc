@@ -312,12 +312,28 @@ the box is a restriction inside it.  A module that declares no
 kinstype flags keeps the box on the world of the kinstype in force,
 as before.
 
-The velocity and acceleration limits specified apply to the type 0
-default kinematics type that is activated at startup.  These limits
-may *not* be applicable when switching to alternative kinematics.
-However, since an interpreter-motion synchronization is required
-when switching kinematics, INI-HAL pins can be used to setup
-limits for a pending kinematics type.
+The velocity and acceleration limits, `MAX_VELOCITY` and
+`MAX_ACCELERATION`, bound the coordinate letter in the world of the
+kinstype in force.  What the joints can follow is bound separately:
+every segment is sampled through the module's Jacobian ahead of
+motion, on the kinstype and the tool offset the program is under, and
+its velocity and acceleration are lowered to what the slowest joint
+can give within its own `[JOINT_N]` limits, the share a carriage on a
+circle feels as centripetal included.  A turn of a tilted head under
+the tool centre point, which swings the carriage through a circle the
+head's own limit never mentions, runs at the carriage's pace.  A
+module that can only be evaluated in realtime (one without the
+parameter block form, see <<sec:switchkins-code-notes,Code Notes>>)
+caps nothing; on it the `[AXIS_L]` limits are all there is.
+
+So a switch does not need the velocity and acceleration limits reset
+to keep the joints within their limits.  It may still want them reset
+where a letter names a joint of another kind after the switch: a
+robot's identity kinstype puts joint 0, a rotary, on X, and the
+`[AXIS_X]` limit in mm/s says nothing useful about it.  Since an
+interpreter-motion synchronization is required when switching
+kinematics, INI-HAL pins can be used to set up limits for a pending
+kinematics type.
 
 [NOTE]
 INI-HAL pins are typically not recognized during a G-code program
