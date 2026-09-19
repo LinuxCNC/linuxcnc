@@ -866,6 +866,9 @@ static int genser_tool_frame(const kins_params *p, const double *joint,
     return 0;
 }
 
+/* the world is the last link's frame in the base frame with no tool in the
+   maths, the machine frame of a robot as well as its working transform, so
+   the one type is both */
 const kins_ops GENSER_OPS = {
     .forward  = genser_forward,
     .inverse  = genser_inverse,
@@ -874,6 +877,7 @@ const kins_ops GENSER_OPS = {
     .native   = &TOOL_FRAME_FLANGE,
     .jacobian = genser_jacobian,
     .primary  = 1,
+    .machine  = 1,
 };
 
 /*
