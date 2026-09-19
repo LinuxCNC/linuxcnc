@@ -1,0 +1,243 @@
+:lang: en
+:toc:
+
+[[cha:turret]]
+= Lathe Turret Component
+
+== Overview
+
+`turret` is a userspace Python HAL component for lathe turrets that
+replaces `carousel.comp` when the machine has a hydraulic
+single-solenoid mechanism:
+
+* one solenoid: energized = rotate in one direction, de-energized = the
+  mechanism seats the turret on a station,
+* sensors: position 1 (index), one strobe pulse per station, a "seated"
+  sensor (clamp allowed) and a clamp sensor,
+* clamp valve: one solenoid, ON = unclamp (spring closes).
+
+The component implements a timeout on every transition, a latched fault
+with alarm codes, an adaptive stop lead to compensate the hydraulic
+coast, maintenance counters and a QtPyVCP configuration/monitor panel
+(Spanish) that can be embedded in any QtVCP screen.
+
+The F2 milestone is a compiled `turret.comp` with the same pin names;
+the configuration and the panel stay unchanged.
+
+== Configuration
+
+The configuration is a single JSON file (for example
+`<config>/turret/turret.json`), used by the component, the HAL file and
+the panel:
+
+[source,json]
+----
+{
+  "version": 1,
+  "stations": 8,
+  "mode": "hydraulic-single-solenoid",
+  "pins": {
+    "pos1": "hm2_7i76e.0.7i76.0.0.input-00",
+    "strobe": "hm2_7i76e.0.7i76.0.0.input-01",
+    "changepos": "hm2_7i76e.0.7i76.0.0.input-02",
+    "clamped": "hm2_7i76e.0.7i76.0.0.input-03",
+    "motor": "hm2_7i76e.0.7i76.0.0.output-00",
+    "unclamp": "hm2_7i76e.0.7i76.0.0.output-01",
+    "interlock": "iocontrol.0.user-enable-out",
+    "tool_prepare": "iocontrol.0.tool-prepare",
+    "tool_prepared": "iocontrol.0.tool-prepared",
+    "tool_change": "iocontrol.0.tool-change",
+    "tool_changed": "iocontrol.0.tool-changed",
+    "tool_prep_pocket": "iocontrol.0.tool-prep-pocket",
+    "toolchanger_fault": "iocontrol.0.toolchanger-fault",
+    "toolchanger_reason": "iocontrol.0.toolchanger-reason"
+  },
+  "timing": {
+    "strobe_filter_ms": 3.0,
+    "unclamp_timeout": 2.0,
+    "home_timeout": 20.0,
+    "rotate_timeout": 20.0,
+    "settle_time": 0.4,
+    "locate_timeout": 1.5,
+    "locate_stable_ms": 150.0,
+    "clamp_timeout": 2.0,
+    "max_retries": 2,
+    "lead_pulses": 1,
+    "lead_auto": true
+  },
+  "logic": {
+    "clamped_inverted": false,
+    "require_changepos": true,
+    "unclamp_before_rotate": true,
+    "interlock_required": false,
+    "abort_on_fault": false,
+    "test_enable_required": true
+  },
+  "maintenance": [
+    {"code": 1, "name": "Pinza: revisar sellos y presion",
+     "every_changes": 50000, "every_hours": 0.0},
+    {"code": 2, "name": "Engrase de la corona",
+     "every_changes": 500000, "every_hours": 0.0},
+    {"code": 3, "name": "Filtro hidraulico",
+     "every_changes": 0, "every_hours": 2000.0}
+  ]
+}
+----
+
+The component reads and writes the configured machine pins and the
+`iocontrol` handshake pins directly through the HAL Python API, so
+changing the mapping or the station count is a configuration change
+(the component reloads when the JSON changes): no HAL nets and no
+LinuxCNC restart are required.  Changing the station count forces a new
+reference move.
+
+== HAL usage
+
+[source,hal]
+----
+loadusr -W python3 -m turret.manager --config /path/turret/turret.json
+----
+
+Optionally wire a hardware watchdog so that a dead controller drops the
+valve relay:
+
+[source,hal]
+----
+loadrt watchdog num_inputs=1
+setp watchdog.0.timeout 0.5
+net turret-heartbeat turret.watchdog-pet watchdog.0.input-0
+net valve-relay watchdog.0.output hm2_7i76e.0.7i76.0.0.output-07
+----
+
+The tool change handshake with the interpreter is done through
+`iocontrol.0.tool-prepare/tool-prepared` and
+`iocontrol.0.tool-change/tool-changed`; with
+`<<sec:select-tool,[RS274NGC]LATHE_TXXXX>>` a single `T0101` performs
+the whole change.
+
+== Pins
+
+Status outputs (watched by the panel): `turret.busy`,
+`turret.homed`, `turret.located`, `turret.fault`, `turret.error`,
+`turret.state`, `turret.station`, `turret.motor`, `turret.unclamp`,
+`turret.prepared`, `turret.changed`, `turret.count-changes`,
+`turret.count-clamp`, `turret.hours`, `turret.station-<n>-changes`,
+`turret.maint-due`, `turret.maint-code`, `turret.watchdog-pet`.
+
+Commands (momentary buttons or a GUI): `turret.home` (reference),
+`turret.step`, `turret.release` / `turret.lock` (service: remove/insert
+the turret), `turret.pocket-request` + `turret.prepare` (select a
+station), `turret.reset`, `turret.cancel`, `turret.unhome`,
+`turret.test-enable`, `turret.reload`, `turret.clear-history`,
+`turret.mark-service-<n>`.
+
+Live parameters (the panel writes them and they are applied
+immediately): `turret.unclamp-timeout`, `home-timeout`,
+`rotate-timeout`, `settle-time`, `locate-timeout`,
+`locate-stable-ms`, `clamp-timeout`, `strobe-filter-ms`,
+`max-retries`, `lead-pulses`, `pockets`.
+
+== Alarms
+
+|===
+|Code |Meaning
+
+|E1 |clamp did not release in time
+|E2 |home sensor (position 1 + strobe) not found
+|E3 |rotation timeout
+|E4 |turret coasted past the requested station
+|E5 |turret did not seat (seated sensor)
+|E6 |clamp did not close in time
+|E7 |strobe pulses while stopped (sensor or valve leak)
+|E8 |interlock lost while moving
+|E9 |operator abort
+|E10 |invalid configuration or missing/written pin
+|E11 |turret watchdog expired
+|===
+
+Every fault turns the motor and the clamp valve off, latches until
+`turret.reset` and is reported to the interpreter through
+`iocontrol.0.toolchanger-fault/reason` (`#5600`/`#5601`).  Events are
+kept in `<config>_state.json` (history + counters).
+
+== Maintenance
+
+Counters (tool changes, clamp cycles, hours and changes per station) are
+persisted in `<config>_state.json`.  Each maintenance interval has a
+code and a period in changes and/or hours; when a period is reached the
+panel shows it as due, `turret.maint-due` goes high and the pending code
+is published on `turret.maint-code`.  After servicing, pulse
+`turret.mark-service-<code>` (the panel has a button per routine).
+
+== QtPyVCP panel
+
+[source,ini]
+----
+[DISPLAY]
+EMBED_TAB_NAME = Torreta
+EMBED_TAB_COMMAND = qtvcp turret
+EMBED_TAB_LOCATION = tabWidget_utilities
+----
+
+The panel has five tabs: *Estado* (sensors, phase, station and service
+commands), *Estaciones* (standard tool table editor), *Alarmas*
+(active alarm + history), *Mantenimiento* (counters, due routines and
+service actions) and *Configuracion* (pin mapping assistant over
+`hal.get_info_pins()` plus the raw JSON editor).  The panel is in
+Spanish.
+
+== Compiled component (F2)
+
+The F2 milestone is a compiled userspace component
+(`src/hal/user_comps/turret.comp`) with the same pins, the same
+configuration and the same panel.  It cannot read JSON, so the
+configuration is exported to a `key = value` file:
+
+[source,sh]
+----
+python3 -m turret.genconf /path/turret/turret.json   # writes turret.conf
+----
+
+Build/install it and use it instead of the Python manager:
+
+[source,hal]
+----
+loadusr -W turret --config /path/turret/turret.conf
+----
+
+It reads and writes the machine pins and the `iocontrol` pins by name,
+so no HAL nets are needed; parameters (`turret.unclamp-timeout`, ...)
+are HAL parameters and can be tuned live, and `turret.reload` re-reads
+the `.conf` file.  Counters, maintenance baselines and the event history
+are persisted in `<config>_state.conf` (for the component) and
+`<config>_state.json` (for the panel).
+
+The QtPyVCP panel writes `turret.conf` automatically when the
+configuration or the pin mapping is saved.
+
+The compiled component does not implement `abort_on_fault` (it cannot
+abort the interpreter by itself): the program stays blocked at the tool
+change until the operator resets the fault, and a remap or `halui` can
+abort it if desired.
+
+== Simulation
+
+`configs/sim/turret/` contains a mechanism simulator and a ready to run
+HAL file:
+
+[source,sh]
+----
+cd configs/sim/turret && ./run_sim.sh
+----
+
+The simulator drives `pos1`, `strobe`, `changepos`, `clamped` and a
+station counter from the motor/unclamp outputs, including the coast
+pulses and the clamp delays.
+
+== Safety
+
+The component is not a substitute for hardware interlocks: keep the
+E-stop chain, the valve fuses and (recommended) a hardware timer relay
+for the maximum rotation time.  The software provides a timeout on
+every transition, a latched fault, safe outputs on exit and the
+optional watchdog relay described above.

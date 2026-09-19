@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Torreta</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_estado">
+       <attribute name="title">
+        <string>Estado</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_estaciones">
+       <attribute name="title">
+        <string>Estaciones</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_alarmas">
+       <attribute name="title">
+        <string>Alarmas</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_mantenimiento">
+       <attribute name="title">
+        <string>Mantenimiento</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_config">
+       <attribute name="title">
+        <string>Configuracion</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -128,6 +128,23 @@ Customizing the panel: +
 For information on the finer points, consult the QtVCP and QtDragon documentation.
 The Python handler file also provides a useful template for any custom panel.
 
+[[sub:qtvcp:panels:turret]]
+=== `turret`
+
+Control, configuration and maintenance panel (Spanish) for a hydraulic
+lathe turret driven by the `turret` component.  It shows the sensors,
+phase, station and counters in real time, offers the service commands
+(reference, step, release/lock, reset), lists the alarms with history,
+tracks the maintenance intervals and includes a pin mapping assistant
+plus the raw JSON editor.  See <<cha:turret,Lathe Turret Component>>.
+
+.Embedding commands
+----
+EMBED_TAB_NAME = Torreta
+EMBED_TAB_COMMAND = qtvcp turret
+EMBED_TAB_LOCATION = tabWidget_utilities
+----
+
 [[sub:qtvcp:panels:test-dial]]
 === `test_dial`
 

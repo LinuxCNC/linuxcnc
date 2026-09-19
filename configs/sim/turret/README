@@ -1,0 +1,35 @@
+Turret simulation (mechanism + manager, no nets)
+================================================
+
+Run (F1, Python manager):
+
+    ./run_sim.sh
+
+or the compiled component (F2, after `halcompile --install
+src/hal/user_comps/turret.comp` and generating `turret.conf`):
+
+    python3 -m turret.genconf turret.json
+    ./run_sim.sh f2
+
+That loads `sim_turret.py` (mechanism model) and `turret.manager`
+(controller) inside `halrun`.  The manager drives the simulator through
+`hal.set_p`/`hal.get_value`, so changing the pin mapping only requires
+editing `turret.json`.
+
+Useful checks inside halrun (or `halcmd` in another terminal while
+LinuxCNC runs):
+
+    show pin turret.*
+    show pin sim_turret.*
+    setp turret.test-enable 1
+    set turret.home 1          # re-reference (pulse)
+    set turret.release 1       # service: unclamp and hold
+    set turret.lock 1          # service: clamp again
+    setp turret.pocket-request 3 ; set turret.prepare 1   # fake a T3
+
+The QtPyVCP panel (`qtvcp turret`) monitors the same pins and can be
+embedded as a tab with, in the [DISPLAY] section:
+
+    EMBED_TAB_NAME = Torreta
+    EMBED_TAB_COMMAND = qtvcp turret
+    EMBED_TAB_LOCATION = tabWidget_utilities

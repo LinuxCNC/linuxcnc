@@ -1,0 +1,15 @@
+# Turret simulation: mechanism + manager (no HAL nets required).
+#
+# The manager reads/writes the simulator pins directly through the HAL
+# Python API, so the pin mapping lives in turret.json and can be changed
+# live without restarting LinuxCNC.
+
+loadusr -W python3 sim_turret.py --stations 8 --coast-pulses 1 --start 2
+loadusr -W python3 -m turret.manager --config turret.json
+
+# Optional hardware watchdog: pet pin is disabled in turret.json; wire it
+# in a real machine so a dead manager drops the valve relay, e.g.:
+#   loadrt watchdog num_inputs=1
+#   setp watchdog.0.timeout 0.5
+#   net turret-heartbeat turret.watchdog-pet watchdog.0.input-0
+#   net valve-relay watchdog.0.output hm2_7i76e.0.7i76.0.0.output-07
