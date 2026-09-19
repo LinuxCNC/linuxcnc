@@ -35,3 +35,8 @@ pincheck s True True True
 pincheck param False True True
 set u 0 0
 set u -1 fail
+set param 0.0 ok
+set param 1.0 ok
+set param -0.5 True
+set param 0 ok
+set param 2 True

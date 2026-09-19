@@ -147,7 +147,7 @@ bool from_python(PyObject *o, bool *b)
     if(PyFloat_Check(o)) {
         // Floating point is false *only* when it is 0.0
         double v = PyFloat_AsDouble(o);
-        *b = 0.0 == v;
+        *b = 0.0 != v;
         return true;
     }
 
@@ -913,7 +913,7 @@ static bool check_port(const pyhalitem *item, const char *pfx)
         return false;
     }
     if(item->pin.type != HAL_PORT) {
-        PyErr_Format(PyExc_RuntimeError, "%s: %s: Pin type not HAL_PORT but '%d'", pfx, (int)item->pin.type);
+        PyErr_Format(PyExc_RuntimeError, "%s: %s: Pin type not HAL_PORT but '%d'", pfx, item->name, (int)item->pin.type);
         return false;
     }
     return true;
@@ -2239,6 +2239,7 @@ static const halenum_member_t halenum_rt_members[] = {
     {"LXRT",            REALTIME_TYPE_LXRT},
     {"XENOMAI",         REALTIME_TYPE_XENOMAI},
     {"XENOMAI_EVL",     REALTIME_TYPE_XENOMAI_EVL},
+    {}
 };
 
 // Build an enum.IntEnum subclass from a member table. The class claims
