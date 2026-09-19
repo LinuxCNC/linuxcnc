@@ -1,0 +1,17 @@
+A world jog under the tool centre point must not run a slide past its
+own limits.
+
+The swing test's machine: 5axiskins with a 400 mm pivot, the head laid
+over to B90 by a joint move, the joints following their commands through
+limit3 at 20 percent over each joint's own limits, the way a drive or a
+step generator follows only as fast as it can.  Then, in teleop mode, a
+continuous jog of C at the axis's full rate, stopped by the test past
+150 degrees, an incremental jog of C back by 90, and an incremental jog
+of X with the head still laid over.  The tip holds through the jogs of
+C while the carriage swings on a circle of radius 400; nothing about the
+[AXIS_C] limits says how fast that is.  The test asserts that no jog
+trips a following error, that the incremental jogs land where they were
+sent, and that no joint's commanded velocity or acceleration went over
+the joint's INI limit, sampled every servo cycle.  The pace of the jog
+is not asserted: it is whatever the slowest joint allows, and it changes
+along the swing.
