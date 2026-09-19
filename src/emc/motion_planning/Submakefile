@@ -3,6 +3,7 @@
 LIBKINSLIMITS_CXXSRCS := $(addprefix emc/motion_planning/, \
 	jacobian.cc \
 	joint_limits.cc \
+	segment_cap.cc \
 	)
 
 # kins_util.c is the shared kinematics code the modules link; the loader
