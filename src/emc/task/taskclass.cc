@@ -115,9 +115,11 @@ int emcToolLoad() { return task_methods->emcToolLoad(); }
 int emcToolUnload()  { return task_methods->emcToolUnload(); }
 int emcToolLoadToolTable(const char *file) { return task_methods->emcToolLoadToolTable(file); }
 int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
-                     double frontangle, double backangle, int orientation) {
+                     double frontangle, double backangle, int orientation,
+                     const EmcPose& wear, double wear_diameter, int set_wear) {
     return task_methods->emcToolSetOffset( pocket,  toolno,  offset,  diameter,
-					   frontangle,  backangle,  orientation); }
+					   frontangle,  backangle,  orientation,
+					   wear, wear_diameter, set_wear); }
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
 
 int emcTaskOnce(const char * /*filename*/, EMC_IO_STAT &emcioStatus)
@@ -554,7 +556,8 @@ int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 }
 
 int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double diameter,
-                     double frontangle, double backangle, int orientation)//EMC_TOOL_SET_OFFSET
+                     double frontangle, double backangle, int orientation,
+                     const EmcPose& wear, double wear_diameter, int set_wear)//EMC_TOOL_SET_OFFSET
 {
 
     int o;
@@ -580,6 +583,10 @@ int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double di
     tdata.frontangle = f;
     tdata.backangle = b;
     tdata.orientation = o;
+    if (set_wear) {
+        tdata.wear = wear;
+        tdata.wear_diameter = wear_diameter;
+    }
     if (tooldata_put(tdata,idx) != IDX_OK) {
         UNEXPECTED_MSG;
     }

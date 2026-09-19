@@ -847,6 +847,7 @@ int Interp::init()
   _setup.tool_change_at_g30 = 0;
   _setup.tool_change_quill_up = 0;
   _setup.tool_change_with_spindle_on = 0;
+  _setup.lathe_txxxx = false;
   if (_setup.length_units == CANON_UNITS_INCHES) {
       _setup.parameter_g73_peck_clearance = .050;
       _setup.parameter_g83_peck_clearance = .050;
@@ -901,6 +902,7 @@ int Interp::init()
           // Now those that (currently) default to off
           if (inifile.findBoolV("RETAIN_G43", "RS274NGC", false))
               _setup.feature_set |= FEATURE_RETAIN_G43;
+          _setup.lathe_txxxx = inifile.findBoolV("LATHE_TXXXX", "RS274NGC", false);
           if (inifile.findBoolV("OWORD_NARGS", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_N_ARGS;
           if (inifile.findBoolV("NO_DOWNCASE_OWORD", "RS274NGC", false))
@@ -2584,6 +2586,9 @@ int Interp::init_tool_parameters()
     _setup.parameters[5411] = _setup.tool_table[0].frontangle;
     _setup.parameters[5412] = _setup.tool_table[0].backangle;
     _setup.parameters[5413] = _setup.tool_table[0].orientation;
+    _setup.parameters[5414] = _setup.tool_table[0].wear.tran.x;
+    _setup.parameters[5415] = _setup.tool_table[0].wear.tran.z;
+    _setup.parameters[5416] = _setup.tool_table[0].wear_diameter;
   } else {
     // non random_toolchanger: no tool at startup, one-time init
     if (_setup.tool_table[0].toolno == -1) {
@@ -2609,6 +2614,9 @@ int Interp::default_tool_parameters()
   _setup.parameters[5411] =  0; // frontangle
   _setup.parameters[5412] =  0; // backangle
   _setup.parameters[5413] =  0; // orientation
+  _setup.parameters[5414] =  0; // wear X
+  _setup.parameters[5415] =  0; // wear Z
+  _setup.parameters[5416] =  0; // wear diameter
   return 0;
 }
 
@@ -2646,6 +2654,9 @@ int Interp::set_tool_parameters()
   _setup.parameters[5411] = _setup.tool_table[0].frontangle;
   _setup.parameters[5412] = _setup.tool_table[0].backangle;
   _setup.parameters[5413] = _setup.tool_table[0].orientation;
+  _setup.parameters[5414] = _setup.tool_table[0].wear.tran.x;
+  _setup.parameters[5415] = _setup.tool_table[0].wear.tran.z;
+  _setup.parameters[5416] = _setup.tool_table[0].wear_diameter;
 
   return 0;
 }

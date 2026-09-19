@@ -993,6 +993,9 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
     cms->update(frontangle);
     cms->update(backangle);
     cms->update(orientation);
+    EmcPose_update(cms, &wear);
+    cms->update(wear_diameter);
+    cms->update(set_wear);
 }
 
 

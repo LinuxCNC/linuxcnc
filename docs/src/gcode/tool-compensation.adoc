@@ -76,6 +76,10 @@ In general, the tool table line format is:
 - I - front angle (lathe only) - floating-point
 - J - back angle (lathe only) - floating-point
 - Q - tool orientation (lathe only) - integer, 0-9
+- WX, WZ, WD - lathe wear offsets (optional). `WX`/`WZ` are added to the
+  X/Z geometry when `[RS274NGC]LATHE_TXXXX` applies `T0101`. `WD` is
+  diameter wear (stored, for `G10 L12 R`). Do not confuse `WX` with the
+  W-axis geometry word `W`.
 - ; - beginning of comment or remark - text
 
 Tool numbers should be unique.

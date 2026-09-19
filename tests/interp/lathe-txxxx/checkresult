@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""LATHE_TXXXX: T0101 changes tool 1 and applies geometry + wear."""
+import re
+import sys
+
+text = open(sys.argv[1] if len(sys.argv) > 1 else "result").read()
+if "SELECT_TOOL(1)" not in text:
+    print("T0101 did not SELECT_TOOL(1)")
+    sys.exit(1)
+if "CHANGE_TOOL()" not in text:
+    print("T0101 did not CHANGE_TOOL")
+    sys.exit(1)
+# First T0101: geom X1 Z2 + wear WX-0.02 WZ0.01
+if "USE_TOOL_LENGTH_OFFSET(0.9800 0.0000 2.0100" not in text:
+    print("T0101 did not apply geom+wear (want X=0.98 Z=2.01)")
+    sys.exit(1)
+# T0100 cancels offset
+if "USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 0.0000" not in text:
+    print("T0100 did not cancel the tool offset")
+    sys.exit(1)
+# T0202: geom 3,4 + wear 0.05,-0.03
+if "USE_TOOL_LENGTH_OFFSET(3.0500 0.0000 3.9700" not in text:
+    print("T0202 did not apply tool 2 geom+wear (want X=3.05 Z=3.97)")
+    sys.exit(1)
+# T0101 M6 must not change twice: T0101 then T1 then T0100 then T0202 then T0101 M6
+# After T0202 the next T0101 (with M6) changes back to tool 1.
+changes = len(re.findall(r"CHANGE_TOOL\(\)", text))
+# T0101, T1 (same tool, no change), T0100 (same tool 1), T0202, T0101
+# already==tool skips CHANGE. Sequence:
+# T0101 tool1 not loaded -> CHANGE
+# T1 already tool 1 -> no CHANGE
+# T0100 already tool 1 -> no CHANGE
+# T0202 tool 2 -> CHANGE
+# T0101 tool 1 -> CHANGE
+if changes != 3:
+    print("expected 3 CHANGE_TOOL (T0101, T0202, T0101), got %d" % changes)
+    sys.exit(1)
+# G10 L12 then T0101: geom 1,2 + wear -0.1, 0.2
+if "USE_TOOL_LENGTH_OFFSET(0.9000 0.0000 2.2000" not in text:
+    print("G10 L12 wear was not applied on T0101 (want X=0.90 Z=2.20)")
+    sys.exit(1)
+sys.exit(0)

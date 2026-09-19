@@ -514,7 +514,8 @@ void USE_NO_SPINDLE_FORCE()
 
 /* Tool Functions */
 void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double diameter,
-                          double frontangle, double backangle, int orientation) {
+                          double frontangle, double backangle, int orientation,
+                          const EmcPose& wear, double wear_diameter) {
 
 #ifdef TOOL_NML //{
     _sai._tools[idx].toolno = toolno;
@@ -523,6 +524,8 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double dia
     _sai._tools[idx].frontangle = frontangle;
     _sai._tools[idx].backangle = backangle;
     _sai._tools[idx].orientation = orientation;
+    _sai._tools[idx].wear = wear;
+    _sai._tools[idx].wear_diameter = wear_diameter;
 #else //}{
     CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,idx) != IDX_OK) {
@@ -534,6 +537,8 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double dia
     tdata.frontangle = frontangle;
     tdata.backangle = backangle;
     tdata.orientation = orientation;
+    tdata.wear = wear;
+    tdata.wear_diameter = wear_diameter;
     if (tooldata_put(tdata,idx) == IDX_FAIL) {
         fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
     }

@@ -187,6 +187,10 @@ the carousel (not its index).
 The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
 'M6' to change the tool length offset.
 
+When `[RS274NGC]LATHE_TXXXX = 1`, `M6` does nothing: the lathe `T` word
+already changed the tool and applied the offset. See
+<<sec:select-tool,T: Select Tool>>.
+
 The tool change may include axis motion.
 It is OK (but not useful) to program a change to the tool already in the spindle.
 It is OK if there is no tool in the selected slot;

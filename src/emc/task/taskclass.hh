@@ -68,7 +68,8 @@ public:
     virtual int emcCoolantFloodOn();
     virtual int emcCoolantFloodOff();
     virtual int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
-				 double frontangle, double backangle, int orientation);
+				 double frontangle, double backangle, int orientation,
+				 const EmcPose& wear, double wear_diameter, int set_wear);
     virtual int emcToolPrepare(int tool);
     virtual int emcToolLoad();
     virtual int emcToolLoadToolTable(const char *file);

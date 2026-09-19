@@ -1098,6 +1098,10 @@ static PyObject *toolinfo(pyStatChannel * /*s*/, PyObject *o) {
     dict_add(res,    "uoffset", tdata.offset.u);
     dict_add(res,    "voffset", tdata.offset.v);
     dict_add(res,    "woffset", tdata.offset.w);
+    dict_add(res,      "xwear", tdata.wear.tran.x);
+    dict_add(res,      "ywear", tdata.wear.tran.y);
+    dict_add(res,      "zwear", tdata.wear.tran.z);
+    dict_add(res, "wear_diameter", tdata.wear_diameter);
 
     PyDict_SetItemString(res, "comment", o= PyUnicode_FromString(tdata.comment));
     Py_DECREF(o);

@@ -23,6 +23,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
@@ -64,7 +65,8 @@ int tooldata_read_entry(const char *input_line)
     char *buff, *comment;
     int toolno,orientation,valid=1;
     EmcPose offset; //tlo
-    double diameter, frontangle, backangle;
+    EmcPose wear;
+    double diameter, frontangle, backangle, wear_diameter;
     int idx = 0;
     int realpocket = 0;
 
@@ -83,6 +85,8 @@ int tooldata_read_entry(const char *input_line)
     backangle   = empty.backangle;
     orientation = empty.orientation;
     offset      = empty.offset;
+    wear        = empty.wear;
+    wear_diameter = empty.wear_diameter;
 
     char* saveptr;
     buff = strtok_r(work_line, ";", &saveptr);
@@ -160,7 +164,27 @@ int tooldata_read_entry(const char *input_line)
                 valid = 0;
             break;
         case 'W':
-            if (sscanf(&token[1], "%lf", &offset.w) != 1)
+            /* WX/WY/WZ/WD/WA… = wear; W+number = W-axis geometry offset. */
+            if (token[1] && isalpha((unsigned char)token[1])) {
+                char waxis = toupper((unsigned char)token[1]);
+                const char *num = token + 2;
+                int n = 0;
+                switch (waxis) {
+                case 'X': n = sscanf(num, "%lf", &wear.tran.x); break;
+                case 'Y': n = sscanf(num, "%lf", &wear.tran.y); break;
+                case 'Z': n = sscanf(num, "%lf", &wear.tran.z); break;
+                case 'A': n = sscanf(num, "%lf", &wear.a); break;
+                case 'B': n = sscanf(num, "%lf", &wear.b); break;
+                case 'C': n = sscanf(num, "%lf", &wear.c); break;
+                case 'U': n = sscanf(num, "%lf", &wear.u); break;
+                case 'V': n = sscanf(num, "%lf", &wear.v); break;
+                case 'W': n = sscanf(num, "%lf", &wear.w); break;
+                case 'D': n = sscanf(num, "%lf", &wear_diameter); break;
+                default: valid = 0; break;
+                }
+                if (valid && n != 1)
+                    valid = 0;
+            } else if (sscanf(&token[1], "%lf", &offset.w) != 1)
                 valid = 0;
             break;
         case 'I':
@@ -200,6 +224,8 @@ int tooldata_read_entry(const char *input_line)
         tdata.frontangle  = frontangle;
         tdata.backangle   = backangle;
         tdata.orientation = orientation;
+        tdata.wear        = wear;
+        tdata.wear_diameter = wear_diameter;
         if (comment) {
             strncpy(tdata.comment,comment,CANON_TOOL_COMMENT_SIZE-1);
             tdata.comment[CANON_TOOL_COMMENT_SIZE-1] = 0;
@@ -265,6 +291,16 @@ void tooldata_format_toolline (int idx,
     F_ITEM(frontangle,     "I");
     F_ITEM(backangle,      "J");
     I_ITEM(orientation,    "Q");
+    F_ITEM(wear.tran.x,    "WX");
+    F_ITEM(wear.tran.y,    "WY");
+    F_ITEM(wear.tran.z,    "WZ");
+    F_ITEM(wear.a,         "WA");
+    F_ITEM(wear.b,         "WB");
+    F_ITEM(wear.c,         "WC");
+    F_ITEM(wear.u,         "WU");
+    F_ITEM(wear.v,         "WV");
+    F_ITEM(wear.w,         "WW");
+    F_ITEM(wear_diameter,  "WD");
 #undef F_ITEM
 #undef I_ITEM
     // Stop tracking len and space here for current tool table format
@@ -348,6 +384,36 @@ int tooldata_load(const char *filename)
 
     // close the file
     fclose(fp);
+
+    /* Remap-era wear lived as fake tools T10001..T10099.  Copy those
+       offsets into the matching tool's WX/WZ if that tool has no wear yet. */
+    {
+        int last = tooldata_last_index_get();
+        for (int idx = 0; idx <= last; idx++) {
+            CANON_TOOL_TABLE fake;
+            if (tooldata_get(&fake, idx) != IDX_OK)
+                continue;
+            if (fake.toolno < 10000 || fake.toolno > 10099)
+                continue;
+            int n = fake.toolno - 10000;
+            if (n <= 0)
+                continue;
+            int real_idx = tooldata_find_index_for_tool(n);
+            if (real_idx < 0)
+                continue;
+            CANON_TOOL_TABLE real;
+            if (tooldata_get(&real, real_idx) != IDX_OK)
+                continue;
+            if (real.wear.tran.x || real.wear.tran.y || real.wear.tran.z ||
+                real.wear.a || real.wear.b || real.wear.c ||
+                real.wear.u || real.wear.v || real.wear.w ||
+                real.wear_diameter)
+                continue;
+            real.wear = fake.offset;
+            real.wear_diameter = fake.diameter;
+            tooldata_put(real, real_idx);
+        }
+    }
 
     return 0;
 } // tooldata_load()

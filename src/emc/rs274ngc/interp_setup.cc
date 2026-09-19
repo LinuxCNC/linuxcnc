@@ -186,6 +186,7 @@ setup::setup() :
     c_indexer_jnum(0),
 
     lathe_diameter_mode(0),
+    lathe_txxxx(false),
     mdi_interrupt(0),
     feature_set(0),
     disable_fanuc_style_sub(false),

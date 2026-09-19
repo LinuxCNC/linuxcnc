@@ -68,6 +68,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g10-l1,G10 L1>>           |Set Tool Table Entry
 |<<gcode:g10-l10,G10 L10>>         |Set Tool Table, Calculated, Workpiece
 |<<gcode:g10-l11,G10 L11>>         |Set Tool Table, Calculated, Fixture
+|<<gcode:g10-l12,G10 L12>>         |Set Tool Wear
 |<<gcode:g10-l2,G10 L2>>           |Coordinate System Origin Setting
 |<<gcode:g10-l20,G10 L20>>         |Coordinate System Origin Setting Calculated
 |<<gcode:g12.1-g13.1,G12.1 G13.1>> |Select Kinematics
@@ -746,6 +747,43 @@ It is an error if:
 
 For more information on cutter orientation used by the 'Q' word,
 see the <<sec:lathe-tool-orientation,Lathe Tool Orientation>> diagram.
+
+[[gcode:g10-l12]]
+== G10 L12 Set Tool Wear(((G10 L12 Tool Wear)))
+
+[source,ngc]
+----
+G10 L12 P- <X- Y- Z- A- B- C- U- V- W- R->
+----
+
+* 'P' - tool / offset number whose wear is set
+* 'X' 'Z' (and other axes) - absolute wear, in the same units as the
+  geometry offsets on that tool
+* 'U' 'W' (and 'V') - incremental wear, added to the stored wear
+* 'R' - wear diameter (same convention as `G10 L1 R`: a radius, stored
+  as diameter)
+
+G10 L12 writes the native wear fields (`WX` `WZ` `WD` in the tool table).
+It does not change geometry. `X` and `U` cannot appear together (same
+for `Z`/`W` and `Y`/`V`).
+
+.G10 L12 Example
+[source,ngc]
+----
+G10 L12 P1 X-0.02 Z0.01    (set wear of offset 1)
+G10 L12 P1 U-0.01          (add -0.01 to X wear)
+----
+
+Used with <<sec:select-tool,T: Select Tool>> when `LATHE_TXXXX` is
+enabled: `T0101` applies tool 1 geometry plus this wear. Without
+`LATHE_TXXXX`, the values are stored and still written to the tool table.
+
+It is an error if:
+
+* Cutter compensation is on
+* The P number is unspecified or not a valid tool number
+* No wear word is given
+* Both an absolute and an incremental word for the same axis are given
 
 [[gcode:g10-l2]]
 == G10 L2 Set Coordinate System(((G10 L2 Coordinate System)))

@@ -35,10 +35,15 @@ struct CANON_TOOL_TABLE {
     double backangle;
     int orientation;
     char comment[CANON_TOOL_COMMENT_SIZE];
+    /* Lathe wear (Fanuc): added to offset when LATHE_TXXXX applies Taa ww.
+       File words: WX WZ WD (and WY/WA/… if used). */
+    EmcPose wear;
+    double wear_diameter;
 };
 
-/* default state of an entry: no tool, no pocket, zero geometry */
+/* default state of an entry: no tool, no pocket, zero geometry and wear */
 #define CANON_TOOL_TABLE_INIT \
-    { -1, -1, { { 0, 0, 0 }, 0, 0, 0, 0, 0, 0 }, 0, 0, 0, 0, { 0 } }
+    { -1, -1, { { 0, 0, 0 }, 0, 0, 0, 0, 0, 0 }, 0, 0, 0, 0, { 0 }, \
+      { { 0, 0, 0 }, 0, 0, 0, 0, 0, 0 }, 0 }
 
 #endif

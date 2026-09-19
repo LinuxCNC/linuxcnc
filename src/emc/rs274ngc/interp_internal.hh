@@ -831,6 +831,7 @@ struct setup
   int c_indexer_jnum;
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
+  bool lathe_txxxx;               // Fanuc Taa ww: T changes tool and applies geom+wear
   bool mdi_interrupt;
   int feature_set;
 

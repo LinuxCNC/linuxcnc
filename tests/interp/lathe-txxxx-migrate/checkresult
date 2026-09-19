@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+"""T10001 rows migrate into WX/WZ of tool 1."""
+import sys
+text = open(sys.argv[1] if len(sys.argv) > 1 else "result").read()
+if "USE_TOOL_LENGTH_OFFSET(0.9800 0.0000 2.0100" not in text:
+    print("T10001 was not migrated into tool 1 wear (want X=0.98 Z=2.01)")
+    sys.exit(1)
+sys.exit(0)

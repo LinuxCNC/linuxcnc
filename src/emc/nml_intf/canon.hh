@@ -664,7 +664,8 @@ extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
 extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
-                                 double frontangle, double backangle, int orientation);
+                                 double frontangle, double backangle, int orientation,
+                                 const EmcPose& wear = {}, double wear_diameter = 0);
 extern void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset);
 
 extern void CHANGE_TOOL();

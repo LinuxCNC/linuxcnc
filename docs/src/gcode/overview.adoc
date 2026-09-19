@@ -349,6 +349,9 @@ example '##2'  means the value of the parameter whose index is the
 * '5411' - Tool Front Angle. Volatile.
 * '5412' - Tool Back Angle. Volatile.
 * '5413' - Tool Orientation. Volatile.
+* '5414' - Loaded tool wear offset X (`WX`). Volatile.
+* '5415' - Loaded tool wear offset Z (`WZ`). Volatile.
+* '5416' - Loaded tool wear diameter (`WD`). Volatile.
 * '5420-5428' - Current relative position in the active coordinate system
   including all offsets and in the current program units for
   X, Y, Z, A, B, C, U, V & W, volatile.

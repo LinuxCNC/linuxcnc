@@ -88,4 +88,23 @@ the tool like a lathe. This can be very confusing at first. To turn
 this feature off for the current tool program a G1 without any
 move after the 'T<n>'.
 
+=== Lathe T0101 (`LATHE_TXXXX`)
+
+When `[RS274NGC]LATHE_TXXXX = 1`, `T` follows the Fanuc lathe `Taa ww`
+form (two digits of turret station, two of offset). `T0101` and `T101`
+are the same integer 101.
+
+* `Taa ww` with `ww != 00` - select and load tool _aa_, then apply that
+  tool's geometry plus the wear of offset _ww_ (`WX`/`WZ` on tool _ww_).
+* `T1` - same as `T0101`.
+* `T0100` - load tool 1 and cancel tool offset (`G49`).
+* `M6` is accepted and ignored (the change already happened on `T`).
+
+Wear is native: columns `WX` `WZ` `WD` on the tool table, or `G10 L12`.
+Old remap tables that used fake tools `T10001`..`T10099` are copied into
+`WX`/`WZ` of tool 1..99 when those tools have no wear yet.
+
+It is an error if tool _aa_ is not in the tool table. Missing wear for
+offset _ww_ is treated as zero, not an error.
+
 // vim: set syntax=asciidoc:

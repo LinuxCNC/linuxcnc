@@ -1616,7 +1616,10 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
         diameter(0.0),
         frontangle(0.0),
         backangle(0.0),
-        orientation(0)
+        orientation(0),
+        wear{},
+        wear_diameter(0.0),
+        set_wear(0)
     {};
 
     // For internal NML/CMS use only.
@@ -1631,6 +1634,9 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     double frontangle;
     double backangle;
     int    orientation;
+    EmcPose wear;
+    double wear_diameter;
+    int    set_wear; /* 0: leave wear as stored; 1: write wear fields */
 };
 
 class EMC_TOOL_SET_NUMBER:public EMC_TOOL_CMD_MSG {

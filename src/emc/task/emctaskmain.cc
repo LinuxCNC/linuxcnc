@@ -2175,7 +2175,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                                   emc_tool_set_offset_msg->diameter,
                                   emc_tool_set_offset_msg->frontangle,
                                   emc_tool_set_offset_msg->backangle,
-                                  emc_tool_set_offset_msg->orientation);
+                                  emc_tool_set_offset_msg->orientation,
+                                  emc_tool_set_offset_msg->wear,
+                                  emc_tool_set_offset_msg->wear_diameter,
+                                  emc_tool_set_offset_msg->set_wear);
 	break;
 
     case EMC_TOOL_SET_NUMBER_TYPE:

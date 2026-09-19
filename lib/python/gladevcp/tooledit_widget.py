@@ -62,6 +62,7 @@ class ToolEdit(Gtk.Box):
         self.hide_columns =''
         self.toolinfo_num = 0
         self.toolinfo = []
+        self.wear_saved = {}
         self.wTree = Gtk.Builder()
         self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
@@ -285,6 +286,7 @@ class ToolEdit(Gtk.Box):
             return
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
+        self.wear_saved = {}
         line_number = 0
         for rawline in logfile:
             # strip the comments from line and add directly to array
@@ -303,6 +305,17 @@ class ToolEdit(Gtk.Box):
             line_number += 1
             array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,comment]
             toolinfo_flag = False
+            wx = wz = wd = None
+            for word in line.split():
+                if word.startswith(';'):
+                    break
+                uw = word.upper()
+                if uw.startswith('WX'):
+                    wx = word[2:]
+                elif uw.startswith('WZ'):
+                    wz = word[2:]
+                elif uw.startswith('WD'):
+                    wd = word[2:]
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
             # if i = ';' that is the comment and we have already added it
@@ -312,6 +325,14 @@ class ToolEdit(Gtk.Box):
                 if offset == 0 or i == ';': continue
                 for word in line.split():
                     if word.startswith(';'): break
+                    # Native wear words must not be parsed as the W axis.
+                    uw = word.upper()
+                    if i == 'W' and (uw.startswith('WX') or uw.startswith('WY') or
+                                     uw.startswith('WZ') or uw.startswith('WD') or
+                                     uw.startswith('WA') or uw.startswith('WB') or
+                                     uw.startswith('WC') or uw.startswith('WU') or
+                                     uw.startswith('WV') or uw.startswith('WW')):
+                        continue
                     if word.startswith(i):
                         if offset == 1:
                             if int(word.lstrip(i)) == self.toolinfo_num:
@@ -339,6 +360,12 @@ class ToolEdit(Gtk.Box):
                         break
             if toolinfo_flag:
                 self.toolinfo = array
+            try:
+                tno = int(array[1])
+            except (TypeError, ValueError):
+                tno = 0
+            if tno and (wx is not None or wz is not None or wd is not None):
+                self.wear_saved[tno] = (wx, wz, wd)
             # add array line to liststore
             self.add(None,array)
 
@@ -382,6 +409,15 @@ class ToolEdit(Gtk.Box):
                     except ValueError:
                         raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
                                                     + self.toolfile + ".bak"))
+            wear = getattr(self, 'wear_saved', {}).get(values[1])
+            if wear:
+                wx, wz, wd = wear
+                if wx not in (None, ''):
+                    line = line + "WX%s " % wx
+                if wz not in (None, ''):
+                    line = line + "WZ%s " % wz
+                if wd not in (None, ''):
+                    line = line + "WD%s " % wd
 
             print(line, file=file)
         # These lines are required to make sure the OS doesn't cache the data
