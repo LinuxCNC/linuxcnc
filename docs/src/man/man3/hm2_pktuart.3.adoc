@@ -150,11 +150,13 @@ This is typically a multi-step process:
 1. rxstatus indicates that there are packets of data, but at this point we need to know how big each packet is (and reading two much or two little data from the FIFOs will cause problems).
 2. Queue a read of the frame sizes. **hm2_pktuart_queue_get_frame_sizes(name, fsizes[])**
 On return, the fsizes[] array will have been loaded with the frame sizes (size in bytes).
+The function returns the number of frame-size reads queued, or a negative error code.
 If fsizes are [8] [7] [6] and you only read 1 frame from the data FIFO then on the next call to get_frame_sizes the returned array would be [7] [6].
 3. Wait one thread cycle to get the data.  Note that there is no serial latency here, the data is already on the FPGA but we can only know how much data to request once we know the packet size
 4. Queue enough data reads to get all the data frames that the packet is spread over.
 int hm2_pktuart_queue_read_data(name, data, bytes)
 On return the data[] array will have been loaded with enough 32-bit frames to include "bytes" bytes.
+The function returns the number of 32-bit data reads queued, or a negative error code.
 5. Parse the data.
 
 === Data Formats ===
