@@ -1,0 +1,194 @@
+# HAL setup for the simulated XYZC machine with an XHC-HB04 layout 1 pendant.
+#
+# loadrt loads components, addf schedules their realtime functions,
+# setp sets parameters and writable pins, and net connects pins.
+# HAL basics: https://linuxcnc.org/docs/devel/html/en/hal/basic-hal.html
+
+# user space components
+loadusr -W hal_manualtoolchange
+loadusr -W xhc-hb04 -s 2 -I $(HALLIB_DIR)/xhc-hb04-layout1.cfg -H
+
+# components
+#preloaded module: loadrt tpmod
+#preloaded module: loadrt homemod
+loadrt trivkins coordinates=xyzc
+loadrt motmod base_period_nsec=0 servo_period_nsec=1000000 num_joints=4
+loadrt pid names=J0_pid,J1_pid,J2_pid,J3_pid
+loadrt mux2 names=J0_mux,J1_mux,J2_mux,J3_mux
+loadrt ddt names=J0_vel,J0_accel,J1_vel,J1_accel,J2_vel,J2_accel,J3_vel,J3_accel
+loadrt hypot names=hyp_xy,hyp_xyz
+loadrt sim_home_switch names=J0_switch,J1_switch,J2_switch,J3_switch
+loadrt sim_spindle names=sim_spindle
+loadrt limit2 names=limit_speed
+loadrt lowpass names=spindle_mass
+loadrt near names=near_speed
+loadrt scale names=rpm_rps
+loadrt xhc_hb04_util names=pendant_util
+# realtime thread/function links
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf J0_pid.do-pid-calcs servo-thread
+addf J1_pid.do-pid-calcs servo-thread
+addf J2_pid.do-pid-calcs servo-thread
+addf J3_pid.do-pid-calcs servo-thread
+addf J0_mux servo-thread
+addf J1_mux servo-thread
+addf J2_mux servo-thread
+addf J3_mux servo-thread
+addf J0_vel servo-thread
+addf J0_accel servo-thread
+addf J1_vel servo-thread
+addf J1_accel servo-thread
+addf J2_vel servo-thread
+addf J2_accel servo-thread
+addf J3_vel servo-thread
+addf J3_accel servo-thread
+addf hyp_xy servo-thread
+addf hyp_xyz servo-thread
+addf J0_switch servo-thread
+addf J1_switch servo-thread
+addf J2_switch servo-thread
+addf J3_switch servo-thread
+addf limit_speed servo-thread
+addf spindle_mass servo-thread
+addf rpm_rps servo-thread
+addf near_speed servo-thread
+addf sim_spindle servo-thread
+addf pendant_util servo-thread
+
+# motion and estop
+net estop-loopback iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+net motion-enabled motion.motion-enabled => J0_mux.sel J1_mux.sel J2_mux.sel J3_mux.sel
+
+# joint 0
+setp J0_pid.FF0                     1
+setp J0_pid.Pgain                   0
+setp J0_switch.home-pos             0.1
+setp J0_switch.hysteresis           0.05
+net j0-enable joint.0.amp-enable-out => J0_pid.enable
+net j0-home-sw J0_switch.home-sw => joint.0.home-sw-in
+net j0-pid-output J0_pid.output => J0_mux.in1
+net j0-pos-cmd joint.0.motor-pos-cmd => J0_pid.command
+net j0-pos-fb J0_mux.out => J0_mux.in0 J0_switch.cur-pos J0_vel.in joint.0.motor-pos-fb
+net j0-vel J0_vel.out => J0_accel.in hyp_xy.in0 hyp_xyz.in0
+
+# joint 1
+setp J1_pid.FF0                     1
+setp J1_pid.Pgain                   0
+setp J1_switch.home-pos             0.1
+setp J1_switch.hysteresis           0.05
+net j1-enable joint.1.amp-enable-out => J1_pid.enable
+net j1-home-sw J1_switch.home-sw => joint.1.home-sw-in
+net j1-pid-output J1_pid.output => J1_mux.in1
+net j1-pos-cmd joint.1.motor-pos-cmd => J1_pid.command
+net j1-pos-fb J1_mux.out => J1_mux.in0 J1_switch.cur-pos J1_vel.in joint.1.motor-pos-fb
+net j1-vel J1_vel.out => J1_accel.in hyp_xy.in1 hyp_xyz.in1
+
+# joint 2
+setp J2_pid.FF0                     1
+setp J2_pid.Pgain                   0
+setp J2_switch.home-pos             0.1
+setp J2_switch.hysteresis           0.05
+net j2-enable joint.2.amp-enable-out => J2_pid.enable
+net j2-home-sw J2_switch.home-sw => joint.2.home-sw-in
+net j2-pid-output J2_pid.output => J2_mux.in1
+net j2-pos-cmd joint.2.motor-pos-cmd => J2_pid.command
+net j2-pos-fb J2_mux.out => J2_mux.in0 J2_switch.cur-pos J2_vel.in joint.2.motor-pos-fb
+net j2-vel J2_vel.out => J2_accel.in hyp_xyz.in2
+
+# joint 3
+setp J3_pid.FF0                     1
+setp J3_pid.Pgain                   0
+net j3-enable joint.3.amp-enable-out => J3_pid.enable
+net j3-home-sw J3_switch.home-sw => joint.3.home-sw-in
+net j3-pid-output J3_pid.output => J3_mux.in1
+net j3-pos-cmd joint.3.motor-pos-cmd => J3_pid.command
+net j3-pos-fb J3_mux.out => J3_mux.in0 J3_switch.cur-pos J3_vel.in joint.3.motor-pos-fb
+net j3-vel J3_vel.out => J3_accel.in
+
+# spindle
+setp near_speed.difference          10
+setp near_speed.scale               1.1
+setp sim_spindle.scale              0.01666667
+setp spindle_mass.gain              0.07
+setp limit_speed.maxv               5000
+setp rpm_rps.gain                   0.0167
+net spindle-at-speed near_speed.out => spindle.0.at-speed
+net spindle-index-enable sim_spindle.index-enable <=> spindle.0.index-enable
+net spindle-orient spindle.0.orient => spindle.0.is-oriented
+net spindle-pos sim_spindle.position-fb => spindle.0.revs
+net spindle-rpm-filtered spindle_mass.out => near_speed.in2 rpm_rps.in
+net spindle-rps-filtered rpm_rps.out => spindle.0.speed-in
+net spindle-speed-cmd spindle.0.speed-out => limit_speed.in near_speed.in1
+net spindle-speed-limited limit_speed.out => sim_spindle.velocity-cmd spindle_mass.in
+
+# pendant
+setp axis.c.jog-accel-fraction      0.5
+setp axis.x.jog-accel-fraction      0.05
+setp axis.y.jog-accel-fraction      0.1
+setp halui.feed-override.scale      0.01
+setp halui.spindle.0.override.scale 0.01
+setp joint.0.jog-accel-fraction     0.05
+setp joint.1.jog-accel-fraction     0.1
+setp joint.3.jog-accel-fraction     0.5
+setp pendant_util.coef0             1
+setp pendant_util.coef1             1
+setp pendant_util.coef2             1
+setp pendant_util.coef3             1
+setp pendant_util.k                 100
+setp pendant_util.scale0            100
+setp pendant_util.scale1            -100
+setp pendant_util.scale2            100
+setp pendant_util.scale3            100
+setp xhc-hb04.inch-icon             TRUE
+net pendant-feed-override halui.feed-override.value => xhc-hb04.feed-override
+net pendant-feed-override-enable xhc-hb04.jog.enable-feed-override => halui.feed-override.count-enable
+net pendant-feed-value motion.current-vel => xhc-hb04.feed-value
+net pendant-goto-zero xhc-hb04.button-goto-zero => halui.mdi-command-00
+net pendant-home xhc-hb04.button-home => halui.home-all
+net pendant-is-idle halui.program.is-idle => pendant_util.is-idle
+net pendant-is-paused halui.program.is-paused => pendant_util.is-paused
+net pendant-is-running halui.program.is-running => pendant_util.is-running
+net pendant-jog-c xhc-hb04.jog.enable-a => axis.c.jog-enable joint.3.jog-enable
+net pendant-jog-prescale xhc-hb04.jog.scale => pendant_util.divide-by-k-in
+net pendant-jog-scale pendant_util.divide-by-k-out => axis.c.jog-scale axis.x.jog-scale axis.y.jog-scale axis.z.jog-scale joint.0.jog-scale joint.1.jog-scale joint.2.jog-scale joint.3.jog-scale
+net pendant-jog-x xhc-hb04.jog.enable-x => axis.x.jog-enable joint.0.jog-enable
+net pendant-jog-y xhc-hb04.jog.enable-y => axis.y.jog-enable joint.1.jog-enable
+net pendant-jog-z xhc-hb04.jog.enable-z => axis.z.jog-enable joint.2.jog-enable
+net pendant-pos-c halui.axis.c.pos-feedback => xhc-hb04.a.pos-absolute
+net pendant-pos-rel-c halui.axis.c.pos-relative => xhc-hb04.a.pos-relative
+net pendant-pos-rel-x halui.axis.x.pos-relative => xhc-hb04.x.pos-relative
+net pendant-pos-rel-y halui.axis.y.pos-relative => xhc-hb04.y.pos-relative
+net pendant-pos-rel-z halui.axis.z.pos-relative => xhc-hb04.z.pos-relative
+net pendant-pos-x halui.axis.x.pos-feedback => xhc-hb04.x.pos-absolute
+net pendant-pos-y halui.axis.y.pos-feedback => xhc-hb04.y.pos-absolute
+net pendant-pos-z halui.axis.z.pos-feedback => xhc-hb04.z.pos-absolute
+net pendant-probe-z xhc-hb04.button-probe-z => motion.probe-input
+net pendant-program-pause pendant_util.pause => halui.program.pause
+net pendant-program-resume pendant_util.resume => halui.program.resume
+net pendant-program-run pendant_util.run => halui.mode.auto halui.program.run
+net pendant-reset xhc-hb04.button-reset => halui.estop.activate
+net pendant-rewind xhc-hb04.button-rewind => halui.program.step
+net pendant-safe-z xhc-hb04.button-safe-z => halui.mdi-command-01
+net pendant-spindle-override halui.spindle.0.override.value => xhc-hb04.spindle-override
+net pendant-spindle-override-enable xhc-hb04.jog.enable-spindle-override => halui.spindle.0.override.count-enable
+net pendant-spindle-rps spindle.0.speed-out-rps-abs => xhc-hb04.spindle-rps
+net pendant-start-or-pause xhc-hb04.button-start-pause => pendant_util.start-or-pause
+net pendant-step xhc-hb04.button-step => xhc-hb04.stepsize-up
+net pendant-stop xhc-hb04.button-stop => halui.program.stop
+net pendant-wheel-counts xhc-hb04.jog.counts => halui.feed-override.counts halui.spindle.0.override.counts pendant_util.in0 pendant_util.in1 pendant_util.in2 pendant_util.in3
+net pendant-wheel-counts-c-filtered pendant_util.out3 => axis.c.jog-counts joint.3.jog-counts
+net pendant-wheel-counts-x-filtered pendant_util.out0 => axis.x.jog-counts joint.0.jog-counts
+net pendant-wheel-counts-y-filtered pendant_util.out1 => axis.y.jog-counts joint.1.jog-counts
+net pendant-wheel-counts-z-filtered pendant_util.out2 => axis.z.jog-counts joint.2.jog-counts
+net pendant-x0 xhc-hb04.button-x0 => halui.mdi-command-04
+net pendant-x2 xhc-hb04.button-x2 => halui.mdi-command-02
+net pendant-y0 xhc-hb04.button-y0 => halui.mdi-command-05
+net pendant-y2 xhc-hb04.button-y2 => halui.mdi-command-03
+net pendant-z0 xhc-hb04.button-z0 => halui.mdi-command-06
+
+# tool change
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed hal_manualtoolchange.changed => iocontrol.0.tool-changed
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-prepare-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number

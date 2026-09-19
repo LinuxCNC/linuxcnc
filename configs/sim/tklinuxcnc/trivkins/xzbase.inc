@@ -1,5 +1,4 @@
 [HAL]
-HALFILE = LIB:basic_sim.tcl
   HALUI = halui
 
 [TRAJ]
@@ -40,7 +39,7 @@ PARAMETER_FILE = xz.var
 [EMCMOT]
       EMCMOT = motmod
 COMM_TIMEOUT = 1.0
- BASE_PERIOD = 50000
+ BASE_PERIOD = 0
 SERVO_PERIOD = 1000000
 
 [TASK]

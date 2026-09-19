@@ -1,0 +1,131 @@
+# HAL setup for the metric QtPlasmaC simulations.
+# Shared by the qtplasmac_l, qtplasmac_p, and qtplasmac_s metric INI files.
+#
+# loadrt loads components, addf schedules their realtime functions,
+# setp sets parameters and writable pins, and net connects pins.
+# HAL basics: https://linuxcnc.org/docs/devel/html/en/hal/basic-hal.html
+
+loadusr -W hal_manualtoolchange
+
+# components
+#preloaded module: loadrt tpmod
+#preloaded module: loadrt homemod
+loadrt trivkins coordinates=xyyz
+loadrt motmod servo_period_nsec=1000000 num_joints=4 num_spindles=3
+loadrt plasmac
+loadrt pid names=sim-joint.0.pid,sim-joint.1.pid,sim-joint.2.pid,sim-joint.3.pid
+loadrt mux2 names=sim-joint.0.mux,sim-joint.1.mux,sim-joint.2.mux,sim-joint.3.mux
+loadrt ddt names=sim-joint.0.vel,sim-joint.1.vel,sim-joint.2.vel,sim-joint.3.vel
+loadrt sim_home_switch names=sim-joint.0.home-switch,sim-joint.1.home-switch,sim-joint.2.home-switch,sim-joint.3.home-switch
+loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
+loadrt or2 names=estop_or
+loadrt not names=estop_not,estop_not_1
+# realtime thread/function links
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf plasmac servo-thread
+addf sim-joint.0.pid.do-pid-calcs servo-thread
+addf sim-joint.0.mux servo-thread
+addf sim-joint.0.vel servo-thread
+addf sim-joint.1.pid.do-pid-calcs servo-thread
+addf sim-joint.1.mux servo-thread
+addf sim-joint.1.vel servo-thread
+addf sim-joint.2.pid.do-pid-calcs servo-thread
+addf sim-joint.2.mux servo-thread
+addf sim-joint.2.vel servo-thread
+addf sim-joint.3.pid.do-pid-calcs servo-thread
+addf sim-joint.3.mux servo-thread
+addf sim-joint.3.vel servo-thread
+addf sim-joint.0.home-switch servo-thread
+addf sim-joint.1.home-switch servo-thread
+addf sim-joint.2.home-switch servo-thread
+addf sim-joint.3.home-switch servo-thread
+addf db_float servo-thread
+addf db_ohmic servo-thread
+addf db_breakaway servo-thread
+addf db_arc-ok servo-thread
+addf estop_or servo-thread
+addf estop_not servo-thread
+addf estop_not_1 servo-thread
+# pin aliases
+# param aliases
+# signals
+# nets
+net machine-is-on halui.machine.is-on => plasmac.machine-is-on
+net plasmac:adaptive-feed plasmac.adaptive-feed => motion.adaptive-feed
+net plasmac:arc-ok db_arc-ok.out => plasmac.arc-ok-in
+net plasmac:axis-position joint.3.pos-fb => plasmac.axis-z-position
+net plasmac:axis-x-position axis.x.pos-cmd => plasmac.axis-x-position
+net plasmac:axis-y-position axis.y.pos-cmd => plasmac.axis-y-position
+net plasmac:breakaway-switch-out db_breakaway.out => plasmac.breakaway
+net plasmac:current-velocity motion.current-vel => plasmac.current-velocity
+net plasmac:cutting-start spindle.0.on => plasmac.cutting-start
+net plasmac:cutting-stop plasmac.cutting-stop => halui.spindle.0.stop
+net plasmac:feed-hold plasmac.feed-hold => motion.feed-hold
+net plasmac:feed-override halui.feed-override.value => plasmac.feed-override
+net plasmac:feed-reduction motion.analog-out-03 => plasmac.feed-reduction
+net plasmac:feed-upm motion.feed-upm => plasmac.feed-upm
+net plasmac:float-switch-out db_float.out => plasmac.float-switch
+net plasmac:homed motion.is-all-homed => plasmac.homed
+net plasmac:ignore-arc-ok-0 motion.digital-out-01 => plasmac.ignore-arc-ok-0
+net plasmac:jog-inhibit plasmac.jog-inhibit => motion.jog-inhibit motion.jog-stop
+net plasmac:motion-type motion.motion-type => plasmac.motion-type
+net plasmac:offset-scale plasmac.offset-scale => axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale
+net plasmac:offsets-active motion.eoffset-active => plasmac.offsets-active
+net plasmac:ohmic-probe-out db_ohmic.out => plasmac.ohmic-probe
+net plasmac:probe-out plasmac.probe-out => motion.probe-input
+net plasmac:program-is-idle halui.program.is-idle => plasmac.program-is-idle
+net plasmac:program-is-paused halui.program.is-paused => plasmac.program-is-paused
+net plasmac:program-is-running halui.program.is-running => plasmac.program-is-running
+net plasmac:program-pause plasmac.program-pause => halui.program.pause
+net plasmac:program-resume plasmac.program-resume => halui.program.resume
+net plasmac:program-run plasmac.program-run => halui.program.run
+net plasmac:program-stop plasmac.program-stop => halui.program.stop
+net plasmac:scribe-start spindle.1.on => plasmac.scribe-start
+net plasmac:spotting-start spindle.2.on => plasmac.spotting-start
+net plasmac:thc-disable motion.digital-out-02 => plasmac.thc-disable
+net plasmac:torch-off motion.digital-out-03 => plasmac.torch-off
+net plasmac:torch-on plasmac.torch-on
+net plasmac:units-per-mm halui.machine.units-per-mm => plasmac.units-per-mm
+net plasmac:x-offset-counts plasmac.x-offset-counts => axis.x.eoffset-counts
+net plasmac:x-offset-current axis.x.eoffset => plasmac.x-offset-current
+net plasmac:xy-offset-enable plasmac.xy-offset-enable => axis.x.eoffset-enable axis.y.eoffset-enable
+net plasmac:y-offset-counts plasmac.y-offset-counts => axis.y.eoffset-counts
+net plasmac:y-offset-current axis.y.eoffset => plasmac.y-offset-current
+net plasmac:z-offset-counts plasmac.z-offset-counts => axis.z.eoffset-counts
+net plasmac:z-offset-current axis.z.eoffset => plasmac.z-offset-current
+net plasmac:z-offset-enable plasmac.z-offset-enable => axis.z.eoffset-enable
+net sim:enabled motion.motion-enabled => sim-joint.0.mux.sel sim-joint.1.mux.sel sim-joint.2.mux.sel sim-joint.3.mux.sel
+net sim:estop-out estop_not.out => iocontrol.0.emc-enable-in
+net sim:estop-raw estop_or.out => estop_not.in
+net sim:joint0.enable joint.0.amp-enable-out => sim-joint.0.pid.enable
+net sim:joint0.homesw sim-joint.0.home-switch.home-sw => joint.0.home-sw-in
+net sim:joint0.on-pos sim-joint.0.pid.output => sim-joint.0.mux.in1
+net sim:joint0.pos-cmd joint.0.motor-pos-cmd => sim-joint.0.pid.command
+net sim:joint0.pos-fb sim-joint.0.mux.out => joint.0.motor-pos-fb sim-joint.0.home-switch.cur-pos sim-joint.0.mux.in0 sim-joint.0.vel.in
+net sim:joint1.enable joint.1.amp-enable-out => sim-joint.1.pid.enable
+net sim:joint1.homesw sim-joint.1.home-switch.home-sw => joint.1.home-sw-in
+net sim:joint1.on-pos sim-joint.1.pid.output => sim-joint.1.mux.in1
+net sim:joint1.pos-cmd joint.1.motor-pos-cmd => sim-joint.1.pid.command
+net sim:joint1.pos-fb sim-joint.1.mux.out => joint.1.motor-pos-fb sim-joint.1.home-switch.cur-pos sim-joint.1.mux.in0 sim-joint.1.vel.in
+net sim:joint2.enable joint.2.amp-enable-out => sim-joint.2.pid.enable
+net sim:joint2.homesw sim-joint.2.home-switch.home-sw => joint.2.home-sw-in
+net sim:joint2.on-pos sim-joint.2.pid.output => sim-joint.2.mux.in1
+net sim:joint2.pos-cmd joint.2.motor-pos-cmd => sim-joint.2.pid.command
+net sim:joint2.pos-fb sim-joint.2.mux.out => joint.2.motor-pos-fb sim-joint.2.home-switch.cur-pos sim-joint.2.mux.in0 sim-joint.2.vel.in
+net sim:joint3.enable joint.3.amp-enable-out => sim-joint.3.pid.enable
+net sim:joint3.homesw sim-joint.3.home-switch.home-sw => joint.3.home-sw-in
+net sim:joint3.on-pos sim-joint.3.pid.output => sim-joint.3.mux.in1
+net sim:joint3.pos-cmd joint.3.motor-pos-cmd => sim-joint.3.pid.command
+net sim:joint3.pos-fb sim-joint.3.mux.out => joint.3.motor-pos-fb sim-joint.3.home-switch.cur-pos sim-joint.3.mux.in0 sim-joint.3.vel.in
+net sim:tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
+net sim:tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+# joint PID settings
+setp sim-joint.0.pid.FF0            1
+setp sim-joint.0.pid.Pgain          0
+setp sim-joint.1.pid.FF0            1
+setp sim-joint.1.pid.Pgain          0
+setp sim-joint.2.pid.FF0            1
+setp sim-joint.2.pid.Pgain          0
+setp sim-joint.3.pid.FF0            1
+setp sim-joint.3.pid.Pgain          0

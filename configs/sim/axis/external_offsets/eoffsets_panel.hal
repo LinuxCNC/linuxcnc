@@ -1,7 +1,7 @@
 # existing (basic_sim.tcl) signals for display:
-net J0:pos-cmd => pyvcp.motor-pos-cmd.0-f
-net J1:pos-cmd => pyvcp.motor-pos-cmd.1-f
-net J2:pos-cmd => pyvcp.motor-pos-cmd.2-f
+net j0-pos-cmd => pyvcp.motor-pos-cmd.0-f
+net j1-pos-cmd => pyvcp.motor-pos-cmd.1-f
+net j2-pos-cmd => pyvcp.motor-pos-cmd.2-f
 
 # motor-offset (display only):
 net E:motor-offset.0 <= joint.0.motor-offset => pyvcp.motor-offset.0-f

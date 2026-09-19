@@ -67,7 +67,7 @@ ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROU
 This rule uses mode 0666 to provide read and write access to owner,group,world -- e.g., everyone.
 
 ----------------------------------
-The sim configurations use a single halfile: LIB:xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
+The sim configurations use flat HAL files with explicit pendant connections. For other configurations, LIB:xhc-hb04.tcl provides pendant setup using a custom comp file (xhc_hb04_util.comp) and can be added with an ini file entry for:
   [HAL]HALFILE = LIB:xhc-hb04.tcl
 
 This HALFILE entry should follow other HALFILE entries.
@@ -154,28 +154,14 @@ and for the pendant layout.
 For example, the organization for the xhc-hb04-layout2.ini file is:
 
    #INCLUDE inch_base.inc     | Conventional items for an inch based sim
-   #INCLUDE layout2.inc       | All button items ([XHC_HB04_BUTTONS],[HALUI])
+   #INCLUDE layout2.inc       | HALUI MDI commands
 
    [EMC]                      | Machine identifier
    MACHINE =                  |
 
    [HAL]                      | HAL items
-   HALFILE =                  |
-   ...                        |
-   HALFILE =                  |
-   HALFILE = LIB:xhc-hb04.tcl | xhc-hb04 configuration script
+   HALFILE = ./xhc-hb04-layout2.hal | Simulated machine and pendant connections
    HALUI   = halui            | Halui specifier
-
-   [XHC_HB04_CONFIG]          | All config items used by LIB:xhc-hb04.tcl
-   layout =                   |
-   coords =                   |
-   coefs =                    |
-   scales =                   |
-   jogmode =                  |
-   sequence =                 |
-   require_pendant =          |
-   inch_or_mm =               |
-   mpg_accels =               |
 
    [APPLICATIONS]             | Optional auxiliary scripts
    APP = monitor-xhc-hb04     | Connection monitor script

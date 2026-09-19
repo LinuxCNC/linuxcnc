@@ -21,7 +21,7 @@ SERVO_PERIOD = 1000000
 
 [HAL]
 HALUI=halui
-HALFILE = LIB:basic_sim.tcl -no_use_hal_manualtoolchange
+HALFILE = ./base.hal
 POSTGUI_HALFILE = db_postgui.hal
 
 [TRAJ]
