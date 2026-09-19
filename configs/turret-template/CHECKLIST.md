@@ -74,7 +74,8 @@ Imprimí esto y tildá cada punto. El detalle completo está en
 ## 7. Ajuste fino (en caliente desde el panel o `hal.set_p`)
 
 - [ ] `strobe_filter_ms`: subir si el ruido hidráulico cuenta pulsos
-      falsos.
+      falsos; debe quedar **por debajo del ancho real del pulso** (el
+      controlador muestrea cada 5 ms).
 - [ ] `settle_time` y `lead_pulses`: si la torreta se pasa o queda
       corta (el lead se adapta solo; el valor inicial es el que
       configurás).

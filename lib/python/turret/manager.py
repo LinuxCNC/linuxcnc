@@ -28,7 +28,7 @@ from .config import MAX_MAINT_CODES, MAX_STATIONS, TurretConfig
 from .fsm import Inputs, State, TurretFSM, STATE_TEXT
 from .maintenance import History, Maintenance
 
-LOOP_PERIOD = 0.01
+LOOP_PERIOD = 0.005
 SAVE_PERIOD = 5.0
 
 
@@ -94,6 +94,7 @@ class TurretManager:
         self._hours = 0.0
         self._maint_notified = set()
         self._config_error = False
+        self._start = time.monotonic()
         self._watchdog_state = False
         self._lead_param = None
         self._prepared_latch = False
@@ -212,8 +213,12 @@ class TurretManager:
     def _machine_pin(self, key):
         return self.cfg.pins.get(key) or None
 
-    def _read_machine(self):
-        """Read the configured machine inputs (missing pin -> E10)."""
+    def _read_machine(self, now):
+        """Read the configured machine inputs (missing pin -> E10).
+
+        The check has a 2 s grace period so a HAL file that loads the
+        controller before the hardware pins is not faulted by mistake.
+        """
         read = {}
         for key in ("pos1", "strobe", "changepos", "clamped"):
             pin = self._machine_pin(key)
@@ -222,14 +227,14 @@ class TurretManager:
                 try:
                     value = bool(self.io.get(pin))
                 except Exception:
-                    if not self._config_error:
+                    if (now - self._start) >= 2.0 and not self._config_error:
                         self._config_error = True
-                        self.fsm._set_fault(Alarm.E_CONFIG, time.monotonic())
+                        self.fsm._set_fault(Alarm.E_CONFIG, now)
                         self._log_alarm(Alarm.E_CONFIG, "pin inexistente: %s" % pin)
             read[key] = value
         return read
 
-    def _write_machine(self, out):
+    def _write_machine(self, out, now):
         motor_pin = self._machine_pin("motor")
         unclamp_pin = self._machine_pin("unclamp")
         try:
@@ -238,11 +243,11 @@ class TurretManager:
             if unclamp_pin:
                 self.io.set(unclamp_pin, 1 if out.unclamp else 0)
         except Exception as exc:
-            if not self._config_error:
+            if (now - self._start) >= 2.0 and not self._config_error:
                 self._config_error = True
                 self._log_alarm(Alarm.E_CONFIG, "no se puede escribir %s: %s"
                                 % (motor_pin or unclamp_pin, exc))
-                self.fsm._set_fault(Alarm.E_CONFIG, time.monotonic())
+                self.fsm._set_fault(Alarm.E_CONFIG, now)
 
     # ------------------------------------------------------------------
     def _edge(self, name, value):
@@ -354,8 +359,8 @@ class TurretManager:
     def _warn_writer_once(self, pin):
         self._warn_once(
             pin,
-            "no se puede escribir %s: quitalo de cualquier net "
-            "(por ejemplo tool-prep-loop/tool-change-loop)" % pin)
+            "no se puede escribir %s: pin inexistente o ya conectado a un "
+            "net (por ejemplo tool-prep-loop/tool-change-loop)" % pin)
 
     # ------------------------------------------------------------------
     def _fault_pins(self):
@@ -388,7 +393,7 @@ class TurretManager:
     def _tick(self, now):
         io = self.io
         self._apply_live_params()
-        machine = self._read_machine()
+        machine = self._read_machine(now)
         inp = Inputs(
             pos1=machine["pos1"],
             strobe=machine["strobe"],
@@ -449,7 +454,7 @@ class TurretManager:
         io.own_set("hours", self._hours)
         for n in range(1, self.cfg.stations + 1):
             io.own_set("station-%d-changes" % n, self.fsm.station_counts[n - 1])
-        self._write_machine(out)
+        self._write_machine(out, now)
         self._fault_pins()
 
         # watchdog heartbeat (toggles while alive; a dead process stops
@@ -461,7 +466,7 @@ class TurretManager:
             try:
                 io.set(pet_pin, 1 if self._watchdog_state else 0)
             except Exception:
-                pass
+                self._warn_writer_once(pet_pin)
 
         # fault bookkeeping / maintenance / persistence
         if self.fsm.fault and self.fsm.error:

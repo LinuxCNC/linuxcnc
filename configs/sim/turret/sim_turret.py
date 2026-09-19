@@ -22,13 +22,13 @@ import time
 
 import hal
 
-LOOP_PERIOD = 0.01
+LOOP_PERIOD = 0.005
 
 
 class TurretSim:
     def __init__(self, stations=8, pulse_period=0.08, coast_pulses=1,
                  start=2, unclamp_delay=0.05, clamp_delay=0.10,
-                 changepos_delay=0.10):
+                 changepos_delay=0.10, pulse_width=0.03):
         self.stations = stations
         self.pulse_period = pulse_period
         self.coast_pulses = coast_pulses
@@ -36,6 +36,7 @@ class TurretSim:
         self.unclamp_delay = unclamp_delay
         self.clamp_delay = clamp_delay
         self.changepos_delay = changepos_delay
+        self.pulse_width = pulse_width
 
         self.comp = hal.component("sim_turret")
         self.motor = self.comp.newpin("motor", hal.Type.BIT, hal.Dir.IN)
@@ -47,6 +48,7 @@ class TurretSim:
         self.station_pin = self.comp.newpin("station", hal.Type.S32, hal.Dir.OUT)
 
         self._pulse_next = None
+        self._strobe_until = None
         self._coast_left = 0
         self._motor_prev = False
         self._clamped = True
@@ -95,8 +97,11 @@ class TurretSim:
         self._motor_prev = motor
 
         strobe = False
-        if self._pulse_next is not None and now >= self._pulse_next:
+        if self._strobe_until is not None and now < self._strobe_until:
             strobe = True
+        elif self._pulse_next is not None and now >= self._pulse_next:
+            strobe = True
+            self._strobe_until = now + self.pulse_width
             self.station = (self.station % self.stations) + 1
             self._stop_since = None
             if motor:

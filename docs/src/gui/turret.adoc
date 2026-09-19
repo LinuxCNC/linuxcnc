@@ -87,6 +87,10 @@ the panel:
 }
 ----
 
+The controller samples the sensors every 5 ms: set `strobe_filter_ms`
+below the real strobe pulse width (typically 2-5 ms of electrical
+filtering) so no station pulse is missed or counted twice.
+
 The component reads and writes the configured machine pins and the
 `iocontrol` handshake pins directly through the HAL Python API, so
 changing the mapping or the station count is a configuration change

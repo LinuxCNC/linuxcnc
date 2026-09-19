@@ -815,6 +815,8 @@ endif
 	$(FILE) ../lib/python/common/*.py $(DESTDIR)$(SITEPY)/common
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/mtc/*.py $(DESTDIR)$(SITEPY)/mtc
+	$(DIR) $(DESTDIR)$(SITEPY)/turret
+	$(FILE) ../lib/python/turret/*.py $(DESTDIR)$(SITEPY)/turret
 ifeq ($(BUILD_GUI),yes)
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen

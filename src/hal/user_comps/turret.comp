@@ -164,7 +164,7 @@ param rw float jog-timeout = 10.0       "Manual jog timeout (s)";
 #define MAX_STATIONS      24
 #define MAX_MAINT         32
 #define HISTORY_MAX       60
-#define LOOP_PERIOD_US    10000     /* 10 ms */
+#define LOOP_PERIOD_US    5000      /* 5 ms */
 #define SAVE_PERIOD_S     5.0
 #define MAINT_CHECK_S     1.0
 #define PATH_MAX_LEN      512
@@ -326,6 +326,7 @@ static int prepared_latch = 0;
 static int changed_latch = 0;
 static int latched_pocket = 0;
 static int writer_warned = 0;
+static int pocket_warned = 0;
 
 // counters / history
 static int maint_notified[MAX_MAINT];
@@ -343,6 +344,7 @@ static double last_save = 0.0;
 static double last_maint_check = 0.0;
 static double last_mtime_check = 0.0;
 static double conf_mtime = 0.0;
+static double start_time = 0.0;
 static int should_exit = 0;
 static int watchdog_state = 0;
 
@@ -1163,8 +1165,8 @@ static void handshake(void) {
     } else if (pocket < 1 || pocket > cfg_stations) {
         // T0 / unload: nothing to prepare; a tool with no P is a config error
         if (number != 0) {
-            if (!writer_warned) {
-                writer_warned = 1;
+            if (!pocket_warned) {
+                pocket_warned = 1;
                 rtapi_print_msg(RTAPI_MSG_ERR,
                     "turret: la herramienta %d no tiene P (pocket) en la "
                     "tabla; la torreta no puede ubicarla\n", number);
@@ -1276,10 +1278,10 @@ static void tick(double now) {
         if (edge(20 + i, v)) maint_mark_service(i + 1);
     }
 
-    // configured machine pins must exist
+    // configured machine pins must exist (2 s grace for HAL load order)
     {
         static int pins_checked = 0;
-        if (!pins_checked) {
+        if (!pins_checked && (now - start_time) >= 2.0) {
             pins_checked = 1;
             const char *required[] = { pin_pos1, pin_strobe, pin_clamped,
                                        pin_motor, pin_unclamp };
@@ -1435,6 +1437,7 @@ void userinit(int argc, char **argv) {
 
 void user_mainloop(void) {
     double last = now_s();
+    start_time = last;
     while (!should_exit) {
         double now = now_s();
         hours_total += (now - last);
