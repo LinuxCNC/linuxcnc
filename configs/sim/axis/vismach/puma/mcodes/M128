@@ -9,12 +9,11 @@ emc_init -ini $::env(INI_FILE_NAME) -quick
 package require Hal
 parse_ini $::env(INI_FILE_NAME)
 
-# RESTORE INI axis limits
+# RESTORE INI axis velocity and acceleration limits (the position
+# limits are never changed: a box on the machine frame, the flange)
 foreach l $coords {
   set L [string toupper $l]
-  catch {hal setp ini.$l.min_limit        [set ::AXIS_[set L](MIN_LIMIT)]}
-  catch {hal setp ini.$l.max_limit        [set ::AXIS_[set L](MAX_LIMIT)]}
-  catch {hal setp ini.$l.min_velocity     [set ::AXIS_[set L](MAX_VELOCITY)]}
+  catch {hal setp ini.$l.max_velocity     [set ::AXIS_[set L](MAX_VELOCITY)]}
   catch {hal setp ini.$l.max_acceleration [set ::AXIS_[set L](MAX_ACCELERATION)]}
 }
 
