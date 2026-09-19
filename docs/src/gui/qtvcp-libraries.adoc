@@ -399,10 +399,10 @@ These are the functions that can be called on the Qhal object:
 === Constants
 Here are the available constants:
 
-* *HAL_BIT*
-* *HAL_FLOAT*
-* *HAL_S32*
-* *HAL_U32*
+* *HAL_BOOL*
+* *HAL_REAL*
+* *HAL_SINT*
+* *HAL_UINT*
 
 * *HAL_IN*
 * *HAL_OUT*
@@ -456,7 +456,7 @@ QHAL = Qhal()
 # the widgets are instantiated.
 # the HAL pins are built but HAL is not set ready
 def initialized__(self):
-    self.pin_button_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+    self.pin_button_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BOOL, QHAL.HAL_IN)
     self.pin_button_in.pinValuechanged.connect(self.buttonChanged)
     self.pin_button_in.isDrivenChanged.connect(lambda p,s: self.buttonDriven(p,s))
 

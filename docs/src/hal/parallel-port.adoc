@@ -205,7 +205,7 @@ The `-in-not` HAL pin is inverted and is FALSE if the physical pin is high.
 
 * `parport.`__<p>__`.pin-`__<n>__`-out-invert` (bit) Inverts an output pin.
 * `parport.`__<p>__`.pin-`__<n>__`-out-reset` (bit) (only for `-out` pins) TRUE if this pin should be reset when the `-reset` function is executed.
-* `parport.`__<p>__`.reset-time` (U32) The time (in nanoseconds) between a pin is set by `-write` and reset by the `-reset` function if it is enabled.
+* `parport.`__<p>__`.reset-time` (UINT) The time (in nanoseconds) between a pin is set by `-write` and reset by the `-reset` function if it is enabled.
 
 The `-invert`  parameter determines whether an output pin is active high or active low.
 If `-invert` is FALSE, setting the HAL `-out` pin TRUE drives the physical pin high, and FALSE drives it low.

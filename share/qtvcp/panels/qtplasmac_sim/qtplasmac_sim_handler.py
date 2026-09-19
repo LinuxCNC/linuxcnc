@@ -59,7 +59,7 @@ class HandlerClass:
         self.materialPin = self.hal.newpin('material_height', hal.Type.REAL, hal.Dir.IN)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.Type.BOOL, hal.Dir.OUT)
         self.torchPin = self.hal.newpin('torch_on', hal.Type.BOOL, hal.Dir.IN)
-        self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.Dir.IN)
+        self.statePin = self.hal.newpin('state', hal.Type.SINT, hal.Dir.IN)
         self.stylePin = self.hal.newpin('style_update', hal.Type.BOOL, hal.Dir.IN)
         self.zPosPin = self.hal.newpin('z_position', hal.Type.REAL, hal.Dir.IN)
         simStepconf = False

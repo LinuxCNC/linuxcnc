@@ -193,8 +193,8 @@ HalBar is a subclass of the Bar widget, so it inherits these properties: +
 
 * 'pinType': to select *HAL pins type*:
 ** `NONE` no HAL pin will be added
-** `S32` A S32 integer pin will be added
-** `FLOAT` A Float pin will be added
+** `SINT` A SINT integer pin will be added
+** `REAL` A Float pin will be added
 
 * 'pinName': to change the *HAL pin name* otherwise the widget base name is used.
 
@@ -221,7 +221,7 @@ image::images/qtvcp_HALPad.png["QtVCP HALPad: HAL Buttons Joypad ",scale="25%"]
 
 This widget looks and acts like a *5 buttons D-pad*, with an LED ring.
 
-Each button has an selectable type (Bit, S32 or Float) output HAL pin.
+Each button has an selectable type (BOOL, SINT or REAL) output HAL pin.
 
 The LED center ring has selectable colors for off and on and is controlled by a bit HAL pin.
 
@@ -240,9 +240,9 @@ There are _enumerated constants_ used:
 
 * For *HAL pins type*:
 ** `NONE`
-** `BIT`
-** `S32`
-** `FLOAT`
+** `BOOL`
+** `SINT`
+** `REAL`
 
 You use the widget name in Qt Designer plus the reference constant:
 
@@ -259,9 +259,9 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
   Selection can be set in Qt Designer:
 +
 ** `NONE`
-** `BIT`
-** `S32`
-** `FLOAT`
+** `BOOL`
+** `SINT`
+** `REAL`
 
 //FIXME Does this really need to be repeated ?
 
@@ -306,7 +306,7 @@ This widget *displays values sent to it*.
 Values can be sent from:
 
 * _HAL pins_ +
-  The input pin can be selected as Bit, S32, Float or no pin selected
+  The input pin can be selected as BOOL, SINT, REAL or no pin selected
 * _Programmatically_
 * _A `QtSignal`_
 
@@ -363,14 +363,14 @@ You must set the *`digitCount`* property to an appropriate setting to display th
   Option string to be used as the HAL pin name. +
   If set to an empty string the widget name will be used.
 *`bit_pin_type`*::
-  Selects the input pin as type BIT.
+  Selects the input pin as type `BOOL`.
 *`s32_pin_type`*::
-  Selects the input pin as type S32.
+  Selects the input pin as type `SINT`.
 *`float_pin_type`*::
-  Select the input pin as type `FLOAT`.
+  Select the input pin as type `REAL`.
 *`floatTemplate`*::
   A string that will be used as a Python3 format template to tailor the LCD display. +
-  Only used when a `FLOAT` pin is selected, e.g., `{:.2f}` will display a float rounded to 2 numbers after the decimal. +
+  Only used when a `REAL` pin is selected, e.g., `{:.2f}` will display a float rounded to 2 numbers after the decimal. +
   A blank setting will allow the decimal to move as required.
 
 It is based on PyQt's _QLCDNumber_.
@@ -3338,8 +3338,8 @@ from qtvcp.widgets.hal_selectionbox import HALSelectionBox
         # combo box for HAL pin selection
         combobox = HALSelectionBox()
         combobox.setShowTypes([combobox.PINS,combobox.SIGNALS])
-        combobox.setPinTypes([combobox.HAL_BIT], direction = [combobox.HAL_IN])
-        combobox.setSignalTypes([combobox.HAL_BIT], driven = [False,True])
+        combobox.setPinTypes([combobox.HAL_BOOL], direction = [combobox.HAL_IN])
+        combobox.setSignalTypes([combobox.HAL_BOOL], driven = [False,True])
         combobox.hal_init()
         combobox.selectionUpdated.connect(lambda w: self.signalSelected(w))
 
@@ -3355,13 +3355,13 @@ There are function calls
 # set the list of types to show from: PINS SIGNALS
 combobox.setShowTypes([combobox.PINS])
 
-# set the pin types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the pin types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of directions: HAL_IN HAL_OUT
-combobox.setPinTypes(types=[combobox.HAL_BIT], direction = [HAL_IN])
+combobox.setPinTypes(types=[combobox.HAL_BOOL], direction = [HAL_IN])
 
-# set the signal types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the signal types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of driven/undriven (by a connected pin) to show
-combobox.setSignalTypes( types=[combobox.HAL_BIT], driven = [True,True])
+combobox.setSignalTypes( types=[combobox.HAL_BOOL], driven = [True,True])
 ----
 
 // vim: set syntax=asciidoc:

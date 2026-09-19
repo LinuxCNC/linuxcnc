@@ -145,7 +145,7 @@ Line by Line:
     _base class of most QtVCP widgets_, meaning it has all the functions
     of `+_HalWidgetBase+` plus the functions of `+_HalSensitiveBase+`. +
     It adds the function to make the widget be enabled or disabled based
-    on a HAL input BIT pin.
+    on a HAL input BOOL pin.
 <2> This is the function _called when the widget is first made_ (said
     instantiated) - this is pretty standard.
 <3> This function initializes our widget's *`Super` classes*. +

@@ -102,7 +102,7 @@ int rtapi_app_main(void)
     /* create the master task */
     master_task =
 	rtapi_task_new(master_code, 0 /* arg */ , master_prio, module,
-	MASTER_STACKSIZE, RTAPI_NO_FP);
+	MASTER_STACKSIZE);
     if (master_task < 0) {
 	rtapi_print("sem master init: rtapi_task_new returned %d\n",
 	    master_task);

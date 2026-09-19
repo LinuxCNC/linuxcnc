@@ -62,16 +62,16 @@ So if you (for example) push one of the buttons at startup, the jog-wheel will w
 All HAL pin names are prefixed with `shuttle` followed by the index of the device
 (the order in which the driver found them), for example `shuttle.0` or `huttle.2`.
 
-_(prefix).button-(number)_ (bit out)::
-_(prefix).button-(number)-not_ (bit out)::
+_(prefix).button-(number)_ (bool out)::
+_(prefix).button-(number)-not_ (bool out)::
   The momentary buttons. "(number)" identifies which button corresponds to the HAL pin.
   The "button-(number)" pins are True when the button is pushed, the "button-(number)-not" pins are True when the button is not pushed.
-_(prefix).counts_ (s32 out)::
+_(prefix).counts_ (sint out)::
   Accumulated counts from the jog wheel (the inner wheel).
-_(prefix).spring-wheel-s32_ (s32 out)::
+_(prefix).spring-wheel-s32_ (sint out)::
   The current deflection of the spring-wheel (the outer wheel).
   It's 0 at rest, and ranges from -7 at the counter-clockwise extreme to +7 at the clockwise extreme.
-_(prefix).spring-wheel-f_ (float out)::
+_(prefix).spring-wheel-f_ (real out)::
   The current deflection of the spring-wheel (the outer wheel).
   It's 0.0 at rest, -1.0 at the counter-clockwise extreme, and +1.0 at the clockwise extreme.
   (The Shuttle devices report the spring-wheel position as an integer from -7 to +7, so this pin reports only 15 discrete values in its range.)

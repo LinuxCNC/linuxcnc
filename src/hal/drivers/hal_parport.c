@@ -239,7 +239,7 @@ rtapi_print ( "config string '%s'\n", cfg );
     for (n = 0; n < num_ports; n++) {
 	/* export read function */
 	retval = hal_export_functf(read_port, &(port_data_array[n]),
-	    0, 0, comp_id, "parport.%d.read", n);
+	    0, comp_id, "parport.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d read funct export failed\n", n);
@@ -248,7 +248,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	}
 	/* export write function */
 	retval = hal_export_functf(write_port, &(port_data_array[n]),
-	    0, 0, comp_id, "parport.%d.write", n);
+	    0, comp_id, "parport.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct export failed\n", n);
@@ -257,7 +257,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	}
 	/* export write function */
 	retval = hal_export_functf(reset_port, &(port_data_array[n]),
-	    0, 0, comp_id, "parport.%d.reset", n);
+	    0, comp_id, "parport.%d.reset", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d reset funct export failed\n", n);
@@ -267,7 +267,7 @@ rtapi_print ( "config string '%s'\n", cfg );
     }
     /* export functions that read and write all ports */
     retval = hal_export_funct("parport.read-all", read_all,
-	port_data_array, 0, 0, comp_id);
+	port_data_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: read all funct export failed\n");
@@ -275,7 +275,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	return -1;
     }
     retval = hal_export_funct("parport.write-all", write_all,
-	port_data_array, 0, 0, comp_id);
+	port_data_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: write all funct export failed\n");
@@ -350,10 +350,10 @@ static void reset_port(void *arg, long period) {
     long long deadline;
     unsigned char outdata = (unsigned char)((port->outdata&~port->reset_mask) ^ port->reset_val);
    
-    if(hal_get_ui32(port->reset_time) > period/4) hal_set_ui32(port->reset_time, period/4);
+    if((rtapi_sint)hal_get_uint(port->reset_time) > period/4) hal_set_uint(port->reset_time, period/4);
 
     if(outdata != port->outdata) {
-        deadline = port->write_time + hal_get_ui32(port->reset_time);
+        deadline = port->write_time + hal_get_uint(port->reset_time);
         while(rtapi_get_time() < deadline) {}
         rtapi_outb(outdata, port->base_addr);
         port->outdata = outdata;
@@ -362,7 +362,7 @@ static void reset_port(void *arg, long period) {
     outdata = (unsigned char)((port->outdata_ctrl&~port->reset_mask_ctrl)^port->reset_val_ctrl);
 
     if(outdata != port->outdata_ctrl) {
-        deadline = port->write_time_ctrl + hal_get_ui32(port->reset_time);
+        deadline = port->write_time_ctrl + hal_get_uint(port->reset_time);
         while(rtapi_get_time() < deadline) {}
 	/* correct for hardware inverters on pins 1, 14, & 17 */
         rtapi_outb(outdata ^ 0x0B, port->base_addr + 2);
@@ -689,11 +689,11 @@ static int export_port(int portnum, parport_t * port)
 	    port->data_out, port->data_inv, port->data_reset, 6);
 	retval += export_output_pin(portnum, 9,
 	    port->data_out, port->data_inv, port->data_reset, 7);
-	retval += hal_param_new_ui32(comp_id, HAL_RW, &port->reset_time, 0,
+	retval += hal_param_new_uint(comp_id, HAL_RW, &port->reset_time, 0,
 			"parport.%d.reset-time", portnum);
-	retval += hal_param_new_ui32(comp_id, HAL_RW, &port->debug1, 0,
+	retval += hal_param_new_uint(comp_id, HAL_RW, &port->debug1, 0,
 			"parport.%d.debug1", portnum);
-	retval += hal_param_new_ui32(comp_id, HAL_RW, &port->debug2, 0,
+	retval += hal_param_new_uint(comp_id, HAL_RW, &port->debug2, 0,
 			"parport.%d.debug2", portnum);
 	port->write_time = 0;
     }

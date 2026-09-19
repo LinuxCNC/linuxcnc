@@ -36,7 +36,7 @@
     <command device="dummy" function="W_COIL" address="0x0000" noanswer="1"><data value="0xff00" /></command>
   </initlist>
   <commands> <!-- Command function sequences and HAL pin assignments -->
-    <command device="bldc" function="R_REGISTERS" address="0x0020" modbustype="U_AB" haltype="S32" scale="1">
+    <command device="bldc" function="R_REGISTERS" address="0x0020" modbustype="U_AB" haltype="SINT" scale="1">
       <pin name="rtpwm"/>
       <pin name="rtcurrent"/>
       <pin name="comfreq" modbustype="S_AB"/>
@@ -44,19 +44,19 @@
       <pin name="rtpos" modbustype="S_ABCD" scale="0"/>
     </command>
     <!-- Gives us the following pins:
-      - hm2_modbus.0.bldc.rtpwm            (out, s32)   (range [0..65535])
-      - hm2_modbus.0.bldc.rtpwm.offset     (in,  u64)
-      - hm2_modbus.0.bldc.rtpwm.scale      (in,  float) (must be set to 0.1)
-      - hm2_modbus.0.bldc.rtpwm.scaled     (out, float)
-      - hm2_modbus.0.bldc.rtcurrent        (out, s32)   (range [0..65535])
-      - hm2_modbus.0.bldc.rtcurrent.offset (in,  u64)
-      - hm2_modbus.0.bldc.rtcurrent.scale  (in,  float) (must be set to 0.01)
-      - hm2_modbus.0.bldc.rtcurrent.scaled (out, float)
-      - hm2_modbus.0.bldc.comfreq          (out, s32)   (range [-32768..+32767])
-      - hm2_modbus.0.bldc.comfreq.offset   (in,  s64)
-      - hm2_modbus.0.bldc.comfreq.scale    (in,  float) (must be set to 0.1)
-      - hm2_modbus.0.bldc.comfreq.scaled   (out, float)
-      - hm2_modbus.0.bldc.rtpos            (out, s32)   (range [-2147483648..+2147483647])
+      - hm2_modbus.0.bldc.rtpwm            (out, sint) (range [0..65535])
+      - hm2_modbus.0.bldc.rtpwm.offset     (in,  uint)
+      - hm2_modbus.0.bldc.rtpwm.scale      (in,  real) (must be set to 0.1)
+      - hm2_modbus.0.bldc.rtpwm.scaled     (out, real)
+      - hm2_modbus.0.bldc.rtcurrent        (out, sint) (range [0..65535])
+      - hm2_modbus.0.bldc.rtcurrent.offset (in,  uint)
+      - hm2_modbus.0.bldc.rtcurrent.scale  (in,  real) (must be set to 0.01)
+      - hm2_modbus.0.bldc.rtcurrent.scaled (out, real)
+      - hm2_modbus.0.bldc.comfreq          (out, sint) (range [-32768..+32767])
+      - hm2_modbus.0.bldc.comfreq.offset   (in,  sint)
+      - hm2_modbus.0.bldc.comfreq.scale    (in,  real) (must be set to 0.1)
+      - hm2_modbus.0.bldc.comfreq.scaled   (out, real)
+      - hm2_modbus.0.bldc.rtpos            (out, sint) (range [-2147483648..+2147483647])
 
       The start will be suspended (see top). The .scale pins will be set in
       the hal-file. Offset pins are automatically initialized to zero.
