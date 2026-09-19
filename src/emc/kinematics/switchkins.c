@@ -461,6 +461,20 @@ int kinematicsTypeFlags(int ktype)
     return ktype_flags[ktype];
 } // kinematicsTypeFlags()
 
+int kinematicsMachineFrame(const double *joint, EmcPose *pos)
+{
+    KINEMATICS_FORWARD_FLAGS fflags = 0;
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    int k;
+
+    for (k = 0; k < kins_count; k++) {
+        int f = kinematicsTypeFlags(k);
+        if (f < 0 || !(f & KINSTYPE_MACHINE)) { continue; }
+        return call_forward(k, joint, pos, &fflags, &iflags) == 0 ? 0 : -2;
+    }
+    return -1;
+} // kinematicsMachineFrame()
+
 int switchkinsRegisterOps(int ktype, const kins_ops *ops)
 {
     if (ktype < 0 || ktype >= SWITCHKINS_MAX_TYPES) {
@@ -569,6 +583,7 @@ EXPORT_SYMBOL(switchkinsRegisterFrames);
 EXPORT_SYMBOL(switchkinsRegisterToolFrameInverse);
 EXPORT_SYMBOL(switchkinsDeclare);
 EXPORT_SYMBOL(kinematicsTypeFlags);
+EXPORT_SYMBOL(kinematicsMachineFrame);
 EXPORT_SYMBOL(switchkinsRegisterJacobian);
 EXPORT_SYMBOL(switchkinsRegisterOps);
 EXPORT_SYMBOL(switchkinsInit);
