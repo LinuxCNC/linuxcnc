@@ -18,17 +18,15 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include "libnml/rcs/rcs.hh"		// EMC NML
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"		// EMC NML
 #include "nml_intf/emcglb.h"		// emcGetArgs(), EMC_NMLFILE
+#include <fmt/format.h>
 #include <inifile.hh>
-#include "libnml/rcs/rcs_print.hh"
 #include "libnml/nml/nml_oi.hh"
 #include "timeutil.hh"
 #include "libnml/nml/nml_srv.hh"           // run_nml_servers()
 #include <rtapi_string.h>
-#include "usr_intf/mapini.hh"
 
 using namespace std::chrono_literals;
 using namespace linuxcnc;
@@ -44,38 +42,13 @@ static int iniLoad(const char *filename)
     // EMC debugging flags
     emc_debug = inifile.findUIntV("DEBUG", "EMC", 0);
 
-    // set output for RCS messages
-    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
-        set_rcs_print_destination(*inival);
-    } else {
-        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
-    }
-
-    // NML/RCS debugging flags
-    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
-    // enable all debug messages by default if RCS or NML debugging is enabled
-    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
-        // output all RCS debug messages
-        set_rcs_print_flag(PRINT_EVERYTHING);
-    }
-
-    // set flags if RCS_DEBUG in ini file
-    if (auto inival = inifile.findUInt("RCS_DEBUG", "EMC")) {
-        // clear all flags
-        clear_rcs_print_flag(PRINT_EVERYTHING);
-        // set parsed flags
-        set_rcs_print_flag((long)*inival);
-    }
-    // output infinite RCS errors by default
-    max_rcs_errors_to_print = inifile.findIntV("RCS_MAX_ERR", "EMC", -1);
-
     if (emc_debug & EMC_DEBUG_CONFIG) {
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        rcs_print(
-            "%s (%d) emcsvr: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
+        fmt::print(
+            "{} ({}) emcsvr: machine '{}'  version '{}'\n",
+            program_invocation_short_name, getpid(), machine, version
         );
     }
 
@@ -85,7 +58,8 @@ static int iniLoad(const char *filename)
     } // else not found, use default
 
     if(emc_debug & EMC_DEBUG_CONFIG)
-        rcs_print("config file \"%s\" loaded successfully.\n", filename);
+        fmt::print("config file \"{}\" loaded successfully.\n",
+                   filename ? filename : "(null)");
 
     return 0;
 }
@@ -126,7 +100,7 @@ int main(int argc, char *argv[])
 
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
-	rcs_print_error("Error in argument list\n");
+	fmt::print(stderr, "Error in argument list\n");
 	exit(1);
     }
     // get configuration information
@@ -139,13 +113,11 @@ int main(int argc, char *argv[])
 	    || emcErrorChannel == NULL)
 	) {
 	if (NULL == emcCommandChannel) {
-	    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "emcCommandChannel==NULL, attempt to create\n");
 	    emcCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
 				    emc_nmlfile);
 	}
 	if (NULL == emcStatusChannel) {
-	    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "emcStatusChannel==NULL, attempt to create\n");
 	    emcStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
 				     emc_nmlfile);

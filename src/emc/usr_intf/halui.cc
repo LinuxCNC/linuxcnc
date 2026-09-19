@@ -16,6 +16,7 @@
 * Last change:
 ********************************************************************/
 
+#include <fmt/format.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -26,14 +27,13 @@
 
 #include <hal.h>		/* access to HAL functions/definitions */
 #include <rtapi.h>		/* rtapi_print_msg */
-#include "libnml/rcs/rcs.hh"
+#include "rcs_status.hh"
 #include <posemath.h>		// PM_POSE, TO_RAD
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include <inifile.hh>
-#include "libnml/rcs/rcs_print.hh"
 #include "libnml/nml/nml_oi.hh"
 #include "timeutil.hh"
 #include <rtapi_string.h>
@@ -41,8 +41,8 @@
 #include "mapini.hh"
 #include "unitenum.hh"
 
-using namespace std::chrono_literals;
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 /* Using halui: see the man page */
 
@@ -1218,38 +1218,13 @@ static int iniLoad(const char *filename)
     // EMC debugging flags
     emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
 
-    // set output for RCS messages
-    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
-        set_rcs_print_destination(*inival);
-    } else {
-        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
-    }
-
-    // NML/RCS debugging flags
-    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
-    // enable all debug messages by default if RCS or NML debugging is enabled
-    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
-        // output all RCS debug messages
-        set_rcs_print_flag(PRINT_EVERYTHING);
-    }
-
-    // set flags if RCS_DEBUG in ini file
-    if (auto inival = inifile.findUInt("RCS_DEBUG", "EMC")) {
-        // clear all flags
-        clear_rcs_print_flag(PRINT_EVERYTHING);
-        // set parsed flags
-        set_rcs_print_flag((long)*inival);
-    }
-    // output infinite RCS errors by default
-    max_rcs_errors_to_print = inifile.findIntV("RCS_MAX_ERR", "EMC", -1);
-
     if (emc_debug & EMC_DEBUG_CONFIG) {
         std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
         std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
-        rcs_print(
-            "%s (%d) halui: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
+        fmt::print(
+            "{} ({}) halui: machine '{}'  version '{}'\n",
+            program_invocation_short_name, getpid(), machine, version
         );
     }
 
@@ -1293,7 +1268,7 @@ static int iniLoad(const char *filename)
         }
     }
     if (num_axes ==0) {
-        rcs_print("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
+        fmt::print("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
         num_axes = EMCMOT_MAX_AXIS;
         axis_mask = (1 << EMCMOT_MAX_AXIS) - 1;
     }
@@ -2109,19 +2084,19 @@ int main(int argc, char *argv[])
 {
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
-	rcs_print_error("error in argument list\n");
+	fmt::print(stderr,"error in argument list\n");
 	exit(1);
     }
 
     // get configuration information
     if (0 != iniLoad(emc_inifile)) {
-	rcs_print_error("iniLoad error\n");
+	fmt::print(stderr,"iniLoad error\n");
 	exit(2);
     }
 
     //init HAL and export pins
     if (0 != halui_hal_init()) {
-	rcs_print_error("hal_init error\n");
+	fmt::print(stderr,"hal_init error\n");
 	exit(1);
     }
 
@@ -2130,7 +2105,7 @@ int main(int argc, char *argv[])
 
     // init NML
     if (0 != tryNml()) {
-	rcs_print_error("can't connect to emc\n");
+	fmt::print(stderr,"can't connect to emc\n");
 	thisQuit();
 	exit(1);
     }

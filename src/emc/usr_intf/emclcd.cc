@@ -26,8 +26,9 @@
 ********************************************************************/
 
 #define JOGMODE   JOGJOINT  
-#include "strutil.hh"
 
+#include "strutil.hh"
+#include <fmt/format.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -45,15 +46,14 @@
 #include <string.h>
 
 #include <posemath.h>		// PM_POSE, TO_RAD
-#include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "config.h"		// Standard path definitions
-#include "libnml/rcs/rcs_print.hh"
-#include "sockets.h"		// TCP/IP common socket functions
+#include "sockets.hh"		// TCP/IP common socket functions
 #include "shcom.hh"		// Common NML messaging routines
+
 using namespace linuxcnc;
 
 #define DEFAULT_SERVER		"localhost"
@@ -1713,14 +1713,14 @@ int main(int argc, char *argv[])
 
     // process command line args
     if (emcGetArgs(argc, argv) != 0) {
-	rcs_print_error("error in argument list\n");
+	fmt::print(stderr,"error in argument list\n");
 	exit(1);
     }
     // get configuration information
     iniLoad(emc_inifile);
     // init NML
     if (tryNml() != 0) {
-	rcs_print_error("can't connect to emc\n");
+	fmt::print(stderr,"can't connect to emc\n");
 	thisQuit();
 	exit(1);
     }

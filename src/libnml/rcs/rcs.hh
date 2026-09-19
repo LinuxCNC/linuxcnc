@@ -31,12 +31,7 @@ class RCS_STAT_MSG;
 // The underlying type specifier of int is meant to stress that it
 // is of paramount importance that the underlying type of the
 // RCS_STATUS enum is int. See nml/stat_msg.hh for more details.
-enum class RCS_STATUS : int {           /* Originally from nml_mod.hh */
-    UNINITIALIZED = -1,
-    DONE = 1,
-    EXEC = 2,
-    ERROR = 3
-};
+#include "rcs_status.hh"	// enum class RCS_STATUS
 
 #include "libnml/nml/nml_type.hh"
 #endif /* !defined(RCS_HH) */

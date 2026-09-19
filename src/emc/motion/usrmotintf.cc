@@ -25,20 +25,19 @@
 #include "motion_struct.h"      /* emcmot_struct_t */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
-#include "libnml/rcs/rcs_print.hh"
 
-#include <inifile.hh>
 #include <chrono>
+#include <fmt/format.h>
+
 #include "timeutil.hh"
 
-#define READ_TIMEOUT_SEC 0	/* seconds for timeout */
-#define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
+#include <inifile.hh>
 
 #include "dbuf.h"
 #include "stashf.h"
 
-using namespace std::chrono_literals;
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 static int inited = 0;		/* flag if inited */
 
@@ -63,14 +62,14 @@ int usrmotIniLoad(const char *filename)
         if (auto inival = inifile.findUInt("SHMEM_KEY", "EMCMOT")) {
             SHMEM_KEY = *inival;
         } else {
-            rcs_print("USRMOT: ERROR: Invalid [EMCMOT]SHMEM_KEY\n");
+            fmt::print(stderr, "USRMOT: ERROR: Invalid [EMCMOT]SHMEM_KEY\n");
         }
     }
     if (inifile.isSet("COMM_TIMEOUT", "EMCMOT")) {
         if (auto inival = inifile.findReal("COMM_TIMEOUT", "EMCMOT")) {
             EMCMOT_COMM_TIMEOUT = *inival;
         } else {
-            rcs_print("USRMOT: ERROR: Invalid [EMCMOT]COMM_TIMEOUT\n");
+            fmt::print(stderr, "USRMOT: ERROR: Invalid [EMCMOT]COMM_TIMEOUT\n");
         }
     }
     return 0;
@@ -84,7 +83,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     double end;
 
     if (!MOTION_ID_VALID(c->id)) {
-        rcs_print("USRMOT: ERROR: invalid motion id: %d\n",c->id);
+        fmt::print(stderr, "USRMOT: ERROR: invalid motion id: {}\n", c->id);
 	return EMCMOT_COMM_INVALID_MOTION_ID;
     }
 
@@ -92,7 +91,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 
     /* check for mapped mem still around */
     if (NULL == emcmotCommand) {
-        rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
+        fmt::print(stderr, "USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
 
@@ -112,13 +111,14 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
 		return EMCMOT_COMM_OK;
 	    } else {
-                rcs_print("USRMOT: ERROR: invalid command\n");
+                fmt::print(stderr, "USRMOT: ERROR: invalid command\n");
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }
 	}
 	esleep(25us);
     }
-    rcs_print("USRMOT: ERROR: command %u timeout (seq: %d)\n", c->command, commandNum);
+    fmt::print(stderr, "USRMOT: ERROR: command {} timeout (seq: {})\n",
+	       static_cast<unsigned>(c->command), commandNum);
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
@@ -144,7 +144,7 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
     /* A timeout is harmless. It will be tried again, soon enough */
-    /* rcs_print("%s: Split read timeout\n", __FUNCTION__); */
+    /* fmt::print(stderr, "{}: Split read timeout\n", __FUNCTION__); */
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
@@ -169,7 +169,7 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
-    rcs_print("%s: Split read timeout\n", __FUNCTION__);
+    fmt::print(stderr, "{}: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
@@ -194,7 +194,7 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
-    rcs_print("%s: Split read timeout\n", __FUNCTION__);
+    fmt::print(stderr, "{}: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 

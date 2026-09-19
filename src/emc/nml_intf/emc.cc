@@ -18,7 +18,6 @@
 ********************************************************************/
 
 // Include all NML, CMS, and RCS classes and functions
-#include "libnml/rcs/rcs.hh"
 
 // Include command and status message definitions
 #include "canon.hh"

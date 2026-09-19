@@ -13,8 +13,8 @@
 *
 * Last change:
 ********************************************************************/
-#include "strutil.hh"
 
+#include "strutil.hh"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -26,15 +26,14 @@
 #include <list>
 #include <stdint.h>
 
-#include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/rcs/rcs_print.hh"
 #include "shcom.hh"             // Common NML communications functions
 #include "emcsched.hh"          // Common scheduling functions
+
 using namespace linuxcnc;
 
 #define MAX_PRIORITY 0x80000000

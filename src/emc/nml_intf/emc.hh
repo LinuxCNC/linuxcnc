@@ -274,6 +274,8 @@ extern char **Argv;
 
 // print an error
 extern int emcOperatorError(const char *fmt, ...) __attribute__((format(printf,1,2)));
+/* as emcOperatorError(), but does not echo to the console */
+extern int emcOperatorErrorNoEcho(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // print general text
 extern int emcOperatorText(const char *fmt, ...) __attribute__((format(printf,1,2)));

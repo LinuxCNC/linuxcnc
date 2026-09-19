@@ -15,8 +15,9 @@
 ********************************************************************/
 
 #define _REENTRANT
-#include "strutil.hh"
 
+#include "strutil.hh"
+#include <fmt/format.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,15 +34,14 @@
 
 #include <getopt.h>
 
-#include "libnml/rcs/rcs.hh"
 #include <posemath.h>		// PM_POSE, TO_RAD
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/rcs/rcs_print.hh"
 #include "shcom.hh"             // NML Messaging functions
 #include "emcsched.hh"
+
 using namespace linuxcnc;
 
 /*
@@ -1269,7 +1269,7 @@ int main(int argc, char *argv[])
 
     // process emc command line args
     if (emcGetArgs(argc, argv) != 0) {
-	rcs_print_error("error in argument list\n");
+	fmt::print(stderr,"error in argument list\n");
 	exit(1);
     }
     // get configuration information
@@ -1277,7 +1277,7 @@ int main(int argc, char *argv[])
     initSockets();
     // init NML
     if (tryNml() != 0) {
-	rcs_print_error("can't connect to emc\n");
+	fmt::print(stderr,"can't connect to emc\n");
 	thisQuit();
 	exit(1);
     }

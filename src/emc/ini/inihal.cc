@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ----------------------------------------------------------------------*/
-#include "libnml/rcs/rcs_print.hh"
+#include <fmt/format.h>
 #include "nml_intf/emc.hh"
 #include "nml_intf/emcglb.h"
 #include <stdio.h>
@@ -250,7 +250,7 @@ static void warn_planner_fallback_once(void)
 {
     static bool warned = false;
     if (!warned) {
-        rcs_print_error("S-curve planner (planner type 1) requires max jerk >= 1.0; "
+        fmt::print(stderr, "S-curve planner (planner type 1) requires max jerk >= 1.0; "
                         "using trapezoidal planner\n");
         warned = true;
     }
@@ -266,7 +266,7 @@ int check_ini_hal_items(int numjoints)
         if (debug) SHOW_CHANGE(traj_default_velocity)
         UPDATE(traj_default_velocity);
         if (0 != emcTrajSetVelocity(0, NEW(traj_default_velocity))) {
-            rcs_print("check_ini_hal_items:bad return value from emcTrajSetVelocity\n");
+            fmt::print("check_ini_hal_items:bad return value from emcTrajSetVelocity\n");
         }
     }
     if (CHANGED(traj_max_velocity)) {
@@ -274,7 +274,7 @@ int check_ini_hal_items(int numjoints)
         UPDATE(traj_max_velocity);
         if (0 != emcTrajSetMaxVelocity(NEW(traj_max_velocity))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxVelocity\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajSetMaxVelocity\n");
             }
         }
     }
@@ -283,7 +283,7 @@ int check_ini_hal_items(int numjoints)
         UPDATE(traj_default_acceleration);
         if (0 != emcTrajSetAcceleration(NEW(traj_default_acceleration))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetAcceleration\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajSetAcceleration\n");
             }
         }
     }
@@ -292,7 +292,7 @@ int check_ini_hal_items(int numjoints)
         UPDATE(traj_max_acceleration);
         if (0 != emcTrajSetMaxAcceleration(NEW(traj_max_acceleration))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxAcceleration\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajSetMaxAcceleration\n");
             }
         }
     }
@@ -302,13 +302,13 @@ int check_ini_hal_items(int numjoints)
         UPDATE(traj_max_jerk);
         if (0 != emcTrajSetMaxJerk(NEW(traj_max_jerk))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxJerk\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajSetMaxJerk\n");
             }
         }
         // Also update the current jerk to the new max value
         if (0 != emcTrajSetJerk(NEW(traj_max_jerk))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetJerk\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajSetJerk\n");
             }
         }
         // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
@@ -318,7 +318,7 @@ int check_ini_hal_items(int numjoints)
             }
             if (0 != emcTrajPlannerType(0)) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
+                    fmt::print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
                 }
             }
         }
@@ -339,7 +339,7 @@ int check_ini_hal_items(int numjoints)
         }
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
             }
         }
     }
@@ -349,7 +349,7 @@ int check_ini_hal_items(int numjoints)
         UPDATE(traj_scurve_peak_scale);
         if (0 != emcTrajSetScurvePeakScale(NEW(traj_scurve_peak_scale))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetScurvePeakScale\n");
+                fmt::print("check_ini_hal_items:bad return value from emcTrajSetScurvePeakScale\n");
             }
         }
     }
@@ -376,7 +376,7 @@ int check_ini_hal_items(int numjoints)
                                   ,old_inihal_data.traj_arc_blend_tangent_kink_ratio
                                   )) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcSetupArcBlends\n");
+                fmt::print("bad return value from emcSetupArcBlends\n");
             }
             return -1;
         }
@@ -387,7 +387,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_backlash,idx);
             if (0 != emcJointSetBacklash(idx,NEW(joint_backlash[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print("check_ini_hal_items:bad return value from emcJointSetBacklash\n");
+                    fmt::print("check_ini_hal_items:bad return value from emcJointSetBacklash\n");
                 }
         }
         }
@@ -396,7 +396,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_min_limit,idx);
             if (0 != emcJointSetMinPositionLimit(idx,NEW(joint_min_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMinPositionLimit\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetMinPositionLimit\n");
                 }
             }
         }
@@ -405,7 +405,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_max_limit,idx);
             if (0 != emcJointSetMaxPositionLimit(idx,NEW(joint_max_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxPositionLimit\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetMaxPositionLimit\n");
                 }
             }
         }
@@ -414,7 +414,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_max_velocity,idx);
             if (0 != emcJointSetMaxVelocity(idx, NEW(joint_max_velocity[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxVelocity\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetMaxVelocity\n");
                 }
             }
         }
@@ -423,7 +423,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_max_acceleration,idx);
             if (0 != emcJointSetMaxAcceleration(idx, NEW(joint_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxAcceleration\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetMaxAcceleration\n");
                 }
             }
         }
@@ -432,7 +432,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_jerk,idx);
             if (0 != emcJointSetMaxJerk(idx, NEW(joint_jerk[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxJerk\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetMaxJerk\n");
                 }
             }
         }
@@ -453,7 +453,7 @@ int check_ini_hal_items(int numjoints)
                                                       NEW(joint_home_sequence[idx]))
                 ) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointUpdateHomingParams\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointUpdateHomingParams\n");
                 }
             }
         }
@@ -462,7 +462,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_ferror,idx);
             if (0 != emcJointSetFerror(idx,NEW(joint_ferror[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetFerror\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetFerror\n");
                 }
             }
         }
@@ -471,7 +471,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(joint_min_ferror,idx);
             if (0 != emcJointSetMinFerror(idx,NEW(joint_min_ferror[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMinFerror\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcJointSetMinFerror\n");
                 }
         }
         }
@@ -483,7 +483,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(axis_min_limit,idx);
             if (0 != emcAxisSetMinPositionLimit(idx,NEW(axis_min_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMinPositionLimit\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcAxisSetMinPositionLimit\n");
                 }
             }
         }
@@ -492,7 +492,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(axis_max_limit,idx);
             if (0 != emcAxisSetMaxPositionLimit(idx,NEW(axis_max_limit[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxPositionLimit\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcAxisSetMaxPositionLimit\n");
                 }
             }
         }
@@ -503,7 +503,7 @@ int check_ini_hal_items(int numjoints)
                   (1 - ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_velocity[idx]),
                   (    ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_velocity[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxVelocity\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcAxisSetMaxVelocity\n");
                 }
             }
         }
@@ -514,7 +514,7 @@ int check_ini_hal_items(int numjoints)
                   (1 - ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_acceleration[idx]),
                   (    ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
                 }
             }
         }
@@ -523,7 +523,7 @@ int check_ini_hal_items(int numjoints)
             UPDATE_IDX(axis_jerk,idx);
             if (0 != emcAxisSetMaxJerk(idx,NEW(axis_jerk[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxJerk\n");
+                    fmt::print(stderr, "check_ini_hal_items:bad return from emcAxisSetMaxJerk\n");
                 }
             }
         }

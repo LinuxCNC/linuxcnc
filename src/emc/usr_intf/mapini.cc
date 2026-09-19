@@ -18,25 +18,9 @@
 //
 #include "mapini.hh"
 
-#include "libnml/rcs/rcs_print.hh"
 #include "unitenum.hh"
 
 using namespace linuxcnc;
-
-std::optional<RCS_PRINT_DESTINATION_TYPE> mapRcsDestination(const IniFile &ini, const std::string &var, const std::string &sec)
-{
-	static const std::map<const std::string, const RCS_PRINT_DESTINATION_TYPE, IniFile::caseless> rcsDestinationMap = {
-		{ "STDOUT", RCS_PRINT_TO_STDOUT },
-		{ "STDERR", RCS_PRINT_TO_STDERR },
-		{ "FILE",   RCS_PRINT_TO_FILE },
-		{ "LOGGER", RCS_PRINT_TO_LOGGER },
-		{ "MSGBOX", RCS_PRINT_TO_MESSAGE_BOX },
-		{ "NULL",   RCS_PRINT_TO_NULL },
-	};
-	if (auto val = ini.findMap(rcsDestinationMap, var, sec))
-		return *val;
-	return std::nullopt;
-}
 
 std::optional<LINEAR_UNIT_CONVERSION> mapLinearUnits(const IniFile &ini, const std::string &var, const std::string &sec)
 {

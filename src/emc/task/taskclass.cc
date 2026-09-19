@@ -13,14 +13,15 @@
 * Last change:
 ********************************************************************/
 
+#include <fmt/format.h>
 #include <math.h>		// fabs()
 #include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <stdlib.h>		// malloc()
 #include <sys/wait.h>
 
-#include "libnml/rcs/rcs.hh"		// RCS_CMD_CHANNEL, etc.
-#include "libnml/rcs/rcs_print.hh"
+#include "rcs_status.hh"		// RCS_CMD_CHANNEL, etc.
+
 #include "nml_intf/emcglb.h"		// EMC_INIFILE
 
 #include "pythonplugin/python_plugin.hh"
@@ -132,7 +133,6 @@ int emcTaskOnce(const char * /*filename*/, EMC_IO_STAT &emcioStatus)
     return 0;
 }
 
-
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
 struct _inittab builtin_modules[] = {
@@ -195,7 +195,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     tooldata_init(random_toolchanger);
     if (db_mode == tooldb_t::DB_ACTIVE) {
         if (0 != tooldata_db_init(db_program, random_toolchanger)) {
-            rcs_print_error("can't initialize DB_PROGRAM.\n");
+            fmt::print(stderr,"can't initialize DB_PROGRAM.\n");
             db_mode = tooldb_t::DB_NOTUSED;
             tooldata_set_db(db_mode);
         }
@@ -214,7 +214,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     }
 
     if (0 != tooldata_load(tooltable_filename)) {
-        rcs_print_error("can't load tool table.\n");
+        fmt::print(stderr,"can't load tool table.\n");
     }
 
     if (random_toolchanger) {
@@ -227,7 +227,6 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
         emcioStatus.tool.toolInSpindle = 0;
     }    
 };
-
 
 Task::~Task() {};
 
@@ -279,7 +278,7 @@ static int readToolChange(const IniFile &toolInifile)
 	    retval = 0;
 	} else {
 	    /* bad format */
-	    rcs_print("bad format for TOOL_CHANGE_POSITION\n");
+	    fmt::print("bad format for TOOL_CHANGE_POSITION\n");
 	    have_tool_change_position = 0;
 	    retval = -1;
 	}

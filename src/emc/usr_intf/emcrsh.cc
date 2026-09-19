@@ -43,8 +43,8 @@
 #include <inifile.hh>
 #include "timeutil.hh"
 
-using namespace std::chrono_literals;
 using namespace linuxcnc;
+using namespace std::chrono_literals;
 
 /*
  * Using linuxcncrsh: see man page linuxcncrsh.1

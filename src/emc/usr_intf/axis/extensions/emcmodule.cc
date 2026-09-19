@@ -25,7 +25,7 @@
 #include <pthread.h>
 #include <structmember.h>
 #include "config.h"
-#include "libnml/rcs/rcs.hh"
+#include "rcs_status.hh"
 #include "nml_intf/emc.hh"
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/debugflags.h"

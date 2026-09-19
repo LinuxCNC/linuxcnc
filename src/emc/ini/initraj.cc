@@ -16,7 +16,7 @@
 
 #include "nml_intf/emc.hh"
 #include <emcpos.h>
-#include "libnml/rcs/rcs_print.hh"
+#include <cstdio>
 #include "nml_intf/emcglb.h"
 #include <inifile.hh>
 
@@ -30,7 +30,7 @@ extern value_inihal_data old_inihal_data;
 static void inline print_dbg_config(const std::string &s)
 {
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print_error("%s", (fmt::format("{}: failed\n", s)).c_str());
+        fmt::print(stderr, "{}: failed\n", s);
     }
 }
 
@@ -105,7 +105,7 @@ static int loadTraj(const IniFile &ini)
     double linearUnits  = ini.findLinearUnits("LINEAR_UNITS", "TRAJ", 0.0);
     double angularUnits = ini.findAngularUnits("ANGULAR_UNITS", "TRAJ", 0.0);
     if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-        rcs_print("emcTrajSetUnits failed to set [TRAJ]LINEAR_UNITS or [TRAJ]ANGULAR_UNITS\n");
+        fmt::print("emcTrajSetUnits failed to set [TRAJ]LINEAR_UNITS or [TRAJ]ANGULAR_UNITS\n");
         return -1;
     }
 
@@ -157,7 +157,7 @@ static int loadTraj(const IniFile &ini)
     int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 1);
     // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
     if (planner_type == 1 && jerk < 1.0) {
-        rcs_print_error("[TRAJ]PLANNER_TYPE = 1 (S-curve) requires "
+        fmt::print(stderr, "[TRAJ]PLANNER_TYPE = 1 (S-curve) requires "
                         "[TRAJ]MAX_LINEAR_JERK >= 1.0 (got %g); "
                         "using trapezoidal planner\n", jerk);
         planner_type = 0;
@@ -238,7 +238,7 @@ static int loadTraj(const IniFile &ini)
             errno = 0;
             double val = strtod(toks[i].c_str(), &eptr);
             if (errno || *eptr || eptr == toks[i].c_str()) {
-                rcs_print_error("Invalid value '%s' for axis %zu in homePose\n", toks[i].c_str(), i);
+                fmt::print(stderr, "Invalid value '{}' for axis {} in homePose\n", toks[i], i);
                 return -1;
             }
             switch(i) {
@@ -253,7 +253,7 @@ static int loadTraj(const IniFile &ini)
             case 8: homePose.w = val; break;
             default:
                 // Should never trigger because of EMCMOT_MAX_AXIS, but you never know
-                rcs_print_error("Value for invalid axis number %zu cannot be part of homePose\n", i);
+                fmt::print(stderr, "Value for invalid axis number {} cannot be part of homePose\n", i);
                 return -1;
             }
         }

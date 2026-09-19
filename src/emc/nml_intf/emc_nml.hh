@@ -18,7 +18,6 @@
 #include <emcpos.h>
 #include <kinematics.h>	// SWITCHKINS_MAX_TYPES
 #include "emc.hh"
-#include "libnml/rcs/rcs.hh"
 #include "libnml/nml/cmd_msg.hh"
 #include "libnml/nml/stat_msg.hh"
 #include "modal_state.hh"

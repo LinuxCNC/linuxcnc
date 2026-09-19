@@ -17,7 +17,7 @@
 #include <fmt/format.h>
 
 #include "nml_intf/emc.hh"
-#include "libnml/rcs/rcs_print.hh"
+#include <cstdio>
 #include "nml_intf/emcglb.h"
 #include "nml_intf/emccfg.h"
 #include <inifile.hh>
@@ -55,7 +55,7 @@ static int loadSpindle(int spindle, const IniFile &ini)
 
     int num_spindles = ini.findIntV("SPINDLES", "TRAJ", 1, 1, EMCMOT_MAX_SPINDLES-1);
     if (spindle >= num_spindles) { // Cannot configure spindles not present
-        rcs_print_error("loadSpindle: spindle %d >= ini [SPINDLES]TRAJ %d\n", spindle, num_spindles);
+        fmt::print(stderr, "loadSpindle: spindle {} >= ini [SPINDLES]TRAJ {}\n", spindle, num_spindles);
 	return -1;
     }
 
@@ -94,7 +94,7 @@ static int loadSpindle(int spindle, const IniFile &ini)
     if (0 != emcSpindleSetParams(spindle, fastest_pos, slowest_pos,
                                  slowest_neg, fastest_neg, search_vel,
                                  home_angle, home_sequence, increment)) {
-        rcs_print_error("emcSpindleSetParams: failed\n");
+        fmt::print(stderr, "emcSpindleSetParams: failed\n");
         return -1;
     }
     return 0;
@@ -103,7 +103,7 @@ static int loadSpindle(int spindle, const IniFile &ini)
 int iniSpindle(int spindle, const char *filename)
 {
     if (spindle < 0 || spindle >= EMCMOT_MAX_SPINDLES) {
-        rcs_print_error("iniJoint: Invalid spindle '%d'\n", spindle);
+        fmt::print(stderr, "iniJoint: Invalid spindle '{}'\n", spindle);
         return -1;
     }
 
