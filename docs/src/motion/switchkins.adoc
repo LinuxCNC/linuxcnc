@@ -324,7 +324,12 @@ the tool centre point, which swings the carriage through a circle the
 head's own limit never mentions, runs at the carriage's pace.  A
 module that can only be evaluated in realtime (one without the
 parameter block form, see <<sec:switchkins-code-notes,Code Notes>>)
-caps nothing; on it the `[AXIS_L]` limits are all there is.
+caps nothing; on it the `[AXIS_L]` limits are all there is.  A world
+jog is bounded the same way, in motion, every servo cycle: the Jacobian
+at the joints the machine stands in caps the jog's planners so that no
+joint is asked for more than its limits, and a jog of C under the tool
+centre point with the head laid over runs at the pace of the carriage
+it swings.
 
 So a switch does not need the velocity and acceleration limits reset
 to keep the joints within their limits.  It may still want them reset
