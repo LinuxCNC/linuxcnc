@@ -44,6 +44,20 @@
       <column type="gchararray"/>
       <!-- column-name wd wear diameter -->
       <column type="gchararray"/>
+      <!-- column-name wy wear Y -->
+      <column type="gchararray"/>
+      <!-- column-name wa wear A -->
+      <column type="gchararray"/>
+      <!-- column-name wb wear B -->
+      <column type="gchararray"/>
+      <!-- column-name wc wear C -->
+      <column type="gchararray"/>
+      <!-- column-name wu wear U -->
+      <column type="gchararray"/>
+      <!-- column-name wv wear V -->
+      <column type="gchararray"/>
+      <!-- column-name ww wear W -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkTreeModelFilter" id="tool_modelfilter">

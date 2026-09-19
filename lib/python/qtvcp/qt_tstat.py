@@ -29,7 +29,12 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-KEYWORDS = ['T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
+# indices 0-15 are the legacy tool table words; 16-25 are native wear
+# (same order as the C tooldata reader/writer).
+KEYWORDS = ['T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';',
+            'WX', 'WY', 'WZ', 'WA', 'WB', 'WC', 'WU', 'WV', 'WW', 'WD']
+WEAR_INDEX = 16          # first native wear slot in a parsed row
+WEAR_COUNT = len(KEYWORDS) - WEAR_INDEX
 
 
 class _TStat(object):
@@ -62,6 +67,11 @@ class _TStat(object):
         self.tool_wear_info = None
         self.current_tool_num = -1
         self.toolinfo = None
+        # Native WX/WZ/WD wear is only the active scheme with Fanuc lathe T
+        # words, but the words must round-trip either way.
+        self.native_wear = INFO.INI.getbool("RS274NGC", "LATHE_TXXXX", fallback=False)
+        self.native_wear_cache = {}
+        self.legacy_wear_rows = []
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('forced-update', lambda o: self.emit_update())
 
@@ -80,7 +90,7 @@ class _TStat(object):
     def SAVE_TOOLFILE(self, array):
         return self._save(array)
 
-    def ADD_TOOL(self, newtool=[-99, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'New Tool']):
+    def ADD_TOOL(self, newtool=[-99, 0] + [0.0] * 12 + [0, 'New Tool'] + [0.0] * WEAR_COUNT):
         info = self.GET_TOOL_MODELS()
         info[0].insert(0, newtool)
         return self._save(info[0] + info[1])
@@ -118,6 +128,8 @@ class _TStat(object):
         wear_model = []
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = None
+        self.native_wear_cache = {}
+        self.legacy_wear_rows = []
         toolinfo_flag = False
         for rawline in logfile:
             # ignore blank lines
@@ -134,7 +146,7 @@ class _TStat(object):
                 line = rawline.rstrip(comment)
             else:
                 line = rawline
-            array = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, comment]
+            array = [0, 0] + [0.0] * 12 + [0, comment] + [0.0] * WEAR_COUNT
             wear_flag = False
             # search beginning of each word for keyword letters
             # if i = ';' that is the comment and we have already added it
@@ -144,6 +156,14 @@ class _TStat(object):
                 if i == ';': continue
                 for word in line.split():
                     if word.startswith(';'): break
+                    # Native wear words must not be parsed as the W axis.
+                    uw = word.upper()
+                    if i == 'W' and (uw.startswith('WX') or uw.startswith('WY') or
+                                     uw.startswith('WZ') or uw.startswith('WD') or
+                                     uw.startswith('WA') or uw.startswith('WB') or
+                                     uw.startswith('WC') or uw.startswith('WU') or
+                                     uw.startswith('WV') or uw.startswith('WW')):
+                        continue
                     if word.startswith(i):
                         if offset == 0:
                             if int(word.lstrip(i)) == self.current_tool_num:
@@ -162,6 +182,11 @@ class _TStat(object):
                                     array[offset] = int(float(word.lstrip(i)))
                                 except Exception as e:
                                     LOG.error("toolfile integer access: {} : {}".format(word.lstrip(i), e))
+                        elif offset >= WEAR_INDEX:
+                            try:
+                                array[offset] = float(word[len(i):])
+                            except:
+                                LOG.error("toolfile wear access: {}".format(self.toolfile))
                         else:
                             try:
                                 # we will call this range zero:
@@ -173,6 +198,16 @@ class _TStat(object):
                                 LOG.error("toolfile float access: {}".format(self.toolfile))
                         break
 
+            # stash native wear for round-tripping (even without LATHE_TXXXX)
+            try:
+                tno = int(array[0])
+            except (TypeError, ValueError):
+                tno = 0
+            if tno > 0 and not wear_flag:
+                self.native_wear_cache[tno] = list(array[WEAR_INDEX:])
+            if wear_flag:
+                self.legacy_wear_rows.append(array)
+
             # add array line to model array
             if wear_flag:
                 wear_model.append(array)
@@ -181,7 +216,7 @@ class _TStat(object):
         if toolinfo_flag:
             self.toolinfo = temp
         else:
-            self.toolinfo = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'No Tool']
+            self.toolinfo = [0, 0] + [0.0] * 12 + [0, 'No Tool'] + [0.0] * WEAR_COUNT
         # print 'load'
         # for i in tool_model:
         #    print i
@@ -223,6 +258,11 @@ class _TStat(object):
                 elif cnum in (5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15):
                     # a;; the rest past z wear position
                     new_line[cnum + 4] = i
+            if self.native_wear and INFO.MACHINE_IS_LATHE:
+                # native wear lives on the tool row (WX/WY/WZ columns)
+                new_line[4] = valuesInRow[16] if len(valuesInRow) > 16 else 0.0
+                new_line[6] = valuesInRow[17] if len(valuesInRow) > 17 else 0.0
+                new_line[8] = valuesInRow[18] if len(valuesInRow) > 18 else 0.0
             full_tool_list.append(new_line)
             # print 'row',row
             # print 'new row',new_line
@@ -232,7 +272,9 @@ class _TStat(object):
         # full tool list's  tool variable's parent tool row
         # eg 10001 goes to tool 1, 10002 goes to tool 2 etc
         # for now only if in lathe mode
-        if INFO.MACHINE_IS_LATHE:
+        # With native wear the fake rows are ignored here (they are
+        # preserved verbatim on save, see CONVERT_TO_STANDARD_TYPE).
+        if INFO.MACHINE_IS_LATHE and not self.native_wear:
             for rnum, row in enumerate(weartool):
                 values = [value for value in row]
                 try:
@@ -257,9 +299,10 @@ class _TStat(object):
         tool_wear_list = []
         full_tool_list = []
         for rnum, row in enumerate(data):
-            new_line = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, '']
-            new_wear_line = [0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 'Wear Offset']
+            new_line = [0, 0] + [0.0] * 12 + [0, ''] + [0.0] * WEAR_COUNT
+            new_wear_line = [0, 0] + [0.0] * 12 + [0, 'Wear Offset']
             wear_flag = False
+            native_edit = {}
             values = [value for value in row]
             for cnum, i in enumerate(values):
                 # print cnum, i, type(i)
@@ -267,25 +310,45 @@ class _TStat(object):
                     new_line[cnum - 1] = int(i)
                 elif cnum == 3:
                     new_line[cnum - 1] = float(i)
-                elif cnum == 4 and i != '0':
-                    wear_flag = True
-                    new_wear_line[2] = float(i)
+                elif cnum == 4:
+                    if self.native_wear and INFO.MACHINE_IS_LATHE:
+                        native_edit[16] = float(i)          # WX
+                    elif i != '0':
+                        wear_flag = True
+                        new_wear_line[2] = float(i)
                 elif cnum == 5 and i != '0':
                     new_line[cnum - 2] = float(i)
-                elif cnum == 6 and i != '0':
-                    wear_flag = True
-                    new_wear_line[3] = float(i)
+                elif cnum == 6:
+                    if self.native_wear and INFO.MACHINE_IS_LATHE:
+                        native_edit[17] = float(i)          # WY
+                    elif i != '0':
+                        wear_flag = True
+                        new_wear_line[3] = float(i)
                 elif cnum == 7 and i != '0':
                     new_line[cnum - 3] = float(i)
-                elif cnum == 8 and i != '0':
-                    wear_flag = True
-                    new_wear_line[4] = float(i)
+                elif cnum == 8:
+                    if self.native_wear and INFO.MACHINE_IS_LATHE:
+                        native_edit[18] = float(i)          # WZ
+                    elif i != '0':
+                        wear_flag = True
+                        new_wear_line[4] = float(i)
                 elif cnum in (9, 10, 11, 12, 13, 14, 15, 16, 17):
                     new_line[cnum - 4] = float(i)
                 elif cnum == 18:
                     new_line[cnum - 4] = int(i)
                 elif cnum == 19:
                     new_line[cnum - 4] = str(i)
+            # keep native wear words that have no editable column
+            try:
+                tno = int(values[1])
+            except (TypeError, ValueError, IndexError):
+                tno = 0
+            cached = self.native_wear_cache.get(tno, None)
+            if cached:
+                for k in range(WEAR_COUNT):
+                    new_line[16 + k] = cached[k]
+            for k, v in native_edit.items():
+                new_line[k] = v
             if wear_flag:
                 new_wear_line[0] = int(values[1] + 10000)
                 new_wear_line[15] = 'Wear Offset %d' % values[1]
@@ -295,7 +358,12 @@ class _TStat(object):
             LOG.debug("converted line: {}".format(new_line))
         # add wear list to full tool list if in lathe mode
         if INFO.MACHINE_IS_LATHE:
-            full_tool_list = full_tool_list + tool_wear_list
+            if self.native_wear:
+                # fake T10000+ rows are not shown in native mode; keep them
+                # so a save cannot silently drop them
+                full_tool_list = full_tool_list + [list(r) for r in self.legacy_wear_rows]
+            else:
+                full_tool_list = full_tool_list + tool_wear_list
         return full_tool_list
 
     # TODO check for linnuxcnc ON and IDLE which is the only safe time to edit/SAVE the tool file.
@@ -318,6 +386,13 @@ class _TStat(object):
                 elif num == 15:  # comments
                     test = i.strip()
                     line = line + "%s%s " % (KEYWORDS[num], test)
+                elif num >= WEAR_INDEX:  # native wear, skip zero values
+                    try:
+                        test = float(str(i).lstrip())
+                    except (TypeError, ValueError):
+                        test = 0.0
+                    if test != 0.0:
+                        line = line + "%s%.5f " % (KEYWORDS[num], test)
                 else:
                     test = float(str(i).lstrip())  # floats
                     if test == 0.0:

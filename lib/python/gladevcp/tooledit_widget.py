@@ -17,9 +17,11 @@
 import sys, os, linuxcnc, hashlib
 import shutil # for backup of tooltable
 datadir = os.path.abspath(os.path.dirname(__file__))
-KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';', 'WX', 'WZ', 'WD']
-# liststore: 0 S, 1 T, 2 P, 3-14 floats, 15 Q, 16 comment, 17 WX, 18 WZ, 19 WD
-EMPTY_ROW = [1, 0, 0, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0, 'comment', '0', '0', '0']
+KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';', 'WX', 'WZ', 'WD', 'WY', 'WA', 'WB', 'WC', 'WU', 'WV', 'WW']
+# liststore: 0 S, 1 T, 2 P, 3-14 floats, 15 Q, 16 comment,
+# 17-26 native wear WX WZ WD WY WA WB WC WU WV WW
+EMPTY_ROW = [1, 0, 0, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0, 'comment',
+             '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -46,7 +48,7 @@ class ToolEdit(Gtk.Box):
     __gproperties__ = {
         'font' : ( GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
-        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options. WX/WZ/WD are native wear.',
+        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options. Uppercase WX/WY/WZ/WA/WB/WC/WU/WV/WW/WD hide the native wear columns.',
                     "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'lathe_display_type' : ( GObject.TYPE_BOOLEAN, 'Display Type', 'True: Lathe layout, False standard layout',
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
@@ -346,7 +348,8 @@ class ToolEdit(Gtk.Box):
             else:
                 line = rawline
             line_number += 1
-            array = [0, 0, 0, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0, comment, '0', '0', '0']
+            array = [0, 0, 0, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0, comment,
+                     '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
             toolinfo_flag = False
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
@@ -384,7 +387,7 @@ class ToolEdit(Gtk.Box):
                                     break
                             except:
                                 print(_("Tooledit widget float error"))
-                        elif offset in (17, 18, 19):
+                        elif offset >= 17:
                             try:
                                 array[offset] = f"{float(word[len(i):]):10.4f}"
                             except:
@@ -433,7 +436,7 @@ class ToolEdit(Gtk.Box):
                 elif num == 16: # comments
                     test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
-                elif num in (17, 18, 19):
+                elif num >= 17:  # native wear words (WX/WZ/WD/WY/...)
                     try:
                         val = float(str(i).replace(',', '.'))
                     except (TypeError, ValueError):
@@ -531,19 +534,37 @@ class ToolEdit(Gtk.Box):
     # eg list ='xyz'
     # tab= selects what tabs to apply it to
     def set_col_visible(self, list, bool= False, tab= '1'):
-        #print list,bool,tab
-        for i in range(0, len(tab)):
-            if tab[i] in ('1','2','3'):
-                #print tab[i]
-                for index in range(0, len(list)):
-                    colstr = str(list[index])
-                    #print colstr
-                    colnum = 'stpxyzabcuvwdijq;'.index(colstr.lower())
-                    #print colnum
-                    name = KEYWORDS[colnum].lower()+tab[i]
-                    #print name
-                    renderer = self.wTree.get_object(name)
-                    renderer.set_property('visible', bool)
+        # Multi-letter native wear tokens (WX, WY, ...) must be matched
+        # before their single-letter prefixes.  They are case sensitive:
+        # "wd" hides the W and D geometry columns, "WD" hides wear diameter.
+        wear_words = ('WX', 'WY', 'WZ', 'WA', 'WB', 'WC', 'WU', 'WV', 'WW', 'WD')
+        text = str(list)
+        tokens = []
+        i = 0
+        while i < len(text):
+            two = text[i:i+2]
+            if two in wear_words:
+                tokens.append(two)
+                i += 2
+            else:
+                tokens.append(text[i])
+                i += 1
+        for tabchar in tab:
+            if tabchar not in ('1','2','3'):
+                continue
+            for token in tokens:
+                if token.upper() in wear_words:
+                    name = token.lower()+tabchar
+                else:
+                    try:
+                        colnum = 'stpxyzabcuvwdijq;'.index(token.lower())
+                    except ValueError:
+                        continue
+                    name = KEYWORDS[colnum].lower()+tabchar
+                renderer = self.wTree.get_object(name)
+                if renderer is None:
+                    continue
+                renderer.set_property('visible', bool)
 
     # For single click selection when in edit mode
     def on_treeview2_button_press_event(self, widget, event):
@@ -584,8 +605,8 @@ class ToolEdit(Gtk.Box):
                 self.model[path][col] = int(new_text)
             except:
                 pass
-        # validate input for float columns (geometry and WX/WZ/WD)
-        elif col in range(3,15) or col in (17, 18, 19):
+        # validate input for float columns (geometry and native wear)
+        elif col in range(3,15) or col >= 17:
             try:
                 self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:

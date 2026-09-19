@@ -89,7 +89,8 @@ proc ::tooledit::init { {columns ""} } {
 
   # include only allowed column names:
   foreach cname $checked_columns {
-    if {[lsearch $::te(allcolumns) $cname] >= 0} {
+    if {[lsearch $::te(allcolumns) $cname] >= 0
+        || [lsearch $::te(wearcolumns) $cname] >= 0} {
       lappend ::te(columns) $cname
     } else {
       puts stderr [format [_ "Unknown column: %s"] $cname]
@@ -134,6 +135,11 @@ proc ::tooledit::init { {columns ""} } {
   set ::te(back,width)     7; set ::te(back,tag)     J
   set ::te(orien,width)    6; set ::te(orien,tag)    Q
   set ::te(comment,width)  20; set ::te(comment,tag) \;
+  foreach wcol $::te(wearcolumns) {
+    set ::te(type,$wcol)   real
+    set ::te($wcol,width)  9
+    set ::te($wcol,tag)    [string toupper $wcol]
+  }
   # note: width 0 expands with text in entry widget
   #       when using Bwidget scrollable frame
 } ;# init
@@ -310,7 +316,7 @@ proc ::tooledit::readfile {filename} {
     gets $fd newline
     incr lno ;# starts at 1
     if [eof $fd] break
-    foreach item {t p x y z a b c u v w d i j q comment} {
+    foreach item [concat {t p x y z a b c u v w d i j q comment} $::te(wearcolumns)] {
       set u($item) ""
     }
     # extract the comment as is (without converting it to lower case)
@@ -332,8 +338,15 @@ proc ::tooledit::readfile {filename} {
     foreach tagvalue [split [string trim $newline]] {
       set tagvalue [string trim $tagvalue]
       if {"$tagvalue" == ""} continue
-      set tag   [string range $tagvalue 0 0   ]
-      set value [string range $tagvalue 1 end ]
+      # two letter native wear tags (wx wy wz ... wd) first
+      set tag2 [string range $tagvalue 0 1]
+      if {[lsearch $::te(wearcolumns) $tag2] >= 0} {
+        set tag   $tag2
+        set value [string range $tagvalue 2 end ]
+      } else {
+        set tag   [string range $tagvalue 0 0   ]
+        set value [string range $tagvalue 1 end ]
+      }
       if ![isnumber $value] {
         puts stderr [format [_ "Skipping linenumber %d for tag %s, value <%s> is not a number"] \
                     $lno $tag $value]
@@ -357,6 +370,8 @@ proc ::tooledit::readfile {filename} {
         u - v - w -
         d           {catch {set u($tag) [format "$::te(fmt,real)"  $value]}}
         i - j       {catch {set u($tag) [format "$::te(fmt,angle)" $value]}}
+        wx - wy - wz - wa - wb - wc - wu - wv - ww - wd \
+                    {catch {set u($tag) [format "$::te(fmt,real)"  $value]}}
         default     {puts stderr [format [_ "At linenumber %d, Unknown tag <%s>"] \
                                   $lno $tag]
                      incr bct; set bogus 1
@@ -643,7 +658,7 @@ proc ::tooledit::makeline {ay_name} {
     set new 1
     set date "[_ "Added"] [clock format [clock seconds] -format %Y%m%d]"
 
-    foreach item {t p x y z a b c u v w d i j q} {
+    foreach item [concat {t p x y z a b c u v w d i j q} $::te(wearcolumns)] {
       set ay($item) ""
     }
     set ay(p) [_ "NEW"] ;# support translation of special entry item value
@@ -678,6 +693,9 @@ proc ::tooledit::makeline {ay_name} {
   set ::te(parm,$i,front)     $ay(i)
   set ::te(parm,$i,back)      $ay(j)
   set ::te(parm,$i,orien)     $ay(q)
+  foreach wcol $::te(wearcolumns) {
+    set ::te(parm,$i,$wcol)   $ay($wcol)
+  }
   set ::te(parm,$i,comment)   [string trim $ay(comment)]
   pack [checkbutton $f.b -variable ::te(parm,$i,deleteme)\
        -command "::tooledit::checkdelete"] -side left -expand 0
@@ -815,7 +833,7 @@ proc ::tooledit::writefile {filename} {
   }
 
   # write to all populated header items (to preserve values if not displayed)
-  set allheader [concat $::te(autocolumns) $::te(allcolumns) comment]
+  set allheader [concat $::te(autocolumns) $::te(allcolumns) $::te(wearcolumns) comment]
 
   foreach i $::te(items) {
     set line ""
@@ -1141,6 +1159,9 @@ proc ::tooledit::column_sort {e parm {initialize 0} } {
 
 #------------------------------------------------------------------------
 set ::te(allcolumns)  {x y z a b c u v w diam front back orien}
+# Native lathe wear words are preserved even when not displayed; they can
+# be requested as columns by name (wx wy wz wa wb wc wu wv ww wd).
+set ::te(wearcolumns) {wx wy wz wa wb wc wu wv ww wd}
 proc standalone_tooledit {args} {
   # configure for standalone usage:
   set ::te(standalone) 1
@@ -1150,7 +1171,7 @@ proc standalone_tooledit {args} {
     puts stderr "\n[_ "Usage"]:"
     puts stderr "       $prog [_ "filename"]"
     puts stderr "       $prog \[column_1 ... column_n\] [_ "filename"]"
-    puts stderr "\n[format [_ "Allowed column_ names are: %s"] $::te(allcolumns)]"
+    puts stderr "\n[format [_ "Allowed column_ names are: %s"] [concat $::te(allcolumns) $::te(wearcolumns)]]"
     exit 1
   }
   # start, unless already started (convenient for debug sourcing):
