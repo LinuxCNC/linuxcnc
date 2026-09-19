@@ -35,8 +35,8 @@ static void read_pins(void)
 {
     kinsParamsPinsRead(pins, km->params, km->nparams,
                        &rt_params);
-    kinsToolSourceApply(&tool_source, kins_module.halprefix,
-                        kins_module.params, kins_module.nparams, &rt_params);
+    kinsToolSourceApply(&tool_source, km->halprefix,
+                        km->params, km->nparams, &rt_params);
 }
 
 static void write_pins(void)
@@ -150,6 +150,14 @@ int kinematicsTypeFlags(int ktype)
     return -1;
 }
 
+// and so no machine frame type either
+int kinematicsMachineFrame(const double *joint, EmcPose *pos)
+{
+    (void)joint;
+    (void)pos;
+    return -1;
+}
+
 // The module's description, for a copy of it loaded outside RT.  A module
 // with one type does not depend on its parameters for its shape, so this
 // is the table as declared.
@@ -171,5 +179,6 @@ EXPORT_SYMBOL(kinematicsSetTool);
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsTypeFlags);
+EXPORT_SYMBOL(kinematicsMachineFrame);
 EXPORT_SYMBOL(kinsSingleInit);
 EXPORT_SYMBOL(kinsSingleDescribe);
