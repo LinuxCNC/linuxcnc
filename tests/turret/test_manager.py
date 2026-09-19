@@ -260,6 +260,28 @@ class TestManager(unittest.TestCase):
         m._apply_live_params()
         self.assertEqual(m.fsm.lead, 1)
 
+    def test_startup_forgets_reference(self):
+        state_path = os.path.join(self.tmp.name, "turret_state.json")
+        with open(state_path, "w", encoding="utf-8") as fp:
+            json.dump({"fsm": {"station": 5, "homed": True}}, fp)
+        io = FakeIO()
+        m = TurretManager(self.path, io=io)
+        self.assertFalse(m.fsm.homed, "no debe confiar en el homing previo")
+        self.assertEqual(m.fsm.station, 5)
+
+    def test_jog_pin(self):
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.own_set("test-enable", 1)
+        self.io.own_set("jog", 1)
+        self.assertTrue(run_until(m, machine,
+                                  lambda mgr, mach: mgr.fsm.state == State.JOG))
+        self.assertEqual(self.io.own("motor"), 1)
+        self.io.own_set("jog", 0)
+        self.assertTrue(run_until(m, machine,
+                                  lambda mgr, mach: mgr.fsm.state == State.IDLE))
+        self.assertEqual(self.io.own("motor"), 0)
+
     def test_service_release_and_lock(self):
         m = self.manager
         machine = SimMachine(self.io, start=2)

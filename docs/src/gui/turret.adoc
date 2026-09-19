@@ -115,6 +115,25 @@ The tool change handshake with the interpreter is done through
 `<<sec:select-tool,[RS274NGC]LATHE_TXXXX>>` a single `T0101` performs
 the whole change.
 
+== Referencing and manual positioning
+
+Only station 1 has a position sensor: after power up the controller does
+not know where the turret is (`turret.homed` is false; the station
+restored from the last session is only a hint for the display) and the
+first `T`/`M6` performs the reference search automatically (unclamp,
+rotate forward until position 1 + strobe, clamp).
+
+Manual options (QtPyVCP panel and HAL pins):
+
+* *Referenciar* (`turret.home`): runs the reference search and leaves
+  the turret clamped on station 1.  It does not require service mode.
+* *Avanzar (mantener)* (`turret.jog`): rotates while the input is held
+  (requires `turret.test-enable`); when released, or after
+  `jog_timeout`, it settles, locates and clamps safely.  If it crosses
+  position 1 during the jog the controller becomes referenced
+  (`homed`, station 1).
+* *Paso (+1)* (`turret.step`): advances exactly one station.
+
 == Pins
 
 Status outputs (watched by the panel): `turret.busy`,
@@ -135,7 +154,7 @@ Live parameters (the panel writes them and they are applied
 immediately): `turret.unclamp-timeout`, `home-timeout`,
 `rotate-timeout`, `settle-time`, `locate-timeout`,
 `locate-stable-ms`, `clamp-timeout`, `strobe-filter-ms`,
-`max-retries`, `lead-pulses`, `pockets`.
+`max-retries`, `lead-pulses`, `jog-timeout`, `pockets`.
 
 == Alarms
 

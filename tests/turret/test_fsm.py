@@ -38,7 +38,7 @@ class Plant:
         self._unclamp_since = None
         self._clamp_since = None
 
-    def inputs(self, interlock_ok=True, test_enable=True):
+    def inputs(self, interlock_ok=True, test_enable=True, jog=False):
         return Inputs(
             pos1=(self.station == 1),
             strobe=self.strobe,
@@ -46,6 +46,7 @@ class Plant:
             clamped=self.clamped,
             interlock_ok=interlock_ok,
             test_enable=test_enable,
+            jog=jog,
         )
 
     def _located(self):
@@ -129,6 +130,50 @@ class TestTurretFSM(unittest.TestCase):
         self.assertEqual(fsm.clamp_cycles, 1)
         self.assertEqual(fsm.station_counts[2], 1)
         self.assertTrue(fsm.located)
+
+    def test_home_without_test_enable(self):
+        fsm, _ = self.make()
+        plant = Plant(start_station=5)
+        fsm.request_home()
+        out = run(fsm, plant, lambda o, f: o.state == int(State.IDLE)
+                  and f.homed, test_enable=False)
+        self.assertIsNotNone(out, "referenciar debe funcionar sin modo servicio")
+        self.assertEqual(fsm.station, 1)
+
+    def test_jog_hold_and_stop(self):
+        fsm, _ = self.make()
+        fsm.homed = True
+        fsm.station = 1
+        plant = Plant(start_station=1)
+        fsm.request_jog()
+        out = run(fsm, plant, lambda o, f: f.state == State.JOG, jog=True)
+        self.assertIsNotNone(out)
+        self.assertTrue(out.motor)
+        for _ in range(15):
+            out = fsm.update(plant.t, plant.inputs(jog=True))
+            plant.apply(out)
+            plant.step()
+        self.assertNotEqual(plant.station, 1)
+        out = run(fsm, plant, lambda o, f: f.state == State.IDLE, jog=False)
+        self.assertIsNotNone(out)
+        self.assertFalse(out.motor)
+        self.assertTrue(plant.clamped)
+
+    def test_jog_reaches_reference(self):
+        fsm, _ = self.make()
+        plant = Plant(start_station=5)
+        self.assertFalse(fsm.homed)
+        fsm.request_jog()
+        while plant.t < 10.0:
+            inp = plant.inputs(jog=True)
+            inp.jog = not (inp.pos1 and inp.strobe)
+            out = fsm.update(plant.t, inp)
+            plant.apply(out)
+            if out.state == int(State.IDLE) and fsm.homed:
+                break
+            plant.step()
+        self.assertTrue(fsm.homed, "el avance manual debe referenciar al pasar por 1")
+        self.assertEqual(fsm.station, 1)
 
     def test_select_homes_first(self):
         fsm, _ = self.make()

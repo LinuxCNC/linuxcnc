@@ -114,6 +114,10 @@ class TurretManager:
         except (OSError, ValueError):
             return
         self.fsm.load_state(data.get("fsm", {}))
+        # the station is kept for display, but the reference is lost when
+        # the machine is powered off: force a new reference search
+        self.fsm.homed = False
+        self.fsm.located = False
         self.maintenance.load_dict(data.get("maintenance", {}))
         self.history.load_list(data.get("history", []))
 
@@ -157,8 +161,8 @@ class TurretManager:
             io.newpin("station-%d-changes" % n, hal.Type.S32, hal.Dir.OUT)
         # command inputs from the panel (momentary buttons)
         for name in ("home", "reset", "cancel", "release", "lock", "step",
-                     "unhome", "reload", "test-enable", "prepare", "change",
-                     "clear-history"):
+                     "jog", "unhome", "reload", "test-enable", "prepare",
+                     "change", "clear-history"):
             io.newpin(name, hal.Type.BIT, hal.Dir.IN)
         for n in range(1, MAX_MAINT_CODES + 1):
             io.newpin("mark-service-%d" % n, hal.Type.BIT, hal.Dir.IN)
@@ -332,6 +336,7 @@ class TurretManager:
             clamped=machine["clamped"],
             interlock_ok=self._interlock_ok(),
             test_enable=bool(io.own("test-enable")),
+            jog=bool(io.own("jog")),
         )
         # panel commands
         if self._edge("home", io.own("home")):
@@ -346,6 +351,8 @@ class TurretManager:
             self.fsm.request_lock()
         if self._edge("step", io.own("step")):
             self.fsm.request_step()
+        if self._edge("jog", io.own("jog")):
+            self.fsm.request_jog()
         if self._edge("unhome", io.own("unhome")):
             self.fsm.homed = False
         if self._edge("reload", io.own("reload")):

@@ -33,6 +33,7 @@ class State(IntEnum):
     CLAMP = 6
     FAULT = 10
     RELEASE = 12
+    JOG = 13
 
 
 STATE_TEXT = {
@@ -45,10 +46,11 @@ STATE_TEXT = {
     State.CLAMP: "Cerrando pinza",
     State.FAULT: "Falla",
     State.RELEASE: "Pinza liberada (servicio)",
+    State.JOG: "Avance manual",
 }
 
 _MOVING_STATES = (State.UNCLAMP, State.HOME, State.ROTATE, State.SETTLE,
-                  State.LOCATE, State.CLAMP)
+                  State.LOCATE, State.CLAMP, State.JOG)
 
 
 @dataclass
@@ -59,6 +61,7 @@ class Inputs:
     clamped: bool = False
     interlock_ok: bool = True
     test_enable: bool = False
+    jog: bool = False
 
 
 @dataclass
@@ -111,6 +114,7 @@ class TurretFSM:
         self._req_release = False
         self._req_lock = False
         self._req_step = False
+        self._req_jog = False
         self._req_abort = False
 
         # sequence bookkeeping
@@ -124,6 +128,7 @@ class TurretFSM:
         self._rot_stopped_count = 0
         self._retries = 0
         self._coast_history = []
+        self._jog_count = 0
         self._need_rehome = False
         self.last_completed = 0
 
@@ -158,6 +163,9 @@ class TurretFSM:
 
     def request_step(self):
         self._req_step = True
+
+    def request_jog(self):
+        self._req_jog = True
 
     def request_abort(self):
         self._req_abort = True
@@ -275,8 +283,9 @@ class TurretFSM:
             out.motor = False
             out.unclamp = True
         elif self.state in (State.UNCLAMP, State.HOME, State.ROTATE,
-                            State.SETTLE, State.LOCATE, State.CLAMP):
-            out.motor = self.state in (State.HOME, State.ROTATE)
+                            State.SETTLE, State.LOCATE, State.CLAMP,
+                            State.JOG):
+            out.motor = self.state in (State.HOME, State.ROTATE, State.JOG)
             out.unclamp = self.state != State.CLAMP
         return out
 
@@ -295,7 +304,20 @@ class TurretFSM:
             self._after_unclamp = "release"
             self._enter(State.UNCLAMP, now)
             return
-        if self._req_home and self._test_ok(inp):
+        if self._req_jog:
+            self._req_jog = False
+            if self._test_ok(inp):
+                self.located = False
+                self._seq = "jog"
+                self._jog_count = 0
+                self._idle_strobes = 0
+                if self._clamped(inp):
+                    self._after_unclamp = "jog"
+                    self._enter(State.UNCLAMP, now)
+                else:
+                    self._enter(State.JOG, now)
+                return
+        if self._req_home:
             self._req_home = False
             self.located = False
             self._seq = "home"
@@ -326,6 +348,8 @@ class TurretFSM:
                 self._enter(State.RELEASE, now)
             elif self._after_unclamp == "home":
                 self._enter(State.HOME, now)
+            elif self._after_unclamp == "jog":
+                self._enter(State.JOG, now)
             else:
                 self._enter_rotate(now)
             return
@@ -355,8 +379,16 @@ class TurretFSM:
 
     def _st_settle(self, now, inp, strobe_edge, pos1_edge):
         if strobe_edge:
-            self._rot_counted += 1
+            if self._settle_mode == "jog":
+                self._jog_count += 1
+                if self.homed:
+                    self.station = wrap_station(self.station + 1, self.stations)
+            else:
+                self._rot_counted += 1
         if self._elapsed(now) < self.timing.settle_time:
+            return
+        if self._settle_mode == "jog":
+            self._enter(State.LOCATE, now)
             return
         if self._settle_mode == "home":
             self.station = wrap_station(1 + self._rot_counted, self.stations)
@@ -383,6 +415,23 @@ class TurretFSM:
                 self._set_fault(Alarm.E_ROTATE_TIMEOUT, now)
             return
         self._enter(State.LOCATE, now)
+
+    def _st_jog(self, now, inp, strobe_edge, pos1_edge):
+        if pos1_edge and inp.strobe:
+            # reaching station 1 manually is a valid reference
+            self.station = 1
+            self.homed = True
+            self.located = False
+            self._jog_count = 0
+            self._idle_strobes = 0
+        elif strobe_edge:
+            self._jog_count += 1
+            if self.homed:
+                self.station = wrap_station(self.station + 1, self.stations)
+        hold = bool(inp.jog)
+        if not hold or self._elapsed(now) > self.timing.jog_timeout:
+            self._settle_mode = "jog"
+            self._enter(State.SETTLE, now)
 
     def _st_locate(self, now, inp, strobe_edge, pos1_edge):
         if not self.logic.require_changepos:
@@ -421,8 +470,9 @@ class TurretFSM:
             self._seq = None
             self._enter(State.CLAMP, now)
             return
-        if self._req_home and self._test_ok(inp):
+        if self._req_home:
             self._req_home = False
+            self.located = False
             self._seq = "home"
             self._enter(State.HOME, now)
 

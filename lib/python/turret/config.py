@@ -29,6 +29,7 @@ class Timing:
     max_retries: int = 2
     lead_pulses: int = 0
     lead_auto: bool = True
+    jog_timeout: float = 10.0
 
 
 @dataclass
@@ -136,7 +137,8 @@ class TurretConfig:
                 errors.append("falta el pin obligatorio '%s'" % name)
         t = self.timing
         for f in ("unclamp_timeout", "home_timeout", "rotate_timeout",
-                  "settle_time", "locate_timeout", "clamp_timeout"):
+                  "settle_time", "locate_timeout", "clamp_timeout",
+                  "jog_timeout"):
             if getattr(t, f) <= 0:
                 errors.append("timing.%s debe ser > 0" % f)
         if t.max_retries < 0:

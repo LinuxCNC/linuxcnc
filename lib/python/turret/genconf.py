@@ -38,6 +38,7 @@ def generate(cfg):
     lines.append("timing.max_retries = %d" % t.max_retries)
     lines.append("timing.lead_pulses = %d" % t.lead_pulses)
     lines.append("timing.lead_auto = %d" % (1 if t.lead_auto else 0))
+    lines.append("timing.jog_timeout = %g" % t.jog_timeout)
     logic = cfg.logic
     lines.append("logic.clamped_inverted = %d" % (1 if logic.clamped_inverted else 0))
     lines.append("logic.require_changepos = %d" % (1 if logic.require_changepos else 0))
