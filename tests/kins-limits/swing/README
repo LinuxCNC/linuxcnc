@@ -1,0 +1,15 @@
+A turn of the head under the tool centre point must not run a slide
+past its own limits.
+
+5axiskins with a 400 mm pivot, the head laid over to B90 by a joint move,
+then a plain G0 C180 with the tool tip held: the tip does not move, the
+carriage swings through a half circle of radius 400 to keep it still.  The
+joints follow their commands through limit3, 20 percent over each joint's
+own velocity and acceleration limits, the way a drive or a step generator
+follows only as fast as it can; a command inside the limits is followed
+exactly, one well over them falls behind and motion trips the following
+error.  The test asserts that the move ends on its endpoint with no
+following error, and that no joint's commanded velocity or acceleration
+went over the joint's INI limit, sampled every servo cycle.  The slowest
+joint has to set the pace of the move; how slow the tip goes is not
+asserted.
