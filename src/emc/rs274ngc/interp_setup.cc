@@ -118,6 +118,7 @@ setup::setup() :
     input_flag(0),
     kinsSwitch_flag(0),
     kins_type(0),
+    kins_by_g43_4(false),
     toolchange_flag(0),
     home_flag(0),
     input_index(0),
@@ -205,6 +206,7 @@ setup::setup() :
     pythis(),
     on_abort_command(NULL),
     in_abort_command(false),
+    in_startup_code(false),
     init_once(CANON_STOPPED)
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
