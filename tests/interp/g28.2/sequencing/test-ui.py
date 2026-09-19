@@ -33,7 +33,21 @@ def wait_idle(timeout=5.0):
     t0 = time.time()
     while time.time() - t0 < timeout:
         poll()
-        if s.exec_state == linuxcnc.EXEC_DONE and s.interp_state == linuxcnc.INTERP_IDLE:
+        # A queued MDI command shows as DONE/IDLE until task takes it off
+        # the queue, so it has to be counted too.
+        if (s.exec_state == linuxcnc.EXEC_DONE
+                and s.interp_state == linuxcnc.INTERP_IDLE
+                and s.queued_mdi_commands == 0):
+            return True
+        time.sleep(0.01)
+    return False
+
+
+def wait_x(expected, timeout=5.0):
+    t0 = time.time()
+    while time.time() - t0 < timeout:
+        poll()
+        if near(s.position[0], expected):
             return True
         time.sleep(0.01)
     return False
@@ -93,11 +107,10 @@ poll()
 if s.task_mode != mode_before:
     fail("task_mode after invalid Pn is {}, expected {} (MDI)".format(s.task_mode, mode_before))
 
+# The rejected G28.2 leaves a resynch on the interp list; task parks the
+# next MDI behind it, so wait for the move itself rather than for idle.
 c.mdi("G0 X2")
-if not wait_idle():
-    fail("recovery MDI command after invalid Pn did not settle")
-poll()
-if not near(s.position[0], 2.0):
+if not wait_x(2.0):
     fail("MDI command after an invalid Pn was rejected -- task_mode stuck (X stayed at {})".format(s.position[0]))
 print("PASS: an invalid Pn does not leave task_mode stuck")
 
