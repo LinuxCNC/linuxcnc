@@ -952,9 +952,11 @@ G13.1
 
 'G12.1' selects one of the kinematics provided by a switchable kinematics
 module; the 'P' word is the kinematics number. 'G13.1' cancels back to
-identity kinematics, where joints and coordinates are the same thing.
-Which number that is is declared by the module itself, so 'G13.1' means
-the same kinematics whatever order a module lists its types in.
+the machine frame kinematics: the identity kinematics, where joints and
+coordinates are the same thing, on a machine whose slides line up with its
+frame, and the arm kinematics with no tool on a robot. Which number that is
+is declared by the module itself, so 'G13.1' means the same kinematics
+whatever order a module lists its types in.
 
 [WARNING]
 Deprecation notice: selecting the kinematics by writing the
@@ -970,12 +972,12 @@ planned in one kinematics and executed in another. Because of that, both
 codes stop any blending that was in progress, in the same way 'G4' does.
 
 The kinematics module decides what each number means, and declares
-which one is identity. See the `switchkins` section of the kins(9) man
-page for the modules that support switching and the order in which they
+which one is the machine frame. See the `switchkins` section of the kins(9)
+man page for the modules that support switching and the order in which they
 list their kinematics. A machine whose kinematics module is not
 switchable rejects the change, and 'G13.1' is an error on a switchable
-module that declares no identity kinematics; such a module can still be
-driven by number with 'G12.1'.
+module that declares no identity or machine frame kinematics; such a module
+can still be driven by number with 'G12.1'.
 
 Selecting a kinematics does not move the machine. It changes how joint
 positions and coordinate positions map onto each other, so the position
@@ -996,14 +998,14 @@ G12.1 P#<saved> (put back whatever the caller was using)
 Nothing cancels the selection on its own. It survives the end of the
 program and an abort, so that the kinematics keeps matching what the
 position readout shows. End a program with 'G13.1' if it should leave the
-machine in identity kinematics.
+machine in the machine frame kinematics.
 
 .G12.1, G13.1 Example
 [source,ngc]
 ----
 G12.1 P1  (switch to kinematics 1)
 G0 X0 Y0
-G13.1     (back to identity kinematics)
+G13.1     (back to the machine frame kinematics)
 ----
 
 It is an error if:
@@ -1012,7 +1014,7 @@ It is an error if:
 * The 'P' word is negative.
 * The 'P' word names a kinematics the module does not provide.
 * A 'P' word is used with 'G13.1'.
-* 'G13.1' is used and the module declares no identity kinematics.
+* 'G13.1' is used and the module declares no identity or machine frame kinematics.
 
 [[gcode:g17-g19.1]]
 == G17 - G19.1 Plane Select(((G17 - G19.1 Plane Select)))
@@ -1076,7 +1078,7 @@ G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)
 The 'absolute' position is the machine coordinate system of the kinematics in
 force, see <<gcode:g53,G53>>: on a kinematics that is not the identity it is
 that kinematics' world, not the slides, and the stored position is a world
-position too. <<gcode:g28.5,G28.5>> is the form that moves the slides.
+position too. <<gcode:g28.5,G28.5>> is the machine frame form.
 
 It is an error if :
 
@@ -1223,7 +1225,8 @@ with its frame, and the move is a <<gcode:g53.4,point-to-point move>> there,
 rapid, with no offset, tool length, rotation or work plane applied. The
 values are in the machine units of the INI file, as for 'G28'. The stored
 position has to be a machine frame position: store it with 'G28.1' or 'G30.1'
-while the identity kinematics is in force, where the world is that frame.
+while the machine frame kinematics is in force, what 'G13.1' selects, where
+the world is that frame.
 
 * 'G28.5' - moves every letter the machine has to the stored position.
 * 'G28.5 axes' - moves the letters named by 'axes' to the given machine
@@ -1811,9 +1814,9 @@ declares its working transform, so the program runs with tool length
 compensation in the module's working kinematics. The switch happens
 first and the offset applies after it, as if the two had been written
 on consecutive lines. 'G49' is the matching cancel: it clears the
-offset and switches back to identity kinematics, as long as the offset
-in effect is still 'G43.4''s and no 'G12.1' or 'G13.1' has selected a
-kinematics since.
+offset and switches back to the machine frame kinematics, what 'G13.1'
+selects, as long as the offset in effect is still 'G43.4''s and no 'G12.1'
+or 'G13.1' has selected a kinematics since.
 
 The H word, the offset itself and the parameters it lands in are
 'G43''s. Which kinematics is the working one is declared by the module
@@ -1909,11 +1912,13 @@ It is an error if:
 
 * 'G49' - cancels tool length compensation
 
-'G49' also switches a switchable kinematics module back to its identity
-kinematics when it cancels a 'G43.4' or 'G43.5', undoing the switch that made. It
-leaves a kinematics selected by 'G12.1' or 'G13.1' alone, as it does
-after a plain 'G43', and a module that declares no identity kinematics
-gets the plain cancel.
+'G49' also switches a switchable kinematics module back to its machine
+frame kinematics, what 'G13.1' selects, when it cancels a 'G43.4' or
+'G43.5', undoing the switch that code made. It leaves a kinematics selected
+by 'G12.1' or 'G13.1' alone, as it does after a plain 'G43', and a module
+that declares no identity or machine frame kinematics gets the plain
+cancel. On a robot the arm kinematics is the machine frame, so there the
+cancel switches nothing.
 
 It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
@@ -2118,19 +2123,23 @@ one more layer of interpretation from the destination than the one before:
   without leaving its coordinate system and without the trajectory planner
   trying to hold the tool tip on a line the joints cannot follow at speed.
 * 'G53.5' takes the same axis letters as a position in the machine frame
-  with the orientation left out: 'X', 'Y' and 'Z' are the carriage, the
-  point the rotary joints do not move, in machine coordinates, and the
-  rotary letters are the rotary joints themselves. On a machine whose slides
-  line up with its frame, which every shipped module is, that is the slides:
-  each letter names the joints the module's identity mapping gives it, which
-  the `coordinates=` parameter and the `[TRAJ]COORDINATES` line describe,
-  and the two joints of a gantry take one value together. A module whose
+  with the tool left out: 'X', 'Y' and 'Z' are the point the tool hangs
+  from, the pivot of a head or the flange of a robot, in machine
+  coordinates, and the rotary letters are the orientation as the machine
+  frame kinematics reports it, on a mill the rotary joints themselves. On a
+  machine whose slides line up with its frame that is the slides: each
+  letter names the joints the module's identity mapping gives it, which the
+  `coordinates=` parameter and the `[TRAJ]COORDINATES` line describe, and
+  the two joints of a gantry take one value together. A module whose
   carriage does not line up, a slanted slide or a composite Y on a mill-turn,
   declares a machine frame type of its own (see the
   <<cha:switchable-kinematics,Switchable Kinematics>> chapter) and 'G53.5'
   goes through it, so that 'Y10' is machine Y whichever slides make it, and
-  a letter not given holds its machine coordinate rather than a joint.
-  Values are in program units, so 'G20' scales them like any other axis
+  a letter not given holds its machine coordinate rather than a joint. On a
+  robot the machine frame is the arm kinematics with no tool, the flange in
+  the base frame, so 'Z10' puts the flange at base Z 10 with its orientation
+  held and 'A', 'B' and 'C' are the flange angles the module reports; the
+  move is still interpolated in joint space. Values are in program units, so 'G20' scales them like any other axis
   word. No offset, tool length, rotation or work plane applies. On a mill
   whose joint 2 carries the Z slide, 'G53.5 G0 Z0' puts that slide at zero
   whatever the head is doing, where 'G53 G0 Z0' puts the tool tip at machine
@@ -2141,10 +2150,10 @@ one more layer of interpretation from the destination than the one before:
 +
 An axis letter carries a unit class and a joint does not, so where the
 machine frame is the joints 'G53.5' is refused on a machine whose letters
-name joints of the other kind. A serial robot answers X with its first
-rotary joint, which turns in degrees, and there the whole code is refused
-rather than that one letter. Which joints turn is what `[JOINT_n] TYPE`
-declares.
+name joints of the other kind: a module that declares no kinematics types
+and answers X with a rotary joint, which turns in degrees, has the whole
+code refused rather than that one letter. Which joints turn is what
+`[JOINT_n] TYPE` declares.
 
 * 'G53.7' takes joint values, one word per joint, and works on every machine:
   'J2=-5' sends joint 2 to -5. The number after 'J' is the joint number, the
@@ -2152,8 +2161,9 @@ declares.
   the joint's own position, what `joint.n.pos-cmd` shows, in the joint's own
   units. Nothing is converted, not even 'G20' and 'G21'. A joint left out
   keeps its position, and the two joints of a gantry pair must both be given,
-  with one value. This is the form for a robot, and for any machine where the
-  letters do not name the joints they look like.
+  with one value. This is the form that names a joint outright, a robot's
+  joints by number, and the only form on a machine whose letters do not name
+  the joints they look like and whose module declares no machine frame.
 
 With 'G0' the speed comes from the joint limits in the INI file,
 `[JOINT_n] MAX_VELOCITY` and `MAX_ACCELERATION`, scaled so that no joint

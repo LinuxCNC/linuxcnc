@@ -73,17 +73,22 @@ the zero pose or a switch would jump the reported position; a module without
 one keeps it too, so that `G53.5` machine frame positions and `G53` positions
 coincide with the rotaries at zero.
 
-The machine frame is the frame with the orientation left out: XYZ is the
-pivot, the point the rotary joints do not move, in machine coordinates, and
-the rotary letters are the rotary joints as they are. On a machine whose
-slides line up with its frame that is the identity type, and it is what
-`G13.1` and `G49` select and `G53.5` moves in. A machine whose carriage does
-not line up, a slanted slide, a composite Y made by two slides, an offset
-pivot, declares a machine frame type of its own next to its identity type,
-and its identity type then keeps the plain meaning, joints are axes, which a
-consumer uses to skip the maths. The zero-pose rule holds for the machine
-frame type as it does for the identity: the working transform and the machine
-frame type agree with the rotaries at zero.
+The machine frame is the frame with the tool left out: XYZ is the point the
+tool hangs from, the pivot of a head or the flange of a robot, in machine
+coordinates, and the rotary letters are the orientation as the machine frame
+type reports it, the rotary joints on a mill, the flange angles on a robot.
+It is what `G13.1` and `G49` select and `G53.5` moves in. On a machine whose
+slides line up with its frame it is the identity type. A machine whose
+carriage does not line up, a slanted slide, a composite Y made by two slides,
+an offset pivot, declares a machine frame type of its own next to its
+identity type, and its identity type then keeps the plain meaning, joints are
+axes, which a consumer uses to skip the maths. A robot's working transform
+reports the flange in the base frame, the tool applied on top by the
+interpreter and not by the maths, so the one type is both the working
+transform and the machine frame, what ABB calls `tool0` and KUKA
+`$NULLFRAME`. The zero-pose rule holds for the machine frame type as it does
+for the identity: the working transform and the machine frame type agree with
+the rotaries at zero.
 
 Orientations are measured against the machine frame, and there are two of them.
 A module reports the tool frame and the work frame separately, each in machine
@@ -559,7 +564,9 @@ the last answer after a switch. A type also says what it IS: `identity` marks
 the no-transform type, joints are axes; `primary` the working transform
 `G43.4` and `G43.5` switch to; `machine` the machine frame type `G13.1` and
 `G49` cancel to and `G53.5` moves in, which a module leaves unset when its
-identity type is that frame (see the Switchable Kinematics chapter). A module with
+identity type is that frame and sets on its working transform when that
+reports the flange with no tool, as the robot modules do (see the Switchable
+Kinematics chapter). A module with
 several types has one geometry table and one ops table per type, registered
 with `switchkinsRegisterOps()`; a module with one type describes itself in a
 `kins_module` and links `kins_single.c`.
