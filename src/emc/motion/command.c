@@ -74,6 +74,8 @@
 // module written before the call exports no such symbol, and the weak
 // reference leaves it NULL rather than refusing to load motion
 #pragma weak kinematicsSetTool
+// old modules export no kinematicsMachineFrame; keep it optional
+#pragma weak kinematicsMachineFrame
 
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
@@ -270,47 +272,66 @@ void apply_spindle_limits(spindle_status_t *s){
 }
 
 
-/* inRange() returns non-zero if the position lies within the joint
-   limits, or 0 if not.  It also reports an error for each joint limit
-   violation.  It's possible to get more than one violation per move. */
-STATIC int inRange(EmcPose pos, int id, char *move_type)
+/* The [AXIS_L] box is the machine frame envelope: the carriage, or the
+   flange, in machine coordinates, the frame that does not move when the
+   head tilts or a tool is loaded.  Where the module names its machine
+   frame type, the endpoint's joints go through that type's forward and
+   the box is read there, whatever type is in force; a module that names
+   none keeps the box on the world of the type in force, as before.
+   Returns non-zero when the endpoint is inside the box, and reports each
+   letter outside it. */
+STATIC int box_ok(const double *joint_pos, const EmcPose *pos, int id, const char *move_type)
 {
-    double joint_pos[EMCMOT_MAX_JOINTS];
-    int joint_num, axis_num;
-    emcmot_joint_t *joint;
-    int in_range = 1;
+    EmcPose frame = *pos;     /* the estimate in, and the fallback */
     int failing_axes[EMCMOT_MAX_AXIS];
     double targets[EMCMOT_MAX_AXIS];
     const char axis_letters[] = "XYZABCUVW";
+    int axis_num, in_box = 1;
 
     if (EMCMOT_MAX_AXIS != 9) {
         rtapi_print_msg(RTAPI_MSG_ERR, "BUG: %s(): invalid number of axes defined", __func__);
-    } else {
-        targets[0] = pos.tran.x;
-        targets[1] = pos.tran.y;
-        targets[2] = pos.tran.z;
-        targets[3] = pos.a;
-        targets[4] = pos.b;
-        targets[5] = pos.c;
-        targets[6] = pos.u;
-        targets[7] = pos.v;
-        targets[8] = pos.w;
-        axis_check_constraints(targets, failing_axes);
-        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
-            if (failing_axes[axis_num] == -1) {
-                reportError(_("%s move on line %d would exceed %c's %s limit"),
-                                move_type, id, axis_letters[axis_num], _("negative"));
-                in_range = 0;
-            }
-            if (failing_axes[axis_num] == 1) {
-                reportError(_("%s move on line %d would exceed %c's %s limit"),
-                                move_type, id, axis_letters[axis_num], _("positive"));
-                in_range = 0;
-            }
+        return 1;
+    }
+    if (kinematicsMachineFrame && kinematicsMachineFrame(joint_pos, &frame) == -2) {
+        reportError(_("%s move on line %d cannot be placed in the machine frame"),
+                    move_type, id);
+        return 0;
+    }
+    targets[0] = frame.tran.x;
+    targets[1] = frame.tran.y;
+    targets[2] = frame.tran.z;
+    targets[3] = frame.a;
+    targets[4] = frame.b;
+    targets[5] = frame.c;
+    targets[6] = frame.u;
+    targets[7] = frame.v;
+    targets[8] = frame.w;
+    axis_check_constraints(targets, failing_axes);
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
+        if (failing_axes[axis_num] == -1) {
+            reportError(_("%s move on line %d would exceed %c's %s limit"),
+                        move_type, id, axis_letters[axis_num], _("negative"));
+            in_box = 0;
+        }
+        if (failing_axes[axis_num] == 1) {
+            reportError(_("%s move on line %d would exceed %c's %s limit"),
+                        move_type, id, axis_letters[axis_num], _("positive"));
+            in_box = 0;
         }
     }
+    return in_box;
+}
 
-    /* Now, check that the endpoint puts the joints within their limits too */
+/* inRange() returns non-zero if the position lies within the joint
+   limits and the [AXIS_L] box, or 0 if not.  It also reports an error for
+   each limit violation.  It's possible to get more than one violation per
+   move. */
+STATIC int inRange(EmcPose pos, int id, char *move_type)
+{
+    double joint_pos[EMCMOT_MAX_JOINTS];
+    int joint_num;
+    emcmot_joint_t *joint;
+    int in_range = 1;
 
     /* start the inverse from where the queue leaves the joints */
     queue_end_joints(joint_pos);
@@ -324,6 +345,10 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 	return 0;
     }
 
+    /* the box, read where the joints put the machine frame */
+    if (!box_ok(joint_pos, &pos, id, move_type)) { in_range = 0; }
+
+    /* and the joints within their limits */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
@@ -1242,6 +1267,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		if (kinematicsForward(target, &end, &fflags, &iflags) != 0) {
 		    reportError(_("joint interpolated move on line %d fails kinematicsForward"),
 				emcmotCommand->id);
+		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
+		    tpAbort(&emcmotInternal->coord_tp);
+		    SET_MOTION_ERROR_FLAG(1);
+		    break;
+		}
+		/* the joints named still have to keep the machine frame in the box */
+		if (!box_ok(target, &end, emcmotCommand->id, "Joint interpolated")) {
+		    reportError(_("invalid params in joint interpolated move"));
 		    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		    tpAbort(&emcmotInternal->coord_tp);
 		    SET_MOTION_ERROR_FLAG(1);

@@ -142,6 +142,14 @@ extern KINEMATICS_TYPE kinematicsType(void);
 ** provide (and for every type on a machine with plain kinematics) */
 extern int kinematicsTypeFlags(int ktype);
 
+/* The joints placed in the machine frame: the forward of the type
+** flagged KINSTYPE_MACHINE, whatever type is in force, so that a limit
+** on the frame can be read for a move under any type.  pos carries the
+** caller's estimate in for an iterative forward.  Returns 0, -1 where
+** no type declares the machine frame (a consumer then falls back on the
+** world of the type in force), or -2 where the forward fails. */
+extern int kinematicsMachineFrame(const double *joint, struct EmcPose *pos);
+
 /* These two give the orientation of the tool and of the workpiece for a set
    of joint values.  Each returns a rotation whose columns are that frame's
    axes expressed in MACHINE coordinates, the frame fixed to the bed that
