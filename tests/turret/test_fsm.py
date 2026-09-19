@@ -175,6 +175,35 @@ class TestTurretFSM(unittest.TestCase):
         self.assertTrue(fsm.homed, "el avance manual debe referenciar al pasar por 1")
         self.assertEqual(fsm.station, 1)
 
+    def test_jog_from_release(self):
+        fsm, _ = self.make()
+        plant = Plant(start_station=1)
+        fsm.request_release()
+        out = run(fsm, plant, lambda o, f: f.state == State.RELEASE)
+        self.assertIsNotNone(out)
+        fsm.request_jog()
+        out = run(fsm, plant, lambda o, f: f.state == State.JOG, jog=True)
+        self.assertIsNotNone(out)
+        self.assertTrue(out.motor)
+        out = run(fsm, plant, lambda o, f: f.state == State.IDLE, jog=False)
+        self.assertIsNotNone(out)
+        self.assertTrue(plant.clamped)
+
+    def test_jog_at_position1_references(self):
+        fsm, _ = self.make()
+        plant = Plant(start_station=1)
+        self.assertFalse(fsm.homed)
+        fsm.request_jog()
+        while plant.t < 5.0:
+            out = fsm.update(plant.t, plant.inputs(jog=True))
+            plant.apply(out)
+            if fsm.state == State.JOG:
+                break
+            plant.step()
+        self.assertEqual(fsm.state, State.JOG)
+        self.assertTrue(fsm.homed, "si ya esta en la 1, el jog debe referenciar")
+        self.assertEqual(fsm.station, 1)
+
     def test_select_homes_first(self):
         fsm, _ = self.make()
         plant = Plant(start_station=2)

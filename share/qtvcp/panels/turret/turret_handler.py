@@ -201,31 +201,47 @@ class HandlerClass:
         cgrid = QGridLayout(cmd)
         cgrid.addWidget(self._button("Referenciar (ir a posicion 1)",
                                       lambda: self._pulse("home")), 0, 0, 1, 2)
-        cgrid.addWidget(self._button("Paso (+1)", lambda: self._pulse("step")), 1, 0)
-        jog = QPushButton("Avanzar (mantener)")
-        jog.setMinimumHeight(32)
-        jog.pressed.connect(lambda: self._set("jog", 1))
-        jog.released.connect(lambda: self._set("jog", 0))
-        cgrid.addWidget(jog, 1, 1)
+        self.step_button = self._button("Paso (+1)", lambda: self._pulse("step"))
+        cgrid.addWidget(self.step_button, 1, 0)
+        self.jog_button = QPushButton("Avanzar (mantener)")
+        self.jog_button.setMinimumHeight(32)
+        self.jog_button.pressed.connect(lambda: self._set("jog", 1))
+        self.jog_button.released.connect(lambda: self._set("jog", 0))
+        cgrid.addWidget(self.jog_button, 1, 1)
         self.target = QSpinBox()
         self.target.setRange(1, 24)
         self.target.setValue(1)
         cgrid.addWidget(QLabel("Estacion:"), 2, 0)
         cgrid.addWidget(self.target, 2, 1)
         cgrid.addWidget(self._button("Ir", self._goto), 3, 0, 1, 2)
-        cgrid.addWidget(self._button("Liberar pinza (sacar)", lambda: self._pulse("release")), 4, 0)
-        cgrid.addWidget(self._button("Meter pinza", lambda: self._pulse("lock")), 4, 1)
+        self.release_button = self._button("Liberar pinza (sacar)",
+                                            lambda: self._pulse("release"))
+        self.lock_button = self._button("Meter pinza", lambda: self._pulse("lock"))
+        cgrid.addWidget(self.release_button, 4, 0)
+        cgrid.addWidget(self.lock_button, 4, 1)
         cgrid.addWidget(self._button("Reset fallas", lambda: self._pulse("reset")), 5, 0)
         cgrid.addWidget(self._button("Cancelar", lambda: self._pulse("cancel")), 5, 1)
         self.test_enable = QCheckBox("Modo servicio (test-enable)")
-        self.test_enable.toggled.connect(lambda v: self._set("test-enable", 1 if v else 0))
+        self.test_enable.toggled.connect(self._service_mode)
         cgrid.addWidget(self.test_enable, 6, 0, 1, 2)
+        self.service_buttons = [self.step_button, self.jog_button,
+                                self.release_button, self.lock_button]
+        service = bool(self._pin("test-enable", 0))
+        self.test_enable.blockSignals(True)
+        self.test_enable.setChecked(service)
+        self.test_enable.blockSignals(False)
+        self._service_mode(service)
         hint = QLabel("Referenciar no necesita modo servicio; el avance, "
                       "el paso y la pinza si.")
         hint.setWordWrap(True)
         cgrid.addWidget(hint, 7, 0, 1, 2)
         layout.addWidget(cmd)
         layout.addStretch(1)
+
+    def _service_mode(self, on):
+        self._set("test-enable", 1 if on else 0)
+        for btn in getattr(self, "service_buttons", []):
+            btn.setEnabled(bool(on))
 
     def _goto(self):
         station = self.target.value()

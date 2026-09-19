@@ -136,8 +136,6 @@ class TurretFSM:
         self._t0 = None
         self._strobe_prev = False
         self._strobe_time = None
-        self._pos1_prev = False
-        self._pos1_time = None
         self._locate_since = None
         self._idle_strobes = 0
 
@@ -217,14 +215,6 @@ class TurretFSM:
         self._strobe_prev = bool(inp.strobe)
         return edge
 
-    def _tick_pos1(self, now, inp):
-        edge = False
-        if inp.pos1 and not self._pos1_prev:
-            gap = self.timing.strobe_filter_ms / 1000.0
-            if self._pos1_time is None or (now - self._pos1_time) >= gap:
-                edge = True
-                self._pos1_time = now
-        self._pos1_prev = bool(inp.pos1)
         return edge
 
     def _adapt_lead(self, coast):
@@ -235,6 +225,17 @@ class TurretFSM:
         ordered = sorted(self._coast_history)
         median = ordered[len(ordered) // 2]
         self.lead = max(0, min(2, int(median)))
+
+    def _enter_jog(self, now, inp):
+        self.located = False
+        self._seq = "jog"
+        self._jog_count = 0
+        self._idle_strobes = 0
+        if inp.pos1:
+            # already on the position 1 sensor: valid reference
+            self.station = 1
+            self.homed = True
+        self._enter(State.JOG, now)
 
     def _enter_rotate(self, now):
         self._rot_base = self.station
@@ -251,7 +252,6 @@ class TurretFSM:
     # ------------------------------------------------------------------
     def update(self, now, inp):
         strobe_edge = self._tick_strobe(now, inp)
-        pos1_edge = self._tick_pos1(now, inp)
 
         if self._req_abort:
             self._req_abort = False
@@ -263,7 +263,7 @@ class TurretFSM:
             self._set_fault(Alarm.E_INTERLOCK, now)
 
         handler = getattr(self, "_st_" + State(self.state).name.lower())
-        handler(now, inp, strobe_edge, pos1_edge)
+        handler(now, inp, strobe_edge)
 
         return self._outputs()
 
@@ -292,7 +292,7 @@ class TurretFSM:
     # ------------------------------------------------------------------
     # states
     # ------------------------------------------------------------------
-    def _st_idle(self, now, inp, strobe_edge, pos1_edge):
+    def _st_idle(self, now, inp, strobe_edge):
         if strobe_edge:
             self._idle_strobes += 1
             if self._idle_strobes > 3:
@@ -307,15 +307,15 @@ class TurretFSM:
         if self._req_jog:
             self._req_jog = False
             if self._test_ok(inp):
-                self.located = False
-                self._seq = "jog"
-                self._jog_count = 0
-                self._idle_strobes = 0
                 if self._clamped(inp):
+                    self.located = False
+                    self._seq = "jog"
+                    self._jog_count = 0
+                    self._idle_strobes = 0
                     self._after_unclamp = "jog"
                     self._enter(State.UNCLAMP, now)
                 else:
-                    self._enter(State.JOG, now)
+                    self._enter_jog(now, inp)
                 return
         if self._req_home:
             self._req_home = False
@@ -342,22 +342,22 @@ class TurretFSM:
     def _test_ok(self, inp):
         return inp.test_enable or not self.logic.test_enable_required
 
-    def _st_unclamp(self, now, inp, strobe_edge, pos1_edge):
+    def _st_unclamp(self, now, inp, strobe_edge):
         if not self._clamped(inp):
             if self._after_unclamp == "release":
                 self._enter(State.RELEASE, now)
             elif self._after_unclamp == "home":
                 self._enter(State.HOME, now)
             elif self._after_unclamp == "jog":
-                self._enter(State.JOG, now)
+                self._enter_jog(now, inp)
             else:
                 self._enter_rotate(now)
             return
         if self._elapsed(now) > self.timing.unclamp_timeout:
             self._set_fault(Alarm.E_UNCLAMP_TIMEOUT, now)
 
-    def _st_home(self, now, inp, strobe_edge, pos1_edge):
-        if pos1_edge and inp.strobe:
+    def _st_home(self, now, inp, strobe_edge):
+        if inp.pos1 and strobe_edge:
             self._rot_counted = 0
             self._settle_mode = "home"
             self._enter(State.SETTLE, now)
@@ -365,7 +365,7 @@ class TurretFSM:
         if self._elapsed(now) > self.timing.home_timeout:
             self._set_fault(Alarm.E_HOME_TIMEOUT, now)
 
-    def _st_rotate(self, now, inp, strobe_edge, pos1_edge):
+    def _st_rotate(self, now, inp, strobe_edge):
         if strobe_edge:
             self._rot_counted += 1
         stop_at = max(1, self._rot_target_pulses - self.lead)
@@ -377,7 +377,7 @@ class TurretFSM:
         if self._elapsed(now) > self.timing.rotate_timeout:
             self._set_fault(Alarm.E_ROTATE_TIMEOUT, now)
 
-    def _st_settle(self, now, inp, strobe_edge, pos1_edge):
+    def _st_settle(self, now, inp, strobe_edge):
         if strobe_edge:
             if self._settle_mode == "jog":
                 self._jog_count += 1
@@ -416,8 +416,8 @@ class TurretFSM:
             return
         self._enter(State.LOCATE, now)
 
-    def _st_jog(self, now, inp, strobe_edge, pos1_edge):
-        if pos1_edge and inp.strobe:
+    def _st_jog(self, now, inp, strobe_edge):
+        if inp.pos1 and strobe_edge:
             # reaching station 1 manually is a valid reference
             self.station = 1
             self.homed = True
@@ -433,7 +433,7 @@ class TurretFSM:
             self._settle_mode = "jog"
             self._enter(State.SETTLE, now)
 
-    def _st_locate(self, now, inp, strobe_edge, pos1_edge):
+    def _st_locate(self, now, inp, strobe_edge):
         if not self.logic.require_changepos:
             self._enter(State.CLAMP, now)
             return
@@ -448,7 +448,7 @@ class TurretFSM:
         if self._elapsed(now) > self.timing.locate_timeout:
             self._set_fault(Alarm.E_NOT_LOCATED, now)
 
-    def _st_clamp(self, now, inp, strobe_edge, pos1_edge):
+    def _st_clamp(self, now, inp, strobe_edge):
         if self._clamped(inp):
             self.clamp_cycles += 1
             self.located = True
@@ -464,7 +464,12 @@ class TurretFSM:
         if self._elapsed(now) > self.timing.clamp_timeout:
             self._set_fault(Alarm.E_CLAMP_TIMEOUT, now)
 
-    def _st_release(self, now, inp, strobe_edge, pos1_edge):
+    def _st_release(self, now, inp, strobe_edge):
+        if self._req_jog:
+            self._req_jog = False
+            if self._test_ok(inp):
+                self._enter_jog(now, inp)
+                return
         if self._req_lock:
             self._req_lock = False
             self._seq = None
@@ -476,7 +481,7 @@ class TurretFSM:
             self._seq = "home"
             self._enter(State.HOME, now)
 
-    def _st_fault(self, now, inp, strobe_edge, pos1_edge):
+    def _st_fault(self, now, inp, strobe_edge):
         if self._req_reset:
             self._req_reset = False
             if self.homed and self._need_rehome:

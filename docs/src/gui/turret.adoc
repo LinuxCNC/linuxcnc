@@ -117,8 +117,9 @@ the whole change.
 
 == Referencing and manual positioning
 
-Only station 1 has a position sensor: after power up the controller does
-not know where the turret is (`turret.homed` is false; the station
+Position 1 is detected by a strobe pulse while the position 1 sensor is
+active (the pulse marks the station).  Only station 1 has a position
+sensor: after power up the controller does not know where the turret is (`turret.homed` is false; the station
 restored from the last session is only a hint for the display) and the
 first `T`/`M6` performs the reference search automatically (unclamp,
 rotate forward until position 1 + strobe, clamp).

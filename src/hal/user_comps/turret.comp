@@ -320,7 +320,6 @@ static int req_abort = 0;
 static int prev[64];
 static double strobe_time = -1.0;
 static int strobe_prev = 0;
-static int pos1_prev = 0;
 static int prev_faulted = 0;
 
 // counters / history
@@ -684,6 +683,19 @@ static void fsm_fault(int code, double now) {
     req_select = 0;
 }
 
+static void enter_jog(double now, int pos1_v) {
+    fsm.is_located = 0;
+    fsm.seq = 4;
+    fsm.jog_count = 0;
+    fsm.idle_strobes = 0;
+    if (pos1_v) {
+        // already on the position 1 sensor: valid reference
+        fsm.stn = 1;
+        fsm.is_homed = 1;
+    }
+    fsm_enter(ST_JOG, now);
+}
+
 static void fsm_enter_rotate(double now) {
     fsm.rot_base = fsm.stn;
     fsm.rot_counted = 0;
@@ -701,7 +713,7 @@ static int test_ok(void) {
 static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
                      int clamped_v, int interlock_v, int jog_v) {
     // debounced strobe / pos1 edges
-    int strobe_edge = 0, pos1_edge = 0;
+    int strobe_edge = 0;
     if (strobe_v && !strobe_prev) {
         double gap = cfg_strobe_filter / 1000.0;
         if (strobe_time < 0.0 || (now - strobe_time) >= gap) {
@@ -710,8 +722,6 @@ static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
         }
     }
     strobe_prev = strobe_v;
-    if (pos1_v && !pos1_prev) pos1_edge = 1;
-    pos1_prev = pos1_v;
 
     if (req_abort) {
         req_abort = 0;
@@ -763,7 +773,7 @@ static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
         if (!clamped_now(clamped_v)) {
             if (fsm.after_unclamp == 2) fsm_enter(ST_RELEASE, now);
             else if (fsm.after_unclamp == 1) fsm_enter(ST_HOME, now);
-            else if (fsm.after_unclamp == 3) fsm_enter(ST_JOG, now);
+            else if (fsm.after_unclamp == 3) enter_jog(now, pos1_v);
             else fsm_enter_rotate(now);
         } else if (elapsed > cfg_unclamp_timeout) {
             fsm_fault(E_UNCLAMP_TIMEOUT, now);
@@ -771,7 +781,7 @@ static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
         break;
 
     case ST_HOME:
-        if (pos1_edge && strobe_v) {
+        if (pos1_v && strobe_edge) {
             fsm.rot_counted = 0;
             fsm.settle_mode = 1;
             fsm_enter(ST_SETTLE, now);
@@ -853,7 +863,7 @@ static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
         break;
 
     case ST_JOG:
-        if (pos1_edge && strobe_v) {
+        if (pos1_v && strobe_edge) {
             fsm.stn = 1;
             fsm.is_homed = 1;
             fsm.is_located = 0;
@@ -903,6 +913,13 @@ static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
         break;
 
     case ST_RELEASE:
+        if (req_jog) {
+            req_jog = 0;
+            if (test_ok()) {
+                enter_jog(now, pos1_v);
+                break;
+            }
+        }
         if (req_lock) {
             req_lock = 0;
             fsm.seq = 0;
