@@ -26,6 +26,7 @@
 ********************************************************************/
 
 #define JOGMODE   JOGJOINT  
+#include "strutil.hh"
 
 #include <stdio.h>
 #include <string.h>
@@ -53,6 +54,7 @@
 #include "libnml/rcs/rcs_print.hh"
 #include "sockets.h"		// TCP/IP common socket functions
 #include "shcom.hh"		// Common NML messaging routines
+using namespace linuxcnc;
 
 #define DEFAULT_SERVER		"localhost"
 #define DEFAULT_PORT            13666
@@ -1069,8 +1071,8 @@ static int enterEvent()
   char *pch;
 
   pch = strtok(NULL, delims);
-  nml_strxcpy(menu1, menu2);
-  nml_strxcpy(menu2, pch);
+  strxcpy(menu1, menu2);
+  strxcpy(menu2, pch);
   printf("menuevent enter %s\n", pch);
 
   return 0;
@@ -1106,8 +1108,8 @@ static void parseConnect()
   pch = strtok(NULL, delims);
   while (pch != NULL) {
     switch (lookupConnect(pch)) {
-      case cpVersion: nml_strxcpy(lcdParms.version, strtok(NULL, delims)); break;
-      case cpProtocol: nml_strxcpy(lcdParms.protocol, strtok(NULL, delims)); break;
+      case cpVersion: strxcpy(lcdParms.version, strtok(NULL, delims)); break;
+      case cpProtocol: strxcpy(lcdParms.protocol, strtok(NULL, delims)); break;
       case cpLCD: break;
       case cpWidth: 
         pch = strtok(NULL, delims);
@@ -1462,8 +1464,8 @@ static void slowLoop()
   if (emcStatus->task.file[0] != 0) {
     fname = extractFileName(emcStatus->task.file);
     if (strcmp(fname, programName) != 0) {
-      nml_strxcpy(programName, widgetSetStr(PROG_WIDGET1, fname, programName));
-      nml_strxcpy(programName, widgetSetStr(PROG_WIDGET2, fname, programName));
+      strxcpy(programName, widgetSetStr(PROG_WIDGET1, fname, programName));
+      strxcpy(programName, widgetSetStr(PROG_WIDGET2, fname, programName));
       totalSteps = stepCount(emcStatus->task.file);
       }
     }
@@ -1479,32 +1481,32 @@ static void slowLoop()
   switch (emcStatus->task.interpState) {
       case EMC_TASK_INTERP::READING:
       case EMC_TASK_INTERP::WAITING: 
-        nml_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
+        strxcpy(status, widgetSetStr(STATUSWIDGET, "  Run", status));
         if (runStatus != rsRun)
           widgetSetStr(JOG_WIDGET, "Step", "");
         runStatus = rsRun;
         break;
       case EMC_TASK_INTERP::PAUSED: 
-        nml_strxcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
+        strxcpy(status, widgetSetStr(STATUSWIDGET, "Pause", status));
         runStatus = rsPause;
         break;
       default:
         if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
-          nml_strxcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
+          strxcpy(status, widgetSetStr(STATUSWIDGET, "EStop", status));
           widgetSetStr(JOG_WIDGET, "    ", "");
           }
         else
           if (emcStatus->task.state != EMC_TASK_STATE::ON) {
-            nml_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
+            strxcpy(status, widgetSetStr(STATUSWIDGET, "  Off", status));
             widgetSetStr(JOG_WIDGET, "    ", "");
             }
           else
             if (emcStatus->task.mode == EMC_TASK_MODE::MANUAL) {          
-              nml_strxcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
+              strxcpy(status, widgetSetStr(STATUSWIDGET, "  Man", status));
               widgetSetStr(JOG_WIDGET, "Jog ", "");
               }
             else {
-              nml_strxcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
+              strxcpy(status, widgetSetStr(STATUSWIDGET, " Idle", status));
               widgetSetStr(JOG_WIDGET, "    ", "");
               }
         displayJogMode(jogMode);

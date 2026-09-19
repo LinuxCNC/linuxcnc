@@ -13,6 +13,7 @@
 *
 * Last change:
 ********************************************************************/
+#include "strutil.hh"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -764,7 +765,7 @@ int sendProgramOpen(const char *program)
     /* save this to run again */
     lastProgramFile = program;
     /* store filename in message */
-    nml_strxcpy(msg.file, program);
+    strxcpy(msg.file, program);
     /* clear optional fields */
     msg.remote_buffersize = 0;
     msg.remote_filesize = 0;
@@ -879,7 +880,7 @@ int sendMdiCmd(const char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
-    nml_strxcpy(emc_task_plan_execute_msg.command, mdi);
+    strxcpy(emc_task_plan_execute_msg.command, mdi);
     return emcSendCommandAndWait(emc_task_plan_execute_msg);
 }
 
@@ -887,7 +888,7 @@ int sendLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
 
-    nml_strxcpy(emc_tool_load_tool_table_msg.file, file);
+    strxcpy(emc_tool_load_tool_table_msg.file, file);
     return emcSendCommandAndWait(emc_tool_load_tool_table_msg);
 }
 
@@ -933,7 +934,7 @@ int sendJointLoadComp(int /*joint*/, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
 
-    nml_strxcpy(emc_joint_load_comp_msg.file, file);
+    strxcpy(emc_joint_load_comp_msg.file, file);
     emc_joint_load_comp_msg.type = type;
     return emcSendCommandAndWait(emc_joint_load_comp_msg);
 }
@@ -1015,7 +1016,7 @@ int iniLoad(const char *filename)
 
     if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
 	// copy to global
-	nml_strxcpy(emc_nmlfile, inistring->c_str());
+	strxcpy(emc_nmlfile, inistring->c_str());
     } // else not found, use default or previously set
 
     if (auto inival = mapLinearUnits(inifile, "LINEAR_UNITS", "DISPLAY")) {

@@ -12,12 +12,14 @@
 *
 * Last change:
 ********************************************************************/
+#include "strutil.hh"
 
 #include <string.h>		/* strcpy() */
 #include <stdio.h>		/* fgets() */
 #include "libnml/nml/nml.hh"               /* nmlSetHostAlias */
 #include "emcglb.h"		/* these decls */
 #include "libnml/rcs/rcs_print.hh"
+using namespace linuxcnc;
 
 int emcGetArgs(int argc, char *argv[])
 {
@@ -34,7 +36,7 @@ int emcGetArgs(int argc, char *argv[])
                     fprintf(stderr, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		nml_strxcpy(emc_inifile, argv[t + 1]);
+		strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;

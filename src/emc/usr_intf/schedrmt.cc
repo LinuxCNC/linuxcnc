@@ -15,6 +15,7 @@
 ********************************************************************/
 
 #define _REENTRANT
+#include "strutil.hh"
 
 #include <stdio.h>
 #include <string.h>
@@ -41,6 +42,7 @@
 #include "libnml/rcs/rcs_print.hh"
 #include "shcom.hh"             // NML Messaging functions
 #include "emcsched.hh"
+using namespace linuxcnc;
 
 /*
   Using schedrmt:
@@ -333,7 +335,7 @@ static void sigQuit(int /*sig*/)
 
 static int sockWrite(connectionRecType *context)
 {
-   nml_strxcat(context->outBuf, "\r\n");
+   strxcat(context->outBuf, "\r\n");
    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
@@ -361,11 +363,11 @@ static int commandHello(connectionRecType *context)
   if (strcmp(pch, pwd) != 0) return -1;
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  nml_strxcpy(context->hostName, pch);
+  strxcpy(context->hostName, pch);
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   context->linked = true;    
-  nml_strxcpy(context->version, pch);
+  strxcpy(context->version, pch);
   printf("Connected to %s\n", context->hostName);
   return 0;
 }
@@ -480,7 +482,7 @@ static cmdResponseType setCommProt(char * /*s*/, connectionRecType *context)
   
   pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
-  nml_strxcpy(context->version, pVersion);
+  strxcpy(context->version, pVersion);
   return rtNoError;
 }
 
@@ -718,7 +720,7 @@ static cmdResponseType getConfig(char * /*s*/, connectionRecType *context)
 {
   const char *pConfigStr = "CONFIG";
 
-  nml_strxcpy(context->outBuf, pConfigStr);
+  strxcpy(context->outBuf, pConfigStr);
   return rtNoError;
 }
 
@@ -948,11 +950,11 @@ int commandShutdown(connectionRecType *context)
 static int helpGeneral(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Available commands:\n\r");
-  nml_strxcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
-  nml_strxcat(context->outBuf, "  Get <emc command>\n\r");
-  nml_strxcat(context->outBuf, "  Set <emc command>\n\r");
-  nml_strxcat(context->outBuf, "  Shutdown\n\r");
-  nml_strxcat(context->outBuf, "  Help <command>\n\r");
+  strxcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
+  strxcat(context->outBuf, "  Get <emc command>\n\r");
+  strxcat(context->outBuf, "  Set <emc command>\n\r");
+  strxcat(context->outBuf, "  Shutdown\n\r");
+  strxcat(context->outBuf, "  Help <command>\n\r");
   sockWrite(context);
   return 0;
 }
@@ -960,18 +962,18 @@ static int helpGeneral(connectionRecType *context)
 static int helpHello(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  nml_strxcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
-  nml_strxcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
-  nml_strxcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
-  nml_strxcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
-  nml_strxcat(context->outBuf, "  With valid password, server responds with:\n\r");
-  nml_strxcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
-  nml_strxcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
-  nml_strxcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
-  nml_strxcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
-  nml_strxcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
-  nml_strxcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
-  nml_strxcat(context->outBuf, "  Hello Nak\n\r");
+  strxcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
+  strxcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
+  strxcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
+  strxcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
+  strxcat(context->outBuf, "  With valid password, server responds with:\n\r");
+  strxcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
+  strxcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
+  strxcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
+  strxcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
+  strxcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
+  strxcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
+  strxcat(context->outBuf, "  Hello Nak\n\r");
   sockWrite(context);
   return 0;
 }
@@ -979,24 +981,24 @@ static int helpHello(connectionRecType *context)
 static int helpGet(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\rGet <emc command>\n\r");
-  nml_strxcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
-  nml_strxcat(context->outBuf, "  Emc command may be one of:\n\r");
-  nml_strxcat(context->outBuf, "    AutoTagId\n\r");
-  nml_strxcat(context->outBuf, "    Comm_mode\n\r");
-  nml_strxcat(context->outBuf, "    Comm_prot\n\r");
-  nml_strxcat(context->outBuf, "    Debug\n\r");
-  nml_strxcat(context->outBuf, "    Echo\n\r");
-  nml_strxcat(context->outBuf, "    Enable\n\r");
-  nml_strxcat(context->outBuf, "    Inifile\n\r");
-  nml_strxcat(context->outBuf, "    PgmById <Tag Id>\n\r");
-  nml_strxcat(context->outBuf, "    PgmByIndex <Index>\n\r");
-  nml_strxcat(context->outBuf, "    PriorityById <Tag Id>\n\r");
-  nml_strxcat(context->outBuf, "    PriorityByIndex <Tag Index>\n\r");
-  nml_strxcat(context->outBuf, "    Plat\n\r");
-  nml_strxcat(context->outBuf, "    QMode\n\r");
-  nml_strxcat(context->outBuf, "    QStatus\n\r");
-  nml_strxcat(context->outBuf, "    Verbose\n\r");
-//  nml_strxcat(context->outBuf, "CONFIG\n\r");
+  strxcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
+  strxcat(context->outBuf, "  Emc command may be one of:\n\r");
+  strxcat(context->outBuf, "    AutoTagId\n\r");
+  strxcat(context->outBuf, "    Comm_mode\n\r");
+  strxcat(context->outBuf, "    Comm_prot\n\r");
+  strxcat(context->outBuf, "    Debug\n\r");
+  strxcat(context->outBuf, "    Echo\n\r");
+  strxcat(context->outBuf, "    Enable\n\r");
+  strxcat(context->outBuf, "    Inifile\n\r");
+  strxcat(context->outBuf, "    PgmById <Tag Id>\n\r");
+  strxcat(context->outBuf, "    PgmByIndex <Index>\n\r");
+  strxcat(context->outBuf, "    PriorityById <Tag Id>\n\r");
+  strxcat(context->outBuf, "    PriorityByIndex <Tag Index>\n\r");
+  strxcat(context->outBuf, "    Plat\n\r");
+  strxcat(context->outBuf, "    QMode\n\r");
+  strxcat(context->outBuf, "    QStatus\n\r");
+  strxcat(context->outBuf, "    Verbose\n\r");
+//  strxcat(context->outBuf, "CONFIG\n\r");
   sockWrite(context);
   return 0;
 }
@@ -1004,22 +1006,22 @@ static int helpGet(connectionRecType *context)
 static int helpSet(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r  Set <emc command>\n\r");
-  nml_strxcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
-  nml_strxcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
-  nml_strxcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
-  nml_strxcat(context->outBuf, "    Comm_mode <mode>\n\r");
-  nml_strxcat(context->outBuf, "    Comm_prot <protocol>\n\r");
-  nml_strxcat(context->outBuf, "    Echo <On | Off>\n\r");
-  nml_strxcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
-  nml_strxcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
-  nml_strxcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
-  nml_strxcat(context->outBuf, "    AutoTagId <Start Id>\n\r");
-  nml_strxcat(context->outBuf, "    PgmAdd <Priority> <Tag Id> <X> <Y> <Z> <Zone> <File Name> <Feed Override> <Spindle Override> <Tool No>\n\r");
-  nml_strxcat(context->outBuf, "    PriorityById <Tag Id> <Priority>\n\r");
-  nml_strxcat(context->outBuf, "    PriorityByIndex <Index> <Priority>\n\r");
-  nml_strxcat(context->outBuf, "    DeleteById <Tag Id> \n\r");
-  nml_strxcat(context->outBuf, "    DeleteByIndex <Index> \n\r");
-  nml_strxcat(context->outBuf, "    QMode <stop | run | pause | resume>\n\r");
+  strxcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
+  strxcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
+  strxcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
+  strxcat(context->outBuf, "    Comm_mode <mode>\n\r");
+  strxcat(context->outBuf, "    Comm_prot <protocol>\n\r");
+  strxcat(context->outBuf, "    Echo <On | Off>\n\r");
+  strxcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
+  strxcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
+  strxcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
+  strxcat(context->outBuf, "    AutoTagId <Start Id>\n\r");
+  strxcat(context->outBuf, "    PgmAdd <Priority> <Tag Id> <X> <Y> <Z> <Zone> <File Name> <Feed Override> <Spindle Override> <Tool No>\n\r");
+  strxcat(context->outBuf, "    PriorityById <Tag Id> <Priority>\n\r");
+  strxcat(context->outBuf, "    PriorityByIndex <Index> <Priority>\n\r");
+  strxcat(context->outBuf, "    DeleteById <Tag Id> \n\r");
+  strxcat(context->outBuf, "    DeleteByIndex <Index> \n\r");
+  strxcat(context->outBuf, "    QMode <stop | run | pause | resume>\n\r");
  
   sockWrite(context);
   return 0;
@@ -1028,9 +1030,9 @@ static int helpSet(connectionRecType *context)
 static int helpQuit(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  nml_strxcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
-  nml_strxcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
-  nml_strxcat(context->outBuf, "  a hello, or be in control.");
+  strxcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
+  strxcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
+  strxcat(context->outBuf, "  a hello, or be in control.");
   sockWrite(context);
   return 0;
 }
@@ -1038,9 +1040,9 @@ static int helpQuit(connectionRecType *context)
 static int helpShutdown(connectionRecType *context)
 {
   snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
-  nml_strxcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
-  nml_strxcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
-  nml_strxcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
+  strxcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
+  strxcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
+  strxcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
   sockWrite(context);
   return 0;
 }
@@ -1159,8 +1161,8 @@ void *readClient(void * /*arg*/)
   context->linked = false;
   context->echo = true;
   context->verbose = false;
-  nml_strxcpy(context->version, "1.0");
-  nml_strxcpy(context->hostName, "Default");
+  strxcpy(context->version, "1.0");
+  strxcpy(context->hostName, "Default");
   context->enabled = false;
   context->commMode = 0;
   context->commProt = 0;
@@ -1171,7 +1173,7 @@ void *readClient(void * /*arg*/)
     len = read(context->cliSock, &str, 1600);
     if (len <= 0) goto finished;
     str[len] = 0;
-    nml_strxcat(buf, str);
+    strxcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if (context->echo && context->linked)
       if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
