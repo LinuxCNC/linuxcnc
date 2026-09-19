@@ -76,10 +76,12 @@ In general, the tool table line format is:
 - I - front angle (lathe only) - floating-point
 - J - back angle (lathe only) - floating-point
 - Q - tool orientation (lathe only) - integer, 0-9
-- WX, WZ, WD - lathe wear offsets (optional). `WX`/`WZ` are added to the
-  X/Z geometry when `[RS274NGC]LATHE_TXXXX` applies `T0101`. `WD` is
-  diameter wear (stored, for `G10 L12 R`). Do not confuse `WX` with the
-  W-axis geometry word `W`. With `LATHE_TXXXX`, the tooledit Wear tab
+- WX, WY, WZ, WA..WW, WD - lathe wear offsets (optional).  The pose
+  words (`WX`/`WY`/`WZ`/`WA`...`WW`) are added to the matching geometry
+  offsets when `[RS274NGC]LATHE_TXXXX` applies `T` or by `G43`.
+  `WD` (wear diameter) is stored and shown by the tool editors but no
+  diameter compensation is applied to motion.  Do not confuse `WX` with
+  the W-axis geometry word `W`. With `LATHE_TXXXX`, the tooledit Wear tab
   edits `WX`/`WZ` on the same tool row (not fake tools `T10001`).
 - ; - beginning of comment or remark - text
 

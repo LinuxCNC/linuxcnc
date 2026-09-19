@@ -804,7 +804,9 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
   Enable/disable teleop mode (disable for joint jogging).
 
 `tool_offset(int, float, float, float, float, float, int)`::
-  Set the tool offset. See usage example above.
+  Set the tool offset. See usage example above.  This does not change
+  the native lathe wear fields (`WX`/`WZ`/`WD`); use `G10 L12` or the
+  tool editors for wear.
 
 `traj_mode(int)`::
   Set trajectory mode. Mode is one of `MODE_FREE`, `MODE_COORD`, or `MODE_TELEOP`.

@@ -91,18 +91,51 @@ move after the 'T<n>'.
 === Lathe T0101 (`LATHE_TXXXX`)
 
 When `[RS274NGC]LATHE_TXXXX = 1`, `T` follows the Fanuc lathe `Taa ww`
-form (two digits of turret station, two of offset). `T0101` and `T101`
-are the same integer 101.
+form. Because leading zeros are lost when the word is read as an
+integer, the value is decoded as follows:
 
-* `Taa ww` with `ww != 00` - select and load tool _aa_, then apply that
-  tool's geometry plus the wear of offset _ww_ (`WX`/`WZ` on tool _ww_).
-* `T1` - same as `T0101`.
-* `T0100` - load tool 1 and cancel tool offset (`G49`).
+[cols="1,1,2",options="header"]
+|===
+|Word |Reads as |Result
+
+|`T0` |0 |tool off, canceled offset
+|`T1` ... `T99` |1..99 |tool _n_, offset _n_ (`T1` = `T0101`)
+|`Taa ww` |100..9999 |tool _aa_, offset _ww_ (`T101` = `T0101`)
+|===
+
+Leading zeros are not significant: `T0101` and `T101` are both 101 and
+mean tool 1, offset 1; `T0010` is 10 and means tool 10, offset 10.
+
+* With a non-zero offset, the tool change is performed (`T` does
+  everything `M6` used to do: stop the spindle, optional G30/quill moves
+  and the changer handshake) and the selected tool's geometry plus the
+  `WX`/`WZ` wear of the row whose tool number equals the offset is
+  applied.  Geometry always comes from the selected tool; the offset
+  number is _not_ a separate geometry table.
+* `T0100` (equivalently `T100`) loads tool 1 and cancels the tool offset;
+  the tool itself stays loaded.  This is not the same as `G49`, which
+  only cancels the offset.
+* `T1` is `T0101`.  `T100` is tool 1 offset 00, not tool 100.
 * `M6` is accepted and ignored (the change already happened on `T`).
+* A tool already in the spindle is not re-changed, so repeating the same
+  `T` only re-applies geometry and wear.
 
-Wear is native: columns `WX` `WZ` `WD` on the tool table, or `G10 L12`.
+Wear is native: columns `WX` `WZ` (and `WY`/`WA`/... if used) plus `WD`
+on the tool table, or `G10 L12`.  `WD` is stored but no diameter wear is
+applied to motion.
+
 Old remap tables that used fake tools `T10001`..`T10099` are copied into
-`WX`/`WZ` of tool 1..99 when those tools have no wear yet.
+`WX`/`WZ` of tool 1..99 when those tools have no wear yet.  The copy
+runs only when `LATHE_TXXXX` is enabled, is non-destructive (the fake
+rows are kept) and never overwrites existing wear.  Programs must use
+`T0101` (not `T10001`); with the switch on, `T10001` means tool 100
+offset 01 and is an error if tool 100 does not exist.
+
+A `T` remap (for example the legacy
+`REMAP=T python=stdglue.index_lathe_tool_with_wear`) takes precedence
+over this option: the remap runs and the native `Taa ww` word is not
+used.  Remove the `T` remap when enabling `LATHE_TXXXX`; a warning is
+logged at startup if both are configured.
 
 It is an error if tool _aa_ is not in the tool table. Missing wear for
 offset _ww_ is treated as zero, not an error.

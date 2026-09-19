@@ -42,6 +42,8 @@ When a *db_progam* is specified, operation is as follows:
 . Upon a successful acknowledgement, LinuxCNC issues a 'g' (*get*) command to request all tools.
   The *db_program* must respond with a sequence of replies to identify each available tool.
   The textual reply format is identical to the text line format used in conventional tool table files.
+  This includes the native lathe wear words (`WX` `WY` `WZ` `WA` `WB` `WC` `WU` `WV` `WW` `WD`)
+  when present; a *db_program* should store and return them verbatim.
   A final response of "FINI" terminates the reply.
 . The *db_program* then enters an event wait loop to receive commands that indicate that tool data has been changed by LinuxCNC.
   Tool data changes include:

@@ -761,11 +761,11 @@ G10 L12 P- <X- Y- Z- A- B- C- U- V- W- R->
   geometry offsets on that tool
 * 'U' 'W' (and 'V') - incremental wear, added to the stored wear
 * 'R' - wear diameter (same convention as `G10 L1 R`: a radius, stored
-  as diameter)
+  as diameter in `WD`, not applied to motion)
 
-G10 L12 writes the native wear fields (`WX` `WZ` `WD` in the tool table).
-It does not change geometry. `X` and `U` cannot appear together (same
-for `Z`/`W` and `Y`/`V`).
+G10 L12 writes the native wear fields (`WX` `WY` `WZ` ... `WD` in the
+tool table).  It does not change geometry. `X` and `U` cannot appear
+together (same for `Z`/`W` and `Y`/`V`).
 
 .G10 L12 Example
 [source,ngc]

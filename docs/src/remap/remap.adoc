@@ -129,6 +129,10 @@ A built-in alternative, without Python or remap, is
 and `G10 L12`. See <<sec:select-tool,T: Select Tool>>. The remaps below
 remain for existing configurations.
 
+Do not combine both: a `T` remap takes precedence over `LATHE_TXXXX` and
+silently disables the built-in `Taa ww` word.  LinuxCNC logs a warning at
+startup if both are configured.
+
 This remap also adds wear offsets to the tool offset, e.g. T201 would index to tool 2 (with tool 2's tool offset) and adds wear offset 1.
 In the tool table, tools numbers above 10000 are wear offsets, e.g. in the tool table, tool 10001 would be wear offset 1.
 

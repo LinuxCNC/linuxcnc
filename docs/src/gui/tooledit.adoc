@@ -84,8 +84,12 @@ Usage:
        tooledit filename
        tooledit [column_1 ... column_n] filename
 
-Valid column names are: x y z a b c u v w diam front back orien
+Valid column names are: x y z a b c u v w diam front back orien wx wy wz wa wb wc wu wv ww wd
 ----
+
+The native lathe wear words (`wx` `wy` `wz` `wa` `wb` `wc` `wu` `wv`
+`ww` `wd`) are always preserved in the tool table, even when they are
+not selected as columns.  Select them by name to display and edit them.
 
 To synchronize a standalone 'tooledit' with a running LinuxCNC
 application, the filename must resolve to the same [EMCIO]TOOL_TABLE
