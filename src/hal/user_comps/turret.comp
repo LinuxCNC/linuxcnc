@@ -244,6 +244,7 @@ static char pin_tool_prepared[PATH_MAX_LEN] = "";
 static char pin_tool_change[PATH_MAX_LEN] = "";
 static char pin_tool_changed[PATH_MAX_LEN] = "";
 static char pin_tool_pocket[PATH_MAX_LEN] = "";
+static char pin_tool_number[PATH_MAX_LEN] = "";
 static char pin_tc_fault[PATH_MAX_LEN] = "";
 static char pin_tc_reason[PATH_MAX_LEN] = "";
 
@@ -480,6 +481,7 @@ static void apply_config_key(const char *key, const char *value) {
     else if (strcmp(key, "pins.tool_change") == 0) copy_pin_name(pin_tool_change, value);
     else if (strcmp(key, "pins.tool_changed") == 0) copy_pin_name(pin_tool_changed, value);
     else if (strcmp(key, "pins.tool_prep_pocket") == 0) copy_pin_name(pin_tool_pocket, value);
+    else if (strcmp(key, "pins.tool_prep_number") == 0) copy_pin_name(pin_tool_number, value);
     else if (strcmp(key, "pins.toolchanger_fault") == 0) copy_pin_name(pin_tc_fault, value);
     else if (strcmp(key, "pins.toolchanger_reason") == 0) copy_pin_name(pin_tc_reason, value);
     else if (strcmp(key, "timing.strobe_filter_ms") == 0) cfg_strobe_filter = atof(value);
@@ -563,6 +565,138 @@ static int parse_config_file(const char *path, int restore_state) {
     }
     fclose(fp);
     return 0;
+}
+
+typedef struct {
+    char p_pos1[PATH_MAX_LEN], p_strobe[PATH_MAX_LEN], p_changepos[PATH_MAX_LEN],
+         p_clamped[PATH_MAX_LEN], p_motor[PATH_MAX_LEN], p_unclamp[PATH_MAX_LEN],
+         p_clamp[PATH_MAX_LEN], p_interlock[PATH_MAX_LEN], p_watchdog[PATH_MAX_LEN],
+         p_tool_prepare[PATH_MAX_LEN], p_tool_prepared[PATH_MAX_LEN],
+         p_tool_change[PATH_MAX_LEN], p_tool_changed[PATH_MAX_LEN],
+         p_tool_pocket[PATH_MAX_LEN], p_tool_number[PATH_MAX_LEN],
+         p_tc_fault[PATH_MAX_LEN], p_tc_reason[PATH_MAX_LEN];
+    int s_stations, s_clamped_inverted, s_require_changepos,
+        s_unclamp_before_rotate, s_interlock_required, s_abort_on_fault,
+        s_test_enable_required;
+    int s_max_retries, s_lead_pulses, s_lead_auto;
+    double s_strobe_filter, s_unclamp_timeout, s_home_timeout,
+           s_rotate_timeout, s_settle_time, s_locate_timeout, s_locate_stable,
+           s_clamp_timeout, s_jog_timeout;
+    maint_interval_t s_maint[MAX_MAINT];
+    int s_maint_count;
+} config_snapshot_t;
+
+static void copy_str(char *dst, const char *src) {
+    strncpy(dst, src, PATH_MAX_LEN - 1);
+    dst[PATH_MAX_LEN - 1] = 0;
+}
+
+static void config_save(config_snapshot_t *snap) {
+    copy_str(snap->p_pos1, pin_pos1);
+    copy_str(snap->p_strobe, pin_strobe);
+    copy_str(snap->p_changepos, pin_changepos);
+    copy_str(snap->p_clamped, pin_clamped);
+    copy_str(snap->p_motor, pin_motor);
+    copy_str(snap->p_unclamp, pin_unclamp);
+    copy_str(snap->p_clamp, pin_clamp);
+    copy_str(snap->p_interlock, pin_interlock);
+    copy_str(snap->p_watchdog, pin_watchdog);
+    copy_str(snap->p_tool_prepare, pin_tool_prepare);
+    copy_str(snap->p_tool_prepared, pin_tool_prepared);
+    copy_str(snap->p_tool_change, pin_tool_change);
+    copy_str(snap->p_tool_changed, pin_tool_changed);
+    copy_str(snap->p_tool_pocket, pin_tool_pocket);
+    copy_str(snap->p_tool_number, pin_tool_number);
+    copy_str(snap->p_tc_fault, pin_tc_fault);
+    copy_str(snap->p_tc_reason, pin_tc_reason);
+    snap->s_stations = cfg_stations;
+    snap->s_clamped_inverted = cfg_clamped_inverted;
+    snap->s_require_changepos = cfg_require_changepos;
+    snap->s_unclamp_before_rotate = cfg_unclamp_before_rotate;
+    snap->s_interlock_required = cfg_interlock_required;
+    snap->s_abort_on_fault = cfg_abort_on_fault;
+    snap->s_test_enable_required = cfg_test_enable_required;
+    snap->s_max_retries = cfg_max_retries;
+    snap->s_lead_pulses = cfg_lead_pulses;
+    snap->s_lead_auto = cfg_lead_auto;
+    snap->s_strobe_filter = cfg_strobe_filter;
+    snap->s_unclamp_timeout = cfg_unclamp_timeout;
+    snap->s_home_timeout = cfg_home_timeout;
+    snap->s_rotate_timeout = cfg_rotate_timeout;
+    snap->s_settle_time = cfg_settle_time;
+    snap->s_locate_timeout = cfg_locate_timeout;
+    snap->s_locate_stable = cfg_locate_stable;
+    snap->s_clamp_timeout = cfg_clamp_timeout;
+    snap->s_jog_timeout = cfg_jog_timeout;
+    snap->s_maint_count = maint_count;
+    memcpy(snap->s_maint, maint, sizeof(maint));
+}
+
+static void config_restore(const config_snapshot_t *snap) {
+    copy_str(pin_pos1, snap->p_pos1);
+    copy_str(pin_strobe, snap->p_strobe);
+    copy_str(pin_changepos, snap->p_changepos);
+    copy_str(pin_clamped, snap->p_clamped);
+    copy_str(pin_motor, snap->p_motor);
+    copy_str(pin_unclamp, snap->p_unclamp);
+    copy_str(pin_clamp, snap->p_clamp);
+    copy_str(pin_interlock, snap->p_interlock);
+    copy_str(pin_watchdog, snap->p_watchdog);
+    copy_str(pin_tool_prepare, snap->p_tool_prepare);
+    copy_str(pin_tool_prepared, snap->p_tool_prepared);
+    copy_str(pin_tool_change, snap->p_tool_change);
+    copy_str(pin_tool_changed, snap->p_tool_changed);
+    copy_str(pin_tool_pocket, snap->p_tool_pocket);
+    copy_str(pin_tool_number, snap->p_tool_number);
+    copy_str(pin_tc_fault, snap->p_tc_fault);
+    copy_str(pin_tc_reason, snap->p_tc_reason);
+    cfg_stations = snap->s_stations;
+    cfg_clamped_inverted = snap->s_clamped_inverted;
+    cfg_require_changepos = snap->s_require_changepos;
+    cfg_unclamp_before_rotate = snap->s_unclamp_before_rotate;
+    cfg_interlock_required = snap->s_interlock_required;
+    cfg_abort_on_fault = snap->s_abort_on_fault;
+    cfg_test_enable_required = snap->s_test_enable_required;
+    cfg_max_retries = snap->s_max_retries;
+    cfg_lead_pulses = snap->s_lead_pulses;
+    cfg_lead_auto = snap->s_lead_auto;
+    cfg_strobe_filter = snap->s_strobe_filter;
+    cfg_unclamp_timeout = snap->s_unclamp_timeout;
+    cfg_home_timeout = snap->s_home_timeout;
+    cfg_rotate_timeout = snap->s_rotate_timeout;
+    cfg_settle_time = snap->s_settle_time;
+    cfg_locate_timeout = snap->s_locate_timeout;
+    cfg_locate_stable = snap->s_locate_stable;
+    cfg_clamp_timeout = snap->s_clamp_timeout;
+    cfg_jog_timeout = snap->s_jog_timeout;
+    maint_count = snap->s_maint_count;
+    memcpy(maint, snap->s_maint, sizeof(maint));
+}
+
+static int config_looks_valid(void) {
+    if (!pin_pos1[0] || !pin_strobe[0] || !pin_clamped[0]) return 0;
+    if (!pin_motor[0] || !pin_unclamp[0]) return 0;
+    if (cfg_stations < 1 || cfg_stations > MAX_STATIONS) return 0;
+    return 1;
+}
+
+static void reload_config(void) {
+    config_snapshot_t backup;
+    int stations_before = cfg_stations;
+    config_save(&backup);
+    config_defaults();
+    if (parse_config_file(config_path, 0) != 0 || !config_looks_valid()) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "turret: configuracion invalida al recargar; se mantiene la anterior\n");
+        config_restore(&backup);
+        return;
+    }
+    pockets_set(cfg_stations);
+    if (cfg_stations != stations_before) {
+        fsm.is_homed = 0;
+        fsm.is_located = 0;
+        fsm.stn = wrap_station(fsm.stn, cfg_stations);
+    }
 }
 
 static double file_mtime(const char *path) {
@@ -1002,12 +1136,22 @@ static void warn_writer_once(const char *pin) {
 }
 
 static void handshake(void) {
-    int prepare_v = pin_exists(pin_tool_prepare)
-        ? read_int_pin(pin_tool_prepare, prepare) : prepare;
-    int change_v = pin_exists(pin_tool_change)
-        ? read_int_pin(pin_tool_change, change) : change;
-    int pocket = pin_exists(pin_tool_pocket) ? read_int_pin(pin_tool_pocket, 0) : 0;
-    if (pocket < 1 || pocket > cfg_stations) pocket = latched_pocket;
+    int manual = prepare;
+    int prepare_v = prepare;
+    int change_v = change;
+    int pocket = 0;
+    int number = 0;
+
+    if (pin_exists(pin_tool_prepare))
+        prepare_v = prepare_v || read_int_pin(pin_tool_prepare, 0);
+    if (pin_exists(pin_tool_change))
+        change_v = change_v || read_int_pin(pin_tool_change, 0);
+    if (pin_exists(pin_tool_number))
+        number = read_int_pin(pin_tool_number, 0);
+    if (manual && pocket_request >= 1 && pocket_request <= cfg_stations)
+        pocket = pocket_request;
+    else if (pin_exists(pin_tool_pocket))
+        pocket = read_int_pin(pin_tool_pocket, 0);
 
     // prepared/changed are latched until the corresponding input goes
     // low: the task lowers tool-prepare as soon as it reads
@@ -1016,8 +1160,21 @@ static void handshake(void) {
     if (!prepare_v) {
         prepared_latch = 0;
         latched_pocket = 0;
+    } else if (pocket < 1 || pocket > cfg_stations) {
+        // T0 / unload: nothing to prepare; a tool with no P is a config error
+        if (number != 0) {
+            if (!writer_warned) {
+                writer_warned = 1;
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "turret: la herramienta %d no tiene P (pocket) en la "
+                    "tabla; la torreta no puede ubicarla\n", number);
+            }
+        } else {
+            prepared_latch = 1;
+            latched_pocket = 0;
+        }
     } else {
-        if (fsm.st == ST_IDLE && pocket >= 1 && pocket <= cfg_stations &&
+        if (fsm.st == ST_IDLE &&
             (!prepared_latch || latched_pocket != pocket) &&
             !(fsm.is_located && fsm.stn == pocket)) {
             req_select = pocket;
@@ -1093,11 +1250,7 @@ static void tick(double now) {
     if (edge(11, jog)) req_jog = 1;
     if (edge(8, clear_history)) { hist_count = 0; save_state_json(); }
     if (edge(9, reload)) {
-        config_defaults();
-        if (parse_config_file(config_path, 0) == 0) {
-            pockets_set(cfg_stations);
-            fsm.is_homed = 0;
-        }
+        reload_config();
         conf_mtime = file_mtime(config_path);
     }
     for (int i = 0; i < MAX_MAINT; i++) {
@@ -1121,6 +1274,24 @@ static void tick(double now) {
         case 30: v = mark_service_31; break; case 31: v = mark_service_32; break;
         }
         if (edge(20 + i, v)) maint_mark_service(i + 1);
+    }
+
+    // configured machine pins must exist
+    {
+        static int pins_checked = 0;
+        if (!pins_checked) {
+            pins_checked = 1;
+            const char *required[] = { pin_pos1, pin_strobe, pin_clamped,
+                                       pin_motor, pin_unclamp };
+            for (int i = 0; i < 5; i++) {
+                if (required[i][0] && !pin_exists(required[i])) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "turret: pin inexistente: %s\n", required[i]);
+                    fsm_fault(E_CONFIG, now);
+                    break;
+                }
+            }
+        }
     }
 
     // machine inputs
@@ -1212,11 +1383,7 @@ static void tick(double now) {
         double mt = file_mtime(config_path);
         if (mt > 0.0 && mt != conf_mtime) {
             conf_mtime = mt;
-            config_defaults();
-            if (parse_config_file(config_path, 0) == 0) {
-                pockets_set(cfg_stations);
-                fsm.is_homed = 0;
-            }
+            reload_config();
         }
     }
 }

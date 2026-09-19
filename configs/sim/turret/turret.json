@@ -17,6 +17,7 @@
     "tool_change": "iocontrol.0.tool-change",
     "tool_changed": "iocontrol.0.tool-changed",
     "tool_prep_pocket": "iocontrol.0.tool-prep-pocket",
+    "tool_prep_number": "iocontrol.0.tool-prep-number",
     "toolchanger_fault": "iocontrol.0.toolchanger-fault",
     "toolchanger_reason": "iocontrol.0.toolchanger-reason"
   },

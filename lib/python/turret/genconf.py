@@ -15,7 +15,8 @@ PIN_KEYS = (
     "pos1", "strobe", "changepos", "clamped", "motor", "unclamp", "clamp",
     "interlock", "watchdog_pet",
     "tool_prepare", "tool_prepared", "tool_change", "tool_changed",
-    "tool_prep_pocket", "toolchanger_fault", "toolchanger_reason",
+    "tool_prep_pocket", "tool_prep_number",
+    "toolchanger_fault", "toolchanger_reason",
 )
 
 

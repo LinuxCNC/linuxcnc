@@ -46,6 +46,7 @@ PIN_ROLES = (
     ("tool_prepare", "iocontrol: tool-prepare (leer)", "io_out"),
     ("tool_change", "iocontrol: tool-change (leer)", "io_out"),
     ("tool_prep_pocket", "iocontrol: tool-prep-pocket (leer)", "io_out"),
+    ("tool_prep_number", "iocontrol: tool-prep-number (leer)", "io_out"),
     ("tool_prepared", "iocontrol: tool-prepared (escribir)", "io_in"),
     ("tool_changed", "iocontrol: tool-changed (escribir)", "io_in"),
     ("toolchanger_fault", "iocontrol: toolchanger-fault (escribir)", "io_in"),

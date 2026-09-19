@@ -127,6 +127,13 @@ corresponding input goes low, so the task can consume them in order
 without a race.  No `M6` is needed (it is a no-op) and a tool already in
 the spindle is not re-changed.
 
+A `T`/`M6` always uses the station from the tool table `P` column; a
+manual selection from the panel ("Ir a estacion") uses the panel's own
+station request, so a leftover manual request never hijacks a `T`.
+`T0` (prepare of no tool) is acknowledged without moving the turret, and
+a tool with no `P` in the table raises a configuration alarm (E10)
+instead of claiming the change.
+
 Remove any `tool-prep-loop`/`tool-change-loop` net from the HAL file:
 the turret drives those iocontrol inputs itself, and if they are already
 connected the controller reports a configuration alarm (E10).

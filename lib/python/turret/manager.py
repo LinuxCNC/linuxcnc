@@ -253,38 +253,68 @@ class TurretManager:
     def _handshake(self, now):
         """Fanuc/lathe tool change handshake with iocontrol.
 
-        `prepared`/`changed` are latched until the corresponding input
-        goes low: the task lowers `tool-prepare` as soon as it reads
-        `tool-prepared`, so deriving `changed` from the current level
-        could drop it before the task reads `tool-changed`.
+        The component's own prepare/change/pocket-request pins are ORed
+        with the configured iocontrol pins, so the panel ("Ir a
+        estacion") also works on a real machine.  prepared/changed are
+        latched until the corresponding input goes low: the task lowers
+        tool-prepare as soon as it reads tool-prepared, so a level-derived
+        changed could be dropped before the task reads tool-changed.
         """
         cfg = self.cfg.pins
-        prepare = bool(self.io.own("prepare"))
+        manual = bool(self.io.own("prepare"))
+        prepare = manual
         change = bool(self.io.own("change"))
-        pocket = 0
+        try:
+            own_pocket = int(self.io.own("pocket-request"))
+        except Exception:
+            own_pocket = 0
+        number = 0
+
         if cfg.get("tool_prepare"):
             try:
-                prepare = bool(self.io.get(cfg["tool_prepare"]))
+                prepare = prepare or bool(self.io.get(cfg["tool_prepare"]))
             except Exception:
                 pass
         if cfg.get("tool_change"):
             try:
-                change = bool(self.io.get(cfg["tool_change"]))
+                change = change or bool(self.io.get(cfg["tool_change"]))
             except Exception:
                 pass
-        if cfg.get("tool_prep_pocket"):
+        if cfg.get("tool_prep_number"):
             try:
-                pocket = int(self.io.get(cfg["tool_prep_pocket"]))
+                number = int(self.io.get(cfg["tool_prep_number"]))
+            except Exception:
+                number = 0
+
+        pocket = 0
+        if manual:
+            # manual selection from the panel: use its own request
+            if 1 <= own_pocket <= self.cfg.stations:
+                pocket = own_pocket
+        elif cfg.get("tool_prep_pocket"):
+            # iocontrol (T/M6): the station comes from the tool table P
+            try:
+                value = int(self.io.get(cfg["tool_prep_pocket"]))
+                if 1 <= value <= self.cfg.stations:
+                    pocket = value
             except Exception:
                 pocket = 0
-        if pocket < 1 or pocket > self.cfg.stations:
-            pocket = self._target or self.fsm.station
 
         if not prepare:
             self._prepared_latch = False
             self._latched_pocket = None
             if self.fsm.state == State.IDLE:
                 self._target = None
+        elif pocket == 0:
+            # T0 / unload: there is nothing to prepare
+            if number != 0:
+                self._warn_once(
+                    "tool-prep-pocket",
+                    "la herramienta %d no tiene P (pocket) en la tabla; "
+                    "la torreta no puede ubicarla" % number)
+            else:
+                self._prepared_latch = True
+                self._latched_pocket = 0
         else:
             if (self.fsm.state == State.IDLE and not self.fsm.busy
                     and (not self._prepared_latch
@@ -315,12 +345,15 @@ class TurretManager:
             except Exception:
                 self._warn_writer_once(pin)
 
-    def _warn_writer_once(self, pin):
-        if pin in self._writer_warned:
+    def _warn_once(self, key, text):
+        if key in self._writer_warned:
             return
-        self._writer_warned.add(pin)
-        self._log_alarm(
-            Alarm.E_CONFIG,
+        self._writer_warned.add(key)
+        self._log_alarm(Alarm.E_CONFIG, text)
+
+    def _warn_writer_once(self, pin):
+        self._warn_once(
+            pin,
             "no se puede escribir %s: quitalo de cualquier net "
             "(por ejemplo tool-prep-loop/tool-change-loop)" % pin)
 

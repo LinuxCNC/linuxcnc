@@ -148,6 +148,7 @@ def make_config(tmp, stations=8, coast=0):
         "tool_change": "iocontrol.0.tool-change",
         "tool_changed": "iocontrol.0.tool-changed",
         "tool_prep_pocket": "iocontrol.0.tool-prep-pocket",
+        "tool_prep_number": "iocontrol.0.tool-prep-number",
         "toolchanger_fault": "iocontrol.0.toolchanger-fault",
         "toolchanger_reason": "iocontrol.0.toolchanger-reason",
     }
@@ -248,6 +249,54 @@ class TestManager(unittest.TestCase):
         run_until(m, machine, lambda mgr, mach: mgr._prepared_latch)
         texts = " ".join(str(e.get("text", "")) for e in m.history.to_list())
         self.assertIn("tool-prepared", texts)
+
+    def test_manual_prepare_with_iocontrol_present(self):
+        """The panel pulse must work even with the iocontrol pins wired."""
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.external["iocontrol.0.tool-prepare"] = 0
+        self.io.own_set("pocket-request", 3)
+        self.io.own_set("prepare", 1)
+        m._tick(machine.t)
+        self.io.own_set("prepare", 0)
+        # a manual goto does not need the iocontrol handshake, it just moves
+        self.assertTrue(run_until(m, machine,
+                                  lambda mgr, mach: mgr.fsm.state == State.IDLE
+                                  and mgr.fsm.station == 3 and mach.t > 0.5))
+        self.assertEqual(self.io.own("station"), 3)
+
+    def test_stale_manual_pocket_does_not_hijack_T(self):
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.own_set("pocket-request", 3)     # leftover from a manual goto
+        self.io.own_set("prepare", 0)
+        self.io.external["iocontrol.0.tool-prep-pocket"] = 2
+        self.io.external["iocontrol.0.tool-prep-number"] = 2
+        self.io.external["iocontrol.0.tool-prepare"] = 1
+        self.assertTrue(run_until(m, machine, lambda mgr, mach: mgr._prepared_latch))
+        self.assertEqual(m.fsm.station, 2,
+                         "el T debe usar el P de la tabla, no el pedido manual viejo")
+
+    def test_t0_prepare_is_immediate(self):
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.external["iocontrol.0.tool-prep-pocket"] = 0
+        self.io.external["iocontrol.0.tool-prep-number"] = 0
+        self.io.external["iocontrol.0.tool-prepare"] = 1
+        m._tick(machine.t)
+        self.assertEqual(self.io.own("prepared"), 1)
+        self.assertFalse(m.fsm.busy, "T0 no debe mover la torreta")
+
+    def test_prepare_without_pocket_faults(self):
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.external["iocontrol.0.tool-prep-pocket"] = 0
+        self.io.external["iocontrol.0.tool-prep-number"] = 5
+        self.io.external["iocontrol.0.tool-prepare"] = 1
+        m._tick(machine.t)
+        self.assertEqual(self.io.own("prepared"), 0)
+        texts = " ".join(str(e.get("text", "")) for e in m.history.to_list())
+        self.assertIn("P (pocket)", texts)
 
     def test_fault_reports_to_iocontrol(self):
         m = self.manager
