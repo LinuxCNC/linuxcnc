@@ -331,6 +331,10 @@ setup_menu_accel .menu.view end [_ "Show program r_apids"]
 	-command toggle_program_alpha
 setup_menu_accel .menu.view end [_ "Alpha-_blend program"]
 
+.menu.view add cascade \
+	-menu .menu.view.workpiece
+setup_menu_accel .menu.view end [_ "Solid wor_kpiece"]
+
 .menu.view add checkbutton \
 	-variable show_live_plot \
 	-command toggle_show_live_plot
@@ -433,6 +437,38 @@ setup_menu_accel .menu.view end [_ "Joint mode"]
         -accelerator $ \
         -command set_teleop_mode
 setup_menu_accel .menu.view end [_ "World mode"]
+
+menu .menu.view.workpiece
+
+.menu.view.workpiece add radiobutton \
+        -value 0.0 \
+        -variable workpiece_opacity \
+        -command set_workpiece_opacity
+setup_menu_accel .menu.view.workpiece end [_ "_Off"]
+
+.menu.view.workpiece add radiobutton \
+        -value 0.25 \
+        -variable workpiece_opacity \
+        -command set_workpiece_opacity
+setup_menu_accel .menu.view.workpiece end [_ "_25%"]
+
+.menu.view.workpiece add radiobutton \
+        -value 0.5 \
+        -variable workpiece_opacity \
+        -command set_workpiece_opacity
+setup_menu_accel .menu.view.workpiece end [_ "_50%"]
+
+.menu.view.workpiece add radiobutton \
+        -value 0.75 \
+        -variable workpiece_opacity \
+        -command set_workpiece_opacity
+setup_menu_accel .menu.view.workpiece end [_ "_75%"]
+
+.menu.view.workpiece add radiobutton \
+        -value 1.0 \
+        -variable workpiece_opacity \
+        -command set_workpiece_opacity
+setup_menu_accel .menu.view.workpiece end [_ "_Full"]
 
 menu .menu.view.grid
 

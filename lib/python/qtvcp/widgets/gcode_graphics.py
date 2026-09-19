@@ -449,6 +449,15 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         return self.show_workpiece
     _workpiece = Property(bool, getShowWorkpiece, setShowWorkpiece)
 
+    # workpiece face opacity, 0 (outline only) .. 1
+    def setWorkpieceOpacity(self, value):
+        self.workpiece_opacity = value
+        self.update()
+    def getWorkpieceOpacity(self):
+        return self.workpiece_opacity
+    _workpiece_opacity = Property(float, getWorkpieceOpacity,
+                                  setWorkpieceOpacity)
+
     # show small origin
     def setShowSmallOrigin(self, state):
         self.show_small_origin = state
