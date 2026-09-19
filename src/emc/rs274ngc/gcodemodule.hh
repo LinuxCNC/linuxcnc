@@ -126,8 +126,11 @@ public:
     virtual void straight_feed(int line_number, const Point9 &p) = 0;
     virtual void straight_traverse(int line_number, const Point9 &p) = 0;
     virtual void straight_probe(int line_number, const Point9 &p) = 0;
+    // `retract_scale`: G33.1's I word, the retract's spindle-speed multiple.
+    // Not in the Python callback, which stays three-argument.
     virtual void rigid_tap(int line_number,
-                           double x, double y, double z) = 0;
+                           double x, double y, double z,
+                           double retract_scale) = 0;
 
     // The events between them.
     virtual void dwell(double seconds) = 0;
@@ -147,6 +150,16 @@ public:
     // Only the renderer listens: SET_SPINDLE_SPEED has never forwarded a
     // callback, so the callback protocol has nothing to do here.
     virtual void set_spindle_speed(double /*rpm*/) {}
+    // What a time estimate needs and nothing else reads. Renderer only; the
+    // callback protocol has never forwarded any of them.
+    //   per_rev        1 under G95, 0 under G93 and G94 - G93 is G94 here,
+    //                  the interpreter having already made its F a units/min
+    //                  rate per move (interp_inverse.cc).
+    //   css_max        0 under G97, the D word under G96, 1e30 for G96 no D.
+    //   units_per_rev  G33/G33.1/G76 pitch in inches, 0 when the synch ends.
+    virtual void set_feed_mode(int /*per_rev*/) {}
+    virtual void set_spindle_mode(double /*css_max*/) {}
+    virtual void set_spindle_sync(double /*units_per_rev*/) {}
     // A comment, *after* the canon has had it - COMMENT forwards first for
     // both protocols and dispatches here only when the forward succeeded, so
     // `(AXIS,stop)` still stops the parse before the word after it could open

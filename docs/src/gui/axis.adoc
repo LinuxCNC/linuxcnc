@@ -109,7 +109,11 @@ The AXIS window contains the following elements:
 * A status bar which shows the state of the machine. In this screen
   shot, the machine is turned on, does not have a tool inserted, and the
   displayed position is 'Relative' (showing all offsets), and 'Actual'
-  (showing feedback position).
+  (showing feedback position). Its last field is the loaded program's
+  estimated 'Run time', which while the program runs becomes the time so far
+  beside the run it is heading for; it is empty when the program could not be
+  timed. See 'G-code properties' below for what the estimate does and does not
+  model.
 
 === Menu Items
 
@@ -132,9 +136,16 @@ file configured. For more information on configuration see the
   from the beginning then reload the file. The toolbar reload is the same
   as the menu.
 * 'Save G-code as...' - Save the current file with a new name.
-* 'Properties' - The sum of the rapid and feed moves. Does not factor in
-  acceleration, blending or path mode so time reported will never
-  be less than the actual run time.
+* 'G-code properties' - The program's size, its rapid and feed path lengths,
+  its bounds, and its run time. The run time is an estimate made while the
+  program was parsed: it models the machine's velocity and acceleration
+  limits, the corners between moves, the feed modes (G93, G95, G96), dwells
+  and tool changes, and it assumes 100% feed, rapid and spindle override.
+  It is not a trajectory planner, so expect a few percent either way; and it
+  does not model overrides, adaptive feed, M0/M1/M66 waits or spindle
+  spin-up, so a run that waits takes longer than it says. It reads
+  `[DISPLAY]TOOL_CHANGE_SECONDS` for what one M6 costs, and shows 'not
+  available' on a machine whose INI states no velocity limits at all.
 * 'Edit tool table...' - Same as Edit if you have defined an editor
   you can open the tool table and edit it.
 * 'Reload tool table' - After editing the tool table you must reload it.

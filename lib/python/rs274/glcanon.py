@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rs274 import glcanon_gl, glcanon_bake, glcanon_scene
+from rs274 import glcanon_gl, glcanon_bake, glcanon_scene, program_time
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -62,7 +62,7 @@ def _removed_attribute(name, replacement):
 # The contract this class implements is `help(gcode.RendererCanon)`.
 
 
-class GLCanon(gcode.RendererCanon):
+class GLCanon(gcode.RendererCanon, gcode.TimeEstimateCanon):
     """The preview canon: it does not draw the program, it receives it.
 
     ``gcode.parse`` builds the whole preview in C++ (``GCodeRenderer`` in
@@ -110,6 +110,12 @@ class GLCanon(gcode.RendererCanon):
     #: the renderer reads it once, at parse start.
     arcdivision = 64
 
+    #: The machine's motion limits, for the time estimate - a
+    #: :class:`rs274.program_time.MachineLimits`, usually
+    #: ``MachineLimits.from_ini(inifile)``. A GUI sets it before the parse;
+    #: None leaves the program untimed, and its ``total_time`` None with it.
+    motion_limits = None
+
     # See _removed_attribute: these were the per-move category lists,
     # emission-order list and un-rotated preview copy. The program record
     # (self.program_geometry) replaces all of them.
@@ -142,6 +148,9 @@ class GLCanon(gcode.RendererCanon):
         # class's GEOMETRY *string*, which the renderer reads.
         self.program_geometry = glcanon_bake.ProgramGeometry(
             geometry=geometry, is_foam=bool(is_foam))
+        # The time estimate, its own record beside the geometry. Empty - and
+        # `total` None - until a parse with usable motion_limits fills it.
+        self.program_time = program_time.ProgramTime()
         self.choice = None
         self.geometry = geometry
         # min and max extents - the largest bounding box around the currently displayed preview
@@ -340,20 +349,35 @@ class GLCanon(gcode.RendererCanon):
         """
         return self.program_geometry.cutting_length
 
-    def run_time(self, max_feed_rate):
-        """Cutting + rapid time at ``max_feed_rate``, plus ``self.dwell_time``.
+    # -- the time estimate, gcode.TimeEstimateCanon's own two callbacks ----
 
-        ``max_feed_rate`` is the machine's ``max_speed``, known only to the
-        GUI that built this canon - not to the parse - which is why this is a
-        method rather than a plain attribute; see the design's discussion of
-        why ``min(max_feed_rate, feed)`` cannot be pre-summed into one scalar.
-        Replaces the ``gt`` summation the properties dialogs used to run over
-        ``traverse``/``feed``/``arcfeed``.
+    def machine_limits(self):
+        """Read once, at parse start."""
+        return self.motion_limits
+
+    def adopt_time_estimate(self, estimate):
+        """Take over the parse's ``gcode.TimeEstimate``, once, at the end.
+
+        Separate from :meth:`adopt_geometry`: the estimate is about the
+        program's *time* and says nothing about what is drawn, so it lands in
+        its own record.
         """
-        geometry = self.program_geometry
-        return (geometry.cutting_time(max_feed_rate)
-               + geometry.rapid_length / max_feed_rate
-               + self.dwell_time)
+        self.program_time.adopt(estimate)
+
+    def run_time(self, max_feed_rate=None):
+        """The program's nominal run time in seconds, or None.
+
+        The parse's estimate: the machine's acceleration and velocity limits,
+        the junctions between moves, G93/G95/G96, dwells and tool changes, at
+        100% feed and rapid override. None when the parse was not given usable
+        limits - :attr:`motion_limits` unset, or an ini stating none - in which
+        case the program's run time is not known and a caller should say so
+        rather than show a number from a lesser model.
+
+        ``max_feed_rate`` is accepted and ignored - callers pass the machine's
+        max speed, which the estimate reads from the machine's limits itself.
+        """
+        return self.program_time.total
 
     # -- the canon protocol, of which a rendered parse calls two ------------
 

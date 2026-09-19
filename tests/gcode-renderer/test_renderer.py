@@ -47,8 +47,13 @@ import line9_reference as ref                             # noqa: E402
 import programs                                           # noqa: E402
 import rs274.glcanon_bake as bake                         # noqa: E402
 from canon import (COLORS, CountingCanon, FakePreview,    # noqa: E402
-                   HeadlessCanon, RecordComparison, parse,
+                   HeadlessCanon, RecordComparison, _mill_limits, parse,
                    parse_failing)
+
+#: Loose limits for the tests that check a feed rate reached the estimate:
+#: a huge axis velocity and no acceleration, so a move takes exactly its
+#: length divided by its commanded rate.
+LOOSE_LIMITS = _mill_limits(vmax=25400.0, amax=0.0)
 
 
 def positions(canon):
@@ -527,9 +532,9 @@ class FeedRateForwarding(unittest.TestCase):
     word and never compares it to the rate already in force, so CAM output that
     repeats one rate on every line - which is most of it - is one call per
     move, in a protocol whose whole point is not having those. The rate
-    already reaches the program through every move's own length table, so
-    nothing is forwarded. A canon on the per-move *callback* protocol must
-    keep receiving every one of them.
+    already reaches everything that needs it - the time estimate - through the
+    renderer's own store, so nothing is forwarded. A canon on the per-move
+    *callback* protocol must keep receiving every one of them.
     """
 
     #: The same rate on every line, then a real change, then the same again.
@@ -551,7 +556,7 @@ class FeedRateForwarding(unittest.TestCase):
                 if real is not None:
                     return real(self, arg)
 
-        return parse(text, cls=Counting), seen
+        return parse(text, cls=Counting, limits=LOOSE_LIMITS), seen
 
     def test_the_renderer_forwards_none_of_them(self):
         _, rates = self.rates(CountingCanon, self.REPEATED)
@@ -565,49 +570,23 @@ class FeedRateForwarding(unittest.TestCase):
     def test_the_first_f_word_is_not_forwarded_either(self):
         """Not even at 60.0, which is what the C-side tracker starts at.
 
-        The rate still has to *reach the record* from the first move on, which
-        is what the length table below checks. A renderer canon keeps no rate
-        of its own.
+        The rate still has to *reach the estimate* from the first move on,
+        which is what the time below checks. A renderer canon keeps no rate of
+        its own.
         """
         canon, rates = self.rates(CountingCanon,
                                   "G20 G17 G90\nG1 F60 X1\nM2\n")
         self.assertEqual(rates, [])
         # 60 inches per minute is 1.0 inch per second, and the move is 1 inch.
-        self.assertEqual(canon.program_geometry._cut_length_by_feed, {1.0: 1.0})
+        self.assertAlmostEqual(canon.run_time(), 1.0, 6)
 
     def test_the_suppressed_calls_do_not_cost_the_rate_itself(self):
         canon, _ = self.rates(CountingCanon, self.REPEATED)
-        geometry = canon.program_geometry
-        self.assertGreater(geometry.cutting_length, 0.0)
-        # Keyed by inches per second: 600 and 900 inches per minute.
-        self.assertEqual(sorted(geometry._cut_length_by_feed), [10.0, 15.0])
-
-
-class FeedModes(unittest.TestCase):
-    """G93 and G95 change the number a move's length is filed under.
-
-    Neither mode changes what a move *is*, but both change the F word by
-    orders of magnitude, and that number keys the per-rate table the
-    properties dialog sums its run time from. The distances in
-    ``programs.feed_modes`` are round, so every row below is arithmetic.
-    """
-
-    def test_each_mode_lands_its_moves_in_its_own_row(self):
-        table = parse(programs.feed_modes()).program_geometry \
-            ._cut_length_by_feed
-        want = {10 / 60.: 1.0,                    # G94 F10, one inch
-                2 / 60.: 2.0,                     # G93 F2, two one-inch moves
-                0.01 / 60.: 1.0,                  # G95 F0.01, one inch
-                25 / 60.: math.sqrt(2) + 1.0}     # G94 F25, a diagonal and one
-        self.assertEqual(sorted(table), sorted(want))
-        for rate, length in want.items():
-            self.assertAlmostEqual(table[rate], length, 9,
-                                   "the row for F%g" % (rate * 60))
-
-    def test_the_total_is_the_sum_of_the_rows(self):
-        geometry = parse(programs.feed_modes()).program_geometry
-        self.assertAlmostEqual(geometry.cutting_length,
-                               sum(geometry._cut_length_by_feed.values()), 9)
+        self.assertGreater(canon.program_geometry.cutting_length, 0.0)
+        # 0.09 inch at 600 inches per minute (10 in/s), then the inch that
+        # takes to X1.09 at 900 (15 in/s). The leading rapid is the program's
+        # first move, which is no move at all.
+        self.assertAlmostEqual(canon.run_time(), 0.09 / 10.0 + 1.0 / 15.0, 6)
 
 
 # -- the whole record, small enough to read ---------------------------------
@@ -638,8 +617,6 @@ class WholeRecord(unittest.TestCase):
         self.assertEqual(geometry.toolchanges, [])
         self.assertEqual(geometry.rapid_length, 0.0)
         self.assertEqual(geometry.cutting_length, 3.0)
-        # One inch per second at F60; the program runs at F10.
-        self.assertEqual(geometry._cut_length_by_feed, {10 / 60.: 3.0})
         self.assertEqual([list(v) for v in geometry.extents],
                          [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]])
 

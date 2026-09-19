@@ -878,3 +878,123 @@ def three_moves(feed=10.0):
     segment.
     """
     return ("G20 G17 G90\nG0 X0 Y0 Z0\nG1 F%g X1\nG1 Y1\nG1 Z1\nM2\n" % feed)
+
+
+# -- timing -----------------------------------------------------------------
+#
+# Programs for the time estimate. Each is one shape at one rate, so the
+# expected seconds are arithmetic in the test rather than a stored number.
+
+def timed_line(length=4.0, feed=6000.0, pieces=1):
+    """One X move of ``length`` inches, optionally split into collinear pieces.
+
+    Split or whole, the path is the same, so the estimate is the same too as
+    long as the look-ahead reaches the far end.
+    """
+    out = ["(timed_line)", "G20 G17 G90 G94", "G0 X0 Y0 Z0", "F%g" % feed]
+    for i in range(pieces):
+        out.append("G1 X%.10f" % (length * (i + 1) / pieces))
+    out.append("M2")
+    return "\n".join(out) + "\n"
+
+
+def timed_corner(length=4.0, feed=6000.0):
+    """Two moves of ``length`` at a right angle: the junction must stop."""
+    return ("(timed_corner)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF%g\n"
+            "G1 X%g\nG1 Y%g\nM2\n" % (feed, length, length))
+
+
+def timed_dwell(seconds=2.5, feed=6000.0):
+    """A move, a dwell, a move: the dwell is a stop in the middle."""
+    return ("(timed_dwell)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF%g\n"
+            "G1 X1\nG4 P%g\nG1 X2\nM2\n" % (feed, seconds))
+
+
+def timed_inverse_time(feed=2.0):
+    """Two G93 moves, each of length 1, at ``F`` reciprocal minutes.
+
+    Inverse time is not a mode the estimate handles: the interpreter turns
+    each F into a units/min rate for that move, so a move takes 60/F seconds
+    whatever its length.
+    """
+    return ("(timed_inverse_time)\nG20 G17 G90\nG0 X0 Y0 Z0\nG93\n"
+            "G1 X1 F%g\nG1 X2 F%g\nM2\n" % (feed, feed))
+
+
+def timed_per_rev(pitch=0.01, rpm=600.0):
+    """A G95 cut at ``pitch`` inches per revolution, under G97."""
+    return ("(timed_per_rev)\nG20 G17 G90\nG0 X0 Y0 Z0\nG97 S%g M3\n"
+            "G95 F%g\nG1 X1\nM2\n" % (rpm, pitch))
+
+
+def timed_css(pitch=0.01, sfm=100.0, dword=None, x0=1.0, x1=2.0):
+    """A G96 facing cut along X, so the rpm falls as the radius grows.
+
+    Cut in Z, not X, would hold the radius; this one moves *along* X on
+    purpose, which is what makes the rpm - and so the feed - vary over the
+    move.
+    """
+    d = "" if dword is None else " D%g" % dword
+    return ("(timed_css)\nG20 G18 G90\nG0 X%g Z0\nG96%s S%g M3\nG95 F%g\n"
+            "G1 X%g\nM2\n" % (x0, d, sfm, pitch, x1))
+
+
+def timed_rotary(feed=360.0):
+    """A rotary-only G94 move under G21: F is degrees per minute."""
+    return ("(timed_rotary)\nG21 G17 G90 G94\nG0 X0 Y0 Z0 A0\n"
+            "G1 F%g A90\nM2\n" % feed)
+
+
+def timed_sync(pitch=0.05, rpm=600.0, length=1.0):
+    """A G33 spindle-synced cut: the feed is pitch * rpm, not F."""
+    return ("(timed_sync)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF1\nS%g M3\n"
+            "G33 X%g K%g\nM2\n" % (rpm, length, pitch))
+
+
+def timed_tap(depth=0.5, pitch=0.05, rpm=600.0, retract=2.0):
+    """A G33.1 rigid tap: down at pitch * rpm, back up ``retract`` times as
+    fast."""
+    return ("(timed_tap)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nS%g M3\n"
+            "G33.1 Z-%g K%g I%g\nM2\n" % (rpm, depth, pitch, retract))
+
+
+def timed_toolchange(feed=6000.0):
+    """A cut, an M6 with no T word, a cut. The T word is left out on purpose:
+    it segfaults a headless parse (no tool table outside a running LinuxCNC)."""
+    return ("(timed_toolchange)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF%g\n"
+            "G1 X1\nM6\nG1 X2\nM2\n" % feed)
+
+
+def timed_probe(feed=6000.0):
+    """A cut, a G38.2 probe, a cut: the probe stops at both ends."""
+    return ("(timed_probe)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF%g\n"
+            "G1 X1\nG38.2 X2\nG1 X3\nM2\n" % feed)
+
+
+def timed_hidden(feed=6000.0):
+    """One cut drawn, one hidden between (AXIS,hide) and (AXIS,show)."""
+    return ("(timed_hidden)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF%g\n"
+            "G1 X1\n(AXIS,hide)\nG1 X5\n(AXIS,show)\nG1 X6\nM2\n" % feed)
+
+
+def timed_arc(radius=1.0, feed=6000.0):
+    """A full circle of ``radius`` in XY, cut from its rightmost point."""
+    return ("(timed_arc)\nG20 G17 G90 G94\nG0 X%g Y0 Z0\nF%g\n"
+            "G2 X%g Y0 I-%g J0\nM2\n" % (radius, feed, radius, radius))
+
+
+def timed_runs(lines=60, feed=6000.0, length=1.0):
+    """``lines`` one-inch cuts, one per line, so each line is its own run."""
+    out = ["(timed_runs)", "G20 G17 G90 G94", "G0 X0 Y0 Z0", "F%g" % feed]
+    for i in range(lines):
+        out.append("G1 X%g" % (length * (i + 1)))
+    out.append("M2")
+    return "\n".join(out) + "\n"
+
+
+def timed_loop(feed=6000.0):
+    """The same two lines cut twice, so one line number lands twice in the
+    table and a lookup needs the elapsed hint to tell the passes apart."""
+    return ("(timed_loop)\nG20 G17 G90 G94\nG0 X0 Y0 Z0\nF%g\n"
+            "o100 repeat [2]\nG1 X4\nG1 Y4\nG0 X0 Y0\no100 endrepeat\n"
+            "M2\n" % feed)
