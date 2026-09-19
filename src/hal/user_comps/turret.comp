@@ -1,0 +1,1194 @@
+//    Lathe turret controller (hydraulic single-solenoid) - F2 component.
+//
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    This is a userspace component (loadusr) that reads and writes the
+//    machine pins and the iocontrol handshake pins by name, exactly like
+//    the Python manager (F1).  It reads a key=value configuration
+//    generated from turret.json (`python3 -m turret.genconf`), so no HAL
+//    nets are needed and a pin/station change is applied by rewriting the
+//    configuration and pulsing `turret.reload`.
+
+component turret "Lathe turret controller for hydraulic single-solenoid turrets";
+license "GPL";
+author "LinuxCNC";
+option userspace yes;
+option userinit;
+option extra_cleanup yes;
+
+description """Hydraulic lathe turret controller (one solenoid: ON = rotate in
+one direction, OFF = the mechanism seats a station; clamp valve ON =
+unclamp).
+
+It implements a timeout on every transition, a latched fault with alarm
+codes, an adaptive stop lead for the hydraulic coast, maintenance
+counters/intervals and the iocontrol tool change handshake.  The machine
+I/O pins and the iocontrol pins are read/written by name (from the
+configuration file), so changing the pin mapping or the station count
+only needs a configuration reload.
+
+Usage:
+    loadusr -W turret --config /path/turret.conf
+""";
+
+pin in  bool pos1            "Sensor: station 1 / index";
+pin in  bool strobe          "Sensor: pulse per station";
+pin in  bool changepos       "Sensor: turret seated (clamp allowed)";
+pin in  bool clamped         "Sensor: clamp closed";
+pin in  bool interlock-ok    "Machine enabled / interlock (optional)";
+pin in  bool prepare         "Command: prepare (iocontrol or panel)";
+pin in  bool change          "Command: change (iocontrol or panel)";
+pin in  bool home            "Command: reference search";
+pin in  bool reset           "Command: clear latched fault";
+pin in  bool cancel          "Command: operator abort";
+pin in  bool release         "Service: unclamp and hold (remove turret)";
+pin in  bool lock            "Service: clamp again (insert turret)";
+pin in  bool step            "Service: advance one station";
+pin in  bool unhome          "Command: forget reference (testing)";
+pin in  bool reload          "Command: reload the configuration file";
+pin in  bool test-enable     "Enable service commands";
+pin in  bool clear-history   "Command: clear the event history";
+pin in  si32  pocket-request  "Requested station (0 = none)";
+
+pin in  bool mark-service-1  "Command: maintenance 1 done";
+pin in  bool mark-service-2  "Command: maintenance 2 done";
+pin in  bool mark-service-3  "Command: maintenance 3 done";
+pin in  bool mark-service-4  "Command: maintenance 4 done";
+pin in  bool mark-service-5  "Command: maintenance 5 done";
+pin in  bool mark-service-6  "Command: maintenance 6 done";
+pin in  bool mark-service-7  "Command: maintenance 7 done";
+pin in  bool mark-service-8  "Command: maintenance 8 done";
+pin in  bool mark-service-9  "Command: maintenance 9 done";
+pin in  bool mark-service-10 "Command: maintenance 10 done";
+pin in  bool mark-service-11 "Command: maintenance 11 done";
+pin in  bool mark-service-12 "Command: maintenance 12 done";
+pin in  bool mark-service-13 "Command: maintenance 13 done";
+pin in  bool mark-service-14 "Command: maintenance 14 done";
+pin in  bool mark-service-15 "Command: maintenance 15 done";
+pin in  bool mark-service-16 "Command: maintenance 16 done";
+pin in  bool mark-service-17 "Command: maintenance 17 done";
+pin in  bool mark-service-18 "Command: maintenance 18 done";
+pin in  bool mark-service-19 "Command: maintenance 19 done";
+pin in  bool mark-service-20 "Command: maintenance 20 done";
+pin in  bool mark-service-21 "Command: maintenance 21 done";
+pin in  bool mark-service-22 "Command: maintenance 22 done";
+pin in  bool mark-service-23 "Command: maintenance 23 done";
+pin in  bool mark-service-24 "Command: maintenance 24 done";
+pin in  bool mark-service-25 "Command: maintenance 25 done";
+pin in  bool mark-service-26 "Command: maintenance 26 done";
+pin in  bool mark-service-27 "Command: maintenance 27 done";
+pin in  bool mark-service-28 "Command: maintenance 28 done";
+pin in  bool mark-service-29 "Command: maintenance 29 done";
+pin in  bool mark-service-30 "Command: maintenance 30 done";
+pin in  bool mark-service-31 "Command: maintenance 31 done";
+pin in  bool mark-service-32 "Command: maintenance 32 done";
+
+pin out bool motor           "Output: rotation solenoid";
+pin out bool unclamp         "Output: clamp valve (ON = unclamp)";
+pin out bool clamp           "Output: clamp valve #2 (optional)";
+pin out bool prepared        "Handshake: tool prepared";
+pin out bool changed         "Handshake: tool changed";
+pin out bool busy            "Status: sequence in progress";
+pin out bool homed           "Status: reference known";
+pin out bool located         "Status: seated and clamped";
+pin out bool fault           "Status: latched fault";
+pin out bool maint-due       "Status: maintenance due";
+pin out bool watchdog-pet    "Heartbeat for a hardware watchdog";
+pin out si32  error           "Status: active alarm code (0 = none)";
+pin out si32  state           "Status: FSM state";
+pin out si32  station         "Status: current station";
+pin out si32  maint-code      "Status: first due maintenance code";
+pin out si32  count-changes   "Counter: completed changes";
+pin out si32  count-clamp     "Counter: clamp cycles";
+pin out float hours          "Counter: powered hours";
+pin out si32  station-1-changes  "Counter: changes on station 1";
+pin out si32  station-2-changes  "Counter: changes on station 2";
+pin out si32  station-3-changes  "Counter: changes on station 3";
+pin out si32  station-4-changes  "Counter: changes on station 4";
+pin out si32  station-5-changes  "Counter: changes on station 5";
+pin out si32  station-6-changes  "Counter: changes on station 6";
+pin out si32  station-7-changes  "Counter: changes on station 7";
+pin out si32  station-8-changes  "Counter: changes on station 8";
+pin out si32  station-9-changes  "Counter: changes on station 9";
+pin out si32  station-10-changes "Counter: changes on station 10";
+pin out si32  station-11-changes "Counter: changes on station 11";
+pin out si32  station-12-changes "Counter: changes on station 12";
+pin out si32  station-13-changes "Counter: changes on station 13";
+pin out si32  station-14-changes "Counter: changes on station 14";
+pin out si32  station-15-changes "Counter: changes on station 15";
+pin out si32  station-16-changes "Counter: changes on station 16";
+pin out si32  station-17-changes "Counter: changes on station 17";
+pin out si32  station-18-changes "Counter: changes on station 18";
+pin out si32  station-19-changes "Counter: changes on station 19";
+pin out si32  station-20-changes "Counter: changes on station 20";
+pin out si32  station-21-changes "Counter: changes on station 21";
+pin out si32  station-22-changes "Counter: changes on station 22";
+pin out si32  station-23-changes "Counter: changes on station 23";
+pin out si32  station-24-changes "Counter: changes on station 24";
+
+param rw si32  pockets = 8               "Number of stations (1..24)";
+param rw float strobe-filter-ms = 3.0   "Strobe debounce time (ms)";
+param rw float unclamp-timeout = 2.0    "Unclamp timeout (s)";
+param rw float home-timeout = 20.0      "Reference search timeout (s)";
+param rw float rotate-timeout = 20.0    "Rotation timeout (s)";
+param rw float settle-time = 0.4        "Settle time before checking (s)";
+param rw float locate-timeout = 1.5     "Seated sensor timeout (s)";
+param rw float locate-stable-ms = 150.0 "Seated sensor stable time (ms)";
+param rw float clamp-timeout = 2.0      "Clamp timeout (s)";
+param rw si32  max-retries = 2           "Max short-move retries";
+param rw si32  lead-pulses = 0           "Stop lead in station pulses";
+
+;;
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <math.h>
+#include <getopt.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+#include <errno.h>
+
+#define MAX_STATIONS      24
+#define MAX_MAINT         32
+#define HISTORY_MAX       60
+#define LOOP_PERIOD_US    10000     /* 10 ms */
+#define SAVE_PERIOD_S     5.0
+#define MAINT_CHECK_S     1.0
+#define PATH_MAX_LEN      512
+
+// ---------------------------------------------------------------------
+// FSM states (must match lib/python/turret/fsm.py)
+// ---------------------------------------------------------------------
+enum {
+    ST_IDLE = 0,
+    ST_UNCLAMP = 1,
+    ST_HOME = 2,
+    ST_ROTATE = 3,
+    ST_SETTLE = 4,
+    ST_LOCATE = 5,
+    ST_CLAMP = 6,
+    ST_FAULT = 10,
+    ST_RELEASE = 12,
+};
+
+enum {
+    E_UNCLAMP_TIMEOUT = 1,
+    E_HOME_TIMEOUT = 2,
+    E_ROTATE_TIMEOUT = 3,
+    E_OVERSHOOT = 4,
+    E_NOT_LOCATED = 5,
+    E_CLAMP_TIMEOUT = 6,
+    E_STROBE_FAULT = 7,
+    E_INTERLOCK = 8,
+    E_OPERATOR_ABORT = 9,
+    E_CONFIG = 10,
+    E_WATCHDOG = 11,
+};
+
+static const char *alarm_text(int code) {
+    switch (code) {
+    case 0:  return "Sin alarma";
+    case E_UNCLAMP_TIMEOUT: return "E1: la pinza no se libero a tiempo";
+    case E_HOME_TIMEOUT:    return "E2: no se encontro la referencia (posicion 1 + strobe)";
+    case E_ROTATE_TIMEOUT:  return "E3: la torreta no alcanzo la estacion pedida";
+    case E_OVERSHOOT:       return "E4: la torreta se paso de la estacion (coast excesivo)";
+    case E_NOT_LOCATED:     return "E5: la torreta no quedo asentada";
+    case E_CLAMP_TIMEOUT:   return "E6: la pinza no se cerro a tiempo";
+    case E_STROBE_FAULT:    return "E7: pulsos de strobe con la torreta detenida";
+    case E_INTERLOCK:       return "E8: interlock perdido durante el movimiento";
+    case E_OPERATOR_ABORT:  return "E9: abortado por el operador";
+    case E_CONFIG:          return "E10: configuracion invalida o pin inexistente";
+    case E_WATCHDOG:        return "E11: watchdog de la torreta vencido";
+    default:                return "E?: alarma desconocida";
+    }
+}
+
+// ---------------------------------------------------------------------
+// configuration
+// ---------------------------------------------------------------------
+typedef struct {
+    char name[64];
+    int every_changes;
+    double every_hours;
+} maint_interval_t;
+
+static char config_path[PATH_MAX_LEN] = "";
+static char state_conf[PATH_MAX_LEN] = "";
+static char state_json[PATH_MAX_LEN] = "";
+
+static char pin_pos1[PATH_MAX_LEN] = "";
+static char pin_strobe[PATH_MAX_LEN] = "";
+static char pin_changepos[PATH_MAX_LEN] = "";
+static char pin_clamped[PATH_MAX_LEN] = "";
+static char pin_motor[PATH_MAX_LEN] = "";
+static char pin_unclamp[PATH_MAX_LEN] = "";
+static char pin_clamp[PATH_MAX_LEN] = "";
+static char pin_interlock[PATH_MAX_LEN] = "";
+static char pin_watchdog[PATH_MAX_LEN] = "";
+static char pin_tool_prepare[PATH_MAX_LEN] = "";
+static char pin_tool_prepared[PATH_MAX_LEN] = "";
+static char pin_tool_change[PATH_MAX_LEN] = "";
+static char pin_tool_changed[PATH_MAX_LEN] = "";
+static char pin_tool_pocket[PATH_MAX_LEN] = "";
+static char pin_tc_fault[PATH_MAX_LEN] = "";
+static char pin_tc_reason[PATH_MAX_LEN] = "";
+
+static int cfg_stations = 8;
+static int cfg_clamped_inverted = 0;
+static int cfg_require_changepos = 1;
+static int cfg_unclamp_before_rotate = 1;
+static int cfg_interlock_required = 0;
+static int cfg_abort_on_fault = 0;
+static int cfg_test_enable_required = 1;
+
+static double cfg_strobe_filter = 3.0;
+static double cfg_unclamp_timeout = 2.0;
+static double cfg_home_timeout = 20.0;
+static double cfg_rotate_timeout = 20.0;
+static double cfg_settle_time = 0.4;
+static double cfg_locate_timeout = 1.5;
+static double cfg_locate_stable = 150.0;
+static double cfg_clamp_timeout = 2.0;
+static int cfg_max_retries = 2;
+static int cfg_lead_pulses = 0;
+static int cfg_lead_auto = 1;
+
+static maint_interval_t maint[MAX_MAINT];
+static int maint_count = 0;
+
+// ---------------------------------------------------------------------
+// FSM state
+// ---------------------------------------------------------------------
+typedef struct {
+    int st;                 // state (pin macro 'state' is reserved)
+    int stn;                // station (pin macro 'station' is reserved)
+    int is_homed;           // pin macro 'homed' is reserved
+    int is_located;         // pin macro 'located' is reserved
+    int is_fault;           // pin macro 'fault' is reserved
+    int alarm;              // pin macro 'error' is reserved
+    int lead;
+    int last_alarm;
+    double last_alarm_time;
+    int retries;
+    int seq;                // 0 none, 1 select, 2 home, 3 release
+    int target;
+    int after_unclamp;      // 0 rotate, 1 home, 2 release
+    int settle_mode;        // 0 rotate, 1 home
+    int rot_base;
+    int rot_counted;
+    int rot_target;
+    int rot_stopped;
+    int idle_strobes;
+    double t0;
+    double locate_since;
+    int coast_hist[5];
+    int coast_n;
+    int changes;
+    int clamp_cycles;
+    int fault_count;
+    int station_counts[MAX_STATIONS];
+} fsm_t;
+
+static fsm_t fsm;
+
+static int req_select = 0;
+static int req_home = 0;
+static int req_reset = 0;
+static int req_release = 0;
+static int req_lock = 0;
+static int req_step = 0;
+static int req_abort = 0;
+
+// edge tracking for the component's own pins
+static int prev[64];
+static double strobe_time = -1.0;
+static int strobe_prev = 0;
+static int pos1_prev = 0;
+static int prev_faulted = 0;
+
+// counters / history
+static int maint_notified[MAX_MAINT];
+static double maint_changes_base[MAX_MAINT];
+static double maint_hours_base[MAX_MAINT];
+static double maint_time_base[MAX_MAINT];
+static int hist_count = 0;
+static double hist_time[HISTORY_MAX];
+static int hist_code[HISTORY_MAX];
+static int hist_station[HISTORY_MAX];
+static int hist_kind[HISTORY_MAX];   // 0 alarm, 1 maintenance
+
+static double hours_total = 0.0;
+static double last_save = 0.0;
+static double last_maint_check = 0.0;
+static double last_mtime_check = 0.0;
+static double conf_mtime = 0.0;
+static int should_exit = 0;
+static int watchdog_state = 0;
+
+static void signal_handler(int signo) {
+    (void)signo;
+    should_exit = 1;
+}
+
+// ---------------------------------------------------------------------
+// helpers
+// ---------------------------------------------------------------------
+static double now_s(void) {
+    return rtapi_get_time() * 1e-9;
+}
+
+static int wrap_station(int value, int stations) {
+    if (stations < 1) stations = 1;
+    return ((value - 1) % stations + stations) % stations + 1;
+}
+
+static int read_int_pin(const char *name, int def) {
+    if (name[0] == '\0') return def;
+    int out = def;
+    hal_query_t q = {0};
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    if (hal_get_p(&q, NULL, NULL) != 0) return def;
+    switch (q.pp.type) {
+    case HAL_BIT: out = q.pp.value.b ? 1 : 0; break;
+    case HAL_S32: out = (int)q.pp.value.s; break;
+    case HAL_U32: out = (int)q.pp.value.u; break;
+    case HAL_REAL: out = (q.pp.value.r != 0.0) ? 1 : 0; break;
+    default: break;
+    }
+    return out;
+}
+
+static int set_cb(hal_query_t *q, void *arg) {
+    long value = (long)arg;
+    switch (q->pp.type) {
+    case HAL_BIT: q->pp.value.b = value ? 1 : 0; break;
+    case HAL_S32: q->pp.value.s = (rtapi_s32)value; break;
+    case HAL_REAL: q->pp.value.r = (rtapi_real)value; break;
+    default: return -EINVAL;
+    }
+    return 0;
+}
+
+static int pin_exists(const char *name) {
+    if (name[0] == 0) return 0;
+    hal_query_t q = {0};
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    return hal_get_p(&q, NULL, NULL) == 0;
+}
+
+static void write_pin(const char *name, int value) {
+    if (name[0] == '\0') return;
+    hal_query_t q = {0};
+    q.name = name;
+    q.qtype = HAL_QTYPE_PIN;
+    (void)hal_set_p(&q, set_cb, (void *)(long)value);
+}
+
+static void set_iocontrol(const char *name, int value) {
+    write_pin(name, value);
+}
+
+// ---------------------------------------------------------------------
+// configuration file (key = value, '#' comments)
+// ---------------------------------------------------------------------
+static void trim(char *s) {
+    size_t n = strlen(s);
+    while (n && (s[n-1] == '\n' || s[n-1] == '\r' || s[n-1] == ' ' || s[n-1] == '\t'))
+        s[--n] = 0;
+    size_t start = 0;
+    while (s[start] == ' ' || s[start] == '\t') start++;
+    if (start) memmove(s, s + start, strlen(s + start) + 1);
+}
+
+static void copy_pin_name(char *dst, const char *value) {
+    if (strcmp(value, "none") == 0 || strcmp(value, "null") == 0 || value[0] == 0)
+        dst[0] = 0;
+    else {
+        strncpy(dst, value, PATH_MAX_LEN - 1);
+        dst[PATH_MAX_LEN - 1] = 0;
+    }
+}
+
+static void config_defaults(void) {
+    cfg_stations = 8;
+    cfg_clamped_inverted = 0;
+    cfg_require_changepos = 1;
+    cfg_unclamp_before_rotate = 1;
+    cfg_interlock_required = 0;
+    cfg_abort_on_fault = 0;
+    cfg_test_enable_required = 1;
+    cfg_strobe_filter = 3.0;
+    cfg_unclamp_timeout = 2.0;
+    cfg_home_timeout = 20.0;
+    cfg_rotate_timeout = 20.0;
+    cfg_settle_time = 0.4;
+    cfg_locate_timeout = 1.5;
+    cfg_locate_stable = 150.0;
+    cfg_clamp_timeout = 2.0;
+    cfg_max_retries = 2;
+    cfg_lead_pulses = 0;
+    cfg_lead_auto = 1;
+    maint_count = 0;
+}
+
+static void apply_config_key(const char *key, const char *value) {
+    if (strcmp(key, "stations") == 0) {
+        int v = atoi(value);
+        if (v >= 1 && v <= MAX_STATIONS) cfg_stations = v;
+    } else if (strcmp(key, "pins.pos1") == 0) copy_pin_name(pin_pos1, value);
+    else if (strcmp(key, "pins.strobe") == 0) copy_pin_name(pin_strobe, value);
+    else if (strcmp(key, "pins.changepos") == 0) copy_pin_name(pin_changepos, value);
+    else if (strcmp(key, "pins.clamped") == 0) copy_pin_name(pin_clamped, value);
+    else if (strcmp(key, "pins.motor") == 0) copy_pin_name(pin_motor, value);
+    else if (strcmp(key, "pins.unclamp") == 0) copy_pin_name(pin_unclamp, value);
+    else if (strcmp(key, "pins.clamp") == 0) copy_pin_name(pin_clamp, value);
+    else if (strcmp(key, "pins.interlock") == 0) copy_pin_name(pin_interlock, value);
+    else if (strcmp(key, "pins.watchdog_pet") == 0) copy_pin_name(pin_watchdog, value);
+    else if (strcmp(key, "pins.tool_prepare") == 0) copy_pin_name(pin_tool_prepare, value);
+    else if (strcmp(key, "pins.tool_prepared") == 0) copy_pin_name(pin_tool_prepared, value);
+    else if (strcmp(key, "pins.tool_change") == 0) copy_pin_name(pin_tool_change, value);
+    else if (strcmp(key, "pins.tool_changed") == 0) copy_pin_name(pin_tool_changed, value);
+    else if (strcmp(key, "pins.tool_prep_pocket") == 0) copy_pin_name(pin_tool_pocket, value);
+    else if (strcmp(key, "pins.toolchanger_fault") == 0) copy_pin_name(pin_tc_fault, value);
+    else if (strcmp(key, "pins.toolchanger_reason") == 0) copy_pin_name(pin_tc_reason, value);
+    else if (strcmp(key, "timing.strobe_filter_ms") == 0) cfg_strobe_filter = atof(value);
+    else if (strcmp(key, "timing.unclamp_timeout") == 0) cfg_unclamp_timeout = atof(value);
+    else if (strcmp(key, "timing.home_timeout") == 0) cfg_home_timeout = atof(value);
+    else if (strcmp(key, "timing.rotate_timeout") == 0) cfg_rotate_timeout = atof(value);
+    else if (strcmp(key, "timing.settle_time") == 0) cfg_settle_time = atof(value);
+    else if (strcmp(key, "timing.locate_timeout") == 0) cfg_locate_timeout = atof(value);
+    else if (strcmp(key, "timing.locate_stable_ms") == 0) cfg_locate_stable = atof(value);
+    else if (strcmp(key, "timing.clamp_timeout") == 0) cfg_clamp_timeout = atof(value);
+    else if (strcmp(key, "timing.max_retries") == 0) cfg_max_retries = atoi(value);
+    else if (strcmp(key, "timing.lead_pulses") == 0) cfg_lead_pulses = atoi(value);
+    else if (strcmp(key, "timing.lead_auto") == 0) cfg_lead_auto = atoi(value) ? 1 : 0;
+    else if (strcmp(key, "logic.clamped_inverted") == 0) cfg_clamped_inverted = atoi(value) ? 1 : 0;
+    else if (strcmp(key, "logic.require_changepos") == 0) cfg_require_changepos = atoi(value) ? 1 : 0;
+    else if (strcmp(key, "logic.unclamp_before_rotate") == 0) cfg_unclamp_before_rotate = atoi(value) ? 1 : 0;
+    else if (strcmp(key, "logic.interlock_required") == 0) cfg_interlock_required = atoi(value) ? 1 : 0;
+    else if (strcmp(key, "logic.abort_on_fault") == 0) cfg_abort_on_fault = atoi(value) ? 1 : 0;
+    else if (strcmp(key, "logic.test_enable_required") == 0) cfg_test_enable_required = atoi(value) ? 1 : 0;
+    else if (strncmp(key, "maint.", 6) == 0) {
+        int code = 0;
+        char field[32] = "";
+        if (sscanf(key + 6, "%d.%31s", &code, field) == 2 &&
+            code >= 1 && code <= MAX_MAINT) {
+            if (maint_count < code) maint_count = code;
+            maint_interval_t *m = &maint[code - 1];
+            if (strcmp(field, "name") == 0) {
+                strncpy(m->name, value, sizeof(m->name) - 1);
+                m->name[sizeof(m->name) - 1] = 0;
+            } else if (strcmp(field, "every_changes") == 0) m->every_changes = atoi(value);
+            else if (strcmp(field, "every_hours") == 0) m->every_hours = atof(value);
+        }
+    }
+}
+
+static int parse_config_file(const char *path, int restore_state) {
+    FILE *fp = fopen(path, "r");
+    if (!fp) {
+        if (!restore_state)
+            rtapi_print_msg(RTAPI_MSG_ERR, "turret: no se puede abrir %s\n", path);
+        return -1;
+    }
+    char line[1024];
+    while (fgets(line, sizeof(line), fp)) {
+        char *hash = strchr(line, '#');
+        if (hash) *hash = 0;
+        trim(line);
+        if (line[0] == 0) continue;
+        char *eq = strchr(line, '=');
+        if (!eq) continue;
+        *eq = 0;
+        char key[256], value[768];
+        strncpy(key, line, sizeof(key) - 1); key[sizeof(key) - 1] = 0;
+        strncpy(value, eq + 1, sizeof(value) - 1); value[sizeof(value) - 1] = 0;
+        trim(key);
+        trim(value);
+        if (!restore_state) apply_config_key(key, value);
+        else {
+            if (strcmp(key, "fsm.stn") == 0) fsm.stn = atoi(value);
+            else if (strcmp(key, "fsm.is_homed") == 0) fsm.is_homed = atoi(value) ? 1 : 0;
+            else if (strcmp(key, "fsm.lead") == 0) fsm.lead = atoi(value);
+            else if (strcmp(key, "fsm.changes") == 0) fsm.changes = atoi(value);
+            else if (strcmp(key, "fsm.clamp_cycles") == 0) fsm.clamp_cycles = atoi(value);
+            else if (strcmp(key, "fsm.fault_count") == 0) fsm.fault_count = atoi(value);
+            else if (strncmp(key, "fsm.station_count.", 18) == 0) {
+                int n = atoi(key + 18);
+                if (n >= 1 && n <= MAX_STATIONS) fsm.station_counts[n-1] = atoi(value);
+            } else if (strncmp(key, "maint.", 6) == 0) {
+                int code = 0; char field[32] = "";
+                if (sscanf(key + 6, "%d.%31s", &code, field) == 2 &&
+                    code >= 1 && code <= MAX_MAINT) {
+                    if (strcmp(field, "changes") == 0) maint_changes_base[code-1] = atof(value);
+                    else if (strcmp(field, "hours") == 0) maint_hours_base[code-1] = atof(value);
+                    else if (strcmp(field, "time") == 0) maint_time_base[code-1] = atof(value);
+                }
+            } else if (strcmp(key, "hours") == 0) {
+                hours_total = atof(value);
+            }
+        }
+    }
+    fclose(fp);
+    return 0;
+}
+
+static double file_mtime(const char *path) {
+    struct stat st;
+    if (stat(path, &st) != 0) return 0.0;
+#if defined(__APPLE__)
+    return (double)st.st_mtime + st.st_mtimespec.tv_nsec * 1e-9;
+#else
+    return (double)st.st_mtime + st.st_mtim.tv_nsec * 1e-9;
+#endif
+}
+
+// ---------------------------------------------------------------------
+// persistence
+// ---------------------------------------------------------------------
+static void save_state_conf(void) {
+    if (state_conf[0] == 0) return;
+    FILE *fp = fopen(state_conf, "w");
+    if (!fp) return;
+    fprintf(fp, "# turret state (auto)\n");
+    fprintf(fp, "fsm.stn = %d\n", fsm.stn);
+    fprintf(fp, "fsm.is_homed = %d\n", fsm.is_homed);
+    fprintf(fp, "fsm.lead = %d\n", fsm.lead);
+    fprintf(fp, "fsm.changes = %d\n", fsm.changes);
+    fprintf(fp, "fsm.clamp_cycles = %d\n", fsm.clamp_cycles);
+    fprintf(fp, "fsm.fault_count = %d\n", fsm.fault_count);
+    for (int i = 0; i < cfg_stations; i++)
+        fprintf(fp, "fsm.station_count.%d = %d\n", i + 1, fsm.station_counts[i]);
+    fprintf(fp, "hours = %.3f\n", hours_total);
+    for (int i = 0; i < maint_count; i++) {
+        if (maint[i].every_changes <= 0 && maint[i].every_hours <= 0) continue;
+        fprintf(fp, "maint.%d.changes = %.0f\n", i + 1, maint_changes_base[i]);
+        fprintf(fp, "maint.%d.hours = %.3f\n", i + 1, maint_hours_base[i]);
+        fprintf(fp, "maint.%d.time = %.0f\n", i + 1, maint_time_base[i]);
+    }
+    fclose(fp);
+}
+
+static void save_state_json(void) {
+    if (state_json[0] == 0) return;
+    FILE *fp = fopen(state_json, "w");
+    if (!fp) return;
+    fprintf(fp, "{\n  \"fsm\": {\"station\": %d, \"homed\": %s, \"lead\": %d, "
+                "\"changes\": %d, \"clamp_cycles\": %d, \"fault_count\": %d, "
+                "\"station_counts\": [",
+            fsm.stn, fsm.is_homed ? "true" : "false", fsm.lead,
+            fsm.changes, fsm.clamp_cycles, fsm.fault_count);
+    for (int i = 0; i < cfg_stations; i++)
+        fprintf(fp, "%s%d", i ? ", " : "", fsm.station_counts[i]);
+    fprintf(fp, "]},\n");
+    fprintf(fp, "  \"maintenance\": {\"last_service\": {");
+    int first = 1;
+    for (int i = 0; i < maint_count; i++) {
+        if (maint[i].every_changes <= 0 && maint[i].every_hours <= 0) continue;
+        fprintf(fp, "%s\"%d\": {\"changes\": %.0f, \"hours\": %.3f, \"time\": %.0f}",
+                first ? "" : ", ", i + 1, maint_changes_base[i],
+                maint_hours_base[i], maint_time_base[i]);
+        first = 0;
+    }
+    fprintf(fp, "}},\n  \"hours\": %.3f,\n  \"history\": [", hours_total);
+    for (int i = 0; i < hist_count; i++) {
+        char maint_text[96];
+        const char *text = alarm_text(hist_code[i]);
+        if (hist_kind[i] == 1) {
+            if (hist_code[i] >= 1 && hist_code[i] <= maint_count &&
+                maint[hist_code[i] - 1].name[0])
+                snprintf(maint_text, sizeof(maint_text), "Mantenimiento: %s",
+                         maint[hist_code[i] - 1].name);
+            else
+                snprintf(maint_text, sizeof(maint_text), "Mantenimiento programado");
+            text = maint_text;
+        }
+        fprintf(fp, "%s{\"time\": %.0f, \"kind\": \"%s\", \"code\": %d, "
+                    "\"station\": %d, \"text\": \"%s\"}",
+                i ? ", " : "", hist_time[i],
+                hist_kind[i] == 1 ? "maintenance" : "alarm",
+                hist_code[i], hist_station[i], text);
+    }
+    fprintf(fp, "]\n}\n");
+    fclose(fp);
+}
+
+static void save_state(void) {
+    save_state_conf();
+    save_state_json();
+}
+
+static void history_add(int code, int kind, int station) {
+    if (hist_count < HISTORY_MAX) {
+        hist_time[hist_count] = now_s();
+        hist_code[hist_count] = code;
+        hist_station[hist_count] = station;
+        hist_kind[hist_count] = kind;
+        hist_count++;
+    } else {
+        memmove(hist_time, hist_time + 1, sizeof(double) * (HISTORY_MAX - 1));
+        memmove(hist_code, hist_code + 1, sizeof(int) * (HISTORY_MAX - 1));
+        memmove(hist_station, hist_station + 1, sizeof(int) * (HISTORY_MAX - 1));
+        memmove(hist_kind, hist_kind + 1, sizeof(int) * (HISTORY_MAX - 1));
+        hist_time[HISTORY_MAX - 1] = now_s();
+        hist_code[HISTORY_MAX - 1] = code;
+        hist_station[HISTORY_MAX - 1] = station;
+        hist_kind[HISTORY_MAX - 1] = kind;
+    }
+    save_state_json();
+}
+
+// ---------------------------------------------------------------------
+// FSM
+// ---------------------------------------------------------------------
+static void fsm_enter(int state, double now) {
+    fsm.st = state;
+    fsm.t0 = now;
+    if (state == ST_LOCATE) fsm.locate_since = -1.0;
+}
+
+static int clamped_now(int value) {
+    return cfg_clamped_inverted ? !value : value;
+}
+
+static void fsm_fault(int code, double now) {
+    fsm.st = ST_FAULT;
+    fsm.is_fault = 1;
+    fsm.alarm = code;
+    fsm.last_alarm = code;
+    fsm.last_alarm_time = now;
+    fsm.fault_count++;
+    fsm.seq = 0;
+    fsm.target = 0;
+    req_select = 0;
+}
+
+static void fsm_enter_rotate(double now) {
+    fsm.rot_base = fsm.stn;
+    fsm.rot_counted = 0;
+    int pulses = (fsm.target - fsm.rot_base) % cfg_stations;
+    if (pulses < 0) pulses += cfg_stations;
+    fsm.rot_target = pulses;
+    if (pulses == 0) fsm_enter(ST_LOCATE, now);
+    else fsm_enter(ST_ROTATE, now);
+}
+
+static int test_ok(void) {
+    return test_enable || !cfg_test_enable_required;
+}
+
+static void fsm_step(double now, int pos1_v, int strobe_v, int changepos_v,
+                     int clamped_v, int interlock_v) {
+    // debounced strobe / pos1 edges
+    int strobe_edge = 0, pos1_edge = 0;
+    if (strobe_v && !strobe_prev) {
+        double gap = cfg_strobe_filter / 1000.0;
+        if (strobe_time < 0.0 || (now - strobe_time) >= gap) {
+            strobe_edge = 1;
+            strobe_time = now;
+        }
+    }
+    strobe_prev = strobe_v;
+    if (pos1_v && !pos1_prev) pos1_edge = 1;
+    pos1_prev = pos1_v;
+
+    if (req_abort) {
+        req_abort = 0;
+        if (fsm.st != ST_FAULT) fsm_fault(E_OPERATOR_ABORT, now);
+    }
+    if (cfg_interlock_required && !interlock_v && fsm.st != ST_IDLE &&
+        fsm.st != ST_FAULT && fsm.st != ST_RELEASE)
+        fsm_fault(E_INTERLOCK, now);
+
+    double elapsed = now - fsm.t0;
+    switch (fsm.st) {
+    case ST_IDLE:
+        if (strobe_edge) {
+            fsm.idle_strobes++;
+            if (fsm.idle_strobes > 3) { fsm_fault(E_STROBE_FAULT, now); break; }
+        }
+        if (req_release && test_ok()) {
+            req_release = 0;
+            fsm.seq = 3;
+            fsm.after_unclamp = 2;
+            fsm_enter(ST_UNCLAMP, now);
+        } else if (req_home && test_ok()) {
+            req_home = 0;
+            fsm.is_located = 0;
+            fsm.seq = 2;
+            fsm.after_unclamp = 1;
+            fsm_enter(ST_UNCLAMP, now);
+        } else {
+            int pocket = req_select;
+            if (pocket <= 0 && req_step && test_ok()) {
+                req_step = 0;
+                pocket = wrap_station(fsm.stn + 1, cfg_stations);
+            }
+            if (pocket >= 1 && pocket <= cfg_stations) {
+                req_select = 0;
+                req_step = 0;
+                fsm.is_located = 0;
+                fsm.target = pocket;
+                fsm.seq = 1;
+                fsm.retries = 0;
+                fsm.idle_strobes = 0;
+                fsm.after_unclamp = fsm.is_homed ? 0 : 1;
+                fsm_enter(ST_UNCLAMP, now);
+            }
+        }
+        break;
+
+    case ST_UNCLAMP:
+        if (!clamped_now(clamped_v)) {
+            if (fsm.after_unclamp == 2) fsm_enter(ST_RELEASE, now);
+            else if (fsm.after_unclamp == 1) fsm_enter(ST_HOME, now);
+            else fsm_enter_rotate(now);
+        } else if (elapsed > cfg_unclamp_timeout) {
+            fsm_fault(E_UNCLAMP_TIMEOUT, now);
+        }
+        break;
+
+    case ST_HOME:
+        if (pos1_edge && strobe_v) {
+            fsm.rot_counted = 0;
+            fsm.settle_mode = 1;
+            fsm_enter(ST_SETTLE, now);
+        } else if (elapsed > cfg_home_timeout) {
+            fsm_fault(E_HOME_TIMEOUT, now);
+        }
+        break;
+
+    case ST_ROTATE:
+        if (strobe_edge) fsm.rot_counted++;
+        {
+            int stop_at = fsm.rot_target - fsm.lead;
+            if (stop_at < 1) stop_at = 1;
+            if (fsm.rot_counted >= stop_at) {
+                fsm.rot_stopped = fsm.rot_counted;
+                fsm.settle_mode = 0;
+                fsm_enter(ST_SETTLE, now);
+            } else if (elapsed > cfg_rotate_timeout) {
+                fsm_fault(E_ROTATE_TIMEOUT, now);
+            }
+        }
+        break;
+
+    case ST_SETTLE:
+        if (strobe_edge) fsm.rot_counted++;
+        if (elapsed < cfg_settle_time) break;
+        if (fsm.settle_mode == 1) {
+            fsm.stn = wrap_station(1 + fsm.rot_counted, cfg_stations);
+            fsm.is_homed = 1;
+            fsm.idle_strobes = 0;
+            if (fsm.seq == 1 && fsm.stn != fsm.target) fsm_enter_rotate(now);
+            else fsm_enter(ST_LOCATE, now);
+        } else {
+            int coast = fsm.rot_counted - fsm.rot_stopped;
+            if (cfg_lead_auto) {
+                if (fsm.coast_n < 5) fsm.coast_hist[fsm.coast_n++] = coast;
+                else {
+                    memmove(fsm.coast_hist, fsm.coast_hist + 1,
+                            sizeof(int) * 4);
+                    fsm.coast_hist[4] = coast;
+                }
+                int ordered[5];
+                memcpy(ordered, fsm.coast_hist, sizeof(int) * fsm.coast_n);
+                for (int a = 0; a < fsm.coast_n; a++)
+                    for (int b = a + 1; b < fsm.coast_n; b++)
+                        if (ordered[b] < ordered[a]) {
+                            int t = ordered[a]; ordered[a] = ordered[b]; ordered[b] = t;
+                        }
+                fsm.lead = ordered[fsm.coast_n / 2];
+                if (fsm.lead < 0) fsm.lead = 0;
+                if (fsm.lead > 2) fsm.lead = 2;
+            }
+            fsm.stn = wrap_station(fsm.rot_base + fsm.rot_counted, cfg_stations);
+            if (fsm.rot_counted > fsm.rot_target) {
+                fsm_fault(E_OVERSHOOT, now);
+            } else if (fsm.stn != fsm.target) {
+                if (fsm.retries < cfg_max_retries) {
+                    fsm.retries++;
+                    fsm_enter_rotate(now);
+                } else {
+                    fsm_fault(E_ROTATE_TIMEOUT, now);
+                }
+            } else {
+                fsm_enter(ST_LOCATE, now);
+            }
+        }
+        break;
+
+    case ST_LOCATE:
+        if (!cfg_require_changepos) { fsm_enter(ST_CLAMP, now); break; }
+        if (changepos_v) {
+            if (fsm.locate_since < 0.0) fsm.locate_since = now;
+            else if ((now - fsm.locate_since) * 1000.0 >= cfg_locate_stable) {
+                fsm_enter(ST_CLAMP, now);
+                break;
+            }
+        } else {
+            fsm.locate_since = -1.0;
+        }
+        if (elapsed > cfg_locate_timeout) fsm_fault(E_NOT_LOCATED, now);
+        break;
+
+    case ST_CLAMP:
+        if (clamped_now(clamped_v)) {
+            fsm.clamp_cycles++;
+            fsm.is_located = 1;
+            if (fsm.seq == 1) {
+                fsm.changes++;
+                if (fsm.stn >= 1 && fsm.stn <= MAX_STATIONS)
+                    fsm.station_counts[fsm.stn - 1]++;
+            }
+            fsm.seq = 0;
+            fsm.retries = 0;
+            fsm.idle_strobes = 0;
+            fsm_enter(ST_IDLE, now);
+        } else if (elapsed > cfg_clamp_timeout) {
+            fsm_fault(E_CLAMP_TIMEOUT, now);
+        }
+        break;
+
+    case ST_RELEASE:
+        if (req_lock) {
+            req_lock = 0;
+            fsm.seq = 0;
+            fsm_enter(ST_CLAMP, now);
+        } else if (req_home && test_ok()) {
+            req_home = 0;
+            fsm.seq = 2;
+            fsm_enter(ST_HOME, now);
+        }
+        break;
+
+    case ST_FAULT:
+        if (req_reset) {
+            req_reset = 0;
+            fsm.is_fault = 0;
+            fsm.alarm = 0;
+            fsm.is_homed = 0;      // a fault always requires a new reference
+            fsm_enter(ST_IDLE, now);
+        }
+        break;
+    }
+}
+
+// ---------------------------------------------------------------------
+// maintenance
+// ---------------------------------------------------------------------
+static void maint_check(double now) {
+    int due_code = 0;
+    for (int i = 0; i < maint_count; i++) {
+        maint_interval_t *m = &maint[i];
+        if (m->every_changes <= 0 && m->every_hours <= 0) continue;
+        int due = 0;
+        if (m->every_changes > 0 &&
+            (fsm.changes - maint_changes_base[i]) >= m->every_changes) due = 1;
+        if (m->every_hours > 0 &&
+            (hours_total - maint_hours_base[i]) >= m->every_hours) due = 1;
+        if (due) {
+            if (!due_code) due_code = i + 1;
+            if (!maint_notified[i]) {
+                maint_notified[i] = 1;
+                history_add(i + 1, 1, fsm.stn);
+            }
+        }
+    }
+    maint_due_set(due_code ? 1 : 0);
+    maint_code_set(due_code);
+}
+
+static void maint_mark_service(int code) {
+    if (code < 1 || code > maint_count) return;
+    maint_changes_base[code - 1] = fsm.changes;
+    maint_hours_base[code - 1] = hours_total;
+    maint_time_base[code - 1] = now_s();
+    maint_notified[code - 1] = 0;
+    history_add(code, 1, fsm.stn);
+}
+
+// ---------------------------------------------------------------------
+// iocontrol handshake
+// ---------------------------------------------------------------------
+static void handshake(void) {
+    static int prepared_prev = 0, changed_prev = 0;
+    int prepare_v = pin_exists(pin_tool_prepare)
+        ? read_int_pin(pin_tool_prepare, prepare) : prepare;
+    int change_v = pin_exists(pin_tool_change)
+        ? read_int_pin(pin_tool_change, change) : change;
+    int pocket = pin_exists(pin_tool_pocket) ? read_int_pin(pin_tool_pocket, 0) : 0;
+
+    if (prepare_v) {
+        int target = pocket >= 1 && pocket <= cfg_stations ? pocket : fsm.target;
+        if (target >= 1 && target <= cfg_stations &&
+            fsm.st == ST_IDLE && (!fsm.is_located || target != fsm.target))
+            req_select = target;
+    }
+    int prepared_v = (fsm.st == ST_IDLE && fsm.seq == 0 && fsm.is_located &&
+                      fsm.target >= 1 && fsm.stn == fsm.target && prepare_v) ? 1 : 0;
+    int changed_v = (prepared_v && change_v) ? 1 : 0;
+
+    if (prepared_v != prepared_prev || changed_v != changed_prev) {
+        prepared_set(prepared_v);
+        changed_set(changed_v);
+        if (pin_tool_prepared[0]) set_iocontrol(pin_tool_prepared, prepared_v);
+        if (pin_tool_changed[0]) set_iocontrol(pin_tool_changed, changed_v);
+        prepared_prev = prepared_v;
+        changed_prev = changed_v;
+    }
+}
+
+static void publish_outputs(int motor_v, int unclamp_v) {
+    // component pins
+    if (motor != motor_v) motor_set(motor_v);
+    if (unclamp != unclamp_v) unclamp_set(unclamp_v);
+    // machine pins (by name)
+    write_pin(pin_motor, motor_v);
+    write_pin(pin_unclamp, unclamp_v);
+}
+
+// ---------------------------------------------------------------------
+// command edges
+// ---------------------------------------------------------------------
+static int edge(int slot, int value) {
+    int old = prev[slot];
+    prev[slot] = value ? 1 : 0;
+    return value && !old;
+}
+
+// ---------------------------------------------------------------------
+// main loop
+// ---------------------------------------------------------------------
+static void tick(double now) {
+    // live parameters (the panel/HAL file can setp them)
+    if (pockets >= 1 && pockets <= MAX_STATIONS && pockets != cfg_stations) {
+        cfg_stations = pockets;
+        fsm.is_homed = 0;      // station count changed: reference again
+        fsm.stn = wrap_station(fsm.stn, cfg_stations);
+    }
+    if (strobe_filter_ms > 0) cfg_strobe_filter = strobe_filter_ms;
+    if (unclamp_timeout > 0) cfg_unclamp_timeout = unclamp_timeout;
+    if (home_timeout > 0) cfg_home_timeout = home_timeout;
+    if (rotate_timeout > 0) cfg_rotate_timeout = rotate_timeout;
+    if (settle_time > 0) cfg_settle_time = settle_time;
+    if (locate_timeout > 0) cfg_locate_timeout = locate_timeout;
+    if (locate_stable_ms > 0) cfg_locate_stable = locate_stable_ms;
+    if (clamp_timeout > 0) cfg_clamp_timeout = clamp_timeout;
+    if (max_retries >= 0) cfg_max_retries = max_retries;
+    {
+        static int lead_applied = -999;
+        if (lead_pulses != lead_applied) {
+            lead_applied = lead_pulses;
+            if (lead_pulses >= 0) fsm.lead = lead_pulses;
+        }
+    }
+
+    // commands
+    if (edge(1, home)) req_home = 1;
+    if (edge(2, reset)) req_reset = 1;
+    if (edge(3, cancel)) req_abort = 1;
+    if (edge(4, release)) req_release = 1;
+    if (edge(5, lock)) req_lock = 1;
+    if (edge(6, step)) req_step = 1;
+    if (edge(7, unhome)) fsm.is_homed = 0;
+    if (edge(8, clear_history)) { hist_count = 0; save_state_json(); }
+    if (edge(9, reload)) {
+        config_defaults();
+        if (parse_config_file(config_path, 0) == 0) {
+            pockets_set(cfg_stations);
+            fsm.is_homed = 0;
+        }
+        conf_mtime = file_mtime(config_path);
+    }
+    for (int i = 0; i < MAX_MAINT; i++) {
+        int v = 0;
+        switch (i) {
+        case 0: v = mark_service_1; break;  case 1: v = mark_service_2; break;
+        case 2: v = mark_service_3; break;  case 3: v = mark_service_4; break;
+        case 4: v = mark_service_5; break;  case 5: v = mark_service_6; break;
+        case 6: v = mark_service_7; break;  case 7: v = mark_service_8; break;
+        case 8: v = mark_service_9; break;  case 9: v = mark_service_10; break;
+        case 10: v = mark_service_11; break; case 11: v = mark_service_12; break;
+        case 12: v = mark_service_13; break; case 13: v = mark_service_14; break;
+        case 14: v = mark_service_15; break; case 15: v = mark_service_16; break;
+        case 16: v = mark_service_17; break; case 17: v = mark_service_18; break;
+        case 18: v = mark_service_19; break; case 19: v = mark_service_20; break;
+        case 20: v = mark_service_21; break; case 21: v = mark_service_22; break;
+        case 22: v = mark_service_23; break; case 23: v = mark_service_24; break;
+        case 24: v = mark_service_25; break; case 25: v = mark_service_26; break;
+        case 26: v = mark_service_27; break; case 27: v = mark_service_28; break;
+        case 28: v = mark_service_29; break; case 29: v = mark_service_30; break;
+        case 30: v = mark_service_31; break; case 31: v = mark_service_32; break;
+        }
+        if (edge(20 + i, v)) maint_mark_service(i + 1);
+    }
+
+    // machine inputs
+    int pos1_v = pos1, strobe_v = strobe, changepos_v = changepos;
+    if (pin_exists(pin_pos1)) pos1_v = read_int_pin(pin_pos1, pos1);
+    if (pin_exists(pin_strobe)) strobe_v = read_int_pin(pin_strobe, strobe);
+    if (pin_exists(pin_changepos)) changepos_v = read_int_pin(pin_changepos, changepos);
+    int clamped_v = pin_exists(pin_clamped)
+        ? read_int_pin(pin_clamped, clamped) : clamped;
+    int interlock_v = pin_interlock[0] ? read_int_pin(pin_interlock, 1) : 1;
+
+    fsm_step(now, pos1_v, strobe_v, changepos_v, clamped_v, interlock_v);
+
+    int motor_v = 0, unclamp_v = 0;
+    if (fsm.st == ST_FAULT) { motor_v = 0; unclamp_v = 0; }
+    else if (fsm.st == ST_RELEASE) { motor_v = 0; unclamp_v = 1; }
+    else if (fsm.st != ST_IDLE) {
+        motor_v = (fsm.st == ST_HOME || fsm.st == ST_ROTATE) ? 1 : 0;
+        unclamp_v = (fsm.st != ST_CLAMP) ? 1 : 0;
+    }
+    publish_outputs(motor_v, unclamp_v);
+
+    handshake();
+
+    // status pins
+    busy_set(fsm.st != ST_IDLE && fsm.st != ST_FAULT);
+    homed_set(fsm.is_homed);
+    located_set(fsm.is_located);
+    fault_set(fsm.is_fault);
+    error_set(fsm.alarm);
+    state_set(fsm.st);
+    station_set(fsm.stn);
+    count_changes_set(fsm.changes);
+    count_clamp_set(fsm.clamp_cycles);
+    hours_set(hours_total);
+    station_1_changes_set(fsm.station_counts[0]);
+    station_2_changes_set(fsm.station_counts[1]);
+    station_3_changes_set(fsm.station_counts[2]);
+    station_4_changes_set(fsm.station_counts[3]);
+    station_5_changes_set(fsm.station_counts[4]);
+    station_6_changes_set(fsm.station_counts[5]);
+    station_7_changes_set(fsm.station_counts[6]);
+    station_8_changes_set(fsm.station_counts[7]);
+    station_9_changes_set(fsm.station_counts[8]);
+    station_10_changes_set(fsm.station_counts[9]);
+    station_11_changes_set(fsm.station_counts[10]);
+    station_12_changes_set(fsm.station_counts[11]);
+    station_13_changes_set(fsm.station_counts[12]);
+    station_14_changes_set(fsm.station_counts[13]);
+    station_15_changes_set(fsm.station_counts[14]);
+    station_16_changes_set(fsm.station_counts[15]);
+    station_17_changes_set(fsm.station_counts[16]);
+    station_18_changes_set(fsm.station_counts[17]);
+    station_19_changes_set(fsm.station_counts[18]);
+    station_20_changes_set(fsm.station_counts[19]);
+    station_21_changes_set(fsm.station_counts[20]);
+    station_22_changes_set(fsm.station_counts[21]);
+    station_23_changes_set(fsm.station_counts[22]);
+    station_24_changes_set(fsm.station_counts[23]);
+
+    // fault reporting to iocontrol + history
+    if (pin_tc_fault[0]) set_iocontrol(pin_tc_fault, fsm.is_fault ? 1 : 0);
+    if (pin_tc_reason[0]) set_iocontrol(pin_tc_reason, fsm.is_fault ? fsm.alarm : 0);
+    if (fsm.is_fault && fsm.alarm && prev_faulted != fsm.alarm)
+        history_add(fsm.alarm, 0, fsm.stn);
+    prev_faulted = fsm.is_fault ? fsm.alarm : 0;
+
+    // watchdog heartbeat
+    watchdog_state = !watchdog_state;
+    watchdog_pet_set(watchdog_state);
+    if (pin_watchdog[0]) set_iocontrol(pin_watchdog, watchdog_state);
+
+    // periodic maintenance check / persistence / config reload
+    if (now - last_maint_check >= MAINT_CHECK_S) {
+        last_maint_check = now;
+        maint_check(now);
+    }
+    if (now - last_save >= SAVE_PERIOD_S) {
+        last_save = now;
+        save_state();
+    }
+    if (now - last_mtime_check >= 1.0) {
+        last_mtime_check = now;
+        double mt = file_mtime(config_path);
+        if (mt > 0.0 && mt != conf_mtime) {
+            conf_mtime = mt;
+            config_defaults();
+            if (parse_config_file(config_path, 0) == 0) {
+                pockets_set(cfg_stations);
+                fsm.is_homed = 0;
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------
+// HAL component entry points
+// ---------------------------------------------------------------------
+void userinit(int argc, char **argv) {
+    int opt_index = 0;
+    static struct option options[] = {
+        {"config", required_argument, NULL, 'c'},
+        {NULL, 0, NULL, 0}
+    };
+    while (1) {
+        int c = getopt_long(argc, argv, "c:", options, &opt_index);
+        if (c == -1) break;
+        if (c == 'c' || c == 0) {
+            strncpy(config_path, optarg, sizeof(config_path) - 1);
+            config_path[sizeof(config_path) - 1] = 0;
+        }
+    }
+    if (config_path[0] == 0) {
+        fprintf(stderr, "turret: falta --config <archivo.conf>\n");
+        exit(1);
+    }
+    // derive the state file names from the configuration path
+    strncpy(state_conf, config_path, sizeof(state_conf) - 1);
+    strncpy(state_json, config_path, sizeof(state_json) - 1);
+    char *dot = strrchr(state_conf, '.');
+    if (dot) *dot = 0;
+    dot = strrchr(state_json, '.');
+    if (dot) *dot = 0;
+    strncat(state_conf, "_state.conf", sizeof(state_conf) - strlen(state_conf) - 1);
+    strncat(state_json, "_state.json", sizeof(state_json) - strlen(state_json) - 1);
+
+    config_defaults();
+    if (parse_config_file(config_path, 0) != 0) exit(1);
+    parse_config_file(state_conf, 1);       // counters / baselines (optional)
+    pockets_set(cfg_stations);
+    fsm.stn = wrap_station(fsm.stn, cfg_stations);
+    fsm.lead = cfg_lead_pulses;
+    conf_mtime = file_mtime(config_path);
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+}
+
+void user_mainloop(void) {
+    double last = now_s();
+    while (!should_exit) {
+        double now = now_s();
+        hours_total += (now - last);
+        last = now;
+        FOR_ALL_INSTS() {
+            tick(now);
+        }
+        usleep(LOOP_PERIOD_US);
+    }
+}
+
+EXTRA_CLEANUP() {
+    // fail safe: motor off, clamp closed; persist the state
+    publish_outputs(0, 0);
+    if (pin_tc_fault[0]) set_iocontrol(pin_tc_fault, 0);
+    if (pin_tc_reason[0]) set_iocontrol(pin_tc_reason, 0);
+    save_state();
+}

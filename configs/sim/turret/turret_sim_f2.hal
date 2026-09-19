@@ -1,0 +1,15 @@
+# Turret simulation with the compiled component (F2).
+#
+# The F2 component reads/writes the same pins by name (no HAL nets
+# needed) from turret.conf, generated from turret.json with:
+#
+#     python3 -m turret.genconf turret.json
+#
+# Build/install the component first (from the source tree):
+#
+#     halcompile --install src/hal/user_comps/turret.comp
+#
+# then run this file.
+
+loadusr -W python3 sim_turret.py --stations 8 --coast-pulses 1 --start 2
+loadusr -W turret --config turret.conf
