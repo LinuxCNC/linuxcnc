@@ -65,6 +65,11 @@ tr.head td, tr.head th { background: black; color: white; }
     <tr><td><a href="gcode/g-code.html#gcode:g33">G33</a></td><td>K ($)</td><td>Spindle Synchronized Motion</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g33.1">G33.1</a></td><td>K ($)</td><td>Rigid Tapping</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g80">G80</a> </td><td/><td>Cancel Canned Cycle</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g53.4">G53.4</a></td><td/><td>Point-to-Point Move, Program Coordinates</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g53.4">G53.5</a></td><td/><td>Point-to-Point Move, Machine Frame</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g53.4">G53.7</a></td><td>J&lt;n&gt;=</td><td>Point-to-Point Move, Joint Values</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g53.1">G53.1, G53.3, G53.6</a></td><td>(P) (Q)</td><td>Orient the Tool to the Work Plane</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g53.1">G53.2</a></td><td>(P) (Q)</td><td>Solve the Tool Orientation, No Motion</td></tr>
 
     <tr><th>Canned cycles</th><td colspan="2">(X Y Z or U V W apply to canned cycles, depending on active plane)</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g70">G70</a></td><td>Q (X) (Z) (D) (E) (P)</td><td>Lathe finishing cycle</td></tr>
@@ -100,6 +105,8 @@ tr.head td, tr.head th { background: black; color: white; }
     <tr><td><a href="gcode/g-code.html#gcode:g43">G43</a> </td><td> H </td><td>Tool Length Offset</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g43.1">G43.1</a> </td><td> </td><td>Dynamic Tool Length Offset</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g43.2">G43.2</a> </td><td> H </td><td>Apply additional Tool Length Offset</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g43.4">G43.4</a> </td><td> (H) </td><td>Tool Length Offset on Primary Kinematics</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g43.5">G43.5</a> </td><td> (H) </td><td>Tool Length Offset, Tool Axis as a Vector</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g49">G49</a> </td><td> </td><td>Cancel Tool Length Compensation</td></tr>
 
     <tr><th colspan="3">Stopping </th></tr>
@@ -136,6 +143,10 @@ tr.head td, tr.head th { background: black; color: white; }
     <tr><td><a href="gcode/m-code.html#mcode:m52">M52</a></td><td>P0 (off) or P1 (on)</td><td>Adaptive Feed Control</td></tr>
     <tr><td><a href="gcode/m-code.html#mcode:m53">M53</a></td><td>P0 (off) or P1 (on)</td><td>Feed Stop Control</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g54-g59.3">G54-G59.3</a></td><td/><td>Select Coordinate System</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g68.2">G68.2, G68.4</a></td><td>P Q I J K R</td><td>Tilted Work Plane</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g68.2">G68.3</a></td><td>(R)</td><td>Tilted Work Plane from the Tool</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g68.2">G69</a></td><td/><td>Cancel Tilted Work Plane</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g12.1-g13.1">G12.1, G13.1</a></td><td>P</td><td>Select Kinematics</td></tr>
 
     <tr><th colspan="3">Flow-control Codes </th></tr>
     <tr><td><a href="gcode/o-code.html#ocode:subroutines">o sub</a></td><td/><td>Subroutines, sub/endsub call</td></tr>
@@ -167,6 +178,7 @@ tr.head td, tr.head th { background: black; color: white; }
     <tr><td><a href="gcode/g-code.html#gcode:g28-g28.1">G28, G28.1</a></td><td/><td>Go/Set Predefined Position</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g28.2">G28.2</a></td><td>P</td><td>Home from G-code</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g30-g30.1">G30, G30.1</a></td><td/><td>Go/Set Predefined Position</td></tr>
+    <tr><td><a href="gcode/g-code.html#gcode:g28.5">G28.5, G30.5</a></td><td/><td>Go to Predefined Machine Frame Position</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g53">G53</a></td><td/><td>Move in Machine Coordinates</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g92">G52, G92</a></td><td/><td>Coordinate System Offset</td></tr>
     <tr><td><a href="gcode/g-code.html#gcode:g92.1-g92.2">G92.1, G92.2</a></td><td/><td>Reset G92 Offsets</td></tr>
