@@ -48,8 +48,10 @@ static inline void print_msg(const std::string &str)
 	//rcs_print((str + "\n").c_str());
 }
 
-// Identifier characters
-static const char STR_ID[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789";
+// Identifier characters. The dash is included for compatibility with the
+// historic ini parser, which accepted it (e.g. xhc-hb04 pendant layout tags
+// like "start-pause" and its [XHC-HB04] cfg section).
+static const char STR_ID[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789-";
 
 namespace linuxcnc {
 //
@@ -576,8 +578,8 @@ bool IniFileContent::parseLine(const std::string &line, const std::string &path,
 							path, linenr, sect));
 			return false;
 		}
-		if(std::isdigit(sect[0] & 0xff)) {
-			print_msg(fmt::format("{}:{}: error: Invalid section '{}'. Cannot start with a digit", path, linenr, sect));
+		if(std::isdigit(sect[0] & 0xff) || '-' == sect[0]) {
+			print_msg(fmt::format("{}:{}: error: Invalid section '{}'. Cannot start with a digit or '-'", path, linenr, sect));
 			return false;
 		}
 
@@ -629,8 +631,8 @@ bool IniFileContent::parseLine(const std::string &line, const std::string &path,
 						path, linenr, tag));
 		return false;
 	}
-	if(std::isdigit(tag[0] & 0xff)) {
-		print_msg(fmt::format("{}:{}: error: Invalid tag '{}'. Tag identifiers cannot start with a digit", path, linenr, tag));
+	if(std::isdigit(tag[0] & 0xff) || '-' == tag[0]) {
+		print_msg(fmt::format("{}:{}: error: Invalid tag '{}'. Tag identifiers cannot start with a digit or '-'", path, linenr, tag));
 		return false;
 	}
 
