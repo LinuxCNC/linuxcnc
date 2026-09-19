@@ -15,6 +15,8 @@ typedef struct {
     double acc_limit;               /* upper limit of axis accel */
     double jerk_limit;	/* upper limit of axis jerk */
     simple_tp_t teleop_tp;          /* planner for teleop mode motion */
+    double teleop_vel_req;          /* the speed the jog asked for */
+    double teleop_acc_req;          /* and the acceleration it may use */
 
     int old_ajog_counts;            /* prior value, used for deltas */
     int kb_ajog_active;             /* non-zero during a keyboard jog */
@@ -279,6 +281,8 @@ void axis_jog_cont(int axis_num, double vel, long servo_period)
 
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
+    axis->teleop_vel_req = axis->teleop_tp.max_vel;
+    axis->teleop_acc_req = axis->teleop_tp.max_acc;
     axis->kb_ajog_active = 1;
     axis->teleop_tp.enable = 1;
 }
@@ -301,6 +305,8 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
     axis->teleop_tp.pos_cmd = tmp1;
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
+    axis->teleop_vel_req = axis->teleop_tp.max_vel;
+    axis->teleop_acc_req = axis->teleop_tp.max_acc;
     axis->kb_ajog_active = 1;
     axis->teleop_tp.enable = 1;
 }
@@ -322,6 +328,8 @@ void axis_jog_abs(int axis_num, double offset, double vel)
     axis->teleop_tp.pos_cmd = tmp1;
     axis->teleop_tp.max_vel = fabs(vel);
     axis->teleop_tp.max_acc = axis->acc_limit;
+    axis->teleop_vel_req = axis->teleop_tp.max_vel;
+    axis->teleop_acc_req = axis->teleop_tp.max_acc;
     axis->kb_ajog_active = 1;
     axis->teleop_tp.enable = 1;
 }
@@ -431,6 +439,8 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         axis->teleop_tp.pos_cmd = pos;
         axis->teleop_tp.max_vel = axis->vel_limit;
         axis->teleop_tp.max_acc = aaccel_limit;
+        axis->teleop_vel_req = axis->teleop_tp.max_vel;
+        axis->teleop_acc_req = axis->teleop_tp.max_acc;
         axis->wheel_ajog_active = 1;
         axis->teleop_tp.enable  = 1;
     }
@@ -672,6 +682,32 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
         return 1;
     }
     return 0;
+}
+
+// Whether the axis's teleop planner has somewhere to go this cycle, and
+// which way, how fast and how hard the jog asked it to: what the cap on
+// the joints reads before the planners run
+int axis_teleop_request(int axis_num, double *dir, double *vel, double *acc)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+    double togo = axis->teleop_tp.pos_cmd - axis->teleop_tp.curr_pos;
+
+    if (!axis->teleop_tp.enable) { return 0; }
+    if (fabs(togo) < TINY_DP(axis->teleop_tp.max_acc, 0.001) && axis->teleop_tp.curr_vel == 0.0) { return 0; }
+    *dir = togo > 0.0 ? 1.0 : togo < 0.0 ? -1.0 : axis->teleop_tp.curr_vel > 0.0 ? 1.0 : -1.0;
+    *vel = axis->teleop_vel_req;
+    *acc = axis->teleop_acc_req;
+    return 1;
+}
+
+// The most the planner may do this cycle: what the jog asked, or less
+// where the joints cannot follow that
+void axis_teleop_cap(int axis_num, double vel, double acc)
+{
+    emcmot_axis_t *axis = &axis_array[axis_num];
+
+    axis->teleop_tp.max_vel = vel < axis->teleop_vel_req ? vel : axis->teleop_vel_req;
+    axis->teleop_tp.max_acc = acc < axis->teleop_acc_req ? acc : axis->teleop_acc_req;
 }
 
 int axis_calc_motion(double servo_period)
