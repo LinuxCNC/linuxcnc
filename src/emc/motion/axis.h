@@ -51,6 +51,8 @@ void axis_apply_ext_offsets_to_carte_pos(int extfactor, double *pcmd_p[]);
 
 int axis_update_coord_with_bound(double *pcmd_p[], double servo_period);
 
+int axis_teleop_request(int axis_num, double *dir, double *vel, double *acc);
+void axis_teleop_cap(int axis_num, double vel, double acc);
 int axis_calc_motion(double servo_period);
 
 

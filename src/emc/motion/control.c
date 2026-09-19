@@ -46,6 +46,10 @@ static int    switchkins_type = 0;
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
 
+// old modules export no kinematicsJacobian; a jog on them is bounded by
+// the axis limits alone, as before
+#pragma weak kinematicsJacobian
+
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
    JOINT_FLAG and MOTION_FLAG */
 // #define WATCH_FLAGS 1
@@ -1341,6 +1345,118 @@ static void handle_jjogwheels(void)
     first_pass = 0;
 }
 
+/* A world jog is planned per axis against the [AXIS_L] limits, which say
+   nothing about the joints once the kinematics is not the identity: a jog
+   of C under the tool centre point with the head laid over swings the
+   carriage through a circle.  Each cycle, before the teleop planners run,
+   the module's Jacobian at the joints the machine stands in says how fast
+   every joint would move per unit of the jog the planners were asked for,
+   and how that rate has changed since the last cycle (what a carriage on a
+   circle feels as centripetal), and the planners are capped so that no
+   joint is asked for more than its own limits: the velocity by the joint
+   velocity limits, read a stopping distance ahead since the rate keeps
+   growing while the planners slow down, and by the acceleration budget
+   the changing rate takes at that velocity (at most half); the
+   acceleration by what the budget leaves.  All active axes scale together
+   so the jog keeps its direction.  Nothing is done on the identity, or on
+   a module without a Jacobian. */
+static void teleop_joint_cap(double period)
+{
+    static double jac_prev[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
+    static int have_prev = 0;
+    static double acc_scale_prev = 1.0;
+    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
+    double joint_pos[EMCMOT_MAX_JOINTS];
+    double dir[EMCMOT_MAX_AXIS], vreq[EMCMOT_MAX_AXIS], areq[EMCMOT_MAX_AXIS];
+    double rhat[EMCMOT_MAX_AXIS], ahat[EMCMOT_MAX_AXIS];
+    int active[EMCMOT_MAX_AXIS];
+    double rnorm = 0.0, anorm = 0.0, speed = 0.0, ahead, vcap = 1e99, acap = 1e99;
+    double vel_scale, acc_scale;
+    const double tiny = 1e-12;
+    int flags, any = 0, a, j;
+
+    if (!kinematicsJacobian) { have_prev = 0; return; }
+    flags = emcmotStatus->switchkins_flags[emcmotStatus->switchkins_type];
+    if (flags >= 0 ? (flags & KINSTYPE_IDENTITY) != 0
+                   : emcmotConfig->kinType == KINEMATICS_IDENTITY) {
+        have_prev = 0;
+        return;
+    }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        active[a] = axis_teleop_request(a, &dir[a], &vreq[a], &areq[a]);
+        if (active[a]) {
+            double v = axis_get_teleop_vel_cmd(a);
+            any = 1;
+            rnorm += vreq[a] * vreq[a];
+            anorm += areq[a] * areq[a];
+            speed += v * v;
+        }
+    }
+    if (!any) { have_prev = 0; return; }
+    rnorm = sqrt(rnorm);
+    anorm = sqrt(anorm);
+    speed = sqrt(speed);
+    if (rnorm < tiny || anorm < tiny) { have_prev = 0; return; }
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) { joint_pos[j] = joints[j].pos_cmd; }
+    if (kinematicsJacobian(joint_pos, &emcmotStatus->carte_pos_cmd, jac, &iflags) != 0) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+            if (active[a]) { axis_teleop_cap(a, vreq[a], areq[a]); }
+        }
+        have_prev = 0;
+        return;
+    }
+    /* the direction the jog was asked in, and the one the planners
+       accelerate in, each at its own limit */
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        rhat[a] = active[a] ? dir[a] * vreq[a] / rnorm : 0.0;
+        ahat[a] = active[a] ? dir[a] * areq[a] / anorm : 0.0;
+    }
+    /* the path the planners need to stop from the speed they are at,
+       at the acceleration they were left last cycle */
+    ahead = speed * speed / (2.0 * anorm * acc_scale_prev);
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) {
+        double rate = 0.0, change = 0.0, cap;
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+            rate += jac[j][a] * rhat[a];
+            if (have_prev) { change += (jac[j][a] - jac_prev[j][a]) * rhat[a]; }
+        }
+        rate = fabs(rate);
+        /* how the rate changes per unit of path, from the last cycle */
+        change = (have_prev && speed > tiny) ? fabs(change) / (speed * period) : 0.0;
+        if (rate > tiny) {
+            cap = joints[j].vel_limit / (rate + change * ahead);
+            if (cap < vcap) { vcap = cap; }
+        }
+        if (change > tiny) {
+            cap = sqrt(joints[j].acc_limit / (2.0 * change));
+            if (cap < vcap) { vcap = cap; }
+        }
+        joint_pos[j] = change;      /* kept for the acceleration pass */
+    }
+    for (j = 0; j < NO_OF_KINS_JOINTS; j++) {
+        double arate = 0.0, cap;
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { arate += jac[j][a] * ahat[a]; }
+        arate = fabs(arate);
+        if (arate > tiny) {
+            cap = (joints[j].acc_limit - joint_pos[j] * vcap * vcap) / arate;
+            if (cap < acap) { acap = cap; }
+        }
+    }
+    vel_scale = vcap / rnorm;
+    acc_scale = acap / anorm;
+    if (vel_scale > 1.0) { vel_scale = 1.0; }
+    if (acc_scale > 1.0) { acc_scale = 1.0; }
+    if (acc_scale < 1e-6) { acc_scale = 1e-6; }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (active[a]) { axis_teleop_cap(a, vel_scale * vreq[a], acc_scale * areq[a]); }
+    }
+    for (j = 0; j < EMCMOT_MAX_JOINTS; j++) {
+        for (a = 0; a < EMCMOT_MAX_AXIS; a++) { jac_prev[j][a] = jac[j][a]; }
+    }
+    have_prev = 1;
+    acc_scale_prev = acc_scale;
+} // teleop_joint_cap()
+
 static void get_pos_cmds(long period)
 {
     int joint_num, result;
@@ -1647,6 +1763,7 @@ static void get_pos_cmds(long period)
 	break;
 
     case EMCMOT_MOTION_TELEOP:
+        teleop_joint_cap(servo_period);
         ext_offset_teleop_limit = axis_calc_motion(servo_period);
         if (!ext_offset_teleop_limit) {
             ext_offset_coord_limit = 0; //in case was set in prior coord motion
