@@ -74,7 +74,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
 |<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
-|<<gcode:g28.5,G28.5 G30.5>>       |Go to Predefined Slide Position
+|<<gcode:g28.5,G28.5 G30.5>>       |Go to Predefined Machine Frame Position
 |<<gcode:g28.2,G28.2>>             |Home from G-code
 |<<gcode:g30-g30.1,G30 - G30.1>>   |Go to Predefined Position
 |<<gcode:g33,G33>>                 |Spindle Synchronized Motion
@@ -1199,7 +1199,7 @@ G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 
 The 'absolute' position is the machine coordinate system of the kinematics in
 force, see <<gcode:g53,G53>>; <<gcode:g28.5,G30.5>> is the form that moves
-the slides.
+in the machine frame.
 
 It is an error if :
 
@@ -1209,7 +1209,7 @@ It is an error if :
   'G30' and for 'G30.1'.
 
 [[gcode:g28.5]]
-== G28.5, G30.5 Go to Predefined Slide Position(((G28.5 Go to Predefined Slide Position)))
+== G28.5, G30.5 Go to Predefined Machine Frame Position(((G28.5 Go to Predefined Machine Frame Position)))
 
 [source,ngc]
 ----
