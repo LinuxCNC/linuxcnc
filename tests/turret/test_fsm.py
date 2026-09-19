@@ -311,6 +311,7 @@ class TestTurretFSM(unittest.TestCase):
         self.assertIsNotNone(out)
         self.assertFalse(fsm.fault)
         self.assertFalse(fsm.homed, "reset tras falla debe exigir referencia")
+        self.assertFalse(fsm.located, "reset no debe dejar 'asentada' valida")
 
     def test_release_and_lock(self):
         fsm, _ = self.make()
@@ -325,6 +326,15 @@ class TestTurretFSM(unittest.TestCase):
         self.assertIsNotNone(out)
         self.assertFalse(out.unclamp)
         self.assertTrue(plant.clamped)
+
+    def test_release_clears_located(self):
+        fsm, _ = self.make()
+        fsm.located = True
+        plant = Plant(start_station=1)
+        fsm.request_release()
+        out = run(fsm, plant, lambda o, f: f.state == State.RELEASE)
+        self.assertIsNotNone(out)
+        self.assertFalse(fsm.located)
 
     def test_reference_when_homed(self):
         fsm, _ = self.make()

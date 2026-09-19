@@ -210,6 +210,13 @@ Every fault turns the motor and the clamp valve off, latches until
 `iocontrol.0.toolchanger-fault/reason` (`#5600`/`#5601`).  Events are
 kept in `<config>_state.json` (history + counters).
 
+A fault during a tool change pauses the program: the task keeps waiting
+for the handshake and the change is retried after `turret.reset` (the
+reset forces a new reference).  Set `logic.abort_on_fault` with the
+Python manager to abort the program automatically; the compiled
+component cannot abort by itself, so the operator stops it (or a remap /
+halui can do it).
+
 == Maintenance
 
 Counters (tool changes, clamp cycles, hours and changes per station) are

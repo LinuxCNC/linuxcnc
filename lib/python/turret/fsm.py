@@ -199,6 +199,7 @@ class TurretFSM:
         self.last_fault = int(code)
         self.last_fault_time = now
         self.fault_count += 1
+        self.located = False
         self._need_rehome = True
         self._seq = None
         self._target = None
@@ -300,6 +301,7 @@ class TurretFSM:
                 return
         if self._req_release and self._test_ok(inp):
             self._req_release = False
+            self.located = False
             self._seq = "release"
             self._after_unclamp = "release"
             self._enter(State.UNCLAMP, now)

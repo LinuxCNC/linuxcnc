@@ -265,6 +265,11 @@ class TurretManager:
         tool-prepare as soon as it reads tool-prepared, so a level-derived
         changed could be dropped before the task reads tool-changed.
         """
+        if self.fsm.fault:
+            # never claim prepared/changed while faulted: the task must
+            # keep waiting until the fault is reset and the change re-run
+            self._prepared_latch = False
+            self._changed_latch = False
         cfg = self.cfg.pins
         manual = bool(self.io.own("prepare"))
         prepare = manual
@@ -420,6 +425,7 @@ class TurretManager:
             self.fsm.request_jog()
         if self._edge("unhome", io.own("unhome")):
             self.fsm.homed = False
+            self.fsm.located = False
         if self._edge("reload", io.own("reload")):
             self._reload_config()
         if self._edge("clear-history", io.own("clear-history")):
@@ -535,6 +541,7 @@ class TurretManager:
             self.fsm = new
             for n in range(1, min(old.stations, cfg.stations) + 1):
                 self.fsm.station_counts[n - 1] = old.station_counts[n - 1]
+        self._config_error = False      # re-validate the pins after a reload
         print("turret: configuracion recargada", file=sys.stderr)
 
     # ------------------------------------------------------------------

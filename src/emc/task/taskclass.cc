@@ -667,17 +667,14 @@ int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
 int Task::read_tool_inputs(void)
 {
     // Toolchanger fault/reason driven by the tool change logic; exposed as
-    // #5600/#5601 and reported by emctaskmain.cc while a change is active.
+    // #5600/#5601 for diagnostics.  The IO state machine is deliberately
+    // left alone: while the fault is active the pending change never
+    // completes (the task keeps waiting for tool-prepared/tool-changed),
+    // so the program pauses until the fault is reset and the change is
+    // finished (or the operator stops it).
     if (hal_get_bool(iocontrol_data->toolchanger_fault)) {
         emcioStatus.fault = 1;
         emcioStatus.reason = hal_get_si32(iocontrol_data->toolchanger_reason);
-        // Only fail the IO state machine while a tool change is active;
-        // a fault with the turret idle is reported through #5600/#5601
-        // and the toolchanger pins, without erroring the machine.
-        if (hal_get_bool(iocontrol_data->tool_prepare) ||
-            hal_get_bool(iocontrol_data->tool_change)) {
-            emcioStatus.status = RCS_STATUS::ERROR;
-        }
     } else if (emcioStatus.fault) {
         emcioStatus.fault = 0;
         emcioStatus.reason = 0;

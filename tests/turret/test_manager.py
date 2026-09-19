@@ -420,6 +420,56 @@ class TestManager(unittest.TestCase):
         self.assertEqual(m.fsm.stations, 12)
         self.assertFalse(m.fsm.homed)
 
+    def test_fault_reset_requires_reference(self):
+        m = self.manager
+        machine = SimMachine(self.io, start=2)
+        self.io.external["iocontrol.0.tool-prep-pocket"] = 3
+        self.io.external["iocontrol.0.tool-prep-number"] = 3
+        self.io.external["iocontrol.0.tool-prepare"] = 1
+        self.assertTrue(run_until(m, machine, lambda mgr, mach: mgr._prepared_latch))
+        self.assertTrue(m.fsm.located)
+        # fault and reset
+        self.io.own_set("cancel", 1)
+        m._tick(machine.t)
+        machine.step()
+        self.io.own_set("cancel", 0)
+        self.assertTrue(m.fsm.fault)
+        self.io.own_set("reset", 1)
+        m._tick(machine.t)
+        machine.step()
+        self.io.own_set("reset", 0)
+        self.assertFalse(m.fsm.fault)
+        self.assertFalse(m.fsm.located)
+        self.assertFalse(m.fsm.homed)
+        # the same T must re-reference before claiming prepared
+        m._tick(machine.t)
+        self.assertFalse(m._prepared_latch,
+                         "no debe acusar prepared sin volver a referenciar")
+        self.assertTrue(run_until(m, machine, lambda mgr, mach: mgr._prepared_latch))
+        self.assertEqual(m.fsm.station, 3)
+
+    def test_config_reload_rearms_pin_check(self):
+        class StrictIO(FakeIO):
+            def get(self, name):
+                if name not in self.external:
+                    raise RuntimeError("no such pin: %s" % name)
+                return self.external[name]
+        io = StrictIO()
+        m = TurretManager(self.path, io=io)
+        m._start = 0.0                     # bypass the startup grace
+        machine = SimMachine(io, start=2)
+        machine.step()                     # publish the sim pins
+        m.cfg.pins["pos1"] = "does.not.exist"
+        m._tick(3.0)
+        self.assertTrue(m.fsm.fault)
+        self.assertEqual(m.fsm.error, int(Alarm.E_CONFIG))
+        # reload the good configuration from disk
+        cfg = TurretConfig.load(self.path)
+        cfg.save(self.path)
+        os.utime(self.path, (0, 0))
+        m._tick(3.1)
+        self.assertFalse(m._config_error, "la recarga debe re-armar el chequeo")
+
     def test_maintenance_due(self):
         m = self.manager
         m.fsm.changes = 2

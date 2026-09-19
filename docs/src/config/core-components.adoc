@@ -309,6 +309,11 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 * 'iocontrol.0.tool-changed' (bit, in) Should be driven TRUE when a tool change is completed.
 * 'iocontrol.0.toolchanger-fault' (bit, in) Should be driven TRUE while the tool changer logic reports a fault.
 * 'iocontrol.0.toolchanger-reason' (s32, in) Fault reason code; tracked by the interpreter as #5601.
++
+While a fault is active the pending tool change never completes (the
+task keeps waiting for tool-prepared/tool-changed), so the program pauses
+until the fault is cleared and the change finishes; the operator can
+stop the program at any time.
 * 'iocontrol.0.tool-number' (s32, out) The current tool number.
 * 'iocontrol.0.tool-prep-number' (s32, out) The number of the next tool, from the RS274NGC T-word.
 * 'iocontrol.0.tool-prepare' (bit, out) TRUE when a tool prepare is requested.

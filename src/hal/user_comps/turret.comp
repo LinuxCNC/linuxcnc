@@ -345,6 +345,7 @@ static double last_maint_check = 0.0;
 static double last_mtime_check = 0.0;
 static double conf_mtime = 0.0;
 static double start_time = 0.0;
+static int pins_checked = 0;
 static int should_exit = 0;
 static int watchdog_state = 0;
 
@@ -694,6 +695,7 @@ static void reload_config(void) {
         return;
     }
     pockets_set(cfg_stations);
+    pins_checked = 0;       // re-validate the pins after a reload
     if (cfg_stations != stations_before) {
         fsm.is_homed = 0;
         fsm.is_located = 0;
@@ -826,6 +828,7 @@ static void fsm_fault(int code, double now) {
     fsm.last_alarm = code;
     fsm.last_alarm_time = now;
     fsm.fault_count++;
+    fsm.is_located = 0;
     fsm.seq = 0;
     fsm.target = 0;
     req_select = 0;
@@ -1138,6 +1141,12 @@ static void warn_writer_once(const char *pin) {
 }
 
 static void handshake(void) {
+    if (fsm.is_fault) {
+        // never claim prepared/changed while faulted: the task keeps
+        // waiting until the fault is reset and the change re-run
+        prepared_latch = 0;
+        changed_latch = 0;
+    }
     int manual = prepare;
     int prepare_v = prepare;
     int change_v = change;
@@ -1182,7 +1191,8 @@ static void handshake(void) {
             req_select = pocket;
             latched_pocket = pocket;
         }
-        if (fsm.is_located && fsm.stn == pocket) prepared_latch = 1;
+        if (fsm.st == ST_IDLE && fsm.is_located && fsm.stn == pocket)
+            prepared_latch = 1;
     }
     if (!change_v) changed_latch = 0;
     else if (prepared_latch) changed_latch = 1;
@@ -1248,7 +1258,7 @@ static void tick(double now) {
     if (edge(4, release)) req_release = 1;
     if (edge(5, lock)) req_lock = 1;
     if (edge(6, step)) req_step = 1;
-    if (edge(7, unhome)) fsm.is_homed = 0;
+    if (edge(7, unhome)) { fsm.is_homed = 0; fsm.is_located = 0; }
     if (edge(11, jog)) req_jog = 1;
     if (edge(8, clear_history)) { hist_count = 0; save_state_json(); }
     if (edge(9, reload)) {
@@ -1280,7 +1290,6 @@ static void tick(double now) {
 
     // configured machine pins must exist (2 s grace for HAL load order)
     {
-        static int pins_checked = 0;
         if (!pins_checked && (now - start_time) >= 2.0) {
             pins_checked = 1;
             const char *required[] = { pin_pos1, pin_strobe, pin_clamped,
