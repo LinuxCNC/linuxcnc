@@ -88,6 +88,13 @@ try:
 
     try_set_pin(pu, 0)
     try_set_pin(pu, -1)
+
+    # A float into a bool is false only when it is 0.0
+    try_set("param", 0.0)
+    try_set("param", 1.0)
+    try_set("param", -0.5)
+    try_set("param", 0)
+    try_set("param", 2)
 except:
     import traceback
     print("Exception: {}".format(traceback.format_exc()))
