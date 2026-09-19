@@ -53,34 +53,35 @@ FUNCTION(_)  {
         debounce_val = 2; // set a sane value
     }
 
-    if (in_val && state == 0 )  { /* input has changed from debounced 0 -> 1 */
+    if (in_val && !ison_val )  { /* change from 0 -> 1 has been requested */
         debounce_cntr++;
         if ( debounce_cntr >= debounce_val ) {
             if (!ison_val) { /* turn ON if it's off */
                 on_set(1);
                 off_set(0);
+                pulse_length = 0;
             }
             state = 1;
             debounce_cntr = 0;
         }
-    } else if (!in_val && state == 1) { /* input has changed from debounced 1 -> 0 */
+    } else if (!in_val && ison_val) { /* change from 1 -> 0 has been requested */
         debounce_cntr++;
         if ( debounce_cntr >= debounce_val ) {
             if (ison_val) { /* turn OFF if it's on */
                 on_set(0);
                 off_set(1);
+                pulse_length = 0;
             }
             state = 0;
             debounce_cntr = 0;
         }
-    } else if ((!ison_val && off) || (ison_val && on) || (pulse_length > max_pulse_length)) {
-        // reset outputs once device has switched or maximum pulse length is reached
+    } else if ( (ison_val != state) && (pulse_length < max_pulse_length) ) {
+        // Waiting for the 'ison' pin to confirm change of state
+        debounce_cntr = 0;
+        pulse_length ++;
+    } else {
         on_set(0);
         off_set(0);
         debounce_cntr = 0;
-        pulse_length = 0;
-    } else {
-        debounce_cntr = 0;
-        pulse_length ++;
     }
 }
