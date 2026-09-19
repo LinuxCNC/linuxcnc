@@ -35,7 +35,7 @@ pin out bool on "turn device on";
 pin out bool off "turn device off";
 variable unsigned debounce_cntr;
 variable unsigned pulse_length;
-variable bool state;
+variable unsigned state;
 
 option period no;
 function _;
@@ -52,34 +52,31 @@ FUNCTION(_)  {
         debounce_val = 2; // set a sane value
     }
 
-    if (in_val && state == 0 )  { // input has changed from debounced 0 -> 1
+    if (in_val && state == 0 )  {
+        // input has changed from 0 -> 1
         debounce_cntr++;
         if ( debounce_cntr >= debounce_val ) {
-            if (!ison_val) { // turn ON if it's off
-                on_set(1);
-                off_set(0);
-            } else { // turn OFF if it's on
-                on_set(0);
-                off_set(1);
-            }
+            on_set(!ison_val);
+            off_set(ison_val);
+            pulse_length = 0;
             state = 1;
             debounce_cntr = 0;
         }
-    } else if (!in_val && state == 1) { // input has changed from debounced 1 -> 0
+    } else if (!in_val && state == 1) {
+        // input has changed from 1 -> 0
         debounce_cntr++;
         if ( debounce_cntr >= debounce_val ) {
             state = 0;
             debounce_cntr = 0;
         }
-    } else if ((!ison_val && off) || (ison_val && on) || (pulse_length > max_pulse_length)) {
-        // reset outputs once device has switched or maximum pulse length is reached
+    } else if ( (!ison_val != off) && (ison_val != on) && (pulse_length < max_pulse_length) ) {
+        // Waiting for the 'ison' pin to confirm change of state
+        debounce_cntr = 0;
+        pulse_length ++;
+    } else {
         on_set(0);
         off_set(0);
         debounce_cntr = 0;
-        pulse_length = 0;
-    } else {
-        debounce_cntr = 0;
-        pulse_length ++;
     }
 }
 
