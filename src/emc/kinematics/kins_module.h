@@ -326,9 +326,12 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    with the last answer after a switch.  identity says joints are axes, which
    a consumer may use to skip the maths altogether.  primary says this is
    the module's working transform, the type G43.4 switches to.  machine says
-   this is the machine frame type, the pivot in machine coordinates with the
-   rotaries as joints, which G13.1 and G49 select and G53.5 moves in; a module
-   that leaves it unset on every type has its identity type stand in. */
+   this is the machine frame type, the tool left out, the pivot or the flange
+   in machine coordinates, which G13.1 and G49 select and G53.5 moves in; a
+   module that leaves it unset on every type has its identity type stand in.
+   A machine frame type does not read the tool offset in the parameter block,
+   so a working transform that leaves the tool out anyway, a robot's flange,
+   carries primary and machine both. */
 typedef struct kins_ops {
     kins_forward_fn         forward;
     kins_inverse_fn         inverse;
