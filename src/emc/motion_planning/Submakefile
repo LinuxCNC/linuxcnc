@@ -6,6 +6,7 @@ INCLUDES += emc/kinematics_userspace
 LIBKINSLIMITS_CXXSRCS := $(addprefix emc/motion_planning/, \
 	jacobian.cc \
 	joint_limits.cc \
+	segment_cap.cc \
 	)
 
 # kins_util.c is the shared kinematics code the modules link; the loader
@@ -42,7 +43,8 @@ USERSRCS += $(KINSLIMITS_SRCS)
 
 TARGETS += ../bin/kinslimits
 
-MOTION_PLANNING_HH := emc/motion_planning/jacobian.hh emc/motion_planning/joint_limits.hh
+MOTION_PLANNING_HH := emc/motion_planning/jacobian.hh emc/motion_planning/joint_limits.hh \
+	emc/motion_planning/segment_cap.hh
 $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_HH)): ../include/%.hh: emc/motion_planning/%.hh
 	cp $^ $@
 HEADERS += $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_HH))

@@ -6,8 +6,8 @@
  *
  *   The tool attaches to a running HAL instance, loads the kinematics
  *   module through the non-RT interface, samples the move, and reports
- *   the most restrictive cap found along it.  The sampling loop here is
- *   the same one the trajectory planner uses to cap a segment.
+ *   the most restrictive cap found along it, then the cap canon puts on
+ *   the segment through segmentCap(), which is the one the planner sees.
  *
  *   Example (in a terminal with a running config, or under halrun):
  *
@@ -36,6 +36,7 @@
 #include <hal.h>
 #include "jacobian.hh"
 #include "joint_limits.hh"
+#include "segment_cap.hh"
 
 using namespace motion_planning;
 
@@ -262,6 +263,32 @@ int main(int argc, char **argv)
     printf("\nsegment cap   : vel %.3f (joint %d at s=%.3f), acc %.1f (joint %d), jerk %.1f (joint %d)\n",
            min_vel, at_vel, min_vel_s, min_acc, at_acc, min_jerk, at_jerk);
     printf("worst cond    : %.3f\n", max_cond);
+
+    /* the cap canon reads for the same move, along the same tangent, with
+       the change of the joint rates along the move charged as well */
+    {
+        struct { EmcPose start, end; } line = { start, end };
+        SegmentCapLimits lim;
+        SegmentCap cap;
+        double joints[KINEMATICS_USER_MAX_JOINTS] = {0};
+        lim.joints = num_joints;
+        for (int j = 0; j < KINEMATICS_USER_MAX_JOINTS; j++) {
+            lim.vel[j] = j < num_joints ? vel_v[j] : SEGMENT_CAP_NONE;
+            lim.acc[j] = j < num_joints ? acc_v[j] : SEGMENT_CAP_NONE;
+        }
+        auto pose_at = [](double f, EmcPose *p, void *arg) {
+            const EmcPose *se = (const EmcPose *)arg;
+            for (int ax = 0; ax < 9; ax++) {
+                set_pose_axis(p, ax, pose_axis(se[0], ax) + f * (pose_axis(se[1], ax) - pose_axis(se[0], ax)));
+            }
+        };
+        if (segmentCap(ctx, &lim, target, samples, pose_at, &line, joints, &cap) == 0) {
+            printf("canon's cap   : vel %.3f (joint %d at s=%.3f), acc %.1f (joint %d), %d of %d samples unanswered\n",
+                   cap.vel, cap.vel_joint, cap.vel_at, cap.acc, cap.acc_joint, cap.unanswered, cap.samples);
+        } else {
+            printf("canon's cap   : none, no sample could be evaluated\n");
+        }
+    }
 
     kinematicsUserFree(ctx);
     hal_exit(comp_id);

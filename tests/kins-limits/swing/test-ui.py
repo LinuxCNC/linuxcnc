@@ -87,62 +87,75 @@ tip = list(s.position[:3])
 print("start joints %s, tip %s" % (" ".join("%.3f" % v for v in start),
                                   " ".join("%.3f" % v for v in tip)))
 drain()
-# the log is block buffered: wait until it has caught up with the machine
-# at rest before marking where the swing starts in it
-deadline = time.time() + 10
-while True:
-    samples = log_samples()
-    if samples and max(abs(a - b) for a, b in zip(samples[-1][0], start)) < 2e-6:
-        break
-    if time.time() > deadline:
-        error("the sampler log did not catch up with the machine")
-        break
-    time.sleep(0.02)
-n0 = len(samples)
+def catch_up(where):
+    # the log is block buffered: wait until it has caught up with the
+    # machine at rest before marking where the next move starts in it
+    deadline = time.time() + 10
+    while True:
+        samples = log_samples()
+        if samples and max(abs(a - b) for a, b in zip(samples[-1][0], where)) < 2e-6:
+            return len(samples)
+        if time.time() > deadline:
+            error("the sampler log did not catch up with the machine")
+            return len(samples)
+        time.sleep(0.02)
+
+def swing(cmd, n0):
+    c.mdi(cmd)
+    c.wait_complete(60)
+    end = settled()
+    said = drain()
+    time.sleep(0.5)
+    samples = log_samples()[n0:]
+    for m in said:
+        print("channel:", m)
+    faults = [m for m in said if "following error" in m[1]]
+    if faults:
+        error("%s tripped a following error: %s" % (cmd, faults[0][1].strip()))
+    s.poll()
+    if s.task_state != linuxcnc.STATE_ON:
+        error("the machine is not on after %s (task state %d)" % (cmd, s.task_state))
+    # the commanded velocity and acceleration of every joint against its
+    # own INI limit, every servo cycle; a joint over its limit is what the
+    # drive could not follow.  A fault freezes the command in one cycle,
+    # which is not an acceleration the planner asked for: the samples stop
+    # at the last moving one
+    last = max((k for k in range(len(samples)) if any(abs(v) > 0 for v in samples[k][1])), default=-1)
+    samples = samples[:last + 1]
+    print("%d samples through %s" % (len(samples), cmd))
+    for j in range(JOINTS):
+        vpeak = max(abs(v[j]) for p, v in samples) if samples else 0.0
+        apeak = 0.0
+        for k in range(1, len(samples)):
+            apeak = max(apeak, abs(samples[k][1][j] - samples[k - 1][1][j]) / SERVO)
+        print("joint %d: velocity peak %8.3f of %8.3f (%.2fx), acceleration peak %9.2f of %9.2f (%.2fx)"
+              % (j, vpeak, VEL[j], vpeak / VEL[j], apeak, ACC[j], apeak / ACC[j]))
+        if vpeak > VEL[j] * 1.001:
+            error("joint %d was commanded at %.3f, over its limit of %.3f" % (j, vpeak, VEL[j]))
+        if apeak > ACC[j] * 1.01:
+            error("joint %d was commanded at %.2f, over its acceleration limit of %.2f" % (j, apeak, ACC[j]))
+    return end
+
+def tip_held(what):
+    s.poll()
+    after = list(s.position[:3])
+    if max(abs(a - b) for a, b in zip(after, tip)) > 1e-3:
+        error("the tip moved from %s to %s through %s" % (tip, after, what))
 
 # the swing: the tip holds, C turns half a revolution, the carriage follows
 # a half circle of radius 400 to keep the tip where it is
-c.mdi("G0 C180")
-c.wait_complete(60)
-end = settled()
-said = drain()
-time.sleep(0.5)
-samples = log_samples()[n0:]
-
-for m in said:
-    print("channel:", m)
-faults = [m for m in said if "following error" in m[1]]
-if faults:
-    error("the swing tripped a following error: %s" % faults[0][1].strip())
-s.poll()
-if s.task_state != linuxcnc.STATE_ON:
-    error("the machine is not on after the swing (task state %d)" % s.task_state)
+end = swing("G0 C180", catch_up(start))
 if abs(end[4] - 180) > 1e-3:
     error("C ended at %.4f, not 180" % end[4])
-s.poll()
-after = list(s.position[:3])
-if max(abs(a - b) for a, b in zip(after, tip)) > 1e-3:
-    error("the tip moved from %s to %s" % (tip, after))
+tip_held("G0 C180")
 
-# the commanded velocity and acceleration of every joint against its own
-# INI limit, every servo cycle; a joint over its limit is what the drive
-# could not follow.  A fault freezes the command in one cycle, which is
-# not an acceleration the planner asked for: the samples stop at the last
-# moving one
-last = max((k for k in range(len(samples)) if any(abs(v) > 0 for v in samples[k][1])), default=-1)
-samples = samples[:last + 1]
-print("%d samples through the swing" % len(samples))
-for j in range(JOINTS):
-    vpeak = max(abs(v[j]) for p, v in samples) if samples else 0.0
-    apeak = 0.0
-    for k in range(1, len(samples)):
-        apeak = max(apeak, abs(samples[k][1][j] - samples[k - 1][1][j]) / SERVO)
-    print("joint %d: velocity peak %8.3f of %8.3f (%.2fx), acceleration peak %9.2f of %9.2f (%.2fx)"
-          % (j, vpeak, VEL[j], vpeak / VEL[j], apeak, ACC[j], apeak / ACC[j]))
-    if vpeak > VEL[j] * 1.001:
-        error("joint %d was commanded at %.3f, over its limit of %.3f" % (j, vpeak, VEL[j]))
-    if apeak > ACC[j] * 1.01:
-        error("joint %d was commanded at %.2f, over its acceleration limit of %.2f" % (j, apeak, ACC[j]))
+# the same on an arc: the tip draws a full circle of radius 100 at a feed
+# it could keep on its own while C turns another revolution, so the
+# carriage rides the small circle and the big swing together
+end = swing("G17 G2 X0 Y0 I100 J0 C540 F5000", catch_up(end))
+if abs(end[4] - 540) > 1e-3:
+    error("C ended at %.4f, not 540" % end[4])
+tip_held("the arc")
 
 overruns = int(hal.get_value("sampler.0.overruns"))
 if overruns:

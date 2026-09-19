@@ -577,7 +577,9 @@ names. Its tool is the caller's where the caller gives one through
 `kinematicsUserSetTool()`, since a planner knows what a segment runs under
 better than the machine does; otherwise it is motion's, from motion's own
 offset pins, and the loader says once when the module's tool pin disagrees with
-them. `kinslimits` is built on it.
+them. `kinslimits` is built on it, and so is the cap canon puts on every
+segment's velocity and acceleration from the joint limits through the Jacobian
+(see the Switchable Kinematics chapter, INI file limit settings).
 
 A module that does not provide the form keeps working as it did. It just cannot
 be evaluated outside realtime, which the loader reports.
