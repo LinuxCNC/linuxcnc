@@ -711,6 +711,11 @@ usage:
              _sai._external_length_units = 1.0;
           }
       }
+      // The tool table (-t or the default) is loaded before this point.
+      // Legacy T10000+ wear rows only migrate with Fanuc lathe T words.
+      if (auto inival = ini.findBool("LATHE_TXXXX", "RS274NGC")) {
+          if (*inival) tooldata_migrate_legacy_wear();
+      }
       setenv("INI_FILE_NAME",inifile,1);
   } else
       unsetenv("INI_FILE_NAME");

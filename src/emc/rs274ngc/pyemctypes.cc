@@ -51,7 +51,9 @@ static bp::object tool_str( CANON_TOOL_TABLE &t) {
     return  bp::object("Tool(T%d D%.4f I%.4f J%.4f Q%d offset: " %
 		       bp::make_tuple(t.toolno,  t.diameter,
 				      t.frontangle,t.backangle, t.orientation) +
-		       emcpose_2_obj(t.offset) + ")");
+		       emcpose_2_obj(t.offset) +
+		       bp::object(" wear: ") + emcpose_2_obj(t.wear) +
+		       bp::object(" WD=%.4f" % bp::make_tuple(t.wear_diameter)) + ")");
 }
 
 static void tool_zero( CANON_TOOL_TABLE &t) {
@@ -61,6 +63,8 @@ static void tool_zero( CANON_TOOL_TABLE &t) {
     t.frontangle = 0.0;
     t.backangle = 0.0;
     t.orientation = 0;
+    ZERO_EMC_POSE(t.wear);
+    t.wear_diameter = 0.0;
 }
 static void carte_zero( PmCartesian &c) { 
     c.x = 0.0;
@@ -110,6 +114,8 @@ void export_EmcTypes()
 	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)
 	.def_readwrite("backangle", &CANON_TOOL_TABLE::backangle)
 	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
+	.def_readwrite("wear", &CANON_TOOL_TABLE::wear)
+	.def_readwrite("wear_diameter", &CANON_TOOL_TABLE::wear_diameter)
 	.def("__str__", &tool_str)
 	.def("zero", &tool_zero)
 	;

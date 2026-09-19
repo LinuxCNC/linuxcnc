@@ -3736,16 +3736,10 @@ void CANON_ERROR(const char *fmt, ...)
   */
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int idx)
 {
-    CANON_TOOL_TABLE tdata;
+    CANON_TOOL_TABLE tdata = tooldata_entry_init();
 
     if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-        tdata.toolno = -1;
         tdata.pocketno = 0;
-        ZERO_EMC_POSE(tdata.offset);
-        tdata.frontangle = 0.0;
-        tdata.backangle = 0.0;
-        tdata.diameter = 0.0;
-        tdata.orientation = 0;
     } else {
         if (tooldata_get(&tdata,idx) != IDX_OK) {
             rcs_print_error("UNEXPECTED idx %s %d\n",__FILE__,__LINE__);

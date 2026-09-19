@@ -1048,6 +1048,14 @@ int Interp::init()
 	      n++;
 	  }
 
+          // A T remap is dispatched before convert_tool_select(), so it
+          // would silently disable the native Fanuc lathe T word.
+          if (_setup.lathe_txxxx && remapping("T")) {
+              Log("warning: [RS274NGC]LATHE_TXXXX is enabled but a T remap is"
+                  " configured; the remap takes precedence and the native"
+                  " Taa ww word is not used\n");
+          }
+
           // if exist and within bounds, apply INI file arc tolerances
           // limiting figures are defined in interp_internal.hh
 

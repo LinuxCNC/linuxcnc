@@ -75,6 +75,11 @@ void   tooldata_set_db(tooldb_t mode);
 //----------------------------------------------------------
 int tooldata_load(const char *filename);
 
+// Copy remap-era fake wear tools (T10001..T10099) into the matching tool's
+// WX/WZ fields.  Call after tooldata_load() only when [RS274NGC]LATHE_TXXXX
+// is enabled; it is idempotent and never overwrites existing wear.
+void tooldata_migrate_legacy_wear(void);
+
 int tooldata_save(const char *filename);
 
 //----------------------------------------------------------

@@ -385,38 +385,40 @@ int tooldata_load(const char *filename)
     // close the file
     fclose(fp);
 
-    /* Remap-era wear lived as fake tools T10001..T10099.  Copy those
-       offsets into the matching tool's WX/WZ if that tool has no wear yet. */
-    {
-        int last = tooldata_last_index_get();
-        for (int idx = 0; idx <= last; idx++) {
-            CANON_TOOL_TABLE fake;
-            if (tooldata_get(&fake, idx) != IDX_OK)
-                continue;
-            if (fake.toolno < 10000 || fake.toolno > 10099)
-                continue;
-            int n = fake.toolno - 10000;
-            if (n <= 0)
-                continue;
-            int real_idx = tooldata_find_index_for_tool(n);
-            if (real_idx < 0)
-                continue;
-            CANON_TOOL_TABLE real;
-            if (tooldata_get(&real, real_idx) != IDX_OK)
-                continue;
-            if (real.wear.tran.x || real.wear.tran.y || real.wear.tran.z ||
-                real.wear.a || real.wear.b || real.wear.c ||
-                real.wear.u || real.wear.v || real.wear.w ||
-                real.wear_diameter)
-                continue;
-            real.wear = fake.offset;
-            real.wear_diameter = fake.diameter;
-            tooldata_put(real, real_idx);
-        }
-    }
-
     return 0;
 } // tooldata_load()
+
+/* Remap-era wear lived as fake tools T10001..T10099.  Copy those offsets
+   into the matching tool's WX/WZ if that tool has no wear yet.  Idempotent,
+   non-destructive: the fake rows are left in place. */
+void tooldata_migrate_legacy_wear(void)
+{
+    int last = tooldata_last_index_get();
+    for (int idx = 0; idx <= last; idx++) {
+        CANON_TOOL_TABLE fake;
+        if (tooldata_get(&fake, idx) != IDX_OK)
+            continue;
+        if (fake.toolno < 10000 || fake.toolno > 10099)
+            continue;
+        int n = fake.toolno - 10000;
+        if (n <= 0)
+            continue;
+        int real_idx = tooldata_find_index_for_tool(n);
+        if (real_idx < 0)
+            continue;
+        CANON_TOOL_TABLE real;
+        if (tooldata_get(&real, real_idx) != IDX_OK)
+            continue;
+        if (real.wear.tran.x || real.wear.tran.y || real.wear.tran.z ||
+            real.wear.a || real.wear.b || real.wear.c ||
+            real.wear.u || real.wear.v || real.wear.w ||
+            real.wear_diameter)
+            continue;
+        real.wear = fake.offset;
+        real.wear_diameter = fake.diameter;
+        tooldata_put(real, real_idx);
+    }
+} // tooldata_migrate_legacy_wear()
 
 static void write_tool_line(FILE* fp,int idx)
 {

@@ -4705,6 +4705,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     CHP((find_tool_index(settings, toolno, &idx)));
 
     if (block->l_number == 12) {
+        CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
+             _("Cannot change tool wear with cutter radius compensation on"));
         CHKS((block->x_flag && block->u_flag),
              _("G10 L12 cannot use X and U on the same line"));
         CHKS((block->z_flag && block->w_flag),
@@ -4715,7 +4717,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                block->a_flag || block->b_flag || block->c_flag ||
                block->u_flag || block->v_flag || block->w_flag ||
                block->r_flag),
-             _("G10 L12 without wear values has no effect"));
+             _("G10 L12 requires at least one wear value"));
         auto &w = settings->tool_table[idx].wear;
         if (block->x_flag)
             w.tran.x = PROGRAM_TO_USER_LEN(block->x_number);

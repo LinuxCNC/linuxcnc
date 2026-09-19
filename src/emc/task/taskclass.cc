@@ -29,6 +29,17 @@
 
 using namespace linuxcnc;
 
+// Legacy T10000+ wear rows are only meaningful with Fanuc lathe T words.
+static void migrate_legacy_wear_if_enabled(void)
+{
+    if (!emc_inifile[0]) return;
+    IniFile inifile(emc_inifile);
+    if (!inifile) return;
+    if (auto v = inifile.findBool("LATHE_TXXXX", "RS274NGC")) {
+        if (*v) tooldata_migrate_legacy_wear();
+    }
+}
+
 /********************************************************************
 *
 * Description: iocontrol_hal_init(void)
@@ -219,6 +230,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     if (0 != tooldata_load(tooltable_filename)) {
         rcs_print_error("can't load tool table.\n");
     }
+    migrate_legacy_wear_if_enabled();
 
     if (random_toolchanger) {
         CANON_TOOL_TABLE tdata;
@@ -380,6 +392,7 @@ void Task::reload_tool_number(int toolno) {
 int Task::emcIoInit()//EMC_TOOL_INIT
 {
     tooldata_load(tooltable_filename);
+    migrate_legacy_wear_if_enabled();
     reload_tool_number(emcioStatus.tool.toolInSpindle);
 
     if (0 != iniTool(emc_inifile)) {
@@ -551,6 +564,7 @@ int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 {
     if(!strlen(file)) file = tooltable_filename;//use filename from ini if none is provided
     tooldata_load(file);
+    migrate_legacy_wear_if_enabled();
     reload_tool_number(emcioStatus.tool.toolInSpindle);
     return 0;
 }

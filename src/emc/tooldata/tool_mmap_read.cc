@@ -67,9 +67,9 @@ int main (int argc,char**argv) {
     fprintf(stdout,"%s idx: %d-->%d lastidx=%d (maxidx=%d) random_tc=%d\n"
            ,argv[0]
            ,idx_begin,idx_end,idx_last,CANON_POCKETS_MAX-1,is_random_tc);
-#define HDR_FMT  "%5s %6s %6s %6s %6s %6s %6s %6s %6s %6s\n"
-#define DATA_FMT "%5d %6d %6d %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6d\n"
-    // Note: u,v,w offsets not printed
+#define HDR_FMT  "%5s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s %6s\n"
+#define DATA_FMT "%5d %6d %6d %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6d %6.3f %6.3f %6.3f\n"
+    // Note: u,v,w offsets and non-X/Z wear offsets not printed
     fprintf(stdout,HDR_FMT
                   ,"idx"
                   ,"toolno"
@@ -81,6 +81,9 @@ int main (int argc,char**argv) {
                   ,"f-ang"
                   ,"b-ang"
                   ,"orient"
+                  ,"w-x"
+                  ,"w-z"
+                  ,"w-d"
                   );
     for (idx=idx_begin; idx<=idx_end; idx++) {
         if (tooldata_get(&tdata,idx) != IDX_OK) {continue;}
@@ -95,6 +98,9 @@ int main (int argc,char**argv) {
                ,tdata.frontangle
                ,tdata.backangle
                ,tdata.orientation
+               ,tdata.wear.tran.x
+               ,tdata.wear.tran.z
+               ,tdata.wear_diameter
                );
    }
 } // main()

@@ -35,6 +35,15 @@ static void wrap_canon_error(const char *s)
     CANON_ERROR("%s", s);
 }
 
+/* Legacy 7-argument form of SET_TOOL_TABLE_ENTRY for Python remaps written
+   before native lathe wear was added.  Wear fields are left untouched. */
+static void SET_TOOL_TABLE_ENTRY_legacy(int pocket, int toolno, const EmcPose& offset,
+                                        double diameter, double frontangle, double backangle,
+                                        int orientation)
+{
+    SET_TOOL_TABLE_ENTRY(pocket, toolno, offset, diameter, frontangle, backangle, orientation);
+}
+
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
@@ -224,6 +233,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("SET_SPINDLE_MODE",&SET_SPINDLE_MODE);
     def("SET_SPINDLE_SPEED",&SET_SPINDLE_SPEED);
     def("SET_TOOL_TABLE_ENTRY",&SET_TOOL_TABLE_ENTRY);
+    def("SET_TOOL_TABLE_ENTRY",&SET_TOOL_TABLE_ENTRY_legacy);
     def("SET_TRAVERSE_RATE",&SET_TRAVERSE_RATE);
     def("SET_XY_ROTATION",&SET_XY_ROTATION);
     def("SPINDLE_RETRACT",&SPINDLE_RETRACT);
