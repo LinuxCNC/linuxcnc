@@ -120,20 +120,23 @@ extern KINEMATICS_TYPE kinematicsType(void);
 ** numeric-only and G13.1 refuses to guess.
 **
 ** The machine frame type is the one whose world is the machine frame
-** with the orientation left out: XYZ is the pivot, the point the rotary
-** joints do not move, in machine coordinates, and the rotary letters are
-** the rotary joints as they are.  On a machine whose slides line up with
-** its frame that is the identity type, and where a module declares no
-** machine frame type its identity type stands in.  A module whose
-** carriage does not line up, a slanted slide or an offset pivot, declares
-** its machine frame type separately and keeps identity for a type whose
-** joints really are the axes, since a consumer skips the maths on that
-** flag alone.
+** with the tool left out: XYZ is the point the tool hangs from, the pivot
+** of a head or the flange of a robot, in machine coordinates, and the
+** rotary letters are the orientation as that type reports it, the rotary
+** joints on a mill, the flange angles on a robot.  On a machine whose
+** slides line up with its frame that is the identity type, and where a
+** module declares no machine frame type its identity type stands in.  A
+** module whose carriage does not line up, a slanted slide or an offset
+** pivot, declares its machine frame type separately and keeps identity
+** for a type whose joints really are the axes, since a consumer skips
+** the maths on that flag alone.  A robot's working transform is its
+** flange in the base frame with no tool in the maths, so it is the
+** machine frame type as well and carries both flags.
 */
 #define KINSTYPE_IDENTITY 0x1 /* no transform: the joints are the world */
 #define KINSTYPE_PRIMARY  0x2 /* the module's working transform */
-#define KINSTYPE_MACHINE  0x4 /* the machine frame: the pivot in machine
-                                 coordinates, the rotaries as joints */
+#define KINSTYPE_MACHINE  0x4 /* the machine frame: the tool left out, XYZ
+                                 the pivot or flange in machine coordinates */
 
 /* flags of a kinematics type, or -1 for a type the module does not
 ** provide (and for every type on a machine with plain kinematics) */

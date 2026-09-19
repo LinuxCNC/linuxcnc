@@ -394,7 +394,10 @@ static int puma_inverse(const kins_params *p, kins_scratch *s,
 // is the shared identity one.  The maths is the ISO 9787 flange frame, so
 // the tool axis it produces runs holder towards tip, the opposite of the
 // convention; the declared half turn puts it right.  No closed form
-// Jacobian: the shared code differences the inverse.
+// Jacobian: the shared code differences the inverse.  The world is the
+// flange in the base frame with no tool in the maths, D6 being geometry,
+// which is the machine frame of a robot as well as its working transform,
+// so the one type is both.
 static const kins_ops puma_ops = {
     .forward = puma_forward,
     .inverse = puma_inverse,
@@ -402,6 +405,7 @@ static const kins_ops puma_ops = {
     .tool    = puma_tool_frame,
     .native  = &TOOL_FRAME_FLANGE,
     .primary = 1,
+    .machine = 1,
 };
 
 int switchkinsSetup(kparms* kp,

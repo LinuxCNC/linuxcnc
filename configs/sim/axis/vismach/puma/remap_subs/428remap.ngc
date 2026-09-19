@@ -3,7 +3,7 @@ o<428remap>sub
   #<kinstype> = 0
 
    G12.1 P#<kinstype>                   ; select kinstype 0, syncs interp and motion
-                                           ; (G13.1 is identity, which is type 1 on this module)
+                                           ; (G13.1 is the machine frame, this type on a robot; identity is type 1)
 
 o2 if [[#<_task> EQ 1] AND [#<_kins_type> NE #<kinstype>]]
      (debug,M428: Wrong kinematics type)

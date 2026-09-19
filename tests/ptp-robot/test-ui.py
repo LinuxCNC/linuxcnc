@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # A serial robot has no axis letter that names the joint it looks like, so
-# the letter form of the point-to-point move is refused here and the joint
-# form is the one that works.
+# the letter form of the point-to-point move is the machine frame, the flange
+# in the base frame with no tool, and the joint form names the joints.
+import hal
 import linuxcnc
 import sys
 import time
@@ -41,19 +42,6 @@ def mdi(cmd):
     c.wait_complete(60)
     return settled()
 
-def refused(cmd, expect):
-    c.mdi(cmd)
-    c.wait_complete(30)
-    m = e.poll()
-    if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-        error("%s was accepted" % cmd)
-        return
-    if expect not in m[1]:
-        error("%s said %r, which does not mention %r" % (cmd, m[1].strip(), expect))
-    else:
-        print("refused as expected: %s" % m[1].strip())
-    drain()
-
 c.state(linuxcnc.STATE_ESTOP_RESET)
 c.state(linuxcnc.STATE_ON)
 c.wait_complete(30)
@@ -90,11 +78,74 @@ for value in (-10, 90, -45):
             error("G53.7 J4=%d moved joint %d from %.6f to %.6f"
                   % (value, j, held[j], now[j]))
 
-# the letter form is refused whichever letter is used, because X names the
-# first rotary joint here; the message says so and points at G53.7
-refused("G53.5 G0 X10", "joint 0")
-refused("G53.5 G0 A10", "G53.7")
-refused("G53.5 G0 Z0", "angular")
+# the letter form is the machine frame: on a robot the arm kinematics with
+# no tool, the flange in the base frame, so a letter moves that coordinate
+# of the flange and every other one holds, the orientation included
+def flange():
+    s.poll()
+    return list(s.position[:6])
+
+def kins_type():
+    return int(hal.get_value("motion.kins-type"))
+
+def check_held(what, before, after, moved):
+    for i, name in enumerate("XYZABC"):
+        want = before[i] + moved.get(name, 0.0)
+        off = after[i] - want
+        if i >= 3:
+            # the flange angles come back in (-180, 180]
+            off = (off + 180.0) % 360.0 - 180.0
+        if abs(off) > 1e-3:
+            error("%s left %s at %.4f, not %.4f" % (what, name, after[i], want))
+
+mdi("G53.7 G0 J0=0 J1=-30 J2=40 J3=0 J4=50 J5=0")
+before = flange()
+after_joints = mdi("G53.5 G0 Z%.6f" % (before[2] + 50))
+after = flange()
+print("G53.5 G0 Z+50  %s" % " ".join("%.4f" % v for v in after))
+drain()
+check_held("G53.5 Z", before, after, {"Z": 50})
+if abs(after_joints[0]) > 1e-6:
+    error("G53.5 Z turned the waist to %.6f" % after_joints[0])
+
+before = flange()
+mdi("G53.5 G0 X%.6f A%.6f" % (before[0] - 40, before[3] + 15))
+after = flange()
+print("G53.5 G0 X-40 A+15  %s" % " ".join("%.4f" % v for v in after))
+drain()
+check_held("G53.5 X A", before, after, {"X": -40, "A": 15})
+
+# the same move asked from the identity kinematics lands the flange at the
+# same place: the letters are the machine frame whatever type is in force,
+# and G13.1 comes back to the arm kinematics, which is that frame
+mdi("G53.7 G0 J0=0 J1=-30 J2=40 J3=0 J4=50 J5=0")
+before = flange()
+mdi("G12.1 P1")
+if kins_type() != 1:
+    error("G12.1 P1 left kins-type %d" % kins_type())
+mdi("G53.5 G0 Z%.6f" % (before[2] + 50))
+mdi("G13.1")
+if kins_type() != 0:
+    error("G13.1 left kins-type %d, the arm kinematics is type 0" % kins_type())
+after = flange()
+print("G53.5 G0 Z+50 from the identity  %s" % " ".join("%.4f" % v for v in after))
+drain()
+check_held("G53.5 Z from the identity", before, after, {"Z": 50})
+
+# G43.4 and G49 leave a robot on its arm kinematics: there is no other
+# frame to come back to
+mdi("G43.4 H1")
+if kins_type() != 0:
+    error("G43.4 left kins-type %d" % kins_type())
+mdi("G49")
+if kins_type() != 0:
+    error("G49 left kins-type %d" % kins_type())
+drain()
+
+# a letter of the wrong unit class is not a joint any more: A is the flange
+# roll, in degrees, and Z is a length, so neither is refused
+mdi("G53.5 G0 A0")
+drain()
 
 # and the code that takes a Cartesian target still works: the point the
 # robot is standing on is reachable by definition, so ask for it

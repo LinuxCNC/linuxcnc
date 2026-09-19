@@ -690,11 +690,15 @@ static int genser_inverse(const kins_params *p, kins_scratch *s,
     return GO_RESULT_ERROR;
 }
 
+/* the world is the last link's frame in the base frame with no tool in the
+   maths, the machine frame of a robot as well as its working transform, so
+   the one type is both */
 const kins_ops GENSER_OPS = {
     .forward  = genser_forward,
     .inverse  = genser_inverse,
     .jacobian = genser_jacobian,
     .primary  = 1,
+    .machine  = 1,
 };
 
 /*

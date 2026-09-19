@@ -1028,8 +1028,8 @@ bool Interp::kins_machine_frame(setup_pointer s)
 }
 
 // The axis letters read as machine frame coordinates, the words the module's
-// machine frame type answers to: the pivot in machine coordinates, the
-// rotaries as joints, in program units.  The joints are read in on the type
+// machine frame type answers to: the pivot or the flange in machine
+// coordinates, the orientation as that type reports it, in program units.  The joints are read in on the type
 // in force and come out as the joints of the machine frame point, the letters
 // not given standing where they are.  Where the machine frame type is a plain
 // identity the letters name joints, and a letter carries a unit class where
