@@ -49,6 +49,20 @@ public:
     virtual int reset() = 0;
     virtual int line() = 0;
     virtual int call_level() = 0;
+
+    // Recover the subroutine call stack that was active when a block was
+    // interpreted, identified by the call-stack node id its StateTag carries.
+    // This lets task report the call stack of the move motion is *executing*,
+    // which lags the interpreter by the whole read-ahead queue.
+    // resolve_call_stack_depth() returns the depth (0 == main program), or 0 if
+    // the id is no longer known.  resolve_call_stack_frame() fills in one frame
+    // and returns 0 on success, -1 if the id or level cannot be resolved.
+    // Interpreters that do not track subroutine calls keep these defaults.
+    virtual int resolve_call_stack_depth(int /*node_id*/) { return 0; }
+    virtual int resolve_call_stack_frame(int /*node_id*/, int /*level*/,
+                                         const char ** /*filename*/,
+                                         const char ** /*subname*/,
+                                         int * /*line*/) { return -1; }
     virtual char *command(char *buf, size_t buflen) = 0;
     virtual char *file(char *buf, size_t buflen) = 0;
     virtual int on_abort(int reason, const char *message) = 0;

@@ -479,6 +479,95 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
 
 int Interp::call_level(void) { return _setup.call_level; }
 
+// Record a subroutine call made at filename:sequence_number and return the id of
+// the new call-stack node.  Nodes are kept in a ring and each stores its own id,
+// so a node whose slot has since been reused is detected on lookup instead of
+// being reported as some unrelated call.
+int Interp::push_call_stack_node(setup_pointer settings, const char *filename,
+                                 const char *subName, int sequence_number)
+{
+    if (settings->call_stack_nodes.empty())
+        settings->call_stack_nodes.resize(INTERP_CALL_STACK_NODES);
+
+    // id 0 is the reserved root (main program), so it is never handed out
+    if (settings->call_stack_next_id < 1 ||
+        settings->call_stack_next_id == INT_MAX)
+        settings->call_stack_next_id = 1;
+    int id = settings->call_stack_next_id++;
+
+    call_stack_node &node =
+        settings->call_stack_nodes[id % INTERP_CALL_STACK_NODES];
+    node.id = id;
+    node.parent = settings->call_stack_id;
+    node.filename = filename;
+    node.subName = subName;
+    node.sequence_number = sequence_number;
+    return id;
+}
+
+// Look up one node by id, or NULL if the ring slot has been reused since.
+call_stack_node *Interp::find_call_stack_node(int node_id)
+{
+    if (node_id <= 0)   // 0 is the root: the main program has no frames
+        return NULL;
+    if (_setup.call_stack_nodes.empty())
+        return NULL;
+    call_stack_node &node =
+        _setup.call_stack_nodes[node_id % INTERP_CALL_STACK_NODES];
+    if (node.id != node_id)
+        return NULL;
+    return &node;
+}
+
+// Walk a node chain to its root, filling frames[] outermost-first.
+// Returns the depth, or 0 if the chain cannot be resolved in full: a partially
+// resolved stack would be reported against a truncated depth, which is exactly
+// the kind of plausible-but-wrong output this mechanism exists to avoid.
+int Interp::walk_call_stack(int node_id, call_stack_node **frames, int max_frames)
+{
+    call_stack_node *chain[INTERP_SUB_ROUTINE_LEVELS];
+    int depth = 0;
+
+    for (int id = node_id; id > 0; ) {
+        if (depth >= INTERP_SUB_ROUTINE_LEVELS)
+            return 0;   // longer than the interpreter can nest: not a valid chain
+        call_stack_node *node = find_call_stack_node(id);
+        if (node == NULL)
+            return 0;   // slot reused, so this id is older than the ring
+        chain[depth++] = node;
+        id = node->parent;
+    }
+
+    // chain[] came out innermost-first; callers want outermost-first
+    for (int i = 0; i < depth && i < max_frames; i++)
+        frames[i] = chain[depth - 1 - i];
+    return depth;
+}
+
+int Interp::resolve_call_stack_depth(int node_id)
+{
+    call_stack_node *frames[INTERP_SUB_ROUTINE_LEVELS];
+    return walk_call_stack(node_id, frames, INTERP_SUB_ROUTINE_LEVELS);
+}
+
+// Frame[i] records "at line L of file F we called subroutine S", with i == 0
+// being the call made from the main program.
+int Interp::resolve_call_stack_frame(int node_id, int level, const char **filename,
+                                     const char **subname, int *line)
+{
+    call_stack_node *frames[INTERP_SUB_ROUTINE_LEVELS];
+    int depth = walk_call_stack(node_id, frames, INTERP_SUB_ROUTINE_LEVELS);
+
+    if (level < 0 || level >= depth)
+        return -1;
+
+    const call_stack_node *node = frames[level];
+    if (filename) *filename = node->filename ? node->filename : "";
+    if (subname)  *subname  = node->subName  ? node->subName  : "";
+    if (line)     *line     = node->sequence_number;
+    return 0;
+}
+
 std::string toString(GCodes g)
 {
     char buf[15]={};

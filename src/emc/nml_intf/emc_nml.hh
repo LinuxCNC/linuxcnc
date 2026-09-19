@@ -1471,6 +1471,26 @@ class EMC_TASK_STAT_MSG:public RCS_STAT_MSG {
     uint64_t taskbeat;  // milltask's main loop heartbeat counter
 };
 
+// How many frames EMC_TASK_STAT::callStack can hold.
+//
+// The interpreter refuses to go deeper than INTERP_SUB_ROUTINE_LEVELS nested
+// subroutine calls (rs274ngc/interp_internal.hh), and task stores one frame per
+// call, so this must not be smaller than that number.  This header cannot see
+// it, so a static_assert in task/emctask.cc - the one file that includes both
+// headers - checks the two against each other.
+#define EMC_MAX_CALL_STACK 10
+
+// One frame of the subroutine call stack: "at line <line> of <filename> we
+// called subroutine <subname>".  Sizes are kept tight because EMC_TASK_STAT is
+// copied through the emcStatus NML buffer on every cycle - see the static_assert
+// on sizeof(EMC_STAT) in emcops.cc.
+struct EmcCallFrame {
+    char filename[LINELEN]; // file containing the call site; same PATH_MAX ->
+                            // LINELEN truncation as EMC_TASK_STAT::file
+    char subname[64];       // O-word subroutine name that was called
+    int  line;              // line number of the call site
+};
+
 class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
   public:
     EMC_TASK_STAT();
@@ -1485,7 +1505,17 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
 
     EMC_TASK_EXEC execState;	// EMC_DONE,WAITING_FOR_MOTION, etc.
     EMC_TASK_INTERP interpState;	// EMC_IDLE,READING,PAUSED,WAITING
-    int callLevel;              // current subroutine level - 0 if not in a subroutine, > 0 otherwise
+    // Subroutine depth of the move motion is executing -- 0 if not in a
+    // subroutine.  Like motionLine, this lags the interpreter, which reads ahead.
+    int callLevel;
+    // The call stack of that same move, callLevel frames deep.  callStack[0] is
+    // the call made from the main program.
+    //
+    // Only the first callLevel entries are valid.  The rest are not sent over
+    // NML (see EMC_TASK_STAT::update() in emc.cc), so their contents are
+    // whatever the reader happened to have there already - read them and you
+    // get frames from some earlier state of the program.
+    EmcCallFrame callStack[EMC_MAX_CALL_STACK];
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing
     int readLine;		// line interpreter has read to

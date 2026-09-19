@@ -679,10 +679,12 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
 	     settings->call_level, settings->call_level+1, 
 	     call_typenames[block->call_type]);
 
-    settings->call_level++;
-    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
+    // check before incrementing: leaving call_level past the end of
+    // sub_context[] would make unwind_call() index out of bounds
+    if (settings->call_level + 1 >= INTERP_SUB_ROUTINE_LEVELS) {
 	ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
     }
+    settings->call_level++;
     context_pointer frame = &settings->sub_context[settings->call_level];
     frame->clear();
     // mark frame for finishing remap
@@ -693,6 +695,13 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
     frame->pystuff.impl->py_return_type = -1;
     // distinguish call frames: oword,m99,python,remap
     frame->call_type = block->call_type;
+    // Record this call so that the stack can be rebuilt later from the node id
+    // stamped into each block's StateTag.  The call site is the caller's current
+    // position, the same values execute_call() stores in the previous frame.
+    settings->call_stack_id = push_call_stack_node(settings,
+						   strstore(settings->filename),
+						   block->o_name,
+						   settings->sequence_number);
     return INTERP_OK;
 }
 
@@ -711,6 +720,13 @@ int Interp::leave_context(setup_pointer settings, bool restore)
     free_named_parameters(leaving_frame);
     leaving_frame->subName = NULL;
     settings->call_level--;  // drop back
+
+    // pop the call-stack node pushed by enter_context().  The node itself stays
+    // in the ring: moves already queued still refer to it by id.
+    {
+	call_stack_node *node = find_call_stack_node(settings->call_stack_id);
+	settings->call_stack_id = node ? node->parent : 0;
+    }
 
     if (restore && ((leaving_frame->context_status &
 		     (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==

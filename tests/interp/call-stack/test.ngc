@@ -1,0 +1,7 @@
+(Main program.  o<outer> and o<inner> live in separate files under)
+(SUBROUTINE_PATH so that each call frame reports a different filename.)
+G21
+G0 X0 Y0 Z0
+o<outer> call
+G0 X0 Y0 Z0
+M2
