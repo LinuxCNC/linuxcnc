@@ -27,7 +27,7 @@
 #include "nml_intf/emcglb.h"		// EMC_INIFILE
 #include "nml_intf/emc_nml.hh"
 #include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 #include <inifile.hh>
 #include "ini/iniaxis.hh"
 #include "ini/inijoint.hh"

@@ -32,7 +32,7 @@
 #include <kinematics.h>
 #include "config.h"
 #include <inifile.hh>
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 #include "libnml/nml/nml_oi.hh"
 #include "libnml/rcs/rcs_print.hh"
 #include <sys/types.h>

@@ -32,7 +32,6 @@
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"             // esleep
 #include "shcom.hh"             // Common NML communications functions
 #include "emcsched.hh"          // Common scheduling functions
 

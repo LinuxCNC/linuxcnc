@@ -25,11 +25,12 @@
 #include <inifile.hh>
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/nml/nml_oi.hh"
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 #include "libnml/nml/nml_srv.hh"           // run_nml_servers()
 #include <rtapi_string.h>
 #include "usr_intf/mapini.hh"
 
+using namespace std::chrono_literals;
 using namespace linuxcnc;
 
 static int iniLoad(const char *filename)
@@ -166,7 +167,7 @@ int main(int argc, char *argv[])
 	    delete emcErrorChannel;
 	    emcErrorChannel = NULL;
 	}
-	esleep(0.200);
+	esleep(200ms);
     }
 
 

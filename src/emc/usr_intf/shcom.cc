@@ -27,10 +27,11 @@
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "libnml/nml/nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
 #include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"             // esleep
+#include "timeutil.hh"             // esleep
 #include "mapini.hh"
 #include "shcom.hh"             // Common NML communications functions
 
+using namespace std::chrono_literals;
 using namespace linuxcnc;
 
 LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
@@ -257,14 +258,15 @@ int updateError()
 // How long to start to sleep between checks.
 // It uses a progressive back-off strategy when it takes longer. This makes
 // fast commands faster and slow commands use fewer system resources.
-#define EMC_COMMAND_DELAY      0.001
+constexpr auto EMC_COMMAND_DELAY = 1ms;
 #define EMC_COMMAND_FACTOR_MAX 100
 
 int emcCommandWaitDone()
 {
     double end;
     int factor = 1;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+    for (auto end = 0ms; emcTimeout <= 0.0 || end < std::chrono::duration<double>(emcTimeout);
+	 end += EMC_COMMAND_DELAY * factor) {
         updateStatus();
         int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
@@ -304,7 +306,8 @@ int emcCommandWaitReceived()
 {
     double end;
     int factor = 1;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+    for (auto end = 0ms; emcTimeout <= 0.0 || end < std::chrono::duration<double>(emcTimeout);
+	 end += EMC_COMMAND_DELAY * factor) {
 	updateStatus();
 
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;

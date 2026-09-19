@@ -35,12 +35,13 @@
 #include <inifile.hh>
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/nml/nml_oi.hh"
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 #include <rtapi_string.h>
 #include "tooldata/tooldata.hh"
 #include "mapini.hh"
 #include "unitenum.hh"
 
+using namespace std::chrono_literals;
 using namespace linuxcnc;
 
 /* Using halui: see the man page */
@@ -322,10 +323,10 @@ static int emcErrorNmlGet()
 
 static int tryNml()
 {
-    double end;
+    std::chrono::seconds end;
     int good;
-#define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
-#define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
+constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
+constexpr auto RETRY_INTERVAL = 1s;  // between wait tries for a subsystem
 
     end = RETRY_TIME;
     good = 0;
@@ -336,7 +337,7 @@ static int tryNml()
         }
         esleep(RETRY_INTERVAL);
         end -= RETRY_INTERVAL;
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
         return -1;
@@ -351,7 +352,7 @@ static int tryNml()
         }
         esleep(RETRY_INTERVAL);
         end -= RETRY_INTERVAL;
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
         return -1;
@@ -359,8 +360,6 @@ static int tryNml()
 
     return 0;
 
-#undef RETRY_TIME
-#undef RETRY_INTERVAL
 }
 
 static int updateStatus()
@@ -398,12 +397,12 @@ static int updateStatus()
 }
 
 
-#define EMC_COMMAND_DELAY   0.1	// how long to sleep between checks
+constexpr auto EMC_COMMAND_DELAY = 100ms;  // how long to sleep between checks
 
 static int emcCommandWaitDone()
 {
-    double end;
-    for (end = 0.0; end < doneTimeout; end += EMC_COMMAND_DELAY) {
+    for (auto end = 0ms; end < std::chrono::duration<double>(doneTimeout);
+	 end += EMC_COMMAND_DELAY) {
 	updateStatus();
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
@@ -439,8 +438,8 @@ static int emcCommandSend(RCS_CMD_MSG & cmd)
     emcCommandSerialNumber = cmd.serial_number;
 
     // wait for receive
-    double end;
-    for (end = 0.0; end < receiveTimeout; end += EMC_COMMAND_DELAY) {
+    for (auto end = 0ms; end < std::chrono::duration<double>(receiveTimeout);
+	 end += EMC_COMMAND_DELAY) {
 	updateStatus();
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
@@ -1964,9 +1963,9 @@ static void modify_hal_pins()
 		if (halui_sent_mdi) { // we have an ongoing MDI command
 			if (mdi_finished) { //which seems to have finished
 			halui_sent_mdi = 0;
-			esleep(0.02); //sleep for a while
+			esleep(20ms); //sleep for a while
 			updateStatus();
-			esleep(0.02); //sleep for a while
+			esleep(20ms); //sleep for a while
 			}
 		}
 		hal_set_bool(halui_data->halui_mdi_is_running, halui_sent_mdi);
@@ -2165,7 +2164,7 @@ int main(int argc, char *argv[])
         }
         check_hal_changes(); //if anything changed send NML messages
         modify_hal_pins(); //if status changed modify HAL too
-        esleep(0.02); //sleep for a while
+        esleep(20ms); //sleep for a while
         updateStatus();
     }
     thisQuit();

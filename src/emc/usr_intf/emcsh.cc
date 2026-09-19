@@ -32,7 +32,7 @@
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include <inifile.hh>
 #include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 
 #include "shcom.hh"
 
@@ -853,7 +853,7 @@ static int emc_time(ClientData /*clientdata*/,
 {
     CHECKEMC
     if (objc == 1) {
-	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(etime()));
+	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(wall_etime()));
 	return TCL_OK;
     }
 

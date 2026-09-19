@@ -21,7 +21,6 @@
 
 #include "libnml/rcs/rcs.hh"		// RCS_CMD_CHANNEL, etc.
 #include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"             // esleep, etc.
 #include "nml_intf/emcglb.h"		// EMC_INIFILE
 
 #include "pythonplugin/python_plugin.hh"

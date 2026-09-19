@@ -80,13 +80,14 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "nml_intf/interp_return.hh"	// public interpreter return values
 #include "rs274ngc/interp_internal.hh"	// interpreter private definitions
 #include "libnml/rcs/rcs_print.hh"
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 #include "libnml/nml/nml_oi.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
 #include "motion/motion.h"             // EMCMOT_ORIENT_*
 #include "ini/inihal.hh"
 
+using namespace std::chrono_literals;
 using namespace linuxcnc;
 
 static emcmot_config_t emcmotConfig;
@@ -109,7 +110,7 @@ static RCS_CMD_MSG *emcCommand = NULL;
 EMC_STAT *emcStatus = NULL;
 
 // timer stuff
-static RCS_TIMER *timer = NULL;
+static linuxcnc::CyclicTimer *timer = NULL;
 
 // flag signifying that INI file [TASK] CYCLE_TIME is <= 0.0, so
 // we should not delay at all between cycles. This means also that
@@ -182,7 +183,7 @@ int emcErrorBufferOKtoWrite(int space, const char *caller)
 
     while (etime() < send_errorchan_timout) {
 	if (emcErrorBuffer->get_space_available() < space) {
-	    esleep(0.01);
+	    esleep(10ms);
 	    continue;
 	} else {
 	    break;
@@ -3182,11 +3183,11 @@ static int emcTaskExecute(void)
 // called to allocate and init resources
 static int emctask_startup()
 {
-    double end;
+    std::chrono::seconds end;
     int good;
 
-#define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
-#define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
+constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
+    constexpr auto RETRY_INTERVAL = 1s;  // between wait tries for a subsystem
 
     // moved up so it can be exposed in taskmodule at init time
     // // get our status data structure
@@ -3212,7 +3213,7 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
 	rcs_print_error("can't get emcCommand buffer\n");
@@ -3241,7 +3242,7 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
 	rcs_print_error("can't get emcStatus buffer\n");
@@ -3267,7 +3268,7 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
 
     if (!good) {
 	rcs_print_error("can't get emcError buffer\n");
@@ -3275,7 +3276,7 @@ static int emctask_startup()
     }
     // get the timer
     if (!emcTaskNoDelay) {
-	timer = new RCS_TIMER(emc_task_cycle_time, "", "");
+	timer = new linuxcnc::CyclicTimer(emc_task_cycle_time);
     }
     // initialize the subsystems
 
@@ -3304,7 +3305,7 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
     if (!good) {
 	rcs_print_error("can't initialize motion\n");
 	return -1;
@@ -3328,7 +3329,7 @@ static int emctask_startup()
 	    emctask_shutdown();
 	    exit(1);
 	}
-    } while (end > 0.0);
+    } while (end > 0s);
     if (!good) {
 	rcs_print_error("can't read motion status\n");
 	return -1;

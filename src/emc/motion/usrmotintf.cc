@@ -25,10 +25,11 @@
 #include "motion_struct.h"      /* emcmot_struct_t */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
-#include "libnml/os_intf/_timer.h"
 #include "libnml/rcs/rcs_print.hh"
 
 #include <inifile.hh>
+#include <chrono>
+#include "timeutil.hh"
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
 #define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
@@ -36,6 +37,7 @@
 #include "dbuf.h"
 #include "stashf.h"
 
+using namespace std::chrono_literals;
 using namespace linuxcnc;
 
 static int inited = 0;		/* flag if inited */
@@ -114,7 +116,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }
 	}
-	esleep(25e-6);
+	esleep(25us);
     }
     rcs_print("USRMOT: ERROR: command %u timeout (seq: %d)\n", c->command, commandNum);
     return EMCMOT_COMM_ERROR_TIMEOUT;
@@ -131,7 +133,7 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
+	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy status struct from shmem to local memory */
 	memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
 	/* got it, now check head-tail matche */
@@ -157,7 +159,7 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
+	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy config struct from shmem to local memory */
 	memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
 	/* got it, now check head-tail matches */
@@ -182,7 +184,7 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
+	if(split_read_count > 0) esleep(1us);	// Don't busy-loop and give time to process
 	/* copy debug struct from shmem to local memory */
 	memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
 	/* got it, now check head-tail matches */

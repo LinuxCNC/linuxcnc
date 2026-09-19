@@ -41,8 +41,9 @@
 #include "shcom.hh"
 #include "nml_intf/emcglb.h"
 #include <inifile.hh>
-#include "libnml/os_intf/timer.hh"
+#include "timeutil.hh"
 
+using namespace std::chrono_literals;
 using namespace linuxcnc;
 
 /*
@@ -55,7 +56,7 @@ using namespace linuxcnc;
 #define MAX_HOSTNAME_SIZE 80
 
 // These are for JOINT_WAIT_HOMED
-#define JOINT_WAIT_HOMED_SLEEP          0.1 // Sleeps time between checks
+constexpr auto JOINT_WAIT_HOMED_SLEEP = 100ms; // Sleep time between checks
 #define JOINT_WAIT_HOMED_TIMEOUT       10.0 // Default timeout waiting for homing
 #define JOINT_WAIT_HOMED_TIMEOUT_WARN  30.0 // Timeout level to warn about stall
 #define JOINT_WAIT_HOMED_TIMEOUT_MAX  300.0 // Max timeout level to accept
@@ -1937,7 +1938,7 @@ static cmdResponseType getTimestamp(connectionRecType &ctx)
 static cmdResponseType getTime(connectionRecType &ctx)
 {
 	// GET TIME
-	replynl(ctx, fmt::format("TIME {}", etime()));
+	replynl(ctx, fmt::format("TIME {}", wall_etime()));
 	return rtOk;
 }
 
@@ -3566,7 +3567,7 @@ static int sockMain(int svrfd)
 				case EHOSTUNREACH:
 				case EOPNOTSUPP:
 				case ENETUNREACH:
-					esleep(1); // Don't busy loop waiting for the net to be up again
+					esleep(1s); // Don't busy loop waiting for the net to be up again
 					break;
 				// Various restartable errors
 				case ETIMEDOUT: // Linux kernel thingy, apparently
