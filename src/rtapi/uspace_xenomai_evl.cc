@@ -49,6 +49,16 @@ struct EvlTask : RtapiTask {
 struct EvlApp : RtapiApp {
     EvlApp() : RtapiApp(SCHED_FIFO) {
         pthread_once(&key_once, init_key);
+         WithRoot r;
+        /* Attach to the EVL core for rtapi_app, so modules can use EVL core
+         * functions also in rtapi_app_main. This has no influence on realtime
+         * due to rtapi_app will run with SCHED_WEAK.
+         */
+        int tfd = evl_attach_self("linuxcnc-rtapi_app:%d", gettid());
+        if (tfd < 0) {
+            rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
+            throw std::invalid_argument("evl_attach_self() failed");
+        }
     }
 
     RtapiTask *do_task_new() {
@@ -120,7 +130,7 @@ struct EvlApp : RtapiApp {
         {
             WithRoot r;
             /* Attach to the core. */
-            int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
+            int tfd = evl_attach_self("linuxcnc-realtime:%d", gettid());
             if (tfd < 0) {
                 rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
                 return nullptr;
