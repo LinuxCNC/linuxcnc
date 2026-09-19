@@ -5,12 +5,13 @@ description
 Momentary2nist can be used with a momentary push button
 to control a device that has separate on and off inputs
 and an is-on output.
-A debounce delay in cycles can be set for 'in'. (default = 2)
-A maximum output pulse length in cycles can be set for 'on' and 'off'. (default = 100)
+A debounce delay in cycles can be set for 'in'. (default = 2, maximum = 10000)
+A maximum output pulse length in cycles can be set for 'on' and 'off'. (default = 1000)
 
 * On a rising edge on pin *in* when *is-on* is low: It sets *on* until *is-on* becomes high.
 * On a rising edge on pin *in* when *is-on* is high: It sets *off* until *is-on* becomes low.
 * Pins *on* and *off* remain high until *is-on* confirms the respective state or until *max-pulse-length* is reached.
+* If *is-on* does not confirm a state change until *max-pulse-length* is reached both pins *on* and *off* will remain low until the *in* pin changes state.
 ....
        ┐     ┌─────xxxxxxxxxxxx┐           ┌─────xxxxxxxxxxxx┐
 in   : └─────┘     xxxxxxxxxxxx└───────────┘     xxxxxxxxxxxx└─────
@@ -30,12 +31,12 @@ is-on: └─────────────────┘                
 pin in bool in  "momentary button in";
 pin in bool is_on "current state of device";
 pin in ui32 debounce = 2 "debounce delay for 'in'-pin in cycles";
-pin in ui32 max_pulse_length = 100 "max output pulse length";
+pin in ui32 max_pulse_length = 1000 "max output pulse length";
 pin out bool on "turn device on";
 pin out bool off "turn device off";
 variable unsigned debounce_cntr;
 variable unsigned pulse_length;
-variable bool state;
+variable unsigned state = 2;
 
 option period no;
 function _;
@@ -52,34 +53,28 @@ FUNCTION(_)  {
         debounce_val = 2; // set a sane value
     }
 
-    if (in_val && state == 0 )  { // input has changed from debounced 0 -> 1
+    if (in_val && state == 2 )  { // input has changed from 0 -> 1
         debounce_cntr++;
         if ( debounce_cntr >= debounce_val ) {
-            if (!ison_val) { // turn ON if it's off
-                on_set(1);
-                off_set(0);
-            } else { // turn OFF if it's on
-                on_set(0);
-                off_set(1);
-            }
-            state = 1;
+            on_set(!ison_val);
+            off_set(ison_val);
+            pulse_length = 0;
+            state = !ison_val;
             debounce_cntr = 0;
         }
-    } else if (!in_val && state == 1) { // input has changed from debounced 1 -> 0
+    } else if (!in_val && state < 2) { // input has changed from 1 -> 0
         debounce_cntr++;
         if ( debounce_cntr >= debounce_val ) {
-            state = 0;
+            state = 2;
             debounce_cntr = 0;
         }
-    } else if ((!ison_val && off) || (ison_val && on) || (pulse_length > max_pulse_length)) {
-        // reset outputs once device has switched or maximum pulse length is reached
+    } else if ( (state < 2) && (ison_val != state) && (pulse_length < max_pulse_length) ) {
+        // Waiting for the 'ison' pin to confirm change of state
+        pulse_length ++;
+    } else {
         on_set(0);
         off_set(0);
         debounce_cntr = 0;
-        pulse_length = 0;
-    } else {
-        debounce_cntr = 0;
-        pulse_length ++;
     }
 }
 
