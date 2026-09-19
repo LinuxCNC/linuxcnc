@@ -1,0 +1,12 @@
+The [AXIS_L] box is the machine frame envelope: the carriage, not the
+tool tip.
+
+5axiskins with the joints reaching 1000 and the box at 500, a 250 pivot and
+a 50 tool, the head laid over to B90 so that the tip sits 300 from the
+carriage in the XY plane.  Under the tool centre point kinematics: a move
+whose tip is past the box with the carriage inside it is accepted; a move
+whose tip is inside with the carriage past the box is refused; G53.5 to a
+carriage position past the box is refused, and to one inside it with the
+tip past the box is accepted.  A carriage past the joint limit is refused
+whatever the box says.  Nothing is asserted about the identity kinematics,
+where the box and the joints describe the same thing.

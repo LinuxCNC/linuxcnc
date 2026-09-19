@@ -173,6 +173,9 @@ class GLCanon(gcode.RendererCanon):
         # fixture may hold several pieces. A canon is built per file load, so
         # nothing else ever clears this.
         self.workpieces = []
+        # The tilted work planes the program defined, in order, from the
+        # renderer's records at the end of the parse.
+        self.workplanes = []
 
     def comment(self, arg):
         """``(WORKPIECE,...)``, ``stop``, ``notify`` and the foam Z levels.
@@ -247,6 +250,8 @@ class GLCanon(gcode.RendererCanon):
         # hands over, so a partial load yields the partial list it always did.
         self.tool_list = [tool for _lineno, tool, _points
                           in self.program_geometry.toolchanges]
+        self.workplanes = [glcanon_scene.WorkPlane(*record)
+                           for record in pg.workplanes()]
 
     # -- the program record ------------------------------------------------
 
@@ -519,6 +524,10 @@ class GlCanonDraw:
         'limits': (1.0, 0.0, 0.0),
         'workpiece': glcanon_scene.WORKPIECE_COLOR,
         'workpiece_alpha': glcanon_scene.WORKPIECE_ALPHA,
+        'workplane': glcanon_scene.WORKPLANE_COLOR,
+        'workplane_alpha': glcanon_scene.WORKPLANE_ALPHA,
+        'workplane_active': glcanon_scene.WORKPLANE_ACTIVE_COLOR,
+        'workplane_active_alpha': glcanon_scene.WORKPLANE_ACTIVE_ALPHA,
     }
     def __init__(self, s=None, lp=None, g=None):
         self.stat = s
@@ -990,6 +999,12 @@ class GlCanonDraw:
         and any host can toggle it by setting self.show_workpiece."""
         return getattr(self, 'show_workpiece', True)
 
+    def get_show_workplane(self):
+        """Whether the tilted work planes the program defined are drawn.
+        Defaulted like get_show_workpiece, and toggled the same way, by
+        setting self.show_workplane."""
+        return getattr(self, 'show_workplane', True)
+
     def get_workpieces(self):
         """The stock the loaded program declared, as rs274.glcanon_scene
         .Workpiece records - the declared params, the outline in machine
@@ -1129,6 +1144,7 @@ class GlCanonDraw:
             show_metric=self.get_show_metric(),
             show_small_origin=self.show_small_origin,
             show_workpiece=self.get_show_workpiece(),
+            show_workplane=self.get_show_workplane(),
             program_alpha=self.get_program_alpha(),
             grid_size=self.get_grid_size(),
             highlight_line=self.get_highlight_line(),
@@ -1213,6 +1229,15 @@ class GlCanonDraw:
                 positions[X] = _x * math.cos(t) - _y * math.sin(t)
                 positions[Y] = _x * math.sin(t) + _y * math.cos(t)
                 positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
+                if s.g68_active:
+                    # the tilted work plane sits inside G92
+                    r = s.g68_rotation
+                    _x = positions[X] - s.g68_offset[X]
+                    _y = positions[Y] - s.g68_offset[Y]
+                    _z = positions[Z] - s.g68_offset[Z]
+                    positions[X] = r[0]*_x + r[3]*_y + r[6]*_z
+                    positions[Y] = r[1]*_x + r[4]*_y + r[7]*_z
+                    positions[Z] = r[2]*_x + r[5]*_y + r[8]*_z
             else:
                 positions = list(positions)
 

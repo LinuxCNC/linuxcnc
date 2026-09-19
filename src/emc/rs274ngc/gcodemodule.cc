@@ -57,6 +57,7 @@
 #include "rs274ngc_interp.hh"
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
+#include <kinematics.h>       // KINEMATICS_IDENTITY
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -359,6 +360,13 @@ public:
         maybe_new_line();
         forward("set_xy_rotation", degrees);
     }
+    void set_g68_frame(const WorkFrame &f) override {
+        maybe_new_line();
+        const std::array<double, 9> &r = f.rotation;
+        forward("set_g68_frame", f.origin[P9_X], f.origin[P9_Y], f.origin[P9_Z],
+                r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8],
+                (int)f.active);
+    }
     void set_plane(int plane) override {
         maybe_new_line();
         forward("set_plane", plane);
@@ -510,6 +518,28 @@ void STRAIGHT_FEED(int line_number,
             ensure_inch({x, y, z, a, b, c, u, v, w}));
 }
 
+// the preview draws a joint interpolated move as the traverse between its
+// ends: the path between them depends on the kinematics, which the
+// preview does not have
+void JOINT_TRAVERSE(int line_number, const double *joints, int have_joints,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    (void)joints;
+    (void)have_joints;
+    STRAIGHT_TRAVERSE(line_number, x, y, z, a, b, c, u, v, w);
+}
+
+void JOINT_FEED(int line_number, const double *joints, int have_joints,
+                double x, double y, double z,
+                double a, double b, double c,
+                double u, double v, double w, double seconds) {
+    (void)joints;
+    (void)have_joints;
+    (void)seconds;
+    STRAIGHT_FEED(line_number, x, y, z, a, b, c, u, v, w);
+}
+
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
                        double a, double b, double c,
@@ -536,6 +566,15 @@ void SET_G92_OFFSET(double x, double y, double z,
 
 void SET_XY_ROTATION(double t) {
     parse_state.canon->set_xy_rotation(t);
+};
+
+void SET_G68_FRAME(double x, double y, double z,
+                   const double rotation[9], int active) {
+    WorkFrame frame;
+    frame.active = active != 0;
+    frame.origin = ensure_inch({x, y, z});
+    std::copy(rotation, rotation + 9, frame.rotation.begin());
+    parse_state.canon->set_g68_frame(frame);
 };
 
 void USE_LENGTH_UNITS(CANON_UNITS u) { parse_state.metric = u == CANON_UNITS_MM; }
@@ -613,6 +652,10 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {
             offset.u, offset.v, offset.w}));
 }
 
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset, const EmcPose& /*point*/) {
+    USE_TOOL_LENGTH_OFFSET(offset);
+}
+
 void SET_FEED_REFERENCE(double /*reference*/) { }
 void SET_CUTTER_RADIUS_COMPENSATION(double /*radius*/) {}
 void START_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
@@ -636,13 +679,7 @@ void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {parse_state.selected_tool = tool;}
 void UPDATE_TAG(const StateTag& /*tag*/) {}
-void SELECT_KINS_TYPE(int switchkins_type)
-{
-    (void)switchkins_type;
-    printf("gcodemodule: SELECT_KINS_TYPE\n");
-
-    return;
-}
+void SELECT_KINS_TYPE(int /*switchkins_type*/) {}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
@@ -727,6 +764,30 @@ double GET_EXTERNAL_POSITION_C() { return parse_state.pos[P9_C]; }
 double GET_EXTERNAL_POSITION_U() { return parse_state.pos[P9_U]; }
 double GET_EXTERNAL_POSITION_V() { return parse_state.pos[P9_V]; }
 double GET_EXTERNAL_POSITION_W() { return parse_state.pos[P9_W]; }
+
+// Where the machine's joints stand. A point does not name one joint set, so
+// an iterative inverse has to start somewhere: a canon that watches the
+// status buffer says where. One that cannot, or that answers something that
+// is not a sequence of numbers, answers nothing, and the interpreter works
+// from the point alone.
+int GET_EXTERNAL_JOINT_POSITIONS(double *joints, int max) {
+    int n = 0;
+    if(parse_state.interp_error) return 0;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_external_joint_positions")) return 0;
+    try {
+        py::sequence seq = canon.attr("get_external_joint_positions")().cast<py::sequence>();
+        for(py::handle value : seq) {
+            if(n == max) break;
+            joints[n++] = value.cast<double>();
+        }
+    } catch(py::error_already_set &) {
+        return 0;                       // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return 0;
+    }
+    return n;
+}
 void INIT_CANON() {}
 
 void SET_PARAMETER_FILE_NAME(const char *name)
@@ -889,6 +950,22 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 int GET_EXTERNAL_KINS_TYPE() { return 0; }
 int GET_EXTERNAL_KINS_TYPE_FLAGS(int ktype) { (void)ktype; return -1; }
+
+// the kind of transform the machine runs, from a canon that watches the
+// status buffer; one that cannot answer has no machine, and the joints
+// are the world
+bool GET_EXTERNAL_KINEMATICS_IDENTITY() {
+    if(parse_state.interp_error) return true;
+    py::handle canon(parse_state.callback);
+    if(!py::hasattr(canon, "get_kinematics_type")) return true;
+    try {
+        return canon.attr("get_kinematics_type")().cast<long>() == KINEMATICS_IDENTITY;
+    } catch(py::error_already_set &) {
+        return true;                    // the error goes with the exception
+    } catch(py::builtin_exception &) {
+        return true;
+    }
+}
 void SET_NAIVECAM_TOLERANCE(double /*tolerance*/) { }
 
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
@@ -1194,10 +1271,23 @@ static py::list rs274_arc_to_segments(py::handle canon,
         g5xoffset[i] = attr_double(canon, G5X[i]);
         g92offset[i] = attr_double(canon, G92[i]);
     }
+    // The tilted work plane, from a canon that keeps one (rs274.interpret
+    // .Translated does); one without the attributes has no plane.
+    WorkFrame frame;
+    if(py::hasattr(canon, "g68_active") && attr_int(canon, "g68_active")) {
+        frame.active = true;
+        py::sequence origin = canon.attr("g68_offset").cast<py::sequence>();
+        py::sequence rotation = canon.attr("g68_rotation").cast<py::sequence>();
+        if(py::len(origin) != 3 || py::len(rotation) != 9)
+            throw py::value_error("arc_to_segments: canon.g68_offset is three "
+                                  "numbers and canon.g68_rotation nine");
+        for(size_t i=0; i<3; i++) frame.origin[i] = origin[i].cast<double>();
+        for(size_t i=0; i<9; i++) frame.rotation[i] = rotation[i].cast<double>();
+    }
 
     std::vector<Point9> pts;
     int steps = arc_segments(o, plane, rotation_cos, rotation_sin,
-                             g5xoffset, g92offset,
+                             g5xoffset, g92offset, frame,
                              x1, y1, cx, cy, rot, z1, a, b, c, u, v, w,
                              max_segments, pts);
     py::list segs(steps);

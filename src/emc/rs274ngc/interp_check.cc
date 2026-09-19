@@ -93,23 +93,64 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  _("P value not an integer with G10"));
     CHKS((((block->l_number == 2 || block->l_number == 20) && ((p_int < 0) || (p_int > 9)))), _("P value out of range (0-9) with G10 L%d"), block->l_number);
     CHKS((((block->l_number == 1 || block->l_number == 10 || block->l_number == 11) && p_int < 1)), _("P value out of range with G10 L%d"), block->l_number);
-  } else if (mode0 == G_28) {
-  } else if (mode0 == G_30) {
+  } else if (mode0 == G_28 || mode0 == G_30) {
+    CHKS((settings->machine_moves_need_machine_frame && !kins_machine_frame(settings)),
+         _("%s moves in the world of the active kinematics, which is not the machine frame"
+           " (MACHINE_MOVES_NEED_MACHINE_FRAME): the machine frame is %s"),
+         (mode0 == G_28) ? "G28" : "G30", (mode0 == G_28) ? "G28.5" : "G30.5");
+  } else if (mode0 == G_28_5 || mode0 == G_30_5) {
+    CHKS((block->radius_flag || block->theta_flag),
+         _("Cannot use polar coordinates with G28.5 or G30.5"));
+    CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
+          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
+           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
+         _("Cannot use G28.5 or G30.5 in incremental distance mode"));
   } else if (mode0 == G_5_3) {
       CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
   } else if (mode1 == G_5_2){
   } else if (mode1 == G_6_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
+    CHKS((settings->machine_moves_need_machine_frame && !kins_machine_frame(settings)),
+         _("%s stores a world position, and the active kinematics is not the machine frame"
+           " (MACHINE_MOVES_NEED_MACHINE_FRAME): store it on the machine frame kinematics"),
+         (mode0 == G_28_1) ? "G28.1" : "G30.1");
   } else if (mode0 == G_28_2) {   // G-code homing
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
         NCE_MUST_USE_G0_OR_G1_WITH_G53);
+    CHKS((settings->machine_moves_need_machine_frame && !kins_machine_frame(settings)),
+         _("G53 moves in the world of the active kinematics, which is not the machine frame"
+           " (MACHINE_MOVES_NEED_MACHINE_FRAME): the machine frame is G53.5"));
     CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
           (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
         NCE_CANNOT_USE_G53_INCREMENTAL);
   } else if (mode0 == G_92) {
+  } else if (mode0 == G_53_1 || mode0 == G_53_2 || mode0 == G_53_6) {
+    CHKS((block->x_flag || block->y_flag || block->z_flag || block->a_flag || block->b_flag ||
+          block->c_flag || block->u_flag || block->v_flag || block->w_flag),
+         _("Cannot use axis words with G53.1, G53.2 or G53.6"));
+  } else if (mode0 == G_53_3) {
+    CHKS((block->a_flag || block->b_flag || block->c_flag || block->u_flag || block->v_flag || block->w_flag),
+         _("Only X, Y and Z words can be used with G53.3"));
+  } else if (mode0 == G_53_4 || mode0 == G_53_5 || mode0 == G_53_7) {
+    CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
+         _("G53.4, G53.5 and G53.7 need G0 or G1"));
+    if (mode0 == G_53_5 || mode0 == G_53_7) {
+      CHKS((block->radius_flag || block->theta_flag),
+           _("Cannot use polar coordinates with G53.5 or G53.7"));
+      CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
+            ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&
+             (settings->distance_mode == DISTANCE_MODE::INCREMENTAL))),
+           _("Cannot use G53.5 or G53.7 in incremental distance mode"));
+    }
+    if (mode0 == G_53_7) {
+      CHKS((block->x_flag || block->y_flag || block->z_flag || block->a_flag || block->b_flag ||
+            block->c_flag || block->u_flag || block->v_flag || block->w_flag),
+           _("G53.7 takes joint words, J<n>=<value>, not axis words; G53.5 takes the axis words"));
+      CHKS((block->j_flag), _("Cannot use a J word with G53.7; a joint is J<n>=<value>"));
+    }
   } else if (mode0 == G_12_1){
     // kins-switch
     CHKS((!block->p_flag), NCE_P_WORD_MISSING_WITH_G121);
@@ -286,29 +327,50 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->h_flag) {
-    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
-      _("H word with no G43 or G76 to use it"));
+    CHKS((block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43 && motion != G_76 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_4 && block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_5),
+      _("H word with no G43, G43.4, G43.5 or G76 to use it"));
   }
 
-  if (block->i_flag) {    /* could still be useless if yz_plane arc */
+  // G68.2 and G68.4 take I J K, P and Q; G68.3 only R, X Y Z; G69 nothing
+  int plane_words = block->g_modes[GM_WORK_PLANE] == G_68_2 || block->g_modes[GM_WORK_PLANE] == G_68_4;
+  int plane_r = plane_words || block->g_modes[GM_WORK_PLANE] == G_68_3;
+
+  // under G43.5 the I J K of a G0 or G1 line are the tool axis: on the
+  // line that puts G43.5 in effect, and on the lines after it that do
+  // not change the tool length mode
+  int tool_vector = (block->g_modes[GM_TOOL_LENGTH_OFFSET] == G_43_5
+                     || (_setup.tool_vector && block->g_modes[GM_TOOL_LENGTH_OFFSET] == -1))
+                    && (motion == G_0 || motion == G_1);
+
+  if (block->i_flag && !tool_vector) {    /* could still be useless if yz_plane arc */
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_5) && (motion != G_5_1) &&
 					(motion != G_6) && (motion != G_6_1) &&
           (motion != G_71) && (motion != G_71_1) && (motion != G_71_2) &&
           (motion != G_72) && (motion != G_72_1) && (motion != G_72_2) &&
-          (motion != G_76) && (motion != G_87) && (motion != G_33_1) && (block->g_modes[GM_MODAL_0] != G_10)),
-        _("I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"));
+          (motion != G_76) && (motion != G_87) && (motion != G_33_1) && (block->g_modes[GM_MODAL_0] != G_10) &&
+          !plane_words),
+        _("I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G68.2, G68.4, G76, or G87 to use it"));
   }
 
-  if (block->j_flag) {    /* could still be useless if xz_plane arc */
+  if (block->j_flag && !tool_vector) {    /* could still be useless if xz_plane arc */
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_5) && (motion != G_5_1) &&
 					(motion != G_6) && (motion != G_6_1) &&
-          (motion != G_76) && (motion != G_87) && (block->g_modes[GM_MODAL_0] != G_10)),
-        _("J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"));
+          (motion != G_76) && (motion != G_87) && (block->g_modes[GM_MODAL_0] != G_10) &&
+          !plane_words),
+        _("J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G68.2, G68.4, G76 or G87 to use it"));
   }
 
-  if (block->k_flag) {    /* could still be useless if xy_plane arc */
-    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_6_2) && (motion != G_33) && (motion != G_33_1) && (motion != G_76) && (motion != G_87)),
-        _("K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"));
+  for (int n = 0; n < EMCMOT_MAX_JOINTS; n++) {
+    if (block->joint_flag[n]) {
+      CHKS((block->g_modes[GM_MODAL_0] != G_53_7), _("J%d= word with no G53.7 to use it"), n);
+      break;
+    }
+  }
+
+  if (block->k_flag && !tool_vector) {    /* could still be useless if xy_plane arc */
+    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_6_2) && (motion != G_33) && (motion != G_33_1) && (motion != G_76) && (motion != G_87) &&
+          !plane_words),
+        _("K word with no G2, G3, G6.2, G33, G33.1, G68.2, G68.4, G76, or G87 to use it"));
   }
 
   if (block->l_number != -1) {
@@ -326,6 +388,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->p_flag) {
       CHKS(((block->g_modes[GM_MODAL_0] != G_10) && (block->g_modes[GM_MODAL_0] != G_4) && (block->g_modes[GM_CONTROL_MODE] != G_64 && (block->g_modes[GM_MODAL_0] != G_12_1)) &&
+          !plane_words &&
+          (block->g_modes[GM_MODAL_0] != G_53_1) && (block->g_modes[GM_MODAL_0] != G_53_2) && (block->g_modes[GM_MODAL_0] != G_53_3) && (block->g_modes[GM_MODAL_0] != G_53_6) &&
           (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) &&
           (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
           (motion != G_70) &&
@@ -338,7 +402,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
           (block->m_modes[7] != 19) && (block->user_m != 1) &&
           (block->o_type != M_98)),
-          _("P word with no G2 G3 G4 G10 G12.1 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89"
+          _("P word with no G2 G3 G4 G10 G12.1 G53.1 G53.2 G53.3 G53.6 G64 G68.2 G68.4 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89"
             " G28.2"
             " or M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 "
             "or user M code to use it"));
@@ -356,11 +420,13 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
       CHKS((motion != G_83) && (motion != G_73) && (motion != G_5) && (motion != G_6) && (motion != G_6_2) && (block->user_m != 1) && (motion != G_76) &&
 	   (block->m_modes[5] != 66) && (block->m_modes[5] != 67) && (block->m_modes[5] != 68) &&
 	   (block->g_modes[GM_MODAL_0] != G_10) && (block->m_modes[6] != 61) && (block->g_modes[GM_CONTROL_MODE] != G_64) &&
+	   !plane_words &&
+	   (block->g_modes[GM_MODAL_0] != G_53_1) && (block->g_modes[GM_MODAL_0] != G_53_2) && (block->g_modes[GM_MODAL_0] != G_53_3) && (block->g_modes[GM_MODAL_0] != G_53_6) &&
 	   (motion != G_70) &&
 	   (motion != G_71) && (motion != G_71_1) && (motion != G_71_2) &&
 	   (motion != G_72) && (motion != G_72_1) && (motion != G_72_2) &&
 	   (block->m_modes[7] != 19),
-	   _("Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M code that uses it"));
+	   _("Q word with no G5, G6, G10, G53.1, G53.2, G53.3, G53.6, G64, G68.2, G68.4, G73, G76, G83, M19, M66, M67, M68 or user M code that uses it"));
   }
 
   if (block->r_flag) {
@@ -371,6 +437,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 	 (motion != G_74) &&
          (block->g_modes[GM_CUTTER_COMP] != G_41_1) && (block->g_modes[GM_CUTTER_COMP] != G_42_1) &&
          (block->g_modes[GM_MODAL_0] != G_10) && (block->m_modes[7] != 19) &&
+         !plane_r &&
          (block->g_modes[GM_CONTROL_MODE] != G_64) ), /* G64_R_PLANNER: R selects planner on G64 */
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
     /* G64_R_PLANNER: a block has one shared R word; with G64 it is the planner

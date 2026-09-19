@@ -4,7 +4,8 @@
 *
 * NOTEs:
 *  1) specify all kparms items
-*  2) specify 3 KS,KF,KI functions (setup,forward,inverse)
+*  2) the maths and the geometry table are in genserfuncs.c, written as
+*     pure functions of the parameter block (see kins_module.h)
 */
 
 /********************************************************************
@@ -42,7 +43,8 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 #include <emcmotcfg.h>
 
 #include "genserkins.h"
-#include "switchkins.h"
+#include <switchkins.h>
+#include "userkfuncs.h"
 
 //-7 is system defined -3 ok, -4 ok, -5 ok,-6 ok (mm system)
 #undef  GO_REAL_EPSILON
@@ -57,39 +59,28 @@ int switchkinsSetup(kparms* kp,
                     KI* kinv0, KI* kinv1, KI* kinv2
                    )
 {
+    (void)kset0; (void)kset1; (void)kset2;
+    (void)kfwd0; (void)kfwd1; (void)kfwd2;
+    (void)kinv0; (void)kinv1; (void)kinv2;
     kp->kinsname    = "genserkins"; // !!! must agree with filename
     kp->halprefix   = "genserkins"; // hal pin names
     kp->required_coordinates = "xyzabcuvw"; // u,v,w are joints 6,7,8
     kp->max_joints  = strlen(kp->required_coordinates);
     kp->allow_duplicates  = 0;
+    kp->params      = GENSER_PARAMS;
+    kp->nparams     = GENSER_NPARAMS;
 
     if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
         rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
-        *kset0 = identityKinematicsSetup;
-        *kfwd0 = identityKinematicsForward;
-        *kinv0 = identityKinematicsInverse;
-
-        *kset1 = genserKinematicsSetup;
-        *kfwd1 = genserKinematicsForward;
-        *kinv1 = genserKinematicsInverse;
-        switchkinsDeclare(0, KINSTYPE_IDENTITY);
-        switchkinsDeclare(1, KINSTYPE_PRIMARY);
+        switchkinsRegisterOps(0, &KINS_IDENTITY_OPS);
+        switchkinsRegisterOps(1, &GENSER_OPS);
     } else {
         rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
-        *kset0 = genserKinematicsSetup;
-        *kfwd0 = genserKinematicsForward;
-        *kinv0 = genserKinematicsInverse;
-
-        *kset1 = identityKinematicsSetup;
-        *kfwd1 = identityKinematicsForward;
-        *kinv1 = identityKinematicsInverse;
-        switchkinsDeclare(0, KINSTYPE_PRIMARY);
-        switchkinsDeclare(1, KINSTYPE_IDENTITY);
+        switchkinsRegisterOps(0, &GENSER_OPS);
+        switchkinsRegisterOps(1, &KINS_IDENTITY_OPS);
     }
 
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
+    switchkinsRegisterOps(2, &USERK_OPS);
 
     return 0;
 }

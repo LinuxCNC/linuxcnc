@@ -233,8 +233,10 @@ enum GCodes
     G_28 = 280,
     G_28_1 = 281,
     G_28_2 = 282,   /* G-code homing cycle (home one/all joints) */
+    G_28_5 = 285,
     G_30 = 300,
     G_30_1 = 301,
+    G_30_5 = 305,
     G_33 = 330,
     G_33_1 = 331,
     G_38_2 = 382,
@@ -249,11 +251,20 @@ enum GCodes
     G_43 = 430,
     G_43_1 = 431,
     G_43_2 = 432,
+    G_43_4 = 434,
+    G_43_5 = 435,
     G_49 = 490,
     G_50 = 500,
     G_51 = 510,
     G_52 = 520,
     G_53 = 530,
+    G_53_1 = 531,
+    G_53_2 = 532,
+    G_53_3 = 533,
+    G_53_4 = 534,
+    G_53_5 = 535,
+    G_53_6 = 536,
+    G_53_7 = 537,
     G_54 = 540,
     G_55 = 550,
     G_56 = 560,
@@ -263,6 +274,10 @@ enum GCodes
     G_59_1 = 591,
     G_59_2 = 592,
     G_59_3 = 593,
+    G_68_2 = 682,
+    G_68_3 = 683,
+    G_68_4 = 684,
+    G_69 = 690,
     G_61 = 610,
     G_61_1 = 611,
     G_64 = 640,
@@ -366,6 +381,7 @@ enum phases  {
     STEP_CUTTER_COMP,
     STEP_TOOL_LENGTH_OFFSET,
     STEP_COORD_SYSTEM,
+    STEP_WORK_PLANE,
     STEP_CONTROL_MODE,
     STEP_DISTANCE_MODE,
     STEP_IJK_DISTANCE_MODE,
@@ -380,7 +396,7 @@ enum phases  {
 
 // Modal groups
 // also indices into g_modes
-// unused: 9,11
+// unused: 11
 enum ModalGroups
 {
     GM_MODAL_0 = 0,
@@ -392,7 +408,7 @@ enum ModalGroups
     GM_LENGTH_UNITS = 6,
     GM_CUTTER_COMP = 7,
     GM_TOOL_LENGTH_OFFSET = 8,
-    // 9 unused
+    GM_WORK_PLANE = 9,
     GM_RETRACT_MODE = 10,
     // 11 unused
     GM_COORD_SYSTEM = 12,
@@ -497,6 +513,9 @@ struct block_struct
   bool z_flag{};
 
   bool dollar_flag{};
+
+  bool joint_flag[EMCMOT_MAX_JOINTS]{};    // J<n>=<value> words, for G53.5
+  double joint_value[EMCMOT_MAX_JOINTS]{};
 
   double radius{};
   double theta{};
@@ -768,6 +787,27 @@ struct setup
   double origin_offset_y;       // g5x offset y
   double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
+  // the tilted work plane (G68.2): a frame inside G92, program units,
+  // in the coordinate system that was active when it was defined
+  bool g68_active;
+  int g68_code;                 // the code that defined it, for the modal display
+  double g68_offset[3];
+  double g68_rotation[3][3];    // row major, columns are the plane's axes
+  int g68_seq_code;             // a three-point or two-vector definition in progress
+  int g68_seq_p;
+  unsigned g68_seq_have;        // bit per Q received
+  double g68_seq_word[4][7];    // per Q: x y z i j k r
+  // the pose G53.2 last solved, in program words, for #<_orient_a> and kin
+  bool orient_valid;
+  double orient_pose[6];          // x y z a b c
+  // the kinematics, for G68.3 and the orientation moves: loaded on first
+  // use through the non-realtime loader, on a HAL component of our own
+  void *kins_ctx;               // KinematicsUserContext
+  int kins_comp_id;
+  char kins_module[LINELEN];    // [KINS] KINEMATICS, as loadrt gets it
+  int kins_joints;              // [KINS] JOINTS
+  int kins_angular_joints;      // bit per joint, [JOINT_n] TYPE = ANGULAR
+  double kins_seed[EMCMOT_MAX_JOINTS];  // the last inverse, seeding the next
   double parameters[interp_param_global::RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
   int parameter_numbers[MAX_NAMED_PARAMETERS];    // parameter number buffer
@@ -781,6 +821,9 @@ struct setup
   bool input_flag;            // flag indicating waiting for input done
   bool kinsSwitch_flag;       // flag indicating waiting for kinematics switch done
   int kins_type;              // kinematics selected by G12.1/G13.1
+  bool kins_by_g43_4;         // G43.4 selected the kinematics, for G49 to undo
+  bool tool_vector;           // G43.5: I J K on G0 and G1 give the tool axis
+  bool machine_moves_need_machine_frame; // [RS274NGC] MACHINE_MOVES_NEED_MACHINE_FRAME: G53, G28, G30 refused off the machine frame type
   bool toolchange_flag;       // flag indicating we just had a tool change
   bool home_flag;             // flag indicating a G28.2 homing cycle just ran
   int input_index;		// channel queried
@@ -887,6 +930,7 @@ struct setup
     boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     bool in_abort_command;      // running the ON_ABORT_COMMAND routine
+    bool in_startup_code;       // running the startup code at task init
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
 #define INIT_FUNC  "__init__"
@@ -1080,4 +1124,9 @@ struct scoped_locale {
 };
 
 #define FORCE_LC_NUMERIC_C scoped_locale force_lc_numeric_c(LC_NUMERIC, "C")
+
+// the kinematics type carrying a KINSTYPE_ flag, or -1 when the module
+// declares none (interp_convert.cc)
+int flagged_kins_type(int flag);
+
 #endif // INTERP_INTERNAL_HH

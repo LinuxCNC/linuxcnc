@@ -247,7 +247,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("USE_NO_SPINDLE_FORCE",&USE_NO_SPINDLE_FORCE);
     // def("USER_DEFINED_FUNCTION_ADD",&USER_DEFINED_FUNCTION_ADD);
     // def("USE_SPINDLE_FORCE",&USE_SPINDLE_FORCE);
-    def("USE_TOOL_LENGTH_OFFSET",&USE_TOOL_LENGTH_OFFSET);
+    def("USE_TOOL_LENGTH_OFFSET",static_cast<void (*)(const EmcPose&)>(&USE_TOOL_LENGTH_OFFSET));
     def("WAIT",&WAIT);
 
     // from interp_queue.cc

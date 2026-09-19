@@ -1,0 +1,19 @@
+The point-to-point moves on a machine whose slides do not line up with
+its frame.
+
+slantkins.comp is built here, out of tree the way the switchkinscomp
+template builds: XYZBC on five joints, joint 1 a slide slanted 30 degrees
+in the XY plane, so machine X and Y are made by joints 0 and 1 together.
+Type 0 is the carriage in machine coordinates, declared the machine frame
+type and not an identity; type 1 the tool tip with the head tilted about Y
+and the tool length from the tool table; type 2 a plain identity.
+
+The test checks that G13.1 and G49 select the machine frame type rather
+than the identity, that G53.5 puts the carriage at a machine frame point,
+the letters not given holding their machine coordinate and not their
+joint, from the machine frame type and from under the tilted tip
+kinematics alike, that G28.5 goes to a position stored on the machine
+frame, through a waypoint when given one, that MACHINE_MOVES_NEED_MACHINE_FRAME
+refuses G53, G28, G30 and the stores under the tip and under the plain
+identity, and that a plain move after a machine frame move starts from the
+right place.

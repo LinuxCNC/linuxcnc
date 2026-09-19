@@ -585,6 +585,24 @@ int emcAxisSetLockingJoint(int axis, int joint)
     return retval;
 }
 
+double emcJointGetMaxVelocity(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        return 0;
+    }
+
+    return JointConfig[joint].MaxVel;
+}
+
+double emcJointGetMaxAcceleration(int joint)
+{
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        return 0;
+    }
+
+    return JointConfig[joint].MaxAccel;
+}
+
 double emcAxisGetMaxVelocity(int axis)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -1537,10 +1555,31 @@ double emcTrajGetAngularUnits()
     return TrajConfig.AngularUnits;
 }
 
-int emcTrajSetOffset(const EmcPose& tool_offset)
+int emcTrajJointMove(const EmcPose& end, const double *joints, int have_joints, double seconds)
+{
+    int i;
+
+    emcmotCommand.command = EMCMOT_SET_JOINT_LINE;
+    emcmotCommand.pos = end;
+    emcmotCommand.id = TrajConfig.MotionId;
+    emcmotCommand.tag = localEmcTrajTag;
+    emcmotCommand.motion_type = seconds > 0.0 ? EMC_MOTION_TYPE_FEED : EMC_MOTION_TYPE_TRAVERSE;
+    emcmotCommand.joint_seconds = seconds;
+    emcmotCommand.have_joint_target = have_joints;
+    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
+        emcmotCommand.joint_target[i] = (have_joints && joints) ? joints[i] : 0.0;
+    }
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetOffset(const EmcPose& tool_offset, const EmcPose *point)
 {
     emcmotCommand.command = EMCMOT_SET_OFFSET;
     emcmotCommand.tool_offset = tool_offset;
+    emcmotCommand.have_point = (point != nullptr);
+    if (point) {
+        emcmotCommand.pos = *point;
+    }
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

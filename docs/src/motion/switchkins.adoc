@@ -46,6 +46,10 @@ The following kinematics modules support switchable kinematics:
 . *three21kins*     (type0:three21kins    type1:identity)
 . *scarakins*      (type0:scarakins      type1:identity)
 . *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
+. *millturn*       (type0:identity       type1:turn)
+. *xyzab_tdr_kins* (type0:identity       type1:tcp)
+. *xyzacb_trsrn*   (type0:identity       type1:tcp        type2:tool)
+. *xyzbca_trsrn*   (type0:identity       type1:tcp        type2:tool)
 
 Every module listed above uses its own kinematics for type0 and
 identity kinematics for type1.  Each accepts the module string
@@ -177,8 +181,9 @@ meant to be removed in the future.
 === G-code commands
 
 'G12.1 P-' selects a kinstype and 'G13.1' cancels back to identity
-kinematics.  Which kinstype is identity is declared by the module (see
-Code Notes), not fixed to a number:
+kinematics.  Which kinstype that is, the module declares (see Code
+Notes), not fixed to a number; on a module whose slides do not line up
+with its frame it is the machine frame type the module declares instead:
 
 [source,ngc]
 ----
@@ -214,12 +219,17 @@ Selection is not cancelled by the end of a program or by an abort, so
 that the kinstype continues to match the position readout. A program
 that should leave the machine in identity kinematics ends with 'G13.1'.
 
-A module that declares no identity kinstype refuses 'G13.1' with an
-error and can still be driven by number with 'G12.1'; see Code Notes
-for how a module declares its types.
+A module that declares no identity or machine frame kinstype refuses
+'G13.1' with an error and can still be driven by number with 'G12.1';
+see Code Notes for how a module declares its types.
 
-See the G-code documentation for 'G12.1' and 'G13.1' for the full
-description.
+For tool length work there are spellings that name the kinematics by
+what it is rather than by number: 'G43.4' applies the tool length
+offset and switches to the kinstype the module declares its working
+transform, 'G43.5' does the same and lets the lines after it give the
+tool axis as a vector, and the 'G49' that cancels either switches back
+to the machine frame kinstype, what 'G13.1' selects. See the G-code documentation for 'G43.4', 'G43.5' and
+'G49', and for 'G12.1' and 'G13.1', for the full description.
 
 === M-code commands
 
@@ -290,12 +300,45 @@ MAX_VELOCITY =
 MIN_ACCELERATION =
 ----
 
-The INI file limits specified apply to the type 0 default
-kinematics type that is activated at startup.  These limits may
-*not* be applicable when switching to alternative kinematics.
-However, since an interpreter-motion synchronization is required
-when switching kinematics, INI-HAL pins can be used to setup
-limits for a pending kinematics type.
+The position limits, `MIN_LIMIT` and `MAX_LIMIT`, are a box in the
+machine frame, the world of the kinstype the module declares
+KINSTYPE_MACHINE (its identity kinstype where it declares none):
+the carriage in machine coordinates, or a robot's flange in its base
+frame.  Every move is checked against that box where its joints put
+the machine frame, whichever kinstype is in force, so the box means
+the same thing after a switch as before it and needs no resetting.
+The travel is the `[JOINT_N]` limits, checked on every move as well;
+the box is a restriction inside it.  A module that declares no
+kinstype flags keeps the box on the world of the kinstype in force,
+as before.
+
+The velocity and acceleration limits, `MAX_VELOCITY` and
+`MAX_ACCELERATION`, bound the coordinate letter in the world of the
+kinstype in force.  What the joints can follow is bound separately:
+every segment is sampled through the module's Jacobian ahead of
+motion, on the kinstype and the tool offset the program is under, and
+its velocity and acceleration are lowered to what the slowest joint
+can give within its own `[JOINT_N]` limits, the share a carriage on a
+circle feels as centripetal included.  A turn of a tilted head under
+the tool centre point, which swings the carriage through a circle the
+head's own limit never mentions, runs at the carriage's pace.  A
+module that can only be evaluated in realtime (one without the
+parameter block form, see <<sec:switchkins-code-notes,Code Notes>>)
+caps nothing; on it the `[AXIS_L]` limits are all there is.  A world
+jog is bounded the same way, in motion, every servo cycle: the Jacobian
+at the joints the machine stands in caps the jog's planners so that no
+joint is asked for more than its limits, and a jog of C under the tool
+centre point with the head laid over runs at the pace of the carriage
+it swings.
+
+So a switch does not need the velocity and acceleration limits reset
+to keep the joints within their limits.  It may still want them reset
+where a letter names a joint of another kind after the switch: a
+robot's identity kinstype puts joint 0, a rotary, on X, and the
+`[AXIS_X]` limit in mm/s says nothing useful about it.  Since an
+interpreter-motion synchronization is required when switching
+kinematics, INI-HAL pins can be used to set up limits for a pending
+kinematics type.
 
 [NOTE]
 INI-HAL pins are typically not recognized during a G-code program
@@ -330,7 +373,7 @@ kinematics (trivkins).
 See the kins man page for more information ($ man kins).
 
 A user-provided M-code can alter any or all of the axis coordinate
-limits prior to changing the motion.switchkins-type pin and
+velocity and acceleration limits prior to changing the motion.switchkins-type pin and
 synchronizing the interpreter and motionparts of LinuxCNC.  As an
 example, a bash script invoking halcmd can be 'hardcoded' to set
 any number of HAL pins:
@@ -356,24 +399,25 @@ with a complex (non-identity) kinematics (type0) after homing.
 The system is configured so that it can be switched to identity
 kinematics (type1) in order to manipulate individual joints using
 the conventional letters from the set 'XYZABCUVW'.  The INI file
-settings ([AXIS_L]) are *not* applicable when operating with
-identity (type1) kinematics.  To address this use case, the user
-M-code scripts can be designed as follows:
+velocity and acceleration settings ([AXIS_L]) are *not* applicable
+when operating with identity (type1) kinematics.  To address this
+use case, the user M-code scripts can be designed as follows:
 
 *M129* (Switch to identity type1)
 
 . read and parse INI file
-. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
-  according to the 'identity-referenced' joint number INI file
-  setting ([JOINT_N])
+. HAL: setp the INI-HAL velocity and acceleration pins for each axis
+  letter ([AXIS_L]) according to the 'identity-referenced' joint
+  number INI file setting ([JOINT_N])
 . HAL: `setp motion.switchkins-type 1`
 . MDI: execute a syncing G-code (M66E0L0)
 
 *M128* (restore robot default kinematics type 0)
 
 . read and parse INI file
-. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
-  according to the appropriate INI file setting ([AXIS_L])
+. HAL: setp the INI-HAL velocity and acceleration pins for each axis
+  letter ([AXIS_L]) according to the appropriate INI file setting
+  ([AXIS_L])
 . HAL: `setp motion.switchkins-type 0`
 . MDI: execute a syncing G-code (M66E0L0)
 
@@ -415,14 +459,25 @@ configs/sim/axis/vismach/ .
 . puma/puma560.ini (genserkins)
 . puma/puma.ini (pumakins)
 . hexapod-sim/hexapod.ini (genhexkins)
+. millturn/millturn.ini (millturn)
+. 5axis/table-dual-rotary/xyzab-tdr.ini (xyzab_tdr_kins)
+. 5axis/table-rotary_spindle-rotary-nutating/xyzacb-trsrn_twp/xyzacb-trsrn.ini (xyzacb_trsrn)
+. 5axis/table-rotary_spindle-rotary-nutating/xyzbca-trsrn_twp/xyzbca-trsrn.ini (xyzbca_trsrn)
 
 == User kinematics provisions
+
+There are two ways to supply custom kinematics.  Adding a kinstype to
+a module that is already in the tree is the smaller job; building a
+module of your own gives you every kinstype it provides.
+
+=== Adding a kinstype to an in-tree module
 
 Custom kinematics can be coded and tested on Run-In-Place ('RIP')
 builds.  A template file src/emc/kinematics/userkfuncs.c is provided
 in the distribution.  This file can be copied/renamed to a user
 directory and edited to supply custom kinematics with
-kinstype==2.
+kinstype==2: the in-tree modules register its USERK_OPS as that
+kinstype, so the forward and inverse in the copy are what runs.
 
 The user custom kinematics file can be compiled from out-of-tree
 source locations for rt-preempt implementations or by replacing
@@ -434,6 +489,52 @@ Preempt-rt make example:
 ----
 $ userkfuncs=/home/myname/kins/mykins.c make && sudo make setuid
 ----
+
+=== Building a switchkins module of your own
+
+A complete kinematics module can be built out-of-tree with halcompile
+using the same switchkins implementation the in-tree modules use, so
+it gets the kinematics switching, the 'kinstype.is-N' pins, the
+'coordinates=' identity mapping and the G-code and HAL controls
+without reimplementing any of them.
+
+The template is src/hal/components/switchkinscomp.comp.  Copy and
+rename it (both the file and the component name) and replace the
+example kinstype with the real kinematics.  The implementation itself
+is included:
+
+[source,c]
+----
+#include <switchkins.c>
+#include <switchkins_setup.c>
+#include <kins_util.c>
+----
+
+A realtime module cannot link a library, so the implementation arrives
+as source: switchkins.c, switchkins_setup.c and kins_util.c are
+installed beside the headers, in share/linuxcnc, and halcompile already
+looks there.  With
+a deb install they come from the linuxcnc-dev package.
+
+The module supplies switchkinsSetup() and calls switchkinsRunSetup()
+and switchkinsInit() from EXTRA_SETUP(), which halcompile runs after
+hal_init() and before hal_ready().  See <<sec:switchkins-code-notes,Code
+Notes>> for the calls.
+
+----
+$ halcompile --install user_switchkins.comp
+----
+
+[source,ini]
+----
+[KINS]
+KINEMATICS = user_switchkins
+JOINTS = 3
+----
+
+[NOTE]
+The switchkins sources are compiled into the module, so it is built
+against one source tree and has to be rebuilt when that tree changes.
 
 == Warnings
 
@@ -459,78 +560,185 @@ The management of coordinate offsets, tool compensation, and
 INI file limits may require complicated and non-standard operating
 protocols.
 
+[[sec:switchkins-code-notes]]
 == Code Notes
 
 Kinematic modules providing switchkins functionality are linked to
-the switchkins.o object (switchkins.c) that provides the module
-'main' program (rtapi_app_main()) and related functions.  This
-'main' program reads (optional) module command-line parameters
-(coordinates, sparm) and passes them to the module-provided
-function switchkinsSetup().
+the switchkins.o object (switchkins.c).  It provides
+kinematicsForward(), kinematicsInverse(), kinematicsSwitch() and
+the rest of the kinematics interface, dispatching each call to the
+kinstype currently selected, and it creates the HAL pins common to
+all switchkins modules.  It does not provide the module 'main'
+program, so a module can get that from wherever suits it.
 
-The switchkinsSetup() function identifies kinstype-specific setup
-routines and the functions for forward an inverse calculation for
-each kinstype (0,1,2) and sets a number of configuration
-settings.
+A kinstype is supplied by calling switchkinsRegisterOps(), once per
+kinstype, with the maths of that type written as functions of the
+parameter block (see the Kinematics Conventions chapter):
 
-A module can provide further kinstypes by calling
-switchkinsRegister() from within switchkinsSetup(), once per
-kinstype:
+----
+int switchkinsRegisterOps(int ktype, const kins_ops *ops);
+----
+
+The geometry of the whole module is one table, named in the kparms
+fields 'params' and 'nparams'; every kinstype reads it from the block.
+The older form, switchkinsRegister() with a setup, forward and inverse
+routine per kinstype that read pins of their own, is still accepted:
 
 ----
 int switchkinsRegister(int ktype, KS kset, KF kfwd, KI kinv);
 ----
 
 'ktype' runs from 0 to SWITCHKINS_MAX_TYPES-1 (defined in
-kinematics.h).  A kinstype has to come from one route or the
-other, so registering one that switchkinsSetup() has already
-filled in is an error, and so is leaving a gap below the highest
+kinematics.h).  Registering a kinstype twice, by
+either route, is an error, and so is leaving a gap below the highest
 kinstype provided.  Either mistake fails the module load and says
 which kinstype is at fault.
 
 Each kinstype gets its own 'kinstype.is-N' pin, so a module
 providing the usual three keeps the pin names it always had.
 
-A module should also declare what each kinstype IS, again from within
+A module also declares what each kinstype IS, with flags from
+kinematics.h:
+
+. *KINSTYPE_IDENTITY*  no transform: the joints are the world
+. *KINSTYPE_PRIMARY*   the module's working transform
+. *KINSTYPE_MACHINE*   the machine frame: the tool left out, XYZ the pivot
+                       or the flange in machine coordinates
+
+A kinstype registered with switchkinsRegisterOps() carries its flag in
+the ops table itself, as the 'identity', 'primary' or 'machine' field; a
+kinstype registered the older way gets it from a call, again from within
 switchkinsSetup():
 
 ----
 int switchkinsDeclare(int ktype, int flags);
 ----
 
-with flags from kinematics.h:
+G-code reads these declarations: 'G13.1' and 'G49' cancel to the
+kinstype declared KINSTYPE_MACHINE, 'G53.5', 'G28.5' and 'G30.5' move
+in its world, and 'G43.4' switches to the kinstype declared
+KINSTYPE_PRIMARY, whatever their numbers, so a module whose kinematics
+are not in the conventional order still gets working spellings.  The
+machine frame kinstype is the machine with the tool left out, XYZ the
+pivot or the flange in machine coordinates and the rotary letters the
+orientation as that kinstype reports it; on a machine whose slides line
+up with its frame that is the identity kinstype, so a module that
+declares no machine frame kinstype has its identity kinstype stand in,
+and every shipped machine tool module is of that kind.  A robot's
+working transform reports the flange in the base frame, the tool applied
+on top by the interpreter and not by the maths, so pumakins and
+genserkins declare that one kinstype both primary and machine: 'G13.1'
+and 'G49' leave a robot on its arm kinematics, as ABB's `tool0` and
+KUKA's `$NULLFRAME` do, and its identity kinstype is reached by number.
+A machine frame kinstype does not read the tool offset in the parameter
+block; a module whose working transform does declares a kinstype without
+it.  A module whose carriage does not line up, a slanted slide or a
+composite Y on a mill-turn, declares its machine frame kinstype
+separately and keeps KINSTYPE_IDENTITY for a kinstype whose joints
+really are the axes, since motion and the planner skip the maths on that
+flag alone.  At most one
+kinstype may be declared identity, at most one primary and at most one
+machine frame, and declaring a kinstype the module does not provide
+fails the module load.  A module that declares nothing keeps working
+exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
+are an error, since the numbers of the identity and primary kinematics
+are then a guess.
 
-. *KINSTYPE_IDENTITY*  no transform: the joints are the world
-. *KINSTYPE_PRIMARY*   the module's working transform
+When every kinstype is registered, the module calls:
 
-G-code reads these declarations: 'G13.1' cancels to the kinstype
-declared KINSTYPE_IDENTITY, whatever its number, so a module whose
-identity kinematics is not kinstype 0 still gets a working 'G13.1'.
-At most one kinstype may be declared identity, and declaring a
-kinstype the module does not provide fails the module load.  A module
-that declares nothing keeps working exactly as before for 'G12.1 P-',
-but 'G13.1' is an error, since the number of the identity kinematics
-is then a guess.
+----
+int switchkinsInit(const int comp_id, kparms* kp, const char* coordinates);
+----
 
-After calling switchkinsSetup(), rtapi_app_main() checks the
-supplied parameters, creates a HAL component, and then invokes
-the setup routine identified for each kinstype.
+which checks the supplied parameters, creates the HAL pins, the
+table's among them, selects kinstype 0, and then invokes the setup
+routine of each kinstype registered the older way.  The caller owns
+the HAL component: it does hal_init() before switchkinsInit() and
+hal_ready() after it.
 
-Each kinstype setup routine can (optionally) create HAL
-pins and set them to default values.  A setup routine is called
-once per kinstype it is registered for, so a routine used for two
-kinstypes must not create the same pin twice.  When all setup
-routines finish, rtapi_app_main() issues hal_ready() for the
-component to complete creation of the module.
+A module built this way also exports kinsDescribe(), through which a
+copy of it loaded outside realtime learns its table and the maths of
+each kinstype; the non-realtime loader and kinslimits use it.  It
+exports kinematicsSetTool() as well, through which motion hands it
+the tool offset in effect whenever that changes.  A table entry
+flagged as the tool is overwritten with it, and the entry's pin only
+matters until motion has sent anything, so a config need not net
+motion.tooloffset.z to the module.  When the offset changes, motion
+keeps the joints where they are and reads the point back from them
+under the new offset, so a tool length change with the tool axis
+tilted moves the programmed point rather than the machine; the
+interpreter reads the point the same way through the non-realtime
+loader, and motion stops the program if the two disagree.  A kinstype
+registered the older way reads its own pins and is not affected.
+
+=== Module main program
+
+A module written as a plain C file links switchkins_main.o
+(switchkins_main.c) for its rtapi_app_main().  That 'main' program
+reads the (optional) module command-line parameters (coordinates,
+sparm) and passes them to the module-provided function
+switchkinsSetup():
+
+----
+int switchkinsSetup(kparms* kp,
+                    KS* kset0, KS* kset1, KS* kset2,
+                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
+                    KI* kinv0, KI* kinv1, KI* kinv2);
+----
+
+which sets the configuration settings, names the geometry table and
+registers the kinstypes with switchkinsRegisterOps().  The pointer
+arguments are the older route for kinstypes 0,1,2; a module using
+them leaves the rest alone.  switchkinsRunSetup() in
+switchkins_setup.c is what runs switchkinsSetup() and registers what
+it returned, for the 'main' program and for kinsDescribe() alike.
+
+A module written as a halcompile component gets rtapi_app_main()
+from halcompile instead.  It supplies the same switchkinsSetup(), and
+from its EXTRA_SETUP() routine, which halcompile runs after
+hal_init() and before hal_ready(), calls switchkinsRunSetup() and
+then switchkinsInit().  The component names the objects it needs in
+hal/components/Submakefile:
+
+----
+millturn-extra-objs := emc/kinematics/switchkins.o emc/kinematics/switchkins_setup.o emc/kinematics/kins_util.o
+----
 
 === Outline
 
-The two routes in one switchkinsSetup(), with the kinematics itself
-left out.  Types 0 to 2 are filled in through the pointer arguments as
-they always were, and a fourth is registered:
+A switchkinsSetup() with the kinematics itself left out: the table,
+the ops table of the machine's own kinstype, and the shared identity
+and userk ops for the other two:
 
 [source,c]
 ----
+static const kins_param_desc my_params[] = {
+    { "pivot-length", KINS_PARAM_FLOAT, KINS_IN, 0, 100.0 },
+    { "tool-offset",  KINS_PARAM_FLOAT, KINS_IN, 1, 0.0 },   // the tool length
+};
+enum { P_PIVOT_LENGTH, P_TOOL_OFFSET };
+
+static int my_forward(const kins_params *p, kins_scratch *s,
+                      const double *joint, EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    double pivot = p->geometry[P_PIVOT_LENGTH];   // where a pin was read
+    double tool  = p->tool.tran.z;                // the tool, from wherever the caller has it
+    // ...
+}
+
+static int my_inverse(const kins_params *p, kins_scratch *s,
+                      const EmcPose *pos, double *joint,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags);
+
+static const kins_ops my_ops = {
+    .forward = my_forward,
+    .inverse = my_inverse,
+    // .work, .tool, .native and .jacobian are optional, see kins_module.h
+};
+
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
                     KF* kfwd0, KF* kfwd1, KF* kfwd2,
@@ -541,37 +749,24 @@ int switchkinsSetup(kparms* kp,
     kp->halprefix            = "mykins"; // hal pin names
     kp->required_coordinates = "xyzab";
     kp->max_joints           = strlen(kp->required_coordinates);
+    kp->params               = my_params;
+    kp->nparams              = sizeof(my_params)/sizeof(my_params[0]);
     // remaining kparms fields
 
-    *kset0 = identityKinematicsSetup;    // kinstype 0 is the startup default
-    *kfwd0 = identityKinematicsForward;
-    *kinv0 = identityKinematicsInverse;
+    switchkinsRegisterOps(0, &my_ops);              // kinstype 0 is the startup default
+    switchkinsRegisterOps(1, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(2, &USERK_OPS);
 
-    *kset1 = myKinematicsSetup;
-    *kfwd1 = myKinematicsForward;
-    *kinv1 = myKinematicsInverse;
-
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
-
-    // any further kinstype comes from switchkinsRegister(), and the
-    // numbering carries on from the three above with no gaps
-    if (switchkinsRegister(3, myOtherKinematicsSetup,
-                              myOtherKinematicsForward,
-                              myOtherKinematicsInverse)) { return -1; }
-
+    // any further kinstype is registered the same way, and the
+    // numbering carries on with no gaps
     return 0;
 } // switchkinsSetup()
 ----
 
-A module wanting fewer than three kinstypes leaves the unused pointer
-arguments alone and starts registering at the first free number.
-
 For the surrounding shape, the in-tree switchkinsSetup() routines are
 in src/emc/kinematics: 5axiskins.c, xyzac-trt-kins.c, genserkins.c,
 scarakins.c and the others listed at the top of this document.  None of
-them registers a fourth kinstype yet, so the call above has no in-tree
+them registers a fourth kinstype yet, so a call for one has no in-tree
 example to copy.
 
 // vim: set syntax=asciidoc:

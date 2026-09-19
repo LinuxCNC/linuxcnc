@@ -832,7 +832,7 @@ class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_OFFSET()
       : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_OFFSET_TYPE, sizeof(EMC_TRAJ_SET_OFFSET)),
-        offset{}
+        offset{}, point{}, have_point(0)
     {};
 
     // Sub-class update() calls base-class update()
@@ -841,6 +841,10 @@ class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EmcPose offset;
+    // where the interpreter expects the machine to stand once the offset
+    // is on, for motion to check its own answer against; only when set
+    EmcPose point;
+    int have_point;
 };
 
 class EMC_TRAJ_SET_G5X:public EMC_TRAJ_CMD_MSG {
@@ -887,6 +891,26 @@ class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     double rotation;
+};
+
+// the tilted work plane frame (G68.2, G68.3, G68.4, G69): origin in user
+// units and a rotation matrix, both in the coordinate system that was active
+// when the plane was defined
+class EMC_TRAJ_SET_G68:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_G68()
+      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_G68_TYPE, sizeof(EMC_TRAJ_SET_G68)),
+        origin{}, rotation{1, 0, 0, 0, 1, 0, 0, 0, 1}, active(0)
+    {};
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+
+    EmcPose origin;
+    double rotation[9];         // row major
+    int active;
 };
 
 class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
@@ -938,6 +962,27 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     int type;
     double vel, ini_maxvel, acc, ini_maxjerk;
     unsigned char probe_type;
+};
+
+// a move interpolated in joint space: to the world endpoint, whose joints
+// motion finds with the inverse; or to the joints given, whose world
+// position motion finds with the forward
+class EMC_TRAJ_JOINT_MOVE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_JOINT_MOVE()
+      : EMC_TRAJ_CMD_MSG(EMC_TRAJ_JOINT_MOVE_TYPE, sizeof(EMC_TRAJ_JOINT_MOVE)),
+        end{}, joints{}, have_joints(0), seconds(0.0)
+    {};
+
+    // For internal NML/CMS use only.
+    // Sub-class update() calls base-class update()
+    // cppcheck-suppress duplInheritedMember
+    void update(CMS * cms);
+
+    EmcPose end;
+    double joints[EMCMOT_MAX_JOINTS];
+    int have_joints;
+    double seconds;             /* 0 for a rapid, else the time it is to take */
 };
 
 class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
@@ -1529,6 +1574,9 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
     double rotation_xy;
+    EmcPose g68_offset;		// tilted work plane origin, in user units
+    double g68_rotation[9];	// tilted work plane rotation, row major
+    int g68_active;		// a tilted work plane is in effect
     EmcPose toolOffset;		// tool offset, in general pose form
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];
