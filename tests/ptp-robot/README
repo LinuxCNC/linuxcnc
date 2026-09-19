@@ -1,6 +1,8 @@
 The point-to-point moves on a serial robot.
 
-pumakins maps X, Y and Z to its first three joints, which turn rather
-than slide, so G53.5 refuses the machine and says which joint gives it
-away.  G53.7 names joints by number and works, and G53.4 still takes a
-Cartesian destination.
+pumakins declares its arm kinematics the machine frame as well as the
+working transform, since its world is the flange in the base frame with
+no tool, so G53.5 moves the flange along a base axis and holds the rest,
+from the arm kinematics and from the identity alike, and G13.1, G43.4
+and G49 all leave the robot on the arm kinematics.  G53.7 names joints
+by number, and G53.4 takes a Cartesian destination.
