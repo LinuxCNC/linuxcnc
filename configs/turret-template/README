@@ -1,0 +1,15 @@
+Kit de instalación de la torreta
+===============================
+
+Archivos para arrancar en una máquina nueva:
+
+* CHECKLIST.md  - checklist completa (hardware, INI, tabla, puesta en
+                  marcha, ajuste fino y solución de problemas)
+* turret.json   - configuración del controlador (editar pines; también
+                  se puede generar con el asistente del panel)
+* turret.hal    - línea loadusr (F1 o F2) + watchdog; incluir como
+                  HALFILE en el INI de la máquina
+* tool.tbl      - tabla de herramientas de ejemplo con P = estación
+
+Documentación completa: docs/src/gui/turret.adoc
+Simulador para practicar: configs/sim/turret/ (./run_sim.sh o f2)

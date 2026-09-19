@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "stations": 8,
+  "mode": "hydraulic-single-solenoid",
+  "pins": {
+    "pos1": "hm2_7i76e.0.7i76.0.0.input-00",
+    "strobe": "hm2_7i76e.0.7i76.0.0.input-01",
+    "changepos": "hm2_7i76e.0.7i76.0.0.input-02",
+    "clamped": "hm2_7i76e.0.7i76.0.0.input-03",
+    "motor": "hm2_7i76e.0.7i76.0.0.output-00",
+    "unclamp": "hm2_7i76e.0.7i76.0.0.output-01",
+    "clamp": null,
+    "interlock": "iocontrol.0.user-enable-out",
+    "watchdog_pet": "watchdog.0.input-0",
+    "tool_prepare": "iocontrol.0.tool-prepare",
+    "tool_prepared": "iocontrol.0.tool-prepared",
+    "tool_change": "iocontrol.0.tool-change",
+    "tool_changed": "iocontrol.0.tool-changed",
+    "tool_prep_pocket": "iocontrol.0.tool-prep-pocket",
+    "tool_prep_number": "iocontrol.0.tool-prep-number",
+    "toolchanger_fault": "iocontrol.0.toolchanger-fault",
+    "toolchanger_reason": "iocontrol.0.toolchanger-reason"
+  },
+  "timing": {
+    "strobe_filter_ms": 3.0,
+    "unclamp_timeout": 2.0,
+    "home_timeout": 20.0,
+    "rotate_timeout": 20.0,
+    "settle_time": 0.4,
+    "locate_timeout": 1.5,
+    "locate_stable_ms": 150.0,
+    "clamp_timeout": 2.0,
+    "max_retries": 2,
+    "lead_pulses": 0,
+    "lead_auto": true,
+    "jog_timeout": 10.0
+  },
+  "logic": {
+    "clamped_inverted": false,
+    "require_changepos": true,
+    "unclamp_before_rotate": true,
+    "interlock_required": false,
+    "abort_on_fault": false,
+    "test_enable_required": true
+  },
+  "maintenance": [
+    {"code": 1, "name": "Pinza: revisar sellos y presion", "every_changes": 50000, "every_hours": 0.0},
+    {"code": 2, "name": "Engrase de la corona", "every_changes": 500000, "every_hours": 0.0},
+    {"code": 3, "name": "Filtro hidraulico", "every_changes": 0, "every_hours": 2000.0}
+  ]
+}

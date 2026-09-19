@@ -1,0 +1,13 @@
+; Tabla de herramientas de ejemplo: T = herramienta, P = ESTACION de la torreta
+; Cada herramienta debe tener su P (si falta, la torreta da E10 y no la ubica).
+; Con [RS274NGC]LATHE_TXXXX = 1 se programa T0101, T0202, ... (no T10001).
+; WX/WZ = desgaste (se editan desde el panel o con G10 L12).
+
+T1 P1 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 1
+T2 P2 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 2
+T3 P3 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 3
+T4 P4 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 4
+T5 P5 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 5
+T6 P6 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 6
+T7 P7 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 7
+T8 P8 X0.0000 Z0.0000 D0.0000 Q0 ; estacion 8

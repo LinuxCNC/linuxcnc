@@ -26,6 +26,9 @@ the configuration and the panel stay unchanged.
 
 == Configuration
 
+A ready to copy template (configuration, HAL snippet, tool table and a
+checklist) lives in `configs/turret-template/`.
+
 The configuration is a single JSON file (for example
 `<config>/turret/turret.json`), used by the component, the HAL file and
 the panel:

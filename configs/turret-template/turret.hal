@@ -1,0 +1,25 @@
+# Torreta: controlador + configuración
+#
+# Elegí UNA de las dos implementaciones (mismos pines y mismo panel):
+
+# --- F1: manager en Python (recomendado para empezar) ---
+loadusr -W python3 -m turret.manager --config /ruta/al/config/turret.json
+
+# --- F2: componente compilado ---
+# Generar primero el .conf desde el .json:
+#     python3 -m turret.genconf turret.json
+# Compilar/instalar (una vez por versión):
+#     halcompile --install src/hal/user_comps/turret.comp
+#loadusr -W turret --config /ruta/al/config/turret.conf
+
+# Watchdog de hardware (recomendado): si el controlador muere o cuelga,
+# su salida corta el relé que alimenta las válvulas.
+# El manager alimenta watchdog.0.input-0 (pins.watchdog_pet del JSON).
+loadrt watchdog num_inputs=1
+setp watchdog.0.timeout 0.5
+net watchdog-relay watchdog.0.output hm2_7i76e.0.7i76.0.0.output-07
+
+# IMPORTANTE: no conectar nets sobre:
+#   iocontrol.0.tool-prepared / iocontrol.0.tool-changed
+#   iocontrol.0.toolchanger-fault / iocontrol.0.toolchanger-reason
+# La torreta los maneja por nombre; si están conectados reporta E10.
