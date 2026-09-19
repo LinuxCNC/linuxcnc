@@ -1,5 +1,5 @@
 #!/usr/bin/tclsh
-# switch kinematics and change axis limits
+# switch kinematics and change axis velocity limits
 set kinstype       2     ;# 2: TYPE 2 kins
 set switchkins_pin 3     ;# agree with inifile
 set max_joints     6     ;# agree with inifile
@@ -10,11 +10,12 @@ emc_init -ini $::env(INI_FILE_NAME) -quick
 package require Hal
 parse_ini $::env(INI_FILE_NAME)
 
-# SET axis limits for IDENTITY kins using INI joint limits
+# SET axis velocity and acceleration limits for IDENTITY kins using
+# INI joint limits.  The position limits stay: they are a box on the
+# machine frame, the flange, which motion reads through the arm
+# kinematics whatever type is in force
 for {set j 0} {$j < $max_joints} {incr j} {
   set l [lindex $coords $j]
-  catch {hal setp ini.$l.min_limit        [set ::JOINT_[set j](MIN_LIMIT)]}
-  catch {hal setp ini.$l.max_limit        [set ::JOINT_[set j](MAX_LIMIT)]}
   catch {hal setp ini.$l.max_velocity     [set ::JOINT_[set j](MAX_VELOCITY)]}
   catch {hal setp ini.$l.max_acceleration [set ::JOINT_[set j](MAX_ACCELERATION)]}
 }
