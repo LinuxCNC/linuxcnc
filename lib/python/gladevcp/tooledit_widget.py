@@ -17,7 +17,9 @@
 import sys, os, linuxcnc, hashlib
 import shutil # for backup of tooltable
 datadir = os.path.abspath(os.path.dirname(__file__))
-KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
+KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';', 'WX', 'WZ', 'WD']
+# liststore: 0 S, 1 T, 2 P, 3-14 floats, 15 Q, 16 comment, 17 WX, 18 WZ, 19 WD
+EMPTY_ROW = [1, 0, 0, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0, 'comment', '0', '0', '0']
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -44,7 +46,7 @@ class ToolEdit(Gtk.Box):
     __gproperties__ = {
         'font' : ( GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
-        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options',
+        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options. WX/WZ/WD are native wear.',
                     "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'lathe_display_type' : ( GObject.TYPE_BOOLEAN, 'Display Type', 'True: Lathe layout, False standard layout',
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
@@ -62,7 +64,7 @@ class ToolEdit(Gtk.Box):
         self.hide_columns =''
         self.toolinfo_num = 0
         self.toolinfo = []
-        self.wear_saved = {}
+        self.native_wear = False
         self.wTree = Gtk.Builder()
         self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
@@ -97,6 +99,11 @@ class ToolEdit(Gtk.Box):
             renderer = self.wTree.get_object(name+'1')
             renderer.connect( 'edited', self.col_editted, col+1, None)
             renderer.connect( 'editing-started', self.col_editing_started, col+1)
+            renderer.props.editable = True
+        for col, name in ((17, "cell_wx1"), (18, "cell_wz1"), (19, "cell_wd1")):
+            renderer = self.wTree.get_object(name)
+            renderer.connect('edited', self.col_editted, col, None)
+            renderer.connect('editing-started', self.col_editing_started, col)
             renderer.props.editable = True
         self.all_label = self.wTree.get_object("all_label")
 
@@ -162,24 +169,59 @@ class ToolEdit(Gtk.Box):
         window = tooledit_box.get_parent()
         window.remove(tooledit_box)
         self.pack_start(tooledit_box, expand = True, fill = True, padding = 0)
-        # If the toolfile was specified when tooledit was created load it
-        if toolfile:
-            self.reload(None)
         # check the INI file if display-type: LATHE is set
         try:
             self.inifile = linuxcnc.ini(INIPATH)
             self.lathe_display_type = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
+            self.native_wear = self.inifile.getbool("RS274NGC", "LATHE_TXXXX", fallback=False)
             self.set_lathe_display(self.lathe_display_type)
         except:
             print("No INI file found")
+        self.configure_native_wear()
+        # If the toolfile was specified when tooledit was created load it
+        if toolfile:
+            self.reload(None)
         # check linuxcnc status every second
         GLib.timeout_add(1000, self.periodic_check)
 
+    def configure_native_wear(self):
+        """Wear tab edits WX/WZ of the same tool row when LATHE_TXXXX is on."""
+        for col_id, store_col in (("x2", 17), ("z2", 18)):
+            column = self.wTree.get_object(col_id)
+            cell = self.wTree.get_object("cell_" + col_id)
+            if column is None or cell is None:
+                continue
+            if self.native_wear:
+                column.clear_attributes(cell)
+                column.add_attribute(cell, "text", store_col)
+        if self.native_wear:
+            temp = [("cell_x2", 17), ("cell_z2", 18), ("cell_comments2", 16)]
+            for name, col in temp:
+                renderer = self.wTree.get_object(name)
+                if renderer is None:
+                    continue
+                try:
+                    renderer.disconnect_by_func(self.col_editted)
+                except TypeError:
+                    pass
+                renderer.connect('edited', self.col_editted, col, 'wear')
+                try:
+                    renderer.disconnect_by_func(self.col_editing_started)
+                except TypeError:
+                    pass
+                renderer.connect('editing-started', self.col_editing_started, col)
+        for name in ("wx1", "wz1", "wd1"):
+            column = self.wTree.get_object(name)
+            if column is not None:
+                column.set_property('visible', bool(self.native_wear or self.lathe_display_type))
+
     # used to split tool and wear data by the tool number
     # if the tool number is above 10000 then its a wear offset (as per fanuc)
-    # returning true will show the row
+    # With LATHE_TXXXX, wear is WX/WZ on the same T<10000 row.
     def match_type(self, model, iter, data):
         value = model.get_value(iter, 1)
+        if self.native_wear:
+            return 0 < value < 10000
         if value < 10000:
             return not data
         return data
@@ -252,7 +294,9 @@ class ToolEdit(Gtk.Box):
         except:
             print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
-    def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]):
+    def add(self,widget,data=None):
+        if data is None:
+            data = list(EMPTY_ROW)
         self.model.append(data)
         self.num_of_col +=1
         liststore = self.model
@@ -286,7 +330,6 @@ class ToolEdit(Gtk.Box):
             return
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
-        self.wear_saved = {}
         line_number = 0
         for rawline in logfile:
             # strip the comments from line and add directly to array
@@ -303,19 +346,8 @@ class ToolEdit(Gtk.Box):
             else:
                 line = rawline
             line_number += 1
-            array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,comment]
+            array = [0, 0, 0, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0, comment, '0', '0', '0']
             toolinfo_flag = False
-            wx = wz = wd = None
-            for word in line.split():
-                if word.startswith(';'):
-                    break
-                uw = word.upper()
-                if uw.startswith('WX'):
-                    wx = word[2:]
-                elif uw.startswith('WZ'):
-                    wz = word[2:]
-                elif uw.startswith('WD'):
-                    wd = word[2:]
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
             # if i = ';' that is the comment and we have already added it
@@ -352,6 +384,11 @@ class ToolEdit(Gtk.Box):
                                     break
                             except:
                                 print(_("Tooledit widget float error"))
+                        elif offset in (17, 18, 19):
+                            try:
+                                array[offset] = f"{float(word[len(i):]):10.4f}"
+                            except:
+                                print(_("Tooledit widget float error"))
                         else:
                             try:
                                 array[offset]= f"{float(word.lstrip(i)):10.4f}"
@@ -360,12 +397,6 @@ class ToolEdit(Gtk.Box):
                         break
             if toolinfo_flag:
                 self.toolinfo = array
-            try:
-                tno = int(array[1])
-            except (TypeError, ValueError):
-                tno = 0
-            if tno and (wx is not None or wz is not None or wd is not None):
-                self.wear_saved[tno] = (wx, wz, wd)
             # add array line to liststore
             self.add(None,array)
 
@@ -402,6 +433,13 @@ class ToolEdit(Gtk.Box):
                 elif num == 16: # comments
                     test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
+                elif num in (17, 18, 19):
+                    try:
+                        val = float(str(i).replace(',', '.'))
+                    except (TypeError, ValueError):
+                        val = 0.0
+                    if val != 0.0:
+                        line = line + "%s%s " % (KEYWORDS[num], val)
                 else:
                     test = i.lstrip()
                     try:
@@ -409,15 +447,6 @@ class ToolEdit(Gtk.Box):
                     except ValueError:
                         raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
                                                     + self.toolfile + ".bak"))
-            wear = getattr(self, 'wear_saved', {}).get(values[1])
-            if wear:
-                wx, wz, wd = wear
-                if wx not in (None, ''):
-                    line = line + "WX%s " % wx
-                if wz not in (None, ''):
-                    line = line + "WZ%s " % wz
-                if wd not in (None, ''):
-                    line = line + "WD%s " % wd
 
             print(line, file=file)
         # These lines are required to make sure the OS doesn't cache the data
@@ -456,6 +485,10 @@ class ToolEdit(Gtk.Box):
 
             self.tool_window.hide()
             self.view3.hide()
+        for name in ("wx1", "wz1", "wd1"):
+            column = self.wTree.get_object(name)
+            if column is not None:
+                column.set_property('visible', bool(value or getattr(self, 'native_wear', False)))
 
     def set_font(self, value, tab='123'):
         for i in range(0, len(tab)):
@@ -533,16 +566,16 @@ class ToolEdit(Gtk.Box):
         self.edit_path = path         # row path
         self.edit_column = col        # column index
 
-    def col_editted(self, widget, path, new_text, col, filter):
-        self.validate_input(path, new_text, col)
+    def col_editted(self, widget, path, new_text, col, filt):
+        self.validate_input(path, new_text, col, filt)
 
         # depending what is edited add the right type of info integer,float or text
-        # If it's a filtered display then we must convert the path 
-    def validate_input(self, path, new_text, col):
-        if filter == 'wear':
+        # If it's a filtered display then we must convert the path
+    def validate_input(self, path, new_text, col, filt=None):
+        if filt == 'wear':
             (store_path,) = self.wear_filter.convert_path_to_child_path(path)
             path = store_path
-        elif filter == 'tool':
+        elif filt == 'tool':
             (store_path,) = self.tool_filter.convert_path_to_child_path(path)
             path = store_path
 
@@ -551,8 +584,8 @@ class ToolEdit(Gtk.Box):
                 self.model[path][col] = int(new_text)
             except:
                 pass
-        # validate input for float columns
-        elif col in range(3,15):
+        # validate input for float columns (geometry and WX/WZ/WD)
+        elif col in range(3,15) or col in (17, 18, 19):
             try:
                 self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:
@@ -571,7 +604,7 @@ class ToolEdit(Gtk.Box):
             except:
                 pass
         #print path,new_text, col
-        if filter in('wear','tool'):
+        if filt in('wear','tool'):
             self.save(None)
 
         # this makes the checkboxes actually update

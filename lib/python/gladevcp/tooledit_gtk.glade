@@ -38,6 +38,12 @@
       <column type="gint"/>
       <!-- column-name comments -->
       <column type="gchararray"/>
+      <!-- column-name wx wear X -->
+      <column type="gchararray"/>
+      <!-- column-name wz wear Z -->
+      <column type="gchararray"/>
+      <!-- column-name wd wear diameter -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkTreeModelFilter" id="tool_modelfilter">
@@ -266,6 +272,39 @@
                               <object class="GtkCellRendererText" id="cell_orient1"/>
                               <attributes>
                                 <attribute name="text">15</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="wx1">
+                            <property name="title" translatable="yes">WX Wear</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cell_wx1"/>
+                              <attributes>
+                                <attribute name="text">17</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="wz1">
+                            <property name="title" translatable="yes">WZ Wear</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cell_wz1"/>
+                              <attributes>
+                                <attribute name="text">18</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="wd1">
+                            <property name="title" translatable="yes">WD Wear</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cell_wd1"/>
+                              <attributes>
+                                <attribute name="text">19</attribute>
                               </attributes>
                             </child>
                           </object>
