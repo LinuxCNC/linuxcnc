@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""With LATHE_TXXXX off: no migration and no native wear in offsets."""
+import sys
+
+text = open(sys.argv[1] if len(sys.argv) > 1 else "result").read()
+# T1 has no wear; the fake T10001 row must NOT be migrated with the switch off
+if "USE_TOOL_LENGTH_OFFSET(1.0000 0.0000 2.0000" not in text:
+    print("T1 offset was changed with LATHE_TXXXX off (want X=1 Z=2)")
+    sys.exit(1)
+# T2 has native WX/WZ; they must not be applied with the switch off
+if "USE_TOOL_LENGTH_OFFSET(3.0000 0.0000 4.0000" not in text:
+    print("T2 native wear was applied with LATHE_TXXXX off (want X=3 Z=4)")
+    sys.exit(1)
+for bad in ("0.9800", "2.0100", "3.0500", "3.9700"):
+    if bad in text:
+        print("unexpected wear application with LATHE_TXXXX off: %s" % bad)
+        sys.exit(1)
+sys.exit(0)
