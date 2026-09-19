@@ -74,6 +74,8 @@ int Task::iocontrol_hal_init(void)
     CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->tool_prepared,    0, IOC0".tool-prepared"));
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &iocontrol_data->tool_change,      0, IOC0".tool-change"));
     CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->tool_changed,     0, IOC0".tool-changed"));
+    CHK(hal_pin_new_bool(comp_id, HAL_IN,  &iocontrol_data->toolchanger_fault, 0, IOC0".toolchanger-fault"));
+    CHK(hal_pin_new_si32(comp_id, HAL_IN,  &iocontrol_data->toolchanger_reason, 0, IOC0".toolchanger-reason"));
     if(hal_ready(comp_id) < 0) {
         hal_exit(comp_id);
         comp_id = -1;
@@ -664,6 +666,23 @@ int Task::emcToolSetNumber(int number)//EMC_TOOL_SET_NUMBER
 ********************************************************************/
 int Task::read_tool_inputs(void)
 {
+    // Toolchanger fault/reason driven by the tool change logic; exposed as
+    // #5600/#5601 and reported by emctaskmain.cc while a change is active.
+    if (hal_get_bool(iocontrol_data->toolchanger_fault)) {
+        emcioStatus.fault = 1;
+        emcioStatus.reason = hal_get_si32(iocontrol_data->toolchanger_reason);
+        // Only fail the IO state machine while a tool change is active;
+        // a fault with the turret idle is reported through #5600/#5601
+        // and the toolchanger pins, without erroring the machine.
+        if (hal_get_bool(iocontrol_data->tool_prepare) ||
+            hal_get_bool(iocontrol_data->tool_change)) {
+            emcioStatus.status = RCS_STATUS::ERROR;
+        }
+    } else if (emcioStatus.fault) {
+        emcioStatus.fault = 0;
+        emcioStatus.reason = 0;
+    }
+
     if (hal_get_bool(iocontrol_data->tool_prepare) && hal_get_bool(iocontrol_data->tool_prepared)) {
         emcioStatus.tool.pocketPrepped = hal_get_si32(iocontrol_data->tool_prep_index); //check if tool has been (idx) prepared
         hal_set_bool(iocontrol_data->tool_prepare, 0);

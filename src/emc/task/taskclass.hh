@@ -46,6 +46,9 @@ struct iocontrol_str {
     //tool-change
     hal_bool_t tool_change;      /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
     hal_bool_t tool_changed;     /* input, notifies tool has been changed */
+    //toolchanger fault reporting (driven by the tool change logic)
+    hal_bool_t toolchanger_fault;   /* input, TRUE while the toolchanger reports a fault */
+    hal_sint_t toolchanger_reason;  /* input, fault reason code (see #5601) */
 
     // note: spindle control has been moved to motion
 };                        //pointer to the HAL-struct
