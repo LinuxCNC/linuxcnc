@@ -540,7 +540,7 @@ class JoyPad(QtWidgets.QWidget):
 class HALPinType(enum.IntEnum):
     NONE = 0
     BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.HAL_S32
+    S32  = hal.Type.SINT # Removed
     FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
@@ -553,7 +553,7 @@ class HALPad(JoyPad, _HalWidgetBase):
     # older version of pyqt5 need this as well as QEnum
     NONE = 0
     BIT  = hal.Type.BOOL # Deprecated
-    S32  = hal.HAL_S32
+    S32  = hal.Type.SINT # Removed
     FLOAT= hal.Type.REAL # Deprecated
     BOOL = hal.Type.BOOL
     SINT = hal.Type.SINT
@@ -602,7 +602,7 @@ class HALPad(JoyPad, _HalWidgetBase):
             data = True
         elif self._pin_type == HALPinType.REAL:
             data = float(self['_trueOutput{}'.format(btncode)])
-        elif self._pin_type == HALPinType.S32:
+        elif self._pin_type == HALPinType.SINT:
             data = int(self['_trueOutput{}'.format(btncode)])
         else:
             return
@@ -619,7 +619,7 @@ class HALPad(JoyPad, _HalWidgetBase):
             data = False
         elif self._pin_type == HALPinType.REAL:
             data = float(self._falseOutput)
-        elif self._pin_type == HALPinType.S32:
+        elif self._pin_type == HALPinType.SINT:
             data = int(self._falseOutput)
         else:
             return

@@ -976,7 +976,7 @@ panel</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="ypad">6</property>
-                                            <property name="label" translatable="yes"> Number of analog (s32) in pins:</property>
+                                            <property name="label" translatable="yes"> Number of analog (sint) in pins:</property>
                                             <property name="use-underline">True</property>
                                             <property name="wrap-mode">word-char</property>
                                             <property name="mnemonic-widget">s32in</property>
@@ -992,7 +992,7 @@ panel</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="ypad">5</property>
-                                            <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
+                                            <property name="label" translatable="yes"> Number of analog (sint) out pins:</property>
                                             <property name="use-underline">True</property>
                                             <property name="mnemonic-widget">s32out</property>
                                             <property name="xalign">0</property>

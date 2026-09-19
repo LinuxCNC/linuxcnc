@@ -266,14 +266,14 @@ class HandlerClass:
         pin = QHAL.newPin("spindle-volts", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_pwr_changed(v))
 
-        pin = QHAL.newPin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-fault-u32", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_fault_changed(v))
-        pin = QHAL.newPin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-fault", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.spindle_fault_changed(v))
 
-        pin = QHAL.newPin("spindle-modbus-errors-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-modbus-errors-u32", QHAL.HAL_UINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.mb_errors_changed(v))
-        pin = QHAL.newPin("spindle-modbus-errors", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newPin("spindle-modbus-errors", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.mb_errors_changed(v))
 
         pin = QHAL.newPin("spindle-modbus-connection", QHAL.HAL_BOOL, QHAL.HAL_IN)
@@ -288,8 +288,8 @@ class HandlerClass:
         QHAL.newPin("eoffset-enable", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newPin("eoffset-clear", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = False
-        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        QHAL.newPin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-count", QHAL.HAL_SINT, QHAL.HAL_OUT)
         pin = QHAL.newPin("eoffset-is-active", QHAL.HAL_BOOL, QHAL.HAL_IN)
 
 
@@ -297,13 +297,13 @@ class HandlerClass:
         pin = QHAL.newPin("eoffset-value", QHAL.HAL_REAL, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.external_offset_state_changed(v))
 
-        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_SINT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.comp_count_changed(v))
         QHAL.newPin("comp-on", QHAL.HAL_BOOL, QHAL.HAL_OUT)
         QHAL.newPin("spindle-lift-on", QHAL.HAL_BOOL, QHAL.HAL_OUT)
 
         # MPG scrolling pin
-        self.pin_mpg_in = QHAL.newPin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in = QHAL.newPin('mpg-in',QHAL.HAL_SINT, QHAL.HAL_IN)
         self.pin_mpg_in.pinValueChanged.connect(lambda p,v: self.external_mpg(v))
 
         # dialog answer pins

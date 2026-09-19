@@ -8,24 +8,24 @@
       <text>"max:"</text>
       <font>("Helvetica",14)</font>
     </label>
-    <u32>
+    <uint>
       <halpin>"max-iter"</halpin>
       <font>("Helvetica",14)</font>
       <format>"3d"</format>
       <width>3</width>
-    </u32>
+    </uint>
    </hbox>
    <hbox>
     <label>
       <text>"last: "</text>
       <font>("Helvetica",14)</font>
     </label>
-    <u32>
+    <uint>
       <halpin>"last-iter"</halpin>
       <font>("Helvetica",14)</font>
       <format>"3d"</format>
       <width>3</width>
-    </u32>
+    </uint>
    </hbox>
   </vbox>
 </labelframe>

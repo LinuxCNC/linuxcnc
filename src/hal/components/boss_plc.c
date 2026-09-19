@@ -489,7 +489,7 @@ Plc_Export(Plc *this, int compId, int id)
 
     // Export functions.
     if(!error){
-        error = hal_export_functf(Plc_Refresh, this, 1, 0, compId, "boss_plc.%d.refresh", id);
+        error = hal_export_functf(Plc_Refresh, this, 0, compId, "boss_plc.%d.refresh", id);
     }
 
     // Restore saved message level.
