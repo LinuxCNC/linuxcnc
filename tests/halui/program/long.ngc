@@ -1,0 +1,5 @@
+(six seconds out along X, six back: long enough to pause, resume and stop)
+G20 G90 G17
+G1 X3 F30
+G1 X0 F30
+M2
