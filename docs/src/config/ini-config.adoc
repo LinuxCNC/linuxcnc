@@ -1206,6 +1206,14 @@ These parameters are Homing related, for a better explanation read the <<cha:hom
   Velocity in machine units per second from home latch position to home position.
   If left at 0 or not included in the joint rapid velocity is used.
   Must be a positive number.
+* `HOME_SEARCH_DIST = 0.0` - (real)
+  Farthest the home search move may travel in machine units without finding the switch.
+  Past it the joint stops and the homing fails.
+  Zero (the default) leaves the move bounded only by twice the joint's travel.
+* `HOME_LATCH_DIST = 0.0` - (real)
+  Farthest the back-off, latch and index search moves may each travel in machine units without result.
+  Past it the joint moves back to where that move began and the homing fails.
+  Zero (the default) leaves those moves bounded only by twice the joint's travel.
 * `HOME_USE_INDEX = NO` - (bool)
   If the encoder used for this joint has an index pulse, and the motion card has provision for this signal you may set it to yes.
   When it is yes, it will affect the kind of home pattern used.

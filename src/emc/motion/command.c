@@ -716,6 +716,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	                            emcmotCommand->home_final_vel,
 	                            emcmotCommand->search_vel,
 	                            emcmotCommand->latch_vel,
+	                            emcmotCommand->search_dist,
+	                            emcmotCommand->latch_dist,
 	                            emcmotCommand->flags,
 	                            emcmotCommand->home_sequence,
 	                            emcmotCommand->volatile_home

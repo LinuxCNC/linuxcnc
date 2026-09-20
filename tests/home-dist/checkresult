@@ -1,0 +1,4 @@
+#!/bin/sh
+# Success or failure of this test is handled in the test.sh script, if we
+# get this far it's a success.
+exit 0
