@@ -1,0 +1,7 @@
+# halui pins wired from a regular HALFILE. The startup script runs HAL files
+# only after halui is ready, and configs rely on that: this must keep loading
+# if halui ever moves into task.
+net machine-is-on-led   halui.machine.is-on
+net remote-estop        halui.estop.activate
+net remote-estop-reset  halui.estop.reset
+net remote-mode-mdi     halui.mode.mdi
