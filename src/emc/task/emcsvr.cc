@@ -59,7 +59,7 @@ static int iniLoad(const char *filename)
 
     if(emc_debug & EMC_DEBUG_CONFIG)
         fmt::print("config file \"{}\" loaded successfully.\n",
-                   filename ? filename : "(null)");
+                   filename);
 
     return 0;
 }

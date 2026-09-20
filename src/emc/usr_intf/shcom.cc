@@ -771,25 +771,25 @@ int sendProgramOpen(const char *program)
         /* open file */
         FILE *fd;
         if(!(fd = fopen(program, "r"))) {
-            fmt::print(stderr,"fopen({}) error: {}\n", program ? program : "(null)", strerror(errno));
+            fmt::print(stderr,"fopen({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         /* get filesize */
         if(fseek(fd, 0L, SEEK_END) != 0) {
             fclose(fd);
-            fmt::print(stderr,"fseek({}) error: {}\n", program ? program : "(null)", strerror(errno));
+            fmt::print(stderr,"fseek({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         long ftpos = ftell(fd);
         msg.remote_filesize = ftpos;
         if(ftpos < 0) {
             fclose(fd);
-            fmt::print(stderr,"ftell({}) error: {}\n", program ? program : "(null)", strerror(errno));
+            fmt::print(stderr,"ftell({}) error: {}\n", program, strerror(errno));
             return -1;
         }
         if(fseek(fd, 0L, SEEK_SET) != 0) {
             fclose(fd);
-            fmt::print(stderr,"fseek({}) error: {}\n", program ? program : "(null)", strerror(errno));
+            fmt::print(stderr,"fseek({}) error: {}\n", program, strerror(errno));
             return -1;
         }
 
@@ -798,7 +798,7 @@ int sendProgramOpen(const char *program)
             size_t bytes_read = fread(&msg.remote_buffer, 1, sizeof(msg.remote_buffer), fd);
             /* read error? */
             if(bytes_read <= 0 && ferror(fd)) {
-                fmt::print(stderr,"fread({}) error: {}\n", program ? program : "(null)", strerror(errno));
+                fmt::print(stderr,"fread({}) error: {}\n", program, strerror(errno));
                 res = -1;
                 break;
             }

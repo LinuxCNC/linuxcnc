@@ -87,7 +87,8 @@ int sockConnect(char *host, unsigned short int port)
   if (sockInitSockaddr(&servername, host, port) < 0)
     return -1;
 
-  err = connect(sock, (struct sockaddr *) &servername, sizeof (servername));
+  err = connect(sock, reinterpret_cast<struct sockaddr *>(&servername),
+                sizeof (servername));
 #ifdef WINSOCK2        
   if (err == INVALID_SOCKET) {
 #else

@@ -191,7 +191,7 @@ int emcErrorBufferOKtoWrite(int space, const char *caller)
     }
     if (etime() >= send_errorchan_timout) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("timeout waiting for error channel to drain, caller=`{}' request={}\n", caller ? caller : "(null)", space);
+	    fmt::print("timeout waiting for error channel to drain, caller=`{}' request={}\n", caller, space);
 	}
 	return -1;
     } else {
@@ -348,7 +348,7 @@ int emcSystemCmd(char *s)
 	// something's already running, and we can only handle one
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    fmt::print("emcSystemCmd: abandoning process {}, running ``{}''\n",
-		 emcSystemCmdPid, s ? s : "(null)");
+		 emcSystemCmdPid, s);
 	}
     }
 
@@ -357,7 +357,7 @@ int emcSystemCmd(char *s)
     if (-1 == emcSystemCmdPid) {
 	// we're still the parent, with no child created
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("system command ``{}'' can't be executed\n", s ? s : "(null)");
+	    fmt::print("system command ``{}'' can't be executed\n", s);
 	}
 	return -1;
     }
@@ -369,7 +369,7 @@ int emcSystemCmd(char *s)
 	execvp(argv[0], argv);
 	// if we get here, we didn't exec
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    fmt::print("emcSystemCmd: can't execute ``{}''\n", s ? s : "(null)");
+	    fmt::print("emcSystemCmd: can't execute ``{}''\n", s);
 	}
 	exit(-1);
     }
@@ -2543,7 +2543,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_SELECT_KINS_TYPE:
-	kSwitch_msg = reinterpret_cast<EMC_TRAJ_SELECT_KINS *>(cmd);
+	kSwitch_msg = static_cast<EMC_TRAJ_SELECT_KINS *>(cmd);
 	retval =  emcSelectKinsType(kSwitch_msg->switchkins_type);
 	break;
 
