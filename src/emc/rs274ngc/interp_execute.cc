@@ -259,8 +259,14 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 				  (_("Invalid spindle ($) number in Spindle Feed command")));
 		  settings->active_spindle = (int)block->dollar_number;
 	  }
-      status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
-      CHP(status);
+      if (settings->fanuc_lathe && block->g_modes[GM_FEED_MODE] == G_94 &&
+          block->motion_to_be == G_94) {
+          /* G94 with axis words is the Fanuc system A facing cycle, not a
+             feed mode change; keep the current feed mode. */
+      } else {
+          status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
+          CHP(status);
+      }
 
   }
   if (block->f_flag){
@@ -274,7 +280,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
       }
       /* INVERSE_TIME is handled elsewhere */
   }
-  if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)){
+  if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED) &&
+      !(settings->fanuc_lathe && block->g_modes[GM_MODAL_0] == G_50)) {
     if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
         return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
     } else {

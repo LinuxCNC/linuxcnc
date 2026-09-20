@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""Fanuc system A G50: S sets the spindle speed clamp used by G96, X/Z
+set the coordinate system; G98/G99 select per minute / per revolution."""
+import sys
+
+text = open(sys.argv[1] if len(sys.argv) > 1 else "result").read()
+
+expected = [
+    # G50 S2000 with G96 S300: the clamp survives the G96 with no D word
+    "SET_SPINDLE_MODE(0 2000.0000)",
+    # G50 X5 Z2 with the tool at X1 Z0.1: offsets -4 / -1.9
+    "SET_G92_OFFSET(-4.0000, 0.0000, -1.9000, 0.0000, 0.0000, 0.0000)",
+    # G98 per minute, G99 per revolution
+    "SET_FEED_MODE(0, 0)",
+    "SET_FEED_MODE(0, 1)",
+]
+
+pos = 0
+for want in expected:
+    found = text.find(want, pos)
+    if found < 0:
+        print("missing or out of order: %s" % want)
+        sys.exit(1)
+    pos = found + len(want)
+sys.exit(0)

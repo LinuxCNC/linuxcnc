@@ -174,7 +174,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   mode1 = block->g_modes[GM_MOTION];
   mode_zero_covets_axes =
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
-     || (mode0 == G_52) || (mode0 == G_92));
+     || (mode0 == G_52) || (mode0 == G_92)
+     || (settings->fanuc_lathe && (mode0 == G_50)));
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
@@ -197,6 +198,16 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;
+  } else if (settings->fanuc_lathe && axis_flag &&
+             ((block->g_modes[GM_DISTANCE_MODE] == G_90) ||
+              (block->g_modes[GM_FEED_MODE] == G_94))) {
+    /* Fanuc lathe system A one-shot cycles: G90 with axis words is the
+       OD/ID turning cycle and G94 with axis words is the facing cycle.
+       Without axis words G90 keeps meaning absolute mode and G94 keeps
+       meaning units-per-minute feed mode.  U/W are incremental X/Z, as in
+       the G7x profiles. */
+    block->motion_to_be =
+      (block->g_modes[GM_DISTANCE_MODE] == G_90) ? G_90 : G_94;
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
     CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
     CHKS(((!axis_flag) &&

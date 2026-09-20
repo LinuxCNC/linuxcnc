@@ -2868,8 +2868,22 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
     enqueue_SET_FEED_MODE(settings->active_spindle , 1);
     settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
+  } else if (g_code == G_98) {
+    /* Fanuc system A: G98 is feed per minute (the LinuxCNC G94) */
+    CHKS((!settings->fanuc_lathe), "BUG: Code not G93, G94, G95, G98 or G99");
+    settings->feed_mode = FEED_MODE::UNITS_PER_MINUTE;
+    enqueue_SET_FEED_MODE(0, 0);
+    settings->feed_rate = 0.0;
+    enqueue_SET_FEED_RATE(0);
+  } else if (g_code == G_99) {
+    /* Fanuc system A: G99 is feed per revolution (the LinuxCNC G95) */
+    CHKS((!settings->fanuc_lathe), "BUG: Code not G93, G94, G95, G98 or G99");
+    settings->feed_mode = FEED_MODE::UNITS_PER_REVOLUTION;
+    enqueue_SET_FEED_MODE(settings->active_spindle , 1);
+    settings->feed_rate = 0.0;
+    enqueue_SET_FEED_RATE(0);
   } else
-    ERS("BUG: Code not G93, G94, or G95");
+    ERS("BUG: Code not G93, G94, G95, G98 or G99");
   return INTERP_OK;
 }
 
@@ -4444,6 +4458,8 @@ int Interp::convert_modal_0(int code,    						//!< G-code, must be from group 0
     CHP(convert_savehome(code, block, settings));
   } else if (code == G_28_2) {
     CHP(convert_home_cycle(block, settings));
+  } else if (code == G_50) {
+    CHP(convert_fanuc_g50(block, settings));
   } else if ((code == G_52) || (code == G_92)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if ((code == G_5_3)||(code == G_6_3)) { // jjf
@@ -4506,6 +4522,27 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   int bi = block->b_flag && (-1 != settings->b_indexer_jnum);
   int ci = block->c_flag && (-1 != settings->c_indexer_jnum);
 
+  // Fanuc lathe system A has no U/W axes: they are the incremental X/Z
+  // words, relative to the position at the start of the block.
+  if (settings->fanuc_lathe) {
+      CHKS((block->u_flag && block->x_flag),
+           _("Cannot use U and X in the same block"));
+      CHKS((block->w_flag && block->z_flag),
+           _("Cannot use W and Z in the same block"));
+      if (block->u_flag) {
+          block->x_number = settings->current_x +
+              (settings->lathe_diameter_mode ? block->u_number / 2.0
+                                             : block->u_number);
+          block->x_flag = true;
+          block->u_flag = false;
+      }
+      if (block->w_flag) {
+          block->z_number = settings->current_z + block->w_number;
+          block->z_flag = true;
+          block->w_flag = false;
+      }
+  }
+
 
   if (motion != G_0) {
       CHKS((ai), (_("Indexing axis %c can only be moved with G0")), 'A');
@@ -4544,6 +4581,8 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
+  } else if (settings->fanuc_lathe && is_fanuc_lathe_cycle(motion)) {
+    CHP(convert_fanuc_cycle(motion, block, settings));
   } else if (is_user_defined_g_code(motion)) {
       CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
@@ -5289,6 +5328,9 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
 			if(block->d_flag) {
 				settings->css_maximum[s] = fabs(block->d_number_float);
 				enqueue_SET_SPINDLE_MODE(s, fabs(block->d_number_float));
+			} else if (settings->fanuc_lathe && settings->css_maximum[s] > 0.0) {
+				/* keep the clamp set by G50 S */
+				enqueue_SET_SPINDLE_MODE(s, settings->css_maximum[s]);
 			} else {
 				settings->css_maximum[s] = 0.0;
 				enqueue_SET_SPINDLE_MODE(s, 1e30);
@@ -5700,6 +5742,19 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   settings->motion_mode = move;
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
+
+  // Fanuc lathe cycles keep the programmed X/Z words as their own modal
+  // values, separate from the cycle start point the tool returns to.
+  if (settings->fanuc_lathe && (move == G_0 || move == G_1)) {
+      if (block->x_flag) {
+          settings->fanuc_cycle_x = end_x;
+          settings->fanuc_cycle_x_set = true;
+      }
+      if (block->z_flag) {
+          settings->fanuc_cycle_z = end_z;
+          settings->fanuc_cycle_z_set = true;
+      }
+  }
 
   if (move == G_1) {
       inverse_time_rate_straight(end_x, end_y, end_z,

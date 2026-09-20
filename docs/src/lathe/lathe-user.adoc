@@ -160,6 +160,12 @@ See the motion man page and the <<cha:spindle-control,Spindle Control Example>> 
 The G76 threading cycle is used for both internal and external threads.
 For more information see the <<gcode:g76,G76>> Section.
 
+.Fanuc Programs
+Programs written for a Fanuc lathe in G-code system A can use the
+G90/G92/G94 cycles, the G98/G99 feed modes and G50 by setting
+`[RS274NGC]FANUC_LATHE = 1`.
+See <<gcode:fanuc-lathe,Fanuc Lathe G-code System A>>.
+
 .Constant Surface Speed
 CSS or Constant Surface Speed uses the machine X origin modified by the tool X offset to compute the spindle speed in RPM.
 CSS will track changes in tool offsets.

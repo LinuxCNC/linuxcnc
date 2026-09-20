@@ -651,6 +651,12 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   `WX`/`WZ` when this option is enabled (existing wear is never
   overwritten); programs must be changed to `T0101`. Off by default so
   mill `T101` remains tool 101. See <<sec:select-tool,T: Select Tool>>.
+* `FANUC_LATHE = 0` (Default: 0) +
+  Fanuc lathe G-code system A.  `G90`/`G94` with axis words become the
+  turning and facing cycles, `G92` the threading cycle, `G98`/`G99` the
+  feed modes and `G50` the spindle speed clamp / coordinate system
+  setting.  Without axis words `G90` and `G94` keep their LinuxCNC
+  meaning.  See <<gcode:fanuc-lathe,Fanuc Lathe G-code System A>>.
 * 'G73_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)

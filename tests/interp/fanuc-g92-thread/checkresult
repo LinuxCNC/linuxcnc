@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Fanuc system A G92 threading cycle: one synchronized pass per block,
+repeated by X-only blocks, then rapid back to the cycle start point."""
+import sys
+
+text = open(sys.argv[1] if len(sys.argv) > 1 else "result").read()
+
+expected = [
+    # G0 X2 Z0.2, then the first pass to X1.9
+    "STRAIGHT_TRAVERSE(2.0000, 0.0000, 0.2000",
+    "STRAIGHT_TRAVERSE(1.9000, 0.0000, 0.2000",
+    "START_SPEED_FEED_SYNC(0.050000,0)",
+    "STRAIGHT_FEED(1.9000, 0.0000, -1.0000",
+    "STRAIGHT_TRAVERSE(2.0000, 0.0000, -1.0000",
+    "STRAIGHT_TRAVERSE(2.0000, 0.0000, 0.2000",
+    # X1.8 repeats the cycle with the same lead and Z
+    "STRAIGHT_TRAVERSE(1.8000, 0.0000, 0.2000",
+    "START_SPEED_FEED_SYNC(0.050000,0)",
+    "STRAIGHT_FEED(1.8000, 0.0000, -1.0000",
+    "STRAIGHT_TRAVERSE(2.0000, 0.0000, -1.0000",
+    "STRAIGHT_TRAVERSE(2.0000, 0.0000, 0.2000",
+]
+
+pos = 0
+for want in expected:
+    found = text.find(want, pos)
+    if found < 0:
+        print("missing or out of order: %s" % want)
+        sys.exit(1)
+    pos = found + len(want)
+sys.exit(0)

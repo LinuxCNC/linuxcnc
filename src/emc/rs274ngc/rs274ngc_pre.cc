@@ -848,6 +848,7 @@ int Interp::init()
   _setup.tool_change_quill_up = 0;
   _setup.tool_change_with_spindle_on = 0;
   _setup.lathe_txxxx = false;
+  _setup.fanuc_lathe = false;
   if (_setup.length_units == CANON_UNITS_INCHES) {
       _setup.parameter_g73_peck_clearance = .050;
       _setup.parameter_g83_peck_clearance = .050;
@@ -903,6 +904,7 @@ int Interp::init()
           if (inifile.findBoolV("RETAIN_G43", "RS274NGC", false))
               _setup.feature_set |= FEATURE_RETAIN_G43;
           _setup.lathe_txxxx = inifile.findBoolV("LATHE_TXXXX", "RS274NGC", false);
+          _setup.fanuc_lathe = inifile.findBoolV("FANUC_LATHE", "RS274NGC", false);
           if (inifile.findBoolV("OWORD_NARGS", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_N_ARGS;
           if (inifile.findBoolV("NO_DOWNCASE_OWORD", "RS274NGC", false))
@@ -1054,6 +1056,17 @@ int Interp::init()
               Log("warning: [RS274NGC]LATHE_TXXXX is enabled but a T remap is"
                   " configured; the remap takes precedence and the native"
                   " Taa ww word is not used\n");
+          }
+
+          // [RS274NGC]FANUC_LATHE redefines G92, G98, G99 and G50.  A remap
+          // of one of those codes is dispatched before the gate, so it would
+          // silently keep the LinuxCNC meaning.
+          if (_setup.fanuc_lathe &&
+              (_setup.g_remapped[G_92] || _setup.g_remapped[G_98] ||
+               _setup.g_remapped[G_99] || _setup.g_remapped[G_50])) {
+              Log("warning: [RS274NGC]FANUC_LATHE is enabled but a remap of"
+                  " G92, G98, G99 or G50 is configured; the remap takes"
+                  " precedence over the Fanuc meaning\n");
           }
 
           // if exist and within bounds, apply INI file arc tolerances
@@ -1236,6 +1249,9 @@ int Interp::init()
   _setup.offset_map.clear();
 
   _setup.lathe_diameter_mode = false;
+  _setup.fanuc_cycle_x_set = false;
+  _setup.fanuc_cycle_z_set = false;
+  _setup.fanuc_cycle_r_set = false;
   _setup.parameters[5599] = 1.0; // enable (DEBUG, ) output
 
   memcpy(_readers, default_readers, sizeof(default_readers));
@@ -1250,6 +1266,14 @@ int Interp::init()
   if(!(axis_mask & AXIS_MASK_U)) _readers[(int)'u'] = NULL;
   if(!(axis_mask & AXIS_MASK_V)) _readers[(int)'v'] = NULL;
   if(!(axis_mask & AXIS_MASK_W)) _readers[(int)'w'] = NULL;
+
+  if (_setup.fanuc_lathe) {
+      /* Fanuc lathe system A: U/W are the incremental X/Z words, not axes,
+         and must be readable even when the machine has no U/W axes.
+         convert_motion folds them into X/Z at execution time. */
+      _readers[(int)'u'] = default_readers[(int)'u'];
+      _readers[(int)'w'] = default_readers[(int)'w'];
+  }
 
   synch(); //synch first, then update the interface
 

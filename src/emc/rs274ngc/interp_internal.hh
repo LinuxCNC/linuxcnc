@@ -832,6 +832,14 @@ struct setup
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool lathe_txxxx;               // Fanuc Taa ww: T changes tool and applies geom+wear
+  bool fanuc_lathe;               // Fanuc lathe G-code system A: G90/G92/G94 cycles,
+                                  // G98/G99 feed modes, G50 clamp/coordinate set
+  bool fanuc_cycle_x_set;         // G90/G92/G94 modal X programmed value
+  bool fanuc_cycle_z_set;         // G90/G92/G94 modal Z programmed value
+  bool fanuc_cycle_r_set;         // G90 modal taper R
+  double fanuc_cycle_x;
+  double fanuc_cycle_z;
+  double fanuc_cycle_r;
   bool mdi_interrupt;
   int feature_set;
 
@@ -882,6 +890,13 @@ extern class PythonPlugin *python_plugin;
 
 inline bool is_a_cycle(int motion) {
     return ((motion > G_80) && (motion < G_90)) || (motion == G_73) || (motion == G_74);
+}
+
+// Fanuc lathe G-code system A one-shot cycles: G90 (turning), G92 (threading)
+// and G94 (facing).  In this mode they live in the motion group and are
+// repeated modally by axis-only blocks.
+inline bool is_fanuc_lathe_cycle(int motion) {
+    return (motion == G_90) || (motion == G_92) || (motion == G_94);
 }
 /*
 

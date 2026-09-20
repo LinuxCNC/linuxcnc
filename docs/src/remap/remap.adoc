@@ -133,6 +133,11 @@ Do not combine both: a `T` remap takes precedence over `LATHE_TXXXX` and
 silently disables the built-in `Taa ww` word.  LinuxCNC logs a warning at
 startup if both are configured.
 
+With `[RS274NGC]FANUC_LATHE = 1` the codes `G92`, `G98`, `G99` and `G50`
+take the Fanuc system A meaning (see
+<<gcode:fanuc-lathe,Fanuc Lathe G-code System A>>).  A remap of one of
+them keeps the remapped meaning, and LinuxCNC logs a warning at startup.
+
 This remap also adds wear offsets to the tool offset, e.g. T201 would index to tool 2 (with tool 2's tool offset) and adds wear offset 1.
 In the tool table, tools numbers above 10000 are wear offsets, e.g. in the tool table, tool 10001 would be wear offset 1.
 

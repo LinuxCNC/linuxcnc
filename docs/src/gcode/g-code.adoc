@@ -108,12 +108,12 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g87,G87>>                 |Back-boring Cycle _(not yet implemented)_
 |<<gcode:g88,G88>>                 |Boring Cycle, Stop, Manual Out _(not yet implemented)_
 |<<gcode:g89,G89>>                 |Boring Cycle, Dwell, Feed Out
-|<<gcode:g90-g91,G90 G91>>         |Distance Mode
+|<<gcode:g90-g91,G90 G91>>         |Distance Mode (<<gcode:fanuc-lathe,Fanuc lathe system A>>: G90 is the turning cycle)
 |<<gcode:g90.1-g91.1,G90.1 G91.1>> |Arc Distance Mode
-|<<gcode:g92,G92>>                 |Coordinate System Offset
+|<<gcode:g92,G92>>                 |Coordinate System Offset (<<gcode:fanuc-lathe,Fanuc lathe system A>>: G92 is the threading cycle)
 |<<gcode:g92.1-g92.2,G92.1 G92.2>> |Cancel G92 Offsets
 |<<gcode:g92.3,G92.3>>             |Restore G92 Offsets
-|<<gcode:g93-g94-g95,G93 G94 G95>> |Feed Modes
+|<<gcode:g93-g94-g95,G93 G94 G95>> |Feed Modes (<<gcode:fanuc-lathe,Fanuc lathe system A>>: G94 is the facing cycle, G98/G99 are the feed modes)
 |<<gcode:g96-g97,G96 G97>>         |Spindle Control Mode, Constant Surface vs Rotation Speed (IPM or m/min vs RPM)
 |<<gcode:g98-g99,G98 G99>>         |Canned Cycle Z Retract Mode
 |===
@@ -2291,6 +2291,147 @@ are the cutting moves.
 
 .G76 Example
 image::images/g76-01.png["G76 Example",align="center"]
+
+[[gcode:fanuc-lathe]]
+== Fanuc Lathe G-code System A (((Fanuc Lathe G-code System A)))
+
+With `[RS274NGC]FANUC_LATHE = 1` the interpreter accepts the codes that
+Fanuc lathes use in G-code system A:
+
+[width="80%",align="center",options="header"]
+|===
+|Code |LinuxCNC default |With FANUC_LATHE
+
+|G50  |not defined      |spindle speed clamp (S) and coordinate system setting (X Z)
+|G90  |distance mode    |turning cycle with axis words; without them, absolute mode
+|G92  |coordinate offset|threading cycle; use G50 for the coordinate offset
+|G94  |feed per minute  |facing cycle with axis words; without them, feed per minute
+|G98  |cycle retract mode|feed per minute (like LinuxCNC G94)
+|G99  |cycle retract mode|feed per revolution (like LinuxCNC G95)
+|===
+
+All other codes keep their LinuxCNC meaning.  The mode is off by
+default; with it off these codes behave exactly as documented elsewhere
+in this manual.
+
+=== G90 Outer/Inner Diameter Turning Cycle
+
+[source,ngc]
+----
+G90 X- Z- <U- W-> <R-> <F->
+----
+
+* 'X' 'Z' - end point of the pass (diameter and length)
+* 'U' 'W' - incremental end point, as in the G7x profiles. 'U' is a
+  diameter when G7 lathe diameter mode is active.
+* 'R' - taper amount, a radius value: the cut starts at 'X - 2R' and
+  ends at 'X'.  For a diameter that decreases towards the chuck (Z-), R
+  is negative, as on the control.
+* 'F' - cutting feed
+
+The cycle runs:
+. rapid to the start of the cut,
+. cutting feed to the end point,
+. cutting feed back along the shoulder to the start diameter,
+. rapid back to the cycle start point.
+
+The tool ends at the cycle start point, so a block with only X/Z/U/W
+repeats the cycle.  The programmed X/Z words stay modal for the cycle,
+like on the control.
+
+.G90 example, several passes
+[source,ngc]
+----
+G0 X61 Z2
+G90 X55 W-42 F0.25
+X50
+Z-40 R-5.25
+----
+
+=== G94 End Face Turning Cycle
+
+[source,ngc]
+----
+G94 X- Z- <U- W-> <F->
+----
+
+Same shape as G90 with X and Z exchanged:
+. rapid in Z,
+. cutting feed in X,
+. cutting feed back in Z,
+. rapid back to the cycle start point.
+
+G94 has no taper word.
+
+.G94 example, facing in steps
+[source,ngc]
+----
+G0 X55 Z2
+G94 X15 Z-2 F0.2
+Z-4
+Z-6
+----
+
+=== G92 Threading Cycle
+
+[source,ngc]
+----
+G92 X- Z- <U- W-> F-
+----
+
+One spindle synchronized pass per block; repeat the block with a new X
+to cut the next pass.  'F' is the thread lead, in program units per
+spindle revolution.  The spindle must be turning before the cycle
+starts, and there is no cutter radius compensation.
+
+.G92 example, external thread in passes
+[source,ngc]
+----
+G0 X1.1 Z0.2
+M3 S500
+G92 X0.98 Z-0.8 F0.05
+X0.96
+X0.94
+----
+
+G92 on the 0i-TF is straight threading only (format `X Z F Q`); the
+optional 'Q' thread chamfering word and the older taper forms are not
+supported yet and are rejected with an error.  Use <<gcode:g76,G76>> for
+tapered threads.
+
+=== G50 Spindle Speed Clamp and Coordinate System
+
+[source,ngc]
+----
+G50 S-
+G50 X- Z-
+----
+
+'G50 S' sets the maximum spindle speed used by constant surface speed,
+the same value as the 'D' word of <<gcode:g96-g97,G96>>.  The clamp is
+remembered when G96 is programmed without a D word.
+
+'G50 X Z' sets the coordinate system so the current tool position reads
+as the given values, exactly like the coordinate offset that LinuxCNC
+normally programs with G92.  Cancel it with G92.1/G92.2.
+
+.G50 example
+[source,ngc]
+----
+G50 S2000
+G96 S180 M3
+G0 X61 Z2
+G50 X60 Z0      (the tool at this position now reads X60 Z0)
+----
+
+=== Limits
+
+* The cycles always work in the XZ plane.
+* Cutter radius compensation must be off.
+* U/W are incremental X/Z; they cannot be combined with X/Z in one
+  block, nor used in incremental distance mode (G91).
+* Every cycle ends at the cycle start point, which is what makes the
+  modal repeat work and matches the control.
 
 [[gcode:g80-g89]]
 == G80-G89 Canned Cycles(((G80-G89 Canned Cycles)))

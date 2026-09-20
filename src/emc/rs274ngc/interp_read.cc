@@ -594,6 +594,21 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
       return INTERP_OK;
   }
   mode = gees[value];
+  if (_setup.fanuc_lathe) {
+      /* Fanuc lathe G-code system A: G92 is the threading cycle, G98/G99
+         select the feed mode and G50 sets the spindle speed clamp or the
+         coordinate system.  G90/G94 keep their default groups so that
+         without axis words they still mean absolute mode and feed-per-minute
+         respectively; enhance_block promotes them to one-shot cycles when
+         axis words are present. */
+      if (value == G_92) {
+          mode = GM_MOTION;
+      } else if ((value == G_98) || (value == G_99)) {
+          mode = GM_FEED_MODE;
+      } else if (value == G_50) {
+          mode = GM_MODAL_0;
+      }
+  }
   CHKS((mode == -1), NCE_UNKNOWN_G_CODE_USED);
   if ((value == G_80) && (block->g_modes[mode] != -1));
   else {

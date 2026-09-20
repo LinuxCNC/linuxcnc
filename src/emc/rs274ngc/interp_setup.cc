@@ -187,6 +187,13 @@ setup::setup() :
 
     lathe_diameter_mode(0),
     lathe_txxxx(false),
+    fanuc_lathe(false),
+    fanuc_cycle_x_set(false),
+    fanuc_cycle_z_set(false),
+    fanuc_cycle_r_set(false),
+    fanuc_cycle_x(0.0),
+    fanuc_cycle_z(0.0),
+    fanuc_cycle_r(0.0),
     mdi_interrupt(0),
     feature_set(0),
     disable_fanuc_style_sub(false),

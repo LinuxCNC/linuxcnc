@@ -231,6 +231,8 @@ public:
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
  int convert_spline(int move, block_pointer block, setup_pointer settings);
  int convert_g7x(int move, block_pointer block, setup_pointer settings);
+ int convert_fanuc_cycle(int motion, block_pointer block, setup_pointer settings);
+ int convert_fanuc_g50(block_pointer block, setup_pointer settings);
  int comp_get_current(setup_pointer settings, double *x, double *y, double *z);
  int comp_set_current(setup_pointer settings, double x, double y, double z);
  int comp_get_programmed(setup_pointer settings, double *x, double *y, double *z);

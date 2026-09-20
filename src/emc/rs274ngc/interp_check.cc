@@ -101,6 +101,10 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if (mode1 == G_6_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
   } else if (mode0 == G_28_2) {   // G-code homing
+  } else if (mode0 == G_50) {
+    CHKS((!block->s_flag && !block->x_flag && !block->z_flag &&
+          !block->u_flag && !block->w_flag),
+         _("G50 requires S (spindle speed clamp) or coordinate words"));
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
@@ -365,6 +369,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->r_flag) {
     CHKS(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_6_2) &&
+         (motion != G_90) &&
          (motion != G_71) && (motion != G_71_1) && (motion != G_71_2) &&
          (motion != G_72) && (motion != G_72_1) && (motion != G_72_2) &&
          ((motion < G_81) || (motion > G_89)) && (motion != G_73) &&
@@ -397,6 +402,13 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
     CHKS((!block->i_flag || !block->j_flag || !block->k_flag),
             NCE_I_J_OR_K_WORDS_MISSING_WITH_G76);
+  }
+
+  if (motion == G_92) {
+    CHKS((!block->f_flag && _setup.feed_rate == 0.0),
+         _("F word missing or zero with G92 threading cycle"));
+    CHKS((block->r_flag || block->i_flag),
+         _("Taper threading is not supported with G92; use G76"));
   }
 
   return INTERP_OK;
