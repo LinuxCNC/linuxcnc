@@ -528,10 +528,6 @@ if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
 # so it needs to start by default, as the first process
 EMCSERVER=linuxcncsvr
 
-# 2.7. get halui information
-GetFromIniQuiet HALUI HAL
-HALUI=$retval
-
 # 2.7.1 get halbridge info from INI
 GetFromIniQuiet HALBRIDGE HAL
 HALBRIDGE=$retval
@@ -829,17 +825,6 @@ if ! program_available "$EMCTASK" ; then
 fi
 
 halcmd loadusr -Wn inihal "$EMCTASK" -ini "$INIFILE"
-
-# 4.3.5. Run halui in background, if necessary
-if [ -n "$HALUI" ] ; then
-    echo "Starting HAL User Interface program: $HALUI" >> "$PRINT_FILE"
-    if ! program_available "$HALUI" ; then
-	echo "Can't execute halui program $HALUI"
-	Cleanup
-	exit 1
-    fi
-    $HALCMD loadusr -Wn halui "$HALUI" -ini "$INIFILE"
-fi
 
 # run hal bridge program IF requested
 if [ -n "$HALBRIDGE" ] ; then

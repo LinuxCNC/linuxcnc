@@ -120,7 +120,6 @@ HALFILE = simulated_home.hal
 HALFILE = load_for_postgui.hal <- loadrt lines for components in postgui.hal
 
 POSTGUI_HALFILE = postgui.hal
-HALUI = halui
 ----
 
 == Post GUI
