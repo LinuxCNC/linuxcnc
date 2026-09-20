@@ -86,6 +86,8 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "taskclass.hh"
 #include "motion/motion.h"             // EMCMOT_ORIENT_*
 #include "ini/inihal.hh"
+#include "halui.hh"		// the HAL user interface, in task
+#include "cmd_queue.hh"		// commands from ws_server and halui
 
 using namespace linuxcnc;
 using namespace std::chrono_literals;
@@ -108,6 +110,9 @@ static RCS_CMD_MSG *emcCommand = NULL;
 
 // global EMC status
 EMC_STAT *emcStatus = NULL;
+// set while emcCommand points at a command from inside task (the websocket
+// server or halui) rather than at the NML command buffer
+static bool emcCommandInternal = false;
 
 // timer stuff
 static linuxcnc::CyclicTimer *timer = NULL;
@@ -3329,6 +3334,9 @@ static int emctask_shutdown(void)
 	delete timer;
 	timer = NULL;
     }
+    // release the halui HAL component
+    haluiExit();
+
     // delete the NML channels
 
     if (NULL != emcErrorBuffer) {
@@ -3500,6 +3508,15 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 
+    // Create the halui pins before emctask_startup() readies the inihal
+    // component: halcmd is waiting on that and runs the HAL files next,
+    // and those may connect halui pins.
+    if (0 != haluiInit(emc_inifile)) {
+	log_error("can't initialize halui\n");
+	emctask_shutdown();
+	exit(1);
+    }
+
     // initialize everything
     if (0 != emctask_startup()) {
 	emctask_shutdown();
@@ -3537,6 +3554,17 @@ int main(int argc, char *argv[])
 	// read command
 	if (0 != emcCommandBuffer->read()) {
 	    // got a new command, so clear out errors
+	    emcCommand = emcCommandBuffer->get_address();
+	    emcCommandInternal = false;
+	    taskPlanError = 0;
+	    taskExecuteError = 0;
+	} else if (RCS_CMD_MSG *queued =
+		   taskcmd::next(emcStatus->echo_serial_number)) {
+	    // A command came from inside task -- the websocket server or
+	    // halui. Point emcCommand at it and the rest of the loop treats
+	    // it exactly like one read from NML.
+	    emcCommand = queued;
+	    emcCommandInternal = true;
 	    taskPlanError = 0;
 	    taskExecuteError = 0;
 	}
@@ -3680,6 +3708,16 @@ int main(int argc, char *argv[])
 	// handle RCS_STAT_MSG base class members explicitly, since this
 	// is not an NML_MODULE and they won't be set automatically
 
+	// A command from inside task must not consume a serial number. An
+	// NML serial is the command buffer's write id, so echoing "one past
+	// the last NML command" is echoing the id the next NML client write
+	// will get, and task would then drop that command as one it has
+	// already seen. Leave the echo where the last NML command put it,
+	// and mark the internal message as seen so that emcTaskPlan() does
+	// not dispatch it again next cycle.
+	if (emcCommandInternal) {
+	    emcCommand->serial_number = emcStatus->echo_serial_number;
+	} else {
 	// do task
 	emcStatus->task.command_type = emcCommand->_type;
 	emcStatus->task.echo_serial_number = emcCommand->serial_number;
@@ -3687,6 +3725,7 @@ int main(int argc, char *argv[])
 	// do top level
 	emcStatus->command_type = emcCommand->_type;
 	emcStatus->echo_serial_number = emcCommand->serial_number;
+	}
 
 	if (taskPlanError || taskExecuteError ||
 	    emcStatus->task.execState == EMC_TASK_EXEC::ERROR ||
@@ -3714,6 +3753,7 @@ int main(int argc, char *argv[])
 	// will be updated in the _update() functions above. There's
 	// no need to call the individual functions on all WM items.
 	emcStatusBuffer->write(emcStatus);
+	haluiUpdate();
 
 	// wait on timer cycle, if specified, or calculate actual
 	// interval if INI file says to run full out via

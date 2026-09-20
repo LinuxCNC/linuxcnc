@@ -1,19 +1,38 @@
 /********************************************************************
-* Description: halui.cc
-*   HAL User-Interface component.
-*   This file exports various UI related hal pins, and communicates
-*   with EMC through NML messages
+* Description: halui.cc (task)
+*   The HAL user interface, running inside task.
 *
-*   Derived from a work by Fred Proctor & Will Shackleford (emcsh.cc)
-*   some of the functions (sendFooBar() are adapted from there)
+*   This was the standalone halui program (src/emc/usr_intf/halui.cc, now
+*   deleted) with its NML transport taken out. The pin table, the edge
+*   detection in check_hal_changes() and the status mirroring in
+*   modify_hal_pins() are the same code, so that behaviour -- including the
+*   quirks the tests in tests/halui pin down -- is unchanged.
 *
-* Author: Alex Joni
+*   What is different, and why:
+*
+*   - No NML. Commands go into the task-internal queue (cmd_queue.hh), so
+*     they pass through emcTaskPlan() exactly like a command from a UI.
+*     Nothing waits for an echo: inside task, waiting for task to answer
+*     is a deadlock, since it is this thread that would have to answer.
+*
+*   - MDI commands become a state machine, see sendMdiCommand() below.
+*
+*   - Status is read straight out of the live EMC_STAT. halui sees it after
+*     task has finished the cycle's status update, which is the same
+*     picture an NML client gets, one cycle earlier.
+*
+*   - The pin scan still runs at 20 ms, the standalone halui's loop period.
+*     The task cycle is typically 1 ms, and jog pins send a command per
+*     change, so running the whole scan every cycle would put up to a
+*     thousand commands a second through task's single command slot.
+*     estop-activate, machine-off, abort and program-stop are checked every
+*     cycle regardless.
+*
+*   halui is always there: there is nothing to switch on, and a machine
+*   that connects none of the pins pays for a pin scan every 20 ms.
+*
+* Derived from the standalone halui.cc by Alex Joni, which this replaces.
 * License: GPL Version 2
-* System: Linux
-*
-* Copyright (c) 2006 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 
 #include "logutil.hh"
@@ -22,8 +41,9 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 #include <math.h>
+
+#include <deque>
 
 #include <hal.h>		/* access to HAL functions/definitions */
 #include <rtapi.h>		/* rtapi_print_msg */
@@ -34,15 +54,16 @@
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include <inifile.hh>
-#include "libnml/nml/nml_oi.hh"
 #include "timeutil.hh"
 #include <rtapi_string.h>
 #include "tooldata/tooldata.hh"
-#include "mapini.hh"
-#include "unitenum.hh"
+#include "usr_intf/mapini.hh"
+#include "usr_intf/unitenum.hh"
+
+#include "halui.hh"
+#include "cmd_queue.hh"
 
 using namespace linuxcnc;
-using namespace std::chrono_literals;
 
 /* Using halui: see the man page */
 
@@ -236,7 +257,7 @@ static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
 static int have_home_all = 0;
 
-static int comp_id, done;				/* component ID, main while loop */
+static int comp_id = -1;				/* HAL component ID */
 
 static int num_axes = 0; //number of axes, taken from the INI [TRAJ] section
 static int num_joints = 3; //number of joints, taken from the INI [KINS] section
@@ -249,220 +270,38 @@ static double maxSpindleOverride=1.0;
 static EMC_TASK_MODE halui_old_mode = EMC_TASK_MODE::MANUAL;
 static int halui_sent_mdi = 0;
 
-// the NML channels to the EMC task
-static RCS_CMD_CHANNEL *emcCommandBuffer = NULL;
-static RCS_STAT_CHANNEL *emcStatusBuffer = NULL;
-EMC_STAT *emcStatus = NULL;
 
-// the NML channel for errors
-static NML *emcErrorBuffer = NULL;
+// How often the pin scan runs, the standalone halui's loop period.
+static const double HALUI_PERIOD = 0.020;
 
-// the serial number to use.
-static int emcCommandSerialNumber = 0;
+static double last_pass = 0.0;
 
-// how long to wait for Task to report that it has received our command
-static double receiveTimeout = 10.0;
+// MDI state machine, see sendMdiCommand()
+static std::deque<int> mdi_pending;
+static taskcmd::Ticket mdi_mode_ticket = 0;
+static taskcmd::Ticket mdi_exec_ticket = 0;
 
-// how long to wait for Task to finish running our command
-static double doneTimeout = 60.;
-
-static void quit(int /*sig*/)
+// Queue a command for task to execute on one of the next cycles. This is
+// where the standalone halui wrote to the NML command channel and then
+// waited for task to echo the serial number back.
+//
+// coalesce_key is passed for jogs only: see cmd_queue.hh. Returns 0 like
+// the NML send it replaces, -1 if the queue is full.
+template <class T>
+static int emcCommandSend(const T &cmd, unsigned long coalesce_key = 0)
 {
-    done = 1;
-}
-
-static int emcTaskNmlGet()
-{
-    int retval = 0;
-
-    // try to connect to EMC cmd
-    if (emcCommandBuffer == NULL) {
-	emcCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
-				emc_nmlfile);
-	if (!emcCommandBuffer->valid()) {
-	    delete emcCommandBuffer;
-	    emcCommandBuffer = NULL;
-	    retval = -1;
-	}
-    }
-    // try to connect to EMC status
-    if (emcStatusBuffer == NULL) {
-	emcStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
-				 emc_nmlfile);
-	if (!emcStatusBuffer->valid()) {
-	    delete emcStatusBuffer;
-	    emcStatusBuffer = NULL;
-	    emcStatus = NULL;
-	    retval = -1;
-	} else {
-	    emcStatus = reinterpret_cast<EMC_STAT *>(emcStatusBuffer->get_address());
-	}
-    }
-
-    return retval;
-}
-
-static int emcErrorNmlGet()
-{
-    int retval = 0;
-
-    if (emcErrorBuffer == NULL) {
-	emcErrorBuffer =
-	    new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
-	if (!emcErrorBuffer->valid()) {
-	    delete emcErrorBuffer;
-	    emcErrorBuffer = NULL;
-	    retval = -1;
-	}
-    }
-
-    return retval;
-}
-
-static int tryNml()
-{
-    std::chrono::seconds end;
-    int good;
-constexpr auto RETRY_TIME = 10s;     // wait for subsystems to come up
-constexpr auto RETRY_INTERVAL = 1s;  // between wait tries for a subsystem
-
-    end = RETRY_TIME;
-    good = 0;
-    do {
-        if (0 == emcTaskNmlGet()) {
-            good = 1;
-            break;
-        }
-        esleep(RETRY_INTERVAL);
-        end -= RETRY_INTERVAL;
-    } while (end > 0s);
-
-    if (!good) {
+    if (taskcmd::push(cmd, coalesce_key) == 0) {
+        rtapi_print("halui: %s: command queue full, dropping a command\n", __func__);
         return -1;
     }
-
-    end = RETRY_TIME;
-    good = 0;
-    do {
-        if (0 == emcErrorNmlGet()) {
-            good = 1;
-            break;
-        }
-        esleep(RETRY_INTERVAL);
-        end -= RETRY_INTERVAL;
-    } while (end > 0s);
-
-    if (!good) {
-        return -1;
-    }
-
-    return 0;
-
-}
-
-static int updateStatus()
-{
-    NMLTYPE type;
-
-    if (NULL == emcStatus || NULL == emcStatusBuffer) {
-        rtapi_print("halui: %s: no status buffer\n", __func__);
-        return -1;
-    }
-
-    if (!emcStatusBuffer->valid()) {
-        rtapi_print("halui: %s: status buffer is not valid\n", __func__);
-	return -1;
-    }
-
-    switch (type = emcStatusBuffer->peek()) {
-    case -1:
-	// error on CMS channel
-        rtapi_print("halui: %s: error peeking status buffer\n", __func__);
-	return -1;
-	break;
-
-    case 0:			// no new data
-    case EMC_STAT_TYPE:	// new data
-	break;
-
-    default:
-        rtapi_print("halui: %s: unknown error peeking status buffer\n", __func__);
-	return -1;
-	break;
-    }
-
     return 0;
 }
 
-
-constexpr auto EMC_COMMAND_DELAY = 100ms;  // how long to sleep between checks
-
-static int emcCommandWaitDone()
+// One key per jog target, so that a new jog for a joint or axis replaces
+// the one still waiting for it rather than queueing behind it.
+static unsigned long jog_key(int ja, int jjogmode)
 {
-    for (auto end = 0ms; end < std::chrono::duration<double>(doneTimeout);
-	 end += EMC_COMMAND_DELAY) {
-	updateStatus();
-	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
-
-	if (serial_diff < 0) {
-	    continue;
-	}
-
-	if (serial_diff > 0) {
-	    return 0;
-	}
-
-	if (emcStatus->status == RCS_STATUS::DONE) {
-	    return 0;
-	}
-
-	if (emcStatus->status == RCS_STATUS::ERROR) {
-	    return -1;
-	}
-
-	esleep(EMC_COMMAND_DELAY);
-    }
-
-    return -1;
-}
-
-static int emcCommandSend(RCS_CMD_MSG & cmd)
-{
-    // write command
-    if (emcCommandBuffer->write(&cmd)) {
-        rtapi_print("halui: %s: error writing to Task\n", __func__);
-        return -1;
-    }
-    emcCommandSerialNumber = cmd.serial_number;
-
-    // wait for receive
-    for (auto end = 0ms; end < std::chrono::duration<double>(receiveTimeout);
-	 end += EMC_COMMAND_DELAY) {
-	updateStatus();
-	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
-
-	if (serial_diff >= 0) {
-	    return 0;
-	}
-
-	esleep(EMC_COMMAND_DELAY);
-    }
-
-    rtapi_print("halui: %s: no echo from Task after %.3f seconds\n", __func__, receiveTimeout);
-    return -1;
-}
-
-static void thisQuit()
-{
-    //don't forget the big HAL sin ;)
-    hal_exit(comp_id);
-
-    if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = NULL; }
-    if(emcStatusBuffer) { delete emcStatusBuffer;  emcStatusBuffer = NULL; }
-    if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = NULL; }
-    exit(0);
+    return 1 + (unsigned long)(jjogmode ? 1 : 0) * 1024 + (unsigned long)ja;
 }
 
 static LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
@@ -831,61 +670,95 @@ static int sendMdi()
     return emcCommandSend(mode_msg);
 }
 
-static int sendMdiCommand(int n)
+// Start an [HALUI]MDI_COMMAND. The standalone halui could block here: it
+// sent the switch to MDI, waited for task to echo it, checked the mode and
+// only then sent the command itself. Inside task nothing may block, so the
+// sequence becomes a state machine, driven by service_mdi() below:
+//
+//   press -> queue SET_MODE(MDI) -> task reaches MDI -> queue EXECUTE
+//
+// What the pins do is unchanged, including the two known quirks the tests
+// pin down: halui-mdi-is-running goes true at the press, before task has
+// accepted anything, and a command task refuses leaves it stuck until the
+// next command finishes DONE.
+static void sendMdiCommand(int n)
 {
-    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-
-    if (updateStatus()) {
-	return -1;
-    }
-
     if (!halui_sent_mdi) {
         // There is currently no MDI command from halui executing, we're
         // currently starting the first one.  Record what the Task mode is,
         // so we can restore it when all the MDI commands finish.
         halui_old_mode = emcStatus->task.mode;
     }
-    
+
     halui_sent_mdi = 1;
 
-    if (num_mdi_commands>0){
-    hal_set_bool(halui_data->halui_mdi_is_running, halui_sent_mdi);
-    updateStatus();
-    }
-    
-    // switch to MDI mode if needed
-    if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
-	if (sendMdi() != 0) {
-            rtapi_print("halui: %s: failed to Set Mode MDI\n", __func__);
-            return -1;
-	}
-	if (updateStatus() != 0) {
-            rtapi_print("halui: %s: failed to update status\n", __func__);
-	    return -1;
-	}
-	if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
-            rtapi_print("halui: %s: switched mode, but got %d instead of mdi\n", __func__, (int)emcStatus->task.mode);
-	    return -1;
-	}
-    }
-    rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
-    if (emcCommandSend(emc_task_plan_execute_msg)) {
-        rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
-	return -1;
+    if (num_mdi_commands > 0) {
+        hal_set_bool(halui_data->halui_mdi_is_running, halui_sent_mdi);
     }
 
-    return 0;
+    mdi_pending.push_back(n);
+
+    // switch to MDI mode if needed
+    if (emcStatus->task.mode != EMC_TASK_MODE::MDI && mdi_mode_ticket == 0) {
+        EMC_TASK_SET_MODE mode_msg;
+        mode_msg.mode = EMC_TASK_MODE::MDI;
+        mdi_mode_ticket = taskcmd::push(mode_msg);
+    }
 }
 
+// Issue the MDI commands waiting for task to be in MDI mode, or give up on
+// them if task did not go there. Runs every task cycle.
+static void service_mdi()
+{
+    if (mdi_pending.empty()) {
+        return;
+    }
+
+    if (emcStatus->task.mode == EMC_TASK_MODE::MDI) {
+        mdi_mode_ticket = 0;
+        while (!mdi_pending.empty()) {
+            EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
+            rtapi_strxcpy(emc_task_plan_execute_msg.command,
+                          mdi_commands[mdi_pending.front()]);
+            mdi_exec_ticket = taskcmd::push(emc_task_plan_execute_msg);
+            mdi_pending.pop_front();
+        }
+        return;
+    }
+
+    if (!taskcmd::pending(mdi_mode_ticket)) {
+        // Task has been through the mode change and is not in MDI, so it
+        // refused it -- while a program runs, for instance. Drop the
+        // commands, exactly as the standalone halui did when its mode
+        // check failed. halui_sent_mdi deliberately stays set: the pins
+        // recover on the next command that ends DONE.
+        rtapi_print("halui: %s: could not switch task to mdi, dropping %d command(s)\n",
+                    __func__, (int)mdi_pending.size());
+        mdi_pending.clear();
+        mdi_mode_ticket = 0;
+    }
+}
+
+// True once the MDI command halui started has actually been issued by task
+// (not merely queued), which is what the standalone halui knew by waiting
+// for the echo before it returned from sendMdiCommand().
+static bool mdi_settled()
+{
+    return halui_sent_mdi
+        && mdi_pending.empty()
+        && !taskcmd::pending(mdi_mode_ticket)
+        && !taskcmd::pending(mdi_exec_ticket);
+}
+
+// The standalone halui waited here for task to finish the mode change,
+// up to 60 seconds. Inside task that wait is the deadlock it sounds like:
+// task cannot finish anything while halui holds the loop.
 static int sendTeleop()
 {
     EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
 
     emc_set_teleop_enable_msg.enable = 1;
-    if (emcCommandSend(emc_set_teleop_enable_msg)) {
-        return -1;
-    }
-    return emcCommandWaitDone();
+    return emcCommandSend(emc_set_teleop_enable_msg);
 }
 
 static int sendJoint()
@@ -893,10 +766,7 @@ static int sendJoint()
     EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
 
     emc_set_teleop_enable_msg.enable = 0;
-    if (emcCommandSend(emc_set_teleop_enable_msg)) {
-        return -1;
-    }
-    return emcCommandWaitDone();
+    return emcCommandSend(emc_set_teleop_enable_msg);
 }
 
 static int sendMistOn()
@@ -934,8 +804,6 @@ static int programStartLine = 0;
 static int sendProgramRun(int line)
 {
     EMC_TASK_PLAN_RUN emc_task_plan_run_msg;
-
-    updateStatus();
 
     if (0 == emcStatus->task.file[0]) {
 	return -1; // no program open
@@ -1093,7 +961,7 @@ static void sendJogStop(int ja, int jjogmode)
 
     emc_jog_stop_msg.jjogmode = jjogmode;
     emc_jog_stop_msg.joint_or_axis = ja;
-    emcCommandSend(emc_jog_stop_msg);
+    emcCommandSend(emc_jog_stop_msg, jog_key(ja, jjogmode));
 }
 
 
@@ -1116,7 +984,7 @@ static void sendJogCont(int ja, double speed, int jjogmode)
     emc_jog_cont_msg.joint_or_axis = ja;
     emc_jog_cont_msg.vel = speed / 60.0;
 
-    emcCommandSend(emc_jog_cont_msg);
+    emcCommandSend(emc_jog_cont_msg, jog_key(ja, jjogmode));
 }
 
 static void sendJogIncr(int ja, double speed, double incr, int jjogmode)
@@ -1207,31 +1075,13 @@ static int sendSpindleOverride(int spindle, double override)
     return emcCommandSend(emc_traj_set_spindle_scale_msg);
 }
 
-static int iniLoad(const char *filename)
+static int haluiIniLoad(const char *filename)
 {
     IniFile inifile(filename);
 
     if (!inifile) {
 	return -1;
     }
-
-    // EMC debugging flags
-    emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
-
-    if (emc_debug & EMC_DEBUG_CONFIG) {
-        std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
-        std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
-        extern char *program_invocation_short_name;
-        log_info(
-            "{} ({}) halui: machine '{}'  version '{}'\n",
-            program_invocation_short_name, getpid(), machine, version
-            );
-    }
-
-    if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
-	// copy to global
-	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
-    } // else not found, use default
 
     if (auto inival = inifile.findReal("MAX_FEED_OVERRIDE", "DISPLAY")) {
         if (*inival > 0.0) {
@@ -1422,6 +1272,28 @@ static bool jogging_selected_axis(local_halui_str &hal) {
     return (hal.ajog_plus[EMCMOT_MAX_AXIS] || hal.ajog_minus[EMCMOT_MAX_AXIS]);
 }
 
+
+// The pins where a 20 ms sampling period is the wrong answer. They are
+// checked every task cycle; check_bit_changed() updates old_halui_data, so
+// the full pass below does not see the same edge a second time.
+static void check_safety_pins()
+{
+    if (check_bit_changed(hal_get_bool(halui_data->estop_activate),
+                          old_halui_data.estop_activate) != 0)
+	sendEstop();
+
+    if (check_bit_changed(hal_get_bool(halui_data->machine_off),
+                          old_halui_data.machine_off) != 0)
+	sendMachineOff();
+
+    if (check_bit_changed(hal_get_bool(halui_data->abort),
+                          old_halui_data.abort) != 0)
+	sendAbort();
+
+    if (check_bit_changed(hal_get_bool(halui_data->program_stop),
+                          old_halui_data.program_stop) != 0)
+	sendAbort();
+}
 
 // this function looks if any of the hal pins has changed
 // and sends appropriate messages if so
@@ -1907,10 +1779,10 @@ static void modify_hal_pins()
     hal_set_bool(halui_data->estop_is_activated, emcStatus->task.state == EMC_TASK_STATE::ESTOP);
 
     // Decide once whether an ongoing halui MDI command has finished: the mode
-    // restore below refreshes emcStatus, and Task may echo it while still EXEC.
-    bool mdi_finished = halui_sent_mdi && emcStatus->status == RCS_STATUS::DONE;
+    // restore below may refresh emcStatus, and Task may echo it while still EXEC.
+    bool mdi_finished = mdi_settled() && emcStatus->status == RCS_STATUS::DONE;
 
-    if (halui_sent_mdi) { // we have an ongoing MDI command
+    if (mdi_settled()) { // we have an ongoing MDI command
 	if (mdi_finished) { //which seems to have finished
 	    switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;
@@ -1935,12 +1807,12 @@ static void modify_hal_pins()
     
     if (num_mdi_commands>0){
 		// we wants initialize program_is_idle and mode_is_mdi before halui_sent_mdi
-		if (halui_sent_mdi) { // we have an ongoing MDI command
+		if (mdi_settled()) { // we have an ongoing MDI command
 			if (mdi_finished) { //which seems to have finished
 			halui_sent_mdi = 0;
-			esleep(20ms); //sleep for a while
-			updateStatus();
-			esleep(20ms); //sleep for a while
+			mdi_exec_ticket = 0;
+			// the standalone halui slept 2x20ms around a status
+			// re-read here; in task the status is already current
 			}
 		}
 		hal_set_bool(halui_data->halui_mdi_is_running, halui_sent_mdi);
@@ -2080,68 +1952,74 @@ static void modify_hal_pins()
 
 
 
-int main(int argc, char *argv[])
+
+/********************************************************************
+*
+* The three entry points task uses. See halui.hh.
+*
+********************************************************************/
+
+int haluiInit(const char *filename)
 {
-    // process command line args
-    if (0 != emcGetArgs(argc, argv)) {
-	log_error("error in argument list\n");
-	exit(1);
+    if (0 != haluiIniLoad(filename)) {
+        log_error("halui: iniLoad error\n");
+        return -1;
     }
 
-    // get configuration information
-    if (0 != iniLoad(emc_inifile)) {
-	log_error("iniLoad error\n");
-	exit(2);
-    }
-
-    //init HAL and export pins
     if (0 != halui_hal_init()) {
-	log_error("hal_init error\n");
-	exit(1);
+        log_error("halui: hal_init error\n");
+        // the export helpers hal_exit() the component themselves
+        comp_id = -1;
+        return -1;
     }
 
-    //initialize safe values
     hal_init_pins();
-
-    // init NML
-    if (0 != tryNml()) {
-	log_error("can't connect to emc\n");
-	thisQuit();
-	exit(1);
-    }
-
-#ifdef TOOL_NML //{
-    //fprintf(stderr,"%8d HALUI REGISTER %p\n",getpid(),
-    tool_nml_register((CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
-#else //}{
-    tool_mmap_user();
-#endif //}
-
-    // get current serial number, and save it for restoring when we quit
-    // so as not to interfere with real operator interface
-    updateStatus();
-
-    done = 0;
-    /* Register the routine that catches the SIGINT signal */
-    signal(SIGINT, quit);
-    /* catch SIGTERM too - the run script uses it to shut things down */
-    signal(SIGTERM, quit);
-
-    while (!done) {
-        static bool task_start_synced = 0;
-        if (!task_start_synced) {
-           // wait for task to establish nonzero linearUnits
-           if (emcStatus->motion.traj.linearUnits != 0) {
-              // set once at startup, no changes are expected:
-              hal_set_real(halui_data->units_per_mm, emcStatus->motion.traj.linearUnits);
-              task_start_synced = 1;
-           }
-        }
-        check_hal_changes(); //if anything changed send NML messages
-        modify_hal_pins(); //if status changed modify HAL too
-        esleep(20ms); //sleep for a while
-        updateStatus();
-    }
-    thisQuit();
     return 0;
+}
+
+void haluiUpdate(void)
+{
+    if (comp_id < 0) {
+        return;
+    }
+
+    static bool task_start_synced = false;
+    if (!task_start_synced) {
+        // wait for task to establish nonzero linearUnits
+        if (emcStatus->motion.traj.linearUnits != 0) {
+            // set once at startup, no changes are expected:
+            hal_set_real(halui_data->units_per_mm, emcStatus->motion.traj.linearUnits);
+            task_start_synced = true;
+        }
+    }
+
+    // every cycle: the pins that should not wait for the next pass
+    check_safety_pins();
+
+    const double now = etime();
+    const bool due = (now - last_pass) >= HALUI_PERIOD;
+
+    if (due) {
+        last_pass = now;
+        check_hal_changes(); //if anything changed send commands
+    }
+
+    // every cycle, and after check_hal_changes() so that a button pressed
+    // in this pass is acted on in it
+    service_mdi();
+
+    if (due) {
+        modify_hal_pins(); //if status changed modify HAL too
+    }
+}
+
+void haluiExit(void)
+{
+    if (comp_id < 0) {
+        return;
+    }
+
+    //don't forget the big HAL sin ;)
+    hal_exit(comp_id);
+    comp_id = -1;
 }

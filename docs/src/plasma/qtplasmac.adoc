@@ -570,7 +570,6 @@ These variables are mandatory.
 
 [source,ini]
 ----
-HALUI           = halui (required)
 HALFILE         = _<machine_name>_.hal (the machine HAL file)
 HALFILE         = plasmac.tcl (the standard QtPlasmaC HAL file)
 HALFILE         = custom.hal (Users custom HAL commands)

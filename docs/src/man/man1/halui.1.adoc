@@ -2,29 +2,24 @@
 
 == NAME
 
-halui - observe HAL pins and command LinuxCNC through NML
-
-== SYNOPSIS
-
-*halui* [*-ini* _<path-to-INI>_]
+halui - HAL pins to observe and command LinuxCNC
 
 == DESCRIPTION
 
-The program *halui* is used to build a User Interface using hardware knobs and switches.
-It exports a big number of pins, and acts accordingly when these change.
+*halui* is used to build a User Interface using hardware knobs and switches.
+It provides a large number of HAL pins, and acts accordingly when these
+change.
 
-== OPTIONS
-
-*-ini* _filename_::
-  Use the _filename_ as the configuration file. Note: halui must find
-  the nml file specified in the INI, usually that file is in the same
-  folder as the INI, so it makes sense to run halui from that folder.
+The pins are part of the LinuxCNC task controller and exist in every
+configuration. There is nothing to load and nothing to configure: connect
+the pins you want in a HAL file. Earlier versions ran halui as a separate
+program, selected with *[HAL]HALUI* in the INI file; that setting is no
+longer read.
 
 == USAGE
 
-When run, *halui* will export a large number of pins. A user can connect
-those to his physical knobs & switches & leds, and when a change is
-noticed halui triggers an appropriate event.
+A user can connect the pins to his physical knobs & switches & leds, and
+when a change is noticed halui triggers an appropriate event.
 
 Caveat, *halui* expects the signals to be debounced, so if needed (bad knob
 contact) connect the physical button to a HAL debounce filter first.

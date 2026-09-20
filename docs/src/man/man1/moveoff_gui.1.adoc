@@ -73,12 +73,6 @@ These options are available for special cases:
 
 LinuxCNC must be running.
 
-Halui must be loaded, typical INI file setting:
-----
-[HAL]
-HALUI = halui
-----
-
 The moveoff component must be loaded with the name 'mv' as: +
 **loadrt moveoff names=**_mv **personality=**_number_of_axes_
 
@@ -107,7 +101,6 @@ HALFILE *hookup_moveoff.tcl* as illustrated below:
 
 ----
 [HAL]
-HALUI = halui
 HALFILE = user_halfile_1
 etc ...
 HALFILE = user_halfile_n

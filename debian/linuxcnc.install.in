@@ -28,7 +28,6 @@ usr/bin/halscope
 usr/bin/halshow
 usr/bin/halstreamer
 usr/bin/haltcl
-usr/bin/halui
 usr/bin/hbmgui
 usr/bin/hexagui
 usr/bin/hy_gt_vfd
