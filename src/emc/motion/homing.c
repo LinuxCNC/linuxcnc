@@ -737,6 +737,60 @@ static bool sync_ready(int joint_num)
     return 1; // ready
 } // sync_ready()
 
+/* Joints of a negative home sequence are the coupled sides of one
+   machine and run every leg together: they back off together when any
+   side starts on its switch, search together, finish the search at latch
+   speed once the first side has tripped, back off at latch speed once
+   all have tripped, and latch together. The sides are then never driven
+   apart by more than the misalignment of their switches. */
+static bool sync_partner(int joint_num, int jno)
+{
+    if (jno == joint_num)                                 {return 0;}
+    if (!H[jno].joint_in_sequence)                        {return 0;}
+    if (ABS(H[jno].home_sequence) != current_sequence)    {return 0;}
+    if (ABS(H[joint_num].home_sequence) != current_sequence) {return 0;}
+    if (H[jno].home_flags & HOME_ABSOLUTE_ENCODER)        {return 0;}
+    return 1;
+}
+
+// a partner sits on its switch before having searched for it
+static bool sync_partner_on_switch(int joint_num)
+{
+    int jno;
+    if (H[joint_num].home_sequence >= 0) {return 0;}
+    for (jno = 0; jno < all_joints; jno++) {
+        if (!sync_partner(joint_num, jno))                    {continue;}
+        if (!H[jno].home_sw)                                  {continue;}
+        if (H[jno].home_state > HOME_INITIAL_SEARCH_WAIT)     {continue;}
+        return 1;
+    }
+    return 0;
+}
+
+// a partner has found its switch
+static bool sync_partner_tripped(int joint_num)
+{
+    int jno;
+    if (H[joint_num].home_sequence >= 0) {return 0;}
+    for (jno = 0; jno < all_joints; jno++) {
+        if (!sync_partner(joint_num, jno))                    {continue;}
+        if (H[jno].home_state >= HOME_SET_COARSE_POSITION)    {return 1;}
+    }
+    return 0;
+}
+
+// a partner has not reached the given state yet
+static bool sync_partner_before(int joint_num, home_state_t state)
+{
+    int jno;
+    if (H[joint_num].home_sequence >= 0) {return 0;}
+    for (jno = 0; jno < all_joints; jno++) {
+        if (!sync_partner(joint_num, jno))                    {continue;}
+        if (H[jno].home_state < state)                        {return 1;}
+    }
+    return 0;
+}
+
 static int base_1joint_state_machine(int joint_num)
 {
     emcmot_joint_t *joint;
@@ -884,8 +938,8 @@ static int base_1joint_state_machine(int joint_num)
                the home switch.  It terminates when the switch is cleared
                successfully.  If the move ends or hits a limit before it
                clears the switch, the home is aborted. */
-            /* are we off home switch yet? */
-            if (! home_sw_active) {
+            /* are we and our partners off the home switches yet? */
+            if (! home_sw_active && ! sync_partner_on_switch(joint_num)) {
                 /* yes, stop motion */
                 joint->free_tp.enable = 0;
                 /* begin initial search */
@@ -914,8 +968,8 @@ static int base_1joint_state_machine(int joint_num)
                 break;
             }
             H[joint_num].pause_timer = 0;
-            /* make sure we aren't already on home switch */
-            if (home_sw_active) {
+            /* make sure we or a partner aren't already on home switch */
+            if (home_sw_active || sync_partner_on_switch(joint_num)) {
                 /* already on switch, need to back off it first */
                 H[joint_num].home_state = HOME_INITIAL_BACKOFF_START;
                 immediate_state = 1;
@@ -940,6 +994,12 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].home_state = HOME_SET_COARSE_POSITION;
                 immediate_state = 1;
                 break;
+            }
+            /* a partner found its switch first: finish at latch speed */
+            if (   (H[joint_num].home_latch_vel != 0.0)
+                && (joint->free_tp.max_vel > fabs(H[joint_num].home_latch_vel))
+                && sync_partner_tripped(joint_num)) {
+                joint->free_tp.max_vel = fabs(H[joint_num].home_latch_vel);
             }
             ABORT_CHECK(joint_num);
             break;
@@ -988,6 +1048,11 @@ static int base_1joint_state_machine(int joint_num)
                 H[joint_num].pause_timer = 0;
                 break;
             }
+            /* back off together with the partners */
+            if (sync_partner_before(joint_num, HOME_SET_COARSE_POSITION)) {
+                H[joint_num].pause_timer = 0;
+                break;
+            }
             /* has delay timed out? */
             if (H[joint_num].pause_timer < (HOME_DELAY * servo_freq)) {
                 /* no, update timer and wait some more */
@@ -1004,8 +1069,17 @@ static int base_1joint_state_machine(int joint_num)
                 immediate_state = 1;
                 break;
             }
-            /* set up a move at '-search_vel' to back off of switch */
-            home_start_move(joint, - H[joint_num].home_search_vel);
+            /* set up a move at '-search_vel' to back off of switch, at
+               latch_vel for a synchronized joint so that the overshoot
+               matches its partners' */
+            if (   (H[joint_num].home_sequence < 0)
+                && (H[joint_num].home_latch_vel != 0.0)) {
+                tmp = fabs(H[joint_num].home_latch_vel);
+                if (H[joint_num].home_search_vel > 0.0) { tmp = -tmp; }
+                home_start_move(joint, tmp);
+            } else {
+                home_start_move(joint, - H[joint_num].home_search_vel);
+            }
             /* next state */
             H[joint_num].home_state = HOME_FINAL_BACKOFF_WAIT;
             break;
@@ -1035,6 +1109,11 @@ static int base_1joint_state_machine(int joint_num)
             /* is the joint already moving? */
             if (joint->free_tp.active) {
                 /* yes, reset delay, wait until joint stops */
+                H[joint_num].pause_timer = 0;
+                break;
+            }
+            /* latch together with the partners */
+            if (sync_partner_before(joint_num, HOME_RISE_SEARCH_START)) {
                 H[joint_num].pause_timer = 0;
                 break;
             }
@@ -1092,6 +1171,11 @@ static int base_1joint_state_machine(int joint_num)
             /* is the joint already moving? */
             if (joint->free_tp.active) {
                 /* yes, reset delay, wait until joint stops */
+                H[joint_num].pause_timer = 0;
+                break;
+            }
+            /* latch together with the partners */
+            if (sync_partner_before(joint_num, HOME_RISE_SEARCH_START)) {
                 H[joint_num].pause_timer = 0;
                 break;
             }

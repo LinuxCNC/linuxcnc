@@ -261,6 +261,12 @@ A *negative* HOME_SEQUENCE also applies to commands to home a single joint.
 If the HOME_SEQUENCE value is *negative*, all joints having the same absolute value of that HOME_SEQUENCE will be *homed together with a synchronized final move*.
 If the HOME_SEQUENCE value is zero or positive, a command to home the joint will home only the specified joint.
 
+The joints of a synchronized group are treated as rigidly coupled sides of one machine, so no joint moves alone for an unknown distance:
+if any joint starts on its home switch, every joint of the group backs off together until every switch is clear, and then every joint searches together;
+once the first joint trips its switch the others finish their search at HOME_LATCH_VEL;
+the back-off from the switch runs at HOME_LATCH_VEL and starts once every joint has tripped, and the latch move starts once every joint has backed off.
+The two sides are then never driven further apart than the misalignment of their switches, plus the latch-move overshoot.
+
 Joint mode jogging of joints having a negative HOME_SEQUENCE is disallowed.
 In common gantry applications, such jogging can lead to misalignment (racking).
 Note that conventional jogging in world coordinates is always available once a machine is homed.
