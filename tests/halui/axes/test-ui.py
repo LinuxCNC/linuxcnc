@@ -254,9 +254,17 @@ def selected_jog(h):
     h.nml_abort()
 
 
-def expected_relative(s):
-    """halui's own formula (modify_hal_pins) from task's offsets."""
-    ax, ay, az = s.actual_position[:3]
+def expected_relative(s, machine=None):
+    """halui's own formula (modify_hal_pins) from task's offsets.
+
+    `machine` is the machine position to model from. Pass the position the
+    caller has just asserted rather than letting it default: a move is only
+    confirmed to expect_at()'s 1e-4, so actual_position can still be settling
+    by that much, while expect_positions() compares the result at 1e-6. Under
+    load that gap shows up as a ~5e-5 miss on pos-relative alone -- the
+    commanded/feedback checks compare against exact literals and pass.
+    """
+    ax, ay, az = machine if machine is not None else s.actual_position[:3]
     g5x, g92, tlo, rot = s.g5x_offset, s.g92_offset, s.tool_offset, s.rotation_xy
     x = ax - g5x[0] - tlo[0]
     y = ay - g5x[1] - tlo[1]
@@ -307,7 +315,7 @@ def positions(h):
     h.set('axis.x.increment', 0.5)
     h.pulse('axis.x.increment-plus')
     expect_at(h, 'x', 3.5, 'after an increment in teleop')
-    rel = expected_relative(h.poll())
+    rel = expected_relative(h.poll(), (3.5, 4, 1))
     expect_positions(h, (3.5, 4, 1), rel, 'after moving X by 0.5')
 
     for code in ('G92.1', 'G49', 'G10 L2 P1 X0 Y0 Z0 R0', 'M61 Q0'):

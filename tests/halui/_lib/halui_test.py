@@ -40,6 +40,14 @@ import linuxcnc
 HALUI_PERIOD = 0.02
 HOLD = 0.15
 TIMEOUT = 5.0
+# Per-attempt wait for a task_state change, and how many times to reissue it.
+# The transition normally lands well under a second, but the first one after
+# startup can be refused outright: task is still coming up while the harness
+# is still enumerating and wiring halui's ~250 pins, so nothing has settled
+# by the time the first section runs. ui-smoke's ensure_state() reissues for
+# the same reason (see tests/ui-smoke/_lib/drive.py).
+STATE_ATTEMPT_TIMEOUT = 3.0
+STATE_RETRY_BUDGET = 6
 
 COMP = 'halui-test'
 
@@ -95,8 +103,14 @@ class Halui:
         self.cmd = linuxcnc.command()
         self.errors = linuxcnc.error_channel()
         self.poll()
-        self.log('harness up: %d halui pins, %d wired externally'
-                 % (len(self.pins), len(self.external)))
+        # Until task publishes its first status, task_state reads 0, which is
+        # not STATE_ESTOP and not STATE_ON -- branching on it would skip the
+        # estop clear below and leave every later state(ON) refused. The
+        # harness can be up 4ms after launch, so this is reached routinely.
+        if not self.wait_for(lambda: self.stat.task_state != 0):
+            raise RuntimeError('setup: task never published a state')
+        self.log('harness up: %d halui pins, %d wired externally, task_state=%d'
+                 % (len(self.pins), len(self.external), self.stat.task_state))
 
     # -- reporting ---------------------------------------------------------
 
@@ -246,15 +260,23 @@ class Halui:
         # task has no distinct OFF state: a request for OFF reads back as
         # ESTOP_RESET
         want = linuxcnc.STATE_ESTOP_RESET if state == linuxcnc.STATE_OFF else state
-        self.cmd.state(state)
-        self.cmd.wait_complete()
-        return self.wait_for(lambda: self.stat.task_state == want)
+        for attempt in range(1, STATE_RETRY_BUDGET + 1):
+            self.cmd.state(state)
+            self.cmd.wait_complete()
+            if self.wait_for(lambda: self.stat.task_state == want,
+                             timeout=STATE_ATTEMPT_TIMEOUT):
+                return True
+            self.log('task_state %d not reached on attempt %d, retrying'
+                     % (want, attempt))
+        return False
 
     def machine_on(self):
         if self.poll().task_state == linuxcnc.STATE_ON:
             return
-        if self.stat.task_state == linuxcnc.STATE_ESTOP:
-            self.nml_state(linuxcnc.STATE_ESTOP_RESET)
+        # Unconditional: a machine that is not ON may be in estop whatever the
+        # last poll said, and STATE_ON is refused until estop is cleared.
+        if not self.nml_state(linuxcnc.STATE_ESTOP_RESET):
+            raise RuntimeError('setup: could not clear estop')
         if not self.nml_state(linuxcnc.STATE_ON):
             raise RuntimeError('setup: could not turn the machine on')
 
