@@ -439,6 +439,29 @@ extern int kinsJacobianFromMappedAxes(int max_joints,
                                       const double dP[EMCMOT_MAX_AXIS][EMCMOT_MAX_AXIS],
                                       double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS]);
 
+/* The Jacobian of a serial arm of six revolute joints from its
+   Denavit-Hartenberg chain.  Two conventions carry that name and put the
+   four parameters on different links; this is the modified one of John J.
+   Craig, Introduction to Robotics: Mechanics and Control, where link i is
+   Rx(alpha[i]) Tx(a[i]) Rz(joint[i]) Tz(d[i]), the joint turning about the
+   z of the frame Rx and Tx leave it in.  (The original 1955 convention is
+   Rz(theta) Tz(d) Tx(a) Rx(alpha), and a table written for it does not fit
+   here.)  The tool point `tool` lies along the z of the last frame, and
+   the pose of that point is reported as X Y Z and the RPY of the last
+   frame, R = Rz(C) Ry(B) Rx(A), as pmMatRpyConvert() does.
+   Each joint's axis crossed with the vector from it to the tool point
+   gives the point's rate per radian of the joint, the axis itself the
+   angular rate; that 6x6 inverted is the joint rate per unit of twist, and
+   the RPY rates reach the twist through the matrix of the axes each one
+   turns about, which is where world's B and C come in.  alpha and joint in
+   degrees, a, d and tool in the module's length unit.  Rows 0 to 5 of jac
+   are filled, the rest zero.  Returns 0, or -1 at a singular pose, where no
+   finite joint rate follows the pose. */
+extern int kinsJacobianFromDhArm(const double alpha[6], const double a[6],
+                                 const double d[6], const double *joint,
+                                 double tool, const EmcPose *world,
+                                 double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS]);
+
 /* joints are axes: a 1 per joint in the column of its letter */
 extern int identityKinematicsJacobian(const double *joint,
                                       const EmcPose *world,

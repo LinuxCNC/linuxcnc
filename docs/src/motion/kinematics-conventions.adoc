@@ -462,9 +462,14 @@ servo thread.
 A module with a closed form registers it with `switchkinsRegisterJacobian()`.
 It is exact, it costs what the inverse costs, and it knows its own singular
 poses rather than discovering them as an inverse that fails a step away from
-the pose. Every module in the tree whose inverse is written out supplies one.
-The two arms whose inverse is a chain of arc tangents, `pumakins` and
-`three21kins`, answer through the differences.
+the pose. Every module in the tree supplies one. The two arms whose inverse is
+a chain of arc tangents, `pumakins` and `three21kins`, take theirs from
+their Denavit-Hartenberg chain through `kinsJacobianFromDhArm()`, which any
+six-joint serial arm can call with its own table, written in the modified
+convention of Craig's Introduction to Robotics: each joint's axis crossed
+with the vector from it to the tool point gives the point's rate, the axis
+itself the angular rate, and the six by six that makes is inverted and
+taken through the roll, pitch and yaw rates the pose words are.
 
 A module reading its rotary angles from the joint argument of the inverse
 rather than from the pose, which the nutating heads do, has an inverse whose

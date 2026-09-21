@@ -211,6 +211,25 @@ static int pumaKinematicsForward(const double * joint,
    return 0;
 }
 
+/* The Jacobian from the arm's Denavit-Hartenberg chain, the PUMA 560
+   table of Craig's Introduction to Robotics in his modified convention,
+   which is the one the forward above encodes: the shoulder turns about
+   the base z, the upper arm and forearm
+   about axes at right angles to it, the wrist about three axes meeting at
+   its centre, and D6 carries the tool point out along the flange z. */
+static int pumaKinematicsJacobian(const double * joint,
+                                  const EmcPose * world,
+                                  double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS],
+                                  const KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)iflags;
+   const double alpha[6] = { 0, -90, 0, -90, 90, -90 };
+   const double a[6] = { 0, 0, hal_get_real(haldata->a2), hal_get_real(haldata->a3), 0, 0 };
+   const double d[6] = { 0, 0, hal_get_real(haldata->d3), hal_get_real(haldata->d4), 0, 0 };
+
+   return kinsJacobianFromDhArm(alpha, a, d, joint, hal_get_real(haldata->d6), world, jac);
+} // pumaKinematicsJacobian()
+
 static int pumaKinematicsToolFrame(const double * joint,
                                    PmRotationMatrix * rot,
                                    const KINEMATICS_FORWARD_FLAGS * fflags)
@@ -439,6 +458,7 @@ int switchkinsSetup(kparms* kp,
         switchkinsRegisterFrames(1, pumaKinematicsWorkFrame,
                                  pumaKinematicsToolFrame,
                                  &TOOL_FRAME_FLANGE);
+        switchkinsRegisterJacobian(1, pumaKinematicsJacobian);
         switchkinsDeclare(0, KINSTYPE_IDENTITY);
         switchkinsDeclare(1, KINSTYPE_PRIMARY);
     } else {
@@ -451,6 +471,7 @@ int switchkinsSetup(kparms* kp,
         switchkinsRegisterFrames(0, pumaKinematicsWorkFrame,
                                  pumaKinematicsToolFrame,
                                  &TOOL_FRAME_FLANGE);
+        switchkinsRegisterJacobian(0, pumaKinematicsJacobian);
 
         *kset1 = identityKinematicsSetup;
         *kfwd1 = identityKinematicsForward;
