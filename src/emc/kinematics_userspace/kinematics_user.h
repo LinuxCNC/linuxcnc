@@ -143,6 +143,19 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
                            double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT]);
 
 /**
+ * The same at joints the caller already holds for the pose, from its own
+ * kinematicsUserInverse(): the derivative is taken there and no inverse is
+ * run first.  What a caller sampling a path wants, having just inverted
+ * each sample.
+ *
+ * @return 0 on success, -1 on failure
+ */
+int kinematicsUserJacobianAt(KinematicsUserContext* ctx,
+                             const double* joints,
+                             const EmcPose* world,
+                             double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT]);
+
+/**
  * The parameter block as it stands, refreshed from HAL first.  For
  * reporting; the block belongs to the context.
  */

@@ -441,9 +441,7 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
 {
     KINEMATICS_INVERSE_FLAGS iflags = 0;
     KINEMATICS_FORWARD_FLAGS fflags = 0;
-    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
     double j[EMCMOT_MAX_JOINTS];
-    int r, a;
 
     if (!ctx || !ctx->initialized || !world || !J) return -1;
     if (ctx->rt_only) return -1;
@@ -455,6 +453,24 @@ int kinematicsUserJacobian(KinematicsUserContext* ctx,
                        world, j, &iflags, &fflags) != 0) {
         return -1;
     }
+    return kinematicsUserJacobianAt(ctx, j, world, J);
+}
+
+int kinematicsUserJacobianAt(KinematicsUserContext* ctx,
+                             const double* joints,
+                             const EmcPose* world,
+                             double J[KINEMATICS_USER_MAX_JOINTS][AXIS_COUNT])
+{
+    KINEMATICS_INVERSE_FLAGS iflags = 0;
+    double jac[EMCMOT_MAX_JOINTS][EMCMOT_MAX_AXIS];
+    double j[EMCMOT_MAX_JOINTS] = {0};
+    int r, a;
+
+    if (!ctx || !ctx->initialized || !joints || !world || !J) return -1;
+    if (ctx->rt_only) return -1;
+
+    refresh(ctx);
+    for (r = 0; r < KINEMATICS_USER_MAX_JOINTS; r++) j[r] = joints[r];
     if (kinsOpsJacobian(ctx->info.ops[ctx->ktype], &ctx->params, &ctx->scratch,
                         j, world, jac, &iflags) != 0) {
         return -1;

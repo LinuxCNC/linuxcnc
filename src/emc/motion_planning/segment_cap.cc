@@ -83,7 +83,7 @@ int segmentCap(KinematicsUserContext *ctx, const SegmentCapLimits *lim,
            whole segment stays on one solution branch, then the Jacobian
            on that branch */
         if (kinematicsUserInverse(ctx, &p, joints) != 0
-            || kinematicsUserJacobian(ctx, &p, J) != 0) {
+            || kinematicsUserJacobianAt(ctx, joints, &p, J) != 0) {
             out->unanswered++;
             continue;
         }
