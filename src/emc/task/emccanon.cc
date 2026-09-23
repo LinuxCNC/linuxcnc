@@ -623,8 +623,8 @@ static void applyMinDisplacement(double &dx,
     if(!axis_valid(1) || dy < tiny_linear) dy = 0.0;
     if(!axis_valid(2) || dz < tiny_linear) dz = 0.0;
     if(!axis_valid(3) || da < tiny_angular) da = 0.0;
-    if(!axis_valid(4) || db < tiny_linear) db = 0.0;
-    if(!axis_valid(5) || dc < tiny_linear) dc = 0.0;
+    if(!axis_valid(4) || db < tiny_angular) db = 0.0;
+    if(!axis_valid(5) || dc < tiny_angular) dc = 0.0;
     if(!axis_valid(6) || du < tiny_linear) du = 0.0;
     if(!axis_valid(7) || dv < tiny_linear) dv = 0.0;
     if(!axis_valid(8) || dw < tiny_linear) dw = 0.0;
