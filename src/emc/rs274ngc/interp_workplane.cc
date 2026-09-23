@@ -682,6 +682,43 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
     return work_plane_set(s, G_68_3, origin, rotation);
 }
 
+// The solver reports each answer in (-180, 180], but the machine stands
+// somewhere in turn space: every angular joint of each pose goes onto the
+// turn nearest where it stands, or the nearest pose is not the nearest move
+// and a free rotary swings the long way round.  Of the turns, only those
+// inside the joint's [JOINT_n] travel count, so a rotary that would run out
+// of travel the short way goes the long way, and a pose no turn brings
+// inside is dropped.  Returns how many poses are left, packed at the front.
+static int orient_fit(setup_pointer s, double *solutions, int n, int njoints, const double *now)
+{
+    int i, j, kept = 0;
+
+    for (i = 0; i < n; i++) {
+        double *pose = &solutions[i*njoints];
+        bool inside = true;
+        for (j = 0; j < njoints; j++) {
+            if (!(s->kins_angular_joints & (1 << j))) { continue; }
+            double turns = floor((now[j] - pose[j]) / 360.0 + 0.5);
+            if (j < s->kins_joints) {
+                double first = ceil((s->kins_joint_min[j] - pose[j]) / 360.0 - 1e-9);
+                double last = floor((s->kins_joint_max[j] - pose[j]) / 360.0 + 1e-9);
+                if (first > last) {
+                    inside = false;
+                    break;
+                }
+                turns = fmin(fmax(turns, first), last);
+            }
+            pose[j] += 360.0 * turns;
+        }
+        if (!inside) { continue; }
+        if (kept != i) {
+            for (j = 0; j < njoints; j++) { solutions[kept*njoints + j] = pose[j]; }
+        }
+        kept++;
+    }
+    return kept;
+}
+
 // G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.  G53.1
 // turns the rotaries alone, in joint space; G53.6 keeps the tool centre point,
 // a Cartesian move; G53.3 goes to X Y Z in the plane; G53.2 only publishes the
@@ -702,6 +739,7 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     double end_prog[9];
     unsigned int held = 0;
     int p, q, n, i, j, chosen, njoints;
+    bool reached;
     const double *sol;
     const char *name = (code == G_53_1) ? "G53.1" : (code == G_53_2) ? "G53.2" : (code == G_53_3) ? "G53.3" : "G53.6";
 
@@ -729,26 +767,20 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     }
     n = kinematicsUserToolFrameInverse(ctx, &axis, &xdir, now, held,
                                        solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+    reached = (n > 0);
+    if (n > 0) { n = orient_fit(s, solutions, n, njoints, now); }
     if (n == 0 && held) {
         // nothing reachable with the work held still: let it move
         held = 0;
         n = kinematicsUserToolFrameInverse(ctx, &axis, &xdir, now, held,
                                            solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+        reached = reached || (n > 0);
+        if (n > 0) { n = orient_fit(s, solutions, n, njoints, now); }
     }
     CHKS((n < 0), _("%s: the kinematics cannot answer the orientation"), name);
+    CHKS((n == 0 && reached),
+         _("%s: every pose that reaches the plane's normal puts a rotary joint outside its travel"), name);
     CHKS((n == 0), _("%s: the plane's normal cannot be reached by the rotary joints"), name);
-
-    // the solver reports each answer in (-180, 180], but the machine stands
-    // somewhere in turn space: unwrap every angular joint onto the turn
-    // nearest the present position, or the nearest pose is not the nearest
-    // move and a free rotary swings the long way round
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < njoints; j++) {
-            double *v = &solutions[i*njoints + j];
-            if (!(s->kins_angular_joints & (1 << j))) { continue; }
-            *v += 360.0 * floor((now[j] - *v) / 360.0 + 0.5);
-        }
-    }
 
     // nearest first, by rotary travel in joint units
     for (i = 0; i < n; i++) {

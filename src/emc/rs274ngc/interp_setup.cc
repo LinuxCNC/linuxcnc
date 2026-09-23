@@ -119,6 +119,8 @@ setup::setup() :
     kins_module{},
     kins_joints(0),
     kins_angular_joints(0),
+    kins_joint_min{},
+    kins_joint_max{},
     kins_seed{},
 
     parameters{0},

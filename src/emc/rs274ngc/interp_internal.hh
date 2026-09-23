@@ -784,6 +784,8 @@ struct setup
   char kins_module[LINELEN];    // [KINS] KINEMATICS, as loadrt gets it
   int kins_joints;              // [KINS] JOINTS
   int kins_angular_joints;      // bit per joint, [JOINT_n] TYPE = ANGULAR
+  double kins_joint_min[EMCMOT_MAX_JOINTS];     // [JOINT_n] MIN_LIMIT
+  double kins_joint_max[EMCMOT_MAX_JOINTS];     // [JOINT_n] MAX_LIMIT
   double kins_seed[EMCMOT_MAX_JOINTS];  // the last inverse, seeding the next
   double parameters[interp_param_global::RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index

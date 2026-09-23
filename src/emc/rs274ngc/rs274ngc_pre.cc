@@ -906,7 +906,8 @@ int Interp::init()
           }
           _setup.kins_joints = inifile.findIntV("JOINTS", "KINS", 0);
           // which joints turn rather than slide, so that an axis letter is
-          // refused where it would name a joint of the other kind
+          // refused where it would name a joint of the other kind, and the
+          // travel of each, so that a rotary is taken the way that stays in it
           _setup.kins_angular_joints = 0;
           for (int jno = 0; jno < _setup.kins_joints && jno < EMCMOT_MAX_JOINTS; jno++) {
               char section[16];
@@ -914,6 +915,8 @@ int Interp::init()
               if (auto type = inifile.findString("TYPE", section)) {
                   if (*type == "ANGULAR") { _setup.kins_angular_joints |= 1 << jno; }
               }
+              _setup.kins_joint_min[jno] = inifile.findRealV("MIN_LIMIT", section, -1e99);
+              _setup.kins_joint_max[jno] = inifile.findRealV("MAX_LIMIT", section, 1e99);
           }
 
           _setup.tolerance_default = inifile.findRealV("G64_DEFAULT_TOLERANCE", "RS274NGC", 0.0);
