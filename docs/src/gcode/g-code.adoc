@@ -1901,6 +1901,8 @@ The two poses become one where that rotary stands at zero, the tool along
 the other rotary's axis, straight up on a vertical mill, and there every
 form gives the same answer.
 
+Every form stays inside the travel `[JOINT_n] MIN_LIMIT` and `MAX_LIMIT` give the rotary joints, and inside the `[AXIS_n]` travel of the rotary axes they drive, unless the axis is a wrapped or modulo rotary. A rotary reaches its angle by the turn nearest where it stands, and where that turn is outside its travel, by the nearest turn inside it, so it goes the long way round rather than run out of travel. A pose no turn brings inside the travel is not taken: without 'P' the next nearest is, and with 'P1' or 'P2' the code refuses. Under 'Q0' the table is freed before a pose is refused, as when no pose reaches the direction with it held.
+
 'P' names a pose only on a machine that orients the tool with two rotaries.
 On a machine that is not of this shape, a robot among them, only the nearest
 form is available.

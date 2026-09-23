@@ -817,6 +817,8 @@ struct setup
   char kins_module[LINELEN];    // [KINS] KINEMATICS, as loadrt gets it
   int kins_joints;              // [KINS] JOINTS
   int kins_angular_joints;      // bit per joint, [JOINT_n] TYPE = ANGULAR
+  double kins_joint_min[EMCMOT_MAX_JOINTS];     // [JOINT_n] MIN_LIMIT
+  double kins_joint_max[EMCMOT_MAX_JOINTS];     // [JOINT_n] MAX_LIMIT
   double kins_seed[EMCMOT_MAX_JOINTS];  // the last inverse, seeding the next
   double parameters[interp_param_global::RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
@@ -900,6 +902,8 @@ struct setup
   AxisKinds axis_kinds;              // [AXIS_<letter>] TYPE, [TRAJ] FEED_AXES
   int axis_wrapped[9];               // by AxisIndex; angular axes only
   int axis_rotary_modulo[9];         // angular axes only
+  double axis_min[9];                // [AXIS_n] MIN_LIMIT of a bounded angular axis, else -1e99
+  double axis_max[9];                // [AXIS_n] MAX_LIMIT of a bounded angular axis, else 1e99
   int rotary_modulo_literal;         // M26 = shortest path (default), M27 = literal absolute
   int axis_indexer_jnum[9];          // -1 where the axis has no locking indexer
 
