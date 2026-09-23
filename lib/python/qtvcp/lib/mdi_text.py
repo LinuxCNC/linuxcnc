@@ -863,8 +863,10 @@ G53_2 = """G53.2 Solve the Tool Orientation without Moving
 G53.2 <P-> <Q->
 
 Solves the same pose as G53.1 and moves nothing.
-The pose is published on #<_orient_x> to
-#<_orient_c> and on #5071 to #5079, in program
+The pose is published on #<_orient_x> #<_orient_y>
+#<_orient_z> and the rotaries in the order the
+kinematics orients with, #<_orient_rot1> to
+#<_orient_rot3>, and on #5071 to #5076, in program
 units in the plane, with #<_orient_valid> (#5080)
 set to 1, so the program can reach it with a move
 of its own, for instance a single G0 naming X Y Z
