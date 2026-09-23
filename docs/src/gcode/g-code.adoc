@@ -2013,10 +2013,14 @@ differ in what happens then:
 * 'G53.3' moves the rotaries and takes the tool to 'X Y Z', given in the
   plane, in one point-to-point move. A word left out keeps the present value.
 * 'G53.2' moves nothing. It only publishes the solved pose on the named
-  parameters '#<_orient_x>', '#<_orient_y>', '#<_orient_z>', '#<_orient_a>',
-  '#<_orient_b>' and '#<_orient_c>', and on the numbered parameters
-  '#5071' to '#5079' ('X Y Z A B C U V W'), in program units in the plane,
-  and sets '#<_orient_valid>' and '#5080' to 1. The program can then reach
+  parameters '#<_orient_x>', '#<_orient_y>', '#<_orient_z>',
+  '#<_orient_rot1>', '#<_orient_rot2>' and '#<_orient_rot3>', and on the
+  numbered parameters '#5071' to '#5076' in the same order, in program
+  units in the plane, and sets '#<_orient_valid>' and '#5080' to 1. The
+  rotaries come in the order the kinematics orients the tool with, the
+  axes '#<_kins_orient_1>' to '#<_kins_orient_3>' name, so a program reads
+  the angles the same way whatever letters the machine gives them;
+  '#<_orient_rot3>' is 0 on a machine that orients with two rotaries. The program can then reach
   the pose with a move of its own making, for instance a single 'G0' that
   names 'X Y Z' and the rotary words together, so the turn and the travel
   are one Cartesian move under the TCP kinematics. This is what Heidenhain

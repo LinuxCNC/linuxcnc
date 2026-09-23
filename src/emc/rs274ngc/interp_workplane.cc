@@ -492,12 +492,12 @@ int Interp::kins_check_orient(setup_pointer s)
     static const char letters[] = "XYZABCUVW";
     KinematicsUserContext *ctx = KINS_CTX(s);
     double zero[EMCMOT_MAX_JOINTS] = {0};
-    int t, i, axes[2], head[2];
+    int t, i, n, axes[3], head[3];
 
     for (t = 0; t < kinematicsUserGetNumTypes(ctx); t++) {
         if (kinematicsUserSetType(ctx, t) != 0) { continue; }
-        if (kinematicsUserOrientAxes(ctx, zero, axes, head) != 0) { continue; }
-        for (i = 0; i < 2; i++) {
+        n = kinematicsUserOrientAxes(ctx, zero, axes, head);
+        for (i = 0; i < n; i++) {
             if (axisKindsAngular(s->axis_kinds, axes[i])) { continue; }
             kins_release(s);
             ERS(_("kinematics type %d of %s orients the tool with %c, which [AXIS_%c] TYPE makes LINEAR"),
@@ -509,14 +509,15 @@ int Interp::kins_check_orient(setup_pointer s)
 
 // The axes that orient the tool on the kinematics type the program is in,
 // at the joints it stands in: axis numbers 0 X to 8 W, first rotation then
-// second, and 1 for a head, 0 for a table.  All -1 where the type turns
-// other than two rotaries, or no module can be evaluated here.
-void Interp::kins_orient(setup_pointer s, int axes[2], int head[2])
+// second, a robot's wrist A B C, and 1 for a head, 0 for a table.  All -1
+// where the type turns other rotaries, or no module can be evaluated here.
+void Interp::kins_orient(setup_pointer s, int axes[3], int head[3])
 {
     void *vctx;
     double now[EMCMOT_MAX_JOINTS];
+    int i;
 
-    axes[0] = axes[1] = head[0] = head[1] = -1;
+    for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
     if (kins_context(s, &vctx) != INTERP_OK) { return; }
     if (current_joints(s, (KinematicsUserContext *)vctx, now) != INTERP_OK) { return; }
     kinematicsUserOrientAxes((KinematicsUserContext *)vctx, now, axes, head);
@@ -810,19 +811,18 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
 }
 
 // The rotary letters a solution for the kinematics type in force is
-// written into, as axis numbers: the two it orients the tool with, else the
-// A B C of the pose, a robot's wrist.  Returns how many.
+// written into, as axis numbers: those it orients the tool with, else the
+// A B C of the pose.  Returns how many.
 static int orienting_letters(KinematicsUserContext *ctx, const double *now, int orienting[3])
 {
-    int axes[2], head[2];
+    int head[3];
+    int n = kinematicsUserOrientAxes(ctx, now, orienting, head);
 
+    if (n > 0) { return n; }
     orienting[0] = 3;
     orienting[1] = 4;
     orienting[2] = 5;
-    if (kinematicsUserOrientAxes(ctx, now, axes, head) != 0) { return 3; }
-    orienting[0] = axes[0];
-    orienting[1] = axes[1];
-    return 2;
+    return 3;
 }
 
 // G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.  G53.1
@@ -868,15 +868,22 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
     machine_pose_to_program(s, &end_pose, end_prog);
 
+    int orienting[3];
+    int count = orienting_letters(ctx, now, orienting);
+
     if (code == G_53_2) {
-        // STAY: solve only, nothing moves.  The pose goes to the named
-        // parameters #<_orient_x> and kin and to #5071-#5080, for the
-        // program to use in a move of its own making, the way
-        // Heidenhain's STAY fills Q120-122.  The machine state does not
-        // change.
-        for (i = 0; i < 6; i++) { s->orient_pose[i] = end_prog[i]; }
+        // STAY: solve only, nothing moves.  X Y Z and the rotaries in the
+        // order the type orients with go to the named parameters
+        // #<_orient_x> and kin and to #5071-#5080, for the program to use
+        // in a move of its own making, the way Heidenhain's STAY fills
+        // Q120-122.  The machine state does not change.
+        for (i = 0; i < 3; i++) { s->orient_pose[i] = end_prog[i]; }
+        for (i = 0; i < 3; i++) {
+            s->orient_pose[3 + i] = (i < count) ? end_prog[orienting[i]] : 0.0;
+        }
         s->orient_valid = true;
-        for (i = 0; i < 9; i++) { s->parameters[5071 + i] = end_prog[i]; }
+        for (i = 0; i < 6; i++) { s->parameters[5071 + i] = s->orient_pose[i]; }
+        for (i = 6; i < 9; i++) { s->parameters[5071 + i] = 0.0; }
         s->parameters[5080] = 1.0;
         return INTERP_OK;
     }
@@ -885,12 +892,8 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     // with; every other axis stays where it is
     double rot[6] = {s->AA_current, s->BB_current, s->CC_current,
                      s->u_current, s->v_current, s->w_current};
-    {
-        int orienting[3];
-        int count = orienting_letters(ctx, now, orienting);
-        for (i = 0; i < count; i++) {
-            if (orienting[i] >= 3) { rot[orienting[i] - 3] = end_prog[orienting[i]]; }
-        }
+    for (i = 0; i < count; i++) {
+        if (orienting[i] >= 3) { rot[orienting[i] - 3] = end_prog[orienting[i]]; }
     }
 
     write_canon_state_tag(block, s);
@@ -1074,10 +1077,10 @@ int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *rotar
     CHP(current_joints(s, ctx, now));
     int orienting[3];
     int count = orienting_letters(ctx, now, orienting);
-    CHKS((orienting[0] < 3 || orienting[1] < 3),
-         _("G43.5: kinematics type %d orients the tool with %c and %c, not rotary axes"),
-         s->kins_type, letters[orienting[0]], letters[orienting[1]]);
     for (i = 0; i < count; i++) {
+        CHKS((orienting[i] < 3),
+             _("G43.5: kinematics type %d orients the tool with %c, not a rotary axis"),
+             s->kins_type, letters[orienting[i]]);
         CHKS((rotary_flag[orienting[i] - 3]),
              _("G43.5: a tool vector and a %c word on one line give the orientation twice"),
              letters[orienting[i]]);

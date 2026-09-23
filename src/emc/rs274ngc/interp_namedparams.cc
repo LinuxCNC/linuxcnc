@@ -61,15 +61,17 @@ enum predefined_named_parameters {
     NP_KINS_TYPE,
     NP_KINS_ORIENT_1,
     NP_KINS_ORIENT_2,
+    NP_KINS_ORIENT_3,
     NP_KINS_ORIENT_1_HEAD,
     NP_KINS_ORIENT_2_HEAD,
+    NP_KINS_ORIENT_3_HEAD,
     NP_ORIENT_VALID,
     NP_ORIENT_X,
     NP_ORIENT_Y,
     NP_ORIENT_Z,
-    NP_ORIENT_A,
-    NP_ORIENT_B,
-    NP_ORIENT_C,
+    NP_ORIENT_ROT1,
+    NP_ORIENT_ROT2,
+    NP_ORIENT_ROT3,
     NP_PLANE,
     NP_CCOMP,
     NP_METRIC,
@@ -559,16 +561,17 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_KINS_ORIENT_1: // _kins_orient_1 and kin: the axes that orient the tool
     case NP_KINS_ORIENT_2:
+    case NP_KINS_ORIENT_3:
     case NP_KINS_ORIENT_1_HEAD:
     case NP_KINS_ORIENT_2_HEAD:
+    case NP_KINS_ORIENT_3_HEAD:
 	{
-	    int axes[2], head[2];
+	    int axes[3], head[3];
 	    kins_orient(&_setup, axes, head);
-	    switch (cmd) {
-	    case NP_KINS_ORIENT_1: *value = axes[0]; break;
-	    case NP_KINS_ORIENT_2: *value = axes[1]; break;
-	    case NP_KINS_ORIENT_1_HEAD: *value = head[0]; break;
-	    default: *value = head[1]; break;
+	    if (cmd <= NP_KINS_ORIENT_3) {
+		*value = axes[cmd - NP_KINS_ORIENT_1];
+	    } else {
+		*value = head[cmd - NP_KINS_ORIENT_1_HEAD];
 	    }
 	}
 	break;
@@ -580,9 +583,9 @@ int Interp::lookup_named_param(const char *nameBuf,
     case NP_ORIENT_X: // _orient_x and kin: the pose G53.2 last solved
     case NP_ORIENT_Y:
     case NP_ORIENT_Z:
-    case NP_ORIENT_A:
-    case NP_ORIENT_B:
-    case NP_ORIENT_C:
+    case NP_ORIENT_ROT1:
+    case NP_ORIENT_ROT2:
+    case NP_ORIENT_ROT3:
 	if (!_setup.orient_valid) {
 	    ERS(_("no G53.2 has solved an orientation yet"));
 	}
@@ -947,17 +950,19 @@ int Interp::init_named_parameters()
   // where the type does not orient with two rotaries
   init_readonly_param("_kins_orient_1", NP_KINS_ORIENT_1, PA_USE_LOOKUP);
   init_readonly_param("_kins_orient_2", NP_KINS_ORIENT_2, PA_USE_LOOKUP);
+  init_readonly_param("_kins_orient_3", NP_KINS_ORIENT_3, PA_USE_LOOKUP);
   init_readonly_param("_kins_orient_1_head", NP_KINS_ORIENT_1_HEAD, PA_USE_LOOKUP);
   init_readonly_param("_kins_orient_2_head", NP_KINS_ORIENT_2_HEAD, PA_USE_LOOKUP);
+  init_readonly_param("_kins_orient_3_head", NP_KINS_ORIENT_3_HEAD, PA_USE_LOOKUP);
 
   // the pose G53.2 last solved: 1.0 once one has been, and its words
   init_readonly_param("_orient_valid", NP_ORIENT_VALID, PA_USE_LOOKUP);
   init_readonly_param("_orient_x", NP_ORIENT_X, PA_USE_LOOKUP);
   init_readonly_param("_orient_y", NP_ORIENT_Y, PA_USE_LOOKUP);
   init_readonly_param("_orient_z", NP_ORIENT_Z, PA_USE_LOOKUP);
-  init_readonly_param("_orient_a", NP_ORIENT_A, PA_USE_LOOKUP);
-  init_readonly_param("_orient_b", NP_ORIENT_B, PA_USE_LOOKUP);
-  init_readonly_param("_orient_c", NP_ORIENT_C, PA_USE_LOOKUP);
+  init_readonly_param("_orient_rot1", NP_ORIENT_ROT1, PA_USE_LOOKUP);
+  init_readonly_param("_orient_rot2", NP_ORIENT_ROT2, PA_USE_LOOKUP);
+  init_readonly_param("_orient_rot3", NP_ORIENT_ROT3, PA_USE_LOOKUP);
 
   // G17/18/19/17.1/18.1/19.1 -> return 170/180/190/171/181/191
   init_readonly_param("_plane", NP_PLANE, PA_USE_LOOKUP);

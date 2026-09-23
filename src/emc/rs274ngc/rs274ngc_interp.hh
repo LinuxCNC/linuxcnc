@@ -377,7 +377,7 @@ public:
                   int p, int q, const double *now, double *joints, const char *name);
  int tool_vector_ends(block_pointer block, setup_pointer settings, double *rotary_end[6]);
  int kins_check_orient(setup_pointer s);
- void kins_orient(setup_pointer s, int axes[2], int head[2]);
+ void kins_orient(setup_pointer s, int axes[3], int head[3]);
  int convert_ptp_joints(int code, int move, block_pointer block, setup_pointer settings);
  int convert_home_slides(int code, block_pointer block, setup_pointer settings);
  int slide_joints(const char *name, setup_pointer settings, void *ctx, const struct kins_params *params,

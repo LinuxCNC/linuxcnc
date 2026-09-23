@@ -657,7 +657,7 @@ static int joint_letter(const kins_params *p, int j)
 }
 
 int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
-                             int axes[2], int head[2])
+                             int axes[3], int head[3])
 {
     static const char letters[] = "XYZABCUVW";
     const kins_ops *ops;
@@ -667,7 +667,7 @@ int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
     int i, r = -1;
 
     if (!axes || !head) return -1;
-    axes[0] = axes[1] = head[0] = head[1] = -1;
+    for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
     if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
     ops = ctx->info.ops[ctx->ktype];
     if (!ops->tool || !ops->work) return -1;
@@ -690,6 +690,35 @@ int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
             head[0] = 0;
             head[1] = 1;
             r = 0;
+        } else if (tables + heads == 3) {
+            // three rotaries: the tables first, each group in joint order
+            int n = 0, jn;
+            for (jn = 0; jn < ctx->num_joints; jn++) {
+                if (table_mask & (1u << jn)) { axes[n] = jn; head[n++] = 0; }
+            }
+            for (jn = 0; jn < ctx->num_joints; jn++) {
+                if (head_mask & (1u << jn)) { axes[n] = jn; head[n++] = 1; }
+            }
+            frame_ctx = NULL;
+            for (n = 0; n < 3; n++) {
+                if (ops->orient && strlen(ops->orient) >= 3) {
+                    const char *at = strchr(letters, toupper((unsigned char)ops->orient[n]));
+                    axes[n] = at ? (int)(at - letters) : -1;
+                } else {
+                    axes[n] = joint_letter(&ctx->params, axes[n]);
+                }
+            }
+            if (axes[0] < 0 || axes[1] < 0 || axes[2] < 0) {
+                for (i = 0; i < 3; i++) { axes[i] = head[i] = -1; }
+                return -1;
+            }
+            return 3;
+        } else if (heads > 3 && tables == 0) {
+            // an arm: the wrist is one of many joints that turn the tool,
+            // and the pose gives the orientation as A B C
+            for (i = 0; i < 3; i++) { axes[i] = 3 + i; head[i] = 1; }
+            frame_ctx = NULL;
+            return 3;
         }
     }
     frame_ctx = NULL;
@@ -704,8 +733,9 @@ int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
     }
     if (r != 0) {
         axes[0] = axes[1] = head[0] = head[1] = -1;
+        return -1;
     }
-    return r;
+    return 2;
 }
 
 KinematicsUserContext* kinematicsUserInitString(const char* kinematics,

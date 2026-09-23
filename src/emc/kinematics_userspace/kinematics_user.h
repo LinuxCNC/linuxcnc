@@ -263,12 +263,16 @@ int kinematicsUserOrientJoints(KinematicsUserContext* ctx, const double* seed,
  * head (1) or the table (0).  Two heads or two tables are ordered as
  * kinematicsUserOrientJoints() orders them, the one whose axis stays put
  * first; a table and a head, the table first.  The letters are the type's
- * declared orient, else those the joint map gives the joints.  Returns 0,
- * or -1 with all four set to -1 where the type turns other than two
- * rotaries between tool and work, or a letter cannot be found.
+ * declared orient, else those the joint map gives the joints.  Three
+ * rotaries come tables first, each group in joint order.  A type whose
+ * tool is turned by more than three joints and no table, a robot arm,
+ * orients with the A B C of its pose, all three head.  Returns how many
+ * axes, 2 or 3, the unused entries -1; or -1 with every entry -1 where the
+ * type turns other rotaries between tool and work, or a letter cannot be
+ * found.
  */
 int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
-                             int axes[2], int head[2]);
+                             int axes[3], int head[3]);
 
 /**
  * kinematicsUserInitSparm() from the value of [KINS] KINEMATICS as the

@@ -304,9 +304,11 @@ example '##2'  means the value of the parameter whose index is the
   which the G38 took place.  Volatile.
 * '5070' - <<gcode:g38,G38>> probe result: 1 if success, 0 if probe
   failed to close.  Used with G38.3 and G38.5. Volatile.
-* '5071-5079' - Pose last solved by <<gcode:g53.1,G53.2>> for X, Y, Z, A,
-  B, C, U, V & W, in program units in the tilted work plane. Same values
-  as `#<_orient_x>` and kin. Read-only, volatile.
+* '5071-5076' - Pose last solved by <<gcode:g53.1,G53.2>> for X, Y, Z
+  and the first, second and third orienting rotary, in program units in
+  the tilted work plane. Same values as `#<_orient_x>` and kin. Read-only,
+  volatile.
+* '5077-5079' - Written 0 by 'G53.2'. Read-only, volatile.
 * '5080' - 'G53.2' result: 1 once a 'G53.2' has solved a pose, 0 before.
   Same as `#<_orient_valid>`. Read-only, volatile.
 * '5081-5089' - Tool length offset currently applied to motion for X, Y,
@@ -512,24 +514,32 @@ can be added easily without changes to the source code.
   'P' number of the last 'G12.1', or 0 after 'G13.1' or when no kinematics
   has been selected. See <<gcode:g12.1-g13.1,G12.1, G13.1>>.
 
-* '#<_kins_orient_1>', '#<_kins_orient_2>' - The axes the kinematics type
-  in force orients the tool with, as axis numbers, 0 for X to 8 for W: the
-  first rotation, the one whose axis stays put, then the second. A head
-  and a table give the table first. The type's module declares the letters,
-  or they are those its joint map gives the joints that turn. -1 where the
-  type does not orient with two rotaries, the identity type or a robot
-  among them, or the interpreter cannot evaluate the kinematics. An axis
+* '#<_kins_orient_1>', '#<_kins_orient_2>', '#<_kins_orient_3>' - The
+  axes the kinematics type in force orients the tool with, as axis numbers,
+  0 for X to 8 for W: the first rotation, the one whose axis stays put, then
+  the second. A head and a table give the table first. The type's module
+  declares the letters, or they are those its joint map gives the joints
+  that turn. '#<_kins_orient_3>' is -1 on those. A type with three
+  rotaries, a table and a two axis head say, gives all three, the tables
+  first; a robot arm, whose joints all turn the tool, reads 3, 4 and 5, the
+  A B C of its pose. All three are -1 where the type orients otherwise, the identity
+  type among them, or the interpreter cannot evaluate the kinematics. An axis
   named here must be 'ANGULAR' in the INI file; the interpreter refuses a
   module whose type orients with a 'LINEAR' axis when it first loads it.
 
-* '#<_kins_orient_1_head>', '#<_kins_orient_2_head>' - 1 where that axis
-  turns the head, 0 where it turns the table, -1 as above.
+* '#<_kins_orient_1_head>', '#<_kins_orient_2_head>',
+  '#<_kins_orient_3_head>' - 1 where that axis turns the head, 0 where it
+  turns the table, -1 as above.
 
 * '#<_orient_valid>', '#<_orient_x>', '#<_orient_y>', '#<_orient_z>',
-  '#<_orient_a>', '#<_orient_b>', '#<_orient_c>' - The pose 'G53.2' last
-  solved, in program units in the tilted work plane. '#<_orient_valid>' is
-  1 once a 'G53.2' has run; reading the others before that is an error. The
-  same values are on the numbered parameters '#5071' to '#5080'. See
+  '#<_orient_rot1>', '#<_orient_rot2>', '#<_orient_rot3>' - The pose 'G53.2'
+  last solved, in program units in the tilted work plane: X Y Z, then the
+  angles of the axes '#<_kins_orient_1>' to '#<_kins_orient_3>' name, in
+  that order, 0 for a third the machine does not have. This is how Fanuc
+  and Siemens number the rotaries of a five axis machine, first and second,
+  whatever their letters. '#<_orient_valid>' is 1 once a 'G53.2' has run;
+  reading the others before that is an error. The same values are on the
+  numbered parameters '#5071' to '#5076' and '#5080'. See
   <<gcode:g53.1,G53.1, G53.2, G53.3, G53.6>>.
 
 * '#<_plane>' - returns the value designating the current plane:
