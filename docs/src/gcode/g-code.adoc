@@ -1884,8 +1884,10 @@ a rotary swings the long way round only where the short way runs out of travel. 
 rotary, the tool vertical on a mill, one joint no longer matters to the
 direction and it stays where it is.
 
-The pose the interpreter finds goes into the move as ordinary rotary
-words, in program coordinates, so the rotary offsets of the coordinate
+The pose the interpreter finds goes into the move as ordinary words of
+the two axes the kinematics type orients the tool with, the ones
+'#<_kins_orient_1>' and '#<_kins_orient_2>' name (A B C for a type that
+orients with three angles, a robot's wrist), in program coordinates, so the rotary offsets of the coordinate
 system apply, and the move interpolates like any other move with rotary
 words: the rotaries turn together with the linear axes between the
 poses of consecutive lines. The vector itself is not interpolated
@@ -1899,7 +1901,8 @@ offset and undoes the kinematics switch, as after 'G43.4'.
 
 It is an error if:
 
-* 'I J K' are given together with a rotary word on the same line,
+* 'I J K' are given together with a word of an orienting axis on the same line,
+* the kinematics type orients the tool with an axis that is not rotary,
 * the vector is zero,
 * the kinematics selected is the identity one, or the module supplies
   no tool frame or cannot be evaluated by the interpreter,
