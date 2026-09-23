@@ -15,6 +15,9 @@ by B and the tool length from the tool table along the tool axis, folded so
 that tip and carriage agree at B zero.
 
 type2 is a plain identity, the joints as the axes, declared identity.
+
+type3 is type1 again, declared primary as well, the way a machine with a
+second tool head declares a working transform for each.
 """;
 pin out si32 dummy=0 "one pin, which halcompile requires";
 option period no;
@@ -132,6 +135,13 @@ static const kins_ops tip_ops = {
     .primary = 1,
 };
 
+// a second head: G43.4 stays on it once G12.1 has selected it
+static const kins_ops second_head_ops = {
+    .forward = tip_forward,
+    .inverse = tip_inverse,
+    .primary = 1,
+};
+
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
                     KF* kfwd0, KF* kfwd1, KF* kfwd2,
@@ -152,6 +162,7 @@ int switchkinsSetup(kparms* kp,
     switchkinsRegisterOps(0, &frame_ops);
     switchkinsRegisterOps(1, &tip_ops);
     switchkinsRegisterOps(2, &KINS_IDENTITY_OPS);
+    switchkinsRegisterOps(3, &second_head_ops);
     return 0;
 }
 

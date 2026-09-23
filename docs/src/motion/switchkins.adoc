@@ -618,7 +618,11 @@ G-code reads these declarations: 'G13.1' and 'G49' cancel to the
 kinstype declared KINSTYPE_MACHINE, 'G53.5', 'G28.5' and 'G30.5' move
 in its world, and 'G43.4' switches to the kinstype declared
 KINSTYPE_PRIMARY, whatever their numbers, so a module whose kinematics
-are not in the conventional order still gets working spellings.  The
+are not in the conventional order still gets working spellings.  A
+machine with two tool heads, a saw blade and a waterjet say, declares
+one primary kinstype per head and selects the head with 'G12.1 P-':
+'G43.4' stays on the kinstype in force when it is primary, and from any
+other switches to the lowest numbered primary.  The
 machine frame kinstype is the machine with the tool left out, XYZ the
 pivot or the flange in machine coordinates and the rotary letters the
 orientation as that kinstype reports it; on a machine whose slides line
@@ -637,8 +641,8 @@ composite Y on a mill-turn, declares its machine frame kinstype
 separately and keeps KINSTYPE_IDENTITY for a kinstype whose joints
 really are the axes, since motion and the planner skip the maths on that
 flag alone.  At most one
-kinstype may be declared identity, at most one primary and at most one
-machine frame, and declaring a kinstype the module does not provide
+kinstype may be declared identity and at most one machine frame, any
+number primary, and declaring a kinstype the module does not provide
 fails the module load.  A module that declares nothing keeps working
 exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
 are an error, since the numbers of the identity and primary kinematics

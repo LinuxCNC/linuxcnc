@@ -325,7 +325,8 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    forward starts from the pose it is handed, so the shared code seeds it
    with the last answer after a switch.  identity says joints are axes, which
    a consumer may use to skip the maths altogether.  primary says this is
-   the module's working transform, the type G43.4 switches to.  machine says
+   a working transform, the type G43.4 switches to; a module with one per
+   tool head flags each, G12.1 choosing the head.  machine says
    this is the machine frame type, the tool left out, the pivot or the flange
    in machine coordinates, which G13.1 and G49 select and G53.5 moves in; a
    module that leaves it unset on every type has its identity type stand in.

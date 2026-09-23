@@ -6597,7 +6597,7 @@ static int kins_type_info_available()
   return 0;
 }
 
-// the type carrying a KINSTYPE_ flag, or -1 when the module declares none;
+// the lowest type carrying a KINSTYPE_ flag, or -1 when the module declares none;
 // -1 for a type is "no information", and it matches every flag, so it must
 // be excluded before the bit test
 int flagged_kins_type(int flag)
@@ -6667,10 +6667,14 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_43_4 || g_code == G_43_5) {
     int primary = flagged_kins_type(KINSTYPE_PRIMARY);
+    int now = GET_EXTERNAL_KINS_TYPE_FLAGS(settings->kins_type);
     // G43.4 is G43 on the module's working transform: switch first, then
     // apply the offset, as if the switch line had run and drained.  With
     // no kinematics attached there is nothing to switch to.  G43.5 is
     // the same, and the lines after it may give the tool axis as I J K.
+    // A module with a working transform per tool head flags each one
+    // primary: the one in force stays, from any other type the lowest.
+    if (now >= 0 && (now & KINSTYPE_PRIMARY)) { primary = settings->kins_type; }
     CHKS(primary < 0 && kins_type_info_available(), NCE_NO_PRIMARY_KINEMATICS_TYPE);
     if (primary >= 0 && primary != settings->kins_type) {
       // the switch keeps the joints and moves the point, so the point

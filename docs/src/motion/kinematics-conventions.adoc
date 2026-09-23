@@ -561,8 +561,9 @@ the optional work and tool frames with the native rotation that relates the
 tool frame to the convention, and the optional Jacobian. A type whose forward
 iterates from the pose it is handed says so, and the shared code seeds it with
 the last answer after a switch. A type also says what it IS: `identity` marks
-the no-transform type, joints are axes; `primary` the working transform
-`G43.4` and `G43.5` switch to; `machine` the machine frame type `G13.1` and
+the no-transform type, joints are axes; `primary` a working transform
+`G43.4` and `G43.5` switch to, which a module with one per tool head sets
+on each, `G12.1` choosing the head; `machine` the machine frame type `G13.1` and
 `G49` cancel to and `G53.5` moves in, which a module leaves unset when its
 identity type is that frame and sets on its working transform when that
 reports the flange with no tool, as the robot modules do (see the Switchable

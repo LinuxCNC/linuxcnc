@@ -635,7 +635,7 @@ int switchkinsInit(const int   comp_id,
                    const char* coordinates)
 {
     int i;
-    int identities, primaries, machines;
+    int identities, machines;
     int res = 0;
     char* emsg = "other";
 
@@ -663,13 +663,13 @@ int switchkinsInit(const int   comp_id,
     }
     if (!kins_count) { emsg = "no switchkins-types provided"; goto error; }
 
-    // declarations must name provided types, and each flag is unique:
-    // G13.1 and G49 resolve the machine frame type from the flags and
-    // G43.4 the primary, so two answers is a load error.  A module that
+    // declarations must name provided types, and identity and machine
+    // are unique: G13.1 and G49 resolve the machine frame type from the
+    // flags, so two answers is a load error.  Several types may be
+    // primary, one per tool head, G12.1 choosing among them.  A module that
     // names no machine frame type has its identity type stand in, which
     // is the truth on every machine whose slides line up with its frame.
     identities = 0;
-    primaries  = 0;
     machines   = 0;
     for (i=0; i < SWITCHKINS_MAX_TYPES; i++) {
         if (ktype_flags[i] & KINSTYPE_MACHINE) { machines++; }
@@ -686,7 +686,6 @@ int switchkinsInit(const int   comp_id,
             identities++;
             if (!machines) { ktype_flags[i] |= KINSTYPE_MACHINE; }
         }
-        if (ktype_flags[i] & KINSTYPE_PRIMARY)  { primaries++;  }
         rtapi_print("switchkins-type %d declared:%s%s%s\n", i,
                     (ktype_flags[i] & KINSTYPE_IDENTITY) ? " identity" : "",
                     (ktype_flags[i] & KINSTYPE_PRIMARY)  ? " primary"  : "",
@@ -694,9 +693,6 @@ int switchkinsInit(const int   comp_id,
     }
     if (identities > 1) {
         emsg = "more than one identity switchkins-type declared"; goto error;
-    }
-    if (primaries > 1) {
-        emsg = "more than one primary switchkins-type declared"; goto error;
     }
     if (machines > 1) {
         emsg = "more than one machine frame switchkins-type declared"; goto error;

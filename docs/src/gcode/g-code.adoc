@@ -1822,7 +1822,10 @@ The H word, the offset itself and the parameters it lands in are
 'G43''s. Which kinematics is the working one is declared by the module
 (KINSTYPE_PRIMARY, see the <<cha:switchable-kinematics,Switchable
 Kinematics>> chapter), the number is not the answer; a module that
-declares none rejects 'G43.4' at read time.
+declares none rejects 'G43.4' at read time. A module with one working
+kinematics per tool head declares each one primary: 'G43.4' stays on the
+one selected with 'G12.1' and, from any other kinematics, switches to the
+lowest numbered.
 
 The switch is a queue synchronisation point like
 '<<gcode:g12.1-g13.1,G12.1>>': when 'G43.4' or 'G49' changes the
