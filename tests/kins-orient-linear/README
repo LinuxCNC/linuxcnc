@@ -1,0 +1,4 @@
+A kinematics type that orients the tool with an axis the INI file makes
+LINEAR is refused: 5axiskins turns the tool with B and C, and here
+[AXIS_B] TYPE is LINEAR.  The interpreter refuses when it first loads the
+module, the G43.5 vector below, with a message naming the type and B.
