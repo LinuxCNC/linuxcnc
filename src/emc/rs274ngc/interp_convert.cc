@@ -5714,7 +5714,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
   if (tool_vector) {
-    CHP(tool_vector_ends(block, settings, &AA_end, &BB_end, &CC_end));
+    double *rotary_end[6] = {&AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end};
+    CHP(tool_vector_ends(block, settings, rotary_end));
   }
 
   if (move == G_1) {

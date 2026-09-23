@@ -59,6 +59,10 @@ enum predefined_named_parameters {
     NP_LINE,
     NP_MOTION_MODE,
     NP_KINS_TYPE,
+    NP_KINS_ORIENT_1,
+    NP_KINS_ORIENT_2,
+    NP_KINS_ORIENT_1_HEAD,
+    NP_KINS_ORIENT_2_HEAD,
     NP_ORIENT_VALID,
     NP_ORIENT_X,
     NP_ORIENT_Y,
@@ -553,6 +557,22 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.kins_type;
 	break;
 
+    case NP_KINS_ORIENT_1: // _kins_orient_1 and kin: the axes that orient the tool
+    case NP_KINS_ORIENT_2:
+    case NP_KINS_ORIENT_1_HEAD:
+    case NP_KINS_ORIENT_2_HEAD:
+	{
+	    int axes[2], head[2];
+	    kins_orient(&_setup, axes, head);
+	    switch (cmd) {
+	    case NP_KINS_ORIENT_1: *value = axes[0]; break;
+	    case NP_KINS_ORIENT_2: *value = axes[1]; break;
+	    case NP_KINS_ORIENT_1_HEAD: *value = head[0]; break;
+	    default: *value = head[1]; break;
+	    }
+	}
+	break;
+
     case NP_ORIENT_VALID: // _orient_valid: G53.2 has solved a pose
 	*value = _setup.orient_valid;
 	break;
@@ -921,6 +941,14 @@ int Interp::init_named_parameters()
 
   // kinematics selected by G12.1 P- / G13.1, 0 when none has been selected
   init_readonly_param("_kins_type", NP_KINS_TYPE, PA_USE_LOOKUP);
+
+  // the axes that orient the tool on that type, 0 X to 8 W, first rotation
+  // then second, and whether each turns the head (1) or the table (0); -1
+  // where the type does not orient with two rotaries
+  init_readonly_param("_kins_orient_1", NP_KINS_ORIENT_1, PA_USE_LOOKUP);
+  init_readonly_param("_kins_orient_2", NP_KINS_ORIENT_2, PA_USE_LOOKUP);
+  init_readonly_param("_kins_orient_1_head", NP_KINS_ORIENT_1_HEAD, PA_USE_LOOKUP);
+  init_readonly_param("_kins_orient_2_head", NP_KINS_ORIENT_2_HEAD, PA_USE_LOOKUP);
 
   // the pose G53.2 last solved: 1.0 once one has been, and its words
   init_readonly_param("_orient_valid", NP_ORIENT_VALID, PA_USE_LOOKUP);

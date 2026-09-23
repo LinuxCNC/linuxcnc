@@ -25,6 +25,7 @@
  ********************************************************************/
 
 #include "kinematics_user.h"
+#include <ctype.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -638,6 +639,72 @@ int kinematicsUserOrientJoints(KinematicsUserContext* ctx, const double* seed,
     frame_ctx = ctx;
     r = toolFrameOrientJoints(frame_tool, ctx->num_joints, j, primary, secondary);
     frame_ctx = NULL;
+    return r;
+}
+
+// the letter of joint j: the principal one, else any that maps to it
+static int joint_letter(const kins_params *p, int j)
+{
+    int a;
+
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (p->joint_of_axis[a] == j) { return a; }
+    }
+    for (a = 0; a < EMCMOT_MAX_AXIS; a++) {
+        if (p->joints_of_axis[a] & (1u << j)) { return a; }
+    }
+    return -1;
+}
+
+int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
+                             int axes[2], int head[2])
+{
+    static const char letters[] = "XYZABCUVW";
+    const kins_ops *ops;
+    double j[EMCMOT_MAX_JOINTS];
+    unsigned int table_mask = 0, head_mask = 0;
+    int joints[2] = {-1, -1};
+    int i, r = -1;
+
+    if (!axes || !head) return -1;
+    axes[0] = axes[1] = head[0] = head[1] = -1;
+    if (!ctx || !ctx->initialized || ctx->rt_only || !seed) return -1;
+    ops = ctx->info.ops[ctx->ktype];
+    if (!ops->tool || !ops->work) return -1;
+    refresh(ctx);
+    pad_joints(ctx, seed, j);
+    frame_ctx = ctx;
+    if (toolFrameWorkJoints(frame_work, ctx->num_joints, j, &table_mask) == 0
+        && toolFrameWorkJoints(frame_tool, ctx->num_joints, j, &head_mask) == 0
+        && !(table_mask & head_mask)) {
+        int tables = __builtin_popcount(table_mask), heads = __builtin_popcount(head_mask);
+        if (heads == 2 && tables == 0) {
+            r = toolFrameOrientJoints(frame_tool, ctx->num_joints, j, &joints[0], &joints[1]);
+            head[0] = head[1] = 1;
+        } else if (tables == 2 && heads == 0) {
+            r = toolFrameOrientJoints(frame_work, ctx->num_joints, j, &joints[0], &joints[1]);
+            head[0] = head[1] = 0;
+        } else if (tables == 1 && heads == 1) {
+            joints[0] = __builtin_ctz(table_mask);
+            joints[1] = __builtin_ctz(head_mask);
+            head[0] = 0;
+            head[1] = 1;
+            r = 0;
+        }
+    }
+    frame_ctx = NULL;
+    for (i = 0; i < 2 && r == 0; i++) {
+        if (ops->orient && ops->orient[0] && ops->orient[1]) {
+            const char *at = strchr(letters, toupper((unsigned char)ops->orient[i]));
+            axes[i] = at ? (int)(at - letters) : -1;
+        } else {
+            axes[i] = joint_letter(&ctx->params, joints[i]);
+        }
+        if (axes[i] < 0) { r = -1; }
+    }
+    if (r != 0) {
+        axes[0] = axes[1] = head[0] = head[1] = -1;
+    }
     return r;
 }
 

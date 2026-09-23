@@ -297,6 +297,52 @@ mdi("G43.5 H1")
 mdi("G49")
 refused("G0 X0 K1", "K word with no")
 
+# ---- the axes that orient the tool ---------------------------------------
+#
+# 5axiskins turns the tool with a head: C with its axis fixed, B carried by
+# it.  The interpreter finds them from the tool frame and names them by the
+# joint map, as axis numbers; the identity type orients with nothing.  Under
+# G43.5 a word of an axis that does not orient, W here, goes with a vector.
+
+def param(name):
+    drain()
+    c.mdi("(debug,#<%s>)" % name)
+    c.wait_complete(30)
+    deadline = time.time() + 5
+    while time.time() < deadline:
+        m = e.poll()
+        if not m:
+            time.sleep(0.01)
+            continue
+        if m[0] == linuxcnc.OPERATOR_DISPLAY:
+            return float(m[1])
+    error("#<%s> gave no value" % name)
+    return None
+
+ORIENT = ("_kins_orient_1", "_kins_orient_2", "_kins_orient_1_head", "_kins_orient_2_head")
+errors_before = errors
+mdi("G12.1 P0")
+got = [param(n) for n in ORIENT]
+if got != [5, 4, 1, 1]:
+    error("on the 5-axis type the orienting axes read %s, not C then B, both heads" % (got,))
+mdi("G13.1")
+got = [param(n) for n in ORIENT]
+if got != [-1, -1, -1, -1]:
+    error("on the identity type the orienting axes read %s, not none" % (got,))
+mdi("G12.1 P0")
+mdi("G0 X0 Y0 Z0 B0 C0 W0")
+mdi("G43.5 H1")
+with_w = mdi("G0 X0 Y0 Z0 K1 W2")
+if abs(with_w[5] - 2) > 1e-6:
+    error("a vector with a W word left W at %.4f, not 2" % with_w[5])
+mdi("G0 W0")
+mdi("G49")
+said = drain()
+if any(m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR) for m in said):
+    error("the orienting axes section reported %s" % (said,))
+elif errors == errors_before:
+    print("the orienting axes are C then B, heads, and W goes along with a vector")
+
 # ---- a negative kinematics number is refused -----------------------------
 
 drain()

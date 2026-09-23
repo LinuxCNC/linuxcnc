@@ -258,6 +258,19 @@ int kinematicsUserOrientJoints(KinematicsUserContext* ctx, const double* seed,
                                int* primary, int* secondary);
 
 /**
+ * The axes that orient the tool on the active type, as axis numbers, 0 X
+ * to 8 W: the first rotation then the second, and whether each turns the
+ * head (1) or the table (0).  Two heads or two tables are ordered as
+ * kinematicsUserOrientJoints() orders them, the one whose axis stays put
+ * first; a table and a head, the table first.  The letters are the type's
+ * declared orient, else those the joint map gives the joints.  Returns 0,
+ * or -1 with all four set to -1 where the type turns other than two
+ * rotaries between tool and work, or a letter cannot be found.
+ */
+int kinematicsUserOrientAxes(KinematicsUserContext* ctx, const double* seed,
+                             int axes[2], int head[2]);
+
+/**
  * kinematicsUserInitSparm() from the value of [KINS] KINEMATICS as the
  * HAL file hands it to loadrt: the module name first, then any of
  * coordinates=, sparm= and kinstype=, in any order.

@@ -331,7 +331,11 @@ typedef int (*kins_jacobian_fn)(const kins_params *p, const double *joint,
    module that leaves it unset on every type has its identity type stand in.
    A machine frame type does not read the tool offset in the parameter block,
    so a working transform that leaves the tool out anyway, a robot's flange,
-   carries primary and machine both. */
+   carries primary and machine both.  orient names the two axis letters
+   that orient the tool, first rotation then second, "AC" for instance; left
+   NULL they are the letters the joint map gives the joints that turn the
+   frames, which is right for a module whose forward puts each joint in its
+   own letter, and a module that puts one elsewhere declares them. */
 typedef struct kins_ops {
     kins_forward_fn         forward;
     kins_inverse_fn         inverse;
@@ -343,6 +347,7 @@ typedef struct kins_ops {
     int                     identity;           /* joints are axes */
     int                     primary;            /* the working transform */
     int                     machine;            /* the machine frame */
+    const char             *orient;             /* orienting letters, NULL: from the joint map */
 } kins_ops;
 
 /* A module described for a caller outside RT: its table, its joint

@@ -479,8 +479,47 @@ int Interp::kins_load(setup_pointer s)
         CHKS((!ctx), _("kinematics module %s cannot be loaded here"), s->kins_module);
         s->kins_ctx = ctx;
         for (int i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = 0.0; }
+        CHP(kins_check_orient(s));
     }
     return INTERP_OK;
+}
+
+// Every type the module evaluates here orients the tool with angular axes:
+// a type whose rotaries are letters the INI file makes LINEAR would have
+// G43.5 and G68.2 write degrees into a length.
+int Interp::kins_check_orient(setup_pointer s)
+{
+    static const char letters[] = "XYZABCUVW";
+    KinematicsUserContext *ctx = KINS_CTX(s);
+    double zero[EMCMOT_MAX_JOINTS] = {0};
+    int t, i, axes[2], head[2];
+
+    for (t = 0; t < kinematicsUserGetNumTypes(ctx); t++) {
+        if (kinematicsUserSetType(ctx, t) != 0) { continue; }
+        if (kinematicsUserOrientAxes(ctx, zero, axes, head) != 0) { continue; }
+        for (i = 0; i < 2; i++) {
+            if (axisKindsAngular(s->axis_kinds, axes[i])) { continue; }
+            kins_release(s);
+            ERS(_("kinematics type %d of %s orients the tool with %c, which [AXIS_%c] TYPE makes LINEAR"),
+                t, s->kins_module, letters[axes[i]], letters[axes[i]]);
+        }
+    }
+    return INTERP_OK;
+}
+
+// The axes that orient the tool on the kinematics type the program is in,
+// at the joints it stands in: axis numbers 0 X to 8 W, first rotation then
+// second, and 1 for a head, 0 for a table.  All -1 where the type turns
+// other than two rotaries, or no module can be evaluated here.
+void Interp::kins_orient(setup_pointer s, int axes[2], int head[2])
+{
+    void *vctx;
+    double now[EMCMOT_MAX_JOINTS];
+
+    axes[0] = axes[1] = head[0] = head[1] = -1;
+    if (kins_context(s, &vctx) != INTERP_OK) { return; }
+    if (current_joints(s, (KinematicsUserContext *)vctx, now) != INTERP_OK) { return; }
+    kinematicsUserOrientAxes((KinematicsUserContext *)vctx, now, axes, head);
 }
 
 // the loaded module, on the kinematics type the program is in
@@ -770,6 +809,22 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
     return work_plane_set(s, G_68_3, origin, rotation);
 }
 
+// The rotary letters a solution for the kinematics type in force is
+// written into, as axis numbers: the two it orients the tool with, else the
+// A B C of the pose, a robot's wrist.  Returns how many.
+static int orienting_letters(KinematicsUserContext *ctx, const double *now, int orienting[3])
+{
+    int axes[2], head[2];
+
+    orienting[0] = 3;
+    orienting[1] = 4;
+    orienting[2] = 5;
+    if (kinematicsUserOrientAxes(ctx, now, axes, head) != 0) { return 3; }
+    orienting[0] = axes[0];
+    orienting[1] = axes[1];
+    return 2;
+}
+
 // G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.  G53.1
 // turns the rotaries alone, in joint space; G53.6 keeps the tool centre point,
 // a Cartesian move; G53.3 goes to X Y Z in the plane; G53.2 only publishes the
@@ -826,6 +881,18 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
         return INTERP_OK;
     }
 
+    // the rotaries the solution turns, in the letters the type orients
+    // with; every other axis stays where it is
+    double rot[6] = {s->AA_current, s->BB_current, s->CC_current,
+                     s->u_current, s->v_current, s->w_current};
+    {
+        int orienting[3];
+        int count = orienting_letters(ctx, now, orienting);
+        for (i = 0; i < count; i++) {
+            if (orienting[i] >= 3) { rot[orienting[i] - 3] = end_prog[orienting[i]]; }
+        }
+    }
+
     write_canon_state_tag(block, s);
     if (code == G_53_1) {
         // the rotaries alone: the linear joints are where they are, since
@@ -841,28 +908,28 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     } else if (code == G_53_6) {
         // the tool centre point stays: a Cartesian move of the rotaries
         STRAIGHT_TRAVERSE(block->line_number, s->current_x, s->current_y, s->current_z,
-                          end_prog[3], end_prog[4], end_prog[5],
-                          s->u_current, s->v_current, s->w_current);
+                          rot[0], rot[1], rot[2], rot[3], rot[4], rot[5]);
     } else {
         double x = block->x_flag ? block->x_number : s->current_x;
         double y = block->y_flag ? block->y_number : s->current_y;
         double z = block->z_flag ? block->z_number : s->current_z;
 
         JOINT_TRAVERSE(block->line_number, NULL, 0, x, y, z,
-                       end_prog[3], end_prog[4], end_prog[5],
-                       s->u_current, s->v_current, s->w_current);
+                       rot[0], rot[1], rot[2], rot[3], rot[4], rot[5]);
         s->current_x = x;
         s->current_y = y;
         s->current_z = z;
     }
-    s->AA_current = end_prog[3];
-    s->BB_current = end_prog[4];
-    s->CC_current = end_prog[5];
     if (code == G_53_1) {
-        s->u_current = end_prog[6];
-        s->v_current = end_prog[7];
-        s->w_current = end_prog[8];
+        // the joints went where the solver put them, every letter with them
+        for (i = 0; i < 6; i++) { rot[i] = end_prog[3 + i]; }
     }
+    s->AA_current = rot[0];
+    s->BB_current = rot[1];
+    s->CC_current = rot[2];
+    s->u_current = rot[3];
+    s->v_current = rot[4];
+    s->w_current = rot[5];
     return INTERP_OK;
 }
 
@@ -981,19 +1048,21 @@ int Interp::orient_solve(setup_pointer s, void *vctx, const PmCartesian *axis, c
 // G43.5: I J K on a G0 or G1 line are the tool axis, tip towards holder, in
 // the coordinate system the line's X Y Z are in.  The rotaries come from the
 // tool frame inverse, every orienting joint free, the nearest pose, as program
-// rotary coordinates so a rotary offset is right by construction.
-int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *a, double *b, double *c)
+// coordinates of the axes the kinematics type orients with (A B C U V W
+// ends, 0 A to 5 W), so a rotary offset is right by construction.
+int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *rotary_end[6])
 {
+    static const char letters[] = "XYZABCUVW";
     void *vctx;
     KinematicsUserContext *ctx;
     double now[EMCMOT_MAX_JOINTS], sol[EMCMOT_MAX_JOINTS];
     double v[3], prog[9];
+    const bool rotary_flag[6] = {block->a_flag, block->b_flag, block->c_flag,
+                                 block->u_flag, block->v_flag, block->w_flag};
     PmCartesian axis;
     EmcPose pose;
     int i;
 
-    CHKS((block->a_flag || block->b_flag || block->c_flag),
-         _("G43.5: a tool vector and rotary words on one line give the orientation twice"));
     v[0] = block->i_flag ? block->i_number : 0.0;
     v[1] = block->j_flag ? block->j_number : 0.0;
     v[2] = block->k_flag ? block->k_number : 0.0;
@@ -1003,6 +1072,16 @@ int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *a, do
     CHKS((kinematicsUserIsIdentity(ctx)),
          _("G43.5: a tool vector needs a kinematics type that describes the machine; select it with G12.1 first"));
     CHP(current_joints(s, ctx, now));
+    int orienting[3];
+    int count = orienting_letters(ctx, now, orienting);
+    CHKS((orienting[0] < 3 || orienting[1] < 3),
+         _("G43.5: kinematics type %d orients the tool with %c and %c, not rotary axes"),
+         s->kins_type, letters[orienting[0]], letters[orienting[1]]);
+    for (i = 0; i < count; i++) {
+        CHKS((rotary_flag[orienting[i] - 3]),
+             _("G43.5: a tool vector and a %c word on one line give the orientation twice"),
+             letters[orienting[i]]);
+    }
     if (block->g_modes[GM_MODAL_0] == G_53) {
         axis.x = v[0];
         axis.y = v[1];
@@ -1019,9 +1098,9 @@ int Interp::tool_vector_ends(block_pointer block, setup_pointer s, double *a, do
          _("G43.5: the kinematics cannot place the orientation it found"));
     for (i = 0; i < EMCMOT_MAX_JOINTS; i++) { s->kins_seed[i] = sol[i]; }
     machine_pose_to_program(s, &pose, prog);
-    *a = prog[3];
-    *b = prog[4];
-    *c = prog[5];
+    for (i = 0; i < count; i++) {
+        *rotary_end[orienting[i] - 3] = prog[orienting[i]];
+    }
     return INTERP_OK;
 }
 

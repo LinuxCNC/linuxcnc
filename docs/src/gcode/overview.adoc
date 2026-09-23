@@ -512,6 +512,19 @@ can be added easily without changes to the source code.
   'P' number of the last 'G12.1', or 0 after 'G13.1' or when no kinematics
   has been selected. See <<gcode:g12.1-g13.1,G12.1, G13.1>>.
 
+* '#<_kins_orient_1>', '#<_kins_orient_2>' - The axes the kinematics type
+  in force orients the tool with, as axis numbers, 0 for X to 8 for W: the
+  first rotation, the one whose axis stays put, then the second. A head
+  and a table give the table first. The type's module declares the letters,
+  or they are those its joint map gives the joints that turn. -1 where the
+  type does not orient with two rotaries, the identity type or a robot
+  among them, or the interpreter cannot evaluate the kinematics. An axis
+  named here must be 'ANGULAR' in the INI file; the interpreter refuses a
+  module whose type orients with a 'LINEAR' axis when it first loads it.
+
+* '#<_kins_orient_1_head>', '#<_kins_orient_2_head>' - 1 where that axis
+  turns the head, 0 where it turns the table, -1 as above.
+
 * '#<_orient_valid>', '#<_orient_x>', '#<_orient_y>', '#<_orient_z>',
   '#<_orient_a>', '#<_orient_b>', '#<_orient_c>' - The pose 'G53.2' last
   solved, in program units in the tilted work plane. '#<_orient_valid>' is

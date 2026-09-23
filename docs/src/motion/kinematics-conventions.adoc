@@ -566,7 +566,13 @@ the no-transform type, joints are axes; `primary` the working transform
 `G49` cancel to and `G53.5` moves in, which a module leaves unset when its
 identity type is that frame and sets on its working transform when that
 reports the flange with no tool, as the robot modules do (see the Switchable
-Kinematics chapter). A module with
+Kinematics chapter). A type may also name the two axis letters that orient
+the tool, first rotation then second, in `orient`: "AC" for instance. Left
+out, they are the letters the joint map gives the joints that turn the frames,
+which is right for a module whose forward puts each joint in its own letter;
+a module that writes an orienting joint into another letter declares them.
+`G43.5` writes its solution into these letters, and the interpreter reads them
+back as `#<_kins_orient_1>` and `#<_kins_orient_2>`. A module with
 several types has one geometry table and one ops table per type, registered
 with `switchkinsRegisterOps()`; a module with one type describes itself in a
 `kins_module` and links `kins_single.c`.
