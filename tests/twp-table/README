@@ -5,3 +5,8 @@ several starting poses: G53.1 with no P takes the nearer of the two poses,
 P1 always the one with A positive and P2 the one with A negative, the same
 pose from every start; each leaves the tool along the plane's normal; a
 move in the plane after the turn ends where the plane puts it.
+
+Then again with A tilting one way only, [AXIS_A] 0 to 100 while [JOINT_3]
+runs on to 9999: G53.1 to each side plane goes to A90 with C carrying the
+side round, never to A270, a whole turn the joint has travel for and the
+axis has not.

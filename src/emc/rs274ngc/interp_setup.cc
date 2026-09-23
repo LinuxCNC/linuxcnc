@@ -121,6 +121,8 @@ setup::setup() :
     kins_module{},
     kins_joints(0),
     kins_angular_joints(0),
+    kins_joint_min{},
+    kins_joint_max{},
     kins_seed{},
 
     parameters{0},
@@ -201,6 +203,8 @@ setup::setup() :
     axis_kinds(axisKindsDefault()),
     axis_wrapped{},
     axis_rotary_modulo{},
+    axis_min{},
+    axis_max{},
     rotary_modulo_literal(0),
     axis_indexer_jnum{-1, -1, -1, -1, -1, -1, -1, -1, -1},
 
@@ -226,6 +230,8 @@ setup::setup() :
     init_once(CANON_STOPPED)
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
+  std::fill(axis_min, axis_min + 9, -1e99);
+  std::fill(axis_max, axis_max + 9, 1e99);
 }
 
 setup::~setup() {

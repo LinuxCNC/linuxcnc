@@ -810,6 +810,89 @@ int Interp::convert_work_plane_from_tool(block_pointer block, setup_pointer s)
     return work_plane_set(s, G_68_3, origin, rotation);
 }
 
+// An angular axis letter of a machine pose, 3 A to 8 W.
+static double pose_letter(const EmcPose *pose, int n)
+{
+    const double v[6] = {pose->a, pose->b, pose->c, pose->u, pose->v, pose->w};
+    return v[n - 3];
+}
+
+// The solver reports each answer in (-180, 180], but the machine stands
+// somewhere in turn space: every angular joint of each pose goes onto the
+// turn nearest where it stands, or the nearest pose is not the nearest move
+// and a free rotary swings the long way round.  Of the turns, only those
+// inside the joint's [JOINT_n] travel count, and inside the [AXIS_n] travel
+// of the letter a whole turn of the joint turns with it, so a rotary that
+// would run out of travel the short way goes the long way, and a pose no
+// turn brings inside is dropped, as is one the forward kinematics puts an
+// angular letter outside its travel at.  seed is where the forward starts.
+// Returns how many poses are left, packed at the front.
+static int orient_fit(setup_pointer s, KinematicsUserContext *ctx, const EmcPose *seed,
+                      double *solutions, int n, int njoints, const double *now)
+{
+    int i, j, l, kept = 0;
+
+    for (i = 0; i < n; i++) {
+        double *pose = &solutions[i*njoints];
+        double q[EMCMOT_MAX_JOINTS] = {};
+        EmcPose base = *seed, turned;
+        bool inside = true, placed;
+
+        for (j = 0; j < njoints; j++) { q[j] = pose[j]; }
+        placed = (kinematicsUserForward(ctx, q, &base) == 0);
+        for (j = 0; j < njoints; j++) {
+            if (!(s->kins_angular_joints & (1 << j))) { continue; }
+            double turns = floor((now[j] - pose[j]) / 360.0 + 0.5);
+            double first = -1e99, last = 1e99;
+            if (j < s->kins_joints) {
+                first = ceil((s->kins_joint_min[j] - pose[j]) / 360.0 - 1e-9);
+                last = floor((s->kins_joint_max[j] - pose[j]) / 360.0 + 1e-9);
+            }
+            // the letter a whole turn of the joint carries a whole turn
+            // along, if any, and the turns its own travel leaves
+            turned = base;
+            q[j] += 360.0;
+            if (placed && kinematicsUserForward(ctx, q, &turned) == 0) {
+                for (l = 3; l < 9; l++) {
+                    double step = pose_letter(&turned, l) - pose_letter(&base, l);
+                    if (fabs(fabs(step) - 360.0) > 1e-6) { continue; }
+                    double at = pose_letter(&base, l), lo, hi;
+                    if (step > 0) {
+                        lo = ceil((s->axis_min[l] - at) / 360.0 - 1e-9);
+                        hi = floor((s->axis_max[l] - at) / 360.0 + 1e-9);
+                    } else {
+                        lo = ceil((at - s->axis_max[l]) / 360.0 - 1e-9);
+                        hi = floor((at - s->axis_min[l]) / 360.0 + 1e-9);
+                    }
+                    first = fmax(first, lo);
+                    last = fmin(last, hi);
+                    break;
+                }
+            }
+            q[j] = pose[j];
+            if (first > last) {
+                inside = false;
+                break;
+            }
+            turns = fmin(fmax(turns, first), last);
+            pose[j] += 360.0 * turns;
+            q[j] = pose[j];
+        }
+        if (inside && placed && kinematicsUserForward(ctx, q, &base) == 0) {
+            for (l = 3; l < 9; l++) {
+                double at = pose_letter(&base, l);
+                if (at < s->axis_min[l] - 1e-9 || at > s->axis_max[l] + 1e-9) { inside = false; }
+            }
+        }
+        if (!inside) { continue; }
+        if (kept != i) {
+            for (j = 0; j < njoints; j++) { solutions[kept*njoints + j] = pose[j]; }
+        }
+        kept++;
+    }
+    return kept;
+}
+
 // G53.1, G53.2, G53.3 and G53.6: the rotaries to the plane's normal.  G53.1
 // turns the rotaries alone, in joint space; G53.6 keeps the tool centre point,
 // a Cartesian move; G53.3 goes to X Y Z in the plane; G53.2 only publishes the
@@ -830,6 +913,7 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     double end_prog[9];
     unsigned int held = 0;
     int p, q, n, i, j, chosen, njoints;
+    bool reached;
     const double *sol;
     const char *name = (code == G_53_1) ? "G53.1" : (code == G_53_2) ? "G53.2" : (code == G_53_3) ? "G53.3" : "G53.6";
 
@@ -849,6 +933,8 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
          _("%s needs a kinematics type that describes the machine; select it with G12.1 first"), name);
     njoints = kinematicsUserGetNumJoints(ctx);
     CHP(current_joints(s, ctx, now));
+    EmcPose seed = {};
+    current_machine_pose(s, &seed);
 
     plane_axis_in_world(s, 2, s->rotation_xy, &axis);
     plane_axis_in_world(s, 0, s->rotation_xy, &xdir);
@@ -857,6 +943,8 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
     }
     n = kinematicsUserToolFrameInverse(ctx, &axis, &xdir, now, held,
                                        solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+    reached = (n > 0);
+    if (n > 0) { n = orient_fit(s, ctx, &seed, solutions, n, njoints, now); }
     if (n == 0 && held) {
         // nothing reachable with the work held still: let it move, still
         // leaving the plane's X to the coordinate system, or a table that
@@ -864,21 +952,13 @@ int Interp::convert_orient_tool(int code, block_pointer block, setup_pointer s)
         held = 0;
         n = kinematicsUserToolFrameInverse(ctx, &axis, NULL, now, held,
                                            solutions, TOOL_FRAME_MAX_SOLUTIONS, free_dirs, spin);
+        reached = reached || (n > 0);
+        if (n > 0) { n = orient_fit(s, ctx, &seed, solutions, n, njoints, now); }
     }
     CHKS((n < 0), _("%s: the kinematics cannot answer the orientation"), name);
+    CHKS((n == 0 && reached),
+         _("%s: every pose that reaches the plane's normal puts a rotary outside its travel"), name);
     CHKS((n == 0), _("%s: the plane's normal cannot be reached by the rotary joints"), name);
-
-    // the solver reports each answer in (-180, 180], but the machine stands
-    // somewhere in turn space: unwrap every angular joint onto the turn
-    // nearest the present position, or the nearest pose is not the nearest
-    // move and a free rotary swings the long way round
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < njoints; j++) {
-            double *v = &solutions[i*njoints + j];
-            if (!(s->kins_angular_joints & (1 << j))) { continue; }
-            *v += 360.0 * floor((now[j] - *v) / 360.0 + 0.5);
-        }
-    }
 
     // nearest first, by rotary travel in joint units
     for (i = 0; i < n; i++) {

@@ -76,7 +76,21 @@ def travel(j, start):
 
 mdi("G12.1 P1", "G0 X0 Y0 Z60 A0 C0")
 
-planes = [(0, 30), (60, 30), (-90, 45), (45, -30), (150, 20)]
+# half.ini: A tilts one way only, its [AXIS_A] travel 0 to 100 while
+# [JOINT_3] runs on to 9999, so a pose turned whole turns along to fit the
+# joint must still fit the axis: each side plane goes to A90, C carrying it
+one_sided = linuxcnc.ini(os.environ["INI_FILE_NAME"]).find("AXIS_A", "MIN_LIMIT") == "0"
+if one_sided:
+    for i in (0, 90, -90, 180):
+        mdi("G69", "G0 X0 Y0 Z60 A0 C0", "G68.2 X0 Y0 Z0 I%g J90 K0" % i)
+        j = mdi("G53.1")
+        off = angle(tool_axis(j), normal(i, 90))
+        if off > 1e-6 or abs(j[A] - 90.0) > 1e-6:
+            error("G53.1 on I%g J90 went to A%.3f C%.3f, %.6f degrees off the normal"
+                  % (i, j[A], j[C], off))
+        print("I%g J90 G53.1 on the one-sided A: A%.3f C%.3f" % (i, j[A], j[C]))
+
+planes = [] if one_sided else [(0, 30), (60, 30), (-90, 45), (45, -30), (150, 20)]
 starts = [(0, 0), (-40, 200), (40, -100)]
 for i, jj in planes:
     nearest = []
@@ -114,7 +128,8 @@ for i, jj in planes:
                   % (i, jj, start[0], start[1], j[A], j[C], other[A], other[C]))
 
 # after the turn, a move in the plane ends where the plane puts it
-for i, jj, word in ((60, 30, "P1"), (60, 30, "P2"), (-90, 45, "P1")):
+turns = () if one_sided else ((60, 30, "P1"), (60, 30, "P2"), (-90, 45, "P1"))
+for i, jj, word in turns:
     mdi("G69", "G0 X0 Y0 Z60 A0 C0", "G68.2 X0 Y0 Z0 I%g J%g K0" % (i, jj),
         "G53.1 %s" % word, "G0 X10 Y5 Z20", "G1 X-10 F2000")
     s.poll()

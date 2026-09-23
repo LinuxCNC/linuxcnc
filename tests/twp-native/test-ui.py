@@ -320,6 +320,63 @@ if m and m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("#<_orient_a> after G53.2: %s" % m[1])
 drain()
 
+# --- the orientation stays inside the rotary travel --------------------
+# the primary rotary C travels -320 to 320: standing at C300, a plane whose
+# nearest pose puts C on the turn past 320 is reached the long way round or
+# by the other pose, whichever is nearer inside the travel, and never by
+# running C out of it
+C_MIN, C_MAX, B_MIN, B_MAX = -320.0, 320.0, -185.0, 185.0
+
+def turn_near(v, now, lo=None, hi=None):
+    turns = math.floor((now - v) / 360.0 + 0.5)
+    if lo is not None:
+        turns = min(max(turns, math.ceil((lo - v) / 360.0)), math.floor((hi - v) / 360.0))
+    return v + 360.0 * turns
+
+def pose_near(pairs, b_now, c_now, limited):
+    best = None
+    for b, cc in pairs:
+        if limited:
+            bb, cc = turn_near(b, b_now, B_MIN, B_MAX), turn_near(cc, c_now, C_MIN, C_MAX)
+        else:
+            bb, cc = turn_near(b, b_now), turn_near(cc, c_now)
+        d = abs(bb - b_now) + abs(cc - c_now)
+        if best is None or d < best[0]:
+            best = (d, bb, cc)
+    return best[1], best[2]
+
+mdi("G69")
+stand = mdi("G0 A0 B0 C300")
+plane = None
+for i in range(-60, 61, 5):
+    for j in range(-60, 61, 5):
+        z = list(rot_y(j).dot(rot_x(i))[:, 2])
+        pairs = oracle_pairs(z)
+        if pairs and pose_near(pairs, stand[SECONDARY], stand[PRIMARY], False)[1] > C_MAX:
+            plane = (i, j, z, pose_near(pairs, stand[SECONDARY], stand[PRIMARY], True))
+            break
+    if plane:
+        break
+if not plane:
+    error("no plane on the grid puts the nearest C past the travel")
+else:
+    i, j, z, want = plane
+    mdi("G68.2 P1 Q123 I%d J%d K0" % (i, j))
+    after, samples = sampled("G53.6")
+    show("G53.6 at the C limit", after)
+    drain()
+    top = max(smp[0][PRIMARY] for smp in samples)
+    bottom = min(smp[0][PRIMARY] for smp in samples)
+    print("plane I%d J%d from C300: C went %.4f to %.4f, the nearest pose inside the travel is B %.4f C %.4f"
+          % (i, j, bottom, top, want[0], want[1]))
+    if top > C_MAX + 1e-6 or bottom < C_MIN - 1e-6:
+        error("G53.6 ran C out of its travel")
+    if abs(after[SECONDARY] - want[0]) > 1e-3 or abs(after[PRIMARY] - want[1]) > 1e-3:
+        error("G53.6 ended at B %.4f C %.4f, not the nearest pose inside the travel"
+              % (after[SECONDARY], after[PRIMARY]))
+    if not close(tool_axis(after), z, 1e-6):
+        error("the tool axis after G53.6 at the C limit is not the plane normal")
+
 # --- G53.3 goes to a point in the plane with the tool oriented ----------
 before = mdi("G69")
 R3 = rot_y(-25).dot(rot_x(35))
