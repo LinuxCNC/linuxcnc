@@ -319,15 +319,16 @@ def param(name):
     error("#<%s> gave no value" % name)
     return None
 
-ORIENT = ("_kins_orient_1", "_kins_orient_2", "_kins_orient_1_head", "_kins_orient_2_head")
+ORIENT = ("_kins_orient_1", "_kins_orient_2", "_kins_orient_3",
+          "_kins_orient_1_head", "_kins_orient_2_head", "_kins_orient_3_head")
 errors_before = errors
 mdi("G12.1 P0")
 got = [param(n) for n in ORIENT]
-if got != [5, 4, 1, 1]:
+if got != [5, 4, -1, 1, 1, -1]:
     error("on the 5-axis type the orienting axes read %s, not C then B, both heads" % (got,))
 mdi("G13.1")
 got = [param(n) for n in ORIENT]
-if got != [-1, -1, -1, -1]:
+if got != [-1, -1, -1, -1, -1, -1]:
     error("on the identity type the orienting axes read %s, not none" % (got,))
 mdi("G12.1 P0")
 mdi("G0 X0 Y0 Z0 B0 C0 W0")
