@@ -162,5 +162,24 @@ if max(abs(a - b) for a, b in zip(s.position[:3], here)) > 1e-3:
           % (["%.4f" % v for v in s.position[:3]], ["%.4f" % v for v in here]))
 print("G53.4 back to the same point  %s" % " ".join("%.4f" % v for v in back))
 
+# the wrist turns the tool with three joints: the arm kinematics orients
+# with the A B C of its pose, all three head
+mdi("G13.1")
+drain()
+c.mdi("(DEBUG,#<_kins_orient_1> #<_kins_orient_2> #<_kins_orient_3>"
+      " #<_kins_orient_1_head> #<_kins_orient_2_head> #<_kins_orient_3_head>)")
+c.wait_complete(30)
+said = None
+deadline = time.time() + 5
+while said is None and time.time() < deadline:
+    m = e.poll()
+    if not m:
+        time.sleep(0.01)
+    elif m[0] == linuxcnc.OPERATOR_DISPLAY:
+        said = [float(v) for v in m[1].split()]
+if said != [3, 4, 5, 1, 1, 1]:
+    error("the arm kinematics orients with %s, not A B C, heads" % (said,))
+print("orienting axes  %s" % said)
+
 print("Exiting with %d errors" % errors)
 sys.exit(1 if errors else 0)
