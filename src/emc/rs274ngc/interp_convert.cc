@@ -6822,12 +6822,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     in_program.tran.x = USER_TO_PROGRAM_LEN(point.tran.x);
     in_program.tran.y = USER_TO_PROGRAM_LEN(point.tran.y);
     in_program.tran.z = USER_TO_PROGRAM_LEN(point.tran.z);
-    in_program.a = USER_TO_PROGRAM_ANG(point.a);
-    in_program.b = USER_TO_PROGRAM_ANG(point.b);
-    in_program.c = USER_TO_PROGRAM_ANG(point.c);
-    in_program.u = USER_TO_PROGRAM_LEN(point.u);
-    in_program.v = USER_TO_PROGRAM_LEN(point.v);
-    in_program.w = USER_TO_PROGRAM_LEN(point.w);
+    in_program.a = USER_TO_PROGRAM_AX(AXIS_A, point.a);
+    in_program.b = USER_TO_PROGRAM_AX(AXIS_B, point.b);
+    in_program.c = USER_TO_PROGRAM_AX(AXIS_C, point.c);
+    in_program.u = USER_TO_PROGRAM_AX(AXIS_U, point.u);
+    in_program.v = USER_TO_PROGRAM_AX(AXIS_V, point.v);
+    in_program.w = USER_TO_PROGRAM_AX(AXIS_W, point.w);
     USE_TOOL_LENGTH_OFFSET(tool_offset, in_program);
   } else {
     double dx, dy, dz;
