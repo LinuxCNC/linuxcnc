@@ -178,13 +178,9 @@ setup::setup() :
     tool_change_with_spindle_on(0),
     parameter_g73_peck_clearance(0.0),
     parameter_g83_peck_clearance(0.0),
-    a_axis_wrapped(0),
-    b_axis_wrapped(0),
-    c_axis_wrapped(0),
-
-    a_indexer_jnum(0),
-    b_indexer_jnum(0),
-    c_indexer_jnum(0),
+    axis_kinds(axisKindsDefault()),
+    axis_wrapped{},
+    axis_indexer_jnum{-1, -1, -1, -1, -1, -1, -1, -1, -1},
 
     lathe_diameter_mode(0),
     mdi_interrupt(0),

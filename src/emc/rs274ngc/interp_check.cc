@@ -489,7 +489,7 @@ int Interp::check_spindle_sync_feed(setup_pointer settings,  //!< pointer to mac
 
   double length = 0.0;
   for (int ax = 0; ax < 9; ax++) {
-    if (ax >= 3 && ax <= 5)
+    if (axisKindsAngular(settings->axis_kinds, ax))
       continue;                 /* rotary */
     length += delta[ax] * delta[ax];
   }
@@ -501,7 +501,7 @@ int Interp::check_spindle_sync_feed(setup_pointer settings,  //!< pointer to mac
   double required_rate = fabs(pitch) * speed;
 
   for (int ax = 0; ax < 9; ax++) {
-    if (ax >= 3 && ax <= 5)
+    if (axisKindsAngular(settings->axis_kinds, ax))
       continue;
     if (delta[ax] == 0.0)
       continue;
