@@ -306,14 +306,15 @@ after2, samples = sampled("G53.2")
 drain()
 if not close(after2, stay, 1e-9):
     error("G53.2 moved the machine: %s became %s" % (stay, after2))
-# read the pose back through the parameters: a move to the published
-# rotary words is a move to the present B and C, with the table held
+# read the pose back through the parameters: the rotaries come in the
+# order the type orients with, the A table, then B and C, and a move to
+# them is a move to the present B and C, with the table held
 before3 = mdi("G0 B0 C0")
-after3, samples = sampled("G0 B#<_orient_b> C#<_orient_c>")
-show("G0 to #<_orient_b/c>", after3)
+after3, samples = sampled("G0 B#<_orient_rot2> C#<_orient_rot3>")
+show("G0 to #<_orient_rot2/rot3>", after3)
 drain()
 if abs(wrap(after3[SECONDARY] - stay[SECONDARY])) > 1e-3 or abs(wrap(after3[PRIMARY] - stay[PRIMARY])) > 1e-3:
-    error("#<_orient_b> #<_orient_c> held (%.4f, %.4f), G53.6 had reached (%.4f, %.4f)"
+    error("#<_orient_rot2> #<_orient_rot3> held (%.4f, %.4f), G53.6 had reached (%.4f, %.4f)"
           % (after3[SECONDARY], after3[PRIMARY], stay[SECONDARY], stay[PRIMARY]))
 if not close(tool_axis(after3), list(R2[:, 2]), 1e-6):
     error("the tool axis at the pose G53.2 published is not the plane normal")
@@ -331,11 +332,26 @@ m = e.poll()
 if not m or m[0] not in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
     error("writing #5075 was accepted; the G53.2 pose is not read-only")
 drain()
-c.mdi("G0 A#<_orient_a>")
+# the axes the type orients with, and the first of them, the table, where
+# it stands; the numbered parameters past the rotaries read 0
+c.mdi("(DEBUG,#<_kins_orient_1> #<_kins_orient_2> #<_kins_orient_3>"
+      " #<_kins_orient_1_head> #<_kins_orient_2_head> #<_kins_orient_3_head>"
+      " #<_orient_rot1> #5074 #5077 #5078 #5079)")
 c.wait_complete(30)
-m = e.poll()
-if m and m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-    error("#<_orient_a> after G53.2: %s" % m[1])
+deadline = time.time() + 5
+said = None
+while said is None and time.time() < deadline:
+    m = e.poll()
+    if not m:
+        time.sleep(0.01)
+    elif m[0] in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+        error("reading the orienting axes after G53.2: %s" % m[1])
+        break
+    elif m[0] == linuxcnc.OPERATOR_DISPLAY:
+        said = [float(v) for v in m[1].split()]
+want = [3, 4, 5, 0, 1, 1, stay[TABLE], stay[TABLE], 0, 0, 0]
+if said is None or len(said) != len(want) or not close(said, want, 1e-3):
+    error("the orienting axes, rot1, #5074 and #5077-#5079 read %s, not %s" % (said, want))
 drain()
 
 # --- the orientation stays inside the rotary travel --------------------
