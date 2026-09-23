@@ -102,6 +102,17 @@ mdi("G49")
 expect_type("G49", 0)
 mdi("G12.1 P1", "G13.1")
 expect_type("G12.1 P1 then G13.1", 0)
+
+# --- two primary types: G43.4 keeps the head G12.1 selected ------------------
+mdi("G12.1 P3", "G43.4 H1")
+expect_type("G12.1 P3 then G43.4, the second head", 3)
+mdi("G49")
+expect_type("G49 from the second head", 0)
+mdi("G12.1 P2", "G43.4 H1")
+expect_type("G43.4 from the identity, the lowest", 1)
+mdi("G12.1 P3", "G43.4 H1")
+expect_type("G43.4 again after G12.1 P3", 3)
+mdi("G49")
 drain()
 
 # --- G53.5 is the machine frame, not the slides ------------------------------
