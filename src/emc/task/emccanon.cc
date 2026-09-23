@@ -1008,7 +1008,12 @@ static void kins_seed(KinematicsUserContext *ctx, const EmcPose *start)
 // position, or a sweep of arc is seen every few degrees or centimetres
 static int kins_samples(const EmcPose *start, const EmcPose *end, double sweep_deg)
 {
-    double rot = fmax(fabs(end->a - start->a), fmax(fabs(end->b - start->b), fabs(end->c - start->c)));
+    const double turn[6] = {end->a - start->a, end->b - start->b, end->c - start->c,
+                            end->u - start->u, end->v - start->v, end->w - start->w};
+    double rot = 0.0;
+    for (int n = 0; n < 6; n++) {
+        if (AXIS_ANG(n + 3)) { rot = fmax(rot, fabs(turn[n])); }
+    }
     double lin = sqrt(pow(end->tran.x - start->tran.x, 2) + pow(end->tran.y - start->tran.y, 2)
                       + pow(end->tran.z - start->tran.z, 2));
     int n = 3 + (int)ceil(rot / 10.0) + (int)ceil(lin / 50.0) + (int)ceil(sweep_deg / 10.0);

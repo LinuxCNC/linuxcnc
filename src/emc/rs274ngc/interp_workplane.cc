@@ -511,12 +511,12 @@ void Interp::kins_set_tool(void *vctx, const EmcPose *offset)
     tool.tran.x = PROGRAM_TO_USER_LEN(offset->tran.x);
     tool.tran.y = PROGRAM_TO_USER_LEN(offset->tran.y);
     tool.tran.z = PROGRAM_TO_USER_LEN(offset->tran.z);
-    tool.a = PROGRAM_TO_USER_ANG(offset->a);
-    tool.b = PROGRAM_TO_USER_ANG(offset->b);
-    tool.c = PROGRAM_TO_USER_ANG(offset->c);
-    tool.u = PROGRAM_TO_USER_LEN(offset->u);
-    tool.v = PROGRAM_TO_USER_LEN(offset->v);
-    tool.w = PROGRAM_TO_USER_LEN(offset->w);
+    tool.a = PROGRAM_TO_USER_AX(3, offset->a);
+    tool.b = PROGRAM_TO_USER_AX(4, offset->b);
+    tool.c = PROGRAM_TO_USER_AX(5, offset->c);
+    tool.u = PROGRAM_TO_USER_AX(6, offset->u);
+    tool.v = PROGRAM_TO_USER_AX(7, offset->v);
+    tool.w = PROGRAM_TO_USER_AX(8, offset->w);
     kinematicsUserSetTool((KinematicsUserContext *)vctx, &tool);
 }
 
@@ -542,12 +542,12 @@ void Interp::current_machine_pose(setup_pointer s, EmcPose *pose)
     pose->tran.x = PROGRAM_TO_USER_LEN(abs_pos[0]);
     pose->tran.y = PROGRAM_TO_USER_LEN(abs_pos[1]);
     pose->tran.z = PROGRAM_TO_USER_LEN(abs_pos[2]);
-    pose->a = PROGRAM_TO_USER_ANG(abs_pos[3]);
-    pose->b = PROGRAM_TO_USER_ANG(abs_pos[4]);
-    pose->c = PROGRAM_TO_USER_ANG(abs_pos[5]);
-    pose->u = PROGRAM_TO_USER_LEN(abs_pos[6]);
-    pose->v = PROGRAM_TO_USER_LEN(abs_pos[7]);
-    pose->w = PROGRAM_TO_USER_LEN(abs_pos[8]);
+    pose->a = PROGRAM_TO_USER_AX(3, abs_pos[3]);
+    pose->b = PROGRAM_TO_USER_AX(4, abs_pos[4]);
+    pose->c = PROGRAM_TO_USER_AX(5, abs_pos[5]);
+    pose->u = PROGRAM_TO_USER_AX(6, abs_pos[6]);
+    pose->v = PROGRAM_TO_USER_AX(7, abs_pos[7]);
+    pose->w = PROGRAM_TO_USER_AX(8, abs_pos[8]);
 }
 
 // and back: a machine pose as program coordinates, through the chain
@@ -558,12 +558,12 @@ void Interp::machine_pose_to_program(setup_pointer s, const EmcPose *pose, doubl
                          USER_TO_PROGRAM_LEN(pose->tran.y),
                          USER_TO_PROGRAM_LEN(pose->tran.z),
                          &prog[0], &prog[1], &prog[2]);
-    prog[3] = USER_TO_PROGRAM_ANG(pose->a) - s->tool_offset.a - s->AA_origin_offset - s->AA_axis_offset;
-    prog[4] = USER_TO_PROGRAM_ANG(pose->b) - s->tool_offset.b - s->BB_origin_offset - s->BB_axis_offset;
-    prog[5] = USER_TO_PROGRAM_ANG(pose->c) - s->tool_offset.c - s->CC_origin_offset - s->CC_axis_offset;
-    prog[6] = USER_TO_PROGRAM_LEN(pose->u) - s->tool_offset.u - s->u_origin_offset - s->u_axis_offset;
-    prog[7] = USER_TO_PROGRAM_LEN(pose->v) - s->tool_offset.v - s->v_origin_offset - s->v_axis_offset;
-    prog[8] = USER_TO_PROGRAM_LEN(pose->w) - s->tool_offset.w - s->w_origin_offset - s->w_axis_offset;
+    prog[3] = USER_TO_PROGRAM_AX(3, pose->a) - s->tool_offset.a - s->AA_origin_offset - s->AA_axis_offset;
+    prog[4] = USER_TO_PROGRAM_AX(4, pose->b) - s->tool_offset.b - s->BB_origin_offset - s->BB_axis_offset;
+    prog[5] = USER_TO_PROGRAM_AX(5, pose->c) - s->tool_offset.c - s->CC_origin_offset - s->CC_axis_offset;
+    prog[6] = USER_TO_PROGRAM_AX(6, pose->u) - s->tool_offset.u - s->u_origin_offset - s->u_axis_offset;
+    prog[7] = USER_TO_PROGRAM_AX(7, pose->v) - s->tool_offset.v - s->v_origin_offset - s->v_axis_offset;
+    prog[8] = USER_TO_PROGRAM_AX(8, pose->w) - s->tool_offset.w - s->w_origin_offset - s->w_axis_offset;
 }
 
 // whether two machine points are the same, to a hair either way
@@ -1103,7 +1103,7 @@ int Interp::slide_words(const char *name, setup_pointer s, void *vctx, const str
     if (undeclared || kinematicsUserIsIdentity(ctx)) {
         CHKS((!p), _("%s: the kinematics module gives no joint mapping"), name);
         for (a = 0; a < 9; a++) {
-            const int angular = (a >= 3 && a <= 5);
+            const int angular = axisKindsAngular(s->axis_kinds, a);
             for (j = 0; j < njoints; j++) {
                 int turns;
                 if (!(p->joints_of_axis[a] & (1 << j))) { continue; }
@@ -1120,12 +1120,11 @@ int Interp::slide_words(const char *name, setup_pointer s, void *vctx, const str
         return machine_frame_joints(name, s, ctx, flags, words, joints);
     }
     for (a = 0; a < 9; a++) {
-        const int angular = (a >= 3 && a <= 5);
         double value;
         if (!flags[a]) { continue; }
         CHKS((p->joints_of_axis[a] == 0),
              _("%s: %c is not a joint of this kinematics"), name, letters[a]);
-        value = angular ? PROGRAM_TO_USER_ANG(words[a]) : PROGRAM_TO_USER_LEN(words[a]);
+        value = PROGRAM_TO_USER_AX(a, words[a]);
         for (j = 0; j < njoints; j++) {
             if (p->joints_of_axis[a] & (1 << j)) { joints[j] = value; }
         }
@@ -1153,9 +1152,8 @@ int Interp::machine_frame_joints(const char *name, setup_pointer s, void *vctx,
     coord[3] = &pose.a; coord[4] = &pose.b; coord[5] = &pose.c;
     coord[6] = &pose.u; coord[7] = &pose.v; coord[8] = &pose.w;
     for (a = 0; a < 9; a++) {
-        const int angular = (a >= 3 && a <= 5);
         if (!flags[a]) { continue; }
-        *coord[a] = angular ? PROGRAM_TO_USER_ANG(words[a]) : PROGRAM_TO_USER_LEN(words[a]);
+        *coord[a] = PROGRAM_TO_USER_AX(a, words[a]);
     }
     for (pass = 0; pass < 8; pass++) {
         double prev[EMCMOT_MAX_JOINTS], worst = 0.0;
@@ -1300,9 +1298,7 @@ int Interp::convert_home_slides(int code, block_pointer block, setup_pointer s)
     CHP(current_joints(s, ctx, joints));
 
     for (a = 0; a < 9; a++) {
-        const int angular = (a >= 3 && a <= 5);
-        home[a] = angular ? USER_TO_PROGRAM_ANG(parameters[base + a])
-                          : USER_TO_PROGRAM_LEN(parameters[base + a]);
+        home[a] = USER_TO_PROGRAM_AX(a, parameters[base + a]);
         given += flags[a];
     }
 
