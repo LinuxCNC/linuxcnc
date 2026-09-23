@@ -628,7 +628,11 @@ are not in the conventional order still gets working spellings.  With
 `MACHINE_MOVES_IN_MACHINE_FRAME` set in the `[RS274NGC]` section of the
 INI file, 'G53', 'G28' and 'G30' move in the machine frame kinstype's
 world too whenever another kinstype is in force; the five axis sims set
-it.  The
+it.  A
+machine with two tool heads, a saw blade and a waterjet say, declares
+one primary kinstype per head and selects the head with 'G12.1 P-':
+'G43.4' stays on the kinstype in force when it is primary, and from any
+other switches to the lowest numbered primary.  The
 machine frame kinstype is the machine with the tool left out, XYZ the
 pivot or the flange in machine coordinates and the rotary letters the
 orientation as that kinstype reports it; on a machine whose slides line
@@ -647,8 +651,8 @@ composite Y on a mill-turn, declares its machine frame kinstype
 separately and keeps KINSTYPE_IDENTITY for a kinstype whose joints
 really are the axes, since motion and the planner skip the maths on that
 flag alone.  At most one
-kinstype may be declared identity, at most one primary and at most one
-machine frame, and declaring a kinstype the module does not provide
+kinstype may be declared identity and at most one machine frame, any
+number primary, and declaring a kinstype the module does not provide
 fails the module load.  A module that declares nothing keeps working
 exactly as before for 'G12.1 P-' and 'G49', but 'G13.1' and 'G43.4'
 are an error, since the numbers of the identity and primary kinematics
