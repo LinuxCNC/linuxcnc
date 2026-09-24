@@ -300,16 +300,15 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
     }
     double v_max_target = tcGetMaxTargetVel(tc, max_scale);
 
-    /* Check if the cartesian velocity limit applies and clip the maximum
+    /* Check if the velocity limit applies and clip the maximum
      * velocity. The vLimit is from the max velocity slider, and should
      * restrict the maximum velocity during non-synced moves and velocity
      * synchronization. However, position-synced moves have the target velocity
      * computed in the TP, so it would disrupt position tracking to apply this
-     * limit here.
+     * limit here. Canon scales vLimit per move, 0 for no limit.
      */
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        /*tc_debug_print("Cartesian velocity limit active\n");*/
-        v_max_target = fmin(v_max_target, tp->vLimit);
+    if (tc->vlimit_scale > 0.0 && tc->synchronized != TC_SYNC_POSITION) {
+        v_max_target = fmin(v_max_target, tp->vLimit * tc->vlimit_scale);
     }
 
     return v_max_target;
@@ -860,6 +859,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     // Skip syncdio setup since this blend extends the previous line
     blend_tc->syncdio =		// enqueue the list of DIOs
 	prev_tc->syncdio;	// that need toggling
+    blend_tc->vlimit_scale = prev_tc->vlimit_scale;
 
     // find "helix" length for target
     double length;
@@ -2118,7 +2118,8 @@ tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  */
 
 int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
-            double vel, double ini_maxvel, double acc, double ini_maxjerk, unsigned char enables,
+            double vel, double ini_maxvel, double acc, double ini_maxjerk,
+            double vlimit_scale, unsigned char enables,
             char atspeed, int indexer_jnum, struct state_tag_t tag)
 {
     if (tpErrorCheck(tp) < 0) {
@@ -2148,6 +2149,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             ini_maxvel,
             acc,
             ini_maxjerk);
+    tc.vlimit_scale = vlimit_scale;
     // Setup line geometry
     pmLine9Init(&tc.coords.line,
             &tp->goalPos,
@@ -2201,6 +2203,7 @@ int tpAddCircle(TP_STRUCT * const tp,
         double ini_maxvel,
         double acc,
         double ini_maxjerk,
+        double vlimit_scale,
         unsigned char enables,
         char atspeed,
         struct state_tag_t tag)
@@ -2251,6 +2254,7 @@ int tpAddCircle(TP_STRUCT * const tp,
             ini_maxvel,
             acc,
             ini_maxjerk);
+    tc.vlimit_scale = vlimit_scale;
 
     //Reduce max velocity to match sample rate
     tcClampVelocityByLength(&tc);

@@ -854,13 +854,12 @@ int Interp::init()
       _setup.parameter_g73_peck_clearance = 1;
       _setup.parameter_g83_peck_clearance = 1;
     }
-  _setup.a_axis_wrapped = 0;
-  _setup.b_axis_wrapped = 0;
-  _setup.c_axis_wrapped = 0;
+  _setup.axis_kinds = axisKindsDefault();
+  for (int n = 0; n < 9; n++) {
+      _setup.axis_wrapped[n] = 0;
+      _setup.axis_indexer_jnum[n] = -1; // -1 means not used
+  }
   _setup.random_toolchanger = 0;
-  _setup.a_indexer_jnum = -1; // -1 means not used
-  _setup.b_indexer_jnum = -1; // -1 means not used
-  _setup.c_indexer_jnum = -1; // -1 means not used
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
@@ -883,9 +882,20 @@ int Interp::init()
           _setup.tool_change_at_g30 = inifile.findBoolV("TOOL_CHANGE_AT_G30", "EMCIO", false);
           _setup.tool_change_quill_up = inifile.findBoolV("TOOL_CHANGE_QUILL_UP", "EMCIO", false);
           _setup.tool_change_with_spindle_on = inifile.findBoolV("TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO", false);
-          _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
-          _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
-          _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
+          std::string kinds_err;
+          if (axisKindsRead(inifile, &_setup.axis_kinds, &kinds_err)) {
+              ERS("%s", kinds_err.c_str());
+          }
+          // a wrapped rotary or a locking indexer is an angular axis
+          for (int n = 0; n < 9; n++) {
+              char section[] = "AXIS_X";
+              section[5] = "XYZABCUVW"[n];
+              if (!axisKindsAngular(_setup.axis_kinds, n)) { continue; }
+              _setup.axis_wrapped[n] = inifile.findBoolV("WRAPPED_ROTARY", section, false);
+              if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", section)) {
+                  _setup.axis_indexer_jnum[n] = *inival;
+              }
+          }
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
@@ -908,15 +918,6 @@ int Interp::init()
           if (inifile.findBoolV("OWORD_WARNONLY", "RS274NGC", false))
               _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_A")) {
-              _setup.a_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_B")) {
-              _setup.b_indexer_jnum = *inival;
-          }
-          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_C")) {
-              _setup.c_indexer_jnum = *inival;
-          }
           _setup.orient_offset = inifile.findRealV("ORIENT_OFFSET", "RS274NGC", 0.0);
           double clr = _setup.length_units == CANON_UNITS_INCHES ? 0.050 : 1.0;
           _setup.parameter_g73_peck_clearance = inifile.findRealV("G73_PECK_CLEARANCE", "RS274NGC", clr);
@@ -1096,12 +1097,12 @@ int Interp::init()
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
   _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
   _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
-  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
-  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
-  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(3, pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(4, pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(5, pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_AX(6, pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_AX(7, pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_AX(8, pars[k + 9]);
 
   SET_G5X_OFFSET(_setup.origin_index,
                  _setup.origin_offset_x ,
@@ -1127,12 +1128,12 @@ int Interp::init()
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
       _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-      _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
-      _setup.BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
-      _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-      _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
-      _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
-      _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(3, pars[5214]);
+      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(4, pars[5215]);
+      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(5, pars[5216]);
+      _setup.u_axis_offset = USER_TO_PROGRAM_AX(6, pars[5217]);
+      _setup.v_axis_offset = USER_TO_PROGRAM_AX(7, pars[5218]);
+      _setup.w_axis_offset = USER_TO_PROGRAM_AX(8, pars[5219]);
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;

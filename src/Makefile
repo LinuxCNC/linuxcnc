@@ -403,6 +403,7 @@ SRCHEADERS := \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
     emc/nml_intf/emcmotcfg.h \
+    emc/ini/axis_kinds.hh \
     emc/ini/inifile.hh \
     emc/ini/inifile.h \
     emc/nml_intf/emcpos.h \

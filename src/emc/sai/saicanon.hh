@@ -26,6 +26,7 @@ struct StandaloneInterpInternals
   double _feed_rate;
   int _flood;
   double _external_length_units;
+  int _axis_mask;
   double _length_unit_factor;
   CANON_UNITS _length_unit_type;
   int _line_number;

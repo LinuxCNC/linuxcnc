@@ -596,7 +596,7 @@ This slider sets the jog rate for the rotary axes (A, B and C).
 
 By moving this slider, the maximum velocity can be set. This caps the
 maximum velocity for all programmed moves except spindle-synchronized
-moves.
+moves and moves of angular axes only.
 
 == Keyboard Controls
 

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Test passes if test-ui.py returns successfully
+exit 0

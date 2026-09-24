@@ -63,6 +63,7 @@
 #include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "nml_intf/modal_state.hh"
 #include "tooldata/tooldata.hh"
+#include <axis_kinds.hh>
 #include <algorithm>
 
 //#define EMCCANON_DEBUG
@@ -113,6 +114,15 @@ void UPDATE_TAG(const StateTag& tag) {
 /* macros for converting program units to internal (mm/deg) units */
 #define FROM_PROG_LEN(prog) ((prog) * (canon.lengthUnits == CANON_UNITS_INCHES ? 25.4 : canon.lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
 #define FROM_PROG_ANG(prog) (prog)
+
+/* [AXIS_<letter>] TYPE and [TRAJ] FEED_AXES, axis n 0 X to 8 W */
+static AxisKinds kinds = axisKindsDefault();
+
+#define AXIS_ANG(n) axisKindsAngular(kinds, (n))
+#define TO_EXT_AX(n, v) (AXIS_ANG(n) ? TO_EXT_ANG(v) : TO_EXT_LEN(v))
+#define FROM_EXT_AX(n, v) (AXIS_ANG(n) ? FROM_EXT_ANG(v) : FROM_EXT_LEN(v))
+#define TO_PROG_AX(n, v) (AXIS_ANG(n) ? TO_PROG_ANG(v) : TO_PROG_LEN(v))
+#define FROM_PROG_AX(n, v) (AXIS_ANG(n) ? FROM_PROG_ANG(v) : FROM_PROG_LEN(v))
 
 /* Certain axes are periodic.  Hardcode this for now */
 #define IS_PERIODIC(axisnum) \
@@ -279,29 +289,24 @@ static void from_prog(double &x, double &y, double &z, double &a, double &b, dou
     x = FROM_PROG_LEN(x);
     y = FROM_PROG_LEN(y);
     z = FROM_PROG_LEN(z);
-    // Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
-    // 2.10 cannot handle suppress-macro
-    // cppcheck-suppress selfAssignment
-    a = FROM_PROG_ANG(a);
-    // cppcheck-suppress selfAssignment
-    b = FROM_PROG_ANG(b);
-    // cppcheck-suppress selfAssignment
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
+    a = FROM_PROG_AX(3, a);
+    b = FROM_PROG_AX(4, b);
+    c = FROM_PROG_AX(5, c);
+    u = FROM_PROG_AX(6, u);
+    v = FROM_PROG_AX(7, v);
+    w = FROM_PROG_AX(8, w);
 }
 
 static void from_prog(CANON_POSITION &pos) {
     pos.x = FROM_PROG_LEN(pos.x);
     pos.y = FROM_PROG_LEN(pos.y);
     pos.z = FROM_PROG_LEN(pos.z);
-    pos.a = FROM_PROG_ANG(pos.a);
-    pos.b = FROM_PROG_ANG(pos.b);
-    pos.c = FROM_PROG_ANG(pos.c);
-    pos.u = FROM_PROG_LEN(pos.u);
-    pos.v = FROM_PROG_LEN(pos.v);
-    pos.w = FROM_PROG_LEN(pos.w);
+    pos.a = FROM_PROG_AX(3, pos.a);
+    pos.b = FROM_PROG_AX(4, pos.b);
+    pos.c = FROM_PROG_AX(5, pos.c);
+    pos.u = FROM_PROG_AX(6, pos.u);
+    pos.v = FROM_PROG_AX(7, pos.v);
+    pos.w = FROM_PROG_AX(8, pos.w);
 }
 
 static void from_prog_len(PM_CARTESIAN &vec) {
@@ -314,24 +319,24 @@ static void to_ext(double &x, double &y, double &z, double &a, double &b, double
     x = TO_EXT_LEN(x);
     y = TO_EXT_LEN(y);
     z = TO_EXT_LEN(z);
-    a = TO_EXT_ANG(a);
-    b = TO_EXT_ANG(b);
-    c = TO_EXT_ANG(c);
-    u = TO_EXT_LEN(u);
-    v = TO_EXT_LEN(v);
-    w = TO_EXT_LEN(w);
+    a = TO_EXT_AX(3, a);
+    b = TO_EXT_AX(4, b);
+    c = TO_EXT_AX(5, c);
+    u = TO_EXT_AX(6, u);
+    v = TO_EXT_AX(7, v);
+    w = TO_EXT_AX(8, w);
 }
 
 static void to_ext(CANON_POSITION & pos) {
     pos.x=TO_EXT_LEN(pos.x);
     pos.y=TO_EXT_LEN(pos.y);
     pos.z=TO_EXT_LEN(pos.z);
-    pos.a=TO_EXT_ANG(pos.a);
-    pos.b=TO_EXT_ANG(pos.b);
-    pos.c=TO_EXT_ANG(pos.c);
-    pos.u=TO_EXT_LEN(pos.u);
-    pos.v=TO_EXT_LEN(pos.v);
-    pos.w=TO_EXT_LEN(pos.w);
+    pos.a=TO_EXT_AX(3, pos.a);
+    pos.b=TO_EXT_AX(4, pos.b);
+    pos.c=TO_EXT_AX(5, pos.c);
+    pos.u=TO_EXT_AX(6, pos.u);
+    pos.v=TO_EXT_AX(7, pos.v);
+    pos.w=TO_EXT_AX(8, pos.w);
 }
 #endif
 
@@ -348,12 +353,12 @@ static EmcPose to_ext_pose(double x, double y, double z, double a, double b, dou
     result.tran.x = TO_EXT_LEN(x);
     result.tran.y = TO_EXT_LEN(y);
     result.tran.z = TO_EXT_LEN(z);
-    result.a = TO_EXT_ANG(a);
-    result.b = TO_EXT_ANG(b);
-    result.c = TO_EXT_ANG(c);
-    result.u = TO_EXT_LEN(u);
-    result.v = TO_EXT_LEN(v);
-    result.w = TO_EXT_LEN(w);
+    result.a = TO_EXT_AX(3, a);
+    result.b = TO_EXT_AX(4, b);
+    result.c = TO_EXT_AX(5, c);
+    result.u = TO_EXT_AX(6, u);
+    result.v = TO_EXT_AX(7, v);
+    result.w = TO_EXT_AX(8, w);
     return result;
 }
 
@@ -362,12 +367,12 @@ static EmcPose to_ext_pose(const CANON_POSITION & pos) {
     result.tran.x = TO_EXT_LEN(pos.x);
     result.tran.y = TO_EXT_LEN(pos.y);
     result.tran.z = TO_EXT_LEN(pos.z);
-    result.a = TO_EXT_ANG(pos.a);
-    result.b = TO_EXT_ANG(pos.b);
-    result.c = TO_EXT_ANG(pos.c);
-    result.u = TO_EXT_LEN(pos.u);
-    result.v = TO_EXT_LEN(pos.v);
-    result.w = TO_EXT_LEN(pos.w);
+    result.a = TO_EXT_AX(3, pos.a);
+    result.b = TO_EXT_AX(4, pos.b);
+    result.c = TO_EXT_AX(5, pos.c);
+    result.u = TO_EXT_AX(6, pos.u);
+    result.v = TO_EXT_AX(7, pos.v);
+    result.w = TO_EXT_AX(8, pos.w);
     return result;
 }
 
@@ -375,12 +380,12 @@ static void to_prog(CANON_POSITION &e) {
     e.x = TO_PROG_LEN(e.x);
     e.y = TO_PROG_LEN(e.y);
     e.z = TO_PROG_LEN(e.z);
-    e.a = TO_PROG_ANG(e.a);
-    e.b = TO_PROG_ANG(e.b);
-    e.c = TO_PROG_ANG(e.c);
-    e.u = TO_PROG_LEN(e.u);
-    e.v = TO_PROG_LEN(e.v);
-    e.w = TO_PROG_LEN(e.w);
+    e.a = TO_PROG_AX(3, e.a);
+    e.b = TO_PROG_AX(4, e.b);
+    e.c = TO_PROG_AX(5, e.c);
+    e.u = TO_PROG_AX(6, e.u);
+    e.v = TO_PROG_AX(7, e.v);
+    e.w = TO_PROG_AX(8, e.w);
 }
 
 static int axis_valid(int n) {
@@ -416,8 +421,8 @@ void CANON_UPDATE_END_POINT(double x, double y, double z,
 			    double u, double v, double w)
 {
     canonUpdateEndPoint(FROM_PROG_LEN(x),FROM_PROG_LEN(y),FROM_PROG_LEN(z),
-    			FROM_PROG_ANG(a),FROM_PROG_ANG(b),FROM_PROG_ANG(c),
-			FROM_PROG_LEN(u),FROM_PROG_LEN(v),FROM_PROG_LEN(w));
+			FROM_PROG_AX(3, a),FROM_PROG_AX(4, b),FROM_PROG_AX(5, c),
+			FROM_PROG_AX(6, u),FROM_PROG_AX(7, v),FROM_PROG_AX(8, w));
 }
 
 static double toExtVel(double vel) {
@@ -600,36 +605,6 @@ static double getMinAngularDisplacement()
     return FROM_EXT_ANG(CART_FUZZ);
 }
 
-/**
- * Apply the minimum displacement check to each axis delta.
- *
- * Checks that the axis is valid / active, and looks up the appropriate minimum
- * displacement for the axis type and user units.
- */
-static void applyMinDisplacement(double &dx,
-                                 double &dy,
-                                 double &dz,
-                                 double &da,
-                                 double &db,
-                                 double &dc,
-                                 double &du,
-                                 double &dv,
-                                 double &dw
-                                 )
-{
-    const double tiny_linear = getMinLinearDisplacement();
-    const double tiny_angular = getMinAngularDisplacement();
-    if(!axis_valid(0) || dx < tiny_linear) dx = 0.0;
-    if(!axis_valid(1) || dy < tiny_linear) dy = 0.0;
-    if(!axis_valid(2) || dz < tiny_linear) dz = 0.0;
-    if(!axis_valid(3) || da < tiny_angular) da = 0.0;
-    if(!axis_valid(4) || db < tiny_linear) db = 0.0;
-    if(!axis_valid(5) || dc < tiny_linear) dc = 0.0;
-    if(!axis_valid(6) || du < tiny_linear) du = 0.0;
-    if(!axis_valid(7) || dv < tiny_linear) dv = 0.0;
-    if(!axis_valid(8) || dw < tiny_linear) dw = 0.0;
-}
-
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
@@ -682,124 +657,122 @@ static int __attribute__((unused)) findMinMoveJoint(double &dx,
     return saxis;
 }
 /**
- * Get the limiting acceleration for a displacement from the current position to the given position.
- * returns a single acceleration that is the minimum of all axis accelerations.
+ * A straight move from canon.endPoint: per axis distance, the axes that
+ * move, the axes it is measured along and its length.  Sets
+ * canon.cartesian_move and canon.angular_move.
+ */
+struct StraightSpan {
+    double d[9];
+    unsigned moving;
+    unsigned measured;
+    double length;
+};
+
+static StraightSpan getStraightSpan(double x, double y, double z,
+                                    double a, double b, double c,
+                                    double u, double v, double w)
+{
+    const double end[9] = {x, y, z, a, b, c, u, v, w};
+    const double start[9] = {canon.endPoint.x, canon.endPoint.y, canon.endPoint.z,
+                             canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
+                             canon.endPoint.u, canon.endPoint.v, canon.endPoint.w};
+    const double tiny_linear = getMinLinearDisplacement();
+    const double tiny_angular = getMinAngularDisplacement();
+    StraightSpan span;
+
+    span.moving = 0;
+    for (int n = 0; n < 9; n++) {
+        span.d[n] = fabs(end[n] - start[n]);
+        if (!axis_valid(n) || span.d[n] < (AXIS_ANG(n) ? tiny_angular : tiny_linear)) {
+            span.d[n] = 0.0;
+        }
+        if (span.d[n] > 0.0) {
+            span.moving |= 1u << n;
+        }
+    }
+    canon.cartesian_move = (span.moving & ~kinds.angular) != 0;
+    canon.angular_move = (span.moving & kinds.angular) != 0;
+    span.measured = axisKindsMeasured(kinds, span.moving);
+    span.length = axisKindsLength(span.measured, span.d);
+
+    if(debug_velacc)
+        printf("getStraightSpan dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g length %g\n",
+               span.d[0], span.d[1], span.d[2], span.d[3], span.d[4], span.d[5],
+               span.d[6], span.d[7], span.d[8], span.length);
+    return span;
+}
+
+/**
+ * Motion measures a line along X Y Z, else U V W, else A B C, whatever the
+ * axis types.  Motion's length over canon's: 1 with the default types.
+ */
+static double motionLengthRatio(const StraightSpan &span)
+{
+    unsigned tier;
+
+    if (span.moving & 0x007u) {
+        tier = 0x007u;
+    } else if (span.moving & 0x1c0u) {
+        tier = 0x1c0u;
+    } else if (span.moving & 0x038u) {
+        tier = 0x038u;
+    } else {
+        return 1.0;
+    }
+    unsigned tier_angular = tier & kinds.angular;
+    if (tier == span.measured && (tier_angular == 0 || tier_angular == tier)) {
+        return 1.0;
+    }
+    double ext[9];
+    for (int n = 0; n < 9; n++) {
+        ext[n] = TO_EXT_AX(n, span.d[n]);
+    }
+    double own = axisKindsMeasuredAngular(kinds, span.measured) ?
+        TO_EXT_ANG(span.length) : TO_EXT_LEN(span.length);
+    if (own <= 0.0) {
+        return 1.0;
+    }
+    return axisKindsLength(tier, ext) / own;
+}
+
+// Scale the rates to motion's length.  The max velocity slider caps canon's
+// length too; a move measured in degrees it does not cap (0).
+template <class M> static void toMotionLength(M &msg, const StraightSpan &span)
+{
+    double ratio = motionLengthRatio(span);
+
+    msg.vel *= ratio;
+    msg.ini_maxvel *= ratio;
+    msg.acc *= ratio;
+    msg.ini_maxjerk *= ratio;
+    msg.vlimit_scale = axisKindsMeasuredAngular(kinds, span.measured) ? 0.0 : ratio;
+}
+
+/**
+ * Get the limiting jerk for a displacement from the current position to the
+ * given position: the path jerk at which the first axis reaches its own.
  */
 static double getStraightJerk(double x, double y, double z,
                                double a, double b, double c,
                                double u, double v, double w){
 
-    double dx, dy, dz, du, dv, dw, da, db, dc;
-    double tx, ty, tz, tu, tv, tw, ta, tb, tc;
-    JerkData out;
+    StraightSpan span = getStraightSpan(x, y, z, a, b, c, u, v, w);
+    double tmax = 0.0;
 
-    out.jerk = 0.0; // if a move to nowhere
-    out.tmax = 0.0;
-    out.dtot = 0.0;
-
-    // Compute absolute travel distance for each axis:
-    dx = fabs(x - canon.endPoint.x);
-    dy = fabs(y - canon.endPoint.y);
-    dz = fabs(z - canon.endPoint.z);
-    da = fabs(a - canon.endPoint.a);
-    db = fabs(b - canon.endPoint.b);
-    dc = fabs(c - canon.endPoint.c);
-    du = fabs(u - canon.endPoint.u);
-    dv = fabs(v - canon.endPoint.v);
-    dw = fabs(w - canon.endPoint.w);
-
-    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
-
-    if(debug_velacc)
-        printf("getStraightJerk dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ",
-               dx, dy, dz, da, db, dc, du, dv, dw);
-
-    // Figure out what kind of move we're making.  This is used to determine
-    // the units of vel/acc.
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
-        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
-	canon.cartesian_move = 0;
-    } else {
-	canon.cartesian_move = 1;
-    }
-    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
-	canon.angular_move = 0;
-    } else {
-	canon.angular_move = 1;
-    }
-
-    // Pure linear move:
     // For jerk-limited motion: d = (1/6)*j*t³, so t = cbrt(6*d/j)
     // We use t = cbrt(d/j) as a characteristic time (omitting the constant factor,
     // which cancels out when we compute path jerk = dtot / tmax³)
-    if (canon.cartesian_move && !canon.angular_move) {
-        tx = dx? cbrt(dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
-        ty = dy? cbrt(dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
-        tz = dz? cbrt(dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
-        tu = du? cbrt(du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
-        tv = dv? cbrt(dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
-        tw = dw? cbrt(dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
-            out.tmax = MAX3(tx, ty ,tz);
-            out.tmax = MAX4(tu, tv, tw, out.tmax);
-
-            if(dx || dy || dz)
-                out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-            else
-                out.dtot = sqrt(du * du + dv * dv + dw * dw);
-
-        if (out.tmax > 0.0) {
-            out.jerk = out.dtot / (out.tmax * out.tmax * out.tmax);
+    for (int n = 0; n < 9; n++) {
+        if (span.d[n]) {
+            tmax = std::max(tmax, cbrt(span.d[n] / FROM_EXT_AX(n, emcAxisGetMaxJerk(n))));
         }
     }
-    // Pure angular move:
-    else if (!canon.cartesian_move && canon.angular_move) {
-        ta = da? cbrt(da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
-        tb = db? cbrt(db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
-        tc = dc? cbrt(dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
-            out.tmax = MAX3(ta, tb, tc);
-
-        out.dtot = sqrt(da * da + db * db + dc * dc);
-        if (out.tmax > 0.0) {
-            out.jerk = out.dtot / (out.tmax * out.tmax * out.tmax);
-        }
+    if (tmax > 0.0) {
+        return span.length / (tmax * tmax * tmax);
     }
-    // Combination angular and linear move:
-    else if (canon.cartesian_move && canon.angular_move) {
-        tx = dx? cbrt(dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
-        ty = dy? cbrt(dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
-        tz = dz? cbrt(dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
-        ta = da? cbrt(da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
-        tb = db? cbrt(db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
-        tc = dc? cbrt(dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
-        tu = du? cbrt(du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
-        tv = dv? cbrt(dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
-        tw = dw? cbrt(dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
-            out.tmax = MAX9(tx, ty, tz,
-                        ta, tb, tc,
-                        tu, tv, tw);
-
-        if(debug_velacc)
-            printf("getStraightJerk t tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
-                tx, ty, tz, ta, tb, tc, tu, tv, tw);
-
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
-
-        if (out.tmax > 0.0) {
-            out.jerk = out.dtot / (out.tmax * out.tmax * out.tmax);
-        }
-    }
-    //if(debug_velacc)
-    //printf("#### CALC THE JERK #### cartesian %d ang %d jerk %g\n", canon.cartesian_move, canon.angular_move, out.jerk);
-    return out.jerk;
+    return 0.0; // a move to nowhere
 }
 
-static double __attribute__((unused)) getStraightJerk(CANON_POSITION pos)
-{
-    return getStraightJerk(pos.x, pos.y, pos.z, pos.a, pos.b, pos.c, pos.u, pos.v, pos.w);
-}
 /**
  * Get the limiting acceleration for a displacement from the current position to the given position.
  * returns a single acceleration that is the minimum of all axis accelerations.
@@ -808,111 +781,28 @@ static AccelData getStraightAcceleration(double x, double y, double z,
                                double a, double b, double c,
                                double u, double v, double w)
 {
-    double dx, dy, dz, du, dv, dw, da, db, dc;
-    double tx, ty, tz, tu, tv, tw, ta, tb, tc;
+    StraightSpan span = getStraightSpan(x, y, z, a, b, c, u, v, w);
     AccelData out;
 
     out.acc = 0.0; // if a move to nowhere
     out.tmax = 0.0;
-    out.dtot = 0.0;
+    out.dtot = span.length;
 
-    // Compute absolute travel distance for each axis:
-    dx = fabs(x - canon.endPoint.x);
-    dy = fabs(y - canon.endPoint.y);
-    dz = fabs(z - canon.endPoint.z);
-    da = fabs(a - canon.endPoint.a);
-    db = fabs(b - canon.endPoint.b);
-    dc = fabs(c - canon.endPoint.c);
-    du = fabs(u - canon.endPoint.u);
-    dv = fabs(v - canon.endPoint.v);
-    dw = fabs(w - canon.endPoint.w);
-
-    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
-
-    if(debug_velacc) 
-        printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
-               dx, dy, dz, da, db, dc, du, dv, dw);
-
-    // Figure out what kind of move we're making.  This is used to determine
-    // the units of vel/acc.
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
-        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
-	canon.cartesian_move = 0;
-    } else {
-	canon.cartesian_move = 1;
-    }
-    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
-	canon.angular_move = 0;
-    } else {
-	canon.angular_move = 1;
-    }
-
-    // Pure linear move:
-    if (canon.cartesian_move && !canon.angular_move) {
-	tx = dx? (dx / FROM_EXT_LEN(emcAxisGetMaxAcceleration(0))): 0.0;
-	ty = dy? (dy / FROM_EXT_LEN(emcAxisGetMaxAcceleration(1))): 0.0;
-	tz = dz? (dz / FROM_EXT_LEN(emcAxisGetMaxAcceleration(2))): 0.0;
-	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
-	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
-	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = std::max({tx, ty ,tz});
-        out.tmax = std::max({tu, tv, tw, out.tmax});
-
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
-        
-	if (out.tmax > 0.0) {
-	    out.acc = out.dtot / out.tmax;
-	}
-    }
-    // Pure angular move:
-    else if (!canon.cartesian_move && canon.angular_move) {
-	ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxAcceleration(3))): 0.0;
-	tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxAcceleration(4))): 0.0;
-	tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxAcceleration(5))): 0.0;
-        out.tmax = std::max({ta, tb, tc});
-
-	out.dtot = sqrt(da * da + db * db + dc * dc);
-	if (out.tmax > 0.0) {
-	    out.acc = out.dtot / out.tmax;
-	}
-    }
-    // Combination angular and linear move:
-    else if (canon.cartesian_move && canon.angular_move) {
-	tx = dx? (dx / FROM_EXT_LEN(emcAxisGetMaxAcceleration(0))): 0.0;
-	ty = dy? (dy / FROM_EXT_LEN(emcAxisGetMaxAcceleration(1))): 0.0;
-	tz = dz? (dz / FROM_EXT_LEN(emcAxisGetMaxAcceleration(2))): 0.0;
-	ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxAcceleration(3))): 0.0;
-	tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxAcceleration(4))): 0.0;
-	tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxAcceleration(5))): 0.0;
-	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
-	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
-	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = std::max({tx, ty, tz,
-                    ta, tb, tc,
-                    tu, tv, tw});
-
-        if(debug_velacc)
-            printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
-                   tx, ty, tz, ta, tb, tc, tu, tv, tw);
 /*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
     a combnation move is handled like a linear move, except
     that the angular axes are allowed sufficient time to
     complete their motion coordinated with the motion of
     the linear axes.
 */
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
-
-	if (out.tmax > 0.0) {
-	    out.acc = out.dtot / out.tmax;
-	}
+    for (int n = 0; n < 9; n++) {
+        if (span.d[n]) {
+            out.tmax = std::max(out.tmax, span.d[n] / FROM_EXT_AX(n, emcAxisGetMaxAcceleration(n)));
+        }
     }
-    if(debug_velacc) 
+    if (out.tmax > 0.0) {
+        out.acc = out.dtot / out.tmax;
+    }
+    if(debug_velacc)
         printf("cartesian %d ang %d acc %g\n", canon.cartesian_move, canon.angular_move, out.acc);
     return out;
 }
@@ -935,120 +825,28 @@ static VelData getStraightVelocity(double x, double y, double z,
 			   double a, double b, double c,
                            double u, double v, double w)
 {
-    double dx, dy, dz, da, db, dc, du, dv, dw;
-    double tx, ty, tz, ta, tb, tc, tu, tv, tw;
+    StraightSpan span = getStraightSpan(x, y, z, a, b, c, u, v, w);
     VelData out;
+
+    out.tmax = 0;
+    out.dtot = span.length;
+    for (int n = 0; n < 9; n++) {
+        if (span.d[n]) {
+            out.tmax = std::max(out.tmax, fabs(span.d[n] / FROM_EXT_AX(n, emcAxisGetMaxVelocity(n))));
+        }
+    }
 
 /* If we get a move to nowhere (!canon.cartesian_move && !canon.angular_move)
    we might as well go there at the canon.linearFeedRate...
 */
-    out.vel = canon.linearFeedRate;
-    out.tmax = 0;
-    out.dtot = 0;
-
-    // Compute absolute travel distance for each axis:
-    dx = fabs(x - canon.endPoint.x);
-    dy = fabs(y - canon.endPoint.y);
-    dz = fabs(z - canon.endPoint.z);
-    da = fabs(a - canon.endPoint.a);
-    db = fabs(b - canon.endPoint.b);
-    dc = fabs(c - canon.endPoint.c);
-    du = fabs(u - canon.endPoint.u);
-    dv = fabs(v - canon.endPoint.v);
-    dw = fabs(w - canon.endPoint.w);
-
-    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
-
-    if(debug_velacc) 
-        printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
-               dx, dy, dz, da, db, dc, du, dv, dw);
-
-    // Figure out what kind of move we're making:
-    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
-        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
-	canon.cartesian_move = 0;
+    if (out.tmax > 0.0) {
+        out.vel = out.dtot / out.tmax;
+    } else if (!canon.cartesian_move && canon.angular_move) {
+        out.vel = canon.angularFeedRate;
     } else {
-	canon.cartesian_move = 1;
+        out.vel = canon.linearFeedRate;
     }
-    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
-	canon.angular_move = 0;
-    } else {
-	canon.angular_move = 1;
-    }
-
-    // Pure linear move:
-    if (canon.cartesian_move && !canon.angular_move) {
-	tx = dx? fabs(dx / FROM_EXT_LEN(emcAxisGetMaxVelocity(0))): 0.0;
-	ty = dy? fabs(dy / FROM_EXT_LEN(emcAxisGetMaxVelocity(1))): 0.0;
-	tz = dz? fabs(dz / FROM_EXT_LEN(emcAxisGetMaxVelocity(2))): 0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = std::max({tx, ty ,tz});
-        out.tmax = std::max({tu, tv, tw, out.tmax});
-
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
-
-        if (out.tmax <= 0.0) {
-            out.vel = canon.linearFeedRate;
-        } else {
-            out.vel = out.dtot / out.tmax;
-        }
-    }
-    // Pure angular move:
-    else if (!canon.cartesian_move && canon.angular_move) {
-	ta = da? fabs(da / FROM_EXT_ANG(emcAxisGetMaxVelocity(3))): 0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(emcAxisGetMaxVelocity(4))): 0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(emcAxisGetMaxVelocity(5))): 0.0;
-        out.tmax = std::max({ta, tb, tc});
-
-	out.dtot = sqrt(da * da + db * db + dc * dc);
-	if (out.tmax <= 0.0) {
-	    out.vel = canon.angularFeedRate;
-	} else {
-	    out.vel = out.dtot / out.tmax;
-	}
-    }
-    // Combination angular and linear move:
-    else if (canon.cartesian_move && canon.angular_move) {
-	tx = dx? fabs(dx / FROM_EXT_LEN(emcAxisGetMaxVelocity(0))): 0.0;
-	ty = dy? fabs(dy / FROM_EXT_LEN(emcAxisGetMaxVelocity(1))): 0.0;
-	tz = dz? fabs(dz / FROM_EXT_LEN(emcAxisGetMaxVelocity(2))): 0.0;
-	ta = da? fabs(da / FROM_EXT_ANG(emcAxisGetMaxVelocity(3))): 0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(emcAxisGetMaxVelocity(4))): 0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(emcAxisGetMaxVelocity(5))): 0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = std::max({tx, ty, tz,
-                    ta, tb, tc,
-                    tu, tv, tw});
-
-        if(debug_velacc)
-            printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
-                    tx, ty, tz, ta, tb, tc, tu, tv, tw);
-
-/*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
-    a combnation move is handled like a linear move, except
-    that the angular axes are allowed sufficient time to
-    complete their motion coordinated with the motion of
-    the linear axes.
-*/
-        if(dx || dy || dz)
-            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
-        else
-            out.dtot = sqrt(du * du + dv * dv + dw * dw);
-
-        if (out.tmax <= 0.0) {
-            out.vel = canon.linearFeedRate;
-        } else {
-            out.vel = out.dtot / out.tmax;
-        }
-    }
-    if(debug_velacc) 
+    if(debug_velacc)
         printf("cartesian %d ang %d vel %g\n", canon.cartesian_move, canon.angular_move, out.vel);
     return out;
 }
@@ -1123,14 +921,14 @@ static void flush_segments(void) {
     linearMoveMsg->end.tran.y = TO_EXT_LEN(y);
     linearMoveMsg->end.tran.z = TO_EXT_LEN(z);
 
-    linearMoveMsg->end.u = TO_EXT_LEN(u);
-    linearMoveMsg->end.v = TO_EXT_LEN(v);
-    linearMoveMsg->end.w = TO_EXT_LEN(w);
+    linearMoveMsg->end.u = TO_EXT_AX(6, u);
+    linearMoveMsg->end.v = TO_EXT_AX(7, v);
+    linearMoveMsg->end.w = TO_EXT_AX(8, w);
 
     // fill in the orientation
-    linearMoveMsg->end.a = TO_EXT_ANG(a);
-    linearMoveMsg->end.b = TO_EXT_ANG(b);
-    linearMoveMsg->end.c = TO_EXT_ANG(c);
+    linearMoveMsg->end.a = TO_EXT_AX(3, a);
+    linearMoveMsg->end.b = TO_EXT_AX(4, b);
+    linearMoveMsg->end.c = TO_EXT_AX(5, c);
 
     linearMoveMsg->vel = toExtVel(vel);
     linearMoveMsg->ini_maxvel = toExtVel(linedata.vel);
@@ -1138,6 +936,7 @@ static void flush_segments(void) {
     double acc = lineaccdata.acc;
     linearMoveMsg->ini_maxjerk = toExtVel(jerk);
     linearMoveMsg->acc = toExtAcc(acc);
+    toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
 
     linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg->indexer_jnum = -1;
@@ -1266,6 +1065,7 @@ void generate_fast_move(double x, double y, double z,
     linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
     linearMoveMsg->acc = toExtAcc(acc);
     linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
 
     linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg->feed_mode = 0;
@@ -1300,6 +1100,7 @@ void generate_move(double vel,double x, double y, double z,
     linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
     linearMoveMsg->acc = toExtAcc(acc);
     linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
     linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg->feed_mode = 0;
     linearMoveMsg->indexer_jnum = -1;
@@ -1349,6 +1150,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
     linearMoveMsg->acc = toExtAcc(acc);
     linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
     linearMoveMsg->indexer_jnum = canon.rotary_unlock_for_traverse;
 
     int old_feed_mode = canon.feed_mode;
@@ -1464,6 +1266,7 @@ void STRAIGHT_PROBE(int line_number,
     probeMsg->ini_maxvel = toExtVel(ini_maxvel);
     probeMsg->acc = toExtAcc(acc);
     probeMsg->ini_maxjerk = toExtVel(jerk);
+    toMotionLength(*probeMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
 
     probeMsg->type = EMC_MOTION_TYPE_PROBING;
     probeMsg->probe_type = probe_type;
@@ -2636,17 +2439,12 @@ void ARC_FEED(int line_number,
 		rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
 		rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
-			// Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
-			// 2.10 cannot handle suppress-macro
-			// cppcheck-suppress selfAssignment
-			a = FROM_PROG_ANG(a);
-			// cppcheck-suppress selfAssignment
-			b = FROM_PROG_ANG(b);
-			// cppcheck-suppress selfAssignment
-			c = FROM_PROG_ANG(c);
-			u = FROM_PROG_LEN(u);
-			v = FROM_PROG_LEN(v);
-			w = FROM_PROG_LEN(w);
+			a = FROM_PROG_AX(3, a);
+			b = FROM_PROG_AX(4, b);
+			c = FROM_PROG_AX(5, c);
+			u = FROM_PROG_AX(6, u);
+			v = FROM_PROG_AX(7, v);
+			w = FROM_PROG_AX(8, w);
 
 			rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
 			see_segment(line_number, _tag, mx, my,
@@ -3144,24 +2942,24 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
     canon.toolOffset.tran.x = FROM_PROG_LEN(offset.tran.x);
     canon.toolOffset.tran.y = FROM_PROG_LEN(offset.tran.y);
     canon.toolOffset.tran.z = FROM_PROG_LEN(offset.tran.z);
-    canon.toolOffset.a = FROM_PROG_ANG(offset.a);
-    canon.toolOffset.b = FROM_PROG_ANG(offset.b);
-    canon.toolOffset.c = FROM_PROG_ANG(offset.c);
-    canon.toolOffset.u = FROM_PROG_LEN(offset.u);
-    canon.toolOffset.v = FROM_PROG_LEN(offset.v);
-    canon.toolOffset.w = FROM_PROG_LEN(offset.w);
+    canon.toolOffset.a = FROM_PROG_AX(3, offset.a);
+    canon.toolOffset.b = FROM_PROG_AX(4, offset.b);
+    canon.toolOffset.c = FROM_PROG_AX(5, offset.c);
+    canon.toolOffset.u = FROM_PROG_AX(6, offset.u);
+    canon.toolOffset.v = FROM_PROG_AX(7, offset.v);
+    canon.toolOffset.w = FROM_PROG_AX(8, offset.w);
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
     set_offset_msg->offset.tran.x = TO_EXT_LEN(canon.toolOffset.tran.x);
     set_offset_msg->offset.tran.y = TO_EXT_LEN(canon.toolOffset.tran.y);
     set_offset_msg->offset.tran.z = TO_EXT_LEN(canon.toolOffset.tran.z);
-    set_offset_msg->offset.a = TO_EXT_ANG(canon.toolOffset.a);
-    set_offset_msg->offset.b = TO_EXT_ANG(canon.toolOffset.b);
-    set_offset_msg->offset.c = TO_EXT_ANG(canon.toolOffset.c);
-    set_offset_msg->offset.u = TO_EXT_LEN(canon.toolOffset.u);
-    set_offset_msg->offset.v = TO_EXT_LEN(canon.toolOffset.v);
-    set_offset_msg->offset.w = TO_EXT_LEN(canon.toolOffset.w);
+    set_offset_msg->offset.a = TO_EXT_AX(3, canon.toolOffset.a);
+    set_offset_msg->offset.b = TO_EXT_AX(4, canon.toolOffset.b);
+    set_offset_msg->offset.c = TO_EXT_AX(5, canon.toolOffset.c);
+    set_offset_msg->offset.u = TO_EXT_AX(6, canon.toolOffset.u);
+    set_offset_msg->offset.v = TO_EXT_AX(7, canon.toolOffset.v);
+    set_offset_msg->offset.w = TO_EXT_AX(8, canon.toolOffset.w);
 
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
@@ -3200,15 +2998,15 @@ void CHANGE_TOOL()
         w = canon.endPoint.w;
 
         if (have_tool_change_position > 3) {
-            a = FROM_EXT_ANG(tool_change_position.a);
-            b = FROM_EXT_ANG(tool_change_position.b);
-            c = FROM_EXT_ANG(tool_change_position.c);
+            a = FROM_EXT_AX(3, tool_change_position.a);
+            b = FROM_EXT_AX(4, tool_change_position.b);
+            c = FROM_EXT_AX(5, tool_change_position.c);
         }
 
         if (have_tool_change_position > 6) {
-            u = FROM_EXT_LEN(tool_change_position.u);
-            v = FROM_EXT_LEN(tool_change_position.v);
-            w = FROM_EXT_LEN(tool_change_position.w);
+            u = FROM_EXT_AX(6, tool_change_position.u);
+            v = FROM_EXT_AX(7, tool_change_position.v);
+            w = FROM_EXT_AX(8, tool_change_position.w);
         }
 
         VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
@@ -3225,6 +3023,7 @@ void CHANGE_TOOL()
         linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
         linearMoveMsg->acc = toExtAcc(acc);
         linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+        toMotionLength(*linearMoveMsg, getStraightSpan(x, y, z, a, b, c, u, v, w));
         linearMoveMsg->type = EMC_MOTION_TYPE_TOOLCHANGE;
 	    linearMoveMsg->feed_mode = 0;
         linearMoveMsg->indexer_jnum = -1;
@@ -3603,32 +3402,32 @@ double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 
 double GET_EXTERNAL_TOOL_LENGTH_AOFFSET()
 {
-    return TO_PROG_ANG(canon.toolOffset.a);
+    return TO_PROG_AX(3, canon.toolOffset.a);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_BOFFSET()
 {
-    return TO_PROG_ANG(canon.toolOffset.b);
+    return TO_PROG_AX(4, canon.toolOffset.b);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_COFFSET()
 {
-    return TO_PROG_ANG(canon.toolOffset.c);
+    return TO_PROG_AX(5, canon.toolOffset.c);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_UOFFSET()
 {
-    return TO_PROG_LEN(canon.toolOffset.u);
+    return TO_PROG_AX(6, canon.toolOffset.u);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_VOFFSET()
 {
-    return TO_PROG_LEN(canon.toolOffset.v);
+    return TO_PROG_AX(7, canon.toolOffset.v);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
 {
-    return TO_PROG_LEN(canon.toolOffset.w);
+    return TO_PROG_AX(8, canon.toolOffset.w);
 }
 
 /*
@@ -3677,6 +3476,14 @@ void INIT_CANON()
     canon.linearFeedRate = 0.0;
     canon.angularFeedRate = 0.0;
     ZERO_EMC_POSE(canon.toolOffset);
+
+    {
+        std::string err;
+        linuxcnc::IniFile ini(emc_inifile);
+        if (axisKindsRead(ini, &kinds, &err)) {
+            rcs_print_error("%s\n", err.c_str());
+        }
+    }
 
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
@@ -3774,8 +3581,8 @@ CANON_POSITION GET_EXTERNAL_POSITION()
 
     // first update internal record of last position
     canonUpdateEndPoint(FROM_EXT_LEN(pos.tran.x), FROM_EXT_LEN(pos.tran.y), FROM_EXT_LEN(pos.tran.z),
-                        FROM_EXT_ANG(pos.a), FROM_EXT_ANG(pos.b), FROM_EXT_ANG(pos.c),
-                        FROM_EXT_LEN(pos.u), FROM_EXT_LEN(pos.v), FROM_EXT_LEN(pos.w));
+                        FROM_EXT_AX(3, pos.a), FROM_EXT_AX(4, pos.b), FROM_EXT_AX(5, pos.c),
+                        FROM_EXT_AX(6, pos.u), FROM_EXT_AX(7, pos.v), FROM_EXT_AX(8, pos.w));
 
     // now calculate position in program units, for interpreter
     position = unoffset_and_unrotate_pos(canon.endPoint);
@@ -3799,13 +3606,13 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos.tran.y = FROM_EXT_LEN(pos.tran.y);
     pos.tran.z = FROM_EXT_LEN(pos.tran.z);
 
-    pos.a = FROM_EXT_ANG(pos.a);
-    pos.b = FROM_EXT_ANG(pos.b);
-    pos.c = FROM_EXT_ANG(pos.c);
+    pos.a = FROM_EXT_AX(3, pos.a);
+    pos.b = FROM_EXT_AX(4, pos.b);
+    pos.c = FROM_EXT_AX(5, pos.c);
 
-    pos.u = FROM_EXT_LEN(pos.u);
-    pos.v = FROM_EXT_LEN(pos.v);
-    pos.w = FROM_EXT_LEN(pos.w);
+    pos.u = FROM_EXT_AX(6, pos.u);
+    pos.v = FROM_EXT_AX(7, pos.v);
+    pos.w = FROM_EXT_AX(8, pos.w);
 
     // now calculate position in program units, for interpreter
     position = unoffset_and_unrotate_pos(pos);
@@ -3864,10 +3671,7 @@ double GET_EXTERNAL_AXIS_MAX_VELOCITY(int axis)
 
     double vel = emcAxisGetMaxVelocity(axis);
 
-    if (axis >= 3 && axis <= 5) {
-	return TO_PROG_ANG(FROM_EXT_ANG(vel)) * 60.0;
-    }
-    return TO_PROG_LEN(FROM_EXT_LEN(vel)) * 60.0;
+    return TO_PROG_AX(axis, FROM_EXT_AX(axis, vel)) * 60.0;
 }
 
 double GET_EXTERNAL_SPINDLE_MAX_VELOCITY(int spindle)

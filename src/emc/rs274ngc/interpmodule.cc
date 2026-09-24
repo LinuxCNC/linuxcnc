@@ -589,40 +589,40 @@ static inline void set_w_origin_offset(Interp &interp, double value)  {
     interp._setup.w_origin_offset = value;
 }
 static inline int get_a_axis_wrapped (Interp &interp)  {
-    return interp._setup.a_axis_wrapped;
+    return interp._setup.axis_wrapped[3];
 }
 static inline void set_a_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.a_axis_wrapped = value;
+    interp._setup.axis_wrapped[3] = value;
 }
 static inline int get_a_indexer (Interp &interp)  {
-    return interp._setup.a_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[3];
 }
 static inline void set_a_indexer(Interp &interp, int value)  {
-    interp._setup.a_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[3] = value;
 }
 static inline int get_b_axis_wrapped (Interp &interp)  {
-    return interp._setup.b_axis_wrapped;
+    return interp._setup.axis_wrapped[4];
 }
 static inline void set_b_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.b_axis_wrapped = value;
+    interp._setup.axis_wrapped[4] = value;
 }
 static inline int get_b_indexer (Interp &interp)  {
-    return interp._setup.b_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[4];
 }
 static inline void set_b_indexer(Interp &interp, int value)  {
-    interp._setup.b_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[4] = value;
 }
 static inline int get_c_axis_wrapped (Interp &interp)  {
-    return interp._setup.c_axis_wrapped;
+    return interp._setup.axis_wrapped[5];
 }
 static inline void set_c_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.c_axis_wrapped = value;
+    interp._setup.axis_wrapped[5] = value;
 }
 static inline int get_c_indexer (Interp &interp)  {
-    return interp._setup.c_indexer_jnum;
+    return interp._setup.axis_indexer_jnum[5];
 }
 static inline void set_c_indexer(Interp &interp, int value)  {
-    interp._setup.c_indexer_jnum = value;
+    interp._setup.axis_indexer_jnum[5] = value;
 }
 static inline int get_call_level (Interp &interp)  {
     return interp._setup.call_level;

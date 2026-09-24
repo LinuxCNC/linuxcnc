@@ -933,12 +933,19 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
   For the common 'trivkins kinematics', joint numbers are assigned in sequence according to the trivkins parameter 'coordinates='.
   So, for trivkins 'coordinates=xz', joint0 corresponds to X and joint1 corresponds to Z.
   See the kinematics man page ('$ man kins') for information on trivkins and other kinematics modules.
+* `FEED_AXES = X Y Z` - (((FEED AXES))) The axes the programmed feed rate F is measured along.
+  All of them must be `LINEAR` axes; the default is X Y Z.
+  A move goes at F along the straight line through the feed axes that move, and every other axis in the move arrives at the same time.
+  A move in which no feed axis moves goes at F along the other linear axes that move, and a move of angular axes only goes at F in degrees per minute.
+  With the defaults this is the RS274NGC rule: X Y Z, else U V W, else A B C.
+  With `FEED_AXES = X Y Z U`, for example, a move of X and U together goes at F along the line through both.
+  The maximum velocity slider of the GUIs caps the rate along that same line, and does not cap a move of angular axes only.
 * `LINEAR_UNITS =` <units>_ - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
   Possible choices are mm or inch.
   This does not affect the linear units in NC code (the G20 and G21 words do this).
 * `ANGULAR_UNITS =` _<units>_ - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
   Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian' (2*π per circle), 'grad', or 'gon' (400 per circle).
-  This does not affect the angular units of NC code. In RS274NGC, A-, B- and C- words are always expressed in degrees.
+  This does not affect the angular units of NC code. In RS274NGC, the words of an `ANGULAR` axis, A, B and C by default, are always expressed in degrees.
 * `DEFAULT_LINEAR_VELOCITY = 0.0167` - The initial rate for jogs of linear axes, in machine units per second.
   The value shown in 'AXIS' equals machine units per minute.
 * `DEFAULT_LINEAR_ACCELERATION = 2.0` - In machines with nontrivial kinematics, the acceleration used for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
@@ -1020,8 +1027,11 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
 * `TYPE = LINEAR` - (enum) The type of this axis, either `LINEAR` or `ANGULAR`.
   Required if this axis is not a default axis type.
   The default axis types are X,Y,Z,U,V,W = LINEAR and A,B,C = ANGULAR.
-  This setting is effective with the AXIS GUI but note that other
-  GUI's may handle things differently.
+  X, Y and Z are always `LINEAR`.
+  A `LINEAR` axis is a length: its words, offsets, stored positions and tool offsets follow G20 and G21 and `[TRAJ]LINEAR_UNITS`.
+  An `ANGULAR` axis is an angle in degrees whatever G20 or G21 says, in `[TRAJ]ANGULAR_UNITS` for the machine, and may be a `WRAPPED_ROTARY` or have a `LOCKING_INDEXER_JOINT`.
+  The feed of a move depends on the type too, see `FEED_AXES` in the <<sub:ini:sec:traj,[TRAJ] section>>.
+  The AXIS GUI shows the axis in the units of its type; other GUIs may not.
 * `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
 * `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
@@ -1037,11 +1047,13 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
 * `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
+  It is ignored on a `LINEAR` axis.
 * `LOCKING_INDEXER_JOINT = 4` - (int) This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.
   After the move the `joint.4.unlock` will be false and motion will wait for `joint.4.is-unlocked` to go false.
   Moving with other joints is not allowed when moving a locked rotary joint.
+  It is ignored on a `LINEAR` axis.
   To create the unlock pins, use the motmod parameter:
 +
 [source,ini]

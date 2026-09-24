@@ -1641,18 +1641,30 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
-  CHKS((block->a_flag && settings->a_axis_wrapped &&
+  CHKS((block->a_flag && settings->axis_wrapped[3] &&
 	(block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
        block->a_number, 'A');
-  CHKS((block->b_flag && settings->b_axis_wrapped &&
+  CHKS((block->b_flag && settings->axis_wrapped[4] &&
 	(block->b_number <= -360.0 || block->b_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
        block->b_number, 'B');
-  CHKS((block->c_flag && settings->c_axis_wrapped &&
+  CHKS((block->c_flag && settings->axis_wrapped[5] &&
 	(block->c_number <= -360.0 || block->c_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
        block->c_number, 'C');
+  CHKS((block->u_flag && settings->axis_wrapped[6] &&
+	(block->u_number <= -360.0 || block->u_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->u_number, 'U');
+  CHKS((block->v_flag && settings->axis_wrapped[7] &&
+	(block->v_number <= -360.0 || block->v_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->v_number, 'V');
+  CHKS((block->w_flag && settings->axis_wrapped[8] &&
+	(block->w_number <= -360.0 || block->w_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+       block->w_number, 'W');
   pars = settings->parameters;
   if ((g_code == G_52) || (g_code == G_92)) {
       pars[G92_APPLIED] = 1.0;
@@ -1760,12 +1772,12 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     pars[5211] = PROGRAM_TO_USER_LEN(settings->axis_offset_x);
     pars[5212] = PROGRAM_TO_USER_LEN(settings->axis_offset_y);
     pars[5213] = PROGRAM_TO_USER_LEN(settings->axis_offset_z);
-    pars[5214] = PROGRAM_TO_USER_ANG(settings->AA_axis_offset);
-    pars[5215] = PROGRAM_TO_USER_ANG(settings->BB_axis_offset);
-    pars[5216] = PROGRAM_TO_USER_ANG(settings->CC_axis_offset);
-    pars[5217] = PROGRAM_TO_USER_LEN(settings->u_axis_offset);
-    pars[5218] = PROGRAM_TO_USER_LEN(settings->v_axis_offset);
-    pars[5219] = PROGRAM_TO_USER_LEN(settings->w_axis_offset);
+    pars[5214] = PROGRAM_TO_USER_AX(3, settings->AA_axis_offset);
+    pars[5215] = PROGRAM_TO_USER_AX(4, settings->BB_axis_offset);
+    pars[5216] = PROGRAM_TO_USER_AX(5, settings->CC_axis_offset);
+    pars[5217] = PROGRAM_TO_USER_AX(6, settings->u_axis_offset);
+    pars[5218] = PROGRAM_TO_USER_AX(7, settings->v_axis_offset);
+    pars[5219] = PROGRAM_TO_USER_AX(8, settings->w_axis_offset);
 
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     pars[5210] = 0.0;
@@ -1810,27 +1822,27 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->current_z =
       settings->current_z + settings->axis_offset_z - USER_TO_PROGRAM_LEN(pars[5213]);
     settings->AA_current =
-      settings->AA_current + settings->AA_axis_offset - USER_TO_PROGRAM_ANG(pars[5214]);
+      settings->AA_current + settings->AA_axis_offset - USER_TO_PROGRAM_AX(3, pars[5214]);
     settings->BB_current =
-      settings->BB_current + settings->BB_axis_offset - USER_TO_PROGRAM_ANG(pars[5215]);
+      settings->BB_current + settings->BB_axis_offset - USER_TO_PROGRAM_AX(4, pars[5215]);
     settings->CC_current =
-      settings->CC_current + settings->CC_axis_offset - USER_TO_PROGRAM_ANG(pars[5216]);
+      settings->CC_current + settings->CC_axis_offset - USER_TO_PROGRAM_AX(5, pars[5216]);
     settings->u_current =
-      settings->u_current + settings->u_axis_offset - USER_TO_PROGRAM_LEN(pars[5217]);
+      settings->u_current + settings->u_axis_offset - USER_TO_PROGRAM_AX(6, pars[5217]);
     settings->v_current =
-      settings->v_current + settings->v_axis_offset - USER_TO_PROGRAM_LEN(pars[5218]);
+      settings->v_current + settings->v_axis_offset - USER_TO_PROGRAM_AX(7, pars[5218]);
     settings->w_current =
-      settings->w_current + settings->w_axis_offset - USER_TO_PROGRAM_LEN(pars[5219]);
+      settings->w_current + settings->w_axis_offset - USER_TO_PROGRAM_AX(8, pars[5219]);
 
     settings->axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
     settings->axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
     settings->axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-    settings->AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
-    settings->BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
-    settings->CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-    settings->u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
-    settings->v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
-    settings->w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
+    settings->AA_axis_offset = USER_TO_PROGRAM_AX(3, pars[5214]);
+    settings->BB_axis_offset = USER_TO_PROGRAM_AX(4, pars[5215]);
+    settings->CC_axis_offset = USER_TO_PROGRAM_AX(5, pars[5216]);
+    settings->u_axis_offset = USER_TO_PROGRAM_AX(6, pars[5217]);
+    settings->v_axis_offset = USER_TO_PROGRAM_AX(7, pars[5218]);
+    settings->w_axis_offset = USER_TO_PROGRAM_AX(8, pars[5219]);
 
     SET_G92_OFFSET(settings->axis_offset_x,
                    settings->axis_offset_y,
@@ -2418,12 +2430,12 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->origin_offset_x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
   settings->origin_offset_y = USER_TO_PROGRAM_LEN(parameters[5202 + (origin * 20)]);
   settings->origin_offset_z = USER_TO_PROGRAM_LEN(parameters[5203 + (origin * 20)]);
-  settings->AA_origin_offset = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
-  settings->BB_origin_offset = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
-  settings->CC_origin_offset = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
-  settings->u_origin_offset = USER_TO_PROGRAM_LEN(parameters[5207 + (origin * 20)]);
-  settings->v_origin_offset = USER_TO_PROGRAM_LEN(parameters[5208 + (origin * 20)]);
-  settings->w_origin_offset = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
+  settings->AA_origin_offset = USER_TO_PROGRAM_AX(3, parameters[5204 + (origin * 20)]);
+  settings->BB_origin_offset = USER_TO_PROGRAM_AX(4, parameters[5205 + (origin * 20)]);
+  settings->CC_origin_offset = USER_TO_PROGRAM_AX(5, parameters[5206 + (origin * 20)]);
+  settings->u_origin_offset = USER_TO_PROGRAM_AX(6, parameters[5207 + (origin * 20)]);
+  settings->v_origin_offset = USER_TO_PROGRAM_AX(7, parameters[5208 + (origin * 20)]);
+  settings->w_origin_offset = USER_TO_PROGRAM_AX(8, parameters[5209 + (origin * 20)]);
   settings->rotation_xy = parameters[5210 + (origin * 20)];
 
   SET_G5X_OFFSET(origin,
@@ -3083,26 +3095,41 @@ int Interp::convert_savehome(int code, block_pointer /*block*/, setup_pointer s)
     x = PROGRAM_TO_USER_LEN(x + s->tool_offset.tran.x + s->origin_offset_x);
     y = PROGRAM_TO_USER_LEN(y + s->tool_offset.tran.y + s->origin_offset_y);
     double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_offset.tran.z + s->origin_offset_z + s->axis_offset_z);
-    double a = PROGRAM_TO_USER_ANG(s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
-    double b = PROGRAM_TO_USER_ANG(s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
-    double c = PROGRAM_TO_USER_ANG(s->CC_current + s->tool_offset.c + s->CC_origin_offset + s->CC_axis_offset);
-    double u = PROGRAM_TO_USER_LEN(s->u_current + s->tool_offset.u + s->u_origin_offset + s->u_axis_offset);
-    double v = PROGRAM_TO_USER_LEN(s->v_current + s->tool_offset.v + s->v_origin_offset + s->v_axis_offset);
-    double w = PROGRAM_TO_USER_LEN(s->w_current + s->tool_offset.w + s->w_origin_offset + s->w_axis_offset);
+    double a = PROGRAM_TO_USER_AX(3, s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
+    double b = PROGRAM_TO_USER_AX(4, s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
+    double c = PROGRAM_TO_USER_AX(5, s->CC_current + s->tool_offset.c + s->CC_origin_offset + s->CC_axis_offset);
+    double u = PROGRAM_TO_USER_AX(6, s->u_current + s->tool_offset.u + s->u_origin_offset + s->u_axis_offset);
+    double v = PROGRAM_TO_USER_AX(7, s->v_current + s->tool_offset.v + s->v_origin_offset + s->v_axis_offset);
+    double w = PROGRAM_TO_USER_AX(8, s->w_current + s->tool_offset.w + s->w_origin_offset + s->w_axis_offset);
 
-    if(s->a_axis_wrapped) {
+    if(s->axis_wrapped[3]) {
         a = fmod(a, 360.0);
         if(a<0) a += 360.0;
     }
 
-    if(s->b_axis_wrapped) {
+    if(s->axis_wrapped[4]) {
         b = fmod(b, 360.0);
         if(b<0) b += 360.0;
     }
 
-    if(s->c_axis_wrapped) {
+    if(s->axis_wrapped[5]) {
         c = fmod(c, 360.0);
         if(c<0) c += 360.0;
+    }
+
+    if(s->axis_wrapped[6]) {
+        u = fmod(u, 360.0);
+        if(u<0) u += 360.0;
+    }
+
+    if(s->axis_wrapped[7]) {
+        v = fmod(v, 360.0);
+        if(v<0) v += 360.0;
+    }
+
+    if(s->axis_wrapped[8]) {
+        w = fmod(w, 360.0);
+        if(w<0) w += 360.0;
     }
 
     if(code == G_28_1) {
@@ -3290,12 +3317,18 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
 
   // move indexers first, one at a time
   // JOINTS_AXES settings->*_indexer_jnum == -1 means notused
-  if (AA_end != settings->AA_current && (-1 != settings->a_indexer_jnum) )
-      issue_straight_index(3,settings->a_indexer_jnum, AA_end, block->line_number, settings);
-  if (BB_end != settings->BB_current && (-1 != settings->b_indexer_jnum) )
-      issue_straight_index(4,settings->b_indexer_jnum, BB_end, block->line_number, settings);
-  if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
-      issue_straight_index(5,settings->c_indexer_jnum, CC_end, block->line_number, settings);
+  if (AA_end != settings->AA_current && (-1 != settings->axis_indexer_jnum[3]) )
+      issue_straight_index(3,settings->axis_indexer_jnum[3], AA_end, block->line_number, settings);
+  if (BB_end != settings->BB_current && (-1 != settings->axis_indexer_jnum[4]) )
+      issue_straight_index(4,settings->axis_indexer_jnum[4], BB_end, block->line_number, settings);
+  if (CC_end != settings->CC_current && (-1 != settings->axis_indexer_jnum[5]) )
+      issue_straight_index(5,settings->axis_indexer_jnum[5], CC_end, block->line_number, settings);
+  if (u_end != settings->u_current && (-1 != settings->axis_indexer_jnum[6]) )
+      issue_straight_index(6,settings->axis_indexer_jnum[6], u_end, block->line_number, settings);
+  if (v_end != settings->v_current && (-1 != settings->axis_indexer_jnum[7]) )
+      issue_straight_index(7,settings->axis_indexer_jnum[7], v_end, block->line_number, settings);
+  if (w_end != settings->w_current && (-1 != settings->axis_indexer_jnum[8]) )
+      issue_straight_index(8,settings->axis_indexer_jnum[8], w_end, block->line_number, settings);
 
   // Create a state tag and dump it to canon
   write_canon_state_tag(block, settings);
@@ -3318,12 +3351,12 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
       find_relative(USER_TO_PROGRAM_LEN(parameters[5161]),
                     USER_TO_PROGRAM_LEN(parameters[5162]),
                     USER_TO_PROGRAM_LEN(parameters[5163]),
-                    USER_TO_PROGRAM_ANG(parameters[5164]),
-                    USER_TO_PROGRAM_ANG(parameters[5165]),
-                    USER_TO_PROGRAM_ANG(parameters[5166]),
-                    USER_TO_PROGRAM_LEN(parameters[5167]),
-                    USER_TO_PROGRAM_LEN(parameters[5168]),
-                    USER_TO_PROGRAM_LEN(parameters[5169]),
+                    USER_TO_PROGRAM_AX(3, parameters[5164]),
+                    USER_TO_PROGRAM_AX(4, parameters[5165]),
+                    USER_TO_PROGRAM_AX(5, parameters[5166]),
+                    USER_TO_PROGRAM_AX(6, parameters[5167]),
+                    USER_TO_PROGRAM_AX(7, parameters[5168]),
+                    USER_TO_PROGRAM_AX(8, parameters[5169]),
                     &end_x_home, &end_y_home, &end_z_home,
                     &AA_end_home, &BB_end_home, &CC_end_home,
                     &u_end_home, &v_end_home, &w_end_home, settings);
@@ -3331,12 +3364,12 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
       find_relative(USER_TO_PROGRAM_LEN(parameters[5181]),
                     USER_TO_PROGRAM_LEN(parameters[5182]),
                     USER_TO_PROGRAM_LEN(parameters[5183]),
-                    USER_TO_PROGRAM_ANG(parameters[5184]),
-                    USER_TO_PROGRAM_ANG(parameters[5185]),
-                    USER_TO_PROGRAM_ANG(parameters[5186]),
-                    USER_TO_PROGRAM_LEN(parameters[5187]),
-                    USER_TO_PROGRAM_LEN(parameters[5188]),
-                    USER_TO_PROGRAM_LEN(parameters[5189]),
+                    USER_TO_PROGRAM_AX(3, parameters[5184]),
+                    USER_TO_PROGRAM_AX(4, parameters[5185]),
+                    USER_TO_PROGRAM_AX(5, parameters[5186]),
+                    USER_TO_PROGRAM_AX(6, parameters[5187]),
+                    USER_TO_PROGRAM_AX(7, parameters[5188]),
+                    USER_TO_PROGRAM_AX(8, parameters[5189]),
                     &end_x_home, &end_y_home, &end_z_home,
                     &AA_end_home, &BB_end_home, &CC_end_home,
                     &u_end_home, &v_end_home, &w_end_home, settings);
@@ -3375,12 +3408,18 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
 
   // move indexers first, one at a time
   // JOINTS_AXES settings->*_indexer_jnum == -1 means notused
-  if (AA_end != settings->AA_current && (-1 != settings->a_indexer_jnum) )
-      issue_straight_index(3,settings->a_indexer_jnum, AA_end, block->line_number, settings);
-  if (BB_end != settings->BB_current && (-1 != settings->b_indexer_jnum) )
-      issue_straight_index(4,settings->b_indexer_jnum, BB_end, block->line_number, settings);
-  if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
-      issue_straight_index(5,settings->c_indexer_jnum, CC_end, block->line_number, settings);
+  if (AA_end != settings->AA_current && (-1 != settings->axis_indexer_jnum[3]) )
+      issue_straight_index(3,settings->axis_indexer_jnum[3], AA_end, block->line_number, settings);
+  if (BB_end != settings->BB_current && (-1 != settings->axis_indexer_jnum[4]) )
+      issue_straight_index(4,settings->axis_indexer_jnum[4], BB_end, block->line_number, settings);
+  if (CC_end != settings->CC_current && (-1 != settings->axis_indexer_jnum[5]) )
+      issue_straight_index(5,settings->axis_indexer_jnum[5], CC_end, block->line_number, settings);
+  if (u_end != settings->u_current && (-1 != settings->axis_indexer_jnum[6]) )
+      issue_straight_index(6,settings->axis_indexer_jnum[6], u_end, block->line_number, settings);
+  if (v_end != settings->v_current && (-1 != settings->axis_indexer_jnum[7]) )
+      issue_straight_index(7,settings->axis_indexer_jnum[7], v_end, block->line_number, settings);
+  if (w_end != settings->w_current && (-1 != settings->axis_indexer_jnum[8]) )
+      issue_straight_index(8,settings->axis_indexer_jnum[8], w_end, block->line_number, settings);
 
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
@@ -3399,6 +3438,25 @@ int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
 }
 
 /****************************************************************************/
+
+// G20/G21 on the axes past X Y Z that are lengths: A B C U V W as their
+// [AXIS_<letter>] TYPE says
+static void scale_linear_axes(setup_pointer settings, double factor)
+{
+  double *current[6] = {&settings->AA_current, &settings->BB_current, &settings->CC_current,
+                        &settings->u_current, &settings->v_current, &settings->w_current};
+  double *axis_offset[6] = {&settings->AA_axis_offset, &settings->BB_axis_offset, &settings->CC_axis_offset,
+                            &settings->u_axis_offset, &settings->v_axis_offset, &settings->w_axis_offset};
+  double *origin_offset[6] = {&settings->AA_origin_offset, &settings->BB_origin_offset, &settings->CC_origin_offset,
+                              &settings->u_origin_offset, &settings->v_origin_offset, &settings->w_origin_offset};
+
+  for (int n = 0; n < 6; n++) {
+    if (axisKindsAngular(settings->axis_kinds, n + 3)) { continue; }
+    *current[n] = (*current[n] * factor);
+    *axis_offset[n] = (*axis_offset[n] * factor);
+    *origin_offset[n] = (*origin_offset[n] * factor);
+  }
+}
 
 /*! convert_length_units
 
@@ -3447,7 +3505,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->program_x = (settings->program_x * INCH_PER_MM);
       settings->program_y = (settings->program_y * INCH_PER_MM);
       settings->program_z = (settings->program_z * INCH_PER_MM);
-      qc_scale(INCH_PER_MM);
+      qc_scale(INCH_PER_MM, settings->axis_kinds);
       settings->cutter_comp_radius *= INCH_PER_MM;
       settings->axis_offset_x = (settings->axis_offset_x * INCH_PER_MM);
       settings->axis_offset_y = (settings->axis_offset_y * INCH_PER_MM);
@@ -3456,15 +3514,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_y = (settings->origin_offset_y * INCH_PER_MM);
       settings->origin_offset_z = (settings->origin_offset_z * INCH_PER_MM);
 
-      settings->u_current = (settings->u_current * INCH_PER_MM);
-      settings->v_current = (settings->v_current * INCH_PER_MM);
-      settings->w_current = (settings->w_current * INCH_PER_MM);
-      settings->u_axis_offset = (settings->u_axis_offset * INCH_PER_MM);
-      settings->v_axis_offset = (settings->v_axis_offset * INCH_PER_MM);
-      settings->w_axis_offset = (settings->w_axis_offset * INCH_PER_MM);
-      settings->u_origin_offset = (settings->u_origin_offset * INCH_PER_MM);
-      settings->v_origin_offset = (settings->v_origin_offset * INCH_PER_MM);
-      settings->w_origin_offset = (settings->w_origin_offset * INCH_PER_MM);
+      scale_linear_axes(settings, INCH_PER_MM);
 
       settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
       settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
@@ -3490,7 +3540,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->program_x = (settings->program_x * MM_PER_INCH);
       settings->program_y = (settings->program_y * MM_PER_INCH);
       settings->program_z = (settings->program_z * MM_PER_INCH);
-      qc_scale(MM_PER_INCH);
+      qc_scale(MM_PER_INCH, settings->axis_kinds);
       settings->cutter_comp_radius *= MM_PER_INCH;
       settings->axis_offset_x = (settings->axis_offset_x * MM_PER_INCH);
       settings->axis_offset_y = (settings->axis_offset_y * MM_PER_INCH);
@@ -3499,15 +3549,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_y = (settings->origin_offset_y * MM_PER_INCH);
       settings->origin_offset_z = (settings->origin_offset_z * MM_PER_INCH);
 
-      settings->u_current = (settings->u_current * MM_PER_INCH);
-      settings->v_current = (settings->v_current * MM_PER_INCH);
-      settings->w_current = (settings->w_current * MM_PER_INCH);
-      settings->u_axis_offset = (settings->u_axis_offset * MM_PER_INCH);
-      settings->v_axis_offset = (settings->v_axis_offset * MM_PER_INCH);
-      settings->w_axis_offset = (settings->w_axis_offset * MM_PER_INCH);
-      settings->u_origin_offset = (settings->u_origin_offset * MM_PER_INCH);
-      settings->v_origin_offset = (settings->v_origin_offset * MM_PER_INCH);
-      settings->w_origin_offset = (settings->w_origin_offset * MM_PER_INCH);
+      scale_linear_axes(settings, MM_PER_INCH);
 
       settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
       settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
@@ -4497,36 +4539,31 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
                           block_pointer block,  //!< pointer to a block of RS274 instructions
                           setup_pointer settings)       //!< pointer to machine settings
 {
-  int ai = block->a_flag && (-1 != settings->a_indexer_jnum);
-  int bi = block->b_flag && (-1 != settings->b_indexer_jnum);
-  int ci = block->c_flag && (-1 != settings->c_indexer_jnum);
+  const bool axis_flag[9] = {block->x_flag, block->y_flag, block->z_flag,
+                             block->a_flag, block->b_flag, block->c_flag,
+                             block->u_flag, block->v_flag, block->w_flag};
+  int indexed = -1;             // the first axis word on a locking indexer
 
-
-  if (motion != G_0) {
-      CHKS((ai), (_("Indexing axis %c can only be moved with G0")), 'A');
-      CHKS((bi), (_("Indexing axis %c can only be moved with G0")), 'B');
-      CHKS((ci), (_("Indexing axis %c can only be moved with G0")), 'C');
+  for (int n = 8; n >= 3; n--) {
+      if (axis_flag[n] && -1 != settings->axis_indexer_jnum[n]) { indexed = n; }
   }
-
-  int xyzuvw_flag = (block->x_flag || block->y_flag || block->z_flag ||
-                     block->u_flag || block->v_flag || block->w_flag);
-
-  CHKS((ai && (xyzuvw_flag || block->b_flag || block->c_flag)),
-       (_("Indexing axis %c can only be moved alone")), 'A');
-  CHKS((bi && (xyzuvw_flag || block->a_flag || block->c_flag)),
-       (_("Indexing axis %c can only be moved alone")), 'B');
-  CHKS((ci && (xyzuvw_flag || block->a_flag || block->b_flag)),
-       (_("Indexing axis %c can only be moved alone")), 'C');
+  for (int n = 3; n < 9 && motion != G_0; n++) {
+      CHKS((axis_flag[n] && -1 != settings->axis_indexer_jnum[n]),
+           (_("Indexing axis %c can only be moved with G0")), "XYZABCUVW"[n]);
+  }
+  for (int n = 3; n < 9; n++) {
+      if (!axis_flag[n] || -1 == settings->axis_indexer_jnum[n]) { continue; }
+      for (int other = 0; other < 9; other++) {
+          CHKS((other != n && axis_flag[other]),
+               (_("Indexing axis %c can only be moved alone")), "XYZABCUVW"[n]);
+      }
+  }
 
   if (!is_a_cycle(motion))
     settings->cycle_il_flag = false;
 
-  if (ai || bi || ci) {
-    int anum=-1,jnum=-1;
-    if (     ai) {anum = 3; jnum = settings->a_indexer_jnum;}
-    else if (bi) {anum = 4; jnum = settings->b_indexer_jnum;}
-    else if (ci) {anum = 5; jnum = settings->c_indexer_jnum;}
-    CHP(convert_straight_indexer(anum, jnum, block, settings));
+  if (indexed != -1) {
+    CHP(convert_straight_indexer(indexed, settings->axis_indexer_jnum[indexed], block, settings));
   } else if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_33_1) || (motion == G_76)) {
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
@@ -4714,17 +4751,17 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         if(block->z_flag)
             settings->tool_table[idx].offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
         if(block->a_flag)
-            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_ANG(block->a_number);
+            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_AX(3, block->a_number);
         if(block->b_flag)
-            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_ANG(block->b_number);
+            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_AX(4, block->b_number);
         if(block->c_flag)
-            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_ANG(block->c_number);
+            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_AX(5, block->c_number);
         if(block->u_flag)
-            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_LEN(block->u_number);
+            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_AX(6, block->u_number);
         if(block->v_flag)
-            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_LEN(block->v_number);
+            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_AX(7, block->v_number);
         if(block->w_flag)
-            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_LEN(block->w_number);
+            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_AX(8, block->w_number);
     } else {
         int to_fixture = block->l_number == 11;
         int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
@@ -4741,12 +4778,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
             tx += USER_TO_PROGRAM_LEN(settings->parameters[5211]);
             ty += USER_TO_PROGRAM_LEN(settings->parameters[5212]);
             tz += USER_TO_PROGRAM_LEN(settings->parameters[5213]);
-            ta += USER_TO_PROGRAM_ANG(settings->parameters[5214]);
-            tb += USER_TO_PROGRAM_ANG(settings->parameters[5215]);
-            tc += USER_TO_PROGRAM_ANG(settings->parameters[5216]);
-            tu += USER_TO_PROGRAM_LEN(settings->parameters[5217]);
-            tv += USER_TO_PROGRAM_LEN(settings->parameters[5218]);
-            tw += USER_TO_PROGRAM_LEN(settings->parameters[5219]);
+            ta += USER_TO_PROGRAM_AX(3, settings->parameters[5214]);
+            tb += USER_TO_PROGRAM_AX(4, settings->parameters[5215]);
+            tc += USER_TO_PROGRAM_AX(5, settings->parameters[5216]);
+            tu += USER_TO_PROGRAM_AX(6, settings->parameters[5217]);
+            tv += USER_TO_PROGRAM_AX(7, settings->parameters[5218]);
+            tw += USER_TO_PROGRAM_AX(8, settings->parameters[5219]);
         }
 
 
@@ -4793,17 +4830,17 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         if(block->z_flag)
             settings->tool_table[idx].offset.tran.z = PROGRAM_TO_USER_LEN(tz - block->z_number);
         if(block->a_flag)
-            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_ANG(ta - block->a_number);
+            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_AX(3, ta - block->a_number);
         if(block->b_flag)
-            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_ANG(tb - block->b_number);
+            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_AX(4, tb - block->b_number);
         if(block->c_flag)
-            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_ANG(tc - block->c_number);
+            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_AX(5, tc - block->c_number);
         if(block->u_flag)
-            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_LEN(tu - block->u_number);
+            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_AX(6, tu - block->u_number);
         if(block->v_flag)
-            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_LEN(tv - block->v_number);
+            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_AX(7, tv - block->v_number);
         if(block->w_flag)
-            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_LEN(tw - block->w_number);
+            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_AX(8, tw - block->w_number);
     }
 
     if(block->r_flag) settings->tool_table[idx].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
@@ -4949,15 +4986,24 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     p_int = settings->origin_index;
   }
 
-  CHKS((block->l_number == 20 && block->a_flag && settings->a_axis_wrapped &&
+  CHKS((block->l_number == 20 && block->a_flag && settings->axis_wrapped[3] &&
         (block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
-  CHKS((block->l_number == 20 && block->b_flag && settings->b_axis_wrapped &&
+  CHKS((block->l_number == 20 && block->b_flag && settings->axis_wrapped[4] &&
         (block->b_number <= -360.0 || block->b_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
-  CHKS((block->l_number == 20 && block->c_flag && settings->c_axis_wrapped &&
+  CHKS((block->l_number == 20 && block->c_flag && settings->axis_wrapped[5] &&
         (block->c_number <= -360.0 || block->c_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
+  CHKS((block->l_number == 20 && block->u_flag && settings->axis_wrapped[6] &&
+        (block->u_number <= -360.0 || block->u_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->u_number, 'U');
+  CHKS((block->l_number == 20 && block->v_flag && settings->axis_wrapped[7] &&
+        (block->v_number <= -360.0 || block->v_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->v_number, 'V');
+  CHKS((block->l_number == 20 && block->w_flag && settings->axis_wrapped[8] &&
+        (block->w_number <= -360.0 || block->w_number >= 360.0)),
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->w_number, 'W');
 
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF && p_int == settings->origin_index),
        (_("Cannot change the active coordinate system with cutter radius compensation on")));
@@ -5031,45 +5077,45 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   if (block->a_flag) {
     a = block->a_number;
-    if (block->l_number == 20) a = ca + USER_TO_PROGRAM_ANG(parameters[5204 + (p_int * 20)]) - a;
-    parameters[5204 + (p_int * 20)] = PROGRAM_TO_USER_ANG(a);
+    if (block->l_number == 20) a = ca + USER_TO_PROGRAM_AX(3, parameters[5204 + (p_int * 20)]) - a;
+    parameters[5204 + (p_int * 20)] = PROGRAM_TO_USER_AX(3, a);
   } else
-    a = USER_TO_PROGRAM_ANG(parameters[5204 + (p_int * 20)]);
+    a = USER_TO_PROGRAM_AX(3, parameters[5204 + (p_int * 20)]);
 
   if (block->b_flag) {
     b = block->b_number;
-    if (block->l_number == 20) b = cb + USER_TO_PROGRAM_ANG(parameters[5205 + (p_int * 20)]) - b;
-    parameters[5205 + (p_int * 20)] = PROGRAM_TO_USER_ANG(b);
+    if (block->l_number == 20) b = cb + USER_TO_PROGRAM_AX(4, parameters[5205 + (p_int * 20)]) - b;
+    parameters[5205 + (p_int * 20)] = PROGRAM_TO_USER_AX(4, b);
   } else
-    b = USER_TO_PROGRAM_ANG(parameters[5205 + (p_int * 20)]);
+    b = USER_TO_PROGRAM_AX(4, parameters[5205 + (p_int * 20)]);
 
   if (block->c_flag) {
     c = block->c_number;
-    if (block->l_number == 20) c = cc + USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]) - c;
-    parameters[5206 + (p_int * 20)] = PROGRAM_TO_USER_ANG(c);
+    if (block->l_number == 20) c = cc + USER_TO_PROGRAM_AX(5, parameters[5206 + (p_int * 20)]) - c;
+    parameters[5206 + (p_int * 20)] = PROGRAM_TO_USER_AX(5, c);
   } else
-    c = USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]);
+    c = USER_TO_PROGRAM_AX(5, parameters[5206 + (p_int * 20)]);
 
   if (block->u_flag) {
     u = block->u_number;
-    if (block->l_number == 20) u = cu + USER_TO_PROGRAM_LEN(parameters[5207 + (p_int * 20)]) - u;
-    parameters[5207 + (p_int * 20)] = PROGRAM_TO_USER_LEN(u);
+    if (block->l_number == 20) u = cu + USER_TO_PROGRAM_AX(6, parameters[5207 + (p_int * 20)]) - u;
+    parameters[5207 + (p_int * 20)] = PROGRAM_TO_USER_AX(6, u);
   } else
-    u = USER_TO_PROGRAM_LEN(parameters[5207 + (p_int * 20)]);
+    u = USER_TO_PROGRAM_AX(6, parameters[5207 + (p_int * 20)]);
 
   if (block->v_flag) {
     v = block->v_number;
-    if (block->l_number == 20) v = cv + USER_TO_PROGRAM_LEN(parameters[5208 + (p_int * 20)]) - v;
-    parameters[5208 + (p_int * 20)] = PROGRAM_TO_USER_LEN(v);
+    if (block->l_number == 20) v = cv + USER_TO_PROGRAM_AX(7, parameters[5208 + (p_int * 20)]) - v;
+    parameters[5208 + (p_int * 20)] = PROGRAM_TO_USER_AX(7, v);
   } else
-    v = USER_TO_PROGRAM_LEN(parameters[5208 + (p_int * 20)]);
+    v = USER_TO_PROGRAM_AX(7, parameters[5208 + (p_int * 20)]);
 
   if (block->w_flag) {
     w = block->w_number;
-    if (block->l_number == 20) w = cw + USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]) - w;
-    parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_LEN(w);
+    if (block->l_number == 20) w = cw + USER_TO_PROGRAM_AX(8, parameters[5209 + (p_int * 20)]) - w;
+    parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_AX(8, w);
   } else
-    w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
+    w = USER_TO_PROGRAM_AX(8, parameters[5209 + (p_int * 20)]);
 
   if (p_int == settings->origin_index) {        /* system is currently used */
 
@@ -5410,12 +5456,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
         settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
         settings->origin_offset_y = USER_TO_PROGRAM_LEN(settings->parameters[5222]);
         settings->origin_offset_z = USER_TO_PROGRAM_LEN(settings->parameters[5223]);
-        settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
-        settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
-        settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
-        settings->u_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5227]);
-        settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
-        settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
+        settings->AA_origin_offset = USER_TO_PROGRAM_AX(3, settings->parameters[5224]);
+        settings->BB_origin_offset = USER_TO_PROGRAM_AX(4, settings->parameters[5225]);
+        settings->CC_origin_offset = USER_TO_PROGRAM_AX(5, settings->parameters[5226]);
+        settings->u_origin_offset = USER_TO_PROGRAM_AX(6, settings->parameters[5227]);
+        settings->v_origin_offset = USER_TO_PROGRAM_AX(7, settings->parameters[5228]);
+        settings->w_origin_offset = USER_TO_PROGRAM_AX(8, settings->parameters[5229]);
         settings->rotation_xy = settings->parameters[5230];
 
         settings->current_x -= settings->origin_offset_x;
@@ -5752,37 +5798,20 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 }
 
 int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, setup_pointer settings) {
-    double end_x, end_y, end_z;
-    double AA_end, BB_end, CC_end;
-    double u_end, v_end, w_end;
+    double end[9];
 
-    find_ends(block, settings, &end_x, &end_y, &end_z,
-              &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end);
+    find_ends(block, settings, &end[0], &end[1], &end[2],
+              &end[3], &end[4], &end[5], &end[6], &end[7], &end[8]);
 
-    CHKS((end_x != settings->current_x ||
-          end_y != settings->current_y ||
-          end_z != settings->current_z ||
-          u_end != settings->u_current ||
-          v_end != settings->v_current ||
-          w_end != settings->w_current ||
-          (axis != 3 && AA_end != settings->AA_current) ||
-          (axis != 4 && BB_end != settings->BB_current) ||
-          (axis != 5 && CC_end != settings->CC_current)),
-         _("BUG: An axis incorrectly moved along with an indexer"));
-
-    switch(axis) {
-    case 3:
-        issue_straight_index(axis, jnum, AA_end, block->line_number, settings);
-        break;
-    case 4:
-        issue_straight_index(axis, jnum, BB_end, block->line_number, settings);
-        break;
-    case 5:
-        issue_straight_index(axis, jnum, CC_end, block->line_number, settings);
-        break;
-    default:
-        ERS((_("BUG: trying to index incorrect axis")));
+    const double current[9] = {settings->current_x, settings->current_y, settings->current_z,
+                               settings->AA_current, settings->BB_current, settings->CC_current,
+                               settings->u_current, settings->v_current, settings->w_current};
+    CHKS((axis < 3 || axis > 8), (_("BUG: trying to index incorrect axis")));
+    for (int n = 0; n < 9; n++) {
+        CHKS((n != axis && end[n] != current[n]),
+             _("BUG: An axis incorrectly moved along with an indexer"));
     }
+    issue_straight_index(axis, jnum, end[axis], block->line_number, settings);
     return INTERP_OK;
 }
 
@@ -5796,15 +5825,16 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
     if (save_mode != CANON_EXACT_PATH)
         SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
-    double AA_end = axis == 3? target: settings->AA_current;
-    double BB_end = axis == 4? target: settings->BB_current;
-    double CC_end = axis == 5? target: settings->CC_current;
+    double end[9] = {settings->current_x, settings->current_y, settings->current_z,
+                     settings->AA_current, settings->BB_current, settings->CC_current,
+                     settings->u_current, settings->v_current, settings->w_current};
+    end[axis] = target;
 
     // tell canon that this is a special indexing move
     UNLOCK_ROTARY(lineno, jnum);
-    STRAIGHT_TRAVERSE(lineno, settings->current_x, settings->current_y, settings->current_z,
-                      AA_end, BB_end, CC_end,
-                      settings->u_current, settings->v_current, settings->w_current);
+    STRAIGHT_TRAVERSE(lineno, end[0], end[1], end[2],
+                      end[3], end[4], end[5],
+                      end[6], end[7], end[8]);
     LOCK_ROTARY(lineno, jnum);
 
     // restore path mode
@@ -5813,9 +5843,12 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
 	SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
     }
 
-    settings->AA_current = AA_end;
-    settings->BB_current = BB_end;
-    settings->CC_current = CC_end;
+    settings->AA_current = end[3];
+    settings->BB_current = end[4];
+    settings->CC_current = end[5];
+    settings->u_current = end[6];
+    settings->v_current = end[7];
+    settings->w_current = end[8];
     return INTERP_OK;
 }
 
@@ -6432,12 +6465,12 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       find_relative(USER_TO_PROGRAM_LEN(settings->parameters[5181]),
                     USER_TO_PROGRAM_LEN(settings->parameters[5182]),
                     USER_TO_PROGRAM_LEN(settings->parameters[5183]),
-                    USER_TO_PROGRAM_ANG(settings->parameters[5184]),
-                    USER_TO_PROGRAM_ANG(settings->parameters[5185]),
-                    USER_TO_PROGRAM_ANG(settings->parameters[5186]),
-                    USER_TO_PROGRAM_LEN(settings->parameters[5187]),
-                    USER_TO_PROGRAM_LEN(settings->parameters[5188]),
-                    USER_TO_PROGRAM_LEN(settings->parameters[5189]),
+                    USER_TO_PROGRAM_AX(3, settings->parameters[5184]),
+                    USER_TO_PROGRAM_AX(4, settings->parameters[5185]),
+                    USER_TO_PROGRAM_AX(5, settings->parameters[5186]),
+                    USER_TO_PROGRAM_AX(6, settings->parameters[5187]),
+                    USER_TO_PROGRAM_AX(7, settings->parameters[5188]),
+                    USER_TO_PROGRAM_AX(8, settings->parameters[5189]),
                     &end_x, &end_y, &end_z,
                     &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end, settings);
@@ -6445,12 +6478,18 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
       // move indexers first, one at a time
       // JOINTS_AXES settings->*_indexer_jnum == -1 means notused
-      if (AA_end != settings->AA_current && (-1 != settings->a_indexer_jnum) )
-          issue_straight_index(3,settings->a_indexer_jnum, AA_end, -1, settings);
-      if (BB_end != settings->BB_current && (-1 != settings->b_indexer_jnum) )
-          issue_straight_index(4,settings->b_indexer_jnum, BB_end, -1, settings);
-      if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
-          issue_straight_index(5,settings->c_indexer_jnum, CC_end, -1, settings);
+      if (AA_end != settings->AA_current && (-1 != settings->axis_indexer_jnum[3]) )
+          issue_straight_index(3,settings->axis_indexer_jnum[3], AA_end, -1, settings);
+      if (BB_end != settings->BB_current && (-1 != settings->axis_indexer_jnum[4]) )
+          issue_straight_index(4,settings->axis_indexer_jnum[4], BB_end, -1, settings);
+      if (CC_end != settings->CC_current && (-1 != settings->axis_indexer_jnum[5]) )
+          issue_straight_index(5,settings->axis_indexer_jnum[5], CC_end, -1, settings);
+      if (u_end != settings->u_current && (-1 != settings->axis_indexer_jnum[6]) )
+          issue_straight_index(6,settings->axis_indexer_jnum[6], u_end, -1, settings);
+      if (v_end != settings->v_current && (-1 != settings->axis_indexer_jnum[7]) )
+          issue_straight_index(7,settings->axis_indexer_jnum[7], v_end, -1, settings);
+      if (w_end != settings->w_current && (-1 != settings->axis_indexer_jnum[8]) )
+          issue_straight_index(8,settings->axis_indexer_jnum[8], w_end, -1, settings);
 
       STRAIGHT_TRAVERSE(-1, end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,
@@ -6547,12 +6586,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
     tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.c);
-    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.u);
-    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
-    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
+    tool_offset.a = USER_TO_PROGRAM_AX(3, settings->tool_table[idx].offset.a);
+    tool_offset.b = USER_TO_PROGRAM_AX(4, settings->tool_table[idx].offset.b);
+    tool_offset.c = USER_TO_PROGRAM_AX(5, settings->tool_table[idx].offset.c);
+    tool_offset.u = USER_TO_PROGRAM_AX(6, settings->tool_table[idx].offset.u);
+    tool_offset.v = USER_TO_PROGRAM_AX(7, settings->tool_table[idx].offset.v);
+    tool_offset.w = USER_TO_PROGRAM_AX(8, settings->tool_table[idx].offset.w);
     settings->g43_with_zero_offset =
       !(tool_offset.tran.x || tool_offset.tran.y || tool_offset.tran.z ||
         tool_offset.a || tool_offset.b || tool_offset.c ||
@@ -6582,12 +6621,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
         tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
         tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.z);
-        tool_offset.a += USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.a);
-        tool_offset.b += USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.b);
-        tool_offset.c += USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.c);
-        tool_offset.u += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.u);
-        tool_offset.v += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
-        tool_offset.w += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
+        tool_offset.a += USER_TO_PROGRAM_AX(3, settings->tool_table[idx].offset.a);
+        tool_offset.b += USER_TO_PROGRAM_AX(4, settings->tool_table[idx].offset.b);
+        tool_offset.c += USER_TO_PROGRAM_AX(5, settings->tool_table[idx].offset.c);
+        tool_offset.u += USER_TO_PROGRAM_AX(6, settings->tool_table[idx].offset.u);
+        tool_offset.v += USER_TO_PROGRAM_AX(7, settings->tool_table[idx].offset.v);
+        tool_offset.w += USER_TO_PROGRAM_AX(8, settings->tool_table[idx].offset.w);
     } else {
         if(block->x_flag) tool_offset.tran.x += block->x_number;
         if(block->y_flag) tool_offset.tran.y += block->y_number;
@@ -6634,12 +6673,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->parameters[5081] = PROGRAM_TO_USER_LEN(tool_offset.tran.x);
   settings->parameters[5082] = PROGRAM_TO_USER_LEN(tool_offset.tran.y);
   settings->parameters[5083] = PROGRAM_TO_USER_LEN(tool_offset.tran.z);
-  settings->parameters[5084] = PROGRAM_TO_USER_ANG(tool_offset.a);
-  settings->parameters[5085] = PROGRAM_TO_USER_ANG(tool_offset.b);
-  settings->parameters[5086] = PROGRAM_TO_USER_ANG(tool_offset.c);
-  settings->parameters[5087] = PROGRAM_TO_USER_LEN(tool_offset.u);
-  settings->parameters[5088] = PROGRAM_TO_USER_LEN(tool_offset.v);
-  settings->parameters[5089] = PROGRAM_TO_USER_LEN(tool_offset.w);
+  settings->parameters[5084] = PROGRAM_TO_USER_AX(3, tool_offset.a);
+  settings->parameters[5085] = PROGRAM_TO_USER_AX(4, tool_offset.b);
+  settings->parameters[5086] = PROGRAM_TO_USER_AX(5, tool_offset.c);
+  settings->parameters[5087] = PROGRAM_TO_USER_AX(6, tool_offset.u);
+  settings->parameters[5088] = PROGRAM_TO_USER_AX(7, tool_offset.v);
+  settings->parameters[5089] = PROGRAM_TO_USER_AX(8, tool_offset.w);
 
   return INTERP_OK;
 }
