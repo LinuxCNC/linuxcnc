@@ -223,6 +223,7 @@ extern "C" {
 	double acc;		/* max acceleration */
 	double jerk;			/* jerk for traj */
     double ini_maxjerk;
+    double vlimit_scale;        /* limitVel scale for this move, 0 no limit */
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
     double scurve_peak_scale;	/* S-curve rest-to-rest peak scale (0.5=faithful..1.0=full) */
 	double backlash;	/* amount of backlash */

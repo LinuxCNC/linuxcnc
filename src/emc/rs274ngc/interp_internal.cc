@@ -441,33 +441,47 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
-  double a, b, c;
+  double a, b, c, u, v, w;
   refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
 
   a = GET_EXTERNAL_PROBE_POSITION_A();
-  if(settings->a_axis_wrapped || settings->a_rotary_modulo) {
+  if(settings->axis_wrapped[3] || settings->axis_rotary_modulo[3]) {
       a = wrap_rotary_to_360(a);
   }
   settings->parameters[5064] = a;
 
   b = GET_EXTERNAL_PROBE_POSITION_B();
-  if(settings->b_axis_wrapped || settings->b_rotary_modulo) {
+  if(settings->axis_wrapped[4] || settings->axis_rotary_modulo[4]) {
       b = wrap_rotary_to_360(b);
   }
   settings->parameters[5065] = b;
 
   c = GET_EXTERNAL_PROBE_POSITION_C();
-  if(settings->c_axis_wrapped || settings->c_rotary_modulo) {
+  if(settings->axis_wrapped[5] || settings->axis_rotary_modulo[5]) {
       c = wrap_rotary_to_360(c);
   }
   settings->parameters[5066] = c;
 
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
-  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
-  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+  u = GET_EXTERNAL_PROBE_POSITION_U();
+  if(settings->axis_wrapped[6] || settings->axis_rotary_modulo[6]) {
+      u = wrap_rotary_to_360(u);
+  }
+  settings->parameters[5067] = u;
+
+  v = GET_EXTERNAL_PROBE_POSITION_V();
+  if(settings->axis_wrapped[7] || settings->axis_rotary_modulo[7]) {
+      v = wrap_rotary_to_360(v);
+  }
+  settings->parameters[5068] = v;
+
+  w = GET_EXTERNAL_PROBE_POSITION_W();
+  if(settings->axis_wrapped[8] || settings->axis_rotary_modulo[8]) {
+      w = wrap_rotary_to_360(w);
+  }
+  settings->parameters[5069] = w;
   settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 
   // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();

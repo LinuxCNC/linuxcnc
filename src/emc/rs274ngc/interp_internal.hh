@@ -31,6 +31,7 @@
 #include "interp_fwd.hh"
 #include "interp_base.hh"
 #include "tooldata/tooldata.hh"
+#include <axis_kinds.hh>
 
 
 #define _(s) gettext(s)
@@ -858,17 +859,11 @@ struct setup
   int tool_change_with_spindle_on;
   double parameter_g73_peck_clearance;
   double parameter_g83_peck_clearance;
-  int a_axis_wrapped;
-  int b_axis_wrapped;
-  int c_axis_wrapped;
-  int a_rotary_modulo;
-  int b_rotary_modulo;
-  int c_rotary_modulo;
+  AxisKinds axis_kinds;              // [AXIS_<letter>] TYPE, [TRAJ] FEED_AXES
+  int axis_wrapped[9];               // per axis, X 0 to W 8; angular axes only
+  int axis_rotary_modulo[9];         // angular axes only
   int rotary_modulo_literal;         // M26 = shortest path (default), M27 = literal absolute
-
-  int a_indexer_jnum;
-  int b_indexer_jnum;
-  int c_indexer_jnum;
+  int axis_indexer_jnum[9];          // -1 where the axis has no locking indexer
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;

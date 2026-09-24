@@ -739,7 +739,7 @@ double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE()
                                         { return _sai.naivecam_tolerance; }
 double GET_EXTERNAL_LENGTH_UNITS() {return _sai._external_length_units;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
-int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
+int GET_EXTERNAL_AXIS_MASK() {return _sai._axis_mask;}
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int /*spindle*/) {return so_enable;}
@@ -1169,6 +1169,7 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _feed_rate(0.0),
   _flood(0),
   _external_length_units(1.0),
+  _axis_mask(0x3f), /* XYZABC unless the INI names the axes */
   _length_unit_factor(1), /* 1 for MM 25.4 for inch */
   _length_unit_type(CANON_UNITS_MM),
   _line_number(1),
