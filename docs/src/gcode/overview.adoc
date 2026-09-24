@@ -982,6 +982,7 @@ The modal groups are shown in the following Table.
 [width="80%",cols="4,6",options="header"]
 |===
 |Modal Group Meaning         | Member Words
+|Rotary Modulo Path (Group 3)| M26, M27
 |Stopping (Group 4)          | M0, M1, M2, M30, M60
 |I/O Pins (Group 5)          | (M62-M65 digital output), (M66 digital or analog input),
                                (M67, M68 analog output)
