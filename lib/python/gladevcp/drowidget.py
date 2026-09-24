@@ -28,6 +28,7 @@ from gi.repository import GObject
 from gi.repository import GLib
 
 import linuxcnc
+import axis_kinds
 from gladevcp.core import Status as GStat
 
 # Set up logging
@@ -105,12 +106,14 @@ class HAL_DRO(Gtk.Label):
         except:
             units = "inch"
             self.linuxcnc = False
+        # an angle, as [AXIS_<letter>] TYPE says, is degrees in either unit
+        ini = self.inifile if self.linuxcnc else None
         if units == "mm" or units == "metric" or units == "1.0":
             self.machine_units_mm = 1
-            conversion = [1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+            conversion = axis_kinds.unit_factors(ini, 1.0/25.4)
         else:
             self.machine_units_mm = 0
-            conversion = [25.4]*3+[1]*3+[25.4]*3
+            conversion = axis_kinds.unit_factors(ini, 25.4)
         self.set_machine_units(self.machine_units_mm, conversion)
         self.glade = True if len(inspect.stack()) == 1 else False
         self.get_style_context().add_provider(self.css, Gtk.STYLE_PROVIDER_PRIORITY_FALLBACK)
