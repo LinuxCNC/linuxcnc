@@ -97,6 +97,19 @@ run "maxkins" \
 run "5axiskins coordinates=XYZBCW" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3"
 run "5axiskins coordinates=XYZBCW sparm=identityfirst" "" "joints=6 jnt=10,20,30,15,25,5 orient=4,3 posejoint=3" 1
 
+# a table and a head, two primaries: one rotary turns the tool, so no
+# pair, and that one names the pose
+run "twinspindlekins coordinates=XYZBCW" \
+    "setp twinspindlekins.pivot-length 120
+setp twinspindlekins.tool-length 30
+setp twinspindlekins.spindle-distance 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=- posejoint=3"
+run "twinspindlekins coordinates=XYZBCW" \
+    "setp twinspindlekins.pivot-length 120
+setp twinspindlekins.tool-length 30
+setp twinspindlekins.spindle-distance 400" \
+    "joints=6 jnt=10,20,30,15,25,35 orient=- posejoint=3" 1
+
 run "xyzac-trt-kins coordinates=XYZAC" \
     "setp xyzac-trt-kins.y-offset 3
 setp xyzac-trt-kins.z-offset 11
