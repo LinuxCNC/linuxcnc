@@ -50,6 +50,7 @@ The following kinematics modules support switchable kinematics:
 . *xyzab_tdr_kins* (type0:identity       type1:tcp)
 . *xyzacb_trsrn*   (type0:identity       type1:tcp        type2:tool)
 . *xyzbca_trsrn*   (type0:identity       type1:tcp        type2:tool)
+. *twinspindlekins* (type0:main spindle type1:sub spindle type2:identity)
 
 Every module listed above uses its own kinematics for type0 and
 identity kinematics for type1.  Each accepts the module string
@@ -71,6 +72,9 @@ type0 is then reached without running the failing kinematics again.
 [NOTE]
 The 'sparm' setting exchanges type0 and type1, so any G-code or HAL
 logic that selects a kinematics type by number must match.
+
+twinspindlekins has no 'sparm': its type0 and type1 are both working
+kinematics, one per spindle, and type2 is the identity.
 
 Kinematics that solve the forward direction iteratively, genhexkins
 among them, need a pose to start from.  While another type is running
@@ -463,6 +467,7 @@ configs/sim/axis/vismach/ .
 . 5axis/table-dual-rotary/xyzab-tdr.ini (xyzab_tdr_kins)
 . 5axis/table-rotary_spindle-rotary-nutating/xyzacb-trsrn_twp/xyzacb-trsrn.ini (xyzacb_trsrn)
 . 5axis/table-rotary_spindle-rotary-nutating/xyzbca-trsrn_twp/xyzbca-trsrn.ini (xyzbca_trsrn)
+. twinspindle/twinspindle.ini (twinspindlekins)
 
 == User kinematics provisions
 

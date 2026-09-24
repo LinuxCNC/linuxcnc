@@ -44,6 +44,8 @@ kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, scarakin
 
 *loadrt 5axiskins*
 
+*loadrt twinspindlekins*
+
 == DESCRIPTION
 
 Rather than exporting HAL pins and functions, these components provide
@@ -425,6 +427,38 @@ expected by it (XYZBCW `->` joints 0..5)
   table reaches the same place, once a block commands W, and adds to this
   one rather than replacing it. Put a given length in one column or the
   other, not both.
+
+=== twinspindlekins - mill-turn with two spindles
+
+XYZBCW -- a head on X Y Z tilts the tool on B, about Y, between a main
+spindle turning its part on C and a sub spindle facing it along Z and
+turning its own part on W. Declare W `TYPE = ANGULAR` in its `[AXIS_W]`
+section; C and W may be `WRAPPED_ROTARY`. Coordinates XYZBCW are required;
+A, U and V may be added with the coordinates parameter and map one to one
+to their joints.
+
+Type 0 works in the frame of the part in the main spindle, and orients the
+tool with C and B. Type 1 works in the frame of the part in the sub spindle,
+which is the main spindle's turned half a turn about X, so its Z too points
+out of the face towards the tool, and orients the tool with W and B. Both
+are primary: G12.1 selects the spindle, and a program runs the same on
+either part. Type 2 is the identity and the machine frame. The rotary
+directions are the conventional ones.
+
+With B at 0 the tool points along -Z and the slides read the gauge line; the
+tool length is applied along the tool, as on 5axiskins. The sim config
+configs/sim/axis/vismach/twinspindle drills one subroutine's holes into
+both parts.
+
+*twinspindlekins.pivot-length*::
+  Distance from the B rotation point to the tool holder gauge line.
+
+*twinspindlekins.tool-length*::
+  Tool length, applied along the tool. Motion hands the module the offset
+  in effect (G43, G49), so the pin needs no connection.
+
+*twinspindlekins.spindle-distance*::
+  Distance along Z from the main spindle face to the sub spindle face.
 
 == SEE ALSO
 

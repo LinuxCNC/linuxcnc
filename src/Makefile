@@ -1281,6 +1281,15 @@ obj-m += 5axiskins.o
 5axiskins-objs += emc/kinematics/switchkins_main.o
 5axiskins-objs += emc/kinematics/switchkins_setup.o
 5axiskins-objs += $(USERKFUNCS)
+
+obj-m += twinspindlekins.o
+twinspindlekins-objs := emc/kinematics/twinspindlekins.o
+twinspindlekins-objs += libposemath/_posemath.o
+twinspindlekins-objs += $(MATHSTUB)
+twinspindlekins-objs += emc/kinematics/kins_util.o
+twinspindlekins-objs += emc/kinematics/switchkins.o
+twinspindlekins-objs += emc/kinematics/switchkins_main.o
+twinspindlekins-objs += emc/kinematics/switchkins_setup.o
 #----------------------------------------------------------------
 
 obj-$(CONFIG_MOTMOD) += motmod.o
@@ -1445,6 +1454,7 @@ endif
 ../rtlib/homemod$(MODULE_EXT): $(addprefix objects/rt,$(homemod-objs))
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
+../rtlib/twinspindlekins$(MODULE_EXT): $(addprefix objects/rt,$(twinspindlekins-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
