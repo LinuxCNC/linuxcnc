@@ -144,6 +144,10 @@ proc get_netlist {inpins_name outpin_name iopins_name signame} {
     set v1 [lindex $l($ct) 1]
     set v2 [lindex $l($ct) 2]
     switch $v0 {
+       bool -
+       real -
+       sint -
+       uint -
        float -
        bit   -
        u32   -

@@ -53,7 +53,7 @@ class _HalToggleBase(_HalWidgetBase):
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.REAL, hal.Dir.OUT)
-        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.Dir.OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.Type.SINT, hal.Dir.OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
@@ -86,7 +86,7 @@ class _HalSensitiveBase(_HalWidgetBase):
 
 class _HalJogWheelBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_S32, hal.Dir.OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.Type.SINT, hal.Dir.OUT)
         try:
             self.get_scaled_value()
             self.hal_pin_scaled = self.hal.newpin(self.hal_name+'-scaled', hal.Type.REAL, hal.Dir.OUT)
@@ -167,7 +167,7 @@ class HAL_ComboBox(Gtk.ComboBox, _HalWidgetBase):
 
     def _hal_init(self):
         self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.Type.REAL, hal.Dir.OUT)
-        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.Dir.OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.Type.SINT, hal.Dir.OUT)
         self.connect("changed", self.hal_update)
 
     def hal_update(self, *a):
@@ -220,7 +220,7 @@ class HAL_SpinButton(Gtk.SpinButton, _HalWidgetBase):
 
     def _hal_init(self):
         self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.Type.REAL, hal.Dir.OUT)
-        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.Dir.OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.Type.SINT, hal.Dir.OUT)
         self.connect("value-changed", self.hal_update)
         self.emit("value-changed")
 
@@ -349,9 +349,9 @@ class HAL_Label(Gtk.Label, _HalWidgetBase):
 
 
     def _hal_init(self):
-        types = {0:hal.HAL_S32
+        types = {0:hal.Type.SINT
                 ,1:hal.Type.REAL
-                ,2:hal.HAL_U32
+                ,2:hal.Type.UINT
                 }
         pin_type = types.get(self.label_pin_type, None)
         if pin_type is None:

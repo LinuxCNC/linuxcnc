@@ -55,7 +55,7 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.REAL, hal.Dir.IN)
             self.hal_pin.value_changed.connect(lambda data: self._setText(data))
         elif self._s32_pin_type or self._use_multi_label:
-            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_S32, hal.Dir.IN)
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.Type.SINT, hal.Dir.IN)
             if self._s32_pin_type:
                 self.hal_pin.value_changed.connect(lambda data: self._setText(data))
             else:

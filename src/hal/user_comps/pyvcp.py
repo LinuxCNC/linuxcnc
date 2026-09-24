@@ -21,7 +21,7 @@
 """ Python Virtual Control Panel for EMC
 
     A virtual control panel (VCP) is used to display and control
-    HAL pins, which are either BIT or FLOAT valued.
+    HAL pins, which are either BOOL or REAL valued.
 
     Usage: pyvcp -g WxH+X+Y -c compname myfile.xml
 
