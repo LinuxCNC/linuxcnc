@@ -19,6 +19,7 @@
 #include <fmt/format.h>
 
 #include <inifile.hh>
+#include <axis_kinds.hh>
 #include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
@@ -425,6 +426,14 @@ double convertAngularUnits(double u)
 {
     // Angular units are always degrees
     return u;
+}
+
+// which axes are angles, as [AXIS_<letter>] TYPE says; iniLoad() reads it
+static AxisKinds axis_kinds = axisKindsDefault();
+
+double convertAxisUnits(int axis, double u)
+{
+    return axisKindsAngular(axis_kinds, axis) ? convertAngularUnits(u) : convertLinearUnits(u);
 }
 
 int sendDebug(int level)
@@ -971,6 +980,13 @@ int iniLoad(const char *filename)
 
     // EMC debugging flags
     emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
+
+    // a TYPE the interpreter refuses leaves the letters' defaults here,
+    // and the interpreter says why
+    std::string kinds_err;
+    if (axisKindsRead(inifile, &axis_kinds, &kinds_err)) {
+        axis_kinds = axisKindsDefault();
+    }
 
     // set output for RCS messages
     if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
