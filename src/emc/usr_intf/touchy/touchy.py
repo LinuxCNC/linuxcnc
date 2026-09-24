@@ -59,6 +59,7 @@ def set_text(w, t):
         if ot != t: w.set_label(t)
 
 import linuxcnc
+import axis_kinds
 from touchy import emc_interface
 from touchy import mdi
 from touchy import hal_interface
@@ -296,12 +297,14 @@ class touchy:
                         # Regrettably this has always been the default
                         units = "inch"
 
+                # an angle, as [AXIS_<letter>] TYPE says, is degrees in both
+                self.axis_angular = axis_kinds.angular(self.ini)
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1
-                        conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+                        conversion=axis_kinds.unit_factors(self.ini, 1.0/25.4)
                 else:
                         self.machine_units_mm=0
-                        conversion=[25.4]*3+[1]*3+[25.4]*3
+                        conversion=axis_kinds.unit_factors(self.ini, 25.4)
 
                 self.status.set_machine_units(self.machine_units_mm,conversion)
 
@@ -1173,7 +1176,7 @@ class touchy:
 
                 if self.wheel == "scrolling":
                         incs = ["100", "10", "1"]
-                elif self.wheelxyz == 3 or self.wheelxyz == 4 or self.wheelxyz == 5:
+                elif self.axis_angular[self.wheelxyz]:
                         incs = ["1.0", "0.1", "0.01"]
                 elif self.machine_units_mm:
                         incs = ["0.1", "0.01", "0.001"]
