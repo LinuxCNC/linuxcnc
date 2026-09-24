@@ -1,0 +1,33 @@
+A mill-turn with a tilting head between two spindles, on twinspindlekins.
+
+The head carries the tool on X Y Z and tilts it on B, about Y. The main
+spindle turns its part on C; the sub spindle faces it along Z, 500 away,
+and turns its own part on W. W is an angle, so [AXIS_W] declares it
+TYPE = ANGULAR, and both spindles are WRAPPED_ROTARY. The vismach window
+draws the spindle line across the screen as on a lathe, X up.
+
+Kinematics type 0 works on the part in the main spindle and orients the
+tool with C and B; type 1 works on the part in the sub spindle and orients
+it with W and B. Each part's frame has its Z out of its own spindle's face,
+so a program reads the same on either part. Type 2 is the identity, the
+machine frame, which G13.1 selects.
+
+Demo program:
+
+ twin-spindle-holes.ngc -- one subroutine drills a ring of six holes,
+                           each tilted 20 degrees out from the part axis,
+                           into the face of the part the kinematics type
+                           in force works on; the program runs it on the
+                           main spindle (G12.1 P0, G54) and then on the
+                           sub spindle (G12.1 P1, G55). The subroutine
+                           names no rotary: G53.3 turns the ones the type
+                           orients with, and the report on the terminal
+                           reads them by number, #<_kins_orient_1> and
+                           #<_kins_orient_2>, 5 and 4 (C and B) on the
+                           main spindle, 8 and 4 (W and B) on the sub
+                           spindle, with their angles #<_orient_rot1> and
+                           #<_orient_rot2>.
+
+The tool table provides tool 1, length 50. The drawing hands its pivot
+length and spindle distance to the kinematics (twinspindle.hal), so the
+two agree.
