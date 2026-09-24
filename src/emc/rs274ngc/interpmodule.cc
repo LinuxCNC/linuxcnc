@@ -589,40 +589,40 @@ static inline void set_w_origin_offset(Interp &interp, double value)  {
     interp._setup.w_origin_offset = value;
 }
 static inline int get_a_axis_wrapped (Interp &interp)  {
-    return interp._setup.axis_wrapped[3];
+    return interp._setup.axis_wrapped[AXIS_A];
 }
 static inline void set_a_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.axis_wrapped[3] = value;
+    interp._setup.axis_wrapped[AXIS_A] = value;
 }
 static inline int get_a_indexer (Interp &interp)  {
-    return interp._setup.axis_indexer_jnum[3];
+    return interp._setup.axis_indexer_jnum[AXIS_A];
 }
 static inline void set_a_indexer(Interp &interp, int value)  {
-    interp._setup.axis_indexer_jnum[3] = value;
+    interp._setup.axis_indexer_jnum[AXIS_A] = value;
 }
 static inline int get_b_axis_wrapped (Interp &interp)  {
-    return interp._setup.axis_wrapped[4];
+    return interp._setup.axis_wrapped[AXIS_B];
 }
 static inline void set_b_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.axis_wrapped[4] = value;
+    interp._setup.axis_wrapped[AXIS_B] = value;
 }
 static inline int get_b_indexer (Interp &interp)  {
-    return interp._setup.axis_indexer_jnum[4];
+    return interp._setup.axis_indexer_jnum[AXIS_B];
 }
 static inline void set_b_indexer(Interp &interp, int value)  {
-    interp._setup.axis_indexer_jnum[4] = value;
+    interp._setup.axis_indexer_jnum[AXIS_B] = value;
 }
 static inline int get_c_axis_wrapped (Interp &interp)  {
-    return interp._setup.axis_wrapped[5];
+    return interp._setup.axis_wrapped[AXIS_C];
 }
 static inline void set_c_axis_wrapped(Interp &interp, int value)  {
-    interp._setup.axis_wrapped[5] = value;
+    interp._setup.axis_wrapped[AXIS_C] = value;
 }
 static inline int get_c_indexer (Interp &interp)  {
-    return interp._setup.axis_indexer_jnum[5];
+    return interp._setup.axis_indexer_jnum[AXIS_C];
 }
 static inline void set_c_indexer(Interp &interp, int value)  {
-    interp._setup.axis_indexer_jnum[5] = value;
+    interp._setup.axis_indexer_jnum[AXIS_C] = value;
 }
 static inline int get_call_level (Interp &interp)  {
     return interp._setup.call_level;

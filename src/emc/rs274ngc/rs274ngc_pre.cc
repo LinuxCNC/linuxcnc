@@ -1097,12 +1097,12 @@ int Interp::init()
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
   _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
   _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
-  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(3, pars[k + 4]);
-  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(4, pars[k + 5]);
-  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(5, pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_AX(6, pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_AX(7, pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_AX(8, pars[k + 9]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[k + 9]);
 
   SET_G5X_OFFSET(_setup.origin_index,
                  _setup.origin_offset_x ,
@@ -1128,12 +1128,12 @@ int Interp::init()
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
       _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(3, pars[5214]);
-      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(4, pars[5215]);
-      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(5, pars[5216]);
-      _setup.u_axis_offset = USER_TO_PROGRAM_AX(6, pars[5217]);
-      _setup.v_axis_offset = USER_TO_PROGRAM_AX(7, pars[5218]);
-      _setup.w_axis_offset = USER_TO_PROGRAM_AX(8, pars[5219]);
+      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[5214]);
+      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[5215]);
+      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[5216]);
+      _setup.u_axis_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[5217]);
+      _setup.v_axis_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[5218]);
+      _setup.w_axis_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[5219]);
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;

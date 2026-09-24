@@ -199,7 +199,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag) {
-            if(s->axis_wrapped[3]) {
+            if(s->axis_wrapped[AXIS_A]) {
                 CHP(unwrap_rotary(AA_p, block->a_number, 
                                   block->a_number - s->AA_origin_offset - s->AA_axis_offset - s->tool_offset.a,
                                   s->AA_current, 'A'));
@@ -211,7 +211,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->b_flag) {
-            if(s->axis_wrapped[4]) {
+            if(s->axis_wrapped[AXIS_B]) {
                 CHP(unwrap_rotary(BB_p, block->b_number, 
                                   block->b_number - s->BB_origin_offset - s->BB_axis_offset - s->tool_offset.b,
                                   s->BB_current, 'B'));
@@ -223,7 +223,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->c_flag) {
-            if(s->axis_wrapped[5]) {
+            if(s->axis_wrapped[AXIS_C]) {
                 CHP(unwrap_rotary(CC_p, block->c_number, 
                                   block->c_number - s->CC_origin_offset - s->CC_axis_offset - s->tool_offset.c,
                                   s->CC_current, 'C'));
@@ -235,7 +235,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->u_flag) {
-            if(s->axis_wrapped[6]) {
+            if(s->axis_wrapped[AXIS_U]) {
                 CHP(unwrap_rotary(u_p, block->u_number,
                                   block->u_number - s->u_origin_offset - s->u_axis_offset - s->tool_offset.u,
                                   s->u_current, 'U'));
@@ -247,7 +247,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->v_flag) {
-            if(s->axis_wrapped[7]) {
+            if(s->axis_wrapped[AXIS_V]) {
                 CHP(unwrap_rotary(v_p, block->v_number,
                                   block->v_number - s->v_origin_offset - s->v_axis_offset - s->tool_offset.v,
                                   s->v_current, 'V'));
@@ -259,7 +259,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->w_flag) {
-            if(s->axis_wrapped[8]) {
+            if(s->axis_wrapped[AXIS_W]) {
                 CHP(unwrap_rotary(w_p, block->w_number,
                                   block->w_number - s->w_origin_offset - s->w_axis_offset - s->tool_offset.w,
                                   s->w_current, 'W'));
@@ -312,7 +312,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag) {
-            if(s->axis_wrapped[3]) {
+            if(s->axis_wrapped[AXIS_A]) {
                 CHP(unwrap_rotary(AA_p, block->a_number, block->a_number, s->AA_current, 'A'));
             } else {
                 *AA_p = block->a_number;
@@ -322,7 +322,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->b_flag) {
-            if(s->axis_wrapped[4]) {
+            if(s->axis_wrapped[AXIS_B]) {
                 CHP(unwrap_rotary(BB_p, block->b_number, block->b_number, s->BB_current, 'B'));
             } else {
                 *BB_p = block->b_number;
@@ -332,7 +332,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->c_flag) {
-            if(s->axis_wrapped[5]) {
+            if(s->axis_wrapped[AXIS_C]) {
                 CHP(unwrap_rotary(CC_p, block->c_number, block->c_number, s->CC_current, 'C'));
             } else {
                 *CC_p = block->c_number;
@@ -342,7 +342,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->u_flag) {
-            if(s->axis_wrapped[6]) {
+            if(s->axis_wrapped[AXIS_U]) {
                 CHP(unwrap_rotary(u_p, block->u_number, block->u_number, s->u_current, 'U'));
             } else {
                 *u_p = block->u_number;
@@ -351,7 +351,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *u_p = s->u_current;
         }
         if(block->v_flag) {
-            if(s->axis_wrapped[7]) {
+            if(s->axis_wrapped[AXIS_V]) {
                 CHP(unwrap_rotary(v_p, block->v_number, block->v_number, s->v_current, 'V'));
             } else {
                 *v_p = block->v_number;
@@ -360,7 +360,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *v_p = s->v_current;
         }
         if(block->w_flag) {
-            if(s->axis_wrapped[8]) {
+            if(s->axis_wrapped[AXIS_W]) {
                 CHP(unwrap_rotary(w_p, block->w_number, block->w_number, s->w_current, 'W'));
             } else {
                 *w_p = block->w_number;
@@ -473,7 +473,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *y2 -= settings->axis_offset_y;
   *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_offset.tran.z;
 
-  if(settings->axis_wrapped[3]) {
+  if(settings->axis_wrapped[AXIS_A]) {
       CHP(unwrap_rotary(AA_2, AA_1,
                         AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a,
                         settings->AA_current, 'A'));
@@ -481,7 +481,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
       *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a;
   }
 
-  if(settings->axis_wrapped[4]) {
+  if(settings->axis_wrapped[AXIS_B]) {
       CHP(unwrap_rotary(BB_2, BB_1,
                         BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b,
                         settings->BB_current, 'B'));
@@ -489,7 +489,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
       *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b;
   }
 
-  if(settings->axis_wrapped[5]) {
+  if(settings->axis_wrapped[AXIS_C]) {
       CHP(unwrap_rotary(CC_2, CC_1,
                         CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c,
                         settings->CC_current, 'C'));
@@ -497,7 +497,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
       *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c;
   }
 
-  if(settings->axis_wrapped[6]) {
+  if(settings->axis_wrapped[AXIS_U]) {
       CHP(unwrap_rotary(u_2, u_1,
                         u_1 - settings->u_origin_offset - settings->u_axis_offset - settings->tool_offset.u,
                         settings->u_current, 'U'));
@@ -505,7 +505,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
       *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset - settings->tool_offset.u;
   }
 
-  if(settings->axis_wrapped[7]) {
+  if(settings->axis_wrapped[AXIS_V]) {
       CHP(unwrap_rotary(v_2, v_1,
                         v_1 - settings->v_origin_offset - settings->v_axis_offset - settings->tool_offset.v,
                         settings->v_current, 'V'));
@@ -513,7 +513,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
       *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset - settings->tool_offset.v;
   }
 
-  if(settings->axis_wrapped[8]) {
+  if(settings->axis_wrapped[AXIS_W]) {
       CHP(unwrap_rotary(w_2, w_1,
                         w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_offset.w,
                         settings->w_current, 'W'));
@@ -566,12 +566,12 @@ int Interp::find_current_in_system(setup_pointer s, int system,
     *x -= USER_TO_PROGRAM_LEN(p[5201 + system * 20]);
     *y -= USER_TO_PROGRAM_LEN(p[5202 + system * 20]);
     *z -= USER_TO_PROGRAM_LEN(p[5203 + system * 20]);
-    *a -= USER_TO_PROGRAM_AX(3, p[5204 + system * 20]);
-    *b -= USER_TO_PROGRAM_AX(4, p[5205 + system * 20]);
-    *c -= USER_TO_PROGRAM_AX(5, p[5206 + system * 20]);
-    *u -= USER_TO_PROGRAM_AX(6, p[5207 + system * 20]);
-    *v -= USER_TO_PROGRAM_AX(7, p[5208 + system * 20]);
-    *w -= USER_TO_PROGRAM_AX(8, p[5209 + system * 20]);
+    *a -= USER_TO_PROGRAM_AX(AXIS_A, p[5204 + system * 20]);
+    *b -= USER_TO_PROGRAM_AX(AXIS_B, p[5205 + system * 20]);
+    *c -= USER_TO_PROGRAM_AX(AXIS_C, p[5206 + system * 20]);
+    *u -= USER_TO_PROGRAM_AX(AXIS_U, p[5207 + system * 20]);
+    *v -= USER_TO_PROGRAM_AX(AXIS_V, p[5208 + system * 20]);
+    *w -= USER_TO_PROGRAM_AX(AXIS_W, p[5209 + system * 20]);
 
     rotate(x, y, -p[5210 + system * 20]);
 
@@ -579,12 +579,12 @@ int Interp::find_current_in_system(setup_pointer s, int system,
         *x -= USER_TO_PROGRAM_LEN(p[5211]);
         *y -= USER_TO_PROGRAM_LEN(p[5212]);
         *z -= USER_TO_PROGRAM_LEN(p[5213]);
-        *a -= USER_TO_PROGRAM_AX(3, p[5214]);
-        *b -= USER_TO_PROGRAM_AX(4, p[5215]);
-        *c -= USER_TO_PROGRAM_AX(5, p[5216]);
-        *u -= USER_TO_PROGRAM_AX(6, p[5217]);
-        *v -= USER_TO_PROGRAM_AX(7, p[5218]);
-        *w -= USER_TO_PROGRAM_AX(8, p[5219]);
+        *a -= USER_TO_PROGRAM_AX(AXIS_A, p[5214]);
+        *b -= USER_TO_PROGRAM_AX(AXIS_B, p[5215]);
+        *c -= USER_TO_PROGRAM_AX(AXIS_C, p[5216]);
+        *u -= USER_TO_PROGRAM_AX(AXIS_U, p[5217]);
+        *v -= USER_TO_PROGRAM_AX(AXIS_V, p[5218]);
+        *w -= USER_TO_PROGRAM_AX(AXIS_W, p[5219]);
     }
 
     return INTERP_OK;
@@ -645,12 +645,12 @@ int Interp::find_current_in_system_without_tlo(setup_pointer s, int system,
     *x -= USER_TO_PROGRAM_LEN(p[5201 + system * 20]);
     *y -= USER_TO_PROGRAM_LEN(p[5202 + system * 20]);
     *z -= USER_TO_PROGRAM_LEN(p[5203 + system * 20]);
-    *a -= USER_TO_PROGRAM_AX(3, p[5204 + system * 20]);
-    *b -= USER_TO_PROGRAM_AX(4, p[5205 + system * 20]);
-    *c -= USER_TO_PROGRAM_AX(5, p[5206 + system * 20]);
-    *u -= USER_TO_PROGRAM_AX(6, p[5207 + system * 20]);
-    *v -= USER_TO_PROGRAM_AX(7, p[5208 + system * 20]);
-    *w -= USER_TO_PROGRAM_AX(8, p[5209 + system * 20]);
+    *a -= USER_TO_PROGRAM_AX(AXIS_A, p[5204 + system * 20]);
+    *b -= USER_TO_PROGRAM_AX(AXIS_B, p[5205 + system * 20]);
+    *c -= USER_TO_PROGRAM_AX(AXIS_C, p[5206 + system * 20]);
+    *u -= USER_TO_PROGRAM_AX(AXIS_U, p[5207 + system * 20]);
+    *v -= USER_TO_PROGRAM_AX(AXIS_V, p[5208 + system * 20]);
+    *w -= USER_TO_PROGRAM_AX(AXIS_W, p[5209 + system * 20]);
 
     rotate(x, y, -p[5210 + system * 20]);
 
@@ -658,12 +658,12 @@ int Interp::find_current_in_system_without_tlo(setup_pointer s, int system,
         *x -= USER_TO_PROGRAM_LEN(p[5211]);
         *y -= USER_TO_PROGRAM_LEN(p[5212]);
         *z -= USER_TO_PROGRAM_LEN(p[5213]);
-        *a -= USER_TO_PROGRAM_AX(3, p[5214]);
-        *b -= USER_TO_PROGRAM_AX(4, p[5215]);
-        *c -= USER_TO_PROGRAM_AX(5, p[5216]);
-        *u -= USER_TO_PROGRAM_AX(6, p[5217]);
-        *v -= USER_TO_PROGRAM_AX(7, p[5218]);
-        *w -= USER_TO_PROGRAM_AX(8, p[5219]);
+        *a -= USER_TO_PROGRAM_AX(AXIS_A, p[5214]);
+        *b -= USER_TO_PROGRAM_AX(AXIS_B, p[5215]);
+        *c -= USER_TO_PROGRAM_AX(AXIS_C, p[5216]);
+        *u -= USER_TO_PROGRAM_AX(AXIS_U, p[5217]);
+        *v -= USER_TO_PROGRAM_AX(AXIS_V, p[5218]);
+        *w -= USER_TO_PROGRAM_AX(AXIS_W, p[5219]);
     }
 
     return INTERP_OK;
