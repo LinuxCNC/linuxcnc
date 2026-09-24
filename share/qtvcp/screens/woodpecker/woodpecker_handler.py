@@ -1173,11 +1173,11 @@ class HandlerClass:
         if rtn == 0:
             self.add_status("Touchoff routine is already running", CRITICAL)
 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+    def kb_jog(self, state, joint, direction, fast = False):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             self.add_status('Machine must be ON and in Manual mode to jog', CRITICAL)
             return
-        if linear:
+        if not INFO.is_angular(joint, STATUS.is_joint_mode()):
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         else:
@@ -1431,11 +1431,11 @@ class HandlerClass:
     
     def on_keycall_APOS(self,event,state,shift,cntrl):
         if self.use_keyboard():
-            self.kb_jog(state, 3, 1, shift, False)
+            self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         if self.use_keyboard():
-            self.kb_jog(state, 3, -1, shift, False)
+            self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
