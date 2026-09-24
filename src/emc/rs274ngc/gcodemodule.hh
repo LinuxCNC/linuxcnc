@@ -261,6 +261,9 @@ struct ParseState {
     int last_delivered_sequence_number = -1;
     int selected_tool = 0;
     bool metric = false;
+    // A bit per axis that is an angle, X bit 0, from the INI the preview
+    // interpreter reads: those stay in degrees, the others convert to inch.
+    unsigned angular = 0x038u;
     // The reentry latch parse_file refuses on.
     bool in_parse = false;
     // Where the program is, machine units, raw - what the probe/position
