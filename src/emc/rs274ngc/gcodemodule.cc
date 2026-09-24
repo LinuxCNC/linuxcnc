@@ -57,6 +57,7 @@
 #include "rs274ngc_interp.hh"
 #include "nml_intf/interp_return.hh"
 #include "nml_intf/canon.hh"
+#include <axis_kinds.hh>
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -391,17 +392,21 @@ public:
 };
 
 // The interpreter works in the program's own units; every canon method below
-// hands the canon inches. Only lengths convert - the rotary components of a
+// hands the canon inches. Only lengths convert - the angular components of a
 // 9-DOF point are degrees in either unit system, and so are left alone.
 static double ensure_inch(double length) {
     return parse_state.metric ? length / 25.4 : length;
 }
 
+// axis 0 X to 8 W
+static double ensure_inch(int axis, double value) {
+    return (parse_state.angular >> axis) & 1 ? value : ensure_inch(value);
+}
+
 static Point9 ensure_inch(const Point9 &p) {
-    if(!parse_state.metric) return p;
-    return {p[P9_X] / 25.4, p[P9_Y] / 25.4, p[P9_Z] / 25.4,
-            p[P9_A], p[P9_B], p[P9_C],
-            p[P9_U] / 25.4, p[P9_V] / 25.4, p[P9_W] / 25.4};
+    Point9 q;
+    for(int i = 0; i < 9; i++) q[i] = ensure_inch(i, p[i]);
+    return q;
 }
 
 // One point of a NURBS curve, fed through the canon. The curve's two
@@ -504,10 +509,12 @@ void ARC_FEED(int line_number,
                                 ensure_inch(second_axis),
                                 rotation,
                                 ensure_inch(axis_end_point),
-                                a_position, b_position, c_position,
-                                ensure_inch(u_position),
-                                ensure_inch(v_position),
-                                ensure_inch(w_position));
+                                ensure_inch(P9_A, a_position),
+                                ensure_inch(P9_B, b_position),
+                                ensure_inch(P9_C, c_position),
+                                ensure_inch(P9_U, u_position),
+                                ensure_inch(P9_V, v_position),
+                                ensure_inch(P9_W, w_position));
 }
 
 void STRAIGHT_FEED(int line_number,
@@ -999,6 +1006,18 @@ static py::object parse_file(const char *f, py::handle canon,
 
     parse_state.metric = false;
     parse_state.last_sequence_number = -1;
+    // the kinds the interpreter reads from the same INI; one it refuses
+    // leaves the defaults here, and the interpreter says why
+    {
+        AxisKinds kinds = axisKindsDefault();
+        const char *ini_name = getenv("INI_FILE_NAME");
+        if(ini_name) {
+            linuxcnc::IniFile ini(ini_name);
+            std::string err;
+            if(ini && axisKindsRead(ini, &kinds, &err)) kinds = axisKindsDefault();
+        }
+        parse_state.angular = kinds.angular;
+    }
 
     parse_state.pos = {};
 

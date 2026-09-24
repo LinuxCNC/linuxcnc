@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from math import atan2, degrees, hypot
 
+import axis_kinds
+
 def create_unitcode_and_initcode(s, inifile):
-    a_axis_wrapped = inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
-    b_axis_wrapped = inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
-    c_axis_wrapped = inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
+    wrapped = axis_kinds.wrapped(inifile)
 
     s.poll()
     # create unitcode and initcode reflecting currently active modal gcodes
@@ -13,9 +13,7 @@ def create_unitcode_and_initcode(s, inifile):
     for i in range(9):
         if s.axis_mask & (1<<i):
             axis = "XYZABCUVW"[i]
-            if (axis == "A" and a_axis_wrapped) or\
-               (axis == "B" and b_axis_wrapped) or\
-               (axis == "C" and c_axis_wrapped):
+            if wrapped[i]:
                 pos = s.position[i] % 360.000
             else:
                 pos = s.position[i]
