@@ -137,6 +137,7 @@ group 5 = {m62,m63,m64,m65,  - turn I/O point on/off
 group 6 = {m6,m61}           - tool change
 group 7 = {m3,m4,m5,m19}     - spindle turning, orient
 group 8 = {m7,m8,m9}         - coolant
+group 3 = {m26,m27}          - rotary modulo absolute path: shortest / literal
 group 9 = {m48,m49,          - feed and speed override switch bypass
            m50,              - feed override switch bypass           P1 to turn on, P0 to turn off
 	   m51,              - spindle speed override switch bypass  P1 to turn on, P0 to turn off
@@ -148,7 +149,7 @@ group 10 = {m100..m199}      - user-defined
 const int Interp::ems[] = {
    4,  4,  4,  7,  7,  7,  6,  8,  8,  8,  //  9
   -1, -1, -1, -1, -1, -1, -1, -1, -1,  7,  // 19
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 29
+  -1, -1, -1, -1, -1, -1,  3,  3, -1, -1,  // 29
    4, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 39
   -1, -1, -1, -1, -1, -1, -1, -1,  9,  9,  // 49
    9,  9,  9,  9, -1, -1, -1, -1, -1, -1,  // 59

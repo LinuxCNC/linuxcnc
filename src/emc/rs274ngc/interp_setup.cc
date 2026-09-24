@@ -176,6 +176,10 @@ setup::setup() :
     a_axis_wrapped(0),
     b_axis_wrapped(0),
     c_axis_wrapped(0),
+    a_rotary_modulo(0),
+    b_rotary_modulo(0),
+    c_rotary_modulo(0),
+    rotary_modulo_literal(0),
 
     a_indexer_jnum(0),
     b_indexer_jnum(0),

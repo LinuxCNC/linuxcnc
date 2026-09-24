@@ -93,6 +93,24 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
    of the axis are considered equivalent and we just need to find the
    nearest one. */
 
+// Target for a ROTARY_MODULO axis, returned in the accumulated frame that
+// current lives in, so the move is always less than one full turn.
+// M26 (literal == 0): nearest equivalent angle, exactly 180 going negative.
+// M27 (literal != 0): angle given by the magnitude of the programmed word,
+// approached forward if it is positive, backward if negative. The sign is a
+// direction selector, so it must be stripped before offset is applied, else
+// a G53 move on an offset axis lands on the mirrored angle.
+static double rotary_modulo_target(double programmed, double offset,
+                                   double current, int literal) {
+    double target = (literal ? fabs(programmed) : programmed) - offset;
+
+    if (!literal)
+        return current + wrap_rotary_to_360(target - current + 180.0) - 180.0;
+    if (copysign(1.0, programmed) < 0.0)
+        return current - wrap_rotary_to_360(current - target);
+    return current + wrap_rotary_to_360(target - current);
+}
+
 int Interp::unwrap_rotary(double *r, double sign_of, double commanded, double current, char axis) {
     double result;
     int neg = copysign(1.0, sign_of) < 0.0;
@@ -201,9 +219,13 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->a_flag) {
             if(s->a_axis_wrapped) {
-                CHP(unwrap_rotary(AA_p, block->a_number, 
+                CHP(unwrap_rotary(AA_p, block->a_number,
                                   block->a_number - s->AA_origin_offset - s->AA_axis_offset - s->tool_offset.a,
                                   s->AA_current, 'A'));
+            } else if (s->a_rotary_modulo) {
+                *AA_p = rotary_modulo_target(block->a_number,
+                                             s->AA_origin_offset + s->AA_axis_offset + s->tool_offset.a,
+                                             s->AA_current, s->rotary_modulo_literal);
             } else {
                 *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
             }
@@ -213,9 +235,13 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->b_flag) {
             if(s->b_axis_wrapped) {
-                CHP(unwrap_rotary(BB_p, block->b_number, 
+                CHP(unwrap_rotary(BB_p, block->b_number,
                                   block->b_number - s->BB_origin_offset - s->BB_axis_offset - s->tool_offset.b,
                                   s->BB_current, 'B'));
+            } else if (s->b_rotary_modulo) {
+                *BB_p = rotary_modulo_target(block->b_number,
+                                             s->BB_origin_offset + s->BB_axis_offset + s->tool_offset.b,
+                                             s->BB_current, s->rotary_modulo_literal);
             } else {
                 *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
             }
@@ -225,9 +251,13 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->c_flag) {
             if(s->c_axis_wrapped) {
-                CHP(unwrap_rotary(CC_p, block->c_number, 
+                CHP(unwrap_rotary(CC_p, block->c_number,
                                   block->c_number - s->CC_origin_offset - s->CC_axis_offset - s->tool_offset.c,
                                   s->CC_current, 'C'));
+            } else if (s->c_rotary_modulo) {
+                *CC_p = rotary_modulo_target(block->c_number,
+                                             s->CC_origin_offset + s->CC_axis_offset + s->tool_offset.c,
+                                             s->CC_current, s->rotary_modulo_literal);
             } else {
                 *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
             }
@@ -297,6 +327,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->a_flag) {
             if(s->a_axis_wrapped) {
                 CHP(unwrap_rotary(AA_p, block->a_number, block->a_number, s->AA_current, 'A'));
+            } else if (s->a_rotary_modulo) {
+                *AA_p = rotary_modulo_target(block->a_number, 0.0, s->AA_current,
+                                             s->rotary_modulo_literal);
             } else {
                 *AA_p = block->a_number;
             }
@@ -307,6 +340,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->b_flag) {
             if(s->b_axis_wrapped) {
                 CHP(unwrap_rotary(BB_p, block->b_number, block->b_number, s->BB_current, 'B'));
+            } else if (s->b_rotary_modulo) {
+                *BB_p = rotary_modulo_target(block->b_number, 0.0, s->BB_current,
+                                             s->rotary_modulo_literal);
             } else {
                 *BB_p = block->b_number;
             }
@@ -317,6 +353,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->c_flag) {
             if(s->c_axis_wrapped) {
                 CHP(unwrap_rotary(CC_p, block->c_number, block->c_number, s->CC_current, 'C'));
+            } else if (s->c_rotary_modulo) {
+                *CC_p = rotary_modulo_target(block->c_number, 0.0, s->CC_current,
+                                             s->rotary_modulo_literal);
             } else {
                 *CC_p = block->c_number;
             }
@@ -436,6 +475,12 @@ int Interp::find_relative(double x1,     //!< absolute x position
       CHP(unwrap_rotary(AA_2, AA_1,
                         AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a,
                         settings->AA_current, 'A'));
+  } else if (settings->a_rotary_modulo) {
+      // stored positions carry no programmed sign for M27 to read a direction
+      // from, so G28/G30/tool change always take the shortest path
+      *AA_2 = rotary_modulo_target(AA_1,
+                                   settings->AA_origin_offset + settings->AA_axis_offset + settings->tool_offset.a,
+                                   settings->AA_current, 0);
   } else {
       *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
   }
@@ -444,6 +489,10 @@ int Interp::find_relative(double x1,     //!< absolute x position
       CHP(unwrap_rotary(BB_2, BB_1,
                         BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b,
                         settings->BB_current, 'B'));
+  } else if (settings->b_rotary_modulo) {
+      *BB_2 = rotary_modulo_target(BB_1,
+                                   settings->BB_origin_offset + settings->BB_axis_offset + settings->tool_offset.b,
+                                   settings->BB_current, 0);
   } else {
       *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
   }
@@ -452,6 +501,10 @@ int Interp::find_relative(double x1,     //!< absolute x position
       CHP(unwrap_rotary(CC_2, CC_1,
                         CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c,
                         settings->CC_current, 'C'));
+  } else if (settings->c_rotary_modulo) {
+      *CC_2 = rotary_modulo_target(CC_1,
+                                   settings->CC_origin_offset + settings->CC_axis_offset + settings->tool_offset.c,
+                                   settings->CC_current, 0);
   } else {
       *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
   }
