@@ -1,0 +1,15 @@
+loadusr -W ./twinspindlegui.py
+
+net :jx joint.0.pos-fb twinspindlegui.jx
+net :jy joint.1.pos-fb twinspindlegui.jy
+net :jz joint.2.pos-fb twinspindlegui.jz
+net :jb joint.3.pos-fb twinspindlegui.jb
+net :jc joint.4.pos-fb twinspindlegui.jc
+net :jw joint.5.pos-fb twinspindlegui.jw
+
+# the drawing and the kinematics share the geometry
+net :pivot-len        twinspindlegui.pivot_len        twinspindlekins.pivot-length
+net :spindle-distance twinspindlegui.spindle_distance twinspindlekins.spindle-distance
+
+net :tool-len  motion.tooloffset.z  twinspindlegui.tool_length
+net :tool-diam halui.tool.diameter  twinspindlegui.tool_diam
