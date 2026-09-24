@@ -1721,12 +1721,12 @@ change the tool length with the tool axis untilted, motion stops the
 program otherwise.
 
 Of those, the modules that also report where the tool points (5axiskins,
-the trt modules, the trsrn modules) apply an X and Y of the offset along
-the tool's own X and Y, as they apply the length along the tool axis. The
-offset is given in the tool's axes, which are the machine's with the
-rotaries at zero, so a tool held off the spindle axis keeps its offset as
-the head or the table turns. Under the identity and the other modules, X
-and Y apply along the work axes.
+the trt modules, the trsrn modules, twinspindlekins) apply an X and Y of
+the offset along the tool's own X and Y, as they apply the length along
+the tool axis. The offset is given in the tool's axes, which are the
+machine's with the rotaries at zero, so a tool held off the spindle axis
+keeps its offset as the head or the table turns. Under the identity and
+the other modules, X and Y apply along the work axes.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
