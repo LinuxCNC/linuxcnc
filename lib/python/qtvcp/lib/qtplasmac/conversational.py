@@ -2,7 +2,7 @@
 conversational.py
 
 Copyright (C) 2019 - 2025 Phillip A Carter
-Copyright (C) 2020 - 2025 Gregory D Carl
+Copyright (C) 2020 - 2026 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -502,7 +502,7 @@ def conv_entry_changed(P, W, widget, circleType=False):
         cursor_position = widget.cursorPosition()
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
-        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'csEntry', 'rsEntry', 'neg']:
+        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'oxEntry', 'oyEntry', 'rtEntry', 'csEntry', 'rsEntry', 'neg']:
             good = '-.0123456789'
         else:
             good = '.0123456789'
@@ -767,13 +767,13 @@ def conv_widgets(P, W):
     W.rsLabel = QLabel(_translate('Conversational', 'SPACING'))
     W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
     W.oxLabel = QLabel(_translate('Conversational', 'X OFFSET'))
-    W.oxEntry = QLineEdit('0.0', objectName='xsEntry')
-    W.oyEntry = QLineEdit('0.0', objectName='ysEntry')
+    W.oxEntry = QLineEdit('0.0', objectName='oxEntry')
+    W.oyEntry = QLineEdit('0.0', objectName='oyEntry')
     W.oyLabel = QLabel(_translate('Conversational', 'Y OFFSET'))
     W.ptLabel = QLabel(_translate('Conversational', 'PATTERN'))
     W.scLabel = QLabel(_translate('Conversational', 'SCALE'))
     W.scEntry = QLineEdit('1.0', objectName='scEntry')
-    W.rtEntry = QLineEdit('0.0', objectName='aEntry')
+    W.rtEntry = QLineEdit('0.0', objectName='rtEntry')
     W.rtLabel = QLabel(_translate('Conversational', 'ROTATION'))
     W.mirror = QPushButton(_translate('Conversational', 'MIRROR'))
     W.mirror.setFocusPolicy(Qt.ClickFocus)
