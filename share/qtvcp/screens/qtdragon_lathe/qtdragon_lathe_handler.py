@@ -224,7 +224,7 @@ class HandlerClass:
         for num in range(0,5):
             if num < len(INFO.AVAILABLE_AXES):
                 temp = INFO.AVAILABLE_AXES[num]
-                if temp in ('A','B','C'):
+                if INFO.is_angular(temp):
                     flag = True
                 self.initiate_axis_dro(num,temp)
             else:
@@ -1700,12 +1700,12 @@ class HandlerClass:
         ACTION.SET_ERROR_MESSAGE(data)
         self.add_status(data, CRITICAL)
 
-    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+    def kb_jog(self, state, joint, direction, fast = False):
         ACTION.SET_MANUAL_MODE()
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             self.add_status(_translate("HandlerClass",'Machine must be ON and in Manual mode to jog'), CRITICAL)
             return
-        if linear:
+        if not INFO.is_angular(joint, STATUS.is_joint_mode()):
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
         else:
@@ -1717,7 +1717,7 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             # incremental jogging?
-            if joint in (3,4,5,'A','B','C'): # angualar axis
+            if INFO.is_angular(joint, STATUS.is_joint_mode()):
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
 
