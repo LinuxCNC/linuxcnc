@@ -1121,12 +1121,12 @@ int Interp::init()
   _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
   _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
   _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
-  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(3, pars[k + 4]);
-  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(4, pars[k + 5]);
-  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(5, pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_AX(6, pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_AX(7, pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_AX(8, pars[k + 9]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[k + 9]);
 
   SET_G5X_OFFSET(_setup.origin_index,
                  _setup.origin_offset_x ,
@@ -1152,12 +1152,12 @@ int Interp::init()
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
       _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(3, pars[5214]);
-      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(4, pars[5215]);
-      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(5, pars[5216]);
-      _setup.u_axis_offset = USER_TO_PROGRAM_AX(6, pars[5217]);
-      _setup.v_axis_offset = USER_TO_PROGRAM_AX(7, pars[5218]);
-      _setup.w_axis_offset = USER_TO_PROGRAM_AX(8, pars[5219]);
+      _setup.AA_axis_offset = USER_TO_PROGRAM_AX(AXIS_A, pars[5214]);
+      _setup.BB_axis_offset = USER_TO_PROGRAM_AX(AXIS_B, pars[5215]);
+      _setup.CC_axis_offset = USER_TO_PROGRAM_AX(AXIS_C, pars[5216]);
+      _setup.u_axis_offset = USER_TO_PROGRAM_AX(AXIS_U, pars[5217]);
+      _setup.v_axis_offset = USER_TO_PROGRAM_AX(AXIS_V, pars[5218]);
+      _setup.w_axis_offset = USER_TO_PROGRAM_AX(AXIS_W, pars[5219]);
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;
@@ -1667,17 +1667,17 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5422] = _setup.current_z;
   // ROTARY_MODULO axes: present #5423-#5428 wrapped to [0,360); internal
   // positions stay accumulated to keep sync with motion.traj.position.
-  _setup.parameters[5423] = _setup.axis_rotary_modulo[3]
+  _setup.parameters[5423] = _setup.axis_rotary_modulo[AXIS_A]
       ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
-  _setup.parameters[5424] = _setup.axis_rotary_modulo[4]
+  _setup.parameters[5424] = _setup.axis_rotary_modulo[AXIS_B]
       ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
-  _setup.parameters[5425] = _setup.axis_rotary_modulo[5]
+  _setup.parameters[5425] = _setup.axis_rotary_modulo[AXIS_C]
       ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
-  _setup.parameters[5426] = _setup.axis_rotary_modulo[6]
+  _setup.parameters[5426] = _setup.axis_rotary_modulo[AXIS_U]
       ? wrap_rotary_to_360(_setup.u_current) : _setup.u_current;
-  _setup.parameters[5427] = _setup.axis_rotary_modulo[7]
+  _setup.parameters[5427] = _setup.axis_rotary_modulo[AXIS_V]
       ? wrap_rotary_to_360(_setup.v_current) : _setup.v_current;
-  _setup.parameters[5428] = _setup.axis_rotary_modulo[8]
+  _setup.parameters[5428] = _setup.axis_rotary_modulo[AXIS_W]
       ? wrap_rotary_to_360(_setup.w_current) : _setup.w_current;
 
   double abs_pos[9];

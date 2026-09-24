@@ -860,7 +860,7 @@ struct setup
   double parameter_g73_peck_clearance;
   double parameter_g83_peck_clearance;
   AxisKinds axis_kinds;              // [AXIS_<letter>] TYPE, [TRAJ] FEED_AXES
-  int axis_wrapped[9];               // per axis, X 0 to W 8; angular axes only
+  int axis_wrapped[9];               // by AxisIndex; angular axes only
   int axis_rotary_modulo[9];         // angular axes only
   int rotary_modulo_literal;         // M26 = shortest path (default), M27 = literal absolute
   int axis_indexer_jnum[9];          // -1 where the axis has no locking indexer

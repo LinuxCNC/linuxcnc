@@ -390,7 +390,7 @@ static void scale_linear(const AxisKinds &kinds, double &a, double &b, double &c
                          double &u, double &v, double &w, double scale) {
     double *axis[6] = {&a, &b, &c, &u, &v, &w};
     for (int n = 0; n < 6; n++) {
-        if (!axisKindsAngular(kinds, n + 3)) { *axis[n] *= scale; }
+        if (!axisKindsAngular(kinds, AXIS_A + n)) { *axis[n] *= scale; }
     }
 }
 

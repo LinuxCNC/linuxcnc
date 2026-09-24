@@ -115,7 +115,7 @@ void UPDATE_TAG(const StateTag& tag) {
 #define FROM_PROG_LEN(prog) ((prog) * (canon.lengthUnits == CANON_UNITS_INCHES ? 25.4 : canon.lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
 #define FROM_PROG_ANG(prog) (prog)
 
-/* [AXIS_<letter>] TYPE and [TRAJ] FEED_AXES, axis n 0 X to 8 W */
+/* [AXIS_<letter>] TYPE and [TRAJ] FEED_AXES */
 static AxisKinds kinds = axisKindsDefault();
 
 #define AXIS_ANG(n) axisKindsAngular(kinds, (n))
@@ -289,24 +289,24 @@ static void from_prog(double &x, double &y, double &z, double &a, double &b, dou
     x = FROM_PROG_LEN(x);
     y = FROM_PROG_LEN(y);
     z = FROM_PROG_LEN(z);
-    a = FROM_PROG_AX(3, a);
-    b = FROM_PROG_AX(4, b);
-    c = FROM_PROG_AX(5, c);
-    u = FROM_PROG_AX(6, u);
-    v = FROM_PROG_AX(7, v);
-    w = FROM_PROG_AX(8, w);
+    a = FROM_PROG_AX(AXIS_A, a);
+    b = FROM_PROG_AX(AXIS_B, b);
+    c = FROM_PROG_AX(AXIS_C, c);
+    u = FROM_PROG_AX(AXIS_U, u);
+    v = FROM_PROG_AX(AXIS_V, v);
+    w = FROM_PROG_AX(AXIS_W, w);
 }
 
 static void from_prog(CANON_POSITION &pos) {
     pos.x = FROM_PROG_LEN(pos.x);
     pos.y = FROM_PROG_LEN(pos.y);
     pos.z = FROM_PROG_LEN(pos.z);
-    pos.a = FROM_PROG_AX(3, pos.a);
-    pos.b = FROM_PROG_AX(4, pos.b);
-    pos.c = FROM_PROG_AX(5, pos.c);
-    pos.u = FROM_PROG_AX(6, pos.u);
-    pos.v = FROM_PROG_AX(7, pos.v);
-    pos.w = FROM_PROG_AX(8, pos.w);
+    pos.a = FROM_PROG_AX(AXIS_A, pos.a);
+    pos.b = FROM_PROG_AX(AXIS_B, pos.b);
+    pos.c = FROM_PROG_AX(AXIS_C, pos.c);
+    pos.u = FROM_PROG_AX(AXIS_U, pos.u);
+    pos.v = FROM_PROG_AX(AXIS_V, pos.v);
+    pos.w = FROM_PROG_AX(AXIS_W, pos.w);
 }
 
 static void from_prog_len(PM_CARTESIAN &vec) {
@@ -319,24 +319,24 @@ static void to_ext(double &x, double &y, double &z, double &a, double &b, double
     x = TO_EXT_LEN(x);
     y = TO_EXT_LEN(y);
     z = TO_EXT_LEN(z);
-    a = TO_EXT_AX(3, a);
-    b = TO_EXT_AX(4, b);
-    c = TO_EXT_AX(5, c);
-    u = TO_EXT_AX(6, u);
-    v = TO_EXT_AX(7, v);
-    w = TO_EXT_AX(8, w);
+    a = TO_EXT_AX(AXIS_A, a);
+    b = TO_EXT_AX(AXIS_B, b);
+    c = TO_EXT_AX(AXIS_C, c);
+    u = TO_EXT_AX(AXIS_U, u);
+    v = TO_EXT_AX(AXIS_V, v);
+    w = TO_EXT_AX(AXIS_W, w);
 }
 
 static void to_ext(CANON_POSITION & pos) {
     pos.x=TO_EXT_LEN(pos.x);
     pos.y=TO_EXT_LEN(pos.y);
     pos.z=TO_EXT_LEN(pos.z);
-    pos.a=TO_EXT_AX(3, pos.a);
-    pos.b=TO_EXT_AX(4, pos.b);
-    pos.c=TO_EXT_AX(5, pos.c);
-    pos.u=TO_EXT_AX(6, pos.u);
-    pos.v=TO_EXT_AX(7, pos.v);
-    pos.w=TO_EXT_AX(8, pos.w);
+    pos.a=TO_EXT_AX(AXIS_A, pos.a);
+    pos.b=TO_EXT_AX(AXIS_B, pos.b);
+    pos.c=TO_EXT_AX(AXIS_C, pos.c);
+    pos.u=TO_EXT_AX(AXIS_U, pos.u);
+    pos.v=TO_EXT_AX(AXIS_V, pos.v);
+    pos.w=TO_EXT_AX(AXIS_W, pos.w);
 }
 #endif
 
@@ -353,12 +353,12 @@ static EmcPose to_ext_pose(double x, double y, double z, double a, double b, dou
     result.tran.x = TO_EXT_LEN(x);
     result.tran.y = TO_EXT_LEN(y);
     result.tran.z = TO_EXT_LEN(z);
-    result.a = TO_EXT_AX(3, a);
-    result.b = TO_EXT_AX(4, b);
-    result.c = TO_EXT_AX(5, c);
-    result.u = TO_EXT_AX(6, u);
-    result.v = TO_EXT_AX(7, v);
-    result.w = TO_EXT_AX(8, w);
+    result.a = TO_EXT_AX(AXIS_A, a);
+    result.b = TO_EXT_AX(AXIS_B, b);
+    result.c = TO_EXT_AX(AXIS_C, c);
+    result.u = TO_EXT_AX(AXIS_U, u);
+    result.v = TO_EXT_AX(AXIS_V, v);
+    result.w = TO_EXT_AX(AXIS_W, w);
     return result;
 }
 
@@ -367,12 +367,12 @@ static EmcPose to_ext_pose(const CANON_POSITION & pos) {
     result.tran.x = TO_EXT_LEN(pos.x);
     result.tran.y = TO_EXT_LEN(pos.y);
     result.tran.z = TO_EXT_LEN(pos.z);
-    result.a = TO_EXT_AX(3, pos.a);
-    result.b = TO_EXT_AX(4, pos.b);
-    result.c = TO_EXT_AX(5, pos.c);
-    result.u = TO_EXT_AX(6, pos.u);
-    result.v = TO_EXT_AX(7, pos.v);
-    result.w = TO_EXT_AX(8, pos.w);
+    result.a = TO_EXT_AX(AXIS_A, pos.a);
+    result.b = TO_EXT_AX(AXIS_B, pos.b);
+    result.c = TO_EXT_AX(AXIS_C, pos.c);
+    result.u = TO_EXT_AX(AXIS_U, pos.u);
+    result.v = TO_EXT_AX(AXIS_V, pos.v);
+    result.w = TO_EXT_AX(AXIS_W, pos.w);
     return result;
 }
 
@@ -380,12 +380,12 @@ static void to_prog(CANON_POSITION &e) {
     e.x = TO_PROG_LEN(e.x);
     e.y = TO_PROG_LEN(e.y);
     e.z = TO_PROG_LEN(e.z);
-    e.a = TO_PROG_AX(3, e.a);
-    e.b = TO_PROG_AX(4, e.b);
-    e.c = TO_PROG_AX(5, e.c);
-    e.u = TO_PROG_AX(6, e.u);
-    e.v = TO_PROG_AX(7, e.v);
-    e.w = TO_PROG_AX(8, e.w);
+    e.a = TO_PROG_AX(AXIS_A, e.a);
+    e.b = TO_PROG_AX(AXIS_B, e.b);
+    e.c = TO_PROG_AX(AXIS_C, e.c);
+    e.u = TO_PROG_AX(AXIS_U, e.u);
+    e.v = TO_PROG_AX(AXIS_V, e.v);
+    e.w = TO_PROG_AX(AXIS_W, e.w);
 }
 
 static int axis_valid(int n) {
@@ -421,8 +421,8 @@ void CANON_UPDATE_END_POINT(double x, double y, double z,
 			    double u, double v, double w)
 {
     canonUpdateEndPoint(FROM_PROG_LEN(x),FROM_PROG_LEN(y),FROM_PROG_LEN(z),
-			FROM_PROG_AX(3, a),FROM_PROG_AX(4, b),FROM_PROG_AX(5, c),
-			FROM_PROG_AX(6, u),FROM_PROG_AX(7, v),FROM_PROG_AX(8, w));
+			FROM_PROG_AX(AXIS_A, a),FROM_PROG_AX(AXIS_B, b),FROM_PROG_AX(AXIS_C, c),
+			FROM_PROG_AX(AXIS_U, u),FROM_PROG_AX(AXIS_V, v),FROM_PROG_AX(AXIS_W, w));
 }
 
 static double toExtVel(double vel) {
@@ -921,14 +921,14 @@ static void flush_segments(void) {
     linearMoveMsg->end.tran.y = TO_EXT_LEN(y);
     linearMoveMsg->end.tran.z = TO_EXT_LEN(z);
 
-    linearMoveMsg->end.u = TO_EXT_AX(6, u);
-    linearMoveMsg->end.v = TO_EXT_AX(7, v);
-    linearMoveMsg->end.w = TO_EXT_AX(8, w);
+    linearMoveMsg->end.u = TO_EXT_AX(AXIS_U, u);
+    linearMoveMsg->end.v = TO_EXT_AX(AXIS_V, v);
+    linearMoveMsg->end.w = TO_EXT_AX(AXIS_W, w);
 
     // fill in the orientation
-    linearMoveMsg->end.a = TO_EXT_AX(3, a);
-    linearMoveMsg->end.b = TO_EXT_AX(4, b);
-    linearMoveMsg->end.c = TO_EXT_AX(5, c);
+    linearMoveMsg->end.a = TO_EXT_AX(AXIS_A, a);
+    linearMoveMsg->end.b = TO_EXT_AX(AXIS_B, b);
+    linearMoveMsg->end.c = TO_EXT_AX(AXIS_C, c);
 
     linearMoveMsg->vel = toExtVel(vel);
     linearMoveMsg->ini_maxvel = toExtVel(linedata.vel);
@@ -2439,12 +2439,12 @@ void ARC_FEED(int line_number,
 		rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
 		rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
-			a = FROM_PROG_AX(3, a);
-			b = FROM_PROG_AX(4, b);
-			c = FROM_PROG_AX(5, c);
-			u = FROM_PROG_AX(6, u);
-			v = FROM_PROG_AX(7, v);
-			w = FROM_PROG_AX(8, w);
+			a = FROM_PROG_AX(AXIS_A, a);
+			b = FROM_PROG_AX(AXIS_B, b);
+			c = FROM_PROG_AX(AXIS_C, c);
+			u = FROM_PROG_AX(AXIS_U, u);
+			v = FROM_PROG_AX(AXIS_V, v);
+			w = FROM_PROG_AX(AXIS_W, w);
 
 			rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
 			see_segment(line_number, _tag, mx, my,
@@ -2942,24 +2942,24 @@ void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
     canon.toolOffset.tran.x = FROM_PROG_LEN(offset.tran.x);
     canon.toolOffset.tran.y = FROM_PROG_LEN(offset.tran.y);
     canon.toolOffset.tran.z = FROM_PROG_LEN(offset.tran.z);
-    canon.toolOffset.a = FROM_PROG_AX(3, offset.a);
-    canon.toolOffset.b = FROM_PROG_AX(4, offset.b);
-    canon.toolOffset.c = FROM_PROG_AX(5, offset.c);
-    canon.toolOffset.u = FROM_PROG_AX(6, offset.u);
-    canon.toolOffset.v = FROM_PROG_AX(7, offset.v);
-    canon.toolOffset.w = FROM_PROG_AX(8, offset.w);
+    canon.toolOffset.a = FROM_PROG_AX(AXIS_A, offset.a);
+    canon.toolOffset.b = FROM_PROG_AX(AXIS_B, offset.b);
+    canon.toolOffset.c = FROM_PROG_AX(AXIS_C, offset.c);
+    canon.toolOffset.u = FROM_PROG_AX(AXIS_U, offset.u);
+    canon.toolOffset.v = FROM_PROG_AX(AXIS_V, offset.v);
+    canon.toolOffset.w = FROM_PROG_AX(AXIS_W, offset.w);
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
     set_offset_msg->offset.tran.x = TO_EXT_LEN(canon.toolOffset.tran.x);
     set_offset_msg->offset.tran.y = TO_EXT_LEN(canon.toolOffset.tran.y);
     set_offset_msg->offset.tran.z = TO_EXT_LEN(canon.toolOffset.tran.z);
-    set_offset_msg->offset.a = TO_EXT_AX(3, canon.toolOffset.a);
-    set_offset_msg->offset.b = TO_EXT_AX(4, canon.toolOffset.b);
-    set_offset_msg->offset.c = TO_EXT_AX(5, canon.toolOffset.c);
-    set_offset_msg->offset.u = TO_EXT_AX(6, canon.toolOffset.u);
-    set_offset_msg->offset.v = TO_EXT_AX(7, canon.toolOffset.v);
-    set_offset_msg->offset.w = TO_EXT_AX(8, canon.toolOffset.w);
+    set_offset_msg->offset.a = TO_EXT_AX(AXIS_A, canon.toolOffset.a);
+    set_offset_msg->offset.b = TO_EXT_AX(AXIS_B, canon.toolOffset.b);
+    set_offset_msg->offset.c = TO_EXT_AX(AXIS_C, canon.toolOffset.c);
+    set_offset_msg->offset.u = TO_EXT_AX(AXIS_U, canon.toolOffset.u);
+    set_offset_msg->offset.v = TO_EXT_AX(AXIS_V, canon.toolOffset.v);
+    set_offset_msg->offset.w = TO_EXT_AX(AXIS_W, canon.toolOffset.w);
 
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
@@ -2998,15 +2998,15 @@ void CHANGE_TOOL()
         w = canon.endPoint.w;
 
         if (have_tool_change_position > 3) {
-            a = FROM_EXT_AX(3, tool_change_position.a);
-            b = FROM_EXT_AX(4, tool_change_position.b);
-            c = FROM_EXT_AX(5, tool_change_position.c);
+            a = FROM_EXT_AX(AXIS_A, tool_change_position.a);
+            b = FROM_EXT_AX(AXIS_B, tool_change_position.b);
+            c = FROM_EXT_AX(AXIS_C, tool_change_position.c);
         }
 
         if (have_tool_change_position > 6) {
-            u = FROM_EXT_AX(6, tool_change_position.u);
-            v = FROM_EXT_AX(7, tool_change_position.v);
-            w = FROM_EXT_AX(8, tool_change_position.w);
+            u = FROM_EXT_AX(AXIS_U, tool_change_position.u);
+            v = FROM_EXT_AX(AXIS_V, tool_change_position.v);
+            w = FROM_EXT_AX(AXIS_W, tool_change_position.w);
         }
 
         VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
@@ -3402,32 +3402,32 @@ double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 
 double GET_EXTERNAL_TOOL_LENGTH_AOFFSET()
 {
-    return TO_PROG_AX(3, canon.toolOffset.a);
+    return TO_PROG_AX(AXIS_A, canon.toolOffset.a);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_BOFFSET()
 {
-    return TO_PROG_AX(4, canon.toolOffset.b);
+    return TO_PROG_AX(AXIS_B, canon.toolOffset.b);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_COFFSET()
 {
-    return TO_PROG_AX(5, canon.toolOffset.c);
+    return TO_PROG_AX(AXIS_C, canon.toolOffset.c);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_UOFFSET()
 {
-    return TO_PROG_AX(6, canon.toolOffset.u);
+    return TO_PROG_AX(AXIS_U, canon.toolOffset.u);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_VOFFSET()
 {
-    return TO_PROG_AX(7, canon.toolOffset.v);
+    return TO_PROG_AX(AXIS_V, canon.toolOffset.v);
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
 {
-    return TO_PROG_AX(8, canon.toolOffset.w);
+    return TO_PROG_AX(AXIS_W, canon.toolOffset.w);
 }
 
 /*
@@ -3581,8 +3581,8 @@ CANON_POSITION GET_EXTERNAL_POSITION()
 
     // first update internal record of last position
     canonUpdateEndPoint(FROM_EXT_LEN(pos.tran.x), FROM_EXT_LEN(pos.tran.y), FROM_EXT_LEN(pos.tran.z),
-                        FROM_EXT_AX(3, pos.a), FROM_EXT_AX(4, pos.b), FROM_EXT_AX(5, pos.c),
-                        FROM_EXT_AX(6, pos.u), FROM_EXT_AX(7, pos.v), FROM_EXT_AX(8, pos.w));
+                        FROM_EXT_AX(AXIS_A, pos.a), FROM_EXT_AX(AXIS_B, pos.b), FROM_EXT_AX(AXIS_C, pos.c),
+                        FROM_EXT_AX(AXIS_U, pos.u), FROM_EXT_AX(AXIS_V, pos.v), FROM_EXT_AX(AXIS_W, pos.w));
 
     // now calculate position in program units, for interpreter
     position = unoffset_and_unrotate_pos(canon.endPoint);
@@ -3606,13 +3606,13 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos.tran.y = FROM_EXT_LEN(pos.tran.y);
     pos.tran.z = FROM_EXT_LEN(pos.tran.z);
 
-    pos.a = FROM_EXT_AX(3, pos.a);
-    pos.b = FROM_EXT_AX(4, pos.b);
-    pos.c = FROM_EXT_AX(5, pos.c);
+    pos.a = FROM_EXT_AX(AXIS_A, pos.a);
+    pos.b = FROM_EXT_AX(AXIS_B, pos.b);
+    pos.c = FROM_EXT_AX(AXIS_C, pos.c);
 
-    pos.u = FROM_EXT_AX(6, pos.u);
-    pos.v = FROM_EXT_AX(7, pos.v);
-    pos.w = FROM_EXT_AX(8, pos.w);
+    pos.u = FROM_EXT_AX(AXIS_U, pos.u);
+    pos.v = FROM_EXT_AX(AXIS_V, pos.v);
+    pos.w = FROM_EXT_AX(AXIS_W, pos.w);
 
     // now calculate position in program units, for interpreter
     position = unoffset_and_unrotate_pos(pos);
