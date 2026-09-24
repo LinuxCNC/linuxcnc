@@ -51,11 +51,11 @@ It is based on PyQt's QTabWidget.
 
 //TODO DoubleScale widget capture
 
-This widget is a *spin button entry* widget used for _setting a s32 and float HAL pin_.
+This widget is a *spin button entry* widget used for _setting a sint and real HAL pin_.
 
 It has an internal _scale factor_, set to a default of 1, that can be set programmatically or using a QtSignal.
 
-The `setInput` slot can be connected to an integer, or a float signal.
+The `setInput` slot can be connected to an integer, or a real signal.
 
 *`[HALLabelName].setInput(some_value)`*::
   This is a function call to change the internal scaling factor.
@@ -173,7 +173,7 @@ It is based on PyQt's `QGridLayout`.
 .QtVCP `HalBar`: Panel demonstrating the HAL Bar Level Indicator
 image::images/qthalbar.png["QtVCP HalBar: Panel showing two options of the HAL Bar Level Indicator ",scale="25%"]
 
-This widget is used to indicate level or value, usually of a HAL s32/float pin. +
+This widget is used to indicate level or value, usually of a HAL sint/real pin. +
 You can also disable the HAL pin and use Qt signals or Python commands to change the level. +
 
 ==== Bar Properties
@@ -193,8 +193,8 @@ HalBar is a subclass of the Bar widget, so it inherits these properties: +
 
 * 'pinType': to select *HAL pins type*:
 ** `NONE` no HAL pin will be added
-** `S32` A S32 integer pin will be added
-** `FLOAT` A Float pin will be added
+** `SINT` A sint integer pin will be added
+** `REAL` A real pin will be added
 
 * 'pinName': to change the *HAL pin name* otherwise the widget base name is used.
 
@@ -221,9 +221,9 @@ image::images/qtvcp_HALPad.png["QtVCP HALPad: HAL Buttons Joypad ",scale="25%"]
 
 This widget looks and acts like a *5 buttons D-pad*, with an LED ring.
 
-Each button has an selectable type (Bit, S32 or Float) output HAL pin.
+Each button has an selectable type (BOOL, SINT or REAL) output HAL pin.
 
-The LED center ring has selectable colors for off and on and is controlled by a bit HAL pin.
+The LED center ring has selectable colors for off and on and is controlled by a bool HAL pin.
 
 .`HALPad` `ENUMS`
 There are _enumerated constants_ used:
@@ -240,9 +240,9 @@ There are _enumerated constants_ used:
 
 * For *HAL pins type*:
 ** `NONE`
-** `BIT`
-** `S32`
-** `FLOAT`
+** `BOOL`
+** `SINT`
+** `REAL`
 
 You use the widget name in Qt Designer plus the reference constant:
 
@@ -259,9 +259,9 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
   Selection can be set in Qt Designer:
 +
 ** `NONE`
-** `BIT`
-** `S32`
-** `FLOAT`
+** `BOOL`
+** `SINT`
+** `REAL`
 
 //FIXME Does this really need to be repeated ?
 
@@ -306,7 +306,7 @@ This widget *displays values sent to it*.
 Values can be sent from:
 
 * _HAL pins_ +
-  The input pin can be selected as Bit, S32, Float or no pin selected
+  The input pin can be selected as BOOL, SINT, REAL or no pin selected
 * _Programmatically_
 * _A `QtSignal`_
 
@@ -332,7 +332,7 @@ self.w.my_hal_label.setProperty(textTemplate,"""
 )
 ----
 
-The `setDisplay` slot can be connected to an integer, a float or a bool signal.
+The `setDisplay` slot can be connected to an integer, a real or a bool signal.
 
 If the property `pin_name` is not set the widget name will be used.
 
@@ -350,7 +350,7 @@ It is based on PyQt's _QLabel_.
 
 //TODO MCDNumber widget capture
 
-This widget _displays HAL float/s32/bit values in a LCD looking way_.
+This widget _displays HAL real/sint/bool values in a LCD looking way_.
 
 It can display numbers in decimal, hexadecimal, binary and octal formats by setting the *`mode`* property.
 
@@ -363,14 +363,14 @@ You must set the *`digitCount`* property to an appropriate setting to display th
   Option string to be used as the HAL pin name. +
   If set to an empty string the widget name will be used.
 *`bit_pin_type`*::
-  Selects the input pin as type BIT.
+  Selects the input pin as type `BOOL`.
 *`s32_pin_type`*::
-  Selects the input pin as type S32.
+  Selects the input pin as type `SINT`.
 *`float_pin_type`*::
-  Select the input pin as type `FLOAT`.
+  Select the input pin as type `REAL`.
 *`floatTemplate`*::
   A string that will be used as a Python3 format template to tailor the LCD display. +
-  Only used when a `FLOAT` pin is selected, e.g., `{:.2f}` will display a float rounded to 2 numbers after the decimal. +
+  Only used when a `REAL` pin is selected, e.g., `{:.2f}` will display a float rounded to 2 numbers after the decimal. +
   A blank setting will allow the decimal to move as required.
 
 It is based on PyQt's _QLCDNumber_.
@@ -2213,7 +2213,7 @@ The widget can adjust:
 `StatusSlider` has the following properties:
 
 *`halpin_option`*::
-  Sets option to make a HAL float pin that reflects current value.
+  Sets option to make a HAL real pin that reflects current value.
 *`rapid_rate`*::
   Selects a rapid override rate slider.
 *`feed_rate`*::
@@ -3338,8 +3338,8 @@ from qtvcp.widgets.hal_selectionbox import HALSelectionBox
         # combo box for HAL pin selection
         combobox = HALSelectionBox()
         combobox.setShowTypes([combobox.PINS,combobox.SIGNALS])
-        combobox.setPinTypes([combobox.HAL_BIT], direction = [combobox.HAL_IN])
-        combobox.setSignalTypes([combobox.HAL_BIT], driven = [False,True])
+        combobox.setPinTypes([combobox.HAL_BOOL], direction = [combobox.HAL_IN])
+        combobox.setSignalTypes([combobox.HAL_BOOL], driven = [False,True])
         combobox.hal_init()
         combobox.selectionUpdated.connect(lambda w: self.signalSelected(w))
 
@@ -3355,13 +3355,13 @@ There are function calls
 # set the list of types to show from: PINS SIGNALS
 combobox.setShowTypes([combobox.PINS])
 
-# set the pin types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the pin types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of directions: HAL_IN HAL_OUT
-combobox.setPinTypes(types=[combobox.HAL_BIT], direction = [HAL_IN])
+combobox.setPinTypes(types=[combobox.HAL_BOOL], direction = [HAL_IN])
 
-# set the signal types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# set the signal types to show: HAL_BOOL,HAL_REAL,HAL_SINT,HAL_UINT
 # and a list of driven/undriven (by a connected pin) to show
-combobox.setSignalTypes( types=[combobox.HAL_BIT], driven = [True,True])
+combobox.setSignalTypes( types=[combobox.HAL_BOOL], driven = [True,True])
 ----
 
 // vim: set syntax=asciidoc:

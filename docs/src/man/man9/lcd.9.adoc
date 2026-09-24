@@ -15,22 +15,22 @@ lcd - Stream HAL data to an LCD screen
 
 == PINS
 
-**lcd.**_NN_**.out** (u32) out::
+**lcd.**_NN_**.out** (uint) out::
   The output byte stream is sent via this pin. One character is sent
   every thread invocation. There in no handshaking provided.
-**lcd.**_NN_**.page.**_PP._**arg.**_NN_ (float/s32/u32/bit) in::
+**lcd.**_NN_**.page.**_PP._**arg.**_NN_ (real/sint/uint/bool) in::
   The input pins have types matched to the format string specifiers.
-**lcd.**_NN_**.page_num** (u32) in::
+**lcd.**_NN_**.page_num** (uint) in::
   Selects the page number. Multiple layouts may be defined, and this pin
   switches between them.
-**lcd.**_NN_**.contrast** (float) in::
+**lcd.**_NN_**.contrast** (real) in::
   Attempts to set the contrast of the LCD screen using the byte sequence
   ESC C and then a value from 0x20 to 0xBF (matching the Mesa 7I73).
   The value should be between 0 and 1.
 
 == PARAMETERS
 
-**lcd.**_NN_**.decimal-separator** (u32) rw::
+**lcd.**_NN_**.decimal-separator** (uint) rw::
   Sets the decimal separator used for floating point numbers. The
   default value is 46 (0x2E) which corresponds to ".". If a comma is
   required then set this parameter to 44 (0x2C).
@@ -121,26 +121,26 @@ The numerical formats supported are:
   variable format width, with a sign only shown for negative numbers.
   Both %f and %F create exactly the same format.
 
-* *%i %d* (For example %+ 4d): Creates a signed (s32) HAL pin. The example
+* *%i %d* (For example %+ 4d): Creates a signed (sint) HAL pin. The example
   would display the value at a fixed 4 characters, space padded, width
   including the "+" giving a range of +999 to -999. %i and %d create
   identical output.
 
-* *%u* (for example %08u): Creates an unsigned (u32) HAL pin.
+* *%u* (for example %08u): Creates an unsigned (uint) HAL pin.
   The example would be a fixed 8 characters wide, padded with zeros.
 
-* *%x, %X*: Creates an unsigned (u32) HAL pin and displays the value in Hexadecimal.
+* *%x, %X*: Creates an unsigned (uint) HAL pin and displays the value in Hexadecimal.
   Both %x and %X display capital letters for digits ABCDEF.
-  A width may be specified, though the u32 HAL type is only 8 hex digits wide.
+  A width may be specified, though the uint HAL type is only 8 hex digits wide.
 
-* *%o*: Creates an unsigned (u32) pin and displays the value in octal representation.
+* *%o*: Creates an unsigned (uint) pin and displays the value in octal representation.
 
-* *%c*: Creates a u32 HAL pin and displays the character corresponding to
+* *%c*: Creates a uint HAL pin and displays the character corresponding to
   the value of the pin. Values less than 32 (space) are suppressed.
   A width specifier may be used, for example %20c might be used to create a
   complete line of one character.
 
-* *%b*: This specifier has no equivalent in printf. It creates a bit
+* *%b*: This specifier has no equivalent in printf. It creates a bool
   (boolean) type HAL pin. The b should be followed by two characters and
   the display will show the first of these when the pin is true, and the
   second when false. Note that the characters follow, not precede the "b",

@@ -108,7 +108,7 @@ Label:: El texto acerca de la etiqueta
 Para ser consistentes, los pines y parámetros HAL usaran el siguiente
 formato:
 
-* 'parport.<p>.pin-<n>-out' (bit) Maneja un pin de salida física. +
+* 'parport.<p>.pin-<n>-out' (bool) Maneja un pin de salida física. +
   Lista con bullets con el nombre del pin enfatizado rodeándolo con
   comillas simples.
 

@@ -197,7 +197,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("sim-encoder.make-pulses", make_pulses,
-	sim_enc_array, 0, 0, comp_id);
+	sim_enc_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIM_ENCODER: ERROR: makepulses funct export failed\n");
@@ -205,7 +205,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("sim-encoder.update-speed", update_speed,
-	sim_enc_array, 1, 0, comp_id);
+	sim_enc_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIM_ENCODER: ERROR: speed update funct export failed\n");
@@ -257,7 +257,7 @@ static void make_pulses(void *arg, long period)
 	    /* get direction bit, 1 if negative, 0 if positive */
 	    dir = sim_enc->addval >> 31;
 	    if ( dir ) {
-		hal_set_si32(sim_enc->rawcounts, hal_get_si32(sim_enc->rawcounts) - 1);
+		hal_set_sint(sim_enc->rawcounts, hal_get_sint(sim_enc->rawcounts) - 1);
 		/* negative rotation, decrement state, detect underflow */
 		if (--(sim_enc->state) < 0) {
 		    /* state underflow, roll over */
@@ -265,19 +265,19 @@ static void make_pulses(void *arg, long period)
 		    /* decrement cycle, detect underflow */
 		    if (--(sim_enc->cycle) < 0) {
 			/* cycle underflow, roll over */
-			sim_enc->cycle += hal_get_ui32(sim_enc->ppr);
+			sim_enc->cycle += hal_get_uint(sim_enc->ppr);
 		    }
 		}
 	    } else {
-		hal_set_si32(sim_enc->rawcounts, hal_get_si32(sim_enc->rawcounts) + 1);
+		hal_set_sint(sim_enc->rawcounts, hal_get_sint(sim_enc->rawcounts) + 1);
 		/* positive rotation, increment state, detect overflow */
 		if (++(sim_enc->state) > 3) {
 		    /* state overflow, roll over */
 		    sim_enc->state = 0;
 		    /* increment cycle, detect overflow */
-		    if (++(sim_enc->cycle) >= hal_get_ui32(sim_enc->ppr)) {
+		    if (++(sim_enc->cycle) >= (long)hal_get_uint(sim_enc->ppr)) {
 			/* cycle overflow, roll over */
-			sim_enc->cycle -= hal_get_ui32(sim_enc->ppr);
+			sim_enc->cycle -= hal_get_uint(sim_enc->ppr);
 		    }
 		}
 	    }
@@ -348,7 +348,7 @@ static void update_speed(void *arg, long period)
 	/* convert speed command (user units) to revs/sec */
 	rev_sec = hal_get_real(sim_enc->speed) * sim_enc->scale_mult;
 	/* convert speed command (revs per sec) to counts/sec */
-	freq = rev_sec * (hal_get_ui32(sim_enc->ppr)) * 4.0;
+	freq = rev_sec * (hal_get_uint(sim_enc->ppr)) * 4.0;
 	/* limit the commanded frequency */
 	if (freq > maxf) {
 	    freq = maxf;
@@ -377,7 +377,7 @@ static int export_sim_enc(sim_enc_t * addr, char *prefix)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
-    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->ppr), 100,
+    retval = hal_pin_new_uint(comp_id, HAL_IO, &(addr->ppr), 100,
 			      "%s.ppr", prefix);
     if (retval != 0) {
 	return retval;
@@ -411,7 +411,7 @@ static int export_sim_enc(sim_enc_t * addr, char *prefix)
 	return retval;
     }
     /* export pin for rawcounts */
-    retval = hal_pin_new_si32(comp_id, HAL_IN, &(addr->rawcounts), 0,
+    retval = hal_pin_new_sint(comp_id, HAL_IN, &(addr->rawcounts), 0,
 			      "%s.rawcounts", prefix);
     if (retval != 0) {
 	return retval;

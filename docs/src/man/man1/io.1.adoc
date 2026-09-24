@@ -28,32 +28,32 @@ unless an absolute path is specified.
 
 == PINS
 
-*iocontrol.0.coolant-flood* (Bit, Out)::
+*iocontrol.0.coolant-flood* (bool, out)::
   TRUE when flood coolant is requested.
-*iocontrol.0.coolant-mist* (Bit, Out)::
+*iocontrol.0.coolant-mist* (bool, out)::
   TRUE when mist coolant is requested.
-*iocontrol.0.emc-enable-in* (Bit, In)::
+*iocontrol.0.emc-enable-in* (bool, in)::
   Should be driven FALSE when an external E-stop condition exists.
-*iocontrol.0.tool-change* (Bit, Out)::
+*iocontrol.0.tool-change* (bool, out)::
   TRUE when a tool change is requested.
-*iocontrol.0.tool-changed* (Bit, In)::
+*iocontrol.0.tool-changed* (bool, in)::
   Should be driven TRUE when a tool change is completed.
-*iocontrol.0.tool-number* (s32, Out)::
+*iocontrol.0.tool-number* (sint, out)::
   Current tool number.
-*iocontrol.0.tool-prep-number* (s32, Out)::
+*iocontrol.0.tool-prep-number* (sint, out)::
   The number of the next tool, from the RS274NGC T-word.
-*iocontrol.0.tool-prep-pocket* (s32, Out)::
+*iocontrol.0.tool-prep-pocket* (sint, out)::
   This is the pocket number (location in the tool storage
   mechanism) of the tool requested by the most recent T-word.
-*iocontrol.0.tool-prepare* (Bit, Out)::
+*iocontrol.0.tool-prepare* (bool, out)::
   TRUE when a T__n__ tool prepare is requested.
-*iocontrol.0.tool-prepared* (Bit, In)::
+*iocontrol.0.tool-prepared* (bool, in)::
   Should be driven TRUE when a tool prepare is completed.
-*iocontrol.0.user-enable-out* (Bit, Out)::
+*iocontrol.0.user-enable-out* (bool, out)::
   FALSE when an internal E-stop condition exists.
-*iocontrol.0.user-request-enable* (Bit, Out)::
+*iocontrol.0.user-request-enable* (bool, out)::
   TRUE when the user has requested that E-stop be cleared.
-*iocontrol.0.tool-prep-index* (s32, Out)::
+*iocontrol.0.tool-prep-index* (sint, out)::
   IO's internal array index of the prepped tool requested by the most recent T-word.
   0 if no tool is prepped.  On Random toolchanger machines this is the tool's pocket number
   (i.e., the same as the tool-prep-pocket pin),

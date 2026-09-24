@@ -46,17 +46,17 @@ external offset acceleration = (  r) * MAX_ACCELERATION
 
 For each  axis letter (*_L_* in xyzabcuvw)
 
-. *axis._L_.eoffset-enable*  Input(bit): enable
-. *axis._L_.eoffset-scale*   Input(float): scale factor
-. *axis._L_.eoffset-counts*  Input(s32): input to counts register
-. *axis._L_.eoffset-clear*   Input(bit): clear requested offset
-. *axis._L_.eoffset*         Output(float): current external offset
-. *axis._L_.eoffset-request* Output(float): requested external offset
+. *axis._L_.eoffset-enable*  Input(bool): enable
+. *axis._L_.eoffset-scale*   Input(real): scale factor
+. *axis._L_.eoffset-counts*  Input(sint): input to counts register
+. *axis._L_.eoffset-clear*   Input(bool): clear requested offset
+. *axis._L_.eoffset*         Output(real): current external offset
+. *axis._L_.eoffset-request* Output(real): requested external offset
 
 === Other Motion HAL Pins
 
-. *motion.eoffset-active*   Output(bit): non-zero external offsets applied
-. *motion.eoffset-limited*  Output(bit): motion inhibited due to soft limit
+. *motion.eoffset-active*   Output(bool): non-zero external offsets applied
+. *motion.eoffset-limited*  Output(bool): motion inhibited due to soft limit
 
 == Usage
 

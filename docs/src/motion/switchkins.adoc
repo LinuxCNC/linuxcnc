@@ -139,11 +139,11 @@ program behavior in accordance with the active kinematics type.
 
 === HAL Pin Summary
 
-. *motion.switchkins-type*  Input  (float)
-. *motion.kins-type*        Output (float)
-. *kinstype.is-0*           Output (bit)
-. *kinstype.is-1*           Output (bit)
-. *kinstype.is-2*           Output (bit)
+. *motion.switchkins-type*  Input  (real)
+. *motion.kins-type*        Output (real)
+. *kinstype.is-0*           Output (bool)
+. *kinstype.is-1*           Output (bool)
+. *kinstype.is-2*           Output (bool)
 
 A module providing more than three kinematics types has one
 'kinstype.is-N' pin per type.

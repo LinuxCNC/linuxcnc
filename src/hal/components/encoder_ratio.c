@@ -121,11 +121,11 @@ typedef struct {
     hal_bool_t slave_A;		/* quadrature input */
     hal_bool_t slave_B;		/* quadrature input */
     hal_bool_t enable;		/* enable input */
-    unsigned master_state;	/* quad decode state machine state */
-    unsigned slave_state;	/* quad decode state machine state */
-    int raw_error;		/* internal data */
-    int master_increment;	/* internal data */
-    int slave_increment;	/* internal data */
+    rtapi_uint master_state;	/* quad decode state machine state */
+    rtapi_uint slave_state;	/* quad decode state machine state */
+    rtapi_sint raw_error;	/* internal data */
+    rtapi_sint master_increment;	/* internal data */
+    rtapi_sint slave_increment;	/* internal data */
     double output_scale;	/* internal data */
     hal_real_t error;		/* error output */
     hal_uint_t master_ppr;	/* parameter: master encoder PPR */
@@ -244,7 +244,7 @@ int rtapi_app_main(void)
     }
     /* export functions */
     retval = hal_export_funct("encoder-ratio.sample", sample,
-	encoder_pair_array, 0, 0, comp_id);
+	encoder_pair_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER_RATIO: ERROR: sample funct export failed\n");
@@ -252,7 +252,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = hal_export_funct("encoder-ratio.update", update,
-	encoder_pair_array, 1, 0, comp_id);
+	encoder_pair_array, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER_RATIO: ERROR: update funct export failed\n");
@@ -279,7 +279,7 @@ static void sample(void *arg, long period)
     (void)period;
     encoder_pair_t *pair;
     int n;
-    unsigned state;
+    rtapi_uint state;
 
     pair = arg;
     for (n = 0; n < howmany; n++) {
@@ -346,9 +346,9 @@ static void update(void *arg, long period)
 	}
 	/* update scale factors (only needed if params change, but
 	   it's faster to do it every time than to detect changes.) */
-	pair->master_increment = hal_get_ui32(pair->master_teeth) * hal_get_ui32(pair->slave_ppr);
-	pair->slave_increment = hal_get_ui32(pair->slave_teeth) * hal_get_ui32(pair->master_ppr);
-	pair->output_scale = hal_get_ui32(pair->master_ppr) * hal_get_ui32(pair->slave_ppr) * hal_get_ui32(pair->slave_teeth);
+	pair->master_increment = hal_get_uint(pair->master_teeth) * hal_get_uint(pair->slave_ppr);
+	pair->slave_increment = hal_get_uint(pair->slave_teeth) * hal_get_uint(pair->master_ppr);
+	pair->output_scale = hal_get_uint(pair->master_ppr) * hal_get_uint(pair->slave_ppr) * hal_get_uint(pair->slave_teeth);
 	/* move on to next pair */
 	pair++;
     }
@@ -405,22 +405,22 @@ static int export_encoder_pair(int num, encoder_pair_t * addr, char* prefix)
 	return retval;
     }
     /* export pins for config info() */
-    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->master_ppr), 0,
+    retval = hal_pin_new_uint(comp_id, HAL_IO, &(addr->master_ppr), 0,
 			      "%s.master-ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->slave_ppr), 0,
+    retval = hal_pin_new_uint(comp_id, HAL_IO, &(addr->slave_ppr), 0,
 			      "%s.slave-ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->master_teeth), 0,
+    retval = hal_pin_new_uint(comp_id, HAL_IO, &(addr->master_teeth), 0,
 			      "%s.master-teeth", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_new_ui32(comp_id, HAL_IO, &(addr->slave_teeth), 0,
+    retval = hal_pin_new_uint(comp_id, HAL_IO, &(addr->slave_teeth), 0,
 			      "%s.slave-teeth", prefix);
     if (retval != 0) {
 	return retval;

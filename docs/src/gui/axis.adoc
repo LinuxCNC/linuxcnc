@@ -482,7 +482,7 @@ unhome axes.
 
 If your machine does not have home switches defined in the configuration,
 the 'Home' button will set the current position of the selected axis as
-the absolute position 0 for that axis and will set the 'is-homed' bit for that axis.
+the absolute position 0 for that axis and will set the 'is-homed' bool for that axis.
 
 See the <<cha:homing-configuration,Homing Configuration Chapter>> for more information.
 
@@ -1026,23 +1026,23 @@ like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
 AXIS has HAL pins to indicate which jog radio button is selected in the 'Manual Control' tab.
 
 ----
-Type Dir  Name
-bit  OUT  axisui.jog.x
-bit  OUT  axisui.jog.y
-bit  OUT  axisui.jog.z
-bit  OUT  axisui.jog.a
-bit  OUT  axisui.jog.b
-bit  OUT  axisui.jog.c
-bit  OUT  axisui.jog.u
-bit  OUT  axisui.jog.v
-bit  OUT  axisui.jog.w
+Type  Dir  Name
+bool  OUT  axisui.jog.x
+bool  OUT  axisui.jog.y
+bool  OUT  axisui.jog.z
+bool  OUT  axisui.jog.a
+bool  OUT  axisui.jog.b
+bool  OUT  axisui.jog.c
+bool  OUT  axisui.jog.u
+bool  OUT  axisui.jog.v
+bool  OUT  axisui.jog.w
 ----
 
 AXIS has a HAL pin to indicate the jog increment selected on the 'Manual Tab'.
 
 ----
 Type  Dir Name
-float OUT axisui.jog.increment
+real  OUT axisui.jog.increment
 ----
 
 AXIS has a HAL output pin that indicates when an abort has occurred. The
@@ -1050,7 +1050,7 @@ AXIS has a HAL output pin that indicates when an abort has occurred. The
 
 ----
 Type  Dir    Name
-bit   OUT    axisui.abort
+bool  OUT    axisui.abort
 ----
 
 AXIS has a HAL output pin that indicates when an error has occurred. The
@@ -1059,7 +1059,7 @@ been dismissed.
 
 ----
 Type  Dir    Name
-bit   OUT    axisui.error
+bool  OUT    axisui.error
 ----
 
 AXIS has HAL input pins to clear the pop up notifications for errors and
@@ -1067,16 +1067,16 @@ information.
 
 ----
 Type  Dir    Name
-bit   IN     axisui.notifications-clear
-bit   IN     axisui.notifications-clear-error
-bit   IN     axisui.notifications-clear-info
+bool  IN     axisui.notifications-clear
+bool  IN     axisui.notifications-clear-error
+bool  IN     axisui.notifications-clear-info
 ----
 
 AXIS has a HAL input pin that disables/enables the 'Pause/Resume' function.
 
 ----
 Type  Dir    Name
-bit   IN     axisui.resume-inhibit
+bool  IN     axisui.resume-inhibit
 ----
 
 == AXIS Customization Hints

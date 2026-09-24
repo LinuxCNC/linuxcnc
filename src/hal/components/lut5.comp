@@ -5,7 +5,7 @@ pin in bool in_2;
 pin in bool in_3;
 pin in bool in_4;
 pin out bool out;
-param rw ui32 function;
+param rw uint function;
 function _;
 description """
 *lut5*

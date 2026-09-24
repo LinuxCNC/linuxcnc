@@ -244,8 +244,8 @@ typedef struct {
 
     /* Private data */
     State state;
-    rtapi_u32  cycleCount;
-    rtapi_u32  cyclePeriod;
+    rtapi_uint cycleCount;
+    rtapi_uint cyclePeriod;
     rtapi_real cycleAmplitude;
     rtapi_real totalTime;
     rtapi_real avgAmplitude;
@@ -350,7 +350,7 @@ static void
 Pid_CycleEnd(hal_pid_t *pid)
 {
     pid->cycleCount++;
-    pid->avgAmplitude += pid->cycleAmplitude / hal_get_ui32(pid->tuneCycles);
+    pid->avgAmplitude += pid->cycleAmplitude / hal_get_uint(pid->tuneCycles);
     pid->cycleAmplitude = 0;
     pid->totalTime += pid->cyclePeriod * 0.000000001;
     pid->cyclePeriod = 0;
@@ -440,16 +440,16 @@ Pid_AutoTune(hal_pid_t *pid, long period)
 
         // Check if the last cycle just ended. This is really the number
         // of half cycles.
-        if(pid->cycleCount < hal_get_ui32(pid->tuneCycles))
+        if(pid->cycleCount < hal_get_uint(pid->tuneCycles))
             break;
 
         // Calculate PID using Relay (Åström-Hägglund) method
         hal_set_real(pid->ultimateGain, (4.0 * fabs(hal_get_real(pid->tuneEffort)))/(PI * pid->avgAmplitude));
-        hal_set_real(pid->ultimatePeriod, 2.0 * pid->totalTime / hal_get_ui32(pid->tuneCycles));
+        hal_set_real(pid->ultimatePeriod, 2.0 * pid->totalTime / hal_get_uint(pid->tuneCycles));
         hal_set_real(pid->ff0gain, 0);
         hal_set_real(pid->ff2gain, 0);
 
-        if(hal_get_ui32(pid->tuneType) == TYPE_PID){
+        if(hal_get_uint(pid->tuneType) == TYPE_PID){
             // insert ultimate gain and period in Ziegler-Nichols PID method
             hal_set_real(pid->pgain, 0.6 * hal_get_real(pid->ultimateGain));
             hal_set_real(pid->igain, 1.2 * hal_get_real(pid->ultimateGain) / (hal_get_real(pid->ultimatePeriod)));
@@ -677,12 +677,16 @@ static void calc_pid(void *arg, long period)
     if(pid->limit_state) {
         hal_set_bool(pid->saturated, 1);
         hal_set_real(pid->saturated_s, hal_get_real(pid->saturated_s) + period * 1e-9);
-        if(hal_get_si32(pid->saturated_count) != 2147483647)
-            hal_set_si32(pid->saturated_count, hal_get_si32(pid->saturated_count) + 1);
+        // FIXME: This comparison can now be extended to 2**63-1, but should we?
+        // It can also be removed...
+        // The time it takes to reach the top would be more than the Universe
+        // has existed if we counted nanoseconds.
+        if(hal_get_sint(pid->saturated_count) != 2147483647)
+            hal_set_sint(pid->saturated_count, hal_get_sint(pid->saturated_count) + 1);
     } else {
         hal_set_bool(pid->saturated, 0);
         hal_set_real(pid->saturated_s, 0);
-        hal_set_si32(pid->saturated_count, 0);
+        hal_set_sint(pid->saturated_count, 0);
     }
     /* done */
 }
@@ -722,7 +726,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->output), 0.0, "%s.output", prefix));
     CHK(hal_pin_new_bool(comp_id, HAL_OUT, &(addr->saturated), 0, "%s.saturated", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_OUT, &(addr->saturated_s), 0.0, "%s.saturated-s", prefix));
-    CHK(hal_pin_new_si32(comp_id, HAL_OUT, &(addr->saturated_count), 0, "%s.saturated-count", prefix));
+    CHK(hal_pin_new_sint(comp_id, HAL_OUT, &(addr->saturated_count), 0, "%s.saturated-count", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->pgain), 1.0, "%s.Pgain", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->igain), 0.0, "%s.Igain", prefix));
     CHK(hal_pin_new_real(comp_id, HAL_IN, &(addr->dgain), 0.0, "%s.Dgain", prefix));
@@ -745,8 +749,8 @@ static int export_pid(hal_pid_t * addr, char * prefix)
 #ifdef AUTO_TUNER
     /* Auto tune related */
     CHK(hal_pin_new_real(comp_id, HAL_IO, &(addr->tuneEffort), 0.5, "%s.tune-effort", prefix));
-    CHK(hal_pin_new_ui32(comp_id, HAL_IO, &(addr->tuneCycles), 50, "%s.tune-cycles", prefix));
-    CHK(hal_pin_new_ui32(comp_id, HAL_IO, &(addr->tuneType), TYPE_PID, "%s.tune-type", prefix));
+    CHK(hal_pin_new_uint(comp_id, HAL_IO, &(addr->tuneCycles), 50, "%s.tune-cycles", prefix));
+    CHK(hal_pin_new_uint(comp_id, HAL_IO, &(addr->tuneType), TYPE_PID, "%s.tune-type", prefix));
     CHK(hal_pin_new_bool(comp_id, HAL_IN, &(addr->pTuneMode), 0, "%s.tune-mode", prefix));
     CHK(hal_pin_new_bool(comp_id, HAL_IO, &(addr->pTuneStart), 0, "%s.tune-start", prefix));
 #endif /* AUTO_TUNER */
@@ -787,7 +791,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     addr->state = STATE_PID;
 #endif /* AUTO_TUNER */
     /* export function for this loop */
-    retval = hal_export_functf(calc_pid, addr, 1, 0, comp_id, "%s.do-pid-calcs", prefix);
+    retval = hal_export_functf(calc_pid, addr, 0, comp_id, "%s.do-pid-calcs", prefix);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: do_pid_calcs funct export failed\n");
         hal_exit(comp_id);

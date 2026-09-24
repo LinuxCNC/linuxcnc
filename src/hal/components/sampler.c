@@ -157,7 +157,7 @@ static void sample(void *arg, long period)
 
     /* are we enabled? */
     if (!hal_get_bool(samp->enable)) {
-        hal_set_si32(samp->curr_depth, hal_stream_depth(&samp->fifo));
+        hal_set_sint(samp->curr_depth, hal_stream_depth(&samp->fifo));
         hal_set_bool(samp->full, !hal_stream_writable(&samp->fifo));
         return;
     }
@@ -168,8 +168,6 @@ static void sample(void *arg, long period)
     for (int n = 0; n < num_pins; n++) {
         switch (hal_stream_element_type(&samp->fifo, n)) {
         case HAL_REAL: data[n].f = hal_get_real(samp->pins[n].r); break;
-        case HAL_S32:  data[n].s = hal_get_si32(samp->pins[n].s); break;
-        case HAL_U32:  data[n].u = hal_get_ui32(samp->pins[n].u); break;
         case HAL_SINT: data[n].l = hal_get_sint(samp->pins[n].s); break;
         case HAL_UINT: data[n].k = hal_get_uint(samp->pins[n].u); break;
         case HAL_BOOL: data[n].b = hal_get_bool(samp->pins[n].b); break;
@@ -180,12 +178,12 @@ static void sample(void *arg, long period)
     if ( hal_stream_write(&samp->fifo, data) < 0) {
         /* fifo is full, data is lost */
         /* log the overrun */
-        hal_set_si32(samp->overruns, hal_get_si32(samp->overruns) + 1);
+        hal_set_sint(samp->overruns, hal_get_sint(samp->overruns) + 1);
         hal_set_bool(samp->full, 1);
-        hal_set_si32(samp->curr_depth, hal_stream_maxdepth(&samp->fifo));
+        hal_set_sint(samp->curr_depth, hal_stream_maxdepth(&samp->fifo));
     } else {
         hal_set_bool(samp->full, 0);
-        hal_set_si32(samp->curr_depth, hal_stream_depth(&samp->fifo));
+        hal_set_sint(samp->curr_depth, hal_stream_depth(&samp->fifo));
     }
 }
 
@@ -209,17 +207,17 @@ static int init_sampler(int num, sampler_t *str)
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'enable' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_OUT, &str->curr_depth, 0, "%s%d.curr-depth", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_OUT, &str->curr_depth, 0, "%s%d.curr-depth", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'curr_depth' pin export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_IO, &str->overruns, 0, "%s%d.overruns", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &str->overruns, 0, "%s%d.overruns", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'overruns' parameter export failed\n");
         return -EIO;
     }
-    retval = hal_pin_new_si32(comp_id, HAL_IO, &str->sample_num, 0, "%s%d.sample-num", strbase, num);
+    retval = hal_pin_new_sint(comp_id, HAL_IO, &str->sample_num, 0, "%s%d.sample-num", strbase, num);
     if (retval != 0 ) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: 'sample-num' parameter export failed\n");
         return -EIO;
@@ -231,8 +229,6 @@ static int init_sampler(int num, sampler_t *str)
         int type;
         switch(type = hal_stream_element_type(&str->fifo, n)) {
         case HAL_REAL: retval = hal_pin_new_real(comp_id, HAL_IN, &str->pins[n].r, 0.0, pstr, num, n); break;
-        case HAL_S32:  retval = hal_pin_new_si32(comp_id, HAL_IN, &str->pins[n].s, 0,   pstr, num, n); break;
-        case HAL_U32:  retval = hal_pin_new_ui32(comp_id, HAL_IN, &str->pins[n].u, 0,   pstr, num, n); break;
         case HAL_SINT: retval = hal_pin_new_sint(comp_id, HAL_IN, &str->pins[n].s, 0,   pstr, num, n); break;
         case HAL_UINT: retval = hal_pin_new_uint(comp_id, HAL_IN, &str->pins[n].u, 0,   pstr, num, n); break;
         case HAL_BOOL: retval = hal_pin_new_bool(comp_id, HAL_IN, &str->pins[n].b, 0,   pstr, num, n); break;
@@ -246,7 +242,7 @@ static int init_sampler(int num, sampler_t *str)
         }
     }
     /* export update function */
-    retval = hal_export_functf(sample, str, 1, 0, comp_id, "%s%d", strbase, num);
+    retval = hal_export_functf(sample, str, 0, comp_id, "%s%d", strbase, num);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "SAMPLER: ERROR: function export failed\n");
         return retval;

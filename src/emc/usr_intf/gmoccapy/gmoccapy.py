@@ -6434,13 +6434,13 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._on_unlock_settings_changed)
 
         # generate the pins to connect encoders to the sliders
-        pin = self.halcomp.newpin("feed.feed-override.counts", hal.HAL_S32, hal.Dir.IN)
+        pin = self.halcomp.newpin("feed.feed-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_feed")
-        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.HAL_S32, hal.Dir.IN)
+        pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
-        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.HAL_S32, hal.Dir.IN)
+        pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_lin_jog_vel")
-        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.HAL_S32, hal.Dir.IN)
+        pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.Type.SINT, hal.Dir.IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
         self.halcomp.newpin("feed.feed-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
         self.halcomp.newpin("spindle.spindle-override.count-enable", hal.Type.BOOL, hal.Dir.IN)
@@ -6491,7 +6491,7 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._del_message_changed)
 
         # for manual tool change dialog
-        self.halcomp.newpin("toolchange-number", hal.HAL_S32, hal.Dir.IN)
+        self.halcomp.newpin("toolchange-number", hal.Type.SINT, hal.Dir.IN)
         self.halcomp.newpin("toolchange-changed", hal.Type.BOOL, hal.Dir.OUT)
         pin = self.halcomp.newpin('toolchange-change', hal.Type.BOOL, hal.Dir.IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
@@ -6516,8 +6516,8 @@ class gmoccapy(object):
         self.halcomp.newpin("error", hal.Type.BOOL, hal.Dir.OUT)
 
         # make pins to indicate program progress information
-        self.halcomp.newpin("program.length", hal.HAL_S32, hal.Dir.OUT)
-        self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.Dir.OUT)
+        self.halcomp.newpin("program.length", hal.Type.SINT, hal.Dir.OUT)
+        self.halcomp.newpin("program.current-line", hal.Type.SINT, hal.Dir.OUT)
         self.halcomp.newpin("program.progress", hal.Type.REAL, hal.Dir.OUT)
 
         # make a pin to set ignore limits

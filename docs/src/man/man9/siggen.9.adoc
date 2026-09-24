@@ -43,37 +43,37 @@ The **siggen.**_N_**.** format is shown in the following descriptions.
 
 == PINS
 
-**siggen.**_N_**.frequency** float in::
+**siggen.**_N_**.frequency** real in::
   The output frequency for signal generator _N_, in Hertz.
   The default value is 1.0 Hertz.
-**siggen.**_N_**.amplitude** float in::
+**siggen.**_N_**.amplitude** real in::
   The output amplitude for signal generator _N_.
   If *offset* is zero, the outputs will swing from -*amplitude* to +**amplitude**.
   The default value is 1.00.
-**siggen.**_N_**.offset** float in::
+**siggen.**_N_**.offset** real in::
   The output offset for signal generator _N_.
   This value is added directly to the output signal. The default value is zero.
-**siggen.**_N_**.reset** bit in::
+**siggen.**_N_**.reset** bool in::
   Resets output pins to predetermined states: +
   *sine*: 0 +
   *sawtooth*: 0 +
   *square*: -1 * amplitude +
   *cosine*: -1 * amplitude +
   *triangle*: -1 * amplitude
-**siggen.**_N_**.clock** bit out::
-  The clock output. Bit type clock signal output at the commanded frequency.
-**siggen.**_N_**.square** float out::
+**siggen.**_N_**.clock** bool out::
+  The clock output. Boolean type clock signal output at the commanded frequency.
+**siggen.**_N_**.square** real out::
   The square wave output. Positive while *triangle* and *cosine* are
   ramping upwards, and while *sine* is negative.
-**siggen.**_N_**.sine** float out::
+**siggen.**_N_**.sine** real out::
   The sine output. Lags *cosine* by 90 degrees.
-**siggen.**_N_**.cosine** float out::
+**siggen.**_N_**.cosine** real out::
   The cosine output. Leads *sine* by 90 degrees.
-**siggen.**_N_**.triangle** float out::
+**siggen.**_N_**.triangle** real out::
   The triangle wave output.
   Ramps up while *square* is positive, and down while *square* is negative.
   Reaches its positive and negative peaks at the same time as *cosine*.
-**siggen.**_N_**.sawtooth** float out::
+**siggen.**_N_**.sawtooth** real out::
   The sawtooth output. Ramps upwards to its positive peak, then
   instantly drops to its negative peak and starts ramping again.
   The drop occurs when *triangle* and *cosine* are at their positive peaks,

@@ -120,7 +120,7 @@ requested component with a call to *dlopen(3)*.
   (OBSOLETE - use *net* instead) (_new_ __sig__nal) Creates a new HAL
   signal called _signame_ that may later be used to connect two or more
   HAL component pins. _type_ is the data type of the new signal, and
-  must be one of "*bit*", "*s32*", "*u32*", or "*float*". Fails if a
+  must be one of "*bool*", "*sint*", "*uint*", or "*real*". Fails if a
   signal of the same name already exists.
 *delsig* _signame_::
   (__del__ete __sig__nal) Deletes HAL signal _signame_. Any pins
@@ -266,7 +266,7 @@ If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, 
   'pattern' is specified it prints only those names that match the
   pattern, which may be a 'shell glob'. For *sig*, *pin* and
   *param*, the first pattern may be -t**datatype** where datatype is
-  the data type (e.g., 'float') in this case, the listed pins, signals,
+  the data type (e.g., 'real') in this case, the listed pins, signals,
   or parameters are restricted to the given data type Names are printed
   on a single line, space separated.
 *print* [_message_]::

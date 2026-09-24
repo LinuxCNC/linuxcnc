@@ -13,7 +13,7 @@
 
 loadusr -W shuttle
 
-loadrt abs_s32 names=abs_s32.sxp
+loadrt abs_sint names=abs_sint.sxp
 loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
 loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog
 loadrt updown names=updown.sxp
@@ -45,7 +45,7 @@ net sxp.spring-wheel <= shuttlexpress.0.spring-wheel-s32
 # deflection
 #
 
-addf abs_s32.sxp servo-thread
+addf abs_sint.sxp servo-thread
 
 addf select8.sxp-jog-speed servo-thread
 
@@ -60,10 +60,10 @@ addf tristate-float.sxp7 servo-thread
 
 
 # get abs value & sign of spring-wheel
-net sxp.spring-wheel             => abs_s32.sxp.in
-net sxp.spring-wheel-abs         <= abs_s32.sxp.out
-net sxp.spring-wheel-is-positive <= abs_s32.sxp.is-positive
-net sxp.spring-wheel-is-negative <= abs_s32.sxp.is-negative
+net sxp.spring-wheel             => abs_sint.sxp.in
+net sxp.spring-wheel-abs         <= abs_sint.sxp.out
+net sxp.spring-wheel-is-positive <= abs_sint.sxp.is-positive
+net sxp.spring-wheel-is-negative <= abs_sint.sxp.is-negative
 
 # use abs value to select abs jog speed
 net sxp.spring-wheel-abs => select8.sxp-jog-speed.sel 

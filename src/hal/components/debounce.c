@@ -70,7 +70,7 @@ typedef struct {
 #ifdef EXPORT_STATE
     hal_sint_t state;   /* parameter*: internal state */
 #else
-    rtapi_s32 state;    /* parameter*: internal state */
+    rtapi_sint state;   /* parameter*: internal state */
 #endif
 } debounce_t;
 
@@ -173,11 +173,11 @@ void rtapi_app_exit(void)
 ************************************************************************/
 
 #ifdef EXPORT_STATE
-static inline rtapi_s32 get_state(hal_sint_t *s) { return hal_get_si32(*s); }
-static inline rtapi_s32 set_state(hal_sint_t *s, rtapi_s32 v) { return hal_set_si32(*s, v); }
+static inline rtapi_sint get_state(hal_sint_t *s) { return hal_get_sint(*s); }
+static inline rtapi_sint set_state(hal_sint_t *s, rtapi_sint v) { return hal_set_sint(*s, v); }
 #else
-static inline rtapi_s32 get_state(rtapi_s32 *s) { return *s; }
-static inline rtapi_s32 set_state(rtapi_s32 *s, rtapi_s32 v) { return (*s = v); }
+static inline rtapi_sint get_state(rtapi_sint *s) { return *s; }
+static inline rtapi_sint set_state(rtapi_sint *s, rtapi_sint v) { return (*s = v); }
 #endif
 
 /** The debounce filter works by incrementing a counter whenever the
@@ -205,8 +205,8 @@ static void debounce(void *arg, long period)
     /* point to filter group */
     group = (debounce_group_t *) arg;
     /* first make sure delay is sane */
-    if (hal_get_si32(group->delay) < 0) {
-        hal_set_si32(group->delay, 1);
+    if (hal_get_sint(group->delay) < 0) {
+        hal_set_sint(group->delay, 1);
     }
     /* loop thru filters */
     for (n = 0; n < group->channels; n++) {
@@ -215,7 +215,7 @@ static void debounce(void *arg, long period)
         /* update this filter */
         if (hal_get_bool(filter->in)) {
             /* input true, is state at threshold? */
-            if (get_state(&filter->state) < hal_get_si32(group->delay)) {
+            if (get_state(&filter->state) < hal_get_sint(group->delay)) {
                 /* no, increment */
                 set_state(&filter->state, get_state(&filter->state) + 1);
             } else {
@@ -257,13 +257,13 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
         return -1;
     }
     /* export param variable for delay */
-    retval = hal_param_new_si32(comp_id, HAL_RW, &addr->delay, 5, "debounce.%d.delay", num);
+    retval = hal_param_new_sint(comp_id, HAL_RW, &addr->delay, 5, "debounce.%d.delay", num);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: 'debounce.%d.delay' param export failed\n", num);
         return retval;
     }
     /* export function */
-    retval = hal_export_functf(debounce, addr, 0, 0, comp_id, "debounce.%d", num);
+    retval = hal_export_functf(debounce, addr, 0, comp_id, "debounce.%d", num);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: 'debounce.%d' funct export failed\n", num);
         return -1;
@@ -304,7 +304,7 @@ static int export_filter(int num, debounce_t * addr, int group_num)
     }
 #ifdef EXPORT_STATE
     /* export parameter containing internal state */
-    retval = hal_param_new_si32(comp_id, HAL_RO, &addr->state, 0, "%s.state", buf);
+    retval = hal_param_new_sint(comp_id, HAL_RO, &addr->state, 0, "%s.state", buf);
     if (retval != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "DEBOUNCE: ERROR: '%s.state' param export failed\n", buf);
         return retval;

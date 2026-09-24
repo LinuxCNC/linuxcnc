@@ -446,15 +446,15 @@ rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
     }
 
     rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.read");
-    retval += hal_export_funct(hal_name, hal_gpio_read, gpio, 0, 0, comp_id);
+    retval += hal_export_funct(hal_name, hal_gpio_read, gpio, 0, comp_id);
     rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.write");
-    retval += hal_export_funct(hal_name, hal_gpio_write, gpio, 0, 0, comp_id);
+    retval += hal_export_funct(hal_name, hal_gpio_write, gpio, 0, comp_id);
 
     if (reset_active){
 	gpio->reset_ns = hal_malloc(sizeof(*gpio->reset_ns));
 	rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.reset");
-	retval += hal_param_new_ui32(comp_id, HAL_RW, gpio->reset_ns, 0, "hal_gpio.reset_ns");
-	retval += hal_export_funct(hal_name, hal_gpio_reset, gpio, 0, 0, comp_id);
+	retval += hal_param_new_uint(comp_id, HAL_RW, gpio->reset_ns, 0, "hal_gpio.reset_ns");
+	retval += hal_export_funct(hal_name, hal_gpio_reset, gpio, 0, comp_id);
     }
     if (retval < 0){
 	rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio: failed to export functions\n");
@@ -525,8 +525,8 @@ static void hal_gpio_reset(void *arg, long period)
 		gpio->out_chips[c].vals[i] = 0;
 	    }
 	}
-	if (hal_get_ui32(*gpio->reset_ns) > period/4) hal_set_ui32(*gpio->reset_ns, period/4);
-	deadline = last_reset + hal_get_ui32(*gpio->reset_ns);
+	if ((long)hal_get_uint(*gpio->reset_ns) > period/4) hal_set_uint(*gpio->reset_ns, period/4);
+	deadline = last_reset + hal_get_uint(*gpio->reset_ns);
         while(rtapi_get_time() < deadline) {} // busy-wait!
 #if LIBGPIOD_VER > 200
 	gpiod_line_request_set_values(gpio->out_chips[c].lines, gpio->out_chips[c].vals);

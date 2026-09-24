@@ -47,7 +47,7 @@ typedef struct {
 
 typedef struct {
     lcd_page_t *pages;
-    unsigned num_pages;
+    rtapi_uint num_pages;
     hal_uint_t page_num;
     hal_uint_t out;
     hal_real_t contrast;
@@ -165,7 +165,7 @@ int rtapi_app_main(void){
                                     break;
                                 case 'u':
                                 case 'c':
-                                    retval = hal_pin_new_ui32(comp_id, HAL_IN,
+                                    retval = hal_pin_new_uint(comp_id, HAL_IN,
                                                               &(inst->pages[p].args[a].u), 0,
                                                               "lcd.%02i.page.%02i.arg.%02i",
                                                               i, p, a);
@@ -175,7 +175,7 @@ int rtapi_app_main(void){
                                     
                                     break;
                                 case 's':
-                                    retval = hal_pin_new_si32(comp_id, HAL_IN,
+                                    retval = hal_pin_new_sint(comp_id, HAL_IN,
                                                               &(inst->pages[p].args[a].s), 0,
                                                               "lcd.%02i.page.%02i.arg.%02i",
                                                               i, p, a);
@@ -200,20 +200,20 @@ int rtapi_app_main(void){
             }
         }
     }
-    retval = hal_export_funct("lcd", write, lcd, 1, 0, comp_id); //needs fp?
+    retval = hal_export_funct("lcd", write, lcd, 0, comp_id); //needs fp?
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "LCD: ERROR: function export failed\n");
         return -1;
     }
     
     for (i = 0; i < lcd->num_insts; i++){
-        retval = hal_pin_new_ui32(comp_id, HAL_IN, &(lcd->insts[i].page_num), 0,
+        retval = hal_pin_new_uint(comp_id, HAL_IN, &(lcd->insts[i].page_num), 0,
                                   "lcd.%02i.page_num", i);
         if (retval != 0) {
             return retval;
         }
         lcd->insts[i].last_page = -1; // force screen refresh
-        retval = hal_pin_new_ui32(comp_id, HAL_OUT, &(lcd->insts[i].out), 0,
+        retval = hal_pin_new_uint(comp_id, HAL_OUT, &(lcd->insts[i].out), 0,
                                   "lcd.%02i.out",i);
         if (retval != 0) {
             return retval;
@@ -223,7 +223,7 @@ int rtapi_app_main(void){
         if (retval != 0) {
             return retval;
         }
-        retval = hal_param_new_ui32(comp_id, HAL_RW, &(lcd->insts[i].dp), '.',
+        retval = hal_param_new_uint(comp_id, HAL_RW, &(lcd->insts[i].dp), '.',
                                     "lcd.%02i.decimal-separator",i);
         if (retval != 0) {
             return retval;
@@ -276,18 +276,18 @@ static void write_one(lcd_inst_t *inst){
         return;}
 
     if (inst->buff[inst->c_ptr] != 0){
-        hal_set_ui32(inst->out, inst->buff[inst->c_ptr++]);
+        hal_set_uint(inst->out, inst->buff[inst->c_ptr++]);
         return;
     }
     
     inst->c_ptr = 0;
     inst->buff[0] = 0;
 
-    if (hal_get_ui32(inst->page_num) >= inst->num_pages) return; // should this error?
+    if (hal_get_uint(inst->page_num) >= inst->num_pages) return; // should this error?
     
-    if (hal_get_ui32(inst->page_num) != inst->last_page){
-        inst->last_page = hal_get_ui32(inst->page_num);
-        hal_set_ui32(inst->out, 0x11); //cursor off
+    if (hal_get_uint(inst->page_num) != inst->last_page){
+        inst->last_page = hal_get_uint(inst->page_num);
+        hal_set_uint(inst->out, 0x11); //cursor off
         inst->buff[0] = 0x1E; //cursor home
         inst->buff[1] = 0x1A; //clear screen
         inst->buff[2] = 0; // end
@@ -297,8 +297,8 @@ static void write_one(lcd_inst_t *inst){
         return;
     }
 
-    if (inst->f_ptr >= inst->pages[hal_get_ui32(inst->page_num)].length){
-        hal_set_ui32(inst->out, 0x1B); // ESC
+    if (inst->f_ptr >= inst->pages[hal_get_uint(inst->page_num)].length){
+        hal_set_uint(inst->out, 0x1B); // ESC
         inst->buff[0] = 0x3D; // =
         inst->buff[1] = 0x20; // Line 0
         inst->buff[2] = 0x20; // Column 0
@@ -314,7 +314,7 @@ static void write_one(lcd_inst_t *inst){
         if (c > 0xBF) c = 0xBF;
         if (c < 0x20) c = 0x20;
         inst->last_contrast = hal_get_real(inst->contrast);
-        hal_set_ui32(inst->out, 0x1B);
+        hal_set_uint(inst->out, 0x1B);
         inst->buff[0] = 'C';
         inst->buff[1] = c;
         inst->buff[2] = 0;
@@ -322,9 +322,9 @@ static void write_one(lcd_inst_t *inst){
         return;
     }
     
-    switch (inst->pages[hal_get_ui32(inst->page_num)].fmt[inst->f_ptr]){
+    switch (inst->pages[hal_get_uint(inst->page_num)].fmt[inst->f_ptr]){
         case '\\': //escape chars
-            c1 = inst->pages[hal_get_ui32(inst->page_num)].fmt[++inst->f_ptr];
+            c1 = inst->pages[hal_get_uint(inst->page_num)].fmt[++inst->f_ptr];
             switch (c1){
                 case 'n':
                 case 'N':
@@ -350,7 +350,7 @@ static void write_one(lcd_inst_t *inst){
                     /* Fallthrough */
                     
                 default: //check for hex
-                    c2 = inst->pages[hal_get_ui32(inst->page_num)].fmt[++inst->f_ptr];
+                    c2 = inst->pages[hal_get_uint(inst->page_num)].fmt[++inst->f_ptr];
                     inst->f_ptr++;
                     if (c1 > '9') c1 &= 0xDF; //upper case
                     if (c2 > '9') c2 &= 0xDF;
@@ -362,24 +362,24 @@ static void write_one(lcd_inst_t *inst){
                         inst->buff[0] = 0;
                     }
             }
-            hal_set_ui32(inst->out, inst->buff[0]);
+            hal_set_uint(inst->out, inst->buff[0]);
             inst->c_ptr = 1;
             return;
         case '%':
-            retval = parse_fmt(inst->pages[hal_get_ui32(inst->page_num)].fmt,
+            retval = parse_fmt(inst->pages[hal_get_uint(inst->page_num)].fmt,
                                &inst->f_ptr,
                                inst->buff,
-                               &(inst->pages[hal_get_ui32(inst->page_num)].args[inst->a_ptr++]),
-                               (char)hal_get_ui32(inst->dp));
+                               &(inst->pages[hal_get_uint(inst->page_num)].args[inst->a_ptr++]),
+                               (char)hal_get_uint(inst->dp));
             if (retval >= 0) {
-                hal_set_ui32(inst->out, inst->buff[0]);
+                hal_set_uint(inst->out, inst->buff[0]);
                 inst->c_ptr = 1;
                 inst->f_ptr++;
                 return;
             }
             /* Fallthrough */
         default:
-            hal_set_ui32(inst->out, inst->pages[hal_get_ui32(inst->page_num)].fmt[inst->f_ptr++]);
+            hal_set_uint(inst->out, inst->pages[hal_get_uint(inst->page_num)].fmt[inst->f_ptr++]);
     }
 }
 
@@ -473,9 +473,9 @@ static int parse_fmt(char *in, int *ptr, char *out, hal_refs_u *val, char dp){
             case 'u':
                 if (out == NULL || val == NULL) return 'u';
             {
-                unsigned int tmp;
+                rtapi_uint tmp;
                 int i;
-                unsigned int v = hal_get_ui32(val->u);
+                rtapi_uint v = hal_get_uint(val->u);
 
                 if (c < 1) c = num_digits_baseN(v, base);
 
@@ -501,16 +501,17 @@ static int parse_fmt(char *in, int *ptr, char *out, hal_refs_u *val, char dp){
             case 'i':
                 if (out == NULL || val == NULL) return 's';
             {
-                int tmp, s = 0;
+                rtapi_sint tmp;
+                int s = 0;
                 int i;
-                int v = hal_get_si32(val->s);
+                rtapi_sint v = hal_get_sint(val->s);
                 
                 if (sgn == '+') s = 1;
                 if (v < 0) {s = 1; sgn = '-'; v = -v;}
                 
                 if (c < 1) c = num_digits_baseN(v, base) + s;
  
-                tmp = abs(v);
+                tmp = v < 0 ? -v : v;
                 for (i = c - 1; i >= s; i--){
                     if (tmp != 0 || i == c - 1){
                         out[i] = digits[tmp % 10];
@@ -607,7 +608,7 @@ static int parse_fmt(char *in, int *ptr, char *out, hal_refs_u *val, char dp){
                 if (out == NULL || val == NULL) return 'c';
             {
                 int i;
-                unsigned char v = hal_get_ui32(val->u);
+                unsigned char v = hal_get_uint(val->u) & 0xff;
                 
                 if (c == 0) c = 1;
                 for (i = 0; i < c; i++){

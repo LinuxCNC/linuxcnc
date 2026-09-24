@@ -34,13 +34,13 @@ the tool table.
 
 == PINS
 
-*hal_manualtoolchange.number* s32 in::
+*hal_manualtoolchange.number* sint in::
   Receives last programmed T- number.
-*hal_manualtoolchange.change* bit in::
+*hal_manualtoolchange.change* bool in::
   Receives signal to do tool change.
-*hal_manualtoolchange.changed* bit out::
+*hal_manualtoolchange.changed* bool out::
   Signifies that the tool change is complete.
-*hal_manualtoolchange.change_button* bit in::
+*hal_manualtoolchange.change_button* bool in::
   Pin to allow an external switch to signify that the tool change is complete.
 
 == USAGE

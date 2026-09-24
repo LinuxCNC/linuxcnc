@@ -171,15 +171,15 @@ Note:  LinuxCNC (or a standalone HAL application) must be running
           param:  RW
           signal: connected to a writable pin
 
-        HAL item types bit,s32,u32,float are supported.
+        HAL item types bool,sint,uint,real are supported.
 
-        When a bit item is specified, a pushbutton is created
+        When a bool item is specified, a pushbutton is created
         to manage the item in one of three manners specified
         by radio buttons:
             toggle: Toggle value when button pressed
             pulse:  Pulse item to 1 once when button pressed
             hold:   Set to 1 while button pressed
-        The bit pushbutton mode can be specified on the command
+        The bool pushbutton mode can be specified on the command
         line by formatting the item name:
             namei/mode=[toggle | pulse | hold]
         If the mode begins with an uppercase letter, the radio
@@ -242,7 +242,7 @@ or
  1. LinuxCNC (or another HAL application) must be running.
  2. If no pinname is specified, default is: `motion-command-handler.time`.
  3. This app may be opened for 5 pins.
- 4. Pintypes float, s32, u32, bit are supported.
+ 4. Pintypes real, sint, uint, bool are supported.
  5. The pin must be associated with a realtime thread.
 
 .hal-histogram Window

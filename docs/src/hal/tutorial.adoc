@@ -157,21 +157,21 @@ halcmd: show pin
 
 Component Pins:
 Owner   Type   Dir        Value  Name
-     3  float  IN             1  siggen.0.amplitude
-     3  bit    OUT        FALSE  siggen.0.clock
-     3  float  OUT            0  siggen.0.cosine
-     3  float  IN             1  siggen.0.frequency
-     3  float  IN             0  siggen.0.offset
-     3  float  OUT            0  siggen.0.sawtooth
-     3  float  OUT            0  siggen.0.sine
-     3  float  OUT            0  siggen.0.square
-     3  float  OUT            0  siggen.0.triangle
+     3  real   IN             1  siggen.0.amplitude
+     3  bool   OUT        FALSE  siggen.0.clock
+     3  real   OUT            0  siggen.0.cosine
+     3  real   IN             1  siggen.0.frequency
+     3  real   IN             0  siggen.0.offset
+     3  real   OUT            0  siggen.0.sawtooth
+     3  real   OUT            0  siggen.0.sine
+     3  real   OUT            0  siggen.0.square
+     3  real   OUT            0  siggen.0.triangle
 ----
 
 This command displays all of the pins in the current HAL.
 A complex system could have dozens or hundreds of pins.
 But right now there are only nine pins.
-Of these pins eight are floating point and one is bit (boolean).
+Of these pins eight are floating point and one is bool (boolean).
 Six carry data out of the 'siggen' component and three are used to transfer settings into the component.
 Since we have not yet executed the code contained within the component, some the pins have a value of zero.
 
@@ -183,8 +183,8 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir        Value   Name
-     3  s32   RO             0   siggen.0.update.time
-     3  s32   RW             0   siggen.0.update.tmax
+     3  sint  RO             0   siggen.0.update.time
+     3  sint  RW             0   siggen.0.update.tmax
 ----
 
 The 'show param' command shows all the parameters in the HAL.
@@ -278,15 +278,15 @@ halcmd: show pin
 
 Component Pins:
 Owner   Type  Dir         Value  Name
-     3  float IN              1  siggen.0.amplitude
-     3  bit   OUT         FALSE  siggen.0.clock
-     3  float OUT    -0.1640929  siggen.0.cosine
-     3  float IN              1  siggen.0.frequency
-     3  float IN              0  siggen.0.offset
-     3  float OUT    -0.4475303  siggen.0.sawtooth
-     3  float OUT     0.9864449  siggen.0.sine
-     3  float OUT            -1  siggen.0.square
-     3  float OUT    -0.1049393  siggen.0.triangle
+     3  real  IN              1  siggen.0.amplitude
+     3  bool  OUT         FALSE  siggen.0.clock
+     3  real  OUT    -0.1640929  siggen.0.cosine
+     3  real  IN              1  siggen.0.frequency
+     3  real  IN              0  siggen.0.offset
+     3  real  OUT    -0.4475303  siggen.0.sawtooth
+     3  real  OUT     0.9864449  siggen.0.sine
+     3  real  OUT            -1  siggen.0.square
+     3  real  OUT    -0.1049393  siggen.0.triangle
 ----
 
 And let's look again:
@@ -296,15 +296,15 @@ halcmd: show pin
 
 Component Pins:
 Owner   Type  Dir         Value  Name
-     3  float IN              1  siggen.0.amplitude
-     3  bit   OUT         FALSE  siggen.0.clock
-     3  float OUT     0.0507619  siggen.0.cosine
-     3  float IN              1  siggen.0.frequency
-     3  float IN              0  siggen.0.offset
-     3  float OUT     -0.516165  siggen.0.sawtooth
-     3  float OUT     0.9987108  siggen.0.sine
-     3  float OUT            -1  siggen.0.square
-     3  float OUT    0.03232994  siggen.0.triangle
+     3  real  IN              1  siggen.0.amplitude
+     3  bool  OUT         FALSE  siggen.0.clock
+     3  real  OUT     0.0507619  siggen.0.cosine
+     3  real  IN              1  siggen.0.frequency
+     3  real  IN              0  siggen.0.offset
+     3  real  OUT     -0.516165  siggen.0.sawtooth
+     3  real  OUT     0.9987108  siggen.0.sine
+     3  real  OUT            -1  siggen.0.square
+     3  real  OUT    0.03232994  siggen.0.triangle
 ----
 
 We did two `show pin` commands in quick succession, and you can see that the outputs are no longer zero.
@@ -328,22 +328,22 @@ halcmd: show param
 
 Parameters:
 Owner   Type  Dir         Value  Name
-     3  s32   RO           1754  siggen.0.update.time
-     3  s32   RW          16997  siggen.0.update.tmax
+     3  sint  RO           1754  siggen.0.update.time
+     3  sint  RW          16997  siggen.0.update.tmax
 
 halcmd: show pin
 
 Component Pins:
 Owner   Type  Dir         Value  Name
-     3  float IN              5  siggen.0.amplitude
-     3  bit   OUT         FALSE  siggen.0.clock
-     3  float OUT     0.8515425  siggen.0.cosine
-     3  float IN              1  siggen.0.frequency
-     3  float IN              0  siggen.0.offset
-     3  float OUT      2.772382  siggen.0.sawtooth
-     3  float OUT     -4.926954  siggen.0.sine
-     3  float OUT             5  siggen.0.square
-     3  float OUT      0.544764  siggen.0.triangle
+     3  real  IN              5  siggen.0.amplitude
+     3  bool  OUT         FALSE  siggen.0.clock
+     3  real  OUT     0.8515425  siggen.0.cosine
+     3  real  IN              1  siggen.0.frequency
+     3  real  IN              0  siggen.0.offset
+     3  real  OUT      2.772382  siggen.0.sawtooth
+     3  real  OUT     -4.926954  siggen.0.sine
+     3  real  OUT             5  siggen.0.square
+     3  real  OUT      0.544764  siggen.0.triangle
 ----
 
 Note that the value of parameter `siggen.0.amplitude` has changed to 5,
@@ -469,58 +469,58 @@ halcmd: show pin
 
 Component Pins:
 Owner   Type  Dir         Value  Name
-     4  float IN              1  siggen.0.amplitude
-     4  bit   OUT         FALSE  siggen.0.clock
-     4  float OUT             0  siggen.0.cosine
-     4  float IN              1  siggen.0.frequency
-     4  float IN              0  siggen.0.offset
-     4  float OUT             0  siggen.0.sawtooth
-     4  float OUT             0  siggen.0.sine
-     4  float OUT             0  siggen.0.square
-     4  float OUT             0  siggen.0.triangle
-     3  s32   OUT             0  stepgen.0.counts
-     3  bit   OUT         FALSE  stepgen.0.dir
-     3  bit   IN          FALSE  stepgen.0.enable
-     3  float OUT             0  stepgen.0.position-fb
-     3  bit   OUT         FALSE  stepgen.0.step
-     3  float IN              0  stepgen.0.velocity-cmd
-     3  s32   OUT             0  stepgen.1.counts
-     3  bit   OUT         FALSE  stepgen.1.dir
-     3  bit   IN          FALSE  stepgen.1.enable
-     3  float OUT             0  stepgen.1.position-fb
-     3  bit   OUT         FALSE  stepgen.1.step
-     3  float IN              0  stepgen.1.velocity-cmd
+     4  real  IN              1  siggen.0.amplitude
+     4  bool  OUT         FALSE  siggen.0.clock
+     4  real  OUT             0  siggen.0.cosine
+     4  real  IN              1  siggen.0.frequency
+     4  real  IN              0  siggen.0.offset
+     4  real  OUT             0  siggen.0.sawtooth
+     4  real  OUT             0  siggen.0.sine
+     4  real  OUT             0  siggen.0.square
+     4  real  OUT             0  siggen.0.triangle
+     3  sint  OUT             0  stepgen.0.counts
+     3  bool  OUT         FALSE  stepgen.0.dir
+     3  bool  IN          FALSE  stepgen.0.enable
+     3  real  OUT             0  stepgen.0.position-fb
+     3  bool  OUT         FALSE  stepgen.0.step
+     3  real  IN              0  stepgen.0.velocity-cmd
+     3  sint  OUT             0  stepgen.1.counts
+     3  bool  OUT         FALSE  stepgen.1.dir
+     3  bool  IN          FALSE  stepgen.1.enable
+     3  real  OUT             0  stepgen.1.position-fb
+     3  bool  OUT         FALSE  stepgen.1.step
+     3  real  IN              0  stepgen.1.velocity-cmd
 
 halcmd: show param
 
 Parameters:
 Owner   Type  Dir         Value  Name
-     4  s32   RO              0  siggen.0.update.time
-     4  s32   RW              0  siggen.0.update.tmax
-     3  u32   RW     0x00000001  stepgen.0.dirhold
-     3  u32   RW     0x00000001  stepgen.0.dirsetup
-     3  float RO              0  stepgen.0.frequency
-     3  float RW              0  stepgen.0.maxaccel
-     3  float RW              0  stepgen.0.maxvel
-     3  float RW              1  stepgen.0.position-scale
-     3  s32   RO              0  stepgen.0.rawcounts
-     3  u32   RW     0x00000001  stepgen.0.steplen
-     3  u32   RW     0x00000001  stepgen.0.stepspace
-     3  u32   RW     0x00000001  stepgen.1.dirhold
-     3  u32   RW     0x00000001  stepgen.1.dirsetup
-     3  float RO              0  stepgen.1.frequency
-     3  float RW              0  stepgen.1.maxaccel
-     3  float RW              0  stepgen.1.maxvel
-     3  float RW              1  stepgen.1.position-scale
-     3  s32   RO              0  stepgen.1.rawcounts
-     3  u32   RW     0x00000001  stepgen.1.steplen
-     3  u32   RW     0x00000001  stepgen.1.stepspace
-     3  s32   RO              0  stepgen.capture-position.time
-     3  s32   RW              0  stepgen.capture-position.tmax
-     3  s32   RO              0  stepgen.make-pulses.time
-     3  s32   RW              0  stepgen.make-pulses.tmax
-     3  s32   RO              0  stepgen.update-freq.time
-     3  s32   RW              0  stepgen.update-freq.tmax
+     4  sint  RO              0  siggen.0.update.time
+     4  sint  RW              0  siggen.0.update.tmax
+     3  uint  RW     0x00000001  stepgen.0.dirhold
+     3  uint  RW     0x00000001  stepgen.0.dirsetup
+     3  real  RO              0  stepgen.0.frequency
+     3  real  RW              0  stepgen.0.maxaccel
+     3  real  RW              0  stepgen.0.maxvel
+     3  real  RW              1  stepgen.0.position-scale
+     3  sint  RO              0  stepgen.0.rawcounts
+     3  uint  RW     0x00000001  stepgen.0.steplen
+     3  uint  RW     0x00000001  stepgen.0.stepspace
+     3  uint  RW     0x00000001  stepgen.1.dirhold
+     3  uint  RW     0x00000001  stepgen.1.dirsetup
+     3  real  RO              0  stepgen.1.frequency
+     3  real  RW              0  stepgen.1.maxaccel
+     3  real  RW              0  stepgen.1.maxvel
+     3  real  RW              1  stepgen.1.position-scale
+     3  sint  RO              0  stepgen.1.rawcounts
+     3  uint  RW     0x00000001  stepgen.1.steplen
+     3  uint  RW     0x00000001  stepgen.1.stepspace
+     3  sint  RO              0  stepgen.capture-position.time
+     3  sint  RW              0  stepgen.capture-position.tmax
+     3  sint  RO              0  stepgen.make-pulses.time
+     3  sint  RW              0  stepgen.make-pulses.tmax
+     3  sint  RO              0  stepgen.update-freq.time
+     3  sint  RW              0  stepgen.update-freq.tmax
 ----
 
 === Connecting pins with signals
@@ -551,7 +551,7 @@ halcmd: show sig
 
 Signals:
 Type          Value  Name     (linked to)
-float             0  X-vel <== siggen.0.cosine
+real              0  X-vel <== siggen.0.cosine
 ----
 
 When a signal is connected to one or more pins, the show command lists
@@ -580,9 +580,9 @@ halcmd: show sig
 
 Signals:
 Type          Value  Name     (linked to)
-float             0  X-vel <== siggen.0.cosine
+real              0  X-vel <== siggen.0.cosine
                            ==> stepgen.0.velocity-cmd
-float             0  Y-vel <== siggen.0.sine
+real              0  Y-vel <== siggen.0.sine
                            ==> stepgen.1.velocity-cmd
 ----
 
