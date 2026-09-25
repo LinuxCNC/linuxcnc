@@ -4,6 +4,7 @@ AUTOGEN_TARGET=${AUTOGEN_TARGET-configure:config.h.in}
 set -e
 case :$AUTOGEN_TARGET: in
 *:configure:*)
+    (cd .. && scripts/version-create.sh)
     automake_libdir=$(automake --print-libdir)
     [ -e config.guess ] || cp "$automake_libdir/config.guess" .
     [ -e config.sub ] || cp "$automake_libdir/config.sub" .
