@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import gcode                                              # noqa: E402
 import programs                                           # noqa: E402
-from canon import parse                                   # noqa: E402
+from canon import MILL_LIMITS, parse                      # noqa: E402
 
 
 def oracle_box(points, tool_offset=(0.0, 0.0, 0.0)):
@@ -294,11 +294,11 @@ class HighlightCentroid(unittest.TestCase):
 
 
 class LengthsAndRunTime(unittest.TestCase):
-    """One-inch moves at round feed rates, so the answer is arithmetic.
+    """The two path lengths, and the run time that is no longer made of them.
 
-    ``run_time`` is ``cutting_time(max) + rapid_length / max + dwell_time``,
-    and ``cutting_time`` is ``sum(length / min(max, rate))`` over the per-rate
-    table, with every rate in inches per second - the F word over 60.
+    ``run_time`` is the parse's own estimate, so it needs the machine's limits
+    and answers None without them. The lengths are what the properties dialogs
+    show beside it, and they are arithmetic: one-inch moves.
     """
 
     #: One inch cut at F10 (a sixth of an inch per second), one inch of
@@ -316,31 +316,30 @@ class LengthsAndRunTime(unittest.TestCase):
     def test_the_dwell_time_is_the_p_word(self):
         self.assertAlmostEqual(self.canon.dwell_time, 0.5, 9)
 
-    def test_run_time_above_every_commanded_rate(self):
-        """At 1 inch per second the rapid takes 1 s and the cut is still
-        capped at its own F10, which is 6 s per inch."""
-        self.assertAlmostEqual(self.canon.run_time(1.0), 6.0 + 1.0 + 0.5, 9)
+    def test_run_time_is_none_when_the_parse_was_given_no_limits(self):
+        """Not a number from a lesser model: the caller is told it is not
+        known, and says so."""
+        self.assertIsNone(self.canon.run_time())
+        self.assertIsNone(self.canon.run_time(1.0))
 
-    def test_run_time_below_every_commanded_rate(self):
-        """At a tenth of an inch per second the machine is the limit, and
-        both the cut and the rapid take ten seconds."""
-        self.assertAlmostEqual(self.canon.run_time(0.1), 10.0 + 10.0 + 0.5, 9)
+    def test_run_time_is_the_parses_estimate(self):
+        canon = parse(self.PROGRAM, limits=MILL_LIMITS)
+        self.assertAlmostEqual(canon.run_time(), canon.program_time.total, 12)
+        # The cut alone is 6 s per inch at F10, and the dwell is half a
+        # second; the rest is the rapid, which the machine's limits decide.
+        self.assertGreater(canon.run_time(), 6.5)
 
-    def test_run_time_is_monotonic_in_the_ceiling(self):
-        """A lower ceiling can only add time, never remove it."""
-        previous = None
-        for ceiling in (0.01, 0.1, 1.0, 10.0, 1e6):
-            now = self.canon.run_time(ceiling)
-            if previous is not None:
-                self.assertLessEqual(now, previous)
-            previous = now
+    def test_the_ceiling_a_caller_passes_changes_nothing(self):
+        """A GUI still hands over its max speed. The estimate reads the
+        machine's limits itself, so every answer is the same one."""
+        canon = parse(self.PROGRAM, limits=MILL_LIMITS)
+        self.assertEqual({canon.run_time(mf) for mf in (0.01, 1.0, 1e6)},
+                         {canon.run_time()})
 
     def test_a_square_of_four_one_inch_cuts_is_four_inches(self):
         canon = parse(programs.unit_square())
         self.assertAlmostEqual(canon.g1_length, 4.0, 9)
         self.assertAlmostEqual(canon.g0_length, 0.0, 9)
-        # Four inches at F10, plus nothing else.
-        self.assertAlmostEqual(canon.run_time(1.0), 24.0, 9)
 
     def test_a_hidden_move_costs_nothing(self):
         """The lengths are of what is drawn, which is what the dialog says."""

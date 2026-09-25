@@ -219,6 +219,7 @@ class _GStat(GObject.GObject):
         'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-program-time': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
         'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'machine-log-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),

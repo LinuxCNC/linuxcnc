@@ -327,7 +327,9 @@ public:
         maybe_new_line(line_number);
         forward9("straight_probe", p);
     }
-    void rigid_tap(int line_number, double x, double y, double z) override {
+    // The retract multiplier is dropped: the callback takes three arguments.
+    void rigid_tap(int line_number, double x, double y, double z,
+                   double /*retract_scale*/) override {
         maybe_new_line(line_number);
         forward("rigid_tap", x, y, z);
     }
@@ -551,11 +553,11 @@ void SET_TRAVERSE_RATE(double rate) {
     parse_state.canon->set_traverse_rate(rate);
 }
 
-void SET_FEED_MODE(int /*spindle*/, int /*mode*/) {
-#if 0
-    maybe_new_line();
-    forward("set_feed_mode", mode);
-#endif
+// Any spindle: G95 arrives as the block's active spindle, so filtering on 0
+// would drop a per-revolution feed on a machine whose turning spindle is not
+// the first. Only spindle 0's speed is tracked either way.
+void SET_FEED_MODE(int /*spindle*/, int mode) {
+    parse_state.canon->set_feed_mode(mode);
 }
 
 void CHANGE_TOOL() {
@@ -618,11 +620,18 @@ void SET_CUTTER_RADIUS_COMPENSATION(double /*radius*/) {}
 void START_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
 void STOP_CUTTER_RADIUS_COMPENSATION(int /*direction*/) {}
 void START_SPEED_FEED_SYNCH() {}
-void START_SPEED_FEED_SYNCH(int /*spindle*/, double /*sync*/, bool /*vel*/) {}
-void STOP_SPEED_FEED_SYNCH() {}
+// G33/G33.1/G76 pitch: inches advanced per spindle revolution.
+void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool /*vel*/) {
+    parse_state.canon->set_spindle_sync(ensure_inch(sync));
+}
+void STOP_SPEED_FEED_SYNCH() {
+    parse_state.canon->set_spindle_sync(0.0);
+}
 void START_SPINDLE_COUNTERCLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}
 void START_SPINDLE_CLOCKWISE(int /*spindle*/, int /*wait_for_at_speed*/) {}
-void SET_SPINDLE_MODE(int /*spindle*/, double) {}
+void SET_SPINDLE_MODE(int spindle, double css_max) {
+    if(spindle == 0) parse_state.canon->set_spindle_mode(css_max);
+}
 void STOP_SPINDLE_TURNING(int /*spindle*/, int /*wait_for_at_speed*/) {}
 void SET_SPINDLE_SPEED(int spindle, double rpm) {
     if(spindle == 0) parse_state.canon->set_spindle_speed(rpm);
@@ -700,10 +709,10 @@ void STRAIGHT_PROBE(int line_number,
             ensure_inch({x, y, z, a, b, c, u, v, w}));
 }
 void RIGID_TAP(int line_number,
-               double x, double y, double z, double /*scale*/) {
+               double x, double y, double z, double scale) {
     parse_state.canon->rigid_tap(line_number, ensure_inch(x),
                                  ensure_inch(y),
-                                 ensure_inch(z));
+                                 ensure_inch(z), scale);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
@@ -1214,6 +1223,7 @@ PYBIND11_MODULE(gcode, m) {
 
     linecode_register(m);
     preview_geometry_register(m);
+    time_estimate_register(m);
     renderer_canon_register(m);
 
     // Registration order is the dispatch order: the list form is tried first,
@@ -1248,6 +1258,8 @@ PYBIND11_MODULE(gcode, m) {
             py::arg("max_segments") = 128,
             "Convert an arc to straight segments");
 
+    // What a table's samples are spaced by, so a test need not repeat it.
+    m.attr("TIME_SAMPLE_RESOLUTION") = TIME_SAMPLE_RESOLUTION;
     m.attr("MAX_ERROR") = maxerror;
     m.attr("MIN_ERROR") = static_cast<int>(INTERP_MIN_ERROR);
 }

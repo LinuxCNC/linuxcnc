@@ -47,6 +47,7 @@ from typing import Any, Optional, Sequence
 import numpy as np
 import numpy.typing as npt
 
+
 log = logging.getLogger(__name__)
 
 DBL_MAX = float(np.finfo(np.float64).max)
@@ -293,10 +294,8 @@ class ProgramGeometry:
         self._extents[:, 1, :] = -DBL_MAX
         #: Rapid (traverse) path length, over the raw XYZ endpoints.
         self._rapid_length = 0.0
-        #: Commanded feed rate -> cutting (feed + arc) path length at that
-        #: rate. Bounded by the number of distinct rates the program
-        #: commands, not by move count - see :meth:`cutting_time`.
-        self._cut_length_by_feed: dict[float, float] = {}
+        #: Cutting (feed + arc) path length, over the raw XYZ endpoints.
+        self._cutting_length = 0.0
         #: (2, 3): the bounding box of the transformed points in the array.
         self._drawn = np.array([[DBL_MAX] * 3, [-DBL_MAX] * 3],
                                dtype=np.float64)
@@ -523,7 +522,7 @@ class ProgramGeometry:
         self._extents = np.array(pg.extents(), dtype=np.float64)
         self._drawn = np.array(pg.drawn_extents(), dtype=np.float64)
         self._rapid_length = pg.rapid_length
-        self._cut_length_by_feed = pg.cut_lengths()
+        self._cutting_length = pg.cutting_length
         self._moves = pg.n_moves
         self.tool_numbers = pg.tool_numbers()
         dwell = tuple(float(c) for c in colors["dwell"])
@@ -545,22 +544,14 @@ class ProgramGeometry:
 
     @property
     def cutting_length(self) -> float:
-        """Total feed + arc path length, over the raw XYZ endpoints."""
-        return float(sum(self._cut_length_by_feed.values()))
+        """Total feed + arc path length, over the raw XYZ endpoints.
 
-    def cutting_time(self, max_feed_rate: float) -> float:
-        """Cutting time at ``max_feed_rate``: ``sum(length / min(mf, rate))``.
-
-        The renderer groups each cutting move's length under the rate it was
-        commanded at and hands over the totals (``PreviewGeometry.cut_lengths``,
-        src/emc/rs274ngc/gcode_renderer.cc), so the dict is bounded by the
-        number of distinct rates the program uses rather than by its move
-        count - and this answers for any ``max_feed_rate`` without re-visiting
-        a single move. Does not include rapid time or dwell time; callers add
-        those (see ``GLCanon.run_time``).
+        A length, not a time: how long the program takes is the parse's time
+        estimate (``rs274.program_time``), which models acceleration, the
+        machine's limits and the feed modes that a length divided by a rate
+        cannot.
         """
-        return sum(length / min(max_feed_rate, rate)
-                  for rate, length in self._cut_length_by_feed.items())
+        return self._cutting_length
 
     # -- the highlight index ----------------------------------------------
 

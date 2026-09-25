@@ -59,6 +59,8 @@ import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
+from rs274.program_time import (ProgramTime, format_seconds,  # the parse's time estimate
+                                steady_seconds)
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -441,8 +443,19 @@ class gmoccapy(object):
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
         self.widgets.gremlin.set_property("view", view)
 
+        # The parse's time estimate for the loaded program, and the line motion
+        # is on: what the progress bar and its time readouts are made of.
+        self.program_time = ProgramTime()
+        self.current_line = 0
+        self.remaining_time = None
+        #: The run time the progress bar is showing, held still through
+        #: steady_seconds so the estimate's own sampling noise does not
+        #: flicker it. None when no program is running.
+        self.shown_total = None
+
         self.GSTAT = Status()
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
+        self.GSTAT.connect("graphics-program-time", self.on_program_time)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
 
         # get if run from line should be used
@@ -2784,7 +2797,7 @@ class gmoccapy(object):
     def _periodic_1s(self):
         if self.GSTAT.is_auto_running() and not self.GSTAT.is_auto_paused():
             self.elapsed_time_run += 1
-            self._update_progressbar_text()
+            self._update_progress()
         return True
 
 
@@ -2937,15 +2950,47 @@ class gmoccapy(object):
         else:
             self.halcomp["program.progress"] = 0.0
 
-        # The program length used for the progress calculation is decreased here by 1 because
-        # the last line doesn't emit a line-changed signal.
-        self.progress = line / (self.halcomp["program.length"]-1)
-        if self.progress > 1.0: self.progress = 1.0
+        self.current_line = line
+        self._update_progress()
+
+    def _update_progress(self):
+        """The progress bar and the time pins, for the line motion is on.
+
+        Progress is measured in time where the parse could estimate it: half a
+        program's lines are rarely half of its run, and what an operator wants
+        to know is how much longer it will take. Without an estimate the bar
+        falls back to counting lines. The line count is one less than the
+        file's, because the last line emits no line-changed signal.
+        """
+        line = self.current_line
+        # The elapsed time only picks between the occurrences of a line that a
+        # subroutine or an O loop runs more than once.
+        elapsed = self.elapsed_time_run
+        if self.program_time.total:
+            self.progress = self.program_time.fraction(line, elapsed)
+            self.remaining_time = self.program_time.remaining(line, elapsed)
+            self.halcomp["program.time-remaining"] = self.remaining_time
+            self.halcomp["program.progress-time"] = 100.0 * self.progress
+        else:
+            length = self.halcomp["program.length"]
+            self.progress = line / (length - 1) if length > 1 else 0.0
+            self.remaining_time = None
+        self.progress = min(1.0, max(0.0, self.progress))
         self.widgets.progressbar_pgm.set_fraction(self.progress)
         self._update_progressbar_text()
 
     def _update_progressbar_text(self):
-        self.widgets.progressbar_pgm.set_text(f"{self.progress*100:.0f} %  ({self.seconds_to_hms(self.elapsed_time_run)})")
+        elapsed = format_seconds(self.elapsed_time_run)
+        if self.remaining_time is None:
+            text = f"{self.progress*100:.0f} %  ({elapsed})"
+        else:
+            # Elapsed over the run this run is heading for, the way a player
+            # shows a position.
+            self.shown_total = steady_seconds(
+                self.elapsed_time_run + self.remaining_time, self.shown_total)
+            total = format_seconds(self.shown_total)
+            text = f"{self.progress*100:.0f} %  ({elapsed} / {total})"
+        self.widgets.progressbar_pgm.set_text(text)
 
     def on_hal_status_interp_idle(self, widget):
         LOG.debug("IDLE")
@@ -4467,35 +4512,32 @@ class gmoccapy(object):
             text = "Vc= {0:.2f}".format(vc)
         self.widgets.lbl_vc.set_text(text)
         
-    def seconds_to_hms(self, seconds):
-        seconds = int(seconds)
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        seconds = seconds % 60
-        if hours < 1:
-            if minutes < 1:
-                return f"{seconds:02} s"
-            else:
-                return f"{minutes:02}:{seconds:02} min"
-        else:
-            return f"{hours:02}:{minutes:02}:{seconds:02} h"
+    def on_program_time(self, widget, estimate):
+        """The parse's time estimate for the program just loaded.
 
-    # This extracts the time from a string like "104 Seconds" or "2.4 Minutes"
-    def parse_time_string(self, time_string):
-        if "Minutes" in time_string:
-            return self.seconds_to_hms(float(time_string.split("Minutes")[0])*60)
-        elif "Seconds" in time_string:
-            return self.seconds_to_hms(time_string.split("Seconds")[0])
-        else:
-            return ""
-        
+        A :class:`rs274.program_time.ProgramTime`: the nominal run time at 100%
+        override, and the table the progress bar counts down through. An
+        untimed parse - a machine whose ini states no velocity limits - hands
+        over an empty one, and the label says so rather than showing a number
+        no model stands behind.
+        """
+        self.program_time = estimate
+        total = estimate.total
+        self.current_line = 0
+        self.remaining_time = total
+        self.shown_total = total
+        self.halcomp["program.time-total"] = total or 0.0
+        self.halcomp["program.time-remaining"] = total or 0.0
+        self.halcomp["program.progress-time"] = 0.0
+        self.widgets.lbl_gcode_run.set_text(
+            format_seconds(total, _("not available")))
+
     def on_gcode_properties(self, widget, data):
         LOG.debug(f"G-code properties:{data}")
         if data:
             self.widgets.lbl_gcode_size.set_text(data['size'])
             self.widgets.lbl_gcode_g0.set_text(data['g0'])
             self.widgets.lbl_gcode_g1.set_text(data['g1'])
-            self.widgets.lbl_gcode_run.set_text(f"{self.parse_time_string(data['run'])}")
             # self.widgets.lbl_gcode_toollist.set_text(data['toollist'])
             self.widgets.lbl_gcode_x.set_text(data['x'])
             self.widgets.lbl_gcode_y.set_text(data['y'])
@@ -6517,6 +6559,12 @@ class gmoccapy(object):
         self.halcomp.newpin("program.length", hal.HAL_S32, hal.Dir.OUT)
         self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.Dir.OUT)
         self.halcomp.newpin("program.progress", hal.Type.REAL, hal.Dir.OUT)
+        # The parse's time estimate: the whole program, what is left of it from
+        # the line motion is on, and that as a percentage. All zero while no
+        # program is loaded or the parse could not time the one that is.
+        self.halcomp.newpin("program.time-total", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("program.time-remaining", hal.Type.REAL, hal.Dir.OUT)
+        self.halcomp.newpin("program.progress-time", hal.Type.REAL, hal.Dir.OUT)
 
         # make a pin to set ignore limits
         pin = self.halcomp.newpin("ignore-limits", hal.Type.BOOL, hal.Dir.IN)
