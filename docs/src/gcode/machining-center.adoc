@@ -179,14 +179,17 @@ rate is interpreted as follows (unless 'inverse time feed' or 'feed
 per revolution' modes are being used, in which case see section
 <<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
 
-. If any of XYZ are moving, F is in units per minute in the XYZ
-  cartesian system, and all other axes (ABCUVW) move so as to start and
-  stop in coordinated fashion.
-. Otherwise, if any of UVW are moving, F is in units per minute in the
-  UVW cartesian system, and all other axes (ABC) move so as to start and
-  stop in coordinated fashion.
+. If any of the feed axes are moving, F is in units per minute in the
+  cartesian system of the feed axes, and all other axes move so as to
+  start and stop in coordinated fashion. The feed axes are X Y Z unless
+  `[TRAJ]FEED_AXES` in the INI file names others.
+. Otherwise, if any of the other linear axes are moving, F is in units
+  per minute in their cartesian system, and the angular axes move so as
+  to start and stop in coordinated fashion. These are U V W unless
+  `[AXIS_<letter>]TYPE` in the INI file says otherwise.
 . Otherwise, the move is pure rotary motion and the F word is in rotary
-  units in the ABC 'pseudo-cartesian' system.
+  units in the 'pseudo-cartesian' system of the angular axes, A B C
+  unless `[AXIS_<letter>]TYPE` says otherwise.
 
 === Cooling
 
@@ -208,11 +211,14 @@ the previous programmed move, as though it was in exact path mode.
 === Units
 
 (((units)))
-Units used for distances along the X, Y, and Z axes may be measured in
-millimeters or inches. Units for all other quantities involved in
-machine control cannot be changed. Different quantities use different
-specific units. Spindle speed is measured in revolutions per minute.
-The positions of rotational axes are measured in degrees. Feed rates
+Units used for distances along the X, Y, and Z axes, and along any other
+linear axis, may be measured in millimeters or inches. Units for all
+other quantities involved in machine control cannot be changed.
+Different quantities use different specific units. Spindle speed is
+measured in revolutions per minute. The positions of rotational axes are
+measured in degrees. An axis is linear or rotational as
+`[AXIS_<letter>]TYPE` in the INI file says: U V W linear and A B C
+rotational unless it says otherwise. Feed rates
 are expressed in current length units per minute, or degrees per
 minute, or length units per spindle revolution, as described in section
 <<gcode:g93-g94-g95,G93 G94 G95>>.

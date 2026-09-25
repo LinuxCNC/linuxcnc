@@ -385,7 +385,16 @@ void enqueue_M_USER_COMMAND (int index, double p_number, double q_number) {
     qc().push_back(q);
 }
 
-void qc_scale(double scale) {
+// the axes past X Y Z that are lengths, as their [AXIS_<letter>] TYPE says
+static void scale_linear(const AxisKinds &kinds, double &a, double &b, double &c,
+                         double &u, double &v, double &w, double scale) {
+    double *axis[6] = {&a, &b, &c, &u, &v, &w};
+    for (int n = 0; n < 6; n++) {
+        if (!axisKindsAngular(kinds, AXIS_A + n)) { *axis[n] *= scale; }
+    }
+}
+
+void qc_scale(double scale, const AxisKinds &kinds) {
     
     if(qc().empty()) {
         if(debug_qc) printf("not scaling because qc is empty\n");
@@ -405,25 +414,22 @@ void qc_scale(double scale) {
             q.data.arc_feed.end3 *= scale;
             q.data.arc_feed.center1 *= scale;
             q.data.arc_feed.center2 *= scale;
-            q.data.arc_feed.u *= scale;
-            q.data.arc_feed.v *= scale;
-            q.data.arc_feed.w *= scale;
+            scale_linear(kinds, q.data.arc_feed.a, q.data.arc_feed.b, q.data.arc_feed.c,
+                         q.data.arc_feed.u, q.data.arc_feed.v, q.data.arc_feed.w, scale);
             break;
         case QSTRAIGHT_FEED:
             q.data.straight_feed.x *= scale;
             q.data.straight_feed.y *= scale;
             q.data.straight_feed.z *= scale;
-            q.data.straight_feed.u *= scale;
-            q.data.straight_feed.v *= scale;
-            q.data.straight_feed.w *= scale;
+            scale_linear(kinds, q.data.straight_feed.a, q.data.straight_feed.b, q.data.straight_feed.c,
+                         q.data.straight_feed.u, q.data.straight_feed.v, q.data.straight_feed.w, scale);
             break;
         case QSTRAIGHT_TRAVERSE:
             q.data.straight_traverse.x *= scale;
             q.data.straight_traverse.y *= scale;
             q.data.straight_traverse.z *= scale;
-            q.data.straight_traverse.u *= scale;
-            q.data.straight_traverse.v *= scale;
-            q.data.straight_traverse.w *= scale;
+            scale_linear(kinds, q.data.straight_traverse.a, q.data.straight_traverse.b, q.data.straight_traverse.c,
+                         q.data.straight_traverse.u, q.data.straight_traverse.v, q.data.straight_traverse.w, scale);
             break;
         default:
             ;

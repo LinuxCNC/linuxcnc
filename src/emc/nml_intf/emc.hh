@@ -374,16 +374,19 @@ extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
-                             double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
+                             double ini_maxvel, double acc, double ini_maxjerk,
+                             double vlimit_scale, int indexer_jnum);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
-        normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
+        normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
+        double vlimit_scale);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
 extern int emcTrajSetOffset(const EmcPose& tool_offset);
 extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(const EmcPose& pos, int type, double vel,
-                        double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type);
+                        double ini_maxvel, double acc, double ini_maxjerk,
+                        double vlimit_scale, unsigned char probe_type);
 extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double ini_maxjerk, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);

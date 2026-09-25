@@ -1563,8 +1563,8 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, 
-                      int indexer_jnum)
+int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
+                      double vlimit_scale, int indexer_jnum)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
@@ -1586,13 +1586,15 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.vlimit_scale = vlimit_scale;
     emcmotCommand.turn = indexer_jnum;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
-			const PM_CARTESIAN& normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk)
+			const PM_CARTESIAN& normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
+                        double vlimit_scale)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
@@ -1626,6 +1628,7 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.vlimit_scale = vlimit_scale;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1637,7 +1640,7 @@ int emcTrajClearProbeTrippedFlag()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type)
+int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, double vlimit_scale, unsigned char probe_type)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(pos.tran.x) || std::isnan(pos.tran.y) || std::isnan(pos.tran.z) ||
@@ -1657,6 +1660,7 @@ int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, do
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.vlimit_scale = vlimit_scale;
     emcmotCommand.probe_type = probe_type;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);

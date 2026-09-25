@@ -1914,6 +1914,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
                                    emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc, emcTrajLinearMoveMsg->ini_maxjerk,
+                                   emcTrajLinearMoveMsg->vlimit_scale,
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
@@ -1925,7 +1926,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 emcTrajCircularMoveMsg->turn, emcTrajCircularMoveMsg->type,
                 emcTrajCircularMoveMsg->vel,
                 emcTrajCircularMoveMsg->ini_maxvel,
-                emcTrajCircularMoveMsg->acc, emcTrajCircularMoveMsg->ini_maxjerk);
+                emcTrajCircularMoveMsg->acc, emcTrajCircularMoveMsg->ini_maxjerk,
+                emcTrajCircularMoveMsg->vlimit_scale);
 	break;
 
     case EMC_TRAJ_PAUSE_TYPE:
@@ -2014,6 +2016,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->ini_maxvel,
 	    (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->acc,
 	    (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->ini_maxjerk,
+            (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->vlimit_scale,
             (reinterpret_cast<EMC_TRAJ_PROBE *>(cmd))->probe_type);
 	break;
 

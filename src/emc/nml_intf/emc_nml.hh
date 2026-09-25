@@ -737,6 +737,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
         ini_maxvel(0.0),
         acc(0.0),
         ini_maxjerk(0.0),
+        vlimit_scale(1.0),
         feed_mode(0),
         indexer_jnum(0)
     {};
@@ -749,6 +750,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     int type;
     EmcPose end;		// end point
     double vel, ini_maxvel, acc, ini_maxjerk;
+    double vlimit_scale;        // see emcmot_command_t
     int feed_mode;
     int indexer_jnum;
 };
@@ -766,6 +768,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
         ini_maxvel(0.0),
         acc(0.0),
         ini_maxjerk(0.0),
+        vlimit_scale(1.0),
         feed_mode(0)
     {};
 
@@ -780,6 +783,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
     int turn;
     int type;
     double vel, ini_maxvel, acc, ini_maxjerk;
+    double vlimit_scale;        // see emcmot_command_t
     int feed_mode;
 };
 
@@ -926,6 +930,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
         ini_maxvel(0.0),
         acc(0.0),
         ini_maxjerk(0.0),
+        vlimit_scale(1.0),
         probe_type(0)
     {};
 
@@ -937,6 +942,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     EmcPose pos;
     int type;
     double vel, ini_maxvel, acc, ini_maxjerk;
+    double vlimit_scale;        // see emcmot_command_t
     unsigned char probe_type;
 };
 

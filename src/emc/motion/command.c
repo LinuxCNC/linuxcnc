@@ -1096,7 +1096,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					emcmotCommand->vel,
 					emcmotCommand->ini_maxvel,
 					emcmotCommand->acc,
-					emcmotCommand->ini_maxjerk, 
+					emcmotCommand->ini_maxjerk,
+                                        emcmotCommand->vlimit_scale,
 					emcmotStatus->enables_new,
 					issue_atspeed,
 					emcmotCommand->turn,
@@ -1156,7 +1157,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                            emcmotCommand->acc, emcmotCommand->ini_maxjerk, emcmotStatus->enables_new,
+                            emcmotCommand->acc, emcmotCommand->ini_maxjerk,
+                            emcmotCommand->vlimit_scale, emcmotStatus->enables_new,
 			    issue_atspeed, emcmotCommand->tag);
         if (res_addcircle < 0) {
             reportError(_("can't add circular move at line %d, error code %d"),
@@ -1635,6 +1637,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				emcmotCommand->ini_maxvel,
 				emcmotCommand->acc,
 				emcmotCommand->ini_maxjerk,
+                                emcmotCommand->vlimit_scale,
 				emcmotStatus->enables_new,
 				issue_atspeed,
 				-1,

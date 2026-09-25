@@ -441,36 +441,53 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
-  double a, b, c;
+  double a, b, c, u, v, w;
   refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
 
   a = GET_EXTERNAL_PROBE_POSITION_A();
-  if(settings->a_axis_wrapped) {
+  if(settings->axis_wrapped[AXIS_A]) {
       a = fmod(a, 360.0);
       if(a<0) a += 360.0;
   }
   settings->parameters[5064] = a;
 
   b = GET_EXTERNAL_PROBE_POSITION_B();
-  if(settings->b_axis_wrapped) {
+  if(settings->axis_wrapped[AXIS_B]) {
       b = fmod(b, 360.0);
       if(b<0) b += 360.0;
   }
   settings->parameters[5065] = b;
 
   c = GET_EXTERNAL_PROBE_POSITION_C();
-  if(settings->c_axis_wrapped) {
+  if(settings->axis_wrapped[AXIS_C]) {
       c = fmod(c, 360.0);
       if(c<0) c += 360.0;
   }
   settings->parameters[5066] = c;
 
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
-  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
-  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+  u = GET_EXTERNAL_PROBE_POSITION_U();
+  if(settings->axis_wrapped[AXIS_U]) {
+      u = fmod(u, 360.0);
+      if(u<0) u += 360.0;
+  }
+  settings->parameters[5067] = u;
+
+  v = GET_EXTERNAL_PROBE_POSITION_V();
+  if(settings->axis_wrapped[AXIS_V]) {
+      v = fmod(v, 360.0);
+      if(v<0) v += 360.0;
+  }
+  settings->parameters[5068] = v;
+
+  w = GET_EXTERNAL_PROBE_POSITION_W();
+  if(settings->axis_wrapped[AXIS_W]) {
+      w = fmod(w, 360.0);
+      if(w<0) w += 360.0;
+  }
+  settings->parameters[5069] = w;
   settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 
   // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
