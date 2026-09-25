@@ -59,8 +59,8 @@ Related parts of an INI file are separated into sections.
 A section name is enclosed in brackets like this: `[THIS_SECTION]`.
 The order of sections is unimportant.
 Sections begin at the section name and end at the next section name.
-Section identifiers are case senstive and can only contain letters A-Z, a-z, digits 0-9 and underscore (_).
-Additionally, section identifiers cannot start with a digit.
+Section identifiers are case senstive and can only contain letters A-Z, a-z, digits 0-9, underscore (_) and dash (-).
+Additionally, section identifiers cannot start with a digit or a dash.
 
 The following sections are used by LinuxCNC:
 
@@ -83,8 +83,8 @@ The following sections are used by LinuxCNC:
 === Variables(((INI File,Components,Variables)))
 
 A variable line is made up of a variable name, an equals sign (`=`), and a value.
-A variable identifier is case sensitive and may only consist of letters A-Z, a-z, digits 0-9 and underscore (_).
-Additionally, variable identifiers cannot start with a digit.
+A variable identifier is case sensitive and may only consist of letters A-Z, a-z, digits 0-9, underscore (_) and dash (-).
+Additionally, variable identifiers cannot start with a digit or a dash.
 White space at the beginning of the line and after the variable identifier, up to the equals sign, is ignored.
 
 .Variable Example
