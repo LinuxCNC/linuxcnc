@@ -1,0 +1,50 @@
+loadrt [KINS]KINEMATICS
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt comp names=comp_j0,comp_j1,comp_j2,backoff_j0
+loadrt conv_s32_float names=state_j0
+loadrt and2 names=mask_j0
+loadrt flipflop names=dead_j0
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf comp_j0 servo-thread
+addf comp_j1 servo-thread
+addf comp_j2 servo-thread
+addf state_j0 servo-thread
+addf backoff_j0 servo-thread
+addf dead_j0 servo-thread
+addf mask_j0 servo-thread
+
+net j0cmd joint.0.motor-pos-cmd => joint.0.motor-pos-fb => comp_j0.in0
+net j1cmd joint.1.motor-pos-cmd => joint.1.motor-pos-fb => comp_j1.in0
+net j2cmd joint.2.motor-pos-cmd => joint.2.motor-pos-fb => comp_j2.in0
+
+# Home switches on the negative end, positions set by test-ui.py:
+# far below the travel = dead switch, far above = switch stuck on.
+net j0swpos => comp_j0.in1
+net j1swpos => comp_j1.in1
+net j2swpos => comp_j2.in1
+sets j0swpos -1000
+sets j1swpos -1000
+sets j2swpos -1000
+setp comp_j0.hyst 0.2
+setp comp_j1.hyst 0.2
+setp comp_j2.hyst 0.2
+
+# Joint 0's switch can be made intermittent: with j0dead-reset low the
+# flipflop latches when the final back-off starts (home-state 10) and
+# masks the switch from then on, so the latch move never finds it.
+net j0state joint.0.home-state => state_j0.in
+net j0statef state_j0.out => backoff_j0.in1
+setp backoff_j0.in0 9.5
+net j0backoff backoff_j0.out => dead_j0.set
+net j0alive dead_j0.out-not => mask_j0.in1
+net j0raw comp_j0.out => mask_j0.in0
+net j0sw mask_j0.out => joint.0.home-sw-in
+net j0dead-reset dead_j0.reset
+sets j0dead-reset 1
+net j1sw comp_j1.out => joint.1.home-sw-in
+net j2sw comp_j2.out => joint.2.home-sw-in
+
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in

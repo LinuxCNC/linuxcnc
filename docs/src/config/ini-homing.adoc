@@ -160,6 +160,30 @@ HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from
 the INI file, then the maximum joint speed is used to make this move.
 The value must be a positive number.
 
+=== HOME_SEARCH_DIST
+
+(((HOME SEARCH DIST)))
+This variable has units of machine-units.
+
+The farthest the search move may travel without finding the home switch.
+When the switch is not seen within this distance the joint stops there and the homing is aborted with an error; the next attempt searches on from that point.
+The default value is zero: the search move is bounded only by twice the joint's travel, so a dead switch takes the joint to its limit switch, or into the end of its travel when the limit switch is shared with the home switch and ignored.
+On a continuous rotary joint, whose soft limits are set far apart, this is the only thing that stops a search with a dead switch: set it to a little over one revolution.
+
+=== HOME_LATCH_DIST
+
+(((HOME LATCH DIST)))
+This variable has units of machine-units.
+
+The farthest any of the moves made next to the home switch may travel: the back-off move that waits for the switch to clear, the latch move that finds the switch again, and the index pulse search.
+When the move ends without result the joint moves back to where that move began, at the speed of that move, and the homing is aborted with an error.
+The default value is zero: these moves are bounded only by twice the joint's travel.
+A switch stuck on sends the back-off move away from the switch for the whole travel; a switch that fails after its first trip sends the latch move the same way at latch speed.
+A value of a few times the distance the joint overshoots when the switch trips (HOME_SEARCH_VEL squared over twice the joint acceleration) plus the width of the switch's active zone bounds both.
+With HOME_USE_INDEX the value must also cover one revolution of the encoder.
+
+When a joint of a synchronized sequence (negative HOME_SEQUENCE) runs out of this distance, every joint of that sequence stops and each one moves back to where its own current move began, so the joints end where they were when the move started.
+
 === HOME_IGNORE_LIMITS
 
 (((HOME IGNORE LIMITS)))
