@@ -1,5 +1,15 @@
 #!/bin/bash
 
+echo $#
+if [ $# -eq 0 ]; then
+    GIT_TAG="";
+elif [ $# -eq 1 ]; then
+    GIT_TAG=$1;
+else
+    echo Usage: $0 [TAG]
+    exit 1
+fi
+
 cd "$(dirname "${BASH_SOURCE[0]}")/../"
 
 scripts/version-create.sh
@@ -33,7 +43,11 @@ set -e
 (
 echo "linuxcnc ($NEW_DEB_VERSION) $CODENAME; urgency=low"
 echo
-echo "  * Development build"
+if [ -z "$GIT_TAG"]; then
+    echo "  * Development build"
+else
+    git log --pretty=format:"  * %w(72,0,6)%s" "${GIT_TAG}.."
+fi
 echo
 echo " -- buildbot <buildbot@example.com>  $(date -R)"
 echo
