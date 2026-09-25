@@ -1,0 +1,46 @@
+(A is a ROTARY_MODULO axis, B is a WRAPPED_ROTARY axis)
+G21 G90 F1000
+G0 A0
+
+(shortest path: a large literal moves only the residual angle)
+G0 A50000
+G1 A2000
+G1 A2190
+
+(a delta of exactly 180 goes negative)
+G0 A0
+G0 A180
+
+(incremental moves are untouched by modulo mode)
+G91
+G1 A7200
+G90
+
+(parameters read wrapped, internal position stays accumulated)
+(debug, p5423=#5423 a=#<_a> abs_a=#<_abs_a>)
+
+(M27 takes the direction from the sign of the programmed word)
+G0 A0
+M27
+G0 A45
+G0 A-90
+G0 A720
+G0 A-540
+M26
+
+(a G54 rotary offset must not change which angle M27 lands on)
+G0 A0
+G10 L2 P1 A90
+G54
+M27
+G53 G0 A0
+(debug, after-g53 p5423=#5423 abs_a=#<_abs_a>)
+
+(stored reference points have no programmed sign: always shortest path)
+G28.1
+G0 A100
+G28
+(debug, after-g28 p5423=#5423 abs_a=#<_abs_a>)
+M26
+G10 L2 P1 A0
+M2
