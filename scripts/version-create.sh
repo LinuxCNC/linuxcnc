@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "${BASH_SOURCE[0]}")/../"
+
 SRC_BASE_VERSION=$(cat VERSION_BASE)
 
 #Check if this is a git repo

@@ -70,6 +70,9 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
     exit 0
 fi
 
+# Update dch
+./update-dch-from-version
+
 EXTRA_BUILD=
 LIBREADLINE_DEV="libeditreadline-dev"
 
