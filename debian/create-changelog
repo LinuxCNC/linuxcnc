@@ -11,7 +11,7 @@ fi
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../"
 
-scripts/version-create.sh
+scripts/create-version
 # Need to use $? because we need the output capture
 # shellcheck disable=SC2181
 if [ $? -ne 0 ]; then
@@ -19,7 +19,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-DEB_VERSION=$(git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/')
+DEB_VERSION=$(head -1 < debian/changelog-base | sed 's/.*(\(.*\)).*/\1/')
 
 NEW_DEB_VERSION=$(sed -r 's/-pre/~pre/; s/-/./g' < VERSION)
 NEW_DEB_VERSION="1:${NEW_DEB_VERSION}"
@@ -50,7 +50,7 @@ fi
 echo
 echo " -- buildbot <buildbot@example.com>  $(date -R)"
 echo
-git show HEAD:debian/changelog
+cat debian/changelog-base
 ) > debian/changelog
 
 dch -r --nomultimaint ""
