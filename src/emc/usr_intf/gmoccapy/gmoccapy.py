@@ -213,17 +213,6 @@ class gmoccapy(object):
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
 
-        # if halui MDI commands are not defined in the INI file, the pin halui.halui-mdi-is-running will not be created.
-        try:
-            hal.get_value("halui.halui-mdi-is-running") 
-            # this pin prevents mode switching during execution of halui MDI commands
-            self.halui_cmd_exist = True 
-            # this value will allow reading the halui.halui-mdi-is-running pin only if it exists
-            LOG.debug("halui MDI commands are used")
-        except Exception:
-            self.halui_cmd_exist = False
-            LOG.debug("halui MDI commands are NOT used")
-
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
         self.dro_size = 28           # The size of the DRO, user may want them bigger on bigger screen
@@ -2531,31 +2520,16 @@ class gmoccapy(object):
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data=None):
-        if self.halui_cmd_exist:
-            if hal.get_value("halui.halui-mdi-is-running"):
-                LOG.error(_("It is not possible to change to manual Mode at the moment"))
-                LOG.error(_("halui MDI command is running"))
-                return
         LOG.debug("mode Manual")
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
     def on_rbt_mdi_pressed(self, widget, data=None):
-        if self.halui_cmd_exist:
-            if hal.get_value("halui.halui-mdi-is-running"):
-                LOG.error(_("It is not possible to change to MDI Mode at the moment"))
-                LOG.error(_("halui MDI command is running"))
-                return
         LOG.debug("mode MDI")
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
 
     def on_rbt_auto_pressed(self, widget, data=None):
-        if self.halui_cmd_exist:
-            if hal.get_value("halui.halui-mdi-is-running"):
-                LOG.error(_("It is not possible to change to Auto Mode at the moment"))
-                LOG.error(_("halui MDI command is running"))
-                return
         LOG.debug("mode Auto")
         self.command.mode(linuxcnc.MODE_AUTO)
         self.command.wait_complete()
@@ -2681,7 +2655,8 @@ class gmoccapy(object):
         else:
             self._change_kbd_image("img_macro_menu_stop")
             self.macro_dic["keyboard"].set_sensitive(False)
-
+            
+        self._hide_abort_button()
         self.widgets.btn_run.set_sensitive(True)
         self.widgets.btn_stop.set_sensitive(False)
 
@@ -2711,9 +2686,50 @@ class gmoccapy(object):
         self.widgets.btn_stop.set_sensitive(True)
 
         self._change_kbd_image("img_macro_menu_stop")
+
+        self._show_abort_button() # Show only in MDI mode?      
         self.macro_dic["keyboard"].set_sensitive(True)
         self.elapsed_time_run = 0
 
+    # Goes through all buttonboxes in "ntb_button" and replaces the last button by an mdi abort button.
+    # It stores the removes buttons in a dict to be restored later.
+    def _show_abort_button(self):
+        self.saved_buttons = {}
+        for page_num in range(self.widgets.ntb_button.get_n_pages()):
+            buttonbox = self.widgets.ntb_button.get_nth_page(page_num)            
+            buttons = buttonbox.get_children()
+            # Some buttonboxes does not contain buttons; don't replace for auto mode and mdi
+            if buttons and Gtk.Buildable.get_name(buttonbox) not in ["hbtb_auto", "hbtb_MDI"]:
+                button = buttons[-1]
+                self.saved_buttons[page_num] = button
+                buttonbox.remove(button)
+                # Copy image to pixbuf because one image cannot be used twice                
+                pixbuf = self.widgets.img_macro_menu_stop.get_pixbuf()
+                image_abort = Gtk.Image.new_from_pixbuf(pixbuf)                
+                button_abort = self._new_button_with_predefined_image(name="img_macro_menu_stop", 
+                        size=_DEFAULT_BB_SIZE, image=image_abort)
+                # TBD: add function. Also refactor self._change_kbd_image()
+                # new_button.connect("clicked", self._on_abort_mdi_clicked)
+                self.macro_dic["keyboard"].set_image(Gtk.Image.new_from_pixbuf(pixbuf))
+                button_abort.show()
+                buttonbox.add(button_abort)
+
+    # Goes through all buttonboxes in "ntb_button" and replaces the last button by the saved button from the dict.
+    def _hide_abort_button(self):
+        # Try block here because self.saved_buttons is first created in _show_abort_button()
+        try:
+            for page_num in range(self.widgets.ntb_button.get_n_pages()):
+                buttonbox = self.widgets.ntb_button.get_nth_page(page_num)
+                buttons = buttonbox.get_children()
+                # Some buttonboxes does not contain buttons; don't replace for auto mode and mdi
+                if buttons and Gtk.Buildable.get_name(buttonbox) not in ["hbtb_auto", "hbtb_MDI"]:               
+                    buttonbox.remove(buttons[-1])
+                    saved_button = self.saved_buttons[page_num]
+                    buttonbox.add(saved_button)
+                    saved_button.show()
+        except:
+            pass                    
+                    
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         LOG.debug("hal signal tool changed")
         # need to save the tool in spindle as preference, to be able to reload it on startup
@@ -2801,11 +2817,6 @@ class gmoccapy(object):
             self.widgets.chk_ignore_limits.set_active(False)
 
     def on_hal_status_mode_manual(self, widget):
-        if self.halui_cmd_exist:
-            if hal.get_value("halui.halui-mdi-is-running"):
-                LOG.debug("switch to Manual page is ignored, because halui MDI command is running")
-                return
-
         LOG.debug("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
         # if setup page is activated, we must leave here, otherwise the pages will be reset
@@ -2828,10 +2839,12 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
-        if self.halui_cmd_exist:
+        try:
             if hal.get_value("halui.halui-mdi-is-running"):
-                LOG.debug("switch to MDI page is ignored, because halui MDI command is running")
+                LOG.debug("switch to MDI page is ignored, because halui MDI-command is running")
                 return
+        except:
+            pass
         
         LOG.debug("MDI Mode, tool_change = {0}".format(self.tool_change))
 
@@ -2881,11 +2894,6 @@ class gmoccapy(object):
             self.last_key_event = None, 0
 
     def on_hal_status_mode_auto(self, widget):
-        if self.halui_cmd_exist:
-            if hal.get_value("halui.halui-mdi-is-running"):
-                LOG.debug("switch to Auto page is ignored, because halui MDI command is running")
-                return
-
         LOG.debug("AUTO Mode")
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to abort external commands and get back to manual mode
