@@ -1,12 +1,11 @@
 #!/bin/bash
 
-echo $#
 if [ $# -eq 0 ]; then
     GIT_TAG="";
 elif [ $# -eq 1 ]; then
     GIT_TAG=$1;
 else
-    echo Usage: $0 [TAG]
+    echo "Usage: $0 [TAG]"
     exit 1
 fi
 
@@ -22,7 +21,7 @@ fi
 
 DEB_VERSION=$(git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/')
 
-NEW_DEB_VERSION=$(cat VERSION | sed -r 's/-pre/~pre/; s/-/./g')
+NEW_DEB_VERSION=$(sed -r 's/-pre/~pre/; s/-/./g' < VERSION)
 NEW_DEB_VERSION="1:${NEW_DEB_VERSION}"
 
 if [ "$NEW_DEB_VERSION" = "$DEB_VERSION" ]; then
@@ -43,7 +42,7 @@ set -e
 (
 echo "linuxcnc ($NEW_DEB_VERSION) $CODENAME; urgency=low"
 echo
-if [ -z "$GIT_TAG"]; then
+if [ -z "$GIT_TAG" ]; then
     echo "  * Development build"
 else
     git log --pretty=format:"  * %w(72,0,6)%s" "${GIT_TAG}.."
